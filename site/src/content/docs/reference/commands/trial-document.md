@@ -11,7 +11,7 @@ kind: reference
 verified: 2026-10-27
 ---
 
-`biomcp trial document` is a command of BioMCP 1.0.0, the command-line tool and MCP server that reads biomedical data sources. It downloads one document a trial posted on ClinicalTrials.gov, such as its protocol PDF, to a file you name. This page lists its arguments, examples and reply.
+`biomcp trial document` is a command of BioMCP 1.0.0, the command-line tool and MCP server that reads biomedical data sources. It downloads one document a trial posted on ClinicalTrials.gov, such as its protocol PDF, to a file you name. This page lists its arguments and examples.
 
 The program's help describes it:
 
@@ -43,10 +43,6 @@ biomcp trial document NCT04303780 SAP_001.pdf --save protocol.pdf --replace
 ```sh
 biomcp trial document NCT04303780 SAP_001.pdf --save analysis.pdf --replace
 ```
-
-## Reply
-
-The reply is one JSON object. Its schema is [`biomcp.trial_document/2`](/reference/schemas/biomcp-trial-document-2/), whose page shows a real reply and its fields.
 
 ## Next
 

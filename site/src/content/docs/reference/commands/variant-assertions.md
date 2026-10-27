@@ -11,7 +11,7 @@ kind: reference
 verified: 2026-10-27
 ---
 
-`biomcp variant assertions` is a command of BioMCP 1.0.0, the command-line tool and MCP server that reads biomedical data sources. It lists the assertions one source, such as ClinVar, makes about a variant, a page at a time. This page lists its arguments, examples and reply.
+`biomcp variant assertions` is a command of BioMCP 1.0.0, the command-line tool and MCP server that reads biomedical data sources. It lists the assertions one source, such as ClinVar, makes about a variant, a page at a time. This page lists its arguments and examples.
 
 The program's help describes it:
 
@@ -49,10 +49,6 @@ biomcp variant assertions clinvar:13961 --source clinvar
 ```sh
 biomcp variant assertions CA000434 --source erepo
 ```
-
-## Reply
-
-The reply is one JSON object. Its schema is [`biomcp.variant_assertions/3`](/reference/schemas/biomcp-variant-assertions-3/), whose page shows a real reply and its fields.
 
 ## Next
 

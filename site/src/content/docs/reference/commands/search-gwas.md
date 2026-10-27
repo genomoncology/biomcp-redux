@@ -11,7 +11,7 @@ kind: reference
 verified: 2026-10-27
 ---
 
-`biomcp search gwas` is a command of BioMCP 1.0.0, the command-line tool and MCP server that reads biomedical data sources. It finds GWAS Catalog associations by trait, gene, variant, study or PubMed ID, smallest p-value first. This page lists its arguments, examples and reply.
+`biomcp search gwas` is a command of BioMCP 1.0.0, the command-line tool and MCP server that reads biomedical data sources. It finds GWAS Catalog associations by trait, gene, variant, study or PubMed ID, smallest p-value first. This page lists its arguments and examples.
 
 The program's help describes it:
 
@@ -52,10 +52,6 @@ biomcp search gwas --pubmed 17529967
 ```sh
 biomcp search gwas --variant rs2981582
 ```
-
-## Reply
-
-The reply is one JSON object. Its schema is [`biomcp.gwas_page/3`](/reference/schemas/biomcp-gwas-page-3/), whose page shows a real reply and its fields.
 
 ## Next
 

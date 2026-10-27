@@ -11,7 +11,7 @@ kind: reference
 verified: 2026-10-27
 ---
 
-`biomcp search diagnostic` is a command of BioMCP 1.0.0, the command-line tool and MCP server that reads biomedical data sources. It finds diagnostic tests in one source, such as GTR, the FDA companion diagnostic list or WHO's prequalified tests. This page lists its arguments, examples and reply.
+`biomcp search diagnostic` is a command of BioMCP 1.0.0, the command-line tool and MCP server that reads biomedical data sources. It finds diagnostic tests in one source, such as GTR, the FDA companion diagnostic list or WHO's prequalified tests. This page lists its arguments and examples.
 
 The program's help describes it:
 
@@ -56,10 +56,6 @@ biomcp search diagnostic --source gtr --gene BRCA1
 ```sh
 biomcp search diagnostic --source gtr --condition-id MedGen:C2676676
 ```
-
-## Reply
-
-The reply is one JSON object. Its schema is [`biomcp.diagnostic_page/2`](/reference/schemas/biomcp-diagnostic-page-2/), whose page shows a real reply and its fields.
 
 ## Next
 

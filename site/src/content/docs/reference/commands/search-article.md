@@ -10,7 +10,7 @@ kind: reference
 verified: 2026-10-27
 ---
 
-`biomcp search article` is a command of BioMCP 1.0.0, the command-line tool and MCP server that reads biomedical data sources. It finds articles by text, gene, disease, drug, variant, author, journal or date. This page lists its arguments, examples and reply.
+`biomcp search article` is a command of BioMCP 1.0.0, the command-line tool and MCP server that reads biomedical data sources. It finds articles by text, gene, disease, drug, variant, author, journal or date. This page lists its arguments and examples.
 
 The program's help describes it:
 
@@ -61,10 +61,6 @@ biomcp search article 'AKT1 E17K'
 ```sh
 biomcp search article 'KRAS G12C sotorasib' --since 2024 --sort date --limit 5
 ```
-
-## Reply
-
-The reply is one JSON object. Its schema is [`biomcp.article_page/3`](/reference/schemas/biomcp-article-page-3/), whose page shows a real reply and its fields.
 
 ## Next
 

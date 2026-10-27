@@ -11,7 +11,7 @@ kind: reference
 verified: 2026-10-27
 ---
 
-`biomcp search trial` is a command of BioMCP 1.0.0, the command-line tool and MCP server that reads biomedical data sources. It finds clinical trials in ClinicalTrials.gov, the default, or NCI, by condition, drug, gene, location and more. This page lists its arguments, examples and reply.
+`biomcp search trial` is a command of BioMCP 1.0.0, the command-line tool and MCP server that reads biomedical data sources. It finds clinical trials in ClinicalTrials.gov, the default, or NCI, by condition, drug, gene, location and more. This page lists its arguments and examples.
 
 The program's help describes it:
 
@@ -70,10 +70,6 @@ biomcp search trial --condition melanoma
 ```sh
 biomcp search trial --condition melanoma --intervention pembrolizumab
 ```
-
-## Reply
-
-The reply is one JSON object. Its schema is [`biomcp.trial_page/5`](/reference/schemas/biomcp-trial-page-5/), whose page shows a real reply and its fields.
 
 ## Next
 

@@ -10,7 +10,7 @@ kind: reference
 verified: 2026-10-27
 ---
 
-`biomcp get gwas` is a command of BioMCP 1.0.0, the command-line tool and MCP server that reads biomedical data sources. It reads one GWAS Catalog association or study, and optionally its loci, associations or ancestries. A [section word](/concepts/progressive-disclosure/) after the identifier adds one more part of the record to the reply. This page lists its arguments, sections, examples and reply.
+`biomcp get gwas` is a command of BioMCP 1.0.0, the command-line tool and MCP server that reads biomedical data sources. It reads one GWAS Catalog association or study, and optionally its loci, associations or ancestries. A [section word](/concepts/progressive-disclosure/) after the identifier adds one more part of the record to the reply. This page lists its arguments, sections and examples.
 
 The program's help describes it:
 
@@ -53,10 +53,6 @@ biomcp get gwas association:6114
 ```sh
 biomcp get gwas GCST000035
 ```
-
-## Reply
-
-The reply is one JSON object. Its schema is one of [`biomcp.gwas_association/1`](/reference/schemas/biomcp-gwas-association-1/), [`biomcp.gwas_study/1`](/reference/schemas/biomcp-gwas-study-1/), whose page shows a real reply and its fields.
 
 ## Next
 

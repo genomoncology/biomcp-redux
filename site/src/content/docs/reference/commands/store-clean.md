@@ -10,7 +10,7 @@ kind: reference
 verified: 2026-10-27
 ---
 
-`biomcp store clean` is a command of BioMCP 1.0.0, the command-line tool and MCP server that reads biomedical data sources. It removes expired replies and stored searches from the local cache. This page lists its reply.
+`biomcp store clean` is a command of BioMCP 1.0.0, the command-line tool and MCP server that reads biomedical data sources. It removes expired replies and stored searches from the local cache. This page lists its usage.
 
 The program's help describes it:
 
@@ -21,10 +21,6 @@ The program's help describes it:
 ```text
 biomcp store clean
 ```
-
-## Reply
-
-The reply is one JSON object. Its schema is [`biomcp.store-clean/1`](/reference/schemas/biomcp-store-clean-1/), whose page shows a real reply and its fields.
 
 ## Next
 

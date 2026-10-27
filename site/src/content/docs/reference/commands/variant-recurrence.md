@@ -10,7 +10,7 @@ kind: reference
 verified: 2026-10-27
 ---
 
-`biomcp variant recurrence` is a command of BioMCP 1.0.0, the command-line tool and MCP server that reads biomedical data sources. It counts the samples that carry one variant in one cBioPortal study. This page lists its arguments, examples and reply.
+`biomcp variant recurrence` is a command of BioMCP 1.0.0, the command-line tool and MCP server that reads biomedical data sources. It counts the samples that carry one variant in one cBioPortal study. This page lists its arguments and examples.
 
 The program's help describes it:
 
@@ -54,10 +54,6 @@ biomcp variant recurrence 'NC_000007.13:g.140494253G>A' --source cbioportal \
   --gene BRAF --study msk_impact_2017 --profile msk_impact_2017_mutations \
   --sample-set msk_impact_2017_all --limit 3 --page 0
 ```
-
-## Reply
-
-The reply is one JSON object. Its schema is [`biomcp.variant_recurrence/4`](/reference/schemas/biomcp-variant-recurrence-4/), whose page shows a real reply and its fields.
 
 ## Next
 

@@ -4,500 +4,385 @@
     "entity": "author",
     "route": "/reference/commands/author-papers/",
     "description": "Lists the papers of one author record from Semantic Scholar or ORCID, a page at a time.",
-    "schemas": [
-      "biomcp.author_papers/1",
-      "biomcp.author_paper_details/1"
-    ]
+    "schemas": []
   },
   {
     "command": "search author",
     "entity": "author",
     "route": "/reference/commands/search-author/",
     "description": "Finds author records by name in Semantic Scholar.",
-    "schemas": [
-      "biomcp.author_page/2"
-    ]
+    "schemas": []
   },
   {
     "command": "get author",
     "entity": "author",
     "route": "/reference/commands/get-author/",
     "description": "Reads author records by their Semantic Scholar or ORCID ID, in the order you give.",
-    "schemas": [
-      "biomcp.author_card/3"
-    ]
+    "schemas": []
   },
   {
     "command": "cell-line assay-count",
     "entity": "cell-line",
     "route": "/reference/commands/cell-line-assay-count/",
     "description": "Counts the ChEMBL assays recorded for one cell line.",
-    "schemas": [
-      "biomcp.cell_line_assay_count/2"
-    ]
+    "schemas": []
   },
   {
     "command": "search cell-line",
     "entity": "cell-line",
     "route": "/reference/commands/search-cell-line/",
     "description": "Finds cell lines by name in Cellosaurus.",
-    "schemas": [
-      "biomcp.cell_line_page/2"
-    ]
+    "schemas": []
   },
   {
     "command": "get cell-line",
     "entity": "cell-line",
     "route": "/reference/commands/get-cell-line/",
     "description": "Reads one cell line by its ID, and optionally one named section such as its variants.",
-    "schemas": [
-      "biomcp.cell_line_card/3"
-    ]
+    "schemas": []
   },
   {
     "command": "get gwas",
     "entity": "gwas",
     "route": "/reference/commands/get-gwas/",
     "description": "Reads one GWAS Catalog association or study, and optionally its loci, associations or ancestries.",
-    "schemas": [
-      "biomcp.gwas_association/1",
-      "biomcp.gwas_study/1"
-    ]
+    "schemas": []
   },
   {
     "command": "search gwas",
     "entity": "gwas",
     "route": "/reference/commands/search-gwas/",
     "description": "Finds GWAS Catalog associations by trait, gene, variant, study or PubMed ID, smallest p-value first.",
-    "schemas": [
-      "biomcp.gwas_page/3"
-    ]
+    "schemas": []
   },
   {
     "command": "protein features",
     "entity": "protein",
     "route": "/reference/commands/protein-features/",
     "description": "Lists UniProt features of one protein, five at a time, filtered by type or residue.",
-    "schemas": [
-      "biomcp.protein_features/1"
-    ]
+    "schemas": []
   },
   {
     "command": "protein isoforms",
     "entity": "protein",
     "route": "/reference/commands/protein-isoforms/",
     "description": "Lists the isoforms of one protein, five at a time.",
-    "schemas": [
-      "biomcp.protein_isoforms/1"
-    ]
+    "schemas": []
   },
   {
     "command": "protein domains",
     "entity": "protein",
     "route": "/reference/commands/protein-domains/",
     "description": "Lists the InterPro domains of one protein, five at a time.",
-    "schemas": [
-      "biomcp.protein_domains/2"
-    ]
+    "schemas": []
   },
   {
     "command": "protein complexes",
     "entity": "protein",
     "route": "/reference/commands/protein-complexes/",
     "description": "Lists the Complex Portal complexes that hold one protein, five at a time.",
-    "schemas": [
-      "biomcp.protein_complexes/2"
-    ]
+    "schemas": []
   },
   {
     "command": "protein complex-members",
     "entity": "protein",
     "route": "/reference/commands/protein-complex-members/",
     "description": "Lists the members of one Complex Portal complex that holds the protein, five at a time.",
-    "schemas": [
-      "biomcp.protein_complex_members/1"
-    ]
+    "schemas": []
   },
   {
     "command": "protein structures",
     "entity": "protein",
     "route": "/reference/commands/protein-structures/",
     "description": "Lists the PDB structures of one protein, five at a time.",
-    "schemas": [
-      "biomcp.protein_structures/1"
-    ]
+    "schemas": []
   },
   {
     "command": "protein sequence",
     "entity": "protein",
     "route": "/reference/commands/protein-sequence/",
     "description": "Prints the whole amino-acid sequence of one UniProt protein or isoform.",
-    "schemas": [
-      "biomcp.protein_sequence/1"
-    ]
+    "schemas": []
   },
   {
     "command": "search protein",
     "entity": "protein",
     "route": "/reference/commands/search-protein/",
     "description": "Finds reviewed human UniProt proteins by text or by gene, five at a time.",
-    "schemas": [
-      "biomcp.protein_page/1"
-    ]
+    "schemas": []
   },
   {
     "command": "get protein",
     "entity": "protein",
     "route": "/reference/commands/get-protein/",
     "description": "Reads UniProt protein records by accession, and optionally sections such as domains or sequence.",
-    "schemas": [
-      "biomcp.protein_card/3"
-    ]
+    "schemas": []
   },
   {
     "command": "search phenotype",
     "entity": "phenotype",
     "route": "/reference/commands/search-phenotype/",
     "description": "Finds Human Phenotype Ontology (HP) terms by text in HPO or Monarch.",
-    "schemas": [
-      "biomcp.phenotype-search/1"
-    ]
+    "schemas": []
   },
   {
     "command": "get phenotype",
     "entity": "phenotype",
     "route": "/reference/commands/get-phenotype/",
     "description": "Reads one HP term from HPO or Monarch, and optionally its synonyms, links, related diseases or genes.",
-    "schemas": [
-      "biomcp.phenotype-card/1"
-    ]
+    "schemas": []
   },
   {
     "command": "search pathway",
     "entity": "pathway",
     "route": "/reference/commands/search-pathway/",
     "description": "Finds human pathways in Reactome, the default, or WikiPathways.",
-    "schemas": [
-      "biomcp.pathway_page/3"
-    ]
+    "schemas": []
   },
   {
     "command": "get pathway",
     "entity": "pathway",
     "route": "/reference/commands/get-pathway/",
     "description": "Reads one Reactome or WikiPathways pathway, and optionally its summary, genes or events.",
-    "schemas": [
-      "biomcp.pathway_card/5"
-    ]
+    "schemas": []
   },
   {
     "command": "pathway genes",
     "entity": "pathway",
     "route": "/reference/commands/pathway-genes/",
     "description": "Lists the genes and gene products of one pathway.",
-    "schemas": [
-      "biomcp.pathway_genes/4"
-    ]
+    "schemas": []
   },
   {
     "command": "pathway events",
     "entity": "pathway",
     "route": "/reference/commands/pathway-events/",
     "description": "Lists the events, such as reactions, of one Reactome pathway.",
-    "schemas": [
-      "biomcp.pathway_events/2"
-    ]
+    "schemas": []
   },
   {
     "command": "search study",
     "entity": "study",
     "route": "/reference/commands/search-study/",
     "description": "Finds cBioPortal studies by text in a downloaded copy of the study list.",
-    "schemas": [
-      "biomcp.study_page/1"
-    ]
+    "schemas": []
   },
   {
     "command": "get study",
     "entity": "study",
     "route": "/reference/commands/get-study/",
     "description": "Reads one cBioPortal study, and optionally its profiles, sample lists or files.",
-    "schemas": [
-      "biomcp.study_card/2"
-    ]
+    "schemas": []
   },
   {
     "command": "search pgx",
     "entity": "pgx",
     "route": "/reference/commands/search-pgx/",
     "description": "Finds CPIC gene-drug pairs for a gene.",
-    "schemas": [
-      "biomcp.pgx_page/2"
-    ]
+    "schemas": []
   },
   {
     "command": "get pgx",
     "entity": "pgx",
     "route": "/reference/commands/get-pgx/",
     "description": "Reads pharmacogenomic records from CPIC or ClinPGx, such as guidelines, recommendations or annotations.",
-    "schemas": [
-      "biomcp.pgx_card/1",
-      "biomcp.pgx_diplotype/1"
-    ]
+    "schemas": []
   },
   {
     "command": "search diagnostic",
     "entity": "diagnostic",
     "route": "/reference/commands/search-diagnostic/",
     "description": "Finds diagnostic tests in one source, such as GTR, the FDA companion diagnostic list or WHO's prequalified tests.",
-    "schemas": [
-      "biomcp.diagnostic_page/2"
-    ]
+    "schemas": []
   },
   {
     "command": "get diagnostic",
     "entity": "diagnostic",
     "route": "/reference/commands/get-diagnostic/",
     "description": "Reads one diagnostic test record, and optionally one section such as its genes or conditions.",
-    "schemas": [
-      "biomcp.diagnostic_card/1"
-    ]
+    "schemas": []
   },
   {
     "command": "search adverse-event",
     "entity": "adverse-event",
     "route": "/reference/commands/search-adverse-event/",
     "description": "Finds adverse event reports in FAERS, VAERS or MAUDE, five at a time.",
-    "schemas": [
-      "biomcp.adverse_event_page/2"
-    ]
+    "schemas": []
   },
   {
     "command": "get adverse-event",
     "entity": "adverse-event",
     "route": "/reference/commands/get-adverse-event/",
     "description": "Reads one adverse event report by its ID, and optionally one section such as its drugs or reactions.",
-    "schemas": [
-      "biomcp.adverse_event_faers_card/1"
-    ]
+    "schemas": []
   },
   {
     "command": "search disease",
     "entity": "disease",
     "route": "/reference/commands/search-disease/",
     "description": "Finds disease concepts by text, or lists SEER cancer sites.",
-    "schemas": [
-      "biomcp.disease_sites/2"
-    ]
+    "schemas": []
   },
   {
     "command": "get disease",
     "entity": "disease",
     "route": "/reference/commands/get-disease/",
     "description": "Reads one disease concept or SEER cancer site, and optionally a section such as its genes or incidence.",
-    "schemas": [
-      "biomcp.disease_incidence/3",
-      "biomcp.disease_survival/3"
-    ]
+    "schemas": []
   },
   {
     "command": "search drug",
     "entity": "drug",
     "route": "/reference/commands/search-drug/",
     "description": "Finds drugs by name in one source.",
-    "schemas": [
-      "biomcp.drug_page/3"
-    ]
+    "schemas": []
   },
   {
     "command": "get drug",
     "entity": "drug",
     "route": "/reference/commands/get-drug/",
     "description": "Reads one drug record by its ID in one source, and optionally a section such as its label or approvals.",
-    "schemas": [
-      "biomcp.drug_card/2",
-      "biomcp.drug_regulatory/2"
-    ]
+    "schemas": []
   },
   {
     "command": "get gene",
     "entity": "gene",
     "route": "/reference/commands/get-gene/",
     "description": "Reads one to twenty human genes, in the order you give, and optionally sections such as constraint or expression.",
-    "schemas": [
-      "biomcp.gene_cards/4"
-    ]
+    "schemas": []
   },
   {
     "command": "search gene",
     "entity": "gene",
     "route": "/reference/commands/search-gene/",
     "description": "Finds human genes by text, by cytoband, or both.",
-    "schemas": [
-      "biomcp.gene_page/3"
-    ]
+    "schemas": []
   },
   {
     "command": "search article",
     "entity": "article",
     "route": "/reference/commands/search-article/",
     "description": "Finds articles by text, gene, disease, drug, variant, author, journal or date.",
-    "schemas": [
-      "biomcp.article_page/3"
-    ]
+    "schemas": []
   },
   {
     "command": "get article",
     "entity": "article",
     "route": "/reference/commands/get-article/",
     "description": "Reads one to twenty articles by PMID, PMCID or DOI, and optionally sections such as the full text.",
-    "schemas": [
-      "biomcp.article_cards/3"
-    ]
+    "schemas": []
   },
   {
     "command": "article supplement",
     "entity": "article",
     "route": "/reference/commands/article-supplement/",
     "description": "Reads one supplementary file of an article, or the rows of it that match a search, or saves the file.",
-    "schemas": [
-      "biomcp.article_supplement/3"
-    ]
+    "schemas": []
   },
   {
     "command": "article pdf",
     "entity": "article",
     "route": "/reference/commands/article-pdf/",
     "description": "Downloads an article's PDF from its publisher to a file you name.",
-    "schemas": [
-      "biomcp.article_pdf/2"
-    ]
+    "schemas": []
   },
   {
     "command": "article text",
     "entity": "article",
     "route": "/reference/commands/article-text/",
     "description": "Reads one part of an article's full text, finds matching passages, or saves the text as Markdown.",
-    "schemas": [
-      "biomcp.article_text/3"
-    ]
+    "schemas": []
   },
   {
     "command": "article citations",
     "entity": "article",
     "route": "/reference/commands/article-citations/",
     "description": "Lists the papers that cite one PubMed article, a page at a time.",
-    "schemas": [
-      "biomcp.article_edges/4"
-    ]
+    "schemas": []
   },
   {
     "command": "article references",
     "entity": "article",
     "route": "/reference/commands/article-references/",
     "description": "Lists the papers one PubMed article cites, a page at a time.",
-    "schemas": [
-      "biomcp.article_edges/4"
-    ]
+    "schemas": []
   },
   {
     "command": "article citation-evidence",
     "entity": "article",
     "route": "/reference/commands/article-citation-evidence/",
     "description": "Shows where and how one article cites another, with the citing passage when the full text is open.",
-    "schemas": [
-      "biomcp.article_evidence/2"
-    ]
+    "schemas": []
   },
   {
     "command": "article recommendations",
     "entity": "article",
     "route": "/reference/commands/article-recommendations/",
     "description": "Lists papers that Semantic Scholar recommends from one or more seed papers.",
-    "schemas": [
-      "biomcp.article_recommendations/3"
-    ]
+    "schemas": []
   },
   {
     "command": "search trial",
     "entity": "trial",
     "route": "/reference/commands/search-trial/",
     "description": "Finds clinical trials in ClinicalTrials.gov, the default, or NCI, by condition, drug, gene, location and more.",
-    "schemas": [
-      "biomcp.trial_page/5"
-    ]
+    "schemas": []
   },
   {
     "command": "get trial",
     "entity": "trial",
     "route": "/reference/commands/get-trial/",
     "description": "Reads clinical trials by NCT ID, and optionally sections such as eligibility or locations.",
-    "schemas": [
-      "biomcp.trial_cards/2"
-    ]
+    "schemas": []
   },
   {
     "command": "trial document",
     "entity": "trial",
     "route": "/reference/commands/trial-document/",
     "description": "Downloads one document a trial posted on ClinicalTrials.gov, such as its protocol PDF, to a file you name.",
-    "schemas": [
-      "biomcp.trial_document/2"
-    ]
+    "schemas": []
   },
   {
     "command": "variant assertions",
     "entity": "variant",
     "route": "/reference/commands/variant-assertions/",
     "description": "Lists the assertions one source, such as ClinVar, makes about a variant, a page at a time.",
-    "schemas": [
-      "biomcp.variant_assertions/3"
-    ]
+    "schemas": []
   },
   {
     "command": "get variant",
     "entity": "variant",
     "route": "/reference/commands/get-variant/",
     "description": "Reads a variant by rsID, ClinVar ID, ClinGen allele ID or HGVS, and optionally sections such as ClinVar or population.",
-    "schemas": [
-      "biomcp.variant_card/5"
-    ]
+    "schemas": []
   },
   {
     "command": "variant population",
     "entity": "variant",
     "route": "/reference/commands/variant-population/",
     "description": "Lists gnomAD population frequency details for one variant.",
-    "schemas": [
-      "biomcp.variant_population/4"
-    ]
+    "schemas": []
   },
   {
     "command": "search variant",
     "entity": "variant",
     "route": "/reference/commands/search-variant/",
     "description": "Finds variants by gene, protein change, region or another single selector.",
-    "schemas": [
-      "biomcp.variant_page/6"
-    ]
+    "schemas": []
   },
   {
     "command": "variant recurrence",
     "entity": "variant",
     "route": "/reference/commands/variant-recurrence/",
     "description": "Counts the samples that carry one variant in one cBioPortal study.",
-    "schemas": [
-      "biomcp.variant_recurrence/4"
-    ]
+    "schemas": []
   },
   {
     "command": "variant normalize",
     "entity": "variant",
     "route": "/reference/commands/variant-normalize/",
     "description": "Sends an HGVS variant name to the ClinGen Allele Registry, Mutalyzer or VariantValidator to check and normalize it.",
-    "schemas": [
-      "biomcp.variant_normalization/3"
-    ]
+    "schemas": []
   },
   {
     "command": "skill",
@@ -553,27 +438,21 @@
     "entity": "store",
     "route": "/reference/commands/store-clean/",
     "description": "Removes expired replies and stored searches from the local cache.",
-    "schemas": [
-      "biomcp.store-clean/1"
-    ]
+    "schemas": []
   },
   {
     "command": "health",
     "entity": "health",
     "route": "/reference/commands/health/",
     "description": "Lists every source with its terms and checks that each one answers.",
-    "schemas": [
-      "biomcp.health/2"
-    ]
+    "schemas": []
   },
   {
     "command": "sync",
     "entity": "sync",
     "route": "/reference/commands/sync/",
     "description": "Downloads a source's bundle, a local copy that commands read.",
-    "schemas": [
-      "biomcp.sync/4"
-    ]
+    "schemas": []
   },
   {
     "command": "schema",
@@ -626,72 +505,56 @@
     "entity": "sync",
     "route": "/reference/commands/sync-wikipathways/",
     "description": "Downloads the WikiPathways bundle that pathway searches read.",
-    "schemas": [
-      "biomcp.wikipathways_sync/1"
-    ]
+    "schemas": []
   },
   {
     "command": "sync cbioportal-studies",
     "entity": "sync",
     "route": "/reference/commands/sync-cbioportal-studies/",
     "description": "Downloads the cBioPortal study list bundle that study commands read.",
-    "schemas": [
-      "biomcp.sync/4"
-    ]
+    "schemas": []
   },
   {
     "command": "sync ema",
     "entity": "sync",
     "route": "/reference/commands/sync-ema/",
     "description": "Downloads the European Medicines Agency bundle that EMA drug commands read.",
-    "schemas": [
-      "biomcp.sync/4"
-    ]
+    "schemas": []
   },
   {
     "command": "sync ddinter",
     "entity": "sync",
     "route": "/reference/commands/sync-ddinter/",
     "description": "Downloads the DDInter drug interaction bundle.",
-    "schemas": [
-      "biomcp.sync/4"
-    ]
+    "schemas": []
   },
   {
     "command": "sync who-pq",
     "entity": "sync",
     "route": "/reference/commands/sync-who-pq/",
     "description": "Downloads the WHO prequalified medicines bundle.",
-    "schemas": [
-      "biomcp.sync/4"
-    ]
+    "schemas": []
   },
   {
     "command": "sync gtr",
     "entity": "sync",
     "route": "/reference/commands/sync-gtr/",
     "description": "Downloads the Genetic Testing Registry bundle that diagnostic commands read.",
-    "schemas": [
-      "biomcp.sync/4"
-    ]
+    "schemas": []
   },
   {
     "command": "sync who-ivd",
     "entity": "sync",
     "route": "/reference/commands/sync-who-ivd/",
     "description": "Downloads the WHO prequalified diagnostics bundle.",
-    "schemas": [
-      "biomcp.sync/4"
-    ]
+    "schemas": []
   },
   {
     "command": "sync fda-cdx",
     "entity": "sync",
     "route": "/reference/commands/sync-fda-cdx/",
     "description": "Downloads the FDA companion diagnostics bundle.",
-    "schemas": [
-      "biomcp.sync/4"
-    ]
+    "schemas": []
   },
   {
     "command": "help key ncbi",

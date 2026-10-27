@@ -11,7 +11,7 @@ kind: reference
 verified: 2026-10-27
 ---
 
-BioMCP 1.0.0 prints one JSON object, the reply, for each command. [`biomcp get disease survival`](/reference/commands/get-disease/) and [`biomcp get disease`](/reference/commands/get-disease/) reply with `schema` set to `biomcp.disease_survival/3`. Read this page when your code parses that reply: it shows a real one, then the fields only this schema has. [Shared types](/reference/schemas/types/) defines the rest.
+BioMCP 1.0.0 prints one JSON object, the reply, for each command. [`biomcp get disease survival`](/reference/commands/get-disease/) replies with `schema` set to `biomcp.disease_survival/3`. Read this page when your code parses that reply: it shows a real one, then the fields only this schema has. [Shared types](/reference/schemas/types/) defines the rest.
 
 ## Commands that return it
 

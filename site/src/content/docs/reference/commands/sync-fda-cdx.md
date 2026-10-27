@@ -10,7 +10,7 @@ kind: reference
 verified: 2026-10-27
 ---
 
-`biomcp sync fda-cdx` is a command of BioMCP 1.0.0, the command-line tool and MCP server that reads biomedical data sources. It downloads the FDA companion diagnostics [bundle](/local-data/). This page lists its examples and reply.
+`biomcp sync fda-cdx` is a command of BioMCP 1.0.0, the command-line tool and MCP server that reads biomedical data sources. It downloads the FDA companion diagnostics [bundle](/local-data/). This page lists its examples.
 
 The program's help describes it:
 
@@ -37,10 +37,6 @@ biomcp sync fda-cdx
 ```sh
 biomcp sync fda-cdx --fresh
 ```
-
-## Reply
-
-The reply is one JSON object. Its schema is [`biomcp.sync/4`](/reference/schemas/biomcp-sync-4/), whose page shows a real reply and its fields.
 
 ## Next
 

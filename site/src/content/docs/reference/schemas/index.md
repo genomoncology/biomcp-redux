@@ -50,11 +50,11 @@ BioMCP 1.0.0 prints one JSON object, the reply, for each command. Its `schema` f
 | [`biomcp.disease_card/2`](/reference/schemas/biomcp-disease-card-2/) | [`get disease`](/reference/commands/get-disease/) |
 | [`biomcp.disease_genes/5`](/reference/schemas/biomcp-disease-genes-5/) | [`get disease genes`](/reference/commands/get-disease/) |
 | [`biomcp.disease_hierarchy/2`](/reference/schemas/biomcp-disease-hierarchy-2/) | [`get disease hierarchy`](/reference/commands/get-disease/) |
-| [`biomcp.disease_incidence/3`](/reference/schemas/biomcp-disease-incidence-3/) | [`get disease incidence`](/reference/commands/get-disease/), [`get disease`](/reference/commands/get-disease/) |
+| [`biomcp.disease_incidence/3`](/reference/schemas/biomcp-disease-incidence-3/) | [`get disease incidence`](/reference/commands/get-disease/) |
 | [`biomcp.disease_page/1`](/reference/schemas/biomcp-disease-page-1/) | [`search disease`](/reference/commands/search-disease/) |
 | [`biomcp.disease_phenotypes/5`](/reference/schemas/biomcp-disease-phenotypes-5/) | [`get disease phenotypes`](/reference/commands/get-disease/) |
 | [`biomcp.disease_sites/2`](/reference/schemas/biomcp-disease-sites-2/) | [`search disease`](/reference/commands/search-disease/) |
-| [`biomcp.disease_survival/3`](/reference/schemas/biomcp-disease-survival-3/) | [`get disease survival`](/reference/commands/get-disease/), [`get disease`](/reference/commands/get-disease/) |
+| [`biomcp.disease_survival/3`](/reference/schemas/biomcp-disease-survival-3/) | [`get disease survival`](/reference/commands/get-disease/) |
 | [`biomcp.disease_synonyms/2`](/reference/schemas/biomcp-disease-synonyms-2/) | [`get disease synonyms`](/reference/commands/get-disease/) |
 | [`biomcp.disease_xrefs/2`](/reference/schemas/biomcp-disease-xrefs-2/) | [`get disease xrefs`](/reference/commands/get-disease/) |
 | [`biomcp.drug_approvals/3`](/reference/schemas/biomcp-drug-approvals-3/) | [`get drug approvals`](/reference/commands/get-drug/) |
@@ -65,12 +65,12 @@ BioMCP 1.0.0 prints one JSON object, the reply, for each command. Its `schema` f
 | [`biomcp.drug_interactions/3`](/reference/schemas/biomcp-drug-interactions-3/) | [`get drug interactions`](/reference/commands/get-drug/) |
 | [`biomcp.drug_label/3`](/reference/schemas/biomcp-drug-label-3/) | [`get drug label`](/reference/commands/get-drug/) |
 | [`biomcp.drug_page/3`](/reference/schemas/biomcp-drug-page-3/) | [`search drug`](/reference/commands/search-drug/) |
-| [`biomcp.drug_regulatory/2`](/reference/schemas/biomcp-drug-regulatory-2/) | [`get drug regulatory`](/reference/commands/get-drug/), [`get drug`](/reference/commands/get-drug/) |
+| [`biomcp.drug_regulatory/2`](/reference/schemas/biomcp-drug-regulatory-2/) | [`get drug regulatory`](/reference/commands/get-drug/) |
 | [`biomcp.drug_targets/3`](/reference/schemas/biomcp-drug-targets-3/) | [`get drug targets`](/reference/commands/get-drug/) |
 | [`biomcp.drug_who_card/1`](/reference/schemas/biomcp-drug-who-card-1/) | [`get drug`](/reference/commands/get-drug/) |
 | [`biomcp.drug_who_page/1`](/reference/schemas/biomcp-drug-who-page-1/) | [`search drug`](/reference/commands/search-drug/) |
 | [`biomcp.drug_xrefs/1`](/reference/schemas/biomcp-drug-xrefs-1/) | [`get drug xrefs`](/reference/commands/get-drug/) |
-| [`biomcp.gene_cards/4`](/reference/schemas/biomcp-gene-cards-4/) | [`get gene constraint`](/reference/commands/get-gene/), [`get gene`](/reference/commands/get-gene/) |
+| [`biomcp.gene_cards/4`](/reference/schemas/biomcp-gene-cards-4/) | [`get gene constraint`](/reference/commands/get-gene/) |
 | [`biomcp.gene_page/3`](/reference/schemas/biomcp-gene-page-3/) | [`search gene`](/reference/commands/search-gene/) |
 | [`biomcp.gwas_ancestries/1`](/reference/schemas/biomcp-gwas-ancestries-1/) | [`get gwas ancestries`](/reference/commands/get-gwas/) |
 | [`biomcp.gwas_association/1`](/reference/schemas/biomcp-gwas-association-1/) | [`get gwas`](/reference/commands/get-gwas/) |
@@ -90,7 +90,7 @@ BioMCP 1.0.0 prints one JSON object, the reply, for each command. Its `schema` f
 | [`biomcp.pgx_annotation/1`](/reference/schemas/biomcp-pgx-annotation-1/) | [`get pgx`](/reference/commands/get-pgx/) |
 | [`biomcp.pgx_annotations/1`](/reference/schemas/biomcp-pgx-annotations-1/) | [`get pgx annotations`](/reference/commands/get-pgx/) |
 | [`biomcp.pgx_card/1`](/reference/schemas/biomcp-pgx-card-1/) | [`get pgx`](/reference/commands/get-pgx/) |
-| [`biomcp.pgx_diplotype/1`](/reference/schemas/biomcp-pgx-diplotype-1/) | [`get pgx diplotype`](/reference/commands/get-pgx/), [`get pgx`](/reference/commands/get-pgx/) |
+| [`biomcp.pgx_diplotype/1`](/reference/schemas/biomcp-pgx-diplotype-1/) | [`get pgx diplotype`](/reference/commands/get-pgx/) |
 | [`biomcp.pgx_guidelines/1`](/reference/schemas/biomcp-pgx-guidelines-1/) | [`get pgx guidelines`](/reference/commands/get-pgx/) |
 | [`biomcp.pgx_page/2`](/reference/schemas/biomcp-pgx-page-2/) | [`search pgx`](/reference/commands/search-pgx/) |
 | [`biomcp.pgx_recommendations/1`](/reference/schemas/biomcp-pgx-recommendations-1/) | [`get pgx recommendations`](/reference/commands/get-pgx/) |
@@ -118,7 +118,7 @@ BioMCP 1.0.0 prints one JSON object, the reply, for each command. Its `schema` f
 | [`biomcp.study_page/1`](/reference/schemas/biomcp-study-page-1/) | [`search study`](/reference/commands/search-study/) |
 | [`biomcp.study_profiles/1`](/reference/schemas/biomcp-study-profiles-1/) | [`get study profiles`](/reference/commands/get-study/) |
 | [`biomcp.study_sample_lists/1`](/reference/schemas/biomcp-study-sample-lists-1/) | [`get study sample-lists`](/reference/commands/get-study/) |
-| [`biomcp.sync/4`](/reference/schemas/biomcp-sync-4/) | [`sync`](/reference/commands/sync/), [`sync cbioportal-studies`](/reference/commands/sync-cbioportal-studies/), [`sync ema`](/reference/commands/sync-ema/), [`sync ddinter`](/reference/commands/sync-ddinter/), [`sync who-pq`](/reference/commands/sync-who-pq/), [`sync gtr`](/reference/commands/sync-gtr/), [`sync who-ivd`](/reference/commands/sync-who-ivd/), [`sync fda-cdx`](/reference/commands/sync-fda-cdx/) |
+| [`biomcp.sync/4`](/reference/schemas/biomcp-sync-4/) |  |
 | [`biomcp.trial_cards/2`](/reference/schemas/biomcp-trial-cards-2/) | [`get trial eligibility`](/reference/commands/get-trial/), [`get trial`](/reference/commands/get-trial/) |
 | [`biomcp.trial_document/2`](/reference/schemas/biomcp-trial-document-2/) | [`trial document`](/reference/commands/trial-document/) |
 | [`biomcp.trial_page/5`](/reference/schemas/biomcp-trial-page-5/) | [`search trial`](/reference/commands/search-trial/) |

@@ -10,7 +10,7 @@ kind: reference
 verified: 2026-10-27
 ---
 
-`biomcp article text` is a command of BioMCP 1.0.0, the command-line tool and MCP server that reads biomedical data sources. It reads one part of an article's full text, finds matching passages, or saves the text as Markdown. This page lists its arguments, examples and reply.
+`biomcp article text` is a command of BioMCP 1.0.0, the command-line tool and MCP server that reads biomedical data sources. It reads one part of an article's full text, finds matching passages, or saves the text as Markdown. This page lists its arguments and examples.
 
 The program's help describes it:
 
@@ -45,10 +45,6 @@ biomcp article text PMC5606870 --find AXIN2
 ```sh
 biomcp article text PMC5606870 --variant Pro245Ser
 ```
-
-## Reply
-
-The reply is one JSON object. Its schema is [`biomcp.article_text/3`](/reference/schemas/biomcp-article-text-3/), whose page shows a real reply and its fields.
 
 ## Next
 

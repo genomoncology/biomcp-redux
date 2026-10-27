@@ -10,7 +10,7 @@ kind: reference
 verified: 2026-10-27
 ---
 
-`biomcp search protein` is a command of BioMCP 1.0.0, the command-line tool and MCP server that reads biomedical data sources. It finds reviewed human UniProt proteins by text or by gene, five at a time. This page lists its arguments, examples and reply.
+`biomcp search protein` is a command of BioMCP 1.0.0, the command-line tool and MCP server that reads biomedical data sources. It finds reviewed human UniProt proteins by text or by gene, five at a time. This page lists its arguments and examples.
 
 The program's help describes it:
 
@@ -45,10 +45,6 @@ biomcp search protein --gene BRAF
 ```sh
 biomcp search protein EGFR
 ```
-
-## Reply
-
-The reply is one JSON object. Its schema is [`biomcp.protein_page/1`](/reference/schemas/biomcp-protein-page-1/), whose page shows a real reply and its fields.
 
 ## Next
 

@@ -10,7 +10,7 @@ kind: reference
 verified: 2026-10-27
 ---
 
-`biomcp sync wikipathways` is a command of BioMCP 1.0.0, the command-line tool and MCP server that reads biomedical data sources. It downloads the WikiPathways [bundle](/local-data/) that pathway searches read. This page lists its examples and reply.
+`biomcp sync wikipathways` is a command of BioMCP 1.0.0, the command-line tool and MCP server that reads biomedical data sources. It downloads the WikiPathways [bundle](/local-data/) that pathway searches read. This page lists its examples.
 
 The program's help describes it:
 
@@ -37,10 +37,6 @@ biomcp sync wikipathways
 ```sh
 biomcp sync wikipathways --fresh
 ```
-
-## Reply
-
-The reply is one JSON object. Its schema is [`biomcp.wikipathways_sync/1`](/reference/schemas/biomcp-wikipathways-sync-1/), whose page shows a real reply and its fields.
 
 ## Next
 

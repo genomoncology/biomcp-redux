@@ -11,7 +11,7 @@ kind: reference
 verified: 2026-10-27
 ---
 
-`biomcp get gene` is a command of BioMCP 1.0.0, the command-line tool and MCP server that reads biomedical data sources. It reads one to twenty human genes, in the order you give, and optionally sections such as constraint or expression. A [section word](/concepts/progressive-disclosure/) after the identifier adds one more part of the record to the reply. This page lists its arguments, sections, examples and reply.
+`biomcp get gene` is a command of BioMCP 1.0.0, the command-line tool and MCP server that reads biomedical data sources. It reads one to twenty human genes, in the order you give, and optionally sections such as constraint or expression. A [section word](/concepts/progressive-disclosure/) after the identifier adds one more part of the record to the reply. This page lists its arguments, sections and examples.
 
 The program's help describes it:
 
@@ -57,10 +57,6 @@ biomcp get gene KRAS
 ```sh
 biomcp get gene BRAF
 ```
-
-## Reply
-
-The reply is one JSON object. Its schema is [`biomcp.gene_cards/4`](/reference/schemas/biomcp-gene-cards-4/), whose page shows a real reply and its fields.
 
 ## Next
 

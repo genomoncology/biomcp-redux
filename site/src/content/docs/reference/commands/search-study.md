@@ -10,7 +10,7 @@ kind: reference
 verified: 2026-10-27
 ---
 
-`biomcp search study` is a command of BioMCP 1.0.0, the command-line tool and MCP server that reads biomedical data sources. It finds cBioPortal studies by text in a downloaded copy of the study list. This page lists its arguments, examples and reply.
+`biomcp search study` is a command of BioMCP 1.0.0, the command-line tool and MCP server that reads biomedical data sources. It finds cBioPortal studies by text in a downloaded copy of the study list. This page lists its arguments and examples.
 
 The program's help describes it:
 
@@ -43,10 +43,6 @@ biomcp search study Atlas
 ```sh
 biomcp search study --cancer-type mixed --limit 1
 ```
-
-## Reply
-
-The reply is one JSON object. Its schema is [`biomcp.study_page/1`](/reference/schemas/biomcp-study-page-1/), whose page shows a real reply and its fields.
 
 ## Next
 

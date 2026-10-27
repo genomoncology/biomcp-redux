@@ -10,7 +10,7 @@ kind: reference
 verified: 2026-10-27
 ---
 
-`biomcp protein structures` is a command of BioMCP 1.0.0, the command-line tool and MCP server that reads biomedical data sources. It lists the PDB structures of one protein, five at a time. This page lists its arguments, examples and reply.
+`biomcp protein structures` is a command of BioMCP 1.0.0, the command-line tool and MCP server that reads biomedical data sources. It lists the PDB structures of one protein, five at a time. This page lists its arguments and examples.
 
 The program's help describes it:
 
@@ -42,10 +42,6 @@ biomcp protein structures P00533
 ```sh
 biomcp protein structures P00533 --limit 1
 ```
-
-## Reply
-
-The reply is one JSON object. Its schema is [`biomcp.protein_structures/1`](/reference/schemas/biomcp-protein-structures-1/), whose page shows a real reply and its fields.
 
 ## Next
 

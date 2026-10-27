@@ -10,7 +10,7 @@ kind: reference
 verified: 2026-10-27
 ---
 
-`biomcp get trial` is a command of BioMCP 1.0.0, the command-line tool and MCP server that reads biomedical data sources. It reads clinical trials by NCT ID, and optionally sections such as eligibility or locations. A [section word](/concepts/progressive-disclosure/) after the identifier adds one more part of the record to the reply. This page lists its arguments, sections, examples and reply.
+`biomcp get trial` is a command of BioMCP 1.0.0, the command-line tool and MCP server that reads biomedical data sources. It reads clinical trials by NCT ID, and optionally sections such as eligibility or locations. A [section word](/concepts/progressive-disclosure/) after the identifier adds one more part of the record to the reply. This page lists its arguments, sections and examples.
 
 The program's help describes it:
 
@@ -65,10 +65,6 @@ biomcp get trial NCT04303780
 ```sh
 biomcp get trial NCT04303780 documents
 ```
-
-## Reply
-
-The reply is one JSON object. Its schema is [`biomcp.trial_cards/2`](/reference/schemas/biomcp-trial-cards-2/), whose page shows a real reply and its fields.
 
 ## Next
 

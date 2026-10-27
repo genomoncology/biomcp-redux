@@ -1,7 +1,7 @@
 ---
-title: Reply of biomcp sync (biomcp.sync/4)
-description: "The JSON reply BioMCP 1.0.0 prints for biomcp sync: a real example
-  and the fields of schema biomcp.sync/4."
+title: Sync reply (biomcp.sync/4)
+description: "The JSON reply BioMCP 1.0.0 prints for no command (sync): a real
+  example and the fields of schema biomcp.sync/4."
 goal: "Parse the biomcp.sync/4 reply: see a real example and what each field means."
 reader: A developer or agent parsing BioMCP JSON
 sidebar:
@@ -10,7 +10,7 @@ kind: reference
 verified: 2026-10-27
 ---
 
-BioMCP 1.0.0 prints one JSON object, the reply, for each command. [`biomcp sync`](/reference/commands/sync/), [`biomcp sync cbioportal-studies`](/reference/commands/sync-cbioportal-studies/), [`biomcp sync ema`](/reference/commands/sync-ema/), [`biomcp sync ddinter`](/reference/commands/sync-ddinter/), [`biomcp sync who-pq`](/reference/commands/sync-who-pq/), [`biomcp sync gtr`](/reference/commands/sync-gtr/), [`biomcp sync who-ivd`](/reference/commands/sync-who-ivd/) and [`biomcp sync fda-cdx`](/reference/commands/sync-fda-cdx/) reply with `schema` set to `biomcp.sync/4`. Read this page when your code parses that reply: it shows a real one, then the fields only this schema has. [Shared types](/reference/schemas/types/) defines the rest.
+BioMCP 1.0.0 prints one JSON object, the reply, for each command. The reply schema `biomcp.sync/4` is in the program, but no command returns it as a whole reply. Read this page when your code parses that reply: it shows a real one, then the fields only this schema has. [Shared types](/reference/schemas/types/) defines the rest.
 
 ## Commands that return it
 
@@ -66,4 +66,4 @@ Published [bundle](/local-data/) metadata after synchronization.
 
 ## Next
 
-[`biomcp sync`](/reference/commands/sync/) gives the command's arguments; [reply schemas](/reference/schemas/) lists every reply.
+[Reply schemas](/reference/schemas/) lists every reply.

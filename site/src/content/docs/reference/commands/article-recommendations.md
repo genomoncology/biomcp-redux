@@ -10,7 +10,7 @@ kind: reference
 verified: 2026-10-27
 ---
 
-`biomcp article recommendations` is a command of BioMCP 1.0.0, the command-line tool and MCP server that reads biomedical data sources. It lists papers that Semantic Scholar recommends from one or more seed papers. This page lists its arguments, examples and reply.
+`biomcp article recommendations` is a command of BioMCP 1.0.0, the command-line tool and MCP server that reads biomedical data sources. It lists papers that Semantic Scholar recommends from one or more seed papers. This page lists its arguments and examples.
 
 The program's help describes it:
 
@@ -43,10 +43,6 @@ biomcp article recommendations 34096690 --limit 5
 ```sh
 biomcp article recommendations 34096690 32955176 --negative 33433946 --limit 5
 ```
-
-## Reply
-
-The reply is one JSON object. Its schema is [`biomcp.article_recommendations/3`](/reference/schemas/biomcp-article-recommendations-3/), whose page shows a real reply and its fields.
 
 ## Next
 

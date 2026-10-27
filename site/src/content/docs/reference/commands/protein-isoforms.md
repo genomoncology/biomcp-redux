@@ -10,7 +10,7 @@ kind: reference
 verified: 2026-10-27
 ---
 
-`biomcp protein isoforms` is a command of BioMCP 1.0.0, the command-line tool and MCP server that reads biomedical data sources. It lists the isoforms of one protein, five at a time. This page lists its arguments, examples and reply.
+`biomcp protein isoforms` is a command of BioMCP 1.0.0, the command-line tool and MCP server that reads biomedical data sources. It lists the isoforms of one protein, five at a time. This page lists its arguments and examples.
 
 The program's help describes it:
 
@@ -42,10 +42,6 @@ biomcp protein isoforms P00533
 ```sh
 biomcp protein isoforms P00533 --limit 1
 ```
-
-## Reply
-
-The reply is one JSON object. Its schema is [`biomcp.protein_isoforms/1`](/reference/schemas/biomcp-protein-isoforms-1/), whose page shows a real reply and its fields.
 
 ## Next
 
