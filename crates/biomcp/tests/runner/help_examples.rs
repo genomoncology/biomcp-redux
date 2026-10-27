@@ -75,6 +75,16 @@ pub(super) fn check() -> Result<(), String> {
                 replay.as_deref(),
                 None,
             )?;
+            check_result(args, &reply)?;
+        }
+    }
+    if !printed.is_empty() {
+        return Err("printed example has no owning case witness".into());
+    }
+    Ok(())
+}
+
+fn check_result(args: &[String], reply: &Value) -> Result<(), String> {
             if args.starts_with(&["article".into(), "text".into()])
                 && args.iter().any(|v| v == "--part")
                 && reply
@@ -109,20 +119,15 @@ pub(super) fn check() -> Result<(), String> {
                     ));
                 }
             }
-        }
-    }
-    if !printed.is_empty() {
-        return Err("printed example has no owning case witness".into());
-    }
     Ok(())
 }
 
 fn collected_examples(commands: &[Value]) -> Result<BTreeSet<Vec<String>>, String> {
     let mut printed = BTreeSet::new();
     if commands.iter().any(|command| {
-        !command["examples"]
+        command["examples"]
             .as_array()
-            .is_some_and(|v| !v.is_empty())
+            .is_none_or(Vec::is_empty)
     }) {
         return Err("command help has no example".into());
     }

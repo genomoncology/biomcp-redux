@@ -10,6 +10,7 @@ pub(super) fn complete(commands: &mut Vec<HelpCommand>) {
         .collect();
     let mut links = std::collections::BTreeMap::<String, Vec<String>>::new();
     for command in commands.iter() {
+        let Some(name) = command.command.get(1) else { continue };
         if command.command.first().is_some_and(|v| v == "get") {
             for section in &command.sections {
                 if let Some(entity) = entities
@@ -17,7 +18,7 @@ pub(super) fn complete(commands: &mut Vec<HelpCommand>) {
                     .find(|entity| section.word == **entity || section.word == format!("{entity}s"))
                 {
                     links
-                        .entry(command.command[1].clone())
+                        .entry(name.clone())
                         .or_default()
                         .push(format!("{entity} (get section {})", section.word));
                 }
@@ -31,7 +32,7 @@ pub(super) fn complete(commands: &mut Vec<HelpCommand>) {
                     links
                         .entry(entity.clone())
                         .or_default()
-                        .push(format!("{} (search {})", command.command[1], argument.name));
+                        .push(format!("{} (search {})", name, argument.name));
                 }
             }
         }
@@ -52,10 +53,17 @@ pub(super) fn complete(commands: &mut Vec<HelpCommand>) {
         These links retrieve source records without deciding their clinical meaning.\n{relations}"
         ),
     ));
+    complete_examples(commands);
+    if let Some(index) = commands.iter().position(|c| c.command.is_empty()) {
+        let index = commands.remove(index);
+        commands.insert(0, index);
+    }
+}
+
+fn complete_examples(commands: &mut [HelpCommand]) {
     let examples: Vec<_> = commands
         .iter()
-        .filter(|command| !command.examples.is_empty())
-        .map(|command| (command.command.clone(), command.examples[0].clone()))
+        .filter_map(|command| command.examples.first().map(|example| (command.command.clone(), example.clone())))
         .collect();
     for command in commands.iter_mut() {
         command.description = plain(&command.description);
@@ -83,10 +91,6 @@ pub(super) fn complete(commands: &mut Vec<HelpCommand>) {
             };
             command.examples.push(example);
         }
-    }
-    if let Some(index) = commands.iter().position(|c| c.command.is_empty()) {
-        let index = commands.remove(index);
-        commands.insert(0, index);
     }
 }
 

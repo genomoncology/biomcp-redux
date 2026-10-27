@@ -138,6 +138,7 @@ fn write_reference() -> Check {
 
 // Regenerate descriptive help snapshots from their owner, preserving other case values.
 fn refresh_help_cases(directory: &std::path::Path) -> Check {
+    use std::io::Write as _;
     for entry in fs::read_dir(directory)? {
         let path = entry?.path();
         if path.is_dir() {
@@ -183,23 +184,34 @@ fn refresh_help_cases(directory: &std::path::Path) -> Check {
             }
             let bytes = reply.cli_bytes.len();
             let markdown_bytes = crate::view::markdown(&reply.value)?.len();
-            println!(
+            writeln!(std::io::stdout(),
                 "HELP_MARKDOWN {} step {index}: {markdown_bytes} bytes",
                 path.display()
-            );
-            println!(
+            )?;
+            writeln!(std::io::stdout(),
                 "HELP_MEASURE {} step {index}: {bytes} bytes; max_bytes {} max_tokens {}",
                 path.display(),
                 step["max_bytes"],
                 step["max_tokens"]
-            );
+            )?;
+            changed |= refresh_expectations(step, &reply.value);
+        }
+        if changed {
+            fs::write(path, format!("{}\n", serde_json::to_string_pretty(&case)?))?;
+        }
+    }
+    Ok(())
+}
+
+fn refresh_expectations(step: &mut serde_json::Value, reply: &serde_json::Value) -> bool {
+    let mut changed = false;
             if let Some(expect) = step["expect"].as_object_mut() {
                 for (pointer, expected) in expect {
                     if pointer.ends_with("/arguments/*/name")
                         && expected.is_array()
                         && let Some(arguments) = pointer
                             .strip_suffix("/*/name")
-                            .and_then(|path| reply.value.pointer(path))
+                            .and_then(|path| reply.pointer(path))
                             .and_then(serde_json::Value::as_array)
                     {
                         let actual: serde_json::Value = arguments
@@ -213,7 +225,7 @@ fn refresh_help_cases(directory: &std::path::Path) -> Check {
                     }
                     if pointer.ends_with("/description")
                         && expected.is_string()
-                        && let Some(actual) = reply.value.pointer(pointer)
+                        && let Some(actual) = reply.pointer(pointer)
                         && actual != expected
                     {
                         *expected = actual.clone();
@@ -221,10 +233,5 @@ fn refresh_help_cases(directory: &std::path::Path) -> Check {
                     }
                 }
             }
-        }
-        if changed {
-            fs::write(path, format!("{}\n", serde_json::to_string_pretty(&case)?))?;
-        }
-    }
-    Ok(())
+    changed
 }

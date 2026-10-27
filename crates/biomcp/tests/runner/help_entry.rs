@@ -49,6 +49,34 @@ fn check() -> Check {
     {
         return Err("retired list remains in public help".into());
     }
+    check_metadata(&env, &value)?;
+    for args in [
+        vec!["discover", "SENSITIVE-input-never-echo"],
+        vec!["help", "frobnicate"],
+        vec!["serve", "--bogus"],
+    ] {
+        let words: Vec<_> = args.iter().map(|word| (*word).to_owned()).collect();
+        let output = env.command(env!("CARGO_BIN_EXE_biomcp"), &words).output()?;
+        let text = std::str::from_utf8(&output.stdout)?;
+        let value: Value = serde_json::from_str(text)?;
+        if output.status.code() != Some(2)
+            || value.pointer("/error/code").and_then(Value::as_str) != Some("usage.unknown_command")
+            || text.contains("SENSITIVE-input-never-echo")
+            || !output.stderr.is_empty()
+        {
+            return Err("unknown command leaked input or lost its usage identity".into());
+        }
+        let next = value
+            .pointer("/next/0/args")
+            .and_then(Value::as_array)
+            .ok_or("unknown command omitted executable recovery")?;
+        let next: Vec<_> = next.iter().filter_map(Value::as_str).collect();
+        run(&env, &next)?;
+    }
+    Ok(())
+}
+
+fn check_metadata(env: &Environment, value: &Value) -> Check {
     let commands = value
         .pointer("/result/commands")
         .and_then(Value::as_array)
@@ -62,7 +90,7 @@ fn check() -> Check {
     }
     check_defaults(commands)?;
     let scoped: Value = serde_json::from_slice(&run(&env, &["help", "get", "phenotype"])?)?;
-    let phenotype = &scoped["result"]["commands"][0];
+    let phenotype = scoped.pointer("/result/commands/0").ok_or("phenotype command")?;
     if !phenotype["arguments"]
         .as_array()
         .ok_or("arguments")?
@@ -88,6 +116,11 @@ fn check() -> Check {
     {
         return Err("help omits default or alias".into());
     }
+    check_rendered_topics(env)?;
+    Ok(())
+}
+
+fn check_rendered_topics(env: &Environment) -> Check {
     let exit = run(&env, &["help", "exit"])?;
     let exit: Value = serde_json::from_slice(&exit)?;
     let description = exit
@@ -107,29 +140,6 @@ fn check() -> Check {
         return Err(
             "Markdown help lost its command heading, ordered columns or shell examples".into(),
         );
-    }
-    for args in [
-        vec!["discover", "SENSITIVE-input-never-echo"],
-        vec!["help", "frobnicate"],
-        vec!["serve", "--bogus"],
-    ] {
-        let words: Vec<_> = args.iter().map(|word| (*word).to_owned()).collect();
-        let output = env.command(env!("CARGO_BIN_EXE_biomcp"), &words).output()?;
-        let text = std::str::from_utf8(&output.stdout)?;
-        let value: Value = serde_json::from_str(text)?;
-        if output.status.code() != Some(2)
-            || value.pointer("/error/code").and_then(Value::as_str) != Some("usage.unknown_command")
-            || text.contains("SENSITIVE-input-never-echo")
-            || !output.stderr.is_empty()
-        {
-            return Err("unknown command leaked input or lost its usage identity".into());
-        }
-        let next = value
-            .pointer("/next/0/args")
-            .and_then(Value::as_array)
-            .ok_or("unknown command omitted executable recovery")?;
-        let next: Vec<_> = next.iter().filter_map(Value::as_str).collect();
-        run(&env, &next)?;
     }
     Ok(())
 }

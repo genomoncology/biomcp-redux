@@ -56,11 +56,33 @@ pub(super) fn augment(commands: &mut Vec<HelpCommand>) -> io::Result<()> {
             entry.arguments.push(metadata(&argument));
         }
     }
+    augment_entries(commands, &root);
+    if let Some(index) = commands.iter_mut().find(|c| c.command.is_empty()) {
+        index.description = root
+            .get_subcommands()
+            .map(|c| {
+                format!(
+                    "{}: {}",
+                    c.get_name(),
+                    c.get_about()
+                        .map(ToString::to_string)
+                        .unwrap_or_default()
+                        .split(". ")
+                        .next()
+                        .unwrap_or_default()
+                )
+            })
+            .collect::<Vec<_>>()
+            .join("\n");
+    }
+    Ok(())
+}
+fn augment_entries(commands: &mut [HelpCommand], root: &Command) {
     for entry in commands.iter_mut() {
         let parser = entry
             .command
             .iter()
-            .try_fold(&root, |parent, name| parent.find_subcommand(name));
+            .try_fold(root, |parent, name| parent.find_subcommand(name));
         if let Some(parser) = parser {
             if entry.examples.is_empty()
                 && let Some(help) = parser.get_after_help()
@@ -87,25 +109,6 @@ pub(super) fn augment(commands: &mut Vec<HelpCommand>) -> io::Result<()> {
             }
         }
     }
-    if let Some(index) = commands.iter_mut().find(|c| c.command.is_empty()) {
-        index.description = root
-            .get_subcommands()
-            .map(|c| {
-                format!(
-                    "{}: {}",
-                    c.get_name(),
-                    c.get_about()
-                        .map(ToString::to_string)
-                        .unwrap_or_default()
-                        .split(". ")
-                        .next()
-                        .unwrap_or_default()
-                )
-            })
-            .collect::<Vec<_>>()
-            .join("\n");
-    }
-    Ok(())
 }
 fn add(commands: &mut Vec<HelpCommand>, parser: &Command, path: Vec<String>, root: bool) {
     let mut arguments: Vec<_> = parser
