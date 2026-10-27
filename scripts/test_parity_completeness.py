@@ -33,6 +33,7 @@ def main():
     assert not any(row.get('missing_projections') for row in inventory['cases'])
     assert 'sequence must assess every harvested assertion' not in output.read_text()
     if len(sys.argv) > 2:
+        from test_parity_runner import run
         baseline, evidence = Path(sys.argv[2]), Path(sys.argv[3])
         declarations = [row for batch in (ROOT / 'tests/parity/batches').glob('*.json')
                         for row in json.loads(batch.read_text()).get('cases', [])]
@@ -50,20 +51,7 @@ def main():
             sequences.append({'case': name, 'steps': steps})
         plan = output.with_name(output.stem + '-sequences.json')
         plan.write_text(json.dumps({'baseline_release': '0.9.3', 'cases': [], 'sequences': sequences}))
-        result = subprocess.run(['make', 'parity-run', 'PLAN=' + str(plan),
-                                 'BASELINE=' + str(baseline), 'OUT=' + str(evidence)],
-                                cwd=ROOT, capture_output=True)
-        evidence.with_suffix('.log').write_bytes(result.stdout + result.stderr)
-        assert result.returncode == 0, result.stderr.decode(errors='replace')
-        report = json.loads((evidence / 'report.json').read_text())
-        for row in report['cases']:
-            directory = Path(row['evidence_directory'])
-            for label in ('baseline', 'candidate'):
-                command = row[label]
-                raw = (directory / command['stdout']).read_bytes()
-                assert len(raw) == command['stdout_bytes'] > 0
-                assert json.loads(raw) == command['parsed']
-            assert all(fact['candidate']['verdict'] == 'right' for fact in row['facts'])
+        report = run(plan, baseline, evidence, True)
         assert report['assessment_gaps'] == report['regressions'] == 0, report
         assert len(report['cases']) == 12, report
     print('All indexing pointers and six sequence assertion declarations are complete:', output)

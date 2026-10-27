@@ -23,19 +23,26 @@ def run(plan, baseline, out, expected, env=None):
     (out.parent / (out.name + '.log')).write_bytes(result.stdout + result.stderr)
     assert (result.returncode == 0) == expected, result.stderr.decode(errors='replace')
     report = json.loads((out / 'report.json').read_text())
-    row = report['cases'][0]
-    for label in ('baseline', 'candidate'):
-        command = row[label]
-        if 'stdout' not in command:
-            assert label == 'baseline' and set(command) == {'assessment_error'}, command
-            assert command['assessment_error'], 'an unlaunched baseline needs its assessment gap'
-            continue
-        raw = (out / command['stdout']).read_bytes()
-        assert len(raw) == command['stdout_bytes'] > 0
-        assert len((out / command['stderr']).read_bytes()) == command['stderr_bytes']
-        assert command['elapsed_us'] > 0
-        assert json.loads(raw) == command['parsed']
+    verify_outputs(report, out)
     return report
+
+
+def verify_outputs(report, out):
+    for row in report['cases']:
+        directory = Path(row.get('evidence_directory', out))
+        for label in ('baseline', 'candidate'):
+            command = row[label]
+            if 'stdout' not in command:
+                assert label == 'baseline' and set(command) == {'assessment_error'}, command
+                assert command['assessment_error'], 'an unlaunched baseline needs its assessment gap'
+                continue
+            streams = {name: (directory / command[name]).read_bytes()
+                       for name in ('stdout', 'stderr')}
+            for name, raw in streams.items():
+                assert len(raw) == command[name + '_bytes']
+            assert command['elapsed_us'] > 0
+            raw = streams[command.get('json_stream', 'stdout')]
+            assert raw and json.loads(raw) == command['parsed']
 
 
 def main():
