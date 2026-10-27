@@ -21,8 +21,10 @@ pub(super) fn write(
         if id.starts_with("biomcp.") && id.contains('_') {
             return Err("schema identities must use hyphens".into());
         }
-        let description = schema["description"]
-            .as_str()
+        let result = schema.pointer("/properties/result/anyOf/0/$ref")
+            .and_then(Value::as_str).and_then(|reference| schema.pointer(reference.trim_start_matches('#')));
+        let description = result.and_then(|body| body["description"].as_str())
+            .or_else(|| schema["description"].as_str())
             .or_else(|| schema["title"].as_str())
             .ok_or("schema requires a description or title")?;
         let description = description.split_whitespace().collect::<Vec<_>>().join(" ");

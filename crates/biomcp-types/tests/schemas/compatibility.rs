@@ -429,6 +429,7 @@ fn validate_keywords(object: &serde_json::Map<String, Value>, path: &str) -> Che
             "x-trailing-section",
             "x-comma-separated",
             "x-cli-flags",
+            "x-reply-query-titles",
         ]
         .contains(&key.as_str())
         {
@@ -436,6 +437,13 @@ fn validate_keywords(object: &serde_json::Map<String, Value>, path: &str) -> Che
         }
     }
     validate_cli_flags(object.get("x-cli-flags"))?;
+    if object.get("x-reply-query-titles").is_some_and(|value| {
+        !value.as_array().is_some_and(|titles| {
+            !titles.is_empty() && titles.iter().all(|title| title.as_str().is_some_and(|title| !title.is_empty()))
+        })
+    }) {
+        return Err("invalid reply query title annotation".into());
+    }
     if object
         .get("x-trailing-section")
         .is_some_and(|value| value != &Value::Bool(true))
@@ -467,6 +475,7 @@ fn validate_keywords(object: &serde_json::Map<String, Value>, path: &str) -> Che
                         "x-trailing-section",
                         "x-comma-separated",
                         "x-cli-flags",
+            "x-reply-query-titles",
                         "default",
                     ]
                     .contains(&key.as_str())
