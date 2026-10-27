@@ -75,10 +75,18 @@ pub fn get(cx: &Ctx<'_>, query: &VariantGet) -> Outcome {
     }
     for candidate in &mut candidates {
         for transcript in &mut candidate.transcripts {
-            transcript.matched = query.input().as_str().split_once(':').is_some_and(|(id, notation)| {
-                transcript.transcript.as_str() == id
-                    && transcript.hgvs_c.as_ref().is_some_and(|c| c.as_str() == notation)
-            });
+            transcript.matched =
+                query
+                    .input()
+                    .as_str()
+                    .split_once(':')
+                    .is_some_and(|(id, notation)| {
+                        transcript.transcript.as_str() == id
+                            && transcript
+                                .hgvs_c
+                                .as_ref()
+                                .is_some_and(|c| c.as_str() == notation)
+                    });
         }
     }
     let page = candidate_page(query, resolution, &mut candidates);

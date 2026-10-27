@@ -5,9 +5,10 @@ use serde_json::{Value, json};
 use std::fs;
 
 pub(super) fn trials() -> Vec<Trial> {
-    vec![Trial::test("variant-search/source-transcripts-and-matched-notation", || {
-        transcripts().map_err(Into::into)
-    })]
+    vec![Trial::test(
+        "variant-search/source-transcripts-and-matched-notation",
+        || transcripts().map_err(Into::into),
+    )]
 }
 fn transcripts() -> Result<(), String> {
     let stub = Stub::for_source("myvariant.info", "application/json", reply)?;
@@ -17,9 +18,18 @@ fn transcripts() -> Result<(), String> {
     env.config(&json!({"proxy":format!("http://{}",stub.address),"ca_bundle":ca}))
         .map_err(|e| e.to_string())?;
     for (protein, matched) in [("His540Arg", 1), ("His515Arg", 0)] {
-        let args = ["search", "variant", "--gene", "HSD17B4", "--protein", protein];
+        let args = [
+            "search",
+            "variant",
+            "--gene",
+            "HSD17B4",
+            "--protein",
+            protein,
+        ];
         let value = run(&env, &args)?;
-        let rows = value.pointer("/result/items/0/transcripts").ok_or("transcripts missing")?;
+        let rows = value
+            .pointer("/result/items/0/transcripts")
+            .ok_or("transcripts missing")?;
         if rows[0]["transcript"] != "NM_000414.3"
             || rows[0]["hgvs_c"] != "c.1544A>G"
             || rows[0]["hgvs_p"] != "p.His515Arg"
@@ -30,10 +40,15 @@ fn transcripts() -> Result<(), String> {
             || rows[1 - matched]["matched"] != false
             || rows[0].get("mane_select").is_some()
         {
-            return Err(format!("source transcript pairing or match changed: {rows}"));
+            return Err(format!(
+                "source transcript pairing or match changed: {rows}"
+            ));
         }
     }
-    let card = run(&env, &["get", "variant", "chr5:g.118860951A>G", "--build", "GRCh37"])?;
+    let card = run(
+        &env,
+        &["get", "variant", "chr5:g.118860951A>G", "--build", "GRCh37"],
+    )?;
     if card.pointer("/result/candidates/0/transcripts/1/hgvs_p") != Some(&json!("p.His540Arg")) {
         return Err(format!("card lost transcript annotations: {card}"));
     }
@@ -42,7 +57,10 @@ fn transcripts() -> Result<(), String> {
 }
 fn run(env: &Environment, args: &[&str]) -> Result<Value, String> {
     let args = args.iter().map(|v| (*v).into()).collect::<Vec<_>>();
-    let out = env.command(env!("CARGO_BIN_EXE_biomcp"), &args).output().map_err(|e| e.to_string())?;
+    let out = env
+        .command(env!("CARGO_BIN_EXE_biomcp"), &args)
+        .output()
+        .map_err(|e| e.to_string())?;
     if !out.status.success() {
         return Err(String::from_utf8_lossy(&out.stderr).into());
     }
@@ -54,12 +72,15 @@ fn reply(request: &str) -> Result<String, String> {
     }
     // Source-paired values retained by the public 0.9.3 HSD17B4 witness.
     let hit = json!({"_id":"chr5:g.118860951A>G","chrom":"5",
-        "hg19":{"start":118860951,"end":118860951},
-        "snpeff":{"ann":[
-            {"feature_id":"NM_000414.3","feature_type":"transcript","genename":"HSD17B4","hgvs_c":"c.1544A>G","hgvs_p":"p.His515Arg"},
-            {"feature_id":"NM_001199291.2","feature_type":"transcript","genename":"HSD17B4","hgvs_c":"c.1619A>G","hgvs_p":"p.His540Arg"}
-        ]}});
+    "hg19":{"start":118860951,"end":118860951},
+    "snpeff":{"ann":[
+        {"feature_id":"NM_000414.3","feature_type":"transcript","genename":"HSD17B4","hgvs_c":"c.1544A>G","hgvs_p":"p.His515Arg"},
+        {"feature_id":"NM_001199291.2","feature_type":"transcript","genename":"HSD17B4","hgvs_c":"c.1619A>G","hgvs_p":"p.His540Arg"}
+    ]}});
     Ok(if request.starts_with("GET /v1/query?") {
         json!({"total":1,"hits":[hit]})
-    } else { hit }.to_string())
+    } else {
+        hit
+    }
+    .to_string())
 }

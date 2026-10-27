@@ -43,8 +43,12 @@ pub(super) fn map(
         if a.feature_type.as_str() != "transcript" {
             continue;
         }
-        if a.hgvs_c.as_ref().is_some_and(|v| !v.as_str().starts_with("c."))
-            || a.hgvs_p.as_ref().is_some_and(|v| !v.as_str().starts_with("p."))
+        if a.hgvs_c
+            .as_ref()
+            .is_some_and(|v| !v.as_str().starts_with("c."))
+            || a.hgvs_p
+                .as_ref()
+                .is_some_and(|v| !v.as_str().starts_with("p."))
         {
             problems.push(problem());
             continue;

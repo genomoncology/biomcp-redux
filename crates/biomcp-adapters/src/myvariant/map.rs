@@ -8,6 +8,7 @@ pub(super) fn candidates(
     query: &str,
     build: Option<Build>,
     allow_clinvar: bool,
+    allow_snpeff: bool,
 ) -> Mapped<Vec<VariantHeader>> {
     let mut value = Vec::new();
     let mut problems = Vec::new();
@@ -39,7 +40,8 @@ pub(super) fn candidates(
             ids.push(VariantId::ClinVarVariation(id));
         }
         let mut component_terms = component_terms(&ids).into_vec();
-        let transcripts = super::transcripts::map(hit.snpeff, &hit.id, &mut problems);
+        let transcripts =
+            super::transcripts::map(hit.snpeff.filter(|_| allow_snpeff), &hit.id, &mut problems);
         if !transcripts.is_empty() {
             component_terms.push(biomcp_types::ComponentLabel {
                 component: Text::new("snpeff").expect("static component"),

@@ -88,6 +88,7 @@ pub fn lookup(
         query,
         Some(build),
         !components::disabled_on_leg(leg, "clinvar"),
+        !components::disabled_on_leg(leg, "snpeff"),
     ))
 }
 fn leg_bad() -> RequestError {
@@ -137,6 +138,7 @@ fn annotation(
         id,
         Some(build),
         !components::disabled_on_leg(leg, "clinvar"),
+        !components::disabled_on_leg(leg, "snpeff"),
     ))
 }
 

@@ -158,7 +158,7 @@ pub fn resolve(leg: &Leg<'_>, input: &str, build: Build) -> Result<Resolution, R
             source: Source::VariantValidator,
             record: SourceRecord { id: key, url: None },
             transcripts: Box::default(),
-        myvariant: None,
+            myvariant: None,
             requested: None,
             sections: None,
             component_terms: Box::default(),
