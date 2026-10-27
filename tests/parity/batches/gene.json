@@ -1557,7 +1557,7 @@
         "--sections",
         "protein"
       ],
-      "spelling_table": "sdlc/planning/slices/gene.md",
+      "spelling_table": "tests/parity/gene-spellings.json",
       "release_source": [
         "src/cli/gene/dispatch.rs::handle_command",
         "src/cli/gene/dispatch.rs::handle_get",
