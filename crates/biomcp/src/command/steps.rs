@@ -27,7 +27,7 @@ pub(super) fn next(
             Some(has_more || u64::from(page.offset) + u64::from(page.returned) < page.total),
         ),
     }
-    Ok(source_steps(&globals.disable_sources, steps))
+    Ok(source_steps(globals, steps))
 }
 
 #[derive(Debug)]
@@ -90,8 +90,20 @@ fn candidate_navigation(candidates: bool) -> Navigation<'static> {
 }
 
 fn source_steps(exclusions: &[String], steps: Vec<biomcp_types::Step>) -> Vec<biomcp_types::Step> {
-    let disabled = exclusions.join(",");
-    if disabled.is_empty() {
+    let mut prefix: Vec<Box<str>> = Vec::new();
+    if let Some(path) = &globals.config {
+        prefix.extend([
+            "--config".into(),
+            path.to_string_lossy().into_owned().into(),
+        ]);
+    }
+    if !globals.disable_sources.is_empty() {
+        prefix.extend([
+            "--disable-sources".into(),
+            globals.disable_sources.join(",").into(),
+        ]);
+    }
+    if prefix.is_empty() {
         return steps;
     }
     steps
