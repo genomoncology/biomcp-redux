@@ -18,3 +18,6 @@ pub static SPEC: SourceSpec = SourceSpec {
 };
 mod read;
 pub use read::{Page, card, diplotype, drug_recommendations, guidelines, recommendations, search};
+
+/// Small read-only publisher probe; never an export or synchronization.
+pub(crate) const HEALTH_PATH: &str = "/gene";

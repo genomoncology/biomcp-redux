@@ -7,6 +7,7 @@ mod search;
 use biomcp_fetch::{KeyUse, SourceSpec, Terms};
 use biomcp_types::{Source, Use};
 pub use bundle::sync;
+pub(crate) use bundle::state as bundle_state;
 pub use search::{Search, search};
 use std::time::Duration;
 /// One publisher declaration for health, outcomes and admission before any I/O.
@@ -33,3 +34,6 @@ fn bad() -> biomcp_fetch::RequestError {
     }
     .into()
 }
+
+/// Small read-only publisher probe; never an export or synchronization.
+pub(crate) const HEALTH_PATH: &str = "/about-fda/about-website/website-policies";

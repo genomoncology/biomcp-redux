@@ -2,6 +2,24 @@
 use super::{Bundle, BundleInfo, Find, Row, store};
 use crate::{Leg, Mode, RequestError};
 impl Leg<'_> {
+    /// Inspect validated metadata without reading rows, claiming a lease or synchronizing.
+    pub fn stored_bundle_state<R: Row>(
+        &self,
+        bundle: &Bundle<R>,
+    ) -> Result<biomcp_types::LocalBundleState, RequestError> {
+        use biomcp_types::LocalBundleState;
+        self.bundle_source(bundle)?;
+        let Some(cache) = self.fetch.cache.as_deref() else {
+            return Ok(LocalBundleState::Missing);
+        };
+        self.import_predecessor(cache, bundle.name)?;
+        Ok(match cache.bundle_info(bundle.name, self.budget())? {
+            None => LocalBundleState::Missing,
+            Some(meta) if meta.fresh_until > crate::cache::now() => LocalBundleState::Fresh,
+            Some(_) => LocalBundleState::Stale,
+        })
+    }
+
     /// Find checked rows, synchronizing absent or stale data when policy permits.
     pub fn rows<R: Row>(&self, bundle: &Bundle<R>, find: Find<'_>) -> Result<Vec<R>, RequestError> {
         self.bundle_source(bundle)?;

@@ -186,6 +186,13 @@ fn get_probe(source: Source) -> Option<(&'static str, ProbeParams)> {
         return Some(probe);
     }
     Some(match source {
+        Source::Cpic => (crate::cpic::HEALTH_PATH, vec![("limit", Arg::Num(1))]),
+        Source::ClinPgx => (crate::clinpgx::HEALTH_PATH, vec![("location.genes.symbol", Arg::Text("DPYD")), ("view", Arg::Text("min"))]),
+        Source::Gtr => (crate::gtr::HEALTH_PATH, vec![]),
+        Source::WhoIvd => (crate::who_ivd::HEALTH_PATH, vec![]),
+        Source::WhoPq => (crate::who_pq::HEALTH_PATH, vec![]),
+        Source::FdaCdx => (crate::fda_cdx::HEALTH_PATH, vec![]),
+        Source::Vaers => (crate::vaers::HEALTH_PATH, vec![]),
         Source::Cellosaurus => ("/release-info", vec![("format", Arg::Text("json"))]),
         Source::Gwas => (
             "/associations",
@@ -195,7 +202,7 @@ fn get_probe(source: Source) -> Option<(&'static str, ProbeParams)> {
         Source::Cbioportal => ("/studies", vec![("pageSize", Arg::Num(1))]),
         Source::MyVariant | Source::Mychem | Source::MyDisease => ("/metadata", vec![]),
         Source::Chembl => ("/status.json", vec![]),
-        Source::OpenfdaLabel | Source::Drugsfda | Source::Faers | Source::Maude => {
+        Source::OpenfdaLabel | Source::Drugsfda | Source::Faers | Source::Maude | Source::FdaPma | Source::Fda510k => {
             ("", vec![("limit", Arg::Num(1))])
         }
         Source::Ema => ("/en/about-us/about-website/legal-notice", vec![]),
@@ -370,4 +377,16 @@ fn protein_probe(source: Source) -> Option<(&'static str, ProbeParams)> {
         ),
         _ => return None,
     })
+}
+
+/// Source-owned local set metadata, separate from the online publisher probe.
+pub fn bundle_state(spec: &'static SourceSpec, leg: &biomcp_fetch::Leg<'_>) -> Result<Option<biomcp_types::LocalBundleState>, biomcp_fetch::RequestError> {
+    let state = match spec.source {
+        Source::Gtr => crate::gtr::bundle_state(leg)?,
+        Source::WhoIvd => crate::who_ivd::bundle_state(leg)?,
+        Source::WhoPq => crate::who_pq::bundle_state(leg)?,
+        Source::FdaCdx => crate::fda_cdx::bundle_state(leg)?,
+        _ => return Ok(None),
+    };
+    Ok(Some(state))
 }

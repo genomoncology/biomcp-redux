@@ -72,3 +72,11 @@ pub fn get(
     });
     Ok((card, info))
 }
+
+/// Small read-only publisher probe; never an export or synchronization.
+pub(crate) const HEALTH_PATH: &str = "/medicines/prequalified/finished-pharmaceutical-products";
+
+/// Inspect this source's complete local set without synchronizing it.
+pub(crate) fn bundle_state(leg: &biomcp_fetch::Leg<'_>) -> Result<biomcp_types::LocalBundleState, biomcp_fetch::RequestError> {
+    SET.state(leg)
+}

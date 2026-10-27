@@ -60,7 +60,7 @@ pub use article_sections::{
 
 mod health;
 pub use health::{
-    ComponentHealth, DisableGroup, DisabledComponent, Health, HttpHealth, SourceHealth,
+    ComponentHealth, DisableGroup, DisabledComponent, Health, HttpHealth, LocalBundleState, SourceHealth,
 };
 
 pub use article::{

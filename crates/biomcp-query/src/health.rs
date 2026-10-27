@@ -1,4 +1,4 @@
-//! Bounded source probes, never local storage or HTTP service liveness.
+//! Bounded publisher probes with independent local bundle availability.
 use biodata::Text;
 use biomcp_adapters::registry;
 use biomcp_fetch::{Fetch, KeyUse, RequestError};
@@ -22,10 +22,11 @@ pub fn run(fetch: &Fetch, budget: Duration) -> Result<Health, RequestError> {
                             _ => None,
                         }
                     };
+                    let leg = fetch.leg(spec, deadline.child(PROBE_BUDGET)).fresh(true);
+                    let bundle = if skip.is_none() { registry::bundle_state(spec, &leg)? } else { None };
                     let (state, reason, latency_ms) = if let Some(reason) = skip {
                         (SourceState::Skipped, Some(reason), None)
                     } else {
-                        let leg = fetch.leg(spec, deadline.child(PROBE_BUDGET)).fresh(true);
                         let start = leg.remaining();
                         let result = registry::probe(spec, &leg);
                         let elapsed = start.saturating_sub(leg.remaining()).as_millis() as u64;
@@ -49,7 +50,14 @@ pub fn run(fetch: &Fetch, budget: Duration) -> Result<Health, RequestError> {
                             Some(elapsed),
                         )
                     };
+                    let (state, reason, latency_ms) = match (reason, bundle) {
+                        (Some(Reason::Offline), Some(biomcp_types::LocalBundleState::Fresh)) => (SourceState::Ok, None, None),
+                        (Some(Reason::Offline), Some(biomcp_types::LocalBundleState::Stale)) => (SourceState::Stale, None, None),
+                        (Some(Reason::Offline), Some(biomcp_types::LocalBundleState::Missing)) => (SourceState::Skipped, Some(Reason::Offline), None),
+                        _ => (state, reason, latency_ms),
+                    };
                     Ok(SourceHealth {
+                        bundle,
                         components: component_health(spec.source, fetch)?.into(),
                         source: spec.source,
                         terms: Text::new(spec.terms.name)

@@ -60,7 +60,9 @@ impl Leg<'_> {
     /// Probe declared reachability through the same bounded transport, quota and replay policy.
     /// Probe replies never enter the checked data cache.
     pub fn probe(&self, ep: &Endpoint, params: &[(&str, Arg<'_>)]) -> Result<(), RequestError> {
-        let ep = ep.clone().fresh(crate::Freshness::Never);
+        let mut ep = ep.clone().fresh(crate::Freshness::Never);
+        // Reachability is one observation, never a retrying data request.
+        ep.idempotent = false;
         self.parameters(&ep, params, Decoder::probe()).map(|_| ())
     }
     /// Probe a declared read-only JSON endpoint with a bounded request body.
@@ -69,7 +71,9 @@ impl Leg<'_> {
         ep: &Endpoint,
         body: &B,
     ) -> Result<(), RequestError> {
-        let ep = ep.clone().fresh(crate::Freshness::Never);
+        let mut ep = ep.clone().fresh(crate::Freshness::Never);
+        // Reachability is one observation, never a retrying data request.
+        ep.idempotent = false;
         self.validate(&ep, true)?;
         let body = crate::prepared::json(body, self.fetch.config.max_body)?;
         let url = if ep.publisher {
