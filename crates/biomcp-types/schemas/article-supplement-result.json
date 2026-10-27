@@ -1132,7 +1132,7 @@
       "description": "Answer when available."
     },
     "schema": {
-      "const": "biomcp.article_supplement/2",
+      "const": "biomcp.article_supplement/3",
       "type": "string"
     },
     "sources": {
