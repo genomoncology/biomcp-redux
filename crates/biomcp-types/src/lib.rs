@@ -71,8 +71,11 @@ pub use response::{
     HotspotAlternate, HotspotMembership, HotspotRecord, OncokbCitation, OncokbVariantRecord,
     VariantCivic, VariantHotspots, VariantOncokb, VariantSections,
 };
+pub use response::{
+    ConfigurationHealth, ConfigurationNotice, ConfigurationNoticeCode, ConfigurationVariable,
+    DisableGroup, DisabledComponent, Health, HttpHealth, SourceHealth,
+};
 pub use response::{Constraint, GeneSections, Protein};
-pub use response::{DisableGroup, DisabledComponent, Health, HttpHealth, SourceHealth};
 pub use response::{
     Envelope, GeneCards, GeneItem, GenePage, ItemStatus, PageInfo, QueryBody, ResponseBody,
     Section, SourceOutcome, SourceRecord, SourceState, Status, Step, StepKind,
