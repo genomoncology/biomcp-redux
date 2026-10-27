@@ -21,8 +21,7 @@
         "citations",
         "17611497"
       ],
-      "max_bytes": 4550,
-      "max_tokens": 1138
+      "max_bytes": 4550
     },
     {
       "run": [
@@ -37,8 +36,7 @@
         }
       },
       "offline": true,
-      "max_bytes": 4550,
-      "max_tokens": 1138
+      "max_bytes": 4550
     }
   ],
   "verified": "Measured3956bytes/989tokens. Bounds add15percent below the recorded0.9 JSON7.2KB for this command."

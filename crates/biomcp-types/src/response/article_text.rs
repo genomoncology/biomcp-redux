@@ -83,6 +83,7 @@ pub struct ArticleTextResult {
 pub struct TextContent {
     /// Source URL for an explicit save, including refused destinations.
     #[serde(skip_serializing_if = "Option::is_none")]
+    #[cfg_attr(feature = "schema", schemars(extend("format" = "uri")))]
     pub url: Option<Text>,
     /// Explicit save receipt, absent for reader views.
     #[serde(skip_serializing_if = "Option::is_none")]
@@ -132,6 +133,7 @@ pub struct ArticleSaved {
     /// SHA-256 of the saved bytes.
     pub sha256: Text,
     /// Source URL for the original material.
+    #[cfg_attr(feature = "schema", schemars(extend("format" = "uri")))]
     pub url: Text,
     /// Number of ordered text parts; absent for original supplement bytes.
     #[serde(skip_serializing_if = "Option::is_none")]

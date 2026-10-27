@@ -21,7 +21,6 @@
         "pubmed,europepmc"
       ],
       "max_bytes": 6122,
-      "max_tokens": 1531,
       "expect": {
         "/status": "complete",
         "/page/total": 249,
@@ -87,7 +86,6 @@
         "max_pages": 32
       },
       "max_bytes": 6122,
-      "max_tokens": 1531,
       "expect": {
         "/result/items/*/key": {
           "equals_file": "live-rank-keys.json",
@@ -111,7 +109,6 @@
         "max_pages": 32
       },
       "max_bytes": 6122,
-      "max_tokens": 1531,
       "expect": {
         "/result/items/*/key": {
           "equals_file": "live-rank-keys.json"
@@ -128,7 +125,6 @@
       ],
       "offline": true,
       "max_bytes": 6122,
-      "max_tokens": 1531,
       "expect": {
         "/status": "complete",
         "/result/items/*/key": [

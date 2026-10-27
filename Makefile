@@ -1,8 +1,22 @@
 .DEFAULT_GOAL := landing-gate
 
-.PHONY: landing-gate fmt lint ratchets test audit coverage unreached
+# Cargo and the test harnesses do not interpret pm's fractional core booking.
+ifneq ($(strip $(PM_JOB_CORES)),)
+PM_WORKERS := $(shell python3 -c 'import math,os; print(max(1, math.floor(float(os.environ["PM_JOB_CORES"]))))')
+ifeq ($(PM_WORKERS),)
+$(error PM_JOB_CORES must be a finite number)
+endif
+export CARGO_BUILD_JOBS ?= $(PM_WORKERS)
+export RUST_TEST_THREADS ?= $(PM_WORKERS)
+endif
+TEST_THREADS = $(if $(strip $(RUST_TEST_THREADS)),-- --test-threads $(RUST_TEST_THREADS))
 
-landing-gate: docs-check fmt lint tensor-proto-check coverage audit
+.PHONY: landing-gate plain-cli-build fmt lint ratchets test audit coverage unreached
+
+landing-gate: plain-cli-build docs-check fmt lint tensor-proto-check coverage audit secrets
+
+plain-cli-build:
+	cargo build --locked -p biomcp --bin biomcp
 
 fmt:
 	cargo fmt --all -- --check
@@ -11,13 +25,13 @@ lint:
 	cargo clippy --workspace --all-targets --locked -- -D warnings
 
 ratchets:
-	cargo test --locked -p biomcp --test ratchets
+	cargo test --locked -p biomcp --test ratchets $(TEST_THREADS)
 
 test:
-	cargo test --workspace --locked
+	cargo test --workspace --locked $(TEST_THREADS)
 
 audit:
-	cargo deny --locked check licenses advisories
+	cargo deny --locked check licenses advisories bans sources
 
 coverage: ratchets
 	sh scripts/coverage.sh run
@@ -27,8 +41,8 @@ unreached:
 
 .PHONY: docs-check
 docs-check:
-	cargo test --locked -p biomcp --bin biomcp grammar::reference::reference_matches_grammar
-	cargo test --locked -p biomcp --test cases article-help/executable-examples
+	cargo test --locked -p biomcp --bin biomcp grammar::reference::reference_matches_grammar $(TEST_THREADS)
+	cargo test --locked -p biomcp --test cases article-help/executable-examples $(TEST_THREADS)
 	python3 release/tools.py
 	python3 -m unittest release.test_tools release.test_linux
 	python3 scripts/check_docs.py
@@ -36,9 +50,10 @@ docs-check:
 	python3 scripts/test_source_capture.py
 	python3 scripts/test_source_capture_plan.py
 	python3 scripts/test_coverage.py
+	python3 scripts/test_build_workers.py
 	python3 scripts/test_nightly_live_check.py
 	python3 -m unittest release.test_installer release.test_checks release.test_gate
-	python3 -m unittest release.test_workflow
+	python3 -m unittest release.test_workflow release.test_security
 .PHONY: release-linux
 release-linux:
 	sh release/linux.sh $(CONTAINER_ARGS)
@@ -57,7 +72,7 @@ source-capture:
 
 .PHONY: docs-generate
 docs-generate:
-	cargo test --locked -p biomcp --bin biomcp grammar::reference::write_reference -- --ignored
+	cargo test --locked -p biomcp --bin biomcp grammar::reference::write_reference $(if $(strip $(RUST_TEST_THREADS)),-- --test-threads $(RUST_TEST_THREADS) --ignored,-- --ignored)
 .PHONY: schema-release-check
 schema-release-check:
 	python3 scripts/schema_release.py
@@ -73,3 +88,7 @@ parity-inventory:
 .PHONY: tensor-proto-check
 tensor-proto-check:
 	python3 scripts/regenerate_tensor_proto.py --check
+
+.PHONY: secrets
+secrets:
+	python3 release/secrets.py history .

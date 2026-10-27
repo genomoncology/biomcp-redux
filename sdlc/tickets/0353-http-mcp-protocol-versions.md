@@ -1,6 +1,7 @@
 # 0353 — Accept the same MCP protocol revisions on HTTP as on stdio
 
-Status: OPEN.
+Status: COMPLETE.
+Landed: 95c485a8ca70c1a1e78a5cfaad622a873d43d85a
 
 Milestone: 5
 

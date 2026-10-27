@@ -37,7 +37,8 @@ impl fmt::Display for SemanticScholarAuthorId {
 crate::text_value!(
     SemanticScholarAuthorId,
     "SemanticScholarAuthorId",
-    "^[1-9][0-9]*$"
+    "^[1-9][0-9]*$",
+    "A checked source-local Semantic Scholar author identifier, never a person identity."
 );
 /// A checksummed ORCID iD, identifying only the requested ORCID record.
 #[derive(Clone, Debug, PartialEq, Eq, Hash)]
@@ -81,7 +82,8 @@ impl fmt::Display for OrcidId {
 crate::text_value!(
     OrcidId,
     "OrcidId",
-    "^[0-9]{4}-[0-9]{4}-[0-9]{4}-[0-9]{3}[0-9X]$"
+    "^[0-9]{4}-[0-9]{4}-[0-9]{4}-[0-9]{3}[0-9X]$",
+    "A checksummed ORCID iD, identifying only the requested ORCID record."
 );
 /// One provider record; this enum establishes no relationship between its variants.
 #[derive(Clone, Debug, PartialEq, Eq, Hash)]
@@ -114,7 +116,8 @@ impl fmt::Display for AuthorId {
 crate::text_value!(
     AuthorId,
     "AuthorId",
-    "^((semantic-scholar|semanticscholar):[1-9][0-9]*|orcid:[0-9]{4}-[0-9]{4}-[0-9]{4}-[0-9]{3}[0-9X])$"
+    "^((semantic-scholar|semanticscholar):[1-9][0-9]*|orcid:[0-9]{4}-[0-9]{4}-[0-9]{4}-[0-9]{3}[0-9X])$",
+    "One provider record; this enum establishes no relationship between its variants."
 );
 
 /// A checked native ORCID client application identifier.
@@ -144,5 +147,6 @@ impl fmt::Display for OrcidClientId {
 crate::text_value!(
     OrcidClientId,
     "OrcidClientId",
-    "^(APP-[A-Z0-9]{16}|[0-9]{4}-[0-9]{4}-[0-9]{4}-[0-9]{3}[0-9X])$"
+    "^(APP-[A-Z0-9]{16}|[0-9]{4}-[0-9]{4}-[0-9]{4}-[0-9]{3}[0-9X])$",
+    "A checked native ORCID client application identifier."
 );

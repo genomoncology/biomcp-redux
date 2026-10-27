@@ -54,4 +54,9 @@ impl fmt::Display for GeneInput {
         }
     }
 }
-text_value!(GeneInput, "GeneInput", r"\S");
+text_value!(
+    GeneInput,
+    "GeneInput",
+    r"\S",
+    "An input classified before source resolution; aliases remain free text."
+);

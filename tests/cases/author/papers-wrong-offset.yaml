@@ -24,7 +24,6 @@
         "/sources/0/use": "noncommercial"
       },
       "max_bytes": 624,
-      "max_tokens": 156,
       "full_output_bytes": true
     },
     {
@@ -47,7 +46,6 @@
         "/sources/0/use": "noncommercial"
       },
       "max_bytes": 526,
-      "max_tokens": 132,
       "full_output_bytes": true,
       "offline": true
     }

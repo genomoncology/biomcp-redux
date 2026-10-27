@@ -23,8 +23,7 @@
         "/result/genes/data/items/0/gene": "HGNC:1097",
         "/result/genes/data/items/0/physical_context_count": 29
       },
-      "max_bytes": 3061,
-      "max_tokens": 766
+      "max_bytes": 3061
     }
   ]
 }

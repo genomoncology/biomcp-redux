@@ -1,6 +1,7 @@
 # 0377 — Default compiler jobs and test workers to the job's booked cores
 
-Status: OPEN.
+Status: COMPLETE.
+Landed: 7d98a3dc3bd2cda32765d715d2c397e3de991023
 
 Milestone: 5
 

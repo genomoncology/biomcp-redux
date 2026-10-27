@@ -1,6 +1,7 @@
 {
   "$id": "biodata.nct-id/1",
   "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "description": "Canonical ClinicalTrials.gov identifier.",
   "pattern": "^NCT(?!00000000)[0-9]{8}$",
   "title": "NctId",
   "type": "string"

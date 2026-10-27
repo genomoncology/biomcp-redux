@@ -19,7 +19,6 @@
         "citations"
       ],
       "max_bytes": 4950,
-      "max_tokens": 1238,
       "expect": {
         "/status": "complete",
         "/sources/1/term": "rs121913500",
