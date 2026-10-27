@@ -17,8 +17,10 @@ fn check() -> Result<(), String> {
         .pointer("/result/disable_groups")
         .and_then(Value::as_array)
         .ok_or("health omitted disable groups")?;
+    measure(&invoke(&env, vec!["help".into()], 0)?, "all")?;
     for topic in ["sources", "config"] {
         let help = invoke(&env, vec!["help".into(), topic.into()], 0)?;
+        measure(&help, topic)?;
         let commands = help
             .pointer("/result/commands")
             .and_then(Value::as_array)
@@ -36,7 +38,13 @@ fn check() -> Result<(), String> {
                 .find(|g| g["group"] == name)
                 .ok_or("missing group")?;
             let usage = registry::group(name).ok_or("unknown group")?;
-            let expected = registry::disabled(&[name.into()]).map_err(|e| e.to_string())?;
+            let expected: std::collections::BTreeSet<_> = registry::SOURCES
+                .iter()
+                .filter(|s| {
+                    s.terms.usage == usage && !registry::components().any(|c| c.source == s.source)
+                })
+                .map(|s| s.source)
+                .collect();
             let sources: Vec<_> = expected.iter().map(ToString::to_string).collect();
             if group["sources"] != serde_json::json!(sources) {
                 return Err(format!("health has wrong {name} sources"));
@@ -63,4 +71,14 @@ fn check() -> Result<(), String> {
         }
     }
     Ok(())
+}
+
+fn measure(help: &Value, topic: &str) -> Result<(), String> {
+    let bytes = serde_json::to_vec(help).map_err(|e| e.to_string())?.len() + 1;
+    if bytes > super::CLI_HELP_BYTES {
+        return Err(format!("{topic} help exceeded CLI_HELP_BYTES: {bytes}"));
+    }
+    use std::io::Write;
+    writeln!(std::io::stderr(), "SOURCE_GROUP_HELP_BYTES {topic} {bytes}")
+        .map_err(|e| e.to_string())
 }
