@@ -38,10 +38,17 @@ impl<'a> From<Option<&'a crate::prepared::PostMetadata>> for Request<'a> {
 }
 impl<'a> Request<'a> {
     fn method(self) -> &'static str {
-        match self { Self::Get => "GET", Self::Head => "HEAD", Self::Post(_) => "POST" }
+        match self {
+            Self::Get => "GET",
+            Self::Head => "HEAD",
+            Self::Post(_) => "POST",
+        }
     }
     fn post(self) -> Option<&'a crate::prepared::PostMetadata> {
-        match self { Self::Post(post) => Some(post), _ => None }
+        match self {
+            Self::Post(post) => Some(post),
+            _ => None,
+        }
     }
 }
 
@@ -423,7 +430,14 @@ impl Recordings {
         url: &str,
         exchange: Exchange,
     ) -> Result<(), RecordError> {
-        self.append_bounded(source, key, url, Request::Get, exchange, MAX_BUNDLE_FILE_BYTES)
+        self.append_bounded(
+            source,
+            key,
+            url,
+            Request::Get,
+            exchange,
+            MAX_BUNDLE_FILE_BYTES,
+        )
     }
     fn append_bounded(
         &self,

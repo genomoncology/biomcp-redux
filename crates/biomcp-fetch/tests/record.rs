@@ -471,7 +471,9 @@ fn head_metadata_capture_never_reads_the_object_or_collides_with_get() {
     let dir = tempfile::tempdir().unwrap();
     let server = Server::new();
     let spec = spec(&server);
-    let capture = fetch(Mode::Record { dir: dir.path().to_owned() });
+    let capture = fetch(Mode::Record {
+        dir: dir.path().to_owned(),
+    });
     thread::scope(|scope| {
         let worker = scope.spawn(|| {
             let leg = capture.leg(spec, capture.deadline(Duration::from_secs(10)));
@@ -486,26 +488,43 @@ fn head_metadata_capture_never_reads_the_object_or_collides_with_get() {
         worker.join().unwrap();
     });
     drop(capture);
-    let replay = fetch(Mode::Replay { dir: dir.path().to_owned() });
+    let replay = fetch(Mode::Replay {
+        dir: dir.path().to_owned(),
+    });
     assert!(get(&replay, spec).unwrap().answer);
-    replay.leg(spec, replay.deadline(Duration::from_secs(10)))
-        .probe(&spec.head("/answer"), &[]).unwrap();
+    replay
+        .leg(spec, replay.deadline(Duration::from_secs(10)))
+        .probe(&spec.head("/answer"), &[])
+        .unwrap();
     assert!(server.requests.try_recv().is_err());
-    let path = std::fs::read_dir(dir.path().join("pubmed")).unwrap()
+    let path = std::fs::read_dir(dir.path().join("pubmed"))
+        .unwrap()
         .map(|entry| entry.unwrap().path())
         .find(|path| {
-            let value: serde_json::Value = serde_json::from_slice(&std::fs::read(path).unwrap()).unwrap();
+            let value: serde_json::Value =
+                serde_json::from_slice(&std::fs::read(path).unwrap()).unwrap();
             value["method"] == "HEAD"
-        }).unwrap();
-    let original: serde_json::Value = serde_json::from_slice(&std::fs::read(&path).unwrap()).unwrap();
+        })
+        .unwrap();
+    let original: serde_json::Value =
+        serde_json::from_slice(&std::fs::read(&path).unwrap()).unwrap();
     for mutation in ["GET", "body"] {
         let mut value = original.clone();
-        if mutation == "GET" { value["method"] = "GET".into(); }
-        else { value["exchanges"][0]["body"]["value"] = "unexpected object bytes".into(); }
+        if mutation == "GET" {
+            value["method"] = "GET".into();
+        } else {
+            value["exchanges"][0]["body"]["value"] = "unexpected object bytes".into();
+        }
         std::fs::write(&path, serde_json::to_vec(&value).unwrap()).unwrap();
-        let replay = fetch(Mode::Replay { dir: dir.path().to_owned() });
-        assert_eq!(replay.leg(spec, replay.deadline(Duration::from_secs(10)))
-            .probe(&spec.head("/answer"), &[]).unwrap_err(),
-            RequestError::Recording(RecordError::Malformed));
+        let replay = fetch(Mode::Replay {
+            dir: dir.path().to_owned(),
+        });
+        assert_eq!(
+            replay
+                .leg(spec, replay.deadline(Duration::from_secs(10)))
+                .probe(&spec.head("/answer"), &[])
+                .unwrap_err(),
+            RequestError::Recording(RecordError::Malformed)
+        );
     }
 }

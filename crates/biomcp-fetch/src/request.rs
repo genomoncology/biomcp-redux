@@ -429,16 +429,18 @@ impl Leg<'_> {
         let recording = matches!(self.fetch.mode, crate::Mode::Record { .. });
         let body = if prepared.method == Method::Head {
             Vec::new()
-        } else { self.read_body(
-            &mut response,
-            status,
-            recording
-                || self.keyed()
-                || !prepared.outgoing.is_empty()
-                || codec.json_rejections && matches!(status, 400 | 422)
-                || codec.json_absence && status == 404,
-            codec.limit.unwrap_or(self.fetch.config.max_body),
-        )? };
+        } else {
+            self.read_body(
+                &mut response,
+                status,
+                recording
+                    || self.keyed()
+                    || !prepared.outgoing.is_empty()
+                    || codec.json_rejections && matches!(status, 400 | 422)
+                    || codec.json_absence && status == 404,
+                codec.limit.unwrap_or(self.fetch.config.max_body),
+            )?
+        };
         let wire = Wire {
             fetched,
             status,
