@@ -111,24 +111,33 @@ pub(super) fn select(
         truncated: None,
     });
     if !needles.is_empty() {
-        for sheet in sheets
-            .iter()
-            .filter(|sheet| page.rows.iter().any(|row| row.sheet.as_str() == sheet.name))
-        {
-            out.next.push((
-                StepKind::Section,
-                Action::Run {
-                    request: Request::ArticleSupplement(query.first_rows(
-                        Text::new(&sheet.name).map_err(|_| Reason::BadReply)?,
-                        sheet.rows.last().map_or(1, |row| row.number),
-                    )),
-                    fresh: false,
-                },
-            ));
-        }
+        context_steps(query, sheets, &page.rows, out)?;
     }
     content.rows = Some(page.rows.into());
     Ok(true)
+}
+fn context_steps(
+    query: &ArticleSupplement,
+    sheets: &[sheet::Sheet],
+    rows: &[SheetRow],
+    out: &mut Outcome,
+) -> Result<(), Reason> {
+    for sheet in sheets
+        .iter()
+        .filter(|sheet| rows.iter().any(|row| row.sheet.as_str() == sheet.name))
+    {
+        out.next.push((
+            StepKind::Section,
+            Action::Run {
+                request: Request::ArticleSupplement(query.first_rows(
+                    Text::new(&sheet.name).map_err(|_| Reason::BadReply)?,
+                    sheet.rows.last().map_or(1, |row| row.number),
+                )),
+                fresh: false,
+            },
+        ));
+    }
+    Ok(())
 }
 fn collect(
     query: &ArticleSupplement,
