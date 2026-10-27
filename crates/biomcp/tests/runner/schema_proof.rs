@@ -236,8 +236,15 @@ fn discovery() -> Result<(), String> {
             tool.get("outputSchema").ok_or("missing output schema")?,
         ));
     }
+    resolve_replies(&environment, replies)
+}
+
+fn resolve_replies(
+    environment: &super::launch::Environment,
+    replies: std::collections::BTreeSet<&str>,
+) -> Result<(), String> {
     for id in replies {
-        let artifact = invoke(&["schema".into(), id.into()])?;
+        let artifact = discovery_reply(environment, &["schema".into(), id.into()])?;
         if artifact.get("$id").and_then(Value::as_str) != Some(id) {
             return Err(format!("reply schema does not resolve: {id}"));
         }
