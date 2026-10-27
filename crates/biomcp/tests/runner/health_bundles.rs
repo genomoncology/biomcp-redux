@@ -159,6 +159,9 @@ fn local() -> Check {
                 return Err(format!("wrong local bundle state {r}"));
             }
         }
+        if expected == "fresh" {
+            partial_gene_bundle(&env, &args, &cache)?;
+        }
         cache
             .execute("UPDATE bundle SET fresh_until=0", [])
             .map_err(|e| e.to_string())?;
@@ -189,6 +192,27 @@ fn failure() -> Check {
     }
     if stub.finish()?.len() != 1 {
         return Err("health retried failed publisher".into());
+    }
+    Ok(())
+}
+
+fn partial_gene_bundle(env: &Environment, args: &[String], cache: &rusqlite::Connection) -> Check {
+    cache
+        .execute("DELETE FROM bundle WHERE name='hgnc-withdrawn'", [])
+        .map_err(|e| e.to_string())?;
+    let missing = invoke(env, args.to_vec(), 0)?;
+    if row(&missing, "hgnc")?["bundle"] != "missing" {
+        return Err("one present identity bundle hid the missing withdrawn file".into());
+    }
+    cache
+        .execute(
+            "INSERT INTO bundle VALUES('hgnc-withdrawn',10,1,0,NULL,NULL)",
+            [],
+        )
+        .map_err(|e| e.to_string())?;
+    let stale = invoke(env, args.to_vec(), 0)?;
+    if row(&stale, "hgnc")?["bundle"] != "stale" {
+        return Err("one fresh identity bundle hid the stale withdrawn file".into());
     }
     Ok(())
 }
