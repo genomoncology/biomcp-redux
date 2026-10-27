@@ -14,6 +14,7 @@ pub(super) fn trials() -> Vec<Trial> {
     trials
 }
 // Ceilings are ceil(measured comparable Markdown bytes * 1.15), from j11380.
+// Conservation uses literal-text comparable bytes from j17892 plus 15%.
 // Card and ClinVar ceilings use j16521; other shapes retain j11380.
 // The existing checker subtracts only the validated new source terms columns.
 const SHAPES: &[(&str, Shape)] = &[
@@ -83,7 +84,7 @@ const SHAPES: &[(&str, Shape)] = &[
                 "**state:** data",
                 "data",
             ],
-            max_bytes: 11070,
+            max_bytes: 12852,
         },
     ),
     (
