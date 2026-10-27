@@ -87,6 +87,7 @@ class LinuxContainers(unittest.TestCase):
             docker = bindir / 'docker'
             docker.write_text('#!' + sys.executable + '\n' + DOCKER)
             docker.chmod(0o755)
+            (bindir / 'python').symlink_to(sys.executable)
             subprocess.run(['git', 'init', '-q', str(root)], check=True)
             subprocess.run(['git', '-C', str(root), '-c', 'user.name=Fixture',
                             '-c', 'user.email=fixture@example.org', 'commit',
