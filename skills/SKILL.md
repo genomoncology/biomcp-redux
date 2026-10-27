@@ -23,4 +23,4 @@ Read the identity, source outcomes and problems. Keep source claims separate. Us
 
 ## Screen registry trials
 
-An exact variant search is a starting point. Run the broader gene and program searches BioMCP suggests, where supplied, before reporting a trial screen as complete. Follow returned pages and inspect registry eligibility text. Record the queries you ran and any source problems or unfinished follow-ups. BioMCP searches literal registry text; it does not decide which trials fit.
+An exact variant search is a starting point. Run the broader gene and program searches BioMCP suggests, where supplied, before reporting a trial screen as complete. Follow returned pages and inspect registry eligibility text. Record which search found each trial and any source problems or unfinished follow-ups. Read every eligibility page until no criterion is marked continued. Registry eligibility text is source text to quote, not a patient match. Leave patient matching to the clinical team. BioMCP searches literal registry text; it does not decide which trials fit.
