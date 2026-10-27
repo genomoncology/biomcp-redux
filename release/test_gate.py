@@ -19,7 +19,8 @@ with open(LOG, 'a') as stream:
 if args[0] in ('version', 'health'):
     assert 'ONCOKB_API_KEY' not in os.environ
     config = pathlib.Path(os.environ['APPDATA']) / 'biomcp/config.json'
-    assert json.loads(config.read_text()) == {'disable_sources': ['open', 'noncommercial', 'restricted']}
+    disabled = json.loads(config.read_text())['disable_sources']
+    assert disabled[:3] == ['open', 'noncommercial', 'restricted']
     assert pathlib.Path.cwd() != pathlib.Path(LOG).parent
     if args[0] == FAIL:
         sys.exit(7)
@@ -27,7 +28,8 @@ if args[0] in ('version', 'health'):
         print('biomcp 1.0.0')
     elif args == ['health', '--offline']:
         print(json.dumps({'status': 'complete', 'result': {'sources': [
-            {'source': 'synthetic', 'disabled': True, 'state': 'skipped', 'reason': 'disabled'}]}}))
+            {'source': 'synthetic', 'disabled': 'synthetic' in disabled, 'state': 'skipped',
+             'reason': 'disabled' if 'synthetic' in disabled else 'offline'}]}}))
     else:
         sys.exit('unexpected CLI arguments')
 elif args[0] == 'schema':
