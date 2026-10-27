@@ -6,6 +6,7 @@ mod raw;
 mod search;
 use biomcp_fetch::{KeyUse, SourceSpec, Terms};
 use biomcp_types::{Source, Use};
+pub(crate) use bundle::state as bundle_state;
 pub use bundle::sync;
 pub use get::{Record, get};
 pub use search::{Search, search};
@@ -57,3 +58,6 @@ fn conflict(id: &biodata::GtrTestId) -> biomcp_types::Problem {
         code: biomcp_types::ProblemCode::IdentityConflict,
     }
 }
+
+/// Small read-only publisher probe; never an export or synchronization.
+pub(crate) const HEALTH_PATH: &str = "/data/";

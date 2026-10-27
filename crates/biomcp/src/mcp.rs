@@ -147,7 +147,7 @@ impl Server {
                 };
                 (Ok(std::sync::Arc::new(fetch)), Some(cancellation))
             }
-            Err(error) => (Err(*error), None),
+            Err(error) => (Err(error.clone()), None),
         };
         self.start_call(key, id, modern, cancellation, move || {
             research::execute(&call, &globals, &fetch, false)

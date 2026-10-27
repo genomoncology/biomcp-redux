@@ -813,7 +813,7 @@
       "type": "string"
     }
   },
-  "$id": "biomcp.diagnostic_supplements/1",
+  "$id": "biomcp.diagnostic-supplements/1",
   "$schema": "https://json-schema.org/draft/2020-12/schema",
   "additionalProperties": false,
   "description": "One versioned command response; schema identity comes only from its body type.",
@@ -870,7 +870,7 @@
       "description": "Answer when available."
     },
     "schema": {
-      "const": "biomcp.diagnostic_supplements/1",
+      "const": "biomcp.diagnostic-supplements/1",
       "type": "string"
     },
     "sources": {

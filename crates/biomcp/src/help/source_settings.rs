@@ -30,6 +30,7 @@ pub(super) fn help(topic: &str) -> Help {
     description.push_str("Carried-field exclusions leave the aggregator's other fields available. PMC Open Access (pmc-oa) supplies PMC reading.");
     Help {
         commands: vec![HelpCommand {
+            reply_schemas: crate::schema::local_replies(&["help".into()]),
             command: vec!["help".into(), topic.into()],
             description,
             arguments: Vec::new(),

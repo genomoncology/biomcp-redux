@@ -57,6 +57,10 @@ pub(crate) fn run(
             biomcp_types::ErrorEnvelope::arguments(),
             crate::exit::Status::Usage,
         ),
+        Err(Failure::Configuration(field)) => crate::command::encode(
+            biomcp_types::ErrorEnvelope::configuration(field),
+            crate::exit::Status::Local,
+        ),
         Err(Failure::Local) => crate::command::encode(
             biomcp_types::ErrorEnvelope::local(),
             crate::exit::Status::Local,
@@ -64,6 +68,7 @@ pub(crate) fn run(
     }
 }
 enum Failure {
+    Configuration(String),
     Usage,
     Local,
 }
@@ -79,7 +84,7 @@ fn run_inner(
     let path = crate::config::config_path(globals.config.as_ref()).ok_or(Failure::Local)?;
     // Validate the same config contract used by ordinary commands before preserving it.
     if path.exists() {
-        crate::config::secrets(globals).map_err(|()| Failure::Local)?;
+        crate::config::secrets(globals).map_err(|error| Failure::Configuration(error.0))?;
     }
     if matches!(command, Command::List) {
         let value = crate::config::key_file::read(&path)?;

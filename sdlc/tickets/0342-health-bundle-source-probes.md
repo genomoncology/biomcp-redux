@@ -1,6 +1,7 @@
 # 0342 — Report bundle and sync sources truthfully in health
 
-Status: OPEN.
+Status: COMPLETE.
+Landed: fbb56637a9f02002b20ee9cdff09de0db70a33d8
 
 Milestone: 5
 

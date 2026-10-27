@@ -848,7 +848,7 @@
       "type": "string"
     }
   },
-  "$id": "biomcp.pgx_page/2",
+  "$id": "biomcp.pgx-page/2",
   "$schema": "https://json-schema.org/draft/2020-12/schema",
   "additionalProperties": false,
   "description": "One versioned command response; schema identity comes only from its body type.",
@@ -905,7 +905,7 @@
       "description": "Answer when available."
     },
     "schema": {
-      "const": "biomcp.pgx_page/2",
+      "const": "biomcp.pgx-page/2",
       "type": "string"
     },
     "sources": {

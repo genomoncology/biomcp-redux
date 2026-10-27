@@ -53,7 +53,7 @@ singleton! {
  SourceSelector => "choose one of the source selector values",
  UnsupportedFilter => "a selected source does not support the requested filters",
  TooManyPmids => "citation ordering exceeds the PMID limit; narrow the search",
- SchemaUsage => "expected schema <known artifact id>",
+ SchemaUsage => "use biomcp schema to list known artifact IDs",
  Arguments => "expected a supported command with checked arguments",
  Local => "local configuration, cache or recording failed",
 
@@ -281,6 +281,12 @@ pub struct ErrorEnvelope {
 }
 
 impl ErrorEnvelope {
+    /// Name a rejected configuration field or environment variable without its value.
+    pub fn configuration(option: String) -> Self {
+        let mut envelope = Self::local();
+        envelope.error.option = Some(option.into_boxed_str());
+        envelope
+    }
     /// Refuse opaque source syntax when a component terms restriction is selected.
     pub fn variant_query_policy() -> Self {
         let mut error = Self::arguments();
