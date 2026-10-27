@@ -26,6 +26,8 @@ import Fact from '../../components/Fact.astro';
 
 BioMCP <Fact k="version" /> is one program with two faces. In the shell it is the `biomcp` command. In an agent it is an MCP server with one `biomcp` tool that takes the same commands. It reaches genes, variants, trials, articles, drugs, diseases and <Fact k="counts.entities" /> entities in all, across <Fact k="counts.sources" /> public sources, and it says which source answered.
 
+Each command sends its words and identifiers over the network to the public sources it names. Do not put names, record numbers or other identifying patient data in a query.
+
 <TerminalHero id="home-trials" caption="A live ClinicalTrials.gov search, run when this site was built." />
 
 ## What it reaches

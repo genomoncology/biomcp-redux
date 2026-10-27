@@ -1,21 +1,48 @@
 ---
-// Runs a site search on the words in the missing address.
+// A search box for the 404 page. It starts with the words in the missing address and
+// queries the site index that Starlight builds with Pagefind at /pagefind/pagefind.js.
 ---
-<p>Searching the site for the words in this address. You can also start from the <a href="/">home page</a> or the <a href="/answers/">answers</a>.</p>
+<p>Start from the <a href="/getting-started/first-query/">quickstart</a>, the <a href="/">home page</a> or the <a href="/answers/">answers</a>, or search the site:</p>
+<form id="nf-form" role="search" action="/" onsubmit="return false">
+  <label for="nf-query">Search the site</label>
+  <input id="nf-query" type="search" name="q" autocomplete="off" />
+  <button type="submit">Search</button>
+</form>
+<p id="nf-status" aria-live="polite"></p>
 <ul id="nf-results"></ul>
 <script is:inline>
-  (async () => {
-    const words = decodeURIComponent(location.pathname).split(/[\/\-_.]+/).filter((w) => w && w.length > 1 && w !== 'html').join(' ');
-    if (!words) return;
-    const pagefind = await import('/pagefind/pagefind.js');
-    const { results } = await pagefind.search(words);
+  (() => {
+    const input = document.getElementById('nf-query');
+    const form = document.getElementById('nf-form');
+    const status = document.getElementById('nf-status');
     const list = document.getElementById('nf-results');
-    for (const r of results.slice(0, 8)) {
-      const d = await r.data();
-      const li = document.createElement('li');
-      const a = document.createElement('a');
-      a.href = d.url; a.textContent = d.meta.title;
-      li.append(a); list.append(li);
+    let pagefind;
+    async function run(words) {
+      list.replaceChildren();
+      if (!words.trim()) { status.textContent = ''; return; }
+      status.textContent = 'Searching…';
+      try {
+        pagefind ??= await import('/pagefind/pagefind.js');
+        const { results } = await pagefind.search(words);
+        const shown = await Promise.all(results.slice(0, 8).map((r) => r.data()));
+        for (const d of shown) {
+          const li = document.createElement('li');
+          const a = document.createElement('a');
+          a.href = d.url; a.textContent = d.meta.title;
+          li.append(a); list.append(li);
+        }
+        status.textContent = shown.length ? `${results.length} pages match "${words}".` : `No page matches "${words}".`;
+      } catch {
+        status.textContent = 'Search is not available here. Use the links above.';
+      }
     }
+    form.addEventListener('submit', () => run(input.value));
+    input.value = decodeURIComponent(location.pathname).split(/[\/\-_.]+/).filter((w) => w && w.length > 1 && w !== 'html').join(' ');
+    run(input.value);
   })();
 </script>
+<style>
+  #nf-form { display: flex; gap: 0.5rem; flex-wrap: wrap; align-items: center; }
+  #nf-form input { flex: 1 1 12rem; min-width: 0; padding: 0.4rem 0.6rem; border: 1px solid var(--sl-color-gray-4); border-radius: 0.25rem; background: var(--sl-color-bg); color: var(--sl-color-text); }
+  #nf-form button { padding: 0.4rem 0.9rem; border-radius: 0.25rem; border: 1px solid var(--sl-color-accent); background: var(--sl-color-accent); color: var(--sl-color-black); }
+</style>

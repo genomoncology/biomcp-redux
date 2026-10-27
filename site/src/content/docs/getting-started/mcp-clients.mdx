@@ -1,6 +1,6 @@
 ---
 title: Connect an agent
-description: Add BioMCP 1.0 to Claude, Codex, Cursor, VS Code or ChatGPT as an MCP server, or install the BioMCP skill, and check that the agent can call it.
+description: Add BioMCP 1.0 to Claude, Codex, Cursor or VS Code as an MCP server, find each client's settings file, see what BioMCP offers ChatGPT-style clients, or install the BioMCP skill.
 goal: The reader adds BioMCP to one MCP client or agent and confirms a tool call works.
 reader: A developer or researcher who uses an AI agent or desktop assistant and has BioMCP installed
 kind: how-to
@@ -33,6 +33,18 @@ Choose another shape with `--client`:
 | VS Code | `--client vscode` (alias `servers`) | `servers` object |
 | Codex | `--client codex` | a shell command |
 
+Each client keeps its MCP settings in its own place. These locations come from each client's own documentation; check it when your version differs:
+
+| Client | Where the settings live | Top-level key |
+| --- | --- | --- |
+| Claude Desktop | macOS `~/Library/Application Support/Claude/claude_desktop_config.json`, Windows `%APPDATA%\Claude\claude_desktop_config.json`. Settings, Developer, Edit Config opens it. ([MCP quickstart](https://modelcontextprotocol.io/quickstart/user)) | `mcpServers` |
+| Claude Code | `.mcp.json` at the project root for a project server, or add it with `claude mcp add biomcp -- PATH serve`, where `PATH` is the `command` path that `biomcp mcp-config` prints; this command was not run in the build. ([Claude Code MCP docs](https://code.claude.com/docs/en/mcp)) | `mcpServers` |
+| Cursor | `~/.cursor/mcp.json` for every project, or `.cursor/mcp.json` in one project. ([Cursor MCP docs](https://cursor.com/docs/context/mcp)) | `mcpServers` |
+| VS Code | `.vscode/mcp.json` in the workspace. ([VS Code MCP docs](https://code.visualstudio.com/docs/copilot/chat/mcp-servers)) | `servers` |
+| Codex | `~/.codex/config.toml`, under `[mcp_servers.biomcp]`. The command below writes it. ([Codex MCP docs](https://learn.chatgpt.com/docs/extend/mcp?surface=cli)) | none |
+
+Cline and other clients: see the client's documentation for its MCP settings file. The `mcpServers` shape fits most of them.
+
 Codex registers the server with one command:
 
 <Example id="mcp-config-codex" />
@@ -52,6 +64,8 @@ Research clients that expect `search` and `fetch` tools can use those two. `sear
 <Example id="mcp-search-tool" />
 
 Rows without an exact record to fetch stay available through the `biomcp` tool.
+
+BioMCP ships no connection steps for ChatGPT, and none were run for this page. BioMCP provides the `search` and `fetch` tools and an HTTP server. [OpenAI's MCP documentation](https://developers.openai.com/api/docs/mcp) says ChatGPT adds a custom MCP server by its remote URL. BioMCP's HTTP server does not authenticate callers, so a public URL needs a reverse proxy that does; see [run as a server](/getting-started/remote-http/).
 
 ## Install the desktop extension
 
@@ -80,7 +94,7 @@ Clients that connect over HTTP use `biomcp serve --http`. HTTP refuses file save
 
 ## If the client shows no tools
 
-- Run the `command` path from the configuration in a shell. It should print the version with `version` appended.
+- Run `<command path> version` in a shell, with the `command` path from the configuration. It prints `biomcp` and the version, <Fact k="version" />.
 - Restart the client after changing its configuration.
 - When the client starts with a different environment, a proxy or certificate set in your shell may be missing. Put `proxy` and `ca_bundle` in `config.json`; see [keys and configuration](/getting-started/api-keys/).
 

@@ -50,6 +50,10 @@ Without one, the server refuses to start with exit code 2:
 
 It prints no message; the exit code is the only sign. The allowed-host list checks the `Host` header. It is not authentication.
 
+The `Host` header must match a name on the list exactly. A server that allows only `localhost` refuses a request addressed to `127.0.0.1` with HTTP 403:
+
+<Example id="server-allow-host" />
+
 ## 4. Put it behind a reverse proxy
 
 Run the server on loopback and let your reverse proxy handle TLS and authentication. Forward `/mcp` and `/health` to the server's address. Set `--allow-host` to the public host name the proxy forwards in the `Host` header. Keep the proxy from adding a browser `Origin` header.
@@ -68,7 +72,7 @@ This fragment was not run in the build. Pass source keys with `-e`.
 
 ## Verify
 
-`curl http://127.0.0.1:8080/health` returns `"store":true` and the version.
+For the container above, `curl http://localhost:8080/health` returns `"store":true` and the version. The container allows only the host name `localhost`, so `curl http://127.0.0.1:8080/health` gets HTTP 403. For a server on its default address, `curl http://127.0.0.1:8080/health` works, as in step 2.
 
 ## Next
 
