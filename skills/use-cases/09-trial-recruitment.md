@@ -22,6 +22,6 @@ Compare the explicit query with the preceding condition search. Keep the narrowe
 
 ## Next
 
-Inspect full registry eligibility text and any continued criteria. Run broader gene and program searches suggested by returned commands before calling a screen complete. A complete response does not mean a complete screen; the clinical team must assess fit and confirm current recruitment.
+Inspect full registry eligibility text and any continued criteria. Run broader gene and program searches suggested by returned commands before calling a screen complete. A complete response does not mean a complete screen; the clinical team must assess fit and confirm current recruitment. Contact the study team to confirm eligibility and current recruitment.
 
 Read response status, problems and source terms at every step. Recorded replies demonstrate the commands; live replies can change.
