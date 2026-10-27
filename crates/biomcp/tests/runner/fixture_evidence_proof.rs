@@ -1,5 +1,5 @@
 //! Feature runner: failed local peers retain diagnostics and synthetic scratch.
-use super::{launch::Environment, network_stub::Stub};
+use super::super::{launch::Environment, network_stub::Stub};
 use libtest_mimic::Trial;
 use std::{
     fs,

@@ -7,7 +7,7 @@
     clippy::disallowed_types,
     reason = "The local fixture shares I/O diagnostics and owned scratch with its worker thread"
 )]
-use super::launch::Environment;
+use super::super::launch::Environment;
 use serde::Serialize;
 use std::{
     fs, io,

@@ -1,4 +1,6 @@
 //! A local CONNECT peer terminates TLS with a synthetic private trust anchor.
+#[path = "fixture_evidence.rs"]
+mod evidence;
 use rustls::{ServerConfig, ServerConnection, StreamOwned, pki_types::PrivatePkcs8KeyDer};
 use serde_json::Value;
 use std::{
@@ -23,7 +25,7 @@ pub(super) struct Stub {
     pub(super) address: std::net::SocketAddr,
     pub(super) certificate: String,
     stop: mpsc::Sender<()>,
-    evidence: Arc<super::fixture_evidence::Evidence>,
+    evidence: Arc<evidence::Evidence>,
     worker: Option<thread::JoinHandle<Result<Requests, String>>>,
 }
 impl Stub {
@@ -120,7 +122,7 @@ impl Stub {
         let address = listener.local_addr().map_err(|e| e.to_string())?;
         let (stop, stopping) = mpsc::channel();
         let (certificate, config) = identity(hosts)?;
-        let evidence = super::fixture_evidence::Evidence::new(address, hosts);
+        let evidence = evidence::Evidence::new(address, hosts);
         let observed = Arc::clone(&evidence);
         let hosts = hosts.iter().map(|s| s.to_string()).collect::<Vec<_>>();
         let worker = thread::spawn(move || {
@@ -178,7 +180,7 @@ impl Stub {
         let listener = TcpListener::bind("127.0.0.1:0").map_err(|e| e.to_string())?;
         let address = listener.local_addr().map_err(|e| e.to_string())?;
         let (stop, stopping) = mpsc::channel();
-        let evidence = super::fixture_evidence::Evidence::new(address, &[&host]);
+        let evidence = evidence::Evidence::new(address, &[&host]);
         let observed = Arc::clone(&evidence);
         let worker = thread::spawn(move || {
             let mut requests = Vec::new();
