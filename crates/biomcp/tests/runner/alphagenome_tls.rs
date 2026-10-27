@@ -229,6 +229,27 @@ fn groups(reply: &Value) -> Result<(), String> {
             "values, coordinates, nongene metadata or independent next pages changed".into(),
         );
     }
+    let native = rows
+        .first()
+        .and_then(|group| group.pointer("/rows/0"))
+        .ok_or("first scalar row")?;
+    if native.get("track")
+        != Some(&json!({
+            "name":"synthetic track 0","strand":"STRAND_UNSTRANDED",
+            "ontology_term":{"ontology_type":"ONTOLOGY_TYPE_UBERON","id":2048},
+            "biosample":{"type":"BIOSAMPLE_TYPE_TISSUE","name":"synthetic tissue","stage":"synthetic stage"},
+            "assay":"synthetic assay","gtex_tissue":"synthetic GTEx tissue","histone_mark_code":"synthetic histone",
+            "transcription_factor_code":"synthetic transcription factor","data_source":"synthetic data source",
+            "endedness":"ENDEDNESS_PAIRED","genetically_modified":true,"nonzero_mean":1.25
+        }))
+        || native.get("gene")
+            != Some(
+                &json!({"gene_id":"synthetic-gene-0","name":"synthetic gene",
+        "strand":"STRAND_POSITIVE","type":"synthetic gene type","junction_start":10,"junction_end":20}),
+            )
+    {
+        return Err("native track or gene metadata fields changed".into());
+    }
     Ok(())
 }
 fn fixture(messages: Vec<Vec<u8>>, status: u16) -> Result<support::Fixture, String> {
@@ -276,17 +297,11 @@ fn messages() -> Vec<Vec<u8>> {
             let tensor = [field(1, &shape), number(2, 2), number(4, 1)].concat();
             let mut metadata = field(1, &variant());
             for track in 0..shape[2] {
-                metadata.extend(field(
-                    2,
-                    &field(1, format!("synthetic track {track}").as_bytes()),
-                ));
+                metadata.extend(field(2, &track_metadata(track)));
             }
             if ordinal < 2 {
                 for row in 0..shape[1] {
-                    metadata.extend(field(
-                        3,
-                        &field(1, format!("synthetic-gene-{row}").as_bytes()),
-                    ));
+                    metadata.extend(field(3, &gene_metadata(row)));
                 }
             }
             let descriptor = field(
@@ -307,6 +322,44 @@ fn messages() -> Vec<Vec<u8>> {
             [descriptor, field(2, &field(1, &data))]
         })
         .collect()
+}
+fn track_metadata(track: u8) -> Vec<u8> {
+    let mut mean = vec![(14 << 3) | 5];
+    mean.extend(1.25f32.to_le_bytes());
+    [
+        field(1, format!("synthetic track {track}").as_bytes()),
+        number(2, 3),
+        field(3, &[number(1, 2), number(2, 2048)].concat()),
+        field(
+            4,
+            &[
+                number(1, 4),
+                field(2, b"synthetic tissue"),
+                field(3, b"synthetic stage"),
+            ]
+            .concat(),
+        ),
+        field(5, b"synthetic assay"),
+        field(8, b"synthetic GTEx tissue"),
+        field(9, b"synthetic histone"),
+        field(10, b"synthetic transcription factor"),
+        field(11, b"synthetic data source"),
+        number(12, 2),
+        number(13, 1),
+        mean,
+    ]
+    .concat()
+}
+fn gene_metadata(row: u8) -> Vec<u8> {
+    [
+        field(1, format!("synthetic-gene-{row}").as_bytes()),
+        number(2, 1),
+        field(3, b"synthetic gene"),
+        field(4, b"synthetic gene type"),
+        number(5, 10),
+        number(6, 20),
+    ]
+    .concat()
 }
 fn expected_request() -> Vec<u8> {
     [
