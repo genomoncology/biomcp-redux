@@ -468,3 +468,8 @@ fn protein_contracts() -> Vec<Contract> {
 
 #[path = "schemas/author.rs"]
 mod author;
+
+#[test]
+fn generated_schemas_preserve_release_contracts() -> Result<(), Box<dyn std::error::Error>> {
+    release::generated_schemas_preserve_release_contracts()
+}

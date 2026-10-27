@@ -74,7 +74,7 @@ def check(path):
         environment.pop("UPDATE_SCHEMAS", None)
         subprocess.run([
             "cargo", "test", "--locked", "-p", "biomcp-types", "--features", "schema",
-            "--test", "schemas", "release::generated_schemas_preserve_release_contracts",
+            "--test", "schemas", "generated_schemas_preserve_release_contracts",
             "--", "--exact", "--nocapture",
         ], cwd=ROOT, env=environment, check=True)
         subprocess.run([

@@ -5,12 +5,11 @@ use std::{collections::BTreeMap, fs, path::Path};
 
 type Check<T> = Result<T, Box<dyn std::error::Error>>;
 
-#[test]
 #[expect(
     clippy::disallowed_methods,
     reason = "The release contract test owns baseline file and environment I/O"
 )]
-fn generated_schemas_preserve_release_contracts() -> Check<()> {
+pub(super) fn generated_schemas_preserve_release_contracts() -> Check<()> {
     let Some(baseline) = std::env::var_os("BIOMCP_SCHEMA_BASELINE") else {
         return Ok(());
     };
