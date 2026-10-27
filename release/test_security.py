@@ -119,7 +119,7 @@ class Screening(unittest.TestCase):
             self.assertNotEqual(screen().returncode, 0, "depth limits must fail closed")
             candidate.unlink()
             with tarfile.open(artifacts / "layer.tar", "w") as archive:
-                link = tarfile.TarInfo("usr/bin/fixture")
+                link = tarfile.TarInfo("usr/share/man/fixture.1.gz")
                 link.type, link.linkname = tarfile.SYMTYPE, "/outside/fixture"
                 archive.addfile(link)
             self.assertEqual(screen().returncode, 0, "container links must be screened without dereferencing")

@@ -8,6 +8,7 @@ import json
 import os
 from pathlib import Path, PurePosixPath
 import platform
+import stat
 import subprocess
 import tarfile
 import tempfile
@@ -63,12 +64,16 @@ MAX_FILES = 200000
 
 def inputs(mode, target, env):
     if mode != "history":
-        for path in sorted(target.rglob("*")):
-            if path.is_symlink() or not (path.is_file() or path.is_dir()):
-                raise ValueError("nonregular artifact")
-            if path.is_file():
-                with path.open("rb") as source:
-                    yield path.relative_to(target).as_posix(), source.read(MAX_FILE + 1)
+        def unreadable(error):
+            raise error
+        for directory, directories, files in os.walk(target, followlinks=False, onerror=unreadable):
+            for name in sorted(directories + files):
+                path = Path(directory) / name
+                if path.is_symlink() or not (path.is_file() or path.is_dir()):
+                    raise ValueError("nonregular artifact")
+                if path.is_file():
+                    with path.open("rb") as source:
+                        yield path.relative_to(target).as_posix(), source.read(MAX_FILE + 1)
         return
     def git(*args):
         return subprocess.check_output(["git", "--no-replace-objects", "-C", str(target), *args],
@@ -107,7 +112,8 @@ def inputs(mode, target, env):
         finally:
             process.stdin.close()
             process.stdout.close()
-            process.wait()
+            if process.wait():
+                raise ValueError("historical blob reader failed")
 
 
 def prepare(target, mode, root, env):
@@ -139,8 +145,12 @@ def prepare(target, mode, root, env):
                         continue
                     if member.file_size > MAX_FILE or total + member.file_size > MAX_TOTAL:
                         raise ValueError("expanded archive exceeds screening limit")
+                    kind = stat.S_IFMT(member.external_attr >> 16)
+                    if kind not in (0, stat.S_IFREG, stat.S_IFLNK):
+                        raise ValueError("unsupported archive member")
                     with archive.open(member) as source:
-                        add(nested, source.read(MAX_FILE + 1), depth + 1)
+                        add(nested + "!link-target" if kind == stat.S_IFLNK else nested,
+                            source.read(MAX_FILE + 1), depth + 1)
         elif payload.startswith(b"\x1f\x8b") or suffix.endswith((".gz", ".tgz")):
             with gzip.GzipFile(fileobj=io.BytesIO(payload)) as source:
                 add(name + "!uncompressed.tar" if suffix.endswith((".tar.gz", ".tgz")) else name + "!uncompressed", source.read(MAX_FILE + 1), depth + 1)
@@ -153,7 +163,7 @@ def prepare(target, mode, root, env):
                     if member.issym() or member.islnk():
                         # Container layers contain links. Scan their metadata,
                         # never dereference them or extract their target paths.
-                        add(nested, member.linkname.encode(), depth + 1)
+                        add(nested + "!link-target", member.linkname.encode(), depth + 1)
                     elif member.isfile():
                         if member.size > MAX_FILE or total + member.size > MAX_TOTAL:
                             raise ValueError("expanded archive exceeds screening limit")
@@ -172,6 +182,8 @@ def scan(mode, target, cache):
     if target.is_symlink():
         raise ValueError("symbolic-link scan target")
     target = target.resolve(strict=True)
+    if not target.is_dir():
+        raise ValueError("scan target must be a directory")
     with tempfile.TemporaryDirectory(prefix="biomcp-secret-scan-") as directory:
         root = Path(directory).resolve()
         if __package__:
