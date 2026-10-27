@@ -168,10 +168,7 @@ fn hydrate(
                 if !q.sections().is_empty() {
                     item.sections = Some(super::sections::failed(
                         q,
-                        match e {
-                            RequestError::Source(s) => s.reason,
-                            _ => biomcp_types::Reason::Unavailable,
-                        },
+                        crate::status::reason(e).unwrap_or(biomcp_types::Reason::Unavailable),
                     ));
                 }
                 *error = Some(e);

@@ -3,7 +3,7 @@ use crate::{Ctx, status};
 use biodata::{Gene, HgncId, LocusGroup};
 
 use biomcp_adapters::gnomad;
-use biomcp_fetch::{Deadline, RequestError};
+use biomcp_fetch::Deadline;
 use biomcp_types::{Reason, Section, Source};
 
 pub(super) fn applicable(gene: &Gene) -> bool {
@@ -56,10 +56,7 @@ pub(super) fn run(cx: &Ctx<'_>, deadline: Deadline<'_>, genes: &[(HgncId, Gene)]
             }
             Err(error) => Section::unavailable(
                 Source::Gnomad,
-                match error {
-                    RequestError::Source(error) => error.reason,
-                    _ => Reason::Unavailable,
-                },
+                crate::status::reason(*error).unwrap_or(biomcp_types::Reason::Unavailable),
             ),
         };
         sections.push((*id, super::SectionValue::Constraint(section)));

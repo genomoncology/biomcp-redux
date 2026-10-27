@@ -3,8 +3,8 @@ use crate::{Ctx, status};
 use biodata::{Gene, HgncId};
 
 use biomcp_adapters::uniprot;
-use biomcp_fetch::{Deadline, RequestError};
-use biomcp_types::{Reason, Section, Source};
+use biomcp_fetch::Deadline;
+use biomcp_types::{Section, Source};
 pub(super) fn applicable(gene: &Gene) -> bool {
     !gene.uniprot.is_empty()
 }
@@ -52,10 +52,7 @@ pub(super) fn run(cx: &Ctx<'_>, deadline: Deadline<'_>, genes: &[(HgncId, Gene)]
                 }
                 Err(error) => Section::unavailable(
                     Source::UniProt,
-                    match error {
-                        RequestError::Source(error) => error.reason,
-                        _ => Reason::Unavailable,
-                    },
+                    crate::status::reason(*error).unwrap_or(biomcp_types::Reason::Unavailable),
                 ),
             };
             (*id, SectionValue::Protein(section))

@@ -2,7 +2,7 @@
 use crate::{Ctx, status};
 use biodata::VariantId;
 use biomcp_adapters::gwas;
-use biomcp_fetch::{Deadline, RequestError};
+use biomcp_fetch::Deadline;
 use biomcp_types::{
     PageInfo, Problem, ProblemCode, Reason, Section, Source, VariantGet, VariantGwas, VariantHeader,
 };
@@ -74,10 +74,7 @@ pub(super) fn section(
         }
         Err(e) => Section::unavailable(
             Source::Gwas,
-            match e {
-                RequestError::Source(e) => e.reason,
-                _ => Reason::Unavailable,
-            },
+            crate::status::reason(e).unwrap_or(biomcp_types::Reason::Unavailable),
         ),
     };
     (

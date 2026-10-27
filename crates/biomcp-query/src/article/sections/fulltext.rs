@@ -94,10 +94,7 @@ fn content(result: Result<Option<pmc_oa::Document>, RequestError>) -> Content {
                 (text, files)
             })
         })
-        .map_err(|e| match e {
-            RequestError::Source(e) => e.reason,
-            _ => Reason::Unavailable,
-        })
+        .map_err(|e| crate::status::reason(e).unwrap_or(biomcp_types::Reason::Unavailable))
 }
 fn section<T>(content: &Content, map: impl FnOnce(&(FullText, Supplements)) -> T) -> Section<T> {
     match content {

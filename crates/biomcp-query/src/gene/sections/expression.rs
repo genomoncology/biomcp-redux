@@ -3,8 +3,8 @@ use crate::{Ctx, status};
 use biodata::{Gene, HgncId};
 
 use biomcp_adapters::hpa;
-use biomcp_fetch::{Deadline, RequestError};
-use biomcp_types::{Reason, Section, Source};
+use biomcp_fetch::Deadline;
+use biomcp_types::{Section, Source};
 pub(super) fn applicable(gene: &Gene) -> bool {
     gene.ensembl_id.is_some()
 }
@@ -39,10 +39,7 @@ pub(super) fn run(cx: &Ctx<'_>, deadline: Deadline<'_>, genes: &[(HgncId, Gene)]
                     local = local.or(status::local(failure));
                     Section::unavailable(
                         Source::Hpa,
-                        match failure {
-                            RequestError::Source(error) => error.reason,
-                            _ => Reason::Unavailable,
-                        },
+                        crate::status::reason(failure).unwrap_or(biomcp_types::Reason::Unavailable),
                     )
                 }
             };

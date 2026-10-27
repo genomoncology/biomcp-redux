@@ -34,10 +34,7 @@ pub fn search(cx: &Ctx<'_>, q: &PathwaySearch) -> Outcome {
     };
     if let Err(error) = execute(cx, q, deadline, &mut out) {
         if out.sources.iter().all(|s| s.source != source) {
-            let reason = match error {
-                RequestError::Source(e) => Some(e.reason),
-                _ => None,
-            };
+            let reason = crate::status::reason(error);
             out.sources.push(biomcp_adapters::registry::outcome(
                 source,
                 if reason == Some(Reason::Disabled) {

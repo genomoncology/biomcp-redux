@@ -3,7 +3,7 @@ use crate::{Ctx, status};
 use biodata::{Gene, HgncId, Text};
 
 use biomcp_adapters::civic;
-use biomcp_fetch::{Deadline, RequestError};
+use biomcp_fetch::Deadline;
 use biomcp_types::{Problem, ProblemCode, Reason, Section, Source};
 pub(super) fn run(cx: &Ctx<'_>, deadline: Deadline<'_>, genes: &[(HgncId, Gene)]) -> SectionResult {
     let ids: Vec<_> = genes
@@ -36,10 +36,7 @@ pub(super) fn run(cx: &Ctx<'_>, deadline: Deadline<'_>, genes: &[(HgncId, Gene)]
                     },
                     Err(error) => Section::unavailable(
                         Source::Civic,
-                        match error {
-                            RequestError::Source(error) => error.reason,
-                            _ => Reason::Unavailable,
-                        },
+                        crate::status::reason(*error).unwrap_or(biomcp_types::Reason::Unavailable),
                     ),
                 }
             } else {

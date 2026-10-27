@@ -43,10 +43,7 @@ pub fn download(cx: &Ctx<'_>, query: &ArticleSupplement, allow: bool) -> super::
         if let QueryBody::ArticleSupplement(body) = &mut out.body {
             body.content = Section::unavailable(
                 Source::PmcOa,
-                match error {
-                    RequestError::Source(e) => e.reason,
-                    _ => Reason::Unavailable,
-                },
+                crate::status::reason(error).unwrap_or(biomcp_types::Reason::Unavailable),
             );
         }
         out.next.push((

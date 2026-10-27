@@ -309,7 +309,7 @@ fn xml_cache_codec_invalid_entries_and_stale_fallback_remain_checked() {
 
 #[test]
 fn record_xml_text_replays_without_http_and_offline_uses_checked_codec() {
-    use biomcp_fetch::{Mode, RecordError, ReplayCache, RequestError};
+    use biomcp_fetch::{Mode, ReplayCache};
     let dir = tempfile::tempdir().unwrap();
     let capture = dir.path().join("capture");
     let path = dir.path().join("cache.sqlite");
@@ -350,10 +350,7 @@ fn record_xml_text_replays_without_http_and_offline_uses_checked_codec() {
     })
     .unwrap();
     assert_eq!(invoke(&replay, spec).unwrap().text.as_str(), "BRAFV600E");
-    assert_eq!(
-        invoke(&replay, spec).unwrap_err(),
-        RequestError::Recording(RecordError::Exhausted)
-    );
+    assert_eq!(invoke(&replay, spec).unwrap().text.as_str(), "BRAFV600E");
     let offline = Fetch::open(FetchConfig {
         mode: Mode::Offline,
         replay_cache: Some(case_cache),

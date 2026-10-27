@@ -3,7 +3,7 @@ use crate::{Ctx, status};
 use biodata::{Gene, HgncId};
 
 use biomcp_adapters::oncokb;
-use biomcp_fetch::{Deadline, RequestError, SecretName};
+use biomcp_fetch::{Deadline, SecretName};
 use biomcp_types::{Reason, Section, Source, SourceState};
 
 pub(super) fn run(cx: &Ctx<'_>, deadline: Deadline<'_>, genes: &[(HgncId, Gene)]) -> SectionResult {
@@ -32,7 +32,10 @@ pub(super) fn run(cx: &Ctx<'_>, deadline: Deadline<'_>, genes: &[(HgncId, Gene)]
                 error = Some(failure);
                 local = local.or(status::local(failure));
                 (
-                    Section::unavailable(Source::Oncokb, reason(failure)),
+                    Section::unavailable(
+                        Source::Oncokb,
+                        crate::status::reason(failure).unwrap_or(biomcp_types::Reason::Unavailable),
+                    ),
                     None,
                     true,
                 )
@@ -80,12 +83,6 @@ pub(super) fn run(cx: &Ctx<'_>, deadline: Deadline<'_>, genes: &[(HgncId, Gene)]
         source,
         problems,
         local,
-    }
-}
-fn reason(error: RequestError) -> Reason {
-    match error {
-        RequestError::Source(error) => error.reason,
-        _ => Reason::Unavailable,
     }
 }
 

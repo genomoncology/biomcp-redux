@@ -251,10 +251,7 @@ fn cache_capture_replay_and_offline_distinguish_method_encoding_and_body() {
     .unwrap();
     for kind in 0..4 {
         assert!(invoke(&replay, spec, kind).unwrap().answer);
-        assert_eq!(
-            invoke(&replay, spec, kind).unwrap_err(),
-            RequestError::Recording(RecordError::Exhausted)
-        );
+        assert!(invoke(&replay, spec, kind).unwrap().answer);
     }
     let leg = replay.leg(spec, replay.deadline(Duration::from_secs(10)));
     assert_eq!(

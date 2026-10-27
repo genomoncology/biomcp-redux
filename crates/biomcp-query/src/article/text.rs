@@ -45,10 +45,11 @@ pub fn download(cx: &Ctx<'_>, query: &ArticleText, allow: bool) -> super::save::
             } else {
                 Source::PmcOa
             };
-            let (source, reason) = match error {
-                RequestError::Source(e) => (e.source, e.reason),
-                _ => (default_source, Reason::Unavailable),
+            let source = match error {
+                RequestError::Source(e) => e.source,
+                _ => default_source,
             };
+            let reason = crate::status::reason(error).unwrap_or(Reason::Unavailable);
             body.content = Section::unavailable(source, reason);
         }
         out.next.push((

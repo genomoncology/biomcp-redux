@@ -1,8 +1,8 @@
 //! Historical COSMIC fragments remain associated with their MyVariant parent record.
 use crate::{Ctx, status};
 
-use biomcp_fetch::{Deadline, RequestError};
-use biomcp_types::{Reason, Section, Source, VariantCosmic, VariantGet, VariantHeader};
+use biomcp_fetch::Deadline;
+use biomcp_types::{Section, Source, VariantCosmic, VariantGet, VariantHeader};
 pub(super) fn section(
     cx: &Ctx<'_>,
     query: &VariantGet,
@@ -52,8 +52,10 @@ pub(super) fn section(
             source: Source::MyVariant,
             record: candidates.first().map(|candidate| candidate.record.clone()),
         },
-        Err(RequestError::Source(error)) => Section::unavailable(Source::MyVariant, error.reason),
-        Err(_) => Section::unavailable(Source::MyVariant, Reason::Unavailable),
+        Err(error) => Section::unavailable(
+            Source::MyVariant,
+            crate::status::reason(error).unwrap_or(biomcp_types::Reason::Unavailable),
+        ),
     };
     (
         section,

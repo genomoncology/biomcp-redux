@@ -103,7 +103,7 @@ impl Leg<'_> {
             });
         };
         let mut stale = None;
-        if matches!(self.fetch.mode, Mode::Live { .. }) && !self.fresh {
+        if matches!(self.fetch.mode, Mode::Live { .. } | Mode::Replay { .. }) && !self.fresh {
             match self.checked_cached(cache, prepared, codec)? {
                 Some(Checked::Positive(reply, true, fetched, range, pagination)) => {
                     return Ok((reply, fetched, range, pagination));
@@ -250,7 +250,7 @@ impl Leg<'_> {
             key,
             codec.limit.unwrap_or(self.fetch.config.max_body),
             self.budget(),
-            self.fetch.mode != Mode::Offline,
+            !matches!(self.fetch.mode, Mode::Offline | Mode::Replay { .. }),
         ) {
             Ok(entry) => entry,
             Err(crate::CacheError::Busy) => {
