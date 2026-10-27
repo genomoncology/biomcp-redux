@@ -36,7 +36,9 @@ const LABEL: Endpoint = SPEC.get("").fresh(Freshness::Days(1)).json_absence();
 pub struct Page {
     /// Source revision records, never merged by ingredient or brand.
     pub records: Vec<Record>,
-    /// Native count for this exact selector.
+    /// Number of native rows consumed before any brand identity filtering.
+    pub scanned: u32,
+    /// Native count for this selector, before any brand identity filtering.
     pub total: u64,
     /// This reply's actual original retrieval metadata.
     pub metadata: ReplyMetadata,
@@ -75,9 +77,6 @@ pub fn search(leg: &Leg<'_>, brand: &Text, limit: u32, offset: u32) -> Result<Pa
             .flatten()
             .any(|name| normalize_brand(name.as_str()) == normalized)
     });
-    if fallback.records.is_empty() {
-        fallback.total = 0;
-    }
     Ok(fallback)
 }
 fn normalize_brand(value: &str) -> String {
@@ -131,6 +130,7 @@ fn page(
         raw::Response::Absent { .. } => (Vec::new(), 0),
     };
     Ok(Page {
+        scanned: records.len() as u32,
         records,
         total,
         metadata,

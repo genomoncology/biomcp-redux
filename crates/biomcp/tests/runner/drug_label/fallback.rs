@@ -73,7 +73,7 @@ fn fallback(typed: &str, returned: &str, found: bool) -> Check {
         }
     } else if field(&value, "status") != "absent"
         || value.pointer("/result/items").is_some()
-        || value.pointer("/result/total") != Some(&json!(0))
+        || value.pointer("/result/total") != Some(&json!(1))
     {
         return Err("fallback accepted a different brand".into());
     }
