@@ -374,6 +374,197 @@
           }
         }
       ]
+    },
+    {
+      "case": "study/examples.yaml",
+      "steps": [
+        {
+          "case": "study/examples.yaml",
+          "step": 0,
+          "baseline_command": [],
+          "spelling_table": "sdlc/planning/slices/study.md",
+          "release_source": [
+            "src/cli/study/mod.rs::StudyCommand",
+            "src/entities/study.rs::list_downloadable_studies",
+            "src/sources/cbioportal_download.rs::list_study_ids"
+          ],
+          "baseline_globals": [
+            "--json"
+          ],
+          "recordings": [],
+          "source_free": true,
+          "unsupported_command": {
+            "reason": "Released StudyCommand exposes local study list, analytical commands and Datahub study download --list; it has no cBioPortal native studies metadata synchronization command. The retained native /api/studies response is not Datahub directory data.",
+            "release_source": "src/cli/study/mod.rs::StudyCommand"
+          },
+          "facts": {},
+          "unprojectable_facts": {
+            "/status": {
+              "reason": "Released StudyCommand exposes local study list, analytical commands and Datahub study download --list; it has no cBioPortal native studies metadata synchronization command. The retained native /api/studies response is not Datahub directory data.",
+              "release_source": "src/cli/study/mod.rs::StudyCommand"
+            },
+            "": {
+              "reason": "Released StudyCommand exposes local study list, analytical commands and Datahub study download --list; it has no cBioPortal native studies metadata synchronization command. The retained native /api/studies response is not Datahub directory data.",
+              "release_source": "src/cli/study/mod.rs::StudyCommand"
+            }
+          }
+        },
+        {
+          "case": "study/examples.yaml",
+          "step": 1,
+          "baseline_command": [],
+          "spelling_table": "sdlc/planning/slices/study.md",
+          "release_source": [
+            "src/cli/study/mod.rs::StudyCommand",
+            "src/entities/study.rs::list_downloadable_studies",
+            "src/sources/cbioportal_download.rs::list_study_ids"
+          ],
+          "baseline_globals": [
+            "--json"
+          ],
+          "recordings": [],
+          "source_free": true,
+          "unsupported_command": {
+            "reason": "Released StudyCommand exposes local study list, analytical commands and Datahub study download --list; it has no cBioPortal native studies metadata synchronization command. The retained native /api/studies response is not Datahub directory data.",
+            "release_source": "src/cli/study/mod.rs::StudyCommand"
+          },
+          "facts": {},
+          "unprojectable_facts": {
+            "/status": {
+              "reason": "Released StudyCommand exposes local study list, analytical commands and Datahub study download --list; it has no cBioPortal native studies metadata synchronization command. The retained native /api/studies response is not Datahub directory data.",
+              "release_source": "src/cli/study/mod.rs::StudyCommand"
+            },
+            "": {
+              "reason": "Released StudyCommand exposes local study list, analytical commands and Datahub study download --list; it has no cBioPortal native studies metadata synchronization command. The retained native /api/studies response is not Datahub directory data.",
+              "release_source": "src/cli/study/mod.rs::StudyCommand"
+            }
+          }
+        },
+        {
+          "case": "study/examples.yaml",
+          "step": 2,
+          "baseline_command": [],
+          "spelling_table": "sdlc/planning/slices/study.md",
+          "release_source": [
+            "src/cli/study/mod.rs::StudyCommand",
+            "src/entities/study.rs::list_downloadable_studies",
+            "src/sources/cbioportal_download.rs::list_study_ids"
+          ],
+          "baseline_globals": [
+            "--json"
+          ],
+          "recordings": [],
+          "source_free": true,
+          "unsupported_command": {
+            "reason": "Released StudyCommand lists installed analytical study files or Datahub archive IDs. It has no native cBioPortal studies metadata search/get question. StudyDownloadCatalog serializes only study_ids; current lifecycle and byte-bound assertions are not a shared study fact.",
+            "release_source": "src/entities/study.rs::StudyDownloadCatalog"
+          },
+          "facts": {},
+          "unprojectable_facts": {
+            "/status": {
+              "reason": "Released StudyCommand lists installed analytical study files or Datahub archive IDs. It has no native cBioPortal studies metadata search/get question. StudyDownloadCatalog serializes only study_ids; current lifecycle and byte-bound assertions are not a shared study fact.",
+              "release_source": "src/entities/study.rs::StudyDownloadCatalog"
+            },
+            "": {
+              "reason": "Released StudyCommand lists installed analytical study files or Datahub archive IDs. It has no native cBioPortal studies metadata search/get question. StudyDownloadCatalog serializes only study_ids; current lifecycle and byte-bound assertions are not a shared study fact.",
+              "release_source": "src/entities/study.rs::StudyDownloadCatalog"
+            }
+          }
+        },
+        {
+          "case": "study/examples.yaml",
+          "step": 3,
+          "baseline_command": [],
+          "spelling_table": "sdlc/planning/slices/study.md",
+          "release_source": [
+            "src/cli/study/mod.rs::StudyCommand",
+            "src/entities/study.rs::list_downloadable_studies",
+            "src/sources/cbioportal_download.rs::list_study_ids"
+          ],
+          "baseline_globals": [
+            "--json"
+          ],
+          "recordings": [],
+          "source_free": true,
+          "unsupported_command": {
+            "reason": "Released StudyCommand lists installed analytical study files or Datahub archive IDs. It has no native cBioPortal studies metadata search/get question. StudyDownloadCatalog serializes only study_ids; current lifecycle and byte-bound assertions are not a shared study fact.",
+            "release_source": "src/entities/study.rs::StudyDownloadCatalog"
+          },
+          "facts": {},
+          "unprojectable_facts": {
+            "/status": {
+              "reason": "Released StudyCommand lists installed analytical study files or Datahub archive IDs. It has no native cBioPortal studies metadata search/get question. StudyDownloadCatalog serializes only study_ids; current lifecycle and byte-bound assertions are not a shared study fact.",
+              "release_source": "src/entities/study.rs::StudyDownloadCatalog"
+            },
+            "": {
+              "reason": "Released StudyCommand lists installed analytical study files or Datahub archive IDs. It has no native cBioPortal studies metadata search/get question. StudyDownloadCatalog serializes only study_ids; current lifecycle and byte-bound assertions are not a shared study fact.",
+              "release_source": "src/entities/study.rs::StudyDownloadCatalog"
+            }
+          }
+        },
+        {
+          "case": "study/examples.yaml",
+          "step": 4,
+          "baseline_command": [],
+          "spelling_table": "sdlc/planning/slices/study.md",
+          "release_source": [
+            "src/cli/study/mod.rs::StudyCommand",
+            "src/entities/study.rs::list_downloadable_studies",
+            "src/sources/cbioportal_download.rs::list_study_ids"
+          ],
+          "baseline_globals": [
+            "--json"
+          ],
+          "recordings": [],
+          "source_free": true,
+          "unsupported_command": {
+            "reason": "Released StudyCommand lists installed analytical study files or Datahub archive IDs. It has no native cBioPortal studies metadata search/get question. StudyDownloadCatalog serializes only study_ids; current lifecycle and byte-bound assertions are not a shared study fact.",
+            "release_source": "src/entities/study.rs::StudyDownloadCatalog"
+          },
+          "facts": {},
+          "unprojectable_facts": {
+            "/status": {
+              "reason": "Released StudyCommand lists installed analytical study files or Datahub archive IDs. It has no native cBioPortal studies metadata search/get question. StudyDownloadCatalog serializes only study_ids; current lifecycle and byte-bound assertions are not a shared study fact.",
+              "release_source": "src/entities/study.rs::StudyDownloadCatalog"
+            },
+            "": {
+              "reason": "Released StudyCommand lists installed analytical study files or Datahub archive IDs. It has no native cBioPortal studies metadata search/get question. StudyDownloadCatalog serializes only study_ids; current lifecycle and byte-bound assertions are not a shared study fact.",
+              "release_source": "src/entities/study.rs::StudyDownloadCatalog"
+            }
+          }
+        },
+        {
+          "case": "study/examples.yaml",
+          "step": 5,
+          "baseline_command": [],
+          "spelling_table": "sdlc/planning/slices/study.md",
+          "release_source": [
+            "src/cli/study/mod.rs::StudyCommand",
+            "src/entities/study.rs::list_downloadable_studies",
+            "src/sources/cbioportal_download.rs::list_study_ids"
+          ],
+          "baseline_globals": [
+            "--json"
+          ],
+          "recordings": [],
+          "source_free": true,
+          "unsupported_command": {
+            "reason": "Released StudyCommand lists installed analytical study files or Datahub archive IDs. It has no native cBioPortal studies metadata search/get question. StudyDownloadCatalog serializes only study_ids; current lifecycle and byte-bound assertions are not a shared study fact.",
+            "release_source": "src/entities/study.rs::StudyDownloadCatalog"
+          },
+          "facts": {},
+          "unprojectable_facts": {
+            "/status": {
+              "reason": "Released StudyCommand lists installed analytical study files or Datahub archive IDs. It has no native cBioPortal studies metadata search/get question. StudyDownloadCatalog serializes only study_ids; current lifecycle and byte-bound assertions are not a shared study fact.",
+              "release_source": "src/entities/study.rs::StudyDownloadCatalog"
+            },
+            "": {
+              "reason": "Released StudyCommand lists installed analytical study files or Datahub archive IDs. It has no native cBioPortal studies metadata search/get question. StudyDownloadCatalog serializes only study_ids; current lifecycle and byte-bound assertions are not a shared study fact.",
+              "release_source": "src/entities/study.rs::StudyDownloadCatalog"
+            }
+          }
+        }
+      ]
     }
   ]
 }
