@@ -72,7 +72,9 @@ pub use response::{
     VariantCivic, VariantHotspots, VariantOncokb, VariantSections,
 };
 pub use response::{Constraint, GeneSections, Protein};
-pub use response::{DisableGroup, DisabledComponent, Health, HttpHealth, SourceHealth};
+pub use response::{
+    DisableGroup, DisabledComponent, Health, HttpHealth, LocalBundleState, SourceHealth,
+};
 pub use response::{
     Envelope, GeneCards, GeneItem, GenePage, ItemStatus, PageInfo, QueryBody, ResponseBody,
     Section, SourceOutcome, SourceRecord, SourceState, Status, Step, StepKind,
