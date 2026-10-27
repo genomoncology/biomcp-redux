@@ -28,9 +28,11 @@ impl Fetch {
                 if !seen.insert(path.clone()) || regular_length(&path)?.is_none() {
                     continue;
                 }
-                let connection =
+                let Ok(connection) =
                     Connection::open_with_flags(&path, OpenFlags::SQLITE_OPEN_READ_ONLY)
-                        .map_err(|_| CacheError::Database)?;
+                else {
+                    continue;
+                };
                 connection
                     .busy_timeout(deadline.remaining())
                     .map_err(|_| CacheError::Database)?;

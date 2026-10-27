@@ -53,6 +53,18 @@ fn measured() -> Result<(), String> {
         fs::write(path.join(".tmpABC123"), vec![0; bytes]).map_err(|e| e.to_string())?;
     }
     fs::write(folder.join("unrelated"), vec![0; 99]).map_err(|e| e.to_string())?;
+    fs::write(
+        active.with_extension("parts").join("unrelated"),
+        vec![0; 99],
+    )
+    .map_err(|e| e.to_string())?;
+    let foreign =
+        rusqlite::Connection::open(folder.join("cache-0-0.sqlite")).map_err(|e| e.to_string())?;
+    foreign
+        .execute_batch(
+            "CREATE TABLE meta(owner TEXT,version INTEGER); INSERT INTO meta VALUES('foreign',1);",
+        )
+        .map_err(|e| e.to_string())?;
     let active_bytes = database_bytes(&active)?;
     let retained_bytes = database_bytes(&retained)? + database_bytes(&legacy)?;
     use std::io::Write;
