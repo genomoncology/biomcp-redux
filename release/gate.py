@@ -51,7 +51,20 @@ def cli_checks(binary, record):
         env = environment(root)
         config = root / "config/biomcp/config.json"
         config.parent.mkdir(parents=True)
-        config.write_text(json.dumps({"disable_sources": ["open", "noncommercial", "restricted"]}))
+        groups = ["open", "noncommercial", "restricted"]
+        config.write_text(json.dumps({"disable_sources": groups}))
+        # Terms groups preserve aggregators with independently labeled components.
+        # Discover their IDs offline from the installed candidate, then disable
+        # every source explicitly before the recorded checks.
+        discovered = subprocess.run([str(binary.resolve()), "health", "--offline"], env=env, cwd=root,
+                                    capture_output=True, text=True, timeout=60)
+        if discovered.returncode or discovered.stderr:
+            raise ValueError("installed CLI command failed: " + discovered.stdout + discovered.stderr)
+        discovery = json.loads(discovered.stdout)
+        names = [row["source"] for row in discovery["result"]["sources"]]
+        if discovery["status"] != "complete" or not names or any(not isinstance(name, str) or not name for name in names):
+            raise ValueError("installed CLI source discovery failed")
+        config.write_text(json.dumps({"disable_sources": groups + names}))
         rows = []
         for command in [["version"], ["health", "--offline"]]:
             result = subprocess.run([str(binary.resolve())] + command, env=env, cwd=root,
