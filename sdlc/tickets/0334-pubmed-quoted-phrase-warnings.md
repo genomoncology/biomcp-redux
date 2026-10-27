@@ -1,6 +1,7 @@
 # 0334 — Keep PubMed's phrase warnings and suggest a retry that keeps the variant
 
-Status: OPEN.
+Status: COMPLETE.
+Landed: 0a4dd8835ad5269c28447c9e8f3d1028440c2f3a
 
 Milestone: 5
 
