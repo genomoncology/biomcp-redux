@@ -9,7 +9,7 @@ pub(super) fn initialize(params: &Value) -> Option<Value> {
     info.get("name")?.as_str()?;
     info.get("version")?.as_str()?;
     Some(json!({"protocolVersion":revision,
-        "capabilities":{"tools":{}}, "serverInfo":protocol::info()}))
+        "capabilities":{"tools":{}}, "serverInfo":protocol::info(), "instructions":protocol::INSTRUCTIONS}))
 }
 
 // Pinned lifecycle version negotiation preserves a supported requested revision.

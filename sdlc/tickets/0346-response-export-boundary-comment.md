@@ -14,4 +14,4 @@ A short comment beside the private response module in the types crate says that 
 - Rules: comment only. Ordinary compilation stays the enforcement; no new checker, job, dependency or blanket export.
 - Proof: the landing gate passes; the comment sits at both export sites.
 - Changes: the types crate's `lib.rs` and response module root.
-- Defers: nothing. Main only; not cherry-picked onto `release/1.0`.
+- Defers: nothing.
