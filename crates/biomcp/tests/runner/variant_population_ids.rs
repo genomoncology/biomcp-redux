@@ -65,9 +65,11 @@ fn ambiguous() -> Result<(), String> {
             .pointer("/result/candidates")
             .and_then(Value::as_array)
             .ok_or_else(|| format!("source candidates disappeared: {output}"))?;
-        if rows.len() != 2
-            || rows[0].pointer("/record/id") != Some(&json!("chr10:g.114758349C>T"))
-            || rows[1].pointer("/record/id") != Some(&json!("chr10:g.114758349C>G"))
+        let [first, second] = rows.as_slice() else {
+            return Err(format!("source candidate count changed: {output}"));
+        };
+        if first.pointer("/record/id") != Some(&json!("chr10:g.114758349C>T"))
+            || second.pointer("/record/id") != Some(&json!("chr10:g.114758349C>G"))
         {
             return Err(format!("source allele order or identity changed: {output}"));
         }
