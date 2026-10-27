@@ -19,7 +19,7 @@ fn run(env: &Environment, args: &[&str]) -> Check<Vec<u8>> {
     // Embedded text measured from the canonical UTF-8 payload; summaries are
     // measured at the executable boundary in j16298. Keep fifteen percent headroom.
     let measured: usize = match args.get(1).map(String::as_str) {
-        None | Some("render") => 1877,
+        None | Some("render") => 1824,
         Some("list") => 955,
         Some("install") => 117,
         Some("status") => 55,
