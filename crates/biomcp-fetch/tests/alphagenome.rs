@@ -94,11 +94,15 @@ fn canonical_request_preserves_one_based_variant_and_zero_based_interval() -> Ch
 #[test]
 fn envelopes_require_both_alleles_exact_chunks_and_metadata_shape() -> Check {
     let req = request()?;
-    let mut complete = req.decoder(Limits::default())?;
+    let mut complete = req
+        .decoder(Limits::default())
+        .map_err(|_| "decoder refused limits")?;
     for msg in [output(2, 1), chunk(), output(1, 1), chunk()] {
-        complete.message(&msg)?;
+        complete
+            .message(&msg)
+            .map_err(|_| "complete envelope rejected")?;
     }
-    complete.finish()?;
+    complete.finish().map_err(|_| "complete stream rejected")?;
     for messages in [
         vec![],
         vec![chunk()],
@@ -110,19 +114,27 @@ fn envelopes_require_both_alleles_exact_chunks_and_metadata_shape() -> Check {
         vec![output(1, 1), chunk(), output(2, 1), chunk(), chunk()],
         vec![vec![10, 255]],
     ] {
-        let mut decoder = req.decoder(Limits::default())?;
+        let mut decoder = req
+            .decoder(Limits::default())
+            .map_err(|_| "decoder refused limits")?;
         let valid = messages
             .iter()
             .try_for_each(|message| decoder.message(message))
             .is_ok();
         assert!(!valid || decoder.finish().is_err());
     }
-    let mut bounded = req.decoder(Limits {
-        expanded_bytes: 3,
-        ..Default::default()
-    })?;
-    bounded.message(&output(1, 1))?;
-    bounded.message(&chunk())?;
+    let mut bounded = req
+        .decoder(Limits {
+            expanded_bytes: 3,
+            ..Default::default()
+        })
+        .map_err(|_| "decoder refused bounded limits")?;
+    bounded
+        .message(&output(1, 1))
+        .map_err(|_| "reference envelope rejected")?;
+    bounded
+        .message(&chunk())
+        .map_err(|_| "reference chunk rejected")?;
     assert!(bounded.message(&output(2, 1)).is_err());
     Ok(())
 }
