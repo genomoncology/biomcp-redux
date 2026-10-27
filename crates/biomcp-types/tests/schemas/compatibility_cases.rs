@@ -338,3 +338,25 @@ fn compatibility_preserves_standard_string_format_annotations_and_assertions() {
         assert!(check(&annotated, &narrowed).is_err());
     }
 }
+
+#[test]
+fn compatibility_accepts_rfc_annotations_beside_string_references_without_assertion_siblings() {
+    for old in [
+        json!({"$id":"biodata.example/1", "$ref":"#/$defs/Text",
+            "$defs":{"Text":{"type":"string","minLength":1}}}),
+        json!({"$id":"biodata.example/1", "anyOf":[{"$ref":"#/$defs/Text"},{"type":"null"}],
+            "$defs":{"Text":{"type":"string","minLength":1}}}),
+    ] {
+        for format in ["date", "date-time", "uri", "uri-reference"] {
+            let mut new = old.clone();
+            new["format"] = json!(format);
+            assert!(check(&old, &new).is_ok());
+            assert!(check(&new, &old).is_err());
+            new["minLength"] = json!(2);
+            assert!(check(&old, &new).is_err());
+        }
+        let mut unknown = old.clone();
+        unknown["format"] = json!("unchecked");
+        assert!(check(&old, &unknown).is_err());
+    }
+}

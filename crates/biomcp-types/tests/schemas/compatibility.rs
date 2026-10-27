@@ -3,6 +3,8 @@ use std::collections::{BTreeMap, BTreeSet};
 
 type Check<T> = Result<T, String>;
 
+const STRING_FORMATS: &[&str] = &["date", "date-time", "uri", "uri-reference"];
+
 #[derive(Debug, Default)]
 struct Shape {
     types: BTreeSet<String>,
@@ -239,15 +241,14 @@ fn collect(node: &Value, path: &str, shapes: &mut BTreeMap<String, Shape>) -> Ch
             && format != "int64"
             && format != "double"
             && format != "markdown"
-            && format != "date"
-            && format != "date-time"
-            && format != "uri"
-            && format != "uri-reference"
+            && !format
+                .as_str()
+                .is_some_and(|format| STRING_FORMATS.contains(&format))
     }) {
         return Err("unsupported format".into());
     }
     if let Some(format) = node.get("format").and_then(Value::as_str)
-        && ["date", "date-time", "uri", "uri-reference"].contains(&format)
+        && STRING_FORMATS.contains(&format)
     {
         if !shape.types.contains("string") {
             return Err("string format requires a string schema".into());
@@ -462,6 +463,11 @@ fn validate_keywords(object: &serde_json::Map<String, Value>, path: &str) -> Che
             && !(composition == "anyOf" && selectors(&Value::Object(object.clone()))?.is_some())
             && object.keys().any(|key| {
                 key != composition
+                    && !(key == "format"
+                        && object
+                            .get(key)
+                            .and_then(Value::as_str)
+                            .is_some_and(|format| STRING_FORMATS.contains(&format)))
                     && ![
                         "$schema",
                         "$id",
