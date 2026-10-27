@@ -86,6 +86,9 @@ pub struct TrialEligibilityPage {
     pub healthy_volunteers: Option<bool>,
     /// Exact original text fragment, including whitespace.
     pub criteria: Box<str>,
+    /// The page ends within a criterion whose lines exceed the page budget.
+    #[serde(default)]
+    pub criterion_continues: bool,
     /// Original character offset.
     pub offset: u32,
     /// Complete original text length in Unicode scalar values.

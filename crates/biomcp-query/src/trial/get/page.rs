@@ -1,3 +1,4 @@
+mod eligibility;
 mod publications;
 mod sites;
 use super::snapshot::Snapshot;
@@ -90,16 +91,7 @@ fn eligibility(
     };
     let text = e.criteria.as_ref().map_or("", |s| s.as_str());
     let total = text.chars().count() as u32;
-    let mut fragment = String::new();
-    let mut bytes = 0;
-    for ch in text.chars().skip(query.offset() as usize) {
-        let cost = biomcp_adapters::jats::escaped_bytes(&ch.to_string());
-        if bytes + cost > 6000 {
-            break;
-        }
-        bytes += cost;
-        fragment.push(ch);
-    }
+    let (fragment, criterion_continues) = eligibility::fragment(text, query.offset() as usize);
     let end = query.offset() + fragment.chars().count() as u32;
     advance(query, id, TrialSection::Eligibility, pool, end, total, out);
     Section::Data {
@@ -111,6 +103,7 @@ fn eligibility(
             sex: e.sex,
             healthy_volunteers: e.healthy_volunteers,
             criteria: fragment.into(),
+            criterion_continues,
             offset: query.offset(),
             total_characters: total,
         },
