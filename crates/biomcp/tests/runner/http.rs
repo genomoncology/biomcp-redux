@@ -276,13 +276,9 @@ fn protocols() -> Check {
     let discover = super::mcp::request(json!(7), "server/discover", json!({}));
     server.request("POST", "/mcp", &discover.to_string())?;
     let list = legacy(7, "tools/list", json!({}));
-    let (status, reply, _) = server.raw(
-        "POST",
-        "/mcp",
-        &server.address.to_string(),
-        legacy_headers(),
-        &list.to_string(),
-    )?;
+    let host = server.address.to_string();
+    let body = list.to_string();
+    let (status, reply, _) = server.raw("POST", "/mcp", &host, legacy_headers(), &body)?;
     if status != 200
         || reply
             .as_ref()
@@ -323,11 +319,15 @@ fn legacy_versions(server: &Server) -> Check {
                 (init, "/result/protocolVersion", json!(revision)),
                 (call, "/result/isError", json!(false)),
             ] {
+                let fallback = version_header.is_empty() && request["method"] != "initialize";
+                let transport_revision = if fallback { "2025-03-26" } else { revision };
                 let body = request.to_string();
                 let (status, reply, response) =
                     server.raw("POST", "/mcp", &host, &headers, &body)?;
                 if status != 200
                     || reply.as_ref().and_then(|v| v.pointer(pointer)) != Some(&expected)
+                    || !response
+                        .contains(&format!("MCP-Protocol-Version: {transport_revision}\r\n"))
                     || response.to_ascii_lowercase().contains("session-id")
                 {
                     return Err(format!("legacy {revision}: {status} {reply:?}"));
