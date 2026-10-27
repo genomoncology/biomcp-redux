@@ -175,8 +175,14 @@ const SHAPES: &[Shape] = &[
     Shape {
         args: &["get", "gene"],
         replies: "gene/main",
-        required: &["# Error", "**status:** usage", "usage&#46;arguments"],
-        max_bytes: 151,
+        required: &[
+            "# Error",
+            "**status:** usage",
+            "usage&#46;arguments",
+            "**option:** input",
+        ],
+        // j18069 measured 154 Markdown bytes with a named argument, plus 15%.
+        max_bytes: 178,
     },
 ];
 fn shapes() -> Result<(), String> {
