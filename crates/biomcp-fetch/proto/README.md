@@ -2,7 +2,7 @@
 
 These files come from Google DeepMind AlphaGenome commit `55943112b83439e0c2512110f1ae607d4b5b492a`, under `src/`. They retain the complete service import closure and Apache notices. The sibling `LICENSE` applies to the inputs and generated messages.
 
-Run `python3 scripts/regenerate_tensor_proto.py --check` through the normal job runner to reproduce the committed private messages. The isolated generator pins prost-build 0.14.3 and protoc-bin-vendored 3.2.0, which supplies protoc 31.1. Its separate lockfile pins the tool dependencies. Regeneration verifies the source hashes and uses local inputs. The product build reads committed Rust files and invokes no generator, compiler plugin or network request.
+Run `python3 scripts/regenerate_tensor_proto.py --check` through the normal job runner to reproduce the committed private messages. The isolated generator pins prost-build 0.14.3 and protoc-bin-vendored 3.2.0, which supplies protoc 31.1. Its separate lockfile pins the tool dependencies. Regeneration verifies the source hashes and uses local inputs. The product build reads committed Rust files and invokes no generator or network request.
 
 The codec accepts serialized `Tensor` and `TensorChunk` payloads, rather than choosing an RPC method or biological output. An RPC adapter must extract these payloads from its bounded response envelope, validate its source identities and terminal gRPC status, and withhold partial tensors from successful publication until the complete stream passes. The codec returns one tensor at a time so callers need not retain the whole stream. A codec error poisons the sequence. Its `finish` method proves descriptor and chunk completion only.
 

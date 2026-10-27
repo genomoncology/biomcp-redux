@@ -300,8 +300,9 @@ fn request_reason_mapping_cannot_be_copied() -> Check {
 fn generated_exception_cannot_hide_product_code() -> Check {
     let tree = tree()?;
     let path = "crates/biomcp-fetch/src/grpc/proto.rs";
-    let wrapper =
-        "#![allow(dead_code, reason=\"pinned generation\")]\ninclude!(\"generated/mod.rs\");\n";
+    let wrapper = r#"#![allow(dead_code, reason="pinned generation")]
+include!("generated/mod.rs");
+"#;
     put(tree.path(), path, wrapper)?;
     check(tree.path())?;
     rejects(
