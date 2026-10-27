@@ -1,4 +1,4 @@
-//! Feature mcp: advertised schemas validate actual reply forms and reject unrelated objects.
+//! Feature mcp-parity: advertised schemas validate actual reply forms and reject unrelated objects.
 use super::super::launch::Environment;
 use serde_json::{Value, json};
 use std::io::Write;
