@@ -973,6 +973,15 @@ Proof must install archives and wheels outside the checkout and exercise both co
 
 The structural risks are duplicated protocol truth, unshared transport state and testing source builds instead of installed artifacts. Pinned proto generation, a single Fetch owner, one cache-admission predicate for live/cache/replay, and the installed-platform rehearsal address those risks. No product code, dependencies, runtime, credentials or provider calls belong to this design change.
 
+
+#### AlphaGenome scoring section
+
+The variant section uses the ruled legacy `ScoreRequest` without exposing request selectors. Mitochondrial inputs remain unsupported before RPC because the integration lacks a verified chromosome mapping and interval contract. The publisher [FAQ](https://www.alphagenomedocs.com/faqs.html) identifies the human assembly; it does not establish that mitochondrial contract. Source resolution establishes the GRCh38 allele before the scoring leg. MyVariant chromosome notation receives its existing assembly-qualified accession before CAR resolves the unchanged genomic expression. A missing key skips both resolution and scoring when AlphaGenome is the only requested section.
+
+The pinned publisher [client conversion](https://github.com/google-deepmind/alphagenome/blob/55943112b83439e0c2512110f1ae607d4b5b492a/src/alphagenome/models/v1/dna_client.py#L332-L384) and [scorer conversion](https://github.com/google-deepmind/alphagenome/blob/55943112b83439e0c2512110f1ae607d4b5b492a/src/alphagenome/models/variant_scorers.py#L732-L807) document plane, gene row and track axis order. The response retains every native plane and metadata row. A nongene aggregate has no invented gene. Requested scorer identity and interval remain request provenance because the response has no native scorer label or interval field. The response does not add units or a returned model version.
+
+Each scorer pages scalar rows independently through the existing section offset and limit. Every reply includes all scorer groups, their complete native shapes and dtypes, and each group's own next request. Tensor coordinates preserve native row-major order. Bounds derive from the complete approved scoring capture and apply before result publication. Licensed raw replies and numerical replay inputs remain outside Git. The CLI contracts reuse the shared local TLS peer and child environment.
+
 ## 5. Source adapters
 
 ### 5.1 The shape

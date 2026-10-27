@@ -251,26 +251,25 @@ fn markdown(
     if !measure && text.len() > ceiling(phase, "markdown")? {
         return Err("native Markdown exceeds measured output cap".into());
     }
-    let unescaped = text.replace("\\_", "_");
     let result = value.get("result").ok_or("result")?;
     let header = result
         .get("header")
         .or_else(|| result.pointer("/items/0"))
         .ok_or("header")?;
     for field in ["accession", "name"] {
-        if !unescaped.contains(
+        if !text.contains(&super::source_terms::text::escape(
             header
                 .get(field)
                 .and_then(Value::as_str)
                 .ok_or("header fact")?,
-        ) {
+        )) {
             return Err(format!("Markdown lost {field}"));
         }
     }
     if let Some(warning) = result
         .pointer("/warnings/items/0/text")
         .and_then(Value::as_str)
-        && !unescaped.contains(warning)
+        && !text.contains(&super::source_terms::text::escape(warning))
     {
         return Err("Markdown shortened qualified warning".into());
     }

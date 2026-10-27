@@ -1,6 +1,7 @@
 # 0338 — Print help for the usual help entry points and name unknown commands
 
-Status: OPEN.
+Status: COMPLETE.
+Landed: 747982f5df8fe2440fd4053386b89f31c20cbae6
 
 Milestone: 5
 

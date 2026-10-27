@@ -10,7 +10,7 @@ Milestone: 5
 
 - Why: the docs lead's second-pass product findings (2026-10-27), item G9. Ian's ruling that 1.0 ships every known fix (2026-10-27).
 - Starts from: the drugsfda search item type and the other drug sources' item shapes.
-- Rules: the name comes from the application's own product or brand field, never a guess.
+- Rules: PM ruling 2026-10-27 (m10746): `id` is the application number; `name` appears only when every product has the same exact `brand_name`, and is left out for zero or differing brands; every product and identity stays. No concatenated or guessed names.
 - Proof: a replay case shows top-level `id` and `name`; the baseline is regenerated.
 - Changes: the drugsfda item type, adapter, cases and the baseline.
 - Defers: nothing.

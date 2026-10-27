@@ -189,6 +189,7 @@ fn discovery() -> Result<(), String> {
         .pointer("/result/commands")
         .and_then(Value::as_array)
         .ok_or("missing commands")?;
+    parent_replies(commands)?;
     let mut replies = std::collections::BTreeSet::new();
     for command in commands {
         let schemas = command["reply_schemas"]
@@ -235,6 +236,29 @@ fn discovery() -> Result<(), String> {
         if artifact.get("$id").and_then(Value::as_str) != Some(id) {
             return Err(format!("reply schema does not resolve: {id}"));
         }
+    }
+    Ok(())
+}
+
+fn parent_replies(commands: &[Value]) -> Result<(), String> {
+    let parent = commands
+        .iter()
+        .find(|command| command["command"] == json!(["get"]))
+        .ok_or("missing get parent command")?;
+    let replies = parent["reply_schemas"]
+        .as_array()
+        .ok_or("missing parent reply schemas")?;
+    for id in ["biomcp.drug-who-card/1", "biomcp.pgx-annotation/1"] {
+        if !replies.iter().any(|reply| reply.as_str() == Some(id)) {
+            return Err(format!("missing child reply {id} for get parent"));
+        }
+    }
+    if replies
+        .iter()
+        .zip(replies.iter().skip(1))
+        .any(|(left, right)| left.as_str() >= right.as_str())
+    {
+        return Err("parent reply schemas are not sorted and unique".into());
     }
     Ok(())
 }
