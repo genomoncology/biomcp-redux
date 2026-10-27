@@ -1,18 +1,18 @@
-# 0336 — Refresh the 1.0 release candidate with the 497 rerun and docs findings fixes
+# 0336 — Cut the 1.0 release candidate from main once every 1.0 ticket lands
 
 Status: OPEN.
 
 Milestone: 5
 
-Depends on: 0334, 0335, 0338, 0339, 0340, 0341, 0342, 0343, 0347, 0348, 0352, 0353, 0354, 0356
+Depends on: 0198, 0334, 0338, 0339, 0340, 0341, 0342, 0343, 0344, 0345, 0346, 0347, 0348, 0349, 0350, 0351, 0352, 0353, 0354, 0355, 0356, 0357, 0358, 0359, 0360, 0361, 0362, 0363, 0364, 0365, 0366, 0367, 0368, 0369, 0370
 
 ## Outcome
 
-`release/1.0` gains only the 0334, 0335, 0338 to 0343, 0347, 0348, 0352, 0353, 0354 and 0356 fix commits, and 0355 if it finds a product cause, cherry-picked from main, with its schema baseline re-exported from the new release product source if schemas change, and one approved hosted release.yml run passes on the new head.
+`release/1.0` takes main's tree in one merge commit once every listed ticket has landed on main, its schema baseline is re-exported from that product source, and one approved hosted release.yml run passes on the new head.
 
-- Why: the experiment 497 rerun found two remaining 1.0 gaps after 0332. PM ruling 2026-10-27 (Jarvis m9946). Amendment 2026-10-27: the docs findings report found six release blockers in help, arguments, configuration, schema IDs, health and output; their fixes join this one refresh so one hosted run covers them all. The 0347 and 0348 security screening fixes join too, and so do 0352, 0353, 0354 and 0356 from the docs lead's second pass.
-- Starts from: the `release/1.0` head after 0332, the 0332 rules and the 0314 snapshot recipe.
-- Rules: the 0332 rules apply: only these commits (0340, 0341 and 0342 arrive as one net commit equal to their combined change at main 5591d00e8, never the intermediate 0341 tree that kept conflict markers; PM ruling 2026-10-27, m10484), no AlphaGenome transport file, the manifest names the real product source commit, and the hosted run on the new head is the installed proof.
-- Proof: the gate passes, any baseline equals the release head's generated schemas, the cases of each listed ticket pass on the release head, and the hosted run passes.
-- Changes: the `release/1.0` branch and, if needed, its baseline.
+- Why: `decisions/2026-10-27-1-0-ships-every-known-fix.md`. Ian wants every known fix in 1.0, so the candidate is cut from main instead of cherry-picking chosen commits.
+- Starts from: the `release/1.0` head after 0332, main after the last listed ticket lands, and the 0314 snapshot recipe.
+- Rules: the merge has `release/1.0` as first parent and main as second, and its tree equals main's. The manifest names the real product source commit. The hosted run on the new head is the installed proof. The earlier cherry-pick plan and the m10484 net-commit ruling are superseded, because main's whole tree now ships.
+- Proof: the merge tree equals main's tree; the gate passes; the baseline equals the release head's generated schemas; release/1.0 holds no conflict markers; the hosted run passes all five targets, containers and Homebrew.
+- Changes: the `release/1.0` branch and its baseline.
 - Defers: publication and the history append, which need Ian.

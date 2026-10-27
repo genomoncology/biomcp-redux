@@ -6,7 +6,7 @@ Milestone: 5
 
 ## Outcome
 
-The cause of `biomcp sync cbioportal-studies` returning `rejected` in about half a second is found. If it reproduces on an ordinary network without a proxy, it is fixed and joins the 0336 refresh. If it depends on the reporter's proxy route, the reply names the routing cause, and the fix ships in a 1.0 update.
+The cause of `biomcp sync cbioportal-studies` returning `rejected` in about half a second is found. It is fixed either way. If it depends on the reporter's proxy route, the reply names the routing cause and the routing fix ships in 1.0 too.
 
 - Why: the docs lead's second-pass product findings (2026-10-27) and the first pass (E5). On the docs lead's cloud machine the sync is rejected, while `curl https://www.cbioportal.org/api/studies?projection=DETAILED` through the same proxy returns 200. The PM's health run also showed cbioportal `syncing` with no sync running (0342).
 - Starts from: the cBioPortal studies sync request, its Fetch route and `rejected` mapping, and 0340's proxy changes.

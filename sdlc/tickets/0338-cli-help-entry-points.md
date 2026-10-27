@@ -13,4 +13,4 @@ Milestone: 5
 - Rules: the help printed for these entry points is the existing `biomcp help` content, in the requested format, scoped to the path. Messages name the command, never echo other input, as 0013 and 0025 say. A nearest-command suggestion uses only the known command list.
 - Proof: CLI cases for each entry point above exit 0 with help text; `help frobnicate`, `discover BRAF` and `serve --bogus` return the unknown-command code; a retired 0.9 command names its replacement; `biomcp help` no longer lists `list`.
 - Changes: the binary's parser and dispatch, error codes, CLI cases and the schema baseline if the error schema changes.
-- Defers: help defaults, examples and Markdown layout, which go to a 1.0 update.
+- Defers: help defaults, examples and Markdown layout, which go to 0357.
