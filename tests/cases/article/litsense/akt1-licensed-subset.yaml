@@ -3,7 +3,7 @@
   "live_check": "synthetic CC BY response subset",
   "story": "AKT1 similarity retains native paper order and the first matching sentence and section for each paper",
   "replay": "article/litsense/akt1-licensed-subset",
-  "verified": "Synthetic edited subset of the successful 2026-10-27 AKT1 capture. Only eleven unchanged sentences from six papers with verified CC BY rights remain. The unmodified 100-sentence, 65-paper capture and its exact CLI/MCP replay remain outside Git on Yellow; archive SHA256 c1f862c22f18de048015c536024458fef7c989b7e635a9117b9aaefdde89754c. PubMed summary is a separate actual keyless capture for exactly these six PMIDs; original ten-ID summary remains unchanged outside Git. See replies/article/litsense/README.md for rights and attribution. Native null sections are omitted by the public schema; whole-sentence equality checks both omission and the exact non-null section values.",
+  "verified": "Synthetic edited subset of the successful 2026-10-27 AKT1 capture. Only eleven unchanged sentences from six papers with verified CC BY rights remain. The unmodified 100-sentence, 65-paper capture and its exact CLI/MCP replay remain outside Git on Yellow; archive SHA256 c1f862c22f18de048015c536024458fef7c989b7e635a9117b9aaefdde89754c. PubMed summary is a separate actual keyless capture for exactly these six PMIDs; original ten-ID summary remains unchanged outside Git. See replies/article/litsense/README.md for rights and attribution. Native null sections are omitted by the public schema; whole-sentence equality checks both omission and the exact non-null section values. Measured full output: CLI 4909 bytes and MCP text 4908 bytes; ceiling 5646 bytes is ceil(maximum * 1.15). No matching 0.9 named-source JSON baseline exists.",
   "steps": [
     {
       "run": [
@@ -20,8 +20,8 @@
         "--source",
         "litsense"
       ],
-      "max_bytes": 10000,
-      "max_tokens": 2500,
+      "max_bytes": 5646,
+      "max_tokens": 1412,
       "expect": {
         "/status": "complete",
         "/page/total": 6,
