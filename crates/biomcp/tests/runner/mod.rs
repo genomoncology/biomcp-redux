@@ -114,6 +114,7 @@ mod schema;
 mod schema_proof;
 mod scholar;
 mod semantic_tables;
+mod skill;
 mod source_controls;
 mod source_terms;
 mod store_clean;
@@ -286,6 +287,7 @@ fn run_case(path: &Path, registry: &schema::Registry) -> Result<Value, String> {
 pub(super) fn protocol_trials() -> Vec<Trial> {
     let mut trials = protocol::trials();
     trials.extend(housekeeping::trials());
+    trials.extend(skill::trials());
     trials.extend(research::trials());
     trials.push(Trial::test("article-help/executable-examples", || {
         help_examples::check().map_err(Into::into)
