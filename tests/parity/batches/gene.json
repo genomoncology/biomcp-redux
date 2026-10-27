@@ -358,6 +358,140 @@
       }
     },
     {
+      "case": "gene/mll2.yaml",
+      "step": 0,
+      "baseline_command": [
+        "gene",
+        "definition",
+        "MLL2"
+      ],
+      "baseline_exit": 1,
+      "baseline_globals": [
+        "--json"
+      ],
+      "spelling_table": "sdlc/planning/slices/gene.md",
+      "release_source": [
+        "src/cli/gene/dispatch.rs::render_gene_card_outcome",
+        "src/cli/shared.rs::try_alias_fallback_outcome",
+        "src/render/json.rs::to_alias_suggestion_json"
+      ],
+      "recordings": [
+        {
+          "source": "mygene-info",
+          "endpoint_env": "BIOMCP_MYGENE_BASE",
+          "host": "mygene.info",
+          "request_prefix": "GET /v3/query?",
+          "request_contains": "",
+          "request_query": {
+            "q": "symbol:\"MLL2\"",
+            "species": "human"
+          },
+          "recording_gap": "The harvested HGNC ambiguity recording has no initial released MyGene symbol, alias-search or discover fallback source replies. Missing source replies remain assessment gaps."
+        },
+        {
+          "source": "ols4",
+          "endpoint_env": "BIOMCP_OLS4_BASE",
+          "host": "www.ebi.ac.uk",
+          "request_prefix": "GET /ols4/api/search",
+          "request_contains": "",
+          "request_query": {
+            "q": "MLL2"
+          },
+          "recording_gap": "The released discover alias fallback needs OLS ontology search replies for this same input. The harvested HGNC resolution recording contains none; no concept candidate labels or IDs can be inferred from the expected assertions."
+        }
+      ],
+      "facts": {
+        "/result/items/0/answer/resolution": "/_meta/alias_resolution/kind",
+        "/result/items/0/answer/candidates/0": "/_meta/alias_resolution/candidates/0",
+        "/result/items/0/answer/candidates/1": "/_meta/alias_resolution/candidates/1"
+      },
+      "unprojectable_facts": {
+        "/status": {
+          "reason": "Released alias suggestions provide generic concept labels and namespace-dependent primary IDs, without the HGNC previous-symbol/alias match classification, guaranteed HGNC identity list, or typed current next actions.",
+          "release_source": "src/entities/discover.rs::alias_candidates;src/render/json.rs::to_alias_suggestion_json"
+        },
+        "/result/items/0/answer/candidates/*/hgnc_id": {
+          "reason": "Released alias suggestions provide generic concept labels and namespace-dependent primary IDs, without the HGNC previous-symbol/alias match classification, guaranteed HGNC identity list, or typed current next actions.",
+          "release_source": "src/entities/discover.rs::alias_candidates;src/render/json.rs::to_alias_suggestion_json"
+        },
+        "/result/items/0/answer/candidates/*/match/kind": {
+          "reason": "Released alias suggestions provide generic concept labels and namespace-dependent primary IDs, without the HGNC previous-symbol/alias match classification, guaranteed HGNC identity list, or typed current next actions.",
+          "release_source": "src/entities/discover.rs::alias_candidates;src/render/json.rs::to_alias_suggestion_json"
+        },
+        "/sources/*/source": {
+          "reason": "Released alias suggestions provide generic concept labels and namespace-dependent primary IDs, without the HGNC previous-symbol/alias match classification, guaranteed HGNC identity list, or typed current next actions.",
+          "release_source": "src/entities/discover.rs::alias_candidates;src/render/json.rs::to_alias_suggestion_json"
+        },
+        "/next/*/args": {
+          "reason": "Released alias suggestions provide generic concept labels and namespace-dependent primary IDs, without the HGNC previous-symbol/alias match classification, guaranteed HGNC identity list, or typed current next actions.",
+          "release_source": "src/entities/discover.rs::alias_candidates;src/render/json.rs::to_alias_suggestion_json"
+        }
+      }
+    },
+    {
+      "case": "gene/p16.yaml",
+      "step": 0,
+      "baseline_command": [
+        "gene",
+        "definition",
+        "p16"
+      ],
+      "baseline_exit": 1,
+      "baseline_globals": [
+        "--json"
+      ],
+      "spelling_table": "sdlc/planning/slices/gene.md",
+      "release_source": [
+        "src/cli/gene/dispatch.rs::render_gene_card_outcome",
+        "src/cli/shared.rs::try_alias_fallback_outcome",
+        "src/render/json.rs::to_alias_suggestion_json"
+      ],
+      "recordings": [
+        {
+          "source": "mygene-info",
+          "endpoint_env": "BIOMCP_MYGENE_BASE",
+          "host": "mygene.info",
+          "request_prefix": "GET /v3/query?",
+          "request_contains": "",
+          "request_query": {
+            "q": "symbol:\"p16\"",
+            "species": "human"
+          },
+          "recording_gap": "The harvested HGNC ambiguity recording has no initial released MyGene symbol, alias-search or discover fallback source replies. Missing source replies remain assessment gaps."
+        },
+        {
+          "source": "ols4",
+          "endpoint_env": "BIOMCP_OLS4_BASE",
+          "host": "www.ebi.ac.uk",
+          "request_prefix": "GET /ols4/api/search",
+          "request_contains": "",
+          "request_query": {
+            "q": "p16"
+          },
+          "recording_gap": "The released discover alias fallback needs OLS ontology search replies for this same input. The harvested HGNC resolution recording contains none; no concept candidate labels or IDs can be inferred from the expected assertions."
+        }
+      ],
+      "facts": {
+        "/result/items/0/answer/resolution": "/_meta/alias_resolution/kind",
+        "/result/items/0/answer/candidates/0": "/_meta/alias_resolution/candidates/0",
+        "/result/items/0/answer/candidates/1": "/_meta/alias_resolution/candidates/1"
+      },
+      "unprojectable_facts": {
+        "/result/items/0/answer/candidates/*/hgnc_id": {
+          "reason": "Released alias suggestions provide generic concept labels and namespace-dependent primary IDs, without the HGNC previous-symbol/alias match classification, guaranteed HGNC identity list, or typed current next actions.",
+          "release_source": "src/entities/discover.rs::alias_candidates;src/render/json.rs::to_alias_suggestion_json"
+        },
+        "/result/items/0/answer/candidates/0/symbol": {
+          "reason": "Released alias suggestions provide generic concept labels and namespace-dependent primary IDs, without the HGNC previous-symbol/alias match classification, guaranteed HGNC identity list, or typed current next actions.",
+          "release_source": "src/entities/discover.rs::alias_candidates;src/render/json.rs::to_alias_suggestion_json"
+        },
+        "/result/items/0/answer/candidates/*/match/kind": {
+          "reason": "Released alias suggestions provide generic concept labels and namespace-dependent primary IDs, without the HGNC previous-symbol/alias match classification, guaranteed HGNC identity list, or typed current next actions.",
+          "release_source": "src/entities/discover.rs::alias_candidates;src/render/json.rs::to_alias_suggestion_json"
+        }
+      }
+    },
+    {
       "case": "gene/sections/civic-data.yaml",
       "step": 0,
       "baseline_command": [
@@ -582,7 +716,7 @@
           "host": "gnomad.broadinstitute.org",
           "request_prefix": "POST /api",
           "request_contains": "",
-          "recording_gap": "The harvested gene/clingen recording does not retain the released constraint request set and decoder response format. Source routes require review before execution; no synthetic baseline-only reply is supplied."
+          "recording_gap": "The retained response uses data.g0 and a lowercase pli field for an Ensembl batch query. Released GeneConstraint requires data.gene from a gene_symbol query and pLI. Wrapping the whole body cannot supply the missing released decoder fields without changing source data."
         },
         {
           "source": "clingen",
@@ -590,7 +724,15 @@
           "host": "search.clinicalgenome.org",
           "request_prefix": "GET /kb/gene-validity/download",
           "request_contains": "",
-          "recording_gap": "The harvested gene/clingen recording does not retain the released clingen request set and decoder response format. Source routes require review before execution; no synthetic baseline-only reply is supplied."
+          "capture": "clingen/28dc43879841858d45a9b24bc647b549f240403b88ad3ecb0057bb667a5cf96d.json"
+        },
+        {
+          "source": "clingen",
+          "endpoint_env": "BIOMCP_CLINGEN_BASE",
+          "host": "search.clinicalgenome.org",
+          "request_prefix": "GET /kb/gene-dosage/download",
+          "request_contains": "",
+          "capture": "clingen/e2e3c16667068aeb83740719435456a4e43ed312c5236b47bf9489fcbf96d2e4.json"
         }
       ],
       "facts": {
@@ -656,7 +798,7 @@
           "host": "gnomad.broadinstitute.org",
           "request_prefix": "POST /api",
           "request_contains": "",
-          "recording_gap": "The harvested gene/constraint recording does not retain the released constraint request set and decoder response format. Source routes require review before execution; no synthetic baseline-only reply is supplied."
+          "recording_gap": "The retained response uses data.g0 and a lowercase pli field for an Ensembl batch query. Released GeneConstraint requires data.gene from a gene_symbol query and pLI. Wrapping the whole body cannot supply the missing released decoder fields without changing source data."
         }
       ],
       "facts": {
@@ -719,7 +861,7 @@
           "host": "www.proteinatlas.org",
           "request_prefix": "GET /",
           "request_contains": "",
-          "recording_gap": "The harvested gene/expression recording does not retain the released expression request set and decoder response format. Source routes require review before execution; no synthetic baseline-only reply is supplied."
+          "recording_gap": "The retained HPA request returns ENSG.json; released hpa requires ENSG.xml and decodes XML tissue levels and subcellular locations. No XML reply is retained, and JSON cannot be rewritten into a baseline-only XML fixture."
         }
       ],
       "facts": {
@@ -792,7 +934,7 @@
           "host": "www.proteinatlas.org",
           "request_prefix": "GET /",
           "request_contains": "",
-          "recording_gap": "The harvested gene/expression/synthetic-mapping recording does not retain the released expression request set and decoder response format. Source routes require review before execution; no synthetic baseline-only reply is supplied."
+          "recording_gap": "The retained HPA request returns ENSG.json; released hpa requires ENSG.xml and decodes XML tissue levels and subcellular locations. No XML reply is retained, and JSON cannot be rewritten into a baseline-only XML fixture."
         }
       ],
       "facts": {
@@ -881,7 +1023,7 @@
           "host": "www.proteinatlas.org",
           "request_prefix": "GET /",
           "request_contains": "",
-          "recording_gap": "The harvested gene/expression recording does not retain the released expression request set and decoder response format. Source routes require review before execution; no synthetic baseline-only reply is supplied."
+          "recording_gap": "The retained HPA request returns ENSG.json; released hpa requires ENSG.xml and decodes XML tissue levels and subcellular locations. No XML reply is retained, and JSON cannot be rewritten into a baseline-only XML fixture."
         }
       ],
       "facts": {
@@ -940,7 +1082,7 @@
           "host": "www.proteinatlas.org",
           "request_prefix": "GET /",
           "request_contains": "",
-          "recording_gap": "The harvested gene/expression/synthetic-wrong-identity recording does not retain the released expression request set and decoder response format. Source routes require review before execution; no synthetic baseline-only reply is supplied."
+          "recording_gap": "The retained HPA request returns ENSG.json; released hpa requires ENSG.xml and decodes XML tissue levels and subcellular locations. No XML reply is retained, and JSON cannot be rewritten into a baseline-only XML fixture."
         }
       ],
       "facts": {
@@ -1015,7 +1157,7 @@
           "host": "gnomad.broadinstitute.org",
           "request_prefix": "POST /api",
           "request_contains": "",
-          "recording_gap": "The harvested gene/constraint/synthetic-replay-miss recording does not retain the released constraint request set and decoder response format. Source routes require review before execution; no synthetic baseline-only reply is supplied."
+          "recording_gap": "The retained response uses data.g0 and a lowercase pli field for an Ensembl batch query. Released GeneConstraint requires data.gene from a gene_symbol query and pLI. Wrapping the whole body cannot supply the missing released decoder fields without changing source data."
         }
       ],
       "facts": {
@@ -1037,6 +1179,203 @@
         "/sources/*/source": {
           "reason": "Released gene cards do not serialize the current global source lifecycle, typed next actions or field-level join and decoder problem records. Section outcomes cannot establish those global assertions.",
           "release_source": "src/entities/gene.rs::Gene;src/cli/gene/dispatch.rs::render_gene_card_outcome"
+        }
+      }
+    },
+    {
+      "case": "gene/sections/pathways-empty.yaml",
+      "step": 0,
+      "baseline_command": [
+        "get",
+        "gene",
+        "BRAF",
+        "pathways"
+      ],
+      "baseline_globals": [
+        "--json"
+      ],
+      "spelling_table": "sdlc/planning/slices/gene.md",
+      "release_source": [
+        "src/cli/gene/dispatch.rs::handle_get",
+        "src/entities/gene.rs::fetch_pathways_section",
+        "src/entities/gene.rs::complete_gene_section_outcomes"
+      ],
+      "recordings": [
+        {
+          "source": "mygene-info",
+          "endpoint_env": "BIOMCP_MYGENE_BASE",
+          "host": "mygene.info",
+          "request_prefix": "GET /v3/query?",
+          "request_contains": "",
+          "request_query": {
+            "q": "symbol:\"BRAF\"",
+            "species": "human"
+          },
+          "recording_gap": "The retained Entrez annotation omits symbol and name needed by released Reactome symbol search. A native symbol-query recording is missing; no baseline-only annotation is substituted."
+        },
+        {
+          "source": "reactome",
+          "endpoint_env": "BIOMCP_REACTOME_BASE",
+          "host": "reactome.org",
+          "request_prefix": "GET /ContentService/search/query",
+          "request_contains": "",
+          "request_query": {
+            "query": "BRAF"
+          },
+          "recording_gap": "The harvested Reactome accession mapping captures do not contain the released symbol text-search reply. Its ordered IDs and bounded row count remain declared, with a recording assessment gap."
+        }
+      ],
+      "facts": {
+        "/result/items/0/sections/pathways/state": "/section_outcomes/pathways/outcome",
+        "/result/items/0/sections/pathways": {
+          "object": {
+            "state": {
+              "pointer": "/section_outcomes/pathways/outcome"
+            },
+            "source": {
+              "pathway_source": "/section_outcomes/pathways/sources/0"
+            }
+          }
+        }
+      },
+      "unprojectable_facts": {
+        "/status": {
+          "reason": "Released gene cards do not serialize the current global source lifecycle, aggregate status or field-level join problems.",
+          "release_source": "src/entities/gene.rs::fetch_pathways_section;src/entities/gene.rs::Gene"
+        }
+      }
+    },
+    {
+      "case": "gene/sections/pathways-tp53.yaml",
+      "step": 0,
+      "baseline_command": [
+        "get",
+        "gene",
+        "TP53",
+        "pathways"
+      ],
+      "baseline_globals": [
+        "--json"
+      ],
+      "spelling_table": "sdlc/planning/slices/gene.md",
+      "release_source": [
+        "src/cli/gene/dispatch.rs::handle_get",
+        "src/entities/gene.rs::fetch_pathways_section",
+        "src/entities/gene.rs::complete_gene_section_outcomes"
+      ],
+      "recordings": [
+        {
+          "source": "mygene-info",
+          "endpoint_env": "BIOMCP_MYGENE_BASE",
+          "host": "mygene.info",
+          "request_prefix": "GET /v3/query?",
+          "request_contains": "",
+          "request_query": {
+            "q": "symbol:\"TP53\"",
+            "species": "human"
+          },
+          "recording_gap": "The retained Entrez annotation omits symbol and name needed by released Reactome symbol search. A native symbol-query recording is missing; no baseline-only annotation is substituted."
+        },
+        {
+          "source": "reactome",
+          "endpoint_env": "BIOMCP_REACTOME_BASE",
+          "host": "reactome.org",
+          "request_prefix": "GET /ContentService/search/query",
+          "request_contains": "",
+          "request_query": {
+            "query": "TP53"
+          },
+          "recording_gap": "The harvested Reactome accession mapping captures do not contain the released symbol text-search reply. Its ordered IDs and bounded row count remain declared, with a recording assessment gap."
+        }
+      ],
+      "facts": {
+        "/result/items/0/sections/pathways/state": "/section_outcomes/pathways/outcome",
+        "/result/items/0/sections/pathways": "/pathways",
+        "/result/items/0/sections/pathways/data/items": "/pathways",
+        "/result/items/0/sections/pathways/data/items/*/id": "/pathways/*/id"
+      },
+      "unprojectable_facts": {
+        "/status": {
+          "reason": "Released gene cards do not serialize the current global source lifecycle, aggregate status or field-level join problems.",
+          "release_source": "src/entities/gene.rs::fetch_pathways_section;src/entities/gene.rs::Gene"
+        },
+        "/result/items/0/sections/pathways/data/total": {
+          "reason": "Released Reactome gene pathways discards the upstream search total after a symbol text search capped at 12; it has no complete accession-union total.",
+          "release_source": "src/entities/gene.rs::fetch_pathways_section;src/entities/gene.rs::Gene"
+        },
+        "/sources/*/source": {
+          "reason": "Released gene cards do not serialize the current global source lifecycle, aggregate status or field-level join problems.",
+          "release_source": "src/entities/gene.rs::fetch_pathways_section;src/entities/gene.rs::Gene"
+        }
+      }
+    },
+    {
+      "case": "gene/sections/pathways-union.yaml",
+      "step": 0,
+      "baseline_command": [
+        "get",
+        "gene",
+        "BRAF",
+        "pathways"
+      ],
+      "baseline_globals": [
+        "--json"
+      ],
+      "spelling_table": "sdlc/planning/slices/gene.md",
+      "release_source": [
+        "src/cli/gene/dispatch.rs::handle_get",
+        "src/entities/gene.rs::fetch_pathways_section",
+        "src/entities/gene.rs::complete_gene_section_outcomes"
+      ],
+      "recordings": [
+        {
+          "source": "mygene-info",
+          "endpoint_env": "BIOMCP_MYGENE_BASE",
+          "host": "mygene.info",
+          "request_prefix": "GET /v3/query?",
+          "request_contains": "",
+          "request_query": {
+            "q": "symbol:\"BRAF\"",
+            "species": "human"
+          },
+          "recording_gap": "The retained Entrez annotation omits symbol and name needed by released Reactome symbol search. A native symbol-query recording is missing; no baseline-only annotation is substituted."
+        },
+        {
+          "source": "reactome",
+          "endpoint_env": "BIOMCP_REACTOME_BASE",
+          "host": "reactome.org",
+          "request_prefix": "GET /ContentService/search/query",
+          "request_contains": "",
+          "request_query": {
+            "query": "BRAF"
+          },
+          "recording_gap": "The harvested Reactome accession mapping captures do not contain the released symbol text-search reply. Its ordered IDs and bounded row count remain declared, with a recording assessment gap."
+        }
+      ],
+      "facts": {
+        "/result/items/0/sections/pathways/state": "/section_outcomes/pathways/outcome",
+        "/result/items/0/sections/pathways/data/items/*/id": "/pathways/*/id"
+      },
+      "unprojectable_facts": {
+        "/status": {
+          "reason": "Released gene cards do not serialize the current global source lifecycle, aggregate status or field-level join problems.",
+          "release_source": "src/entities/gene.rs::fetch_pathways_section;src/entities/gene.rs::Gene"
+        },
+        "/result/items/0/sections/pathways/data/total": {
+          "reason": "Released Reactome gene pathways discards the upstream search total after a symbol text search capped at 12; it has no complete accession-union total.",
+          "release_source": "src/entities/gene.rs::fetch_pathways_section;src/entities/gene.rs::Gene"
+        },
+        "/problems/0/source": {
+          "reason": "Released gene cards do not serialize the current global source lifecycle, aggregate status or field-level join problems.",
+          "release_source": "src/entities/gene.rs::fetch_pathways_section;src/entities/gene.rs::Gene"
+        },
+        "/problems/0/record": {
+          "reason": "Released gene cards do not serialize the current global source lifecycle, aggregate status or field-level join problems.",
+          "release_source": "src/entities/gene.rs::fetch_pathways_section;src/entities/gene.rs::Gene"
+        },
+        "/problems/0/field": {
+          "reason": "Released gene cards do not serialize the current global source lifecycle, aggregate status or field-level join problems.",
+          "release_source": "src/entities/gene.rs::fetch_pathways_section;src/entities/gene.rs::Gene"
         }
       }
     },
@@ -1080,9 +1419,12 @@
           "source": "uniprot",
           "endpoint_env": "BIOMCP_UNIPROT_BASE",
           "host": "rest.uniprot.org",
-          "request_prefix": "GET /uniprotkb/",
+          "request_prefix": "GET /uniprotkb/search",
           "request_contains": "",
-          "recording_gap": "The harvested gene/protein recording does not retain the released protein request set and decoder response format. Source routes require review before execution; no synthetic baseline-only reply is supplied."
+          "recording_gap": "The released getter needs a MyGene Swiss-Prot accession, falling back to a symbol search, then a single uniprotkb/ACCESSION.json record. Current captures contain an accessions batch results envelope and MyGene annotations omit Swiss-Prot; the original symbol-search and single-record replies are missing.",
+          "request_query": {
+            "query": "CDKN2A"
+          }
         }
       ],
       "facts": {
@@ -1140,9 +1482,12 @@
           "source": "uniprot",
           "endpoint_env": "BIOMCP_UNIPROT_BASE",
           "host": "rest.uniprot.org",
-          "request_prefix": "GET /uniprotkb/",
+          "request_prefix": "GET /uniprotkb/search",
           "request_contains": "",
-          "recording_gap": "The harvested gene/protein/synthetic-duplicate recording does not retain the released protein request set and decoder response format. Source routes require review before execution; no synthetic baseline-only reply is supplied."
+          "recording_gap": "The released getter needs a MyGene Swiss-Prot accession, falling back to a symbol search, then a single uniprotkb/ACCESSION.json record. Current captures contain an accessions batch results envelope and MyGene annotations omit Swiss-Prot; the original symbol-search and single-record replies are missing.",
+          "request_query": {
+            "query": "CDKN2A"
+          }
         }
       ],
       "facts": {
@@ -1199,9 +1544,12 @@
           "source": "uniprot",
           "endpoint_env": "BIOMCP_UNIPROT_BASE",
           "host": "rest.uniprot.org",
-          "request_prefix": "GET /uniprotkb/",
+          "request_prefix": "GET /uniprotkb/search",
           "request_contains": "",
-          "recording_gap": "The harvested gene/protein/synthetic-empty recording does not retain the released protein request set and decoder response format. Source routes require review before execution; no synthetic baseline-only reply is supplied."
+          "recording_gap": "The released getter needs a MyGene Swiss-Prot accession, falling back to a symbol search, then a single uniprotkb/ACCESSION.json record. Current captures contain an accessions batch results envelope and MyGene annotations omit Swiss-Prot; the original symbol-search and single-record replies are missing.",
+          "request_query": {
+            "query": "CDKN2A"
+          }
         }
       ],
       "facts": {
@@ -1261,9 +1609,12 @@
           "source": "uniprot",
           "endpoint_env": "BIOMCP_UNIPROT_BASE",
           "host": "rest.uniprot.org",
-          "request_prefix": "GET /uniprotkb/",
+          "request_prefix": "GET /uniprotkb/search",
           "request_contains": "",
-          "recording_gap": "The harvested gene/protein/synthetic-foreign recording does not retain the released protein request set and decoder response format. Source routes require review before execution; no synthetic baseline-only reply is supplied."
+          "recording_gap": "The released getter needs a MyGene Swiss-Prot accession, falling back to a symbol search, then a single uniprotkb/ACCESSION.json record. Current captures contain an accessions batch results envelope and MyGene annotations omit Swiss-Prot; the original symbol-search and single-record replies are missing.",
+          "request_query": {
+            "query": "CDKN2A"
+          }
         }
       ],
       "facts": {
@@ -1320,9 +1671,12 @@
           "source": "uniprot",
           "endpoint_env": "BIOMCP_UNIPROT_BASE",
           "host": "rest.uniprot.org",
-          "request_prefix": "GET /uniprotkb/",
+          "request_prefix": "GET /uniprotkb/search",
           "request_contains": "",
-          "recording_gap": "The harvested gene/protein/synthetic-missing recording does not retain the released protein request set and decoder response format. Source routes require review before execution; no synthetic baseline-only reply is supplied."
+          "recording_gap": "The released getter needs a MyGene Swiss-Prot accession, falling back to a symbol search, then a single uniprotkb/ACCESSION.json record. Current captures contain an accessions batch results envelope and MyGene annotations omit Swiss-Prot; the original symbol-search and single-record replies are missing.",
+          "request_query": {
+            "query": "CDKN2A"
+          }
         }
       ],
       "facts": {
@@ -1379,9 +1733,12 @@
           "source": "uniprot",
           "endpoint_env": "BIOMCP_UNIPROT_BASE",
           "host": "rest.uniprot.org",
-          "request_prefix": "GET /uniprotkb/",
+          "request_prefix": "GET /uniprotkb/search",
           "request_contains": "",
-          "recording_gap": "The harvested gene/protein/synthetic-optional recording does not retain the released protein request set and decoder response format. Source routes require review before execution; no synthetic baseline-only reply is supplied."
+          "recording_gap": "The released getter needs a MyGene Swiss-Prot accession, falling back to a symbol search, then a single uniprotkb/ACCESSION.json record. Current captures contain an accessions batch results envelope and MyGene annotations omit Swiss-Prot; the original symbol-search and single-record replies are missing.",
+          "request_query": {
+            "query": "CDKN2A"
+          }
         }
       ],
       "facts": {
@@ -1442,9 +1799,12 @@
           "source": "uniprot",
           "endpoint_env": "BIOMCP_UNIPROT_BASE",
           "host": "rest.uniprot.org",
-          "request_prefix": "GET /uniprotkb/",
+          "request_prefix": "GET /uniprotkb/search",
           "request_contains": "",
-          "recording_gap": "The harvested gene/protein/synthetic-reordered recording does not retain the released protein request set and decoder response format. Source routes require review before execution; no synthetic baseline-only reply is supplied."
+          "recording_gap": "The released getter needs a MyGene Swiss-Prot accession, falling back to a symbol search, then a single uniprotkb/ACCESSION.json record. Current captures contain an accessions batch results envelope and MyGene annotations omit Swiss-Prot; the original symbol-search and single-record replies are missing.",
+          "request_query": {
+            "query": "CDKN2A"
+          }
         }
       ],
       "facts": {
@@ -1501,9 +1861,12 @@
           "source": "uniprot",
           "endpoint_env": "BIOMCP_UNIPROT_BASE",
           "host": "rest.uniprot.org",
-          "request_prefix": "GET /uniprotkb/",
+          "request_prefix": "GET /uniprotkb/search",
           "request_contains": "",
-          "recording_gap": "The harvested gene/protein/synthetic-unreviewed recording does not retain the released protein request set and decoder response format. Source routes require review before execution; no synthetic baseline-only reply is supplied."
+          "recording_gap": "The released getter needs a MyGene Swiss-Prot accession, falling back to a symbol search, then a single uniprotkb/ACCESSION.json record. Current captures contain an accessions batch results envelope and MyGene annotations omit Swiss-Prot; the original symbol-search and single-record replies are missing.",
+          "request_query": {
+            "query": "CDKN2A"
+          }
         }
       ],
       "facts": {
@@ -1554,16 +1917,6 @@
         "release_source": "src/cli/system/batch.rs::settle_batch;src/cli/gene/dispatch.rs::render_gene_card_outcome;src/entities/gene.rs::Gene;src/transform/gene.rs::from_mygene_get"
       },
       {
-        "case": "gene/mll2.yaml",
-        "reason": "Released gene cards have no aggregate or per-item lifecycle status; batch status ok only denotes a successful getter, not section completeness. Released Gene serializes no HGNC identity, resolution, match provenance or ambiguity candidate objects. Its getter uses MyGene symbol queries and alias fallback. Released gene cards do not serialize the current global source lifecycle, typed next actions or field-level join and decoder problem records. Section outcomes cannot establish those global assertions.",
-        "release_source": "src/cli/system/batch.rs::settle_batch;src/cli/gene/dispatch.rs::render_gene_card_outcome;src/entities/gene.rs::Gene;src/transform/gene.rs::from_mygene_get"
-      },
-      {
-        "case": "gene/p16.yaml",
-        "reason": "Released Gene serializes no HGNC identity, resolution, match provenance or ambiguity candidate objects. Its getter uses MyGene symbol queries and alias fallback.",
-        "release_source": "src/entities/gene.rs::Gene;src/transform/gene.rs::from_mygene_get"
-      },
-      {
         "case": "gene/sections/civic-description.yaml",
         "reason": "Released gene cards have no aggregate or per-item lifecycle status; batch status ok only denotes a successful getter, not section completeness. Released CIViC context contains evidence_items, assertions and their counts, not CIViC gene feature identity, description, variant_count or gene-feature availability. Evidence absence cannot establish absence of the feature. Released gene cards do not serialize the current global source lifecycle, typed next actions or field-level join and decoder problem records. Section outcomes cannot establish those global assertions.",
         "release_source": "src/cli/system/batch.rs::settle_batch;src/cli/gene/dispatch.rs::render_gene_card_outcome;src/sources/civic.rs::CivicContext;src/entities/gene.rs::fetch_civic_section;src/entities/gene.rs::Gene"
@@ -1604,24 +1957,9 @@
         "release_source": "src/cli/system/batch.rs::settle_batch;src/cli/gene/dispatch.rs::render_gene_card_outcome;src/entities/gene.rs::Gene;src/transform/gene.rs::from_mygene_get;src/entities/section_outcome.rs::SectionOutcome;src/entities/gene.rs"
       },
       {
-        "case": "gene/sections/pathways-empty.yaml",
-        "reason": "Released gene cards have no aggregate or per-item lifecycle status; batch status ok only denotes a successful getter, not section completeness. Released pathways uses symbol text search limited to 12 Reactome rows plus carried KEGG annotations, not the complete HGNC accession union, its order or pre-cap total. Empty search results cannot establish an empty accession mapping.",
-        "release_source": "src/cli/system/batch.rs::settle_batch;src/cli/gene/dispatch.rs::render_gene_card_outcome;src/entities/gene.rs::fetch_pathways_section;src/entities/gene.rs::merge_pathway_sources"
-      },
-      {
         "case": "gene/sections/pathways-mir21.yaml",
         "reason": "Released gene cards have no aggregate or per-item lifecycle status; batch status ok only denotes a successful getter, not section completeness. Released gene_type is a MyGene type string, not the HGNC locus-group classification. No released selector derives the asserted classification. Released pathways uses symbol text search limited to 12 Reactome rows plus carried KEGG annotations, not the complete HGNC accession union, its order or pre-cap total. Empty search results cannot establish an empty accession mapping. Released gene cards do not serialize the current global source lifecycle, typed next actions or field-level join and decoder problem records. Section outcomes cannot establish those global assertions.",
         "release_source": "src/cli/system/batch.rs::settle_batch;src/cli/gene/dispatch.rs::render_gene_card_outcome;src/entities/gene.rs::Gene;src/transform/gene.rs::from_mygene_get;src/entities/gene.rs::fetch_pathways_section;src/entities/gene.rs::merge_pathway_sources"
-      },
-      {
-        "case": "gene/sections/pathways-tp53.yaml",
-        "reason": "Released gene cards have no aggregate or per-item lifecycle status; batch status ok only denotes a successful getter, not section completeness. Released pathways uses symbol text search limited to 12 Reactome rows plus carried KEGG annotations, not the complete HGNC accession union, its order or pre-cap total. Empty search results cannot establish an empty accession mapping. Released gene cards do not serialize the current global source lifecycle, typed next actions or field-level join and decoder problem records. Section outcomes cannot establish those global assertions.",
-        "release_source": "src/cli/system/batch.rs::settle_batch;src/cli/gene/dispatch.rs::render_gene_card_outcome;src/entities/gene.rs::fetch_pathways_section;src/entities/gene.rs::merge_pathway_sources;src/entities/gene.rs::Gene"
-      },
-      {
-        "case": "gene/sections/pathways-union.yaml",
-        "reason": "Released gene cards have no aggregate or per-item lifecycle status; batch status ok only denotes a successful getter, not section completeness. Released pathways uses symbol text search limited to 12 Reactome rows plus carried KEGG annotations, not the complete HGNC accession union, its order or pre-cap total. Empty search results cannot establish an empty accession mapping. Released gene cards do not serialize the current global source lifecycle, typed next actions or field-level join and decoder problem records. Section outcomes cannot establish those global assertions.",
-        "release_source": "src/cli/system/batch.rs::settle_batch;src/cli/gene/dispatch.rs::render_gene_card_outcome;src/entities/gene.rs::fetch_pathways_section;src/entities/gene.rs::merge_pathway_sources;src/entities/gene.rs::Gene"
       },
       {
         "case": "gene/sections/protein-deduplicate.yaml",
