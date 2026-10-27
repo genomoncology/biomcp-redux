@@ -343,7 +343,6 @@ fn discovery() -> Check {
         .filter(|_| tools.len() == 3)
         .ok_or("expected three tools")?;
     if tool.get("name") != Some(&json!("biomcp"))
-        || tool.get("outputSchema") != Some(&json!({"type":"object"}))
         || tool.get("inputSchema")
             != Some(
                 &json!({"type":"object","properties":{"args":{"type":"array","items":{"type":"string"}}},"required":["args"],"additionalProperties":false}),
@@ -351,6 +350,19 @@ fn discovery() -> Check {
     {
         return Err("tool contract differs".into());
     }
+    for advertised in tools {
+        let schema = advertised.get("outputSchema").ok_or("output schema missing")?;
+        if schema == &json!({"type":"object"}) {
+            return Err("tool advertises a bare object output schema".into());
+        }
+        jsonschema::validator_for(schema).map_err(|error| error.to_string())?;
+    }
+    super::research::call(
+        &environment()?,
+        "biomcp",
+        json!({"args":["health"]}),
+        &[],
+    )?;
     let text = tool
         .get("description")
         .and_then(Value::as_str)
