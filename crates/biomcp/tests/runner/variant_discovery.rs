@@ -48,7 +48,12 @@ fn card() -> Result<(), String> {
         n.get("kind") == Some(&json!("section"))
             && n.get("args")
                 == Some(&json!([
-                    "get", "variant", "chr7:g.140753336A>T", "clinvar", "--build", "GRCh38"
+                    "get",
+                    "variant",
+                    "chr7:g.140753336A>T",
+                    "clinvar",
+                    "--build",
+                    "GRCh38"
                 ]))
     }) {
         return Err(format!("card lacks ClinVar section step: {value}"));
