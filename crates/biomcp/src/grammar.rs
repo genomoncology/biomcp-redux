@@ -1,5 +1,6 @@
 //! Schema-fed command parsing shared by CLI and MCP.
 mod entity;
+mod entry;
 pub(crate) mod gwas;
 mod local;
 mod queries;
@@ -172,11 +173,6 @@ fn root() -> Result<Command, ()> {
     root = root.subcommands(local::housekeeping_commands());
     root = root.subcommand(Command::new("health"));
     root = root.subcommand(
-        Command::new("list")
-            .subcommand_required(true)
-            .subcommand(Command::new("author")),
-    );
-    root = root.subcommand(
         Command::new("store")
             .subcommand_required(true)
             .subcommand(Command::new("clean")),
@@ -187,9 +183,11 @@ fn root() -> Result<Command, ()> {
 }
 
 pub(crate) fn parse(args: &[OsString]) -> Result<Parsed, ()> {
-    let root = root()?;
+    let mut root = root()?;
+    root.build();
+    let args = entry::arguments(args, &root);
     let matches = root
-        .try_get_matches_from(std::iter::once(OsString::from("biomcp")).chain(args.iter().cloned()))
+        .try_get_matches_from(std::iter::once(OsString::from("biomcp")).chain(args))
         .map_err(|_| ())?;
     let globals = globals(&matches)?;
     let (verb, matches) = matches.subcommand().ok_or(())?;
@@ -221,7 +219,7 @@ pub(crate) fn parse(args: &[OsString]) -> Result<Parsed, ()> {
         Action::StoreClean
     } else if verb == "health" {
         Action::Health
-    } else if verb == "help" || verb == "list" {
+    } else if verb == "help" {
         Action::KeyHelp(local::help_source(matches)?)
     } else if verb == "sync" {
         Action::Sync {
@@ -256,9 +254,7 @@ pub(crate) fn parse(args: &[OsString]) -> Result<Parsed, ()> {
     })
 }
 fn help_path(verb: &str, matches: &clap::ArgMatches) -> Result<Option<Vec<String>>, ()> {
-    Ok(if verb == "list" {
-        Some(vec!["author".into()])
-    } else if verb == "help" {
+    Ok(if verb == "help" {
         match matches.subcommand() {
             Some(("key", _)) => None,
             Some((name @ ("version" | "mcp-config" | "skill" | "sources" | "config"), _)) => {
@@ -272,7 +268,9 @@ fn help_path(verb: &str, matches: &clap::ArgMatches) -> Result<Option<Vec<String
                 matches.get_one::<String>("setting").ok_or(())?.clone(),
             ]),
             Some((verb, matches)) => {
-                Some(vec![verb.into(), matches.subcommand().ok_or(())?.0.into()])
+                Some(std::iter::once(verb.into())
+                    .chain(matches.subcommand().map(|(name, _)| name.into()))
+                    .collect())
             }
             None => Some(Vec::new()),
         }
@@ -597,4 +595,8 @@ fn property_type(property: &Value) -> Option<&str> {
         .iter()
         .all(|s| s.as_str().is_some_and(|s| s == kind || s == "null"))
         .then_some(kind)
+}
+
+pub(crate) fn unknown_command(args: &[OsString]) -> Option<Vec<String>> {
+    entry::unknown_command(args, &root().ok()?)
 }

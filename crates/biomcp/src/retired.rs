@@ -18,6 +18,7 @@ use std::ffi::OsString;
 mod disease;
 
 const GENE: &[(&str, ErrorMessage)] = &[
+    ("definition", ErrorMessage::Gene),
     ("pathways", ErrorMessage::Pathways),
     ("trials", ErrorMessage::Trials),
     ("articles", ErrorMessage::Articles),

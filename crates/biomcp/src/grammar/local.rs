@@ -18,6 +18,8 @@ pub(super) fn serve_command() -> Command {
 
 pub(super) fn help_command() -> Command {
     let mut help = Command::new("help")
+        .subcommand(Command::new("health"))
+        .subcommand(Command::new("serve"))
         .subcommand(Command::new("skill"))
         .subcommand(Command::new("version"))
         .subcommand(Command::new("mcp-config"))
@@ -39,7 +41,6 @@ pub(super) fn help_command() -> Command {
         );
     help = help.subcommand(
         Command::new("store")
-            .subcommand_required(true)
             .subcommand(Command::new("clean")),
     );
     let mut verbs = std::collections::BTreeMap::<&str, Command>::new();
@@ -50,7 +51,7 @@ pub(super) fn help_command() -> Command {
     {
         let command = verbs
             .remove(verb)
-            .unwrap_or_else(|| Command::new(verb).subcommand_required(verb != "author"));
+            .unwrap_or_else(|| Command::new(verb));
         verbs.insert(verb, command.subcommand(Command::new(entity)));
     }
     for command in verbs.into_values() {
