@@ -119,5 +119,5 @@
       "max_tokens": 538
     }
   ],
-  "verified": "Get variant and assertions help measured in j16526: 3741 and 1290 CLI bytes. Their caps are ceil(measured bytes * 1.15); token caps are ceil(byte cap / 4). Other help caps retain j11310. No comparable 0.9 schema-generated help baseline exists. MCP tools/list retains its existing description cap."
+  "verified": "Get variant and assertions help measured in j16526: 3741 and 1290 CLI bytes. Their caps are ceil(measured bytes * 1.15); token caps are ceil(byte cap / 4). Other help caps retain j11310. No comparable 0.9 schema-generated help baseline exists. MCP tools/list retains its existing description cap. Help byte limits use j18463 output plus fifteen percent for defaults, aliases, inherited options and examples; higher existing limits remain."
 }

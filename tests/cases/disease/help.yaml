@@ -85,5 +85,5 @@
       "max_bytes": 4433
     }
   ],
-  "verified": "Measured compact CLI and MCP parity in j12432; max_bytes is comparable bytes plus 15 percent, rounded up. Source outcome terms use the shared validated deduction; component terms remain counted."
+  "verified": "Measured compact CLI and MCP parity in j12432; max_bytes is comparable bytes plus 15 percent, rounded up. Source outcome terms use the shared validated deduction; component terms remain counted. Help byte limits use j18463 output plus fifteen percent for defaults, aliases, inherited options and examples; higher existing limits remain."
 }

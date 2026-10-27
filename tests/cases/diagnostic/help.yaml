@@ -143,5 +143,6 @@
       "max_bytes": 1391,
       "max_tokens": 112
     }
-  ]
+  ],
+  "verified": "Help byte limits use j18463 output plus fifteen percent for defaults, aliases, inherited options and examples; higher existing limits remain."
 }

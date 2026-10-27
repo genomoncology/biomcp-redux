@@ -99,5 +99,6 @@
       ]
     }
   ],
-  "story": "Author help describes exact provider identity and unavailable topic rank"
+  "story": "Author help describes exact provider identity and unavailable topic rank",
+  "verified": "Help byte limits use j18463 output plus fifteen percent for defaults, aliases, inherited options and examples; higher existing limits remain."
 }

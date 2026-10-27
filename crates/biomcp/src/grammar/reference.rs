@@ -182,6 +182,11 @@ fn refresh_help_cases(directory: &std::path::Path) -> Check {
                 continue;
             }
             let bytes = reply.cli_bytes.len();
+            let markdown_bytes = crate::view::markdown(&reply.value)?.len();
+            println!(
+                "HELP_MARKDOWN {} step {index}: {markdown_bytes} bytes",
+                path.display()
+            );
             println!(
                 "HELP_MEASURE {} step {index}: {bytes} bytes; max_bytes {} max_tokens {}",
                 path.display(),

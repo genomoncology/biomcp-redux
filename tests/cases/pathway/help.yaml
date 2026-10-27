@@ -179,5 +179,6 @@
       ]
     }
   ],
-  "story": "Every pathway command documents its sources, selectors, sections, paging and two parsed case examples."
+  "story": "Every pathway command documents its sources, selectors, sections, paging and two parsed case examples.",
+  "verified": "Help byte limits use j18463 output plus fifteen percent for defaults, aliases, inherited options and examples; higher existing limits remain."
 }

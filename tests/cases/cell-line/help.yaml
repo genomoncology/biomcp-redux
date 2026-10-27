@@ -99,5 +99,6 @@
       ]
     }
   ],
-  "story": "Cell line commands expose sections, paging, exact source identities and two parsed examples without response inference."
+  "story": "Cell line commands expose sections, paging, exact source identities and two parsed examples without response inference.",
+  "verified": "Help byte limits use j18463 output plus fifteen percent for defaults, aliases, inherited options and examples; higher existing limits remain."
 }
