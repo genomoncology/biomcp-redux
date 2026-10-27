@@ -2,6 +2,7 @@
 import json
 import os
 from pathlib import Path
+from release.smoke import environment
 import secrets
 import subprocess
 import sys
@@ -58,8 +59,10 @@ class Screening(unittest.TestCase):
             (dependency / "src").mkdir()
             (dependency / "src/lib.rs").write_text("pub fn fixture() {}\n")
             (dependency / "Cargo.toml").write_text('[package]\nname="source-fixture"\nversion="0.1.0"\nedition="2021"\nlicense="MIT"\n')
-            env = {**os.environ, "GIT_CONFIG_COUNT": "1", "GIT_CONFIG_KEY_0": "url." + dependency.as_uri() + ".insteadOf",
-                   "GIT_CONFIG_VALUE_0": "https://unknown.example.invalid/dependency", "CARGO_NET_GIT_FETCH_WITH_CLI": "true", "GIT_TERMINAL_PROMPT": "0"}
+            env = {**environment(root), **{name: os.environ[name] for name in ["PATH", "CARGO_HOME", "RUSTUP_HOME"] if name in os.environ}, "GIT_CONFIG_COUNT": "1", "GIT_CONFIG_KEY_0": "url." + dependency.as_uri() + ".insteadOf",
+                   "GIT_CONFIG_VALUE_0": "https://unknown.example.invalid/dependency",
+                   "CARGO_HOME": os.environ.get("CARGO_HOME", str(Path.home() / ".cargo")),
+                   "RUSTUP_HOME": os.environ.get("RUSTUP_HOME", str(Path.home() / ".rustup")), "CARGO_NET_GIT_FETCH_WITH_CLI": "true", "GIT_TERMINAL_PROMPT": "0"}
             for args in [["init", "--quiet"], ["add", "."], ["-c", "user.name=Fixture", "-c", "user.email=fixture@example.invalid", "commit", "--quiet", "-m", "Add fixture"]]:
                 subprocess.run(["git", "-C", str(dependency), *args], env=env, check=True, capture_output=True)
             project = root / "project"
