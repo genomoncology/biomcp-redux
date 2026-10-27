@@ -143,7 +143,8 @@ impl Fixture {
     }
     fn stop(&mut self) {
         if let Some(stop) = self.stop.take() {
-            if stop.send(()).is_err() {}
+            // A closed receiver already stopped the peer.
+            let _ = stop.send(());
         }
     }
 }
@@ -152,7 +153,7 @@ impl Drop for Fixture {
         self.stop();
         // Explicit finish surfaces worker failures. During an assertion panic only cleanup remains.
         if let Some(thread) = self.thread.take() {
-            if thread.join().is_err() {}
+            let _ = thread.join();
         }
     }
 }
