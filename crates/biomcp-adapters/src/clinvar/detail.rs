@@ -20,11 +20,14 @@ fn condition(
     label: Option<String>,
     problems: &mut crate::mapped::Problems,
 ) -> Result<AssertionCondition, BadReply> {
-    let qualified = match (&db, &id) {
-        (_, Some(id)) if id.contains(':') => id.parse().ok(),
-        (Some(db), Some(id)) => format!("{db}:{id}").parse().ok(),
-        _ => None,
-    };
+    let qualified = problems.optional(
+        "conditions.id",
+        match (&db, &id) {
+            (_, Some(id)) if id.contains(':') => Some(id.parse()),
+            (Some(db), Some(id)) => Some(format!("{db}:{id}").parse()),
+            _ => None,
+        },
+    );
     Ok(AssertionCondition {
         database: problems.text("conditions.database", db.as_deref()),
         accession: problems.text("conditions.accession", id.as_deref()),
