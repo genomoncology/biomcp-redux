@@ -52,6 +52,19 @@ fn check() -> Check {
     {
         return Err("canonical guide or report-count boundary differs".into());
     }
+    let overview = String::from_utf8(run(&env, &["skill", "render"])?)?;
+    let trial = String::from_utf8(run(&env, &["skill", "trial-recruitment"])?)?;
+    for text in [&overview, &trial] {
+        for instruction in [
+            "An exact variant search is a starting point",
+            "broader gene and program searches BioMCP suggests",
+            "before reporting a trial screen as complete",
+        ] {
+            if !text.contains(instruction) {
+                return Err(format!("trial screening guidance omitted: {instruction}").into());
+            }
+        }
+    }
     let list = String::from_utf8(run(&env, &["skill", "list"])?)?;
     if !list.contains("exact-variant-literature") || list.contains("_TEMPLATE") {
         return Err("catalog omitted released example or exposed template".into());
