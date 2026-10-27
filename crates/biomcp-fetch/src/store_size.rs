@@ -36,7 +36,7 @@ impl Fetch {
                 connection
                     .busy_timeout(deadline.remaining())
                     .map_err(|_| CacheError::Database)?;
-                if !owned(&connection, &self.config.cache_owners) {
+                if !owned(&connection, &self.config.cache_owners)? {
                     continue;
                 }
                 drop(connection);
@@ -103,17 +103,26 @@ fn retained_paths(active: &Path, configured: &[PathBuf]) -> Result<Vec<PathBuf>,
     }
     Ok(paths)
 }
-fn owned(connection: &Connection, owners: &[crate::SchemaOwner]) -> bool {
+fn owned(connection: &Connection, owners: &[crate::SchemaOwner]) -> Result<bool, CacheError> {
     let read = || -> rusqlite::Result<Vec<String>> {
         connection
             .prepare("SELECT owner FROM meta")?
             .query_map([], |row| row.get(0))?
             .collect()
     };
-    read().is_ok_and(|names| {
-        names.iter().any(|name| name == "biomcp-fetch")
-            && names
-                .iter()
-                .all(|name| name == "biomcp-fetch" || owners.iter().any(|owner| owner.name == name))
-    })
+    match read() {
+        Ok(names) => Ok(names.iter().any(|name| name == "biomcp-fetch")
+            && names.iter().all(|name| {
+                name == "biomcp-fetch" || owners.iter().any(|owner| owner.name == name)
+            })),
+        Err(error)
+            if matches!(
+                error.sqlite_error_code(),
+                Some(rusqlite::ErrorCode::DatabaseBusy | rusqlite::ErrorCode::DatabaseLocked)
+            ) =>
+        {
+            Err(CacheError::Busy)
+        }
+        Err(_) => Ok(false),
+    }
 }
