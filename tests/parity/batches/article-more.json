@@ -1,0 +1,1936 @@
+{
+  "baseline_release": "0.9.3",
+  "cases": [
+    {
+      "case": "article/get/retraction.yaml",
+      "step": 0,
+      "baseline_command": [
+        "get",
+        "article",
+        "35061708"
+      ],
+      "spelling_table": "sdlc/planning/slices/article.md",
+      "release_source": [
+        "src/entities/article/mod.rs",
+        "src/cli/article/dispatch.rs",
+        "src/entities/article/detail.rs",
+        "src/cli/system/batch.rs"
+      ],
+      "baseline_globals": [
+        "--json"
+      ],
+      "recordings": [
+        {
+          "source": "pubtator3",
+          "endpoint_env": "BIOMCP_PUBTATOR_BASE",
+          "host": "www.ncbi.nlm.nih.gov",
+          "request_prefix": "GET /research/pubtator3-api/publications/export/biocjson",
+          "request_contains": "",
+          "request_query": {
+            "pmids": "35061708"
+          },
+          "capture": "",
+          "recording_gap": "Released detail starts with PubTator export; this harvested replay retains PubMed efetch instead and has no equivalent PubTator body (src/entities/article/detail.rs::resolve_article_from_pmid_with_context)."
+        }
+      ],
+      "facts": {
+        "/result/items/0/answer/card/doi": "/doi"
+      },
+      "unprojectable_facts": {
+        "/result/items/0/answer/card/types": {
+          "reason": "Released Article retains one publication_type and plain abstract_text. It does not serialize current type arrays, structured abstract parts, electronic dates, correction relations or match metadata.",
+          "release_source": "src/entities/article/mod.rs"
+        },
+        "/result/items/0/answer/card/corrections/0/kind": {
+          "reason": "Released Article retains one publication_type and plain abstract_text. It does not serialize current type arrays, structured abstract parts, electronic dates, correction relations or match metadata.",
+          "release_source": "src/entities/article/mod.rs"
+        },
+        "/result/items/0/answer/card/corrections/0/relation": {
+          "reason": "Released Article retains one publication_type and plain abstract_text. It does not serialize current type arrays, structured abstract parts, electronic dates, correction relations or match metadata.",
+          "release_source": "src/entities/article/mod.rs"
+        },
+        "/result/items/0/answer/card/corrections/0/pmid": {
+          "reason": "Released Article retains one publication_type and plain abstract_text. It does not serialize current type arrays, structured abstract parts, electronic dates, correction relations or match metadata.",
+          "release_source": "src/entities/article/mod.rs"
+        }
+      }
+    },
+    {
+      "case": "article/get/synthetic-doi-shared.yaml",
+      "step": 0,
+      "baseline_command": [
+        "get",
+        "article",
+        "10.1002/mgg3.317"
+      ],
+      "spelling_table": "sdlc/planning/slices/article.md",
+      "release_source": [
+        "src/entities/article/mod.rs",
+        "src/cli/article/dispatch.rs",
+        "src/entities/article/detail.rs",
+        "src/cli/system/batch.rs"
+      ],
+      "baseline_globals": [
+        "--json"
+      ],
+      "recordings": [
+        {
+          "source": "pubtator3",
+          "endpoint_env": "BIOMCP_PUBTATOR_BASE",
+          "host": "www.ncbi.nlm.nih.gov",
+          "request_prefix": "GET /research/pubtator3-api/publications/export/biocjson",
+          "request_contains": "",
+          "request_query": {
+            "pmids": "10.1002/mgg3.317"
+          },
+          "capture": "",
+          "recording_gap": "Released detail starts with PubTator export; this harvested replay retains PubMed efetch instead and has no equivalent PubTator body (src/entities/article/detail.rs::resolve_article_from_pmid_with_context)."
+        }
+      ],
+      "facts": {
+        "/result/items/*/answer/card/pmid": "/pmid"
+      },
+      "unprojectable_facts": {}
+    },
+    {
+      "case": "article/search/esmo-budget.yaml",
+      "step": 0,
+      "baseline_command": [
+        "search",
+        "article",
+        "next-generation sequencing recommendations advanced cancer ESMO",
+        "--source",
+        "pubmed",
+        "--include-retracted"
+      ],
+      "spelling_table": "sdlc/planning/slices/article.md",
+      "release_source": [
+        "src/entities/article/mod.rs",
+        "src/cli/article/dispatch.rs",
+        "src/entities/article/detail.rs",
+        "src/cli/system/batch.rs"
+      ],
+      "baseline_globals": [
+        "--json"
+      ],
+      "recordings": [
+        {
+          "source": "pubmed",
+          "endpoint_env": "BIOMCP_PUBMED_BASE",
+          "host": "eutils.ncbi.nlm.nih.gov",
+          "request_prefix": "POST /entrez/eutils/esummary.fcgi",
+          "request_contains": "",
+          "request_query": {},
+          "capture": "pubmed/0b6364abac6a8bc109ef677d34350ff2f0ee66fc6c1fd0fc4aecf57532215a5f.json"
+        },
+        {
+          "source": "pubmed",
+          "endpoint_env": "BIOMCP_PUBMED_BASE",
+          "host": "eutils.ncbi.nlm.nih.gov",
+          "request_prefix": "GET /entrez/eutils/esearch.fcgi",
+          "request_contains": "",
+          "request_query": {
+            "db": "pubmed",
+            "term": "next-generation sequencing recommendations advanced cancer ESMO"
+          },
+          "capture": "pubmed/b37bfaf94b74a04a260937cd751fc588ec362df4f42478b79e0a86c612be9269.json"
+        }
+      ],
+      "facts": {
+        "/result/items": "/results",
+        "/result/items/*/pmid": "/results/*/pmid"
+      },
+      "unprojectable_facts": {
+        "/status": {
+          "reason": "Released Article JSON has no current lifecycle/status, action, resolution or source-problem envelope; these values cannot be inferred from source presence or complete.",
+          "release_source": "src/entities/article/mod.rs"
+        },
+        "/query/source": {
+          "reason": "Released search metadata uses a different source-plan/status schema and does not retain this current per-source term/count/notice or query shape.",
+          "release_source": "src/entities/article/mod.rs"
+        },
+        "/query/sort": {
+          "reason": "Released search metadata uses a different source-plan/status schema and does not retain this current per-source term/count/notice or query shape.",
+          "release_source": "src/entities/article/mod.rs"
+        }
+      }
+    },
+    {
+      "case": "article/search/window.yaml",
+      "step": 0,
+      "baseline_command": [
+        "search",
+        "article",
+        "EGFR lung cancer",
+        "--source",
+        "pubmed",
+        "--include-retracted"
+      ],
+      "spelling_table": "sdlc/planning/slices/article.md",
+      "release_source": [
+        "src/entities/article/mod.rs",
+        "src/cli/article/dispatch.rs",
+        "src/entities/article/detail.rs",
+        "src/cli/system/batch.rs"
+      ],
+      "baseline_globals": [
+        "--json"
+      ],
+      "recordings": [
+        {
+          "source": "pubmed",
+          "endpoint_env": "BIOMCP_PUBMED_BASE",
+          "host": "eutils.ncbi.nlm.nih.gov",
+          "request_prefix": "POST /entrez/eutils/esummary.fcgi",
+          "request_contains": "",
+          "request_query": {},
+          "capture": "pubmed/026cf6b914aba6c9b469656b2d717c293a2e3e29d2da96448667e66b7d733269.json"
+        },
+        {
+          "source": "pubmed",
+          "endpoint_env": "BIOMCP_PUBMED_BASE",
+          "host": "eutils.ncbi.nlm.nih.gov",
+          "request_prefix": "GET /entrez/eutils/esearch.fcgi",
+          "request_contains": "",
+          "request_query": {
+            "db": "pubmed",
+            "term": "xqzvw zzyzxq kinase"
+          },
+          "capture": "pubmed/041457e0146e9eab17da3cf342a9f71ff553026427a5d6f1690be6b5b62840d2.json"
+        },
+        {
+          "source": "pubmed",
+          "endpoint_env": "BIOMCP_PUBMED_BASE",
+          "host": "eutils.ncbi.nlm.nih.gov",
+          "request_prefix": "POST /entrez/eutils/esummary.fcgi",
+          "request_contains": "",
+          "request_query": {},
+          "capture": "pubmed/049ef22b38db9357197094a7c5e2e5c2822f1a451ecfe61f415aa28439ce3ef7.json"
+        },
+        {
+          "source": "pubmed",
+          "endpoint_env": "BIOMCP_PUBMED_BASE",
+          "host": "eutils.ncbi.nlm.nih.gov",
+          "request_prefix": "POST /entrez/eutils/esummary.fcgi",
+          "request_contains": "",
+          "request_query": {},
+          "capture": "pubmed/05b02024b15eee55cf6550c25436b7b35d466bd8729dab23bbb5c50760c0236d.json"
+        },
+        {
+          "source": "pubmed",
+          "endpoint_env": "BIOMCP_PUBMED_BASE",
+          "host": "eutils.ncbi.nlm.nih.gov",
+          "request_prefix": "POST /entrez/eutils/esummary.fcgi",
+          "request_contains": "",
+          "request_query": {},
+          "capture": "pubmed/08356df3b32858850ee5e6d86e647663b5add2d862c6ac70f2a56889ce4ca625.json"
+        },
+        {
+          "source": "pubmed",
+          "endpoint_env": "BIOMCP_PUBMED_BASE",
+          "host": "eutils.ncbi.nlm.nih.gov",
+          "request_prefix": "POST /entrez/eutils/esummary.fcgi",
+          "request_contains": "",
+          "request_query": {},
+          "capture": "pubmed/0871131d3760f2345d1150f87de4ed94f3f1e93efbd917342532a6ec7c067dfd.json"
+        },
+        {
+          "source": "pubmed",
+          "endpoint_env": "BIOMCP_PUBMED_BASE",
+          "host": "eutils.ncbi.nlm.nih.gov",
+          "request_prefix": "POST /entrez/eutils/esummary.fcgi",
+          "request_contains": "",
+          "request_query": {},
+          "capture": "pubmed/11b9501f6acc713fd1c60767eb2d9ab1c66db080f8215bec7fa549c6869d87ce.json"
+        },
+        {
+          "source": "pubmed",
+          "endpoint_env": "BIOMCP_PUBMED_BASE",
+          "host": "eutils.ncbi.nlm.nih.gov",
+          "request_prefix": "POST /entrez/eutils/esummary.fcgi",
+          "request_contains": "",
+          "request_query": {},
+          "capture": "pubmed/13d6e0f78690da61ee119f175ea4a45b2ea6e21ae900610c9dd6ecb1d64d2589.json"
+        },
+        {
+          "source": "pubmed",
+          "endpoint_env": "BIOMCP_PUBMED_BASE",
+          "host": "eutils.ncbi.nlm.nih.gov",
+          "request_prefix": "POST /entrez/eutils/esummary.fcgi",
+          "request_contains": "",
+          "request_query": {},
+          "capture": "pubmed/15246ff34605fdd4f6441cd099ff3f93af30a7d14d2cbf558912cdf8e1d10b91.json"
+        },
+        {
+          "source": "pubmed",
+          "endpoint_env": "BIOMCP_PUBMED_BASE",
+          "host": "eutils.ncbi.nlm.nih.gov",
+          "request_prefix": "POST /entrez/eutils/esummary.fcgi",
+          "request_contains": "",
+          "request_query": {},
+          "capture": "pubmed/1525880e65e5428ab74b4c2d5fcb5086ad4853aa3ca4c8dcc798ecf08d2c4d5b.json"
+        },
+        {
+          "source": "pubmed",
+          "endpoint_env": "BIOMCP_PUBMED_BASE",
+          "host": "eutils.ncbi.nlm.nih.gov",
+          "request_prefix": "POST /entrez/eutils/esummary.fcgi",
+          "request_contains": "",
+          "request_query": {},
+          "capture": "pubmed/17d98007c3563f90a101ae93000f25972ce11abce77eba91a1dcaad934c8ca0d.json"
+        },
+        {
+          "source": "pubmed",
+          "endpoint_env": "BIOMCP_PUBMED_BASE",
+          "host": "eutils.ncbi.nlm.nih.gov",
+          "request_prefix": "POST /entrez/eutils/esummary.fcgi",
+          "request_contains": "",
+          "request_query": {},
+          "capture": "pubmed/182acc1260b12da4a86c0074c8b8033da57e65ef7e750f49a0c0e6dfe14dfeca.json"
+        },
+        {
+          "source": "pubmed",
+          "endpoint_env": "BIOMCP_PUBMED_BASE",
+          "host": "eutils.ncbi.nlm.nih.gov",
+          "request_prefix": "POST /entrez/eutils/esummary.fcgi",
+          "request_contains": "",
+          "request_query": {},
+          "capture": "pubmed/1a95937faa076fd07e661a6fd4cc34f2072af1f99d45e5999ca36a0e3e81d689.json"
+        },
+        {
+          "source": "pubmed",
+          "endpoint_env": "BIOMCP_PUBMED_BASE",
+          "host": "eutils.ncbi.nlm.nih.gov",
+          "request_prefix": "POST /entrez/eutils/esummary.fcgi",
+          "request_contains": "",
+          "request_query": {},
+          "capture": "pubmed/1c1ebb2207f7f0c926c492504fe0778024be9822fdab6ae00b01045e9562332e.json"
+        },
+        {
+          "source": "pubmed",
+          "endpoint_env": "BIOMCP_PUBMED_BASE",
+          "host": "eutils.ncbi.nlm.nih.gov",
+          "request_prefix": "POST /entrez/eutils/esummary.fcgi",
+          "request_contains": "",
+          "request_query": {},
+          "capture": "pubmed/1cb631c147586752cd353be94364f0884dd64082befd900195339bb1d1ee1d5a.json"
+        },
+        {
+          "source": "pubmed",
+          "endpoint_env": "BIOMCP_PUBMED_BASE",
+          "host": "eutils.ncbi.nlm.nih.gov",
+          "request_prefix": "POST /entrez/eutils/esummary.fcgi",
+          "request_contains": "",
+          "request_query": {},
+          "capture": "pubmed/1cfc58fe582b598b200cc103066babf3a1c77e9c170f07e98b0838e450c93fac.json"
+        },
+        {
+          "source": "pubmed",
+          "endpoint_env": "BIOMCP_PUBMED_BASE",
+          "host": "eutils.ncbi.nlm.nih.gov",
+          "request_prefix": "POST /entrez/eutils/esummary.fcgi",
+          "request_contains": "",
+          "request_query": {},
+          "capture": "pubmed/1d25be5f5ff1f3633a938b885e5412a0b04df4bf32622bc2b4febf644556dd85.json"
+        },
+        {
+          "source": "pubmed",
+          "endpoint_env": "BIOMCP_PUBMED_BASE",
+          "host": "eutils.ncbi.nlm.nih.gov",
+          "request_prefix": "POST /entrez/eutils/esummary.fcgi",
+          "request_contains": "",
+          "request_query": {},
+          "capture": "pubmed/1e708fe5abc839cfd13eccdaed1d5efd29e86da3e8579c04719dcc8cab1d7989.json"
+        },
+        {
+          "source": "pubmed",
+          "endpoint_env": "BIOMCP_PUBMED_BASE",
+          "host": "eutils.ncbi.nlm.nih.gov",
+          "request_prefix": "POST /entrez/eutils/esummary.fcgi",
+          "request_contains": "",
+          "request_query": {},
+          "capture": "pubmed/1fcd882a40cff0f0c21ec96db92b82c60bd6c54a620c882e220c94324a017f4c.json"
+        },
+        {
+          "source": "pubmed",
+          "endpoint_env": "BIOMCP_PUBMED_BASE",
+          "host": "eutils.ncbi.nlm.nih.gov",
+          "request_prefix": "POST /entrez/eutils/esummary.fcgi",
+          "request_contains": "",
+          "request_query": {},
+          "capture": "pubmed/218f353c531e23e99a470272748f57ac9afa1e70132912ac437e6fd78000cb23.json"
+        },
+        {
+          "source": "pubmed",
+          "endpoint_env": "BIOMCP_PUBMED_BASE",
+          "host": "eutils.ncbi.nlm.nih.gov",
+          "request_prefix": "GET /entrez/eutils/esearch.fcgi",
+          "request_contains": "",
+          "request_query": {
+            "db": "pubmed",
+            "term": "(ERBB2 OR HER2) AND low trastuzumab deruxtecan"
+          },
+          "capture": "pubmed/22b5bd704ae144d31b41f9afb890971768976963f099d31aefc73c587e4ad364.json"
+        },
+        {
+          "source": "pubmed",
+          "endpoint_env": "BIOMCP_PUBMED_BASE",
+          "host": "eutils.ncbi.nlm.nih.gov",
+          "request_prefix": "POST /entrez/eutils/esummary.fcgi",
+          "request_contains": "",
+          "request_query": {},
+          "capture": "pubmed/250e2299467106b33aa23ddeef7367dc9ef526fceb59f76d9d84a9bbdb24e35c.json"
+        },
+        {
+          "source": "pubmed",
+          "endpoint_env": "BIOMCP_PUBMED_BASE",
+          "host": "eutils.ncbi.nlm.nih.gov",
+          "request_prefix": "POST /entrez/eutils/esummary.fcgi",
+          "request_contains": "",
+          "request_query": {},
+          "capture": "pubmed/26c432d362302da6cfc397b4e95e282a8b4974c6bbca7266bd293970781c10a7.json"
+        },
+        {
+          "source": "pubmed",
+          "endpoint_env": "BIOMCP_PUBMED_BASE",
+          "host": "eutils.ncbi.nlm.nih.gov",
+          "request_prefix": "GET /entrez/eutils/esearch.fcgi",
+          "request_contains": "",
+          "request_query": {
+            "db": "pubmed",
+            "term": "AKT1 AND E17K"
+          },
+          "capture": "pubmed/274b09b17eb4a68f250dbcd189a8acd7239305ea7a5530ea1f6db46c2672fc8c.json"
+        },
+        {
+          "source": "pubmed",
+          "endpoint_env": "BIOMCP_PUBMED_BASE",
+          "host": "eutils.ncbi.nlm.nih.gov",
+          "request_prefix": "POST /entrez/eutils/esummary.fcgi",
+          "request_contains": "",
+          "request_query": {},
+          "capture": "pubmed/2bbf6ea036bd30185d553ccf28e9a6fb5e17459297733ab27887832c339cb12c.json"
+        },
+        {
+          "source": "pubmed",
+          "endpoint_env": "BIOMCP_PUBMED_BASE",
+          "host": "eutils.ncbi.nlm.nih.gov",
+          "request_prefix": "POST /entrez/eutils/esummary.fcgi",
+          "request_contains": "",
+          "request_query": {},
+          "capture": "pubmed/2d75c6e8eb1bb23c93e3d06932793e20e2f6c07412fda56e1f8526df3258b745.json"
+        },
+        {
+          "source": "pubmed",
+          "endpoint_env": "BIOMCP_PUBMED_BASE",
+          "host": "eutils.ncbi.nlm.nih.gov",
+          "request_prefix": "POST /entrez/eutils/esummary.fcgi",
+          "request_contains": "",
+          "request_query": {},
+          "capture": "pubmed/2e7932e3efbb3362f2a333ab40388e0aaebad3e9b5df949aa563d3a02a680135.json"
+        },
+        {
+          "source": "pubmed",
+          "endpoint_env": "BIOMCP_PUBMED_BASE",
+          "host": "eutils.ncbi.nlm.nih.gov",
+          "request_prefix": "POST /entrez/eutils/esummary.fcgi",
+          "request_contains": "",
+          "request_query": {},
+          "capture": "pubmed/339705eb78f92173404f9d2b971e1f38a5fc79529078eaa7eeee4b6375bd391a.json"
+        },
+        {
+          "source": "pubmed",
+          "endpoint_env": "BIOMCP_PUBMED_BASE",
+          "host": "eutils.ncbi.nlm.nih.gov",
+          "request_prefix": "POST /entrez/eutils/esummary.fcgi",
+          "request_contains": "",
+          "request_query": {},
+          "capture": "pubmed/3b8953491482d37304f08b5a5d02c3f88907cf2c832a135de638fbb099e939f9.json"
+        },
+        {
+          "source": "pubmed",
+          "endpoint_env": "BIOMCP_PUBMED_BASE",
+          "host": "eutils.ncbi.nlm.nih.gov",
+          "request_prefix": "POST /entrez/eutils/esummary.fcgi",
+          "request_contains": "",
+          "request_query": {},
+          "capture": "pubmed/3e3a52c3891da7afff6d1d6faf72cf0a8fd8d3e8d32cfa914232cefaa8d8f23e.json"
+        },
+        {
+          "source": "pubmed",
+          "endpoint_env": "BIOMCP_PUBMED_BASE",
+          "host": "eutils.ncbi.nlm.nih.gov",
+          "request_prefix": "POST /entrez/eutils/esummary.fcgi",
+          "request_contains": "",
+          "request_query": {},
+          "capture": "pubmed/3f079007c1254c8532aec5a65a609e092f8b8e81c21ff792752ec13f915d0366.json"
+        },
+        {
+          "source": "pubmed",
+          "endpoint_env": "BIOMCP_PUBMED_BASE",
+          "host": "eutils.ncbi.nlm.nih.gov",
+          "request_prefix": "POST /entrez/eutils/esummary.fcgi",
+          "request_contains": "",
+          "request_query": {},
+          "capture": "pubmed/3f329240bb0bcc17a04e5bc05fea9ed798b1ad01b7ae2bc1395e407214cc1b98.json"
+        },
+        {
+          "source": "pubmed",
+          "endpoint_env": "BIOMCP_PUBMED_BASE",
+          "host": "eutils.ncbi.nlm.nih.gov",
+          "request_prefix": "POST /entrez/eutils/esummary.fcgi",
+          "request_contains": "",
+          "request_query": {},
+          "capture": "pubmed/40b764aee51ebdefbdd6d31db330c0d11f6d0a2c0d97fe5e81f095f1a0446502.json"
+        },
+        {
+          "source": "pubmed",
+          "endpoint_env": "BIOMCP_PUBMED_BASE",
+          "host": "eutils.ncbi.nlm.nih.gov",
+          "request_prefix": "POST /entrez/eutils/esummary.fcgi",
+          "request_contains": "",
+          "request_query": {},
+          "capture": "pubmed/41919df70cc03b60602023e4aca8b8bb2687dff88be73422c36b48dd66b463cf.json"
+        },
+        {
+          "source": "pubmed",
+          "endpoint_env": "BIOMCP_PUBMED_BASE",
+          "host": "eutils.ncbi.nlm.nih.gov",
+          "request_prefix": "POST /entrez/eutils/esummary.fcgi",
+          "request_contains": "",
+          "request_query": {},
+          "capture": "pubmed/423d093da59e39f5e57b08f23c5307cf790c148d51c75ade1468c9d1e8621c26.json"
+        },
+        {
+          "source": "pubmed",
+          "endpoint_env": "BIOMCP_PUBMED_BASE",
+          "host": "eutils.ncbi.nlm.nih.gov",
+          "request_prefix": "POST /entrez/eutils/esummary.fcgi",
+          "request_contains": "",
+          "request_query": {},
+          "capture": "pubmed/46aace585ccea1f1a267fee98f291b267dc89fbae3326c177eedea217c324487.json"
+        },
+        {
+          "source": "pubmed",
+          "endpoint_env": "BIOMCP_PUBMED_BASE",
+          "host": "eutils.ncbi.nlm.nih.gov",
+          "request_prefix": "POST /entrez/eutils/esummary.fcgi",
+          "request_contains": "",
+          "request_query": {},
+          "capture": "pubmed/47a97b082dfc3988bbcb499da2b00b6417d72b8745f3f3736441e87cf06f2174.json"
+        },
+        {
+          "source": "pubmed",
+          "endpoint_env": "BIOMCP_PUBMED_BASE",
+          "host": "eutils.ncbi.nlm.nih.gov",
+          "request_prefix": "POST /entrez/eutils/esummary.fcgi",
+          "request_contains": "",
+          "request_query": {},
+          "capture": "pubmed/47ed745aa0871f657d98d39f06e22766c61ee9b6845474d518c03ea9ad92265f.json"
+        },
+        {
+          "source": "pubmed",
+          "endpoint_env": "BIOMCP_PUBMED_BASE",
+          "host": "eutils.ncbi.nlm.nih.gov",
+          "request_prefix": "POST /entrez/eutils/esummary.fcgi",
+          "request_contains": "",
+          "request_query": {},
+          "capture": "pubmed/48268afe56223ec1f8d422712e1cedd3457b1c366a1f4fac499f4aa9c0d8eb2c.json"
+        },
+        {
+          "source": "pubmed",
+          "endpoint_env": "BIOMCP_PUBMED_BASE",
+          "host": "eutils.ncbi.nlm.nih.gov",
+          "request_prefix": "POST /entrez/eutils/esummary.fcgi",
+          "request_contains": "",
+          "request_query": {},
+          "capture": "pubmed/486e29127778fcaff38ff25bf211e61ef7d2afbeac63fea1fc0b4be4fb392ac5.json"
+        },
+        {
+          "source": "pubmed",
+          "endpoint_env": "BIOMCP_PUBMED_BASE",
+          "host": "eutils.ncbi.nlm.nih.gov",
+          "request_prefix": "GET /entrez/eutils/esearch.fcgi",
+          "request_contains": "",
+          "request_query": {
+            "db": "pubmed",
+            "term": "EGFR lung cancer"
+          },
+          "capture": "pubmed/48cabd9639ce9f74133a22ddb429e9cb80ad0856bba26e5fad838d5078fe1e6f.json"
+        },
+        {
+          "source": "pubmed",
+          "endpoint_env": "BIOMCP_PUBMED_BASE",
+          "host": "eutils.ncbi.nlm.nih.gov",
+          "request_prefix": "POST /entrez/eutils/esummary.fcgi",
+          "request_contains": "",
+          "request_query": {},
+          "capture": "pubmed/4b2533a26bd1182f13deaebb6646973fc4d0d265c16b3d8880214ae23b0dc392.json"
+        },
+        {
+          "source": "pubmed",
+          "endpoint_env": "BIOMCP_PUBMED_BASE",
+          "host": "eutils.ncbi.nlm.nih.gov",
+          "request_prefix": "POST /entrez/eutils/esummary.fcgi",
+          "request_contains": "",
+          "request_query": {},
+          "capture": "pubmed/4d03ee9230b4cb3af72e2f951a1499abcff1ae6702a0984171e5c9642c4cc148.json"
+        },
+        {
+          "source": "pubmed",
+          "endpoint_env": "BIOMCP_PUBMED_BASE",
+          "host": "eutils.ncbi.nlm.nih.gov",
+          "request_prefix": "POST /entrez/eutils/esummary.fcgi",
+          "request_contains": "",
+          "request_query": {},
+          "capture": "pubmed/4fd5fa31c0a8f581cc8c8a8b32811c495f920c1d75cd2e15c81087764a40aca6.json"
+        },
+        {
+          "source": "pubmed",
+          "endpoint_env": "BIOMCP_PUBMED_BASE",
+          "host": "eutils.ncbi.nlm.nih.gov",
+          "request_prefix": "POST /entrez/eutils/esummary.fcgi",
+          "request_contains": "",
+          "request_query": {},
+          "capture": "pubmed/50cfb1d977929c4ae9bf07bcf0089421f8bb38c879c9ede141dc4ab36015ef11.json"
+        },
+        {
+          "source": "pubmed",
+          "endpoint_env": "BIOMCP_PUBMED_BASE",
+          "host": "eutils.ncbi.nlm.nih.gov",
+          "request_prefix": "POST /entrez/eutils/esummary.fcgi",
+          "request_contains": "",
+          "request_query": {},
+          "capture": "pubmed/52e49aa67b9658d1c0fc6642752186bcfb4a32bad58f6bfe4e0fd7ceb21e7549.json"
+        },
+        {
+          "source": "pubmed",
+          "endpoint_env": "BIOMCP_PUBMED_BASE",
+          "host": "eutils.ncbi.nlm.nih.gov",
+          "request_prefix": "POST /entrez/eutils/esummary.fcgi",
+          "request_contains": "",
+          "request_query": {},
+          "capture": "pubmed/556f92604a682f60f55dc1fbe6fb661b6f7682d8a559373f6867cb62657cd8b4.json"
+        },
+        {
+          "source": "pubmed",
+          "endpoint_env": "BIOMCP_PUBMED_BASE",
+          "host": "eutils.ncbi.nlm.nih.gov",
+          "request_prefix": "POST /entrez/eutils/esummary.fcgi",
+          "request_contains": "",
+          "request_query": {},
+          "capture": "pubmed/567a7ef1693d5aff9bb7fbc568155eb625e9a041a4ba26ebf83635c993677869.json"
+        },
+        {
+          "source": "pubmed",
+          "endpoint_env": "BIOMCP_PUBMED_BASE",
+          "host": "eutils.ncbi.nlm.nih.gov",
+          "request_prefix": "POST /entrez/eutils/esummary.fcgi",
+          "request_contains": "",
+          "request_query": {},
+          "capture": "pubmed/58130ce97ac0746b27240579c2483b04ecf0f5cc45101ed574be44662cc1837e.json"
+        },
+        {
+          "source": "pubmed",
+          "endpoint_env": "BIOMCP_PUBMED_BASE",
+          "host": "eutils.ncbi.nlm.nih.gov",
+          "request_prefix": "POST /entrez/eutils/esummary.fcgi",
+          "request_contains": "",
+          "request_query": {},
+          "capture": "pubmed/5842b867c843f93d497776ed0ffc3f26a38fe8594eb06a4e91d465682ed0c114.json"
+        },
+        {
+          "source": "pubmed",
+          "endpoint_env": "BIOMCP_PUBMED_BASE",
+          "host": "eutils.ncbi.nlm.nih.gov",
+          "request_prefix": "POST /entrez/eutils/esummary.fcgi",
+          "request_contains": "",
+          "request_query": {},
+          "capture": "pubmed/59dbeaa759adfca8406a486bb7e01a3cb9a2ab105672500d52d778b182961c9b.json"
+        },
+        {
+          "source": "pubmed",
+          "endpoint_env": "BIOMCP_PUBMED_BASE",
+          "host": "eutils.ncbi.nlm.nih.gov",
+          "request_prefix": "POST /entrez/eutils/esummary.fcgi",
+          "request_contains": "",
+          "request_query": {},
+          "capture": "pubmed/5b4aa5148f9db187d3e78b39b0a6b176922b2ecad6ae341466f7c4f1f39b2b65.json"
+        },
+        {
+          "source": "pubmed",
+          "endpoint_env": "BIOMCP_PUBMED_BASE",
+          "host": "eutils.ncbi.nlm.nih.gov",
+          "request_prefix": "POST /entrez/eutils/esummary.fcgi",
+          "request_contains": "",
+          "request_query": {},
+          "capture": "pubmed/5f8e42939cfdb47222e4bef2517ff28b40497ba2d88b2e9fdfd3f335354c22c9.json"
+        },
+        {
+          "source": "pubmed",
+          "endpoint_env": "BIOMCP_PUBMED_BASE",
+          "host": "eutils.ncbi.nlm.nih.gov",
+          "request_prefix": "POST /entrez/eutils/esummary.fcgi",
+          "request_contains": "",
+          "request_query": {},
+          "capture": "pubmed/61584f4ae169d164afbf6222bb8ff61d697dc65f640972a65606c844f4f712c0.json"
+        },
+        {
+          "source": "pubmed",
+          "endpoint_env": "BIOMCP_PUBMED_BASE",
+          "host": "eutils.ncbi.nlm.nih.gov",
+          "request_prefix": "POST /entrez/eutils/esummary.fcgi",
+          "request_contains": "",
+          "request_query": {},
+          "capture": "pubmed/628e51b06c5ae5911bc85159bd504a5b6e9aee61892173e5bde75c5b00008aca.json"
+        },
+        {
+          "source": "pubmed",
+          "endpoint_env": "BIOMCP_PUBMED_BASE",
+          "host": "eutils.ncbi.nlm.nih.gov",
+          "request_prefix": "POST /entrez/eutils/esummary.fcgi",
+          "request_contains": "",
+          "request_query": {},
+          "capture": "pubmed/6592df086211be402d5ad6945939f17fb8b321e863ebe1feb49d578f86a39dc9.json"
+        },
+        {
+          "source": "pubmed",
+          "endpoint_env": "BIOMCP_PUBMED_BASE",
+          "host": "eutils.ncbi.nlm.nih.gov",
+          "request_prefix": "POST /entrez/eutils/esummary.fcgi",
+          "request_contains": "",
+          "request_query": {},
+          "capture": "pubmed/66421a5bedec7902bfc3ab6d20a60fe2bb18de2a9bc96f506e2b197f18fbdd71.json"
+        },
+        {
+          "source": "pubmed",
+          "endpoint_env": "BIOMCP_PUBMED_BASE",
+          "host": "eutils.ncbi.nlm.nih.gov",
+          "request_prefix": "POST /entrez/eutils/esummary.fcgi",
+          "request_contains": "",
+          "request_query": {},
+          "capture": "pubmed/6829fa05be1203bc85d903edb5f809e63887f9dfbf531f5af1a9761328cee83c.json"
+        },
+        {
+          "source": "pubmed",
+          "endpoint_env": "BIOMCP_PUBMED_BASE",
+          "host": "eutils.ncbi.nlm.nih.gov",
+          "request_prefix": "POST /entrez/eutils/esummary.fcgi",
+          "request_contains": "",
+          "request_query": {},
+          "capture": "pubmed/6bdabcb54444eb7488141126842c19fcfd926ddb1d3857d590f3c860cbc07e9b.json"
+        },
+        {
+          "source": "pubmed",
+          "endpoint_env": "BIOMCP_PUBMED_BASE",
+          "host": "eutils.ncbi.nlm.nih.gov",
+          "request_prefix": "POST /entrez/eutils/esummary.fcgi",
+          "request_contains": "",
+          "request_query": {},
+          "capture": "pubmed/6db7910a15b6cc4015d5e752a75bfffe5c017fa0803313abca745e79548e61f9.json"
+        },
+        {
+          "source": "pubmed",
+          "endpoint_env": "BIOMCP_PUBMED_BASE",
+          "host": "eutils.ncbi.nlm.nih.gov",
+          "request_prefix": "POST /entrez/eutils/esummary.fcgi",
+          "request_contains": "",
+          "request_query": {},
+          "capture": "pubmed/6de3b50c93ba086205048eb7279acca49af16a57f0097ebe5f16f10441af46dc.json"
+        },
+        {
+          "source": "pubmed",
+          "endpoint_env": "BIOMCP_PUBMED_BASE",
+          "host": "eutils.ncbi.nlm.nih.gov",
+          "request_prefix": "POST /entrez/eutils/esummary.fcgi",
+          "request_contains": "",
+          "request_query": {},
+          "capture": "pubmed/71ae212e60c9208a1163839edeb2a26e544d3ca41d5a363d83d8abd7b174a4f8.json"
+        },
+        {
+          "source": "pubmed",
+          "endpoint_env": "BIOMCP_PUBMED_BASE",
+          "host": "eutils.ncbi.nlm.nih.gov",
+          "request_prefix": "POST /entrez/eutils/esummary.fcgi",
+          "request_contains": "",
+          "request_query": {},
+          "capture": "pubmed/72256869643c2cd10afb89db675878208e2799da0b39d791044da486cc22e6f2.json"
+        },
+        {
+          "source": "pubmed",
+          "endpoint_env": "BIOMCP_PUBMED_BASE",
+          "host": "eutils.ncbi.nlm.nih.gov",
+          "request_prefix": "POST /entrez/eutils/esummary.fcgi",
+          "request_contains": "",
+          "request_query": {},
+          "capture": "pubmed/740d895afe3972e50b53e178f70dd4f4c3ff0afa5b62b7b187eb4c6bd59c2738.json"
+        },
+        {
+          "source": "pubmed",
+          "endpoint_env": "BIOMCP_PUBMED_BASE",
+          "host": "eutils.ncbi.nlm.nih.gov",
+          "request_prefix": "POST /entrez/eutils/esummary.fcgi",
+          "request_contains": "",
+          "request_query": {},
+          "capture": "pubmed/767ebdced82438ca581ee09eea1dc485d3d4219cc785dceaac0681302ec23c0e.json"
+        },
+        {
+          "source": "pubmed",
+          "endpoint_env": "BIOMCP_PUBMED_BASE",
+          "host": "eutils.ncbi.nlm.nih.gov",
+          "request_prefix": "POST /entrez/eutils/esummary.fcgi",
+          "request_contains": "",
+          "request_query": {},
+          "capture": "pubmed/769b8541952099299292be4ccd903cc3051683fc80d19da2d760fc3a248512e9.json"
+        },
+        {
+          "source": "pubmed",
+          "endpoint_env": "BIOMCP_PUBMED_BASE",
+          "host": "eutils.ncbi.nlm.nih.gov",
+          "request_prefix": "POST /entrez/eutils/esummary.fcgi",
+          "request_contains": "",
+          "request_query": {},
+          "capture": "pubmed/785f03bdfde77ee7a426f64f92bb5bcfb74c52d87f787710b4d360321abdc820.json"
+        },
+        {
+          "source": "pubmed",
+          "endpoint_env": "BIOMCP_PUBMED_BASE",
+          "host": "eutils.ncbi.nlm.nih.gov",
+          "request_prefix": "POST /entrez/eutils/esummary.fcgi",
+          "request_contains": "",
+          "request_query": {},
+          "capture": "pubmed/7c5b33f50e060215c96519b31c41ada7f4a17aa78321a261f7c34e82b7e9399d.json"
+        },
+        {
+          "source": "pubmed",
+          "endpoint_env": "BIOMCP_PUBMED_BASE",
+          "host": "eutils.ncbi.nlm.nih.gov",
+          "request_prefix": "POST /entrez/eutils/esummary.fcgi",
+          "request_contains": "",
+          "request_query": {},
+          "capture": "pubmed/7e31b955e36cd301aca1df8a4b3ddc7c13a86efe9faac77e0db032c31b87ce13.json"
+        },
+        {
+          "source": "pubmed",
+          "endpoint_env": "BIOMCP_PUBMED_BASE",
+          "host": "eutils.ncbi.nlm.nih.gov",
+          "request_prefix": "POST /entrez/eutils/esummary.fcgi",
+          "request_contains": "",
+          "request_query": {},
+          "capture": "pubmed/801197bd2cbe714da6e561cbb8572f1c5b6f4e9dd1c5bc99a09899af8c0a13cc.json"
+        },
+        {
+          "source": "pubmed",
+          "endpoint_env": "BIOMCP_PUBMED_BASE",
+          "host": "eutils.ncbi.nlm.nih.gov",
+          "request_prefix": "POST /entrez/eutils/esummary.fcgi",
+          "request_contains": "",
+          "request_query": {},
+          "capture": "pubmed/80f3e80e46c4f26446569caa9a3ac23370dd554edd0313bc4dc5031fb901c689.json"
+        },
+        {
+          "source": "pubmed",
+          "endpoint_env": "BIOMCP_PUBMED_BASE",
+          "host": "eutils.ncbi.nlm.nih.gov",
+          "request_prefix": "POST /entrez/eutils/esummary.fcgi",
+          "request_contains": "",
+          "request_query": {},
+          "capture": "pubmed/81784dbe8fa85c69b9c16332caf8b862e5a9b7c09fd40365f5468382336b9e5b.json"
+        },
+        {
+          "source": "pubmed",
+          "endpoint_env": "BIOMCP_PUBMED_BASE",
+          "host": "eutils.ncbi.nlm.nih.gov",
+          "request_prefix": "POST /entrez/eutils/esummary.fcgi",
+          "request_contains": "",
+          "request_query": {},
+          "capture": "pubmed/831782d1004d52b486456c7b7271442f7c2cc715f996e510b86fe81d7b0ead8a.json"
+        },
+        {
+          "source": "pubmed",
+          "endpoint_env": "BIOMCP_PUBMED_BASE",
+          "host": "eutils.ncbi.nlm.nih.gov",
+          "request_prefix": "POST /entrez/eutils/esummary.fcgi",
+          "request_contains": "",
+          "request_query": {},
+          "capture": "pubmed/83bb70dd3bd7b86e4762f11ac6dcfeb36c9e29b9d887a23606a42ff5c533cad9.json"
+        },
+        {
+          "source": "pubmed",
+          "endpoint_env": "BIOMCP_PUBMED_BASE",
+          "host": "eutils.ncbi.nlm.nih.gov",
+          "request_prefix": "POST /entrez/eutils/esummary.fcgi",
+          "request_contains": "",
+          "request_query": {},
+          "capture": "pubmed/870ce704cd90129b9949239705ac6fda8709660dbc599ddb918e7b265ecb6e06.json"
+        },
+        {
+          "source": "pubmed",
+          "endpoint_env": "BIOMCP_PUBMED_BASE",
+          "host": "eutils.ncbi.nlm.nih.gov",
+          "request_prefix": "POST /entrez/eutils/esummary.fcgi",
+          "request_contains": "",
+          "request_query": {},
+          "capture": "pubmed/878678ab7e509fda1b6cc1e5cdacaff8c4c0c43e69a17f2929b8a951b5c73703.json"
+        },
+        {
+          "source": "pubmed",
+          "endpoint_env": "BIOMCP_PUBMED_BASE",
+          "host": "eutils.ncbi.nlm.nih.gov",
+          "request_prefix": "POST /entrez/eutils/esummary.fcgi",
+          "request_contains": "",
+          "request_query": {},
+          "capture": "pubmed/8916ade7a30cecaa9d43c3644f8ae800143d5f408ee7825e47988ab6cec3a2c1.json"
+        },
+        {
+          "source": "pubmed",
+          "endpoint_env": "BIOMCP_PUBMED_BASE",
+          "host": "eutils.ncbi.nlm.nih.gov",
+          "request_prefix": "POST /entrez/eutils/esummary.fcgi",
+          "request_contains": "",
+          "request_query": {},
+          "capture": "pubmed/9376afebe2c864c3ac5e47cfae67c1db50f9c8ea63f0d9096b3a8829c8658229.json"
+        },
+        {
+          "source": "pubmed",
+          "endpoint_env": "BIOMCP_PUBMED_BASE",
+          "host": "eutils.ncbi.nlm.nih.gov",
+          "request_prefix": "POST /entrez/eutils/esummary.fcgi",
+          "request_contains": "",
+          "request_query": {},
+          "capture": "pubmed/96c0646c4742e239dd09dee7e026a5998052ca4e768b58aba3e4d525efeae584.json"
+        },
+        {
+          "source": "pubmed",
+          "endpoint_env": "BIOMCP_PUBMED_BASE",
+          "host": "eutils.ncbi.nlm.nih.gov",
+          "request_prefix": "POST /entrez/eutils/esummary.fcgi",
+          "request_contains": "",
+          "request_query": {},
+          "capture": "pubmed/9b142ab0e4c388ead2821b945b34f5f4d672b83ae71cc72a8016f9fac3dd2347.json"
+        },
+        {
+          "source": "pubmed",
+          "endpoint_env": "BIOMCP_PUBMED_BASE",
+          "host": "eutils.ncbi.nlm.nih.gov",
+          "request_prefix": "POST /entrez/eutils/esummary.fcgi",
+          "request_contains": "",
+          "request_query": {},
+          "capture": "pubmed/9dfce4f7a770c1183ecc445b24eb6af1e5e38941c63b0e953ea3444348787233.json"
+        },
+        {
+          "source": "pubmed",
+          "endpoint_env": "BIOMCP_PUBMED_BASE",
+          "host": "eutils.ncbi.nlm.nih.gov",
+          "request_prefix": "POST /entrez/eutils/esummary.fcgi",
+          "request_contains": "",
+          "request_query": {},
+          "capture": "pubmed/a3a8f4d33d3ec9d17be102b6bfe8cbe525635abb2dbfe6e872cdbc67a9e55656.json"
+        },
+        {
+          "source": "pubmed",
+          "endpoint_env": "BIOMCP_PUBMED_BASE",
+          "host": "eutils.ncbi.nlm.nih.gov",
+          "request_prefix": "POST /entrez/eutils/esummary.fcgi",
+          "request_contains": "",
+          "request_query": {},
+          "capture": "pubmed/a457edfcfb77cb3b71b4840d3494dc7d18d49a0a823a652ed3e45d5ff97e512e.json"
+        },
+        {
+          "source": "pubmed",
+          "endpoint_env": "BIOMCP_PUBMED_BASE",
+          "host": "eutils.ncbi.nlm.nih.gov",
+          "request_prefix": "POST /entrez/eutils/esummary.fcgi",
+          "request_contains": "",
+          "request_query": {},
+          "capture": "pubmed/a4eeb98327a862285a5f53494ead8a98b1ca0b58b60dc6e1bb58e309480c7724.json"
+        },
+        {
+          "source": "pubmed",
+          "endpoint_env": "BIOMCP_PUBMED_BASE",
+          "host": "eutils.ncbi.nlm.nih.gov",
+          "request_prefix": "GET /entrez/eutils/esearch.fcgi",
+          "request_contains": "",
+          "request_query": {
+            "db": "pubmed",
+            "term": "KRAS AND G12C sotorasib lung"
+          },
+          "capture": "pubmed/a74e56de48ea9c867403872e419b7563b74faafa00ac55364a358f8f80cab592.json"
+        },
+        {
+          "source": "pubmed",
+          "endpoint_env": "BIOMCP_PUBMED_BASE",
+          "host": "eutils.ncbi.nlm.nih.gov",
+          "request_prefix": "POST /entrez/eutils/esummary.fcgi",
+          "request_contains": "",
+          "request_query": {},
+          "capture": "pubmed/a84b759d7c32974d18472c438ffaad6c3d5157a781b3929e2b0f05a62580d83b.json"
+        },
+        {
+          "source": "pubmed",
+          "endpoint_env": "BIOMCP_PUBMED_BASE",
+          "host": "eutils.ncbi.nlm.nih.gov",
+          "request_prefix": "POST /entrez/eutils/esummary.fcgi",
+          "request_contains": "",
+          "request_query": {},
+          "capture": "pubmed/a9ae38f58415981ef36d67c395c1a4e8adef0a9216da934ba0f38e0db9d5d373.json"
+        },
+        {
+          "source": "pubmed",
+          "endpoint_env": "BIOMCP_PUBMED_BASE",
+          "host": "eutils.ncbi.nlm.nih.gov",
+          "request_prefix": "POST /entrez/eutils/esummary.fcgi",
+          "request_contains": "",
+          "request_query": {},
+          "capture": "pubmed/adfa8c7bb8b46cf7d3c4fbf11820fecb657cf5d7e0b4ec831d49f54b1dd8d5ba.json"
+        },
+        {
+          "source": "pubmed",
+          "endpoint_env": "BIOMCP_PUBMED_BASE",
+          "host": "eutils.ncbi.nlm.nih.gov",
+          "request_prefix": "POST /entrez/eutils/esummary.fcgi",
+          "request_contains": "",
+          "request_query": {},
+          "capture": "pubmed/ae1ec806d5507cbdfff1c95d26cf38d9988f40cea7e31101b89e0e728bb59092.json"
+        },
+        {
+          "source": "pubmed",
+          "endpoint_env": "BIOMCP_PUBMED_BASE",
+          "host": "eutils.ncbi.nlm.nih.gov",
+          "request_prefix": "POST /entrez/eutils/esummary.fcgi",
+          "request_contains": "",
+          "request_query": {},
+          "capture": "pubmed/b2bf279468ef6092f6801cda4a305731cdb77ede9d84717f6c015d0fde7d29dd.json"
+        },
+        {
+          "source": "pubmed",
+          "endpoint_env": "BIOMCP_PUBMED_BASE",
+          "host": "eutils.ncbi.nlm.nih.gov",
+          "request_prefix": "POST /entrez/eutils/esummary.fcgi",
+          "request_contains": "",
+          "request_query": {},
+          "capture": "pubmed/b69206dfc26da90478ae05a6acb1a83c8e38b36f7e75198354a589e9aa65554f.json"
+        },
+        {
+          "source": "pubmed",
+          "endpoint_env": "BIOMCP_PUBMED_BASE",
+          "host": "eutils.ncbi.nlm.nih.gov",
+          "request_prefix": "POST /entrez/eutils/esummary.fcgi",
+          "request_contains": "",
+          "request_query": {},
+          "capture": "pubmed/b815207dfae7859d61f49d2df7d4c2c0355e9c086b03c885a7638d071a3e345b.json"
+        },
+        {
+          "source": "pubmed",
+          "endpoint_env": "BIOMCP_PUBMED_BASE",
+          "host": "eutils.ncbi.nlm.nih.gov",
+          "request_prefix": "POST /entrez/eutils/esummary.fcgi",
+          "request_contains": "",
+          "request_query": {},
+          "capture": "pubmed/b956bc5a532daf324bd17aefbf1c468f905c34bf25d347c83f062234e907a91e.json"
+        },
+        {
+          "source": "pubmed",
+          "endpoint_env": "BIOMCP_PUBMED_BASE",
+          "host": "eutils.ncbi.nlm.nih.gov",
+          "request_prefix": "POST /entrez/eutils/esummary.fcgi",
+          "request_contains": "",
+          "request_query": {},
+          "capture": "pubmed/b982dc2408766802b9628999f566b837ab7dc4bae517d4e432b9b98fee07021a.json"
+        },
+        {
+          "source": "pubmed",
+          "endpoint_env": "BIOMCP_PUBMED_BASE",
+          "host": "eutils.ncbi.nlm.nih.gov",
+          "request_prefix": "POST /entrez/eutils/esummary.fcgi",
+          "request_contains": "",
+          "request_query": {},
+          "capture": "pubmed/ba03a3386da2b8a287f6533624b8cf75b92ae62d24b3ff63834431a91e0f58dd.json"
+        },
+        {
+          "source": "pubmed",
+          "endpoint_env": "BIOMCP_PUBMED_BASE",
+          "host": "eutils.ncbi.nlm.nih.gov",
+          "request_prefix": "POST /entrez/eutils/esummary.fcgi",
+          "request_contains": "",
+          "request_query": {},
+          "capture": "pubmed/baec61cbd4488ad6acff293d55ed74aa4e0268d3f5c50da7f13d14507687f1b4.json"
+        },
+        {
+          "source": "pubmed",
+          "endpoint_env": "BIOMCP_PUBMED_BASE",
+          "host": "eutils.ncbi.nlm.nih.gov",
+          "request_prefix": "POST /entrez/eutils/esummary.fcgi",
+          "request_contains": "",
+          "request_query": {},
+          "capture": "pubmed/bfd9a9fc26e65e33ef053114d443c9839b6cb397175aba541c89cebea8b52cff.json"
+        },
+        {
+          "source": "pubmed",
+          "endpoint_env": "BIOMCP_PUBMED_BASE",
+          "host": "eutils.ncbi.nlm.nih.gov",
+          "request_prefix": "POST /entrez/eutils/esummary.fcgi",
+          "request_contains": "",
+          "request_query": {},
+          "capture": "pubmed/c04ad24f964daa085da6e0446132b167ccbe0fa6065d2b7199da918c6c5b45cc.json"
+        },
+        {
+          "source": "pubmed",
+          "endpoint_env": "BIOMCP_PUBMED_BASE",
+          "host": "eutils.ncbi.nlm.nih.gov",
+          "request_prefix": "POST /entrez/eutils/esummary.fcgi",
+          "request_contains": "",
+          "request_query": {},
+          "capture": "pubmed/c2abe209ac5e2d20a8db506efae5f0425d07ecc88346dd262b1845a1be457e83.json"
+        },
+        {
+          "source": "pubmed",
+          "endpoint_env": "BIOMCP_PUBMED_BASE",
+          "host": "eutils.ncbi.nlm.nih.gov",
+          "request_prefix": "POST /entrez/eutils/esummary.fcgi",
+          "request_contains": "",
+          "request_query": {},
+          "capture": "pubmed/c2d3b18ee3722a88bc4eaa93ac7b8f9c43d1a0ce60b4f63530f97c48eb4c79f8.json"
+        },
+        {
+          "source": "pubmed",
+          "endpoint_env": "BIOMCP_PUBMED_BASE",
+          "host": "eutils.ncbi.nlm.nih.gov",
+          "request_prefix": "POST /entrez/eutils/esummary.fcgi",
+          "request_contains": "",
+          "request_query": {},
+          "capture": "pubmed/c3980cbfcb510d854cf9a9229e043e094e6575723f5a36d8101aeb41f8a268e3.json"
+        },
+        {
+          "source": "pubmed",
+          "endpoint_env": "BIOMCP_PUBMED_BASE",
+          "host": "eutils.ncbi.nlm.nih.gov",
+          "request_prefix": "POST /entrez/eutils/esummary.fcgi",
+          "request_contains": "",
+          "request_query": {},
+          "capture": "pubmed/c5d699cb889b68dc28549b99b4c35ddb3da2c7d097cfb0c9f1b7432ebd475dbf.json"
+        },
+        {
+          "source": "pubmed",
+          "endpoint_env": "BIOMCP_PUBMED_BASE",
+          "host": "eutils.ncbi.nlm.nih.gov",
+          "request_prefix": "POST /entrez/eutils/esummary.fcgi",
+          "request_contains": "",
+          "request_query": {},
+          "capture": "pubmed/c788a073a9c0854f23a707e8050030a50e3ddee94fb222e9ac77e68bbca93b27.json"
+        },
+        {
+          "source": "pubmed",
+          "endpoint_env": "BIOMCP_PUBMED_BASE",
+          "host": "eutils.ncbi.nlm.nih.gov",
+          "request_prefix": "POST /entrez/eutils/esummary.fcgi",
+          "request_contains": "",
+          "request_query": {},
+          "capture": "pubmed/c8fa79e288340b83fe0336cb588a39aed533ed8842a05e90d07c7b2e2ef0f394.json"
+        },
+        {
+          "source": "pubmed",
+          "endpoint_env": "BIOMCP_PUBMED_BASE",
+          "host": "eutils.ncbi.nlm.nih.gov",
+          "request_prefix": "POST /entrez/eutils/esummary.fcgi",
+          "request_contains": "",
+          "request_query": {},
+          "capture": "pubmed/ca02f42481d0d26b8cf6d0bacc3e7506c91efb2fedf279b0e8d26123388d4040.json"
+        },
+        {
+          "source": "pubmed",
+          "endpoint_env": "BIOMCP_PUBMED_BASE",
+          "host": "eutils.ncbi.nlm.nih.gov",
+          "request_prefix": "POST /entrez/eutils/esummary.fcgi",
+          "request_contains": "",
+          "request_query": {},
+          "capture": "pubmed/cac5abe533699e10f917c50284a2c459c16c6a41ead49b9d5e2a6256b8732413.json"
+        },
+        {
+          "source": "pubmed",
+          "endpoint_env": "BIOMCP_PUBMED_BASE",
+          "host": "eutils.ncbi.nlm.nih.gov",
+          "request_prefix": "POST /entrez/eutils/esummary.fcgi",
+          "request_contains": "",
+          "request_query": {},
+          "capture": "pubmed/cb466e1aaa850a8899e999617855efdf43a11ebb89a7d1a42118a35264a82009.json"
+        },
+        {
+          "source": "pubmed",
+          "endpoint_env": "BIOMCP_PUBMED_BASE",
+          "host": "eutils.ncbi.nlm.nih.gov",
+          "request_prefix": "GET /entrez/eutils/esearch.fcgi",
+          "request_contains": "",
+          "request_query": {
+            "db": "pubmed",
+            "term": "KRAS AND G12C"
+          },
+          "capture": "pubmed/cdd05514d374654f99caf5bb4fc24e3cb9524ad58a0a41e3d8da9204ecaf2d21.json"
+        },
+        {
+          "source": "pubmed",
+          "endpoint_env": "BIOMCP_PUBMED_BASE",
+          "host": "eutils.ncbi.nlm.nih.gov",
+          "request_prefix": "POST /entrez/eutils/esummary.fcgi",
+          "request_contains": "",
+          "request_query": {},
+          "capture": "pubmed/d0d3b6f2208ad0f88811dfbb6e9aa051757fe6c5c34fd9ac712e453c9e17c4c0.json"
+        },
+        {
+          "source": "pubmed",
+          "endpoint_env": "BIOMCP_PUBMED_BASE",
+          "host": "eutils.ncbi.nlm.nih.gov",
+          "request_prefix": "POST /entrez/eutils/esummary.fcgi",
+          "request_contains": "",
+          "request_query": {},
+          "capture": "pubmed/d191ae4b3bea109a55674cc2c2424f4152262d3049853076a37f63a35668f981.json"
+        },
+        {
+          "source": "pubmed",
+          "endpoint_env": "BIOMCP_PUBMED_BASE",
+          "host": "eutils.ncbi.nlm.nih.gov",
+          "request_prefix": "POST /entrez/eutils/esummary.fcgi",
+          "request_contains": "",
+          "request_query": {},
+          "capture": "pubmed/d1c5ab3ef2f0eeb4051f3efee8109660d031727632afc6a3e739ebbd584ed196.json"
+        },
+        {
+          "source": "pubmed",
+          "endpoint_env": "BIOMCP_PUBMED_BASE",
+          "host": "eutils.ncbi.nlm.nih.gov",
+          "request_prefix": "POST /entrez/eutils/esummary.fcgi",
+          "request_contains": "",
+          "request_query": {},
+          "capture": "pubmed/d20b69b69c2ba9c963adaa33a8968e675cec60bac713122ade44229931780d06.json"
+        },
+        {
+          "source": "pubmed",
+          "endpoint_env": "BIOMCP_PUBMED_BASE",
+          "host": "eutils.ncbi.nlm.nih.gov",
+          "request_prefix": "POST /entrez/eutils/esummary.fcgi",
+          "request_contains": "",
+          "request_query": {},
+          "capture": "pubmed/d2880dc3ff8876247fbe7defac9b17b5d8875c78e981698c142a3ff01cbd0030.json"
+        },
+        {
+          "source": "pubmed",
+          "endpoint_env": "BIOMCP_PUBMED_BASE",
+          "host": "eutils.ncbi.nlm.nih.gov",
+          "request_prefix": "POST /entrez/eutils/esummary.fcgi",
+          "request_contains": "",
+          "request_query": {},
+          "capture": "pubmed/d2ea28b1a4ac2cfbf240b45b1ca253ce67983c541732b56b1b3e9d92f51939f7.json"
+        },
+        {
+          "source": "pubmed",
+          "endpoint_env": "BIOMCP_PUBMED_BASE",
+          "host": "eutils.ncbi.nlm.nih.gov",
+          "request_prefix": "POST /entrez/eutils/esummary.fcgi",
+          "request_contains": "",
+          "request_query": {},
+          "capture": "pubmed/d77ece810e66270334101ae0fc78dedac3adcbaf00606b3de56184f32f398ea1.json"
+        },
+        {
+          "source": "pubmed",
+          "endpoint_env": "BIOMCP_PUBMED_BASE",
+          "host": "eutils.ncbi.nlm.nih.gov",
+          "request_prefix": "POST /entrez/eutils/esummary.fcgi",
+          "request_contains": "",
+          "request_query": {},
+          "capture": "pubmed/da252446313894eb8d21f7c4138cf19a2a35ef833cea4ba9807892eb55345421.json"
+        },
+        {
+          "source": "pubmed",
+          "endpoint_env": "BIOMCP_PUBMED_BASE",
+          "host": "eutils.ncbi.nlm.nih.gov",
+          "request_prefix": "POST /entrez/eutils/esummary.fcgi",
+          "request_contains": "",
+          "request_query": {},
+          "capture": "pubmed/dbdc7de010c0c7e48f521e6ed345ad2c826fdd4f8e7465dd2232f17ff94fd29c.json"
+        },
+        {
+          "source": "pubmed",
+          "endpoint_env": "BIOMCP_PUBMED_BASE",
+          "host": "eutils.ncbi.nlm.nih.gov",
+          "request_prefix": "POST /entrez/eutils/esummary.fcgi",
+          "request_contains": "",
+          "request_query": {},
+          "capture": "pubmed/dc14537ef907b422a6779cce377fe269086de54c934d259aea9ded93d978ba19.json"
+        },
+        {
+          "source": "pubmed",
+          "endpoint_env": "BIOMCP_PUBMED_BASE",
+          "host": "eutils.ncbi.nlm.nih.gov",
+          "request_prefix": "GET /entrez/eutils/esearch.fcgi",
+          "request_contains": "",
+          "request_query": {
+            "db": "pubmed",
+            "term": "(ABCC8 OR SUR1) AND R1437Q"
+          },
+          "capture": "pubmed/dcba2fe0cdb08a9c0d9d33c2216cef395d8e1aa3a4948312ea46adf275ed5487.json"
+        },
+        {
+          "source": "pubmed",
+          "endpoint_env": "BIOMCP_PUBMED_BASE",
+          "host": "eutils.ncbi.nlm.nih.gov",
+          "request_prefix": "POST /entrez/eutils/esummary.fcgi",
+          "request_contains": "",
+          "request_query": {},
+          "capture": "pubmed/dcc27c1fe1fdd6e8d8fce7e48753a5981f2d54c68ce460cdec3e72d8c02007b6.json"
+        },
+        {
+          "source": "pubmed",
+          "endpoint_env": "BIOMCP_PUBMED_BASE",
+          "host": "eutils.ncbi.nlm.nih.gov",
+          "request_prefix": "POST /entrez/eutils/esummary.fcgi",
+          "request_contains": "",
+          "request_query": {},
+          "capture": "pubmed/df39a94fe294c578f456f2050e86ae9d9f6db5c96b6e8675ce316f239a785224.json"
+        },
+        {
+          "source": "pubmed",
+          "endpoint_env": "BIOMCP_PUBMED_BASE",
+          "host": "eutils.ncbi.nlm.nih.gov",
+          "request_prefix": "POST /entrez/eutils/esummary.fcgi",
+          "request_contains": "",
+          "request_query": {},
+          "capture": "pubmed/e47639b86187b3d554797d676a363919951fa47990dfab8889ed0e634ca51b7c.json"
+        },
+        {
+          "source": "pubmed",
+          "endpoint_env": "BIOMCP_PUBMED_BASE",
+          "host": "eutils.ncbi.nlm.nih.gov",
+          "request_prefix": "POST /entrez/eutils/esummary.fcgi",
+          "request_contains": "",
+          "request_query": {},
+          "capture": "pubmed/e4e35a3f59848551c998e0eb8b00752c235e248d4be81be734e857b68ef9b46b.json"
+        },
+        {
+          "source": "pubmed",
+          "endpoint_env": "BIOMCP_PUBMED_BASE",
+          "host": "eutils.ncbi.nlm.nih.gov",
+          "request_prefix": "POST /entrez/eutils/esummary.fcgi",
+          "request_contains": "",
+          "request_query": {},
+          "capture": "pubmed/e68e3d16b648ed92f48f5c6a53996d1b8c3645cf68ae9c4bd2bec4d94f8769c9.json"
+        },
+        {
+          "source": "pubmed",
+          "endpoint_env": "BIOMCP_PUBMED_BASE",
+          "host": "eutils.ncbi.nlm.nih.gov",
+          "request_prefix": "POST /entrez/eutils/esummary.fcgi",
+          "request_contains": "",
+          "request_query": {},
+          "capture": "pubmed/e77394fd8eb2cfafdd1068d32c033a25af4f997195881ae72668145bbda0ae93.json"
+        },
+        {
+          "source": "pubmed",
+          "endpoint_env": "BIOMCP_PUBMED_BASE",
+          "host": "eutils.ncbi.nlm.nih.gov",
+          "request_prefix": "POST /entrez/eutils/esummary.fcgi",
+          "request_contains": "",
+          "request_query": {},
+          "capture": "pubmed/e86fc2669f307c9025e2b28dd0f9c6f63f8bd63f4e0de7e6943b177e9a137f51.json"
+        },
+        {
+          "source": "pubmed",
+          "endpoint_env": "BIOMCP_PUBMED_BASE",
+          "host": "eutils.ncbi.nlm.nih.gov",
+          "request_prefix": "POST /entrez/eutils/esummary.fcgi",
+          "request_contains": "",
+          "request_query": {},
+          "capture": "pubmed/ea1c4fa20e4dba48c230679a6eb161d04dcddde537dccca36e2cdde189c4a86f.json"
+        },
+        {
+          "source": "pubmed",
+          "endpoint_env": "BIOMCP_PUBMED_BASE",
+          "host": "eutils.ncbi.nlm.nih.gov",
+          "request_prefix": "POST /entrez/eutils/esummary.fcgi",
+          "request_contains": "",
+          "request_query": {},
+          "capture": "pubmed/eb8582a57ff0488ac855b061b32f7f8b36df030a9bc9476fc254d1d6292f0b05.json"
+        },
+        {
+          "source": "pubmed",
+          "endpoint_env": "BIOMCP_PUBMED_BASE",
+          "host": "eutils.ncbi.nlm.nih.gov",
+          "request_prefix": "POST /entrez/eutils/esummary.fcgi",
+          "request_contains": "",
+          "request_query": {},
+          "capture": "pubmed/ec33abd5215cc8c183db3714b26dd890528348b1084ff2a287a324eaba8a8d2d.json"
+        },
+        {
+          "source": "pubmed",
+          "endpoint_env": "BIOMCP_PUBMED_BASE",
+          "host": "eutils.ncbi.nlm.nih.gov",
+          "request_prefix": "POST /entrez/eutils/esummary.fcgi",
+          "request_contains": "",
+          "request_query": {},
+          "capture": "pubmed/ec6d146bd248e378eda3bc90c08676b0b9880a694dac4128626d3e2255a895ce.json"
+        },
+        {
+          "source": "pubmed",
+          "endpoint_env": "BIOMCP_PUBMED_BASE",
+          "host": "eutils.ncbi.nlm.nih.gov",
+          "request_prefix": "POST /entrez/eutils/esummary.fcgi",
+          "request_contains": "",
+          "request_query": {},
+          "capture": "pubmed/ef60ecac0408e91c24c308580e57da95392cf70a0c45fb4d5dc844ffe6dc6230.json"
+        },
+        {
+          "source": "pubmed",
+          "endpoint_env": "BIOMCP_PUBMED_BASE",
+          "host": "eutils.ncbi.nlm.nih.gov",
+          "request_prefix": "GET /entrez/eutils/esearch.fcgi",
+          "request_contains": "",
+          "request_query": {
+            "db": "pubmed",
+            "term": "AKT1 E17K"
+          },
+          "capture": "pubmed/f2f39e2cd20787277ea147125fa460b53a759c97038b5b067c12e0ae362daa15.json"
+        },
+        {
+          "source": "pubmed",
+          "endpoint_env": "BIOMCP_PUBMED_BASE",
+          "host": "eutils.ncbi.nlm.nih.gov",
+          "request_prefix": "POST /entrez/eutils/esummary.fcgi",
+          "request_contains": "",
+          "request_query": {},
+          "capture": "pubmed/f5deb31bb0341e1026717c2f39adc7384a592bb8918f1485fe237019742b185e.json"
+        },
+        {
+          "source": "pubmed",
+          "endpoint_env": "BIOMCP_PUBMED_BASE",
+          "host": "eutils.ncbi.nlm.nih.gov",
+          "request_prefix": "POST /entrez/eutils/esummary.fcgi",
+          "request_contains": "",
+          "request_query": {},
+          "capture": "pubmed/f60f53fea54e5662f91cc53782b45b4efc3e1c39da822197e2628932e03a3ed6.json"
+        },
+        {
+          "source": "pubmed",
+          "endpoint_env": "BIOMCP_PUBMED_BASE",
+          "host": "eutils.ncbi.nlm.nih.gov",
+          "request_prefix": "POST /entrez/eutils/esummary.fcgi",
+          "request_contains": "",
+          "request_query": {},
+          "capture": "pubmed/f63bb0237a11cb0aa00fd7d5c7074ea132c2bd70afb8635516a96c4919f0c25e.json"
+        },
+        {
+          "source": "pubmed",
+          "endpoint_env": "BIOMCP_PUBMED_BASE",
+          "host": "eutils.ncbi.nlm.nih.gov",
+          "request_prefix": "POST /entrez/eutils/esummary.fcgi",
+          "request_contains": "",
+          "request_query": {},
+          "capture": "pubmed/f8e76f6d7f185679c890379729524949f955186a790db78903be12249fd0cbc8.json"
+        },
+        {
+          "source": "pubmed",
+          "endpoint_env": "BIOMCP_PUBMED_BASE",
+          "host": "eutils.ncbi.nlm.nih.gov",
+          "request_prefix": "POST /entrez/eutils/esummary.fcgi",
+          "request_contains": "",
+          "request_query": {},
+          "capture": "pubmed/f96f9e1bfdc850c1fe523eab2c6b6835745c024060e5108c325d6991c36f6427.json"
+        },
+        {
+          "source": "pubmed",
+          "endpoint_env": "BIOMCP_PUBMED_BASE",
+          "host": "eutils.ncbi.nlm.nih.gov",
+          "request_prefix": "POST /entrez/eutils/esummary.fcgi",
+          "request_contains": "",
+          "request_query": {},
+          "capture": "pubmed/f9c8f37a3ac678d32b40e34c5280ce1d188ad89c130f2b210792967438e79e19.json"
+        }
+      ],
+      "facts": {
+        "/page/total": "/pagination/total"
+      },
+      "unprojectable_facts": {
+        "/status": {
+          "reason": "Released Article JSON has no current lifecycle/status, action, resolution or source-problem envelope; these values cannot be inferred from source presence or complete.",
+          "release_source": "src/entities/article/mod.rs"
+        },
+        "/page/truncated": {
+          "reason": "Released Article JSON has no current lifecycle/status, action, resolution or source-problem envelope; these values cannot be inferred from source presence or complete.",
+          "release_source": "src/entities/article/mod.rs"
+        },
+        "/sources/0/count": {
+          "reason": "Released search metadata uses a different source-plan/status schema and does not retain this current per-source term/count/notice or query shape.",
+          "release_source": "src/entities/article/mod.rs"
+        }
+      }
+    },
+    {
+      "case": "article/sections/annotations.yaml",
+      "step": 0,
+      "baseline_command": [
+        "get",
+        "article",
+        "33123537",
+        "annotations"
+      ],
+      "spelling_table": "sdlc/planning/slices/article.md",
+      "release_source": [
+        "src/entities/article/mod.rs",
+        "src/cli/article/dispatch.rs",
+        "src/entities/article/detail.rs",
+        "src/cli/system/batch.rs"
+      ],
+      "baseline_globals": [
+        "--json"
+      ],
+      "recordings": [
+        {
+          "source": "pubtator3",
+          "endpoint_env": "BIOMCP_PUBTATOR_BASE",
+          "host": "www.ncbi.nlm.nih.gov",
+          "request_prefix": "GET /research/pubtator3-api/publications/export/biocjson",
+          "request_contains": "",
+          "request_query": {
+            "pmids": "33123537"
+          },
+          "capture": "pubtator/9b8cd1569f8a677a1806757a5adeebcb55406cd068cc6cb901e8e0ff8b4f2720.json"
+        }
+      ],
+      "facts": {
+        "/result/items/0/sections/annotations/data/items/0/count": "/annotations/mutations/0/count",
+        "/result/items/0/sections/annotations/data/items/2/entrez_id": "/annotations/genes/0/identifier",
+        "/result/items/0/sections/annotations/data/items/2/count": "/annotations/genes/0/count"
+      },
+      "unprojectable_facts": {
+        "/result/items/0/sections/annotations/state": {
+          "reason": "Released annotations retain separate per-kind rows, with text/count/namespace/identifier. They do not serialize pooled totals, typed mutation fields, pooled kind ordering or current section outcomes.",
+          "release_source": "src/entities/article/mod.rs"
+        },
+        "/result/items/0/sections/annotations/data/items/0/hgvs": {
+          "reason": "Released annotations retain separate per-kind rows, with text/count/namespace/identifier. They do not serialize pooled totals, typed mutation fields, pooled kind ordering or current section outcomes.",
+          "release_source": "src/entities/article/mod.rs"
+        },
+        "/result/items/0/sections/annotations/data/items/0/rsid": {
+          "reason": "Released annotations retain separate per-kind rows, with text/count/namespace/identifier. They do not serialize pooled totals, typed mutation fields, pooled kind ordering or current section outcomes.",
+          "release_source": "src/entities/article/mod.rs"
+        },
+        "/result/items/0/sections/annotations": {
+          "reason": "Released annotations retain separate per-kind rows, with text/count/namespace/identifier. They do not serialize pooled totals, typed mutation fields, pooled kind ordering or current section outcomes.",
+          "release_source": "src/entities/article/mod.rs"
+        },
+        "/status": {
+          "reason": "Released Article JSON has no current lifecycle/status, action, resolution or source-problem envelope; these values cannot be inferred from source presence or complete.",
+          "release_source": "src/entities/article/mod.rs"
+        },
+        "/problems/0/field": {
+          "reason": "Released annotations retain separate per-kind rows, with text/count/namespace/identifier. They do not serialize pooled totals, typed mutation fields, pooled kind ordering or current section outcomes.",
+          "release_source": "src/entities/article/mod.rs"
+        },
+        "/result/items/0/sections/annotations/data/total": {
+          "reason": "Released annotations retain separate per-kind rows, with text/count/namespace/identifier. They do not serialize pooled totals, typed mutation fields, pooled kind ordering or current section outcomes.",
+          "release_source": "src/entities/article/mod.rs"
+        },
+        "/result/items/0/sections/annotations/data/items/0/entrez_id": {
+          "reason": "Released mutation rows expose a typed-back HGVS/rsID identifier, not the mutation gene_id as an independent entrez_id field.",
+          "release_source": "src/transform/article/annotations.rs::mutation_identity"
+        }
+      }
+    },
+    {
+      "case": "article/sections/cap.yaml",
+      "step": 0,
+      "baseline_command": [
+        "get",
+        "article",
+        "33123537",
+        "annotations"
+      ],
+      "spelling_table": "sdlc/planning/slices/article.md",
+      "release_source": [
+        "src/entities/article/mod.rs",
+        "src/cli/article/dispatch.rs",
+        "src/entities/article/detail.rs",
+        "src/cli/system/batch.rs"
+      ],
+      "baseline_globals": [
+        "--json"
+      ],
+      "recordings": [
+        {
+          "source": "pubtator3",
+          "endpoint_env": "BIOMCP_PUBTATOR_BASE",
+          "host": "www.ncbi.nlm.nih.gov",
+          "request_prefix": "GET /research/pubtator3-api/publications/export/biocjson",
+          "request_contains": "",
+          "request_query": {
+            "pmids": "33123537"
+          },
+          "capture": "pubtator/9b8cd1569f8a677a1806757a5adeebcb55406cd068cc6cb901e8e0ff8b4f2720.json"
+        }
+      ],
+      "facts": {
+        "/result/items/0/sections/annotations/data/items/0/name": "/annotations/genes/0/text",
+        "/result/items/0/sections/annotations/data/items": "/annotations/genes"
+      },
+      "unprojectable_facts": {
+        "/result/items/0/sections/annotations/data/total": {
+          "reason": "Released annotations retain separate per-kind rows, with text/count/namespace/identifier. They do not serialize pooled totals, typed mutation fields, pooled kind ordering or current section outcomes.",
+          "release_source": "src/entities/article/mod.rs"
+        }
+      }
+    },
+    {
+      "case": "article/sections/expanded-doi.yaml",
+      "step": 0,
+      "baseline_command": [
+        "batch",
+        "article",
+        "10.3389/fcell.2020.573599,10000001",
+        "--mode",
+        "full",
+        "--sections",
+        "annotations"
+      ],
+      "spelling_table": "sdlc/planning/slices/article.md",
+      "release_source": [
+        "src/entities/article/mod.rs",
+        "src/cli/article/dispatch.rs",
+        "src/entities/article/detail.rs",
+        "src/cli/system/batch.rs"
+      ],
+      "baseline_globals": [
+        "--json"
+      ],
+      "recordings": [
+        {
+          "source": "pubtator3",
+          "endpoint_env": "BIOMCP_PUBTATOR_BASE",
+          "host": "www.ncbi.nlm.nih.gov",
+          "request_prefix": "GET /research/pubtator3-api/publications/export/biocjson",
+          "request_contains": "",
+          "request_query": {
+            "pmids": "10000001,10000002,10000003,10000004,10000005,10000006,10000007,10000008,10000009,10000010,10000011,10000012,10000013,10000014,10000015,10000016,10000017,10000018,10000019,10000020"
+          },
+          "capture": "pubtator/a8f2487dd3985ef8a47a23b06e05afaccf00aa83dc0b7f14e2327f5ec2d98854.json"
+        },
+        {
+          "source": "pubtator3",
+          "endpoint_env": "BIOMCP_PUBTATOR_BASE",
+          "host": "www.ncbi.nlm.nih.gov",
+          "request_prefix": "GET /research/pubtator3-api/publications/export/biocjson",
+          "request_contains": "",
+          "request_query": {
+            "pmids": "10000021"
+          },
+          "capture": "pubtator/fe343b8b0fac233b616e81d30188d7ea9ce50a302416cfe6df6f156af69ee4ff.json"
+        }
+      ],
+      "facts": {
+        "/result/items/0/answer/card/pmid": "/items/0/result/pmid",
+        "/result/items/20/answer/card/pmid": "/items/20/result/pmid",
+        "/result/items/21/answer/card/pmid": "/items/21/result/pmid"
+      },
+      "unprojectable_facts": {
+        "/result/items": {
+          "reason": "Released Article JSON has no current lifecycle/status, action, resolution or source-problem envelope; these values cannot be inferred from source presence or complete.",
+          "release_source": "src/entities/article/mod.rs"
+        },
+        "/result/items/*/sections/annotations/state": {
+          "reason": "Released annotations retain separate per-kind rows, with text/count/namespace/identifier. They do not serialize pooled totals, typed mutation fields, pooled kind ordering or current section outcomes.",
+          "release_source": "src/entities/article/mod.rs"
+        },
+        "/sources/1/state": {
+          "reason": "Released search metadata uses a different source-plan/status schema and does not retain this current per-source term/count/notice or query shape.",
+          "release_source": "src/entities/article/mod.rs"
+        }
+      }
+    },
+    {
+      "case": "article/sections/normalization.yaml",
+      "step": 0,
+      "baseline_command": [
+        "batch",
+        "article",
+        "33123537,35061708,33123537",
+        "--mode",
+        "full",
+        "--sections",
+        "annotations"
+      ],
+      "spelling_table": "sdlc/planning/slices/article.md",
+      "release_source": [
+        "src/entities/article/mod.rs",
+        "src/cli/article/dispatch.rs",
+        "src/entities/article/detail.rs",
+        "src/cli/system/batch.rs"
+      ],
+      "baseline_globals": [
+        "--json"
+      ],
+      "recordings": [
+        {
+          "source": "pubtator3",
+          "endpoint_env": "BIOMCP_PUBTATOR_BASE",
+          "host": "www.ncbi.nlm.nih.gov",
+          "request_prefix": "GET /research/pubtator3-api/publications/export/biocjson",
+          "request_contains": "",
+          "request_query": {
+            "pmids": "33123537,35061708"
+          },
+          "capture": "pubtator/dd1a3f3c3e5fc3a91d56e0420d1db0f56b531c618cc3213f2a5ead29435e98e4.json"
+        }
+      ],
+      "facts": {
+        "/result/items/0/sections/annotations/data/items/0/name": "/items/0/result/annotations/genes/0/text",
+        "/result/items/0/sections/annotations/data/items/0/count": "/items/0/result/annotations/genes/0/count",
+        "/result/items/0/sections/annotations/data/items/1/name": "/items/0/result/annotations/genes/1/text"
+      },
+      "unprojectable_facts": {
+        "/result/items/*/sections/annotations/state": {
+          "reason": "Released annotations retain separate per-kind rows, with text/count/namespace/identifier. They do not serialize pooled totals, typed mutation fields, pooled kind ordering or current section outcomes.",
+          "release_source": "src/entities/article/mod.rs"
+        },
+        "/result/items/0/sections/annotations/data/total": {
+          "reason": "Released annotations retain separate per-kind rows, with text/count/namespace/identifier. They do not serialize pooled totals, typed mutation fields, pooled kind ordering or current section outcomes.",
+          "release_source": "src/entities/article/mod.rs"
+        },
+        "/result/items/0/sections/annotations/data/items/*/kind": {
+          "reason": "Released annotations retain separate per-kind rows, with text/count/namespace/identifier. They do not serialize pooled totals, typed mutation fields, pooled kind ordering or current section outcomes.",
+          "release_source": "src/entities/article/mod.rs"
+        }
+      }
+    },
+    {
+      "case": "article/sections/retracted.yaml",
+      "step": 0,
+      "baseline_command": [
+        "get",
+        "article",
+        "35061708",
+        "annotations"
+      ],
+      "spelling_table": "sdlc/planning/slices/article.md",
+      "release_source": [
+        "src/entities/article/mod.rs",
+        "src/cli/article/dispatch.rs",
+        "src/entities/article/detail.rs",
+        "src/cli/system/batch.rs"
+      ],
+      "baseline_globals": [
+        "--json"
+      ],
+      "recordings": [
+        {
+          "source": "pubtator3",
+          "endpoint_env": "BIOMCP_PUBTATOR_BASE",
+          "host": "www.ncbi.nlm.nih.gov",
+          "request_prefix": "GET /research/pubtator3-api/publications/export/biocjson",
+          "request_contains": "",
+          "request_query": {
+            "pmids": "35061708"
+          },
+          "capture": "pubtator/c62d48851f3524edaf0a8cbb9626a7cce627e9bd28fc292cb3862a0bb3ee8ca5.json"
+        }
+      ],
+      "facts": {
+        "/result/items/0/answer/card/pmid": "/pmid",
+        "/result/items/0/sections/annotations/data/items/0/mesh": "/annotations/diseases/0/identifier"
+      },
+      "unprojectable_facts": {
+        "/result/items/0/sections/annotations/state": {
+          "reason": "Released annotations retain separate per-kind rows, with text/count/namespace/identifier. They do not serialize pooled totals, typed mutation fields, pooled kind ordering or current section outcomes.",
+          "release_source": "src/entities/article/mod.rs"
+        }
+      }
+    },
+    {
+      "case": "article/semantic-scholar/long-pubmed-post.yaml",
+      "step": 0,
+      "baseline_command": [
+        "search",
+        "article",
+        "\"10.1016/j.ejmech.2026.119407\"[doi] OR \"10.1021/jacs.6c13162\"[doi] OR \"10.64898/2026.09.05.749365\"[doi] OR \"10.64898/2026.04.30.722115\"[doi] OR \"10.1016/j.eujim.2026.102711\"[doi] OR \"10.1016/j.fmre.2026.06.013\"[doi] OR \"10.31557/apjcc.2026.11.3.467-476\"[doi] OR \"10.3390/kinasesphosphatases4010004\"[doi] OR \"10.64898/2026.02.09.701767\"[doi] OR \"10.3390/lymphatics3040033\"[doi] OR \"10.1007/s00289-025-05872-7\"[doi] OR \"10.56969/oc.v30i1.195\"[doi] OR \"10.1016/j.microc.2025.113644\"[doi] OR \"10.53469/jcmp.2024.06(12).43\"[doi] OR \"10.22543/2392-7674.1531\"[doi] OR \"10.1016/j.jhip.2024.04.006\"[doi] OR \"10.1101/2023.09.16.558042\"[doi] OR \"10.1016/j.jksus.2022.102378\"[doi] OR \"10.1101/2022.08.04.502800\"[doi] OR \"10.1016/j.adcanc.2022.100054\"[doi] OR \"10.4251/wjgo.v13.i11.1632\"[doi] OR \"10.1101/2021.07.04.451041\"[doi] OR \"10.21203/rs.3.rs-535607/v1\"[doi] OR \"10.21037/tbcr-20-31\"[doi] OR \"10.21203/rs.3.rs-45881/v1\"[doi] OR \"10.3390/app10103364\"[doi] OR \"10.1002/9781119436812.ch39\"[doi] OR \"10.1002/9781119142812.ch108\"[doi] OR \"10.5102/pic.n1.2018.6406\"[doi] OR \"10.1063/1.5114595\"[doi] OR \"10.21608/jcbr.2019.37768\"[doi] OR \"10.20381/ruor-22866\"[doi] OR \"10.70675/bf1e8610zc5b8z46d6z9dbezc56a5a1d3930\"[doi] OR \"10.15436/2377-0902.18.1516\"[doi] OR \"10.1007/s40484-017-0125-2\"[doi] OR \"10.15586/codon.glioblastoma.2017.ch2\"[doi] OR \"10.1002/9780470893159.ch43\"[doi] OR \"10.18725/oparu-4143\"[doi] OR \"10.5772/60727\"[doi] OR \"10.1016/j.juro.2014.02.1047\"[doi] OR \"10.26756/th.2015.38\"[doi] OR \"10.1002/9781118468678.ch32\"[doi] OR \"10.1007/978-4-431-55561-2_15\"[doi] OR \"10.1002/ange.201502142\"[doi] OR \"10.1002/9781118998922.ch1\"[doi] OR \"10.15344/2394-4986/2015/110\"[doi] OR \"10.1039/c4ra11685b\"[doi] OR \"10.1007/s13669-014-0102-y\"[doi] OR \"10.2217/bmt.14.35\"[doi] OR \"10.1002/9783527672165.ch05\"[doi] OR \"10.4172/1948-5956.1000274\"[doi] OR \"10.1109/tst.2014.6838198\"[doi] OR \"10.1007/s12609-014-0139-y\"[doi] OR \"10.9734/bjast/2014/9671\"[doi] OR \"10.14304/surya.jpr.v1n2.4\"[doi] OR \"10.1515/9783034610896.295\"[doi] OR \"10.4172/jpb.10000e16\"[doi] OR \"10.1109/bibmw.2012.6470348\"[doi] OR \"10.21236/ada564012\"[doi] OR \"10.1200/jco.2012.30.15_suppl.2020\"[doi] OR \"10.4172/1948-5956.s11-003\"[doi] OR \"10.5772/30815\"[doi] OR \"10.4172/2161-0681.s1-002\"[doi] OR \"10.1007/s13665-011-0001-x\"[doi] OR \"10.5772/21357\"[doi] OR \"10.5772/18732\"[doi] OR \"10.4267/2042/44725\"[doi] OR \"10.1007/s11515-010-0850-7\"[doi] OR \"10.1007/978-1-4419-7216-3_4\"[doi] OR \"10.16956/kjes.2010.10.1.1\"[doi] OR \"10.25560/5939\"[doi] OR \"10.1371/annotation/3a0c8fee-57ef-43ed-b6c2-55b503e6db5e\"[doi] OR \"10.1007/s11434-009-0537-0\"[doi] OR \"10.1038/sj.bjc.6605302\"[doi] OR \"10.1016/j.ddstr.2010.02.001\"[doi] OR \"10.1016/j.uct.2009.02.001\"[doi] OR \"10.1007/bf03191140\"[doi] OR \"10.1158/aacr.edb-08-8183\"[doi] OR \"10.21236/ada493661\"[doi] OR \"10.1117/12.765524\"[doi] OR \"10.1126/science.1151428\"[doi] OR \"10.3109/9781420020588-6\"[doi] OR \"10.1002/ddr.20177\"[doi] OR \"10.3760/cma.j.issn.1673-4173.2006.03.010\"[doi] OR \"10.4236/ojgen.2023.132004\"[doi] OR \"10.1007/978-3-030-73572-2_6\"[doi] OR \"10.1007/978-3-030-54391-4\"[doi] OR \"10.1016/b978-0-12-824299-5.00006-x\"[doi] OR \"10.21037/tbcr-20-54\"[doi] OR \"10.7282/t3-1f56-7885\"[doi] OR \"10.1007/978-3-030-54391-4_15\"[doi] OR \"10.1016/b978-0-323-47674-4.00002-5\"[doi] OR \"10.1007/978-3-030-23637-3_4\"[doi] OR \"10.1007/978-3-319-67932-7_6\"[doi] OR \"10.2298/sarh171003194d\"[doi] OR \"10.1016/b978-0-12-800886-7.00024-8\"[doi] OR \"10.1007/978-3-319-41319-8_16\"[doi] OR \"10.1007/978-1-59745-458-2_13\"[doi] OR \"10.1007/978-2-8178-0492-7_12\"[doi] OR \"10.1016/b978-0-12-802733-2.00007-4\"[doi]",
+        "--limit",
+        "50",
+        "--source",
+        "pubmed",
+        "--include-retracted"
+      ],
+      "spelling_table": "sdlc/planning/slices/article.md",
+      "release_source": [
+        "src/entities/article/mod.rs",
+        "src/cli/article/dispatch.rs",
+        "src/entities/article/detail.rs",
+        "src/cli/system/batch.rs"
+      ],
+      "baseline_globals": [
+        "--json"
+      ],
+      "recordings": [
+        {
+          "source": "pubmed",
+          "endpoint_env": "BIOMCP_PUBMED_BASE",
+          "host": "eutils.ncbi.nlm.nih.gov",
+          "request_prefix": "POST /entrez/eutils/esummary.fcgi",
+          "request_contains": "",
+          "request_query": {},
+          "capture": "pubmed/49fb3e3cb94792cfad0f834cbf9fa21d502de1d79f7dc96414de007cc0100a42.json"
+        },
+        {
+          "source": "pubmed",
+          "endpoint_env": "BIOMCP_PUBMED_BASE",
+          "host": "eutils.ncbi.nlm.nih.gov",
+          "request_prefix": "POST /entrez/eutils/esearch.fcgi",
+          "request_contains": "",
+          "request_query": {},
+          "capture": "pubmed/dd9e8911ab21c80179e4e5dd70795c64a700a34e71b5763bb73faec87f560997.json"
+        }
+      ],
+      "facts": {
+        "/page/total": "/pagination/total",
+        "/result/items/*/pmid": "/results/*/pmid"
+      },
+      "unprojectable_facts": {
+        "/status": {
+          "reason": "Released Article JSON has no current lifecycle/status, action, resolution or source-problem envelope; these values cannot be inferred from source presence or complete.",
+          "release_source": "src/entities/article/mod.rs"
+        },
+        "/sources/0/source": {
+          "reason": "Released search metadata uses a different source-plan/status schema and does not retain this current per-source term/count/notice or query shape.",
+          "release_source": "src/entities/article/mod.rs"
+        },
+        "/sources/0/state": {
+          "reason": "Released search metadata uses a different source-plan/status schema and does not retain this current per-source term/count/notice or query shape.",
+          "release_source": "src/entities/article/mod.rs"
+        }
+      }
+    },
+    {
+      "case": "article/semantic-scholar/synthetic-empty.yaml",
+      "step": 0,
+      "baseline_command": [
+        "search",
+        "article",
+        "EGFR T790M osimertinib",
+        "--source",
+        "semanticscholar",
+        "--include-retracted"
+      ],
+      "spelling_table": "sdlc/planning/slices/article.md",
+      "release_source": [
+        "src/entities/article/mod.rs",
+        "src/cli/article/dispatch.rs",
+        "src/entities/article/detail.rs",
+        "src/cli/system/batch.rs"
+      ],
+      "baseline_globals": [
+        "--json"
+      ],
+      "recordings": [
+        {
+          "source": "semantic-scholar",
+          "endpoint_env": "BIOMCP_S2_BASE",
+          "host": "api.semanticscholar.org",
+          "request_prefix": "GET /graph/v1/paper/search",
+          "request_contains": "",
+          "request_query": {
+            "query": "EGFR T790M osimertinib"
+          },
+          "capture": "semantic-scholar/b00f1b0a9d042627c6fecc1a0b75ab3a1c0a4c88e11a3df78131194d042cd22f.json"
+        }
+      ],
+      "facts": {
+        "/result/items": "/results"
+      },
+      "unprojectable_facts": {
+        "/status": {
+          "reason": "Released Article JSON has no current lifecycle/status, action, resolution or source-problem envelope; these values cannot be inferred from source presence or complete.",
+          "release_source": "src/entities/article/mod.rs"
+        },
+        "/page/total": {
+          "reason": "Released Semantic Scholar search discards the provider total; array length cannot supply a source-global total.",
+          "release_source": "src/entities/article/mod.rs"
+        }
+      }
+    },
+    {
+      "case": "article/supplements/synthetic-attachment-nodes.yaml",
+      "step": 0,
+      "baseline_command": [
+        "get",
+        "article",
+        "28944238",
+        "assets",
+        "--asset-view",
+        "retrievable"
+      ],
+      "spelling_table": "sdlc/planning/slices/article.md",
+      "release_source": [
+        "src/entities/article/mod.rs",
+        "src/cli/article/dispatch.rs",
+        "src/entities/article/detail.rs",
+        "src/cli/system/batch.rs"
+      ],
+      "baseline_globals": [
+        "--json"
+      ],
+      "recordings": [
+        {
+          "source": "pubtator3",
+          "endpoint_env": "BIOMCP_PUBTATOR_BASE",
+          "host": "www.ncbi.nlm.nih.gov",
+          "request_prefix": "GET /research/pubtator3-api/publications/export/biocjson",
+          "request_contains": "",
+          "request_query": {
+            "pmids": "28944238"
+          },
+          "capture": "",
+          "recording_gap": "Released detail starts with PubTator export; this harvested replay retains PubMed efetch instead and has no equivalent PubTator body (src/entities/article/detail.rs::resolve_article_from_pmid_with_context)."
+        }
+      ],
+      "facts": {
+        "/result/items/0/sections/supplements/data/files/*/name": "/assets/*/filename",
+        "/result/items/0/sections/supplements/data/files/*/label": "/assets/*/jats/label",
+        "/result/items/0/sections/supplements/data/files/*/caption": "/assets/*/jats/caption"
+      },
+      "unprojectable_facts": {}
+    },
+    {
+      "case": "article/tldr/empty.yaml",
+      "step": 0,
+      "baseline_command": [
+        "get",
+        "article",
+        "33123537",
+        "tldr"
+      ],
+      "spelling_table": "sdlc/planning/slices/article.md",
+      "release_source": [
+        "src/entities/article/mod.rs",
+        "src/cli/article/dispatch.rs",
+        "src/entities/article/detail.rs",
+        "src/cli/system/batch.rs"
+      ],
+      "baseline_globals": [
+        "--json"
+      ],
+      "recordings": [
+        {
+          "source": "pubtator3",
+          "endpoint_env": "BIOMCP_PUBTATOR_BASE",
+          "host": "www.ncbi.nlm.nih.gov",
+          "request_prefix": "GET /research/pubtator3-api/publications/export/biocjson",
+          "request_contains": "",
+          "request_query": {
+            "pmids": "33123537"
+          },
+          "capture": "",
+          "recording_gap": "Released detail starts with PubTator export; this harvested replay retains PubMed efetch instead and has no equivalent PubTator body (src/entities/article/detail.rs::resolve_article_from_pmid_with_context)."
+        }
+      ],
+      "facts": {
+        "/result/items/0/sections/tldr/state": "/section_outcomes/tldr/outcome",
+        "/result/items/0/answer/card/pmid": "/pmid"
+      },
+      "unprojectable_facts": {}
+    }
+  ]
+}

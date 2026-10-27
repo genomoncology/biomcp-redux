@@ -1,0 +1,1240 @@
+{
+  "baseline_release": "0.9.3",
+  "cases": [
+    {
+      "case": "article/edges/anonymous-row.yaml",
+      "step": 0,
+      "baseline_command": [
+        "article",
+        "references",
+        "33123537",
+        "--offset",
+        "112",
+        "--limit",
+        "1"
+      ],
+      "spelling_table": "sdlc/planning/slices/article.md",
+      "release_source": [
+        "src/entities/article/mod.rs",
+        "src/cli/article/dispatch.rs",
+        "src/entities/article/detail.rs",
+        "src/cli/system/batch.rs"
+      ],
+      "baseline_globals": [
+        "--json"
+      ],
+      "recordings": [
+        {
+          "source": "semantic-scholar",
+          "endpoint_env": "BIOMCP_S2_BASE",
+          "host": "api.semanticscholar.org",
+          "request_prefix": "GET /graph/v1/paper/PMID%3A34096690/references",
+          "request_contains": "",
+          "request_query": {},
+          "capture": "semantic-scholar/00017f39f174dc1da03dce34c125f48443edf898d94038e5c95f099f99a3e72b.json"
+        },
+        {
+          "source": "semantic-scholar",
+          "endpoint_env": "BIOMCP_S2_BASE",
+          "host": "api.semanticscholar.org",
+          "request_prefix": "GET /graph/v1/paper/PMID%3A33123537/references",
+          "request_contains": "",
+          "request_query": {},
+          "capture": "semantic-scholar/b116e6d41adcbd686ad2598a8a0ec3ce8181cf4ce21eefffd4db2aefa49707ef.json"
+        }
+      ],
+      "facts": {
+        "/page/offset": "/pagination/offset",
+        "/result/items/0/contexts/total": {
+          "array_length": "/edges/0/contexts"
+        },
+        "/result/items/0/intents": "/edges/0/intents",
+        "/result/items/0/influential": "/edges/0/is_influential"
+      },
+      "unprojectable_facts": {
+        "/status": {
+          "reason": "Released graph serialization has bounded edges, pagination offsets and provider contexts. It has no exact graph total, current header object, no-context notice or current next-action envelope.",
+          "release_source": "src/entities/article/mod.rs"
+        },
+        "/page/total": {
+          "reason": "Released Semantic Scholar search discards the provider total; array length cannot supply a source-global total.",
+          "release_source": "src/entities/article/mod.rs"
+        },
+        "/result/items/0/header": {
+          "reason": "Released graph serialization has bounded edges, pagination offsets and provider contexts. It has no exact graph total, current header object, no-context notice or current next-action envelope.",
+          "release_source": "src/entities/article/mod.rs"
+        },
+        "/next/*/kind": {
+          "reason": "Released graph serialization has bounded edges, pagination offsets and provider contexts. It has no exact graph total, current header object, no-context notice or current next-action envelope.",
+          "release_source": "src/entities/article/mod.rs"
+        }
+      }
+    },
+    {
+      "case": "article/edges/pmc.yaml",
+      "step": 0,
+      "baseline_command": [
+        "article",
+        "references",
+        "PMC7573235"
+      ],
+      "spelling_table": "sdlc/planning/slices/article.md",
+      "release_source": [
+        "src/entities/article/mod.rs",
+        "src/cli/article/dispatch.rs",
+        "src/entities/article/detail.rs",
+        "src/cli/system/batch.rs"
+      ],
+      "baseline_globals": [
+        "--json"
+      ],
+      "recordings": [
+        {
+          "source": "semantic-scholar",
+          "endpoint_env": "BIOMCP_S2_BASE",
+          "host": "api.semanticscholar.org",
+          "request_prefix": "GET /graph/v1/paper/PMID%3A34096690/references",
+          "request_contains": "",
+          "request_query": {},
+          "capture": "semantic-scholar/00017f39f174dc1da03dce34c125f48443edf898d94038e5c95f099f99a3e72b.json"
+        },
+        {
+          "source": "semantic-scholar",
+          "endpoint_env": "BIOMCP_S2_BASE",
+          "host": "api.semanticscholar.org",
+          "request_prefix": "GET /graph/v1/paper/PMID%3A33123537/references",
+          "request_contains": "",
+          "request_query": {},
+          "capture": "semantic-scholar/b116e6d41adcbd686ad2598a8a0ec3ce8181cf4ce21eefffd4db2aefa49707ef.json"
+        }
+      ],
+      "facts": {
+        "/result/items/0/pmid": "/edges/0/paper/pmid"
+      },
+      "unprojectable_facts": {
+        "/status": {
+          "reason": "Released graph serialization has bounded edges, pagination offsets and provider contexts. It has no exact graph total, current header object, no-context notice or current next-action envelope.",
+          "release_source": "src/entities/article/mod.rs"
+        },
+        "/page/total": {
+          "reason": "Released Semantic Scholar search discards the provider total; array length cannot supply a source-global total.",
+          "release_source": "src/entities/article/mod.rs"
+        },
+        "/query/pmid": {
+          "reason": "Released search metadata uses a different source-plan/status schema and does not retain this current per-source term/count/notice or query shape.",
+          "release_source": "src/entities/article/mod.rs"
+        }
+      }
+    },
+    {
+      "case": "article/edges/window.yaml",
+      "step": 0,
+      "baseline_command": [
+        "article",
+        "citations",
+        "23000897"
+      ],
+      "spelling_table": "sdlc/planning/slices/article.md",
+      "release_source": [
+        "src/entities/article/mod.rs",
+        "src/cli/article/dispatch.rs",
+        "src/entities/article/detail.rs",
+        "src/cli/system/batch.rs"
+      ],
+      "baseline_globals": [
+        "--json"
+      ],
+      "recordings": [
+        {
+          "source": "semantic-scholar",
+          "endpoint_env": "BIOMCP_S2_BASE",
+          "host": "api.semanticscholar.org",
+          "request_prefix": "GET /graph/v1/paper/PMID%3A23000897/citations",
+          "request_contains": "",
+          "request_query": {},
+          "capture": "semantic-scholar/0c6f411ad6249ea1e2664bb7684d4ecee187337942cde601bce9f26c7272ef1d.json"
+        },
+        {
+          "source": "semantic-scholar",
+          "endpoint_env": "BIOMCP_S2_BASE",
+          "host": "api.semanticscholar.org",
+          "request_prefix": "GET /graph/v1/paper/PMID%3A23000897/citations",
+          "request_contains": "",
+          "request_query": {},
+          "capture": "semantic-scholar/722efa4e22b1549dc7f404c65d66a9fac1b02bcc6d2ab9ca1d11350ffd1671f8.json"
+        },
+        {
+          "source": "semantic-scholar",
+          "endpoint_env": "BIOMCP_S2_BASE",
+          "host": "api.semanticscholar.org",
+          "request_prefix": "GET /graph/v1/paper/PMID%3A23000897/citations",
+          "request_contains": "",
+          "request_query": {},
+          "capture": "semantic-scholar/d7b45fe23bda6781242c7cfca44b1fa4f58399854d9cc25d41c39dda17a3087b.json"
+        },
+        {
+          "source": "semantic-scholar",
+          "endpoint_env": "BIOMCP_S2_BASE",
+          "host": "api.semanticscholar.org",
+          "request_prefix": "GET /graph/v1/paper/PMID%3A23000897/citations",
+          "request_contains": "",
+          "request_query": {},
+          "capture": "semantic-scholar/e6d0ecccdc15020af4a373a2c20f03486b916a4d23da0028a1e8a948d4fd364e.json"
+        },
+        {
+          "source": "semantic-scholar",
+          "endpoint_env": "BIOMCP_S2_BASE",
+          "host": "api.semanticscholar.org",
+          "request_prefix": "GET /graph/v1/paper/PMID%3A23000897/citations",
+          "request_contains": "",
+          "request_query": {},
+          "capture": "semantic-scholar/fcc000d7a74f53e9d4925fe51f548f111f0e4fdbb0cbacdec3563e2f45563417.json"
+        }
+      ],
+      "facts": {
+        "/result/items/*/header/title": "/edges/*/paper/title"
+      },
+      "unprojectable_facts": {
+        "/status": {
+          "reason": "Released graph serialization has bounded edges, pagination offsets and provider contexts. It has no exact graph total, current header object, no-context notice or current next-action envelope.",
+          "release_source": "src/entities/article/mod.rs"
+        },
+        "/page/total": {
+          "reason": "Released Semantic Scholar search discards the provider total; array length cannot supply a source-global total.",
+          "release_source": "src/entities/article/mod.rs"
+        },
+        "/page/truncated": {
+          "reason": "Released graph serialization has bounded edges, pagination offsets and provider contexts. It has no exact graph total, current header object, no-context notice or current next-action envelope.",
+          "release_source": "src/entities/article/mod.rs"
+        },
+        "/sources/0/fetched": {
+          "reason": "Released search metadata uses a different source-plan/status schema and does not retain this current per-source term/count/notice or query shape.",
+          "release_source": "src/entities/article/mod.rs"
+        },
+        "/sources/0/notices/0/kind": {
+          "reason": "Released search metadata uses a different source-plan/status schema and does not retain this current per-source term/count/notice or query shape.",
+          "release_source": "src/entities/article/mod.rs"
+        },
+        "/sources/0/notices/0/fallback": {
+          "reason": "Released search metadata uses a different source-plan/status schema and does not retain this current per-source term/count/notice or query shape.",
+          "release_source": "src/entities/article/mod.rs"
+        }
+      }
+    },
+    {
+      "case": "article/evidence/doi.yaml",
+      "step": 0,
+      "baseline_command": [
+        "article",
+        "citation-evidence",
+        "34096690",
+        "32955176"
+      ],
+      "spelling_table": "sdlc/planning/slices/article.md",
+      "release_source": [
+        "src/entities/article/mod.rs",
+        "src/cli/article/dispatch.rs",
+        "src/entities/article/detail.rs",
+        "src/cli/system/batch.rs"
+      ],
+      "baseline_globals": [
+        "--json"
+      ],
+      "recordings": [
+        {
+          "source": "semantic-scholar",
+          "endpoint_env": "BIOMCP_S2_BASE",
+          "host": "api.semanticscholar.org",
+          "request_prefix": "GET /graph/v1/paper/PMID%3A34096690/references",
+          "request_contains": "",
+          "request_query": {},
+          "capture": "semantic-scholar/00017f39f174dc1da03dce34c125f48443edf898d94038e5c95f099f99a3e72b.json"
+        }
+      ],
+      "facts": {
+        "/result/semantic_scholar/data/contexts/total": {
+          "array_length": "/provider_contexts"
+        }
+      },
+      "unprojectable_facts": {
+        "/status": {
+          "reason": "Released graph serialization has bounded edges, pagination offsets and provider contexts. It has no exact graph total, current header object, no-context notice or current next-action envelope.",
+          "release_source": "src/entities/article/mod.rs"
+        },
+        "/result/semantic_scholar/data/notice": {
+          "reason": "Released graph serialization has bounded edges, pagination offsets and provider contexts. It has no exact graph total, current header object, no-context notice or current next-action envelope.",
+          "release_source": "src/entities/article/mod.rs"
+        }
+      }
+    },
+    {
+      "case": "article/filters/access-europepmc.yaml",
+      "step": 0,
+      "baseline_command": [
+        "search",
+        "article",
+        "AKT1 E17K",
+        "--source",
+        "europepmc",
+        "--open-access",
+        "--no-preprints",
+        "--exclude-retracted"
+      ],
+      "spelling_table": "sdlc/planning/slices/article.md",
+      "release_source": [
+        "src/entities/article/mod.rs",
+        "src/cli/article/dispatch.rs",
+        "src/entities/article/detail.rs",
+        "src/cli/system/batch.rs"
+      ],
+      "baseline_globals": [
+        "--json"
+      ],
+      "recordings": [
+        {
+          "source": "europe-pmc",
+          "endpoint_env": "BIOMCP_EUROPEPMC_BASE",
+          "host": "www.ebi.ac.uk",
+          "request_prefix": "GET /europepmc/webservices/rest/search",
+          "request_contains": "",
+          "request_query": {
+            "query": "AKT1 E17K AND OPEN_ACCESS:y NOT SRC:PPR NOT PUB_TYPE:\"retracted publication\""
+          },
+          "capture": "europepmc/8fe1869d09ff03cdf5b68a2eed23796d4b86439f9eef6351d37130dea3189e15.json"
+        }
+      ],
+      "facts": {
+        "/result/items": "/results"
+      },
+      "unprojectable_facts": {
+        "/status": {
+          "reason": "Released Article JSON has no current lifecycle/status, action, resolution or source-problem envelope; these values cannot be inferred from source presence or complete.",
+          "release_source": "src/entities/article/mod.rs"
+        },
+        "/sources/0/term": {
+          "reason": "Released search metadata uses a different source-plan/status schema and does not retain this current per-source term/count/notice or query shape.",
+          "release_source": "src/entities/article/mod.rs"
+        },
+        "/sources/0/count": {
+          "reason": "Released search metadata uses a different source-plan/status schema and does not retain this current per-source term/count/notice or query shape.",
+          "release_source": "src/entities/article/mod.rs"
+        }
+      }
+    },
+    {
+      "case": "article/filters/access-semantic-scholar.yaml",
+      "step": 0,
+      "baseline_command": [
+        "search",
+        "article",
+        "AKT1 E17K",
+        "--source",
+        "semanticscholar",
+        "--open-access",
+        "--include-retracted"
+      ],
+      "spelling_table": "sdlc/planning/slices/article.md",
+      "release_source": [
+        "src/entities/article/mod.rs",
+        "src/cli/article/dispatch.rs",
+        "src/entities/article/detail.rs",
+        "src/cli/system/batch.rs"
+      ],
+      "baseline_globals": [
+        "--json"
+      ],
+      "recordings": [
+        {
+          "source": "semantic-scholar",
+          "endpoint_env": "BIOMCP_S2_BASE",
+          "host": "api.semanticscholar.org",
+          "request_prefix": "GET /graph/v1/paper/search",
+          "request_contains": "",
+          "request_query": {
+            "query": "AKT1 E17K"
+          },
+          "capture": "semantic-scholar/b55199838119a6a6df426f13e15b7930071c7db73de13c20a950474bd7280136.json"
+        }
+      ],
+      "facts": {
+        "/result/items": "/results"
+      },
+      "unprojectable_facts": {
+        "/status": {
+          "reason": "Released Article JSON has no current lifecycle/status, action, resolution or source-problem envelope; these values cannot be inferred from source presence or complete.",
+          "release_source": "src/entities/article/mod.rs"
+        },
+        "/sources/0/term": {
+          "reason": "Released search metadata uses a different source-plan/status schema and does not retain this current per-source term/count/notice or query shape.",
+          "release_source": "src/entities/article/mod.rs"
+        },
+        "/sources/0/count": {
+          "reason": "Released search metadata uses a different source-plan/status schema and does not retain this current per-source term/count/notice or query shape.",
+          "release_source": "src/entities/article/mod.rs"
+        }
+      }
+    },
+    {
+      "case": "article/filters/author.yaml",
+      "step": 0,
+      "baseline_command": [
+        "search",
+        "article",
+        "AKT1",
+        "--author",
+        "Carpten",
+        "--source",
+        "pubmed",
+        "--include-retracted"
+      ],
+      "spelling_table": "sdlc/planning/slices/article.md",
+      "release_source": [
+        "src/entities/article/mod.rs",
+        "src/cli/article/dispatch.rs",
+        "src/entities/article/detail.rs",
+        "src/cli/system/batch.rs"
+      ],
+      "baseline_globals": [
+        "--json"
+      ],
+      "recordings": [
+        {
+          "source": "pubmed",
+          "endpoint_env": "BIOMCP_PUBMED_BASE",
+          "host": "eutils.ncbi.nlm.nih.gov",
+          "request_prefix": "GET /entrez/eutils/esearch.fcgi",
+          "request_contains": "",
+          "request_query": {
+            "db": "pubmed",
+            "term": "AKT1 AND Carpten[au]"
+          },
+          "capture": "pubmed/7fbd8792e949f493467bdff1276a06ba647ee1643fff52c558eb5a27826d0592.json"
+        },
+        {
+          "source": "pubmed",
+          "endpoint_env": "BIOMCP_PUBMED_BASE",
+          "host": "eutils.ncbi.nlm.nih.gov",
+          "request_prefix": "POST /entrez/eutils/esummary.fcgi",
+          "request_contains": "",
+          "request_query": {},
+          "capture": "pubmed/822eb63c90a3d5be2e3f610ad5b808818ff65383e65a26981bc188657905e4ea.json"
+        }
+      ],
+      "facts": {
+        "/result/items/*/pmid": "/results/*/pmid"
+      },
+      "unprojectable_facts": {
+        "/status": {
+          "reason": "Released Article JSON has no current lifecycle/status, action, resolution or source-problem envelope; these values cannot be inferred from source presence or complete.",
+          "release_source": "src/entities/article/mod.rs"
+        },
+        "/sources/0/term": {
+          "reason": "Released search metadata uses a different source-plan/status schema and does not retain this current per-source term/count/notice or query shape.",
+          "release_source": "src/entities/article/mod.rs"
+        }
+      }
+    },
+    {
+      "case": "article/filters/guideline.yaml",
+      "step": 0,
+      "baseline_command": [
+        "search",
+        "article",
+        "next-generation sequencing advanced cancer ESMO",
+        "--type",
+        "guideline",
+        "--source",
+        "pubmed",
+        "--include-retracted"
+      ],
+      "spelling_table": "sdlc/planning/slices/article.md",
+      "release_source": [
+        "src/entities/article/mod.rs",
+        "src/cli/article/dispatch.rs",
+        "src/entities/article/detail.rs",
+        "src/cli/system/batch.rs"
+      ],
+      "baseline_globals": [
+        "--json"
+      ],
+      "recordings": [
+        {
+          "source": "pubmed",
+          "endpoint_env": "BIOMCP_PUBMED_BASE",
+          "host": "eutils.ncbi.nlm.nih.gov",
+          "request_prefix": "POST /entrez/eutils/esummary.fcgi",
+          "request_contains": "",
+          "request_query": {},
+          "capture": "pubmed/5884ad3761787211283fe316272d0d2b52f30da7d7469c9ae059b62e78baec08.json"
+        },
+        {
+          "source": "pubmed",
+          "endpoint_env": "BIOMCP_PUBMED_BASE",
+          "host": "eutils.ncbi.nlm.nih.gov",
+          "request_prefix": "GET /entrez/eutils/esearch.fcgi",
+          "request_contains": "",
+          "request_query": {
+            "db": "pubmed",
+            "term": "next-generation sequencing advanced cancer ESMO AND (guideline[pt] OR \"practice guideline\"[pt])"
+          },
+          "capture": "pubmed/8bf266464d0a6729c092e61f2da3f225efe2209c67c0dc73e6a7ca67e434f84d.json"
+        }
+      ],
+      "facts": {
+        "/result/items/0/pmid": "/results/0/pmid"
+      },
+      "unprojectable_facts": {
+        "/status": {
+          "reason": "Released Article JSON has no current lifecycle/status, action, resolution or source-problem envelope; these values cannot be inferred from source presence or complete.",
+          "release_source": "src/entities/article/mod.rs"
+        },
+        "/sources/0/term": {
+          "reason": "Released search metadata uses a different source-plan/status schema and does not retain this current per-source term/count/notice or query shape.",
+          "release_source": "src/entities/article/mod.rs"
+        },
+        "/result/items/*/header/types": {
+          "reason": "Released Article JSON has no current lifecycle/status, action, resolution or source-problem envelope; these values cannot be inferred from source presence or complete.",
+          "release_source": "src/entities/article/mod.rs"
+        }
+      }
+    },
+    {
+      "case": "article/filters/journal.yaml",
+      "step": 0,
+      "baseline_command": [
+        "search",
+        "article",
+        "AKT1 E17K",
+        "--journal",
+        "Nature",
+        "--source",
+        "pubmed",
+        "--include-retracted"
+      ],
+      "spelling_table": "sdlc/planning/slices/article.md",
+      "release_source": [
+        "src/entities/article/mod.rs",
+        "src/cli/article/dispatch.rs",
+        "src/entities/article/detail.rs",
+        "src/cli/system/batch.rs"
+      ],
+      "baseline_globals": [
+        "--json"
+      ],
+      "recordings": [
+        {
+          "source": "pubmed",
+          "endpoint_env": "BIOMCP_PUBMED_BASE",
+          "host": "eutils.ncbi.nlm.nih.gov",
+          "request_prefix": "GET /entrez/eutils/esearch.fcgi",
+          "request_contains": "",
+          "request_query": {
+            "db": "pubmed",
+            "term": "AKT1 E17K AND Nature[ta]"
+          },
+          "capture": "pubmed/1d6034a8b3186ca9d7383f08d6b45427e0fecae126017535a9f484da71abb551.json"
+        },
+        {
+          "source": "pubmed",
+          "endpoint_env": "BIOMCP_PUBMED_BASE",
+          "host": "eutils.ncbi.nlm.nih.gov",
+          "request_prefix": "POST /entrez/eutils/esummary.fcgi",
+          "request_contains": "",
+          "request_query": {},
+          "capture": "pubmed/ec6b569d8710cfeb29f8e71775b2fe26052ee5bcb29a350211319ef5599a6374.json"
+        }
+      ],
+      "facts": {
+        "/result/items/*/pmid": "/results/*/pmid"
+      },
+      "unprojectable_facts": {
+        "/status": {
+          "reason": "Released Article JSON has no current lifecycle/status, action, resolution or source-problem envelope; these values cannot be inferred from source presence or complete.",
+          "release_source": "src/entities/article/mod.rs"
+        },
+        "/sources/0/term": {
+          "reason": "Released search metadata uses a different source-plan/status schema and does not retain this current per-source term/count/notice or query shape.",
+          "release_source": "src/entities/article/mod.rs"
+        }
+      }
+    },
+    {
+      "case": "article/filters/until.yaml",
+      "step": 0,
+      "baseline_command": [
+        "search",
+        "article",
+        "AKT1 E17K",
+        "--until",
+        "2010",
+        "--limit",
+        "50",
+        "--source",
+        "pubmed",
+        "--include-retracted"
+      ],
+      "spelling_table": "sdlc/planning/slices/article.md",
+      "release_source": [
+        "src/entities/article/mod.rs",
+        "src/cli/article/dispatch.rs",
+        "src/entities/article/detail.rs",
+        "src/cli/system/batch.rs"
+      ],
+      "baseline_globals": [
+        "--json"
+      ],
+      "recordings": [
+        {
+          "source": "pubmed",
+          "endpoint_env": "BIOMCP_PUBMED_BASE",
+          "host": "eutils.ncbi.nlm.nih.gov",
+          "request_prefix": "POST /entrez/eutils/esummary.fcgi",
+          "request_contains": "",
+          "request_query": {},
+          "capture": "pubmed/6c8d07d0f6da2f24f41c184433776036eb48f78d8e255286c7048399f35c4a99.json"
+        },
+        {
+          "source": "pubmed",
+          "endpoint_env": "BIOMCP_PUBMED_BASE",
+          "host": "eutils.ncbi.nlm.nih.gov",
+          "request_prefix": "GET /entrez/eutils/esearch.fcgi",
+          "request_contains": "",
+          "request_query": {
+            "db": "pubmed",
+            "term": "AKT1 E17K AND 1800:2010[dp]"
+          },
+          "capture": "pubmed/c6af82c6bd0443c96c13b78ef4d0c0b486d1620c665493824f64df7747a9d494.json"
+        }
+      ],
+      "facts": {
+        "/page/total": "/pagination/total",
+        "/result/items/*/pmid": "/results/*/pmid",
+        "/result/items/0/header/date": "/results/0/date"
+      },
+      "unprojectable_facts": {
+        "/status": {
+          "reason": "Released Article JSON has no current lifecycle/status, action, resolution or source-problem envelope; these values cannot be inferred from source presence or complete.",
+          "release_source": "src/entities/article/mod.rs"
+        },
+        "/sources/0/term": {
+          "reason": "Released search metadata uses a different source-plan/status schema and does not retain this current per-source term/count/notice or query shape.",
+          "release_source": "src/entities/article/mod.rs"
+        },
+        "/result/items/0/header/electronic_date": {
+          "reason": "Released Article JSON has no current lifecycle/status, action, resolution or source-problem envelope; these values cannot be inferred from source presence or complete.",
+          "release_source": "src/entities/article/mod.rs"
+        }
+      }
+    },
+    {
+      "case": "article/fold/synthetic-field-phrases.yaml",
+      "step": 0,
+      "baseline_command": [
+        "search",
+        "article",
+        "AKT1",
+        "--source",
+        "europepmc",
+        "--author",
+        "Smith J",
+        "--journal",
+        "Nature \"Medicine\"\\Reports",
+        "--include-retracted"
+      ],
+      "spelling_table": "sdlc/planning/slices/article.md",
+      "release_source": [
+        "src/entities/article/mod.rs",
+        "src/cli/article/dispatch.rs",
+        "src/entities/article/detail.rs",
+        "src/cli/system/batch.rs"
+      ],
+      "baseline_globals": [
+        "--json"
+      ],
+      "recordings": [
+        {
+          "source": "europe-pmc",
+          "endpoint_env": "BIOMCP_EUROPEPMC_BASE",
+          "host": "www.ebi.ac.uk",
+          "request_prefix": "GET /europepmc/webservices/rest/search",
+          "request_contains": "",
+          "request_query": {
+            "query": "AKT1 AND AUTH:\"Smith J\" AND JOURNAL:\"Nature \\\"Medicine\\\"\\\\Reports\""
+          },
+          "capture": "europepmc/9756b9c3b2c6c41c75d398148a1e877ddc4c9d5a25bf938899446b977bc70526.json"
+        }
+      ],
+      "facts": {
+        "/page/total": "/pagination/total"
+      },
+      "unprojectable_facts": {
+        "/status": {
+          "reason": "Released Article JSON has no current lifecycle/status, action, resolution or source-problem envelope; these values cannot be inferred from source presence or complete.",
+          "release_source": "src/entities/article/mod.rs"
+        },
+        "/sources/0/term": {
+          "reason": "Released search metadata uses a different source-plan/status schema and does not retain this current per-source term/count/notice or query shape.",
+          "release_source": "src/entities/article/mod.rs"
+        }
+      }
+    },
+    {
+      "case": "article/get/doi.yaml",
+      "step": 0,
+      "baseline_command": [
+        "get",
+        "article",
+        "10.1002/mgg3.317"
+      ],
+      "spelling_table": "sdlc/planning/slices/article.md",
+      "release_source": [
+        "src/entities/article/mod.rs",
+        "src/cli/article/dispatch.rs",
+        "src/entities/article/detail.rs",
+        "src/cli/system/batch.rs"
+      ],
+      "baseline_globals": [
+        "--json"
+      ],
+      "recordings": [
+        {
+          "source": "pubtator3",
+          "endpoint_env": "BIOMCP_PUBTATOR_BASE",
+          "host": "www.ncbi.nlm.nih.gov",
+          "request_prefix": "GET /research/pubtator3-api/publications/export/biocjson",
+          "request_contains": "",
+          "request_query": {
+            "pmids": "10.1002/mgg3.317"
+          },
+          "capture": "",
+          "recording_gap": "Released detail starts with PubTator export; this harvested replay retains PubMed efetch instead and has no equivalent PubTator body (src/entities/article/detail.rs::resolve_article_from_pmid_with_context)."
+        }
+      ],
+      "facts": {
+        "/result/items/0/answer/card/pmid": "/pmid"
+      },
+      "unprojectable_facts": {
+        "/result/items/0/answer/match/kind": {
+          "reason": "Released Article JSON has no current lifecycle/status, action, resolution or source-problem envelope; these values cannot be inferred from source presence or complete.",
+          "release_source": "src/entities/article/mod.rs"
+        }
+      }
+    },
+    {
+      "case": "article/get/live-capture.yaml",
+      "step": 0,
+      "baseline_command": [
+        "batch",
+        "article",
+        "33123537,35440569,28944238,35061708,99999999,PMC5606870,10.1002/mgg3.317",
+        "--mode",
+        "full"
+      ],
+      "spelling_table": "sdlc/planning/slices/article.md",
+      "release_source": [
+        "src/entities/article/mod.rs",
+        "src/cli/article/dispatch.rs",
+        "src/entities/article/detail.rs",
+        "src/cli/system/batch.rs"
+      ],
+      "baseline_globals": [
+        "--json"
+      ],
+      "recordings": [
+        {
+          "source": "pubtator3",
+          "endpoint_env": "BIOMCP_PUBTATOR_BASE",
+          "host": "www.ncbi.nlm.nih.gov",
+          "request_prefix": "GET /research/pubtator3-api/publications/export/biocjson",
+          "request_contains": "",
+          "request_query": {
+            "pmids": "33123537,35440569,28944238,35061708,99999999,PMC5606870,10.1002/mgg3.317"
+          },
+          "capture": "",
+          "recording_gap": "Released detail starts with PubTator export; this harvested replay retains PubMed efetch instead and has no equivalent PubTator body (src/entities/article/detail.rs::resolve_article_from_pmid_with_context)."
+        }
+      ],
+      "facts": {
+        "/result/items/0/answer/card/date": "/items/0/result/date",
+        "/result/items/2/answer/card/date": "/items/2/result/date",
+        "/result/items/3/answer/card/date": "/items/3/result/date"
+      },
+      "unprojectable_facts": {
+        "/result/items/*/status": {
+          "reason": "Released Article JSON has no current lifecycle/status, action, resolution or source-problem envelope; these values cannot be inferred from source presence or complete.",
+          "release_source": "src/entities/article/mod.rs"
+        },
+        "/result/items/0/answer/card/electronic_date": {
+          "reason": "Released Article retains one publication_type and plain abstract_text. It does not serialize current type arrays, structured abstract parts, electronic dates, correction relations or match metadata.",
+          "release_source": "src/entities/article/mod.rs"
+        },
+        "/result/items/2/answer/card/electronic_date": {
+          "reason": "Released Article retains one publication_type and plain abstract_text. It does not serialize current type arrays, structured abstract parts, electronic dates, correction relations or match metadata.",
+          "release_source": "src/entities/article/mod.rs"
+        },
+        "/result/items/3/answer/card/electronic_date": {
+          "reason": "Released Article retains one publication_type and plain abstract_text. It does not serialize current type arrays, structured abstract parts, electronic dates, correction relations or match metadata.",
+          "release_source": "src/entities/article/mod.rs"
+        }
+      }
+    },
+    {
+      "case": "article/get/phase-two.yaml",
+      "step": 0,
+      "baseline_command": [
+        "get",
+        "article",
+        "35440569"
+      ],
+      "spelling_table": "sdlc/planning/slices/article.md",
+      "release_source": [
+        "src/entities/article/mod.rs",
+        "src/cli/article/dispatch.rs",
+        "src/entities/article/detail.rs",
+        "src/cli/system/batch.rs"
+      ],
+      "baseline_globals": [
+        "--json"
+      ],
+      "recordings": [
+        {
+          "source": "pubtator3",
+          "endpoint_env": "BIOMCP_PUBTATOR_BASE",
+          "host": "www.ncbi.nlm.nih.gov",
+          "request_prefix": "GET /research/pubtator3-api/publications/export/biocjson",
+          "request_contains": "",
+          "request_query": {
+            "pmids": "35440569"
+          },
+          "capture": "",
+          "recording_gap": "Released detail starts with PubTator export; this harvested replay retains PubMed efetch instead and has no equivalent PubTator body (src/entities/article/detail.rs::resolve_article_from_pmid_with_context)."
+        }
+      ],
+      "facts": {
+        "/result/items/0/answer/card/authors/total": "/author_count",
+        "/result/items/0/answer/card/authors/items": "/authors"
+      },
+      "unprojectable_facts": {
+        "/result/items/0/answer/card/types": {
+          "reason": "Released Article retains one publication_type and plain abstract_text. It does not serialize current type arrays, structured abstract parts, electronic dates, correction relations or match metadata.",
+          "release_source": "src/entities/article/mod.rs"
+        }
+      }
+    },
+    {
+      "case": "article/get/pmcid.yaml",
+      "step": 0,
+      "baseline_command": [
+        "get",
+        "article",
+        "PMC5606870"
+      ],
+      "spelling_table": "sdlc/planning/slices/article.md",
+      "release_source": [
+        "src/entities/article/mod.rs",
+        "src/cli/article/dispatch.rs",
+        "src/entities/article/detail.rs",
+        "src/cli/system/batch.rs"
+      ],
+      "baseline_globals": [
+        "--json"
+      ],
+      "recordings": [
+        {
+          "source": "pubtator3",
+          "endpoint_env": "BIOMCP_PUBTATOR_BASE",
+          "host": "www.ncbi.nlm.nih.gov",
+          "request_prefix": "GET /research/pubtator3-api/publications/export/biocjson",
+          "request_contains": "",
+          "request_query": {
+            "pmids": "PMC5606870"
+          },
+          "capture": "",
+          "recording_gap": "Released detail starts with PubTator export; this harvested replay retains PubMed efetch instead and has no equivalent PubTator body (src/entities/article/detail.rs::resolve_article_from_pmid_with_context)."
+        }
+      ],
+      "facts": {
+        "/result/items/0/answer/card/pmid": "/pmid"
+      },
+      "unprojectable_facts": {
+        "/result/items/0/answer/match/kind": {
+          "reason": "Released Article JSON has no current lifecycle/status, action, resolution or source-problem envelope; these values cannot be inferred from source presence or complete.",
+          "release_source": "src/entities/article/mod.rs"
+        },
+        "/result/items/0/answer/card/abstract_parts/*/label": {
+          "reason": "Released Article retains one publication_type and plain abstract_text. It does not serialize current type arrays, structured abstract parts, electronic dates, correction relations or match metadata.",
+          "release_source": "src/entities/article/mod.rs"
+        }
+      }
+    }
+  ],
+  "inventory": {
+    "unprojectable": [
+      {
+        "case": "article/citations/duplicates.yaml",
+        "reason": "Released article citations is the Semantic Scholar graph. It has no iCite edge set, iCite PMID cap, or iCite/RCR summary section. Semantic Scholar citation_count is not an equivalent measure.",
+        "release_source": "src/cli/article/mod.rs::ArticleCommand"
+      },
+      {
+        "case": "article/citations/edge-cap.yaml",
+        "reason": "Released article citations is the Semantic Scholar graph. It has no iCite edge set, iCite PMID cap, or iCite/RCR summary section. Semantic Scholar citation_count is not an equivalent measure.",
+        "release_source": "src/cli/article/mod.rs::ArticleCommand"
+      },
+      {
+        "case": "article/citations/malformed-optional.yaml",
+        "reason": "Released article citations is the Semantic Scholar graph. It has no iCite edge set, iCite PMID cap, or iCite/RCR summary section. Semantic Scholar citation_count is not an equivalent measure.",
+        "release_source": "src/cli/article/mod.rs::ArticleCommand"
+      },
+      {
+        "case": "article/citations/missing-edge-list.yaml",
+        "reason": "Released article citations is the Semantic Scholar graph. It has no iCite edge set, iCite PMID cap, or iCite/RCR summary section. Semantic Scholar citation_count is not an equivalent measure.",
+        "release_source": "src/cli/article/mod.rs::ArticleCommand"
+      },
+      {
+        "case": "article/citations/missing-last.yaml",
+        "reason": "Released article citations is the Semantic Scholar graph. It has no iCite edge set, iCite PMID cap, or iCite/RCR summary section. Semantic Scholar citation_count is not an equivalent measure.",
+        "release_source": "src/cli/article/mod.rs::ArticleCommand"
+      },
+      {
+        "case": "article/citations/missing-lists.yaml",
+        "reason": "Released article citations is the Semantic Scholar graph. It has no iCite edge set, iCite PMID cap, or iCite/RCR summary section. Semantic Scholar citation_count is not an equivalent measure.",
+        "release_source": "src/cli/article/mod.rs::ArticleCommand"
+      },
+      {
+        "case": "article/citations/missing.yaml",
+        "reason": "Released article citations is the Semantic Scholar graph. It has no iCite edge set, iCite PMID cap, or iCite/RCR summary section. Semantic Scholar citation_count is not an equivalent measure.",
+        "release_source": "src/cli/article/mod.rs::ArticleCommand"
+      },
+      {
+        "case": "article/citations/multiple-sources.yaml",
+        "reason": "Released ArticleSourceFilter accepts one named source or all. It cannot express the harvested ordered source subset; all would change the question.",
+        "release_source": "src/entities/article/filters.rs::ArticleSourceFilter"
+      },
+      {
+        "case": "article/citations/search-cap.yaml",
+        "reason": "Released ArticleSourceFilter accepts one named source or all. It cannot express the harvested ordered source subset; all would change the question.",
+        "release_source": "src/entities/article/filters.rs::ArticleSourceFilter"
+      },
+      {
+        "case": "article/citations/section.yaml",
+        "reason": "Released article citations is the Semantic Scholar graph. It has no iCite edge set, iCite PMID cap, or iCite/RCR summary section. Semantic Scholar citation_count is not an equivalent measure.",
+        "release_source": "src/cli/article/mod.rs::ArticleCommand"
+      },
+      {
+        "case": "article/filters/exclude-retracted.yaml",
+        "reason": "All asserted questions concern current lifecycle, source notices, pooled annotation state or resolution metadata absent from released Article serialization. No asserted released content field remains to compare.",
+        "release_source": "src/entities/article/mod.rs"
+      },
+      {
+        "case": "article/filters/no-preprints.yaml",
+        "reason": "All asserted questions concern current lifecycle, source notices, pooled annotation state or resolution metadata absent from released Article serialization. No asserted released content field remains to compare.",
+        "release_source": "src/entities/article/mod.rs"
+      },
+      {
+        "case": "article/filters/open-access.yaml",
+        "reason": "All asserted questions concern current lifecycle, source notices, pooled annotation state or resolution metadata absent from released Article serialization. No asserted released content field remains to compare.",
+        "release_source": "src/entities/article/mod.rs"
+      },
+      {
+        "case": "article/filters/trial.yaml",
+        "reason": "All asserted questions concern current lifecycle, source notices, pooled annotation state or resolution metadata absent from released Article serialization. No asserted released content field remains to compare.",
+        "release_source": "src/entities/article/mod.rs"
+      },
+      {
+        "case": "article/fold/live-reverse.yaml",
+        "reason": "Released ArticleSourceFilter accepts one named source or all. It cannot express the harvested ordered source subset; all would change the question.",
+        "release_source": "src/entities/article/filters.rs::ArticleSourceFilter"
+      },
+      {
+        "case": "article/fold/synthetic-hole.yaml",
+        "reason": "All asserted questions concern current lifecycle, source notices, pooled annotation state or resolution metadata absent from released Article serialization. No asserted released content field remains to compare.",
+        "release_source": "src/entities/article/mod.rs"
+      },
+      {
+        "case": "article/fold/synthetic-pubmed-deadline.yaml",
+        "reason": "Released ArticleSourceFilter accepts one named source or all. It cannot express the harvested ordered source subset; all would change the question.",
+        "release_source": "src/entities/article/filters.rs::ArticleSourceFilter"
+      },
+      {
+        "case": "article/fold/synthetic-sole-failure.yaml",
+        "reason": "All asserted questions concern current lifecycle, source notices, pooled annotation state or resolution metadata absent from released Article serialization. No asserted released content field remains to compare.",
+        "release_source": "src/entities/article/mod.rs"
+      },
+      {
+        "case": "article/get/synthetic-doi-mismatch.yaml",
+        "reason": "All asserted questions concern current lifecycle, source notices, pooled annotation state or resolution metadata absent from released Article serialization. No asserted released content field remains to compare.",
+        "release_source": "src/entities/article/mod.rs"
+      },
+      {
+        "case": "article/get/synthetic-pmcid-mismatch.yaml",
+        "reason": "All asserted questions concern current lifecycle, source notices, pooled annotation state or resolution metadata absent from released Article serialization. No asserted released content field remains to compare.",
+        "release_source": "src/entities/article/mod.rs"
+      },
+      {
+        "case": "article/indexing/own-record.yaml",
+        "reason": "All asserted questions concern current lifecycle, source notices, pooled annotation state or resolution metadata absent from released Article serialization. No asserted released content field remains to compare.",
+        "release_source": "src/entities/article/mod.rs"
+      },
+      {
+        "case": "article/litvar/braf-cap.yaml",
+        "reason": "Released ArticleSearchArgs has no --variant flag or LitVar source; preserving this variant-filtered question is unsupported.",
+        "release_source": "src/cli/article/mod.rs::ArticleSearchArgs"
+      },
+      {
+        "case": "article/litvar/default-next.yaml",
+        "reason": "Released ArticleSearchArgs has no --variant flag or LitVar source; preserving this variant-filtered question is unsupported.",
+        "release_source": "src/cli/article/mod.rs::ArticleSearchArgs"
+      },
+      {
+        "case": "article/litvar/idh1-citations.yaml",
+        "reason": "Released ArticleSearchArgs has no --variant flag or LitVar source; preserving this variant-filtered question is unsupported.",
+        "release_source": "src/cli/article/mod.rs::ArticleSearchArgs"
+      },
+      {
+        "case": "article/pdf/html333.yaml",
+        "reason": "Released PDF support is a fulltext fallback through get article --pdf; it has no standalone PDF save response with file-state and reason facts.",
+        "release_source": "src/cli/article/fulltext_view.rs"
+      },
+      {
+        "case": "article/pdf/not-pdf.yaml",
+        "reason": "Released PDF support is a fulltext fallback through get article --pdf; it has no standalone PDF save response with file-state and reason facts.",
+        "release_source": "src/cli/article/fulltext_view.rs"
+      },
+      {
+        "case": "article/pdf/rejected.yaml",
+        "reason": "Released PDF support is a fulltext fallback through get article --pdf; it has no standalone PDF save response with file-state and reason facts.",
+        "release_source": "src/cli/article/fulltext_view.rs"
+      },
+      {
+        "case": "article/pdf/timeout.yaml",
+        "reason": "Released PDF support is a fulltext fallback through get article --pdf; it has no standalone PDF save response with file-state and reason facts.",
+        "release_source": "src/cli/article/fulltext_view.rs"
+      },
+      {
+        "case": "article/pdf/unavailable.yaml",
+        "reason": "Released PDF support is a fulltext fallback through get article --pdf; it has no standalone PDF save response with file-state and reason facts.",
+        "release_source": "src/cli/article/fulltext_view.rs"
+      },
+      {
+        "case": "article/preprint/all.yaml",
+        "reason": "Released detail accepts PMID, PMCID, DOI and arXiv identifiers; it cannot resolve a Europe PMC PPR identifier or answer its item/section outcomes.",
+        "release_source": "src/entities/article/detail.rs::get_article_base_with_clients"
+      },
+      {
+        "case": "article/preprint/synthetic-foreign-id.yaml",
+        "reason": "Released detail accepts PMID, PMCID, DOI and arXiv identifiers; it cannot resolve a Europe PMC PPR identifier or answer its item/section outcomes.",
+        "release_source": "src/entities/article/detail.rs::get_article_base_with_clients"
+      },
+      {
+        "case": "article/preprint/synthetic-foreign-source.yaml",
+        "reason": "Released detail accepts PMID, PMCID, DOI and arXiv identifiers; it cannot resolve a Europe PMC PPR identifier or answer its item/section outcomes.",
+        "release_source": "src/entities/article/detail.rs::get_article_base_with_clients"
+      },
+      {
+        "case": "article/preprint/synthetic-inline.yaml",
+        "reason": "Released detail accepts PMID, PMCID, DOI and arXiv identifiers; it cannot resolve a Europe PMC PPR identifier or answer its item/section outcomes.",
+        "release_source": "src/entities/article/detail.rs::get_article_base_with_clients"
+      },
+      {
+        "case": "article/search/not-found-words.yaml",
+        "reason": "All asserted questions concern current lifecycle, source notices, pooled annotation state or resolution metadata absent from released Article serialization. No asserted released content field remains to compare.",
+        "release_source": "src/entities/article/mod.rs"
+      },
+      {
+        "case": "article/search/synthetic-four-term-short.yaml",
+        "reason": "Released ArticleSearchArgs has no --variant flag or LitVar source; preserving this variant-filtered question is unsupported.",
+        "release_source": "src/cli/article/mod.rs::ArticleSearchArgs"
+      },
+      {
+        "case": "article/search/synthetic-gene-deadline.yaml",
+        "reason": "All asserted questions concern current lifecycle, source notices, pooled annotation state or resolution metadata absent from released Article serialization. No asserted released content field remains to compare.",
+        "release_source": "src/entities/article/mod.rs"
+      },
+      {
+        "case": "article/search/synthetic-search-count.yaml",
+        "reason": "All asserted questions concern current lifecycle, source notices, pooled annotation state or resolution metadata absent from released Article serialization. No asserted released content field remains to compare.",
+        "release_source": "src/entities/article/mod.rs"
+      },
+      {
+        "case": "article/sections/duplicate.yaml",
+        "reason": "All asserted questions concern current lifecycle, source notices, pooled annotation state or resolution metadata absent from released Article serialization. No asserted released content field remains to compare.",
+        "release_source": "src/entities/article/mod.rs"
+      },
+      {
+        "case": "article/sections/empty.yaml",
+        "reason": "All asserted questions concern current lifecycle, source notices, pooled annotation state or resolution metadata absent from released Article serialization. No asserted released content field remains to compare.",
+        "release_source": "src/entities/article/mod.rs"
+      },
+      {
+        "case": "article/sections/key-domains.yaml",
+        "reason": "All asserted questions concern current lifecycle, source notices, pooled annotation state or resolution metadata absent from released Article serialization. No asserted released content field remains to compare.",
+        "release_source": "src/entities/article/mod.rs"
+      },
+      {
+        "case": "article/sections/missing.yaml",
+        "reason": "All asserted questions concern current lifecycle, source notices, pooled annotation state or resolution metadata absent from released Article serialization. No asserted released content field remains to compare.",
+        "release_source": "src/entities/article/mod.rs"
+      },
+      {
+        "case": "article/semantic-scholar/key.yaml",
+        "reason": "Released CLI has no help key command or structured key-guidance response.",
+        "release_source": "src/cli/mod.rs"
+      },
+      {
+        "case": "article/semantic-scholar/live-rate-limit.yaml",
+        "reason": "All asserted questions concern current lifecycle, source notices, pooled annotation state or resolution metadata absent from released Article serialization. No asserted released content field remains to compare.",
+        "release_source": "src/entities/article/mod.rs"
+      },
+      {
+        "case": "article/semantic-scholar/synthetic-typed-year.yaml",
+        "reason": "Released ArticleSearchArgs has no --variant flag or LitVar source; preserving this variant-filtered question is unsupported.",
+        "release_source": "src/cli/article/mod.rs::ArticleSearchArgs"
+      },
+      {
+        "case": "article/supplements/synthetic-blank-header.yaml",
+        "reason": "Released article supplement-search searches asset text; it has no standalone spreadsheet viewer, row/sheet selection or ZIP/XML safety outcome envelope.",
+        "release_source": "src/cli/article/mod.rs::ArticleCommand"
+      },
+      {
+        "case": "article/supplements/synthetic-bound-actual-strings.yaml",
+        "reason": "Released article supplement-search searches asset text; it has no standalone spreadsheet viewer, row/sheet selection or ZIP/XML safety outcome envelope.",
+        "release_source": "src/cli/article/mod.rs::ArticleCommand"
+      },
+      {
+        "case": "article/supplements/synthetic-bound-cell-cdata.yaml",
+        "reason": "Released article supplement-search searches asset text; it has no standalone spreadsheet viewer, row/sheet selection or ZIP/XML safety outcome envelope.",
+        "release_source": "src/cli/article/mod.rs::ArticleCommand"
+      },
+      {
+        "case": "article/supplements/synthetic-bound-cell-text.yaml",
+        "reason": "Released article supplement-search searches asset text; it has no standalone spreadsheet viewer, row/sheet selection or ZIP/XML safety outcome envelope.",
+        "release_source": "src/cli/article/mod.rs::ArticleCommand"
+      },
+      {
+        "case": "article/supplements/synthetic-bound-central-signature.yaml",
+        "reason": "Released article supplement-search searches asset text; it has no standalone spreadsheet viewer, row/sheet selection or ZIP/XML safety outcome envelope.",
+        "release_source": "src/cli/article/mod.rs::ArticleCommand"
+      },
+      {
+        "case": "article/supplements/synthetic-bound-comment-span.yaml",
+        "reason": "Released article supplement-search searches asset text; it has no standalone spreadsheet viewer, row/sheet selection or ZIP/XML safety outcome envelope.",
+        "release_source": "src/cli/article/mod.rs::ArticleCommand"
+      },
+      {
+        "case": "article/supplements/synthetic-bound-compressed-span.yaml",
+        "reason": "Released article supplement-search searches asset text; it has no standalone spreadsheet viewer, row/sheet selection or ZIP/XML safety outcome envelope.",
+        "release_source": "src/cli/article/mod.rs::ArticleCommand"
+      },
+      {
+        "case": "article/supplements/synthetic-bound-directory-layout.yaml",
+        "reason": "Released article supplement-search searches asset text; it has no standalone spreadsheet viewer, row/sheet selection or ZIP/XML safety outcome envelope.",
+        "release_source": "src/cli/article/mod.rs::ArticleCommand"
+      },
+      {
+        "case": "article/supplements/synthetic-bound-directory-size.yaml",
+        "reason": "Released article supplement-search searches asset text; it has no standalone spreadsheet viewer, row/sheet selection or ZIP/XML safety outcome envelope.",
+        "release_source": "src/cli/article/mod.rs::ArticleCommand"
+      },
+      {
+        "case": "article/supplements/synthetic-bound-directory-tail.yaml",
+        "reason": "Released article supplement-search searches asset text; it has no standalone spreadsheet viewer, row/sheet selection or ZIP/XML safety outcome envelope.",
+        "release_source": "src/cli/article/mod.rs::ArticleCommand"
+      },
+      {
+        "case": "article/supplements/synthetic-bound-doctype.yaml",
+        "reason": "Released article supplement-search searches asset text; it has no standalone spreadsheet viewer, row/sheet selection or ZIP/XML safety outcome envelope.",
+        "release_source": "src/cli/article/mod.rs::ArticleCommand"
+      },
+      {
+        "case": "article/supplements/synthetic-bound-encrypted.yaml",
+        "reason": "Released article supplement-search searches asset text; it has no standalone spreadsheet viewer, row/sheet selection or ZIP/XML safety outcome envelope.",
+        "release_source": "src/cli/article/mod.rs::ArticleCommand"
+      },
+      {
+        "case": "article/supplements/synthetic-bound-entry-count.yaml",
+        "reason": "Released article supplement-search searches asset text; it has no standalone spreadsheet viewer, row/sheet selection or ZIP/XML safety outcome envelope.",
+        "release_source": "src/cli/article/mod.rs::ArticleCommand"
+      },
+      {
+        "case": "article/supplements/synthetic-bound-extra-length.yaml",
+        "reason": "Released article supplement-search searches asset text; it has no standalone spreadsheet viewer, row/sheet selection or ZIP/XML safety outcome envelope.",
+        "release_source": "src/cli/article/mod.rs::ArticleCommand"
+      },
+      {
+        "case": "article/supplements/synthetic-bound-local-signature.yaml",
+        "reason": "Released article supplement-search searches asset text; it has no standalone spreadsheet viewer, row/sheet selection or ZIP/XML safety outcome envelope.",
+        "release_source": "src/cli/article/mod.rs::ArticleCommand"
+      },
+      {
+        "case": "article/supplements/synthetic-bound-nesting.yaml",
+        "reason": "Released article supplement-search searches asset text; it has no standalone spreadsheet viewer, row/sheet selection or ZIP/XML safety outcome envelope.",
+        "release_source": "src/cli/article/mod.rs::ArticleCommand"
+      },
+      {
+        "case": "article/supplements/synthetic-bound-split.yaml",
+        "reason": "Released article supplement-search searches asset text; it has no standalone spreadsheet viewer, row/sheet selection or ZIP/XML safety outcome envelope.",
+        "release_source": "src/cli/article/mod.rs::ArticleCommand"
+      },
+      {
+        "case": "article/supplements/synthetic-bound-zero-coordinate.yaml",
+        "reason": "Released article supplement-search searches asset text; it has no standalone spreadsheet viewer, row/sheet selection or ZIP/XML safety outcome envelope.",
+        "release_source": "src/cli/article/mod.rs::ArticleCommand"
+      },
+      {
+        "case": "article/supplements/synthetic-bound-zip64-extra.yaml",
+        "reason": "Released article supplement-search searches asset text; it has no standalone spreadsheet viewer, row/sheet selection or ZIP/XML safety outcome envelope.",
+        "release_source": "src/cli/article/mod.rs::ArticleCommand"
+      },
+      {
+        "case": "article/supplements/synthetic-bound-zip64.yaml",
+        "reason": "Released article supplement-search searches asset text; it has no standalone spreadsheet viewer, row/sheet selection or ZIP/XML safety outcome envelope.",
+        "release_source": "src/cli/article/mod.rs::ArticleCommand"
+      },
+      {
+        "case": "article/supplements/synthetic-csv.yaml",
+        "reason": "Released article supplement-search searches asset text; it has no standalone spreadsheet viewer, row/sheet selection or ZIP/XML safety outcome envelope.",
+        "release_source": "src/cli/article/mod.rs::ArticleCommand"
+      },
+      {
+        "case": "article/supplements/synthetic-no-pmc.yaml",
+        "reason": "Released article supplement-search searches asset text; it has no standalone spreadsheet viewer, row/sheet selection or ZIP/XML safety outcome envelope.",
+        "release_source": "src/cli/article/mod.rs::ArticleCommand"
+      },
+      {
+        "case": "article/supplements/synthetic-non-xml-chart.yaml",
+        "reason": "Released article supplement-search searches asset text; it has no standalone spreadsheet viewer, row/sheet selection or ZIP/XML safety outcome envelope.",
+        "release_source": "src/cli/article/mod.rs::ArticleCommand"
+      },
+      {
+        "case": "article/supplements/synthetic-shared-string-fanout.yaml",
+        "reason": "Released article supplement-search searches asset text; it has no standalone spreadsheet viewer, row/sheet selection or ZIP/XML safety outcome envelope.",
+        "release_source": "src/cli/article/mod.rs::ArticleCommand"
+      },
+      {
+        "case": "article/supplements/synthetic-sparse-last-cell.yaml",
+        "reason": "Released article supplement-search searches asset text; it has no standalone spreadsheet viewer, row/sheet selection or ZIP/XML safety outcome envelope.",
+        "release_source": "src/cli/article/mod.rs::ArticleCommand"
+      },
+      {
+        "case": "article/supplements/synthetic-sparse-row-cap.yaml",
+        "reason": "Released article supplement-search searches asset text; it has no standalone spreadsheet viewer, row/sheet selection or ZIP/XML safety outcome envelope.",
+        "release_source": "src/cli/article/mod.rs::ArticleCommand"
+      },
+      {
+        "case": "article/supplements/synthetic-tsv.yaml",
+        "reason": "Released article supplement-search searches asset text; it has no standalone spreadsheet viewer, row/sheet selection or ZIP/XML safety outcome envelope.",
+        "release_source": "src/cli/article/mod.rs::ArticleCommand"
+      },
+      {
+        "case": "article/supplements/synthetic-txt.yaml",
+        "reason": "Released article supplement-search searches asset text; it has no standalone spreadsheet viewer, row/sheet selection or ZIP/XML safety outcome envelope.",
+        "release_source": "src/cli/article/mod.rs::ArticleCommand"
+      },
+      {
+        "case": "article/supplements/synthetic-unsupported-mime.yaml",
+        "reason": "Released article supplement-search searches asset text; it has no standalone spreadsheet viewer, row/sheet selection or ZIP/XML safety outcome envelope.",
+        "release_source": "src/cli/article/mod.rs::ArticleCommand"
+      }
+    ]
+  }
+}
