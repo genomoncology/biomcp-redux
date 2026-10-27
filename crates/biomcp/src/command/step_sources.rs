@@ -62,9 +62,9 @@ fn sources(action: &Action) -> Vec<Source> {
             .map(|source| match source {
                 biomcp_types::ArticleSource::Pubmed => Source::PubMed,
                 biomcp_types::ArticleSource::Europepmc => Source::EuropePmc,
-                biomcp_types::ArticleSource::LitVar => Source::LitVar,
+                biomcp_types::ArticleSource::Litvar => Source::LitVar,
                 biomcp_types::ArticleSource::SemanticScholar => Source::SemanticScholar,
-                biomcp_types::ArticleSource::LitSense => Source::LitSense,
+                biomcp_types::ArticleSource::Litsense => Source::LitSense,
                 biomcp_types::ArticleSource::Pubtator => Source::PubTator,
             })
             .collect(),
@@ -91,7 +91,7 @@ fn article(query: &biomcp_types::ArticleGet) -> Vec<Source> {
                 ArticleInput::EuropePmc(_) => Source::EuropePmc,
                 _ => Source::PmcOa,
             })),
-            Section::Indexing => {}
+            _ => {}
             Section::All => sources.extend([
                 Source::PubTator,
                 Source::Icite,
@@ -103,9 +103,9 @@ fn article(query: &biomcp_types::ArticleGet) -> Vec<Source> {
     sources
 }
 
-fn author(id: &biomcp_types::AuthorId) -> Source {
+fn author(id: &biodata::AuthorId) -> Source {
     match id {
-        biomcp_types::AuthorId::SemanticScholar(_) => Source::SemanticScholar,
-        biomcp_types::AuthorId::Orcid(_) => Source::Orcid,
+        biodata::AuthorId::SemanticScholar(_) => Source::SemanticScholar,
+        biodata::AuthorId::Orcid(_) => Source::Orcid,
     }
 }
