@@ -28,8 +28,7 @@
         }
       },
       "full_output_bytes": true,
-      "max_bytes": 1126,
-      "max_tokens": 282
+      "max_bytes": 1126
     }
   ]
 }

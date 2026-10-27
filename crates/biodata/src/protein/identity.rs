@@ -42,6 +42,7 @@ pub struct ProteinHeader {
     /// Native reviewed status.
     pub reviewed: bool,
     /// Source entry URL.
+    #[cfg_attr(feature = "schema", schemars(extend("format" = "uri")))]
     pub url: Text,
 }
 /// Shared native feature contract without source label remapping.

@@ -25,7 +25,6 @@
       },
       "exit": 4,
       "max_bytes": 1500,
-      "max_tokens": 375,
       "is_error": true
     }
   ]

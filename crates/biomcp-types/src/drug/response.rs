@@ -28,6 +28,7 @@ pub struct DrugHeader {
     pub version: Option<Text>,
     /// Source record URL.
     #[serde(default, skip_serializing_if = "Option::is_none")]
+    #[cfg_attr(feature = "schema", schemars(extend("format" = "uri")))]
     pub url: Option<Text>,
 }
 /// Exact source identity and explicit native links; deeper facts require named sections.

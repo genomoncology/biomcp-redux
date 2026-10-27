@@ -11,9 +11,12 @@ export RUST_TEST_THREADS ?= $(PM_WORKERS)
 endif
 TEST_THREADS = $(if $(strip $(RUST_TEST_THREADS)),-- --test-threads $(RUST_TEST_THREADS))
 
-.PHONY: landing-gate fmt lint ratchets test audit coverage unreached
+.PHONY: landing-gate plain-cli-build fmt lint ratchets test audit coverage unreached
 
-landing-gate: fmt lint docs-check tensor-proto-check coverage audit
+landing-gate: plain-cli-build fmt lint docs-check tensor-proto-check coverage audit secrets
+
+plain-cli-build:
+	cargo build --locked -p biomcp --bin biomcp --timings
 
 fmt:
 	cargo fmt --all -- --check
@@ -28,7 +31,7 @@ test:
 	cargo test --workspace --locked $(TEST_THREADS)
 
 audit:
-	cargo deny --locked check licenses advisories
+	cargo deny --locked check licenses advisories bans sources
 
 coverage:
 	sh scripts/coverage.sh run
@@ -50,7 +53,7 @@ docs-check:
 	python3 scripts/test_build_workers.py
 	python3 scripts/test_nightly_live_check.py
 	python3 -m unittest release.test_installer release.test_checks release.test_gate
-	python3 -m unittest release.test_workflow
+	python3 -m unittest release.test_workflow release.test_security
 .PHONY: release-linux
 release-linux:
 	sh release/linux.sh $(CONTAINER_ARGS)
@@ -85,3 +88,7 @@ parity-inventory:
 .PHONY: tensor-proto-check
 tensor-proto-check:
 	python3 scripts/regenerate_tensor_proto.py --check
+
+.PHONY: secrets
+secrets:
+	python3 release/secrets.py history .

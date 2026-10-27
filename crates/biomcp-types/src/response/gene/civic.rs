@@ -10,6 +10,7 @@ pub struct CivicGene {
     /// Number of curated variants reported by the source.
     pub variant_count: u64,
     /// Link to the source entry.
+    #[cfg_attr(feature = "schema", schemars(extend("format" = "uri")))]
     pub url: Text,
     /// Complete source description, absent when the source has none.
     #[serde(skip_serializing_if = "Option::is_none")]
