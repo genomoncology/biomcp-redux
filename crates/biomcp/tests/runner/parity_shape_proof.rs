@@ -33,9 +33,19 @@ fn check() -> Result<(), String> {
     for (ordinal, command, config, complete) in [
         (0, json!(["get", "gene", "BRAF"]), Value::Null, true),
         (1, json!(["get", "gene", "TP53"]), Value::Null, true),
-        (2, json!(["get", "gene", "BRAF", "civic"]), Value::Null, false),
+        (
+            2,
+            json!(["get", "gene", "BRAF", "civic"]),
+            Value::Null,
+            false,
+        ),
         (3, json!(["get", "gene", "--fresh"]), Value::Null, false),
-        (4, json!(["get", "gene", "BRAF"]), json!({"offline":true}), false),
+        (
+            4,
+            json!(["get", "gene", "BRAF"]),
+            json!({"offline":true}),
+            false,
+        ),
     ] {
         let case = json!({"story":"Bind the current gene question", "config":config,
             "steps":[{"run":command,"expect":{"/result/symbol":"BRAF"}},
@@ -47,18 +57,35 @@ fn check() -> Result<(), String> {
         fs::write(&path, serde_json::to_vec(&plan).map_err(|e| e.to_string())?)
             .map_err(|e| e.to_string())?;
         let report = env.root().join(format!("report-{ordinal}.json"));
-        #[expect(clippy::disallowed_methods, reason = "Invoke the public inventory entry point")]
+        #[expect(
+            clippy::disallowed_methods,
+            reason = "Invoke the public inventory entry point"
+        )]
         let runner = std::env::current_exe().map_err(|e| e.to_string())?;
-        let output = env.command(runner, &[
-            "--parity-inventory".into(),path.display().to_string(),
-            cases.display().to_string(),report.display().to_string(),
-        ]).env("BIOMCP_TEST_FIXTURES", &fixtures).output().map_err(|e| e.to_string())?;
+        let output = env
+            .command(
+                runner,
+                &[
+                    "--parity-inventory".into(),
+                    path.display().to_string(),
+                    cases.display().to_string(),
+                    report.display().to_string(),
+                ],
+            )
+            .env("BIOMCP_TEST_FIXTURES", &fixtures)
+            .output()
+            .map_err(|e| e.to_string())?;
         if output.status.success() != complete {
-            return Err(format!("shape binding {ordinal}: {}", String::from_utf8_lossy(&output.stderr)));
+            return Err(format!(
+                "shape binding {ordinal}: {}",
+                String::from_utf8_lossy(&output.stderr)
+            ));
         }
         let value: Value = serde_json::from_slice(&fs::read(report).map_err(|e| e.to_string())?)
             .map_err(|e| e.to_string())?;
-        if value.pointer("/cases/0/declaration_reuse/reused_steps") != Some(&json!(if complete {2} else {0})) {
+        if value.pointer("/cases/0/declaration_reuse/reused_steps")
+            != Some(&json!(if complete { 2 } else { 0 }))
+        {
             return Err("shape changed question, configuration or command layout".into());
         }
     }
