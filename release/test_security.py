@@ -43,9 +43,9 @@ class Screening(unittest.TestCase):
             for mode, target in [("history", repo), ("artifacts", artifacts)]:
                 result = subprocess.run([sys.executable, str(ROOT / "release/secrets.py"), mode, str(target)],
                                         cwd=ROOT, env=env, capture_output=True, text=True, timeout=180)
-                self.assertEqual(result.returncode, 1, result.stdout + result.stderr)
-                self.assertNotIn(token, result.stdout + result.stderr)
-                self.assertNotIn("access_token =", result.stdout + result.stderr)
+                self.assertEqual(result.returncode, 1, "planted fixture must fail secret screening")
+                self.assertTrue(token not in result.stdout + result.stderr, "scanner disclosed matched text")
+                self.assertTrue("access_token =" not in result.stdout + result.stderr, "scanner disclosed a source line")
                 findings = [json.loads(line) for line in result.stdout.splitlines()]
                 self.assertTrue(findings)
                 self.assertTrue(all(set(row) == {"file", "rule"} for row in findings))
