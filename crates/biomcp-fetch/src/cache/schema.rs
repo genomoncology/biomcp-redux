@@ -130,11 +130,11 @@ impl Cache {
 fn create_reply_schema(tx: &Transaction<'_>, version: Option<u32>) -> Result<(), CacheError> {
     tx.execute_batch(
         "CREATE TABLE IF NOT EXISTS meta (owner TEXT PRIMARY KEY, version INTEGER NOT NULL);
-        CREATE TABLE IF NOT EXISTS reply (
-            key BLOB PRIMARY KEY, source TEXT NOT NULL, url TEXT NOT NULL,
-            status INTEGER NOT NULL, content_type TEXT, content_range TEXT, pagination TEXT, body BLOB NOT NULL,
-            fetched_at INTEGER NOT NULL, fresh_until INTEGER NOT NULL);
-        CREATE INDEX IF NOT EXISTS reply_fresh ON reply (fresh_until);",
+            CREATE TABLE IF NOT EXISTS reply (
+                key BLOB PRIMARY KEY, source TEXT NOT NULL, url TEXT NOT NULL,
+                status INTEGER NOT NULL, content_type TEXT, content_range TEXT, pagination TEXT, body BLOB NOT NULL,
+                fetched_at INTEGER NOT NULL, fresh_until INTEGER NOT NULL);
+            CREATE INDEX IF NOT EXISTS reply_fresh ON reply (fresh_until);",
     )
     .map_err(db_error)?;
     if version == Some(1) {
