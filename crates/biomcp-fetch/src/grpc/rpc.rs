@@ -82,7 +82,11 @@ impl Leg<'_> {
             if self.budget().expired() {
                 return Err(self.failure(Reason::DeadlineExceeded, None).into());
             }
-            match events.recv_timeout(self.budget().wait_slice(self.budget().remaining())) {
+            let event = events.recv_timeout(self.budget().wait_slice(self.budget().remaining()));
+            if self.budget().expired() {
+                return Err(self.failure(Reason::DeadlineExceeded, None).into());
+            }
+            match event {
                 Ok(Event::Message(bytes)) => {
                     message(&bytes).map_err(|_| self.failure(Reason::BadReply, None))?;
                     if self.budget().expired() {
