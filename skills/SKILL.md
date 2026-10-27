@@ -20,3 +20,7 @@ biomcp get gene BRAF
 ```
 
 Read the identity, source outcomes and problems. Keep source claims separate. Use the record's returned commands for further sections.
+
+## Screen registry trials
+
+An exact variant search is a starting point. Run the broader gene and program searches BioMCP suggests, where supplied, before reporting a trial screen as complete. Follow returned pages and inspect registry eligibility text. Record the queries you ran and any source problems or unfinished follow-ups. BioMCP searches literal registry text; it does not decide which trials fit.
