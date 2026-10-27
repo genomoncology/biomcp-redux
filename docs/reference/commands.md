@@ -20,6 +20,7 @@ Commands:
   trial       
   variant     
   sync        
+  skill       Read embedded guidance and worked examples. No source requests. Overview and catalog are bounded by the embedded payload; install and status return one summary. Install writes only inside DIR and refuses symbolic links and parent traversal.
   version     Print version; --verbose adds build, schema and path provenance. No source requests or key reads.
   mcp-config  Print MCP configuration with this executable’s absolute path. JSON formats name their top-level object and retain released client aliases. The codex client prints its shell registration command. No source requests or key reads.
   health      
@@ -4154,6 +4155,221 @@ Options:
 
 ```
 
+## biomcp skill
+
+```text
+Read embedded guidance and worked examples. No source requests. Overview and catalog are bounded by the embedded payload; install and status return one summary. Install writes only inside DIR and refuses symbolic links and parent traversal.
+
+Usage: biomcp skill [OPTIONS] [COMMAND]
+
+Commands:
+  list     List embedded worked examples.
+  render   Print the canonical agent guide.
+  status   Report missing, unmanaged, locally_modified, stale or current guidance.
+  install  Install into DIR/skills/biomcp; a skills or biomcp directory is accepted directly. Existing files remain unchanged without --force.
+
+Options:
+      --format <format>
+          [possible values: json, md]
+
+      --disable-sources <disable-sources>
+          
+
+      --config <config>
+          
+
+      --replay <replay>
+          
+
+      --record <record>
+          
+
+      --case-cache <case-cache>
+          
+
+      --observe <observe>
+          
+
+      --offline
+          
+
+      --fresh
+
+```
+
+Read embedded guidance and worked examples. No source requests. Overview and catalog are bounded by the embedded payload; install and status return one summary. Install writes only inside DIR and refuses symbolic links and parent traversal.
+
+
+## biomcp skill list
+
+```text
+List embedded worked examples.
+
+Usage: biomcp skill list [OPTIONS]
+
+Options:
+      --format <format>
+          [possible values: json, md]
+
+      --disable-sources <disable-sources>
+          
+
+      --config <config>
+          
+
+      --replay <replay>
+          
+
+      --record <record>
+          
+
+      --case-cache <case-cache>
+          
+
+      --observe <observe>
+          
+
+      --offline
+          
+
+      --fresh
+
+```
+
+List embedded worked examples.
+
+
+## biomcp skill render
+
+```text
+Print the canonical agent guide.
+
+Usage: biomcp skill render [OPTIONS]
+
+Options:
+      --format <format>
+          [possible values: json, md]
+
+      --disable-sources <disable-sources>
+          
+
+      --config <config>
+          
+
+      --replay <replay>
+          
+
+      --record <record>
+          
+
+      --case-cache <case-cache>
+          
+
+      --observe <observe>
+          
+
+      --offline
+          
+
+      --fresh
+
+```
+
+Print the canonical agent guide.
+
+
+## biomcp skill status
+
+```text
+Report missing, unmanaged, locally_modified, stale or current guidance.
+
+Usage: biomcp skill status [OPTIONS] <directory>
+
+Arguments:
+  <directory>
+          
+
+Options:
+      --format <format>
+          [possible values: json, md]
+
+      --disable-sources <disable-sources>
+          
+
+      --config <config>
+          
+
+      --replay <replay>
+          
+
+      --record <record>
+          
+
+      --case-cache <case-cache>
+          
+
+      --observe <observe>
+          
+
+      --offline
+          
+
+      --fresh
+
+```
+
+Report missing, unmanaged, locally_modified, stale or current guidance.
+
+- `directory`: 
+
+## biomcp skill install
+
+```text
+Install into DIR/skills/biomcp; a skills or biomcp directory is accepted directly. Existing files remain unchanged without --force.
+
+Usage: biomcp skill install [OPTIONS] <directory>
+
+Arguments:
+  <directory>
+          
+
+Options:
+      --force
+          Repair managed files; retain unrelated files.
+
+      --format <format>
+          [possible values: json, md]
+
+      --disable-sources <disable-sources>
+          
+
+      --config <config>
+          
+
+      --replay <replay>
+          
+
+      --record <record>
+          
+
+      --case-cache <case-cache>
+          
+
+      --observe <observe>
+          
+
+      --offline
+          
+
+      --fresh
+
+```
+
+Install into DIR/skills/biomcp; a skills or biomcp directory is accepted directly. Existing files remain unchanged without --force.
+
+- `directory`: 
+- `--force`: Repair managed files; retain unrelated files.
+
 ## biomcp version
 
 ```text
@@ -4590,6 +4806,7 @@ Options:
 Usage: biomcp help [OPTIONS] [COMMAND]
 
 Commands:
+  skill       
   version     
   mcp-config  
   network     
@@ -4605,6 +4822,40 @@ Commands:
   sync        
   trial       
   variant     
+
+Options:
+      --format <format>
+          [possible values: json, md]
+
+      --disable-sources <disable-sources>
+          
+
+      --config <config>
+          
+
+      --replay <replay>
+          
+
+      --record <record>
+          
+
+      --case-cache <case-cache>
+          
+
+      --observe <observe>
+          
+
+      --offline
+          
+
+      --fresh
+
+```
+
+## biomcp help skill
+
+```text
+Usage: biomcp help skill [OPTIONS]
 
 Options:
       --format <format>
