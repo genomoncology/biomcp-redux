@@ -88,6 +88,13 @@ Direct source hierarchy links without graph traversal.
 | `fetched` | integer or null | Original source retrieval seconds, distinct from ontology release. Optional. |
 | `items` | list of [PhenotypeHierarchyLink](#phenotypehierarchylink) | Native ordered rows; empty remains an empty collection. |
 
+### Other types in this reply
+
+2 more types appear only in this reply: [PhenotypeHierarchyLink](#phenotypehierarchylink), [PhenotypeHierarchyRelation](#phenotypehierarchyrelation). Open the list below to read their fields.
+
+<details>
+<summary>Fields of the 2 other types</summary>
+
 ### PhenotypeHierarchyLink
 
 One native direct hierarchy link, without traversal or inferred equivalence.
@@ -107,6 +114,8 @@ Native hierarchy collection that supplies the link.
 | --- | --- |
 | `super_classes` | A direct parent in the native super_classes collection. |
 | `sub_classes` | A direct child in the native sub_classes collection. |
+
+</details>
 
 ## Next
 

@@ -86,6 +86,13 @@ Publisher site catalog without an ontology-to-site mapping.
 | `fetched` | integer or null | Original response retrieval time in Unix seconds, distinct from publisher version/date. Optional. |
 | `items` | list of [DiseaseSite](#diseasesite) | Rows as the source gives them. Totals in `page` count rows, not distinct records. |
 
+### Other types in this reply
+
+One more type appear only in this reply: [DiseaseSite](#diseasesite). Open the list below to read their fields.
+
+<details>
+<summary>Fields of the 1 other type</summary>
+
 ### DiseaseSite
 
 One publisher catalog site, independent of ontology identities.
@@ -95,6 +102,8 @@ One publisher catalog site, independent of ontology identities.
 | `active` | boolean | Publisher active-state flag. |
 | `code` | [Text](/reference/schemas/types/#text) | Native publisher site code. |
 | `label` | [Text](/reference/schemas/types/#text) | Complete publisher site label. |
+
+</details>
 
 ## Next
 

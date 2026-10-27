@@ -22,10 +22,6 @@ The program's help describes it:
 biomcp help key orcid
 ```
 
-## Arguments
-
-The command takes no arguments beyond those in its usage line.
-
 ## The key
 
 `biomcp help key orcid` reports these settings for the orcid key:
@@ -45,4 +41,4 @@ The reply is one JSON object. Its schema is [`biomcp.key/2`](/reference/schemas/
 
 ## Next
 
-The [commands index](/reference/commands/) lists every command.
+[Keys and configuration](/getting-started/api-keys/) sets keys, a proxy and a certificate [bundle](/local-data/). The [commands index](/reference/commands/) lists every command.

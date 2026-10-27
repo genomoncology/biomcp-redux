@@ -88,6 +88,13 @@ Exact qualified records in caller order, with no name reconciliation.
 | --- | --- | --- |
 | `ids` | list of [AuthorId](/reference/schemas/types/#authorid) | One or more exact qualified IDs. |
 
+### Other types in this reply
+
+2 more types appear only in this reply: [AuthorCard](#authorcard), [AuthorCardItem](#authorcarditem). Open the list below to read their fields.
+
+<details>
+<summary>Fields of the 2 other types</summary>
+
 ### AuthorCard
 
 Exact source author metadata without identity reconciliation.
@@ -106,6 +113,8 @@ One exact input and its independent outcome.
 | `card` | [AuthorCard](#authorcard) or null | Exact checked source card when available. Optional. |
 | `input` | [AuthorId](/reference/schemas/types/#authorid) | Requested qualified provider identity. |
 | `status` | [Status](/reference/schemas/types/#status) | This exact input's outcome. |
+
+</details>
 
 ## Next
 

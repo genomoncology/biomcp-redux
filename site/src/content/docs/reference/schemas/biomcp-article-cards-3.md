@@ -92,6 +92,13 @@ Get one to twenty article inputs in caller order.
 | `input` | list of [ArticleInput](/reference/schemas/types/#articleinput) | PubMed, PMC or DOI identifiers in input order. |
 | `section` | list of [ArticleSectionWord](#articlesectionword) | Requested [section words](/concepts/progressive-disclosure/); trailing words and --section share this field. Optional. |
 
+### Other types in this reply
+
+27 more types appear only in this reply: [AbstractPart](#abstractpart), [AnnotatedEntity](#annotatedentity), [AnnotationKind](#annotationkind), [Article](#article), [ArticleCardItem](#articlecarditem), [ArticleMatch](#articlematch), [ArticleMatchKind](#articlematchkind), [ArticleResolution](#articleresolution), [ArticleSection](#articlesection), [ArticleSectionWord](#articlesectionword), [ArticleSections](#articlesections), [Citations](#citations), [Correction](#correction), [CorrectionKind](#correctionkind), [CorrectionRelation](#correctionrelation), [FigureCaption](#figurecaption), [FileKind](#filekind), [FullText](#fulltext), [Indexing](#indexing), [MeshHeading](#meshheading), [MeshQualifier](#meshqualifier), [PdfLink](#pdflink), [SupplementFile](#supplementfile), [Supplements](#supplements), [TextPart](#textpart), [TextPartKind](#textpartkind), [Tldr](#tldr). Open the list below to read their fields.
+
+<details>
+<summary>Fields of the 27 other types</summary>
+
 ### AbstractPart
 
 One source-labelled abstract paragraph.
@@ -393,6 +400,8 @@ Machine-written source summary with independently reported counts.
 | `machine_written` | boolean | Explicitly identifies generated prose. |
 | `model` | [Text](/reference/schemas/types/#text) | Source model version. |
 | `text` | [Text](/reference/schemas/types/#text) | Complete one-sentence source summary. |
+
+</details>
 
 ## Next
 

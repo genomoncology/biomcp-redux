@@ -87,6 +87,13 @@ Whole distinct physical companion-table rows with cell-owned identifiers.
 | `distinct_id_total` | integer or null | Distinct complete native IDs across the selected relation collection. Optional. |
 | `items` | list of [CompanionDiagnosticRelation](#companiondiagnosticrelation) | Complete source-owned rows in native order; envelope totals count native rows. |
 
+### Other types in this reply
+
+6 more types appear only in this reply: [CompanionDiagnosticRelation](#companiondiagnosticrelation), [CompanionGroupCells](#companiongroupcells), [CompanionIndividualCells](#companionindividualcells), [DiagnosticCell](#diagnosticcell), [DiagnosticCellLink](#diagnosticcelllink), [DiagnosticDrugApplication](#diagnosticdrugapplication). Open the list below to read their fields.
+
+<details>
+<summary>Fields of the 6 other types</summary>
+
 ### CompanionDiagnosticRelation
 
 A physical companion-table row; the two table layouts cannot acquire each other’s cells.
@@ -148,6 +155,8 @@ A typed drug application established by its own complete source cell and link.
 | --- | --- | --- |
 | `id` | [FdaDrugApplication](/reference/schemas/types/#fdadrugapplication) | Published NDA/BLA prefix and six digits. |
 | `url` | string | The same cell’s owned source URL. |
+
+</details>
 
 ## Next
 

@@ -1,7 +1,7 @@
 ---
 title: Keys and configuration
-description: Set BioMCP 1.0 source keys with biomcp key set, and configure config.json for output format, disabled sources, proxy, CA bundle and HTTP allowed hosts.
-goal: The reader sets or removes a source key, writes a valid config.json, and configures a company proxy and certificate bundle.
+description: Set, list and remove BioMCP 1.0 source keys with biomcp key set, see where config.json lives, and find each key's environment variable.
+goal: The reader finds the configuration file, sets or removes a source key, and knows which sources need a key.
 reader: A BioMCP user with a key for a source, a commercial user, or anyone on a company network
 kind: how-to
 verified: 2026-10-27
@@ -10,7 +10,7 @@ import Example from '../../../components/Example.astro';
 import Fact from '../../../components/Fact.astro';
 import KeyTable from '../../../components/KeyTable.astro';
 
-BioMCP <Fact k="version" /> reads one JSON configuration file and the environment. This page sets a source key, then covers every setting in `config.json`. None of it is needed for a first run.
+BioMCP <Fact k="version" /> reads one JSON configuration file and the environment. This page sets a source key; [write config.json](/getting-started/api-keys/config-file/) covers the other settings. None of it is needed for a first run.
 
 ## Where the configuration lives
 
@@ -43,47 +43,9 @@ Every key, its environment variable and the sources that take it:
 
 A source marked Required sends no request without its key and reports `skipped` with reason `no_key`. No command in this release sends a request to AlphaGenome, so its key changes no output. Get each key from its publisher under the publisher's terms.
 
-## Settings in config.json
+## Other settings
 
-| Setting | Type | What it does |
-| --- | --- | --- |
-| `format` | `"json"` or `"md"` | Default output format. `--format` overrides it. |
-| `disable_sources` | list of source or group names | Sources and use groups to turn off. Combines with `--disable-sources`. See [data sources](/sources/#turn-sources-off). |
-| `proxy` | URL | An HTTP or HTTPS proxy for every request. Overrides `HTTPS_PROXY` and `HTTP_PROXY`. |
-| `ca_bundle` | path | A PEM file of extra certificate roots, added to the platform's trust. Verification stays on. |
-| `http.allowed_hosts` | list of host names | Host names a non-loopback HTTP server accepts. See [run as a server](/getting-started/remote-http/). |
-| `ncbi_email` | email address | Sent to NCBI with PubMed requests. |
-| `keys` | object | Stored keys. Write them with `biomcp key set`. |
-
-A commercial user's configuration, for example:
-
-```json
-{
-  "format": "md",
-  "disable_sources": ["noncommercial", "restricted"]
-}
-```
-
-## Company networks
-
-Without `proxy`, BioMCP reads `HTTPS_PROXY`, `HTTP_PROXY` and `NO_PROXY` from the environment. `NO_PROXY` bypasses exact hosts and IP addresses, `.domain`, `*.domain`, optional ports, or `*`. A network that inspects TLS needs its root certificate in `ca_bundle`:
-
-```json
-{
-  "proxy": "http://proxy.example.com:3128",
-  "ca_bundle": "/etc/ssl/certs/company-root.pem"
-}
-```
-
-`biomcp help network proxy` and `biomcp help network ca_bundle` print the same rules.
-
-## Check the file
-
-BioMCP rejects a file with an unknown or misspelled setting. Every command then stops with `local.failure` and exit code 5:
-
-<Example id="config-typo" />
-
-The error does not name the setting. Compare your file with the table above, or move it aside and run again. [Troubleshooting](/troubleshooting/#localfailure-local-configuration-cache-or-recording-failed) lists the other causes of this error.
+<span id="settings-in-configjson"></span><span id="company-networks"></span><span id="check-the-file"></span>`config.json` also sets the output format, disabled sources, a proxy and a certificate bundle. [Write config.json](/getting-started/api-keys/config-file/) lists every setting, configures a company network, and shows what happens to a misspelled setting.
 
 ## Next
 

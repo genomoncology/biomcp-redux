@@ -99,6 +99,13 @@ Get an exact human Reactome R-HSA or WikiPathways WP card. Read whole summary, g
 | `section_limit` | integer (uint32) | Bounded initial section size; each all section has its own first page. Optional. |
 | `section_offset` | integer (uint32) | Native relation offset for a selected genes or events section. Optional. |
 
+### Other types in this reply
+
+4 more types appear only in this reply: [Pathway](#pathway), [PathwayLiteratureRef](#pathwayliteratureref), [PathwaySection](#pathwaysection), [PathwaySummation](#pathwaysummation). Open the list below to read their fields.
+
+<details>
+<summary>Fields of the 4 other types</summary>
+
 ### Pathway
 
 Neutral pathway facts, without display sections or source calls.
@@ -145,6 +152,8 @@ One native summation, with its own database identity and whole text.
 | --- | --- | --- |
 | `db_id` | integer (uint64) | Native summation database identity, not the pathway identity. |
 | `text` | string | Complete native text; no sentence clipping or reference reassignment. |
+
+</details>
 
 ## Next
 

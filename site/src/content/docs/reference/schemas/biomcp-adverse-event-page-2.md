@@ -92,6 +92,13 @@ Ordered report headers; totals count reports with no population denominator.
 | `source_updated` | [PartialDate](/reference/schemas/types/#partialdate) or null | The publisher last_updated date, separate from retrieval. Optional. |
 | `unit` | [ReportUnit](#reportunit) | Explicit reports unit for envelope page totals. |
 
+### Other types in this reply
+
+2 more types appear only in this reply: [AdverseEventReactionMatch](#adverseeventreactionmatch), [ReportUnit](#reportunit). Open the list below to read their fields.
+
+<details>
+<summary>Fields of the 2 other types</summary>
+
 ### AdverseEventReactionMatch
 
 Source reaction selector matching semantics.
@@ -105,6 +112,8 @@ The count describes reports, never exposed people or causal events.
 | Value | Meaning |
 | --- | --- |
 | `reports` | Native report count without a population denominator. |
+
+</details>
 
 ## Next
 

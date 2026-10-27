@@ -419,6 +419,19 @@ const usage = (c) => {
   const opt = c.arguments.some((a) => a.position === undefined) ? ['[OPTIONS]'] : [];
   return ['biomcp', ...c.command, ...opt, ...pos].join(' ');
 };
+// The guide that shows a housekeeping command at work, for the Next line of its page.
+const TASK_GUIDE = (c) => {
+  const [w0, w1] = c.command;
+  const g = w0 === 'sync' || (w0 === 'store') ? ['Local data', '/local-data/', 'downloads bundles and cleans the store']
+    : w0 === 'key' || (w0 === 'help' && (w1 === 'key' || w1 === 'network')) ? ['Keys and configuration', '/getting-started/api-keys/', 'sets keys, a proxy and a certificate bundle']
+    : w0 === 'health' ? ['Data sources', '/sources/', 'checks that sources answer and turns a use group off']
+    : w0 === 'serve' ? ['Run as a server', '/getting-started/remote-http/', 'starts the HTTP server']
+    : w0 === 'skill' ? ['Give a shell agent the BioMCP skill', '/getting-started/mcp-clients/agent-skill/', 'installs and checks the skill']
+    : w0 === 'schema' ? ['Reply schemas', '/reference/schemas/', 'lists every reply schema']
+    : w0 === 'mcp-config' ? ['Connect an agent', '/getting-started/mcp-clients/', 'adds the server to each client']
+    : null;
+  return g ? `[${g[0]}](${g[1]}) ${g[2]}. The [commands index](/reference/commands/) lists every command.` : null;
+};
 const PRODUCT_LINE = `${site.product} ${site.version}, the command-line tool and MCP server that reads biomedical data sources`;
 for (const c of [...help, ...topics]) {
   const n = name(c);
@@ -448,8 +461,11 @@ for (const c of [...help, ...topics]) {
       lines.push(`| ${code(a.name)}${a.position !== undefined ? ` (position ${a.position + 1})` : ''} | ${cell(a.value_type || 'value')} | ${a.required ? 'yes' : 'no'} | ${limits} | ${a.choices.map(code).join(', ')} | ${cell(plainDesc(a.description))} |`);
     }
     lines.push('');
-  } else {
-    lines.push('## Arguments', '', 'The command takes no arguments beyond those in its usage line.', '');
+  }
+  // A sync command fills the store that a source's commands read; name that source.
+  if (c.command[0] === 'sync' && c.command.length > 1) {
+    const fed = Object.entries(notes).filter(([, x]) => x?.bundle === c.command[1]).map(([k, x]) => `[${x.name}](${srcRoute(k)})`);
+    if (fed.length) lines.push('## Source', '', `The bundle it downloads is the local copy that ${fed.join(' and ')} ${fed.length > 1 ? 'read' : 'reads'}. Search and get commands for ${fed.length > 1 ? 'those sources' : 'that source'} answer only after this command has run once. [Local data](/local-data/#bundle-sizes) lists each bundle's size.`, '');
   }
   if (c.sections?.length) {
     lines.push('## Sections', '', esc(c.section_rule ?? ''), '', '| Section | Description |', '| --- | --- |');
@@ -474,7 +490,7 @@ for (const c of [...help, ...topics]) {
     lines.push('## Reply', '', `The reply is one JSON object. ${replies.length > 1 ? 'Its schema is one of' : 'Its schema is'} ${replies.map((id) => `[${code(id)}](${schemaRoute(id)})`).join(', ')}, whose page shows a real reply and its fields.`, '');
   }
   const e = ENTITY_OF(c);
-  lines.push('## Next', '', entities.includes(e) ? `The [${e} guide](/user-guide/${e}/) shows every ${e} command at work. [Exit codes](/reference/error-codes/) gives what each exit code means, and [global options](/reference/global-options/) the options every command takes.` : `The [commands index](/reference/commands/) lists every command.`);
+  lines.push('## Next', '', entities.includes(e) ? `The [${e} guide](/user-guide/${e}/) shows every ${e} command at work. [Exit codes](/reference/error-codes/) gives what each exit code means, and [global options](/reference/global-options/) the options every command takes.` : TASK_GUIDE(c) ?? `The [commands index](/reference/commands/) lists every command.`);
   write(`commands/${slug(c)}.md`, lines.join('\n'));
 }
 
@@ -561,7 +577,17 @@ for (const c of [...help, ...topics]) {
     };
     lines.push([say('result', resultRef), say('query', queryRef)].filter(Boolean).join(' ') + ` ${code('query')} repeats the request as BioMCP read it.`, '');
     if (!order.length) lines.push('Every type this reply uses is shared with other replies, so its fields are on the shared types page.', '');
-    for (const n of order) lines.push(...describeType(n, defs[n], id, id));
+    // The result and query types stay open; the other types sit in one collapsed block, so the
+    // first screen holds the example reply and the top-level fields.
+    const top = order.filter((n) => n === resultRef || n === queryRef);
+    const rest = order.filter((n) => !top.includes(n));
+    for (const n of top) lines.push(...describeType(n, defs[n], id, id));
+    if (rest.length) {
+      lines.push(`### Other types in this reply`, '', `${rest.length === 1 ? 'One more type' : `${rest.length} more types`} appear only in this reply: ${rest.map((n) => refMd(n, id, id, new Map())).join(', ')}. Open the list below to read their fields.`, '');
+      lines.push('<details>', `<summary>Fields of the ${rest.length} other ${rest.length === 1 ? 'type' : 'types'}</summary>`, '');
+      for (const n of rest) lines.push(...describeType(n, defs[n], id, id));
+      lines.push('</details>', '');
+    }
     lines.push('## Next', '', main ? `[${code(shownCommand({ c: main.c, section: null }))}](${route(main.c)}) gives the command's arguments; [reply schemas](/reference/schemas/) lists every reply.` : '[Reply schemas](/reference/schemas/) lists every reply.');
     write(`schemas/${schemaSlug(id)}.md`, lines.join('\n'));
   }

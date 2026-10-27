@@ -1,0 +1,32 @@
+---
+title: Check that the BioMCP MCP server answers
+description: Call BioMCP 1.0's biomcp MCP tool from a shell the way a client does, and fix a client that shows no BioMCP tools.
+goal: The reader confirms the BioMCP MCP server answers a tool call, and fixes a client that shows no tools.
+reader: A developer who added BioMCP to an MCP client and sees no tools, or wants to confirm the server before using it
+kind: how-to
+verified: 2026-10-27
+---
+import Example from '../../../../components/Example.astro';
+import Fact from '../../../../components/Fact.astro';
+
+BioMCP <Fact k="version" /> is a command line tool and MCP server for biomedical data from public sources. After you add it to a client, ask the client to run a BioMCP command, such as "use biomcp to get gene BRAF". The client sends the command's words as the `args` array of the `biomcp` tool. When the client shows no tools, make the same call from a shell.
+
+## Call the tool from a shell
+
+This exchange starts the server over stdio, initializes it and calls the `biomcp` tool the way a client does:
+
+<Example id="mcp-call" />
+
+The tool returns the same JSON reply, with the same [envelope](/results/), as the command line: here a `biomcp.gene_page/3` reply with status `complete`. MCP replies are always JSON; `--format md` has no effect there.
+
+## If the client shows no tools
+
+- Run `<command path> version` in a shell, with the `command` path from the configuration. It prints `biomcp` and the version, <Fact k="version" />.
+- Restart the client after changing its configuration.
+- When the client starts with a different environment, a proxy or certificate set in your shell may be missing. Put `proxy` and `ca_bundle` in `config.json`; see [write config.json](/getting-started/api-keys/config-file/#company-networks).
+
+More failures are on [troubleshooting](/troubleshooting/). The tool schemas are in the [MCP tools reference](/reference/mcp-server/).
+
+## Next
+
+Read [what the MCP tool can change](/getting-started/mcp-clients/what-the-tool-can-change/), then learn the command grammar in [how BioMCP works](/concepts/progressive-disclosure/).

@@ -14,7 +14,7 @@ By the end of this page you will have searched for the BRAF gene with BioMCP <Fa
 
 ## Before you start
 
-You need a shell and a network connection. The examples filter JSON with `jq`; install it from your package manager, or use the `--format md` command shown under each `jq` step. On Windows, run the commands in an MSYS, MINGW or Cygwin shell, as [install](/getting-started/installation/#install-with-the-script) explains, or install from PyPI.
+You need a shell and a network connection. The examples filter JSON with `jq`; install it from your package manager, or add `--format md` to any command for a Markdown reply. On Windows, run the commands in an MSYS, MINGW or Cygwin shell, as [install](/getting-started/installation/#install-with-the-script) explains, or install from PyPI.
 
 The output on this page comes from live public sources, so your rows, counts and dates can differ as the sources update.
 
@@ -44,9 +44,7 @@ The reply has five parts. **Next** lists commands to run after this one. **Page*
 
 <Example id="qs-get-gene" />
 
-Without `jq`, ask for Markdown and print its Sources part:
-
-<Example id="qs-get-gene-md" />
+Without `jq`, `biomcp get gene BRAF --format md` prints the same sources as a table under **Sources**.
 
 Read the `sources` list before the record. HGNC and MyGene.info answered. OncoKB was `skipped` with reason `no_key`, because OncoKB needs your own key. The reply is still `complete`: a skipped source is reported, never hidden.
 
@@ -56,17 +54,13 @@ A record comes back small. Add a [section word](/concepts/progressive-disclosure
 
 <Example id="qs-section" />
 
-The same section as Markdown:
-
-<Example id="qs-section-md" />
+Add `--format md` to read the same section as Markdown.
 
 The [get gene reference](/reference/commands/get-gene/) lists every section word. You do not need to memorize them. Each reply's `next` list names the commands that fetch them:
 
 <Example id="qs-next" />
 
-Without `jq`, the same commands sit under **Next** at the top of the Markdown reply:
-
-<Example id="qs-next-md" />
+In a Markdown reply, the same commands sit under **Next** at the top, as in step 2.
 
 An agent can run those `args` as they are. That is how BioMCP keeps replies short and lets the caller ask for more.
 
@@ -89,10 +83,6 @@ Check the command's arguments with `biomcp help get gene` or on its [reference p
 An identifier no source knows returns status `absent` and exit code 1:
 
 <Example id="qs-absent" />
-
-Without `jq`, the Markdown reply shows the same status:
-
-<Example id="qs-absent-md" />
 
 Absent means the sources returned no matching record for that input. It does not prove the thing does not exist. [Results](/results/) explains each status.
 

@@ -85,6 +85,13 @@ One of these forms:
 - `kind` is `"pma_submission"`: Exact native FDA base or supplement, never an application-wide inferred claim. Fields: `header` ([DiagnosticPmaHeader](/reference/schemas/types/#diagnosticpmaheader)), `sections` (list of [DiagnosticSection](/reference/schemas/types/#diagnosticsection)).
 - `kind` is `"clearance"`: Exact native 510(k) clearance, separate from PMA approval. Fields: `applicant` (string or null), `date_received` (string or null), `decision_code` (string or null), `decision_date` (string or null), `decision_description` (string or null), `device_name` (string or null), `k_number` ([DiagnosticDeviceId](/reference/schemas/types/#diagnosticdeviceid)), `product_code` (string or null).
 
+### Other types in this reply
+
+2 more types appear only in this reply: [GtrNativeStatus](#gtrnativestatus), [WhoIvdRow](#whoivdrow). Open the list below to read their fields.
+
+<details>
+<summary>Fields of the 2 other types</summary>
+
 ### GtrNativeStatus
 
 Native flags retain distinct source meanings and exact source codes.
@@ -110,6 +117,8 @@ One original WHO CSV row; each repeated field retains its own row scope.
 | `product_code` | string | Complete native product code cell; no interpretation or inferred date. |
 | `product_name` | string | Complete native product name cell; no interpretation or inferred date. |
 | `regulatory_version` | string | Complete native regulatory version cell; no interpretation or inferred date. |
+
+</details>
 
 ## Next
 

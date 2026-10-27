@@ -22,10 +22,6 @@ The program's help describes it:
 biomcp schema <artifact id>
 ```
 
-## Arguments
-
-The command takes no arguments beyond those in its usage line.
-
 ## Next
 
-The [commands index](/reference/commands/) lists every command.
+[Reply schemas](/reference/schemas/) lists every reply schema. The [commands index](/reference/commands/) lists every command.

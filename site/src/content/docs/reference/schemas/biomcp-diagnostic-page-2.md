@@ -85,6 +85,13 @@ Source-ordered GTR test candidates or WHO product headers.
 | `distinct_id_total` | integer or null | Distinct complete native IDs across the selected relation collection. Optional. |
 | `items` | list of [DiagnosticCandidate](#diagnosticcandidate) | Complete source-owned rows in native order; envelope totals count native rows. |
 
+### Other types in this reply
+
+2 more types appear only in this reply: [DiagnosticCandidate](#diagnosticcandidate), [GtrTestRelation](#gtrtestrelation). Open the list below to read their fields.
+
+<details>
+<summary>Fields of the 2 other types</summary>
+
 ### DiagnosticCandidate
 
 A conflict is visible once without a selected name or card.
@@ -105,6 +112,8 @@ One of these forms:
 - `kind` is `"gene"`: Native gene relation row. Fields: `relation` ([GtrGeneRelation](/reference/schemas/types/#gtrgenerelation)).
 - `kind` is `"condition"`: Native condition relation row. Fields: `relation` ([GtrConditionRelation](/reference/schemas/types/#gtrconditionrelation)).
 - `kind` is `"method"`: One independent method-list entry. Fields: `relation` ([GtrMethod](/reference/schemas/types/#gtrmethod)).
+
+</details>
 
 ## Next
 

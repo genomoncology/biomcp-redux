@@ -85,6 +85,13 @@ Compact exact source gene identity, not a selected gene-drug pair.
 | `header` | [PgxHeader](/reference/schemas/types/#pgxheader) | Selected gene and source. |
 | `identity` | [PgxGeneIdentity](#pgxgeneidentity) | Native record version is not a dataset release. |
 
+### Other types in this reply
+
+One more type appear only in this reply: [PgxGeneIdentity](#pgxgeneidentity). Open the list below to read their fields.
+
+<details>
+<summary>Fields of the 1 other type</summary>
+
 ### PgxGeneIdentity
 
 Source-native PgxGeneIdentity fields; no clinical interpretation.
@@ -98,6 +105,8 @@ Source-native PgxGeneIdentity fields; no clinical interpretation.
 | `ncbiid` | [NcbiGeneId](/reference/schemas/types/#ncbigeneid) | The source's own `ncbiid` value, unchanged. |
 | `symbol` | [GeneSymbol](/reference/schemas/types/#genesymbol) | The source's own `symbol` value, unchanged. |
 | `version` | integer (int64) | The source's own `version` value, unchanged. |
+
+</details>
 
 ## Next
 

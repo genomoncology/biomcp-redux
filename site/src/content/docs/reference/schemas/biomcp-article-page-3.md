@@ -112,6 +112,13 @@ Checked search selectors and pool cursor.
 | `until` | [PartialDate](/reference/schemas/types/#partialdate) | Inclusive upper publication-date bound at the stated precision; PubMed matches either electronic or print date. Optional. |
 | `variant` | [Text](/reference/schemas/types/#text) | Variant words. Optional. |
 
+### Other types in this reply
+
+5 more types appear only in this reply: [ArticleSort](#articlesort), [ArticleSource](#articlesource), [ArticleType](#articletype), [LitVarCandidate](#litvarcandidate), [RetractionFilter](#retractionfilter). Open the list below to read their fields.
+
+<details>
+<summary>Fields of the 5 other types</summary>
+
 ### ArticleSort
 
 Article ordering supported by this command.
@@ -146,6 +153,8 @@ Public LitVar2 autocomplete candidate, without a clinical ranking claim.
 Native retraction inclusion policy.
 
 Values: `include`, `exclude`.
+
+</details>
 
 ## Next
 

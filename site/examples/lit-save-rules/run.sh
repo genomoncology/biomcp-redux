@@ -13,9 +13,9 @@ mcp() {
       params: {protocolVersion: "2025-06-18", capabilities: {},
         clientInfo: {name: "demo", version: "1"}}}'
     jq -nc '{jsonrpc: "2.0", method: "notifications/initialized"}'
-    jq -nc '{jsonrpc: "2.0", id: 2, method: "tools/call",
-      params: {name: "biomcp", arguments: {args: $ARGS.positional}}}' \
-      --args "$@"
+    printf '%s\n' "$@" | jq -Rnc '{jsonrpc: "2.0", id: 2,
+      method: "tools/call",
+      params: {name: "biomcp", arguments: {args: [inputs]}}}'
   } | biomcp serve \
     | jq -c 'select(.id == 2) | .result.structuredContent
       | {status, code: .error.code, bytes: .result.content.data.saved.bytes}'

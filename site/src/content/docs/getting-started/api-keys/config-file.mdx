@@ -1,0 +1,58 @@
+---
+title: Write config.json
+description: Set BioMCP 1.0's config.json for output format, disabled sources, a company proxy, a CA bundle and HTTP allowed hosts, and recognize the error a misspelled setting causes.
+goal: The reader writes a valid config.json, configures a company proxy and certificate bundle, and fixes a file BioMCP rejects.
+reader: A BioMCP user on a company network, a commercial user turning sources off, or anyone setting a default format
+kind: how-to
+verified: 2026-10-27
+---
+import Example from '../../../../components/Example.astro';
+import Fact from '../../../../components/Fact.astro';
+
+BioMCP <Fact k="version" /> is a command line tool and MCP server for biomedical data from public sources. It reads one JSON configuration file, `config.json`: `~/.config/biomcp/config.json` on Linux and macOS, `%APPDATA%/biomcp/config.json` on Windows. This page lists every setting in it. [Keys and configuration](/getting-started/api-keys/) covers where the file lives and how to store keys.
+
+## Settings
+
+| Setting | Type | What it does |
+| --- | --- | --- |
+| `format` | `"json"` or `"md"` | Default output format. `--format` overrides it. |
+| `disable_sources` | list of source or group names | Sources and use groups to turn off. Combines with `--disable-sources`. See [data sources](/sources/#turn-sources-off). |
+| `proxy` | URL | An HTTP or HTTPS proxy for every request. Overrides `HTTPS_PROXY` and `HTTP_PROXY`. |
+| `ca_bundle` | path | A PEM file of extra certificate roots, added to the platform's trust. Verification stays on. |
+| `http.allowed_hosts` | list of host names | Host names a non-loopback HTTP server accepts. See [run as a server](/getting-started/remote-http/). |
+| `ncbi_email` | email address | Sent to NCBI with PubMed requests. |
+| `keys` | object | Stored keys. Write them with `biomcp key set`. |
+
+A commercial user's configuration, for example:
+
+```json
+{
+  "format": "md",
+  "disable_sources": ["noncommercial", "restricted"]
+}
+```
+
+## Company networks
+
+Without `proxy`, BioMCP reads `HTTPS_PROXY`, `HTTP_PROXY` and `NO_PROXY` from the environment. `NO_PROXY` bypasses exact hosts and IP addresses, `.domain`, `*.domain`, optional ports, or `*`. A network that inspects TLS needs its root certificate in `ca_bundle`:
+
+```json
+{
+  "proxy": "http://proxy.example.com:3128",
+  "ca_bundle": "/etc/ssl/certs/company-root.pem"
+}
+```
+
+`biomcp help network proxy` and `biomcp help network ca_bundle` print the same rules.
+
+## Check the file
+
+BioMCP rejects a file with an unknown or misspelled setting. Every command then stops with `local.failure` and exit code 5:
+
+<Example id="config-typo" />
+
+The error does not name the setting. Compare your file with the table above, or move it aside and run again. [Fix local.failure errors](/troubleshooting/local-failure/) lists the other causes of this error.
+
+## Next
+
+Download local bundles and work offline in [local data](/local-data/).

@@ -9,7 +9,7 @@ verified: 2026-10-27
 import Example from '../../components/Example.astro';
 import Fact from '../../components/Fact.astro';
 
-This page covers BioMCP <Fact k="version" />. Find the text you see in a heading below. Each entry gives the cause, the fix and how to confirm it. An error reply has `schema` `biomcp.error/1` and an `error.code`; a source problem shows in `sources[].state` and `sources[].reason`. [Exit codes](/reference/error-codes/) and the [reply envelope](/reference/envelope/) list every value.
+This page covers BioMCP <Fact k="version" />. Find the text you see in a heading below. Each entry gives the cause, the fix and how to confirm it; error replies have their own pages. An error reply has `schema` `biomcp.error/1` and an `error.code`; a source problem shows in `sources[].state` and `sources[].reason`. [Exit codes](/reference/error-codes/) and the [reply envelope](/reference/envelope/) list every value.
 
 ## command not found: biomcp
 
@@ -19,68 +19,11 @@ This page covers BioMCP <Fact k="version" />. Find the text you see in a heading
 
 **Confirm.** `biomcp version` prints the version.
 
-## usage.arguments: expected a supported command with checked arguments
+## Error replies
 
-<Example id="qs-usage-error" />
+<span id="usagearguments-expected-a-supported-command-with-checked-arguments"></span><span id="usageschema-expected-schema-known-artifact-id"></span><span id="an-unknown-or-dropped-command"></span><span id="biomcp-biomcp---help-or-biomcp--h"></span><span id="usageretired-retired-use-"></span>A reply with `status` `usage` and exit code 2, such as `usage.arguments`, `usage.schema` or `usage.retired`: see [fix BioMCP usage errors](/troubleshooting/usage-errors/).
 
-**Cause.** A required argument is missing, a value is outside its choices or limits, or an option does not belong to this command. A dropped 0.9 command whose first word still exists, such as `search all`, returns this error too. Exit code 2. The message does not say which.
-
-**Fix.** Compare your command with `biomcp help search trial` (put your command's words after `help`) or its page in the [command reference](/reference/commands/). Check that the identifier comes before [section words](/concepts/progressive-disclosure/) and that `--source` names a source the command lists.
-
-**Confirm.** The command returns a reply with a `status` other than `usage`.
-
-## usage.schema: expected schema &lt;known artifact id&gt;
-
-This error has two causes: a first word that is not a command, and a request for help with `--help`, `-h` or no command at all.
-
-### An unknown or dropped command
-
-<Example id="ts-unknown-command" />
-
-**Cause.** The first word is not a BioMCP command. This is the error for a misspelled command, such as `serach`, and for 0.9 commands that 1.0 dropped, such as `discover` and `list`. A dropped command under an existing first word, such as `search all`, returns `usage.arguments` instead. Exit code 2.
-
-**Fix.** Run `biomcp help` for the command list. [Upgrading from 0.9](/upgrade-from-0-9/) maps old commands to new ones.
-
-**Confirm.** The corrected command returns a reply with a `status` other than `usage`.
-
-### biomcp, biomcp --help or biomcp -h
-
-<Example id="ts-help" />
-
-**Cause.** BioMCP <Fact k="version" /> has no `--help` or `-h` option, and `biomcp` with no command prints no help. Each returns `usage.schema` with exit code 2. `biomcp get gene --help` returns `usage.arguments`.
-
-**Fix.** Use the `help` command. `biomcp help` prints every command as JSON, and `biomcp help get gene` prints one command, as the last line above shows. The [command reference](/reference/commands/) has the same content as pages.
-
-**Confirm.** `biomcp help get gene` returns status `complete`.
-
-## usage.retired: retired; use: ...
-
-<Example id="ts-retired" />
-
-**Cause.** An option or section from 0.9 that 1.0 retired or renamed.
-
-**Fix.** The message names the replacement. Here `--variant` replaces `--mutation`.
-
-## local.failure: local configuration, cache or recording failed
-
-**Cause.** A local step failed before or after the source calls. Exit code 5. Check, in order:
-
-1. `config.json` has a misspelled or unknown setting. [Keys and configuration](/getting-started/api-keys/#check-the-file) shows the error.
-2. `NO_PROXY` holds an entry BioMCP cannot read, such as an IPv6 address (`::1`) or a CIDR range (`10.0.0.0/8`). This happens with or without a proxy in the environment, and it fails every command, including offline ones. [The NO_PROXY entry](#no_proxy-holds-an-ipv6-address-or-a-cidr-range) below shows the fix.
-3. The cache folder is not writable, or the disk is full.
-4. The output could not be written, for example when a pipe closes early. BioMCP prints `biomcp: output failed` on standard error.
-
-**Confirm.** `biomcp --offline health` returns status `complete`. It reads the configuration, sets up the network settings and sends no request.
-
-### NO_PROXY holds an IPv6 address or a CIDR range
-
-Cloud and company machines often set `NO_PROXY` to entries such as `::1`, `::` or `10.0.0.0/8`. BioMCP reads exact hosts and IP addresses, `.domain`, `*.domain`, optional ports and `*` ([`help network proxy`](/reference/commands/help-network-proxy/)). Both commands below read an empty configuration file, so `proxy` is not set there. The first fails; the second runs with a `NO_PROXY` that holds only a host name:
-
-<Example id="ts-no-proxy" />
-
-**Fix.** Either run BioMCP with `NO_PROXY` reduced to entries it reads, for example `NO_PROXY=localhost biomcp ...`, or set `proxy` in `config.json`. An explicit `proxy` takes the place of the environment's proxy settings, including `NO_PROXY`. See [company networks](/getting-started/api-keys/#company-networks).
-
-**Confirm.** `biomcp --offline health` returns status `complete`.
+<span id="localfailure-local-configuration-cache-or-recording-failed"></span><span id="no_proxy-holds-an-ipv6-address-or-a-cidr-range"></span>A reply with `error.code` `local.failure` and exit code 5, including a `NO_PROXY` entry BioMCP cannot read: see [fix local.failure errors](/troubleshooting/local-failure/).
 
 ## A source shows skipped with reason no_key
 
@@ -98,7 +41,7 @@ Cloud and company machines often set `NO_PROXY` to entries such as `::1`, `::` o
 
 **Cause.** A company network intercepts TLS or needs a proxy.
 
-**Fix.** Set `ca_bundle` to your network's root certificate and `proxy` to its proxy in `config.json`. See [company networks](/getting-started/api-keys/#company-networks).
+**Fix.** Set `ca_bundle` to your network's root certificate and `proxy` to its proxy in `config.json`. See [company networks](/getting-started/api-keys/config-file/#company-networks).
 
 ## A source shows failed with reason rejected
 

@@ -22,14 +22,10 @@ The program's help describes it:
 biomcp help network ca_bundle
 ```
 
-## Arguments
-
-The command takes no arguments beyond those in its usage line.
-
 ## Reply
 
 The reply is one JSON object. Its schema is [`biomcp.help/2`](/reference/schemas/biomcp-help-2/), whose page shows a real reply and its fields.
 
 ## Next
 
-The [commands index](/reference/commands/) lists every command.
+[Keys and configuration](/getting-started/api-keys/) sets keys, a proxy and a certificate [bundle](/local-data/). The [commands index](/reference/commands/) lists every command.

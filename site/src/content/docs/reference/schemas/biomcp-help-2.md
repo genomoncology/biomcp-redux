@@ -78,6 +78,13 @@ Generated command reference from the shipped query schemas and cases.
 | --- | --- | --- |
 | `commands` | list of [HelpCommand](#helpcommand) | Commands available at this help path. |
 
+### Other types in this reply
+
+3 more types appear only in this reply: [HelpArgument](#helpargument), [HelpCommand](#helpcommand), [HelpWord](#helpword). Open the list below to read their fields.
+
+<details>
+<summary>Fields of the 3 other types</summary>
+
 ### HelpArgument
 
 One schema argument, retaining its bounds and position.
@@ -114,6 +121,8 @@ A documented closed vocabulary word.
 | --- | --- | --- |
 | `description` | string | Type variant documentation. |
 | `word` | string | Accepted spelling. |
+
+</details>
 
 ## Next
 

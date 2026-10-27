@@ -82,6 +82,13 @@ Download one publisher PDF to an explicit file or existing folder.
 | `replace` | boolean | Replace an existing file only when explicitly requested. Optional. |
 | `save` | [Text](/reference/schemas/types/#text) | Destination file or existing folder. |
 
+### Other types in this reply
+
+One more type appear only in this reply: [PdfSaved](#pdfsaved). Open the list below to read their fields.
+
+<details>
+<summary>Fields of the 1 other type</summary>
+
 ### PdfSaved
 
 Receipt for one file explicitly saved by the caller.
@@ -94,6 +101,8 @@ Receipt for one file explicitly saved by the caller.
 | `sha256` | [Text](/reference/schemas/types/#text) | SHA-256 of the saved file. |
 | `status` | [OpenAccessStatus](/reference/schemas/types/#openaccessstatus) | Source access status. |
 | `url` | [Text](/reference/schemas/types/#text) | Source publisher URL. |
+
+</details>
 
 ## Next
 

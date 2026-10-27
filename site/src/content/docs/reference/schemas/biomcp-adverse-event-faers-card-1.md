@@ -101,6 +101,13 @@ FAERS card with native report-level facts and independent collection lengths.
 | `transmitted` | string or null | Native transmitted string; present empty values remain present. Optional. |
 | `transmitted_format` | string or null | Native transmitted_format string; present empty values remain present. Optional. |
 
+### Other types in this reply
+
+3 more types appear only in this reply: [FaersPatient](#faerspatient), [FaersReporter](#faersreporter), [FaersSeriousness](#faersseriousness). Open the list below to read their fields.
+
+<details>
+<summary>Fields of the 3 other types</summary>
+
 ### FaersPatient
 
 Optional native patient strings without numeric conversion.
@@ -133,6 +140,8 @@ Independent overlapping report-level flags; no CTCAE or reaction-outcome convers
 | `hospitalization` | string or null | Native hospitalization string, including a present empty value. Optional. |
 | `lifethreatening` | string or null | Native lifethreatening string, including a present empty value. Optional. |
 | `other` | string or null | Native other string, including a present empty value. Optional. |
+
+</details>
 
 ## Next
 

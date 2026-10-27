@@ -21,10 +21,6 @@ The program's help describes it:
 biomcp skill render
 ```
 
-## Arguments
-
-The command takes no arguments beyond those in its usage line.
-
 ## Next
 
-The [commands index](/reference/commands/) lists every command.
+[Give a shell agent the BioMCP skill](/getting-started/mcp-clients/agent-skill/) installs and checks the skill. The [commands index](/reference/commands/) lists every command.

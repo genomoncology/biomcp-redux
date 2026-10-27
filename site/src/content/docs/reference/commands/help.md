@@ -22,10 +22,6 @@ The program's help describes it:
 biomcp help [COMMAND...]
 ```
 
-## Arguments
-
-The command takes no arguments beyond those in its usage line.
-
 ## Reply
 
 The reply is one JSON object. Its schema is [`biomcp.help/2`](/reference/schemas/biomcp-help-2/), whose page shows a real reply and its fields.

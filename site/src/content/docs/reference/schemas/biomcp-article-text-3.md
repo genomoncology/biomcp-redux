@@ -99,6 +99,13 @@ Read one bounded body part, find matching rows, or save the complete Markdown do
 | `save` | [Text](/reference/schemas/types/#text) | Save the whole original document to an explicit file or existing folder. Optional. |
 | `variant` | [Text](/reference/schemas/types/#text) | Explicit checked protein substitution. Optional. |
 
+### Other types in this reply
+
+2 more types appear only in this reply: [TextContent](#textcontent), [TextHit](#texthit). Open the list below to read their fields.
+
+<details>
+<summary>Fields of the 2 other types</summary>
+
 ### TextContent
 
 One bounded part or matching rows with the bucket license.
@@ -126,6 +133,8 @@ One matching paragraph or table row, split when necessary to fit the text budget
 | `heading_path` | list of [Text](/reference/schemas/types/#text) | Section ancestry in source order. |
 | `markdown` | [Markdown](/reference/schemas/types/#markdown) | Whole bounded source row. |
 | `part` | integer (uint32) | Outline part containing this text. |
+
+</details>
 
 ## Next
 

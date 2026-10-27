@@ -90,11 +90,20 @@ Read Reactome exact references or WikiPathways GeneProduct data nodes. The detai
 | `offset` | integer (uint32) | Offset within the retained selected relation. Optional. |
 | `pool` | [Text](/reference/schemas/types/#text) | Immutable relation snapshot. Optional. |
 
+### Other types in this reply
+
+One more type appear only in this reply: [Details](#details). Open the list below to read their fields.
+
+<details>
+<summary>Fields of the 1 other type</summary>
+
 ### Details
 
 Explicit full physical-context disclosure; omission keeps membership compact.
 
 Values: `details`.
+
+</details>
 
 ## Next
 

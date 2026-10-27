@@ -1,0 +1,10 @@
+{
+  "servers": {
+    "biomcp": {
+      "args": [
+        "serve"
+      ],
+      "command": "/home/you/.local/bin/biomcp"
+    }
+  }
+}

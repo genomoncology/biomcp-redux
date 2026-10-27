@@ -88,6 +88,13 @@ Independent source identity card and its available sections.
 | `sections` | list of [PhenotypeSection](/reference/schemas/types/#phenotypesection) | Sections available on this source record. |
 | `term` | [PhenotypeCard](#phenotypecard) | Complete source-specific native card. |
 
+### Other types in this reply
+
+2 more types appear only in this reply: [PhenotypeAssociationCount](#phenotypeassociationcount), [PhenotypeCard](#phenotypecard). Open the list below to read their fields.
+
+<details>
+<summary>Fields of the 2 other types</summary>
+
 ### PhenotypeAssociationCount
 
 Native collection counts, without summing scopes or counting patients.
@@ -109,6 +116,8 @@ One of these forms:
 
 - `source` is `"hpo"`: The direct HPO term answer. Fields: `attribution` ([Attribution](/reference/schemas/types/#attribution)), `comment` (string or null), `definition` (string or null), `hpo_descendant_count` (integer or null), `label` (string), `publication_references` (list of [Curie](/reference/schemas/types/#curie) or null), `requested_id` ([HpId](/reference/schemas/types/#hpid)), `returned_id` ([HpId](/reference/schemas/types/#hpid)).
 - `source` is `"monarch"`: The independent Monarch term answer. Fields: `association_counts` (list of [PhenotypeAssociationCount](#phenotypeassociationcount) or null), `attribution` ([Attribution](/reference/schemas/types/#attribution)), `deprecated` (boolean or null), `description` (string or null), `label` (string), `monarch_descendant_count` (integer or null), `requested_id` ([HpId](/reference/schemas/types/#hpid)), `returned_id` ([HpId](/reference/schemas/types/#hpid)).
+
+</details>
 
 ## Next
 

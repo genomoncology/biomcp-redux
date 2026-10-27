@@ -83,6 +83,13 @@ One explicit native label heading and text continuation.
 | `identity` | [DrugHeader](/reference/schemas/types/#drugheader) | Selected native identity, checked independently of section facts. |
 | `label` | [Section](/reference/schemas/types/#section) of [DrugLabelText](#druglabeltext) | Existing typed section state, preserving empty, unavailable and skipped outcomes. |
 
+### Other types in this reply
+
+3 more types appear only in this reply: [DrugLabelFragment](#druglabelfragment), [DrugLabelReference](#druglabelreference), [DrugLabelText](#druglabeltext). Open the list below to read their fields.
+
+<details>
+<summary>Fields of the 3 other types</summary>
+
 ### DrugLabelFragment
 
 One slice of a native label array element, partitioning the page's unchanged text.
@@ -118,6 +125,8 @@ A mechanical continuation of one native label heading.
 | `retrieved` | [PartialDate](/reference/schemas/types/#partialdate) or null | Original source reply retrieval date; absent for legacy captures without a timestamp. Optional. |
 | `text` | string | Original text slice, preserving whitespace and wording. |
 | `total` | integer or null | Total bounded text fragments, including fragments for empty native array elements. Optional. |
+
+</details>
 
 ## Next
 

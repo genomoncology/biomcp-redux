@@ -73,6 +73,13 @@ Source synonym rows preserving publisher classes.
 | `fetched` | integer or null | Original source retrieval seconds, distinct from ontology release. Optional. |
 | `items` | list of [PhenotypeSynonym](#phenotypesynonym) | Native ordered rows; empty remains an empty collection. |
 
+### Other types in this reply
+
+2 more types appear only in this reply: [PhenotypeSynonym](#phenotypesynonym), [PhenotypeSynonymClass](#phenotypesynonymclass). Open the list below to read their fields.
+
+<details>
+<summary>Fields of the 2 other types</summary>
+
 ### PhenotypeSynonym
 
 One native synonym; HPO values remain unclassified.
@@ -93,6 +100,8 @@ Publisher synonym relationship class.
 | `broad` | Native broad synonym. |
 | `narrow` | Native narrow synonym. |
 | `related` | Native related synonym. |
+
+</details>
 
 ## Next
 

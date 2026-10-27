@@ -85,6 +85,13 @@ One of these forms:
 - `representation` is `"view"`: Gene-keyed recommendation_view with native names and no inferred drug ID. Fields: `header` ([PgxHeader](/reference/schemas/types/#pgxheader)), `items` (list of [PgxRecommendation](#pgxrecommendation)), `page` ([PgxPageInfo](/reference/schemas/types/#pgxpageinfo)).
 - `representation` is `"table"`: Exact drug selector uses the distinct native recommendation table. Fields: `header` ([PgxHeader](/reference/schemas/types/#pgxheader)), `items` (list of [PgxDrugRecommendation](#pgxdrugrecommendation)), `page` ([PgxPageInfo](/reference/schemas/types/#pgxpageinfo)).
 
+### Other types in this reply
+
+2 more types appear only in this reply: [PgxDrugRecommendation](#pgxdrugrecommendation), [PgxRecommendation](#pgxrecommendation). Open the list below to read their fields.
+
+<details>
+<summary>Fields of the 2 other types</summary>
+
 ### PgxDrugRecommendation
 
 Source-native PgxDrugRecommendation fields; no clinical interpretation.
@@ -126,6 +133,8 @@ Source-native PgxRecommendation fields; no clinical interpretation.
 | `phenotypes` | object | The source's own `phenotypes` value, unchanged. |
 | `population` | string | The source's own `population` value, unchanged. |
 | `recommendationid` | integer (int64) | The source's own `recommendationid` value, unchanged. |
+
+</details>
 
 ## Next
 

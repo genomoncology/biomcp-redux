@@ -85,6 +85,13 @@ Independent source-ordered page of complete native records.
 | `items` | list of [PgxGuidelineReference](#pgxguidelinereference) | Complete native rows without duplicate summaries. |
 | `page` | [PgxPageInfo](/reference/schemas/types/#pgxpageinfo) | Meaning and bounds of this collection. |
 
+### Other types in this reply
+
+2 more types appear only in this reply: [PgxGuidelineGene](#pgxguidelinegene), [PgxGuidelineReference](#pgxguidelinereference). Open the list below to read their fields.
+
+<details>
+<summary>Fields of the 2 other types</summary>
+
 ### PgxGuidelineGene
 
 Source-native PgxGuidelineGene fields; no clinical interpretation.
@@ -104,6 +111,8 @@ Source-native PgxGuidelineReference fields; no clinical interpretation.
 | `genes` | list of [PgxGuidelineGene](#pgxguidelinegene) | The source's own `genes` value, unchanged. |
 | `guideline_name` | string | The source's own `guideline_name` value, unchanged. |
 | `guideline_url` | string | The source's own `guideline_url` value, unchanged. |
+
+</details>
 
 ## Next
 

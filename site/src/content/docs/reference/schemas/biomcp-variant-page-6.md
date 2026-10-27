@@ -104,6 +104,13 @@ Discover source candidates using one declared selector, without interpreting fre
 | `review_status` | [Text](/reference/schemas/types/#text) | Literal MyVariant clinvar.rcv.review_status phrase; no star conversion. Requires a declared protein or region selector. Optional. |
 | `source` | [VariantSearchSource](#variantsearchsource) | Explicit source language; required for a raw query. Optional. |
 
+### Other types in this reply
+
+5 more types appear only in this reply: [MyVariantQuery](#myvariantquery), [ProteinQuery](#proteinquery), [VariantRegion](#variantregion), [VariantSearchField](#variantsearchfield), [VariantSearchSource](#variantsearchsource). Open the list below to read their fields.
+
+<details>
+<summary>Fields of the 5 other types</summary>
+
 ### MyVariantQuery
 
 Type: string.
@@ -127,6 +134,8 @@ Values: `clinvar`.
 The source-native query language exposed by variant search.
 
 Values: `myvariant`.
+
+</details>
 
 ## Next
 

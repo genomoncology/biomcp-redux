@@ -1,0 +1,33 @@
+---
+title: Use BioMCP's search and fetch tools from ChatGPT-style clients
+description: BioMCP 1.0 offers search and fetch MCP tools in the shape ChatGPT research clients expect; see what each returns and what a remote connection needs.
+goal: The reader knows what BioMCP's search and fetch tools return and what a ChatGPT-style client needs to reach them.
+reader: A developer who wants a research client that expects search and fetch tools to read BioMCP
+kind: how-to
+verified: 2026-10-27
+---
+import Example from '../../../../components/Example.astro';
+import Fact from '../../../../components/Fact.astro';
+
+BioMCP <Fact k="version" /> is a command line tool and MCP server for biomedical data from public sources. Besides its `biomcp` tool, the server offers `search` and `fetch`, two tools that follow the shape ChatGPT research clients expect. Both only read.
+
+## Requirements
+
+- BioMCP installed. See [install](/getting-started/installation/).
+- For a remote client, an HTTP server it can reach. See [run as a server](/getting-started/remote-http/).
+
+## Call search
+
+`search` takes an [entity](/reference/entities/), the kind of record, and its arguments, such as `gene BRAF --limit 2`, or plain article text. This exchange starts the server over stdio and calls `search` the way a client does:
+
+<Example id="mcp-search-tool" />
+
+Each result has an `id` that `fetch` accepts, such as `gene HGNC:1097`. Rows without an exact record to fetch stay available through the `biomcp` tool.
+
+## Connect a remote client
+
+BioMCP ships no connection steps for ChatGPT, and none ran for this page. [OpenAI's MCP documentation](https://developers.openai.com/api/docs/mcp) says ChatGPT adds a custom MCP server by its remote URL. BioMCP's HTTP server does not authenticate callers, so a public URL needs a reverse proxy that does.
+
+## Next
+
+[Run as a server](/getting-started/remote-http/) starts the HTTP server. The [MCP tools reference](/reference/mcp-server/) gives the `search` and `fetch` schemas.

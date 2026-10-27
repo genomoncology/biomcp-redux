@@ -88,6 +88,13 @@ A bounded report section; all rows belong to the exact header and snapshot.
 | `header` | [AdverseEventHeader](/reference/schemas/types/#adverseeventheader) | Exact source report identity and version. |
 | `snapshot` | [Text](/reference/schemas/types/#text) | Opaque retained source snapshot. |
 
+### Other types in this reply
+
+2 more types appear only in this reply: [AdverseEventDrug](#adverseeventdrug), [AdverseEventIdentityCounts](#adverseeventidentitycounts). Open the list below to read their fields.
+
+<details>
+<summary>Fields of the 2 other types</summary>
+
 ### AdverseEventDrug
 
 One absolute native drug row without its unbounded identifier arrays.
@@ -134,6 +141,8 @@ Lengths of present native harmonized lists; missing stays absent.
 | `spl_id` | integer or null | Actual native spl_id list length. Optional. |
 | `spl_set_id` | integer or null | Actual native spl_set_id list length. Optional. |
 | `unii` | integer or null | Actual native unii list length. Optional. |
+
+</details>
 
 ## Next
 

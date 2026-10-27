@@ -87,6 +87,13 @@ Source-native indication wording, populations and combinations.
 | `identity` | [DrugHeader](/reference/schemas/types/#drugheader) | Selected native identity, checked independently of section facts. |
 | `indications` | [Section](/reference/schemas/types/#section) of [DrugRecords](/reference/schemas/types/#drugrecords) of [DrugIndicationClaim](#drugindicationclaim) | Existing typed section state, preserving empty, unavailable and skipped outcomes. |
 
+### Other types in this reply
+
+3 more types appear only in this reply: [DrugDiseaseReference](#drugdiseasereference), [DrugIndicationClaim](#drugindicationclaim), [DrugStage](#drugstage). Open the list below to read their fields.
+
+<details>
+<summary>Fields of the 3 other types</summary>
+
 ### DrugDiseaseReference
 
 One native disease identifier and its own source label.
@@ -120,6 +127,8 @@ One source development-stage field and its unchanged value.
 | --- | --- | --- |
 | `field` | string | Exact native field name. |
 | `value` | string | Exact source string, without an authorization interpretation. |
+
+</details>
 
 ## Next
 

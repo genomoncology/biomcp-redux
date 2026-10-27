@@ -86,6 +86,13 @@ Bounded retained ancestry relation for one exact study.
 | `items` | list of [GwasAncestry](#gwasancestry) | Independent source rows. |
 | `study` | [GwasStudyId](/reference/schemas/types/#gwasstudyid) | Exact owning study. |
 
+### Other types in this reply
+
+2 more types appear only in this reply: [GwasAncestry](#gwasancestry), [GwasCountry](#gwascountry). Open the list below to read their fields.
+
+<details>
+<summary>Fields of the 2 other types</summary>
+
 ### GwasAncestry
 
 One independent source ancestry row; counts are never summed.
@@ -108,6 +115,8 @@ Native country and region metadata.
 | `country` | [Text](/reference/schemas/types/#text) | Original country label including NR. |
 | `major_area` | [Text](/reference/schemas/types/#text) or null | Native source major area when supplied. Optional. |
 | `region` | [Text](/reference/schemas/types/#text) or null | Original region label when supplied. Optional. |
+
+</details>
 
 ## Next
 

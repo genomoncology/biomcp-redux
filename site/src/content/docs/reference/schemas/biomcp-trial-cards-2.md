@@ -77,6 +77,13 @@ Trial answers in original input order, retaining independent states.
 | `items` | list of [TrialCardItem](#trialcarditem) | One answer per requested input, including absence and failure. |
 | `source_updated` | [Text](/reference/schemas/types/#text) or null | Registry processing timestamp, distinct from each study's update and fetch times. Optional. |
 
+### Other types in this reply
+
+23 more types appear only in this reply: [TrialAgeBound](#trialagebound), [TrialArm](#trialarm), [TrialArmKind](#trialarmkind), [TrialArmRecord](#trialarmrecord), [TrialCard](#trialcard), [TrialCardItem](#trialcarditem), [TrialContact](#trialcontact), [TrialContactRecord](#trialcontactrecord), [TrialContactRole](#trialcontactrole), [TrialCoordinates](#trialcoordinates), [TrialDate](#trialdate), [TrialDateKind](#trialdatekind), [TrialEligibilityPage](#trialeligibilitypage), [TrialIntervention](#trialintervention), [TrialInterventionKind](#trialinterventionkind), [TrialLocation](#triallocation), [TrialOfficial](#trialofficial), [TrialOfficialRole](#trialofficialrole), [TrialOutcome](#trialoutcome), [TrialOutcomeKind](#trialoutcomekind), [TrialReference](#trialreference), [TrialSections](#trialsections), [TrialSiteStatus](#trialsitestatus). Open the list below to read their fields.
+
+<details>
+<summary>Fields of the 23 other types</summary>
+
 ### TrialAgeBound
 
 Source age limit; absence is explicit and never a fabricated number.
@@ -308,6 +315,8 @@ Independently bounded sections from the same source protocol snapshot.
 Native site recruitment status, distinct from overall trial status.
 
 Values: `NOT_YET_RECRUITING`, `RECRUITING`, `ENROLLING_BY_INVITATION`, `ACTIVE_NOT_RECRUITING`, `SUSPENDED`, `TERMINATED`, `COMPLETED`, `WITHDRAWN`, `AVAILABLE`.
+
+</details>
 
 ## Next
 

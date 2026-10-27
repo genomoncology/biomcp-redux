@@ -72,6 +72,13 @@ Source reference rows without equivalence promotion.
 | `fetched` | integer or null | Original source retrieval seconds, distinct from ontology release. Optional. |
 | `items` | list of [PhenotypeXref](#phenotypexref) | Native ordered rows; empty remains an empty collection. |
 
+### Other types in this reply
+
+One more type appear only in this reply: [PhenotypeXref](#phenotypexref). Open the list below to read their fields.
+
+<details>
+<summary>Fields of the 1 other type</summary>
+
 ### PhenotypeXref
 
 One exact native cross reference, without equivalence promotion.
@@ -81,6 +88,8 @@ One exact native cross reference, without equivalence promotion.
 | `attribution` | [Attribution](/reference/schemas/types/#attribution) | Publisher provenance. |
 | `id` | [Curie](/reference/schemas/types/#curie) | Exact publisher reference. |
 | `predicate` | [Curie](/reference/schemas/types/#curie) or null | Native predicate when actually supplied. Optional. |
+
+</details>
 
 ## Next
 

@@ -75,6 +75,13 @@ Two independently validated metadata catalogs; no catalog body in stdout.
 | `get` | [WikiPathwaysCatalogReceipt](#wikipathwayscatalogreceipt) | Exact-get metadata catalog receipt. |
 | `search` | [WikiPathwaysCatalogReceipt](#wikipathwayscatalogreceipt) | Search metadata catalog receipt. |
 
+### Other types in this reply
+
+One more type appear only in this reply: [WikiPathwaysCatalogReceipt](#wikipathwayscatalogreceipt). Open the list below to read their fields.
+
+<details>
+<summary>Fields of the 1 other type</summary>
+
 ### WikiPathwaysCatalogReceipt
 
 Receipt for one independently validated WikiPathways metadata catalog.
@@ -86,6 +93,8 @@ Receipt for one independently validated WikiPathways metadata catalog.
 | `revision` | [Text](/reference/schemas/types/#text) | This catalog's retained revision. |
 | `sha256` | [Text](/reference/schemas/types/#text) | Hash of this catalog's retained native bytes. |
 | `total_rows` | integer (uint64) | All native rows in this catalog before human filtering. |
+
+</details>
 
 ## Next
 

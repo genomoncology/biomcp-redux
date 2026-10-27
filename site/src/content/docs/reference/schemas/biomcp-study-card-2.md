@@ -76,6 +76,13 @@ Exact card with independent live section states and catalog provenance.
 | `source_url` | [Text](/reference/schemas/types/#text) | Exact publisher study page for this checked source identity. |
 | `study` | [Study](#study) | Native card metadata, preserving all source count distinctions. |
 
+### Other types in this reply
+
+4 more types appear only in this reply: [Study](#study), [StudyImportTime](#studyimporttime), [StudyResourceCount](#studyresourcecount), [StudyResourceId](#studyresourceid). Open the list below to read their fields.
+
+<details>
+<summary>Fields of the 4 other types</summary>
+
 ### Study
 
 Source-specific study card metadata; no inferred denominator or gene aggregate.
@@ -118,6 +125,8 @@ One native resource scope; counts remain attached to its study and resource.
 ### StudyResourceId
 
 Type: string.
+
+</details>
 
 ## Next
 

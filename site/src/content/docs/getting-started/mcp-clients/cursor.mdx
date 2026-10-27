@@ -1,0 +1,43 @@
+---
+title: Add BioMCP to Cursor, Cline and other clients
+description: Add BioMCP 1.0 to Cursor, Cline or another MCP client that reads an mcpServers JSON object, for every project or for one project.
+goal: The reader adds BioMCP to Cursor or another mcpServers client and confirms a tool call works.
+reader: A developer who uses Cursor, Cline or another JSON-configured MCP client and has BioMCP installed
+kind: how-to
+verified: 2026-10-27
+---
+import Example from '../../../../components/Example.astro';
+import Fact from '../../../../components/Fact.astro';
+
+BioMCP <Fact k="version" /> is a command line tool and MCP server for biomedical data from public sources. Cursor, Cline and most other MCP clients read servers from a JSON object named `mcpServers`, and `biomcp mcp-config` prints that object for you.
+
+## Requirements
+
+- BioMCP installed. See [install](/getting-started/installation/).
+- Cursor, Cline, or another client that starts stdio MCP servers.
+
+## Print the entry
+
+The default shape is `mcpServers`. The aliases `cursor`, `cline` and `json` of `--client` print the same object:
+
+<Example id="mcp-config" />
+
+The output above shows `/home/you/.local/bin/biomcp`; yours names the path where you installed BioMCP.
+
+## Put it in the client's file
+
+| Client | File |
+| --- | --- |
+| Cursor, every project | `~/.cursor/mcp.json` |
+| Cursor, one project | `.cursor/mcp.json` in the project |
+| Cline and others | the MCP settings file named in the client's documentation |
+
+These locations come from the [Cursor MCP documentation](https://cursor.com/docs/context/mcp); check it when your version differs. Merge the `biomcp` entry into any `mcpServers` object already in the file, then restart the client.
+
+## Verify
+
+Ask the client's agent to "use biomcp to search gene BRAF". It calls the `biomcp` tool with those words. [Check that the server answers](/getting-started/mcp-clients/check-connection/) makes the same call from a shell.
+
+## Next
+
+Read [what the MCP tool can change](/getting-started/mcp-clients/what-the-tool-can-change/), or return to [connect an agent](/getting-started/mcp-clients/).

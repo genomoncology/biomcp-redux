@@ -22,10 +22,6 @@ The program's help describes it:
 biomcp serve
 ```
 
-## Arguments
-
-The command takes no arguments beyond those in its usage line.
-
 ## Next
 
-The [commands index](/reference/commands/) lists every command.
+[Run as a server](/getting-started/remote-http/) starts the HTTP server. The [commands index](/reference/commands/) lists every command.

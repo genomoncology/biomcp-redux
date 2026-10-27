@@ -1,0 +1,1 @@
+This example reads no live source; the build compares its output byte for byte.

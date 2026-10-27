@@ -77,6 +77,13 @@ Bounded page of one independent native vaccine summary table.
 | `scope` | [VaersScope](#vaersscope) | Native fixed State / Territory selection. |
 | `vaccine` | map of string | Native selected vaccine attributes. |
 
+### Other types in this reply
+
+3 more types appear only in this reply: [VaersNotice](#vaersnotice), [VaersRow](#vaersrow), [VaersScope](#vaersscope). Open the list below to read their fields.
+
+<details>
+<summary>Fields of the 3 other types</summary>
+
 ### VaersNotice
 
 Applied source text, retaining its original content and source role.
@@ -104,6 +111,8 @@ Fixed native geographic selection, without a caller-selectable geography filter.
 | --- | --- | --- |
 | `value` | map of string | Exact selected native value and its own catalog label. |
 | `variable` | map of string | Native variable attributes, including source name and code. |
+
+</details>
 
 ## Next
 

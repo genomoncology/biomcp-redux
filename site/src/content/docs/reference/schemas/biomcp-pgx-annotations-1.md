@@ -85,6 +85,13 @@ One of these forms:
 - `annotationkind` is `"guideline"`: Guideline references without invented full guidance. Fields: `header` ([PgxHeader](/reference/schemas/types/#pgxheader)), `items` (list of [PgxAnnotationReference](#pgxannotationreference)), `page` ([PgxPageInfo](/reference/schemas/types/#pgxpageinfo)).
 - `annotationkind` is `"label"`: Label references without invented full guidance. Fields: `header` ([PgxHeader](/reference/schemas/types/#pgxheader)), `items` (list of [PgxAnnotationReference](#pgxannotationreference)), `page` ([PgxPageInfo](/reference/schemas/types/#pgxpageinfo)).
 
+### Other types in this reply
+
+2 more types appear only in this reply: [PgxAnnotationHeader](#pgxannotationheader), [PgxAnnotationReference](#pgxannotationreference). Open the list below to read their fields.
+
+<details>
+<summary>Fields of the 2 other types</summary>
+
 ### PgxAnnotationHeader
 
 Source-native PgxAnnotationHeader fields; no clinical interpretation.
@@ -112,6 +119,8 @@ Source-native PgxAnnotationReference fields; no clinical interpretation.
 | `id` | [ClinPgxAccession](/reference/schemas/types/#clinpgxaccession) | The source's own `id` value, unchanged. |
 | `name` | string | The source's own `name` value, unchanged. |
 | `objCls` | string | The source's own `objCls` value, unchanged. |
+
+</details>
 
 ## Next
 

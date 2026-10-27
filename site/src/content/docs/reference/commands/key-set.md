@@ -22,10 +22,6 @@ The program's help describes it:
 biomcp key set <source> [--replace]
 ```
 
-## Arguments
-
-The command takes no arguments beyond those in its usage line.
-
 ## Next
 
-The [commands index](/reference/commands/) lists every command.
+[Keys and configuration](/getting-started/api-keys/) sets keys, a proxy and a certificate [bundle](/local-data/). The [commands index](/reference/commands/) lists every command.

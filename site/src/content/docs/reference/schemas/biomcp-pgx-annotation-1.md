@@ -93,6 +93,13 @@ Exact single clinical annotation get, with no inferred source or annotation kind
 | `id` | [ClinPgxAccession](/reference/schemas/types/#clinpgxaccession) | Checked ClinPGx accession, never a shared PaId. |
 | `source` | [PgxSource](/reference/schemas/types/#pgxsource) | Required ClinPGx source. |
 
+### Other types in this reply
+
+4 more types appear only in this reply: [PgxAllelePhenotype](#pgxallelephenotype), [PgxAnnotationDetail](#pgxannotationdetail), [PgxAnnotationHistory](#pgxannotationhistory), [PgxAnnotationIdentity](#pgxannotationidentity). Open the list below to read their fields.
+
+<details>
+<summary>Fields of the 4 other types</summary>
+
 ### PgxAllelePhenotype
 
 Source-native PgxAllelePhenotype fields; no clinical interpretation.
@@ -152,6 +159,8 @@ Exact clinical annotation identity, distinct from any genomic allele identity.
 | --- | --- | --- |
 | `id` | [ClinPgxAccession](/reference/schemas/types/#clinpgxaccession) | Selected exact accession. |
 | `source` | [PgxSource](/reference/schemas/types/#pgxsource) | Explicit ClinPGx source. |
+
+</details>
 
 ## Next
 

@@ -88,6 +88,13 @@ Locally paged groups from one complete public ORCID works reply.
 | `groups` | list of [OrcidWorkGroup](#orcidworkgroup) | Whole groups in native order, with every public assertion. |
 | `observed_groups` | integer (uint64) | Observed groups in the complete received reply, never a publication total. |
 
+### Other types in this reply
+
+8 more types appear only in this reply: [OrcidAssertionSource](#orcidassertionsource), [OrcidClientId](#orcidclientid), [OrcidExternalId](#orcidexternalid), [OrcidId](#orcidid), [OrcidPublicVisibility](#orcidpublicvisibility), [OrcidWorkAssertion](#orcidworkassertion), [OrcidWorkGroup](#orcidworkgroup), [OrcidWorksScope](#orcidworksscope). Open the list below to read their fields.
+
+<details>
+<summary>Fields of the 8 other types</summary>
+
 ### OrcidAssertionSource
 
 Source and assertion origin remain distinct provider claims.
@@ -159,6 +166,8 @@ One native work group is one group, regardless of assertion multiplicity.
 Scope of one received ORCID collection.
 
 Values: `whole_public_works_reply`.
+
+</details>
 
 ## Next
 

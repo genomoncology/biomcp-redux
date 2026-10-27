@@ -93,6 +93,13 @@ Checked gene-keyed CPIC pair search. No phenotype, phase or dose is calculated.
 | `offset` | integer (uint32) | Native source offset. Optional. |
 | `source` | `"cpic"` | Required CPIC source; ClinPGx is not supported for search. |
 
+### Other types in this reply
+
+One more type appear only in this reply: [PgxPair](#pgxpair). Open the list below to read their fields.
+
+<details>
+<summary>Fields of the 1 other type</summary>
+
 ### PgxPair
 
 Source-native PgxPair fields; no clinical interpretation.
@@ -111,6 +118,8 @@ Source-native PgxPair fields; no clinical interpretation.
 | `pmids` | list of [Pmid](/reference/schemas/types/#pmid) or null | The source's own `pmids` value, unchanged. Optional. |
 | `provisional` | boolean | The source's own `provisional` value, unchanged. |
 | `usedforrecommendation` | string | The source's own `usedforrecommendation` value, unchanged. |
+
+</details>
 
 ## Next
 

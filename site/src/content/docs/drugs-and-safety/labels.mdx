@@ -1,0 +1,44 @@
+---
+title: Read a drug's FDA label
+description: Use BioMCP 1.0 to find a drug's openFDA label by brand name, list the label's headings, and read one heading's text as the label prints it.
+goal: The reader finds a drug's openFDA label, lists its headings and reads the text of one heading.
+reader: A researcher, pharmacist or agent builder who needs the text of an FDA drug label
+kind: how-to
+verified: 2026-10-27
+---
+import Example from '../../../components/Example.astro';
+import Fact from '../../../components/Fact.astro';
+
+BioMCP <Fact k="version" /> is a command line tool and MCP server for biomedical data from public sources. It reads FDA drug labels from openFDA with `--source openfda-label`: a search finds the label by brand name, and `get drug SET_ID label --label-section HEADING` reads one heading. The example is ZELBORAF, the brand of vemurafenib.
+
+## Requirements
+
+- BioMCP installed. No key is needed. An openFDA key raises openFDA's rate limit; see [keys and configuration](/getting-started/api-keys/).
+
+## 1. Find the label and list its headings
+
+Search openFDA labels by brand name, then read the label card. Its `next` list names one command per heading the label has:
+
+<Example id="drug-label" />
+
+The first line is the label's set ID, its name and the identity level `spl_set`. openFDA labels match brand names, so a search for the ingredient can return nothing.
+
+## 2. Read one heading
+
+Each heading is one command. The text stays as the label prints it:
+
+<Example id="drug-label-text" />
+
+The filter prints the label's revision date, the length of the heading's text and its first sentence. Drop the `jq` filter to see the whole reply.
+
+## Verify
+
+The label card's `next` list names `indications_and_usage`, and the heading's text starts with `1 INDICATIONS AND USAGE`.
+
+## Limits
+
+A label is the FDA-approved text as openFDA serves it. BioMCP returns it unchanged and does not summarize it or turn it into a treatment recommendation.
+
+## Next
+
+[List a drug's interaction partners](/drugs-and-safety/interactions/) reads DDInter, and [look up drugs](/drugs-and-safety/) covers identity, targets and the approval record.

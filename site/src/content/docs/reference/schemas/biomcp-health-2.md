@@ -79,6 +79,13 @@ Source reachability and publisher terms, independent of local HTTP service healt
 | `disable_groups` | list of [DisableGroup](#disablegroup) | Sources and carried components excluded by each supported terms group. Optional. |
 | `sources` | list of [SourceHealth](#sourcehealth) | Every implemented adapter, in declaration order. |
 
+### Other types in this reply
+
+4 more types appear only in this reply: [ComponentHealth](#componenthealth), [DisableGroup](#disablegroup), [DisabledComponent](#disabledcomponent), [SourceHealth](#sourcehealth). Open the list below to read their fields.
+
+<details>
+<summary>Fields of the 4 other types</summary>
+
 ### ComponentHealth
 
 Policy labels for one carried source component.
@@ -123,6 +130,8 @@ One bounded source probe, without credentials or provider error text.
 | `terms` | [Text](/reference/schemas/types/#text) | Publisher license or terms name. |
 | `terms_url` | [Text](/reference/schemas/types/#text) | Publisher terms page. |
 | `usage` | [Use](/reference/schemas/types/#use) | Reviewed source category, not blanket permission for each record. |
+
+</details>
 
 ## Next
 

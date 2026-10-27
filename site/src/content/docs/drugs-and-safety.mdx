@@ -1,7 +1,7 @@
 ---
 title: Look up drugs, labels, safety reports and pharmacogenomics
-description: Use BioMCP 1.0 to find a drug in MyChem.info, ChEMBL, Drugs@FDA, openFDA labels, EMA and DDInter, read label sections and targets, search FAERS reports, CPIC guidelines and FDA companion diagnostics.
-goal: The reader finds a drug's identity in a chosen source, reads its targets, approval record, label heading and interaction partners, and searches adverse event reports, pharmacogenomic guidelines and companion diagnostics.
+description: Use BioMCP 1.0 to find a drug in MyChem.info, ChEMBL, Drugs@FDA, EMA and other sources, read its targets and FDA approval record, and reach its label, interactions, safety reports, CPIC guidelines and companion diagnostics.
+goal: The reader finds a drug's identity in a chosen source, reads its targets and approval record, and picks the page for its label, interactions, adverse event reports, pharmacogenomic guidelines or companion diagnostics.
 reader: A researcher, pharmacist or agent builder looking up a drug's source records
 kind: how-to
 verified: 2026-10-27
@@ -9,12 +9,12 @@ verified: 2026-10-27
 import Example from '../../components/Example.astro';
 import Fact from '../../components/Fact.astro';
 
-BioMCP <Fact k="version" /> has four [entities](/reference/entities/) for drugs and their safety: `drug`, `adverse-event`, `pgx` and `diagnostic`. Each source has its own identifiers, so you search one source, take its identifier, and read that source's record. This page follows vemurafenib, a BRAF inhibitor, through several sources.
+BioMCP <Fact k="version" /> has four [entities](/reference/entities/) for drugs and their safety: `drug`, `adverse-event`, `pgx` and `diagnostic`. Each source has its own identifiers, so you search one source, take its identifier, and read that source's record. This page follows vemurafenib, a BRAF inhibitor, through its identity, targets and FDA approval record, and links a page for each further task.
 
 ## Requirements
 
 - BioMCP installed. No key is needed. An openFDA key raises openFDA's rate limit.
-- DDInter, EMA, WHO and the FDA companion diagnostics list read local bundles. Each source answers only after its sync: `biomcp sync ddinter` before step 5, `biomcp sync fda-cdx` before step 8, and `biomcp sync ema` or `biomcp sync who-pq` before step 1 searches those sources. Before the sync the reply is `failed`, the source's state is `syncing`, the exit code is 4, and `next` names the sync. See [local data](/local-data/) for sizes.
+- EMA and WHO read local [bundles](/local-data/). Run `biomcp sync ema` or `biomcp sync who-pq` before step 1 searches those sources. Before the sync the reply is `failed`, the source's state is `syncing`, the exit code is 4, and `next` names the sync.
 
 ## 1. Search a drug
 
@@ -38,51 +38,19 @@ Drugs@FDA returns the application and its products:
 
 `biomcp get drug NDA202429 approvals --source drugsfda` lists the application and product history.
 
-## 4. Read one label heading
+## Go further with one drug
 
-Search openFDA labels by brand name, then read the label card. Its `next` list names each heading the label has:
-
-<Example id="drug-label" />
-
-Each heading is one command. The text stays as the label prints it:
-
-<Example id="drug-label-text" />
-
-## 5. List interaction partners
-
-DDInter returns partners and its interaction level, five rows per page by default:
-
-<Example id="drug-interactions" />
-
-`total` is DDInter's count for this drug. `--section-limit` and `--section-offset` page the rest.
-
-## 6. Search adverse event reports
-
-FAERS is the default adverse event source. The columns are the report ID, the report's seriousness flag (`1` serious, `2` not serious) and the date FDA first received it:
-
-<Example id="ae-search" />
-
-`--reaction`, `--serious death`, `--serious hospitalization`, `--received-from` and `--received-to` filter the reports. `--source maude` searches medical device reports. `--source vaers` reads CDC WONDER report summaries for `MMR`, `COVID19` or one exact influenza code; `search adverse-event influenza --source vaers` lists the influenza codes. No VAERS reply appears on this site: CDC WONDER has returned `bad_reply` for MMR and `deadline_exceeded` for COVID19, and the [VAERS source page](/sources/vaers/) shows the command to try. `get adverse-event ID` reads one report with sections such as `drugs` and `reactions`. [Find FDA adverse event reports for a drug](/how-to/faers-reports/) counts reports under each filter.
-
-## 7. Read pharmacogenomic guidelines
-
-CPIC lists the guidelines for a gene and the drugs each covers:
-
-<Example id="pgx-get" />
-
-The `recommendations` section returns CPIC's recommendation rows, and `diplotype` looks up a declared diplotype. `--source clinpgx` with `annotations --kind clinical|guideline|label` reads ClinPGx annotations. [Find CPIC guidelines and gene-drug pairs for a gene](/how-to/pgx-guidelines/) adds CPIC levels and a diplotype lookup.
-
-## 8. Find companion diagnostics
-
-`--biomarker` matches the whole biomarker cell of the FDA companion diagnostics list:
-
-<Example id="diagnostic-cdx" />
-
-The list has one row per device, indication and drug, so a device appears once per row. A cell that names more than one biomarker, such as `KRAS and NRAS`, does not match. `--source gtr` searches the Genetic Testing Registry, and `--source who-ivd` searches WHO prequalified diagnostics. `get diagnostic P-NUMBER --source fda-pma` and `get diagnostic K-NUMBER --source fda-510k` read FDA device records. [Find FDA companion diagnostics for a biomarker](/how-to/companion-diagnostics/) walks through one biomarker.
+| Task | Page |
+| --- | --- |
+| <span id="4-read-one-label-heading"></span>Read an FDA label heading by heading | [Read a drug's FDA label](/drugs-and-safety/labels/) |
+| <span id="5-list-interaction-partners"></span>List a drug's interaction partners from DDInter | [List a drug's interaction partners](/drugs-and-safety/interactions/) |
+| <span id="6-search-adverse-event-reports"></span>Search FAERS, MAUDE or VAERS reports | [Search adverse event reports](/drugs-and-safety/adverse-events/) |
+| <span id="7-read-pharmacogenomic-guidelines"></span>Read CPIC guidelines and ClinPGx annotations for a gene | [Find CPIC guidelines and gene-drug pairs for a gene](/how-to/pgx-guidelines/) |
+| <span id="8-find-companion-diagnostics"></span>Find FDA companion diagnostics and device records | [Find FDA companion diagnostics for a biomarker](/how-to/companion-diagnostics/) |
 
 ## Verify
 
-Each step returns status `complete` with its source in state `ok`. The label card's `next` list names `indications_and_usage`.
+Each step returns status `complete` with its source in state `ok`. Drugs@FDA lists application NDA202429.
 
 ## Limits
 

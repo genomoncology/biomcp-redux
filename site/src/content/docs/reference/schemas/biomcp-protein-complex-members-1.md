@@ -97,6 +97,13 @@ Page five native participants of an exact Complex Portal complex containing the 
 | `offset` | integer (uint32) | Native or retained page offset. Optional. |
 | `pool` | [Text](/reference/schemas/types/#text) | The ID of a stored list, from an earlier reply, so later pages read the same data. Optional. |
 
+### Other types in this reply
+
+One more type appear only in this reply: [ProteinComplexMember](#proteincomplexmember). Open the list below to read their fields.
+
+<details>
+<summary>Fields of the 1 other type</summary>
+
 ### ProteinComplexMember
 
 A native participant; names never establish a protein identity.
@@ -111,6 +118,8 @@ A native participant; names never establish a protein identity.
 | `stoichiometry` | [Text](/reference/schemas/types/#text) or null | Native stoichiometry text; no numeric imputation. Optional. |
 | `taxon` | integer or null | Native taxonomy identifier when supplied. Optional. |
 | `xrefs` | list of [Curie](/reference/schemas/types/#curie) | Source-supplied cross-references only. Optional. |
+
+</details>
 
 ## Next
 

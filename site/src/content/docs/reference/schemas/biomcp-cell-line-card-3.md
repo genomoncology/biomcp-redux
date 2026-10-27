@@ -95,6 +95,13 @@ One requested cell identity with explicit ambiguity and requested section states
 | `url` | [Text](/reference/schemas/types/#text) or null | Publisher URL for the selected identity. Optional. |
 | `warnings` | [Capped](/reference/schemas/types/#capped) of [CellLineWarning](/reference/schemas/types/#celllinewarning) or null | Selected card warnings, up to three whole rows; not a fetch state. Optional. |
 
+### Other types in this reply
+
+2 more types appear only in this reply: [CellLineEntryDates](#celllineentrydates), [CellLineSections](#celllinesections). Open the list below to read their fields.
+
+<details>
+<summary>Fields of the 2 other types</summary>
+
 ### CellLineEntryDates
 
 Entry dates and entry version are independent of dataset release and retrieval time.
@@ -116,6 +123,8 @@ Requested sections carry explicit states; absent members were not requested.
 | `names` | [Section](/reference/schemas/types/#section) of [CellLineNames](/reference/schemas/types/#celllinenames) of [Capped](/reference/schemas/types/#capped) of [CellLineName](/reference/schemas/types/#celllinename) or null | Requested names section state. Optional. |
 | `variants` | [Section](/reference/schemas/types/#section) of [CellLineVariants](/reference/schemas/types/#celllinevariants) of [Capped](/reference/schemas/types/#capped) of [CellLineVariation](/reference/schemas/types/#celllinevariation) or null | Requested variants section state. Optional. |
 | `xrefs` | [Section](/reference/schemas/types/#section) of [CellLineXrefs](/reference/schemas/types/#celllinexrefs) or null | Requested xrefs section state. Optional. |
+
+</details>
 
 ## Next
 

@@ -1,0 +1,33 @@
+---
+title: Save an article's text, supplement or PDF
+description: Use BioMCP 1.0's --save option to write an article's full text, a supplement or its PDF to a file, and see which saves the MCP server refuses.
+goal: The reader saves an article's text to a file and knows the rules for --part, --replace and saves over MCP.
+reader: A researcher or agent builder who wants article text or files on disk
+kind: how-to
+verified: 2026-10-27
+---
+import Example from '../../../../components/Example.astro';
+import Fact from '../../../../components/Fact.astro';
+
+BioMCP <Fact k="version" /> is a command line tool and MCP server for biomedical data from public sources. Add `--save PATH` to `article text`, `article supplement` or `article pdf` to write the file. `article text --save` writes the whole document, so it does not take `--part`.
+
+## Requirements
+
+- BioMCP installed. No key is needed.
+- An open-access article in PMC; see [read an article's full text](/how-to/find-articles/read-full-text/).
+
+## Rules
+
+- On the command line, an existing file needs `--replace`.
+- Over stdio MCP, a save writes a new file only, and `--replace` is refused.
+- The HTTP server refuses every save; see [run as a server](/getting-started/remote-http/).
+
+## Save and see the refusals
+
+<Example id="lit-save-rules" />
+
+The command line save and the first MCP save write the whole text, and each reply reports the bytes written. The `--part` save and the MCP `--replace` save are refused with status `usage`.
+
+## Next
+
+[What the MCP tool can change](/getting-started/mcp-clients/what-the-tool-can-change/) lists the other commands that write local state.

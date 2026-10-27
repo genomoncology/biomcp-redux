@@ -99,11 +99,20 @@ Literal author name query and native window; positional text maps to query.
 | `query` | string | Literal query from the positional argument or --query. |
 | `source` | [AuthorSearchSource](#authorsearchsource) | Native author source. Optional. |
 
+### Other types in this reply
+
+One more type appear only in this reply: [AuthorSearchSource](#authorsearchsource). Open the list below to read their fields.
+
+<details>
+<summary>Fields of the 1 other type</summary>
+
 ### AuthorSearchSource
 
 Author search supports one provider and its legacy spelling.
 
 Values: `semantic-scholar`, `semanticscholar`.
+
+</details>
 
 ## Next
 

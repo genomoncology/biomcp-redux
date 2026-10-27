@@ -65,6 +65,13 @@ Detailed metadata for the same native indexed-paper window.
 | `author` | [AuthorId](/reference/schemas/types/#authorid) | Requested provider record. |
 | `items` | list of [AuthorPaperDetail](#authorpaperdetail) | Original source order; no native corpus total is claimed. |
 
+### Other types in this reply
+
+3 more types appear only in this reply: [AuthorByline](#authorbyline), [AuthorPaperAccess](#authorpaperaccess), [AuthorPaperDetail](#authorpaperdetail). Open the list below to read their fields.
+
+<details>
+<summary>Fields of the 3 other types</summary>
+
 ### AuthorByline
 
 One source byline row; repeated display names remain separate.
@@ -102,6 +109,8 @@ Detailed indexed paper metadata for the same native paper page.
 | `publication_date` | [PartialDate](/reference/schemas/types/#partialdate) or null | Native publication date. Optional. |
 | `publication_types` | list of [Text](/reference/schemas/types/#text) or null | Native publication type labels. Optional. |
 | `reference_count` | integer or null | Native references on this paper. Optional. |
+
+</details>
 
 ## Next
 

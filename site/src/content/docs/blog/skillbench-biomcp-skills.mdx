@@ -9,6 +9,9 @@ date: 2026-10-21
 author: Ian Maurer
 ---
 import Example from '../../../components/Example.astro';
+import Fact from '../../../components/Fact.astro';
+
+BioMCP <Fact k="version" />, a command line tool and MCP server for biomedical data, ships an agent skill: a guide and worked examples that teach an agent its commands. This post explains why, with the SkillsBench evidence.
 
 Agents reason well and handle biomedical data badly. Ask one to look up BRAF V600E across ClinVar, ClinicalTrials.gov and PubMed and it starts writing API clients: three identifier systems, three rate limits, three output formats. The context window fills with HTTP plumbing and the agent still misses sources it has never heard of.
 
@@ -44,4 +47,4 @@ Point `DIR` at your agent's folder, such as `~/.claude`. `biomcp skill status DI
 
 The evidence here is Li and colleagues' work. The skill pattern comes from Anthropic's [Agent Skills](https://claude.com/blog/equipping-agents-for-the-real-world-with-agent-skills) guidance. What we added is the biomedical procedure, and the discipline of saying what a result does not show.
 
-Next, see the skill at work in [connect an agent](/getting-started/mcp-clients/#give-a-shell-agent-the-skill), which installs it.
+Next, see the skill at work in [give a shell agent the BioMCP skill](/getting-started/mcp-clients/agent-skill/), which installs it.

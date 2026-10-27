@@ -87,6 +87,13 @@ A bounded report section; all rows belong to the exact header and snapshot.
 | `header` | [AdverseEventHeader](/reference/schemas/types/#adverseeventheader) | Exact source report identity and version. |
 | `snapshot` | [Text](/reference/schemas/types/#text) | Opaque retained source snapshot. |
 
+### Other types in this reply
+
+One more type appear only in this reply: [AdverseEventDevice](#adverseeventdevice). Open the list below to read their fields.
+
+<details>
+<summary>Fields of the 1 other type</summary>
+
 ### AdverseEventDevice
 
 Native device fields; administrative addresses are excluded.
@@ -118,6 +125,8 @@ Native device fields; administrative addresses are excluded.
 | `serviced_by_3rd_party_flag` | string or null | Native serviced_by_3rd_party_flag string; present empty values remain present. Optional. |
 | `udi_di` | string or null | Native udi_di string; present empty values remain present. Optional. |
 | `udi_public` | string or null | Native udi_public string; present empty values remain present. Optional. |
+
+</details>
 
 ## Next
 

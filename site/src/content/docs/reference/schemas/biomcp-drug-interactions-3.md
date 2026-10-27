@@ -87,6 +87,13 @@ Native DDInter partner rows and levels without invented management text.
 | `identity` | [DrugHeader](/reference/schemas/types/#drugheader) | Selected native identity, checked independently of section facts. |
 | `interactions` | [Section](/reference/schemas/types/#section) of [DrugRecords](/reference/schemas/types/#drugrecords) of [DrugInteractionClaim](#druginteractionclaim) | Existing typed section state, preserving empty, unavailable and skipped outcomes. |
 
+### Other types in this reply
+
+One more type appear only in this reply: [DrugInteractionClaim](#druginteractionclaim). Open the list below to read their fields.
+
+<details>
+<summary>Fields of the 1 other type</summary>
+
 ### DrugInteractionClaim
 
 One native interaction pair and level, without invented management advice.
@@ -98,6 +105,8 @@ One native interaction pair and level, without invented management advice.
 | `attribution` | [Attribution](/reference/schemas/types/#attribution) | Primary pair record and [bundle](/local-data/) provenance. |
 | `level` | [Text](/reference/schemas/types/#text) | Original native level, without a computed severity. |
 | `partner` | [DrugIdentity](/reference/schemas/types/#drugidentity) | Native partner ID and name. |
+
+</details>
 
 ## Next
 

@@ -89,6 +89,13 @@ Explicit native application/product history without a global approval flag.
 | `products` | list of [DrugFdaProduct](/reference/schemas/types/#drugfdaproduct) | Native products, filtered only by an explicit product number; independent of submissions. |
 | `source_updated` | [PartialDate](/reference/schemas/types/#partialdate) or null | Native FDA dataset last_updated date, independent of submission dates and retrieval. Optional. |
 
+### Other types in this reply
+
+3 more types appear only in this reply: [DrugFdaDocument](#drugfdadocument), [DrugFdaProperty](#drugfdaproperty), [DrugFdaSubmission](#drugfdasubmission). Open the list below to read their fields.
+
+<details>
+<summary>Fields of the 3 other types</summary>
+
 ### DrugFdaDocument
 
 A native application document link; the command does not download it.
@@ -121,6 +128,8 @@ One application-owned submission with common event facts and native FDA context.
 | `submission_class_code_description` | [Text](/reference/schemas/types/#text) or null | Native submission class description. Optional. |
 | `submission_number` | [Text](/reference/schemas/types/#text) | Original submission number, scoped by application and event kind. |
 | `submission_property_type` | list of [DrugFdaProperty](#drugfdaproperty) or null | Native property collection; missing stays missing and an empty list stays empty. Optional. |
+
+</details>
 
 ## Next
 

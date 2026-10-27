@@ -84,6 +84,13 @@ A source-owned application page preserving complete product context and source o
 | `source_updated` | [PartialDate](/reference/schemas/types/#partialdate) or null | Native dataset last_updated date, independent of event dates and retrieval. Optional. |
 | `total` | integer (uint64) | Native application total, independent of product count. |
 
+### Other types in this reply
+
+One more type appear only in this reply: [DrugFdaCandidate](#drugfdacandidate). Open the list below to read their fields.
+
+<details>
+<summary>Fields of the 1 other type</summary>
+
 ### DrugFdaCandidate
 
 One candidate application and its independent source-listed products.
@@ -92,6 +99,8 @@ One candidate application and its independent source-listed products.
 | --- | --- | --- |
 | `identity` | [DrugHeader](/reference/schemas/types/#drugheader) | Exact native application identity; no product has been selected. |
 | `products` | list of [DrugFdaProduct](/reference/schemas/types/#drugfdaproduct) | Complete native product candidates within this application. |
+
+</details>
 
 ## Next
 

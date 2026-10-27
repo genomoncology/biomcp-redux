@@ -98,6 +98,13 @@ Send unchanged reference-qualified notation to explicitly named services.
 | `offset` | integer (uint32) | Source mapping rows to skip per service. Optional. |
 | `source` | [NormalizationSource](#normalizationsource) | Explicit service; all preserves independent results without consensus. |
 
+### Other types in this reply
+
+4 more types appear only in this reply: [NormalizationField](#normalizationfield), [NormalizationMessage](#normalizationmessage), [NormalizationResult](#normalizationresult), [NormalizationSource](#normalizationsource). Open the list below to read their fields.
+
+<details>
+<summary>Fields of the 4 other types</summary>
+
 ### NormalizationField
 
 A provider field name and its unchanged text.
@@ -138,6 +145,8 @@ One provider's own descriptions, messages and version metadata.
 Explicit normalization service selection.
 
 Values: `car`, `mutalyzer`, `variantvalidator`, `all`.
+
+</details>
 
 ## Next
 

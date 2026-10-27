@@ -81,6 +81,13 @@ Native target and mechanism relations, without a clinical indication inference.
 | `identity` | [DrugHeader](/reference/schemas/types/#drugheader) | Selected native identity, checked independently of section facts. |
 | `targets` | [Section](/reference/schemas/types/#section) of [DrugRecords](/reference/schemas/types/#drugrecords) of [DrugTargetRelation](#drugtargetrelation) | Existing typed section state, preserving empty, unavailable and skipped outcomes. |
 
+### Other types in this reply
+
+2 more types appear only in this reply: [DrugNativeTarget](#drugnativetarget), [DrugTargetRelation](#drugtargetrelation). Open the list below to read their fields.
+
+<details>
+<summary>Fields of the 2 other types</summary>
+
 ### DrugNativeTarget
 
 One source-native target identity, without inventing a gene label.
@@ -105,6 +112,8 @@ A native target or mechanism relation, without an indication inference.
 | `references` | list of [DrugNativeReference](/reference/schemas/types/#drugnativereference) | Source-native supporting references. Optional. |
 | `relation` | [Text](/reference/schemas/types/#text) | Native relationship label. |
 | `target` | [GeneRef](/reference/schemas/types/#generef) | Source-stated target gene, without using mechanism text as a gene label. Optional. |
+
+</details>
 
 ## Next
 

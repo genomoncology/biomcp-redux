@@ -22,9 +22,9 @@ The program's help describes it:
 biomcp sync ddinter
 ```
 
-## Arguments
+## Source
 
-The command takes no arguments beyond those in its usage line.
+The bundle it downloads is the local copy that [DDInter](/sources/ddinter/) reads. Search and get commands for that source answer only after this command has run once. [Local data](/local-data/#bundle-sizes) lists each bundle's size.
 
 ## Examples
 
@@ -44,4 +44,4 @@ The reply is one JSON object. Its schema is [`biomcp.sync/4`](/reference/schemas
 
 ## Next
 
-The [commands index](/reference/commands/) lists every command.
+[Local data](/local-data/) downloads bundles and cleans the store. The [commands index](/reference/commands/) lists every command.

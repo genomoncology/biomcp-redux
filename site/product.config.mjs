@@ -48,6 +48,8 @@ export default {
     tagline: 'A command line tool and MCP server for biomedical data from public sources: genes, variants, trials, articles and drugs.',
     command: 'biomcp get gene BRAF',
   },
+  // A link to a heading inside a closed <details> block (the schema pages' other types) opens it.
+  head: [{ tag: 'script', content: "(()=>{const o=()=>{const id=decodeURIComponent(location.hash.slice(1));const el=id&&document.getElementById(id);const d=el&&el.closest('details');if(d&&!d.open){d.open=true;el.scrollIntoView();}};addEventListener('hashchange',o);addEventListener('DOMContentLoaded',o);})();" }],
   social: [{ icon: 'github', label: 'GitHub', href: 'https://github.com/genomoncology/biomcp' }],
   // The landing checks (scripts/check-landing.mjs, npm run landing): which generator writes which pages.
   // pattern matches the path under src/content/docs.

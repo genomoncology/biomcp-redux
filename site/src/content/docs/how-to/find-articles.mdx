@@ -1,7 +1,7 @@
 ---
 title: Search and read biomedical literature
-description: Use BioMCP 1.0 to search PubMed, Europe PMC and other sources for articles, read full text from PMC, find text in an article or supplement, and follow citations.
-goal: The reader finds articles for a gene and variant, reads one article's card and full text, searches inside its text and supplements, and lists its citing papers.
+description: Use BioMCP 1.0 to search PubMed, Europe PMC and other sources for articles about a gene, variant, drug or disease, and read one article's card.
+goal: The reader finds articles for a gene and variant in a chosen source, reads one article's card, and knows where to read its full text, supplements and citations.
 reader: A researcher or agent builder who needs papers about a gene, variant, drug or disease
 kind: how-to
 verified: 2026-10-27
@@ -9,7 +9,7 @@ verified: 2026-10-27
 import Example from '../../../components/Example.astro';
 import Fact from '../../../components/Fact.astro';
 
-BioMCP <Fact k="version" /> searches articles in PubMed, Europe PMC, LitVar2, Semantic Scholar, LitSense2 and PubTator3, and reads open-access full text and supplements from PMC. This page finds papers about BRAF V600E, then reads one open-access review end to end.
+BioMCP <Fact k="version" /> searches articles in PubMed, Europe PMC, LitVar2, Semantic Scholar, LitSense2 and PubTator3, and reads open-access full text and supplements from PMC. This page finds papers about BRAF V600E and reads one open-access review's card; the pages it links read the review's text, supplements and citations.
 
 ## Requirements
 
@@ -34,7 +34,7 @@ Add `--since 2024`, `--type review` or `--open-access` to narrow the search. `--
 | `litvar` | Publications for an exact variant. Needs `--variant`, and a protein change needs `--gene`. |
 | `semantic-scholar` | Broad discovery. A shared keyless pool can return `rate_limited`. |
 | `litsense` | Sentences that resemble your text. Resemblance is not a match. |
-| `pubtator` | Entity search, including full text. |
+| `pubtator` | Genes, diseases, chemicals and variants as PubTator3 annotates them, including in full text. |
 
 The [search article reference](/reference/commands/search-article/) lists every filter.
 
@@ -46,53 +46,18 @@ The [search article reference](/reference/commands/search-article/) lists every 
 
 The card holds the title, authors, journal, dates, abstract and publication types. Sections add more: `fulltext`, `supplements`, `annotations` (PubTator3 entities), `citations` (iCite counts), `tldr` (a Semantic Scholar summary), `indexing` (MeSH terms) and `pdf` (the publisher PDF link).
 
-## 4. Read the full text
+## Go further with one article
 
-The `fulltext` section returns the outline of a licensed PMC article. It reports the license and one row per part:
-
-<Example id="lit-fulltext" lines={10} />
-
-`biomcp article text PMC7573235 --part 3` reads part 3 as Markdown. Full text comes only from PMC. An article without a PMCID returns its card with the fulltext section in state `not_applicable`, as `biomcp get article 12068308 fulltext` shows.
-
-## 5. Find words in the text
-
-`--find` returns the passages that contain your words, with the part each sits in:
-
-<Example id="lit-text-find" lines={12} />
-
-The reply pages 12 hits at a time; its `next` command reads the rest.
-
-## 6. Search a supplement
-
-`supplements` lists an article's supplementary files from PMC metadata:
-
-<Example id="lit-supplements" />
-
-`biomcp article supplement` reads one file. In a spreadsheet, `--variant` returns the rows that name one protein substitution. Here the authors' table lists AXIN2 Pro245Ser once:
-
-<Example id="lit-supplement-find" />
-
-The columns are the sheet, the row number and the first cells of the row as the authors wrote them.
-
-## 7. Follow citations
-
-`biomcp article citations` lists papers that cite an article. NIH iCite is the default; `--source semantic-scholar` uses Semantic Scholar's graph.
-
-<Example id="lit-citations" />
-
-`article references` lists the papers an article cites, `article citation-evidence` shows the sentences where one paper cites another, and `article recommendations` asks Semantic Scholar for similar papers.
-
-## Save text, a supplement or a PDF
-
-Add `--save PATH` to `article text`, `article supplement` or `article pdf` to write the file. `article text --save` writes the whole document, so it does not take `--part`. On the command line, an existing file needs `--replace`. Over stdio MCP, a save writes a new file only, and `--replace` is refused. The HTTP server refuses every save; see [run as a server](/getting-started/remote-http/).
-
-<Example id="lit-save-rules" />
-
-The first command writes the whole text, and its reply reports the bytes written. The other two show the refusals.
+| Task | Page |
+| --- | --- |
+| <span id="4-read-the-full-text"></span><span id="5-find-words-in-the-text"></span>Read an open-access article's full text, part by part, and find words in it | [Read an article's full text](/how-to/find-articles/read-full-text/) |
+| <span id="6-search-a-supplement"></span>List an article's supplementary files and find a variant in a spreadsheet | [Search an article's supplements](/how-to/find-articles/supplements/) |
+| <span id="7-follow-citations"></span>List the papers that cite an article, or that it cites | [Follow an article's citations](/how-to/find-articles/citations/) |
+| <span id="save-text-a-supplement-or-a-pdf"></span>Write the text, a supplement or the PDF to a file | [Save an article's text, supplement or PDF](/how-to/find-articles/save-files/) |
 
 ## Verify
 
-You succeeded when the search returns PMIDs, `get article` returns a card with `"status": "complete"`, and the fulltext section reports `source: pmc-oa` with a license.
+You succeeded when the search returns PMIDs and `get article` returns a card with a PMID, a PMCID and a DOI.
 
 ## Limits
 

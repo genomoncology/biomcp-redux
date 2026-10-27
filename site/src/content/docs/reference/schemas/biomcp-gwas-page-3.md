@@ -98,6 +98,13 @@ One of these forms:
 - `operation` is `"search"`: Native association search. Fields: `query` ([GwasSearch](#gwassearch)).
 - `operation` is `"get"`: Exact study associations relation. Fields: `query` ([GwasGet](/reference/schemas/types/#gwasget)).
 
+### Other types in this reply
+
+4 more types appear only in this reply: [GwasOrder](#gwasorder), [GwasSearch](#gwassearch), [GwasTraitId](#gwastraitid), [RsId](#rsid). Open the list below to read their fields.
+
+<details>
+<summary>Fields of the 4 other types</summary>
+
 ### GwasOrder
 
 Native source order, echoed without a configurable sort command.
@@ -133,6 +140,8 @@ Type: string.
 ### RsId
 
 Type: string.
+
+</details>
 
 ## Next
 

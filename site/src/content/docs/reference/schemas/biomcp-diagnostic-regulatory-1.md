@@ -82,6 +82,13 @@ Exact selected submission regulatory text fragments.
 | `distinct_id_total` | integer or null | Distinct complete native IDs across the selected relation collection. Optional. |
 | `items` | list of [DiagnosticRegulatoryFragment](#diagnosticregulatoryfragment) | Complete source-owned rows in native order; envelope totals count native rows. |
 
+### Other types in this reply
+
+3 more types appear only in this reply: [DiagnosticPmaRegulatory](#diagnosticpmaregulatory), [DiagnosticRegulatoryField](#diagnosticregulatoryfield), [DiagnosticRegulatoryFragment](#diagnosticregulatoryfragment). Open the list below to read their fields.
+
+<details>
+<summary>Fields of the 3 other types</summary>
+
 ### DiagnosticPmaRegulatory
 
 Dated metadata belonging only to the selected submission.
@@ -114,6 +121,8 @@ One bounded regulatory fragment from the exact selected native submission.
 | `submission` | [DiagnosticPmaHeader](/reference/schemas/types/#diagnosticpmaheader) | Exact selected native record and its dated regulatory metadata. |
 | `text` | string | Complete unmodified text fragment; omitted when the source statement is absent. Optional. |
 | `total` | integer (uint32) | Total mechanical fragments. |
+
+</details>
 
 ## Next
 

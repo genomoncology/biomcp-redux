@@ -85,6 +85,13 @@ One bounded locus section for an association.
 | `continuation` | [GwasGet](/reference/schemas/types/#gwasget) | Same-resource relation continuation. Optional. |
 | `items` | list of [GwasLocus](#gwaslocus) | Native locus rows. |
 
+### Other types in this reply
+
+2 more types appear only in this reply: [GwasLocus](#gwaslocus), [GwasReportedGene](#gwasreportedgene). Open the list below to read their fields.
+
+<details>
+<summary>Fields of the 2 other types</summary>
+
 ### GwasLocus
 
 One native locus with independent reported genes and risk-allele text.
@@ -105,6 +112,8 @@ Source reported gene identity, without a causal-gene interpretation.
 | `ensembl_ids` | list of [Text](/reference/schemas/types/#text) | Exact source Ensembl identifiers. |
 | `entrez_ids` | list of [Text](/reference/schemas/types/#text) | Exact source Entrez identifiers. |
 | `name` | [Text](/reference/schemas/types/#text) or null | Native source gene name. Optional. |
+
+</details>
 
 ## Next
 

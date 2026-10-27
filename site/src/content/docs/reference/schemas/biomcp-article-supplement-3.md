@@ -100,6 +100,13 @@ Read a checked supplement file or page its original rows.
 | `sheet` | [Text](/reference/schemas/types/#text) | Sheet name for row selection. Optional. |
 | `variant` | [Text](/reference/schemas/types/#text) | Explicit protein substitution. Optional. |
 
+### Other types in this reply
+
+6 more types appear only in this reply: [CellFragment](#cellfragment), [FirstSheetRow](#firstsheetrow), [SheetInfo](#sheetinfo), [SheetRow](#sheetrow), [SheetRows](#sheetrows), [SupplementContent](#supplementcontent). Open the list below to read their fields.
+
+<details>
+<summary>Fields of the 6 other types</summary>
+
 ### CellFragment
 
 A bounded portion of one original first-row or selected-row cell.
@@ -160,6 +167,8 @@ Downloaded bounded file contents or an unsupported format's original URL.
 | `sha256` | [Text](/reference/schemas/types/#text) or null | Hash of the original downloaded bytes; absent when no download occurred. Optional. |
 | `sheets` | list of [SheetInfo](#sheetinfo) or null | Original sheet dimensions. Optional. |
 | `url` | [Text](/reference/schemas/types/#text) or null | Unsupported file URL, returned without downloading it. Optional. |
+
+</details>
 
 ## Next
 

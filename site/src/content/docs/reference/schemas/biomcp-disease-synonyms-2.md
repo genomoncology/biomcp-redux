@@ -86,6 +86,13 @@ One publisher synonym page with scope and language.
 | `components` | list of [ComponentLabel](/reference/schemas/types/#componentlabel) | Applicable component use terms, independent of row provenance. |
 | `items` | list of [DiseaseSynonym](#diseasesynonym) | Rows as the source gives them. Totals in `page` count rows, not distinct records. |
 
+### Other types in this reply
+
+One more type appear only in this reply: [DiseaseSynonym](#diseasesynonym). Open the list below to read their fields.
+
+<details>
+<summary>Fields of the 1 other type</summary>
+
 ### DiseaseSynonym
 
 A publisher synonym with its scope and language.
@@ -96,6 +103,8 @@ A publisher synonym with its scope and language.
 | `language` | [Text](/reference/schemas/types/#text) or null | Source language tag. Optional. |
 | `scope` | [Curie](/reference/schemas/types/#curie) or null | Publisher scope predicate. Optional. |
 | `value` | [Text](/reference/schemas/types/#text) | Complete synonym text. |
+
+</details>
 
 ## Next
 

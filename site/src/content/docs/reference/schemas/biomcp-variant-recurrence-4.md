@@ -114,6 +114,13 @@ Observe exact-allele samples within one caller-selected source page.
 | `source` | [RecurrenceSource](#recurrencesource) | Explicit cohort source. |
 | `study` | [Text](/reference/schemas/types/#text) | Explicit study; there is no default cohort. |
 
+### Other types in this reply
+
+4 more types appear only in this reply: [RecurrenceGranularity](#recurrencegranularity), [RecurrenceSource](#recurrencesource), [RecurrenceStudy](#recurrencestudy), [RecurrenceTerms](#recurrenceterms). Open the list below to read their fields.
+
+<details>
+<summary>Fields of the 4 other types</summary>
+
 ### RecurrenceGranularity
 
 Source fields required for a recurrence observation.
@@ -145,6 +152,8 @@ Public access grants no study-specific commercial reuse permission.
 | `notice` | string | Source warning about possible commercial restrictions. |
 | `unverified` | boolean | Study-specific rights remain unverified. |
 | `url` | string | Publisher FAQ explaining study-specific terms. |
+
+</details>
 
 ## Next
 

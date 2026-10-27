@@ -98,11 +98,20 @@ Page the citing or referenced PubMed papers of one checked PMID.
 | `pool` | [Text](/reference/schemas/types/#text) | Fixed snapshot from an earlier page. Optional. |
 | `source` | [EdgeSource](#edgesource) | Graph provider; iCite remains the default. Optional. |
 
+### Other types in this reply
+
+One more type appear only in this reply: [EdgeSource](#edgesource). Open the list below to read their fields.
+
+<details>
+<summary>Fields of the 1 other type</summary>
+
 ### EdgeSource
 
 Graph edge provider, independent of article search providers.
 
 Values: `icite`, `semantic-scholar`.
+
+</details>
 
 ## Next
 

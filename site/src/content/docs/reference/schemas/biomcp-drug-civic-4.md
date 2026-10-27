@@ -81,6 +81,13 @@ Complete CIViC therapy/profile context with independent native claim continuatio
 | `civic` | [Section](/reference/schemas/types/#section) of [DrugCivicStreams](#drugcivicstreams) | Existing typed section state, preserving empty, unavailable and skipped outcomes. |
 | `identity` | [DrugHeader](/reference/schemas/types/#drugheader) | Selected native identity, checked independently of section facts. |
 
+### Other types in this reply
+
+7 more types appear only in this reply: [DrugCivicClaim](#drugcivicclaim), [DrugCivicMember](#drugcivicmember), [DrugCivicPage](#drugcivicpage), [DrugCivicProfile](#drugcivicprofile), [DrugCivicStreams](#drugcivicstreams), [DrugOncokbLookup](#drugoncokblookup), [DrugOncokbMissing](#drugoncokbmissing). Open the list below to read their fields.
+
+<details>
+<summary>Fields of the 7 other types</summary>
+
 ### DrugCivicClaim
 
 One native claim with its complete source therapy set and molecular profile.
@@ -151,6 +158,8 @@ Link one source member to a checked variant lookup in its claim's tumor context.
 Context absent or insufficient for an exact source-owned annotation command.
 
 Values: `gene`, `build`, `variant`, `tumor_type`.
+
+</details>
 
 ## Next
 

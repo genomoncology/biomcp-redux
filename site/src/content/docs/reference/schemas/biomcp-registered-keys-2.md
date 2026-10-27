@@ -66,6 +66,13 @@ Results of human credential registration.
 | --- | --- | --- |
 | `entries` | list of [RegisteredKey](#registeredkey) | Redacted credential identities. |
 
+### Other types in this reply
+
+2 more types appear only in this reply: [KeyState](#keystate), [RegisteredKey](#registeredkey). Open the list below to read their fields.
+
+<details>
+<summary>Fields of the 2 other types</summary>
+
 ### KeyState
 
 Where the command will obtain a credential; never its value.
@@ -82,6 +89,8 @@ Credential identity and redacted presence.
 | `environment` | [Text](/reference/schemas/types/#text) | Environment fallback name. |
 | `source` | [Text](/reference/schemas/types/#text) | Source accepted by key set. |
 | `state` | [KeyState](#keystate) | Current credential origin. |
+
+</details>
 
 ## Next
 

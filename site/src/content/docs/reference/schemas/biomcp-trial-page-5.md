@@ -93,6 +93,13 @@ Registry page preserving source order and exact request parameters.
 | `request` | list of [TrialParameter](/reference/schemas/types/#trialparameter) | Exact parameters sent to the study search endpoint. |
 | `source_updated` | [Text](/reference/schemas/types/#text) or null | Registry's source processing timestamp, independently of retrieval time. Optional. |
 
+### Other types in this reply
+
+One more type appear only in this reply: [TrialHeader](#trialheader). Open the list below to read their fields.
+
+<details>
+<summary>Fields of the 1 other type</summary>
+
 ### TrialHeader
 
 Small source-attributed trial discovery record.
@@ -107,6 +114,8 @@ Small source-attributed trial discovery record.
 | `title` | [Text](/reference/schemas/types/#text) | Complete brief title. |
 | `updated` | [PartialDate](/reference/schemas/types/#partialdate) | Last posted registry update. |
 | `url` | [Text](/reference/schemas/types/#text) | Publisher's canonical record URL. |
+
+</details>
 
 ## Next
 

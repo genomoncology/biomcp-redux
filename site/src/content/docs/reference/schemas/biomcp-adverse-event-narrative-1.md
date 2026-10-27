@@ -81,6 +81,13 @@ A bounded report section; all rows belong to the exact header and snapshot.
 | `narrative` | [AdverseEventRecords](/reference/schemas/types/#adverseeventrecords) of [AdverseEventNarrativeItem](#adverseeventnarrativeitem) | One page of complete native rows. |
 | `snapshot` | [Text](/reference/schemas/types/#text) | Opaque retained source snapshot. |
 
+### Other types in this reply
+
+One more type appear only in this reply: [AdverseEventNarrativeItem](#adverseeventnarrativeitem). Open the list below to read their fields.
+
+<details>
+<summary>Fields of the 1 other type</summary>
+
 ### AdverseEventNarrativeItem
 
 Whole unchanged narrative row; oversized rows require a too-large Problem.
@@ -92,6 +99,8 @@ Whole unchanged narrative row; oversized rows require a too-large Problem.
 | `patient_sequence_number` | string or null | Native patient_sequence_number string; present empty values remain present. Optional. |
 | `text` | string or null | Unchanged complete source text; never silently truncated. Optional. |
 | `type` | string or null | Native narrative text type code. Optional. |
+
+</details>
 
 ## Next
 

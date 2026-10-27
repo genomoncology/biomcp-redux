@@ -36,6 +36,13 @@ One of these forms:
 - `section` is `"spl-set-id"`: A single original identifier array. Fields: `components` (list of [ComponentLabel](/reference/schemas/types/#componentlabel)), `header` ([AdverseEventHeader](/reference/schemas/types/#adverseeventheader)), `snapshot` ([Text](/reference/schemas/types/#text)), `spl_set_id` ([AdverseEventIdentifierRecords](#adverseeventidentifierrecords)).
 - `section` is `"application-number"`: A single original identifier array. Fields: `application_number` ([AdverseEventIdentifierRecords](#adverseeventidentifierrecords)), `components` (list of [ComponentLabel](/reference/schemas/types/#componentlabel)), `header` ([AdverseEventHeader](/reference/schemas/types/#adverseeventheader)), `snapshot` ([Text](/reference/schemas/types/#text)).
 
+### Other types in this reply
+
+One more type appear only in this reply: [AdverseEventIdentifierRecords](#adverseeventidentifierrecords). Open the list below to read their fields.
+
+<details>
+<summary>Fields of the 1 other type</summary>
+
 ### AdverseEventIdentifierRecords
 
 One selected original identifier array, owned by an absolute drug index.
@@ -46,6 +53,8 @@ One selected original identifier array, owned by an absolute drug index.
 | `offset` | integer (uint32) | Original array offset. |
 | `records` | list of string | Published identifier strings without rewriting. |
 | `total` | integer (uint64) | Complete selected array length. |
+
+</details>
 
 ## Next
 

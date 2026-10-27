@@ -99,11 +99,20 @@ Search Reactome (default) or WikiPathways human pathways. Membership names a sou
 | `source` | list of [PathwaySource](#pathwaysource) | Sources in caller order; repeated sources take turns without title joins. Optional. |
 | `top_level` | boolean | Native human Reactome top-level discovery, exclusive with text and gene. Optional. |
 
+### Other types in this reply
+
+One more type appear only in this reply: [PathwaySource](#pathwaysource). Open the list below to read their fields.
+
+<details>
+<summary>Fields of the 1 other type</summary>
+
 ### PathwaySource
 
 One explicit pathway source, without fallback or cross-source title joins.
 
 Values: `reactome`, `wikipathways`.
+
+</details>
 
 ## Next
 

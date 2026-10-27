@@ -31,4 +31,4 @@ biomcp mcp-config [OPTIONS]
 
 ## Next
 
-The [commands index](/reference/commands/) lists every command.
+[Connect an agent](/getting-started/mcp-clients/) adds the server to each client. The [commands index](/reference/commands/) lists every command.

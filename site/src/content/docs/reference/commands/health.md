@@ -22,14 +22,10 @@ The program's help describes it:
 biomcp health
 ```
 
-## Arguments
-
-The command takes no arguments beyond those in its usage line.
-
 ## Reply
 
 The reply is one JSON object. Its schema is [`biomcp.health/2`](/reference/schemas/biomcp-health-2/), whose page shows a real reply and its fields.
 
 ## Next
 
-The [commands index](/reference/commands/) lists every command.
+[Data sources](/sources/) checks that sources answer and turns a use group off. The [commands index](/reference/commands/) lists every command.

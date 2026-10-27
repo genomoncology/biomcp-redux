@@ -99,6 +99,13 @@ Read every source context and optional explicit full-text citation paragraph.
 | `paragraph_offset` | integer (uint32) | Full-text fragment position returned by the advancing step. Optional. |
 | `pool` | [Text](/reference/schemas/types/#text) | Stored checked source scan and original hit positions. Optional. |
 
+### Other types in this reply
+
+4 more types appear only in this reply: [CitationContexts](#citationcontexts), [CitationParagraphs](#citationparagraphs), [EvidenceContext](#evidencecontext), [EvidenceParagraph](#evidenceparagraph). Open the list below to read their fields.
+
+<details>
+<summary>Fields of the 4 other types</summary>
+
 ### CitationContexts
 
 Source edge metadata and a bounded advancing context page.
@@ -141,6 +148,8 @@ One source paragraph fragment with its own exact outline location.
 | `markdown` | string (markdown) | Preserved source Markdown. |
 | `part` | integer (uint32) | Exact semantic outline part. |
 | `position` | integer (uint32) | One-based original body paragraph position. |
+
+</details>
 
 ## Next
 

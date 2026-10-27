@@ -80,6 +80,13 @@ Answers to requested inputs; ambiguous gene inputs retain all candidates.
 | --- | --- | --- |
 | `items` | list of [ProteinCardItem](#proteincarditem) | One result per input in caller order. Optional. |
 
+### Other types in this reply
+
+2 more types appear only in this reply: [ProteinCardItem](#proteincarditem), [ProteinSections](#proteinsections). Open the list below to read their fields.
+
+<details>
+<summary>Fields of the 2 other types</summary>
+
 ### ProteinCardItem
 
 One requested identity and its source outcome, without first-hit selection.
@@ -107,6 +114,8 @@ Independent source section states; all discloses bounded first pages only.
 | `isoforms` | [Section](/reference/schemas/types/#section) of [ProteinIsoforms](/reference/schemas/types/#proteinisoforms) or null | Requested native alternative-product page. Optional. |
 | `sequence` | [Section](/reference/schemas/types/#section) of [ProteinSequenceResult](/reference/schemas/types/#proteinsequenceresult) or null | Requested direct sequence; absent/unavailable states remain explicit. Optional. |
 | `structures` | [Section](/reference/schemas/types/#section) of [ProteinStructures](/reference/schemas/types/#proteinstructures) or null | Requested structure-link page. Optional. |
+
+</details>
 
 ## Next
 

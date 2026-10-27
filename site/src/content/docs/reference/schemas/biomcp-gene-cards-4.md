@@ -91,6 +91,13 @@ Get one to twenty human gene inputs in their original order.
 | `input` | list of [GeneInput](/reference/schemas/types/#geneinput) | Gene symbols or checked identifiers, in input order. |
 | `section` | list of [GeneSectionWord](#genesectionword) | Requested [section words](/concepts/progressive-disclosure/), preserving caller order and repetitions. Trailing section words select sections. Use --section WORD to keep inputs that equal a section word as inputs. Optional. |
 
+### Other types in this reply
+
+19 more types appear only in this reply: [AccessionBase](#accessionbase), [CancerPtpm](#cancerptpm), [CivicGene](#civicgene), [ClinGenGene](#clingengene), [ClinGenValidity](#clingenvalidity), [Constraint](#constraint), [GeneExpression](#geneexpression), [GeneItem](#geneitem), [GeneSection](#genesection), [GeneSectionWord](#genesectionword), [GeneSections](#genesections), [Oncokb](#oncokb), [OncokbCard](#oncokbcard), [OncokbGeneType](#oncokbgenetype), [OncokbTranscript](#oncokbtranscript), [PathwayRef](#pathwayref), [RnaAbundance](#rnaabundance), [Section](#section), [TissueNtpm](#tissuentpm). Open the list below to read their fields.
+
+<details>
+<summary>Fields of the 19 other types</summary>
+
 ### AccessionBase
 
 Type: string.
@@ -304,6 +311,8 @@ HPA tissue RNA abundance in normalized transcripts per million.
 | --- | --- | --- |
 | `ntpm` | [RnaAbundance](#rnaabundance) | Finite nonnegative nTPM. |
 | `tissue` | [Text](/reference/schemas/types/#text) | Exact source tissue name. |
+
+</details>
 
 ## Next
 

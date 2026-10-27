@@ -90,6 +90,13 @@ Download one exact ClinicalTrials.gov manifest PDF to an explicit caller path; n
 | `replace` | boolean | Replace an existing file only when explicitly requested. Optional. |
 | `save` | [Text](/reference/schemas/types/#text) | Caller-owned file or existing folder. |
 
+### Other types in this reply
+
+One more type appear only in this reply: [TrialDocumentSaved](#trialdocumentsaved). Open the list below to read their fields.
+
+<details>
+<summary>Fields of the 1 other type</summary>
+
 ### TrialDocumentSaved
 
 Receipt for exactly the original source bytes written by the caller.
@@ -100,6 +107,8 @@ Receipt for exactly the original source bytes written by the caller.
 | `document` | [TrialDocument](/reference/schemas/types/#trialdocument) | Original manifest metadata and publisher URL. |
 | `path` | [Text](/reference/schemas/types/#text) | Absolute caller-owned path. |
 | `sha256` | [Text](/reference/schemas/types/#text) | SHA-256 of the complete saved bytes. |
+
+</details>
 
 ## Next
 

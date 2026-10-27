@@ -72,6 +72,13 @@ Independent exact NCI answers in caller order.
 | `attribution` | string | Publisher attribution. |
 | `items` | list of [NciTrialItem](#ncitrialitem) | One independent answer per requested identity. |
 
+### Other types in this reply
+
+10 more types appear only in this reply: [NciArm](#nciarm), [NciArmRecord](#nciarmrecord), [NciCriterion](#ncicriterion), [NciDisease](#ncidisease), [NciEligibilityPage](#ncieligibilitypage), [NciEligibilityStructured](#ncieligibilitystructured), [NciIntervention](#nciintervention), [NciOutcome](#ncioutcome), [NciTrialItem](#ncitrialitem), [NciTrialSections](#ncitrialsections). Open the list below to read their fields.
+
+<details>
+<summary>Fields of the 10 other types</summary>
+
 ### NciArm
 
 Source arm header; interventions follow as indexed records.
@@ -192,6 +199,8 @@ Independently paged native collections from one immutable source record.
 | `eligibility` | [Section](/reference/schemas/types/#section) of [NciEligibilityPage](#ncieligibilitypage) or null | Source criteria and structured eligibility. Optional. |
 | `outcomes` | [Section](/reference/schemas/types/#section) of [TrialRecords](/reference/schemas/types/#trialrecords) of [NciOutcome](#ncioutcome) or null | Source outcomes without registry type coercion. Optional. |
 | `summary` | [Section](/reference/schemas/types/#section) of [NciTextPage](/reference/schemas/types/#ncitextpage) or null | Complete native summary with character continuations. Optional. |
+
+</details>
 
 ## Next
 

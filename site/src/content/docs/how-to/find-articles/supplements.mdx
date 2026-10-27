@@ -1,0 +1,39 @@
+---
+title: Search an article's supplements
+description: Use BioMCP 1.0 to list an article's supplementary files from PMC and return the rows of a spreadsheet supplement that name one protein substitution.
+goal: The reader lists an article's supplementary files and finds the spreadsheet rows that name a variant.
+reader: A researcher or curator who needs the variant tables that authors put in supplements
+kind: how-to
+verified: 2026-10-27
+---
+import Example from '../../../../components/Example.astro';
+import Fact from '../../../../components/Fact.astro';
+
+BioMCP <Fact k="version" /> is a command line tool and MCP server for biomedical data from public sources. It lists an article's supplementary files from PMC metadata and reads one file with `biomcp article supplement`. In a spreadsheet, `--variant` returns the rows that name one protein substitution. The example article is PMID 28944238, whose authors list AXIN2 Pro245Ser in a table.
+
+## Requirements
+
+- BioMCP installed. No key is needed.
+- An article with supplementary files in PMC.
+
+## 1. List the files
+
+The `supplements` section lists each file's name and kind:
+
+<Example id="lit-supplements" />
+
+## 2. Find a variant in a spreadsheet
+
+`biomcp article supplement PMID FILE --variant CHANGE` reads one file and keeps the rows that name the change. Here the authors' table lists AXIN2 Pro245Ser once:
+
+<Example id="lit-supplement-find" />
+
+The columns are the sheet, the row number and the first cells of the row as the authors wrote them. `--variant P245S` also matches the three-letter form `Pro245Ser`.
+
+## Limits
+
+A supplement holds what its authors wrote. An empty match describes this file and this spelling, not the article.
+
+## Next
+
+[Save an article's text, supplement or PDF](/how-to/find-articles/save-files/) writes the file, and [follow an article's citations](/how-to/find-articles/citations/) lists the papers that cite it.

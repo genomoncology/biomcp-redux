@@ -80,6 +80,13 @@ Every source-returned mapping for the exact declared expression.
 | `diplotypes` | list of [PgxDiplotypeResult](#pgxdiplotyperesult) | Zero, one or multiple native mappings; never a selected patient phenotype. |
 | `header` | [PgxHeader](/reference/schemas/types/#pgxheader) | Explicit gene and source. |
 
+### Other types in this reply
+
+One more type appear only in this reply: [PgxDiplotypeResult](#pgxdiplotyperesult). Open the list below to read their fields.
+
+<details>
+<summary>Fields of the 1 other type</summary>
+
 ### PgxDiplotypeResult
 
 Source-native PgxDiplotypeResult fields; no clinical interpretation.
@@ -99,6 +106,8 @@ Source-native PgxDiplotypeResult fields; no clinical interpretation.
 | `genesymbol` | [GeneSymbol](/reference/schemas/types/#genesymbol) | The source's own `genesymbol` value, unchanged. |
 | `lookupkey` | object | The source's own `lookupkey` value, unchanged. |
 | `totalactivityscore` | string | The source's own `totalactivityscore` value, unchanged. |
+
+</details>
 
 ## Next
 

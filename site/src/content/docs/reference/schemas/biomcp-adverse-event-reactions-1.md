@@ -87,6 +87,13 @@ A bounded report section; all rows belong to the exact header and snapshot.
 | `reactions` | [AdverseEventRecords](/reference/schemas/types/#adverseeventrecords) of [AdverseEventReaction](#adverseeventreaction) | One page of complete native rows. |
 | `snapshot` | [Text](/reference/schemas/types/#text) | Opaque retained source snapshot. |
 
+### Other types in this reply
+
+One more type appear only in this reply: [AdverseEventReaction](#adverseeventreaction). Open the list below to read their fields.
+
+<details>
+<summary>Fields of the 1 other type</summary>
+
 ### AdverseEventReaction
 
 Independent native reaction row without drug attribution.
@@ -97,6 +104,8 @@ Independent native reaction row without drug attribution.
 | `outcome` | string or null | Native outcome string; present empty values remain present. Optional. |
 | `term` | [Concept](/reference/schemas/types/#concept) | Source term label without invented CURIE. |
 | `vocabulary_version` | string or null | Native vocabulary_version string; present empty values remain present. Optional. |
+
+</details>
 
 ## Next
 

@@ -22,14 +22,10 @@ The program's help describes it:
 biomcp sync [hgnc|clingen]
 ```
 
-## Arguments
-
-The command takes no arguments beyond those in its usage line.
-
 ## Reply
 
 The reply is one JSON object. Its schema is [`biomcp.sync/4`](/reference/schemas/biomcp-sync-4/), whose page shows a real reply and its fields.
 
 ## Next
 
-The [commands index](/reference/commands/) lists every command.
+[Local data](/local-data/) downloads bundles and cleans the store. The [commands index](/reference/commands/) lists every command.

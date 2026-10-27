@@ -1,0 +1,38 @@
+---
+title: Follow an article's citations
+description: Use BioMCP 1.0 to list the papers that cite an article from NIH iCite or Semantic Scholar, the papers it cites, and similar papers.
+goal: The reader lists the papers that cite an article and knows the commands for references, citation sentences and recommendations.
+reader: A researcher or agent builder following the literature forward or backward from one paper
+kind: how-to
+verified: 2026-10-27
+---
+import Example from '../../../../components/Example.astro';
+import Fact from '../../../../components/Fact.astro';
+
+BioMCP <Fact k="version" /> is a command line tool and MCP server for biomedical data from public sources. `biomcp article citations` lists the papers that cite an article. NIH iCite is the default source; `--source semantic-scholar` uses Semantic Scholar's citation graph. The example is PMID 33123537, a review of AKT1 E17K.
+
+## Requirements
+
+- BioMCP installed. No key is needed. A Semantic Scholar key raises that source's rate limit; see [keys and configuration](/getting-started/api-keys/).
+
+## List the citing papers
+
+<Example id="lit-citations" />
+
+The columns are the citing paper's PMID, its date and its title.
+
+## Other directions
+
+| Command | Returns |
+| --- | --- |
+| `article references ID` | the papers the article cites |
+| `article citation-evidence ID` | the sentences where one paper cites another |
+| `article recommendations ID` | similar papers, from Semantic Scholar |
+
+## Limits
+
+A citation count is the source's count. It does not measure a paper's quality.
+
+## Next
+
+[Find clinical trials by condition, gene or variant](/how-to/find-trials/) searches trials for the same gene.

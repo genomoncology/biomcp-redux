@@ -85,6 +85,13 @@ One source-ordered disease candidate page.
 | `components` | list of [ComponentLabel](/reference/schemas/types/#componentlabel) | Applicable component use terms, independent of row provenance. |
 | `items` | list of [DiseaseHeader](#diseaseheader) | Rows as the source gives them. Totals in `page` count rows, not distinct records. |
 
+### Other types in this reply
+
+One more type appear only in this reply: [DiseaseHeader](#diseaseheader). Open the list below to read their fields.
+
+<details>
+<summary>Fields of the 1 other type</summary>
+
 ### DiseaseHeader
 
 One source candidate without a selected identity.
@@ -95,6 +102,8 @@ One source candidate without a selected identity.
 | `concept` | [Concept](/reference/schemas/types/#concept) | Native concept and optional exact ID. |
 | `obsolete` | boolean or null | Publisher obsolete flag when supplied. Optional. |
 | `ontology` | [DiseaseOntology](/reference/schemas/types/#diseaseontology) | The explicit queried ontology. |
+
+</details>
 
 ## Next
 

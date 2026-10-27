@@ -93,6 +93,13 @@ Search literal human HP term candidates through Monarch with bounded native page
 | `source` | [PhenotypeSource](/reference/schemas/types/#phenotypesource) | Monarch only; HPO search is unsupported. Optional. |
 | `text` | string | Unchanged literal term search text. |
 
+### Other types in this reply
+
+One more type appear only in this reply: [PhenotypeHeader](#phenotypeheader). Open the list below to read their fields.
+
+<details>
+<summary>Fields of the 1 other type</summary>
+
 ### PhenotypeHeader
 
 One native term search candidate, without a selected identity.
@@ -105,6 +112,8 @@ One native term search candidate, without a selected identity.
 | `match_score` | [FiniteNumber](/reference/schemas/types/#finitenumber) or null | Native search match score with no local interpretation. Optional. |
 | `match_type` | string or null | Native match type label. Optional. |
 | `matched_field` | string or null | Native matched field name. Optional. |
+
+</details>
 
 ## Next
 
