@@ -3,7 +3,7 @@
 set -eu
 test -n "$BUILD_IMAGE"
 revision=$(git rev-parse HEAD)
-mkdir -p .release-cache/cargo
+mkdir -p .release-cache/cargo dist
 docker run --rm "$@" \
   -v "$PWD:/source" -w /source \
   -v "$PWD/.release-cache/cargo:/cargo" -e CARGO_HOME=/cargo \
