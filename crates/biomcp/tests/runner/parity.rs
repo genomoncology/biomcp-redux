@@ -5,16 +5,30 @@ use serde_json::{Value, json};
 use std::{collections::BTreeMap, fs, path::Path, process::ExitCode};
 #[path = "parity_execution.rs"]
 mod execution;
+#[path = "parity_inventory.rs"]
+mod inventory;
+
+pub(crate) fn inventory_main(args: Vec<String>) -> ExitCode {
+    inventory::main(args)
+}
+#[path = "parity_projection.rs"]
+mod projection;
 #[path = "parity_recording.rs"]
 mod recording;
 #[path = "parity_registry.rs"]
 mod registry;
+#[path = "parity_request.rs"]
+mod request;
 
 #[derive(Deserialize)]
 #[serde(deny_unknown_fields)]
 struct Plan {
     baseline_release: String,
     cases: Vec<Selection>,
+    #[serde(default)]
+    batches: Vec<String>,
+    #[serde(default)]
+    inventory: inventory::Exceptions,
 }
 #[derive(Deserialize)]
 #[serde(deny_unknown_fields)]
@@ -23,13 +37,40 @@ struct Selection {
     step: usize,
     baseline_command: Vec<String>,
     spelling_table: String,
+    release_source: Vec<String>,
     baseline_globals: Vec<String>,
+    #[serde(default)]
+    command_selectors: BTreeMap<String, String>,
     recordings: Vec<recording::Route>,
     #[serde(default)]
+    source_free: bool,
+    #[serde(default)]
+    baseline_exit: i32,
+    #[serde(default)]
+    baseline_stream: execution::JsonStream,
+    #[serde(default)]
     assertion_pointers: Option<Vec<String>>,
-    facts: BTreeMap<String, String>,
+    facts: BTreeMap<String, projection::Projection>,
+    #[serde(default)]
+    unprojectable_facts: BTreeMap<String, UnsupportedFact>,
 }
 
+#[derive(Deserialize, serde::Serialize)]
+#[serde(deny_unknown_fields)]
+struct UnsupportedFact {
+    reason: String,
+    release_source: String,
+}
+impl UnsupportedFact {
+    fn validate(&self) -> Result<(), String> {
+        if self.reason.trim().is_empty() || !self.release_source.starts_with("src/") {
+            return Err(
+                "unsupported fact requires a reason grounded in released serialization".into(),
+            );
+        }
+        Ok(())
+    }
+}
 pub(crate) fn main(args: Vec<String>) -> ExitCode {
     let result = match args.as_slice() {
         [plan, baseline, out] => run(Path::new(plan), Path::new(baseline), Path::new(out)),
@@ -38,7 +79,9 @@ pub(crate) fn main(args: Vec<String>) -> ExitCode {
     use std::io::Write;
     match result {
         Ok(report) => {
-            let _ = writeln!(std::io::stdout(), "{report}");
+            if writeln!(std::io::stdout(), "{report}").is_err() {
+                return ExitCode::FAILURE;
+            }
             if report.get("assessment_gaps").and_then(Value::as_u64) == Some(0)
                 && report.get("regressions").and_then(Value::as_u64) == Some(0)
             {
@@ -48,14 +91,38 @@ pub(crate) fn main(args: Vec<String>) -> ExitCode {
             }
         }
         Err(error) => {
-            let _ = writeln!(std::io::stderr(), "parity: {error}");
+            if writeln!(std::io::stderr(), "parity: {error}").is_err() {
+                return ExitCode::FAILURE;
+            }
             ExitCode::FAILURE
         }
     }
 }
+fn load_plan(path: &Path) -> Result<Plan, String> {
+    let read = |path: &Path| -> Result<Plan, String> {
+        serde_json::from_slice(&fs::read(path).map_err(|e| e.to_string())?)
+            .map_err(|e| e.to_string())
+    };
+    let mut plan = read(path)?;
+    for batch in std::mem::take(&mut plan.batches) {
+        let name = Path::new(&batch);
+        if name
+            .components()
+            .any(|part| !matches!(part, std::path::Component::Normal(_)))
+        {
+            return Err("batch must be a relative path without traversal".into());
+        }
+        let child = read(&path.parent().ok_or("plan parent missing")?.join(name))?;
+        if child.baseline_release != plan.baseline_release || !child.batches.is_empty() {
+            return Err("batch must target the same release without nested batches".into());
+        }
+        plan.cases.extend(child.cases);
+        plan.inventory.extend(child.inventory);
+    }
+    Ok(plan)
+}
 fn run(plan: &Path, baseline: &Path, out: &Path) -> Result<Value, String> {
-    let plan: Plan = serde_json::from_slice(&fs::read(plan).map_err(|e| e.to_string())?)
-        .map_err(|e| e.to_string())?;
+    let plan = load_plan(plan)?;
     if plan.baseline_release != "0.9.3"
         || plan.cases.is_empty()
         || plan.cases.len() > 1024
@@ -120,9 +187,10 @@ fn run(plan: &Path, baseline: &Path, out: &Path) -> Result<Value, String> {
     )
 }
 fn load_selection(selection: &Selection) -> Result<Case, String> {
-    let path = super::launch::fixtures()
-        .join("cases")
-        .join(&selection.case);
+    load_selection_from(selection, &super::launch::fixtures().join("cases"))
+}
+fn load_selection_from(selection: &Selection, cases: &Path) -> Result<Case, String> {
+    let path = cases.join(&selection.case);
     let mut case: Case =
         serde_saphyr::from_str(&fs::read_to_string(&path).map_err(|e| e.to_string())?)
             .map_err(|e| e.to_string())?;
@@ -143,9 +211,25 @@ fn load_selection(selection: &Selection) -> Result<Case, String> {
             .expect
             .get(pointer)
             .ok_or("projection names an unknown harvested assertion")?;
-        let mut projection = step.clone();
-        projection.expect = BTreeMap::from([(baseline_pointer.clone(), expected.clone())]);
-        assertions::prepare(&projection)?;
+        for pointer in baseline_pointer.pointers() {
+            let mut projected = step.clone();
+            projected.expect = BTreeMap::from([(pointer.to_owned(), expected.clone())]);
+            assertions::prepare(&projected)?;
+        }
+    }
+    for (pointer, reason) in &selection.unprojectable_facts {
+        if !step.expect.contains_key(pointer) || selection.facts.contains_key(pointer) {
+            return Err("unsupported fact is unknown or also projected".into());
+        }
+        reason.validate()?;
+    }
+    if selection.release_source.is_empty()
+        || selection
+            .release_source
+            .iter()
+            .any(|p| !p.starts_with("src/"))
+    {
+        return Err("projection requires released command and serializer provenance".into());
     }
     if selection.baseline_command.is_empty() {
         return Err("selection requires a baseline command".into());
@@ -169,6 +253,7 @@ fn load_selection(selection: &Selection) -> Result<Case, String> {
         return Err("missing spelling-table provenance".into());
     }
     registry::validate(selection)?;
+    request::validate_command(selection, step)?;
     Ok(case)
 }
 fn compare(
@@ -188,11 +273,21 @@ fn compare(
         .ok_or("selection requires a direct CLI step")?;
     let replay = super::launch::fixtures()
         .join("replies")
-        .join(case.replay.as_ref().ok_or("recording required")?);
+        .join(case.replay.as_deref().unwrap_or("parity-empty"));
+    let replay = if case.replay.is_some() {
+        replay
+    } else {
+        let empty = out.join(format!("{index}-empty-replay"));
+        fs::create_dir(&empty).map_err(|e| e.to_string())?;
+        empty
+    };
     let current = execution::candidate(case, step, command, &replay, out, index)?;
-    let mut old = recording::baseline(selection, baseline, &replay, out, index)?;
+    let mut old = recording::baseline(selection, baseline, &replay, out, index)
+        .unwrap_or_else(|error| json!({"assessment_error":error}));
     let mut current = current;
-    execution::assess_exit(&mut old, 0)?;
+    if old.get("assessment_error").is_none() {
+        execution::assess_exit(&mut old, selection.baseline_exit)?;
+    }
     execution::assess_exit(&mut current, step.exit)?;
     let facts = facts(step, selection, &old, &current)?;
     let unselected = step
@@ -207,7 +302,8 @@ fn compare(
         .collect::<Vec<_>>();
     Ok(
         json!({"case":selection.case,"story":case.story,"step":selection.step,
-        "spelling_table":selection.spelling_table,"baseline":old,"candidate":current,"facts":facts,
+        "spelling_table":selection.spelling_table,"release_source":selection.release_source,
+        "baseline_routes":selection.recordings,"baseline":old,"candidate":current,"facts":facts,
         "selection":selection.assertion_pointers,
         "unselected_assertion_pointers":unselected}),
     )
@@ -232,21 +328,48 @@ fn facts(
         let prepared = assertions::prepare(&fact)?;
         for (_, _, assertions) in prepared {
             for assertion in assertions {
+                if let Some(reason) = selection.unprojectable_facts.get(pointer) {
+                    result.push(json!({"pointer":pointer,"expected":expected,"assertion":format!("{assertion:?}"),
+                        "baseline":{"verdict":"unprojectable","reason":reason.reason,"release_source":reason.release_source},
+                        "candidate":verdict(current, pointer, &assertion)}));
+                    continue;
+                }
                 let Some(old_pointer) = selection.facts.get(pointer) else {
                     result.push(json!({"pointer":pointer,"expected":expected,"assertion":format!("{assertion:?}"),
                         "baseline":{"verdict":"assessment_gap","reason":format!("missing baseline projection for {pointer}")},
                         "candidate":{"verdict":"assessment_gap","reason":"paired assessment needs a baseline projection"}}));
                     continue;
                 };
-                let left = verdict(old, old_pointer, &assertion);
+                let left = projected_verdict(old, old_pointer, &assertion);
                 let right = verdict(current, pointer, &assertion);
-                result.push(json!({"pointer":pointer,"baseline_pointer":old_pointer,
+                result.push(json!({"pointer":pointer,"baseline_projection":old_pointer,
                     "assertion":format!("{assertion:?}"),"expected":expected,
                     "baseline":left,"candidate":right}));
             }
         }
     }
     Ok(result)
+}
+fn projected_verdict(
+    output: &Value,
+    projection: &projection::Projection,
+    assertion: &assertions::Assertion<'_>,
+) -> Value {
+    if let Some(error) = output.get("assessment_error") {
+        return json!({"verdict":"assessment_gap","reason":error});
+    }
+    let Some(reply) = output.get("parsed") else {
+        return json!({"verdict":"assessment_gap","reason":"command did not emit JSON"});
+    };
+    match projection.select(reply) {
+        Ok(actual) => match assertion.check("released projection", &actual) {
+            Ok(()) => json!({"verdict":"right","actual":actual,"projection":projection}),
+            Err(error) => {
+                json!({"verdict":"wrong","actual":actual,"reason":error,"projection":projection})
+            }
+        },
+        Err(error) => json!({"verdict":"assessment_gap","reason":error,"projection":projection}),
+    }
 }
 fn verdict(output: &Value, pointer: &str, assertion: &assertions::Assertion<'_>) -> Value {
     if let Some(error) = output.get("assessment_error") {

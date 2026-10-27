@@ -2,6 +2,35 @@ use super::Environment;
 use serde_json::{Value, json};
 use std::{fs, path::Path, process::Stdio, time::Instant};
 
+#[derive(Default, serde::Deserialize, serde::Serialize)]
+#[serde(rename_all = "snake_case")]
+pub(super) enum JsonStream {
+    #[default]
+    Stdout,
+    Stderr,
+}
+pub(super) fn select_stream(
+    result: &mut Value,
+    stream: &JsonStream,
+    out: &Path,
+) -> Result<(), String> {
+    let name = match stream {
+        JsonStream::Stdout => "stdout",
+        JsonStream::Stderr => "stderr",
+    };
+    let path = out.with_extension(name);
+    let parsed = serde_json::from_slice::<Value>(&fs::read(path).map_err(|e| e.to_string())?);
+    if let Ok(parsed) = parsed {
+        field(result, "parsed", parsed)?;
+    } else {
+        field(
+            result,
+            "assessment_error",
+            json!(format!("released {name} is not a JSON document")),
+        )?;
+    }
+    field(result, "json_stream", json!(stream))
+}
 pub(super) fn invoke(
     env: &Environment,
     binary: &Path,

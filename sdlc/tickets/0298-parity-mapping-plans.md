@@ -1,6 +1,7 @@
 # 0298 — Declare 0.9.3 endpoints and inventory every harvested case for parity
 
-Status: OPEN.
+Status: COMPLETE.
+Landed: 73da9b3bfac79d5bd7c9dde84b889716192c8a3e
 
 Milestone: 5
 

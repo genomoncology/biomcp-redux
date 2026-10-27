@@ -61,3 +61,7 @@ schema-release-check:
 .PHONY: parity-run
 parity-run:
 	sh scripts/parity_runner.sh "$(PLAN)" "$(BASELINE)" "$(OUT)"
+
+.PHONY: parity-inventory
+parity-inventory:
+	cargo test --locked -p biomcp --test cases -- --parity-inventory "$(abspath $(PLAN))" "$(CURDIR)/tests/cases" "$(abspath $(OUT))"

@@ -12,6 +12,9 @@ fn main() -> ExitCode {
     if env::args().nth(1).as_deref() == Some("--parity") {
         return runner::parity::main(env::args().skip(2).collect());
     }
+    if env::args().nth(1).as_deref() == Some("--parity-inventory") {
+        return runner::parity::inventory_main(env::args().skip(2).collect());
+    }
     if let Some(code) = native_proof() {
         return code;
     }
