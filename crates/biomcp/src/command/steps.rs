@@ -1,8 +1,8 @@
 //! Carry active request restrictions through every generated command.
 use std::io;
 pub(super) fn next(
-    fetch: &biomcp_fetch::Fetch,
     result: &biomcp_query::Outcome,
+    globals: &crate::grammar::Globals,
 ) -> io::Result<Vec<biomcp_types::Step>> {
     let mut steps = result
         .next
@@ -27,7 +27,7 @@ pub(super) fn next(
             Some(has_more || u64::from(page.offset) + u64::from(page.returned) < page.total),
         ),
     }
-    Ok(source_steps(fetch, steps))
+    Ok(source_steps(globals, steps))
 }
 
 #[derive(Debug)]
@@ -90,35 +90,30 @@ fn candidate_navigation(candidates: bool) -> Navigation<'static> {
 }
 
 fn source_steps(
-    fetch: &biomcp_fetch::Fetch,
+    globals: &crate::grammar::Globals,
     steps: Vec<biomcp_types::Step>,
 ) -> Vec<biomcp_types::Step> {
-    let registered = biomcp_adapters::registry::SOURCES;
-    let sources = registered.iter().map(|spec| spec.source).chain(
-        fetch
-            .disabled_sources()
-            .filter(|source| !registered.iter().any(|spec| spec.source == *source)),
-    );
-    let disabled = sources
-        .filter(|source| fetch.disabled(*source))
-        .map(|source| source.to_string())
-        .chain(fetch.disabled_uses().map(|usage| usage.as_str().to_owned()))
-        .collect::<Vec<_>>()
-        .join(",");
-    if disabled.is_empty() {
+    let mut prefix: Vec<Box<str>> = Vec::new();
+    if let Some(path) = &globals.config {
+        prefix.extend([
+            "--config".into(),
+            path.to_string_lossy().into_owned().into(),
+        ]);
+    }
+    if !globals.disable_sources.is_empty() {
+        prefix.extend([
+            "--disable-sources".into(),
+            globals.disable_sources.join(",").into(),
+        ]);
+    }
+    if prefix.is_empty() {
         return steps;
     }
     steps
         .into_iter()
         .map(|mut step| {
             let mut args = step.args.into_vec();
-            args.splice(
-                0..0,
-                [
-                    "--disable-sources".into(),
-                    disabled.clone().into_boxed_str(),
-                ],
-            );
+            args.splice(0..0, prefix.iter().cloned());
             step.args = args.into();
             step
         })

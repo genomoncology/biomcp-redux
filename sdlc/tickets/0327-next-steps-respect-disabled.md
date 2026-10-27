@@ -1,6 +1,7 @@
 # 0327 — Keep next steps runnable under disabled sources
 
-Status: OPEN.
+Status: COMPLETE.
+Landed: 4cbb7811722ba7727587b59e6abfbbc92e42975e
 
 Milestone: 5
 
