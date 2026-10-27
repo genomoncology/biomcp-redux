@@ -41,7 +41,10 @@ pub(crate) fn cache(
 }
 
 /// Resolve supported sibling files without opening them or changing their contents.
-pub(crate) fn cache_predecessors(active: &std::path::Path) -> Vec<PathBuf> {
+pub(crate) fn cache_predecessors(active: Option<&std::path::Path>) -> Vec<PathBuf> {
+    let Some(active) = active else {
+        return Vec::new();
+    };
     active
         .parent()
         .into_iter()

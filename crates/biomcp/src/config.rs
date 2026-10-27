@@ -154,10 +154,7 @@ fn fetch_using(
         cache_owners: vec![biomcp_query::store::OWNER],
         secrets,
         network,
-        cache_predecessors: cache
-            .as_deref()
-            .map(crate::paths::cache_predecessors)
-            .unwrap_or_default(),
+        cache_predecessors: crate::paths::cache_predecessors(cache.as_deref()),
         cache,
         mode,
         replay_cache,
