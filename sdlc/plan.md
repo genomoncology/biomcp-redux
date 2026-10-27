@@ -17,7 +17,7 @@ Robustness and public-text fixes come first, because the parity run, the docs an
 
 ### 2. Prove parity
 
-- Run the harvested cases against 0.9.3 and 1.0 and fill the deferred size and timing comparison (0291). Each fact 1.0 loses becomes a bug ticket.
+- Run the harvested cases against 0.9.3 and 1.0 with a runner (0291), then a whole run from main that fills the deferred size and timing comparison (0297). Each fact 1.0 loses becomes a bug ticket.
 - Run the outside judged agent comparison against the latest released 0.9 (0098), PM-owned.
 - Capture the LitSense gene search when the source allows it (0072).
 
