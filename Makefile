@@ -16,7 +16,7 @@ TEST_THREADS = $(if $(strip $(RUST_TEST_THREADS)),-- --test-threads $(RUST_TEST_
 landing-gate: plain-cli-build docs-check fmt lint tensor-proto-check coverage audit secrets
 
 plain-cli-build:
-	cargo build --locked -p biomcp --bin biomcp
+	cargo build --locked -p biomcp --bin biomcp --timings
 
 fmt:
 	cargo fmt --all -- --check
