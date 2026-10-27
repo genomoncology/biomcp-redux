@@ -349,6 +349,7 @@ pub(super) fn protocol_trials() -> Vec<Trial> {
     trials.extend(variant::trials());
     trials.extend(variant_assertion_wire::trials());
     trials.extend(variant_assertions::trials());
+    trials.extend(variant_discovery::trials());
     trials.extend(variant_condition_relationship::trials());
     trials.extend(variant_population::trials());
     trials.extend(variant_population_release::trials());
@@ -520,6 +521,7 @@ pub(super) fn installed_http_trials() -> Vec<Trial> {
 
 mod variant_assertion_wire;
 mod variant_assertions;
+mod variant_discovery;
 mod variant_condition_relationship;
 
 pub(super) fn disease_native(path: &Path) -> Result<(), String> {
