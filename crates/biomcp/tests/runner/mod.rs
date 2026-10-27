@@ -101,6 +101,7 @@ mod pmc_tables;
 mod pool_tables;
 mod process;
 pub(super) mod proof;
+mod output_stream;
 mod protein_budgets;
 mod protein_commands;
 mod protein_domains;
@@ -298,6 +299,7 @@ fn run_case(path: &Path, registry: &schema::Registry) -> Result<Value, String> {
 
 pub(super) fn protocol_trials() -> Vec<Trial> {
     let mut trials = protocol::trials();
+    trials.extend(output_stream::trials());
     trials.extend(housekeeping::trials());
     trials.extend(skill::trials());
     trials.extend(research::trials());

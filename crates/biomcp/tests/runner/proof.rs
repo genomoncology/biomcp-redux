@@ -312,9 +312,11 @@ fn isolation() -> Check {
 }
 
 fn output_failure() -> Check {
-    // Close the reader before spawning so the first write must hit a broken pipe.
-    let (reader, writer) = std::io::pipe().map_err(|error| error.to_string())?;
-    drop(reader);
+    // A read-only file rejects writes independently of pipe closure.
+    let env = Environment::new().map_err(|error| error.to_string())?;
+    let path = env.root().join("read-only-output");
+    fs::write(&path, b"unchanged").map_err(|error| error.to_string())?;
+    let writer = fs::File::open(path).map_err(|error| error.to_string())?;
     let output = Environment::new()
         .map_err(|error| error.to_string())?
         .command(
