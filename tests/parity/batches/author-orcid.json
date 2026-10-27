@@ -1093,15 +1093,15 @@
       },
       "unprojectable_facts": {
         "/status": {
-          "reason": "Released compact author papers accepts a nonnumeric PubMed external ID as a string and serializes papers and _meta.source_status on success. Released error serialization has no current lifecycle, source reason or use fields. The successful source status uses semantic_scholar, not the current source spelling. No current envelope fact is inferred from provider success or failure.",
+          "reason": "Released map_paper accepts a nonnumeric PubMed external ID as a string. Its successful compact page has no current rejection status, reason or use. The actual provider name is projected separately from _meta.source_status.",
           "release_source": "src/entities/author/papers.rs::map_paper;src/entities/author/papers.rs::finish_compact;src/render/json.rs::to_error_json"
         },
         "/sources/0/reason": {
-          "reason": "Released compact author papers accepts a nonnumeric PubMed external ID as a string and serializes papers and _meta.source_status on success. Released error serialization has no current lifecycle, source reason or use fields. The successful source status uses semantic_scholar, not the current source spelling. No current envelope fact is inferred from provider success or failure.",
+          "reason": "Released map_paper accepts a nonnumeric PubMed external ID as a string. Its successful compact page has no current rejection status, reason or use. The actual provider name is projected separately from _meta.source_status.",
           "release_source": "src/entities/author/papers.rs::map_paper;src/entities/author/papers.rs::finish_compact;src/render/json.rs::to_error_json"
         },
         "/sources/0/use": {
-          "reason": "Released compact author papers accepts a nonnumeric PubMed external ID as a string and serializes papers and _meta.source_status on success. Released error serialization has no current lifecycle, source reason or use fields. The successful source status uses semantic_scholar, not the current source spelling. No current envelope fact is inferred from provider success or failure.",
+          "reason": "Released map_paper accepts a nonnumeric PubMed external ID as a string. Its successful compact page has no current rejection status, reason or use. The actual provider name is projected separately from _meta.source_status.",
           "release_source": "src/entities/author/papers.rs::map_paper;src/entities/author/papers.rs::finish_compact;src/render/json.rs::to_error_json"
         }
       },
@@ -1149,15 +1149,15 @@
       },
       "unprojectable_facts": {
         "/status": {
-          "reason": "Released compact author papers accepts a nonnumeric PubMed external ID as a string and serializes papers and _meta.source_status on success. Released error serialization has no current lifecycle, source reason or use fields. The successful source status uses semantic_scholar, not the current source spelling. No current envelope fact is inferred from provider success or failure.",
+          "reason": "Released validate_author_papers_page rejects an offset that differs from the request. The rendered error retains the actual provider name but no current lifecycle status, source reason or use.",
           "release_source": "src/entities/author/papers.rs::map_paper;src/entities/author/papers.rs::finish_compact;src/render/json.rs::to_error_json"
         },
         "/sources/0/reason": {
-          "reason": "Released compact author papers accepts a nonnumeric PubMed external ID as a string and serializes papers and _meta.source_status on success. Released error serialization has no current lifecycle, source reason or use fields. The successful source status uses semantic_scholar, not the current source spelling. No current envelope fact is inferred from provider success or failure.",
+          "reason": "Released validate_author_papers_page rejects an offset that differs from the request. The rendered error retains the actual provider name but no current lifecycle status, source reason or use.",
           "release_source": "src/entities/author/papers.rs::map_paper;src/entities/author/papers.rs::finish_compact;src/render/json.rs::to_error_json"
         },
         "/sources/0/use": {
-          "reason": "Released compact author papers accepts a nonnumeric PubMed external ID as a string and serializes papers and _meta.source_status on success. Released error serialization has no current lifecycle, source reason or use fields. The successful source status uses semantic_scholar, not the current source spelling. No current envelope fact is inferred from provider success or failure.",
+          "reason": "Released validate_author_papers_page rejects an offset that differs from the request. The rendered error retains the actual provider name but no current lifecycle status, source reason or use.",
           "release_source": "src/entities/author/papers.rs::map_paper;src/entities/author/papers.rs::finish_compact;src/render/json.rs::to_error_json"
         }
       },
