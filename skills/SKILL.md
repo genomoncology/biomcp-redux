@@ -7,7 +7,7 @@ description: Retrieve biomedical source records through the BioMCP command line 
 
 Use BioMCP to retrieve source records for cancer care questions and biomedical research on human health. Read the response status, problems and source outcomes before using a result. Keep each source's identifiers, dates, terms and uncertainty with its claims. Follow returned next commands to page results or inspect a named section. Reads never synchronize local bundles. Synchronize a named bundle explicitly when the response requests it.
 
-Report counts are not risk, incidence or causation. Listings are not recommendations. An empty reply states source-local absence. Do not infer clinical suitability or choose treatment from these records. BioMCP never downloads, installs or runs bioinformatics tools.
+Adverse-event report counts do not establish risk, incidence or causation. Listings alone are not recommendations. Preserve source scope, dates, identifiers, terms and reported uncertainty. A successful empty result means no matching records were returned for that source, query and filters. Do not infer clinical suitability or choose treatment from a listing alone. BioMCP never downloads, installs or runs bioinformatics tools.
 
 The worked examples below retrieve source records. Their commands come from executable cases with retained replies. A case proves the command and its response contract; it does not establish a clinical conclusion. Live source replies may change.
 

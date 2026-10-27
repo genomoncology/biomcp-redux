@@ -38,7 +38,10 @@ pub(crate) fn parse(matches: &clap::ArgMatches) -> Option<Skill> {
         },
         Some(("status", args)) => Skill::Status(args.get_one::<PathBuf>("directory")?.clone()),
         Some((name, args)) => {
-            if args.get_many::<std::ffi::OsString>("").is_some() {
+            if args
+                .get_many::<std::ffi::OsString>("")
+                .is_some_and(|mut values| values.next().is_some())
+            {
                 return None;
             }
             Skill::Show(name.into())

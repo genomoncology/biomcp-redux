@@ -14,7 +14,19 @@ fn run(env: &Environment, args: &[&str]) -> Check<Vec<u8>> {
     let args = args.iter().map(|arg| (*arg).to_owned()).collect::<Vec<_>>();
     let output = env.command(env!("CARGO_BIN_EXE_biomcp"), &args).output()?;
     if !output.status.success() {
-        return Err(format!("skill command failed: {output:?}").into());
+        return Err(format!("skill command failed: {args:?}: {output:?}").into());
+    }
+    // Embedded text measured from the canonical UTF-8 payload; summaries are
+    // measured at the executable boundary. Keep fifteen percent headroom.
+    let measured: usize = match args.get(1).map(String::as_str) {
+        None | Some("render") => 1824,
+        Some("list") => 955,
+        Some("install") => 128,
+        Some("status") => 64,
+        _ => 350,
+    };
+    if output.stdout.len() > (measured * 115).div_ceil(100) {
+        return Err(format!("skill output exceeds measured ceiling: {args:?}").into());
     }
     Ok(output.stdout)
 }
@@ -28,9 +40,15 @@ fn state(env: &Environment, directory: &str, expected: &str) -> Check {
 }
 fn check() -> Check {
     let env = Environment::new()?;
+    env.config(&json!({"keys":{"unknown":"never-read"}}))?;
+    fs::write(
+        env.root().join("config/biomcp/config.json"),
+        "invalid config",
+    )?;
     let overview = run(&env, &["skill"])?;
     if overview != run(&env, &["skill", "render"])?
-        || !String::from_utf8(overview)?.contains("Report counts are not risk")
+        || !String::from_utf8(overview)?
+            .contains("Adverse-event report counts do not establish risk")
     {
         return Err("canonical guide or report-count boundary differs".into());
     }
@@ -41,6 +59,7 @@ fn check() -> Check {
     if run(&env, &["skill", "1"])? != run(&env, &["skill", "treatment-lookup"])? {
         return Err("released example alias differs".into());
     }
+    aliases(&env)?;
     state(&env, "agent", "missing")?;
     run(&env, &["skill", "install", "agent"])?;
     state(&env, "agent", "current")?;
@@ -123,5 +142,35 @@ fn manifest_boundary(env: &Environment, target: &Path) -> Check {
         refused(env, &["skill", "status", "agent"])?;
     }
     fs::remove_file(target.join(".biomcp-skill.json"))?;
+    Ok(())
+}
+
+fn aliases(env: &Environment) -> Check {
+    for (index, slug) in [
+        "treatment-lookup",
+        "symptom-phenotype",
+        "gene-disease-orientation",
+        "article-follow-up",
+        "variant-pathogenicity",
+        "drug-regulatory",
+        "gene-function-localization",
+        "mechanism-pathway",
+        "trial-recruitment",
+        "pharmacogene-cumulative",
+        "disease-locus-mapping",
+        "cellular-process-regulation",
+        "mutation-catalog",
+        "syndrome-disambiguation",
+        "negative-evidence",
+        "normalize-to-codes",
+        "exact-variant-literature",
+    ]
+    .iter()
+    .enumerate()
+    {
+        if run(env, &["skill", &(index + 1).to_string()])? != run(env, &["skill", slug])? {
+            return Err(format!("released example alias differs: {slug}").into());
+        }
+    }
     Ok(())
 }
