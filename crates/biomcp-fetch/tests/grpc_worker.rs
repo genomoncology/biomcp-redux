@@ -24,6 +24,44 @@ static SOURCE: SourceSpec = SourceSpec {
 };
 
 #[test]
+fn http_failure_refuses_body_even_when_grpc_trailers_claim_success() -> support::Check {
+    for (status, reason) in [
+        (401, Reason::Rejected),
+        (429, Reason::RateLimited),
+        (500, Reason::Unavailable),
+    ] {
+        let fixture = support::Fixture::with_http(
+            support::Hold::None,
+            0,
+            false,
+            false,
+            vec![vec![8, 42]],
+            None,
+            status,
+        )?;
+        let fetch = Fetch::open(FetchConfig {
+            network: fixture.network(None, "")?,
+            ..Default::default()
+        })?;
+        let source = fixture.source(false, KeyUse::None);
+        let leg = fetch.leg(source, fetch.deadline(Duration::from_secs(5)));
+        let mut messages = 0;
+        let error = leg
+            .grpc(&source.grpc("/synthetic.Tensor/Exchange"), &[], |_| {
+                messages += 1;
+                Ok(())
+            })
+            .unwrap_err();
+        assert!(
+            matches!(error, biomcp_fetch::RequestError::Source(error) if error.reason == reason)
+        );
+        assert_eq!(messages, 0);
+        fixture.finish()?;
+    }
+    Ok(())
+}
+
+#[test]
 fn stream_worker_offline_never_opens_a_connection() {
     let fetch = Fetch::open(FetchConfig {
         mode: Mode::Offline,
