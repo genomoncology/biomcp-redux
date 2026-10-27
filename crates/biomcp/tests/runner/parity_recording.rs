@@ -172,13 +172,7 @@ fn bodies(
             let exchange = exchanges
                 .get(ordinal_exchange)
                 .ok_or("selected exchange missing")?;
-            let delay_ms = exchange
-                .get("delay_ms")
-                .and_then(Value::as_u64)
-                .ok_or("recorded delay missing")?;
-            if delay_ms >= 10000 {
-                return Err("assessment gap: recorded delay exceeds the direct peer bounds".into());
-            }
+            let delay_ms = recorded_delay(exchange)?;
             let (adapted, body) = adapted_body(route, exchange)?;
             let status = exchange
                 .get("status")
@@ -210,6 +204,17 @@ fn bodies(
             })
         })
         .collect()
+}
+
+fn recorded_delay(exchange: &Value) -> Result<u64, String> {
+    let delay = exchange
+        .get("delay_ms")
+        .and_then(Value::as_u64)
+        .ok_or("recorded delay missing")?;
+    if delay >= 10000 {
+        return Err("assessment gap: recorded delay exceeds the direct peer bounds".into());
+    }
+    Ok(delay)
 }
 
 fn adapted_body(route: &Route, exchange: &Value) -> Result<(Value, Vec<u8>), String> {
