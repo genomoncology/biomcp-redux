@@ -247,12 +247,11 @@ fn configuration() -> Result<(), String> {
         .map_err(|e| e.to_string())?;
         let value = super::configuration::invoke(
             &env,
-            vec!["get".into(), "gene".into(), "BRAF".into()],
+            vec!["search".into(), "gene".into(), "BRAF".into()],
             if limit == 1 { 4 } else { 0 },
         )?;
         if (limit == 1 && value.pointer("/sources/0/reason") != Some(&json!("syncing")))
-            || (limit != 1
-                && value.pointer("/result/items/0/answer/gene/symbol") != Some(&json!("BRAF")))
+            || (limit != 1 && value.pointer("/result/items/0/symbol") != Some(&json!("BRAF")))
         {
             return Err(format!(
                 "automatic sync did not apply configured byte limit: {value}"
