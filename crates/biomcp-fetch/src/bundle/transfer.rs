@@ -187,7 +187,7 @@ fn stage_table(
             return Err(CacheError::Busy);
         }
         let values = (0..columns)
-            .map(|n| row.get_ref(n))
+            .map(|n| row.get_ref(n).map(rusqlite::types::ToSqlOutput::Borrowed))
             .collect::<Result<Vec<_>, _>>()
             .map_err(db_error)?;
         insert
