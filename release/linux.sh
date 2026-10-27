@@ -24,16 +24,14 @@ docker run --rm "$@" \
 # The install process sees the artifacts and copied proof, without the checkout.
 docker run --rm "$@" \
   -v "$PWD/dist:/artifacts:ro" -v "$PWD/proof:/proof:ro" \
+  -v "$PWD/dist:/output" \
   "$BUILD_IMAGE" /bin/bash -c '
     set -euo pipefail
     export PATH=/opt/python/cp312-cp312/bin:$PATH
     cp -a /proof /tmp/check
     python /tmp/check/tools/release/gate.py --prepared --python python \
-      --artifacts /artifacts --scratch /tmp/check
-    cat /tmp/check/report.json
+      --artifacts /artifacts --scratch /tmp/check --report /output/install-report.json
   ' > install-report.log
-# Retain the gate report from the installed proof, including explicit deferrals.
-tail -n 1 install-report.log > dist/install-report.json
 cat install-report.log
 archive=$(find dist -name 'biomcp-linux-*.tar.gz')
 case "$archive" in

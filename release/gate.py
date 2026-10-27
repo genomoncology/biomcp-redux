@@ -118,7 +118,7 @@ def installed(args):
     check("download-install-script", public_destination / ("biomcp" + suffix))
     if not homebrew(output, root, check):
         results.append({"artifact": "homebrew-formula", "platform": record["platform"], "result": "deferred", "reason": "Homebrew is unavailable"})
-    (root / "report.json").write_text(json.dumps(results, indent=2) + "\n")
+    (args.report or root / "report.json").write_text(json.dumps(results, indent=2) + "\n")
     print(json.dumps(results))
 
 
@@ -147,6 +147,7 @@ def main():
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--artifacts", type=Path, required=True)
     parser.add_argument("--scratch", type=Path, required=True)
+    parser.add_argument("--report", type=Path, help="Write the complete JSON report here instead of scratch/report.json")
     parser.add_argument("--prepared", action="store_true", help="Use the already copied runner and public fixtures")
     parser.add_argument("--prepare-only", action="store_true")
     parser.add_argument("--python", default="python3")
