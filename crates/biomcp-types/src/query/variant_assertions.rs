@@ -21,16 +21,17 @@ struct Fields {
     /// VCV archive or ERepo document version; RCV/SCV selectors match a returned native version.
     #[serde(default, skip_serializing_if = "Option::is_none")]
     version: Option<Text>,
-    /// Assertions per page.
-    #[serde(default = "limit")]
+    /// Assertions per page; omitted uses the native source default.
+    #[serde(
+        default,
+        deserialize_with = "super::gene::present",
+        skip_serializing_if = "Option::is_none"
+    )]
     #[cfg_attr(feature = "schema", schemars(range(min = 1, max = 50)))]
-    limit: u32,
+    limit: Option<u32>,
     /// Assertions to skip in source order.
     #[serde(default)]
     offset: u32,
-}
-fn limit() -> u32 {
-    3
 }
 impl TryFrom<Fields> for VariantAssertionsGet {
     type Error = super::gene::QueryInvalid;
@@ -40,7 +41,7 @@ impl TryFrom<Fields> for VariantAssertionsGet {
             AssertionSource::Erepo => VariantNamespace::Ca,
         };
         if fields.input.namespace().ok() != Some(expected)
-            || !(1..=50).contains(&fields.limit)
+            || fields.limit.is_some_and(|n| !(1..=50).contains(&n))
             || fields.version.is_some() && fields.assertion.is_none()
         {
             return Err(super::gene::QueryInvalid);
@@ -104,7 +105,9 @@ impl VariantAssertionsGet {
     }
     /// Selected page size.
     pub fn limit(&self) -> u32 {
-        self.0.limit
+        self.0
+            .limit
+            .unwrap_or_else(|| self.0.source.default_limit())
     }
     /// Source-order page offset.
     pub fn offset(&self) -> u32 {
@@ -126,7 +129,7 @@ impl VariantAssertionsGet {
             source,
             assertion: None,
             version: None,
-            limit: limit(),
+            limit: None,
             offset: 0,
         }
         .try_into()
@@ -141,7 +144,7 @@ impl VariantAssertionsGet {
     }
     /// Retain the identity while selecting a page size and offset.
     pub fn page(mut self, limit: u32, offset: u32) -> Result<Self, super::gene::QueryInvalid> {
-        self.0.limit = limit;
+        self.0.limit = Some(limit);
         self.0.offset = offset;
         self.0.try_into()
     }
@@ -156,6 +159,14 @@ biodata::wire_enum! {
     }
 }
 impl AssertionSource {
+    /// Default native assertion page size.
+    pub fn default_limit(self) -> u32 {
+        match self {
+            Self::Clinvar => 10,
+            Self::Erepo => 3,
+        }
+    }
+
     /// Source policy identity.
     pub fn source(self) -> crate::Source {
         match self {

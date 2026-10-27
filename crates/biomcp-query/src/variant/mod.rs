@@ -4,6 +4,7 @@ mod civic;
 mod components;
 mod conservation;
 mod continuations;
+use continuations::next;
 mod cosmic;
 mod direct;
 mod hotspots;
@@ -228,56 +229,6 @@ fn enrich(
         status::source(Source::MyVariant, leg.finish(), join_error),
         local,
     )
-}
-
-fn next(
-    query: &VariantGet,
-    resolution: VariantResolution,
-    candidates: &[VariantHeader],
-    page: Option<&biomcp_types::PageInfo>,
-) -> Vec<(StepKind, Action)> {
-    let mut next = Vec::new();
-    if resolution == VariantResolution::Candidates
-        || resolution == VariantResolution::Resolved
-            && candidates.iter().any(|row| {
-                row.source == Source::MyVariant && row.record.id.as_str() != query.input().as_str()
-            })
-    {
-        for row in candidates {
-            if let Ok(input) = row.record.id.as_str().parse()
-                && let Ok(q) = VariantGet::new(
-                    input,
-                    query.resolver(),
-                    row.identity
-                        .representations
-                        .iter()
-                        .find_map(|r| r.build)
-                        .or(query.build()),
-                )
-            {
-                next.push((
-                    StepKind::Disambiguate,
-                    Action::Run {
-                        request: Request::GetVariant(q),
-                        fresh: false,
-                    },
-                ));
-            }
-        }
-    }
-    if let Some(page) = page
-        && (page.offset as u64 + page.returned as u64) < page.total
-    {
-        next.push((
-            StepKind::Page,
-            Action::Run {
-                request: Request::GetVariant(query.at_offset(page.offset + page.returned)),
-                fresh: false,
-            },
-        ));
-    }
-    continuations::collect(candidates, &mut next);
-    next
 }
 
 fn candidate_page(

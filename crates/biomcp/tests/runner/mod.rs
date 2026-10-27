@@ -521,8 +521,8 @@ pub(super) fn installed_http_trials() -> Vec<Trial> {
 
 mod variant_assertion_wire;
 mod variant_assertions;
-mod variant_discovery;
 mod variant_condition_relationship;
+mod variant_discovery;
 
 pub(super) fn disease_native(path: &Path) -> Result<(), String> {
     disease_ols::native(path)

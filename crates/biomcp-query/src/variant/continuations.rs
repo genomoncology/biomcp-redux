@@ -1,7 +1,9 @@
 //! Spell each provider's typed continuation without changing source identity or page selectors.
 use crate::Action;
 
-use biomcp_types::{Request, Section, StepKind, VariantHeader};
+use biomcp_types::{
+    Request, Section, Source, StepKind, VariantGet, VariantHeader, VariantResolution,
+};
 pub(super) fn collect(candidates: &[VariantHeader], next: &mut Vec<(StepKind, Action)>) {
     for candidate in candidates {
         let Some(sections) = candidate.sections.as_deref() else {
@@ -56,4 +58,67 @@ fn push(next: &mut Vec<(StepKind, Action)>, kind: StepKind, request: Request) {
     if !next.iter().any(|(_, old)| old == &action) {
         next.push((kind, action));
     }
+}
+
+pub(super) fn next(
+    query: &VariantGet,
+    resolution: VariantResolution,
+    candidates: &[VariantHeader],
+    page: Option<&biomcp_types::PageInfo>,
+) -> Vec<(StepKind, Action)> {
+    let mut next = Vec::new();
+    if resolution == VariantResolution::Candidates
+        || resolution == VariantResolution::Resolved
+            && candidates.iter().any(|row| {
+                row.source == Source::MyVariant && row.record.id.as_str() != query.input().as_str()
+            })
+    {
+        for row in candidates {
+            if let Ok(input) = row.record.id.as_str().parse()
+                && let Ok(q) = VariantGet::new(
+                    input,
+                    query.resolver(),
+                    row.identity
+                        .representations
+                        .iter()
+                        .find_map(|r| r.build)
+                        .or(query.build()),
+                )
+            {
+                next.push((
+                    StepKind::Disambiguate,
+                    Action::Run {
+                        request: Request::GetVariant(q),
+                        fresh: false,
+                    },
+                ));
+            }
+        }
+    }
+    if let Some(page) = page
+        && (page.offset as u64 + page.returned as u64) < page.total
+    {
+        next.push((
+            StepKind::Page,
+            Action::Run {
+                request: Request::GetVariant(query.at_offset(page.offset + page.returned)),
+                fresh: false,
+            },
+        ));
+    }
+    if query.sections().is_empty() && !candidates.is_empty() {
+        next.push((
+            StepKind::Section,
+            Action::Run {
+                request: Request::GetVariant(
+                    query
+                        .clone()
+                        .with_sections(vec![biomcp_types::VariantSection::Clinvar].into()),
+                ),
+                fresh: false,
+            },
+        ));
+    }
+    collect(candidates, &mut next);
+    next
 }

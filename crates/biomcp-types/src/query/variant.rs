@@ -20,10 +20,14 @@ struct Fields {
     #[serde(default, skip_serializing_if = "<[ _ ]>::is_empty")]
     #[cfg_attr(feature = "schema", schemars(extend("x-positional" = 1)))]
     section: Box<[VariantSection]>,
-    /// Rows per named source section page.
-    #[serde(default = "default_section_limit")]
+    /// Rows per named source section page; omitted uses the native source default.
+    #[serde(
+        default,
+        deserialize_with = "super::gene::present",
+        skip_serializing_if = "Option::is_none"
+    )]
     #[cfg_attr(feature = "schema", schemars(range(min = 1, max = 50)))]
-    section_limit: u32,
+    section_limit: Option<u32>,
     /// Source rows to skip independently of identity candidate paging.
     #[serde(default)]
     section_offset: u32,
@@ -70,7 +74,9 @@ fn resolver() -> VariantResolver {
 impl TryFrom<Fields> for VariantGet {
     type Error = super::gene::QueryInvalid;
     fn try_from(fields: Fields) -> Result<Self, Self::Error> {
-        if !(1..=50).contains(&fields.limit) || !(1..=50).contains(&fields.section_limit) {
+        if !(1..=50).contains(&fields.limit)
+            || fields.section_limit.is_some_and(|n| !(1..=50).contains(&n))
+        {
             return Err(super::gene::QueryInvalid);
         }
         if fields
@@ -121,7 +127,7 @@ impl VariantGet {
         Ok(Self(Fields {
             input,
             section: Box::default(),
-            section_limit: default_section_limit(),
+            section_limit: None,
             section_offset: 0,
             civic_profile: None,
             tumor_type: None,
@@ -188,7 +194,13 @@ impl VariantGet {
     }
     /// Named section rows per page.
     pub fn section_limit(&self) -> u32 {
-        self.0.section_limit
+        self.0.section_limit.unwrap_or_else(default_section_limit)
+    }
+    /// Assertion rows per page, using the selected source's default when omitted.
+    pub fn assertion_limit(&self, source: crate::AssertionSource) -> u32 {
+        self.0
+            .section_limit
+            .unwrap_or_else(|| source.default_limit())
     }
     /// Named section rows to skip.
     pub fn section_offset(&self) -> u32 {
@@ -227,7 +239,6 @@ impl VariantGet {
         self.0.build
     }
 }
-
 biodata::wire_enum! {
     /// Explicit source service for reference-qualified notation.
     VariantResolver {
@@ -249,7 +260,6 @@ impl VariantResolver {
         }
     }
 }
-
 biodata::canonical_enum! {
     /// Named variant source sections, without automatic expansion of identity cards.
     VariantSection, SourceUnknown {
@@ -277,7 +287,6 @@ biodata::canonical_enum! {
         All => "all",
     }
 }
-
 biodata::wire_enum! {
     /// CIViC native claim collection.
     CivicClaimKind {

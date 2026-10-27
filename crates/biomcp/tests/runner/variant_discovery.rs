@@ -1,4 +1,4 @@
-//! Variant cards expose source reads without fetching assertions.
+//! Features variant-identity and variant-assertions expose source reads without fetching assertions.
 use super::{launch::Environment, network_stub::Stub};
 use libtest_mimic::Trial;
 use serde_json::{Value, json};
@@ -72,25 +72,48 @@ fn page() -> Result<(), String> {
         ))
     })?;
     let env = environment(&stub)?;
-    let value = call(&env, &["get", "variant", "clinvar:128042", "clinvar"])?;
-    let data = value
-        .pointer("/result/candidates/0/sections/clinvar/data")
-        .ok_or("missing section")?;
-    if data.pointer("/page/total") != Some(&json!(13))
-        || data.pointer("/page/returned") != Some(&json!(10))
-        || data
-            .get("assertions")
-            .and_then(Value::as_array)
-            .map(Vec::len)
-            != Some(10)
-        || !value
+    for args in [
+        vec!["get", "variant", "clinvar:128042", "clinvar"],
+        vec![
+            "variant",
+            "assertions",
+            "clinvar:128042",
+            "--source",
+            "clinvar",
+        ],
+    ] {
+        let value = call(&env, &args)?;
+        let data = value
+            .pointer("/result/candidates/0/sections/clinvar/data")
+            .or_else(|| value.get("result"))
+            .ok_or("missing section")?;
+        if data.pointer("/page/total") != Some(&json!(13))
+            || data.pointer("/page/returned") != Some(&json!(10))
+            || data
+                .get("assertions")
+                .and_then(Value::as_array)
+                .map(Vec::len)
+                != Some(10)
+        {
+            return Err(format!("ClinVar default page lost rows or total: {value}"));
+        }
+        let next = value
             .get("next")
             .and_then(Value::as_array)
-            .is_some_and(|n| n.iter().any(|n| n.get("kind") == Some(&json!("page"))))
-    {
-        return Err(format!(
-            "ClinVar default page lost rows, total or continuation: {value}"
-        ));
+            .and_then(|n| n.iter().find(|n| n.get("kind") == Some(&json!("page"))))
+            .and_then(|n| n.get("args"))
+            .cloned()
+            .ok_or("missing continuation")?;
+        let next: Vec<String> = serde_json::from_value(next).map_err(|e| e.to_string())?;
+        let next = next.iter().map(String::as_str).collect::<Vec<_>>();
+        let remainder = call(&env, &next)?;
+        if remainder.pointer("/result/page/offset") != Some(&json!(10))
+            || remainder.pointer("/result/page/returned") != Some(&json!(3))
+        {
+            return Err(format!(
+                "ClinVar continuation lost remaining rows: {remainder}"
+            ));
+        }
     }
     if stub.finish()?.len() != 1 {
         return Err("section made extra provider request".into());
