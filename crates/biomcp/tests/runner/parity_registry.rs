@@ -145,6 +145,7 @@ pub(super) fn validate(selection: &Selection) -> Result<(), String> {
     if selection
         .baseline_globals
         .iter()
+        .chain(&selection.baseline_command)
         .any(|arg| arg == "--disable-sources" || arg.starts_with("--disable-sources="))
     {
         return Err(

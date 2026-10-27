@@ -93,6 +93,11 @@ def main():
     repeated_disable = json.loads(sample.read_text())
     repeated_disable['cases'][0]['baseline_globals'].extend(['--disable-sources', 'opentargets'])
     reject(repeated_disable, baseline, out, 'disable', 'source disables are derived from routes')
+    for name, arguments in [('command-disable', ['--disable-sources', 'opentargets']),
+                            ('command-disable-inline', ['--disable-sources=opentargets'])]:
+        command_disable = json.loads(sample.read_text())
+        command_disable['cases'][0]['baseline_command'].extend(arguments)
+        reject(command_disable, baseline, out, name, 'source disables are derived from routes')
     wrong_host = json.loads(sample.read_text())
     wrong_host['cases'][0]['recordings'][0]['host'] = 'unrelated.invalid'
     reject(wrong_host, baseline, out, 'host', 'does not belong to source')
