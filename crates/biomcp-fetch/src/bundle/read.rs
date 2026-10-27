@@ -1,0 +1,150 @@
+//! Read admitted bundle rows from the selected store.
+use super::{Bundle, BundleInfo, Find, Row, store};
+use crate::{Leg, Mode, RequestError};
+impl Leg<'_> {
+    /// Find checked rows, synchronizing absent or stale data when policy permits.
+    pub fn rows<R: Row>(&self, bundle: &Bundle<R>, find: Find<'_>) -> Result<Vec<R>, RequestError> {
+        self.bundle_source(bundle)?;
+        if self.fetch.cache.is_none() && matches!(self.fetch.mode, Mode::Offline) {
+            return Err(self.failure(biomcp_types::Reason::Offline, None).into());
+        }
+        let cache = self.bundle_cache()?;
+        self.import_predecessor(cache, bundle.name)?;
+        // One command can make several indexed lookups against the same bundle.
+        // Fresh revalidates once for this leg, including its concurrent children.
+        let mut refreshed = self.fresh.then(|| {
+            self.refreshed_bundles
+                .lock()
+                .unwrap_or_else(std::sync::PoisonError::into_inner)
+        });
+        let old = if matches!(self.fetch.mode, Mode::Record { .. }) {
+            None
+        } else {
+            cache.bundle_info(bundle.name, self.budget())?
+        };
+        let replay = matches!(self.fetch.mode, Mode::Replay { .. });
+        let offline = matches!(self.fetch.mode, Mode::Offline);
+        let fresh = old
+            .as_ref()
+            .is_some_and(|m| m.fresh_until > crate::cache::now());
+        if offline && old.is_none() {
+            return Err(self.failure(biomcp_types::Reason::Offline, None).into());
+        }
+        let force_fresh = refreshed
+            .as_ref()
+            .is_some_and(|names| !names.contains(bundle.name));
+        let forced = replay || force_fresh || matches!(self.fetch.mode, Mode::Record { .. });
+        if !offline && (!fresh || forced) {
+            match self.sync_bundle(bundle, true) {
+                Ok(_) => {
+                    if let Some(names) = &mut refreshed {
+                        names.insert(bundle.name);
+                    }
+                }
+                Err(RequestError::Source(error))
+                    if old.is_some()
+                        && matches!(self.fetch.mode, Mode::Live { .. })
+                        && !self.fresh =>
+                {
+                    let mut report = self
+                        .report
+                        .lock()
+                        .unwrap_or_else(std::sync::PoisonError::into_inner);
+                    report.stale = true;
+                    report.failures.push(error);
+                }
+                Err(error) => return Err(error),
+            }
+        }
+        if !forced && fresh {
+            let url = format!("{}{}", self.spec.base.trim_end_matches('/'), bundle.path);
+            self.observed(
+                &crate::retry::identity(&url),
+                Some(200),
+                0,
+                crate::Shape::default(),
+                std::time::Duration::ZERO,
+                ("bundle", true, &url, crate::Provenance::default()),
+            );
+        }
+        if offline && !fresh {
+            self.report
+                .lock()
+                .unwrap_or_else(std::sync::PoisonError::into_inner)
+                .stale = true;
+        }
+        let rows = cache.bundle_rows(bundle.name, find, self.budget())?;
+        let rows = rows
+            .into_iter()
+            .map(|row| serde_json::from_str(&row).map_err(|_| crate::CacheError::Database.into()))
+            .collect::<Result<_, RequestError>>()?;
+        Ok(rows)
+    }
+    /// Read only the last validated local bundle, even when fresh or replay is selected.
+    /// Missing data reports `Syncing`; the caller must explicitly synchronize it.
+    pub fn stored_rows<R: Row>(
+        &self,
+        bundle: &Bundle<R>,
+        find: Find<'_>,
+    ) -> Result<(Vec<R>, BundleInfo), RequestError> {
+        self.bundle_source(bundle)?;
+        let cache = self.bundle_cache()?;
+        self.import_predecessor(cache, bundle.name)?;
+        let (meta, rows) = cache
+            .stored_bundle(bundle.name, find, self.budget())?
+            .ok_or_else(|| self.failure(biomcp_types::Reason::Syncing, None))?;
+        let rows = rows
+            .into_iter()
+            .map(|row| serde_json::from_str(&row).map_err(|_| crate::CacheError::Database.into()))
+            .collect::<Result<_, RequestError>>()?;
+        if meta.fresh_until <= crate::cache::now() {
+            self.report
+                .lock()
+                .unwrap_or_else(std::sync::PoisonError::into_inner)
+                .stale = true;
+        }
+        Ok((rows, store::info(bundle, &meta)))
+    }
+    fn import_predecessor(
+        &self,
+        cache: &crate::cache::Cache,
+        name: &str,
+    ) -> Result<(), RequestError> {
+        if !matches!(self.fetch.mode, Mode::Live { .. } | Mode::Offline)
+            || self.fetch.config.replay_cache.is_some()
+            || self.fetch.config.cache_predecessors.is_empty()
+            || cache.bundle_info(name, self.budget())?.is_some()
+        {
+            return Ok(());
+        }
+        for path in &self.fetch.config.cache_predecessors {
+            match path.try_exists() {
+                Ok(false) => continue,
+                Err(_) => return Err(crate::CacheError::Database.into()),
+                Ok(true) => {}
+            }
+            if cache.import_bundle(path, name, &self.fetch.config.cache_owners, self.budget())? {
+                break;
+            }
+        }
+        Ok(())
+    }
+    pub(super) fn bundle_source<R: Row>(&self, bundle: &Bundle<R>) -> Result<(), RequestError> {
+        self.check_source()?;
+        if self.budget().expired() {
+            return Err(self
+                .failure(biomcp_types::Reason::DeadlineExceeded, None)
+                .into());
+        }
+        if !std::ptr::eq(self.spec, bundle.spec) {
+            return Err(self.failure(biomcp_types::Reason::Rejected, None).into());
+        }
+        Ok(())
+    }
+    pub(super) fn bundle_cache(&self) -> Result<&crate::cache::Cache, RequestError> {
+        self.fetch
+            .cache
+            .as_deref()
+            .ok_or(crate::CacheError::Database.into())
+    }
+}

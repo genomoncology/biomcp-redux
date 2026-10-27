@@ -4,10 +4,10 @@
     reason = "Serialize only SQL on one connection shared by transport legs"
 )]
 use crate::{CacheError, Deadline};
-use rusqlite::{Connection, OptionalExtension, params};
+use rusqlite::{Connection, OpenFlags, OptionalExtension, params};
 mod schema;
-pub(crate) use schema::db_error;
 pub use schema::{SchemaOwner, check_owners};
+pub(crate) use schema::{check_predecessor, db_error};
 use std::{
     path::Path,
     sync::Mutex,
@@ -61,9 +61,11 @@ impl Entry {
 
 impl Cache {
     pub(crate) fn owned_connection(&self) -> Result<Connection, CacheError> {
-        let connection =
-            Connection::open_with_flags(&self.2, rusqlite::OpenFlags::SQLITE_OPEN_READ_WRITE)
-                .map_err(db_error)?;
+        let connection = Connection::open_with_flags(
+            &self.2,
+            OpenFlags::SQLITE_OPEN_READ_WRITE | OpenFlags::SQLITE_OPEN_URI,
+        )
+        .map_err(db_error)?;
         let version = connection
             .query_row("SELECT version FROM meta WHERE owner=?1", [OWNER], |row| {
                 row.get::<_, u32>(0)

@@ -15,9 +15,16 @@ pub struct SchemaOwner {
 }
 /// Validate declared owners without changing journal mode or creating tables.
 pub fn check_owners(connection: &Connection, owners: &[SchemaOwner]) -> Result<(), CacheError> {
+    check_owners_at(connection, "main", owners)
+}
+fn check_owners_at(
+    connection: &Connection,
+    schema: &str,
+    owners: &[SchemaOwner],
+) -> Result<(), CacheError> {
     let has_meta: bool = connection
         .query_row(
-            "SELECT EXISTS(SELECT 1 FROM sqlite_master WHERE name='meta')",
+            &format!("SELECT EXISTS(SELECT 1 FROM {schema}.sqlite_master WHERE name='meta')"),
             [],
             |r| r.get(0),
         )
@@ -26,7 +33,7 @@ pub fn check_owners(connection: &Connection, owners: &[SchemaOwner]) -> Result<(
         let version: Option<u32> = if has_meta {
             connection
                 .query_row(
-                    "SELECT version FROM meta WHERE owner=?1",
+                    &format!("SELECT version FROM {schema}.meta WHERE owner=?1"),
                     [owner.name],
                     |r| r.get(0),
                 )
@@ -42,7 +49,9 @@ pub fn check_owners(connection: &Connection, owners: &[SchemaOwner]) -> Result<(
             for table in owner.tables {
                 let orphan: bool = connection
                     .query_row(
-                        "SELECT EXISTS(SELECT 1 FROM sqlite_master WHERE name=?1)",
+                        &format!(
+                            "SELECT EXISTS(SELECT 1 FROM {schema}.sqlite_master WHERE name=?1)"
+                        ),
                         [table],
                         |r| r.get(0),
                     )
@@ -54,6 +63,29 @@ pub fn check_owners(connection: &Connection, owners: &[SchemaOwner]) -> Result<(
         }
     }
     Ok(())
+}
+const TRANSPORT_OWNER: SchemaOwner = SchemaOwner {
+    name: OWNER,
+    version: VERSION,
+    migratable_versions: &[1, 2, 3],
+    tables: &[
+        "reply",
+        "reply_fresh",
+        "bundle",
+        "bundle_sync",
+        "bundle_row",
+        "bundle_key",
+        "bundle_key_find",
+        "bundle_words",
+        "bundle_content",
+    ],
+};
+pub(crate) fn check_predecessor(
+    connection: &Connection,
+    owners: &[SchemaOwner],
+) -> Result<(), CacheError> {
+    check_owners_at(connection, "predecessor", owners)?;
+    check_owners_at(connection, "predecessor", &[TRANSPORT_OWNER])
 }
 impl Cache {
     pub(super) fn initialize(connection: &mut Connection) -> Result<(), CacheError> {
@@ -94,20 +126,7 @@ impl Cache {
         } else {
             None
         };
-        if version.is_some_and(|version| {
-            version != 1 && version != 2 && version != 3 && version != VERSION
-        }) {
-            return Err(CacheError::Version);
-        }
-        if version.is_none() {
-            let orphan: bool = tx.query_row(
-                "SELECT EXISTS(SELECT 1 FROM sqlite_master WHERE name IN ('reply','reply_fresh','bundle','bundle_sync','bundle_row','bundle_key','bundle_key_find','bundle_words','bundle_content'))",
-                [], |r| r.get(0),
-            ).map_err(db_error)?;
-            if orphan {
-                return Err(CacheError::Version);
-            }
-        }
+        check_owners(&tx, &[TRANSPORT_OWNER])?;
         tx.execute_batch(
             "CREATE TABLE IF NOT EXISTS meta (owner TEXT PRIMARY KEY, version INTEGER NOT NULL);
             CREATE TABLE IF NOT EXISTS reply (

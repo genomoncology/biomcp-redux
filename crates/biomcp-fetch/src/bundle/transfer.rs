@@ -1,0 +1,195 @@
+//! Copy missing published bundles without modifying their predecessor file.
+use crate::{
+    CacheError, Deadline, SchemaOwner,
+    cache::{Cache, check_owners, check_predecessor, db_error, sql_deadline},
+};
+use rusqlite::{Connection, params};
+use std::path::Path;
+const BATCH: usize = 256;
+#[derive(Clone, Copy)]
+struct Table {
+    name: &'static str,
+    key: &'static str,
+    columns: &'static str,
+}
+const TABLES: &[Table] = &[
+    Table {
+        name: "bundle",
+        key: "name",
+        columns: "name,bytes,rows,fresh_until,etag,modified",
+    },
+    Table {
+        name: "bundle_row",
+        key: "bundle",
+        columns: "bundle,n,row",
+    },
+    Table {
+        name: "bundle_key",
+        key: "bundle",
+        columns: "bundle,kind,key,n",
+    },
+    Table {
+        name: "bundle_words",
+        key: "bundle",
+        columns: "bundle,n,words",
+    },
+    Table {
+        name: "bundle_content",
+        key: "name",
+        columns: "name,revision,retrieved_at",
+    },
+];
+impl Cache {
+    pub(super) fn import_bundle(
+        &self,
+        path: &Path,
+        name: &str,
+        owners: &[SchemaOwner],
+        deadline: Deadline<'_>,
+    ) -> Result<bool, CacheError> {
+        let mut uri = url::Url::from_file_path(path).map_err(|_| CacheError::Database)?;
+        uri.query_pairs_mut().append_pair("mode", "ro");
+        let connection = self.owned_connection()?;
+        sql_deadline(&connection, deadline)?;
+        check_owners(&connection, owners)?;
+        connection
+            .execute("ATTACH DATABASE ?1 AS predecessor", [uri.as_str()])
+            .map_err(db_error)?;
+        if !stage(&connection, name, owners, deadline)? {
+            return Ok(false);
+        }
+        connection
+            .execute_batch("DETACH DATABASE predecessor")
+            .map_err(db_error)?;
+        self.publish_sql(deadline, || {
+            sql_deadline(&connection, deadline)?;
+            let tx = connection.unchecked_transaction().map_err(db_error)?;
+            check_owners(&tx, owners)?;
+            // Current publication wins, including a concurrent publisher that finished while staging.
+            if exists(&tx, "main", name)? {
+                return Ok(true);
+            }
+            for table in TABLES {
+                sql_deadline(&tx, deadline)?;
+                tx.execute(
+                    &format!(
+                        "INSERT INTO main.{}({}) SELECT {} FROM temp.stage_{}",
+                        table.name, table.columns, table.columns, table.name
+                    ),
+                    [],
+                )
+                .map_err(db_error)?;
+            }
+            verify(&tx, name, deadline)?;
+            tx.commit().map_err(db_error)?;
+            Ok(true)
+        })
+    }
+}
+fn exists(connection: &Connection, schema: &str, name: &str) -> Result<bool, CacheError> {
+    connection
+        .query_row(
+            &format!("SELECT EXISTS(SELECT 1 FROM {schema}.bundle WHERE name=?1)"),
+            [name],
+            |r| r.get(0),
+        )
+        .map_err(db_error)
+}
+fn stage(
+    connection: &Connection,
+    name: &str,
+    owners: &[SchemaOwner],
+    deadline: Deadline<'_>,
+) -> Result<bool, CacheError> {
+    let snapshot = connection.unchecked_transaction().map_err(db_error)?;
+    check_predecessor(&snapshot, owners)?;
+    if !source_table(&snapshot, "bundle")? || !exists(&snapshot, "predecessor", name)? {
+        return Ok(false);
+    }
+    let bytes: u64 = snapshot
+        .query_row(
+            "SELECT bytes FROM predecessor.bundle WHERE name=?1",
+            [name],
+            |r| r.get(0),
+        )
+        .map_err(db_error)?;
+    if bytes > super::MAX_BUNDLE_BYTES {
+        return Err(CacheError::Database);
+    }
+    for table in TABLES {
+        stage_table(&snapshot, *table, name, deadline)?;
+    }
+    let complete: bool = snapshot.query_row("SELECT (SELECT rows FROM temp.stage_bundle)=(SELECT count(*) FROM temp.stage_bundle_row)", [], |r| r.get(0)).map_err(db_error)?;
+    if !complete {
+        return Err(CacheError::Database);
+    }
+    snapshot.commit().map_err(db_error)?;
+    Ok(true)
+}
+fn source_table(connection: &Connection, table: &str) -> Result<bool, CacheError> {
+    connection
+        .query_row(
+            "SELECT EXISTS(SELECT 1 FROM predecessor.sqlite_master WHERE name=?1 AND type='table')",
+            [table],
+            |r| r.get(0),
+        )
+        .map_err(db_error)
+}
+fn stage_table(
+    connection: &Connection,
+    table: Table,
+    name: &str,
+    deadline: Deadline<'_>,
+) -> Result<(), CacheError> {
+    let present = source_table(connection, table.name)?;
+    if !present {
+        let version: u32 = connection
+            .query_row(
+                "SELECT version FROM predecessor.meta WHERE owner='biomcp-fetch'",
+                [],
+                |r| r.get(0),
+            )
+            .map_err(db_error)?;
+        if table.name != "bundle_content" || version >= crate::VERSION {
+            return Err(CacheError::Version);
+        }
+    }
+    let source = if present { "predecessor" } else { "main" };
+    connection.execute_batch(&format!("CREATE TEMP TABLE stage_{} AS SELECT rowid AS original_rowid,{} FROM {source}.{} WHERE 0", table.name, table.columns, table.name)).map_err(db_error)?;
+    if !present {
+        return Ok(());
+    }
+    let mut cursor: Option<i64> = None;
+    loop {
+        sql_deadline(connection, deadline)?;
+        let changed = connection.execute(&format!("INSERT INTO temp.stage_{} SELECT rowid,{} FROM predecessor.{} WHERE {}=?1 AND (?2 IS NULL OR rowid>?2) ORDER BY rowid LIMIT ?3", table.name, table.columns, table.name, table.key), params![name, cursor, BATCH]).map_err(db_error)?;
+        if changed == 0 {
+            return Ok(());
+        }
+        cursor = connection
+            .query_row(
+                &format!("SELECT max(original_rowid) FROM temp.stage_{}", table.name),
+                [],
+                |r| r.get(0),
+            )
+            .map_err(db_error)?;
+    }
+}
+fn verify(connection: &Connection, name: &str, deadline: Deadline<'_>) -> Result<(), CacheError> {
+    for table in TABLES {
+        sql_deadline(connection, deadline)?;
+        let published = format!(
+            "SELECT {},count(*) FROM main.{} WHERE {}=?1 GROUP BY {}",
+            table.columns, table.name, table.key, table.columns
+        );
+        let staged = format!(
+            "SELECT {},count(*) FROM temp.stage_{} GROUP BY {}",
+            table.columns, table.name, table.columns
+        );
+        let different: bool = connection.query_row(&format!("SELECT EXISTS({published} EXCEPT {staged}) OR EXISTS({staged} EXCEPT {published})"), [name], |r| r.get(0)).map_err(db_error)?;
+        if different {
+            return Err(CacheError::Database);
+        }
+    }
+    Ok(())
+}

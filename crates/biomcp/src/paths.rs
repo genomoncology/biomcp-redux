@@ -39,3 +39,22 @@ pub(crate) fn cache(
         biomcp_query::store::CACHE_NAMESPACE_VERSION
     )))
 }
+
+/// Resolve supported sibling files without opening them or changing their contents.
+pub(crate) fn cache_predecessors(active: &std::path::Path) -> Vec<PathBuf> {
+    active
+        .parent()
+        .into_iter()
+        .flat_map(|folder| {
+            biomcp_query::store::CACHE_NAMESPACES
+                .iter()
+                .map(move |generation| {
+                    folder.join(format!(
+                        "cache-{}-{generation}.sqlite",
+                        biomcp_fetch::CACHE_NAMESPACE_VERSION
+                    ))
+                })
+        })
+        .filter(|path| path != active)
+        .collect()
+}
