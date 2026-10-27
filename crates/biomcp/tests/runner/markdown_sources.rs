@@ -155,8 +155,12 @@ fn abstract_part() -> Result<(), String> {
             .get("text")
             .and_then(Value::as_str)
             .ok_or("missing part text")?;
-        if view.matches(text).count() != 1 {
-            return Err("abstract Markdown was escaped or duplicated".into());
+        if view
+            .matches(&super::source_terms::text::escape(text))
+            .count()
+            != 1
+        {
+            return Err("abstract source text was changed or duplicated".into());
         }
     }
     Ok(())

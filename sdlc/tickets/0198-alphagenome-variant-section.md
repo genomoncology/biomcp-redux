@@ -1,6 +1,7 @@
 # 0198 — Add an AlphaGenome predictions section to variant get
 
-Status: OPEN.
+Status: COMPLETE.
+Landed: 24ab33323865a8a8a3eecb50f682a9514c76ae74
 
 Milestone: 5
 

@@ -168,6 +168,11 @@ dependencies = [
 name = "biomcp"
 version = "1.0.0"
 dependencies = [
+ "prost",
+ "tonic",
+ "tokio-rustls",
+ "tokio",
+ "h2",
  "base64 0.23.1",
  "biodata",
  "biomcp-adapters",

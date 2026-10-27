@@ -375,16 +375,30 @@ fn tool_using(
     dispatch_using(args, allow_save, Some((globals, fetch)))
 }
 fn usage(args: &[OsString]) -> io::Result<Outcome> {
+    if let Some(path) = crate::grammar::unknown_command(args) {
+        let mut error = ErrorEnvelope::unknown_command();
+        error.next = vec![biomcp_types::Step {
+            kind: biomcp_types::StepKind::Configure,
+            args: std::iter::once("help".into())
+                .chain(path.into_iter().map(String::into_boxed_str))
+                .collect::<Vec<_>>()
+                .into(),
+        }];
+        return encode(error, crate::exit::Status::Usage);
+    }
     let mut words = crate::grammar::command_words(args);
     let root = words.next();
-    let mut error = if matches!(
-        root,
-        Some("sync" | "key" | "store" | "version" | "mcp-config" | "skill")
-    ) || root.is_some_and(|root| {
-        crate::grammar::QUERIES
-            .iter()
-            .any(|(verb, _, _)| *verb == root)
-    }) {
+    let option = crate::grammar::argument_error(args);
+    let mut error = if option.is_some()
+        || matches!(
+            root,
+            Some("sync" | "key" | "store" | "version" | "mcp-config" | "skill")
+        )
+        || root.is_some_and(|root| {
+            crate::grammar::QUERIES
+                .iter()
+                .any(|(verb, _, _)| *verb == root)
+        }) {
         ErrorEnvelope::arguments()
     } else {
         ErrorEnvelope::schema_usage()
@@ -426,6 +440,9 @@ fn usage(args: &[OsString]) -> io::Result<Outcome> {
                 args: vec!["help".into(), "key".into(), name.source().into()].into(),
             })
             .collect();
+    }
+    if let Some(option) = option {
+        error = error.with_argument(option.into());
     }
     encode(error, crate::exit::Status::Usage)
 }

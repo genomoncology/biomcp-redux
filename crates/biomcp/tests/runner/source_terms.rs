@@ -1,4 +1,6 @@
 //! Required publisher provenance is measured separately from unchanged payload caps.
+#[path = "../../src/view/escape.rs"]
+pub(super) mod text;
 use libtest_mimic::Trial;
 use serde_json::{Value, json};
 
@@ -228,7 +230,16 @@ pub(super) fn markdown_bytes(text: &str, value: &Value) -> Result<usize, String>
                     .and_then(|r| r.get(*field))
                     .and_then(Value::as_str)
                     .ok_or("missing publisher value")?;
-                if *cell != format!(" {} ", markdown_scalar(expected)) {
+                if *cell
+                    != format!(
+                        " {} ",
+                        if *field == "terms_url" {
+                            text::source_link(expected)
+                        } else {
+                            text::escape(expected)
+                        }
+                    )
+                {
                     return Err("changed Markdown publisher terms".into());
                 }
             }
@@ -236,19 +247,6 @@ pub(super) fn markdown_bytes(text: &str, value: &Value) -> Result<usize, String>
         }
     }
     Ok(bytes)
-}
-fn markdown_scalar(value: &str) -> String {
-    value
-        .chars()
-        .map(|c| match c {
-            '&' => "&amp;".into(),
-            '<' => "&lt;".into(),
-            '>' => "&gt;".into(),
-            '\n' | '\r' => " ".into(),
-            '\\' | '*' | '_' | '`' | '|' | '[' | ']' => format!("\\{c}"),
-            _ => c.to_string(),
-        })
-        .collect()
 }
 fn markdown_subtraction() -> Result<(), String> {
     let outcome = biomcp_adapters::registry::outcome(
@@ -258,7 +256,8 @@ fn markdown_subtraction() -> Result<(), String> {
     );
     let text = format!(
         "## Sources\n\n| Source | State | Terms | Terms url | Use |\n| --- | --- | --- | --- | --- |\n| hgnc | ok | {} | {} | open |\n\n",
-        outcome.terms, outcome.terms_url
+        text::escape(&outcome.terms),
+        text::source_link(&outcome.terms_url)
     );
     let value = json!({"sources":[outcome]});
     let expected = "## Sources\n\n| Source | State |\n| --- | --- |\n| hgnc | ok |\n\n";
@@ -270,7 +269,7 @@ fn markdown_subtraction() -> Result<(), String> {
         return Err("ordinary Markdown earned a deduction".into());
     }
     for changed in [
-        text.replace("CC0 1.0", "wrong terms"),
+        text.replace(&text::escape("CC0 1.0"), "wrong terms"),
         text.replace(" Terms ", " Missing "),
     ] {
         if markdown_bytes(&changed, &value).is_ok() {

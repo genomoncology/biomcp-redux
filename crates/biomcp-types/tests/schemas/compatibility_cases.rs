@@ -309,3 +309,31 @@ fn compatibility_checks_native_gene_maps_signed_positions_and_impossible_element
         assert!(super::compatibility::check(&loose, &changed).is_err());
     }
 }
+
+#[test]
+fn compatibility_preserves_each_disjoint_scalar_branch() {
+    let old = json!({"$id":"biodata.example/1", "anyOf":[
+        {"$ref":"#/$defs/Finite"},
+        {"type":"object","properties":{"kind":{"type":"string","enum":["nan","positive_infinity","negative_infinity"]}},
+         "required":["kind"],"additionalProperties":false}],
+        "$defs":{"Finite":{"type":"number","format":"double"}}});
+    assert!(check(&old, &old).is_ok());
+    let mut reordered = old.clone();
+    reordered["anyOf"].as_array_mut().unwrap().reverse();
+    assert!(check(&old, &reordered).is_ok());
+    let mut number_narrowed = old.clone();
+    number_narrowed["$defs"]["Finite"]["minimum"] = json!(0);
+    assert!(check(&old, &number_narrowed).is_err());
+    let mut object_narrowed = old.clone();
+    object_narrowed["anyOf"][1]["properties"]["kind"]["enum"] = json!(["nan"]);
+    assert!(check(&old, &object_narrowed).is_err());
+    for unsupported in [
+        json!([{"type":"number"},{"type":"string"}]),
+        json!([{"type":"object"},{"type":"object"}]),
+        json!([{"type":"number"},{"type":"object"},{"type":"null"}]),
+    ] {
+        let mut new = old.clone();
+        new["anyOf"] = unsupported;
+        assert!(check(&new, &new).is_err());
+    }
+}
