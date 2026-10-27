@@ -358,7 +358,6 @@ pub(super) fn protocol_trials() -> Vec<Trial> {
     trials.extend(corporate::trials());
     trials.extend(variant::trials());
     trials.extend(variant_assertion_wire::trials());
-    trials.extend(adapter_bad_values::trials());
     trials.extend(variant_assertions::trials());
     trials.extend(variant_discovery::trials());
     trials.extend(variant_condition_relationship::trials());

@@ -38,6 +38,7 @@ pub(super) fn drug_trials() -> Vec<Trial> {
     trials.extend(super::drug_civic::trials());
     trials.extend(super::drug_next::trials());
     trials.extend(super::drug_ema::trials());
+    trials.extend(super::adapter_bad_values::trials());
     trials.extend(super::drug_who::trials());
     trials.extend(super::drug_ddinter::trials());
     trials.extend(super::drug_fda::trials());
