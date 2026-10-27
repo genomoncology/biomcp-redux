@@ -11,9 +11,12 @@ export RUST_TEST_THREADS ?= $(PM_WORKERS)
 endif
 TEST_THREADS = $(if $(strip $(RUST_TEST_THREADS)),-- --test-threads $(RUST_TEST_THREADS))
 
-.PHONY: landing-gate fmt lint ratchets test audit coverage unreached
+.PHONY: landing-gate plain-cli-build fmt lint ratchets test audit coverage unreached
 
-landing-gate: docs-check fmt lint tensor-proto-check coverage audit secrets
+landing-gate: plain-cli-build docs-check fmt lint tensor-proto-check coverage audit secrets
+
+plain-cli-build:
+	cargo build --locked -p biomcp --bin biomcp
 
 fmt:
 	cargo fmt --all -- --check

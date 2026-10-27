@@ -14,7 +14,7 @@ tempfile.workspace = true
 base64.workspace = true
 httparse.workspace = true
 ctrlc.workspace = true
-clap.workspace = true
+clap = { workspace = true, features = ["error-context"] }
 serde.workspace = true
 biomcp-fetch = { workspace = true }
 biomcp-adapters = { workspace = true }
