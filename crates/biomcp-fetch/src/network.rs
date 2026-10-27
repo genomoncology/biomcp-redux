@@ -105,22 +105,31 @@ impl Network {
         let mut bypass = Vec::new();
         let mut configuration = biomcp_types::ConfigurationHealth::default();
         for (index, entry) in no_proxy.split(',').map(str::trim).enumerate() {
-            if entry.is_empty() { continue; }
+            if entry.is_empty() {
+                continue;
+            }
             match Bypass::parse(entry)? {
                 Some(rule) => bypass.push(rule),
-                None if configuration.notices.len() < 8 => configuration.notices.push(
-                    biomcp_types::ConfigurationNotice {
-                        variable: biomcp_types::ConfigurationVariable::NoProxy,
-                        entry: u32::try_from(index).unwrap_or(u32::MAX).saturating_add(1),
-                        code: biomcp_types::ConfigurationNoticeCode::UnparseableEntry,
-                    }),
-                None => configuration.omitted_entries = configuration.omitted_entries.saturating_add(1),
+                None if configuration.notices.len() < 8 => {
+                    configuration
+                        .notices
+                        .push(biomcp_types::ConfigurationNotice {
+                            variable: biomcp_types::ConfigurationVariable::NoProxy,
+                            entry: u32::try_from(index).unwrap_or(u32::MAX).saturating_add(1),
+                            code: biomcp_types::ConfigurationNoticeCode::UnparseableEntry,
+                        })
+                }
+                None => {
+                    configuration.omitted_entries = configuration.omitted_entries.saturating_add(1)
+                }
             }
         }
         Ok(Self {
             http: proxy(http.as_ref()).map_err(|_| FetchError::HttpProxy)?,
             https: proxy(https.as_ref()).map_err(|_| FetchError::HttpsProxy)?,
-            roots, bypass, configuration,
+            roots,
+            bypass,
+            configuration,
         })
     }
 }

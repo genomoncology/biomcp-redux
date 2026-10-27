@@ -95,16 +95,32 @@ fn invalid_no_proxy_boundaries_are_configuration_errors() {
 #[test]
 fn ipv6_and_cidr_bypass_rules_route_matching_addresses_directly() {
     for rule in ["::1", "[::1]:port", "::/0", "::1/128"] {
-        let stub = Stub::new_at("[::1]:0", 200, "application/json", r#"{"answer":"direct"}"#, None);
+        let stub = Stub::new_at(
+            "[::1]:0",
+            200,
+            "application/json",
+            r#"{"answer":"direct"}"#,
+            None,
+        );
         let port = stub.base.rsplit_once(':').unwrap().1;
         let rule = rule.replace("port", port);
         let network = biomcp_fetch::Network::new(
-            Some(Secret::new("http://127.0.0.1:1".into())), None, &rule, Default::default()
-        ).unwrap();
-        let fetch = Fetch::open(FetchConfig { network, ..Default::default() }).unwrap();
+            Some(Secret::new("http://127.0.0.1:1".into())),
+            None,
+            &rule,
+            Default::default(),
+        )
+        .unwrap();
+        let fetch = Fetch::open(FetchConfig {
+            network,
+            ..Default::default()
+        })
+        .unwrap();
         let spec = stub.spec(KeyUse::None, Duration::from_secs(10));
-        let reply = fetch.leg(spec, fetch.deadline(Duration::from_secs(10)))
-            .json::<Answer>(&spec.get("/answer"), &[]).unwrap();
+        let reply = fetch
+            .leg(spec, fetch.deadline(Duration::from_secs(10)))
+            .json::<Answer>(&spec.get("/answer"), &[])
+            .unwrap();
         assert_eq!(reply.answer.as_deref(), Some("direct"));
         assert_eq!(stub.finish().len(), 1);
     }

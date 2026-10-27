@@ -36,7 +36,9 @@ fn main() -> ExitCode {
                     Ok(()) => ExitCode::SUCCESS,
                     Err(mcp::http::StartError::Configuration(error)) => {
                         match command::local::startup(error) {
-                            Ok(outcome) => exit::finish(output::command(&outcome, &args), outcome.status),
+                            Ok(outcome) => {
+                                exit::finish(output::command(&outcome, &args), outcome.status)
+                            }
                             Err(error) => exit::finish(Err(error), exit::Status::Local),
                         }
                     }

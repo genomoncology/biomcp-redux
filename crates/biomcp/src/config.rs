@@ -7,7 +7,7 @@ use std::{ffi::OsString, fs, path::PathBuf, sync::Arc, time::Duration};
 mod deferred_keys_tests;
 
 mod file;
-use file::{ConfigFile, ConfigError, read_file};
+use file::{ConfigError, ConfigFile, read_file};
 pub(crate) fn http_hosts(globals: &Globals) -> Result<Vec<String>, ConfigError> {
     Ok(read_file(globals.config.as_ref())?
         .and_then(|file| file.http)
@@ -37,9 +37,14 @@ pub(crate) fn retired_study_directory() -> bool {
 
 pub(crate) const BUDGET: Duration = Duration::from_secs(20);
 #[derive(Clone, Debug)]
-pub(crate) struct StartupError(pub(crate) Option<biomcp_fetch::CacheError>, pub(crate) Option<String>);
+pub(crate) struct StartupError(
+    pub(crate) Option<biomcp_fetch::CacheError>,
+    pub(crate) Option<String>,
+);
 impl From<ConfigError> for StartupError {
-    fn from(error: ConfigError) -> Self { Self(None, Some(error.0)) }
+    fn from(error: ConfigError) -> Self {
+        Self(None, Some(error.0))
+    }
 }
 impl From<()> for StartupError {
     fn from((): ()) -> Self {
@@ -118,17 +123,17 @@ fn fetch_using(
         cache,
         mode,
         replay_cache,
-        auto_sync_max_bytes: file.as_ref().and_then(|file| file.auto_sync_max_bytes)
+        auto_sync_max_bytes: file
+            .as_ref()
+            .and_then(|file| file.auto_sync_max_bytes)
             .unwrap_or_else(|| FetchConfig::default().auto_sync_max_bytes),
         proxy: file.and_then(|file| file.proxy).map(Secret::new),
         ..FetchConfig::default()
     })
-    .map_err(|error| {
-        match error {
-            biomcp_fetch::FetchError::Cache(error) => error.into(),
-            biomcp_fetch::FetchError::Proxy => ConfigError::field("proxy").into(),
-            _ => ().into(),
-        }
+    .map_err(|error| match error {
+        biomcp_fetch::FetchError::Cache(error) => error.into(),
+        biomcp_fetch::FetchError::Proxy => ConfigError::field("proxy").into(),
+        _ => ().into(),
     })
 }
 
@@ -163,7 +168,8 @@ fn network(file: Option<&ConfigFile>) -> Result<biomcp_fetch::Network, ConfigErr
             if bytes.len() as u64 > MAX_PEM_BYTES {
                 return Err(ConfigError::field("ca_bundle"));
             }
-            biomcp_fetch::Certificates::from_pem(&bytes).map_err(|_| ConfigError::field("ca_bundle"))
+            biomcp_fetch::Certificates::from_pem(&bytes)
+                .map_err(|_| ConfigError::field("ca_bundle"))
         })
         .transpose()?
         .unwrap_or_default();
@@ -184,11 +190,13 @@ fn network(file: Option<&ConfigFile>) -> Result<biomcp_fetch::Network, ConfigErr
             .unwrap_or_default(),
         roots,
     )
-    .map_err(|error| ConfigError::field(match error {
-        biomcp_fetch::FetchError::HttpProxy => "HTTP_PROXY",
-        biomcp_fetch::FetchError::HttpsProxy => "HTTPS_PROXY",
-        _ => "NO_PROXY",
-    }))
+    .map_err(|error| {
+        ConfigError::field(match error {
+            biomcp_fetch::FetchError::HttpProxy => "HTTP_PROXY",
+            biomcp_fetch::FetchError::HttpsProxy => "HTTPS_PROXY",
+            _ => "NO_PROXY",
+        })
+    })
 }
 
 pub(crate) fn format(path: Option<&PathBuf>) -> Option<crate::grammar::Format> {
