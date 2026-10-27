@@ -10,6 +10,8 @@ export default {
   exampleMode: 'live',
   exampleEnv: {},
   exampleWorkers: 3,
+  // The bundle-sizes example downloads every bundle, about 100 MB, which takes longer than two minutes.
+  exampleTimeoutMs: 300000,
   // SITE_EXAMPLE_CONFIG, when set, is copied here inside the examples' own config folder.
   exampleConfig: 'biomcp/config.json',
   // A reply with top-level status "failed" fails its example unless examples/<id>/expect-status names it.
@@ -63,7 +65,7 @@ export default {
     { label: 'Entities', collapsed: true, items: [{ autogenerate: { directory: 'user-guide' } }] },
     { label: 'Sources', collapsed: true, items: [{ autogenerate: { directory: 'sources' } }] },
     { label: 'Reference', collapsed: true, items: [{ autogenerate: { directory: 'reference' } }] },
-    { label: 'How-to', collapsed: true, items: ['how-to/guide-workflows'] },
+    { label: 'How-to', collapsed: true, items: ['how-to', 'how-to/clinvar-classification', 'how-to/gnomad-frequency', 'how-to/faers-reports', 'how-to/guide-workflows'] },
     { label: 'Answers', link: '/answers/' },
     { label: 'Blog', collapsed: true, items: [{ autogenerate: { directory: 'blog' } }] },
     { label: 'Articles', collapsed: true, items: [{ autogenerate: { directory: 'articles' } }] },

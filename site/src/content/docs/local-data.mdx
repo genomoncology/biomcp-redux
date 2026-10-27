@@ -26,6 +26,14 @@ BioMCP <Fact k="version" /> keeps two kinds of local data. Bundles are whole dow
 | NCBI Genetic Testing Registry | `biomcp sync gtr` | No |
 | FDA companion diagnostics list | `biomcp sync fda-cdx` | No |
 
+## Bundle sizes
+
+This run synchronized every bundle into an empty store and printed each bundle's imported rows and the size of the source file it read:
+
+<Example id="bundle-sizes" />
+
+The store folder holds the bundles in a decoded, indexed form, so it grows well past the sum of the source files. The cBioPortal study catalog is not in the run: cBioPortal refused the sync with reason `rejected` when these sizes were measured. Synchronize only the bundles your commands read, and run `biomcp store clean` to remove expired data.
+
 ## 1. Synchronize a bundle
 
 <Example id="sync-fda-cdx" />
