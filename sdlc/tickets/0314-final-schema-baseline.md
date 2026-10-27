@@ -1,6 +1,7 @@
 # 0314 — Freeze the 1.0 schema baseline from the final candidate source
 
-Status: OPEN.
+Status: COMPLETE.
+Landed: 433708ffd4728acbf2e067c1759daa0f0f0fb864
 
 Milestone: 5
 

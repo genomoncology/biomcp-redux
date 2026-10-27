@@ -1,9 +1,9 @@
 {
   "version": "1.0.0",
-  "status": "provisional-candidate",
-  "source_commit": "831719b9ba4c3e9d56ca46f12e49eab202524ed9",
+  "status": "release-candidate",
+  "source_commit": "20929da9e748bece4fef6d1d6ae78e3691dbd00c",
   "archive": "schema-baseline.tar.gz",
-  "sha256": "075e4500049efdc19f81ba50a259cad2e240e3e61d5580cb981e9bb95f911dbd",
+  "sha256": "5a3e14902fc1a78ca6fd8d4a39cd014b2512718d049952fde47e25f700388930",
   "schemas": [
     "accession-base.json",
     "accession.json",
