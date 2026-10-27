@@ -1,4 +1,6 @@
-use biodata::{HgncId, LocusGroup, LocusType, Mane, Text};
+use crate::mapped::push_problem;
+use crate::mapped::record as record_text;
+use biodata::{HgncId, LocusGroup, LocusType, Mane};
 
 use biomcp_types::{Problem, Source};
 use std::str::FromStr;
@@ -10,10 +12,10 @@ pub(super) struct Fields {
 impl Fields {
     pub(super) fn required<T>(&mut self, field: &str, value: Option<T>) -> Option<T> {
         if value.is_none() {
-            crate::mapped::push_problem(
+            push_problem(
                 &mut self.problems,
                 Source::Hgnc,
-                self.id.and_then(|id| Text::new(&id.to_string()).ok()),
+                self.id.and_then(|id| record_text(id)),
                 field,
             );
         }

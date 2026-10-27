@@ -1,4 +1,6 @@
 use super::raw;
+use crate::mapped::push_problem;
+use crate::mapped::record as record_text;
 use crate::{Mapped, raw::Field};
 use biodata::{EnsemblGeneId, Text};
 
@@ -13,7 +15,7 @@ pub(super) fn expression(raw: raw::Gene, id: &EnsemblGeneId) -> Mapped<GeneExpre
         rna_tissue_specificity: crate::mapped::field_text(
             &mut map.problems,
             Source::Hpa,
-            Text::new(id.base()).ok(),
+            record_text(id.base()),
             "rna_tissue_specificity",
             raw.tissue_specificity,
         ),
@@ -27,7 +29,7 @@ pub(super) fn expression(raw: raw::Gene, id: &EnsemblGeneId) -> Mapped<GeneExpre
         rna_cancer_specificity: crate::mapped::field_text(
             &mut map.problems,
             Source::Hpa,
-            Text::new(id.base()).ok(),
+            record_text(id.base()),
             "rna_cancer_specificity",
             raw.cancer_specificity,
         ),
@@ -58,17 +60,17 @@ impl Mapper<'_> {
                     crate::mapped::field_text(
                         &mut self.problems,
                         Source::Hpa,
-                        Text::new(self.id.base()).ok(),
+                        record_text(self.id.base()),
                         field,
                         Some(value),
                     )
                 })
                 .collect(),
             Some(_) => {
-                crate::mapped::push_problem(
+                push_problem(
                     &mut self.problems,
                     Source::Hpa,
-                    Text::new(self.id.base()).ok(),
+                    record_text(self.id.base()),
                     field,
                 );
                 Box::default()
@@ -84,10 +86,10 @@ impl Mapper<'_> {
             return Vec::new();
         };
         let Field::Value(values) = raw else {
-            crate::mapped::push_problem(
+            push_problem(
                 &mut self.problems,
                 Source::Hpa,
-                Text::new(self.id.base()).ok(),
+                record_text(self.id.base()),
                 field,
             );
             return Vec::new();
@@ -103,10 +105,10 @@ impl Mapper<'_> {
                 {
                     return Some((tissue, number));
                 }
-                crate::mapped::push_problem(
+                push_problem(
                     &mut self.problems,
                     Source::Hpa,
-                    Text::new(self.id.base()).ok(),
+                    record_text(self.id.base()),
                     field,
                 );
                 None

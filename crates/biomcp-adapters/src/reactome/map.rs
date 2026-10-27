@@ -41,7 +41,11 @@ pub(super) fn header(row: &raw::Card) -> Option<PathwayHeader> {
     header.version = Some(Text::new(&row.st_id_version).ok()?);
     Some(header)
 }
-pub(super) fn card(row: raw::Card, summary: bool) -> Option<PathwayCard> {
+pub(super) fn card(
+    row: raw::Card,
+    summary: bool,
+    problems: &mut crate::mapped::Problems,
+) -> Option<PathwayCard> {
     let head = header(&row)?;
     let summations = if summary {
         row.summation.map(|rows| {
@@ -59,8 +63,8 @@ pub(super) fn card(row: raw::Card, summary: bool) -> Option<PathwayCard> {
         match row.literature_reference {
             Some(rows) => Some(
                 rows.into_iter()
-                    .map(literature)
-                    .collect::<Option<Box<[_]>>>()?,
+                    .map(|row| literature(row, problems))
+                    .collect(),
             ),
             None => None,
         }
@@ -91,15 +95,17 @@ pub(super) fn card(row: raw::Card, summary: bool) -> Option<PathwayCard> {
         events: None,
     })
 }
-fn literature(row: raw::Literature) -> Option<PathwayLiteratureRef> {
-    Some(PathwayLiteratureRef {
+fn literature(
+    row: raw::Literature,
+    problems: &mut crate::mapped::Problems,
+) -> PathwayLiteratureRef {
+    PathwayLiteratureRef {
         db_id: row.db_id,
-        pubmed: row
-            .pub_med_identifier
-            .map(biodata::Pmid::new)
-            .transpose()
-            .ok()?,
-        title: row.title.as_deref().map(Text::new).transpose().ok()?,
-        url: row.url.as_deref().map(Text::new).transpose().ok()?,
-    })
+        pubmed: problems.optional(
+            "references.pubmed",
+            row.pub_med_identifier.map(biodata::Pmid::new),
+        ),
+        title: problems.text("references.title", row.title.as_deref()),
+        url: problems.text("references.url", row.url.as_deref()),
+    }
 }

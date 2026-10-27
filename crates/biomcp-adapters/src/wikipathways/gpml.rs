@@ -4,6 +4,7 @@ use super::{
     gpml_raw::{Document, MAX_BYTES},
 };
 use crate::Mapped;
+use crate::mapped::problem;
 use biodata::{PathwayMember, PathwaySourceRef, Text, WikiPathwaysId};
 use biomcp_fetch::{Freshness, Leg, RequestError};
 use biomcp_types::Source;
@@ -54,7 +55,7 @@ pub fn members(leg: &Leg<'_>, id: &WikiPathwaysId) -> Result<Mapped<Members>, Re
         }
         if node.kind.as_deref() != Some("GeneProduct") {
             if node.namespace.as_deref().is_none_or(str::is_empty) {
-                problems.push(crate::mapped::problem(
+                problems.push(problem(
                     Source::WikiPathways,
                     id.as_str().parse().ok(),
                     &format!(
@@ -68,7 +69,7 @@ pub fn members(leg: &Leg<'_>, id: &WikiPathwaysId) -> Result<Mapped<Members>, Re
         if node.namespace.as_deref().is_none_or(str::is_empty)
             || node.value.as_deref().is_none_or(str::is_empty)
         {
-            problems.push(crate::mapped::problem(
+            problems.push(problem(
                 Source::WikiPathways,
                 id.as_str().parse().ok(),
                 "genes.reference",

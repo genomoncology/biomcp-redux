@@ -1,5 +1,7 @@
 use super::{Record, raw};
 use crate::Mapped;
+use crate::mapped::problem;
+use crate::mapped::record as record_text;
 use biodata::{
     Attribution, Concept, Curie, DiseaseEndpoint, DiseaseRelation, DiseaseSynonym, Text,
 };
@@ -10,7 +12,7 @@ use biomcp_types::{
 pub(super) fn attribution(id: &Curie, iri: &Text, ontology: DiseaseOntology) -> Attribution {
     Attribution {
         source: Text::new(ontology.as_str()).unwrap_or_else(|_| iri.clone()),
-        record: Text::new(&id.to_string()).ok(),
+        record: record_text(id),
         url: Some(iri.clone()),
         version: None,
         release: None,
@@ -125,9 +127,9 @@ fn synonyms(term: &raw::Term, attribution: &Attribution) -> Mapped<Vec<DiseaseSy
             .and_then(|s| s.scope.as_ref())
             .and_then(|s| format!("oboInOwl:{}", s.as_str()).parse().ok());
         if native.is_some_and(|s| s.scope.is_some()) && scope.is_none() {
-            mapped.problems.push(crate::mapped::problem(
+            mapped.problems.push(problem(
                 Source::Ols,
-                Text::new(&&term.obo_id.to_string()).ok(),
+                record_text(term.obo_id),
                 "synonym.scope",
             ));
         }
@@ -147,11 +149,9 @@ fn xrefs(term: &raw::Term, attribution: &Attribution) -> Mapped<Vec<DiseaseRelat
     };
     for native in term.obo_xref.as_deref().unwrap_or_default() {
         let Ok(id) = format!("{}:{}", native.database, native.id).parse() else {
-            mapped.problems.push(crate::mapped::problem(
-                Source::Ols,
-                Text::new(&&term.obo_id.to_string()).ok(),
-                "xref.id",
-            ));
+            mapped
+                .problems
+                .push(problem(Source::Ols, record_text(term.obo_id), "xref.id"));
             continue;
         };
         let Ok(predicate) = "oboInOwl:hasDbXref".parse() else {

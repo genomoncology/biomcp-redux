@@ -1,4 +1,5 @@
 use super::raw::*;
+use crate::mapped::push_problem;
 use crate::{
     Mapped,
     raw::{Field, OneOrMany},
@@ -147,7 +148,7 @@ impl Output {
                 field: Text::new(path).map_err(|_| super::super::leg_bad())?,
                 values: values.values().into(),
             }),
-            Some(Field::Invalid(_)) => crate::mapped::push_problem(
+            Some(Field::Invalid(_)) => push_problem(
                 &mut self.problems,
                 Source::MyVariant,
                 Some(self.id.clone()),
@@ -180,7 +181,7 @@ impl Output {
         }
         let Some(values) = values else { return Ok(()) };
         let Field::Value(values) = values else {
-            crate::mapped::push_problem(
+            push_problem(
                 &mut self.problems,
                 Source::MyVariant,
                 Some(self.id.clone()),

@@ -1,4 +1,6 @@
 //! Keyed gene annotations, joined only by checked HGNC Entrez identity.
+use crate::mapped::push_problem;
+use crate::mapped::record as record_text;
 mod raw;
 pub mod variant;
 pub mod variant_map;
@@ -60,24 +62,14 @@ pub fn gene(
         if row.entrez_gene_id == id {
             accepted.push(row);
         } else {
-            crate::mapped::push_problem(
-                &mut problems,
-                Source::Oncokb,
-                Text::new(&id.to_string()).ok(),
-                "entrez_id",
-            );
+            push_problem(&mut problems, Source::Oncokb, record_text(id), "entrez_id");
         }
     }
     let value = if accepted.len() == 1 {
         accepted.pop().map(|row| row.mapped(&mut problems))
     } else {
         if accepted.len() > 1 {
-            crate::mapped::push_problem(
-                &mut problems,
-                Source::Oncokb,
-                Text::new(&id.to_string()).ok(),
-                "entrez_id",
-            );
+            push_problem(&mut problems, Source::Oncokb, record_text(id), "entrez_id");
         }
         None
     };

@@ -3,6 +3,7 @@ use super::{
     raw::{Allele as RawAllele, Genomic},
 };
 use crate::Mapped;
+use crate::mapped::problem;
 use biodata::{
     Allele, Build, Expression, Representation, SequenceLocation, Span0, Text, Variant, VariantId,
 };
@@ -55,7 +56,7 @@ pub(super) fn allele(raw: RawAllele) -> Result<Resolution, biomcp_fetch::BadRepl
                             build: None,
                             allele: None,
                         }),
-                        Err(_) => problems.push(crate::mapped::problem(
+                        Err(_) => problems.push(problem(
                             Source::AlleleRegistry,
                             Some(record.clone()),
                             "representations.expression",
@@ -89,7 +90,7 @@ fn genomic(g: Genomic, record: &Text, out: &mut Vec<Representation>, problems: &
         .as_ref()
         .and_then(|a| a.as_str().parse::<Build>().ok());
     if g.assembly.is_some() && build.is_none() {
-        problems.push(crate::mapped::problem(
+        problems.push(problem(
             Source::AlleleRegistry,
             Some(record.clone()),
             "representations.build",
@@ -99,7 +100,7 @@ fn genomic(g: Genomic, record: &Text, out: &mut Vec<Representation>, problems: &
         let expression = match Expression::hgvs(notation.clone()) {
             Ok(v) => v,
             Err(_) => {
-                problems.push(crate::mapped::problem(
+                problems.push(problem(
                     Source::AlleleRegistry,
                     Some(record.clone()),
                     "representations.expression",
@@ -120,7 +121,7 @@ fn genomic(g: Genomic, record: &Text, out: &mut Vec<Representation>, problems: &
                 })
         });
         if !agrees {
-            problems.push(crate::mapped::problem(
+            problems.push(problem(
                 Source::AlleleRegistry,
                 Some(record.clone()),
                 "representations.chromosome",
@@ -142,7 +143,7 @@ fn genomic(g: Genomic, record: &Text, out: &mut Vec<Representation>, problems: &
             None
         };
         if allele.is_none() {
-            problems.push(crate::mapped::problem(
+            problems.push(problem(
                 Source::AlleleRegistry,
                 Some(record.clone()),
                 "representations.allele",

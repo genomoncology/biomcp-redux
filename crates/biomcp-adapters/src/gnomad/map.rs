@@ -1,5 +1,7 @@
 use super::{GeneConstraint, raw};
 use crate::Mapped;
+use crate::mapped::push_problem;
+use crate::mapped::record as record_text;
 use biodata::{EnsemblGeneId, Text};
 
 use biomcp_types::{Constraint, Source};
@@ -16,10 +18,10 @@ pub(super) fn constraints(raw: raw::Aliases, ids: &[EnsemblGeneId]) -> Vec<GeneC
             let mut problems = Vec::new();
             let constraint = gene.and_then(|gene| {
                 if gene.gene_id != id.base() {
-                    crate::mapped::push_problem(
+                    push_problem(
                         &mut problems,
                         Source::Gnomad,
-                        Text::new(id.base()).ok(),
+                        record_text(id.base()),
                         "gene_id",
                     );
                     return None;
@@ -36,20 +38,20 @@ pub(super) fn constraints(raw: raw::Aliases, ids: &[EnsemblGeneId]) -> Vec<GeneC
                             {
                                 return Some(text);
                             }
-                            crate::mapped::push_problem(
+                            push_problem(
                                 &mut problems,
                                 Source::Gnomad,
-                                Text::new(id.base()).ok(),
+                                record_text(id.base()),
                                 "flags",
                             );
                             None
                         })
                         .collect(),
                     Some(_) => {
-                        crate::mapped::push_problem(
+                        push_problem(
                             &mut problems,
                             Source::Gnomad,
-                            Text::new(id.base()).ok(),
+                            record_text(id.base()),
                             "flags",
                         );
                         Vec::new()

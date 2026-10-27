@@ -1,4 +1,6 @@
 use super::raw::{Summary, SummaryRow, SummaryValue};
+use crate::mapped::push_problem;
+use crate::mapped::record as record_text;
 use crate::{Mapped, raw::Field};
 use biodata::{PartialDate, Pmid, Text};
 
@@ -11,12 +13,7 @@ pub(super) fn summaries(reply: Summary, ids: &[Box<str>]) -> Mapped<Vec<ArticleH
     for id in ids {
         let mapped = matches!(reply.result.get(id.as_ref()), Some(SummaryValue::Row(_)));
         if !mapped {
-            crate::mapped::push_problem(
-                &mut problems,
-                Source::PubMed,
-                Text::new(id).ok(),
-                "summary",
-            );
+            push_problem(&mut problems, Source::PubMed, Text::new(id).ok(), "summary");
         }
     }
     for (key, row) in reply.result {
@@ -24,12 +21,7 @@ pub(super) fn summaries(reply: Summary, ids: &[Box<str>]) -> Mapped<Vec<ArticleH
             continue;
         }
         if !ids.iter().any(|id| id.as_ref() == key) {
-            crate::mapped::push_problem(
-                &mut problems,
-                Source::PubMed,
-                Text::new(&key).ok(),
-                "pmid",
-            );
+            push_problem(&mut problems, Source::PubMed, Text::new(&key).ok(), "pmid");
             continue;
         }
         let header = match row {
@@ -39,7 +31,7 @@ pub(super) fn summaries(reply: Summary, ids: &[Box<str>]) -> Mapped<Vec<ArticleH
         if let Some(header) = header {
             value.push(header);
         } else {
-            crate::mapped::push_problem(
+            push_problem(
                 &mut problems,
                 Source::PubMed,
                 Text::new(&key).ok(),
@@ -87,35 +79,20 @@ fn header(row: SummaryRow, key: &str, problems: &mut Vec<Problem>) -> Option<Art
     let mut pmcid = None;
     for item in row.articleids.and_then(Field::value).unwrap_or_default() {
         let Some(item) = item.value() else {
-            crate::mapped::push_problem(
-                problems,
-                Source::PubMed,
-                Text::new(key).ok(),
-                "articleids",
-            );
+            push_problem(problems, Source::PubMed, record_text(key), "articleids");
             continue;
         };
         match item.idtype.as_str() {
             "doi" => {
                 doi = item.value.parse().ok();
                 if doi.is_none() {
-                    crate::mapped::push_problem(
-                        problems,
-                        Source::PubMed,
-                        Text::new(key).ok(),
-                        "doi",
-                    );
+                    push_problem(problems, Source::PubMed, record_text(key), "doi");
                 }
             }
             "pmc" => {
                 pmcid = item.value.parse().ok();
                 if pmcid.is_none() {
-                    crate::mapped::push_problem(
-                        problems,
-                        Source::PubMed,
-                        Text::new(key).ok(),
-                        "pmcid",
-                    );
+                    push_problem(problems, Source::PubMed, record_text(key), "pmcid");
                 }
             }
             _ => {}

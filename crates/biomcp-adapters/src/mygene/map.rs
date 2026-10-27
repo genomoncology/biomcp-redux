@@ -1,4 +1,6 @@
 use super::raw::Pos;
+use crate::mapped::problem;
+use crate::mapped::record as record_text;
 use biodata::{Build, GenomicInterval, PartialDate, Span0, Strand, Summary, SummarySource, Text};
 
 pub(super) fn summary(value: String) -> Option<Summary> {
@@ -71,14 +73,14 @@ pub(super) fn extras(
     for hit in reply.0 {
         match hit.query.parse::<NcbiGeneId>() {
             Ok(id) if ids.contains(&id) => hits.entry(id).or_default().push(hit),
-            _ => problems.push(crate::mapped::problem(Source::MyGene, None, "query")),
+            _ => problems.push(problem(Source::MyGene, None, "query")),
         }
     }
     for id in ids {
         if !hits.contains_key(id) {
-            problems.push(crate::mapped::problem(
+            problems.push(problem(
                 Source::MyGene,
-                Some(*id).and_then(|id| Text::new(&id.to_string()).ok()),
+                Some(*id).and_then(record_text),
                 "query",
             ));
         }
@@ -86,9 +88,9 @@ pub(super) fn extras(
     hits.into_iter()
         .filter_map(|(id, mut hits)| {
             if hits.len() != 1 {
-                problems.push(crate::mapped::problem(
+                problems.push(problem(
                     Source::MyGene,
-                    Some(id).and_then(|id| Text::new(&id.to_string()).ok()),
+                    Some(id).and_then(record_text),
                     "query",
                 ));
                 return None;
@@ -107,9 +109,9 @@ fn map_hit(hit: Hit, id: NcbiGeneId, problems: &mut Vec<Problem>) -> Option<Mapp
         .and_then(Field::value)
         .and_then(|value| value.parse::<NcbiGeneId>().ok());
     if returned != Some(id) {
-        problems.push(crate::mapped::problem(
+        problems.push(problem(
             Source::MyGene,
-            Some(id).and_then(|id| Text::new(&id.to_string()).ok()),
+            Some(id).and_then(record_text),
             "entrez_id",
         ));
         return None;
@@ -130,18 +132,18 @@ fn map_hit(hit: Hit, id: NcbiGeneId, problems: &mut Vec<Problem>) -> Option<Mapp
         problems: Vec::new(),
     };
     if hgnc_present && hgnc.is_none() {
-        mapped.problems.push(crate::mapped::problem(
+        mapped.problems.push(problem(
             Source::MyGene,
-            Some(id).and_then(|id| Text::new(&id.to_string()).ok()),
+            Some(id).and_then(record_text),
             "hgnc_id",
         ));
     }
     if let Some(field) = hit.summary {
         mapped.value.summary = field.value().and_then(summary);
         if mapped.value.summary.is_none() {
-            mapped.problems.push(crate::mapped::problem(
+            mapped.problems.push(problem(
                 Source::MyGene,
-                Some(id).and_then(|id| Text::new(&id.to_string()).ok()),
+                Some(id).and_then(record_text),
                 "summary",
             ));
         }
@@ -180,18 +182,18 @@ fn positions(
         _ => "genomic_pos_hg19",
     };
     match field.value() {
-        None => problems.push(crate::mapped::problem(
+        None => problems.push(problem(
             Source::MyGene,
-            Some(id).and_then(|id| Text::new(&id.to_string()).ok()),
+            Some(id).and_then(record_text),
             name,
         )),
         Some(values) => {
             for value in values.values() {
                 match value.value().and_then(|value| interval(value, build)) {
                     Some(value) => spans.push(value),
-                    None => problems.push(crate::mapped::problem(
+                    None => problems.push(problem(
                         Source::MyGene,
-                        Some(id).and_then(|id| Text::new(&id.to_string()).ok()),
+                        Some(id).and_then(record_text),
                         name,
                     )),
                 }

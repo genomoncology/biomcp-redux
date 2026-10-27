@@ -1,8 +1,8 @@
 use super::{SPEC, relation_raw as raw};
 use crate::Mapped;
-use biodata::{
-    PathwayEventRef, PathwayMember, PathwayParticipant, PathwaySourceRef, ReactomeId, Text,
-};
+use crate::mapped::problem;
+use crate::mapped::record as record_text;
+use biodata::{PathwayEventRef, PathwayMember, PathwayParticipant, PathwaySourceRef, ReactomeId};
 use biomcp_fetch::{Freshness, Leg, RequestError, SourceError};
 use biomcp_types::{Reason, Source};
 /// Complete source-reference membership with explicit occurrence and physical-entity counts.
@@ -33,6 +33,7 @@ pub fn members(leg: &Leg<'_>, id: &ReactomeId) -> Result<Mapped<Members>, Reques
         .bytes(8 * 1024 * 1024)
         .fresh(Freshness::Days(7));
     let rows = leg.json::<raw::Participants>(&endpoint, &[])?;
+    let mut problems = fields(id);
     let mut value = Members {
         items: Vec::new(),
         reference_occurrences: 0,
@@ -72,20 +73,11 @@ pub fn members(leg: &Leg<'_>, id: &ReactomeId) -> Result<Mapped<Members>, Reques
                         ),
                         value: crate::mapped::text(identifier).map_err(|_| bad_reply())?,
                     },
-                    name: reference
-                        .display_name
-                        .as_deref()
-                        .map(|v| crate::mapped::text(v).map_err(|_| bad_reply()))
-                        .transpose()?,
-                    source_url: reference
-                        .url
-                        .as_deref()
-                        .map(|v| crate::mapped::text(v).map_err(|_| bad_reply()))
-                        .transpose()?,
+                    name: problems.text("members.name", reference.display_name.as_deref()),
+                    source_url: problems.text("members.source_url", reference.url.as_deref()),
                     gene: None,
-                    schema_class: Some(
-                        crate::mapped::text(&reference.schema_class).map_err(|_| bad_reply())?,
-                    ),
+                    schema_class: problems
+                        .text("members.schema_class", Some(&reference.schema_class)),
                     physical_context_count: 1,
                     participants: Some(vec![participant.clone()].into()),
                 });
@@ -94,7 +86,7 @@ pub fn members(leg: &Leg<'_>, id: &ReactomeId) -> Result<Mapped<Members>, Reques
     }
     Ok(Mapped {
         value,
-        problems: Vec::new(),
+        problems: problems.list,
     })
 }
 /// Read contained events while retaining every unresolved native integer reference.
@@ -124,6 +116,7 @@ pub fn events(
         value: Vec::new(),
         problems: Vec::new(),
     };
+    let mut problems = fields(id);
     for row in rows.0 {
         match row {
             raw::Event::Database(db_id) => mapped.value.push(PathwayEventRef::Database { db_id }),
@@ -132,18 +125,18 @@ pub fn events(
                     .as_deref()
                     .is_some_and(|s| s != "Homo sapiens")
                 {
-                    mapped.problems.push(crate::mapped::problem(
+                    mapped.problems.push(problem(
                         Source::Reactome,
-                        Text::new(id.as_str()).ok(),
+                        record_text(id.as_str()),
                         "events.species",
                     ));
                     continue;
                 }
                 let native_id = v.st_id.as_deref().map(str::parse).transpose();
                 let Ok(native_id) = native_id else {
-                    mapped.problems.push(crate::mapped::problem(
+                    mapped.problems.push(problem(
                         Source::Reactome,
-                        Text::new(id.as_str()).ok(),
+                        record_text(id.as_str()),
                         "events.id",
                     ));
                     continue;
@@ -160,24 +153,21 @@ pub fn events(
                         })
                         .transpose()?,
                     id: native_id,
-                    version: v
-                        .st_id_version
-                        .as_deref()
-                        .map(|v| crate::mapped::text(v).map_err(|_| bad_reply()))
-                        .transpose()?,
-                    name: v
-                        .display_name
-                        .as_deref()
-                        .map(|v| crate::mapped::text(v).map_err(|_| bad_reply()))
-                        .transpose()?,
-                    schema_class: v
-                        .schema_class
-                        .as_deref()
-                        .map(|v| crate::mapped::text(v).map_err(|_| bad_reply()))
-                        .transpose()?,
+                    version: problems.text("events.version", v.st_id_version.as_deref()),
+                    name: problems.text("events.name", v.display_name.as_deref()),
+                    schema_class: problems.text("events.schema_class", v.schema_class.as_deref()),
                 });
             }
         }
     }
+    mapped.problems.extend(problems.list);
     Ok(mapped)
+}
+
+fn fields(id: &ReactomeId) -> crate::mapped::Problems {
+    crate::mapped::Problems {
+        source: Source::Reactome,
+        record: crate::mapped::text(id.as_str()).ok(),
+        list: Vec::new(),
+    }
 }

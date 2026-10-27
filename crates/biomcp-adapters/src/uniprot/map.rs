@@ -1,4 +1,6 @@
 use super::raw;
+use crate::mapped::push_problem;
+use crate::mapped::record as record_text;
 use crate::{Mapped, raw::Field};
 use biodata::{Text, UniProtAcc};
 
@@ -9,28 +11,18 @@ pub(super) fn proteins(raw: raw::Proteins, ids: &[UniProtAcc]) -> Mapped<Vec<Pro
     let mut seen = Vec::new();
     for raw in raw.results {
         let Field::Value(raw) = raw else {
-            crate::mapped::push_problem(
-                &mut problems,
-                Source::UniProt,
-                None.and_then(|id: &UniProtAcc| Text::new(&id.to_string()).ok()),
-                "protein",
-            );
+            push_problem(&mut problems, Source::UniProt, None, "protein");
             continue;
         };
         let Ok(id) = raw.primary_accession.parse::<UniProtAcc>() else {
-            crate::mapped::push_problem(
-                &mut problems,
-                Source::UniProt,
-                None.and_then(|id: &UniProtAcc| Text::new(&id.to_string()).ok()),
-                "primaryAccession",
-            );
+            push_problem(&mut problems, Source::UniProt, None, "primaryAccession");
             continue;
         };
         if !ids.contains(&id) || seen.contains(&id) {
-            crate::mapped::push_problem(
+            push_problem(
                 &mut problems,
                 Source::UniProt,
-                Some(&id).and_then(|id: &UniProtAcc| Text::new(&id.to_string()).ok()),
+                record_text(&id),
                 "primaryAccession",
             );
             values.retain(|value: &Protein| value.accession != id);
@@ -38,30 +30,25 @@ pub(super) fn proteins(raw: raw::Proteins, ids: &[UniProtAcc]) -> Mapped<Vec<Pro
         }
         seen.push(id.clone());
         if raw.organism.taxon_id != 9606 || raw.entry_type != "UniProtKB reviewed (Swiss-Prot)" {
-            crate::mapped::push_problem(
+            push_problem(
                 &mut problems,
                 Source::UniProt,
-                Some(&id).and_then(|id: &UniProtAcc| Text::new(&id.to_string()).ok()),
+                record_text(&id),
                 "reviewed_human",
             );
             continue;
         }
         let Ok(name) = Text::new(&raw.protein_description.recommended_name.full_name.value) else {
-            crate::mapped::push_problem(
+            push_problem(
                 &mut problems,
                 Source::UniProt,
-                Some(&id).and_then(|id: &UniProtAcc| Text::new(&id.to_string()).ok()),
+                record_text(&id),
                 "protein_name",
             );
             continue;
         };
         if raw.sequence.length == 0 {
-            crate::mapped::push_problem(
-                &mut problems,
-                Source::UniProt,
-                Some(&id).and_then(|id: &UniProtAcc| Text::new(&id.to_string()).ok()),
-                "length",
-            );
+            push_problem(&mut problems, Source::UniProt, record_text(&id), "length");
             continue;
         }
         let (function, subcellular_locations) = comments(raw.comments, &id, &mut problems);
@@ -75,12 +62,7 @@ pub(super) fn proteins(raw: raw::Proteins, ids: &[UniProtAcc]) -> Mapped<Vec<Pro
     }
     for id in ids {
         if !seen.contains(id) {
-            crate::mapped::push_problem(
-                &mut problems,
-                Source::UniProt,
-                Some(id).and_then(|id: &UniProtAcc| Text::new(&id.to_string()).ok()),
-                "missing",
-            );
+            push_problem(&mut problems, Source::UniProt, record_text(id), "missing");
         }
     }
     Mapped {
@@ -102,7 +84,7 @@ fn comments(
                     function.extend(crate::mapped::field_text(
                         problems,
                         Source::UniProt,
-                        Text::new(&id.to_string()).ok(),
+                        record_text(id),
                         "function",
                         Some(Field::Value(value.value)),
                     ));
@@ -118,7 +100,7 @@ fn comments(
                     locations.extend(crate::mapped::field_text(
                         problems,
                         Source::UniProt,
-                        Text::new(&id.to_string()).ok(),
+                        record_text(id),
                         "subcellular_locations",
                         Some(Field::Value(value.location.value)),
                     ));
@@ -143,23 +125,13 @@ fn fields<T>(
                 if let Field::Value(value) = value {
                     Some(value)
                 } else {
-                    crate::mapped::push_problem(
-                        problems,
-                        Source::UniProt,
-                        Some(id).and_then(|id: &UniProtAcc| Text::new(&id.to_string()).ok()),
-                        field,
-                    );
+                    push_problem(problems, Source::UniProt, record_text(id), field);
                     None
                 }
             })
             .collect(),
         Some(_) => {
-            crate::mapped::push_problem(
-                problems,
-                Source::UniProt,
-                Some(id).and_then(|id: &UniProtAcc| Text::new(&id.to_string()).ok()),
-                field,
-            );
+            push_problem(problems, Source::UniProt, record_text(id), field);
             Vec::new()
         }
     }

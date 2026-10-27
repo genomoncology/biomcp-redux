@@ -425,7 +425,7 @@ fn adapter_helpers(path: &str, tokens: &[String]) -> Check {
     );
     if tokens
         .windows(2)
-        .any(|pair| pair[0] == "fn" && (pair[1] == "problem" || pair[1] == "text" && !format_text))
+        .any(|pair| matches!(pair, [word, name] if word == "fn" && (name == "problem" || name == "text" && !format_text)))
     {
         return fail(path, "adapter mapping helpers belong in mapped.rs");
     }

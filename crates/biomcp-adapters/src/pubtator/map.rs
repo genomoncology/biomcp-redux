@@ -1,4 +1,6 @@
 use super::raw::{Annotation, Document};
+use crate::mapped::push_problem;
+use crate::mapped::record as record_text;
 use crate::{Mapped, raw::Field};
 use biodata::{Pmid, Text};
 
@@ -70,22 +72,12 @@ fn optional(
         Some(Field::Value(s)) if s != "-" && !s.is_empty() => match Text::new(s) {
             Ok(text) => Some(text),
             Err(_) => {
-                crate::mapped::push_problem(
-                    problems,
-                    Source::PubTator,
-                    Text::new(&id.to_string()).ok(),
-                    field,
-                );
+                push_problem(problems, Source::PubTator, record_text(id), field);
                 None
             }
         },
         Some(Field::Invalid(_)) => {
-            crate::mapped::push_problem(
-                problems,
-                Source::PubTator,
-                Text::new(&id.to_string()).ok(),
-                field,
-            );
+            push_problem(problems, Source::PubTator, record_text(id), field);
             None
         }
         _ => None,
@@ -120,24 +112,14 @@ fn entity(
         AnnotationKind::Gene => {
             value.entrez_id = identifier.as_ref().and_then(|s| s.as_str().parse().ok());
             if identifier.is_some() && value.entrez_id.is_none() {
-                crate::mapped::push_problem(
-                    problems,
-                    Source::PubTator,
-                    Text::new(&id.to_string()).ok(),
-                    "entrez_id",
-                );
+                push_problem(problems, Source::PubTator, record_text(id), "entrez_id");
             }
         }
         AnnotationKind::Variant => {
             value.hgvs = optional(id, "hgvs", &raw.hgvs, problems);
             value.rsid = optional(id, "rsid", &raw.rsid, problems);
             if value.hgvs.is_none() && value.rsid.is_none() {
-                crate::mapped::push_problem(
-                    problems,
-                    Source::PubTator,
-                    Text::new(&id.to_string()).ok(),
-                    "variant",
-                );
+                push_problem(problems, Source::PubTator, record_text(id), "variant");
                 return None;
             }
             value.entrez_id = match &raw.gene_id {
@@ -145,12 +127,7 @@ fn entity(
                 _ => None,
             };
             if raw.gene_id.is_some() && value.entrez_id.is_none() {
-                crate::mapped::push_problem(
-                    problems,
-                    Source::PubTator,
-                    Text::new(&id.to_string()).ok(),
-                    "gene_id",
-                );
+                push_problem(problems, Source::PubTator, record_text(id), "gene_id");
             }
         }
         AnnotationKind::Disease | AnnotationKind::Chemical => value.mesh = identifier.clone(),

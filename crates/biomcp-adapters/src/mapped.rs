@@ -76,3 +76,8 @@ pub(crate) fn field_text(
     }
     value
 }
+
+/// Preserve a typed source identity as neutral problem provenance.
+pub(crate) fn record(value: impl std::fmt::Display) -> Option<biodata::Text> {
+    text(&value.to_string()).ok()
+}

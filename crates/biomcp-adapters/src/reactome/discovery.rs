@@ -1,5 +1,7 @@
 use super::{SPEC, map, raw};
 use crate::Mapped;
+use crate::mapped::problem;
+use crate::mapped::record as record_text;
 use biodata::{ReactomeId, Text};
 use biomcp_fetch::{Arg, BadReply, Freshness, Leg, RequestError};
 use biomcp_types::{PathwayCard, PathwayHeader, PathwaySearch, Source};
@@ -61,9 +63,9 @@ pub fn search(leg: &Leg<'_>, q: &PathwaySearch) -> Result<Page, RequestError> {
             for row in results.into_iter().flat_map(|g| g.entries) {
                 match map::hit(&row) {
                     Some(header) => rows.value.push(header),
-                    None => rows.problems.push(crate::mapped::problem(
+                    None => rows.problems.push(problem(
                         Source::Reactome,
-                        biodata::Text::new(&row.st_id).ok(),
+                        record_text(&row.st_id),
                         "identity",
                     )),
                 }
@@ -93,9 +95,9 @@ pub fn top_level(leg: &Leg<'_>) -> Result<Mapped<Vec<PathwayHeader>>, RequestErr
     for row in rows.0 {
         match map::header(&row) {
             Some(v) => mapped.value.push(v),
-            None => mapped.problems.push(crate::mapped::problem(
+            None => mapped.problems.push(problem(
                 Source::Reactome,
-                biodata::Text::new(&row.st_id).ok(),
+                record_text(&row.st_id),
                 "identity",
             )),
         }
@@ -113,7 +115,7 @@ pub fn card(
         .with_path(format!("/data/query/{id}"))?
         .fresh(Freshness::Days(7));
     let row = match leg.json_checked_cache::<raw::Card>(&endpoint, &[], |r| {
-        r.st_id == id.as_str() && map::card(r.clone(), true).is_some()
+        r.st_id == id.as_str() && map::header(r).is_some()
     }) {
         Err(RequestError::Source(e)) if e.reason == biomcp_types::Reason::NotFound => {
             return Ok(Mapped {
@@ -123,19 +125,19 @@ pub fn card(
         }
         result => result?,
     };
-    let value = (row.st_id == id.as_str())
-        .then(|| map::card(row, summary))
-        .flatten();
-    let problems = if value.is_none() {
-        vec![crate::mapped::problem(
-            Source::Reactome,
-            biodata::Text::new(id.as_str()).ok(),
-            "identity",
-        )]
-    } else {
-        Vec::new()
+    let mut problems = crate::mapped::Problems {
+        source: Source::Reactome,
+        record: crate::mapped::text(id.as_str()).ok(),
+        list: Vec::new(),
     };
-    Ok(Mapped { value, problems })
+    let value = (row.st_id == id.as_str())
+        .then(|| map::card(row, summary, &mut problems))
+        .flatten();
+    let value = problems.required("identity", value);
+    Ok(Mapped {
+        value,
+        problems: problems.list,
+    })
 }
 /// Read the source database release independently from pathway version.
 pub fn release(leg: &Leg<'_>) -> Result<Text, RequestError> {
