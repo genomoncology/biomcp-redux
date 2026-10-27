@@ -102,6 +102,24 @@ pub(super) fn search(
     partial: bool,
     out: &mut Outcome,
 ) {
+    if out.sources.iter().any(|source| {
+        source
+            .notices
+            .iter()
+            .any(|notice| matches!(notice, biomcp_types::SourceNotice::NotFoundWords { .. }))
+    }) && let Some(quoted) = query.quoted()
+    {
+        out.next.insert(
+            0,
+            (
+                StepKind::Disambiguate,
+                Action::Run {
+                    request: Request::SearchArticle(quoted),
+                    fresh: false,
+                },
+            ),
+        );
+    }
     if !partial && total < u64::from(query.limit()) {
         out.next.extend(query.term_drops().into_iter().map(|query| {
             (
@@ -156,5 +174,21 @@ pub(super) fn authors(out: &mut Outcome) {
         if !out.next.contains(&step) {
             out.next.push(step);
         }
+    }
+}
+
+/// Unsearchable bodies still permit an explicit abstract read.
+pub(super) fn text(query: &biomcp_types::ArticleText, out: &mut Outcome) {
+    if matches!(&out.body, QueryBody::ArticleText(body)
+        if !matches!(body.content, biomcp_types::Section::Data { .. }))
+        && let Ok(get) = ArticleGet::new(vec![query.input().clone()].into())
+    {
+        out.next.push((
+            StepKind::Disambiguate,
+            Action::Run {
+                request: Request::GetArticle(get),
+                fresh: false,
+            },
+        ));
     }
 }

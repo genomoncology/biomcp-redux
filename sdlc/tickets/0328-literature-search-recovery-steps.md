@@ -1,6 +1,7 @@
 # 0328 — Show when a literature search lost its variant words, and offer recovery steps
 
-Status: OPEN.
+Status: COMPLETE.
+Landed: 293c865d04251fa300ee2fc939a0d9c22897d69a
 
 Milestone: 5
 
