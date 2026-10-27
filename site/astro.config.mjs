@@ -7,6 +7,8 @@ import redirects from './src/data/redirects.json' with { type: 'json' };
 export default defineConfig({
   site: product.site,
   trailingSlash: 'always',
+  // Keep -- and quotes as typed: option names such as --check must never become dashes.
+  markdown: { smartypants: false },
   // Old addresses that have no page of their own now. src/data/old-addresses.txt lists every old address; scripts/check.mjs fails if one no longer resolves.
   redirects: Object.fromEntries(Object.entries(redirects).map(([from, to]) => [from.replace(/\/$/, ''), to])),
   integrations: [
