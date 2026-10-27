@@ -4,8 +4,6 @@
 mod compatibility;
 #[path = "schemas/compatibility_cases.rs"]
 mod compatibility_cases;
-#[path = "schemas/metadata.rs"]
-mod metadata;
 #[path = "schemas/release.rs"]
 mod release;
 #[path = "schemas/values.rs"]
