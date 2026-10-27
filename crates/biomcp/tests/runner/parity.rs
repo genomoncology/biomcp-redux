@@ -21,6 +21,8 @@ mod registry;
 mod request;
 #[path = "parity_sequence.rs"]
 mod sequence;
+#[path = "parity_sequence_plans.rs"]
+mod sequence_plans;
 
 #[derive(Deserialize)]
 #[serde(deny_unknown_fields)]
@@ -150,7 +152,8 @@ fn run(plan: &Path, baseline: &Path, out: &Path) -> Result<Value, String> {
         .iter()
         .map(load_selection)
         .collect::<Result<Vec<_>, _>>()?;
-    sequence::validate(&plan.sequences)?;
+    let sequences = sequence_plans::resolve(&plan)?;
+    sequence::validate(&sequences)?;
     let env = Environment::new().map_err(|e| e.to_string())?;
     let version = env
         .command(baseline, &["--version".into()])
@@ -170,7 +173,7 @@ fn run(plan: &Path, baseline: &Path, out: &Path) -> Result<Value, String> {
     for (index, (selection, case)) in plan.cases.iter().zip(&cases).enumerate() {
         rows.push(compare(selection, case, baseline, out, index)?);
     }
-    for (index, sequence) in plan.sequences.iter().enumerate() {
+    for (index, sequence) in sequences.iter().enumerate() {
         rows.extend(sequence::compare(sequence, baseline, out, index)?);
     }
     let facts = rows

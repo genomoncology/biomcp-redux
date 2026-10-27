@@ -126,7 +126,7 @@ fn run(plan_path: &Path, root: &Path, output: &Path) -> Result<Value, String> {
         "assessment_gaps":gaps,"unsafe_plans":unsafe_plans}),
     )
 }
-fn cases(root: &Path) -> Result<BTreeMap<String, Case>, String> {
+pub(super) fn cases(root: &Path) -> Result<BTreeMap<String, Case>, String> {
     let mut paths = Vec::new();
     super::super::collect(root, &mut paths).map_err(|e| e.to_string())?;
     if paths.is_empty() {
@@ -216,13 +216,13 @@ fn classify(
             "facts":link.facts,"surfaces":surfaces,"gaps":0}));
     }
     if let Some(reason) = sequence_reason(case) {
-        return sequence_row(name, reason, plan, root, surfaces);
+        return sequence_row(name, reason, plan, root, surfaces, cases);
     }
     if let Some(entry) = plan.inventory.sequences.iter().find(|e| e.case == name) {
         if entry.reason.trim().is_empty() {
             return Err("explicit stateful case requires its scenario reason".into());
         }
-        return sequence_row(name, &entry.reason, plan, root, surfaces);
+        return sequence_row(name, &entry.reason, plan, root, surfaces, cases);
     }
     if let Some(entry) = plan.inventory.pending.iter().find(|e| e.case == name) {
         if !["0300", "0301", "0302", "0303", "0304", "0305"].contains(&entry.ticket.as_str())
@@ -244,15 +244,28 @@ fn sequence_row(
     plan: &Plan,
     root: &Path,
     surfaces: Value,
+    cases: &BTreeMap<String, Case>,
 ) -> Result<Value, String> {
     let selection = plan.sequences.iter().find(|sequence| sequence.case == name);
-    let unsafe_reason =
-        selection.and_then(|sequence| super::sequence::validate_from(sequence, root).err());
-    let complete = selection.is_some() && unsafe_reason.is_none();
+    let unsafe_reason = selection
+        .filter(|sequence| !sequence.steps.is_empty())
+        .and_then(|sequence| super::sequence::validate_from(sequence, root).err());
+    let reuse = super::sequence_plans::inventory(
+        name,
+        cases.get(name).ok_or("sequence case missing")?,
+        plan,
+        root,
+        cases,
+    );
+    let complete = if selection.is_some_and(|sequence| !sequence.steps.is_empty()) {
+        unsafe_reason.is_none()
+    } else {
+        reuse.get("gaps") == Some(&json!(0))
+    };
     Ok(
         json!({"case":name,"class":if complete {"sequence"} else {"sequence_gap"},
         "reason":reason,"surfaces":surfaces,"gaps":usize::from(!complete),
-        "unsafe_reason":unsafe_reason}),
+        "unsafe_reason":unsafe_reason,"declaration_reuse":reuse}),
     )
 }
 fn sequence_reason(case: &Case) -> Option<&'static str> {
