@@ -1,6 +1,6 @@
 //! Configuration decoding retains field names without retaining rejected values.
 use super::{SecretName, config_path};
-use serde::de::DeserializeOwned;
+use serde::{Deserialize, de::DeserializeOwned};
 use serde_json::{Map, Value};
 use std::{collections::BTreeMap, fs, path::PathBuf};
 
@@ -20,6 +20,8 @@ impl ConfigError {
         })
     }
 }
+#[derive(Deserialize)]
+#[serde(deny_unknown_fields)]
 pub(super) struct ConfigFile {
     pub(super) format: Option<crate::grammar::Format>,
     pub(super) proxy: Option<String>,
@@ -30,6 +32,8 @@ pub(super) struct ConfigFile {
     pub(super) keys: Option<BTreeMap<String, String>>,
     pub(super) auto_sync_max_bytes: Option<u64>,
 }
+#[derive(Deserialize)]
+#[serde(deny_unknown_fields)]
 pub(super) struct Http {
     pub(super) allowed_hosts: Vec<String>,
 }
@@ -56,6 +60,32 @@ fn unknown(map: &Map<String, Value>, prefix: &str) -> Result<(), ConfigError> {
     Ok(())
 }
 fn decode(bytes: &[u8]) -> Result<ConfigFile, ConfigError> {
+    let file: ConfigFile = serde_json::from_slice(bytes).map_err(|error| {
+        // Only a rejected document needs field diagnosis. Retain serde's duplicate-field
+        // refusal while ensuring its value-bearing error message never escapes.
+        diagnose(bytes).err().unwrap_or_else(|| {
+            let message = error.to_string();
+            let name = message
+                .strip_prefix("duplicate field `")
+                .and_then(|message| message.split_once('`').map(|(name, _)| name))
+                .unwrap_or("config.json");
+            ConfigError::field(if name == "allowed_hosts" {
+                "http.allowed_hosts"
+            } else {
+                name
+            })
+        })
+    })?;
+    if let Some(keys) = &file.keys {
+        for key in keys.keys() {
+            if !SecretName::ALL.iter().any(|name| name.config() == key) {
+                return Err(ConfigError::field(&format!("keys.{key}")));
+            }
+        }
+    }
+    Ok(file)
+}
+fn diagnose(bytes: &[u8]) -> Result<ConfigFile, ConfigError> {
     let value = serde_json::from_slice(bytes).map_err(|_| ConfigError::field("config.json"))?;
     let mut map = object(value, "config.json")?;
     let http = map

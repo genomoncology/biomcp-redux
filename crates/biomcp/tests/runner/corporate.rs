@@ -233,6 +233,7 @@ fn configuration() -> Result<(), String> {
             ));
         }
     }
+    duplicate_field_cause()?;
     named_server_and_key_causes()?;
     skipped_bypass()?;
     for limit in [1, 1_000_000] {
@@ -342,6 +343,23 @@ fn named_server_and_key_causes() -> Result<(), String> {
         {
             return Err("server or key command discarded its configuration cause".into());
         }
+    }
+    Ok(())
+}
+
+fn duplicate_field_cause() -> Result<(), String> {
+    let env = Environment::new().map_err(|e| e.to_string())?;
+    env.config(&json!({})).map_err(|e| e.to_string())?;
+    fs::write(
+        env.root().join("config/biomcp/config.json"),
+        br#"{"proxy":null,"proxy":"http://synthetic-private"}"#,
+    )
+    .map_err(|e| e.to_string())?;
+    let value = super::configuration::invoke(&env, vec!["health".into(), "--offline".into()], 5)?;
+    if value.pointer("/error/option") != Some(&json!("proxy"))
+        || value.to_string().contains("synthetic-private")
+    {
+        return Err("duplicate field lost its safe cause".into());
     }
     Ok(())
 }
