@@ -51,6 +51,7 @@ mod drug_retirements;
 mod drug_who;
 mod evidence;
 mod faers_get;
+mod fixture_evidence_proof;
 mod faers_search;
 mod gene_tables;
 mod health_bundles;
@@ -345,6 +346,7 @@ pub(super) fn protocol_trials() -> Vec<Trial> {
         pool_tables::check().map_err(Into::into)
     }));
     trials.extend(configuration::trials());
+    trials.extend(fixture_evidence_proof::trials());
     trials.extend(replay::trials());
     trials.extend(article_recovery::trials());
     trials.extend(cache_contention::trials());
