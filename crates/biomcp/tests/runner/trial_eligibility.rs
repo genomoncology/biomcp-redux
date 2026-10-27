@@ -81,6 +81,16 @@ fn walk(name: &str, original: &str, expected_first: &str, continued: bool) -> Ch
         if text.is_empty() || data.get("offset") != Some(&json!(joined.chars().count())) {
             return Err(format!("{name}: page did not advance exactly").into());
         }
+        if serde_json::to_vec(text)?.len() - 2 > 6000 {
+            return Err(format!("{name}: escaped text exceeded page budget").into());
+        }
+        if name == "oversized group"
+            && (data.get("criterion_continues")
+                != Some(&json!(joined.len() + text.len() < original.len()))
+                || !text.ends_with('\n'))
+        {
+            return Err(format!("{name}: page {page} lost the original criterion boundary").into());
+        }
         if page == 0
             && ((!expected_first.is_empty() && text != expected_first)
                 || data.get("criterion_continues") != Some(&json!(continued)))
