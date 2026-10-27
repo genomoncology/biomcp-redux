@@ -9,9 +9,11 @@ impl Fetch {
         let Some(cache) = self.cache.as_ref() else {
             return Ok(StoreSize::default());
         };
-        let mut result = StoreSize::default();
-        result.active_bytes = database(&cache.2)?;
-        result.partial_download_bytes = parts(&cache.1)?;
+        let mut result = StoreSize {
+            active_bytes: database(&cache.2)?,
+            partial_download_bytes: parts(&cache.1)?,
+            ..StoreSize::default()
+        };
         let mut seen = BTreeSet::from([cache.2.clone()]);
         // Replay and case-cache commands never inspect the ordinary user store.
         if self.config.replay_cache.is_none() {
@@ -31,6 +33,7 @@ impl Fetch {
                 if check_retained_owners(&connection, &self.config.cache_owners).is_err() {
                     continue;
                 }
+                drop(connection);
                 result.retained_bytes += database(path)?;
                 result.partial_download_bytes += parts(&path.with_extension("parts"))?;
             }

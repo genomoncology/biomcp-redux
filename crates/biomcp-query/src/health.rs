@@ -8,6 +8,7 @@ const PROBE_BUDGET: Duration = Duration::from_secs(3);
 /// Probe every implemented source with one shared command deadline and short source caps.
 pub fn run(fetch: &Fetch, budget: Duration) -> Result<Health, RequestError> {
     let deadline = fetch.deadline(budget);
+    let store = fetch.store_size(deadline)?;
     let sources = crate::fan_out::run(
         registry::SOURCES
             .iter()
@@ -57,7 +58,7 @@ pub fn run(fetch: &Fetch, budget: Duration) -> Result<Health, RequestError> {
             .collect(),
     );
     Ok(Health {
-        store: fetch.store_size(deadline)?,
+        store,
         configuration: fetch.configuration_health().cloned(),
         disable_groups: registry::disable_groups().into(),
         sources: sources.into_iter().collect::<Result<Vec<_>, _>>()?.into(),
