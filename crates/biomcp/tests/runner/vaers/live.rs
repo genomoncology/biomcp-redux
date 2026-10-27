@@ -34,9 +34,9 @@ pub(super) fn run() -> Check {
             "deep" => format!("{}{}{}", "<page>".repeat(70), raw, "</page>".repeat(70)),
             "oversized" => raw.replace(
                 "<platform>prod</platform>",
-                &format!("<platform>{}</platform>", "é".repeat(2 * 1024 * 1024)),
+                &format!("<platform>{}</platform>", "é".repeat(1024 * 1024)),
             ),
-            "latin1" => raw.replace("<platform>prod</platform>", "<platform>café</platform>"),
+            "latin1" => raw.replace("MEASLES, MUMPS AND RUBELLA VIRUS VACCINE, LIVE", "café"),
             _ => raw.to_owned(),
         };
         if fault == "latin1" || fault == "oversized" {
@@ -62,9 +62,13 @@ pub(super) fn run() -> Check {
             if value.pointer("/result/vaccine/code") != Some(&json!("MMR")) {
                 return Err(format!("complete CDC XML lost vaccine identity: {value}"));
             }
+            if fault == "latin1" && value.pointer("/result/vaccine/label") != Some(&json!("café"))
+            {
+                return Err(format!("ISO-8859-1 label was not decoded: {value}"));
+            }
         } else if value.pointer("/sources/0/reason")
             != Some(&json!(if fault == "status" {
-                "forbidden"
+                "rejected"
             } else {
                 "bad_reply"
             }))
