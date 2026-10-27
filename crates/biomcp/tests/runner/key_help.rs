@@ -11,6 +11,7 @@ pub(super) fn trials() -> Vec<Trial> {
             "OPENFDA_API_KEY",
         ),
         ("orcid", "orcid", "orcid_access_token", "ORCID_ACCESS_TOKEN"),
+        ("alphagenome", "alphagenome", "alphagenome_api_key", "ALPHAGENOME_API_KEY"),
     ]
     .into_iter()
     .map(|(source, identity, config, environment)| {
