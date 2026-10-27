@@ -10,7 +10,9 @@ pub(super) fn complete(commands: &mut Vec<HelpCommand>) {
         .collect();
     let mut links = std::collections::BTreeMap::<String, Vec<String>>::new();
     for command in commands.iter() {
-        let Some(name) = command.command.get(1) else { continue };
+        let Some(name) = command.command.get(1) else {
+            continue;
+        };
         if command.command.first().is_some_and(|v| v == "get") {
             for section in &command.sections {
                 if let Some(entity) = entities
@@ -63,7 +65,12 @@ pub(super) fn complete(commands: &mut Vec<HelpCommand>) {
 fn complete_examples(commands: &mut [HelpCommand]) {
     let examples: Vec<_> = commands
         .iter()
-        .filter_map(|command| command.examples.first().map(|example| (command.command.clone(), example.clone())))
+        .filter_map(|command| {
+            command
+                .examples
+                .first()
+                .map(|example| (command.command.clone(), example.clone()))
+        })
         .collect();
     for command in commands.iter_mut() {
         command.description = plain(&command.description);

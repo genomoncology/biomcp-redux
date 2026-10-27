@@ -85,50 +85,49 @@ pub(super) fn check() -> Result<(), String> {
 }
 
 fn check_result(args: &[String], reply: &Value) -> Result<(), String> {
-            if args.starts_with(&["article".into(), "text".into()])
-                && args.iter().any(|v| v == "--part")
-                && reply
-                    .pointer("/result/content/data/markdown")
-                    .and_then(Value::as_str)
-                    .is_none_or(str::is_empty)
-            {
-                return Err(format!(
-                    "help part example returned no article text: {args:?}"
-                ));
-            }
-            if reply
-                .pointer("/result/content/data/markdown")
-                .and_then(Value::as_str)
-                .is_some_and(str::is_empty)
-            {
-                return Err(format!("help example returned empty text: {args:?}"));
-            }
-            for path in [
-                "/result/rows",
-                "/result/items",
-                "/result/content/data/hits",
-                "/result/content/data/matches",
-            ] {
-                if reply
-                    .pointer(path)
-                    .and_then(Value::as_array)
-                    .is_some_and(Vec::is_empty)
-                {
-                    return Err(format!(
-                        "help example returned an empty result at {path}: {args:?}"
-                    ));
-                }
-            }
+    if args.starts_with(&["article".into(), "text".into()])
+        && args.iter().any(|v| v == "--part")
+        && reply
+            .pointer("/result/content/data/markdown")
+            .and_then(Value::as_str)
+            .is_none_or(str::is_empty)
+    {
+        return Err(format!(
+            "help part example returned no article text: {args:?}"
+        ));
+    }
+    if reply
+        .pointer("/result/content/data/markdown")
+        .and_then(Value::as_str)
+        .is_some_and(str::is_empty)
+    {
+        return Err(format!("help example returned empty text: {args:?}"));
+    }
+    for path in [
+        "/result/rows",
+        "/result/items",
+        "/result/content/data/hits",
+        "/result/content/data/matches",
+    ] {
+        if reply
+            .pointer(path)
+            .and_then(Value::as_array)
+            .is_some_and(Vec::is_empty)
+        {
+            return Err(format!(
+                "help example returned an empty result at {path}: {args:?}"
+            ));
+        }
+    }
     Ok(())
 }
 
 fn collected_examples(commands: &[Value]) -> Result<BTreeSet<Vec<String>>, String> {
     let mut printed = BTreeSet::new();
-    if commands.iter().any(|command| {
-        command["examples"]
-            .as_array()
-            .is_none_or(Vec::is_empty)
-    }) {
+    if commands
+        .iter()
+        .any(|command| command["examples"].as_array().is_none_or(Vec::is_empty))
+    {
         return Err("command help has no example".into());
     }
     for examples in commands

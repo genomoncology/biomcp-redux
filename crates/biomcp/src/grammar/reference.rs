@@ -184,11 +184,13 @@ fn refresh_help_cases(directory: &std::path::Path) -> Check {
             }
             let bytes = reply.cli_bytes.len();
             let markdown_bytes = crate::view::markdown(&reply.value)?.len();
-            writeln!(std::io::stdout(),
+            writeln!(
+                std::io::stdout(),
                 "HELP_MARKDOWN {} step {index}: {markdown_bytes} bytes",
                 path.display()
             )?;
-            writeln!(std::io::stdout(),
+            writeln!(
+                std::io::stdout(),
                 "HELP_MEASURE {} step {index}: {bytes} bytes; max_bytes {} max_tokens {}",
                 path.display(),
                 step["max_bytes"],
@@ -205,33 +207,33 @@ fn refresh_help_cases(directory: &std::path::Path) -> Check {
 
 fn refresh_expectations(step: &mut serde_json::Value, reply: &serde_json::Value) -> bool {
     let mut changed = false;
-            if let Some(expect) = step["expect"].as_object_mut() {
-                for (pointer, expected) in expect {
-                    if pointer.ends_with("/arguments/*/name")
-                        && expected.is_array()
-                        && let Some(arguments) = pointer
-                            .strip_suffix("/*/name")
-                            .and_then(|path| reply.pointer(path))
-                            .and_then(serde_json::Value::as_array)
-                    {
-                        let actual: serde_json::Value = arguments
-                            .iter()
-                            .filter_map(|a| a.get("name").cloned())
-                            .collect();
-                        if *expected != actual {
-                            *expected = actual;
-                            changed = true;
-                        }
-                    }
-                    if pointer.ends_with("/description")
-                        && expected.is_string()
-                        && let Some(actual) = reply.pointer(pointer)
-                        && actual != expected
-                    {
-                        *expected = actual.clone();
-                        changed = true;
-                    }
+    if let Some(expect) = step["expect"].as_object_mut() {
+        for (pointer, expected) in expect {
+            if pointer.ends_with("/arguments/*/name")
+                && expected.is_array()
+                && let Some(arguments) = pointer
+                    .strip_suffix("/*/name")
+                    .and_then(|path| reply.pointer(path))
+                    .and_then(serde_json::Value::as_array)
+            {
+                let actual: serde_json::Value = arguments
+                    .iter()
+                    .filter_map(|a| a.get("name").cloned())
+                    .collect();
+                if *expected != actual {
+                    *expected = actual;
+                    changed = true;
                 }
             }
+            if pointer.ends_with("/description")
+                && expected.is_string()
+                && let Some(actual) = reply.pointer(pointer)
+                && actual != expected
+            {
+                *expected = actual.clone();
+                changed = true;
+            }
+        }
+    }
     changed
 }

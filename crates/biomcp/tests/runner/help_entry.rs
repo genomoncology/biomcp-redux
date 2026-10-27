@@ -90,7 +90,9 @@ fn check_metadata(env: &Environment, value: &Value) -> Check {
     }
     check_defaults(commands)?;
     let scoped: Value = serde_json::from_slice(&run(&env, &["help", "get", "phenotype"])?)?;
-    let phenotype = scoped.pointer("/result/commands/0").ok_or("phenotype command")?;
+    let phenotype = scoped
+        .pointer("/result/commands/0")
+        .ok_or("phenotype command")?;
     if !phenotype["arguments"]
         .as_array()
         .ok_or("arguments")?
