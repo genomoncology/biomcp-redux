@@ -84,7 +84,7 @@ pub fn group(name: &str) -> Option<Use> {
     groups::USES
         .iter()
         .copied()
-        .find(|usage| usage.as_ref() == name)
+        .find(|usage| usage.as_str() == name)
 }
 /// Preserve group restrictions for independently labeled aggregator components.
 pub fn disabled_uses(names: &[String]) -> BTreeSet<Use> {

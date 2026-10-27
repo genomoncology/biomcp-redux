@@ -24,7 +24,7 @@ pub(super) fn help(topic: &str) -> Help {
             .join(", ");
         description.push_str(&format!(
             "{} turns off sources: {sources}. Carried fields: {components}. ",
-            group.group
+            group.group.as_str()
         ));
     }
     description.push_str("Carried-field exclusions leave the aggregator's other fields available. PMC Open Access (pmc-oa) supplies PMC reading.");
