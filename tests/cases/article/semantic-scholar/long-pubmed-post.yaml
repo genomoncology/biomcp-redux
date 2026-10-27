@@ -34,9 +34,11 @@
           ],
           "unique": true
         },
-        "/next/*/kind": {
-          "excludes": "disambiguate"
-        }
+        "/next/0/args": [
+          "get",
+          "article",
+          "29251857"
+        ]
       },
       "max_tokens": 7084,
       "full_output_bytes": true
