@@ -4,7 +4,7 @@ use serde::de::DeserializeOwned;
 use serde_json::{Map, Value};
 use std::{collections::BTreeMap, fs, path::PathBuf};
 
-#[derive(Debug)]
+#[derive(Clone, Debug)]
 pub(crate) struct ConfigError(pub(crate) String);
 impl ConfigError {
     pub(crate) fn field(name: &str) -> Self {

@@ -7,7 +7,8 @@ use std::{ffi::OsString, fs, path::PathBuf, sync::Arc, time::Duration};
 mod deferred_keys_tests;
 
 mod file;
-use file::{ConfigError, ConfigFile, read_file};
+pub(crate) use file::ConfigError;
+use file::{ConfigFile, read_file};
 pub(crate) fn http_hosts(globals: &Globals) -> Result<Vec<String>, ConfigError> {
     Ok(read_file(globals.config.as_ref())?
         .and_then(|file| file.http)
@@ -37,23 +38,24 @@ pub(crate) fn retired_study_directory() -> bool {
 
 pub(crate) const BUDGET: Duration = Duration::from_secs(20);
 #[derive(Clone, Debug)]
-pub(crate) struct StartupError(
-    pub(crate) Option<biomcp_fetch::CacheError>,
-    pub(crate) Option<String>,
-);
+pub(crate) enum StartupError {
+    Cache(biomcp_fetch::CacheError),
+    Configuration(ConfigError),
+    Local,
+}
 impl From<ConfigError> for StartupError {
     fn from(error: ConfigError) -> Self {
-        Self(None, Some(error.0))
+        Self::Configuration(error)
     }
 }
 impl From<()> for StartupError {
     fn from((): ()) -> Self {
-        Self(None, None)
+        Self::Local
     }
 }
 impl From<biomcp_fetch::CacheError> for StartupError {
     fn from(error: biomcp_fetch::CacheError) -> Self {
-        Self(Some(error), None)
+        Self::Cache(error)
     }
 }
 pub(crate) fn fetch(globals: &Globals) -> Result<Fetch, StartupError> {

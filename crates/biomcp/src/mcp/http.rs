@@ -37,10 +37,9 @@ pub(crate) fn serve(
         .iter()
         .map(|host| {
             Authority::parse(host).ok_or_else(|| {
-                StartError::Configuration(crate::config::StartupError(
-                    None,
-                    Some("http.allowed_hosts".into()),
-                ))
+                StartError::Configuration(
+                    crate::config::ConfigError::field("http.allowed_hosts").into(),
+                )
             })
         })
         .collect::<Result<Vec<_>, _>>()?;
