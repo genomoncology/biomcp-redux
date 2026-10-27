@@ -1,6 +1,11 @@
 //! A local CONNECT peer terminates TLS with a synthetic private trust anchor.
 #[path = "fixture_evidence.rs"]
 mod evidence;
+
+pub(super) fn evidence_directory() -> std::io::Result<std::path::PathBuf> {
+    evidence::directory()
+}
+
 use rustls::{ServerConfig, ServerConnection, StreamOwned, pki_types::PrivatePkcs8KeyDer};
 use serde_json::Value;
 use std::{

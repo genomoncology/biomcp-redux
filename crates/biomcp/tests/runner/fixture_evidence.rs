@@ -155,7 +155,7 @@ fn retain(root: &Path, context: &Context, reason: &str) -> io::Result<PathBuf> {
     )?;
     Ok(path)
 }
-fn directory() -> io::Result<PathBuf> {
+pub(super) fn directory() -> io::Result<PathBuf> {
     let fallback = Path::new(env!("CARGO_MANIFEST_DIR")).join("../../target/fixture-failures");
     let directory = std::env::var_os("BIOMCP_EVIDENCE_DIR").map_or_else(
         || fallback.clone(),

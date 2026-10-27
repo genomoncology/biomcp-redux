@@ -5,7 +5,6 @@ use std::{
     fs,
     io::{Read, Write},
     net::{Shutdown, TcpStream},
-    path::Path,
 };
 
 pub(super) fn trials() -> Vec<Trial> {
@@ -41,8 +40,8 @@ fn check() -> Result<(), String> {
     Ok(())
 }
 fn retained(env: &Environment) -> Result<std::path::PathBuf, String> {
-    Ok(Path::new(env!("CARGO_MANIFEST_DIR"))
-        .join("../../target/fixture-failures")
+    Ok(super::super::network_stub::evidence_directory()
+        .map_err(|e| e.to_string())?
         .join(env.root().file_name().ok_or("scratch name")?))
 }
 fn aborted(finish: bool) -> Result<(), String> {
