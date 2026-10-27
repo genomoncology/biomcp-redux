@@ -252,7 +252,10 @@ fn parent_replies(commands: &[Value]) -> Result<(), String> {
             return Err(format!("missing child reply {id} for get parent"));
         }
     }
-    if replies.windows(2).any(|pair| pair[0].as_str() >= pair[1].as_str()) {
+    if replies
+        .windows(2)
+        .any(|pair| pair[0].as_str() >= pair[1].as_str())
+    {
         return Err("parent reply schemas are not sorted and unique".into());
     }
     Ok(())
