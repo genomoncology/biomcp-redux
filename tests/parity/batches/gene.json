@@ -197,9 +197,7 @@
             "q": "symbol:\"KRAS\"",
             "species": "human"
           },
-          "capture": "mygene/d403c85a791fe6c8cdc60de10e5739ba85d15f845bad92a8606bad24b2f767de.json",
-          "envelope": "hits",
-          "count_field": "total"
+          "recording_gap": "The retained Entrez annotation omits symbol and name requested by the released MyGene symbol getter. Reusing it would make the released defaults empty and could misstate a source recording omission as a fact difference. The full native symbol reply is missing; the independent Entrez-only sample retains the unchanged original capture."
         }
       ],
       "facts": {
@@ -523,9 +521,7 @@
             "q": "symbol:\"ERBB2\"",
             "species": "human"
           },
-          "capture": "mygene/9e6092d6465327a82997870c353b4933ad5c8830286184f014cd4e6c84b86128.json",
-          "envelope": "hits",
-          "count_field": "total"
+          "recording_gap": "The retained Entrez annotation omits symbol and name requested by the released MyGene symbol getter. Reusing it would make the released defaults empty and could misstate a source recording omission as a fact difference. The full native symbol reply is missing; the independent Entrez-only sample retains the unchanged original capture."
         }
       ],
       "facts": {
@@ -706,9 +702,7 @@
             "q": "symbol:\"TP53\"",
             "species": "human"
           },
-          "capture": "mygene/2893f22417b1e4c1c3ee4f1a17d6cceb20c9a2861ef234e81a197501a1bcb8ab.json",
-          "envelope": "hits",
-          "count_field": "total"
+          "recording_gap": "The retained Entrez annotation omits symbol and name requested by the released MyGene symbol getter. Reusing it would make the released defaults empty and could misstate a source recording omission as a fact difference. The full native symbol reply is missing; the independent Entrez-only sample retains the unchanged original capture."
         },
         {
           "source": "gnomad",
@@ -788,9 +782,7 @@
             "q": "symbol:\"TP53\"",
             "species": "human"
           },
-          "capture": "mygene/2893f22417b1e4c1c3ee4f1a17d6cceb20c9a2861ef234e81a197501a1bcb8ab.json",
-          "envelope": "hits",
-          "count_field": "total"
+          "recording_gap": "The retained Entrez annotation omits symbol and name requested by the released MyGene symbol getter. Reusing it would make the released defaults empty and could misstate a source recording omission as a fact difference. The full native symbol reply is missing; the independent Entrez-only sample retains the unchanged original capture."
         },
         {
           "source": "gnomad",
@@ -851,15 +843,13 @@
             "q": "symbol:\"CLDN18\"",
             "species": "human"
           },
-          "capture": "mygene/68b4fbfe133df26aa9f990470915580308c01b45c75be49ea2b706491020fa9a.json",
-          "envelope": "hits",
-          "count_field": "total"
+          "recording_gap": "The retained Entrez annotation omits symbol and name requested by the released MyGene symbol getter. Reusing it would make the released defaults empty and could misstate a source recording omission as a fact difference. The full native symbol reply is missing; the independent Entrez-only sample retains the unchanged original capture."
         },
         {
-          "source": "hpa",
+          "source": "human-protein-atlas",
           "endpoint_env": "BIOMCP_HPA_BASE",
           "host": "www.proteinatlas.org",
-          "request_prefix": "GET /",
+          "request_prefix": "GET /ENSG00000066405.xml",
           "request_contains": "",
           "recording_gap": "The retained HPA request returns ENSG.json; released hpa requires ENSG.xml and decodes XML tissue levels and subcellular locations. No XML reply is retained, and JSON cannot be rewritten into a baseline-only XML fixture."
         }
@@ -924,15 +914,13 @@
             "q": "symbol:\"CLDN18\"",
             "species": "human"
           },
-          "capture": "mygene/68b4fbfe133df26aa9f990470915580308c01b45c75be49ea2b706491020fa9a.json",
-          "envelope": "hits",
-          "count_field": "total"
+          "recording_gap": "The retained Entrez annotation omits symbol and name requested by the released MyGene symbol getter. Reusing it would make the released defaults empty and could misstate a source recording omission as a fact difference. The full native symbol reply is missing; the independent Entrez-only sample retains the unchanged original capture."
         },
         {
-          "source": "hpa",
+          "source": "human-protein-atlas",
           "endpoint_env": "BIOMCP_HPA_BASE",
           "host": "www.proteinatlas.org",
-          "request_prefix": "GET /",
+          "request_prefix": "GET /ENSG00000066405.xml",
           "request_contains": "",
           "recording_gap": "The retained HPA request returns ENSG.json; released hpa requires ENSG.xml and decodes XML tissue levels and subcellular locations. No XML reply is retained, and JSON cannot be rewritten into a baseline-only XML fixture."
         }
@@ -1013,15 +1001,13 @@
             "q": "symbol:\"MIR21\"",
             "species": "human"
           },
-          "capture": "mygene/a8373ec38683d33f0b3de0d90ebc3a5bcf147b1164c3f1d3ef40758d898135c4.json",
-          "envelope": "hits",
-          "count_field": "total"
+          "recording_gap": "The retained Entrez annotation omits symbol and name requested by the released MyGene symbol getter. Reusing it would make the released defaults empty and could misstate a source recording omission as a fact difference. The full native symbol reply is missing; the independent Entrez-only sample retains the unchanged original capture."
         },
         {
-          "source": "hpa",
+          "source": "human-protein-atlas",
           "endpoint_env": "BIOMCP_HPA_BASE",
           "host": "www.proteinatlas.org",
-          "request_prefix": "GET /",
+          "request_prefix": "GET /ENSG00000066405.xml",
           "request_contains": "",
           "recording_gap": "The retained HPA request returns ENSG.json; released hpa requires ENSG.xml and decodes XML tissue levels and subcellular locations. No XML reply is retained, and JSON cannot be rewritten into a baseline-only XML fixture."
         }
@@ -1072,15 +1058,13 @@
             "q": "symbol:\"CLDN18\"",
             "species": "human"
           },
-          "capture": "mygene/68b4fbfe133df26aa9f990470915580308c01b45c75be49ea2b706491020fa9a.json",
-          "envelope": "hits",
-          "count_field": "total"
+          "recording_gap": "The retained Entrez annotation omits symbol and name requested by the released MyGene symbol getter. Reusing it would make the released defaults empty and could misstate a source recording omission as a fact difference. The full native symbol reply is missing; the independent Entrez-only sample retains the unchanged original capture."
         },
         {
-          "source": "hpa",
+          "source": "human-protein-atlas",
           "endpoint_env": "BIOMCP_HPA_BASE",
           "host": "www.proteinatlas.org",
-          "request_prefix": "GET /",
+          "request_prefix": "GET /ENSG00000066405.xml",
           "request_contains": "",
           "recording_gap": "The retained HPA request returns ENSG.json; released hpa requires ENSG.xml and decodes XML tissue levels and subcellular locations. No XML reply is retained, and JSON cannot be rewritten into a baseline-only XML fixture."
         }
@@ -1147,9 +1131,7 @@
             "q": "symbol:\"TP53\"",
             "species": "human"
           },
-          "capture": "mygene/2893f22417b1e4c1c3ee4f1a17d6cceb20c9a2861ef234e81a197501a1bcb8ab.json",
-          "envelope": "hits",
-          "count_field": "total"
+          "recording_gap": "The retained Entrez annotation omits symbol and name requested by the released MyGene symbol getter. Reusing it would make the released defaults empty and could misstate a source recording omission as a fact difference. The full native symbol reply is missing; the independent Entrez-only sample retains the unchanged original capture."
         },
         {
           "source": "gnomad",
@@ -1411,9 +1393,7 @@
             "q": "symbol:\"CDKN2A\"",
             "species": "human"
           },
-          "capture": "mygene/cf275c2c06d1739e42ae95d6cb92766644ed006e1aae3ce61510ef649a64eb8f.json",
-          "envelope": "hits",
-          "count_field": "total"
+          "recording_gap": "The retained Entrez annotation omits symbol and name requested by the released MyGene symbol getter. Reusing it would make the released defaults empty and could misstate a source recording omission as a fact difference. The full native symbol reply is missing; the independent Entrez-only sample retains the unchanged original capture."
         },
         {
           "source": "uniprot",
@@ -1474,9 +1454,7 @@
             "q": "symbol:\"CDKN2A\"",
             "species": "human"
           },
-          "capture": "mygene/cf275c2c06d1739e42ae95d6cb92766644ed006e1aae3ce61510ef649a64eb8f.json",
-          "envelope": "hits",
-          "count_field": "total"
+          "recording_gap": "The retained Entrez annotation omits symbol and name requested by the released MyGene symbol getter. Reusing it would make the released defaults empty and could misstate a source recording omission as a fact difference. The full native symbol reply is missing; the independent Entrez-only sample retains the unchanged original capture."
         },
         {
           "source": "uniprot",
@@ -1536,9 +1514,7 @@
             "q": "symbol:\"CDKN2A\"",
             "species": "human"
           },
-          "capture": "mygene/cf275c2c06d1739e42ae95d6cb92766644ed006e1aae3ce61510ef649a64eb8f.json",
-          "envelope": "hits",
-          "count_field": "total"
+          "recording_gap": "The retained Entrez annotation omits symbol and name requested by the released MyGene symbol getter. Reusing it would make the released defaults empty and could misstate a source recording omission as a fact difference. The full native symbol reply is missing; the independent Entrez-only sample retains the unchanged original capture."
         },
         {
           "source": "uniprot",
@@ -1601,9 +1577,7 @@
             "q": "symbol:\"CDKN2A\"",
             "species": "human"
           },
-          "capture": "mygene/cf275c2c06d1739e42ae95d6cb92766644ed006e1aae3ce61510ef649a64eb8f.json",
-          "envelope": "hits",
-          "count_field": "total"
+          "recording_gap": "The retained Entrez annotation omits symbol and name requested by the released MyGene symbol getter. Reusing it would make the released defaults empty and could misstate a source recording omission as a fact difference. The full native symbol reply is missing; the independent Entrez-only sample retains the unchanged original capture."
         },
         {
           "source": "uniprot",
@@ -1663,9 +1637,7 @@
             "q": "symbol:\"CDKN2A\"",
             "species": "human"
           },
-          "capture": "mygene/cf275c2c06d1739e42ae95d6cb92766644ed006e1aae3ce61510ef649a64eb8f.json",
-          "envelope": "hits",
-          "count_field": "total"
+          "recording_gap": "The retained Entrez annotation omits symbol and name requested by the released MyGene symbol getter. Reusing it would make the released defaults empty and could misstate a source recording omission as a fact difference. The full native symbol reply is missing; the independent Entrez-only sample retains the unchanged original capture."
         },
         {
           "source": "uniprot",
@@ -1725,9 +1697,7 @@
             "q": "symbol:\"CDKN2A\"",
             "species": "human"
           },
-          "capture": "mygene/cf275c2c06d1739e42ae95d6cb92766644ed006e1aae3ce61510ef649a64eb8f.json",
-          "envelope": "hits",
-          "count_field": "total"
+          "recording_gap": "The retained Entrez annotation omits symbol and name requested by the released MyGene symbol getter. Reusing it would make the released defaults empty and could misstate a source recording omission as a fact difference. The full native symbol reply is missing; the independent Entrez-only sample retains the unchanged original capture."
         },
         {
           "source": "uniprot",
@@ -1791,9 +1761,7 @@
             "q": "symbol:\"CDKN2A\"",
             "species": "human"
           },
-          "capture": "mygene/cf275c2c06d1739e42ae95d6cb92766644ed006e1aae3ce61510ef649a64eb8f.json",
-          "envelope": "hits",
-          "count_field": "total"
+          "recording_gap": "The retained Entrez annotation omits symbol and name requested by the released MyGene symbol getter. Reusing it would make the released defaults empty and could misstate a source recording omission as a fact difference. The full native symbol reply is missing; the independent Entrez-only sample retains the unchanged original capture."
         },
         {
           "source": "uniprot",
@@ -1853,9 +1821,7 @@
             "q": "symbol:\"CDKN2A\"",
             "species": "human"
           },
-          "capture": "mygene/cf275c2c06d1739e42ae95d6cb92766644ed006e1aae3ce61510ef649a64eb8f.json",
-          "envelope": "hits",
-          "count_field": "total"
+          "recording_gap": "The retained Entrez annotation omits symbol and name requested by the released MyGene symbol getter. Reusing it would make the released defaults empty and could misstate a source recording omission as a fact difference. The full native symbol reply is missing; the independent Entrez-only sample retains the unchanged original capture."
         },
         {
           "source": "uniprot",

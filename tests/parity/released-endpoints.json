@@ -52,14 +52,14 @@
       "variables": [
         "BIOMCP_CIVIC_BASE"
       ],
-      "delivery": "declaration_only"
+      "delivery": "reviewed_json"
     },
     "clingen": {
       "recording_source": "clingen",
       "variables": [
         "BIOMCP_CLINGEN_BASE"
       ],
-      "delivery": "declaration_only"
+      "delivery": "reviewed_json"
     },
     "clingen_car": {
       "recording_source": "car",
@@ -179,7 +179,7 @@
       "variables": [
         "BIOMCP_GNOMAD_BASE"
       ],
-      "delivery": "declaration_only"
+      "delivery": "reviewed_json"
     },
     "gprofiler": {
       "recording_source": "gprofiler",
@@ -222,7 +222,7 @@
       "variables": [
         "BIOMCP_HPA_BASE"
       ],
-      "delivery": "declaration_only"
+      "delivery": "reviewed_json"
     },
     "interpro": {
       "recording_source": "interpro",
@@ -335,7 +335,7 @@
       "variables": [
         "BIOMCP_OLS4_BASE"
       ],
-      "delivery": "declaration_only"
+      "delivery": "reviewed_json"
     },
     "oncokb": {
       "recording_source": "oncokb",
@@ -455,7 +455,7 @@
       "variables": [
         "BIOMCP_UNIPROT_BASE"
       ],
-      "delivery": "declaration_only"
+      "delivery": "reviewed_json"
     },
     "vaers": {
       "recording_source": "vaers",
