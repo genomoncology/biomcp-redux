@@ -182,6 +182,14 @@ class Installer(unittest.TestCase):
             self.assertIn("symbolic-link install directory", result.stderr)
             self.assertFalse(target.exists())
 
+    def test_plain_http_base_is_refused_before_download(self):
+        self.platform()
+        self.environment["BIOMCP_RELEASE_BASE_URL"] = "http://127.0.0.1:1/releases"
+        result = self.install()
+        self.assertNotEqual(result.returncode, 0)
+        self.assertIn("HTTPS", result.stderr)
+        self.assertFalse(self.destination.exists())
+
     def test_unknown_platform_names_failure_and_help_needs_no_download(self):
         for system, machine, message in [("Plan9", "x86_64", "Plan9"), ("Linux", "mips", "mips"), ("MSYS_NT", "arm64", "windows/arm64")]:
             self.platform(system, machine)
