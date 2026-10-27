@@ -131,6 +131,15 @@
       ],
       "type": "object"
     },
+    "LocalBundleState": {
+      "description": "Local bundle availability. Persisted synchronization leases do not prove process liveness.",
+      "enum": [
+        "missing",
+        "fresh",
+        "stale"
+      ],
+      "type": "string"
+    },
     "PageInfo": {
       "additionalProperties": false,
       "description": "Search counts after filtering and deduplication.",
@@ -459,6 +468,17 @@
       "additionalProperties": false,
       "description": "One bounded source probe, without credentials or provider error text.",
       "properties": {
+        "bundle": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/LocalBundleState"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "description": "Last validated local bundle, independent of publisher reachability."
+        },
         "components": {
           "description": "Independently licensed carried components, without separate network probes.",
           "items": {

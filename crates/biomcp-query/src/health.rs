@@ -54,18 +54,8 @@ pub fn run(fetch: &Fetch, budget: Duration) -> Result<Health, RequestError> {
                             Some(elapsed),
                         )
                     };
-                    let (state, reason, latency_ms) = match (reason, bundle) {
-                        (Some(Reason::Offline), Some(biomcp_types::LocalBundleState::Fresh)) => {
-                            (SourceState::Ok, None, None)
-                        }
-                        (Some(Reason::Offline), Some(biomcp_types::LocalBundleState::Stale)) => {
-                            (SourceState::Stale, None, None)
-                        }
-                        (Some(Reason::Offline), Some(biomcp_types::LocalBundleState::Missing)) => {
-                            (SourceState::Skipped, Some(Reason::Offline), None)
-                        }
-                        _ => (state, reason, latency_ms),
-                    };
+                    let (state, reason, latency_ms) =
+                        local_offline((state, reason, latency_ms), bundle);
                     Ok(SourceHealth {
                         bundle,
                         components: component_health(spec.source, fetch)?.into(),
@@ -105,4 +95,19 @@ fn component_health(
             })
         })
         .collect()
+}
+
+fn local_offline(
+    probe: (SourceState, Option<Reason>, Option<u64>),
+    bundle: Option<biomcp_types::LocalBundleState>,
+) -> (SourceState, Option<Reason>, Option<u64>) {
+    use biomcp_types::LocalBundleState;
+    match (probe.1, bundle) {
+        (Some(Reason::Offline), Some(LocalBundleState::Fresh)) => (SourceState::Ok, None, None),
+        (Some(Reason::Offline), Some(LocalBundleState::Stale)) => (SourceState::Stale, None, None),
+        (Some(Reason::Offline), Some(LocalBundleState::Missing)) => {
+            (SourceState::Skipped, Some(Reason::Offline), None)
+        }
+        _ => probe,
+    }
 }

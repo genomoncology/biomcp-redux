@@ -182,18 +182,13 @@ pub fn probe(
 type ProbeParams = Vec<(&'static str, biomcp_fetch::Arg<'static>)>;
 fn get_probe(source: Source) -> Option<(&'static str, ProbeParams)> {
     use biomcp_fetch::Arg;
+    if let Some(probe) = pgx_probe(source) {
+        return Some(probe);
+    }
     if let Some(probe) = protein_probe(source) {
         return Some(probe);
     }
     Some(match source {
-        Source::Cpic => (crate::cpic::HEALTH_PATH, vec![("limit", Arg::Num(1))]),
-        Source::ClinPgx => (
-            crate::clinpgx::HEALTH_PATH,
-            vec![
-                ("location.genes.symbol", Arg::Text("DPYD")),
-                ("view", Arg::Text("min")),
-            ],
-        ),
         Source::Gtr => (crate::gtr::HEALTH_PATH, vec![]),
         Source::WhoIvd => (crate::who_ivd::HEALTH_PATH, vec![]),
         Source::WhoPq => (crate::who_pq::HEALTH_PATH, vec![]),
@@ -401,4 +396,19 @@ pub fn bundle_state(
         _ => return Ok(None),
     };
     Ok(Some(state))
+}
+
+fn pgx_probe(source: Source) -> Option<(&'static str, ProbeParams)> {
+    use biomcp_fetch::Arg;
+    Some(match source {
+        Source::Cpic => (crate::cpic::HEALTH_PATH, vec![("limit", Arg::Num(1))]),
+        Source::ClinPgx => (
+            crate::clinpgx::HEALTH_PATH,
+            vec![
+                ("location.genes.symbol", Arg::Text("DPYD")),
+                ("view", Arg::Text("min")),
+            ],
+        ),
+        _ => return None,
+    })
 }
