@@ -190,7 +190,7 @@ fn discovery() -> Result<(), String> {
             .as_array()
             .ok_or("missing reply schemas")?;
         if matches!(
-            command["command"][0].as_str(),
+            command.pointer("/command/0").and_then(Value::as_str),
             Some(
                 "get"
                     | "search"
@@ -215,7 +215,8 @@ fn discovery() -> Result<(), String> {
         }
     }
     for id in replies {
-        if invoke(&["schema".into(), id.into()])?["$id"] != id {
+        let artifact = invoke(&["schema".into(), id.into()])?;
+        if artifact.get("$id").and_then(Value::as_str) != Some(id) {
             return Err(format!("reply schema does not resolve: {id}"));
         }
     }
