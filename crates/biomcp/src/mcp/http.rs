@@ -15,6 +15,7 @@ const ACCEPT_POLL: std::time::Duration = std::time::Duration::from_millis(20);
 const MAX_CONNECTIONS: usize = 8;
 const HEALTH_BUDGET: std::time::Duration = std::time::Duration::from_secs(2);
 pub(crate) enum StartError {
+    Configuration(crate::config::StartupError),
     Usage,
     Local,
 }
@@ -30,7 +31,8 @@ pub(crate) fn serve(
     globals: crate::grammar::Globals,
 ) -> Result<(), StartError> {
     let address: SocketAddr = address.parse().map_err(|_| StartError::Usage)?;
-    let mut names = crate::config::http_hosts(&globals).map_err(|_| StartError::Local)?;
+    let mut names = crate::config::http_hosts(&globals)
+        .map_err(|error| StartError::Configuration(error.into()))?;
     names.extend(hosts);
     let hosts = names
         .iter()

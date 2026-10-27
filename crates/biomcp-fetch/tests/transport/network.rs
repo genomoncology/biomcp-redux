@@ -40,7 +40,7 @@ fn checked_no_proxy_boundaries_select_direct_routes() {
         let network =
             biomcp_fetch::Network::new(Some(Secret::new(proxy)), None, &rule, Default::default());
         if rule == ".127.0.0.1" {
-            assert!(network.is_err());
+            assert!(network.is_ok());
             drop(stub);
             continue;
         }
@@ -80,7 +80,6 @@ fn invalid_no_proxy_boundaries_are_configuration_errors() {
         "example.org:abc",
         "example.org:",
         "example.org:65536",
-        "*.127.0.0.1",
         "user@example.org",
         "[::1]:abc",
     ] {

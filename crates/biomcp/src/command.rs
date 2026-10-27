@@ -6,7 +6,7 @@ mod diagnostic;
 mod disease;
 mod drug;
 mod drug_label;
-mod local;
+pub(crate) mod local;
 mod maintenance;
 mod mcp_policy;
 mod pathway;
@@ -466,7 +466,7 @@ fn run_request(
 ) -> io::Result<biomcp_query::Outcome> {
     let cx = biomcp_query::Ctx {
         ncbi_email: crate::config::ncbi_email(globals)
-            .map_err(|()| io::Error::other("local configuration failed"))?,
+            .map_err(|_| io::Error::other("local configuration failed"))?,
         fetch,
         budget: crate::config::BUDGET,
         fresh,

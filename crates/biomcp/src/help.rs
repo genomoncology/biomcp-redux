@@ -510,8 +510,9 @@ fn network(setting: &str) -> Help {
         }
         _ => {
             "Set proxy in config.json to an HTTP or HTTPS proxy URL. Otherwise HTTPS_PROXY and HTTP_PROXY \
-                select routes for their schemes; NO_PROXY bypasses exact hosts/IPs, .domain, *.domain, optional \
-                ports, or *. An explicit proxy overrides proxy environment settings."
+                select routes for their schemes; NO_PROXY bypasses exact hosts/IPs, CIDR ranges, .domain, *.domain, optional \
+                ports, or *. Bare IPv6 is accepted. Unsupported entries are skipped and health reports configuration notices. \
+                Malformed ports and credentials refuse with the variable name. An explicit proxy overrides proxy environment settings."
         }
     };
     Help {

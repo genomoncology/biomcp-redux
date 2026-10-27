@@ -60,7 +60,8 @@ pub use article_sections::{
 
 mod health;
 pub use health::{
-    ComponentHealth, DisableGroup, DisabledComponent, Health, HttpHealth, SourceHealth,
+    ComponentHealth, ConfigurationHealth, ConfigurationNotice, ConfigurationNoticeCode,
+    ConfigurationVariable, DisableGroup, DisabledComponent, Health, HttpHealth, SourceHealth,
 };
 
 pub use article::{

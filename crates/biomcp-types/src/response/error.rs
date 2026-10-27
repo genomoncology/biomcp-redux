@@ -281,6 +281,12 @@ pub struct ErrorEnvelope {
 }
 
 impl ErrorEnvelope {
+    /// Name a rejected configuration field or environment variable without its value.
+    pub fn configuration(option: String) -> Self {
+        let mut envelope = Self::local();
+        envelope.error.option = Some(option.into_boxed_str());
+        envelope
+    }
     /// Refuse opaque source syntax when a component terms restriction is selected.
     pub fn variant_query_policy() -> Self {
         let mut error = Self::arguments();

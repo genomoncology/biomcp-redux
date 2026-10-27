@@ -9,8 +9,8 @@ pub(super) fn kind(error: Option<RequestError>) -> Option<CacheProblem> {
     }
 }
 
-pub(super) fn startup(error: crate::config::StartupError) -> std::io::Result<super::Outcome> {
-    let mut envelope = ErrorEnvelope::local();
+pub(crate) fn startup(error: crate::config::StartupError) -> std::io::Result<super::Outcome> {
+    let mut envelope = error.1.map_or_else(ErrorEnvelope::local, ErrorEnvelope::configuration);
     envelope.local_error = error.0.map(Into::into);
     super::encode(envelope, crate::exit::Status::Local)
 }

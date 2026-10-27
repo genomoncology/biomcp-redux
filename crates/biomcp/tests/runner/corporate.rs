@@ -208,6 +208,7 @@ fn configuration() -> Result<(), String> {
             return Err(format!("configuration failure lost safe variable {variable}: {value}"));
         }
     }
+    skipped_bypass()?;
     for limit in [1, 1_000_000] {
         let env = Environment::new().map_err(|e| e.to_string())?;
         let stub = super::network_stub::Stub::new()?;
@@ -222,6 +223,38 @@ fn configuration() -> Result<(), String> {
             return Err(format!("automatic sync did not apply configured byte limit: {value}"));
         }
         stub.finish()?;
+    }
+    Ok(())
+}
+
+fn skipped_bypass() -> Result<(), String> {
+    let env = Environment::new().map_err(|e| e.to_string())?;
+    let rules = "127.0.0.1,synthetic-private! , ,bad/entry";
+    let health = |rule: &str| -> Result<Value, String> {
+        let output = env.command(env!("CARGO_BIN_EXE_biomcp"),
+            &["health".into(), "--offline".into()]).env("NO_PROXY", rule)
+            .output().map_err(|e| e.to_string())?;
+        if !output.status.success() || !output.stderr.is_empty() { return Err("skipped bypass stopped health".into()); }
+        serde_json::from_slice(&output.stdout).map_err(|e| e.to_string())
+    };
+    let value = health(rules)?;
+    if value.pointer("/result/configuration") != Some(&json!({"notices":[
+        {"variable":"NO_PROXY", "entry":2, "code":"unparseable_entry"},
+        {"variable":"NO_PROXY", "entry":4, "code":"unparseable_entry"}], "omitted_entries":0}))
+        || value.to_string().contains("synthetic-private") { return Err(format!("missing bounded notice: {value}")); }
+    let many = vec!["synthetic-private!"; 12].join(",");
+    let value = health(&many)?;
+    if value.pointer("/result/configuration/notices").and_then(Value::as_array).map(Vec::len) != Some(8)
+        || value.pointer("/result/configuration/omitted_entries") != Some(&json!(4)) {
+        return Err("configuration notices were not bounded".into());
+    }
+    let args = ["get".into(), "gene".into(), "BRAF".into(), "--replay".into(),
+        super::configuration::root().to_string_lossy().into()];
+    let output = env.command(env!("CARGO_BIN_EXE_biomcp"), &args).env("NO_PROXY", rules)
+        .output().map_err(|e| e.to_string())?;
+    if !output.status.success() || !output.stderr.is_empty()
+        || String::from_utf8_lossy(&output.stdout).contains("configuration") {
+        return Err("ordinary command exposed configuration notices".into());
     }
     Ok(())
 }
