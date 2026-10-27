@@ -28,6 +28,21 @@ pub(super) fn check(tools: &[Value], reply: &Value) -> Result<(), String> {
             }
         }
     }
+    let main = tools
+        .iter()
+        .find(|tool| tool.get("name") == Some(&json!("biomcp")))
+        .and_then(|tool| tool.get("outputSchema"))
+        .ok_or("missing main output schema")?;
+    let ids = super::super::schema_proof::reply_ids(main);
+    for (id, text) in super::super::schema::ARTIFACTS {
+        let canonical: Value = serde_json::from_str(text).map_err(|e| e.to_string())?;
+        if canonical.pointer("/properties/schema").is_some()
+            && canonical.pointer("/properties/status").is_some()
+            && !ids.contains(id)
+        {
+            return Err(format!("main tool omits a canonical reply schema ID: {id}"));
+        }
+    }
     for args in [
         json!(["help"]),
         json!(["schema"]),
