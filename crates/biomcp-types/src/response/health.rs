@@ -5,6 +5,9 @@ use serde::{Deserialize, Serialize};
 #[serde(deny_unknown_fields)]
 #[cfg_attr(feature = "schema", derive(schemars::JsonSchema))]
 pub struct Health {
+    /// Sources and carried components excluded by each supported terms group.
+    #[serde(default)]
+    pub disable_groups: Box<[DisableGroup]>,
     /// Every implemented adapter, in declaration order.
     pub sources: Box<[SourceHealth]>,
 }
@@ -62,4 +65,27 @@ pub struct ComponentHealth {
     pub terms: crate::ComponentTerms,
     /// Explicit source or component group policy prevents this component.
     pub disabled: bool,
+}
+
+/// The consequences of one source-disable selector, regardless of current configuration.
+#[derive(Clone, Debug, Serialize, Deserialize)]
+#[serde(deny_unknown_fields)]
+#[cfg_attr(feature = "schema", derive(schemars::JsonSchema))]
+pub struct DisableGroup {
+    /// Terms category accepted by disable_sources.
+    pub group: Use,
+    /// Whole sources stopped by this group.
+    pub sources: Box<[Source]>,
+    /// Carried fields stopped while their aggregators remain available.
+    pub components: Box<[DisabledComponent]>,
+}
+/// One independently labeled carried field excluded by a terms group.
+#[derive(Clone, Debug, Serialize, Deserialize)]
+#[serde(deny_unknown_fields)]
+#[cfg_attr(feature = "schema", derive(schemars::JsonSchema))]
+pub struct DisabledComponent {
+    /// Aggregator carrying the field.
+    pub source: Source,
+    /// Registry-owned component name.
+    pub name: String,
 }

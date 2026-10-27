@@ -67,6 +67,7 @@ pub fn run(fetch: &Fetch, budget: Duration) -> Result<Health, RequestError> {
             .collect(),
     );
     Ok(Health {
+        disable_groups: registry::disable_groups().into(),
         sources: sources.into_iter().collect::<Result<Vec<_>, _>>()?.into(),
     })
 }
