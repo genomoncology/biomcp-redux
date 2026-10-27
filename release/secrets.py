@@ -60,6 +60,7 @@ MAX_FILE = 512 * 1024 * 1024
 MAX_TOTAL = 8 * 1024 * 1024 * 1024
 MAX_DEPTH = 16
 MAX_FILES = 200000
+ARCHIVE_SUFFIXES = (".zip", ".whl", ".mcpb", ".tar", ".gz", ".tgz", ".7z", ".rar", ".bz2", ".xz", ".zst")
 
 
 def inputs(mode, target, env):
@@ -132,6 +133,8 @@ def prepare(target, mode, root, env):
         # replacement preserves every ASCII credential byte and its boundaries.
         (directory / key).write_text("screened content\n" + payload.decode("utf-8", errors="replace"), encoding="utf-8")
         suffix = name.lower()
+        def opaque():
+            print(json.dumps({"file": name, "rule": "opaque-history-blob-decoded-coverage-unavailable"}))
         def member_name(member):
             path = PurePosixPath(member.replace("\\", "/"))
             if path.is_absolute() or ".." in path.parts or (path.parts and ":" in path.parts[0]):
@@ -156,14 +159,21 @@ def prepare(target, mode, root, env):
                             kind = stat.S_IFMT(member.external_attr >> 16)
                             if kind not in (0, stat.S_IFREG, stat.S_IFLNK):
                                 raise ValueError("unsupported archive member")
-                            with archive.open(member) as source:
-                                yield (nested + "!link-target" if kind == stat.S_IFLNK else nested,
-                                       source.read(MAX_FILE + 1))
+                            try:
+                                with archive.open(member) as source:
+                                    yield (nested + "!link-target" if kind == stat.S_IFLNK else nested,
+                                           source.read(MAX_FILE + 1))
+                            except RuntimeError:
+                                if mode == "history" and not suffix.endswith(ARCHIVE_SUFFIXES):
+                                    opaque()
+                                    return
+                                raise
                 except zipfile.BadZipFile:
                     # Historical parser probes may deliberately resemble ZIP magic.
                     # Their bytes were staged above. Declared archives and current
                     # publication artifacts must still fail on malformed structure.
-                    if mode == "history" and not suffix.endswith((".zip", ".whl", ".mcpb")):
+                    if mode == "history" and not suffix.endswith(ARCHIVE_SUFFIXES):
+                        opaque()
                         return
                     raise
             for nested, content in contents():
@@ -196,6 +206,9 @@ def prepare(target, mode, root, env):
                     else:
                         raise ValueError("unsupported archive member")
         elif suffix.endswith((".7z", ".rar", ".bz2", ".xz", ".zst")) or payload.startswith((b"7z\xbc\xaf\x27\x1c", b"Rar!", b"BZh", b"\xfd7zXZ\x00", b"\x28\xb5\x2f\xfd")):
+            if mode == "history" and not suffix.endswith(ARCHIVE_SUFFIXES):
+                opaque()
+                return
             raise ValueError("unsupported archive compression")
     for name, payload in inputs(mode, target, env):
         add(name, payload)

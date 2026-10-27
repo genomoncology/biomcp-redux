@@ -93,6 +93,10 @@ class Screening(unittest.TestCase):
             malformed = bytearray(buffer.getvalue())
             malformed[30] ^= 1  # Local and central filenames intentionally disagree.
             (repo / "historical-structure.bin").write_bytes(malformed)
+            encrypted = bytearray(buffer.getvalue())
+            encrypted[6] |= 1
+            encrypted[encrypted.index(b"PK\x01\x02") + 8] |= 1
+            (repo / "historical-encrypted.bin").write_bytes(encrypted)
             git("add", ".")
             tree = git("write-tree")
             merged = git("commit-tree", tree, "-p", first, "-p", second, data=b"Merge fixture\n")
@@ -100,6 +104,7 @@ class Screening(unittest.TestCase):
             findings = screen("history", repo)
             self.assertIn("historical-opaque.bin", findings)
             self.assertIn("historical-structure.bin", findings)
+            self.assertTrue(any(row["file"].endswith("historical-encrypted.bin") and row["rule"] == "opaque-history-blob-decoded-coverage-unavailable" for row in map(json.loads, findings.splitlines())))
             self.assertIn("historical-valid.bin!credential.exe", findings)
             with zipfile.ZipFile(repo / "nested-declared.bin", "w") as archive:
                 archive.writestr("corrupt.zip", b"PK\x03\x04malformed declared archive")
@@ -128,6 +133,13 @@ class Screening(unittest.TestCase):
             with zipfile.ZipFile(candidate, "w", zipfile.ZIP_DEFLATED) as archive:
                 archive.writestr("hidden/", "directory content")
             self.assertNotEqual(screen().returncode, 0, "directory payload must not be skipped")
+            with zipfile.ZipFile(candidate, "w") as archive:
+                archive.writestr("credential.txt", "fixture")
+            encrypted = bytearray(candidate.read_bytes())
+            encrypted[6] |= 1
+            encrypted[encrypted.index(b"PK\x01\x02") + 8] |= 1
+            candidate.write_bytes(encrypted)
+            self.assertEqual(screen().returncode, 2, "staged encrypted archive must fail closed")
             candidate.unlink()
             candidate.symlink_to(root / "absent")
             self.assertNotEqual(screen().returncode, 0, "filesystem links must not be skipped")
