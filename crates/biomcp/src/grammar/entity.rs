@@ -43,7 +43,9 @@ pub(super) fn request(
             {
                 object.insert("id".into(), id);
             }
-            super::validation::decode(value).map(Request::GetPgxAnnotation)
+            super::validation::decode(value)
+                .map(Request::GetPgxAnnotation)
+                .map_err(|cause| cause.rename("id", "annotation_id"))
         }
         ("get", "pgx") => super::validation::decode(value).map(Request::GetPgx),
         ("search", "diagnostic") => super::validation::decode(value).map(Request::SearchDiagnostic),

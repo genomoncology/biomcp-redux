@@ -7,12 +7,21 @@ pub(super) fn request(verb: &str, mut value: Value) -> Result<Request, biomcp_ty
             let fields = value
                 .as_object_mut()
                 .ok_or_else(biomcp_types::QueryInvalid::default)?;
+            let positional = fields.contains_key("query");
             if let Some(query) = fields.remove("query")
                 && fields.insert("gene".into(), query).is_some()
             {
                 return Err(biomcp_types::QueryInvalid::new(&["gene", "query"]));
             }
-            super::validation::decode(value).map(Request::SearchGwas)
+            super::validation::decode(value)
+                .map(Request::SearchGwas)
+                .map_err(|cause| {
+                    if positional {
+                        cause.rename("gene", "query")
+                    } else {
+                        cause
+                    }
+                })
         }
         "get" => {
             let fields = value

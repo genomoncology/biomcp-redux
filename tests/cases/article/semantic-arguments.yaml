@@ -66,6 +66,66 @@
         "/error/code": "usage.arguments",
         "/error/option": "--age"
       }
+    },
+    {
+      "run": [
+        "get",
+        "gwas",
+        "secret-id"
+      ],
+      "mcp": [
+        "get",
+        "gwas",
+        "secret-id"
+      ],
+      "exit": 2,
+      "is_error": true,
+      "expect": {
+        "/error/code": "usage.arguments",
+        "/error/option": "id"
+      }
+    },
+    {
+      "run": [
+        "get",
+        "gwas",
+        "GCST004415",
+        "loci"
+      ],
+      "mcp": [
+        "get",
+        "gwas",
+        "GCST004415",
+        "loci"
+      ],
+      "exit": 2,
+      "is_error": true,
+      "expect": {
+        "/error/code": "usage.arguments",
+        "/error/option": "id, section"
+      }
+    },
+    {
+      "run": [
+        "get",
+        "gwas",
+        "GCST004415",
+        "--snapshot",
+        " "
+      ],
+      "mcp": [
+        "get",
+        "gwas",
+        "GCST004415",
+        "--snapshot",
+        " "
+      ],
+      "exit": 2,
+      "is_error": true,
+      "expect": {
+        "/error/code": "usage.arguments",
+        "/error/option": "--snapshot"
+      }
     }
   ]
 }

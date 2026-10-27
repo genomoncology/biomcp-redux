@@ -38,7 +38,12 @@ impl<'de> MapAccess<'de> for Fields {
     }
 }
 
-pub(super) fn argument_names(verb: &str, entity: &str, cause: &QueryInvalid) -> Option<String> {
+pub(super) fn argument_names(
+    verb: &str,
+    entity: &str,
+    matches: &clap::ArgMatches,
+    cause: &QueryInvalid,
+) -> Option<String> {
     let id = super::QUERIES
         .iter()
         .find(|(v, e, _)| *v == verb && *e == entity)?
@@ -48,7 +53,19 @@ pub(super) fn argument_names(verb: &str, entity: &str, cause: &QueryInvalid) -> 
     let names: Vec<_> = cause
         .arguments()
         .iter()
-        .filter_map(|name| identity(name, properties))
+        .filter_map(|name| {
+            if name.as_ref() == "query"
+                && matches
+                    .try_get_one::<String>("query_option")
+                    .ok()
+                    .flatten()
+                    .is_some()
+            {
+                Some("--query".into())
+            } else {
+                identity(name, properties)
+            }
+        })
         .collect();
     (!names.is_empty()).then(|| names.join(", "))
 }

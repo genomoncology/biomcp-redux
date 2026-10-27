@@ -279,7 +279,7 @@ pub(crate) fn parse(args: &[OsString]) -> Result<Parsed, ParseInvalid> {
     } else {
         let (entity, matches) = matches.subcommand().ok_or(())?;
         let request = request(verb, entity, matches).map_err(|cause| ParseInvalid {
-            argument: validation::argument_names(verb, entity, &cause),
+            argument: validation::argument_names(verb, entity, matches, &cause),
         })?;
         Action::Run {
             request,

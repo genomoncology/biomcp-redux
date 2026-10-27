@@ -13,6 +13,15 @@ impl QueryInvalid {
             arguments: arguments.iter().map(|name| Box::from(*name)).collect(),
         }
     }
+    /// Translate a field identity when an adapter renames the input field.
+    pub fn rename(mut self, from: &str, to: &str) -> Self {
+        for name in &mut self.arguments {
+            if name.as_ref() == from {
+                *name = to.into();
+            }
+        }
+        self
+    }
     /// Identities of the fields involved in the failed rule.
     pub fn arguments(&self) -> &[Box<str>] {
         &self.arguments
