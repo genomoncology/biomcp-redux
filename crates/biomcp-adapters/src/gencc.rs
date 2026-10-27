@@ -38,8 +38,8 @@ pub fn sync(fetch: &Fetch) -> Result<SyncResult, RequestError> {
     let info = fetch.sync(&SUBMISSIONS)?;
     Ok(SyncResult {
         snapshot: None,
-        etag: info.etag.map(Into::into),
-        last_modified: info.last_modified.map(Into::into),
+        etag: info.etag,
+        last_modified: info.last_modified,
         duplicate_identities: None,
         rows: info.rows,
         bytes: info.bytes,
