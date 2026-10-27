@@ -1,6 +1,7 @@
 {
   "$id": "biomcp.drug-source/1",
   "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "description": "A supported drug data source.",
   "enum": [
     "who-pq",
     "mychem",

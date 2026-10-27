@@ -40,7 +40,6 @@
         "/next/1/kind": "page"
       },
       "max_bytes": 864,
-      "max_tokens": 216,
       "full_output_bytes": true
     },
     {
@@ -57,7 +56,6 @@
         ]
       },
       "max_bytes": 678,
-      "max_tokens": 170,
       "full_output_bytes": true,
       "follow": "page"
     },
@@ -97,7 +95,6 @@
         "/next/1/kind": "page"
       },
       "max_bytes": 864,
-      "max_tokens": 216,
       "full_output_bytes": true,
       "offline": true
     },
@@ -141,7 +138,6 @@
         "/next/1/kind": "page"
       },
       "max_bytes": 864,
-      "max_tokens": 216,
       "full_output_bytes": true
     }
   ]

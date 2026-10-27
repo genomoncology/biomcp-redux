@@ -70,8 +70,7 @@
         "items": "/result/items",
         "max_pages": 30
       },
-      "max_bytes": 6419,
-      "max_tokens": 1605
+      "max_bytes": 6419
     }
   ],
   "live_check": "public"
