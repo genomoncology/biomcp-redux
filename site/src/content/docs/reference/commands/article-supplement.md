@@ -43,7 +43,7 @@ biomcp article supplement 28944238 MGG3-5-553-s002.xlsx --variant P245S
 
 ## Reply schema
 
-The help examples of this command return [`biomcp.article_supplement/2`](/reference/schemas/biomcp-article-supplement-2/). Print the full JSON schema with `biomcp schema biomcp.article_supplement/2`.
+The help examples of this command return [`biomcp.article_supplement/3`](/reference/schemas/biomcp-article-supplement-3/). Print the full JSON schema with `biomcp schema biomcp.article_supplement/3`.
 
 ## Exit codes
 

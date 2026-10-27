@@ -7,7 +7,7 @@ kind: reference
 verified: 2026-10-27
 ---
 
-BioMCP 1.0.0 registers 56 sources. This table comes from `biomcp --offline health`, which reports the registry without sending requests. The [data sources guide](/sources/) explains use groups and how to turn sources off. Each source has its own page under [/sources/](/sources/).
+BioMCP 1.0.0 registers 57 sources. This table comes from `biomcp --offline health`, which reports the registry without sending requests. The [data sources guide](/sources/) explains use groups and how to turn sources off. Each source has its own page under [/sources/](/sources/).
 
 | Source | Use group | Key | Terms |
 | --- | --- | --- | --- |
@@ -29,6 +29,7 @@ BioMCP 1.0.0 registers 56 sources. This table comes from `biomcp --offline healt
 | [hgnc](/sources/hgnc/) | open |  | [CC0 1.0](https://www.genenames.org/about/license/) |
 | [mygene](/sources/mygene/) | restricted |  | [MyGene.info Terms of Use; upstream data terms](https://docs.mygene.info/en/latest/terms.html) |
 | [oncokb](/sources/oncokb/) | restricted | required, `ONCOKB_TOKEN` | [OncoKB license](https://faq.oncokb.org/licensing) |
+| [alphagenome](/sources/alphagenome/) | restricted | required, `ALPHAGENOME_API_KEY` | [AlphaGenome API terms](https://alphagenome.google/terms) |
 | [gnomad](/sources/gnomad/) | open |  | [CC0 1.0](https://gnomad.broadinstitute.org/policies) |
 | [uniprot](/sources/uniprot/) | attribution |  | [CC BY 4.0](https://www.uniprot.org/help/license) |
 | [interpro](/sources/interpro/) | open |  | [CC0](https://interpro-documentation.readthedocs.io/en/latest/license.html) |
@@ -75,6 +76,6 @@ BioMCP 1.0.0 registers 56 sources. This table comes from `biomcp --offline healt
 | `open` | 21 |
 | `attribution` | 9 |
 | `noncommercial` | 6 |
-| `restricted` | 20 |
+| `restricted` | 21 |
 
 This page is generated from the help of BioMCP 1.0.0. Fix a wrong sentence in the help text, then regenerate.

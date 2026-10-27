@@ -36,6 +36,7 @@ Source reachability and publisher terms, independent of local HTTP service healt
 
 | Field | Type | Required | Description |
 | --- | --- | --- | --- |
+| `disable_groups` | array of DisableGroup | no | Sources and carried components excluded by each supported terms group. |
 | `sources` | array of SourceHealth | yes | Every implemented adapter, in declaration order. |
 
 [Reply envelope](/reference/envelope/) gives the values of `status`, `sources[].state` and the other shared fields. [Reply schemas](/reference/schemas/) lists every schema.

@@ -1,6 +1,6 @@
 # BioMCP
 
-BioMCP searches and fetches biomedical records from public sources: genes, variants, clinical trials, articles, drugs, diseases and <!--fact:counts.entities-->16<!--/fact--> entities in all, across <!--fact:counts.sources-->56<!--/fact--> sources. It is one program with two faces. In the shell it is the `biomcp` command. In an AI agent it is an MCP server with one `biomcp` tool that takes the same commands. It is for researchers, curators and developers who want source records with their identifiers and terms, from the shell or through an agent. This README covers BioMCP <!--fact:version-->1.0.0<!--/fact-->.
+BioMCP searches and fetches biomedical records from public sources: genes, variants, clinical trials, articles, drugs, diseases and <!--fact:counts.entities-->16<!--/fact--> entities in all, across <!--fact:counts.sources-->57<!--/fact--> sources. It is one program with two faces. In the shell it is the `biomcp` command. In an AI agent it is an MCP server with one `biomcp` tool that takes the same commands. It is for researchers, curators and developers who want source records with their identifiers and terms, from the shell or through an agent. This README covers BioMCP <!--fact:version-->1.0.0<!--/fact-->.
 
 Each command sends its words and identifiers over the network to the public sources it names, such as HGNC, PubMed or ClinicalTrials.gov. Do not put names, record numbers or other identifying patient data in a query.
 

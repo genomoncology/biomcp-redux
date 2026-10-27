@@ -26,7 +26,7 @@ BioMCP 1.0.0 has 119 reply schemas. Every reply names one in its `schema` field,
 | [`biomcp.article_page/3`](/reference/schemas/biomcp-article-page-3/) | ArticlePage | [`search article`](/reference/commands/search-article/) |
 | [`biomcp.article_pdf/2`](/reference/schemas/biomcp-article-pdf-2/) | ArticlePdfResult | [`article pdf`](/reference/commands/article-pdf/) |
 | [`biomcp.article_recommendations/3`](/reference/schemas/biomcp-article-recommendations-3/) | ArticleRecommendations | [`article recommendations`](/reference/commands/article-recommendations/) |
-| [`biomcp.article_supplement/2`](/reference/schemas/biomcp-article-supplement-2/) | ArticleSupplementResult | [`article supplement`](/reference/commands/article-supplement/) |
+| [`biomcp.article_supplement/3`](/reference/schemas/biomcp-article-supplement-3/) | ArticleSupplementResult | [`article supplement`](/reference/commands/article-supplement/) |
 | [`biomcp.article_text/3`](/reference/schemas/biomcp-article-text-3/) | ArticleTextResult | [`article text`](/reference/commands/article-text/) |
 | [`biomcp.author_card/3`](/reference/schemas/biomcp-author-card-3/) | AuthorCards | [`get author`](/reference/commands/get-author/) |
 | [`biomcp.author_page/2`](/reference/schemas/biomcp-author-page-2/) | AuthorPage | [`search author`](/reference/commands/search-author/) |
@@ -80,7 +80,7 @@ BioMCP 1.0.0 has 119 reply schemas. Every reply names one in its `schema` field,
 | [`biomcp.gwas_study/1`](/reference/schemas/biomcp-gwas-study-1/) | GwasStudy | [`get gwas`](/reference/commands/get-gwas/) |
 | [`biomcp.health/2`](/reference/schemas/biomcp-health-2/) | Health | [`health`](/reference/commands/health/) |
 | [`biomcp.help/2`](/reference/schemas/biomcp-help-2/) | Help | [`help`](/reference/commands/help/), [`help network proxy`](/reference/commands/help-network-proxy/), [`help network ca_bundle`](/reference/commands/help-network-ca_bundle/) |
-| [`biomcp.key/2`](/reference/schemas/biomcp-key-2/) | KeyHelp | [`help key ncbi`](/reference/commands/help-key-ncbi/), [`help key semantic-scholar`](/reference/commands/help-key-semantic-scholar/), [`help key orcid`](/reference/commands/help-key-orcid/), [`help key oncokb`](/reference/commands/help-key-oncokb/), [`help key nci`](/reference/commands/help-key-nci/), [`help key openfda`](/reference/commands/help-key-openfda/) |
+| [`biomcp.key/2`](/reference/schemas/biomcp-key-2/) | KeyHelp | [`help key ncbi`](/reference/commands/help-key-ncbi/), [`help key semantic-scholar`](/reference/commands/help-key-semantic-scholar/), [`help key orcid`](/reference/commands/help-key-orcid/), [`help key oncokb`](/reference/commands/help-key-oncokb/), [`help key alphagenome`](/reference/commands/help-key-alphagenome/), [`help key nci`](/reference/commands/help-key-nci/), [`help key openfda`](/reference/commands/help-key-openfda/) |
 | [`biomcp.nci_trial_cards/2`](/reference/schemas/biomcp-nci-trial-cards-2/) | NciTrialCards |  |
 | [`biomcp.nci_trial_page/3`](/reference/schemas/biomcp-nci-trial-page-3/) | NciTrialPage |  |
 | [`biomcp.orcid_works/2`](/reference/schemas/biomcp-orcid-works-2/) | OrcidWorks |  |

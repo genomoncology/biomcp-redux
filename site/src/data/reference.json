@@ -45,7 +45,7 @@
       }
     ]
   },
-  "commands": 85,
+  "commands": 86,
   "entities": 16,
   "entity_names": [
     "author",
@@ -65,7 +65,7 @@
     "trial",
     "variant"
   ],
-  "sources": 56,
+  "sources": 57,
   "tools": 3,
   "keys": [
     {
@@ -87,6 +87,11 @@
       "source": "oncokb",
       "environment": "ONCOKB_TOKEN",
       "config": "keys.oncokb_api_key"
+    },
+    {
+      "source": "alphagenome",
+      "environment": "ALPHAGENOME_API_KEY",
+      "config": "keys.alphagenome_api_key"
     },
     {
       "source": "nci",

@@ -198,6 +198,17 @@
     "route": "/sources/oncokb/"
   },
   {
+    "source": "alphagenome",
+    "name": "AlphaGenome",
+    "use": "restricted",
+    "key": "Required: alphagenome",
+    "keyUse": "Required",
+    "keyName": "alphagenome",
+    "terms": "AlphaGenome API terms",
+    "terms_url": "https://alphagenome.google/terms",
+    "route": "/sources/alphagenome/"
+  },
+  {
     "source": "gnomad",
     "name": "gnomAD",
     "use": "open",

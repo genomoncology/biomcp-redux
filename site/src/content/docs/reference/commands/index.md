@@ -8,7 +8,7 @@ kind: reference
 verified: 2026-10-27
 ---
 
-BioMCP 1.0.0 has 85 commands in its help. Each links to its page with arguments, sections and examples.
+BioMCP 1.0.0 has 86 commands in its help. Each links to its page with arguments, sections and examples.
 
 ## adverse-event
 
@@ -177,6 +177,7 @@ BioMCP 1.0.0 has 85 commands in its help. Each links to its page with arguments,
 | [`biomcp help key semantic-scholar`](/reference/commands/help-key-semantic-scholar/) | Show credential registration and environment fallback names. |
 | [`biomcp help key orcid`](/reference/commands/help-key-orcid/) | Show credential registration and environment fallback names. |
 | [`biomcp help key oncokb`](/reference/commands/help-key-oncokb/) | Show credential registration and environment fallback names. |
+| [`biomcp help key alphagenome`](/reference/commands/help-key-alphagenome/) | Show credential registration and environment fallback names. |
 | [`biomcp help key nci`](/reference/commands/help-key-nci/) | Show credential registration and environment fallback names. |
 | [`biomcp help key openfda`](/reference/commands/help-key-openfda/) | Show credential registration and environment fallback names. |
 

@@ -11,9 +11,9 @@ verified: 2026-10-27
 
 The BioMCP 1.0.0 reference is generated from the program's own help and registry. It covers:
 
-- [Commands](/reference/commands/): all 85 commands, one page each.
+- [Commands](/reference/commands/): all 86 commands, one page each.
 - [Entities and sections](/reference/entities/): the 16 entities and their section words.
-- [Sources](/reference/data-sources/): the 56 sources, their terms and keys.
+- [Sources](/reference/data-sources/): the 57 sources, their terms and keys.
 - [Global options](/reference/global-options/): options every command accepts.
 - [Reply envelope](/reference/envelope/): statuses, source states, reasons, use groups and error codes.
 - [Exit codes](/reference/error-codes/): what each exit code means.

@@ -9,11 +9,11 @@
   "python": "3.9",
   "counts": {
     "entities": 16,
-    "sources": 56,
-    "commands": 85,
+    "sources": 57,
+    "commands": 86,
     "mcp_tools": 3,
     "use_cases": 17,
-    "keys": 6
+    "keys": 7
   },
   "install": {
     "script": "curl -fsSL https://biomcp.org/install.sh | bash",

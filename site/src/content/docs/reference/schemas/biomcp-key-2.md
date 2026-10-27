@@ -12,7 +12,7 @@ verified: 2026-10-27
 
 BioMCP 1.0.0 reply schema `biomcp.key/2`. Every reply names its schema in `schema`. Print this one as JSON Schema with `biomcp schema biomcp.key/2`.
 
-These commands return it: [`biomcp help key ncbi`](/reference/commands/help-key-ncbi/), [`biomcp help key semantic-scholar`](/reference/commands/help-key-semantic-scholar/), [`biomcp help key orcid`](/reference/commands/help-key-orcid/), [`biomcp help key oncokb`](/reference/commands/help-key-oncokb/), [`biomcp help key nci`](/reference/commands/help-key-nci/), [`biomcp help key openfda`](/reference/commands/help-key-openfda/).
+These commands return it: [`biomcp help key ncbi`](/reference/commands/help-key-ncbi/), [`biomcp help key semantic-scholar`](/reference/commands/help-key-semantic-scholar/), [`biomcp help key orcid`](/reference/commands/help-key-orcid/), [`biomcp help key oncokb`](/reference/commands/help-key-oncokb/), [`biomcp help key alphagenome`](/reference/commands/help-key-alphagenome/), [`biomcp help key nci`](/reference/commands/help-key-nci/), [`biomcp help key openfda`](/reference/commands/help-key-openfda/).
 
 ## Envelope
 

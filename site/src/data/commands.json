@@ -361,7 +361,7 @@
     "route": "/reference/commands/article-supplement/",
     "description": "Read a checked supplement file or page its original rows.",
     "schemas": [
-      "biomcp.article_supplement/2"
+      "biomcp.article_supplement/3"
     ]
   },
   {
@@ -724,6 +724,15 @@
     "command": "help key oncokb",
     "entity": "help",
     "route": "/reference/commands/help-key-oncokb/",
+    "description": "Show credential registration and environment fallback names.",
+    "schemas": [
+      "biomcp.key/2"
+    ]
+  },
+  {
+    "command": "help key alphagenome",
+    "entity": "help",
+    "route": "/reference/commands/help-key-alphagenome/",
     "description": "Show credential registration and environment fallback names.",
     "schemas": [
       "biomcp.key/2"
