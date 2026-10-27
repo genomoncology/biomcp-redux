@@ -11,6 +11,8 @@ mod inventory;
 pub(crate) fn inventory_main(args: Vec<String>) -> ExitCode {
     inventory::main(args)
 }
+#[path = "parity_operation.rs"]
+mod operation;
 #[path = "parity_projection.rs"]
 mod projection;
 #[path = "parity_recording.rs"]
