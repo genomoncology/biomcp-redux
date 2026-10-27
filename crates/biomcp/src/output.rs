@@ -32,10 +32,12 @@ pub(crate) fn command(
             }
         })
         .or_else(|| {
-            crate::config::format(parsed
-                .or_else(|| crate::grammar::parse(args).ok())
-                .and_then(|parsed| parsed.globals.config)
-                .as_ref())
+            crate::config::format(
+                parsed
+                    .or_else(|| crate::grammar::parse(args).ok())
+                    .and_then(|parsed| parsed.globals.config)
+                    .as_ref(),
+            )
         });
     let bytes = match format {
         Some(crate::grammar::Format::Md) if outcome.value.get("schema").is_some() => {
