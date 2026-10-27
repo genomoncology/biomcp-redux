@@ -155,7 +155,7 @@ pub struct AlphaGenomeValue {
 #[cfg_attr(feature = "schema", derive(schemars::JsonSchema))]
 pub struct AlphaGenomeScorerPage {
     /// Request position used to associate this unlabelled response group.
-    pub request_ordinal: u8,
+    pub request_ordinal: u32,
     /// Requested scorer identity, distinct from native metadata.
     pub requested_scorer: AlphaGenomeScorer,
     /// Original scalar representation.
