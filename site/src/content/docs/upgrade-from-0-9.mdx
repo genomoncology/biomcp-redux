@@ -1,0 +1,84 @@
+---
+title: Upgrade from BioMCP 0.9
+description: What changes when you move from BioMCP 0.9 to 1.0, with a table from old commands to new, the MCP tool change, JSON output, configuration and keys, and the steps to upgrade.
+goal: The reader upgrades a 0.9 installation, updates scripts and MCP clients to the 1.0 commands, and checks the result.
+reader: A BioMCP 0.9 user with scripts, agents or MCP clients that call it
+kind: how-to
+verified: 2026-10-27
+---
+import Example from '../../components/Example.astro';
+import Fact from '../../components/Fact.astro';
+
+This page moves a BioMCP 0.9 setup to BioMCP <Fact k="version" />. The package name `biomcp-cli`, the `biomcp` command and the stdio `serve` argument stay the same. Commands, output and the MCP tools change.
+
+## Who is affected
+
+- Scripts that call `biomcp` commands or parse its output.
+- MCP clients bound to the 0.9 per-entity tools.
+- Anyone with a 0.9 configuration file or keys.
+
+## What changed
+
+| Area | 0.9 | 1.0 |
+| --- | --- | --- |
+| Default output | Markdown | JSON. Add `--format md` or set `"format": "md"` in `config.json`. |
+| MCP tools | Several typed tools | One `biomcp` tool that takes the command's words, plus `search` and `fetch`. |
+| Grammar | Helper commands such as `variant articles` and `disease drugs` | `search ENTITY`, `get ENTITY ID [section...]`, `ENTITY RELATION ID`. Helpers became search filters. |
+| Sources | Fallbacks between sources | `--source` is explicit and never falls back. |
+| Bundles | `X sync`, such as `ema sync` | `sync X`, such as `biomcp sync ema`. |
+| HTTP server | `serve-http` | `serve --http ADDR` with `--allow-host HOST`. |
+| Cache | `cache clean`, `cache path`, `cache stats`, `cache clear` | `store clean`. |
+| Keys | Environment variables | `biomcp key set SOURCE`, or the same environment variables. |
+| Updates | `biomcp update`, `biomcp uninstall` | Your package manager or installer. |
+
+## Old command to new command
+
+| 0.9 | 1.0 |
+| --- | --- |
+| `biomcp search trial --mutation "BRAF V600E"` | `biomcp search trial --variant "BRAF V600E"` |
+| `biomcp variant articles BRAF V600E` | `biomcp search article --gene BRAF --variant V600E` |
+| `biomcp disease articles melanoma` | `biomcp search article --disease melanoma` |
+| `biomcp drug interactions NAME` | `biomcp get drug ID interactions --source ddinter` |
+| `biomcp drug adverse-events NAME` | `biomcp search adverse-event NAME` |
+| `biomcp get article ID --pdf` | `biomcp article pdf ID --save PATH` |
+| `biomcp ema sync` | `biomcp sync ema` |
+| `biomcp serve-http` | `biomcp serve --http ADDR` |
+| `biomcp cache clean` | `biomcp store clean` |
+| `biomcp list` | `biomcp help` |
+| `biomcp mcp tools` | your client's tool list, or the [MCP tools reference](/reference/mcp-tools/) |
+
+The [command map](/reference/upgrade-map/) lists every 0.9 command with its outcome and the options 1.0 drops. Dropped commands include `discover`, `search all`, every `chart` command, study analytics, `update`, `uninstall` and `cvx sync`.
+
+## What an old flag returns
+
+A retired option names its replacement:
+
+<Example id="ts-retired" />
+
+A dropped command, such as `discover`, returns `usage.schema` instead. See [troubleshooting](/troubleshooting/#usageschema-expected-schema-known-artifact-id).
+
+## Steps
+
+1. Upgrade with the channel that installed 0.9: `uv tool upgrade biomcp-cli`, `brew upgrade biomcp`, a new container tag, or the installer script. See [install](/install/).
+2. Run `biomcp version` and check it prints <Fact k="version" />.
+3. Replace MCP client configuration with the output of `biomcp mcp-config`. Remove bindings to the old per-entity tools. See [connect an agent](/connect-an-agent/).
+4. Store keys with `biomcp key set SOURCE`. The environment variable names are unchanged: `ONCOKB_TOKEN`, `NCBI_API_KEY`, `S2_API_KEY`, `NCI_API_KEY`, `OPENFDA_API_KEY` and `ORCID_ACCESS_TOKEN`.
+5. Write a new `config.json` from the [settings table](/keys-and-configuration/#settings-in-configjson). 1.0 rejects unknown settings, so do not copy a 0.9 file whole.
+6. Update scripts to the new commands and to JSON output, or add `--format md`.
+7. Run `biomcp sync` for each bundle you use; see [local data](/local-data/).
+8. Reinstall the agent skill with `biomcp skill install DIR --force`.
+
+## Checks
+
+- `biomcp version` prints the new version.
+- `biomcp get gene BRAF` returns `"status": "complete"`.
+- Your MCP client lists the `biomcp`, `search` and `fetch` tools.
+
+## Known issues
+
+- A dropped command returns the generic `usage.schema` error and does not name its replacement. Use the command map.
+- 1.0 has no CVX vaccine lookup, KEGG, MedlinePlus, DGIdb or PharmacoDB data, and no charts.
+
+## Next
+
+Look up the details of any command in the [reference](/reference/).

@@ -1,0 +1,36 @@
+{
+  "schema": "biomcp.trial_page/5",
+  "status": "complete",
+  "query": {
+    "condition": "melanoma",
+    "count_only": false,
+    "has_results": false,
+    "limit": 2
+  },
+  "sources": [
+    {
+      "source": "ctgov",
+      "use": "restricted",
+      "terms": "ClinicalTrials.gov attribution and source processing date; publisher terms",
+      "terms_url": "https://clinicaltrials.gov/about-site/terms-conditions",
+      "state": "ok",
+      "count": 3781,
+      "fetched": 2
+    }
+  ],
+  "next": [
+    {
+      "kind": "page",
+      "args": [
+        "search",
+        "trial",
+        "--condition",
+        "melanoma",
+        "--limit",
+        "2",
+        "--next-page",
+        "ZVNj7o2Elu8o3lpzTd6s47mtmpOQJJxmZvmp"
+      ]
+    }
+  ]
+}

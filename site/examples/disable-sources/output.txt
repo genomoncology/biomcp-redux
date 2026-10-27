@@ -1,0 +1,1 @@
+[{"source":"hgnc","use":"open","state":"ok","reason":null},{"source":"mygene","use":"restricted","state":"skipped","reason":"disabled"},{"source":"oncokb","use":"restricted","state":"skipped","reason":"disabled"}]

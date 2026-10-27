@@ -1,0 +1,6 @@
+source: reactome
+R-HSA-1295596	Spry regulation of FGF signaling
+R-HSA-170968	Frs2-mediated activation
+R-HSA-170984	ARMS-mediated activation
+R-HSA-187706	Signalling to p38 via RIT and RIN
+R-HSA-5673000	RAF activation

@@ -1,0 +1,81 @@
+---
+title: Look up genes, proteins and pathways
+description: Use BioMCP 1.0 to read a gene from HGNC with ClinGen, gnomAD, Human Protein Atlas and Reactome sections, a protein from UniProt with its InterPro domains, and a pathway's members.
+goal: The reader reads a gene card and its sections, moves to its protein and domains, and lists the members of a pathway.
+reader: A researcher or agent builder who starts from a gene symbol
+kind: how-to
+verified: 2026-10-27
+---
+import Example from '../../components/Example.astro';
+import Fact from '../../components/Fact.astro';
+
+BioMCP <Fact k="version" /> resolves genes against HGNC and reads gene sections from MyGene.info, CIViC, ClinGen, gnomAD, the Human Protein Atlas, Reactome and OncoKB. Proteins come from UniProt, InterPro and Complex Portal. Pathways come from Reactome and WikiPathways. This page follows BRAF from gene to protein to pathway.
+
+## Requirements
+
+- BioMCP installed. No key is needed except for the `oncokb` section.
+
+## 1. Read the gene card
+
+The [quickstart](/quickstart/#3-get-one-record) reads the BRAF card. `get gene` takes a symbol, an alias, a previous symbol, an HGNC, NCBI Gene or Ensembl identifier, or a cytogenetic band, and up to 20 inputs at once. `biomcp search gene` searches names and filters by `--locus-group` or `--band`.
+
+## 2. Add sections
+
+Each section reads one source. ClinGen gene-disease validity:
+
+<Example id="gene-clingen" />
+
+The columns are the disease, ClinGen's classification and the mode of inheritance. Reactome pathways:
+
+<Example id="gene-sections" />
+
+Human Protein Atlas expression:
+
+<Example id="gene-expression" lines={12} />
+
+| Section | Source |
+| --- | --- |
+| `protein` | UniProt reviewed human proteins |
+| `civic` | CIViC gene curation |
+| `clingen` | ClinGen validity and dosage |
+| `constraint` | gnomAD constraint |
+| `expression` | Human Protein Atlas |
+| `pathways` | Reactome |
+| `oncokb` | OncoKB, with your key |
+| `all` | every section above |
+
+## 3. Read the protein
+
+`get protein` takes a UniProt accession. `biomcp search protein BRAF` finds it from a name.
+
+<Example id="protein-get" />
+
+Protein sections are `features`, `domains`, `isoforms`, `complexes`, `structures`, `function`, `sequence` and `all`. Each also has a relation command for paging, such as `biomcp protein domains P15056`. [How BioMCP works](/how-biomcp-works/#relation-commands-read-collections) shows its output.
+
+## 4. Find a pathway and its members
+
+<Example id="pathway-search" />
+
+`pathway genes` lists a pathway's participants. Gene products carry their HGNC identifier when the source maps one exactly; other participants, such as a small molecule, keep their native reference:
+
+<Example id="pathway-genes" />
+
+WikiPathways reads from a local bundle; run `biomcp sync wikipathways` once. `pathway events` lists a Reactome pathway's events.
+
+## Verify
+
+`get gene BRAF clingen` returns ClinGen rows with state `data`, and `get protein P15056` returns `BRAF_HUMAN`.
+
+## Limits
+
+Sections report each source's curation as published. A ClinGen classification names its disease and date. Pathway membership is the source's; BioMCP runs no enrichment analysis and infers no gene function.
+
+## Related
+
+- Entities: [gene](/entities/gene/), [protein](/entities/protein/), [pathway](/entities/pathway/)
+- Reference: [get gene](/reference/commands/get-gene/), [get protein](/reference/commands/get-protein/), [search pathway](/reference/commands/search-pathway/), [pathway genes](/reference/commands/pathway-genes/)
+- Sources: [HGNC](/reference/sources/hgnc/), [UniProt](/reference/sources/uniprot/), [ClinGen](/reference/sources/clingen/), [Reactome](/reference/sources/reactome/)
+
+## Next
+
+Read drugs that target the gene in [drugs and safety](/drugs-and-safety/).

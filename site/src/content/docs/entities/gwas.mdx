@@ -1,0 +1,37 @@
+---
+title: "GWAS entity"
+description: "The gwas entity in BioMCP 1.0: its commands, sections, sources and one example with rs7903146."
+goal: The reader finds the commands, sections and sources for the gwas entity and runs one example.
+reader: A BioMCP user or agent working with gwas records
+kind: reference
+verified: 2026-10-27
+sidebar:
+  label: gwas
+---
+import Example from '../../../components/Example.astro';
+import Fact from '../../../components/Fact.astro';
+
+BioMCP <Fact k="version" /> entity `gwas`. GWAS Catalog studies and associations, searched by variant, gene, trait, study or PubMed ID. Rows report published associations. They give no personal risk and name no causal gene.
+
+## Commands
+
+| Command | Description |
+| --- | --- |
+| [`biomcp get gwas`](/reference/commands/get-gwas/) | Source association or study and native context. |
+| [`biomcp search gwas`](/reference/commands/search-gwas/) | Source associations in default p-value-ascending order. |
+
+## Sections of get gwas
+
+`loci`, `associations`, `ancestries`. The [get gwas reference](/reference/commands/get-gwas/) describes each one.
+
+## Sources
+
+[gwas](/reference/sources/gwas/).
+
+## Example
+
+<Example id="gwas-variant" />
+
+## Guide
+
+[Diseases and phenotypes](/diseases-and-phenotypes/) walks through these commands with more examples. All 16 entities are listed in the [entities reference](/reference/entities/).

@@ -1,0 +1,79 @@
+---
+title: Read BioMCP results
+description: How to read a BioMCP 1.0 reply, its JSON envelope, status, source outcomes and next commands, and why an empty result is not an absence.
+goal: The reader can read any BioMCP reply, tell complete from partial, absent and failed, and knows what an empty result does and does not show.
+reader: A BioMCP user or developer parsing replies, often from an agent
+kind: explanation
+verified: 2026-10-27
+---
+import Example from '../../components/Example.astro';
+import Fact from '../../components/Fact.astro';
+
+What does a BioMCP <Fact k="version" /> reply tell you, and what does it leave out? Every command returns one JSON object with the same envelope, whatever the entity. Learn the envelope once and you can read every reply.
+
+## The short answer
+
+Check `status`, then each entry in `sources`, then `result`. A reply says which sources answered, which failed or were skipped, and why. A search that returns no rows tells you about that source, query and filters, nothing more.
+
+## The envelope
+
+A trial search with its rows removed shows the envelope:
+
+<Example id="results-envelope" />
+
+| Field | What it holds |
+| --- | --- |
+| `schema` | The reply's schema name and version. `biomcp schema biomcp.trial_page/5` prints it. |
+| `status` | The outcome of the whole command. |
+| `query` | Your request as BioMCP understood it, with defaults filled in. |
+| `result` | The rows or the record. Its shape depends on the schema. |
+| `sources` | One entry per source the command asked: its use group, terms, terms page, state, and a reason when it did not answer. Search sources add `count`, the source's own total, and `fetched`. |
+| `problems` | Present when a source sent a value BioMCP could not check, such as an unknown field value. Each names the source, record, field and a code. The [variants guide](/variants/#3-read-population-counts) shows a `partial` reply with problems. |
+| `next` | Commands to run next, each with a `kind` and complete `args`. |
+
+The [reply envelope reference](/reference/envelope/) lists every value of every field.
+
+## Status
+
+| Status | Meaning | Exit code |
+| --- | --- | --- |
+| `complete` | Every source the command needed answered. | 0 |
+| `partial` | Some sources answered and others failed. Read `sources`. | 0 |
+| `absent` | The sources answered and found no record for the input. | 1 |
+| `failed` | The sources the command needed failed. | 4 |
+
+Errors before any request use a separate envelope with `status` `usage` (exit code 2), `expired` (exit code 3) or `local` (exit code 5). [Exit codes](/reference/exit-codes/) lists them.
+
+## Source outcomes
+
+A source can answer with state `ok`, answer from an older local copy with `stale`, be `skipped` by your settings, or `failed`. The `reason` says why. In the quickstart, OncoKB was skipped:
+
+<Example id="qs-get-gene" lines={26} />
+
+`no_key` means OncoKB needs your key. Other common reasons are `disabled` (you turned the source off), `offline` (you ran with `--offline`), `deadline_exceeded` (the source took too long) and `rate_limited`. A skipped or failed source is always listed. BioMCP never drops it silently and never substitutes another source.
+
+## Empty is not absence
+
+A search that matches nothing returns `complete` with zero rows:
+
+<Example id="results-empty" />
+
+That reply says PubMed answered and returned no articles for those words. It does not say no such article exists. Another source, other words, other filters or a later date can return rows. When you report an empty result, report the source, the query and the filters with it.
+
+`get` behaves the same way. An identifier no source knows returns `absent` and exit code 1:
+
+<Example id="qs-absent" />
+
+Absent means "not found by these sources for this input". A missing variant in one population database is not a zero frequency, and a trial missing from one registry search is not proof that no trial exists.
+
+## Terms travel with the data
+
+Each source outcome carries `use`, `terms` and `terms_url`. Keep them with any claim you take from that source. [Data sources](/sources/) explains the use groups and how to turn groups off.
+
+## JSON or Markdown
+
+JSON is the default. `--format md` renders the same reply as Markdown with tables and copyable next commands. Set `"format": "md"` in `config.json` to make Markdown your default. MCP replies are always JSON.
+
+## Read next
+
+The capability guides apply this to real questions. Start with [literature](/literature/).

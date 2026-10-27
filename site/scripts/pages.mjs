@@ -34,7 +34,7 @@ function page(file) {
 export function bodyMarkdown(body) {
   return body
     .replace(/^import .*$\n?/gm, '')
-    .replace(/<Example\s+id="([^"]+)"(?:\s+title="[^"]*")?(?:\s+lines=\{(\d+)\})?\s*\/>/g, (_, id, lines) => exampleMarkdown(id, lines ? Number(lines) : undefined))
+    .replace(/<(?:Example|TerminalHero)\s+id="([^"]+)"(?:\s+title="[^"]*")?(?:\s+lines=\{(\d+)\})?(?:\s+caption="[^"]*")?\s*\/>/g, (_, id, lines) => exampleMarkdown(id, lines ? Number(lines) : undefined))
     .replace(/<InstallLine(?:\s+k="([^"]+)")?\s*\/>/g, (_, k) => '```sh\n' + fact(k ?? 'install.script') + '\n```')
     .replace(/<Fact\s+k="([^"]+)"\s*\/>/g, (_, k) => fact(k))
     .replace(/<\/?(Hero|CardGrid|Card|LinkCard|Tabs|TabItem|Aside|Steps|FunctionTable|Badge)[^>]*>/g, '')

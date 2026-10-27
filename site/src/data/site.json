@@ -4,8 +4,28 @@
   "verified": "2026-10-27",
   "platforms": "Linux, macOS, Windows",
   "repo": "https://github.com/genomoncology/biomcp",
+  "issues": "https://github.com/genomoncology/biomcp/issues",
+  "license": "MIT",
+  "python": "3.9",
+  "counts": {
+    "entities": 16,
+    "sources": 56,
+    "commands": 85,
+    "mcp_tools": 3,
+    "use_cases": 17,
+    "keys": 6
+  },
   "install": {
     "script": "curl -fsSL https://biomcp.org/install.sh | bash",
-    "uv": "uv tool install biomcp-cli"
+    "script_version": "curl -fsSL https://biomcp.org/install.sh | bash -s -- --version 1.0.0",
+    "uv": "uv tool install biomcp-cli",
+    "uv_upgrade": "uv tool upgrade biomcp-cli",
+    "pip": "pip install biomcp-cli",
+    "uvx": "uvx --from biomcp-cli biomcp serve",
+    "brew": "brew tap genomoncology/biomcp && brew install biomcp",
+    "docker": "docker run --rm -i ghcr.io/genomoncology/biomcp serve",
+    "docker_version": "docker run --rm ghcr.io/genomoncology/biomcp version",
+    "plugin": "/plugin marketplace add genomoncology/biomcp",
+    "plugin_install": "/plugin install biomcp@biomcp"
   }
 }

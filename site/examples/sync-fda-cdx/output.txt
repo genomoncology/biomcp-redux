@@ -1,0 +1,1 @@
+{"schema":"biomcp.sync/4","status":"complete","query":{"source":"fda-cdx"},"result":{"rows":241,"bytes":178564},"sources":[{"source":"fda-cdx","use":"open","terms":"FDA website policies; third-party exceptions retained","terms_url":"https://www.fda.gov/about-fda/about-website/website-policies","state":"ok"}]}

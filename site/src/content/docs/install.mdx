@@ -1,0 +1,81 @@
+---
+title: Install BioMCP
+description: Install BioMCP 1.0 with the installer script, PyPI, Homebrew, the container image or the desktop extension, then check it with biomcp version.
+goal: The reader installs BioMCP through one channel and confirms the version.
+reader: Someone on Linux, macOS or Windows who wants the biomcp command or MCP server
+kind: how-to
+verified: 2026-10-27
+---
+import Example from '../../components/Example.astro';
+import InstallLine from '../../components/InstallLine.astro';
+import Fact from '../../components/Fact.astro';
+
+This page installs BioMCP <Fact k="version" />. Every channel installs the same `biomcp` executable. Pick one channel, install, then check the version. Platforms: <Fact k="platforms" />.
+
+## Requirements
+
+- A shell with `curl` or `wget` and a SHA-256 tool (`sha256sum`, `shasum` or `openssl`) for the installer script.
+- Python <Fact k="python" /> or later for the PyPI package.
+- No account and no key. Some sources take an optional key later; see [keys and configuration](/keys-and-configuration/).
+
+## Install with the script
+
+<InstallLine />
+
+The script downloads the release archive for your platform, downloads its checksum, verifies it, and installs `biomcp` into `~/.local/bin`. It refuses to install when the checksum does not match. Set `BIOMCP_INSTALL_DIR` to install somewhere else. Pin a release with `--version`:
+
+<InstallLine k="install.script_version" />
+
+On Windows, run the script from an MSYS, MINGW or Cygwin shell. It installs `biomcp.exe` from the ZIP archive.
+
+## Install from PyPI
+
+The package is `biomcp-cli`. The command it installs is `biomcp`.
+
+<InstallLine k="install.uv" />
+
+Inside an active Python environment, `pip` works too:
+
+<InstallLine k="install.pip" />
+
+Upgrade with `uv tool upgrade biomcp-cli`. To run the MCP server without installing, `uvx` needs `--from` because the package and the command have different names:
+
+<InstallLine k="install.uvx" />
+
+## Install with Homebrew
+
+The formula covers macOS on Apple silicon and Intel.
+
+<InstallLine k="install.brew" />
+
+Upgrade with `brew upgrade biomcp`.
+
+## Run the container
+
+The image `ghcr.io/genomoncology/biomcp` runs on Linux amd64 and arm64. Its entry point is `biomcp`. Run the MCP server over stdio with stdin kept open:
+
+<InstallLine k="install.docker" />
+
+Pass a source key from your shell with `-e`, for example `-e NCBI_API_KEY`. Pin a version tag instead of `latest` when you need a fixed release.
+
+## Install the desktop extension or the Claude Code plugin
+
+The `.mcpb` desktop extension bundles the executable for one platform and starts it with `serve`. The Claude Code plugin starts an installed `biomcp serve` and adds the BioMCP skill. Both are covered on [connect an agent](/connect-an-agent/).
+
+## Check the install
+
+<Example id="version" />
+
+The version line is the success check. `biomcp version --verbose` adds the commit, the target platform, the schema versions and the paths of the configuration file and the cache.
+
+## If the command is not found
+
+The installer script puts `biomcp` in `~/.local/bin`. When your shell says `command not found`, that folder is not on your `PATH`. Add it in your shell profile, for example `export PATH="$HOME/.local/bin:$PATH"`, and open a new shell. For other failures, see [troubleshooting](/troubleshooting/).
+
+## Upgrade and remove
+
+BioMCP has no self-update command. Upgrade and remove it with the channel that installed it: rerun the installer script, `uv tool upgrade biomcp-cli`, `brew upgrade biomcp`, or pull a newer image. Coming from 0.9? Read [upgrading from 0.9](/upgrade-from-0-9/).
+
+## Next
+
+Run your first search in the [quickstart](/quickstart/).

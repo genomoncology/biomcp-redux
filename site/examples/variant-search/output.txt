@@ -1,0 +1,1 @@
+{"ids":["rs113488022","clinvar:13961"],"genes":["BRAF"],"hgvs":["GRCh37 chr7:g.140453136A>T"]}

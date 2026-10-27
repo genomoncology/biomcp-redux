@@ -1,0 +1,4 @@
+total: 1409
+RBMX	biolink:has_phenotype	Seizure
+TBL1XR1	biolink:has_phenotype	Seizure
+TBK1	biolink:has_phenotype	Seizure

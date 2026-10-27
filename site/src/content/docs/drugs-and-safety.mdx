@@ -1,0 +1,99 @@
+---
+title: Look up drugs, labels, safety reports and pharmacogenomics
+description: Use BioMCP 1.0 to find a drug in MyChem.info, ChEMBL, Drugs@FDA, openFDA labels, EMA and DDInter, read label sections and targets, search FAERS reports, CPIC guidelines and FDA companion diagnostics.
+goal: The reader finds a drug's identity in a chosen source, reads its targets, approval record, label heading and interaction partners, and searches adverse event reports, pharmacogenomic guidelines and companion diagnostics.
+reader: A researcher, pharmacist or agent builder looking up a drug's source records
+kind: how-to
+verified: 2026-10-27
+---
+import Example from '../../components/Example.astro';
+import Fact from '../../components/Fact.astro';
+
+BioMCP <Fact k="version" /> has four entities for drugs and their safety: `drug`, `adverse-event`, `pgx` and `diagnostic`. Each source has its own identifiers, so you search one source, take its identifier, and read that source's record. This page follows vemurafenib, a BRAF inhibitor, through several sources.
+
+## Requirements
+
+- BioMCP installed. No key is needed. An openFDA key raises openFDA's rate limit.
+- DDInter, EMA, WHO and the FDA companion diagnostics list read local bundles. Run `biomcp sync ddinter` once before step 5; see [local data](/local-data/).
+
+## 1. Search a drug
+
+MyChem.info is the default drug source:
+
+<Example id="drug-search" />
+
+`--source` picks another: `chembl`, `opentargets`, `civic`, `drugsfda`, `openfda-label`, `ema`, `who-pq` or `ddinter`. A name that works in one source can fail in another. openFDA labels match brand names, for example.
+
+## 2. Read targets
+
+ChEMBL returns the target and mechanism it records:
+
+<Example id="drug-targets" />
+
+## 3. Read the FDA approval record
+
+Drugs@FDA returns the application and its products:
+
+<Example id="drug-fda" />
+
+`biomcp get drug NDA202429 approvals --source drugsfda` lists the application and product history.
+
+## 4. Read one label heading
+
+Search openFDA labels by brand name, then read the label card. Its `next` list names each heading the label has:
+
+<Example id="drug-label" />
+
+Each heading is one command. The text stays as the label prints it:
+
+<Example id="drug-label-text" />
+
+## 5. List interaction partners
+
+DDInter returns partners and its interaction level, five rows per page by default:
+
+<Example id="drug-interactions" />
+
+`total` is DDInter's count for this drug. `--section-limit` and `--section-offset` page the rest.
+
+## 6. Search adverse event reports
+
+FAERS is the default adverse event source. The columns are the report ID, the report's seriousness flag (`1` serious, `2` not serious) and the date FDA first received it:
+
+<Example id="ae-search" />
+
+`--reaction`, `--serious death`, `--serious hospitalization`, `--received-from` and `--received-to` filter the reports. `--source maude` searches medical device reports. `--source vaers` reads CDC WONDER report summaries for MMR, COVID-19 and named influenza vaccines. `get adverse-event ID` reads one report with sections such as `drugs` and `reactions`.
+
+## 7. Read pharmacogenomic guidelines
+
+CPIC lists the guidelines for a gene and the drugs each covers:
+
+<Example id="pgx-get" />
+
+The `recommendations` section returns CPIC's recommendation rows, and `diplotype` looks up a declared diplotype. `--source clinpgx` with `annotations --kind clinical|guideline|label` reads ClinPGx annotations.
+
+## 8. Find companion diagnostics
+
+The FDA companion diagnostics list matches a biomarker word in its rows:
+
+<Example id="diagnostic-cdx" />
+
+The list has one row per device, indication and drug, so a device appears once per row. `--source gtr` searches the Genetic Testing Registry, and `--source who-ivd` searches WHO prequalified diagnostics. `get diagnostic P-NUMBER --source fda-pma` and `get diagnostic K-NUMBER --source fda-510k` read FDA device records.
+
+## Verify
+
+Each step returns status `complete` with its source in state `ok`. The label card's `next` list names `indications_and_usage`.
+
+## Limits
+
+A report count is a count of reports. It does not show that a drug caused an event, and it cannot measure risk, incidence or compare drugs. A label, a guideline or a companion diagnostic row is the source's text, not a treatment recommendation. BioMCP calculates no dose, phenotype or activity score.
+
+## Related
+
+- Entities: [drug](/entities/drug/), [adverse-event](/entities/adverse-event/), [pgx](/entities/pgx/), [diagnostic](/entities/diagnostic/)
+- Reference: [search drug](/reference/commands/search-drug/), [get drug](/reference/commands/get-drug/), [search adverse-event](/reference/commands/search-adverse-event/), [get pgx](/reference/commands/get-pgx/), [search diagnostic](/reference/commands/search-diagnostic/)
+- Sources: [ChEMBL](/reference/sources/chembl/), [Drugs@FDA](/reference/sources/drugsfda/), [openFDA labels](/reference/sources/openfda-label/), [DDInter](/reference/sources/ddinter/), [FAERS](/reference/sources/faers/), [CPIC](/reference/sources/cpic/), [FDA companion diagnostics](/reference/sources/fda-cdx/)
+
+## Next
+
+Look up the disease in [diseases and phenotypes](/diseases-and-phenotypes/).

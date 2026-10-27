@@ -1,0 +1,1 @@
+{"kind":"disambiguate","args":["get","variant","chr7:g.140453136A>T","--build","GRCh37"]}

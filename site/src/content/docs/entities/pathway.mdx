@@ -1,0 +1,39 @@
+---
+title: "Pathway entity"
+description: "The pathway entity in BioMCP 1.0: its commands, sections, sources and one example with MAPK."
+goal: The reader finds the commands, sections and sources for the pathway entity and runs one example.
+reader: A BioMCP user or agent working with pathway records
+kind: reference
+verified: 2026-10-27
+sidebar:
+  label: pathway
+---
+import Example from '../../../components/Example.astro';
+import Fact from '../../../components/Fact.astro';
+
+BioMCP <Fact k="version" /> entity `pathway`. A Reactome or WikiPathways pathway, with its members and Reactome events. Membership names a source and release. BioMCP runs no enrichment.
+
+## Commands
+
+| Command | Description |
+| --- | --- |
+| [`biomcp search pathway`](/reference/commands/search-pathway/) | Search Reactome (default) or WikiPathways human pathways. |
+| [`biomcp get pathway`](/reference/commands/get-pathway/) | Get an exact human Reactome R-HSA or WikiPathways WP card. |
+| [`biomcp pathway genes`](/reference/commands/pathway-genes/) | Read Reactome exact references or WikiPathways GeneProduct data nodes. |
+| [`biomcp pathway events`](/reference/commands/pathway-events/) | Read Reactome event objects and unresolved native integer references in source order. |
+
+## Sections of get pathway
+
+`summary`, `genes`, `events`, `all`. The [get pathway reference](/reference/commands/get-pathway/) describes each one.
+
+## Sources
+
+[reactome](/reference/sources/reactome/), [wikipathways](/reference/sources/wikipathways/).
+
+## Example
+
+<Example id="pathway-search" />
+
+## Guide
+
+[Genes and proteins](/genes-and-proteins/) walks through these commands with more examples. All 16 entities are listed in the [entities reference](/reference/entities/).

@@ -1,0 +1,56 @@
+{
+  "commands": 85,
+  "entities": 16,
+  "entity_names": [
+    "author",
+    "cell-line",
+    "gwas",
+    "protein",
+    "phenotype",
+    "pathway",
+    "study",
+    "pgx",
+    "diagnostic",
+    "adverse-event",
+    "disease",
+    "drug",
+    "gene",
+    "article",
+    "trial",
+    "variant"
+  ],
+  "sources": 56,
+  "tools": 3,
+  "keys": [
+    {
+      "source": "ncbi",
+      "environment": "NCBI_API_KEY",
+      "config": "keys.ncbi_api_key"
+    },
+    {
+      "source": "semantic-scholar",
+      "environment": "S2_API_KEY",
+      "config": "keys.semantic_scholar_api_key"
+    },
+    {
+      "source": "orcid",
+      "environment": "ORCID_ACCESS_TOKEN",
+      "config": "keys.orcid_access_token"
+    },
+    {
+      "source": "oncokb",
+      "environment": "ONCOKB_TOKEN",
+      "config": "keys.oncokb_api_key"
+    },
+    {
+      "source": "nci",
+      "environment": "NCI_API_KEY",
+      "config": "keys.nci_api_key"
+    },
+    {
+      "source": "openfda",
+      "environment": "OPENFDA_API_KEY",
+      "config": "keys.openfda_api_key"
+    }
+  ]
+}

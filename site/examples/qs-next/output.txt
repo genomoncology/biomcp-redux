@@ -1,0 +1,2 @@
+{"kind":"key","args":["help","key","oncokb"]}
+{"kind":"section","args":["get","gene","HGNC:1097","protein","civic","clingen","constraint","expression","pathways"]}

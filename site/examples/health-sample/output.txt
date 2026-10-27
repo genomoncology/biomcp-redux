@@ -1,0 +1,5 @@
+ctgov	restricted	ok
+hgnc	open	ok
+oncokb	restricted	skipped	no_key
+clinvar	restricted	ok
+pubmed	restricted	ok

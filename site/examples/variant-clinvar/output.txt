@@ -1,0 +1,3 @@
+germline	Conflicting classifications of pathogenicity	VCV000013961
+somatic_clinical_impact	Tier I - Strong	VCV000013961
+oncogenicity	Oncogenic	VCV000013961

@@ -12,9 +12,20 @@ export default {
   favicon: '/favicon.svg',
   social: [{ icon: 'github', label: 'GitHub', href: 'https://github.com/genomoncology/biomcp' }],
   // The spine in reading order, for llms.txt. Slugs.
-  spine: ['', 'quickstart'],
-  sectionNames: { answers: 'Answers', reference: 'Reference', blog: 'Blog' },
+  spine: [
+    '', 'install', 'quickstart', 'connect-an-agent', 'how-biomcp-works', 'results',
+    'literature', 'clinical-trials', 'variants', 'genes-and-proteins', 'drugs-and-safety',
+    'diseases-and-phenotypes', 'studies-and-cell-lines',
+    'sources', 'keys-and-configuration', 'local-data', 'run-as-a-server', 'troubleshooting', 'upgrade-from-0-9', 'reference',
+  ],
+  sectionNames: { answers: 'Answers', reference: 'Reference', blog: 'Blog', articles: 'Articles', entities: 'Entities', guides: 'Guides' },
   sidebar: [
-    { label: 'Start', items: ['quickstart'] },
+    { label: 'Start', items: ['install', 'quickstart', 'connect-an-agent'] },
+    { label: 'Understand', items: ['how-biomcp-works', 'results'] },
+    { label: 'Capabilities', items: ['literature', 'clinical-trials', 'variants', 'genes-and-proteins', 'drugs-and-safety', 'diseases-and-phenotypes', 'studies-and-cell-lines'] },
+    { label: 'Set up and run', items: ['sources', 'keys-and-configuration', 'local-data', 'run-as-a-server', 'troubleshooting', 'upgrade-from-0-9'] },
+    { label: 'Entities', collapsed: true, items: [{ autogenerate: { directory: 'entities' } }] },
+    { label: 'Reference', collapsed: true, items: [{ autogenerate: { directory: 'reference' } }] },
+    { label: 'Answers', link: '/answers/' },
   ],
 };

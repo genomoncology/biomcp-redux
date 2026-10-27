@@ -46,3 +46,9 @@
 
 h1, h2, h3, h4, .hero h1 { font-family: var(--bm-head); }
 .site-title { font-family: var(--bm-logo); font-weight: 700; }
+
+/* Home page: the hero terminal and the capability table. */
+.bm-terminal { margin: 1.5rem 0; border: 1px solid var(--sl-color-gray-5); border-radius: 0.5rem; padding: 0.75rem; background: var(--sl-color-gray-6); }
+.bm-terminal figcaption { font-size: var(--sl-text-sm); color: var(--sl-color-gray-3); margin-top: 0.5rem; }
+[data-has-hero] .hero h1 { font-family: var(--bm-logo); }
+[data-has-hero] .sl-markdown-content table { width: 100%; }

@@ -1,0 +1,69 @@
+---
+title: Look up cell lines and cancer studies
+description: Use BioMCP 1.0 to find a cell line in Cellosaurus, read its variants and ChEMBL record, count its ChEMBL assays, and search cBioPortal study metadata from a local bundle.
+goal: The reader finds a cell line's Cellosaurus accession, reads its sections, and searches cBioPortal study metadata after synchronizing it.
+reader: A lab researcher or agent builder choosing a cell line or a public cancer study
+kind: how-to
+verified: 2026-10-27
+---
+import Example from '../../components/Example.astro';
+import Fact from '../../components/Fact.astro';
+
+BioMCP <Fact k="version" /> reads cell lines from Cellosaurus and ChEMBL, and cancer study metadata from cBioPortal. This page reads the A-375 melanoma cell line, which carries BRAF V600E, then searches cBioPortal studies.
+
+## Requirements
+
+- BioMCP installed. No key is needed.
+- cBioPortal study metadata lives in a local bundle. Run `biomcp sync cbioportal-studies` once before step 4.
+
+## 1. Find a cell line
+
+`search cell-line` matches names as Cellosaurus writes them. Names stay literal: `A375` and `A-375` return different rows.
+
+<Example id="cellline-search" />
+
+## 2. Read the cell line
+
+`get cell-line` takes a Cellosaurus accession:
+
+<Example id="cellline-get" />
+
+The `variants` section lists Cellosaurus's variation rows. Here `jq` keeps the BRAF row:
+
+<Example id="cellline-variants" />
+
+Other sections are `names`, `identity`, `xrefs` and `all`.
+
+## 3. Read the ChEMBL record and its assay count
+
+The `chembl` section returns ChEMBL's cell record for the same accession. `cell-line assay-count` takes the ChEMBL cell ID and counts assays:
+
+<Example id="cellline-chembl" />
+
+The assay count is a count of ChEMBL assays that used the cell line. It is not a count of active compounds or a measure of drug sensitivity.
+
+## 4. Search cancer studies
+
+`search study` searches the stored cBioPortal catalog by words in study IDs, names and descriptions. Before the bundle exists, the reply fails and names the sync command:
+
+<Example id="study-search" />
+
+After `biomcp sync cbioportal-studies`, the same search returns study headers. `get study ID` reads one study with its `profiles`, `sample-lists` and `files` sections. `biomcp variant recurrence` counts samples with a variant in one study; see [variants](/variants/#other-sections).
+
+## Verify
+
+`get cell-line CVCL_0132` returns `A-375`, and its `variants` section lists BRAF `p.Val600Glu`.
+
+## Limits
+
+Cellosaurus names stay as published, and a missing field is not a negative finding. cBioPortal study terms vary by study and are marked restricted. BioMCP returns study metadata and file references only; it computes no frequency, survival or comparison and downloads no study data files.
+
+## Related
+
+- Entities: [cell-line](/entities/cell-line/), [study](/entities/study/)
+- Reference: [get cell-line](/reference/commands/get-cell-line/), [cell-line assay-count](/reference/commands/cell-line-assay-count/), [search study](/reference/commands/search-study/), [get study](/reference/commands/get-study/)
+- Sources: [Cellosaurus](/reference/sources/cellosaurus/), [ChEMBL](/reference/sources/chembl/), [cBioPortal](/reference/sources/cbioportal/)
+
+## Next
+
+See every source and its terms in [data sources](/sources/).

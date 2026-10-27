@@ -1,0 +1,5 @@
+IPR000719	domain	Protein kinase domain
+IPR001245	domain	Serine-threonine/tyrosine-protein kinase, catalytic domain
+IPR002219	domain	Protein kinase C-like, phorbol ester/diacylglycerol-binding domain
+IPR003116	domain	Raf-like Ras-binding
+IPR008271	active_site	Serine/threonine-protein kinase, active site

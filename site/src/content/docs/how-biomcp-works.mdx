@@ -1,0 +1,88 @@
+---
+title: How BioMCP works
+description: The BioMCP 1.0 command grammar explained, with search, get, sections, relation commands, typed next commands, pages and explicit sources.
+goal: The reader can predict the command for a new question from the grammar, and knows how BioMCP picks a source.
+reader: A BioMCP user or agent builder who finished the quickstart
+kind: explanation
+verified: 2026-10-27
+---
+import Example from '../../components/Example.astro';
+import Fact from '../../components/Fact.astro';
+
+How do you ask BioMCP <Fact k="version" /> for something new without reading every reference page? You use one grammar. Every data command has the same shape, every reply says what to run next, and every source is chosen by you, never by a fallback.
+
+## The short answer
+
+```text
+biomcp search ENTITY [filters]          find records
+biomcp get ENTITY ID [section...]       read one record, then more of it
+biomcp ENTITY RELATION ID               read a related collection
+```
+
+Read the reply's `next` list and run what it offers. That is the whole loop.
+
+## Entities
+
+An entity is a kind of record. BioMCP <Fact k="version" /> has <Fact k="counts.entities" />: gene, variant, article, trial, drug, disease, phenotype, pathway, protein, study, pgx, diagnostic, adverse-event, gwas, cell-line and author. The [entities reference](/reference/entities/) lists each one's commands and sections.
+
+## Search finds, get reads
+
+`search` takes words or filters and returns a page of short rows. `get` takes an exact identifier or a name and returns one record. A search row carries the identifier you pass to `get`.
+
+## Sections disclose more
+
+A record comes back small on purpose. A section word after the identifier adds one named part, such as `constraint` for a gene or `eligibility` for a trial. Several words fetch several parts, and `all` fetches every section's first page. The order you give is the order you get.
+
+This keeps replies short for agents. An agent reads the card, then asks for the one part it needs. The [quickstart](/quickstart/#4-ask-for-a-section) shows a section in use.
+
+## Relation commands read collections
+
+Some collections belong to a record but are too large for a section. These have their own command: the entity, a relation word and the identifier. The InterPro domains of the BRAF protein are one:
+
+<Example id="grammar-relation" />
+
+Other relation commands include `article citations`, `pathway genes`, `variant population` and `trial document`.
+
+## Next commands
+
+Every reply ends with `next`: commands you can run as they are. Each has a `kind` that says why it is there. `page` fetches the next page. `section` fetches sections. `disambiguate` picks one record when a name matched several. `sync` downloads a missing local bundle. `key` explains a missing key.
+
+A variant search returns the exact command that reads its one match:
+
+<Example id="grammar-search" />
+
+An agent never has to build an identifier by hand. It copies `args`.
+
+## Pages and pools
+
+Long collections come in pages. A page reply states how many rows it returned and the total, and its `next` command carries the offset and a pool identifier:
+
+<Example id="grammar-page" />
+
+The pool keeps the page boundaries stable while you walk them. A pool expires. An expired pool returns exit code 3 and the command that restarts the search.
+
+## Sources are explicit
+
+Each entity has a default source, and `--source` picks another. BioMCP never falls back to a different source when the one you chose fails or finds nothing. It reports the failure instead. The reply lists every source the command called, with its state:
+
+<Example id="grammar-source" />
+
+Some sections read a fixed source, such as gnomAD for gene constraint. The [sources reference](/reference/sources/) lists which commands reach each source.
+
+## What BioMCP does not do
+
+BioMCP sends your words to sources as you wrote them. It does not rewrite queries, rank results across sources, merge records into one answer, or judge whether a trial or drug fits a patient. Search text stays literal: `--variant "BRAF V600E"` searches that text in registry fields. These limits keep each result traceable to one source record.
+
+## A worked case
+
+Question: which recruiting trials mention BRAF V600E in melanoma, and what does one require?
+
+1. `biomcp search trial --condition melanoma --variant "BRAF V600E" --status RECRUITING` returns NCT identifiers.
+2. `biomcp get trial NCT06887088` reads one record.
+3. `biomcp get trial NCT06887088 eligibility` adds its eligibility text.
+
+[Clinical trials](/clinical-trials/) runs these commands with their output.
+
+## Read next
+
+[Results](/results/) explains the reply envelope, statuses and source outcomes. The generated [command reference](/reference/commands/) lists every command.

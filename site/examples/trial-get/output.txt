@@ -1,0 +1,10 @@
+{
+  "nct_id": "NCT06887088",
+  "title": "Encorafenib and biNimetinib Followed by CEmiplimab and FiAnLimab in Patients With BRAF Mutant melanOma and Symptomatic Brain Metastases",
+  "status": "RECRUITING",
+  "phase": null,
+  "conditions": [
+    "Melanoma BRAF V600E/K Mutated",
+    "Melanoma and Brain Metastases"
+  ]
+}

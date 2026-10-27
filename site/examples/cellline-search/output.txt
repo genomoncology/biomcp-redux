@@ -1,0 +1,3 @@
+CVCL_A1VP	A375-RMR	Cancer cell line
+CVCL_E8FX	A375 RL	Cancer cell line
+CVCL_YJ74	LINTERNA A375	Cancer cell line

@@ -1,0 +1,16 @@
+{
+  "protein": {
+    "accession": "P15056",
+    "name": "Serine/threonine-protein kinase B-raf",
+    "length": 766
+  },
+  "entry_id": "BRAF_HUMAN",
+  "gene_names": [
+    "BRAF",
+    "BRAF1",
+    "RAFB1"
+  ],
+  "taxon": 9606,
+  "reviewed": true,
+  "url": "https://www.uniprot.org/uniprotkb/P15056/entry"
+}

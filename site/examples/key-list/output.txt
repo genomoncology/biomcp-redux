@@ -1,0 +1,16 @@
+**query:** null
+
+## Result
+
+### Entries
+
+| Config | Environment | Source | State |
+| --- | --- | --- | --- |
+| keys.ncbi\_api\_key | NCBI\_API\_KEY | ncbi | none |
+| keys.semantic\_scholar\_api\_key | S2\_API\_KEY | semantic-scholar | none |
+| keys.orcid\_access\_token | ORCID\_ACCESS\_TOKEN | orcid | none |
+| keys.oncokb\_api\_key | ONCOKB\_TOKEN | oncokb | none |
+| keys.nci\_api\_key | NCI\_API\_KEY | nci | none |
+| keys.openfda\_api\_key | OPENFDA\_API\_KEY | openfda | none |
+
+**status:** complete

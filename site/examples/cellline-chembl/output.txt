@@ -1,0 +1,3 @@
+release: ChEMBL_37
+CHEMBL3308077	A-375	A-375 (Malignant melanoma cells)
+{"status":"complete","result":{"release":{"version":"ChEMBL_37","updated":"2026-05-01"},"fetched":1793113453,"id":"CHEMBL3308077","assay_count":2771}}

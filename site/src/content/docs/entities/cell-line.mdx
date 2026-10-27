@@ -1,0 +1,38 @@
+---
+title: "Cell line entity"
+description: "The cell-line entity in BioMCP 1.0: its commands, sections, sources and one example with A-375 (CVCL_0132)."
+goal: The reader finds the commands, sections and sources for the cell-line entity and runs one example.
+reader: A BioMCP user or agent working with cell-line records
+kind: reference
+verified: 2026-10-27
+sidebar:
+  label: cell-line
+---
+import Example from '../../../components/Example.astro';
+import Fact from '../../../components/Fact.astro';
+
+BioMCP <Fact k="version" /> entity `cell-line`. A cell line from Cellosaurus, with its ChEMBL record and assay count. An assay count is not a sensitivity measure.
+
+## Commands
+
+| Command | Description |
+| --- | --- |
+| [`biomcp cell-line assay-count`](/reference/commands/cell-line-assay-count/) | A separate assay-count request, never implicit in metadata or all. |
+| [`biomcp search cell-line`](/reference/commands/search-cell-line/) | One literal cell line search, with native order and no total claim. |
+| [`biomcp get cell-line`](/reference/commands/get-cell-line/) | One exact identity and an optional bounded named section. |
+
+## Sections of get cell-line
+
+`names`, `identity`, `xrefs`, `variants`, `chembl`, `all`. The [get cell-line reference](/reference/commands/get-cell-line/) describes each one.
+
+## Sources
+
+[cellosaurus](/reference/sources/cellosaurus/), [chembl](/reference/sources/chembl/).
+
+## Example
+
+<Example id="cellline-get" />
+
+## Guide
+
+[Studies and cell lines](/studies-and-cell-lines/) walks through these commands with more examples. All 16 entities are listed in the [entities reference](/reference/entities/).

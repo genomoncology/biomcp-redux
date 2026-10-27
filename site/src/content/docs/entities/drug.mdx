@@ -1,0 +1,37 @@
+---
+title: "Drug entity"
+description: "The drug entity in BioMCP 1.0: its commands, sections, sources and one example with vemurafenib."
+goal: The reader finds the commands, sections and sources for the drug entity and runs one example.
+reader: A BioMCP user or agent working with drug records
+kind: reference
+verified: 2026-10-27
+sidebar:
+  label: drug
+---
+import Example from '../../../components/Example.astro';
+import Fact from '../../../components/Fact.astro';
+
+BioMCP <Fact k="version" /> entity `drug`. A drug as one source records it. Each source has its own identifier, so `get drug` takes `--source`. Identity cards never expand into sections on their own. Ask for each section by name.
+
+## Commands
+
+| Command | Description |
+| --- | --- |
+| [`biomcp search drug`](/reference/commands/search-drug/) | Literal single-source candidate discovery, without an implicit identity selection. |
+| [`biomcp get drug`](/reference/commands/get-drug/) | Exact native ID retrieval with an explicitly selected source. |
+
+## Sections of get drug
+
+`xrefs`, `targets`, `indications`, `civic`, `label`, `approvals`, `regulatory`, `interactions`. The [get drug reference](/reference/commands/get-drug/) describes each one.
+
+## Sources
+
+[mychem](/reference/sources/mychem/), [chembl](/reference/sources/chembl/), [opentargets](/reference/sources/opentargets/), [civic](/reference/sources/civic/), [openfda-label](/reference/sources/openfda-label/), [drugsfda](/reference/sources/drugsfda/), [ema](/reference/sources/ema/), [who-pq](/reference/sources/who-pq/), [ddinter](/reference/sources/ddinter/).
+
+## Example
+
+<Example id="drug-targets" />
+
+## Guide
+
+[Drugs and safety](/drugs-and-safety/) walks through these commands with more examples. All 16 entities are listed in the [entities reference](/reference/entities/).

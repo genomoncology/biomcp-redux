@@ -1,0 +1,37 @@
+---
+title: "Diagnostic entity"
+description: "The diagnostic entity in BioMCP 1.0: its commands, sections, sources and one example with BRAF companion diagnostics."
+goal: The reader finds the commands, sections and sources for the diagnostic entity and runs one example.
+reader: A BioMCP user or agent working with diagnostic records
+kind: reference
+verified: 2026-10-27
+sidebar:
+  label: diagnostic
+---
+import Example from '../../../components/Example.astro';
+import Fact from '../../../components/Fact.astro';
+
+BioMCP <Fact k="version" /> entity `diagnostic`. A genetic test or diagnostic device from GTR, WHO prequalified diagnostics, the FDA companion diagnostics list, or an FDA PMA or 510(k) record. Choose the source with `--source`. A listing is not an authorization, and a companion row is not a treatment recommendation.
+
+## Commands
+
+| Command | Description |
+| --- | --- |
+| [`biomcp search diagnostic`](/reference/commands/search-diagnostic/) | Search one diagnostic source. |
+| [`biomcp get diagnostic`](/reference/commands/get-diagnostic/) | Get one exact source record or supported section. |
+
+## Sections of get diagnostic
+
+`genes`, `conditions`, `methods`, `regulatory`, `supplements`. The [get diagnostic reference](/reference/commands/get-diagnostic/) describes each one.
+
+## Sources
+
+[gtr](/reference/sources/gtr/), [who-ivd](/reference/sources/who-ivd/), [fda-cdx](/reference/sources/fda-cdx/), [fda-pma](/reference/sources/fda-pma/), [fda-510k](/reference/sources/fda-510k/).
+
+## Example
+
+<Example id="diagnostic-cdx" />
+
+## Guide
+
+[Drugs and safety](/drugs-and-safety/) walks through these commands with more examples. All 16 entities are listed in the [entities reference](/reference/entities/).

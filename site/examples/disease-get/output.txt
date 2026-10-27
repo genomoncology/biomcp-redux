@@ -1,0 +1,4 @@
+MONDO:0005105  melanoma
+get disease MONDO:0005105 synonyms --section-limit 5
+get disease MONDO:0005105 xrefs --section-limit 5
+get disease MONDO:0005105 hierarchy --section-limit 5

@@ -1,0 +1,4 @@
+Noonan syndrome	Moderate	AD
+Noonan syndrome with multiple lentigines	Limited	AD
+cardiofaciocutaneous syndrome	Definitive	AD
+Costello syndrome	Disputed	AD

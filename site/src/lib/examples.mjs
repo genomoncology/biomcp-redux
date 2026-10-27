@@ -16,14 +16,15 @@ export function readExample(id) {
   const show = fs.readFileSync(path.join(dir, file), 'utf8').replace(/^#!.*\n/, '').trimEnd();
   const read = (f) => (fs.existsSync(path.join(dir, f)) ? fs.readFileSync(path.join(dir, f), 'utf8') : null);
   const output = read('output.txt');
-  if (output === null) throw new Error(`example ${id}: no output.txt; run npm run examples`);
+  if (output === null && read('unverified') === null) throw new Error(`example ${id}: no output.txt; run npm run examples`);
   return {
     id,
     show,
     lang: LANGS[ext] ?? 'text',
-    output: output.replace(/\s+$/, ''),
+    output: (output ?? '').replace(/\s+$/, ''),
     exit: Number((read('exit') ?? '0').trim()),
     unverified: read('unverified') !== null,
+    unverifiedReason: (read('unverified') ?? '').trim(),
   };
 }
 
@@ -36,6 +37,7 @@ export function trimOutput(out, lines) {
 
 export function exampleMarkdown(id, lines) {
   const ex = readExample(id);
+  if (ex.unverified) return `\`\`\`${ex.lang}\n${ex.show}\n\`\`\`\n\nNot run in the build: ${ex.unverifiedReason}\n`;
   const exit = ex.exit === 0 ? '' : `\nExit code ${ex.exit}.\n`;
   return `\`\`\`${ex.lang}\n${ex.show}\n\`\`\`\n\nOutput:\n\n\`\`\`text\n${trimOutput(ex.output, lines)}\n\`\`\`\n${exit}`;
 }

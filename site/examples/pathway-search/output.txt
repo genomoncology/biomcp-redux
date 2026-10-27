@@ -1,0 +1,3 @@
+reactome	R-HSA-9652817	Signaling by MAPK mutants
+reactome	R-HSA-5674135	MAP2K and MAPK activation
+reactome	R-HSA-6802957	Oncogenic MAPK signaling

@@ -1,0 +1,67 @@
+---
+title: Local bundles, the cache and offline use
+description: How BioMCP 1.0 stores source bundles and cached replies, how to synchronize a bundle with biomcp sync, work offline with --offline, bypass the cache with --fresh, and clean the store.
+goal: The reader synchronizes the bundles they need, runs a command offline, forces a fresh request, and cleans expired cache entries.
+reader: A BioMCP user preparing a machine, working without a network, or troubleshooting stale data
+kind: how-to
+verified: 2026-10-27
+---
+import Example from '../../components/Example.astro';
+import Fact from '../../components/Fact.astro';
+
+BioMCP <Fact k="version" /> keeps two kinds of local data. Bundles are whole downloads of a source, such as HGNC or DDInter, that commands read locally. The cache holds recent replies so a repeated command answers without a request. Both live in the store in your cache folder, `~/.cache/biomcp/` on Linux.
+
+## Which sources use bundles
+
+| Bundle | Sync command | Synchronizes during a read? |
+| --- | --- | --- |
+| HGNC | `biomcp sync hgnc` | Yes, when missing or stale and within a size limit |
+| ClinGen gene validity and dosage | `biomcp sync clingen` | Yes, when missing or stale and within a size limit |
+| WikiPathways | `biomcp sync wikipathways` | No |
+| cBioPortal studies | `biomcp sync cbioportal-studies` | No |
+| EMA medicines | `biomcp sync ema` | No |
+| DDInter | `biomcp sync ddinter` | No |
+| WHO finished products | `biomcp sync who-pq` | No |
+| WHO diagnostics | `biomcp sync who-ivd` | No |
+| NCBI Genetic Testing Registry | `biomcp sync gtr` | No |
+| FDA companion diagnostics list | `biomcp sync fda-cdx` | No |
+
+## 1. Synchronize a bundle
+
+<Example id="sync-fda-cdx" />
+
+The reply gives the rows and bytes stored. A sync replaces the whole bundle at once. A failed sync keeps the last usable copy. A command that needs a missing bundle fails and returns the sync command in `next`, with kind `sync`; [studies and cell lines](/studies-and-cell-lines/#4-search-cancer-studies) shows one.
+
+When a bundle is older than its source, reads still answer from it. The source's state is `stale` instead of `ok`, so you can tell.
+
+## 2. Work offline
+
+`--offline` sends no request. Bundles and cached replies still answer. A source that would need the network reports `failed` with reason `offline`:
+
+<Example id="offline" />
+
+The first command answered from the HGNC bundle and a cached MyGene.info reply. The trial search had no cached reply. Offline mode never synchronizes a bundle.
+
+## 3. Force a fresh request
+
+`--fresh` skips cached replies and asks the source again. Use it when you know the source changed since your last run. The HTTP server refuses `--fresh`.
+
+## 4. Clean the store
+
+`biomcp store clean` removes expired replies, pools and snapshots, and cache files from older versions. Bundles and fresh entries stay.
+
+<Example id="store-clean" />
+
+Each count is what this run removed. The HTTP server refuses `store clean` and `sync`.
+
+## Verify
+
+`biomcp sync fda-cdx` returns status `complete` with a row count, and `biomcp --offline get gene BRAF` answers after one online run.
+
+## If a sync fails
+
+The reply names the source with state `failed` and a reason. `rejected` or `proxy` usually means a network rule blocks the download host; see [troubleshooting](/troubleshooting/). The previous bundle, if any, stays in use.
+
+## Next
+
+Serve BioMCP to other clients in [run as a server](/run-as-a-server/).

@@ -1,0 +1,2 @@
+{"id":"gene HGNC:1097","title":"B-Raf proto-oncogene, serine/threonine kinase","url":"https://www.genenames.org/data/gene-symbol-report/#!/hgnc_id/HGNC:1097"}
+{"id":"gene HGNC:43877","title":"BRAF-activated non-protein coding RNA","url":"https://www.genenames.org/data/gene-symbol-report/#!/hgnc_id/HGNC:43877"}

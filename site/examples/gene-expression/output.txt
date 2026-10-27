@@ -1,0 +1,22 @@
+{
+  "state": "data",
+  "source": "hpa",
+  "data": {
+    "rna_tissue_specificity": "Low tissue specificity",
+    "rna_tissue_distribution": "Detected in all",
+    "rna_cancer_specificity": "Low cancer specificity",
+    "subcellular_main": [
+      "Vesicles",
+      "Cytosol"
+    ],
+    "subcellular_additional": [
+      "Plasma membrane",
+      "Primary cilium",
+      "Centriolar satellite",
+      "Basal body",
+      "Mid piece",
+      "Principal piece",
+      "End piece"
+    ]
+  }
+}

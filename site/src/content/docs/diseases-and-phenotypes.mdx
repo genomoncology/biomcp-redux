@@ -1,0 +1,84 @@
+---
+title: Look up diseases, phenotypes and GWAS associations
+description: Use BioMCP 1.0 to search MONDO, DOID and NCIt disease terms, read a disease and its gene associations, search HPO phenotypes, read SEER cancer sites and search the GWAS Catalog.
+goal: The reader resolves a disease name to an ontology identifier, reads its sections and associated genes, finds a phenotype term and its genes, and searches GWAS associations for a variant.
+reader: A researcher or agent builder starting from a disease name, a symptom or an rsID
+kind: how-to
+verified: 2026-10-27
+---
+import Example from '../../components/Example.astro';
+import Fact from '../../components/Fact.astro';
+
+BioMCP <Fact k="version" /> searches disease terms through the EMBL-EBI Ontology Lookup Service, reads disease records from MyDisease.info and the Monarch Initiative, reads SEER cancer statistics, searches Human Phenotype Ontology terms and reads GWAS Catalog associations. This page resolves melanoma to a MONDO identifier and reads what each source holds about it.
+
+## Requirements
+
+- BioMCP installed. No key is needed.
+
+## 1. Resolve a disease name
+
+`search disease` sends your words to OLS and returns ontology terms. MONDO is the default ontology; `--ontology doid` or `--ontology ncit` picks another.
+
+<Example id="disease-search" />
+
+## 2. Read the disease
+
+`get disease` takes the exact identifier. The card holds the label and definition, and `next` lists the sections:
+
+<Example id="disease-get" />
+
+Sections: `synonyms`, `xrefs`, `hierarchy`, `genes`, `phenotypes`, `incidence` and `survival`. Each section names its source with `--source`.
+
+## 3. Read associated genes
+
+The Monarch Initiative returns gene associations with their predicate and the knowledge source behind each:
+
+<Example id="disease-genes" />
+
+The rows are Monarch's associations for melanoma and its subclasses, here familial melanoma from Orphanet. `--section-limit` and `--section-offset` page them.
+
+## 4. Find a phenotype and its genes
+
+`search phenotype` finds HPO terms:
+
+<Example id="phenotype-search" />
+
+`get phenotype HP:0001250 genes --source monarch` returns the genes Monarch associates with the term:
+
+<Example id="phenotype-genes" />
+
+The `total` line is Monarch's count. Phenotype sections are `synonyms`, `xrefs`, `hierarchy`, `diseases` and `genes`.
+
+## 5. Read SEER cancer sites
+
+`--source seer` lists SEER site codes:
+
+<Example id="seer-sites" />
+
+`get disease SITE survival --source seer --dataset CODE --interval CODE` and the `incidence` section read SEER's tables for one site.
+
+## 6. Search GWAS associations
+
+`search gwas` searches the GWAS Catalog by `--variant`, `--gene`, `--trait`, `--trait-id`, `--study` or `--pubmed`. Results come in p-value order. The columns are the study, the reported trait, the risk allele and the p-value as the catalog states it:
+
+<Example id="gwas-variant" />
+
+`get gwas GCST-ID` reads one study, with `associations` and `ancestries` sections. Broad searches by gene can exceed the catalog's response time and return `deadline_exceeded`; narrow them with `--trait-id` or search by variant.
+
+## Verify
+
+`search disease melanoma` returns `MONDO:0005105`, and `search gwas --variant rs7903146` returns GCST study rows.
+
+## Limits
+
+An ontology match is a match of words to terms. A synonym or cross reference does not make two terms clinically equivalent. A gene association is the source's assertion with its knowledge source; it is not a diagnosis. GWAS rows report published associations; they do not give personal risk or show which gene is causal.
+
+## Related
+
+- Entities: [disease](/entities/disease/), [phenotype](/entities/phenotype/), [gwas](/entities/gwas/)
+- Reference: [search disease](/reference/commands/search-disease/), [get disease](/reference/commands/get-disease/), [search phenotype](/reference/commands/search-phenotype/), [search gwas](/reference/commands/search-gwas/)
+- Sources: [OLS](/reference/sources/ols/), [Monarch](/reference/sources/monarch/), [HPO](/reference/sources/hpo/), [SEER](/reference/sources/seer/), [GWAS Catalog](/reference/sources/gwas/)
+
+## Next
+
+Find cell lines and cancer studies in [studies and cell lines](/studies-and-cell-lines/).

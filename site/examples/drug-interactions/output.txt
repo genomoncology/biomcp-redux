@@ -1,0 +1,4 @@
+total: 536
+Famotidine	Moderate
+Pioglitazone	Moderate
+Alosetron	Moderate

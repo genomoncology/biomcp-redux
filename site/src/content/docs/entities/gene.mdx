@@ -1,0 +1,37 @@
+---
+title: "Gene entity"
+description: "The gene entity in BioMCP 1.0: its commands, sections, sources and one example with BRAF."
+goal: The reader finds the commands, sections and sources for the gene entity and runs one example.
+reader: A BioMCP user or agent working with gene records
+kind: reference
+verified: 2026-10-27
+sidebar:
+  label: gene
+---
+import Example from '../../../components/Example.astro';
+import Fact from '../../../components/Fact.astro';
+
+BioMCP <Fact k="version" /> entity `gene`. A human gene, resolved against HGNC by symbol, alias, previous symbol or identifier. The card holds the HGNC identity, other identifiers, location, MANE transcript and the RefSeq summary.
+
+## Commands
+
+| Command | Description |
+| --- | --- |
+| [`biomcp get gene`](/reference/commands/get-gene/) | Get one to twenty human gene inputs in their original order. |
+| [`biomcp search gene`](/reference/commands/search-gene/) | Search genes by text, cytoband, or their intersection. |
+
+## Sections of get gene
+
+`protein`, `civic`, `clingen`, `constraint`, `expression`, `pathways`, `oncokb`, `all`. The [get gene reference](/reference/commands/get-gene/) describes each one.
+
+## Sources
+
+[hgnc](/reference/sources/hgnc/), [mygene](/reference/sources/mygene/), [civic](/reference/sources/civic/), [clingen](/reference/sources/clingen/), [gnomad](/reference/sources/gnomad/), [hpa](/reference/sources/hpa/), [reactome](/reference/sources/reactome/), [uniprot](/reference/sources/uniprot/), [oncokb](/reference/sources/oncokb/).
+
+## Example
+
+<Example id="qs-get-gene" />
+
+## Guide
+
+[Genes and proteins](/genes-and-proteins/) walks through these commands with more examples. All 16 entities are listed in the [entities reference](/reference/entities/).

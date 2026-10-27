@@ -1,0 +1,115 @@
+---
+title: Troubleshooting
+description: Fixes for BioMCP 1.0 errors and failed sources, by exact error text, including usage.arguments, usage.schema, usage.retired, local.failure, no_key, deadline_exceeded, offline and syncing.
+goal: The reader matches the error or source reason they see to its cause and fix, and confirms the fix.
+reader: A BioMCP user or agent whose command failed or returned less than expected
+kind: how-to
+verified: 2026-10-27
+---
+import Example from '../../components/Example.astro';
+import Fact from '../../components/Fact.astro';
+
+This page covers BioMCP <Fact k="version" />. Find the text you see in a heading below. Each entry gives the cause, the fix and how to confirm it. An error reply has `schema` `biomcp.error/1` and an `error.code`; a source problem shows in `sources[].state` and `sources[].reason`. [Exit codes](/reference/exit-codes/) and the [reply envelope](/reference/envelope/) list every value.
+
+## command not found: biomcp
+
+**Cause.** The folder that holds `biomcp` is not on your `PATH`. The installer script uses `~/.local/bin`.
+
+**Fix.** Add `export PATH="$HOME/.local/bin:$PATH"` to your shell profile and open a new shell. For the PyPI package, `uv tool update-shell` adds uv's tool folder.
+
+**Confirm.** `biomcp version` prints the version.
+
+## usage.arguments: expected a supported command with checked arguments
+
+<Example id="qs-usage-error" />
+
+**Cause.** A required argument is missing, a value is outside its choices or limits, or an option does not belong to this command. Exit code 2. The message does not say which.
+
+**Fix.** Compare your command with `biomcp help search trial` (put your command's words after `help`) or its page in the [command reference](/reference/commands/). Check that the identifier comes before section words and that `--source` names a source the command lists.
+
+**Confirm.** The command returns a reply with a `status` other than `usage`.
+
+## usage.schema: expected schema &lt;known artifact id&gt;
+
+<Example id="ts-unknown-command" />
+
+**Cause.** The first word is not a BioMCP command. This is the error for a misspelled command and for 0.9 commands that 1.0 dropped, such as `discover`, `list` and `search all`.
+
+**Fix.** Run `biomcp help` for the command list. [Upgrading from 0.9](/upgrade-from-0-9/) maps old commands to new ones.
+
+## usage.retired: retired; use: ...
+
+<Example id="ts-retired" />
+
+**Cause.** An option or section from 0.9 that 1.0 retired or renamed.
+
+**Fix.** The message names the replacement. Here `--variant` replaces `--mutation`.
+
+## local.failure: local configuration, cache or recording failed
+
+**Cause.** A local step failed before or after the source calls. Exit code 5. Check, in order:
+
+1. `config.json` has a misspelled or unknown setting. [Keys and configuration](/keys-and-configuration/#check-the-file) shows the error.
+2. `NO_PROXY` holds an entry BioMCP cannot read, such as an IPv6 address (`::1`) or a CIDR range (`10.0.0.0/8`), while a proxy comes from the environment. Every command fails, including offline ones. Set `proxy` in `config.json`, which takes the place of the environment's proxy settings, or remove those entries from `NO_PROXY` for BioMCP.
+3. The cache folder is not writable, or the disk is full.
+4. The output could not be written, for example when a pipe closes early. BioMCP prints `biomcp: output failed` on standard error.
+
+**Confirm.** `biomcp key list` returns status `complete`. It reads the configuration and sends no request.
+
+## A source shows skipped with reason no_key
+
+**Cause.** The source needs your key: OncoKB, or NCI for `--source nci`.
+
+**Fix.** `biomcp key set oncokb` or `biomcp key set nci`. The reply's `next` list includes `help key SOURCE`. See [keys and configuration](/keys-and-configuration/#set-a-key).
+
+## A source shows failed with reason deadline_exceeded or rate_limited
+
+**Cause.** The source took too long or limited your request rate. Broad searches, such as a GWAS Catalog search by gene, can exceed the deadline. Keyless Semantic Scholar shares a public rate limit.
+
+**Fix.** Narrow the query, wait and retry, or set the source's optional key. The rest of the reply is still usable; its status is `partial` or `failed`.
+
+## A source shows failed with reason tls or proxy
+
+**Cause.** A company network intercepts TLS or needs a proxy.
+
+**Fix.** Set `ca_bundle` to your network's root certificate and `proxy` to its proxy in `config.json`. See [company networks](/keys-and-configuration/#company-networks).
+
+## A source shows failed with reason rejected
+
+**Cause.** The source or a network rule refused the request. A firewall that allows only some hosts produces this.
+
+**Fix.** Check that the machine can reach the source's host. `biomcp health` shows which sources answer.
+
+## A source shows failed with reason offline
+
+**Cause.** You ran with `--offline` and nothing local could answer.
+
+**Fix.** Run once without `--offline`, or synchronize the source's bundle. See [local data](/local-data/#2-work-offline).
+
+## A source shows syncing, or a reply asks for biomcp sync
+
+**Cause.** The command needs a local bundle that is missing, or another process is synchronizing it.
+
+**Fix.** Run the `sync` command from the reply's `next` list, for example `biomcp sync ddinter`. If another process holds the bundle, wait and retry.
+
+## Exit code 3: the pool expired
+
+**Cause.** You followed a page command after its pool expired.
+
+**Fix.** Run the restart command in the error's `next` list, then page again.
+
+## A search returns no rows
+
+**Cause.** The source returned nothing for that text and those filters. Text is sent as you wrote it.
+
+**Fix.** Try fewer filters, another spelling, or another `--source`. An empty result is not absence; see [results](/results/#empty-is-not-absence).
+
+## The HTTP server refuses a command
+
+**Cause.** HTTP refuses `sync`, `store clean`, `--fresh` and file saves.
+
+**Fix.** Run them on the server's command line. See [run as a server](/run-as-a-server/#what-http-clients-cannot-do).
+
+## Next
+
+Coming from 0.9? Read [upgrading from 0.9](/upgrade-from-0-9/).

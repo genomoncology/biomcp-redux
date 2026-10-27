@@ -1,0 +1,1 @@
+{"guideline_name":"DPYD and Fluoropyrimidines","drugs":["capecitabine","fluorouracil","tegafur"],"guideline_url":"https://www.clinpgx.org/guideline/PA166251462"}

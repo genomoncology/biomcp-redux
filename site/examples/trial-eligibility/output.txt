@@ -1,0 +1,13 @@
+{
+  "minimum_age": {
+    "state": "source",
+    "raw": "18 Years"
+  },
+  "maximum_age": {
+    "state": "no_limit"
+  },
+  "sex": "ALL",
+  "healthy_volunteers": false,
+  "total_characters": 12400,
+  "criteria_start": "Inclusion Criteria:\n\nPatients eligible for inclusion in this study must meet all the following criteria:\n\n* Written informed consent approved by the Independent Ethics Committee (IEC), prior to the pe"
+}

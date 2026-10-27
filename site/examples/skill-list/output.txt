@@ -1,0 +1,19 @@
+# BioMCP Worked Examples
+
+01-treatment-lookup: Read a source drug record
+02-symptom-phenotype: Read a phenotype record
+03-gene-disease-orientation: Read a gene identity
+04-article-follow-up: Read an article card
+05-variant-pathogenicity: Inspect source variant assertions
+06-drug-regulatory: Read a regulatory source record
+07-gene-function-localization: Read a source gene card
+08-mechanism-pathway: Read a source pathway card
+09-trial-recruitment: Search registry trials
+10-pharmacogene-cumulative: Read a native pharmacogenomics record
+11-disease-locus-mapping: Inspect source disease listings
+12-cellular-process-regulation: Inspect a human pathway record
+13-mutation-catalog: Search source variant candidates
+14-syndrome-disambiguation: Read phenotype source identity
+15-negative-evidence: Inspect source outcomes
+16-normalize-to-codes: Inspect explicit variant identity
+17-exact-variant-literature: Read literature after inspecting variant identity

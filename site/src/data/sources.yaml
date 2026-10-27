@@ -1,0 +1,60 @@
+# Hand-written notes for each source, merged into the generated source pages.
+# name: the publisher's name for the source. what: one sentence on what BioMCP reads.
+# commands: commands that reach the source without a --source choice (names as in the reference).
+# bundle: the sync command's argument when the source is a local bundle.
+cellosaurus: { name: Cellosaurus, what: "BioMCP reads cell-line cards, names, identity, cross-references and variants from Cellosaurus.", commands: [search cell-line, get cell-line] }
+cpic: { name: CPIC, what: "BioMCP reads CPIC gene cards, recommendations, guidelines and diplotype lookups.", commands: [] }
+clinpgx: { name: ClinPGx, what: "BioMCP reads ClinPGx clinical, guideline and label annotations for a gene.", commands: [] }
+gtr: { name: NCBI Genetic Testing Registry, what: "BioMCP reads GTR test listings with their genes, conditions and methods from a local bundle.", bundle: gtr }
+who-ivd: { name: WHO prequalified in vitro diagnostics, what: "BioMCP reads WHO prequalified diagnostic products from a local copy of the WHO export.", bundle: who-ivd }
+who-pq: { name: WHO prequalified finished products, what: "BioMCP reads WHO prequalified medicines from a local copy of the WHO export.", bundle: who-pq }
+fda-cdx: { name: FDA companion diagnostics list, what: "BioMCP reads the FDA list of cleared or approved companion diagnostic devices from a local bundle.", bundle: fda-cdx }
+fda-pma: { name: openFDA premarket approval, what: "BioMCP reads one PMA submission, its regulatory statement and its supplements.", commands: [] }
+fda-510k: { name: openFDA 510(k), what: "BioMCP reads one 510(k) clearance record.", commands: [] }
+gwas: { name: GWAS Catalog, what: "BioMCP reads GWAS Catalog studies, associations, loci and ancestries, and the gwas section of a variant.", commands: [search gwas, get gwas] }
+myvariant: { name: MyVariant.info, what: "BioMCP searches variants and reads predictor, conservation and historical COSMIC fields through MyVariant.info.", commands: [get variant] }
+car: { name: ClinGen Allele Registry, what: "BioMCP resolves variant identities and normalizes HGVS through the ClinGen Allele Registry.", commands: [get variant] }
+mutalyzer: { name: Mutalyzer, what: "BioMCP sends reference-qualified HGVS to Mutalyzer for normalization.", commands: [] }
+variantvalidator: { name: VariantValidator, what: "BioMCP sends reference-qualified HGVS to VariantValidator with a genome build.", commands: [] }
+ctgov: { name: ClinicalTrials.gov, what: "BioMCP searches ClinicalTrials.gov and reads trial records, sections and posted documents. It is the default trial source.", commands: [trial document] }
+hgnc: { name: HGNC, what: "BioMCP resolves gene symbols, aliases and identifiers against a local HGNC bundle that it can synchronize when a read needs it.", commands: [search gene, get gene], bundle: hgnc }
+mygene: { name: MyGene.info, what: "BioMCP reads gene summaries through MyGene.info for the gene card.", commands: [get gene] }
+oncokb: { name: OncoKB, what: "BioMCP reads OncoKB gene and variant annotations with your OncoKB key.", commands: [get gene, get variant] }
+gnomad: { name: gnomAD, what: "BioMCP reads gnomAD population counts for a variant and population constraint for a gene.", commands: [variant population, get variant, get gene] }
+uniprot: { name: UniProt, what: "BioMCP reads reviewed human protein records, features, isoforms, function text and sequences from UniProt.", commands: [search protein, get protein, protein features, protein isoforms, protein sequence, protein structures, get gene] }
+interpro: { name: InterPro, what: "BioMCP reads InterPro domain and family matches for a protein.", commands: [protein domains, get protein] }
+complex-portal: { name: Complex Portal, what: "BioMCP reads the protein complexes a protein takes part in and their members.", commands: [protein complexes, protein complex-members, get protein] }
+reactome: { name: Reactome, what: "BioMCP searches Reactome pathways and reads their genes and events, and the pathways section of a gene.", commands: [get pathway, pathway genes, pathway events, get gene] }
+wikipathways: { name: WikiPathways, what: "BioMCP searches WikiPathways and reads pathway members from a local bundle.", commands: [get pathway, pathway genes], bundle: wikipathways }
+civic: { name: CIViC, what: "BioMCP reads CIViC gene curation, variant molecular-profile evidence and drug therapy evidence.", commands: [get gene, get variant] }
+hotspots: { name: Cancer Hotspots, what: "BioMCP reads Cancer Hotspots residue counts for a variant's position.", commands: [get variant] }
+clinvar: { name: ClinVar, what: "BioMCP reads ClinVar assertions for a variant.", commands: [get variant] }
+erepo: { name: ClinGen Evidence Repository, what: "BioMCP reads ClinGen expert-panel variant assertions.", commands: [get variant] }
+clingen: { name: ClinGen gene validity and dosage, what: "BioMCP reads ClinGen gene-disease validity and dosage curation from a local bundle that it can synchronize when a read needs it.", commands: [get gene], bundle: clingen }
+hpa: { name: Human Protein Atlas, what: "BioMCP reads tissue expression for a gene from the Human Protein Atlas.", commands: [get gene] }
+pubmed: { name: PubMed, what: "BioMCP searches PubMed and reads article citations, abstracts and MeSH indexing. It is the default article search source.", commands: [get article] }
+europepmc: { name: Europe PMC, what: "BioMCP searches Europe PMC, including open full text and preprints, and resolves article identifiers.", commands: [get article] }
+litvar: { name: LitVar2, what: "BioMCP finds publications that mention an exact variant through LitVar2.", commands: [] }
+litsense: { name: LitSense2, what: "BioMCP finds sentences that resemble the query text through LitSense2.", commands: [] }
+pubtator: { name: PubTator3, what: "BioMCP searches PubTator3 entities and reads text-mined annotations for an article.", commands: [get article] }
+pmc-oa: { name: PMC Open Access, what: "BioMCP reads licensed full text, supplements and PDFs from the PMC Open Access subset.", commands: [get article, article text, article supplement, article pdf] }
+icite: { name: NIH iCite, what: "BioMCP reads citation counts and citation links from NIH iCite. It is the default citation source.", commands: [get article] }
+semantic-scholar: { name: Semantic Scholar, what: "BioMCP searches Semantic Scholar papers and authors and reads citations, references, recommendations and summaries.", commands: [get author, author papers, article citation-evidence, article recommendations, get article] }
+orcid: { name: ORCID, what: "BioMCP reads one ORCID record and its public works.", commands: [get author, author papers] }
+nci: { name: NCI Clinical Trials Search, what: "BioMCP searches the NCI Clinical Trials Search API and reads NCI trial records with your NCI key.", commands: [] }
+cbioportal: { name: cBioPortal, what: "BioMCP reads cBioPortal study metadata from a local bundle and counts samples with a variant in one study.", commands: [search study, get study], bundle: cbioportal-studies }
+mychem: { name: MyChem.info, what: "BioMCP searches drugs through MyChem.info. It is the default drug source.", commands: [] }
+chembl: { name: ChEMBL, what: "BioMCP reads ChEMBL drug targets and indications, and ChEMBL cell metadata and assay counts.", commands: [cell-line assay-count, get cell-line] }
+opentargets: { name: Open Targets Platform, what: "BioMCP reads Open Targets drug records, targets and indications.", commands: [] }
+openfda-label: { name: openFDA drug labels, what: "BioMCP reads one exact heading of an FDA drug label.", commands: [] }
+drugsfda: { name: Drugs@FDA, what: "BioMCP reads FDA application and product history for a drug.", commands: [] }
+ema: { name: European Medicines Agency, what: "BioMCP reads EMA medicine records and regulatory events from a local bundle.", bundle: ema }
+ddinter: { name: DDInter, what: "BioMCP reads drug-drug interaction partners and levels from a local bundle.", bundle: ddinter }
+ols: { name: EMBL-EBI Ontology Lookup Service, what: "BioMCP searches MONDO, DOID and NCIt disease terms through OLS. It is the default disease source.", commands: [] }
+mydisease: { name: MyDisease.info, what: "BioMCP reads disease records through MyDisease.info and resolves trial condition identifiers.", commands: [search trial] }
+monarch: { name: Monarch Initiative, what: "BioMCP reads disease and phenotype associations with genes from the Monarch Initiative.", commands: [] }
+hpo: { name: Human Phenotype Ontology, what: "BioMCP searches and reads HPO phenotype terms.", commands: [] }
+seer: { name: SEER, what: "BioMCP reads SEER cancer sites, stage incidence and survival rows.", commands: [] }
+faers: { name: FDA Adverse Event Reporting System, what: "BioMCP searches and reads FAERS drug adverse event reports through openFDA. It is the default adverse event source.", commands: [] }
+maude: { name: FDA MAUDE, what: "BioMCP searches and reads MAUDE medical device reports through openFDA.", commands: [] }
+vaers: { name: VAERS through CDC WONDER, what: "BioMCP reads VAERS report summaries for MMR, COVID-19 and named influenza vaccines from CDC WONDER.", commands: [] }
