@@ -11,7 +11,7 @@
         "src/cli/system/batch.rs::validate_batch_ids",
         "src/cli/system/batch.rs::settle_ordered",
         "src/cli/system/batch.rs::settle_batch",
-        "src/cli/system/dispatch.rs::handle_command"
+        "src/cli/system/dispatch.rs::handle_batch"
       ],
       "mapping": "Released gene batch preserves input order and duplicate inputs, passes the same sections to each getter, and serializes each successful gene card under /items/N/result. Its input bound is ten. Its per-item ok status denotes getter success and does not establish current section completeness."
     }
