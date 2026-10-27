@@ -16,7 +16,8 @@ fn walk() -> Check {
     let second = identity(2)?;
     let mut accepted = [record(&first), record(&second)];
     for row in &mut accepted {
-        row["openfda"]["brand_name"] = json!(["Other name", "GLEEVEC"]);
+        *row.pointer_mut("/openfda/brand_name")
+            .ok_or("brand array")? = json!(["Other name", "GLEEVEC"]);
     }
     let rows = [
         record(&rejected),
