@@ -87,8 +87,12 @@
           "clinpgx"
         ]
       },
+<<<<<<< HEAD
       "max_bytes": 2690,
       "max_tokens": 673
+=======
+      "max_bytes": 2178
+>>>>>>> ef4547881a4aca2c811a84f207f6820a215176fa
     }
   ]
 }

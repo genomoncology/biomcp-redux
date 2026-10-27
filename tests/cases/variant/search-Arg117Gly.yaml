@@ -28,7 +28,6 @@
         "GRCh37"
       ],
       "max_bytes": 1202,
-      "max_tokens": 301,
       "expect": {
         "/schema": "biomcp.variant-page/6",
         "/status": "partial",

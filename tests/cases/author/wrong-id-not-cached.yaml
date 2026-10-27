@@ -24,8 +24,7 @@
         "/problems/0/field": "author"
       },
       "full_output_bytes": true,
-      "max_bytes": 618,
-      "max_tokens": 155
+      "max_bytes": 618
     },
     {
       "run": [
@@ -47,7 +46,6 @@
       },
       "full_output_bytes": true,
       "max_bytes": 520,
-      "max_tokens": 130,
       "offline": true
     }
   ]
