@@ -9,7 +9,8 @@ pub(crate) struct ConfigError(pub(crate) String);
 impl ConfigError {
     pub(crate) fn field(name: &str) -> Self {
         // An unknown key is a name, but arbitrary JSON strings are not safe diagnostics.
-        let safe = name.len() <= 96
+        let safe = !name.is_empty()
+            && name.len() <= 96
             && name
                 .bytes()
                 .all(|b| b.is_ascii_alphanumeric() || b == b'_' || b == b'.');

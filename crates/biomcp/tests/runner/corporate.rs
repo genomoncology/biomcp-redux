@@ -187,6 +187,7 @@ fn configuration() -> Result<(), String> {
     }
     for (config, field) in [
         (json!({"formatt":"synthetic-private"}), "formatt"),
+        (json!({"":"synthetic-private"}), "config.json"),
         (json!({"proxy":"http://[synthetic-private"}), "proxy"),
         (json!({"keys":{"oncokb_api_key":9}}), "keys.oncokb_api_key"),
         (
