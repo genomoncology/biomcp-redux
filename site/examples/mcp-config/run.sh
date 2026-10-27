@@ -1,2 +1,2 @@
-# The build replaces the build machine's path with an example path.
-biomcp mcp-config | sed "s#$(command -v biomcp)#/home/you/.local/bin/biomcp#"
+# The page shows show.sh. Any absolute path to the program, a symlink or its target, becomes an example path.
+bash show.sh | sed -E 's#/[^" ]*/biomcp([" ]|$)#/home/you/.local/bin/biomcp\1#g'

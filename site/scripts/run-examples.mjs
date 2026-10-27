@@ -120,6 +120,8 @@ function outputProblems(id, r) {
   const p = [];
   if (r.timedOut) p.push(`timed out after ${(product.exampleTimeoutMs ?? 120000) / 1000} s`);
   if (r.out.includes('jq: error')) p.push('output holds "jq: error"');
+  // A page never shows the build machine's paths: the program's folder, the sandbox or the repository.
+  for (const dir of [bin, sandbox, path.resolve('..')]) if (r.out.includes(dir)) p.push(`output holds the machine path ${dir}; replace it with an example path`);
   if (product.exampleFailedStatus) {
     const statuses = jsonValues(r.out).filter((v) => v && typeof v === 'object' && !Array.isArray(v) && typeof v.status === 'string').map((v) => v.status);
     const expected = list(file(id, 'expect-status'));
