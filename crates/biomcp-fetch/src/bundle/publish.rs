@@ -25,7 +25,7 @@ impl Cache {
         rows: Option<&[Parsed]>,
         deadline: Deadline<'_>,
     ) -> Result<bool, CacheError> {
-        let connection = self.owned_connection()?;
+        let mut connection = self.owned_connection()?;
         connection.execute_batch(STAGING).map_err(db_error)?;
         if let Some(rows) = rows {
             for (batch, chunk) in rows.chunks(BATCH_ROWS).enumerate() {
@@ -35,10 +35,13 @@ impl Cache {
                 tx.commit().map_err(db_error)?;
             }
         }
-        // A busy attempt rolls back before retry; staged rows remain private.
+        // Reserve the writer before reading ownership. A deferred read snapshot
+        // cannot upgrade after a concurrent query owner commits a new WAL frame.
         self.publish_sql(deadline, || {
             sql_deadline(&connection, deadline)?;
-            let tx = connection.unchecked_transaction().map_err(db_error)?;
+            let tx = connection
+                .transaction_with_behavior(rusqlite::TransactionBehavior::Immediate)
+                .map_err(db_error)?;
             if let Some(holder) = holder {
                 let owned: bool = tx
                     .query_row(
