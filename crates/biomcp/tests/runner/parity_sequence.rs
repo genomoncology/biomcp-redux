@@ -279,7 +279,7 @@ fn candidate(
         execution::field(
             &mut actual,
             "mcp",
-            json!({"parsed":reply,"raw_directory":directory}),
+            json!({"parsed":reply,"raw_directory":directory,"command":command}),
         )?;
     }
     Ok(actual)

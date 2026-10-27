@@ -178,6 +178,21 @@ fn run(plan: &Path, baseline: &Path, out: &Path) -> Result<Value, String> {
     for (index, sequence) in sequences.iter().enumerate() {
         rows.extend(sequence::compare(sequence, baseline, out, index)?);
     }
+    let (gaps, regressions) = totals(&rows);
+    let report = json!({"baseline_release":"0.9.3", "mode":"recorded-parity",
+        "baseline_binary":execution::fingerprint(baseline)?,
+        "candidate_binary":execution::fingerprint(Path::new(env!("CARGO_BIN_EXE_biomcp")))?,
+        "assessment_gaps":gaps,"regressions":regressions,"cases":rows, "scope":"explicit selected facts; no whole-comparison claim"});
+    fs::write(
+        out.join("report.json"),
+        serde_json::to_vec_pretty(&report).map_err(|e| e.to_string())?,
+    )
+    .map_err(|e| e.to_string())?;
+    Ok(
+        json!({"report":out.join("report.json"), "cases":rows.len(),"assessment_gaps":gaps,"regressions":regressions}),
+    )
+}
+fn totals(rows: &[Value]) -> (usize, usize) {
     let facts = rows
         .iter()
         .flat_map(|r| {
@@ -193,7 +208,19 @@ fn run(plan: &Path, baseline: &Path, out: &Path) -> Result<Value, String> {
             f.pointer("/baseline/verdict") == Some(&json!("assessment_gap"))
                 || f.pointer("/candidate/verdict") == Some(&json!("assessment_gap"))
         })
-        .count();
+        .count()
+        + rows
+            .iter()
+            .filter(|row| {
+                row.get("facts")
+                    .and_then(Value::as_array)
+                    .is_some_and(Vec::is_empty)
+                    && ["baseline", "candidate"].iter().any(|side| {
+                        row.get(side)
+                            .is_some_and(|output| output.get("assessment_error").is_some())
+                    })
+            })
+            .count();
     let regressions = facts
         .iter()
         .filter(|f| {
@@ -201,18 +228,7 @@ fn run(plan: &Path, baseline: &Path, out: &Path) -> Result<Value, String> {
                 && f.pointer("/candidate/verdict") == Some(&json!("wrong"))
         })
         .count();
-    let report = json!({"baseline_release":"0.9.3", "mode":"recorded-parity",
-        "baseline_binary":execution::fingerprint(baseline)?,
-        "candidate_binary":execution::fingerprint(Path::new(env!("CARGO_BIN_EXE_biomcp")))?,
-        "assessment_gaps":gaps,"regressions":regressions,"cases":rows, "scope":"explicit selected facts; no whole-comparison claim"});
-    fs::write(
-        out.join("report.json"),
-        serde_json::to_vec_pretty(&report).map_err(|e| e.to_string())?,
-    )
-    .map_err(|e| e.to_string())?;
-    Ok(
-        json!({"report":out.join("report.json"), "cases":rows.len(),"assessment_gaps":gaps,"regressions":regressions}),
-    )
+    (gaps, regressions)
 }
 fn load_selection(selection: &Selection) -> Result<Case, String> {
     load_selection_from(selection, &super::launch::fixtures().join("cases"))
