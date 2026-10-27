@@ -47,25 +47,25 @@ fn literal(value: &str) -> String {
     format!("\"{}\"", value.replace('\\', "\\\\").replace('"', "\\\""))
 }
 /// Exact name discovery, with one tokenized fallback after an empty exact page.
-pub fn search(leg: &Leg<'_>, brand: &Text, limit: u32, offset: u32) -> Result<Page, RequestError> {
+pub fn search(leg: &Leg<'_>, name: &Text, limit: u32, offset: u32) -> Result<Page, RequestError> {
     if !(1..=50).contains(&limit) {
         return Err(bad());
     }
     let selector = |suffix: &str| {
-        let name = literal(brand.as_str());
+        let name = literal(name.as_str());
         format!("openfda.brand_name{suffix}:{name} OR openfda.generic_name{suffix}:{name}")
     };
     let mut exact = page(leg, &selector(".exact"), limit, offset, None)?;
     exact
         .records
-        .retain(|record| record.name_match(brand).is_some());
+        .retain(|record| record.name_match(name).is_some());
     if !exact.records.is_empty() {
         return Ok(exact);
     }
     let mut fallback = page(leg, &selector(""), limit, offset, None)?;
     fallback
         .records
-        .retain(|record| record.name_match(brand).is_some());
+        .retain(|record| record.name_match(name).is_some());
     Ok(fallback)
 }
 fn normalize_name(value: &str) -> String {

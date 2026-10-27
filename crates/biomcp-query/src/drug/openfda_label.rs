@@ -25,7 +25,7 @@ pub(super) fn search(cx: &Ctx<'_>, query: &DrugSearch) -> Outcome {
                         header.matched_name = r.name_match(query.query());
                         Ok(header)
                     })
-                    .collect::<Result<Vec<_>, _>>()?,
+                    .collect::<Result<Vec<_>, RequestError>>()?,
                 page.total,
                 page.scanned,
             ))
