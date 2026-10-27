@@ -16,9 +16,9 @@ pub(super) fn check(tools: &[Value], reply: &Value) -> Result<(), String> {
         for invalid in [
             json!({"unrelated":true}),
             json!({"$id":"biomcp.health/2", "$schema":"unsupported"}),
-            json!({"schema":"unknown/1", "status":"complete", "result":{}}),
+            json!({"schema":"unknown/1", "status":"complete", "query":null, "result":{}}),
             json!({"schema":"unknown/1", "status":"usage", "error":{}}),
-            json!({"schema":"biomcp.health/2", "status":"complete", "result":[]}),
+            json!({"schema":"biomcp.health/2", "status":"complete", "query":null, "result":[]}),
         ] {
             if validator.is_valid(&invalid) {
                 return Err(
