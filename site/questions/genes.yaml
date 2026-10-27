@@ -12,6 +12,16 @@
   rank: 38
   page: /getting-started/first-query/
   reference: /reference/commands/get-gene/
+  answers_page: true
+  example: a-gene-constraint
+  answer: |
+    Request the gene's `constraint` section: `biomcp get gene SYMBOL constraint`. It returns gnomAD's loss-of-function constraint for the gene's canonical transcript. For TP53 this run returns gnomAD v4 values for transcript ENST00000269305, with pLI near 1 and LOEUF about 0.42.
+  why: |
+    BioMCP resolves the symbol against HGNC and reads gnomAD's constraint record for the gene. pLI is gnomAD's probability that the gene is intolerant of loss-of-function variants. LOEUF is the upper bound of the observed-to-expected ratio of loss-of-function variants; a lower value means fewer such variants than expected. The section also carries `oe_lof`, `mis_z` and `syn_z`.
+  limits: |
+    The scores describe variation in the people gnomAD sequenced, for one transcript and one gnomAD version. They are population statistics about the gene, not a classification of any variant.
+  page_title: Run your first query
+  reference_title: get gene
 - id: gene-to-uniprot
   question: How do I find the UniProt accession for a gene?
   source: product

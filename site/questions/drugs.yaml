@@ -3,7 +3,7 @@
   source: product
   frequency: the site map's example task; 0.9 adverse-event page
   rank: 11
-  page: /drugs-and-safety/
+  page: /how-to/faers-reports/
   reference: /reference/commands/search-adverse-event/
 - id: drug-label-section
   question: How do I read a section of a drug's FDA label?

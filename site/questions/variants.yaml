@@ -3,14 +3,14 @@
   source: cases
   frequency: "use case 05; 0.9 annotate-variants how-to"
   rank: 8
-  page: /how-to/annotate-variants/
+  page: /how-to/clinvar-classification/
   reference: /reference/commands/variant-assertions/
 - id: gnomad-frequency
   question: How do I get gnomAD allele counts for a variant?
   source: product
   frequency: listed from variant population
   rank: 27
-  page: /how-to/annotate-variants/
+  page: /how-to/gnomad-frequency/
   reference: /reference/commands/variant-population/
 - id: hgvs-to-grch38
   question: How do I convert HGVS c. notation to GRCh38 genomic coordinates?
@@ -19,6 +19,16 @@
   rank: 30
   page: /how-to/annotate-variants/
   reference: /reference/commands/variant-normalize/
+  answers_page: true
+  example: a-hgvs-grch38
+  answer: |
+    Resolve the description with the ClinGen Allele Registry: `biomcp variant normalize --source car --hgvs 'NM_004985.5:c.35G>A'`. The reply maps the transcript change to its ClinGen allele ID and its GRCh38 genomic descriptions. KRAS c.35G>A, the change behind G12D, resolves to CA122538 and NC_000012.12:g.25245350C>T.
+  why: |
+    The registry stores each allele once and lists every description of it: transcripts, GRCh37 and GRCh38. BioMCP sends your text unchanged and returns the registry's mappings; it never edits the description to make it match.
+  limits: |
+    The description needs a versioned reference sequence, such as `NM_004985.5`. A description the registry cannot place returns an outcome other than `resolved`. `--source mutalyzer` and `--source variantvalidator` check the same description with other services.
+  page_title: Annotate a variant
+  reference_title: variant normalize
 - id: rsid-to-gene
   question: Which gene and alleles does an rsID belong to?
   source: product

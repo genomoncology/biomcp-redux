@@ -1,0 +1,38 @@
+---
+title: How do I convert HGVS c. notation to GRCh38 genomic coordinates?
+description: "Resolve the description with the ClinGen Allele Registry: `biomcp
+  variant normalize --source car --hgvs 'NM_004985.5:c.35G>A'`. The reply maps
+  the transcript change to its ClinGen allele ID and its GRCh38 genomic
+  descriptions. KRAS c.35G>A, the change behind G12D, resolves to CA122538 and
+  NC_000012."
+goal: "Answer: How do I convert HGVS c. notation to GRCh38 genomic coordinates?"
+reader: Someone who searched for this question
+kind: answer
+verified: 2026-10-27
+sidebar:
+  hidden: true
+pagefind: true
+---
+
+import Example from '../../../components/Example.astro';
+
+Resolve the description with the ClinGen Allele Registry: `biomcp variant normalize --source car --hgvs 'NM_004985.5:c.35G>A'`. The reply maps the transcript change to its ClinGen allele ID and its GRCh38 genomic descriptions. KRAS c.35G>A, the change behind G12D, resolves to CA122538 and NC_000012.12:g.25245350C>T.
+
+## Command
+
+<Example id="a-hgvs-grch38" />
+
+## Why it works
+
+The registry stores each allele once and lists every description of it: transcripts, GRCh37 and GRCh38. BioMCP sends your text unchanged and returns the registry's mappings; it never edits the description to make it match.
+
+## Limits
+
+The description needs a versioned reference sequence, such as `NM_004985.5`. A description the registry cannot place returns an outcome other than `resolved`. `--source mutalyzer` and `--source variantvalidator` check the same description with other services.
+
+## Read next
+
+- [Annotate a variant](/how-to/annotate-variants/)
+- [variant normalize](/reference/commands/variant-normalize/)
+
+Verified on 2026-10-27 with BioMCP 1.0.0.

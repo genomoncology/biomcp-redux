@@ -1,0 +1,1 @@
+{"source":"gnomad","version":"v4","transcript":"ENST00000269305","pli":0.999595868281925,"loeuf":0.4183620979251529}
