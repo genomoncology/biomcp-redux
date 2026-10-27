@@ -25,7 +25,10 @@ pub(super) fn push(
     let simple = SheetRow {
         sheet: sheet.clone(),
         row: row.number,
-        first_row: FirstSheetRow { row: first_row.number, cells: first_row.cells.clone().into() },
+        first_row: FirstSheetRow {
+            row: first_row.number,
+            cells: first_row.cells.clone().into(),
+        },
         cells: row.cells.clone().into(),
         fragment: None,
     };
@@ -35,7 +38,10 @@ pub(super) fn push(
         }
         return Ok(());
     }
-    for (is_first_row, cells) in [(true, first_row.cells.as_slice()), (false, row.cells.as_slice())] {
+    for (is_first_row, cells) in [
+        (true, first_row.cells.as_slice()),
+        (false, row.cells.as_slice()),
+    ] {
         for (column, value) in cells.iter().enumerate() {
             let mut offset = 0;
             for chunk in chunks(value, needles) {
@@ -45,7 +51,10 @@ pub(super) fn push(
                     out.push(SheetRow {
                         sheet: sheet.clone(),
                         row: row.number,
-                        first_row: FirstSheetRow { row: first_row.number, cells: Box::default() },
+                        first_row: FirstSheetRow {
+                            row: first_row.number,
+                            cells: Box::default(),
+                        },
                         cells: Box::default(),
                         fragment: Some(CellFragment {
                             first_row: is_first_row,

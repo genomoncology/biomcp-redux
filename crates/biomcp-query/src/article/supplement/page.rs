@@ -111,9 +111,10 @@ pub(super) fn select(
         truncated: None,
     });
     if !needles.is_empty() {
-        for sheet in sheets.iter().filter(|sheet| {
-            page.rows.iter().any(|row| row.sheet.as_str() == sheet.name)
-        }) {
+        for sheet in sheets
+            .iter()
+            .filter(|sheet| page.rows.iter().any(|row| row.sheet.as_str() == sheet.name))
+        {
             out.next.push((
                 StepKind::Section,
                 Action::Run {
@@ -140,8 +141,14 @@ fn collect(
         if query.sheet().is_some_and(|v| v.as_str() != sheet.name) {
             continue;
         }
-        let empty_first_row = sheet::Row { number: 1, cells: Vec::new() };
-        let first_row = sheet.rows.first().filter(|row| row.number == 1)
+        let empty_first_row = sheet::Row {
+            number: 1,
+            cells: Vec::new(),
+        };
+        let first_row = sheet
+            .rows
+            .first()
+            .filter(|row| row.number == 1)
             .unwrap_or(&empty_first_row);
         let name = Text::new(&sheet.name).map_err(|_| Reason::BadReply)?;
         for row in &sheet.rows {

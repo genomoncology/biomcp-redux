@@ -59,8 +59,8 @@ pub use response::{
     TextPartKind,
 };
 pub use response::{
-    ArticleSupplementResult, CellFragment, FileKind, FirstSheetRow, SheetInfo, SheetRow, SupplementContent,
-    SupplementFile, Supplements,
+    ArticleSupplementResult, CellFragment, FileKind, FirstSheetRow, SheetInfo, SheetRow,
+    SupplementContent, SupplementFile, Supplements,
 };
 pub use response::{
     CancerPtpm, Capped, CivicGene, ClinGenGene, ClinGenValidity, GeneExpression, PathwayRef,

@@ -5,8 +5,8 @@ use crate::{ArticleHeader, ArticleSearch, ArticleSource, Doi, EuropePmcId, Pmcid
 use serde::{Deserialize, Serialize};
 use std::collections::BTreeMap;
 pub use supplement::{
-    ArticleSupplementResult, CellFragment, FileKind, FirstSheetRow, SheetInfo, SheetRow, SupplementContent,
-    SupplementFile, Supplements,
+    ArticleSupplementResult, CellFragment, FileKind, FirstSheetRow, SheetInfo, SheetRow,
+    SupplementContent, SupplementFile, Supplements,
 };
 /// Stable identity independent of whether citation metadata was accepted.
 #[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
