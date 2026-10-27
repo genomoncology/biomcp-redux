@@ -2,7 +2,7 @@
 use super::Page;
 use biodata::Text;
 use biomcp_adapters::sheet;
-use biomcp_types::{CellFragment, Reason, SheetRow};
+use biomcp_types::{CellFragment, FirstSheetRow, Reason, SheetRow};
 const FRAGMENT_BYTES: usize = 1000;
 pub(super) fn contains(value: &str, needles: &[String]) -> bool {
     let lower = value.to_lowercase();
@@ -11,21 +11,24 @@ pub(super) fn contains(value: &str, needles: &[String]) -> bool {
 pub(super) fn matches(row: &SheetRow, needles: &[String]) -> bool {
     row.fragment.as_ref().map_or_else(
         || row.cells.iter().any(|cell| contains(cell, needles)),
-        |fragment| !fragment.header && contains(&fragment.text, needles),
+        |fragment| !fragment.first_row && contains(&fragment.text, needles),
     )
 }
 pub(super) fn push(
     out: &mut Page,
     sheet: Text,
     row: &sheet::Row,
-    header: &[String],
+    first_row: &sheet::Row,
     needles: &[String],
     matching: Option<bool>,
 ) -> Result<(), Reason> {
     let simple = SheetRow {
         sheet: sheet.clone(),
         row: row.number,
-        header: header.into(),
+        first_row: FirstSheetRow {
+            row: first_row.number,
+            cells: first_row.cells.clone().into(),
+        },
         cells: row.cells.clone().into(),
         fragment: None,
     };
@@ -35,20 +38,26 @@ pub(super) fn push(
         }
         return Ok(());
     }
-    for (is_header, cells) in [(true, header), (false, row.cells.as_slice())] {
+    for (is_first_row, cells) in [
+        (true, first_row.cells.as_slice()),
+        (false, row.cells.as_slice()),
+    ] {
         for (column, value) in cells.iter().enumerate() {
             let mut offset = 0;
             for chunk in chunks(value, needles) {
                 let length = chunk.chars().count() as u32;
-                let hit = !is_header && contains(&chunk, needles);
+                let hit = !is_first_row && contains(&chunk, needles);
                 if matching.is_none_or(|v| v == hit) {
                     out.push(SheetRow {
                         sheet: sheet.clone(),
                         row: row.number,
-                        header: Box::default(),
+                        first_row: FirstSheetRow {
+                            row: first_row.number,
+                            cells: Box::default(),
+                        },
                         cells: Box::default(),
                         fragment: Some(CellFragment {
-                            header: is_header,
+                            first_row: is_first_row,
                             column: column as u32 + 1,
                             offset,
                             text: chunk,

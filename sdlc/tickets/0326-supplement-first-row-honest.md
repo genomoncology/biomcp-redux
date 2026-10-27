@@ -1,6 +1,7 @@
 # 0326 — Stop calling a spreadsheet's first row its header
 
-Status: OPEN.
+Status: COMPLETE.
+Landed: f20ad7f1274db363286a834f27a0bf58869dc78d
 
 Milestone: 5
 
