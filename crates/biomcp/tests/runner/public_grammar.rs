@@ -117,7 +117,6 @@ fn command_metadata(commands: &[Value]) -> Result<(), String> {
         vec!["cell-line"],
         vec!["author"],
         vec!["health"],
-        vec!["list"],
         vec!["store"],
         vec!["version"],
         vec!["mcp-config"],
