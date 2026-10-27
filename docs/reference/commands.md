@@ -2604,6 +2604,7 @@ Named source sections; omitted by default. Each calls its own source. all keeps 
 - `population`: gnomAD population observations.
 - `gwas`: GWAS Catalog associations.
 - `civic`: CIViC molecular-profile evidence.
+- `alphagenome`: Keyed AlphaGenome native numeric scorer values.
 - `oncokb`: Keyed OncoKB annotation with explicit tumor context and build.
 - `hotspots`: Cancer Hotspots candidate residue counts; no established exact allele join or clinical actionability.
 - `predict`: MyVariant source predictor scores.
