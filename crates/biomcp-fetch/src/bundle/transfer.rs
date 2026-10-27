@@ -105,14 +105,14 @@ fn stage(
     if !source_table(&snapshot, "bundle")? || !exists(&snapshot, "predecessor", name)? {
         return Ok(false);
     }
-    let bytes: u64 = snapshot
+    let bytes: u32 = snapshot
         .query_row(
             "SELECT bytes FROM predecessor.bundle WHERE name=?1",
             [name],
             |r| r.get(0),
         )
         .map_err(db_error)?;
-    if bytes > super::MAX_BUNDLE_BYTES {
+    if u64::from(bytes) > super::MAX_BUNDLE_BYTES {
         return Err(CacheError::Database);
     }
     for table in TABLES {
