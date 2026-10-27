@@ -1,6 +1,7 @@
 # 0309 — Give each zero-coverage family a few comparable parity facts
 
-Status: OPEN.
+Status: COMPLETE.
+Landed: 314b4d23b4ab0551899b11fbf62e81b22a65bb85
 
 Milestone: 5
 
