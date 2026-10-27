@@ -35,25 +35,46 @@ pub struct Limits {
 }
 impl Default for Limits {
     fn default() -> Self {
-        Self {
-            request_bytes: 64 * 1024,
-            message_bytes: 1024 * 1024,
-            wire_bytes: 8 * 1024 * 1024,
-            messages: 256,
-            rank: 8,
-            dimension: 1024 * 1024,
-            chunks: 64,
-            expanded_bytes: 8 * 1024 * 1024,
-            zstd_window_log: 23,
-            metadata_bytes: 8192,
-            metadata_fields: 64,
-            queued_calls: 4,
-            in_flight_streams: 2,
-            h2_window: 65_535,
-        }
+        Self::DEFAULT
     }
 }
 impl Limits {
+    /// Shared synthetic defaults, available to endpoint ceiling declarations.
+    pub const DEFAULT: Self = Self {
+        request_bytes: 64 * 1024,
+        message_bytes: 1024 * 1024,
+        wire_bytes: 8 * 1024 * 1024,
+        messages: 256,
+        rank: 8,
+        dimension: 1024 * 1024,
+        chunks: 64,
+        expanded_bytes: 8 * 1024 * 1024,
+        zstd_window_log: 23,
+        metadata_bytes: 8192,
+        metadata_fields: 64,
+        queued_calls: 4,
+        in_flight_streams: 2,
+        h2_window: 65_535,
+    };
+    /// Intersect source ceilings with caller bounds; no field can expand its caller limit.
+    pub fn minimum(self, ceiling: Self) -> Self {
+        Self {
+            request_bytes: self.request_bytes.min(ceiling.request_bytes),
+            message_bytes: self.message_bytes.min(ceiling.message_bytes),
+            wire_bytes: self.wire_bytes.min(ceiling.wire_bytes),
+            messages: self.messages.min(ceiling.messages),
+            rank: self.rank.min(ceiling.rank),
+            dimension: self.dimension.min(ceiling.dimension),
+            chunks: self.chunks.min(ceiling.chunks),
+            expanded_bytes: self.expanded_bytes.min(ceiling.expanded_bytes),
+            metadata_bytes: self.metadata_bytes.min(ceiling.metadata_bytes),
+            metadata_fields: self.metadata_fields.min(ceiling.metadata_fields),
+            queued_calls: self.queued_calls.min(ceiling.queued_calls),
+            in_flight_streams: self.in_flight_streams.min(ceiling.in_flight_streams),
+            h2_window: self.h2_window.min(ceiling.h2_window),
+            zstd_window_log: self.zstd_window_log.min(ceiling.zstd_window_log),
+        }
+    }
     pub(super) fn check(self) -> Result<Self, CodecError> {
         let values = [
             self.request_bytes,

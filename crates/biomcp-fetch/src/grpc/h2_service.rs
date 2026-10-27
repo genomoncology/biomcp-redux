@@ -57,6 +57,9 @@ impl Service<Request<tonic::body::Body>> for Single {
             send.send_data(Bytes::new(), true)
                 .map_err(|_| unavailable())?;
             let mut response = response.await.map_err(|_| unavailable())?;
+            if response.status() != http::StatusCode::OK {
+                return Err(http_failure(response.status().as_u16()));
+            }
             safe_headers(response.headers_mut(), self_limits)?;
             terminal(response.headers(), &state);
             Ok(response.map(|stream| Receive {
@@ -69,6 +72,16 @@ impl Service<Request<tonic::body::Body>> for Single {
             }))
         })
     }
+}
+fn http_failure(status: u16) -> tonic::Status {
+    use biomcp_types::Reason;
+    let code = match crate::retry::status_reason(status) {
+        Reason::NotFound => tonic::Code::NotFound,
+        Reason::RateLimited => tonic::Code::ResourceExhausted,
+        Reason::Unavailable => tonic::Code::Unavailable,
+        _ => tonic::Code::PermissionDenied,
+    };
+    tonic::Status::new(code, "upstream HTTP failure")
 }
 pub(super) struct Receive {
     stream: h2::RecvStream,

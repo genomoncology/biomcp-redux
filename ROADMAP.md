@@ -16,7 +16,7 @@ Each key is read from the config file's `keys` or its environment variable, sent
 - [x] NCI Clinical Trials Search key (keyed)
 - [x] openFDA key (optional)
 - Dropped: UMLS keyed integration; the [disease source ruling](sdlc/planning/slices/disease.md) found no indispensable keyed dependency.
-- [ ] AlphaGenome key (keyed); [ticket 0198](sdlc/tickets/0198-alphagenome-variant-section.md), after [transport design 0271](sdlc/tickets/0271-alphagenome-grpc-transport-design.md)
+- [x] AlphaGenome key (keyed); [ticket 0198](sdlc/tickets/0198-alphagenome-variant-section.md), after [transport design 0271](sdlc/tickets/0271-alphagenome-grpc-transport-design.md)
 - [ ] ORCID credentials (optional); Keyed proof remains deferred until an `ORCID_ACCESS_TOKEN` is available; public access uses the keyless rate
 
 ## Parity with 0.9.3
@@ -173,7 +173,7 @@ Sources:
 - [x] ClinGen evidence repository
 - [x] Mutalyzer and VariantValidator (named normalization services)
 - Deferred: variant-specific UniProt and InterPro
-- [ ] AlphaGenome (keyed): numeric predictions section, no plots; [ticket 0198](sdlc/tickets/0198-alphagenome-variant-section.md)
+- [x] AlphaGenome (keyed): numeric predictions section, no plots; [ticket 0198](sdlc/tickets/0198-alphagenome-variant-section.md)
 - Dropped: a direct dbSNP adapter, because rsIDs come through MyVariant and the ClinGen Allele Registry
 
 The OncoKB variant source proof uses an approved demo capture. The product requires the caller's configured key.

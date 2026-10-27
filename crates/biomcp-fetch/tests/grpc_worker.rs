@@ -24,6 +24,109 @@ static SOURCE: SourceSpec = SourceSpec {
 };
 
 #[test]
+fn http_failure_refuses_body_even_when_grpc_trailers_claim_success() -> support::Check {
+    for (status, reason) in [
+        (401, Reason::Rejected),
+        (429, Reason::RateLimited),
+        (500, Reason::Unavailable),
+    ] {
+        let fixture = support::Fixture::with_http(
+            support::Hold::None,
+            0,
+            false,
+            false,
+            vec![vec![8, 42]],
+            None,
+            status,
+        )?;
+        let fetch = Fetch::open(FetchConfig {
+            network: fixture.network(None, "")?,
+            ..Default::default()
+        })?;
+        let source = fixture.source(false, KeyUse::None);
+        let leg = fetch.leg(source, fetch.deadline(Duration::from_secs(5)));
+        let mut messages = 0;
+        let error = leg
+            .grpc(&source.grpc("/synthetic.Tensor/Exchange"), &[], |_| {
+                messages += 1;
+                Ok(())
+            })
+            .unwrap_err();
+        assert!(
+            matches!(error, biomcp_fetch::RequestError::Source(error) if error.reason == reason)
+        );
+        assert_eq!(messages, 0);
+        fixture.finish()?;
+    }
+    Ok(())
+}
+#[test]
+fn source_ceilings_tighten_request_message_and_cumulative_wire_admission() -> support::Check {
+    use biomcp_fetch::grpc::Limits;
+    let request = Limits {
+        request_bytes: 1,
+        ..Default::default()
+    };
+    let message = Limits {
+        message_bytes: 1,
+        ..Default::default()
+    };
+    let wire = Limits {
+        wire_bytes: 13,
+        ..Default::default()
+    };
+    for (global, ceiling, allowed_messages, connections) in [
+        (Limits::default(), request, 0, 0),
+        (request, Limits::default(), 0, 0),
+        (Limits::default(), message, 0, 1),
+        (message, Limits::default(), 0, 1),
+        (Limits::default(), wire, 1, 1),
+        (wire, Limits::default(), 1, 1),
+    ] {
+        let fixture = support::Fixture::with_messages(
+            support::Hold::None,
+            0,
+            false,
+            false,
+            vec![vec![8, 42], vec![8, 43]],
+        )?;
+        let source = fixture.source(false, KeyUse::None);
+        let fetch = Fetch::open(FetchConfig {
+            grpc_limits: global,
+            network: fixture.network(None, "")?,
+            ..Default::default()
+        })?;
+        let leg = fetch.leg(source, fetch.deadline(Duration::from_secs(5)));
+        let mut received = 0;
+        let error = leg
+            .grpc(
+                &source.grpc("/synthetic.Tensor/Exchange").bounded(ceiling),
+                &[8, 7],
+                |_| {
+                    received += 1;
+                    Ok(())
+                },
+            )
+            .unwrap_err();
+        if connections == 0 {
+            assert!(matches!(
+                error,
+                biomcp_fetch::RequestError::Input(biomcp_fetch::InputError::BodyLimit)
+            ));
+        } else {
+            assert!(matches!(error, biomcp_fetch::RequestError::Source(_)));
+        }
+        assert!(received <= allowed_messages);
+        assert_eq!(
+            fixture.count.load(std::sync::atomic::Ordering::SeqCst),
+            connections
+        );
+        fixture.finish()?;
+    }
+    Ok(())
+}
+
+#[test]
 fn stream_worker_offline_never_opens_a_connection() {
     let fetch = Fetch::open(FetchConfig {
         mode: Mode::Offline,

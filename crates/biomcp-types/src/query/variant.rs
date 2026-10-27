@@ -273,6 +273,8 @@ biodata::canonical_enum! {
         Gwas => "gwas",
         /// CIViC molecular-profile evidence.
         Civic => "civic",
+        /// Keyed AlphaGenome native numeric scorer values.
+        AlphaGenome => "alphagenome",
         /// Keyed OncoKB annotation with explicit tumor context and build.
         Oncokb => "oncokb",
         /// Cancer Hotspots candidate residue counts; no established exact allele join or clinical actionability.

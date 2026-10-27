@@ -142,6 +142,61 @@ fn complete_recording_replays_checked_tensors_without_connections() -> Check {
     fixture.finish()
 }
 #[test]
+fn endpoint_ceilings_refuse_recorded_requests_messages_and_cumulative_wire() -> Check {
+    let fixture = Fixture::with_messages(Hold::None, 0, false, false, messages())?;
+    let source = fixture.source(false, KeyUse::None);
+    let dir = tempfile::tempdir()?;
+    let recording = fetch(
+        &fixture,
+        Mode::Record {
+            dir: dir.path().to_owned(),
+        },
+        None,
+        Limits::default(),
+    )?;
+    assert_eq!(
+        get(&recording, source, METHOD, SCHEMA, Freshness::Never)?,
+        [1, 2, 3, 4]
+    );
+    drop(recording);
+    for limits in [
+        Limits {
+            request_bytes: 1,
+            ..Default::default()
+        },
+        Limits {
+            message_bytes: 6,
+            ..Default::default()
+        },
+        // Each message fits the derived per-message cap; their sum alone exceeds this ceiling.
+        Limits {
+            wire_bytes: 14,
+            ..Default::default()
+        },
+    ] {
+        let replay = fetch(
+            &fixture,
+            Mode::Replay {
+                dir: dir.path().to_owned(),
+            },
+            None,
+            Limits::default(),
+        )?;
+        let leg = replay.leg(source, replay.deadline(Duration::from_secs(5)));
+        let result = leg.grpc_checked(
+            &source
+                .grpc(METHOD)
+                .checked(SCHEMA, Freshness::Never)
+                .bounded(limits),
+            &[8, 7],
+            Decoder::new,
+        );
+        assert!(result.is_err());
+    }
+    assert_eq!(fixture.count.load(std::sync::atomic::Ordering::SeqCst), 1);
+    fixture.finish()
+}
+#[test]
 fn incomplete_and_failed_streams_never_enter_the_cache() -> Check {
     for (hold, status, messages) in [
         (Hold::Interrupt, 0, messages()),

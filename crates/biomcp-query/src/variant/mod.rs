@@ -1,4 +1,7 @@
 //! Published-identifier resolution with source-owned allele identity checks.
+mod alphagenome;
+mod alphagenome_join;
+mod alphagenome_page;
 pub(crate) mod assertions;
 mod civic;
 mod components;
@@ -78,6 +81,7 @@ pub fn get(cx: &Ctx<'_>, query: &VariantGet) -> Outcome {
     local = local.or(section_error);
     let mut next = next(query, resolution, &candidates, page.as_ref());
     next.extend(oncokb::next(query, &sources));
+    next.extend(alphagenome::next(&sources));
     let out = Outcome {
         status: overall(resolution, &problems, &sources),
         body: QueryBody::VariantCard(VariantCard {
@@ -118,8 +122,17 @@ pub(crate) fn resolve(
             } else {
                 input.to_owned()
             };
-            let found =
-                myvariant::lookup(leg, &term, query.build().unwrap_or(biodata::Build::GRCh37))?;
+            let build = query.build().unwrap_or_else(|| {
+                if query
+                    .sections()
+                    .contains(&biomcp_types::VariantSection::AlphaGenome)
+                {
+                    biodata::Build::GRCh38
+                } else {
+                    biodata::Build::GRCh37
+                }
+            });
+            let found = myvariant::lookup(leg, &term, build)?;
             problems.extend(found.problems);
             Ok((found.value, None))
         }
