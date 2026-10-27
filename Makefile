@@ -27,6 +27,7 @@ unreached:
 
 .PHONY: docs-check
 docs-check:
+	cargo test --locked -p biomcp --test cases article-help/executable-examples
 	python3 release/tools.py
 	python3 -m unittest release.test_tools
 	python3 scripts/check_docs.py

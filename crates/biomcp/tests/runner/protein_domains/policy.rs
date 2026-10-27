@@ -1,8 +1,7 @@
 //! Feature protein-domains-complexes: P24 offers retrieval without analysis execution.
+use super::super::CLI_HELP_BYTES;
 use super::super::mcp;
 use super::*;
-// The complete command help includes local housekeeping.
-const CLI_HELP_BYTES: usize = 106000;
 // Reviewed output budget 2026-10-26: j15358 compact RPC 7945 bytes plus fifteen percent.
 const MCP_TOOLS_BYTES: usize = 9137;
 pub(super) fn run() -> Result<(), String> {

@@ -15,6 +15,9 @@ pub(crate) fn dispatch(path: &[String]) -> io::Result<Help> {
         .filter(|c| {
             path.is_empty()
                 || c.command == path
+                || (path.len() == 1
+                    && path.first().is_some_and(|word| word == "skill")
+                    && c.command.first() == path.first())
                 || (path.len() == 1 && c.command.get(1) == path.first())
                 || (path.len() == 1
                     && path.first().is_some_and(|word| word == "author")
