@@ -1,6 +1,7 @@
 # 0324 — Run literal CLI version and offline health in the hosted release gate
 
-Status: OPEN.
+Status: COMPLETE.
+Landed: b16063bf4efa1a9205dd505b7cd19490f26bf2a0
 
 Milestone: 5
 

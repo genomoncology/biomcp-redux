@@ -78,17 +78,17 @@ jobs:
             ~/.cargo/git
             .release-cache
           key: release-${{ matrix.platform }}-${{ hashFiles('Cargo.lock', 'rust-toolchain.toml') }}
-      - name: Build and install native artifacts
+      - name: Build and install native artifacts, including CLI version and offline health
         if: runner.os != 'Linux'
         shell: bash
         run: |
-          python release/artifacts.py build --output dist
+          python release/artifacts.py build --revision "$GITHUB_SHA" --output dist
           python release/gate.py --artifacts dist --scratch "$RUNNER_TEMP/install" --python python
           cp "$RUNNER_TEMP/install/report.json" dist/install-report.json
           if [ "$RUNNER_OS" = macOS ]; then
             python -c 'import json; assert any(r["artifact"] == "homebrew-formula" and r["result"] == "pass" for r in json.load(open("dist/install-report.json")))'
           fi
-      - name: Build and install Linux artifacts at the manylinux floor
+      - name: Build and install Linux artifacts with CLI checks at the manylinux floor
         if: runner.os == 'Linux'
         env:
           BUILD_IMAGE: ${{ matrix.image }}
