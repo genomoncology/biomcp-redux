@@ -30,7 +30,7 @@ docs-check:
 	cargo test --locked -p biomcp --bin biomcp grammar::reference::reference_matches_grammar
 	cargo test --locked -p biomcp --test cases article-help/executable-examples
 	python3 release/tools.py
-	python3 -m unittest release.test_tools
+	python3 -m unittest release.test_tools release.test_linux
 	python3 scripts/check_docs.py
 	python3 scripts/test_docs.py
 	python3 scripts/test_source_capture.py
