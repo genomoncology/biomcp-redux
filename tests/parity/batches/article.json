@@ -59,6 +59,10 @@
           "reason": "Released graph serialization has bounded edges, pagination offsets and provider contexts. It has no exact graph total, current header object, no-context notice or current next-action envelope.",
           "release_source": "src/entities/article/mod.rs"
         }
+      },
+      "command_selectors": {
+        "--limit": "--limit",
+        "--offset": "--offset"
       }
     },
     {
@@ -378,6 +382,9 @@
           "reason": "Released search metadata uses a different source-plan/status schema and does not retain this current per-source term/count/notice or query shape.",
           "release_source": "src/entities/article/mod.rs"
         }
+      },
+      "command_selectors": {
+        "--author": "--author"
       }
     },
     {
@@ -442,6 +449,9 @@
           "reason": "Released search metadata uses a different source-plan/status schema and does not retain this current per-source term/count/notice or query shape.",
           "release_source": "src/entities/article/mod.rs"
         }
+      },
+      "command_selectors": {
+        "--journal": "--journal"
       }
     },
     {
@@ -516,6 +526,10 @@
           "reason": "Released Article JSON has no current lifecycle/status, action, resolution or source-problem envelope; these values cannot be inferred from source presence or complete.",
           "release_source": "src/entities/article/mod.rs"
         }
+      },
+      "command_selectors": {
+        "--until": "--until",
+        "--limit": "--limit"
       }
     },
     {
@@ -568,6 +582,10 @@
           "reason": "Released search metadata uses a different source-plan/status schema and does not retain this current per-source term/count/notice or query shape.",
           "release_source": "src/entities/article/mod.rs"
         }
+      },
+      "command_selectors": {
+        "--author": "--author",
+        "--journal": "--journal"
       }
     },
     {

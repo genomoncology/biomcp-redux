@@ -2337,6 +2337,9 @@
           "reason": "Released search metadata uses a different source-plan/status schema and does not retain this current per-source term/count/notice or query shape.",
           "release_source": "src/entities/article/mod.rs"
         }
+      },
+      "command_selectors": {
+        "--limit": "--limit"
       }
     },
     {
