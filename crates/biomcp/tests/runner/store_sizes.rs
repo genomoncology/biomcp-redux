@@ -30,6 +30,12 @@ fn measured() -> Result<(), String> {
     let folder = env.root().join("cache/biomcp");
     let active = folder.join("cache-1-5.sqlite");
     let retained = folder.join("cache-1-4.sqlite");
+    let legacy = folder.join("cache-1-3.sqlite");
+    fs::copy(&active, &legacy).map_err(|e| e.to_string())?;
+    let legacy_db = rusqlite::Connection::open(&legacy).map_err(|e| e.to_string())?;
+    legacy_db
+        .execute("UPDATE meta SET version=1 WHERE owner='biomcp-fetch'", [])
+        .map_err(|e| e.to_string())?;
     fs::copy(&active, &retained).map_err(|e| e.to_string())?;
     let db = rusqlite::Connection::open(&active).map_err(|e| e.to_string())?;
     db.execute("INSERT INTO bundle VALUES('hgnc',10,1,0,NULL,NULL)", [])
@@ -41,25 +47,26 @@ fn measured() -> Result<(), String> {
     for (path, bytes) in [
         (active.with_extension("parts"), 7),
         (retained.with_extension("parts"), 11),
+        (legacy.with_extension("parts"), 13),
     ] {
         fs::create_dir(&path).map_err(|e| e.to_string())?;
         fs::write(path.join(".tmpABC123"), vec![0; bytes]).map_err(|e| e.to_string())?;
     }
     fs::write(folder.join("unrelated"), vec![0; 99]).map_err(|e| e.to_string())?;
     let active_bytes = database_bytes(&active)?;
-    let retained_bytes = database_bytes(&retained)?;
+    let retained_bytes = database_bytes(&retained)? + database_bytes(&legacy)?;
     use std::io::Write;
     writeln!(
         std::io::stdout(),
-        "store file bytes: active={active_bytes} retained={retained_bytes} partial=18"
+        "store file bytes: active={active_bytes} retained={retained_bytes} partial=31"
     )
     .map_err(|e| e.to_string())?;
     let reply = invoke(&env, args, 0)?;
     let store = &reply["result"]["store"];
     if store["active_bytes"] != active_bytes
         || store["retained_bytes"] != retained_bytes
-        || store["partial_download_bytes"] != 18
-        || store["total_bytes"] != active_bytes + retained_bytes + 18
+        || store["partial_download_bytes"] != 31
+        || store["total_bytes"] != active_bytes + retained_bytes + 31
     {
         return Err(format!("incorrect measured storage: {store}"));
     }

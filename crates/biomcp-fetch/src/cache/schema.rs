@@ -125,12 +125,6 @@ pub(crate) fn check_current_owners(
         }),
     )
 }
-pub(crate) fn check_retained_owners(
-    connection: &Connection,
-    owners: &[SchemaOwner],
-) -> Result<(), CacheError> {
-    check_owners_at(connection, "main", owners, Some(TRANSPORT_OWNER))
-}
 pub(crate) fn check_predecessor(
     connection: &Connection,
     owners: &[SchemaOwner],
