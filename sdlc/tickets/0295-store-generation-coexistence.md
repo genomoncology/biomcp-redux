@@ -1,6 +1,7 @@
 # 0295 — Keep bundles when two query store generations coexist
 
-Status: OPEN.
+Status: COMPLETE.
+Landed: 69a380ed518e767963619ee74c684d2958ed3bc7
 
 Milestone: 5
 

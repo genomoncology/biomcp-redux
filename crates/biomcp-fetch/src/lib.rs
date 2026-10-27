@@ -88,6 +88,8 @@ pub struct FetchConfig {
     pub secrets: Secrets,
     /// Explicit SQLite cache path; absence disables storage.
     pub cache: Option<std::path::PathBuf>,
+    /// Explicit older files checked only when an allowed bundle read misses.
+    pub cache_predecessors: Vec<std::path::PathBuf>,
     /// Live request policy.
     pub mode: Mode,
     /// Owned case cache for replay writes or later offline reads.
@@ -115,6 +117,7 @@ impl Default for FetchConfig {
             disabled_uses: Default::default(),
             secrets: Secrets::default(),
             cache: None,
+            cache_predecessors: Vec::new(),
             mode: Mode::default(),
             replay_cache: None,
             proxy: None,
