@@ -30,7 +30,8 @@ class SchemaRelease(unittest.TestCase):
             candidate = Path(folder)
             archive = subprocess.check_output(["git", "archive", "--format=tar", "HEAD"], cwd=ROOT)
             with tarfile.open(fileobj=io.BytesIO(archive), mode="r:") as tree:
-                tree.extractall(candidate, filter="data")
+                # The archive contains only this repository’s committed paths.
+                tree.extractall(candidate)
             # Plant a same-major narrowing in both generated types and snapshots.
             before, after = "^[ACGTNRYSWKMBDHV]$", "^[ACGT]$"
             source = candidate / "crates/biodata/src/variant/sequence.rs"
