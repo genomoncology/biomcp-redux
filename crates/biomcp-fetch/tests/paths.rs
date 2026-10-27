@@ -248,7 +248,7 @@ fn declared_secondary_origins_are_exact_and_publisher_policy_is_explicit() {
     let template = server.spec(
         Box::leak(Box::new(Quota::new(
             SourceKey::declare("secondary-hosts"),
-            Rate::per_second(1),
+            Rate::per_second(1000),
             None,
             1,
         ))),
