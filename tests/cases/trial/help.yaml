@@ -31,7 +31,12 @@
           "--study-type",
           "--updated-since",
           "--updated-until",
-          "--variant"
+          "--variant",
+          "--format",
+          "--disable-sources",
+          "--config",
+          "--offline",
+          "--fresh"
         ],
         "/result/commands/0/arguments/26/description": "Exact variant text for registry discovery only; no eligibility judgment.",
         "/result/commands/0/arguments/4/description": "Search exact registry eligibility text for discovery only; no eligibility judgment.",
@@ -60,7 +65,12 @@
           "--offset",
           "--pool",
           "--section",
-          "--source"
+          "--source",
+          "--format",
+          "--disable-sources",
+          "--config",
+          "--offline",
+          "--fresh"
         ],
         "/result/commands/0/examples": {
           "count": 2
@@ -97,7 +107,12 @@
           "file",
           "input",
           "--replace",
-          "--save"
+          "--save",
+          "--format",
+          "--disable-sources",
+          "--config",
+          "--offline",
+          "--fresh"
         ],
         "/result/commands/0/examples": {
           "count": 2

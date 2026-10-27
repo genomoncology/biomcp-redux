@@ -1,15 +1,10 @@
 {
-  "live_check": "public",
   "feature": "generated-help",
-  "story": "Generated help documents the shipped grammar and executable examples; the whole-tree budget follows the measured output as commands are added.",
+  "live_check": "public",
   "replay": "gene/main",
   "steps": [
     {
-      "run": [
-        "help"
-      ],
       "expect": {
-        "/schema": "biomcp.help/2",
         "/result/commands/*/command": {
           "includes_all_of": [
             [
@@ -25,31 +20,17 @@
               "drug"
             ]
           ]
-        }
-      }
+        },
+        "/schema": "biomcp.help/2"
+      },
+      "run": [
+        "help"
+      ]
     },
     {
-      "run": [
-        "help",
-        "get",
-        "gene"
-      ],
-      "mcp": [
-        "help",
-        "get",
-        "gene"
-      ],
       "expect": {
-        "/result/commands/0/sections/*/word": [
-          "protein",
-          "civic",
-          "clingen",
-          "constraint",
-          "expression",
-          "pathways",
-          "oncokb",
-          "all"
-        ],
+        "/result/commands/0/arguments/0/maximum": 20,
+        "/result/commands/0/arguments/0/minimum": 1,
         "/result/commands/0/examples": [
           [
             "get",
@@ -65,29 +46,42 @@
         "/result/commands/0/section_rule": {
           "equals": "Requested section words, preserving caller order and repetitions.\nTrailing section words select sections. Use --section WORD to keep inputs that equal a section word as inputs."
         },
-        "/result/commands/0/arguments/0/minimum": 1,
-        "/result/commands/0/arguments/0/maximum": 20
+        "/result/commands/0/sections/*/word": [
+          "protein",
+          "civic",
+          "clingen",
+          "constraint",
+          "expression",
+          "pathways",
+          "oncokb",
+          "all"
+        ]
       },
-      "max_bytes": 7000
-    },
-    {
-      "run": [
-        "help",
-        "search",
-        "gene"
-      ],
+      "max_bytes": 7000,
       "mcp": [
         "help",
-        "search",
+        "get",
         "gene"
       ],
+      "run": [
+        "help",
+        "get",
+        "gene"
+      ]
+    },
+    {
       "expect": {
         "/result/commands/0/arguments/*/name": [
           "--band",
           "--limit",
           "--locus-group",
           "--offset",
-          "query"
+          "query",
+          "--format",
+          "--disable-sources",
+          "--config",
+          "--offline",
+          "--fresh"
         ],
         "/result/commands/0/examples": [
           [
@@ -102,147 +96,158 @@
           ]
         ]
       },
-      "max_bytes": 7000
+      "max_bytes": 7000,
+      "mcp": [
+        "help",
+        "search",
+        "gene"
+      ],
+      "run": [
+        "help",
+        "search",
+        "gene"
+      ]
     },
     {
-      "run": [
-        "get",
-        "gene",
-        "KRAS"
-      ],
       "expect": {
-        "/status": "complete",
-        "/result/items/0/answer/resolution": "resolved",
-        "/result/items/0/answer/gene/hgnc_id": "HGNC:6407",
-        "/result/items/0/answer/gene/symbol": "KRAS",
-        "/result/items/0/answer/match/kind": "symbol",
-        "/sources/*/source": {
-          "includes": "oncokb",
-          "excludes": "gnomad"
+        "/next/*/kind": {
+          "includes": "key"
         },
-        "/result/items/0/answer/gene/entrez_id": "3845",
         "/result/items/0/answer/gene/ensembl_id": "ENSG00000133703",
+        "/result/items/0/answer/gene/entrez_id": "3845",
+        "/result/items/0/answer/gene/hgnc_id": "HGNC:6407",
         "/result/items/0/answer/gene/location": "12p12.1",
+        "/result/items/0/answer/gene/mane/0/ensembl": "ENST00000311936.8",
+        "/result/items/0/answer/gene/mane/0/refseq": "NM_004985.5",
         "/result/items/0/answer/gene/previous_symbols": {
           "includes": "KRAS2"
         },
+        "/result/items/0/answer/gene/symbol": "KRAS",
+        "/result/items/0/answer/match/kind": "symbol",
         "/result/items/0/answer/match/text": "KRAS",
-        "/result/items/0/answer/gene/mane/0/refseq": "NM_004985.5",
-        "/result/items/0/answer/gene/mane/0/ensembl": "ENST00000311936.8",
+        "/result/items/0/answer/resolution": "resolved",
+        "/sources/*/source": {
+          "excludes": "gnomad",
+          "includes": "oncokb"
+        },
         "/sources/0/source": "hgnc",
         "/sources/1/source": "mygene",
         "/sources/2": {
           "equals": {
+            "reason": "no_key",
             "source": "oncokb",
             "state": "skipped",
-            "reason": "no_key",
-            "use": "restricted",
             "terms": "OncoKB license",
-            "terms_url": "https://faq.oncokb.org/licensing"
+            "terms_url": "https://faq.oncokb.org/licensing",
+            "use": "restricted"
           }
         },
-        "/next/*/kind": {
-          "includes": "key"
-        }
+        "/status": "complete"
       },
       "max_bytes": 2400,
       "mcp": [
         "get",
         "gene",
         "KRAS"
-      ]
-    },
-    {
+      ],
       "run": [
         "get",
         "gene",
-        "BRAF"
-      ],
+        "KRAS"
+      ]
+    },
+    {
       "expect": {
-        "/status": "complete",
-        "/result/items/0/answer/resolution": "resolved",
-        "/result/items/0/answer/gene/hgnc_id": "HGNC:1097",
-        "/result/items/0/answer/gene/symbol": "BRAF",
-        "/result/items/0/answer/match/kind": "symbol",
-        "/sources/*/source": {
-          "includes": "oncokb",
-          "excludes": "gnomad"
+        "/next/*/kind": {
+          "includes": "key"
         },
-        "/result/items/0/answer/gene/summary/text": "This gene encodes a protein belonging to the RAF family of serine/threonine protein kinases. This protein plays a role in regulating the MAP kinase/ERK signaling pathway, which affects cell division, differentiation, and secretion. Mutations in this gene, most commonly the V600E mutation, are the most frequently identified cancer-causing mutations in melanoma, and have been identified in various other cancers as well, including non-Hodgkin lymphoma, colorectal cancer, thyroid carcinoma, non-small cell lung carcinoma, hairy cell leukemia and adenocarcinoma of lung. Mutations in this gene are also associated with cardiofaciocutaneous, Noonan, and Costello syndromes, which exhibit overlapping phenotypes. A pseudogene of this gene has been identified on the X chromosome.",
-        "/result/items/0/answer/gene/summary/dated": "2017-08",
-        "/result/items/0/answer/match/text": "BRAF",
-        "/result/items/0/answer/gene/spans/0/span/start": 140719326,
-        "/result/items/0/answer/gene/spans/0/span/end": 140925199,
-        "/result/items/0/answer/gene/spans/0/build": "GRCh38",
-        "/result/items/0/answer/gene/spans/1/span/start": 140419126,
-        "/result/items/0/answer/gene/spans/1/span/end": 140624564,
-        "/result/items/0/answer/gene/spans/1/build": "GRCh37",
+        "/result/items/0/answer/gene/hgnc_id": "HGNC:1097",
         "/result/items/0/answer/gene/spans/*/strand": [
           "-",
           "-"
         ],
+        "/result/items/0/answer/gene/spans/0/build": "GRCh38",
+        "/result/items/0/answer/gene/spans/0/span/end": 140925199,
+        "/result/items/0/answer/gene/spans/0/span/start": 140719326,
+        "/result/items/0/answer/gene/spans/1/build": "GRCh37",
+        "/result/items/0/answer/gene/spans/1/span/end": 140624564,
+        "/result/items/0/answer/gene/spans/1/span/start": 140419126,
+        "/result/items/0/answer/gene/summary/dated": "2017-08",
+        "/result/items/0/answer/gene/summary/text": "This gene encodes a protein belonging to the RAF family of serine/threonine protein kinases. This protein plays a role in regulating the MAP kinase/ERK signaling pathway, which affects cell division, differentiation, and secretion. Mutations in this gene, most commonly the V600E mutation, are the most frequently identified cancer-causing mutations in melanoma, and have been identified in various other cancers as well, including non-Hodgkin lymphoma, colorectal cancer, thyroid carcinoma, non-small cell lung carcinoma, hairy cell leukemia and adenocarcinoma of lung. Mutations in this gene are also associated with cardiofaciocutaneous, Noonan, and Costello syndromes, which exhibit overlapping phenotypes. A pseudogene of this gene has been identified on the X chromosome.",
+        "/result/items/0/answer/gene/symbol": "BRAF",
+        "/result/items/0/answer/match/kind": "symbol",
+        "/result/items/0/answer/match/text": "BRAF",
+        "/result/items/0/answer/resolution": "resolved",
+        "/sources/*/source": {
+          "excludes": "gnomad",
+          "includes": "oncokb"
+        },
         "/sources/0/source": "hgnc",
         "/sources/1/source": "mygene",
         "/sources/2": {
           "equals": {
+            "reason": "no_key",
             "source": "oncokb",
             "state": "skipped",
-            "reason": "no_key",
-            "use": "restricted",
             "terms": "OncoKB license",
-            "terms_url": "https://faq.oncokb.org/licensing"
+            "terms_url": "https://faq.oncokb.org/licensing",
+            "use": "restricted"
           }
         },
-        "/next/*/kind": {
-          "includes": "key"
-        }
+        "/status": "complete"
       },
-      "max_bytes": 2800
+      "max_bytes": 2800,
+      "run": [
+        "get",
+        "gene",
+        "BRAF"
+      ]
     },
     {
+      "expect": {
+        "/page/total": 1,
+        "/result/items/0/hgnc_id": "HGNC:6407",
+        "/result/items/0/match/kind": "symbol",
+        "/status": "complete"
+      },
+      "max_bytes": 528,
       "run": [
         "search",
         "gene",
         "KRAS"
-      ],
-      "expect": {
-        "/status": "complete",
-        "/result/items/0/hgnc_id": "HGNC:6407",
-        "/result/items/0/match/kind": "symbol",
-        "/page/total": 1
-      },
-      "max_bytes": 528
+      ]
     },
     {
+      "expect": {
+        "/result/items/*/hgnc_id": [
+          "HGNC:1787",
+          "HGNC:43802"
+        ],
+        "/result/items/0/hgnc_id": "HGNC:1787"
+      },
+      "max_bytes": 780,
       "run": [
         "search",
         "gene",
         "p16"
-      ],
-      "expect": {
-        "/result/items/0/hgnc_id": "HGNC:1787",
-        "/result/items/*/hgnc_id": [
-          "HGNC:1787",
-          "HGNC:43802"
-        ]
-      },
-      "max_bytes": 780
+      ]
     },
     {
-      "run": [
-        "help",
-        "key",
-        "oncokb"
-      ],
+      "expect": {
+        "/result/environment": "ONCOKB_TOKEN",
+        "/schema": "biomcp.key/2"
+      },
       "mcp": [
         "help",
         "key",
         "oncokb"
       ],
-      "expect": {
-        "/schema": "biomcp.key/2",
-        "/result/environment": "ONCOKB_TOKEN"
-      }
+      "run": [
+        "help",
+        "key",
+        "oncokb"
+      ]
     }
-  ]
+  ],
+  "story": "Generated help documents the shipped grammar and executable examples; the whole-tree budget follows the measured output as commands are added."
 }

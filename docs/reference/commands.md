@@ -263,7 +263,7 @@ Options:
           Native author source.
 
   -q, --query <query_option>
-          
+          Literal query from the positional argument or --query.
 
       --offline
           Read local data without source requests.
@@ -280,7 +280,7 @@ Exact author name query and source window; positional text maps to query. Author
 - `--pool`: Retained page identity.
 - `query`: Exact query from the positional argument or --query.
 - `--source`: Source author source.
-- `--query`: 
+- `--query`: Exact query from the positional argument or --query.
 
 ## biomcp search cell-line
 
@@ -313,7 +313,7 @@ Options:
           Read configuration from this file.
 
   -q, --query <query_option>
-          
+          Literal source query; positional spelling and --query use the same field.
 
       --offline
           Read local data without source requests.
@@ -328,7 +328,7 @@ One exact cell line search, with source order and no total claim. An assay count
 - `--limit`: Source page size.
 - `--offset`: Source start offset.
 - `query`: Exact source query; positional spelling and --query use the same field.
-- `--query`: 
+- `--query`: Exact source query; positional spelling and --query use the same field.
 
 ## biomcp search gwas
 
@@ -4429,8 +4429,8 @@ Commands:
   network     
   sources     
   config      
-  exit        
-  relations   
+  exit        Explain process exit and error codes.
+  relations   Map entities through sections and search filters.
 
 Options:
       --format <format>
@@ -7045,6 +7045,8 @@ Options:
 ## biomcp help exit
 
 ```text
+Explain process exit and error codes.
+
 Usage: biomcp help exit [OPTIONS]
 
 Options:
@@ -7081,6 +7083,8 @@ Error codes: usage.schema, usage.arguments, usage.unknown_command, usage.retired
 ## biomcp help relations
 
 ```text
+Map entities through sections and search filters.
+
 Usage: biomcp help relations [OPTIONS]
 
 Options:

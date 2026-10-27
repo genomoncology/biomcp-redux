@@ -1,21 +1,26 @@
 {
   "feature": "disease-ols",
   "live_check": "Local generated help; no provider requests.",
-  "story": "Disease help exposes exact source selectors, independent sections and two executable examples per command.",
   "steps": [
     {
-      "run": [
-        "help",
-        "search",
-        "disease"
-      ],
-      "mcp": [
-        "help",
-        "search",
-        "disease"
-      ],
       "expect": {
-        "/status": "complete",
+        "/result/commands/0/arguments/*/name": [
+          "--limit",
+          "--offset",
+          "--ontology",
+          "--source",
+          "text",
+          "--format",
+          "--disable-sources",
+          "--config",
+          "--offline",
+          "--fresh"
+        ],
+        "/result/commands/0/arguments/2/choices": [
+          "mondo",
+          "doid",
+          "ncit"
+        ],
         "/result/commands/0/command": [
           "search",
           "disease"
@@ -23,34 +28,41 @@
         "/result/commands/0/examples": {
           "count": 2
         },
-        "/result/commands/0/arguments/*/name": [
-          "--limit",
-          "--offset",
-          "--ontology",
-          "--source",
-          "text"
-        ],
-        "/result/commands/0/arguments/2/choices": [
-          "mondo",
-          "doid",
-          "ncit"
-        ]
+        "/status": "complete"
       },
-      "max_bytes": 2311
-    },
-    {
-      "run": [
-        "help",
-        "get",
-        "disease"
-      ],
+      "max_bytes": 2311,
       "mcp": [
         "help",
-        "get",
+        "search",
         "disease"
       ],
+      "run": [
+        "help",
+        "search",
+        "disease"
+      ]
+    },
+    {
       "expect": {
-        "/status": "complete",
+        "/result/commands/0/arguments/*/name": [
+          "--age-range",
+          "--dataset",
+          "id",
+          "--interval",
+          "--ontology",
+          "--period",
+          "--race",
+          "section",
+          "--section-limit",
+          "--section-offset",
+          "--sex",
+          "--source",
+          "--format",
+          "--disable-sources",
+          "--config",
+          "--offline",
+          "--fresh"
+        ],
         "/result/commands/0/command": [
           "get",
           "disease"
@@ -67,23 +79,21 @@
           "incidence",
           "survival"
         ],
-        "/result/commands/0/arguments/*/name": [
-          "--age-range",
-          "--dataset",
-          "id",
-          "--interval",
-          "--ontology",
-          "--period",
-          "--race",
-          "section",
-          "--section-limit",
-          "--section-offset",
-          "--sex",
-          "--source"
-        ]
+        "/status": "complete"
       },
-      "max_bytes": 4433
+      "max_bytes": 4433,
+      "mcp": [
+        "help",
+        "get",
+        "disease"
+      ],
+      "run": [
+        "help",
+        "get",
+        "disease"
+      ]
     }
   ],
+  "story": "Disease help exposes exact source selectors, independent sections and two executable examples per command.",
   "verified": "Measured compact CLI and MCP parity in j12432; max_bytes is comparable bytes plus 15 percent, rounded up. Source outcome terms use the shared validated deduction; component terms remain counted. Help byte limits use j18463 output plus fifteen percent for defaults, aliases, inherited options and examples; higher existing limits remain."
 }
