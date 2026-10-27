@@ -41,7 +41,9 @@ pub(super) fn read(cx: &Ctx<'_>, query: &VariantGet, deadline: Deadline<'_>) -> 
     found
 }
 fn canonical(cx: &Ctx<'_>, deadline: Deadline<'_>, found: &mut Identity) {
-    let row = &mut found.rows[0];
+    let [row] = found.rows.as_mut_slice() else {
+        return;
+    };
     let ids: Vec<_> = row
         .identity
         .ids
