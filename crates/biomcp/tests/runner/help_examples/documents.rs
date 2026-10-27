@@ -12,10 +12,15 @@ pub(super) fn check(witnessed: &BTreeSet<Vec<String>>) -> Check {
             "/../../docs/recipes.md"
         )),
     ] {
-        for args in commands(text)? {
-            if !witnessed.contains(&args) {
-                local(&args)?;
-            }
+        check_text(witnessed, text)?;
+    }
+    Ok(())
+}
+
+fn check_text(witnessed: &BTreeSet<Vec<String>>, text: &str) -> Check {
+    for args in commands(text)? {
+        if !witnessed.contains(&args) {
+            local(&args)?;
         }
     }
     Ok(())
@@ -86,12 +91,9 @@ pub(super) fn rejects_invalid() -> Check {
     for command in [
         "biomcp nonexistent-doc-command",
         "biomcp get gene --invented-option",
+        "biomcp search drug Tibsovo --source ema",
     ] {
-        let args = commands(command)?
-            .into_iter()
-            .next()
-            .ok_or("planted command missing")?;
-        let result = local(&args);
+        let result = check_text(&BTreeSet::new(), command);
         if !result.is_err_and(|message| message.contains("exited")) {
             return Err("documentation check accepted a planted invalid command".into());
         }

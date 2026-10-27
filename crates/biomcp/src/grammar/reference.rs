@@ -1,6 +1,6 @@
 //! Render documentation from the parser, schema help and harvested case steps.
 use clap::Command;
-use std::{fmt::Write, fs, path::PathBuf};
+use std::{collections::BTreeSet, fmt::Write, fs, path::PathBuf};
 
 type Check = Result<(), Box<dyn std::error::Error>>;
 
@@ -14,7 +14,14 @@ fn documents() -> Result<Vec<(&'static str, String)>, Box<dyn std::error::Error>
         Options shown on the root command apply to its subcommands. \
         Query sections and source rules follow each command.\n\n",
     );
-    command(&mut reference, &parser, &[], &help)?;
+    let mut printed = BTreeSet::new();
+    command(&mut reference, &parser, &[], &help, &mut printed)?;
+    for entry in &help.commands {
+        if !printed.contains(&entry.command.join(" ")) {
+            writeln!(reference, "## biomcp {}\n", entry.command.join(" "))?;
+            details(&mut reference, entry)?;
+        }
+    }
     let mut recipes = String::from(
         "# Worked commands\n\nGenerated from harvested case run steps through the shipped help examples. \
         The documentation check executes these commands against recordings through CLI and MCP. \
@@ -48,9 +55,11 @@ fn command(
     parser: &Command,
     parents: &[&str],
     help: &biomcp_types::Help,
+    printed: &mut BTreeSet<String>,
 ) -> Result<(), std::fmt::Error> {
     let mut path = parents.to_vec();
     path.push(parser.get_name());
+    printed.insert(path.iter().skip(1).copied().collect::<Vec<_>>().join(" "));
     writeln!(output, "## {}\n\n```text", path.join(" "))?;
     let mut printable = parser.clone().bin_name(path.join(" "));
     writeln!(output, "{}\n```\n", printable.render_long_help())?;
@@ -61,22 +70,26 @@ fn command(
             .map(String::as_str)
             .eq(path.iter().skip(1).copied())
     }) {
-        writeln!(output, "{}\n", entry.description)?;
-        for arg in &entry.arguments {
-            writeln!(output, "- `{}`: {}", arg.name, arg.description)?;
-        }
-        if let Some(rule) = &entry.section_rule {
-            writeln!(output, "\n{rule}\n")?;
-        }
-        for section in &entry.sections {
-            writeln!(output, "- `{}`: {}", section.word, section.description)?;
-        }
-        writeln!(output)?;
+        details(output, entry)?;
     }
     for child in parser.get_subcommands() {
-        command(output, child, &path, help)?;
+        command(output, child, &path, help, printed)?;
     }
     Ok(())
+}
+
+fn details(output: &mut String, entry: &biomcp_types::HelpCommand) -> std::fmt::Result {
+    writeln!(output, "{}\n", entry.description)?;
+    for arg in &entry.arguments {
+        writeln!(output, "- `{}`: {}", arg.name, arg.description)?;
+    }
+    if let Some(rule) = &entry.section_rule {
+        writeln!(output, "\n{rule}\n")?;
+    }
+    for section in &entry.sections {
+        writeln!(output, "- `{}`: {}", section.word, section.description)?;
+    }
+    writeln!(output)
 }
 
 fn root() -> PathBuf {

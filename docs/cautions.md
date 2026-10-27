@@ -1,51 +1,121 @@
 # Source and entity cautions
 
-BioMCP preserves source claims and their scope. Each source outcome reports its use category, terms name and publisher page, including skipped and failed outcomes. A source category grants no rights in individual records. Source-local absence does not establish entity absence. Retrieval time does not establish a dataset release. Independent sources retain independent outcomes.
+## Article text and supplement saves
 
-## Variants
+CLI saves require `--replace` for existing files. Stdio MCP allows new-file saves and refuses `--save` with `--replace` before provider requests or file changes. HTTP server calls refuse saves. CLI and stdio MCP saves belong to the caller and create no download directory or saved-file registry.
 
-Variant searches return candidates in native order. No candidate becomes a chosen allele. Coordinates retain only the assembly stated by the source. Raw source queries remain unchanged. Protein and raw searches send no assembly unless one is supplied.
+## Trial documents
 
-Normalization services return independent outcomes and never choose a transcript or consensus. Provider validation warnings can reject a successful HTTP reply. VariantValidator requires a build.
+The reply preserves the source URL, document metadata and license without granting reuse rights. Documents are downloaded as bounded PDF bytes and never read as text.
 
-CIViC checked member matches preserve complete compound profiles and claim context. Name matches remain candidates. Hotspot residue counts state neither allele frequency nor clinical actionability. Rows without an established transcript and consequence join remain candidates. Cancer Hotspots reuse terms remain unverified.
+## Variant profiles, normalization and search
 
-Historical COSMIC fragments retain MyVariant parent identities, native spelling, snapshot versions, source warnings and component terms. Their identity remains unverified. They do not establish that a fragment and its parent describe the same allele. Prediction and conservation measurements retain source labels, contexts and versions. Published frequencies retain their native units and denominators without inference.
+A checked member match preserves the full compound profile and its source claim context. Name matches remain candidates. Claims that the common model cannot represent retain their native facts. Rows marked `candidate` with `no_join_id` have no established transcript and consequence join to the requested variant. These residue counts do not state an allele frequency or clinical actionability. Cancer Hotspots data reuse terms remain unverified. VariantValidator and `all` require `--build GRCh37|GRCh38`. Each service keeps its own outcome, source mappings, messages and available version metadata. A provider validation warning can reject an HTTP 200 reply. `all` returns independent results and never chooses a transcript or consensus. Mapping and message pages use `--limit` and `--offset`; typed next commands keep the remaining rows reachable. Gene and protein values are escaped as source literals. The reply echoes the exact source query and assembly and keeps native candidate order and totals. Protein and raw searches send no assembly unless `--build` supplies one. Returned coordinates retain only the assembly stated by the source. Page actions retain every selector; a warm page uses the ordinary checked cache. Broad queries disclose the command's result-window bound. No candidate becomes a chosen allele.
 
-Source-native ClinVar and ClinGen assertions preserve disagreements and historical version links. Nested evidence stays available through source links. Population joins require one source-given GRCh38 single-nucleotide allele. Exome and genome records remain independent. Typed population frequency requires a matching source release and allele counts from the same reply. Missing datasets stay absent and reported zero stays zero. BioMCP computes no frequency and never sums overlapping ancestry and sex groups.
+## Cohort recurrence
 
-Cohort recurrence counts distinct matched samples on the selected native mutation page. A selected sample-list size supplies no assayed denominator. Missing genome builds and uncertain insertion or deletion representations remain problems. Study-specific reuse terms remain unverified.
+The result counts distinct matched samples on that page. `selected_sample_count` is the source sample-list size and supplies no assayed denominator. The source may omit that count from its summary metadata. Missing genome builds and uncertain insertion or deletion representations remain problems. The reply preserves study metadata and flags study-specific reuse terms as unverified.
 
-## Trials and articles
+## Historical COSMIC fragments
 
-ClinicalTrials.gov and NCI retain their own statuses and counts. Trial document manifests retain metadata and source links. Document downloads preserve bounded PDF bytes and do not read their text.
+Each fragment names its MyVariant parent record, preserves the component's original spellings and reports its identity as unverified. The reply shows the snapshot version, source upload date, source warning and component terms. It does not establish that the fragment and parent describe the same allele. Source frequencies retain their published values without inferred units or denominators.
 
-Article full text comes from supported JATS sources. PDF links and downloads do not provide PDF text extraction. Explicit saves return destination, byte count, SHA-256, license and source URL. Existing CLI files require explicit replacement. Stdio permits new-file saves; HTTP refuses saves. Publisher access and a download grant no additional reuse rights.
+## Prediction, conservation and source assertions
 
-Author IDs identify provider records rather than resolved people. Counts cover each provider record. Missing metadata remains unavailable. Cross-provider merging and topic-wide author ranking remain unavailable.
+Every component is on by default. Commercial users should set `"disable_sources": ["noncommercial", "restricted"]` in the configuration file. The same groups work with `--disable-sources`. Groups switch off matching component fields while other aggregator fields remain available. Naming `myvariant` switches off the entire service. These settings apply before requests and prevent disabled values from returning through cached replies or replay. Public API access grants no additional component rights. The retired `predictions` spelling names `predict` as its replacement. Select a native assertion ID and version to inspect its source details. Source-local absence does not establish allele absence. Selected historical records include an exact version link and compact native assessments. A conflict flag preserves disagreements between source outcome labels and identifiers; the original nested evidence remains behind the source link.
 
-## Pharmacogenomics and safety reports
+## Population counts
 
-CPIC rows retain source labels and declared diplotype expressions. BioMCP calculates no phase, activity score, phenotype or treatment. Published website updates may precede API tables. ClinPGx reference rows contain no full guidance; absent min-tier fields remain unsupported. Accessions and numeric annotation IDs stay separate. An observed collection total does not claim a server-wide total. Both sources use the noncommercial source policy.
+The population join requires one source-given GRCh38 single-nucleotide allele. Missing or ambiguous join information produces a problem before gnomAD is called. Exome and genome records remain independent. The source selector does not establish a dataset release. Each request also asks for the source VA cohort release and counts. A typed population-frequency record requires that same response to supply a release for the matching total cohort and matching allele counts. Replies preserve native counts and report a problem when the release is missing or the counts disagree. A missing dataset stays absent; a reported zero stays zero. BioMCP does not compute a frequency from counts or sum overlapping ancestry and sex groups.
 
-FAERS, MAUDE and VAERS report counts state neither incidence, risk nor causation. Report roles belong to their original drug rows. Report identifiers do not establish marketed-product identity. Narrative text supplies no inferred diagnosis. Native event, receipt and report dates stay distinct. CVX identity lookup and synchronization remain unavailable because no mapping to WONDER was proved.
+## Variant GWAS associations
 
-## Diagnostics and products
+An exact rsID needs no allele-resolution request. Association pages retain the source study, trait and effect allele with the source's effect estimates. An empty result means the catalog returned no associations for that request. It supplies no clinical classification. Named source sections use `--section-limit` and `--section-offset` independently of identity candidate paging.
 
-A GTR listing describes source membership and laboratory submissions. It establishes neither variant coverage, clinical availability, FDA authorization nor NIH endorsement. Conflicting identities have no selected card.
+## CPIC and FAERS searches
 
-PMA approval, 510(k) clearance, WHO prequalification and GTR listing remain independent source facts. A supplement decision belongs to its submission alone. Companion-table links remain separate from PMA approval records. A companion row supplies no treatment recommendation. A source record alone establishes no clinical suitability.
+Named `recommendations` and `guidelines` sections preserve complete source rows and use `--section-limit` and `--section-offset`. An exact `--drug-id RxNorm:10324` on CYP2D6 recommendations selects the distinct native recommendation table. These commands preserve source labels and source-local empty replies. They calculate no phase, activity score, phenotype or treatment. Published website updates may precede the API tables; a retrieval date does not establish a dataset release. CPIC uses the registry's noncommercial policy ruling. The reply retains the exact source expression, native order and report total. A report total is not incidence, risk or causation. Publisher dates and retrieval dates have separate roles.
 
-WHO rows preserve native names, codes, strengths, dates and regulatory text. WHO prequalification establishes neither US nor EU authorization. WHO diagnostic terms reserve commercial and substantial reproduction rights. The finished-product export's reuse grant remains unverified, so that source is restricted.
+## Vaccine identity
 
-## Studies and related entities
+CVX vaccine identity lookup and sync are unavailable because no mapping to WONDER was proved. BioMCP does not translate vaccine identities or synchronize a CVX bundle.
 
-Study catalogs contain metadata only. File references preserve native size and license links without downloading data files. Source counts keep their names. BioMCP computes no frequency, denominator, survival or comparison. Gene-count rows and patient totals remain unavailable where the source lacks a gene-row filter.
+## FAERS report sections
 
-Phenotype synonyms, cross references and hierarchy links supply no clinical equivalence. Empty source arrays remain empty and missing fields stay unavailable.
+The drug index is its absolute position in the report. Missing retained reports offer an explicit restart. Drug roles belong to each original drug row, and reaction labels carry separate MedDRA terms. Report counts and identifiers do not establish causation or a marketed-product identity.
 
-Protein domains retain native location groups, fragments and match types. Native totals stay separate from selected totals. Complex membership requires an exact native protein participant; search text and descriptions establish no membership. Predicted flags and non-protein members remain source facts.
+## Local bundles
 
-Pathway gene members retain native namespaces, identifiers and node identities. Exact approved HGNC mappings offer gene pivots; labels and aliases never resolve an identifier. Totals count data nodes rather than distinct genes.
+HGNC and ClinGen reads can synchronize absent or stale bundles under `auto_sync_max_bytes`. Offline mode never synchronizes. EMA, GTR, WHO and cBioPortal studies read explicitly synchronized stored bundles and never synchronize on read. Missing stored bundles offer an explicit sync command; stale stored rows remain readable with a stale marker.
 
-Cell-line cards preserve source disease and species references and complete stock-qualified warnings. Source omissions establish no negative biological finding. ChEMBL metadata uses an exact Cellosaurus accession join. Assay counts supply neither activity nor drug sensitivity. Composite reads never request assay counts. PharmacoDB drug response remains deferred pending a published reuse grant. HPA expression remains deferred pending an exact cell identity join.
+## GTR search
+
+Diagnostic reads use the stored pair and never synchronize it. Combine one relation selector with the native `--type` value. Search pages count distinct accession/version identities and preserve the relation that matched. Conflicting identities have no selected card.
+
+## GTR cards
+
+The `genes`, `conditions` and `methods` sections page independent native rows with `--section-limit` and `--section-offset`. Relation pages distinguish native row totals from distinct identifier totals. A GTR listing states source membership and laboratory submission facts; it does not establish variant coverage, clinical availability, FDA authorization or NIH endorsement.
+
+## ClinPGx and MAUDE sections
+
+The observed total counts the complete received collection and does not claim a server-wide total. Reference rows do not contain full guidance. Fields absent from the min tier remain unsupported; absence does not state a negative clinical finding. ClinPGx accessions and numeric annotation IDs remain separate. ClinPGx uses the registry's noncommercial policy ruling. The `devices` and `narrative` sections retain whole source rows and use `--section-limit` and `--section-offset`. Section commands carry a retained snapshot so a walk cannot mix report versions. A missing snapshot offers an explicit restart. Native event, received and report dates remain distinct. Narrative text supplies no inferred diagnosis. A disabled source or component cannot return through cache or replay.
+
+## WHO diagnostic cards
+
+Each row retains its whole name, code, assay format, manufacturer, marker, regulatory-version text and prequalification year. Reads use the stored export and never synchronize it. WHO cards have no section command. WHO terms reserve commercial and substantial reproduction rights; `--disable-sources noncommercial` disables stored cards, searches and synchronization.
+
+## PMA submissions and supplements
+
+The `regulatory` section pages the selected row’s original statement fragments; the base-only `supplements` section returns five native headers per page. Missing supplements return source-local absence. A supplement’s decision belongs to that submission alone. Exact companion-table links remain separate from PMA approval records.
+
+## FDA companion tables
+
+Rows retain their whole cells and original links. Biomarker selection is unsupported for the group table. A companion row is not a treatment recommendation.
+
+## FDA clearance records
+
+It keeps the source decision fields and offers its exact companion-table selector. It has no sections or free-text search. PMA approval, 510(k) clearance, WHO prequalification and GTR listing remain independent source facts. A listing is not authorization. No source record establishes clinical suitability by itself.
+
+## WHO finished products
+
+Reads never download. Results preserve native combined INN, dosage-form and strength text, empty cells and original dates. WHO prequalification does not establish US or EU authorization. The export-specific reuse grant is unverified, so the source is restricted and links WHO's copyright policy.
+
+## WHO diagnostic search
+
+Both selectors match literal whole words in their native columns, ignore case and combine on the same source row. Search returns five product headers by default and groups repeated code rows by exact WHO Product ID. Reads never download or synchronize. A WHO listing does not establish FDA authorization or clinical suitability.
+
+## Study metadata
+
+Text matches literally and case-insensitively in native study IDs, names and descriptions; cancer-type codes remain case-sensitive. Reads never synchronize. Missing or stale copies offer an explicit sync command. Returned page commands retain the catalog revision and every selector. cBioPortal remains restricted under its publisher terms. The catalog contains metadata only. File references preserve repository blob size and native LICENSE links without downloading data files. Source counts keep their native names. No frequency, denominator, survival or comparison is calculated. Gene-count rows and patient totals remain deferred because the source lacks a gene-row filter.
+
+## Phenotype sections
+
+Each section returns five rows by default; `--section-limit` and `--section-offset` select a local page. Missing source fields remain unavailable, and empty source arrays remain empty collections. A synonym, cross reference or hierarchy link supplies no clinical equivalence.
+
+## GWAS thresholds
+
+The walk stops at the first above-threshold row or the source end and then states the qualifying total. The source total remains separate. Thresholds use scientific notation and must be positive; no sort option is available.
+
+## GWAS records
+
+Select `associations` for a native association page or `ancestries` for a local page of the complete received ancestry collection. The commands retain source sample prose and effect labels without reconciliation or clinical interpretation.
+
+## Protein domains
+
+Entries keep every location group and fragment. Families, sites and superfamilies retain their original types. The native count stays separate from the selected count.
+
+## Protein complexes and pathway members
+
+Each header keeps its predicted flag and actual participant count. Search text and descriptions establish no membership. Non-protein members remain source facts. Disabled sources supply neither retained rows nor card actions. Members preserve native xref namespaces, values and node identities. Exact approved HGNC mappings offer gene pivots; labels and aliases never resolve an identifier. Totals count data nodes rather than distinct genes, and source failures remain visible.
+
+## Cell-line identity
+
+Names remain unchanged and results do not claim a total. The card preserves entry dates, source disease/species references and complete stock-qualified warnings. Publisher release metadata and retrieval time remain separate. Cellosaurus uses CC BY 4.0 with attribution; source omissions do not establish a negative biological finding.
+
+## ChEMBL cell metadata
+
+The reply preserves native names, tissue, organism, taxon and optional EFO/CLO identifiers. Metadata never requests assays. The total counts assays only and supplies no activity, experiment or drug sensitivity estimate. ChEMBL uses CC BY-SA 3.0. Its independently cached release metadata and labelled retrieval time remain separate.
+
+## Cell-line sections
+
+Each source keeps its own outcome and release dates. Composite reads never request assay counts. PharmacoDB drug response remains deferred until a data reuse grant is published, and the HPA expression route remains deferred until an exact cell identity join exists.
