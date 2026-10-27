@@ -1,7 +1,15 @@
 //! Native Article API review never authorizes asset or publisher-origin requests.
 // Released src/cli/article/{dispatch,assets,export,workflow}.rs route these operations.
 pub(super) fn validate(args: &[String]) -> Result<(), String> {
-    let words = args.iter().map(String::as_str).collect::<Vec<_>>();
+    let batch_entity = args.get(1).map(|entity| entity.trim().to_ascii_lowercase());
+    let mut words = args.iter().map(String::as_str).collect::<Vec<_>>();
+    // Released batch preflight normalizes its free-form entity before dispatch.
+    if words.first() == Some(&"batch")
+        && let Some(entity) = batch_entity.as_deref()
+        && let Some(word) = words.get_mut(1)
+    {
+        *word = entity;
+    }
     let allowed = match words.as_slice() {
         ["search", "article", ..] => true,
         ["get", "article", _id, sections @ ..] => sections.iter().all(|s| native_section(s)),
@@ -29,7 +37,7 @@ fn native_section(section: &str) -> bool {
 fn native_batch(mut options: &[&str]) -> bool {
     while let [flag, value, rest @ ..] = options {
         if !match *flag {
-            "--mode" => matches!(*value, "compact" | "full"),
+            "--mode" => matches!(*value, "compact" | "detail"),
             "--sections" => value.split(',').all(native_section),
             _ => false,
         } {
@@ -42,6 +50,7 @@ fn native_batch(mut options: &[&str]) -> bool {
 
 pub(super) fn trial() -> libtest_mimic::Trial {
     libtest_mimic::Trial::test("parity/native-article-operation-containment", || {
+        batch_aliases()?;
         for (command, allowed) in [
             (vec!["get", "article", "123"], true),
             (vec!["get", "article", "123", "annotations", "tldr"], true),
@@ -51,7 +60,7 @@ pub(super) fn trial() -> libtest_mimic::Trial {
                     "article",
                     "123",
                     "--mode",
-                    "full",
+                    "detail",
                     "--sections",
                     "annotations",
                 ],
@@ -78,7 +87,7 @@ pub(super) fn trial() -> libtest_mimic::Trial {
                     "article",
                     "123",
                     "--mode",
-                    "full",
+                    "detail",
                     "--sections",
                     "assets",
                 ],
@@ -103,4 +112,30 @@ pub(super) fn trial() -> libtest_mimic::Trial {
         }
         Ok(())
     })
+}
+
+fn batch_aliases() -> Result<(), Box<dyn std::error::Error + Send + Sync>> {
+    for entity in ["ARTICLE", " article ", "Article"] {
+        for section in ["fulltext", "FULLTEXT", " all "] {
+            let args = [
+                "batch",
+                entity,
+                "123",
+                "--mode",
+                "detail",
+                "--sections",
+                section,
+                "--pdf",
+            ]
+            .map(str::to_owned);
+            if validate(&args).is_ok() {
+                return Err("normalized batch entity bypassed native API containment".into());
+            }
+        }
+    }
+    let args = ["batch", "article", "123", "--mode", "full"].map(str::to_owned);
+    if validate(&args).is_ok() {
+        return Err("unknown released Article batch mode accepted".into());
+    }
+    Ok(())
 }

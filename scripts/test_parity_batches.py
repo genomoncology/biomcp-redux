@@ -100,10 +100,12 @@ def inventory(out):
     (out / 'inventory.log').write_bytes(result.stdout + result.stderr)
     report = json.loads(destination.read_text())
     classes = report['classes']
-    assert report['unsafe_plans'] == classes.get('unclassified', 0) == 0, classes
-    gaps = classes.get('pending_family', 0) + classes.get('sequence_gap', 0)
+    assert report['unsafe_plans'] == 0, classes
+    for row in report['cases']:
+        if row['class'] == 'unclassified':
+            assert row.get('missing_projections') and not row.get('unsafe_reason'), row
+    gaps = sum(row['gaps'] for row in report['cases'])
     assert gaps == report['assessment_gaps']
-    assert gaps == sum(row['gaps'] for row in report['cases'])
     assert (result.returncode != 0) == (gaps > 0)
     owners = {}
     for row in report['cases']:
