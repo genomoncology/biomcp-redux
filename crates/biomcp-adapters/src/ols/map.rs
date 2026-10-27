@@ -129,7 +129,7 @@ fn synonyms(term: &raw::Term, attribution: &Attribution) -> Mapped<Vec<DiseaseSy
         if native.is_some_and(|s| s.scope.is_some()) && scope.is_none() {
             mapped.problems.push(problem(
                 Source::Ols,
-                record_text(term.obo_id),
+                record_text(&term.obo_id),
                 "synonym.scope",
             ));
         }
@@ -151,7 +151,7 @@ fn xrefs(term: &raw::Term, attribution: &Attribution) -> Mapped<Vec<DiseaseRelat
         let Ok(id) = format!("{}:{}", native.database, native.id).parse() else {
             mapped
                 .problems
-                .push(problem(Source::Ols, record_text(term.obo_id), "xref.id"));
+                .push(problem(Source::Ols, record_text(&term.obo_id), "xref.id"));
             continue;
         };
         let Ok(predicate) = "oboInOwl:hasDbXref".parse() else {
