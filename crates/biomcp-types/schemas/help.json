@@ -30,12 +30,26 @@
       "additionalProperties": false,
       "description": "One schema argument, retaining its bounds and position.",
       "properties": {
+        "aliases": {
+          "description": "Alternative accepted flags.",
+          "items": {
+            "type": "string"
+          },
+          "type": "array"
+        },
         "choices": {
           "description": "Allowed scalar values.",
           "items": {
             "type": "string"
           },
           "type": "array"
+        },
+        "default": {
+          "description": "Value used when the argument is omitted.",
+          "type": [
+            "string",
+            "null"
+          ]
         },
         "description": {
           "description": "Field documentation.",
