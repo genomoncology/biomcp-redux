@@ -225,6 +225,7 @@ impl Leg<'_> {
             return Err(InputError::Method.into());
         }
         if ep.publisher {
+            self.spec.admit(&ep.path, true)?;
             let uri = ep
                 .path
                 .parse::<ureq::http::Uri>()
