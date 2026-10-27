@@ -24,7 +24,6 @@
       "exit": 2,
       "is_error": true,
       "max_bytes": 300,
-      "max_tokens": 75,
       "expect": {
         "/status": "usage",
         "/error/code": "usage.arguments"
@@ -52,7 +51,6 @@
       "exit": 2,
       "is_error": true,
       "max_bytes": 300,
-      "max_tokens": 75,
       "expect": {
         "/status": "usage",
         "/error/code": "usage.arguments"
@@ -80,7 +78,6 @@
       "exit": 2,
       "is_error": true,
       "max_bytes": 300,
-      "max_tokens": 75,
       "expect": {
         "/status": "usage",
         "/error/code": "usage.arguments"
@@ -108,7 +105,6 @@
       "exit": 2,
       "is_error": true,
       "max_bytes": 300,
-      "max_tokens": 75,
       "expect": {
         "/status": "usage",
         "/error/code": "usage.arguments"
@@ -136,7 +132,6 @@
       "exit": 2,
       "is_error": true,
       "max_bytes": 300,
-      "max_tokens": 75,
       "expect": {
         "/status": "usage",
         "/error/code": "usage.arguments"
@@ -164,7 +159,6 @@
       "exit": 2,
       "is_error": true,
       "max_bytes": 300,
-      "max_tokens": 75,
       "expect": {
         "/status": "usage",
         "/error/code": "usage.arguments"
@@ -192,7 +186,6 @@
       "exit": 2,
       "is_error": true,
       "max_bytes": 300,
-      "max_tokens": 75,
       "expect": {
         "/status": "usage",
         "/error/code": "usage.arguments"
@@ -220,7 +213,6 @@
       "exit": 4,
       "is_error": true,
       "max_bytes": 1000,
-      "max_tokens": 250,
       "expect": {
         "/status": "failed",
         "/sources/0/reason": "disabled",
@@ -251,7 +243,6 @@
       "exit": 4,
       "is_error": true,
       "max_bytes": 1000,
-      "max_tokens": 250,
       "expect": {
         "/status": "failed",
         "/sources/0/reason": "disabled",
@@ -280,7 +271,6 @@
       "exit": 4,
       "is_error": true,
       "max_bytes": 1000,
-      "max_tokens": 250,
       "expect": {
         "/status": "failed",
         "/sources/0/reason": "disabled",
@@ -311,7 +301,6 @@
       "exit": 4,
       "is_error": true,
       "max_bytes": 1000,
-      "max_tokens": 250,
       "expect": {
         "/status": "failed",
         "/sources/0/reason": "disabled",

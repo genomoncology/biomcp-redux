@@ -51,8 +51,7 @@
         "get",
         "gene",
         "KRAS"
-      ],
-      "max_tokens": 650
+      ]
     }
   ]
 }

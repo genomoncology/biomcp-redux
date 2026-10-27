@@ -1,6 +1,7 @@
 # 0352 — Write the PATH-resolved executable into generated MCP configs
 
-Status: OPEN.
+Status: COMPLETE.
+Landed: 2e8b963e3b38db85c6c72fa89601d33bd997188c
 
 Milestone: 5
 

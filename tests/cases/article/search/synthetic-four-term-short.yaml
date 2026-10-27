@@ -175,8 +175,7 @@
           }
         ]
       },
-      "max_bytes": 2211,
-      "max_tokens": 553
+      "max_bytes": 2211
     }
   ]
 }

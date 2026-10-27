@@ -10,6 +10,7 @@
       "type": "string"
     },
     "ClinPgxAccession": {
+      "description": "A ClinPGx object accession, distinct from the protein allele namespace PaId.",
       "pattern": "^PA[1-9][0-9]*$",
       "type": "string"
     },
@@ -342,6 +343,7 @@
       "properties": {
         "_url": {
           "description": "Native `_url`; literal source value.",
+          "format": "uri",
           "type": "string"
         },
         "id": {
@@ -1067,6 +1069,7 @@
         },
         "terms_url": {
           "description": "Publisher page documenting the terms.",
+          "format": "uri",
           "type": "string"
         },
         "use": {
