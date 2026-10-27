@@ -291,21 +291,21 @@ def main():
         parser.error('invalid nightly settings at ' + str(settings_path) + ': ' + str(error))
     parser.add_argument('--host', default=os.environ.get(
         'BIOMCP_EVIDENCE_HOST', settings.get('host')))
-    parser.add_argument('--evidence-dir', type=Path,
+    parser.add_argument('--evidence-dir',
                         default=os.environ.get('BIOMCP_EVIDENCE_DIR', settings.get('evidence_dir')))
-    parser.add_argument('--scratch-dir', type=Path,
+    parser.add_argument('--scratch-dir',
                         default=os.environ.get('BIOMCP_SCRATCH_DIR', settings.get('scratch_dir')))
     args = parser.parse_args()
-    if not args.host or args.evidence_dir is None or args.scratch_dir is None:
+    if not args.host or not args.evidence_dir or not args.scratch_dir:
         parser.error('supply --host, --evidence-dir and --scratch-dir or their BIOMCP environment settings')
-    scratch_root = args.scratch_dir
+    scratch_root = Path(args.scratch_dir)
     scratch_root.mkdir(parents=True, exist_ok=True)
     scratch = Path(tempfile.mkdtemp(prefix=datetime.datetime.now(
         datetime.timezone.utc).strftime('%Y%m%dT%H%M%SZ-'), dir=scratch_root))
     print('Owned scratch: ' + str(scratch), flush=True)
     try:
         failed = run_check(scratch)
-        deliver(scratch, args.host, args.evidence_dir)
+        deliver(scratch, args.host, Path(args.evidence_dir))
     except (OSError, ValueError, KeyError, subprocess.SubprocessError) as error:
         print('Nightly check failed; retained scratch: ' + str(scratch) + ': ' + str(error),
               file=sys.stderr)
