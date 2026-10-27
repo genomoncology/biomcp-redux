@@ -5,6 +5,10 @@ use serde::{Deserialize, Serialize};
 #[serde(deny_unknown_fields)]
 #[cfg_attr(feature = "schema", derive(schemars::JsonSchema))]
 pub struct ClinGenGene {
+    /// Outcome of the gene–disease validity source read.
+    pub validity_status: crate::SourceOutcome,
+    /// Outcome of the dosage sensitivity source read.
+    pub dosage_status: crate::SourceOutcome,
     /// Whole gene–disease validity records in file order.
     pub validity: Box<[ClinGenValidity]>,
     /// Source haploinsufficiency assessment, when a dosage record exists.

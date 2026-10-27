@@ -223,6 +223,11 @@ impl SectionValue {
         match self {
             Self::Protein(value) => matches!(value, Section::Unavailable { .. }),
             Self::Civic(value) => matches!(value, Section::Unavailable { .. }),
+            Self::ClinGen(Section::Data { data, .. }) => {
+                [&data.validity_status, &data.dosage_status]
+                    .into_iter()
+                    .any(|outcome| outcome.state != SourceState::Ok)
+            }
             Self::ClinGen(value) => matches!(value, Section::Unavailable { .. }),
             Self::Constraint(value) => matches!(value, Section::Unavailable { .. }),
             Self::Expression(value) => matches!(value, Section::Unavailable { .. }),
