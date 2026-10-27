@@ -34,6 +34,10 @@ fn measured() -> Result<(), String> {
     let db = rusqlite::Connection::open(&active).map_err(|e| e.to_string())?;
     db.execute("INSERT INTO bundle VALUES('hgnc',10,1,0,NULL,NULL)", [])
         .map_err(|e| e.to_string())?;
+    let retained_db = rusqlite::Connection::open(&retained).map_err(|e| e.to_string())?;
+    retained_db
+        .execute("INSERT INTO bundle VALUES('hgnc',10,1,0,NULL,NULL)", [])
+        .map_err(|e| e.to_string())?;
     for (path, bytes) in [
         (active.with_extension("parts"), 7),
         (retained.with_extension("parts"), 11),
@@ -44,6 +48,12 @@ fn measured() -> Result<(), String> {
     fs::write(folder.join("unrelated"), vec![0; 99]).map_err(|e| e.to_string())?;
     let active_bytes = database_bytes(&active)?;
     let retained_bytes = database_bytes(&retained)?;
+    use std::io::Write;
+    writeln!(
+        std::io::stdout(),
+        "store file bytes: active={active_bytes} retained={retained_bytes} partial=18"
+    )
+    .map_err(|e| e.to_string())?;
     let reply = invoke(&env, args, 0)?;
     let store = &reply["result"]["store"];
     if store["active_bytes"] != active_bytes
