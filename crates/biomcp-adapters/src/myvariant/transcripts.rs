@@ -43,6 +43,10 @@ pub(super) fn map(
         problems.push(problem());
         return Box::default();
     };
+    let Ok(component) = Text::new(FIELD) else {
+        problems.push(problem());
+        return Box::default();
+    };
     let mut rows = Vec::new();
     for annotation in ann.values() {
         let Some(a) = annotation.value() else {
@@ -66,7 +70,7 @@ pub(super) fn map(
         }
         rows.push(VariantTranscript {
             source: Source::MyVariant,
-            component: Text::new(FIELD).expect("static component"),
+            component: component.clone(),
             transcript: a.feature_id,
             gene: a.genename,
             hgvs_c: a.hgvs_c,
@@ -75,4 +79,12 @@ pub(super) fn map(
         });
     }
     rows.into()
+}
+
+pub(super) fn label() -> Option<biomcp_types::ComponentLabel> {
+    let declaration = super::components::SNPEFF;
+    Text::new(declaration.name)
+        .ok()
+        .zip(super::components::label(declaration.terms).ok())
+        .map(|(component, terms)| biomcp_types::ComponentLabel { component, terms })
 }

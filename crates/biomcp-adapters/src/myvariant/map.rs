@@ -43,11 +43,7 @@ pub(super) fn candidates(
         let transcripts =
             super::transcripts::map(hit.snpeff.filter(|_| allow_snpeff), &hit.id, &mut problems);
         if !transcripts.is_empty() {
-            component_terms.push(biomcp_types::ComponentLabel {
-                component: Text::new("snpeff").expect("static component"),
-                terms: super::components::label(super::components::SNPEFF.terms)
-                    .expect("static terms"),
-            });
+            component_terms.extend(super::transcripts::label());
         }
         let mut genes = Vec::new();
         if let Some(source_genes) = hit.dbsnp.and_then(|d| d.gene) {
