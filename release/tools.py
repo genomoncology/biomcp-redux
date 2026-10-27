@@ -16,9 +16,9 @@ def declared(root):
     if re.sub(r"\s+", "", assembly) != "->Vec<Value>{letmuttools=vec![tool()];tools.extend(super::research::tools());tools}":
         raise ValueError("unrecognized server tool assembly")
     names = re.findall(r'"name"\s*:\s*"([a-z][a-z0-9_-]*)"', primary)
-    rows = re.fullmatch(r'\s*->\s*Vec<Value>\s*\{\s*\[(.*?)\]\s*\.into_iter\(\)\.map\(\|\(name,\s*key,\s*description,\s*schema\)\|\s*\{.*\}\)\.collect\(\)\s*\}\s*', projections, re.S)
-    string = r'"(?:[^"\\]|\\.)*"'
-    row = r'\(\s*(' + string + r')\s*,\s*' + string + r'\s*,\s*' + string + r'\s*,\s*' + string + r'\s*\)'
+    rows = re.fullmatch(r'\s*->\s*Vec<Value>\s*\{\s*\[(.*?)\]\s*\.into_iter\(\)\s*\.map\(\|\(name,\s*key,\s*description,\s*schema\)\|\s*\{.*\}\)\s*\.collect\(\)\s*\}\s*', projections, re.S)
+    string = r'"(?:[^"\\]|\\[\s\S])*"'
+    row = r'\(\s*(' + string + r')\s*,\s*' + string + r'\s*,\s*' + string + r'\s*,\s*' + string + r'\s*,?\s*\)'
     if len(names) != 1 or not rows or not re.fullmatch(r'\s*' + row + r'(?:\s*,\s*' + row + r')*\s*,?\s*', rows[1]):
         raise ValueError("unrecognized server tool declarations")
     names += [json.loads(match[1]) for match in re.finditer(row, rows[1])]
