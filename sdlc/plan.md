@@ -30,7 +30,7 @@ Robustness and public-text fixes come first, because the parity run, the docs an
 
 - Carry the 0.9 release pipeline over, with publication gated on Ian's approval (0289).
 - Compare schemas with the last released copy (0290).
-- AlphaGenome: Ian approved the streaming gRPC transport. Build it in the shared fetch layer with zero provider calls: codec (0320), worker (0321), persistence (0322), then cost and target proof (0323); then the variant section with one clinically chosen capture (0198). It joins 1.0 if ready with the rest, otherwise a 1.0 update.
+- AlphaGenome: Ian approved the streaming gRPC transport. Build it in the shared fetch layer with zero provider calls: codec (0320), worker (0321), persistence (0322), then cost and target proof (0323), source and key registration with a narrow request encoder (0333); then the variant section with one clinically chosen capture (0198). It joins 1.0 if ready with the rest, otherwise a 1.0 update.
 
 ### 5. Rehearse and release
 
