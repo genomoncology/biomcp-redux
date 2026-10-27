@@ -59,27 +59,12 @@ pub(super) fn command_for(name: &'static str, schema: &Value) -> Result<Command,
         command = command.arg(if property_type(property) == Some("boolean") {
             argument.action(ArgAction::SetTrue)
         } else {
-            argument.allow_negative_numbers(true).value_parser(
-                clap::builder::StringValueParser::new().try_map({
-                    let integer = property_type(property) == Some("integer");
-                    let minimum = property.get("minimum").and_then(Value::as_u64);
-                    let maximum = property.get("maximum").and_then(Value::as_u64);
-                    move |value: String| {
-                        if integer
-                            && !value.parse::<u64>().is_ok_and(|n| {
-                                minimum.is_none_or(|min| n >= min)
-                                    && maximum.is_none_or(|max| n <= max)
-                            })
-                        {
-                            Err("expected an integer within the supported range")
-                        } else {
-                            Ok(value)
-                        }
-                    }
-                }),
-            )
+            value_argument(argument, property)
         });
     }
+    aliases(name, schema, command)
+}
+fn aliases(name: &str, schema: &Value, mut command: Command) -> Result<Command, ()> {
     if matches!(name, "cell-line" | "author") && properties(schema)?.contains_key("query") {
         command = command
             .mut_arg("query", |arg| {
@@ -105,4 +90,26 @@ pub(super) fn command_for(name: &'static str, schema: &Value) -> Result<Command,
     } else {
         command
     })
+}
+
+fn value_argument(argument: Arg, property: &Value) -> Arg {
+    argument.allow_negative_numbers(true).value_parser(
+        clap::builder::StringValueParser::new().try_map({
+            let integer = property_type(property) == Some("integer");
+            let minimum = property.get("minimum").and_then(Value::as_u64);
+            let maximum = property.get("maximum").and_then(Value::as_u64);
+            move |value: String| {
+                if integer
+                    && !value.parse::<u64>().is_ok_and(|n| {
+                        minimum.is_none_or(|min| n >= min)
+                            && maximum.is_none_or(|max| n <= max)
+                    })
+                {
+                    Err("expected an integer within the supported range")
+                } else {
+                    Ok(value)
+                }
+            }
+        }),
+    )
 }
