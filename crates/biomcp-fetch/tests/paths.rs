@@ -176,3 +176,24 @@ fn raw_segments_encode_identifier_delimiters_once_and_preserve_literal_identity(
     }
     assert!(server.requests.try_recv().is_err());
 }
+
+#[test]
+fn undeclared_download_host_is_refused_before_replay_admission() {
+    let server = Server::new();
+    let spec = server.spec(
+        Box::leak(Box::new(Quota::new(
+            SourceKey::declare("host-admission"), Rate::per_second(1), None, 1,
+        ))),
+        KeyUse::None,
+    );
+    let directory = tempfile::tempdir().unwrap();
+    let fetch = Fetch::open(FetchConfig {
+        mode: Mode::Replay { dir: directory.path().to_owned() },
+        ..Default::default()
+    }).unwrap();
+    let endpoint = spec.download("https://undeclared.example/data").unwrap();
+    let error = fetch.leg(spec, fetch.deadline(Duration::from_secs(1)))
+        .json::<Answer>(&endpoint, &[]).unwrap_err();
+    assert_eq!(error.to_string(), "fetch.input_host");
+    assert!(server.requests.try_recv().is_err());
+}
