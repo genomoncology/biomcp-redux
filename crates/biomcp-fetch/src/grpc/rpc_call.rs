@@ -13,7 +13,7 @@ pub(super) async fn execute(
     tls: std::sync::Arc<rustls::ClientConfig>,
 ) -> Result<(), Reason> {
     let socket = connect::open(&command.uri, command.proxy.as_ref(), tls, command.limits).await?;
-    let (single, connection) = h2_service::establish(socket, command.limits)
+    let (single, connection) = h2_service::establish(socket, command.limits, command.state.clone())
         .await
         .map_err(|_| Reason::Unavailable)?;
     let call = stream(command, single);
@@ -91,7 +91,10 @@ pub(super) async fn deliver(sender: &SyncSender<Event>, mut event: Event) -> Res
     }
 }
 fn status(status: tonic::Status) -> Reason {
-    match status.code() {
+    code_reason(status.code() as u8)
+}
+pub(super) fn code_reason(code: u8) -> Reason {
+    match tonic::Code::from_i32(i32::from(code)) {
         tonic::Code::DeadlineExceeded | tonic::Code::Cancelled => Reason::DeadlineExceeded,
         tonic::Code::ResourceExhausted => Reason::RateLimited,
         tonic::Code::PermissionDenied | tonic::Code::Unauthenticated => Reason::Rejected,

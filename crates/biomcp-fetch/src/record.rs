@@ -14,6 +14,8 @@ use std::{
     time::Duration,
 };
 
+#[path = "record_rpc.rs"]
+pub(crate) mod rpc;
 #[path = "record_sidecar.rs"]
 mod sidecar;
 const MAX_FILE_BYTES: u64 = 16 * 1024 * 1024;
@@ -168,6 +170,8 @@ struct Recording {
 #[derive(Clone, Debug, Serialize, Deserialize)]
 #[serde(deny_unknown_fields)]
 pub(crate) struct Exchange {
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub(crate) rpc: Option<rpc::Rpc>,
     #[serde(default)]
     pub(crate) fetched: i64,
     pub(crate) status: u16,
@@ -229,7 +233,8 @@ impl Body {
 }
 impl Exchange {
     fn valid(&self) -> bool {
-        (100..=599).contains(&self.status)
+        self.rpc.as_ref().is_none_or(rpc::Rpc::valid)
+            && (100..=599).contains(&self.status)
             && self
                 .pagination
                 .as_ref()

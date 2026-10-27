@@ -43,6 +43,7 @@ pub(super) async fn deadline(deadline: &LocalDeadline) {
 pub(super) struct CallState {
     phase: AtomicU8,
     outcome: OnceLock<Result<(), biomcp_types::Reason>>,
+    terminal: OnceLock<u8>,
 }
 impl CallState {
     pub(super) fn begin(&self) -> bool {
@@ -55,6 +56,12 @@ impl CallState {
     }
     pub(super) fn outcome(&self) -> Option<Result<(), biomcp_types::Reason>> {
         self.outcome.get().copied()
+    }
+    pub(super) fn terminal(&self) -> Option<u8> {
+        self.terminal.get().copied()
+    }
+    pub(super) fn set_terminal(&self, code: u8) {
+        self.terminal.get_or_init(|| code);
     }
     pub(super) fn finish(&self) {
         self.phase.store(2, Ordering::Release);

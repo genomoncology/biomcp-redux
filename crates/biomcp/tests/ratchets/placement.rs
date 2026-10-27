@@ -180,6 +180,18 @@ const ALLOWED: &[(&str, &str)] = &[
         "Exercise transport ownership, local server behavior and cache/record failures through its public API.",
     ),
     (
+        "crates/biomcp-fetch/tests/grpc_persistence.rs",
+        "Exercise checked RPC cache admission and bounded recording replay through the public transport API.",
+    ),
+    (
+        "crates/biomcp-fetch/tests/grpc_persistence/policy.rs",
+        "Exercise credential containment, concurrent stream capture and atomic publication through the public transport API.",
+    ),
+    (
+        "crates/biomcp-fetch/tests/grpc_persistence/process.rs",
+        "Exercise ordinary checked reply cache reuse from an isolated second process through the public transport API.",
+    ),
+    (
         "crates/biomcp-fetch/tests/grpc_worker.rs",
         "Exercise blocking streaming RPC admission, local TLS HTTP/2, proxy routing, deadlines and cancellation through the public transport API.",
     ),
