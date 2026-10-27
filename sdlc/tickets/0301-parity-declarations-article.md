@@ -1,6 +1,7 @@
 # 0301 — Declare Article parity plans for 0.9.3
 
-Status: OPEN.
+Status: COMPLETE.
+Landed: f22487bc80ed7d12c2520d9cd25cd5a91cb78497
 
 Milestone: 5
 
