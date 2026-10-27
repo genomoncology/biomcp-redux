@@ -1,6 +1,7 @@
 # 0315 — Keep the Linux install gate report as complete JSON
 
-Status: OPEN.
+Status: COMPLETE.
+Landed: 6d3da755263f85f857c5b2373f9f8feb2d8104b2
 
 Milestone: 5
 

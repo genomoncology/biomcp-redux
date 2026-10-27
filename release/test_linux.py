@@ -12,24 +12,60 @@ import unittest
 from release.smoke import environment
 
 ROOT = Path(__file__).resolve().parents[1]
-DOCKER = r'''import hashlib, io, json, os, pathlib, sys, tarfile
+REPORT = [
+    {"artifact": "wheel", "result": "pass", "checks": ["candidate-bytes", "schemas"]},
+    {"artifact": "homebrew-formula", "result": "deferred", "reason": "Homebrew is unavailable"},
+]
+GATE = r'''import argparse, json, pathlib
+parser = argparse.ArgumentParser()
+parser.add_argument('--scratch', type=pathlib.Path)
+parser.add_argument('--report', type=pathlib.Path)
+args, _ = parser.parse_known_args()
+report = json.dumps(ROWS, indent=2) + '\n'
+(args.report or args.scratch / 'report.json').write_text(report)
+print('installed checks completed')
+print(report, end='')
+print('gate complete')
+'''
+DOCKER = r'''import hashlib, io, json, os, pathlib, shutil, subprocess, sys, tarfile, tempfile
 args = sys.argv[1:]
 with open(os.environ['DOCKER_RECORD'], 'a') as stream:
     stream.write(json.dumps(args) + '\n')
+if args[0] == 'save':
+    pathlib.Path(args[args.index('-o') + 1]).write_bytes(b'container archive')
 if args[0] != 'run':
     sys.exit(0)
 if '/bin/bash' in args:
     if '/artifacts:ro' not in ' '.join(args):
-        pathlib.Path('dist').mkdir()
+        # Docker must receive a caller-owned output directory before it creates files.
+        output = pathlib.Path('dist')
+        assert output.is_dir(), 'caller must create dist before the first bind mount'
+        assert output.stat().st_uid == os.getuid()
+        assert '--user' not in args and '-u' not in args
         pathlib.Path('dist/release.json').write_text('{"version":"1.0.0"}')
         with tarfile.open('dist/biomcp-linux-x86_64.tar.gz', 'w:gz') as archive:
             info = tarfile.TarInfo('biomcp')
             info.size = 9
             archive.addfile(info, io.BytesIO(b'candidate'))
+        # Model default root-owned container contents without requiring a daemon.
+        # The host can add an archive but cannot rewrite these artifact files.
+        for artifact in output.iterdir():
+            artifact.chmod(0o444)
         pathlib.Path('proof/fixtures').mkdir(parents=True)
         pathlib.Path('proof/case-runner').touch()
+        gate = pathlib.Path('proof/tools/release/gate.py')
+        gate.parent.mkdir(parents=True)
+        gate.write_text(os.environ['GATE_FIXTURE'])
     else:
-        print('[]')
+        # Execute the installation shell with mounted paths and disposable storage.
+        with tempfile.TemporaryDirectory() as container:
+            script = args[-1].replace('/tmp/check', container + '/check')
+            mounts = [args[index + 1] for index, value in enumerate(args) if value == '-v']
+            for mount in mounts:
+                host, target, *options = mount.split(':')
+                script = script.replace(target, host)
+            subprocess.run(['/bin/bash', '-c', script], check=True)
+        assert not pathlib.Path(container).exists()
 elif '/usr/bin/sha256sum' in args:
     print(hashlib.sha256(b'candidate').hexdigest(), '/usr/local/bin/biomcp')
 elif args[-2:] == ['schema', 'biodata.problem/1']:
@@ -61,6 +97,7 @@ class LinuxContainers(unittest.TestCase):
             docker = bindir / 'docker'
             docker.write_text('#!' + sys.executable + '\n' + DOCKER)
             docker.chmod(0o755)
+            (bindir / 'python').symlink_to(sys.executable)
             subprocess.run(['git', 'init', '-q', str(root)], check=True)
             subprocess.run(['git', '-C', str(root), '-c', 'user.name=Fixture',
                             '-c', 'user.email=fixture@example.org', 'commit',
@@ -68,11 +105,19 @@ class LinuxContainers(unittest.TestCase):
             record = root / 'docker.jsonl'
             env = environment(root)
             env.update(PATH=str(bindir) + os.pathsep + os.environ['PATH'],
-                       BUILD_IMAGE='build-image', DOCKER_RECORD=str(record))
+                       BUILD_IMAGE='build-image', DOCKER_RECORD=str(record),
+                       GATE_FIXTURE='ROWS = ' + repr(REPORT) + '\n' + GATE)
             result = subprocess.run(['make', 'release-linux', 'CONTAINER_ARGS=' + shlex.join(extra).replace('$', '$$')],
                                     cwd=root, env=env, capture_output=True, text=True)
             self.assertEqual(result.returncode, 0, result.stdout + result.stderr)
             self.assertFalse((root / 'injected').exists())
+            self.assertEqual((root / 'dist/biomcp-container-amd64.tar').read_bytes(),
+                             b'container archive')
+            self.assertEqual((root / 'dist/release.json').stat().st_mode & 0o222, 0)
+            # The Docker process removed its temporary installation tree before returning.
+            report = root / 'dist/install-report.json'
+            self.assertEqual(json.loads(report.read_text()), REPORT)
+            self.assertGreater(len(report.read_text().splitlines()), 2)
             return [json.loads(line) for line in record.read_text().splitlines()]
 
     def test_every_started_container_receives_only_the_callers_extra_arguments(self):
