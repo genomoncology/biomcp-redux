@@ -397,7 +397,7 @@ fn metadata() -> Result<(), String> {
     Ok(())
 }
 fn metadata_body(request: &str) -> Result<String, String> {
-    if !request.contains("%2Cchrom%2Chg19%2Chg38&assembly=hg38 HTTP/1.1") {
+    if !request.contains("%2Cchrom%2Chg19%2Chg38%2Csnpeff.ann&assembly=hg38 HTTP/1.1") {
         return Err(format!("source metadata fields missing: {request}"));
     }
     let index = request

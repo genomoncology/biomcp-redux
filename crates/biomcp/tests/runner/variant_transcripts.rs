@@ -70,7 +70,7 @@ fn transcripts() -> Result<(), String> {
         .output()
         .map_err(|e| e.to_string())?;
     let markdown = String::from_utf8_lossy(&markdown.stdout);
-    if !markdown.contains("NM_001199291.2") || !markdown.contains("p.His515Arg") {
+    if !markdown.contains("NM\\_001199291&#46;2") || !markdown.contains("p&#46;His515Arg") {
         return Err(format!("readable card lost transcript rows: {markdown}"));
     }
     let excluded = run(
