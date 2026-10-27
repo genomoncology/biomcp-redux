@@ -12,7 +12,7 @@ kind: reference
 verified: 2026-10-27
 ---
 
-BioMCP 1.0.0 prints one JSON object, the reply, for each command. [`biomcp get drug interactions`](/reference/commands/get-drug/) replies with `schema` set to `biomcp.drug_interactions/3`. Read this page when your code parses that reply. It shows a real reply, then the fields that only this schema has. The fields every reply shares are on [reply envelope and shared types](/reference/schemas/types/).
+BioMCP 1.0.0 prints one JSON object, the reply, for each command. [`biomcp get drug interactions`](/reference/commands/get-drug/) replies with `schema` set to `biomcp.drug_interactions/3`. Read this page when your code parses that reply: it shows a real one, then the fields only this schema has. [Shared types](/reference/schemas/types/) defines the rest.
 
 ## Commands that return it
 
@@ -26,7 +26,7 @@ biomcp get drug DDInter1925 interactions --source ddinter --section-limit 3
 
 ## Example reply
 
-`biomcp get drug DDInter1925 interactions --source ddinter --section-limit 3` returned this reply on 2026-10-27. Lists show their first items, and a line that starts with … counts the items left out. Text that ends in … is cut.
+`biomcp get drug DDInter1925 interactions --source ddinter --section-limit 3` returned this on 2026-10-27. Lists show their first items; a line with … counts the rest, and text ending in … is cut.
 
 ```json
 {
@@ -48,22 +48,7 @@ biomcp get drug DDInter1925 interactions --source ddinter --section-limit 3
     "interactions": {
       "state": "data",
       "source": "ddinter",
-      "data": {
-        "records": [
-          {
-            "anchor": {…},
-            "partner": {…},
-            "level": "Moderate",
-            "attribution": {…},
-            "additional_attributions": […]
-          },
-          … 2 more
-        ],
-        "offset": 0,
-        "total": 536,
-        "version": "sha256:228ca125347df55af5f94cf51f1d2d841db77ea924f9a97cf7…",
-        "retrieved": "2026-10-27"
-      }
+      "data": {…}
     }
   },
   "page": {"offset": 0, "returned": 3, "total": 536},
@@ -84,12 +69,12 @@ biomcp get drug DDInter1925 interactions --source ddinter --section-limit 3
         "--section-offset", "3",
         … 2 more
       ]
-    }
-  ]
-}
+…
 ```
 
 ## Fields
+
+A field marked Optional can be missing from a reply. Every other field is always there.
 
 `result` holds [DrugInteractions](#druginteractions). `query` holds [DrugGet](/reference/schemas/types/#drugget), a shared type. `query` repeats the request as BioMCP read it.
 
@@ -97,23 +82,23 @@ biomcp get drug DDInter1925 interactions --source ddinter --section-limit 3
 
 Native DDInter partner rows and levels without invented management text.
 
-| Field | Type | Always present | Meaning |
-| --- | --- | --- | --- |
-| `identity` | [DrugHeader](/reference/schemas/types/#drugheader) | yes | Selected native identity, checked independently of section facts. |
-| `interactions` | [Section](/reference/schemas/types/#section) of [DrugRecords](/reference/schemas/types/#drugrecords) of [DrugInteractionClaim](#druginteractionclaim) | yes | Existing typed section state, preserving empty, unavailable and skipped outcomes. |
+| Field | Type | Meaning |
+| --- | --- | --- |
+| `identity` | [DrugHeader](/reference/schemas/types/#drugheader) | Selected native identity, checked independently of section facts. |
+| `interactions` | [Section](/reference/schemas/types/#section) of [DrugRecords](/reference/schemas/types/#drugrecords) of [DrugInteractionClaim](#druginteractionclaim) | Existing typed section state, preserving empty, unavailable and skipped outcomes. |
 
 ### DrugInteractionClaim
 
 One native interaction pair and level, without invented management advice.
 
-| Field | Type | Always present | Meaning |
-| --- | --- | --- | --- |
-| `additional_attributions` | list of [Attribution](/reference/schemas/types/#attribution) | no | Further distinct provenance, excluding the primary attribution. |
-| `anchor` | [DrugIdentity](/reference/schemas/types/#drugidentity) | yes | Selected native anchor ID and name. |
-| `attribution` | [Attribution](/reference/schemas/types/#attribution) | yes | Primary pair record and [bundle](/local-data/) provenance. |
-| `level` | [Text](/reference/schemas/types/#text) | yes | Original native level, without a computed severity. |
-| `partner` | [DrugIdentity](/reference/schemas/types/#drugidentity) | yes | Native partner ID and name. |
+| Field | Type | Meaning |
+| --- | --- | --- |
+| `additional_attributions` | list of [Attribution](/reference/schemas/types/#attribution) | Further distinct provenance, excluding the primary attribution. Optional. |
+| `anchor` | [DrugIdentity](/reference/schemas/types/#drugidentity) | Selected native anchor ID and name. |
+| `attribution` | [Attribution](/reference/schemas/types/#attribution) | Primary pair record and [bundle](/local-data/) provenance. |
+| `level` | [Text](/reference/schemas/types/#text) | Original native level, without a computed severity. |
+| `partner` | [DrugIdentity](/reference/schemas/types/#drugidentity) | Native partner ID and name. |
 
 ## Next
 
-[Reply envelope and shared types](/reference/schemas/types/) defines `status`, `sources`, `next` and every shared type. [Reply schemas](/reference/schemas/) lists every reply. [`biomcp get drug`](/reference/commands/get-drug/) gives the command's arguments.
+[`biomcp get drug`](/reference/commands/get-drug/) gives the command's arguments; [reply schemas](/reference/schemas/) lists every reply.

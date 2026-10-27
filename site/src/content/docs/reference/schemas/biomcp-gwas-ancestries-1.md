@@ -11,7 +11,7 @@ kind: reference
 verified: 2026-10-27
 ---
 
-BioMCP 1.0.0 prints one JSON object, the reply, for each command. [`biomcp get gwas ancestries`](/reference/commands/get-gwas/) replies with `schema` set to `biomcp.gwas_ancestries/1`. Read this page when your code parses that reply. It shows a real reply, then the fields that only this schema has. The fields every reply shares are on [reply envelope and shared types](/reference/schemas/types/).
+BioMCP 1.0.0 prints one JSON object, the reply, for each command. [`biomcp get gwas ancestries`](/reference/commands/get-gwas/) replies with `schema` set to `biomcp.gwas_ancestries/1`. Read this page when your code parses that reply: it shows a real one, then the fields only this schema has. [Shared types](/reference/schemas/types/) defines the rest.
 
 ## Commands that return it
 
@@ -25,7 +25,7 @@ biomcp get gwas GCST000035 ancestries
 
 ## Example reply
 
-`biomcp get gwas GCST000035 ancestries` returned this reply on 2026-10-27. Lists show their first items, and a line that starts with … counts the items left out. Text that ends in … is cut.
+`biomcp get gwas GCST000035 ancestries` returned this on 2026-10-27. Lists show their first items; a line with … counts the rest, and text ending in … is cut.
 
 ```json
 {
@@ -46,18 +46,10 @@ biomcp get gwas GCST000035 ancestries
         "number_of_individuals": 48565,
         "ancestry_groups": ["European"],
         "country_of_origin": [
-          {
-            "country": "NR",
-            "major_area": "NR",
-            "region": "NR"
-          }
+          {"country": "NR", "major_area": "NR", "region": "NR"}
         ],
         "country_of_recruitment": [
-          {
-            "country": "Finland",
-            "major_area": "Europe",
-            "region": "Northern Europe"
-          },
+          {…},
           … 11 more
         ],
         "source_url": "https://www.ebi.ac.uk/gwas/rest/api/v2/studies/GCST0000…"
@@ -80,41 +72,43 @@ biomcp get gwas GCST000035 ancestries
 
 ## Fields
 
+A field marked Optional can be missing from a reply. Every other field is always there.
+
 `result` holds [GwasAncestries](#gwasancestries). `query` holds [GwasGet](/reference/schemas/types/#gwasget), a shared type. `query` repeats the request as BioMCP read it.
 
 ### GwasAncestries
 
 Bounded retained ancestry relation for one exact study.
 
-| Field | Type | Always present | Meaning |
-| --- | --- | --- | --- |
-| `continuation` | [GwasGet](/reference/schemas/types/#gwasget) | no | Retained relation continuation. |
-| `items` | list of [GwasAncestry](#gwasancestry) | yes | Independent source rows. |
-| `study` | [GwasStudyId](/reference/schemas/types/#gwasstudyid) | yes | Exact owning study. |
+| Field | Type | Meaning |
+| --- | --- | --- |
+| `continuation` | [GwasGet](/reference/schemas/types/#gwasget) | Retained relation continuation. Optional. |
+| `items` | list of [GwasAncestry](#gwasancestry) | Independent source rows. |
+| `study` | [GwasStudyId](/reference/schemas/types/#gwasstudyid) | Exact owning study. |
 
 ### GwasAncestry
 
 One independent source ancestry row; counts are never summed.
 
-| Field | Type | Always present | Meaning |
-| --- | --- | --- | --- |
-| `ancestry_groups` | list of [Text](/reference/schemas/types/#text) | yes | Original ancestry group labels. |
-| `country_of_origin` | list of [GwasCountry](#gwascountry) | yes | Native origin metadata. |
-| `country_of_recruitment` | list of [GwasCountry](#gwascountry) | yes | Native recruitment metadata. |
-| `number_of_individuals` | integer or null | no | Source row count; no unique-person denominator is inferred. |
-| `source_url` | [Text](/reference/schemas/types/#text) | yes | Native row self link, checked against its owning study by the adapter. |
-| `stage` | [Text](/reference/schemas/types/#text) | yes | Native discovery or replication stage. |
+| Field | Type | Meaning |
+| --- | --- | --- |
+| `ancestry_groups` | list of [Text](/reference/schemas/types/#text) | Original ancestry group labels. |
+| `country_of_origin` | list of [GwasCountry](#gwascountry) | Native origin metadata. |
+| `country_of_recruitment` | list of [GwasCountry](#gwascountry) | Native recruitment metadata. |
+| `number_of_individuals` | integer or null | Source row count; no unique-person denominator is inferred. Optional. |
+| `source_url` | [Text](/reference/schemas/types/#text) | Native row self link, checked against its owning study by the adapter. |
+| `stage` | [Text](/reference/schemas/types/#text) | Native discovery or replication stage. |
 
 ### GwasCountry
 
 Native country and region metadata.
 
-| Field | Type | Always present | Meaning |
-| --- | --- | --- | --- |
-| `country` | [Text](/reference/schemas/types/#text) | yes | Original country label including NR. |
-| `major_area` | [Text](/reference/schemas/types/#text) or null | no | Native source major area when supplied. |
-| `region` | [Text](/reference/schemas/types/#text) or null | no | Original region label when supplied. |
+| Field | Type | Meaning |
+| --- | --- | --- |
+| `country` | [Text](/reference/schemas/types/#text) | Original country label including NR. |
+| `major_area` | [Text](/reference/schemas/types/#text) or null | Native source major area when supplied. Optional. |
+| `region` | [Text](/reference/schemas/types/#text) or null | Original region label when supplied. Optional. |
 
 ## Next
 
-[Reply envelope and shared types](/reference/schemas/types/) defines `status`, `sources`, `next` and every shared type. [Reply schemas](/reference/schemas/) lists every reply. [`biomcp get gwas`](/reference/commands/get-gwas/) gives the command's arguments.
+[`biomcp get gwas`](/reference/commands/get-gwas/) gives the command's arguments; [reply schemas](/reference/schemas/) lists every reply.

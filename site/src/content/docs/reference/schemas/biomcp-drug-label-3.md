@@ -11,7 +11,7 @@ kind: reference
 verified: 2026-10-27
 ---
 
-BioMCP 1.0.0 prints one JSON object, the reply, for each command. [`biomcp get drug label`](/reference/commands/get-drug/) replies with `schema` set to `biomcp.drug_label/3`. Read this page when your code parses that reply. It shows a real reply, then the fields that only this schema has. The fields every reply shares are on [reply envelope and shared types](/reference/schemas/types/).
+BioMCP 1.0.0 prints one JSON object, the reply, for each command. [`biomcp get drug label`](/reference/commands/get-drug/) replies with `schema` set to `biomcp.drug_label/3`. Read this page when your code parses that reply: it shows a real one, then the fields only this schema has. [Shared types](/reference/schemas/types/) defines the rest.
 
 ## Commands that return it
 
@@ -26,7 +26,7 @@ biomcp get drug 13a65923-d072-4dac-8620-8eabbf8c3641 label \
 
 ## Example reply
 
-`biomcp get drug 13a65923-d072-4dac-8620-8eabbf8c3641 label --label-section indications_and_usage --source openfda-label` returned this reply on 2026-10-27. Lists show their first items, and a line that starts with … counts the items left out. Text that ends in … is cut.
+`biomcp get drug 13a65923-d072-4dac-8620-8eabbf8c3641 label --label-section indications_and_usage --source openfda-label` returned this on 2026-10-27. Lists show their first items; a line with … counts the rest, and text ending in … is cut.
 
 ```json
 {
@@ -50,28 +50,7 @@ biomcp get drug 13a65923-d072-4dac-8620-8eabbf8c3641 label \
     "label": {
       "state": "data",
       "source": "openfda-label",
-      "data": {
-        "label": {
-          "id": "13a65923-d072-4dac-8620-8eabbf8c3641",
-          "version": "1",
-          "revised": "2026-08-27",
-          "url": "https://dailymed.nlm.nih.gov/dailymed/drugInfo.cfm?setid=13…",
-          "attribution": {
-            "source": "openfda-label",
-            "record": "107d4cd9-2e5e-419d-9449-7ef84f5fbcc9",
-            "version": "1",
-            "url": "https://dailymed.nlm.nih.gov/dailymed/drugInfo.cfm?setid=1…"
-          }
-        },
-        "heading": "indications_and_usage",
-        "text": "1 INDICATIONS AND USAGE RASONQUE is indicated for the treatm…",
-        "retrieved": "2026-10-27",
-        "fragments": [
-          {"source_part": 0, "source_offset": 0, "characters": 494}
-        ],
-        "offset": 0,
-        "total": 1
-      }
+      "data": {…}
     }
   },
   "page": {"offset": 0, "returned": 1, "total": 1},
@@ -91,53 +70,55 @@ biomcp get drug 13a65923-d072-4dac-8620-8eabbf8c3641 label \
 
 ## Fields
 
+A field marked Optional can be missing from a reply. Every other field is always there.
+
 `result` holds [DrugLabel](#druglabel). `query` holds [DrugGet](/reference/schemas/types/#drugget), a shared type. `query` repeats the request as BioMCP read it.
 
 ### DrugLabel
 
 One explicit native label heading and text continuation.
 
-| Field | Type | Always present | Meaning |
-| --- | --- | --- | --- |
-| `identity` | [DrugHeader](/reference/schemas/types/#drugheader) | yes | Selected native identity, checked independently of section facts. |
-| `label` | [Section](/reference/schemas/types/#section) of [DrugLabelText](#druglabeltext) | yes | Existing typed section state, preserving empty, unavailable and skipped outcomes. |
+| Field | Type | Meaning |
+| --- | --- | --- |
+| `identity` | [DrugHeader](/reference/schemas/types/#drugheader) | Selected native identity, checked independently of section facts. |
+| `label` | [Section](/reference/schemas/types/#section) of [DrugLabelText](#druglabeltext) | Existing typed section state, preserving empty, unavailable and skipped outcomes. |
 
 ### DrugLabelFragment
 
 One slice of a native label array element, partitioning the page's unchanged text.
 
-| Field | Type | Always present | Meaning |
-| --- | --- | --- | --- |
-| `characters` | integer (uint32) | yes | Consecutive Unicode scalars consumed from the page text for this fragment. |
-| `source_offset` | integer (uint32) | yes | Unicode scalar offset inside that original array element. |
-| `source_part` | integer (uint32) | yes | Zero-based native array element; empty elements have a zero-character fragment. |
+| Field | Type | Meaning |
+| --- | --- | --- |
+| `characters` | integer (uint32) | Consecutive Unicode scalars consumed from the page text for this fragment. |
+| `source_offset` | integer (uint32) | Unicode scalar offset inside that original array element. |
+| `source_part` | integer (uint32) | Zero-based native array element; empty elements have a zero-character fragment. |
 
 ### DrugLabelReference
 
 One independently identified label set and revision.
 
-| Field | Type | Always present | Meaning |
-| --- | --- | --- | --- |
-| `attribution` | [Attribution](/reference/schemas/types/#attribution) | yes | Label provenance. |
-| `id` | [DrugId](/reference/schemas/types/#drugid) | yes | Published SPL set or native label record ID. |
-| `revised` | [PartialDate](/reference/schemas/types/#partialdate) or null | no | Source-stated revision date. |
-| `url` | [Text](/reference/schemas/types/#text) or null | no | Native label URL. |
-| `version` | [Text](/reference/schemas/types/#text) or null | no | Native label revision. |
+| Field | Type | Meaning |
+| --- | --- | --- |
+| `attribution` | [Attribution](/reference/schemas/types/#attribution) | Label provenance. |
+| `id` | [DrugId](/reference/schemas/types/#drugid) | Published SPL set or native label record ID. |
+| `revised` | [PartialDate](/reference/schemas/types/#partialdate) or null | Source-stated revision date. Optional. |
+| `url` | [Text](/reference/schemas/types/#text) or null | Native label URL. Optional. |
+| `version` | [Text](/reference/schemas/types/#text) or null | Native label revision. Optional. |
 
 ### DrugLabelText
 
 A mechanical continuation of one native label heading.
 
-| Field | Type | Always present | Meaning |
-| --- | --- | --- | --- |
-| `fragments` | list of [DrugLabelFragment](#druglabelfragment) | yes | Native array boundaries; consume the flat text in this order without separators. |
-| `heading` | [Text](/reference/schemas/types/#text) | yes | Exact native label heading. |
-| `label` | [DrugLabelReference](#druglabelreference) | yes | Exact source label set and revision. |
-| `offset` | integer (uint32) | yes | Zero-based bounded text fragment offset; section_limit is a maximum fragment count. |
-| `retrieved` | [PartialDate](/reference/schemas/types/#partialdate) or null | no | Original source reply retrieval date; absent for legacy captures without a timestamp. |
-| `text` | string | yes | Original text slice, preserving whitespace and wording. |
-| `total` | integer or null | no | Total bounded text fragments, including fragments for empty native array elements. |
+| Field | Type | Meaning |
+| --- | --- | --- |
+| `fragments` | list of [DrugLabelFragment](#druglabelfragment) | Native array boundaries; consume the flat text in this order without separators. |
+| `heading` | [Text](/reference/schemas/types/#text) | Exact native label heading. |
+| `label` | [DrugLabelReference](#druglabelreference) | Exact source label set and revision. |
+| `offset` | integer (uint32) | Zero-based bounded text fragment offset; section_limit is a maximum fragment count. |
+| `retrieved` | [PartialDate](/reference/schemas/types/#partialdate) or null | Original source reply retrieval date; absent for legacy captures without a timestamp. Optional. |
+| `text` | string | Original text slice, preserving whitespace and wording. |
+| `total` | integer or null | Total bounded text fragments, including fragments for empty native array elements. Optional. |
 
 ## Next
 
-[Reply envelope and shared types](/reference/schemas/types/) defines `status`, `sources`, `next` and every shared type. [Reply schemas](/reference/schemas/) lists every reply. [`biomcp get drug`](/reference/commands/get-drug/) gives the command's arguments.
+[`biomcp get drug`](/reference/commands/get-drug/) gives the command's arguments; [reply schemas](/reference/schemas/) lists every reply.

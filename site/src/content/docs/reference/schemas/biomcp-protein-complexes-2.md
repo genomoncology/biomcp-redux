@@ -11,7 +11,7 @@ kind: reference
 verified: 2026-10-27
 ---
 
-BioMCP 1.0.0 prints one JSON object, the reply, for each command. [`biomcp protein complexes`](/reference/commands/protein-complexes/) replies with `schema` set to `biomcp.protein_complexes/2`. Read this page when your code parses that reply. It shows a real reply, then the fields that only this schema has. The fields every reply shares are on [reply envelope and shared types](/reference/schemas/types/).
+BioMCP 1.0.0 prints one JSON object, the reply, for each command. [`biomcp protein complexes`](/reference/commands/protein-complexes/) replies with `schema` set to `biomcp.protein_complexes/2`. Read this page when your code parses that reply: it shows a real one, then the fields only this schema has. [Shared types](/reference/schemas/types/) defines the rest.
 
 ## Commands that return it
 
@@ -26,7 +26,7 @@ biomcp protein complexes P00533
 
 ## Example reply
 
-`biomcp protein complexes P15056 --limit 2` returned this reply on 2026-10-27. Lists show their first items, and a line that starts with … counts the items left out. Text that ends in … is cut.
+`biomcp protein complexes P15056 --limit 2` returned this on 2026-10-27. Lists show their first items; a line with … counts the rest, and text ending in … is cut.
 
 ```json
 {
@@ -35,15 +35,7 @@ biomcp protein complexes P00533
   "query": {"accession": "P15056", "limit": 2, "offset": 0},
   "result": {
     "items": [
-      {
-        "id": "CPX-10863",
-        "name": "LNP1:FOXO3:PFKFB2:SRGAP2:SASH1:BRAF:TFEB:PTPN3:CDC25B:HDAC4:…",
-        "taxon": 9606,
-        "predicted": true,
-        "participant_total": 29,
-        "matched_participant": "P15056",
-        "url": "https://www.ebi.ac.uk/complexportal/complex/CPX-10863"
-      },
+      {…},
       … 1 more
     ],
     "native_total": 18
@@ -77,11 +69,12 @@ biomcp protein complexes P00533
       ]
     },
     … 2 more
-  ]
-}
+…
 ```
 
 ## Fields
+
+A field marked Optional can be missing from a reply. Every other field is always there.
 
 `result` holds [ProteinComplexes](/reference/schemas/types/#proteincomplexes), a shared type. `query` holds [ProteinRelationQuery](/reference/schemas/types/#proteinrelationquery), a shared type. `query` repeats the request as BioMCP read it.
 
@@ -89,4 +82,4 @@ Every type this reply uses is shared with other replies, so its fields are on th
 
 ## Next
 
-[Reply envelope and shared types](/reference/schemas/types/) defines `status`, `sources`, `next` and every shared type. [Reply schemas](/reference/schemas/) lists every reply. [`biomcp protein complexes`](/reference/commands/protein-complexes/) gives the command's arguments.
+[`biomcp protein complexes`](/reference/commands/protein-complexes/) gives the command's arguments; [reply schemas](/reference/schemas/) lists every reply.

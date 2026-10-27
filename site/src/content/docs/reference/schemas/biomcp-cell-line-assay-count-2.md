@@ -12,7 +12,7 @@ kind: reference
 verified: 2026-10-27
 ---
 
-BioMCP 1.0.0 prints one JSON object, the reply, for each command. [`biomcp cell-line assay-count`](/reference/commands/cell-line-assay-count/) replies with `schema` set to `biomcp.cell_line_assay_count/2`. Read this page when your code parses that reply. It shows a real reply, then the fields that only this schema has. The fields every reply shares are on [reply envelope and shared types](/reference/schemas/types/).
+BioMCP 1.0.0 prints one JSON object, the reply, for each command. [`biomcp cell-line assay-count`](/reference/commands/cell-line-assay-count/) replies with `schema` set to `biomcp.cell_line_assay_count/2`. Read this page when your code parses that reply: it shows a real one, then the fields only this schema has. [Shared types](/reference/schemas/types/) defines the rest.
 
 ## Commands that return it
 
@@ -27,7 +27,7 @@ biomcp cell-line assay-count CHEMBL3706573 --fresh
 
 ## Example reply
 
-`biomcp cell-line assay-count CHEMBL3308077` returned this reply on 2026-10-27. Lists show their first items, and a line that starts with … counts the items left out. Text that ends in … is cut.
+`biomcp cell-line assay-count CHEMBL3308077` returned this on 2026-10-27. Lists show their first items; a line with … counts the rest, and text ending in … is cut.
 
 ```json
 {
@@ -54,27 +54,29 @@ biomcp cell-line assay-count CHEMBL3706573 --fresh
 
 ## Fields
 
+A field marked Optional can be missing from a reply. Every other field is always there.
+
 `result` holds [CellLineAssayCount](#celllineassaycount). `query` holds [CellLineAssayCountQuery](#celllineassaycountquery). `query` repeats the request as BioMCP read it.
 
 ### CellLineAssayCount
 
 Native assay total for one source-local cell identity; no activity or sensitivity count.
 
-| Field | Type | Always present | Meaning |
-| --- | --- | --- | --- |
-| `assay_count` | integer (uint64) | yes | Native assay page total_count, including a reported zero. |
-| `fetched` | integer or null | no | Original retrieval seconds; never a source release date. |
-| `id` | [ChemblCellId](/reference/schemas/types/#chemblcellid) | yes | Exact requested ChEMBL cell ID. |
-| `release` | [CellLineRelease](/reference/schemas/types/#celllinerelease) or null | no | Independent ChEMBL release, distinct from retrieval time. |
+| Field | Type | Meaning |
+| --- | --- | --- |
+| `assay_count` | integer (uint64) | Native assay page total_count, including a reported zero. |
+| `fetched` | integer or null | Original retrieval seconds; never a source release date. Optional. |
+| `id` | [ChemblCellId](/reference/schemas/types/#chemblcellid) | Exact requested ChEMBL cell ID. |
+| `release` | [CellLineRelease](/reference/schemas/types/#celllinerelease) or null | Independent ChEMBL release, distinct from retrieval time. Optional. |
 
 ### CellLineAssayCountQuery
 
 A separate assay-count request, never implicit in metadata or all.
 
-| Field | Type | Always present | Meaning |
-| --- | --- | --- | --- |
-| `id` | [ChemblCellId](/reference/schemas/types/#chemblcellid) | yes | Exact ChEMBL cell identity returned by metadata. |
+| Field | Type | Meaning |
+| --- | --- | --- |
+| `id` | [ChemblCellId](/reference/schemas/types/#chemblcellid) | Exact ChEMBL cell identity returned by metadata. |
 
 ## Next
 
-[Reply envelope and shared types](/reference/schemas/types/) defines `status`, `sources`, `next` and every shared type. [Reply schemas](/reference/schemas/) lists every reply. [`biomcp cell-line assay-count`](/reference/commands/cell-line-assay-count/) gives the command's arguments.
+[`biomcp cell-line assay-count`](/reference/commands/cell-line-assay-count/) gives the command's arguments; [reply schemas](/reference/schemas/) lists every reply.

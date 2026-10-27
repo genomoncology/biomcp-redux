@@ -11,7 +11,7 @@ kind: reference
 verified: 2026-10-27
 ---
 
-BioMCP 1.0.0 prints one JSON object, the reply, for each command. [`biomcp search trial`](/reference/commands/search-trial/) replies with `schema` set to `biomcp.nci_trial_page/3`. Read this page when your code parses that reply. It shows a real reply, then the fields that only this schema has. The fields every reply shares are on [reply envelope and shared types](/reference/schemas/types/).
+BioMCP 1.0.0 prints one JSON object, the reply, for each command. [`biomcp search trial`](/reference/commands/search-trial/) replies with `schema` set to `biomcp.nci_trial_page/3`. Read this page when your code parses that reply: it shows a real one, then the fields only this schema has. [Shared types](/reference/schemas/types/) defines the rest.
 
 ## Commands that return it
 
@@ -25,7 +25,7 @@ biomcp search trial --keyword melanoma --source nci --limit 1
 
 ## Example reply
 
-`biomcp search trial --keyword melanoma --source nci --limit 1` returned this reply on 2026-10-27. Lists show their first items, and a line that starts with … counts the items left out. Text that ends in … is cut.
+`biomcp search trial --keyword melanoma --source nci --limit 1` returned this on 2026-10-27. Lists show their first items; a line with … counts the rest, and text ending in … is cut.
 
 ```json
 {
@@ -56,19 +56,21 @@ The source did not answer that run, so `status` is `failed` and `result` is miss
 
 ## Fields
 
+A field marked Optional can be missing from a reply. Every other field is always there.
+
 `result` holds [NciTrialPage](#ncitrialpage). `query` holds [TrialSearch](/reference/schemas/types/#trialsearch), a shared type. `query` repeats the request as BioMCP read it.
 
 ### NciTrialPage
 
 NCI search page in native order with native count.
 
-| Field | Type | Always present | Meaning |
-| --- | --- | --- | --- |
-| `attribution` | string | yes | Publisher attribution. |
-| `condition_resolution` | [TrialConditionResolution](/reference/schemas/types/#trialconditionresolution) or null | no | Exact condition identity and source-provided mapping, absent for literal text. |
-| `items` | list of [NciTrial](/reference/schemas/types/#ncitrial) | yes | Source rows, never merged with another provider. |
-| `request` | list of [TrialParameter](/reference/schemas/types/#trialparameter) | yes | Exact source parameters, excluding credentials. |
+| Field | Type | Meaning |
+| --- | --- | --- |
+| `attribution` | string | Publisher attribution. |
+| `condition_resolution` | [TrialConditionResolution](/reference/schemas/types/#trialconditionresolution) or null | Exact condition identity and source-provided mapping, absent for literal text. Optional. |
+| `items` | list of [NciTrial](/reference/schemas/types/#ncitrial) | Source rows, never merged with another provider. |
+| `request` | list of [TrialParameter](/reference/schemas/types/#trialparameter) | Exact source parameters, excluding credentials. |
 
 ## Next
 
-[Reply envelope and shared types](/reference/schemas/types/) defines `status`, `sources`, `next` and every shared type. [Reply schemas](/reference/schemas/) lists every reply. [`biomcp search trial`](/reference/commands/search-trial/) gives the command's arguments.
+[`biomcp search trial`](/reference/commands/search-trial/) gives the command's arguments; [reply schemas](/reference/schemas/) lists every reply.

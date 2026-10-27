@@ -11,7 +11,7 @@ kind: reference
 verified: 2026-10-27
 ---
 
-BioMCP 1.0.0 prints one JSON object, the reply, for each command. [`biomcp health`](/reference/commands/health/) replies with `schema` set to `biomcp.health/2`. Read this page when your code parses that reply. It shows a real reply, then the fields that only this schema has. The fields every reply shares are on [reply envelope and shared types](/reference/schemas/types/).
+BioMCP 1.0.0 prints one JSON object, the reply, for each command. [`biomcp health`](/reference/commands/health/) replies with `schema` set to `biomcp.health/2`. Read this page when your code parses that reply: it shows a real one, then the fields only this schema has. [Shared types](/reference/schemas/types/) defines the rest.
 
 ## Commands that return it
 
@@ -25,7 +25,7 @@ biomcp health
 
 ## Example reply
 
-`biomcp health` returned this reply on 2026-10-27. Lists show their first items, and a line that starts with … counts the items left out. Text that ends in … is cut.
+`biomcp health` returned this on 2026-10-27. Lists show their first items; a line with … counts the rest, and text ending in … is cut.
 
 ```json
 {
@@ -43,21 +43,10 @@ biomcp health
         ],
         "components": [
           {"source": "mychem", "name": "drugbank"},
-          {"source": "mychem", "name": "unii"},
-          … 4 more
+          … 5 more
         ]
       },
-      {
-        "group": "noncommercial",
-        "sources": [
-          "semantic-scholar", "orcid", "ddinter", "who-ivd", "cpic", "clinpgx"
-        ],
-        "components": [
-          {"source": "myvariant", "name": "cadd"},
-          {"source": "myvariant", "name": "dbnsfp"}
-        ]
-      },
-      … 1 more
+      … 2 more
     ],
     "sources": [
       {
@@ -69,17 +58,7 @@ biomcp health
         "state": "ok",
         "latency_ms": 656
       },
-      {
-        "source": "cpic",
-        "terms": "ClinPGx data use policy; noncommercial access restriction;…",
-        "terms_url": "https://www.clinpgx.org/page/dataUsagePolicy",
-        "usage": "noncommercial",
-        "disabled": false,
-        "state": "failed",
-        "reason": "rejected",
-        "latency_ms": 0
-      },
-      … 55 more
+      … 56 more
     ]
   }
 }
@@ -87,62 +66,64 @@ biomcp health
 
 ## Fields
 
+A field marked Optional can be missing from a reply. Every other field is always there.
+
 `result` holds [Health](#health). `query` repeats the request as BioMCP read it.
 
 ### Health
 
 Source reachability and publisher terms, independent of local HTTP service health.
 
-| Field | Type | Always present | Meaning |
-| --- | --- | --- | --- |
-| `disable_groups` | list of [DisableGroup](#disablegroup) | no | Sources and carried components excluded by each supported terms group. |
-| `sources` | list of [SourceHealth](#sourcehealth) | yes | Every implemented adapter, in declaration order. |
+| Field | Type | Meaning |
+| --- | --- | --- |
+| `disable_groups` | list of [DisableGroup](#disablegroup) | Sources and carried components excluded by each supported terms group. Optional. |
+| `sources` | list of [SourceHealth](#sourcehealth) | Every implemented adapter, in declaration order. |
 
 ### ComponentHealth
 
 Policy labels for one carried source component.
 
-| Field | Type | Always present | Meaning |
-| --- | --- | --- | --- |
-| `disabled` | boolean | yes | Explicit source or component group policy prevents this component. |
-| `name` | [Text](/reference/schemas/types/#text) | yes | Native component name. |
-| `terms` | [ComponentTerms](/reference/schemas/types/#componentterms) | yes | Independently reviewed publisher terms. |
+| Field | Type | Meaning |
+| --- | --- | --- |
+| `disabled` | boolean | Explicit source or component group policy prevents this component. |
+| `name` | [Text](/reference/schemas/types/#text) | Native component name. |
+| `terms` | [ComponentTerms](/reference/schemas/types/#componentterms) | Independently reviewed publisher terms. |
 
 ### DisableGroup
 
 The consequences of one source-disable selector, regardless of current configuration.
 
-| Field | Type | Always present | Meaning |
-| --- | --- | --- | --- |
-| `components` | list of [DisabledComponent](#disabledcomponent) | yes | Carried fields stopped while their aggregators remain available. |
-| `group` | [Use](/reference/schemas/types/#use) | yes | Terms category accepted by disable_sources. |
-| `sources` | list of [Source](/reference/schemas/types/#source) | yes | Whole sources stopped by this group. |
+| Field | Type | Meaning |
+| --- | --- | --- |
+| `components` | list of [DisabledComponent](#disabledcomponent) | Carried fields stopped while their aggregators remain available. |
+| `group` | [Use](/reference/schemas/types/#use) | Terms category accepted by disable_sources. |
+| `sources` | list of [Source](/reference/schemas/types/#source) | Whole sources stopped by this group. |
 
 ### DisabledComponent
 
 One independently labeled carried field excluded by a terms group.
 
-| Field | Type | Always present | Meaning |
-| --- | --- | --- | --- |
-| `name` | string | yes | Registry-owned component name. |
-| `source` | [Source](/reference/schemas/types/#source) | yes | Aggregator carrying the field. |
+| Field | Type | Meaning |
+| --- | --- | --- |
+| `name` | string | Registry-owned component name. |
+| `source` | [Source](/reference/schemas/types/#source) | Aggregator carrying the field. |
 
 ### SourceHealth
 
 One bounded source probe, without credentials or provider error text.
 
-| Field | Type | Always present | Meaning |
-| --- | --- | --- | --- |
-| `components` | list of [ComponentHealth](#componenthealth) | no | Independently licensed carried components, without separate network probes. |
-| `disabled` | boolean | yes | Whether source policy prevents all requests and cached reads. |
-| `latency_ms` | integer or null | no | Probe duration in milliseconds; omitted when policy skipped the probe. |
-| `reason` | [Reason](/reference/schemas/types/#reason) or null | no | Typed failure or skip reason. |
-| `source` | [Source](/reference/schemas/types/#source) | yes | Implemented source identity. |
-| `state` | [SourceState](/reference/schemas/types/#sourcestate) | yes | Probe outcome; disabled and missing credentials remain skipped. |
-| `terms` | [Text](/reference/schemas/types/#text) | yes | Publisher license or terms name. |
-| `terms_url` | [Text](/reference/schemas/types/#text) | yes | Publisher terms page. |
-| `usage` | [Use](/reference/schemas/types/#use) | yes | Reviewed source category, not blanket permission for each record. |
+| Field | Type | Meaning |
+| --- | --- | --- |
+| `components` | list of [ComponentHealth](#componenthealth) | Independently licensed carried components, without separate network probes. Optional. |
+| `disabled` | boolean | Whether source policy prevents all requests and cached reads. |
+| `latency_ms` | integer or null | Probe duration in milliseconds; omitted when policy skipped the probe. Optional. |
+| `reason` | [Reason](/reference/schemas/types/#reason) or null | Typed failure or skip reason. Optional. |
+| `source` | [Source](/reference/schemas/types/#source) | Implemented source identity. |
+| `state` | [SourceState](/reference/schemas/types/#sourcestate) | Probe outcome; disabled and missing credentials remain skipped. |
+| `terms` | [Text](/reference/schemas/types/#text) | Publisher license or terms name. |
+| `terms_url` | [Text](/reference/schemas/types/#text) | Publisher terms page. |
+| `usage` | [Use](/reference/schemas/types/#use) | Reviewed source category, not blanket permission for each record. |
 
 ## Next
 
-[Reply envelope and shared types](/reference/schemas/types/) defines `status`, `sources`, `next` and every shared type. [Reply schemas](/reference/schemas/) lists every reply. [`biomcp health`](/reference/commands/health/) gives the command's arguments.
+[`biomcp health`](/reference/commands/health/) gives the command's arguments; [reply schemas](/reference/schemas/) lists every reply.

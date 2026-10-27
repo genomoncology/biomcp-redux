@@ -12,7 +12,7 @@ kind: reference
 verified: 2026-10-27
 ---
 
-BioMCP 1.0.0 prints one JSON object, the reply, for each command. [`biomcp get phenotype synonyms`](/reference/commands/get-phenotype/) replies with `schema` set to `biomcp.phenotype-synonyms/1`. Read this page when your code parses that reply. It shows a real reply, then the fields that only this schema has. The fields every reply shares are on [reply envelope and shared types](/reference/schemas/types/).
+BioMCP 1.0.0 prints one JSON object, the reply, for each command. [`biomcp get phenotype synonyms`](/reference/commands/get-phenotype/) replies with `schema` set to `biomcp.phenotype-synonyms/1`. Read this page when your code parses that reply: it shows a real one, then the fields only this schema has. [Shared types](/reference/schemas/types/) defines the rest.
 
 ## Commands that return it
 
@@ -27,7 +27,7 @@ biomcp get phenotype HP:0001250 synonyms --source monarch --section-limit 3
 
 ## Example reply
 
-`biomcp get phenotype HP:0000001 synonyms` returned this reply on 2026-10-27. Lists show their first items, and a line that starts with … counts the items left out. Text that ends in … is cut.
+`biomcp get phenotype HP:0000001 synonyms` returned this on 2026-10-27. Lists show their first items; a line with … counts the rest, and text ending in … is cut.
 
 ```json
 {
@@ -59,27 +59,29 @@ biomcp get phenotype HP:0001250 synonyms --source monarch --section-limit 3
 
 ## Fields
 
+A field marked Optional can be missing from a reply. Every other field is always there.
+
 `result` holds [PhenotypeSynonyms](#phenotypesynonyms). `query` holds [PhenotypeGet](/reference/schemas/types/#phenotypeget), a shared type. `query` repeats the request as BioMCP read it.
 
 ### PhenotypeSynonyms
 
 Source synonym rows preserving publisher classes.
 
-| Field | Type | Always present | Meaning |
-| --- | --- | --- | --- |
-| `components` | list of [ComponentLabel](/reference/schemas/types/#componentlabel) | yes | Applicable publisher component terms. |
-| `fetched` | integer or null | no | Original source retrieval seconds, distinct from ontology release. |
-| `items` | list of [PhenotypeSynonym](#phenotypesynonym) | yes | Native ordered rows; empty remains an empty collection. |
+| Field | Type | Meaning |
+| --- | --- | --- |
+| `components` | list of [ComponentLabel](/reference/schemas/types/#componentlabel) | Applicable publisher component terms. |
+| `fetched` | integer or null | Original source retrieval seconds, distinct from ontology release. Optional. |
+| `items` | list of [PhenotypeSynonym](#phenotypesynonym) | Native ordered rows; empty remains an empty collection. |
 
 ### PhenotypeSynonym
 
 One native synonym; HPO values remain unclassified.
 
-| Field | Type | Always present | Meaning |
-| --- | --- | --- | --- |
-| `attribution` | [Attribution](/reference/schemas/types/#attribution) | yes | Publisher provenance. |
-| `relationship` | [PhenotypeSynonymClass](#phenotypesynonymclass) or null | no | Native Monarch relationship class; absent for HPO. |
-| `value` | string | yes | Whole source text. |
+| Field | Type | Meaning |
+| --- | --- | --- |
+| `attribution` | [Attribution](/reference/schemas/types/#attribution) | Publisher provenance. |
+| `relationship` | [PhenotypeSynonymClass](#phenotypesynonymclass) or null | Native Monarch relationship class; absent for HPO. Optional. |
+| `value` | string | Whole source text. |
 
 ### PhenotypeSynonymClass
 
@@ -94,4 +96,4 @@ Publisher synonym relationship class.
 
 ## Next
 
-[Reply envelope and shared types](/reference/schemas/types/) defines `status`, `sources`, `next` and every shared type. [Reply schemas](/reference/schemas/) lists every reply. [`biomcp get phenotype`](/reference/commands/get-phenotype/) gives the command's arguments.
+[`biomcp get phenotype`](/reference/commands/get-phenotype/) gives the command's arguments; [reply schemas](/reference/schemas/) lists every reply.

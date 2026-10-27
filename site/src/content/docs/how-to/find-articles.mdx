@@ -50,7 +50,7 @@ The card holds the title, authors, journal, dates, abstract and publication type
 
 The `fulltext` section returns the outline of a licensed PMC article. It reports the license and one row per part:
 
-<Example id="lit-fulltext" />
+<Example id="lit-fulltext" lines={10} />
 
 `biomcp article text PMC7573235 --part 3` reads part 3 as Markdown. Full text comes only from PMC. An article without a PMCID returns its card with the fulltext section in state `not_applicable`, as `biomcp get article 12068308 fulltext` shows.
 
@@ -58,7 +58,7 @@ The `fulltext` section returns the outline of a licensed PMC article. It reports
 
 `--find` returns the passages that contain your words, with the part each sits in:
 
-<Example id="lit-text-find" />
+<Example id="lit-text-find" lines={12} />
 
 The reply pages 12 hits at a time; its `next` command reads the rest.
 

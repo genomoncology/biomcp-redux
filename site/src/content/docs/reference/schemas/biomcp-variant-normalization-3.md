@@ -11,7 +11,7 @@ kind: reference
 verified: 2026-10-27
 ---
 
-BioMCP 1.0.0 prints one JSON object, the reply, for each command. [`biomcp variant normalize`](/reference/commands/variant-normalize/) replies with `schema` set to `biomcp.variant_normalization/3`. Read this page when your code parses that reply. It shows a real reply, then the fields that only this schema has. The fields every reply shares are on [reply envelope and shared types](/reference/schemas/types/).
+BioMCP 1.0.0 prints one JSON object, the reply, for each command. [`biomcp variant normalize`](/reference/commands/variant-normalize/) replies with `schema` set to `biomcp.variant_normalization/3`. Read this page when your code parses that reply: it shows a real one, then the fields only this schema has. [Shared types](/reference/schemas/types/) defines the rest.
 
 ## Commands that return it
 
@@ -27,7 +27,7 @@ biomcp variant normalize --source variantvalidator \
 
 ## Example reply
 
-`biomcp variant normalize --source mutalyzer --hgvs 'NM_004333.4:c.1799T>A'` returned this reply on 2026-10-27. Lists show their first items, and a line that starts with … counts the items left out. Text that ends in … is cut.
+`biomcp variant normalize --source mutalyzer --hgvs 'NM_004333.4:c.1799T>A'` returned this on 2026-10-27. Lists show their first items; a line with … counts the rest, and text ending in … is cut.
 
 ```json
 {
@@ -47,27 +47,13 @@ biomcp variant normalize --source variantvalidator \
         "normalized": "NM_004333.4:c.1799T>A",
         "corrected": "NM_004333.4:c.1799T>A",
         "mappings": [
-          {
-            "field": "protein.description",
-            "value": "NM_004333.4(NP_004324.2):p.(Val600Glu)"
-          },
-          {
-            "field": "rna.description",
-            "value": "NM_004333.4:r.(1799u>a)"
-          }
+          {…},
+          … 1 more
         ],
         "total_mappings": 2,
         "messages": [
-          {
-            "category": "infos",
-            "code": "IWHOLETRANSCRIPTEXON",
-            "text": "No exon features found in the 'NM_004333.4' reference seq…"
-          },
-          {
-            "category": "infos",
-            "code": "IMRNAGENOMICTIP",
-            "text": "An 'mRNA' sequence was used with the 'c.' coordinate syst…"
-          }
+          {…},
+          … 1 more
         ],
         "total_messages": 2,
         "version": []
@@ -88,62 +74,64 @@ biomcp variant normalize --source variantvalidator \
 
 ## Fields
 
+A field marked Optional can be missing from a reply. Every other field is always there.
+
 `result` holds [VariantNormalization](#variantnormalization). `query` holds [VariantNormalize](#variantnormalize). `query` repeats the request as BioMCP read it.
 
 ### VariantNormalization
 
 Independent service results without local correction or transcript selection.
 
-| Field | Type | Always present | Meaning |
-| --- | --- | --- | --- |
-| `results` | list of [NormalizationResult](#normalizationresult) | yes | Service results in declared order. |
+| Field | Type | Meaning |
+| --- | --- | --- |
+| `results` | list of [NormalizationResult](#normalizationresult) | Service results in declared order. |
 
 ### VariantNormalize
 
 Send unchanged reference-qualified notation to explicitly named services.
 
-| Field | Type | Always present | Meaning |
-| --- | --- | --- | --- |
-| `build` | [Build](/reference/schemas/types/#build) or null | no | Caller assembly; required when VariantValidator is selected. |
-| `hgvs` | [HgvsText](/reference/schemas/types/#hgvstext) | yes | Unchanged reference-qualified HGVS; no local molecular parse. |
-| `limit` | integer (uint32) | no | Source mapping rows per service, with typed continuation for remaining rows. |
-| `offset` | integer (uint32) | no | Source mapping rows to skip per service. |
-| `source` | [NormalizationSource](#normalizationsource) | yes | Explicit service; all preserves independent results without consensus. |
+| Field | Type | Meaning |
+| --- | --- | --- |
+| `build` | [Build](/reference/schemas/types/#build) or null | Caller assembly; required when VariantValidator is selected. Optional. |
+| `hgvs` | [HgvsText](/reference/schemas/types/#hgvstext) | Unchanged reference-qualified HGVS; no local molecular parse. |
+| `limit` | integer (uint32) | Source mapping rows per service, with typed continuation for remaining rows. Optional. |
+| `offset` | integer (uint32) | Source mapping rows to skip per service. Optional. |
+| `source` | [NormalizationSource](#normalizationsource) | Explicit service; all preserves independent results without consensus. |
 
 ### NormalizationField
 
 A provider field name and its unchanged text.
 
-| Field | Type | Always present | Meaning |
-| --- | --- | --- | --- |
-| `field` | string | yes | Native field path or assembly label. |
-| `value` | string | yes | Unchanged source text. |
+| Field | Type | Meaning |
+| --- | --- | --- |
+| `field` | string | Native field path or assembly label. |
+| `value` | string | Unchanged source text. |
 
 ### NormalizationMessage
 
 Provider warning, error or informational message.
 
-| Field | Type | Always present | Meaning |
-| --- | --- | --- | --- |
-| `category` | string | yes | Native message category. |
-| `code` | string or null | no | Native code when supplied. |
-| `text` | string | yes | Unchanged message body, including whitespace. |
+| Field | Type | Meaning |
+| --- | --- | --- |
+| `category` | string | Native message category. |
+| `code` | string or null | Native code when supplied. Optional. |
+| `text` | string | Unchanged message body, including whitespace. |
 
 ### NormalizationResult
 
 One provider's own descriptions, messages and version metadata.
 
-| Field | Type | Always present | Meaning |
-| --- | --- | --- | --- |
-| `corrected` | string or null | no | Source corrected description, without local edits. |
-| `mappings` | list of [NormalizationField](#normalizationfield) | yes | Mapping rows in native service order, labeled by their provider field. |
-| `messages` | list of [NormalizationMessage](#normalizationmessage) | yes | Provider messages with original codes, text and category. |
-| `normalized` | string or null | no | Source normalized description, without local edits. |
-| `outcome` | [VariantResolution](/reference/schemas/types/#variantresolution) | yes | Provider outcome; warning rejection remains distinct from transport failure. |
-| `source` | [Source](/reference/schemas/types/#source) | yes | Responsible service. |
-| `total_mappings` | integer (uint32) | yes | Count before mapping pagination. |
-| `total_messages` | integer (uint32) | no | Count before provider message pagination. |
-| `version` | list of [NormalizationField](#normalizationfield) | yes | Version fields exactly as returned; absent when the service states none. |
+| Field | Type | Meaning |
+| --- | --- | --- |
+| `corrected` | string or null | Source corrected description, without local edits. Optional. |
+| `mappings` | list of [NormalizationField](#normalizationfield) | Mapping rows in native service order, labeled by their provider field. |
+| `messages` | list of [NormalizationMessage](#normalizationmessage) | Provider messages with original codes, text and category. |
+| `normalized` | string or null | Source normalized description, without local edits. Optional. |
+| `outcome` | [VariantResolution](/reference/schemas/types/#variantresolution) | Provider outcome; warning rejection remains distinct from transport failure. |
+| `source` | [Source](/reference/schemas/types/#source) | Responsible service. |
+| `total_mappings` | integer (uint32) | Count before mapping pagination. |
+| `total_messages` | integer (uint32) | Count before provider message pagination. Optional. |
+| `version` | list of [NormalizationField](#normalizationfield) | Version fields exactly as returned; absent when the service states none. |
 
 ### NormalizationSource
 
@@ -153,4 +141,4 @@ Values: `car`, `mutalyzer`, `variantvalidator`, `all`.
 
 ## Next
 
-[Reply envelope and shared types](/reference/schemas/types/) defines `status`, `sources`, `next` and every shared type. [Reply schemas](/reference/schemas/) lists every reply. [`biomcp variant normalize`](/reference/commands/variant-normalize/) gives the command's arguments.
+[`biomcp variant normalize`](/reference/commands/variant-normalize/) gives the command's arguments; [reply schemas](/reference/schemas/) lists every reply.

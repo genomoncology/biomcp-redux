@@ -11,7 +11,7 @@ kind: reference
 verified: 2026-10-27
 ---
 
-BioMCP 1.0.0 prints one JSON object, the reply, for each command. [`biomcp protein sequence`](/reference/commands/protein-sequence/) replies with `schema` set to `biomcp.protein_sequence/1`. Read this page when your code parses that reply. It shows a real reply, then the fields that only this schema has. The fields every reply shares are on [reply envelope and shared types](/reference/schemas/types/).
+BioMCP 1.0.0 prints one JSON object, the reply, for each command. [`biomcp protein sequence`](/reference/commands/protein-sequence/) replies with `schema` set to `biomcp.protein_sequence/1`. Read this page when your code parses that reply: it shows a real one, then the fields only this schema has. [Shared types](/reference/schemas/types/) defines the rest.
 
 ## Commands that return it
 
@@ -26,7 +26,7 @@ biomcp protein sequence P00533 --fresh
 
 ## Example reply
 
-`biomcp protein sequence P00533` returned this reply on 2026-10-27. Lists show their first items, and a line that starts with … counts the items left out. Text that ends in … is cut.
+`biomcp protein sequence P00533` returned this on 2026-10-27. Lists show their first items; a line with … counts the rest, and text ending in … is cut.
 
 ```json
 {
@@ -63,16 +63,18 @@ biomcp protein sequence P00533 --fresh
 
 ## Fields
 
+A field marked Optional can be missing from a reply. Every other field is always there.
+
 `result` holds [ProteinSequenceResult](/reference/schemas/types/#proteinsequenceresult), a shared type. `query` holds [ProteinSequenceQuery](#proteinsequencequery). `query` repeats the request as BioMCP read it.
 
 ### ProteinSequenceQuery
 
 Read one complete native sequence for an exact source accession. No variant effect, structure or clinical meaning is inferred; no bioinformatics tool runs.
 
-| Field | Type | Always present | Meaning |
-| --- | --- | --- | --- |
-| `isoform` | [UniProtIsoform](/reference/schemas/types/#uniprotisoform) | yes | Exact isoform or base accession; no canonical suffix is synthesized. |
+| Field | Type | Meaning |
+| --- | --- | --- |
+| `isoform` | [UniProtIsoform](/reference/schemas/types/#uniprotisoform) | Exact isoform or base accession; no canonical suffix is synthesized. |
 
 ## Next
 
-[Reply envelope and shared types](/reference/schemas/types/) defines `status`, `sources`, `next` and every shared type. [Reply schemas](/reference/schemas/) lists every reply. [`biomcp protein sequence`](/reference/commands/protein-sequence/) gives the command's arguments.
+[`biomcp protein sequence`](/reference/commands/protein-sequence/) gives the command's arguments; [reply schemas](/reference/schemas/) lists every reply.

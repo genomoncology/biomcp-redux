@@ -10,7 +10,7 @@ kind: reference
 verified: 2026-10-27
 ---
 
-BioMCP 1.0.0 prints one JSON object, the reply, for each command. [`biomcp sync`](/reference/commands/sync/), [`biomcp sync cbioportal-studies`](/reference/commands/sync-cbioportal-studies/), [`biomcp sync ema`](/reference/commands/sync-ema/), [`biomcp sync ddinter`](/reference/commands/sync-ddinter/), [`biomcp sync who-pq`](/reference/commands/sync-who-pq/), [`biomcp sync gtr`](/reference/commands/sync-gtr/), [`biomcp sync who-ivd`](/reference/commands/sync-who-ivd/) and [`biomcp sync fda-cdx`](/reference/commands/sync-fda-cdx/) reply with `schema` set to `biomcp.sync/4`. Read this page when your code parses that reply. It shows a real reply, then the fields that only this schema has. The fields every reply shares are on [reply envelope and shared types](/reference/schemas/types/).
+BioMCP 1.0.0 prints one JSON object, the reply, for each command. [`biomcp sync`](/reference/commands/sync/), [`biomcp sync cbioportal-studies`](/reference/commands/sync-cbioportal-studies/), [`biomcp sync ema`](/reference/commands/sync-ema/), [`biomcp sync ddinter`](/reference/commands/sync-ddinter/), [`biomcp sync who-pq`](/reference/commands/sync-who-pq/), [`biomcp sync gtr`](/reference/commands/sync-gtr/), [`biomcp sync who-ivd`](/reference/commands/sync-who-ivd/) and [`biomcp sync fda-cdx`](/reference/commands/sync-fda-cdx/) reply with `schema` set to `biomcp.sync/4`. Read this page when your code parses that reply: it shows a real one, then the fields only this schema has. [Shared types](/reference/schemas/types/) defines the rest.
 
 ## Commands that return it
 
@@ -25,7 +25,7 @@ biomcp sync clingen
 
 ## Example reply
 
-`biomcp sync hgnc` returned this reply on 2026-10-27. Lists show their first items, and a line that starts with … counts the items left out. Text that ends in … is cut.
+`biomcp sync hgnc` returned this on 2026-10-27. Lists show their first items; a line with … counts the rest, and text ending in … is cut.
 
 ```json
 {
@@ -47,21 +47,23 @@ biomcp sync clingen
 
 ## Fields
 
+A field marked Optional can be missing from a reply. Every other field is always there.
+
 `result` holds [SyncResult](#syncresult). `query` holds [SyncQuery](/reference/schemas/types/#syncquery), a shared type. `query` repeats the request as BioMCP read it.
 
 ### SyncResult
 
 Published [bundle](/local-data/) metadata after synchronization.
 
-| Field | Type | Always present | Meaning |
-| --- | --- | --- | --- |
-| `bytes` | integer (uint64) | yes | Imported source-file bytes before native file decoding. |
-| `duplicate_identities` | integer or null | no | Distinct repeated identities across the whole source version report. |
-| `etag` | string or null | no | Native publisher ETag when supplied. |
-| `last_modified` | string or null | no | Native publisher Last-Modified when supplied. |
-| `rows` | integer (uint64) | yes | Imported rows. |
-| `snapshot` | [StudySnapshot](/reference/schemas/types/#studysnapshot) or null | no | Catalog content revision and acquisition time, separate from source headers. |
+| Field | Type | Meaning |
+| --- | --- | --- |
+| `bytes` | integer (uint64) | Imported source-file bytes before native file decoding. |
+| `duplicate_identities` | integer or null | Distinct repeated identities across the whole source version report. Optional. |
+| `etag` | string or null | Native publisher ETag when supplied. Optional. |
+| `last_modified` | string or null | Native publisher Last-Modified when supplied. Optional. |
+| `rows` | integer (uint64) | Imported rows. |
+| `snapshot` | [StudySnapshot](/reference/schemas/types/#studysnapshot) or null | Catalog content revision and acquisition time, separate from source headers. Optional. |
 
 ## Next
 
-[Reply envelope and shared types](/reference/schemas/types/) defines `status`, `sources`, `next` and every shared type. [Reply schemas](/reference/schemas/) lists every reply. [`biomcp sync`](/reference/commands/sync/) gives the command's arguments.
+[`biomcp sync`](/reference/commands/sync/) gives the command's arguments; [reply schemas](/reference/schemas/) lists every reply.

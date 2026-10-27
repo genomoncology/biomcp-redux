@@ -11,7 +11,7 @@ kind: reference
 verified: 2026-10-27
 ---
 
-BioMCP 1.0.0 prints one JSON object, the reply, for each command. [`biomcp get gwas`](/reference/commands/get-gwas/) replies with `schema` set to `biomcp.gwas_association/1`. Read this page when your code parses that reply. It shows a real reply, then the fields that only this schema has. The fields every reply shares are on [reply envelope and shared types](/reference/schemas/types/).
+BioMCP 1.0.0 prints one JSON object, the reply, for each command. [`biomcp get gwas`](/reference/commands/get-gwas/) replies with `schema` set to `biomcp.gwas_association/1`. Read this page when your code parses that reply: it shows a real one, then the fields only this schema has. [Shared types](/reference/schemas/types/) defines the rest.
 
 ## Commands that return it
 
@@ -25,7 +25,7 @@ biomcp get gwas association:6114
 
 ## Example reply
 
-`biomcp get gwas association:6114` returned this reply on 2026-10-27. Lists show their first items, and a line that starts with … counts the items left out. Text that ends in … is cut.
+`biomcp get gwas association:6114` returned this on 2026-10-27. Lists show their first items; a line with … counts the rest, and text ending in … is cut.
 
 ```json
 {
@@ -42,12 +42,7 @@ biomcp get gwas association:6114
       "id": 6114,
       "study": "GCST000035",
       "traits": ["Breast cancer"],
-      "ontology_traits": [
-        {
-          "id": "MONDO_0004989",
-          "label": "breast carcinoma"
-        }
-      ],
+      "ontology_traits": [{"id": "MONDO_0004989", "label": "breast carcinoma"}],
       "alleles": [{"rs_id": "rs3817198", "allele": "C"}],
       "p_value": 3.0000000000000004e-9,
       "exact_p_value": {"mantissa": "3", "exponent": -9},
@@ -73,23 +68,12 @@ biomcp get gwas association:6114
     }
   ],
   "next": [
-    {
-      "kind": "pivot",
-      "args": [
-        "get", "gwas", "GCST000035", "--section-limit", "3", "--section-offset",
-        "0"
-      ]
-    },
-    {
-      "kind": "pivot",
-      "args": ["get", "variant", "rs3817198"]
-    },
-    … 2 more
-  ]
-}
+…
 ```
 
 ## Fields
+
+A field marked Optional can be missing from a reply. Every other field is always there.
 
 `result` holds [GwasAssociationCard](#gwasassociationcard). `query` holds [GwasGet](/reference/schemas/types/#gwasget), a shared type. `query` repeats the request as BioMCP read it.
 
@@ -97,10 +81,10 @@ biomcp get gwas association:6114
 
 Exact association card; no second association representation.
 
-| Field | Type | Always present | Meaning |
-| --- | --- | --- | --- |
-| `association` | [GwasAssociation](/reference/schemas/types/#gwasassociation) | yes | The shared source association record. |
+| Field | Type | Meaning |
+| --- | --- | --- |
+| `association` | [GwasAssociation](/reference/schemas/types/#gwasassociation) | The shared source association record. |
 
 ## Next
 
-[Reply envelope and shared types](/reference/schemas/types/) defines `status`, `sources`, `next` and every shared type. [Reply schemas](/reference/schemas/) lists every reply. [`biomcp get gwas`](/reference/commands/get-gwas/) gives the command's arguments.
+[`biomcp get gwas`](/reference/commands/get-gwas/) gives the command's arguments; [reply schemas](/reference/schemas/) lists every reply.

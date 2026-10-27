@@ -11,7 +11,7 @@ kind: reference
 verified: 2026-10-27
 ---
 
-BioMCP 1.0.0 prints one JSON object, the reply, for each command. [`biomcp get pgx annotations`](/reference/commands/get-pgx/) replies with `schema` set to `biomcp.pgx_annotations/1`. Read this page when your code parses that reply. It shows a real reply, then the fields that only this schema has. The fields every reply shares are on [reply envelope and shared types](/reference/schemas/types/).
+BioMCP 1.0.0 prints one JSON object, the reply, for each command. [`biomcp get pgx annotations`](/reference/commands/get-pgx/) replies with `schema` set to `biomcp.pgx_annotations/1`. Read this page when your code parses that reply: it shows a real one, then the fields only this schema has. [Shared types](/reference/schemas/types/) defines the rest.
 
 ## Commands that return it
 
@@ -25,7 +25,7 @@ biomcp get pgx --gene DPYD annotations --source clinpgx
 
 ## Example reply
 
-`biomcp get pgx --gene DPYD annotations --source clinpgx` returned this reply on 2026-10-27. Lists show their first items, and a line that starts with … counts the items left out. Text that ends in … is cut.
+`biomcp get pgx --gene DPYD annotations --source clinpgx` returned this on 2026-10-27. Lists show their first items; a line with … counts the rest, and text ending in … is cut.
 
 ```json
 {
@@ -43,26 +43,10 @@ biomcp get pgx --gene DPYD annotations --source clinpgx
     "annotationkind": "clinical",
     "header": {"source": "clinpgx", "gene": "DPYD"},
     "items": [
-      {
-        "id": 1448640301,
-        "accessionId": "PA166169507",
-        "levelOfEvidence": {…},
-        "location": {…},
-        "name": "rs3918290 (DPYD); fluorouracil; Neoplasms (level 4 Efficacy)",
-        "relatedChemicals": […],
-        "relatedChemicalsLogic": "Or",
-        "relatedGuidelines": [],
-        "relatedLabels": [],
-        "types": ["Efficacy"]
-      },
+      {…},
       … 2 more
     ],
-    "page": {
-      "offset": 0,
-      "returned": 3,
-      "total": 83,
-      "total_kind": "observed"
-    }
+    "page": {"offset": 0, "returned": 3, "total": 83, "total_kind": "observed"}
   },
   "sources": [
     {
@@ -87,6 +71,8 @@ biomcp get pgx --gene DPYD annotations --source clinpgx
 
 ## Fields
 
+A field marked Optional can be missing from a reply. Every other field is always there.
+
 `result` holds [PgxAnnotations](#pgxannotations). `query` holds [PgxGet](/reference/schemas/types/#pgxget), a shared type. `query` repeats the request as BioMCP read it.
 
 ### PgxAnnotations
@@ -103,30 +89,30 @@ One of these forms:
 
 Source-native PgxAnnotationHeader fields; no clinical interpretation.
 
-| Field | Type | Always present | Meaning |
-| --- | --- | --- | --- |
-| `accessionId` | [ClinPgxAccession](/reference/schemas/types/#clinpgxaccession) | yes | The source's own `accessionId` value, unchanged. |
-| `id` | integer (int64) | yes | The source's own `id` value, unchanged. |
-| `levelOfEvidence` | [PgxEvidenceTerm](/reference/schemas/types/#pgxevidenceterm) | yes | The source's own `levelOfEvidence` value, unchanged. |
-| `location` | [PgxLocation](/reference/schemas/types/#pgxlocation) | yes | The source's own `location` value, unchanged. |
-| `name` | string | yes | The source's own `name` value, unchanged. |
-| `relatedChemicals` | list of [PgxObjectReference](/reference/schemas/types/#pgxobjectreference) | yes | The source's own `relatedChemicals` value, unchanged. |
-| `relatedChemicalsLogic` | string | yes | The source's own `relatedChemicalsLogic` value, unchanged. |
-| `relatedGuidelines` | list of [PgxObjectReference](/reference/schemas/types/#pgxobjectreference) | yes | The source's own `relatedGuidelines` value, unchanged. |
-| `relatedLabels` | list of [PgxObjectReference](/reference/schemas/types/#pgxobjectreference) | yes | The source's own `relatedLabels` value, unchanged. |
-| `types` | list of string | yes | The source's own `types` value, unchanged. |
+| Field | Type | Meaning |
+| --- | --- | --- |
+| `accessionId` | [ClinPgxAccession](/reference/schemas/types/#clinpgxaccession) | The source's own `accessionId` value, unchanged. |
+| `id` | integer (int64) | The source's own `id` value, unchanged. |
+| `levelOfEvidence` | [PgxEvidenceTerm](/reference/schemas/types/#pgxevidenceterm) | The source's own `levelOfEvidence` value, unchanged. |
+| `location` | [PgxLocation](/reference/schemas/types/#pgxlocation) | The source's own `location` value, unchanged. |
+| `name` | string | The source's own `name` value, unchanged. |
+| `relatedChemicals` | list of [PgxObjectReference](/reference/schemas/types/#pgxobjectreference) | The source's own `relatedChemicals` value, unchanged. |
+| `relatedChemicalsLogic` | string | The source's own `relatedChemicalsLogic` value, unchanged. |
+| `relatedGuidelines` | list of [PgxObjectReference](/reference/schemas/types/#pgxobjectreference) | The source's own `relatedGuidelines` value, unchanged. |
+| `relatedLabels` | list of [PgxObjectReference](/reference/schemas/types/#pgxobjectreference) | The source's own `relatedLabels` value, unchanged. |
+| `types` | list of string | The source's own `types` value, unchanged. |
 
 ### PgxAnnotationReference
 
 Source-native PgxAnnotationReference fields; no clinical interpretation.
 
-| Field | Type | Always present | Meaning |
-| --- | --- | --- | --- |
-| `crossReferences` | list of [PgxUnobserved](/reference/schemas/types/#pgxunobserved) | yes | The source's own `crossReferences` value, unchanged. |
-| `id` | [ClinPgxAccession](/reference/schemas/types/#clinpgxaccession) | yes | The source's own `id` value, unchanged. |
-| `name` | string | yes | The source's own `name` value, unchanged. |
-| `objCls` | string | yes | The source's own `objCls` value, unchanged. |
+| Field | Type | Meaning |
+| --- | --- | --- |
+| `crossReferences` | list of [PgxUnobserved](/reference/schemas/types/#pgxunobserved) | The source's own `crossReferences` value, unchanged. |
+| `id` | [ClinPgxAccession](/reference/schemas/types/#clinpgxaccession) | The source's own `id` value, unchanged. |
+| `name` | string | The source's own `name` value, unchanged. |
+| `objCls` | string | The source's own `objCls` value, unchanged. |
 
 ## Next
 
-[Reply envelope and shared types](/reference/schemas/types/) defines `status`, `sources`, `next` and every shared type. [Reply schemas](/reference/schemas/) lists every reply. [`biomcp get pgx`](/reference/commands/get-pgx/) gives the command's arguments.
+[`biomcp get pgx`](/reference/commands/get-pgx/) gives the command's arguments; [reply schemas](/reference/schemas/) lists every reply.

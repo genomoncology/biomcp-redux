@@ -90,6 +90,8 @@ glosses:
   "Native source rows; totals in the envelope count rows, not distinct entities.": "Rows as the source gives them. Totals in `page` count rows, not distinct records."
   "Native source paper ID.": "The paper's ID at the source (Semantic Scholar)."
   "Indexed-paper disclosure level.": "How much to show for each paper. `details` adds the paper's full metadata."
+  "Include every physical entity context for these references; never clips source text.": "Adds each reference's Reactome `PhysicalEntity` contexts, with their source text whole."
+  "All native physical entities, never described as gene counts.": "Every Reactome `PhysicalEntity` of the pathway, as Reactome lists them. They are not gene counts."
   "Literal case-insensitive needle.": "Text to find, matched as typed, ignoring case."
   "Bounded local failure without paths or database diagnostics.": "Which kind of local cache problem it was."
   "Native collection exceeds the admitted complete source page.": "The source's list was longer than BioMCP accepts in one page."

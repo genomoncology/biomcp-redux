@@ -11,7 +11,7 @@ kind: reference
 verified: 2026-10-27
 ---
 
-BioMCP 1.0.0 prints one JSON object, the reply, for each command. [`biomcp search disease`](/reference/commands/search-disease/) replies with `schema` set to `biomcp.disease_sites/2`. Read this page when your code parses that reply. It shows a real reply, then the fields that only this schema has. The fields every reply shares are on [reply envelope and shared types](/reference/schemas/types/).
+BioMCP 1.0.0 prints one JSON object, the reply, for each command. [`biomcp search disease`](/reference/commands/search-disease/) replies with `schema` set to `biomcp.disease_sites/2`. Read this page when your code parses that reply: it shows a real one, then the fields only this schema has. [Shared types](/reference/schemas/types/) defines the rest.
 
 ## Commands that return it
 
@@ -26,7 +26,7 @@ biomcp search disease --source seer --limit 1 --offset 1
 
 ## Example reply
 
-`biomcp search disease --source seer --limit 3` returned this reply on 2026-10-27. Lists show their first items, and a line that starts with … counts the items left out. Text that ends in … is cut.
+`biomcp search disease --source seer --limit 3` returned this on 2026-10-27. Lists show their first items; a line with … counts the rest, and text ending in … is cut.
 
 ```json
 {
@@ -35,17 +35,8 @@ biomcp search disease --source seer --limit 1 --offset 1
   "query": {"source": "seer", "limit": 3, "offset": 0},
   "result": {
     "items": [
-      {
-        "code": "1",
-        "label": "All Cancer Sites Combined",
-        "active": true
-      },
-      {
-        "code": "34",
-        "label": "Anus, Anal Canal & Anorectum",
-        "active": true
-      },
-      … 1 more
+      {"code": "1", "label": "All Cancer Sites Combined", "active": true},
+      … 2 more
     ],
     "components": [],
     "fetched": 1793140302
@@ -66,11 +57,7 @@ biomcp search disease --source seer --limit 1 --offset 1
       "field": "catalog.publisher_date",
       "code": "value.unknown"
     },
-    {
-      "source": "seer",
-      "field": "catalog.publisher_version",
-      "code": "value.unknown"
-    }
+    … 1 more
   ],
   "next": [
     {
@@ -85,28 +72,30 @@ biomcp search disease --source seer --limit 1 --offset 1
 
 ## Fields
 
+A field marked Optional can be missing from a reply. Every other field is always there.
+
 `result` holds [DiseaseSites](#diseasesites). `query` holds [DiseaseSearch](/reference/schemas/types/#diseasesearch), a shared type. `query` repeats the request as BioMCP read it.
 
 ### DiseaseSites
 
 Publisher site catalog without an ontology-to-site mapping.
 
-| Field | Type | Always present | Meaning |
-| --- | --- | --- | --- |
-| `components` | list of [ComponentLabel](/reference/schemas/types/#componentlabel) | yes | Applicable component use terms, independent of row provenance. |
-| `fetched` | integer or null | no | Original response retrieval time in Unix seconds, distinct from publisher version/date. |
-| `items` | list of [DiseaseSite](#diseasesite) | yes | Rows as the source gives them. Totals in `page` count rows, not distinct records. |
+| Field | Type | Meaning |
+| --- | --- | --- |
+| `components` | list of [ComponentLabel](/reference/schemas/types/#componentlabel) | Applicable component use terms, independent of row provenance. |
+| `fetched` | integer or null | Original response retrieval time in Unix seconds, distinct from publisher version/date. Optional. |
+| `items` | list of [DiseaseSite](#diseasesite) | Rows as the source gives them. Totals in `page` count rows, not distinct records. |
 
 ### DiseaseSite
 
 One publisher catalog site, independent of ontology identities.
 
-| Field | Type | Always present | Meaning |
-| --- | --- | --- | --- |
-| `active` | boolean | yes | Publisher active-state flag. |
-| `code` | [Text](/reference/schemas/types/#text) | yes | Native publisher site code. |
-| `label` | [Text](/reference/schemas/types/#text) | yes | Complete publisher site label. |
+| Field | Type | Meaning |
+| --- | --- | --- |
+| `active` | boolean | Publisher active-state flag. |
+| `code` | [Text](/reference/schemas/types/#text) | Native publisher site code. |
+| `label` | [Text](/reference/schemas/types/#text) | Complete publisher site label. |
 
 ## Next
 
-[Reply envelope and shared types](/reference/schemas/types/) defines `status`, `sources`, `next` and every shared type. [Reply schemas](/reference/schemas/) lists every reply. [`biomcp search disease`](/reference/commands/search-disease/) gives the command's arguments.
+[`biomcp search disease`](/reference/commands/search-disease/) gives the command's arguments; [reply schemas](/reference/schemas/) lists every reply.

@@ -11,7 +11,7 @@ kind: reference
 verified: 2026-10-27
 ---
 
-BioMCP 1.0.0 prints one JSON object, the reply, for each command. [`biomcp get drug`](/reference/commands/get-drug/) replies with `schema` set to `biomcp.drug_card/2`. Read this page when your code parses that reply. It shows a real reply, then the fields that only this schema has. The fields every reply shares are on [reply envelope and shared types](/reference/schemas/types/).
+BioMCP 1.0.0 prints one JSON object, the reply, for each command. [`biomcp get drug`](/reference/commands/get-drug/) replies with `schema` set to `biomcp.drug_card/2`. Read this page when your code parses that reply: it shows a real one, then the fields only this schema has. [Shared types](/reference/schemas/types/) defines the rest.
 
 ## Commands that return it
 
@@ -25,7 +25,7 @@ biomcp get drug 38eea320-7e0c-485a-bc30-98c3c45e2763 --source openfda-label
 
 ## Example reply
 
-`biomcp get drug 38eea320-7e0c-485a-bc30-98c3c45e2763 --source openfda-label` returned this reply on 2026-10-27. Lists show their first items, and a line that starts with … counts the items left out. Text that ends in … is cut.
+`biomcp get drug 38eea320-7e0c-485a-bc30-98c3c45e2763 --source openfda-label` returned this on 2026-10-27. Lists show their first items; a line with … counts the rest, and text ending in … is cut.
 
 ```json
 {
@@ -68,21 +68,12 @@ biomcp get drug 38eea320-7e0c-485a-bc30-98c3c45e2763 --source openfda-label
         "get", "drug", "38eea320-7e0c-485a-bc30-98c3c45e2763", "label",
         "--label-section", "dosage_and_administration", "--source",
         "openfda-label"
-      ]
-    },
-    {
-      "kind": "section",
-      "args": [
-        "get", "drug", "38eea320-7e0c-485a-bc30-98c3c45e2763", "label",
-        "--label-section", "drug_interactions", "--source", "openfda-label"
-      ]
-    },
-    … 2 more
-  ]
-}
+…
 ```
 
 ## Fields
+
+A field marked Optional can be missing from a reply. Every other field is always there.
 
 `result` holds [DrugCard](#drugcard). `query` holds [DrugGet](/reference/schemas/types/#drugget), a shared type. `query` repeats the request as BioMCP read it.
 
@@ -90,20 +81,20 @@ biomcp get drug 38eea320-7e0c-485a-bc30-98c3c45e2763 --source openfda-label
 
 Exact source identity and explicit native links; deeper facts require named sections.
 
-| Field | Type | Always present | Meaning |
-| --- | --- | --- | --- |
-| `alternate_names` | list of [Text](/reference/schemas/types/#text) | no | Source-native alternate names, without local alias expansion. |
-| `available_sections` | list of [DrugSection](/reference/schemas/types/#drugsection) | no | Only disclosures available for this selected source identity. |
-| `cross_references` | list of [DrugIdentityRelation](/reference/schemas/types/#drugidentityrelation) | no | Explicit source cross-references with their native relation and provenance. |
-| `formulations` | list of [DrugIdentityRelation](/reference/schemas/types/#drugidentityrelation) | no | Explicit native formulation links. |
-| `header` | [DrugHeader](/reference/schemas/types/#drugheader) | yes | Selected source-native identity. |
-| `next` | list of [Step](/reference/schemas/types/#step) | no | Typed actions preserving exact source and identity. |
-| `parents` | list of [DrugIdentityRelation](/reference/schemas/types/#drugidentityrelation) | no | Explicit native parent links. |
-| `products` | list of [DrugIdentityRelation](/reference/schemas/types/#drugidentityrelation) | no | Explicit native product links. |
-| `retrieved` | [PartialDate](/reference/schemas/types/#partialdate) or null | no | Actual retrieval date, separate from source publication or update. |
-| `updated` | [PartialDate](/reference/schemas/types/#partialdate) or null | no | Source-stated update date. |
-| `version` | [Text](/reference/schemas/types/#text) or null | no | Source record version. |
+| Field | Type | Meaning |
+| --- | --- | --- |
+| `alternate_names` | list of [Text](/reference/schemas/types/#text) | Source-native alternate names, without local alias expansion. Optional. |
+| `available_sections` | list of [DrugSection](/reference/schemas/types/#drugsection) | Only disclosures available for this selected source identity. Optional. |
+| `cross_references` | list of [DrugIdentityRelation](/reference/schemas/types/#drugidentityrelation) | Explicit source cross-references with their native relation and provenance. Optional. |
+| `formulations` | list of [DrugIdentityRelation](/reference/schemas/types/#drugidentityrelation) | Explicit native formulation links. Optional. |
+| `header` | [DrugHeader](/reference/schemas/types/#drugheader) | Selected source-native identity. |
+| `next` | list of [Step](/reference/schemas/types/#step) | Typed actions preserving exact source and identity. Optional. |
+| `parents` | list of [DrugIdentityRelation](/reference/schemas/types/#drugidentityrelation) | Explicit native parent links. Optional. |
+| `products` | list of [DrugIdentityRelation](/reference/schemas/types/#drugidentityrelation) | Explicit native product links. Optional. |
+| `retrieved` | [PartialDate](/reference/schemas/types/#partialdate) or null | Actual retrieval date, separate from source publication or update. Optional. |
+| `updated` | [PartialDate](/reference/schemas/types/#partialdate) or null | Source-stated update date. Optional. |
+| `version` | [Text](/reference/schemas/types/#text) or null | Source record version. Optional. |
 
 ## Next
 
-[Reply envelope and shared types](/reference/schemas/types/) defines `status`, `sources`, `next` and every shared type. [Reply schemas](/reference/schemas/) lists every reply. [`biomcp get drug`](/reference/commands/get-drug/) gives the command's arguments.
+[`biomcp get drug`](/reference/commands/get-drug/) gives the command's arguments; [reply schemas](/reference/schemas/) lists every reply.

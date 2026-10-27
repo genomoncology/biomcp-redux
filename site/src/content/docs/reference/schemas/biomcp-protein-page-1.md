@@ -11,7 +11,7 @@ kind: reference
 verified: 2026-10-27
 ---
 
-BioMCP 1.0.0 prints one JSON object, the reply, for each command. [`biomcp search protein`](/reference/commands/search-protein/) replies with `schema` set to `biomcp.protein_page/1`. Read this page when your code parses that reply. It shows a real reply, then the fields that only this schema has. The fields every reply shares are on [reply envelope and shared types](/reference/schemas/types/).
+BioMCP 1.0.0 prints one JSON object, the reply, for each command. [`biomcp search protein`](/reference/commands/search-protein/) replies with `schema` set to `biomcp.protein_page/1`. Read this page when your code parses that reply: it shows a real one, then the fields only this schema has. [Shared types](/reference/schemas/types/) defines the rest.
 
 ## Commands that return it
 
@@ -26,7 +26,7 @@ biomcp search protein EGFR
 
 ## Example reply
 
-`biomcp search protein --gene BRAF` returned this reply on 2026-10-27. Lists show their first items, and a line that starts with … counts the items left out. Text that ends in … is cut.
+`biomcp search protein --gene BRAF` returned this on 2026-10-27. Lists show their first items; a line with … counts the rest, and text ending in … is cut.
 
 ```json
 {
@@ -40,18 +40,7 @@ biomcp search protein EGFR
   },
   "result": {
     "items": [
-      {
-        "protein": {
-          "accession": "P15056",
-          "name": "Serine/threonine-protein kinase B-raf",
-          "length": 766
-        },
-        "entry_id": "BRAF_HUMAN",
-        "gene_names": ["BRAF", "BRAF1", "RAFB1"],
-        "taxon": 9606,
-        "reviewed": true,
-        "url": "https://www.uniprot.org/uniprotkb/P15056/entry"
-      }
+      {…}
     ]
   },
   "page": {
@@ -76,15 +65,14 @@ biomcp search protein EGFR
     }
   ],
   "next": [
-    {
-      "kind": "disambiguate",
-      "args": ["get", "protein", "P15056"]
-    }
+    {"kind": "disambiguate", "args": ["get", "protein", "P15056"]}
   ]
 }
 ```
 
 ## Fields
+
+A field marked Optional can be missing from a reply. Every other field is always there.
 
 `result` holds [ProteinPage](#proteinpage). `query` holds [ProteinSearch](#proteinsearch). `query` repeats the request as BioMCP read it.
 
@@ -92,23 +80,23 @@ biomcp search protein EGFR
 
 Source-ordered human reviewed protein headers.
 
-| Field | Type | Always present | Meaning |
-| --- | --- | --- | --- |
-| `items` | list of [ProteinHeader](/reference/schemas/types/#proteinheader) | yes | Whole native rows in source order; totals apply only to this collection. |
+| Field | Type | Meaning |
+| --- | --- | --- |
+| `items` | list of [ProteinHeader](/reference/schemas/types/#proteinheader) | Whole native rows in source order; totals apply only to this collection. |
 
 ### ProteinSearch
 
 Search five reviewed human UniProt headers by literal text or exact gene. No variant effect, structure, interaction or clinical meaning is inferred. No bioinformatics tool runs.
 
-| Field | Type | Always present | Meaning |
-| --- | --- | --- | --- |
-| `gene` | [GeneSymbol](/reference/schemas/types/#genesymbol) | no | Exact native gene field, without identifier inference. |
-| `limit` | integer (uint32) | no | Five rows by default; no more than 25. |
-| `offset` | integer (uint32) | no | Source/retained result offset. |
-| `pool` | [Text](/reference/schemas/types/#text) | no | Exact retained collection identity. |
-| `query` | [Text](/reference/schemas/types/#text) | no | Literal text, exclusive with gene. |
-| `reviewed` | boolean | no | Reviewed human scope stays enabled; unreviewed search is deferred. |
+| Field | Type | Meaning |
+| --- | --- | --- |
+| `gene` | [GeneSymbol](/reference/schemas/types/#genesymbol) | Exact native gene field, without identifier inference. Optional. |
+| `limit` | integer (uint32) | Five rows by default; no more than 25. Optional. |
+| `offset` | integer (uint32) | Source/retained result offset. Optional. |
+| `pool` | [Text](/reference/schemas/types/#text) | Exact retained collection identity. Optional. |
+| `query` | [Text](/reference/schemas/types/#text) | Literal text, exclusive with gene. Optional. |
+| `reviewed` | boolean | Reviewed human scope stays enabled; unreviewed search is deferred. Optional. |
 
 ## Next
 
-[Reply envelope and shared types](/reference/schemas/types/) defines `status`, `sources`, `next` and every shared type. [Reply schemas](/reference/schemas/) lists every reply. [`biomcp search protein`](/reference/commands/search-protein/) gives the command's arguments.
+[`biomcp search protein`](/reference/commands/search-protein/) gives the command's arguments; [reply schemas](/reference/schemas/) lists every reply.

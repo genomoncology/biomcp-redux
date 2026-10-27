@@ -16,17 +16,17 @@ BioMCP 1.0.0 prints one JSON object, the reply, for each command. Every reply ha
 
 One reply to one command. `schema` names the reply schema and its version, which decide the types of `result` and `query`. [Reply envelope values](/reference/envelope/) gives the meaning of each `status`, source state and reason.
 
-| Field | Type | Always present | Meaning |
-| --- | --- | --- | --- |
-| `local_error` | [CacheProblem](#cacheproblem) or null | no | A problem with BioMCP's local cache: `busy`, `database` or `version`. The sources may still have answered. |
-| `next` | list of [Step](#step) | no | Commands you can run next, such as the next page or another section. |
-| `page` | [PageInfo](#pageinfo) or null | no | For a search page: how many results it skipped, returned and matched in all. |
-| `problems` | list of [Problem](#problem) | no | Fields BioMCP could not accept from a source record, each with its reason. |
-| `query` | the query type of each schema | yes | The request as BioMCP read it from the command's arguments. |
-| `result` | the result type of each schema, or null | no | The data the command found. Missing when there is none to return. |
-| `schema` | string | yes | The reply schema ID, such as `biomcp.gene_cards/4`. |
-| `sources` | list of [SourceOutcome](#sourceoutcome) | no | One entry for each source the command asked, with what happened. |
-| `status` | [Status](#status) | yes | How the command went: `complete`, `partial`, `absent` or `failed`. |
+| Field | Type | Meaning |
+| --- | --- | --- |
+| `local_error` | [CacheProblem](#cacheproblem) or null | A problem with BioMCP's local cache: `busy`, `database` or `version`. The sources may still have answered. Optional. |
+| `next` | list of [Step](#step) | Commands you can run next, such as the next page or another section. Optional. |
+| `page` | [PageInfo](#pageinfo) or null | For a search page: how many results it skipped, returned and matched in all. Optional. |
+| `problems` | list of [Problem](#problem) | Fields BioMCP could not accept from a source record, each with its reason. Optional. |
+| `query` | the query type of each schema | The request as BioMCP read it from the command's arguments. |
+| `result` | the result type of each schema, or null | The data the command found. Missing when there is none to return. Optional. |
+| `schema` | string | The reply schema ID, such as `biomcp.gene_cards/4`. |
+| `sources` | list of [SourceOutcome](#sourceoutcome) | One entry for each source the command asked, with what happened. Optional. |
+| `status` | [Status](#status) | How the command went: `complete`, `partial`, `absent` or `failed`. |
 
 ## Words in the field descriptions
 
@@ -64,55 +64,55 @@ Values: `pathogenic`, `likely_pathogenic`, `uncertain_significance`, `likely_ben
 
 Exact native report identity and an optional independently paged section.
 
-| Field | Type | Always present | Meaning |
-| --- | --- | --- | --- |
-| `drug_index` | integer or null | no | Absolute source-array index; required only for identifier sections. |
-| `id` | [ReportId](#reportid) | yes | Published report ID with no source prefix. |
-| `section` | [AdverseEventSection](#adverseeventsection) or null | no | FAERS owns drugs, reactions and identifiers; MAUDE owns devices and narrative. Omitted means card only. |
-| `section_limit` | integer (uint32) | no | Whole source rows per section page. |
-| `section_offset` | integer (uint32) | no | Offset within the selected native section. |
-| `snapshot` | [Text](#text) or null | no | Checked retained report snapshot for provider-free continuation. |
-| `source` | `"faers"` or `"maude"` | no | FAERS by default; MAUDE is explicit. |
+| Field | Type | Meaning |
+| --- | --- | --- |
+| `drug_index` | integer or null | Absolute source-array index; required only for identifier sections. Optional. |
+| `id` | [ReportId](#reportid) | Published report ID with no source prefix. |
+| `section` | [AdverseEventSection](#adverseeventsection) or null | FAERS owns drugs, reactions and identifiers; MAUDE owns devices and narrative. Omitted means card only. Optional. |
+| `section_limit` | integer (uint32) | Whole source rows per section page. Optional. |
+| `section_offset` | integer (uint32) | Offset within the selected native section. Optional. |
+| `snapshot` | [Text](#text) or null | Checked retained report snapshot for provider-free continuation. Optional. |
+| `source` | `"faers"` or `"maude"` | FAERS by default; MAUDE is explicit. Optional. |
 
 ### AdverseEventHeader
 
 Small source report header without a drug title, flattened lists or count buckets.
 
-| Field | Type | Always present | Meaning |
-| --- | --- | --- | --- |
-| `event_type` | string or null | no | Native event_type string; present empty values remain present. |
-| `first_received` | string or null | no | Native first_received string; present empty values remain present. |
-| `id` | [ReportId](#reportid) | yes | Exact published source identity. |
-| `serious` | string or null | no | Native serious string; present empty values remain present. |
-| `source` | [AdverseEventSource](#adverseeventsource) | yes | Explicit report family. |
-| `version` | string or null | no | Native version string; present empty values remain present. |
+| Field | Type | Meaning |
+| --- | --- | --- |
+| `event_type` | string or null | Native event_type string; present empty values remain present. Optional. |
+| `first_received` | string or null | Native first_received string; present empty values remain present. Optional. |
+| `id` | [ReportId](#reportid) | Exact published source identity. |
+| `serious` | string or null | Native serious string; present empty values remain present. Optional. |
+| `source` | [AdverseEventSource](#adverseeventsource) | Explicit report family. |
+| `version` | string or null | Native version string; present empty values remain present. Optional. |
 
 ### AdverseEventRecords
 
 One complete-row page tied to the retained report snapshot.
 
-| Field | Type | Always present | Meaning |
-| --- | --- | --- | --- |
-| `offset` | integer (uint32) | yes | Native section offset. |
-| `records` | list of T | yes | Source ordered whole rows. |
-| `total` | integer (uint64) | yes | Complete selected section length, not report or patient count. |
+| Field | Type | Meaning |
+| --- | --- | --- |
+| `offset` | integer (uint32) | Native section offset. |
+| `records` | list of T | Source ordered whole rows. |
+| `total` | integer (uint64) | Complete selected section length, not report or patient count. |
 
 ### AdverseEventSearch
 
 Search five report headers by default. VAERS accepts MMR, COVID19, COVID-19 vaccine or one exact qualified native influenza code, matched without case; use influenza to list codes and labels. Tables remain separate and are never summed. One report may list several vaccines. VAERS returns five reported symptom rows by default; seriousness and age select independent tables. Counts are reports, not people. Reports do not show that a vaccine caused an event and cannot measure risk or compare vaccine safety.
 
-| Field | Type | Always present | Meaning |
-| --- | --- | --- | --- |
-| `limit` | integer (uint32) | no | Native report headers or VAERS rows per page; default five. |
-| `offset` | integer (uint32) | no | Native row offset. VAERS continuation requires its retained snapshot. |
-| `reaction` | [Text](#text) or null | no | FAERS MedDRA term phrase match, not exact equality. |
-| `received_from` | [PartialDate](#partialdate) or null | no | Inclusive first FDA receipt lower bound, YYYY-MM-DD. |
-| `received_to` | [PartialDate](#partialdate) or null | no | Inclusive first FDA receipt upper bound, YYYY-MM-DD. |
-| `section` | [VaersSection](#vaerssection) or null | no | Independent VAERS table; omitted means reported symptoms. |
-| `serious` | [AdverseEventSerious](#adverseeventserious) or null | no | FAERS report flag: death or hospitalization; never a reaction outcome. |
-| `snapshot` | [Text](#text) or null | no | Retained VAERS table for provider-free continuation. |
-| `source` | [AdverseEventSource](#adverseeventsource) | no | FAERS by default; VAERS accepts only exact supported vaccine names. |
-| `text` | [Text](#text) | yes | Literal drug text, MAUDE device phrase or exact supported VAERS vaccine. |
+| Field | Type | Meaning |
+| --- | --- | --- |
+| `limit` | integer (uint32) | Native report headers or VAERS rows per page; default five. Optional. |
+| `offset` | integer (uint32) | Native row offset. VAERS continuation requires its retained snapshot. Optional. |
+| `reaction` | [Text](#text) or null | FAERS MedDRA term phrase match, not exact equality. Optional. |
+| `received_from` | [PartialDate](#partialdate) or null | Inclusive first FDA receipt lower bound, YYYY-MM-DD. Optional. |
+| `received_to` | [PartialDate](#partialdate) or null | Inclusive first FDA receipt upper bound, YYYY-MM-DD. Optional. |
+| `section` | [VaersSection](#vaerssection) or null | Independent VAERS table; omitted means reported symptoms. Optional. |
+| `serious` | [AdverseEventSerious](#adverseeventserious) or null | FAERS report flag: death or hospitalization; never a reaction outcome. Optional. |
+| `snapshot` | [Text](#text) or null | Retained VAERS table for provider-free continuation. Optional. |
+| `source` | [AdverseEventSource](#adverseeventsource) | FAERS by default; VAERS accepts only exact supported vaccine names. Optional. |
+| `text` | [Text](#text) | Literal drug text, MAUDE device phrase or exact supported VAERS vaccine. |
 
 ### AdverseEventSection
 
@@ -155,11 +155,11 @@ An explicit source; never probe the other family.
 
 Source-stated interbase replacement; equality never claims normalized equivalence.
 
-| Field | Type | Always present | Meaning |
-| --- | --- | --- | --- |
-| `alternate` | [Sequence](#sequence) | yes |  |
-| `location` | [SequenceLocation](#sequencelocation) | yes |  |
-| `reference` | [Sequence](#sequence) | yes |  |
+| Field | Type | Meaning |
+| --- | --- | --- |
+| `alternate` | [Sequence](#sequence) |  |
+| `location` | [SequenceLocation](#sequencelocation) |  |
+| `reference` | [Sequence](#sequence) |  |
 
 ### AminoAcids
 
@@ -181,21 +181,21 @@ Values: `tier_i`, `tier_ii`, `tier_iii`, `tier_iv`.
 
 Citation metadata from PubMed or Europe PMC.
 
-| Field | Type | Always present | Meaning |
-| --- | --- | --- | --- |
-| `author_count` | integer (uint32) | yes | Whole source author count. |
-| `date` | [PartialDate](#partialdate) or null | no | Publication date at source precision. |
-| `doi` | [Doi](#doi) or null | no | Checked DOI, when supplied. |
-| `electronic_date` | [PartialDate](#partialdate) or null | no | Electronic publication date when different from the publication date. |
-| `europepmc_id` | [EuropePmcId](#europepmcid) or null | no | Europe PMC source-local identity. |
-| `first_author` | [Text](#text) or null | no | First author in source order. |
-| `first_author_id` | [SemanticScholarAuthorId](#semanticscholarauthorid) or null | no | Exact Semantic Scholar ID for the displayed native first author, when supplied. |
-| `journal` | [Text](#text) or null | no | Journal name. |
-| `pmcid` | [Pmcid](#pmcid) or null | no | Checked PMC identity, when supplied. |
-| `pmid` | [Pmid](#pmid) | no | Checked PubMed identity. |
-| `title` | [Text](#text) | yes | Whole source title. |
-| `types` | list of [PublicationType](#publicationtype) | yes | Clinical publication types. |
-| `types_unknown` | boolean | no | The provider does not supply checked publication types. |
+| Field | Type | Meaning |
+| --- | --- | --- |
+| `author_count` | integer (uint32) | Whole source author count. |
+| `date` | [PartialDate](#partialdate) or null | Publication date at source precision. Optional. |
+| `doi` | [Doi](#doi) or null | Checked DOI, when supplied. Optional. |
+| `electronic_date` | [PartialDate](#partialdate) or null | Electronic publication date when different from the publication date. Optional. |
+| `europepmc_id` | [EuropePmcId](#europepmcid) or null | Europe PMC source-local identity. Optional. |
+| `first_author` | [Text](#text) or null | First author in source order. Optional. |
+| `first_author_id` | [SemanticScholarAuthorId](#semanticscholarauthorid) or null | Exact Semantic Scholar ID for the displayed native first author, when supplied. Optional. |
+| `journal` | [Text](#text) or null | Journal name. Optional. |
+| `pmcid` | [Pmcid](#pmcid) or null | Checked PMC identity, when supplied. Optional. |
+| `pmid` | [Pmid](#pmid) | Checked PubMed identity. Optional. |
+| `title` | [Text](#text) | Whole source title. |
+| `types` | list of [PublicationType](#publicationtype) | Clinical publication types. |
+| `types_unknown` | boolean | The provider does not supply checked publication types. Optional. |
 
 ### ArticleInput
 
@@ -205,17 +205,17 @@ Type: string.
 
 One original pool position, including a summary hole.
 
-| Field | Type | Always present | Meaning |
-| --- | --- | --- | --- |
-| `cited_by` | integer or null | no | iCite citing-paper count, only under citation ordering. |
-| `contexts` | [Capped](#capped) of [Text](#text) or null | no | First citation context and the source's complete context count. |
-| `found_by` | object | no | Native one-based source positions, disclosed only for multiple sources. |
-| `header` | [ArticleHeader](#articleheader) or null | no | Citation metadata when accepted. |
-| `influential` | boolean or null | no | Provider's influential flag; absent is distinct from false. |
-| `intents` | list of [CitationIntent](#citationintent) or null | no | Citation intents in provider order; absent means not reported. |
-| `key` | [ArticleKey](#articlekey) | no | Stable checked paper identity when the provider supplies one. |
-| `pmid` | [Pmid](#pmid) | no | The selected PMID, retained when summary mapping fails. |
-| `sentence` | [ArticleSentence](#articlesentence) or null | no | First matching sentence in LitSense2 provider order. |
+| Field | Type | Meaning |
+| --- | --- | --- |
+| `cited_by` | integer or null | iCite citing-paper count, only under citation ordering. Optional. |
+| `contexts` | [Capped](#capped) of [Text](#text) or null | First citation context and the source's complete context count. Optional. |
+| `found_by` | object | Native one-based source positions, disclosed only for multiple sources. Optional. |
+| `header` | [ArticleHeader](#articleheader) or null | Citation metadata when accepted. Optional. |
+| `influential` | boolean or null | Provider's influential flag; absent is distinct from false. Optional. |
+| `intents` | list of [CitationIntent](#citationintent) or null | Citation intents in provider order; absent means not reported. Optional. |
+| `key` | [ArticleKey](#articlekey) | Stable checked paper identity when the provider supplies one. Optional. |
+| `pmid` | [Pmid](#pmid) | The selected PMID, retained when summary mapping fails. Optional. |
+| `sentence` | [ArticleSentence](#articlesentence) or null | First matching sentence in LitSense2 provider order. Optional. |
 
 ### ArticleKey
 
@@ -233,95 +233,95 @@ One of these forms:
 
 Explicit saved article file, owned by the caller.
 
-| Field | Type | Always present | Meaning |
-| --- | --- | --- | --- |
-| `bytes` | integer (uint64) | yes | Exact byte count. |
-| `parts` | integer or null | no | Number of ordered text parts; absent for original supplement bytes. |
-| `path` | [Text](#text) | yes | Absolute caller destination. |
-| `sha256` | [Text](#text) | yes | SHA-256 of the saved bytes. |
-| `url` | [Text](#text) | yes | Source URL for the original material. |
+| Field | Type | Meaning |
+| --- | --- | --- |
+| `bytes` | integer (uint64) | Exact byte count. |
+| `parts` | integer or null | Number of ordered text parts; absent for original supplement bytes. Optional. |
+| `path` | [Text](#text) | Absolute caller destination. |
+| `sha256` | [Text](#text) | SHA-256 of the saved bytes. |
+| `url` | [Text](#text) | Source URL for the original material. |
 
 ### ArticleSentence
 
 Source-provided sentence resemblance, without a claim of clinical relevance.
 
-| Field | Type | Always present | Meaning |
-| --- | --- | --- | --- |
-| `section` | [Text](#text) or null | no | Source section, when present. |
-| `text` | [Text](#text) | yes | Source sentence text. |
+| Field | Type | Meaning |
+| --- | --- | --- |
+| `section` | [Text](#text) or null | Source section, when present. Optional. |
+| `text` | [Text](#text) | Source sentence text. |
 
 ### AssertionAssessment
 
 Source assessment labels and identifiers remain independent.
 
-| Field | Type | Always present | Meaning |
-| --- | --- | --- | --- |
-| `criterion` | [Text](#text) | yes | Native criterion code. |
-| `criterion_id` | [Text](#text) or null | no | Native criterion identifier. |
-| `criterion_iri` | [Text](#text) or null | no | Native criterion IRI. |
-| `default_strength` | [Text](#text) or null | no | Native default strength, distinct from an applied evidence strength. |
-| `default_strength_id` | [Text](#text) or null | no | Native default-strength identifier; not an applied evidence strength. |
-| `default_strength_iri` | [Text](#text) or null | no | Native default-strength IRI. |
-| `outcome` | [Text](#text) | yes | Source outcome label. |
-| `outcome_conflict` | boolean | no | The supplied outcome identifier contradicts its supplied Met/Not Met label. |
-| `outcome_id` | [Text](#text) or null | no | Source outcome identifier, including known conflicting ID/label pairs. |
-| `outcome_iri` | [Text](#text) or null | no | Source outcome IRI. |
+| Field | Type | Meaning |
+| --- | --- | --- |
+| `criterion` | [Text](#text) | Native criterion code. |
+| `criterion_id` | [Text](#text) or null | Native criterion identifier. Optional. |
+| `criterion_iri` | [Text](#text) or null | Native criterion IRI. Optional. |
+| `default_strength` | [Text](#text) or null | Native default strength, distinct from an applied evidence strength. Optional. |
+| `default_strength_id` | [Text](#text) or null | Native default-strength identifier; not an applied evidence strength. Optional. |
+| `default_strength_iri` | [Text](#text) or null | Native default-strength IRI. Optional. |
+| `outcome` | [Text](#text) | Source outcome label. |
+| `outcome_conflict` | boolean | The supplied outcome identifier contradicts its supplied Met/Not Met label. Optional. |
+| `outcome_id` | [Text](#text) or null | Source outcome identifier, including known conflicting ID/label pairs. Optional. |
+| `outcome_iri` | [Text](#text) or null | Source outcome IRI. Optional. |
 
 ### AssertionCondition
 
 A native condition with independently optional identifier and label.
 
-| Field | Type | Always present | Meaning |
-| --- | --- | --- | --- |
-| `accession` | [Text](#text) or null | no | Native accession text, preserved even when no CURIE namespace is recognized. |
-| `database` | [Text](#text) or null | no | Native database name without inventing a CURIE prefix. |
-| `id` | [Curie](#curie) or null | no | Identifier exactly supplied by the source. |
-| `label` | [Text](#text) or null | no | Label only when supplied. |
+| Field | Type | Meaning |
+| --- | --- | --- |
+| `accession` | [Text](#text) or null | Native accession text, preserved even when no CURIE namespace is recognized. Optional. |
+| `database` | [Text](#text) or null | Native database name without inventing a CURIE prefix. Optional. |
+| `id` | [Curie](#curie) or null | Identifier exactly supplied by the source. Optional. |
+| `label` | [Text](#text) or null | Label only when supplied. Optional. |
 
 ### AssertionConditionRelationship
 
 A source trait relationship without assigning a clinical interpretation.
 
-| Field | Type | Always present | Meaning |
-| --- | --- | --- | --- |
-| `related_conditions` | list of [AssertionCondition](#assertioncondition) | yes | Conditions named by the related source trait. |
-| `relationship_type` | [Text](#text) or null | no | Relationship type exactly supplied by the source. |
-| `source_conditions` | list of [AssertionCondition](#assertioncondition) | yes | Conditions on the source trait that owns this relationship. |
+| Field | Type | Meaning |
+| --- | --- | --- |
+| `related_conditions` | list of [AssertionCondition](#assertioncondition) | Conditions named by the related source trait. |
+| `relationship_type` | [Text](#text) or null | Relationship type exactly supplied by the source. Optional. |
+| `source_conditions` | list of [AssertionCondition](#assertioncondition) | Conditions on the source trait that owns this relationship. |
 
 ### AssertionDetail
 
 Source details that do not fit the compact shared statement.
 
-| Field | Type | Always present | Meaning |
-| --- | --- | --- | --- |
-| `approved` | [PartialDate](#partialdate) or null | no | Source approval date, distinct from evaluation and publication. |
-| `citations` | list of [Pmid](#pmid) | no | Source citations, including assertion-method citations. |
-| `comments` | list of [Text](#text) | no | Native classification comments, without extracting clinical claims. |
-| `condition_relationships` | list of [AssertionConditionRelationship](#assertionconditionrelationship) | no | Native trait relationships, kept separate from assertion conditions. |
-| `conditions` | list of [AssertionCondition](#assertioncondition) | no | All source conditions; ID-only conditions stay ID-only. |
-| `document` | [AssertionDocument](#assertiondocument) or null | no | Source document facts for an explicitly selected historical version. |
-| `impact_assertion_type` | [Text](#text) or null | no | Native somatic impact assertion type, without deriving a predicate. |
-| `impact_clinical_significance` | [Text](#text) or null | no | Native somatic significance, independent of the tier label. |
-| `impact_therapies` | [Text](#text) or null | no | Native therapy text, without splitting or assigning it to a predicate. |
-| `methods` | list of [Text](#text) | no | Assertion method labels, not inferred from clinical testing. |
-| `origins` | list of [Text](#text) | no | Source origin labels without reducing multiple observations. |
-| `published` | [PartialDate](#partialdate) or null | no | Source publication date; never an inferred evaluation date. |
-| `summary` | [Text](#text) or null | no | Source prose, kept separately from structured criteria. |
-| `unmet_criteria` | list of [Text](#text) | no | Criteria explicitly marked unmet. |
-| `versions` | list of [Text](#text) | no | Native document versions offered by the source. |
+| Field | Type | Meaning |
+| --- | --- | --- |
+| `approved` | [PartialDate](#partialdate) or null | Source approval date, distinct from evaluation and publication. Optional. |
+| `citations` | list of [Pmid](#pmid) | Source citations, including assertion-method citations. Optional. |
+| `comments` | list of [Text](#text) | Native classification comments, without extracting clinical claims. Optional. |
+| `condition_relationships` | list of [AssertionConditionRelationship](#assertionconditionrelationship) | Native trait relationships, kept separate from assertion conditions. Optional. |
+| `conditions` | list of [AssertionCondition](#assertioncondition) | All source conditions; ID-only conditions stay ID-only. Optional. |
+| `document` | [AssertionDocument](#assertiondocument) or null | Source document facts for an explicitly selected historical version. Optional. |
+| `impact_assertion_type` | [Text](#text) or null | Native somatic impact assertion type, without deriving a predicate. Optional. |
+| `impact_clinical_significance` | [Text](#text) or null | Native somatic significance, independent of the tier label. Optional. |
+| `impact_therapies` | [Text](#text) or null | Native therapy text, without splitting or assigning it to a predicate. Optional. |
+| `methods` | list of [Text](#text) | Assertion method labels, not inferred from clinical testing. Optional. |
+| `origins` | list of [Text](#text) | Source origin labels without reducing multiple observations. Optional. |
+| `published` | [PartialDate](#partialdate) or null | Source publication date; never an inferred evaluation date. Optional. |
+| `summary` | [Text](#text) or null | Source prose, kept separately from structured criteria. Optional. |
+| `unmet_criteria` | list of [Text](#text) | Criteria explicitly marked unmet. Optional. |
+| `versions` | list of [Text](#text) | Native document versions offered by the source. Optional. |
 
 ### AssertionDocument
 
 Native SEPIO facts kept separate from common interpretation fields.
 
-| Field | Type | Always present | Meaning |
-| --- | --- | --- | --- |
-| `assessments` | list of [AssertionAssessment](#assertionassessment) | no | Assessments directly supporting the interpretation. |
-| `document_type` | [Text](#text) | yes | Native interpretation type. |
-| `native_id` | [Text](#text) | yes | Native interpretation identifier, separate from the summary PCER identifier. |
-| `outcome_id` | [Text](#text) or null | no | Native outcome identifier without assigning a common coding system. |
-| `outcome_iri` | [Text](#text) or null | no | Native outcome IRI. |
-| `uuid` | [Text](#text) | yes | Source UUID checked against the selected summary link. |
+| Field | Type | Meaning |
+| --- | --- | --- |
+| `assessments` | list of [AssertionAssessment](#assertionassessment) | Assessments directly supporting the interpretation. Optional. |
+| `document_type` | [Text](#text) | Native interpretation type. |
+| `native_id` | [Text](#text) | Native interpretation identifier, separate from the summary PCER identifier. |
+| `outcome_id` | [Text](#text) or null | Native outcome identifier without assigning a common coding system. Optional. |
+| `outcome_iri` | [Text](#text) or null | Native outcome IRI. Optional. |
+| `uuid` | [Text](#text) | Source UUID checked against the selected summary link. |
 
 ### AssertionDomain
 
@@ -345,26 +345,26 @@ Values: `clinvar`, `erepo`.
 
 Provenance for one source record.
 
-| Field | Type | Always present | Meaning |
-| --- | --- | --- | --- |
-| `evaluated` | [PartialDate](#partialdate) or null | no | Source evaluation date. |
-| `record` | [Text](#text) or null | no | Native assertion record. |
-| `release` | [Text](#text) or null | no | Dataset release. |
-| `source` | [Text](#text) | yes | Source responsible for the claim. |
-| `submitter` | [Text](#text) or null | no | Source submitter or panel. |
-| `url` | [Text](#text) or null | no | Source record link. |
-| `version` | [Text](#text) or null | no | Record version. |
+| Field | Type | Meaning |
+| --- | --- | --- |
+| `evaluated` | [PartialDate](#partialdate) or null | Source evaluation date. Optional. |
+| `record` | [Text](#text) or null | Native assertion record. Optional. |
+| `release` | [Text](#text) or null | Dataset release. Optional. |
+| `source` | [Text](#text) | Source responsible for the claim. |
+| `submitter` | [Text](#text) or null | Source submitter or panel. Optional. |
+| `url` | [Text](#text) or null | Source record link. Optional. |
+| `version` | [Text](#text) or null | Record version. Optional. |
 
 ### AuthorCounts
 
 Counts describe only this provider record, never a global publication corpus.
 
-| Field | Type | Always present | Meaning |
-| --- | --- | --- | --- |
-| `citation_count` | integer or null | no | Native citations to this record’s indexed papers. |
-| `h_index` | integer or null | no | Native h-index for this record’s indexed papers. |
-| `paper_count` | integer or null | no | Native indexed paper count. |
-| `scope` | [AuthorCountScope](#authorcountscope) | yes | Counts apply only to this provider record. |
+| Field | Type | Meaning |
+| --- | --- | --- |
+| `citation_count` | integer or null | Native citations to this record’s indexed papers. Optional. |
+| `h_index` | integer or null | Native h-index for this record’s indexed papers. Optional. |
+| `paper_count` | integer or null | Native indexed paper count. Optional. |
+| `scope` | [AuthorCountScope](#authorcountscope) | Counts apply only to this provider record. |
 
 ### AuthorCountScope
 
@@ -376,12 +376,12 @@ Values: `provider_record`.
 
 One source candidate; absent affiliations differ from an empty source collection.
 
-| Field | Type | Always present | Meaning |
-| --- | --- | --- | --- |
-| `affiliations` | list of [Text](#text) or null | no | Native affiliation labels; no employment claim. |
-| `counts` | [AuthorCounts](#authorcounts) or null | no | Source record counts when supplied. |
-| `id` | [AuthorId](#authorid) | yes | Exact qualified provider record. |
-| `name` | [Text](#text) | yes | Source display name, never a join key. |
+| Field | Type | Meaning |
+| --- | --- | --- |
+| `affiliations` | list of [Text](#text) or null | Native affiliation labels; no employment claim. Optional. |
+| `counts` | [AuthorCounts](#authorcounts) or null | Source record counts when supplied. Optional. |
+| `id` | [AuthorId](#authorid) | Exact qualified provider record. |
+| `name` | [Text](#text) | Source display name, never a join key. |
 
 ### AuthorId
 
@@ -391,48 +391,48 @@ Type: string.
 
 A native date kept with its original role.
 
-| Field | Type | Always present | Meaning |
-| --- | --- | --- | --- |
-| `date` | [PartialDate](#partialdate) | yes | Source date at its stated precision. |
-| `role` | [Text](#text) | yes | Native date role, without assigning approval meaning. |
+| Field | Type | Meaning |
+| --- | --- | --- |
+| `date` | [PartialDate](#partialdate) | Source date at its stated precision. |
+| `role` | [Text](#text) | Native date role, without assigning approval meaning. |
 
 ### AuthorizationEvent
 
 A source-scoped regulator event; never an identity-card field.
 
-| Field | Type | Always present | Meaning |
-| --- | --- | --- | --- |
-| `attribution` | [Attribution](#attribution) | yes | One source record and its native provenance. |
-| `dates` | list of [AuthorizationDate](#authorizationdate) | no | All native dates with separate roles. |
-| `indication` | [Text](#text) or null | no | Original indication scope when present. |
-| `jurisdiction` | [Text](#text) or null | no | Jurisdiction explicitly stated by the source. |
-| `kind` | [Text](#text) or null | no | Original native event type. |
-| `product_number` | [Text](#text) or null | no | Explicit native product number, never a synthesized first product. |
-| `record` | [DrugId](#drugid) | yes | Native regulator record identifier. |
-| `status` | [Text](#text) or null | no | Original source status; historical positives imply no current status. |
+| Field | Type | Meaning |
+| --- | --- | --- |
+| `attribution` | [Attribution](#attribution) | One source record and its native provenance. |
+| `dates` | list of [AuthorizationDate](#authorizationdate) | All native dates with separate roles. Optional. |
+| `indication` | [Text](#text) or null | Original indication scope when present. Optional. |
+| `jurisdiction` | [Text](#text) or null | Jurisdiction explicitly stated by the source. Optional. |
+| `kind` | [Text](#text) or null | Original native event type. Optional. |
+| `product_number` | [Text](#text) or null | Explicit native product number, never a synthesized first product. Optional. |
+| `record` | [DrugId](#drugid) | Native regulator record identifier. |
+| `status` | [Text](#text) or null | Original source status; historical positives imply no current status. Optional. |
 
 ### AuthorPaperExternalId
 
 An open native identifier namespace and value; no identity inference.
 
-| Field | Type | Always present | Meaning |
-| --- | --- | --- | --- |
-| `id` | [Curie](#curie) | yes | Native namespace and identifier. |
+| Field | Type | Meaning |
+| --- | --- | --- |
+| `id` | [Curie](#curie) | Native namespace and identifier. |
 
 ### AuthorPaperHeader
 
 One indexed paper in source order; identifiers come only from that source.
 
-| Field | Type | Always present | Meaning |
-| --- | --- | --- | --- |
-| `doi` | [Doi](#doi) or null | no | Exact native DOI. |
-| `external_ids` | list of [AuthorPaperExternalId](#authorpaperexternalid) | yes | Every other native paper identifier. |
-| `paper_id` | [SemanticScholarId](#semanticscholarid) | yes | The paper's ID at the source (Semantic Scholar). |
-| `pmcid` | [Pmcid](#pmcid) or null | no | Exact native PMCID. |
-| `pmid` | [Pmid](#pmid) or null | no | Exact native PMID. |
-| `title` | [Text](#text) | yes | Whole source title. |
-| `venue` | [Text](#text) or null | no | Source venue when supplied and nonempty. |
-| `year` | integer or null | no | Source publication year. |
+| Field | Type | Meaning |
+| --- | --- | --- |
+| `doi` | [Doi](#doi) or null | Exact native DOI. Optional. |
+| `external_ids` | list of [AuthorPaperExternalId](#authorpaperexternalid) | Every other native paper identifier. |
+| `paper_id` | [SemanticScholarId](#semanticscholarid) | The paper's ID at the source (Semantic Scholar). |
+| `pmcid` | [Pmcid](#pmcid) or null | Exact native PMCID. Optional. |
+| `pmid` | [Pmid](#pmid) or null | Exact native PMID. Optional. |
+| `title` | [Text](#text) | Whole source title. |
+| `venue` | [Text](#text) or null | Source venue when supplied and nonempty. Optional. |
+| `year` | integer or null | Source publication year. Optional. |
 
 ### AuthorPaperSection
 
@@ -446,23 +446,23 @@ How much to show for each paper. `details` adds the paper's full metadata.
 
 One exact provider record's publication window. ORCID sends its whole public works list in one reply and pages groups locally.
 
-| Field | Type | Always present | Meaning |
-| --- | --- | --- | --- |
-| `full` | boolean | no | Legacy alias for details; normalized on construction. |
-| `id` | [AuthorId](#authorid) | yes | Exact qualified provider record. |
-| `limit` | integer (uint32) | no | Bounded row count. |
-| `offset` | integer (uint32) | no | Native or retained collection offset. |
-| `pool` | [Text](#text) | no | The ID of a stored list, from an earlier reply, so later pages read the same data. |
-| `section` | [AuthorPaperSection](#authorpapersection) | no | Detailed disclosure when requested. |
+| Field | Type | Meaning |
+| --- | --- | --- |
+| `full` | boolean | Legacy alias for details; normalized on construction. Optional. |
+| `id` | [AuthorId](#authorid) | Exact qualified provider record. |
+| `limit` | integer (uint32) | Bounded row count. Optional. |
+| `offset` | integer (uint32) | Native or retained collection offset. Optional. |
+| `pool` | [Text](#text) | The ID of a stored list, from an earlier reply, so later pages read the same data. Optional. |
+| `section` | [AuthorPaperSection](#authorpapersection) | Detailed disclosure when requested. Optional. |
 
 ### Bound
 
 A bounded source range; equal min and max denote an exact boundary.
 
-| Field | Type | Always present | Meaning |
-| --- | --- | --- | --- |
-| `max` | integer or null | no |  |
-| `min` | integer or null | no |  |
+| Field | Type | Meaning |
+| --- | --- | --- |
+| `max` | integer or null | Optional. |
+| `min` | integer or null | Optional. |
 
 ### Build
 
@@ -483,10 +483,10 @@ Values: `busy`, `database`, `version`.
 
 A list cut to a maximum length. `total` counts the items before the cut.
 
-| Field | Type | Always present | Meaning |
-| --- | --- | --- | --- |
-| `items` | list of T | yes | The items, in the source's order. |
-| `total` | integer (uint64) | yes | How many distinct items there were before the cut. |
+| Field | Type | Meaning |
+| --- | --- | --- |
+| `items` | list of T | The items, in the source's order. |
+| `total` | integer (uint64) | How many distinct items there were before the cut. |
 
 ### CbioportalCancerTypeId
 
@@ -496,76 +496,76 @@ Type: string.
 
 Exact accession-linked metadata with its own native collection total.
 
-| Field | Type | Always present | Meaning |
-| --- | --- | --- | --- |
-| `accession` | [CellosaurusAccession](#cellosaurusaccession) | yes | Requested exact accession. |
-| `fetched` | integer or null | no | Original retrieval seconds; never a source release date. |
-| `items` | T | yes | Every selected whole metadata row and the native total. |
-| `offset` | integer (uint32) | yes | Native metadata page offset. |
-| `release` | [CellLineRelease](#celllinerelease) or null | no | Independent ChEMBL release, distinct from retrieval time. |
+| Field | Type | Meaning |
+| --- | --- | --- |
+| `accession` | [CellosaurusAccession](#cellosaurusaccession) | Requested exact accession. |
+| `fetched` | integer or null | Original retrieval seconds; never a source release date. Optional. |
+| `items` | T | Every selected whole metadata row and the native total. |
+| `offset` | integer (uint32) | Native metadata page offset. |
+| `release` | [CellLineRelease](#celllinerelease) or null | Independent ChEMBL release, distinct from retrieval time. Optional. |
 
 ### CellLineChemblRecord
 
 One exact accession-linked ChEMBL cell identity; no assay request is implied.
 
-| Field | Type | Always present | Meaning |
-| --- | --- | --- | --- |
-| `cell_id` | integer (uint64) | yes | Independent native integer cell record identity. |
-| `cellosaurus_id` | [CellosaurusAccession](#cellosaurusaccession) | yes | Native exact accession; adapter verifies the join. |
-| `clo` | [Text](#text) or null | no | Native CLO identifier; omission is source absence. |
-| `description` | [Text](#text) or null | no | Native description. |
-| `efo` | [Text](#text) or null | no | Native EFO identifier; omission is source absence. |
-| `id` | [ChemblCellId](#chemblcellid) | yes | Native cell ChEMBL ID, never a compound or target. |
-| `name` | [Text](#text) or null | no | Native display name without name-based joining. |
-| `organism` | [Text](#text) or null | no | Native organism label. |
-| `taxon` | integer or null | no | Native organism taxon. |
-| `tissue` | [Text](#text) or null | no | Native tissue label. |
+| Field | Type | Meaning |
+| --- | --- | --- |
+| `cell_id` | integer (uint64) | Independent native integer cell record identity. |
+| `cellosaurus_id` | [CellosaurusAccession](#cellosaurusaccession) | Native exact accession; adapter verifies the join. |
+| `clo` | [Text](#text) or null | Native CLO identifier; omission is source absence. Optional. |
+| `description` | [Text](#text) or null | Native description. Optional. |
+| `efo` | [Text](#text) or null | Native EFO identifier; omission is source absence. Optional. |
+| `id` | [ChemblCellId](#chemblcellid) | Native cell ChEMBL ID, never a compound or target. |
+| `name` | [Text](#text) or null | Native display name without name-based joining. Optional. |
+| `organism` | [Text](#text) or null | Native organism label. Optional. |
+| `taxon` | integer or null | Native organism taxon. Optional. |
+| `tissue` | [Text](#text) or null | Native tissue label. Optional. |
 
 ### CellLineGene
 
 A native variation gene member with only a source-supplied HGNC identity.
 
-| Field | Type | Always present | Meaning |
-| --- | --- | --- | --- |
-| `hgnc` | [HgncId](#hgncid) or null | no | Present only if this source member explicitly carries the HGNC identifier. |
-| `reference` | [CellLineXref](#celllinexref) | yes | Complete original source gene cross-reference. |
+| Field | Type | Meaning |
+| --- | --- | --- |
+| `hgnc` | [HgncId](#hgncid) or null | Present only if this source member explicitly carries the HGNC identifier. Optional. |
+| `reference` | [CellLineXref](#celllinexref) | Complete original source gene cross-reference. |
 
 ### CellLineGet
 
 One exact identity and an optional bounded named section.
 
-| Field | Type | Always present | Meaning |
-| --- | --- | --- | --- |
-| `id` | [CellLineInput](#celllineinput) | yes | One exact primary accession or qualified source ID. |
-| `section` | [CellLineSection](#celllinesection) | no | Omit for the default card; all returns bounded first pages without an assay count. |
-| `section_limit` | integer (uint32) | no | Explicit row limit for each requested collection; native variation defaults to three. |
-| `section_offset` | integer (uint32) | no | Offset within each independently requested collection. |
+| Field | Type | Meaning |
+| --- | --- | --- |
+| `id` | [CellLineInput](#celllineinput) | One exact primary accession or qualified source ID. |
+| `section` | [CellLineSection](#celllinesection) | Omit for the default card; all returns bounded first pages without an assay count. Optional. |
+| `section_limit` | integer (uint32) | Explicit row limit for each requested collection; native variation defaults to three. Optional. |
+| `section_offset` | integer (uint32) | Offset within each independently requested collection. Optional. |
 
 ### CellLineHeader
 
 Compact source identity with independently capped species and diseases.
 
-| Field | Type | Always present | Meaning |
-| --- | --- | --- | --- |
-| `accession` | [CellosaurusAccession](#cellosaurusaccession) | yes | Exact primary accession. |
-| `category` | [Text](#text) | yes | Native category. |
-| `diseases` | [Capped](#capped) of [CellLineXref](#celllinexref) | yes | Up to three complete disease references and their independent total. |
-| `name` | [Text](#text) | yes | Recommended display name. |
-| `species` | [Capped](#capped) of [CellLineXref](#celllinexref) | yes | Up to three complete species references and their native total. |
+| Field | Type | Meaning |
+| --- | --- | --- |
+| `accession` | [CellosaurusAccession](#cellosaurusaccession) | Exact primary accession. |
+| `category` | [Text](#text) | Native category. |
+| `diseases` | [Capped](#capped) of [CellLineXref](#celllinexref) | Up to three complete disease references and their independent total. |
+| `name` | [Text](#text) | Recommended display name. |
+| `species` | [Capped](#capped) of [CellLineXref](#celllinexref) | Up to three complete species references and their native total. |
 
 ### CellLineIdentityPage
 
 Species, diseases and warnings page independently; each total belongs to its own collection.
 
-| Field | Type | Always present | Meaning |
-| --- | --- | --- | --- |
-| `accession` | [CellosaurusAccession](#cellosaurusaccession) | yes | Selected exact primary accession. |
-| `diseases` | [Capped](#capped) of [CellLineXref](#celllinexref) | yes | Whole disease rows and their independent source total. |
-| `fetched` | integer or null | no | Original complete-card retrieval seconds, distinct from source release. |
-| `offset` | integer (uint32) | yes | Requested offset applied independently to each collection. |
-| `release` | [CellLineRelease](#celllinerelease) or null | no | Independently fetched publisher release. |
-| `species` | [Capped](#capped) of [CellLineXref](#celllinexref) | yes | Whole species rows and their source total. |
-| `warnings` | [Capped](#capped) of [CellLineWarning](#celllinewarning) | yes | Whole scoped warning rows and their independent source total. |
+| Field | Type | Meaning |
+| --- | --- | --- |
+| `accession` | [CellosaurusAccession](#cellosaurusaccession) | Selected exact primary accession. |
+| `diseases` | [Capped](#capped) of [CellLineXref](#celllinexref) | Whole disease rows and their independent source total. |
+| `fetched` | integer or null | Original complete-card retrieval seconds, distinct from source release. Optional. |
+| `offset` | integer (uint32) | Requested offset applied independently to each collection. |
+| `release` | [CellLineRelease](#celllinerelease) or null | Independently fetched publisher release. Optional. |
+| `species` | [Capped](#capped) of [CellLineXref](#celllinexref) | Whole species rows and their source total. |
+| `warnings` | [Capped](#capped) of [CellLineWarning](#celllinewarning) | Whole scoped warning rows and their independent source total. |
 
 ### CellLineInput
 
@@ -577,50 +577,50 @@ Type: string.
 
 One native display name entry, never an identity key.
 
-| Field | Type | Always present | Meaning |
-| --- | --- | --- | --- |
-| `kind` | [Text](#text) | yes | Native name type, preserving identifier and synonym labels. |
-| `value` | [Text](#text) | yes | Native name spelling and punctuation. |
+| Field | Type | Meaning |
+| --- | --- | --- |
+| `kind` | [Text](#text) | Native name type, preserving identifier and synonym labels. |
+| `value` | [Text](#text) | Native name spelling and punctuation. |
 
 ### CellLineNames
 
 Native display names with collection-local totals and offset.
 
-| Field | Type | Always present | Meaning |
-| --- | --- | --- | --- |
-| `accession` | [CellosaurusAccession](#cellosaurusaccession) | yes | Selected exact primary accession. |
-| `fetched` | integer or null | no | Original complete-card retrieval seconds, distinct from source release. |
-| `items` | T | yes | Whole source rows and the total in this collection only. |
-| `offset` | integer (uint32) | yes | Offset within this collection, never within another section. |
-| `release` | [CellLineRelease](#celllinerelease) or null | no | Independently fetched publisher release. |
+| Field | Type | Meaning |
+| --- | --- | --- |
+| `accession` | [CellosaurusAccession](#cellosaurusaccession) | Selected exact primary accession. |
+| `fetched` | integer or null | Original complete-card retrieval seconds, distinct from source release. Optional. |
+| `items` | T | Whole source rows and the total in this collection only. |
+| `offset` | integer (uint32) | Offset within this collection, never within another section. |
+| `release` | [CellLineRelease](#celllinerelease) or null | Independently fetched publisher release. Optional. |
 
 ### CellLineProvenance
 
 One complete native source row; reference, institution and database provenance stay independent.
 
-| Field | Type | Always present | Meaning |
-| --- | --- | --- | --- |
-| `institution` | [Text](#text) or null | no | Native institution name if supplied. |
-| `reference` | [CellLineReference](#celllinereference) or null | no | Native publication reference if supplied. |
-| `value` | [Text](#text) or null | no | Native institution value if supplied. |
-| `xref` | [CellLineXref](#celllinexref) or null | no | Complete native database provenance if supplied. |
+| Field | Type | Meaning |
+| --- | --- | --- |
+| `institution` | [Text](#text) or null | Native institution name if supplied. Optional. |
+| `reference` | [CellLineReference](#celllinereference) or null | Native publication reference if supplied. Optional. |
+| `value` | [Text](#text) or null | Native institution value if supplied. Optional. |
+| `xref` | [CellLineXref](#celllinexref) or null | Complete native database provenance if supplied. Optional. |
 
 ### CellLineReference
 
 One native internal publication reference, without requiring PubMed.
 
-| Field | Type | Always present | Meaning |
-| --- | --- | --- | --- |
-| `resource_internal_ref` | [Text](#text) | yes | Complete native resource reference, for example PubMed=9305600. |
+| Field | Type | Meaning |
+| --- | --- | --- |
+| `resource_internal_ref` | [Text](#text) | Complete native resource reference, for example PubMed=9305600. |
 
 ### CellLineRelease
 
 Publisher release identity, fetched independently from record data.
 
-| Field | Type | Always present | Meaning |
-| --- | --- | --- | --- |
-| `updated` | [PartialDate](#partialdate) | yes | Native release update date. |
-| `version` | [Text](#text) | yes | Native release version. |
+| Field | Type | Meaning |
+| --- | --- | --- |
+| `updated` | [PartialDate](#partialdate) | Native release update date. |
+| `version` | [Text](#text) | Native release version. |
 
 ### CellLineSection
 
@@ -639,63 +639,63 @@ Named disclosure sections; all requests each bounded first page without an assay
 
 Whole native variation rows with collection-local totals and offset.
 
-| Field | Type | Always present | Meaning |
-| --- | --- | --- | --- |
-| `accession` | [CellosaurusAccession](#cellosaurusaccession) | yes | Selected exact primary accession. |
-| `fetched` | integer or null | no | Original complete-card retrieval seconds, distinct from source release. |
-| `items` | T | yes | Whole source rows and the total in this collection only. |
-| `offset` | integer (uint32) | yes | Offset within this collection, never within another section. |
-| `release` | [CellLineRelease](#celllinerelease) or null | no | Independently fetched publisher release. |
+| Field | Type | Meaning |
+| --- | --- | --- |
+| `accession` | [CellosaurusAccession](#cellosaurusaccession) | Selected exact primary accession. |
+| `fetched` | integer or null | Original complete-card retrieval seconds, distinct from source release. Optional. |
+| `items` | T | Whole source rows and the total in this collection only. |
+| `offset` | integer (uint32) | Offset within this collection, never within another section. |
+| `release` | [CellLineRelease](#celllinerelease) or null | Independently fetched publisher release. Optional. |
 
 ### CellLineVariation
 
 One complete native variation row; descriptions do not become normalized alleles.
 
-| Field | Type | Always present | Meaning |
-| --- | --- | --- | --- |
-| `description` | [Text](#text) or null | no | Complete native mutation description including all coordinate spellings. |
-| `genes` | list of [CellLineGene](#celllinegene) | yes | Every native gene member, including both fusion members. |
-| `mutation_type` | [Text](#text) or null | no | Native open mutation label. |
-| `note` | [Text](#text) or null | no | Complete native variation note. |
-| `provenance` | list of [CellLineProvenance](#celllineprovenance) | yes | Every native provenance row in source order; no PMID is required. |
-| `references` | list of [CellLineXref](#celllinexref) | yes | Every other variation cross-reference in native order. |
-| `variation_type` | [Text](#text) | yes | Native open variation label. |
-| `zygosity` | [Text](#text) or null | no | Native zygosity label; absence is not inferred. |
+| Field | Type | Meaning |
+| --- | --- | --- |
+| `description` | [Text](#text) or null | Complete native mutation description including all coordinate spellings. Optional. |
+| `genes` | list of [CellLineGene](#celllinegene) | Every native gene member, including both fusion members. |
+| `mutation_type` | [Text](#text) or null | Native open mutation label. Optional. |
+| `note` | [Text](#text) or null | Complete native variation note. Optional. |
+| `provenance` | list of [CellLineProvenance](#celllineprovenance) | Every native provenance row in source order; no PMID is required. |
+| `references` | list of [CellLineXref](#celllinexref) | Every other variation cross-reference in native order. |
+| `variation_type` | [Text](#text) | Native open variation label. |
+| `zygosity` | [Text](#text) or null | Native zygosity label; absence is not inferred. Optional. |
 
 ### CellLineWarning
 
 Complete source warning with its native scope; no stock classifier is derived.
 
-| Field | Type | Always present | Meaning |
-| --- | --- | --- | --- |
-| `scope` | [Text](#text) | yes | Native warning category, such as Problematic cell line. |
-| `text` | [Text](#text) | yes | Complete source text including historical and stock qualifications. |
+| Field | Type | Meaning |
+| --- | --- | --- |
+| `scope` | [Text](#text) | Native warning category, such as Problematic cell line. |
+| `text` | [Text](#text) | Complete source text including historical and stock qualifications. |
 
 ### CellLineXref
 
 One complete native cross-reference; database and accession form the source identity.
 
-| Field | Type | Always present | Meaning |
-| --- | --- | --- | --- |
-| `accession` | [Text](#text) | yes | Native accession, including any internal prefix. |
-| `category` | [Text](#text) or null | no | Native source category when supplied. |
-| `database` | [Text](#text) | yes | Native database name; no fixed vocabulary. |
-| `discontinued` | [Text](#text) or null | no | Native discontinuation qualifier, including values such as probable. |
-| `iri` | [Text](#text) or null | no | Native IRI when supplied. |
-| `label` | [Text](#text) or null | no | Native display label when supplied. |
-| `url` | [Text](#text) or null | no | Native source URL when supplied. |
+| Field | Type | Meaning |
+| --- | --- | --- |
+| `accession` | [Text](#text) | Native accession, including any internal prefix. |
+| `category` | [Text](#text) or null | Native source category when supplied. Optional. |
+| `database` | [Text](#text) | Native database name; no fixed vocabulary. |
+| `discontinued` | [Text](#text) or null | Native discontinuation qualifier, including values such as probable. Optional. |
+| `iri` | [Text](#text) or null | Native IRI when supplied. Optional. |
+| `label` | [Text](#text) or null | Native display label when supplied. Optional. |
+| `url` | [Text](#text) or null | Native source URL when supplied. Optional. |
 
 ### CellLineXrefs
 
 Native source cross-references with collection-local totals and offset.
 
-| Field | Type | Always present | Meaning |
-| --- | --- | --- | --- |
-| `accession` | [CellosaurusAccession](#cellosaurusaccession) | yes | Selected exact primary accession. |
-| `fetched` | integer or null | no | Original complete-card retrieval seconds, distinct from source release. |
-| `items` | [Capped](#capped) of [CellLineXref](#celllinexref) | yes | Whole source rows and the total in this collection only. |
-| `offset` | integer (uint32) | yes | Offset within this collection, never within another section. |
-| `release` | [CellLineRelease](#celllinerelease) or null | no | Independently fetched publisher release. |
+| Field | Type | Meaning |
+| --- | --- | --- |
+| `accession` | [CellosaurusAccession](#cellosaurusaccession) | Selected exact primary accession. |
+| `fetched` | integer or null | Original complete-card retrieval seconds, distinct from source release. Optional. |
+| `items` | [Capped](#capped) of [CellLineXref](#celllinexref) | Whole source rows and the total in this collection only. |
+| `offset` | integer (uint32) | Offset within this collection, never within another section. |
+| `release` | [CellLineRelease](#celllinerelease) or null | Independently fetched publisher release. Optional. |
 
 ### CellosaurusAccession
 
@@ -729,11 +729,11 @@ Values: `evidence`, `assertions`.
 
 Native stream bounds; evidence and assertions have separate cursors.
 
-| Field | Type | Always present | Meaning |
-| --- | --- | --- | --- |
-| `next` | T or null | no | Continue the same source candidate, profile and claim stream. |
-| `returned` | integer (uint32) | yes | Number of native rows displayed in this stream. |
-| `total` | integer (uint64) | yes | Native total for this stream. |
+| Field | Type | Meaning |
+| --- | --- | --- |
+| `next` | T or null | Continue the same source candidate, profile and claim stream. Optional. |
+| `returned` | integer (uint32) | Number of native rows displayed in this stream. |
+| `total` | integer (uint64) | Native total for this stream. |
 
 ### CivicEvidenceLevelCode
 
@@ -745,13 +745,13 @@ Values: `a`, `b`, `c`, `d`, `e`.
 
 A native CIViC member, including members without a common-model subject.
 
-| Field | Type | Always present | Meaning |
-| --- | --- | --- | --- |
-| `feature` | [Text](#text) | yes | Native feature label, including fusion features. |
-| `hgvs_descriptions` | list of [Text](#text) | no | Every native notation, without selecting a transcript or repairing a spelling. |
-| `label` | [Text](#text) | yes | Whole source variant label. |
-| `record` | [SourceRecord](#sourcerecord) | yes | Native variant identity and link. |
-| `subject` | [VariantRef](#variantref) or null | no | Source-qualified subject when supported by the common model. |
+| Field | Type | Meaning |
+| --- | --- | --- |
+| `feature` | [Text](#text) | Native feature label, including fusion features. |
+| `hgvs_descriptions` | list of [Text](#text) | Every native notation, without selecting a transcript or repairing a spelling. Optional. |
+| `label` | [Text](#text) | Whole source variant label. |
+| `record` | [SourceRecord](#sourcerecord) | Native variant identity and link. |
+| `subject` | [VariantRef](#variantref) or null | Source-qualified subject when supported by the common model. Optional. |
 
 ### CivicMembership
 
@@ -763,47 +763,47 @@ Values: `exact`, `candidate`.
 
 Source facts retained without inventing a common-model subject or proposition.
 
-| Field | Type | Always present | Meaning |
-| --- | --- | --- | --- |
-| `allele_origin` | [Term](#term) or null | no | Native origin, when stated. |
-| `attribution` | [Attribution](#attribution) | yes | Original source provenance. |
-| `citations` | list of [Pmid](#pmid) | no | Native publication identities. |
-| `classification` | [Term](#term) | yes | Whole native classification. |
-| `condition` | [Concept](#concept) or null | no | Source disease context. |
-| `strength` | [Term](#term) or null | no | Native level, when present. |
-| `therapies` | list of [Concept](#concept) | no | Native therapies in source order. |
+| Field | Type | Meaning |
+| --- | --- | --- |
+| `allele_origin` | [Term](#term) or null | Native origin, when stated. Optional. |
+| `attribution` | [Attribution](#attribution) | Original source provenance. |
+| `citations` | list of [Pmid](#pmid) | Native publication identities. Optional. |
+| `classification` | [Term](#term) | Whole native classification. |
+| `condition` | [Concept](#concept) or null | Source disease context. Optional. |
+| `strength` | [Term](#term) or null | Native level, when present. Optional. |
+| `therapies` | list of [Concept](#concept) | Native therapies in source order. Optional. |
 
 ### CivicProfile
 
 One source molecular profile, preserving compound expressions.
 
-| Field | Type | Always present | Meaning |
-| --- | --- | --- | --- |
-| `assertion_count` | integer (uint64) | yes | Native assertion count, independent of the displayed page. |
-| `assertion_page` | [CivicClaimPage](#civicclaimpage) of [VariantGet](#variantget) | yes | Native assertion stream and its independent continuation. |
-| `compound` | boolean | yes | Native complex-profile flag; a member match does not satisfy the whole profile. |
-| `evidence_count` | integer (uint64) | yes | Native evidence count, independent of the displayed page. |
-| `evidence_page` | [CivicClaimPage](#civicclaimpage) of [VariantGet](#variantget) | yes | Native evidence stream and its independent continuation. |
-| `label` | [Text](#text) | yes | Whole source profile label, including its logical expression. |
-| `members` | list of [CivicMember](#civicmember) | yes | Every source member reference, without collapsing compound profiles. |
-| `membership` | [CivicMembership](#civicmembership) | yes | Whether a source member was joined to the requested exact identity. |
-| `record` | [SourceRecord](#sourcerecord) | yes | Native profile identity and link. |
-| `statements` | list of [CivicStatement](#civicstatement) | yes | Source claims; a compound claim retains a profile subject. |
+| Field | Type | Meaning |
+| --- | --- | --- |
+| `assertion_count` | integer (uint64) | Native assertion count, independent of the displayed page. |
+| `assertion_page` | [CivicClaimPage](#civicclaimpage) of [VariantGet](#variantget) | Native assertion stream and its independent continuation. |
+| `compound` | boolean | Native complex-profile flag; a member match does not satisfy the whole profile. |
+| `evidence_count` | integer (uint64) | Native evidence count, independent of the displayed page. |
+| `evidence_page` | [CivicClaimPage](#civicclaimpage) of [VariantGet](#variantget) | Native evidence stream and its independent continuation. |
+| `label` | [Text](#text) | Whole source profile label, including its logical expression. |
+| `members` | list of [CivicMember](#civicmember) | Every source member reference, without collapsing compound profiles. |
+| `membership` | [CivicMembership](#civicmembership) | Whether a source member was joined to the requested exact identity. |
+| `record` | [SourceRecord](#sourcerecord) | Native profile identity and link. |
+| `statements` | list of [CivicStatement](#civicstatement) | Source claims; a compound claim retains a profile subject. |
 
 ### CivicStatement
 
 One CIViC claim with native labels that exceed the common statement model.
 
-| Field | Type | Always present | Meaning |
-| --- | --- | --- | --- |
-| `direction` | [Text](#text) or null | no | Original provider direction; disputes never implies the opposite effect. |
-| `kind` | [Text](#text) | yes | Source claim category, without a fallback proposition. |
-| `native` | [CivicNativeClaim](#civicnativeclaim) or null | no | Complete native claim facts when the common subject or proposition is unavailable. |
-| `record` | [SourceRecord](#sourcerecord) | yes | Native claim identity, retained even when no common proposition applies. |
-| `significance` | [Text](#text) or null | no | Original significance, including when the classification holds an AMP tier. |
-| `statement` | [Statement](#statement) or null | no | Common source-attributed claim. |
-| `statement_unmapped` | boolean | no | Native claim cannot be represented by the common subject or proposition model. |
-| `status` | [Text](#text) | yes | Native curation state, without implying that every row is accepted. |
+| Field | Type | Meaning |
+| --- | --- | --- |
+| `direction` | [Text](#text) or null | Original provider direction; disputes never implies the opposite effect. Optional. |
+| `kind` | [Text](#text) | Source claim category, without a fallback proposition. |
+| `native` | [CivicNativeClaim](#civicnativeclaim) or null | Complete native claim facts when the common subject or proposition is unavailable. Optional. |
+| `record` | [SourceRecord](#sourcerecord) | Native claim identity, retained even when no common proposition applies. |
+| `significance` | [Text](#text) or null | Original significance, including when the classification holds an AMP tier. Optional. |
+| `statement` | [Statement](#statement) or null | Common source-attributed claim. Optional. |
+| `statement_unmapped` | boolean | Native claim cannot be represented by the common subject or proposition model. Optional. |
+| `status` | [Text](#text) | Native curation state, without implying that every row is accepted. |
 
 ### ClingenCgcVicc2022Code
 
@@ -844,47 +844,47 @@ Type: string.
 
 Terms attached to a named carried component on a consumer response.
 
-| Field | Type | Always present | Meaning |
-| --- | --- | --- | --- |
-| `component` | [Text](#text) | yes | Native component name. |
-| `terms` | [ComponentTerms](#componentterms) | yes | Canonical publisher terms. |
+| Field | Type | Meaning |
+| --- | --- | --- |
+| `component` | [Text](#text) | Native component name. |
+| `terms` | [ComponentTerms](#componentterms) | Canonical publisher terms. |
 
 ### ComponentTerms
 
 Terms attached to one independently licensed source component.
 
-| Field | Type | Always present | Meaning |
-| --- | --- | --- | --- |
-| `name` | [Text](#text) | yes | Publisher terms name. |
-| `url` | [Text](#text) | yes | Publisher terms page. |
-| `usage` | [Use](#use) | yes | Publisher use category. |
+| Field | Type | Meaning |
+| --- | --- | --- |
+| `name` | [Text](#text) | Publisher terms name. |
+| `url` | [Text](#text) | Publisher terms page. |
+| `usage` | [Use](#use) | Publisher use category. |
 
 ### ComponentUpload
 
 One source-named component upload timestamp.
 
-| Field | Type | Always present | Meaning |
-| --- | --- | --- | --- |
-| `date` | [Text](#text) | yes | Unchanged source timestamp. |
-| `name` | [Text](#text) | yes | Source subcollection name. |
+| Field | Type | Meaning |
+| --- | --- | --- |
+| `date` | [Text](#text) | Unchanged source timestamp. |
+| `name` | [Text](#text) | Source subcollection name. |
 
 ### Concept
 
 One source concept with its optional ontology identifier.
 
-| Field | Type | Always present | Meaning |
-| --- | --- | --- | --- |
-| `id` | [Curie](#curie) or null | no | Source-stated concept identifier. |
-| `label` | [Text](#text) | yes | Original concept label. |
+| Field | Type | Meaning |
+| --- | --- | --- |
+| `id` | [Curie](#curie) or null | Source-stated concept identifier. Optional. |
+| `label` | [Text](#text) | Original concept label. |
 
 ### CosmicCoordinates
 
 Historical coordinates exactly as carried by the component.
 
-| Field | Type | Always present | Meaning |
-| --- | --- | --- | --- |
-| `end` | integer (uint64) | yes | Source end value, without coordinate conversion. |
-| `start` | integer (uint64) | yes | Source start value, without coordinate conversion. |
+| Field | Type | Meaning |
+| --- | --- | --- |
+| `end` | integer (uint64) | Source end value, without coordinate conversion. |
+| `start` | integer (uint64) | Source start value, without coordinate conversion. |
 
 ### CosmicIdentity
 
@@ -896,18 +896,18 @@ Values: `unverified`.
 
 One source record from MyVariant's historical COSMIC copy.
 
-| Field | Type | Always present | Meaning |
-| --- | --- | --- | --- |
-| `alternate` | [Text](#text) or null | no | Unmodified source alternate spelling. |
-| `chromosome` | [Text](#text) or null | no | Source chromosome label. |
-| `cosmic_id` | [Text](#text) | yes | Native COSMIC record identifier. |
-| `hg19` | [CosmicCoordinates](#cosmiccoordinates) or null | no | Source hg19 coordinates, without allele construction. |
-| `identity` | [CosmicIdentity](#cosmicidentity) | yes | Fragment identity has not been independently verified. |
-| `mut_freq` | [FiniteNumber](#finitenumber) or null | no | Source frequency; units and denominator are not inferred. |
-| `mut_nt` | [Text](#text) or null | no | Source nucleotide text, without repair or normalization. |
-| `myvariant_record` | [Text](#text) | yes | MyVariant parent record association; this does not establish allele equivalence. |
-| `reference` | [Text](#text) or null | no | Unmodified source reference spelling. |
-| `tumor_site` | list of [Text](#text) | no | Every source tumor-site label in native order. |
+| Field | Type | Meaning |
+| --- | --- | --- |
+| `alternate` | [Text](#text) or null | Unmodified source alternate spelling. Optional. |
+| `chromosome` | [Text](#text) or null | Source chromosome label. Optional. |
+| `cosmic_id` | [Text](#text) | Native COSMIC record identifier. |
+| `hg19` | [CosmicCoordinates](#cosmiccoordinates) or null | Source hg19 coordinates, without allele construction. Optional. |
+| `identity` | [CosmicIdentity](#cosmicidentity) | Fragment identity has not been independently verified. |
+| `mut_freq` | [FiniteNumber](#finitenumber) or null | Source frequency; units and denominator are not inferred. Optional. |
+| `mut_nt` | [Text](#text) or null | Source nucleotide text, without repair or normalization. Optional. |
+| `myvariant_record` | [Text](#text) | MyVariant parent record association; this does not establish allele equivalence. |
+| `reference` | [Text](#text) or null | Unmodified source reference spelling. Optional. |
+| `tumor_site` | list of [Text](#text) | Every source tumor-site label in native order. Optional. |
 
 ### Curie
 
@@ -931,15 +931,15 @@ Type: string.
 
 Get one exact source record or supported section. A listing is not authorization; a companion row is not a treatment recommendation.
 
-| Field | Type | Always present | Meaning |
-| --- | --- | --- | --- |
-| `bundle_revision` | [Text](#text) or null | no | Immutable stored bundle revision retained by a continuation. |
-| `id` | [Text](#text) | yes | Exact native identity, including version for GTR. |
-| `section` | [DiagnosticSection](#diagnosticsection) or null | no | gtr: genes, conditions, methods. fda-pma: regulatory, supplements. WHO and 510(k) have no sections; omit for the card. |
-| `section_limit` | integer (uint32) | no | Maximum native rows; omitted means five rows, or one regulatory fragment. |
-| `section_offset` | integer (uint32) | no | Zero-based native row or fragment offset. |
-| `source` | [DiagnosticGetSource](#diagnosticgetsource) | yes | Explicit source; gtr needs accession/version, who-ivd a known Product ID, fda-pma a P number, fda-510k a K number. |
-| `supplement` | [PmaSupplement](#pmasupplement) or null | no | Exact native PMA supplement; absent selects the base row. |
+| Field | Type | Meaning |
+| --- | --- | --- |
+| `bundle_revision` | [Text](#text) or null | Immutable stored bundle revision retained by a continuation. Optional. |
+| `id` | [Text](#text) | Exact native identity, including version for GTR. |
+| `section` | [DiagnosticSection](#diagnosticsection) or null | gtr: genes, conditions, methods. fda-pma: regulatory, supplements. WHO and 510(k) have no sections; omit for the card. Optional. |
+| `section_limit` | integer (uint32) | Maximum native rows; omitted means five rows, or one regulatory fragment. Optional. |
+| `section_offset` | integer (uint32) | Zero-based native row or fragment offset. Optional. |
+| `source` | [DiagnosticGetSource](#diagnosticgetsource) | Explicit source; gtr needs accession/version, who-ivd a known Product ID, fda-pma a P number, fda-510k a K number. |
+| `supplement` | [PmaSupplement](#pmasupplement) or null | Exact native PMA supplement; absent selects the base row. Optional. |
 
 ### DiagnosticGetSource
 
@@ -951,46 +951,46 @@ Values: `gtr`, `who-ivd`, `fda-pma`, `fda-510k`.
 
 Compact native laboratory context without authorization interpretation.
 
-| Field | Type | Always present | Meaning |
-| --- | --- | --- | --- |
-| `country` | [Text](#text) or null | no | Native country. |
-| `id` | [Text](#text) | yes | Native laboratory identifier. |
-| `institution` | [Text](#text) or null | no | Native institution name. |
-| `name` | [Text](#text) or null | no | Source laboratory name, absent when the native cell is empty. |
+| Field | Type | Meaning |
+| --- | --- | --- |
+| `country` | [Text](#text) or null | Native country. Optional. |
+| `id` | [Text](#text) | Native laboratory identifier. |
+| `institution` | [Text](#text) or null | Native institution name. Optional. |
+| `name` | [Text](#text) or null | Source laboratory name, absent when the native cell is empty. Optional. |
 
 ### DiagnosticPmaHeader
 
 Compact exact PMA row identity; its native empty base cell is explicit.
 
-| Field | Type | Always present | Meaning |
-| --- | --- | --- | --- |
-| `applicant` | string or null | no | Native applicant when supplied, including explicit empty. |
-| `decision_code` | string or null | no | Native decision_code when supplied, including explicit empty. |
-| `decision_date` | string or null | no | Native decision_date when supplied, including explicit empty. |
-| `pma_number` | [PmaNumber](#pmanumber) | yes | Native application. |
-| `supplement_number` | [PmaSupplementCell](#pmasupplementcell) or null | no | Absent differs from explicit empty base cell. |
-| `trade_name` | string or null | no | Native trade_name when supplied, including explicit empty. |
-| `url` | [Text](#text) | yes | Exact source record URL. |
+| Field | Type | Meaning |
+| --- | --- | --- |
+| `applicant` | string or null | Native applicant when supplied, including explicit empty. Optional. |
+| `decision_code` | string or null | Native decision_code when supplied, including explicit empty. Optional. |
+| `decision_date` | string or null | Native decision_date when supplied, including explicit empty. Optional. |
+| `pma_number` | [PmaNumber](#pmanumber) | Native application. |
+| `supplement_number` | [PmaSupplementCell](#pmasupplementcell) or null | Absent differs from explicit empty base cell. Optional. |
+| `trade_name` | string or null | Native trade_name when supplied, including explicit empty. Optional. |
+| `url` | [Text](#text) | Exact source record URL. |
 
 ### DiagnosticSearch
 
 Search one diagnostic source. A listing is not authorization; a companion row is not a treatment recommendation.
 
-| Field | Type | Always present | Meaning |
-| --- | --- | --- | --- |
-| `biomarker` | [Text](#text) or null | no | Exact table-0 biomarker cell; unsupported in the group table. |
-| `bundle_revision` | [Text](#text) or null | no | Immutable stored bundle revision retained by a continuation. |
-| `condition_id` | [Text](#text) or null | no | Exact MedGen:CUI identifier only. |
-| `device_id` | [DiagnosticDeviceId](#diagnosticdeviceid) or null | no | Exact PMA application, application/supplement or native K identity. |
-| `drug_application` | [FdaDrugApplication](#fdadrugapplication) or null | no | Cell-owned typed NDA/BLA application. |
-| `gene` | [GeneSymbol](#genesymbol) or null | no | Exact source gene_symbol field, without alias expansion. |
-| `gene_id` | [NcbiGeneId](#ncbigeneid) or null | no | Exact source GeneID, exclusive with gene symbol. |
-| `limit` | integer (uint32) | no | Five results by default; at most fifty source rows or product headers. |
-| `manufacturer` | [Text](#text) or null | no | Literal whole-word phrase in WHO's Manufacturer name cell. |
-| `marker` | [Text](#text) or null | no | Literal whole-word phrase in WHO's Pathogen/Disease/Marker cell. |
-| `offset` | integer (uint32) | no | Zero-based source result offset. |
-| `source` | [DiagnosticSearchSource](#diagnosticsearchsource) | yes | Explicit native GTR, WHO IVD or FDA companion discovery. |
-| `type` | [GtrTestType](#gtrtesttype) or null | no | Exact native test_type value. |
+| Field | Type | Meaning |
+| --- | --- | --- |
+| `biomarker` | [Text](#text) or null | Exact table-0 biomarker cell; unsupported in the group table. Optional. |
+| `bundle_revision` | [Text](#text) or null | Immutable stored bundle revision retained by a continuation. Optional. |
+| `condition_id` | [Text](#text) or null | Exact MedGen:CUI identifier only. Optional. |
+| `device_id` | [DiagnosticDeviceId](#diagnosticdeviceid) or null | Exact PMA application, application/supplement or native K identity. Optional. |
+| `drug_application` | [FdaDrugApplication](#fdadrugapplication) or null | Cell-owned typed NDA/BLA application. Optional. |
+| `gene` | [GeneSymbol](#genesymbol) or null | Exact source gene_symbol field, without alias expansion. Optional. |
+| `gene_id` | [NcbiGeneId](#ncbigeneid) or null | Exact source GeneID, exclusive with gene symbol. Optional. |
+| `limit` | integer (uint32) | Five results by default; at most fifty source rows or product headers. Optional. |
+| `manufacturer` | [Text](#text) or null | Literal whole-word phrase in WHO's Manufacturer name cell. Optional. |
+| `marker` | [Text](#text) or null | Literal whole-word phrase in WHO's Pathogen/Disease/Marker cell. Optional. |
+| `offset` | integer (uint32) | Zero-based source result offset. Optional. |
+| `source` | [DiagnosticSearchSource](#diagnosticsearchsource) | Explicit native GTR, WHO IVD or FDA companion discovery. |
+| `type` | [GtrTestType](#gtrtesttype) or null | Exact native test_type value. Optional. |
 
 ### DiagnosticSearchSource
 
@@ -1020,91 +1020,91 @@ Values: `supports`, `disputes`, `neutral`.
 
 A native source association without clinical interpretation.
 
-| Field | Type | Always present | Meaning |
-| --- | --- | --- | --- |
-| `agent_type` | [Text](#text) or null | no | Native agent type. |
-| `aggregator_knowledge_source` | list of [Curie](#curie) or null | no | Native aggregator knowledge sources; missing, null and lists remain distinct. |
-| `attribution` | [Attribution](#attribution) | yes | Native row provenance and version. |
-| `category` | [Curie](#curie) or null | no | Native association category. |
-| `evidence` | list of [DiseaseAssociationReference](#diseaseassociationreference) or null | no | Source evidence terms; unavailable evidence stays absent. |
-| `evidence_count` | integer or null | no | Native evidence count, distinct from returned reference count. |
-| `has_count` | integer or null | no | Native annotation count, without a computed denominator. |
-| `has_percentage` | [FiniteNumber](#finitenumber) or null | no | Native percentage, never computed from another field. |
-| `has_quotient` | [FiniteNumber](#finitenumber) or null | no | Native quotient, never computed from another field. |
-| `has_total` | integer or null | no | Native annotation total, without inferring an assayed denominator. |
-| `knowledge_level` | [Text](#text) or null | no | Native source knowledge level. |
-| `negated` | boolean or null | no | Source negation; absent is not false. |
-| `object` | [Concept](#concept) | yes | Native returned object. |
-| `object_closure` | list of [Curie](#curie) | yes | Native object closure. |
-| `original_object` | [Curie](#curie) or null | no | Original source object before source normalization. |
-| `original_predicate` | [Text](#text) or null | no | Native pre-normalization predicate, without interpretation. |
-| `original_subject` | [Curie](#curie) or null | no | Original source subject before source normalization. |
-| `predicate` | [Curie](#curie) | yes | Native source predicate. |
-| `primary_knowledge_source` | [Curie](#curie) or null | no | Native primary knowledge source. |
-| `provided_by` | [Text](#text) or null | no | Native providing collection. |
-| `publications` | list of [DiseaseAssociationReference](#diseaseassociationreference) | no | Native publication references, without inferred links or labels. |
-| `qualifiers` | list of [DiseaseAssociationQualifier](#diseaseassociationqualifier) | yes | Native qualifiers, including frequency or onset if supplied. |
-| `requested_id` | [Curie](#curie) | yes | The exact requested concept, including a queried parent. |
-| `subject` | [Concept](#concept) | yes | Native returned subject. |
-| `subject_closure` | list of [Curie](#curie) | yes | Native subject closure. |
-| `subject_taxon` | [Curie](#curie) or null | no | Native subject taxon, only as supplied by the publisher. |
+| Field | Type | Meaning |
+| --- | --- | --- |
+| `agent_type` | [Text](#text) or null | Native agent type. Optional. |
+| `aggregator_knowledge_source` | list of [Curie](#curie) or null | Native aggregator knowledge sources; missing, null and lists remain distinct. Optional. |
+| `attribution` | [Attribution](#attribution) | Native row provenance and version. |
+| `category` | [Curie](#curie) or null | Native association category. Optional. |
+| `evidence` | list of [DiseaseAssociationReference](#diseaseassociationreference) or null | Source evidence terms; unavailable evidence stays absent. Optional. |
+| `evidence_count` | integer or null | Native evidence count, distinct from returned reference count. Optional. |
+| `has_count` | integer or null | Native annotation count, without a computed denominator. Optional. |
+| `has_percentage` | [FiniteNumber](#finitenumber) or null | Native percentage, never computed from another field. Optional. |
+| `has_quotient` | [FiniteNumber](#finitenumber) or null | Native quotient, never computed from another field. Optional. |
+| `has_total` | integer or null | Native annotation total, without inferring an assayed denominator. Optional. |
+| `knowledge_level` | [Text](#text) or null | Native source knowledge level. Optional. |
+| `negated` | boolean or null | Source negation; absent is not false. Optional. |
+| `object` | [Concept](#concept) | Native returned object. |
+| `object_closure` | list of [Curie](#curie) | Native object closure. |
+| `original_object` | [Curie](#curie) or null | Original source object before source normalization. Optional. |
+| `original_predicate` | [Text](#text) or null | Native pre-normalization predicate, without interpretation. Optional. |
+| `original_subject` | [Curie](#curie) or null | Original source subject before source normalization. Optional. |
+| `predicate` | [Curie](#curie) | Native source predicate. |
+| `primary_knowledge_source` | [Curie](#curie) or null | Native primary knowledge source. Optional. |
+| `provided_by` | [Text](#text) or null | Native providing collection. Optional. |
+| `publications` | list of [DiseaseAssociationReference](#diseaseassociationreference) | Native publication references, without inferred links or labels. Optional. |
+| `qualifiers` | list of [DiseaseAssociationQualifier](#diseaseassociationqualifier) | Native qualifiers, including frequency or onset if supplied. |
+| `requested_id` | [Curie](#curie) | The exact requested concept, including a queried parent. |
+| `subject` | [Concept](#concept) | Native returned subject. |
+| `subject_closure` | list of [Curie](#curie) | Native subject closure. |
+| `subject_taxon` | [Curie](#curie) or null | Native subject taxon, only as supplied by the publisher. Optional. |
 
 ### DiseaseAssociationItem
 
 One native association and the component terms governing that row.
 
-| Field | Type | Always present | Meaning |
-| --- | --- | --- | --- |
-| `association` | [DiseaseAssociation](#diseaseassociation) | yes | Complete neutral association, including requested and actual endpoints. |
-| `components` | list of [ComponentLabel](#componentlabel) | yes | Independently attributed annotation components for this row. |
+| Field | Type | Meaning |
+| --- | --- | --- |
+| `association` | [DiseaseAssociation](#diseaseassociation) | Complete neutral association, including requested and actual endpoints. |
+| `components` | list of [ComponentLabel](#componentlabel) | Independently attributed annotation components for this row. |
 
 ### DiseaseAssociationQualifier
 
 A named native qualifier without an inferred role.
 
-| Field | Type | Always present | Meaning |
-| --- | --- | --- | --- |
-| `field` | [Text](#text) | yes | Original native qualifier field. |
-| `id` | [Curie](#curie) | yes | Native qualifier identity. |
-| `label` | [Text](#text) or null | no | Native label when supplied. |
+| Field | Type | Meaning |
+| --- | --- | --- |
+| `field` | [Text](#text) | Original native qualifier field. |
+| `id` | [Curie](#curie) | Native qualifier identity. |
+| `label` | [Text](#text) or null | Native label when supplied. Optional. |
 
 ### DiseaseAssociationReference
 
 One native association reference, with no invented display label or link.
 
-| Field | Type | Always present | Meaning |
-| --- | --- | --- | --- |
-| `id` | [Curie](#curie) | yes | Native evidence or publication identity. |
-| `label` | [Text](#text) or null | no | Native label when supplied. |
-| `url` | [Text](#text) or null | no | Unchanged native link when supplied. |
+| Field | Type | Meaning |
+| --- | --- | --- |
+| `id` | [Curie](#curie) | Native evidence or publication identity. |
+| `label` | [Text](#text) or null | Native label when supplied. Optional. |
+| `url` | [Text](#text) or null | Unchanged native link when supplied. Optional. |
 
 ### DiseaseEndpoint
 
 One native endpoint with an identifier and an optional source label.
 
-| Field | Type | Always present | Meaning |
-| --- | --- | --- | --- |
-| `id` | [Curie](#curie) | yes | Exact source identifier. |
-| `label` | [Text](#text) or null | no | Source label when supplied. |
+| Field | Type | Meaning |
+| --- | --- | --- |
+| `id` | [Curie](#curie) | Exact source identifier. |
+| `label` | [Text](#text) or null | Source label when supplied. Optional. |
 
 ### DiseaseGet
 
 Exact concept or native SEER site with independently paged section.
 
-| Field | Type | Always present | Meaning |
-| --- | --- | --- | --- |
-| `age_range` | [Text](#text) or null | no | Native age-range code. |
-| `dataset` | [Text](#text) or null | no | Requested native dataset selector, not proof of returned membership. |
-| `id` | [Text](#text) | yes | Exact ontology CURIE or an explicit SEER catalog site ID. |
-| `interval` | [Text](#text) or null | no | Survival-only interval code. |
-| `ontology` | [DiseaseOntology](#diseaseontology) | no | One OLS ontology. |
-| `period` | [Text](#text) or null | no | Incidence-only native period code. |
-| `race` | [Text](#text) or null | no | Native race code. |
-| `section` | [DiseaseSection](#diseasesection) or null | no | One named section; absent means identity card only. |
-| `section_limit` | integer (uint32) | no | Native rows per page: default 2 for Monarch genes, 1 for Monarch phenotypes, otherwise 5. |
-| `section_offset` | integer (uint32) | no | Native row offset within the selected section. |
-| `sex` | [Text](#text) or null | no | Native sex code. |
-| `source` | [DiseaseSource](#diseasesource) | no | Default MyDisease; no automatic fallback. |
+| Field | Type | Meaning |
+| --- | --- | --- |
+| `age_range` | [Text](#text) or null | Native age-range code. Optional. |
+| `dataset` | [Text](#text) or null | Requested native dataset selector, not proof of returned membership. Optional. |
+| `id` | [Text](#text) | Exact ontology CURIE or an explicit SEER catalog site ID. |
+| `interval` | [Text](#text) or null | Survival-only interval code. Optional. |
+| `ontology` | [DiseaseOntology](#diseaseontology) | One OLS ontology. Optional. |
+| `period` | [Text](#text) or null | Incidence-only native period code. Optional. |
+| `race` | [Text](#text) or null | Native race code. Optional. |
+| `section` | [DiseaseSection](#diseasesection) or null | One named section; absent means identity card only. Optional. |
+| `section_limit` | integer (uint32) | Native rows per page: default 2 for Monarch genes, 1 for Monarch phenotypes, otherwise 5. Optional. |
+| `section_offset` | integer (uint32) | Native row offset within the selected section. Optional. |
+| `sex` | [Text](#text) or null | Native sex code. Optional. |
+| `source` | [DiseaseSource](#diseasesource) | Default MyDisease; no automatic fallback. Optional. |
 
 ### DiseaseOntology
 
@@ -1116,25 +1116,25 @@ Values: `mondo`, `doid`, `ncit`.
 
 A publisher relation with distinct endpoints and predicate.
 
-| Field | Type | Always present | Meaning |
-| --- | --- | --- | --- |
-| `attribution` | [Attribution](#attribution) | yes | Publisher record and version. |
-| `description` | string or null | no | Unchanged native cross-reference description when supplied. |
-| `object` | [DiseaseEndpoint](#diseaseendpoint) | yes | Native object. |
-| `predicate` | [Curie](#curie) | yes | Publisher predicate, without equivalence promotion. |
-| `subject` | [DiseaseEndpoint](#diseaseendpoint) | yes | Native subject. |
+| Field | Type | Meaning |
+| --- | --- | --- |
+| `attribution` | [Attribution](#attribution) | Publisher record and version. |
+| `description` | string or null | Unchanged native cross-reference description when supplied. Optional. |
+| `object` | [DiseaseEndpoint](#diseaseendpoint) | Native object. |
+| `predicate` | [Curie](#curie) | Publisher predicate, without equivalence promotion. |
+| `subject` | [DiseaseEndpoint](#diseaseendpoint) | Native subject. |
 
 ### DiseaseSearch
 
 Literal discovery text or an explicit SEER catalog page.
 
-| Field | Type | Always present | Meaning |
-| --- | --- | --- | --- |
-| `limit` | integer (uint32) | no | Maximum source rows on one page. |
-| `offset` | integer (uint32) | no | Native row offset. |
-| `ontology` | [DiseaseOntology](#diseaseontology) | no | Exactly one ontology, default MONDO. |
-| `source` | [DiseaseSource](#diseasesource) | no | One explicit source, default OLS. |
-| `text` | string or null | no | Literal source search text; absent for the SEER site catalog. |
+| Field | Type | Meaning |
+| --- | --- | --- |
+| `limit` | integer (uint32) | Maximum source rows on one page. Optional. |
+| `offset` | integer (uint32) | Native row offset. Optional. |
+| `ontology` | [DiseaseOntology](#diseaseontology) | Exactly one ontology, default MONDO. Optional. |
+| `source` | [DiseaseSource](#diseasesource) | One explicit source, default OLS. Optional. |
+| `text` | string or null | Literal source search text; absent for the SEER site catalog. Optional. |
 
 ### DiseaseSection
 
@@ -1160,16 +1160,16 @@ Values: `ols`, `mydisease`, `monarch`, `seer`.
 
 One native statistics row with requested and returned dimensions.
 
-| Field | Type | Always present | Meaning |
-| --- | --- | --- | --- |
-| `attribution` | [Attribution](#attribution) | yes | Publisher record and dataset version when supplied. |
-| `measure` | [Text](#text) | yes | Native measure name. |
-| `modeled` | [StatisticEstimate](#statisticestimate) or null | no | Modeled estimate kept separately. |
-| `observed` | [StatisticEstimate](#statisticestimate) or null | no | Observed estimate; missing stays absent. |
-| `requested_selectors` | list of [StatisticSelector](#statisticselector) | yes | Settings sent to the publisher. |
-| `requested_site` | [Text](#text) | yes | Explicit selected native site ID. |
-| `returned_selectors` | list of [StatisticSelector](#statisticselector) | yes | Settings actually returned, never filled from request. |
-| `year` | integer or null | no | Native annual row year. |
+| Field | Type | Meaning |
+| --- | --- | --- |
+| `attribution` | [Attribution](#attribution) | Publisher record and dataset version when supplied. |
+| `measure` | [Text](#text) | Native measure name. |
+| `modeled` | [StatisticEstimate](#statisticestimate) or null | Modeled estimate kept separately. Optional. |
+| `observed` | [StatisticEstimate](#statisticestimate) or null | Observed estimate; missing stays absent. Optional. |
+| `requested_selectors` | list of [StatisticSelector](#statisticselector) | Settings sent to the publisher. |
+| `requested_site` | [Text](#text) | Explicit selected native site ID. |
+| `returned_selectors` | list of [StatisticSelector](#statisticselector) | Settings actually returned, never filled from request. |
+| `year` | integer or null | Native annual row year. Optional. |
 
 ### Doi
 
@@ -1179,57 +1179,57 @@ Type: string.
 
 An unchanged native ingredient and strength, without local normalization.
 
-| Field | Type | Always present | Meaning |
-| --- | --- | --- | --- |
-| `name` | [Text](#text) | yes | Native ingredient name. |
-| `strength` | [Text](#text) | no | Full source strength wording. |
+| Field | Type | Meaning |
+| --- | --- | --- |
+| `name` | [Text](#text) | Native ingredient name. |
+| `strength` | [Text](#text) | Full source strength wording. Optional. |
 
 ### DrugFdaProduct
 
 One explicit native product within the selected FDA application.
 
-| Field | Type | Always present | Meaning |
-| --- | --- | --- | --- |
-| `active_ingredients` | list of [DrugFdaIngredient](#drugfdaingredient) | yes | Complete source-listed ingredient and strength pairs. |
-| `brand_name` | [Text](#text) | yes | Source brand wording, without inferred ingredient equivalence. |
-| `dosage_form` | [Text](#text) | yes | Native dosage form. |
-| `marketing_status` | [Text](#text) | yes | Product marketing status, independent of submission history. |
-| `product_number` | [Text](#text) | yes | Exact source product number, scoped by the response application. |
-| `reference_drug` | [Text](#text) | yes | Original source reference-drug designation. |
-| `reference_standard` | [Text](#text) or null | no | Original source reference-standard designation when supplied. |
-| `route` | [Text](#text) or null | no | Native route; absent and null remain unavailable. |
-| `te_code` | [Text](#text) or null | no | Native therapeutic-equivalence code when supplied. |
+| Field | Type | Meaning |
+| --- | --- | --- |
+| `active_ingredients` | list of [DrugFdaIngredient](#drugfdaingredient) | Complete source-listed ingredient and strength pairs. |
+| `brand_name` | [Text](#text) | Source brand wording, without inferred ingredient equivalence. |
+| `dosage_form` | [Text](#text) | Native dosage form. |
+| `marketing_status` | [Text](#text) | Product marketing status, independent of submission history. |
+| `product_number` | [Text](#text) | Exact source product number, scoped by the response application. |
+| `reference_drug` | [Text](#text) | Original source reference-drug designation. |
+| `reference_standard` | [Text](#text) or null | Original source reference-standard designation when supplied. Optional. |
+| `route` | [Text](#text) or null | Native route; absent and null remain unavailable. Optional. |
+| `te_code` | [Text](#text) or null | Native therapeutic-equivalence code when supplied. Optional. |
 
 ### DrugGet
 
 Exact native ID retrieval with an explicitly selected source.
 
-| Field | Type | Always present | Meaning |
-| --- | --- | --- | --- |
-| `civic_cursor` | [Text](#text) or null | no | Native continuation cursor for that exact drug, profile and claim collection. |
-| `civic_kind` | [CivicClaimKind](#civicclaimkind) or null | no | Independent native evidence or assertion collection within the selected profile. |
-| `civic_profile` | integer or null | no | Selected native CIViC molecular profile for a drug-scoped claim stream. |
-| `input` | [DrugId](#drugid) | yes | Published source-native identifier, never SOURCE:ID or a selected name. |
-| `label_section` | [Text](#text) or null | no | Exact native label heading, required only for the label section. |
-| `product_number` | [Text](#text) or null | no | Explicit native application product number, only for approvals. |
-| `section` | list of [DrugSection](#drugsection) | no | Explicit named disclosures; empty means identity only. |
-| `section_limit` | integer or null | no | Named section page size, refused on an identity-only card. |
-| `section_offset` | integer or null | no | Named section continuation, refused on an identity-only card. |
-| `source` | [DrugSource](#drugsource) | yes | Required source; there is no default exact-ID resolver. |
+| Field | Type | Meaning |
+| --- | --- | --- |
+| `civic_cursor` | [Text](#text) or null | Native continuation cursor for that exact drug, profile and claim collection. Optional. |
+| `civic_kind` | [CivicClaimKind](#civicclaimkind) or null | Independent native evidence or assertion collection within the selected profile. Optional. |
+| `civic_profile` | integer or null | Selected native CIViC molecular profile for a drug-scoped claim stream. Optional. |
+| `input` | [DrugId](#drugid) | Published source-native identifier, never SOURCE:ID or a selected name. |
+| `label_section` | [Text](#text) or null | Exact native label heading, required only for the label section. Optional. |
+| `product_number` | [Text](#text) or null | Explicit native application product number, only for approvals. Optional. |
+| `section` | list of [DrugSection](#drugsection) | Explicit named disclosures; empty means identity only. Optional. |
+| `section_limit` | integer or null | Named section page size, refused on an identity-only card. Optional. |
+| `section_offset` | integer or null | Named section continuation, refused on an identity-only card. Optional. |
+| `source` | [DrugSource](#drugsource) | Required source; there is no default exact-ID resolver. |
 
 ### DrugHeader
 
 One source candidate, without authorization, targets, label text or interactions.
 
-| Field | Type | Always present | Meaning |
-| --- | --- | --- | --- |
-| `id` | [DrugId](#drugid) | yes | Published native identifier. |
-| `identity_level` | [DrugIdentityLevel](#drugidentitylevel) | yes | Level established only by the endpoint or record type. |
-| `name` | [Text](#text) | no | Original source display name. |
-| `source` | [DrugSource](#drugsource) | yes | The single source responsible for this header. |
-| `type` | [Text](#text) or null | no | Native record type. |
-| `url` | [Text](#text) or null | no | Source record URL. |
-| `version` | [Text](#text) or null | no | Native source revision, omitted when the source supplies none. |
+| Field | Type | Meaning |
+| --- | --- | --- |
+| `id` | [DrugId](#drugid) | Published native identifier. |
+| `identity_level` | [DrugIdentityLevel](#drugidentitylevel) | Level established only by the endpoint or record type. |
+| `name` | [Text](#text) | Original source display name. Optional. |
+| `source` | [DrugSource](#drugsource) | The single source responsible for this header. |
+| `type` | [Text](#text) or null | Native record type. Optional. |
+| `url` | [Text](#text) or null | Source record URL. Optional. |
+| `version` | [Text](#text) or null | Native source revision, omitted when the source supplies none. Optional. |
 
 ### DrugId
 
@@ -1239,14 +1239,14 @@ Type: string.
 
 One source record identity, without any equivalence or authorization claim.
 
-| Field | Type | Always present | Meaning |
-| --- | --- | --- | --- |
-| `id` | [DrugId](#drugid) | yes | Published native record identifier. |
-| `identity_level` | [DrugIdentityLevel](#drugidentitylevel) | yes | Level established by the endpoint or record type; unknown stays unknown. |
-| `name` | [Text](#text) | no | Original source name. |
-| `source` | [Text](#text) | yes | Source responsible for this identity. |
-| `type` | [Text](#text) or null | no | Native record type, without local classification. |
-| `url` | [Text](#text) or null | no | Native record URL. |
+| Field | Type | Meaning |
+| --- | --- | --- |
+| `id` | [DrugId](#drugid) | Published native record identifier. |
+| `identity_level` | [DrugIdentityLevel](#drugidentitylevel) | Level established by the endpoint or record type; unknown stays unknown. |
+| `name` | [Text](#text) | Original source name. Optional. |
+| `source` | [Text](#text) | Source responsible for this identity. |
+| `type` | [Text](#text) or null | Native record type, without local classification. Optional. |
+| `url` | [Text](#text) or null | Native record URL. Optional. |
 
 ### DrugIdentityLevel
 
@@ -1272,11 +1272,11 @@ Identity level established by the source endpoint or record type, never inferred
 
 One explicitly source-stated identifier, parent, product or formulation relation.
 
-| Field | Type | Always present | Meaning |
-| --- | --- | --- | --- |
-| `attribution` | [Attribution](#attribution) | yes | Record supplying the relationship. |
-| `identity` | [DrugIdentity](#drugidentity) | yes | Identity at the other end of the source relation. |
-| `relation` | [Text](#text) | yes | Native relationship label; no inferred equivalence. |
+| Field | Type | Meaning |
+| --- | --- | --- |
+| `attribution` | [Attribution](#attribution) | Record supplying the relationship. |
+| `identity` | [DrugIdentity](#drugidentity) | Identity at the other end of the source relation. |
+| `relation` | [Text](#text) | Native relationship label; no inferred equivalence. |
 
 ### DrugNameSelector
 
@@ -1291,36 +1291,36 @@ One explicit ChEMBL name filter without fallback or synonym expansion.
 
 Typed source reference shared by mechanism and indication records.
 
-| Field | Type | Always present | Meaning |
-| --- | --- | --- | --- |
-| `ref_id` | [Text](#text) or null | no | Source reference identifier, when supplied. |
-| `ref_type` | [Text](#text) | yes | Native reference type. |
-| `ref_url` | [Text](#text) or null | no | Source reference link, when supplied. |
+| Field | Type | Meaning |
+| --- | --- | --- |
+| `ref_id` | [Text](#text) or null | Source reference identifier, when supplied. Optional. |
+| `ref_type` | [Text](#text) | Native reference type. |
+| `ref_url` | [Text](#text) or null | Source reference link, when supplied. Optional. |
 
 ### DrugRecords
 
 One bounded native row page, without fabricating an unknown total.
 
-| Field | Type | Always present | Meaning |
-| --- | --- | --- | --- |
-| `offset` | integer (uint32) | yes | Source row offset. |
-| `records` | list of T | no | Native source rows in order. |
-| `retrieved` | [PartialDate](#partialdate) or null | no | Actual retrieval date, never substituted for source revision. |
-| `total` | integer or null | no | Native total only when supplied. |
-| `truncated` | boolean or null | no | Native source truncation indicator. |
-| `version` | [Text](#text) or null | no | Dataset or bundle revision. |
+| Field | Type | Meaning |
+| --- | --- | --- |
+| `offset` | integer (uint32) | Source row offset. |
+| `records` | list of T | Native source rows in order. Optional. |
+| `retrieved` | [PartialDate](#partialdate) or null | Actual retrieval date, never substituted for source revision. Optional. |
+| `total` | integer or null | Native total only when supplied. Optional. |
+| `truncated` | boolean or null | Native source truncation indicator. Optional. |
+| `version` | [Text](#text) or null | Dataset or bundle revision. Optional. |
 
 ### DrugSearch
 
 Literal single-source candidate discovery, without an implicit identity selection.
 
-| Field | Type | Always present | Meaning |
-| --- | --- | --- | --- |
-| `limit` | integer (uint32) | no | Native candidate rows per page. |
-| `name_selector` | [DrugNameSelector](#drugnameselector) | no | Explicit ChEMBL native name selector; omitted means preferred name. |
-| `offset` | integer (uint32) | no | Native rows to skip. |
-| `query` | [Text](#text) | yes | Literal source name selector, unchanged by the consumer. |
-| `source` | [DrugSource](#drugsource) | no | Exactly one source; default MyChem never fans out. |
+| Field | Type | Meaning |
+| --- | --- | --- |
+| `limit` | integer (uint32) | Native candidate rows per page. Optional. |
+| `name_selector` | [DrugNameSelector](#drugnameselector) | Explicit ChEMBL native name selector; omitted means preferred name. Optional. |
+| `offset` | integer (uint32) | Native rows to skip. Optional. |
+| `query` | [Text](#text) | Literal source name selector, unchanged by the consumer. |
+| `source` | [DrugSource](#drugsource) | Exactly one source; default MyChem never fans out. Optional. |
 
 ### DrugSection
 
@@ -1345,16 +1345,16 @@ Values: `who-pq`, `mychem`, `chembl`, `opentargets`, `civic`, `openfda-label`, `
 
 Every published cell of one WHO finished-product record, including empty cells.
 
-| Field | Type | Always present | Meaning |
-| --- | --- | --- | --- |
-| `applicant` | string | yes | Native Applicant wording. |
-| `basis_of_listing` | string | yes | Native Basis of Listing wording. |
-| `date_of_prequalification` | string | yes | Native Date of Prequalification text, including spacing and empty strings. |
-| `dosage_form` | string | yes | Native Dosage Form cell, independent of the combined cell. |
-| `inn_dosage_form_strength` | string | yes | Native combined INN, Dosage Form and Strength cell; never split or interpreted. |
-| `product_type` | string | yes | Native Product Type, retained even when empty. |
-| `reference` | [Text](#text) | yes | Exact native WHO Reference Number, including spaces and punctuation. |
-| `therapeutic_area` | string | yes | Native Therapeutic Area wording. |
+| Field | Type | Meaning |
+| --- | --- | --- |
+| `applicant` | string | Native Applicant wording. |
+| `basis_of_listing` | string | Native Basis of Listing wording. |
+| `date_of_prequalification` | string | Native Date of Prequalification text, including spacing and empty strings. |
+| `dosage_form` | string | Native Dosage Form cell, independent of the combined cell. |
+| `inn_dosage_form_strength` | string | Native combined INN, Dosage Form and Strength cell; never split or interpreted. |
+| `product_type` | string | Native Product Type, retained even when empty. |
+| `reference` | [Text](#text) | Exact native WHO Reference Number, including spaces and punctuation. |
+| `therapeutic_area` | string | Native Therapeutic Area wording. |
 
 ### EnsemblGeneId
 
@@ -1374,11 +1374,11 @@ Values: `not_in_references`, `no_contexts`, `no_recommendations`.
 
 Source expression checked for its declared published form, without normalization.
 
-| Field | Type | Always present | Meaning |
-| --- | --- | --- | --- |
-| `syntax` | [ExpressionSyntax](#expressionsyntax) | yes |  |
-| `syntax_version` | [Text](#text) or null | no |  |
-| `value` | [Text](#text) | yes |  |
+| Field | Type | Meaning |
+| --- | --- | --- |
+| `syntax` | [ExpressionSyntax](#expressionsyntax) |  |
+| `syntax_version` | [Text](#text) or null | Optional. |
+| `value` | [Text](#text) |  |
 
 ### ExpressionSyntax
 
@@ -1412,38 +1412,38 @@ Type: number (double).
 
 Human gene identity and whole source annotations, independent of response cards.
 
-| Field | Type | Always present | Meaning |
-| --- | --- | --- | --- |
-| `aliases` | list of [Text](#text) | yes | All stated HGNC aliases. |
-| `ensembl_id` | [EnsemblGeneId](#ensemblgeneid) or null | no | Ensembl gene identifier, if stated. |
-| `entrez_id` | [NcbiGeneId](#ncbigeneid) or null | no | NCBI Gene identifier, if stated. |
-| `hgnc_id` | [HgncId](#hgncid) | yes | HGNC identifier. |
-| `location` | [Cytoband](#cytoband) or null | no | Single stated band, if available. |
-| `locus_group` | [LocusGroup](#locusgroup) | yes | HGNC locus group. |
-| `locus_type` | [LocusType](#locustype) or null | no | HGNC locus type, if stated and recognized. |
-| `mane` | list of [Mane](#mane) | no | Versioned MANE Select transcript pair, if stated. |
-| `name` | [Text](#text) | yes | Gene name. |
-| `omim` | list of [OmimId](#omimid) | yes | All stated OMIM identifiers. |
-| `previous_symbols` | list of [GeneSymbol](#genesymbol) | yes | All stated previous symbols. |
-| `spans` | list of [GenomicInterval](#genomicinterval) | yes | Source intervals with explicit assembly and counting rule. |
-| `status` | [GeneStatus](#genestatus) | yes | HGNC record status. |
-| `summary` | [Summary](#summary) or null | no | Whole attributed summary, if stated. |
-| `symbol` | [GeneSymbol](#genesymbol) | yes | Source-preserved symbol. |
-| `uniprot` | list of [UniProtAcc](#uniprotacc) | yes | All stated UniProt base accessions. |
+| Field | Type | Meaning |
+| --- | --- | --- |
+| `aliases` | list of [Text](#text) | All stated HGNC aliases. |
+| `ensembl_id` | [EnsemblGeneId](#ensemblgeneid) or null | Ensembl gene identifier, if stated. Optional. |
+| `entrez_id` | [NcbiGeneId](#ncbigeneid) or null | NCBI Gene identifier, if stated. Optional. |
+| `hgnc_id` | [HgncId](#hgncid) | HGNC identifier. |
+| `location` | [Cytoband](#cytoband) or null | Single stated band, if available. Optional. |
+| `locus_group` | [LocusGroup](#locusgroup) | HGNC locus group. |
+| `locus_type` | [LocusType](#locustype) or null | HGNC locus type, if stated and recognized. Optional. |
+| `mane` | list of [Mane](#mane) | Versioned MANE Select transcript pair, if stated. Optional. |
+| `name` | [Text](#text) | Gene name. |
+| `omim` | list of [OmimId](#omimid) | All stated OMIM identifiers. |
+| `previous_symbols` | list of [GeneSymbol](#genesymbol) | All stated previous symbols. |
+| `spans` | list of [GenomicInterval](#genomicinterval) | Source intervals with explicit assembly and counting rule. |
+| `status` | [GeneStatus](#genestatus) | HGNC record status. |
+| `summary` | [Summary](#summary) or null | Whole attributed summary, if stated. Optional. |
+| `symbol` | [GeneSymbol](#genesymbol) | Source-preserved symbol. |
+| `uniprot` | list of [UniProtAcc](#uniprotacc) | All stated UniProt base accessions. |
 
 ### GeneHeader
 
 Enough gene identity to choose a search result.
 
-| Field | Type | Always present | Meaning |
-| --- | --- | --- | --- |
-| `hgnc_id` | [HgncId](#hgncid) | yes | HGNC identifier. |
-| `location` | [Cytoband](#cytoband) or null | no | A single stated band, if available. |
-| `locus_group` | [LocusGroup](#locusgroup) | yes | HGNC locus group. |
-| `match` | [Match](#match) or null | no | Match information when this header answers an input. |
-| `name` | [Text](#text) | yes | Gene name. |
-| `status` | [GeneStatus](#genestatus) | yes | HGNC record status. |
-| `symbol` | [GeneSymbol](#genesymbol) | yes | Source-preserved symbol. |
+| Field | Type | Meaning |
+| --- | --- | --- |
+| `hgnc_id` | [HgncId](#hgncid) | HGNC identifier. |
+| `location` | [Cytoband](#cytoband) or null | A single stated band, if available. Optional. |
+| `locus_group` | [LocusGroup](#locusgroup) | HGNC locus group. |
+| `match` | [Match](#match) or null | Match information when this header answers an input. Optional. |
+| `name` | [Text](#text) | Gene name. |
+| `status` | [GeneStatus](#genestatus) | HGNC record status. |
+| `symbol` | [GeneSymbol](#genesymbol) | Source-preserved symbol. |
 
 ### GeneInput
 
@@ -1453,12 +1453,12 @@ Type: string.
 
 A source-stated gene reference; its label never implies an identifier.
 
-| Field | Type | Always present | Meaning |
-| --- | --- | --- | --- |
-| `ensembl_gene_id` | [EnsemblGeneId](#ensemblgeneid) or null | no |  |
-| `hgnc_id` | [HgncId](#hgncid) or null | no |  |
-| `label` | [Text](#text) | yes |  |
-| `ncbi_gene_id` | [NcbiGeneId](#ncbigeneid) or null | no |  |
+| Field | Type | Meaning |
+| --- | --- | --- |
+| `ensembl_gene_id` | [EnsemblGeneId](#ensemblgeneid) or null | Optional. |
+| `hgnc_id` | [HgncId](#hgncid) or null | Optional. |
+| `label` | [Text](#text) |  |
+| `ncbi_gene_id` | [NcbiGeneId](#ncbigeneid) or null | Optional. |
 
 ### GeneResolution
 
@@ -1488,75 +1488,75 @@ Type: string.
 
 An assembly-qualified zero-based half-open source interval.
 
-| Field | Type | Always present | Meaning |
-| --- | --- | --- | --- |
-| `build` | [Build](#build) or null | no | Source-stated assembly, omitted when absent. |
-| `chromosome` | [Chromosome](#chromosome) | yes | Canonical primary chromosome. |
-| `span` | [Span0](#span0) | yes | Checked zero-based half-open bounds; an empty span remains valid. |
-| `strand` | [Strand](#strand) or null | no | Source-stated strand, if available. |
+| Field | Type | Meaning |
+| --- | --- | --- |
+| `build` | [Build](#build) or null | Source-stated assembly, omitted when absent. Optional. |
+| `chromosome` | [Chromosome](#chromosome) | Canonical primary chromosome. |
+| `span` | [Span0](#span0) | Checked zero-based half-open bounds; an empty span remains valid. |
+| `strand` | [Strand](#strand) or null | Source-stated strand, if available. Optional. |
 
 ### GnomadCounts
 
 Native gnomAD counts retained when a dataset release cannot be established.
 
-| Field | Type | Always present | Meaning |
-| --- | --- | --- | --- |
-| `ac` | integer (uint64) | yes | Native allele count, including reported zero. |
-| `an` | integer (uint64) | yes | Native allele denominator. |
-| `ancestry_group` | [Text](#text) or null | no | Source ancestry code decoded only by the documented source grammar. |
-| `data_type` | [PopulationDataType](#populationdatatype) | yes | Source sequencing sample set. |
-| `filters` | list of [Text](#text) | no | Native source filters, never converted to a classification. |
-| `frequency` | [PopulationFrequency](#populationfrequency) or null | no | Checked total from a release supplied alongside matching source counts. |
-| `group_id` | [Text](#text) or null | no | Complete native group ID, including its source sex suffix when present. |
-| `sex` | [PopulationSex](#populationsex) or null | no | Source sex stratum decoded only by the documented source grammar. |
+| Field | Type | Meaning |
+| --- | --- | --- |
+| `ac` | integer (uint64) | Native allele count, including reported zero. |
+| `an` | integer (uint64) | Native allele denominator. |
+| `ancestry_group` | [Text](#text) or null | Source ancestry code decoded only by the documented source grammar. Optional. |
+| `data_type` | [PopulationDataType](#populationdatatype) | Source sequencing sample set. |
+| `filters` | list of [Text](#text) | Native source filters, never converted to a classification. Optional. |
+| `frequency` | [PopulationFrequency](#populationfrequency) or null | Checked total from a release supplied alongside matching source counts. Optional. |
+| `group_id` | [Text](#text) or null | Complete native group ID, including its source sex suffix when present. Optional. |
+| `sex` | [PopulationSex](#populationsex) or null | Source sex stratum decoded only by the documented source grammar. Optional. |
 
 ### GtrConditionRelation
 
 Native condition membership; SNOMED cells never become GeneID.
 
-| Field | Type | Always present | Meaning |
-| --- | --- | --- | --- |
-| `condition` | [Concept](#concept) | yes | Shared MedGen concept with source label. |
-| `mim_number` | string | yes | Native MIM cell, including empty. |
-| `snomed_ct_id` | string | yes | Native SNOMED CT cell, including empty; never a gene ID. |
-| `test_id` | [GtrTestId](#gtrtestid) | yes | Complete owning test accession/version. |
-| `test_type` | [GtrTestType](#gtrtesttype) | yes | Native source test type. |
+| Field | Type | Meaning |
+| --- | --- | --- |
+| `condition` | [Concept](#concept) | Shared MedGen concept with source label. |
+| `mim_number` | string | Native MIM cell, including empty. |
+| `snomed_ct_id` | string | Native SNOMED CT cell, including empty; never a gene ID. |
+| `test_id` | [GtrTestId](#gtrtestid) | Complete owning test accession/version. |
+| `test_type` | [GtrTestType](#gtrtesttype) | Native source test type. |
 
 ### GtrGeneRelation
 
 Native gene relation; its numeric ID comes only from the gene row.
 
-| Field | Type | Always present | Meaning |
-| --- | --- | --- | --- |
-| `gene` | [GeneRef](#generef) | yes | Shared source-given GeneID and gene_symbol; absent GeneID stays absent. |
-| `mim_number` | string | yes | Native MIM cell, including empty. |
-| `native_gene_or_snomed_ct_id` | string or null | no | Uninterpreted nonempty `gene_or_SNOMED_CT_ID` when it is not a checked NCBI Gene ID. |
-| `native_medgen` | [Curie](#curie) | yes | Independent native MedGen identity from GTR_identifier. |
-| `object_name` | string | yes | Full source object_name without interpretation. |
-| `test_id` | [GtrTestId](#gtrtestid) | yes | Complete owning test accession/version. |
-| `test_type` | [GtrTestType](#gtrtesttype) | yes | Native source test type. |
+| Field | Type | Meaning |
+| --- | --- | --- |
+| `gene` | [GeneRef](#generef) | Shared source-given GeneID and gene_symbol; absent GeneID stays absent. |
+| `mim_number` | string | Native MIM cell, including empty. |
+| `native_gene_or_snomed_ct_id` | string or null | Uninterpreted nonempty `gene_or_SNOMED_CT_ID` when it is not a checked NCBI Gene ID. Optional. |
+| `native_medgen` | [Curie](#curie) | Independent native MedGen identity from GTR_identifier. |
+| `object_name` | string | Full source object_name without interpretation. |
+| `test_id` | [GtrTestId](#gtrtestid) | Complete owning test accession/version. |
+| `test_type` | [GtrTestType](#gtrtesttype) | Native source test type. |
 
 ### GtrHeader
 
 Small resolved GTR candidate; broad gene and condition arrays stay off the header.
 
-| Field | Type | Always present | Meaning |
-| --- | --- | --- | --- |
-| `id` | [GtrTestId](#gtrtestid) | yes | Complete source accession and version. |
-| `laboratory` | [DiagnosticLaboratory](#diagnosticlaboratory) | yes | Native laboratory context. |
-| `name` | [Text](#text) or null | no | Native test name, absent when the cell is empty. |
-| `url` | [Text](#text) | yes | Source record URL. |
+| Field | Type | Meaning |
+| --- | --- | --- |
+| `id` | [GtrTestId](#gtrtestid) | Complete source accession and version. |
+| `laboratory` | [DiagnosticLaboratory](#diagnosticlaboratory) | Native laboratory context. |
+| `name` | [Text](#text) or null | Native test name, absent when the cell is empty. Optional. |
+| `url` | [Text](#text) | Source record URL. |
 
 ### GtrMethod
 
 One entry from one independent native method list.
 
-| Field | Type | Always present | Meaning |
-| --- | --- | --- | --- |
-| `index` | integer (uint32) | yes | Zero-based native list position. |
-| `list` | [GtrMethodList](#gtrmethodlist) | yes | Independent source list; lists are never positionally paired. |
-| `test_id` | [GtrTestId](#gtrtestid) | yes | Complete owning test accession/version. |
-| `value` | string | yes | Complete unmodified source entry. |
+| Field | Type | Meaning |
+| --- | --- | --- |
+| `index` | integer (uint32) | Zero-based native list position. |
+| `list` | [GtrMethodList](#gtrmethodlist) | Independent source list; lists are never positionally paired. |
+| `test_id` | [GtrTestId](#gtrtestid) | Complete owning test accession/version. |
+| `value` | string | Complete unmodified source entry. |
 
 ### GtrMethodList
 
@@ -1578,25 +1578,25 @@ Values: `Clinical`, `Research`, `Clinical microbial`.
 
 Source association with unchanged trait and effect labels.
 
-| Field | Type | Always present | Meaning |
-| --- | --- | --- | --- |
-| `alleles` | list of [GwasEffectAllele](#gwaseffectallele) | yes | Every source effect allele paired with its rsID. |
-| `author` | [Text](#text) or null | no | Source author attribution, without local publication inference. |
-| `beta` | [Text](#text) or null | no | Source beta text, including units and direction. |
-| `ci_lower` | [FiniteNumber](#finitenumber) or null | no | Source lower effect interval bound. |
-| `ci_upper` | [FiniteNumber](#finitenumber) or null | no | Source upper effect interval bound. |
-| `exact_p_value` | [ScientificPValue](#scientificpvalue) or null | no | Authoritative exact source probability, including double underflow. |
-| `id` | integer (uint64) | yes | Native association identity. |
-| `interval` | [Text](#text) or null | no | Source effect interval. |
-| `locations` | list of [Text](#text) | no | Native mapping location strings; no assumed assembly or coordinate conversion. |
-| `mapped_genes` | list of [Text](#text) | no | Original native mapped gene context; reported genes remain in loci. |
-| `odds_ratio` | [FiniteNumber](#finitenumber) or null | no | Source odds ratio. |
-| `ontology_traits` | list of [GwasTrait](#gwastrait) | no | Source mapped trait identifiers and whole labels, without clinical inference. |
-| `p_value` | [FiniteNumber](#finitenumber) | yes | Reported p value. |
-| `publication` | [Text](#text) or null | no | Source publication identifier. |
-| `risk_frequency` | [Text](#text) or null | no | Source allele frequency text, without interpreting NR. |
-| `study` | [Text](#text) | yes | Study accession. |
-| `traits` | list of [Text](#text) | yes | Source reported traits. |
+| Field | Type | Meaning |
+| --- | --- | --- |
+| `alleles` | list of [GwasEffectAllele](#gwaseffectallele) | Every source effect allele paired with its rsID. |
+| `author` | [Text](#text) or null | Source author attribution, without local publication inference. Optional. |
+| `beta` | [Text](#text) or null | Source beta text, including units and direction. Optional. |
+| `ci_lower` | [FiniteNumber](#finitenumber) or null | Source lower effect interval bound. Optional. |
+| `ci_upper` | [FiniteNumber](#finitenumber) or null | Source upper effect interval bound. Optional. |
+| `exact_p_value` | [ScientificPValue](#scientificpvalue) or null | Authoritative exact source probability, including double underflow. Optional. |
+| `id` | integer (uint64) | Native association identity. |
+| `interval` | [Text](#text) or null | Source effect interval. Optional. |
+| `locations` | list of [Text](#text) | Native mapping location strings; no assumed assembly or coordinate conversion. Optional. |
+| `mapped_genes` | list of [Text](#text) | Original native mapped gene context; reported genes remain in loci. Optional. |
+| `odds_ratio` | [FiniteNumber](#finitenumber) or null | Source odds ratio. Optional. |
+| `ontology_traits` | list of [GwasTrait](#gwastrait) | Source mapped trait identifiers and whole labels, without clinical inference. Optional. |
+| `p_value` | [FiniteNumber](#finitenumber) | Reported p value. |
+| `publication` | [Text](#text) or null | Source publication identifier. Optional. |
+| `risk_frequency` | [Text](#text) or null | Source allele frequency text, without interpreting NR. Optional. |
+| `study` | [Text](#text) | Study accession. |
+| `traits` | list of [Text](#text) | Source reported traits. |
 
 ### GwasAssociationId
 
@@ -1614,10 +1614,10 @@ Association-only section.
 
 Catalog effect allele paired with its exact rsID.
 
-| Field | Type | Always present | Meaning |
-| --- | --- | --- | --- |
-| `allele` | [Text](#text) | yes | Source allele text. |
-| `rs_id` | [Text](#text) | yes | Source rsID. |
+| Field | Type | Meaning |
+| --- | --- | --- |
+| `allele` | [Text](#text) | Source allele text. |
+| `rs_id` | [Text](#text) | Source rsID. |
 
 ### GwasGet
 
@@ -1645,10 +1645,10 @@ Study-only sections.
 
 Source ontology mapping as supplied by GWAS Catalog.
 
-| Field | Type | Always present | Meaning |
-| --- | --- | --- | --- |
-| `id` | [Text](#text) | yes | Exact source ontology identifier spelling. |
-| `label` | [Text](#text) | yes | Whole source trait label. |
+| Field | Type | Meaning |
+| --- | --- | --- |
+| `id` | [Text](#text) | Exact source ontology identifier spelling. |
+| `label` | [Text](#text) | Whole source trait label. |
 
 ### HgncId
 
@@ -1671,10 +1671,10 @@ Type: string.
 
 One source amino-acid alternate count.
 
-| Field | Type | Always present | Meaning |
-| --- | --- | --- | --- |
-| `amino_acid` | [Text](#text) | yes | Source alternate amino-acid spelling. |
-| `count` | integer (uint64) | yes | Source count, without deriving a frequency. |
+| Field | Type | Meaning |
+| --- | --- | --- |
+| `amino_acid` | [Text](#text) | Source alternate amino-acid spelling. |
+| `count` | integer (uint64) | Source count, without deriving a frequency. |
 
 ### HotspotMembership
 
@@ -1686,14 +1686,14 @@ Values: `exact`, `candidate`.
 
 Counts for one source transcript and residue label.
 
-| Field | Type | Always present | Meaning |
-| --- | --- | --- | --- |
-| `alternates` | list of [HotspotAlternate](#hotspotalternate) | yes | Source alternate amino acids and their counts. |
-| `gene` | [GeneSymbol](#genesymbol) | yes | Gene as stated by the source. |
-| `membership` | [HotspotMembership](#hotspotmembership) | yes | Whether transcript and consequence were linked by the identity source. |
-| `residue` | [Text](#text) | yes | Native residue label; no genomic allele is inferred. |
-| `transcript` | [Text](#text) or null | no | Native transcript spelling, without an inferred accession version. |
-| `tumor_count` | integer (uint64) | yes | Tumors reported for this residue by the source. |
+| Field | Type | Meaning |
+| --- | --- | --- |
+| `alternates` | list of [HotspotAlternate](#hotspotalternate) | Source alternate amino acids and their counts. |
+| `gene` | [GeneSymbol](#genesymbol) | Gene as stated by the source. |
+| `membership` | [HotspotMembership](#hotspotmembership) | Whether transcript and consequence were linked by the identity source. |
+| `residue` | [Text](#text) | Native residue label; no genomic allele is inferred. |
+| `transcript` | [Text](#text) or null | Native transcript spelling, without an inferred accession version. Optional. |
+| `tumor_count` | integer (uint64) | Tumors reported for this residue by the source. |
 
 ### HpId
 
@@ -1775,11 +1775,11 @@ HGNC locus type; Unknown is a source-stated value, distinct from absence.
 
 A source-stated MANE pair with versioned sequence accessions.
 
-| Field | Type | Always present | Meaning |
-| --- | --- | --- | --- |
-| `ensembl` | string | yes | Versioned Ensembl accession. |
-| `refseq` | string | yes | Versioned RefSeq accession. |
-| `status` | [ManeStatus](#manestatus) | yes | Source-stated transcript status. |
+| Field | Type | Meaning |
+| --- | --- | --- |
+| `ensembl` | string | Versioned Ensembl accession. |
+| `refseq` | string | Versioned RefSeq accession. |
+| `status` | [ManeStatus](#manestatus) | Source-stated transcript status. |
 
 ### ManeStatus
 
@@ -1800,10 +1800,10 @@ Type: string (markdown).
 
 A source-stated match, preserving the text that matched.
 
-| Field | Type | Always present | Meaning |
-| --- | --- | --- | --- |
-| `kind` | [MatchKind](#matchkind) | yes | The match category. |
-| `text` | [Text](#text) | yes | The source text that matched the input. |
+| Field | Type | Meaning |
+| --- | --- | --- |
+| `kind` | [MatchKind](#matchkind) | The match category. |
+| `text` | [Text](#text) | The source text that matched the input. |
 
 ### MatchKind
 
@@ -1828,35 +1828,35 @@ Type: string.
 
 Compact source disease reference; the diseases section retains every coding field.
 
-| Field | Type | Always present | Meaning |
-| --- | --- | --- | --- |
-| `name` | [Text](#text) | yes | Native source name. |
-| `nci_thesaurus_concept_id` | [Text](#text) | yes | Source NCIt identity. |
+| Field | Type | Meaning |
+| --- | --- | --- |
+| `name` | [Text](#text) | Native source name. |
+| `nci_thesaurus_concept_id` | [Text](#text) | Source NCIt identity. |
 
 ### NciTextPage
 
 Exact source text fragment with an honest original character count.
 
-| Field | Type | Always present | Meaning |
-| --- | --- | --- | --- |
-| `continuation` | [TrialGet](#trialget) or null | no | Checked request for the next original characters, absent when complete. |
-| `offset` | integer (uint32) | yes | Original Unicode scalar position. |
-| `text` | string | yes | Original source fragment, including whitespace. |
-| `total_characters` | integer (uint32) | yes | Complete source length in Unicode scalar values. |
+| Field | Type | Meaning |
+| --- | --- | --- |
+| `continuation` | [TrialGet](#trialget) or null | Checked request for the next original characters, absent when complete. Optional. |
+| `offset` | integer (uint32) | Original Unicode scalar position. |
+| `text` | string | Original source fragment, including whitespace. |
+| `total_characters` | integer (uint32) | Complete source length in Unicode scalar values. |
 
 ### NciTrial
 
 NCI trial card without registry status or phase coercion.
 
-| Field | Type | Always present | Meaning |
-| --- | --- | --- | --- |
-| `brief_summary` | [NciTextPage](#ncitextpage) or null | no | Native short summary, only on exact retrieval. |
-| `brief_title` | [Text](#text) | yes | Native title. |
-| `current_trial_status` | [Text](#text) | yes | Native status, without a registry translation. |
-| `diseases` | [TrialRecords](#trialrecords) of [NciDiseaseRef](#ncidiseaseref) | yes | Publisher-provided disease concepts in source order. |
-| `nci_id` | [Text](#text) | yes | Publisher NCI identifier. |
-| `nct_id` | [NctId](#nctid) | yes | Registry cross-reference supplied by NCI. |
-| `phase` | [Text](#text) or null | no | Native phase. |
+| Field | Type | Meaning |
+| --- | --- | --- |
+| `brief_summary` | [NciTextPage](#ncitextpage) or null | Native short summary, only on exact retrieval. Optional. |
+| `brief_title` | [Text](#text) | Native title. |
+| `current_trial_status` | [Text](#text) | Native status, without a registry translation. |
+| `diseases` | [TrialRecords](#trialrecords) of [NciDiseaseRef](#ncidiseaseref) | Publisher-provided disease concepts in source order. |
+| `nci_id` | [Text](#text) | Publisher NCI identifier. |
+| `nct_id` | [NctId](#nctid) | Registry cross-reference supplied by NCI. |
+| `phase` | [Text](#text) or null | Native phase. Optional. |
 
 ### NctId
 
@@ -1870,10 +1870,10 @@ Type: string.
 
 One native non-PubMed source citation.
 
-| Field | Type | Always present | Meaning |
-| --- | --- | --- | --- |
-| `link` | [Text](#text) or null | no | Native citation link. |
-| `text` | string or null | no | Complete native citation content. |
+| Field | Type | Meaning |
+| --- | --- | --- |
+| `link` | [Text](#text) or null | Native citation link. Optional. |
+| `text` | string or null | Complete native citation content. Optional. |
 
 ### OncokbLevelCode
 
@@ -1915,13 +1915,13 @@ Open-access status supplied by the paper-link provider.
 
 Counts for one search page, after BioMCP removes duplicates and applies filters.
 
-| Field | Type | Always present | Meaning |
-| --- | --- | --- | --- |
-| `offset` | integer (uint32) | yes | How many results come before this page. |
-| `pool` | [PoolInfo](#poolinfo) or null | no | The stored search this page comes from, when BioMCP kept one. |
-| `returned` | integer (uint32) | yes | How many results this page holds. |
-| `total` | integer (uint64) | yes | How many matching records the search holds in all. |
-| `truncated` | boolean or null | no | True when the source had more matches than BioMCP fetched. |
+| Field | Type | Meaning |
+| --- | --- | --- |
+| `offset` | integer (uint32) | How many results come before this page. |
+| `pool` | [PoolInfo](#poolinfo) or null | The stored search this page comes from, when BioMCP kept one. Optional. |
+| `returned` | integer (uint32) | How many results this page holds. |
+| `total` | integer (uint64) | How many matching records the search holds in all. |
+| `truncated` | boolean or null | True when the source had more matches than BioMCP fetched. Optional. |
 
 ### PartialDate
 
@@ -1940,35 +1940,35 @@ One of these forms:
 
 Independent source-ordered page of whole native references.
 
-| Field | Type | Always present | Meaning |
-| --- | --- | --- | --- |
-| `header` | [PathwayHeader](#pathwayheader) | yes | Exact source pathway owning this relation. |
-| `items` | list of [PathwayEventRef](#pathwayeventref) | yes | Whole native references; unresolved identities remain visible. |
-| `page` | [PathwayPageInfo](#pathwaypageinfo) | yes | Relation-specific count provenance and continuation. |
+| Field | Type | Meaning |
+| --- | --- | --- |
+| `header` | [PathwayHeader](#pathwayheader) | Exact source pathway owning this relation. |
+| `items` | list of [PathwayEventRef](#pathwayeventref) | Whole native references; unresolved identities remain visible. |
+| `page` | [PathwayPageInfo](#pathwaypageinfo) | Relation-specific count provenance and continuation. |
 
 ### PathwayGenes
 
 Independent source-ordered distinct membership references and their observed counts.
 
-| Field | Type | Always present | Meaning |
-| --- | --- | --- | --- |
-| `header` | [PathwayHeader](#pathwayheader) | yes | Exact source pathway owning this relation. |
-| `items` | list of [PathwayMember](#pathwaymember) | yes | Distinct namespaced source references in first occurrence order. |
-| `page` | [PathwayPageInfo](#pathwaypageinfo) | yes | Distinct-reference total and continuation. |
-| `physical_entities` | integer (uint64) | yes | All native physical entities, never described as gene counts. |
-| `reference_occurrences` | integer (uint64) | yes | All reference occurrences across physical entities before distinct-reference grouping. |
+| Field | Type | Meaning |
+| --- | --- | --- |
+| `header` | [PathwayHeader](#pathwayheader) | Exact source pathway owning this relation. |
+| `items` | list of [PathwayMember](#pathwaymember) | Distinct namespaced source references in first occurrence order. |
+| `page` | [PathwayPageInfo](#pathwaypageinfo) | Distinct-reference total and continuation. |
+| `physical_entities` | integer (uint64) | Every Reactome `PhysicalEntity` of the pathway, as Reactome lists them. They are not gene counts. |
+| `reference_occurrences` | integer (uint64) | All reference occurrences across physical entities before distinct-reference grouping. |
 
 ### PathwayHeader
 
 Small selectable native pathway identity, without its potentially long description.
 
-| Field | Type | Always present | Meaning |
-| --- | --- | --- | --- |
-| `id` | [PathwayId](#pathwayid) | yes | Checked source-owned identity. |
-| `name` | [Text](#text) | yes | Whole native name. |
-| `revision` | [Text](#text) or null | no | WikiPathways revision, separate from identity. |
-| `species` | [PathwaySpecies](#pathwayspecies) | yes | Explicit native human species. |
-| `version` | [Text](#text) or null | no | Whole native Reactome stIdVersion, separate from stable identity. |
+| Field | Type | Meaning |
+| --- | --- | --- |
+| `id` | [PathwayId](#pathwayid) | Checked source-owned identity. |
+| `name` | [Text](#text) | Whole native name. |
+| `revision` | [Text](#text) or null | WikiPathways revision, separate from identity. Optional. |
+| `species` | [PathwaySpecies](#pathwayspecies) | Explicit native human species. |
+| `version` | [Text](#text) or null | Whole native Reactome stIdVersion, separate from stable identity. Optional. |
 
 ### PathwayId
 
@@ -1983,48 +1983,48 @@ One of these forms:
 
 One source membership reference, without name-based gene inference.
 
-| Field | Type | Always present | Meaning |
-| --- | --- | --- | --- |
-| `gene` | [HgncId](#hgncid) or null | no | Exact resolved gene identifier, absent when no checked join exists. |
-| `name` | [Text](#text) or null | no | Native label, never interpreted as a gene symbol. |
-| `node_id` | [Text](#text) or null | no | Native data-node identity; repeated references remain separate nodes. |
-| `participants` | list of [PathwayParticipant](#pathwayparticipant) or null | no | Complete physical contexts, disclosed only by the explicit details view. |
-| `physical_context_count` | integer (uint64) | yes | Number of source physical entity contexts carrying this exact reference. |
-| `reference` | [PathwaySourceRef](#pathwaysourceref) | yes | Namespaced native reference. |
-| `schema_class` | [Text](#text) or null | no | Native reference schema class. |
-| `source_url` | [Text](#text) or null | no | Native reference URL, including therapeutic references without a drug action. |
+| Field | Type | Meaning |
+| --- | --- | --- |
+| `gene` | [HgncId](#hgncid) or null | Exact resolved gene identifier, absent when no checked join exists. Optional. |
+| `name` | [Text](#text) or null | Native label, never interpreted as a gene symbol. Optional. |
+| `node_id` | [Text](#text) or null | Native data-node identity; repeated references remain separate nodes. Optional. |
+| `participants` | list of [PathwayParticipant](#pathwayparticipant) or null | Complete physical contexts, disclosed only by the explicit details view. Optional. |
+| `physical_context_count` | integer (uint64) | Number of source physical entity contexts carrying this exact reference. |
+| `reference` | [PathwaySourceRef](#pathwaysourceref) | Namespaced native reference. |
+| `schema_class` | [Text](#text) or null | Native reference schema class. Optional. |
+| `source_url` | [Text](#text) or null | Native reference URL, including therapeutic references without a drug action. Optional. |
 
 ### PathwayPageInfo
 
 Native page position and explicit count provenance; a short admitted page can continue.
 
-| Field | Type | Always present | Meaning |
-| --- | --- | --- | --- |
-| `next_offset` | integer or null | no | Next native position, independent of returned rows; absent only at the end. |
-| `offset` | integer (uint32) | yes | Native source or retained relation offset. |
-| `pool` | [PoolInfo](#poolinfo) or null | no | Snapshot identity and lifetime when retained. |
-| `returned` | integer (uint32) | yes | Whole admitted rows on this page. |
-| `total` | integer (uint64) | yes | Source-reported or observed relation total, as qualified by total_kind. |
-| `total_kind` | [PathwayTotalKind](#pathwaytotalkind) | yes | Whether the total comes from the source or this retained collection. |
+| Field | Type | Meaning |
+| --- | --- | --- |
+| `next_offset` | integer or null | Next native position, independent of returned rows; absent only at the end. Optional. |
+| `offset` | integer (uint32) | Native source or retained relation offset. |
+| `pool` | [PoolInfo](#poolinfo) or null | Snapshot identity and lifetime when retained. Optional. |
+| `returned` | integer (uint32) | Whole admitted rows on this page. |
+| `total` | integer (uint64) | Source-reported or observed relation total, as qualified by total_kind. |
+| `total_kind` | [PathwayTotalKind](#pathwaytotalkind) | Whether the total comes from the source or this retained collection. |
 
 ### PathwayParticipant
 
 One native physical [entity](/concepts/progressive-disclosure/) carrying a membership reference.
 
-| Field | Type | Always present | Meaning |
-| --- | --- | --- | --- |
-| `db_id` | integer (uint64) | yes | Native physical entity database identity, distinct from reference identity. |
-| `name` | [Text](#text) | yes | Whole physical entity label, including source-stated modification context. |
-| `schema_class` | [Text](#text) | yes | Native physical entity schema class, separate from reference schema class. |
+| Field | Type | Meaning |
+| --- | --- | --- |
+| `db_id` | integer (uint64) | Native physical entity database identity, distinct from reference identity. |
+| `name` | [Text](#text) | Whole physical entity label, including source-stated modification context. |
+| `schema_class` | [Text](#text) | Native physical entity schema class, separate from reference schema class. |
 
 ### PathwaySourceRef
 
 An open source namespace paired with its complete native identifier.
 
-| Field | Type | Always present | Meaning |
-| --- | --- | --- | --- |
-| `namespace` | string or null | no | Native namespace; never discarded during a gene join. |
-| `value` | [Text](#text) | yes | Complete namespace-local identifier, including native isoform suffixes. |
+| Field | Type | Meaning |
+| --- | --- | --- |
+| `namespace` | string or null | Native namespace; never discarded during a gene join. Optional. |
+| `value` | [Text](#text) | Complete namespace-local identifier, including native isoform suffixes. |
 
 ### PathwaySpecies
 
@@ -2052,13 +2052,13 @@ Independent ClinPGx collection kinds, never merged.
 
 Source-native PgxCrossReference fields; no clinical interpretation.
 
-| Field | Type | Always present | Meaning |
-| --- | --- | --- | --- |
-| `_url` | string | yes | The source's own `_url` value, unchanged. |
-| `id` | integer (int64) | yes | The source's own `id` value, unchanged. |
-| `name` | string or null | no | Native `name` when supplied. |
-| `resource` | string | yes | The source's own `resource` value, unchanged. |
-| `resourceId` | string | yes | The source's own `resourceId` value, unchanged. |
+| Field | Type | Meaning |
+| --- | --- | --- |
+| `_url` | string | The source's own `_url` value, unchanged. |
+| `id` | integer (int64) | The source's own `id` value, unchanged. |
+| `name` | string or null | Native `name` when supplied. Optional. |
+| `resource` | string | The source's own `resource` value, unchanged. |
+| `resourceId` | string | The source's own `resourceId` value, unchanged. |
 
 ### PgxDiplotypeExpression
 
@@ -2068,93 +2068,93 @@ Type: string.
 
 Native location diplotype reference; its numeric ID is not a ClinPGx accession.
 
-| Field | Type | Always present | Meaning |
-| --- | --- | --- | --- |
-| `id` | integer (int64) | yes | Native `id`; no expression, phase or phenotype is inferred. |
+| Field | Type | Meaning |
+| --- | --- | --- |
+| `id` | integer (int64) | Native `id`; no expression, phase or phenotype is inferred. |
 
 ### PgxEvidenceTerm
 
 Source-native PgxEvidenceTerm fields; no clinical interpretation.
 
-| Field | Type | Always present | Meaning |
-| --- | --- | --- | --- |
-| `id` | integer (int64) | yes | The source's own `id` value, unchanged. |
-| `resource` | string | yes | The source's own `resource` value, unchanged. |
-| `synonyms` | list of [PgxUnobserved](#pgxunobserved) or null | no | Native `synonyms` when supplied. |
-| `term` | string | yes | The source's own `term` value, unchanged. |
-| `termId` | string | yes | The source's own `termId` value, unchanged. |
-| `valid` | boolean or null | no | Native `valid` when supplied. |
+| Field | Type | Meaning |
+| --- | --- | --- |
+| `id` | integer (int64) | The source's own `id` value, unchanged. |
+| `resource` | string | The source's own `resource` value, unchanged. |
+| `synonyms` | list of [PgxUnobserved](#pgxunobserved) or null | Native `synonyms` when supplied. Optional. |
+| `term` | string | The source's own `term` value, unchanged. |
+| `termId` | string | The source's own `termId` value, unchanged. |
+| `valid` | boolean or null | Native `valid` when supplied. Optional. |
 
 ### PgxGet
 
 PGx card or section. No phenotype, phase or dose is calculated.
 
-| Field | Type | Always present | Meaning |
-| --- | --- | --- | --- |
-| `diplotype` | [PgxDiplotypeExpression](#pgxdiplotypeexpression) or null | no | Unchanged declared expression required for the diplotype section only. |
-| `drug_id` | [Curie](#curie) or null | no | Exact published CPIC drug key; recommendations only. |
-| `gene` | [GeneSymbol](#genesymbol) | yes | Explicit source gene symbol. |
-| `kind` | [PgxAnnotationKind](#pgxannotationkind) or null | no | One ClinPGx collection; clinical is the default only on annotations. |
-| `section` | [PgxSection](#pgxsection) or null | no | One named section; omitted means the CPIC gene card. |
-| `section_limit` | integer (uint32) | no | Rows per page: three clinical, five elsewhere. |
-| `section_offset` | integer (uint32) | no | Offset within the selected section. |
-| `snapshot` | [Text](#text) or null | no | Retained collection for local continuation. |
-| `source` | [PgxSource](#pgxsource) | yes | Required source, checked against the section. |
+| Field | Type | Meaning |
+| --- | --- | --- |
+| `diplotype` | [PgxDiplotypeExpression](#pgxdiplotypeexpression) or null | Unchanged declared expression required for the diplotype section only. Optional. |
+| `drug_id` | [Curie](#curie) or null | Exact published CPIC drug key; recommendations only. Optional. |
+| `gene` | [GeneSymbol](#genesymbol) | Explicit source gene symbol. |
+| `kind` | [PgxAnnotationKind](#pgxannotationkind) or null | One ClinPGx collection; clinical is the default only on annotations. Optional. |
+| `section` | [PgxSection](#pgxsection) or null | One named section; omitted means the CPIC gene card. Optional. |
+| `section_limit` | integer (uint32) | Rows per page: three clinical, five elsewhere. Optional. |
+| `section_offset` | integer (uint32) | Offset within the selected section. Optional. |
+| `snapshot` | [Text](#text) or null | Retained collection for local continuation. Optional. |
+| `source` | [PgxSource](#pgxsource) | Required source, checked against the section. |
 
 ### PgxHeader
 
 Source and declared gene context; no chosen pair or patient result.
 
-| Field | Type | Always present | Meaning |
-| --- | --- | --- | --- |
-| `gene` | [GeneSymbol](#genesymbol) | yes | Declared source symbol. |
-| `source` | [PgxSource](#pgxsource) | yes | Explicit source. |
+| Field | Type | Meaning |
+| --- | --- | --- |
+| `gene` | [GeneSymbol](#genesymbol) | Declared source symbol. |
+| `source` | [PgxSource](#pgxsource) | Explicit source. |
 
 ### PgxLocation
 
 Source-native PgxLocation fields; no clinical interpretation.
 
-| Field | Type | Always present | Meaning |
-| --- | --- | --- | --- |
-| `buildVersion` | string or null | no | Native `buildVersion` when supplied. |
-| `chromosomeId` | string or null | no | Native `chromosomeId` when supplied. |
-| `chromosomeName` | string or null | no | Native `chromosomeName` when supplied. |
-| `copyNumber` | string | yes | The source's own `copyNumber` value, unchanged. |
-| `diplotypes` | list of [PgxDiplotypeReference](#pgxdiplotypereference) | yes | The source's own `diplotypes` value, unchanged. |
-| `displayName` | string | yes | The source's own `displayName` value, unchanged. |
-| `genes` | list of [PgxObjectReference](#pgxobjectreference) | yes | The source's own `genes` value, unchanged. |
-| `gpPosition` | integer (int64) | yes | The source's own `gpPosition` value, unchanged. |
-| `haplotypes` | list of [PgxObjectReference](#pgxobjectreference) | yes | The source's own `haplotypes` value, unchanged. |
-| `id` | integer (int64) | yes | The source's own `id` value, unchanged. |
-| `linkedObjects` | list of [PgxObjectReference](#pgxobjectreference) | yes | The source's own `linkedObjects` value, unchanged. |
-| `refSeqCrossReference` | [PgxCrossReference](#pgxcrossreference) or null | no | Native `refSeqCrossReference` when supplied. |
-| `refSeqPosition` | integer (int64) | yes | The source's own `refSeqPosition` value, unchanged. |
-| `rsid` | string or null | no | Native `rsid` when supplied. |
-| `tagGene` | boolean | yes | The source's own `tagGene` value, unchanged. |
-| `type` | string | yes | The source's own `type` value, unchanged. |
-| `variant` | [PgxObjectReference](#pgxobjectreference) or null | no | Native `variant` when supplied. |
+| Field | Type | Meaning |
+| --- | --- | --- |
+| `buildVersion` | string or null | Native `buildVersion` when supplied. Optional. |
+| `chromosomeId` | string or null | Native `chromosomeId` when supplied. Optional. |
+| `chromosomeName` | string or null | Native `chromosomeName` when supplied. Optional. |
+| `copyNumber` | string | The source's own `copyNumber` value, unchanged. |
+| `diplotypes` | list of [PgxDiplotypeReference](#pgxdiplotypereference) | The source's own `diplotypes` value, unchanged. |
+| `displayName` | string | The source's own `displayName` value, unchanged. |
+| `genes` | list of [PgxObjectReference](#pgxobjectreference) | The source's own `genes` value, unchanged. |
+| `gpPosition` | integer (int64) | The source's own `gpPosition` value, unchanged. |
+| `haplotypes` | list of [PgxObjectReference](#pgxobjectreference) | The source's own `haplotypes` value, unchanged. |
+| `id` | integer (int64) | The source's own `id` value, unchanged. |
+| `linkedObjects` | list of [PgxObjectReference](#pgxobjectreference) | The source's own `linkedObjects` value, unchanged. |
+| `refSeqCrossReference` | [PgxCrossReference](#pgxcrossreference) or null | Native `refSeqCrossReference` when supplied. Optional. |
+| `refSeqPosition` | integer (int64) | The source's own `refSeqPosition` value, unchanged. |
+| `rsid` | string or null | Native `rsid` when supplied. Optional. |
+| `tagGene` | boolean | The source's own `tagGene` value, unchanged. |
+| `type` | string | The source's own `type` value, unchanged. |
+| `variant` | [PgxObjectReference](#pgxobjectreference) or null | Native `variant` when supplied. Optional. |
 
 ### PgxObjectReference
 
 Source-native PgxObjectReference fields; no clinical interpretation.
 
-| Field | Type | Always present | Meaning |
-| --- | --- | --- | --- |
-| `id` | [ClinPgxAccession](#clinpgxaccession) | yes | The source's own `id` value, unchanged. |
-| `name` | string or null | no | Native `name` when supplied. |
-| `objCls` | string or null | no | Native `objCls` when supplied. |
-| `symbol` | string or null | no | Native `symbol` when supplied. |
+| Field | Type | Meaning |
+| --- | --- | --- |
+| `id` | [ClinPgxAccession](#clinpgxaccession) | The source's own `id` value, unchanged. |
+| `name` | string or null | Native `name` when supplied. Optional. |
+| `objCls` | string or null | Native `objCls` when supplied. Optional. |
+| `symbol` | string or null | Native `symbol` when supplied. Optional. |
 
 ### PgxPageInfo
 
 Independent collection scope; observed counts never imply native source totals.
 
-| Field | Type | Always present | Meaning |
-| --- | --- | --- | --- |
-| `offset` | integer (uint32) | yes | Offset in this collection. |
-| `returned` | integer (uint32) | yes | Number of whole returned rows. |
-| `total` | integer (uint64) | yes | Exact source total or received bounded collection length. |
-| `total_kind` | [PgxTotalKind](#pgxtotalkind) | yes | Provenance of total. |
+| Field | Type | Meaning |
+| --- | --- | --- |
+| `offset` | integer (uint32) | Offset in this collection. |
+| `returned` | integer (uint32) | Number of whole returned rows. |
+| `total` | integer (uint64) | Exact source total or received bounded collection length. |
+| `total_kind` | [PgxTotalKind](#pgxtotalkind) | Provenance of total. |
 
 ### PgxSection
 
@@ -2201,14 +2201,14 @@ Values: `early-1`, `1`, `2`, `3`, `4`, `not-applicable`, `1/2`, `2/3`.
 
 Read an exact HP term from HPO or Monarch, or page native source sections. A term lookup answers terminology; an association answers what its publisher asserts. Neither establishes a diagnosis.
 
-| Field | Type | Always present | Meaning |
-| --- | --- | --- | --- |
-| `id` | [HpId](#hpid) | yes | Exact HP identifier. |
-| `section` | [PhenotypeSection](#phenotypesection) | no | Absent means the source identity card. |
-| `section_limit` | integer (uint32) | no | Default five text/link rows or one complete association row. |
-| `section_offset` | integer (uint32) | no | Native section row offset. |
-| `snapshot` | [Text](#text) | no | Retained exact source reply for local text and link pages; unsupported for diseases and genes. |
-| `source` | [PhenotypeSource](#phenotypesource) | no | HPO or Monarch for cards, synonyms and xrefs; Monarch only for hierarchy, diseases and genes. Defaults to HPO for cards, synonyms and xrefs, otherwise Monarch. |
+| Field | Type | Meaning |
+| --- | --- | --- |
+| `id` | [HpId](#hpid) | Exact HP identifier. |
+| `section` | [PhenotypeSection](#phenotypesection) | Absent means the source identity card. Optional. |
+| `section_limit` | integer (uint32) | Default five text/link rows or one complete association row. Optional. |
+| `section_offset` | integer (uint32) | Native section row offset. Optional. |
+| `snapshot` | [Text](#text) | Retained exact source reply for local text and link pages; unsupported for diseases and genes. Optional. |
+| `source` | [PhenotypeSource](#phenotypesource) | HPO or Monarch for cards, synonyms and xrefs; Monarch only for hierarchy, diseases and genes. Defaults to HPO for cards, synonyms and xrefs, otherwise Monarch. Optional. |
 
 ### PhenotypeSection
 
@@ -2255,12 +2255,12 @@ Type: string.
 
 A search BioMCP stored so later pages read the same results: its ID, size, and when it was made and expires.
 
-| Field | Type | Always present | Meaning |
-| --- | --- | --- | --- |
-| `created` | integer (uint64) | yes | When the stored search was made, in Unix seconds. |
-| `expires` | integer (uint64) | yes | When the stored search expires, in Unix seconds. |
-| `id` | [Text](#text) | yes | The stored search's ID. Pass it back to BioMCP as it is. |
-| `size` | integer (uint32) | yes | How many records the stored search holds. |
+| Field | Type | Meaning |
+| --- | --- | --- |
+| `created` | integer (uint64) | When the stored search was made, in Unix seconds. |
+| `expires` | integer (uint64) | When the stored search expires, in Unix seconds. |
+| `id` | [Text](#text) | The stored search's ID. Pass it back to BioMCP as it is. |
+| `size` | integer (uint32) | How many records the stored search holds. |
 
 ### PopulationDataType
 
@@ -2272,24 +2272,24 @@ Values: `exomes`, `genomes`, `joint`.
 
 One checked stratum of one source dataset release.
 
-| Field | Type | Always present | Meaning |
-| --- | --- | --- | --- |
-| `allele_count` | integer or null | no |  |
-| `allele_frequency` | [FiniteNumber](#finitenumber) or null | no |  |
-| `allele_number` | integer or null | no |  |
-| `ancestry_group` | [Text](#text) or null | no |  |
-| `attribution` | [Attribution](#attribution) | yes |  |
-| `build` | [Build](#build) | yes |  |
-| `data_type` | [PopulationDataType](#populationdatatype) or null | no |  |
-| `dataset` | [Text](#text) | yes |  |
-| `dataset_version` | [Text](#text) | yes |  |
-| `faf95` | [FiniteNumber](#finitenumber) or null | no |  |
-| `filters` | list of [Text](#text) | no |  |
-| `hemizygote_count` | integer or null | no |  |
-| `homozygote_count` | integer or null | no |  |
-| `sex` | [PopulationSex](#populationsex) or null | no |  |
-| `subject` | [VariantRef](#variantref) | yes |  |
-| `subset` | [Text](#text) or null | no |  |
+| Field | Type | Meaning |
+| --- | --- | --- |
+| `allele_count` | integer or null | Optional. |
+| `allele_frequency` | [FiniteNumber](#finitenumber) or null | Optional. |
+| `allele_number` | integer or null | Optional. |
+| `ancestry_group` | [Text](#text) or null | Optional. |
+| `attribution` | [Attribution](#attribution) |  |
+| `build` | [Build](#build) |  |
+| `data_type` | [PopulationDataType](#populationdatatype) or null | Optional. |
+| `dataset` | [Text](#text) |  |
+| `dataset_version` | [Text](#text) |  |
+| `faf95` | [FiniteNumber](#finitenumber) or null | Optional. |
+| `filters` | list of [Text](#text) | Optional. |
+| `hemizygote_count` | integer or null | Optional. |
+| `homozygote_count` | integer or null | Optional. |
+| `sex` | [PopulationSex](#populationsex) or null | Optional. |
+| `subject` | [VariantRef](#variantref) |  |
+| `subset` | [Text](#text) or null | Optional. |
 
 ### PopulationSex
 
@@ -2307,33 +2307,33 @@ Values: `is_causal_for`, `is_oncogenic_for`, `has_clinical_significance_for`, `p
 
 Unchanged native context values associated with a source field path.
 
-| Field | Type | Always present | Meaning |
-| --- | --- | --- | --- |
-| `field` | [Text](#text) | yes | Native source field path. |
-| `values` | list of [Text](#text) | yes | Every native value in source array order. |
+| Field | Type | Meaning |
+| --- | --- | --- |
+| `field` | [Text](#text) | Native source field path. |
+| `values` | list of [Text](#text) | Every native value in source array order. |
 
 ### PredictorScore
 
 One unmodified source score, never a locally blended assessment.
 
-| Field | Type | Always present | Meaning |
-| --- | --- | --- | --- |
-| `attribution` | [Attribution](#attribution) | yes | Source-owned record and dataset release. |
-| `label` | [Text](#text) or null | no | Source label without code expansion or interpretation. |
-| `method` | [Text](#text) | yes | Published component field path. |
-| `score` | [FiniteNumber](#finitenumber) | yes | Source number, including zero. |
-| `subject` | [VariantRef](#variantref) | yes | Exact source-qualified subject. |
+| Field | Type | Meaning |
+| --- | --- | --- |
+| `attribution` | [Attribution](#attribution) | Source-owned record and dataset release. |
+| `label` | [Text](#text) or null | Source label without code expansion or interpretation. Optional. |
+| `method` | [Text](#text) | Published component field path. |
+| `score` | [FiniteNumber](#finitenumber) | Source number, including zero. |
+| `subject` | [VariantRef](#variantref) | Exact source-qualified subject. |
 
 ### Problem
 
 A field that could not be accepted from a source record.
 
-| Field | Type | Always present | Meaning |
-| --- | --- | --- | --- |
-| `code` | [ProblemCode](#problemcode) | yes | Why the field value was not accepted. |
-| `field` | string | yes | The name of the rejected field. |
-| `record` | [Text](#text) or null | no | The record's identifier, when known. |
-| `source` | [Source](#source) | yes | The source that supplied the record. |
+| Field | Type | Meaning |
+| --- | --- | --- |
+| `code` | [ProblemCode](#problemcode) | Why the field value was not accepted. |
+| `field` | string | The name of the rejected field. |
+| `record` | [Text](#text) or null | The record's identifier, when known. Optional. |
+| `source` | [Source](#source) | The source that supplied the record. |
 
 ### ProblemCode
 
@@ -2349,49 +2349,49 @@ Values: `pathogenicity`, `oncogenicity`, `clinical_significance`, `therapeutic_r
 
 A reviewed human protein listed by the authoritative gene record.
 
-| Field | Type | Always present | Meaning |
-| --- | --- | --- | --- |
-| `accession` | T | yes | Checked primary accession. |
-| `function` | list of [Text](#text) | no | Whole source function paragraphs, omitted when absent. |
-| `length` | integer (uint32) | yes | Sequence length in amino acids. |
-| `name` | [Text](#text) | yes | Recommended protein name. |
-| `subcellular_locations` | list of [Text](#text) | no | Source subcellular location names. |
+| Field | Type | Meaning |
+| --- | --- | --- |
+| `accession` | T | Checked primary accession. |
+| `function` | list of [Text](#text) | Whole source function paragraphs, omitted when absent. Optional. |
+| `length` | integer (uint32) | Sequence length in amino acids. |
+| `name` | [Text](#text) | Recommended protein name. |
+| `subcellular_locations` | list of [Text](#text) | Source subcellular location names. Optional. |
 
 ### ProteinAudit
 
 Native source audit metadata, independent from local retrieval metadata.
 
-| Field | Type | Always present | Meaning |
-| --- | --- | --- | --- |
-| `entry_version` | integer or null | no | Native entry version, never an isoform version. |
-| `first_public` | [PartialDate](#partialdate) or null | no | Native first-public date. |
-| `last_annotation_update` | [PartialDate](#partialdate) or null | no | Native annotation update date. |
-| `last_sequence_update` | [PartialDate](#partialdate) or null | no | Native sequence update date. |
-| `release` | [Text](#text) or null | no | Native release when supplied. |
-| `sequence_version` | integer or null | no | Native sequence version when supplied. |
+| Field | Type | Meaning |
+| --- | --- | --- |
+| `entry_version` | integer or null | Native entry version, never an isoform version. Optional. |
+| `first_public` | [PartialDate](#partialdate) or null | Native first-public date. Optional. |
+| `last_annotation_update` | [PartialDate](#partialdate) or null | Native annotation update date. Optional. |
+| `last_sequence_update` | [PartialDate](#partialdate) or null | Native sequence update date. Optional. |
+| `release` | [Text](#text) or null | Native release when supplied. Optional. |
+| `sequence_version` | integer or null | Native sequence version when supplied. Optional. |
 
 ### ProteinComplexes
 
 Whole native rows with the independent unfiltered source count.
 
-| Field | Type | Always present | Meaning |
-| --- | --- | --- | --- |
-| `items` | list of [ProteinComplexHeader](#proteincomplexheader) | yes | Bounded retained rows in source order. |
-| `native_total` | integer (uint64) | yes | Native source total before type selection or exact participant admission. |
+| Field | Type | Meaning |
+| --- | --- | --- |
+| `items` | list of [ProteinComplexHeader](#proteincomplexheader) | Bounded retained rows in source order. |
+| `native_total` | integer (uint64) | Native source total before type selection or exact participant admission. |
 
 ### ProteinComplexHeader
 
 Exact source complex header admitted by a native participant identity.
 
-| Field | Type | Always present | Meaning |
-| --- | --- | --- | --- |
-| `id` | [ComplexPortalId](#complexportalid) | yes | Native complex accession. |
-| `matched_participant` | [Text](#text) | yes | Exact native participant identifier supporting admission. |
-| `name` | [Text](#text) | yes | Native source name. |
-| `participant_total` | integer (uint64) | yes | Actual participants in this exact complex, never a complex search total. |
-| `predicted` | boolean | yes | Literal native predictedComplex flag. |
-| `taxon` | integer (uint32) | yes | Source taxonomy identifier. |
-| `url` | [Text](#text) | yes | Native complex record URL. |
+| Field | Type | Meaning |
+| --- | --- | --- |
+| `id` | [ComplexPortalId](#complexportalid) | Native complex accession. |
+| `matched_participant` | [Text](#text) | Exact native participant identifier supporting admission. |
+| `name` | [Text](#text) | Native source name. |
+| `participant_total` | integer (uint64) | Actual participants in this exact complex, never a complex search total. |
+| `predicted` | boolean | Literal native predictedComplex flag. |
+| `taxon` | integer (uint32) | Source taxonomy identifier. |
+| `url` | [Text](#text) | Native complex record URL. |
 
 ### ProteinCoordinateConvention
 
@@ -2403,103 +2403,103 @@ Values: `one_based_inclusive`.
 
 One native match fragment after coordinate conversion.
 
-| Field | Type | Always present | Meaning |
-| --- | --- | --- | --- |
-| `dc_status` | [Text](#text) or null | no | Literal discontinuity status supplied by InterPro. |
-| `span` | [UncertainSpan0](#uncertainspan0) | yes | Converted interbase span with uncertainty retained. |
+| Field | Type | Meaning |
+| --- | --- | --- |
+| `dc_status` | [Text](#text) or null | Literal discontinuity status supplied by InterPro. Optional. |
+| `span` | [UncertainSpan0](#uncertainspan0) | Converted interbase span with uncertainty retained. |
 
 ### ProteinDomainLocation
 
 One native InterPro location group retaining all discontinuous fragments.
 
-| Field | Type | Always present | Meaning |
-| --- | --- | --- | --- |
-| `fragments` | list of [ProteinDomainFragment](#proteindomainfragment) | no | All native fragments; never reduced to a min/max hull. |
+| Field | Type | Meaning |
+| --- | --- | --- |
+| `fragments` | list of [ProteinDomainFragment](#proteindomainfragment) | All native fragments; never reduced to a min/max hull. Optional. |
 
 ### ProteinDomainMatch
 
 One native integrated InterPro match; not every entry type is a domain.
 
-| Field | Type | Always present | Meaning |
-| --- | --- | --- | --- |
-| `attribution` | [Attribution](#attribution) | yes | Source record and release facts. |
-| `entry_type` | [Text](#text) | yes | Literal source entry type, including family, site and repeat. |
-| `id` | [InterProId](#interproid) | yes | Integrated entry accession, distinct from member signatures. |
-| `locations` | list of [ProteinDomainLocation](#proteindomainlocation) | no | Every native location group in source order. |
-| `member_signatures` | list of [ProteinMemberSignature](#proteinmembersignature) | no | Source member signatures remain distinct from integrated entries. |
-| `name` | [Text](#text) | yes | Native integrated name. |
-| `protein` | [UniProtIsoform](#uniprotisoform) | yes | Exact native protein identity. |
-| `protein_length` | integer or null | no | Source protein length when supplied. |
-| `taxon` | integer or null | no | Source taxon when supplied. |
+| Field | Type | Meaning |
+| --- | --- | --- |
+| `attribution` | [Attribution](#attribution) | Source record and release facts. |
+| `entry_type` | [Text](#text) | Literal source entry type, including family, site and repeat. |
+| `id` | [InterProId](#interproid) | Integrated entry accession, distinct from member signatures. |
+| `locations` | list of [ProteinDomainLocation](#proteindomainlocation) | Every native location group in source order. Optional. |
+| `member_signatures` | list of [ProteinMemberSignature](#proteinmembersignature) | Source member signatures remain distinct from integrated entries. Optional. |
+| `name` | [Text](#text) | Native integrated name. |
+| `protein` | [UniProtIsoform](#uniprotisoform) | Exact native protein identity. |
+| `protein_length` | integer or null | Source protein length when supplied. Optional. |
+| `taxon` | integer or null | Source taxon when supplied. Optional. |
 
 ### ProteinDomains
 
 Whole native rows with the independent unfiltered source count.
 
-| Field | Type | Always present | Meaning |
-| --- | --- | --- | --- |
-| `items` | list of [ProteinDomainMatch](#proteindomainmatch) | yes | Bounded retained rows in source order. |
-| `native_total` | integer (uint64) | yes | Native source total before type selection or exact participant admission. |
+| Field | Type | Meaning |
+| --- | --- | --- |
+| `items` | list of [ProteinDomainMatch](#proteindomainmatch) | Bounded retained rows in source order. |
+| `native_total` | integer (uint64) | Native source total before type selection or exact participant admission. |
 
 ### ProteinFeature
 
 UniProt feature with source attribution and coordinate provenance.
 
-| Field | Type | Always present | Meaning |
-| --- | --- | --- | --- |
-| `attribution` | [Attribution](#attribution) | yes | Source record and release facts. |
-| `feature` | [UniProtFeature](#uniprotfeature) | yes | Shared feature, including native label and residues. |
-| `source_coordinates` | [ProteinCoordinateConvention](#proteincoordinateconvention) | yes | Convention before mathematical conversion. |
+| Field | Type | Meaning |
+| --- | --- | --- |
+| `attribution` | [Attribution](#attribution) | Source record and release facts. |
+| `feature` | [UniProtFeature](#uniprotfeature) | Shared feature, including native label and residues. |
+| `source_coordinates` | [ProteinCoordinateConvention](#proteincoordinateconvention) | Convention before mathematical conversion. |
 
 ### ProteinFeatures
 
 Native UniProt feature rows, preserving exact labels and uncertain bounds.
 
-| Field | Type | Always present | Meaning |
-| --- | --- | --- | --- |
-| `items` | list of [ProteinFeature](#proteinfeature) | yes | Whole native rows in source order; totals apply only to this collection. |
+| Field | Type | Meaning |
+| --- | --- | --- |
+| `items` | list of [ProteinFeature](#proteinfeature) | Whole native rows in source order; totals apply only to this collection. |
 
 ### ProteinFunction
 
 One whole source function paragraph and its own evidence.
 
-| Field | Type | Always present | Meaning |
-| --- | --- | --- | --- |
-| `evidence` | list of [Text](#text) | no | All evidence references supplied for this text. |
-| `molecule` | [Text](#text) or null | no | Native molecule qualifier; never attributed to another isoform. |
-| `text` | [Text](#text) | yes | Whole native source text, without clinical interpretation. |
+| Field | Type | Meaning |
+| --- | --- | --- |
+| `evidence` | list of [Text](#text) | All evidence references supplied for this text. Optional. |
+| `molecule` | [Text](#text) or null | Native molecule qualifier; never attributed to another isoform. Optional. |
+| `text` | [Text](#text) | Whole native source text, without clinical interpretation. |
 
 ### ProteinFunctionResult
 
 Whole source function paragraphs and their own evidence.
 
-| Field | Type | Always present | Meaning |
-| --- | --- | --- | --- |
-| `items` | list of [ProteinFunction](#proteinfunction) | no | Native paragraphs in source order, without inferred interpretation. |
+| Field | Type | Meaning |
+| --- | --- | --- |
+| `items` | list of [ProteinFunction](#proteinfunction) | Native paragraphs in source order, without inferred interpretation. Optional. |
 
 ### ProteinGet
 
 Read source protein cards; a symbol returns candidates without choosing a protein. Sections disclose native facts with independent row bounds; function keeps all paragraphs. No variant effect, structure, interaction or clinical meaning is inferred. No bioinformatics tool runs.
 
-| Field | Type | Always present | Meaning |
-| --- | --- | --- | --- |
-| `input` | list of [ProteinInput](#proteininput) | yes | Source accessions or gene symbols, preserving caller order. |
-| `section` | list of [ProteinSection](#proteinsection) | no | Select native sections or all bounded first pages; function keeps one whole text record. |
-| `section_limit` | integer (uint32) | no | First-page row limit; function keeps one whole native text record and does not page its paragraphs. |
+| Field | Type | Meaning |
+| --- | --- | --- |
+| `input` | list of [ProteinInput](#proteininput) | Source accessions or gene symbols, preserving caller order. |
+| `section` | list of [ProteinSection](#proteinsection) | Select native sections or all bounded first pages; function keeps one whole text record. Optional. |
+| `section_limit` | integer (uint32) | First-page row limit; function keeps one whole native text record and does not page its paragraphs. Optional. |
 
 ### ProteinHeader
 
 Native entry metadata wrapping the same Protein identity used by the gene slice.
 
-| Field | Type | Always present | Meaning |
-| --- | --- | --- | --- |
-| `entry_id` | [Text](#text) | yes | Native source entry name. |
-| `gene_ids` | list of [Curie](#curie) | no | Only identifiers explicitly supplied by the source. |
-| `gene_names` | list of [Text](#text) | no | Display names only; never identifier joins. |
-| `protein` | [Protein](#protein) of [UniProtIsoform](#uniprotisoform) | yes | Shared gene/protein identity fields; never independently restated. |
-| `reviewed` | boolean | yes | Native reviewed status. |
-| `taxon` | integer (uint32) | yes | Native source taxonomy identifier. |
-| `url` | [Text](#text) | yes | Source entry URL. |
+| Field | Type | Meaning |
+| --- | --- | --- |
+| `entry_id` | [Text](#text) | Native source entry name. |
+| `gene_ids` | list of [Curie](#curie) | Only identifiers explicitly supplied by the source. Optional. |
+| `gene_names` | list of [Text](#text) | Display names only; never identifier joins. Optional. |
+| `protein` | [Protein](#protein) of [UniProtIsoform](#uniprotisoform) | Shared gene/protein identity fields; never independently restated. |
+| `reviewed` | boolean | Native reviewed status. |
+| `taxon` | integer (uint32) | Native source taxonomy identifier. |
+| `url` | [Text](#text) | Source entry URL. |
 
 ### ProteinInput
 
@@ -2511,22 +2511,22 @@ Type: string.
 
 One source alternative-product row; all stated identifiers stay together.
 
-| Field | Type | Always present | Meaning |
-| --- | --- | --- | --- |
-| `direct_sequence` | [ProteinSequenceAvailability](#proteinsequenceavailability) | yes | Explicit direct-sequence retrieval state, independent of descriptive status. |
-| `ids` | list of [UniProtIsoform](#uniprotisoform) | no | All source-stated isoform identifiers, including External base identities. |
-| `name` | [Text](#text) | yes | Source isoform name. |
-| `sequence_ids` | list of [Text](#text) | no | Source VSP sequence identifiers. |
-| `sequence_status` | [ProteinIsoformStatus](#proteinisoformstatus) | yes | Native sequence status; no sequence is inferred from it. |
-| `synonyms` | list of [Text](#text) | no | Every source synonym. |
+| Field | Type | Meaning |
+| --- | --- | --- |
+| `direct_sequence` | [ProteinSequenceAvailability](#proteinsequenceavailability) | Explicit direct-sequence retrieval state, independent of descriptive status. |
+| `ids` | list of [UniProtIsoform](#uniprotisoform) | All source-stated isoform identifiers, including External base identities. Optional. |
+| `name` | [Text](#text) | Source isoform name. |
+| `sequence_ids` | list of [Text](#text) | Source VSP sequence identifiers. Optional. |
+| `sequence_status` | [ProteinIsoformStatus](#proteinisoformstatus) | Native sequence status; no sequence is inferred from it. |
+| `synonyms` | list of [Text](#text) | Every source synonym. Optional. |
 
 ### ProteinIsoforms
 
 Alternative products with every stated identifier and explicit direct sequence state.
 
-| Field | Type | Always present | Meaning |
-| --- | --- | --- | --- |
-| `items` | list of [ProteinIsoform](#proteinisoform) | yes | Whole native rows in source order; totals apply only to this collection. |
+| Field | Type | Meaning |
+| --- | --- | --- |
+| `items` | list of [ProteinIsoform](#proteinisoform) | Whole native rows in source order; totals apply only to this collection. |
 
 ### ProteinIsoformStatus
 
@@ -2538,22 +2538,22 @@ Values: `Displayed`, `Described`, `External`.
 
 A member database signature, not an integrated IPR entry.
 
-| Field | Type | Always present | Meaning |
-| --- | --- | --- | --- |
-| `accession` | [Text](#text) | yes | Native signature accession. |
-| `database` | [Text](#text) | yes | Native member database name. |
-| `name` | [Text](#text) or null | no | Native member signature name. |
+| Field | Type | Meaning |
+| --- | --- | --- |
+| `accession` | [Text](#text) | Native signature accession. |
+| `database` | [Text](#text) | Native member database name. |
+| `name` | [Text](#text) or null | Native member signature name. Optional. |
 
 ### ProteinRelationQuery
 
 Page five source isoforms, exact-participant complexes or PDB links. Source identities stay separate. No structure, interaction or clinical meaning is inferred; no bioinformatics tool runs.
 
-| Field | Type | Always present | Meaning |
-| --- | --- | --- | --- |
-| `accession` | [UniProtIsoform](#uniprotisoform) | yes | Exact source protein sequence identity. |
-| `limit` | integer (uint32) | no | Five rows by default, at most 25. |
-| `offset` | integer (uint32) | no | Native or retained page offset. |
-| `pool` | [Text](#text) | no | The ID of a stored list, from an earlier reply, so later pages read the same data. |
+| Field | Type | Meaning |
+| --- | --- | --- |
+| `accession` | [UniProtIsoform](#uniprotisoform) | Exact source protein sequence identity. |
+| `limit` | integer (uint32) | Five rows by default, at most 25. Optional. |
+| `offset` | integer (uint32) | Native or retained page offset. Optional. |
+| `pool` | [Text](#text) | The ID of a stored list, from an earlier reply, so later pages read the same data. Optional. |
 
 ### ProteinSection
 
@@ -2574,14 +2574,14 @@ Named protein sections; all expands to bounded first pages.
 
 A directly returned sequence with exact returned identity and audit facts.
 
-| Field | Type | Always present | Meaning |
-| --- | --- | --- | --- |
-| `accession` | [UniProtIsoform](#uniprotisoform) | yes | Exact returned accession; never replaced by the requested base entry. |
-| `audit` | [ProteinAudit](#proteinaudit) | yes | Native audit facts for this record. |
-| `crc64` | [Text](#text) or null | no | Native checksum when supplied. |
-| `length` | integer (uint32) | yes | Native sequence length. |
-| `md5` | [Text](#text) or null | no | Native checksum when supplied. |
-| `sequence` | [AminoAcids](#aminoacids) | yes | Source residues, never constructed from another entry. |
+| Field | Type | Meaning |
+| --- | --- | --- |
+| `accession` | [UniProtIsoform](#uniprotisoform) | Exact returned accession; never replaced by the requested base entry. |
+| `audit` | [ProteinAudit](#proteinaudit) | Native audit facts for this record. |
+| `crc64` | [Text](#text) or null | Native checksum when supplied. Optional. |
+| `length` | integer (uint32) | Native sequence length. |
+| `md5` | [Text](#text) or null | Native checksum when supplied. Optional. |
+| `sequence` | [AminoAcids](#aminoacids) | Source residues, never constructed from another entry. |
 
 ### ProteinSequenceAvailability
 
@@ -2593,37 +2593,37 @@ Values: `available`, `not_available`, `not_checked`.
 
 One directly returned source sequence, with exact identity and audit metadata.
 
-| Field | Type | Always present | Meaning |
-| --- | --- | --- | --- |
-| `sequence` | [ProteinSequence](#proteinsequence) | yes | Native sequence record; never constructed from another entry. |
+| Field | Type | Meaning |
+| --- | --- | --- |
+| `sequence` | [ProteinSequence](#proteinsequence) | Native sequence record; never constructed from another entry. |
 
 ### ProteinStructureProperty
 
 A native cross-reference property pair.
 
-| Field | Type | Always present | Meaning |
-| --- | --- | --- | --- |
-| `key` | [Text](#text) | yes | Native property key. |
-| `value` | [Text](#text) | yes | Native property value, without interpreting residue coverage. |
+| Field | Type | Meaning |
+| --- | --- | --- |
+| `key` | [Text](#text) | Native property key. |
+| `value` | [Text](#text) | Native property value, without interpreting residue coverage. |
 
 ### ProteinStructureRef
 
 A source structure cross-reference link; no residue coverage claim.
 
-| Field | Type | Always present | Meaning |
-| --- | --- | --- | --- |
-| `database` | [Text](#text) | yes | Native cross-reference database. |
-| `id` | [Text](#text) | yes | Native cross-reference identifier. |
-| `properties` | list of [ProteinStructureProperty](#proteinstructureproperty) | no | All native property pairs, including method, resolution and chains. |
-| `url` | [Text](#text) | yes | Publisher link; no structure file is retrieved. |
+| Field | Type | Meaning |
+| --- | --- | --- |
+| `database` | [Text](#text) | Native cross-reference database. |
+| `id` | [Text](#text) | Native cross-reference identifier. |
+| `properties` | list of [ProteinStructureProperty](#proteinstructureproperty) | All native property pairs, including method, resolution and chains. Optional. |
+| `url` | [Text](#text) | Publisher link; no structure file is retrieved. |
 
 ### ProteinStructures
 
 Source structure links and native properties; no residue coverage claim.
 
-| Field | Type | Always present | Meaning |
-| --- | --- | --- | --- |
-| `items` | list of [ProteinStructureRef](#proteinstructureref) | yes | Whole native rows in source order; totals apply only to this collection. |
+| Field | Type | Meaning |
+| --- | --- | --- |
+| `items` | list of [ProteinStructureRef](#proteinstructureref) | Whole native rows in source order; totals apply only to this collection. |
 
 ### PublicationType
 
@@ -2669,21 +2669,21 @@ Type: string.
 
 One source's own expression, assembly and optional source-stated interbase allele.
 
-| Field | Type | Always present | Meaning |
-| --- | --- | --- | --- |
-| `allele` | [Allele](#allele) or null | no | Source-supplied allele, without local normalization or equivalence inference. |
-| `build` | [Build](#build) or null | no | Assembly stated by the source, omitted when absent. |
-| `expression` | [Expression](#expression) | yes | Published notation kept unchanged. |
-| `source` | [Text](#text) | yes | Source asserting this form. |
+| Field | Type | Meaning |
+| --- | --- | --- |
+| `allele` | [Allele](#allele) or null | Source-supplied allele, without local normalization or equivalence inference. Optional. |
+| `build` | [Build](#build) or null | Assembly stated by the source, omitted when absent. Optional. |
+| `expression` | [Expression](#expression) | Published notation kept unchanged. |
+| `source` | [Text](#text) | Source asserting this form. |
 
 ### ScientificPValue
 
 Exact normalized scientific p value; no floating-point conversion is used.
 
-| Field | Type | Always present | Meaning |
-| --- | --- | --- | --- |
-| `exponent` | integer (int64) | yes | Source base-ten exponent; values below the double range remain exact. |
-| `mantissa` | string | yes | Source mantissa spelling, including significant trailing zeros. |
+| Field | Type | Meaning |
+| --- | --- | --- |
+| `exponent` | integer (int64) | Source base-ten exponent; values below the double range remain exact. |
+| `mantissa` | string | Source mantissa spelling, including significant trailing zeros. |
 
 ### Section
 
@@ -2713,10 +2713,10 @@ Type: string.
 
 An interbase interval on one versioned sequence accession.
 
-| Field | Type | Always present | Meaning |
-| --- | --- | --- | --- |
-| `sequence` | [Accession](#accession) | yes | Versioned source sequence, without an inferred genome build. |
-| `span` | [Span0](#span0) | yes | Zero-based half-open bounds. |
+| Field | Type | Meaning |
+| --- | --- | --- |
+| `sequence` | [Accession](#accession) | Versioned source sequence, without an inferred genome build. |
+| `span` | [Span0](#span0) | Zero-based half-open bounds. |
 
 ### Source
 
@@ -2811,27 +2811,27 @@ One of these forms:
 
 What happened when BioMCP asked one source.
 
-| Field | Type | Always present | Meaning |
-| --- | --- | --- | --- |
-| `count` | integer or null | no | How many records matched at the source. |
-| `fetched` | integer or null | no | How many matching records BioMCP retrieved from the source. |
-| `notices` | list of [SourceNotice](#sourcenotice) | no | Notes from the source about the query, such as words it did not index. They are not failures. |
-| `reason` | [Reason](#reason) or null | no | Why the source failed, or why BioMCP answered with older stored data. |
-| `source` | [Source](#source) | yes | The source BioMCP asked. |
-| `state` | [SourceState](#sourcestate) | yes | What happened: `ok`, `stale`, `syncing`, `failed` or `skipped`. |
-| `term` | [Text](#text) or null | no | The search term BioMCP sent to the source. |
-| `terms` | string | yes | The name of the publisher's terms. |
-| `terms_url` | string | yes | The publisher's page with those terms. |
-| `use` | [Use](#use) | yes | The source's use group: `open`, `attribution`, `noncommercial` or `restricted`. The publisher's terms decide what you may do with the data. |
+| Field | Type | Meaning |
+| --- | --- | --- |
+| `count` | integer or null | How many records matched at the source. Optional. |
+| `fetched` | integer or null | How many matching records BioMCP retrieved from the source. Optional. |
+| `notices` | list of [SourceNotice](#sourcenotice) | Notes from the source about the query, such as words it did not index. They are not failures. Optional. |
+| `reason` | [Reason](#reason) or null | Why the source failed, or why BioMCP answered with older stored data. Optional. |
+| `source` | [Source](#source) | The source BioMCP asked. |
+| `state` | [SourceState](#sourcestate) | What happened: `ok`, `stale`, `syncing`, `failed` or `skipped`. |
+| `term` | [Text](#text) or null | The search term BioMCP sent to the source. Optional. |
+| `terms` | string | The name of the publisher's terms. |
+| `terms_url` | string | The publisher's page with those terms. |
+| `use` | [Use](#use) | The source's use group: `open`, `attribution`, `noncommercial` or `restricted`. The publisher's terms decide what you may do with the data. |
 
 ### SourceRecord
 
 The source's own entry for an entity.
 
-| Field | Type | Always present | Meaning |
-| --- | --- | --- | --- |
-| `id` | [Text](#text) | yes | Native source identifier. |
-| `url` | [Text](#text) or null | no | Link to that entry. |
+| Field | Type | Meaning |
+| --- | --- | --- |
+| `id` | [Text](#text) | Native source identifier. |
+| `url` | [Text](#text) or null | Link to that entry. Optional. |
 
 ### SourceState
 
@@ -2841,10 +2841,10 @@ State of a source actually asked by the command. [Reply envelope values](/refere
 
 A zero-based half-open span with ordered bounds; empty spans are valid.
 
-| Field | Type | Always present | Meaning |
-| --- | --- | --- | --- |
-| `end` | integer (uint32) | yes |  |
-| `start` | integer (uint32) | yes |  |
+| Field | Type | Meaning |
+| --- | --- | --- |
+| `end` | integer (uint32) |  |
+| `start` | integer (uint32) |  |
 
 ### SponsorType
 
@@ -2856,43 +2856,43 @@ Values: `nih`, `fed`, `industry`, `other`.
 
 One source claim, kept in its own framework and context.
 
-| Field | Type | Always present | Meaning |
-| --- | --- | --- | --- |
-| `allele_origin` | [Term](#term) or null | no | Source-stated origin. |
-| `attribution` | [Attribution](#attribution) | yes | One source record and its provenance. |
-| `citations` | list of [Pmid](#pmid) | no | Source publications. |
-| `classification` | [Term](#term) | yes | Whole source classification label. |
-| `condition` | [Concept](#concept) or null | no | Source disease or tumor context. |
-| `criteria` | list of [Text](#text) | no | Source criterion labels in source order. |
-| `direction` | [Direction](#direction) or null | no | Source-stated assessment direction. |
-| `gene_context` | [GeneRef](#generef) or null | no | Source gene context. |
-| `predicate` | [Predicate](#predicate) or null | no | Source-stated relationship. |
-| `proposition` | [Proposition](#proposition) | yes | Claim domain. |
-| `strength` | [Term](#term) or null | no | Source evidence level or review status. |
-| `subject` | [VariantRef](#variantref) | yes | Source-owned subject reference. |
-| `therapies` | list of [Concept](#concept) | no | Source therapies in their native order. |
+| Field | Type | Meaning |
+| --- | --- | --- |
+| `allele_origin` | [Term](#term) or null | Source-stated origin. Optional. |
+| `attribution` | [Attribution](#attribution) | One source record and its provenance. |
+| `citations` | list of [Pmid](#pmid) | Source publications. Optional. |
+| `classification` | [Term](#term) | Whole source classification label. |
+| `condition` | [Concept](#concept) or null | Source disease or tumor context. Optional. |
+| `criteria` | list of [Text](#text) | Source criterion labels in source order. Optional. |
+| `direction` | [Direction](#direction) or null | Source-stated assessment direction. Optional. |
+| `gene_context` | [GeneRef](#generef) or null | Source gene context. Optional. |
+| `predicate` | [Predicate](#predicate) or null | Source-stated relationship. Optional. |
+| `proposition` | [Proposition](#proposition) | Claim domain. |
+| `strength` | [Term](#term) or null | Source evidence level or review status. Optional. |
+| `subject` | [VariantRef](#variantref) | Source-owned subject reference. |
+| `therapies` | list of [Concept](#concept) | Source therapies in their native order. Optional. |
 
 ### StatisticEstimate
 
 Source estimate and uncertainty without computed quantities.
 
-| Field | Type | Always present | Meaning |
-| --- | --- | --- | --- |
-| `count` | integer or null | no | Native count; no inferred denominator. |
-| `lower_ci` | [FiniteNumber](#finitenumber) or null | no | Native lower confidence bound. |
-| `standard_error` | [FiniteNumber](#finitenumber) or null | no | Native standard error. |
-| `upper_ci` | [FiniteNumber](#finitenumber) or null | no | Native upper confidence bound. |
-| `value` | [FiniteNumber](#finitenumber) or null | no | Native estimate. |
+| Field | Type | Meaning |
+| --- | --- | --- |
+| `count` | integer or null | Native count; no inferred denominator. Optional. |
+| `lower_ci` | [FiniteNumber](#finitenumber) or null | Native lower confidence bound. Optional. |
+| `standard_error` | [FiniteNumber](#finitenumber) or null | Native standard error. Optional. |
+| `upper_ci` | [FiniteNumber](#finitenumber) or null | Native upper confidence bound. Optional. |
+| `value` | [FiniteNumber](#finitenumber) or null | Native estimate. Optional. |
 
 ### StatisticSelector
 
 One source-native selector without a local interpretation.
 
-| Field | Type | Always present | Meaning |
-| --- | --- | --- | --- |
-| `code` | [Text](#text) | yes | Source selector code. |
-| `label` | [Text](#text) or null | no | Publisher label when supplied. |
-| `name` | [Text](#text) | yes | Source field name. |
+| Field | Type | Meaning |
+| --- | --- | --- |
+| `code` | [Text](#text) | Source selector code. |
+| `label` | [Text](#text) or null | Publisher label when supplied. Optional. |
+| `name` | [Text](#text) | Source field name. |
 
 ### Status
 
@@ -2902,10 +2902,10 @@ Overall command outcome. [Reply envelope values](/reference/envelope/#status) li
 
 A command you can run next. `args` is the command without the leading `biomcp`; `kind` says what it does.
 
-| Field | Type | Always present | Meaning |
-| --- | --- | --- | --- |
-| `args` | list of string | yes | The command's words without the leading `biomcp`. The same list works as the MCP tool's arguments. |
-| `kind` | [StepKind](#stepkind) | yes | What the command does, such as `page` or `section`. |
+| Field | Type | Meaning |
+| --- | --- | --- |
+| `args` | list of string | The command's words without the leading `biomcp`. The same list works as the MCP tool's arguments. |
+| `kind` | [StepKind](#stepkind) | What the command does, such as `page` or `section`. |
 
 ### StepKind
 
@@ -2928,15 +2928,15 @@ Type: string.
 
 Publisher file reference; repository blob bytes never mean data-content bytes.
 
-| Field | Type | Always present | Meaning |
-| --- | --- | --- | --- |
-| `downloadUrl` | [Text](#text) or null | no | Native download link, absent for directory entries. |
-| `htmlUrl` | [Text](#text) | yes | Publisher browser link. |
-| `kind` | [StudyFileKind](#studyfilekind) | yes | Native file or directory kind. |
-| `name` | [Text](#text) | yes | Native repository entry name. |
-| `path` | [Text](#text) | yes | Exact native repository path. |
-| `repositoryBlobSize` | integer (uint64) | yes | GitHub size in repository blob bytes; LFS content size is unknown. |
-| `sha` | [StudyBlobSha](#studyblobsha) | yes | Repository blob or tree revision, not a data-content checksum. |
+| Field | Type | Meaning |
+| --- | --- | --- |
+| `downloadUrl` | [Text](#text) or null | Native download link, absent for directory entries. Optional. |
+| `htmlUrl` | [Text](#text) | Publisher browser link. |
+| `kind` | [StudyFileKind](#studyfilekind) | Native file or directory kind. |
+| `name` | [Text](#text) | Native repository entry name. |
+| `path` | [Text](#text) | Exact native repository path. |
+| `repositoryBlobSize` | integer (uint64) | GitHub size in repository blob bytes; LFS content size is unknown. |
+| `sha` | [StudyBlobSha](#studyblobsha) | Repository blob or tree revision, not a data-content checksum. |
 
 ### StudyFileKind
 
@@ -2948,38 +2948,38 @@ Values: `file`, `dir`.
 
 One native repository directory page; blob sizes do not describe data content.
 
-| Field | Type | Always present | Meaning |
-| --- | --- | --- | --- |
-| `acquired` | integer (uint64) | yes | Directory acquisition wall time in Unix seconds. |
-| `items` | list of [StudyFile](#studyfile) | yes | Source-ordered repository file references. |
-| `license_notice` | [Text](#text) or null | no | Native LICENSE publisher link, independent of the current file page. |
-| `page` | [PageInfo](#pageinfo) | yes | Bounds within the complete received directory. |
-| `study_id` | [StudyId](#studyid) | yes | Exact study directory scope. |
+| Field | Type | Meaning |
+| --- | --- | --- |
+| `acquired` | integer (uint64) | Directory acquisition wall time in Unix seconds. |
+| `items` | list of [StudyFile](#studyfile) | Source-ordered repository file references. |
+| `license_notice` | [Text](#text) or null | Native LICENSE publisher link, independent of the current file page. Optional. |
+| `page` | [PageInfo](#pageinfo) | Bounds within the complete received directory. |
+| `study_id` | [StudyId](#studyid) | Exact study directory scope. |
 
 ### StudyGet
 
 Exact case-sensitive study card or bounded metadata section. No frequency, denominator, survival or comparison is calculated. Source counts keep their native names.
 
-| Field | Type | Always present | Meaning |
-| --- | --- | --- | --- |
-| `id` | [StudyId](#studyid) | yes | Exact source study ID; no default or repair. |
-| `section` | [StudySection](#studysection) or null | no | Omit for the card; all returns bounded first pages only. |
-| `section_limit` | integer (uint32) | no | Maximum records in each selected section. |
-| `section_offset` | integer (uint32) | no | Offset within one named section; all requires zero. |
+| Field | Type | Meaning |
+| --- | --- | --- |
+| `id` | [StudyId](#studyid) | Exact source study ID; no default or repair. |
+| `section` | [StudySection](#studysection) or null | Omit for the card; all returns bounded first pages only. Optional. |
+| `section_limit` | integer (uint32) | Maximum records in each selected section. Optional. |
+| `section_offset` | integer (uint32) | Offset within one named section; all requires zero. Optional. |
 
 ### StudyHeader
 
 Compact source study identity; source codes and counts retain their own scope.
 
-| Field | Type | Always present | Meaning |
-| --- | --- | --- | --- |
-| `allSampleCount` | integer (uint64) | yes | Native allSampleCount, never a patient or profiled-gene denominator. |
-| `cancerTypeId` | [CbioportalCancerTypeId](#cbioportalcancertypeid) | yes | cBioPortal namespace only; no ontology inference. |
-| `citation` | string or null | no | Native citation, absent for unpublished records. |
-| `name` | [Text](#text) | yes | Native study name. |
-| `pmids` | list of [Pmid](#pmid) or null | no | Every validated source PMID in native order, including repetitions; absent remains absent. |
-| `referenceGenome` | [Text](#text) | yes | Native study metadata label, never a coordinate assembly. |
-| `studyId` | [StudyId](#studyid) | yes | Exact case-sensitive source identity. |
+| Field | Type | Meaning |
+| --- | --- | --- |
+| `allSampleCount` | integer (uint64) | Native allSampleCount, never a patient or profiled-gene denominator. |
+| `cancerTypeId` | [CbioportalCancerTypeId](#cbioportalcancertypeid) | cBioPortal namespace only; no ontology inference. |
+| `citation` | string or null | Native citation, absent for unpublished records. Optional. |
+| `name` | [Text](#text) | Native study name. |
+| `pmids` | list of [Pmid](#pmid) or null | Every validated source PMID in native order, including repetitions; absent remains absent. Optional. |
+| `referenceGenome` | [Text](#text) | Native study metadata label, never a coordinate assembly. |
+| `studyId` | [StudyId](#studyid) | Exact case-sensitive source identity. |
 
 ### StudyId
 
@@ -2989,17 +2989,17 @@ Type: string.
 
 Molecular profile reference with exact study membership.
 
-| Field | Type | Always present | Meaning |
-| --- | --- | --- | --- |
-| `datatype` | [Text](#text) | yes | Extensible native data-type label. |
-| `description` | string | yes | Source description. |
-| `genericAssayType` | [Text](#text) or null | no | Native generic assay type, absent outside those profiles. |
-| `molecularAlterationType` | [Text](#text) | yes | Extensible source alteration-type label. |
-| `molecularProfileId` | [StudyProfileId](#studyprofileid) | yes | Exact native profile ID; never constructed from a study ID. |
-| `name` | string | yes | Source profile name. |
-| `patientLevel` | boolean | yes | Native patient-level flag, not a unit inferred for other records. |
-| `showProfileInAnalysisTab` | boolean | yes | Native profile display setting. |
-| `studyId` | [StudyId](#studyid) | yes | Native profile study scope. |
+| Field | Type | Meaning |
+| --- | --- | --- |
+| `datatype` | [Text](#text) | Extensible native data-type label. |
+| `description` | string | Source description. |
+| `genericAssayType` | [Text](#text) or null | Native generic assay type, absent outside those profiles. Optional. |
+| `molecularAlterationType` | [Text](#text) | Extensible source alteration-type label. |
+| `molecularProfileId` | [StudyProfileId](#studyprofileid) | Exact native profile ID; never constructed from a study ID. |
+| `name` | string | Source profile name. |
+| `patientLevel` | boolean | Native patient-level flag, not a unit inferred for other records. |
+| `showProfileInAnalysisTab` | boolean | Native profile display setting. |
+| `studyId` | [StudyId](#studyid) | Native profile study scope. |
 
 ### StudyProfileId
 
@@ -3009,25 +3009,25 @@ Type: string.
 
 One independently acquired, bounded native metadata collection.
 
-| Field | Type | Always present | Meaning |
-| --- | --- | --- | --- |
-| `acquired` | integer (uint64) | yes | Live collection acquisition wall time in Unix seconds, distinct from catalog acquisition. |
-| `items` | list of [StudyProfile](#studyprofile) | yes | Complete ordered metadata records, never member sample IDs. |
-| `page` | [PageInfo](#pageinfo) | yes | Bounds and source-stated total for this collection. |
-| `study_id` | [StudyId](#studyid) | yes | Exact study scope of this collection. |
+| Field | Type | Meaning |
+| --- | --- | --- |
+| `acquired` | integer (uint64) | Live collection acquisition wall time in Unix seconds, distinct from catalog acquisition. |
+| `items` | list of [StudyProfile](#studyprofile) | Complete ordered metadata records, never member sample IDs. |
+| `page` | [PageInfo](#pageinfo) | Bounds and source-stated total for this collection. |
+| `study_id` | [StudyId](#studyid) | Exact study scope of this collection. |
 
 ### StudySampleList
 
 Sample-list metadata without a representation for member sample IDs.
 
-| Field | Type | Always present | Meaning |
-| --- | --- | --- | --- |
-| `category` | [Text](#text) | yes | Extensible native list category. |
-| `description` | string | yes | Native list description. |
-| `name` | string | yes | Native list name. |
-| `sampleCount` | integer or null | no | Stated source sampleCount when supplied, never computed from member IDs. |
-| `sampleListId` | [StudySampleListId](#studysamplelistid) | yes | Exact native list ID. |
-| `studyId` | [StudyId](#studyid) | yes | Native study scope. |
+| Field | Type | Meaning |
+| --- | --- | --- |
+| `category` | [Text](#text) | Extensible native list category. |
+| `description` | string | Native list description. |
+| `name` | string | Native list name. |
+| `sampleCount` | integer or null | Stated source sampleCount when supplied, never computed from member IDs. Optional. |
+| `sampleListId` | [StudySampleListId](#studysamplelistid) | Exact native list ID. |
+| `studyId` | [StudyId](#studyid) | Native study scope. |
 
 ### StudySampleListId
 
@@ -3037,12 +3037,12 @@ Type: string.
 
 One independently acquired, bounded native metadata collection.
 
-| Field | Type | Always present | Meaning |
-| --- | --- | --- | --- |
-| `acquired` | integer (uint64) | yes | Live collection acquisition wall time in Unix seconds, distinct from catalog acquisition. |
-| `items` | list of [StudySampleList](#studysamplelist) | yes | Complete ordered metadata records, never member sample IDs. |
-| `page` | [PageInfo](#pageinfo) | yes | Bounds and source-stated total for this collection. |
-| `study_id` | [StudyId](#studyid) | yes | Exact study scope of this collection. |
+| Field | Type | Meaning |
+| --- | --- | --- |
+| `acquired` | integer (uint64) | Live collection acquisition wall time in Unix seconds, distinct from catalog acquisition. |
+| `items` | list of [StudySampleList](#studysamplelist) | Complete ordered metadata records, never member sample IDs. |
+| `page` | [PageInfo](#pageinfo) | Bounds and source-stated total for this collection. |
+| `study_id` | [StudyId](#studyid) | Exact study scope of this collection. |
 
 ### StudySection
 
@@ -3059,10 +3059,10 @@ Supported bounded study metadata sections; gene counts are deferred.
 
 Metadata catalog revision and acquisition time; never a biological release date.
 
-| Field | Type | Always present | Meaning |
-| --- | --- | --- | --- |
-| `acquired` | integer (uint64) | yes | Catalog acquisition wall time in Unix seconds. |
-| `revision` | [Text](#text) | yes | Immutable bundle revision. |
+| Field | Type | Meaning |
+| --- | --- | --- |
+| `acquired` | integer (uint64) | Catalog acquisition wall time in Unix seconds. |
+| `revision` | [Text](#text) | Immutable bundle revision. |
 
 ### StudyType
 
@@ -3080,11 +3080,11 @@ Values: `adapter_derived_reference`.
 
 A whole source-provided summary with attribution and stated date precision.
 
-| Field | Type | Always present | Meaning |
-| --- | --- | --- | --- |
-| `dated` | [PartialDate](#partialdate) or null | no | Date stated by the source, if any. |
-| `source` | [SummarySource](#summarysource) | yes | The summary's attribution, independent of the fetching provider. |
-| `text` | [Text](#text) | yes | Entire summary text. |
+| Field | Type | Meaning |
+| --- | --- | --- |
+| `dated` | [PartialDate](#partialdate) or null | Date stated by the source, if any. Optional. |
+| `source` | [SummarySource](#summarysource) | The summary's attribution, independent of the fetching provider. |
+| `text` | [Text](#text) | Entire summary text. |
 
 ### SummarySource
 
@@ -3098,18 +3098,18 @@ The attribution on a source-provided summary, independent of fetch providers.
 
 Explicit source synchronization selector.
 
-| Field | Type | Always present | Meaning |
-| --- | --- | --- | --- |
-| `source` | [Source](#source) | yes | Source whose complete identity data is synchronized. |
+| Field | Type | Meaning |
+| --- | --- | --- |
+| `source` | [Source](#source) | Source whose complete identity data is synchronized. |
 
 ### Term
 
 A source label with optional explicitly supported coding.
 
-| Field | Type | Always present | Meaning |
-| --- | --- | --- | --- |
-| `coding` | [Coding](#coding) or null | no | Documented framework coding. |
-| `label` | [Text](#text) | yes | Original label. |
+| Field | Type | Meaning |
+| --- | --- | --- |
+| `coding` | [Coding](#coding) or null | Documented framework coding. Optional. |
+| `label` | [Text](#text) | Original label. |
 
 ### Text
 
@@ -3121,56 +3121,56 @@ Type: string.
 
 Exact condition identity used for one trial request, without eligibility inference.
 
-| Field | Type | Always present | Meaning |
-| --- | --- | --- | --- |
-| `alias` | [DiseaseRelation](#diseaserelation) or null | no | Native relation proving a requested alias, when required. |
-| `attribution` | [Attribution](#attribution) or null | no | Resolver record provenance, independent of the trial provider. |
-| `components` | list of [ComponentLabel](#componentlabel) | no | Admitted resolver components and their own terms. |
-| `concept` | [Concept](#concept) or null | no | Returned concept with its unchanged native primary label. |
-| `input` | [Curie](#curie) | yes | Caller-selected CURIE, never a source-name search. |
-| `ncit_candidates` | list of [DiseaseRelation](#diseaserelation) | no | Native NCIt mapping rows; duplicate targets keep their independent provenance. |
-| `resolver` | [Source](#source) or null | no | Named exact resolver; absent for explicit NCIt input. |
-| `selected_ncit` | [Curie](#curie) or null | no | Explicit or unique source-provided NCIt identifier actually sent to NCI. |
+| Field | Type | Meaning |
+| --- | --- | --- |
+| `alias` | [DiseaseRelation](#diseaserelation) or null | Native relation proving a requested alias, when required. Optional. |
+| `attribution` | [Attribution](#attribution) or null | Resolver record provenance, independent of the trial provider. Optional. |
+| `components` | list of [ComponentLabel](#componentlabel) | Admitted resolver components and their own terms. Optional. |
+| `concept` | [Concept](#concept) or null | Returned concept with its unchanged native primary label. Optional. |
+| `input` | [Curie](#curie) | Caller-selected CURIE, never a source-name search. |
+| `ncit_candidates` | list of [DiseaseRelation](#diseaserelation) | Native NCIt mapping rows; duplicate targets keep their independent provenance. Optional. |
+| `resolver` | [Source](#source) or null | Named exact resolver; absent for explicit NCIt input. Optional. |
+| `selected_ncit` | [Curie](#curie) or null | Explicit or unique source-provided NCIt identifier actually sent to NCI. Optional. |
 
 ### TrialDocument
 
 A posted source document; a URL never comes from caller-supplied filename text.
 
-| Field | Type | Always present | Meaning |
-| --- | --- | --- | --- |
-| `date` | [PartialDate](#partialdate) or null | no | Source document date. |
-| `filename` | [Text](#text) | yes | Exact advertised portable source filename. |
-| `has_icf` | boolean or null | no | Source says this contains an informed consent form. |
-| `has_protocol` | boolean or null | no | Source says this contains a protocol. |
-| `has_sap` | boolean or null | no | Source says this contains a statistical analysis plan. |
-| `kind` | string | yes | Native document type abbreviation. |
-| `label` | string or null | no | Source label. |
-| `license` | [License](#license) | yes | No blanket reuse license is inferred from registry availability. |
-| `size` | integer or null | no | Source byte count, when supplied. |
-| `uploaded` | string or null | no | Original upload timestamp, without guessing a timezone. |
-| `url` | [Text](#text) | yes | Fixed registry CDN URL for this manifest entry. |
+| Field | Type | Meaning |
+| --- | --- | --- |
+| `date` | [PartialDate](#partialdate) or null | Source document date. Optional. |
+| `filename` | [Text](#text) | Exact advertised portable source filename. |
+| `has_icf` | boolean or null | Source says this contains an informed consent form. Optional. |
+| `has_protocol` | boolean or null | Source says this contains a protocol. Optional. |
+| `has_sap` | boolean or null | Source says this contains a statistical analysis plan. Optional. |
+| `kind` | string | Native document type abbreviation. |
+| `label` | string or null | Source label. Optional. |
+| `license` | [License](#license) | No blanket reuse license is inferred from registry availability. |
+| `size` | integer or null | Source byte count, when supplied. Optional. |
+| `uploaded` | string or null | Original upload timestamp, without guessing a timezone. Optional. |
+| `url` | [Text](#text) | Fixed registry CDN URL for this manifest entry. |
 
 ### TrialGet
 
 Retrieve exact trial cards in input order; request bounded intact source sections with independent continuations.
 
-| Field | Type | Always present | Meaning |
-| --- | --- | --- | --- |
-| `input` | list of [NctId](#nctid) | yes | One to twenty exact NCT identifiers, in caller order. |
-| `limit` | integer (uint32) | no | Whole-record count per source collection page; text fragments follow the text budget. |
-| `offset` | integer (uint32) | no | Character offset for ClinicalTrials.gov eligibility or NCI summary; whole-record offset for other collections. |
-| `pool` | [Text](#text) | no | Checked stored source record, supplied by a continuation. |
-| `section` | list of [TrialSection](#trialsection) | no | Optional intact source sections. Default cards only; diseases and summary require NCI. NCI locations, contacts, references and documents are unsupported. |
-| `source` | [TrialSource](#trialsource) | no | Explicit provider; defaults to ClinicalTrials.gov and never falls back. |
+| Field | Type | Meaning |
+| --- | --- | --- |
+| `input` | list of [NctId](#nctid) | One to twenty exact NCT identifiers, in caller order. |
+| `limit` | integer (uint32) | Whole-record count per source collection page; text fragments follow the text budget. Optional. |
+| `offset` | integer (uint32) | Character offset for ClinicalTrials.gov eligibility or NCI summary; whole-record offset for other collections. Optional. |
+| `pool` | [Text](#text) | Checked stored source record, supplied by a continuation. Optional. |
+| `section` | list of [TrialSection](#trialsection) | Optional intact source sections. Default cards only; diseases and summary require NCI. NCI locations, contacts, references and documents are unsupported. Optional. |
+| `source` | [TrialSource](#trialsource) | Explicit provider; defaults to ClinicalTrials.gov and never falls back. Optional. |
 
 ### TrialParameter
 
 One exact source request parameter, in canonical name order.
 
-| Field | Type | Always present | Meaning |
-| --- | --- | --- | --- |
-| `name` | string | yes | Native parameter name. |
-| `value` | string | yes | Exact unencoded parameter value. |
+| Field | Type | Meaning |
+| --- | --- | --- |
+| `name` | string | Native parameter name. |
+| `value` | string | Exact unencoded parameter value. |
 
 ### TrialPhase
 
@@ -3182,46 +3182,46 @@ Values: `EARLY_PHASE1`, `PHASE1`, `PHASE2`, `PHASE3`, `PHASE4`, `NA`.
 
 One page of whole records, in the source's order.
 
-| Field | Type | Always present | Meaning |
-| --- | --- | --- | --- |
-| `continuation` | [TrialGet](#trialget) or null | no | The request that reads the next records. Missing when there are no more. |
-| `items` | list of T | yes | Whole records, in the source's order. |
-| `offset` | integer (uint32) | yes | How many of the source's records come before this page. |
-| `total` | integer (uint32) | yes | How many records the source's list holds. |
+| Field | Type | Meaning |
+| --- | --- | --- |
+| `continuation` | [TrialGet](#trialget) or null | The request that reads the next records. Missing when there are no more. Optional. |
+| `items` | list of T | Whole records, in the source's order. |
+| `offset` | integer (uint32) | How many of the source's records come before this page. |
+| `total` | integer (uint32) | How many records the source's list holds. |
 
 ### TrialSearch
 
 Search one provider with bounded pages and source-native counts; default ClinicalTrials.gov, explicit keyed NCI, never a fallback.
 
-| Field | Type | Always present | Meaning |
-| --- | --- | --- | --- |
-| `age` | integer (uint32) | no | Age in years; unstated source bounds count as no limit. |
-| `condition` | [Text](#text) | no | Registry condition text, or an NCIt code for NCI; use --keyword for NCI free text. |
-| `condition_id` | [Curie](#curie) | no | Exact MONDO or DOID CURIE resolved by MyDisease; NCI also accepts explicit NCIT:C codes. |
-| `count_only` | boolean | no | Source total only; no returned study rows. |
-| `criteria` | [Text](#text) | no | Search literal registry eligibility text for discovery only; no eligibility judgment. |
-| `distance` | [Text](#text) | no | Source distance with explicit mi or km units. |
-| `facility` | [Text](#text) | no | Exact registry facility field; cannot combine with radius. |
-| `gene` | [GeneInput](#geneinput) | no | Resolve one checked gene for registry text discovery only; no eligibility judgment. |
-| `has_results` | boolean | no | Require posted source results. |
-| `id` | [NctId](#nctid) | no | Exact NCT identity in a conjunction with other filters. |
-| `intervention` | [Text](#text) | no | Literal source intervention text. |
-| `keyword` | [Text](#text) | no | NCI free text; explicit keyword mode never substitutes for a disease identity. |
-| `lat` | [Text](#text) | no | Radius center latitude in degrees. |
-| `limit` | integer (uint32) | no | Headers per page; NCI applies its own lower publisher limit. |
-| `lon` | [Text](#text) | no | Radius center longitude in degrees. |
-| `next_page` | [Text](#text) | no | Opaque registry continuation; keep filters unchanged. |
-| `phase` | [PhaseFilter](#phasefilter) | no | Registry phase: 1, 2, 3, 4, early-1, not-applicable, 1/2 or 2/3. |
-| `query` | [Text](#text) | no | General registry discovery text. |
-| `sex` | [TrialSex](#trialsex) | no | Registry sex facet. |
-| `source` | [TrialSource](#trialsource) | no | Explicit provider; defaults to ClinicalTrials.gov and never falls back. |
-| `sponsor` | [Text](#text) | no | Exact lead sponsor field. |
-| `sponsor_type` | [SponsorType](#sponsortype) | no | Registry sponsor funding facet. |
-| `status` | [TrialStatus](#trialstatus) | no | Exact registry overall status. |
-| `study_type` | [StudyType](#studytype) | no | Exact registry study type. |
-| `updated_since` | [PartialDate](#partialdate) | no | First included registry update date. |
-| `updated_until` | [PartialDate](#partialdate) | no | Last included registry update date. |
-| `variant` | [Text](#text) | no | Literal variant text for registry discovery only; no eligibility judgment. |
+| Field | Type | Meaning |
+| --- | --- | --- |
+| `age` | integer (uint32) | Age in years; unstated source bounds count as no limit. Optional. |
+| `condition` | [Text](#text) | Registry condition text, or an NCIt code for NCI; use --keyword for NCI free text. Optional. |
+| `condition_id` | [Curie](#curie) | Exact MONDO or DOID CURIE resolved by MyDisease; NCI also accepts explicit NCIT:C codes. Optional. |
+| `count_only` | boolean | Source total only; no returned study rows. Optional. |
+| `criteria` | [Text](#text) | Search literal registry eligibility text for discovery only; no eligibility judgment. Optional. |
+| `distance` | [Text](#text) | Source distance with explicit mi or km units. Optional. |
+| `facility` | [Text](#text) | Exact registry facility field; cannot combine with radius. Optional. |
+| `gene` | [GeneInput](#geneinput) | Resolve one checked gene for registry text discovery only; no eligibility judgment. Optional. |
+| `has_results` | boolean | Require posted source results. Optional. |
+| `id` | [NctId](#nctid) | Exact NCT identity in a conjunction with other filters. Optional. |
+| `intervention` | [Text](#text) | Literal source intervention text. Optional. |
+| `keyword` | [Text](#text) | NCI free text; explicit keyword mode never substitutes for a disease identity. Optional. |
+| `lat` | [Text](#text) | Radius center latitude in degrees. Optional. |
+| `limit` | integer (uint32) | Headers per page; NCI applies its own lower publisher limit. Optional. |
+| `lon` | [Text](#text) | Radius center longitude in degrees. Optional. |
+| `next_page` | [Text](#text) | Opaque registry continuation; keep filters unchanged. Optional. |
+| `phase` | [PhaseFilter](#phasefilter) | Registry phase: 1, 2, 3, 4, early-1, not-applicable, 1/2 or 2/3. Optional. |
+| `query` | [Text](#text) | General registry discovery text. Optional. |
+| `sex` | [TrialSex](#trialsex) | Registry sex facet. Optional. |
+| `source` | [TrialSource](#trialsource) | Explicit provider; defaults to ClinicalTrials.gov and never falls back. Optional. |
+| `sponsor` | [Text](#text) | Exact lead sponsor field. Optional. |
+| `sponsor_type` | [SponsorType](#sponsortype) | Registry sponsor funding facet. Optional. |
+| `status` | [TrialStatus](#trialstatus) | Exact registry overall status. Optional. |
+| `study_type` | [StudyType](#studytype) | Exact registry study type. Optional. |
+| `updated_since` | [PartialDate](#partialdate) | First included registry update date. Optional. |
+| `updated_until` | [PartialDate](#partialdate) | Last included registry update date. Optional. |
+| `variant` | [Text](#text) | Literal variant text for registry discovery only; no eligibility judgment. Optional. |
 
 ### TrialSection
 
@@ -3262,10 +3262,10 @@ Values: `ACTIVE_NOT_RECRUITING`, `COMPLETED`, `ENROLLING_BY_INVITATION`, `NOT_YE
 
 Zero-based interbase span retaining uncertain boundary ranges.
 
-| Field | Type | Always present | Meaning |
-| --- | --- | --- | --- |
-| `end` | [Bound](#bound) | yes |  |
-| `start` | [Bound](#bound) | yes |  |
+| Field | Type | Meaning |
+| --- | --- | --- |
+| `end` | [Bound](#bound) |  |
+| `start` | [Bound](#bound) |  |
 
 ### UniProtAcc
 
@@ -3275,16 +3275,16 @@ Type: string.
 
 Shared native feature contract without source label remapping.
 
-| Field | Type | Always present | Meaning |
-| --- | --- | --- | --- |
-| `alternative` | list of [AminoAcids](#aminoacids) | no | Every stated alternative, without translation. |
-| `description` | [Text](#text) or null | no | Complete source description. |
-| `evidence` | list of [Text](#text) | no | All original source evidence references. |
-| `id` | [Text](#text) or null | no | Native feature identifier. |
-| `kind` | [Term](#term) | yes | Source feature label; coding only for documented exact feature types. |
-| `original` | [AminoAcids](#aminoacids) or null | no | Source original residues, when supplied. |
-| `protein` | [UniProtIsoform](#uniprotisoform) | yes | Exact source sequence identity. |
-| `span` | [UncertainSpan0](#uncertainspan0) | yes | Zero-based interbase coordinates retaining uncertain ranges. |
+| Field | Type | Meaning |
+| --- | --- | --- |
+| `alternative` | list of [AminoAcids](#aminoacids) | Every stated alternative, without translation. Optional. |
+| `description` | [Text](#text) or null | Complete source description. Optional. |
+| `evidence` | list of [Text](#text) | All original source evidence references. Optional. |
+| `id` | [Text](#text) or null | Native feature identifier. Optional. |
+| `kind` | [Term](#term) | Source feature label; coding only for documented exact feature types. |
+| `original` | [AminoAcids](#aminoacids) or null | Source original residues, when supplied. Optional. |
+| `protein` | [UniProtIsoform](#uniprotisoform) | Exact source sequence identity. |
+| `span` | [UncertainSpan0](#uncertainspan0) | Zero-based interbase coordinates retaining uncertain ranges. |
 
 ### UniProtIsoform
 
@@ -3294,12 +3294,12 @@ Type: string.
 
 Source classification retained when its category has no approved shared proposition.
 
-| Field | Type | Always present | Meaning |
-| --- | --- | --- | --- |
-| `attribution` | [Attribution](#attribution) | yes | Original record provenance. |
-| `classification` | [Text](#text) | yes | Unchanged source label. |
-| `conditions` | list of [AssertionCondition](#assertioncondition) | no | Native conditions, including identifiers without supplied labels. |
-| `review_status` | [Text](#text) or null | no | Native review status. |
+| Field | Type | Meaning |
+| --- | --- | --- |
+| `attribution` | [Attribution](#attribution) | Original record provenance. |
+| `classification` | [Text](#text) | Unchanged source label. |
+| `conditions` | list of [AssertionCondition](#assertioncondition) | Native conditions, including identifiers without supplied labels. Optional. |
+| `review_status` | [Text](#text) or null | Native review status. Optional. |
 
 ### Use
 
@@ -3319,150 +3319,150 @@ One independent CDC WONDER grouping.
 
 Variant entity with source-stated identities, forms and genes; no disclosure policy.
 
-| Field | Type | Always present | Meaning |
-| --- | --- | --- | --- |
-| `genes` | list of [GeneRef](#generef) | no | Genes stated by the sources. |
-| `ids` | list of [VariantId](#variantid) | no | All source identifiers, without inferred aliases. |
-| `representations` | list of [Representation](#representation) | no | Every source-qualified representation. |
+| Field | Type | Meaning |
+| --- | --- | --- |
+| `genes` | list of [GeneRef](#generef) | Genes stated by the sources. Optional. |
+| `ids` | list of [VariantId](#variantid) | All source identifiers, without inferred aliases. Optional. |
+| `representations` | list of [Representation](#representation) | Every source-qualified representation. Optional. |
 
 ### VariantAssertion
 
 A native record/domain pair, never a vote or merged classification.
 
-| Field | Type | Always present | Meaning |
-| --- | --- | --- | --- |
-| `detail` | [AssertionDetail](#assertiondetail) or null | no | Original source detail, returned only for an explicitly selected record. |
-| `domain` | [AssertionDomain](#assertiondomain) | yes | Source classification domain. |
-| `kind` | [AssertionKind](#assertionkind) | yes | Aggregate/submission/document context. |
-| `statement` | [Statement](#statement) or null | no | Supported mapping into the common model. |
-| `statement_unmapped` | boolean | no | Native category has no approved common-model proposition. |
-| `unmapped` | [UnmappedAssertion](#unmappedassertion) or null | no | Native assertion whose category the common model cannot represent. |
+| Field | Type | Meaning |
+| --- | --- | --- |
+| `detail` | [AssertionDetail](#assertiondetail) or null | Original source detail, returned only for an explicitly selected record. Optional. |
+| `domain` | [AssertionDomain](#assertiondomain) | Source classification domain. |
+| `kind` | [AssertionKind](#assertionkind) | Aggregate/submission/document context. |
+| `statement` | [Statement](#statement) or null | Supported mapping into the common model. Optional. |
+| `statement_unmapped` | boolean | Native category has no approved common-model proposition. Optional. |
+| `unmapped` | [UnmappedAssertion](#unmappedassertion) or null | Native assertion whose category the common model cannot represent. Optional. |
 
 ### VariantAssertions
 
 One source-ordered page, with native record and classification boundaries intact.
 
-| Field | Type | Always present | Meaning |
-| --- | --- | --- | --- |
-| `assertions` | list of [VariantAssertion](#variantassertion) | yes | Source assertion rows in native order. |
-| `next` | [VariantAssertionsGet](#variantassertionsget) or null | no | Typed continuation preserving source and selectors. |
-| `page` | [PageInfo](#pageinfo) | yes | Page bounds over native rows. |
+| Field | Type | Meaning |
+| --- | --- | --- |
+| `assertions` | list of [VariantAssertion](#variantassertion) | Source assertion rows in native order. |
+| `next` | [VariantAssertionsGet](#variantassertionsget) or null | Typed continuation preserving source and selectors. Optional. |
+| `page` | [PageInfo](#pageinfo) | Page bounds over native rows. |
 
 ### VariantAssertionsGet
 
 Page assertions from one explicitly selected evidence source.
 
-| Field | Type | Always present | Meaning |
-| --- | --- | --- | --- |
-| `assertion` | [Text](#text) or null | no | Native assertion accession or document ID. |
-| `input` | [VariantInput](#variantinput) | yes | Checked Variation ID for ClinVar, or CAid for ERepo. |
-| `limit` | integer (uint32) | no | Assertions per page; omitted uses the native source default. |
-| `offset` | integer (uint32) | no | Assertions to skip in source order. |
-| `source` | [AssertionSource](#assertionsource) | yes | One native source; no fallback or text search. |
-| `version` | [Text](#text) or null | no | VCV archive or ERepo document version; RCV/SCV selectors match a returned native version. |
+| Field | Type | Meaning |
+| --- | --- | --- |
+| `assertion` | [Text](#text) or null | Native assertion accession or document ID. Optional. |
+| `input` | [VariantInput](#variantinput) | Checked Variation ID for ClinVar, or CAid for ERepo. |
+| `limit` | integer (uint32) | Assertions per page; omitted uses the native source default. Optional. |
+| `offset` | integer (uint32) | Assertions to skip in source order. Optional. |
+| `source` | [AssertionSource](#assertionsource) | One native source; no fallback or text search. |
+| `version` | [Text](#text) or null | VCV archive or ERepo document version; RCV/SCV selectors match a returned native version. Optional. |
 
 ### VariantCivic
 
 CIViC molecular profiles with their original membership and separate source claims.
 
-| Field | Type | Always present | Meaning |
-| --- | --- | --- | --- |
-| `next` | [VariantGet](#variantget) or null | no | Continue this section without changing the input or source selectors. |
-| `page` | [PageInfo](#pageinfo) | yes | Disclosure bounds for this section. |
-| `profiles` | list of [CivicProfile](#civicprofile) | yes | Source profiles in native order; name candidates carry no attached statements. |
+| Field | Type | Meaning |
+| --- | --- | --- |
+| `next` | [VariantGet](#variantget) or null | Continue this section without changing the input or source selectors. Optional. |
+| `page` | [PageInfo](#pageinfo) | Disclosure bounds for this section. |
+| `profiles` | list of [CivicProfile](#civicprofile) | Source profiles in native order; name candidates carry no attached statements. |
 
 ### VariantComponent
 
 Metadata for a component carried by an aggregator.
 
-| Field | Type | Always present | Meaning |
-| --- | --- | --- | --- |
-| `aggregator_build` | [Text](#text) | yes | Aggregator build version. |
-| `aggregator_built` | [Text](#text) | yes | Aggregator build timestamp, distinct from a component release. |
-| `license` | [Text](#text) | yes | Component license URL, without any inferred grant. |
-| `name` | [Text](#text) | yes | Component name from aggregator metadata. |
-| `note` | [Text](#text) or null | no | Whole source snapshot warning. |
-| `terms` | [ComponentTerms](#componentterms) | yes | Independently reviewed publisher terms; no blanket aggregator grant. |
-| `uploaded` | [Text](#text) or null | no | Component upload timestamp when the source states one. |
-| `uploads` | list of [ComponentUpload](#componentupload) | no | Source-named component upload timestamps when the publisher supplies a map. |
-| `version` | [Text](#text) or null | no | Component version; omitted when the source reports none. |
+| Field | Type | Meaning |
+| --- | --- | --- |
+| `aggregator_build` | [Text](#text) | Aggregator build version. |
+| `aggregator_built` | [Text](#text) | Aggregator build timestamp, distinct from a component release. |
+| `license` | [Text](#text) | Component license URL, without any inferred grant. |
+| `name` | [Text](#text) | Component name from aggregator metadata. |
+| `note` | [Text](#text) or null | Whole source snapshot warning. Optional. |
+| `terms` | [ComponentTerms](#componentterms) | Independently reviewed publisher terms; no blanket aggregator grant. |
+| `uploaded` | [Text](#text) or null | Component upload timestamp when the source states one. Optional. |
+| `uploads` | list of [ComponentUpload](#componentupload) | Source-named component upload timestamps when the publisher supplies a map. Optional. |
+| `version` | [Text](#text) or null | Component version; omitted when the source reports none. Optional. |
 
 ### VariantConservation
 
 Source conservation measurements; no local pathogenicity inference.
 
-| Field | Type | Always present | Meaning |
-| --- | --- | --- | --- |
-| `components` | list of [VariantComponent](#variantcomponent) | yes | Independent component versions and licenses. |
-| `context` | list of [PredictorContext](#predictorcontext) | no | Original context arrays, without inferred cross-field alignment. |
-| `scores` | list of [PredictorScore](#predictorscore) | yes | Every retained source measurement in declared field order. |
-| `subject_qualification` | [SubjectQualification](#subjectqualification) | yes | How the source chromosome label was reference-qualified. |
+| Field | Type | Meaning |
+| --- | --- | --- |
+| `components` | list of [VariantComponent](#variantcomponent) | Independent component versions and licenses. |
+| `context` | list of [PredictorContext](#predictorcontext) | Original context arrays, without inferred cross-field alignment. Optional. |
+| `scores` | list of [PredictorScore](#predictorscore) | Every retained source measurement in declared field order. |
+| `subject_qualification` | [SubjectQualification](#subjectqualification) | How the source chromosome label was reference-qualified. |
 
 ### VariantCosmic
 
 Historical COSMIC fields carried by MyVariant, without direct COSMIC access.
 
-| Field | Type | Always present | Meaning |
-| --- | --- | --- | --- |
-| `components` | list of [VariantComponent](#variantcomponent) | yes | Snapshot version, dates, warning and terms. |
-| `next` | [VariantGet](#variantget) or null | no | Typed next page for the same identity and section selection. |
-| `records` | list of [CosmicRecord](#cosmicrecord) | yes | Native historical records in source order. |
-| `total` | integer (uint64) | yes | Number of native historical fragments before paging. |
+| Field | Type | Meaning |
+| --- | --- | --- |
+| `components` | list of [VariantComponent](#variantcomponent) | Snapshot version, dates, warning and terms. |
+| `next` | [VariantGet](#variantget) or null | Typed next page for the same identity and section selection. Optional. |
+| `records` | list of [CosmicRecord](#cosmicrecord) | Native historical records in source order. |
+| `total` | integer (uint64) | Number of native historical fragments before paging. |
 
 ### VariantGet
 
 Read an rsID, CAid, ClinVar Variation ID or reference-qualified HGVS; chromosome notation requires --build. Use search variant --gene BRAF --protein V600E for shorthand. Every candidate remains available; source assertions do not classify the variant for the caller.
 
-| Field | Type | Always present | Meaning |
-| --- | --- | --- | --- |
-| `build` | [Build](#build) or null | no | Required for chromosome notation; no assembly is guessed. |
-| `civic_cursor` | [Text](#text) or null | no | Native CIViC cursor, retained unchanged. |
-| `civic_kind` | [CivicClaimKind](#civicclaimkind) or null | no | Native CIViC claim collection within the selected profile. |
-| `civic_profile` | integer or null | no | Selected CIViC molecular profile for native claim paging. |
-| `input` | [VariantInput](#variantinput) | yes | Published rsID, CAid, ClinVar Variation ID or reference-qualified HGVS. |
-| `limit` | integer (uint32) | no | Candidate rows per page; more remain reachable through typed next commands. |
-| `offset` | integer (uint32) | no | Candidate rows to skip in source order. |
-| `resolver` | [VariantResolver](#variantresolver) | no | Resolver for reference-qualified notation; never repairs the input locally. |
-| `section` | list of [VariantSection](#variantsection) | no | Named source sections; omitted by default. Each calls its own source. all keeps bounded pages and source skips; it never enables a missing key. |
-| `section_limit` | integer (uint32) | no | Rows per named source section page; omitted uses the native source default. |
-| `section_offset` | integer (uint32) | no | Source rows to skip independently of identity candidate paging. |
-| `tumor_type` | [Text](#text) or null | no | Explicit tumor context for keyed OncoKB annotation. |
+| Field | Type | Meaning |
+| --- | --- | --- |
+| `build` | [Build](#build) or null | Required for chromosome notation; no assembly is guessed. Optional. |
+| `civic_cursor` | [Text](#text) or null | Native CIViC cursor, retained unchanged. Optional. |
+| `civic_kind` | [CivicClaimKind](#civicclaimkind) or null | Native CIViC claim collection within the selected profile. Optional. |
+| `civic_profile` | integer or null | Selected CIViC molecular profile for native claim paging. Optional. |
+| `input` | [VariantInput](#variantinput) | Published rsID, CAid, ClinVar Variation ID or reference-qualified HGVS. |
+| `limit` | integer (uint32) | Candidate rows per page; more remain reachable through typed next commands. Optional. |
+| `offset` | integer (uint32) | Candidate rows to skip in source order. Optional. |
+| `resolver` | [VariantResolver](#variantresolver) | Resolver for reference-qualified notation; never repairs the input locally. Optional. |
+| `section` | list of [VariantSection](#variantsection) | Named source sections; omitted by default. Each calls its own source. all keeps bounded pages and source skips; it never enables a missing key. Optional. |
+| `section_limit` | integer (uint32) | Rows per named source section page; omitted uses the native source default. Optional. |
+| `section_offset` | integer (uint32) | Source rows to skip independently of identity candidate paging. Optional. |
+| `tumor_type` | [Text](#text) or null | Explicit tumor context for keyed OncoKB annotation. Optional. |
 
 ### VariantGwas
 
 One page of exact rsID catalog associations.
 
-| Field | Type | Always present | Meaning |
-| --- | --- | --- | --- |
-| `associations` | list of [GwasAssociation](#gwasassociation) | yes | Native source associations, without inferred clinical meaning. |
-| `continuation` | [VariantGet](#variantget) or null | no | Continue this section using the same rsID and source selectors. |
-| `page` | [PageInfo](#pageinfo) | yes | Exact source page bounds and total. |
-| `rs_id` | [VariantId](#variantid) | yes | Exact source rsID. |
+| Field | Type | Meaning |
+| --- | --- | --- |
+| `associations` | list of [GwasAssociation](#gwasassociation) | Native source associations, without inferred clinical meaning. |
+| `continuation` | [VariantGet](#variantget) or null | Continue this section using the same rsID and source selectors. Optional. |
+| `page` | [PageInfo](#pageinfo) | Exact source page bounds and total. |
+| `rs_id` | [VariantId](#variantid) | Exact source rsID. |
 
 ### VariantHeader
 
 Consumer identity header with an exact source selection and compact annotation entity.
 
-| Field | Type | Always present | Meaning |
-| --- | --- | --- | --- |
-| `component_terms` | list of [ComponentLabel](#componentlabel) | no | Terms for carried component identifiers on this consumer header. |
-| `identity` | [Variant](#variant) | yes | Source-qualified variant entity. |
-| `myvariant` | [Variant](#variant) or null | no | Compact MyVariant annotations, attributed by their field name. |
-| `record` | [SourceRecord](#sourcerecord) | yes | Exact source record, including source keys that are expressions rather than identifiers. |
-| `requested` | [VariantId](#variantid) or null | no | Checked caller ID used by a source-only section, without asserting resolved identity. |
-| `sections` | [VariantSections](#variantsections) or null | no | Explicitly requested source sections for this exact candidate. |
-| `source` | [Source](#source) | yes | Source responsible for this identity. |
+| Field | Type | Meaning |
+| --- | --- | --- |
+| `component_terms` | list of [ComponentLabel](#componentlabel) | Terms for carried component identifiers on this consumer header. Optional. |
+| `identity` | [Variant](#variant) | Source-qualified variant entity. |
+| `myvariant` | [Variant](#variant) or null | Compact MyVariant annotations, attributed by their field name. Optional. |
+| `record` | [SourceRecord](#sourcerecord) | Exact source record, including source keys that are expressions rather than identifiers. |
+| `requested` | [VariantId](#variantid) or null | Checked caller ID used by a source-only section, without asserting resolved identity. Optional. |
+| `sections` | [VariantSections](#variantsections) or null | Explicitly requested source sections for this exact candidate. Optional. |
+| `source` | [Source](#source) | Source responsible for this identity. |
 
 ### VariantHotspots
 
 Source residue recurrence counts without allele-frequency or clinical interpretation.
 
-| Field | Type | Always present | Meaning |
-| --- | --- | --- | --- |
-| `next` | [VariantGet](#variantget) or null | no | Continue this section without changing identity selectors. |
-| `page` | [PageInfo](#pageinfo) | yes | Disclosure bounds for this section. |
-| `reason` | [Reason](#reason) or null | no | Source rows remain candidates when no transcript/consequence join exists. |
-| `records` | list of [HotspotRecord](#hotspotrecord) | yes | Native residue records in source order. |
+| Field | Type | Meaning |
+| --- | --- | --- |
+| `next` | [VariantGet](#variantget) or null | Continue this section without changing identity selectors. Optional. |
+| `page` | [PageInfo](#pageinfo) | Disclosure bounds for this section. |
+| `reason` | [Reason](#reason) or null | Source rows remain candidates when no transcript/consequence join exists. Optional. |
+| `records` | list of [HotspotRecord](#hotspotrecord) | Native residue records in source order. |
 
 ### VariantId
 
@@ -3476,44 +3476,44 @@ Type: string.
 
 Keyed OncoKB annotation, preserving the caller's assembly and tumor context.
 
-| Field | Type | Always present | Meaning |
-| --- | --- | --- | --- |
-| `allele_exist` | boolean or null | no | Native alternate allele curation flag. |
-| `build` | [Build](#build) | yes | Explicit caller assembly, checked against the response query. |
-| `data_version` | [Text](#text) or null | no | Native dataset version. |
-| `gene_exist` | boolean or null | no | Source gene curation flag. |
-| `hgvsg` | [Text](#text) | yes | Exact genomic query sent to OncoKB. |
-| `hotspot` | boolean or null | no | Source hotspot flag, without an actionability conclusion. |
-| `last_update` | [Text](#text) or null | no | Native release date, kept in its published spelling. |
-| `next` | [VariantGet](#variantget) or null | no | Continue without changing identity, build, tumor context or source. |
-| `page` | [PageInfo](#pageinfo) | yes | Disclosure bounds over the records, independent of identity paging. |
-| `records` | list of [OncokbVariantRecord](#oncokbvariantrecord) | yes | Source claims and text in native field order. |
-| `tumor_type` | [Text](#text) | yes | Explicit caller tumor type, checked against the response query. |
-| `variant_exist` | boolean | yes | Native exact variant curation flag; never a clinical conclusion. |
-| `vus` | boolean or null | no | Source investigated-but-unknown flag, never used to create a classification. |
+| Field | Type | Meaning |
+| --- | --- | --- |
+| `allele_exist` | boolean or null | Native alternate allele curation flag. Optional. |
+| `build` | [Build](#build) | Explicit caller assembly, checked against the response query. |
+| `data_version` | [Text](#text) or null | Native dataset version. Optional. |
+| `gene_exist` | boolean or null | Source gene curation flag. Optional. |
+| `hgvsg` | [Text](#text) | Exact genomic query sent to OncoKB. |
+| `hotspot` | boolean or null | Source hotspot flag, without an actionability conclusion. Optional. |
+| `last_update` | [Text](#text) or null | Native release date, kept in its published spelling. Optional. |
+| `next` | [VariantGet](#variantget) or null | Continue without changing identity, build, tumor context or source. Optional. |
+| `page` | [PageInfo](#pageinfo) | Disclosure bounds over the records, independent of identity paging. |
+| `records` | list of [OncokbVariantRecord](#oncokbvariantrecord) | Source claims and text in native field order. |
+| `tumor_type` | [Text](#text) | Explicit caller tumor type, checked against the response query. |
+| `variant_exist` | boolean | Native exact variant curation flag; never a clinical conclusion. |
+| `vus` | boolean or null | Source investigated-but-unknown flag, never used to create a classification. Optional. |
 
 ### VariantPopulation
 
 Bounded population summary with independent optional sequencing datasets.
 
-| Field | Type | Always present | Meaning |
-| --- | --- | --- | --- |
-| `build` | [Build](#build) | yes | Source dataset assembly. |
-| `dataset` | [Text](#text) | yes | Source dataset selector. |
-| `exome` | [GnomadCounts](#gnomadcounts) or null | no | Exome observation; omitted when the source dataset is null. |
-| `genome` | [GnomadCounts](#gnomadcounts) or null | no | Genome observation; omitted when the source dataset is null. |
-| `variant` | [Text](#text) | yes | Source allele identifier. |
+| Field | Type | Meaning |
+| --- | --- | --- |
+| `build` | [Build](#build) | Source dataset assembly. |
+| `dataset` | [Text](#text) | Source dataset selector. |
+| `exome` | [GnomadCounts](#gnomadcounts) or null | Exome observation; omitted when the source dataset is null. Optional. |
+| `genome` | [GnomadCounts](#gnomadcounts) or null | Genome observation; omitted when the source dataset is null. Optional. |
+| `variant` | [Text](#text) | Source allele identifier. |
 
 ### VariantPredictors
 
 Source prediction scores and the terms of their individual components.
 
-| Field | Type | Always present | Meaning |
-| --- | --- | --- | --- |
-| `components` | list of [VariantComponent](#variantcomponent) | yes | Independent component versions and licenses. |
-| `context` | list of [PredictorContext](#predictorcontext) | no | Original context arrays, without inferred cross-field alignment. |
-| `scores` | list of [PredictorScore](#predictorscore) | yes | Every retained source score in declared field order. |
-| `subject_qualification` | [SubjectQualification](#subjectqualification) | yes | How the source chromosome label was reference-qualified. |
+| Field | Type | Meaning |
+| --- | --- | --- |
+| `components` | list of [VariantComponent](#variantcomponent) | Independent component versions and licenses. |
+| `context` | list of [PredictorContext](#predictorcontext) | Original context arrays, without inferred cross-field alignment. Optional. |
+| `scores` | list of [PredictorScore](#predictorscore) | Every retained source score in declared field order. |
+| `subject_qualification` | [SubjectQualification](#subjectqualification) | How the source chromosome label was reference-qualified. |
 
 ### VariantRef
 
@@ -3559,18 +3559,18 @@ Named variant source sections, without automatic expansion of identity cards.
 
 Source-specific sections, absent unless explicitly selected.
 
-| Field | Type | Always present | Meaning |
-| --- | --- | --- | --- |
-| `civic` | [Section](#section) of [VariantCivic](#variantcivic) or null | no | Explicit civic source result. |
-| `clinvar` | [Section](#section) of [VariantAssertions](#variantassertions) or null | no | ClinVar native assertion rows. |
-| `conservation` | [Section](#section) of [VariantConservation](#variantconservation) or null | no | Native conservation scores. |
-| `cosmic` | [Section](#section) of [VariantCosmic](#variantcosmic) or null | no | Historical MyVariant-associated COSMIC fragments. |
-| `erepo` | [Section](#section) of [VariantAssertions](#variantassertions) or null | no | ClinGen native assertion rows. |
-| `gwas` | [Section](#section) of [VariantGwas](#variantgwas) or null | no | Explicit GWAS Catalog source result. |
-| `hotspots` | [Section](#section) of [VariantHotspots](#varianthotspots) or null | no | Explicit hotspots source result. |
-| `oncokb` | [Section](#section) of [VariantOncokb](#variantoncokb) or null | no | Explicit keyed OncoKB source result. |
-| `population` | [Section](#section) of [VariantPopulation](#variantpopulation) or null | no | Explicit population source result. |
-| `predict` | [Section](#section) of [VariantPredictors](#variantpredictors) or null | no | Native prediction scores. |
+| Field | Type | Meaning |
+| --- | --- | --- |
+| `civic` | [Section](#section) of [VariantCivic](#variantcivic) or null | Explicit civic source result. Optional. |
+| `clinvar` | [Section](#section) of [VariantAssertions](#variantassertions) or null | ClinVar native assertion rows. Optional. |
+| `conservation` | [Section](#section) of [VariantConservation](#variantconservation) or null | Native conservation scores. Optional. |
+| `cosmic` | [Section](#section) of [VariantCosmic](#variantcosmic) or null | Historical MyVariant-associated COSMIC fragments. Optional. |
+| `erepo` | [Section](#section) of [VariantAssertions](#variantassertions) or null | ClinGen native assertion rows. Optional. |
+| `gwas` | [Section](#section) of [VariantGwas](#variantgwas) or null | Explicit GWAS Catalog source result. Optional. |
+| `hotspots` | [Section](#section) of [VariantHotspots](#varianthotspots) or null | Explicit hotspots source result. Optional. |
+| `oncokb` | [Section](#section) of [VariantOncokb](#variantoncokb) or null | Explicit keyed OncoKB source result. Optional. |
+| `population` | [Section](#section) of [VariantPopulation](#variantpopulation) or null | Explicit population source result. Optional. |
+| `predict` | [Section](#section) of [VariantPredictors](#variantpredictors) or null | Native prediction scores. Optional. |
 
 ### WhoProductId
 

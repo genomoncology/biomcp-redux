@@ -11,7 +11,7 @@ kind: reference
 verified: 2026-10-27
 ---
 
-BioMCP 1.0.0 prints one JSON object, the reply, for each command. [`biomcp get diagnostic methods`](/reference/commands/get-diagnostic/) replies with `schema` set to `biomcp.diagnostic_methods/2`. Read this page when your code parses that reply. It shows a real reply, then the fields that only this schema has. The fields every reply shares are on [reply envelope and shared types](/reference/schemas/types/).
+BioMCP 1.0.0 prints one JSON object, the reply, for each command. [`biomcp get diagnostic methods`](/reference/commands/get-diagnostic/) replies with `schema` set to `biomcp.diagnostic_methods/2`. Read this page when your code parses that reply: it shows a real one, then the fields only this schema has. [Shared types](/reference/schemas/types/) defines the rest.
 
 ## Commands that return it
 
@@ -25,7 +25,7 @@ biomcp get diagnostic GTR000006692.3 methods --source gtr
 
 ## Example reply
 
-`biomcp get diagnostic GTR000006692.3 methods --source gtr` returned this reply on 2026-10-27. Lists show their first items, and a line that starts with … counts the items left out. Text that ends in … is cut.
+`biomcp get diagnostic GTR000006692.3 methods --source gtr` returned this on 2026-10-27. Lists show their first items; a line with … counts the rest, and text ending in … is cut.
 
 ```json
 {
@@ -39,19 +39,8 @@ biomcp get diagnostic GTR000006692.3 methods --source gtr
   },
   "result": {
     "items": [
-      {
-        "test_id": "GTR000006692.3",
-        "list": "method_categories",
-        "index": 0,
-        "value": "Deletion/duplication analysis"
-      },
-      {
-        "test_id": "GTR000006692.3",
-        "list": "method_categories",
-        "index": 1,
-        "value": "Sequence analysis of the entire coding region"
-      },
-      … 3 more
+      {…},
+      … 4 more
     ],
     "count_unit": "native_method_entries"
   },
@@ -81,18 +70,20 @@ biomcp get diagnostic GTR000006692.3 methods --source gtr
 
 ## Fields
 
+A field marked Optional can be missing from a reply. Every other field is always there.
+
 `result` holds [DiagnosticMethods](#diagnosticmethods). `query` holds [DiagnosticGet](/reference/schemas/types/#diagnosticget), a shared type. `query` repeats the request as BioMCP read it.
 
 ### DiagnosticMethods
 
 Independent native method entries without positional pairing.
 
-| Field | Type | Always present | Meaning |
-| --- | --- | --- | --- |
-| `count_unit` | [DiagnosticCountUnit](/reference/schemas/types/#diagnosticcountunit) or null | no | Exact meaning of the envelope total; supplied by the owning source command. |
-| `distinct_id_total` | integer or null | no | Distinct complete native IDs across the selected relation collection. |
-| `items` | list of [GtrMethod](/reference/schemas/types/#gtrmethod) | yes | Complete source-owned rows in native order; envelope totals count native rows. |
+| Field | Type | Meaning |
+| --- | --- | --- |
+| `count_unit` | [DiagnosticCountUnit](/reference/schemas/types/#diagnosticcountunit) or null | Exact meaning of the envelope total; supplied by the owning source command. Optional. |
+| `distinct_id_total` | integer or null | Distinct complete native IDs across the selected relation collection. Optional. |
+| `items` | list of [GtrMethod](/reference/schemas/types/#gtrmethod) | Complete source-owned rows in native order; envelope totals count native rows. |
 
 ## Next
 
-[Reply envelope and shared types](/reference/schemas/types/) defines `status`, `sources`, `next` and every shared type. [Reply schemas](/reference/schemas/) lists every reply. [`biomcp get diagnostic`](/reference/commands/get-diagnostic/) gives the command's arguments.
+[`biomcp get diagnostic`](/reference/commands/get-diagnostic/) gives the command's arguments; [reply schemas](/reference/schemas/) lists every reply.

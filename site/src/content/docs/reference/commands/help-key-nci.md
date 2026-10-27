@@ -26,10 +26,23 @@ biomcp help key nci
 
 The command takes no arguments beyond those in its usage line.
 
+## The key
+
+`biomcp help key nci` reports these settings for the nci key:
+
+| Setting | Value |
+| --- | --- |
+| Set it with | `biomcp key set nci` |
+| Source it unlocks | [nci](/sources/nci/) |
+| Field in config.json | `keys.nci_api_key` |
+| Environment variable | `NCI_API_KEY` |
+
+[Keys and configuration](/getting-started/api-keys/) shows how to set it.
+
 ## Reply
 
 The reply is one JSON object. Its schema is [`biomcp.key/2`](/reference/schemas/biomcp-key-2/), whose page shows a real reply and its fields.
 
 ## Next
 
-[Exit codes](/reference/error-codes/) gives what each exit code means, and [global options](/reference/global-options/) the options every command takes. The [commands index](/reference/commands/) lists every command.
+The [commands index](/reference/commands/) lists every command.

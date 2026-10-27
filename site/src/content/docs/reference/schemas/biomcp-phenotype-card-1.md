@@ -11,7 +11,7 @@ kind: reference
 verified: 2026-10-27
 ---
 
-BioMCP 1.0.0 prints one JSON object, the reply, for each command. [`biomcp get phenotype`](/reference/commands/get-phenotype/) replies with `schema` set to `biomcp.phenotype-card/1`. Read this page when your code parses that reply. It shows a real reply, then the fields that only this schema has. The fields every reply shares are on [reply envelope and shared types](/reference/schemas/types/).
+BioMCP 1.0.0 prints one JSON object, the reply, for each command. [`biomcp get phenotype`](/reference/commands/get-phenotype/) replies with `schema` set to `biomcp.phenotype-card/1`. Read this page when your code parses that reply: it shows a real one, then the fields only this schema has. [Shared types](/reference/schemas/types/) defines the rest.
 
 ## Commands that return it
 
@@ -26,7 +26,7 @@ biomcp get phenotype HP:0000001
 
 ## Example reply
 
-`biomcp get phenotype HP:0001250 --source hpo` returned this reply on 2026-10-27. Lists show their first items, and a line that starts with … counts the items left out. Text that ends in … is cut.
+`biomcp get phenotype HP:0001250 --source hpo` returned this on 2026-10-27. Lists show their first items; a line with … counts the rest, and text ending in … is cut.
 
 ```json
 {
@@ -47,11 +47,7 @@ biomcp get phenotype HP:0000001
       "comment": "A type of electrographic seizure has been proposed in neona…",
       "publication_references": ["PMID:15816939"],
       "hpo_descendant_count": 346,
-      "attribution": {
-        "source": "hpo",
-        "record": "HP:0001250",
-        "url": "https://hpo.jax.org/browse/term/HP:0001250"
-      }
+      "attribution": {…}
     },
     "sections": ["synonyms", "xrefs"],
     "components": []
@@ -73,18 +69,12 @@ biomcp get phenotype HP:0000001
         "d815af442b500ad19f8f96b77ade12206736cc84cd3edd3f614f7f33c5e9caeb"
       ]
     },
-    {
-      "kind": "section",
-      "args": [
-        "get", "phenotype", "HP:0001250", "xrefs", "--snapshot",
-        "d815af442b500ad19f8f96b77ade12206736cc84cd3edd3f614f7f33c5e9caeb"
-      ]
-    }
-  ]
-}
+…
 ```
 
 ## Fields
+
+A field marked Optional can be missing from a reply. Every other field is always there.
 
 `result` holds [PhenotypeTermCard](#phenotypetermcard). `query` holds [PhenotypeGet](/reference/schemas/types/#phenotypeget), a shared type. `query` repeats the request as BioMCP read it.
 
@@ -92,24 +82,24 @@ biomcp get phenotype HP:0000001
 
 Independent source identity card and its available sections.
 
-| Field | Type | Always present | Meaning |
-| --- | --- | --- | --- |
-| `components` | list of [ComponentLabel](/reference/schemas/types/#componentlabel) | yes | Applicable publisher component terms. |
-| `sections` | list of [PhenotypeSection](/reference/schemas/types/#phenotypesection) | yes | Sections available on this source record. |
-| `term` | [PhenotypeCard](#phenotypecard) | yes | Complete source-specific native card. |
+| Field | Type | Meaning |
+| --- | --- | --- |
+| `components` | list of [ComponentLabel](/reference/schemas/types/#componentlabel) | Applicable publisher component terms. |
+| `sections` | list of [PhenotypeSection](/reference/schemas/types/#phenotypesection) | Sections available on this source record. |
+| `term` | [PhenotypeCard](#phenotypecard) | Complete source-specific native card. |
 
 ### PhenotypeAssociationCount
 
 Native collection counts, without summing scopes or counting patients.
 
-| Field | Type | Always present | Meaning |
-| --- | --- | --- | --- |
-| `category` | [Curie](/reference/schemas/types/#curie) | yes | Native category. |
-| `count` | integer (uint64) | yes | Native closure-expanded count. |
-| `count_direct` | integer or null | no | Native direct count. |
-| `count_with_orthologs` | integer or null | no | Native count including orthologs, only when supplied. |
-| `key` | [Curie](/reference/schemas/types/#curie) | yes | Native category key. |
-| `label` | string | yes | Native scope label. |
+| Field | Type | Meaning |
+| --- | --- | --- |
+| `category` | [Curie](/reference/schemas/types/#curie) | Native category. |
+| `count` | integer (uint64) | Native closure-expanded count. |
+| `count_direct` | integer or null | Native direct count. Optional. |
+| `count_with_orthologs` | integer or null | Native count including orthologs, only when supplied. Optional. |
+| `key` | [Curie](/reference/schemas/types/#curie) | Native category key. |
+| `label` | string | Native scope label. |
 
 ### PhenotypeCard
 
@@ -122,4 +112,4 @@ One of these forms:
 
 ## Next
 
-[Reply envelope and shared types](/reference/schemas/types/) defines `status`, `sources`, `next` and every shared type. [Reply schemas](/reference/schemas/) lists every reply. [`biomcp get phenotype`](/reference/commands/get-phenotype/) gives the command's arguments.
+[`biomcp get phenotype`](/reference/commands/get-phenotype/) gives the command's arguments; [reply schemas](/reference/schemas/) lists every reply.

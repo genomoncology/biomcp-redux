@@ -50,4 +50,4 @@ The reply is one JSON object. Its schema is [`biomcp.study_page/1`](/reference/s
 
 ## Next
 
-[Exit codes](/reference/error-codes/) gives what each exit code means, and [global options](/reference/global-options/) the options every command takes. The [study guide](/user-guide/study/) shows every study command at work.
+The [study guide](/user-guide/study/) shows every study command at work. [Exit codes](/reference/error-codes/) gives what each exit code means, and [global options](/reference/global-options/) the options every command takes.

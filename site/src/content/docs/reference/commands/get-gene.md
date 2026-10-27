@@ -64,4 +64,4 @@ The reply is one JSON object. Its schema is [`biomcp.gene_cards/4`](/reference/s
 
 ## Next
 
-[Exit codes](/reference/error-codes/) gives what each exit code means, and [global options](/reference/global-options/) the options every command takes. The [gene guide](/user-guide/gene/) shows every gene command at work.
+The [gene guide](/user-guide/gene/) shows every gene command at work. [Exit codes](/reference/error-codes/) gives what each exit code means, and [global options](/reference/global-options/) the options every command takes.

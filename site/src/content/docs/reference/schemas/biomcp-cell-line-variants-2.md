@@ -12,7 +12,7 @@ kind: reference
 verified: 2026-10-27
 ---
 
-BioMCP 1.0.0 prints one JSON object, the reply, for each command. [`biomcp get cell-line variants`](/reference/commands/get-cell-line/) replies with `schema` set to `biomcp.cell_line_variants/2`. Read this page when your code parses that reply. It shows a real reply, then the fields that only this schema has. The fields every reply shares are on [reply envelope and shared types](/reference/schemas/types/).
+BioMCP 1.0.0 prints one JSON object, the reply, for each command. [`biomcp get cell-line variants`](/reference/commands/get-cell-line/) replies with `schema` set to `biomcp.cell_line_variants/2`. Read this page when your code parses that reply: it shows a real one, then the fields only this schema has. [Shared types](/reference/schemas/types/) defines the rest.
 
 ## Commands that return it
 
@@ -26,7 +26,7 @@ biomcp get cell-line CVCL_0132 variants
 
 ## Example reply
 
-`biomcp get cell-line CVCL_0132 variants` returned this reply on 2026-10-27. Lists show their first items, and a line that starts with … counts the items left out. Text that ends in … is cut.
+`biomcp get cell-line CVCL_0132 variants` returned this on 2026-10-27. Lists show their first items; a line with … counts the rest, and text ending in … is cut.
 
 ```json
 {
@@ -40,25 +40,7 @@ biomcp get cell-line CVCL_0132 variants
   "result": {
     "accession": "CVCL_0132",
     "items": {
-      "items": [
-        {
-          "variation_type": "Mutation",
-          "mutation_type": "Simple",
-          "description": "p.Val600Glu (c.1799T>A)",
-          "zygosity": "Homozygous",
-          "genes": [
-            {…}
-          ],
-          "references": [
-            {…}
-          ],
-          "provenance": [
-            {…},
-            … 6 more
-          ]
-        },
-        … 2 more
-      ],
+      "items": […],
       "total": 4
     },
     "offset": 0,
@@ -89,10 +71,12 @@ biomcp get cell-line CVCL_0132 variants
 
 ## Fields
 
+A field marked Optional can be missing from a reply. Every other field is always there.
+
 `result` holds [CellLineVariants](/reference/schemas/types/#celllinevariants) of [Capped](/reference/schemas/types/#capped) of [CellLineVariation](/reference/schemas/types/#celllinevariation), a shared type. `query` holds [CellLineGet](/reference/schemas/types/#celllineget), a shared type. `query` repeats the request as BioMCP read it.
 
 Every type this reply uses is shared with other replies, so its fields are on the shared types page.
 
 ## Next
 
-[Reply envelope and shared types](/reference/schemas/types/) defines `status`, `sources`, `next` and every shared type. [Reply schemas](/reference/schemas/) lists every reply. [`biomcp get cell-line`](/reference/commands/get-cell-line/) gives the command's arguments.
+[`biomcp get cell-line`](/reference/commands/get-cell-line/) gives the command's arguments; [reply schemas](/reference/schemas/) lists every reply.

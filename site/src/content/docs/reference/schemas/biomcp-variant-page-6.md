@@ -11,7 +11,7 @@ kind: reference
 verified: 2026-10-27
 ---
 
-BioMCP 1.0.0 prints one JSON object, the reply, for each command. [`biomcp search variant`](/reference/commands/search-variant/) replies with `schema` set to `biomcp.variant_page/6`. Read this page when your code parses that reply. It shows a real reply, then the fields that only this schema has. The fields every reply shares are on [reply envelope and shared types](/reference/schemas/types/).
+BioMCP 1.0.0 prints one JSON object, the reply, for each command. [`biomcp search variant`](/reference/commands/search-variant/) replies with `schema` set to `biomcp.variant_page/6`. Read this page when your code parses that reply: it shows a real one, then the fields only this schema has. [Shared types](/reference/schemas/types/) defines the rest.
 
 ## Commands that return it
 
@@ -26,7 +26,7 @@ biomcp search variant --gene EGFR --protein L858R --build GRCh37
 
 ## Example reply
 
-`biomcp search variant --gene KRAS --protein G12C` returned this reply on 2026-10-27. Lists show their first items, and a line that starts with … counts the items left out. Text that ends in … is cut.
+`biomcp search variant --gene KRAS --protein G12C` returned this on 2026-10-27. Lists show their first items; a line with … counts the rest, and text ending in … is cut.
 
 ```json
 {
@@ -46,23 +46,7 @@ biomcp search variant --gene EGFR --protein L858R --build GRCh37
     },
     "source_query": "dbnsfp.genename:KRAS AND dbnsfp.hgvsp:\"p.G12C\"",
     "items": [
-      {
-        "identity": {
-          "ids": ["rs121913530", "clinvar:12578"],
-          "representations": [
-            {…}
-          ],
-          "genes": [{"label": "KRAS"}]
-        },
-        "source": "myvariant",
-        "record": {"id": "chr12:g.25398285C>A"},
-        "component_terms": [
-          {
-            "component": "clinvar",
-            "terms": {…}
-          }
-        ]
-      }
+      {…}
     ]
   },
   "page": {"offset": 0, "returned": 1, "total": 1},
@@ -78,9 +62,7 @@ biomcp search variant --gene EGFR --protein L858R --build GRCh37
   "next": [
     {
       "kind": "disambiguate",
-      "args": [
-        "get", "variant", "chr12:g.25398285C>A", "--build", "GRCh37"
-      ]
+      "args": ["get", "variant", "chr12:g.25398285C>A", "--build", "GRCh37"]
     }
   ]
 }
@@ -88,37 +70,39 @@ biomcp search variant --gene EGFR --protein L858R --build GRCh37
 
 ## Fields
 
+A field marked Optional can be missing from a reply. Every other field is always there.
+
 `result` holds [VariantPage](#variantpage). `query` holds [VariantSearch](#variantsearch). `query` repeats the request as BioMCP read it.
 
 ### VariantPage
 
 One native MyVariant candidate page; its total and offset are in the shared envelope.
 
-| Field | Type | Always present | Meaning |
-| --- | --- | --- | --- |
-| `build` | [Build](/reference/schemas/types/#build) or null | no | Assembly sent to the source, never inferred from a candidate label. |
-| `filter_terms` | [ComponentTerms](/reference/schemas/types/#componentterms) or null | no | Independent publisher terms for named ClinVar filters, present only when requested. |
-| `items` | list of [VariantHeader](/reference/schemas/types/#variantheader) | yes | Native source order, preserving every candidate including repeated source identities. |
-| `selector_terms` | [ComponentTerms](/reference/schemas/types/#componentterms) or null | no | Independent publisher terms for the declared dbNSFP gene/protein selector. |
-| `source_query` | string | yes | Exact query sent to the named source, without rewriting raw query text. |
+| Field | Type | Meaning |
+| --- | --- | --- |
+| `build` | [Build](/reference/schemas/types/#build) or null | Assembly sent to the source, never inferred from a candidate label. Optional. |
+| `filter_terms` | [ComponentTerms](/reference/schemas/types/#componentterms) or null | Independent publisher terms for named ClinVar filters, present only when requested. Optional. |
+| `items` | list of [VariantHeader](/reference/schemas/types/#variantheader) | Native source order, preserving every candidate including repeated source identities. |
+| `selector_terms` | [ComponentTerms](/reference/schemas/types/#componentterms) or null | Independent publisher terms for the declared dbNSFP gene/protein selector. Optional. |
+| `source_query` | string | Exact query sent to the named source, without rewriting raw query text. |
 
 ### VariantSearch
 
 Discover source candidates using one declared selector, without interpreting free text.
 
-| Field | Type | Always present | Meaning |
-| --- | --- | --- | --- |
-| `build` | [Build](/reference/schemas/types/#build) | no | Optional caller assembly sent to MyVariant; regions require it explicitly. |
-| `condition` | [Text](/reference/schemas/types/#text) | no | Literal MyVariant clinvar.rcv.conditions.name phrase; source text is not a local diagnosis. Requires a declared protein or region selector. |
-| `gene` | [GeneSymbol](/reference/schemas/types/#genesymbol) | no | Exact checked gene symbol for the fixed dbNSFP gene/protein field query; obeys component terms switches. |
-| `has` | [VariantSearchField](#variantsearchfield) | no | Require the selected component's identifier field. Only source-proven mappings are offered. |
-| `limit` | integer (uint32) | no | Native candidates per page, default 10, maximum 50; all candidates remain candidates. |
-| `offset` | integer (uint32) | no | Native offset within this command's bounded result window; larger native totals remain visible. |
-| `protein` | [ProteinQuery](#proteinquery) | no | Explicit substitution using checked one-letter or three-letter amino-acid codes. |
-| `query` | [MyVariantQuery](#myvariantquery) | no | Raw MyVariant query, passed and echoed unchanged when component policy allows; requires --source myvariant. With disabled components use declared selectors instead. |
-| `region` | [VariantRegion](#variantregion) | no | Exact one-based inclusive MyVariant region, such as chr7:55259500-55259600; requires --build. |
-| `review_status` | [Text](/reference/schemas/types/#text) | no | Literal MyVariant clinvar.rcv.review_status phrase; no star conversion. Requires a declared protein or region selector. |
-| `source` | [VariantSearchSource](#variantsearchsource) | no | Explicit source language; required for a raw query. |
+| Field | Type | Meaning |
+| --- | --- | --- |
+| `build` | [Build](/reference/schemas/types/#build) | Optional caller assembly sent to MyVariant; regions require it explicitly. Optional. |
+| `condition` | [Text](/reference/schemas/types/#text) | Literal MyVariant clinvar.rcv.conditions.name phrase; source text is not a local diagnosis. Requires a declared protein or region selector. Optional. |
+| `gene` | [GeneSymbol](/reference/schemas/types/#genesymbol) | Exact checked gene symbol for the fixed dbNSFP gene/protein field query; obeys component terms switches. Optional. |
+| `has` | [VariantSearchField](#variantsearchfield) | Require the selected component's identifier field. Only source-proven mappings are offered. Optional. |
+| `limit` | integer (uint32) | Native candidates per page, default 10, maximum 50; all candidates remain candidates. Optional. |
+| `offset` | integer (uint32) | Native offset within this command's bounded result window; larger native totals remain visible. Optional. |
+| `protein` | [ProteinQuery](#proteinquery) | Explicit substitution using checked one-letter or three-letter amino-acid codes. Optional. |
+| `query` | [MyVariantQuery](#myvariantquery) | Raw MyVariant query, passed and echoed unchanged when component policy allows; requires --source myvariant. With disabled components use declared selectors instead. Optional. |
+| `region` | [VariantRegion](#variantregion) | Exact one-based inclusive MyVariant region, such as chr7:55259500-55259600; requires --build. Optional. |
+| `review_status` | [Text](/reference/schemas/types/#text) | Literal MyVariant clinvar.rcv.review_status phrase; no star conversion. Requires a declared protein or region selector. Optional. |
+| `source` | [VariantSearchSource](#variantsearchsource) | Explicit source language; required for a raw query. Optional. |
 
 ### MyVariantQuery
 
@@ -146,4 +130,4 @@ Values: `myvariant`.
 
 ## Next
 
-[Reply envelope and shared types](/reference/schemas/types/) defines `status`, `sources`, `next` and every shared type. [Reply schemas](/reference/schemas/) lists every reply. [`biomcp search variant`](/reference/commands/search-variant/) gives the command's arguments.
+[`biomcp search variant`](/reference/commands/search-variant/) gives the command's arguments; [reply schemas](/reference/schemas/) lists every reply.

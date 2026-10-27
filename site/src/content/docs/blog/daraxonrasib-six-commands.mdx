@@ -37,7 +37,7 @@ The `sources` list names every database that contributed. The `id` is MyChem.inf
 
 Drugs@FDA lists application NDA220910 for RASONQUE tablets, with an original approval (`AP`, `ORIG`) dated 2026-08-26 under priority review. The submission class and the orphan code are Drugs@FDA's own fields. The [FDA approval date answer](/answers/fda-approval-date/) shows the same steps for vemurafenib.
 
-**Checkpoint.** The approvals row has status `AP`. A different row means the source changed since this page was built.
+**Checkpoint.** The approvals row has status `AP`. A different row means the source changed since this run.
 
 ## 3. Read the label
 
@@ -59,7 +59,7 @@ The first search mixes the discovery paper with later studies, and its rows chan
 
 `--intervention` searches ClinicalTrials.gov interventions:
 
-<Example id="blog-dara-trials" />
+<Example id="blog-dara-trials" lines={9} />
 
 ClinicalTrials.gov returns 15 studies that list daraxonrasib, from first-in-human combinations to phase 3 trials and an expanded access program. The status column is the registry's. A combination study run by another sponsor appears here because it lists daraxonrasib as an intervention; read each record before you count it.
 

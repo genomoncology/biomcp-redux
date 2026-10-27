@@ -11,7 +11,7 @@ kind: reference
 verified: 2026-10-27
 ---
 
-BioMCP 1.0.0 prints one JSON object, the reply, for each command. [`biomcp variant assertions`](/reference/commands/variant-assertions/) replies with `schema` set to `biomcp.variant_assertions/3`. Read this page when your code parses that reply. It shows a real reply, then the fields that only this schema has. The fields every reply shares are on [reply envelope and shared types](/reference/schemas/types/).
+BioMCP 1.0.0 prints one JSON object, the reply, for each command. [`biomcp variant assertions`](/reference/commands/variant-assertions/) replies with `schema` set to `biomcp.variant_assertions/3`. Read this page when your code parses that reply: it shows a real one, then the fields only this schema has. [Shared types](/reference/schemas/types/) defines the rest.
 
 ## Commands that return it
 
@@ -26,7 +26,7 @@ biomcp variant assertions CA000434 --source erepo
 
 ## Example reply
 
-`biomcp variant assertions clinvar:13961 --source clinvar --limit 50` returned this reply on 2026-10-27. Lists show their first items, and a line that starts with … counts the items left out. Text that ends in … is cut.
+`biomcp variant assertions clinvar:13961 --source clinvar --limit 50` returned this on 2026-10-27. Lists show their first items; a line with … counts the rest, and text ending in … is cut.
 
 ```json
 {
@@ -40,17 +40,7 @@ biomcp variant assertions CA000434 --source erepo
   },
   "result": {
     "assertions": [
-      {
-        "kind": "vcv",
-        "domain": "germline",
-        "statement": {
-          "subject": {"level": "allele", "id": "clinvar:13961"},
-          "proposition": "pathogenicity",
-          "classification": {…},
-          "strength": {…},
-          "attribution": {…}
-        }
-      },
+      {…},
       … 49 more
     ],
     "page": {"offset": 0, "returned": 50, "total": 88},
@@ -79,11 +69,12 @@ biomcp variant assertions CA000434 --source erepo
         … 1 more
       ]
     }
-  ]
-}
+…
 ```
 
 ## Fields
+
+A field marked Optional can be missing from a reply. Every other field is always there.
 
 `result` holds [VariantAssertions](/reference/schemas/types/#variantassertions), a shared type. `query` holds [VariantAssertionsGet](/reference/schemas/types/#variantassertionsget), a shared type. `query` repeats the request as BioMCP read it.
 
@@ -91,4 +82,4 @@ Every type this reply uses is shared with other replies, so its fields are on th
 
 ## Next
 
-[Reply envelope and shared types](/reference/schemas/types/) defines `status`, `sources`, `next` and every shared type. [Reply schemas](/reference/schemas/) lists every reply. [`biomcp variant assertions`](/reference/commands/variant-assertions/) gives the command's arguments.
+[`biomcp variant assertions`](/reference/commands/variant-assertions/) gives the command's arguments; [reply schemas](/reference/schemas/) lists every reply.

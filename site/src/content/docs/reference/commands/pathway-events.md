@@ -49,4 +49,4 @@ The reply is one JSON object. Its schema is [`biomcp.pathway_events/2`](/referen
 
 ## Next
 
-[Exit codes](/reference/error-codes/) gives what each exit code means, and [global options](/reference/global-options/) the options every command takes. The [pathway guide](/user-guide/pathway/) shows every pathway command at work.
+The [pathway guide](/user-guide/pathway/) shows every pathway command at work. [Exit codes](/reference/error-codes/) gives what each exit code means, and [global options](/reference/global-options/) the options every command takes.

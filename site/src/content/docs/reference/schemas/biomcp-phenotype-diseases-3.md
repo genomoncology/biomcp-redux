@@ -12,7 +12,7 @@ kind: reference
 verified: 2026-10-27
 ---
 
-BioMCP 1.0.0 prints one JSON object, the reply, for each command. [`biomcp get phenotype diseases`](/reference/commands/get-phenotype/) replies with `schema` set to `biomcp.phenotype-diseases/3`. Read this page when your code parses that reply. It shows a real reply, then the fields that only this schema has. The fields every reply shares are on [reply envelope and shared types](/reference/schemas/types/).
+BioMCP 1.0.0 prints one JSON object, the reply, for each command. [`biomcp get phenotype diseases`](/reference/commands/get-phenotype/) replies with `schema` set to `biomcp.phenotype-diseases/3`. Read this page when your code parses that reply: it shows a real one, then the fields only this schema has. [Shared types](/reference/schemas/types/) defines the rest.
 
 ## Commands that return it
 
@@ -27,7 +27,7 @@ biomcp get phenotype HP:0000001 diseases --source monarch
 
 ## Example reply
 
-`biomcp get phenotype HP:0000001 diseases --source monarch` returned this reply on 2026-10-27. Lists show their first items, and a line that starts with … counts the items left out. Text that ends in … is cut.
+`biomcp get phenotype HP:0000001 diseases --source monarch` returned this on 2026-10-27. Lists show their first items; a line with … counts the rest, and text ending in … is cut.
 
 ```json
 {
@@ -51,14 +51,7 @@ biomcp get phenotype HP:0000001 diseases --source monarch
           "url": "https://human-phenotype-ontology.github.io/license.html"
         }
       },
-      {
-        "component": "orphanet",
-        "terms": {
-          "usage": "attribution",
-          "name": "Orphadata Science CC BY 4.0 and citation/version conditions",
-          "url": "https://sciences.orphadata.com/faq/"
-        }
-      }
+      … 1 more
     ],
     "fetched": 1793140310
   },
@@ -77,19 +70,21 @@ biomcp get phenotype HP:0000001 diseases --source monarch
 
 ## Fields
 
+A field marked Optional can be missing from a reply. Every other field is always there.
+
 `result` holds [PhenotypeDiseases](#phenotypediseases). `query` holds [PhenotypeGet](/reference/schemas/types/#phenotypeget), a shared type. `query` repeats the request as BioMCP read it.
 
 ### PhenotypeDiseases
 
 Direct source disease association rows without clinical inference.
 
-| Field | Type | Always present | Meaning |
-| --- | --- | --- | --- |
-| `components` | list of [ComponentLabel](/reference/schemas/types/#componentlabel) | yes | Applicable publisher component terms. |
-| `direct` | boolean | yes | Publisher direct graph scope; this supplies no causal assertion. |
-| `fetched` | integer or null | no | Original source retrieval time, distinct from dataset release. |
-| `items` | list of [DiseaseAssociationItem](/reference/schemas/types/#diseaseassociationitem) | yes | Native association rows in source order, without deduplication. |
+| Field | Type | Meaning |
+| --- | --- | --- |
+| `components` | list of [ComponentLabel](/reference/schemas/types/#componentlabel) | Applicable publisher component terms. |
+| `direct` | boolean | Publisher direct graph scope; this supplies no causal assertion. |
+| `fetched` | integer or null | Original source retrieval time, distinct from dataset release. Optional. |
+| `items` | list of [DiseaseAssociationItem](/reference/schemas/types/#diseaseassociationitem) | Native association rows in source order, without deduplication. |
 
 ## Next
 
-[Reply envelope and shared types](/reference/schemas/types/) defines `status`, `sources`, `next` and every shared type. [Reply schemas](/reference/schemas/) lists every reply. [`biomcp get phenotype`](/reference/commands/get-phenotype/) gives the command's arguments.
+[`biomcp get phenotype`](/reference/commands/get-phenotype/) gives the command's arguments; [reply schemas](/reference/schemas/) lists every reply.

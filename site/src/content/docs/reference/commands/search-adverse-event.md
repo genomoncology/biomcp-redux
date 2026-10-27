@@ -70,4 +70,4 @@ The reply is one JSON object. Its schema is [`biomcp.adverse_event_page/2`](/ref
 
 ## Next
 
-[Exit codes](/reference/error-codes/) gives what each exit code means, and [global options](/reference/global-options/) the options every command takes. The [adverse-event guide](/user-guide/adverse-event/) shows every adverse-event command at work.
+The [adverse-event guide](/user-guide/adverse-event/) shows every adverse-event command at work. [Exit codes](/reference/error-codes/) gives what each exit code means, and [global options](/reference/global-options/) the options every command takes.

@@ -12,7 +12,7 @@ kind: reference
 verified: 2026-10-27
 ---
 
-BioMCP 1.0.0 prints one JSON object, the reply, for each command. [`biomcp article recommendations`](/reference/commands/article-recommendations/) replies with `schema` set to `biomcp.article_recommendations/3`. Read this page when your code parses that reply. It shows a real reply, then the fields that only this schema has. The fields every reply shares are on [reply envelope and shared types](/reference/schemas/types/).
+BioMCP 1.0.0 prints one JSON object, the reply, for each command. [`biomcp article recommendations`](/reference/commands/article-recommendations/) replies with `schema` set to `biomcp.article_recommendations/3`. Read this page when your code parses that reply: it shows a real one, then the fields only this schema has. [Shared types](/reference/schemas/types/) defines the rest.
 
 ## Commands that return it
 
@@ -27,7 +27,7 @@ biomcp article recommendations 34096690 32955176 --negative 33433946 --limit 5
 
 ## Example reply
 
-`biomcp article recommendations 33123537 --limit 2` returned this reply on 2026-10-27. Lists show their first items, and a line that starts with … counts the items left out. Text that ends in … is cut.
+`biomcp article recommendations 33123537 --limit 2` returned this on 2026-10-27. Lists show their first items; a line with … counts the rest, and text ending in … is cut.
 
 ```json
 {
@@ -41,21 +41,7 @@ biomcp article recommendations 34096690 32955176 --negative 33433946 --limit 5
   },
   "result": {
     "items": [
-      {
-        "key": {"namespace": "pubmed", "id": "42793013"},
-        "pmid": "42793013",
-        "header": {
-          "pmid": "42793013",
-          "doi": "10.3390/genes17091119",
-          "pmcid": "PMC13606912",
-          "title": "Rare Cancer-Associated Mutations May Affect the AF1 Phosp…",
-          "journal": "Genes",
-          "date": "2026-09-15",
-          "types": [],
-          "first_author": "Kopf E",
-          "author_count": 1
-        }
-      },
+      {…},
       … 1 more
     ],
     "scope": "Semantic Scholar recommends from its pool of recent papers"
@@ -87,30 +73,32 @@ biomcp article recommendations 34096690 32955176 --negative 33433946 --limit 5
 
 ## Fields
 
+A field marked Optional can be missing from a reply. Every other field is always there.
+
 `result` holds [ArticleRecommendations](#articlerecommendations). `query` holds [ArticleRecommend](#articlerecommend). `query` repeats the request as BioMCP read it.
 
 ### ArticleRecommendations
 
 Source-native recommendation page.
 
-| Field | Type | Always present | Meaning |
-| --- | --- | --- | --- |
-| `items` | list of [ArticleItem](/reference/schemas/types/#articleitem) | yes | Papers in provider order, without a local topic filter. |
-| `notice` | [EvidenceNotice](/reference/schemas/types/#evidencenotice) or null | no | Successful zero-result explanation. |
-| `scope` | string | yes | Provider's default pool, stated without a clinical relevance claim. |
+| Field | Type | Meaning |
+| --- | --- | --- |
+| `items` | list of [ArticleItem](/reference/schemas/types/#articleitem) | Papers in provider order, without a local topic filter. |
+| `notice` | [EvidenceNotice](/reference/schemas/types/#evidencenotice) or null | Successful zero-result explanation. Optional. |
+| `scope` | string | Provider's default pool, stated without a clinical relevance claim. |
 
 ### ArticleRecommend
 
 Recommendations in the provider's recent-paper pool order.
 
-| Field | Type | Always present | Meaning |
-| --- | --- | --- | --- |
-| `limit` | integer (uint32) | no | Maximum recommendations requested, in native order. |
-| `negative` | list of [ArticleInput](/reference/schemas/types/#articleinput) | no | Up to ten negative paper identities. |
-| `offset` | integer (uint32) | no | Number of stored recommendations to skip. |
-| `pool` | [Text](/reference/schemas/types/#text) | no | Fixed recommendation pool. |
-| `seeds` | list of [ArticleInput](/reference/schemas/types/#articleinput) | yes | One to ten positive paper identities. |
+| Field | Type | Meaning |
+| --- | --- | --- |
+| `limit` | integer (uint32) | Maximum recommendations requested, in native order. Optional. |
+| `negative` | list of [ArticleInput](/reference/schemas/types/#articleinput) | Up to ten negative paper identities. Optional. |
+| `offset` | integer (uint32) | Number of stored recommendations to skip. Optional. |
+| `pool` | [Text](/reference/schemas/types/#text) | Fixed recommendation pool. Optional. |
+| `seeds` | list of [ArticleInput](/reference/schemas/types/#articleinput) | One to ten positive paper identities. |
 
 ## Next
 
-[Reply envelope and shared types](/reference/schemas/types/) defines `status`, `sources`, `next` and every shared type. [Reply schemas](/reference/schemas/) lists every reply. [`biomcp article recommendations`](/reference/commands/article-recommendations/) gives the command's arguments.
+[`biomcp article recommendations`](/reference/commands/article-recommendations/) gives the command's arguments; [reply schemas](/reference/schemas/) lists every reply.

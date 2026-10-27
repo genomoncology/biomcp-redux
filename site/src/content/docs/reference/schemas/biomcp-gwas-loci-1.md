@@ -11,7 +11,7 @@ kind: reference
 verified: 2026-10-27
 ---
 
-BioMCP 1.0.0 prints one JSON object, the reply, for each command. [`biomcp get gwas loci`](/reference/commands/get-gwas/) replies with `schema` set to `biomcp.gwas_loci/1`. Read this page when your code parses that reply. It shows a real reply, then the fields that only this schema has. The fields every reply shares are on [reply envelope and shared types](/reference/schemas/types/).
+BioMCP 1.0.0 prints one JSON object, the reply, for each command. [`biomcp get gwas loci`](/reference/commands/get-gwas/) replies with `schema` set to `biomcp.gwas_loci/1`. Read this page when your code parses that reply: it shows a real one, then the fields only this schema has. [Shared types](/reference/schemas/types/) defines the rest.
 
 ## Commands that return it
 
@@ -25,7 +25,7 @@ biomcp get gwas association:6114 loci
 
 ## Example reply
 
-`biomcp get gwas association:6114 loci` returned this reply on 2026-10-27. Lists show their first items, and a line that starts with … counts the items left out. Text that ends in … is cut.
+`biomcp get gwas association:6114 loci` returned this on 2026-10-27. Lists show their first items; a line with … counts the rest, and text ending in … is cut.
 
 ```json
 {
@@ -44,13 +44,7 @@ biomcp get gwas association:6114 loci
       {
         "description": "Single variant",
         "strongest_risk_alleles": ["rs3817198-C"],
-        "author_reported_genes": [
-          {
-            "name": "LSP1",
-            "ensembl_ids": ["ENSG00000130592"],
-            "entrez_ids": ["4046"]
-          }
-        ],
+        "author_reported_genes": […],
         "source_url": "https://www.ebi.ac.uk/gwas/rest/api/v2/associations/611…"
       }
     ]
@@ -70,12 +64,14 @@ biomcp get gwas association:6114 loci
       "kind": "pivot",
       "args": ["get", "gene", "ENSG00000130592"]
     },
-    {"kind": "pivot", "args": ["get", "gene", "4046"]}
+    … 1 more
   ]
 }
 ```
 
 ## Fields
+
+A field marked Optional can be missing from a reply. Every other field is always there.
 
 `result` holds [GwasLoci](#gwasloci). `query` holds [GwasGet](/reference/schemas/types/#gwasget), a shared type. `query` repeats the request as BioMCP read it.
 
@@ -83,33 +79,33 @@ biomcp get gwas association:6114 loci
 
 One bounded locus section for an association.
 
-| Field | Type | Always present | Meaning |
-| --- | --- | --- | --- |
-| `association` | [GwasAssociationId](/reference/schemas/types/#gwasassociationid) | yes | Exact owning association. |
-| `continuation` | [GwasGet](/reference/schemas/types/#gwasget) | no | Same-resource relation continuation. |
-| `items` | list of [GwasLocus](#gwaslocus) | yes | Native locus rows. |
+| Field | Type | Meaning |
+| --- | --- | --- |
+| `association` | [GwasAssociationId](/reference/schemas/types/#gwasassociationid) | Exact owning association. |
+| `continuation` | [GwasGet](/reference/schemas/types/#gwasget) | Same-resource relation continuation. Optional. |
+| `items` | list of [GwasLocus](#gwaslocus) | Native locus rows. |
 
 ### GwasLocus
 
 One native locus with independent reported genes and risk-allele text.
 
-| Field | Type | Always present | Meaning |
-| --- | --- | --- | --- |
-| `author_reported_genes` | list of [GwasReportedGene](#gwasreportedgene) | yes | Reported source genes; never inferred from names. |
-| `description` | [Text](/reference/schemas/types/#text) or null | no | Complete source locus description. |
-| `source_url` | [Text](/reference/schemas/types/#text) or null | no | Native locus self link. |
-| `strongest_risk_alleles` | list of [Text](/reference/schemas/types/#text) | yes | Source strongest-risk-allele strings. |
+| Field | Type | Meaning |
+| --- | --- | --- |
+| `author_reported_genes` | list of [GwasReportedGene](#gwasreportedgene) | Reported source genes; never inferred from names. |
+| `description` | [Text](/reference/schemas/types/#text) or null | Complete source locus description. Optional. |
+| `source_url` | [Text](/reference/schemas/types/#text) or null | Native locus self link. Optional. |
+| `strongest_risk_alleles` | list of [Text](/reference/schemas/types/#text) | Source strongest-risk-allele strings. |
 
 ### GwasReportedGene
 
 Source reported gene identity, without a causal-gene interpretation.
 
-| Field | Type | Always present | Meaning |
-| --- | --- | --- | --- |
-| `ensembl_ids` | list of [Text](/reference/schemas/types/#text) | yes | Exact source Ensembl identifiers. |
-| `entrez_ids` | list of [Text](/reference/schemas/types/#text) | yes | Exact source Entrez identifiers. |
-| `name` | [Text](/reference/schemas/types/#text) or null | no | Native source gene name. |
+| Field | Type | Meaning |
+| --- | --- | --- |
+| `ensembl_ids` | list of [Text](/reference/schemas/types/#text) | Exact source Ensembl identifiers. |
+| `entrez_ids` | list of [Text](/reference/schemas/types/#text) | Exact source Entrez identifiers. |
+| `name` | [Text](/reference/schemas/types/#text) or null | Native source gene name. Optional. |
 
 ## Next
 
-[Reply envelope and shared types](/reference/schemas/types/) defines `status`, `sources`, `next` and every shared type. [Reply schemas](/reference/schemas/) lists every reply. [`biomcp get gwas`](/reference/commands/get-gwas/) gives the command's arguments.
+[`biomcp get gwas`](/reference/commands/get-gwas/) gives the command's arguments; [reply schemas](/reference/schemas/) lists every reply.

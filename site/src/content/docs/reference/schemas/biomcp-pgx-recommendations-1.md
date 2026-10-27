@@ -12,7 +12,7 @@ kind: reference
 verified: 2026-10-27
 ---
 
-BioMCP 1.0.0 prints one JSON object, the reply, for each command. [`biomcp get pgx recommendations`](/reference/commands/get-pgx/) replies with `schema` set to `biomcp.pgx_recommendations/1`. Read this page when your code parses that reply. It shows a real reply, then the fields that only this schema has. The fields every reply shares are on [reply envelope and shared types](/reference/schemas/types/).
+BioMCP 1.0.0 prints one JSON object, the reply, for each command. [`biomcp get pgx recommendations`](/reference/commands/get-pgx/) replies with `schema` set to `biomcp.pgx_recommendations/1`. Read this page when your code parses that reply: it shows a real one, then the fields only this schema has. [Shared types](/reference/schemas/types/) defines the rest.
 
 ## Commands that return it
 
@@ -26,7 +26,7 @@ biomcp get pgx --gene DPYD --source cpic recommendations
 
 ## Example reply
 
-`biomcp get pgx --gene DPYD --source cpic recommendations` returned this reply on 2026-10-27. Lists show their first items, and a line that starts with … counts the items left out. Text that ends in … is cut.
+`biomcp get pgx --gene DPYD --source cpic recommendations` returned this on 2026-10-27. Lists show their first items; a line with … counts the rest, and text ending in … is cut.
 
 ```json
 {
@@ -43,30 +43,10 @@ biomcp get pgx --gene DPYD --source cpic recommendations
     "representation": "view",
     "header": {"source": "cpic", "gene": "DPYD"},
     "items": [
-      {
-        "recommendationid": 8609524,
-        "lookupkey": {"DPYD": "2.0"},
-        "drugname": "fluorouracil",
-        "guidelinename": "DPYD and Fluoropyrimidines",
-        "guidelineurl": "https://www.clinpgx.org/guideline/PA166251462",
-        "implications": {
-          "DPYD": "Normal DPD activity and \"normal\" risk for fluoropyrimidin…"
-        },
-        "drugrecommendation": "Based on genotype, there is no indication to c…",
-        "classification": "Strong",
-        "phenotypes": {"DPYD": "Normal Metabolizer"},
-        "activityscore": {"DPYD": "2.0"},
-        "population": "general",
-        "comments": "n/a"
-      },
+      {…},
       … 4 more
     ],
-    "page": {
-      "offset": 0,
-      "returned": 5,
-      "total": 10,
-      "total_kind": "source"
-    }
+    "page": {"offset": 0, "returned": 5, "total": 10, "total_kind": "source"}
   },
   "sources": [
     {
@@ -92,6 +72,8 @@ biomcp get pgx --gene DPYD --source cpic recommendations
 
 ## Fields
 
+A field marked Optional can be missing from a reply. Every other field is always there.
+
 `result` holds [PgxRecommendations](#pgxrecommendations). `query` holds [PgxGet](/reference/schemas/types/#pgxget), a shared type. `query` repeats the request as BioMCP read it.
 
 ### PgxRecommendations
@@ -107,44 +89,44 @@ One of these forms:
 
 Source-native PgxDrugRecommendation fields; no clinical interpretation.
 
-| Field | Type | Always present | Meaning |
-| --- | --- | --- | --- |
-| `activityscore` | object | yes | The source's own `activityscore` value, unchanged. |
-| `allelestatus` | object | yes | The source's own `allelestatus` value, unchanged. |
-| `alternatedrugavailable` | boolean | yes | The source's own `alternatedrugavailable` value, unchanged. |
-| `classification` | string | yes | The source's own `classification` value, unchanged. |
-| `comments` | string | yes | The source's own `comments` value, unchanged. |
-| `dosinginformation` | boolean | yes | The source's own `dosinginformation` value, unchanged. |
-| `drugid` | [Curie](/reference/schemas/types/#curie) | yes | The source's own `drugid` value, unchanged. |
-| `drugrecommendation` | string | yes | The source's own `drugrecommendation` value, unchanged. |
-| `guidelineid` | integer (int64) | yes | The source's own `guidelineid` value, unchanged. |
-| `id` | integer (int64) | yes | The source's own `id` value, unchanged. |
-| `implications` | object | yes | The source's own `implications` value, unchanged. |
-| `lookupkey` | object | yes | The source's own `lookupkey` value, unchanged. |
-| `otherprescribingguidance` | boolean | yes | The source's own `otherprescribingguidance` value, unchanged. |
-| `phenotypes` | object | yes | The source's own `phenotypes` value, unchanged. |
-| `population` | string | yes | The source's own `population` value, unchanged. |
-| `version` | integer (int64) | yes | The source's own `version` value, unchanged. |
+| Field | Type | Meaning |
+| --- | --- | --- |
+| `activityscore` | object | The source's own `activityscore` value, unchanged. |
+| `allelestatus` | object | The source's own `allelestatus` value, unchanged. |
+| `alternatedrugavailable` | boolean | The source's own `alternatedrugavailable` value, unchanged. |
+| `classification` | string | The source's own `classification` value, unchanged. |
+| `comments` | string | The source's own `comments` value, unchanged. |
+| `dosinginformation` | boolean | The source's own `dosinginformation` value, unchanged. |
+| `drugid` | [Curie](/reference/schemas/types/#curie) | The source's own `drugid` value, unchanged. |
+| `drugrecommendation` | string | The source's own `drugrecommendation` value, unchanged. |
+| `guidelineid` | integer (int64) | The source's own `guidelineid` value, unchanged. |
+| `id` | integer (int64) | The source's own `id` value, unchanged. |
+| `implications` | object | The source's own `implications` value, unchanged. |
+| `lookupkey` | object | The source's own `lookupkey` value, unchanged. |
+| `otherprescribingguidance` | boolean | The source's own `otherprescribingguidance` value, unchanged. |
+| `phenotypes` | object | The source's own `phenotypes` value, unchanged. |
+| `population` | string | The source's own `population` value, unchanged. |
+| `version` | integer (int64) | The source's own `version` value, unchanged. |
 
 ### PgxRecommendation
 
 Source-native PgxRecommendation fields; no clinical interpretation.
 
-| Field | Type | Always present | Meaning |
-| --- | --- | --- | --- |
-| `activityscore` | object | yes | The source's own `activityscore` value, unchanged. |
-| `classification` | string | yes | The source's own `classification` value, unchanged. |
-| `comments` | string or null | no | The source's own `comments` value, unchanged. |
-| `drugname` | string | yes | The source's own `drugname` value, unchanged. |
-| `drugrecommendation` | string | yes | The source's own `drugrecommendation` value, unchanged. |
-| `guidelinename` | string | yes | The source's own `guidelinename` value, unchanged. |
-| `guidelineurl` | string | yes | The source's own `guidelineurl` value, unchanged. |
-| `implications` | object | yes | The source's own `implications` value, unchanged. |
-| `lookupkey` | object | yes | The source's own `lookupkey` value, unchanged. |
-| `phenotypes` | object | yes | The source's own `phenotypes` value, unchanged. |
-| `population` | string | yes | The source's own `population` value, unchanged. |
-| `recommendationid` | integer (int64) | yes | The source's own `recommendationid` value, unchanged. |
+| Field | Type | Meaning |
+| --- | --- | --- |
+| `activityscore` | object | The source's own `activityscore` value, unchanged. |
+| `classification` | string | The source's own `classification` value, unchanged. |
+| `comments` | string or null | The source's own `comments` value, unchanged. Optional. |
+| `drugname` | string | The source's own `drugname` value, unchanged. |
+| `drugrecommendation` | string | The source's own `drugrecommendation` value, unchanged. |
+| `guidelinename` | string | The source's own `guidelinename` value, unchanged. |
+| `guidelineurl` | string | The source's own `guidelineurl` value, unchanged. |
+| `implications` | object | The source's own `implications` value, unchanged. |
+| `lookupkey` | object | The source's own `lookupkey` value, unchanged. |
+| `phenotypes` | object | The source's own `phenotypes` value, unchanged. |
+| `population` | string | The source's own `population` value, unchanged. |
+| `recommendationid` | integer (int64) | The source's own `recommendationid` value, unchanged. |
 
 ## Next
 
-[Reply envelope and shared types](/reference/schemas/types/) defines `status`, `sources`, `next` and every shared type. [Reply schemas](/reference/schemas/) lists every reply. [`biomcp get pgx`](/reference/commands/get-pgx/) gives the command's arguments.
+[`biomcp get pgx`](/reference/commands/get-pgx/) gives the command's arguments; [reply schemas](/reference/schemas/) lists every reply.

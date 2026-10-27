@@ -13,7 +13,7 @@ kind: reference
 verified: 2026-10-27
 ---
 
-BioMCP 1.0.0 prints one JSON object, the reply, for each command. [`biomcp get diagnostic regulatory`](/reference/commands/get-diagnostic/) replies with `schema` set to `biomcp.diagnostic_regulatory/1`. Read this page when your code parses that reply. It shows a real reply, then the fields that only this schema has. The fields every reply shares are on [reply envelope and shared types](/reference/schemas/types/).
+BioMCP 1.0.0 prints one JSON object, the reply, for each command. [`biomcp get diagnostic regulatory`](/reference/commands/get-diagnostic/) replies with `schema` set to `biomcp.diagnostic_regulatory/1`. Read this page when your code parses that reply: it shows a real one, then the fields only this schema has. [Shared types](/reference/schemas/types/) defines the rest.
 
 ## Commands that return it
 
@@ -27,7 +27,7 @@ biomcp get diagnostic P110020 regulatory --source fda-pma
 
 ## Example reply
 
-`biomcp get diagnostic P110020 regulatory --source fda-pma` returned this reply on 2026-10-27. Lists show their first items, and a line that starts with … counts the items left out. Text that ends in … is cut.
+`biomcp get diagnostic P110020 regulatory --source fda-pma` returned this on 2026-10-27. Lists show their first items; a line with … counts the rest, and text ending in … is cut.
 
 ```json
 {
@@ -41,30 +41,7 @@ biomcp get diagnostic P110020 regulatory --source fda-pma
   },
   "result": {
     "items": [
-      {
-        "submission": {
-          "pma_number": "P110020",
-          "supplement_number": "",
-          "trade_name": "COBAS 4800 BRAF V600 MUTATION TEST",
-          "applicant": "Roche Molecular Systems, Inc.",
-          "decision_date": "2011-08-17",
-          "decision_code": "APPR",
-          "url": "https://www.accessdata.fda.gov/scripts/cdrh/cfdocs/cfPMA/pma…"
-        },
-        "metadata": {
-          "date_received": "2011-04-25",
-          "fed_reg_notice_date": "2011-08-19",
-          "advisory_committee": "PA",
-          "advisory_committee_description": "Pathology",
-          "product_code": "OWD",
-          "supplement_type": "",
-          "supplement_reason": ""
-        },
-        "field": "ao_statement",
-        "offset": 0,
-        "total": 1,
-        "text": "APPROVAL FOR THE COBAS 4800 BRAF V600 MUTATION TEST.  THIS DE…"
-      }
+      {…}
     ]
   },
   "page": {"offset": 0, "returned": 1, "total": 1},
@@ -91,31 +68,33 @@ biomcp get diagnostic P110020 regulatory --source fda-pma
 
 ## Fields
 
+A field marked Optional can be missing from a reply. Every other field is always there.
+
 `result` holds [DiagnosticRegulatory](#diagnosticregulatory). `query` holds [DiagnosticGet](/reference/schemas/types/#diagnosticget), a shared type. `query` repeats the request as BioMCP read it.
 
 ### DiagnosticRegulatory
 
 Exact selected submission regulatory text fragments.
 
-| Field | Type | Always present | Meaning |
-| --- | --- | --- | --- |
-| `count_unit` | [DiagnosticCountUnit](/reference/schemas/types/#diagnosticcountunit) or null | no | Exact meaning of the envelope total; supplied by the owning source command. |
-| `distinct_id_total` | integer or null | no | Distinct complete native IDs across the selected relation collection. |
-| `items` | list of [DiagnosticRegulatoryFragment](#diagnosticregulatoryfragment) | yes | Complete source-owned rows in native order; envelope totals count native rows. |
+| Field | Type | Meaning |
+| --- | --- | --- |
+| `count_unit` | [DiagnosticCountUnit](/reference/schemas/types/#diagnosticcountunit) or null | Exact meaning of the envelope total; supplied by the owning source command. Optional. |
+| `distinct_id_total` | integer or null | Distinct complete native IDs across the selected relation collection. Optional. |
+| `items` | list of [DiagnosticRegulatoryFragment](#diagnosticregulatoryfragment) | Complete source-owned rows in native order; envelope totals count native rows. |
 
 ### DiagnosticPmaRegulatory
 
 Dated metadata belonging only to the selected submission.
 
-| Field | Type | Always present | Meaning |
-| --- | --- | --- | --- |
-| `advisory_committee` | string or null | no | Native advisory_committee when supplied, including empty. |
-| `advisory_committee_description` | string or null | no | Native advisory_committee_description when supplied, including empty. |
-| `date_received` | string or null | no | Native date_received when supplied, including empty. |
-| `fed_reg_notice_date` | string or null | no | Native fed_reg_notice_date when supplied, including empty. |
-| `product_code` | string or null | no | Native product_code when supplied, including empty. |
-| `supplement_reason` | string or null | no | Native supplement_reason when supplied, including empty. |
-| `supplement_type` | string or null | no | Native supplement_type when supplied, including empty. |
+| Field | Type | Meaning |
+| --- | --- | --- |
+| `advisory_committee` | string or null | Native advisory_committee when supplied, including empty. Optional. |
+| `advisory_committee_description` | string or null | Native advisory_committee_description when supplied, including empty. Optional. |
+| `date_received` | string or null | Native date_received when supplied, including empty. Optional. |
+| `fed_reg_notice_date` | string or null | Native fed_reg_notice_date when supplied, including empty. Optional. |
+| `product_code` | string or null | Native product_code when supplied, including empty. Optional. |
+| `supplement_reason` | string or null | Native supplement_reason when supplied, including empty. Optional. |
+| `supplement_type` | string or null | Native supplement_type when supplied, including empty. Optional. |
 
 ### DiagnosticRegulatoryField
 
@@ -127,15 +106,15 @@ Values: `ao_statement`.
 
 One bounded regulatory fragment from the exact selected native submission.
 
-| Field | Type | Always present | Meaning |
-| --- | --- | --- | --- |
-| `field` | [DiagnosticRegulatoryField](#diagnosticregulatoryfield) | yes | Native text field being continued. |
-| `metadata` | [DiagnosticPmaRegulatory](#diagnosticpmaregulatory) | yes | Native metadata for this exact record, without a duplicated whole statement. |
-| `offset` | integer (uint32) | yes | Fragment offset, independent of characters and supplement rows. |
-| `submission` | [DiagnosticPmaHeader](/reference/schemas/types/#diagnosticpmaheader) | yes | Exact selected native record and its dated regulatory metadata. |
-| `text` | string | no | Complete unmodified text fragment; omitted when the source statement is absent. |
-| `total` | integer (uint32) | yes | Total mechanical fragments. |
+| Field | Type | Meaning |
+| --- | --- | --- |
+| `field` | [DiagnosticRegulatoryField](#diagnosticregulatoryfield) | Native text field being continued. |
+| `metadata` | [DiagnosticPmaRegulatory](#diagnosticpmaregulatory) | Native metadata for this exact record, without a duplicated whole statement. |
+| `offset` | integer (uint32) | Fragment offset, independent of characters and supplement rows. |
+| `submission` | [DiagnosticPmaHeader](/reference/schemas/types/#diagnosticpmaheader) | Exact selected native record and its dated regulatory metadata. |
+| `text` | string | Complete unmodified text fragment; omitted when the source statement is absent. Optional. |
+| `total` | integer (uint32) | Total mechanical fragments. |
 
 ## Next
 
-[Reply envelope and shared types](/reference/schemas/types/) defines `status`, `sources`, `next` and every shared type. [Reply schemas](/reference/schemas/) lists every reply. [`biomcp get diagnostic`](/reference/commands/get-diagnostic/) gives the command's arguments.
+[`biomcp get diagnostic`](/reference/commands/get-diagnostic/) gives the command's arguments; [reply schemas](/reference/schemas/) lists every reply.

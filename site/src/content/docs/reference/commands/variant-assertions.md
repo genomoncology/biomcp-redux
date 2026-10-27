@@ -56,4 +56,4 @@ The reply is one JSON object. Its schema is [`biomcp.variant_assertions/3`](/ref
 
 ## Next
 
-[Exit codes](/reference/error-codes/) gives what each exit code means, and [global options](/reference/global-options/) the options every command takes. The [variant guide](/user-guide/variant/) shows every variant command at work.
+The [variant guide](/user-guide/variant/) shows every variant command at work. [Exit codes](/reference/error-codes/) gives what each exit code means, and [global options](/reference/global-options/) the options every command takes.

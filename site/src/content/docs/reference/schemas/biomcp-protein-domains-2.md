@@ -11,7 +11,7 @@ kind: reference
 verified: 2026-10-27
 ---
 
-BioMCP 1.0.0 prints one JSON object, the reply, for each command. [`biomcp protein domains`](/reference/commands/protein-domains/) replies with `schema` set to `biomcp.protein_domains/2`. Read this page when your code parses that reply. It shows a real reply, then the fields that only this schema has. The fields every reply shares are on [reply envelope and shared types](/reference/schemas/types/).
+BioMCP 1.0.0 prints one JSON object, the reply, for each command. [`biomcp protein domains`](/reference/commands/protein-domains/) replies with `schema` set to `biomcp.protein_domains/2`. Read this page when your code parses that reply: it shows a real one, then the fields only this schema has. [Shared types](/reference/schemas/types/) defines the rest.
 
 ## Commands that return it
 
@@ -26,7 +26,7 @@ biomcp protein domains P15056 --limit 2
 
 ## Example reply
 
-`biomcp protein domains P15056 --limit 2` returned this reply on 2026-10-27. Lists show their first items, and a line that starts with … counts the items left out. Text that ends in … is cut.
+`biomcp protein domains P15056 --limit 2` returned this on 2026-10-27. Lists show their first items; a line with … counts the rest, and text ending in … is cut.
 
 ```json
 {
@@ -35,17 +35,7 @@ biomcp protein domains P15056 --limit 2
   "query": {"accession": "P15056", "limit": 2, "offset": 0},
   "result": {
     "items": [
-      {
-        "id": "IPR000719",
-        "name": "Protein kinase domain",
-        "entry_type": "domain",
-        "protein": "P15056",
-        "protein_length": 766,
-        "taxon": 9606,
-        "locations": […],
-        "member_signatures": […],
-        "attribution": {…}
-      },
+      {…},
       … 1 more
     ],
     "native_total": 11
@@ -79,11 +69,12 @@ biomcp protein domains P15056 --limit 2
         … 1 more
       ]
     }
-  ]
-}
+…
 ```
 
 ## Fields
+
+A field marked Optional can be missing from a reply. Every other field is always there.
 
 `result` holds [ProteinDomains](/reference/schemas/types/#proteindomains), a shared type. `query` holds [ProteinDomainsQuery](#proteindomainsquery). `query` repeats the request as BioMCP read it.
 
@@ -91,14 +82,14 @@ biomcp protein domains P15056 --limit 2
 
 Page five native InterPro matches with original types and fragments. No structure or clinical meaning is inferred; no bioinformatics tool runs.
 
-| Field | Type | Always present | Meaning |
-| --- | --- | --- | --- |
-| `accession` | [UniProtIsoform](/reference/schemas/types/#uniprotisoform) | yes | Exact source protein sequence identity. |
-| `limit` | integer (uint32) | no | Five rows by default, at most 25. |
-| `offset` | integer (uint32) | no | Native or retained page offset. |
-| `pool` | [Text](/reference/schemas/types/#text) | no | The ID of a stored list, from an earlier reply, so later pages read the same data. |
-| `type` | [Text](/reference/schemas/types/#text) | no | Exact native InterPro type, not a normalized domain label. |
+| Field | Type | Meaning |
+| --- | --- | --- |
+| `accession` | [UniProtIsoform](/reference/schemas/types/#uniprotisoform) | Exact source protein sequence identity. |
+| `limit` | integer (uint32) | Five rows by default, at most 25. Optional. |
+| `offset` | integer (uint32) | Native or retained page offset. Optional. |
+| `pool` | [Text](/reference/schemas/types/#text) | The ID of a stored list, from an earlier reply, so later pages read the same data. Optional. |
+| `type` | [Text](/reference/schemas/types/#text) | Exact native InterPro type, not a normalized domain label. Optional. |
 
 ## Next
 
-[Reply envelope and shared types](/reference/schemas/types/) defines `status`, `sources`, `next` and every shared type. [Reply schemas](/reference/schemas/) lists every reply. [`biomcp protein domains`](/reference/commands/protein-domains/) gives the command's arguments.
+[`biomcp protein domains`](/reference/commands/protein-domains/) gives the command's arguments; [reply schemas](/reference/schemas/) lists every reply.

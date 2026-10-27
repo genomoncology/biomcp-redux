@@ -11,7 +11,7 @@ kind: reference
 verified: 2026-10-27
 ---
 
-BioMCP 1.0.0 prints one JSON object, the reply, for each command. [`biomcp search drug`](/reference/commands/search-drug/) replies with `schema` set to `biomcp.drug_fda_page/1`. Read this page when your code parses that reply. It shows a real reply, then the fields that only this schema has. The fields every reply shares are on [reply envelope and shared types](/reference/schemas/types/).
+BioMCP 1.0.0 prints one JSON object, the reply, for each command. [`biomcp search drug`](/reference/commands/search-drug/) replies with `schema` set to `biomcp.drug_fda_page/1`. Read this page when your code parses that reply: it shows a real one, then the fields only this schema has. [Shared types](/reference/schemas/types/) defines the rest.
 
 ## Commands that return it
 
@@ -25,7 +25,7 @@ biomcp search drug daraxonrasib --source drugsfda --limit 1
 
 ## Example reply
 
-`biomcp search drug daraxonrasib --source drugsfda --limit 1` returned this reply on 2026-10-27. Lists show their first items, and a line that starts with … counts the items left out. Text that ends in … is cut.
+`biomcp search drug daraxonrasib --source drugsfda --limit 1` returned this on 2026-10-27. Lists show their first items; a line with … counts the rest, and text ending in … is cut.
 
 ```json
 {
@@ -40,26 +40,8 @@ biomcp search drug daraxonrasib --source drugsfda --limit 1
   "result": {
     "items": [
       {
-        "identity": {
-          "id": "NDA220910",
-          "source": "drugsfda",
-          "identity_level": "fda_application"
-        },
-        "products": [
-          {
-            "product_number": "001",
-            "brand_name": "RASONQUE",
-            "active_ingredients": [
-              {"name": "DARAXONRASIB", "strength": "100MG"}
-            ],
-            "dosage_form": "TABLET",
-            "route": "ORAL",
-            "marketing_status": "Prescription",
-            "reference_drug": "Yes",
-            "reference_standard": "No"
-          },
-          … 1 more
-        ]
+        "identity": {…},
+        "products": […]
       }
     ],
     "total": 1,
@@ -80,9 +62,7 @@ biomcp search drug daraxonrasib --source drugsfda --limit 1
   "next": [
     {
       "kind": "disambiguate",
-      "args": [
-        "get", "drug", "NDA220910", "--source", "drugsfda"
-      ]
+      "args": ["get", "drug", "NDA220910", "--source", "drugsfda"]
     }
   ]
 }
@@ -90,27 +70,29 @@ biomcp search drug daraxonrasib --source drugsfda --limit 1
 
 ## Fields
 
+A field marked Optional can be missing from a reply. Every other field is always there.
+
 `result` holds [DrugFdaPage](#drugfdapage). `query` holds [DrugSearch](/reference/schemas/types/#drugsearch), a shared type. `query` repeats the request as BioMCP read it.
 
 ### DrugFdaPage
 
 A source-owned application page preserving complete product context and source order.
 
-| Field | Type | Always present | Meaning |
-| --- | --- | --- | --- |
-| `items` | list of [DrugFdaCandidate](#drugfdacandidate) | yes | Native applications and products; a phrase match never establishes equivalence. |
-| `source_updated` | [PartialDate](/reference/schemas/types/#partialdate) or null | no | Native dataset last_updated date, independent of event dates and retrieval. |
-| `total` | integer (uint64) | yes | Native application total, independent of product count. |
+| Field | Type | Meaning |
+| --- | --- | --- |
+| `items` | list of [DrugFdaCandidate](#drugfdacandidate) | Native applications and products; a phrase match never establishes equivalence. |
+| `source_updated` | [PartialDate](/reference/schemas/types/#partialdate) or null | Native dataset last_updated date, independent of event dates and retrieval. Optional. |
+| `total` | integer (uint64) | Native application total, independent of product count. |
 
 ### DrugFdaCandidate
 
 One candidate application and its independent source-listed products.
 
-| Field | Type | Always present | Meaning |
-| --- | --- | --- | --- |
-| `identity` | [DrugHeader](/reference/schemas/types/#drugheader) | yes | Exact native application identity; no product has been selected. |
-| `products` | list of [DrugFdaProduct](/reference/schemas/types/#drugfdaproduct) | yes | Complete native product candidates within this application. |
+| Field | Type | Meaning |
+| --- | --- | --- |
+| `identity` | [DrugHeader](/reference/schemas/types/#drugheader) | Exact native application identity; no product has been selected. |
+| `products` | list of [DrugFdaProduct](/reference/schemas/types/#drugfdaproduct) | Complete native product candidates within this application. |
 
 ## Next
 
-[Reply envelope and shared types](/reference/schemas/types/) defines `status`, `sources`, `next` and every shared type. [Reply schemas](/reference/schemas/) lists every reply. [`biomcp search drug`](/reference/commands/search-drug/) gives the command's arguments.
+[`biomcp search drug`](/reference/commands/search-drug/) gives the command's arguments; [reply schemas](/reference/schemas/) lists every reply.

@@ -11,7 +11,7 @@ kind: reference
 verified: 2026-10-27
 ---
 
-BioMCP 1.0.0 prints one JSON object, the reply, for each command. [`biomcp author papers`](/reference/commands/author-papers/) replies with `schema` set to `biomcp.author_paper_details/1`. Read this page when your code parses that reply. It shows a real reply, then the fields that only this schema has. The fields every reply shares are on [reply envelope and shared types](/reference/schemas/types/).
+BioMCP 1.0.0 prints one JSON object, the reply, for each command. [`biomcp author papers`](/reference/commands/author-papers/) replies with `schema` set to `biomcp.author_paper_details/1`. Read this page when your code parses that reply: it shows a real one, then the fields only this schema has. [Shared types](/reference/schemas/types/) defines the rest.
 
 ## Commands that return it
 
@@ -25,7 +25,7 @@ biomcp author papers semantic-scholar:123 details
 
 ## Example reply
 
-`biomcp author papers semantic-scholar:123 details` returned this reply on 2026-10-27. Lists show their first items, and a line that starts with … counts the items left out. Text that ends in … is cut.
+`biomcp author papers semantic-scholar:123 details` returned this on 2026-10-27. Lists show their first items; a line with … counts the rest, and text ending in … is cut.
 
 ```json
 {
@@ -52,55 +52,57 @@ biomcp author papers semantic-scholar:123 details
 
 ## Fields
 
+A field marked Optional can be missing from a reply. Every other field is always there.
+
 `result` holds [AuthorPaperDetails](#authorpaperdetails). `query` holds [AuthorPapersQuery](/reference/schemas/types/#authorpapersquery), a shared type. `query` repeats the request as BioMCP read it.
 
 ### AuthorPaperDetails
 
 Detailed metadata for the same native indexed-paper window.
 
-| Field | Type | Always present | Meaning |
-| --- | --- | --- | --- |
-| `author` | [AuthorId](/reference/schemas/types/#authorid) | yes | Requested provider record. |
-| `items` | list of [AuthorPaperDetail](#authorpaperdetail) | yes | Original source order; no native corpus total is claimed. |
+| Field | Type | Meaning |
+| --- | --- | --- |
+| `author` | [AuthorId](/reference/schemas/types/#authorid) | Requested provider record. |
+| `items` | list of [AuthorPaperDetail](#authorpaperdetail) | Original source order; no native corpus total is claimed. |
 
 ### AuthorByline
 
 One source byline row; repeated display names remain separate.
 
-| Field | Type | Always present | Meaning |
-| --- | --- | --- | --- |
-| `id` | [SemanticScholarAuthorId](/reference/schemas/types/#semanticscholarauthorid) or null | no | Source author ID when supplied. |
-| `name` | [Text](/reference/schemas/types/#text) | yes | Native display name. |
+| Field | Type | Meaning |
+| --- | --- | --- |
+| `id` | [SemanticScholarAuthorId](/reference/schemas/types/#semanticscholarauthorid) or null | Source author ID when supplied. Optional. |
+| `name` | [Text](/reference/schemas/types/#text) | Native display name. |
 
 ### AuthorPaperAccess
 
 Native access metadata; access does not establish reuse rights.
 
-| Field | Type | Always present | Meaning |
-| --- | --- | --- | --- |
-| `disclaimer` | [Text](/reference/schemas/types/#text) or null | no | Native source disclaimer. |
-| `license` | [Text](/reference/schemas/types/#text) or null | no | Native license label. |
-| `status` | [Text](/reference/schemas/types/#text) or null | no | Open native access status. |
-| `url` | [Text](/reference/schemas/types/#text) or null | no | Native PDF URL. |
+| Field | Type | Meaning |
+| --- | --- | --- |
+| `disclaimer` | [Text](/reference/schemas/types/#text) or null | Native source disclaimer. Optional. |
+| `license` | [Text](/reference/schemas/types/#text) or null | Native license label. Optional. |
+| `status` | [Text](/reference/schemas/types/#text) or null | Open native access status. Optional. |
+| `url` | [Text](/reference/schemas/types/#text) or null | Native PDF URL. Optional. |
 
 ### AuthorPaperDetail
 
 Detailed indexed paper metadata for the same native paper page.
 
-| Field | Type | Always present | Meaning |
-| --- | --- | --- | --- |
-| `abstract_text` | [Text](/reference/schemas/types/#text) or null | no | Source abstract when available. |
-| `authors` | list of [AuthorByline](#authorbyline) or null | no | Native ordered byline; completeness is unknown. |
-| `citation_count` | integer or null | no | Native citations to this paper. |
-| `fields_of_study` | list of [Text](/reference/schemas/types/#text) or null | no | Native study labels. |
-| `header` | [AuthorPaperHeader](/reference/schemas/types/#authorpaperheader) | yes | Same compact paper identity. |
-| `influential_citation_count` | integer or null | no | Native influential citations to this paper. |
-| `is_open_access` | boolean or null | no | Native open-access flag. |
-| `open_access_pdf` | [AuthorPaperAccess](#authorpaperaccess) or null | no | Native access metadata. |
-| `publication_date` | [PartialDate](/reference/schemas/types/#partialdate) or null | no | Native publication date. |
-| `publication_types` | list of [Text](/reference/schemas/types/#text) or null | no | Native publication type labels. |
-| `reference_count` | integer or null | no | Native references on this paper. |
+| Field | Type | Meaning |
+| --- | --- | --- |
+| `abstract_text` | [Text](/reference/schemas/types/#text) or null | Source abstract when available. Optional. |
+| `authors` | list of [AuthorByline](#authorbyline) or null | Native ordered byline; completeness is unknown. Optional. |
+| `citation_count` | integer or null | Native citations to this paper. Optional. |
+| `fields_of_study` | list of [Text](/reference/schemas/types/#text) or null | Native study labels. Optional. |
+| `header` | [AuthorPaperHeader](/reference/schemas/types/#authorpaperheader) | Same compact paper identity. |
+| `influential_citation_count` | integer or null | Native influential citations to this paper. Optional. |
+| `is_open_access` | boolean or null | Native open-access flag. Optional. |
+| `open_access_pdf` | [AuthorPaperAccess](#authorpaperaccess) or null | Native access metadata. Optional. |
+| `publication_date` | [PartialDate](/reference/schemas/types/#partialdate) or null | Native publication date. Optional. |
+| `publication_types` | list of [Text](/reference/schemas/types/#text) or null | Native publication type labels. Optional. |
+| `reference_count` | integer or null | Native references on this paper. Optional. |
 
 ## Next
 
-[Reply envelope and shared types](/reference/schemas/types/) defines `status`, `sources`, `next` and every shared type. [Reply schemas](/reference/schemas/) lists every reply. [`biomcp author papers`](/reference/commands/author-papers/) gives the command's arguments.
+[`biomcp author papers`](/reference/commands/author-papers/) gives the command's arguments; [reply schemas](/reference/schemas/) lists every reply.

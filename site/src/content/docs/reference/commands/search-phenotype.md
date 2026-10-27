@@ -53,4 +53,4 @@ The reply is one JSON object. Its schema is [`biomcp.phenotype-search/1`](/refer
 
 ## Next
 
-[Exit codes](/reference/error-codes/) gives what each exit code means, and [global options](/reference/global-options/) the options every command takes. The [phenotype guide](/user-guide/phenotype/) shows every phenotype command at work.
+The [phenotype guide](/user-guide/phenotype/) shows every phenotype command at work. [Exit codes](/reference/error-codes/) gives what each exit code means, and [global options](/reference/global-options/) the options every command takes.

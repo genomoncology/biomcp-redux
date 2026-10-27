@@ -11,7 +11,7 @@ kind: reference
 verified: 2026-10-27
 ---
 
-BioMCP 1.0.0 prints one JSON object, the reply, for each command. [`biomcp pathway events`](/reference/commands/pathway-events/) replies with `schema` set to `biomcp.pathway_events/2`. Read this page when your code parses that reply. It shows a real reply, then the fields that only this schema has. The fields every reply shares are on [reply envelope and shared types](/reference/schemas/types/).
+BioMCP 1.0.0 prints one JSON object, the reply, for each command. [`biomcp pathway events`](/reference/commands/pathway-events/) replies with `schema` set to `biomcp.pathway_events/2`. Read this page when your code parses that reply: it shows a real one, then the fields only this schema has. [Shared types](/reference/schemas/types/) defines the rest.
 
 ## Commands that return it
 
@@ -26,7 +26,7 @@ biomcp pathway events R-HSA-5673001 --limit 50
 
 ## Example reply
 
-`biomcp pathway events R-HSA-5673001` returned this reply on 2026-10-27. Lists show their first items, and a line that starts with … counts the items left out. Text that ends in … is cut.
+`biomcp pathway events R-HSA-5673001` returned this on 2026-10-27. Lists show their first items; a line with … counts the rest, and text ending in … is cut.
 
 ```json
 {
@@ -41,17 +41,8 @@ biomcp pathway events R-HSA-5673001 --limit 50
       "version": "R-HSA-5673001.12"
     },
     "items": [
-      {
-        "kind": "object",
-        "db_id": 5675206,
-        "id": "R-HSA-5675206",
-        "source_url": "https://reactome.org/content/detail/R-HSA-5675206",
-        "version": "R-HSA-5675206.2",
-        "name": "PEA15 binds MAPK monomers and dimers",
-        "schema_class": "Reaction"
-      },
-      {"kind": "database", "db_id": 5674385},
-      … 3 more
+      {…},
+      … 4 more
     ],
     "page": {
       "offset": 0,
@@ -59,12 +50,7 @@ biomcp pathway events R-HSA-5673001 --limit 50
       "total": 81,
       "total_kind": "observed",
       "next_offset": 5,
-      "pool": {
-        "id": "bc11fae544162020ea8498544c4ef476",
-        "size": 81,
-        "created": 1793140307,
-        "expires": 1793226707
-      }
+      "pool": {…}
     }
   },
   "sources": [
@@ -83,12 +69,12 @@ biomcp pathway events R-HSA-5673001 --limit 50
         "pathway", "events", "R-HSA-5673001", "--offset", "5", "--pool",
         "bc11fae544162020ea8498544c4ef476"
       ]
-    }
-  ]
-}
+…
 ```
 
 ## Fields
+
+A field marked Optional can be missing from a reply. Every other field is always there.
 
 `result` holds [PathwayEvents](/reference/schemas/types/#pathwayevents), a shared type. `query` holds [PathwayEventsQuery](#pathwayeventsquery). `query` repeats the request as BioMCP read it.
 
@@ -96,13 +82,13 @@ biomcp pathway events R-HSA-5673001 --limit 50
 
 Read Reactome event objects and unresolved native integer references in source order. Membership names a source and release; it implies no therapy, response or actionability. No enrichment is calculated.
 
-| Field | Type | Always present | Meaning |
-| --- | --- | --- | --- |
-| `id` | string | yes | Checked source-owned human pathway identity. |
-| `limit` | integer (uint32) | no | Five complete relation rows by default, at most fifty. |
-| `offset` | integer (uint32) | no | Offset within the retained selected relation. |
-| `pool` | [Text](/reference/schemas/types/#text) | no | Immutable relation snapshot. |
+| Field | Type | Meaning |
+| --- | --- | --- |
+| `id` | string | Checked source-owned human pathway identity. |
+| `limit` | integer (uint32) | Five complete relation rows by default, at most fifty. Optional. |
+| `offset` | integer (uint32) | Offset within the retained selected relation. Optional. |
+| `pool` | [Text](/reference/schemas/types/#text) | Immutable relation snapshot. Optional. |
 
 ## Next
 
-[Reply envelope and shared types](/reference/schemas/types/) defines `status`, `sources`, `next` and every shared type. [Reply schemas](/reference/schemas/) lists every reply. [`biomcp pathway events`](/reference/commands/pathway-events/) gives the command's arguments.
+[`biomcp pathway events`](/reference/commands/pathway-events/) gives the command's arguments; [reply schemas](/reference/schemas/) lists every reply.

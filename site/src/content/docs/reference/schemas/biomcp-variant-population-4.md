@@ -11,7 +11,7 @@ kind: reference
 verified: 2026-10-27
 ---
 
-BioMCP 1.0.0 prints one JSON object, the reply, for each command. [`biomcp variant population`](/reference/commands/variant-population/) replies with `schema` set to `biomcp.variant_population/4`. Read this page when your code parses that reply. It shows a real reply, then the fields that only this schema has. The fields every reply shares are on [reply envelope and shared types](/reference/schemas/types/).
+BioMCP 1.0.0 prints one JSON object, the reply, for each command. [`biomcp variant population`](/reference/commands/variant-population/) replies with `schema` set to `biomcp.variant_population/4`. Read this page when your code parses that reply: it shows a real one, then the fields only this schema has. [Shared types](/reference/schemas/types/) defines the rest.
 
 ## Commands that return it
 
@@ -26,7 +26,7 @@ biomcp variant population CA118786 --detail --limit 50
 
 ## Example reply
 
-`biomcp variant population CA118786 --detail --limit 50` returned this reply on 2026-10-27. Lists show their first items, and a line that starts with … counts the items left out. Text that ends in … is cut.
+`biomcp variant population CA118786 --detail --limit 50` returned this on 2026-10-27. Lists show their first items; a line with … counts the rest, and text ending in … is cut.
 
 ```json
 {
@@ -69,20 +69,12 @@ biomcp variant population CA118786 --detail --limit 50
       "code": "value.unknown"
     },
     … 248 more
-  ],
-  "next": [
-    {
-      "kind": "page",
-      "args": [
-        "variant", "population", "CA118786", "--detail", "--limit", "50",
-        "--offset", "50"
-      ]
-    }
-  ]
-}
+…
 ```
 
 ## Fields
+
+A field marked Optional can be missing from a reply. Every other field is always there.
 
 `result` holds [VariantPopulationResult](#variantpopulationresult). `query` holds [VariantPopulationQuery](#variantpopulationquery). `query` repeats the request as BioMCP read it.
 
@@ -90,24 +82,24 @@ biomcp variant population CA118786 --detail --limit 50
 
 Population summary and one explicitly requested ancestry-detail page.
 
-| Field | Type | Always present | Meaning |
-| --- | --- | --- | --- |
-| `groups` | list of [GnomadCounts](/reference/schemas/types/#gnomadcounts) | no | Selected native groups, qualified by sequencing subset. |
-| `population` | [Section](/reference/schemas/types/#section) of [VariantPopulation](/reference/schemas/types/#variantpopulation) | yes | Source population state; missing datasets stay absent within its summary. |
+| Field | Type | Meaning |
+| --- | --- | --- |
+| `groups` | list of [GnomadCounts](/reference/schemas/types/#gnomadcounts) | Selected native groups, qualified by sequencing subset. Optional. |
+| `population` | [Section](/reference/schemas/types/#section) of [VariantPopulation](/reference/schemas/types/#variantpopulation) | Source population state; missing datasets stay absent within its summary. |
 
 ### VariantPopulationQuery
 
 Read a bounded ancestry-detail page from the exact source-given GRCh38 allele.
 
-| Field | Type | Always present | Meaning |
-| --- | --- | --- | --- |
-| `build` | [Build](/reference/schemas/types/#build) or null | no | Explicit source assembly when required by identity input. |
-| `detail` | boolean | no | Read source ancestry groups, preserving overlapping groups individually. |
-| `input` | [VariantInput](/reference/schemas/types/#variantinput) | yes | Exact published allele identity; ambiguous candidates must first be selected. |
-| `limit` | integer (uint32) | no | Maximum rows per page. |
-| `offset` | integer (uint32) | no | Native rows to skip. |
-| `resolver` | [VariantResolver](/reference/schemas/types/#variantresolver) | no | Resolver for reference-qualified input. |
+| Field | Type | Meaning |
+| --- | --- | --- |
+| `build` | [Build](/reference/schemas/types/#build) or null | Explicit source assembly when required by identity input. Optional. |
+| `detail` | boolean | Read source ancestry groups, preserving overlapping groups individually. Optional. |
+| `input` | [VariantInput](/reference/schemas/types/#variantinput) | Exact published allele identity; ambiguous candidates must first be selected. |
+| `limit` | integer (uint32) | Maximum rows per page. Optional. |
+| `offset` | integer (uint32) | Native rows to skip. Optional. |
+| `resolver` | [VariantResolver](/reference/schemas/types/#variantresolver) | Resolver for reference-qualified input. Optional. |
 
 ## Next
 
-[Reply envelope and shared types](/reference/schemas/types/) defines `status`, `sources`, `next` and every shared type. [Reply schemas](/reference/schemas/) lists every reply. [`biomcp variant population`](/reference/commands/variant-population/) gives the command's arguments.
+[`biomcp variant population`](/reference/commands/variant-population/) gives the command's arguments; [reply schemas](/reference/schemas/) lists every reply.

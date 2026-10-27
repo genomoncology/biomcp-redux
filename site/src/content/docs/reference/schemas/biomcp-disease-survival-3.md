@@ -11,7 +11,7 @@ kind: reference
 verified: 2026-10-27
 ---
 
-BioMCP 1.0.0 prints one JSON object, the reply, for each command. [`biomcp get disease survival`](/reference/commands/get-disease/) and [`biomcp get disease`](/reference/commands/get-disease/) reply with `schema` set to `biomcp.disease_survival/3`. Read this page when your code parses that reply. It shows a real reply, then the fields that only this schema has. The fields every reply shares are on [reply envelope and shared types](/reference/schemas/types/).
+BioMCP 1.0.0 prints one JSON object, the reply, for each command. [`biomcp get disease survival`](/reference/commands/get-disease/) and [`biomcp get disease`](/reference/commands/get-disease/) reply with `schema` set to `biomcp.disease_survival/3`. Read this page when your code parses that reply: it shows a real one, then the fields only this schema has. [Shared types](/reference/schemas/types/) defines the rest.
 
 ## Commands that return it
 
@@ -26,7 +26,7 @@ biomcp get disease 55 survival --source seer --sex 3 --race 1 --age-range 1 \
 
 ## Example reply
 
-`biomcp get disease 55 survival --source seer --sex 3 --race 1 --age-range 1 --dataset 4 --interval 5 --section-limit 5` returned this reply on 2026-10-27. Lists show their first items, and a line that starts with … counts the items left out. Text that ends in … is cut.
+`biomcp get disease 55 survival --source seer --sex 3 --race 1 --age-range 1 --dataset 4 --interval 5 --section-limit 5` returned this on 2026-10-27. Lists show their first items; a line with … counts the rest, and text ending in … is cut.
 
 ```json
 {
@@ -69,18 +69,12 @@ biomcp get disease 55 survival --source seer --sex 3 --race 1 --age-range 1 \
   "next": [
     {
       "kind": "page",
-      "args": [
-        "get", "disease", "55", "survival", "--age-range", "1", "--dataset",
-        "4",
-        … 12 more
-      ]
-    },
-    … 1 more
-  ]
-}
+…
 ```
 
 ## Fields
+
+A field marked Optional can be missing from a reply. Every other field is always there.
 
 `result` holds [DiseaseSurvival](#diseasesurvival). `query` holds [DiseaseGet](/reference/schemas/types/#diseaseget), a shared type. `query` repeats the request as BioMCP read it.
 
@@ -88,12 +82,12 @@ biomcp get disease 55 survival --source seer --sex 3 --race 1 --age-range 1 \
 
 Native annual survival rows with separate observed and modeled values.
 
-| Field | Type | Always present | Meaning |
-| --- | --- | --- | --- |
-| `components` | list of [ComponentLabel](/reference/schemas/types/#componentlabel) | yes | Applicable component use terms, independent of row provenance. |
-| `fetched` | integer or null | no | Original response retrieval time in Unix seconds, distinct from dataset publication. |
-| `items` | list of [DiseaseStatistic](/reference/schemas/types/#diseasestatistic) | yes | Rows as the source gives them. Totals in `page` count rows, not distinct records. |
+| Field | Type | Meaning |
+| --- | --- | --- |
+| `components` | list of [ComponentLabel](/reference/schemas/types/#componentlabel) | Applicable component use terms, independent of row provenance. |
+| `fetched` | integer or null | Original response retrieval time in Unix seconds, distinct from dataset publication. Optional. |
+| `items` | list of [DiseaseStatistic](/reference/schemas/types/#diseasestatistic) | Rows as the source gives them. Totals in `page` count rows, not distinct records. |
 
 ## Next
 
-[Reply envelope and shared types](/reference/schemas/types/) defines `status`, `sources`, `next` and every shared type. [Reply schemas](/reference/schemas/) lists every reply. [`biomcp get disease`](/reference/commands/get-disease/) gives the command's arguments.
+[`biomcp get disease`](/reference/commands/get-disease/) gives the command's arguments; [reply schemas](/reference/schemas/) lists every reply.

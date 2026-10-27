@@ -11,7 +11,7 @@ kind: reference
 verified: 2026-10-27
 ---
 
-BioMCP 1.0.0 prints one JSON object, the reply, for each command. [`biomcp search gene`](/reference/commands/search-gene/) replies with `schema` set to `biomcp.gene_page/3`. Read this page when your code parses that reply. It shows a real reply, then the fields that only this schema has. The fields every reply shares are on [reply envelope and shared types](/reference/schemas/types/).
+BioMCP 1.0.0 prints one JSON object, the reply, for each command. [`biomcp search gene`](/reference/commands/search-gene/) replies with `schema` set to `biomcp.gene_page/3`. Read this page when your code parses that reply: it shows a real one, then the fields only this schema has. [Shared types](/reference/schemas/types/) defines the rest.
 
 ## Commands that return it
 
@@ -26,7 +26,7 @@ biomcp search gene KRAS
 
 ## Example reply
 
-`biomcp search gene BRAF --limit 3` returned this reply on 2026-10-27. Lists show their first items, and a line that starts with … counts the items left out. Text that ends in … is cut.
+`biomcp search gene BRAF --limit 3` returned this on 2026-10-27. Lists show their first items; a line with … counts the rest, and text ending in … is cut.
 
 ```json
 {
@@ -44,14 +44,7 @@ biomcp search gene KRAS
         "name": "B-Raf proto-oncogene, serine/threonine kinase",
         "match": {"kind": "symbol", "text": "BRAF"}
       },
-      {
-        "hgnc_id": "HGNC:43877",
-        "symbol": "BANCR",
-        "locus_group": "non_coding_rna",
-        "status": "approved",
-        "name": "BRAF-activated non-protein coding RNA"
-      },
-      … 1 more
+      … 2 more
     ]
   },
   "page": {"offset": 0, "returned": 3, "total": 3},
@@ -75,28 +68,30 @@ biomcp search gene KRAS
 
 ## Fields
 
+A field marked Optional can be missing from a reply. Every other field is always there.
+
 `result` holds [GenePage](#genepage). `query` holds [GeneSearch](#genesearch). `query` repeats the request as BioMCP read it.
 
 ### GenePage
 
 One page of gene headers.
 
-| Field | Type | Always present | Meaning |
-| --- | --- | --- | --- |
-| `items` | list of [GeneHeader](/reference/schemas/types/#geneheader) | yes | Headers after ranking and paging. |
+| Field | Type | Meaning |
+| --- | --- | --- |
+| `items` | list of [GeneHeader](/reference/schemas/types/#geneheader) | Headers after ranking and paging. |
 
 ### GeneSearch
 
 Search genes by text, cytoband, or their intersection.
 
-| Field | Type | Always present | Meaning |
-| --- | --- | --- | --- |
-| `band` | [Cytoband](/reference/schemas/types/#cytoband) | no | A cytoband prefix. |
-| `limit` | integer (uint32) | no | Number of results per page. |
-| `locus_group` | [LocusGroup](/reference/schemas/types/#locusgroup) | no | Optional HGNC locus group intersected with the selector. |
-| `offset` | integer (uint32) | no | Number of results to skip. |
-| `query` | [Text](/reference/schemas/types/#text) | no | Words matched against symbols, previous symbols, aliases and names. |
+| Field | Type | Meaning |
+| --- | --- | --- |
+| `band` | [Cytoband](/reference/schemas/types/#cytoband) | A cytoband prefix. Optional. |
+| `limit` | integer (uint32) | Number of results per page. Optional. |
+| `locus_group` | [LocusGroup](/reference/schemas/types/#locusgroup) | Optional HGNC locus group intersected with the selector. Optional. |
+| `offset` | integer (uint32) | Number of results to skip. Optional. |
+| `query` | [Text](/reference/schemas/types/#text) | Words matched against symbols, previous symbols, aliases and names. Optional. |
 
 ## Next
 
-[Reply envelope and shared types](/reference/schemas/types/) defines `status`, `sources`, `next` and every shared type. [Reply schemas](/reference/schemas/) lists every reply. [`biomcp search gene`](/reference/commands/search-gene/) gives the command's arguments.
+[`biomcp search gene`](/reference/commands/search-gene/) gives the command's arguments; [reply schemas](/reference/schemas/) lists every reply.

@@ -12,11 +12,13 @@ kind: reference
 verified: 2026-10-27
 ---
 
-BioMCP 1.0.0 prints one JSON object, the reply, for each command. The reply schema `biomcp.adverse_event_identifiers/1` is in the program, but no command returns it as a whole reply. Read this page when your code parses that reply. It shows a real reply, then the fields that only this schema has. The fields every reply shares are on [reply envelope and shared types](/reference/schemas/types/).
+BioMCP 1.0.0 prints one JSON object, the reply, for each command. The reply schema `biomcp.adverse_event_identifiers/1` is in the program, but no command returns it as a whole reply. Read this page when your code parses that reply: it shows a real one, then the fields only this schema has. [Shared types](/reference/schemas/types/) defines the rest.
 
 The identifier sections of `get adverse-event`, such as `unii` and `rxcui`, are listed in the help, but BioMCP refuses them with `usage.arguments`, so no command returns this schema.
 
 ## Fields
+
+A field marked Optional can be missing from a reply. Every other field is always there.
 
 `result` holds [AdverseEventIdentifiers](#adverseeventidentifiers). `query` holds [AdverseEventGet](/reference/schemas/types/#adverseeventget), a shared type. `query` repeats the request as BioMCP read it.
 
@@ -38,13 +40,13 @@ One of these forms:
 
 One selected original identifier array, owned by an absolute drug index.
 
-| Field | Type | Always present | Meaning |
-| --- | --- | --- | --- |
-| `drug_index` | integer (uint32) | yes | Absolute native drug-array index within this report snapshot. |
-| `offset` | integer (uint32) | yes | Original array offset. |
-| `records` | list of string | yes | Published identifier strings without rewriting. |
-| `total` | integer (uint64) | yes | Complete selected array length. |
+| Field | Type | Meaning |
+| --- | --- | --- |
+| `drug_index` | integer (uint32) | Absolute native drug-array index within this report snapshot. |
+| `offset` | integer (uint32) | Original array offset. |
+| `records` | list of string | Published identifier strings without rewriting. |
+| `total` | integer (uint64) | Complete selected array length. |
 
 ## Next
 
-[Reply envelope and shared types](/reference/schemas/types/) defines `status`, `sources`, `next` and every shared type. [Reply schemas](/reference/schemas/) lists every reply.
+[Reply schemas](/reference/schemas/) lists every reply.

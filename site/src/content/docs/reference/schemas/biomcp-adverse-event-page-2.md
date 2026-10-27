@@ -12,7 +12,7 @@ kind: reference
 verified: 2026-10-27
 ---
 
-BioMCP 1.0.0 prints one JSON object, the reply, for each command. [`biomcp search adverse-event`](/reference/commands/search-adverse-event/) replies with `schema` set to `biomcp.adverse_event_page/2`. Read this page when your code parses that reply. It shows a real reply, then the fields that only this schema has. The fields every reply shares are on [reply envelope and shared types](/reference/schemas/types/).
+BioMCP 1.0.0 prints one JSON object, the reply, for each command. [`biomcp search adverse-event`](/reference/commands/search-adverse-event/) replies with `schema` set to `biomcp.adverse_event_page/2`. Read this page when your code parses that reply: it shows a real one, then the fields only this schema has. [Shared types](/reference/schemas/types/) defines the rest.
 
 ## Commands that return it
 
@@ -27,7 +27,7 @@ biomcp search adverse-event pacemaker --source maude --limit 2
 
 ## Example reply
 
-`biomcp search adverse-event pacemaker --source maude --limit 2` returned this reply on 2026-10-27. Lists show their first items, and a line that starts with … counts the items left out. Text that ends in … is cut.
+`biomcp search adverse-event pacemaker --source maude --limit 2` returned this on 2026-10-27. Lists show their first items; a line with … counts the rest, and text ending in … is cut.
 
 ```json
 {
@@ -44,24 +44,12 @@ biomcp search adverse-event pacemaker --source maude --limit 2
     "source_updated": "2026-10-13",
     "fetched": "2026-10-27",
     "items": [
-      {
-        "id": "50941416",
-        "source": "maude",
-        "event_type": "Malfunction",
-        "first_received": "20260930"
-      },
+      {…},
       … 1 more
     ],
     "unit": "reports",
     "components": [
-      {
-        "component": "gmdn",
-        "terms": {
-          "usage": "restricted",
-          "name": "openFDA license: GMDN third-party terminology exceptions",
-          "url": "https://open.fda.gov/license/"
-        }
-      }
+      {…}
     ]
   },
   "page": {"offset": 0, "returned": 2, "total": 756370},
@@ -77,9 +65,7 @@ biomcp search adverse-event pacemaker --source maude --limit 2
   "next": [
     {
       "kind": "disambiguate",
-      "args": [
-        "get", "adverse-event", "50941416", "--source", "maude"
-      ]
+      "args": ["get", "adverse-event", "50941416", "--source", "maude"]
     },
     … 2 more
   ]
@@ -88,21 +74,23 @@ biomcp search adverse-event pacemaker --source maude --limit 2
 
 ## Fields
 
+A field marked Optional can be missing from a reply. Every other field is always there.
+
 `result` holds [AdverseEventPage](#adverseeventpage). `query` holds [AdverseEventSearch](/reference/schemas/types/#adverseeventsearch), a shared type. `query` repeats the request as BioMCP read it.
 
 ### AdverseEventPage
 
 Ordered report headers; totals count reports with no population denominator.
 
-| Field | Type | Always present | Meaning |
-| --- | --- | --- | --- |
-| `components` | list of [ComponentLabel](/reference/schemas/types/#componentlabel) | yes | Applicable component terms. |
-| `fetched` | [PartialDate](/reference/schemas/types/#partialdate) or null | no | Original retrieval date belonging to this reply, absent for undated legacy recordings. |
-| `items` | list of [AdverseEventHeader](/reference/schemas/types/#adverseeventheader) | yes | Native ordered report candidates. |
-| `reaction_match` | [AdverseEventReactionMatch](#adverseeventreactionmatch) or null | no | Explicit analyzed reaction selector semantics when a reaction was supplied. |
-| `source_query` | string | yes | Exact literal provider expression; reaction selectors use phrase match. |
-| `source_updated` | [PartialDate](/reference/schemas/types/#partialdate) or null | no | The publisher last_updated date, separate from retrieval. |
-| `unit` | [ReportUnit](#reportunit) | yes | Explicit reports unit for envelope page totals. |
+| Field | Type | Meaning |
+| --- | --- | --- |
+| `components` | list of [ComponentLabel](/reference/schemas/types/#componentlabel) | Applicable component terms. |
+| `fetched` | [PartialDate](/reference/schemas/types/#partialdate) or null | Original retrieval date belonging to this reply, absent for undated legacy recordings. Optional. |
+| `items` | list of [AdverseEventHeader](/reference/schemas/types/#adverseeventheader) | Native ordered report candidates. |
+| `reaction_match` | [AdverseEventReactionMatch](#adverseeventreactionmatch) or null | Explicit analyzed reaction selector semantics when a reaction was supplied. Optional. |
+| `source_query` | string | Exact literal provider expression; reaction selectors use phrase match. |
+| `source_updated` | [PartialDate](/reference/schemas/types/#partialdate) or null | The publisher last_updated date, separate from retrieval. Optional. |
+| `unit` | [ReportUnit](#reportunit) | Explicit reports unit for envelope page totals. |
 
 ### AdverseEventReactionMatch
 
@@ -120,4 +108,4 @@ The count describes reports, never exposed people or causal events.
 
 ## Next
 
-[Reply envelope and shared types](/reference/schemas/types/) defines `status`, `sources`, `next` and every shared type. [Reply schemas](/reference/schemas/) lists every reply. [`biomcp search adverse-event`](/reference/commands/search-adverse-event/) gives the command's arguments.
+[`biomcp search adverse-event`](/reference/commands/search-adverse-event/) gives the command's arguments; [reply schemas](/reference/schemas/) lists every reply.

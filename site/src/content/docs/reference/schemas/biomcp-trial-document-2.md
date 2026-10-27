@@ -11,7 +11,7 @@ kind: reference
 verified: 2026-10-27
 ---
 
-BioMCP 1.0.0 prints one JSON object, the reply, for each command. [`biomcp trial document`](/reference/commands/trial-document/) replies with `schema` set to `biomcp.trial_document/2`. Read this page when your code parses that reply. It shows a real reply, then the fields that only this schema has. The fields every reply shares are on [reply envelope and shared types](/reference/schemas/types/).
+BioMCP 1.0.0 prints one JSON object, the reply, for each command. [`biomcp trial document`](/reference/commands/trial-document/) replies with `schema` set to `biomcp.trial_document/2`. Read this page when your code parses that reply: it shows a real one, then the fields only this schema has. [Shared types](/reference/schemas/types/) defines the rest.
 
 ## Commands that return it
 
@@ -25,7 +25,7 @@ biomcp trial document NCT04303780 SAP_001.pdf --save protocol.pdf --replace
 
 ## Example reply
 
-`biomcp trial document NCT04303780 SAP_001.pdf --save protocol.pdf --replace` returned this reply on 2026-10-27. Lists show their first items, and a line that starts with … counts the items left out. Text that ends in … is cut.
+`biomcp trial document NCT04303780 SAP_001.pdf --save protocol.pdf --replace` returned this on 2026-10-27. Lists show their first items; a line with … counts the rest, and text ending in … is cut.
 
 ```json
 {
@@ -67,38 +67,40 @@ The source did not answer that run, so `status` is `failed` and `result` is miss
 
 ## Fields
 
+A field marked Optional can be missing from a reply. Every other field is always there.
+
 `result` holds [TrialDocumentResult](#trialdocumentresult). `query` holds [TrialDocumentGet](#trialdocumentget). `query` repeats the request as BioMCP read it.
 
 ### TrialDocumentResult
 
 Original trial PDF download, never document text.
 
-| Field | Type | Always present | Meaning |
-| --- | --- | --- | --- |
-| `file` | [Section](/reference/schemas/types/#section) of [TrialDocumentSaved](#trialdocumentsaved) | yes | Saved receipt, confirmed absence, or a source failure. |
+| Field | Type | Meaning |
+| --- | --- | --- |
+| `file` | [Section](/reference/schemas/types/#section) of [TrialDocumentSaved](#trialdocumentsaved) | Saved receipt, confirmed absence, or a source failure. |
 
 ### TrialDocumentGet
 
 Download one exact ClinicalTrials.gov manifest PDF to an explicit caller path; never read its text. CLI and stdio MCP support saves; HTTP refuses with the source URL.
 
-| Field | Type | Always present | Meaning |
-| --- | --- | --- | --- |
-| `file` | [Text](/reference/schemas/types/#text) | yes | Exact filename from the registry manifest; never a URL or inferred path. |
-| `input` | [NctId](/reference/schemas/types/#nctid) | yes | Exact registry identity. |
-| `replace` | boolean | no | Replace an existing file only when explicitly requested. |
-| `save` | [Text](/reference/schemas/types/#text) | yes | Caller-owned file or existing folder. |
+| Field | Type | Meaning |
+| --- | --- | --- |
+| `file` | [Text](/reference/schemas/types/#text) | Exact filename from the registry manifest; never a URL or inferred path. |
+| `input` | [NctId](/reference/schemas/types/#nctid) | Exact registry identity. |
+| `replace` | boolean | Replace an existing file only when explicitly requested. Optional. |
+| `save` | [Text](/reference/schemas/types/#text) | Caller-owned file or existing folder. |
 
 ### TrialDocumentSaved
 
 Receipt for exactly the original source bytes written by the caller.
 
-| Field | Type | Always present | Meaning |
-| --- | --- | --- | --- |
-| `bytes` | integer (uint64) | yes | Saved byte count. |
-| `document` | [TrialDocument](/reference/schemas/types/#trialdocument) | yes | Original manifest metadata and publisher URL. |
-| `path` | [Text](/reference/schemas/types/#text) | yes | Absolute caller-owned path. |
-| `sha256` | [Text](/reference/schemas/types/#text) | yes | SHA-256 of the complete saved bytes. |
+| Field | Type | Meaning |
+| --- | --- | --- |
+| `bytes` | integer (uint64) | Saved byte count. |
+| `document` | [TrialDocument](/reference/schemas/types/#trialdocument) | Original manifest metadata and publisher URL. |
+| `path` | [Text](/reference/schemas/types/#text) | Absolute caller-owned path. |
+| `sha256` | [Text](/reference/schemas/types/#text) | SHA-256 of the complete saved bytes. |
 
 ## Next
 
-[Reply envelope and shared types](/reference/schemas/types/) defines `status`, `sources`, `next` and every shared type. [Reply schemas](/reference/schemas/) lists every reply. [`biomcp trial document`](/reference/commands/trial-document/) gives the command's arguments.
+[`biomcp trial document`](/reference/commands/trial-document/) gives the command's arguments; [reply schemas](/reference/schemas/) lists every reply.

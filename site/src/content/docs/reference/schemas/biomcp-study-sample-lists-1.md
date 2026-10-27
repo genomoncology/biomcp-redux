@@ -12,7 +12,7 @@ kind: reference
 verified: 2026-10-27
 ---
 
-BioMCP 1.0.0 prints one JSON object, the reply, for each command. [`biomcp get study sample-lists`](/reference/commands/get-study/) replies with `schema` set to `biomcp.study_sample_lists/1`. Read this page when your code parses that reply. It shows a real reply, then the fields that only this schema has. The fields every reply shares are on [reply envelope and shared types](/reference/schemas/types/).
+BioMCP 1.0.0 prints one JSON object, the reply, for each command. [`biomcp get study sample-lists`](/reference/commands/get-study/) replies with `schema` set to `biomcp.study_sample_lists/1`. Read this page when your code parses that reply: it shows a real one, then the fields only this schema has. [Shared types](/reference/schemas/types/) defines the rest.
 
 ## Commands that return it
 
@@ -26,7 +26,7 @@ biomcp get study skcm_tcga sample-lists
 
 ## Example reply
 
-`biomcp get study skcm_tcga sample-lists` returned this reply on 2026-10-27. Lists show their first items, and a line that starts with … counts the items left out. Text that ends in … is cut.
+`biomcp get study skcm_tcga sample-lists` returned this on 2026-10-27. Lists show their first items; a line with … counts the rest, and text ending in … is cut.
 
 ```json
 {
@@ -41,23 +41,8 @@ biomcp get study skcm_tcga sample-lists
   "result": {
     "study_id": "skcm_tcga",
     "items": [
-      {
-        "sampleListId": "skcm_tcga_3way_complete",
-        "studyId": "skcm_tcga",
-        "category": "all_cases_with_mutation_and_cna_and_mrna_data",
-        "name": "Complete samples",
-        "description": "Samples with mutation, CNA and expression data (287 s…",
-        "sampleCount": 287
-      },
-      {
-        "sampleListId": "skcm_tcga_all",
-        "studyId": "skcm_tcga",
-        "category": "all_cases_in_study",
-        "name": "All samples",
-        "description": "All samples (480 samples)",
-        "sampleCount": 480
-      },
-      … 3 more
+      {…},
+      … 4 more
     ],
     "page": {"offset": 0, "returned": 5, "total": 9},
     "acquired": 1793140313
@@ -85,10 +70,12 @@ biomcp get study skcm_tcga sample-lists
 
 ## Fields
 
+A field marked Optional can be missing from a reply. Every other field is always there.
+
 `result` holds [StudySampleLists](/reference/schemas/types/#studysamplelists), a shared type. `query` holds [StudyGet](/reference/schemas/types/#studyget), a shared type. `query` repeats the request as BioMCP read it.
 
 Every type this reply uses is shared with other replies, so its fields are on the shared types page.
 
 ## Next
 
-[Reply envelope and shared types](/reference/schemas/types/) defines `status`, `sources`, `next` and every shared type. [Reply schemas](/reference/schemas/) lists every reply. [`biomcp get study`](/reference/commands/get-study/) gives the command's arguments.
+[`biomcp get study`](/reference/commands/get-study/) gives the command's arguments; [reply schemas](/reference/schemas/) lists every reply.

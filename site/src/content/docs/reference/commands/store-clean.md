@@ -32,4 +32,4 @@ The reply is one JSON object. Its schema is [`biomcp.store-clean/1`](/reference/
 
 ## Next
 
-[Exit codes](/reference/error-codes/) gives what each exit code means, and [global options](/reference/global-options/) the options every command takes. The [commands index](/reference/commands/) lists every command.
+The [commands index](/reference/commands/) lists every command.

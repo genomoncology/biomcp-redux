@@ -309,9 +309,10 @@ const wrapCommand = (words, width = 80) => {
 const fieldRows = (def, ctx, id, params) => {
   const props = Object.entries(def?.properties ?? {});
   const req = def?.required ?? [];
-  return props.map(([k, v]) => `| ${code(k)} | ${cell(typeMd(v, ctx, id, params))} | ${req.includes(k) ? 'yes' : 'no'} | ${cell(plainDesc(v.description))} |`);
+  return props.map(([k, v]) => `| ${code(k)} | ${cell(typeMd(v, ctx, id, params))} | ${cell([plainDesc(v.description), req.includes(k) ? '' : 'Optional.'].filter(Boolean).join(' '))} |`);
 };
-const FIELD_HEAD = ['| Field | Type | Always present | Meaning |', '| --- | --- | --- | --- |'];
+// A field marked Optional may be missing from a reply; every other field is always present.
+const FIELD_HEAD = ['| Field | Type | Meaning |', '| --- | --- | --- |'];
 // One type's definition: its meaning, then its fields, values or forms.
 function describeType(name, def, ctx, id, params = new Map()) {
   const out = [`### ${name}`, ''];
@@ -340,7 +341,7 @@ function describeType(name, def, ctx, id, params = new Map()) {
 
 // One real reply as pretty JSON, cut so no line passes 80 characters: lists keep their first
 // items and end with a "…" line, long text ends with "…", and deep values become {…}.
-function sketch(reply, { width = 80, maxLines = 60 } = {}) {
+function sketch(reply, { width = 80, maxLines = 40 } = {}) {
   const isCut = (x) => x && typeof x === 'object' && !Array.isArray(x) && Object.keys(x).length === 1 && '…' in x;
   // One line of JSON, or null when the value holds a cut list.
   const compact = (v) => {
@@ -463,11 +464,17 @@ for (const c of [...help, ...topics]) {
     lines.push('## Examples', '', `The program's help gives ${c.examples.length > 1 ? 'these examples' : 'this example'}.`, '');
     for (const e of c.examples) lines.push('```sh', wrapCommand(['biomcp', ...e.map(quote)]), '```', '');
   }
+  const keyInfo = c.command[0] === 'help' && c.command[1] === 'key' ? keys.find((k) => k.name === c.command[2]) : null;
+  if (keyInfo) {
+    lines.push('## The key', '', `${code('biomcp help key ' + keyInfo.name)} reports these settings for the ${keyInfo.name} key:`, '', '| Setting | Value |', '| --- | --- |',
+      `| Set it with | ${code(keyInfo.guidance ?? 'biomcp key set ' + keyInfo.name)} |`, `| Source it unlocks | [${keyInfo.source}](${srcRoute(keyInfo.source)}) |`, `| Field in config.json | ${code(keyInfo.config)} |`, `| Environment variable | ${code(keyInfo.environment)} |`, '',
+      `[Keys and configuration](/getting-started/api-keys/) shows how to set it.`, '');
+  }
   if (replies.length) {
     lines.push('## Reply', '', `The reply is one JSON object. ${replies.length > 1 ? 'Its schema is one of' : 'Its schema is'} ${replies.map((id) => `[${code(id)}](${schemaRoute(id)})`).join(', ')}, whose page shows a real reply and its fields.`, '');
   }
   const e = ENTITY_OF(c);
-  lines.push('## Next', '', `[Exit codes](/reference/error-codes/) gives what each exit code means, and [global options](/reference/global-options/) the options every command takes. ${entities.includes(e) ? `The [${e} guide](/user-guide/${e}/) shows every ${e} command at work.` : 'The [commands index](/reference/commands/) lists every command.'}`);
+  lines.push('## Next', '', entities.includes(e) ? `The [${e} guide](/user-guide/${e}/) shows every ${e} command at work. [Exit codes](/reference/error-codes/) gives what each exit code means, and [global options](/reference/global-options/) the options every command takes.` : `The [commands index](/reference/commands/) lists every command.`);
   write(`commands/${slug(c)}.md`, lines.join('\n'));
 }
 
@@ -531,7 +538,7 @@ for (const c of [...help, ...topics]) {
     const cmdList = cmds.map((x) => `[${code(shownCommand(x))}](${route(x.c)})`);
     const lines = [
       fm({ title, description: `The JSON reply ${site.product} ${site.version} prints for ${main ? shownCommand(main) : `no command (${readable(id)})`}: a real example and the fields of schema ${id}.`, goal: `Parse the ${id} reply: see a real example and what each field means.`, reader: 'A developer or agent parsing BioMCP JSON', sidebar: { label: id } }),
-      `${site.product} ${site.version} prints one JSON object, the reply, for each command. ${main ? `${cmdList.length > 1 ? `${cmdList.slice(0, -1).join(', ')} and ${cmdList.at(-1)} reply` : `${cmdList[0]} replies`} with ${code('schema')} set to ${code(id)}.` : `The reply schema ${code(id)} is in the program, but no command returns it as a whole reply.`} Read this page when your code parses that reply. It shows a real reply, then the fields that only this schema has. The fields every reply shares are on [reply envelope and shared types](${TYPES_ROUTE}).`,
+      `${site.product} ${site.version} prints one JSON object, the reply, for each command. ${main ? `${cmdList.length > 1 ? `${cmdList.slice(0, -1).join(', ')} and ${cmdList.at(-1)} reply` : `${cmdList[0]} replies`} with ${code('schema')} set to ${code(id)}.` : `The reply schema ${code(id)} is in the program, but no command returns it as a whole reply.`} Read this page when your code parses that reply: it shows a real one, then the fields only this schema has. [Shared types](${TYPES_ROUTE}) defines the rest.`,
       '',
     ];
     if (!main) lines.push(note, '');
@@ -540,10 +547,13 @@ for (const c of [...help, ...topics]) {
       lines.push(`${code('biomcp schema ' + id)} prints the full JSON Schema.`, '');
     } else if (main) lines.push(`${code('biomcp schema ' + id)} prints the full JSON Schema.`, '');
     if (ex) {
-      lines.push('## Example reply', '', `${code(['biomcp', ...ex.args.map(quote)].join(' '))} returned this reply on ${ex.ran}. Lists show their first items, and a line that starts with … counts the items left out. Text that ends in … is cut.`, '', '```json', sketch(ex.reply), '```', '');
+      // The envelope's sources and next lists are the same on every page; one item of each is enough.
+      const one = (xs) => (Array.isArray(xs) && xs.length > 1 ? [xs[0], { '…': xs.slice(1).reduce((n, x) => n + (x && typeof x === 'object' && '…' in x ? x['…'] : 1), 0) }] : xs);
+      const reply = { ...ex.reply, ...(ex.reply.sources ? { sources: one(ex.reply.sources) } : {}), ...(ex.reply.next ? { next: one(ex.reply.next) } : {}) };
+      lines.push('## Example reply', '', `${code(['biomcp', ...ex.args.map(quote)].join(' '))} returned this on ${ex.ran}. Lists show their first items; a line with … counts the rest, and text ending in … is cut.`, '', '```json', sketch(reply), '```', '');
       if (ex.reply.status === 'failed') lines.push(`The source did not answer that run, so ${code('status')} is ${code('failed')} and ${code('result')} is missing. A reply that succeeds fills ${code('result')} with the fields below.`, '');
     }
-    lines.push('## Fields', '');
+    lines.push('## Fields', '', 'A field marked Optional can be missing from a reply. Every other field is always there.', '');
     const say = (field, n) => {
       if (!n) return null;
       const t = typeHome.of.get(`${id}\u0000${n}`);
@@ -552,7 +562,7 @@ for (const c of [...help, ...topics]) {
     lines.push([say('result', resultRef), say('query', queryRef)].filter(Boolean).join(' ') + ` ${code('query')} repeats the request as BioMCP read it.`, '');
     if (!order.length) lines.push('Every type this reply uses is shared with other replies, so its fields are on the shared types page.', '');
     for (const n of order) lines.push(...describeType(n, defs[n], id, id));
-    lines.push('## Next', '', `[Reply envelope and shared types](${TYPES_ROUTE}) defines ${code('status')}, ${code('sources')}, ${code('next')} and every shared type. [Reply schemas](/reference/schemas/) lists every reply.${main ? ` [${code(shownCommand({ c: main.c, section: null }))}](${route(main.c)}) gives the command's arguments.` : ''}`);
+    lines.push('## Next', '', main ? `[${code(shownCommand({ c: main.c, section: null }))}](${route(main.c)}) gives the command's arguments; [reply schemas](/reference/schemas/) lists every reply.` : '[Reply schemas](/reference/schemas/) lists every reply.');
     write(`schemas/${schemaSlug(id)}.md`, lines.join('\n'));
   }
 
@@ -561,7 +571,7 @@ for (const c of [...help, ...topics]) {
     const env = replySchemas[0].schema;
     const envRows = Object.entries(env.properties).map(([k, v]) => {
       const t = k === 'result' ? 'the result type of each schema, or null' : k === 'query' ? 'the query type of each schema' : k === 'schema' ? 'string' : cell(typeMd(v, 'shared', replySchemas[0].id));
-      return `| ${code(k)} | ${t} | ${(env.required ?? []).includes(k) ? 'yes' : 'no'} | ${cell(plainDesc(v.description) || (k === 'schema' ? 'The reply schema ID, such as `biomcp.gene_cards/4`.' : ''))} |`;
+      return `| ${code(k)} | ${t} | ${cell([plainDesc(v.description) || (k === 'schema' ? 'The reply schema ID, such as `biomcp.gene_cards/4`.' : ''), (env.required ?? []).includes(k) ? '' : 'Optional.'].filter(Boolean).join(' '))} |`;
     });
     const words = Object.entries(schemaNotes.words ?? {}).map(([w, m]) => `| ${w} | ${cell(m)} |`);
     const lines = [

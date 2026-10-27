@@ -11,7 +11,7 @@ kind: reference
 verified: 2026-10-27
 ---
 
-BioMCP 1.0.0 prints one JSON object, the reply, for each command. [`biomcp protein features`](/reference/commands/protein-features/) replies with `schema` set to `biomcp.protein_features/1`. Read this page when your code parses that reply. It shows a real reply, then the fields that only this schema has. The fields every reply shares are on [reply envelope and shared types](/reference/schemas/types/).
+BioMCP 1.0.0 prints one JSON object, the reply, for each command. [`biomcp protein features`](/reference/commands/protein-features/) replies with `schema` set to `biomcp.protein_features/1`. Read this page when your code parses that reply: it shows a real one, then the fields only this schema has. [Shared types](/reference/schemas/types/) defines the rest.
 
 ## Commands that return it
 
@@ -26,7 +26,7 @@ biomcp protein features P00533 --limit 1
 
 ## Example reply
 
-`biomcp protein features P00533` returned this reply on 2026-10-27. Lists show their first items, and a line that starts with … counts the items left out. Text that ends in … is cut.
+`biomcp protein features P00533` returned this on 2026-10-27. Lists show their first items; a line with … counts the rest, and text ending in … is cut.
 
 ```json
 {
@@ -35,25 +35,7 @@ biomcp protein features P00533 --limit 1
   "query": {"accession": "P00533", "limit": 5, "offset": 0},
   "result": {
     "items": [
-      {
-        "feature": {
-          "protein": "P00533",
-          "span": {…},
-          "kind": {"label": "Signal"},
-          "evidence": [
-            "ECO:0000269|PubMed|15340161", "ECO:0000269|PubMed|6328312",
-            "ECO:0000269|Reference|Ref.16"
-          ]
-        },
-        "attribution": {
-          "source": "uniprot",
-          "record": "P00533",
-          "version": "301",
-          "evaluated": "2026-09-02",
-          "url": "https://www.uniprot.org/uniprotkb/P00533/entry"
-        },
-        "source_coordinates": "one_based_inclusive"
-      },
+      {…},
       … 4 more
     ]
   },
@@ -91,21 +73,23 @@ biomcp protein features P00533 --limit 1
 
 ## Fields
 
+A field marked Optional can be missing from a reply. Every other field is always there.
+
 `result` holds [ProteinFeatures](/reference/schemas/types/#proteinfeatures), a shared type. `query` holds [ProteinFeaturesQuery](#proteinfeaturesquery). `query` repeats the request as BioMCP read it.
 
 ### ProteinFeaturesQuery
 
 Page five native UniProt features by exact type and displayed residue. No variant effect or clinical meaning is inferred; no bioinformatics tool runs.
 
-| Field | Type | Always present | Meaning |
-| --- | --- | --- | --- |
-| `accession` | [UniProtIsoform](/reference/schemas/types/#uniprotisoform) | yes | Exact source protein sequence identity. |
-| `limit` | integer (uint32) | no | Five rows by default, at most 25. |
-| `offset` | integer (uint32) | no | Native or retained page offset. |
-| `pool` | [Text](/reference/schemas/types/#text) | no | The ID of a stored list, from an earlier reply, so later pages read the same data. |
-| `position` | integer (uint32) | no | Native one-based residue; zero fails during deserialization. |
-| `type` | [Text](/reference/schemas/types/#text) | no | Exact UniProt native label, without an alias map. |
+| Field | Type | Meaning |
+| --- | --- | --- |
+| `accession` | [UniProtIsoform](/reference/schemas/types/#uniprotisoform) | Exact source protein sequence identity. |
+| `limit` | integer (uint32) | Five rows by default, at most 25. Optional. |
+| `offset` | integer (uint32) | Native or retained page offset. Optional. |
+| `pool` | [Text](/reference/schemas/types/#text) | The ID of a stored list, from an earlier reply, so later pages read the same data. Optional. |
+| `position` | integer (uint32) | Native one-based residue; zero fails during deserialization. Optional. |
+| `type` | [Text](/reference/schemas/types/#text) | Exact UniProt native label, without an alias map. Optional. |
 
 ## Next
 
-[Reply envelope and shared types](/reference/schemas/types/) defines `status`, `sources`, `next` and every shared type. [Reply schemas](/reference/schemas/) lists every reply. [`biomcp protein features`](/reference/commands/protein-features/) gives the command's arguments.
+[`biomcp protein features`](/reference/commands/protein-features/) gives the command's arguments; [reply schemas](/reference/schemas/) lists every reply.

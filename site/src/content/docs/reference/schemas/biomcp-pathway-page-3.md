@@ -11,7 +11,7 @@ kind: reference
 verified: 2026-10-27
 ---
 
-BioMCP 1.0.0 prints one JSON object, the reply, for each command. [`biomcp search pathway`](/reference/commands/search-pathway/) replies with `schema` set to `biomcp.pathway_page/3`. Read this page when your code parses that reply. It shows a real reply, then the fields that only this schema has. The fields every reply shares are on [reply envelope and shared types](/reference/schemas/types/).
+BioMCP 1.0.0 prints one JSON object, the reply, for each command. [`biomcp search pathway`](/reference/commands/search-pathway/) replies with `schema` set to `biomcp.pathway_page/3`. Read this page when your code parses that reply: it shows a real one, then the fields only this schema has. [Shared types](/reference/schemas/types/) defines the rest.
 
 ## Commands that return it
 
@@ -26,7 +26,7 @@ biomcp search pathway MAPK --limit 3
 
 ## Example reply
 
-`biomcp search pathway MAPK --source wikipathways --limit 3` returned this reply on 2026-10-27. Lists show their first items, and a line that starts with … counts the items left out. Text that ends in … is cut.
+`biomcp search pathway MAPK --source wikipathways --limit 3` returned this on 2026-10-27. Lists show their first items; a line with … counts the rest, and text ending in … is cut.
 
 ```json
 {
@@ -42,19 +42,8 @@ biomcp search pathway MAPK --limit 3
   },
   "result": {
     "items": [
-      {
-        "id": {"source": "wikipathways", "id": "WP382"},
-        "name": "MAPK signaling",
-        "species": "Homo sapiens",
-        "revision": "2025-08-30"
-      },
-      {
-        "id": {"source": "wikipathways", "id": "WP3849"},
-        "name": "MAPK and NFkB signaling inhibited by Yersinia YopJ",
-        "species": "Homo sapiens",
-        "revision": "2025-03-03"
-      },
-      … 1 more
+      {…},
+      … 2 more
     ],
     "page": {
       "offset": 0,
@@ -74,20 +63,15 @@ biomcp search pathway MAPK --limit 3
     }
   ],
   "next": [
-    {
-      "kind": "disambiguate",
-      "args": ["get", "pathway", "WP382"]
-    },
-    {
-      "kind": "disambiguate",
-      "args": ["get", "pathway", "WP3849"]
-    },
-    … 2 more
+    {"kind": "disambiguate", "args": ["get", "pathway", "WP382"]},
+    … 3 more
   ]
 }
 ```
 
 ## Fields
+
+A field marked Optional can be missing from a reply. Every other field is always there.
 
 `result` holds [PathwayPage](#pathwaypage). `query` holds [PathwaySearch](#pathwaysearch). `query` repeats the request as BioMCP read it.
 
@@ -95,25 +79,25 @@ biomcp search pathway MAPK --limit 3
 
 Source-ordered header page; class admission never changes the native total.
 
-| Field | Type | Always present | Meaning |
-| --- | --- | --- | --- |
-| `items` | list of [PathwayHeader](/reference/schemas/types/#pathwayheader) | yes | Whole admitted pathway headers in native order. |
-| `page` | [PathwayPageInfo](/reference/schemas/types/#pathwaypageinfo) | yes | Native position and total provenance. |
+| Field | Type | Meaning |
+| --- | --- | --- |
+| `items` | list of [PathwayHeader](/reference/schemas/types/#pathwayheader) | Whole admitted pathway headers in native order. |
+| `page` | [PathwayPageInfo](/reference/schemas/types/#pathwaypageinfo) | Native position and total provenance. |
 
 ### PathwaySearch
 
 Search Reactome (default) or WikiPathways human pathways. Membership names a source and release; it implies no therapy, response or actionability. No enrichment is calculated.
 
-| Field | Type | Always present | Meaning |
-| --- | --- | --- | --- |
-| `fresh` | boolean | no | Request a new retained observation. |
-| `gene` | [GeneInput](/reference/schemas/types/#geneinput) | no | Human gene input for exact resolution and UniProt mapping; Reactome only. |
-| `limit` | integer (uint32) | no | Five rows by default, one to fifty. Reactome rows equals this limit without refill. |
-| `offset` | integer (uint32) | no | Native Reactome Start row or retained WikiPathways catalog offset. |
-| `pool` | [Text](/reference/schemas/types/#text) | no | Retained snapshot identity for deterministic continuation. |
-| `query` | [Text](/reference/schemas/types/#text) | no | Literal source query; exclusive with gene and top-level discovery. |
-| `source` | list of [PathwaySource](#pathwaysource) | no | Sources in caller order; repeated sources take turns without title joins. |
-| `top_level` | boolean | no | Native human Reactome top-level discovery, exclusive with text and gene. |
+| Field | Type | Meaning |
+| --- | --- | --- |
+| `fresh` | boolean | Request a new retained observation. Optional. |
+| `gene` | [GeneInput](/reference/schemas/types/#geneinput) | Human gene input for exact resolution and UniProt mapping; Reactome only. Optional. |
+| `limit` | integer (uint32) | Five rows by default, one to fifty. Reactome rows equals this limit without refill. Optional. |
+| `offset` | integer (uint32) | Native Reactome Start row or retained WikiPathways catalog offset. Optional. |
+| `pool` | [Text](/reference/schemas/types/#text) | Retained snapshot identity for deterministic continuation. Optional. |
+| `query` | [Text](/reference/schemas/types/#text) | Literal source query; exclusive with gene and top-level discovery. Optional. |
+| `source` | list of [PathwaySource](#pathwaysource) | Sources in caller order; repeated sources take turns without title joins. Optional. |
+| `top_level` | boolean | Native human Reactome top-level discovery, exclusive with text and gene. Optional. |
 
 ### PathwaySource
 
@@ -123,4 +107,4 @@ Values: `reactome`, `wikipathways`.
 
 ## Next
 
-[Reply envelope and shared types](/reference/schemas/types/) defines `status`, `sources`, `next` and every shared type. [Reply schemas](/reference/schemas/) lists every reply. [`biomcp search pathway`](/reference/commands/search-pathway/) gives the command's arguments.
+[`biomcp search pathway`](/reference/commands/search-pathway/) gives the command's arguments; [reply schemas](/reference/schemas/) lists every reply.

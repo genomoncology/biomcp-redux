@@ -11,7 +11,7 @@ kind: reference
 verified: 2026-10-27
 ---
 
-BioMCP 1.0.0 prints one JSON object, the reply, for each command. [`biomcp get disease xrefs`](/reference/commands/get-disease/) replies with `schema` set to `biomcp.disease_xrefs/2`. Read this page when your code parses that reply. It shows a real reply, then the fields that only this schema has. The fields every reply shares are on [reply envelope and shared types](/reference/schemas/types/).
+BioMCP 1.0.0 prints one JSON object, the reply, for each command. [`biomcp get disease xrefs`](/reference/commands/get-disease/) replies with `schema` set to `biomcp.disease_xrefs/2`. Read this page when your code parses that reply: it shows a real one, then the fields only this schema has. [Shared types](/reference/schemas/types/) defines the rest.
 
 ## Commands that return it
 
@@ -26,7 +26,7 @@ biomcp get disease MONDO:0005105 xrefs --source mydisease
 
 ## Example reply
 
-`biomcp get disease MONDO:0005105 xrefs` returned this reply on 2026-10-27. Lists show their first items, and a line that starts with … counts the items left out. Text that ends in … is cut.
+`biomcp get disease MONDO:0005105 xrefs` returned this on 2026-10-27. Lists show their first items; a line with … counts the rest, and text ending in … is cut.
 
 ```json
 {
@@ -41,27 +41,11 @@ biomcp get disease MONDO:0005105 xrefs --source mydisease
   },
   "result": {
     "items": [
-      {
-        "subject": {"id": "MONDO:0005105", "label": "melanoma"},
-        "predicate": "mydisease:mondo.xrefs.doid",
-        "object": {"id": "DOID:1909"},
-        "attribution": {
-          "source": "mondo",
-          "record": "MONDO:0005105",
-          "url": "https://mydisease.info/v1/disease/MONDO:0005105"
-        }
-      },
+      {…},
       … 4 more
     ],
     "components": [
-      {
-        "component": "mondo",
-        "terms": {
-          "usage": "attribution",
-          "name": "MONDO CC BY 4.0",
-          "url": "https://mondo.monarchinitiative.org/pages/download/"
-        }
-      },
+      {…},
       … 1 more
     ]
   },
@@ -89,17 +73,19 @@ biomcp get disease MONDO:0005105 xrefs --source mydisease
 
 ## Fields
 
+A field marked Optional can be missing from a reply. Every other field is always there.
+
 `result` holds [DiseaseXrefs](#diseasexrefs). `query` holds [DiseaseGet](/reference/schemas/types/#diseaseget), a shared type. `query` repeats the request as BioMCP read it.
 
 ### DiseaseXrefs
 
 Native cross-reference predicates without equivalence promotion.
 
-| Field | Type | Always present | Meaning |
-| --- | --- | --- | --- |
-| `components` | list of [ComponentLabel](/reference/schemas/types/#componentlabel) | yes | Applicable component use terms, independent of row provenance. |
-| `items` | list of [DiseaseRelation](/reference/schemas/types/#diseaserelation) | yes | Rows as the source gives them. Totals in `page` count rows, not distinct records. |
+| Field | Type | Meaning |
+| --- | --- | --- |
+| `components` | list of [ComponentLabel](/reference/schemas/types/#componentlabel) | Applicable component use terms, independent of row provenance. |
+| `items` | list of [DiseaseRelation](/reference/schemas/types/#diseaserelation) | Rows as the source gives them. Totals in `page` count rows, not distinct records. |
 
 ## Next
 
-[Reply envelope and shared types](/reference/schemas/types/) defines `status`, `sources`, `next` and every shared type. [Reply schemas](/reference/schemas/) lists every reply. [`biomcp get disease`](/reference/commands/get-disease/) gives the command's arguments.
+[`biomcp get disease`](/reference/commands/get-disease/) gives the command's arguments; [reply schemas](/reference/schemas/) lists every reply.

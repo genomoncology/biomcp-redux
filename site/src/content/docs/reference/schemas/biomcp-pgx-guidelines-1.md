@@ -11,7 +11,7 @@ kind: reference
 verified: 2026-10-27
 ---
 
-BioMCP 1.0.0 prints one JSON object, the reply, for each command. [`biomcp get pgx guidelines`](/reference/commands/get-pgx/) replies with `schema` set to `biomcp.pgx_guidelines/1`. Read this page when your code parses that reply. It shows a real reply, then the fields that only this schema has. The fields every reply shares are on [reply envelope and shared types](/reference/schemas/types/).
+BioMCP 1.0.0 prints one JSON object, the reply, for each command. [`biomcp get pgx guidelines`](/reference/commands/get-pgx/) replies with `schema` set to `biomcp.pgx_guidelines/1`. Read this page when your code parses that reply: it shows a real one, then the fields only this schema has. [Shared types](/reference/schemas/types/) defines the rest.
 
 ## Commands that return it
 
@@ -25,7 +25,7 @@ biomcp get pgx guidelines --gene DPYD --source cpic
 
 ## Example reply
 
-`biomcp get pgx guidelines --gene DPYD --source cpic` returned this reply on 2026-10-27. Lists show their first items, and a line that starts with … counts the items left out. Text that ends in … is cut.
+`biomcp get pgx guidelines --gene DPYD --source cpic` returned this on 2026-10-27. Lists show their first items; a line with … counts the rest, and text ending in … is cut.
 
 ```json
 {
@@ -46,10 +46,7 @@ biomcp get pgx guidelines --gene DPYD --source cpic
         "guideline_url": "https://www.clinpgx.org/guideline/PA166251462",
         "drugs": ["capecitabine", "fluorouracil", "tegafur"],
         "genes": [
-          {
-            "url": "https://cpicpgx.org/gene/dpyd/",
-            "symbol": "DPYD"
-          }
+          {"url": "https://cpicpgx.org/gene/dpyd/", "symbol": "DPYD"}
         ]
       }
     ],
@@ -74,38 +71,40 @@ biomcp get pgx guidelines --gene DPYD --source cpic
 
 ## Fields
 
+A field marked Optional can be missing from a reply. Every other field is always there.
+
 `result` holds [PgxGuidelines](#pgxguidelines). `query` holds [PgxGet](/reference/schemas/types/#pgxget), a shared type. `query` repeats the request as BioMCP read it.
 
 ### PgxGuidelines
 
 Independent source-ordered page of complete native records.
 
-| Field | Type | Always present | Meaning |
-| --- | --- | --- | --- |
-| `header` | [PgxHeader](/reference/schemas/types/#pgxheader) | yes | Source and selected gene. |
-| `items` | list of [PgxGuidelineReference](#pgxguidelinereference) | yes | Complete native rows without duplicate summaries. |
-| `page` | [PgxPageInfo](/reference/schemas/types/#pgxpageinfo) | yes | Meaning and bounds of this collection. |
+| Field | Type | Meaning |
+| --- | --- | --- |
+| `header` | [PgxHeader](/reference/schemas/types/#pgxheader) | Source and selected gene. |
+| `items` | list of [PgxGuidelineReference](#pgxguidelinereference) | Complete native rows without duplicate summaries. |
+| `page` | [PgxPageInfo](/reference/schemas/types/#pgxpageinfo) | Meaning and bounds of this collection. |
 
 ### PgxGuidelineGene
 
 Source-native PgxGuidelineGene fields; no clinical interpretation.
 
-| Field | Type | Always present | Meaning |
-| --- | --- | --- | --- |
-| `symbol` | [GeneSymbol](/reference/schemas/types/#genesymbol) | yes | The source's own `symbol` value, unchanged. |
-| `url` | string | yes | The source's own `url` value, unchanged. |
+| Field | Type | Meaning |
+| --- | --- | --- |
+| `symbol` | [GeneSymbol](/reference/schemas/types/#genesymbol) | The source's own `symbol` value, unchanged. |
+| `url` | string | The source's own `url` value, unchanged. |
 
 ### PgxGuidelineReference
 
 Source-native PgxGuidelineReference fields; no clinical interpretation.
 
-| Field | Type | Always present | Meaning |
-| --- | --- | --- | --- |
-| `drugs` | list of string | yes | The source's own `drugs` value, unchanged. |
-| `genes` | list of [PgxGuidelineGene](#pgxguidelinegene) | yes | The source's own `genes` value, unchanged. |
-| `guideline_name` | string | yes | The source's own `guideline_name` value, unchanged. |
-| `guideline_url` | string | yes | The source's own `guideline_url` value, unchanged. |
+| Field | Type | Meaning |
+| --- | --- | --- |
+| `drugs` | list of string | The source's own `drugs` value, unchanged. |
+| `genes` | list of [PgxGuidelineGene](#pgxguidelinegene) | The source's own `genes` value, unchanged. |
+| `guideline_name` | string | The source's own `guideline_name` value, unchanged. |
+| `guideline_url` | string | The source's own `guideline_url` value, unchanged. |
 
 ## Next
 
-[Reply envelope and shared types](/reference/schemas/types/) defines `status`, `sources`, `next` and every shared type. [Reply schemas](/reference/schemas/) lists every reply. [`biomcp get pgx`](/reference/commands/get-pgx/) gives the command's arguments.
+[`biomcp get pgx`](/reference/commands/get-pgx/) gives the command's arguments; [reply schemas](/reference/schemas/) lists every reply.

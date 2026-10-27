@@ -12,7 +12,7 @@ kind: reference
 verified: 2026-10-27
 ---
 
-BioMCP 1.0.0 prints one JSON object, the reply, for each command. [`biomcp protein complex-members`](/reference/commands/protein-complex-members/) replies with `schema` set to `biomcp.protein_complex_members/1`. Read this page when your code parses that reply. It shows a real reply, then the fields that only this schema has. The fields every reply shares are on [reply envelope and shared types](/reference/schemas/types/).
+BioMCP 1.0.0 prints one JSON object, the reply, for each command. [`biomcp protein complex-members`](/reference/commands/protein-complex-members/) replies with `schema` set to `biomcp.protein_complex_members/1`. Read this page when your code parses that reply: it shows a real one, then the fields only this schema has. [Shared types](/reference/schemas/types/) defines the rest.
 
 ## Commands that return it
 
@@ -26,7 +26,7 @@ biomcp protein complex-members P15056 --complex CPX-10863
 
 ## Example reply
 
-`biomcp protein complex-members P15056 --complex CPX-10863` returned this reply on 2026-10-27. Lists show their first items, and a line that starts with … counts the items left out. Text that ends in … is cut.
+`biomcp protein complex-members P15056 --complex CPX-10863` returned this on 2026-10-27. Lists show their first items; a line with … counts the rest, and text ending in … is cut.
 
 ```json
 {
@@ -40,19 +40,8 @@ biomcp protein complex-members P15056 --complex CPX-10863
   },
   "result": {
     "items": [
-      {
-        "id": "Q7Z401",
-        "participant_type": "protein",
-        "name": "DENND4A",
-        "protein": "Q7Z401"
-      },
-      {
-        "id": "Q9UPU9",
-        "participant_type": "protein",
-        "name": "SAMD4A",
-        "protein": "Q9UPU9"
-      },
-      … 3 more
+      {…},
+      … 4 more
     ]
   },
   "page": {
@@ -76,20 +65,15 @@ biomcp protein complex-members P15056 --complex CPX-10863
     }
   ],
   "next": [
-    {
-      "kind": "pivot",
-      "args": ["get", "protein", "Q7Z401"]
-    },
-    {
-      "kind": "pivot",
-      "args": ["get", "protein", "Q9UPU9"]
-    },
-    … 4 more
+    {"kind": "pivot", "args": ["get", "protein", "Q7Z401"]},
+    … 5 more
   ]
 }
 ```
 
 ## Fields
+
+A field marked Optional can be missing from a reply. Every other field is always there.
 
 `result` holds [ProteinComplexMembers](#proteincomplexmembers). `query` holds [ProteinComplexMembersQuery](#proteincomplexmembersquery). `query` repeats the request as BioMCP read it.
 
@@ -97,37 +81,37 @@ biomcp protein complex-members P15056 --complex CPX-10863
 
 Native participants of one exact containing complex, including non-protein source facts.
 
-| Field | Type | Always present | Meaning |
-| --- | --- | --- | --- |
-| `items` | list of [ProteinComplexMember](#proteincomplexmember) | yes | Whole native rows in source order; totals apply only to this collection. |
+| Field | Type | Meaning |
+| --- | --- | --- |
+| `items` | list of [ProteinComplexMember](#proteincomplexmember) | Whole native rows in source order; totals apply only to this collection. |
 
 ### ProteinComplexMembersQuery
 
 Page five native participants of an exact Complex Portal complex containing the anchor. No interaction or clinical meaning is inferred; no bioinformatics tool runs.
 
-| Field | Type | Always present | Meaning |
-| --- | --- | --- | --- |
-| `accession` | [UniProtIsoform](/reference/schemas/types/#uniprotisoform) | yes | Exact source protein sequence identity. |
-| `complex` | [ComplexPortalId](/reference/schemas/types/#complexportalid) | yes | Exact complex whose native participants contain the anchor. |
-| `limit` | integer (uint32) | no | Five rows by default, at most 25. |
-| `offset` | integer (uint32) | no | Native or retained page offset. |
-| `pool` | [Text](/reference/schemas/types/#text) | no | The ID of a stored list, from an earlier reply, so later pages read the same data. |
+| Field | Type | Meaning |
+| --- | --- | --- |
+| `accession` | [UniProtIsoform](/reference/schemas/types/#uniprotisoform) | Exact source protein sequence identity. |
+| `complex` | [ComplexPortalId](/reference/schemas/types/#complexportalid) | Exact complex whose native participants contain the anchor. |
+| `limit` | integer (uint32) | Five rows by default, at most 25. Optional. |
+| `offset` | integer (uint32) | Native or retained page offset. Optional. |
+| `pool` | [Text](/reference/schemas/types/#text) | The ID of a stored list, from an earlier reply, so later pages read the same data. Optional. |
 
 ### ProteinComplexMember
 
 A native participant; names never establish a protein identity.
 
-| Field | Type | Always present | Meaning |
-| --- | --- | --- | --- |
-| `id` | [Text](/reference/schemas/types/#text) | yes | Native participant identifier, including non-protein identifiers. |
-| `name` | [Text](/reference/schemas/types/#text) or null | no | Native display name. |
-| `organism` | [Text](/reference/schemas/types/#text) or null | no | Literal supplied organism text, including non-taxonomic source sentinels. |
-| `participant_type` | [Text](/reference/schemas/types/#text) | yes | Literal native participant type; non-protein members remain source facts. |
-| `protein` | [UniProtIsoform](/reference/schemas/types/#uniprotisoform) or null | no | Only an exact source-supplied protein identifier; never inferred from a name. |
-| `stoichiometry` | [Text](/reference/schemas/types/#text) or null | no | Native stoichiometry text; no numeric imputation. |
-| `taxon` | integer or null | no | Native taxonomy identifier when supplied. |
-| `xrefs` | list of [Curie](/reference/schemas/types/#curie) | no | Source-supplied cross-references only. |
+| Field | Type | Meaning |
+| --- | --- | --- |
+| `id` | [Text](/reference/schemas/types/#text) | Native participant identifier, including non-protein identifiers. |
+| `name` | [Text](/reference/schemas/types/#text) or null | Native display name. Optional. |
+| `organism` | [Text](/reference/schemas/types/#text) or null | Literal supplied organism text, including non-taxonomic source sentinels. Optional. |
+| `participant_type` | [Text](/reference/schemas/types/#text) | Literal native participant type; non-protein members remain source facts. |
+| `protein` | [UniProtIsoform](/reference/schemas/types/#uniprotisoform) or null | Only an exact source-supplied protein identifier; never inferred from a name. Optional. |
+| `stoichiometry` | [Text](/reference/schemas/types/#text) or null | Native stoichiometry text; no numeric imputation. Optional. |
+| `taxon` | integer or null | Native taxonomy identifier when supplied. Optional. |
+| `xrefs` | list of [Curie](/reference/schemas/types/#curie) | Source-supplied cross-references only. Optional. |
 
 ## Next
 
-[Reply envelope and shared types](/reference/schemas/types/) defines `status`, `sources`, `next` and every shared type. [Reply schemas](/reference/schemas/) lists every reply. [`biomcp protein complex-members`](/reference/commands/protein-complex-members/) gives the command's arguments.
+[`biomcp protein complex-members`](/reference/commands/protein-complex-members/) gives the command's arguments; [reply schemas](/reference/schemas/) lists every reply.

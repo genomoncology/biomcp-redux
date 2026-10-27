@@ -30,7 +30,7 @@ biomcp pathway genes [OPTIONS] <id> [details]
 | `--offset` | integer | no | min 0 |  | Offset within the retained selected relation. |
 | `--pool` | string | no |  |  | Immutable relation snapshot. |
 | `id` (position 1) | string | yes |  |  | Checked source-owned human pathway identity. |
-| `details` (position 2) | string | no |  | `details` | Include every physical entity context for these references; never clips source text. |
+| `details` (position 2) | string | no |  | `details` | Adds each reference's Reactome `PhysicalEntity` contexts, with their source text whole. |
 
 ## Examples
 
@@ -50,4 +50,4 @@ The reply is one JSON object. Its schema is [`biomcp.pathway_genes/4`](/referenc
 
 ## Next
 
-[Exit codes](/reference/error-codes/) gives what each exit code means, and [global options](/reference/global-options/) the options every command takes. The [pathway guide](/user-guide/pathway/) shows every pathway command at work.
+The [pathway guide](/user-guide/pathway/) shows every pathway command at work. [Exit codes](/reference/error-codes/) gives what each exit code means, and [global options](/reference/global-options/) the options every command takes.

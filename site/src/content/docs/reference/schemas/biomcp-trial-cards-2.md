@@ -11,7 +11,7 @@ kind: reference
 verified: 2026-10-27
 ---
 
-BioMCP 1.0.0 prints one JSON object, the reply, for each command. [`biomcp get trial eligibility`](/reference/commands/get-trial/) and [`biomcp get trial`](/reference/commands/get-trial/) reply with `schema` set to `biomcp.trial_cards/2`. Read this page when your code parses that reply. It shows a real reply, then the fields that only this schema has. The fields every reply shares are on [reply envelope and shared types](/reference/schemas/types/).
+BioMCP 1.0.0 prints one JSON object, the reply, for each command. [`biomcp get trial eligibility`](/reference/commands/get-trial/) and [`biomcp get trial`](/reference/commands/get-trial/) reply with `schema` set to `biomcp.trial_cards/2`. Read this page when your code parses that reply: it shows a real one, then the fields only this schema has. [Shared types](/reference/schemas/types/) defines the rest.
 
 ## Commands that return it
 
@@ -26,7 +26,7 @@ biomcp get trial NCT06887088
 
 ## Example reply
 
-`biomcp get trial NCT06625320 eligibility` returned this reply on 2026-10-27. Lists show their first items, and a line that starts with … counts the items left out. Text that ends in … is cut.
+`biomcp get trial NCT06625320 eligibility` returned this on 2026-10-27. Lists show their first items; a line with … counts the rest, and text ending in … is cut.
 
 ```json
 {
@@ -40,16 +40,7 @@ biomcp get trial NCT06887088
   },
   "result": {
     "items": [
-      {
-        "input": "NCT06625320",
-        "status": "complete",
-        "card": {…},
-        "fetched": 1793140313,
-        "sections": {…},
-        "more": [
-          "outcomes", "arms", "locations", "contacts", "references", "documents"
-        ]
-      }
+      {…}
     ],
     "source_updated": "2026-10-27T09:00:04",
     "attribution": "ClinicalTrials.gov; registry protocol text, no eligibility…"
@@ -64,10 +55,7 @@ biomcp get trial NCT06887088
     }
   ],
   "next": [
-    {
-      "kind": "section",
-      "args": ["get", "trial", "NCT06625320", "outcomes"]
-    },
+    {"kind": "section", "args": ["get", "trial", "NCT06625320", "outcomes"]},
     … 4 more
   ]
 }
@@ -75,17 +63,19 @@ biomcp get trial NCT06887088
 
 ## Fields
 
+A field marked Optional can be missing from a reply. Every other field is always there.
+
 `result` holds [TrialCards](#trialcards). `query` holds [TrialGet](/reference/schemas/types/#trialget), a shared type. `query` repeats the request as BioMCP read it.
 
 ### TrialCards
 
 Trial answers in original input order, retaining independent states.
 
-| Field | Type | Always present | Meaning |
-| --- | --- | --- | --- |
-| `attribution` | string | yes | Publisher attribution and scope. |
-| `items` | list of [TrialCardItem](#trialcarditem) | yes | One answer per requested input, including absence and failure. |
-| `source_updated` | [Text](/reference/schemas/types/#text) or null | no | Registry processing timestamp, distinct from each study's update and fetch times. |
+| Field | Type | Meaning |
+| --- | --- | --- |
+| `attribution` | string | Publisher attribution and scope. |
+| `items` | list of [TrialCardItem](#trialcarditem) | One answer per requested input, including absence and failure. |
+| `source_updated` | [Text](/reference/schemas/types/#text) or null | Registry processing timestamp, distinct from each study's update and fetch times. Optional. |
 
 ### TrialAgeBound
 
@@ -100,12 +90,12 @@ One of these forms:
 
 Registry arm with source intervention relationships.
 
-| Field | Type | Always present | Meaning |
-| --- | --- | --- | --- |
-| `description` | [Markdown](/reference/schemas/types/#markdown) or null | no | Original arm description. |
-| `intervention_names` | list of string | yes | Source intervention names, including their native prefixes. |
-| `kind` | [TrialArmKind](#trialarmkind) or null | no | Native arm type. |
-| `label` | string | yes | Exact arm label. |
+| Field | Type | Meaning |
+| --- | --- | --- |
+| `description` | [Markdown](/reference/schemas/types/#markdown) or null | Original arm description. Optional. |
+| `intervention_names` | list of string | Source intervention names, including their native prefixes. |
+| `kind` | [TrialArmKind](#trialarmkind) or null | Native arm type. Optional. |
+| `label` | string | Exact arm label. |
 
 ### TrialArmKind
 
@@ -126,47 +116,47 @@ One of these forms:
 
 Complete default registry card.
 
-| Field | Type | Always present | Meaning |
-| --- | --- | --- | --- |
-| `brief_summary` | [Markdown](/reference/schemas/types/#markdown) or null | no | Whole brief summary, preserving whitespace. |
-| `completion` | [TrialDate](#trialdate) or null | no | Source completion date, when present. |
-| `conditions` | list of string | yes | All registered condition names. |
-| `interventions` | list of string | yes | All registered intervention names. |
-| `nct_id` | [NctId](/reference/schemas/types/#nctid) | yes | Exact registry identity. |
-| `phases` | list of [TrialPhase](/reference/schemas/types/#trialphase) | yes | Source phases without inferred defaults. |
-| `primary_completion` | [TrialDate](#trialdate) or null | no | Source primary completion date, when present. |
-| `sponsor` | string or null | no | Lead sponsor as registered. |
-| `start` | [TrialDate](#trialdate) or null | no | Source start date, when present. |
-| `status` | [TrialStatus](/reference/schemas/types/#trialstatus) | yes | Source overall status. |
-| `study_type` | [StudyType](/reference/schemas/types/#studytype) | yes | Native study type. |
-| `title` | string | yes | Complete brief title. |
-| `updated` | [TrialDate](#trialdate) | yes | Last posted registry update. |
-| `url` | string | yes | Canonical publisher record URL. |
+| Field | Type | Meaning |
+| --- | --- | --- |
+| `brief_summary` | [Markdown](/reference/schemas/types/#markdown) or null | Whole brief summary, preserving whitespace. Optional. |
+| `completion` | [TrialDate](#trialdate) or null | Source completion date, when present. Optional. |
+| `conditions` | list of string | All registered condition names. |
+| `interventions` | list of string | All registered intervention names. |
+| `nct_id` | [NctId](/reference/schemas/types/#nctid) | Exact registry identity. |
+| `phases` | list of [TrialPhase](/reference/schemas/types/#trialphase) | Source phases without inferred defaults. |
+| `primary_completion` | [TrialDate](#trialdate) or null | Source primary completion date, when present. Optional. |
+| `sponsor` | string or null | Lead sponsor as registered. Optional. |
+| `start` | [TrialDate](#trialdate) or null | Source start date, when present. Optional. |
+| `status` | [TrialStatus](/reference/schemas/types/#trialstatus) | Source overall status. |
+| `study_type` | [StudyType](/reference/schemas/types/#studytype) | Native study type. |
+| `title` | string | Complete brief title. |
+| `updated` | [TrialDate](#trialdate) | Last posted registry update. |
+| `url` | string | Canonical publisher record URL. |
 
 ### TrialCardItem
 
 Result for one exact requested NCT identity.
 
-| Field | Type | Always present | Meaning |
-| --- | --- | --- | --- |
-| `card` | [TrialCard](#trialcard) or null | no | Source card, absent after confirmed 404 or failed lookup. |
-| `fetched` | integer or null | no | Original record retrieval timestamp. |
-| `input` | [NctId](/reference/schemas/types/#nctid) | yes | Exact requested identity. |
-| `more` | list of [TrialSection](/reference/schemas/types/#trialsection) | no | Available sections omitted from this request. |
-| `sections` | [TrialSections](#trialsections) or null | no | Explicitly requested source sections. |
-| `status` | [Status](/reference/schemas/types/#status) | yes | Independent resolution state. |
+| Field | Type | Meaning |
+| --- | --- | --- |
+| `card` | [TrialCard](#trialcard) or null | Source card, absent after confirmed 404 or failed lookup. Optional. |
+| `fetched` | integer or null | Original record retrieval timestamp. Optional. |
+| `input` | [NctId](/reference/schemas/types/#nctid) | Exact requested identity. |
+| `more` | list of [TrialSection](/reference/schemas/types/#trialsection) | Available sections omitted from this request. Optional. |
+| `sections` | [TrialSections](#trialsections) or null | Explicitly requested source sections. Optional. |
+| `status` | [Status](/reference/schemas/types/#status) | Independent resolution state. |
 
 ### TrialContact
 
 A registry contact with its source role and original contact details.
 
-| Field | Type | Always present | Meaning |
-| --- | --- | --- | --- |
-| `email` | string or null | no | Source email address. |
-| `name` | string or null | no | Source name. |
-| `phone` | string or null | no | Source telephone number, without normalization. |
-| `phone_ext` | string or null | no | Source extension, kept separate from the number. |
-| `role` | [TrialContactRole](#trialcontactrole) or null | no | Source contact role, absent if the registry omitted it. |
+| Field | Type | Meaning |
+| --- | --- | --- |
+| `email` | string or null | Source email address. Optional. |
+| `name` | string or null | Source name. Optional. |
+| `phone` | string or null | Source telephone number, without normalization. Optional. |
+| `phone_ext` | string or null | Source extension, kept separate from the number. Optional. |
+| `role` | [TrialContactRole](#trialcontactrole) or null | Source contact role, absent if the registry omitted it. Optional. |
 
 ### TrialContactRecord
 
@@ -187,19 +177,19 @@ Values: `CONTACT`, `STUDY_CHAIR`, `STUDY_DIRECTOR`, `PRINCIPAL_INVESTIGATOR`, `S
 
 Checked geographic coordinates in degrees; no genomic coordinate type is involved.
 
-| Field | Type | Always present | Meaning |
-| --- | --- | --- | --- |
-| `latitude` | [FiniteNumber](/reference/schemas/types/#finitenumber) | yes | Latitude in degrees. |
-| `longitude` | [FiniteNumber](/reference/schemas/types/#finitenumber) | yes | Longitude in degrees. |
+| Field | Type | Meaning |
+| --- | --- | --- |
+| `latitude` | [FiniteNumber](/reference/schemas/types/#finitenumber) | Latitude in degrees. |
+| `longitude` | [FiniteNumber](/reference/schemas/types/#finitenumber) | Longitude in degrees. |
 
 ### TrialDate
 
 A registry date retains its actual or estimated qualifier.
 
-| Field | Type | Always present | Meaning |
-| --- | --- | --- | --- |
-| `date` | [PartialDate](/reference/schemas/types/#partialdate) | yes | Checked source date at its original precision. |
-| `kind` | [TrialDateKind](#trialdatekind) or null | no | Source qualifier, absent only if the registry omitted it. |
+| Field | Type | Meaning |
+| --- | --- | --- |
+| `date` | [PartialDate](/reference/schemas/types/#partialdate) | Checked source date at its original precision. |
+| `kind` | [TrialDateKind](#trialdatekind) or null | Source qualifier, absent only if the registry omitted it. Optional. |
 
 ### TrialDateKind
 
@@ -211,29 +201,29 @@ Values: `ACTUAL`, `ESTIMATED`.
 
 Character paging preserves source whitespace and counts Unicode scalar values.
 
-| Field | Type | Always present | Meaning |
-| --- | --- | --- | --- |
-| `continuation` | [TrialGet](/reference/schemas/types/#trialget) or null | no | Checked request for the next intact fragment, absent when complete. |
-| `criteria` | string | yes | Exact original text fragment, including whitespace. |
-| `criterion_continues` | boolean | no | The page ends within a criterion whose lines exceed the page budget. |
-| `healthy_volunteers` | boolean or null | no | Source healthy-volunteer field. |
-| `maximum_age` | [TrialAgeBound](#trialagebound) | yes | Source maximum age. |
-| `minimum_age` | [TrialAgeBound](#trialagebound) | yes | Source minimum age. |
-| `offset` | integer (uint32) | yes | Original character offset. |
-| `sex` | [TrialSex](/reference/schemas/types/#trialsex) or null | no | Source sex field. |
-| `total_characters` | integer (uint32) | yes | Complete original text length in Unicode scalar values. |
+| Field | Type | Meaning |
+| --- | --- | --- |
+| `continuation` | [TrialGet](/reference/schemas/types/#trialget) or null | Checked request for the next intact fragment, absent when complete. Optional. |
+| `criteria` | string | Exact original text fragment, including whitespace. |
+| `criterion_continues` | boolean | The page ends within a criterion whose lines exceed the page budget. Optional. |
+| `healthy_volunteers` | boolean or null | Source healthy-volunteer field. Optional. |
+| `maximum_age` | [TrialAgeBound](#trialagebound) | Source maximum age. |
+| `minimum_age` | [TrialAgeBound](#trialagebound) | Source minimum age. |
+| `offset` | integer (uint32) | Original character offset. |
+| `sex` | [TrialSex](/reference/schemas/types/#trialsex) or null | Source sex field. Optional. |
+| `total_characters` | integer (uint32) | Complete original text length in Unicode scalar values. |
 
 ### TrialIntervention
 
 Registry intervention, retaining aliases and arm labels.
 
-| Field | Type | Always present | Meaning |
-| --- | --- | --- | --- |
-| `arm_group_labels` | list of string | yes | Source arm relationships. |
-| `description` | [Markdown](/reference/schemas/types/#markdown) or null | no | Original description. |
-| `kind` | [TrialInterventionKind](#trialinterventionkind) or null | no | Native intervention type. |
-| `name` | string | yes | Exact source name. |
-| `other_names` | list of string | yes | Source aliases, without invented expansion. |
+| Field | Type | Meaning |
+| --- | --- | --- |
+| `arm_group_labels` | list of string | Source arm relationships. |
+| `description` | [Markdown](/reference/schemas/types/#markdown) or null | Original description. Optional. |
+| `kind` | [TrialInterventionKind](#trialinterventionkind) or null | Native intervention type. Optional. |
+| `name` | string | Exact source name. |
+| `other_names` | list of string | Source aliases, without invented expansion. |
 
 ### TrialInterventionKind
 
@@ -245,26 +235,26 @@ Values: `BEHAVIORAL`, `BIOLOGICAL`, `COMBINATION_PRODUCT`, `DEVICE`, `DIAGNOSTIC
 
 One source site, kept whole during pagination.
 
-| Field | Type | Always present | Meaning |
-| --- | --- | --- | --- |
-| `city` | string or null | no | Source city. |
-| `contacts` | list of [TrialContact](#trialcontact) | yes | Contacts belong only to this site, in source order. |
-| `coordinates` | [TrialCoordinates](#trialcoordinates) or null | no | Registry coordinates without a derived distance. |
-| `country` | string or null | no | Source country. |
-| `facility` | string or null | no | Source facility name, absent only when not supplied. |
-| `state` | string or null | no | Source state or region. |
-| `status` | [TrialSiteStatus](#trialsitestatus) or null | no | This site's native status; never copied from the overall trial status. |
-| `zip` | string or null | no | Source postal code. |
+| Field | Type | Meaning |
+| --- | --- | --- |
+| `city` | string or null | Source city. Optional. |
+| `contacts` | list of [TrialContact](#trialcontact) | Contacts belong only to this site, in source order. |
+| `coordinates` | [TrialCoordinates](#trialcoordinates) or null | Registry coordinates without a derived distance. Optional. |
+| `country` | string or null | Source country. Optional. |
+| `facility` | string or null | Source facility name, absent only when not supplied. Optional. |
+| `state` | string or null | Source state or region. Optional. |
+| `status` | [TrialSiteStatus](#trialsitestatus) or null | This site's native status; never copied from the overall trial status. Optional. |
+| `zip` | string or null | Source postal code. Optional. |
 
 ### TrialOfficial
 
 An overall official, distinct from a central or site contact.
 
-| Field | Type | Always present | Meaning |
-| --- | --- | --- | --- |
-| `affiliation` | string or null | no | Source organization. |
-| `name` | string or null | no | Registered name. |
-| `role` | [TrialOfficialRole](#trialofficialrole) or null | no | Source official role. |
+| Field | Type | Meaning |
+| --- | --- | --- |
+| `affiliation` | string or null | Source organization. Optional. |
+| `name` | string or null | Registered name. Optional. |
+| `role` | [TrialOfficialRole](#trialofficialrole) or null | Source official role. Optional. |
 
 ### TrialOfficialRole
 
@@ -276,12 +266,12 @@ Values: `SUB_INVESTIGATOR`, `PRINCIPAL_INVESTIGATOR`, `STUDY_DIRECTOR`, `STUDY_C
 
 One whole registered outcome with its attached time frame.
 
-| Field | Type | Always present | Meaning |
-| --- | --- | --- | --- |
-| `description` | [Markdown](/reference/schemas/types/#markdown) or null | no | Original description. |
-| `kind` | [TrialOutcomeKind](#trialoutcomekind) | yes | Source collection. |
-| `measure` | string | yes | Original measure text. |
-| `time_frame` | string or null | no | Original time frame. |
+| Field | Type | Meaning |
+| --- | --- | --- |
+| `description` | [Markdown](/reference/schemas/types/#markdown) or null | Original description. Optional. |
+| `kind` | [TrialOutcomeKind](#trialoutcomekind) | Source collection. |
+| `measure` | string | Original measure text. |
+| `time_frame` | string or null | Original time frame. Optional. |
 
 ### TrialOutcomeKind
 
@@ -293,25 +283,25 @@ Values: `primary`, `secondary`, `other`.
 
 An unchanged registry reference in source order.
 
-| Field | Type | Always present | Meaning |
-| --- | --- | --- | --- |
-| `citation` | string | yes | Original citation text. |
-| `kind` | string | yes | Native reference classification, such as RESULT or BACKGROUND. |
-| `pmid` | [Pmid](/reference/schemas/types/#pmid) or null | no | Registry-supplied PubMed identity, when present. |
+| Field | Type | Meaning |
+| --- | --- | --- |
+| `citation` | string | Original citation text. |
+| `kind` | string | Native reference classification, such as RESULT or BACKGROUND. |
+| `pmid` | [Pmid](/reference/schemas/types/#pmid) or null | Registry-supplied PubMed identity, when present. Optional. |
 
 ### TrialSections
 
 Independently bounded sections from the same source protocol snapshot.
 
-| Field | Type | Always present | Meaning |
-| --- | --- | --- | --- |
-| `arms` | [Section](/reference/schemas/types/#section) of [TrialRecords](/reference/schemas/types/#trialrecords) of [TrialArmRecord](#trialarmrecord) or null | no | Whole source arm and intervention records. |
-| `contacts` | [Section](/reference/schemas/types/#section) of [TrialRecords](/reference/schemas/types/#trialrecords) of [TrialContactRecord](#trialcontactrecord) or null | no | Central contacts followed by overall officials, each in source order. |
-| `documents` | [Section](/reference/schemas/types/#section) of [TrialRecords](/reference/schemas/types/#trialrecords) of [TrialDocument](/reference/schemas/types/#trialdocument) or null | no | Posted document manifest, without downloading its files. |
-| `eligibility` | [Section](/reference/schemas/types/#section) of [TrialEligibilityPage](#trialeligibilitypage) or null | no | Source eligibility fields and exact text fragment. |
-| `locations` | [Section](/reference/schemas/types/#section) of [TrialRecords](/reference/schemas/types/#trialrecords) of [TrialLocation](#triallocation) or null | no | Whole sites with their original contacts attached. |
-| `outcomes` | [Section](/reference/schemas/types/#section) of [TrialRecords](/reference/schemas/types/#trialrecords) of [TrialOutcome](#trialoutcome) or null | no | Whole registered outcomes. |
-| `references` | [Section](/reference/schemas/types/#section) of [TrialRecords](/reference/schemas/types/#trialrecords) of [TrialReference](#trialreference) or null | no | Source publication records, without inferred roles. |
+| Field | Type | Meaning |
+| --- | --- | --- |
+| `arms` | [Section](/reference/schemas/types/#section) of [TrialRecords](/reference/schemas/types/#trialrecords) of [TrialArmRecord](#trialarmrecord) or null | Whole source arm and intervention records. Optional. |
+| `contacts` | [Section](/reference/schemas/types/#section) of [TrialRecords](/reference/schemas/types/#trialrecords) of [TrialContactRecord](#trialcontactrecord) or null | Central contacts followed by overall officials, each in source order. Optional. |
+| `documents` | [Section](/reference/schemas/types/#section) of [TrialRecords](/reference/schemas/types/#trialrecords) of [TrialDocument](/reference/schemas/types/#trialdocument) or null | Posted document manifest, without downloading its files. Optional. |
+| `eligibility` | [Section](/reference/schemas/types/#section) of [TrialEligibilityPage](#trialeligibilitypage) or null | Source eligibility fields and exact text fragment. Optional. |
+| `locations` | [Section](/reference/schemas/types/#section) of [TrialRecords](/reference/schemas/types/#trialrecords) of [TrialLocation](#triallocation) or null | Whole sites with their original contacts attached. Optional. |
+| `outcomes` | [Section](/reference/schemas/types/#section) of [TrialRecords](/reference/schemas/types/#trialrecords) of [TrialOutcome](#trialoutcome) or null | Whole registered outcomes. Optional. |
+| `references` | [Section](/reference/schemas/types/#section) of [TrialRecords](/reference/schemas/types/#trialrecords) of [TrialReference](#trialreference) or null | Source publication records, without inferred roles. Optional. |
 
 ### TrialSiteStatus
 
@@ -321,4 +311,4 @@ Values: `NOT_YET_RECRUITING`, `RECRUITING`, `ENROLLING_BY_INVITATION`, `ACTIVE_N
 
 ## Next
 
-[Reply envelope and shared types](/reference/schemas/types/) defines `status`, `sources`, `next` and every shared type. [Reply schemas](/reference/schemas/) lists every reply. [`biomcp get trial`](/reference/commands/get-trial/) gives the command's arguments.
+[`biomcp get trial`](/reference/commands/get-trial/) gives the command's arguments; [reply schemas](/reference/schemas/) lists every reply.

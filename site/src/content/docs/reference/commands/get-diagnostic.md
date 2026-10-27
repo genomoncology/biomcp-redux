@@ -69,4 +69,4 @@ The reply is one JSON object. Its schema is [`biomcp.diagnostic_card/1`](/refere
 
 ## Next
 
-[Exit codes](/reference/error-codes/) gives what each exit code means, and [global options](/reference/global-options/) the options every command takes. The [diagnostic guide](/user-guide/diagnostic/) shows every diagnostic command at work.
+The [diagnostic guide](/user-guide/diagnostic/) shows every diagnostic command at work. [Exit codes](/reference/error-codes/) gives what each exit code means, and [global options](/reference/global-options/) the options every command takes.

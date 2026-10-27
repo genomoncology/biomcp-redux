@@ -59,4 +59,4 @@ The reply is one JSON object. Its schema is [`biomcp.gwas_page/3`](/reference/sc
 
 ## Next
 
-[Exit codes](/reference/error-codes/) gives what each exit code means, and [global options](/reference/global-options/) the options every command takes. The [gwas guide](/user-guide/gwas/) shows every gwas command at work.
+The [gwas guide](/user-guide/gwas/) shows every gwas command at work. [Exit codes](/reference/error-codes/) gives what each exit code means, and [global options](/reference/global-options/) the options every command takes.

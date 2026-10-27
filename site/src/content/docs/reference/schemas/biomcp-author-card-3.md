@@ -11,7 +11,7 @@ kind: reference
 verified: 2026-10-27
 ---
 
-BioMCP 1.0.0 prints one JSON object, the reply, for each command. [`biomcp get author`](/reference/commands/get-author/) replies with `schema` set to `biomcp.author_card/3`. Read this page when your code parses that reply. It shows a real reply, then the fields that only this schema has. The fields every reply shares are on [reply envelope and shared types](/reference/schemas/types/).
+BioMCP 1.0.0 prints one JSON object, the reply, for each command. [`biomcp get author`](/reference/commands/get-author/) replies with `schema` set to `biomcp.author_card/3`. Read this page when your code parses that reply: it shows a real one, then the fields only this schema has. [Shared types](/reference/schemas/types/) defines the rest.
 
 ## Commands that return it
 
@@ -26,7 +26,7 @@ biomcp get author semantic-scholar:123 semantic-scholar:123
 
 ## Example reply
 
-`biomcp get author orcid:0000-0002-1825-0097` returned this reply on 2026-10-27. Lists show their first items, and a line that starts with … counts the items left out. Text that ends in … is cut.
+`biomcp get author orcid:0000-0002-1825-0097` returned this on 2026-10-27. Lists show their first items; a line with … counts the rest, and text ending in … is cut.
 
 ```json
 {
@@ -68,43 +68,45 @@ biomcp get author semantic-scholar:123 semantic-scholar:123
 
 ## Fields
 
+A field marked Optional can be missing from a reply. Every other field is always there.
+
 `result` holds [AuthorCards](#authorcards). `query` holds [AuthorGet](#authorget). `query` repeats the request as BioMCP read it.
 
 ### AuthorCards
 
 Exact source cards in input order; outer source outcomes retain failures.
 
-| Field | Type | Always present | Meaning |
-| --- | --- | --- | --- |
-| `items` | list of [AuthorCardItem](#authorcarditem) | yes | Exact returned source cards, with no cross-source links. |
+| Field | Type | Meaning |
+| --- | --- | --- |
+| `items` | list of [AuthorCardItem](#authorcarditem) | Exact returned source cards, with no cross-source links. |
 
 ### AuthorGet
 
 Exact qualified records in caller order, with no name reconciliation.
 
-| Field | Type | Always present | Meaning |
-| --- | --- | --- | --- |
-| `ids` | list of [AuthorId](/reference/schemas/types/#authorid) | yes | One or more exact qualified IDs. |
+| Field | Type | Meaning |
+| --- | --- | --- |
+| `ids` | list of [AuthorId](/reference/schemas/types/#authorid) | One or more exact qualified IDs. |
 
 ### AuthorCard
 
 Exact source author metadata without identity reconciliation.
 
-| Field | Type | Always present | Meaning |
-| --- | --- | --- | --- |
-| `header` | [AuthorHeader](/reference/schemas/types/#authorheader) | yes | Exact source candidate. |
-| `url` | [Text](/reference/schemas/types/#text) or null | no | Provider record link. |
+| Field | Type | Meaning |
+| --- | --- | --- |
+| `header` | [AuthorHeader](/reference/schemas/types/#authorheader) | Exact source candidate. |
+| `url` | [Text](/reference/schemas/types/#text) or null | Provider record link. Optional. |
 
 ### AuthorCardItem
 
 One exact input and its independent outcome.
 
-| Field | Type | Always present | Meaning |
-| --- | --- | --- | --- |
-| `card` | [AuthorCard](#authorcard) or null | no | Exact checked source card when available. |
-| `input` | [AuthorId](/reference/schemas/types/#authorid) | yes | Requested qualified provider identity. |
-| `status` | [Status](/reference/schemas/types/#status) | yes | This exact input's outcome. |
+| Field | Type | Meaning |
+| --- | --- | --- |
+| `card` | [AuthorCard](#authorcard) or null | Exact checked source card when available. Optional. |
+| `input` | [AuthorId](/reference/schemas/types/#authorid) | Requested qualified provider identity. |
+| `status` | [Status](/reference/schemas/types/#status) | This exact input's outcome. |
 
 ## Next
 
-[Reply envelope and shared types](/reference/schemas/types/) defines `status`, `sources`, `next` and every shared type. [Reply schemas](/reference/schemas/) lists every reply. [`biomcp get author`](/reference/commands/get-author/) gives the command's arguments.
+[`biomcp get author`](/reference/commands/get-author/) gives the command's arguments; [reply schemas](/reference/schemas/) lists every reply.

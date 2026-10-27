@@ -13,7 +13,7 @@ kind: reference
 verified: 2026-10-27
 ---
 
-BioMCP 1.0.0 prints one JSON object, the reply, for each command. [`biomcp get adverse-event narrative`](/reference/commands/get-adverse-event/) replies with `schema` set to `biomcp.adverse_event_narrative/1`. Read this page when your code parses that reply. It shows a real reply, then the fields that only this schema has. The fields every reply shares are on [reply envelope and shared types](/reference/schemas/types/).
+BioMCP 1.0.0 prints one JSON object, the reply, for each command. [`biomcp get adverse-event narrative`](/reference/commands/get-adverse-event/) replies with `schema` set to `biomcp.adverse_event_narrative/1`. Read this page when your code parses that reply: it shows a real one, then the fields only this schema has. [Shared types](/reference/schemas/types/) defines the rest.
 
 ## Commands that return it
 
@@ -27,7 +27,7 @@ biomcp get adverse-event 50941416 narrative --source maude
 
 ## Example reply
 
-`biomcp get adverse-event 50941416 narrative --source maude` returned this reply on 2026-10-27. Lists show their first items, and a line that starts with … counts the items left out. Text that ends in … is cut.
+`biomcp get adverse-event 50941416 narrative --source maude` returned this on 2026-10-27. Lists show their first items; a line with … counts the rest, and text ending in … is cut.
 
 ```json
 {
@@ -66,31 +66,33 @@ biomcp get adverse-event 50941416 narrative --source maude
 
 ## Fields
 
+A field marked Optional can be missing from a reply. Every other field is always there.
+
 `result` holds [AdverseEventNarrative](#adverseeventnarrative). `query` holds [AdverseEventGet](/reference/schemas/types/#adverseeventget), a shared type. `query` repeats the request as BioMCP read it.
 
 ### AdverseEventNarrative
 
 A bounded report section; all rows belong to the exact header and snapshot.
 
-| Field | Type | Always present | Meaning |
-| --- | --- | --- | --- |
-| `components` | list of [ComponentLabel](/reference/schemas/types/#componentlabel) | yes | Applicable component terms. |
-| `header` | [AdverseEventHeader](/reference/schemas/types/#adverseeventheader) | yes | Exact source report identity and version. |
-| `narrative` | [AdverseEventRecords](/reference/schemas/types/#adverseeventrecords) of [AdverseEventNarrativeItem](#adverseeventnarrativeitem) | yes | One page of complete native rows. |
-| `snapshot` | [Text](/reference/schemas/types/#text) | yes | Opaque retained source snapshot. |
+| Field | Type | Meaning |
+| --- | --- | --- |
+| `components` | list of [ComponentLabel](/reference/schemas/types/#componentlabel) | Applicable component terms. |
+| `header` | [AdverseEventHeader](/reference/schemas/types/#adverseeventheader) | Exact source report identity and version. |
+| `narrative` | [AdverseEventRecords](/reference/schemas/types/#adverseeventrecords) of [AdverseEventNarrativeItem](#adverseeventnarrativeitem) | One page of complete native rows. |
+| `snapshot` | [Text](/reference/schemas/types/#text) | Opaque retained source snapshot. |
 
 ### AdverseEventNarrativeItem
 
 Whole unchanged narrative row; oversized rows require a too-large Problem.
 
-| Field | Type | Always present | Meaning |
-| --- | --- | --- | --- |
-| `index` | integer (uint32) | yes | Absolute native narrative index. |
-| `mdr_text_key` | string or null | no | Native mdr_text_key string; present empty values remain present. |
-| `patient_sequence_number` | string or null | no | Native patient_sequence_number string; present empty values remain present. |
-| `text` | string or null | no | Unchanged complete source text; never silently truncated. |
-| `type` | string or null | no | Native narrative text type code. |
+| Field | Type | Meaning |
+| --- | --- | --- |
+| `index` | integer (uint32) | Absolute native narrative index. |
+| `mdr_text_key` | string or null | Native mdr_text_key string; present empty values remain present. Optional. |
+| `patient_sequence_number` | string or null | Native patient_sequence_number string; present empty values remain present. Optional. |
+| `text` | string or null | Unchanged complete source text; never silently truncated. Optional. |
+| `type` | string or null | Native narrative text type code. Optional. |
 
 ## Next
 
-[Reply envelope and shared types](/reference/schemas/types/) defines `status`, `sources`, `next` and every shared type. [Reply schemas](/reference/schemas/) lists every reply. [`biomcp get adverse-event`](/reference/commands/get-adverse-event/) gives the command's arguments.
+[`biomcp get adverse-event`](/reference/commands/get-adverse-event/) gives the command's arguments; [reply schemas](/reference/schemas/) lists every reply.

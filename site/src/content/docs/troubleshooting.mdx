@@ -25,7 +25,7 @@ This page covers BioMCP <Fact k="version" />. Find the text you see in a heading
 
 **Cause.** A required argument is missing, a value is outside its choices or limits, or an option does not belong to this command. A dropped 0.9 command whose first word still exists, such as `search all`, returns this error too. Exit code 2. The message does not say which.
 
-**Fix.** Compare your command with `biomcp help search trial` (put your command's words after `help`) or its page in the [command reference](/reference/commands/). Check that the identifier comes before section words and that `--source` names a source the command lists.
+**Fix.** Compare your command with `biomcp help search trial` (put your command's words after `help`) or its page in the [command reference](/reference/commands/). Check that the identifier comes before [section words](/concepts/progressive-disclosure/) and that `--source` names a source the command lists.
 
 **Confirm.** The command returns a reply with a `status` other than `usage`.
 

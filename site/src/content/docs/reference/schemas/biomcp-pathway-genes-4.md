@@ -11,7 +11,7 @@ kind: reference
 verified: 2026-10-27
 ---
 
-BioMCP 1.0.0 prints one JSON object, the reply, for each command. [`biomcp pathway genes`](/reference/commands/pathway-genes/) replies with `schema` set to `biomcp.pathway_genes/4`. Read this page when your code parses that reply. It shows a real reply, then the fields that only this schema has. The fields every reply shares are on [reply envelope and shared types](/reference/schemas/types/).
+BioMCP 1.0.0 prints one JSON object, the reply, for each command. [`biomcp pathway genes`](/reference/commands/pathway-genes/) replies with `schema` set to `biomcp.pathway_genes/4`. Read this page when your code parses that reply: it shows a real one, then the fields only this schema has. [Shared types](/reference/schemas/types/) defines the rest.
 
 ## Commands that return it
 
@@ -26,7 +26,7 @@ biomcp pathway genes R-HSA-5673001 details
 
 ## Example reply
 
-`biomcp pathway genes R-HSA-5674135` returned this reply on 2026-10-27. Lists show their first items, and a line that starts with … counts the items left out. Text that ends in … is cut.
+`biomcp pathway genes R-HSA-5674135` returned this on 2026-10-27. Lists show their first items; a line with … counts the rest, and text ending in … is cut.
 
 ```json
 {
@@ -69,18 +69,12 @@ biomcp pathway genes R-HSA-5673001 details
     {
       "source": "reactome",
       "record": "chebi:37565",
-      "field": "genes.gene",
-      "code": "value.unknown"
-    }
-  ],
-  "next": [
-    {"kind": "pivot", "args": ["get", "gene", "HGNC:646"]},
-    … 5 more
-  ]
-}
+…
 ```
 
 ## Fields
+
+A field marked Optional can be missing from a reply. Every other field is always there.
 
 `result` holds [PathwayGenes](/reference/schemas/types/#pathwaygenes), a shared type. `query` holds [PathwayGenesQuery](#pathwaygenesquery). `query` repeats the request as BioMCP read it.
 
@@ -88,13 +82,13 @@ biomcp pathway genes R-HSA-5673001 details
 
 Read Reactome exact references or WikiPathways GeneProduct data nodes. The details layer discloses complete Reactome physical contexts. Membership names a source and release; it implies no therapy, response or actionability. No enrichment is calculated.
 
-| Field | Type | Always present | Meaning |
-| --- | --- | --- | --- |
-| `details` | [Details](#details) | no | Include every physical entity context for these references; never clips source text. |
-| `id` | string | yes | Checked source-owned human pathway identity. |
-| `limit` | integer (uint32) | no | Five complete relation rows by default, at most fifty. |
-| `offset` | integer (uint32) | no | Offset within the retained selected relation. |
-| `pool` | [Text](/reference/schemas/types/#text) | no | Immutable relation snapshot. |
+| Field | Type | Meaning |
+| --- | --- | --- |
+| `details` | [Details](#details) | Adds each reference's Reactome `PhysicalEntity` contexts, with their source text whole. Optional. |
+| `id` | string | Checked source-owned human pathway identity. |
+| `limit` | integer (uint32) | Five complete relation rows by default, at most fifty. Optional. |
+| `offset` | integer (uint32) | Offset within the retained selected relation. Optional. |
+| `pool` | [Text](/reference/schemas/types/#text) | Immutable relation snapshot. Optional. |
 
 ### Details
 
@@ -104,4 +98,4 @@ Values: `details`.
 
 ## Next
 
-[Reply envelope and shared types](/reference/schemas/types/) defines `status`, `sources`, `next` and every shared type. [Reply schemas](/reference/schemas/) lists every reply. [`biomcp pathway genes`](/reference/commands/pathway-genes/) gives the command's arguments.
+[`biomcp pathway genes`](/reference/commands/pathway-genes/) gives the command's arguments; [reply schemas](/reference/schemas/) lists every reply.

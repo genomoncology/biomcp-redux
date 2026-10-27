@@ -11,7 +11,7 @@ kind: reference
 verified: 2026-10-27
 ---
 
-BioMCP 1.0.0 prints one JSON object, the reply, for each command. [`biomcp get drug approvals`](/reference/commands/get-drug/) replies with `schema` set to `biomcp.drug_approvals/3`. Read this page when your code parses that reply. It shows a real reply, then the fields that only this schema has. The fields every reply shares are on [reply envelope and shared types](/reference/schemas/types/).
+BioMCP 1.0.0 prints one JSON object, the reply, for each command. [`biomcp get drug approvals`](/reference/commands/get-drug/) replies with `schema` set to `biomcp.drug_approvals/3`. Read this page when your code parses that reply: it shows a real one, then the fields only this schema has. [Shared types](/reference/schemas/types/) defines the rest.
 
 ## Commands that return it
 
@@ -26,7 +26,7 @@ biomcp get drug NDA220910 approvals --source drugsfda
 
 ## Example reply
 
-`biomcp get drug NDA220910 approvals --source drugsfda` returned this reply on 2026-10-27. Lists show their first items, and a line that starts with … counts the items left out. Text that ends in … is cut.
+`biomcp get drug NDA220910 approvals --source drugsfda` returned this on 2026-10-27. Lists show their first items; a line with … counts the rest, and text ending in … is cut.
 
 ```json
 {
@@ -69,16 +69,12 @@ biomcp get drug NDA220910 approvals --source drugsfda
   "next": [
     {
       "kind": "disambiguate",
-      "args": [
-        "get", "drug", "13a65923-d072-4dac-8620-8eabbf8c3641", "--source",
-        "openfda-label"
-      ]
-    }
-  ]
-}
+…
 ```
 
 ## Fields
+
+A field marked Optional can be missing from a reply. Every other field is always there.
 
 `result` holds [DrugApprovals](#drugapprovals). `query` holds [DrugGet](/reference/schemas/types/#drugget), a shared type. `query` repeats the request as BioMCP read it.
 
@@ -86,46 +82,46 @@ biomcp get drug NDA220910 approvals --source drugsfda
 
 Explicit native application/product history without a global approval flag.
 
-| Field | Type | Always present | Meaning |
-| --- | --- | --- | --- |
-| `approvals` | [Section](/reference/schemas/types/#section) of [DrugRecords](/reference/schemas/types/#drugrecords) of [DrugFdaSubmission](#drugfdasubmission) | yes | Existing typed section state, preserving empty, unavailable and skipped outcomes. |
-| `identity` | [DrugHeader](/reference/schemas/types/#drugheader) | yes | Selected native identity, checked independently of section facts. |
-| `products` | list of [DrugFdaProduct](/reference/schemas/types/#drugfdaproduct) | yes | Native products, filtered only by an explicit product number; independent of submissions. |
-| `source_updated` | [PartialDate](/reference/schemas/types/#partialdate) or null | no | Native FDA dataset last_updated date, independent of submission dates and retrieval. |
+| Field | Type | Meaning |
+| --- | --- | --- |
+| `approvals` | [Section](/reference/schemas/types/#section) of [DrugRecords](/reference/schemas/types/#drugrecords) of [DrugFdaSubmission](#drugfdasubmission) | Existing typed section state, preserving empty, unavailable and skipped outcomes. |
+| `identity` | [DrugHeader](/reference/schemas/types/#drugheader) | Selected native identity, checked independently of section facts. |
+| `products` | list of [DrugFdaProduct](/reference/schemas/types/#drugfdaproduct) | Native products, filtered only by an explicit product number; independent of submissions. |
+| `source_updated` | [PartialDate](/reference/schemas/types/#partialdate) or null | Native FDA dataset last_updated date, independent of submission dates and retrieval. Optional. |
 
 ### DrugFdaDocument
 
 A native application document link; the command does not download it.
 
-| Field | Type | Always present | Meaning |
-| --- | --- | --- | --- |
-| `date` | [PartialDate](/reference/schemas/types/#partialdate) | yes | Native document date, independent of event dates. |
-| `id` | [Text](/reference/schemas/types/#text) | yes | Source document identifier. |
-| `type` | [Text](/reference/schemas/types/#text) | yes | Original document type. |
-| `url` | [Text](/reference/schemas/types/#text) | yes | Original source URL. |
+| Field | Type | Meaning |
+| --- | --- | --- |
+| `date` | [PartialDate](/reference/schemas/types/#partialdate) | Native document date, independent of event dates. |
+| `id` | [Text](/reference/schemas/types/#text) | Source document identifier. |
+| `type` | [Text](/reference/schemas/types/#text) | Original document type. |
+| `url` | [Text](/reference/schemas/types/#text) | Original source URL. |
 
 ### DrugFdaProperty
 
 A source-stated submission property, without interpretation.
 
-| Field | Type | Always present | Meaning |
-| --- | --- | --- | --- |
-| `code` | [Text](/reference/schemas/types/#text) | yes | Original property code. |
+| Field | Type | Meaning |
+| --- | --- | --- |
+| `code` | [Text](/reference/schemas/types/#text) | Original property code. |
 
 ### DrugFdaSubmission
 
 One application-owned submission with common event facts and native FDA context.
 
-| Field | Type | Always present | Meaning |
-| --- | --- | --- | --- |
-| `application_docs` | list of [DrugFdaDocument](#drugfdadocument) or null | no | Native documents; document dates remain separate from the submission status date. |
-| `event` | [AuthorizationEvent](/reference/schemas/types/#authorizationevent) | yes | Historical native status, type and status date; no product applicability is implied. |
-| `review_priority` | [Text](/reference/schemas/types/#text) or null | no | Original review priority. |
-| `submission_class_code` | [Text](/reference/schemas/types/#text) or null | no | Native submission class code. |
-| `submission_class_code_description` | [Text](/reference/schemas/types/#text) or null | no | Native submission class description. |
-| `submission_number` | [Text](/reference/schemas/types/#text) | yes | Original submission number, scoped by application and event kind. |
-| `submission_property_type` | list of [DrugFdaProperty](#drugfdaproperty) or null | no | Native property collection; missing stays missing and an empty list stays empty. |
+| Field | Type | Meaning |
+| --- | --- | --- |
+| `application_docs` | list of [DrugFdaDocument](#drugfdadocument) or null | Native documents; document dates remain separate from the submission status date. Optional. |
+| `event` | [AuthorizationEvent](/reference/schemas/types/#authorizationevent) | Historical native status, type and status date; no product applicability is implied. |
+| `review_priority` | [Text](/reference/schemas/types/#text) or null | Original review priority. Optional. |
+| `submission_class_code` | [Text](/reference/schemas/types/#text) or null | Native submission class code. Optional. |
+| `submission_class_code_description` | [Text](/reference/schemas/types/#text) or null | Native submission class description. Optional. |
+| `submission_number` | [Text](/reference/schemas/types/#text) | Original submission number, scoped by application and event kind. |
+| `submission_property_type` | list of [DrugFdaProperty](#drugfdaproperty) or null | Native property collection; missing stays missing and an empty list stays empty. Optional. |
 
 ## Next
 
-[Reply envelope and shared types](/reference/schemas/types/) defines `status`, `sources`, `next` and every shared type. [Reply schemas](/reference/schemas/) lists every reply. [`biomcp get drug`](/reference/commands/get-drug/) gives the command's arguments.
+[`biomcp get drug`](/reference/commands/get-drug/) gives the command's arguments; [reply schemas](/reference/schemas/) lists every reply.

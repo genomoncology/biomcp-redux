@@ -11,7 +11,7 @@ kind: reference
 verified: 2026-10-27
 ---
 
-BioMCP 1.0.0 prints one JSON object, the reply, for each command. [`biomcp sync wikipathways`](/reference/commands/sync-wikipathways/) replies with `schema` set to `biomcp.wikipathways_sync/1`. Read this page when your code parses that reply. It shows a real reply, then the fields that only this schema has. The fields every reply shares are on [reply envelope and shared types](/reference/schemas/types/).
+BioMCP 1.0.0 prints one JSON object, the reply, for each command. [`biomcp sync wikipathways`](/reference/commands/sync-wikipathways/) replies with `schema` set to `biomcp.wikipathways_sync/1`. Read this page when your code parses that reply: it shows a real one, then the fields only this schema has. [Shared types](/reference/schemas/types/) defines the rest.
 
 ## Commands that return it
 
@@ -25,7 +25,7 @@ biomcp sync wikipathways
 
 ## Example reply
 
-`biomcp sync wikipathways` returned this reply on 2026-10-27. Lists show their first items, and a line that starts with … counts the items left out. Text that ends in … is cut.
+`biomcp sync wikipathways` returned this on 2026-10-27. Lists show their first items; a line with … counts the rest, and text ending in … is cut.
 
 ```json
 {
@@ -62,29 +62,31 @@ biomcp sync wikipathways
 
 ## Fields
 
+A field marked Optional can be missing from a reply. Every other field is always there.
+
 `result` holds [WikiPathwaysSync](#wikipathwayssync). `query` holds [SyncQuery](/reference/schemas/types/#syncquery), a shared type. `query` repeats the request as BioMCP read it.
 
 ### WikiPathwaysSync
 
 Two independently validated metadata catalogs; no catalog body in stdout.
 
-| Field | Type | Always present | Meaning |
-| --- | --- | --- | --- |
-| `get` | [WikiPathwaysCatalogReceipt](#wikipathwayscatalogreceipt) | yes | Exact-get metadata catalog receipt. |
-| `search` | [WikiPathwaysCatalogReceipt](#wikipathwayscatalogreceipt) | yes | Search metadata catalog receipt. |
+| Field | Type | Meaning |
+| --- | --- | --- |
+| `get` | [WikiPathwaysCatalogReceipt](#wikipathwayscatalogreceipt) | Exact-get metadata catalog receipt. |
+| `search` | [WikiPathwaysCatalogReceipt](#wikipathwayscatalogreceipt) | Search metadata catalog receipt. |
 
 ### WikiPathwaysCatalogReceipt
 
 Receipt for one independently validated WikiPathways metadata catalog.
 
-| Field | Type | Always present | Meaning |
-| --- | --- | --- | --- |
-| `bytes` | integer (uint64) | yes | Bytes in this catalog, not the other catalog or a GPML archive. |
-| `human_rows` | integer (uint64) | yes | Source-stated human rows in this catalog. |
-| `revision` | [Text](/reference/schemas/types/#text) | yes | This catalog's retained revision. |
-| `sha256` | [Text](/reference/schemas/types/#text) | yes | Hash of this catalog's retained native bytes. |
-| `total_rows` | integer (uint64) | yes | All native rows in this catalog before human filtering. |
+| Field | Type | Meaning |
+| --- | --- | --- |
+| `bytes` | integer (uint64) | Bytes in this catalog, not the other catalog or a GPML archive. |
+| `human_rows` | integer (uint64) | Source-stated human rows in this catalog. |
+| `revision` | [Text](/reference/schemas/types/#text) | This catalog's retained revision. |
+| `sha256` | [Text](/reference/schemas/types/#text) | Hash of this catalog's retained native bytes. |
+| `total_rows` | integer (uint64) | All native rows in this catalog before human filtering. |
 
 ## Next
 
-[Reply envelope and shared types](/reference/schemas/types/) defines `status`, `sources`, `next` and every shared type. [Reply schemas](/reference/schemas/) lists every reply. [`biomcp sync wikipathways`](/reference/commands/sync-wikipathways/) gives the command's arguments.
+[`biomcp sync wikipathways`](/reference/commands/sync-wikipathways/) gives the command's arguments; [reply schemas](/reference/schemas/) lists every reply.

@@ -54,4 +54,4 @@ The reply is one JSON object. Its schema is [`biomcp.disease_sites/2`](/referenc
 
 ## Next
 
-[Exit codes](/reference/error-codes/) gives what each exit code means, and [global options](/reference/global-options/) the options every command takes. The [disease guide](/user-guide/disease/) shows every disease command at work.
+The [disease guide](/user-guide/disease/) shows every disease command at work. [Exit codes](/reference/error-codes/) gives what each exit code means, and [global options](/reference/global-options/) the options every command takes.

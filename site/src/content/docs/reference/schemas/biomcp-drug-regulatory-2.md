@@ -11,7 +11,7 @@ kind: reference
 verified: 2026-10-27
 ---
 
-BioMCP 1.0.0 prints one JSON object, the reply, for each command. [`biomcp get drug regulatory`](/reference/commands/get-drug/) and [`biomcp get drug`](/reference/commands/get-drug/) reply with `schema` set to `biomcp.drug_regulatory/2`. Read this page when your code parses that reply. It shows a real reply, then the fields that only this schema has. The fields every reply shares are on [reply envelope and shared types](/reference/schemas/types/).
+BioMCP 1.0.0 prints one JSON object, the reply, for each command. [`biomcp get drug regulatory`](/reference/commands/get-drug/) and [`biomcp get drug`](/reference/commands/get-drug/) reply with `schema` set to `biomcp.drug_regulatory/2`. Read this page when your code parses that reply: it shows a real one, then the fields only this schema has. [Shared types](/reference/schemas/types/) defines the rest.
 
 ## Commands that return it
 
@@ -25,7 +25,7 @@ biomcp get drug EMEA/H/C/002409 regulatory --source ema
 
 ## Example reply
 
-`biomcp get drug EMEA/H/C/002409 regulatory --source ema` returned this reply on 2026-10-27. Lists show their first items, and a line that starts with … counts the items left out. Text that ends in … is cut.
+`biomcp get drug EMEA/H/C/002409 regulatory --source ema` returned this on 2026-10-27. Lists show their first items; a line with … counts the rest, and text ending in … is cut.
 
 ```json
 {
@@ -49,28 +49,7 @@ biomcp get drug EMEA/H/C/002409 regulatory --source ema
       "state": "data",
       "source": "ema",
       "data": {
-        "records": [
-          {
-            "record": "EMEA/H/C/002409",
-            "status": "Authorised",
-            "dates": [
-              {
-                "role": "european_commission_decision_date",
-                "date": "2025-06-19"
-              },
-              … 4 more
-            ],
-            "indication": "Vemurafenib is indicated in monotherapy for the tr…",
-            "attribution": {
-              "source": "ema",
-              "record": "EMEA/H/C/002409",
-              "version": "26",
-              "release": "2026-10-27T18:19:10Z",
-              "submitter": "Roche Registration GmbH",
-              "url": "https://www.ema.europa.eu/en/medicines/human/EPAR/zelbor…"
-            }
-          }
-        ],
+        "records": […],
         "offset": 0,
         "total": 1,
         "version": "2026-10-27T18:19:10Z"
@@ -92,17 +71,19 @@ biomcp get drug EMEA/H/C/002409 regulatory --source ema
 
 ## Fields
 
+A field marked Optional can be missing from a reply. Every other field is always there.
+
 `result` holds [DrugRegulatory](#drugregulatory). `query` holds [DrugGet](/reference/schemas/types/#drugget), a shared type. `query` repeats the request as BioMCP read it.
 
 ### DrugRegulatory
 
 Source-scoped regulator events preserving date roles and original status.
 
-| Field | Type | Always present | Meaning |
-| --- | --- | --- | --- |
-| `identity` | [DrugHeader](/reference/schemas/types/#drugheader) | yes | Selected native identity, checked independently of section facts. |
-| `regulatory` | [Section](/reference/schemas/types/#section) of [DrugRecords](/reference/schemas/types/#drugrecords) of [AuthorizationEvent](/reference/schemas/types/#authorizationevent) | yes | Existing typed section state, preserving empty, unavailable and skipped outcomes. |
+| Field | Type | Meaning |
+| --- | --- | --- |
+| `identity` | [DrugHeader](/reference/schemas/types/#drugheader) | Selected native identity, checked independently of section facts. |
+| `regulatory` | [Section](/reference/schemas/types/#section) of [DrugRecords](/reference/schemas/types/#drugrecords) of [AuthorizationEvent](/reference/schemas/types/#authorizationevent) | Existing typed section state, preserving empty, unavailable and skipped outcomes. |
 
 ## Next
 
-[Reply envelope and shared types](/reference/schemas/types/) defines `status`, `sources`, `next` and every shared type. [Reply schemas](/reference/schemas/) lists every reply. [`biomcp get drug`](/reference/commands/get-drug/) gives the command's arguments.
+[`biomcp get drug`](/reference/commands/get-drug/) gives the command's arguments; [reply schemas](/reference/schemas/) lists every reply.

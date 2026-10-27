@@ -11,7 +11,7 @@ kind: reference
 verified: 2026-10-27
 ---
 
-BioMCP 1.0.0 prints one JSON object, the reply, for each command. [`biomcp protein structures`](/reference/commands/protein-structures/) replies with `schema` set to `biomcp.protein_structures/1`. Read this page when your code parses that reply. It shows a real reply, then the fields that only this schema has. The fields every reply shares are on [reply envelope and shared types](/reference/schemas/types/).
+BioMCP 1.0.0 prints one JSON object, the reply, for each command. [`biomcp protein structures`](/reference/commands/protein-structures/) replies with `schema` set to `biomcp.protein_structures/1`. Read this page when your code parses that reply: it shows a real one, then the fields only this schema has. [Shared types](/reference/schemas/types/) defines the rest.
 
 ## Commands that return it
 
@@ -26,7 +26,7 @@ biomcp protein structures P00533 --limit 1
 
 ## Example reply
 
-`biomcp protein structures P00533` returned this reply on 2026-10-27. Lists show their first items, and a line that starts with … counts the items left out. Text that ends in … is cut.
+`biomcp protein structures P00533` returned this on 2026-10-27. Lists show their first items; a line with … counts the rest, and text ending in … is cut.
 
 ```json
 {
@@ -35,27 +35,8 @@ biomcp protein structures P00533 --limit 1
   "query": {"accession": "P00533", "limit": 5, "offset": 0},
   "result": {
     "items": [
-      {
-        "database": "PDB",
-        "id": "1IVO",
-        "url": "https://www.rcsb.org/structure/1IVO",
-        "properties": [
-          {"key": "Method", "value": "X-ray"},
-          {"key": "Resolution", "value": "3.30 A"},
-          … 1 more
-        ]
-      },
-      {
-        "database": "PDB",
-        "id": "1M14",
-        "url": "https://www.rcsb.org/structure/1M14",
-        "properties": [
-          {"key": "Method", "value": "X-ray"},
-          {"key": "Resolution", "value": "2.60 A"},
-          … 1 more
-        ]
-      },
-      … 3 more
+      {…},
+      … 4 more
     ]
   },
   "page": {
@@ -92,10 +73,12 @@ biomcp protein structures P00533 --limit 1
 
 ## Fields
 
+A field marked Optional can be missing from a reply. Every other field is always there.
+
 `result` holds [ProteinStructures](/reference/schemas/types/#proteinstructures), a shared type. `query` holds [ProteinRelationQuery](/reference/schemas/types/#proteinrelationquery), a shared type. `query` repeats the request as BioMCP read it.
 
 Every type this reply uses is shared with other replies, so its fields are on the shared types page.
 
 ## Next
 
-[Reply envelope and shared types](/reference/schemas/types/) defines `status`, `sources`, `next` and every shared type. [Reply schemas](/reference/schemas/) lists every reply. [`biomcp protein structures`](/reference/commands/protein-structures/) gives the command's arguments.
+[`biomcp protein structures`](/reference/commands/protein-structures/) gives the command's arguments; [reply schemas](/reference/schemas/) lists every reply.

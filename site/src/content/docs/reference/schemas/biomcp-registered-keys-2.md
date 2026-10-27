@@ -11,7 +11,7 @@ kind: reference
 verified: 2026-10-27
 ---
 
-BioMCP 1.0.0 prints one JSON object, the reply, for each command. [`biomcp key list`](/reference/commands/key-list/) replies with `schema` set to `biomcp.registered-keys/2`. Read this page when your code parses that reply. It shows a real reply, then the fields that only this schema has. The fields every reply shares are on [reply envelope and shared types](/reference/schemas/types/).
+BioMCP 1.0.0 prints one JSON object, the reply, for each command. [`biomcp key list`](/reference/commands/key-list/) replies with `schema` set to `biomcp.registered-keys/2`. Read this page when your code parses that reply: it shows a real one, then the fields only this schema has. [Shared types](/reference/schemas/types/) defines the rest.
 
 ## Commands that return it
 
@@ -25,7 +25,7 @@ biomcp key list
 
 ## Example reply
 
-`biomcp key list` returned this reply on 2026-10-27. Lists show their first items, and a line that starts with … counts the items left out. Text that ends in … is cut.
+`biomcp key list` returned this on 2026-10-27. Lists show their first items; a line with … counts the rest, and text ending in … is cut.
 
 ```json
 {
@@ -54,15 +54,17 @@ biomcp key list
 
 ## Fields
 
+A field marked Optional can be missing from a reply. Every other field is always there.
+
 `result` holds [RegisteredKeys](#registeredkeys). `query` repeats the request as BioMCP read it.
 
 ### RegisteredKeys
 
 Results of human credential registration.
 
-| Field | Type | Always present | Meaning |
-| --- | --- | --- | --- |
-| `entries` | list of [RegisteredKey](#registeredkey) | yes | Redacted credential identities. |
+| Field | Type | Meaning |
+| --- | --- | --- |
+| `entries` | list of [RegisteredKey](#registeredkey) | Redacted credential identities. |
 
 ### KeyState
 
@@ -74,13 +76,13 @@ Values: `stored`, `environment`, `none`.
 
 Credential identity and redacted presence.
 
-| Field | Type | Always present | Meaning |
-| --- | --- | --- | --- |
-| `config` | [Text](/reference/schemas/types/#text) | yes | Configuration name. |
-| `environment` | [Text](/reference/schemas/types/#text) | yes | Environment fallback name. |
-| `source` | [Text](/reference/schemas/types/#text) | yes | Source accepted by key set. |
-| `state` | [KeyState](#keystate) | yes | Current credential origin. |
+| Field | Type | Meaning |
+| --- | --- | --- |
+| `config` | [Text](/reference/schemas/types/#text) | Configuration name. |
+| `environment` | [Text](/reference/schemas/types/#text) | Environment fallback name. |
+| `source` | [Text](/reference/schemas/types/#text) | Source accepted by key set. |
+| `state` | [KeyState](#keystate) | Current credential origin. |
 
 ## Next
 
-[Reply envelope and shared types](/reference/schemas/types/) defines `status`, `sources`, `next` and every shared type. [Reply schemas](/reference/schemas/) lists every reply. [`biomcp key list`](/reference/commands/key-list/) gives the command's arguments.
+[`biomcp key list`](/reference/commands/key-list/) gives the command's arguments; [reply schemas](/reference/schemas/) lists every reply.

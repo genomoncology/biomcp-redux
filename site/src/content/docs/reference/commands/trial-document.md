@@ -50,4 +50,4 @@ The reply is one JSON object. Its schema is [`biomcp.trial_document/2`](/referen
 
 ## Next
 
-[Exit codes](/reference/error-codes/) gives what each exit code means, and [global options](/reference/global-options/) the options every command takes. The [trial guide](/user-guide/trial/) shows every trial command at work.
+The [trial guide](/user-guide/trial/) shows every trial command at work. [Exit codes](/reference/error-codes/) gives what each exit code means, and [global options](/reference/global-options/) the options every command takes.

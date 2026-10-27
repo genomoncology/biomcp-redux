@@ -11,7 +11,7 @@ kind: reference
 verified: 2026-10-27
 ---
 
-BioMCP 1.0.0 prints one JSON object, the reply, for each command. [`biomcp protein isoforms`](/reference/commands/protein-isoforms/) replies with `schema` set to `biomcp.protein_isoforms/1`. Read this page when your code parses that reply. It shows a real reply, then the fields that only this schema has. The fields every reply shares are on [reply envelope and shared types](/reference/schemas/types/).
+BioMCP 1.0.0 prints one JSON object, the reply, for each command. [`biomcp protein isoforms`](/reference/commands/protein-isoforms/) replies with `schema` set to `biomcp.protein_isoforms/1`. Read this page when your code parses that reply: it shows a real one, then the fields only this schema has. [Shared types](/reference/schemas/types/) defines the rest.
 
 ## Commands that return it
 
@@ -26,7 +26,7 @@ biomcp protein isoforms P00533 --limit 1
 
 ## Example reply
 
-`biomcp protein isoforms P00533` returned this reply on 2026-10-27. Lists show their first items, and a line that starts with … counts the items left out. Text that ends in … is cut.
+`biomcp protein isoforms P00533` returned this on 2026-10-27. Lists show their first items; a line with … counts the rest, and text ending in … is cut.
 
 ```json
 {
@@ -42,15 +42,7 @@ biomcp protein isoforms P00533 --limit 1
         "sequence_status": "Displayed",
         "direct_sequence": "not_checked"
       },
-      {
-        "ids": ["P00533-2"],
-        "name": "2",
-        "synonyms": ["p60", "Truncated", "TEGFR"],
-        "sequence_status": "Described",
-        "sequence_ids": ["VSP_002887", "VSP_002888"],
-        "direct_sequence": "not_checked"
-      },
-      … 2 more
+      … 3 more
     ]
   },
   "page": {
@@ -78,10 +70,12 @@ biomcp protein isoforms P00533 --limit 1
 
 ## Fields
 
+A field marked Optional can be missing from a reply. Every other field is always there.
+
 `result` holds [ProteinIsoforms](/reference/schemas/types/#proteinisoforms), a shared type. `query` holds [ProteinRelationQuery](/reference/schemas/types/#proteinrelationquery), a shared type. `query` repeats the request as BioMCP read it.
 
 Every type this reply uses is shared with other replies, so its fields are on the shared types page.
 
 ## Next
 
-[Reply envelope and shared types](/reference/schemas/types/) defines `status`, `sources`, `next` and every shared type. [Reply schemas](/reference/schemas/) lists every reply. [`biomcp protein isoforms`](/reference/commands/protein-isoforms/) gives the command's arguments.
+[`biomcp protein isoforms`](/reference/commands/protein-isoforms/) gives the command's arguments; [reply schemas](/reference/schemas/) lists every reply.

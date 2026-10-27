@@ -11,7 +11,7 @@ kind: reference
 verified: 2026-10-27
 ---
 
-BioMCP 1.0.0 prints one JSON object, the reply, for each command. [`biomcp get study`](/reference/commands/get-study/) replies with `schema` set to `biomcp.study_card/2`. Read this page when your code parses that reply. It shows a real reply, then the fields that only this schema has. The fields every reply shares are on [reply envelope and shared types](/reference/schemas/types/).
+BioMCP 1.0.0 prints one JSON object, the reply, for each command. [`biomcp get study`](/reference/commands/get-study/) replies with `schema` set to `biomcp.study_card/2`. Read this page when your code parses that reply: it shows a real one, then the fields only this schema has. [Shared types](/reference/schemas/types/) defines the rest.
 
 ## Commands that return it
 
@@ -25,7 +25,7 @@ biomcp get study synthetic_0
 
 ## Example reply
 
-`biomcp get study synthetic_0` returned this reply on 2026-10-27. Lists show their first items, and a line that starts with … counts the items left out. Text that ends in … is cut.
+`biomcp get study synthetic_0` returned this on 2026-10-27. Lists show their first items; a line with … counts the rest, and text ending in … is cut.
 
 ```json
 {
@@ -59,39 +59,41 @@ The source did not answer that run, so `status` is `failed` and `result` is miss
 
 ## Fields
 
+A field marked Optional can be missing from a reply. Every other field is always there.
+
 `result` holds [StudyCard](#studycard). `query` holds [StudyGet](/reference/schemas/types/#studyget), a shared type. `query` repeats the request as BioMCP read it.
 
 ### StudyCard
 
 Exact card with independent live section states and catalog provenance.
 
-| Field | Type | Always present | Meaning |
-| --- | --- | --- | --- |
-| `files` | [Section](/reference/schemas/types/#section) of [StudyFiles](/reference/schemas/types/#studyfiles) or null | no | Requested file-reference page, with no downloaded data. |
-| `profiles` | [Section](/reference/schemas/types/#section) of [StudyProfiles](/reference/schemas/types/#studyprofiles) or null | no | Requested molecular-profile page, absent when not requested. |
-| `sample_lists` | [Section](/reference/schemas/types/#section) of [StudySampleLists](/reference/schemas/types/#studysamplelists) or null | no | Requested sample-list metadata page, without member IDs. |
-| `snapshot` | [StudySnapshot](/reference/schemas/types/#studysnapshot) | yes | Catalog revision and acquisition, apart from each live section's time. |
-| `source_url` | [Text](/reference/schemas/types/#text) | yes | Exact publisher study page for this checked source identity. |
-| `study` | [Study](#study) | yes | Native card metadata, preserving all source count distinctions. |
+| Field | Type | Meaning |
+| --- | --- | --- |
+| `files` | [Section](/reference/schemas/types/#section) of [StudyFiles](/reference/schemas/types/#studyfiles) or null | Requested file-reference page, with no downloaded data. Optional. |
+| `profiles` | [Section](/reference/schemas/types/#section) of [StudyProfiles](/reference/schemas/types/#studyprofiles) or null | Requested molecular-profile page, absent when not requested. Optional. |
+| `sample_lists` | [Section](/reference/schemas/types/#section) of [StudySampleLists](/reference/schemas/types/#studysamplelists) or null | Requested sample-list metadata page, without member IDs. Optional. |
+| `snapshot` | [StudySnapshot](/reference/schemas/types/#studysnapshot) | Catalog revision and acquisition, apart from each live section's time. |
+| `source_url` | [Text](/reference/schemas/types/#text) | Exact publisher study page for this checked source identity. |
+| `study` | [Study](#study) | Native card metadata, preserving all source count distinctions. |
 
 ### Study
 
 Source-specific study card metadata; no inferred denominator or gene aggregate.
 
-| Field | Type | Always present | Meaning |
-| --- | --- | --- | --- |
-| `cnaSampleCount` | integer (uint64) | yes | Native cnaSampleCount. |
-| `description` | string | yes | Native description. |
-| `groups` | string | yes | Native access groups, possibly empty; not a reuse license. |
-| `header` | [StudyHeader](/reference/schemas/types/#studyheader) | yes | Compact study identity and publication references. |
-| `importDate` | [StudyImportTime](#studyimporttime) | yes | Native timezone-unstated import time. |
-| `patientCount` | integer or null | no | Only an explicitly stated card patientCount; captured cards omit it, distinct from zero. |
-| `publicStudy` | boolean | yes | Native public-study access metadata. |
-| `readPermission` | boolean | yes | Native access metadata; not a reuse license. |
-| `resourceCounts` | list of [StudyResourceCount](#studyresourcecount) | yes | Independent resource-scoped counts, never summed into study totals. |
-| `sequencedSampleCount` | integer (uint64) | yes | Native sequencedSampleCount, not gene coverage. |
-| `structuralVariantCount` | integer (uint64) | yes | Native structuralVariantCount; its name does not imply sample units. |
-| `treatmentCount` | integer (uint64) | yes | Native treatmentCount without a unit conversion. |
+| Field | Type | Meaning |
+| --- | --- | --- |
+| `cnaSampleCount` | integer (uint64) | Native cnaSampleCount. |
+| `description` | string | Native description. |
+| `groups` | string | Native access groups, possibly empty; not a reuse license. |
+| `header` | [StudyHeader](/reference/schemas/types/#studyheader) | Compact study identity and publication references. |
+| `importDate` | [StudyImportTime](#studyimporttime) | Native timezone-unstated import time. |
+| `patientCount` | integer or null | Only an explicitly stated card patientCount; captured cards omit it, distinct from zero. Optional. |
+| `publicStudy` | boolean | Native public-study access metadata. |
+| `readPermission` | boolean | Native access metadata; not a reuse license. |
+| `resourceCounts` | list of [StudyResourceCount](#studyresourcecount) | Independent resource-scoped counts, never summed into study totals. |
+| `sequencedSampleCount` | integer (uint64) | Native sequencedSampleCount, not gene coverage. |
+| `structuralVariantCount` | integer (uint64) | Native structuralVariantCount; its name does not imply sample units. |
+| `treatmentCount` | integer (uint64) | Native treatmentCount without a unit conversion. |
 
 ### StudyImportTime
 
@@ -101,17 +103,17 @@ Type: string.
 
 One native resource scope; counts remain attached to its study and resource.
 
-| Field | Type | Always present | Meaning |
-| --- | --- | --- | --- |
-| `cancerStudyIdentifier` | [StudyId](/reference/schemas/types/#studyid) | yes | Exact resource study scope. |
-| `description` | string | yes | Native resource description. |
-| `displayName` | string | yes | Native resource display name. |
-| `openByDefault` | boolean | yes | Native access/display setting, not a reuse license. |
-| `patientCount` | integer (uint64) | yes | Native patient count within this resource only. |
-| `priority` | [Text](/reference/schemas/types/#text) | yes | Native priority string, without numeric reinterpretation. |
-| `resourceId` | [StudyResourceId](#studyresourceid) | yes | Native resource ID. |
-| `resourceType` | [Text](/reference/schemas/types/#text) | yes | Extensible native resource type, not a derived count unit. |
-| `sampleCount` | integer (uint64) | yes | Native count within this resource only. |
+| Field | Type | Meaning |
+| --- | --- | --- |
+| `cancerStudyIdentifier` | [StudyId](/reference/schemas/types/#studyid) | Exact resource study scope. |
+| `description` | string | Native resource description. |
+| `displayName` | string | Native resource display name. |
+| `openByDefault` | boolean | Native access/display setting, not a reuse license. |
+| `patientCount` | integer (uint64) | Native patient count within this resource only. |
+| `priority` | [Text](/reference/schemas/types/#text) | Native priority string, without numeric reinterpretation. |
+| `resourceId` | [StudyResourceId](#studyresourceid) | Native resource ID. |
+| `resourceType` | [Text](/reference/schemas/types/#text) | Extensible native resource type, not a derived count unit. |
+| `sampleCount` | integer (uint64) | Native count within this resource only. |
 
 ### StudyResourceId
 
@@ -119,4 +121,4 @@ Type: string.
 
 ## Next
 
-[Reply envelope and shared types](/reference/schemas/types/) defines `status`, `sources`, `next` and every shared type. [Reply schemas](/reference/schemas/) lists every reply. [`biomcp get study`](/reference/commands/get-study/) gives the command's arguments.
+[`biomcp get study`](/reference/commands/get-study/) gives the command's arguments; [reply schemas](/reference/schemas/) lists every reply.

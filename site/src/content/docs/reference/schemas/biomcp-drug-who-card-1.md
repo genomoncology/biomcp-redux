@@ -11,7 +11,7 @@ kind: reference
 verified: 2026-10-27
 ---
 
-BioMCP 1.0.0 prints one JSON object, the reply, for each command. [`biomcp get drug`](/reference/commands/get-drug/) replies with `schema` set to `biomcp.drug_who_card/1`. Read this page when your code parses that reply. It shows a real reply, then the fields that only this schema has. The fields every reply shares are on [reply envelope and shared types](/reference/schemas/types/).
+BioMCP 1.0.0 prints one JSON object, the reply, for each command. [`biomcp get drug`](/reference/commands/get-drug/) replies with `schema` set to `biomcp.drug_who_card/1`. Read this page when your code parses that reply: it shows a real one, then the fields only this schema has. [Shared types](/reference/schemas/types/) defines the rest.
 
 ## Commands that return it
 
@@ -25,7 +25,7 @@ biomcp get drug 'EMA Art 58 H-W-2319-2' --source who-pq
 
 ## Example reply
 
-`biomcp get drug 'EMA Art 58 H-W-2319-2' --source who-pq` returned this reply on 2026-10-27. Lists show their first items, and a line that starts with … counts the items left out. Text that ends in … is cut.
+`biomcp get drug 'EMA Art 58 H-W-2319-2' --source who-pq` returned this on 2026-10-27. Lists show their first items; a line with … counts the rest, and text ending in … is cut.
 
 ```json
 {
@@ -53,26 +53,28 @@ The source did not answer that run, so `status` is `failed` and `result` is miss
 
 ## Fields
 
+A field marked Optional can be missing from a reply. Every other field is always there.
+
 `result` holds [DrugWhoCard](#drugwhocard). `query` holds [DrugWhoGet](#drugwhoget). `query` repeats the request as BioMCP read it.
 
 ### DrugWhoCard
 
 Source-scoped native rows for one exact WHO reference.
 
-| Field | Type | Always present | Meaning |
-| --- | --- | --- | --- |
-| `native_rows` | list of [DrugWhoRow](/reference/schemas/types/#drugwhorow) | yes | Every native row for that reference, without invented fields. |
-| `reference` | [Text](/reference/schemas/types/#text) | yes | Exact requested and source-matched reference. |
+| Field | Type | Meaning |
+| --- | --- | --- |
+| `native_rows` | list of [DrugWhoRow](/reference/schemas/types/#drugwhorow) | Every native row for that reference, without invented fields. |
+| `reference` | [Text](/reference/schemas/types/#text) | Exact requested and source-matched reference. |
 
 ### DrugWhoGet
 
 WHO exact-reference selector keeps the shared DrugId contract unchanged.
 
-| Field | Type | Always present | Meaning |
-| --- | --- | --- | --- |
-| `input` | [Text](/reference/schemas/types/#text) | yes | Exact WHO reference number, including native spaces; no name or alias resolution. |
-| `source` | [DrugSource](/reference/schemas/types/#drugsource) | yes | Explicit source who-pq; prequalification is source-scoped. |
+| Field | Type | Meaning |
+| --- | --- | --- |
+| `input` | [Text](/reference/schemas/types/#text) | Exact WHO reference number, including native spaces; no name or alias resolution. |
+| `source` | [DrugSource](/reference/schemas/types/#drugsource) | Explicit source who-pq; prequalification is source-scoped. |
 
 ## Next
 
-[Reply envelope and shared types](/reference/schemas/types/) defines `status`, `sources`, `next` and every shared type. [Reply schemas](/reference/schemas/) lists every reply. [`biomcp get drug`](/reference/commands/get-drug/) gives the command's arguments.
+[`biomcp get drug`](/reference/commands/get-drug/) gives the command's arguments; [reply schemas](/reference/schemas/) lists every reply.

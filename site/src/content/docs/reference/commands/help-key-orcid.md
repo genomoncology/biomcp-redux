@@ -26,10 +26,23 @@ biomcp help key orcid
 
 The command takes no arguments beyond those in its usage line.
 
+## The key
+
+`biomcp help key orcid` reports these settings for the orcid key:
+
+| Setting | Value |
+| --- | --- |
+| Set it with | `biomcp key set orcid` |
+| Source it unlocks | [orcid](/sources/orcid/) |
+| Field in config.json | `keys.orcid_access_token` |
+| Environment variable | `ORCID_ACCESS_TOKEN` |
+
+[Keys and configuration](/getting-started/api-keys/) shows how to set it.
+
 ## Reply
 
 The reply is one JSON object. Its schema is [`biomcp.key/2`](/reference/schemas/biomcp-key-2/), whose page shows a real reply and its fields.
 
 ## Next
 
-[Exit codes](/reference/error-codes/) gives what each exit code means, and [global options](/reference/global-options/) the options every command takes. The [commands index](/reference/commands/) lists every command.
+The [commands index](/reference/commands/) lists every command.

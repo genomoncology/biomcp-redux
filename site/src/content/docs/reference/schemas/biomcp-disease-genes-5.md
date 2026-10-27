@@ -11,7 +11,7 @@ kind: reference
 verified: 2026-10-27
 ---
 
-BioMCP 1.0.0 prints one JSON object, the reply, for each command. [`biomcp get disease genes`](/reference/commands/get-disease/) replies with `schema` set to `biomcp.disease_genes/5`. Read this page when your code parses that reply. It shows a real reply, then the fields that only this schema has. The fields every reply shares are on [reply envelope and shared types](/reference/schemas/types/).
+BioMCP 1.0.0 prints one JSON object, the reply, for each command. [`biomcp get disease genes`](/reference/commands/get-disease/) replies with `schema` set to `biomcp.disease_genes/5`. Read this page when your code parses that reply: it shows a real one, then the fields only this schema has. [Shared types](/reference/schemas/types/) defines the rest.
 
 ## Commands that return it
 
@@ -25,7 +25,7 @@ biomcp get disease MONDO:0005105 genes --source monarch --section-limit 3
 
 ## Example reply
 
-`biomcp get disease MONDO:0005105 genes --source monarch --section-limit 3` returned this reply on 2026-10-27. Lists show their first items, and a line that starts with … counts the items left out. Text that ends in … is cut.
+`biomcp get disease MONDO:0005105 genes --source monarch --section-limit 3` returned this on 2026-10-27. Lists show their first items; a line with … counts the rest, and text ending in … is cut.
 
 ```json
 {
@@ -40,17 +40,11 @@ biomcp get disease MONDO:0005105 genes --source monarch --section-limit 3
   },
   "result": {
     "items": [
-      {
-        "association": {…},
-        "components": […]
-      },
+      {…},
       … 2 more
     ],
     "components": [
-      {
-        "component": "hpo",
-        "terms": {…}
-      },
+      {…},
       … 1 more
     ],
     "fetched": 1793140301
@@ -66,10 +60,7 @@ biomcp get disease MONDO:0005105 genes --source monarch --section-limit 3
     }
   ],
   "next": [
-    {
-      "kind": "disambiguate",
-      "args": ["get", "gene", "HGNC:950"]
-    },
+    {"kind": "disambiguate", "args": ["get", "gene", "HGNC:950"]},
     … 3 more
   ]
 }
@@ -77,18 +68,20 @@ biomcp get disease MONDO:0005105 genes --source monarch --section-limit 3
 
 ## Fields
 
+A field marked Optional can be missing from a reply. Every other field is always there.
+
 `result` holds [DiseaseGenes](#diseasegenes). `query` holds [DiseaseGet](/reference/schemas/types/#diseaseget), a shared type. `query` repeats the request as BioMCP read it.
 
 ### DiseaseGenes
 
 Native association rows, not a unique-gene count.
 
-| Field | Type | Always present | Meaning |
-| --- | --- | --- | --- |
-| `components` | list of [ComponentLabel](/reference/schemas/types/#componentlabel) | yes | Applicable component use terms, independent of row provenance. |
-| `fetched` | integer or null | no | Original response retrieval Unix seconds, independent of local delivery. |
-| `items` | list of [DiseaseAssociationItem](/reference/schemas/types/#diseaseassociationitem) | yes | Rows as the source gives them. Totals in `page` count rows, not distinct records. |
+| Field | Type | Meaning |
+| --- | --- | --- |
+| `components` | list of [ComponentLabel](/reference/schemas/types/#componentlabel) | Applicable component use terms, independent of row provenance. |
+| `fetched` | integer or null | Original response retrieval Unix seconds, independent of local delivery. Optional. |
+| `items` | list of [DiseaseAssociationItem](/reference/schemas/types/#diseaseassociationitem) | Rows as the source gives them. Totals in `page` count rows, not distinct records. |
 
 ## Next
 
-[Reply envelope and shared types](/reference/schemas/types/) defines `status`, `sources`, `next` and every shared type. [Reply schemas](/reference/schemas/) lists every reply. [`biomcp get disease`](/reference/commands/get-disease/) gives the command's arguments.
+[`biomcp get disease`](/reference/commands/get-disease/) gives the command's arguments; [reply schemas](/reference/schemas/) lists every reply.

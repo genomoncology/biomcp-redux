@@ -62,4 +62,4 @@ The reply is one JSON object. Its schema is [`biomcp.cell_line_card/3`](/referen
 
 ## Next
 
-[Exit codes](/reference/error-codes/) gives what each exit code means, and [global options](/reference/global-options/) the options every command takes. The [cell-line guide](/user-guide/cell-line/) shows every cell-line command at work.
+The [cell-line guide](/user-guide/cell-line/) shows every cell-line command at work. [Exit codes](/reference/error-codes/) gives what each exit code means, and [global options](/reference/global-options/) the options every command takes.

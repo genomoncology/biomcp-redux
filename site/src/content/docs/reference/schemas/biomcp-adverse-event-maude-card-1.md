@@ -11,7 +11,7 @@ kind: reference
 verified: 2026-10-27
 ---
 
-BioMCP 1.0.0 prints one JSON object, the reply, for each command. [`biomcp get adverse-event`](/reference/commands/get-adverse-event/) replies with `schema` set to `biomcp.adverse_event_maude_card/1`. Read this page when your code parses that reply. It shows a real reply, then the fields that only this schema has. The fields every reply shares are on [reply envelope and shared types](/reference/schemas/types/).
+BioMCP 1.0.0 prints one JSON object, the reply, for each command. [`biomcp get adverse-event`](/reference/commands/get-adverse-event/) replies with `schema` set to `biomcp.adverse_event_maude_card/1`. Read this page when your code parses that reply: it shows a real one, then the fields only this schema has. [Shared types](/reference/schemas/types/) defines the rest.
 
 ## Commands that return it
 
@@ -25,7 +25,7 @@ biomcp get adverse-event 50941416 --source maude
 
 ## Example reply
 
-`biomcp get adverse-event 50941416 --source maude` returned this reply on 2026-10-27. Lists show their first items, and a line that starts with … counts the items left out. Text that ends in … is cut.
+`biomcp get adverse-event 50941416 --source maude` returned this on 2026-10-27. Lists show their first items; a line with … counts the rest, and text ending in … is cut.
 
 ```json
 {
@@ -68,27 +68,12 @@ biomcp get adverse-event 50941416 --source maude
     }
   ],
   "next": [
-    {
-      "kind": "section",
-      "args": [
-        "get", "adverse-event", "50941416", "devices", "--snapshot",
-        "2bb8441c980469973b92b2ba332304633e4c026606abfbca200de5f72fe332d2",
-        "--source", "maude"
-      ]
-    },
-    {
-      "kind": "section",
-      "args": [
-        "get", "adverse-event", "50941416", "narrative", "--snapshot",
-        "2bb8441c980469973b92b2ba332304633e4c026606abfbca200de5f72fe332d2",
-        "--source", "maude"
-      ]
-    }
-  ]
-}
+…
 ```
 
 ## Fields
+
+A field marked Optional can be missing from a reply. Every other field is always there.
 
 `result` holds [AdverseEventMaudeCard](#adverseeventmaudecard). `query` holds [AdverseEventGet](/reference/schemas/types/#adverseeventget), a shared type. `query` repeats the request as BioMCP read it.
 
@@ -96,25 +81,25 @@ biomcp get adverse-event 50941416 --source maude
 
 MAUDE card; native device/patient counts remain separate from array lengths.
 
-| Field | Type | Always present | Meaning |
-| --- | --- | --- | --- |
-| `available_sections` | list of [AdverseEventSection](/reference/schemas/types/#adverseeventsection) | yes | Named sections available in this report. |
-| `components` | list of [ComponentLabel](/reference/schemas/types/#componentlabel) | yes | Applicable component terms. |
-| `date_report` | string or null | no | Native date_report string; present empty values remain present. |
-| `date_report_to_fda` | string or null | no | Native date_report_to_fda string; present empty values remain present. |
-| `device_count` | integer (uint32) | yes | Actual device-array length. |
-| `event_date` | string or null | no | Native event_date string; present empty values remain present. |
-| `header` | [AdverseEventHeader](/reference/schemas/types/#adverseeventheader) | yes | Exact selected report identity. |
-| `narrative_count` | integer (uint32) | yes | Actual narrative-array length. |
-| `number_devices_in_event` | string or null | no | Native number_devices_in_event string; present empty values remain present. |
-| `number_patients_in_event` | string or null | no | Native number_patients_in_event string; present empty values remain present. |
-| `received` | string or null | no | Native received string; present empty values remain present. |
-| `report_date` | string or null | no | Native report_date string; present empty values remain present. |
-| `report_number` | string or null | no | Native report_number string; present empty values remain present. |
-| `report_url` | [Text](/reference/schemas/types/#text) | yes | Exact successful source request URL, never guessed. |
-| `snapshot` | [Text](/reference/schemas/types/#text) | yes | Opaque checked retained-report snapshot identity. |
-| `source_url` | [Text](/reference/schemas/types/#text) | yes | Publisher overview, never a next step. |
+| Field | Type | Meaning |
+| --- | --- | --- |
+| `available_sections` | list of [AdverseEventSection](/reference/schemas/types/#adverseeventsection) | Named sections available in this report. |
+| `components` | list of [ComponentLabel](/reference/schemas/types/#componentlabel) | Applicable component terms. |
+| `date_report` | string or null | Native date_report string; present empty values remain present. Optional. |
+| `date_report_to_fda` | string or null | Native date_report_to_fda string; present empty values remain present. Optional. |
+| `device_count` | integer (uint32) | Actual device-array length. |
+| `event_date` | string or null | Native event_date string; present empty values remain present. Optional. |
+| `header` | [AdverseEventHeader](/reference/schemas/types/#adverseeventheader) | Exact selected report identity. |
+| `narrative_count` | integer (uint32) | Actual narrative-array length. |
+| `number_devices_in_event` | string or null | Native number_devices_in_event string; present empty values remain present. Optional. |
+| `number_patients_in_event` | string or null | Native number_patients_in_event string; present empty values remain present. Optional. |
+| `received` | string or null | Native received string; present empty values remain present. Optional. |
+| `report_date` | string or null | Native report_date string; present empty values remain present. Optional. |
+| `report_number` | string or null | Native report_number string; present empty values remain present. Optional. |
+| `report_url` | [Text](/reference/schemas/types/#text) | Exact successful source request URL, never guessed. |
+| `snapshot` | [Text](/reference/schemas/types/#text) | Opaque checked retained-report snapshot identity. |
+| `source_url` | [Text](/reference/schemas/types/#text) | Publisher overview, never a next step. |
 
 ## Next
 
-[Reply envelope and shared types](/reference/schemas/types/) defines `status`, `sources`, `next` and every shared type. [Reply schemas](/reference/schemas/) lists every reply. [`biomcp get adverse-event`](/reference/commands/get-adverse-event/) gives the command's arguments.
+[`biomcp get adverse-event`](/reference/commands/get-adverse-event/) gives the command's arguments; [reply schemas](/reference/schemas/) lists every reply.

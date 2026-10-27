@@ -11,7 +11,7 @@ kind: reference
 verified: 2026-10-27
 ---
 
-BioMCP 1.0.0 prints one JSON object, the reply, for each command. [`biomcp search article`](/reference/commands/search-article/) replies with `schema` set to `biomcp.article_page/3`. Read this page when your code parses that reply. It shows a real reply, then the fields that only this schema has. The fields every reply shares are on [reply envelope and shared types](/reference/schemas/types/).
+BioMCP 1.0.0 prints one JSON object, the reply, for each command. [`biomcp search article`](/reference/commands/search-article/) replies with `schema` set to `biomcp.article_page/3`. Read this page when your code parses that reply: it shows a real one, then the fields only this schema has. [Shared types](/reference/schemas/types/) defines the rest.
 
 ## Commands that return it
 
@@ -26,7 +26,7 @@ biomcp search article 'KRAS G12C sotorasib' --since 2024 --sort date --limit 3
 
 ## Example reply
 
-`biomcp search article --drug daraxonrasib --limit 3` returned this reply on 2026-10-27. Lists show their first items, and a line that starts with … counts the items left out. Text that ends in … is cut.
+`biomcp search article --drug daraxonrasib --limit 3` returned this on 2026-10-27. Lists show their first items; a line with … counts the rest, and text ending in … is cut.
 
 ```json
 {
@@ -41,11 +41,7 @@ biomcp search article 'KRAS G12C sotorasib' --since 2024 --sort date --limit 3
   },
   "result": {
     "items": [
-      {
-        "key": {"namespace": "pubmed", "id": "40056080"},
-        "pmid": "40056080",
-        "header": {…}
-      },
+      {…},
       … 2 more
     ]
   },
@@ -73,21 +69,12 @@ biomcp search article 'KRAS G12C sotorasib' --since 2024 --sort date --limit 3
       "fetched": 99
     }
   ],
-  "next": [
-    {
-      "kind": "page",
-      "args": [
-        "search", "article", "--drug", "daraxonrasib", "--limit", "3",
-        "--offset", "3",
-        … 2 more
-      ]
-    },
-    … 2 more
-  ]
-}
+…
 ```
 
 ## Fields
+
+A field marked Optional can be missing from a reply. Every other field is always there.
 
 `result` holds [ArticlePage](#articlepage). `query` holds [ArticleSearch](#articlesearch). `query` repeats the request as BioMCP read it.
 
@@ -95,35 +82,35 @@ biomcp search article 'KRAS G12C sotorasib' --since 2024 --sort date --limit 3
 
 A slice of the stored article source order.
 
-| Field | Type | Always present | Meaning |
-| --- | --- | --- | --- |
-| `candidates` | list of [LitVarCandidate](#litvarcandidate) | no | Nearby source candidates when an exact variant was not uniquely selected. |
-| `items` | list of [ArticleItem](/reference/schemas/types/#articleitem) | yes | Original ordered items. |
+| Field | Type | Meaning |
+| --- | --- | --- |
+| `candidates` | list of [LitVarCandidate](#litvarcandidate) | Nearby source candidates when an exact variant was not uniquely selected. Optional. |
+| `items` | list of [ArticleItem](/reference/schemas/types/#articleitem) | Original ordered items. |
 
 ### ArticleSearch
 
 Checked search selectors and pool cursor.
 
-| Field | Type | Always present | Meaning |
-| --- | --- | --- | --- |
-| `author` | [Text](/reference/schemas/types/#text) | no | Author words sent to PubMed's author field. |
-| `disease` | [Text](/reference/schemas/types/#text) | no | Disease words. |
-| `drug` | [Text](/reference/schemas/types/#text) | no | Drug words. |
-| `gene` | [GeneInput](/reference/schemas/types/#geneinput) | no | Gene input; PubMed resolves it through HGNC. |
-| `journal` | [Text](/reference/schemas/types/#text) | no | Journal words sent to PubMed's journal field. |
-| `limit` | integer (uint32) | no | Maximum page length. |
-| `no_preprints` | boolean | no | Exclude preprints using the source's native filter. |
-| `offset` | integer (uint32) | no | Number of pool items to skip. |
-| `open_access` | boolean | no | Require the source's native open-access filter; Semantic Scholar means a public PDF. |
-| `pool` | [Text](/reference/schemas/types/#text) | no | Stable snapshot from an earlier response. |
-| `retracted` | [RetractionFilter](#retractionfilter) | no | Include retracted papers by default, or exclude them using a native filter. |
-| `since` | [PartialDate](/reference/schemas/types/#partialdate) | no | Inclusive lower publication-date bound at the stated precision; PubMed matches either electronic or print date. |
-| `sort` | [ArticleSort](#articlesort) | no | rank (default): native provider order; several sources take turns; native search cost. date: native search cost; PubMed means date added and Europe PMC means newest first; other sources refuse it. citations: most cited first across the whole pool; adds iCite calls, about 1 s per 1,000 PMIDs. All sources support citations. |
-| `source` | list of [ArticleSource](#articlesource) | no | Sources to search in caller order, comma separated. Default: pubmed. Several sources take turns, remove duplicates and show every native rank. pubmed: keywords with PubMed MeSH mapping; dropped words appear as notices. europepmc: words in open full text and preprints; incidental mentions are possible. litvar: exact variant publications; requires --variant and a protein change needs --gene; unresolved inputs return candidates. semantic-scholar: broad discovery; a shared keyless pool may return 429; an optional free key raises the limit. litsense: sentence resemblance, not a match; unrelated hits and timeouts are possible. pubtator: entity and word search including full text; needs the right entity ID; --gene uses HGNC Entrez identity and cannot run without that join. |
-| `text` | [Text](/reference/schemas/types/#text) | no | Words sent to each named source in its default fields. |
-| `type` | [ArticleType](#articletype) | no | Publication-type filter. |
-| `until` | [PartialDate](/reference/schemas/types/#partialdate) | no | Inclusive upper publication-date bound at the stated precision; PubMed matches either electronic or print date. |
-| `variant` | [Text](/reference/schemas/types/#text) | no | Variant words. |
+| Field | Type | Meaning |
+| --- | --- | --- |
+| `author` | [Text](/reference/schemas/types/#text) | Author words sent to PubMed's author field. Optional. |
+| `disease` | [Text](/reference/schemas/types/#text) | Disease words. Optional. |
+| `drug` | [Text](/reference/schemas/types/#text) | Drug words. Optional. |
+| `gene` | [GeneInput](/reference/schemas/types/#geneinput) | Gene input; PubMed resolves it through HGNC. Optional. |
+| `journal` | [Text](/reference/schemas/types/#text) | Journal words sent to PubMed's journal field. Optional. |
+| `limit` | integer (uint32) | Maximum page length. Optional. |
+| `no_preprints` | boolean | Exclude preprints using the source's native filter. Optional. |
+| `offset` | integer (uint32) | Number of pool items to skip. Optional. |
+| `open_access` | boolean | Require the source's native open-access filter; Semantic Scholar means a public PDF. Optional. |
+| `pool` | [Text](/reference/schemas/types/#text) | Stable snapshot from an earlier response. Optional. |
+| `retracted` | [RetractionFilter](#retractionfilter) | Include retracted papers by default, or exclude them using a native filter. Optional. |
+| `since` | [PartialDate](/reference/schemas/types/#partialdate) | Inclusive lower publication-date bound at the stated precision; PubMed matches either electronic or print date. Optional. |
+| `sort` | [ArticleSort](#articlesort) | rank (default): native provider order; several sources take turns; native search cost. date: native search cost; PubMed means date added and Europe PMC means newest first; other sources refuse it. citations: most cited first across the whole pool; adds iCite calls, about 1 s per 1,000 PMIDs. All sources support citations. Optional. |
+| `source` | list of [ArticleSource](#articlesource) | Sources to search in caller order, comma separated. Default: pubmed. Several sources take turns, remove duplicates and show every native rank. pubmed: keywords with PubMed MeSH mapping; dropped words appear as notices. europepmc: words in open full text and preprints; incidental mentions are possible. litvar: exact variant publications; requires --variant and a protein change needs --gene; unresolved inputs return candidates. semantic-scholar: broad discovery; a shared keyless pool may return 429; an optional free key raises the limit. litsense: sentence resemblance, not a match; unrelated hits and timeouts are possible. pubtator: entity and word search including full text; needs the right entity ID; --gene uses HGNC Entrez identity and cannot run without that join. Optional. |
+| `text` | [Text](/reference/schemas/types/#text) | Words sent to each named source in its default fields. Optional. |
+| `type` | [ArticleType](#articletype) | Publication-type filter. Optional. |
+| `until` | [PartialDate](/reference/schemas/types/#partialdate) | Inclusive upper publication-date bound at the stated precision; PubMed matches either electronic or print date. Optional. |
+| `variant` | [Text](/reference/schemas/types/#text) | Variant words. Optional. |
 
 ### ArticleSort
 
@@ -147,12 +134,12 @@ Values: `trial`, `randomized`, `review`, `systematic_review`, `meta_analysis`, `
 
 Public LitVar2 autocomplete candidate, without a clinical ranking claim.
 
-| Field | Type | Always present | Meaning |
-| --- | --- | --- | --- |
-| `count` | integer (uint64) | yes | Number of associated publications reported by LitVar2. |
-| `gene` | list of [Text](/reference/schemas/types/#text) | yes | Source gene symbols. |
-| `name` | [Text](/reference/schemas/types/#text) | yes | Source variant name. |
-| `rsid` | [Text](/reference/schemas/types/#text) | yes | Source rsID, available for exact follow-up. |
+| Field | Type | Meaning |
+| --- | --- | --- |
+| `count` | integer (uint64) | Number of associated publications reported by LitVar2. |
+| `gene` | list of [Text](/reference/schemas/types/#text) | Source gene symbols. |
+| `name` | [Text](/reference/schemas/types/#text) | Source variant name. |
+| `rsid` | [Text](/reference/schemas/types/#text) | Source rsID, available for exact follow-up. |
 
 ### RetractionFilter
 
@@ -162,4 +149,4 @@ Values: `include`, `exclude`.
 
 ## Next
 
-[Reply envelope and shared types](/reference/schemas/types/) defines `status`, `sources`, `next` and every shared type. [Reply schemas](/reference/schemas/) lists every reply. [`biomcp search article`](/reference/commands/search-article/) gives the command's arguments.
+[`biomcp search article`](/reference/commands/search-article/) gives the command's arguments; [reply schemas](/reference/schemas/) lists every reply.

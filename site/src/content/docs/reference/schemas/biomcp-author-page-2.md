@@ -11,7 +11,7 @@ kind: reference
 verified: 2026-10-27
 ---
 
-BioMCP 1.0.0 prints one JSON object, the reply, for each command. [`biomcp search author`](/reference/commands/search-author/) replies with `schema` set to `biomcp.author_page/2`. Read this page when your code parses that reply. It shows a real reply, then the fields that only this schema has. The fields every reply shares are on [reply envelope and shared types](/reference/schemas/types/).
+BioMCP 1.0.0 prints one JSON object, the reply, for each command. [`biomcp search author`](/reference/commands/search-author/) replies with `schema` set to `biomcp.author_page/2`. Read this page when your code parses that reply: it shows a real one, then the fields only this schema has. [Shared types](/reference/schemas/types/) defines the rest.
 
 ## Commands that return it
 
@@ -26,7 +26,7 @@ biomcp search author 'Louis Williams'
 
 ## Example reply
 
-`biomcp search author 'Louis Williams' --limit 3` returned this reply on 2026-10-27. Lists show their first items, and a line that starts with … counts the items left out. Text that ends in … is cut.
+`biomcp search author 'Louis Williams' --limit 3` returned this on 2026-10-27. Lists show their first items; a line with … counts the rest, and text ending in … is cut.
 
 ```json
 {
@@ -40,17 +40,7 @@ biomcp search author 'Louis Williams'
   },
   "result": {
     "items": [
-      {
-        "id": "semantic-scholar:2162869982",
-        "name": "L. Williams",
-        "affiliations": [],
-        "counts": {
-          "scope": "provider_record",
-          "paper_count": 97,
-          "citation_count": 269,
-          "h_index": 7
-        }
-      },
+      {…},
       … 2 more
     ],
     "matching_records": 58
@@ -79,13 +69,12 @@ biomcp search author 'Louis Williams'
     {
       "kind": "disambiguate",
       "args": ["get", "author", "semantic-scholar:2162869982"]
-    },
-    … 3 more
-  ]
-}
+…
 ```
 
 ## Fields
+
+A field marked Optional can be missing from a reply. Every other field is always there.
 
 `result` holds [AuthorPage](#authorpage). `query` holds [AuthorSearch](#authorsearch). `query` repeats the request as BioMCP read it.
 
@@ -93,22 +82,22 @@ biomcp search author 'Louis Williams'
 
 Native author candidates in provider order; search total counts only this query.
 
-| Field | Type | Always present | Meaning |
-| --- | --- | --- | --- |
-| `items` | list of [AuthorHeader](/reference/schemas/types/#authorheader) | yes | Source candidates; no deduplication by display name. |
-| `matching_records` | integer or null | no | Native matching-record total, if supplied. |
+| Field | Type | Meaning |
+| --- | --- | --- |
+| `items` | list of [AuthorHeader](/reference/schemas/types/#authorheader) | Source candidates; no deduplication by display name. |
+| `matching_records` | integer or null | Native matching-record total, if supplied. Optional. |
 
 ### AuthorSearch
 
 Literal author name query and native window; positional text maps to query.
 
-| Field | Type | Always present | Meaning |
-| --- | --- | --- | --- |
-| `limit` | integer (uint32) | no | Bounded source page size. |
-| `offset` | integer (uint32) | no | Native offset. |
-| `pool` | [Text](/reference/schemas/types/#text) | no | Retained page identity. |
-| `query` | string | yes | Literal query from the positional argument or --query. |
-| `source` | [AuthorSearchSource](#authorsearchsource) | no | Native author source. |
+| Field | Type | Meaning |
+| --- | --- | --- |
+| `limit` | integer (uint32) | Bounded source page size. Optional. |
+| `offset` | integer (uint32) | Native offset. Optional. |
+| `pool` | [Text](/reference/schemas/types/#text) | Retained page identity. Optional. |
+| `query` | string | Literal query from the positional argument or --query. |
+| `source` | [AuthorSearchSource](#authorsearchsource) | Native author source. Optional. |
 
 ### AuthorSearchSource
 
@@ -118,4 +107,4 @@ Values: `semantic-scholar`, `semanticscholar`.
 
 ## Next
 
-[Reply envelope and shared types](/reference/schemas/types/) defines `status`, `sources`, `next` and every shared type. [Reply schemas](/reference/schemas/) lists every reply. [`biomcp search author`](/reference/commands/search-author/) gives the command's arguments.
+[`biomcp search author`](/reference/commands/search-author/) gives the command's arguments; [reply schemas](/reference/schemas/) lists every reply.

@@ -11,7 +11,7 @@ kind: reference
 verified: 2026-10-27
 ---
 
-BioMCP 1.0.0 prints one JSON object, the reply, for each command. [`biomcp get pgx`](/reference/commands/get-pgx/) replies with `schema` set to `biomcp.pgx_annotation/1`. Read this page when your code parses that reply. It shows a real reply, then the fields that only this schema has. The fields every reply shares are on [reply envelope and shared types](/reference/schemas/types/).
+BioMCP 1.0.0 prints one JSON object, the reply, for each command. [`biomcp get pgx`](/reference/commands/get-pgx/) replies with `schema` set to `biomcp.pgx_annotation/1`. Read this page when your code parses that reply: it shows a real one, then the fields only this schema has. [Shared types](/reference/schemas/types/) defines the rest.
 
 ## Commands that return it
 
@@ -25,7 +25,7 @@ biomcp get pgx --annotation-id PA166169507 --source clinpgx
 
 ## Example reply
 
-`biomcp get pgx --annotation-id PA166169507 --source clinpgx` returned this reply on 2026-10-27. Lists show their first items, and a line that starts with … counts the items left out. Text that ends in … is cut.
+`biomcp get pgx --annotation-id PA166169507 --source clinpgx` returned this on 2026-10-27. Lists show their first items; a line with … counts the rest, and text ending in … is cut.
 
 ```json
 {
@@ -71,86 +71,88 @@ biomcp get pgx --annotation-id PA166169507 --source clinpgx
 
 ## Fields
 
+A field marked Optional can be missing from a reply. Every other field is always there.
+
 `result` holds [PgxAnnotation](#pgxannotation). `query` holds [PgxAnnotationGet](#pgxannotationget). `query` repeats the request as BioMCP read it.
 
 ### PgxAnnotation
 
 Complete proved base-tier annotation.
 
-| Field | Type | Always present | Meaning |
-| --- | --- | --- | --- |
-| `annotation` | [PgxAnnotationDetail](#pgxannotationdetail) | yes | Complete native base record, including history and genotype text. |
-| `header` | [PgxAnnotationIdentity](#pgxannotationidentity) | yes | Exact selected source identity. |
+| Field | Type | Meaning |
+| --- | --- | --- |
+| `annotation` | [PgxAnnotationDetail](#pgxannotationdetail) | Complete native base record, including history and genotype text. |
+| `header` | [PgxAnnotationIdentity](#pgxannotationidentity) | Exact selected source identity. |
 
 ### PgxAnnotationGet
 
 Exact single clinical annotation get, with no inferred source or annotation kind.
 
-| Field | Type | Always present | Meaning |
-| --- | --- | --- | --- |
-| `id` | [ClinPgxAccession](/reference/schemas/types/#clinpgxaccession) | yes | Checked ClinPGx accession, never a shared PaId. |
-| `source` | [PgxSource](/reference/schemas/types/#pgxsource) | yes | Required ClinPGx source. |
+| Field | Type | Meaning |
+| --- | --- | --- |
+| `id` | [ClinPgxAccession](/reference/schemas/types/#clinpgxaccession) | Checked ClinPGx accession, never a shared PaId. |
+| `source` | [PgxSource](/reference/schemas/types/#pgxsource) | Required ClinPGx source. |
 
 ### PgxAllelePhenotype
 
 Source-native PgxAllelePhenotype fields; no clinical interpretation.
 
-| Field | Type | Always present | Meaning |
-| --- | --- | --- | --- |
-| `allele` | string | yes | The source's own `allele` value, unchanged. |
-| `id` | integer (int64) | yes | The source's own `id` value, unchanged. |
-| `limitedEvidence` | boolean | yes | The source's own `limitedEvidence` value, unchanged. |
-| `phenotype` | string | yes | The source's own `phenotype` value, unchanged. |
+| Field | Type | Meaning |
+| --- | --- | --- |
+| `allele` | string | The source's own `allele` value, unchanged. |
+| `id` | integer (int64) | The source's own `id` value, unchanged. |
+| `limitedEvidence` | boolean | The source's own `limitedEvidence` value, unchanged. |
+| `phenotype` | string | The source's own `phenotype` value, unchanged. |
 
 ### PgxAnnotationDetail
 
 Source-native PgxAnnotationDetail fields; no clinical interpretation.
 
-| Field | Type | Always present | Meaning |
-| --- | --- | --- | --- |
-| `accessionId` | [ClinPgxAccession](/reference/schemas/types/#clinpgxaccession) | yes | The source's own `accessionId` value, unchanged. |
-| `allelePhenotypes` | list of [PgxAllelePhenotype](#pgxallelephenotype) | yes | The source's own `allelePhenotypes` value, unchanged. |
-| `conflictingVariantAnnotationIds` | list of integer (int64) | yes | The source's own `conflictingVariantAnnotationIds` value, unchanged. |
-| `history` | list of [PgxAnnotationHistory](#pgxannotationhistory) | yes | The source's own `history` value, unchanged. |
-| `id` | integer (int64) | yes | The source's own `id` value, unchanged. |
-| `levelOfEvidence` | [PgxEvidenceTerm](/reference/schemas/types/#pgxevidenceterm) | yes | The source's own `levelOfEvidence` value, unchanged. |
-| `location` | [PgxLocation](/reference/schemas/types/#pgxlocation) | yes | The source's own `location` value, unchanged. |
-| `name` | string | yes | The source's own `name` value, unchanged. |
-| `objCls` | string | yes | The source's own `objCls` value, unchanged. |
-| `overrideLevel` | boolean | yes | The source's own `overrideLevel` value, unchanged. |
-| `overrideLevelDescription` | string or null | no | Native `overrideLevelDescription` when supplied. |
-| `pediatric` | boolean | yes | The source's own `pediatric` value, unchanged. |
-| `relatedAlleles` | list of [PgxObjectReference](/reference/schemas/types/#pgxobjectreference) | yes | The source's own `relatedAlleles` value, unchanged. |
-| `relatedChemicals` | list of [PgxObjectReference](/reference/schemas/types/#pgxobjectreference) | yes | The source's own `relatedChemicals` value, unchanged. |
-| `relatedChemicalsLogic` | string | yes | The source's own `relatedChemicalsLogic` value, unchanged. |
-| `relatedDiseases` | list of [PgxObjectReference](/reference/schemas/types/#pgxobjectreference) | yes | The source's own `relatedDiseases` value, unchanged. |
-| `relatedGuidelines` | list of [PgxObjectReference](/reference/schemas/types/#pgxobjectreference) | yes | The source's own `relatedGuidelines` value, unchanged. |
-| `relatedLabels` | list of [PgxObjectReference](/reference/schemas/types/#pgxobjectreference) | yes | The source's own `relatedLabels` value, unchanged. |
-| `score` | [FiniteNumber](/reference/schemas/types/#finitenumber) | yes | The source's own `score` value, unchanged. |
-| `scoreDetails` | string | yes | The source's own `scoreDetails` value, unchanged. |
-| `types` | list of string | yes | The source's own `types` value, unchanged. |
+| Field | Type | Meaning |
+| --- | --- | --- |
+| `accessionId` | [ClinPgxAccession](/reference/schemas/types/#clinpgxaccession) | The source's own `accessionId` value, unchanged. |
+| `allelePhenotypes` | list of [PgxAllelePhenotype](#pgxallelephenotype) | The source's own `allelePhenotypes` value, unchanged. |
+| `conflictingVariantAnnotationIds` | list of integer (int64) | The source's own `conflictingVariantAnnotationIds` value, unchanged. |
+| `history` | list of [PgxAnnotationHistory](#pgxannotationhistory) | The source's own `history` value, unchanged. |
+| `id` | integer (int64) | The source's own `id` value, unchanged. |
+| `levelOfEvidence` | [PgxEvidenceTerm](/reference/schemas/types/#pgxevidenceterm) | The source's own `levelOfEvidence` value, unchanged. |
+| `location` | [PgxLocation](/reference/schemas/types/#pgxlocation) | The source's own `location` value, unchanged. |
+| `name` | string | The source's own `name` value, unchanged. |
+| `objCls` | string | The source's own `objCls` value, unchanged. |
+| `overrideLevel` | boolean | The source's own `overrideLevel` value, unchanged. |
+| `overrideLevelDescription` | string or null | Native `overrideLevelDescription` when supplied. Optional. |
+| `pediatric` | boolean | The source's own `pediatric` value, unchanged. |
+| `relatedAlleles` | list of [PgxObjectReference](/reference/schemas/types/#pgxobjectreference) | The source's own `relatedAlleles` value, unchanged. |
+| `relatedChemicals` | list of [PgxObjectReference](/reference/schemas/types/#pgxobjectreference) | The source's own `relatedChemicals` value, unchanged. |
+| `relatedChemicalsLogic` | string | The source's own `relatedChemicalsLogic` value, unchanged. |
+| `relatedDiseases` | list of [PgxObjectReference](/reference/schemas/types/#pgxobjectreference) | The source's own `relatedDiseases` value, unchanged. |
+| `relatedGuidelines` | list of [PgxObjectReference](/reference/schemas/types/#pgxobjectreference) | The source's own `relatedGuidelines` value, unchanged. |
+| `relatedLabels` | list of [PgxObjectReference](/reference/schemas/types/#pgxobjectreference) | The source's own `relatedLabels` value, unchanged. |
+| `score` | [FiniteNumber](/reference/schemas/types/#finitenumber) | The source's own `score` value, unchanged. |
+| `scoreDetails` | string | The source's own `scoreDetails` value, unchanged. |
+| `types` | list of string | The source's own `types` value, unchanged. |
 
 ### PgxAnnotationHistory
 
 Source-native PgxAnnotationHistory fields; no clinical interpretation.
 
-| Field | Type | Always present | Meaning |
-| --- | --- | --- | --- |
-| `date` | string | yes | The source's own `date` value, unchanged. |
-| `description` | string or null | no | Native `description` when supplied. |
-| `id` | integer (int64) | yes | The source's own `id` value, unchanged. |
-| `type` | string | yes | The source's own `type` value, unchanged. |
-| `version` | integer (int64) | yes | The source's own `version` value, unchanged. |
+| Field | Type | Meaning |
+| --- | --- | --- |
+| `date` | string | The source's own `date` value, unchanged. |
+| `description` | string or null | Native `description` when supplied. Optional. |
+| `id` | integer (int64) | The source's own `id` value, unchanged. |
+| `type` | string | The source's own `type` value, unchanged. |
+| `version` | integer (int64) | The source's own `version` value, unchanged. |
 
 ### PgxAnnotationIdentity
 
 Exact clinical annotation identity, distinct from any genomic allele identity.
 
-| Field | Type | Always present | Meaning |
-| --- | --- | --- | --- |
-| `id` | [ClinPgxAccession](/reference/schemas/types/#clinpgxaccession) | yes | Selected exact accession. |
-| `source` | [PgxSource](/reference/schemas/types/#pgxsource) | yes | Explicit ClinPGx source. |
+| Field | Type | Meaning |
+| --- | --- | --- |
+| `id` | [ClinPgxAccession](/reference/schemas/types/#clinpgxaccession) | Selected exact accession. |
+| `source` | [PgxSource](/reference/schemas/types/#pgxsource) | Explicit ClinPGx source. |
 
 ## Next
 
-[Reply envelope and shared types](/reference/schemas/types/) defines `status`, `sources`, `next` and every shared type. [Reply schemas](/reference/schemas/) lists every reply. [`biomcp get pgx`](/reference/commands/get-pgx/) gives the command's arguments.
+[`biomcp get pgx`](/reference/commands/get-pgx/) gives the command's arguments; [reply schemas](/reference/schemas/) lists every reply.

@@ -11,7 +11,7 @@ kind: reference
 verified: 2026-10-27
 ---
 
-BioMCP 1.0.0 prints one JSON object, the reply, for each command. [`biomcp get gwas`](/reference/commands/get-gwas/) replies with `schema` set to `biomcp.gwas_study/1`. Read this page when your code parses that reply. It shows a real reply, then the fields that only this schema has. The fields every reply shares are on [reply envelope and shared types](/reference/schemas/types/).
+BioMCP 1.0.0 prints one JSON object, the reply, for each command. [`biomcp get gwas`](/reference/commands/get-gwas/) replies with `schema` set to `biomcp.gwas_study/1`. Read this page when your code parses that reply: it shows a real one, then the fields only this schema has. [Shared types](/reference/schemas/types/) defines the rest.
 
 ## Commands that return it
 
@@ -25,7 +25,7 @@ biomcp get gwas GCST000035
 
 ## Example reply
 
-`biomcp get gwas GCST000035` returned this reply on 2026-10-27. Lists show their first items, and a line that starts with … counts the items left out. Text that ends in … is cut.
+`biomcp get gwas GCST000035` returned this on 2026-10-27. Lists show their first items; a line with … counts the rest, and text ending in … is cut.
 
 ```json
 {
@@ -41,12 +41,7 @@ biomcp get gwas GCST000035
     "id": "GCST000035",
     "publication": "17529967",
     "reported_traits": ["Breast cancer"],
-    "ontology_traits": [
-      {
-        "id": "MONDO_0004989",
-        "label": "breast carcinoma"
-      }
-    ],
+    "ontology_traits": [{"id": "MONDO_0004989", "label": "breast carcinoma"}],
     "initial_sample_description": "390 European ancestry cases, 364 European…",
     "replication_sample_description": "4,364 East Asian ancestry cases, 24,17…",
     "discovery_ancestries": ["754 European (U.K.)"],
@@ -73,23 +68,12 @@ biomcp get gwas GCST000035
       "use": "restricted",
       "terms": "GWAS Catalog terms and dataset rights",
       "terms_url": "https://www.ebi.ac.uk/about/terms-of-use/",
-      "state": "ok"
-    }
-  ],
-  "next": [
-    {
-      "kind": "section",
-      "args": [
-        "get", "gwas", "GCST000035", "associations", "--section-limit", "3",
-        "--section-offset", "0"
-      ]
-    },
-    … 1 more
-  ]
-}
+…
 ```
 
 ## Fields
+
+A field marked Optional can be missing from a reply. Every other field is always there.
 
 `result` holds [GwasStudy](#gwasstudy). `query` holds [GwasGet](/reference/schemas/types/#gwasget), a shared type. `query` repeats the request as BioMCP read it.
 
@@ -97,29 +81,29 @@ biomcp get gwas GCST000035
 
 Native study card; independent source descriptions are never reconciled.
 
-| Field | Type | Always present | Meaning |
-| --- | --- | --- | --- |
-| `array_manufacturers` | list of [Text](/reference/schemas/types/#text) or null | no | Native array manufacturer labels. |
-| `discovery_ancestries` | list of [Text](/reference/schemas/types/#text) | yes | Native discovery ancestry summaries. |
-| `genotyping_technologies` | list of [Text](/reference/schemas/types/#text) | yes | Source technologies. |
-| `gxe` | boolean or null | no | Native gene-environment interaction flag. |
-| `gxg` | boolean or null | no | Native gene-gene interaction flag. |
-| `id` | [GwasStudyId](/reference/schemas/types/#gwasstudyid) | yes | Exact accession. |
-| `imputed` | boolean or null | no | Native imputation flag. |
-| `initial_sample_description` | [Text](/reference/schemas/types/#text) or null | no | Whole discovery sample prose. |
-| `license_url` | [Text](/reference/schemas/types/#text) or null | no | Native terms link without an inferred reuse grant. |
-| `ontology_traits` | list of [GwasTrait](/reference/schemas/types/#gwastrait) | yes | Every native mapped ontology label and ID. |
-| `platforms` | [Text](/reference/schemas/types/#text) or null | no | Native platform description. |
-| `pooled` | boolean or null | no | Native pooled study flag. |
-| `publication` | [Pmid](/reference/schemas/types/#pmid) or null | no | Source publication identity. |
-| `replication_ancestries` | list of [Text](/reference/schemas/types/#text) | yes | Native replication ancestry summaries. |
-| `replication_sample_description` | [Text](/reference/schemas/types/#text) or null | no | Whole replication sample prose. |
-| `reported_traits` | list of [Text](/reference/schemas/types/#text) | yes | Native reported disease traits. |
-| `snp_count` | integer or null | no | Source SNP count; missing differs from zero. |
-| `summary_statistics_available` | boolean or null | no | Source availability flag; grants no download or reuse permission. |
-| `summary_statistics_url` | [Text](/reference/schemas/types/#text) or null | no | Native summary statistics link; not a local download. |
-| `user_requested` | boolean or null | no | Native user-requested study flag. |
+| Field | Type | Meaning |
+| --- | --- | --- |
+| `array_manufacturers` | list of [Text](/reference/schemas/types/#text) or null | Native array manufacturer labels. Optional. |
+| `discovery_ancestries` | list of [Text](/reference/schemas/types/#text) | Native discovery ancestry summaries. |
+| `genotyping_technologies` | list of [Text](/reference/schemas/types/#text) | Source technologies. |
+| `gxe` | boolean or null | Native gene-environment interaction flag. Optional. |
+| `gxg` | boolean or null | Native gene-gene interaction flag. Optional. |
+| `id` | [GwasStudyId](/reference/schemas/types/#gwasstudyid) | Exact accession. |
+| `imputed` | boolean or null | Native imputation flag. Optional. |
+| `initial_sample_description` | [Text](/reference/schemas/types/#text) or null | Whole discovery sample prose. Optional. |
+| `license_url` | [Text](/reference/schemas/types/#text) or null | Native terms link without an inferred reuse grant. Optional. |
+| `ontology_traits` | list of [GwasTrait](/reference/schemas/types/#gwastrait) | Every native mapped ontology label and ID. |
+| `platforms` | [Text](/reference/schemas/types/#text) or null | Native platform description. Optional. |
+| `pooled` | boolean or null | Native pooled study flag. Optional. |
+| `publication` | [Pmid](/reference/schemas/types/#pmid) or null | Source publication identity. Optional. |
+| `replication_ancestries` | list of [Text](/reference/schemas/types/#text) | Native replication ancestry summaries. |
+| `replication_sample_description` | [Text](/reference/schemas/types/#text) or null | Whole replication sample prose. Optional. |
+| `reported_traits` | list of [Text](/reference/schemas/types/#text) | Native reported disease traits. |
+| `snp_count` | integer or null | Source SNP count; missing differs from zero. Optional. |
+| `summary_statistics_available` | boolean or null | Source availability flag; grants no download or reuse permission. Optional. |
+| `summary_statistics_url` | [Text](/reference/schemas/types/#text) or null | Native summary statistics link; not a local download. Optional. |
+| `user_requested` | boolean or null | Native user-requested study flag. Optional. |
 
 ## Next
 
-[Reply envelope and shared types](/reference/schemas/types/) defines `status`, `sources`, `next` and every shared type. [Reply schemas](/reference/schemas/) lists every reply. [`biomcp get gwas`](/reference/commands/get-gwas/) gives the command's arguments.
+[`biomcp get gwas`](/reference/commands/get-gwas/) gives the command's arguments; [reply schemas](/reference/schemas/) lists every reply.

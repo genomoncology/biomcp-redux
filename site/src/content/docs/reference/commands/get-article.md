@@ -63,4 +63,4 @@ The reply is one JSON object. Its schema is [`biomcp.article_cards/3`](/referenc
 
 ## Next
 
-[Exit codes](/reference/error-codes/) gives what each exit code means, and [global options](/reference/global-options/) the options every command takes. The [article guide](/user-guide/article/) shows every article command at work.
+The [article guide](/user-guide/article/) shows every article command at work. [Exit codes](/reference/error-codes/) gives what each exit code means, and [global options](/reference/global-options/) the options every command takes.

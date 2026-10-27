@@ -11,7 +11,7 @@ kind: reference
 verified: 2026-10-27
 ---
 
-BioMCP 1.0.0 prints one JSON object, the reply, for each command. [`biomcp store clean`](/reference/commands/store-clean/) replies with `schema` set to `biomcp.store-clean/1`. Read this page when your code parses that reply. It shows a real reply, then the fields that only this schema has. The fields every reply shares are on [reply envelope and shared types](/reference/schemas/types/).
+BioMCP 1.0.0 prints one JSON object, the reply, for each command. [`biomcp store clean`](/reference/commands/store-clean/) replies with `schema` set to `biomcp.store-clean/1`. Read this page when your code parses that reply: it shows a real one, then the fields only this schema has. [Shared types](/reference/schemas/types/) defines the rest.
 
 ## Commands that return it
 
@@ -25,7 +25,7 @@ biomcp store clean
 
 ## Example reply
 
-`biomcp store clean` returned this reply on 2026-10-27. Lists show their first items, and a line that starts with … counts the items left out. Text that ends in … is cut.
+`biomcp store clean` returned this on 2026-10-27. Lists show their first items; a line with … counts the rest, and text ending in … is cut.
 
 ```json
 {
@@ -44,20 +44,22 @@ biomcp store clean
 
 ## Fields
 
+A field marked Optional can be missing from a reply. Every other field is always there.
+
 `result` holds [StoreClean](#storeclean). `query` repeats the request as BioMCP read it.
 
 ### StoreClean
 
 Counts removed by explicit local store cleanup. Fresh state and [bundles](/local-data/) remain.
 
-| Field | Type | Always present | Meaning |
-| --- | --- | --- | --- |
-| `files` | integer (uint64) | yes | Older incompatible cache files. |
-| `items` | integer (uint64) | yes | Items belonging to removed pools. |
-| `pools` | integer (uint64) | yes | Expired search pools. |
-| `replies` | integer (uint64) | yes | Expired source replies. |
-| `snapshots` | integer (uint64) | yes | Expired trial and citation snapshots. |
+| Field | Type | Meaning |
+| --- | --- | --- |
+| `files` | integer (uint64) | Older incompatible cache files. |
+| `items` | integer (uint64) | Items belonging to removed pools. |
+| `pools` | integer (uint64) | Expired search pools. |
+| `replies` | integer (uint64) | Expired source replies. |
+| `snapshots` | integer (uint64) | Expired trial and citation snapshots. |
 
 ## Next
 
-[Reply envelope and shared types](/reference/schemas/types/) defines `status`, `sources`, `next` and every shared type. [Reply schemas](/reference/schemas/) lists every reply. [`biomcp store clean`](/reference/commands/store-clean/) gives the command's arguments.
+[`biomcp store clean`](/reference/commands/store-clean/) gives the command's arguments; [reply schemas](/reference/schemas/) lists every reply.

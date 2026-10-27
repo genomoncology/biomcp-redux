@@ -13,7 +13,7 @@ kind: reference
 verified: 2026-10-27
 ---
 
-BioMCP 1.0.0 prints one JSON object, the reply, for each command. [`biomcp get diagnostic supplements`](/reference/commands/get-diagnostic/) replies with `schema` set to `biomcp.diagnostic_supplements/1`. Read this page when your code parses that reply. It shows a real reply, then the fields that only this schema has. The fields every reply shares are on [reply envelope and shared types](/reference/schemas/types/).
+BioMCP 1.0.0 prints one JSON object, the reply, for each command. [`biomcp get diagnostic supplements`](/reference/commands/get-diagnostic/) replies with `schema` set to `biomcp.diagnostic_supplements/1`. Read this page when your code parses that reply: it shows a real one, then the fields only this schema has. [Shared types](/reference/schemas/types/) defines the rest.
 
 ## Commands that return it
 
@@ -27,7 +27,7 @@ biomcp get diagnostic P110020 supplements --source fda-pma
 
 ## Example reply
 
-`biomcp get diagnostic P110020 supplements --source fda-pma` returned this reply on 2026-10-27. Lists show their first items, and a line that starts with … counts the items left out. Text that ends in … is cut.
+`biomcp get diagnostic P110020 supplements --source fda-pma` returned this on 2026-10-27. Lists show their first items; a line with … counts the rest, and text ending in … is cut.
 
 ```json
 {
@@ -41,25 +41,8 @@ biomcp get diagnostic P110020 supplements --source fda-pma
   },
   "result": {
     "items": [
-      {
-        "pma_number": "P110020",
-        "supplement_number": "S003",
-        "trade_name": "COBAS 4800 BRAF V600 MUTATION TEST",
-        "applicant": "Roche Molecular Systems, Inc.",
-        "decision_date": "2012-09-04",
-        "decision_code": "APPR",
-        "url": "https://www.accessdata.fda.gov/scripts/cdrh/cfdocs/cfPMA/pma.c…"
-      },
-      {
-        "pma_number": "P110020",
-        "supplement_number": "S025",
-        "trade_name": "Roche cobas DNA Sample Preparation Kit, Roche cobas 48…",
-        "applicant": "Roche Molecular Systems, Inc.",
-        "decision_date": "2018-07-03",
-        "decision_code": "OK30",
-        "url": "https://www.accessdata.fda.gov/scripts/cdrh/cfdocs/cfPMA/pma.c…"
-      },
-      … 3 more
+      {…},
+      … 4 more
     ]
   },
   "page": {"offset": 0, "returned": 5, "total": 44},
@@ -80,19 +63,14 @@ biomcp get diagnostic P110020 supplements --source fda-pma
         "S003"
       ]
     },
-    {
-      "kind": "disambiguate",
-      "args": [
-        "get", "diagnostic", "P110020", "--source", "fda-pma", "--supplement",
-        "S025"
-      ]
-    },
-    … 5 more
+    … 6 more
   ]
 }
 ```
 
 ## Fields
+
+A field marked Optional can be missing from a reply. Every other field is always there.
 
 `result` holds [DiagnosticSupplements](#diagnosticsupplements). `query` holds [DiagnosticGet](/reference/schemas/types/#diagnosticget), a shared type. `query` repeats the request as BioMCP read it.
 
@@ -100,12 +78,12 @@ biomcp get diagnostic P110020 supplements --source fda-pma
 
 Native supplement records retaining exact identity and independent dated decisions.
 
-| Field | Type | Always present | Meaning |
-| --- | --- | --- | --- |
-| `count_unit` | [DiagnosticCountUnit](/reference/schemas/types/#diagnosticcountunit) or null | no | Exact meaning of the envelope total; supplied by the owning source command. |
-| `distinct_id_total` | integer or null | no | Distinct complete native IDs across the selected relation collection. |
-| `items` | list of [DiagnosticPmaHeader](/reference/schemas/types/#diagnosticpmaheader) | yes | Complete source-owned rows in native order; envelope totals count native rows. |
+| Field | Type | Meaning |
+| --- | --- | --- |
+| `count_unit` | [DiagnosticCountUnit](/reference/schemas/types/#diagnosticcountunit) or null | Exact meaning of the envelope total; supplied by the owning source command. Optional. |
+| `distinct_id_total` | integer or null | Distinct complete native IDs across the selected relation collection. Optional. |
+| `items` | list of [DiagnosticPmaHeader](/reference/schemas/types/#diagnosticpmaheader) | Complete source-owned rows in native order; envelope totals count native rows. |
 
 ## Next
 
-[Reply envelope and shared types](/reference/schemas/types/) defines `status`, `sources`, `next` and every shared type. [Reply schemas](/reference/schemas/) lists every reply. [`biomcp get diagnostic`](/reference/commands/get-diagnostic/) gives the command's arguments.
+[`biomcp get diagnostic`](/reference/commands/get-diagnostic/) gives the command's arguments; [reply schemas](/reference/schemas/) lists every reply.

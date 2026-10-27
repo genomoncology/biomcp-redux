@@ -11,7 +11,7 @@ kind: reference
 verified: 2026-10-27
 ---
 
-BioMCP 1.0.0 prints one JSON object, the reply, for each command. [`biomcp search disease`](/reference/commands/search-disease/) replies with `schema` set to `biomcp.disease_page/1`. Read this page when your code parses that reply. It shows a real reply, then the fields that only this schema has. The fields every reply shares are on [reply envelope and shared types](/reference/schemas/types/).
+BioMCP 1.0.0 prints one JSON object, the reply, for each command. [`biomcp search disease`](/reference/commands/search-disease/) replies with `schema` set to `biomcp.disease_page/1`. Read this page when your code parses that reply: it shows a real one, then the fields only this schema has. [Shared types](/reference/schemas/types/) defines the rest.
 
 ## Commands that return it
 
@@ -25,7 +25,7 @@ biomcp search disease melanoma --limit 3
 
 ## Example reply
 
-`biomcp search disease melanoma --limit 3` returned this reply on 2026-10-27. Lists show their first items, and a line that starts with … counts the items left out. Text that ends in … is cut.
+`biomcp search disease melanoma --limit 3` returned this on 2026-10-27. Lists show their first items; a line with … counts the rest, and text ending in … is cut.
 
 ```json
 {
@@ -40,26 +40,11 @@ biomcp search disease melanoma --limit 3
   },
   "result": {
     "items": [
-      {
-        "concept": {"id": "MONDO:0005105", "label": "melanoma"},
-        "ontology": "mondo",
-        "attribution": {
-          "source": "mondo",
-          "record": "MONDO:0005105",
-          "url": "http://purl.obolibrary.org/obo/MONDO_0005105"
-        }
-      },
+      {…},
       … 2 more
     ],
     "components": [
-      {
-        "component": "mondo",
-        "terms": {
-          "usage": "attribution",
-          "name": "MONDO CC BY 4.0",
-          "url": "https://mondo.monarchinitiative.org/pages/download/"
-        }
-      }
+      {…}
     ]
   },
   "page": {"offset": 0, "returned": 3, "total": 158},
@@ -87,28 +72,30 @@ biomcp search disease melanoma --limit 3
 
 ## Fields
 
+A field marked Optional can be missing from a reply. Every other field is always there.
+
 `result` holds [DiseasePage](#diseasepage). `query` holds [DiseaseSearch](/reference/schemas/types/#diseasesearch), a shared type. `query` repeats the request as BioMCP read it.
 
 ### DiseasePage
 
 One source-ordered disease candidate page.
 
-| Field | Type | Always present | Meaning |
-| --- | --- | --- | --- |
-| `components` | list of [ComponentLabel](/reference/schemas/types/#componentlabel) | yes | Applicable component use terms, independent of row provenance. |
-| `items` | list of [DiseaseHeader](#diseaseheader) | yes | Rows as the source gives them. Totals in `page` count rows, not distinct records. |
+| Field | Type | Meaning |
+| --- | --- | --- |
+| `components` | list of [ComponentLabel](/reference/schemas/types/#componentlabel) | Applicable component use terms, independent of row provenance. |
+| `items` | list of [DiseaseHeader](#diseaseheader) | Rows as the source gives them. Totals in `page` count rows, not distinct records. |
 
 ### DiseaseHeader
 
 One source candidate without a selected identity.
 
-| Field | Type | Always present | Meaning |
-| --- | --- | --- | --- |
-| `attribution` | [Attribution](/reference/schemas/types/#attribution) | yes | Source record and version. |
-| `concept` | [Concept](/reference/schemas/types/#concept) | yes | Native concept and optional exact ID. |
-| `obsolete` | boolean or null | no | Publisher obsolete flag when supplied. |
-| `ontology` | [DiseaseOntology](/reference/schemas/types/#diseaseontology) | yes | The explicit queried ontology. |
+| Field | Type | Meaning |
+| --- | --- | --- |
+| `attribution` | [Attribution](/reference/schemas/types/#attribution) | Source record and version. |
+| `concept` | [Concept](/reference/schemas/types/#concept) | Native concept and optional exact ID. |
+| `obsolete` | boolean or null | Publisher obsolete flag when supplied. Optional. |
+| `ontology` | [DiseaseOntology](/reference/schemas/types/#diseaseontology) | The explicit queried ontology. |
 
 ## Next
 
-[Reply envelope and shared types](/reference/schemas/types/) defines `status`, `sources`, `next` and every shared type. [Reply schemas](/reference/schemas/) lists every reply. [`biomcp search disease`](/reference/commands/search-disease/) gives the command's arguments.
+[`biomcp search disease`](/reference/commands/search-disease/) gives the command's arguments; [reply schemas](/reference/schemas/) lists every reply.

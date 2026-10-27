@@ -14,7 +14,7 @@ This page lists the changes in BioMCP <Fact k="version" />. The steps to move a 
 
 ## Added
 
-- One command grammar for <Fact k="counts.entities" /> entities: `search`, `get` with sections, and relation commands. `study` is an entity of its own.
+- One command grammar for <Fact k="counts.entities" /> [entities](/reference/entities/): `search`, `get` with sections, and [relation commands](/concepts/progressive-disclosure/). `study` is an entity of its own.
 - Typed `next` commands in every reply.
 - `biomcp key set`, `key list` and `key remove`.
 - `article pdf`, `article text` and `article supplement` with `--save`; `trial document` for posted trial PDFs.
@@ -28,7 +28,7 @@ This page lists the changes in BioMCP <Fact k="version" />. The steps to move a 
 - The MCP server offers <Fact k="counts.mcp_tools" /> tools: <Fact k="mcp_tools" />.
 - `--source` is explicit and never falls back to another source.
 - `X sync` became `sync X`; `serve-http` became `serve --http ADDR --allow-host HOST`; `cache clean` became `store clean`.
-- One `config.json` holds format, disabled sources, proxy, CA bundle, HTTP hosts and keys. Every source is on by default.
+- One `config.json` holds format, disabled sources, proxy, `ca_bundle`, HTTP hosts and keys. Every source is on by default.
 
 ## Removed
 

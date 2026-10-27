@@ -11,7 +11,7 @@ kind: reference
 verified: 2026-10-27
 ---
 
-BioMCP 1.0.0 prints one JSON object, the reply, for each command. [`biomcp article references`](/reference/commands/article-references/) and [`biomcp article citations`](/reference/commands/article-citations/) reply with `schema` set to `biomcp.article_edges/4`. Read this page when your code parses that reply. It shows a real reply, then the fields that only this schema has. The fields every reply shares are on [reply envelope and shared types](/reference/schemas/types/).
+BioMCP 1.0.0 prints one JSON object, the reply, for each command. [`biomcp article references`](/reference/commands/article-references/) and [`biomcp article citations`](/reference/commands/article-citations/) reply with `schema` set to `biomcp.article_edges/4`. Read this page when your code parses that reply: it shows a real one, then the fields only this schema has. [Shared types](/reference/schemas/types/) defines the rest.
 
 ## Commands that return it
 
@@ -26,7 +26,7 @@ biomcp article citations 12068308 --limit 5
 
 ## Example reply
 
-`biomcp article references 12068308 --limit 5` returned this reply on 2026-10-27. Lists show their first items, and a line that starts with … counts the items left out. Text that ends in … is cut.
+`biomcp article references 12068308 --limit 5` returned this on 2026-10-27. Lists show their first items; a line with … counts the rest, and text ending in … is cut.
 
 ```json
 {
@@ -40,12 +40,7 @@ biomcp article citations 12068308 --limit 5
   },
   "result": {
     "items": [
-      {
-        "key": {"namespace": "pubmed", "id": "2841597"},
-        "pmid": "2841597",
-        "cited_by": 6033,
-        "header": {…}
-      },
+      {…},
       … 4 more
     ]
   },
@@ -74,18 +69,12 @@ biomcp article citations 12068308 --limit 5
   "next": [
     {
       "kind": "page",
-      "args": [
-        "article", "references", "12068308", "--limit", "5", "--offset", "5",
-        "--pool",
-        … 1 more
-      ]
-    },
-    … 1 more
-  ]
-}
+…
 ```
 
 ## Fields
+
+A field marked Optional can be missing from a reply. Every other field is always there.
 
 `result` holds [ArticleEdgePage](#articleedgepage). `query` holds [ArticleEdges](#articleedges). `query` repeats the request as BioMCP read it.
 
@@ -93,21 +82,21 @@ biomcp article citations 12068308 --limit 5
 
 A page of citing or referenced papers in citation order.
 
-| Field | Type | Always present | Meaning |
-| --- | --- | --- | --- |
-| `items` | list of [ArticleItem](/reference/schemas/types/#articleitem) | yes | Papers in the fixed edge pool. |
+| Field | Type | Meaning |
+| --- | --- | --- |
+| `items` | list of [ArticleItem](/reference/schemas/types/#articleitem) | Papers in the fixed edge pool. |
 
 ### ArticleEdges
 
 Page the citing or referenced PubMed papers of one checked PMID.
 
-| Field | Type | Always present | Meaning |
-| --- | --- | --- | --- |
-| `limit` | integer (uint32) | no | Maximum papers on one page. |
-| `offset` | integer (uint32) | no | Number of pool items to skip. |
-| `pmid` | [ArticleInput](/reference/schemas/types/#articleinput) | yes | PMID, PMC or DOI; iCite accepts only a PMID. |
-| `pool` | [Text](/reference/schemas/types/#text) | no | Fixed snapshot from an earlier page. |
-| `source` | [EdgeSource](#edgesource) | no | Graph provider; iCite remains the default. |
+| Field | Type | Meaning |
+| --- | --- | --- |
+| `limit` | integer (uint32) | Maximum papers on one page. Optional. |
+| `offset` | integer (uint32) | Number of pool items to skip. Optional. |
+| `pmid` | [ArticleInput](/reference/schemas/types/#articleinput) | PMID, PMC or DOI; iCite accepts only a PMID. |
+| `pool` | [Text](/reference/schemas/types/#text) | Fixed snapshot from an earlier page. Optional. |
+| `source` | [EdgeSource](#edgesource) | Graph provider; iCite remains the default. Optional. |
 
 ### EdgeSource
 
@@ -117,4 +106,4 @@ Values: `icite`, `semantic-scholar`.
 
 ## Next
 
-[Reply envelope and shared types](/reference/schemas/types/) defines `status`, `sources`, `next` and every shared type. [Reply schemas](/reference/schemas/) lists every reply. [`biomcp article references`](/reference/commands/article-references/) gives the command's arguments.
+[`biomcp article references`](/reference/commands/article-references/) gives the command's arguments; [reply schemas](/reference/schemas/) lists every reply.

@@ -11,7 +11,7 @@ kind: reference
 verified: 2026-10-27
 ---
 
-BioMCP 1.0.0 prints one JSON object, the reply, for each command. [`biomcp get adverse-event`](/reference/commands/get-adverse-event/) and [`biomcp get adverse-event drugs`](/reference/commands/get-adverse-event/) reply with `schema` set to `biomcp.adverse_event_faers_card/1`. Read this page when your code parses that reply. It shows a real reply, then the fields that only this schema has. The fields every reply shares are on [reply envelope and shared types](/reference/schemas/types/).
+BioMCP 1.0.0 prints one JSON object, the reply, for each command. [`biomcp get adverse-event`](/reference/commands/get-adverse-event/) and [`biomcp get adverse-event drugs`](/reference/commands/get-adverse-event/) reply with `schema` set to `biomcp.adverse_event_faers_card/1`. Read this page when your code parses that reply: it shows a real one, then the fields only this schema has. [Shared types](/reference/schemas/types/) defines the rest.
 
 ## Commands that return it
 
@@ -26,7 +26,7 @@ biomcp get adverse-event 100 drugs
 
 ## Example reply
 
-`biomcp get adverse-event 26907716` returned this reply on 2026-10-27. Lists show their first items, and a line that starts with … counts the items left out. Text that ends in … is cut.
+`biomcp get adverse-event 26907716` returned this on 2026-10-27. Lists show their first items; a line with … counts the rest, and text ending in … is cut.
 
 ```json
 {
@@ -69,29 +69,12 @@ biomcp get adverse-event 100 drugs
     "available_sections": ["drugs", "reactions"],
     "components": []
   },
-  "sources": [
-    {
-      "source": "faers",
-      "use": "open",
-      "terms": "openFDA terms and license; third-party exceptions",
-      "terms_url": "https://open.fda.gov/terms/",
-      "state": "ok"
-    }
-  ],
-  "next": [
-    {
-      "kind": "section",
-      "args": [
-        "get", "adverse-event", "26907716", "drugs", "--snapshot",
-        "04a589ed93a30065c4532d2eb2fa5f8083ca9716d4185b8d2e91711430d7ab78"
-      ]
-    },
-    … 1 more
-  ]
-}
+…
 ```
 
 ## Fields
+
+A field marked Optional can be missing from a reply. Every other field is always there.
 
 `result` holds [AdverseEventFaersCard](#adverseeventfaerscard). `query` holds [AdverseEventGet](/reference/schemas/types/#adverseeventget), a shared type. `query` repeats the request as BioMCP read it.
 
@@ -99,58 +82,58 @@ biomcp get adverse-event 100 drugs
 
 FAERS card with native report-level facts and independent collection lengths.
 
-| Field | Type | Always present | Meaning |
-| --- | --- | --- | --- |
-| `available_sections` | list of [AdverseEventSection](/reference/schemas/types/#adverseeventsection) | yes | Named sections available in this report. |
-| `components` | list of [ComponentLabel](/reference/schemas/types/#componentlabel) | yes | Applicable component terms. |
-| `drug_count` | integer (uint32) | yes | Actual drug-array length, never count bucket. |
-| `first_received_format` | string or null | no | Native first_received_format string; present empty values remain present. |
-| `header` | [AdverseEventHeader](/reference/schemas/types/#adverseeventheader) | yes | Exact selected report identity. |
-| `latest_received` | string or null | no | Native latest_received string; present empty values remain present. |
-| `latest_received_format` | string or null | no | Native latest_received_format string; present empty values remain present. |
-| `patient` | [FaersPatient](#faerspatient) or null | no | Fixed native patient strings. |
-| `reaction_count` | integer (uint32) | yes | Actual reaction-array length, never causal pairs. |
-| `report_url` | [Text](/reference/schemas/types/#text) | yes | Exact successful source request URL, never guessed. |
-| `reporter` | [FaersReporter](#faersreporter) or null | no | Optional reporter facts. |
-| `seriousness` | [FaersSeriousness](#faersseriousness) or null | no | Independent source report flags. |
-| `snapshot` | [Text](/reference/schemas/types/#text) | yes | Opaque checked retained-report snapshot identity. |
-| `source_url` | [Text](/reference/schemas/types/#text) | yes | Publisher overview, never a next step. |
-| `transmitted` | string or null | no | Native transmitted string; present empty values remain present. |
-| `transmitted_format` | string or null | no | Native transmitted_format string; present empty values remain present. |
+| Field | Type | Meaning |
+| --- | --- | --- |
+| `available_sections` | list of [AdverseEventSection](/reference/schemas/types/#adverseeventsection) | Named sections available in this report. |
+| `components` | list of [ComponentLabel](/reference/schemas/types/#componentlabel) | Applicable component terms. |
+| `drug_count` | integer (uint32) | Actual drug-array length, never count bucket. |
+| `first_received_format` | string or null | Native first_received_format string; present empty values remain present. Optional. |
+| `header` | [AdverseEventHeader](/reference/schemas/types/#adverseeventheader) | Exact selected report identity. |
+| `latest_received` | string or null | Native latest_received string; present empty values remain present. Optional. |
+| `latest_received_format` | string or null | Native latest_received_format string; present empty values remain present. Optional. |
+| `patient` | [FaersPatient](#faerspatient) or null | Fixed native patient strings. Optional. |
+| `reaction_count` | integer (uint32) | Actual reaction-array length, never causal pairs. |
+| `report_url` | [Text](/reference/schemas/types/#text) | Exact successful source request URL, never guessed. |
+| `reporter` | [FaersReporter](#faersreporter) or null | Optional reporter facts. Optional. |
+| `seriousness` | [FaersSeriousness](#faersseriousness) or null | Independent source report flags. Optional. |
+| `snapshot` | [Text](/reference/schemas/types/#text) | Opaque checked retained-report snapshot identity. |
+| `source_url` | [Text](/reference/schemas/types/#text) | Publisher overview, never a next step. |
+| `transmitted` | string or null | Native transmitted string; present empty values remain present. Optional. |
+| `transmitted_format` | string or null | Native transmitted_format string; present empty values remain present. Optional. |
 
 ### FaersPatient
 
 Optional native patient strings without numeric conversion.
 
-| Field | Type | Always present | Meaning |
-| --- | --- | --- | --- |
-| `age` | string or null | no | Native age string, including a present empty value. |
-| `age_unit` | string or null | no | Native age_unit string, including a present empty value. |
-| `sex` | string or null | no | Native sex string, including a present empty value. |
-| `weight` | string or null | no | Native weight string, including a present empty value. |
+| Field | Type | Meaning |
+| --- | --- | --- |
+| `age` | string or null | Native age string, including a present empty value. Optional. |
+| `age_unit` | string or null | Native age_unit string, including a present empty value. Optional. |
+| `sex` | string or null | Native sex string, including a present empty value. Optional. |
+| `weight` | string or null | Native weight string, including a present empty value. Optional. |
 
 ### FaersReporter
 
 Source reporter fields; qualification may be absent.
 
-| Field | Type | Always present | Meaning |
-| --- | --- | --- | --- |
-| `country` | string or null | no | Native country string, including a present empty value. |
-| `qualification` | string or null | no | Native qualification string, including a present empty value. |
+| Field | Type | Meaning |
+| --- | --- | --- |
+| `country` | string or null | Native country string, including a present empty value. Optional. |
+| `qualification` | string or null | Native qualification string, including a present empty value. Optional. |
 
 ### FaersSeriousness
 
 Independent overlapping report-level flags; no CTCAE or reaction-outcome conversion.
 
-| Field | Type | Always present | Meaning |
-| --- | --- | --- | --- |
-| `congenitalanomali` | string or null | no | Native congenitalanomali string, including a present empty value. |
-| `death` | string or null | no | Native death string, including a present empty value. |
-| `disabling` | string or null | no | Native disabling string, including a present empty value. |
-| `hospitalization` | string or null | no | Native hospitalization string, including a present empty value. |
-| `lifethreatening` | string or null | no | Native lifethreatening string, including a present empty value. |
-| `other` | string or null | no | Native other string, including a present empty value. |
+| Field | Type | Meaning |
+| --- | --- | --- |
+| `congenitalanomali` | string or null | Native congenitalanomali string, including a present empty value. Optional. |
+| `death` | string or null | Native death string, including a present empty value. Optional. |
+| `disabling` | string or null | Native disabling string, including a present empty value. Optional. |
+| `hospitalization` | string or null | Native hospitalization string, including a present empty value. Optional. |
+| `lifethreatening` | string or null | Native lifethreatening string, including a present empty value. Optional. |
+| `other` | string or null | Native other string, including a present empty value. Optional. |
 
 ## Next
 
-[Reply envelope and shared types](/reference/schemas/types/) defines `status`, `sources`, `next` and every shared type. [Reply schemas](/reference/schemas/) lists every reply. [`biomcp get adverse-event`](/reference/commands/get-adverse-event/) gives the command's arguments.
+[`biomcp get adverse-event`](/reference/commands/get-adverse-event/) gives the command's arguments; [reply schemas](/reference/schemas/) lists every reply.

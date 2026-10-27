@@ -11,7 +11,7 @@ kind: reference
 verified: 2026-10-27
 ---
 
-BioMCP 1.0.0 prints one JSON object, the reply, for each command. [`biomcp search phenotype`](/reference/commands/search-phenotype/) replies with `schema` set to `biomcp.phenotype-search/1`. Read this page when your code parses that reply. It shows a real reply, then the fields that only this schema has. The fields every reply shares are on [reply envelope and shared types](/reference/schemas/types/).
+BioMCP 1.0.0 prints one JSON object, the reply, for each command. [`biomcp search phenotype`](/reference/commands/search-phenotype/) replies with `schema` set to `biomcp.phenotype-search/1`. Read this page when your code parses that reply: it shows a real one, then the fields only this schema has. [Shared types](/reference/schemas/types/) defines the rest.
 
 ## Commands that return it
 
@@ -26,7 +26,7 @@ biomcp search phenotype synthetic
 
 ## Example reply
 
-`biomcp search phenotype seizure --limit 3` returned this reply on 2026-10-27. Lists show their first items, and a line that starts with … counts the items left out. Text that ends in … is cut.
+`biomcp search phenotype seizure --limit 3` returned this on 2026-10-27. Lists show their first items; a line with … counts the rest, and text ending in … is cut.
 
 ```json
 {
@@ -40,29 +40,11 @@ biomcp search phenotype synthetic
   },
   "result": {
     "items": [
-      {
-        "id": "HP:0001250",
-        "label": "Seizure",
-        "match_score": 29.591873,
-        "matched_field": "name",
-        "match_type": "exact",
-        "attribution": {
-          "source": "monarch",
-          "record": "HP:0001250",
-          "url": "https://monarchinitiative.org/HP:0001250/"
-        }
-      },
+      {…},
       … 2 more
     ],
     "components": [
-      {
-        "component": "hpo",
-        "terms": {
-          "usage": "attribution",
-          "name": "HPO project custom license: attribution, version and integ…",
-          "url": "https://human-phenotype-ontology.github.io/license.html"
-        }
-      },
+      {…},
       … 1 more
     ],
     "fetched": 1793140310
@@ -78,10 +60,7 @@ biomcp search phenotype synthetic
     }
   ],
   "next": [
-    {
-      "kind": "disambiguate",
-      "args": ["get", "phenotype", "HP:0001250"]
-    },
+    {"kind": "disambiguate", "args": ["get", "phenotype", "HP:0001250"]},
     … 3 more
   ]
 }
@@ -89,42 +68,44 @@ biomcp search phenotype synthetic
 
 ## Fields
 
+A field marked Optional can be missing from a reply. Every other field is always there.
+
 `result` holds [PhenotypePage](#phenotypepage). `query` holds [PhenotypeSearch](#phenotypesearch). `query` repeats the request as BioMCP read it.
 
 ### PhenotypePage
 
 Native HP search header page, without local ranking.
 
-| Field | Type | Always present | Meaning |
-| --- | --- | --- | --- |
-| `components` | list of [ComponentLabel](/reference/schemas/types/#componentlabel) | yes | Applicable publisher component terms. |
-| `fetched` | integer or null | no | Original source retrieval seconds, distinct from ontology release. |
-| `items` | list of [PhenotypeHeader](#phenotypeheader) | yes | Native ordered rows; empty remains an empty collection. |
+| Field | Type | Meaning |
+| --- | --- | --- |
+| `components` | list of [ComponentLabel](/reference/schemas/types/#componentlabel) | Applicable publisher component terms. |
+| `fetched` | integer or null | Original source retrieval seconds, distinct from ontology release. Optional. |
+| `items` | list of [PhenotypeHeader](#phenotypeheader) | Native ordered rows; empty remains an empty collection. |
 
 ### PhenotypeSearch
 
 Search literal human HP term candidates through Monarch with bounded native pages. A term lookup answers terminology and does not establish a diagnosis.
 
-| Field | Type | Always present | Meaning |
-| --- | --- | --- | --- |
-| `limit` | integer (uint32) | no | Maximum native headers, default five. |
-| `offset` | integer (uint32) | no | Native source row offset. |
-| `source` | [PhenotypeSource](/reference/schemas/types/#phenotypesource) | no | Monarch only; HPO search is unsupported. |
-| `text` | string | yes | Unchanged literal term search text. |
+| Field | Type | Meaning |
+| --- | --- | --- |
+| `limit` | integer (uint32) | Maximum native headers, default five. Optional. |
+| `offset` | integer (uint32) | Native source row offset. Optional. |
+| `source` | [PhenotypeSource](/reference/schemas/types/#phenotypesource) | Monarch only; HPO search is unsupported. Optional. |
+| `text` | string | Unchanged literal term search text. |
 
 ### PhenotypeHeader
 
 One native term search candidate, without a selected identity.
 
-| Field | Type | Always present | Meaning |
-| --- | --- | --- | --- |
-| `attribution` | [Attribution](/reference/schemas/types/#attribution) | yes | Publisher identity and version when supplied. |
-| `id` | [HpId](/reference/schemas/types/#hpid) | yes | Source HP identity. |
-| `label` | string | yes | Exact native label, including an empty value. |
-| `match_score` | [FiniteNumber](/reference/schemas/types/#finitenumber) or null | no | Native search match score with no local interpretation. |
-| `match_type` | string or null | no | Native match type label. |
-| `matched_field` | string or null | no | Native matched field name. |
+| Field | Type | Meaning |
+| --- | --- | --- |
+| `attribution` | [Attribution](/reference/schemas/types/#attribution) | Publisher identity and version when supplied. |
+| `id` | [HpId](/reference/schemas/types/#hpid) | Source HP identity. |
+| `label` | string | Exact native label, including an empty value. |
+| `match_score` | [FiniteNumber](/reference/schemas/types/#finitenumber) or null | Native search match score with no local interpretation. Optional. |
+| `match_type` | string or null | Native match type label. Optional. |
+| `matched_field` | string or null | Native matched field name. Optional. |
 
 ## Next
 
-[Reply envelope and shared types](/reference/schemas/types/) defines `status`, `sources`, `next` and every shared type. [Reply schemas](/reference/schemas/) lists every reply. [`biomcp search phenotype`](/reference/commands/search-phenotype/) gives the command's arguments.
+[`biomcp search phenotype`](/reference/commands/search-phenotype/) gives the command's arguments; [reply schemas](/reference/schemas/) lists every reply.

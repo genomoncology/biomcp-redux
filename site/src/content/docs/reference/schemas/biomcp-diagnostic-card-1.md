@@ -11,7 +11,7 @@ kind: reference
 verified: 2026-10-27
 ---
 
-BioMCP 1.0.0 prints one JSON object, the reply, for each command. [`biomcp get diagnostic`](/reference/commands/get-diagnostic/) replies with `schema` set to `biomcp.diagnostic_card/1`. Read this page when your code parses that reply. It shows a real reply, then the fields that only this schema has. The fields every reply shares are on [reply envelope and shared types](/reference/schemas/types/).
+BioMCP 1.0.0 prints one JSON object, the reply, for each command. [`biomcp get diagnostic`](/reference/commands/get-diagnostic/) replies with `schema` set to `biomcp.diagnostic_card/1`. Read this page when your code parses that reply: it shows a real one, then the fields only this schema has. [Shared types](/reference/schemas/types/) defines the rest.
 
 ## Commands that return it
 
@@ -25,7 +25,7 @@ biomcp get diagnostic K193046 --source fda-510k
 
 ## Example reply
 
-`biomcp get diagnostic K193046 --source fda-510k` returned this reply on 2026-10-27. Lists show their first items, and a line that starts with … counts the items left out. Text that ends in … is cut.
+`biomcp get diagnostic K193046 --source fda-510k` returned this on 2026-10-27. Lists show their first items; a line with … counts the rest, and text ending in … is cut.
 
 ```json
 {
@@ -63,17 +63,14 @@ biomcp get diagnostic K193046 --source fda-510k
         "search", "diagnostic", "--device-id", "K193046", "--source", "fda-cdx"
       ]
     },
-    {
-      "kind": "fresh",
-      "args": [
-        "get", "diagnostic", "K193046", "--source", "fda-510k", "--fresh"
-      ]
-    }
+    … 1 more
   ]
 }
 ```
 
 ## Fields
+
+A field marked Optional can be missing from a reply. Every other field is always there.
 
 `result` holds [DiagnosticCard](#diagnosticcard). `query` holds [DiagnosticGet](/reference/schemas/types/#diagnosticget), a shared type. `query` repeats the request as BioMCP read it.
 
@@ -92,28 +89,28 @@ One of these forms:
 
 Native flags retain distinct source meanings and exact source codes.
 
-| Field | Type | Always present | Meaning |
-| --- | --- | --- | --- |
-| `lab_currStat` | string | yes | Native laboratory current status. |
-| `lab_pubStat` | string | yes | Native laboratory public status. |
-| `now_current` | string | yes | Current version flag, not current clinical availability. |
-| `test_currStat` | string | yes | Native test current status. |
-| `test_pubStat` | string | yes | Native test public status. |
+| Field | Type | Meaning |
+| --- | --- | --- |
+| `lab_currStat` | string | Native laboratory current status. |
+| `lab_pubStat` | string | Native laboratory public status. |
+| `now_current` | string | Current version flag, not current clinical availability. |
+| `test_currStat` | string | Native test current status. |
+| `test_pubStat` | string | Native test public status. |
 
 ### WhoIvdRow
 
 One original WHO CSV row; each repeated field retains its own row scope.
 
-| Field | Type | Always present | Meaning |
-| --- | --- | --- | --- |
-| `assay_format` | string | yes | Complete native assay format cell; no interpretation or inferred date. |
-| `manufacturer` | string | yes | Complete native manufacturer cell; no interpretation or inferred date. |
-| `marker` | string | yes | Complete native marker cell; no interpretation or inferred date. |
-| `prequalification_year` | string | yes | Complete native prequalification year cell; no interpretation or inferred date. |
-| `product_code` | string | yes | Complete native product code cell; no interpretation or inferred date. |
-| `product_name` | string | yes | Complete native product name cell; no interpretation or inferred date. |
-| `regulatory_version` | string | yes | Complete native regulatory version cell; no interpretation or inferred date. |
+| Field | Type | Meaning |
+| --- | --- | --- |
+| `assay_format` | string | Complete native assay format cell; no interpretation or inferred date. |
+| `manufacturer` | string | Complete native manufacturer cell; no interpretation or inferred date. |
+| `marker` | string | Complete native marker cell; no interpretation or inferred date. |
+| `prequalification_year` | string | Complete native prequalification year cell; no interpretation or inferred date. |
+| `product_code` | string | Complete native product code cell; no interpretation or inferred date. |
+| `product_name` | string | Complete native product name cell; no interpretation or inferred date. |
+| `regulatory_version` | string | Complete native regulatory version cell; no interpretation or inferred date. |
 
 ## Next
 
-[Reply envelope and shared types](/reference/schemas/types/) defines `status`, `sources`, `next` and every shared type. [Reply schemas](/reference/schemas/) lists every reply. [`biomcp get diagnostic`](/reference/commands/get-diagnostic/) gives the command's arguments.
+[`biomcp get diagnostic`](/reference/commands/get-diagnostic/) gives the command's arguments; [reply schemas](/reference/schemas/) lists every reply.

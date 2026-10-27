@@ -11,7 +11,7 @@ kind: reference
 verified: 2026-10-27
 ---
 
-BioMCP 1.0.0 prints one JSON object, the reply, for each command. [`biomcp article pdf`](/reference/commands/article-pdf/) replies with `schema` set to `biomcp.article_pdf/2`. Read this page when your code parses that reply. It shows a real reply, then the fields that only this schema has. The fields every reply shares are on [reply envelope and shared types](/reference/schemas/types/).
+BioMCP 1.0.0 prints one JSON object, the reply, for each command. [`biomcp article pdf`](/reference/commands/article-pdf/) replies with `schema` set to `biomcp.article_pdf/2`. Read this page when your code parses that reply: it shows a real one, then the fields only this schema has. [Shared types](/reference/schemas/types/) defines the rest.
 
 ## Commands that return it
 
@@ -25,7 +25,7 @@ biomcp article pdf 41351423 --save second.pdf --replace
 
 ## Example reply
 
-`biomcp article pdf 41351423 --save second.pdf --replace` returned this reply on 2026-10-27. Lists show their first items, and a line that starts with … counts the items left out. Text that ends in … is cut.
+`biomcp article pdf 41351423 --save second.pdf --replace` returned this on 2026-10-27. Lists show their first items; a line with … counts the rest, and text ending in … is cut.
 
 ```json
 {
@@ -60,39 +60,41 @@ The source did not answer that run, so `status` is `failed` and `result` is miss
 
 ## Fields
 
+A field marked Optional can be missing from a reply. Every other field is always there.
+
 `result` holds [ArticlePdfResult](#articlepdfresult). `query` holds [ArticlePdf](#articlepdf). `query` repeats the request as BioMCP read it.
 
 ### ArticlePdfResult
 
 Result of an explicit publisher PDF download.
 
-| Field | Type | Always present | Meaning |
-| --- | --- | --- | --- |
-| `file` | [Section](/reference/schemas/types/#section) of [PdfSaved](#pdfsaved) | yes | Saved receipt or the reason no file was saved. |
+| Field | Type | Meaning |
+| --- | --- | --- |
+| `file` | [Section](/reference/schemas/types/#section) of [PdfSaved](#pdfsaved) | Saved receipt or the reason no file was saved. |
 
 ### ArticlePdf
 
 Download one publisher PDF to an explicit file or existing folder.
 
-| Field | Type | Always present | Meaning |
-| --- | --- | --- | --- |
-| `input` | [ArticleInput](/reference/schemas/types/#articleinput) | yes | Article identity. |
-| `replace` | boolean | no | Replace an existing file only when explicitly requested. |
-| `save` | [Text](/reference/schemas/types/#text) | yes | Destination file or existing folder. |
+| Field | Type | Meaning |
+| --- | --- | --- |
+| `input` | [ArticleInput](/reference/schemas/types/#articleinput) | Article identity. |
+| `replace` | boolean | Replace an existing file only when explicitly requested. Optional. |
+| `save` | [Text](/reference/schemas/types/#text) | Destination file or existing folder. |
 
 ### PdfSaved
 
 Receipt for one file explicitly saved by the caller.
 
-| Field | Type | Always present | Meaning |
-| --- | --- | --- | --- |
-| `bytes` | integer (uint64) | yes | Number of saved bytes. |
-| `license` | [License](/reference/schemas/types/#license) | yes | Normalized license; other grants no reuse rights. |
-| `path` | [Text](/reference/schemas/types/#text) | yes | Absolute destination path. |
-| `sha256` | [Text](/reference/schemas/types/#text) | yes | SHA-256 of the saved file. |
-| `status` | [OpenAccessStatus](/reference/schemas/types/#openaccessstatus) | yes | Source access status. |
-| `url` | [Text](/reference/schemas/types/#text) | yes | Source publisher URL. |
+| Field | Type | Meaning |
+| --- | --- | --- |
+| `bytes` | integer (uint64) | Number of saved bytes. |
+| `license` | [License](/reference/schemas/types/#license) | Normalized license; other grants no reuse rights. |
+| `path` | [Text](/reference/schemas/types/#text) | Absolute destination path. |
+| `sha256` | [Text](/reference/schemas/types/#text) | SHA-256 of the saved file. |
+| `status` | [OpenAccessStatus](/reference/schemas/types/#openaccessstatus) | Source access status. |
+| `url` | [Text](/reference/schemas/types/#text) | Source publisher URL. |
 
 ## Next
 
-[Reply envelope and shared types](/reference/schemas/types/) defines `status`, `sources`, `next` and every shared type. [Reply schemas](/reference/schemas/) lists every reply. [`biomcp article pdf`](/reference/commands/article-pdf/) gives the command's arguments.
+[`biomcp article pdf`](/reference/commands/article-pdf/) gives the command's arguments; [reply schemas](/reference/schemas/) lists every reply.
