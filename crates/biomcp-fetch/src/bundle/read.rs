@@ -9,7 +9,6 @@ impl Leg<'_> {
             return Err(self.failure(biomcp_types::Reason::Offline, None).into());
         }
         let cache = self.bundle_cache()?;
-        self.import_predecessor(cache, bundle.name)?;
         // One command can make several indexed lookups against the same bundle.
         // Fresh revalidates once for this leg, including its concurrent children.
         let mut refreshed = self.fresh.then(|| {
@@ -20,6 +19,7 @@ impl Leg<'_> {
         let old = if matches!(self.fetch.mode, Mode::Record { .. }) {
             None
         } else {
+            self.import_predecessor(cache, bundle.name)?;
             cache.bundle_info(bundle.name, self.budget())?
         };
         let replay = matches!(self.fetch.mode, Mode::Replay { .. });
@@ -104,7 +104,7 @@ impl Leg<'_> {
         cache: &crate::cache::Cache,
         name: &str,
     ) -> Result<(), RequestError> {
-        if !matches!(self.fetch.mode, Mode::Live { .. } | Mode::Offline)
+        if matches!(self.fetch.mode, Mode::Replay { .. })
             || self.fetch.config.replay_cache.is_some()
             || self.fetch.config.cache_predecessors.is_empty()
             || cache.bundle_info(name, self.budget())?.is_some()

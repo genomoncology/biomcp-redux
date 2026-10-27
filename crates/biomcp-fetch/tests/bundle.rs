@@ -113,11 +113,14 @@ fn recording_replay_replaces_warm_case_rows_once_and_ignores_user_cache() {
     })
     .unwrap();
     std::thread::scope(|scope| {
-        let call = scope.spawn(|| record.sync(&b));
+        let call = scope.spawn(|| {
+            let leg = record.leg(b.spec, record.deadline(Duration::from_secs(30)));
+            leg.rows(&b, Find::Exact(KeyKind::Symbol, "NEW"))
+        });
         let request = server.next();
         assert!(!request.text.to_ascii_lowercase().contains("if-"));
         request.respond(200, "", "symbol\tband\tname\nNEW\t9p\t\"tab\\line\"\n");
-        call.join().unwrap().unwrap();
+        assert_eq!(call.join().unwrap().unwrap().len(), 1);
     });
     drop(record);
     let case = biomcp_fetch::ReplayCache::temporary().unwrap();
