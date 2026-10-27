@@ -1,7 +1,7 @@
 //! Feature drug-label: complete generic discovery preserves the native brand.
 use super::{Check, both, field, identity, page, record, setup};
 use libtest_mimic::Trial;
-use serde_json::json;
+use serde_json::{Value, json};
 
 pub(super) fn trials() -> Vec<Trial> {
     [("daraxonrasib", "generic"), ("RASONQUE", "brand")]
@@ -18,7 +18,10 @@ fn search(typed: &str, basis: &str) -> Check {
     let mut id = identity(0)?;
     *id.get_mut("brand").ok_or("brand")? = json!("RASONQUE");
     let mut row = record(&id);
-    row["openfda"]["generic_name"] = json!(["DARAXONRASIB"]);
+    row.get_mut("openfda")
+        .and_then(Value::as_object_mut)
+        .ok_or("openfda names")?
+        .insert("generic_name".into(), json!(["DARAXONRASIB"]));
     let selector = format!(
         "openfda.brand_name.exact%3A%22{typed}%22%20OR%20openfda.generic_name.exact%3A%22{typed}%22"
     );

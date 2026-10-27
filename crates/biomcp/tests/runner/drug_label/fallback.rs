@@ -2,7 +2,7 @@
 use super::super::network_stub::Stub;
 use super::{Check, both, environment, field, identity, page, record};
 use libtest_mimic::Trial;
-use serde_json::json;
+use serde_json::{Value, json};
 
 pub(super) fn trials() -> Vec<Trial> {
     [
@@ -30,7 +30,10 @@ fn fallback(typed: &str, returned: &str, found: bool) -> Check {
     let mut id = identity(0)?;
     *id.get_mut("brand").ok_or("brand")? = json!(returned);
     let mut row = record(&id);
-    row["openfda"]["generic_name"] = json!(["DARAXONRASIB"]);
+    row.get_mut("openfda")
+        .and_then(Value::as_object_mut)
+        .ok_or("openfda names")?
+        .insert("generic_name".into(), json!(["DARAXONRASIB"]));
     let body = page(row).to_string();
     let encoded = typed.replace(' ', "%20");
     let exact = target(&format!(
