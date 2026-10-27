@@ -1,0 +1,100 @@
+//! Bind guide commands to the existing executable help witnesses.
+use super::super::{launch, mcp};
+use std::{collections::BTreeSet, io::Write, process::Stdio};
+
+type Check = Result<(), String>;
+
+pub(super) fn check(witnessed: &BTreeSet<Vec<String>>) -> Check {
+    for text in [
+        include_str!(concat!(env!("CARGO_MANIFEST_DIR"), "/../../README.md")),
+        include_str!(concat!(
+            env!("CARGO_MANIFEST_DIR"),
+            "/../../docs/recipes.md"
+        )),
+    ] {
+        for args in commands(text)? {
+            if !witnessed.contains(&args) {
+                local(&args)?;
+            }
+        }
+    }
+    Ok(())
+}
+
+fn commands(text: &str) -> Result<BTreeSet<Vec<String>>, String> {
+    let mut found = BTreeSet::new();
+    for snippet in text.split('`').chain(text.lines()) {
+        if let Some(command) = snippet.trim().strip_prefix("biomcp ") {
+            let args = shlex::split(command).ok_or("invalid documented shell quoting")?;
+            found.insert(args);
+        }
+    }
+    Ok(found)
+}
+
+fn local(args: &[String]) -> Check {
+    let environment = launch::Environment::new().map_err(|e| e.to_string())?;
+    if args == ["serve"] {
+        let frames = [
+            serde_json::json!({"jsonrpc":"2.0","id":1,"method":"initialize",
+            "params":{"protocolVersion":"2026-07-28","capabilities":{},
+            "clientInfo":{"name":"docs-check","version":"1"}}}),
+        ];
+        let replies = mcp::exchange(&environment, &frames)?;
+        if replies.first().and_then(|v| v.get("result")).is_none() {
+            return Err("documented stdio startup did not initialize".into());
+        }
+        return Ok(());
+    }
+    if args == ["serve", "--http"] {
+        return super::super::http::lifecycle();
+    }
+    let replay = environment.root().join("empty-recordings");
+    std::fs::create_dir(&replay).map_err(|e| e.to_string())?;
+    let mut globals = environment.globals(Some(&replay), false);
+    globals.extend_from_slice(args);
+    let child = environment
+        .command(env!("CARGO_BIN_EXE_biomcp"), &globals)
+        .stdin(Stdio::piped())
+        .stdout(Stdio::piped())
+        .stderr(Stdio::piped())
+        .spawn()
+        .map_err(|e| e.to_string())?;
+    let mut process = super::super::process::Process::new(child)?;
+    if args == ["key", "set", "oncokb"] {
+        process
+            .child
+            .stdin
+            .take()
+            .ok_or("credential stdin")?
+            .write_all(b"synthetic-documentation-key\n")
+            .map_err(|e| e.to_string())?;
+    } else {
+        drop(process.child.stdin.take());
+    }
+    let (status, _, stderr) = process.finish()?;
+    if !status.success() {
+        return Err(format!(
+            "documented command {args:?} exited {status}: {}",
+            String::from_utf8_lossy(&stderr)
+        ));
+    }
+    Ok(())
+}
+
+pub(super) fn rejects_invalid() -> Check {
+    for command in [
+        "biomcp nonexistent-doc-command",
+        "biomcp get gene --invented-option",
+    ] {
+        let args = commands(command)?
+            .into_iter()
+            .next()
+            .ok_or("planted command missing")?;
+        let result = local(&args);
+        if !result.is_err_and(|message| message.contains("exited")) {
+            return Err("documentation check accepted a planted invalid command".into());
+        }
+    }
+    Ok(())
+}

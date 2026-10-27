@@ -1,4 +1,6 @@
 //! Verify installed help examples against their owning replay case steps.
+mod documents;
+
 use super::{Case, assertions, launch, run_sequence, schema};
 use serde_json::Value;
 use std::{collections::BTreeSet, fs};
@@ -19,6 +21,8 @@ pub(super) fn check() -> Result<(), String> {
         .ok_or("help commands missing")?;
     source_description(commands)?;
     let mut printed = collected_examples(commands)?;
+    documents::check(&printed)?;
+    documents::rejects_invalid()?;
     let witnesses: Vec<(String, usize)> = serde_json::from_str(include_str!(concat!(
         env!("OUT_DIR"),
         "/example-cases.json"

@@ -27,6 +27,8 @@ unreached:
 
 .PHONY: docs-check
 docs-check:
+	cargo test --locked -p biomcp --bin biomcp grammar::reference::reference_matches_grammar
+	cargo test --locked -p biomcp --test cases article-help/executable-examples
 	python3 release/tools.py
 	python3 -m unittest release.test_tools
 	python3 scripts/check_docs.py
@@ -47,3 +49,7 @@ nightly-live-check:
 .PHONY: source-capture
 source-capture:
 	python3 scripts/source_capture.py --plan "$(PLAN)" --out "$(OUT)"
+
+.PHONY: docs-generate
+docs-generate:
+	cargo test --locked -p biomcp --bin biomcp grammar::reference::write_reference -- --ignored
