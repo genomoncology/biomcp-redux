@@ -1,0 +1,25 @@
+{
+  "feature": "article-litvar",
+  "story": "A source gene and protein identity without an rsID reaches its publications endpoint",
+  "replay": "article/litvar/naa10-source-identity",
+  "verified": "Actual NCBI autocomplete response captured 2026-10-27 j18527, body SHA256 af4285fdd85c95cb2d751041f38b6a1949afb480bd4a16030b29489a24b78265. HGNC is an isolated single-row source subset from the public cached bundle. Publications are deliberately absent to prove admission reaches the missing recorded endpoint.",
+  "steps": [
+    {
+      "run": [
+        "search",
+        "article",
+        "--gene",
+        "NAA10",
+        "--variant",
+        "E100K",
+        "--source",
+        "litvar"
+      ],
+      "expect": {
+        "/status": "failed",
+        "/sources/1/reason": "record_missing"
+      },
+      "exit": 4
+    }
+  ]
+}
