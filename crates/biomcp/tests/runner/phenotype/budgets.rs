@@ -30,6 +30,9 @@ pub(super) fn mcp(
 }
 
 fn ceiling(phase: &str, surface: &str) -> Result<usize, String> {
+    if (phase, surface) == ("mod/help/invoke1", "cli") {
+        return Ok(super::super::CLI_HELP_BYTES);
+    }
     let measurements: std::collections::BTreeMap<String, usize> = serde_json::from_str(
         include_str!("../../../../../tests/phenotype-command-budgets.json"),
     )

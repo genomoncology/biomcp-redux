@@ -33,6 +33,7 @@ fn main() -> Result<(), Box<dyn Error>> {
         .collect::<String>();
     let output = PathBuf::from(env::var("OUT_DIR")?).join("schemas.rs");
     fs::write(output, format!("&[\n{entries}]\n"))?;
+    embed_skills()?;
     embed_examples()
 }
 
@@ -238,4 +239,45 @@ fn git_revision() -> Result<String, Box<dyn Error>> {
         );
     }
     Ok(String::from_utf8(commit.stdout)?.trim().to_owned())
+}
+
+fn embed_skills() -> Result<(), Box<dyn Error>> {
+    let directory = PathBuf::from(env::var("CARGO_MANIFEST_DIR")?).join("../../skills");
+    println!("cargo:rerun-if-changed={}", directory.display());
+    let mut assets = BTreeMap::new();
+    skill_files(&directory, &directory, &mut assets)?;
+    let entries = assets
+        .iter()
+        .map(|(name, text)| format!("({name:?}, {text:?}),\n"))
+        .collect::<String>();
+    fs::write(
+        PathBuf::from(env::var("OUT_DIR")?).join("skills.rs"),
+        format!("&[\n{entries}]\n"),
+    )?;
+    Ok(())
+}
+fn skill_files(
+    directory: &std::path::Path,
+    root: &std::path::Path,
+    assets: &mut BTreeMap<String, String>,
+) -> Result<(), Box<dyn Error>> {
+    for entry in fs::read_dir(directory)? {
+        let entry = entry?;
+        let path = entry.path();
+        if entry.file_type()?.is_symlink() {
+            return Err("skill source must not contain symbolic links".into());
+        }
+        if path.is_dir() {
+            skill_files(&path, root, assets)?;
+        } else {
+            assets.insert(
+                path.strip_prefix(root)?
+                    .to_str()
+                    .ok_or("non-Unicode skill path")?
+                    .replace('\\', "/"),
+                fs::read_to_string(&path)?,
+            );
+        }
+    }
+    Ok(())
 }

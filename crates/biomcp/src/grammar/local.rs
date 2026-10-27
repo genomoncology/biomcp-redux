@@ -18,6 +18,7 @@ pub(super) fn serve_command() -> Command {
 
 pub(super) fn help_command() -> Command {
     let mut help = Command::new("help")
+        .subcommand(Command::new("skill"))
         .subcommand(Command::new("version"))
         .subcommand(Command::new("mcp-config"))
         .subcommand(
@@ -73,8 +74,9 @@ pub(super) fn help_source(matches: &clap::ArgMatches) -> Result<biomcp_types::So
         .map_err(|_| ())
 }
 
-pub(crate) fn housekeeping_commands() -> [Command; 2] {
+pub(crate) fn housekeeping_commands() -> [Command; 3] {
     [
+        crate::skill::grammar(),
         Command::new("version")
             .about("Print version; --verbose adds build, schema and path provenance. No source requests or key reads.")
             .arg(
@@ -110,6 +112,7 @@ pub(super) fn housekeeping(
 ) -> Option<crate::housekeeping::Command> {
     use crate::housekeeping::{Client, Command};
     match verb {
+        "skill" => crate::skill::parse(matches).map(Command::Skill),
         "version" => Some(Command::Version {
             verbose: matches.get_flag("verbose"),
         }),

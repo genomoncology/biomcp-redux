@@ -178,3 +178,5 @@ cache-resilience: Checked provider replies and absences survive cache admission 
 
 housekeeping: Print build provenance and ready-to-paste local MCP configuration without reading keys or contacting sources. Cases: `crates/biomcp/tests/runner/housekeeping.rs`.
 store-coexistence: Allowed bundle reads import only names missing from the current generation through a verified atomic transfer, preserve both files, and retain current published bundles on conflicts. Cases: `crates/biomcp/tests/runner/store_coexistence.rs`.
+
+agent-skill: Agents read case-backed guidance and install managed guidance only inside an explicit directory. Cases: `crates/biomcp/tests/runner/skill.rs`.
