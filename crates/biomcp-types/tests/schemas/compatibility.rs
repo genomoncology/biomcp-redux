@@ -436,29 +436,7 @@ fn validate_keywords(object: &serde_json::Map<String, Value>, path: &str) -> Che
             return Err(format!("unsupported keyword {key} at {path}"));
         }
     }
-    validate_cli_flags(object.get("x-cli-flags"))?;
-    if object.get("x-reply-query-titles").is_some_and(|value| {
-        !value.as_array().is_some_and(|titles| {
-            !titles.is_empty()
-                && titles
-                    .iter()
-                    .all(|title| title.as_str().is_some_and(|title| !title.is_empty()))
-        })
-    }) {
-        return Err("invalid reply query title annotation".into());
-    }
-    if object
-        .get("x-trailing-section")
-        .is_some_and(|value| value != &Value::Bool(true))
-    {
-        return Err("unsupported trailing-section annotation".into());
-    }
-    if object
-        .get("x-comma-separated")
-        .is_some_and(|v| v != &Value::Bool(true))
-    {
-        return Err("unsupported comma-separated annotation".into());
-    }
+    validate_annotations(object)?;
     // These generated forms carry annotations beside a reference or union,
     // never assertions. Assertions would intersect, while Shape only records
     // one constraint at each path; refuse them instead of merging incorrectly.
@@ -488,6 +466,33 @@ fn validate_keywords(object: &serde_json::Map<String, Value>, path: &str) -> Che
                 "unsupported assertion sibling of {composition} at {path}"
             ));
         }
+    }
+    Ok(())
+}
+
+fn validate_annotations(object: &serde_json::Map<String, Value>) -> Check<()> {
+    validate_cli_flags(object.get("x-cli-flags"))?;
+    if object.get("x-reply-query-titles").is_some_and(|value| {
+        !value.as_array().is_some_and(|titles| {
+            !titles.is_empty()
+                && titles
+                    .iter()
+                    .all(|title| title.as_str().is_some_and(|title| !title.is_empty()))
+        })
+    }) {
+        return Err("invalid reply query title annotation".into());
+    }
+    if object
+        .get("x-trailing-section")
+        .is_some_and(|value| value != &Value::Bool(true))
+    {
+        return Err("unsupported trailing-section annotation".into());
+    }
+    if object
+        .get("x-comma-separated")
+        .is_some_and(|v| v != &Value::Bool(true))
+    {
+        return Err("unsupported comma-separated annotation".into());
     }
     Ok(())
 }
