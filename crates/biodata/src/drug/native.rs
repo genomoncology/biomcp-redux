@@ -15,6 +15,7 @@ pub struct DrugNativeTarget {
     pub label: Option<Text>,
     /// Native target link, only when supplied.
     #[serde(default, skip_serializing_if = "Option::is_none")]
+    #[cfg_attr(feature = "schema", schemars(extend("format" = "uri")))]
     pub url: Option<Text>,
 }
 
@@ -55,5 +56,6 @@ pub struct DrugNativeReference {
     pub ref_id: Option<Text>,
     /// Source reference link, when supplied.
     #[serde(default, skip_serializing_if = "Option::is_none")]
+    #[cfg_attr(feature = "schema", schemars(extend("format" = "uri")))]
     pub ref_url: Option<Text>,
 }
