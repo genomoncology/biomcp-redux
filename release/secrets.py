@@ -208,7 +208,7 @@ def scan(mode, target, cache):
         staging, mapping = prepare(target, mode, root, env)
         config, template, ignore, report = [root / name for name in ["config.toml", "report.tmpl", "ignore", "report.txt"]]
         config.write_text('[extend]\nuseDefault = true\n')
-        template.write_text('{{range .}}{{printf "%s\t%s\n" .File .RuleID}}{{end}}')
+        template.write_text(r'{{range .}}{{printf "%s\t%s\n" .File .RuleID}}{{end}}')
         ignore.touch()
         command = [str(binary), "dir", str(staging), "--config", str(config), "--gitleaks-ignore-path", str(ignore),
                    "--ignore-gitleaks-allow", "--redact=100", "--no-banner", "--no-color", "--log-level", "error",
