@@ -86,6 +86,9 @@ def main():
     assert command['parsed']['query']['input'] == step['expect']['/query/input']
     assert command['command'].index('--replay') < command['command'].index('--')
     assert command['provider_connections'] == 0
+    repeated_disable = json.loads(sample.read_text())
+    repeated_disable['cases'][0]['baseline_globals'].extend(['--disable-sources', 'opentargets'])
+    reject(repeated_disable, baseline, out, 'disable', 'source disables are derived from routes')
     wrong_host = json.loads(sample.read_text())
     wrong_host['cases'][0]['recordings'][0]['host'] = 'unrelated.invalid'
     reject(wrong_host, baseline, out, 'host', 'does not belong to source')

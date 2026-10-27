@@ -33,6 +33,15 @@ pub(super) fn load() -> Result<Registry, String> {
 }
 pub(super) fn validate(selection: &Selection) -> Result<(), String> {
     let registry = load()?;
+    if selection
+        .baseline_globals
+        .iter()
+        .any(|arg| arg == "--disable-sources" || arg.starts_with("--disable-sources="))
+    {
+        return Err(
+            "baseline source disables are derived from routes; omit --disable-sources".into(),
+        );
+    }
     if selection.recordings.is_empty() {
         return Err("assessment gap: baseline endpoint routes missing".into());
     }

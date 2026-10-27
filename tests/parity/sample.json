@@ -14,9 +14,7 @@
         "/result/items/0/answer/gene/summary/text": "/summary"
       },
       "baseline_globals": [
-        "--json",
-        "--disable-sources",
-        "opentargets"
+        "--json"
       ],
       "assertion_pointers": [
         "/result/items/0/answer/gene/summary/text"
