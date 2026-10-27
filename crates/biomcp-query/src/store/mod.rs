@@ -159,6 +159,12 @@ pub fn health(fetch: &biomcp_fetch::Fetch, budget: std::time::Duration) -> Resul
     let deadline = fetch.deadline(budget);
     connection.busy_timeout(deadline.remaining()).map_err(db)?;
     access.admit(deadline, || {
-        biomcp_fetch::check_owners(&connection, &[OWNER])
+        biomcp_fetch::check_owners(
+            &connection,
+            &[SchemaOwner {
+                migratable_versions: &[],
+                ..OWNER
+            }],
+        )
     })
 }

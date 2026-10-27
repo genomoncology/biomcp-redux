@@ -227,5 +227,21 @@ pub(super) fn read_only_health(server: &Server) -> Result<(u16, serde_json::Valu
     let response = server.request("GET", "/health", "");
     #[cfg(unix)]
     std::fs::set_permissions(&cache, permissions).map_err(|e| e.to_string())?;
+    connection
+        .execute_batch("ROLLBACK; INSERT INTO meta(owner,version) VALUES ('biomcp-query',4)")
+        .map_err(|e| e.to_string())?;
+    let (status, old) = server.request("GET", "/health", "")?;
+    let version: u32 = connection
+        .query_row(
+            "SELECT version FROM meta WHERE owner='biomcp-query'",
+            [],
+            |row| row.get(0),
+        )
+        .map_err(|e| e.to_string())?;
+    if status != 503 || old.get("store") != Some(&serde_json::json!(false)) || version != 4 {
+        return Err(format!(
+            "health admitted or migrated an old query schema: {status} {old} version={version}"
+        ));
+    }
     response
 }
