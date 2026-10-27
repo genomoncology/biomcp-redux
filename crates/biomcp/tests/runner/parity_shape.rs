@@ -62,9 +62,7 @@ pub(super) fn resolve(
         selected
             .unprojectable_facts
             .retain(|p, _| step.expect.contains_key(p));
-        for arg in &mut selected.baseline_command {
-            *arg = expand(arg, &bindings)?;
-        }
+        native_command(&mut selected.baseline_command, &bindings)?;
         super::operation::validate(&selected.baseline_command)?;
         bind_routes(&mut selected.recordings, &bindings, case, root)
             .map_err(|reason| format!("{}: {reason}", shape.name))?;
@@ -230,6 +228,22 @@ fn bind_routes(
             .join("replies")
             .join(replay);
         route.capture = capture(route, &replay)?;
+    }
+    Ok(())
+}
+
+fn native_command(
+    command: &mut [String],
+    bindings: &BTreeMap<String, String>,
+) -> Result<(), String> {
+    for name in bindings.keys() {
+        let slot = format!("{{{name}}}");
+        if !command.contains(&slot) {
+            return Err("shape must preserve every positional slot in the native command".into());
+        }
+    }
+    for argument in command {
+        *argument = expand(argument, bindings)?;
     }
     Ok(())
 }

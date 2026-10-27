@@ -207,6 +207,11 @@ fn extra_guards(
     }
     captured_inventory(env, fixtures, plan, "ambiguous", false)?;
     fs::remove_file(current.join("two.json")).map_err(|e| e.to_string())?;
+    let mut fixed = plan.clone();
+    *fixed
+        .pointer_mut("/shapes/0/declaration/baseline_command")
+        .ok_or("native command missing")? = json!(["get", "gene", "BRAF"]);
+    captured_inventory(env, fixtures, &fixed, "unbound-native-question", false)?;
     let mut disabled = plan.clone();
     *disabled
         .pointer_mut("/shapes/0/declaration/baseline_command")
