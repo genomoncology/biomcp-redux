@@ -536,10 +536,14 @@ impl Leg<'_> {
         if self.budget().expired() {
             return Err(self.failure(Reason::DeadlineExceeded, Some(status)));
         }
+        let body = match body {
+            std::borrow::Cow::Borrowed(_) => response.body,
+            std::borrow::Cow::Owned(body) => body,
+        };
         Ok((
             reply,
             status,
-            body.into_owned(),
+            body,
             response.fetched,
             response.content_range,
             response.pagination,
