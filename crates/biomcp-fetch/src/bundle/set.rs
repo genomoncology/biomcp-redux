@@ -93,13 +93,11 @@ impl Fetch {
                 }
                 Ok(())
             };
-            let decoder = crate::xml::Decoder::checked_bytes(limit, &check);
-            let decoder = match format {
-                RowFormat::Document { media } => decoder.document_media(media),
-                _ => decoder,
+            let media = match format {
+                RowFormat::Document { media } => Some(media),
+                _ => None,
             };
-            let (body, _) = leg.parameters(&endpoint, &[], decoder)?;
-            let body = body.0;
+            let body = leg.bytes_checked_media(&endpoint, &[], media, check)?;
             bytes = bytes.saturating_add(body.len() as u64);
             if bytes > super::MAX_BUNDLE_BYTES {
                 return Err(leg
