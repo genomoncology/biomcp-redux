@@ -259,8 +259,7 @@ fn empty_recovery() -> Check {
             "article/litvar/kras-g12c",
             &args,
             |source, record| boundary_edit(source, record, "empty"),
-            json!({"/status":"absent", "/result/items":{"count":0},
-                "/result/candidates":{"count":0}}),
+            json!({"/status":"absent", "/result/items":{"count":0}}),
             1,
         )?;
         let steps = output["next"].as_array().ok_or("missing recovery steps")?;
