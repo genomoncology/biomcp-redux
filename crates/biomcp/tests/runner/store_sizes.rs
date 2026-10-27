@@ -1,6 +1,7 @@
 //! Feature source-controls: health measures owned files without attributing shared pages.
 use super::{configuration::invoke, launch::Environment};
 use libtest_mimic::Trial;
+use serde_json::Value;
 use std::{fs, path::Path};
 pub(super) fn trials() -> Vec<Trial> {
     vec![Trial::test(
@@ -74,19 +75,28 @@ fn measured() -> Result<(), String> {
     )
     .map_err(|e| e.to_string())?;
     let reply = invoke(&env, args, 0)?;
-    let store = &reply["result"]["store"];
-    if store["active_bytes"] != active_bytes
-        || store["retained_bytes"] != retained_bytes
-        || store["partial_download_bytes"] != 31
-        || store["total_bytes"] != active_bytes + retained_bytes + 31
+    let store = reply
+        .pointer("/result/store")
+        .ok_or("missing store sizes")?;
+    if store.get("active_bytes").and_then(Value::as_u64) != Some(active_bytes)
+        || store.get("retained_bytes").and_then(Value::as_u64) != Some(retained_bytes)
+        || store.get("partial_download_bytes").and_then(Value::as_u64) != Some(31)
+        || store.get("total_bytes").and_then(Value::as_u64)
+            != Some(active_bytes + retained_bytes + 31)
     {
         return Err(format!("incorrect measured storage: {store}"));
     }
-    let hgnc = reply["result"]["sources"]
-        .as_array()
-        .and_then(|rows| rows.iter().find(|r| r["source"] == "hgnc"))
+    let hgnc = reply
+        .pointer("/result/sources")
+        .and_then(Value::as_array)
+        .and_then(|rows| {
+            rows.iter()
+                .find(|r| r.get("source").and_then(Value::as_str) == Some("hgnc"))
+        })
         .ok_or("missing HGNC")?;
-    if hgnc["bundle_size"] != "shared_storage" || hgnc["bundle"] != "missing" {
+    if hgnc.get("bundle_size").and_then(Value::as_str) != Some("shared_storage")
+        || hgnc.get("bundle").and_then(Value::as_str) != Some("missing")
+    {
         return Err(format!(
             "health attributed shared bytes or synchronized: {hgnc}"
         ));
