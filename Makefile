@@ -60,7 +60,7 @@ schema-release-check:
 
 .PHONY: parity-run
 parity-run:
-	sh scripts/parity_runner.sh "$(PLAN)" "$(BASELINE)" "$(OUT)"
+	sh scripts/parity_runner.sh "$(abspath $(PLAN))" "$(BASELINE)" "$(abspath $(OUT))"
 
 .PHONY: parity-inventory
 parity-inventory:
