@@ -3,7 +3,7 @@
   "status": "release-candidate",
   "source_commit": "ac12ccd483ab0f7f0b1053365c66d0fb9c98a1fd",
   "archive": "schema-baseline.tar.gz",
-  "sha256": "5590857866cf5246daae900861ef31685571b6a56e5202ebfda482242277c28c",
+  "sha256": "9a852ddb57c19ee37521a2d6cb7a45eaf2864a619c3830c9d1c4e3ed723733ac",
   "schemas": [
     "accession-base.json",
     "accession.json",
