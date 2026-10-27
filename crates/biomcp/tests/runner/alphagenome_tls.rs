@@ -17,13 +17,24 @@ static QUOTA: biomcp_fetch::Quota = biomcp_fetch::Quota::new(
 const SECTION: &str = "/result/candidates/0/sections/alphagenome";
 const KEY: &str = "synthetic-alphagenome-cli-placeholder";
 pub(super) fn trials() -> Vec<Trial> {
-    vec![Trial::test(
-        "variant/alphagenome-native-groups-local-tls",
-        || run().map_err(Into::into),
-    )]
+    vec![
+        Trial::test("variant/alphagenome-native-groups-local-tls", || {
+            run().map_err(Into::into)
+        }),
+        Trial::test("variant/alphagenome-source-identity-refusals", || {
+            refusals().map_err(Into::into)
+        }),
+    ]
 }
 fn run() -> Result<(), String> {
-    for status in [200, 401, 429, 500, 999] {
+    for (status, id) in [
+        (200, "CA123643"),
+        (200, "rs113488022"),
+        (401, "CA123643"),
+        (429, "CA123643"),
+        (500, "CA123643"),
+        (999, "CA123643"),
+    ] {
         let messages = if status == 999 {
             vec![vec![10, 255]]
         } else {
@@ -31,7 +42,7 @@ fn run() -> Result<(), String> {
         };
         let fixture = fixture(messages, if status == 999 { 200 } else { status })?;
         let env = environment(&fixture)?;
-        let args = ["get", "variant", "CA123643", "alphagenome"].map(str::to_owned);
+        let args = ["get", "variant", id, "alphagenome"].map(str::to_owned);
         let reply = invoke(&env, &args, 0)?;
         if status == 200 {
             groups(&reply)?;
@@ -68,10 +79,22 @@ fn run() -> Result<(), String> {
         while let Ok(event) = fixture.events.try_recv() {
             match event {
                 support::Seen::Http(request) => {
-                    if !request.starts_with("GET /allele/CA123643?") {
+                    if request.starts_with("GET /v1/query?") && request.contains("assembly=hg38") {
+                        continue;
+                    }
+                    if !request.starts_with("GET /allele/CA123643?")
+                        && !request.starts_with("GET /allele?hgvs=NC_000007.14%3Ag.140753336A%3ET")
+                    {
                         return Err("unexpected resolver request".into());
                     }
                     resolved = true;
+                }
+                support::Seen::Path(path) => {
+                    if path
+                        != "/google.gdm.gdmscience.alphagenome.v1main.DnaModelService/ScoreVariant"
+                    {
+                        return Err("section dispatched the wrong scoring method".into());
+                    }
                 }
                 support::Seen::Request(headers, body) => {
                     if !resolved
@@ -89,6 +112,44 @@ fn run() -> Result<(), String> {
         }
         if requests != if status == 200 { 2 } else { 1 } {
             return Err("scoring request retried or was omitted".into());
+        }
+        fixture.finish().map_err(|e| e.to_string())?;
+    }
+    Ok(())
+}
+fn refusals() -> Result<(), String> {
+    for (build, coordinates, reason) in [
+        ("GRCh37", true, "unsupported"),
+        ("GRCh38", false, "no_join_id"),
+    ] {
+        let allele = json!({"@id":"http://reg.genome.network/allele/CA123643", "genomicAlleles":[{
+            "referenceGenome":build, "hgvs":[if build == "GRCh37" {"NC_000007.13:g.140453136A>T"} else {"NC_000007.14:g.140753336A>T"}],
+            "coordinates":if coordinates {json!([{"start":140453135,"end":140453136,"referenceAllele":"A","allele":"T"}])} else {json!([])}
+        }]});
+        let fixture = source_fixture(messages(), 200, allele)?;
+        let env = environment(&fixture)?;
+        let reply = invoke(
+            &env,
+            &["get", "variant", "CA123643", "alphagenome"].map(str::to_owned),
+            0,
+        )?;
+        if reply.pointer(&format!("{SECTION}/reason")) != Some(&json!(reason))
+            || reply.pointer(&format!("{SECTION}/data")).is_some()
+        {
+            return Err("unsupported source identity was scored".into());
+        }
+        let mut identity_requests = 0;
+        while let Ok(event) = fixture.events.try_recv() {
+            match event {
+                support::Seen::Request(_, _) => {
+                    return Err("refused identity reached scoring RPC".into());
+                }
+                support::Seen::Http(_) => identity_requests += 1,
+                _ => {}
+            }
+        }
+        if identity_requests != 1 {
+            return Err("refusal omitted source identity resolution".into());
         }
         fixture.finish().map_err(|e| e.to_string())?;
     }
@@ -135,19 +196,24 @@ fn fixture(messages: Vec<Vec<u8>>, status: u16) -> Result<support::Fixture, Stri
     let allele = json!({"@id":"http://reg.genome.network/allele/CA123643","genomicAlleles":[{
         "referenceGenome":"GRCh38","hgvs":["NC_000007.14:g.140753336A>T"],
         "coordinates":[{"start":140753335,"end":140753336,"referenceAllele":"A","allele":"T"}]}]});
+    source_fixture(messages, status, allele)
+}
+fn source_fixture(
+    messages: Vec<Vec<u8>>,
+    status: u16,
+    allele: Value,
+) -> Result<support::Fixture, String> {
     support::Fixture::with_http(
         support::Hold::None,
         0,
         true,
         false,
         messages,
-        Some((
-            vec![
-                "gdmscience.googleapis.com".into(),
-                "reg.genome.network".into(),
-            ],
-            allele.to_string().into_bytes(),
-        )),
+        Some(support::HttpReply {
+            hosts: vec!["gdmscience.googleapis.com".into(), "reg.genome.network".into(), "myvariant.info".into()],
+            replies: vec![("GET /allele".into(), allele.to_string().into_bytes()),
+                ("GET /v1/query?".into(), json!({"total":1,"hits":[{"_id":"chr7:g.140753336A>T","dbsnp":{"rsid":"rs113488022"}}]}).to_string().into_bytes())],
+        }),
         status,
     )
     .map_err(|e| e.to_string())

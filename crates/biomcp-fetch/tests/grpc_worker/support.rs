@@ -29,6 +29,7 @@ pub(super) enum Hold {
 pub(super) enum Seen {
     Tcp,
     Http(String),
+    Path(String),
     Connect(String),
     Request(http::HeaderMap, Vec<u8>),
     Message,
@@ -44,8 +45,13 @@ pub(super) struct Fixture {
 }
 struct Replies {
     messages: Vec<Vec<u8>>,
-    http: Option<Vec<u8>>,
+    http: Option<Vec<(String, Vec<u8>)>>,
     status: u16,
+}
+#[derive(Debug)]
+pub(super) struct HttpReply {
+    pub(super) hosts: Vec<String>,
+    pub(super) replies: Vec<(String, Vec<u8>)>,
 }
 trait Io: AsyncRead + AsyncWrite + Send + Unpin {}
 impl<T: AsyncRead + AsyncWrite + Send + Unpin> Io for T {}
@@ -69,7 +75,7 @@ impl Fixture {
         proxy: bool,
         proxy_tls: bool,
         messages: Vec<Vec<u8>>,
-        http: Option<(Vec<String>, Vec<u8>)>,
+        http: Option<HttpReply>,
         response_status: u16,
     ) -> Check<Self> {
         let mut hosts = vec![
@@ -77,12 +83,12 @@ impl Fixture {
             "synthetic.test".into(),
             "127.0.0.1".into(),
         ];
-        if let Some((extra, _)) = &http {
-            hosts.extend(extra.iter().cloned());
+        if let Some(http) = &http {
+            hosts.extend(http.hosts.iter().cloned());
         }
         let messages = Arc::new(Replies {
             messages,
-            http: http.map(|(_, reply)| reply),
+            http: http.map(|http| http.replies),
             status: response_status,
         });
         let pair = rcgen::generate_simple_self_signed(hosts)?;
@@ -260,7 +266,7 @@ async fn serve(
     }
     let mut socket = tokio_rustls::TlsAcceptor::from(tls).accept(socket).await?;
     if socket.get_ref().1.alpn_protocol() != Some(b"h2") {
-        let reply = messages.http.as_ref().ok_or("unexpected HTTP/1 request")?;
+        let replies = messages.http.as_ref().ok_or("unexpected HTTP/1 request")?;
         let mut request = Vec::new();
         while !request.ends_with(b"\r\n\r\n") {
             if request.len() > 8192 {
@@ -268,7 +274,13 @@ async fn serve(
             }
             request.push(socket.read_u8().await?);
         }
-        events.send(Seen::Http(String::from_utf8(request)?))?;
+        let request = String::from_utf8(request)?;
+        let reply = &replies
+            .iter()
+            .find(|(prefix, _)| request.starts_with(prefix))
+            .ok_or("unexpected HTTP source request")?
+            .1;
+        events.send(Seen::Http(request))?;
         socket.write_all(format!("HTTP/1.1 200 Synthetic\r\nContent-Type: application/json\r\nContent-Length: {}\r\nConnection: close\r\n\r\n", reply.len()).as_bytes()).await?;
         socket.write_all(reply).await?;
         socket.shutdown().await?;
@@ -315,6 +327,7 @@ async fn reply(
         request.extend_from_slice(&data);
         body.flow_control().release_capacity(data.len())?;
     }
+    events.send(Seen::Path(head.uri.path().to_owned()))?;
     events.send(Seen::Request(head.headers, request))?;
     if hold == Hold::Headers {
         std::future::pending::<()>().await;

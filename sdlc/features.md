@@ -192,4 +192,4 @@ alphagenome-registration: Discover the restricted AlphaGenome service and requir
 
 alphagenome-score-protocol: Encode the ruled human scoring request and admit exactly the requested complete scorer groups by request position. Contracts: `biomcp-fetch/score_variant`.
 
-variant-alphagenome: Read independently paged native scoring groups for one source-resolved GRCh38 variant with the caller's required key. Contracts: `biomcp/variant/alphagenome-keyless-zero-network`, `biomcp/variant/alphagenome-native-groups-local-tls`.
+variant-alphagenome: Read independently paged native scoring groups for one source-resolved GRCh38 variant with the caller's required key. Cases: `crates/biomcp/tests/runner/alphagenome.rs`, `crates/biomcp/tests/runner/alphagenome_tls.rs`.
