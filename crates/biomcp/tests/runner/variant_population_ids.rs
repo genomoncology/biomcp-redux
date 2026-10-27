@@ -5,9 +5,14 @@ use libtest_mimic::Trial;
 use serde_json::{Value, json};
 
 pub(super) fn trials() -> Vec<Trial> {
-    vec![Trial::test("variant/population-ambiguous-ids-retain-source-alleles", || {
-        ambiguous().map_err(Into::into)
-    })]
+    vec![
+        Trial::test("variant/population-ambiguous-ids-retain-source-alleles", || {
+            ambiguous().map_err(Into::into)
+        }),
+        Trial::test("variant/population-single-id-follows-source-ca-identity", || {
+            single().map_err(Into::into)
+        }),
+    ]
 }
 fn ambiguous() -> Result<(), String> {
     let stub = Stub::for_source("myvariant.info", "application/json", candidates)?;
@@ -46,4 +51,32 @@ fn candidates(_: &str) -> Result<String, String> {
         {"_id":"chr10:g.114758349C>T","dbsnp":{"rsid":"rs7903146"},"clinvar":{"variant_id":7413}},
         {"_id":"chr10:g.114758349C>G","dbsnp":{"rsid":"rs7903146"},"clinvar":{"variant_id":7413}}
     ]}).to_string())
+}
+
+fn single() -> Result<(), String> {
+    let stub = Stub::for_sources(
+        &["myvariant.info", "reg.genome.network", "gnomad.broadinstitute.org"],
+        |_| "application/json", source_ca,
+    )?;
+    let env = environment(&stub)?;
+    let output = execute(&env, &["variant", "population", "rs113488022"])?;
+    if output.pointer("/result/population/data/variant") != Some(&json!("7-140753336-A-T"))
+        || output.pointer("/result/population/data/exome/ac") != Some(&json!(2)) {
+        return Err(format!("single sourced allele did not reach population data: {output}"));
+    }
+    let requests = stub.finish()?;
+    if requests.len() != 3 || !requests.iter().any(|(_, r)| r.starts_with("GET /allele/CA123643 ")) {
+        return Err(format!("population did not follow its one source CA identifier: {requests:?}"));
+    }
+    Ok(())
+}
+fn source_ca(request: &str) -> Result<String, String> {
+    if request.starts_with("GET /query?") {
+        let hit: Value = serde_json::from_str(include_str!(concat!(env!("CARGO_MANIFEST_DIR"),
+            "/../../tests/replies/variant-population/source-ca-identity.json")))
+            .map_err(|e| e.to_string())?;
+        Ok(json!({"total":1,"hits":[hit]}).to_string())
+    } else {
+        super::population_body(request)
+    }
 }
