@@ -31,6 +31,7 @@ pub(super) fn baseline(
     out: &Path,
     index: usize,
 ) -> Result<Value, String> {
+    super::operation::validate(&selection.baseline_command)?;
     let registry = registry::load()?;
     let bodies = if selection.source_free {
         Vec::new()

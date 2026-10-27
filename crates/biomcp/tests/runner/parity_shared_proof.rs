@@ -5,6 +5,7 @@ use serde_json::{Value, json};
 
 pub(super) fn trials() -> Vec<Trial> {
     vec![
+        super::operation::trial(),
         Trial::test("parity/closed-projection-shapes", || {
             projections().map_err(Into::into)
         }),
@@ -40,6 +41,14 @@ fn projections() -> Result<(), String> {
         if project(object.clone(), value).is_ok() {
             return Err("nonstring provider or outcome accepted".into());
         }
+    }
+    if project(
+        json!({"object":{"id":{"released_source":"/provider"}}}),
+        json!({"provider":"ClinGen"}),
+    )
+    .is_ok()
+    {
+        return Err("released provider manufactured an identifier member".into());
     }
     let author = json!({"author_ids":"/ids/*"});
     for value in [
