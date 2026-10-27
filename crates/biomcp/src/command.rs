@@ -388,14 +388,17 @@ fn usage(args: &[OsString]) -> io::Result<Outcome> {
     }
     let mut words = crate::grammar::command_words(args);
     let root = words.next();
-    let mut error = if matches!(
-        root,
-        Some("sync" | "key" | "store" | "version" | "mcp-config" | "skill")
-    ) || root.is_some_and(|root| {
-        crate::grammar::QUERIES
-            .iter()
-            .any(|(verb, _, _)| *verb == root)
-    }) {
+    let option = crate::grammar::argument_error(args);
+    let mut error = if option.is_some()
+        || matches!(
+            root,
+            Some("sync" | "key" | "store" | "version" | "mcp-config" | "skill")
+        )
+        || root.is_some_and(|root| {
+            crate::grammar::QUERIES
+                .iter()
+                .any(|(verb, _, _)| *verb == root)
+        }) {
         ErrorEnvelope::arguments()
     } else {
         ErrorEnvelope::schema_usage()
@@ -437,6 +440,9 @@ fn usage(args: &[OsString]) -> io::Result<Outcome> {
                 args: vec!["help".into(), "key".into(), name.source().into()].into(),
             })
             .collect();
+    }
+    if let Some(option) = option {
+        error = error.with_argument(option.into());
     }
     encode(error, crate::exit::Status::Usage)
 }

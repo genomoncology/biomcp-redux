@@ -1,5 +1,6 @@
 //! Schema-fed command help shared with MCP discovery.
 
+mod public_grammar;
 mod source_settings;
 
 use biomcp_types::{Help, HelpArgument, HelpCommand, HelpWord};
@@ -74,6 +75,7 @@ fn commands() -> io::Result<Vec<HelpCommand>> {
     }
     commands.extend(crate::housekeeping::help());
     extra_commands(&mut commands, &examples);
+    public_grammar::augment(&mut commands)?;
     for command in &mut commands {
         if command.reply_schemas.is_empty() {
             command.reply_schemas = crate::schema::local_replies(&command.command);
@@ -94,7 +96,18 @@ const CELL_LINE_BOUNDARY: &str = "An assay count is not an activity or sensitivi
 fn command_description(verb: &str, entity: &str, schema: &Value) -> String {
     let mut description = text(schema, "description");
     if entity == "author" || verb == "author" {
-        description.push_str(AUTHOR_BOUNDARY);
+        let boundary = if verb == "search" {
+            AUTHOR_BOUNDARY
+                .split("; papers supports")
+                .next()
+                .unwrap_or(AUTHOR_BOUNDARY)
+        } else {
+            AUTHOR_BOUNDARY
+        };
+        description.push_str(boundary);
+    }
+    if verb == "article" && entity == "references" {
+        description = "Page the PubMed papers referenced by one checked article identifier.".into();
     }
     if entity == "cell-line" || verb == "cell-line" {
         description.push(' ');

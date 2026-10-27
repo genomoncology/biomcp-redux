@@ -110,6 +110,7 @@ mod protein_domains;
 mod protein_registry;
 mod protein_sections;
 mod protocol;
+mod public_grammar;
 mod publication;
 mod recurrence;
 mod recurrence_errors;
@@ -343,6 +344,7 @@ pub(super) fn protocol_trials() -> Vec<Trial> {
     trials.extend(openfda_key::trials());
     trials.push(openfda_website::trial());
     trials.extend(key_help::trials());
+    trials.extend(public_grammar::trials());
     trials.extend(scholar::trials());
     trials.extend(evidence::trials());
     trials.extend(pdf::trials());
