@@ -111,15 +111,18 @@ impl Leg<'_> {
                     .ok_or(BadReply)
                     .and_then(|body| {
                         spool::frames(body, limits, |bytes| {
+                            if self.budget().expired() {
+                                return Err(BadReply);
+                            }
                             self.rpc_contain(bytes).map_err(|_| BadReply)?;
                             codec.message(bytes)
                         })?;
                         codec.finish()
                     });
+                if self.budget().expired() {
+                    return Err(self.failure(Reason::DeadlineExceeded, None).into());
+                }
                 if let Ok(reply) = reply {
-                    if self.budget().expired() {
-                        return Err(self.failure(Reason::DeadlineExceeded, None).into());
-                    }
                     if entry.fresh_until <= now() {
                         self.report
                             .lock()

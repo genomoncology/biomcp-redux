@@ -7,7 +7,7 @@ use crate::{
 };
 use biomcp_types::Reason;
 use sha2::{Digest, Sha256};
-use std::time::{Duration, Instant};
+use std::time::Duration;
 
 pub(super) struct Identity {
     pub(super) key: [u8; 32],
@@ -61,8 +61,7 @@ impl Leg<'_> {
         limits: Limits,
     ) -> Result<(D::Reply, Spool), RequestError> {
         let mut spool = Spool::new(limits)?;
-        let mut terminal = None;
-        let mut mark = Instant::now();
+        let mut end = rpc::NetworkEnd::default();
         let mut local = None;
         let result = if matches!(self.fetch.mode, Mode::Replay { .. }) {
             self.rpc_replay(identity, limits, &mut spool, &mut decoder)
@@ -70,9 +69,9 @@ impl Leg<'_> {
             self.rpc_network(
                 endpoint,
                 request,
-                |bytes| {
+                |bytes, delay| {
                     self.rpc_contain(bytes).map_err(|_| crate::BadReply)?;
-                    let delay = crate::record::millis(mark.elapsed()).map_err(|error| {
+                    let delay = crate::record::millis(delay).map_err(|error| {
                         local = Some(error);
                         crate::BadReply
                     })?;
@@ -80,14 +79,13 @@ impl Leg<'_> {
                         local = Some(error);
                         crate::BadReply
                     })?;
-                    mark = Instant::now();
                     decoder.message(bytes)
                 },
                 true,
-                &mut terminal,
+                &mut end,
             )
             .and_then(|()| {
-                if terminal == Some(0) {
+                if end.terminal == Some(0) {
                     Ok(())
                 } else {
                     Err(self.failure(Reason::BadReply, None).into())
@@ -109,6 +107,7 @@ impl Leg<'_> {
         } else {
             result
         };
+        let terminal = end.terminal;
         if matches!(self.fetch.mode, Mode::Record { .. }) {
             let interruption = match &result {
                 Err(RequestError::Source(error)) if terminal.is_none() || terminal == Some(0) => {
@@ -128,7 +127,7 @@ impl Leg<'_> {
                     messages: Vec::new(),
                     terminal,
                     interruption,
-                    delay_ms: crate::record::millis(mark.elapsed())?,
+                    delay_ms: crate::record::millis(end.delay)?,
                 },
             )?;
         }

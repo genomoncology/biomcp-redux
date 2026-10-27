@@ -2,6 +2,13 @@
 use super::{rpc_call::Event, worker::Command};
 use crate::{BadReply, InputError, KeyPlace, KeyUse, Leg, Mode, RequestError, Secret, SourceSpec};
 use biomcp_types::Reason;
+use std::time::{Duration, Instant};
+
+#[derive(Default)]
+pub(super) struct NetworkEnd {
+    pub(super) terminal: Option<u8>,
+    pub(super) delay: Duration,
+}
 
 /// A declared streaming method belonging to exactly one source.
 #[derive(Clone, Copy, Debug)]
@@ -45,17 +52,23 @@ impl Leg<'_> {
         &self,
         endpoint: &GrpcEndpoint,
         body: &[u8],
-        message: impl FnMut(&[u8]) -> Result<(), BadReply>,
+        mut message: impl FnMut(&[u8]) -> Result<(), BadReply>,
     ) -> Result<(), RequestError> {
-        self.rpc_network(endpoint, body, message, false, &mut None)
+        self.rpc_network(
+            endpoint,
+            body,
+            |bytes, _| message(bytes),
+            false,
+            &mut NetworkEnd::default(),
+        )
     }
     pub(super) fn rpc_network(
         &self,
         endpoint: &GrpcEndpoint,
         body: &[u8],
-        mut message: impl FnMut(&[u8]) -> Result<(), BadReply>,
+        mut message: impl FnMut(&[u8], Duration) -> Result<(), BadReply>,
         capture: bool,
-        terminal: &mut Option<u8>,
+        end: &mut NetworkEnd,
     ) -> Result<(), RequestError> {
         self.check_source()?;
         if !std::ptr::eq(self.spec, endpoint.spec) || self.budget().virtual_time() {
@@ -79,6 +92,7 @@ impl Leg<'_> {
             .limiters
             .acquire(self.spec.quota, self.keyed(), self.budget())
             .ok_or_else(|| self.failure(Reason::DeadlineExceeded, None))?;
+        let mut mark = Instant::now();
         let deadline = self.budget().local();
         let (events, _guard) = self
             .fetch
@@ -109,7 +123,9 @@ impl Leg<'_> {
                 }
                 match event {
                     Ok(Event::Message(bytes)) => {
-                        message(&bytes).map_err(|_| self.failure(Reason::BadReply, None))?;
+                        let delay = mark.elapsed();
+                        mark = Instant::now();
+                        message(&bytes, delay).map_err(|_| self.failure(Reason::BadReply, None))?;
                         if self.budget().expired() {
                             return Err(self.failure(Reason::DeadlineExceeded, None).into());
                         }
@@ -128,7 +144,9 @@ impl Leg<'_> {
                 }
             }
         })();
-        *terminal = _guard.state.terminal();
+        end.terminal = _guard.state.terminal();
+        drop(_guard);
+        end.delay = mark.elapsed();
         result
     }
     fn rpc_mode(&self, capture: bool) -> Result<(), RequestError> {
