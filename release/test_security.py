@@ -84,11 +84,16 @@ class Screening(unittest.TestCase):
             git("commit", "--allow-empty", "--quiet", "-m", "Second fixture")
             second = git("rev-parse", "HEAD")
             (repo / "merge-only.txt").write_text("access_token = " + token + "\n")
+            (repo / "historical-opaque.bin").write_bytes(b"PK\x03\x04synthetic prefix\n" + ("access_token = " + token + "\n").encode())
+            with zipfile.ZipFile(repo / "historical-valid.bin", "w", zipfile.ZIP_DEFLATED) as archive:
+                archive.writestr("credential.exe", payload)
             git("add", ".")
             tree = git("write-tree")
             merged = git("commit-tree", tree, "-p", first, "-p", second, data=b"Merge fixture\n")
             git("update-ref", "HEAD", merged)
-            screen("history", repo)
+            findings = screen("history", repo)
+            self.assertIn("historical-opaque.bin", findings)
+            self.assertIn("historical-valid.bin!credential.exe", findings)
 
     def test_scanner_refuses_unreadable_artifacts_and_never_follows_links(self):
         with tempfile.TemporaryDirectory() as temporary:

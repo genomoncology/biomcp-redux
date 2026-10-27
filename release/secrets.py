@@ -138,7 +138,16 @@ def prepare(target, mode, root, env):
                 raise ValueError("escaping archive member")
             return name + "!" + member
         if payload.startswith((b"PK\x03\x04", b"PK\x05\x06", b"PK\x07\x08")) or suffix.endswith((".zip", ".whl", ".mcpb")):
-            with zipfile.ZipFile(io.BytesIO(payload)) as archive:
+            try:
+                archive = zipfile.ZipFile(io.BytesIO(payload))
+            except zipfile.BadZipFile:
+                # Historical parser probes may deliberately resemble ZIP magic.
+                # Their bytes were staged above. Declared archives and current
+                # publication artifacts must still fail on malformed structure.
+                if mode == "history" and not suffix.endswith((".zip", ".whl", ".mcpb")):
+                    return
+                raise
+            with archive:
                 for member in archive.infolist():
                     members += 1
                     if members > MAX_FILES:
