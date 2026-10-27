@@ -104,8 +104,12 @@ fn capture_guards(
     fixtures: &std::path::Path,
     mut selection: Value,
 ) -> Result<(), String> {
-    selection["source_free"] = json!(false);
-    selection["recordings"] = json!([{"source":"mygene-info", "endpoint_env":"BIOMCP_MYGENE_BASE",
+    *selection
+        .get_mut("source_free")
+        .ok_or("source_free missing")? = json!(false);
+    *selection
+        .get_mut("recordings")
+        .ok_or("recordings missing")? = json!([{"source":"mygene-info", "endpoint_env":"BIOMCP_MYGENE_BASE",
         "host":"mygene.info", "request_prefix":"GET /v3/query?", "request_contains":"",
         "request_query":{"q":"symbol:\"{symbol}\"","species":"human"}, "capture":""}]);
     let plan = json!({"baseline_release":"0.9.3","cases":[],"shapes":[{
@@ -143,12 +147,12 @@ fn capture_guards(
         ),
         (
             "wrong-method",
-            json!({"source":"mygene","method":"POST","url":capture["url"]}),
+            json!({"source":"mygene","method":"POST","url":capture.get("url")}),
             false,
         ),
         (
             "wrong-source",
-            json!({"source":"pubmed","method":"GET","url":capture["url"]}),
+            json!({"source":"pubmed","method":"GET","url":capture.get("url")}),
             false,
         ),
         (
@@ -170,6 +174,7 @@ fn capture_guards(
         .map_err(|e| e.to_string())?;
         captured_inventory(env, fixtures, &plan, label, complete)?;
     }
+    extra_guards(env, fixtures, &plan, &case, &capture)?;
     fs::write(fixtures.join("replies/current/mygene/one.json"), b"{broken")
         .map_err(|e| e.to_string())?;
     captured_inventory(env, fixtures, &plan, "malformed", false)?;
@@ -217,5 +222,62 @@ fn captured_inventory(
     {
         return Err(format!("capture identity escaped: {label}"));
     }
+    Ok(())
+}
+
+fn extra_guards(
+    env: &Environment,
+    fixtures: &std::path::Path,
+    plan: &Value,
+    case: &Value,
+    capture: &Value,
+) -> Result<(), String> {
+    let current = fixtures.join("replies/current/mygene");
+    for name in ["one.json", "two.json"] {
+        fs::write(
+            current.join(name),
+            serde_json::to_vec(capture).map_err(|e| e.to_string())?,
+        )
+        .map_err(|e| e.to_string())?;
+    }
+    captured_inventory(env, fixtures, plan, "ambiguous", false)?;
+    fs::remove_file(current.join("two.json")).map_err(|e| e.to_string())?;
+    let mut disabled = plan.clone();
+    *disabled
+        .pointer_mut("/shapes/0/declaration/baseline_command")
+        .ok_or("native command missing")? = json!([
+        "get",
+        "gene",
+        "{symbol}",
+        "--disable-sources",
+        "mygene-info"
+    ]);
+    captured_inventory(env, fixtures, &disabled, "disabled", false)?;
+    let mut path_plan = plan.clone();
+    *path_plan
+        .pointer_mut("/shapes/0/declaration/recordings/0/request_prefix")
+        .ok_or("route missing")? = json!("GET /v3/gene/{symbol}");
+    for (ordinal, symbol) in ["two words", "a/b", "a#b", "a?b"].iter().enumerate() {
+        let mut path_case = case.clone();
+        for step in path_case
+            .get_mut("steps")
+            .ok_or("steps missing")?
+            .as_array_mut()
+            .ok_or("steps missing")?
+        {
+            *step.pointer_mut("/run/2").ok_or("symbol missing")? = json!(symbol);
+        }
+        fs::write(
+            fixtures.join("cases/shape.yaml"),
+            serde_json::to_vec(&path_case).map_err(|e| e.to_string())?,
+        )
+        .map_err(|e| e.to_string())?;
+        captured_inventory(env, fixtures, &path_plan, &format!("path-{ordinal}"), false)?;
+    }
+    fs::write(
+        fixtures.join("cases/shape.yaml"),
+        serde_json::to_vec(case).map_err(|e| e.to_string())?,
+    )
+    .map_err(|e| e.to_string())?;
     Ok(())
 }

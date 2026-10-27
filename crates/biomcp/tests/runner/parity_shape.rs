@@ -60,6 +60,15 @@ pub(super) fn resolve(
         }
         super::operation::validate(&selected.baseline_command)?;
         for route in &mut selected.recordings {
+            if route.request_prefix.contains('{')
+                && bindings.values().any(|value| {
+                    !value
+                        .bytes()
+                        .all(|b| b.is_ascii_alphanumeric() || b"-_.~".contains(&b))
+                })
+            {
+                return Err("shape path value needs a reviewed native encoding".into());
+            }
             route.request_prefix = expand(&route.request_prefix, &bindings)?;
             route.request_contains = expand(&route.request_contains, &bindings)?;
             for value in route.request_query.values_mut() {
