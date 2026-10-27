@@ -15,13 +15,20 @@ fn check() -> Check {
     let env = Environment::new()?;
     let replay = env.root().join("recordings");
     super::response_cases::copy_capture("article/get/synthetic-derived", &replay, |_, record| {
-        for exchange in record["exchanges"].as_array_mut().into_iter().flatten() {
-            if exchange.pointer("/body/kind").and_then(Value::as_str) == Some("text") {
+        for exchange in record
+            .get_mut("exchanges")
+            .and_then(Value::as_array_mut)
+            .into_iter()
+            .flatten()
+        {
+            if exchange.pointer("/body/kind").and_then(Value::as_str) == Some("text")
+                && let Some(body) = exchange.pointer_mut("/body/value")
+            {
                 let source = SOURCE
                     .replace('&', "&amp;")
                     .replace('<', "&lt;")
                     .replace('>', "&gt;");
-                exchange["body"]["value"] = json!(format!(
+                *body = json!(format!(
                     "<PubmedArticleSet><PubmedArticle><MedlineCitation><PMID>33123537</PMID><Article><ArticleTitle>{source}</ArticleTitle><Abstract><AbstractText>{source}</AbstractText></Abstract></Article></MedlineCitation></PubmedArticle></PubmedArticleSet>"
                 ));
             }
