@@ -457,8 +457,8 @@
           "host": "api.semanticscholar.org",
           "request_prefix": "GET /graph/v1/author/123/papers",
           "request_contains": "",
-          "capture": "semantic-scholar/394680db12347075c7211b69e53994e0fcc10758e714073666cc4e7305f1bb4b.json",
-          "recording_gap": "The unchanged retained reply delays 20000 ms, beyond the direct runner peer bound. Preserve this recording assessment gap; do not shorten the delay or claim a released deadline verdict."
+          "capture": "",
+          "recording_gap": "The unchanged retained reply delays 20000 ms, beyond the direct runner peer bound. Preserve this recording assessment gap; do not shorten the delay or claim a released deadline verdict. Retained input: semantic-scholar/394680db12347075c7211b69e53994e0fcc10758e714073666cc4e7305f1bb4b.json."
         }
       ],
       "facts": {
@@ -685,8 +685,8 @@
           "host": "api.semanticscholar.org",
           "request_prefix": "GET /graph/v1/author/123",
           "request_contains": "",
-          "capture": "semantic-scholar/e4c5c829386ab769f21cc96a319af705192c2c83ea0f05978d1f79349384f116.json",
-          "recording_gap": "The unchanged retained reply delays 16000 ms, beyond the direct runner peer bound. Preserve this recording assessment gap; do not shorten the delay or claim a released deadline verdict."
+          "capture": "",
+          "recording_gap": "The unchanged retained reply delays 16000 ms, beyond the direct runner peer bound. Preserve this recording assessment gap; do not shorten the delay or claim a released deadline verdict. Retained input: semantic-scholar/e4c5c829386ab769f21cc96a319af705192c2c83ea0f05978d1f79349384f116.json."
         }
       ],
       "facts": {
@@ -986,8 +986,8 @@
           "host": "pub.orcid.org",
           "request_prefix": "GET /v3.0/0000-0002-4299-3018/works",
           "request_contains": "",
-          "capture": "orcid/7dec36201f77fc00836b70243b764f321ffb21da411326e0760b089e00e0e601.json",
-          "recording_gap": "The unchanged retained reply delays 26000 ms, beyond the direct runner peer bound. Preserve this recording assessment gap; do not shorten the delay or claim a released deadline verdict."
+          "capture": "",
+          "recording_gap": "The unchanged retained reply delays 26000 ms, beyond the direct runner peer bound. Preserve this recording assessment gap; do not shorten the delay or claim a released deadline verdict. Retained input: orcid/7dec36201f77fc00836b70243b764f321ffb21da411326e0760b089e00e0e601.json."
         }
       ],
       "facts": {
