@@ -82,6 +82,7 @@ impl Leg<'_> {
                     decoder.message(bytes)
                 },
                 true,
+                limits,
                 &mut end,
             )
             .and_then(|()| {

@@ -36,6 +36,9 @@ impl Leg<'_> {
         limits.wire_bytes = limits
             .wire_bytes
             .min(usize::try_from(self.fetch.config.max_body).unwrap_or(usize::MAX));
+        limits.message_bytes = limits
+            .message_bytes
+            .min(limits.wire_bytes.saturating_sub(super::FRAME_BYTES));
         limits
             .check_request(request)
             .map_err(|_| crate::InputError::BodyLimit)?;

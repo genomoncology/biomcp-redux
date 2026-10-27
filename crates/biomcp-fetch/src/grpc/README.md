@@ -12,7 +12,7 @@ Every call carries its original absolute end through admission, quota, DNS, CONN
 
 The system resolver is the sole exception. Its single blocking slot preserves hosts-file, VPN and platform DNS behavior. Queued lookups are aborted on cancellation. A started lookup may finish after the call deadline or worker shutdown under the system resolver timeout. The caller returns at its deadline, releases its permit and starts no stream afterward. The private stalled-DNS test exercises this cancellation boundary without changing machine DNS settings.
 
-Record and replay modes fail closed until their protocol-aware persistence path exists. Offline calls start no worker or connection. This module makes no provider calls during its local fixture tests.
+The raw callback API accepts live mode. The checked API below handles record, replay and cached offline reads. Offline calls start no worker or connection. This module makes no provider calls during its local fixture tests.
 
 `GrpcEndpoint::checked` pins a schema identity and a freshness policy. Its default remains `Freshness::Never`; requests that select provider defaults must retain that policy. `Leg::grpc_checked` uses an independent `StreamDecoder` for every read. The decoder owns source identity, message ordering, exact declared counts and checked tensor completion. Its finalizer exposes a result only after the transport observes OK terminal status. Adapters must serialize requests stably, canonicalize protobuf maps and preserve repeated-field order.
 

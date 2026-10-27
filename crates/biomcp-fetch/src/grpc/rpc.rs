@@ -59,6 +59,7 @@ impl Leg<'_> {
             body,
             |bytes, _| message(bytes),
             false,
+            self.fetch.config.grpc_limits,
             &mut NetworkEnd::default(),
         )
     }
@@ -68,6 +69,7 @@ impl Leg<'_> {
         body: &[u8],
         mut message: impl FnMut(&[u8], Duration) -> Result<(), BadReply>,
         capture: bool,
+        limits: super::Limits,
         end: &mut NetworkEnd,
     ) -> Result<(), RequestError> {
         self.check_source()?;
@@ -75,7 +77,6 @@ impl Leg<'_> {
             return Err(self.failure(Reason::Rejected, None).into());
         }
         self.rpc_mode(capture)?;
-        let limits = self.fetch.config.grpc_limits;
         limits
             .check_request(body)
             .map_err(|_| InputError::BodyLimit)?;
