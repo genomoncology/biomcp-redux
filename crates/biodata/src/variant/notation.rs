@@ -69,7 +69,9 @@ impl fmt::Display for HgvsText {
 #[cfg(feature = "schema")]
 impl HgvsText {
     /// Canonical wire pattern shared by consumer input schemas.
-    pub const PATTERN: &'static str = r"^((N[CGMPRTW]|X[MPR])_([0-9]{6}|[0-9]{9})\.[0-9]+|ENS[GTP][0-9]{11}\.[0-9]+|LRG_[0-9]+([tp][0-9]+)?)(\(([A-Za-z][A-Za-z0-9._/@-]*|[A-Za-z0-9_.]+)\))?:[gcnrpmo]\.[\x20-\x7e]+$";
+    pub const PATTERN: &'static str = "^((N[CGMPRTW]|X[MPR])_([0-9]{6}|[0-9]{9})\\.[0-9]+|ENS[GTP][0-9]{11}\\.[0-9]+|\
+        LRG_[0-9]+([tp][0-9]+)?)(\\(([A-Za-z][A-Za-z0-9._/@-]*|\
+        [A-Za-z0-9_.]+)\\))?:[gcnrpmo]\\.[\\x20-\\x7e]+$";
 }
 text_value!(HgvsText, "HgvsText", Self::PATTERN);
 crate::canonical_enum! {

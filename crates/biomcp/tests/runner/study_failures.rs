@@ -151,9 +151,11 @@ fn bundle_identity() -> Check {
     let mut wrong = rows();
     *wrong
         .pointer_mut("/0/resourceCounts")
-        .ok_or("resource counts")? = json!([{
-        "resourceId":"synthetic_resource", "displayName":"Synthetic resource", "description":"Synthetic scope mismatch", "resourceType":"metadata", "priority":"1", "openByDefault":true, "cancerStudyIdentifier":"other_study", "sampleCount":1, "patientCount":1
-    }]);
+        .ok_or("resource counts")? = json!(
+        [{ "resourceId":"synthetic_resource","displayName":"Synthetic resource","description":"Synthetic scope mismatch",
+        "resourceType":"metadata","priority":"1","openByDefault":true,"cancerStudyIdentifier":"other_study","sampleCount":1,
+        "patientCount":1 }]
+    );
     catalog_recording(&env, &replay, &wrong.to_string(), 200, 0)?;
     let value = call(
         &env,

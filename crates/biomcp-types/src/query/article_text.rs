@@ -5,7 +5,12 @@ use serde::{Deserialize, Serialize};
 #[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
 #[serde(try_from = "Fields")]
 #[cfg_attr(feature = "schema", derive(schemars::JsonSchema))]
-#[cfg_attr(feature="schema", schemars(with="Fields", extend("anyOf"=[{"required":["part"]},{"required":["find"]},{"required":["variant"]},{"required":["save"]}])))]
+#[cfg_attr(feature="schema",
+ schemars(with="Fields",
+ extend("anyOf"=[{"required":["part"]},
+{"required":["find"]},
+{"required":["variant"]},
+{"required":["save"]}])))]
 pub struct ArticleText(Fields);
 #[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
 #[serde(deny_unknown_fields)]

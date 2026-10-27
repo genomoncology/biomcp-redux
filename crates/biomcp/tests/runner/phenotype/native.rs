@@ -227,7 +227,16 @@ pub(super) fn mcp(
 ) -> Result<(), String> {
     let file = tempfile::NamedTempFile::new().map_err(|e| e.to_string())?;
     let ceiling = budget.ok_or("phenotype parity requires a fixed measured ceiling")?;
-    fs::write(file.path(),serde_json::to_vec(&json!({"feature":"phenotype-identity","story":"CLI and MCP preserve the same unchanged native source facts","replay":directory,"steps":[{"run":words,"mcp":words,"exit":exit,"is_error":exit>=2,"expect":{"":{"equals":local}},"max_bytes":ceiling,"max_tokens":ceiling.div_ceil(4)}]})).map_err(|e|e.to_string())?).map_err(|e|e.to_string())?;
+    fs::write(
+        file.path(),
+        serde_json::to_vec(&json!(
+            {"feature":"phenotype-identity","story":"CLI and MCP preserve the same unchanged native source facts","replay":directory,
+            "steps":[{"run":words,"mcp":words,"exit":exit,"is_error":exit>=2,"expect":{"":{"equals":local}},"max_bytes":ceiling,
+            "max_tokens":ceiling.div_ceil(4)}]}
+        ))
+        .map_err(|e| e.to_string())?,
+    )
+    .map_err(|e| e.to_string())?;
     super::super::run_case(file.path(), &super::super::schema::Registry::embedded()?)?;
     Ok(())
 }

@@ -29,8 +29,14 @@ pub fn run(cx: &Ctx<'_>, query: &VariantRecurrenceQuery) -> Outcome {
 fn empty() -> VariantRecurrence {
     VariantRecurrence {
         identity: None,
-        matching_granularity: biomcp_types::RecurrenceGranularity::ExactGenomicAllele, entrez_gene_id: None, study: None, selected_sample_count: None,
-        observed_sample_count: None, examined_rows: 0, all_pages_read: false, more: false,
+        matching_granularity: biomcp_types::RecurrenceGranularity::ExactGenomicAllele,
+        entrez_gene_id: None,
+        study: None,
+        selected_sample_count: None,
+        observed_sample_count: None,
+        examined_rows: 0,
+        all_pages_read: false,
+        more: false,
         terms: biomcp_types::RecurrenceTerms {
             unverified: true,
             notice: "Individual studies may impose commercial restrictions; public access does not verify study-specific reuse rights".into(),

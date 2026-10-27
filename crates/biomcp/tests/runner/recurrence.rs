@@ -118,18 +118,30 @@ fn wire() -> Result<(), String> {
         ));
     }
     for (_, request) in requests.iter().filter(|(_, r)| r.contains("/mutations?")) {
-        if !request.contains("sampleListId=msk_impact_2017_all&entrezGeneId=673&projection=SUMMARY&pageSize=3&pageNumber=") { return Err(format!("lost explicit cohort or HGNC bound: {request}")); }
+        if !request.contains("sampleListId=msk_impact_2017_all&entrezGeneId=673&projection=SUMMARY&pageSize=3&pageNumber=") {
+            return Err(format!("lost explicit cohort or HGNC bound: {request}"));
+        }
     }
     Ok(())
 }
 fn car(_: &str) -> Result<String, String> {
-    Ok(json!({"@id":"http://reg.genome.network/allele/CA123643","genomicAlleles":[{"chromosome":"7","referenceGenome":"GRCh37","hgvs":["NC_000007.13:g.140453136A>T"],"coordinates":[{"start":140453135,"end":140453136,"referenceAllele":"A","allele":"T"}]}]}).to_string())
+    Ok(json!(
+        {"@id":"http://reg.genome.network/allele/CA123643","genomicAlleles":[{"chromosome":"7","referenceGenome":"GRCh37",
+        "hgvs":["NC_000007.13:g.140453136A>T"],"coordinates":[{"start":140453135,"end":140453136,"referenceAllele":"A","allele":"T"}]}]}
+    )
+    .to_string())
 }
 fn hgnc(_: &str) -> Result<String, String> {
-    Ok("hgnc_id\tsymbol\tname\tlocus_group\tlocus_type\tstatus\tentrez_id\nHGNC:1097\tBRAF\tB-Raf proto-oncogene, serine/threonine kinase\tprotein-coding gene\tgene with protein product\tApproved\t673\n".into())
+    Ok("hgnc_id\tsymbol\tname\tlocus_group\tlocus_type\tstatus\tentrez_id\nHGNC:1097\tBRAF\tB-Raf \
+        proto-oncogene, serine/threonine kinase\tprotein-coding gene\tgene with protein \
+        product\tApproved\t673\n"
+        .into())
 }
 pub(super) fn row(sample: &str, alternate: &str) -> Value {
-    json!({"molecularProfileId":"msk_impact_2017_mutations","studyId":"msk_impact_2017","sampleId":sample,"entrezGeneId":673,"chr":"7","startPosition":140453136,"endPosition":140453136,"referenceAllele":"A","variantAllele":alternate,"ncbiBuild":"GRCh37"})
+    json!(
+        {"molecularProfileId":"msk_impact_2017_mutations","studyId":"msk_impact_2017","sampleId":sample,"entrezGeneId":673,"chr":"7",
+        "startPosition":140453136,"endPosition":140453136,"referenceAllele":"A","variantAllele":alternate,"ncbiBuild":"GRCh37"}
+    )
 }
 pub(super) fn cbio(request: &str) -> Result<String, String> {
     if request.starts_with("GET /allele/") {
@@ -141,11 +153,18 @@ pub(super) fn cbio(request: &str) -> Result<String, String> {
     Ok(if request.contains("/sample-lists?") {
         json!([{"studyId":"msk_impact_2017","sampleListId":"msk_impact_2017_all","sampleCount":100}])
     } else if request.starts_with("GET /api/studies/") {
-        json!({"studyId":"msk_impact_2017","name":"Synthetic cohort","description":"Synthetic notice: commercial reuse requires permission","citation":"Synthetic citation"})
-
+        json!({"studyId":"msk_impact_2017",
+"name":"Synthetic cohort",
+"description":"Synthetic notice: commercial reuse requires permission",
+"citation":"Synthetic citation"})
     } else if request.contains("/mutations?") {
-        if request.contains("pageNumber=1") { json!([row("s2","T")]) } else { json!([row("s1","T"),row("s1","T"),row("wrong-allele","G")]) }
+        if request.contains("pageNumber=1") {
+            json!([row("s2", "T")])
+        } else {
+            json!([row("s1", "T"), row("s1", "T"), row("wrong-allele", "G")])
+        }
     } else {
         json!({"studyId":"msk_impact_2017","molecularProfileId":"msk_impact_2017_mutations","molecularAlterationType":"MUTATION_EXTENDED"})
-    }.to_string())
+    }
+    .to_string())
 }

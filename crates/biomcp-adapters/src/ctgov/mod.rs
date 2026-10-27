@@ -42,9 +42,12 @@ pub struct SearchPage {
 /// Exact parameters; resolved gene text is explicit and attributed to HGNC by the caller.
 pub fn parameters(query: &TrialSearch, gene: Option<&str>) -> BTreeMap<String, String> {
     let mut p = BTreeMap::from([
-        ("countTotal".into(),"true".into()),
-        ("pageSize".into(),if query.count_only() { "1".into() } else { query.limit().to_string() }),
-        ("fields".into(),"NCTId,BriefTitle,OverallStatus,Phase,Condition,InterventionName,LastUpdatePostDate,HasResults".into()),
+        ("countTotal".into(), "true".into()),
+        ("pageSize".into(), if query.count_only() { "1".into() } else { query.limit().to_string() }),
+        (
+            "fields".into(),
+            "NCTId,BriefTitle,OverallStatus,Phase,Condition,InterventionName,LastUpdatePostDate,HasResults".into(),
+        ),
     ]);
     for (name, value) in [
         ("query.cond", query.condition()),
@@ -131,7 +134,10 @@ fn advanced(query: &TrialSearch) -> String {
         advanced.push(format!("AREA[StudyType]{}", study_type.as_str()));
     }
     if let Some(age) = query.age() {
-        advanced.push(format!("(AREA[MinimumAge]RANGE[MIN,{age} years] OR AREA[MinimumAge]MISSING) AND (AREA[MaximumAge]RANGE[{age} years,MAX] OR AREA[MaximumAge]MISSING)"));
+        advanced.push(format!(
+            "(AREA[MinimumAge]RANGE[MIN,{age} years] OR AREA[MinimumAge]MISSING) AND \
+            (AREA[MaximumAge]RANGE[{age} years,MAX] OR AREA[MaximumAge]MISSING)"
+        ));
     }
     if query.updated_since().is_some() || query.updated_until().is_some() {
         advanced.push(format!(

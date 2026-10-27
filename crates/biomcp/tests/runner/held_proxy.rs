@@ -215,9 +215,7 @@ fn prove(
         request(
             json!("disabled"),
             "tools/call",
-            json!({
-                "name":"biomcp", "arguments":{"args":["get","gene","BRAF","--disable-sources","hgnc"]}
-            }),
+            json!({ "name":"biomcp", "arguments":{"args":["get","gene","BRAF","--disable-sources","hgnc"]} }),
         ),
     )?;
     let disabled = replies
@@ -323,8 +321,18 @@ fn resume_other(
     if !request.starts_with("GET /uniprotkb/P04637.json ") {
         return Err(format!("wrong independent request: {request}"));
     }
-    let body = json!({"primaryAccession":"P04637","uniProtkbId":"SYNTH_HUMAN", "entryType":"UniProtKB reviewed (Swiss-Prot)", "organism":{"taxonId":9606}, "proteinDescription":{"recommendedName":{"fullName":{"value":"synthetic protein"}}}, "sequence":{"length":1}}).to_string();
-    write!(tls, "HTTP/1.1 200 Synthetic\r\nContent-Type: application/json\r\nContent-Length: {}\r\nConnection: close\r\n\r\n{body}", body.len()).map_err(|e| e.to_string())?;
+    let body = json!(
+        {"primaryAccession":"P04637","uniProtkbId":"SYNTH_HUMAN","entryType":"UniProtKB reviewed (Swiss-Prot)","organism":{"taxonId":9606},
+        "proteinDescription":{"recommendedName":{"fullName":{"value":"synthetic protein"}}},"sequence":{"length":1}}
+    )
+    .to_string();
+    write!(
+        tls,
+        "HTTP/1.1 200 Synthetic\r\nContent-Type: application/json\r\nContent-Length: {}\r\nConnection: \
+        close\r\n\r\n{body}",
+        body.len()
+    )
+    .map_err(|e| e.to_string())?;
     tls.flush().map_err(|e| e.to_string())
 }
 fn proxy_request(
@@ -361,8 +369,7 @@ fn cancel_capacity(
             request(
                 json!(id),
                 "tools/call",
-                json!({"name":"biomcp", "arguments":{
-            "args":["get","protein","P15056"]}}),
+                json!({"name":"biomcp", "arguments":{ "args":["get","protein","P15056"]}}),
             ),
         )?;
     }

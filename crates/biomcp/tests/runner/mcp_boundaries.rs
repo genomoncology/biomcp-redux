@@ -39,16 +39,14 @@ fn http() -> Check {
     let certificate = env.root().join("source.pem");
     fs::write(&certificate, &source.certificate)?;
     let server = Server::keys(
-        json!({"proxy":format!("http://{}", source.address),
-        "ca_bundle":certificate}),
+        json!({"proxy":format!("http://{}", source.address), "ca_bundle":certificate}),
         None,
     )?;
     let directory = server.environment().root().join("cache/biomcp");
     fs::create_dir_all(&directory)?;
     let old = directory.join("cache-1-4.sqlite");
-    rusqlite::Connection::open(&old)?.execute_batch(
-        "CREATE TABLE meta(owner TEXT,version INTEGER); INSERT INTO meta VALUES ('biomcp-query',4); CREATE TABLE pool(id TEXT);"
-    )?;
+    rusqlite::Connection::open(&old)?
+        .execute_batch("CREATE TABLE meta(owner TEXT,version INTEGER); INSERT INTO meta VALUES ('biomcp-query',4); CREATE TABLE pool(id TEXT);")?;
     let before = fs::read(&old)?;
     let entries = fs::read_dir(&directory)?.count();
     for args in [
@@ -87,8 +85,7 @@ fn stdio() -> Check {
     let env = Environment::new()?;
     let certificate = env.root().join("source.pem");
     fs::write(&certificate, &source.certificate)?;
-    env.config(&json!({"proxy":format!("http://{}", source.address),
-        "ca_bundle":certificate}))?;
+    env.config(&json!({"proxy":format!("http://{}", source.address), "ca_bundle":certificate}))?;
     let path = env.root().join("owned.md");
     fs::write(&path, b"caller content")?;
     for words in [

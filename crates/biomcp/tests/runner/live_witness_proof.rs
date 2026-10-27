@@ -7,10 +7,9 @@ mod input_context;
 
 pub(super) fn retained() -> Result<(), String> {
     let sample = |name: &str, changed: bool, body: Value| {
-        json!({
-            "case": name, "result": {"drift": if changed { vec!["field removed"] } else { vec![] }},
-            "witness": body
-        })
+        json!({ "case": name,
+ "result": {"drift": if changed { vec!["field removed"] } else { vec![] }},
+ "witness": body })
     };
     let report = live::summary(
         vec![
@@ -169,7 +168,8 @@ pub(super) fn credentials() -> Result<(), String> {
         )?;
         let ca = env.root().join("ca.pem");
         fs::write(&ca, &stub.certificate).map_err(|e| e.to_string())?;
-        env.config(&json!({"proxy":format!("http://{}",stub.address),"ca_bundle":ca,"keys":{"ncbi_api_key":KEY,"nci_api_key":KEY}})).map_err(|e|e.to_string())?;
+        env.config(&json!({"proxy":format!("http://{}",stub.address),"ca_bundle":ca,"keys":{"ncbi_api_key":KEY,"nci_api_key":KEY}}))
+            .map_err(|e| e.to_string())?;
         let observation = env.root().join("observed.jsonl");
         let mut args = if query_key {
             vec!["search", "article", "cancer", "--source", "pubmed"]

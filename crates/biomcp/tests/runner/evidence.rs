@@ -346,11 +346,13 @@ fn overflow() -> Result<(), Box<dyn std::error::Error>> {
                 }
             }
         },
-        json!([
-            {"run":["article","citation-evidence","33123537","17611497"],"expect":{"/result/semantic_scholar/data/contexts/total":4,"/result/semantic_scholar/data/contexts/items/0/character_offset":0}},
-            {"follow":"page","expect":{"/result/semantic_scholar/data/contexts/items/0/character_offset":3500}},
-            {"follow":"page","expect":{"/result/semantic_scholar/data/contexts/items/0/character_offset":7000,"/result/semantic_scholar/data/contexts/items/1/text":"last context"}}
-        ]),
+        json!(
+            [ {"run":["article","citation-evidence","33123537","17611497"],"expect":{"/result/semantic_scholar/data/contexts/total":4,
+            "/result/semantic_scholar/data/contexts/items/0/character_offset":0}},{"follow":"page",
+            "expect":{"/result/semantic_scholar/data/contexts/items/0/character_offset":3500}},{"follow":"page",
+            "expect":{"/result/semantic_scholar/data/contexts/items/0/character_offset":7000,
+            "/result/semantic_scholar/data/contexts/items/1/text":"last context"}} ]
+        ),
     )?;
     checked_steps(
         "article/evidence/source",
@@ -364,17 +366,20 @@ fn overflow() -> Result<(), Box<dyn std::error::Error>> {
                 let start = body.find("<body>").unwrap() + 6;
                 let end = body.find("</body>").unwrap();
                 let replacement = format!(
-                    "<sec><title>Evidence</title><list><list-item><p><xref ref-type=\"bibr\" rid=\"B17 B99\">exact</xref>{}</p></list-item></list><p><xref ref-type=\"bibr\" rid=\"B170\">decoy</xref></p></sec>",
+                    "<sec><title>Evidence</title><list><list-item><p><xref ref-type=\"bibr\" rid=\"B17 \
+                        B99\">exact</xref>{}</p></list-item></list><p><xref ref-type=\"bibr\" \
+                        rid=\"B170\">decoy</xref></p></sec>",
                     "z".repeat(10000)
                 );
                 record["exchanges"][0]["body"]["value"] =
                     json!(format!("{}{}{}", &body[..start], replacement, &body[end..]));
             }
         },
-        json!([
-            {"run":["article","citation-evidence","33123537","17611497","--fulltext"],"expect":{"/result/fulltext/data/paragraphs/total":3,"/result/fulltext/data/paragraphs/items/0/position":1,"/result/fulltext/data/paragraphs/items/0/part":1}},
-            {"follow":"page","expect":{"/result/fulltext/data/paragraphs/items/0/position":1,"/result/fulltext/data/paragraphs/items/0/character_offset":7000}}
-        ]),
+        json!(
+            [ {"run":["article","citation-evidence","33123537","17611497","--fulltext"],"expect":{"/result/fulltext/data/paragraphs/total":3,
+            "/result/fulltext/data/paragraphs/items/0/position":1,"/result/fulltext/data/paragraphs/items/0/part":1}},{"follow":"page",
+            "expect":{"/result/fulltext/data/paragraphs/items/0/position":1,"/result/fulltext/data/paragraphs/items/0/character_offset":7000}} ]
+        ),
     )?;
     Ok(())
 }
@@ -406,7 +411,10 @@ fn independence() -> Result<(), Box<dyn std::error::Error>> {
         ),
         (
             "graph-failure",
-            json!({"/status":"partial","/result/semantic_scholar/state":"unavailable","/result/fulltext/data/paragraphs/total":7,"/next/0/args":["help","key","semantic-scholar"]}),
+            json!(
+                {"/status":"partial","/result/semantic_scholar/state":"unavailable","/result/fulltext/data/paragraphs/total":7,
+                "/next/0/args":["help","key","semantic-scholar"]}
+            ),
         ),
         (
             "summary-failure",
@@ -414,7 +422,10 @@ fn independence() -> Result<(), Box<dyn std::error::Error>> {
         ),
         (
             "text-deadline",
-            json!({"/status":"partial","/result/semantic_scholar/data/contexts/total":6,"/result/fulltext/state":"unavailable","/result/fulltext/reason":"deadline_exceeded"}),
+            json!({"/status":"partial",
+"/result/semantic_scholar/data/contexts/total":6,
+"/result/fulltext/state":"unavailable",
+"/result/fulltext/reason":"deadline_exceeded"}),
         ),
     ] {
         let command = if mode == "empty" {

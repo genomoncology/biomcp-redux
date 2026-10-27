@@ -69,7 +69,15 @@ macro_rules! canonical_enum {
         $(#[$doc])*
         #[derive(Clone, Copy, Debug, PartialEq, Eq, Hash, PartialOrd, Ord, serde::Serialize, serde::Deserialize)]
         #[cfg_attr(feature = "schema", derive(schemars::JsonSchema))]
-        #[cfg_attr(feature = "schema", schemars(!try_from, !into, with = "str", extend("enum" = [$($text),+], "x-enum-descriptions" = [$(concat!($($variant_doc),*)),+])))]
+        #[cfg_attr(feature = "schema",
+ schemars(!try_from,
+ !into,
+ with = "str",
+ extend("enum" = [$($text),
++],
+ "x-enum-descriptions" = [$(concat!($($variant_doc),
+*)),
++])))]
         #[non_exhaustive]
         #[serde(try_from = "String", into = "&'static str")]
         pub enum $name {

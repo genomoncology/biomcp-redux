@@ -83,9 +83,11 @@ fn reply(request: &str, id: &str) -> Result<String, String> {
         serde_json::from_str(&super::cards::reply(request)?).map_err(|e| e.to_string())?;
     if request.contains("/uniprotkb/") {
         *value.get_mut("primaryAccession").ok_or("identity")? = json!(id);
-        *value.get_mut("features").ok_or("features")? = json!([
-                    {"type":"Domain","description":"Synthetic first","location":{"start":{"value":1,"modifier":"EXACT"},"end":{"value":2,"modifier":"EXACT"}}},
-                    {"type":"Region","description":"Synthetic second","location":{"start":{"value":3,"modifier":"EXACT"},"end":{"value":4,"modifier":"EXACT"}}}]);
+        *value.get_mut("features").ok_or("features")? = json!(
+            [ {"type":"Domain","description":"Synthetic first","location":{"start":{"value":1,"modifier":"EXACT"},"end":{"value":2,
+            "modifier":"EXACT"}}},{"type":"Region","description":"Synthetic second","location":{"start":{"value":3,"modifier":"EXACT"},
+            "end":{"value":4,"modifier":"EXACT"}}}]
+        );
         *value.get_mut("comments").ok_or("comments")? = json!([
                     {"commentType":"FUNCTION","texts":[{"value":"Whole synthetic first paragraph."}]},
                     {"commentType":"FUNCTION","molecule":"Isoform 2","texts":[{"value":"Whole synthetic second paragraph."}]},

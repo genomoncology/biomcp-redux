@@ -33,7 +33,10 @@ pub(super) fn trials() -> Vec<Trial> {
     trials
 }
 fn native(mode: &str) -> Result<Value, String> {
-    let row = json!({"pma_number":if mode == "wrong-base" {"P200010"} else {"P150013"},"supplement_number":if mode == "wrong-supplement" {"S021"} else {""},"trade_name":"Synthetic device","ao_statement":"Synthetic statement"});
+    let row = json!({"pma_number":if mode == "wrong-base" {"P200010"} else {"P150013"},
+"supplement_number":if mode == "wrong-supplement" {"S021"} else {""},
+"trade_name":"Synthetic device",
+"ao_statement":"Synthetic statement"});
     let mut rows = vec![row.clone()];
     if mode == "duplicate-base" {
         rows.push(row);
@@ -62,9 +65,14 @@ fn boundary(mode: &'static str) -> Check {
         "api.fda.gov",
         "application/json",
         move |request| {
-            if !request.starts_with(
-                &format!("GET /device/pma.json?search=pma_number%3A%22P150013%22{}&limit=100&skip=0 HTTP/1.1", if mode == "wrong-supplement" {"%20AND%20supplement_number%3A%22S020%22"}else{""}),
-            ) {
+            if !request.starts_with(&format!(
+                "GET /device/pma.json?search=pma_number%3A%22P150013%22{}&limit=100&skip=0 HTTP/1.1",
+                if mode == "wrong-supplement" {
+                    "%20AND%20supplement_number%3A%22S020%22"
+                } else {
+                    ""
+                }
+            )) {
                 return Err(format!("wrong exact query: {request}"));
             }
             Ok(if mode == "wrong-status" {
@@ -83,7 +91,8 @@ fn boundary(mode: &'static str) -> Check {
     } else {
         vec![]
     };
-    env.config(&json!({"ca_bundle":ca,"proxy":format!("http://{}",stub.address),"disable_sources":disabled})).map_err(|e|e.to_string())?;
+    env.config(&json!({"ca_bundle":ca,"proxy":format!("http://{}",stub.address),"disable_sources":disabled}))
+        .map_err(|e| e.to_string())?;
     let mut args: Vec<String> = ["get", "diagnostic", "P150013", "--source", "fda-pma"]
         .into_iter()
         .map(String::from)

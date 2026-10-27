@@ -215,7 +215,8 @@ fn absent_replay(network: &Network, record: &std::path::Path) -> Check {
 }
 
 fn projection(network: &Network, record: &std::path::Path) -> Check {
-    let fields = "_id,_score,mondo.label,mondo.xrefs.omim,disease_ontology.name,hpo.phenotype_related_to_disease,orphanet.label,omim.description,disgenet.associations";
+    let fields = "_id,_score,mondo.label,mondo.xrefs.omim,disease_ontology.name,hpo.phenotype_related_to_disease,orpha\
+        net.label,omim.description,disgenet.associations";
     for (switch, absent) in [
         ("mondo", "mondo"),
         ("doid", "disease_ontology"),

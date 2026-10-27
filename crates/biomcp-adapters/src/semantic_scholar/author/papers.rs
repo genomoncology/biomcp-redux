@@ -6,7 +6,9 @@ use serde::{Deserialize, Serialize};
 mod row;
 pub use row::Paper;
 const COMPACT: &str = "paperId,externalIds,title,year,venue";
-const DETAILS: &str = "paperId,externalIds,title,year,venue,abstract,publicationDate,citationCount,referenceCount,influentialCitationCount,isOpenAccess,openAccessPdf,fieldsOfStudy,publicationTypes,authors.authorId,authors.name";
+const DETAILS: &str = "paperId,externalIds,title,year,venue,abstract,publicationDate,citationCount,referenceCount,influenti\
+    alCitationCount,isOpenAccess,openAccessPdf,fieldsOfStudy,publicationTypes,authors.authorId,authors.n\
+    ame";
 /// Native papers page; the endpoint may omit both author identity and total.
 #[derive(Debug, Deserialize, Serialize)]
 pub struct PapersPage {

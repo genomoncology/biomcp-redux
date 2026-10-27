@@ -136,19 +136,36 @@ fn checked_get_keeps_base_supplement_and_section_scope() {
 }
 
 fn gene() -> Value {
-    json!({"test_id":"GTR000006692.3","test_type":"Clinical","gene":{"ncbi_gene_id":"672","label":"Synthetic symbol"},"native_medgen":"MedGen:C0376571","mim_number":"","object_name":"Synthetic native gene label"})
+    json!(
+        {"test_id":"GTR000006692.3","test_type":"Clinical","gene":{"ncbi_gene_id":"672","label":"Synthetic symbol"},
+        "native_medgen":"MedGen:C0376571","mim_number":"","object_name":"Synthetic native gene label"}
+    )
 }
 fn condition() -> Value {
-    json!({"test_id":"GTR000006692.3","test_type":"Clinical","condition":{"id":"MedGen:C2676676","label":"Synthetic condition"},"mim_number":"604370","snomed_ct_id":""})
+    json!(
+        {"test_id":"GTR000006692.3","test_type":"Clinical","condition":{"id":"MedGen:C2676676","label":"Synthetic condition"},
+        "mim_number":"604370","snomed_ct_id":""}
+    )
 }
 fn method() -> Value {
     json!({"test_id":"GTR000006692.3","list":"methods","index":2,"value":"Synthetic unpaired method"})
 }
 fn pma_header() -> Value {
-    json!({"pma_number":"P150013","supplement_number":"","trade_name":"Synthetic device","applicant":"Synthetic applicant","decision_date":"20200101","decision_code":"APPR","url":"https://example.invalid/pma/P150013"})
+    json!(
+        {"pma_number":"P150013","supplement_number":"","trade_name":"Synthetic device","applicant":"Synthetic applicant",
+        "decision_date":"20200101","decision_code":"APPR","url":"https://example.invalid/pma/P150013"}
+    )
 }
 fn who() -> Value {
-    let rows: Vec<_> = (0..9).map(|i| json!({"product_name":"Synthetic product","product_code":format!("code-{i}"),"assay_format":"Synthetic format","manufacturer":"Synthetic manufacturer","marker":format!("native marker {i}"),"regulatory_version":"Uninterpreted source prose","prequalification_year":"2024"})).collect();
+    let rows: Vec<_> = (0..9)
+        .map(|i| {
+            json!(
+                {"product_name":"Synthetic product","product_code":format!("code-{i}"),"assay_format":"Synthetic format",
+                "manufacturer":"Synthetic manufacturer","marker":format!("native marker {i}"),"regulatory_version":"Uninterpreted source prose",
+                "prequalification_year":"2024"}
+            )
+        })
+        .collect();
     json!({"id":"0466-046-00","native_rows":rows})
 }
 fn companion(group: bool) -> Value {
@@ -169,8 +186,20 @@ fn companion(group: bool) -> Value {
             "PMA / 510(k) /\n513(f)(2) / HDE (Approval / Clearance / Grant Date)",
         ]
     };
-    let cells: serde_json::Map<_,_> = headers.into_iter().map(|h| (h.to_owned(),json!({"text":format!("Whole synthetic {h} cell"),"links":[{"href":"https://example.invalid/cell-owned"}]}))).collect();
-    json!({"kind":if group {"group"} else {"individual"},"snapshot":"synthetic-revision","index":7,"cells":cells,"device_ids":["P150013/S020","K173492","DEN170019"],"drug_applications":[{"id":"NDA021335","url":"https://example.invalid/owned/NDA021335"},{"id":"BLA125514","url":"https://example.invalid/owned/BLA125514"}]})
+    let cells: serde_json::Map<_, _> = headers
+        .into_iter()
+        .map(|h| {
+            (
+                h.to_owned(),
+                json!({"text":format!("Whole synthetic {h} cell"), "links":[{"href":"https://example.invalid/cell-owned"}]}),
+            )
+        })
+        .collect();
+    json!(
+        {"kind":if group {"group"} else {"individual"},"snapshot":"synthetic-revision","index":7,"cells":cells,"device_ids":["P150013/S020",
+        "K173492","DEN170019"],"drug_applications":[{"id":"NDA021335","url":"https://example.invalid/owned/NDA021335"},{"id":"BLA125514",
+        "url":"https://example.invalid/owned/BLA125514"}]}
+    )
 }
 
 #[test]
@@ -271,7 +300,10 @@ fn pma_absent_empty_and_explicit_supplement_roles_stay_distinct() {
     let absent = json!({"pma_number":"P150013"});
     assert_eq!(roundtrip::<DeviceSubmission>(absent.clone()), absent);
     for sub in ["", "S020"] {
-        let row = json!({"pma_number":"P150013","supplement_number":sub,"ao_statement":"Whole synthetic source statement","supplement_type":"","supplement_reason":""});
+        let row = json!(
+            {"pma_number":"P150013","supplement_number":sub,"ao_statement":"Whole synthetic source statement","supplement_type":"",
+            "supplement_reason":""}
+        );
         assert_eq!(roundtrip::<DeviceSubmission>(row.clone()), row);
     }
     for sub in ["S000", "020", "S20", "base"] {
@@ -282,7 +314,13 @@ fn pma_absent_empty_and_explicit_supplement_roles_stay_distinct() {
             .is_err()
         );
     }
-    assert!(serde_json::from_value::<DiagnosticPmaHeader>(json!({"pma_number":"P150013","supplement_number":"","url":"https://example.invalid","ao_statement":"Whole statement must stay behind regulatory"})).is_err());
+    assert!(
+        serde_json::from_value::<DiagnosticPmaHeader>(json!({"pma_number":"P150013",
+"supplement_number":"",
+"url":"https://example.invalid",
+"ao_statement":"Whole statement must stay behind regulatory"}))
+        .is_err()
+    );
 }
 
 #[test]
@@ -305,7 +343,10 @@ fn physical_companion_tables_keep_exact_headers_whole_cells_and_owned_ids() {
 
 #[test]
 fn conflict_candidates_have_no_selected_name_or_card() {
-    let value = json!({"identity_status":"conflict","id":"GTR000551465.2","problem":{"source":"pubmed","record":"GTR000551465.2","field":"test_accession_ver","code":"value.unknown"}});
+    let value = json!(
+        {"identity_status":"conflict","id":"GTR000551465.2","problem":{"source":"pubmed","record":"GTR000551465.2",
+        "field":"test_accession_ver","code":"value.unknown"}}
+    );
     // This pre-registry synthetic source is not a GTR provider observation.
     assert_eq!(roundtrip::<DiagnosticCandidate>(value.clone()), value);
     assert!(serde_json::from_value::<DiagnosticCard>(value.clone()).is_err());
@@ -401,7 +442,10 @@ fn all_eight_consumer_schemas_accept_their_source_owned_views() {
     envelope::<DiagnosticMethods>(get, json!({"items":[method()]}));
     envelope::<DiagnosticRegulatory>(
         json!({"source":"fda-pma","id":"P150013","section":"regulatory"}),
-        json!({"items":[{"submission":pma_header(),"metadata":{"date_received":"20200101","supplement_type":"","supplement_reason":""},"field":"ao_statement","offset":0,"total":1,"text":"Whole synthetic regulatory fragment."}]}),
+        json!(
+            {"items":[{"submission":pma_header(),"metadata":{"date_received":"20200101","supplement_type":"","supplement_reason":""},
+            "field":"ao_statement","offset":0,"total":1,"text":"Whole synthetic regulatory fragment."}]}
+        ),
     );
     envelope::<DiagnosticSupplements>(
         json!({"source":"fda-pma","id":"P150013","section":"supplements"}),

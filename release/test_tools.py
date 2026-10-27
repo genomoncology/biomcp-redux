@@ -2,6 +2,7 @@
 import json
 import os
 from pathlib import Path
+import re
 import shutil
 import subprocess
 import sys
@@ -52,7 +53,12 @@ class DesktopTools(unittest.TestCase):
             result = self.check(root)
             self.assertEqual(result.returncode, 0, result.stderr)
             source = root / "crates/biomcp/src/mcp/research.rs"
-            source.write_text(source.read_text().replace('[("search",', '[("fourth", "query", "A fake fourth tool", "fake/1"), ("search",', 1))
+            original = source.read_text()
+            planted = re.sub(r'\[\s*\(\s*"search"\s*,',
+                             lambda _: '[("fourth", "query", "A fake fourth tool", "fake/1"), ("search",',
+                             original, count=1)
+            self.assertNotEqual(planted, original, "planted tool did not change the source")
+            source.write_text(planted)
             result = self.check(root)
             self.assertNotEqual(result.returncode, 0)
             self.assertIn("desktop manifest tools differ", result.stderr)

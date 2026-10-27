@@ -27,8 +27,20 @@ pub(super) fn expired(tx: &Transaction<'_>, limit: i64) -> Result<StoreClean, Ca
             .execute("DELETE FROM pool WHERE id=?1", [&id])
             .map_err(db)? as u64;
     }
-    counts.snapshots += tx.execute("DELETE FROM trial_snapshot WHERE id IN (SELECT id FROM trial_snapshot WHERE expires<=?1 ORDER BY expires,id LIMIT ?2)", params![now,limit]).map_err(db)? as u64;
-    counts.snapshots += tx.execute("DELETE FROM citation_evidence WHERE id IN (SELECT id FROM citation_evidence WHERE expires<=?1 ORDER BY expires,id LIMIT ?2)", params![now,limit]).map_err(db)? as u64;
+    counts.snapshots += tx
+        .execute(
+            "DELETE FROM trial_snapshot WHERE id IN (SELECT id FROM trial_snapshot WHERE expires<=?1 ORDER BY \
+        expires,id LIMIT ?2)",
+            params![now, limit],
+        )
+        .map_err(db)? as u64;
+    counts.snapshots += tx
+        .execute(
+            "DELETE FROM citation_evidence WHERE id IN (SELECT id FROM citation_evidence WHERE expires<=?1 \
+        ORDER BY expires,id LIMIT ?2)",
+            params![now, limit],
+        )
+        .map_err(db)? as u64;
     Ok(counts)
 }
 impl Store<'_> {

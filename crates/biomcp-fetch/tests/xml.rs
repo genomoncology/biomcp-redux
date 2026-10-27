@@ -43,7 +43,11 @@ fn spec(server: &Server) -> &'static biomcp_fetch::SourceSpec {
     )
 }
 fn respond(request: support::Request<()>, media: &str, body: &[u8]) {
-    let mut response = format!("HTTP/1.1 200 OK\r\nContent-Type: {media}\r\nContent-Length: {}\r\nConnection: close\r\n\r\n", body.len()).into_bytes();
+    let mut response = format!(
+        "HTTP/1.1 200 OK\r\nContent-Type: {media}\r\nContent-Length: {}\r\nConnection: close\r\n\r\n",
+        body.len()
+    )
+    .into_bytes();
     response.extend_from_slice(body);
     request.bytes(response);
 }

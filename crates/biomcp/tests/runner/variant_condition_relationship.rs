@@ -51,26 +51,20 @@ fn relationship() -> Result<(), String> {
     Ok(())
 }
 fn check(row: &Value, present: bool) -> Result<(), String> {
-    let mut expected = json!({
-        "kind":"scv", "domain":"germline", "statement_unmapped":true,
-        "unmapped": {"classification":"drug response", "attribution":{
-            "source":"clinvar", "record":"SCV000965609", "version":"1", "submitter":"Synthetic submitter", "evaluated":"2019-05-21", "url":"https://www.ncbi.nlm.nih.gov/clinvar/?term=SCV000965609.1"
-        },"conditions":[{"label":"Dabrafenib response"}]},
-        "detail":{"conditions":[{"label":"Dabrafenib response"}],"origins":["somatic"]}
-    });
+    let mut expected = json!(
+        { "kind":"scv","domain":"germline","statement_unmapped":true,"unmapped": {"classification":"drug response",
+        "attribution":{ "source":"clinvar","record":"SCV000965609","version":"1","submitter":"Synthetic submitter","evaluated":"2019-05-21",
+        "url":"https://www.ncbi.nlm.nih.gov/clinvar/?term=SCV000965609.1" },"conditions":[{"label":"Dabrafenib response"}]},
+        "detail":{"conditions":[{"label":"Dabrafenib response"}],"origins":["somatic"]} }
+    );
     if present {
-        expected
-            .get_mut("detail")
-            .and_then(Value::as_object_mut)
-            .ok_or("synthetic detail")?
-            .insert(
-                "condition_relationships".into(),
-                json!([{
-                    "relationship_type":"DrugResponseAndDisease",
-                    "source_conditions":[{"label":"Dabrafenib response"}],
-                    "related_conditions":[{"label":"Pancreatic Adenocarcinoma"}]
-                }]),
-            );
+        expected.get_mut("detail").and_then(Value::as_object_mut).ok_or("synthetic detail")?.insert(
+            "condition_relationships".into(),
+            json!(
+                [{ "relationship_type":"DrugResponseAndDisease","source_conditions":[{"label":"Dabrafenib response"}],
+                "related_conditions":[{"label":"Pancreatic Adenocarcinoma"}] }]
+            ),
+        );
     }
     if row != &expected {
         return Err(format!(
@@ -82,11 +76,21 @@ fn check(row: &Value, present: bool) -> Result<(), String> {
 fn body(present: bool) -> String {
     // Entirely synthetic XML, shaped after the clinically reviewed native path. No source body is copied.
     let relationship = if present {
-        r#"<TraitRelationship Type="DrugResponseAndDisease"><Name><ElementValue Type="Preferred">Pancreatic Adenocarcinoma</ElementValue></Name></TraitRelationship>"#
+        "<TraitRelationship Type=\"DrugResponseAndDisease\"><Name><ElementValue \
+            Type=\"Preferred\">Pancreatic Adenocarcinoma</ElementValue></Name></TraitRelationship>"
     } else {
         ""
     };
     format!(
-        r#"<ClinVarResult-Set><VariationArchive VariationID="666267" Accession="VCV000666267" Version="1"><ClassifiedRecord><ClinicalAssertionList><ClinicalAssertion ID="1893254"><ClinVarAccession Accession="SCV000965609" Version="1" SubmitterName="Synthetic submitter"/><Classification DateLastEvaluated="2019-05-21"><GermlineClassification>drug response</GermlineClassification></Classification><ObservedInList><ObservedIn><Sample><Origin>somatic</Origin></Sample></ObservedIn></ObservedInList><TraitSet Type="DrugResponse"><Trait><Name><ElementValue Type="Preferred">Dabrafenib response</ElementValue></Name>{relationship}</Trait></TraitSet></ClinicalAssertion></ClinicalAssertionList></ClassifiedRecord></VariationArchive></ClinVarResult-Set>"#
+        "<ClinVarResult-Set><VariationArchive VariationID=\"666267\" Accession=\"VCV000666267\" \
+            Version=\"1\"><ClassifiedRecord><ClinicalAssertionList><ClinicalAssertion \
+            ID=\"1893254\"><ClinVarAccession Accession=\"SCV000965609\" Version=\"1\" \
+            SubmitterName=\"Synthetic submitter\"/><Classification \
+            DateLastEvaluated=\"2019-05-21\"><GermlineClassification>drug \
+            response</GermlineClassification></Classification><ObservedInList><ObservedIn><Sample><Origin>somati\
+            c</Origin></Sample></ObservedIn></ObservedInList><TraitSet \
+            Type=\"DrugResponse\"><Trait><Name><ElementValue Type=\"Preferred\">Dabrafenib \
+            response</ElementValue></Name>{relationship}</Trait></TraitSet></ClinicalAssertion></ClinicalAsserti\
+            onList></ClassifiedRecord></VariationArchive></ClinVarResult-Set>"
     )
 }

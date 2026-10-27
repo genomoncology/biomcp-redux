@@ -15,7 +15,11 @@ pub(super) fn trials() -> Vec<Trial> {
     })]
 }
 fn reply(request: &str) -> Result<String, String> {
-    let card = json!({"nci_id":"NCI-2026-00001","nct_id":"NCT02296125","brief_title":"Synthetic trial","current_trial_status":"Temporarily Closed to Accrual","phase":"II/III","brief_summary":"Original source summary Ω","diseases":[{"name":"Synthetic disease","nci_thesaurus_concept_id":"C3224"}]});
+    let card = json!(
+        {"nci_id":"NCI-2026-00001","nct_id":"NCT02296125","brief_title":"Synthetic trial",
+        "current_trial_status":"Temporarily Closed to Accrual","phase":"II/III","brief_summary":"Original source summary Ω",
+        "diseases":[{"name":"Synthetic disease","nci_thesaurus_concept_id":"C3224"}]}
+    );
     Ok(if request.starts_with("GET /api/v2/trials/NCT02296125 ") {
         card
     } else {
@@ -56,7 +60,8 @@ fn wire() -> Check {
     let stub = Stub::for_source("clinicaltrialsapi.cancer.gov", "application/json", reply)?;
     let ca = env.root().join("ca.pem");
     fs::write(&ca, &stub.certificate).map_err(|e| e.to_string())?;
-    env.config(&json!({"proxy":format!("http://{}",stub.address),"ca_bundle":ca,"keys":{"nci_api_key":KEY}})).map_err(|e|e.to_string())?;
+    env.config(&json!({"proxy":format!("http://{}",stub.address),"ca_bundle":ca,"keys":{"nci_api_key":KEY}}))
+        .map_err(|e| e.to_string())?;
     let search = [
         "search",
         "trial",

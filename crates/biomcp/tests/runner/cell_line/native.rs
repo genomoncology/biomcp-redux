@@ -114,7 +114,9 @@ fn cards(env: &Environment, measure: bool) -> Result<(), String> {
                 &value,
                 "/result/warnings/items/0/text",
                 json!(
-                    "Partially contaminated. Some ATCC stocks were cross-contaminated by K-562 initially (PubMed=7759961). The problem was corrected and subsequent stocks have been confirmed to carry only U-937."
+                    "Partially contaminated. Some ATCC stocks were cross-contaminated by K-562 initially \
+                        (PubMed=7759961). The problem was corrected and subsequent stocks have been confirmed to carry \
+                        only U-937."
                 ),
             )?;
         }

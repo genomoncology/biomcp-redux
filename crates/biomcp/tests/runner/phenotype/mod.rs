@@ -97,14 +97,24 @@ fn raw_invoke(env: &Environment, words: &[&str], exit: i32) -> Result<Value, Str
     Ok(value)
 }
 fn node() -> Value {
-    json!({"id":"HP:0000001","name":"Synthetic term","category":"biolink:PhenotypicFeature","namespace":"HP","description":"Complete synthetic description","deprecated":false,"has_descendant_count":3,"association_counts":[],"synonym":[],"xref":[]})
+    json!(
+        {"id":"HP:0000001","name":"Synthetic term","category":"biolink:PhenotypicFeature","namespace":"HP",
+        "description":"Complete synthetic description","deprecated":false,"has_descendant_count":3,"association_counts":[],"synonym":[],
+        "xref":[]}
+    )
 }
 fn search() -> Result<(), String> {
     let stub = Stub::for_source(
         "api-v3.monarchinitiative.org",
         "application/json",
         |request| {
-            if !request.starts_with("GET /v3/api/search?q=literal%2C%20unchanged&category=biolink%3APhenotypicFeature&namespace=HP&limit=5&offset=0 ") {return Err(format!("literal query changed: {request}"));}
+            if !request.starts_with(
+            "GET \
+                /v3/api/search?q=literal%2C%20unchanged&category=biolink%3APhenotypicFeature&namespace=HP&limit=5&of\
+                fset=0 ",
+        ) {
+            return Err(format!("literal query changed: {request}"));
+        }
             let mut second = node();
             second
                 .as_object_mut()
@@ -160,7 +170,15 @@ fn cards() -> Result<(), String> {
                 if !request.starts_with(expected) {
                     return Err(format!("wrong exact term URL: {request}"));
                 }
-                Ok(if monarch {node()} else {json!({"id":"HP:0000001","name":"Synthetic term","definition":"","comment":"Complete synthetic comment","publicationReferences":["PMID:1"],"descendantCount":2,"synonyms":[],"xrefs":[]})}.to_string())
+                Ok(if monarch {
+                    node()
+                } else {
+                    json!(
+                        {"id":"HP:0000001","name":"Synthetic term","definition":"","comment":"Complete synthetic comment",
+                        "publicationReferences":["PMID:1"],"descendantCount":2,"synonyms":[],"xrefs":[]}
+                    )
+                }
+                .to_string())
             },
             |_| 200,
         )?;

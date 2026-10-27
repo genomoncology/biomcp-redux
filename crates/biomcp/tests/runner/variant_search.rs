@@ -112,7 +112,11 @@ fn body(request: &str) -> Result<String, String> {
     } else {
         "chr7:g.55259515T>G"
     };
-    Ok(json!({"total":2,"hits":[{"_id":id,"chrom":"7","hg19":{"start":if id.ends_with("15T>G") {55259515} else {55259516},"end":if id.ends_with("15T>G") {55259515} else {55259516}},"dbsnp":{"gene":{"symbol":"EGFR"}}}]}).to_string())
+    Ok(json!(
+        {"total":2,"hits":[{"_id":id,"chrom":"7","hg19":{"start":if id.ends_with("15T>G") {55259515} else {55259516},
+        "end":if id.ends_with("15T>G") {55259515} else {55259516}},"dbsnp":{"gene":{"symbol":"EGFR"}}}]}
+    )
+    .to_string())
 }
 
 fn environment(stub: &Stub) -> Result<Environment, String> {
@@ -185,10 +189,11 @@ fn selectors_body(request: &str) -> Result<String, String> {
     {
         return Err(format!("raw/region query changed: {request}"));
     }
-    Ok(
-        json!({"total":2,"hits":[{"_id":"chr7:g.140753336A>T","chrom":"7","hg38":{"start":140753336,"end":140753336}},{"_id":"chr7:g.140753336A>T","chrom":"7","hg38":{"start":140753336,"end":140753336}}]})
-            .to_string(),
+    Ok(json!(
+        {"total":2,"hits":[{"_id":"chr7:g.140753336A>T","chrom":"7","hg38":{"start":140753336,"end":140753336}},
+        {"_id":"chr7:g.140753336A>T","chrom":"7","hg38":{"start":140753336,"end":140753336}}]}
     )
+    .to_string())
 }
 fn zero_and_failed() -> Result<(), String> {
     let stub = Stub::for_source("myvariant.info", "application/json", outcomes_body)?;
@@ -301,7 +306,10 @@ fn literal_gene() -> Result<(), String> {
     Ok(())
 }
 fn literal_body(request: &str) -> Result<String, String> {
-    if !request.starts_with("GET /v1/query?q=dbnsfp.genename%3AHER%5C-2%5C%2Fneu%20AND%20dbnsfp.hgvsp%3A%22p.W24%5C%2A%22&") {return Err(format!("source query metacharacter was not escaped: {request}"));}
+    if !request.starts_with("GET /v1/query?q=dbnsfp.genename%3AHER%5C-2%5C%2Fneu%20AND%20dbnsfp.hgvsp%3A%22p.W24%5C%2A%22&") {
+        return Err(format!("source query metacharacter was not escaped: {request}"));
+    }
+
     Ok(json!({"total":0,"hits":[]}).to_string())
 }
 
@@ -448,7 +456,8 @@ fn restricted_regions(env: &Environment) -> Result<(), String> {
 fn terms_budget() -> Result<(), String> {
     let registry = super::schema::Registry::embedded()?;
     let root = std::path::Path::new(env!("CARGO_MANIFEST_DIR")).join("../../tests/cases/variant");
-    let expected = json!([{"component": "clinvar", "terms": biomcp_adapters::myvariant::components::label(biomcp_adapters::myvariant::components::CLINVAR.terms).map_err(|e| e.to_string())?}]);
+    let expected = json!([{"component": "clinvar",
+ "terms": biomcp_adapters::myvariant::components::label(biomcp_adapters::myvariant::components::CLINVAR.terms).map_err(|e| e.to_string())?}]);
     for (name, cap) in [
         ("L858R", 743),
         ("G719A", 743),

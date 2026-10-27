@@ -18,7 +18,13 @@ pub(super) fn trials() -> Vec<Trial> {
         }),
     ]
 }
-const CSV: &str = "WHO Reference Number,\"INN, Dosage Form and Strength\",Product Type,Therapeutic Area,Applicant,Dosage Form,Basis of Listing,Date of Prequalification\nBT-ON001,Trastuzumab synthetic powder 150 mg,Synthetic biotherapeutic,Synthetic oncology,Synthetic applicant,Synthetic powder,Synthetic basis,\"18  Dec,  2019\"\nBT-ON002,Trastuzumab synthetic solvent kit,Synthetic biotherapeutic,Synthetic oncology,Synthetic applicant,,Synthetic basis,\nP-13399 - test,,,,,,,\nSYN-003,Trastuzumablike synthetic tablet,Synthetic type,Synthetic area,Synthetic applicant,Synthetic tablet,,";
+const CSV: &str = "WHO Reference Number,\"INN, Dosage Form and Strength\",Product Type,Therapeutic \
+    Area,Applicant,Dosage Form,Basis of Listing,Date of Prequalification\nBT-ON001,Trastuzumab \
+    synthetic powder 150 mg,Synthetic biotherapeutic,Synthetic oncology,Synthetic applicant,Synthetic \
+    powder,Synthetic basis,\"18  Dec,  2019\"\nBT-ON002,Trastuzumab synthetic solvent kit,Synthetic \
+    biotherapeutic,Synthetic oncology,Synthetic applicant,,Synthetic basis,\nP-13399 - \
+    test,,,,,,,\nSYN-003,Trastuzumablike synthetic tablet,Synthetic type,Synthetic area,Synthetic \
+    applicant,Synthetic tablet,,";
 fn check() -> Check {
     let env = Environment::new().map_err(|e| e.to_string())?;
     let replay = seed(&env)?;
@@ -185,7 +191,11 @@ fn stale(env: &Environment, replay: &Path, get: &[&str]) -> Check {
     let cache = rusqlite::Connection::open(env.root().join("case-cache/replay.sqlite"))
         .map_err(|e| e.to_string())?;
     // Preserve content-addressed old snapshot bytes while expiring current bundle metadata.
-    cache.execute_batch("BEGIN; CREATE TEMP TABLE saved_content AS SELECT * FROM bundle_content; UPDATE bundle SET fresh_until=0; INSERT INTO bundle_content SELECT * FROM saved_content; COMMIT;")
+    cache
+        .execute_batch(
+            "BEGIN; CREATE TEMP TABLE saved_content AS SELECT * FROM bundle_content; UPDATE bundle SET \
+        fresh_until=0; INSERT INTO bundle_content SELECT * FROM saved_content; COMMIT;",
+        )
         .map_err(|e| e.to_string())?;
     drop(cache);
     for args in [

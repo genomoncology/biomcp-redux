@@ -39,7 +39,10 @@ fn report_records_preserve_array_order_empty_strings_and_missing_reporter_qualif
     let reactions: Vec<_> = (0..22)
         .map(|n| json!({"term":{"label":format!("synthetic reaction {n}")},"outcome":"1"}))
         .collect();
-    let report = json!({"safetyreportid":"26940567","safetyreportversion":"1","receivedate":"20240101","receiptdate":"20240201","seriousness":{"death":"1","hospitalization":"1"},"reporter":{"country":""},"patient":{"age":"","age_unit":"801"},"drugs":drugs,"reactions":reactions});
+    let report = json!(
+        {"safetyreportid":"26940567","safetyreportversion":"1","receivedate":"20240101","receiptdate":"20240201","seriousness":{"death":"1",
+        "hospitalization":"1"},"reporter":{"country":""},"patient":{"age":"","age_unit":"801"},"drugs":drugs,"reactions":reactions}
+    );
     assert_eq!(roundtrip::<FaersReport>(report.clone()).unwrap(), report);
     for length in [0, 5] {
         let narrative: Vec<_> = (0..length)
@@ -58,8 +61,15 @@ fn headers_and_cards_refuse_flattened_lists_titles_and_count_buckets() {
         roundtrip::<AdverseEventHeader>(header.clone()).unwrap(),
         header
     );
-    let faers = json!({"header":header,"snapshot":"synthetic-snapshot","drug_count":19,"reaction_count":22,"source_url":"https://example.invalid/source","report_url":"https://example.invalid/exact-report","available_sections":["drugs","reactions"],"components":[]});
-    let maude = json!({"header":{"id":"50952244","source":"maude","event_type":"Death"},"snapshot":"synthetic-snapshot","device_count":1,"narrative_count":0,"source_url":"https://example.invalid/source","report_url":"https://example.invalid/exact-report","available_sections":["devices","narrative"],"components":[]});
+    let faers = json!(
+        {"header":header,"snapshot":"synthetic-snapshot","drug_count":19,"reaction_count":22,"source_url":"https://example.invalid/source",
+        "report_url":"https://example.invalid/exact-report","available_sections":["drugs","reactions"],"components":[]}
+    );
+    let maude = json!(
+        {"header":{"id":"50952244","source":"maude","event_type":"Death"},"snapshot":"synthetic-snapshot","device_count":1,
+        "narrative_count":0,"source_url":"https://example.invalid/source","report_url":"https://example.invalid/exact-report",
+        "available_sections":["devices","narrative"],"components":[]}
+    );
     roundtrip::<AdverseEventFaersCard>(faers.clone()).unwrap();
     roundtrip::<AdverseEventMaudeCard>(maude.clone()).unwrap();
     for field in ["drugs", "reactions", "counts", "title"] {
@@ -124,7 +134,11 @@ fn every_closed_selector_and_published_id_roundtrips() {
 #[test]
 fn paging_preserves_all_selectors_and_absolute_drug_scope() {
     use biomcp_types::{AdverseEventSection, AdverseEventSerious, AdverseEventSource};
-    let query:AdverseEventSearch=serde_json::from_value(json!({"text":"synthetic drug","reaction":"synthetic phrase","serious":"hospitalization","received_from":"2024-02-29","received_to":"2024-12-31","limit":2})).unwrap();
+    let query: AdverseEventSearch = serde_json::from_value(json!(
+        {"text":"synthetic drug","reaction":"synthetic phrase","serious":"hospitalization","received_from":"2024-02-29",
+        "received_to":"2024-12-31","limit":2}
+    ))
+    .unwrap();
     let next = query.at_offset(2);
     assert_eq!(next.text().as_str(), "synthetic drug");
     assert_eq!(next.source(), AdverseEventSource::Faers);
@@ -205,7 +219,9 @@ fn eight_consumer_envelopes_validate_and_identifier_pages_keep_closed_native_sco
     envelope::<AdverseEventDrugs>(json!({"id":"26940567","section":"drugs"}), base.clone())
         .unwrap();
     base.as_object_mut().unwrap().remove("drugs");
-    base["reactions"] = json!({"records":[{"index":21,"term":{"label":"Synthetic reaction"},"vocabulary_version":"27.1","outcome":"5"}],"offset":21,"total":22});
+    base["reactions"] = json!(
+        {"records":[{"index":21,"term":{"label":"Synthetic reaction"},"vocabulary_version":"27.1","outcome":"5"}],"offset":21,"total":22}
+    );
     let reaction = roundtrip::<AdverseEventReactions>(base.clone()).unwrap();
     assert!(reaction.pointer("/reactions/records/0/term/id").is_none());
     envelope::<AdverseEventReactions>(json!({"id":"26940567","section":"reactions"}), base.clone())

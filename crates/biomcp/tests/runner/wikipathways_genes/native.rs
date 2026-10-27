@@ -167,7 +167,14 @@ fn measure(env: &Environment, id: &str, outputs: &mut Vec<Value>) -> Check {
             super::super::schema::Registry::embedded()?.validate(&value, &args, true)?;
             let full = serde_json::to_vec(&value).map_err(|e| e.to_string())?.len();
             let bytes = super::super::source_terms::size(&value, "")?;
-            writeln!(std::io::stdout(), "GPML_MEASURE {}", json!({"id":id,"section":section,"surface":surface,"full_bytes":full,"comparable_bytes":bytes,"tokens":bytes.div_ceil(4)})).map_err(|e| e.to_string())?;
+            writeln!(
+                std::io::stdout(),
+                "GPML_MEASURE {}",
+                json!(
+                    {"id":id,"section":section,"surface":surface,"full_bytes":full,"comparable_bytes":bytes,"tokens":bytes.div_ceil(4)}
+                )
+            )
+            .map_err(|e| e.to_string())?;
             outputs.push(json!({"id":id,"section":section,"surface":surface,"output":value}));
         }
     }

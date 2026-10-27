@@ -140,7 +140,14 @@ impl Stub {
                     let body = reply(&request)?;
                     let content_type = content_type(&request);
                     let status = status(&request);
-                    write!(tls, "HTTP/1.1 {status} Synthetic\r\nContent-Type: {content_type}\r\nContent-Length: {}\r\n{}Connection: close\r\n\r\n{body}", length(&request, body.len()), range(&request)).map_err(|e| e.to_string())?;
+                    write!(
+                        tls,
+                        "HTTP/1.1 {status} Synthetic\r\nContent-Type: {content_type}\r\nContent-Length: {}\r\n{}Connection: \
+                        close\r\n\r\n{body}",
+                        length(&request, body.len()),
+                        range(&request)
+                    )
+                    .map_err(|e| e.to_string())?;
                     tls.flush().map_err(|e| e.to_string())?;
                     requests.push((connect, request));
                 }

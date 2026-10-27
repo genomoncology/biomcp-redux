@@ -63,11 +63,12 @@ impl<'a> Store<'a> {
                     OWNER,
                 ],
             )?;
-            let tx = connection
-                .transaction_with_behavior(rusqlite::TransactionBehavior::Immediate)
-                .map_err(db)?;
+            let tx = connection.transaction_with_behavior(rusqlite::TransactionBehavior::Immediate).map_err(db)?;
             biomcp_fetch::check_owners(&tx, &[OWNER])?;
-            let version: Option<u32> = tx.query_row("SELECT version FROM meta WHERE owner=?1", [OWNER.name], |r| r.get(0)).optional().map_err(db)?;
+            let version: Option<u32> = tx
+                .query_row("SELECT version FROM meta WHERE owner=?1", [OWNER.name], |r| r.get(0))
+                .optional()
+                .map_err(db)?;
             if version.is_some_and(|version| version != VERSION) {
                 for table in OWNER.tables.iter().rev() {
                     tx.execute_batch(&format!("DROP TABLE IF EXISTS {table}")).map_err(db)?;
@@ -80,9 +81,7 @@ impl<'a> Store<'a> {
             )
             .map_err(db)?;
             tx.commit().map_err(db)?;
-            connection
-                .pragma_update(None, "journal_mode", "WAL")
-                .map_err(db)?;
+            connection.pragma_update(None, "journal_mode", "WAL").map_err(db)?;
             Ok(())
         })?;
         Ok(Self {

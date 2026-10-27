@@ -442,9 +442,10 @@ fn independent_virtual_leg_budgets_reject_foreign_clock_domains_before_recording
         live.deadline(Duration::from_secs(10)),
         foreign.deadline(Duration::from_secs(10)),
     ] {
-        assert!(
-            matches!(replay.leg(spec,wrong).json::<Answer>(&spec.get("/answer"), &[]), Err(RequestError::Source(e)) if e.reason == biomcp_types::Reason::Rejected)
-        );
+        assert!(matches!(replay.leg(spec,
+wrong).json::<Answer>(&spec.get("/answer"),
+ &[]),
+ Err(RequestError::Source(e)) if e.reason == biomcp_types::Reason::Rejected));
     }
     assert!(
         matches!(live.leg(spec,budget).json::<Answer>(&spec.get("/answer"), &[]), Err(RequestError::Source(e)) if e.reason == biomcp_types::Reason::Rejected)

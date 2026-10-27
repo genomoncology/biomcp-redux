@@ -56,13 +56,19 @@ fn prove() -> Result<(), String> {
             return Err("summary walk exceeded bounds or fetched membership".into());
         }
         for (number, (_, request)) in pages.iter().enumerate() {
-            if !request.contains(&format!("projection=SUMMARY&pageSize=50&pageNumber={number}&sortBy=sampleListId&direction=ASC")) { return Err(format!("metadata walk lost native bounds: {request}")); }
+            if !request.contains(&format!("projection=SUMMARY&pageSize=50&pageNumber={number}&sortBy=sampleListId&direction=ASC")) {
+                return Err(format!("metadata walk lost native bounds: {request}"));
+            }
         }
     }
     Ok(())
 }
 fn metadata() -> Value {
-    json!((0..50).map(|i| json!({"studyId":"msk_impact_2017","sampleListId":format!("synthetic-list-{i}")})).collect::<Vec<_>>())
+    json!(
+        (0..50)
+            .map(|i| json!({"studyId":"msk_impact_2017","sampleListId":format!("synthetic-list-{i}")}))
+            .collect::<Vec<_>>()
+    )
 }
 fn paged(request: &str) -> Result<String, String> {
     if request.contains("/sample-lists?") {

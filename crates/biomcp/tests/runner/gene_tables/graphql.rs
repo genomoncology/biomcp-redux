@@ -62,8 +62,7 @@ fn civic() -> Check {
                     }
                 }
             },
-            json!({"/result/items/0/sections/civic/state": "unavailable",
-            "/sources/2/reason": "bad_reply"}),
+            json!({"/result/items/0/sections/civic/state": "unavailable", "/sources/2/reason": "bad_reply"}),
         )?;
     }
     Ok(())
@@ -112,12 +111,12 @@ fn constraint() -> Check {
                             json!("NM_004333.4")
                     }
                     _ => {
-                        *body = json!({"kind":"text", "value":"{\"data\":{\"g0\":null,\"g0\":null},\"errors\":[{\"message\":\"Gene not found\"},{\"message\":\"Gene not found\"}]}"})
+                        *body = json!({"kind":"text", "value":"{\"data\":{\"g0\":null,\"g0\":null},\"errors\":[{\"message\":\"Gene not \
+                            found\"},{\"message\":\"Gene not found\"}]}"})
                     }
                 }
             },
-            json!({"/result/items/0/sections/constraint/state": "unavailable",
-            "/sources/2/reason": "bad_reply"}),
+            json!({"/result/items/0/sections/constraint/state": "unavailable", "/sources/2/reason": "bad_reply"}),
         )?;
     }
     mappings()
@@ -136,8 +135,8 @@ fn mappings() -> Check {
         "/result/items/0/sections/constraint/data/flags": ["source flag"], "/problems/*/field": ["flags"]}),
     )?;
     for flags in [Value::Null, json!({"unexpected":"value"})] {
-        let mut expect = json!({
-            "/result/items/0/sections/constraint/data/transcript": "ENST00000269305"});
+        let mut expect =
+            json!({ "/result/items/0/sections/constraint/data/transcript": "ENST00000269305"});
         if !flags.is_null() {
             expect["/problems/*/field"] = json!(["flags"]);
         }

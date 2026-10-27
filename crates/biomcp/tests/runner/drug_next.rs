@@ -264,7 +264,13 @@ fn reply(request: &str) -> Result<String, String> {
     } else {
         json!({"name":"Synthetic tumor","doid":"0000"})
     };
-    let mut value = json!({"data":{"therapy":{"id":id,"name":"Synthetic therapy","link":format!("/therapies/{id}")},"evidenceItems":{"totalCount":1,"pageInfo":{"hasNextPage":false,"endCursor":null},"nodes":[{"id":900,"status":"ACCEPTED","evidenceType":"PREDICTIVE","evidenceLevel":"A","evidenceDirection":"SUPPORTS","significance":"SENSITIVITYRESPONSE","disease":disease,"therapies":[{"id":id,"name":"Synthetic therapy"}],"source":{"citationId":"17611497","sourceType":"PUBMED"},"molecularProfile":profile}]},"assertions":{"totalCount":0,"pageInfo":{"hasNextPage":false,"endCursor":null},"nodes":[]}}});
+    let mut value = json!(
+        {"data":{"therapy":{"id":id,"name":"Synthetic therapy","link":format!("/therapies/{id}")},"evidenceItems":{"totalCount":1,
+        "pageInfo":{"hasNextPage":false,"endCursor":null},"nodes":[{"id":900,"status":"ACCEPTED","evidenceType":"PREDICTIVE",
+        "evidenceLevel":"A","evidenceDirection":"SUPPORTS","significance":"SENSITIVITYRESPONSE","disease":disease,"therapies":[{"id":id,
+        "name":"Synthetic therapy"}],"source":{"citationId":"17611497","sourceType":"PUBMED"},"molecularProfile":profile}]},
+        "assertions":{"totalCount":0,"pageInfo":{"hasNextPage":false,"endCursor":null},"nodes":[]}}}
+    );
     if n == 8 {
         expand(&mut value)?;
     }
@@ -331,8 +337,14 @@ fn expand(value: &mut Value) -> Result<(), String> {
     fields.insert("assertionType".into(), json!("PREDICTIVE"));
     fields.insert("assertionDirection".into(), json!("SUPPORTS"));
     fields.insert("variantOrigin".into(), json!("SOMATIC"));
-    *value.pointer_mut("/data/evidenceItems").ok_or("evidence")? = json!({"totalCount":7,"pageInfo":{"hasNextPage":true,"endCursor":"next-evidence"},"nodes":rows});
-    *value.pointer_mut("/data/assertions").ok_or("assertions")? = json!({"totalCount":2,"pageInfo":{"hasNextPage":true,"endCursor":"next-assertions"},"nodes":[assertion]});
+    *value.pointer_mut("/data/evidenceItems").ok_or("evidence")? = json!({"totalCount":7,
+ "pageInfo":{"hasNextPage":true,
+ "endCursor":"next-evidence"},
+ "nodes":rows});
+    *value.pointer_mut("/data/assertions").ok_or("assertions")? = json!({"totalCount":2,
+ "pageInfo":{"hasNextPage":true,
+ "endCursor":"next-assertions"},
+ "nodes":[assertion]});
     Ok(())
 }
 

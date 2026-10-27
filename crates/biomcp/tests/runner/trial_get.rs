@@ -166,14 +166,21 @@ fn expected_records(raw: &Value, section: &str) -> Vec<Value> {
             .into_iter()
             .flatten()
         {
-            rows.push(json!({"record":"arm","data":{"label":row["label"],"kind":row["type"],"description":row["description"],"intervention_names":row.get("interventionNames").cloned().unwrap_or(json!([]))}}));
+            rows.push(json!(
+                {"record":"arm","data":{"label":row["label"],"kind":row["type"],"description":row["description"],
+                "intervention_names":row.get("interventionNames").cloned().unwrap_or(json!([]))}}
+            ));
         }
         for row in raw["armsInterventionsModule"]["interventions"]
             .as_array()
             .into_iter()
             .flatten()
         {
-            rows.push(json!({"record":"intervention","data":{"name":row["name"],"kind":row["type"],"description":row["description"],"arm_group_labels":row.get("armGroupLabels").cloned().unwrap_or(json!([])),"other_names":row.get("otherNames").cloned().unwrap_or(json!([]))}}));
+            rows.push(json!(
+                {"record":"intervention","data":{"name":row["name"],"kind":row["type"],"description":row["description"],
+                "arm_group_labels":row.get("armGroupLabels").cloned().unwrap_or(json!([])),
+                "other_names":row.get("otherNames").cloned().unwrap_or(json!([]))}}
+            ));
         }
     }
     rows
@@ -400,9 +407,10 @@ fn optional_source() -> Check {
                 record["exchanges"] = json!([exchange.clone(), exchange.clone(), exchange]);
             }
         },
-        json!([{"run":["get","trial","NCT02296125"],"expect":{
-            "/status":"partial","/result/items/0/status":"partial","/result/items/0/card/nct_id":"NCT02296125","/result/source_updated":null,"/sources/0/reason":"unavailable"
-        }}]),
+        json!(
+            [{"run":["get","trial","NCT02296125"],"expect":{ "/status":"partial","/result/items/0/status":"partial",
+            "/result/items/0/card/nct_id":"NCT02296125","/result/source_updated":null,"/sources/0/reason":"unavailable" }}]
+        ),
     )?;
     Ok(())
 }

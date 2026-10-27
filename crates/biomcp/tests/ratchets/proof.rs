@@ -254,13 +254,29 @@ fn source_registry_accepts_directory_and_file_modules_and_names_missing_entry() 
 }
 
 #[test]
+fn rust_lines_obey_width_limit() -> Check {
+    for path in ["crates/biodata/src/lib.rs", "crates/biodata/tests/width.rs"] {
+        let tree = tree()?;
+        put(tree.path(), path, &format!("//{}\n", "x".repeat(158)))?;
+        check(tree.path())?;
+        rejects(
+            path,
+            &format!("//{}\n", "x".repeat(159)),
+            "line width limit",
+        )?;
+    }
+    Ok(())
+}
+
+#[test]
 fn request_reason_mapping_cannot_be_copied() -> Check {
     let root = tempfile::tempdir()?;
     let source = root.path().join("crates/biomcp-query/src");
     fs::create_dir_all(&source)?;
     for copied in [
         "fn reason(error: RequestError) -> Reason { match error { RequestError::Source(e) => e.reason, _ => Reason::Unavailable } }",
-        "match reply { Err(RequestError::Source(e)) => Section::unavailable(source, e.reason), Err(_) => Section::unavailable(source, Reason::Unavailable) }",
+        "match reply { Err(RequestError::Source(e)) => Section::unavailable(source, e.reason), Err(_) => \
+        Section::unavailable(source, Reason::Unavailable) }",
         "match error { RequestError::Source(SourceError { reason, .. }) => reason, _ => Reason::Unavailable }",
         "let reason = if let biomcp_fetch::RequestError::Source(e) = error { e.reason } else { Reason::Unavailable };",
         "fn reason(error: RequestError) -> Reason { if let RequestError::Source(e) = error { return e.reason; } Reason::Unavailable }",
@@ -274,7 +290,8 @@ fn request_reason_mapping_cannot_be_copied() -> Check {
     }
     fs::write(
         source.join("section.rs"),
-        "if matches!(error, RequestError::Source(e) if e.reason == Reason::NotFound) { absent() }\nif let RequestError::Source(e) = error { if e.reason == Reason::NotFound { absent() } }",
+        "if matches!(error, RequestError::Source(e) if e.reason == Reason::NotFound) { absent() }\nif let \
+            RequestError::Source(e) = error { if e.reason == Reason::NotFound { absent() } }",
     )?;
     super::reasons::check(root.path())
 }

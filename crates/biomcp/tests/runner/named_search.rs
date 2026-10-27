@@ -42,7 +42,10 @@ fn failures() -> Check {
                 "--source",
                 &format!("pubmed,{source}"),
             ];
-            let expect = json!({"/status":"partial","/sources/1/source":source,"/sources/1/reason":reason,"/result/items":{"count":10},"/next/*/kind":{"includes":"fresh"}});
+            let expect = json!(
+                {"/status":"partial","/sources/1/source":source,"/sources/1/reason":reason,"/result/items":{"count":10},
+                "/next/*/kind":{"includes":"fresh"}}
+            );
             checked_steps(
                 capture,
                 |name, record| {
@@ -58,13 +61,9 @@ fn failures() -> Check {
                         "error" => ex["body"]["value"] = json!({"error":"synthetic failure"}),
                         _ => ex["delay_ms"] = json!(deadline),
                     }
-                    record["exchanges"] =
-                        json!(vec![ex; if matches!(kind, "429" | "500") { 3 } else { 1 }]);
+                    record["exchanges"] = json!(vec![ex; if matches!(kind, "429" | "500") { 3 } else { 1 }]);
                 },
-                json!([
-                    {"run":args,"expect":expect},
-                    {"run":args,"offline":true,"expect":expect}
-                ]),
+                json!([ {"run":args,"expect":expect}, {"run":args,"offline":true,"expect":expect} ]),
             )
             .map_err(|e| format!("{source}/{kind}: {e}"))?;
         }
@@ -330,7 +329,10 @@ fn merged_sentence() -> Check {
                 ids.pop();
             }
         },
-        json!({"/status":"complete","/result/items/0/pmid":"34718584","/result/items/0/sentence/section":"METHODS","/result/items/0/found_by/pubmed":1,"/result/items/0/found_by/litsense":1}),
+        json!(
+            {"/status":"complete","/result/items/0/pmid":"34718584","/result/items/0/sentence/section":"METHODS",
+            "/result/items/0/found_by/pubmed":1,"/result/items/0/found_by/litsense":1}
+        ),
         0,
     )?;
     Ok(())

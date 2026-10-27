@@ -38,7 +38,13 @@ fn identity(n: usize) -> Result<Value, String> {
     rows.get(n).cloned().ok_or("identity index".into())
 }
 fn record(identity: &Value) -> Value {
-    json!({"id":field(identity,"id"),"set_id":field(identity,"set_id"),"version":field(identity,"version"),"effective_time":field(identity,"effective_time"),"openfda":{"brand_name":[field(identity,"brand")],"spl_set_id":[field(identity,"set_id")]},"boxed_warning":["Synthetic warning fixture."],"dosage_and_administration":[" Synthetic dose fixture.\n"],"drug_interactions":["Synthetic interaction fixture."],"indications_and_usage":["Synthetic indication fixture."],"warnings_and_cautions":["Synthetic caution fixture."]})
+    json!(
+        {"id":field(identity,"id"),"set_id":field(identity,"set_id"),"version":field(identity,"version"),"effective_time":field(identity,
+        "effective_time"),"openfda":{"brand_name":[field(identity,"brand")],"spl_set_id":[field(identity,"set_id")]},
+        "boxed_warning":["Synthetic warning fixture."],"dosage_and_administration":[" Synthetic dose fixture.\n"],
+        "drug_interactions":["Synthetic interaction fixture."],"indications_and_usage":["Synthetic indication fixture."],
+        "warnings_and_cautions":["Synthetic caution fixture."]}
+    )
 }
 fn setup(body: Value, selector: String, status: u16) -> Result<(Environment, Stub), String> {
     setup_raw(body.to_string(), selector, status)

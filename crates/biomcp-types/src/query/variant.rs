@@ -1,6 +1,9 @@
 use crate::{Build, VariantInput, VariantNamespace};
 use serde::{Deserialize, Serialize};
-/// Read an rsID, CAid, ClinVar Variation ID or reference-qualified HGVS; chromosome notation requires --build. Use search variant --gene BRAF --protein V600E for shorthand. Every candidate remains available; source assertions do not classify the variant for the caller.
+#[doc = " Read an rsID, CAid, ClinVar Variation ID or reference-qualified HGVS; chromosome \
+    notation requires --build. Use search variant --gene BRAF --protein V600E for shorthand. \
+    Every candidate remains available; source assertions do not classify the variant for the \
+    caller."]
 #[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
 #[serde(try_from = "Fields")]
 #[cfg_attr(feature = "schema", derive(schemars::JsonSchema))]

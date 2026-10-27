@@ -22,10 +22,17 @@ mod raw;
 use biomcp_fetch::{Arg, Endpoint, Freshness, Leg, PathSegment, RequestError};
 use biomcp_types::{DrugCard, DrugPage};
 /// Reviewed identity fields, excluding every unapproved source component.
-pub const SEARCH_FIELDS: &str = "drugbank.id,drugbank.name,chembl.molecule_chembl_id,chembl.pref_name,chembl.molecule_type,gtopdb.ligand_id,gtopdb.name,gtopdb.type,unii.unii,unii.display_name,unii.ingredient_type,ndc.product_id,ndc.productndc,ndc.producttypename,ndc.nonproprietaryname,ndc.proprietaryname";
+pub const SEARCH_FIELDS: &str = "drugbank.id,drugbank.name,chembl.molecule_chembl_id,chembl.pref_name,chembl.molecule_type,gtopdb.lig\
+    and_id,gtopdb.name,gtopdb.type,unii.unii,unii.display_name,unii.ingredient_type,ndc.product_id,ndc.p\
+    roductndc,ndc.producttypename,ndc.nonproprietaryname,ndc.proprietaryname";
 const CARD_FIELDS: &str = concat!(
-    "drugbank.id,drugbank.name,chembl.molecule_chembl_id,chembl.pref_name,chembl.molecule_type,gtopdb.ligand_id,gtopdb.name,gtopdb.type,unii.unii,unii.display_name,unii.ingredient_type,ndc.product_id,ndc.productndc,ndc.producttypename,ndc.nonproprietaryname,ndc.proprietaryname",
-    ",drugbank.synonyms,chembl.molecule_hierarchy,chembl.molecule_synonyms,drugcentral.id,drugcentral.synonyms,drugcentral.xrefs,gtopdb.synonyms,gtopdb.chembl_id,gtopdb.xrefs,unii.rxcui,unii.ncit,ndc.applicationnumber,ndc.dosageformname,ndc.package,openfda.generic_name,openfda.brand_name,openfda.spl_set_id,openfda.application_number"
+    "drugbank.id,drugbank.name,chembl.molecule_chembl_id,chembl.pref_name,chembl.molecule_type,gtopdb.lig\
+        and_id,gtopdb.name,gtopdb.type,unii.unii,unii.display_name,unii.ingredient_type,ndc.product_id,ndc.p\
+        roductndc,ndc.producttypename,ndc.nonproprietaryname,ndc.proprietaryname",
+    ",drugbank.synonyms,chembl.molecule_hierarchy,chembl.molecule_synonyms,drugcentral.id,drugcentral.syn\
+        onyms,drugcentral.xrefs,gtopdb.synonyms,gtopdb.chembl_id,gtopdb.xrefs,unii.rxcui,unii.ncit,ndc.appli\
+        cationnumber,ndc.dosageformname,ndc.package,openfda.generic_name,openfda.brand_name,openfda.spl_set_\
+        id,openfda.application_number"
 );
 const SEARCH: Endpoint = SPEC.get("/query").fresh(Freshness::Days(7));
 const GET: Endpoint = SPEC.get("/chem").fresh(Freshness::Days(7));

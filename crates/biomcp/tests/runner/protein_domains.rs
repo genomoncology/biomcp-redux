@@ -57,11 +57,15 @@ pub(super) fn trials() -> Vec<Trial> {
 }
 fn domains() -> Result<(), String> {
     let stub = Stub::for_source("www.ebi.ac.uk", "application/json", |_| {
-        Ok(json!({
-        "count":2,"next":null,"previous":null,"results":[
-            {"metadata":{"accession":"IPR002117","name":"Native family","source_database":"interpro","type":"family","member_databases":{}},"proteins":[{"accession":"p04637","protein_length":393,"organism":"9606","entry_protein_locations":[{"fragments":[{"start":2,"end":10,"dc-status":"N_TERMINAL_DISC"},{"start":20,"end":30,"dc-status":"C_TERMINAL_DISC"}]},{"fragments":[{"start":40,"end":50,"dc-status":"CONTINUOUS"}]}]}]},
-            {"metadata":{"accession":"IPR010991","name":"Native domain","source_database":"interpro","type":"domain","member_databases":{}},"proteins":[{"accession":"p04637","protein_length":393,"organism":"9606","entry_protein_locations":[]}]}
-        ]}).to_string())
+        Ok(json!(
+            { "count":2,"next":null,"previous":null,"results":[ {"metadata":{"accession":"IPR002117","name":"Native family",
+            "source_database":"interpro","type":"family","member_databases":{}},"proteins":[{"accession":"p04637","protein_length":393,
+            "organism":"9606","entry_protein_locations":[{"fragments":[{"start":2,"end":10,"dc-status":"N_TERMINAL_DISC"},{"start":20,"end":30,
+            "dc-status":"C_TERMINAL_DISC"}]},{"fragments":[{"start":40,"end":50,"dc-status":"CONTINUOUS"}]}]}]},
+            {"metadata":{"accession":"IPR010991","name":"Native domain","source_database":"interpro","type":"domain","member_databases":{}},
+            "proteins":[{"accession":"p04637","protein_length":393,"organism":"9606","entry_protein_locations":[]}]} ]}
+        )
+        .to_string())
     })?;
     let env = setup(&stub)?;
     let value = call(&env, &["protein", "domains", "P04637"], 0)?;

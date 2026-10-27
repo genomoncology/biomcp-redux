@@ -43,7 +43,15 @@ pub(super) fn run() -> Check {
             serde_json::to_vec(&value).map_err(|e| e.to_string())?,
         )
         .map_err(|e| e.to_string())?;
-        writeln!(std::io::stdout(),"WIKIPATHWAYS_MEASURE {}",json!({"case":path.file_name().and_then(|n|n.to_str()).ok_or("filename")?,"full_cli_bytes":full+1,"full_mcp_bytes":full,"comparable_cli_bytes":comparable+1,"comparable_mcp_bytes":comparable,"tokens":comparable.div_ceil(4)})).map_err(|e|e.to_string())?;
+        writeln!(
+            std::io::stdout(),
+            "WIKIPATHWAYS_MEASURE {}",
+            json!(
+                {"case":path.file_name().and_then(|n|n.to_str()).ok_or("filename")?,"full_cli_bytes":full+1,"full_mcp_bytes":full,
+                "comparable_cli_bytes":comparable+1,"comparable_mcp_bytes":comparable,"tokens":comparable.div_ceil(4)}
+            )
+        )
+        .map_err(|e| e.to_string())?;
     }
     Ok(())
 }

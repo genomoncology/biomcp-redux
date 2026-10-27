@@ -68,7 +68,9 @@ impl TryFrom<SearchFields> for PhenotypeSearch {
         }
     }
 }
-/// Read an exact HP term from HPO or Monarch, or page native source sections. A term lookup answers terminology; an association answers what its publisher asserts. Neither establishes a diagnosis.
+#[doc = " Read an exact HP term from HPO or Monarch, or page native source sections. A term lookup \
+    answers terminology; an association answers what its publisher asserts. Neither \
+    establishes a diagnosis."]
 #[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
 #[serde(try_from = "GetFields")]
 #[cfg_attr(feature = "schema", derive(schemars::JsonSchema))]
@@ -81,7 +83,8 @@ struct GetFields {
     /// Exact HP identifier.
     #[cfg_attr(feature = "schema", schemars(extend("x-positional" = 0)))]
     id: HpId,
-    /// HPO or Monarch for cards, synonyms and xrefs; Monarch only for hierarchy, diseases and genes. Defaults to HPO for cards, synonyms and xrefs, otherwise Monarch.
+    #[doc = " HPO or Monarch for cards, synonyms and xrefs; Monarch only for hierarchy, diseases and \
+        genes. Defaults to HPO for cards, synonyms and xrefs, otherwise Monarch."]
     #[serde(
         default,
         deserialize_with = "crate::query::present",

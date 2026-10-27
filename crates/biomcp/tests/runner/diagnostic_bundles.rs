@@ -18,14 +18,7 @@ pub(super) fn trials() -> Vec<Trial> {
         })
         .collect()
 }
-fn stale(source: &str) -> Result<(), String> {
-    let env = Environment::new().map_err(|e| e.to_string())?;
-    let listener = std::net::TcpListener::bind("127.0.0.1:0").map_err(|e| e.to_string())?;
-    listener.set_nonblocking(true).map_err(|e| e.to_string())?;
-    env.config(
-        &json!({"proxy":format!("http://{}",listener.local_addr().map_err(|e|e.to_string())?)}),
-    )
-    .map_err(|e| e.to_string())?;
+fn replay_fixture(env: &Environment, source: &str) -> Result<std::path::PathBuf, String> {
     let fixture = match source {
         "gtr" => "gtr-synthetic",
         "who-ivd" => "who-synthetic",
@@ -45,13 +38,29 @@ fn stale(source: &str) -> Result<(), String> {
         fs::copy(entry.path(), replay.join(source).join(entry.file_name()))
             .map_err(|e| e.to_string())?;
     }
+    Ok(replay)
+}
+fn stale(source: &str) -> Result<(), String> {
+    let env = Environment::new().map_err(|e| e.to_string())?;
+    let listener = std::net::TcpListener::bind("127.0.0.1:0").map_err(|e| e.to_string())?;
+    listener.set_nonblocking(true).map_err(|e| e.to_string())?;
+    env.config(
+        &json!({"proxy":format!("http://{}",listener.local_addr().map_err(|e|e.to_string())?)}),
+    )
+    .map_err(|e| e.to_string())?;
+    let replay = replay_fixture(&env, source)?;
     let mut args = env.globals(Some(&replay), false);
     args.extend(["sync".into(), source.into()]);
     invoke(&env, args, 0)?;
     fs::remove_dir_all(replay.join(source)).map_err(|e| e.to_string())?;
     let cache = rusqlite::Connection::open(env.root().join("case-cache/replay.sqlite"))
         .map_err(|e| e.to_string())?;
-    cache.execute_batch("BEGIN; CREATE TEMP TABLE saved_content AS SELECT * FROM bundle_content; UPDATE bundle SET fresh_until=0; INSERT INTO bundle_content SELECT * FROM saved_content; COMMIT;").map_err(|e|e.to_string())?;
+    cache
+        .execute_batch(
+            "BEGIN; CREATE TEMP TABLE saved_content AS SELECT * FROM bundle_content; UPDATE bundle SET \
+        fresh_until=0; INSERT INTO bundle_content SELECT * FROM saved_content; COMMIT;",
+        )
+        .map_err(|e| e.to_string())?;
     let tail = match source {
         "gtr" => vec!["get", "diagnostic", "GTR000006692.3", "--source", source],
         "who-ivd" => vec!["get", "diagnostic", "0466-046-00", "--source", source],

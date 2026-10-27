@@ -75,14 +75,20 @@ pub(super) fn help_source(matches: &clap::ArgMatches) -> Result<biomcp_types::So
 
 pub(crate) fn housekeeping_commands() -> [Command; 2] {
     [
-        Command::new("version").about("Print version; --verbose adds build, schema and path provenance. No source requests or key reads.").arg(
-            Arg::new("verbose")
-                .long("verbose")
-                .help("Include commit, target, schema versions, config and cache paths.")
-                .action(ArgAction::SetTrue),
-        ),
+        Command::new("version")
+            .about("Print version; --verbose adds build, schema and path provenance. No source requests or key reads.")
+            .arg(
+                Arg::new("verbose")
+                    .long("verbose")
+                    .help("Include commit, target, schema versions, config and cache paths.")
+                    .action(ArgAction::SetTrue),
+            ),
         Command::new("mcp-config")
-            .about("Print MCP configuration with this executable’s absolute path. JSON formats name their top-level object and retain released client aliases. The codex client prints its shell registration command. No source requests or key reads.")
+            .about(
+                "Print MCP configuration with this executable’s absolute path. JSON formats name their top-level \
+                object and retain released client aliases. The codex client prints its shell registration command. \
+                No source requests or key reads.",
+            )
             .arg(
                 Arg::new("client")
                     .help("Choose a JSON client or the codex shell registration command; default mcp-servers.")

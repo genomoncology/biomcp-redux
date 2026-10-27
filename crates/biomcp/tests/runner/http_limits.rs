@@ -74,7 +74,9 @@ pub(super) fn check() -> Check {
 
 fn slow_header(address: SocketAddr) -> Check {
     let mut slow = TcpStream::connect(address).map_err(|e| e.to_string())?;
-    slow.set_read_timeout(Some(Duration::from_secs(4)))
+    // Keep the socket timeout beyond the asserted bound so EOF proves closure.
+    // The server budget is two seconds; allow scheduler delay under coverage.
+    slow.set_read_timeout(Some(Duration::from_secs(10)))
         .map_err(|e| e.to_string())?;
     slow.write_all(b"GET /health HTTP/1.1\r\nX-Slow: ")
         .map_err(|e| e.to_string())?;
@@ -105,7 +107,7 @@ fn slow_header(address: SocketAddr) -> Check {
         Err(error) => error.kind() == std::io::ErrorKind::ConnectionReset,
         _ => false,
     };
-    if !ended || close_elapsed > Duration::from_secs(4) || joined.is_err() {
+    if !ended || close_elapsed > Duration::from_secs(8) || joined.is_err() {
         return Err(format!(
             "slow header deadline: read={result:?}, close_elapsed={close_elapsed:?}, \
              cleanup_elapsed={cleanup_elapsed:?}, writer_panicked={}",
@@ -117,13 +119,16 @@ fn slow_header(address: SocketAddr) -> Check {
 
 fn chunked() -> Check {
     let server = Server::start()?;
-    let request = br#"{"jsonrpc":"2.0","id":9,"method":"tools/list","params":{"_meta":{"io.modelcontextprotocol/protocolVersion":"2026-07-28","io.modelcontextprotocol/clientCapabilities":{}}}}"#;
+    let request = b"{\"jsonrpc\":\"2.0\",\"id\":9,\"method\":\"tools/list\",\"params\":{\"_meta\":{\"io.modelcontextprot\
+        ocol/protocolVersion\":\"2026-07-28\",\"io.modelcontextprotocol/clientCapabilities\":{}}}}";
     let mut socket = TcpStream::connect(server.address).map_err(|e| e.to_string())?;
     socket
         .set_read_timeout(Some(Duration::from_secs(4)))
         .map_err(|e| e.to_string())?;
     let head = format!(
-        "POST /mcp HTTP/1.1\r\nHost: {}\r\nTransfer-Encoding: chunked\r\nContent-Type: application/json\r\nAccept: application/json, text/event-stream\r\nMCP-Protocol-Version: 2026-07-28\r\nMcp-Method: tools/list\r\n\r\n",
+        "POST /mcp HTTP/1.1\r\nHost: {}\r\nTransfer-Encoding: chunked\r\nContent-Type: \
+            application/json\r\nAccept: application/json, text/event-stream\r\nMCP-Protocol-Version: \
+            2026-07-28\r\nMcp-Method: tools/list\r\n\r\n",
         server.address
     );
     socket

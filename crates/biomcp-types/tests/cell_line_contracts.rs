@@ -194,7 +194,10 @@ fn section_requests_keep_independent_defaults_and_offsets() {
     ] {
         assert!(serde_json::from_value::<CellLineGet>(value).is_err());
     }
-    let identity = json!({"accession":"CVCL_2119","name":"Source display","category":"Native category","species":[xref("NCBI_TaxID","9606")],"diseases":[xref("NCIt","C8263"),xref("ORDO","Orphanet_514")]});
+    let identity = json!(
+        {"accession":"CVCL_2119","name":"Source display","category":"Native category","species":[xref("NCBI_TaxID","9606")],
+        "diseases":[xref("NCIt","C8263"),xref("ORDO","Orphanet_514")]}
+    );
     assert_eq!(
         roundtrip::<CellLineIdentity>(identity.clone()).unwrap(),
         identity
@@ -232,8 +235,12 @@ fn standalone_envelopes_validate_all_eight_consumer_schemas() {
     .unwrap();
     check_envelope::<CellLineCard>(
         get.clone(),
-        json!({"input":"CVCL_2119","status":"complete","header":header,"dates":{},"warnings":empty,"candidates":[],"sections":{},"more":["names","identity","xrefs","variants","chembl"]}),
-    ).unwrap();
+        json!(
+            {"input":"CVCL_2119","status":"complete","header":header,"dates":{},"warnings":empty,"candidates":[],"sections":{},"more":["names",
+            "identity","xrefs","variants","chembl"]}
+        ),
+    )
+    .unwrap();
     let page = json!({"accession":"CVCL_2119","items":empty,"offset":0});
     check_envelope::<CellLineNames>(get.clone(), page.clone()).unwrap();
     check_envelope::<CellLineXrefs>(get.clone(), page.clone()).unwrap();
@@ -242,7 +249,8 @@ fn standalone_envelopes_validate_all_eight_consumer_schemas() {
     check_envelope::<CellLineIdentityPage>(
         get,
         json!({"accession":"CVCL_2119","species":empty,"diseases":empty,"warnings":empty,"offset":0}),
-    ).unwrap();
+    )
+    .unwrap();
     check_envelope::<CellLineAssayCount>(
         json!({"id":"CHEMBL3706573"}),
         json!({"id":"CHEMBL3706573","assay_count":0}),

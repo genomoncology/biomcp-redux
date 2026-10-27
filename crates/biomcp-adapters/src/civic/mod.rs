@@ -65,7 +65,9 @@ pub fn genes(
     for (index, (symbol, _)) in ids.iter().enumerate() {
         variables.insert(format!("id{index}"), symbol.to_string());
         declarations.push(format!("$id{index}: String!"));
-        aliases.push(format!("g{index}: gene(entrezSymbol: $id{index}) {{ id name entrezId description link variants {{ totalCount }} }}"));
+        aliases.push(format!(
+            "g{index}: gene(entrezSymbol: $id{index}) {{ id name entrezId description link variants {{ totalCount }} }}"
+        ));
     }
     let body = Query {
         query: format!(

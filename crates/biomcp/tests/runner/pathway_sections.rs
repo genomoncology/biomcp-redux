@@ -320,7 +320,13 @@ fn migration() -> Check {
     }
     call("pathway_sections/migration/3", &env, &args, true, 0)?;
     let db = rusqlite::Connection::open(path).map_err(|e| e.to_string())?;
-    let (version, preserved): (u32, String) = db.query_row("SELECT version,(SELECT value FROM unrelated_owner) FROM meta WHERE owner='biomcp-fetch'", [], |r| Ok((r.get(0)?,r.get(1)?))).map_err(|e| e.to_string())?;
+    let (version, preserved): (u32, String) = db
+        .query_row(
+            "SELECT version,(SELECT value FROM unrelated_owner) FROM meta WHERE owner='biomcp-fetch'",
+            [],
+            |r| Ok((r.get(0)?, r.get(1)?)),
+        )
+        .map_err(|e| e.to_string())?;
     if version != 4 || preserved != "preserve" {
         return Err("migration changed a foreign owner or version".into());
     }

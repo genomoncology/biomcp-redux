@@ -87,7 +87,16 @@ impl Record {
             release: None,
             submitter: self.ep.as_deref().map(text).transpose()?,
             evaluated: None,
-            url:self.uuid.as_ref().map(|uuid|text(&format!("https://erepo.clinicalgenome.org/evrepo/ui/classification/{uuid}?version={}",self.version))).transpose()?,
+            url: self
+                .uuid
+                .as_ref()
+                .map(|uuid| {
+                    text(&format!(
+                        "https://erepo.clinicalgenome.org/evrepo/ui/classification/{uuid}?version={}",
+                        self.version
+                    ))
+                })
+                .transpose()?,
         };
         let conditions = match self.condition {
             Some(label) => vec![AssertionCondition {

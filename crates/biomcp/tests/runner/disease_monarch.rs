@@ -65,14 +65,23 @@ fn invoke(env: &Environment, words: &[&str], exit: i32) -> Result<Value, String>
     serde_json::from_slice(&output.stdout).map_err(|e| e.to_string())
 }
 fn association() -> Value {
-    json!({"id":"synthetic-row","subject":"HGNC:9967","subject_label":"Synthetic gene","object":"MONDO:0007958","object_label":"Synthetic child","predicate":"biolink:associated_with","original_subject":"NCBIGene:5979","original_object":"Orphanet:99361","primary_knowledge_source":"infores:orphanet","aggregator_knowledge_source":["infores:monarchinitiative","infores:hpo-annotations"],"provided_by":"synthetic_collection","has_evidence":["ECO:0000501"],"qualifiers":null,"negated":false,"subject_closure":null,"object_closure":["MONDO:0019003"]})
+    json!(
+        {"id":"synthetic-row","subject":"HGNC:9967","subject_label":"Synthetic gene","object":"MONDO:0007958",
+        "object_label":"Synthetic child","predicate":"biolink:associated_with","original_subject":"NCBIGene:5979",
+        "original_object":"Orphanet:99361","primary_knowledge_source":"infores:orphanet",
+        "aggregator_knowledge_source":["infores:monarchinitiative","infores:hpo-annotations"],"provided_by":"synthetic_collection",
+        "has_evidence":["ECO:0000501"],"qualifiers":null,"negated":false,"subject_closure":null,"object_closure":["MONDO:0019003"]}
+    )
 }
 fn exact() -> Result<(), String> {
     let stub = Stub::for_source_status(
         "api-v3.monarchinitiative.org",
         "application/json",
         |request| {
-            if !request.starts_with("GET /v3/api/association?object=MONDO%3A0019003&subject_category=biolink%3AGene&limit=5&offset=0 ") {return Err(format!("unexpected request: {request}"));}
+            if !request.starts_with("GET /v3/api/association?object=MONDO%3A0019003&subject_category=biolink%3AGene&limit=5&offset=0 ") {
+                return Err(format!("unexpected request: {request}"));
+            }
+
             let mut row = association();
             row.as_object_mut()
                 .ok_or("missing synthetic row")?
@@ -161,7 +170,14 @@ fn replay(directory: &Path, mut steps: Value) -> Result<Value, String> {
         step.insert("max_tokens".into(), json!(ceiling.div_ceil(4)));
     }
     let file = tempfile::NamedTempFile::new().map_err(|e| e.to_string())?;
-    fs::write(file.path(),serde_json::to_vec(&json!({"feature":"disease-monarch","story":"Selected association rows preserve native context","replay":directory,"steps":steps})).map_err(|e|e.to_string())?).map_err(|e|e.to_string())?;
+    fs::write(
+        file.path(),
+        serde_json::to_vec(&json!(
+            {"feature":"disease-monarch","story":"Selected association rows preserve native context","replay":directory,"steps":steps}
+        ))
+        .map_err(|e| e.to_string())?,
+    )
+    .map_err(|e| e.to_string())?;
     let value = super::run_case(file.path(), &super::schema::Registry::embedded()?)?;
     measure(&["replay"], &value)?;
     Ok(value)
@@ -223,7 +239,12 @@ fn phenotype() -> Result<(), String> {
     }
     replay(
         &directory,
-        json!([{"run":words,"mcp":words,"expect":{"/result/items/0/association/evidence/0/label":"Synthetic evidence","/result/items/0/association/publications/0":{"equals":{"id":"PMID:1","label":"Synthetic publication"}},"/result/items/0/association/has_count":24,"/result/items/0/association/has_total":35,"/result/items/0/association/has_percentage":68.57143,"/result/items/0/association/has_quotient":0.6857143},"max_bytes":2588}]),
+        json!(
+            [{"run":words,"mcp":words,"expect":{"/result/items/0/association/evidence/0/label":"Synthetic evidence",
+            "/result/items/0/association/publications/0":{"equals":{"id":"PMID:1","label":"Synthetic publication"}},
+            "/result/items/0/association/has_count":24,"/result/items/0/association/has_total":35,
+            "/result/items/0/association/has_percentage":68.57143,"/result/items/0/association/has_quotient":0.6857143},"max_bytes":2588}]
+        ),
     )?;
     if stub.finish()?.len() != 1 {
         return Err("unexpected phenotype fanout".into());
@@ -330,7 +351,10 @@ fn checked_identities() -> Result<(), String> {
     }
     replay(
         &directory,
-        json!([{"run":words,"mcp":words,"expect":{"/page/total":4,"/page/returned":4,"/result/items/2/association/subject/id":"native:unresolved"},"max_bytes":5484}]),
+        json!(
+            [{"run":words,"mcp":words,"expect":{"/page/total":4,"/page/returned":4,
+            "/result/items/2/association/subject/id":"native:unresolved"},"max_bytes":5484}]
+        ),
     )?;
     if stub.finish()?.len() != 1 {
         return Err("gene pivots fetched genes".into());
@@ -439,7 +463,15 @@ fn defaults() -> Result<(), String> {
             value,
         ];
         let file = tempfile::NamedTempFile::new().map_err(|e| e.to_string())?;
-        fs::write(file.path(), serde_json::to_vec(&json!({"feature":"disease-monarch","story":"Invalid explicit limits fail before source access","steps":[{"run":words,"mcp":words,"exit":2,"is_error":true,"expect":{"/status":"usage"},"max_bytes":165}]})).map_err(|e| e.to_string())?).map_err(|e| e.to_string())?;
+        fs::write(
+            file.path(),
+            serde_json::to_vec(&json!(
+                {"feature":"disease-monarch","story":"Invalid explicit limits fail before source access","steps":[{"run":words,"mcp":words,"exit":2,
+                "is_error":true,"expect":{"/status":"usage"},"max_bytes":165}]}
+            ))
+            .map_err(|e| e.to_string())?,
+        )
+        .map_err(|e| e.to_string())?;
         super::run_case(file.path(), &super::schema::Registry::embedded()?)?;
     }
     if stub.finish()?.len() != 13 {
@@ -474,7 +506,10 @@ fn default_walk(
             .collect::<Vec<_>>();
         let directory = env.root().join(format!("{section}-{explicit}-{offset}"));
         record(env, &words, &directory, 0)?;
-        let mut expect = json!({"/query/section_limit":count,"/page/offset":offset,"/page/returned":returned,"/page/total":6,"/result/items/*/association/attribution/record":ids});
+        let mut expect = json!(
+            {"/query/section_limit":count,"/page/offset":offset,"/page/returned":returned,"/page/total":6,
+            "/result/items/*/association/attribution/record":ids}
+        );
         if offset + count < 6 {
             expect
                 .as_object_mut()

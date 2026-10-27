@@ -95,5 +95,8 @@ fn reply(request: &str) -> Result<String, String> {
     Ok(json!({"count":26,"next":next,"results":rows}).to_string())
 }
 fn row(n: u32) -> Value {
-    json!({"metadata":{"accession":format!("IPR{n:06}"),"name":"Native match","source_database":"interpro","type":"domain","member_databases":{}},"proteins":[{"accession":"p00533","protein_length":1210,"organism":"9606","entry_protein_locations":[]}]})
+    json!(
+        {"metadata":{"accession":format!("IPR{n:06}"),"name":"Native match","source_database":"interpro","type":"domain",
+        "member_databases":{}},"proteins":[{"accession":"p00533","protein_length":1210,"organism":"9606","entry_protein_locations":[]}]}
+    )
 }

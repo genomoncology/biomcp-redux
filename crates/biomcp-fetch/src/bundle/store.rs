@@ -6,7 +6,8 @@ use crate::{
 use rusqlite::{Connection, OptionalExtension, params};
 const PART_PREFIX: &str = ".tmp";
 const PART_RANDOM: usize = 6;
-const METADATA: &str = "SELECT b.bytes,b.rows,b.fresh_until,b.etag,b.modified,c.revision,c.retrieved_at FROM bundle b LEFT JOIN bundle_content c ON c.name=b.name WHERE b.name=?1";
+const METADATA: &str = "SELECT b.bytes,b.rows,b.fresh_until,b.etag,b.modified,c.revision,c.retrieved_at FROM bundle b LEFT \
+    JOIN bundle_content c ON c.name=b.name WHERE b.name=?1";
 #[derive(Clone, Debug)]
 pub(super) struct Meta {
     pub bytes: u64,
@@ -55,16 +56,24 @@ pub(super) fn create_part(folder: &std::path::Path) -> Result<tempfile::NamedTem
         .map_err(|_| CacheError::Database)
 }
 pub(crate) fn initialize(c: &Connection) -> Result<(), CacheError> {
-    c.execute_batch("CREATE TABLE IF NOT EXISTS bundle(name TEXT PRIMARY KEY,bytes INTEGER NOT NULL,rows INTEGER NOT NULL,fresh_until INTEGER NOT NULL,etag TEXT,modified TEXT);
-    CREATE TABLE IF NOT EXISTS bundle_sync(name TEXT PRIMARY KEY,holder TEXT,lease_until INTEGER NOT NULL,url TEXT NOT NULL,part TEXT NOT NULL,bytes INTEGER NOT NULL,etag TEXT,total INTEGER);
+    c.execute_batch(
+        "CREATE TABLE IF NOT EXISTS bundle(name TEXT PRIMARY KEY,bytes INTEGER NOT NULL,rows INTEGER NOT \
+        NULL,fresh_until INTEGER NOT NULL,etag TEXT,modified TEXT);
+    CREATE TABLE IF NOT EXISTS bundle_sync(name TEXT PRIMARY KEY,holder TEXT,lease_until INTEGER NOT NULL,url \
+        TEXT NOT NULL,part TEXT NOT NULL,bytes INTEGER NOT NULL,etag TEXT,total INTEGER);
     CREATE TABLE IF NOT EXISTS bundle_row(bundle TEXT NOT NULL,n INTEGER NOT NULL,row TEXT NOT NULL,PRIMARY KEY(bundle,n));
     CREATE TABLE IF NOT EXISTS bundle_key(bundle TEXT NOT NULL,kind INTEGER NOT NULL,key TEXT NOT NULL,n INTEGER NOT NULL);
     CREATE INDEX IF NOT EXISTS bundle_key_find ON bundle_key(bundle,kind,key,n);
     CREATE VIRTUAL TABLE IF NOT EXISTS bundle_words USING fts5(bundle UNINDEXED,n UNINDEXED,words);
     CREATE TABLE IF NOT EXISTS bundle_content(name TEXT PRIMARY KEY,revision TEXT NOT NULL,retrieved_at INTEGER NOT NULL);
-    CREATE TRIGGER IF NOT EXISTS bundle_content_insert BEFORE INSERT ON bundle BEGIN DELETE FROM bundle_content WHERE name=NEW.name; END;
-    CREATE TRIGGER IF NOT EXISTS bundle_content_update BEFORE UPDATE ON bundle BEGIN DELETE FROM bundle_content WHERE name=OLD.name OR name=NEW.name; END;
-    CREATE TRIGGER IF NOT EXISTS bundle_content_delete BEFORE DELETE ON bundle BEGIN DELETE FROM bundle_content WHERE name=OLD.name; END;").map_err(db_error)
+    CREATE TRIGGER IF NOT EXISTS bundle_content_insert BEFORE INSERT ON bundle BEGIN DELETE FROM \
+        bundle_content WHERE name=NEW.name; END;
+    CREATE TRIGGER IF NOT EXISTS bundle_content_update BEFORE UPDATE ON bundle BEGIN DELETE FROM \
+        bundle_content WHERE name=OLD.name OR name=NEW.name; END;
+    CREATE TRIGGER IF NOT EXISTS bundle_content_delete BEFORE DELETE ON bundle BEGIN DELETE FROM \
+        bundle_content WHERE name=OLD.name; END;",
+    )
+    .map_err(db_error)
 }
 pub(super) fn kind(k: KeyKind) -> u8 {
     match k {
@@ -136,20 +145,54 @@ impl Cache {
         lease: i64,
         d: Deadline<'_>,
     ) -> Result<Option<Part>, CacheError> {
-        self.write_sql(d,|c|{
-            let tx=c.unchecked_transaction().map_err(db_error)?;
-            let old=tx.query_row("SELECT holder,lease_until,url,part,bytes,etag,total FROM bundle_sync WHERE name=?1",[name],|r|Ok((r.get::<_,Option<String>>(0)?,r.get::<_,i64>(1)?,r.get::<_,String>(2)?,Part{path:r.get(3)?,bytes:u64::from(r.get::<_,u32>(4)?),etag:r.get(5)?,total:r.get::<_,Option<u32>>(6)?.map(u64::from)}))).optional().map_err(db_error)?;
-            if old.as_ref().is_some_and(|(h,until,_,_)|h.is_some()&&*until>now()){return Err(CacheError::Busy);}
+        self.write_sql(d, |c| {
+            let tx = c.unchecked_transaction().map_err(db_error)?;
+            let old = tx
+                .query_row(
+                    "SELECT holder,lease_until,url,part,bytes,etag,total FROM bundle_sync WHERE name=?1",
+                    [name],
+                    |r| {
+                        Ok((
+                            r.get::<_, Option<String>>(0)?,
+                            r.get::<_, i64>(1)?,
+                            r.get::<_, String>(2)?,
+                            Part {
+                                path: r.get(3)?,
+                                bytes: u64::from(r.get::<_, u32>(4)?),
+                                etag: r.get(5)?,
+                                total: r.get::<_, Option<u32>>(6)?.map(u64::from),
+                            },
+                        ))
+                    },
+                )
+                .optional()
+                .map_err(db_error)?;
+            if old.as_ref().is_some_and(|(h, until, _, _)| h.is_some() && *until > now()) {
+                return Err(CacheError::Busy);
+            }
             // A released file transfers to this claim. An active predecessor keeps its file,
             // even after lease expiry; its completion still owns cleanup of that path.
-            let part=old.and_then(|(h,_,u,mut p)| {
-                if h.is_some() { return None; }
-                if u!=url { p.bytes=0; }
+            let part = old.and_then(|(h, _, u, mut p)| {
+                if h.is_some() {
+                    return None;
+                }
+                if u != url {
+                    p.bytes = 0;
+                }
                 Some(p)
             });
-            if let Some(part) = &part { part.validate(&self.1)?; }
-            tx.execute("INSERT INTO bundle_sync VALUES(?1,?2,?3,?4,?5,0,NULL,NULL) ON CONFLICT(name) DO UPDATE SET holder=excluded.holder,lease_until=excluded.lease_until,url=excluded.url,part=excluded.part,bytes=0,etag=NULL,total=NULL",params![name,holder,lease,url,path]).map_err(db_error)?;
-            tx.commit().map_err(db_error)?; Ok(part)
+            if let Some(part) = &part {
+                part.validate(&self.1)?;
+            }
+            tx.execute(
+                "INSERT INTO bundle_sync VALUES(?1,?2,?3,?4,?5,0,NULL,NULL) ON CONFLICT(name) DO UPDATE SET \
+                holder=excluded.holder,lease_until=excluded.lease_until,url=excluded.url,part=excluded.part,bytes=0,\
+                etag=NULL,total=NULL",
+                params![name, holder, lease, url, path],
+            )
+            .map_err(db_error)?;
+            tx.commit().map_err(db_error)?;
+            Ok(part)
         })
     }
     pub(super) fn retain(
@@ -159,7 +202,15 @@ impl Cache {
         p: &Part,
         d: Deadline<'_>,
     ) -> Result<bool, CacheError> {
-        self.write_sql(d,|c|c.execute("UPDATE bundle_sync SET holder=NULL,lease_until=0,bytes=?3,etag=?4,total=?5 WHERE name=?1 AND holder=?2",params![name,holder,p.bytes as i64,p.etag,p.total.map(|n|n as i64)]).map(|n|n==1).map_err(db_error))
+        self.write_sql(d, |c| {
+            c.execute(
+                "UPDATE bundle_sync SET holder=NULL,lease_until=0,bytes=?3,etag=?4,total=?5 WHERE name=?1 AND \
+            holder=?2",
+                params![name, holder, p.bytes as i64, p.etag, p.total.map(|n| n as i64)],
+            )
+            .map(|n| n == 1)
+            .map_err(db_error)
+        })
     }
 }
 fn prefix_end(s: &str) -> Option<String> {
@@ -180,7 +231,8 @@ fn prefix_end(s: &str) -> Option<String> {
 fn selected_rows(c: &Connection, name: &str, find: Find<'_>) -> Result<Vec<String>, CacheError> {
     let (query, a, b, k) = match find {
         Find::AnyExact(k, values) => (
-            "SELECT row FROM bundle_row WHERE bundle=?1 AND n IN(SELECT n FROM bundle_key WHERE bundle=?1 AND kind=?4 AND key IN(SELECT value FROM json_each(?2))) ORDER BY n",
+            "SELECT row FROM bundle_row WHERE bundle=?1 AND n IN(SELECT n FROM bundle_key WHERE bundle=?1 AND \
+                kind=?4 AND key IN(SELECT value FROM json_each(?2))) ORDER BY n",
             serde_json::to_string(
                 &values
                     .iter()
@@ -201,7 +253,8 @@ fn selected_rows(c: &Connection, name: &str, find: Find<'_>) -> Result<Vec<Strin
             let v = v.to_ascii_lowercase();
             let end = prefix_end(&v);
             (
-                "SELECT row FROM bundle_row WHERE bundle=?1 AND n IN(SELECT n FROM bundle_key WHERE bundle=?1 AND kind=?4 AND key>=?2 AND (?3 IS NULL OR key<?3)) ORDER BY n",
+                "SELECT row FROM bundle_row WHERE bundle=?1 AND n IN(SELECT n FROM bundle_key WHERE bundle=?1 AND \
+                    kind=?4 AND key>=?2 AND (?3 IS NULL OR key<?3)) ORDER BY n",
                 v,
                 end,
                 kind(k),

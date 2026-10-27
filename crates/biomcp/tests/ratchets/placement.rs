@@ -17,11 +17,13 @@ const ALLOWED: &[(&str, &str)] = &[
     ),
     (
         "crates/biomcp-types/tests/cell_line_contracts.rs",
-        "Exercise checked cell identities, native variation members and provenance, and standalone consumer contracts through the public library API before adapters exist.",
+        "Exercise checked cell identities, native variation members and provenance, and standalone consumer \
+            contracts through the public library API before adapters exist.",
     ),
     (
         "crates/biomcp-types/tests/gwas_contracts.rs",
-        "Exercise checked GWAS identities, exact probabilities and standalone consumer contracts through the public library API before adapters exist.",
+        "Exercise checked GWAS identities, exact probabilities and standalone consumer contracts through the public \
+        library API before adapters exist.",
     ),
     (
         "crates/biomcp-types/tests/phenotype_contracts.rs",
@@ -37,11 +39,13 @@ const ALLOWED: &[(&str, &str)] = &[
     ),
     (
         "crates/biomcp-types/tests/study_contracts.rs",
-        "Exercise exact study identities, neutral source metadata and bounded standalone consumer contracts through the public library API before adapters exist.",
+        "Exercise exact study identities, neutral source metadata and bounded standalone consumer contracts \
+            through the public library API before adapters exist.",
     ),
     (
         "crates/biomcp-types/tests/diagnostic_contracts.rs",
-        "Exercise neutral diagnostic records, native identities and checked standalone consumer contracts through the public library API before adapters exist.",
+        "Exercise neutral diagnostic records, native identities and checked standalone consumer contracts \
+            through the public library API before adapters exist.",
     ),
     (
         "crates/biomcp-types/tests/variant_values.rs",
@@ -246,15 +250,14 @@ pub(super) fn check(root: &Path) -> Check {
                 let has_test = tokens.iter().enumerate().any(|(index, token)| {
                     token == "#"
                         && tokens.get(index + 1).is_some_and(|v| v == "[")
-                        && tokens.iter()
+                        && tokens
+                            .iter()
                             .skip(index + 2)
                             .take_while(|v| v.as_str() != "]")
                             .collect::<Vec<_>>()
                             .windows(2)
                             .any(|v| matches!(v, [left, right] if right.as_str() == "test" && matches!(left.as_str(), "," | ":")))
-                        || tokens
-                            .get(index..index + 4)
-                            .is_some_and(|v| v == ["#", "[", "test", "]"])
+                        || tokens.get(index..index + 4).is_some_and(|v| v == ["#", "[", "test", "]"])
                 });
                 if has_test && !ALLOWED.iter().any(|(file, _)| *file == relative) {
                     return Err(format!("{relative}: inline test outside listed locations").into());

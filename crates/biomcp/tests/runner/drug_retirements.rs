@@ -32,10 +32,9 @@ fn check() -> Result<(), String> {
             return Err(format!("{words}: CLI/MCP migration differs"));
         }
         let bytes = serde_json::to_vec(&value).map_err(|e| e.to_string())?.len();
-        let measured = serde_json::to_vec(&json!({"schema":"biomcp.error/1","status":"usage",
-            "error":{"code":"usage.retired","message":message}}))
-        .map_err(|e| e.to_string())?
-        .len();
+        let measured = serde_json::to_vec(&json!({"schema":"biomcp.error/1","status":"usage", "error":{"code":"usage.retired","message":message}}))
+            .map_err(|e| e.to_string())?
+            .len();
         if bytes > measured * 115 / 100 {
             return Err(format!("{words}: migration exceeds size ceiling"));
         }
@@ -87,27 +86,33 @@ const CASES: &[(&str, &str)] = &[
     ),
     (
         "search drug imatinib --target ABL1",
-        "drug search filters --target, --indication, --type, --atc and --pharm-class are not yet supported; select a drug identity to read source sections.",
+        "drug search filters --target, --indication, --type, --atc and --pharm-class are not yet supported; select a \
+        drug identity to read source sections.",
     ),
     (
         "search drug imatinib --indication cancer",
-        "drug search filters --target, --indication, --type, --atc and --pharm-class are not yet supported; select a drug identity to read source sections.",
+        "drug search filters --target, --indication, --type, --atc and --pharm-class are not yet supported; select a \
+        drug identity to read source sections.",
     ),
     (
         "search drug imatinib --type Small",
-        "drug search filters --target, --indication, --type, --atc and --pharm-class are not yet supported; select a drug identity to read source sections.",
+        "drug search filters --target, --indication, --type, --atc and --pharm-class are not yet supported; select a \
+        drug identity to read source sections.",
     ),
     (
         "search drug imatinib --atc L01",
-        "drug search filters --target, --indication, --type, --atc and --pharm-class are not yet supported; select a drug identity to read source sections.",
+        "drug search filters --target, --indication, --type, --atc and --pharm-class are not yet supported; select a \
+        drug identity to read source sections.",
     ),
     (
         "search drug imatinib --pharm-class kinase",
-        "drug search filters --target, --indication, --type, --atc and --pharm-class are not yet supported; select a drug identity to read source sections.",
+        "drug search filters --target, --indication, --type, --atc and --pharm-class are not yet supported; select a \
+        drug identity to read source sections.",
     ),
     (
         "gene drugs ABL1 --limit 1 --offset 0",
-        "drug search filters --target, --indication, --type, --atc and --pharm-class are not yet supported; select a drug identity to read source sections.",
+        "drug search filters --target, --indication, --type, --atc and --pharm-class are not yet supported; select a \
+        drug identity to read source sections.",
     ),
     (
         "get drug --name trastuzumab",

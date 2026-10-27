@@ -23,7 +23,8 @@ pub(super) fn run() -> Check {
         .collect::<Vec<_>>()
         .join(",");
     for switch in ["hpo", "orphanet", "omim", "restricted"] {
-        env.config(&json!({"ca_bundle":cert,"proxy":format!("http://{}",stub.address),"disable_sources":[switch]})).map_err(|e| e.to_string())?;
+        env.config(&json!({"ca_bundle":cert,"proxy":format!("http://{}",stub.address),"disable_sources":[switch]}))
+            .map_err(|e| e.to_string())?;
         let health = crate::runner::configuration::invoke(
             &env,
             vec![

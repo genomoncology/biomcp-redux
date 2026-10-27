@@ -62,7 +62,9 @@ fn body_and_send_failures_can_use_only_a_checked_stale_positive() {
             assert!(leg.json::<Answer>(&endpoint, &[]).unwrap().answer);
             leg.finish()
         });
-        server.next().raw("HTTP/1.1 200 Stub\r\nContent-Type: application/json\r\nContent-Length: 100\r\nConnection: close\r\n\r\n{cut");
+        server
+            .next()
+            .raw("HTTP/1.1 200 Stub\r\nContent-Type: application/json\r\nContent-Length: 100\r\nConnection: close\r\n\r\n{cut");
         worker.join().unwrap()
     });
     assert_eq!(report.failures[0].reason, Reason::BadReply);
@@ -163,7 +165,10 @@ fn concurrent_replay_legs_share_the_cache_without_spurious_local_busy_errors() {
             .iter()
             .map(|byte| format!("{byte:02x}"))
             .collect::<String>();
-        let recording = serde_json::json!({"method":"GET","source":"pubmed","url":url,"exchanges":[{"status":200,"content_type":"application/json","delay_ms":0,"retry_after_ms":null,"body":{"kind":"json","value":{"answer":true}}}]});
+        let recording = serde_json::json!(
+            {"method":"GET","source":"pubmed","url":url,"exchanges":[{"status":200,"content_type":"application/json","delay_ms":0,
+            "retry_after_ms":null,"body":{"kind":"json","value":{"answer":true}}}]}
+        );
         std::fs::write(
             records.join(format!("{key}.json")),
             serde_json::to_vec(&recording).unwrap(),
@@ -317,7 +322,13 @@ fn native_search_headers_survive_record_replay_and_offline_cache() {
     };
     thread::scope(|scope| {
         let worker = scope.spawn(|| run(&fetch));
-        server.next().respond(200, "X-Total-Results: 17\r\nLink: <https://rest.uniprot.org/uniprotkb/search?fields=accession,id&cursor=native-cursor>; rel=\"next\"\r\n", r#"{"answer":true}"#);
+        server.next().respond(
+            200,
+            "X-Total-Results: 17\r\nLink: \
+            <https://rest.uniprot.org/uniprotkb/search?fields=accession,id&cursor=native-cursor>; \
+            rel=\"next\"\r\n",
+            r#"{"answer":true}"#,
+        );
         worker.join().unwrap();
     });
     drop(fetch);

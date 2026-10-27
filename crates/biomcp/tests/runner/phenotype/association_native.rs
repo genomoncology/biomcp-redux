@@ -102,11 +102,13 @@ fn prove(
     verify(&expected, &value)?;
     let comparable = super::super::source_terms::size(&value, "")?;
     let ceiling = ceiling(row)?;
-    writeln!(std::io::stderr(),
+    writeln!(
+        std::io::stderr(),
         "phenotype-associations {section} limit{limit} offset{offset}: comparable={comparable} tokens={} ceiling={}",
         comparable.div_ceil(4),
         (comparable * 115).div_ceil(100)
-    ).map_err(|e| e.to_string())?;
+    )
+    .map_err(|e| e.to_string())?;
     if comparable > ceiling {
         return Err("association section exceeds design ceiling".into());
     }
@@ -288,6 +290,13 @@ fn retained(directory: &Path, output: &Path, index: usize, row: &Value) -> Resul
         return Err("measured association cap exceeded".into());
     }
     let full = serde_json::to_vec(&value).map_err(|e| e.to_string())?.len();
-    writeln!(std::io::stderr(),"retained {section} limit{limit} offset{offset}: full={full} comparable={bytes} tokens={} cap={cap} token_cap={}",bytes.div_ceil(4),cap.div_ceil(4)).map_err(|e|e.to_string())?;
+    writeln!(
+        std::io::stderr(),
+        "retained {section} limit{limit} offset{offset}: full={full} comparable={bytes} tokens={} cap={cap} \
+        token_cap={}",
+        bytes.div_ceil(4),
+        cap.div_ceil(4)
+    )
+    .map_err(|e| e.to_string())?;
     Ok(())
 }

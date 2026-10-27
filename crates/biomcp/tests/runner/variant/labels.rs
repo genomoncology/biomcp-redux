@@ -63,7 +63,8 @@ fn body(request: &str) -> Result<String, String> {
         Ok(json!({"_id":"chr7:g.140453136A>T",
             "cadd":{"sift":{"val":[0,1],"cat":"synthetic_array_label"}},
             "dbnsfp":{"polyphen2":{"hdiv":{"pred":"synthetic_label_without_score"}},"revel":{"score":0.2}}
-        }).to_string())
+        })
+        .to_string())
     } else {
         super::component_body(request)
     }

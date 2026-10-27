@@ -121,5 +121,13 @@ fn check(root: &Path, n: usize) -> Check {
 }
 fn report(n: usize, entry: &Value, synthetic_get: bool) -> Check {
     use std::io::Write;
-    writeln!(std::io::stdout(),"native label proof {n}: original_date={} original_sha256={} original_url={} local_delivery=true fresh_provider_calls=0 synthetic_get_selector={synthetic_get}",field(entry,"retrieved_at"),field(entry,"sha256"),field(entry,"url")).map_err(|e|e.to_string())
+    writeln!(
+        std::io::stdout(),
+        "native label proof {n}: original_date={} original_sha256={} original_url={} local_delivery=true \
+        fresh_provider_calls=0 synthetic_get_selector={synthetic_get}",
+        field(entry, "retrieved_at"),
+        field(entry, "sha256"),
+        field(entry, "url")
+    )
+    .map_err(|e| e.to_string())
 }

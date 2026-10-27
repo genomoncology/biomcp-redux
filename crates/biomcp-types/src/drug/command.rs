@@ -14,7 +14,10 @@ impl schemars::JsonSchema for DrugGetCommand {
         {
             let mut input = input.clone();
             if let Some(object) = input.as_object_mut() {
-                object.insert("description".into(), "Exact source-native ID; WHO references retain native spaces. No name or alias resolution.".into());
+                object.insert(
+                    "description".into(),
+                    "Exact source-native ID; WHO references retain native spaces. No name or alias resolution.".into(),
+                );
             }
             properties.insert("input".into(), input);
         }

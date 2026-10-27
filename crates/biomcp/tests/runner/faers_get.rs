@@ -38,7 +38,16 @@ pub(super) fn trials() -> Vec<Trial> {
     trials
 }
 fn native() -> Value {
-    json!({"meta":{"last_updated":"2024-09-01","results":{"skip":0,"limit":5,"total":1}},"results":[{"safetyreportid":"100","safetyreportversion":"1","receivedate":"20240101","receiptdate":"20240202","serious":"1","seriousnessdeath":"1","seriousnesshospitalization":"1","primarysource":{"qualification":"1","reportercountry":"US"},"patient":{"patientonsetage":"","patientsex":"2","drug":[{"medicinalproduct":"Synthetic A","drugcharacterization":"1","openfda":{"unii":["TESTA"],"rxcui":["1"],"product_ndc":["SYNTHETIC"],"spl_id":["SYNTHETIC-ID"],"spl_set_id":["SYNTHETIC-SET"],"application_number":["SYNTHETIC-APPLICATION"],"package_ndc":["A","B","C","D","E","F"]}},{"medicinalproduct":"Synthetic B","drugcharacterization":"2","openfda":{"unii":[]}},{"medicinalproduct":""}],"reaction":[{"reactionmeddrapt":"Synthetic reaction","reactionmeddraversionpt":"27.0","reactionoutcome":"1"}]}}]})
+    json!(
+        {"meta":{"last_updated":"2024-09-01","results":{"skip":0,"limit":5,"total":1}},"results":[{"safetyreportid":"100",
+        "safetyreportversion":"1","receivedate":"20240101","receiptdate":"20240202","serious":"1","seriousnessdeath":"1",
+        "seriousnesshospitalization":"1","primarysource":{"qualification":"1","reportercountry":"US"},"patient":{"patientonsetage":"",
+        "patientsex":"2","drug":[{"medicinalproduct":"Synthetic A","drugcharacterization":"1","openfda":{"unii":["TESTA"],"rxcui":["1"],
+        "product_ndc":["SYNTHETIC"],"spl_id":["SYNTHETIC-ID"],"spl_set_id":["SYNTHETIC-SET"],"application_number":["SYNTHETIC-APPLICATION"],
+        "package_ndc":["A","B","C","D","E","F"]}},{"medicinalproduct":"Synthetic B","drugcharacterization":"2","openfda":{"unii":[]}},
+        {"medicinalproduct":""}],"reaction":[{"reactionmeddrapt":"Synthetic reaction","reactionmeddraversionpt":"27.0",
+        "reactionoutcome":"1"}]}}]}
+    )
 }
 fn setup(mode: &str) -> Result<(Environment, Stub), String> {
     let mut body = native();
@@ -62,8 +71,12 @@ fn setup(mode: &str) -> Result<(Environment, Stub), String> {
         }
     }
     if mode == "walks" {
-        let drugs: Vec<_> = (0..19).map(|n| json!({"medicinalproduct":format!("Synthetic drug {n}"),"drugcharacterization":if n%2==0 {"1"}else{"2"}})).collect();
-        let reactions: Vec<_> = (0..22).map(|n| json!({"reactionmeddrapt":format!("Synthetic reaction {n}"),"reactionoutcome":"1"})).collect();
+        let drugs: Vec<_> = (0..19)
+            .map(|n| json!({"medicinalproduct":format!("Synthetic drug {n}"), "drugcharacterization":if n%2==0 {"1"}else{"2"}}))
+            .collect();
+        let reactions: Vec<_> = (0..22)
+            .map(|n| json!({"reactionmeddrapt":format!("Synthetic reaction {n}"),"reactionoutcome":"1"}))
+            .collect();
         *body.pointer_mut("/results/0/patient/drug").ok_or("drugs")? = json!(drugs);
         *body
             .pointer_mut("/results/0/patient/reaction")
@@ -91,7 +104,12 @@ fn setup(mode: &str) -> Result<(Environment, Stub), String> {
         "api.fda.gov",
         "application/json",
         move |request| {
-            if !request.starts_with("GET /drug/event.json?search=safetyreportid%3A%22100%22&limit=5&skip=0&sort=receivedate%3Adesc HTTP/1.1") {return Err(format!("wrong get: {request}"));}
+            if !request.starts_with(
+                "GET /drug/event.json?search=safetyreportid%3A%22100%22&limit=5&skip=0&sort=receivedate%3Adesc \
+                HTTP/1.1",
+            ) {
+                return Err(format!("wrong get: {request}"));
+            }
             Ok(body.to_string())
         },
         move |_| status,

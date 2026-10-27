@@ -1,6 +1,7 @@
 # 0286 — Harden line width, release gate labels and a timing test
 
-Status: OPEN.
+Status: COMPLETE.
+Landed: c17320f3ee3eaaeebdb42004aeb6c896641c19e7
 
 Milestone: 5
 

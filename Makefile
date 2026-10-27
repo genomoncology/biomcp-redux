@@ -35,7 +35,7 @@ docs-check:
 	python3 scripts/test_source_capture_plan.py
 	python3 scripts/test_coverage.py
 	python3 scripts/test_nightly_live_check.py
-	python3 -m unittest release.test_installer
+	python3 -m unittest release.test_installer release.test_checks
 .PHONY: release-artifacts
 release-artifacts:
 	sh release/matrix.sh $(CONTAINER_ARGS)

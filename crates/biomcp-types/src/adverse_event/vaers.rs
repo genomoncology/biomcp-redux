@@ -100,7 +100,8 @@ pub type VaersCell = BTreeMap<Box<str>, Box<str>>;
 pub struct VaersRow {
     /// Native label cell; no code is invented when absent.
     pub label: VaersCell,
-    /// Native Events Reported count for this row. A footer counts occurrences, separate from the message report total; suppressed and displayed-total text stay unchanged.
+    #[doc = " Native Events Reported count for this row. A footer counts occurrences, separate from \
+        the message report total; suppressed and displayed-total text stay unchanged."]
     pub reports: VaersCell,
     /// Native Percent cell, retaining values above one hundred percent.
     pub percent: VaersCell,

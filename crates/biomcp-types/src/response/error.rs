@@ -32,7 +32,14 @@ singleton! {
 
 singleton! {
     /// The stable error code for an invalid schema request.
-    pub ErrorCode { SchemaUsage => "usage.schema", Arguments => "usage.arguments", Retired => "usage.retired", Local => "local.failure", PoolExpired => "pool.expired", PoolMismatch => "usage.pool_mismatch", TooManyPmids => "usage.too_many_pmids", UnsupportedFilter => "usage.unsupported_filter" }
+    pub ErrorCode { SchemaUsage => "usage.schema",
+ Arguments => "usage.arguments",
+ Retired => "usage.retired",
+ Local => "local.failure",
+ PoolExpired => "pool.expired",
+ PoolMismatch => "usage.pool_mismatch",
+ TooManyPmids => "usage.too_many_pmids",
+ UnsupportedFilter => "usage.unsupported_filter" }
 }
 
 singleton! {
@@ -41,11 +48,27 @@ singleton! {
 
 singleton! {
     /// Fixed input-free error and migration guidance.
-    pub ErrorMessage { GwasThreshold => "--p-value is not yet supported; threshold filtering is deferred", GwasPositiveThreshold => "--p-value threshold must be a positive probability in scientific notation", SourceSelector => "choose one of the source selector values", UnsupportedFilter => "a selected source does not support the requested filters", TooManyPmids => "citation ordering exceeds the PMID limit; narrow the search", SchemaUsage => "expected schema <known artifact id>", Arguments => "expected a supported command with checked arguments", Local => "local configuration, cache or recording failed",
-        GwasSearchArguments => "use: search gwas with --gene, --trait, --trait-id, --variant, --study or --pubmed; --include-child-traits requires --trait-id; --extended-geneset requires --gene; use exact GCST accessions, rsIDs, positive PMIDs and native trait IDs without repair; --limit is 1..50 and --offset is a nonnegative integer; source p-value order is fixed with no --sort or local prefix intersection",
-        GwasGetArguments => "use: get gwas association:<positive ID> [loci] or get gwas <exact GCST accession> [associations|ancestries]; bare numbers are unsupported; sections must match the resource kind; --section-limit is 1..50 and --section-offset is a nonnegative integer; identities are never repaired",
+    pub ErrorMessage { GwasThreshold => "--p-value is not yet supported; threshold filtering is deferred",
+ GwasPositiveThreshold => "--p-value threshold must be a positive probability in scientific notation",
+ SourceSelector => "choose one of the source selector values",
+ UnsupportedFilter => "a selected source does not support the requested filters",
+ TooManyPmids => "citation ordering exceeds the PMID limit; narrow the search",
+ SchemaUsage => "expected schema <known artifact id>",
+ Arguments => "expected a supported command with checked arguments",
+ Local => "local configuration, cache or recording failed",
+
+        GwasSearchArguments => "use: search gwas with --gene, --trait, --trait-id, --variant, --study or --pubmed; \
+            --include-child-traits requires --trait-id; --extended-geneset requires --gene; use exact GCST \
+            accessions, rsIDs, positive PMIDs and native trait IDs without repair; --limit is 1..50 and \
+            --offset is a nonnegative integer; source p-value order is fixed with no --sort or local prefix \
+            intersection",
+        GwasGetArguments => "use: get gwas association:<positive ID> [loci] or get gwas <exact GCST accession> \
+            [associations|ancestries]; bare numbers are unsupported; sections must match the resource kind; \
+            --section-limit is 1..50 and --section-offset is a nonnegative integer; identities are never \
+            repaired",
         AdverseText => "use: search adverse-event <TEXT>; text stays literal",
-        AdverseOutcome => "--outcome is retired; use --serious death or --serious hospitalization for report flags and reactions for native outcomes; the old hospitalization and disability mappings were wrong",
+        AdverseOutcome => "--outcome is retired; use --serious death or --serious hospitalization for report flags and \
+            reactions for native outcomes; the old hospitalization and disability mappings were wrong",
         AdverseFrom => "renamed; use: --received-from",
         AdverseTo => "renamed; use: --received-to",
         AdverseSerious => "only --serious death and --serious hospitalization are supported",
@@ -56,8 +79,10 @@ singleton! {
         AdverseSource => "choose --source faers or --source maude",
         VaersVaccine => "supported vaccines are MMR and COVID-19 vaccine; use MMR or COVID19",
         VaersInfluenza => "Influenza VAERS summaries are not available yet; supported vaccines are MMR and COVID-19.",
-        VaersVaccineChoices => "supported vaccines are MMR and COVID19, or one exact native influenza code; use search adverse-event influenza --source vaers to list influenza codes and labels",
-        VaersInfluenzaCodes => "Choose one exact native influenza vaccine code; tables remain separate and are never summed. One report may list several vaccines.",
+        VaersVaccineChoices => "supported vaccines are MMR and COVID19, or one exact native influenza code; use search \
+            adverse-event influenza --source vaers to list influenza codes and labels",
+        VaersInfluenzaCodes => "Choose one exact native influenza vaccine code; tables remain separate and are never summed. One \
+            report may list several vaccines.",
         VaersFilter => "VAERS does not support FAERS filters; use search adverse-event TEXT --source faers for drug reports",
         VaersGet => "VAERS has no individual report get; use search adverse-event MMR --source vaers",
         AdverseVersion => "multi-version get is unproven",
@@ -92,7 +117,8 @@ singleton! {
         PgxPhase => "unphased variants cannot select a diplotype; --diplotype requires an unchanged declared expression",
         Pharmgkb => "pharmgkb is retired; use: clinpgx",
         NciDisease => "NCI disease filters require an NCIt identifier such as C3224; use --keyword for free text",
-        VariantIdentifier => "get variant needs an rsID, CAid, ClinVar Variation ID or reference-qualified HGVS; chromosome notation needs --build; use search variant --gene BRAF --protein V600E for gene/protein shorthand",
+        VariantIdentifier => "get variant needs an rsID, CAid, ClinVar Variation ID or reference-qualified HGVS; chromosome \
+            notation needs --build; use search variant --gene BRAF --protein V600E for gene/protein shorthand",
         VariantBuild => "renamed; use: --build",
         VariantProtein => "renamed; use: --protein with --gene",
         VariantPredict => "renamed; use: get variant <ID> predict",
@@ -101,10 +127,12 @@ singleton! {
         VariantOncokb => "use: get variant <ID> oncokb --build <GRCh37|GRCh38> --tumor-type <TEXT>; requires your oncokb key",
         VariantErepo => "use: variant assertions <CAid> --source erepo; select --assertion <PCERid> --version <VERSION> for details; no gene-wide fallback",
         VariantNormalize => "use: variant normalize --source <car|mutalyzer|variantvalidator|all> --hgvs <TEXT>; VariantValidator and all require --build",
-        VariantRecurrence => "use: variant recurrence <ID> --source cbioportal --gene <SYMBOL> --study <ID> --profile <ID> --sample-set <ID>; no default cohort",
+        VariantRecurrence => "use: variant recurrence <ID> --source cbioportal --gene <SYMBOL> --study <ID> --profile <ID> \
+            --sample-set <ID>; no default cohort",
         VariantCgi => "deferred; no proved current CGI section",
         VariantCspec => "deferred until a harvested question requires variant cspec",
-        VariantQueryPolicy => "raw --query cannot enforce disabled source component terms; use declared protein or region selectors and named filters, or clear the component restriction",
+        VariantQueryPolicy => "raw --query cannot enforce disabled source component terms; use declared protein or region \
+            selectors and named filters, or clear the component restriction",
         TrialFacilityRadius => "the registry cannot bind --facility and radius to one site; choose one filter",
         TrialCriteria => "retired; use: --criteria for literal registry eligibility text",
         TrialVariant => "retired; use: --variant for explicit discovery text",
@@ -159,7 +187,8 @@ singleton! {
         DrugRegion => "--region is retired: select an explicit --source.",
         DrugWhoRegion => "--region who is retired: use --source who-pq.",
         DrugProductType => "--product-type is retired: WHO prequalification is outside this question bank.",
-        DrugUnproved => "drug search filters --target, --indication, --type, --atc and --pharm-class are not yet supported; select a drug identity to read source sections.",
+        DrugUnproved => "drug search filters --target, --indication, --type, --atc and --pharm-class are not yet supported; \
+            select a drug identity to read source sections.",
         DrugName => "--name is retired: use search drug <TEXT> --source <SOURCE> and select a native identity.",
         DrugRaw => "--raw is retired: use get drug <SPL-SET-ID> label --source openfda-label --label-section <NATIVE-HEADING>.",
         DrugSafety => "safety is retired: use get drug <SPL-SET-ID> label --source openfda-label --label-section <NATIVE-HEADING>.",
@@ -190,9 +219,11 @@ singleton! {
         ProteinSelector => "--disease and --existence are not yet supported because no harvested question needs these selectors",
         ProteinPage => "use: --pool and --offset from the returned continuation",
         ProteinUnreviewed => "--include-unreviewed is not yet supported because no unreviewed positive was captured",
-        ProteinString => "STRING is deferred because its mapping returns one STRING ID for the two distinct CDKN2A protein products; use: get protein <ACCESSION> complexes",
+        ProteinString => "STRING is deferred because its mapping returns one STRING ID for the two distinct CDKN2A protein \
+            products; use: get protein <ACCESSION> complexes",
         StudyList => "use: search study",
-        StudyDownload => "use: sync cbioportal-studies for metadata; get study ID files for source file references; whole-study analytical installs are retired",
+        StudyDownload => "use: sync cbioportal-studies for metadata; get study ID files for source file references; \
+            whole-study analytical installs are retired",
         StudyCalculate => "local calculations are dropped by the entity boundary ruling; use: get study ID and the source study page",
         StudyCharts => "charts are retired",
         StudyDirectory => "BIOMCP_STUDY_DIR is retired; use: sync cbioportal-studies for metadata",
@@ -200,13 +231,18 @@ singleton! {
         PathwayClass => "--type is retired: the accepted pathway class is enforced and needs no filter.",
         PathwayKegg => "KEGG pathways are dropped; use a Reactome R-HSA-… or WikiPathways WP… ID.",
         PathwayEnrich => "Gene-set enrichment is dropped; an agent can call g:Profiler itself.",
-        PathwayDrugs => "use: get pathway ID genes; reverse gene-to-drug search is not supported; select a drug identity and request its explicit source sections.",
+        PathwayDrugs => "use: get pathway ID genes; reverse gene-to-drug search is not supported; select a drug identity \
+            and request its explicit source sections.",
         PathwayArticles => "use: search article <text>; a matching title does not establish pathway article linkage.",
         PathwayTrials => "use: search trial --gene <gene>; pathway-name trial search is retired.",
         PathwayHelp => "use: help search pathway; help get pathway",
         DrugArticles => "use: search article --drug <drug>", Pathway => "moved to the pathway entity",
         Band => "use: --band", Dropped => "dropped in 1.0", Expression => "use: expression",
-        Drug => "moved to the drug entity", Diagnostic => "moved to the diagnostic entity", Deferred => "deferred", PoolExpired => "pool expired; restart the search", PoolMismatch => "pool selectors do not match this search"
+        Drug => "moved to the drug entity",
+ Diagnostic => "moved to the diagnostic entity",
+ Deferred => "deferred",
+ PoolExpired => "pool expired; restart the search",
+ PoolMismatch => "pool selectors do not match this search"
     }
 }
 

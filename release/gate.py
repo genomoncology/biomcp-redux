@@ -68,10 +68,10 @@ def installed(args):
     def check(kind, binary, server_args=("serve",), declared_tools=None):
         if hashlib.sha256(binary.read_bytes()).hexdigest() != record["binary_sha256"]:
             raise ValueError(kind + " installed bytes differ from the candidate")
-        tools = smoke(binary, executable, fixtures, record["version"], server_args)
-        if declared_tools is not None and sorted(tools) != sorted(declared_tools):
+        completed = smoke(binary, executable, fixtures, record["version"], server_args)
+        if declared_tools is not None and sorted(completed["tools"]) != sorted(declared_tools):
             raise ValueError("desktop manifest tools differ from installed server")
-        results.append({"artifact": kind, "platform": record["platform"], "result": "pass", "checks": ["release", "candidate-bytes", "version", "help", "schemas", "mcp-all-stdout", "replay-cli-mcp", "ordinary-cache-two-process", "mcp-http"]})
+        results.append({"artifact": kind, "platform": record["platform"], "result": "pass", "checks": ["candidate-bytes"] + completed["checks"]})
         print(json.dumps(results[-1]), flush=True)
     check("wheel", install_wheel(wheel, root / "venv", root, args.python))
     bundle = next(output.glob("*.mcpb"))

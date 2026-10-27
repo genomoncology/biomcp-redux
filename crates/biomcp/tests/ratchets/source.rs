@@ -69,6 +69,7 @@ const EXCEPTIONS: &[(&str, &str)] = &[
     ),
 ];
 const FILE_LIMIT: usize = 600;
+const LINE_WIDTH: usize = 160;
 const ADAPTER_LIMIT: usize = 300;
 
 pub(super) fn check(root: &Path) -> Check {
@@ -83,6 +84,7 @@ pub(super) fn check(root: &Path) -> Check {
         let crate_root = entry?.path();
         for path in rust_files(&crate_root.join("tests"))? {
             let text = fs::read_to_string(&path)?;
+            width(&path.strip_prefix(root)?.to_string_lossy(), &text)?;
             if text.lines().count() > FILE_LIMIT {
                 return fail(
                     &path.strip_prefix(root)?.to_string_lossy(),
@@ -96,6 +98,7 @@ pub(super) fn check(root: &Path) -> Check {
                 .to_string_lossy()
                 .replace('\\', "/");
             let text = fs::read_to_string(&path)?;
+            width(&relative, &text)?;
             let limit = if relative.starts_with("crates/biomcp-adapters/src/")
                 && matches!(
                     path.file_name().and_then(|v| v.to_str()),
@@ -112,12 +115,26 @@ pub(super) fn check(root: &Path) -> Check {
             source_terms(root, &relative, &tokens)?;
             if relative != "crates/biomcp-types/src/response/source.rs"
                 && relative != "crates/biomcp-adapters/src/registry.rs"
-                && tokens.windows(3).any(|part| matches!(part, [before, name, open] if before != ">" && name == "SourceOutcome" && open == "{"))
+                && tokens
+                    .windows(3)
+                    .any(|part| matches!(part, [before, name, open] if before != ">" && name == "SourceOutcome" && open == "{"))
             {
                 return fail(&relative, "source outcomes require registry terms");
             }
             attributes(&relative, &tokens)?;
             references(root, &relative, &text, &tokens, &sqlite, &mut keys)?;
+        }
+    }
+    Ok(())
+}
+
+fn width(path: &str, text: &str) -> Check {
+    for (index, line) in text.lines().enumerate() {
+        if line.chars().count() > LINE_WIDTH {
+            return fail(
+                path,
+                &format!("line width limit exceeded at line {}", index + 1),
+            );
         }
     }
     Ok(())

@@ -10,7 +10,10 @@ const VARIANT: Endpoint = SPEC
     .post_json("/api")
     .idempotent()
     .fresh(Freshness::Days(7));
-const QUERY: &str = "query($id:String!){variant(variantId:$id,dataset:gnomad_r4){variant_id exome{ac an filters populations{id ac an}} genome{ac an filters populations{id ac an}} va{exome{derivedFrom{version} focusAlleleCount locusAlleleCount cohort{id}} genome{derivedFrom{version} focusAlleleCount locusAlleleCount cohort{id}}}}}";
+const QUERY: &str = "query($id:String!){variant(variantId:$id,dataset:gnomad_r4){variant_id exome{ac an filters \
+    populations{id ac an}} genome{ac an filters populations{id ac an}} va{exome{derivedFrom{version} \
+    focusAlleleCount locusAlleleCount cohort{id}} genome{derivedFrom{version} focusAlleleCount \
+    locusAlleleCount cohort{id}}}}}";
 /// Dataset selector sent unchanged to the source.
 pub const DATASET: &str = "gnomad_r4";
 #[derive(Debug, Deserialize)]

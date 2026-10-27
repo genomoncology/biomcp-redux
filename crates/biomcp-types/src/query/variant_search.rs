@@ -110,7 +110,8 @@ struct Fields {
     )]
     #[cfg_attr(feature = "schema", schemars(with = "VariantRegion"))]
     region: Option<VariantRegion>,
-    /// Raw MyVariant query, passed and echoed unchanged when component policy allows; requires --source myvariant. With disabled components use declared selectors instead.
+    #[doc = " Raw MyVariant query, passed and echoed unchanged when component policy allows; requires \
+        --source myvariant. With disabled components use declared selectors instead."]
     #[serde(
         default,
         deserialize_with = "present",

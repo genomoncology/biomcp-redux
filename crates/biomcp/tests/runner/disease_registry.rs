@@ -272,7 +272,10 @@ fn disabled_health() -> Check {
     listener.set_nonblocking(true).map_err(|e| e.to_string())?;
     let replay = env.root().join("empty-replay");
     std::fs::create_dir(&replay).map_err(|e| e.to_string())?;
-    env.config(&json!({"disable_sources":["ols","mydisease"], "proxy":format!("http://{}", listener.local_addr().map_err(|e| e.to_string())?)})).map_err(|e| e.to_string())?;
+    env.config(&json!(
+        {"disable_sources":["ols","mydisease"],"proxy":format!("http://{}",listener.local_addr().map_err(|e| e.to_string())?)}
+    ))
+    .map_err(|e| e.to_string())?;
     let disabled = registry::SOURCES
         .iter()
         .filter(|s| {

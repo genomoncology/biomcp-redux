@@ -51,8 +51,13 @@ fn release() -> Result<(), String> {
                 "expected one identity and one population request: {requests:?}"
             ));
         };
-        if !request.contains("va{exome{derivedFrom{version} focusAlleleCount locusAlleleCount cohort{id}} genome{derivedFrom{version} focusAlleleCount locusAlleleCount cohort{id}}}") {
-            return Err(format!("same-response versions and count checks not requested: {request}"));
+        if !request.contains(
+            "va{exome{derivedFrom{version} focusAlleleCount locusAlleleCount cohort{id}} \
+            genome{derivedFrom{version} focusAlleleCount locusAlleleCount cohort{id}}}",
+        ) {
+            return Err(format!(
+                "same-response versions and count checks not requested: {request}"
+            ));
         }
         if problem.is_none() {
             let replay = env
@@ -130,11 +135,14 @@ fn published(request: &str) -> Result<String, String> {
             .pointer_mut("/data/variant")
             .and_then(Value::as_object_mut)
             .ok_or("missing synthetic variant")?;
-        variant.insert("va".into(), json!({
-            "exome":[{"derivedFrom":{"version":"synthetic-subgroup"},"focusAlleleCount":2,"locusAlleleCount":1460618,"cohort":{"id":"nfe"}},
-                {"derivedFrom":{"version":"synthetic-exome-8.7"},"focusAlleleCount":2,"locusAlleleCount":1460618,"cohort":{"id":"ALL"}}],
-            "genome":[{"derivedFrom":{"version":"synthetic-genome-9.2"},"focusAlleleCount":0,"locusAlleleCount":50,"cohort":{"id":"ALL"}}]
-        }));
+        variant.insert(
+            "va".into(),
+            json!({
+                "exome":[{"derivedFrom":{"version":"synthetic-subgroup"},"focusAlleleCount":2,"locusAlleleCount":1460618,"cohort":{"id":"nfe"}},
+                    {"derivedFrom":{"version":"synthetic-exome-8.7"},"focusAlleleCount":2,"locusAlleleCount":1460618,"cohort":{"id":"ALL"}}],
+                "genome":[{"derivedFrom":{"version":"synthetic-genome-9.2"},"focusAlleleCount":0,"locusAlleleCount":50,"cohort":{"id":"ALL"}}]
+            }),
+        );
     }
     Ok(body.to_string())
 }

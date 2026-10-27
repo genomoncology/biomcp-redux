@@ -11,6 +11,25 @@ fn json_file(dir: &Path) -> std::path::PathBuf {
         .find(|v| v.extension().is_some_and(|v| v == "json"))
         .unwrap()
 }
+fn record_binary_replies(capture: &Fetch, server: &Server, spec: &'static SourceSpec) {
+    thread::scope(|scope| {
+        let worker = scope.spawn(|| [bytes(capture, spec), bytes(capture, spec)]);
+        for payload in [b"first\x00\xff".as_slice(), b"second\x00\xfe"] {
+            let mut response = format!(
+                "HTTP/1.1 200 OK\r\nContent-Type: application/octet-stream\r\nContent-Length: {}\r\nConnection: \
+                close\r\n\r\n",
+                payload.len()
+            )
+            .into_bytes();
+            response.extend_from_slice(payload);
+            server.next().bytes(response);
+        }
+        assert_eq!(
+            worker.join().unwrap().map(Result::unwrap),
+            [b"first\x00\xff".to_vec(), b"second\x00\xfe".to_vec()]
+        );
+    });
+}
 pub(super) fn ordered_binary_sidecars_round_trip_and_refuse_hostile_paths() {
     let dir = tempfile::tempdir().unwrap();
     let server = Server::new();
@@ -23,18 +42,7 @@ pub(super) fn ordered_binary_sidecars_round_trip_and_refuse_hostile_paths() {
         ..FetchConfig::default()
     })
     .unwrap();
-    thread::scope(|scope| {
-        let worker = scope.spawn(|| [bytes(&capture, spec), bytes(&capture, spec)]);
-        for payload in [b"first\x00\xff".as_slice(), b"second\x00\xfe"] {
-            let mut response=format!("HTTP/1.1 200 OK\r\nContent-Type: application/octet-stream\r\nContent-Length: {}\r\nConnection: close\r\n\r\n",payload.len()).into_bytes();
-            response.extend_from_slice(payload);
-            server.next().bytes(response);
-        }
-        assert_eq!(
-            worker.join().unwrap().map(Result::unwrap),
-            [b"first\x00\xff".to_vec(), b"second\x00\xfe".to_vec()]
-        );
-    });
+    record_binary_replies(&capture, &server, spec);
     drop(capture);
     let replay = fetch(Mode::Replay {
         dir: dir.path().to_owned(),
@@ -71,9 +79,11 @@ pub(super) fn ordered_binary_sidecars_round_trip_and_refuse_hostile_paths() {
     assert!(
         matches!(bytes(&disabled, spec), Err(RequestError::Source(e)) if e.reason == biomcp_types::Reason::Disabled)
     );
-    assert!(
-        matches!(disabled.leg(spec, disabled.deadline(Duration::from_secs(10))).bytes_checked(&spec.get("/bytes").bytes(20), &[], |_| Err(biomcp_types::Reason::BadReply)), Err(RequestError::Source(e)) if e.reason == biomcp_types::Reason::Disabled)
-    );
+    assert!(matches!(disabled.leg(spec,
+ disabled.deadline(Duration::from_secs(10))).bytes_checked(&spec.get("/bytes").bytes(20),
+ &[],
+ |_| Err(biomcp_types::Reason::BadReply)),
+ Err(RequestError::Source(e)) if e.reason == biomcp_types::Reason::Disabled));
     std::fs::write(&path, &original).unwrap();
     let sidecar = path.parent().unwrap().join(name);
     std::fs::remove_file(&sidecar).unwrap();
@@ -97,7 +107,9 @@ pub(super) fn cut_binary_body_is_refused_before_returning_bytes() {
     let fetch = fetch(Mode::default());
     thread::scope(|scope| {
         let worker = scope.spawn(|| bytes(&fetch, spec));
-        server.next().raw("HTTP/1.1 200 OK\r\nContent-Type: application/pdf\r\nContent-Length: 19\r\nConnection: close\r\n\r\n%PDF-");
+        server
+            .next()
+            .raw("HTTP/1.1 200 OK\r\nContent-Type: application/pdf\r\nContent-Length: 19\r\nConnection: close\r\n\r\n%PDF-");
         assert!(
             matches!(worker.join().unwrap(), Err(RequestError::Source(e)) if e.reason == biomcp_types::Reason::BadReply)
         );

@@ -27,7 +27,11 @@ fn run(kind: &'static str) -> Result<(), String> {
                 return Ok(">sp|P38398|SYNTHETIC_HUMAN Synthetic OX=9606 GN=SYN\nACDEFG\n".into());
             }
             if kind == "ipr" {
-                return Ok(json!({"count":1,"next":null,"results":[{"metadata":{"accession":"CPX-715","name":"Synthetic wrong IPR identity","source_database":"interpro","type":"family"},"proteins":[{"accession":"p38398","organism":"9606","entry_protein_locations":[]}]}]}).to_string());
+                return Ok(json!(
+                    {"count":1,"next":null,"results":[{"metadata":{"accession":"CPX-715","name":"Synthetic wrong IPR identity",
+                    "source_database":"interpro","type":"family"},"proteins":[{"accession":"p38398","organism":"9606","entry_protein_locations":[]}]}]}
+                )
+                .to_string());
             }
             let mut value: Value = serde_json::from_str(&if kind == "cpx" {
                 super::complexes::reply(request)?

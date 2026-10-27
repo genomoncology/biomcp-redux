@@ -109,7 +109,11 @@ fn resolved(env: &Environment, id: &str) -> Result<(), String> {
 }
 fn reply(request: &str) -> Result<String, String> {
     if request.starts_with("GET /allele/CA123643") {
-        return Ok(json!({"@id":"http://reg.genome.network/allele/CA123643","genomicAlleles":[{"referenceGenome":"GRCh38","hgvs":["NC_000007.14:g.140753336A>T"],"coordinates":[{"start":140753335,"end":140753336,"referenceAllele":"A","allele":"T"}]}]}).to_string());
+        return Ok(json!(
+            {"@id":"http://reg.genome.network/allele/CA123643","genomicAlleles":[{"referenceGenome":"GRCh38",
+            "hgvs":["NC_000007.14:g.140753336A>T"],"coordinates":[{"start":140753335,"end":140753336,"referenceAllele":"A","allele":"T"}]}]}
+        )
+        .to_string());
     }
     if request.starts_with("GET /v1/query?") {
         return Ok(json!({"total":1,"hits":[{"_id":"chr7:g.140753336A>T","dbsnp":{"rsid":"rs113488022","gene":{"symbol":"BRAF"}}}]}).to_string());
@@ -140,7 +144,8 @@ fn empty_components(value: &Value) -> Result<(), String> {
 }
 fn component_requests(requests: &[(String, String)]) -> Result<usize, String> {
     for fields in [
-        "fields=_id%2Ccadd.phred%2Ccadd.rawscore%2Ccadd.sift%2Cdbnsfp.hgvsp%2Cdbnsfp.ensembl.transcriptid%2Cdbnsfp.polyphen2%2Cdbnsfp.revel%2Cdbnsfp.mutationtaster",
+        "fields=_id%2Ccadd.phred%2Ccadd.rawscore%2Ccadd.sift%2Cdbnsfp.hgvsp%2Cdbnsfp.ensembl.transcriptid%2Cd\
+            bnsfp.polyphen2%2Cdbnsfp.revel%2Cdbnsfp.mutationtaster",
         "fields=_id%2Cdbnsfp.hgvsp%2Cdbnsfp.ensembl.transcriptid%2Cdbnsfp.gerp%2B%2B%2Cdbnsfp.phastcons%2Cdbnsfp.phylop%2Cdbnsfp.siphy_29way",
         "fields=_id%2Ccosmic",
     ] {

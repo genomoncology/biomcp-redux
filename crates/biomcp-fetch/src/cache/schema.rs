@@ -1,6 +1,6 @@
 //! Validate SQLite owners before initializing the transport schema.
 use super::{Cache, CacheError, OWNER, VERSION};
-use rusqlite::{Connection, OptionalExtension, TransactionBehavior};
+use rusqlite::{Connection, OptionalExtension, Transaction, TransactionBehavior};
 /// Metadata owned by another schema sharing the active cache.
 #[derive(Clone, Copy, Debug)]
 pub struct SchemaOwner {
@@ -13,8 +13,19 @@ pub struct SchemaOwner {
     /// Tables that must not exist without this owner's metadata.
     pub tables: &'static [&'static str],
 }
-/// Validate declared owners without changing journal mode or creating tables.
+/// Validate declared owners in one snapshot without changing journal mode or tables.
+/// Existing transactions remain owned by the caller.
 pub fn check_owners(connection: &Connection, owners: &[SchemaOwner]) -> Result<(), CacheError> {
+    if !connection.is_autocommit() {
+        return validate_owners(connection, owners);
+    }
+    let transaction =
+        Transaction::new_unchecked(connection, TransactionBehavior::Deferred).map_err(db_error)?;
+    validate_owners(&transaction, owners)?;
+    transaction.commit().map_err(db_error)
+}
+
+fn validate_owners(connection: &Connection, owners: &[SchemaOwner]) -> Result<(), CacheError> {
     let has_meta: bool = connection
         .query_row(
             "SELECT EXISTS(SELECT 1 FROM sqlite_master WHERE name='meta')",
@@ -31,7 +42,7 @@ pub fn check_owners(connection: &Connection, owners: &[SchemaOwner]) -> Result<(
                     |r| r.get(0),
                 )
                 .optional()
-                .map_err(|_| CacheError::Version)?
+                .map_err(version_error)?
         } else {
             None
         };
@@ -55,6 +66,15 @@ pub fn check_owners(connection: &Connection, owners: &[SchemaOwner]) -> Result<(
     }
     Ok(())
 }
+fn version_error(error: rusqlite::Error) -> CacheError {
+    match error {
+        rusqlite::Error::FromSqlConversionFailure(..)
+        | rusqlite::Error::IntegralValueOutOfRange(..)
+        | rusqlite::Error::InvalidColumnType(..) => CacheError::Version,
+        _ => db_error(error),
+    }
+}
+
 impl Cache {
     pub(super) fn initialize(connection: &mut Connection) -> Result<(), CacheError> {
         let has_meta: bool = connection
@@ -100,31 +120,20 @@ impl Cache {
             return Err(CacheError::Version);
         }
         if version.is_none() {
-            let orphan: bool = tx.query_row(
-                "SELECT EXISTS(SELECT 1 FROM sqlite_master WHERE name IN ('reply','reply_fresh','bundle','bundle_sync','bundle_row','bundle_key','bundle_key_find','bundle_words','bundle_content'))",
-                [], |r| r.get(0),
-            ).map_err(db_error)?;
+            let orphan: bool = tx
+                .query_row(
+                    "SELECT EXISTS(SELECT 1 FROM sqlite_master WHERE name IN \
+                    ('reply','reply_fresh','bundle','bundle_sync','bundle_row','bundle_key','bundle_key_find','bundle_wo\
+                    rds','bundle_content'))",
+                    [],
+                    |r| r.get(0),
+                )
+                .map_err(db_error)?;
             if orphan {
                 return Err(CacheError::Version);
             }
         }
-        tx.execute_batch(
-            "CREATE TABLE IF NOT EXISTS meta (owner TEXT PRIMARY KEY, version INTEGER NOT NULL);
-            CREATE TABLE IF NOT EXISTS reply (
-                key BLOB PRIMARY KEY, source TEXT NOT NULL, url TEXT NOT NULL,
-                status INTEGER NOT NULL, content_type TEXT, content_range TEXT, pagination TEXT, body BLOB NOT NULL,
-                fetched_at INTEGER NOT NULL, fresh_until INTEGER NOT NULL);
-            CREATE INDEX IF NOT EXISTS reply_fresh ON reply (fresh_until);",
-        )
-        .map_err(db_error)?;
-        if version == Some(1) {
-            tx.execute("ALTER TABLE reply ADD COLUMN content_range TEXT", [])
-                .map_err(db_error)?;
-        }
-        if matches!(version, Some(1 | 2)) {
-            tx.execute("ALTER TABLE reply ADD COLUMN pagination TEXT", [])
-                .map_err(db_error)?;
-        }
+        create_reply_schema(&tx, version)?;
         crate::bundle::store::initialize(&tx)?;
         if matches!(version, Some(1..=3)) {
             crate::cache_hgnc::backfill(&tx)?;
@@ -136,6 +145,27 @@ impl Cache {
         .map_err(db_error)?;
         tx.commit().map_err(db_error)
     }
+}
+
+fn create_reply_schema(tx: &Transaction<'_>, version: Option<u32>) -> Result<(), CacheError> {
+    tx.execute_batch(
+        "CREATE TABLE IF NOT EXISTS meta (owner TEXT PRIMARY KEY, version INTEGER NOT NULL);
+            CREATE TABLE IF NOT EXISTS reply (
+                key BLOB PRIMARY KEY, source TEXT NOT NULL, url TEXT NOT NULL,
+                status INTEGER NOT NULL, content_type TEXT, content_range TEXT, pagination TEXT, body BLOB NOT NULL,
+                fetched_at INTEGER NOT NULL, fresh_until INTEGER NOT NULL);
+            CREATE INDEX IF NOT EXISTS reply_fresh ON reply (fresh_until);",
+    )
+    .map_err(db_error)?;
+    if version == Some(1) {
+        tx.execute("ALTER TABLE reply ADD COLUMN content_range TEXT", [])
+            .map_err(db_error)?;
+    }
+    if matches!(version, Some(1 | 2)) {
+        tx.execute("ALTER TABLE reply ADD COLUMN pagination TEXT", [])
+            .map_err(db_error)?;
+    }
+    Ok(())
 }
 
 pub(crate) fn db_error(error: rusqlite::Error) -> CacheError {

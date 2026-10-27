@@ -92,25 +92,29 @@ const CASES: &[(&str, &str, usize, usize)] = &[
     ),
     (
         "get protein P00533 interactions",
-        "STRING is deferred because its mapping returns one STRING ID for the two distinct CDKN2A protein products; use: get protein <ACCESSION> complexes",
+        "STRING is deferred because its mapping returns one STRING ID for the two distinct CDKN2A protein products; \
+        use: get protein <ACCESSION> complexes",
         272,
         271,
     ),
     (
         "get protein P00533 --section interactions",
-        "STRING is deferred because its mapping returns one STRING ID for the two distinct CDKN2A protein products; use: get protein <ACCESSION> complexes",
+        "STRING is deferred because its mapping returns one STRING ID for the two distinct CDKN2A protein products; \
+        use: get protein <ACCESSION> complexes",
         272,
         271,
     ),
     (
         "protein interactions P00533",
-        "STRING is deferred because its mapping returns one STRING ID for the two distinct CDKN2A protein products; use: get protein <ACCESSION> complexes",
+        "STRING is deferred because its mapping returns one STRING ID for the two distinct CDKN2A protein products; \
+        use: get protein <ACCESSION> complexes",
         272,
         271,
     ),
     (
         "protein associations P00533",
-        "STRING is deferred because its mapping returns one STRING ID for the two distinct CDKN2A protein products; use: get protein <ACCESSION> complexes",
+        "STRING is deferred because its mapping returns one STRING ID for the two distinct CDKN2A protein products; \
+        use: get protein <ACCESSION> complexes",
         272,
         271,
     ),
