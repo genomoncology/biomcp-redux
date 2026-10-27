@@ -276,11 +276,14 @@ pub(crate) fn overall(
 mod gwas;
 mod population;
 pub(crate) mod population_detail;
-mod population_release;
 mod population_identity;
+mod population_release;
 
 fn myvariant_identity(
-    query: &VariantGet, leg: &Leg<'_>, problems: &mut Vec<biomcp_types::Problem>, population: bool,
+    query: &VariantGet,
+    leg: &Leg<'_>,
+    problems: &mut Vec<biomcp_types::Problem>,
+    population: bool,
 ) -> Result<(Vec<VariantHeader>, Option<Text>), RequestError> {
     let input = query.input().as_str();
     let term = if query.input().namespace().ok() == Some(VariantNamespace::ClinVar) {

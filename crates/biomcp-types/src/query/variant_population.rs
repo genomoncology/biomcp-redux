@@ -52,7 +52,11 @@ impl VariantPopulationQuery {
         VariantGet::new(self.0.input.clone(), self.0.resolver, self.0.build)
     }
     /// Select one source candidate while retaining population-detail selectors.
-    pub fn with_identity(&self, input: VariantInput, build: Option<Build>) -> Result<Self, super::gene::QueryInvalid> {
+    pub fn with_identity(
+        &self,
+        input: VariantInput,
+        build: Option<Build>,
+    ) -> Result<Self, super::gene::QueryInvalid> {
         let mut query = self.clone();
         query.0.input = input;
         query.0.build = build;

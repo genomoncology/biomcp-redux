@@ -15,16 +15,30 @@ pub(super) fn fields(leg: &Leg<'_>) -> String {
     fields
 }
 pub(super) fn candidates(leg: &Leg<'_>, hits: Vec<Hit>, query: &str) -> Mapped<Vec<VariantHeader>> {
-    let mut result = Mapped { value: Vec::new(), problems: Vec::new() };
+    let mut result = Mapped {
+        value: Vec::new(),
+        problems: Vec::new(),
+    };
     for mut hit in hits {
-        let ca = if leg.disabled_source(Source::AlleleRegistry) { None } else { hit.clingen.take() };
+        let ca = if leg.disabled_source(Source::AlleleRegistry) {
+            None
+        } else {
+            hit.clingen.take()
+        };
         let build = super::search_build::source_build(&hit);
-        let mut mapped = super::map::candidates(vec![hit], query, build,
-            !super::components::disabled_on_leg(leg, "clinvar"));
+        let mut mapped = super::map::candidates(
+            vec![hit],
+            query,
+            build,
+            !super::components::disabled_on_leg(leg, "clinvar"),
+        );
         if let Some(row) = mapped.value.first_mut() {
             match ca {
-                Some(Field::Value(source)) => match source.caid.value()
-                    .and_then(|id| id.as_str().parse::<VariantId>().ok()) {
+                Some(Field::Value(source)) => match source
+                    .caid
+                    .value()
+                    .and_then(|id| id.as_str().parse::<VariantId>().ok())
+                {
                     Some(id @ VariantId::Ca(_)) => {
                         let mut ids = row.identity.ids.to_vec();
                         ids.push(id);
@@ -42,6 +56,10 @@ pub(super) fn candidates(leg: &Leg<'_>, hits: Vec<Hit>, query: &str) -> Mapped<V
     result
 }
 fn problem(row: &VariantHeader) -> Problem {
-    Problem { source: Source::MyVariant, record: Some(row.record.id.clone()),
-        field: "clingen.caid".into(), code: ProblemCode::ValueUnknown }
+    Problem {
+        source: Source::MyVariant,
+        record: Some(row.record.id.clone()),
+        field: "clingen.caid".into(),
+        code: ProblemCode::ValueUnknown,
+    }
 }

@@ -3,25 +3,39 @@ use crate::{Action, Ctx, Outcome};
 use biodata::PopulationDataType;
 use biomcp_adapters::gnomad;
 use biomcp_fetch::RequestError;
-use biomcp_types::{GnomadCounts, PageInfo, QueryBody, Reason, Request, Section, Source, Status,
-    StepKind, VariantPopulationQuery, VariantPopulationResult};
+use biomcp_types::{
+    GnomadCounts, PageInfo, QueryBody, Reason, Request, Section, Source, Status, StepKind,
+    VariantPopulationQuery, VariantPopulationResult,
+};
 
 pub(crate) fn get(cx: &Ctx<'_>, query: &VariantPopulationQuery) -> Outcome {
     let command = cx.fetch.command_deadline(cx.budget);
     let deadline = command.deadline();
     let mut read = read(cx, query, deadline);
     let total = read.groups.len() as u64;
-    let groups: Box<[_]> = read.groups.into_iter().skip(query.offset() as usize)
-        .take(query.limit() as usize).collect();
+    let groups: Box<[_]> = read
+        .groups
+        .into_iter()
+        .skip(query.offset() as usize)
+        .take(query.limit() as usize)
+        .collect();
     let returned = groups.len() as u32;
     let page = query.detail().then_some(PageInfo {
-        offset: query.offset(), returned, total, pool: None, truncated: None,
+        offset: query.offset(),
+        returned,
+        total,
+        pool: None,
+        truncated: None,
     });
     let mut next = Vec::new();
     if query.offset() as u64 + u64::from(returned) < total {
-        next.push((StepKind::Page, Action::Run {
-            request: Request::VariantPopulation(query.at_offset(query.offset() + returned)), fresh: false,
-        }));
+        next.push((
+            StepKind::Page,
+            Action::Run {
+                request: Request::VariantPopulation(query.at_offset(query.offset() + returned)),
+                fresh: false,
+            },
+        ));
     }
     next.extend(choices(query, &read.candidates));
     let status = match &read.population {
@@ -35,9 +49,15 @@ pub(crate) fn get(cx: &Ctx<'_>, query: &VariantPopulationQuery) -> Outcome {
     let out = Outcome {
         status,
         body: QueryBody::VariantPopulation(VariantPopulationResult {
-            population: read.population, groups, candidates: std::mem::take(&mut read.candidates).into(),
+            population: read.population,
+            groups,
+            candidates: std::mem::take(&mut read.candidates).into(),
         }),
-        page, sources: read.sources, problems: read.problems, next, local: read.local,
+        page,
+        sources: read.sources,
+        problems: read.problems,
+        next,
+        local: read.local,
     };
     command.finish(deadline.remaining());
     out
@@ -50,10 +70,18 @@ struct PopulationRead {
     problems: Vec<biomcp_types::Problem>,
     local: Option<RequestError>,
 }
-fn read(cx: &Ctx<'_>, query: &VariantPopulationQuery, deadline: biomcp_fetch::Deadline<'_>) -> PopulationRead {
+fn read(
+    cx: &Ctx<'_>,
+    query: &VariantPopulationQuery,
+    deadline: biomcp_fetch::Deadline<'_>,
+) -> PopulationRead {
     let mut read = PopulationRead {
         population: Section::unavailable(Source::Gnomad, Reason::NoJoinId),
-        groups: Vec::new(), candidates: Vec::new(), sources: Vec::new(), problems: Vec::new(), local: None,
+        groups: Vec::new(),
+        candidates: Vec::new(),
+        sources: Vec::new(),
+        problems: Vec::new(),
+        local: None,
     };
     if cx.fetch.disabled(Source::Gnomad) {
         read.population = Section::unavailable(Source::Gnomad, Reason::Disabled);
@@ -72,12 +100,23 @@ fn read(cx: &Ctx<'_>, query: &VariantPopulationQuery, deadline: biomcp_fetch::De
     }
     let Some(id) = super::population::join(&read.candidates) else {
         if read.candidates.len() < 2 {
-            read.problems.push(biomcp_types::Problem { source: Source::Gnomad, record: None,
-                field: "GRCh38_allele".into(), code: biomcp_types::ProblemCode::ValueUnknown });
+            read.problems.push(biomcp_types::Problem {
+                source: Source::Gnomad,
+                record: None,
+                field: "GRCh38_allele".into(),
+                code: biomcp_types::ProblemCode::ValueUnknown,
+            });
         }
         return read;
     };
-    let (section, groups, source, error) = load(cx, query, &id, &read.candidates, &mut read.problems, deadline);
+    let (section, groups, source, error) = load(
+        cx,
+        query,
+        &id,
+        &read.candidates,
+        &mut read.problems,
+        deadline,
+    );
     read.problems.extend(projection_problems(&section, &groups));
     read.sources.push(source);
     read.population = section;
@@ -86,15 +125,30 @@ fn read(cx: &Ctx<'_>, query: &VariantPopulationQuery, deadline: biomcp_fetch::De
     read.candidates.clear();
     read
 }
-fn choices(query: &VariantPopulationQuery, candidates: &[biomcp_types::VariantHeader]) -> Vec<(StepKind, Action)> {
-    candidates.iter().filter_map(|row| {
-        let build = row.identity.representations.iter().find_map(|r| r.build);
-        let input = row.record.id.as_str().parse().ok()?;
-        let selected = query.with_identity(input, build).ok()?;
-        Some((StepKind::Disambiguate, Action::Run {
-            request: Request::VariantPopulation(selected), fresh: false,
-        }))
-    }).collect()
+fn choices(
+    query: &VariantPopulationQuery,
+    candidates: &[biomcp_types::VariantHeader],
+) -> Vec<(StepKind, Action)> {
+    candidates
+        .iter()
+        .filter_map(|row| {
+            let build = row.identity.representations.iter().find_map(|r| r.build);
+            let input = row.record.id.as_str().parse().ok()?;
+            let selected = query.with_identity(input, build).ok()?;
+            let request = if candidates.len() > 1 {
+                Request::VariantPopulation(selected)
+            } else {
+                Request::GetVariant(selected.identity().ok()?)
+            };
+            Some((
+                StepKind::Disambiguate,
+                Action::Run {
+                    request,
+                    fresh: false,
+                },
+            ))
+        })
+        .collect()
 }
 fn load(
     cx: &Ctx<'_>,

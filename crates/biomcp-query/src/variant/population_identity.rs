@@ -23,7 +23,9 @@ pub(super) fn read(cx: &Ctx<'_>, query: &VariantGet, deadline: Deadline<'_>) -> 
         super::resolve(query, &leg, &mut found.problems)
     };
     let error = result.as_ref().err().copied();
-    found.sources.push(status::source(spec.source, leg.finish(), error));
+    found
+        .sources
+        .push(status::source(spec.source, leg.finish(), error));
     found.local = error.and_then(status::local);
     found.reason = error.and_then(status::reason);
     if let Ok((rows, rejection)) = result {
@@ -39,12 +41,24 @@ pub(super) fn read(cx: &Ctx<'_>, query: &VariantGet, deadline: Deadline<'_>) -> 
 }
 fn canonical(cx: &Ctx<'_>, deadline: Deadline<'_>, found: &mut Identity) {
     let row = &mut found.rows[0];
-    let ids: Vec<_> = row.identity.ids.iter().filter(|id| matches!(id, VariantId::Ca(_))).collect();
-    let [id] = ids.as_slice() else { return; };
-    let leg = cx.fetch.leg(&allele_registry::SPEC, deadline).fresh(cx.fresh);
+    let ids: Vec<_> = row
+        .identity
+        .ids
+        .iter()
+        .filter(|id| matches!(id, VariantId::Ca(_)))
+        .collect();
+    let [id] = ids.as_slice() else {
+        return;
+    };
+    let leg = cx
+        .fetch
+        .leg(&allele_registry::SPEC, deadline)
+        .fresh(cx.fresh);
     let result = allele_registry::by_id(&leg, &id.to_string());
     let error = result.as_ref().err().copied();
-    found.sources.push(status::source(Source::AlleleRegistry, leg.finish(), error));
+    found
+        .sources
+        .push(status::source(Source::AlleleRegistry, leg.finish(), error));
     found.local = found.local.or(error.and_then(status::local));
     found.reason = error.and_then(status::reason);
     match result {

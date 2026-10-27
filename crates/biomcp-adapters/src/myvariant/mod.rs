@@ -7,8 +7,8 @@ mod map;
 /// Capture-proven component measurements.
 pub mod measurements;
 mod metadata;
-mod raw;
 mod population;
+mod raw;
 mod search;
 mod search_build;
 use crate::{Mapped, quotas};
@@ -45,12 +45,17 @@ pub fn lookup(
 }
 /// Resolve population identities with candidate-bound canonical allele identifiers.
 pub fn population_lookup(
-    leg: &Leg<'_>, query: &str, build: biodata::Build,
+    leg: &Leg<'_>,
+    query: &str,
+    build: biodata::Build,
 ) -> Result<Mapped<Vec<VariantHeader>>, RequestError> {
     lookup_with(leg, query, build, true)
 }
 fn lookup_with(
-    leg: &Leg<'_>, query: &str, build: biodata::Build, population: bool,
+    leg: &Leg<'_>,
+    query: &str,
+    build: biodata::Build,
+    population: bool,
 ) -> Result<Mapped<Vec<VariantHeader>>, RequestError> {
     if query.starts_with("chr") {
         return annotation(leg, query, build, population);
@@ -163,11 +168,20 @@ fn projection(leg: &Leg<'_>, population: bool) -> String {
     }
 }
 fn mapped(
-    leg: &Leg<'_>, hits: Vec<raw::Hit>, query: &str, build: biodata::Build, population: bool,
+    leg: &Leg<'_>,
+    hits: Vec<raw::Hit>,
+    query: &str,
+    build: biodata::Build,
+    population: bool,
 ) -> Mapped<Vec<VariantHeader>> {
     if population {
         population::candidates(leg, hits, query)
     } else {
-        map::candidates(hits, query, Some(build), !components::disabled_on_leg(leg, "clinvar"))
+        map::candidates(
+            hits,
+            query,
+            Some(build),
+            !components::disabled_on_leg(leg, "clinvar"),
+        )
     }
 }
