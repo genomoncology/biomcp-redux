@@ -1,3 +1,4 @@
+//! Schema discovery entries shipped with an executable.
 use serde::Serialize;
 /// Discoverable contracts shipped with this executable.
 #[derive(Clone, Debug, Serialize)]
