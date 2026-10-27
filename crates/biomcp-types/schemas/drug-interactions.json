@@ -994,6 +994,25 @@
         },
         {
           "additionalProperties": false,
+          "description": "An empty LitVar lookup can be repeated with a caller-supplied rsID.",
+          "properties": {
+            "kind": {
+              "const": "litvar_rsid_hint",
+              "type": "string"
+            },
+            "message": {
+              "description": "Guidance that never supplies or infers an rsID.",
+              "type": "string"
+            }
+          },
+          "required": [
+            "kind",
+            "message"
+          ],
+          "type": "object"
+        },
+        {
+          "additionalProperties": false,
           "description": "PubMed did not index these words.",
           "properties": {
             "kind": {

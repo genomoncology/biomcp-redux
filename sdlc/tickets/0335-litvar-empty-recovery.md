@@ -1,6 +1,7 @@
 # 0335 — Offer recovery steps when a LitVar lookup returns nothing
 
-Status: OPEN.
+Status: COMPLETE.
+Landed: 78713523ad7397212ff80f60d152e4ef275a117b
 
 Milestone: 5
 

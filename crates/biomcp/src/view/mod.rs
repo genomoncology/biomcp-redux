@@ -26,6 +26,10 @@ pub(crate) fn markdown(value: &Value) -> io::Result<Vec<u8>> {
             .into_iter()
             .flatten()
         {
+            if notice.get("kind").and_then(Value::as_str) == Some("litvar_rsid_hint") {
+                out.push_str(&scalar(&notice["message"]));
+                out.push_str("\n\n");
+            }
             if notice.get("kind").and_then(Value::as_str) == Some("not_found_words") {
                 out.push_str("**PubMed dropped supplied words:** ");
                 out.push_str(&scalar(&notice["words"]));
