@@ -52,6 +52,42 @@ fn transcripts() -> Result<(), String> {
     if card.pointer("/result/candidates/0/transcripts/1/hgvs_p") != Some(&json!("p.His540Arg")) {
         return Err(format!("card lost transcript annotations: {card}"));
     }
+    let args = [
+        "--format",
+        "md",
+        "get",
+        "variant",
+        "chr5:g.118860951A>G",
+        "--build",
+        "GRCh37",
+    ]
+    .into_iter()
+    .map(Into::into)
+    .collect::<Vec<_>>();
+    let markdown = env
+        .command(env!("CARGO_BIN_EXE_biomcp"), &args)
+        .output()
+        .map_err(|e| e.to_string())?;
+    let markdown = String::from_utf8_lossy(&markdown.stdout);
+    if !markdown.contains("NM_001199291.2") || !markdown.contains("p.His515Arg") {
+        return Err(format!("readable card lost transcript rows: {markdown}"));
+    }
+    let excluded = run(
+        &env,
+        &[
+            "--disable-sources",
+            "snpeff",
+            "search",
+            "variant",
+            "--gene",
+            "HSD17B4",
+            "--protein",
+            "His540Arg",
+        ],
+    )?;
+    if excluded.pointer("/result/items/0/transcripts").is_some() {
+        return Err(format!("excluded annotation leaked: {excluded}"));
+    }
     stub.finish()?;
     Ok(())
 }
@@ -67,9 +103,6 @@ fn run(env: &Environment, args: &[&str]) -> Result<Value, String> {
     serde_json::from_slice(&out.stdout).map_err(|e| e.to_string())
 }
 fn reply(request: &str) -> Result<String, String> {
-    if !request.contains("snpeff.ann") {
-        return Err(format!("transcript source projection missing: {request}"));
-    }
     // Source-paired values retained by the public 0.9.3 HSD17B4 witness.
     let hit = json!({"_id":"chr5:g.118860951A>G","chrom":"5",
     "hg19":{"start":118860951,"end":118860951},

@@ -17,18 +17,25 @@ struct Annotation {
     hgvs_p: Option<Text>,
 }
 pub(super) fn map(
-    raw: Option<Snpeff>,
+    raw: Option<Field<Snpeff>>,
     record: &Text,
     problems: &mut Vec<Problem>,
 ) -> Box<[VariantTranscript]> {
-    let Some(ann) = raw.and_then(|s| s.ann) else {
-        return Box::default();
-    };
     let problem = || Problem {
         source: Source::MyVariant,
         record: Some(record.clone()),
         field: "snpeff.ann".into(),
         code: ProblemCode::ValueUnknown,
+    };
+    let Some(raw) = raw else {
+        return Box::default();
+    };
+    let Some(raw) = raw.value() else {
+        problems.push(problem());
+        return Box::default();
+    };
+    let Some(ann) = raw.ann else {
+        return Box::default();
     };
     let Some(ann) = ann.value() else {
         problems.push(problem());
