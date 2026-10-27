@@ -28,19 +28,10 @@
           "source": "semantic-scholar",
           "endpoint_env": "BIOMCP_S2_BASE",
           "host": "api.semanticscholar.org",
-          "request_prefix": "GET /graph/v1/paper/PMID%3A34096690/references",
+          "request_prefix": "POST /graph/v1/paper/batch",
           "request_contains": "",
-          "request_query": {},
-          "capture": "semantic-scholar/00017f39f174dc1da03dce34c125f48443edf898d94038e5c95f099f99a3e72b.json"
-        },
-        {
-          "source": "semantic-scholar",
-          "endpoint_env": "BIOMCP_S2_BASE",
-          "host": "api.semanticscholar.org",
-          "request_prefix": "GET /graph/v1/paper/PMID%3A33123537/references",
-          "request_contains": "",
-          "request_query": {},
-          "capture": "semantic-scholar/b116e6d41adcbd686ad2598a8a0ec3ce8181cf4ce21eefffd4db2aefa49707ef.json"
+          "capture": "",
+          "recording_gap": "Released graph/evidence resolves seed metadata through paper_batch before fetching graph edges by native paperId. This replay retains PMID-addressed edge responses but no required release seed batch body (src/entities/article/graph.rs::resolve_semantic_scholar_seed)."
         }
       ],
       "facts": {
@@ -93,19 +84,10 @@
           "source": "semantic-scholar",
           "endpoint_env": "BIOMCP_S2_BASE",
           "host": "api.semanticscholar.org",
-          "request_prefix": "GET /graph/v1/paper/PMID%3A34096690/references",
+          "request_prefix": "POST /graph/v1/paper/batch",
           "request_contains": "",
-          "request_query": {},
-          "capture": "semantic-scholar/00017f39f174dc1da03dce34c125f48443edf898d94038e5c95f099f99a3e72b.json"
-        },
-        {
-          "source": "semantic-scholar",
-          "endpoint_env": "BIOMCP_S2_BASE",
-          "host": "api.semanticscholar.org",
-          "request_prefix": "GET /graph/v1/paper/PMID%3A33123537/references",
-          "request_contains": "",
-          "request_query": {},
-          "capture": "semantic-scholar/b116e6d41adcbd686ad2598a8a0ec3ce8181cf4ce21eefffd4db2aefa49707ef.json"
+          "capture": "",
+          "recording_gap": "Released graph/evidence resolves seed metadata through paper_batch before fetching graph edges by native paperId. This replay retains PMID-addressed edge responses but no required release seed batch body (src/entities/article/graph.rs::resolve_semantic_scholar_seed)."
         }
       ],
       "facts": {
@@ -149,46 +131,10 @@
           "source": "semantic-scholar",
           "endpoint_env": "BIOMCP_S2_BASE",
           "host": "api.semanticscholar.org",
-          "request_prefix": "GET /graph/v1/paper/PMID%3A23000897/citations",
+          "request_prefix": "POST /graph/v1/paper/batch",
           "request_contains": "",
-          "request_query": {},
-          "capture": "semantic-scholar/0c6f411ad6249ea1e2664bb7684d4ecee187337942cde601bce9f26c7272ef1d.json"
-        },
-        {
-          "source": "semantic-scholar",
-          "endpoint_env": "BIOMCP_S2_BASE",
-          "host": "api.semanticscholar.org",
-          "request_prefix": "GET /graph/v1/paper/PMID%3A23000897/citations",
-          "request_contains": "",
-          "request_query": {},
-          "capture": "semantic-scholar/722efa4e22b1549dc7f404c65d66a9fac1b02bcc6d2ab9ca1d11350ffd1671f8.json"
-        },
-        {
-          "source": "semantic-scholar",
-          "endpoint_env": "BIOMCP_S2_BASE",
-          "host": "api.semanticscholar.org",
-          "request_prefix": "GET /graph/v1/paper/PMID%3A23000897/citations",
-          "request_contains": "",
-          "request_query": {},
-          "capture": "semantic-scholar/d7b45fe23bda6781242c7cfca44b1fa4f58399854d9cc25d41c39dda17a3087b.json"
-        },
-        {
-          "source": "semantic-scholar",
-          "endpoint_env": "BIOMCP_S2_BASE",
-          "host": "api.semanticscholar.org",
-          "request_prefix": "GET /graph/v1/paper/PMID%3A23000897/citations",
-          "request_contains": "",
-          "request_query": {},
-          "capture": "semantic-scholar/e6d0ecccdc15020af4a373a2c20f03486b916a4d23da0028a1e8a948d4fd364e.json"
-        },
-        {
-          "source": "semantic-scholar",
-          "endpoint_env": "BIOMCP_S2_BASE",
-          "host": "api.semanticscholar.org",
-          "request_prefix": "GET /graph/v1/paper/PMID%3A23000897/citations",
-          "request_contains": "",
-          "request_query": {},
-          "capture": "semantic-scholar/fcc000d7a74f53e9d4925fe51f548f111f0e4fdbb0cbacdec3563e2f45563417.json"
+          "capture": "",
+          "recording_gap": "Released graph/evidence resolves seed metadata through paper_batch before fetching graph edges by native paperId. This replay retains PMID-addressed edge responses but no required release seed batch body (src/entities/article/graph.rs::resolve_semantic_scholar_seed)."
         }
       ],
       "facts": {
@@ -245,10 +191,10 @@
           "source": "semantic-scholar",
           "endpoint_env": "BIOMCP_S2_BASE",
           "host": "api.semanticscholar.org",
-          "request_prefix": "GET /graph/v1/paper/PMID%3A34096690/references",
+          "request_prefix": "POST /graph/v1/paper/batch",
           "request_contains": "",
-          "request_query": {},
-          "capture": "semantic-scholar/00017f39f174dc1da03dce34c125f48443edf898d94038e5c95f099f99a3e72b.json"
+          "capture": "",
+          "recording_gap": "Released graph/evidence resolves seed metadata through paper_batch before fetching graph edges by native paperId. This replay retains PMID-addressed edge responses but no required release seed batch body (src/entities/article/graph.rs::resolve_semantic_scholar_seed)."
         }
       ],
       "facts": {
@@ -414,9 +360,12 @@
           "source": "pubmed",
           "endpoint_env": "BIOMCP_PUBMED_BASE",
           "host": "eutils.ncbi.nlm.nih.gov",
-          "request_prefix": "POST /entrez/eutils/esummary.fcgi",
+          "request_prefix": "GET /entrez/eutils/esummary.fcgi",
           "request_contains": "",
-          "request_query": {},
+          "request_query": {
+            "db": "pubmed",
+            "id": "17611497,18053070,22505016"
+          },
           "capture": "pubmed/822eb63c90a3d5be2e3f610ad5b808818ff65383e65a26981bc188657905e4ea.json"
         }
       ],
@@ -430,70 +379,6 @@
         },
         "/sources/0/term": {
           "reason": "Released search metadata uses a different source-plan/status schema and does not retain this current per-source term/count/notice or query shape.",
-          "release_source": "src/entities/article/mod.rs"
-        }
-      }
-    },
-    {
-      "case": "article/filters/guideline.yaml",
-      "step": 0,
-      "baseline_command": [
-        "search",
-        "article",
-        "next-generation sequencing advanced cancer ESMO",
-        "--type",
-        "guideline",
-        "--source",
-        "pubmed",
-        "--include-retracted"
-      ],
-      "spelling_table": "sdlc/planning/slices/article.md",
-      "release_source": [
-        "src/entities/article/mod.rs",
-        "src/cli/article/dispatch.rs",
-        "src/entities/article/detail.rs",
-        "src/cli/system/batch.rs"
-      ],
-      "baseline_globals": [
-        "--json"
-      ],
-      "recordings": [
-        {
-          "source": "pubmed",
-          "endpoint_env": "BIOMCP_PUBMED_BASE",
-          "host": "eutils.ncbi.nlm.nih.gov",
-          "request_prefix": "POST /entrez/eutils/esummary.fcgi",
-          "request_contains": "",
-          "request_query": {},
-          "capture": "pubmed/5884ad3761787211283fe316272d0d2b52f30da7d7469c9ae059b62e78baec08.json"
-        },
-        {
-          "source": "pubmed",
-          "endpoint_env": "BIOMCP_PUBMED_BASE",
-          "host": "eutils.ncbi.nlm.nih.gov",
-          "request_prefix": "GET /entrez/eutils/esearch.fcgi",
-          "request_contains": "",
-          "request_query": {
-            "db": "pubmed",
-            "term": "next-generation sequencing advanced cancer ESMO AND (guideline[pt] OR \"practice guideline\"[pt])"
-          },
-          "capture": "pubmed/8bf266464d0a6729c092e61f2da3f225efe2209c67c0dc73e6a7ca67e434f84d.json"
-        }
-      ],
-      "facts": {
-        "/result/items/0/pmid": "/results/0/pmid"
-      },
-      "unprojectable_facts": {
-        "/status": {
-          "reason": "Released Article JSON has no current lifecycle/status, action, resolution or source-problem envelope; these values cannot be inferred from source presence or complete.",
-          "release_source": "src/entities/article/mod.rs"
-        },
-        "/sources/0/term": {
-          "reason": "Released search metadata uses a different source-plan/status schema and does not retain this current per-source term/count/notice or query shape.",
-          "release_source": "src/entities/article/mod.rs"
-        },
-        "/result/items/*/header/types": {
-          "reason": "Released Article JSON has no current lifecycle/status, action, resolution or source-problem envelope; these values cannot be inferred from source presence or complete.",
           "release_source": "src/entities/article/mod.rs"
         }
       }
@@ -538,9 +423,12 @@
           "source": "pubmed",
           "endpoint_env": "BIOMCP_PUBMED_BASE",
           "host": "eutils.ncbi.nlm.nih.gov",
-          "request_prefix": "POST /entrez/eutils/esummary.fcgi",
+          "request_prefix": "GET /entrez/eutils/esummary.fcgi",
           "request_contains": "",
-          "request_query": {},
+          "request_query": {
+            "db": "pubmed",
+            "id": ""
+          },
           "capture": "pubmed/ec6b569d8710cfeb29f8e71775b2fe26052ee5bcb29a350211319ef5599a6374.json"
         }
       ],
@@ -588,9 +476,12 @@
           "source": "pubmed",
           "endpoint_env": "BIOMCP_PUBMED_BASE",
           "host": "eutils.ncbi.nlm.nih.gov",
-          "request_prefix": "POST /entrez/eutils/esummary.fcgi",
+          "request_prefix": "GET /entrez/eutils/esummary.fcgi",
           "request_contains": "",
-          "request_query": {},
+          "request_query": {
+            "db": "pubmed",
+            "id": "17611497,17692802,17921701,18256540,18392055,18410456,18504432,18611285,18665177,18728674,18754328,18783292,18813315,18954143,19158829,19307184,19353338,19389506,19418217,19420344,19461960,19491896,19736514,19744127,19802009,19853286,19898424,20022634,20068047,20101210,20407443,20440266,20489726,20493625,20980808,21479466"
+          },
           "capture": "pubmed/6c8d07d0f6da2f24f41c184433776036eb48f78d8e255286c7048399f35c4a99.json"
         },
         {
@@ -937,8 +828,8 @@
       },
       {
         "case": "article/filters/trial.yaml",
-        "reason": "All asserted questions concern current lifecycle, source notices, pooled annotation state or resolution metadata absent from released Article serialization. No asserted released content field remains to compare.",
-        "release_source": "src/entities/article/mod.rs"
+        "reason": "Released normalize_article_type rejects trial. It cannot ask this clinical-trial publication-type question or serialize the current publication-type arrays.",
+        "release_source": "src/entities/article/filters.rs::normalize_article_type"
       },
       {
         "case": "article/fold/live-reverse.yaml",
@@ -1234,6 +1125,11 @@
         "case": "article/supplements/synthetic-unsupported-mime.yaml",
         "reason": "Released article supplement-search searches asset text; it has no standalone spreadsheet viewer, row/sheet selection or ZIP/XML safety outcome envelope.",
         "release_source": "src/cli/article/mod.rs::ArticleCommand"
+      },
+      {
+        "case": "article/filters/guideline.yaml",
+        "reason": "Released normalize_article_type accepts review, research, research-article, case-reports and meta-analysis. It rejects guideline, so it cannot ask the harvested guideline-filtered question.",
+        "release_source": "src/entities/article/filters.rs::normalize_article_type"
       }
     ]
   }
