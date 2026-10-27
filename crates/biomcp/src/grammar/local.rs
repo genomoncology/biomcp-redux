@@ -35,6 +35,8 @@ pub(super) fn help_command(root: &Command) -> Command {
     )
     .subcommand(Command::new("sources"))
     .subcommand(Command::new("config"))
+    .subcommand(Command::new("exit"))
+    .subcommand(Command::new("relations"))
 }
 
 fn help_tree(command: &Command) -> Command {

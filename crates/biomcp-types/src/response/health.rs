@@ -36,6 +36,7 @@ pub struct SourceHealth {
     /// Publisher terms page.
     pub terms_url: Text,
     /// Reviewed source category, not blanket permission for each record.
+    #[serde(rename = "use")]
     pub usage: Use,
     /// Whether source policy prevents all requests and cached reads.
     pub disabled: bool,

@@ -1,5 +1,6 @@
 //! One structural view of serialized JSON and its schema presentation hints.
 mod escape;
+mod help;
 mod hints;
 use escape::{escape, source_link};
 use serde_json::Value;
@@ -53,7 +54,11 @@ pub(crate) fn markdown(value: &Value) -> io::Result<Vec<u8>> {
         hint,
         source_links: false,
     };
-    view.object(value, &schema, 2, &mut out);
+    if identity == "biomcp.help/2" {
+        help::render(value, &mut out);
+    } else {
+        view.object(value, &schema, 2, &mut out);
+    }
     Ok(out.into_bytes())
 }
 struct View<'a> {

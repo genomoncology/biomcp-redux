@@ -1,5 +1,6 @@
 //! Schema-fed command help shared with MCP discovery.
 
+mod discovery;
 mod public_grammar;
 mod source_settings;
 
@@ -75,7 +76,12 @@ fn commands() -> io::Result<Vec<HelpCommand>> {
     }
     commands.extend(crate::housekeeping::help());
     extra_commands(&mut commands, &examples);
+    commands.extend(network("ca_bundle").commands);
+    commands.extend(network("proxy").commands);
+    commands.push(topic("exit", crate::exit::reference()));
+
     public_grammar::augment(&mut commands)?;
+    discovery::complete(&mut commands);
     for command in &mut commands {
         if command.reply_schemas.is_empty() {
             command.reply_schemas = crate::schema::local_replies(&command.command);
@@ -83,8 +89,8 @@ fn commands() -> io::Result<Vec<HelpCommand>> {
     }
     Ok(commands)
 }
-const AUTHOR_BOUNDARY: &str = " Author IDs identify provider records, not resolved people. Counts cover that provider record. \
-    Missing metadata is unavailable. Topic-wide author ranking and cross-provider merging are \
+const AUTHOR_BOUNDARY: &str = " Author IDs identify source records, not resolved people. Counts cover that source record. \
+    Missing metadata is unavailable. Topic-wide author ranking and cross-source merging are \
     unavailable. Semantic Scholar and ORCID are noncommercial; commercial users disable both with \
     --disable-sources noncommercial or config disable_sources. Optional keys: biomcp key set \
     semantic-scholar or S2_API_KEY; biomcp key set orcid or ORCID_ACCESS_TOKEN. IDs use \
@@ -231,8 +237,14 @@ fn argument(name: &str, node: &Value, root: &Value) -> HelpArgument {
         } else {
             format!("--{}", name.replace('_', "-"))
         },
+        aliases: Vec::new(),
+        default: node.get("default").map(|v| {
+            v.as_str()
+                .map(str::to_owned)
+                .unwrap_or_else(|| v.to_string())
+        }),
         description: text(node, "description"),
-        value_type: text(resolved, "type"),
+        value_type: value_type(resolved),
         required: field(root, "required")
             .as_array()
             .is_some_and(|v| v.iter().any(|v| v == name)),
@@ -251,11 +263,45 @@ fn argument(name: &str, node: &Value, root: &Value) -> HelpArgument {
             .collect(),
     }
 }
+fn value_type(node: &Value) -> String {
+    if let Some(kind) = node.get("type") {
+        return kind.as_str().map(str::to_owned).unwrap_or_else(|| {
+            kind.as_array()
+                .into_iter()
+                .flatten()
+                .filter_map(Value::as_str)
+                .filter(|v| *v != "null")
+                .collect::<Vec<_>>()
+                .join("|")
+        });
+    }
+    if node.get("enum").is_some() {
+        "string"
+    } else {
+        "object"
+    }
+    .into()
+}
 fn resolve<'a>(node: &'a Value, root: &'a Value) -> &'a Value {
-    field(node, "$ref")
-        .as_str()
+    if let Some(reference) = node
+        .get("$ref")
+        .and_then(Value::as_str)
         .and_then(|s| root.pointer(s.trim_start_matches('#')))
-        .unwrap_or(node)
+    {
+        return resolve(reference, root);
+    }
+    if let Some(branch) = ["anyOf", "oneOf", "allOf"]
+        .iter()
+        .find_map(|key| node.get(key).and_then(Value::as_array))
+        .and_then(|branches| {
+            branches
+                .iter()
+                .find(|v| v.get("type") != Some(&Value::from("null")))
+        })
+    {
+        return resolve(branch, root);
+    }
+    node
 }
 fn text(node: &Value, key: &str) -> String {
     node[key].as_str().unwrap_or_default().into()
@@ -338,7 +384,7 @@ fn tree_intro() -> Vec<String> {
     vec![
         "help CMD;schema ID".into(),
         CELL_LINE_BOUNDARY.into(),
-        "Author IDs name provider records;no ranking/merge. Both sources noncommercial;--disable-sources \
+        "Author IDs name source records;no ranking/merge. Both sources noncommercial;--disable-sources \
             noncommercial. Optional keys: biomcp key set semantic-scholar (S2_API_KEY);biomcp key set orcid \
             (ORCID_ACCESS_TOKEN)"
             .into(),
@@ -552,5 +598,17 @@ fn network(setting: &str) -> Help {
             section_rule: None,
             examples: Vec::new(),
         }],
+    }
+}
+
+fn topic(name: &str, description: String) -> HelpCommand {
+    HelpCommand {
+        command: vec!["help".into(), name.into()],
+        description,
+        reply_schemas: crate::schema::local_replies(&["help".into()]),
+        arguments: Vec::new(),
+        sections: Vec::new(),
+        section_rule: None,
+        examples: Vec::new(),
     }
 }

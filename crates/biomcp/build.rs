@@ -139,7 +139,7 @@ const EXAMPLE_CASES: &[(&str, usize)] = &[
     ("article/get/card.yaml", 0),
     ("article/preprint/reader.yaml", 0),
     ("article/fulltext/outline.yaml", 2),
-    ("article/fulltext/variant.yaml", 0),
+    ("article/fulltext/outline.yaml", 3),
     ("article/supplements/workbook.yaml", 0),
     ("article/supplements/protein-change.yaml", 0),
     ("article/citations/citing.yaml", 0),

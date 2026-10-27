@@ -44,7 +44,19 @@ fn documents() -> Result<Vec<(&'static str, String)>, Box<dyn std::error::Error>
         }
         writeln!(recipes, "```\n")?;
     }
+    let skill = fs::read_to_string(root().join("skills/SKILL.md"))?;
+    let (before, rest) = skill
+        .split_once("<!-- exit-reference:start -->")
+        .ok_or("missing exit reference start")?;
+    let (_, after) = rest
+        .split_once("<!-- exit-reference:end -->")
+        .ok_or("missing exit reference end")?;
+    let skill = format!(
+        "{before}<!-- exit-reference:start -->\n{}\n<!-- exit-reference:end -->{after}",
+        crate::exit::reference()
+    );
     Ok(vec![
+        ("skills/SKILL.md", skill),
         ("docs/reference/commands.md", reference),
         ("docs/recipes.md", recipes),
     ])

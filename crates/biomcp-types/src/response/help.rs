@@ -40,6 +40,12 @@ pub struct HelpCommand {
 pub struct HelpArgument {
     /// Positional name or long flag.
     pub name: String,
+    /// Alternative accepted flags.
+    #[serde(default, skip_serializing_if = "Vec::is_empty")]
+    pub aliases: Vec<String>,
+    /// Value used when the argument is omitted.
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub default: Option<String>,
     /// Field documentation.
     pub description: String,
     /// Schema scalar or array type.

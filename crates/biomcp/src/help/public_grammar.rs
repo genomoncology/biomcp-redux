@@ -56,6 +56,41 @@ pub(super) fn augment(commands: &mut Vec<HelpCommand>) -> io::Result<()> {
             entry.arguments.push(metadata(&argument));
         }
     }
+    for entry in commands.iter_mut() {
+        let parser = entry
+            .command
+            .iter()
+            .try_fold(&root, |parent, name| parent.find_subcommand(name));
+        if let Some(parser) = parser {
+            for arg in parser
+                .get_arguments()
+                .filter(|a| !a.is_hide_set() && (!a.is_global_set() || a.get_id() == "fresh"))
+            {
+                let value = metadata(arg);
+                if let Some(existing) = entry.arguments.iter_mut().find(|a| a.name == value.name) {
+                    existing.aliases = value.aliases;
+                    if existing.default.is_none() {
+                        existing.default = value.default;
+                    }
+                } else {
+                    entry.arguments.push(value);
+                }
+            }
+        }
+    }
+    if let Some(index) = commands.iter_mut().find(|c| c.command.is_empty()) {
+        index.description = root
+            .get_subcommands()
+            .map(|c| {
+                format!(
+                    "{}: {}",
+                    c.get_name(),
+                    c.get_about().map(ToString::to_string).unwrap_or_default()
+                )
+            })
+            .collect::<Vec<_>>()
+            .join("\n");
+    }
     Ok(())
 }
 fn add(commands: &mut Vec<HelpCommand>, parser: &Command, path: Vec<String>, root: bool) {
@@ -70,6 +105,8 @@ fn add(commands: &mut Vec<HelpCommand>, parser: &Command, path: Vec<String>, roo
                 name: alias.flags().join(", "),
                 description: alias.description().into(),
                 value_type: "boolean".into(),
+                aliases: Vec::new(),
+                default: Some("false".into()),
                 required: false,
                 position: None,
                 minimum: None,
@@ -118,10 +155,25 @@ fn metadata(arg: &Arg) -> HelpArgument {
             "boolean"
         }
         .into(),
+        aliases: arg
+            .get_short()
+            .map(|c| format!("-{c}"))
+            .into_iter()
+            .collect(),
+        default: arg
+            .get_default_values()
+            .first()
+            .map(|v| v.to_string_lossy().into_owned()),
         required: arg.is_required_set(),
         position: arg.get_index().map(|i| (i - 1) as u64),
         minimum: None,
         maximum: None,
-        choices: Vec::new(),
+        choices: arg
+            .get_value_parser()
+            .possible_values()
+            .into_iter()
+            .flatten()
+            .map(|v| v.get_name().to_owned())
+            .collect(),
     }
 }
