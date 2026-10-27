@@ -1,4 +1,4 @@
-//! Feature schema-discovery: public grammar and safe argument failures at the CLI boundary.
+//! Feature generated-help: public grammar and safe argument failures at the CLI boundary.
 use super::launch::Environment;
 use libtest_mimic::Trial;
 use serde_json::{Value, json};
