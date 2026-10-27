@@ -25,7 +25,7 @@ const SHAPES: &[Shape] = &[
             "limit",
             "pool",
             "source",
-            "Topic-wide author ranking and cross-provider merging are unavailable.",
+            "Topic-wide author ranking and cross-provider merging are unavailable&#46;",
         ],
         max_bytes: 1839,
     },
@@ -134,7 +134,7 @@ const SHAPES: &[Shape] = &[
         args: &["get", "article", "33123537"],
         replies: "article/get/synthetic-derived",
         required: &[
-            "# Effect of AKT1 (p. E17K) Hotspot Mutation on Malignant Tumorigenesis and Prognosis.",
+            "# Effect of AKT1 (p&#46; E17K) Hotspot Mutation on Malignant Tumorigenesis and Prognosis&#46;",
             "**status:**",
             "biomcp",
         ],
@@ -143,7 +143,7 @@ const SHAPES: &[Shape] = &[
     Shape {
         args: &["article", "text", "PMC5606870", "--part", "1"],
         replies: "article/fulltext/synthetic",
-        required: &["## Introduction", "*text*", "**state:** data"],
+        required: &["\\#\\# Introduction", "\\*text\\*", "**state:** data"],
         max_bytes: 650,
     },
     Shape {
@@ -166,7 +166,7 @@ const SHAPES: &[Shape] = &[
                 "Supplemental Table 2: Individual Tier 2 Variants. |"
             ),
             "AXIN2",
-            "p.Pro245Ser",
+            "p&#46;Pro245Ser",
             "biomcp article supplement 28944238 MGG3-5-553-s002.xlsx",
         ],
         max_bytes: 4934,
@@ -174,7 +174,7 @@ const SHAPES: &[Shape] = &[
     Shape {
         args: &["get", "gene"],
         replies: "gene/main",
-        required: &["# Error", "**status:** usage", "usage.arguments"],
+        required: &["# Error", "**status:** usage", "usage&#46;arguments"],
         max_bytes: 151,
     },
 ];

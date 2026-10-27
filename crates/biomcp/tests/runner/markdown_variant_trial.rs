@@ -50,7 +50,7 @@ const SHAPES: &[(&str, Shape)] = &[
             args: &["get", "variant", "rs113488022", "predict"],
             replies: "variant/synthetic-components",
             required: &[
-                "cadd.phred",
+                "cadd&#46;phred",
                 "0.25",
                 "## Result",
                 " Predict\n\n",
@@ -66,7 +66,7 @@ const SHAPES: &[(&str, Shape)] = &[
             args: &["get", "variant", "rs113488022", "conservation"],
             replies: "variant/synthetic-components",
             required: &[
-                "dbnsfp.gerp++.nr",
+                "dbnsfp&#46;gerp++&#46;nr",
                 "1.5",
                 "## Result",
                 " Conservation\n\n",
