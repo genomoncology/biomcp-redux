@@ -359,12 +359,8 @@ fn enabled_fold() -> Check {
         {
             return Err(format!("disabled leg hid enabled source rows: {result}"));
         }
-        let next = result
-            .pointer("/next/0/args")
-            .and_then(Value::as_array)
-            .ok_or("missing continuation")?;
-        if !next.iter().any(|a| a == "--disable-sources") {
-            return Err("continuation lost source policy".into());
+        if result.get("next").is_some() {
+            return Err("mixed-source continuation still calls disabled PubMed".into());
         }
     }
     Ok(())

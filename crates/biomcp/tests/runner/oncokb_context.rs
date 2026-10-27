@@ -52,13 +52,7 @@ fn run() -> Result<(), String> {
                 steps.iter().any(|s| {
                     s.get("kind") == Some(&json!("configure"))
                         && s.get("args")
-                            == Some(&json!([
-                                "--disable-sources",
-                                disabled.join(","),
-                                "help",
-                                "get",
-                                "variant"
-                            ]))
+                            == Some(&json!(["help", "get", "variant"]))
                 })
             })
     {
