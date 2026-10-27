@@ -33,7 +33,7 @@ steps:
   - run: [skill, install, --help]
     expect:
       /result/commands/0/command: [skill, install]
-  - run: [serve, --help]
+  - run: [serve, --http, --help]
     expect:
       /result/commands/0/command: [serve]
   - run: [help, --help]

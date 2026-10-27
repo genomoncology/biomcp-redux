@@ -30,12 +30,15 @@ pub(super) fn arguments(args: &[OsString], root: &Command) -> Vec<OsString> {
             command = child;
             continue;
         }
+        if !text.starts_with('-') && command.get_subcommands().next().is_some() {
+            return args.to_vec();
+        }
         if let Some((argument, inline)) = argument(command, text) {
             let is_global = argument.is_global_set();
             if is_global {
                 globals.push(word.clone());
             }
-            if argument.get_action().takes_values() && !inline {
+            if takes_value(argument, &mut words) && !inline {
                 if let Some(value) = words.next() {
                     if is_global {
                         globals.push(value.clone());
@@ -57,19 +60,28 @@ fn argument<'a>(command: &'a Command, word: &str) -> Option<(&'a clap::Arg, bool
     }).map(|arg| (arg, inline))
 }
 
+fn takes_value(
+    argument: &clap::Arg,
+    words: &mut std::iter::Peekable<std::slice::Iter<'_, OsString>>,
+) -> bool {
+    argument.get_action().takes_values()
+        && !(argument.get_num_args().is_some_and(|range| range.min_values() == 0)
+            && words.peek().is_some_and(|word| word.to_str().is_some_and(|word| word.starts_with('-'))))
+}
+
 pub(super) fn unknown_command(args: &[OsString], root: &Command) -> Option<Vec<String>> {
     if super::command_words(args).next() == Some("schema") {
         return None;
     }
     let mut command = root;
     let mut path: Vec<String> = Vec::new();
-    let mut words = args.iter();
+    let mut words = args.iter().peekable();
     while let Some(word) = words.next().and_then(|word| word.to_str()) {
         if word == "--" || path.first().is_some_and(|word| word == "schema") {
             return None;
         }
         if let Some((argument, inline)) = argument(command, word) {
-            if argument.get_action().takes_values() && !inline {
+            if takes_value(argument, &mut words) && !inline {
                 words.next();
             }
             continue;
