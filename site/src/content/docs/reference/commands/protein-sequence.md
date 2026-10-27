@@ -34,8 +34,16 @@ biomcp protein sequence P00533
 biomcp protein sequence P00533 --fresh
 ```
 
+## Reply schema
+
+The help examples of this command return [`biomcp.protein_sequence/1`](/reference/schemas/biomcp-protein-sequence-1/). Print the full JSON schema with `biomcp schema biomcp.protein_sequence/1`.
+
 ## Exit codes
 
 See [exit codes](/reference/error-codes/). Options that apply to every command are in [global options](/reference/global-options/).
+
+## Next
+
+The [protein entity](/user-guide/protein/) page lists every protein command and links to a worked guide.
 
 This page is generated from the help of BioMCP 1.0.0. Fix a wrong sentence in the help text, then regenerate.

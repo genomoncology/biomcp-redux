@@ -10,15 +10,13 @@ sidebar:
 ---
 import Example from '../../../components/Example.astro';
 import Fact from '../../../components/Fact.astro';
+import CommandTable from '../../../components/CommandTable.astro';
 
 BioMCP <Fact k="version" /> entity `drug`. A drug as one source records it. Each source has its own identifier, so `get drug` takes `--source`. Identity cards never expand into sections on their own. Ask for each section by name.
 
 ## Commands
 
-| Command | Description |
-| --- | --- |
-| [`biomcp search drug`](/reference/commands/search-drug/) | Literal single-source candidate discovery, without an implicit identity selection. |
-| [`biomcp get drug`](/reference/commands/get-drug/) | Exact native ID retrieval with an explicitly selected source. |
+<CommandTable entity="drug" />
 
 ## Sections of get drug
 
@@ -32,6 +30,6 @@ BioMCP <Fact k="version" /> entity `drug`. A drug as one source records it. Each
 
 <Example id="drug-targets" />
 
-## Guide
+## Next
 
 [Drugs and safety](/drugs-and-safety/) walks through these commands with more examples. All 16 entities are listed in the [entities reference](/reference/entities/).

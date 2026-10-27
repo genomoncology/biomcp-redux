@@ -55,8 +55,16 @@ biomcp get diagnostic 0466-046-00 --source who-ivd
 biomcp get diagnostic GTR000006692.3 --source gtr
 ```
 
+## Reply schema
+
+The help examples of this command return [`biomcp.diagnostic_card/1`](/reference/schemas/biomcp-diagnostic-card-1/). Print the full JSON schema with `biomcp schema biomcp.diagnostic_card/1`.
+
 ## Exit codes
 
 See [exit codes](/reference/error-codes/). Options that apply to every command are in [global options](/reference/global-options/).
+
+## Next
+
+The [diagnostic entity](/user-guide/diagnostic/) page lists every diagnostic command and links to a worked guide.
 
 This page is generated from the help of BioMCP 1.0.0. Fix a wrong sentence in the help text, then regenerate.

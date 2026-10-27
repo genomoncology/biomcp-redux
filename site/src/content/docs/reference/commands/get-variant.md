@@ -63,8 +63,16 @@ biomcp get variant clinvar:13961 clinvar
 biomcp get variant CA000434 erepo
 ```
 
+## Reply schema
+
+The help examples of this command return [`biomcp.variant_card/5`](/reference/schemas/biomcp-variant-card-5/). Print the full JSON schema with `biomcp schema biomcp.variant_card/5`.
+
 ## Exit codes
 
 See [exit codes](/reference/error-codes/). Options that apply to every command are in [global options](/reference/global-options/).
+
+## Next
+
+The [variant entity](/user-guide/variant/) page lists every variant command and links to a worked guide.
 
 This page is generated from the help of BioMCP 1.0.0. Fix a wrong sentence in the help text, then regenerate.

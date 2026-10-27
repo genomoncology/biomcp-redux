@@ -47,8 +47,16 @@ biomcp get study synthetic_0
 biomcp get study synthetic_1
 ```
 
+## Reply schema
+
+The help examples of this command return [`biomcp.study_card/2`](/reference/schemas/biomcp-study-card-2/). Print the full JSON schema with `biomcp schema biomcp.study_card/2`.
+
 ## Exit codes
 
 See [exit codes](/reference/error-codes/). Options that apply to every command are in [global options](/reference/global-options/).
+
+## Next
+
+The [study entity](/user-guide/study/) page lists every study command and links to a worked guide.
 
 This page is generated from the help of BioMCP 1.0.0. Fix a wrong sentence in the help text, then regenerate.

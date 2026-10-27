@@ -10,16 +10,13 @@ sidebar:
 ---
 import Example from '../../../components/Example.astro';
 import Fact from '../../../components/Fact.astro';
+import CommandTable from '../../../components/CommandTable.astro';
 
 BioMCP <Fact k="version" /> entity `trial`. A registered clinical trial, read by NCT identifier from ClinicalTrials.gov, or from NCI with your key. BioMCP searches registry text. It makes no eligibility judgment.
 
 ## Commands
 
-| Command | Description |
-| --- | --- |
-| [`biomcp search trial`](/reference/commands/search-trial/) | Search one provider with bounded pages and source-native counts; default ClinicalTrials.gov, explicit keyed NCI, never a fallback. |
-| [`biomcp get trial`](/reference/commands/get-trial/) | Retrieve exact trial cards in input order; request bounded intact source sections with independent continuations. |
-| [`biomcp trial document`](/reference/commands/trial-document/) | Download one exact ClinicalTrials.gov manifest PDF to an explicit caller path; never read its text. |
+<CommandTable entity="trial" />
 
 ## Sections of get trial
 
@@ -33,6 +30,6 @@ BioMCP <Fact k="version" /> entity `trial`. A registered clinical trial, read by
 
 <Example id="trial-get" />
 
-## Guide
+## Next
 
 [Clinical trials](/how-to/find-trials/) walks through these commands with more examples. All 16 entities are listed in the [entities reference](/reference/entities/).

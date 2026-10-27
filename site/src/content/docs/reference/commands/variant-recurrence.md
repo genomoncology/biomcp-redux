@@ -44,8 +44,16 @@ biomcp variant recurrence 'NC_000007.13:g.140494253G>A' --source cbioportal --ge
 biomcp variant recurrence 'NC_000007.13:g.140494253G>A' --source cbioportal --gene BRAF --study msk_impact_2017 --profile msk_impact_2017_mutations --sample-set msk_impact_2017_all --limit 3 --page 0
 ```
 
+## Reply schema
+
+The help examples of this command return [`biomcp.variant_recurrence/4`](/reference/schemas/biomcp-variant-recurrence-4/). Print the full JSON schema with `biomcp schema biomcp.variant_recurrence/4`.
+
 ## Exit codes
 
 See [exit codes](/reference/error-codes/). Options that apply to every command are in [global options](/reference/global-options/).
+
+## Next
+
+The [variant entity](/user-guide/variant/) page lists every variant command and links to a worked guide.
 
 This page is generated from the help of BioMCP 1.0.0. Fix a wrong sentence in the help text, then regenerate.

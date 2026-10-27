@@ -35,4 +35,8 @@ The help lists no examples for this command.
 
 See [exit codes](/reference/error-codes/). Options that apply to every command are in [global options](/reference/global-options/).
 
+## Next
+
+The [commands index](/reference/commands/) lists every command.
+
 This page is generated from the help of BioMCP 1.0.0. Fix a wrong sentence in the help text, then regenerate.

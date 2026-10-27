@@ -6,6 +6,7 @@ import { exampleMarkdown } from '../src/lib/examples.mjs';
 import { fact } from '../src/lib/facts.mjs';
 import { envelopeMarkdown } from '../src/lib/envelope.mjs';
 import { sourceTableMarkdown } from '../src/lib/sources.mjs';
+import { commandTableMarkdown } from '../src/lib/commands.mjs';
 
 export const DOCS = path.resolve('src/content/docs');
 
@@ -40,7 +41,8 @@ export function bodyMarkdown(body) {
     .replace(/<InstallLine(?:\s+k="([^"]+)")?\s*\/>/g, (_, k) => '```sh\n' + fact(k ?? 'install.script') + '\n```')
     .replace(/<Fact\s+k="([^"]+)"\s*\/>/g, (_, k) => fact(k))
     .replace(/<EnvelopeTable\s+field="([^"]+)"\s*\/>/g, (_, f) => envelopeMarkdown(f))
-    .replace(/<SourceTable(?:\s+field="([^"]+)")?\s*\/>/g, (_, f) => sourceTableMarkdown(f))
+    .replace(/<SourceTable(?:\s+field="([^"]+)")?(?:\s+group="([^"]+)")?\s*\/>/g, (_, f, g) => sourceTableMarkdown(f, g))
+    .replace(/<CommandTable\s+entity="([^"]+)"\s*\/>/g, (_, e) => commandTableMarkdown(e))
     .replace(/<\/?(Hero|CardGrid|Card|LinkCard|Tabs|TabItem|Aside|Steps|FunctionTable|Badge)[^>]*>/g, '')
     .replace(/\n{3,}/g, '\n\n')
     .trim();

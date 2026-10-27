@@ -50,8 +50,16 @@ biomcp get gene KRAS
 biomcp get gene BRAF
 ```
 
+## Reply schema
+
+The help examples of this command return [`biomcp.gene_cards/4`](/reference/schemas/biomcp-gene-cards-4/). Print the full JSON schema with `biomcp schema biomcp.gene_cards/4`.
+
 ## Exit codes
 
 See [exit codes](/reference/error-codes/). Options that apply to every command are in [global options](/reference/global-options/).
+
+## Next
+
+The [gene entity](/user-guide/gene/) page lists every gene command and links to a worked guide.
 
 This page is generated from the help of BioMCP 1.0.0. Fix a wrong sentence in the help text, then regenerate.

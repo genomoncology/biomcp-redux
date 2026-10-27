@@ -17,6 +17,7 @@ The BioMCP 1.0.0 reference is generated from the program's own help and registry
 - [Global options](/reference/global-options/): options every command accepts.
 - [Reply envelope](/reference/envelope/): statuses, source states, reasons, use groups and error codes.
 - [Exit codes](/reference/error-codes/): what each exit code means.
+- [Reply schemas](/reference/schemas/): the 119 reply schemas and the commands that return them.
 - [Command map from 0.9](/reference/upgrade-map/): what happened to each 0.9 command.
 - [MCP tools](/reference/mcp-server/): the 3 tools the server offers.
 

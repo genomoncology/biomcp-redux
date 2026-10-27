@@ -49,8 +49,16 @@ biomcp get pathway R-HSA-9652817
 biomcp get pathway R-HSA-177929
 ```
 
+## Reply schema
+
+The help examples of this command return [`biomcp.pathway_card/5`](/reference/schemas/biomcp-pathway-card-5/). Print the full JSON schema with `biomcp schema biomcp.pathway_card/5`.
+
 ## Exit codes
 
 See [exit codes](/reference/error-codes/). Options that apply to every command are in [global options](/reference/global-options/).
+
+## Next
+
+The [pathway entity](/user-guide/pathway/) page lists every pathway command and links to a worked guide.
 
 This page is generated from the help of BioMCP 1.0.0. Fix a wrong sentence in the help text, then regenerate.

@@ -41,8 +41,16 @@ biomcp search author 'Louis Williams'
 biomcp search author 'Louis Williams' --source semanticscholar
 ```
 
+## Reply schema
+
+The help examples of this command return [`biomcp.author_page/2`](/reference/schemas/biomcp-author-page-2/). Print the full JSON schema with `biomcp schema biomcp.author_page/2`.
+
 ## Exit codes
 
 See [exit codes](/reference/error-codes/). Options that apply to every command are in [global options](/reference/global-options/).
+
+## Next
+
+The [author entity](/user-guide/author/) page lists every author command and links to a worked guide.
 
 This page is generated from the help of BioMCP 1.0.0. Fix a wrong sentence in the help text, then regenerate.

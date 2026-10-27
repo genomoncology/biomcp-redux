@@ -10,15 +10,13 @@ sidebar:
 ---
 import Example from '../../../components/Example.astro';
 import Fact from '../../../components/Fact.astro';
+import CommandTable from '../../../components/CommandTable.astro';
 
 BioMCP <Fact k="version" /> entity `gwas`. GWAS Catalog studies and associations, searched by variant, gene, trait, study or PubMed ID. Rows report published associations. They give no personal risk and name no causal gene.
 
 ## Commands
 
-| Command | Description |
-| --- | --- |
-| [`biomcp get gwas`](/reference/commands/get-gwas/) | Source association or study and native context. |
-| [`biomcp search gwas`](/reference/commands/search-gwas/) | Source associations in default p-value-ascending order. |
+<CommandTable entity="gwas" />
 
 ## Sections of get gwas
 
@@ -32,6 +30,6 @@ BioMCP <Fact k="version" /> entity `gwas`. GWAS Catalog studies and associations
 
 <Example id="gwas-variant" />
 
-## Guide
+## Next
 
 [Diseases and phenotypes](/diseases-and-phenotypes/) walks through these commands with more examples. All 16 entities are listed in the [entities reference](/reference/entities/).

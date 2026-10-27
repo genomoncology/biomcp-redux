@@ -180,4 +180,13 @@ BioMCP 1.0.0 has 85 commands in its help. Each links to its page with arguments,
 | [`biomcp help key nci`](/reference/commands/help-key-nci/) | Show credential registration and environment fallback names. |
 | [`biomcp help key openfda`](/reference/commands/help-key-openfda/) | Show credential registration and environment fallback names. |
 
+## Help topics
+
+`biomcp help` does not list these topics. A reply names one in `next` when a source fails with reason `proxy` or `tls`.
+
+| Topic | Description |
+| --- | --- |
+| [`biomcp help network proxy`](/reference/commands/help-network-proxy/) | Set proxy in config.json to an HTTP or HTTPS proxy URL. |
+| [`biomcp help network ca_bundle`](/reference/commands/help-network-ca_bundle/) | Set ca_bundle in config.json to a PEM certificate file. |
+
 This page is generated from the help of BioMCP 1.0.0. Fix a wrong sentence in the help text, then regenerate.

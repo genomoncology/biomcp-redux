@@ -45,8 +45,16 @@ biomcp search gwas --pubmed 17529967
 biomcp search gwas --variant rs2981582
 ```
 
+## Reply schema
+
+The help examples of this command return [`biomcp.gwas_page/3`](/reference/schemas/biomcp-gwas-page-3/). Print the full JSON schema with `biomcp schema biomcp.gwas_page/3`.
+
 ## Exit codes
 
 See [exit codes](/reference/error-codes/). Options that apply to every command are in [global options](/reference/global-options/).
+
+## Next
+
+The [gwas entity](/user-guide/gwas/) page lists every gwas command and links to a worked guide.
 
 This page is generated from the help of BioMCP 1.0.0. Fix a wrong sentence in the help text, then regenerate.

@@ -10,15 +10,13 @@ sidebar:
 ---
 import Example from '../../../components/Example.astro';
 import Fact from '../../../components/Fact.astro';
+import CommandTable from '../../../components/CommandTable.astro';
 
 BioMCP <Fact k="version" /> entity `phenotype`. A Human Phenotype Ontology term, with its disease and gene associations from the Monarch Initiative. Terms are terminology. Associations are the publisher's assertions, not diagnoses.
 
 ## Commands
 
-| Command | Description |
-| --- | --- |
-| [`biomcp search phenotype`](/reference/commands/search-phenotype/) | Search literal human HP term candidates through Monarch with bounded native pages. |
-| [`biomcp get phenotype`](/reference/commands/get-phenotype/) | Read an exact HP term from HPO or Monarch, or page native source sections. |
+<CommandTable entity="phenotype" />
 
 ## Sections of get phenotype
 
@@ -32,6 +30,6 @@ BioMCP <Fact k="version" /> entity `phenotype`. A Human Phenotype Ontology term,
 
 <Example id="phenotype-search" />
 
-## Guide
+## Next
 
 [Diseases and phenotypes](/diseases-and-phenotypes/) walks through these commands with more examples. All 16 entities are listed in the [entities reference](/reference/entities/).

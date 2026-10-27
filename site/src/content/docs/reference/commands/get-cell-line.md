@@ -49,8 +49,16 @@ biomcp get cell-line CVCL_2119
 biomcp get cell-line CVCL_0004
 ```
 
+## Reply schema
+
+The help examples of this command return [`biomcp.cell_line_card/3`](/reference/schemas/biomcp-cell-line-card-3/). Print the full JSON schema with `biomcp schema biomcp.cell_line_card/3`.
+
 ## Exit codes
 
 See [exit codes](/reference/error-codes/). Options that apply to every command are in [global options](/reference/global-options/).
+
+## Next
+
+The [cell-line entity](/user-guide/cell-line/) page lists every cell-line command and links to a worked guide.
 
 This page is generated from the help of BioMCP 1.0.0. Fix a wrong sentence in the help text, then regenerate.

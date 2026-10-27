@@ -41,8 +41,16 @@ biomcp search pgx --gene DPYD --source cpic
 biomcp search pgx --gene DPYD --source cpic --limit 1 --cpic-level B/C
 ```
 
+## Reply schema
+
+The help examples of this command return [`biomcp.pgx_page/2`](/reference/schemas/biomcp-pgx-page-2/). Print the full JSON schema with `biomcp schema biomcp.pgx_page/2`.
+
 ## Exit codes
 
 See [exit codes](/reference/error-codes/). Options that apply to every command are in [global options](/reference/global-options/).
+
+## Next
+
+The [pgx entity](/user-guide/pgx/) page lists every pgx command and links to a worked guide.
 
 This page is generated from the help of BioMCP 1.0.0. Fix a wrong sentence in the help text, then regenerate.

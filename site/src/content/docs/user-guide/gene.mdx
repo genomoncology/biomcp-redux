@@ -10,15 +10,13 @@ sidebar:
 ---
 import Example from '../../../components/Example.astro';
 import Fact from '../../../components/Fact.astro';
+import CommandTable from '../../../components/CommandTable.astro';
 
 BioMCP <Fact k="version" /> entity `gene`. A human gene, resolved against HGNC by symbol, alias, previous symbol or identifier. The card holds the HGNC identity, other identifiers, location, MANE transcript and the RefSeq summary.
 
 ## Commands
 
-| Command | Description |
-| --- | --- |
-| [`biomcp get gene`](/reference/commands/get-gene/) | Get one to twenty human gene inputs in their original order. |
-| [`biomcp search gene`](/reference/commands/search-gene/) | Search genes by text, cytoband, or their intersection. |
+<CommandTable entity="gene" />
 
 ## Sections of get gene
 
@@ -32,6 +30,6 @@ BioMCP <Fact k="version" /> entity `gene`. A human gene, resolved against HGNC b
 
 <Example id="qs-get-gene" />
 
-## Guide
+## Next
 
 [Genes and proteins](/genes-and-proteins/) walks through these commands with more examples. All 16 entities are listed in the [entities reference](/reference/entities/).

@@ -61,8 +61,16 @@ biomcp get drug EMEA/H/C/000406 --source ema
 biomcp get drug EMEA/H/C/000406 regulatory --source ema
 ```
 
+## Reply schema
+
+The help examples of this command return [`biomcp.drug_card/2`](/reference/schemas/biomcp-drug-card-2/), [`biomcp.drug_regulatory/2`](/reference/schemas/biomcp-drug-regulatory-2/). Print the full JSON schema with `biomcp schema biomcp.drug_card/2`.
+
 ## Exit codes
 
 See [exit codes](/reference/error-codes/). Options that apply to every command are in [global options](/reference/global-options/).
+
+## Next
+
+The [drug entity](/user-guide/drug/) page lists every drug command and links to a worked guide.
 
 This page is generated from the help of BioMCP 1.0.0. Fix a wrong sentence in the help text, then regenerate.

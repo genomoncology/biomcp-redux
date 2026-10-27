@@ -1,0 +1,750 @@
+[
+  {
+    "command": "author papers",
+    "entity": "author",
+    "route": "/reference/commands/author-papers/",
+    "description": "One exact provider record's publication window.",
+    "schemas": [
+      "biomcp.author_papers/1",
+      "biomcp.author_paper_details/1"
+    ]
+  },
+  {
+    "command": "search author",
+    "entity": "author",
+    "route": "/reference/commands/search-author/",
+    "description": "Literal author name query and native window; positional text maps to query.",
+    "schemas": [
+      "biomcp.author_page/2"
+    ]
+  },
+  {
+    "command": "get author",
+    "entity": "author",
+    "route": "/reference/commands/get-author/",
+    "description": "Exact qualified records in caller order, with no name reconciliation.",
+    "schemas": [
+      "biomcp.author_card/3"
+    ]
+  },
+  {
+    "command": "cell-line assay-count",
+    "entity": "cell-line",
+    "route": "/reference/commands/cell-line-assay-count/",
+    "description": "A separate assay-count request, never implicit in metadata or all.",
+    "schemas": [
+      "biomcp.cell_line_assay_count/2"
+    ]
+  },
+  {
+    "command": "search cell-line",
+    "entity": "cell-line",
+    "route": "/reference/commands/search-cell-line/",
+    "description": "One literal cell line search, with native order and no total claim.",
+    "schemas": [
+      "biomcp.cell_line_page/2"
+    ]
+  },
+  {
+    "command": "get cell-line",
+    "entity": "cell-line",
+    "route": "/reference/commands/get-cell-line/",
+    "description": "One exact identity and an optional bounded named section.",
+    "schemas": [
+      "biomcp.cell_line_card/3"
+    ]
+  },
+  {
+    "command": "get gwas",
+    "entity": "gwas",
+    "route": "/reference/commands/get-gwas/",
+    "description": "Source association or study and native context.",
+    "schemas": [
+      "biomcp.gwas_association/1",
+      "biomcp.gwas_study/1"
+    ]
+  },
+  {
+    "command": "search gwas",
+    "entity": "gwas",
+    "route": "/reference/commands/search-gwas/",
+    "description": "Source associations in default p-value-ascending order.",
+    "schemas": [
+      "biomcp.gwas_page/3"
+    ]
+  },
+  {
+    "command": "protein features",
+    "entity": "protein",
+    "route": "/reference/commands/protein-features/",
+    "description": "Page five native UniProt features by exact type and displayed residue.",
+    "schemas": [
+      "biomcp.protein_features/1"
+    ]
+  },
+  {
+    "command": "protein isoforms",
+    "entity": "protein",
+    "route": "/reference/commands/protein-isoforms/",
+    "description": "Page five source isoforms, exact-participant complexes or PDB links.",
+    "schemas": [
+      "biomcp.protein_isoforms/1"
+    ]
+  },
+  {
+    "command": "protein domains",
+    "entity": "protein",
+    "route": "/reference/commands/protein-domains/",
+    "description": "Page five native InterPro matches with original types and fragments.",
+    "schemas": [
+      "biomcp.protein_domains/2"
+    ]
+  },
+  {
+    "command": "protein complexes",
+    "entity": "protein",
+    "route": "/reference/commands/protein-complexes/",
+    "description": "Page five source isoforms, exact-participant complexes or PDB links.",
+    "schemas": [
+      "biomcp.protein_complexes/2"
+    ]
+  },
+  {
+    "command": "protein complex-members",
+    "entity": "protein",
+    "route": "/reference/commands/protein-complex-members/",
+    "description": "Page five native participants of an exact Complex Portal complex containing the anchor.",
+    "schemas": [
+      "biomcp.protein_complex_members/1"
+    ]
+  },
+  {
+    "command": "protein structures",
+    "entity": "protein",
+    "route": "/reference/commands/protein-structures/",
+    "description": "Page five source isoforms, exact-participant complexes or PDB links.",
+    "schemas": [
+      "biomcp.protein_structures/1"
+    ]
+  },
+  {
+    "command": "protein sequence",
+    "entity": "protein",
+    "route": "/reference/commands/protein-sequence/",
+    "description": "Read one complete native sequence for an exact source accession.",
+    "schemas": [
+      "biomcp.protein_sequence/1"
+    ]
+  },
+  {
+    "command": "search protein",
+    "entity": "protein",
+    "route": "/reference/commands/search-protein/",
+    "description": "Search five reviewed human UniProt headers by literal text or exact gene.",
+    "schemas": [
+      "biomcp.protein_page/1"
+    ]
+  },
+  {
+    "command": "get protein",
+    "entity": "protein",
+    "route": "/reference/commands/get-protein/",
+    "description": "Read source protein cards; a symbol returns candidates without choosing a protein.",
+    "schemas": [
+      "biomcp.protein_card/3"
+    ]
+  },
+  {
+    "command": "search phenotype",
+    "entity": "phenotype",
+    "route": "/reference/commands/search-phenotype/",
+    "description": "Search literal human HP term candidates through Monarch with bounded native pages.",
+    "schemas": [
+      "biomcp.phenotype-search/1"
+    ]
+  },
+  {
+    "command": "get phenotype",
+    "entity": "phenotype",
+    "route": "/reference/commands/get-phenotype/",
+    "description": "Read an exact HP term from HPO or Monarch, or page native source sections.",
+    "schemas": [
+      "biomcp.phenotype-card/1"
+    ]
+  },
+  {
+    "command": "search pathway",
+    "entity": "pathway",
+    "route": "/reference/commands/search-pathway/",
+    "description": "Search Reactome (default) or WikiPathways human pathways.",
+    "schemas": [
+      "biomcp.pathway_page/3"
+    ]
+  },
+  {
+    "command": "get pathway",
+    "entity": "pathway",
+    "route": "/reference/commands/get-pathway/",
+    "description": "Get an exact human Reactome R-HSA or WikiPathways WP card.",
+    "schemas": [
+      "biomcp.pathway_card/5"
+    ]
+  },
+  {
+    "command": "pathway genes",
+    "entity": "pathway",
+    "route": "/reference/commands/pathway-genes/",
+    "description": "Read Reactome exact references or WikiPathways GeneProduct data nodes.",
+    "schemas": [
+      "biomcp.pathway_genes/4"
+    ]
+  },
+  {
+    "command": "pathway events",
+    "entity": "pathway",
+    "route": "/reference/commands/pathway-events/",
+    "description": "Read Reactome event objects and unresolved native integer references in source order.",
+    "schemas": [
+      "biomcp.pathway_events/2"
+    ]
+  },
+  {
+    "command": "search study",
+    "entity": "study",
+    "route": "/reference/commands/search-study/",
+    "description": "Literal stored metadata search; text is never parsed as a query language.",
+    "schemas": [
+      "biomcp.study_page/1"
+    ]
+  },
+  {
+    "command": "get study",
+    "entity": "study",
+    "route": "/reference/commands/get-study/",
+    "description": "Exact case-sensitive study card or bounded metadata section.",
+    "schemas": [
+      "biomcp.study_card/2"
+    ]
+  },
+  {
+    "command": "search pgx",
+    "entity": "pgx",
+    "route": "/reference/commands/search-pgx/",
+    "description": "Checked gene-keyed CPIC pair search.",
+    "schemas": [
+      "biomcp.pgx_page/2"
+    ]
+  },
+  {
+    "command": "get pgx",
+    "entity": "pgx",
+    "route": "/reference/commands/get-pgx/",
+    "description": "PGx card or section.",
+    "schemas": [
+      "biomcp.pgx_card/1",
+      "biomcp.pgx_diplotype/1"
+    ]
+  },
+  {
+    "command": "search diagnostic",
+    "entity": "diagnostic",
+    "route": "/reference/commands/search-diagnostic/",
+    "description": "Search one diagnostic source.",
+    "schemas": [
+      "biomcp.diagnostic_page/2"
+    ]
+  },
+  {
+    "command": "get diagnostic",
+    "entity": "diagnostic",
+    "route": "/reference/commands/get-diagnostic/",
+    "description": "Get one exact source record or supported section.",
+    "schemas": [
+      "biomcp.diagnostic_card/1"
+    ]
+  },
+  {
+    "command": "search adverse-event",
+    "entity": "adverse-event",
+    "route": "/reference/commands/search-adverse-event/",
+    "description": "Search five report headers by default.",
+    "schemas": [
+      "biomcp.adverse_event_page/2"
+    ]
+  },
+  {
+    "command": "get adverse-event",
+    "entity": "adverse-event",
+    "route": "/reference/commands/get-adverse-event/",
+    "description": "Exact native report identity and an optional independently paged section.",
+    "schemas": [
+      "biomcp.adverse_event_faers_card/1"
+    ]
+  },
+  {
+    "command": "search disease",
+    "entity": "disease",
+    "route": "/reference/commands/search-disease/",
+    "description": "Literal discovery text or an explicit SEER catalog page.",
+    "schemas": [
+      "biomcp.disease_sites/2"
+    ]
+  },
+  {
+    "command": "get disease",
+    "entity": "disease",
+    "route": "/reference/commands/get-disease/",
+    "description": "Exact concept or native SEER site with independently paged section.",
+    "schemas": [
+      "biomcp.disease_incidence/3",
+      "biomcp.disease_survival/3"
+    ]
+  },
+  {
+    "command": "search drug",
+    "entity": "drug",
+    "route": "/reference/commands/search-drug/",
+    "description": "Literal single-source candidate discovery, without an implicit identity selection.",
+    "schemas": [
+      "biomcp.drug_page/3"
+    ]
+  },
+  {
+    "command": "get drug",
+    "entity": "drug",
+    "route": "/reference/commands/get-drug/",
+    "description": "Exact native ID retrieval with an explicitly selected source.",
+    "schemas": [
+      "biomcp.drug_card/2",
+      "biomcp.drug_regulatory/2"
+    ]
+  },
+  {
+    "command": "get gene",
+    "entity": "gene",
+    "route": "/reference/commands/get-gene/",
+    "description": "Get one to twenty human gene inputs in their original order.",
+    "schemas": [
+      "biomcp.gene_cards/4"
+    ]
+  },
+  {
+    "command": "search gene",
+    "entity": "gene",
+    "route": "/reference/commands/search-gene/",
+    "description": "Search genes by text, cytoband, or their intersection.",
+    "schemas": [
+      "biomcp.gene_page/3"
+    ]
+  },
+  {
+    "command": "search article",
+    "entity": "article",
+    "route": "/reference/commands/search-article/",
+    "description": "Checked search selectors and pool cursor.",
+    "schemas": [
+      "biomcp.article_page/3"
+    ]
+  },
+  {
+    "command": "get article",
+    "entity": "article",
+    "route": "/reference/commands/get-article/",
+    "description": "Get one to twenty article inputs in caller order.",
+    "schemas": [
+      "biomcp.article_cards/3"
+    ]
+  },
+  {
+    "command": "article supplement",
+    "entity": "article",
+    "route": "/reference/commands/article-supplement/",
+    "description": "Read a checked supplement file or page its original rows.",
+    "schemas": [
+      "biomcp.article_supplement/2"
+    ]
+  },
+  {
+    "command": "article pdf",
+    "entity": "article",
+    "route": "/reference/commands/article-pdf/",
+    "description": "Download one publisher PDF to an explicit file or existing folder.",
+    "schemas": [
+      "biomcp.article_pdf/2"
+    ]
+  },
+  {
+    "command": "article text",
+    "entity": "article",
+    "route": "/reference/commands/article-text/",
+    "description": "Read one bounded body part, find matching rows, or save the complete Markdown document.",
+    "schemas": [
+      "biomcp.article_text/3"
+    ]
+  },
+  {
+    "command": "article citations",
+    "entity": "article",
+    "route": "/reference/commands/article-citations/",
+    "description": "Page the citing or referenced PubMed papers of one checked PMID.",
+    "schemas": [
+      "biomcp.article_edges/4"
+    ]
+  },
+  {
+    "command": "article references",
+    "entity": "article",
+    "route": "/reference/commands/article-references/",
+    "description": "Page the citing or referenced PubMed papers of one checked PMID.",
+    "schemas": [
+      "biomcp.article_edges/4"
+    ]
+  },
+  {
+    "command": "article citation-evidence",
+    "entity": "article",
+    "route": "/reference/commands/article-citation-evidence/",
+    "description": "Read every source context and optional explicit full-text citation paragraph.",
+    "schemas": [
+      "biomcp.article_evidence/2"
+    ]
+  },
+  {
+    "command": "article recommendations",
+    "entity": "article",
+    "route": "/reference/commands/article-recommendations/",
+    "description": "Recommendations in the provider's recent-paper pool order.",
+    "schemas": [
+      "biomcp.article_recommendations/3"
+    ]
+  },
+  {
+    "command": "search trial",
+    "entity": "trial",
+    "route": "/reference/commands/search-trial/",
+    "description": "Search one provider with bounded pages and source-native counts; default ClinicalTrials.gov, explicit keyed NCI, never a fallback.",
+    "schemas": [
+      "biomcp.trial_page/5"
+    ]
+  },
+  {
+    "command": "get trial",
+    "entity": "trial",
+    "route": "/reference/commands/get-trial/",
+    "description": "Retrieve exact trial cards in input order; request bounded intact source sections with independent continuations.",
+    "schemas": [
+      "biomcp.trial_cards/2"
+    ]
+  },
+  {
+    "command": "trial document",
+    "entity": "trial",
+    "route": "/reference/commands/trial-document/",
+    "description": "Download one exact ClinicalTrials.gov manifest PDF to an explicit caller path; never read its text.",
+    "schemas": [
+      "biomcp.trial_document/2"
+    ]
+  },
+  {
+    "command": "variant assertions",
+    "entity": "variant",
+    "route": "/reference/commands/variant-assertions/",
+    "description": "Page assertions from one explicitly selected evidence source.",
+    "schemas": [
+      "biomcp.variant_assertions/3"
+    ]
+  },
+  {
+    "command": "get variant",
+    "entity": "variant",
+    "route": "/reference/commands/get-variant/",
+    "description": "Read an rsID, CAid, ClinVar Variation ID or reference-qualified HGVS; chromosome notation requires --build.",
+    "schemas": [
+      "biomcp.variant_card/5"
+    ]
+  },
+  {
+    "command": "variant population",
+    "entity": "variant",
+    "route": "/reference/commands/variant-population/",
+    "description": "Read a bounded ancestry-detail page from the exact source-given GRCh38 allele.",
+    "schemas": [
+      "biomcp.variant_population/4"
+    ]
+  },
+  {
+    "command": "search variant",
+    "entity": "variant",
+    "route": "/reference/commands/search-variant/",
+    "description": "Discover source candidates using one declared selector, without interpreting free text.",
+    "schemas": [
+      "biomcp.variant_page/6"
+    ]
+  },
+  {
+    "command": "variant recurrence",
+    "entity": "variant",
+    "route": "/reference/commands/variant-recurrence/",
+    "description": "Observe exact-allele samples within one caller-selected source page.",
+    "schemas": [
+      "biomcp.variant_recurrence/4"
+    ]
+  },
+  {
+    "command": "variant normalize",
+    "entity": "variant",
+    "route": "/reference/commands/variant-normalize/",
+    "description": "Send unchanged reference-qualified notation to explicitly named services.",
+    "schemas": [
+      "biomcp.variant_normalization/3"
+    ]
+  },
+  {
+    "command": "skill",
+    "entity": "skill",
+    "route": "/reference/commands/skill/",
+    "description": "Read embedded guidance and worked examples.",
+    "schemas": []
+  },
+  {
+    "command": "skill list",
+    "entity": "skill",
+    "route": "/reference/commands/skill-list/",
+    "description": "List embedded worked examples.",
+    "schemas": []
+  },
+  {
+    "command": "skill render",
+    "entity": "skill",
+    "route": "/reference/commands/skill-render/",
+    "description": "Print the canonical agent guide.",
+    "schemas": []
+  },
+  {
+    "command": "skill status",
+    "entity": "skill",
+    "route": "/reference/commands/skill-status/",
+    "description": "Report missing, unmanaged, locally_modified, stale or current guidance.",
+    "schemas": []
+  },
+  {
+    "command": "skill install",
+    "entity": "skill",
+    "route": "/reference/commands/skill-install/",
+    "description": "Install into DIR/skills/biomcp; a skills or biomcp directory is accepted directly.",
+    "schemas": []
+  },
+  {
+    "command": "version",
+    "entity": "version",
+    "route": "/reference/commands/version/",
+    "description": "Print version; --verbose adds build, schema and path provenance.",
+    "schemas": []
+  },
+  {
+    "command": "mcp-config",
+    "entity": "mcp-config",
+    "route": "/reference/commands/mcp-config/",
+    "description": "Print MCP configuration with this executable’s absolute path.",
+    "schemas": []
+  },
+  {
+    "command": "store clean",
+    "entity": "store",
+    "route": "/reference/commands/store-clean/",
+    "description": "Remove expired replies, pools and snapshots and older incompatible cache files.",
+    "schemas": [
+      "biomcp.store-clean/1"
+    ]
+  },
+  {
+    "command": "health",
+    "entity": "health",
+    "route": "/reference/commands/health/",
+    "description": "Report publisher terms and bounded source reachability; at most one page for each implemented source.",
+    "schemas": [
+      "biomcp.health/2"
+    ]
+  },
+  {
+    "command": "sync",
+    "entity": "sync",
+    "route": "/reference/commands/sync/",
+    "description": "Synchronize a local source bundle.",
+    "schemas": [
+      "biomcp.sync/4"
+    ]
+  },
+  {
+    "command": "schema",
+    "entity": "schema",
+    "route": "/reference/commands/schema/",
+    "description": "Print a checked-in schema artifact.",
+    "schemas": []
+  },
+  {
+    "command": "help",
+    "entity": "help",
+    "route": "/reference/commands/help/",
+    "description": "Print generated command help.",
+    "schemas": [
+      "biomcp.help/2"
+    ]
+  },
+  {
+    "command": "key list",
+    "entity": "key",
+    "route": "/reference/commands/key-list/",
+    "description": "List supported credential names and their origin without values.",
+    "schemas": [
+      "biomcp.registered-keys/2"
+    ]
+  },
+  {
+    "command": "key set",
+    "entity": "key",
+    "route": "/reference/commands/key-set/",
+    "description": "Register one credential from a no-echo prompt or one standard-input line.",
+    "schemas": []
+  },
+  {
+    "command": "key remove",
+    "entity": "key",
+    "route": "/reference/commands/key-remove/",
+    "description": "Remove a stored credential while preserving other settings.",
+    "schemas": []
+  },
+  {
+    "command": "serve",
+    "entity": "serve",
+    "route": "/reference/commands/serve/",
+    "description": "Serve MCP over stdio or --http [ADDR].",
+    "schemas": []
+  },
+  {
+    "command": "sync wikipathways",
+    "entity": "sync",
+    "route": "/reference/commands/sync-wikipathways/",
+    "description": "Replace WikiPathways search/get metadata catalogs atomically; reads never sync.",
+    "schemas": [
+      "biomcp.wikipathways_sync/1"
+    ]
+  },
+  {
+    "command": "sync cbioportal-studies",
+    "entity": "sync",
+    "route": "/reference/commands/sync-cbioportal-studies/",
+    "description": "Replace the complete validated local bundle atomically.",
+    "schemas": [
+      "biomcp.sync/4"
+    ]
+  },
+  {
+    "command": "sync ema",
+    "entity": "sync",
+    "route": "/reference/commands/sync-ema/",
+    "description": "Replace the complete validated local bundle atomically.",
+    "schemas": [
+      "biomcp.sync/4"
+    ]
+  },
+  {
+    "command": "sync ddinter",
+    "entity": "sync",
+    "route": "/reference/commands/sync-ddinter/",
+    "description": "Replace the complete validated local bundle atomically.",
+    "schemas": [
+      "biomcp.sync/4"
+    ]
+  },
+  {
+    "command": "sync who-pq",
+    "entity": "sync",
+    "route": "/reference/commands/sync-who-pq/",
+    "description": "Replace the complete validated local bundle atomically.",
+    "schemas": [
+      "biomcp.sync/4"
+    ]
+  },
+  {
+    "command": "sync gtr",
+    "entity": "sync",
+    "route": "/reference/commands/sync-gtr/",
+    "description": "Replace the complete validated local bundle atomically.",
+    "schemas": [
+      "biomcp.sync/4"
+    ]
+  },
+  {
+    "command": "sync who-ivd",
+    "entity": "sync",
+    "route": "/reference/commands/sync-who-ivd/",
+    "description": "Replace the complete validated local bundle atomically.",
+    "schemas": [
+      "biomcp.sync/4"
+    ]
+  },
+  {
+    "command": "sync fda-cdx",
+    "entity": "sync",
+    "route": "/reference/commands/sync-fda-cdx/",
+    "description": "Replace the complete validated local bundle atomically.",
+    "schemas": [
+      "biomcp.sync/4"
+    ]
+  },
+  {
+    "command": "help key ncbi",
+    "entity": "help",
+    "route": "/reference/commands/help-key-ncbi/",
+    "description": "Show credential registration and environment fallback names.",
+    "schemas": [
+      "biomcp.key/2"
+    ]
+  },
+  {
+    "command": "help key semantic-scholar",
+    "entity": "help",
+    "route": "/reference/commands/help-key-semantic-scholar/",
+    "description": "Show credential registration and environment fallback names.",
+    "schemas": [
+      "biomcp.key/2"
+    ]
+  },
+  {
+    "command": "help key orcid",
+    "entity": "help",
+    "route": "/reference/commands/help-key-orcid/",
+    "description": "Show credential registration and environment fallback names.",
+    "schemas": [
+      "biomcp.key/2"
+    ]
+  },
+  {
+    "command": "help key oncokb",
+    "entity": "help",
+    "route": "/reference/commands/help-key-oncokb/",
+    "description": "Show credential registration and environment fallback names.",
+    "schemas": [
+      "biomcp.key/2"
+    ]
+  },
+  {
+    "command": "help key nci",
+    "entity": "help",
+    "route": "/reference/commands/help-key-nci/",
+    "description": "Show credential registration and environment fallback names.",
+    "schemas": [
+      "biomcp.key/2"
+    ]
+  },
+  {
+    "command": "help key openfda",
+    "entity": "help",
+    "route": "/reference/commands/help-key-openfda/",
+    "description": "Show credential registration and environment fallback names.",
+    "schemas": [
+      "biomcp.key/2"
+    ]
+  }
+]

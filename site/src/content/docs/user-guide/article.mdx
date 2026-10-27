@@ -10,22 +10,13 @@ sidebar:
 ---
 import Example from '../../../components/Example.astro';
 import Fact from '../../../components/Fact.astro';
+import CommandTable from '../../../components/CommandTable.astro';
 
 BioMCP <Fact k="version" /> entity `article`. A published paper, read by PMID, PMCID or DOI. Sections add full text, supplements, annotations, citation counts, a summary, indexing and the PDF link.
 
 ## Commands
 
-| Command | Description |
-| --- | --- |
-| [`biomcp search article`](/reference/commands/search-article/) | Checked search selectors and pool cursor. |
-| [`biomcp get article`](/reference/commands/get-article/) | Get one to twenty article inputs in caller order. |
-| [`biomcp article supplement`](/reference/commands/article-supplement/) | Read a checked supplement file or page its original rows. |
-| [`biomcp article pdf`](/reference/commands/article-pdf/) | Download one publisher PDF to an explicit file or existing folder. |
-| [`biomcp article text`](/reference/commands/article-text/) | Read one bounded body part, find matching rows, or save the complete Markdown document. |
-| [`biomcp article citations`](/reference/commands/article-citations/) | Page the citing or referenced PubMed papers of one checked PMID. |
-| [`biomcp article references`](/reference/commands/article-references/) | Page the citing or referenced PubMed papers of one checked PMID. |
-| [`biomcp article citation-evidence`](/reference/commands/article-citation-evidence/) | Read every source context and optional explicit full-text citation paragraph. |
-| [`biomcp article recommendations`](/reference/commands/article-recommendations/) | Recommendations in the provider's recent-paper pool order. |
+<CommandTable entity="article" />
 
 ## Sections of get article
 
@@ -39,6 +30,6 @@ BioMCP <Fact k="version" /> entity `article`. A published paper, read by PMID, P
 
 <Example id="lit-get" />
 
-## Guide
+## Next
 
 [Literature](/how-to/find-articles/) walks through these commands with more examples. All 16 entities are listed in the [entities reference](/reference/entities/).

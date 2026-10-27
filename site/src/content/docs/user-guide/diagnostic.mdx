@@ -10,15 +10,13 @@ sidebar:
 ---
 import Example from '../../../components/Example.astro';
 import Fact from '../../../components/Fact.astro';
+import CommandTable from '../../../components/CommandTable.astro';
 
 BioMCP <Fact k="version" /> entity `diagnostic`. A genetic test or diagnostic device from GTR, WHO prequalified diagnostics, the FDA companion diagnostics list, or an FDA PMA or 510(k) record. Choose the source with `--source`. A listing is not an authorization, and a companion row is not a treatment recommendation.
 
 ## Commands
 
-| Command | Description |
-| --- | --- |
-| [`biomcp search diagnostic`](/reference/commands/search-diagnostic/) | Search one diagnostic source. |
-| [`biomcp get diagnostic`](/reference/commands/get-diagnostic/) | Get one exact source record or supported section. |
+<CommandTable entity="diagnostic" />
 
 ## Sections of get diagnostic
 
@@ -32,6 +30,6 @@ BioMCP <Fact k="version" /> entity `diagnostic`. A genetic test or diagnostic de
 
 <Example id="diagnostic-cdx" />
 
-## Guide
+## Next
 
 [Drugs and safety](/drugs-and-safety/) walks through these commands with more examples. All 16 entities are listed in the [entities reference](/reference/entities/).

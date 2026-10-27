@@ -10,16 +10,13 @@ sidebar:
 ---
 import Example from '../../../components/Example.astro';
 import Fact from '../../../components/Fact.astro';
+import CommandTable from '../../../components/CommandTable.astro';
 
-BioMCP <Fact k="version" /> entity `author`. An author record from Semantic Scholar or ORCID, and its papers. Author IDs identify provider records, not resolved people. Both sources are in the noncommercial use group.
+BioMCP <Fact k="version" /> entity `author`. An author record from Semantic Scholar or ORCID, and its papers. Author IDs identify source records, not resolved people. Both sources are in the noncommercial use group.
 
 ## Commands
 
-| Command | Description |
-| --- | --- |
-| [`biomcp author papers`](/reference/commands/author-papers/) | One exact provider record's publication window. |
-| [`biomcp search author`](/reference/commands/search-author/) | Literal author name query and native window; positional text maps to query. |
-| [`biomcp get author`](/reference/commands/get-author/) | Exact qualified records in caller order, with no name reconciliation. |
+<CommandTable entity="author" />
 
 ## Sections of get author
 
@@ -33,6 +30,6 @@ none. The [get author reference](/reference/commands/get-author/) describes each
 
 <Example id="author-search" />
 
-## Guide
+## Next
 
 [Literature](/how-to/find-articles/) walks through these commands with more examples. All 16 entities are listed in the [entities reference](/reference/entities/).

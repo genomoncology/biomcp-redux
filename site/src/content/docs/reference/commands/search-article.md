@@ -55,8 +55,16 @@ biomcp search article 'AKT1 E17K'
 biomcp search article 'KRAS G12C sotorasib' --since 2024 --sort date --limit 5
 ```
 
+## Reply schema
+
+The help examples of this command return [`biomcp.article_page/3`](/reference/schemas/biomcp-article-page-3/). Print the full JSON schema with `biomcp schema biomcp.article_page/3`.
+
 ## Exit codes
 
 See [exit codes](/reference/error-codes/). Options that apply to every command are in [global options](/reference/global-options/).
+
+## Next
+
+The [article entity](/user-guide/article/) page lists every article command and links to a worked guide.
 
 This page is generated from the help of BioMCP 1.0.0. Fix a wrong sentence in the help text, then regenerate.

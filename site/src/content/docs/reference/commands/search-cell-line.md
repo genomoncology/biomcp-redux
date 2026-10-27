@@ -35,8 +35,16 @@ biomcp search cell-line MOLM13
 biomcp search cell-line --query 'MV4;11'
 ```
 
+## Reply schema
+
+The help examples of this command return [`biomcp.cell_line_page/2`](/reference/schemas/biomcp-cell-line-page-2/). Print the full JSON schema with `biomcp schema biomcp.cell_line_page/2`.
+
 ## Exit codes
 
 See [exit codes](/reference/error-codes/). Options that apply to every command are in [global options](/reference/global-options/).
+
+## Next
+
+The [cell-line entity](/user-guide/cell-line/) page lists every cell-line command and links to a worked guide.
 
 This page is generated from the help of BioMCP 1.0.0. Fix a wrong sentence in the help text, then regenerate.

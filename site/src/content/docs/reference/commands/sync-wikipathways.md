@@ -32,8 +32,16 @@ biomcp sync wikipathways
 biomcp sync wikipathways --fresh
 ```
 
+## Reply schema
+
+The help examples of this command return [`biomcp.wikipathways_sync/1`](/reference/schemas/biomcp-wikipathways-sync-1/). Print the full JSON schema with `biomcp schema biomcp.wikipathways_sync/1`.
+
 ## Exit codes
 
 See [exit codes](/reference/error-codes/). Options that apply to every command are in [global options](/reference/global-options/).
+
+## Next
+
+The [commands index](/reference/commands/) lists every command.
 
 This page is generated from the help of BioMCP 1.0.0. Fix a wrong sentence in the help text, then regenerate.

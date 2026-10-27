@@ -35,8 +35,16 @@ biomcp article pdf 41351423 --save owned.pdf --replace
 biomcp article pdf 41351423 --save second.pdf --replace
 ```
 
+## Reply schema
+
+The help examples of this command return [`biomcp.article_pdf/2`](/reference/schemas/biomcp-article-pdf-2/). Print the full JSON schema with `biomcp schema biomcp.article_pdf/2`.
+
 ## Exit codes
 
 See [exit codes](/reference/error-codes/). Options that apply to every command are in [global options](/reference/global-options/).
+
+## Next
+
+The [article entity](/user-guide/article/) page lists every article command and links to a worked guide.
 
 This page is generated from the help of BioMCP 1.0.0. Fix a wrong sentence in the help text, then regenerate.

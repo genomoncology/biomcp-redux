@@ -42,8 +42,16 @@ biomcp variant assertions clinvar:13961 --source clinvar
 biomcp variant assertions CA000434 --source erepo
 ```
 
+## Reply schema
+
+The help examples of this command return [`biomcp.variant_assertions/3`](/reference/schemas/biomcp-variant-assertions-3/). Print the full JSON schema with `biomcp schema biomcp.variant_assertions/3`.
+
 ## Exit codes
 
 See [exit codes](/reference/error-codes/). Options that apply to every command are in [global options](/reference/global-options/).
+
+## Next
+
+The [variant entity](/user-guide/variant/) page lists every variant command and links to a worked guide.
 
 This page is generated from the help of BioMCP 1.0.0. Fix a wrong sentence in the help text, then regenerate.

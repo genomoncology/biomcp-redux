@@ -47,8 +47,16 @@ biomcp get gwas association:6114
 biomcp get gwas GCST000035
 ```
 
+## Reply schema
+
+The help examples of this command return [`biomcp.gwas_association/1`](/reference/schemas/biomcp-gwas-association-1/), [`biomcp.gwas_study/1`](/reference/schemas/biomcp-gwas-study-1/). Print the full JSON schema with `biomcp schema biomcp.gwas_association/1`.
+
 ## Exit codes
 
 See [exit codes](/reference/error-codes/). Options that apply to every command are in [global options](/reference/global-options/).
+
+## Next
+
+The [gwas entity](/user-guide/gwas/) page lists every gwas command and links to a worked guide.
 
 This page is generated from the help of BioMCP 1.0.0. Fix a wrong sentence in the help text, then regenerate.

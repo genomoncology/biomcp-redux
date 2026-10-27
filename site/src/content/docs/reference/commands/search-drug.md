@@ -41,8 +41,16 @@ biomcp search drug Tibsovo --source ema --limit 1
 biomcp search drug Tibsovo --source ema --limit 1 --offset 1 --fresh
 ```
 
+## Reply schema
+
+The help examples of this command return [`biomcp.drug_page/3`](/reference/schemas/biomcp-drug-page-3/). Print the full JSON schema with `biomcp schema biomcp.drug_page/3`.
+
 ## Exit codes
 
 See [exit codes](/reference/error-codes/). Options that apply to every command are in [global options](/reference/global-options/).
+
+## Next
+
+The [drug entity](/user-guide/drug/) page lists every drug command and links to a worked guide.
 
 This page is generated from the help of BioMCP 1.0.0. Fix a wrong sentence in the help text, then regenerate.

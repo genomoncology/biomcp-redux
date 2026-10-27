@@ -10,15 +10,13 @@ sidebar:
 ---
 import Example from '../../../components/Example.astro';
 import Fact from '../../../components/Fact.astro';
+import CommandTable from '../../../components/CommandTable.astro';
 
 BioMCP <Fact k="version" /> entity `pgx`. CPIC gene cards, recommendations, guidelines and diplotype lookups, and ClinPGx annotations, for a gene. BioMCP calculates no phenotype, activity score or dose.
 
 ## Commands
 
-| Command | Description |
-| --- | --- |
-| [`biomcp search pgx`](/reference/commands/search-pgx/) | Checked gene-keyed CPIC pair search. |
-| [`biomcp get pgx`](/reference/commands/get-pgx/) | PGx card or section. |
+<CommandTable entity="pgx" />
 
 ## Sections of get pgx
 
@@ -32,6 +30,6 @@ BioMCP <Fact k="version" /> entity `pgx`. CPIC gene cards, recommendations, guid
 
 <Example id="pgx-get" />
 
-## Guide
+## Next
 
 [Drugs and safety](/drugs-and-safety/) walks through these commands with more examples. All 16 entities are listed in the [entities reference](/reference/entities/).

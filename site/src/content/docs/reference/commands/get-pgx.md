@@ -56,8 +56,16 @@ biomcp get pgx --gene DPYD --source cpic
 biomcp get pgx --gene DPYD --source cpic diplotype --diplotype '*1/*2A'
 ```
 
+## Reply schema
+
+The help examples of this command return [`biomcp.pgx_card/1`](/reference/schemas/biomcp-pgx-card-1/), [`biomcp.pgx_diplotype/1`](/reference/schemas/biomcp-pgx-diplotype-1/). Print the full JSON schema with `biomcp schema biomcp.pgx_card/1`.
+
 ## Exit codes
 
 See [exit codes](/reference/error-codes/). Options that apply to every command are in [global options](/reference/global-options/).
+
+## Next
+
+The [pgx entity](/user-guide/pgx/) page lists every pgx command and links to a worked guide.
 
 This page is generated from the help of BioMCP 1.0.0. Fix a wrong sentence in the help text, then regenerate.

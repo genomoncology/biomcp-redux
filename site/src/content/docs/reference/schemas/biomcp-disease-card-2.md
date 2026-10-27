@@ -1,0 +1,72 @@
+---
+title: biomcp.disease_card/2
+description: "The BioMCP 1.0.0 reply schema biomcp.disease_card/2: its envelope
+  fields, its result type DiseaseCard and the commands that return it."
+goal: Look up the fields of a biomcp.disease_card/2 reply.
+reader: A developer or agent parsing BioMCP JSON
+sidebar:
+  label: biomcp.disease_card/2
+kind: reference
+verified: 2026-10-27
+---
+
+BioMCP 1.0.0 reply schema `biomcp.disease_card/2`. Every reply names its schema in `schema`. Print this one as JSON Schema with `biomcp schema biomcp.disease_card/2`.
+
+No help example returns this schema; the reply carries it in its `schema` field.
+
+## Envelope
+
+One versioned command response; schema identity comes only from its body type.
+
+| Field | Type | Required | Description |
+| --- | --- | --- | --- |
+| `local_error` | CacheProblem or null | no | Bounded local cache failure, independent of provider outcomes. |
+| `next` | array of Step | no | Available next commands. |
+| `page` | PageInfo or null | no | Search page metadata. |
+| `problems` | array of Problem | no | Rejected source fields. |
+| `query` | DiseaseGet | yes | Parsed query. |
+| `result` | DiseaseCard or null | no | Answer when available. |
+| `schema` | "biomcp.disease_card/2" | yes |  |
+| `sources` | array of SourceOutcome | no | Sources actually asked. |
+| `status` | Status | yes | Overall outcome. |
+
+## Result: DiseaseCard
+
+Exact identity and available pages without hidden enrichment.
+
+| Field | Type | Required | Description |
+| --- | --- | --- | --- |
+| `alias` | DiseaseRelation or null | no | Native relation proving a source-accepted alternate identifier. |
+| `attribution` | Attribution | yes | Publisher record and version. |
+| `components` | array of ComponentLabel | yes | Applicable component terms. |
+| `concept` | Concept | yes | Native identity and complete primary label. |
+| `consider` | array or null | no | Publisher alternatives, never an automatic replacement. |
+| `definition` | Text or null | no | Complete source definition when supplied. |
+| `obsolete` | boolean or null | no | Publisher obsolete flag. |
+| `replaced_by` | array or null | no | Publisher explicit replacement identifiers; null preserves no native replacement. |
+| `requested_id` | Curie | yes | Exact requested identifier. |
+| `returned_id` | Curie | yes | Actual returned identifier. |
+| `sections` | array of DiseaseSection | yes | Available named sections. |
+
+## Query: DiseaseGet
+
+Exact concept or native SEER site with independently paged section.
+
+| Field | Type | Required | Description |
+| --- | --- | --- | --- |
+| `age_range` | Text or null | no | Native age-range code. |
+| `dataset` | Text or null | no | Requested native dataset selector, not proof of returned membership. |
+| `id` | Text | yes | Exact ontology CURIE or an explicit SEER catalog site ID. |
+| `interval` | Text or null | no | Survival-only interval code. |
+| `ontology` | DiseaseOntology | no | One OLS ontology. |
+| `period` | Text or null | no | Incidence-only native period code. |
+| `race` | Text or null | no | Native race code. |
+| `section` | DiseaseSection or null | no | One named section; absent means identity card only. |
+| `section_limit` | integer (uint32) | no | Native rows per page: default 2 for Monarch genes, 1 for Monarch phenotypes, otherwise 5. |
+| `section_offset` | integer (uint32) | no | Native row offset within the selected section. |
+| `sex` | Text or null | no | Native sex code. |
+| `source` | DiseaseSource | no | Default MyDisease; no automatic fallback. |
+
+[Reply envelope](/reference/envelope/) gives the values of `status`, `sources[].state` and the other shared fields. [Reply schemas](/reference/schemas/) lists every schema.
+
+This page is generated from `biomcp schema biomcp.disease_card/2` in BioMCP 1.0.0. Fix a wrong description in the schema, then regenerate.

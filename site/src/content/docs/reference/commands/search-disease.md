@@ -41,8 +41,16 @@ biomcp search disease --source seer --limit 1
 biomcp search disease --source seer --limit 1 --offset 1
 ```
 
+## Reply schema
+
+The help examples of this command return [`biomcp.disease_sites/2`](/reference/schemas/biomcp-disease-sites-2/). Print the full JSON schema with `biomcp schema biomcp.disease_sites/2`.
+
 ## Exit codes
 
 See [exit codes](/reference/error-codes/). Options that apply to every command are in [global options](/reference/global-options/).
+
+## Next
+
+The [disease entity](/user-guide/disease/) page lists every disease command and links to a worked guide.
 
 This page is generated from the help of BioMCP 1.0.0. Fix a wrong sentence in the help text, then regenerate.

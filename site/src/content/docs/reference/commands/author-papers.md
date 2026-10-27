@@ -46,8 +46,16 @@ biomcp author papers semantic-scholar:123
 biomcp author papers semantic-scholar:123 details
 ```
 
+## Reply schema
+
+The help examples of this command return [`biomcp.author_papers/1`](/reference/schemas/biomcp-author-papers-1/), [`biomcp.author_paper_details/1`](/reference/schemas/biomcp-author-paper-details-1/). Print the full JSON schema with `biomcp schema biomcp.author_papers/1`.
+
 ## Exit codes
 
 See [exit codes](/reference/error-codes/). Options that apply to every command are in [global options](/reference/global-options/).
+
+## Next
+
+The [author entity](/user-guide/author/) page lists every author command and links to a worked guide.
 
 This page is generated from the help of BioMCP 1.0.0. Fix a wrong sentence in the help text, then regenerate.

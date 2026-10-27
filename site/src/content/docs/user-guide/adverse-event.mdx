@@ -10,15 +10,13 @@ sidebar:
 ---
 import Example from '../../../components/Example.astro';
 import Fact from '../../../components/Fact.astro';
+import CommandTable from '../../../components/CommandTable.astro';
 
 BioMCP <Fact k="version" /> entity `adverse-event`. An adverse event report from FAERS or MAUDE, or a VAERS report summary from CDC WONDER. Report counts are reports, not people. They do not show that a product caused an event.
 
 ## Commands
 
-| Command | Description |
-| --- | --- |
-| [`biomcp search adverse-event`](/reference/commands/search-adverse-event/) | Search five report headers by default. |
-| [`biomcp get adverse-event`](/reference/commands/get-adverse-event/) | Exact native report identity and an optional independently paged section. |
+<CommandTable entity="adverse-event" />
 
 ## Sections of get adverse-event
 
@@ -32,6 +30,6 @@ BioMCP <Fact k="version" /> entity `adverse-event`. An adverse event report from
 
 <Example id="ae-search" />
 
-## Guide
+## Next
 
 [Drugs and safety](/drugs-and-safety/) walks through these commands with more examples. All 16 entities are listed in the [entities reference](/reference/entities/).

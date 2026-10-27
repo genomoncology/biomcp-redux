@@ -10,19 +10,13 @@ sidebar:
 ---
 import Example from '../../../components/Example.astro';
 import Fact from '../../../components/Fact.astro';
+import CommandTable from '../../../components/CommandTable.astro';
 
 BioMCP <Fact k="version" /> entity `variant`. A genomic variant, read by rsID, ClinGen allele ID, ClinVar Variation ID or reference-qualified HGVS. A variant search returns source candidates with their shared identifiers. No candidate becomes a chosen allele.
 
 ## Commands
 
-| Command | Description |
-| --- | --- |
-| [`biomcp variant assertions`](/reference/commands/variant-assertions/) | Page assertions from one explicitly selected evidence source. |
-| [`biomcp get variant`](/reference/commands/get-variant/) | Read an rsID, CAid, ClinVar Variation ID or reference-qualified HGVS; chromosome notation requires --build. |
-| [`biomcp variant population`](/reference/commands/variant-population/) | Read a bounded ancestry-detail page from the exact source-given GRCh38 allele. |
-| [`biomcp search variant`](/reference/commands/search-variant/) | Discover source candidates using one declared selector, without interpreting free text. |
-| [`biomcp variant recurrence`](/reference/commands/variant-recurrence/) | Observe exact-allele samples within one caller-selected source page. |
-| [`biomcp variant normalize`](/reference/commands/variant-normalize/) | Send unchanged reference-qualified notation to explicitly named services. |
+<CommandTable entity="variant" />
 
 ## Sections of get variant
 
@@ -36,6 +30,6 @@ BioMCP <Fact k="version" /> entity `variant`. A genomic variant, read by rsID, C
 
 <Example id="variant-search" />
 
-## Guide
+## Next
 
 [Variants](/how-to/annotate-variants/) walks through these commands with more examples. All 16 entities are listed in the [entities reference](/reference/entities/).

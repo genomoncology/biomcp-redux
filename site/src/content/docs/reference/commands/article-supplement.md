@@ -41,8 +41,16 @@ biomcp article supplement 28944238 MGG3-5-553-s002.xlsx
 biomcp article supplement 28944238 MGG3-5-553-s002.xlsx --variant P245S
 ```
 
+## Reply schema
+
+The help examples of this command return [`biomcp.article_supplement/2`](/reference/schemas/biomcp-article-supplement-2/). Print the full JSON schema with `biomcp schema biomcp.article_supplement/2`.
+
 ## Exit codes
 
 See [exit codes](/reference/error-codes/). Options that apply to every command are in [global options](/reference/global-options/).
+
+## Next
+
+The [article entity](/user-guide/article/) page lists every article command and links to a worked guide.
 
 This page is generated from the help of BioMCP 1.0.0. Fix a wrong sentence in the help text, then regenerate.

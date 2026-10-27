@@ -40,8 +40,16 @@ biomcp article text PMC5606870 --find AXIN2
 biomcp article text PMC5606870 --variant Pro245Ser
 ```
 
+## Reply schema
+
+The help examples of this command return [`biomcp.article_text/3`](/reference/schemas/biomcp-article-text-3/). Print the full JSON schema with `biomcp schema biomcp.article_text/3`.
+
 ## Exit codes
 
 See [exit codes](/reference/error-codes/). Options that apply to every command are in [global options](/reference/global-options/).
+
+## Next
+
+The [article entity](/user-guide/article/) page lists every article command and links to a worked guide.
 
 This page is generated from the help of BioMCP 1.0.0. Fix a wrong sentence in the help text, then regenerate.

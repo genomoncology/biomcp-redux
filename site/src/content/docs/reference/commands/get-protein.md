@@ -52,8 +52,16 @@ biomcp get protein P00533 Q9UIF7 P38398-2
 biomcp get protein EGFR
 ```
 
+## Reply schema
+
+The help examples of this command return [`biomcp.protein_card/3`](/reference/schemas/biomcp-protein-card-3/). Print the full JSON schema with `biomcp schema biomcp.protein_card/3`.
+
 ## Exit codes
 
 See [exit codes](/reference/error-codes/). Options that apply to every command are in [global options](/reference/global-options/).
+
+## Next
+
+The [protein entity](/user-guide/protein/) page lists every protein command and links to a worked guide.
 
 This page is generated from the help of BioMCP 1.0.0. Fix a wrong sentence in the help text, then regenerate.

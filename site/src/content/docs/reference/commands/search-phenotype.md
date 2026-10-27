@@ -41,8 +41,16 @@ biomcp search phenotype synthetic
 biomcp search phenotype synthetic --limit 1
 ```
 
+## Reply schema
+
+The help examples of this command return [`biomcp.phenotype-search/1`](/reference/schemas/biomcp-phenotype-search-1/). Print the full JSON schema with `biomcp schema biomcp.phenotype-search/1`.
+
 ## Exit codes
 
 See [exit codes](/reference/error-codes/). Options that apply to every command are in [global options](/reference/global-options/).
+
+## Next
+
+The [phenotype entity](/user-guide/phenotype/) page lists every phenotype command and links to a worked guide.
 
 This page is generated from the help of BioMCP 1.0.0. Fix a wrong sentence in the help text, then regenerate.

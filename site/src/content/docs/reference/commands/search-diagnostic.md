@@ -49,8 +49,16 @@ biomcp search diagnostic --source gtr --gene BRCA1
 biomcp search diagnostic --source gtr --condition-id MedGen:C2676676
 ```
 
+## Reply schema
+
+The help examples of this command return [`biomcp.diagnostic_page/2`](/reference/schemas/biomcp-diagnostic-page-2/). Print the full JSON schema with `biomcp schema biomcp.diagnostic_page/2`.
+
 ## Exit codes
 
 See [exit codes](/reference/error-codes/). Options that apply to every command are in [global options](/reference/global-options/).
+
+## Next
+
+The [diagnostic entity](/user-guide/diagnostic/) page lists every diagnostic command and links to a worked guide.
 
 This page is generated from the help of BioMCP 1.0.0. Fix a wrong sentence in the help text, then regenerate.

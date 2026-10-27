@@ -56,8 +56,16 @@ biomcp search adverse-event pembrolizumab
 biomcp search adverse-event pembrolizumab --received-from 2024-01-01 --received-to 2024-12-31
 ```
 
+## Reply schema
+
+The help examples of this command return [`biomcp.adverse_event_page/2`](/reference/schemas/biomcp-adverse-event-page-2/). Print the full JSON schema with `biomcp schema biomcp.adverse_event_page/2`.
+
 ## Exit codes
 
 See [exit codes](/reference/error-codes/). Options that apply to every command are in [global options](/reference/global-options/).
+
+## Next
+
+The [adverse-event entity](/user-guide/adverse-event/) page lists every adverse-event command and links to a worked guide.
 
 This page is generated from the help of BioMCP 1.0.0. Fix a wrong sentence in the help text, then regenerate.

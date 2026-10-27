@@ -41,8 +41,16 @@ biomcp variant normalize --source mutalyzer --hgvs 'NM_004333.4:c.1799T>A'
 biomcp variant normalize --source variantvalidator --hgvs 'NM_004333.4:c.1799T>A' --build GRCh38
 ```
 
+## Reply schema
+
+The help examples of this command return [`biomcp.variant_normalization/3`](/reference/schemas/biomcp-variant-normalization-3/). Print the full JSON schema with `biomcp schema biomcp.variant_normalization/3`.
+
 ## Exit codes
 
 See [exit codes](/reference/error-codes/). Options that apply to every command are in [global options](/reference/global-options/).
+
+## Next
+
+The [variant entity](/user-guide/variant/) page lists every variant command and links to a worked guide.
 
 This page is generated from the help of BioMCP 1.0.0. Fix a wrong sentence in the help text, then regenerate.

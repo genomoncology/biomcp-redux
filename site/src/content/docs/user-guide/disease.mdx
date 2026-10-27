@@ -10,15 +10,13 @@ sidebar:
 ---
 import Example from '../../../components/Example.astro';
 import Fact from '../../../components/Fact.astro';
+import CommandTable from '../../../components/CommandTable.astro';
 
 BioMCP <Fact k="version" /> entity `disease`. A disease term from MONDO, DOID or NCIt, or a SEER cancer site. Search resolves words to ontology terms. Get reads one exact identifier.
 
 ## Commands
 
-| Command | Description |
-| --- | --- |
-| [`biomcp search disease`](/reference/commands/search-disease/) | Literal discovery text or an explicit SEER catalog page. |
-| [`biomcp get disease`](/reference/commands/get-disease/) | Exact concept or native SEER site with independently paged section. |
+<CommandTable entity="disease" />
 
 ## Sections of get disease
 
@@ -32,6 +30,6 @@ BioMCP <Fact k="version" /> entity `disease`. A disease term from MONDO, DOID or
 
 <Example id="disease-get" />
 
-## Guide
+## Next
 
 [Diseases and phenotypes](/diseases-and-phenotypes/) walks through these commands with more examples. All 16 entities are listed in the [entities reference](/reference/entities/).
