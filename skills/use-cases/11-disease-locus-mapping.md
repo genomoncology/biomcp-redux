@@ -1,9 +1,35 @@
-# Inspect source disease listings
+# Find genes in a stated cytoband
 
-Retain the exact source identifiers. This example does not establish a locus match.
+## Question
+
+Which source gene records are listed for the cytoband 9p21.3?
+
+## 1. Retrieve and inspect
 
 ```sh
-biomcp search disease --source seer --limit 1
+biomcp search gene --band 9p21.3
 ```
 
-Read response problems and source terms before using the record. Follow its returned next commands for additional pages or sections.
+Read the echoed cytoband, total, returned gene identities and next page command. The first page is only part of the source listing.
+
+## 2. Retrieve and inspect
+
+```sh
+biomcp search gene --band 9p21.3 --limit 50
+```
+
+Read the wider page and inspect the listed symbols and HGNC identifiers. Keep all candidates; page order is not a disease ranking.
+
+## 3. Retrieve and inspect
+
+```sh
+biomcp get gene CDKN2A
+```
+
+Inspect this explicitly selected candidate’s resolved identity and cytoband. Keep the source identifier with the record.
+
+## Next
+
+Follow all remaining page commands before claiming a complete listing. This maps a cytoband to source gene records; it does not establish a causal gene, a disease association or a base-pair interval.
+
+Read response status, problems and source terms at every step. Recorded replies demonstrate the commands; live replies can change.

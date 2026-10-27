@@ -1,9 +1,27 @@
-# Read a phenotype record
+# Inspect a phenotype term
 
-Inspect the native phenotype identifier and source text.
+## Question
+
+How do I inspect a source phenotype identifier and its definition?
+
+## 1. Retrieve and inspect
 
 ```sh
 biomcp get phenotype HP:0000001
 ```
 
-Read response problems and source terms before using the record. Follow its returned next commands for additional pages or sections.
+Read the term identifier, label, definition and source. This executable fixture uses an authored synthetic definition; its text is a command demonstration.
+
+## 2. Retrieve and inspect
+
+```sh
+biomcp get phenotype HP:0000001 --source monarch
+```
+
+Read the explicit source and compare the identity with the preceding reply. Do not replace a patient description with a synthetic fixture label.
+
+## Next
+
+For a real symptom question, search the person’s stated term, inspect all candidate definitions and retain the selected source identifier. A term record supplies no diagnosis.
+
+Read response status, problems and source terms at every step. Recorded replies demonstrate the commands; live replies can change.
