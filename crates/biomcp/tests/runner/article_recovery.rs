@@ -62,9 +62,13 @@ fn warnings() -> Result<(), String> {
             .output()
             .map_err(|e| e.to_string())?;
         let text = String::from_utf8(output.stdout).map_err(|e| e.to_string())?;
+        let result = text.find("## Result").ok_or("article result missing")?;
+        let warning = text
+            .find("**PubMed warning quotedphrasesnotfound:**")
+            .ok_or("quoted phrase warning missing")?;
         if !output.status.success()
+            || warning >= result
             || !text.starts_with("**PubMed warning ")
-            || !text.contains("**PubMed warning quotedphrasesnotfound:**")
             || !text.contains(phrase)
         {
             return Err(format!(
