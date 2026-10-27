@@ -1,6 +1,7 @@
 {
   "$defs": {
     "DrugSource": {
+      "description": "A supported drug data source.",
       "enum": [
         "who-pq",
         "mychem",

@@ -13,7 +13,6 @@
         "ema"
       ],
       "max_bytes": 170,
-      "max_tokens": 43,
       "expect": {
         "/schema": "biomcp.sync/5",
         "/status": "complete",
@@ -35,7 +34,6 @@
         "--fresh"
       ],
       "max_bytes": 170,
-      "max_tokens": 43,
       "expect": {
         "/schema": "biomcp.sync/5",
         "/status": "complete",

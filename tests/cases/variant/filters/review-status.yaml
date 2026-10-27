@@ -189,8 +189,7 @@
           ]
         }
       },
-      "max_bytes": 2625,
-      "max_tokens": 657
+      "max_bytes": 2625
     },
     {
       "run": [

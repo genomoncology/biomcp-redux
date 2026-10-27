@@ -39,6 +39,7 @@ pub struct SourceHealth {
     /// Publisher license or terms name.
     pub terms: Text,
     /// Publisher terms page.
+    #[cfg_attr(feature = "schema", schemars(extend("format" = "uri")))]
     pub terms_url: Text,
     /// Reviewed source category, not blanket permission for each record.
     pub usage: Use,

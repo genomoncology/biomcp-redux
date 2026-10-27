@@ -1,6 +1,7 @@
 {
   "$id": "biodata.clinvar-variation-id/1",
   "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "description": " A ClinVar variation record, which may represent a compound.",
   "pattern": "^clinvar:[1-9][0-9]*$",
   "title": "ClinVarVariationId",
   "type": "string"
