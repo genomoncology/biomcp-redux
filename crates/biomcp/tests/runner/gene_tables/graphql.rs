@@ -195,7 +195,13 @@ fn clingen() -> Check {
     ] {
         let expect = match mode {
             "failed dosage" => {
-                json!({"/result/items/0/sections/clingen/state":"data", "/result/items/0/sections/clingen/data/validity_status/state":"ok", "/result/items/0/sections/clingen/data/dosage_status/state":"failed", "/result/items/0/sections/clingen/data/validity": {"count": 1}, "/sources/2/reason":"unavailable"})
+                json!({
+                    "/result/items/0/sections/clingen/state":"data",
+                    "/result/items/0/sections/clingen/data/validity_status/state":"ok",
+                    "/result/items/0/sections/clingen/data/dosage_status/state":"failed",
+                    "/result/items/0/sections/clingen/data/validity": {"count": 1},
+                    "/sources/2/reason":"unavailable"
+                })
             }
             "failed validity" => {
                 json!({"/result/items/0/sections/clingen/data/validity_status/state":"failed", "/result/items/0/sections/clingen/data/dosage_status/state":"ok", "/result/items/0/sections/clingen/data/validity":[], "/result/items/0/sections/clingen/data/haploinsufficiency":"Sufficient Evidence for Haploinsufficiency"})
