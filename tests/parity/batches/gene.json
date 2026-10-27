@@ -531,6 +531,15 @@
           },
           "recording_gap": "The retained Entrez annotation omits symbol and name requested by the released MyGene symbol getter. Reusing it would make the released defaults empty and could misstate a source recording omission as a fact difference. The full native symbol reply is missing; the independent Entrez-only sample retains the unchanged original capture.",
           "capture": ""
+        },
+        {
+          "source": "civic",
+          "endpoint_env": "BIOMCP_CIVIC_BASE",
+          "host": "civicdb.org",
+          "request_prefix": "POST /api/graphql",
+          "request_contains": "",
+          "capture": "",
+          "recording_gap": "The released CIViC section requests assertion and evidence item connections. The harvested feature lookup reply contains gene feature identity, description and variant count, without those released connection fields. No response to the released evidence query is retained."
         }
       ],
       "facts": {
