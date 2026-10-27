@@ -114,27 +114,7 @@ pub(crate) fn resolve(
     let input = query.input().as_str();
     match query.input().namespace() {
         Ok(VariantNamespace::Rs | VariantNamespace::ClinVar | VariantNamespace::Chromosome) => {
-            let term = if query.input().namespace().ok() == Some(VariantNamespace::ClinVar) {
-                format!(
-                    "clinvar.variant_id:{}",
-                    input.strip_prefix("clinvar:").unwrap_or(input)
-                )
-            } else {
-                input.to_owned()
-            };
-            let build = query.build().unwrap_or_else(|| {
-                if query
-                    .sections()
-                    .contains(&biomcp_types::VariantSection::AlphaGenome)
-                {
-                    biodata::Build::GRCh38
-                } else {
-                    biodata::Build::GRCh37
-                }
-            });
-            let found = myvariant::lookup(leg, &term, build)?;
-            problems.extend(found.problems);
-            Ok((found.value, None))
+            myvariant_identity(query, leg, problems, false)
         }
         Ok(VariantNamespace::Ca) => car(allele_registry::by_id(leg, input)?, problems),
         _ => match query.resolver() {
@@ -297,3 +277,35 @@ mod gwas;
 mod population;
 pub(crate) mod population_detail;
 mod population_release;
+mod population_identity;
+
+fn myvariant_identity(
+    query: &VariantGet, leg: &Leg<'_>, problems: &mut Vec<biomcp_types::Problem>, population: bool,
+) -> Result<(Vec<VariantHeader>, Option<Text>), RequestError> {
+    let input = query.input().as_str();
+    let term = if query.input().namespace().ok() == Some(VariantNamespace::ClinVar) {
+        format!(
+            "clinvar.variant_id:{}",
+            input.strip_prefix("clinvar:").unwrap_or(input)
+        )
+    } else {
+        input.to_owned()
+    };
+    let build = query.build().unwrap_or_else(|| {
+        if query
+            .sections()
+            .contains(&biomcp_types::VariantSection::AlphaGenome)
+        {
+            biodata::Build::GRCh38
+        } else {
+            biodata::Build::GRCh37
+        }
+    });
+    let found = if population {
+        myvariant::population_lookup(leg, &term, build)?
+    } else {
+        myvariant::lookup(leg, &term, build)?
+    };
+    problems.extend(found.problems);
+    Ok((found.value, None))
+}

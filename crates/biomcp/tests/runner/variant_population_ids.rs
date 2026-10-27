@@ -48,8 +48,8 @@ fn ambiguous() -> Result<(), String> {
 fn candidates(_: &str) -> Result<String, String> {
     // Synthetic reply-only multiallelic control; no claim about these public IDs.
     Ok(json!({"total":2,"hits":[
-        {"_id":"chr10:g.114758349C>T","dbsnp":{"rsid":"rs7903146"},"clinvar":{"variant_id":7413}},
-        {"_id":"chr10:g.114758349C>G","dbsnp":{"rsid":"rs7903146"},"clinvar":{"variant_id":7413}}
+        {"_id":"chr10:g.114758349C>T","chrom":"10","hg19":{"start":114758349,"end":114758349},"dbsnp":{"rsid":"rs7903146"},"clinvar":{"variant_id":7413}},
+        {"_id":"chr10:g.114758349C>G","chrom":"10","hg19":{"start":114758349,"end":114758349},"dbsnp":{"rsid":"rs7903146"},"clinvar":{"variant_id":7413}}
     ]}).to_string())
 }
 
