@@ -45,14 +45,26 @@ fn check() -> Result<(), String> {
         .map_err(|e| e.to_string())?;
         invoke(&env, &plan_path, projected)?;
     }
+    let sequence = json!({"story":"Ordered commands need a complete execution plan", "steps":[
+        {"run":["get","gene","BRAF"], "expect":{pointer:summary}},
+        {"run":["get","gene","BRAF"], "expect":{pointer:summary}}]});
+    fs::write(
+        cases.join("braf.yaml"),
+        serde_json::to_vec(&sequence).map_err(|e| e.to_string())?,
+    )
+    .map_err(|e| e.to_string())?;
+    let path = env.root().join("sequence.json");
+    fs::write(
+        &path,
+        serde_json::to_vec(&json!({"baseline_release":"0.9.3","cases":[]}))
+            .map_err(|e| e.to_string())?,
+    )
+    .map_err(|e| e.to_string())?;
+    invoke(&env, &path, false)?;
     Ok(())
 }
 fn invoke(env: &Environment, plan: &Path, complete: bool) -> Result<(), String> {
-    let report = env.root().join(if complete {
-        "complete-report.json"
-    } else {
-        "missing-report.json"
-    });
+    let report = plan.with_extension("report.json");
     let args = vec![
         "--parity-inventory".into(),
         plan.display().to_string(),

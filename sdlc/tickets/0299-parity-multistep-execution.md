@@ -1,6 +1,7 @@
 # 0299 — Run multi-step and stateful harvested cases in the parity runner
 
-Status: OPEN.
+Status: COMPLETE.
+Landed: f8cf11c6d7e62595b2d90eaf35ae8e3b647b6654
 
 Milestone: 5
 

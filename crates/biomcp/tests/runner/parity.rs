@@ -11,6 +11,8 @@ mod inventory;
 pub(crate) fn inventory_main(args: Vec<String>) -> ExitCode {
     inventory::main(args)
 }
+#[path = "parity_operation.rs"]
+mod operation;
 #[path = "parity_projection.rs"]
 mod projection;
 #[path = "parity_recording.rs"]
@@ -19,6 +21,12 @@ mod recording;
 mod registry;
 #[path = "parity_request.rs"]
 mod request;
+#[path = "parity_sequence.rs"]
+mod sequence;
+#[path = "parity_sequence_plans.rs"]
+mod sequence_plans;
+#[path = "parity_shared_proof.rs"]
+mod shared_proof;
 
 #[derive(Deserialize)]
 #[serde(deny_unknown_fields)]
@@ -26,24 +34,38 @@ struct Plan {
     baseline_release: String,
     cases: Vec<Selection>,
     #[serde(default)]
+    sequences: Vec<sequence::Sequence>,
+    #[serde(default)]
     batches: Vec<String>,
     #[serde(default)]
     inventory: inventory::Exceptions,
 }
-#[derive(Deserialize)]
+#[derive(Clone, Deserialize)]
 #[serde(deny_unknown_fields)]
 struct Selection {
     case: String,
     step: usize,
     baseline_command: Vec<String>,
+    #[serde(default)]
+    candidate_command: Option<Vec<String>>,
+    #[serde(default)]
+    pages: Vec<sequence::Page>,
+    #[serde(default)]
+    baseline_items: Option<String>,
+    #[serde(default)]
+    unsupported_command: Option<UnsupportedFact>,
+    #[serde(default)]
+    baseline_gap: Option<UnsupportedFact>,
     spelling_table: String,
     release_source: Vec<String>,
     baseline_globals: Vec<String>,
     #[serde(default)]
-    command_selectors: BTreeMap<String, String>,
+    command_selectors: BTreeMap<String, request::CommandSelector>,
     recordings: Vec<recording::Route>,
     #[serde(default)]
     source_free: bool,
+    #[serde(default)]
+    stored_only: bool,
     #[serde(default)]
     baseline_exit: i32,
     #[serde(default)]
@@ -55,7 +77,7 @@ struct Selection {
     unprojectable_facts: BTreeMap<String, UnsupportedFact>,
 }
 
-#[derive(Deserialize, serde::Serialize)]
+#[derive(Clone, Deserialize, serde::Serialize)]
 #[serde(deny_unknown_fields)]
 struct UnsupportedFact {
     reason: String,
@@ -117,6 +139,7 @@ fn load_plan(path: &Path) -> Result<Plan, String> {
             return Err("batch must target the same release without nested batches".into());
         }
         plan.cases.extend(child.cases);
+        plan.sequences.extend(child.sequences);
         plan.inventory.extend(child.inventory);
     }
     Ok(plan)
@@ -124,8 +147,8 @@ fn load_plan(path: &Path) -> Result<Plan, String> {
 fn run(plan: &Path, baseline: &Path, out: &Path) -> Result<Value, String> {
     let plan = load_plan(plan)?;
     if plan.baseline_release != "0.9.3"
-        || plan.cases.is_empty()
-        || plan.cases.len() > 1024
+        || plan.cases.is_empty() && plan.sequences.is_empty()
+        || plan.cases.len() + plan.sequences.len() > 1024
         || !baseline.is_absolute()
     {
         return Err("expected nonempty selection and absolute released 0.9.3 executable".into());
@@ -135,6 +158,8 @@ fn run(plan: &Path, baseline: &Path, out: &Path) -> Result<Value, String> {
         .iter()
         .map(load_selection)
         .collect::<Result<Vec<_>, _>>()?;
+    let sequences = sequence_plans::resolve(&plan)?;
+    sequence::validate(&sequences)?;
     let env = Environment::new().map_err(|e| e.to_string())?;
     let version = env
         .command(baseline, &["--version".into()])
@@ -154,25 +179,10 @@ fn run(plan: &Path, baseline: &Path, out: &Path) -> Result<Value, String> {
     for (index, (selection, case)) in plan.cases.iter().zip(&cases).enumerate() {
         rows.push(compare(selection, case, baseline, out, index)?);
     }
-    let facts = rows
-        .iter()
-        .filter_map(|r| r.get("facts").and_then(Value::as_array))
-        .flatten()
-        .collect::<Vec<_>>();
-    let gaps = facts
-        .iter()
-        .filter(|f| {
-            f.pointer("/baseline/verdict") == Some(&json!("assessment_gap"))
-                || f.pointer("/candidate/verdict") == Some(&json!("assessment_gap"))
-        })
-        .count();
-    let regressions = facts
-        .iter()
-        .filter(|f| {
-            f.pointer("/baseline/verdict") == Some(&json!("right"))
-                && f.pointer("/candidate/verdict") == Some(&json!("wrong"))
-        })
-        .count();
+    for (index, sequence) in sequences.iter().enumerate() {
+        rows.extend(sequence::compare(sequence, baseline, out, index)?);
+    }
+    let (gaps, regressions) = totals(&rows);
     let report = json!({"baseline_release":"0.9.3", "mode":"recorded-parity",
         "baseline_binary":execution::fingerprint(baseline)?,
         "candidate_binary":execution::fingerprint(Path::new(env!("CARGO_BIN_EXE_biomcp")))?,
@@ -186,10 +196,51 @@ fn run(plan: &Path, baseline: &Path, out: &Path) -> Result<Value, String> {
         json!({"report":out.join("report.json"), "cases":rows.len(),"assessment_gaps":gaps,"regressions":regressions}),
     )
 }
+fn totals(rows: &[Value]) -> (usize, usize) {
+    let facts = rows
+        .iter()
+        .flat_map(|r| {
+            ["facts", "mcp_facts"]
+                .into_iter()
+                .filter_map(|name| r.get(name).and_then(Value::as_array))
+        })
+        .flatten()
+        .collect::<Vec<_>>();
+    let gaps = facts
+        .iter()
+        .filter(|f| {
+            f.pointer("/baseline/verdict") == Some(&json!("assessment_gap"))
+                || f.pointer("/candidate/verdict") == Some(&json!("assessment_gap"))
+        })
+        .count()
+        + rows
+            .iter()
+            .filter(|row| {
+                row.get("facts")
+                    .and_then(Value::as_array)
+                    .is_some_and(Vec::is_empty)
+                    && ["baseline", "candidate"].iter().any(|side| {
+                        row.get(side)
+                            .is_some_and(|output| output.get("assessment_error").is_some())
+                    })
+            })
+            .count();
+    let regressions = facts
+        .iter()
+        .filter(|f| {
+            f.pointer("/baseline/verdict") == Some(&json!("right"))
+                && f.pointer("/candidate/verdict") == Some(&json!("wrong"))
+        })
+        .count();
+    (gaps, regressions)
+}
 fn load_selection(selection: &Selection) -> Result<Case, String> {
     load_selection_from(selection, &super::launch::fixtures().join("cases"))
 }
 fn load_selection_from(selection: &Selection, cases: &Path) -> Result<Case, String> {
+    load_selection_mode(selection, cases, false)
+}
+fn load_selection_mode(selection: &Selection, cases: &Path, setup: bool) -> Result<Case, String> {
     let path = cases.join(&selection.case);
     let mut case: Case =
         serde_saphyr::from_str(&fs::read_to_string(&path).map_err(|e| e.to_string())?)
@@ -200,12 +251,70 @@ fn load_selection_from(selection: &Selection, cases: &Path) -> Result<Case, Stri
         .get(selection.step)
         .ok_or("selected step missing")?;
     assertions::prepare(step)?;
+    let mut resolved = step.clone();
+    if let Some(command) = &selection.candidate_command {
+        if step
+            .run
+            .as_ref()
+            .is_some_and(|original| original != command)
+        {
+            return Err("candidate command differs from harvested command".into());
+        }
+        resolved.run = Some(command.clone());
+    } else if resolved.run.is_none() {
+        resolved.run = resolved.mcp.clone();
+    }
+    let step = &resolved;
     step.run
         .as_ref()
-        .ok_or("selection requires a direct CLI step")?;
-    if step.expect.is_empty() {
+        .ok_or("selection requires a reviewed candidate command")?;
+    if step.expect.is_empty() && !setup {
         return Err("selection has no fact assertions".into());
     }
+    validate_fact_plan(selection, step)?;
+    if selection.release_source.is_empty()
+        || selection
+            .release_source
+            .iter()
+            .any(|p| !p.starts_with("src/"))
+    {
+        return Err("projection requires released command and serializer provenance".into());
+    }
+    if let Some(reason) = &selection.unsupported_command {
+        reason.validate()?;
+        if !setup
+            || !selection.baseline_command.is_empty()
+            || !selection.recordings.is_empty()
+            || !selection.facts.is_empty()
+            || !selection.pages.is_empty()
+        {
+            return Err(
+                "unsupported sequence command cannot declare released execution or facts".into(),
+            );
+        }
+        return Ok(case);
+    }
+    if let Some(reason) = &selection.baseline_gap {
+        reason.validate()?;
+        if !setup
+            || selection.baseline_command.is_empty()
+            || selection.unsupported_command.is_some()
+        {
+            return Err("released recording gap requires an existing sequence command".into());
+        }
+    }
+    if selection.baseline_command.is_empty() {
+        return Err("selection requires a baseline command".into());
+    }
+    if let Some(pointers) = &selection.assertion_pointers
+        && (pointers.is_empty() || pointers.iter().any(|p| !step.expect.contains_key(p)))
+    {
+        return Err("selected assertion missing from harvested case".into());
+    }
+    validate_baseline(selection, step)?;
+    Ok(case)
+}
+fn validate_fact_plan(selection: &Selection, step: &Step) -> Result<(), String> {
     for (pointer, baseline_pointer) in &selection.facts {
         let expected = step
             .expect
@@ -223,22 +332,9 @@ fn load_selection_from(selection: &Selection, cases: &Path) -> Result<Case, Stri
         }
         reason.validate()?;
     }
-    if selection.release_source.is_empty()
-        || selection
-            .release_source
-            .iter()
-            .any(|p| !p.starts_with("src/"))
-    {
-        return Err("projection requires released command and serializer provenance".into());
-    }
-    if selection.baseline_command.is_empty() {
-        return Err("selection requires a baseline command".into());
-    }
-    if let Some(pointers) = &selection.assertion_pointers
-        && (pointers.is_empty() || pointers.iter().any(|p| !step.expect.contains_key(p)))
-    {
-        return Err("selected assertion missing from harvested case".into());
-    }
+    Ok(())
+}
+fn validate_baseline(selection: &Selection, step: &Step) -> Result<(), String> {
     let root = Path::new(env!("CARGO_MANIFEST_DIR")).join("../..");
     let table =
         fs::read_to_string(root.join(&selection.spelling_table)).map_err(|e| e.to_string())?;
@@ -254,7 +350,7 @@ fn load_selection_from(selection: &Selection, cases: &Path) -> Result<Case, Stri
     }
     registry::validate(selection)?;
     request::validate_command(selection, step)?;
-    Ok(case)
+    Ok(())
 }
 fn compare(
     selection: &Selection,
@@ -328,6 +424,12 @@ fn facts(
         let prepared = assertions::prepare(&fact)?;
         for (_, _, assertions) in prepared {
             for assertion in assertions {
+                if let Some(reason) = &selection.baseline_gap {
+                    result.push(json!({"pointer":pointer,"expected":expected,"assertion":format!("{assertion:?}"),
+                        "baseline":{"verdict":"assessment_gap","reason":reason},
+                        "candidate":verdict(current, pointer, &assertion)}));
+                    continue;
+                }
                 if let Some(reason) = selection.unprojectable_facts.get(pointer) {
                     result.push(json!({"pointer":pointer,"expected":expected,"assertion":format!("{assertion:?}"),
                         "baseline":{"verdict":"unprojectable","reason":reason.reason,"release_source":reason.release_source},
@@ -389,7 +491,8 @@ fn verdict(output: &Value, pointer: &str, assertion: &assertions::Assertion<'_>)
 
 // Harness contract: the public mode must reject an actual binary of the wrong release.
 pub(super) fn trials() -> Vec<libtest_mimic::Trial> {
-    vec![libtest_mimic::Trial::test(
+    let mut trials = shared_proof::trials();
+    trials.push(libtest_mimic::Trial::test(
         "parity/reject-wrong-baseline-release",
         || {
             let env = Environment::new().map_err(|e| e.to_string())?;
@@ -417,5 +520,6 @@ pub(super) fn trials() -> Vec<libtest_mimic::Trial> {
             }
             Ok(())
         },
-    )]
+    ));
+    trials
 }

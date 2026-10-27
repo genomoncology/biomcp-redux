@@ -424,6 +424,17 @@ fn run_sequence(
     replay: Option<&Path>,
     previous: Option<&Value>,
 ) -> Result<Value, String> {
+    run_sequence_with(step, expectations, previous, |current, expectations| {
+        run_step(current, environment, expectations, registry, replay)
+    })
+}
+
+fn run_sequence_with(
+    step: &Step,
+    expectations: &assertions::Expectations<'_>,
+    previous: Option<&Value>,
+    mut execute: impl FnMut(&Step, &assertions::Expectations<'_>) -> Result<Value, String>,
+) -> Result<Value, String> {
     let mut current = step.clone();
     if let Some(kind) = &step.follow {
         current.run = Some(action(
@@ -433,7 +444,7 @@ fn run_sequence(
         current.mcp = None;
     }
     let Some(walk) = &step.walk else {
-        return run_step(&current, environment, expectations, registry, replay);
+        return execute(&current, expectations);
     };
     if walk.max_pages == 0 || walk.max_pages > 1000 {
         return Err("walk requires a bounded page count".into());
@@ -446,7 +457,7 @@ fn run_sequence(
         if !actions.insert(current.run.clone().ok_or("walk requires run")?) {
             return Err("walk repeated action".into());
         }
-        let value = run_step(&current, environment, &Vec::new(), registry, replay)?;
+        let value = execute(&current, &Vec::new())?;
         let offset = value
             .pointer("/page/offset")
             .and_then(Value::as_u64)

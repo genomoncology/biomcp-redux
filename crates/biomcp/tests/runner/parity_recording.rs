@@ -3,9 +3,13 @@ use super::super::network_stub::RecordedReply;
 use super::{Environment, Selection, execution, registry};
 use serde::{Deserialize, Serialize};
 use serde_json::{Value, json};
-use std::{collections::BTreeMap, fs, path::Path};
+use std::{
+    collections::{BTreeMap, VecDeque},
+    fs,
+    path::Path,
+};
 
-#[derive(Deserialize, Serialize)]
+#[derive(Clone, Deserialize, Serialize)]
 #[serde(deny_unknown_fields)]
 pub(super) struct Route {
     pub(super) source: String,
@@ -17,6 +21,8 @@ pub(super) struct Route {
     pub(super) request_query: BTreeMap<String, String>,
     #[serde(default)]
     exchange: Option<usize>,
+    #[serde(default, skip_serializing_if = "Vec::is_empty")]
+    exchange_order: Vec<usize>,
     pub(super) capture: String,
     #[serde(default, skip_serializing_if = "Option::is_none")]
     pub(super) recording_gap: Option<String>,
@@ -31,13 +37,24 @@ pub(super) fn baseline(
     out: &Path,
     index: usize,
 ) -> Result<Value, String> {
+    let env = Environment::new().map_err(|e| e.to_string())?;
+    baseline_in(selection, binary, replay, out, index, &env)
+}
+pub(super) fn baseline_in(
+    selection: &Selection,
+    binary: &Path,
+    replay: &Path,
+    out: &Path,
+    index: usize,
+    env: &Environment,
+) -> Result<Value, String> {
+    super::operation::validate(&selection.baseline_command)?;
     let registry = registry::load()?;
-    let bodies = if selection.source_free {
+    let bodies = if selection.source_free || selection.stored_only {
         Vec::new()
     } else {
         bodies(&selection.recordings, replay, out, index)?
     };
-    let env = Environment::new().map_err(|e| e.to_string())?;
     let mut args = selection.baseline_globals.clone();
     args.extend([
         "--disable-sources".into(),
@@ -65,7 +82,11 @@ pub(super) fn baseline(
         serde_json::to_vec_pretty(&requests).map_err(|e| e.to_string())?,
     )
     .map_err(|e| e.to_string())?;
-    if requests.is_empty() && !selection.source_free && result.get("assessment_error").is_none() {
+    if requests.is_empty()
+        && !selection.source_free
+        && !selection.stored_only
+        && result.get("assessment_error").is_none()
+    {
         execution::field(
             &mut result,
             "assessment_error",
@@ -83,7 +104,7 @@ pub(super) fn baseline(
 fn peers(
     registry: &registry::Registry,
     selection: &Selection,
-    bodies: Vec<RecordedReply>,
+    bodies: Vec<Vec<RecordedReply>>,
     command: &mut std::process::Command,
 ) -> Result<Vec<super::super::network_stub::Stub>, String> {
     let mut grouped = BTreeMap::new();
@@ -95,12 +116,24 @@ fn peers(
                 route.request_prefix.clone(),
                 route.request_contains.clone(),
                 route.request_query.clone(),
-                body,
+                Replies::new(body, route.exchange_order.is_empty()),
             ));
     }
     let mut peers = Vec::new();
-    for endpoint in registry.active_endpoints(&selection.recordings)? {
-        let routes = grouped.remove(&endpoint.variable).unwrap_or_default();
+    let endpoints = registry.active_endpoints(&selection.recordings)?;
+    if endpoints
+        .iter()
+        .filter(|e| requires_fixture_origin(&e.variable))
+        .count()
+        > 1
+    {
+        return Err(
+            "assessment gap: released fixture policy accepts only one S2 or ORCID peer origin"
+                .into(),
+        );
+    }
+    for endpoint in endpoints {
+        let mut routes = grouped.remove(&endpoint.variable).unwrap_or_default();
         let expected_host = endpoint.host.clone();
         let peer = super::super::network_stub::Stub::loopback(
             expected_host.clone(),
@@ -109,7 +142,7 @@ fn peers(
                     return Err("source peer ownership changed".into());
                 }
                 let mut matched = None;
-                for (prefix, contains, query, body) in &routes {
+                for (prefix, contains, query, body) in &mut routes {
                     if super::request::matches(prefix, contains, query, request)? {
                         if matched.is_some() {
                             return Err("ambiguous baseline source request".into());
@@ -117,25 +150,57 @@ fn peers(
                         matched = Some(body);
                     }
                 }
-                matched.cloned().ok_or_else(|| {
-                    format!(
-                        "unmapped baseline source request: {}",
-                        request.lines().next().unwrap_or("<missing>")
-                    )
-                })
+                matched
+                    .ok_or_else(|| {
+                        format!(
+                            "unmapped baseline source request: {}",
+                            request.lines().next().unwrap_or("<missing>")
+                        )
+                    })?
+                    .next()
             },
         )?;
         command.env(&endpoint.variable, endpoint.local_url(peer.address));
+        if requires_fixture_origin(&endpoint.variable) {
+            // Released S2 and ORCID policies accept HTTP only for this exact fixture origin.
+            command.env(
+                "BIOMCP_TEST_UNPACED_ORIGIN",
+                format!("http://{}", peer.address),
+            );
+        }
         peers.push(peer);
     }
     Ok(peers)
+}
+struct Replies {
+    replies: VecDeque<RecordedReply>,
+    repeat: bool,
+}
+impl Replies {
+    fn new(replies: Vec<RecordedReply>, repeat: bool) -> Self {
+        Self {
+            repeat,
+            replies: replies.into(),
+        }
+    }
+    fn next(&mut self) -> Result<RecordedReply, String> {
+        if self.repeat {
+            self.replies.front().cloned()
+        } else {
+            self.replies.pop_front()
+        }
+        .ok_or_else(|| "declared source exchange order exhausted".into())
+    }
+}
+fn requires_fixture_origin(variable: &str) -> bool {
+    matches!(variable, "BIOMCP_S2_BASE" | "BIOMCP_ORCID_BASE")
 }
 fn bodies(
     routes: &[Route],
     replay: &Path,
     out: &Path,
     index: usize,
-) -> Result<Vec<RecordedReply>, String> {
+) -> Result<Vec<Vec<RecordedReply>>, String> {
     if routes.is_empty() {
         return Err("assessment gap: baseline source request recordings missing".into());
     }
@@ -153,9 +218,8 @@ fn bodies(
                 &fs::read(replay.join(&route.capture)).map_err(|e| e.to_string())?,
             )
             .map_err(|e| e.to_string())?;
-            let registry = registry::load()?;
             if capture.get("source").and_then(Value::as_str)
-                != Some(registry.recording_source(route)?)
+                != Some(registry::load()?.recording_source(route)?)
             {
                 return Err("capture does not belong to routed source".into());
             }
@@ -163,47 +227,79 @@ fn bodies(
                 .get("exchanges")
                 .and_then(Value::as_array)
                 .ok_or("missing exchanges")?;
-            if exchanges.len() != 1 && route.exchange.is_none() {
-                return Err(
-                    "assessment gap: source route needs an explicit recorded exchange".into(),
-                );
-            }
-            let ordinal_exchange = route.exchange.unwrap_or(0);
-            let exchange = exchanges
-                .get(ordinal_exchange)
-                .ok_or("selected exchange missing")?;
-            let delay_ms = recorded_delay(exchange)?;
-            let (adapted, body) = adapted_body(route, exchange)?;
-            let status = exchange
-                .get("status")
-                .and_then(Value::as_u64)
-                .and_then(|status| u16::try_from(status).ok())
-                .ok_or("recorded HTTP status missing")?;
-            let content_type = exchange
-                .get("content_type")
-                .and_then(Value::as_str)
-                .ok_or("recorded content type missing")?
-                .to_owned();
-            fs::write(
-                out.join(format!("{index}-source-{ordinal}.json")),
-                serde_json::to_vec_pretty(&json!({
-                    "capture":capture,"adapted_body":adapted,"host":route.host,
-                    "request_prefix":route.request_prefix,"request_contains":route.request_contains,
-                    "request_query":route.request_query,"exchange":ordinal_exchange,
-                    "status":status,"content_type":content_type,
-                    "delay_ms":delay_ms,
-                }))
-                .map_err(|e| e.to_string())?,
-            )
-            .map_err(|e| e.to_string())?;
-            Ok(RecordedReply {
-                status,
-                content_type,
-                body,
-                delay_ms,
-            })
+            let order = if route.exchange_order.is_empty() {
+                if exchanges.len() != 1 && route.exchange.is_none() {
+                    return Err(
+                        "assessment gap: source route needs an explicit recorded exchange".into(),
+                    );
+                }
+                vec![route.exchange.unwrap_or(0)]
+            } else {
+                if route.exchange.is_some()
+                    || route
+                        .exchange_order
+                        .windows(2)
+                        .any(|pair| pair.first() >= pair.get(1))
+                {
+                    return Err(
+                        "source exchange order must increase without a single-exchange selector"
+                            .into(),
+                    );
+                }
+                route.exchange_order.clone()
+            };
+            order
+                .into_iter()
+                .enumerate()
+                .map(|(position, selected)| {
+                    let exchange = exchanges.get(selected).ok_or("selected exchange missing")?;
+                    let name = if position == 0 {
+                        format!("{index}-source-{ordinal}.json")
+                    } else {
+                        format!("{index}-source-{ordinal}-exchange-{selected}.json")
+                    };
+                    retained_reply(route, &capture, exchange, selected, &out.join(name))
+                })
+                .collect()
         })
         .collect()
+}
+fn retained_reply(
+    route: &Route,
+    capture: &Value,
+    exchange: &Value,
+    selected: usize,
+    path: &Path,
+) -> Result<RecordedReply, String> {
+    let delay_ms = recorded_delay(exchange)?;
+    let (adapted, body) = adapted_body(route, exchange)?;
+    let status = exchange
+        .get("status")
+        .and_then(Value::as_u64)
+        .and_then(|status| u16::try_from(status).ok())
+        .ok_or("recorded HTTP status missing")?;
+    let content_type = exchange
+        .get("content_type")
+        .and_then(Value::as_str)
+        .ok_or("recorded content type missing")?
+        .to_owned();
+    fs::write(
+        path,
+        serde_json::to_vec_pretty(&json!({
+            "capture":capture,"adapted_body":adapted,"host":route.host,
+            "request_prefix":route.request_prefix,"request_contains":route.request_contains,
+            "request_query":route.request_query,"exchange":selected,
+            "status":status,"content_type":content_type,"delay_ms":delay_ms,
+        }))
+        .map_err(|e| e.to_string())?,
+    )
+    .map_err(|e| e.to_string())?;
+    Ok(RecordedReply {
+        status,
+        content_type,
+        body,
+        delay_ms,
+    })
 }
 
 fn recorded_delay(exchange: &Value) -> Result<u64, String> {
