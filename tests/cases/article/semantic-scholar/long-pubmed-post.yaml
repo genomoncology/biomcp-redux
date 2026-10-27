@@ -19,7 +19,7 @@
         "--limit",
         "50"
       ],
-      "max_bytes": 15225,
+      "max_bytes": 28336,
       "expect": {
         "/status": "complete",
         "/sources/0/source": "pubmed",
@@ -33,9 +33,13 @@
             "42913557"
           ],
           "unique": true
+        },
+        "/next/*/kind": {
+          "excludes": "disambiguate"
         }
       },
-      "max_tokens": 3807
+      "max_tokens": 7084,
+      "full_output_bytes": true
     }
   ],
   "live_check": "recorded transport boundary; live capture is a separate reviewed follow-up"
