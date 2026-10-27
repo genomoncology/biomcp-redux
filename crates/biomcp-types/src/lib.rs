@@ -42,7 +42,6 @@ pub use query::{RecurrenceSource, VariantRecurrenceQuery};
 pub use query::{TrialFilter, TrialSearch, TrialSource};
 pub use query::{TrialGet, TrialSection};
 pub use query::{VariantInput, VariantNamespace};
-pub use response::ComponentHealth;
 pub use response::TrialParameter;
 pub use response::VariantPage;
 pub use response::{AnnotatedEntity, AnnotationKind, Annotations, ArticleSections, Tldr};
@@ -65,6 +64,7 @@ pub use response::{
     ArticleSupplementResult, CellFragment, FileKind, FirstSheetRow, SheetInfo, SheetRow,
     SupplementContent, SupplementFile, Supplements,
 };
+pub use response::{BundleSize, ComponentHealth, StoreSize};
 pub use response::{
     CancerPtpm, Capped, CivicGene, ClinGenGene, ClinGenValidity, GeneExpression, PathwayRef,
     ReactomeId, ReactomeIdInvalid, RnaAbundance, TissueNtpm,

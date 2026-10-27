@@ -15,7 +15,7 @@
       "max_bytes": 198,
       "max_tokens": 50,
       "expect": {
-        "/schema": "biomcp.sync/4",
+        "/schema": "biomcp.sync/5",
         "/result/rows": 19,
         "/result/duplicate_identities": 1
       }
@@ -275,7 +275,7 @@
       "max_bytes": 198,
       "max_tokens": 50,
       "expect": {
-        "/schema": "biomcp.sync/4",
+        "/schema": "biomcp.sync/5",
         "/result/rows": 19,
         "/result/duplicate_identities": 1
       }

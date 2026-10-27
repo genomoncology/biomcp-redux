@@ -132,7 +132,9 @@ impl Fetch {
             retrieved_at: Some(crate::cache::now()),
         };
         cache.publish(&bundle, None, &metadata, Some(&complete), leg.budget())?;
-        Ok(store::info(&bundle, &metadata))
+        let mut info = store::info(&bundle, &metadata);
+        info.downloaded_bytes = leg.finish().downloaded_bytes;
+        Ok(info)
     }
 }
 fn append_part(

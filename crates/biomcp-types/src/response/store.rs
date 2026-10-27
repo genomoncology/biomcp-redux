@@ -18,3 +18,25 @@ impl super::ResponseBody for StoreClean {
     const SCHEMA: &'static str = "biomcp.store-clean/1";
     type Query = ();
 }
+
+/// Measured lengths of owned files, including unused database pages and present sidecars.
+#[derive(Clone, Debug, Default, serde::Serialize, serde::Deserialize)]
+#[serde(deny_unknown_fields)]
+#[cfg_attr(feature = "schema", derive(schemars::JsonSchema))]
+pub struct StoreSize {
+    /// All measured owned files, including retained generations and partial downloads.
+    pub total_bytes: u64,
+    /// Active database plus its present WAL and SHM files, counted once each.
+    pub active_bytes: u64,
+    /// Retained database generations plus their present WAL and SHM files.
+    pub retained_bytes: u64,
+    /// Incomplete download files belonging to active or retained databases.
+    pub partial_download_bytes: u64,
+}
+biodata::wire_enum! {
+    /// Why physical bytes cannot be attributed to one local bundle.
+    BundleSize {
+        /// Bundles share database pages, indexes and journal files with other stored state.
+        SharedStorage => "shared_storage",
+    }
+}

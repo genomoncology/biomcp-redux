@@ -158,6 +158,8 @@ pub struct WikiPathwaysCatalogReceipt {
 #[serde(deny_unknown_fields)]
 #[cfg_attr(feature = "schema", derive(schemars::JsonSchema))]
 pub struct WikiPathwaysSync {
+    /// Source body bytes received in this synchronization; excludes replay.
+    pub downloaded_bytes: u64,
     /// Search metadata catalog receipt.
     pub search: WikiPathwaysCatalogReceipt,
     /// Exact-get metadata catalog receipt.
@@ -165,6 +167,6 @@ pub struct WikiPathwaysSync {
 }
 
 impl ResponseBody for WikiPathwaysSync {
-    const SCHEMA: &'static str = "biomcp.wikipathways-sync/1";
+    const SCHEMA: &'static str = "biomcp.wikipathways-sync/2";
     type Query = crate::SyncQuery;
 }

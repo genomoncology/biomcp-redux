@@ -437,6 +437,10 @@ impl Leg<'_> {
                 || codec.json_absence && status == 404,
             codec.limit.unwrap_or(self.fetch.config.max_body),
         )?;
+        self.report
+            .lock()
+            .unwrap_or_else(std::sync::PoisonError::into_inner)
+            .downloaded_bytes += body.len() as u64;
         let wire = Wire {
             fetched,
             status,

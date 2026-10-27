@@ -3,16 +3,23 @@ use super::{configuration::invoke, launch::Environment};
 use libtest_mimic::Trial;
 use std::{fs, path::Path};
 pub(super) fn trials() -> Vec<Trial> {
-    vec![Trial::test("sources/health-measures-owned-store-files", || measured().map_err(Into::into))]
+    vec![Trial::test(
+        "sources/health-measures-owned-store-files",
+        || measured().map_err(Into::into),
+    )]
 }
 fn length(path: &Path) -> Result<u64, String> {
-    fs::metadata(path).map(|m| m.len()).map_err(|e| e.to_string())
+    fs::metadata(path)
+        .map(|m| m.len())
+        .map_err(|e| e.to_string())
 }
 fn database_bytes(path: &Path) -> Result<u64, String> {
     let mut bytes = length(path)?;
     for suffix in ["-wal", "-shm"] {
         let sidecar = Path::new(&format!("{}{suffix}", path.display())).to_owned();
-        if sidecar.exists() { bytes += length(&sidecar)?; }
+        if sidecar.exists() {
+            bytes += length(&sidecar)?;
+        }
     }
     Ok(bytes)
 }
@@ -25,8 +32,12 @@ fn measured() -> Result<(), String> {
     let retained = folder.join("cache-1-4.sqlite");
     fs::copy(&active, &retained).map_err(|e| e.to_string())?;
     let db = rusqlite::Connection::open(&active).map_err(|e| e.to_string())?;
-    db.execute("INSERT INTO bundle VALUES('hgnc',10,1,0,NULL,NULL)", []).map_err(|e| e.to_string())?;
-    for (path, bytes) in [(active.with_extension("parts"), 7), (retained.with_extension("parts"), 11)] {
+    db.execute("INSERT INTO bundle VALUES('hgnc',10,1,0,NULL,NULL)", [])
+        .map_err(|e| e.to_string())?;
+    for (path, bytes) in [
+        (active.with_extension("parts"), 7),
+        (retained.with_extension("parts"), 11),
+    ] {
         fs::create_dir(&path).map_err(|e| e.to_string())?;
         fs::write(path.join(".tmpABC123"), vec![0; bytes]).map_err(|e| e.to_string())?;
     }
@@ -35,15 +46,26 @@ fn measured() -> Result<(), String> {
     let retained_bytes = database_bytes(&retained)?;
     let reply = invoke(&env, args, 0)?;
     let store = &reply["result"]["store"];
-    if store["active_bytes"] != active_bytes || store["retained_bytes"] != retained_bytes
-        || store["partial_download_bytes"] != 18 || store["total_bytes"] != active_bytes + retained_bytes + 18 {
+    if store["active_bytes"] != active_bytes
+        || store["retained_bytes"] != retained_bytes
+        || store["partial_download_bytes"] != 18
+        || store["total_bytes"] != active_bytes + retained_bytes + 18
+    {
         return Err(format!("incorrect measured storage: {store}"));
     }
-    let hgnc = reply["result"]["sources"].as_array().and_then(|rows| rows.iter().find(|r| r["source"] == "hgnc")).ok_or("missing HGNC")?;
+    let hgnc = reply["result"]["sources"]
+        .as_array()
+        .and_then(|rows| rows.iter().find(|r| r["source"] == "hgnc"))
+        .ok_or("missing HGNC")?;
     if hgnc["bundle_size"] != "shared_storage" || hgnc["bundle"] != "missing" {
-        return Err(format!("health attributed shared bytes or synchronized: {hgnc}"));
+        return Err(format!(
+            "health attributed shared bytes or synchronized: {hgnc}"
+        ));
     }
-    if reply.to_string().contains(&env.root().to_string_lossy().to_string()) {
+    if reply
+        .to_string()
+        .contains(&env.root().to_string_lossy().to_string())
+    {
         return Err("health disclosed local paths".into());
     }
     Ok(())

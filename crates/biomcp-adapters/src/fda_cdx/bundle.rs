@@ -30,6 +30,7 @@ pub fn sync(fetch: &Fetch) -> Result<SyncResult, RequestError> {
         last_modified: None,
         rows: info.rows,
         bytes: info.bytes,
+        downloaded_bytes: info.downloaded_bytes,
         duplicate_identities: None,
     })
 }

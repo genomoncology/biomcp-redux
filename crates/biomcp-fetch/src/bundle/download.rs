@@ -19,6 +19,7 @@ struct Transfer<'a> {
     file: &'a mut tempfile::NamedTempFile,
     part: &'a mut Part,
     auto: bool,
+    downloaded_bytes: u64,
     started: Instant,
 }
 impl Leg<'_> {
@@ -85,6 +86,7 @@ impl Leg<'_> {
             file: &mut file,
             part: &mut part,
             auto,
+            downloaded_bytes: 0,
             started,
         };
         let result = self.download(
@@ -353,7 +355,9 @@ impl Leg<'_> {
         {
             return Err(self.failure(Reason::Syncing, None).into());
         }
-        Ok(store::info(b, &meta))
+        let mut info = store::info(b, &meta);
+        info.downloaded_bytes = t.downloaded_bytes;
+        Ok(info)
     }
     fn validate_range(
         &self,
@@ -438,6 +442,7 @@ impl Leg<'_> {
             }
             t.file.write_all(bytes).map_err(|_| CacheError::Database)?;
             t.part.bytes += n as u64;
+            t.downloaded_bytes += n as u64;
         }
         if t.part.total.is_some_and(|n| n != t.part.bytes) {
             return Err(self.failure(Reason::BadReply, Some(status)).into());

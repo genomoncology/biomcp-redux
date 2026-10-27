@@ -98,7 +98,14 @@ fn interrupted_download_resumes_only_the_same_representation() {
                 let info = result.unwrap();
                 assert_eq!(info.rows, 1);
                 assert_eq!(info.bytes, TSV.len() as u64);
-                assert_eq!(info.downloaded_bytes, if scenario == "safe" { (TSV.len() - cut) as u64 } else { TSV.len() as u64 });
+                assert_eq!(
+                    info.downloaded_bytes,
+                    if scenario == "safe" {
+                        (TSV.len() - cut) as u64
+                    } else {
+                        TSV.len() as u64
+                    }
+                );
             } else {
                 assert!(result.is_err());
             }

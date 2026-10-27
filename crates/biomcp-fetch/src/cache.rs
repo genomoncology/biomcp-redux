@@ -7,7 +7,7 @@ use crate::{CacheError, Deadline};
 use rusqlite::{Connection, OpenFlags, OptionalExtension, params};
 mod schema;
 pub use schema::{SchemaOwner, check_owners};
-pub(crate) use schema::{check_current_owners, check_predecessor, db_error};
+pub(crate) use schema::{check_current_owners, check_predecessor, check_retained_owners, db_error};
 use std::{
     path::Path,
     sync::Mutex,
