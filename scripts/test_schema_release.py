@@ -1,7 +1,7 @@
 """Exercise the release schema gate through its public command."""
 import io
 import tarfile
-from pathlib import Path
+from pathlib import Path, PurePosixPath
 import subprocess
 import tempfile
 import unittest
@@ -30,8 +30,13 @@ class SchemaRelease(unittest.TestCase):
             candidate = Path(folder)
             archive = subprocess.check_output(["git", "archive", "--format=tar", "HEAD"], cwd=ROOT)
             with tarfile.open(fileobj=io.BytesIO(archive), mode="r:") as tree:
-                # The archive contains only this repository’s committed paths.
-                tree.extractall(candidate)
+                members = tree.getmembers()
+                for member in members:
+                    name = PurePosixPath(member.name)
+                    if (name.is_absolute() or ".." in name.parts or "\\" in member.name
+                            or not (member.isfile() or member.isdir())):
+                        raise ValueError(f"unsafe source archive member: {member.name}")
+                tree.extractall(candidate, members=members)
             # Plant a same-major narrowing in both generated types and snapshots.
             before, after = "^[ACGTNRYSWKMBDHV]$", "^[ACGT]$"
             source = candidate / "crates/biodata/src/variant/sequence.rs"
