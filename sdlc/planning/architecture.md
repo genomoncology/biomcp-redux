@@ -1885,6 +1885,7 @@ The ratchet owns the authoritative file and reason list below and checks this ta
 | `crates/biomcp-fetch/src/xml_tests.rs` | Cover inline XML markup and decoder limits with many tiny inputs. |
 | `crates/biomcp-fetch/tests/alphagenome.rs` | Exercise the selected request encoding and complete bounded envelopes through the public protocol API. |
 | `crates/biomcp-fetch/tests/alphagenome/routing.rs` | Exercise required-key admission and placeholder credential routing through a local TLS stream. |
+| `crates/biomcp-fetch/tests/score_variant.rs` | Exercise the ruled scoring request and complete scorer admission through the public protocol API. |
 | `crates/biomcp-fetch/tests/batch.rs` | Exercise transport ownership, local server behavior and cache/record failures through its public API. |
 | `crates/biomcp-fetch/tests/bundle.rs` | Exercise transport ownership, local server behavior and cache/record failures through its public API. |
 | `crates/biomcp-fetch/tests/bundle/download.rs` | Exercise transport ownership, local server behavior and cache/record failures through its public API. |
