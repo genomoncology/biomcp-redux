@@ -19,8 +19,17 @@
       "exit": 2,
       "is_error": true,
       "expect": {
-        "/error/code": "usage.arguments",
-        "/error/option": "--id"
+        "": {
+          "equals": {
+            "schema": "biomcp.error/1",
+            "status": "usage",
+            "error": {
+              "code": "usage.arguments",
+              "option": "--id",
+              "message": "expected a supported command with checked arguments"
+            }
+          }
+        }
       }
     },
     {
