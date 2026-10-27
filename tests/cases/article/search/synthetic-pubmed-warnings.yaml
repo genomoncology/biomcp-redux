@@ -1,0 +1,150 @@
+{
+  "feature": "article-search",
+  "story": "All PubMed warning names and phrases survive; five public variant phrases offer strict PubMed title/abstract retries; strict zero describes only the submitted query.",
+  "live_check": "Existing public experiment rerun ESearch replies; strict zero plus future warning values are synthetic boundaries. No new provider calls.",
+  "replay": "article/search/synthetic-pubmed-warnings",
+  "steps": [
+    {
+      "run": [
+        "search",
+        "article",
+        "\"ERCC2 Ala717Gly\"",
+        "--source",
+        "pubmed"
+      ],
+      "expect": {
+        "/sources/0/notices/0/kind": "pubmed_warning",
+        "/sources/0/notices/0/name": "quotedphrasesnotfound",
+        "/sources/0/notices/0/phrases": [
+          "\"ERCC2 Ala717Gly\""
+        ],
+        "/next/0/args": [
+          "search",
+          "article",
+          "ERCC2[Title/Abstract] AND Ala717Gly[Title/Abstract]",
+          "--source",
+          "pubmed"
+        ]
+      }
+    },
+    {
+      "run": [
+        "search",
+        "article",
+        "ERCC2[Title/Abstract] AND Ala717Gly[Title/Abstract]",
+        "--source",
+        "pubmed"
+      ],
+      "expect": {
+        "/status": "complete",
+        "/result/total": 0,
+        "/result/items": [],
+        "/sources/0/term": "ERCC2[Title/Abstract] AND Ala717Gly[Title/Abstract]",
+        "/sources/0/notices/0/name": "futurewarning",
+        "/sources/0/notices/0/phrases": [
+          " future phrase "
+        ],
+        "/sources/0/notices/1/name": "outputmessages",
+        "/sources/0/notices/1/phrases": [
+          "No items found."
+        ],
+        "/sources/0/notices/2/name": "phrasesignored",
+        "/sources/0/notices/2/phrases": [
+          "unchanged phrase"
+        ]
+      }
+    },
+    {
+      "run": [
+        "search",
+        "article",
+        "\"GATA2 Thr176Pro\"",
+        "--source",
+        "pubmed"
+      ],
+      "expect": {
+        "/sources/0/notices/0/kind": "pubmed_warning",
+        "/sources/0/notices/0/name": "quotedphrasesnotfound",
+        "/sources/0/notices/0/phrases": [
+          "\"GATA2 Thr176Pro\""
+        ],
+        "/next/0/args": [
+          "search",
+          "article",
+          "GATA2[Title/Abstract] AND Thr176Pro[Title/Abstract]",
+          "--source",
+          "pubmed"
+        ]
+      }
+    },
+    {
+      "run": [
+        "search",
+        "article",
+        "\"POT1 Gly404Val\"",
+        "--source",
+        "pubmed"
+      ],
+      "expect": {
+        "/sources/0/notices/0/kind": "pubmed_warning",
+        "/sources/0/notices/0/name": "quotedphrasesnotfound",
+        "/sources/0/notices/0/phrases": [
+          "\"POT1 Gly404Val\""
+        ],
+        "/next/0/args": [
+          "search",
+          "article",
+          "POT1[Title/Abstract] AND Gly404Val[Title/Abstract]",
+          "--source",
+          "pubmed"
+        ]
+      }
+    },
+    {
+      "run": [
+        "search",
+        "article",
+        "\"GALC Thr109Ala\"",
+        "--source",
+        "pubmed"
+      ],
+      "expect": {
+        "/sources/0/notices/0/kind": "pubmed_warning",
+        "/sources/0/notices/0/name": "quotedphrasesnotfound",
+        "/sources/0/notices/0/phrases": [
+          "\"GALC Thr109Ala\""
+        ],
+        "/next/0/args": [
+          "search",
+          "article",
+          "GALC[Title/Abstract] AND Thr109Ala[Title/Abstract]",
+          "--source",
+          "pubmed"
+        ]
+      }
+    },
+    {
+      "run": [
+        "search",
+        "article",
+        "\"ACD Pro457=\"",
+        "--source",
+        "pubmed"
+      ],
+      "expect": {
+        "/sources/0/notices/0/kind": "pubmed_warning",
+        "/sources/0/notices/0/name": "quotedphrasesnotfound",
+        "/sources/0/notices/0/phrases": [
+          "\"ACD Pro457=\""
+        ],
+        "/next/0/args": [
+          "search",
+          "article",
+          "ACD[Title/Abstract] AND Pro457=[Title/Abstract]",
+          "--source",
+          "pubmed"
+        ]
+      }
+    }
+  ]
+}
