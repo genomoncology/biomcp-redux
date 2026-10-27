@@ -45,7 +45,7 @@ class Staging(unittest.TestCase):
                 (directory / ("biomcp-container-" + arch + ".tar")).touch()
         plugin = root / "plugin"
         (plugin / ".claude-plugin").mkdir(parents=True)
-        (plugin / ".claude-plugin/plugin.json").write_text('{"name":"biomcp","version":"1.0.0"}')
+        (plugin / ".claude-plugin/plugin.json").write_text('{"name":"biomcp","version":"1.0.0","skills":["./skills/"]}')
         (plugin / ".claude-plugin/marketplace.json").write_text('{"name":"biomcp","plugins":[{"name":"biomcp","source":"./","version":"1.0.0","mcpServers":{"biomcp":{"command":"biomcp","args":["serve"]}}}]}')
         (plugin / "skills").mkdir()
         (plugin / "skills/SKILL.md").write_text("BioMCP guide\n")
@@ -77,9 +77,10 @@ class Staging(unittest.TestCase):
             with zipfile.ZipFile(staged / "biomcp-plugin.zip") as archive:
                 self.assertIn(".claude-plugin/marketplace.json", archive.namelist())
                 self.assertEqual(archive.read("skills/SKILL.md"), b"BioMCP guide\n")
+                self.assertEqual(json.loads(archive.read(".claude-plugin/plugin.json"))["skills"], ["./skills/"])
 
     def test_stage_refuses_incomplete_or_mixed_candidates(self):
-        for defect in ["missing-platform", "revision", "checksum", "registry", "plugin"]:
+        for defect in ["missing-platform", "revision", "checksum", "registry", "plugin", "skills"]:
             with self.subTest(defect=defect), tempfile.TemporaryDirectory() as directory:
                 root = Path(directory)
                 artifacts, plugin = self.prepare(root)
@@ -93,8 +94,10 @@ class Staging(unittest.TestCase):
                     (linux / "biomcp-linux-x86_64.tar.gz").write_bytes(b"corrupt")
                 elif defect == "registry":
                     (linux / "server.json").write_text('{"version":"0.9.3"}')
-                else:
+                elif defect == "plugin":
                     (plugin / ".claude-plugin/plugin.json").write_text('{"name":"other"}')
+                else:
+                    (plugin / ".claude-plugin/plugin.json").write_text('{"name":"biomcp"}')
                 self.assertNotEqual(self.stage(root, artifacts, plugin).returncode, 0)
 
 

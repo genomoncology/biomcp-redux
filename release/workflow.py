@@ -99,6 +99,8 @@ def plugin(source, output, version):
     entry, = marketplace["plugins"]
     if metadata["name"] != "biomcp" or marketplace["name"] != "biomcp" or entry["name"] != "biomcp" or entry["source"] != "./":
         raise ValueError("plugin and marketplace must preserve the candidate identity")
+    if metadata.get("skills") != ["./skills/"]:
+        raise ValueError("plugin must discover the canonical skills directory")
     if entry["mcpServers"] != {"biomcp": {"command": "biomcp", "args": ["serve"]}}:
         raise ValueError("plugin must launch installed biomcp serve")
     guide = source / "skills/SKILL.md"
