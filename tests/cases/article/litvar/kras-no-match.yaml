@@ -16,8 +16,8 @@
         "--source",
         "litvar"
       ],
-      "max_bytes": 733,
-      "max_tokens": 184,
+      "max_bytes": 1200,
+      "max_tokens": 300,
       "expect": {
         "/status": "absent",
         "/result/items": {
@@ -32,6 +32,8 @@
           "p.G12C"
         ],
         "/next/*/kind": [
+          "disambiguate",
+          "disambiguate",
           "disambiguate",
           "disambiguate"
         ]
@@ -59,8 +61,8 @@
         "--source",
         "pubmed,litvar"
       ],
-      "max_bytes": 733,
-      "max_tokens": 184,
+      "max_bytes": 1200,
+      "max_tokens": 300,
       "expect": {
         "/status": "absent",
         "/result/items": {
@@ -75,6 +77,8 @@
           "p.G12C"
         ],
         "/next/*/kind": [
+          "disambiguate",
+          "disambiguate",
           "disambiguate",
           "disambiguate"
         ],

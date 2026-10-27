@@ -28,9 +28,14 @@
         "/result/content/state": "not_applicable",
         "/sources/*/source": [
           "pubmed"
+        ],
+        "/next/0/args": [
+          "get",
+          "article",
+          "21217686"
         ]
       },
-      "max_bytes": 400
+      "max_bytes": 550
     }
   ]
 }

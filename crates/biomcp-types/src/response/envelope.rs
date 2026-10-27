@@ -26,15 +26,15 @@ pub struct Envelope<T: ResponseBody> {
     pub local_error: Option<super::CacheProblem>,
     /// Parsed query.
     pub query: T::Query,
+    /// Sources actually asked.
+    #[serde(default, skip_serializing_if = "Vec::is_empty")]
+    pub sources: Vec<SourceOutcome>,
     /// Answer when available.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub result: Option<T>,
     /// Search page metadata.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub page: Option<PageInfo>,
-    /// Sources actually asked.
-    #[serde(default, skip_serializing_if = "Vec::is_empty")]
-    pub sources: Vec<SourceOutcome>,
     /// Rejected source fields.
     #[serde(default, skip_serializing_if = "Vec::is_empty")]
     pub problems: Vec<Problem>,

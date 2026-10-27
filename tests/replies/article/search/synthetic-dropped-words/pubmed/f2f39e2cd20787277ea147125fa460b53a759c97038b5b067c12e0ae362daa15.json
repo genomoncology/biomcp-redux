@@ -1,0 +1,42 @@
+{
+  "method": "GET",
+  "source": "pubmed",
+  "url": "https://eutils.ncbi.nlm.nih.gov/entrez/eutils/esearch.fcgi?db=pubmed&term=AKT1%20E17K&sort=relevance&retmax=9999&retmode=json&tool=biomcp",
+  "exchanges": [
+    {
+      "status": 200,
+      "content_type": "application/json; charset=UTF-8",
+      "delay_ms": 316,
+      "retry_after_ms": null,
+      "body": {
+        "kind": "json",
+        "value": {
+          "header": {
+            "type": "esearch",
+            "version": "0.3"
+          },
+          "esearchresult": {
+            "count": "1",
+            "retmax": "1",
+            "retstart": "0",
+            "idlist": [
+              "33123537"
+            ],
+            "translationset": [
+              {
+                "from": "AKT1",
+                "to": "\"akt1 protein, human\"[Supplementary Concept] OR \"akt1 protein, human\"[All Fields] OR \"akt1\"[All Fields]"
+              }
+            ],
+            "querytranslation": "(\"akt1 protein human\"[Supplementary Concept] OR \"akt1 protein human\"[All Fields] OR \"akt1\"[All Fields]) AND \"E17K\"[All Fields]",
+            "errorlist": {
+              "phrasesnotfound": [
+                "E17K"
+              ]
+            }
+          }
+        }
+      }
+    }
+  ]
+}
