@@ -205,7 +205,13 @@ fn refusals() -> Result<(), String> {
         } else {
             "NC_000007.14:g.140753336A>T"
         };
-        let position = if mitochondrial { 99 } else if coordinates { 140453135 } else { 140753335 };
+        let position = if mitochondrial {
+            99
+        } else if coordinates {
+            140453135
+        } else {
+            140753335
+        };
         let reference = if coordinates { "A" } else { "AA" };
         let allele = json!({
             "@id":"http://reg.genome.network/allele/CA123643",
