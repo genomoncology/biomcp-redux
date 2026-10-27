@@ -5,9 +5,15 @@ pub(crate) fn command(
     outcome: &crate::command::Outcome,
     args: &[std::ffi::OsString],
 ) -> io::Result<()> {
-    if crate::grammar::is_housekeeping(args) {
-        return bytes(&outcome.cli_bytes);
-    }
+    let parsed = if crate::grammar::is_housekeeping(args) {
+        let parsed = crate::grammar::parse(args).ok();
+        if parsed.as_ref().is_none_or(|parsed| parsed.help.is_none()) {
+            return bytes(&outcome.cli_bytes);
+        }
+        parsed
+    } else {
+        None
+    };
     let mut words = args.iter().take_while(|arg| *arg != "--");
     let mut format = None;
     while let Some(word) = words.next().and_then(|arg| arg.to_str()) {
@@ -27,9 +33,9 @@ pub(crate) fn command(
         })
         .or_else(|| {
             crate::config::format(
-                crate::grammar::parse(args)
-                    .ok()
-                    .and_then(|p| p.globals.config)
+                parsed
+                    .or_else(|| crate::grammar::parse(args).ok())
+                    .and_then(|parsed| parsed.globals.config)
                     .as_ref(),
             )
         });

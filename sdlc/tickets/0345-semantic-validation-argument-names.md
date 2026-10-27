@@ -15,4 +15,4 @@ When a query passes argument parsing but fails a later typed or cross-field chec
 - Rules: name arguments, never echo values, as 0013 and 0025 say. One shared cause boundary; no per-command duplicate validation.
 - Proof: cases for a bad typed ID, a cross-field conflict and a range check each name the right argument.
 - Changes: shared query validation types, entity query constructors and cases.
-- Defers: nothing. This lands on main and is not cherry-picked onto `release/1.0`; it ships in a 1.0 update.
+- Defers: nothing. It ships in 1.0.

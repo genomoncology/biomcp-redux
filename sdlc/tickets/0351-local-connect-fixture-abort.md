@@ -13,4 +13,4 @@ The cause of the connection abort (OS error 53) seen once in `adverse-event-get/
 - Rules: no sleeps, longer timeouts, retries or gate exemptions as a fix. A passing rerun is not a root cause.
 - Proof: either a deterministic reproduction that fails before the fix and passes after, or a fixture case showing that a forced abort leaves its phase, peer and scratch state in the job log.
 - Changes: the shared local network fixture and its tests.
-- Defers: nothing. Main only; not part of the 0336 refresh unless the abort recurs in the final release gate.
+- Defers: nothing. It ships in 1.0.
