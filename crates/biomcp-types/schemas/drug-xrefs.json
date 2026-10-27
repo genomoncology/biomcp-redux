@@ -210,6 +210,17 @@
           "$ref": "#/$defs/DrugIdentityLevel",
           "description": "Level established only by the endpoint or record type."
         },
+        "matched_name": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/DrugNameMatch"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "description": "Complete native name fields matching the search input; omitted outside label searches."
+        },
         "name": {
           "$ref": "#/$defs/Text",
           "description": "Original source display name."
@@ -370,6 +381,20 @@
         "attribution"
       ],
       "type": "object"
+    },
+    "DrugNameMatch": {
+      "description": "Complete native name fields matching the requested label name.",
+      "enum": [
+        "brand",
+        "generic",
+        "both"
+      ],
+      "type": "string",
+      "x-enum-descriptions": [
+        " The complete brand name matches.",
+        " The complete generic name matches.",
+        " Both complete name fields match."
+      ]
     },
     "DrugRecords": {
       "additionalProperties": false,
