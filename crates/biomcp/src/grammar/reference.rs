@@ -146,7 +146,11 @@ fn refresh_help_cases(directory: &std::path::Path) -> Check {
         let text = fs::read_to_string(&path)?;
         // JSON-shaped fixtures must retain JSON's numeric and string types.
         let mut case: serde_json::Value = if text.trim_start().starts_with('{') {
-            serde_json::from_str(&text)?
+            if let Ok(value) = serde_json::from_str(&text) {
+                value
+            } else {
+                serde_saphyr::from_str(&text)?
+            }
         } else {
             serde_saphyr::from_str(&text)?
         };

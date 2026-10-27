@@ -1,26 +1,10 @@
 {
   "feature": "study-catalog",
-  "story": "Study help exposes bounded metadata commands, parsed examples and calculation boundaries.",
   "steps": [
     {
-      "run": [
-        "help",
-        "search",
-        "study"
-      ],
-      "mcp": [
-        "help",
-        "search",
-        "study"
-      ],
       "expect": {
-        "/status": "complete",
-        "/result/commands/0/command": [
-          "search",
-          "study"
-        ],
-        "/result/commands/0/examples": {
-          "count": 2
+        "": {
+          "max_bytes": 1384
         },
         "/result/commands/0/arguments/*/name": {
           "includes_all_of": [
@@ -30,32 +14,46 @@
             "--pool"
           ]
         },
-        "/result/commands/0/description": "Literal stored metadata search; text is never parsed as a query language. No frequency, denominator, survival or comparison is calculated. Source counts keep their native names.",
+        "/result/commands/0/command": [
+          "search",
+          "study"
+        ],
+        "/result/commands/0/description": "Exact stored metadata search; text is never parsed as a query language. No frequency, denominator, survival or comparison is calculated. Source counts keep their source names.",
+        "/result/commands/0/examples": {
+          "count": 2
+        },
         "/result/commands/0/sections": [],
-        "": {
-          "max_bytes": 1384
-        }
+        "/status": "complete"
       },
       "max_bytes": 1383,
-      "max_tokens": 347
-    },
-    {
-      "run": [
-        "help",
-        "get",
-        "study"
-      ],
+      "max_tokens": 347,
       "mcp": [
         "help",
-        "get",
+        "search",
         "study"
       ],
+      "run": [
+        "help",
+        "search",
+        "study"
+      ]
+    },
+    {
       "expect": {
-        "/status": "complete",
+        "": {
+          "max_bytes": 1692
+        },
+        "/result/commands/0/arguments/*/name": {
+          "includes_all_of": [
+            "--section-limit",
+            "--section-offset"
+          ]
+        },
         "/result/commands/0/command": [
           "get",
           "study"
         ],
+        "/result/commands/0/description": "Exact case-sensitive study card or bounded metadata section. No frequency, denominator, survival or comparison is calculated. Source counts keep their source names.",
         "/result/commands/0/examples": {
           "count": 2
         },
@@ -65,33 +63,26 @@
           "files",
           "all"
         ],
-        "/result/commands/0/arguments/*/name": {
-          "includes_all_of": [
-            "--section-limit",
-            "--section-offset"
-          ]
-        },
-        "/result/commands/0/description": "Exact case-sensitive study card or bounded metadata section. No frequency, denominator, survival or comparison is calculated. Source counts keep their native names.",
-        "": {
-          "max_bytes": 1692
-        }
+        "/status": "complete"
       },
       "max_bytes": 1691,
-      "max_tokens": 424
-    },
-    {
-      "run": [
-        "help",
-        "sync",
-        "cbioportal-studies"
-      ],
+      "max_tokens": 424,
       "mcp": [
         "help",
-        "sync",
-        "cbioportal-studies"
+        "get",
+        "study"
       ],
+      "run": [
+        "help",
+        "get",
+        "study"
+      ]
+    },
+    {
       "expect": {
-        "/status": "complete",
+        "": {
+          "max_bytes": 498
+        },
         "/result/commands/0/command": [
           "sync",
           "cbioportal-studies"
@@ -100,12 +91,21 @@
           "count": 2
         },
         "/result/commands/0/sections": [],
-        "": {
-          "max_bytes": 498
-        }
+        "/status": "complete"
       },
       "max_bytes": 497,
-      "max_tokens": 125
+      "max_tokens": 125,
+      "mcp": [
+        "help",
+        "sync",
+        "cbioportal-studies"
+      ],
+      "run": [
+        "help",
+        "sync",
+        "cbioportal-studies"
+      ]
     }
-  ]
+  ],
+  "story": "Study help exposes bounded metadata commands, parsed examples and calculation boundaries."
 }
