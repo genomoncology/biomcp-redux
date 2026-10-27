@@ -162,7 +162,7 @@ class NightlyCommand(unittest.TestCase):
 
     def test_missing_destination_fails_before_running_or_creating_scratch(self):
         for name in ('BIOMCP_EVIDENCE_HOST', 'BIOMCP_EVIDENCE_DIR', 'BIOMCP_SCRATCH_DIR'):
-            self.env.pop(name)
+            self.env.pop(name, None)
         result = self.run_command()
         self.assertNotEqual(result.returncode, 0)
         self.assertIn('supply --host', result.stderr)
@@ -176,7 +176,7 @@ class NightlyCommand(unittest.TestCase):
             'host': 'offline-store', 'evidence_dir': str(self.store),
             'scratch_dir': str(self.scratch_root)}))
         for name in ('BIOMCP_EVIDENCE_HOST', 'BIOMCP_EVIDENCE_DIR', 'BIOMCP_SCRATCH_DIR'):
-            self.env.pop(name)
+            self.env.pop(name, None)
 
     def test_make_uses_only_local_settings_from_config_home_or_home(self):
         for xdg in (True, False):

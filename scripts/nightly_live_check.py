@@ -280,11 +280,21 @@ def deliver(scratch, host, evidence_dir):
 
 def main():
     parser = argparse.ArgumentParser(description=__doc__)
-    parser.add_argument('--host', default=os.environ.get('BIOMCP_EVIDENCE_HOST'))
+    config_home = Path(os.environ.get('XDG_CONFIG_HOME') or Path.home() / '.config')
+    settings_path = config_home / 'biomcp/nightly.json'
+    try:
+        settings = json.loads(settings_path.read_text()) if settings_path.exists() else {}
+        if not isinstance(settings, dict) or any(not isinstance(value, str)
+                                                for value in settings.values()):
+            raise ValueError('expected an object of string settings')
+    except (OSError, ValueError) as error:
+        parser.error('invalid nightly settings at ' + str(settings_path) + ': ' + str(error))
+    parser.add_argument('--host', default=os.environ.get(
+        'BIOMCP_EVIDENCE_HOST', settings.get('host')))
     parser.add_argument('--evidence-dir', type=Path,
-                        default=os.environ.get('BIOMCP_EVIDENCE_DIR'))
+                        default=os.environ.get('BIOMCP_EVIDENCE_DIR', settings.get('evidence_dir')))
     parser.add_argument('--scratch-dir', type=Path,
-                        default=os.environ.get('BIOMCP_SCRATCH_DIR'))
+                        default=os.environ.get('BIOMCP_SCRATCH_DIR', settings.get('scratch_dir')))
     args = parser.parse_args()
     if not args.host or args.evidence_dir is None or args.scratch_dir is None:
         parser.error('supply --host, --evidence-dir and --scratch-dir or their BIOMCP environment settings')
