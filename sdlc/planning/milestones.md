@@ -53,4 +53,4 @@ Each waits for a consumer or for Ian. None has tickets.
 - Study analysis and charts.
 - Python and TypeScript bindings for `biodata`.
 - A merge of `biodata` with another biodata crate into one open-source crate.
-- Bounded reading of PDF supplements and appendices, which experiment 497 showed hold variant evidence that BioMCP can only link today.
+- Bounded reading of PDF supplements and appendices, which experiment 497 showed hold variant evidence that BioMCP can only link today. Its 2026-10-27 rerun confirmed the gap remains.
