@@ -390,14 +390,20 @@ fn source_terms(root: &Path, path: &str, tokens: &[String]) -> Check {
                 return fail(path, "source declaration requires publisher terms");
             }
         }
-        let module = path
+        let relative = path
             .strip_prefix("crates/biomcp-adapters/src/")
-            .unwrap_or("")
-            .split('/')
-            .next()
             .unwrap_or("");
-        let module = module.strip_suffix(".rs").unwrap_or(module);
-        let expected = format!("&crate::{module}::SPEC");
+        let module = relative.strip_suffix(".rs").unwrap_or(relative);
+        let module = module
+            .strip_suffix("/mod")
+            .unwrap_or(module)
+            .replace('/', "::");
+        let name = tokens[..i]
+            .iter()
+            .rposition(|token| token == "static")
+            .and_then(|position| tokens.get(position + 1))
+            .map_or("SPEC", String::as_str);
+        let expected = format!("&crate::{module}::{name}");
         let registry = fs::read_to_string(root.join("crates/biomcp-adapters/src/registry.rs"))?;
         if !registry.contains(&expected) {
             return fail(

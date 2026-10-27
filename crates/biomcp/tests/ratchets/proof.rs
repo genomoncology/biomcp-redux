@@ -242,6 +242,26 @@ fn source_registry_accepts_directory_and_file_modules_and_names_missing_entry() 
         )?;
     }
     check(tree.path())?;
+    let auxiliary = "crates/biomcp-adapters/src/directory/other.rs";
+    put(
+        tree.path(),
+        auxiliary,
+        &format!("pub static EXTRA: SourceSpec = {declaration};"),
+    )?;
+    let failure = check(tree.path())
+        .err()
+        .ok_or("unregistered auxiliary source accepted")?
+        .to_string();
+    assert!(
+        failure.contains("&crate::directory::other::EXTRA"),
+        "{failure}"
+    );
+    put(
+        tree.path(),
+        "crates/biomcp-adapters/src/registry.rs",
+        "&crate::directory::SPEC, &crate::single_file::SPEC, &crate::directory::other::EXTRA",
+    )?;
+    check(tree.path())?;
     let path = "crates/biomcp-adapters/src/missing.rs";
     put(tree.path(), path, declaration)?;
     let failure = check(tree.path())
