@@ -18,9 +18,18 @@ pub(super) fn validate(request: &Request, value: &Value) -> Result<&'static str,
         .and_then(Value::as_str);
     let revision = revision
         .or_else(|| {
-            (value.get("method") == Some(&json!("initialize"))).then_some(protocol::REVISIONS[1])
+            (value.get("method") == Some(&json!("initialize")))
+                .then(|| {
+                    value
+                        .pointer("/params/protocolVersion")
+                        .and_then(Value::as_str)
+                })
+                .flatten()
+                .map(crate::mcp::legacy::revision)
         })
-        .ok_or_else(mismatch)?;
+        // Legacy HTTP cannot recover a negotiated revision without session state.
+        // https://modelcontextprotocol.io/specification/2025-11-25/basic/transports#protocol-version-header
+        .unwrap_or(protocol::REVISIONS[3]);
     let Some(revision) = protocol::REVISIONS
         .iter()
         .copied()

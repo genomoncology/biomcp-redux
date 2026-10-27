@@ -186,7 +186,7 @@ impl Service {
             Ok(revision) => revision,
             Err(error) => return (400, Some(error), None),
         };
-        let mut legacy = revision == super::protocol::REVISIONS[1];
+        let mut legacy = revision != super::protocol::REVISIONS[0];
         let result = match super::rpc::message(&request.body, &mut legacy) {
             super::rpc::Message::Reply(reply) => reply,
             super::rpc::Message::Notification { .. } => return (202, None, Some(revision)),
