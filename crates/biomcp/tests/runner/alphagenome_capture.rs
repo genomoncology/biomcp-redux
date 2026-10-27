@@ -57,9 +57,30 @@ fn captured(root: &Path) -> Result<(), String> {
     }
     let fixture = fixture(messages, 200)?;
     let env = environment(&fixture)?;
+    let recording = env.root().join("original-replay");
+    let seed = vec![
+        "get".into(),
+        "variant".into(),
+        "CA123643".into(),
+        "alphagenome".into(),
+        "--record".into(),
+        recording.to_string_lossy().into_owned(),
+    ];
+    invoke(&env, &seed, 0)?;
+    // Keep the locally recorded resolver; replace its scorer exchange with the exact original.
+    for (name, hash) in manifest.as_object().ok_or("capture manifest")? {
+        if let Some(sidecar) = name.strip_prefix("recording/alphagenome/") {
+            let bytes = checked(
+                &root.join("raw").join(name),
+                hash.as_str().ok_or("exchange hash")?,
+            )?;
+            std::fs::write(recording.join("alphagenome").join(sidecar), bytes)
+                .map_err(|e| e.to_string())?;
+        }
+    }
     let offsets = [0, 4, 7, 304, 8671, 17341];
     for offset in offsets {
-        let args = vec![
+        let mut args = vec![
             "get".into(),
             "variant".into(),
             "CA123643".into(),
@@ -67,6 +88,7 @@ fn captured(root: &Path) -> Result<(), String> {
             "--section-offset".into(),
             offset.to_string(),
         ];
+        args.extend(env.globals(Some(&recording), false));
         let reply = invoke(&env, &args, 0)?;
         let groups = reply
             .pointer(&format!("{SECTION}/data/scorers"))
@@ -87,7 +109,7 @@ fn captured(root: &Path) -> Result<(), String> {
             return Err("request defaults were misrepresented as native metadata".into());
         }
     }
-    routed(&fixture, offsets.len())?;
+    routed(&fixture, 1)?;
     fixture.finish().map_err(|e| e.to_string())
 }
 fn page(group: &Value, expected: &Value, offset: u32) -> Result<(), String> {
