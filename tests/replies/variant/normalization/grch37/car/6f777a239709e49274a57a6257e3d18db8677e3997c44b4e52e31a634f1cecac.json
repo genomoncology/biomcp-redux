@@ -18,6 +18,14 @@
               "referenceGenome": "GRCh37",
               "hgvs": [
                 "NC_000010.10:g.114758349C>T"
+              ],
+              "coordinates": [
+                {
+                  "start": 114758348,
+                  "end": 114758349,
+                  "referenceAllele": "C",
+                  "allele": "T"
+                }
               ]
             }
           ]

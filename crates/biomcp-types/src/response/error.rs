@@ -375,6 +375,12 @@ impl ErrorEnvelope {
     pub fn argument(option: Box<str>) -> Self {
         Self::arguments().with_argument(option)
     }
+    /// Name a checked argument and its supported vocabulary without echoing input.
+    pub fn argument_values(option: Box<str>, values: Box<[crate::Text]>) -> Self {
+        let mut error = Self::argument(option);
+        error.error.valid_values = Some(values);
+        error
+    }
     /// Attach a grammar-owned identity while preserving fixed command guidance.
     pub fn with_argument(mut self, option: Box<str>) -> Self {
         self.error.option = Some(option);
