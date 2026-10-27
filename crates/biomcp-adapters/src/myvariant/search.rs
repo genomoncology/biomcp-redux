@@ -6,7 +6,7 @@ use biodata::Build;
 use biomcp_fetch::{Arg, BadReply, Leg, Reply, RequestError};
 use biomcp_types::{VariantHeader, VariantSearch};
 use serde::Deserialize;
-const FIELDS: &str = "_id,dbsnp.rsid,dbsnp.gene.symbol,clinvar.variant_id,chrom,hg19,hg38";
+const FIELDS: &str = "_id,dbsnp.rsid,dbsnp.gene.symbol,clinvar.variant_id,chrom,hg19,hg38,snpeff.ann";
 /// Native MyVariant page; no local sort or deduplication changes candidate identity.
 #[derive(Debug)]
 pub struct SearchPage {
@@ -81,7 +81,12 @@ pub fn search(leg: &Leg<'_>, query: &VariantSearch) -> Result<SearchPage, Reques
             build,
             !super::components::disabled_on_leg(leg, "clinvar"),
         );
-        rows.value.extend(mapped.value);
+        for mut row in mapped.value {
+            for transcript in &mut row.transcripts {
+                transcript.matched = transcript.hgvs_p.as_ref().is_some_and(|p| query.matches_protein(p.as_str()));
+            }
+            rows.value.push(row);
+        }
         rows.problems.extend(mapped.problems);
     }
     Ok(SearchPage {

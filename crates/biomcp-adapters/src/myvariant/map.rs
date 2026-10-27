@@ -38,7 +38,15 @@ pub(super) fn candidates(
         {
             ids.push(VariantId::ClinVarVariation(id));
         }
-        let component_terms = component_terms(&ids);
+        let mut component_terms = component_terms(&ids).into_vec();
+        let transcripts = super::transcripts::map(hit.snpeff, &hit.id, &mut problems);
+        if !transcripts.is_empty() {
+            component_terms.push(biomcp_types::ComponentLabel {
+                component: Text::new("snpeff").expect("static component"),
+                terms: super::components::label(super::components::SNPEFF.terms)
+                    .expect("static terms"),
+            });
+        }
         let mut genes = Vec::new();
         if let Some(source_genes) = hit.dbsnp.and_then(|d| d.gene) {
             let source_genes = match source_genes {
@@ -81,10 +89,11 @@ pub(super) fn candidates(
                 id: hit.id,
                 url: None,
             },
+            transcripts,
             myvariant: None,
             requested: None,
             sections: None,
-            component_terms,
+            component_terms: component_terms.into(),
         });
     }
     Mapped { value, problems }

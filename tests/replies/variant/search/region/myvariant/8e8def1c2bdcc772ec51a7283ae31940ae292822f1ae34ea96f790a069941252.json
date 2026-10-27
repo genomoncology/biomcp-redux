@@ -1,0 +1,43 @@
+{
+  "method": "GET",
+  "source": "myvariant",
+  "url": "https://myvariant.info/v1/query?q=chr7%3A55259515-55259515&size=2&from=0&fields=_id%2Cdbsnp.rsid%2Cdbsnp.gene.symbol%2Cclinvar.variant_id%2Cchrom%2Chg19%2Chg38%2Csnpeff.ann&assembly=hg19",
+  "exchanges": [
+    {
+      "fetched": 1792874400,
+      "status": 200,
+      "content_type": "application/json",
+      "delay_ms": 4,
+      "retry_after_ms": null,
+      "body": {
+        "kind": "json",
+        "value": {
+          "total": 4,
+          "hits": [
+            {
+              "_id": "chr7:g.55259515T>A",
+              "dbsnp": {
+                "rsid": "rs121434568",
+                "gene": {
+                  "symbol": "EGFR"
+                }
+              }
+            },
+            {
+              "_id": "chr7:g.55259515T>G",
+              "dbsnp": {
+                "rsid": "rs121434568",
+                "gene": {
+                  "symbol": "EGFR"
+                }
+              },
+              "clinvar": {
+                "variant_id": 16609
+              }
+            }
+          ]
+        }
+      }
+    }
+  ]
+}

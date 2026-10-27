@@ -73,6 +73,7 @@ pub(super) fn allele(raw: RawAllele) -> Result<Resolution, biomcp_fetch::BadRepl
             id: record,
             url: Some(url),
         },
+        transcripts: Box::default(),
         myvariant: None,
         sections: None,
         component_terms: Box::default(),

@@ -1,0 +1,31 @@
+{
+  "method": "GET",
+  "source": "myvariant",
+  "url": "https://myvariant.info/v1/query?q=dbnsfp.genename%3AEGFR%20AND%20dbnsfp.hgvsp%3A%22p.G719S%22&size=10&from=0&fields=_id%2Cdbsnp.rsid%2Cdbsnp.gene.symbol%2Cclinvar.variant_id%2Cchrom%2Chg19%2Chg38%2Csnpeff.ann&assembly=hg19",
+  "exchanges": [
+    {
+      "fetched": 1792874400,
+      "status": 200,
+      "content_type": "application/json",
+      "delay_ms": 4,
+      "retry_after_ms": null,
+      "body": {
+        "kind": "json",
+        "value": {
+          "total": 1,
+          "hits": [
+            {
+              "_id": "chr7:g.55241707G>A",
+              "dbsnp": {
+                "rsid": "rs28929495"
+              },
+              "clinvar": {
+                "variant_id": 16612
+              }
+            }
+          ]
+        }
+      }
+    }
+  ]
+}

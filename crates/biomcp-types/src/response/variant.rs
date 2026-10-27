@@ -30,6 +30,9 @@ pub struct VariantHeader {
     /// Checked caller ID used by a source-only section, without asserting resolved identity.
     #[serde(default, skip_serializing_if = "Option::is_none")]
     pub requested: Option<crate::VariantId>,
+    /// Source-paired transcript identifiers and unchanged coding and protein notation.
+    #[serde(default, skip_serializing_if = "<[ _ ]>::is_empty")]
+    pub transcripts: Box<[VariantTranscript]>,
     /// Source responsible for this identity.
     pub source: Source,
     /// Exact source record, including source keys that are expressions rather than identifiers.
@@ -126,4 +129,28 @@ pub struct VariantPage {
 impl super::ResponseBody for VariantPage {
     const SCHEMA: &'static str = "biomcp.variant-page/6";
     type Query = crate::VariantSearch;
+}
+
+/// A source-paired transcript annotation, without inferred transcript equivalence.
+#[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
+#[serde(deny_unknown_fields)]
+#[cfg_attr(feature = "schema", derive(schemars::JsonSchema))]
+pub struct VariantTranscript {
+    /// Provider carrying this annotation.
+    pub source: Source,
+    /// Native component and field carrying the paired annotation.
+    pub component: Text,
+    /// Transcript identifier exactly as published, including its source version.
+    pub transcript: Text,
+    /// Source-stated gene symbol.
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub gene: Option<Text>,
+    /// Source coding notation, never computed from another transcript.
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub hgvs_c: Option<Text>,
+    /// Source protein notation, never translated from coding notation.
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub hgvs_p: Option<Text>,
+    /// Whether this row's source notation matched the declared caller notation.
+    pub matched: bool,
 }

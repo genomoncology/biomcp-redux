@@ -10,6 +10,7 @@ mod metadata;
 mod raw;
 mod search;
 mod search_build;
+mod transcripts;
 use crate::{Mapped, quotas};
 use biodata::Text;
 use biomcp_fetch::{Arg, Endpoint, Freshness, KeyUse, Leg, PathSegment, RequestError, SourceSpec};
@@ -32,7 +33,7 @@ pub static SPEC: SourceSpec = SourceSpec {
 };
 const QUERY: Endpoint = SPEC.get("/query").fresh(Freshness::Days(1));
 const VARIANT: Endpoint = SPEC.get("/variant").fresh(Freshness::Days(1));
-const FIELDS: &str = "_id,dbsnp.rsid,dbsnp.gene.symbol,clinvar.variant_id";
+const FIELDS: &str = "_id,dbsnp.rsid,dbsnp.gene.symbol,clinvar.variant_id,snpeff.ann";
 /// Resolve the exact published rsID or ClinVar ID, keeping every native candidate.
 /// Pages are bounded by the provider cap and source totals, never by taking its first hit.
 pub fn lookup(
