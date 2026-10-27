@@ -144,7 +144,7 @@ fn run(env: &Environment, args: &[&str]) -> Result<Value, String> {
 }
 fn reply(request: &str) -> Result<String, String> {
     if request.starts_with("GET /allele?") {
-        // Synthetic resolver identity; genomic and transcript strings below come from the public witness.
+        // Synthetic resolver reply; the annotation rows below use the public source capture.
         return Ok(json!({"@id":"http://reg.genome.network/allele/CA99999999",
             "genomicAlleles":[{"chromosome":"5","referenceGenome":"GRCh37",
                 "hgvs":["NC_000005.9:g.118860951A>G"],
