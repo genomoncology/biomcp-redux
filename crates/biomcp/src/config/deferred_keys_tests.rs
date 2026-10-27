@@ -316,6 +316,7 @@ fn alphagenome_resolves_only_its_own_key_at_source_admission() {
     let source = &biomcp_adapters::alphagenome::SPEC;
     let leg = fetch.leg(source, fetch.deadline(std::time::Duration::from_secs(1)));
     let request = biomcp_fetch::grpc::alphagenome::DnaseRequest::human_lung_all_folds(
+        biodata::Build::GRCh38,
         "chr7",
         140745143..140761527,
         140753336,

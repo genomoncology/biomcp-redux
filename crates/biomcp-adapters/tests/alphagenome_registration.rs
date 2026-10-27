@@ -23,6 +23,7 @@ fn restricted_source_requires_its_own_key_before_any_provider_request()
         ..Default::default()
     })?;
     let request = biomcp_fetch::grpc::alphagenome::DnaseRequest::human_lung_all_folds(
+        biodata::Build::GRCh38,
         "chr7",
         140745143..140761527,
         140753336,

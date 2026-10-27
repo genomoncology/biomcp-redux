@@ -16,13 +16,15 @@ pub const SCHEMA: &str =
 /// This request selects human DNASE, UBERON:0002048 (lung) and the ALL_FOLDS checkpoint.
 #[derive(Debug)]
 pub struct DnaseRequest {
+    build: biodata::Build,
     request: proto::PredictVariantRequest,
     bytes: Vec<u8>,
 }
 impl DnaseRequest {
     /// Encode the selected request shape. Coordinates and alleles are supplied unchanged.
-    /// The caller retains its assembly provenance; the publisher has no build request field.
+    /// Only the reviewed GRCh38 assembly is admitted. The publisher has no build request field.
     pub fn human_lung_all_folds(
+        build: biodata::Build,
         chromosome: &str,
         interval: std::ops::Range<i64>,
         position: i64,
@@ -37,7 +39,8 @@ impl DnaseRequest {
         let variant_end = position
             .checked_sub(1)
             .and_then(|p| p.checked_add(reference_len));
-        if chromosome.is_empty()
+        if build != biodata::Build::GRCh38
+            || chromosome.is_empty()
             || chromosome
                 .len()
                 .saturating_add(reference.len())
@@ -78,7 +81,15 @@ impl DnaseRequest {
             model_version: "ALL_FOLDS".into(),
         };
         let bytes = request.encode_to_vec();
-        Ok(Self { request, bytes })
+        Ok(Self {
+            build,
+            request,
+            bytes,
+        })
+    }
+    /// Caller-selected assembly provenance; this is not a provider-echoed field.
+    pub fn build(&self) -> biodata::Build {
+        self.build
     }
     /// Stable credential-free wire bytes, including all selectors and checkpoint identity.
     pub fn bytes(&self) -> &[u8] {

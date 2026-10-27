@@ -16,7 +16,14 @@ static QUOTA: biomcp_fetch::Quota = biomcp_fetch::Quota::new(
 );
 type Check = Result<(), Box<dyn std::error::Error + Send + Sync>>;
 fn request() -> Result<DnaseRequest, biomcp_fetch::InputError> {
-    DnaseRequest::human_lung_all_folds("chr7", 140745143..140761527, 140753336, "A", "T")
+    DnaseRequest::human_lung_all_folds(
+        biodata::Build::GRCh38,
+        "chr7",
+        140745143..140761527,
+        140753336,
+        "A",
+        "T",
+    )
 }
 fn varint(mut value: u64) -> Vec<u8> {
     let mut bytes = Vec::new();
@@ -84,13 +91,33 @@ fn canonical_request_preserves_one_based_variant_and_zero_based_interval() -> Ch
     ]
     .concat();
     assert_eq!(request()?.bytes(), expected);
+    assert_eq!(request()?.build(), biodata::Build::GRCh38);
+    assert!(
+        DnaseRequest::human_lung_all_folds(
+            biodata::Build::GRCh37,
+            "chr7",
+            140745143..140761527,
+            140753336,
+            "A",
+            "T"
+        )
+        .is_err()
+    );
     for (interval, position, reference) in [
         (140745143..140761526, 140753336, "A"),
         (140745143..140761527, 0, "A"),
         (140745143..140761527, 140753336, "?"),
     ] {
         assert!(
-            DnaseRequest::human_lung_all_folds("chr7", interval, position, reference, "T").is_err()
+            DnaseRequest::human_lung_all_folds(
+                biodata::Build::GRCh38,
+                "chr7",
+                interval,
+                position,
+                reference,
+                "T"
+            )
+            .is_err()
         );
     }
     Ok(())
