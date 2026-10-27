@@ -1,6 +1,7 @@
 # 0337 — Encode AlphaGenome ScoreVariant requests and admit their replies
 
-Status: OPEN.
+Status: COMPLETE.
+Landed: f6c6e199cc1089687a9ae4a27c05619666f86b49
 
 Milestone: 5
 

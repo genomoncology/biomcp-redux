@@ -1,0 +1,134 @@
+//! Admit complete scorer groups by request ordinal without inventing native scorer labels.
+use super::super::{Limits, StreamDecoder, TensorStream, proto};
+use super::{envelope_budget::EnvelopeBudget, wire};
+use crate::BadReply;
+use prost::Message;
+
+/// Bounded admission for the ruled ScoreVariant response.
+/// The protocol does not label scorer groups: valid complete group swaps cannot be detected.
+/// The caller may associate completed groups only with their requested ordinal.
+#[derive(Debug)]
+pub struct ScoreEnvelope {
+    variant: proto::Variant,
+    limits: Limits,
+    budget: EnvelopeBudget,
+    tensors: TensorStream,
+    expected: usize,
+    complete: usize,
+    active: bool,
+    failed: bool,
+}
+impl ScoreEnvelope {
+    pub(super) fn new(
+        variant: &proto::Variant,
+        expected: usize,
+        limits: Limits,
+    ) -> Result<Self, BadReply> {
+        Ok(Self {
+            variant: variant.clone(),
+            limits,
+            budget: EnvelopeBudget::new(limits),
+            tensors: TensorStream::new(limits).map_err(|_| BadReply)?,
+            expected,
+            complete: 0,
+            active: false,
+            failed: false,
+        })
+    }
+    fn read(&mut self, bytes: &[u8]) -> Result<(), BadReply> {
+        if self.failed {
+            return Err(BadReply);
+        }
+        self.budget.message(bytes)?;
+        let (tag, payload) = wire::single(bytes)?;
+        let tensor = match tag {
+            1 if !self.active && self.complete < self.expected => {
+                let (tag, data) = wire::single(payload)?;
+                if tag != 1 {
+                    return Err(BadReply);
+                }
+                let tensor = self.data(data)?;
+                self.active = true;
+                self.tensors.descriptor(tensor).map_err(|_| BadReply)?
+            }
+            2 if self.active => self.tensors.chunk(payload).map_err(|_| BadReply)?,
+            _ => return Err(BadReply),
+        };
+        if tensor.is_some() {
+            self.active = false;
+            self.complete += 1;
+        }
+        Ok(())
+    }
+    fn data<'a>(&self, bytes: &'a [u8]) -> Result<&'a [u8], BadReply> {
+        let mut tensor = None;
+        let mut metadata = false;
+        wire::fields(bytes, |tag, value| {
+            match tag {
+                1 if tensor.is_none() => tensor = Some(value.bytes()?),
+                2 if !metadata => {
+                    self.metadata(value.bytes()?)?;
+                    metadata = true;
+                }
+                _ => return Err(BadReply),
+            }
+            Ok(())
+        })?;
+        if !metadata {
+            return Err(BadReply);
+        }
+        tensor.ok_or(BadReply)
+    }
+    fn metadata(&self, bytes: &[u8]) -> Result<(), BadReply> {
+        let mut variant = false;
+        let mut tracks = 0usize;
+        let mut genes = 0usize;
+        wire::fields(bytes, |tag, value| {
+            let value = value.bytes()?;
+            match tag {
+                1 if !variant => {
+                    if proto::Variant::decode(value).map_err(|_| BadReply)? != self.variant {
+                        return Err(BadReply);
+                    }
+                    variant = true;
+                }
+                2 => {
+                    tracks = tracks.checked_add(1).ok_or(BadReply)?;
+                    if tracks > self.limits.dimension {
+                        return Err(BadReply);
+                    }
+                    proto::TrackMetadata::decode(value).map_err(|_| BadReply)?;
+                }
+                3 => {
+                    genes = genes.checked_add(1).ok_or(BadReply)?;
+                    if genes > self.limits.dimension {
+                        return Err(BadReply);
+                    }
+                    proto::GeneScorerMetadata::decode(value).map_err(|_| BadReply)?;
+                }
+                _ => return Err(BadReply),
+            }
+            Ok(())
+        })?;
+        if !variant {
+            return Err(BadReply);
+        }
+        Ok(())
+    }
+}
+impl StreamDecoder for ScoreEnvelope {
+    type Reply = ();
+    fn message(&mut self, bytes: &[u8]) -> Result<(), BadReply> {
+        let result = self.read(bytes);
+        if result.is_err() {
+            self.failed = true;
+        }
+        result
+    }
+    fn finish(self) -> Result<(), BadReply> {
+        if self.failed || self.active || self.complete != self.expected {
+            return Err(BadReply);
+        }
+        self.tensors.finish().map_err(|_| BadReply)
+    }
+}

@@ -160,6 +160,10 @@ const ALLOWED: &[(&str, &str)] = &[
         "Exercise required-key admission and placeholder credential routing through a local TLS stream.",
     ),
     (
+        "crates/biomcp-fetch/tests/score_variant.rs",
+        "Exercise the ruled scoring request and complete scorer admission through the public protocol API.",
+    ),
+    (
         "crates/biomcp-fetch/tests/batch.rs",
         "Exercise transport ownership, local server behavior and cache/record failures through its public API.",
     ),

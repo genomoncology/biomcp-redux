@@ -1,9 +1,16 @@
 //! Encode the reviewed human DNASE request without exposing generated provider types.
 mod envelope;
+mod envelope_budget;
+mod request_variant;
+mod score;
+mod score_envelope;
+mod wire;
 use super::{Limits, proto};
 use crate::{BadReply, InputError};
 pub use envelope::Envelope;
 use prost::Message;
+pub use score::{SCORE_SCHEMA, SCORE_VARIANT, ScoreRequest};
+pub use score_envelope::ScoreEnvelope;
 
 /// Pinned publisher RPC path; the API version is not a model release.
 pub const PREDICT_VARIANT: &str =
@@ -35,27 +42,15 @@ impl DnaseRequest {
             .end
             .checked_sub(interval.start)
             .ok_or(InputError::Path)?;
+        let variant = request_variant::checked(build, chromosome, position, reference, alternate)?;
         let reference_len = i64::try_from(reference.len()).map_err(|_| InputError::BodyLimit)?;
         let variant_end = position
             .checked_sub(1)
             .and_then(|p| p.checked_add(reference_len));
-        if build != biodata::Build::GRCh38
-            || chromosome.is_empty()
-            || chromosome
-                .len()
-                .saturating_add(reference.len())
-                .saturating_add(alternate.len())
-                > 4096
-            || interval.start < 0
+        if interval.start < 0
             || width != 16384
             || position <= interval.start
             || variant_end.is_none_or(|end| end > interval.end)
-            || reference.is_empty()
-            || alternate.is_empty()
-            || !reference
-                .bytes()
-                .chain(alternate.bytes())
-                .all(|b| b"ACGTN".contains(&b))
         {
             return Err(InputError::Path);
         }
@@ -66,12 +61,7 @@ impl DnaseRequest {
                 end: interval.end,
                 strand: proto::Strand::Unstranded as i32,
             }),
-            variant: Some(proto::Variant {
-                chromosome: chromosome.into(),
-                position,
-                reference_bases: reference.into(),
-                alternate_bases: alternate.into(),
-            }),
+            variant: Some(variant),
             organism: proto::Organism::HomoSapiens as i32,
             requested_outputs: vec![proto::OutputType::Dnase as i32],
             ontology_terms: vec![proto::OntologyTerm {

@@ -1,7 +1,6 @@
 //! Validate complete DNASE reference and alternate envelopes before publication.
-#[path = "wire.rs"]
-mod wire;
 use super::super::{Limits, StreamDecoder, Tensor, TensorStream, proto};
+use super::{envelope_budget::EnvelopeBudget, wire};
 use crate::BadReply;
 use prost::Message;
 
@@ -14,8 +13,7 @@ pub struct Envelope {
     tensors: TensorStream,
     seen: [bool; 2],
     active: Option<(usize, usize)>,
-    wire: usize,
-    messages: usize,
+    budget: EnvelopeBudget,
     failed: bool,
 }
 impl Envelope {
@@ -26,21 +24,15 @@ impl Envelope {
             tensors: TensorStream::new(limits).map_err(|_| BadReply)?,
             seen: [false; 2],
             active: None,
-            wire: 0,
-            messages: 0,
+            budget: EnvelopeBudget::new(limits),
             failed: false,
         })
     }
     fn read(&mut self, bytes: &[u8]) -> Result<(), BadReply> {
-        self.wire = self.wire.checked_add(bytes.len()).ok_or(BadReply)?;
-        self.messages = self.messages.checked_add(1).ok_or(BadReply)?;
-        if self.failed
-            || bytes.len() > self.limits.message_bytes
-            || self.wire > self.limits.wire_bytes
-            || self.messages > self.limits.messages
-        {
+        if self.failed {
             return Err(BadReply);
         }
+        self.budget.message(bytes)?;
         let (tag, payload) = wire::single(bytes)?;
         let tensor = match tag {
             1 | 2 => {
