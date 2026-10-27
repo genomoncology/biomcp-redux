@@ -49,56 +49,11 @@ impl Leg<'_> {
             .cache
             .as_ref()
             .filter(|_| endpoint.fresh.seconds().is_some());
-        let max_bytes = limits
-            .wire_bytes
-            .saturating_add(limits.messages.saturating_mul(16))
-            .saturating_add(TERMINAL.len()) as u64;
         if let Some(cache) =
             cache.filter(|_| !self.fresh && !matches!(self.fetch.mode, Mode::Record { .. }))
+            && let Some(reply) = self.rpc_cached(cache, &identity, limits, &decoder)?
         {
-            match cache.read(
-                &identity.key,
-                max_bytes,
-                self.budget(),
-                !matches!(self.fetch.mode, Mode::Offline | Mode::Replay { .. }),
-            ) {
-                Ok(Some(entry))
-                    if entry.content_type.as_deref() == Some(FORMAT)
-                        && entry.status == 200
-                        && (entry.fresh_until > now() || self.fetch.mode == Mode::Offline) =>
-                {
-                    let mut codec =
-                        decoder(limits).map_err(|_| self.failure(Reason::BadReply, None))?;
-                    let reply =
-                        entry
-                            .body
-                            .strip_prefix(TERMINAL)
-                            .ok_or(BadReply)
-                            .and_then(|body| {
-                                spool::frames(body, limits, |bytes| {
-                                    self.rpc_contain(bytes).map_err(|_| BadReply)?;
-                                    codec.message(bytes)
-                                })?;
-                                codec.finish()
-                            });
-                    if let Ok(reply) = reply {
-                        if self.budget().expired() {
-                            return Err(self.failure(Reason::DeadlineExceeded, None).into());
-                        }
-                        if entry.fresh_until <= now() {
-                            self.report
-                                .lock()
-                                .unwrap_or_else(std::sync::PoisonError::into_inner)
-                                .stale = true;
-                        }
-                        return Ok(reply);
-                    }
-                    self.rpc_cache_result(cache.remove(&identity.key, self.budget()));
-                }
-                Ok(_) => {}
-                Err(crate::CacheError::Busy) => self.rpc_cache_result(Err(crate::CacheError::Busy)),
-                Err(error) => return Err(error.into()),
-            }
+            return Ok(reply);
         }
         if self.fetch.mode == Mode::Offline {
             return Err(self.failure(Reason::Offline, None).into());
@@ -122,6 +77,61 @@ impl Leg<'_> {
             ));
         }
         Ok(reply)
+    }
+    fn rpc_cached<D: StreamDecoder>(
+        &self,
+        cache: &crate::cache::Cache,
+        identity: &Identity,
+        limits: Limits,
+        decoder: &impl Fn(Limits) -> Result<D, BadReply>,
+    ) -> Result<Option<D::Reply>, RequestError> {
+        let max_bytes = limits
+            .wire_bytes
+            .saturating_add(limits.messages.saturating_mul(16))
+            .saturating_add(TERMINAL.len()) as u64;
+        match cache.read(
+            &identity.key,
+            max_bytes,
+            self.budget(),
+            !matches!(self.fetch.mode, Mode::Offline | Mode::Replay { .. }),
+        ) {
+            Ok(Some(entry))
+                if entry.content_type.as_deref() == Some(FORMAT)
+                    && entry.status == 200
+                    && (entry.fresh_until > now() || self.fetch.mode == Mode::Offline) =>
+            {
+                let mut codec =
+                    decoder(limits).map_err(|_| self.failure(Reason::BadReply, None))?;
+                let reply = entry
+                    .body
+                    .strip_prefix(TERMINAL)
+                    .ok_or(BadReply)
+                    .and_then(|body| {
+                        spool::frames(body, limits, |bytes| {
+                            self.rpc_contain(bytes).map_err(|_| BadReply)?;
+                            codec.message(bytes)
+                        })?;
+                        codec.finish()
+                    });
+                if let Ok(reply) = reply {
+                    if self.budget().expired() {
+                        return Err(self.failure(Reason::DeadlineExceeded, None).into());
+                    }
+                    if entry.fresh_until <= now() {
+                        self.report
+                            .lock()
+                            .unwrap_or_else(std::sync::PoisonError::into_inner)
+                            .stale = true;
+                    }
+                    return Ok(Some(reply));
+                }
+                self.rpc_cache_result(cache.remove(&identity.key, self.budget()));
+            }
+            Ok(_) => {}
+            Err(crate::CacheError::Busy) => self.rpc_cache_result(Err(crate::CacheError::Busy)),
+            Err(error) => return Err(error.into()),
+        }
+        Ok(None)
     }
     fn rpc_cache_result(&self, result: Result<(), crate::CacheError>) {
         if let Err(error) = result {

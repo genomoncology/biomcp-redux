@@ -63,7 +63,11 @@ impl Recordings {
         let binary_owner =
             owner.with_file_name(format!("{stem}-grpc-{}.json", recording.exchanges.len()));
         for index in 0..spool.messages.len() {
-            let delay_ms = spool.messages[index].delay_ms;
+            let delay_ms = spool
+                .messages
+                .get(index)
+                .ok_or(RecordError::Malformed)?
+                .delay_ms;
             let sidecar = sidecar::publish(&binary_owner, index, &spool.message(index)?)?;
             rpc.messages.push(Message { sidecar, delay_ms });
         }

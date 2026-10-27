@@ -305,3 +305,5 @@ fn replay_refuses_missing_terminal_unsafe_or_missing_sidecars_and_current_limits
     assert_eq!(fixture.count.load(std::sync::atomic::Ordering::SeqCst), 1);
     fixture.finish()
 }
+#[path = "grpc_persistence/process.rs"]
+mod process;

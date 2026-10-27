@@ -87,7 +87,11 @@ pub(super) fn frames(
     while !rest.is_empty() {
         let header = rest.get(..16).ok_or(crate::BadReply)?;
         let length = usize::try_from(u64::from_be_bytes(
-            header[8..16].try_into().map_err(|_| crate::BadReply)?,
+            header
+                .get(8..16)
+                .ok_or(crate::BadReply)?
+                .try_into()
+                .map_err(|_| crate::BadReply)?,
         ))
         .map_err(|_| crate::BadReply)?;
         count = count.checked_add(1).ok_or(crate::BadReply)?;

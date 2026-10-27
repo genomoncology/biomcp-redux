@@ -61,16 +61,7 @@ impl Leg<'_> {
         if !std::ptr::eq(self.spec, endpoint.spec) || self.budget().virtual_time() {
             return Err(self.failure(Reason::Rejected, None).into());
         }
-        if !matches!(self.fetch.mode, Mode::Live { .. })
-            && !(capture && matches!(self.fetch.mode, Mode::Record { .. }))
-        {
-            let reason = if self.fetch.mode == Mode::Offline {
-                Reason::Offline
-            } else {
-                Reason::Rejected
-            };
-            return Err(self.failure(reason, None).into());
-        }
+        self.rpc_mode(capture)?;
         let limits = self.fetch.config.grpc_limits;
         limits
             .check_request(body)
@@ -139,6 +130,19 @@ impl Leg<'_> {
         })();
         *terminal = _guard.state.terminal();
         result
+    }
+    fn rpc_mode(&self, capture: bool) -> Result<(), RequestError> {
+        if !(matches!(self.fetch.mode, Mode::Live { .. })
+            || capture && matches!(self.fetch.mode, Mode::Record { .. }))
+        {
+            let reason = if self.fetch.mode == Mode::Offline {
+                Reason::Offline
+            } else {
+                Reason::Rejected
+            };
+            return Err(self.failure(reason, None).into());
+        }
+        Ok(())
     }
     fn rpc_key(&self) -> Result<Option<(&'static str, &str)>, RequestError> {
         let credential = match self.spec.key {
