@@ -115,19 +115,17 @@ pub struct ConfigurationNotice {
     /// Stable notice identity.
     pub code: ConfigurationNoticeCode,
 }
-/// Settings whose ignored entries can be reported safely.
-#[derive(Clone, Debug, Serialize, Deserialize)]
-#[cfg_attr(feature = "schema", derive(schemars::JsonSchema))]
-pub enum ConfigurationVariable {
-    /// Uppercase proxy bypass environment setting.
-    #[serde(rename = "NO_PROXY")]
-    NoProxy,
+biodata::wire_enum! {
+    /// Settings whose ignored entries can be reported safely.
+    ConfigurationVariable {
+        /// Uppercase proxy bypass environment setting.
+        NoProxy => "NO_PROXY",
+    }
 }
-/// Nonfatal local configuration conditions.
-#[derive(Clone, Debug, Serialize, Deserialize)]
-#[cfg_attr(feature = "schema", derive(schemars::JsonSchema))]
-pub enum ConfigurationNoticeCode {
-    /// The entry did not describe a supported host, address or range.
-    #[serde(rename = "unparseable_entry")]
-    UnparseableEntry,
+biodata::wire_enum! {
+    /// Nonfatal local configuration conditions.
+    ConfigurationNoticeCode {
+        /// The entry did not describe a supported host, address or range.
+        UnparseableEntry => "unparseable_entry",
+    }
 }
