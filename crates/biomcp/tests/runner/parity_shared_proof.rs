@@ -5,6 +5,7 @@ use serde_json::{Value, json};
 
 pub(super) fn trials() -> Vec<Trial> {
     vec![
+        super::operation::trial(),
         Trial::test("parity/closed-projection-shapes", || {
             projections().map_err(Into::into)
         }),
@@ -17,7 +18,42 @@ fn project(shape: Value, value: Value) -> Result<Value, String> {
     let projection: Projection = serde_json::from_value(shape).map_err(|e| e.to_string())?;
     projection.select(&value)
 }
+fn fixed_shapes() -> Result<(), String> {
+    for (shape, input, expected) in [
+        (
+            json!({"released_source":"/source"}),
+            json!({"source":"clingen_erepo"}),
+            json!("erepo"),
+        ),
+        (
+            json!({"released_source":"/source"}),
+            json!({"source":"ClinGen"}),
+            json!("clingen"),
+        ),
+        (
+            json!({"object":{"source":{"released_source":"/sources/0"},"state":{"pointer":"/outcome"}}}),
+            json!({"sources":["ClinGen"],"outcome":"empty"}),
+            json!({"source":"clingen","state":"empty"}),
+        ),
+        (
+            json!({"author_ids":"/id"}),
+            json!({"id":"semanticscholar:00123"}),
+            json!("semantic-scholar:00123"),
+        ),
+        (
+            json!({"author_ids":"/ids/*"}),
+            json!({"ids":["semanticscholar:00123","semanticscholar:45"]}),
+            json!(["semantic-scholar:00123", "semantic-scholar:45"]),
+        ),
+    ] {
+        if project(shape, input)? != expected {
+            return Err("closed projection did not preserve its declared fixed shape".into());
+        }
+    }
+    Ok(())
+}
 fn projections() -> Result<(), String> {
+    fixed_shapes()?;
     let source = json!({"released_source":"/source"});
     for value in [
         json!(false),
@@ -40,6 +76,14 @@ fn projections() -> Result<(), String> {
         if project(object.clone(), value).is_ok() {
             return Err("nonstring provider or outcome accepted".into());
         }
+    }
+    if project(
+        json!({"object":{"id":{"released_source":"/provider"}}}),
+        json!({"provider":"ClinGen"}),
+    )
+    .is_ok()
+    {
+        return Err("released provider manufactured an identifier member".into());
     }
     let author = json!({"author_ids":"/ids/*"});
     for value in [

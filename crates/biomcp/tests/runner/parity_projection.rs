@@ -44,7 +44,7 @@ struct PathwaySource {
 pub(super) struct ReleasedSource {
     released_source: String,
 }
-#[derive(Deserialize, Serialize)]
+#[derive(Clone, Deserialize, Serialize)]
 #[serde(deny_unknown_fields)]
 pub(super) struct AuthorIds {
     author_ids: String,
@@ -111,7 +111,12 @@ fn project_object(object: &Object, value: &Value) -> Result<Value, String> {
                 raw.as_str()
                     .ok_or("identifier object member requires a string")?
             ),
-            Member::ReleasedSource(_) => released_source(&raw)?,
+            Member::ReleasedSource(_) => {
+                if name != "source" {
+                    return Err("released provider enum belongs to the source member".into());
+                }
+                released_source(&raw)?
+            }
             Member::PathwaySource(_) => {
                 if name != "source" {
                     return Err("pathway source enum belongs to the source member".into());
