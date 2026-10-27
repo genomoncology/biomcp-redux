@@ -208,7 +208,9 @@ class Installer(unittest.TestCase):
         for tool in ["curl", "wget"]:
             executable = shutil.which(tool)
             if not executable:
+                print("Installer redirect proof unavailable: " + tool)
                 continue
+            print("Installer redirect proof uses real " + tool)
             with self.subTest(downloader=tool), server(self.root, handler=Counter) as insecure, https_server(self.root, handler=Redirect) as (base, ca):
                 for name in ["curl", "wget"]:
                     (self.bin / name).unlink(missing_ok=True)
