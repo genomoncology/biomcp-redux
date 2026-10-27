@@ -40,7 +40,10 @@ struct Stub {
 )]
 impl Stub {
     fn new(status: u16, content_type: &str, body: &str, blocked: Option<&str>) -> Self {
-        let listener = TcpListener::bind("127.0.0.1:0").unwrap();
+        Self::new_at("127.0.0.1:0", status, content_type, body, blocked)
+    }
+    fn new_at(address: &str, status: u16, content_type: &str, body: &str, blocked: Option<&str>) -> Self {
+        let listener = TcpListener::bind(address).unwrap();
         let base = Box::leak(format!("http://{}", listener.local_addr().unwrap()).into_boxed_str());
         let reply = format!(
             "HTTP/1.1 {status} Stub\r\nContent-Type: {content_type}\r\nContent-Length: {}\r\nConnection: close\r\n\r\n{body}",
