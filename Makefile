@@ -47,3 +47,7 @@ nightly-live-check:
 .PHONY: source-capture
 source-capture:
 	python3 scripts/source_capture.py --plan "$(PLAN)" --out "$(OUT)"
+
+.PHONY: schema-release-check
+schema-release-check:
+	python3 scripts/schema_release.py
