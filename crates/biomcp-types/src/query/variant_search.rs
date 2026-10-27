@@ -219,11 +219,16 @@ impl VariantSearch {
         self.0.gene.is_some()
     }
     /// Compare a source protein spelling with the caller's checked substitution spellings.
-    pub fn matches_protein(&self, notation: &str) -> bool {
+    pub fn matches_protein(&self, gene: Option<&str>, notation: &str) -> bool {
         self.0
-            .protein
+            .gene
             .as_ref()
-            .is_some_and(|p| p.forms().iter().any(|form| form == notation))
+            .is_some_and(|g| Some(g.as_str()) == gene)
+            && self
+                .0
+                .protein
+                .as_ref()
+                .is_some_and(|p| p.forms().iter().any(|form| form == notation))
     }
     /// Exact declared source query; no alternative notation or free-text guessing.
     pub fn source_query(&self) -> String {

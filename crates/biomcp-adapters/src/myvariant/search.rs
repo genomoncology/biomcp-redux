@@ -85,10 +85,9 @@ pub fn search(leg: &Leg<'_>, query: &VariantSearch) -> Result<SearchPage, Reques
         );
         for mut row in mapped.value {
             for transcript in &mut row.transcripts {
-                transcript.matched = transcript
-                    .hgvs_p
-                    .as_ref()
-                    .is_some_and(|p| query.matches_protein(p.as_str()));
+                transcript.matched = transcript.hgvs_p.as_ref().is_some_and(|p| {
+                    query.matches_protein(transcript.gene.as_ref().map(|g| g.as_str()), p.as_str())
+                });
             }
             rows.value.push(row);
         }

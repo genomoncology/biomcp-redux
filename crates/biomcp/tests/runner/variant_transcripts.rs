@@ -30,7 +30,8 @@ fn transcripts() -> Result<(), String> {
         let rows = value
             .pointer("/result/items/0/transcripts")
             .ok_or("transcripts missing")?;
-        if rows[0]["transcript"] != "NM_000414.3"
+        if rows.as_array().map(Vec::len) != Some(2)
+            || rows[0]["transcript"] != "NM_000414.3"
             || rows[0]["hgvs_c"] != "c.1544A>G"
             || rows[0]["hgvs_p"] != "p.His515Arg"
             || rows[1]["transcript"] != "NM_001199291.2"
