@@ -1,6 +1,7 @@
 # 0330 — Tell agents to keep match provenance and read every eligibility page
 
-Status: OPEN.
+Status: COMPLETE.
+Landed: a4f7f98133d59b9193a4d18fa16e1fb4be000f6e
 
 Milestone: 5
 
