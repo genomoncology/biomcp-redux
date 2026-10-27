@@ -44,6 +44,7 @@ fn copied_reason(binding: &str, after: &str) -> bool {
         .strip_prefix('=')
         .and_then(|condition| condition.split_once('{'))
         .is_some_and(|(_, body)| {
+            let body = body.strip_prefix("return").unwrap_or(body);
             body.starts_with(&field) || body.starts_with(&format!("Some({field})"))
         })
 }
