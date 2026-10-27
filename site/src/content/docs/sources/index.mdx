@@ -14,22 +14,30 @@ Where does BioMCP <Fact k="version" /> get its data, and may you reuse it? BioMC
 
 ## The short answer
 
-Every source is on by default. Each source belongs to one use group. If you use BioMCP commercially, turn off the `noncommercial` and `restricted` groups and check the remaining sources' terms yourself. The publisher's terms are authoritative.
+Every source is on by default. Each source belongs to one use group. A use group is a reviewed label for the source's terms; it grants no rights. You are responsible for the licenses your use needs: read each source's terms, which the [table below](#every-source) links. If you use BioMCP commercially, turn off the `noncommercial` and `restricted` groups, then read the terms of the sources that remain. The publisher's terms are authoritative.
 
 ## Use groups
 
-| Group | Meaning |
-| --- | --- |
-| `open` | Public-domain or unrestricted data, such as CC0. |
-| `attribution` | Reuse requires attribution, such as CC BY. |
-| `noncommercial` | Commercial use needs separate permission from the publisher. |
-| `restricted` | Source-specific or mixed rights. Check the publisher's terms before reuse. |
+The registry defines four groups. Its schema calls each group a "reviewed source-use category, without inferring rights in individual records".
+
+| Group | The registry's definition | What the group holds |
+| --- | --- | --- |
+| `open` | "Public-domain or unrestricted source data." | Mostly CC0 and US government public-domain data. Several sources carry conditions; see [open sources with conditions](#open-sources-with-conditions). |
+| `attribution` | "Attribution is required." | Sources that require credit. Some add terms, such as ChEMBL's share-alike license. |
+| `noncommercial` | "Commercial use requires separate permission." | Sources whose terms reserve commercial use. |
+| `restricted` | "Source-specific or mixed rights require checking the publisher's terms." | Restricted: sources with source-specific, record-specific or unreviewed rights. Check the publisher's terms before any reuse. |
 
 The sources fall into the groups like this:
 
 <SourceTable field="groups" />
 
-A group describes the source's terms as reviewed for BioMCP. It does not grant rights. Public API access grants no extra reuse rights, and many sources carry records with their own licenses, such as an article's license in PMC.
+Public API access grants no extra reuse rights, and many sources carry records with their own licenses, such as an article's license in PMC.
+
+### Open sources with conditions
+
+The `open` group's definition does not hold for every source in it. Cellosaurus is CC BY 4.0 and asks for a citation. The FDA and openFDA sources keep third-party rights and the original rights in labels. GTR keeps submitter and third-party rights. SEER has its own website terms. Each source's terms, as the registry records them:
+
+<SourceTable group="open" />
 
 ## Turn sources off
 

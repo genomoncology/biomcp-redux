@@ -1,11 +1,16 @@
 ---
-// Every source with its use group, key and terms, or the count per use group.
+// Every source with its use group, key and terms, the count per use group, or one group's sources and terms.
 // Rendered from src/data/sources.json, which gen-reference.mjs writes from the build.
-import { sourceRows, groupCounts } from '../lib/sources.mjs';
-interface Props { field?: 'sources' | 'groups' }
-const { field = 'sources' } = Astro.props;
+import { sourceRows, groupCounts, groupRows } from '../lib/sources.mjs';
+interface Props { field?: 'sources' | 'groups'; group?: string }
+const { field = 'sources', group } = Astro.props;
 ---
-{field === 'groups' ? (
+{group ? (
+  <table>
+    <thead><tr><th>Source</th><th>Name</th><th>Terms</th></tr></thead>
+    <tbody>{groupRows(group).map((r) => <tr><td><a href={r.route}><code>{r.source}</code></a></td><td>{r.name}</td><td><a href={r.terms_url}>{r.terms}</a></td></tr>)}</tbody>
+  </table>
+) : field === 'groups' ? (
   <table>
     <thead><tr><th>Use group</th><th>Sources</th></tr></thead>
     <tbody>{groupCounts().map((g) => <tr><td><code>{g.group}</code></td><td>{g.count}</td></tr>)}</tbody>
