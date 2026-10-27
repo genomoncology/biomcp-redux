@@ -75,7 +75,7 @@
         "article",
         "10.1002/mgg3.317",
         "--mode",
-        "full"
+        "detail"
       ],
       "spelling_table": "sdlc/planning/slices/article.md",
       "release_source": [
@@ -393,7 +393,7 @@
         "article",
         "10.3389/fcell.2020.573599,10000001",
         "--mode",
-        "full",
+        "detail",
         "--sections",
         "annotations"
       ],
@@ -473,7 +473,7 @@
         "article",
         "33123537,35061708,33123537",
         "--mode",
-        "full",
+        "detail",
         "--sections",
         "annotations"
       ],
@@ -920,7 +920,7 @@
         "article",
         "33123537,35440569,28944238",
         "--mode",
-        "full",
+        "detail",
         "--sections",
         "indexing"
       ],
@@ -1050,34 +1050,10 @@
         }
       ],
       "facts": {
-        "/result/items/0/sections/indexing/data/mesh": "/items/0/result/indexing/mesh_headings"
+        "/result/items/0/sections/indexing/data/mesh": "/items/0/result/indexing/mesh_headings",
+        "/result/items/0/sections/indexing/state": "/items/0/result/section_outcomes/indexing/outcome"
       },
-      "unprojectable_facts": {
-        "/result/items/0/sections/indexing/state": {
-          "reason": "Released indexing has an applicability-dependent section outcome. Matching current data to the released outcome requires the shared reviewed state spelling projection; the current pointer is not a released field.",
-          "release_source": "src/entities/article/mod.rs::ArticleIndexing; src/entities/article/detail.rs::article_indexing_from_citation"
-        },
-        "/result/items/0/sections/indexing/data/affiliations/total": {
-          "reason": "Released indexing retains affiliations on each author, including text and source identifiers. It does not serialize the current global deduplicated affiliation list or total. Flattening and deduplicating those source rows require an explicit reviewed projection; no source count is invented.",
-          "release_source": "src/entities/article/mod.rs::ArticleIndexing; src/entities/article/detail.rs::article_indexing_from_citation"
-        },
-        "/result/items/1/sections/indexing/data/mesh": {
-          "reason": "Released indexing preserves descriptor.text, descriptor.major_topic and qualifier text/major_topic fields in mesh_headings. The current descriptor/name/major objects require a nested array field projection. This is a projection gap, not absent MeSH data.",
-          "release_source": "src/entities/article/mod.rs::ArticleIndexing; src/entities/article/detail.rs::article_indexing_from_citation"
-        },
-        "/result/items/1/sections/indexing/data/affiliations/total": {
-          "reason": "Released indexing retains affiliations on each author, including text and source identifiers. It does not serialize the current global deduplicated affiliation list or total. Flattening and deduplicating those source rows require an explicit reviewed projection; no source count is invented.",
-          "release_source": "src/entities/article/mod.rs::ArticleIndexing; src/entities/article/detail.rs::article_indexing_from_citation"
-        },
-        "/result/items/1/sections/indexing/data/affiliations/items": {
-          "reason": "Released indexing retains affiliations on each author, including text and source identifiers. It does not serialize the current global deduplicated affiliation list or total. Flattening and deduplicating those source rows require an explicit reviewed projection; no source count is invented.",
-          "release_source": "src/entities/article/mod.rs::ArticleIndexing; src/entities/article/detail.rs::article_indexing_from_citation"
-        },
-        "/result/items/1/sections/indexing/data/orcids": {
-          "reason": "Released indexing retains optional ORCID values on each indexing.authors row. It has no standalone ORCID array; filtering present ORCID values into the harvested pooled list requires an explicit reviewed projection.",
-          "release_source": "src/entities/article/mod.rs::ArticleIndexing; src/entities/article/detail.rs::article_indexing_from_citation"
-        }
-      }
+      "unprojectable_facts": {}
     }
   ]
 }

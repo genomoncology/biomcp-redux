@@ -648,7 +648,7 @@
         "article",
         "33123537,35440569,28944238,35061708,99999999,PMC5606870,10.1002/mgg3.317",
         "--mode",
-        "full"
+        "detail"
       ],
       "spelling_table": "sdlc/planning/slices/article.md",
       "release_source": [
