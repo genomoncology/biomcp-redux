@@ -95,16 +95,38 @@ pub(crate) fn global_arguments() -> Command {
     root
 }
 pub(crate) fn is_housekeeping(args: &[OsString]) -> bool {
-    global_arguments()
-        .allow_external_subcommands(true)
-        .try_get_matches_from(std::iter::once(OsString::from("biomcp")).chain(args.iter().cloned()))
-        .ok()
-        .and_then(|matches| matches.subcommand_name().map(str::to_owned))
-        .is_some_and(|name| {
-            housekeeping_commands()
-                .iter()
-                .any(|command| command.get_name() == name)
-        })
+    command_words(args).next().is_some_and(|name| {
+        housekeeping_commands()
+            .iter()
+            .any(|command| command.get_name() == name)
+    })
+}
+
+// Root recognition must also work when global values or repetitions are invalid.
+pub(crate) fn command_words(args: &[OsString]) -> impl Iterator<Item = &str> {
+    let globals = global_arguments();
+    let mut words = args.iter().filter_map(|arg| arg.to_str()).peekable();
+    while let Some(word) = words.peek().copied() {
+        if word == "--" {
+            words.next();
+            break;
+        }
+        let Some(flag) = word.strip_prefix('-') else {
+            break;
+        };
+        let flag = flag.strip_prefix('-').unwrap_or(flag);
+        let (name, inline) = flag
+            .split_once('=')
+            .map_or((flag, false), |(name, _)| (name, true));
+        let takes_value = globals
+            .get_arguments()
+            .any(|arg| arg.get_long() == Some(name) && arg.get_action().takes_values());
+        words.next();
+        if takes_value && !inline {
+            words.next();
+        }
+    }
+    words
 }
 
 fn root() -> Result<Command, ()> {

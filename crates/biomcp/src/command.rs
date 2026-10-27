@@ -370,30 +370,8 @@ fn tool_using(
     dispatch_using(args, allow_save, Some((globals, fetch)))
 }
 fn usage(args: &[OsString]) -> io::Result<Outcome> {
-    let mut words = args.iter().filter_map(|arg| arg.to_str());
-    let root = loop {
-        match words.next() {
-            Some(
-                "--format" | "--config" | "--replay" | "--record" | "--case-cache"
-                | "--disable-sources",
-            ) => {
-                words.next();
-            }
-            Some("--fresh" | "--offline") => {}
-            Some(word)
-                if [
-                    "--format=",
-                    "--config=",
-                    "--replay=",
-                    "--record=",
-                    "--case-cache=",
-                    "--disable-sources=",
-                ]
-                .iter()
-                .any(|prefix| word.starts_with(prefix)) => {}
-            word => break word,
-        }
-    };
+    let mut words = crate::grammar::command_words(args);
+    let root = words.next();
     let mut error = if matches!(
         root,
         Some("sync" | "key" | "store" | "version" | "mcp-config")
