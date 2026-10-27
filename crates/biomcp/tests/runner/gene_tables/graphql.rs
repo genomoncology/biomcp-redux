@@ -227,6 +227,11 @@ fn clingen() -> Check {
             "gene/clingen",
             &["get", "gene", "TP53", "MLH1", "clingen"],
             |source, record| {
+                if source == "hgnc" {
+                    // Keep this section witness on the recorded TP53 annotation request.
+                    let body = &mut record["exchanges"][0]["body"]["value"];
+                    *body = body.as_str().unwrap().replace("\t4292\t", "\t\t").into();
+                }
                 if source != "clingen" {
                     return;
                 }
