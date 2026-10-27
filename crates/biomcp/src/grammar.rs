@@ -105,8 +105,8 @@ pub(crate) fn is_housekeeping(args: &[OsString]) -> bool {
 // Root recognition must also work when global values or repetitions are invalid.
 pub(crate) fn command_words(args: &[OsString]) -> impl Iterator<Item = &str> {
     let globals = global_arguments();
-    let mut words = args.iter().filter_map(|arg| arg.to_str()).peekable();
-    while let Some(word) = words.peek().copied() {
+    let mut words = args.iter().peekable();
+    while let Some(word) = words.peek().and_then(|word| word.to_str()) {
         if word == "--" {
             words.next();
             break;
@@ -126,7 +126,7 @@ pub(crate) fn command_words(args: &[OsString]) -> impl Iterator<Item = &str> {
             words.next();
         }
     }
-    words
+    words.filter_map(|arg| arg.to_str())
 }
 
 fn root() -> Result<Command, ()> {
