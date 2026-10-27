@@ -68,49 +68,7 @@ fn configure(env: &Environment, stub: &Stub) -> Check {
 }
 fn reachable() -> Check {
     let env = Environment::new().map_err(|e| e.to_string())?;
-    let stub = Stub::for_sources(
-        &[
-            "api.cpicpgx.org",
-            "api.clinpgx.org",
-            "ftp.ncbi.nlm.nih.gov",
-            "extranet.who.int",
-            "www.fda.gov",
-            "api.fda.gov",
-            "wonder.cdc.gov",
-            "search.clinicalgenome.org",
-            "www.ema.europa.eu",
-            "ddinter.scbdd.com",
-            "www.cbioportal.org",
-            "www.wikipathways.org",
-        ],
-        |_| "text/plain",
-        |request| {
-            let path = request.split_whitespace().nth(1).ok_or("no request path")?;
-            if ![
-                "/v1/gene?limit=1",
-                "/v1/data/clinicalAnnotation?location.genes.symbol=DPYD&view=min",
-                "/pub/GTR/data/",
-                "/prequal/vitro-diagnostics/prequalified/in-vitro-diagnostics",
-                "/prequal/medicines/prequalified/finished-pharmaceutical-products",
-                "/about-fda/about-website/website-policies",
-                "/device/pma.json?limit=1",
-                "/device/510k.json?limit=1",
-                "/datause.html",
-                "/kb",
-                "/en/about-us/about-website/legal-notice",
-                "/terms/",
-                "/api/studies?pageSize=1",
-                "/help.html",
-            ]
-            .contains(&path)
-            {
-                return Err(format!(
-                    "health fetched undeclared endpoint or bundle: {request}"
-                ));
-            }
-            Ok("publisher reachable".into())
-        },
-    )?;
+    let stub = publisher_stub()?;
     configure(&env, &stub)?;
     let recording = env.root().join("recording");
     for mode in ["--record", "--replay"] {
@@ -252,4 +210,50 @@ fn partial_gene_bundle(env: &Environment, args: &[String], cache: &rusqlite::Con
         return Err("one fresh identity bundle hid the stale withdrawn file".into());
     }
     Ok(())
+}
+
+fn publisher_stub() -> Result<Stub, String> {
+    Stub::for_sources(
+        &[
+            "api.cpicpgx.org",
+            "api.clinpgx.org",
+            "ftp.ncbi.nlm.nih.gov",
+            "extranet.who.int",
+            "www.fda.gov",
+            "api.fda.gov",
+            "wonder.cdc.gov",
+            "search.clinicalgenome.org",
+            "www.ema.europa.eu",
+            "ddinter.scbdd.com",
+            "www.cbioportal.org",
+            "www.wikipathways.org",
+        ],
+        |_| "text/plain",
+        |request| {
+            let path = request.split_whitespace().nth(1).ok_or("no request path")?;
+            if ![
+                "/v1/gene?limit=1",
+                "/v1/data/clinicalAnnotation?location.genes.symbol=DPYD&view=min",
+                "/pub/GTR/data/",
+                "/prequal/vitro-diagnostics/prequalified/in-vitro-diagnostics",
+                "/prequal/medicines/prequalified/finished-pharmaceutical-products",
+                "/about-fda/about-website/website-policies",
+                "/device/pma.json?limit=1",
+                "/device/510k.json?limit=1",
+                "/datause.html",
+                "/kb",
+                "/en/about-us/about-website/legal-notice",
+                "/terms/",
+                "/api/studies?pageSize=1",
+                "/help.html",
+            ]
+            .contains(&path)
+            {
+                return Err(format!(
+                    "health fetched undeclared endpoint or bundle: {request}"
+                ));
+            }
+            Ok("publisher reachable".into())
+        },
+    )
 }
