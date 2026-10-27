@@ -1,6 +1,7 @@
 # 0342 — Report bundle and sync sources truthfully in health
 
-Status: OPEN.
+Status: COMPLETE.
+Landed: fbb56637a9f02002b20ee9cdff09de0db70a33d8
 
 Milestone: 5
 
@@ -13,4 +14,4 @@ Milestone: 5
 - Rules: health makes at most one bounded request per source and never downloads a bundle.
 - Proof: replay cases for each named source show a non-failed state; a case with a sync lock left by a finished process does not show `syncing`; a real publisher failure still shows `failed` with its reason.
 - Changes: health probes, registry entries and cases.
-- Defers: diagnosing slow live sources such as InterPro and GWAS timeouts, which goes to a 1.0 update.
+- Defers: diagnosing slow live sources such as InterPro and GWAS timeouts, which goes to 0363.

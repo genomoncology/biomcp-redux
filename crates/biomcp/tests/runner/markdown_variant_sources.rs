@@ -93,7 +93,7 @@ fn positive(source: &str) -> Result<(), String> {
                 " Oncokb\n\n",
                 "**state:** data",
                 "Oncogenic",
-                "Synthetic mutation effect.",
+                "Synthetic mutation effect&#46;",
             ],
             max_bytes: 2470,
         },

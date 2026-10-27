@@ -793,7 +793,7 @@
       "type": "string"
     }
   },
-  "$id": "biomcp.author_papers/1",
+  "$id": "biomcp.author-papers/1",
   "$schema": "https://json-schema.org/draft/2020-12/schema",
   "additionalProperties": false,
   "description": "One versioned command response; schema identity comes only from its body type.",
@@ -850,7 +850,7 @@
       "description": "Answer when available."
     },
     "schema": {
-      "const": "biomcp.author_papers/1",
+      "const": "biomcp.author-papers/1",
       "type": "string"
     },
     "sources": {

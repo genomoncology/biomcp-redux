@@ -20,6 +20,9 @@ pub struct HelpCommand {
     pub command: Vec<String>,
     /// Query type documentation.
     pub description: String,
+    /// Canonical reply contracts; empty for commands with no schema reply.
+    #[serde(default)]
+    pub reply_schemas: Vec<String>,
     /// Positional arguments and flags.
     pub arguments: Vec<HelpArgument>,
     /// Accepted section words and their documentation.

@@ -1323,7 +1323,7 @@
       "type": "string"
     }
   },
-  "$id": "biomcp.article_page/3",
+  "$id": "biomcp.article-page/3",
   "$schema": "https://json-schema.org/draft/2020-12/schema",
   "additionalProperties": false,
   "description": "One versioned command response; schema identity comes only from its body type.",
@@ -1380,7 +1380,7 @@
       "description": "Answer when available."
     },
     "schema": {
-      "const": "biomcp.article_page/3",
+      "const": "biomcp.article-page/3",
       "type": "string"
     },
     "sources": {

@@ -157,5 +157,8 @@
     "source"
   ],
   "title": "DrugGetCommand",
-  "type": "object"
+  "type": "object",
+  "x-reply-query-titles": [
+    "DrugWhoGet"
+  ]
 }

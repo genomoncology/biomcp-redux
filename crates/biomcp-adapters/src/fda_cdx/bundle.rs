@@ -33,3 +33,8 @@ pub fn sync(fetch: &Fetch) -> Result<SyncResult, RequestError> {
         duplicate_identities: None,
     })
 }
+
+/// Inspect this source's complete local set without synchronizing it.
+pub(crate) fn state(leg: &Leg<'_>) -> Result<biomcp_types::LocalBundleState, RequestError> {
+    SET.state(leg)
+}

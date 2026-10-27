@@ -1085,7 +1085,7 @@
       "type": "string"
     }
   },
-  "$id": "biomcp.disease_survival/3",
+  "$id": "biomcp.disease-survival/3",
   "$schema": "https://json-schema.org/draft/2020-12/schema",
   "additionalProperties": false,
   "description": "One versioned command response; schema identity comes only from its body type.",
@@ -1142,7 +1142,7 @@
       "description": "Answer when available."
     },
     "schema": {
-      "const": "biomcp.disease_survival/3",
+      "const": "biomcp.disease-survival/3",
       "type": "string"
     },
     "sources": {

@@ -1,5 +1,7 @@
 //! One structural view of serialized JSON and its schema presentation hints.
+mod escape;
 mod hints;
+use escape::{escape, source_link};
 use serde_json::Value;
 use std::{collections::BTreeSet, io};
 
@@ -49,6 +51,7 @@ pub(crate) fn markdown(value: &Value) -> io::Result<Vec<u8>> {
     let view = View {
         root: &schema,
         hint,
+        source_links: false,
     };
     view.object(value, &schema, 2, &mut out);
     Ok(out.into_bytes())
@@ -56,6 +59,7 @@ pub(crate) fn markdown(value: &Value) -> io::Result<Vec<u8>> {
 struct View<'a> {
     root: &'a Value,
     hint: Option<&'a hints::Hint>,
+    source_links: bool,
 }
 impl View<'_> {
     fn object(&self, value: &Value, schema: &Value, depth: usize, out: &mut String) {
@@ -63,20 +67,28 @@ impl View<'_> {
             return;
         };
         for (name, value) in fields {
-            if name == "schema" {
+            if name == "schema" || (name == "query" && value.is_null()) {
                 continue;
             }
             let node = property(schema, name, self.root).unwrap_or(&Value::Null);
-            if value.is_object() || value.is_array() {
+            if (value.is_object() || value.is_array()) && nonfinite(value).is_none() {
                 heading(name, depth, out);
                 if name == "next" {
                     steps(value, out);
                 } else {
-                    self.render(value, node, depth + 1, out);
+                    View {
+                        root: self.root,
+                        hint: self.hint,
+                        source_links: depth == 2 && name == "sources",
+                    }
+                    .render(value, node, depth + 1, out);
                 }
-            } else if marked(node, self.root) {
-                out.push_str(value.as_str().unwrap_or_default());
-                out.push_str("\n\n");
+            } else if self.source_links && name == "terms_url" {
+                out.push_str(&format!(
+                    "**{}:** {}\n\n",
+                    escape(name),
+                    source_link(value.as_str().unwrap_or_default())
+                ));
             } else {
                 out.push_str(&format!("**{}:** {}\n\n", escape(name), scalar(value)));
             }
@@ -110,7 +122,12 @@ impl View<'_> {
             && !items.iter().any(nested_records)
             && !contains_markdown(item_schema, self.root)
         {
-            table(items, self.hint.map_or(&[], |h| h.columns), out);
+            table(
+                items,
+                self.hint.map_or(&[], |h| h.columns),
+                self.source_links,
+                out,
+            );
         } else {
             for item in items {
                 if item.is_object() {
@@ -137,27 +154,31 @@ fn label(name: &str) -> String {
         c.to_uppercase().collect::<String>() + chars.as_str()
     })
 }
-fn escape(text: &str) -> String {
-    text.replace('&', "&amp;")
-        .replace('\\', "\\\\")
-        .replace('*', "\\*")
-        .replace('_', "\\_")
-        .replace('`', "\\`")
-        .replace('|', "\\|")
-        .replace(['\n', '\r'], " ")
-        .replace('<', "&lt;")
-        .replace('>', "&gt;")
-        .replace('[', "\\[")
-        .replace(']', "\\]")
-}
 fn scalar(value: &Value) -> String {
+    if let Some(label) = nonfinite(value) {
+        return label.to_owned();
+    }
     escape(
         &value
             .as_str()
             .map_or_else(|| value.to_string(), str::to_owned),
     )
 }
+// The native scalar union has exactly one field. Do not reinterpret source metadata objects.
+fn nonfinite(value: &Value) -> Option<&'static str> {
+    let object = value.as_object().filter(|object| object.len() == 1)?;
+    match object.get("kind")?.as_str()? {
+        "nan" => Some("NaN"),
+        "positive_infinity" => Some("+Inf"),
+        "negative_infinity" => Some("-Inf"),
+        _ => None,
+    }
+}
 fn leaf_paths(value: &Value, prefix: &str, fields: &mut BTreeSet<String>) {
+    if nonfinite(value).is_some() {
+        fields.insert(prefix.to_owned());
+        return;
+    }
     if let Some(object) = value.as_object().filter(|o| !o.is_empty()) {
         for (key, value) in object {
             let key = key.replace('~', "~0").replace('/', "~1");
@@ -181,7 +202,7 @@ fn nested_records(value: &Value) -> bool {
         _ => false,
     }
 }
-fn table(items: &[Value], preferred: &[&str], out: &mut String) {
+fn table(items: &[Value], preferred: &[&str], source_links: bool, out: &mut String) {
     let mut fields = BTreeSet::new();
     for item in items {
         leaf_paths(item, "", &mut fields);
@@ -215,7 +236,13 @@ fn table(items: &[Value], preferred: &[&str], out: &mut String) {
                 .iter()
                 .map(|name| {
                     item.pointer(&format!("/{name}"))
-                        .map_or_else(String::new, scalar)
+                        .map_or_else(String::new, |value| {
+                            if source_links && *name == "terms_url" {
+                                source_link(value.as_str().unwrap_or_default())
+                            } else {
+                                scalar(value)
+                            }
+                        })
                 })
                 .collect::<Vec<_>>()
                 .join(" | "),

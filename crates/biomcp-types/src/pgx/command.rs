@@ -19,6 +19,11 @@ impl schemars::JsonSchema for PgxGetCommand {
         if let Some(required) = schema.get_mut("required").and_then(|v| v.as_array_mut()) {
             required.retain(|value| value.as_str() != Some("gene"));
         }
+        schema.insert(
+            "x-reply-query-titles".into(),
+            vec![<super::PgxAnnotationGet as schemars::JsonSchema>::schema_name().into_owned()]
+                .into(),
+        );
         schema
     }
 }

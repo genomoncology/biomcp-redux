@@ -9,7 +9,10 @@ pub use research::{
 };
 mod predictor;
 mod query;
+// Export new public response types inside `response` and again at the crate root.
+// `unreachable_pub` reports a missing crate-root re-export.
 mod response;
+pub use response::{SchemaCatalog, SchemaEntry};
 mod source;
 
 pub use predictor::{
@@ -71,8 +74,11 @@ pub use response::{
     HotspotAlternate, HotspotMembership, HotspotRecord, OncokbCitation, OncokbVariantRecord,
     VariantCivic, VariantHotspots, VariantOncokb, VariantSections,
 };
+pub use response::{
+    ConfigurationHealth, ConfigurationNotice, ConfigurationNoticeCode, ConfigurationVariable,
+    DisableGroup, DisabledComponent, Health, HttpHealth, LocalBundleState, SourceHealth,
+};
 pub use response::{Constraint, GeneSections, Protein};
-pub use response::{DisableGroup, DisabledComponent, Health, HttpHealth, SourceHealth};
 pub use response::{
     Envelope, GeneCards, GeneItem, GenePage, ItemStatus, PageInfo, QueryBody, ResponseBody,
     Section, SourceOutcome, SourceRecord, SourceState, Status, Step, StepKind,
@@ -204,3 +210,13 @@ pub use cell_line::*;
 
 mod author;
 pub use author::*;
+
+pub use response::{
+    AlphaGenomeBiosample, AlphaGenomeDataType, AlphaGenomeGene, AlphaGenomeInterval,
+    AlphaGenomeOntology, AlphaGenomeScorer, AlphaGenomeScorerPage, AlphaGenomeTrack,
+    AlphaGenomeValue, AlphaGenomeVariant, VariantAlphaGenome,
+};
+pub use response::{
+    AlphaGenomeBiosampleType, AlphaGenomeEndedness, AlphaGenomeOntologyType, AlphaGenomeStrand,
+};
+pub use response::{AlphaGenomeNonfiniteKind, AlphaGenomeScalar};

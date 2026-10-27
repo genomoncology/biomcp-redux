@@ -9,8 +9,15 @@ pub(super) fn kind(error: Option<RequestError>) -> Option<CacheProblem> {
     }
 }
 
-pub(super) fn startup(error: crate::config::StartupError) -> std::io::Result<super::Outcome> {
-    let mut envelope = ErrorEnvelope::local();
-    envelope.local_error = error.0.map(Into::into);
+pub(crate) fn startup(error: crate::config::StartupError) -> std::io::Result<super::Outcome> {
+    let envelope = match error {
+        crate::config::StartupError::Cache(error) => {
+            let mut envelope = ErrorEnvelope::local();
+            envelope.local_error = Some(error.into());
+            envelope
+        }
+        crate::config::StartupError::Configuration(error) => ErrorEnvelope::configuration(error.0),
+        crate::config::StartupError::Local => ErrorEnvelope::local(),
+    };
     super::encode(envelope, crate::exit::Status::Local)
 }

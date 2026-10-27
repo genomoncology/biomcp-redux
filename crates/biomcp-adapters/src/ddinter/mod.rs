@@ -24,3 +24,5 @@ pub static SPEC: SourceSpec = SourceSpec {
     key: KeyUse::None,
     deadline: Duration::from_secs(15),
 };
+
+pub(crate) use bundle::bundle_state;

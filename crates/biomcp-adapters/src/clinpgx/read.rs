@@ -53,7 +53,7 @@ pub fn clinical(leg: &Leg<'_>, q: &PgxGet) -> Result<Vec<PgxAnnotationHeader>, R
     collection(
         leg,
         q,
-        "/data/clinicalAnnotation",
+        super::CLINICAL_PATH,
         "location.genes.symbol",
         |rows: &[PgxAnnotationHeader]| {
             rows.iter().all(|row| {
@@ -80,7 +80,7 @@ pub fn annotation(
     q: &PgxAnnotationGet,
 ) -> Result<PgxAnnotationDetail, RequestError> {
     let endpoint = SPEC
-        .get("/data/clinicalAnnotation")
+        .get(super::CLINICAL_PATH)
         .with_path(format!("/data/clinicalAnnotation/{}", q.id()))?
         .fresh(Freshness::Days(1))
         .bytes(4 * 1024 * 1024);

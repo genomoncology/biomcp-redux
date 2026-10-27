@@ -14,7 +14,12 @@ pub(crate) fn names() -> Vec<&'static str> {
     SecretName::ALL.iter().map(|name| name.source()).collect()
 }
 pub(crate) fn grammar() -> clap::Command {
-    let source = || Arg::new("source").required(true).value_parser(names());
+    let source = || {
+        Arg::new("source")
+            .help("Source credential name to register or remove.")
+            .required(true)
+            .value_parser(names())
+    };
     clap::Command::new("key")
         .subcommand_required(true)
         .subcommand(clap::Command::new("list"))
@@ -22,6 +27,7 @@ pub(crate) fn grammar() -> clap::Command {
             clap::Command::new("set").arg(source()).arg(
                 Arg::new("replace")
                     .long("replace")
+                    .help("Replace an existing stored credential.")
                     .action(ArgAction::SetTrue),
             ),
         )
@@ -57,6 +63,14 @@ pub(crate) fn run(
             biomcp_types::ErrorEnvelope::arguments(),
             crate::exit::Status::Usage,
         ),
+        Err(Failure::Configuration(field)) => crate::command::encode(
+            biomcp_types::ErrorEnvelope::configuration(field),
+            crate::exit::Status::Local,
+        ),
+        Err(Failure::Replace) => crate::command::encode(
+            biomcp_types::ErrorEnvelope::argument("--replace".into()),
+            crate::exit::Status::Usage,
+        ),
         Err(Failure::Local) => crate::command::encode(
             biomcp_types::ErrorEnvelope::local(),
             crate::exit::Status::Local,
@@ -64,7 +78,9 @@ pub(crate) fn run(
     }
 }
 enum Failure {
+    Configuration(String),
     Usage,
+    Replace,
     Local,
 }
 impl From<io::Error> for Failure {
@@ -79,7 +95,7 @@ fn run_inner(
     let path = crate::config::config_path(globals.config.as_ref()).ok_or(Failure::Local)?;
     // Validate the same config contract used by ordinary commands before preserving it.
     if path.exists() {
-        crate::config::secrets(globals).map_err(|()| Failure::Local)?;
+        crate::config::secrets(globals).map_err(|error| Failure::Configuration(error.0))?;
     }
     if matches!(command, Command::List) {
         let value = crate::config::key_file::read(&path)?;
@@ -95,7 +111,7 @@ fn run_inner(
     let (name, status) = match command {
         Command::Set(name, replace) => {
             if stored(&value, name).is_some() && !replace {
-                return Err(Failure::Usage);
+                return Err(Failure::Replace);
             }
             let key = input()?;
             let object = value.as_object_mut().ok_or(Failure::Local)?;

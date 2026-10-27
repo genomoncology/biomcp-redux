@@ -75,6 +75,10 @@ pub(super) fn apply(
                     hotspots,
                     super::hotspots::section(cx, query, candidates, *deadline)
                 ),
+                VariantSection::AlphaGenome => attach!(
+                    alphagenome,
+                    super::alphagenome::section(cx, query, candidates, *deadline)
+                ),
                 VariantSection::Oncokb => attach!(
                     oncokb,
                     super::oncokb::section(cx, query, candidates, *deadline)
@@ -112,6 +116,7 @@ pub(super) fn source(section: VariantSection) -> Option<Source> {
         VariantSection::Gwas => Some(Source::Gwas),
         VariantSection::Civic => Some(Source::Civic),
         VariantSection::Oncokb => Some(Source::Oncokb),
+        VariantSection::AlphaGenome => Some(Source::AlphaGenome),
         VariantSection::Hotspots => Some(Source::CancerHotspots),
         _ => None,
     }
@@ -164,6 +169,7 @@ fn selected(query: &VariantGet) -> impl Iterator<Item = VariantSection> + '_ {
         VariantSection::Civic,
         VariantSection::Hotspots,
         VariantSection::Oncokb,
+        VariantSection::AlphaGenome,
         VariantSection::Predict,
         VariantSection::Conservation,
         VariantSection::Cosmic,

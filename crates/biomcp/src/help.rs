@@ -1,5 +1,6 @@
 //! Schema-fed command help shared with MCP discovery.
 
+mod public_grammar;
 mod source_settings;
 
 use biomcp_types::{Help, HelpArgument, HelpCommand, HelpWord};
@@ -12,6 +13,11 @@ pub(crate) fn dispatch(path: &[String]) -> io::Result<Help> {
     {
         return Ok(source_settings::help(topic));
     }
+    if path == ["network"] {
+        let mut help = network("ca_bundle");
+        help.commands.extend(network("proxy").commands);
+        return Ok(help);
+    }
     if let [category, setting] = path
         && category == "network"
     {
@@ -21,7 +27,7 @@ pub(crate) fn dispatch(path: &[String]) -> io::Result<Help> {
         .into_iter()
         .filter(|c| {
             path.is_empty()
-                || c.command == path
+                || c.command.starts_with(path)
                 || (path.len() == 1
                     && path.first().is_some_and(|word| word == "skill")
                     && c.command.first() == path.first())
@@ -50,6 +56,7 @@ fn commands() -> io::Result<Vec<HelpCommand>> {
             .collect();
         let sections = section_words(&schema);
         commands.push(HelpCommand {
+            reply_schemas: crate::schema::replies(id, verb, entity),
             command: vec![verb.into(), entity.into()],
             description: command_description(verb, entity, &schema),
             arguments,
@@ -68,6 +75,12 @@ fn commands() -> io::Result<Vec<HelpCommand>> {
     }
     commands.extend(crate::housekeeping::help());
     extra_commands(&mut commands, &examples);
+    public_grammar::augment(&mut commands)?;
+    for command in &mut commands {
+        if command.reply_schemas.is_empty() {
+            command.reply_schemas = crate::schema::local_replies(&command.command);
+        }
+    }
     Ok(commands)
 }
 const AUTHOR_BOUNDARY: &str = " Author IDs identify provider records, not resolved people. Counts cover that provider record. \
@@ -83,7 +96,18 @@ const CELL_LINE_BOUNDARY: &str = "An assay count is not an activity or sensitivi
 fn command_description(verb: &str, entity: &str, schema: &Value) -> String {
     let mut description = text(schema, "description");
     if entity == "author" || verb == "author" {
-        description.push_str(AUTHOR_BOUNDARY);
+        let boundary = if verb == "search" {
+            AUTHOR_BOUNDARY
+                .split("; papers supports")
+                .next()
+                .unwrap_or(AUTHOR_BOUNDARY)
+        } else {
+            AUTHOR_BOUNDARY
+        };
+        description.push_str(boundary);
+    }
+    if verb == "article" && entity == "references" {
+        description = "Page the PubMed papers referenced by one checked article identifier.".into();
     }
     if entity == "cell-line" || verb == "cell-line" {
         description.push(' ');
@@ -108,8 +132,8 @@ fn extra_commands(commands: &mut Vec<HelpCommand>, examples: &BTreeMap<String, V
             "Synchronize a local source bundle.",
         ),
         (
-            vec!["schema", "<artifact id>"],
-            "Print a checked-in schema artifact.",
+            vec!["schema", "[artifact id]"],
+            "List every schema identity and description, or print one schema artifact.",
         ),
         (
             vec!["help", "[COMMAND...]"],
@@ -135,6 +159,7 @@ fn extra_commands(commands: &mut Vec<HelpCommand>, examples: &BTreeMap<String, V
         ),
     ] {
         commands.push(HelpCommand {
+            reply_schemas: Vec::new(),
             command: command.into_iter().map(String::from).collect(),
             description: description.into(),
             arguments: Vec::new(),
@@ -148,6 +173,7 @@ fn extra_commands(commands: &mut Vec<HelpCommand>, examples: &BTreeMap<String, V
         biomcp_fetch::SecretName::ALL
             .iter()
             .map(|name| HelpCommand {
+                reply_schemas: Vec::new(),
                 command: vec!["help".into(), "key".into(), name.source().into()],
                 description: "Show credential registration and environment fallback names.".into(),
                 arguments: Vec::new(),
@@ -160,6 +186,7 @@ fn extra_commands(commands: &mut Vec<HelpCommand>, examples: &BTreeMap<String, V
 fn bundle_commands(commands: &mut Vec<HelpCommand>, examples: &BTreeMap<String, Vec<Vec<String>>>) {
     for &bundle in crate::grammar::BUNDLE_HELP {
         commands.push(HelpCommand {
+            reply_schemas: Vec::new(),
             command: vec!["sync".into(), bundle.into()],
             description: if bundle == "wikipathways" {
                 "Replace WikiPathways search/get metadata catalogs atomically; reads never sync. Membership names a \
@@ -510,12 +537,14 @@ fn network(setting: &str) -> Help {
         }
         _ => {
             "Set proxy in config.json to an HTTP or HTTPS proxy URL. Otherwise HTTPS_PROXY and HTTP_PROXY \
-                select routes for their schemes; NO_PROXY bypasses exact hosts/IPs, .domain, *.domain, optional \
-                ports, or *. An explicit proxy overrides proxy environment settings."
+                select routes for their schemes; NO_PROXY bypasses exact hosts/IPs, CIDR ranges, .domain, *.domain, optional \
+                ports, or *. Bare IPv6 is accepted. Unsupported entries are skipped and health reports configuration notices. \
+                Malformed ports and credentials refuse with the variable name. An explicit proxy overrides proxy environment settings."
         }
     };
     Help {
         commands: vec![HelpCommand {
+            reply_schemas: crate::schema::local_replies(&["help".into()]),
             command: vec!["help".into(), "network".into(), setting.into()],
             description: description.into(),
             arguments: Vec::new(),

@@ -34,6 +34,7 @@ singleton! {
     /// The stable error code for an invalid schema request.
     pub ErrorCode { SchemaUsage => "usage.schema",
  Arguments => "usage.arguments",
+ UnknownCommand => "usage.unknown_command",
  Retired => "usage.retired",
  Local => "local.failure",
  PoolExpired => "pool.expired",
@@ -53,8 +54,9 @@ singleton! {
  SourceSelector => "choose one of the source selector values",
  UnsupportedFilter => "a selected source does not support the requested filters",
  TooManyPmids => "citation ordering exceeds the PMID limit; narrow the search",
- SchemaUsage => "expected schema <known artifact id>",
+ SchemaUsage => "use biomcp schema to list known artifact IDs",
  Arguments => "expected a supported command with checked arguments",
+ UnknownCommand => "unknown command; use the suggested help command",
  Local => "local configuration, cache or recording failed",
 
         GwasSearchArguments => "use: search gwas with --gene, --trait, --trait-id, --variant, --study or --pubmed; \
@@ -281,6 +283,12 @@ pub struct ErrorEnvelope {
 }
 
 impl ErrorEnvelope {
+    /// Name a rejected configuration field or environment variable without its value.
+    pub fn configuration(option: String) -> Self {
+        let mut envelope = Self::local();
+        envelope.error.option = Some(option.into_boxed_str());
+        envelope
+    }
     /// Refuse opaque source syntax when a component terms restriction is selected.
     pub fn variant_query_policy() -> Self {
         let mut error = Self::arguments();
@@ -338,6 +346,13 @@ impl ErrorEnvelope {
             },
         }
     }
+    /// Report an unknown command with recovery supplied only from the known grammar.
+    pub fn unknown_command() -> Self {
+        let mut error = Self::arguments();
+        error.error.code = ErrorCode::UnknownCommand;
+        error.error.message = ErrorMessage::UnknownCommand;
+        error
+    }
     /// Refuse invalid command arguments without echoing input.
     pub fn arguments() -> Self {
         Self {
@@ -355,6 +370,15 @@ impl ErrorEnvelope {
                 message: ErrorMessage::Arguments,
             },
         }
+    }
+    /// Name a grammar-owned argument without retaining its rejected value.
+    pub fn argument(option: Box<str>) -> Self {
+        Self::arguments().with_argument(option)
+    }
+    /// Attach a grammar-owned identity while preserving fixed command guidance.
+    pub fn with_argument(mut self, option: Box<str>) -> Self {
+        self.error.option = Some(option);
+        self
     }
     /// Direct composite readers to independently paged named sections.
     pub fn cell_line_all_paging() -> Self {
