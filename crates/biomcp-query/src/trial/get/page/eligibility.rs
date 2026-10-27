@@ -7,8 +7,11 @@ pub(super) fn fragment(text: &str, offset: usize) -> (&str, bool) {
         .nth(offset)
         .map_or(text.len(), |(i, _)| i);
     let remaining = text.split_at(start).1;
-    let mut lines = remaining.split_inclusive('\n').peekable();
-    let mut end = 0;
+    // Recover groups from the original text even when a continuation starts
+    // inside a parent line's oversized group.
+    let mut lines = text.split_inclusive('\n').peekable();
+    let mut group_start = 0;
+    let mut end = start;
     let mut bytes = 0;
     while let Some(line) = lines.next() {
         let mut group = line.len();
@@ -20,14 +23,23 @@ pub(super) fn fragment(text: &str, offset: usize) -> (&str, bool) {
             group += next.len();
             lines.next();
         }
-        let group_end = end + group;
-        let cost =
-            biomcp_adapters::jats::escaped_bytes(remaining.split_at(end).1.split_at(group).0);
+        let group_end = group_start + group;
+        let segment_start = start.max(group_start);
+        group_start = group_end;
+        if group_end <= start {
+            continue;
+        }
+        let candidate = text
+            .split_at(segment_start)
+            .1
+            .split_at(group_end - segment_start)
+            .0;
+        let cost = biomcp_adapters::jats::escaped_bytes(candidate);
         if bytes + cost > BUDGET {
-            if end > 0 {
-                return (remaining.split_at(end).0, false);
+            if end > start {
+                return (remaining.split_at(end - start).0, false);
             }
-            return oversized(remaining.split_at(group_end).0);
+            return oversized(candidate);
         }
         bytes += cost;
         end = group_end;
