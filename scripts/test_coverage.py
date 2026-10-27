@@ -55,7 +55,8 @@ def main():
         cargo.write_text(CARGO)
         cargo.chmod(0o755)
         env = dict(os.environ, PATH=str(tools) + os.pathsep + os.environ["PATH"],
-                   PROOF_PROFILES=str(root / "profiles"), PROOF_CALLS=str(root / "calls"))
+                   PROOF_PROFILES=str(root / "profiles"), PROOF_CALLS=str(root / "calls"),
+                   RUST_TEST_THREADS="3")
         result = subprocess.run(["sh", "scripts/coverage.sh"], cwd=root, env=env,
                                 capture_output=True, text=True, check=False)
         assert result.returncode == 0, result.stdout + result.stderr
@@ -66,6 +67,8 @@ def main():
         assert (root / "calls").read_text().count("--test drug_contracts") == 1
         assert "--test unlisted_contract" in (root / "calls").read_text()
         calls = (root / "calls").read_text().splitlines()
+        cases_calls = [call for call in calls if "--test cases" in call]
+        assert len(cases_calls) == 1 and cases_calls[0].endswith("-- --test-threads 3"), cases_calls
         tensor_calls = [call for call in calls if "--test tensors" in call]
         assert len(tensor_calls) == 1 and "--features" not in tensor_calls[0], tensor_calls
         assert not list((root / "profiles").glob("library-*.profraw"))

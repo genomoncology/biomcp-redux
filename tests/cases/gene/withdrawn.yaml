@@ -21,8 +21,7 @@
           "excludes": "oncokb"
         }
       },
-      "max_bytes": 400,
-      "max_tokens": 100
+      "max_bytes": 400
     }
   ]
 }

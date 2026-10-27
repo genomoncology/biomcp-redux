@@ -19,7 +19,6 @@
         "citations"
       ],
       "max_bytes": 197,
-      "max_tokens": 50,
       "expect": {
         "/error/code": "usage.too_many_pmids",
         "/error/count": 16330

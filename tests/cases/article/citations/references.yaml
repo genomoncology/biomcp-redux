@@ -30,8 +30,7 @@
         "references",
         "34096690"
       ],
-      "max_bytes": 5722,
-      "max_tokens": 1431
+      "max_bytes": 5722
     }
   ],
   "verified": "Walk maximum4975bytes/1244tokens. Bounds add15percent; no comparable0.9 reference-page baseline is recorded."

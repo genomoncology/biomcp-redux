@@ -17,6 +17,7 @@
       "type": "string"
     },
     "HgncId": {
+      "description": "An HGNC identifier with canonical namespace and positive numeric value.",
       "pattern": "^HGNC:[1-9][0-9]*$",
       "type": "string"
     },
@@ -313,7 +314,8 @@
               "type": "null"
             }
           ],
-          "description": "Native reference URL, including therapeutic references without a drug action."
+          "description": "Native reference URL, including therapeutic references without a drug action.",
+          "format": "uri"
         }
       },
       "required": [
@@ -526,6 +528,7 @@
       ]
     },
     "ReactomeId": {
+      "description": "A checked human Reactome stable pathway identifier.",
       "pattern": "^R-HSA-[1-9][0-9]*$",
       "type": "string"
     },
@@ -897,6 +900,7 @@
         },
         "terms_url": {
           "description": "Publisher page documenting the terms.",
+          "format": "uri",
           "type": "string"
         },
         "use": {
@@ -988,6 +992,7 @@
       "type": "string"
     },
     "WikiPathwaysId": {
+      "description": "A checked WikiPathways identity without its revision.",
       "pattern": "^WP[1-9][0-9]*$",
       "type": "string"
     }

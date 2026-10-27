@@ -61,6 +61,7 @@ pub struct GwasLocus {
     pub author_reported_genes: Box<[GwasReportedGene]>,
     /// Native locus self link.
     #[serde(default, skip_serializing_if = "Option::is_none")]
+    #[cfg_attr(feature = "schema", schemars(extend("format" = "uri")))]
     pub source_url: Option<Text>,
 }
 /// One bounded locus section for an association.
@@ -136,9 +137,11 @@ pub struct GwasStudy {
     pub summary_statistics_available: Option<bool>,
     /// Native summary statistics link; not a local download.
     #[serde(default, skip_serializing_if = "Option::is_none")]
+    #[cfg_attr(feature = "schema", schemars(extend("format" = "uri")))]
     pub summary_statistics_url: Option<Text>,
     /// Native terms link without an inferred reuse grant.
     #[serde(default, skip_serializing_if = "Option::is_none")]
+    #[cfg_attr(feature = "schema", schemars(extend("format" = "uri")))]
     pub license_url: Option<Text>,
 }
 impl ResponseBody for GwasStudy {
@@ -176,6 +179,7 @@ pub struct GwasAncestry {
     /// Native recruitment metadata.
     pub country_of_recruitment: Box<[GwasCountry]>,
     /// Native row self link, checked against its owning study by the adapter.
+    #[cfg_attr(feature = "schema", schemars(extend("format" = "uri")))]
     pub source_url: Text,
 }
 /// Bounded retained ancestry relation for one exact study.

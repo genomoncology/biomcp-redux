@@ -10,25 +10,10 @@ pub(super) fn validate(request: &Request, value: &Value) -> Result<&'static str,
         .cloned()
         .unwrap_or(Value::Null);
     let mismatch = || protocol::error(id.clone(), -32020, "Header mismatch");
-    let revision = request
-        .one("mcp-protocol-version")
-        .map_err(|_| mismatch())?;
+    let revision = revision(request, value, &id)?;
     let body_revision = value
         .pointer("/params/_meta/io.modelcontextprotocol~1protocolVersion")
         .and_then(Value::as_str);
-    let revision = revision
-        .or_else(|| {
-            (value.get("method") == Some(&json!("initialize"))).then_some(protocol::REVISIONS[1])
-        })
-        .ok_or_else(mismatch)?;
-    let Some(revision) = protocol::REVISIONS
-        .iter()
-        .copied()
-        .find(|supported| *supported == revision)
-    else {
-        return Err(json!({"jsonrpc":"2.0","id":id,"error":{"code":-32022,
-            "message":"Unsupported protocol version","data":{"supported":protocol::REVISIONS,"requested":revision}}}));
-    };
     if request
         .one("content-type")
         .map_err(|_| mismatch())?
@@ -80,6 +65,35 @@ pub(super) fn validate(request: &Request, value: &Value) -> Result<&'static str,
     } else if body_revision.is_some_and(|body| body != revision) {
         return Err(mismatch());
     }
+    Ok(revision)
+}
+fn revision(request: &Request, value: &Value, id: &Value) -> Result<&'static str, Value> {
+    let mismatch = || protocol::error(id.clone(), -32020, "Header mismatch");
+    let revision = request
+        .one("mcp-protocol-version")
+        .map_err(|_| mismatch())?;
+    let revision = revision
+        .or_else(|| {
+            (value.get("method") == Some(&json!("initialize")))
+                .then(|| {
+                    value
+                        .pointer("/params/protocolVersion")
+                        .and_then(Value::as_str)
+                })
+                .flatten()
+                .map(crate::mcp::legacy::revision)
+        })
+        // Legacy HTTP cannot recover a negotiated revision without session state.
+        // https://modelcontextprotocol.io/specification/2025-11-25/basic/transports#protocol-version-header
+        .unwrap_or(protocol::REVISIONS[3]);
+    let Some(revision) = protocol::REVISIONS
+        .iter()
+        .copied()
+        .find(|supported| *supported == revision)
+    else {
+        return Err(json!({"jsonrpc":"2.0","id":id,"error":{"code":-32022,
+            "message":"Unsupported protocol version","data":{"supported":protocol::REVISIONS,"requested":revision}}}));
+    };
     Ok(revision)
 }
 fn decode(value: &str) -> Option<String> {

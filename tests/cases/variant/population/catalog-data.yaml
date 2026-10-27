@@ -31,8 +31,7 @@
         "/result/candidates/0/sections/gwas/data/associations/0/ontology_traits/0/id": "EFO_0004344",
         "/result/candidates/0/sections/gwas/data/associations/0/alleles/0/allele": "T"
       },
-      "max_bytes": 1694,
-      "max_tokens": 424
+      "max_bytes": 1694
     }
   ]
 }

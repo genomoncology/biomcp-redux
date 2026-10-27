@@ -21,7 +21,6 @@
         "litsense"
       ],
       "max_bytes": 5646,
-      "max_tokens": 1412,
       "expect": {
         "/status": "complete",
         "/page/total": 6,

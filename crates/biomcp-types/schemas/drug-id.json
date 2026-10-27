@@ -1,6 +1,7 @@
 {
   "$id": "biodata.drug-id/2",
   "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "description": "A published native drug record identifier, without a consumer source prefix.",
   "pattern": "^(?:[A-Z][A-Z0-9_.-]*:)?[A-Za-z0-9][A-Za-z0-9_.-]*(/[A-Za-z0-9_.-]+)*$",
   "title": "DrugId",
   "type": "string"
