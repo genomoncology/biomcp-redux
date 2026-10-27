@@ -7458,3 +7458,98 @@ Options:
 Serve MCP over stdio or --http [ADDR]. Non-loopback binds require --allow-host HOST or http.allowed_hosts; neither authenticates callers. HTTP refuses sync, store clean and --fresh. Stdio saves refuse --replace.
 
 
+## biomcp sync [hgnc|clingen]
+
+Synchronize a local source bundle.
+
+
+## biomcp schema <artifact id>
+
+Print a checked-in schema artifact.
+
+
+## biomcp help [COMMAND...]
+
+Print generated command help.
+
+
+## biomcp key set <source> [--replace]
+
+Register one credential from a no-echo prompt or one standard-input line. Use --config PATH to choose the configuration file.
+
+
+## biomcp key remove <source>
+
+Remove a stored credential while preserving other settings.
+
+
+## biomcp sync wikipathways
+
+Replace WikiPathways search/get metadata catalogs atomically; reads never sync. Membership names a source and release; it implies no therapy, response or actionability. No enrichment is calculated.
+
+
+## biomcp sync cbioportal-studies
+
+Replace the complete validated local bundle atomically. Reads use stored data and never synchronize. Failed replacement preserves the last usable bundle.
+
+
+## biomcp sync ema
+
+Replace the complete validated local bundle atomically. Reads use stored data and never synchronize. Failed replacement preserves the last usable bundle.
+
+
+## biomcp sync ddinter
+
+Replace the complete validated local bundle atomically. Reads use stored data and never synchronize. Failed replacement preserves the last usable bundle.
+
+
+## biomcp sync who-pq
+
+Replace the complete validated local bundle atomically. Reads use stored data and never synchronize. Failed replacement preserves the last usable bundle.
+
+
+## biomcp sync gtr
+
+Replace the complete validated local bundle atomically. Reads use stored data and never synchronize. Failed replacement preserves the last usable bundle.
+
+
+## biomcp sync who-ivd
+
+Replace the complete validated local bundle atomically. Reads use stored data and never synchronize. Failed replacement preserves the last usable bundle.
+
+
+## biomcp sync fda-cdx
+
+Replace the complete validated local bundle atomically. Reads use stored data and never synchronize. Failed replacement preserves the last usable bundle.
+
+
+## biomcp help key ncbi
+
+Show credential registration and environment fallback names.
+
+
+## biomcp help key semantic-scholar
+
+Show credential registration and environment fallback names.
+
+
+## biomcp help key orcid
+
+Show credential registration and environment fallback names.
+
+
+## biomcp help key oncokb
+
+Show credential registration and environment fallback names.
+
+
+## biomcp help key nci
+
+Show credential registration and environment fallback names.
+
+
+## biomcp help key openfda
+
+Show credential registration and environment fallback names.
+
+
