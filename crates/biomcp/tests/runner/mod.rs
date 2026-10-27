@@ -11,6 +11,7 @@ pub(super) mod parity;
 mod parity_inventory_proof;
 mod parity_shape_proof;
 use execution::run_step;
+mod alphagenome;
 mod cache_contention;
 pub(super) mod cell_line;
 mod clinpgx;
@@ -360,6 +361,7 @@ pub(super) fn protocol_trials() -> Vec<Trial> {
     trials.extend(variant_population_release::trials());
     trials.extend(oncokb::trials());
     trials.extend(oncokb_context::trials());
+    trials.extend(alphagenome::trials());
     trials.extend(variant_civic::trials());
     trials.extend(variant_hotspots::trials());
     trials.extend(recurrence::trials());
