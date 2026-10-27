@@ -45,21 +45,7 @@ pub(super) fn candidates(
         if !transcripts.is_empty() {
             component_terms.extend(super::transcripts::label());
         }
-        let mut genes = Vec::new();
-        if let Some(source_genes) = hit.dbsnp.and_then(|d| d.gene) {
-            let source_genes = match source_genes {
-                Genes::One(v) => vec![v],
-                Genes::Many(v) => v,
-            };
-            for gene in source_genes {
-                if let Some(symbol) = gene.symbol {
-                    match biodata::GeneRef::new(symbol, None, None, None) {
-                        Ok(g) => genes.push(g),
-                        Err(_) => problems.push(problem(hit.id.clone(), "genes")),
-                    }
-                }
-            }
-        }
+        let genes = genes(hit.dbsnp.and_then(|d| d.gene), &hit.id, &mut problems);
         if build.is_none() {
             problems.push(problem(hit.id.clone(), "representations.build"));
         }
@@ -119,4 +105,26 @@ fn component_terms(ids: &[VariantId]) -> Box<[biomcp_types::ComponentLabel]> {
     } else {
         Box::default()
     }
+}
+
+fn genes(
+    source: Option<Genes>,
+    record: &Text,
+    problems: &mut Vec<Problem>,
+) -> Vec<biodata::GeneRef> {
+    let mut genes = Vec::new();
+    let source_genes = match source {
+        Some(Genes::One(v)) => vec![v],
+        Some(Genes::Many(v)) => v,
+        None => return genes,
+    };
+    for gene in source_genes {
+        if let Some(symbol) = gene.symbol {
+            match biodata::GeneRef::new(symbol, None, None, None) {
+                Ok(g) => genes.push(g),
+                Err(_) => problems.push(problem(record.clone(), "genes")),
+            }
+        }
+    }
+    genes
 }

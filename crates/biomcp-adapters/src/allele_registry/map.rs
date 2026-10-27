@@ -78,7 +78,7 @@ pub(super) fn allele(raw: RawAllele) -> Result<Resolution, biomcp_fetch::BadRepl
         sections: None,
         component_terms: Box::default(),
     };
-    Ok(Resolution::Found(Mapped { value, problems }))
+    Ok(Resolution::Found(Box::new(Mapped { value, problems })))
 }
 fn genomic(g: Genomic, record: &Text, out: &mut Vec<Representation>, problems: &mut Vec<Problem>) {
     let build = g
