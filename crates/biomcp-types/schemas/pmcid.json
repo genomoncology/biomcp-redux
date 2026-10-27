@@ -1,6 +1,7 @@
 {
   "$id": "biodata.pmcid/1",
   "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "description": "Canonical PMC identifier, with an explicit namespace.",
   "pattern": "^PMC[1-9][0-9]*$",
   "title": "Pmcid",
   "type": "string"

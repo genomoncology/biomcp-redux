@@ -26,7 +26,6 @@
         "/status": "complete"
       },
       "max_bytes": 2369,
-      "max_tokens": 347,
       "mcp": [
         "help",
         "search",
@@ -66,7 +65,6 @@
         "/status": "complete"
       },
       "max_bytes": 2818,
-      "max_tokens": 424,
       "mcp": [
         "help",
         "get",
@@ -94,7 +92,6 @@
         "/status": "complete"
       },
       "max_bytes": 1441,
-      "max_tokens": 125,
       "mcp": [
         "help",
         "sync",

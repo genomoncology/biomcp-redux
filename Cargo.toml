@@ -9,6 +9,11 @@ rust-version = "1.95.0"
 license = "MIT"
 
 [workspace.dependencies]
+biodata = { version = "=1.0.0", path = "crates/biodata" }
+biomcp-adapters = { version = "=1.0.0", path = "crates/biomcp-adapters" }
+biomcp-fetch = { version = "=1.0.0", path = "crates/biomcp-fetch" }
+biomcp-query = { version = "=1.0.0", path = "crates/biomcp-query" }
+biomcp-types = { version = "=1.0.0", path = "crates/biomcp-types" }
 shlex = "=2.0.1"
 winnow = { version = "1.0.4", default-features = false, features = ["ascii", "alloc"] }
 url = "2.5.8"

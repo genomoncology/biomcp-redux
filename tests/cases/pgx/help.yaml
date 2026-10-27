@@ -87,8 +87,7 @@
           "clinpgx"
         ]
       },
-      "max_bytes": 3745,
-      "max_tokens": 673
+      "max_bytes": 3745
     }
   ],
   "verified": "Help byte limits use j18463 output plus fifteen percent for defaults, aliases, inherited options and examples; higher existing limits remain."

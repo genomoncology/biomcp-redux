@@ -35,5 +35,6 @@ pub struct ClinGenValidity {
     /// Source expert panel.
     pub expert_panel: Text,
     /// Source report URL.
+    #[cfg_attr(feature = "schema", schemars(extend("format" = "uri")))]
     pub report_url: Text,
 }

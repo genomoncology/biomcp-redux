@@ -31,7 +31,6 @@
         "/status": "complete"
       },
       "max_bytes": 3775,
-      "max_tokens": 679,
       "mcp": [
         "help",
         "search",

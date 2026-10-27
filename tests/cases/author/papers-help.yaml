@@ -29,7 +29,6 @@
       },
       "full_output_bytes": true,
       "max_bytes": 3401,
-      "max_tokens": 581,
       "mcp": [
         "help",
         "author",

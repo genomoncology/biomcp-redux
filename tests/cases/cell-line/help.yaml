@@ -18,7 +18,6 @@
       },
       "full_output_bytes": true,
       "max_bytes": 2136,
-      "max_tokens": 253,
       "mcp": [
         "help",
         "search",
@@ -59,7 +58,6 @@
       },
       "full_output_bytes": true,
       "max_bytes": 3111,
-      "max_tokens": 494,
       "mcp": [
         "help",
         "get",
@@ -86,7 +84,6 @@
       },
       "full_output_bytes": true,
       "max_bytes": 1691,
-      "max_tokens": 182,
       "mcp": [
         "help",
         "cell-line",

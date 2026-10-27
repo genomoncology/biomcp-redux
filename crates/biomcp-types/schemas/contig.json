@@ -1,6 +1,7 @@
 {
   "$id": "biodata.contig/1",
   "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "description": "A source chromosome or scaffold name without spelling normalization.",
   "pattern": "^[\\x21-\\x7e]{1,255}$",
   "title": "Contig",
   "type": "string"

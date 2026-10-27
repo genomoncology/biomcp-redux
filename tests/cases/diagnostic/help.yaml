@@ -39,8 +39,7 @@
           "who-ivd"
         ]
       },
-      "max_bytes": 3792,
-      "max_tokens": 664
+      "max_bytes": 3792
     },
     {
       "run": [
@@ -83,8 +82,7 @@
           "supplements"
         ]
       },
-      "max_bytes": 3799,
-      "max_tokens": 640
+      "max_bytes": 3799
     },
     {
       "run": [
@@ -102,8 +100,7 @@
           "count": 2
         }
       },
-      "max_bytes": 1372,
-      "max_tokens": 108
+      "max_bytes": 1372
     },
     {
       "run": [
@@ -121,8 +118,7 @@
           "count": 2
         }
       },
-      "max_bytes": 1391,
-      "max_tokens": 112
+      "max_bytes": 1391
     },
     {
       "run": [
@@ -140,8 +136,7 @@
           "count": 2
         }
       },
-      "max_bytes": 1391,
-      "max_tokens": 112
+      "max_bytes": 1391
     }
   ],
   "verified": "Help byte limits use j18463 output plus fifteen percent for defaults, aliases, inherited options and examples; higher existing limits remain."
