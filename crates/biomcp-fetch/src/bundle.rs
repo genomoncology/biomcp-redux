@@ -93,12 +93,7 @@ pub enum DocumentMedia {
 impl RowFormat {
     pub(crate) fn media(self) -> &'static str {
         match self {
-            Self::Document {
-                media: DocumentMedia::Html,
-            } => "text/html",
-            Self::Document {
-                media: DocumentMedia::Json,
-            } => "application/json",
+            Self::Document { media } => media.media(),
             Self::Json { .. } => "application/json",
             Self::Tsv | Self::NativeTsv { .. } => "text/tab-separated-values",
             Self::Csv { .. } | Self::NativeCsv { .. } => "text/csv",
@@ -189,4 +184,13 @@ pub fn bundle_sha256(body: &[u8]) -> String {
         .iter()
         .map(|b| format!("{b:02x}"))
         .collect()
+}
+
+impl DocumentMedia {
+    pub(crate) fn media(self) -> &'static str {
+        match self {
+            Self::Html => "text/html",
+            Self::Json => "application/json",
+        }
+    }
 }

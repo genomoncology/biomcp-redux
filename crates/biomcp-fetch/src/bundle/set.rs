@@ -80,22 +80,26 @@ impl Fetch {
         let mut bytes = 0_u64;
         for part in set.parts {
             let format = part.format.unwrap_or(set.format);
-            let endpoint = set
-                .spec
-                .get(part.path)
-                .bytes(match format {
-                    RowFormat::NativeCsv { max_bytes } => max_bytes.min(super::MAX_BUNDLE_BYTES),
-                    _ => R::MAX_BYTES.min(super::MAX_BUNDLE_BYTES),
-                })
-                .fresh(Freshness::Never);
-            let body = leg.bytes_checked(&endpoint, &[], |body| {
+            let limit = match format {
+                RowFormat::NativeCsv { max_bytes } => max_bytes.min(super::MAX_BUNDLE_BYTES),
+                _ => R::MAX_BYTES.min(super::MAX_BUNDLE_BYTES),
+            };
+            let endpoint = set.spec.get(part.path).bytes(limit).fresh(Freshness::Never);
+            let check = |body: &[u8]| {
                 let parsed = parse::part_rows::<R>(body, format, part.name)
                     .map_err(|_| biomcp_types::Reason::BadReply)?;
                 if parsed.is_empty() {
                     return Err(biomcp_types::Reason::BadReply);
                 }
                 Ok(())
-            })?;
+            };
+            let decoder = crate::xml::Decoder::checked_bytes(limit, &check);
+            let decoder = match format {
+                RowFormat::Document { media } => decoder.document_media(media),
+                _ => decoder,
+            };
+            let (body, _) = leg.parameters(&endpoint, &[], decoder)?;
+            let body = body.0;
             bytes = bytes.saturating_add(body.len() as u64);
             if bytes > super::MAX_BUNDLE_BYTES {
                 return Err(leg
