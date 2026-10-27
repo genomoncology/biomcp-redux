@@ -65,6 +65,10 @@ else {
     if (!text.includes(p.twin)) errors.push(`llms.txt: does not list ${p.twin}`);
   }
 }
+// Old addresses: each still serves a page or a redirect.
+for (const old of fs.readFileSync(path.resolve('src/data/old-addresses.txt'), 'utf8').split('\n').filter(Boolean)) {
+  if (!exists(old)) errors.push(`${old}: old address no longer resolves; add it to src/data/redirects.json`);
+}
 if (!fs.existsSync(path.join(dist, 'sitemap-index.xml'))) errors.push('dist: sitemap-index.xml missing');
 
 if (errors.length) {
