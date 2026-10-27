@@ -8,7 +8,6 @@
       "run": [
         "search",
         "article",
-        "AKT1 E17K",
         "--variant",
         "rs121434592",
         "--source",
@@ -24,7 +23,6 @@
         "/next/0/args": [
           "search",
           "article",
-          "\"AKT1 E17K\"",
           "--variant",
           "\"rs121434592\""
         ]
@@ -34,7 +32,6 @@
       "run": [
         "search",
         "article",
-        "\"AKT1 E17K\"",
         "--variant",
         "\"rs121434592\""
       ],
@@ -43,7 +40,7 @@
         "/sources/*/source": [
           "pubmed"
         ],
-        "/sources/0/term": "\"AKT1 E17K\" \"rs121434592\"",
+        "/sources/0/term": "\"rs121434592\"",
         "/status": "absent"
       }
     }

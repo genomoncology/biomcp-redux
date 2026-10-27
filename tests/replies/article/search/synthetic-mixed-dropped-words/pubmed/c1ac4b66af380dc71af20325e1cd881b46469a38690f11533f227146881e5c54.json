@@ -1,7 +1,7 @@
 {
   "method": "GET",
   "source": "pubmed",
-  "url": "https://eutils.ncbi.nlm.nih.gov/entrez/eutils/esearch.fcgi?db=pubmed&term=AKT1%20E17K%20rs121434592&sort=relevance&retmax=9999&retmode=json&tool=biomcp",
+  "url": "https://eutils.ncbi.nlm.nih.gov/entrez/eutils/esearch.fcgi?db=pubmed&term=%22rs121434592%22&sort=relevance&retmax=9999&retmode=json&tool=biomcp",
   "exchanges": [
     {
       "status": 200,
@@ -21,12 +21,7 @@
             "retstart": "0",
             "idlist": [],
             "translationset": [],
-            "querytranslation": "AKT1 E17K rs121434592",
-            "errorlist": {
-              "phrasesnotfound": [
-                "E17K"
-              ]
-            }
+            "querytranslation": "\"rs121434592\""
           }
         }
       }
