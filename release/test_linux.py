@@ -69,7 +69,7 @@ class LinuxContainers(unittest.TestCase):
             env = environment(root)
             env.update(PATH=str(bindir) + os.pathsep + os.environ['PATH'],
                        BUILD_IMAGE='build-image', DOCKER_RECORD=str(record))
-            result = subprocess.run(['make', 'release-linux', 'CONTAINER_ARGS=' + shlex.join(extra)],
+            result = subprocess.run(['make', 'release-linux', 'CONTAINER_ARGS=' + shlex.join(extra).replace('$', '$$')],
                                     cwd=root, env=env, capture_output=True, text=True, timeout=30)
             self.assertEqual(result.returncode, 0, result.stdout + result.stderr)
             self.assertFalse((root / 'injected').exists())
