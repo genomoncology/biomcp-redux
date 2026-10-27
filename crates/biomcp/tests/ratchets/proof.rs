@@ -310,11 +310,13 @@ include!("generated/mod.rs");
         &(wrapper.to_owned() + "fn hidden() {}"),
         "generated exception requires only",
     )?;
-    rejects(
-        path,
-        &wrapper.replace("dead_code", "dead_code, unused_variables"),
-        "generated exception requires only",
-    )?;
+    for modified in [
+        wrapper.replace("dead_code", "dead_code, unused_variables"),
+        wrapper.replace("allow", "expect"),
+        format!("fn hidden() {{}}\n{wrapper}"),
+    ] {
+        rejects(path, &modified, "generated exception requires only")?;
+    }
     rejects(
         path,
         &wrapper.replace("dead_code", "unused_imports"),

@@ -179,12 +179,19 @@ fn attributes(path: &str, tokens: &[String]) -> Check {
             return fail(path, "lint exception requires listed location and reason");
         }
         if path == GENERATED_PROTO && suppression {
-            let after = tail.iter().position(|v| v == "]").map(|i| &tail[i + 1..]);
+            let after = tail
+                .iter()
+                .position(|v| v == "]")
+                .and_then(|i| tail.get(i + 1..));
             let only_include = ["include", "!", "(", "\"generated/mod.rs\"", ")", ";"];
-            if !attribute.contains(&"dead_code")
-                || attribute
-                    .iter()
-                    .any(|v| matches!(*v, "unused" | "warnings"))
+            let only_dead_code = matches!(
+                attribute.as_slice(),
+                ["[", "allow", "(", "dead_code", ",", "reason", "=", _, ")"]
+                    | ["[", "allow", "(", "dead_code", ",", "reason", "=", _, ",", ")"]
+            );
+            if !only_dead_code
+                || i != 0
+                || tokens.get(i + 1).is_none_or(|v| v != "!")
                 || after.is_none_or(|v| v.iter().map(String::as_str).ne(only_include))
             {
                 return fail(
