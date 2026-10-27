@@ -10,10 +10,7 @@ pub(crate) fn argument_error(args: &[OsString]) -> Option<String> {
     let error = parser
         .clone()
         .try_get_matches_from(std::iter::once(OsString::from("biomcp")).chain(args.iter().cloned()))
-        .err();
-    let Some(error) = error else {
-        return None;
-    };
+        .err()?;
     let context = error.get(ContextKind::InvalidArg)?;
     let spellings = match context {
         ContextValue::String(value) => vec![value.as_str()],
