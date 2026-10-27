@@ -18,7 +18,10 @@ pub(crate) fn action_args(action: &Action) -> Result<Vec<String>, serde_json::Er
         Action::PubmedSearch(q) => {
             let mut args = request_args(&Request::SearchArticle(q.clone()))?;
             if !args.iter().any(|arg| arg == "--source") {
-                let position = args.iter().position(|arg| arg == "--").unwrap_or(args.len());
+                let position = args
+                    .iter()
+                    .position(|arg| arg == "--")
+                    .unwrap_or(args.len());
                 args.splice(position..position, ["--source".into(), "pubmed".into()]);
             }
             Ok(args)

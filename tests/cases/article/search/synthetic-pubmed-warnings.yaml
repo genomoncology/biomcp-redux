@@ -37,7 +37,9 @@
         "\"ERCC2 Ala717Gly\"",
         "--source",
         "pubmed"
-      ]
+      ],
+      "max_bytes": 1244,
+      "max_tokens": 311
     },
     {
       "run": [
@@ -72,7 +74,9 @@
         "ERCC2[Title/Abstract] AND Ala717Gly[Title/Abstract]",
         "--source",
         "pubmed"
-      ]
+      ],
+      "max_bytes": 1244,
+      "max_tokens": 311
     },
     {
       "run": [
@@ -107,7 +111,9 @@
         "\"GATA2 Thr176Pro\"",
         "--source",
         "pubmed"
-      ]
+      ],
+      "max_bytes": 1244,
+      "max_tokens": 311
     },
     {
       "run": [
@@ -142,7 +148,9 @@
         "\"POT1 Gly404Val\"",
         "--source",
         "pubmed"
-      ]
+      ],
+      "max_bytes": 1244,
+      "max_tokens": 311
     },
     {
       "run": [
@@ -177,7 +185,9 @@
         "\"GALC Thr109Ala\"",
         "--source",
         "pubmed"
-      ]
+      ],
+      "max_bytes": 1244,
+      "max_tokens": 311
     },
     {
       "run": [
@@ -212,7 +222,9 @@
         "\"ACD Pro457=\"",
         "--source",
         "pubmed"
-      ]
+      ],
+      "max_bytes": 1244,
+      "max_tokens": 311
     },
     {
       "run": [
@@ -245,7 +257,10 @@
           "--",
           "-ERCC2[Title/Abstract] AND Ala717Gly[Title/Abstract]"
         ]
-      }
+      },
+      "max_bytes": 1244,
+      "max_tokens": 311
     }
-  ]
+  ],
+  "verified": "The first six CLI/MCP replay pairs measured at most 1081 full bytes in j17544. The shared 1244-byte ceiling adds fifteen percent to that largest reply and also bounds the ignored-phrase delimiter case."
 }
