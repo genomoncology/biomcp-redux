@@ -2,7 +2,7 @@
 use super::{Bundle, BundleInfo, Find, Row, store};
 use crate::{Leg, Mode, RequestError};
 impl Leg<'_> {
-    /// Inspect validated metadata without reading rows, claiming a lease or synchronizing.
+    /// Inspect the selected store metadata without reading rows, importing or synchronizing.
     pub fn stored_bundle_state<R: Row>(
         &self,
         bundle: &Bundle<R>,
@@ -12,7 +12,6 @@ impl Leg<'_> {
         let Some(cache) = self.fetch.cache.as_deref() else {
             return Ok(LocalBundleState::Missing);
         };
-        self.import_predecessor(cache, bundle.name)?;
         Ok(match cache.bundle_info(bundle.name, self.budget())? {
             None => LocalBundleState::Missing,
             Some(meta) if meta.fresh_until > crate::cache::now() => LocalBundleState::Fresh,
