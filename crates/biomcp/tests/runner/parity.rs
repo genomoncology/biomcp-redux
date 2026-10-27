@@ -19,6 +19,8 @@ mod recording;
 mod registry;
 #[path = "parity_request.rs"]
 mod request;
+#[path = "parity_sequence.rs"]
+mod sequence;
 
 #[derive(Deserialize)]
 #[serde(deny_unknown_fields)]
@@ -26,16 +28,26 @@ struct Plan {
     baseline_release: String,
     cases: Vec<Selection>,
     #[serde(default)]
+    sequences: Vec<sequence::Sequence>,
+    #[serde(default)]
     batches: Vec<String>,
     #[serde(default)]
     inventory: inventory::Exceptions,
 }
-#[derive(Deserialize)]
+#[derive(Clone, Deserialize)]
 #[serde(deny_unknown_fields)]
 struct Selection {
     case: String,
     step: usize,
     baseline_command: Vec<String>,
+    #[serde(default)]
+    candidate_command: Option<Vec<String>>,
+    #[serde(default)]
+    pages: Vec<sequence::Page>,
+    #[serde(default)]
+    baseline_items: Option<String>,
+    #[serde(default)]
+    unsupported_command: Option<UnsupportedFact>,
     spelling_table: String,
     release_source: Vec<String>,
     baseline_globals: Vec<String>,
@@ -55,7 +67,7 @@ struct Selection {
     unprojectable_facts: BTreeMap<String, UnsupportedFact>,
 }
 
-#[derive(Deserialize, serde::Serialize)]
+#[derive(Clone, Deserialize, serde::Serialize)]
 #[serde(deny_unknown_fields)]
 struct UnsupportedFact {
     reason: String,
@@ -117,6 +129,7 @@ fn load_plan(path: &Path) -> Result<Plan, String> {
             return Err("batch must target the same release without nested batches".into());
         }
         plan.cases.extend(child.cases);
+        plan.sequences.extend(child.sequences);
         plan.inventory.extend(child.inventory);
     }
     Ok(plan)
@@ -124,8 +137,8 @@ fn load_plan(path: &Path) -> Result<Plan, String> {
 fn run(plan: &Path, baseline: &Path, out: &Path) -> Result<Value, String> {
     let plan = load_plan(plan)?;
     if plan.baseline_release != "0.9.3"
-        || plan.cases.is_empty()
-        || plan.cases.len() > 1024
+        || plan.cases.is_empty() && plan.sequences.is_empty()
+        || plan.cases.len() + plan.sequences.len() > 1024
         || !baseline.is_absolute()
     {
         return Err("expected nonempty selection and absolute released 0.9.3 executable".into());
@@ -135,6 +148,7 @@ fn run(plan: &Path, baseline: &Path, out: &Path) -> Result<Value, String> {
         .iter()
         .map(load_selection)
         .collect::<Result<Vec<_>, _>>()?;
+    sequence::validate(&plan.sequences)?;
     let env = Environment::new().map_err(|e| e.to_string())?;
     let version = env
         .command(baseline, &["--version".into()])
@@ -153,6 +167,9 @@ fn run(plan: &Path, baseline: &Path, out: &Path) -> Result<Value, String> {
     let mut rows = Vec::new();
     for (index, (selection, case)) in plan.cases.iter().zip(&cases).enumerate() {
         rows.push(compare(selection, case, baseline, out, index)?);
+    }
+    for (index, sequence) in plan.sequences.iter().enumerate() {
+        rows.extend(sequence::compare(sequence, baseline, out, index)?);
     }
     let facts = rows
         .iter()
@@ -190,6 +207,9 @@ fn load_selection(selection: &Selection) -> Result<Case, String> {
     load_selection_from(selection, &super::launch::fixtures().join("cases"))
 }
 fn load_selection_from(selection: &Selection, cases: &Path) -> Result<Case, String> {
+    load_selection_mode(selection, cases, false)
+}
+fn load_selection_mode(selection: &Selection, cases: &Path, setup: bool) -> Result<Case, String> {
     let path = cases.join(&selection.case);
     let mut case: Case =
         serde_saphyr::from_str(&fs::read_to_string(&path).map_err(|e| e.to_string())?)
@@ -200,10 +220,24 @@ fn load_selection_from(selection: &Selection, cases: &Path) -> Result<Case, Stri
         .get(selection.step)
         .ok_or("selected step missing")?;
     assertions::prepare(step)?;
+    let mut resolved = step.clone();
+    if let Some(command) = &selection.candidate_command {
+        if step
+            .run
+            .as_ref()
+            .is_some_and(|original| original != command)
+        {
+            return Err("candidate command differs from harvested command".into());
+        }
+        resolved.run = Some(command.clone());
+    } else if resolved.run.is_none() {
+        resolved.run = resolved.mcp.clone();
+    }
+    let step = &resolved;
     step.run
         .as_ref()
-        .ok_or("selection requires a direct CLI step")?;
-    if step.expect.is_empty() {
+        .ok_or("selection requires a reviewed candidate command")?;
+    if step.expect.is_empty() && !setup {
         return Err("selection has no fact assertions".into());
     }
     for (pointer, baseline_pointer) in &selection.facts {
@@ -230,6 +264,20 @@ fn load_selection_from(selection: &Selection, cases: &Path) -> Result<Case, Stri
             .any(|p| !p.starts_with("src/"))
     {
         return Err("projection requires released command and serializer provenance".into());
+    }
+    if let Some(reason) = &selection.unsupported_command {
+        reason.validate()?;
+        if !setup
+            || !selection.baseline_command.is_empty()
+            || !selection.recordings.is_empty()
+            || !selection.facts.is_empty()
+            || !selection.pages.is_empty()
+        {
+            return Err(
+                "unsupported sequence command cannot declare released execution or facts".into(),
+            );
+        }
+        return Ok(case);
     }
     if selection.baseline_command.is_empty() {
         return Err("selection requires a baseline command".into());

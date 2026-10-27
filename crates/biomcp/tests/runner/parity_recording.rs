@@ -5,7 +5,7 @@ use serde::{Deserialize, Serialize};
 use serde_json::{Value, json};
 use std::{collections::BTreeMap, fs, path::Path};
 
-#[derive(Deserialize, Serialize)]
+#[derive(Clone, Deserialize, Serialize)]
 #[serde(deny_unknown_fields)]
 pub(super) struct Route {
     pub(super) source: String,
@@ -31,13 +31,23 @@ pub(super) fn baseline(
     out: &Path,
     index: usize,
 ) -> Result<Value, String> {
+    let env = Environment::new().map_err(|e| e.to_string())?;
+    baseline_in(selection, binary, replay, out, index, &env)
+}
+pub(super) fn baseline_in(
+    selection: &Selection,
+    binary: &Path,
+    replay: &Path,
+    out: &Path,
+    index: usize,
+    env: &Environment,
+) -> Result<Value, String> {
     let registry = registry::load()?;
     let bodies = if selection.source_free {
         Vec::new()
     } else {
         bodies(&selection.recordings, replay, out, index)?
     };
-    let env = Environment::new().map_err(|e| e.to_string())?;
     let mut args = selection.baseline_globals.clone();
     args.extend([
         "--disable-sources".into(),

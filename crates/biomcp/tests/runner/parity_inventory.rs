@@ -160,6 +160,15 @@ fn validate_references(plan: &Plan, cases: &BTreeMap<String, Case>) -> Result<()
             return Err("unknown or duplicate selected case step".into());
         }
     }
+    let mut sequences = BTreeSet::new();
+    for sequence in &plan.sequences {
+        if !cases.contains_key(&sequence.case)
+            || !sequences.insert(&sequence.case)
+            || selected.iter().any(|(name, _)| *name == &sequence.case)
+        {
+            return Err("unknown or duplicate sequence case".into());
+        }
+    }
     let mut exceptions = BTreeSet::new();
     for case in plan
         .inventory
@@ -207,15 +216,13 @@ fn classify(
             "facts":link.facts,"surfaces":surfaces,"gaps":0}));
     }
     if let Some(reason) = sequence_reason(case) {
-        return Ok(json!({"case":name,"class":"sequence","reason":reason,
-            "surfaces":surfaces,"gaps":0}));
+        return sequence_row(name, reason, plan, root, surfaces);
     }
     if let Some(entry) = plan.inventory.sequences.iter().find(|e| e.case == name) {
         if entry.reason.trim().is_empty() {
             return Err("explicit stateful case requires its scenario reason".into());
         }
-        return Ok(json!({"case":name,"class":"sequence","reason":entry.reason,
-            "surfaces":surfaces,"gaps":0}));
+        return sequence_row(name, &entry.reason, plan, root, surfaces);
     }
     if let Some(entry) = plan.inventory.pending.iter().find(|e| e.case == name) {
         if !["0300", "0301", "0302", "0303", "0304", "0305"].contains(&entry.ticket.as_str())
@@ -230,6 +237,23 @@ fn classify(
     }
     let selection = plan.cases.iter().find(|s| s.case == name && s.step == 0);
     direct(name, case, selection, root, surfaces)
+}
+fn sequence_row(
+    name: &str,
+    reason: &str,
+    plan: &Plan,
+    root: &Path,
+    surfaces: Value,
+) -> Result<Value, String> {
+    let selection = plan.sequences.iter().find(|sequence| sequence.case == name);
+    let unsafe_reason =
+        selection.and_then(|sequence| super::sequence::validate_from(sequence, root).err());
+    let complete = selection.is_some() && unsafe_reason.is_none();
+    Ok(
+        json!({"case":name,"class":if complete {"sequence"} else {"sequence_gap"},
+        "reason":reason,"surfaces":surfaces,"gaps":usize::from(!complete),
+        "unsafe_reason":unsafe_reason}),
+    )
 }
 fn sequence_reason(case: &Case) -> Option<&'static str> {
     if case.steps.len() != 1 {

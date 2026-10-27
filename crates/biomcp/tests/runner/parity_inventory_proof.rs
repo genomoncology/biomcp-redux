@@ -48,11 +48,18 @@ fn check() -> Result<(), String> {
     let sequence = json!({"story":"Ordered commands need a complete execution plan", "steps":[
         {"run":["get","gene","BRAF"], "expect":{pointer:summary}},
         {"run":["get","gene","BRAF"], "expect":{pointer:summary}}]});
-    fs::write(cases.join("braf.yaml"), serde_json::to_vec(&sequence).map_err(|e| e.to_string())?)
-        .map_err(|e| e.to_string())?;
+    fs::write(
+        cases.join("braf.yaml"),
+        serde_json::to_vec(&sequence).map_err(|e| e.to_string())?,
+    )
+    .map_err(|e| e.to_string())?;
     let path = env.root().join("sequence.json");
-    fs::write(&path, serde_json::to_vec(&json!({"baseline_release":"0.9.3","cases":[]}))
-        .map_err(|e| e.to_string())?).map_err(|e| e.to_string())?;
+    fs::write(
+        &path,
+        serde_json::to_vec(&json!({"baseline_release":"0.9.3","cases":[]}))
+            .map_err(|e| e.to_string())?,
+    )
+    .map_err(|e| e.to_string())?;
     invoke(&env, &path, false)?;
     Ok(())
 }

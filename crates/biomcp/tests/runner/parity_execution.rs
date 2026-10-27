@@ -2,7 +2,7 @@ use super::Environment;
 use serde_json::{Value, json};
 use std::{fs, path::Path, process::Stdio, time::Instant};
 
-#[derive(Default, serde::Deserialize, serde::Serialize)]
+#[derive(Clone, Default, serde::Deserialize, serde::Serialize)]
 #[serde(rename_all = "snake_case")]
 pub(super) enum JsonStream {
     #[default]
