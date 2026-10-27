@@ -45,7 +45,7 @@ pub(super) fn trials() -> Vec<Trial> {
 fn article_resolver_retries() -> Check {
     let env = Environment::new().map_err(|e| e.to_string())?;
     for command in [
-        vec!["article", "text", "33123537"],
+        vec!["article", "text", "33123537", "--part", "1"],
         vec!["article", "supplement", "33123537", "file.csv"],
     ] {
         let mut args: Vec<String> = command.into_iter().map(str::to_owned).collect();
