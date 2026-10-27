@@ -61,3 +61,18 @@ impl Problems {
         self.optional(field, value.map(text))
     }
 }
+
+/// Convert one present optional provider field, preserving invalid shapes as problems.
+pub(crate) fn field_text(
+    problems: &mut Vec<Problem>,
+    source: biomcp_types::Source,
+    record: Option<biodata::Text>,
+    field: &str,
+    value: Option<crate::raw::Field<String>>,
+) -> Option<biodata::Text> {
+    let value = value?.value().and_then(|s| text(&s).ok());
+    if value.is_none() {
+        push_problem(problems, source, record, field);
+    }
+    value
+}

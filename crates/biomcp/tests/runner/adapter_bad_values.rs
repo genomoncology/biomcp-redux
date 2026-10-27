@@ -59,7 +59,7 @@ fn clinvar() -> Result<(), String> {
     check(
         &value,
         "review_status",
-        "/result/assertions/0/review_status",
+        "/result/assertions/0/statement/strength",
     )?;
     if stub.finish()?.len() != 1 {
         return Err("unexpected ClinVar requests".into());

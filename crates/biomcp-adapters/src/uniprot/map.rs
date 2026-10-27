@@ -99,16 +99,13 @@ fn comments(
         match comment.comment_type.as_str() {
             "FUNCTION" => {
                 for value in fields(comment.texts, id, "function", problems) {
-                    &mut function.extend({
-                        let mut fields = crate::mapped::Problems {
-                            source: Source::UniProt,
-                            record: Text::new(&id.to_string()).ok(),
-                            list: std::mem::take(problems),
-                        };
-                        let value = fields.text("function", Some(&value.value));
-                        *problems = fields.list;
-                        value
-                    });
+                    function.extend(crate::mapped::field_text(
+                        problems,
+                        Source::UniProt,
+                        Text::new(&id.to_string()).ok(),
+                        "function",
+                        Some(Field::Value(value.value)),
+                    ));
                 }
             }
             "SUBCELLULAR LOCATION" => {
@@ -118,17 +115,13 @@ fn comments(
                     "subcellular_locations",
                     problems,
                 ) {
-                    &mut locations.extend({
-                        let mut fields = crate::mapped::Problems {
-                            source: Source::UniProt,
-                            record: Text::new(&id.to_string()).ok(),
-                            list: std::mem::take(problems),
-                        };
-                        let value =
-                            fields.text("subcellular_locations", Some(&value.location.value));
-                        *problems = fields.list;
-                        value
-                    });
+                    locations.extend(crate::mapped::field_text(
+                        problems,
+                        Source::UniProt,
+                        Text::new(&id.to_string()).ok(),
+                        "subcellular_locations",
+                        Some(Field::Value(value.location.value)),
+                    ));
                 }
             }
             _ => {}

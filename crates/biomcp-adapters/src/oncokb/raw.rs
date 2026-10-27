@@ -32,22 +32,17 @@ pub(super) struct Gene {
 }
 impl Gene {
     pub(super) fn mapped(self, problems: &mut Vec<biomcp_types::Problem>) -> super::GeneData {
-        let mut fields = crate::mapped::Problems {
-            source: biomcp_types::Source::Oncokb,
-            record: Text::new(&self.entrez_gene_id.to_string()).ok(),
-            list: std::mem::take(problems),
-        };
-        let mut text = |value: Option<Field<String>>, field| {
-            fields.optional(
+        let mut text = |value, field| {
+            crate::mapped::field_text(
+                problems,
+                biomcp_types::Source::Oncokb,
+                Text::new(&self.entrez_gene_id.to_string()).ok(),
                 field,
-                value.map(|value| match value {
-                    Field::Value(value) => crate::mapped::text(&value),
-                    Field::Invalid(_) => Err(BadReply),
-                }),
+                value,
             )
         };
         let _symbol = self.hugo_symbol;
-        let result = super::GeneData {
+        super::GeneData {
             card: OncokbCard {
                 gene_type: self.gene_type,
                 highest_sensitive_level: text(
@@ -73,9 +68,7 @@ impl Gene {
                     refseq: text(self.grch38_refseq, "grch38.refseq"),
                 },
             },
-        };
-        *problems = fields.list;
-        result
+        }
     }
 }
 #[derive(Deserialize)]

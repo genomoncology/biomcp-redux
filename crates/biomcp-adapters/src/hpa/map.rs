@@ -10,7 +10,13 @@ pub(super) fn expression(raw: raw::Gene, id: &EnsemblGeneId) -> Mapped<GeneExpre
         problems: Vec::new(),
     };
     let value = GeneExpression {
-        rna_tissue_specificity: map.optional_text(raw.tissue_specificity, "rna_tissue_specificity"),
+        rna_tissue_specificity: crate::mapped::field_text(
+            &mut map.problems,
+            Source::Hpa,
+            Text::new(id.base()).ok(),
+            "rna_tissue_specificity",
+            raw.tissue_specificity,
+        ),
         rna_tissue_distribution: map
             .optional_text(raw.tissue_distribution, "rna_tissue_distribution"),
         rna_tissue_ntpm: map
@@ -18,7 +24,13 @@ pub(super) fn expression(raw: raw::Gene, id: &EnsemblGeneId) -> Mapped<GeneExpre
             .into_iter()
             .map(|(tissue, ntpm)| TissueNtpm { tissue, ntpm })
             .collect(),
-        rna_cancer_specificity: map.optional_text(raw.cancer_specificity, "rna_cancer_specificity"),
+        rna_cancer_specificity: crate::mapped::field_text(
+            &mut map.problems,
+            Source::Hpa,
+            Text::new(id.base()).ok(),
+            "rna_cancer_specificity",
+            raw.cancer_specificity,
+        ),
         rna_cancer_ptpm: map
             .numbers(raw.ptpm, "rna_cancer_ptpm")
             .into_iter()
@@ -37,29 +49,20 @@ struct Mapper<'a> {
     problems: Vec<Problem>,
 }
 impl Mapper<'_> {
-    fn optional_text(&mut self, raw: Option<Field<String>>, field: &str) -> Option<Text> {
-        let mut fields = crate::mapped::Problems {
-            source: Source::Hpa,
-            record: Text::new(self.id.base()).ok(),
-            list: std::mem::take(&mut self.problems),
-        };
-        let value = fields.optional(
-            field,
-            raw.map(|v| match v {
-                Field::Value(v) => crate::mapped::text(&v),
-                Field::Invalid(_) => Err(biomcp_fetch::BadReply),
-            }),
-        );
-        self.problems = fields.list;
-        value
-    }
-
     fn list(&mut self, raw: Option<Field<Vec<Field<String>>>>, field: &str) -> Box<[Text]> {
         match raw {
             None => Box::default(),
             Some(Field::Value(values)) => values
                 .into_iter()
-                .filter_map(|value| self.optional_text(Some(value), field))
+                .filter_map(|value| {
+                    crate::mapped::field_text(
+                        &mut self.problems,
+                        Source::Hpa,
+                        Text::new(self.id.base()).ok(),
+                        field,
+                        Some(value),
+                    )
+                })
                 .collect(),
             Some(_) => {
                 crate::mapped::push_problem(

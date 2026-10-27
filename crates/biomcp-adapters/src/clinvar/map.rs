@@ -81,13 +81,13 @@ pub(super) fn submission(
     let Some(class) = record.child("Classification")? else {
         return Ok(Vec::new());
     };
-    let detail = super::detail::submission(record, problems)?;
     let attribution = attribution(
         accession,
         class.attr("DateLastEvaluated")?,
         accession.attr("SubmitterName")?,
         problems,
     )?;
+    let detail = super::detail::submission(record, problems)?;
     let review = problems.text("review_status", class.value(&["ReviewStatus"])?.as_deref());
     let mut rows = Vec::new();
     for (name, domain) in DOMAINS {
