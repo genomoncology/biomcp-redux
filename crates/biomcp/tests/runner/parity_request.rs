@@ -68,10 +68,10 @@ fn argument<'a>(args: &'a [String], flag: &str) -> Result<Option<&'a str>, Strin
         } else {
             arg.strip_prefix(&format!("{flag}="))
         };
-        if let Some(value) = value {
-            if result.replace(value).is_some() {
-                return Err("duplicate command selector".into());
-            }
+        if let Some(value) = value
+            && result.replace(value).is_some()
+        {
+            return Err("duplicate command selector".into());
         }
     }
     Ok(result)
