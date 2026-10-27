@@ -151,7 +151,7 @@ fn local() -> Check {
 fn failure() -> Check {
     let env = Environment::new().map_err(|e| e.to_string())?;
     let stub = Stub::for_source_status(
-        "api.fda.gov",
+        "ftp.ncbi.nlm.nih.gov",
         "application/json",
         |_| Ok("{}".into()),
         |_| 503,
