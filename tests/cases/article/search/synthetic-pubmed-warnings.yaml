@@ -213,6 +213,39 @@
         "--source",
         "pubmed"
       ]
+    },
+    {
+      "run": [
+        "search",
+        "article",
+        "--source",
+        "pubmed",
+        "--",
+        "-ERCC2 Ala717Gly"
+      ],
+      "mcp": [
+        "search",
+        "article",
+        "--source",
+        "pubmed",
+        "--",
+        "-ERCC2 Ala717Gly"
+      ],
+      "full_output_bytes": true,
+      "expect": {
+        "/sources/0/notices/1/name": "phrasesignored",
+        "/sources/0/notices/1/phrases": [
+          "Ala717Gly"
+        ],
+        "/next/0/args": [
+          "search",
+          "article",
+          "--source",
+          "pubmed",
+          "--",
+          "-ERCC2[Title/Abstract] AND Ala717Gly[Title/Abstract]"
+        ]
+      }
     }
   ]
 }
