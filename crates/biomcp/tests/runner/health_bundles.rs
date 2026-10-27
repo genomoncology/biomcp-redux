@@ -28,7 +28,7 @@ fn reachable() -> Check {
     let env = Environment::new().map_err(|e|e.to_string())?;
     let stub = Stub::for_sources(&["api.cpicpgx.org", "api.clinpgx.org", "ftp.ncbi.nlm.nih.gov", "extranet.who.int", "www.fda.gov", "api.fda.gov", "wonder.cdc.gov"], |_| "text/plain", |request| {
         let path = request.split_whitespace().nth(1).ok_or("no request path")?;
-        if !["/v1/gene?limit=1", "/v1/data/gene?symbol=DPYD&view=min", "/pub/GTR/data/", "/prequal/vitro-diagnostics/prequalified/in-vitro-diagnostics", "/prequal/medicines/prequalified/finished-pharmaceutical-products", "/about-fda/about-website/website-policies", "/device/pma.json?limit=1", "/device/510k.json?limit=1", "/datause.html"].contains(&path) {
+        if !["/v1/gene?limit=1", "/v1/data/clinicalAnnotation?location.genes.symbol=DPYD&view=min", "/pub/GTR/data/", "/prequal/vitro-diagnostics/prequalified/in-vitro-diagnostics", "/prequal/medicines/prequalified/finished-pharmaceutical-products", "/about-fda/about-website/website-policies", "/device/pma.json?limit=1", "/device/510k.json?limit=1", "/datause.html"].contains(&path) {
             return Err(format!("health fetched undeclared endpoint or bundle: {request}"));
         }
         Ok("publisher reachable".into())
@@ -49,6 +49,11 @@ fn reachable() -> Check {
 }
 fn local() -> Check {
     let env = Environment::new().map_err(|e|e.to_string())?;
+    let empty = env.root().join("empty");
+    std::fs::create_dir(&empty).map_err(|e| e.to_string())?;
+    let mut init = env.globals(Some(&empty), false);
+    init.extend(["health".into(), "--disable-sources".into(), disabled(&[])]);
+    invoke(&env, init, 0)?;
     let mut args = env.globals(None, true);
     args.extend(["health".into(), "--disable-sources".into(), disabled(BUNDLES)]);
     invoke(&env, args.clone(), 0)?;
