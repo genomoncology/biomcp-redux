@@ -1,6 +1,7 @@
 # 0290 — Compare generated schemas with the last released copy before release
 
-Status: OPEN.
+Status: COMPLETE.
+Landed: aa1623a05c2f43a5849da19db9023036b2d342cb
 
 Milestone: 5
 
