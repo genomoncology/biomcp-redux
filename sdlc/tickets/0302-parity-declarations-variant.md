@@ -1,6 +1,7 @@
 # 0302 — Declare Variant parity plans for 0.9.3
 
-Status: OPEN.
+Status: COMPLETE.
+Landed: 9071351337ed999c3f230d4fab76577f86cc71dd
 
 Milestone: 5
 

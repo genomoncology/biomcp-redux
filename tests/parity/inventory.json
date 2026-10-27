@@ -7,12 +7,215 @@
     "batches/gene.json",
     "batches/article.json",
     "batches/article-more.json",
-    "batches/variant.json",
-    "batches/author-orcid.json",
-    "batches/protein.json",
-    "batches/residual.json"
+    "batches/variant.json"
   ],
   "inventory": {
-    "pending": []
+    "pending": [
+      {
+        "case": "author/absent.yaml",
+        "ticket": "0303",
+        "reason": "author direct command and per-fact released projections await the assigned family declaration batch; no baseline verdict is claimed."
+      },
+      {
+        "case": "author/batch-bound.yaml",
+        "ticket": "0303",
+        "reason": "author direct command and per-fact released projections await the assigned family declaration batch; no baseline verdict is claimed."
+      },
+      {
+        "case": "author/broken-body.yaml",
+        "ticket": "0303",
+        "reason": "author direct command and per-fact released projections await the assigned family declaration batch; no baseline verdict is claimed."
+      },
+      {
+        "case": "author/empty.yaml",
+        "ticket": "0303",
+        "reason": "author direct command and per-fact released projections await the assigned family declaration batch; no baseline verdict is claimed."
+      },
+      {
+        "case": "author/error-body.yaml",
+        "ticket": "0303",
+        "reason": "author direct command and per-fact released projections await the assigned family declaration batch; no baseline verdict is claimed."
+      },
+      {
+        "case": "author/literal-whitespace-query.yaml",
+        "ticket": "0303",
+        "reason": "author direct command and per-fact released projections await the assigned family declaration batch; no baseline verdict is claimed."
+      },
+      {
+        "case": "author/ordered-cards.yaml",
+        "ticket": "0303",
+        "reason": "author direct command and per-fact released projections await the assigned family declaration batch; no baseline verdict is claimed."
+      },
+      {
+        "case": "author/papers-absent.yaml",
+        "ticket": "0303",
+        "reason": "author direct command and per-fact released projections await the assigned family declaration batch; no baseline verdict is claimed."
+      },
+      {
+        "case": "author/papers-broken-body.yaml",
+        "ticket": "0303",
+        "reason": "author direct command and per-fact released projections await the assigned family declaration batch; no baseline verdict is claimed."
+      },
+      {
+        "case": "author/papers-help.yaml",
+        "ticket": "0303",
+        "reason": "author direct command and per-fact released projections await the assigned family declaration batch; no baseline verdict is claimed."
+      },
+      {
+        "case": "author/papers-rate-limit.yaml",
+        "ticket": "0303",
+        "reason": "author direct command and per-fact released projections await the assigned family declaration batch; no baseline verdict is claimed."
+      },
+      {
+        "case": "author/papers-server-error.yaml",
+        "ticket": "0303",
+        "reason": "author direct command and per-fact released projections await the assigned family declaration batch; no baseline verdict is claimed."
+      },
+      {
+        "case": "author/papers-timeout.yaml",
+        "ticket": "0303",
+        "reason": "author direct command and per-fact released projections await the assigned family declaration batch; no baseline verdict is claimed."
+      },
+      {
+        "case": "author/rate-limit.yaml",
+        "ticket": "0303",
+        "reason": "author direct command and per-fact released projections await the assigned family declaration batch; no baseline verdict is claimed."
+      },
+      {
+        "case": "author/repeated-input.yaml",
+        "ticket": "0303",
+        "reason": "author direct command and per-fact released projections await the assigned family declaration batch; no baseline verdict is claimed."
+      },
+      {
+        "case": "author/search.yaml",
+        "ticket": "0303",
+        "reason": "author direct command and per-fact released projections await the assigned family declaration batch; no baseline verdict is claimed."
+      },
+      {
+        "case": "author/server-error.yaml",
+        "ticket": "0303",
+        "reason": "author direct command and per-fact released projections await the assigned family declaration batch; no baseline verdict is claimed."
+      },
+      {
+        "case": "author/timeout.yaml",
+        "ticket": "0303",
+        "reason": "author direct command and per-fact released projections await the assigned family declaration batch; no baseline verdict is claimed."
+      },
+      {
+        "case": "orcid/broken-body.yaml",
+        "ticket": "0303",
+        "reason": "orcid direct command and per-fact released projections await the assigned family declaration batch; no baseline verdict is claimed."
+      },
+      {
+        "case": "orcid/checksum.yaml",
+        "ticket": "0303",
+        "reason": "orcid direct command and per-fact released projections await the assigned family declaration batch; no baseline verdict is claimed."
+      },
+      {
+        "case": "orcid/error-body.yaml",
+        "ticket": "0303",
+        "reason": "orcid direct command and per-fact released projections await the assigned family declaration batch; no baseline verdict is claimed."
+      },
+      {
+        "case": "orcid/person-limited.yaml",
+        "ticket": "0303",
+        "reason": "orcid direct command and per-fact released projections await the assigned family declaration batch; no baseline verdict is claimed."
+      },
+      {
+        "case": "orcid/person-private.yaml",
+        "ticket": "0303",
+        "reason": "orcid direct command and per-fact released projections await the assigned family declaration batch; no baseline verdict is claimed."
+      },
+      {
+        "case": "orcid/person-public.yaml",
+        "ticket": "0303",
+        "reason": "orcid direct command and per-fact released projections await the assigned family declaration batch; no baseline verdict is claimed."
+      },
+      {
+        "case": "orcid/rate-limit.yaml",
+        "ticket": "0303",
+        "reason": "orcid direct command and per-fact released projections await the assigned family declaration batch; no baseline verdict is claimed."
+      },
+      {
+        "case": "orcid/server-error.yaml",
+        "ticket": "0303",
+        "reason": "orcid direct command and per-fact released projections await the assigned family declaration batch; no baseline verdict is claimed."
+      },
+      {
+        "case": "orcid/timeout.yaml",
+        "ticket": "0303",
+        "reason": "orcid direct command and per-fact released projections await the assigned family declaration batch; no baseline verdict is claimed."
+      },
+      {
+        "case": "orcid/translated-title.yaml",
+        "ticket": "0303",
+        "reason": "orcid direct command and per-fact released projections await the assigned family declaration batch; no baseline verdict is claimed."
+      },
+      {
+        "case": "adverse-event/search-policy.yaml",
+        "ticket": "0305",
+        "reason": "adverse-event direct command and per-fact released projections await the assigned family declaration batch; no baseline verdict is claimed."
+      },
+      {
+        "case": "cell-line/aliases.yaml",
+        "ticket": "0305",
+        "reason": "cell-line direct command and per-fact released projections await the assigned family declaration batch; no baseline verdict is claimed."
+      },
+      {
+        "case": "drug/disabled.yaml",
+        "ticket": "0305",
+        "reason": "drug direct command and per-fact released projections await the assigned family declaration batch; no baseline verdict is claimed."
+      },
+      {
+        "case": "drug/ema-missing.yaml",
+        "ticket": "0305",
+        "reason": "drug direct command and per-fact released projections await the assigned family declaration batch; no baseline verdict is claimed."
+      },
+      {
+        "case": "drug/who-missing.yaml",
+        "ticket": "0305",
+        "reason": "drug direct command and per-fact released projections await the assigned family declaration batch; no baseline verdict is claimed."
+      },
+      {
+        "case": "protein/absent.yaml",
+        "ticket": "0304",
+        "reason": "protein direct command and per-fact released projections await the assigned family declaration batch; no baseline verdict is claimed."
+      },
+      {
+        "case": "protein/broken-body.yaml",
+        "ticket": "0304",
+        "reason": "protein direct command and per-fact released projections await the assigned family declaration batch; no baseline verdict is claimed."
+      },
+      {
+        "case": "protein/disabled.yaml",
+        "ticket": "0304",
+        "reason": "protein direct command and per-fact released projections await the assigned family declaration batch; no baseline verdict is claimed."
+      },
+      {
+        "case": "protein/rate-limit.yaml",
+        "ticket": "0304",
+        "reason": "protein direct command and per-fact released projections await the assigned family declaration batch; no baseline verdict is claimed."
+      },
+      {
+        "case": "protein/sections/displayed-features.yaml",
+        "ticket": "0304",
+        "reason": "protein direct command and per-fact released projections await the assigned family declaration batch; no baseline verdict is claimed."
+      },
+      {
+        "case": "protein/server-error.yaml",
+        "ticket": "0304",
+        "reason": "protein direct command and per-fact released projections await the assigned family declaration batch; no baseline verdict is claimed."
+      },
+      {
+        "case": "protein/timeout.yaml",
+        "ticket": "0304",
+        "reason": "protein direct command and per-fact released projections await the assigned family declaration batch; no baseline verdict is claimed."
+      },
+      {
+        "case": "schema/errors.yaml",
+        "ticket": "0305",
+        "reason": "schema direct command and per-fact released projections await the assigned family declaration batch; no baseline verdict is claimed."
+      }
+    ]
   }
 }

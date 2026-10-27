@@ -38,7 +38,7 @@
       "variables": [
         "BIOMCP_CELLOSAURUS_BASE"
       ],
-      "delivery": "reviewed_json"
+      "delivery": "declaration_only"
     },
     "chembl": {
       "recording_source": "chembl",
@@ -380,7 +380,7 @@
       "variables": [
         "BIOMCP_ORCID_BASE"
       ],
-      "delivery": "reviewed_json"
+      "delivery": "declaration_only"
     },
     "pharmacodb": {
       "recording_source": "pharmacodb",
