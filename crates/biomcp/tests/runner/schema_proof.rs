@@ -189,6 +189,16 @@ fn discovery() -> Result<(), String> {
         let schemas = command["reply_schemas"]
             .as_array()
             .ok_or("missing reply schemas")?;
+        for (entity, reply) in [
+            ("drug", "biomcp.drug-who-card/1"),
+            ("pgx", "biomcp.pgx-annotation/1"),
+        ] {
+            if command["command"] == json!(["get", entity])
+                && !schemas.iter().any(|id| id.as_str() == Some(reply))
+            {
+                return Err(format!("missing union reply {reply} for get {entity}"));
+            }
+        }
         if matches!(
             command.pointer("/command/0").and_then(Value::as_str),
             Some(
