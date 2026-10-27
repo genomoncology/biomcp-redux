@@ -312,6 +312,11 @@ include!("generated/mod.rs");
     )?;
     rejects(
         path,
+        &wrapper.replace("dead_code", "dead_code, unused_variables"),
+        "generated exception requires only",
+    )?;
+    rejects(
+        path,
         &wrapper.replace("dead_code", "unused_imports"),
         "suppressions forbidden",
     )?;
