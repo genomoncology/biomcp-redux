@@ -38,9 +38,10 @@ fn sources(action: &Action) -> Vec<Source> {
         _ => return Vec::new(),
     };
     match request {
-        Request::ArticleRecommend(_) | Request::ArticlePdf(_) | Request::ArticleEvidence(_) => {
+        Request::ArticleRecommend(_) | Request::ArticlePdf(_) => {
             vec![Source::SemanticScholar]
         }
+        Request::ArticleEvidence(query) => evidence(query),
         Request::ArticleCitations(query) | Request::ArticleReferences(query) => {
             vec![match query.source() {
                 biomcp_types::EdgeSource::Icite => Source::Icite,
@@ -51,11 +52,8 @@ fn sources(action: &Action) -> Vec<Source> {
         Request::SearchAuthor(_) => vec![Source::SemanticScholar],
         Request::GetAuthor(query) => query.ids().iter().map(author).collect(),
         Request::AuthorPapers(query) => vec![author(query.id())],
-        Request::ArticleSupplement(_) => vec![Source::PmcOa],
-        Request::ArticleText(query) => vec![match query.input() {
-            ArticleInput::EuropePmc(_) => Source::EuropePmc,
-            _ => Source::PmcOa,
-        }],
+        Request::ArticleSupplement(query) => text(query.input()),
+        Request::ArticleText(query) => text(query.input()),
         Request::SearchArticle(query) => query
             .sources()
             .iter()
@@ -70,6 +68,27 @@ fn sources(action: &Action) -> Vec<Source> {
             .collect(),
         _ => Vec::new(),
     }
+}
+
+fn text(input: &ArticleInput) -> Vec<Source> {
+    match input {
+        ArticleInput::EuropePmc(_) => vec![Source::EuropePmc],
+        ArticleInput::Pmid(_) => vec![Source::PubMed, Source::PmcOa],
+        _ => vec![Source::PmcOa],
+    }
+}
+
+fn evidence(query: &biomcp_types::ArticleEvidence) -> Vec<Source> {
+    let mut sources = vec![Source::SemanticScholar];
+    if !matches!(query.cited(), ArticleInput::Doi(_))
+        || query.fulltext() && !matches!(query.citing(), ArticleInput::Pmcid(_))
+    {
+        sources.push(Source::PubMed);
+    }
+    if query.fulltext() {
+        sources.push(Source::PmcOa);
+    }
+    sources
 }
 
 fn article(query: &biomcp_types::ArticleGet) -> Vec<Source> {
