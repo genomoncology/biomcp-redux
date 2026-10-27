@@ -45,7 +45,7 @@ pub(super) fn descriptor(mut bytes: &[u8], limits: Limits) -> Result<()> {
                 while !packed.is_empty() { dimension(&mut packed, &mut rank, limits)?; }
                 0
             },
-            16 => { varint(&mut bytes)?; 1 },
+            16 => { if varint(&mut bytes)? > i32::MAX as u64 { return Err(bad()); } 1 },
             26 => { chunk(length(&mut bytes)?)?; 2 },
             32 => { varint(&mut bytes)?; 2 },
             _ => return Err(bad()),

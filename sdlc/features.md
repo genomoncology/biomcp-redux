@@ -180,3 +180,5 @@ housekeeping: Print build provenance and ready-to-paste local MCP configuration 
 store-coexistence: Allowed bundle reads import only names missing from the current generation through a verified atomic transfer, preserve both files, and retain current published bundles on conflicts. Cases: `crates/biomcp/tests/runner/store_coexistence.rs`.
 
 agent-skill: Agents read case-backed guidance and install managed guidance only inside an explicit directory. Cases: `crates/biomcp/tests/runner/skill.rs`.
+
+stream-tensors: Decode serialized provider tensor payloads within explicit wire and expansion bounds. Cases: `crates/biomcp-fetch/tests/tensors.rs`.
