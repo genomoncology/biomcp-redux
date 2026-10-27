@@ -13,4 +13,5 @@ Diagnostic, disease, GWAS, PGx, phenotype and drug each have at least three comp
 - Rules: direct facts only, chosen in the order the harvested cases list them, using the 0308 value-binding matcher. No new capture and no live call; a family that needs one is reported with the exact missing input and held. Released 0.9.3 is the baseline, and each regression becomes its own bug ticket.
 - Proof: a recorded run reports at least three comparable facts per family with both verdicts, or a named hold, and a reviewer checks a sample against raw outputs.
 - Changes: declarations for these families only.
+- Diagnostic: the existing six-step WHO sequence runs whole to keep its catalog sync state, and only its four source-reviewed empty-result assertions at steps 4 and 5 are compared. PGx counts its first three policy byte bounds as error-output bounds only. Disease, GWAS, phenotype and drug are named holds with their exact missing native requests (PM ruling 2026-10-27, m8126 ask 49).
 - Defers: wider coverage of these families and every held gap in the j16465 table.
