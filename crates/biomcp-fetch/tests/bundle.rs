@@ -439,11 +439,20 @@ fn fresh_bundle_refresh_is_shared_by_one_leg_and_its_batch_children() {
         server.next().respond(304, "", "");
         assert_eq!(call.join().unwrap().unwrap().len(), 1);
     });
+    let first_report = leg.take_report();
+    assert!(!first_report.stale);
+    // Reading another gene after draining the report must reuse the refreshed file.
     // No server reply is supplied: another request is an observable failure.
-    let values = leg.batch(&[(), ()], |child, ()| {
-        child.rows(&bundle, Find::Words("kinase"))
+    let values = leg.batch(&["BRAF", "MLH1"], |child, symbol| {
+        child.rows(&bundle, Find::Exact(KeyKind::Symbol, symbol))
     });
-    assert!(values.into_iter().all(|value| value.is_ok()));
+    assert_eq!(
+        values
+            .into_iter()
+            .map(|value| value.unwrap().len())
+            .collect::<Vec<_>>(),
+        [1, 0]
+    );
     assert!(server.requests.try_recv().is_err());
     let sibling = fetch
         .leg(bundle.spec, fetch.deadline(Duration::from_secs(10)))
