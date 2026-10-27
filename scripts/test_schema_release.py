@@ -1,8 +1,5 @@
 """Exercise the release schema gate through its public command."""
-import gzip
-import hashlib
 import io
-import json
 import tarfile
 from pathlib import Path
 import subprocess
@@ -29,32 +26,29 @@ class SchemaRelease(unittest.TestCase):
                     self.assertIn("schema release gate:", result.stderr)
 
     def test_public_gate_rejects_incompatible_same_major_and_accepts_real_tree(self):
-        baseline = json.loads((ROOT / "release/schema-baseline.json").read_text())
-        data = (ROOT / "release" / baseline.get("archive")).read_bytes()
-        with tempfile.TemporaryDirectory() as folder:
-            output = io.BytesIO()
-            with tarfile.open(fileobj=io.BytesIO(data), mode="r:gz") as source:
-                with tarfile.open(fileobj=output, mode="w") as target:
-                    for member in source.getmembers():
-                        content = source.extractfile(member).read()
-                        if member.name == "base.json":
-                            schema = json.loads(content)
-                            schema.update(type="integer")
-                            schema.pop("enum", None)
-                            content = json.dumps(schema).encode()
-                        member.size = len(content)
-                        target.addfile(member, io.BytesIO(content))
-            planted = gzip.compress(output.getvalue(), mtime=0)
-            baseline.update(sha256=hashlib.sha256(planted).hexdigest())
-            manifest = Path(folder) / "baseline.json"
-            manifest.write_text(json.dumps(baseline))
-            (Path(folder) / baseline.get("archive")).write_bytes(planted)
+        with tempfile.TemporaryDirectory(prefix="biomcp-schema-proof-") as folder:
+            candidate = Path(folder)
+            archive = subprocess.check_output(["git", "archive", "--format=tar", "HEAD"], cwd=ROOT)
+            with tarfile.open(fileobj=io.BytesIO(archive), mode="r:") as tree:
+                tree.extractall(candidate, filter="data")
+            # Plant a same-major narrowing in both generated types and snapshots.
+            before, after = "^[ACGTNRYSWKMBDHV]$", "^[ACGT]$"
+            source = candidate / "crates/biodata/src/variant/sequence.rs"
+            self.assertIn(before, source.read_text())
+            source.write_text(source.read_text().replace(before, after))
+            for schema in (candidate / "crates/biomcp-types/schemas").glob("*.json"):
+                schema.write_text(schema.read_text().replace(before, after))
+            # Ordinary in-tree generation accepts the jointly changed copies.
+            subprocess.run([
+                "cargo", "test", "--locked", "-p", "biomcp-types", "--features", "schema",
+                "--test", "schemas", "checked_in_schemas_match_types", "--", "--exact",
+            ], cwd=candidate, check=True)
             result = subprocess.run(
-                ["python3", str(ROOT / "scripts/schema_release.py"),
-                 "--baseline", str(manifest)], capture_output=True, text=True,
+                ["make", "schema-release-check"], cwd=candidate,
+                capture_output=True, text=True,
             )
             self.assertNotEqual(result.returncode, 0, result.stdout + result.stderr)
-            self.assertIn("base: incompatible contract", result.stdout + result.stderr)
+            self.assertIn("incompatible contract", result.stdout + result.stderr)
         subprocess.run(["make", "schema-release-check"], cwd=ROOT, check=True)
 
 

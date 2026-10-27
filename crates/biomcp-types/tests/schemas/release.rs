@@ -32,6 +32,10 @@ fn generated_schemas_preserve_release_contracts() -> Check<()> {
     Ok(())
 }
 
+#[expect(
+    clippy::disallowed_methods,
+    reason = "Read the independently supplied schema snapshot at the release contract boundary"
+)]
 fn read_baseline(root: &Path) -> Check<BTreeMap<String, Value>> {
     let mut schemas = BTreeMap::new();
     for entry in fs::read_dir(root)? {

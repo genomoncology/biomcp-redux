@@ -27,8 +27,8 @@ def load_baseline(path):
         raise ValueError("baseline manifest fields differ")
     if not re.fullmatch(r"[0-9]+\.[0-9]+\.[0-9]+", str(metadata.get("version"))):
         raise ValueError("invalid baseline version")
-    if metadata.get("status") not in ("release-candidate", "released"):
-        raise ValueError("baseline status must identify a candidate or released set")
+    if metadata.get("status") not in ("provisional-candidate", "release-candidate", "released"):
+        raise ValueError("baseline status must identify a provisional candidate, release candidate or released set")
     if not re.fullmatch(r"[0-9a-f]{40}", str(metadata.get("source_commit"))):
         raise ValueError("invalid baseline source commit")
     archive = metadata.get("archive")
