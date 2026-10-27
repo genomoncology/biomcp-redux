@@ -186,8 +186,24 @@ fn discovery() -> Result<(), String> {
         .ok_or("missing commands")?;
     let mut replies = std::collections::BTreeSet::new();
     for command in commands {
-        let schemas = command["reply_schemas"].as_array().ok_or("missing reply schemas")?;
-        if matches!(command["command"][0].as_str(), Some("get" | "search" | "article" | "trial" | "variant" | "protein" | "pathway" | "author" | "cell-line")) && schemas.is_empty() {
+        let schemas = command["reply_schemas"]
+            .as_array()
+            .ok_or("missing reply schemas")?;
+        if matches!(
+            command["command"][0].as_str(),
+            Some(
+                "get"
+                    | "search"
+                    | "article"
+                    | "trial"
+                    | "variant"
+                    | "protein"
+                    | "pathway"
+                    | "author"
+                    | "cell-line"
+            )
+        ) && schemas.is_empty()
+        {
             return Err(format!("missing reply schemas for {}", command["command"]));
         }
         for id in schemas {
