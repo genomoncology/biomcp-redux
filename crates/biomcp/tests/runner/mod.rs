@@ -58,6 +58,7 @@ mod hpo_registry;
 mod http;
 mod http_limits;
 mod key_help;
+mod public_grammar;
 mod key_registration;
 mod key_reload;
 mod launch;
@@ -338,6 +339,7 @@ pub(super) fn protocol_trials() -> Vec<Trial> {
     trials.extend(openfda_key::trials());
     trials.push(openfda_website::trial());
     trials.extend(key_help::trials());
+    trials.extend(public_grammar::trials());
     trials.extend(scholar::trials());
     trials.extend(evidence::trials());
     trials.extend(pdf::trials());
