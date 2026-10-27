@@ -13,7 +13,11 @@ impl Application {
         let name = self
             .products
             .first()
-            .filter(|first| self.products.iter().all(|p| p.brand_name == first.brand_name))
+            .filter(|first| {
+                self.products
+                    .iter()
+                    .all(|p| p.brand_name == first.brand_name)
+            })
             .map(|product| product.brand_name.clone());
         DrugFdaCandidate {
             id: identity.id.clone(),
