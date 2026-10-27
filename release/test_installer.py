@@ -215,7 +215,7 @@ class Installer(unittest.TestCase):
                 for name in ["curl", "wget"]:
                     (self.bin / name).unlink(missing_ok=True)
                 (self.bin / tool).symlink_to(executable)
-                for name in ["mktemp", "mkdir", "rm", "tr", "tar", "cp", "chmod", "mv", "shasum", "sha256sum", "openssl"]:
+                for name in ["mktemp", "mkdir", "rm", "tr", "tar", "gzip", "cp", "chmod", "mv", "shasum", "sha256sum", "openssl"]:
                     source = shutil.which(name, path=os.defpath)
                     if source and not (self.bin / name).exists():
                         (self.bin / name).symlink_to(source)
