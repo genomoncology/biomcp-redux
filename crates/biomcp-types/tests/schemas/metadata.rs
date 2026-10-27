@@ -22,6 +22,10 @@ fn generated_metadata_preserves_partial_dates_and_describes_error_codes() {
     let date = generate::<PartialDate>();
     assert_eq!(date["pattern"], r"^[0-9]{4}(-[0-9]{2}(-[0-9]{2})?)?$");
     assert!(date.get("format").is_none());
+    let full_dates = generate::<biomcp_types::AdverseEventSearch>();
+    for field in ["received_from", "received_to"] {
+        assert_eq!(full_dates["properties"][field]["format"], "date");
+    }
     let timestamp = generate::<biodata::StudyImportTime>();
     assert!(
         timestamp.get("format").is_none(),
@@ -38,6 +42,8 @@ fn generated_metadata_preserves_partial_dates_and_describes_error_codes() {
 fn generated_links_expose_uri_metadata() {
     // These are source-owned record links, not fields guessed from their spelling.
     let links: &[(&str, &[(&str, &str)])] = &[
+        ("VariantComponent", &[("license", "uri")]),
+        ("StudyFiles", &[("license_notice", "uri")]),
         (
             "AdverseEventFaersCard",
             &[("source_url", "uri"), ("report_url", "uri")],

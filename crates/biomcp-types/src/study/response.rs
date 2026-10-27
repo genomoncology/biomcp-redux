@@ -97,6 +97,7 @@ pub struct StudyFiles {
     pub acquired: u64,
     /// Native LICENSE publisher link, independent of the current file page.
     #[serde(default, skip_serializing_if = "Option::is_none")]
+    #[cfg_attr(feature = "schema", schemars(extend("format" = "uri")))]
     pub license_notice: Option<Text>,
 }
 impl ResponseBody for StudyFiles {

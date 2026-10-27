@@ -37,7 +37,7 @@ crate::text_value!(
     ClinPgxAccession,
     "ClinPgxAccession",
     r"^PA[1-9][0-9]*$",
-    "A ClinPGx object accession, distinct from the protein allele namespace PaId. The namespaces overlap in spelling; a source-given ClinPGx object is never converted to a protein allele. ```compile_fail let accession: biodata::ClinPgxAccession = \"PA166134421\".parse().unwrap(); let allele: biodata::PaId = accession; ```"
+    "A ClinPGx object accession, distinct from the protein allele namespace PaId."
 );
 
 /// Exact JSON gene key; ordering preserves spelling and never merges differently cased source keys.
