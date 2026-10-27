@@ -286,7 +286,11 @@ fn prepare_litvar<'a>(
                 super::empty_litvar::recover(query, out);
             }
             for candidate in &candidates {
-                for variant in candidate.rsid.iter().chain(std::iter::once(&candidate.name)) {
+                for variant in candidate
+                    .rsid
+                    .iter()
+                    .chain(std::iter::once(&candidate.name))
+                {
                     if query.variant() == Some(variant) {
                         continue;
                     }

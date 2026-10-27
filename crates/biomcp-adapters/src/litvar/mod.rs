@@ -141,13 +141,10 @@ impl Candidate {
 impl Reply for Candidates {
     fn check(&self) -> Result<(), BadReply> {
         if self.0.len() > 10_000
-            || self
-                .0
-                .iter()
-                .any(|c| {
-                    PathSegment::new(&c.id).is_err()
-                        || c.rsid.as_ref().is_some_and(|rsid| !is_rsid(rsid.as_str()))
-                })
+            || self.0.iter().any(|c| {
+                PathSegment::new(&c.id).is_err()
+                    || c.rsid.as_ref().is_some_and(|rsid| !is_rsid(rsid.as_str()))
+            })
         {
             return Err(BadReply);
         }

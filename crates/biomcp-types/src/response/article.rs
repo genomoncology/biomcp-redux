@@ -110,6 +110,7 @@ biodata::canonical_enum! {
 pub struct LitVarCandidate {
     /// Source rsID, when the source associates one with this variant.
     #[serde(default, skip_serializing_if = "Option::is_none")]
+    #[cfg_attr(feature = "schema", schemars(with = "crate::Text"))]
     pub rsid: Option<crate::Text>,
     /// Source gene symbols.
     pub gene: Vec<crate::Text>,
