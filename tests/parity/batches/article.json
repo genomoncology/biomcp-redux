@@ -244,13 +244,14 @@
           "request_prefix": "GET /europepmc/webservices/rest/search",
           "request_contains": "",
           "request_query": {
-            "query": "AKT1 E17K AND OPEN_ACCESS:y NOT SRC:PPR NOT PUB_TYPE:\"retracted publication\""
+            "query": "AKT1 E17K AND OPEN_ACCESS:y AND NOT SRC:PPR AND NOT PUB_TYPE:\"retracted publication\""
           },
           "capture": "europepmc/8fe1869d09ff03cdf5b68a2eed23796d4b86439f9eef6351d37130dea3189e15.json"
         }
       ],
       "facts": {
-        "/result/items": "/results"
+        "/result/items": "/results",
+        "/sources/0/count": "/pagination/total"
       },
       "unprojectable_facts": {
         "/status": {
@@ -258,10 +259,6 @@
           "release_source": "src/entities/article/mod.rs"
         },
         "/sources/0/term": {
-          "reason": "Released search metadata uses a different source-plan/status schema and does not retain this current per-source term/count/notice or query shape.",
-          "release_source": "src/entities/article/mod.rs"
-        },
-        "/sources/0/count": {
           "reason": "Released search metadata uses a different source-plan/status schema and does not retain this current per-source term/count/notice or query shape.",
           "release_source": "src/entities/article/mod.rs"
         }
@@ -352,7 +349,7 @@
           "request_contains": "",
           "request_query": {
             "db": "pubmed",
-            "term": "AKT1 AND Carpten[au]"
+            "term": "AKT1 AND \"Carpten\"[author]"
           },
           "capture": "pubmed/7fbd8792e949f493467bdff1276a06ba647ee1643fff52c558eb5a27826d0592.json"
         },
@@ -415,7 +412,7 @@
           "request_contains": "",
           "request_query": {
             "db": "pubmed",
-            "term": "AKT1 E17K AND Nature[ta]"
+            "term": "AKT1 E17K AND \"Nature\"[journal]"
           },
           "capture": "pubmed/1d6034a8b3186ca9d7383f08d6b45427e0fecae126017535a9f484da71abb551.json"
         },
@@ -492,7 +489,9 @@
           "request_contains": "",
           "request_query": {
             "db": "pubmed",
-            "term": "AKT1 E17K AND 1800:2010[dp]"
+            "term": "AKT1 E17K",
+            "datetype": "pdat",
+            "maxdate": "2010"
           },
           "capture": "pubmed/c6af82c6bd0443c96c13b78ef4d0c0b486d1620c665493824f64df7747a9d494.json"
         }
@@ -812,19 +811,14 @@
         "release_source": "src/cli/article/mod.rs::ArticleCommand"
       },
       {
-        "case": "article/filters/exclude-retracted.yaml",
-        "reason": "All asserted questions concern current lifecycle, source notices, pooled annotation state or resolution metadata absent from released Article serialization. No asserted released content field remains to compare.",
-        "release_source": "src/entities/article/mod.rs"
-      },
-      {
         "case": "article/filters/no-preprints.yaml",
-        "reason": "All asserted questions concern current lifecycle, source notices, pooled annotation state or resolution metadata absent from released Article serialization. No asserted released content field remains to compare.",
-        "release_source": "src/entities/article/mod.rs"
+        "reason": "Released PubMed-only search explicitly rejects --no-preprints. Choosing Europe PMC or all would change the harvested PubMed question.",
+        "release_source": "src/entities/article/backends.rs::search_pubmed_page_with_context"
       },
       {
         "case": "article/filters/open-access.yaml",
-        "reason": "All asserted questions concern current lifecycle, source notices, pooled annotation state or resolution metadata absent from released Article serialization. No asserted released content field remains to compare.",
-        "release_source": "src/entities/article/mod.rs"
+        "reason": "Released PubMed-only search explicitly rejects --open-access. Choosing Europe PMC or all would change the harvested PubMed question.",
+        "release_source": "src/entities/article/backends.rs::search_pubmed_page_with_context"
       },
       {
         "case": "article/filters/trial.yaml",
