@@ -22,6 +22,7 @@ pub(super) fn aggregate(
     conditions: Vec<AssertionCondition>,
     problems: &mut crate::mapped::Problems,
 ) -> Result<Vec<VariantAssertion>, BadReply> {
+    problems.record = record.attr("Accession")?.as_deref().map(text).transpose()?;
     let mut rows = Vec::new();
     for (name, domain) in DOMAINS {
         let Some(group) = class.child(name)? else {
