@@ -216,6 +216,10 @@ impl Fetch {
         })
     }
 
+    /// Whether this command explicitly forbids upstream requests.
+    pub fn is_offline(&self) -> bool {
+        matches!(self.mode, Mode::Offline)
+    }
     /// Whether the explicit source policy prevents every read and request.
     pub fn disabled(&self, source: biomcp_types::Source) -> bool {
         self.disabled_sources.contains(&source)

@@ -114,9 +114,26 @@ pub fn disabled(names: &[String]) -> Result<BTreeSet<Source>, biodata::Error> {
     Ok(disabled)
 }
 
-/// One bounded read-only endpoint for each implemented source; never a data synchronization.
-/// Paths stay relative to the source declaration, and replies bypass the data cache.
+/// Whether the publisher was reached or has no admitted small health probe.
+#[derive(Clone, Copy, Debug, Eq, PartialEq)]
+pub enum ProbeOutcome {
+    /// One bounded publisher request succeeded.
+    Reachable,
+    /// No safe small publisher probe is available for this release.
+    Unavailable,
+}
+/// One bounded source probe. Unavailable capability is distinct from a failed publisher.
 pub fn probe(
+    spec: &'static SourceSpec,
+    leg: &biomcp_fetch::Leg<'_>,
+) -> Result<ProbeOutcome, biomcp_fetch::RequestError> {
+    if spec.source == Source::Hgnc {
+        return Ok(ProbeOutcome::Unavailable);
+    }
+    request_probe(spec, leg).map(|()| ProbeOutcome::Reachable)
+}
+/// One bounded read-only endpoint, never a data synchronization.
+fn request_probe(
     spec: &'static SourceSpec,
     leg: &biomcp_fetch::Leg<'_>,
 ) -> Result<(), biomcp_fetch::RequestError> {
@@ -225,7 +242,6 @@ fn get_probe(source: Source) -> Option<(&'static str, ProbeParams)> {
             "/trials",
             vec![("size", Arg::Num(1)), ("include", Arg::Text("none"))],
         ),
-        Source::Hgnc => ("/withdrawn.txt", vec![]),
         Source::MyGene => ("/metadata", vec![]),
         Source::Reactome => ("/data/database/version", vec![]),
         Source::WikiPathways => ("/help.html", vec![]),
@@ -355,6 +371,10 @@ pub fn bundle_state(
     leg: &biomcp_fetch::Leg<'_>,
 ) -> Result<Option<biomcp_types::LocalBundleState>, biomcp_fetch::RequestError> {
     let state = match spec.source {
+        Source::Ema => crate::ema::bundle_state(leg)?,
+        Source::Ddinter => crate::ddinter::bundle_state(leg)?,
+        Source::Cbioportal => crate::cbioportal::bundle_state(leg)?,
+        Source::WikiPathways => crate::wikipathways::bundle_state(leg)?,
         Source::Hgnc => crate::hgnc::bundle_state(leg)?,
         Source::ClinGen => crate::clingen::bundle_state(leg)?,
         Source::Gtr => crate::gtr::bundle_state(leg)?,

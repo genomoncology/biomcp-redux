@@ -123,3 +123,8 @@ pub fn interactions(
         },
     }))
 }
+
+/// Inspect this source's validated local catalog without reading rows or synchronizing.
+pub(crate) fn bundle_state(leg: &Leg<'_>) -> Result<biomcp_types::LocalBundleState, RequestError> {
+    PAIRS.state(leg)
+}
