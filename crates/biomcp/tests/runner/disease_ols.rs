@@ -221,9 +221,9 @@ fn exact() -> Result<(), String> {
         &directory,
         &[
             "## Result",
-            "MONDO:0007607",
-            "Complete synthetic definition.",
-            "MONDO:0800444",
+            "MONDO&#58;0007607",
+            "Complete synthetic definition&#46;",
+            "MONDO&#58;0800444",
             "MONDO:0800445",
             "biomcp get disease",
         ],
