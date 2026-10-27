@@ -90,6 +90,8 @@ fn coding() -> Result<(), String> {
     for (notation, expected) in [
         ("NM_001199291.2:c.1619A>G", true),
         ("NM_001199291.2(HSD17B4):c.1619A>G", true),
+        ("NC_000005.9(NM_001199291.2):c.1619A>G", true),
+        ("NC_000005.9(NM_001199291.3):c.1619A>G", false),
         ("NM_001199291.3:c.1619A>G", false),
     ] {
         let value = run(&env, &["get", "variant", notation])?;
