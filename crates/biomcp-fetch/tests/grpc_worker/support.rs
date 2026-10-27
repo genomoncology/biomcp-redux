@@ -284,3 +284,55 @@ async fn reply(
     stream.send_trailers(trailers)?;
     Ok(())
 }
+
+pub(super) struct Call {
+    thread: Option<thread::JoinHandle<Result<(), biomcp_fetch::RequestError>>>,
+    pub(super) end: std::time::Instant,
+}
+impl Call {
+    pub(super) fn start(
+        fetch: biomcp_fetch::Fetch,
+        source: &'static SourceSpec,
+        budget: Duration,
+    ) -> Check<Self> {
+        let (started, start) = mpsc::sync_channel(1);
+        let thread = thread::Builder::new()
+            .name("fixture-caller".into())
+            .spawn(move || {
+                let deadline = fetch.deadline(budget);
+                // Receiver closure means the owning test has already failed.
+                let _ = started.send(std::time::Instant::now() + deadline.remaining());
+                fetch.leg(source, deadline).grpc(
+                    &source.grpc("/synthetic.Tensor/Exchange"),
+                    &[],
+                    |_| Ok(()),
+                )
+            })?;
+        let mut call = Self {
+            thread: Some(thread),
+            end: std::time::Instant::now(),
+        };
+        call.end = start.recv_timeout(Duration::from_secs(5))?;
+        Ok(call)
+    }
+    pub(super) fn is_finished(&self) -> bool {
+        self.thread
+            .as_ref()
+            .is_none_or(thread::JoinHandle::is_finished)
+    }
+    pub(super) fn finish(mut self) -> Check<Result<(), biomcp_fetch::RequestError>> {
+        Ok(self
+            .thread
+            .take()
+            .ok_or("missing caller")?
+            .join()
+            .map_err(|_| "caller panicked")?)
+    }
+}
+impl Drop for Call {
+    fn drop(&mut self) {
+        if let Some(thread) = self.thread.take() {
+            let _ = thread.join();
+        }
+    }
+}

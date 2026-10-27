@@ -41,7 +41,7 @@ fn stream_worker_offline_never_opens_a_connection() {
 
 #[path = "grpc_worker/support.rs"]
 mod support;
-use support::{Check, Fixture, Hold, Seen};
+use support::{Call, Check, Fixture, Hold, Seen};
 
 #[test]
 fn stream_worker_uses_added_trust_and_filters_provider_metadata() -> Check {
@@ -150,7 +150,9 @@ fn stream_worker_routes_explicit_environment_and_bypass_proxies() -> Check {
         } else {
             let connect = connect.unwrap();
             assert!(connect.starts_with("CONNECT synthetic.test:443 HTTP/1.1"));
-            assert!(connect.contains("Proxy-Authorization: Basic "));
+            assert!(
+                connect.contains("Proxy-Authorization: Basic dXNlcjpzeW50aGV0aWMtcHJveHk=\r\n")
+            );
         }
         fixture.finish()?;
     }
@@ -330,35 +332,25 @@ fn stream_worker_holds_the_shared_permit_until_stream_cancellation() -> Check {
     })?;
     let first_source = first.source(false, KeyUse::None);
     let second_source = second.source(false, KeyUse::None);
-    let end = fetch.deadline(Duration::from_secs(2));
-    std::thread::scope(|scope| -> Check {
-        let first_call = scope.spawn(|| {
-            fetch.leg(first_source, end).grpc(
-                &first_source.grpc("/synthetic.Tensor/Exchange"),
-                &[],
-                |_| Ok(()),
-            )
-        });
-        first.wait_message()?;
-        fetch
-            .leg(second_source, fetch.deadline(Duration::from_secs(4)))
-            .grpc(
-                &second_source.grpc("/synthetic.Tensor/Exchange"),
-                &[],
-                |_| {
-                    assert!(
-                        end.expired(),
-                        "second stream bypassed the first stream's permit"
-                    );
-                    Ok(())
-                },
-            )?;
-        let error = first_call.join().unwrap().unwrap_err();
-        assert!(
-            matches!(error, biomcp_fetch::RequestError::Source(error) if error.reason == Reason::DeadlineExceeded)
-        );
-        Ok(())
-    })?;
+    let first_call = Call::start(fetch.clone(), first_source, Duration::from_secs(2))?;
+    first.wait_message()?;
+    fetch
+        .leg(second_source, fetch.deadline(Duration::from_secs(4)))
+        .grpc(
+            &second_source.grpc("/synthetic.Tensor/Exchange"),
+            &[],
+            |_| {
+                assert!(
+                    std::time::Instant::now() >= first_call.end,
+                    "second stream bypassed the first stream's permit"
+                );
+                Ok(())
+            },
+        )?;
+    let error = first_call.finish()?.unwrap_err();
+    assert!(
+        matches!(error, biomcp_fetch::RequestError::Source(error) if error.reason == Reason::DeadlineExceeded)
+    );
     first.finish()?;
     second.finish()
 }
@@ -371,23 +363,16 @@ fn stream_worker_shutdown_cancels_and_joins_active_network_work() -> Check {
         ..Default::default()
     })?;
     let source = fixture.source(false, KeyUse::None);
-    std::thread::scope(|scope| -> Check {
-        let call = scope.spawn(|| {
-            fetch
-                .leg(source, fetch.deadline(Duration::from_secs(5)))
-                .grpc(&source.grpc("/synthetic.Tensor/Exchange"), &[], |_| Ok(()))
-        });
-        fixture.wait_request()?;
-        fetch.shutdown_grpc();
-        assert!(call.join().unwrap().is_err());
-        assert!(
-            fetch
-                .leg(source, fetch.deadline(Duration::from_secs(1)))
-                .grpc(&source.grpc("/synthetic.Tensor/Exchange"), &[], |_| Ok(()))
-                .is_err()
-        );
-        Ok(())
-    })?;
+    let call = Call::start(fetch.clone(), source, Duration::from_secs(5))?;
+    fixture.wait_request()?;
+    fetch.shutdown_grpc();
+    assert!(call.finish()?.is_err());
+    assert!(
+        fetch
+            .leg(source, fetch.deadline(Duration::from_secs(1)))
+            .grpc(&source.grpc("/synthetic.Tensor/Exchange"), &[], |_| Ok(()))
+            .is_err()
+    );
     assert_eq!(fixture.count.load(std::sync::atomic::Ordering::SeqCst), 1);
     fixture.finish()
 }
@@ -413,30 +398,23 @@ fn stream_worker_queue_deadlines_return_without_waiting_for_another_stream() -> 
     let (first_fetch, cancel) = fetch.cancellable()?;
     let source = fixture.source(false, KeyUse::None);
     let queued = fixture.with_quota(false, KeyUse::None, &QUEUE_QUOTA);
-    std::thread::scope(|scope| -> Check {
-        let first = scope.spawn(|| {
-            first_fetch
-                .leg(source, first_fetch.deadline(Duration::from_secs(5)))
-                .grpc(&source.grpc("/synthetic.Tensor/Exchange"), &[], |_| Ok(()))
-        });
-        fixture.wait_message()?;
-        for _ in 0..2 {
-            let error = fetch
-                .leg(queued, fetch.deadline(Duration::from_millis(100)))
-                .grpc(&queued.grpc("/synthetic.Tensor/Exchange"), &[], |_| Ok(()))
-                .unwrap_err();
-            assert!(
-                matches!(error, biomcp_fetch::RequestError::Source(error) if error.reason == Reason::DeadlineExceeded)
-            );
-            assert!(
-                !first.is_finished(),
-                "queued caller waited for the unrelated active stream"
-            );
-        }
-        cancel.cancel();
-        assert!(first.join().unwrap().is_err());
-        Ok(())
-    })?;
+    let first = Call::start(first_fetch, source, Duration::from_secs(5))?;
+    fixture.wait_message()?;
+    for _ in 0..2 {
+        let error = fetch
+            .leg(queued, fetch.deadline(Duration::from_millis(100)))
+            .grpc(&queued.grpc("/synthetic.Tensor/Exchange"), &[], |_| Ok(()))
+            .unwrap_err();
+        assert!(
+            matches!(error, biomcp_fetch::RequestError::Source(error) if error.reason == Reason::DeadlineExceeded)
+        );
+        assert!(
+            !first.is_finished(),
+            "queued caller waited for the unrelated active stream"
+        );
+    }
+    cancel.cancel();
+    assert!(first.finish()?.is_err());
     assert_eq!(fixture.count.load(std::sync::atomic::Ordering::SeqCst), 1);
     fixture.finish()
 }
