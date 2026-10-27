@@ -13,7 +13,6 @@
         "fda-cdx"
       ],
       "max_bytes": 354,
-      "max_tokens": 89,
       "expect": {
         "/schema": "biomcp.sync/4",
         "/result/rows": 9
@@ -33,7 +32,6 @@
         "fda-cdx"
       ],
       "max_bytes": 7486,
-      "max_tokens": 1872,
       "expect": {
         "/schema": "biomcp.diagnostic_companion/1",
         "/page/offset": 0,
@@ -63,7 +61,6 @@
         "fda-cdx"
       ],
       "max_bytes": 5917,
-      "max_tokens": 1480,
       "expect": {
         "/schema": "biomcp.diagnostic_companion/1",
         "/page/offset": 5,
@@ -89,7 +86,6 @@
         "P200010"
       ],
       "max_bytes": 8163,
-      "max_tokens": 2041,
       "expect": {
         "/schema": "biomcp.diagnostic_companion/1",
         "/page/offset": 0,
@@ -123,7 +119,6 @@
         "fda-cdx"
       ],
       "max_bytes": 1635,
-      "max_tokens": 409,
       "expect": {
         "/schema": "biomcp.diagnostic_companion/1",
         "/page/offset": 5,
@@ -149,7 +144,6 @@
         "P200010/S026"
       ],
       "max_bytes": 2100,
-      "max_tokens": 525,
       "expect": {
         "/schema": "biomcp.diagnostic_companion/1",
         "/page/offset": 0,
@@ -176,7 +170,6 @@
         "P150013/S020"
       ],
       "max_bytes": 2846,
-      "max_tokens": 712,
       "expect": {
         "/schema": "biomcp.diagnostic_companion/1",
         "/page/offset": 0,
@@ -202,7 +195,6 @@
         "KRAS"
       ],
       "max_bytes": 7641,
-      "max_tokens": 1911,
       "expect": {
         "/schema": "biomcp.diagnostic_companion/1",
         "/page/offset": 0,
@@ -237,7 +229,6 @@
         "fda-cdx"
       ],
       "max_bytes": 4990,
-      "max_tokens": 1248,
       "expect": {
         "/schema": "biomcp.diagnostic_companion/1",
         "/page/offset": 5,
@@ -257,7 +248,6 @@
         "fda-cdx"
       ],
       "max_bytes": 394,
-      "max_tokens": 99,
       "expect": {
         "/schema": "biomcp.help/2",
         "/result/commands/0/command": [
@@ -278,7 +268,6 @@
         "diagnostic"
       ],
       "max_bytes": 2654,
-      "max_tokens": 664,
       "expect": {
         "/schema": "biomcp.help/2",
         "/result/commands/0/command": [
@@ -299,7 +288,6 @@
         "--fresh"
       ],
       "max_bytes": 354,
-      "max_tokens": 89,
       "expect": {
         "/schema": "biomcp.sync/4",
         "/result/rows": 9

@@ -13,7 +13,6 @@
         "/status": "complete"
       },
       "max_bytes": 1578,
-      "max_tokens": 395,
       "mcp": [
         "search",
         "pathway",
@@ -31,7 +30,6 @@
         "/status": "complete"
       },
       "max_bytes": 1563,
-      "max_tokens": 391,
       "mcp": [
         "search",
         "pathway",
@@ -63,8 +61,7 @@
         "/result/pathway/version": "R-HSA-9652817.2",
         "/result/release": "97"
       },
-      "max_bytes": 707,
-      "max_tokens": 178
+      "max_bytes": 707
     },
     {
       "run": [
@@ -90,8 +87,7 @@
         "/result/pathway/version": "R-HSA-177929.6",
         "/result/release": "97"
       },
-      "max_bytes": 690,
-      "max_tokens": 173
+      "max_bytes": 690
     }
   ]
 }

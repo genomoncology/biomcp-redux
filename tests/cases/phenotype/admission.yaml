@@ -27,8 +27,7 @@
         "/error/code": "usage.arguments",
         "/error/message": "expected a supported command with checked arguments"
       },
-      "max_bytes": 166,
-      "max_tokens": 42
+      "max_bytes": 166
     },
     {
       "run": [
@@ -55,8 +54,7 @@
         "/error/code": "usage.arguments",
         "/error/message": "expected a supported command with checked arguments"
       },
-      "max_bytes": 166,
-      "max_tokens": 42
+      "max_bytes": 166
     },
     {
       "run": [
@@ -83,8 +81,7 @@
         "/error/code": "usage.arguments",
         "/error/message": "expected a supported command with checked arguments"
       },
-      "max_bytes": 166,
-      "max_tokens": 42
+      "max_bytes": 166
     },
     {
       "run": [
@@ -105,8 +102,7 @@
         "/error/code": "usage.arguments",
         "/error/message": "expected a supported command with checked arguments"
       },
-      "max_bytes": 166,
-      "max_tokens": 42
+      "max_bytes": 166
     },
     {
       "run": [
@@ -127,8 +123,7 @@
         "/error/code": "usage.arguments",
         "/error/message": "expected a supported command with checked arguments"
       },
-      "max_bytes": 166,
-      "max_tokens": 42
+      "max_bytes": 166
     },
     {
       "run": [
@@ -149,8 +144,7 @@
         "/error/code": "usage.arguments",
         "/error/message": "expected a supported command with checked arguments"
       },
-      "max_bytes": 166,
-      "max_tokens": 42
+      "max_bytes": 166
     },
     {
       "run": [
@@ -175,8 +169,7 @@
         "/error/code": "usage.arguments",
         "/error/message": "expected a supported command with checked arguments"
       },
-      "max_bytes": 166,
-      "max_tokens": 42
+      "max_bytes": 166
     },
     {
       "run": [
@@ -201,8 +194,7 @@
         "/error/code": "usage.arguments",
         "/error/message": "expected a supported command with checked arguments"
       },
-      "max_bytes": 166,
-      "max_tokens": 42
+      "max_bytes": 166
     },
     {
       "run": [
@@ -227,8 +219,7 @@
         "/error/code": "usage.arguments",
         "/error/message": "expected a supported command with checked arguments"
       },
-      "max_bytes": 166,
-      "max_tokens": 42
+      "max_bytes": 166
     },
     {
       "run": [
@@ -253,8 +244,7 @@
         "/error/code": "usage.arguments",
         "/error/message": "expected a supported command with checked arguments"
       },
-      "max_bytes": 166,
-      "max_tokens": 42
+      "max_bytes": 166
     },
     {
       "run": [
@@ -279,8 +269,7 @@
         "/error/code": "usage.arguments",
         "/error/message": "expected a supported command with checked arguments"
       },
-      "max_bytes": 166,
-      "max_tokens": 42
+      "max_bytes": 166
     },
     {
       "run": [
@@ -307,8 +296,7 @@
         "/error/code": "usage.arguments",
         "/error/message": "expected a supported command with checked arguments"
       },
-      "max_bytes": 166,
-      "max_tokens": 42
+      "max_bytes": 166
     },
     {
       "run": [
@@ -335,8 +323,7 @@
         "/error/code": "usage.arguments",
         "/error/message": "expected a supported command with checked arguments"
       },
-      "max_bytes": 166,
-      "max_tokens": 42
+      "max_bytes": 166
     },
     {
       "run": [
@@ -363,8 +350,7 @@
         "/error/code": "usage.arguments",
         "/error/message": "expected a supported command with checked arguments"
       },
-      "max_bytes": 166,
-      "max_tokens": 42
+      "max_bytes": 166
     },
     {
       "run": [
@@ -391,8 +377,7 @@
         "/error/code": "usage.arguments",
         "/error/message": "expected a supported command with checked arguments"
       },
-      "max_bytes": 166,
-      "max_tokens": 42
+      "max_bytes": 166
     },
     {
       "run": [
@@ -419,8 +404,7 @@
         "/error/code": "usage.arguments",
         "/error/message": "expected a supported command with checked arguments"
       },
-      "max_bytes": 166,
-      "max_tokens": 42
+      "max_bytes": 166
     }
   ]
 }

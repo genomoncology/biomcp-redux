@@ -21,7 +21,6 @@
         "litsense"
       ],
       "max_bytes": 5514,
-      "max_tokens": 1379,
       "expect": {
         "/status": "complete",
         "/page/total": 7,
@@ -55,8 +54,7 @@
         "/result/items": {
           "count": 7
         }
-      },
-      "max_tokens": 1379
+      }
     }
   ]
 }

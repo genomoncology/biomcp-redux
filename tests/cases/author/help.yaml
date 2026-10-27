@@ -32,8 +32,7 @@
         "/result/commands/0/sections": []
       },
       "full_output_bytes": true,
-      "max_bytes": 1954,
-      "max_tokens": 489
+      "max_bytes": 1954
     },
     {
       "run": [
@@ -60,8 +59,7 @@
         "/result/commands/0/sections": []
       },
       "full_output_bytes": true,
-      "max_bytes": 1405,
-      "max_tokens": 352
+      "max_bytes": 1405
     },
     {
       "run": [
@@ -78,8 +76,7 @@
         }
       },
       "full_output_bytes": true,
-      "max_bytes": 5446,
-      "max_tokens": 1362
+      "max_bytes": 5446
     },
     {
       "mcp": [
@@ -96,8 +93,7 @@
         }
       },
       "full_output_bytes": true,
-      "max_bytes": 5445,
-      "max_tokens": 1362
+      "max_bytes": 5445
     }
   ]
 }
