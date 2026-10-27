@@ -4,7 +4,7 @@ set -eu
 test -n "$BUILD_IMAGE"
 revision=$(git rev-parse HEAD)
 mkdir -p .release-cache/cargo
-docker run --rm --label pm.repo=biomcp --label pm.ticket=0289 \
+docker run --rm "$@" \
   -v "$PWD:/source" -w /source \
   -v "$PWD/.release-cache/cargo:/cargo" -e CARGO_HOME=/cargo \
   -e CARGO_BUILD_JOBS=2 -e "BIOMCP_BUILD_REVISION=$revision" \
@@ -22,7 +22,7 @@ docker run --rm --label pm.repo=biomcp --label pm.ticket=0289 \
     python release/gate.py --prepare-only --artifacts dist --scratch /source/proof
   '
 # The install process sees the artifacts and copied proof, without the checkout.
-docker run --rm --label pm.repo=biomcp --label pm.ticket=0289 \
+docker run --rm "$@" \
   -v "$PWD/dist:/artifacts:ro" -v "$PWD/proof:/proof:ro" \
   "$BUILD_IMAGE" /bin/bash -c '
     set -euo pipefail
@@ -49,7 +49,6 @@ cp release/Dockerfile container/Dockerfile
 image="biomcp-candidate:$arch"
 docker build --platform "linux/$arch" -t "$image" container
 version=$(python3 -c 'import json; print(json.load(open("dist/release.json"))["version"])')
-python3 release/container_check.py "$image" "$arch" container "$version" \
-  --label pm.repo=biomcp --label pm.ticket=0289
+python3 release/container_check.py "$image" "$arch" container "$version" "$@"
 docker save "$image" -o "dist/biomcp-container-$arch.tar"
 docker image rm "$image"
