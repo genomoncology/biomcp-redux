@@ -92,8 +92,10 @@ case "${1:-run}" in
         printf '%s\n' "$contracts" | while IFS="$(printf '\t')" read -r package target features owner; do
             [ -n "$package" ] || continue
             echo "coverage: counted public contract $package/$target; feature $owner; cargo features $features"
+            set --
+            if [ "$features" != "-" ]; then set -- --features "$features"; fi
             LLVM_PROFILE_FILE="$profile_dir/contracts-%m-%p.profraw" \
-                cargo test --locked -p "$package" --test "$target" --features "$features" || {
+                cargo test --locked -p "$package" --test "$target" "$@" || {
                 echo 'coverage: public contract collection incomplete because its suite failed' >&2
                 exit 1
             }

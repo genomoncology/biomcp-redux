@@ -2,7 +2,7 @@
 
 .PHONY: landing-gate fmt lint ratchets test audit coverage unreached
 
-landing-gate: docs-check fmt lint coverage audit
+landing-gate: docs-check fmt lint tensor-proto-check coverage audit
 
 fmt:
 	cargo fmt --all -- --check
@@ -69,3 +69,7 @@ parity-run:
 .PHONY: parity-inventory
 parity-inventory:
 	cargo test --locked -p biomcp --test cases -- --parity-inventory "$(abspath $(PLAN))" "$(CURDIR)/tests/cases" "$(abspath $(OUT))"
+
+.PHONY: tensor-proto-check
+tensor-proto-check:
+	python3 scripts/regenerate_tensor_proto.py --check
