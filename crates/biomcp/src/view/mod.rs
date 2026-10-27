@@ -71,7 +71,7 @@ impl View<'_> {
                 continue;
             }
             let node = property(schema, name, self.root).unwrap_or(&Value::Null);
-            if value.is_object() || value.is_array() {
+            if (value.is_object() || value.is_array()) && nonfinite(value).is_none() {
                 heading(name, depth, out);
                 if name == "next" {
                     steps(value, out);
@@ -155,13 +155,30 @@ fn label(name: &str) -> String {
     })
 }
 fn scalar(value: &Value) -> String {
+    if let Some(label) = nonfinite(value) {
+        return label.to_owned();
+    }
     escape(
         &value
             .as_str()
             .map_or_else(|| value.to_string(), str::to_owned),
     )
 }
+// The native scalar union has exactly one field. Do not reinterpret source metadata objects.
+fn nonfinite(value: &Value) -> Option<&'static str> {
+    let object = value.as_object().filter(|object| object.len() == 1)?;
+    match object.get("kind")?.as_str()? {
+        "nan" => Some("NaN"),
+        "positive_infinity" => Some("+Inf"),
+        "negative_infinity" => Some("-Inf"),
+        _ => None,
+    }
+}
 fn leaf_paths(value: &Value, prefix: &str, fields: &mut BTreeSet<String>) {
+    if nonfinite(value).is_some() {
+        fields.insert(prefix.to_owned());
+        return;
+    }
     if let Some(object) = value.as_object().filter(|o| !o.is_empty()) {
         for (key, value) in object {
             let key = key.replace('~', "~0").replace('/', "~1");
