@@ -1,6 +1,8 @@
 //! Schema-fed command help shared with MCP discovery.
 
 mod discovery;
+mod schema_fields;
+use schema_fields::{resolve, value_type};
 mod public_grammar;
 mod source_settings;
 
@@ -197,7 +199,9 @@ fn bundle_commands(commands: &mut Vec<HelpCommand>, examples: &BTreeMap<String, 
         commands.push(HelpCommand {
             reply_schemas: Vec::new(),
             command: vec!["sync".into(), bundle.into()],
-            description: if bundle == "wikipathways" {
+            description: if matches!(bundle, "hgnc" | "clingen") {
+                "Synchronize a local source bundle."
+            } else if bundle == "wikipathways" {
                 "Replace WikiPathways search/get metadata catalogs atomically; reads never sync. Membership names a \
                     source and release; it implies no therapy, response or actionability. No enrichment is calculated."
             } else {
@@ -265,46 +269,6 @@ fn argument(name: &str, node: &Value, root: &Value) -> HelpArgument {
             .filter_map(|v| v.as_str().map(String::from))
             .collect(),
     }
-}
-fn value_type(node: &Value) -> String {
-    if let Some(kind) = node.get("type") {
-        return kind.as_str().map(str::to_owned).unwrap_or_else(|| {
-            kind.as_array()
-                .into_iter()
-                .flatten()
-                .filter_map(Value::as_str)
-                .filter(|v| *v != "null")
-                .collect::<Vec<_>>()
-                .join("|")
-        });
-    }
-    if node.get("enum").is_some() {
-        "string"
-    } else {
-        "object"
-    }
-    .into()
-}
-fn resolve<'a>(node: &'a Value, root: &'a Value) -> &'a Value {
-    if let Some(reference) = node
-        .get("$ref")
-        .and_then(Value::as_str)
-        .and_then(|s| root.pointer(s.trim_start_matches('#')))
-    {
-        return resolve(reference, root);
-    }
-    if let Some(branch) = ["anyOf", "oneOf", "allOf"]
-        .iter()
-        .find_map(|key| node.get(key).and_then(Value::as_array))
-        .and_then(|branches| {
-            branches
-                .iter()
-                .find(|v| v.get("type") != Some(&Value::from("null")))
-        })
-    {
-        return resolve(branch, root);
-    }
-    node
 }
 fn text(node: &Value, key: &str) -> String {
     node[key].as_str().unwrap_or_default().into()

@@ -37,7 +37,7 @@ fn commands(text: &str) -> Result<BTreeSet<Vec<String>>, String> {
     Ok(found)
 }
 
-fn local(args: &[String]) -> Check {
+pub(super) fn local(args: &[String]) -> Check {
     let environment = launch::Environment::new().map_err(|e| e.to_string())?;
     if args == ["serve"] {
         let frames = [
@@ -77,8 +77,8 @@ fn local(args: &[String]) -> Check {
     } else {
         drop(process.child.stdin.take());
     }
-    let (status, _, stderr) = process.finish()?;
-    if !status.success() {
+    let (status, stdout, stderr) = process.finish()?;
+    if !status.success() || stdout.is_empty() {
         return Err(format!(
             "documented command {args:?} exited {status}: {}",
             String::from_utf8_lossy(&stderr)

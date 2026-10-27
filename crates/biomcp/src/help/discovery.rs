@@ -21,8 +21,19 @@ pub(super) fn complete(commands: &mut Vec<HelpCommand>) {
         })
         .collect::<Vec<_>>()
         .join("\n");
-    commands.push(super::topic("relations", format!("Follow an entity to these named source sections with get ENTITY ID SECTION. Sections can lead to related source records.\n{relations}")));
-    for command in commands {
+    commands.push(super::topic(
+        "relations",
+        format!(
+            "Follow an entity to these named source sections with get ENTITY ID SECTION. \
+        Sections can lead to related source records.\n{relations}"
+        ),
+    ));
+    let examples: Vec<_> = commands
+        .iter()
+        .filter(|command| !command.examples.is_empty())
+        .map(|command| (command.command.clone(), command.examples[0].clone()))
+        .collect();
+    for command in commands.iter_mut() {
         command.description = plain(&command.description);
         for argument in &mut command.arguments {
             argument.description = plain(&argument.description);
@@ -30,16 +41,25 @@ pub(super) fn complete(commands: &mut Vec<HelpCommand>) {
         for section in &mut command.sections {
             section.description = plain(&section.description);
         }
-
         if command.examples.is_empty() {
-            let mut example = vec!["help".to_owned()];
-            if command.command.first().is_some_and(|v| v == "help") {
-                example.extend(command.command.iter().skip(1).cloned());
+            let example = if command.command.is_empty() {
+                vec!["help".into()]
+            } else if let Some((_, example)) = examples
+                .iter()
+                .find(|(path, _)| path.starts_with(&command.command))
+            {
+                example.clone()
+            } else if command.command == ["serve"] {
+                vec!["help".into(), "serve".into()]
             } else {
-                example.extend(command.command.iter().cloned());
-            }
+                command.command.clone()
+            };
             command.examples.push(example);
         }
+    }
+    if let Some(index) = commands.iter().position(|c| c.command.is_empty()) {
+        let index = commands.remove(index);
+        commands.insert(0, index);
     }
 }
 

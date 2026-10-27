@@ -62,6 +62,15 @@ pub(super) fn augment(commands: &mut Vec<HelpCommand>) -> io::Result<()> {
             .iter()
             .try_fold(&root, |parent, name| parent.find_subcommand(name));
         if let Some(parser) = parser {
+            if entry.examples.is_empty()
+                && let Some(help) = parser.get_after_help()
+            {
+                entry.examples = help
+                    .to_string()
+                    .lines()
+                    .filter_map(|line| line.strip_prefix("Example: biomcp ").and_then(shlex::split))
+                    .collect();
+            }
             for arg in parser
                 .get_arguments()
                 .filter(|a| !a.is_hide_set() && !a.is_global_set())

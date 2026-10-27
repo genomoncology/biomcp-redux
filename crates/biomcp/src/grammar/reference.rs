@@ -123,10 +123,78 @@ fn reference_matches_grammar() -> Check {
 #[test]
 #[ignore = "explicit documentation generation"]
 fn write_reference() -> Check {
+    refresh_help_cases(&root().join("tests/cases"))?;
     for (name, text) in documents()? {
         let path = root().join(name);
         fs::create_dir_all(path.parent().ok_or("documentation directory missing")?)?;
         fs::write(path, text)?;
+    }
+    Ok(())
+}
+
+// Regenerate descriptive help snapshots from their owner, preserving other case values.
+fn refresh_help_cases(directory: &std::path::Path) -> Check {
+    for entry in fs::read_dir(directory)? {
+        let path = entry?.path();
+        if path.is_dir() {
+            refresh_help_cases(&path)?;
+            continue;
+        }
+        if path.extension().is_none_or(|v| v != "yaml") {
+            continue;
+        }
+        let text = fs::read_to_string(&path)?;
+        // JSON-shaped fixtures must retain JSON's numeric and string types.
+        let mut case: serde_json::Value = if text.trim_start().starts_with('{') {
+            serde_json::from_str(&text)?
+        } else {
+            serde_saphyr::from_str(&text)?
+        };
+        let mut changed = false;
+        for (index, step) in case["steps"]
+            .as_array_mut()
+            .into_iter()
+            .flatten()
+            .enumerate()
+        {
+            let Some(args) = step["run"]
+                .as_array()
+                .filter(|args| args.first().and_then(serde_json::Value::as_str) == Some("help"))
+            else {
+                continue;
+            };
+            let args: Vec<std::ffi::OsString> = args
+                .iter()
+                .filter_map(serde_json::Value::as_str)
+                .map(Into::into)
+                .collect();
+            let reply = crate::command::dispatch(&args)?;
+            if reply.value["schema"] != "biomcp.help/2" {
+                continue;
+            }
+            let bytes = reply.cli_bytes.len();
+            println!(
+                "HELP_MEASURE {} step {index}: {bytes} bytes; max_bytes {} max_tokens {}",
+                path.display(),
+                step["max_bytes"],
+                step["max_tokens"]
+            );
+            if let Some(expect) = step["expect"].as_object_mut() {
+                for (pointer, expected) in expect {
+                    if pointer.ends_with("/description")
+                        && expected.is_string()
+                        && let Some(actual) = reply.value.pointer(pointer)
+                        && actual != expected
+                    {
+                        *expected = actual.clone();
+                        changed = true;
+                    }
+                }
+            }
+        }
+        if changed {
+            fs::write(path, format!("{}\n", serde_json::to_string_pretty(&case)?))?;
+        }
     }
     Ok(())
 }

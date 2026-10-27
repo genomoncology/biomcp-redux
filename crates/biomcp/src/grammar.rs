@@ -17,6 +17,8 @@ pub(crate) use queries::QUERIES;
 pub(crate) use queries::query_schema;
 
 pub(crate) const BUNDLE_HELP: &[&str] = &[
+    "hgnc",
+    "clingen",
     "wikipathways",
     "cbioportal-studies",
     "ema",
@@ -184,26 +186,15 @@ pub(crate) fn root() -> Result<Command, ()> {
         Command::new("sync").arg(
             Arg::new("bundle")
                 .help("Local source bundle to synchronize; default hgnc.")
-                .value_parser([
-                    "wikipathways",
-                    "cbioportal-studies",
-                    "hgnc",
-                    "clingen",
-                    "ema",
-                    "ddinter",
-                    "who-pq",
-                    "gtr",
-                    "who-ivd",
-                    "fda-cdx",
-                ]),
+                .value_parser(BUNDLE_HELP),
         ),
     );
     root = root.subcommands(local::housekeeping_commands());
-    root = root.subcommand(Command::new("health"));
+    root = root.subcommand(Command::new("health").after_help("Example: biomcp health --offline"));
     root = root.subcommand(
         Command::new("store")
             .subcommand_required(true)
-            .subcommand(Command::new("clean")),
+            .subcommand(Command::new("clean").after_help("Example: biomcp store clean")),
     );
     root = root.subcommand(crate::keys::grammar());
     root = root.subcommand(local::serve_command());

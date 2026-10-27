@@ -21,24 +21,6 @@ pub(super) fn check() -> Result<(), String> {
         .ok_or("help commands missing")?;
     source_description(commands)?;
     let mut printed = collected_examples(commands)?;
-    let local: Vec<_> = printed
-        .iter()
-        .filter(|args| args.first().is_some_and(|v| v == "help"))
-        .cloned()
-        .collect();
-    for args in local {
-        let output = environment
-            .command(env!("CARGO_BIN_EXE_biomcp"), &args)
-            .output()
-            .map_err(|e| e.to_string())?;
-        let value: Value = serde_json::from_slice(&output.stdout).map_err(|e| e.to_string())?;
-        if !output.status.success() || value.get("result").is_none_or(Value::is_null) {
-            return Err(format!(
-                "local discovery example returned no result: {args:?}"
-            ));
-        }
-        printed.remove(&args);
-    }
     let guide = guide_examples(&environment)?;
     printed.extend(guide);
     documents::check(&printed)?;
@@ -48,6 +30,22 @@ pub(super) fn check() -> Result<(), String> {
         "/example-cases.json"
     )))
     .map_err(|e| e.to_string())?;
+    let owned: BTreeSet<Vec<String>> = witnesses
+        .iter()
+        .map(|(file, index)| {
+            let text = fs::read_to_string(launch::fixtures().join("cases").join(file))
+                .map_err(|e| e.to_string())?;
+            let case: Case = serde_saphyr::from_str(&text).map_err(|e| e.to_string())?;
+            case.steps
+                .get(*index)
+                .and_then(|s| s.run.clone())
+                .ok_or("example step missing".into())
+        })
+        .collect::<Result<_, String>>()?;
+    for example in printed.difference(&owned) {
+        documents::local(example)?;
+    }
+    printed.retain(|example| owned.contains(example));
     let registry = schema::Registry::embedded()?;
     for (file, index) in witnesses {
         let path = launch::fixtures().join("cases").join(file);
