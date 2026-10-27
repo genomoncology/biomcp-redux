@@ -10,6 +10,9 @@ use std::{fs, path::PathBuf};
 type Check = Result<(), String>;
 pub(super) fn trials() -> Vec<Trial> {
     vec![
+        Trial::test("sources/article-resolver-retries-respect-disabled", || {
+            article_resolver_retries().map_err(Into::into)
+        }),
         Trial::test(
             "sources/next-preserves-selected-config-and-cli-policy",
             || next_config().map_err(Into::into),
@@ -37,6 +40,31 @@ pub(super) fn trials() -> Vec<Trial> {
             no_request().map_err(Into::into)
         }),
     ]
+}
+
+fn article_resolver_retries() -> Check {
+    let env = Environment::new().map_err(|e| e.to_string())?;
+    for command in [
+        vec!["article", "text", "33123537"],
+        vec!["article", "supplement", "33123537", "file.csv"],
+    ] {
+        let mut args: Vec<String> = command.into_iter().map(str::to_owned).collect();
+        args.extend([
+            "--offline".into(),
+            "--disable-sources".into(),
+            "pubmed".into(),
+        ]);
+        let result = invoke(&env, args.clone(), 4)?;
+        if result.get("next").is_some()
+            || result.pointer("/sources/0/reason") != Some(&json!("disabled"))
+        {
+            return Err(format!("disabled PubMed resolver offers a retry: {result}"));
+        }
+        if mcp::call_with_globals(&env, &args, true, &[])? != result {
+            return Err("disabled article resolver differs over MCP".into());
+        }
+    }
+    Ok(())
 }
 
 fn disabled() -> Check {

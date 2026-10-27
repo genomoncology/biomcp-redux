@@ -194,11 +194,19 @@ fn resolver_policy() -> Result<(), Box<dyn std::error::Error>> {
     if first.pointer("/result/fulltext/data/paragraphs/total") != Some(&json!(7)) {
         return Err(format!("initial resolver-backed evidence failed: {first}").into());
     }
-    let mut next = super::action(&first, "page")?;
-    next.extend(["--disable-sources".into(), "pubmed".into()]);
-    let blocked = command(&env, &next, &globals)?;
-    if blocked.pointer("/result/fulltext/state") == Some(&json!("data")) {
-        return Err(format!("disabled resolver restored its stored text: {blocked}").into());
+    for source in ["pubmed", "pmc-oa"] {
+        let mut next = super::action(&first, "page")?;
+        next.extend(["--disable-sources".into(), source.into()]);
+        let blocked = command(&env, &next, &globals)?;
+        if blocked.pointer("/result/fulltext/state") == Some(&json!("data")) {
+            return Err(format!("disabled {source} restored its stored text: {blocked}").into());
+        }
+        if blocked.get("next").is_some() {
+            return Err(format!(
+                "disabled {source} still offers an evidence continuation: {blocked}"
+            )
+            .into());
+        }
     }
     Ok(())
 }
