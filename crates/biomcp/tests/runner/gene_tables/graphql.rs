@@ -223,9 +223,14 @@ fn clingen() -> Check {
                 json!({"/result/items/0/sections/clingen/state": "data", "/sources/2/reason": "bad_reply"})
             }
         };
+        let args = if matches!(mode, "duplicate" | "missing classification") {
+            vec!["get", "gene", "TP53", "MLH1", "clingen"]
+        } else {
+            vec!["get", "gene", "TP53", "clingen"]
+        };
         let answer = checked_case(
             "gene/clingen",
-            &["get", "gene", "TP53", "MLH1", "clingen"],
+            &args,
             |source, record| {
                 if source == "hgnc" {
                     // Keep this section witness on the recorded TP53 annotation request.
