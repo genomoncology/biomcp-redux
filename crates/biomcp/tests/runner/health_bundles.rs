@@ -139,7 +139,15 @@ fn local() -> Check {
                     [name],
                 )
                 .map_err(|e| e.to_string())?;
-            cache.execute("INSERT INTO bundle_sync VALUES(?1,'finished-process',0,'https://unused.invalid','unused',0,NULL,NULL)", [name]).map_err(|e|e.to_string())?;
+            cache
+                .execute(
+                    concat!(
+                        "INSERT INTO bundle_sync VALUES(?1,'finished-process',0,",
+                        "'https://unused.invalid','unused',0,NULL,NULL)"
+                    ),
+                    [name],
+                )
+                .map_err(|e| e.to_string())?;
         }
     }
     for expected in ["fresh", "stale"] {
