@@ -1,0 +1,48 @@
+{
+  "live_check": "fixture",
+  "feature": "gene-sections",
+  "story": "GenCC keeps each ODC1 submitter assessment and reports a gene without rows",
+  "replay": "gene/gencc",
+  "steps": [
+    {
+      "run": [
+        "sync",
+        "gencc"
+      ],
+      "expect": {
+        "/status": "complete",
+        "/query/source": "gencc",
+        "/result/rows": 2
+      }
+    },
+    {
+      "run": [
+        "get",
+        "gene",
+        "ODC1",
+        "MIR21",
+        "gencc"
+      ],
+      "mcp": [
+        "get",
+        "gene",
+        "ODC1",
+        "MIR21",
+        "gencc"
+      ],
+      "expect": {
+        "/status": "complete",
+        "/result/items/0/sections/gencc/state": "data",
+        "/result/items/0/sections/gencc/data/submissions/*/submitter": [
+          "Fixture submitter A",
+          "Fixture submitter B"
+        ],
+        "/result/items/0/sections/gencc/data/submissions/*/classification": [
+          "Strong",
+          "Limited"
+        ],
+        "/result/items/1/sections/gencc/state": "empty"
+      }
+    }
+  ]
+}
