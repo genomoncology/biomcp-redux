@@ -9,6 +9,8 @@ pub use research::{
 };
 mod predictor;
 mod query;
+// Export new public response types inside `response` and again at the crate root.
+// `unreachable_pub` reports a missing crate-root re-export.
 mod response;
 mod source;
 
