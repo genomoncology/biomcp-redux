@@ -150,6 +150,8 @@ fn optional_text<'de, D: serde::Deserializer<'de>>(d: D) -> Result<Option<Text>,
     if value.is_empty() {
         Ok(None)
     } else {
-        Text::new(&value).map(Some).map_err(serde::de::Error::custom)
+        Text::new(&value)
+            .map(Some)
+            .map_err(serde::de::Error::custom)
     }
 }

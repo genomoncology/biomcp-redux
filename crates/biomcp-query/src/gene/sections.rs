@@ -1,8 +1,8 @@
 mod civic;
 mod clingen;
-mod gencc;
 mod constraint;
 mod expression;
+mod gencc;
 mod oncokb;
 mod pathways;
 mod protein;

@@ -128,7 +128,7 @@ fn extra_commands(commands: &mut Vec<HelpCommand>, examples: &BTreeMap<String, V
             "Report publisher terms and bounded source reachability; at most one page for each implemented source.",
         ),
         (
-            vec!["sync", "[hgnc|clingen]"],
+            vec!["sync", "[hgnc|clingen|gencc]"],
             "Synchronize a local source bundle.",
         ),
         (
@@ -282,7 +282,7 @@ pub(crate) fn tree() -> String {
         }) {
             continue;
         }
-        if command.command == ["sync", "[hgnc|clingen]"] {
+        if command.command == ["sync", "[hgnc|clingen|gencc]"] {
             continue;
         }
         let mut line = command.command.join(" ");

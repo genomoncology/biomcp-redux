@@ -6,6 +6,25 @@
   "steps": [
     {
       "run": [
+        "get",
+        "gene",
+        "ODC1",
+        "gencc"
+      ],
+      "expect": {
+        "/status": "partial",
+        "/result/items/0/sections/gencc/state": "unavailable",
+        "/result/items/0/sections/gencc/reason": "syncing",
+        "/next/*/args": {
+          "includes": [
+            "sync",
+            "gencc"
+          ]
+        }
+      }
+    },
+    {
+      "run": [
         "sync",
         "gencc"
       ],
