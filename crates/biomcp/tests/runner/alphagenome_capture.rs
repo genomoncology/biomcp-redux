@@ -19,7 +19,12 @@ fn checked(path: &Path, hash: &str) -> Result<Vec<u8>, String> {
         return Err("capture input exceeds bound".into());
     }
     let bytes = std::fs::read(path).map_err(|e| e.to_string())?;
-    if format!("{:x}", Sha256::digest(&bytes)) != hash {
+    if Sha256::digest(&bytes)
+        .iter()
+        .map(|byte| format!("{byte:02x}"))
+        .collect::<String>()
+        != hash
+    {
         return Err("external capture hash mismatch".into());
     }
     Ok(bytes)
