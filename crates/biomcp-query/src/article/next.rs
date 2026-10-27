@@ -106,17 +106,14 @@ pub(super) fn search(
         source
             .notices
             .iter()
-            .any(|notice| matches!(notice, biomcp_types::SourceNotice::NotFoundWords { .. }))
-    }) && let Some(quoted) = query.quoted()
+            .any(|notice| matches!(notice, biomcp_types::SourceNotice::NotFoundWords { .. } | biomcp_types::SourceNotice::PubmedWarning { .. }))
+    }) && let Some(strict) = query.strict_pubmed()
     {
         out.next.insert(
             0,
             (
                 StepKind::Disambiguate,
-                Action::Run {
-                    request: Request::SearchArticle(quoted),
-                    fresh: false,
-                },
+                Action::PubmedSearch(strict),
             ),
         );
     }

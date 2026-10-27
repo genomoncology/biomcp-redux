@@ -13,6 +13,8 @@ pub(super) struct SearchResult {
     pub count: u64,
     pub idlist: Vec<Pmid>,
     pub errorlist: Option<ErrorList>,
+    #[serde(default)]
+    pub warninglist: BTreeMap<String, Vec<String>>,
     #[serde(rename = "ERROR")]
     error: Option<serde::de::IgnoredAny>,
 }

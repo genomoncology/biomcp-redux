@@ -397,26 +397,32 @@ impl ArticleSearch {
     pub fn variant(&self) -> Option<&Text> {
         self.0.variant.as_ref()
     }
-    /// Quote each supplied word group for PubMed while retaining its filters.
-    pub fn quoted(&self) -> Option<Self> {
+    /// Offer PubMed title/abstract terms without relying on phrase interpretation.
+    pub fn strict_pubmed(&self) -> Option<Self> {
+        let mut words = self.words();
+        if let Some(gene) = self.gene() {
+            words = format!("{gene} {words}");
+        }
+        if words.contains("[Title/Abstract]") {
+            return None;
+        }
+        let terms: Vec<_> = words
+            .split_whitespace()
+            .map(|word| word.trim_matches('"'))
+            .filter(|word| !word.is_empty())
+            .map(|word| format!("{word}[Title/Abstract]"))
+            .collect();
+        if terms.is_empty() {
+            return None;
+        }
         let mut value = self.page(0, None);
         value.0.source = Box::new([ArticleSource::Pubmed]);
-        let mut changed = false;
-        for term in [
-            &mut value.0.text,
-            &mut value.0.variant,
-            &mut value.0.drug,
-            &mut value.0.disease,
-        ]
-        .into_iter()
-        .flatten()
-        {
-            if !term.as_str().contains('"') {
-                *term = Text::new(&format!("\"{term}\"")).ok()?;
-                changed = true;
-            }
-        }
-        changed.then_some(value)
+        value.0.text = Some(Text::new(&terms.join(" AND ")).ok()?);
+        value.0.gene = None;
+        value.0.variant = None;
+        value.0.drug = None;
+        value.0.disease = None;
+        Some(value)
     }
     /// Restart with an exact candidate rsID, retaining source and order choices.
     pub fn with_variant(&self, variant: Text) -> Self {

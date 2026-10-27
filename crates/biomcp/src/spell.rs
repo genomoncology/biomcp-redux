@@ -15,6 +15,13 @@ pub(crate) fn step(kind: StepKind, action: &Action) -> Result<Step, serde_json::
 }
 pub(crate) fn action_args(action: &Action) -> Result<Vec<String>, serde_json::Error> {
     match action {
+        Action::PubmedSearch(q) => {
+            let mut args = request_args(&Request::SearchArticle(q.clone()))?;
+            if !args.iter().any(|arg| arg == "--source") {
+                args.extend(["--source".into(), "pubmed".into()]);
+            }
+            Ok(args)
+        }
         Action::AuthorPapers(q) => request_args(&Request::AuthorPapers(q.clone())),
         Action::QueryHelp(request) => Ok(std::iter::once("help".into())
             .chain(command_words(request))

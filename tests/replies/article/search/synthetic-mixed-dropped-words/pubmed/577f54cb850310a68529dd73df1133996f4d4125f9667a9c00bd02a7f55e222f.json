@@ -1,7 +1,7 @@
 {
   "method": "GET",
   "source": "pubmed",
-  "url": "https://eutils.ncbi.nlm.nih.gov/entrez/eutils/esearch.fcgi?db=pubmed&term=%22rs121434592%22&sort=relevance&retmax=9999&retmode=json&tool=biomcp",
+  "url": "https://eutils.ncbi.nlm.nih.gov/entrez/eutils/esearch.fcgi?db=pubmed&term=rs121434592%5BTitle%2FAbstract%5D&sort=relevance&retmax=9999&retmode=json&tool=biomcp",
   "exchanges": [
     {
       "status": 200,
