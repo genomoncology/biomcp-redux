@@ -75,6 +75,14 @@ fn measured() -> Result<(), String> {
     )
     .map_err(|e| e.to_string())?;
     let reply = invoke(&env, args, 0)?;
+    check_reply(&reply, active_bytes, retained_bytes, env.root())
+}
+fn check_reply(
+    reply: &Value,
+    active_bytes: u64,
+    retained_bytes: u64,
+    root: &Path,
+) -> Result<(), String> {
     let store = reply
         .pointer("/result/store")
         .ok_or("missing store sizes")?;
@@ -103,7 +111,7 @@ fn measured() -> Result<(), String> {
     }
     if reply
         .to_string()
-        .contains(&env.root().to_string_lossy().to_string())
+        .contains(&root.to_string_lossy().to_string())
     {
         return Err("health disclosed local paths".into());
     }
