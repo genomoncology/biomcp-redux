@@ -40,15 +40,15 @@ const LIMITS: Limits = Limits {
 };
 /// Parse checked bytes under the command's remaining local deadline.
 pub fn read(bytes: &[u8], kind: FileKind, end: LocalDeadline) -> Result<Vec<Sheet>, Reason> {
-    check(end)?;
+    check(&end)?;
     match kind {
-        FileKind::Xlsx => xlsx::read(bytes, end),
+        FileKind::Xlsx => xlsx::read(bytes, &end),
         FileKind::Csv | FileKind::Tsv => delimited(bytes, kind, end),
         FileKind::Txt => {
             let text = std::str::from_utf8(bytes).map_err(|_| Reason::BadReply)?;
             let mut rows = Vec::new();
             for (index, line) in text.lines().enumerate() {
-                check(end)?;
+                check(&end)?;
                 rows.push(Row {
                     number: u32::try_from(index + 1).map_err(|_| Reason::TooLarge)?,
                     cells: vec![line.to_owned()],
@@ -62,7 +62,7 @@ pub fn read(bytes: &[u8], kind: FileKind, end: LocalDeadline) -> Result<Vec<Shee
         _ => Err(Reason::Unsupported),
     }
 }
-fn check(end: LocalDeadline) -> Result<(), Reason> {
+fn check(end: &LocalDeadline) -> Result<(), Reason> {
     if end.expired() {
         Err(Reason::DeadlineExceeded)
     } else {
@@ -78,7 +78,7 @@ fn delimited(bytes: &[u8], kind: FileKind, end: LocalDeadline) -> Result<Vec<She
         .from_reader(bytes);
     let mut rows = Vec::new();
     for (index, result) in reader.records().enumerate() {
-        check(end)?;
+        check(&end)?;
         let record = result.map_err(|_| Reason::BadReply)?;
         rows.push(Row {
             number: u32::try_from(index + 1).map_err(|_| Reason::TooLarge)?,

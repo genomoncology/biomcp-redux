@@ -212,7 +212,7 @@ fn body(withdrawn: bool) -> Result<String, String> {
     Err("missing HGNC fixture".into())
 }
 
-fn identity(hosts: &[&str]) -> Result<(String, Arc<ServerConfig>), String> {
+pub(super) fn identity(hosts: &[&str]) -> Result<(String, Arc<ServerConfig>), String> {
     use rcgen::{
         BasicConstraints, CertificateParams, ExtendedKeyUsagePurpose, IsCa, KeyPair,
         KeyUsagePurpose,
@@ -250,7 +250,7 @@ fn identity(hosts: &[&str]) -> Result<(String, Arc<ServerConfig>), String> {
     Ok((ca.pem(), Arc::new(config)))
 }
 
-fn source_request(input: &mut impl Read) -> Result<String, String> {
+pub(super) fn source_request(input: &mut impl Read) -> Result<String, String> {
     let mut request = header(input)?;
     let length = request
         .lines()

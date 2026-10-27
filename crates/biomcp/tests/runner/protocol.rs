@@ -20,6 +20,18 @@ pub(super) fn trials() -> Vec<Trial> {
         Trial::test("mcp/correlated-calls-drain-on-eof", || {
             concurrent().map_err(Into::into)
         }),
+        Trial::test("mcp/offline-observations-reuse", || {
+            offline_observations().map_err(Into::into)
+        }),
+        Trial::test("mcp/oversized-frame-drains-active-call", || {
+            super::held_proxy::oversized().map_err(Into::into)
+        }),
+        Trial::test("mcp/cancel-stops-work-and-frees-capacity", || {
+            super::held_proxy::cancelled().map_err(Into::into)
+        }),
+        Trial::test("mcp/cancel-preserves-another-active-call", || {
+            super::held_proxy::isolated_cancel().map_err(Into::into)
+        }),
         Trial::test("mcp/bounded-framing", || framing().map_err(Into::into)),
         Trial::test("mcp/broken-output-with-open-input", || {
             broken_output().map_err(Into::into)
@@ -472,7 +484,7 @@ const DISCOVERY_WORDS: &[&str] = &[
 fn discovery_description(text: &str) -> Check {
     writeln!(std::io::stdout(), "MCP_DESCRIPTION_BYTES={}", text.len())
         .map_err(|e| e.to_string())?;
-    // The PM approved j15878 measured 3840 bytes plus fifteen percent.
+    // The output budget uses j15878 measured 3840 bytes plus fifteen percent.
     if text.len() > 4416 {
         return Err("command description exceeds budget".into());
     }
@@ -542,6 +554,30 @@ fn cancellation() -> Check {
             .contains("SENSITIVE")
     {
         return Err("cancellation notification replied or echoed reason".into());
+    }
+    Ok(())
+}
+
+fn offline_observations() -> Check {
+    let env = environment()?;
+    let path = env.root().join("observations.jsonl");
+    let globals = vec!["--observe".into(), path.to_string_lossy().into_owned()];
+    let call = request(
+        json!(1),
+        "tools/call",
+        json!({"name":"biomcp", "arguments":{
+        "args":["get", "gene", "BRAF", "--offline"]}}),
+    );
+    let replies = super::mcp::exchange_with_globals(&env, &[call], &globals)?;
+    let outcome = reply(&replies, &json!(1))?;
+    if outcome.pointer("/result/structuredContent/status") == Some(&json!("local")) {
+        return Err(format!("offline tool reopened observations: {outcome}"));
+    }
+    if outcome
+        .pointer("/result/structuredContent/sources/0")
+        .is_none()
+    {
+        return Err(format!("offline tool did not execute: {outcome}"));
     }
     Ok(())
 }

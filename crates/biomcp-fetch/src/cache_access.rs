@@ -25,6 +25,14 @@ impl CacheAccess {
         self._cache.sql(deadline, |_| operation())
     }
 
+    /// Inspect the selected owned file without creating a database or journal.
+    pub fn connect_read_only(&self) -> Result<rusqlite::Connection, CacheError> {
+        rusqlite::Connection::open_with_flags(
+            &self.path,
+            rusqlite::OpenFlags::SQLITE_OPEN_READ_ONLY | rusqlite::OpenFlags::SQLITE_OPEN_NO_MUTEX,
+        )
+        .map_err(|_| CacheError::Database)
+    }
     /// Open the selected owned file; callers validate their metadata before writes.
     pub fn connect(&self) -> Result<rusqlite::Connection, CacheError> {
         rusqlite::Connection::open(&self.path).map_err(|_| CacheError::Database)

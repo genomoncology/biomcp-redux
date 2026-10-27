@@ -35,7 +35,7 @@ pub(super) fn run() -> Check {
         let db = rusqlite::Connection::open(env.root().join(format!(
             "cache/biomcp/cache-{}-{}.sqlite",
             biomcp_fetch::CACHE_NAMESPACE_VERSION,
-            biomcp_query::store::VERSION
+            biomcp_query::store::CACHE_NAMESPACE_VERSION
         )))
         .map_err(|e| e.to_string())?;
         let count: i64 = db

@@ -88,10 +88,10 @@ fn failures() -> Result<(), String> {
         fs::write(
             file.path(),
             serde_json::to_vec(&json!(
-        {"feature":"trial-search","story":"Unresolved exact identity stops before trial I/O","replay":directory,
-        "config":{"keys":{"nci_api_key":"synthetic-trial-condition-key"}},"steps":[{"run":args,"mcp":args,"exit":4,"is_error":true,
-        "expect":{"/status":"failed","/result/request":[]},"max_bytes":ceiling,"max_tokens":(ceiling+3)/4}]}
-    ))
+                {"feature":"trial-search","story":"Unresolved exact identity stops before trial I/O","replay":directory,
+                "config":{"keys":{"nci_api_key":"synthetic-trial-condition-key"}},"steps":[{"run":args,"mcp":args,"exit":4,"is_error":true,
+                "expect":{"/status":"failed","/result/request":[]},"max_bytes":ceiling,"max_tokens":(ceiling+3)/4}]}
+            ))
             .map_err(|e| e.to_string())?,
         )
         .map_err(|e| e.to_string())?;
@@ -106,7 +106,7 @@ fn setup(stub: &Stub) -> Result<Environment, String> {
     env.config(&json!(
         {"proxy":format!("http://{}",stub.address),"ca_bundle":ca,"keys":{"nci_api_key":"synthetic-trial-condition-key"}}
     ))
-        .map_err(|e| e.to_string())?;
+    .map_err(|e| e.to_string())?;
     Ok(env)
 }
 fn invoke(env: &Environment, args: &[String], exit: i32) -> Result<Value, String> {

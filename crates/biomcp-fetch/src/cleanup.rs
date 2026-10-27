@@ -19,8 +19,12 @@ impl Fetch {
 }
 impl crate::CacheAccess {
     /// Remove older cache namespaces containing only declared owners and their known tables.
-    /// Future namespaces, symlinks and databases with foreign tables are preserved.
-    pub fn clean_incompatible_files(&self, owners: &[SchemaOwner]) -> Result<u64, CacheError> {
+    /// Retained query layouts, future namespaces, symlinks and foreign tables are preserved.
+    pub fn clean_incompatible_files(
+        &self,
+        owners: &[SchemaOwner],
+        retained_query_namespaces: &[u32],
+    ) -> Result<u64, CacheError> {
         let active = self.path();
         let Some(current) = active
             .file_name()
@@ -42,13 +46,14 @@ impl crate::CacheAccess {
             };
             if !kind.is_file()
                 || version == current
+                || version.0 == current.0 && retained_query_namespaces.contains(&version.1)
                 || version.0 > current.0
                 || version.1 > current.1
             {
                 continue;
             }
             if owned_file(&entry.path(), owners)? {
-                fs::remove_file(entry.path()).map_err(|_| CacheError::Database)?;
+                remove_database(&entry.path())?;
                 removed += 1;
             }
         }
@@ -119,4 +124,18 @@ fn transport_table(name: &str) -> bool {
             | "bundle_words_docsize"
             | "bundle_words_config"
     )
+}
+
+fn remove_database(path: &Path) -> Result<(), CacheError> {
+    fs::remove_file(path).map_err(|_| CacheError::Database)?;
+    for suffix in ["-wal", "-shm"] {
+        let mut sidecar = path.as_os_str().to_os_string();
+        sidecar.push(suffix);
+        match fs::remove_file(sidecar) {
+            Ok(()) => {}
+            Err(error) if error.kind() == std::io::ErrorKind::NotFound => {}
+            Err(_) => return Err(CacheError::Database),
+        }
+    }
+    Ok(())
 }

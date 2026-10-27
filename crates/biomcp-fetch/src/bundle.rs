@@ -156,7 +156,7 @@ impl Leg<'_> {
     /// Find checked rows, synchronizing absent or stale data when policy permits.
     pub fn rows<R: Row>(&self, bundle: &Bundle<R>, find: Find<'_>) -> Result<Vec<R>, RequestError> {
         self.bundle_source(bundle)?;
-        if self.fetch.cache.is_none() && matches!(self.fetch.config.mode, Mode::Offline) {
+        if self.fetch.cache.is_none() && matches!(self.fetch.mode, Mode::Offline) {
             return Err(self.failure(biomcp_types::Reason::Offline, None).into());
         }
         let cache = self.bundle_cache()?;
@@ -167,13 +167,13 @@ impl Leg<'_> {
                 .lock()
                 .unwrap_or_else(std::sync::PoisonError::into_inner)
         });
-        let old = if matches!(self.fetch.config.mode, Mode::Record { .. }) {
+        let old = if matches!(self.fetch.mode, Mode::Record { .. }) {
             None
         } else {
             cache.bundle_info(bundle.name, self.budget())?
         };
-        let replay = matches!(self.fetch.config.mode, Mode::Replay { .. });
-        let offline = matches!(self.fetch.config.mode, Mode::Offline);
+        let replay = matches!(self.fetch.mode, Mode::Replay { .. });
+        let offline = matches!(self.fetch.mode, Mode::Offline);
         let fresh = old
             .as_ref()
             .is_some_and(|m| m.fresh_until > crate::cache::now());
@@ -183,7 +183,7 @@ impl Leg<'_> {
         let force_fresh = refreshed
             .as_ref()
             .is_some_and(|names| !names.contains(bundle.name));
-        let forced = replay || force_fresh || matches!(self.fetch.config.mode, Mode::Record { .. });
+        let forced = replay || force_fresh || matches!(self.fetch.mode, Mode::Record { .. });
         if !offline && (!fresh || forced) {
             match self.sync_bundle(bundle, true) {
                 Ok(_) => {
@@ -193,7 +193,7 @@ impl Leg<'_> {
                 }
                 Err(RequestError::Source(error))
                     if old.is_some()
-                        && matches!(self.fetch.config.mode, Mode::Live { .. })
+                        && matches!(self.fetch.mode, Mode::Live { .. })
                         && !self.fresh =>
                 {
                     let mut report = self

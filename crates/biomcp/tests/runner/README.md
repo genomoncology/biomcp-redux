@@ -70,10 +70,8 @@ command launches.
 
 `cargo test --locked -p biomcp --test cases -- --live-check` runs the distinct
 keyless diagnostic mode. Ordinary tests and landing gates never select this mode.
-Run it from landed main through `pm job run 0055 REV -- cargo test --locked -p
-biomcp --test cases -- --live-check`. The coordinator reads its bounded JSON drift summary. The summary counts all cases with drift or command errors and samples affected cases first. The default samples cases and drift details using `CASE_SAMPLE` and `MAX_CHANGES`; `--live-check --list` lists every eligibility and skip reason offline. `--live-check --details` includes every checked case in the live report; individual drift samples retain their bound.
-The PM asks Jarvis to register this recipe after landing; this command installs no
-schedule. It never records or refreshes a fixture.
+The command prints a bounded JSON drift summary. The summary counts all cases with drift or command errors and samples affected cases first. The default samples cases and drift details using `CASE_SAMPLE` and `MAX_CHANGES`; `--live-check --list` lists every eligibility and skip reason offline. `--live-check --details` includes every checked case in the live report; individual drift samples retain their bound.
+Configure scheduling separately. This command installs no schedule. It never records or refreshes a fixture.
 
 Every public case is discovered. A case with reviewed real public provenance may
 set `live_check: public`; another string states its skip reason. Unreviewed cases

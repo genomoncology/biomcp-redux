@@ -1,5 +1,6 @@
 """Exercise the ordinary gate's desktop tool comparison from source only."""
 import json
+import os
 from pathlib import Path
 import shutil
 import subprocess
@@ -14,6 +15,30 @@ ROOT = Path(__file__).resolve().parents[1]
 
 
 class DesktopTools(unittest.TestCase):
+    @unittest.skipIf(sys.platform == "win32", "the Docker stub uses a POSIX shebang")
+    def test_container_probe_forwards_caller_arguments(self):
+        with tempfile.TemporaryDirectory() as directory:
+            root = Path(directory)
+            stub = root / "docker"
+            recorded = root / "arguments.json"
+            stub.write_text("#!/usr/bin/env python3\nimport json, os, sys\n"
+                            "from pathlib import Path\n"
+                            "Path(os.environ['ARGUMENT_RECORD']).write_text(json.dumps(sys.argv[1:]))\n"
+                            "sys.exit(19)\n")
+            stub.chmod(0o755)
+            extra = ["--label", "example.owner=release check", "--network", "none"]
+            env = dict(os.environ, PATH=str(root) + os.pathsep + os.environ["PATH"],
+                       ARGUMENT_RECORD=str(recorded))
+            result = subprocess.run(
+                [sys.executable, str(ROOT / "release/container_check.py"),
+                 "candidate", "arm64", str(root), "1.0.0", *extra],
+                env=env, capture_output=True, text=True, check=False)
+            self.assertNotEqual(result.returncode, 0)
+            self.assertEqual(json.loads(recorded.read_text()),
+                             ["run", "--rm", "--memory", "2g", "--cpus", "2",
+                              "--platform", "linux/arm64", *extra, "--entrypoint",
+                              "/usr/bin/sha256sum", "candidate", "/usr/local/bin/biomcp"])
+
     def check(self, root):
         return subprocess.run([sys.executable, str(ROOT / "release/tools.py"), "--root", str(root)], capture_output=True, text=True, check=False)
 

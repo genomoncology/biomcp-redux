@@ -107,7 +107,7 @@ fn fetch_using(
     home: Option<PathBuf>,
     file: Option<ConfigFile>,
 ) -> Result<Fetch, StartupError> {
-    let cache = crate::paths::cache(variable("XDG_CACHE_HOME"), home, variable("LOCALAPPDATA"));
+    let cache = cache_path_using(home);
     let mode = if let Some(dir) = &globals.replay {
         Mode::Replay { dir: dir.clone() }
     } else if let Some(dir) = &globals.record {
@@ -282,4 +282,18 @@ pub(crate) fn restrict(fetch: Fetch, globals: &Globals) -> std::io::Result<Fetch
         .restrict_uses(biomcp_adapters::registry::disabled_uses(
             &globals.disable_sources,
         )))
+}
+
+pub(crate) fn cache_path() -> Option<PathBuf> {
+    cache_path_using(variable("HOME"))
+}
+fn cache_path_using(home: Option<PathBuf>) -> Option<PathBuf> {
+    crate::paths::cache(variable("XDG_CACHE_HOME"), home, variable("LOCALAPPDATA"))
+}
+#[expect(
+    clippy::disallowed_methods,
+    reason = "The settings boundary resolves the running executable"
+)]
+pub(crate) fn executable() -> std::io::Result<PathBuf> {
+    std::env::current_exe()
 }

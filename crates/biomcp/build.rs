@@ -6,6 +6,7 @@
 use std::{collections::BTreeMap, env, error::Error, fs, path::PathBuf};
 
 fn main() -> Result<(), Box<dyn Error>> {
+    embed_build()?;
     let directory = PathBuf::from(env::var("CARGO_MANIFEST_DIR")?).join("../biomcp-types/schemas");
     println!("cargo:rerun-if-changed={}", directory.display());
     let mut schemas = BTreeMap::new();
@@ -199,4 +200,42 @@ fn embed_examples() -> Result<(), Box<dyn Error>> {
         serde_json::to_vec(&witnesses)?,
     )?;
     Ok(())
+}
+
+fn embed_build() -> Result<(), Box<dyn Error>> {
+    println!(
+        "cargo:rustc-env=BIOMCP_BUILD_TARGET={}",
+        env::var("TARGET")?
+    );
+    println!("cargo:rerun-if-env-changed=BIOMCP_BUILD_REVISION");
+    let revision = match env::var("BIOMCP_BUILD_REVISION") {
+        Ok(revision) => revision,
+        Err(env::VarError::NotPresent) => git_revision()?,
+        Err(error) => return Err(error.into()),
+    };
+    if revision.len() != 40 || !revision.bytes().all(|byte| byte.is_ascii_hexdigit()) {
+        return Err("build revision must be a full Git commit".into());
+    }
+    println!("cargo:rustc-env=BIOMCP_BUILD_COMMIT={revision}");
+    Ok(())
+}
+fn git_revision() -> Result<String, Box<dyn Error>> {
+    use std::process::Command;
+    let commit = Command::new("git").args(["rev-parse", "HEAD"]).output()?;
+    if !commit.status.success() {
+        return Err("cannot resolve build commit".into());
+    }
+    for name in ["HEAD", "refs/heads"] {
+        let output = Command::new("git")
+            .args(["rev-parse", "--git-path", name])
+            .output()?;
+        if !output.status.success() {
+            return Err("cannot resolve build revision inputs".into());
+        }
+        println!(
+            "cargo:rerun-if-changed={}",
+            String::from_utf8(output.stdout)?.trim()
+        );
+    }
+    Ok(String::from_utf8(commit.stdout)?.trim().to_owned())
 }

@@ -1,6 +1,7 @@
 # 0279 — Remove private infrastructure names from public repo text
 
-Status: OPEN.
+Status: COMPLETE.
+Landed: ac3fb6647ed401749b460b72872b3e1802b4bf07
 
 Milestone: 5
 

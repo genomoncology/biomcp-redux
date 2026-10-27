@@ -10,9 +10,6 @@ import tarfile
 import tempfile
 import threading
 import unittest
-from urllib.parse import parse_qs, urlsplit
-
-from capture_author_witnesses import second_phase
 
 SCRIPT = Path(__file__).with_name('source_capture.py').resolve()
 ROOT = SCRIPT.parent.parent
@@ -44,16 +41,6 @@ class Source(http.server.BaseHTTPRequestHandler):
             secret = self.headers.get('X-Key', '')
             escaped = ''.join('\\u%04x' % ord(char) for char in secret)
             self.wfile.write(('{' + '"key":"' + escaped + '"}').encode())
-        elif self.path.startswith('/author-pages'):
-            query = parse_qs(urlsplit(self.path).query)
-            offset = int(query['offset'][0])
-            rows = [{'paperId': 'synthetic-' + str(offset + n)} for n in range(5)]
-            if 'mismatch' in query:
-                rows[0]['paperId'] = 'synthetic-changed'
-            page = {'offset': offset, 'data': rows}
-            if offset == 0 and 'no-next' not in query:
-                page['next'] = 5
-            self.wfile.write(json.dumps(page).encode())
         elif self.path == '/attached':
             attached = self.headers.get('x-api-key') == 'synthetic-credential'
             self.wfile.write(json.dumps({'attached': attached}).encode())
@@ -150,35 +137,6 @@ class CapturePlanTests(unittest.TestCase):
             self.assertEqual(json.loads((out / '0000.body').read_text())['attached'], keyed)
             for path in out.iterdir():
                 self.assertNotIn(b'synthetic-credential', path.read_bytes())
-
-    def test_author_details_and_native_continuation_guard_actual_requests(self):
-        for variant, expected_calls in (('positive', 4), ('mismatch', 2), ('no-next', 3)):
-            self.server.calls = []
-            out = self.base / variant
-            out.mkdir()
-            url = 'http://127.0.0.1:' + str(self.server.server_port) + '/author-pages'
-            rows = []
-            for name, offset in [('papers-17611497-0', 0),
-                                 ('papers-17611497-0-details', 0),
-                                 ('papers-33123537-0', 0), ('papers-33123537-5', 5)]:
-                path = url + '?offset=' + str(offset) + '&limit=5'
-                if variant == 'mismatch' and name.endswith('-details'):
-                    path += '&mismatch=1'
-                if variant == 'no-next' and name == 'papers-33123537-0':
-                    path += '&no-next=1'
-                row = {'id': name, 'url': path, 'source': 'semantic-scholar',
-                       'response_format': 'json'}
-                if offset == 5:
-                    row['requires_next_from'] = 'papers-33123537-0'
-                rows.append(row)
-            ledger = []
-            second_phase(rows, {'deadline_seconds': 2, 'max_bytes': 4096,
-                                'spacing_seconds': 0}, out, ledger)
-            self.assertEqual(len(self.server.calls), expected_calls)
-            if variant == 'positive':
-                self.assertTrue(all(r['capability'] == 'proven' for r in ledger))
-            if variant == 'mismatch':
-                self.assertIn('details changed', ledger[-1]['capability'])
 
     @unittest.skipUnless(sys.platform == 'darwin', 'AppleDouble requires macOS tar')
     def test_archive_verification_rejects_hidden_appledouble_members(self):

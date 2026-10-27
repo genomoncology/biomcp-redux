@@ -195,24 +195,24 @@ fn steps(name: &str, words: &[String]) -> Result<Value, String> {
     match name {
         "catalog" => {
             steps.push(json!(
-        {"run":words,"offline":true,"expect":{"/page/total":73,"/result/items/0/code":"1",
-        "/result/items/0/label":"All Cancer Sites Combined","/result/items/0/active":true},"max_bytes":1012}
-    ));
+                {"run":words,"offline":true,"expect":{"/page/total":73,"/result/items/0/code":"1",
+                "/result/items/0/label":"All Cancer Sites Combined","/result/items/0/active":true},"max_bytes":1012}
+            ));
             steps.push(json!(
-        {"run":["search","disease","--source","seer","--offset","12"],"mcp":["search","disease","--source","seer","--offset","12"],
-        "offline":true,"expect":{"/result/items/0/code":"55","/result/items/0/label":"Breast","/page/total":73},"max_bytes":1012}
-    ));
+                {"run":["search","disease","--source","seer","--offset","12"],"mcp":["search","disease","--source","seer","--offset","12"],
+                "offline":true,"expect":{"/result/items/0/code":"55","/result/items/0/label":"Breast","/page/total":73},"max_bytes":1012}
+            ));
             steps.push(json!(
-        {"run":["search","disease","--source","seer","--offset","70"],"offline":true,"expect":{"/page/returned":3,"/page/total":73},
-        "max_bytes":663}
-    ));
+                {"run":["search","disease","--source","seer","--offset","70"],"offline":true,"expect":{"/page/returned":3,"/page/total":73},
+                "max_bytes":663}
+            ));
         }
         "incidence" => {
             steps.push(json!(
-        {"run":words,"offline":true,"expect":{"/page/total":5,"/result/items/0/observed/value":47.172044,
-        "/result/items/0/observed/count":434448,"/result/items/0/returned_selectors/3/code":"101",
-        "/result/items/4/returned_selectors/3/code":"107"},"max_bytes":5001}
-    ));
+                {"run":words,"offline":true,"expect":{"/page/total":5,"/result/items/0/observed/value":47.172044,
+                "/result/items/0/observed/count":434448,"/result/items/0/returned_selectors/3/code":"101",
+                "/result/items/4/returned_selectors/3/code":"107"},"max_bytes":5001}
+            ));
             let mut middle = words.to_vec();
             middle.extend([
                 "--section-limit".into(),
@@ -221,10 +221,10 @@ fn steps(name: &str, words: &[String]) -> Result<Value, String> {
                 "1".into(),
             ]);
             steps.push(json!(
-        {"run":middle,"mcp":middle,"offline":true,"expect":{"/page/returned":1,"/page/total":5,
-        "/result/items/0/returned_selectors/3/code":"104","/result/items/0/observed/value":13.624780,
-        "/result/items/0/observed/count":125024},"max_bytes":5001}
-    ));
+                {"run":middle,"mcp":middle,"offline":true,"expect":{"/page/returned":1,"/page/total":5,
+                "/result/items/0/returned_selectors/3/code":"104","/result/items/0/observed/value":13.624780,
+                "/result/items/0/observed/count":125024},"max_bytes":5001}
+            ));
             let mut terminal = words.to_vec();
             terminal.extend(["--section-offset".into(), "5".into()]);
             steps.push(json!({"run":terminal,"offline":true,"expect":{"/page/returned":0,"/page/total":5},"max_bytes":862}));
@@ -233,10 +233,10 @@ fn steps(name: &str, words: &[String]) -> Result<Value, String> {
             let mut last = words.to_vec();
             last.extend(["--section-offset".into(), "43".into()]);
             steps.push(json!(
-        {"run":last,"mcp":last,"offline":true,"expect":{"/page/total":48,"/result/items/0/year":2018,
-        "/result/items/0/observed/value":93.862708,"/result/items/0/modeled/value":93.171232,"/result/items/4/year":2022,
-        "/result/items/4/modeled/value":93.690345,"/result/items/4/returned_selectors/5/code":"31"},"max_bytes":4998}
-    ));
+                {"run":last,"mcp":last,"offline":true,"expect":{"/page/total":48,"/result/items/0/year":2018,
+                "/result/items/0/observed/value":93.862708,"/result/items/0/modeled/value":93.171232,"/result/items/4/year":2022,
+                "/result/items/4/modeled/value":93.690345,"/result/items/4/returned_selectors/5/code":"31"},"max_bytes":4998}
+            ));
         }
         _ => return Err("unknown native witness".into()),
     }

@@ -5,6 +5,9 @@ pub(crate) fn command(
     outcome: &crate::command::Outcome,
     args: &[std::ffi::OsString],
 ) -> io::Result<()> {
+    if crate::grammar::is_housekeeping(args) {
+        return bytes(&outcome.cli_bytes);
+    }
     let mut words = args.iter().take_while(|arg| *arg != "--");
     let mut format = None;
     while let Some(word) = words.next().and_then(|arg| arg.to_str()) {
@@ -36,8 +39,12 @@ pub(crate) fn command(
         }
         _ => outcome.cli_bytes.clone(),
     };
+    self::bytes(&bytes)
+}
+
+pub(crate) fn bytes(bytes: &[u8]) -> io::Result<()> {
     let mut stdout = io::stdout().lock();
-    stdout.write_all(&bytes)?;
+    stdout.write_all(bytes)?;
     stdout.flush()
 }
 

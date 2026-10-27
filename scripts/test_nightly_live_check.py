@@ -120,12 +120,8 @@ class NightlyCommand(unittest.TestCase):
         if script.exists():
             shutil.copy(script, self.checkout / 'scripts')
         self.home = self.root / 'home'
-        self.workspace = self.home / 'workspace'
-        agents = self.workspace / 'repos/agents'
-        agents.mkdir(parents=True)
+        self.scratch_root = self.root / 'scratch'
         self.store = self.root / 'store'
-        (agents / 'machines.json').write_text(json.dumps({
-            'yellow': {'names': ['offline-store'], 'workspaceRoot': str(self.store)}}))
         self.tools = self.root / 'tools'
         self.tools.mkdir()
         for name, content in [('cargo', CARGO), ('ssh', SSH), ('git', '#!/bin/sh\nprintf \"%040d\\n\" 1\n')]:
@@ -134,6 +130,9 @@ class NightlyCommand(unittest.TestCase):
             target.chmod(0o755)
         self.env = dict(os.environ, HOME=str(self.home),
                         TMPDIR=str(self.root / 'tmp'),
+                        BIOMCP_EVIDENCE_HOST='offline-store',
+                        BIOMCP_EVIDENCE_DIR=str(self.store),
+                        BIOMCP_SCRATCH_DIR=str(self.scratch_root),
                         PATH=str(self.tools) + os.pathsep + os.environ['PATH'],
                         FAKE_REPORT='{"drift_cases":0,"error_cases":0}')
         Path(self.env['TMPDIR']).mkdir()
@@ -144,7 +143,7 @@ class NightlyCommand(unittest.TestCase):
                               env=env, text=True, capture_output=True, check=False)
 
     def copied(self):
-        runs = list((self.store / 'data/biomcp-redux/0068-scheduled').glob('*'))
+        runs = list(self.store.glob('*'))
         self.assertEqual(len(runs), 1)
         run = runs[0]
         manifest = json.loads((run / 'manifest.json').read_text())
@@ -154,10 +153,17 @@ class NightlyCommand(unittest.TestCase):
         return run
 
     def scratch(self):
-        return list((self.workspace / 'data/biomcp-redux/0068-scheduled-scratch').glob('*'))
+        return list(self.scratch_root.glob('*'))
+
+    def test_missing_destination_fails_before_running_or_creating_scratch(self):
+        result = self.run_command(BIOMCP_EVIDENCE_HOST='')
+        self.assertNotEqual(result.returncode, 0)
+        self.assertIn('supply --host', result.stderr)
+        self.assertFalse(self.scratch_root.exists())
+        self.assertFalse(self.store.exists())
 
     def test_clean_copies_and_cleans_only_owned_scratch(self):
-        unowned = self.workspace / 'data/biomcp-redux/0068-scheduled-scratch/another-run'
+        unowned = self.scratch_root / 'another-run'
         unowned.mkdir(parents=True)
         (unowned / 'keep').write_text('owned by another run')
         result = self.run_command()
@@ -167,7 +173,7 @@ class NightlyCommand(unittest.TestCase):
         self.assertEqual((unowned / 'keep').read_text(), 'owned by another run')
         second = self.run_command()
         self.assertEqual(second.returncode, 0, second.stderr)
-        self.assertEqual(len(list((self.store / 'data/biomcp-redux/0068-scheduled').glob('*'))), 2)
+        self.assertEqual(len(list(self.store.glob('*'))), 2)
 
     def test_drift_errors_and_failed_runner_still_copy(self):
         for overrides in [dict(FAKE_REPORT='{"drift_cases":1,"error_cases":0}'),

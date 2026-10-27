@@ -363,3 +363,34 @@ fn version_two_cache_retains_native_range_during_pagination_migration() {
         .unwrap();
     assert_eq!(value, ("0-0/1".into(), biomcp_fetch::VERSION, None));
 }
+
+#[test]
+fn ordinary_reply_write_prunes_expired_rows_and_retains_fresh_rows() {
+    let directory = tempfile::tempdir().unwrap();
+    let path = directory.path().join("cache.sqlite");
+    let server = Server::new();
+    let spec = spec(&server, KeyUse::None);
+    let fetch = Fetch::open(config(&path)).unwrap();
+    let cx = Connection::open(&path).unwrap();
+    cx.execute_batch(
+        "INSERT INTO reply(key,source,url,status,body,fetched_at,fresh_until) VALUES \
+        (x'01','pubmed','https://example.test/old',200,x'7b7d',0,0),(x'02','pubmed','https://example.test/li\
+        ve',200,x'7b7d',0,9223372036854775807);",
+    )
+    .unwrap();
+    let endpoint = spec.get("/answer").fresh(Freshness::Hours(1));
+    exchange(&server, 200, r#"{"answer":true}"#, || {
+        get(&fetch, spec, &endpoint, &[])
+    })
+    .unwrap();
+    let keys: Vec<Vec<u8>> = cx
+        .prepare("SELECT key FROM reply ORDER BY key")
+        .unwrap()
+        .query_map([], |r| r.get(0))
+        .unwrap()
+        .collect::<Result<_, _>>()
+        .unwrap();
+    assert_eq!(keys.len(), 2);
+    assert!(keys.contains(&vec![2]));
+    assert!(!keys.contains(&vec![1]));
+}

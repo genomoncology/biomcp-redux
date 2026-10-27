@@ -1,6 +1,8 @@
 //! Checked blocking source requests with explicit configuration and deadlines.
 
+mod cancellation;
 mod observe;
+pub use cancellation::Cancellation;
 mod observe_context;
 pub use observe::{MAX_OBSERVATIONS, Observation, Observations, Shape};
 pub use observe_context::{Identities, Provenance};
@@ -134,6 +136,8 @@ impl Default for FetchConfig {
 pub struct Fetch {
     secrets: std::sync::Arc<Secrets>,
     agents: std::sync::Arc<network::Agents>,
+    cancelled: Option<std::sync::Arc<std::sync::atomic::AtomicBool>>,
+    mode: Mode,
     limiters: std::sync::Arc<quota::Limiters>,
     cache: Option<std::sync::Arc<cache::Cache>>,
     recordings: std::sync::Arc<record::Recordings>,
@@ -186,6 +190,8 @@ impl Fetch {
         Ok(Self {
             secrets: std::sync::Arc::new(std::mem::take(&mut config.secrets)),
             agents: std::sync::Arc::new(agents),
+            cancelled: None,
+            mode: std::mem::take(&mut config.mode),
             cache,
             recordings: std::sync::Arc::new(recordings),
             clock: clock.map(std::sync::Arc::new),
@@ -247,12 +253,13 @@ impl Fetch {
 
     /// Create a real deadline or an initial replay budget for independent legs.
     pub fn deadline(&self, budget: Duration) -> Deadline<'_> {
-        Deadline::start(budget, self.clock.as_deref())
+        Deadline::start(budget, self.clock.as_deref()).with_cancellation(self.cancelled.as_ref())
     }
 
     /// Own a sequential command's replay origin without changing independent leg consumers.
     pub fn command_deadline(&self, budget: Duration) -> CommandDeadline<'_> {
         CommandDeadline::start(budget, self.clock.as_deref())
+            .with_cancellation(self.cancelled.as_ref())
     }
 
     /// Start a leg capped by this source's budget.
@@ -284,7 +291,7 @@ impl Fetch {
             report: std::sync::Arc::new(std::sync::Mutex::new(LegReport::default())),
             nested_batch: false,
             refreshed_bundles: Default::default(),
-            fresh: matches!(self.config.mode, Mode::Live { fresh: true }),
+            fresh: matches!(self.mode, Mode::Live { fresh: true }),
         }
     }
 }

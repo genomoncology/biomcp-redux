@@ -53,10 +53,9 @@ fn declaration(name: &str, usage: &str, url: &str) -> Check {
     if row.get("usage") != Some(&json!(usage))
         || row.get("terms_url") != Some(&json!(url))
         || row.get("disabled") != Some(&json!(false))
-        || row
-            .get("terms")
-            .and_then(Value::as_str)
-            .is_none_or(|t| !t.contains("PM ruling") || !t.contains("JavaScript shell"))
+        || row.get("terms").and_then(Value::as_str).is_none_or(|t| {
+            !t.contains("noncommercial access restriction") || !t.contains("JavaScript shell")
+        })
     {
         return Err(format!("wrong declaration: {row}"));
     }

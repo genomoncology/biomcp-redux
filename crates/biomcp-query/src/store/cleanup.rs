@@ -57,6 +57,8 @@ pub fn clean(
     let mut store = Store::open(fetch.cache_access()?, deadline)?;
     let mut counts = store.write(|tx| expired(tx, -1))?;
     counts.replies = fetch.clean_expired_replies(deadline)?;
-    counts.files = store._access.clean_incompatible_files(&[super::OWNER])?;
+    counts.files = store
+        ._access
+        .clean_incompatible_files(&[super::OWNER], super::CACHE_NAMESPACES)?;
     Ok(counts)
 }

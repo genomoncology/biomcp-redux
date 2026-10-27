@@ -56,6 +56,7 @@ fn commands() -> io::Result<Vec<HelpCommand>> {
                 .unwrap_or_default(),
         });
     }
+    commands.extend(crate::housekeeping::help());
     extra_commands(&mut commands, &examples);
     Ok(commands)
 }

@@ -1,4 +1,5 @@
 """Run the bounded public diagnostic once and retain verified evidence before cleanup."""
+import argparse
 import datetime
 import hashlib
 import json
@@ -261,33 +262,40 @@ def run_check(scratch):
         return True
 
 
-def deliver(scratch, store):
+def deliver(scratch, host, evidence_dir):
     manifest = {name: digest(scratch / name) for name in FILES}
     (scratch / 'manifest.json').write_text(json.dumps(manifest, sort_keys=True) + '\n')
     archive = scratch / 'transfer.tar'
     with tarfile.open(archive, 'w') as target:
         for name in (*FILES, 'manifest.json'):
             target.add(scratch / name, arcname=name, recursive=False)
-    destination = Path(store['workspaceRoot']) / 'data/biomcp-redux/0068-scheduled' / scratch.name
+    destination = evidence_dir / scratch.name
     command = shlex.join(['python3', '-c', RECEIVE, str(destination),
                           digest(scratch / 'manifest.json')])
     with archive.open('rb') as source:
         subprocess.run(['ssh', '-o', 'BatchMode=yes', '-o', 'ConnectTimeout=30',
-                        store['names'][0], command], stdin=source, check=True)
-    print('Verified evidence: ' + store['names'][0] + ':' + str(destination))
+                        host, command], stdin=source, check=True)
+    print('Verified evidence: ' + host + ':' + str(destination))
 
 
 def main():
-    workspace = Path.home() / 'workspace'
-    machines = json.loads((workspace / 'repos/agents/machines.json').read_text())
-    scratch_root = workspace / 'data/biomcp-redux/0068-scheduled-scratch'
+    parser = argparse.ArgumentParser(description=__doc__)
+    parser.add_argument('--host', default=os.environ.get('BIOMCP_EVIDENCE_HOST'))
+    parser.add_argument('--evidence-dir', type=Path,
+                        default=os.environ.get('BIOMCP_EVIDENCE_DIR'))
+    parser.add_argument('--scratch-dir', type=Path,
+                        default=os.environ.get('BIOMCP_SCRATCH_DIR'))
+    args = parser.parse_args()
+    if not args.host or args.evidence_dir is None or args.scratch_dir is None:
+        parser.error('supply --host, --evidence-dir and --scratch-dir or their BIOMCP environment settings')
+    scratch_root = args.scratch_dir
     scratch_root.mkdir(parents=True, exist_ok=True)
     scratch = Path(tempfile.mkdtemp(prefix=datetime.datetime.now(
         datetime.timezone.utc).strftime('%Y%m%dT%H%M%SZ-'), dir=scratch_root))
     print('Owned scratch: ' + str(scratch), flush=True)
     try:
         failed = run_check(scratch)
-        deliver(scratch, machines['yellow'])
+        deliver(scratch, args.host, args.evidence_dir)
     except (OSError, ValueError, KeyError, subprocess.SubprocessError) as error:
         print('Nightly check failed; retained scratch: ' + str(scratch) + ': ' + str(error),
               file=sys.stderr)

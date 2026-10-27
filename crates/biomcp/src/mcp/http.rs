@@ -74,7 +74,7 @@ fn connections(
         if stopped.try_recv().is_ok() {
             break;
         }
-        let stream = match listener.accept() {
+        let mut stream = match listener.accept() {
             Ok((stream, _)) => {
                 stream.set_nonblocking(false)?;
                 stream
@@ -98,6 +98,14 @@ fn connections(
         }
         workers = retained;
         if workers.len() >= MAX_CONNECTIONS {
+            let _ = wire::read(&mut stream);
+            let _ = wire::write(
+                &mut stream,
+                503,
+                br#"{"error":"Service unavailable"}"#,
+                None,
+                None,
+            );
             continue;
         }
         let service = service.clone();

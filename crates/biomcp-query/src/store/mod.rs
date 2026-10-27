@@ -12,14 +12,19 @@ pub(crate) use evidence::EvidenceState;
 mod pool;
 use biomcp_fetch::{CacheAccess, CacheError, Deadline, SchemaOwner};
 pub(crate) use pool::{Pool, StoredItem};
-use rusqlite::{Connection, params};
+use rusqlite::{Connection, OptionalExtension, params};
 use std::time::{Instant, SystemTime, UNIX_EPOCH};
-/// Query schema version used in the binary's shared cache filename.
+/// Query schema version migrated independently of the cache filename.
 pub const VERSION: u32 = 5;
+/// Stable shared-file generation, independent of the query schema version.
+pub const CACHE_NAMESPACE_VERSION: u32 = 5;
+/// Supported file generations retained until a separate transfer verifies their contents.
+pub const CACHE_NAMESPACES: &[u32] = &[CACHE_NAMESPACE_VERSION, 4];
 /// Query-owned metadata checked by transport before any journal or schema mutation.
 pub const OWNER: SchemaOwner = SchemaOwner {
     name: "biomcp-query",
     version: VERSION,
+    migratable_versions: &[4],
     tables: &[
         "pool",
         "pool_current",
@@ -52,24 +57,31 @@ impl<'a> Store<'a> {
                     SchemaOwner {
                         name: "biomcp-fetch",
                         version: biomcp_fetch::VERSION,
+                        migratable_versions: &[],
                         tables: &["reply", "bundle"],
                     },
                     OWNER,
                 ],
             )?;
-            let tx = connection
-                .transaction_with_behavior(rusqlite::TransactionBehavior::Immediate)
+            let tx = connection.transaction_with_behavior(rusqlite::TransactionBehavior::Immediate).map_err(db)?;
+            biomcp_fetch::check_owners(&tx, &[OWNER])?;
+            let version: Option<u32> = tx
+                .query_row("SELECT version FROM meta WHERE owner=?1", [OWNER.name], |r| r.get(0))
+                .optional()
                 .map_err(db)?;
+            if version.is_some_and(|version| version != VERSION) {
+                for table in OWNER.tables.iter().rev() {
+                    tx.execute_batch(&format!("DROP TABLE IF EXISTS {table}")).map_err(db)?;
+                }
+            }
             tx.execute_batch(include_str!("schema.sql")).map_err(db)?;
             tx.execute(
-                "INSERT INTO meta(owner,version) VALUES (?1,?2) ON CONFLICT(owner) DO NOTHING",
+                "INSERT INTO meta(owner,version) VALUES (?1,?2) ON CONFLICT(owner) DO UPDATE SET version=excluded.version",
                 params![OWNER.name, VERSION],
             )
             .map_err(db)?;
             tx.commit().map_err(db)?;
-            connection
-                .pragma_update(None, "journal_mode", "WAL")
-                .map_err(db)?;
+            connection.pragma_update(None, "journal_mode", "WAL").map_err(db)?;
             Ok(())
         })?;
         Ok(Self {
@@ -141,5 +153,17 @@ fn db(error: rusqlite::Error) -> CacheError {
 
 /// Validate and open the owned query store without making a source request.
 pub fn health(fetch: &biomcp_fetch::Fetch, budget: std::time::Duration) -> Result<(), CacheError> {
-    Store::open(fetch.cache_access()?, fetch.deadline(budget)).map(|_| ())
+    let access = fetch.cache_access()?;
+    let connection = access.connect_read_only()?;
+    let deadline = fetch.deadline(budget);
+    connection.busy_timeout(deadline.remaining()).map_err(db)?;
+    access.admit(deadline, || {
+        biomcp_fetch::check_owners(
+            &connection,
+            &[SchemaOwner {
+                migratable_versions: &[],
+                ..OWNER
+            }],
+        )
+    })
 }

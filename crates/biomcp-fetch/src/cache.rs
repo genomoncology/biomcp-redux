@@ -4,7 +4,10 @@
     reason = "Serialize only SQL on one connection shared by transport legs"
 )]
 use crate::{CacheError, Deadline};
-use rusqlite::{Connection, OptionalExtension, TransactionBehavior, params};
+use rusqlite::{Connection, OptionalExtension, params};
+mod schema;
+pub(crate) use schema::db_error;
+pub use schema::{SchemaOwner, check_owners};
 use std::{
     path::Path,
     sync::Mutex,
@@ -56,58 +59,6 @@ impl Entry {
     }
 }
 
-/// Metadata owned by another schema sharing the active cache.
-#[derive(Clone, Copy, Debug)]
-pub struct SchemaOwner {
-    /// Stable schema owner name.
-    pub name: &'static str,
-    /// Expected schema version.
-    pub version: u32,
-    /// Tables that must not exist without this owner's metadata.
-    pub tables: &'static [&'static str],
-}
-/// Validate declared owners without changing journal mode or creating tables.
-pub fn check_owners(connection: &Connection, owners: &[SchemaOwner]) -> Result<(), CacheError> {
-    let has_meta: bool = connection
-        .query_row(
-            "SELECT EXISTS(SELECT 1 FROM sqlite_master WHERE name='meta')",
-            [],
-            |r| r.get(0),
-        )
-        .map_err(db_error)?;
-    for owner in owners {
-        let version: Option<u32> = if has_meta {
-            connection
-                .query_row(
-                    "SELECT version FROM meta WHERE owner=?1",
-                    [owner.name],
-                    |r| r.get(0),
-                )
-                .optional()
-                .map_err(|_| CacheError::Version)?
-        } else {
-            None
-        };
-        if version.is_some_and(|v| v != owner.version) {
-            return Err(CacheError::Version);
-        }
-        if version.is_none() {
-            for table in owner.tables {
-                let orphan: bool = connection
-                    .query_row(
-                        "SELECT EXISTS(SELECT 1 FROM sqlite_master WHERE name=?1)",
-                        [table],
-                        |r| r.get(0),
-                    )
-                    .map_err(db_error)?;
-                if orphan {
-                    return Err(CacheError::Version);
-                }
-            }
-        }
-    }
-    Ok(())
-}
 impl Cache {
     pub(crate) fn owned_connection(&self) -> Result<Connection, CacheError> {
         let connection =
@@ -150,92 +101,6 @@ impl Cache {
         ))
     }
 
-    fn initialize(connection: &mut Connection) -> Result<(), CacheError> {
-        let has_meta: bool = connection
-            .query_row(
-                "SELECT EXISTS(SELECT 1 FROM sqlite_master WHERE name='meta')",
-                [],
-                |row| row.get(0),
-            )
-            .map_err(db_error)?;
-        if has_meta
-            && connection
-                .query_row("SELECT version FROM meta WHERE owner=?1", [OWNER], |row| {
-                    row.get::<_, u32>(0)
-                })
-                .optional()
-                .map_err(|_| CacheError::Version)?
-                == Some(VERSION)
-        {
-            return Ok(());
-        }
-        let tx = connection
-            .transaction_with_behavior(TransactionBehavior::Immediate)
-            .map_err(db_error)?;
-        let meta_exists: bool = tx
-            .query_row(
-                "SELECT EXISTS(SELECT 1 FROM sqlite_master WHERE name='meta')",
-                [],
-                |r| r.get(0),
-            )
-            .map_err(db_error)?;
-        let version: Option<u32> = if meta_exists {
-            tx.query_row("SELECT version FROM meta WHERE owner=?1", [OWNER], |r| {
-                r.get(0)
-            })
-            .optional()
-            .map_err(|_| CacheError::Version)?
-        } else {
-            None
-        };
-        if version.is_some_and(|version| {
-            version != 1 && version != 2 && version != 3 && version != VERSION
-        }) {
-            return Err(CacheError::Version);
-        }
-        if version.is_none() {
-            let orphan: bool = tx
-                .query_row(
-                    "SELECT EXISTS(SELECT 1 FROM sqlite_master WHERE name IN \
-                    ('reply','reply_fresh','bundle','bundle_sync','bundle_row','bundle_key','bundle_key_find','bundle_wo\
-                    rds','bundle_content'))",
-                    [],
-                    |r| r.get(0),
-                )
-                .map_err(db_error)?;
-            if orphan {
-                return Err(CacheError::Version);
-            }
-        }
-        tx.execute_batch(
-            "CREATE TABLE IF NOT EXISTS meta (owner TEXT PRIMARY KEY, version INTEGER NOT NULL);
-            CREATE TABLE IF NOT EXISTS reply (
-                key BLOB PRIMARY KEY, source TEXT NOT NULL, url TEXT NOT NULL,
-                status INTEGER NOT NULL, content_type TEXT, content_range TEXT, pagination TEXT, body BLOB NOT NULL,
-                fetched_at INTEGER NOT NULL, fresh_until INTEGER NOT NULL);
-            CREATE INDEX IF NOT EXISTS reply_fresh ON reply (fresh_until);",
-        )
-        .map_err(db_error)?;
-        if version == Some(1) {
-            tx.execute("ALTER TABLE reply ADD COLUMN content_range TEXT", [])
-                .map_err(db_error)?;
-        }
-        if matches!(version, Some(1 | 2)) {
-            tx.execute("ALTER TABLE reply ADD COLUMN pagination TEXT", [])
-                .map_err(db_error)?;
-        }
-        crate::bundle::store::initialize(&tx)?;
-        if matches!(version, Some(1..=3)) {
-            crate::cache_hgnc::backfill(&tx)?;
-        }
-        tx.execute(
-            "INSERT INTO meta(owner,version) VALUES (?1,?2) ON CONFLICT(owner) DO UPDATE SET version=excluded.version",
-            (OWNER, VERSION),
-        )
-        .map_err(db_error)?;
-        tx.commit().map_err(db_error)
-    }
-
     // try_lock avoids an unbounded Rust mutex wait. SQLite's own busy handler
     // uses the remaining deadline after acquiring the connection.
     pub(crate) fn sql<T>(
@@ -243,7 +108,7 @@ impl Cache {
         deadline: Deadline<'_>,
         operation: impl FnOnce(&Connection) -> Result<T, CacheError>,
     ) -> Result<T, CacheError> {
-        let connection = wait_mutex(&self.0, deadline, deadline.local())?;
+        let connection = wait_mutex(&self.0, deadline, &deadline.local())?;
         sql_deadline(&connection, deadline)?;
         operation(&connection)
     }
@@ -255,8 +120,8 @@ impl Cache {
         operation: impl FnOnce(&Connection) -> Result<T, CacheError>,
     ) -> Result<T, CacheError> {
         let wall_bound = deadline.local();
-        let connection = wait_mutex(&self.0, deadline, wall_bound)?;
-        let _writer = wait_mutex(&self.3, deadline, wall_bound)?;
+        let connection = wait_mutex(&self.0, deadline, &wall_bound)?;
+        let _writer = wait_mutex(&self.3, deadline, &wall_bound)?;
         sql_deadline(&connection, deadline)?;
         operation(&connection)
     }
@@ -267,7 +132,7 @@ impl Cache {
         deadline: Deadline<'_>,
         operation: impl FnOnce() -> Result<T, CacheError>,
     ) -> Result<T, CacheError> {
-        let _writer = wait_mutex(&self.3, deadline, deadline.local())?;
+        let _writer = wait_mutex(&self.3, deadline, &deadline.local())?;
         operation()
     }
 
@@ -381,34 +246,35 @@ impl Cache {
         deadline: Deadline<'_>,
     ) -> Result<(), CacheError> {
         self.write_sql(deadline, |connection| {
-            connection
-                .execute(
-                    "INSERT INTO reply(key,source,url,status,content_type,body,fetched_at,fresh_until,content_range,pagination) \
+            let tx = connection.unchecked_transaction().map_err(db_error)?;
+            tx.execute("DELETE FROM reply WHERE fresh_until<=?1", [now()]).map_err(db_error)?;
+            tx.execute(
+                "INSERT INTO reply(key,source,url,status,content_type,body,fetched_at,fresh_until,content_range,pagination) \
         VALUES (?1,?2,?3,?4,?5,?6,?7,?8,?9,?10)
                 ON CONFLICT(key) DO UPDATE SET \
         source=excluded.source,url=excluded.url,status=excluded.status,content_type=excluded.content_type,bo\
         dy=excluded.body,fetched_at=excluded.fetched_at,fresh_until=excluded.fresh_until,content_range=exclu\
         ded.content_range,pagination=excluded.pagination",
-                    params![
-                        key,
-                        source.to_string(),
-                        url,
-                        entry.status,
-                        entry.content_type,
-                        entry.body,
-                        entry.fetched_at,
-                        entry.fresh_until,
-                        entry.content_range,
-                        entry
-                            .pagination
-                            .as_ref()
-                            .map(serde_json::to_string)
-                            .transpose()
-                            .map_err(|_| CacheError::Database)?
-                    ],
-                )
-                .map_err(db_error)?;
-            Ok(())
+                params![
+                    key,
+                    source.to_string(),
+                    url,
+                    entry.status,
+                    entry.content_type,
+                    entry.body,
+                    entry.fetched_at,
+                    entry.fresh_until,
+                    entry.content_range,
+                    entry
+                        .pagination
+                        .as_ref()
+                        .map(serde_json::to_string)
+                        .transpose()
+                        .map_err(|_| CacheError::Database)?
+                ],
+            )
+            .map_err(db_error)?;
+            tx.commit().map_err(db_error)
         })
     }
 }
@@ -439,7 +305,7 @@ fn try_mutex<T>(mutex: &Mutex<T>) -> Result<std::sync::MutexGuard<'_, T>, CacheE
 fn wait_mutex<'a, T>(
     mutex: &'a Mutex<T>,
     deadline: Deadline<'_>,
-    wall_bound: crate::LocalDeadline,
+    wall_bound: &crate::LocalDeadline,
 ) -> Result<std::sync::MutexGuard<'a, T>, CacheError> {
     loop {
         if deadline.expired() || wall_bound.expired() {
@@ -462,14 +328,4 @@ pub(crate) fn now() -> i64 {
             .as_secs(),
     )
     .unwrap_or(i64::MAX)
-}
-pub(crate) fn db_error(error: rusqlite::Error) -> CacheError {
-    if matches!(
-        error.sqlite_error_code(),
-        Some(rusqlite::ErrorCode::DatabaseBusy | rusqlite::ErrorCode::DatabaseLocked)
-    ) {
-        CacheError::Busy
-    } else {
-        CacheError::Database
-    }
 }

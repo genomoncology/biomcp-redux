@@ -1,6 +1,7 @@
 # 0283 — Make MCP server calls always finish and health checks read-only
 
-Status: OPEN.
+Status: COMPLETE.
+Landed: 8a4dd276390f1acef722c3a549a9735f0de771c5
 
 Milestone: 5
 
