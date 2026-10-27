@@ -2,25 +2,6 @@ live_check: local-only case
 feature: schema
 story: Invalid schema requests return the fixed usage envelope
 steps:
-<<<<<<< HEAD
-  - run: []
-=======
-  - run: [schema]
->>>>>>> 747982f5df8fe2440fd4053386b89f31c20cbae6
-    exit: 2
-    max_bytes: 160
-    expect:
-      '':
-        equals:
-          schema: biomcp.error/1
-          status: usage
-          error:
-            code: usage.schema
-<<<<<<< HEAD
-            message: use biomcp schema to list known artifact IDs
-=======
-            message: expected schema <known artifact id>
->>>>>>> 747982f5df8fe2440fd4053386b89f31c20cbae6
   - run: [schema, SENSITIVE-usage-probe-37f4]
     exit: 2
     max_bytes: 160
@@ -42,19 +23,4 @@ steps:
           status: usage
           error:
             code: usage.schema
-<<<<<<< HEAD
             message: use biomcp schema to list known artifact IDs
-  - run: [unknown]
-    exit: 2
-    max_bytes: 160
-    expect:
-      '':
-        equals:
-          schema: biomcp.error/1
-          status: usage
-          error:
-            code: usage.schema
-            message: use biomcp schema to list known artifact IDs
-=======
-            message: expected schema <known artifact id>
->>>>>>> 747982f5df8fe2440fd4053386b89f31c20cbae6
