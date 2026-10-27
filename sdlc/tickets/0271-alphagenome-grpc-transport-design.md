@@ -1,6 +1,7 @@
 # 0271 — Design a streaming gRPC transport for AlphaGenome
 
-Status: OPEN.
+Status: COMPLETE.
+Landed: a0fd1880b184b32837afb3cf0db37f8f20950c00
 
 Milestone: 5
 
