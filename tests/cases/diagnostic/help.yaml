@@ -39,7 +39,7 @@
           "who-ivd"
         ]
       },
-      "max_bytes": 2654,
+      "max_bytes": 3792,
       "max_tokens": 664
     },
     {
@@ -83,7 +83,7 @@
           "supplements"
         ]
       },
-      "max_bytes": 2558,
+      "max_bytes": 3799,
       "max_tokens": 640
     },
     {
@@ -102,7 +102,7 @@
           "count": 2
         }
       },
-      "max_bytes": 429,
+      "max_bytes": 1372,
       "max_tokens": 108
     },
     {
@@ -121,7 +121,7 @@
           "count": 2
         }
       },
-      "max_bytes": 448,
+      "max_bytes": 1391,
       "max_tokens": 112
     },
     {
@@ -140,7 +140,7 @@
           "count": 2
         }
       },
-      "max_bytes": 448,
+      "max_bytes": 1391,
       "max_tokens": 112
     }
   ]

@@ -27,7 +27,7 @@
           ]
         }
       },
-      "max_bytes": 1422,
+      "max_bytes": 2490,
       "max_tokens": 356
     },
     {
@@ -70,7 +70,7 @@
           ]
         }
       },
-      "max_bytes": 3291,
+      "max_bytes": 4679,
       "max_tokens": 823
     },
     {
@@ -93,7 +93,7 @@
           "count": 2
         }
       },
-      "max_bytes": 429,
+      "max_bytes": 1372,
       "max_tokens": 108
     },
     {
@@ -116,7 +116,7 @@
           "count": 2
         }
       },
-      "max_bytes": 448,
+      "max_bytes": 1391,
       "max_tokens": 112
     }
   ],

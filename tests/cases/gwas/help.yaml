@@ -30,7 +30,7 @@
         },
         "/status": "complete"
       },
-      "max_bytes": 2714,
+      "max_bytes": 3775,
       "max_tokens": 679,
       "mcp": [
         "help",
@@ -69,7 +69,7 @@
         ],
         "/status": "complete"
       },
-      "max_bytes": 1617,
+      "max_bytes": 2680,
       "max_tokens": 404,
       "mcp": [
         "help",

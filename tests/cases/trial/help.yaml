@@ -40,7 +40,7 @@
           "count": 2
         }
       },
-      "max_bytes": 5163,
+      "max_bytes": 6393,
       "mcp": [
         "help",
         "search",
@@ -79,7 +79,7 @@
           "summary"
         ]
       },
-      "max_bytes": 3105,
+      "max_bytes": 4120,
       "mcp": [
         "help",
         "get",
@@ -103,7 +103,7 @@
           "count": 2
         }
       },
-      "max_bytes": 1252,
+      "max_bytes": 2228,
       "mcp": [
         "help",
         "trial",

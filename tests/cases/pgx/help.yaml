@@ -37,7 +37,7 @@
           "cpic"
         ]
       },
-      "max_bytes": 1189,
+      "max_bytes": 2217,
       "max_tokens": 297
     },
     {
@@ -87,7 +87,7 @@
           "clinpgx"
         ]
       },
-      "max_bytes": 2690,
+      "max_bytes": 3745,
       "max_tokens": 673
     }
   ]

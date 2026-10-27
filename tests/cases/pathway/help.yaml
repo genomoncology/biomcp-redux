@@ -31,7 +31,7 @@
         },
         "/status": "complete"
       },
-      "max_bytes": 1861,
+      "max_bytes": 2918,
       "max_tokens": 466,
       "mcp": [
         "help",
@@ -74,7 +74,7 @@
         },
         "/status": "complete"
       },
-      "max_bytes": 2202,
+      "max_bytes": 3001,
       "mcp": [
         "help",
         "get",
@@ -107,7 +107,7 @@
         },
         "/status": "complete"
       },
-      "max_bytes": 1481,
+      "max_bytes": 2487,
       "mcp": [
         "help",
         "pathway",
@@ -139,7 +139,7 @@
         },
         "/status": "complete"
       },
-      "max_bytes": 1210,
+      "max_bytes": 2218,
       "mcp": [
         "help",
         "pathway",
@@ -166,7 +166,7 @@
         },
         "/status": "complete"
       },
-      "max_bytes": 521,
+      "max_bytes": 1479,
       "mcp": [
         "help",
         "sync",

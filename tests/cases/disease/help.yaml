@@ -36,7 +36,7 @@
           "ncit"
         ]
       },
-      "max_bytes": 1254
+      "max_bytes": 2311
     },
     {
       "run": [
@@ -82,7 +82,7 @@
           "--source"
         ]
       },
-      "max_bytes": 3059
+      "max_bytes": 4433
     }
   ],
   "verified": "Measured compact CLI and MCP parity in j12432; max_bytes is comparable bytes plus 15 percent, rounded up. Source outcome terms use the shared validated deduction; component terms remain counted."

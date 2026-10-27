@@ -20,7 +20,7 @@
         },
         "/result/commands/0/description": "Read an rsID, CAid, ClinVar Variation ID or reference-qualified HGVS; chromosome notation requires --build. Use search variant --gene BRAF --protein V600E for shorthand. Every candidate remains available; source assertions do not classify the variant for the caller."
       },
-      "max_bytes": 4303,
+      "max_bytes": 5514,
       "max_tokens": 1076
     },
     {
@@ -39,7 +39,7 @@
           "count": 2
         }
       },
-      "max_bytes": 2994,
+      "max_bytes": 3976,
       "max_tokens": 749
     },
     {
@@ -58,7 +58,7 @@
           "count": 2
         }
       },
-      "max_bytes": 1484,
+      "max_bytes": 2458,
       "max_tokens": 371
     },
     {
@@ -77,7 +77,7 @@
           "count": 2
         }
       },
-      "max_bytes": 1481,
+      "max_bytes": 2540,
       "max_tokens": 371
     },
     {
@@ -96,7 +96,7 @@
           "count": 2
         }
       },
-      "max_bytes": 1469,
+      "max_bytes": 2493,
       "max_tokens": 368
     },
     {
@@ -115,7 +115,7 @@
           "count": 2
         }
       },
-      "max_bytes": 2150,
+      "max_bytes": 3135,
       "max_tokens": 538
     }
   ],

@@ -256,7 +256,7 @@
         "sync",
         "fda-cdx"
       ],
-      "max_bytes": 487,
+      "max_bytes": 1391,
       "max_tokens": 122,
       "expect": {
         "/schema": "biomcp.help/2",
@@ -277,7 +277,7 @@
         "search",
         "diagnostic"
       ],
-      "max_bytes": 2654,
+      "max_bytes": 3792,
       "max_tokens": 664,
       "expect": {
         "/schema": "biomcp.help/2",

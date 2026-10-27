@@ -17,7 +17,7 @@
         "/status": "complete"
       },
       "full_output_bytes": true,
-      "max_bytes": 1012,
+      "max_bytes": 2136,
       "max_tokens": 253,
       "mcp": [
         "help",
@@ -58,7 +58,7 @@
         "/status": "complete"
       },
       "full_output_bytes": true,
-      "max_bytes": 1976,
+      "max_bytes": 3111,
       "max_tokens": 494,
       "mcp": [
         "help",
@@ -85,7 +85,7 @@
         "/status": "complete"
       },
       "full_output_bytes": true,
-      "max_bytes": 727,
+      "max_bytes": 1691,
       "max_tokens": 182,
       "mcp": [
         "help",

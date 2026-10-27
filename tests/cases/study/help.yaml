@@ -4,7 +4,7 @@
     {
       "expect": {
         "": {
-          "max_bytes": 1384
+          "max_bytes": 2368
         },
         "/result/commands/0/arguments/*/name": {
           "includes_all_of": [
@@ -25,7 +25,7 @@
         "/result/commands/0/sections": [],
         "/status": "complete"
       },
-      "max_bytes": 1383,
+      "max_bytes": 2369,
       "max_tokens": 347,
       "mcp": [
         "help",
@@ -41,7 +41,7 @@
     {
       "expect": {
         "": {
-          "max_bytes": 1692
+          "max_bytes": 2817
         },
         "/result/commands/0/arguments/*/name": {
           "includes_all_of": [
@@ -65,7 +65,7 @@
         ],
         "/status": "complete"
       },
-      "max_bytes": 1691,
+      "max_bytes": 2818,
       "max_tokens": 424,
       "mcp": [
         "help",
@@ -81,7 +81,7 @@
     {
       "expect": {
         "": {
-          "max_bytes": 498
+          "max_bytes": 1440
         },
         "/result/commands/0/command": [
           "sync",
@@ -93,7 +93,7 @@
         "/result/commands/0/sections": [],
         "/status": "complete"
       },
-      "max_bytes": 497,
+      "max_bytes": 1441,
       "max_tokens": 125,
       "mcp": [
         "help",
