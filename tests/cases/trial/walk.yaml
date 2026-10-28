@@ -39,6 +39,7 @@
       "max_bytes": 5790
     },
     {
+      "offline": true,
       "mcp": [
         "search",
         "trial",

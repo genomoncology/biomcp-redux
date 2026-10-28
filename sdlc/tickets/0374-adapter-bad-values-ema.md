@@ -1,6 +1,7 @@
 # 0374 — Apply the bad-value rule to EMA
 
-Status: OPEN.
+Status: COMPLETE.
+Landed: 47d8f4c87c3cabf3e01e5a71230d644bc4d88284
 
 Milestone: 5
 
