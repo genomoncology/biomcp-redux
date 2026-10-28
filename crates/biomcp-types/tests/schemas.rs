@@ -8,6 +8,8 @@ mod compatibility;
 mod compatibility_cases;
 #[path = "schemas/generation.rs"]
 mod generation;
+#[path = "schemas/ownership.rs"]
+mod ownership;
 #[path = "schemas/policy.rs"]
 mod policy;
 #[path = "schemas/release.rs"]
@@ -338,24 +340,6 @@ fn trial_contracts() -> Vec<Contract> {
     }
 }
 
-#[test]
-fn schema_ids_follow_type_ownership() {
-    for contract in registry() {
-        let namespace = if contract.rust_type.starts_with("biodata::") {
-            "biodata."
-        } else {
-            assert!(contract.rust_type.starts_with("biomcp_types::"));
-            "biomcp."
-        };
-        assert!(
-            contract.id.starts_with(namespace) && !contract.id.contains('_'),
-            "{} ({}) must use {namespace} and hyphens: {}",
-            contract.name,
-            contract.rust_type,
-            contract.id
-        );
-    }
-}
 
 #[test]
 #[expect(
