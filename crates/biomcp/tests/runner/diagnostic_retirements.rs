@@ -111,7 +111,8 @@ const CASES: &[(&str, &str)] = &[
     ),
     (
         "get diagnostic GTR000006692.3",
-        "choose --source gtr, who-ivd, fda-cdx or fda-device-recall for search; choose --source gtr, who-ivd, fda-pma, fda-510k or fda-device-recall for exact get",
+        "choose --source gtr, who-ivd, fda-cdx or fda-device-recall for search; \
+            choose --source gtr, who-ivd, fda-pma, fda-510k or fda-device-recall for exact get",
     ),
     (
         "--json get diagnostic GTR000006692.3 --source gtr",
@@ -123,11 +124,13 @@ const CASES: &[(&str, &str)] = &[
     ),
     (
         "search diagnostic --gene BRCA1",
-        "choose --source gtr, who-ivd, fda-cdx or fda-device-recall for search; choose --source gtr, who-ivd, fda-pma, fda-510k or fda-device-recall for exact get",
+        "choose --source gtr, who-ivd, fda-cdx or fda-device-recall for search; \
+            choose --source gtr, who-ivd, fda-pma, fda-510k or fda-device-recall for exact get",
     ),
     (
         "get diagnostic X --source all",
-        "choose --source gtr, who-ivd, fda-cdx or fda-device-recall for search; choose --source gtr, who-ivd, fda-pma, fda-510k or fda-device-recall for exact get",
+        "choose --source gtr, who-ivd, fda-cdx or fda-device-recall for search; \
+            choose --source gtr, who-ivd, fda-pma, fda-510k or fda-device-recall for exact get",
     ),
     (
         "search diagnostic --source gtr --gene BRCA1 -g BRCA1",
