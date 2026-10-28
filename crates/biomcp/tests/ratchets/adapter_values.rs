@@ -62,25 +62,3 @@ fn fingerprints(tokens: &[String]) -> BTreeMap<String, usize> {
     }
     result
 }
-#[test]
-fn new_optional_drop_requires_its_own_classification() -> Check {
-    let root = tempfile::tempdir()?;
-    let folder = root.path().join("crates/biomcp-adapters/src/new_source");
-    fs::create_dir_all(&folder)?;
-    let path = folder.join("details.rs");
-    fs::write(&path, "fn map() { /* .ok() */ let native = \".ok()\"; }")?;
-    check(root.path())?;
-    for source in [
-        "fn map() { let title = input.parse().ok(); }",
-        "fn map() { let title = input.parse() . ok ( ); }",
-    ] {
-        fs::write(&path, source)?;
-        let error = check(root.path()).expect_err("new unclassified mapper drop must fail");
-        assert!(
-            error
-                .to_string()
-                .contains("classify new optional-value drop")
-        );
-    }
-    Ok(())
-}

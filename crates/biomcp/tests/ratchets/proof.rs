@@ -385,3 +385,22 @@ fn adapter_mapping_helpers_require_one_owner() -> Check {
     }
     Ok(())
 }
+
+#[test]
+fn new_optional_drop_requires_its_own_classification() -> Check {
+    let tree = tree()?;
+    let path = "crates/biomcp-adapters/src/new_source/details.rs";
+    put(
+        tree.path(),
+        path,
+        "fn map() { /* .ok() */ let native = \".ok()\"; }",
+    )?;
+    check(tree.path())?;
+    for source in [
+        "fn map() { let title = input.parse().ok(); }",
+        "fn map() { let title = input.parse() . ok ( ); }",
+    ] {
+        rejects(path, source, "classify new optional-value drop")?;
+    }
+    Ok(())
+}
