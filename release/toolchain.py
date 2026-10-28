@@ -26,8 +26,11 @@ def check():
     # Recipes consume these pins rather than maintaining independent versions.
     for name in ('linux.sh', 'matrix.sh'):
         text = (ROOT / 'release' / name).read_text()
-        if 'toolchain.py' not in text or re.search(r'(?:toolchain |cp3\d\d|rustup/archive/)\d', text):
+        if 'toolchain.py' not in text or re.search(r'(?:--default-toolchain\s+\d|/cp\d|rustup/archive/\d)', text):
             raise ValueError(name + ' must consume the release tool manifest')
+    scanner = (ROOT / 'release/secrets.py').read_text()
+    if re.search(r'^VERSION\s*=\s*[\"\']', scanner, re.M):
+        raise ValueError('secrets.py duplicates the scanner pin')
     workflow = ROOT / '.github/workflows/release.yml'
     if workflow.exists():
         text = workflow.read_text()

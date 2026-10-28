@@ -22,9 +22,15 @@ if [ "$cold" = 1 ]; then
   set -- "$@" -e BIOMCP_RELEASE_COLD=1
 else
   mkdir -p .release-cache/cargo
-  set -- "$@" -v "$PWD/.release-cache/cargo:/cargo"
 fi
-stage build docker run --rm "$@" --user "$(id -u):$(id -g)" -e HOME=/tmp \
+build_cache=${BIOMCP_RELEASE_COLD:-0}
+build() {
+  if [ "$build_cache" != 1 ]; then
+    set -- "$@" -v "$PWD/.release-cache/cargo:/cargo"
+  fi
+  docker "$@"
+}
+stage build build run --rm "$@" --user "$(id -u):$(id -g)" -e HOME=/tmp \
   -v "$PWD:/source" -w /source \
   -e CARGO_HOME=/cargo \
   -e CARGO_BUILD_JOBS=2 -e "BIOMCP_BUILD_REVISION=$revision" \
@@ -33,7 +39,8 @@ stage build docker run --rm "$@" --user "$(id -u):$(id -g)" -e HOME=/tmp \
     python_series=$(python3 release/toolchain.py get python | tr -d .)
     export PATH=/cargo/bin:/opt/python/cp$python_series-cp$python_series/bin:$PATH
     if [ "${BIOMCP_RELEASE_COLD:-0}" = 1 ]; then
-      export HOME=/tmp/release-home RUSTUP_HOME=/tmp/release-rustup
+      export HOME=/tmp/release-home RUSTUP_HOME=/tmp/release-rustup CARGO_HOME=/tmp/release-cargo
+      export PATH="$CARGO_HOME/bin:$PATH"
       mkdir "$HOME"
       python release/rehearse.py inside --report /source/dist/cold-build-report.json
     else

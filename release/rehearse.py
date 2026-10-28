@@ -80,6 +80,9 @@ def cold(report, container_args):
             result = subprocess.run(command, cwd=source, env=env, check=False)
             if stage_report.exists():
                 rows.extend({**row, 'platform': arch} for row in json.loads(stage_report.read_text()))
+            inner = source / 'dist/cold-build-report.json'
+            if inner.exists():
+                rows.extend({**row, 'platform': arch} for row in json.loads(inner.read_text()))
             rows.append({'stage': 'linux-recipe', 'platform': arch, 'exit': result.returncode})
             shutil.copytree(source / 'dist', report.parent / ('cold-artifacts-' + arch), dirs_exist_ok=True)
     return finish(rows, report)
