@@ -117,9 +117,7 @@ impl std::error::Error for PathwayIdInvalid {}
 #[serde(
     tag = "source",
     content = "id",
-    rename_all = "lowercase",
-    deny_unknown_fields
-)]
+    rename_all = "lowercase")]
 #[cfg_attr(feature = "schema", derive(schemars::JsonSchema))]
 pub enum PathwayId {
     /// Human Reactome stable identity without a version suffix.

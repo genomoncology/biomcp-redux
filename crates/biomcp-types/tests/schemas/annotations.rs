@@ -5,9 +5,9 @@ type Check<T> = Result<T, String>;
 pub(super) fn validate(object: &serde_json::Map<String, Value>) -> Check<()> {
     validate_cli_flags(object.get("x-cli-flags"))?;
     if object.get("x-extensible-enum").is_some_and(|value| {
-        !value.as_array().is_some_and(|values| {
-            !values.is_empty() && values.iter().all(Value::is_string)
-        })
+        !value
+            .as_array()
+            .is_some_and(|values| !values.is_empty() && values.iter().all(Value::is_string))
     }) {
         return Err("invalid extensible enum annotation".into());
     }

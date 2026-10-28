@@ -113,9 +113,7 @@ pub struct TrialRecords<T> {
 #[serde(
     tag = "record",
     content = "data",
-    rename_all = "snake_case",
-    deny_unknown_fields
-)]
+    rename_all = "snake_case")]
 #[cfg_attr(feature = "schema", derive(schemars::JsonSchema))]
 pub enum TrialArmRecord {
     /// Original arm with its intervention names.
@@ -129,9 +127,7 @@ pub enum TrialArmRecord {
 #[serde(
     tag = "record",
     content = "data",
-    rename_all = "snake_case",
-    deny_unknown_fields
-)]
+    rename_all = "snake_case")]
 #[cfg_attr(feature = "schema", derive(schemars::JsonSchema))]
 pub enum TrialContactRecord {
     /// A central contact for this trial.

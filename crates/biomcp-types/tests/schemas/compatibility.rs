@@ -586,4 +586,3 @@ fn bound(node: &Value, value: &Value) -> Check<Bound> {
         .map(Bound::Decimal)
         .ok_or_else(|| "unsupported decimal bound".into())
 }
-

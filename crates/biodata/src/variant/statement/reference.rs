@@ -135,6 +135,7 @@ impl Serialize for VariantRef {
 
 #[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
 #[cfg_attr(feature = "schema", derive(schemars::JsonSchema))]
+#[cfg_attr(feature = "schema", schemars(inline))]
 struct AlleleRef {
     /// Source identifier.
     #[serde(default, skip_serializing_if = "Option::is_none")]
@@ -145,6 +146,7 @@ struct AlleleRef {
 }
 #[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
 #[cfg_attr(feature = "schema", derive(schemars::JsonSchema))]
+#[cfg_attr(feature = "schema", schemars(inline))]
 struct ProteinRef {
     /// Source gene.
     gene: GeneRef,

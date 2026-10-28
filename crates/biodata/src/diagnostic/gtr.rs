@@ -83,9 +83,7 @@ crate::wire_enum! {
 #[serde(
     tag = "kind",
     content = "relation",
-    rename_all = "snake_case",
-    deny_unknown_fields
-)]
+    rename_all = "snake_case")]
 #[cfg_attr(feature = "schema", derive(schemars::JsonSchema))]
 pub enum GtrTestRelation {
     /// Native gene relation row.

@@ -43,11 +43,19 @@ fn prepare(node: &mut Value, kind: ContractKind) {
 #[test]
 fn published_reply_contracts_are_open_and_query_choices_stay_closed() {
     for contract in super::registry() {
-        let schema = (contract.generate)();
+        let mut schema = (contract.generate)();
+        schema["$id"] = contract.id.into();
+        super::compatibility::check_reviewed(
+            &schema, &schema, contract.kind, &super::policy::Reviews::default(),
+        ).unwrap_or_else(|error| panic!("{}: {error}", contract.name));
         match contract.kind {
             ContractKind::Reply => assert_open(&schema, contract.name),
             ContractKind::Query => {
-                assert!(schema.get("x-extensible-enum").is_none(), "{}", contract.name);
+                assert!(
+                    schema.get("x-extensible-enum").is_none(),
+                    "{}",
+                    contract.name
+                );
             }
         }
     }
@@ -59,7 +67,12 @@ fn published_reply_contracts_are_open_and_query_choices_stay_closed() {
         (reply::<biodata::Predicate>(), "is_causal_for"),
     ] {
         assert!(schema.get("enum").is_none(), "reply enum remains closed");
-        assert!(schema["x-extensible-enum"].as_array().unwrap().contains(&expected.into()));
+        assert!(
+            schema["x-extensible-enum"]
+                .as_array()
+                .unwrap()
+                .contains(&expected.into())
+        );
         let validator = jsonschema::draft202012::new(&schema).unwrap();
         assert!(validator.is_valid(&serde_json::json!("future_value")));
         assert!(!validator.is_valid(&serde_json::json!(42)));
@@ -67,7 +80,9 @@ fn published_reply_contracts_are_open_and_query_choices_stay_closed() {
     let drug = query::<biomcp_types::DrugGet>();
     let validator = jsonschema::draft202012::new(&drug).unwrap();
     assert!(validator.is_valid(&serde_json::json!({"input":"CHEMBL941","source":"chembl"})));
-    assert!(!validator.is_valid(&serde_json::json!({"input":"CHEMBL941","source":"future_source"})));
+    assert!(
+        !validator.is_valid(&serde_json::json!({"input":"CHEMBL941","source":"future_source"}))
+    );
     let schema = query::<biomcp_types::GeneGet>();
     assert_eq!(schema["additionalProperties"], false);
     let validator = jsonschema::draft202012::new(&schema).unwrap();
@@ -78,8 +93,15 @@ fn published_reply_contracts_are_open_and_query_choices_stay_closed() {
 fn assert_open(value: &Value, name: &str) {
     match value {
         Value::Object(object) => {
-            assert_ne!(object.get("additionalProperties"), Some(&Value::Bool(false)), "{name}");
-            assert!(!object.contains_key("x-enum-open"), "unpublished marker in {name}");
+            assert_ne!(
+                object.get("additionalProperties"),
+                Some(&Value::Bool(false)),
+                "{name}"
+            );
+            assert!(
+                !object.contains_key("x-enum-open"),
+                "unpublished marker in {name}"
+            );
             for child in object.values() {
                 assert_open(child, name);
             }

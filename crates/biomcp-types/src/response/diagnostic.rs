@@ -40,9 +40,7 @@ pub struct GtrHeader {
 #[derive(Clone, Debug, PartialEq, Serialize, Deserialize)]
 #[serde(
     tag = "identity_status",
-    rename_all = "snake_case",
-    deny_unknown_fields
-)]
+    rename_all = "snake_case")]
 #[cfg_attr(feature = "schema", derive(schemars::JsonSchema))]
 pub enum DiagnosticCandidate {
     /// One matched WHO product with cells from its first matching native row.
@@ -101,6 +99,7 @@ pub struct GtrNativeStatus {
 /// Exact GTR card retains native context but never embeds its broad relation lists.
 #[derive(Clone, Debug, PartialEq, Serialize, Deserialize)]
 #[cfg_attr(feature = "schema", derive(schemars::JsonSchema))]
+#[cfg_attr(feature = "schema", schemars(inline))]
 pub struct GtrCard {
     /// Source identity header.
     pub header: GtrHeader,
@@ -283,6 +282,7 @@ pub struct DiagnosticPmaHeader {
 /// Selected PMA card; statement text stays behind its bounded regulatory page.
 #[derive(Clone, Debug, PartialEq, Serialize, Deserialize)]
 #[cfg_attr(feature = "schema", derive(schemars::JsonSchema))]
+#[cfg_attr(feature = "schema", schemars(inline))]
 pub struct DiagnosticPmaCard {
     /// Exact selected source header.
     pub header: DiagnosticPmaHeader,
@@ -320,6 +320,7 @@ pub struct DiagnosticPmaRegulatory {
 /// Native 510(k) fields without harmonized or inferred clinical content.
 #[derive(Clone, Debug, PartialEq, Serialize, Deserialize)]
 #[cfg_attr(feature = "schema", derive(schemars::JsonSchema))]
+#[cfg_attr(feature = "schema", schemars(inline))]
 pub struct DiagnosticClearance {
     /// Exact native K number.
     pub k_number: biodata::DiagnosticDeviceId,

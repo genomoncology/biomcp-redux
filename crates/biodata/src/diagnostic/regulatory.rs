@@ -6,6 +6,7 @@ use serde::{Deserialize, Serialize};
 /// Whole WHO listing, retaining each original product-code row in source order.
 #[derive(Clone, Debug, PartialEq, Serialize, Deserialize)]
 #[cfg_attr(feature = "schema", derive(schemars::JsonSchema))]
+#[cfg_attr(feature = "schema", schemars(inline))]
 pub struct WhoIvdProduct {
     /// Native product listing identity.
     pub id: WhoProductId,
