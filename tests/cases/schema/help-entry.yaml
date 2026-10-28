@@ -24,6 +24,12 @@ steps:
     mcp: [help, get]
     expect:
       /result/commands/0/command/0: get
+  - run: [help, schema]
+    mcp: [help, schema]
+    expect:
+      /result/commands/0/command: [schema]
+      /result/commands/0/description: 'List every schema identity and description with biomcp schema, or print one schema artifact with biomcp schema <id>.'
+      /result/commands/0/examples: [[schema], [schema, biomcp.help/3]]
   - run: [help, store]
     expect:
       /result/commands/0/command: [store, clean]
