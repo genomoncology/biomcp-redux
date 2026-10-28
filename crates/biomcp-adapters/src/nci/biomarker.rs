@@ -22,7 +22,7 @@ pub fn search(
         .map(super::biomarker_map::page)
 }
 /// Search exact native codes; reject unrelated identities before cache admission.
-pub fn get(leg: &Leg<'_>, id: NcitId) -> Result<crate::Mapped<Vec<BiomarkerCard>>, RequestError> {
+pub fn get(leg: &Leg<'_>, id: &NcitId) -> Result<crate::Mapped<Vec<BiomarkerCard>>, RequestError> {
     let code = id.to_string();
     leg.json_bounded_checked::<super::biomarker_raw::Page>(
         &SEARCH,
