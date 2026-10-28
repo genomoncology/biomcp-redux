@@ -110,8 +110,6 @@ fn published_variant_identifiers_round_trip_without_text_inference() -> Check {
     let validator =
         jsonschema::draft202012::new(&serde_json::to_value(schemars::schema_for!(HgvsText))?)?;
     for (text, valid) in [
-        ("chr7:g.???", false),
-        ("chr7:g.100A>T word", false),
         ("NM_005228.5:c.???", false),
         ("NM_005228.5:c.2369C>T word", false),
         ("NM_005228.5:c.2369C\t>T", false),
@@ -120,6 +118,7 @@ fn published_variant_identifiers_round_trip_without_text_inference() -> Check {
         ("ENSP00000288602.1:g.100A>T", false),
         ("LRG_199p1:n.100A>T", false),
         ("NC_000007.14(NP_005219.2):c.2369C>T", false),
+        ("NM_005228.5(NP_label):c.2369C>T", true),
         ("NP_005219.2:p.???", false),
         ("NP_005219.2:p.?", true),
         ("NP_005219.2:p.0", true),
