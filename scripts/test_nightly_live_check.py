@@ -119,7 +119,8 @@ def publication_growth_case(change='addition', count=1590, insertion=650):
         old, new = new, old
     def requests(ids):
         rows = [{'identity': 'publications', 'source': 'litvar', 'role': 'Publications',
-                 'status': 200, 'provenance': {'discovery': {'namespace': 'pmid', 'ids': ids}}}]
+                 'status': 200, 'provenance': {'inputs': None, 'input_context': None,
+                 'discovery': {'namespace': 'pmid', 'ids': ids}}}]
         for start in range(0, len(ids), 200):
             batch = ids[start:start + 200]
             rows.append({'identity': ','.join(batch), 'source': 'icite', 'role': 'Raw',
