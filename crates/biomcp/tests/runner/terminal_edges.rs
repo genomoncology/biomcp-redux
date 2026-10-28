@@ -24,9 +24,14 @@ fn markdown() -> Check {
     let env = Environment::new()?;
     let replay = env.root().join("recordings");
     let source = "Synthetic\u{1b}[31m\u{0}\u{7}\u{9}\u{7f}\u{85}\u{202a}\u{202e}\u{202c}\u{2066}\u{2069} protein";
+    let mut changed = false;
     super::response_cases::copy_capture("protein/synthetic", &replay, |_, record| {
-        *record.pointer_mut("/exchanges/0/body/value/proteinDescription/recommendedName/fullName/value").unwrap() = json!(source);
+        if let Some(name) = record.pointer_mut("/exchanges/0/body/value/proteinDescription/recommendedName/fullName/value") {
+            *name = json!(source);
+            changed = true;
+        }
     })?;
+    assert!(changed, "protein name fixture missing");
     let mut args = env.globals(Some(&replay), false);
     args.extend(["get", "protein", "P00533"].map(str::to_owned));
     let output = env.command(env!("CARGO_BIN_EXE_biomcp"), &args).output()?;
