@@ -1,25 +1,26 @@
 //! Named normalization preserves provider outcomes through the real command.
 use super::{launch::Environment, network_stub::Stub};
+use crate::runner::transcript::trial as transcript_trial;
 use libtest_mimic::Trial;
 use serde_json::{Value, json};
 use std::fs;
 
 pub(super) fn trials() -> Vec<Trial> {
     vec![
-        Trial::test("variant-normalization/keeps-every-transcript", || {
+        transcript_trial("variant-normalization/keeps-every-transcript", || {
             transcripts().map_err(Into::into)
         }),
-        Trial::test("variant-normalization/native-mapping-walk-is-warm", || {
+        transcript_trial("variant-normalization/native-mapping-walk-is-warm", || {
             walk().map_err(Into::into)
         }),
-        Trial::test("variant-normalization/warning-is-rejection", || {
+        transcript_trial("variant-normalization/warning-is-rejection", || {
             warning().map_err(Into::into)
         }),
-        Trial::test(
+        transcript_trial(
             "variant-normalization/nested-rejection-stays-uncached",
             || nested().map_err(Into::into),
         ),
-        Trial::test(
+        transcript_trial(
             "variant-normalization/all-keeps-independent-results",
             || independent().map_err(Into::into),
         ),

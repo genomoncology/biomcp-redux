@@ -1,29 +1,30 @@
 //! Feature pathway-reactome: retained source membership and event walks through CLI and MCP.
 use super::launch::{Environment, fixtures};
 use crate::runner::pathway_budgets as budgets;
+use crate::runner::transcript::trial as transcript_trial;
 use libtest_mimic::Trial;
 use serde_json::{Value, json};
 use std::{collections::BTreeSet, io::Write};
 type Check = Result<(), String>;
 pub(super) fn trials() -> Vec<Trial> {
     vec![
-        Trial::test("pathway-sections/native-reference-walk", || {
+        transcript_trial("pathway-sections/native-reference-walk", || {
             walk(true).map_err(Into::into)
         }),
-        Trial::test("pathway-sections/native-event-walk", || {
+        transcript_trial("pathway-sections/native-event-walk", || {
             walk(false).map_err(Into::into)
         }),
-        Trial::test("pathway-sections/pool-binding-and-fixed-lifetime", || {
+        transcript_trial("pathway-sections/pool-binding-and-fixed-lifetime", || {
             bindings().map_err(Into::into)
         }),
-        Trial::test("pathway-sections/warm-hgnc-uniprot-index-migration", || {
+        transcript_trial("pathway-sections/warm-hgnc-uniprot-index-migration", || {
             migration().map_err(Into::into)
         }),
-        Trial::test(
+        transcript_trial(
             "pathway-sections/compact-and-complete-context-modes",
             || disclosure_modes().map_err(Into::into),
         ),
-        Trial::test("pathway-sections/native-disclosure-measurements", || {
+        transcript_trial("pathway-sections/native-disclosure-measurements", || {
             measurements().map_err(Into::into)
         }),
     ]

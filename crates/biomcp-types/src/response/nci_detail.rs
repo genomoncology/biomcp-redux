@@ -3,7 +3,6 @@ use crate::{FiniteNumber, Section, Text, TrialRecords};
 use serde::{Deserialize, Serialize};
 /// Independently paged native collections from one immutable source record.
 #[derive(Clone, Debug, PartialEq, Serialize, Deserialize)]
-#[serde(deny_unknown_fields)]
 #[cfg_attr(feature = "schema", derive(schemars::JsonSchema))]
 pub struct NciTrialSections {
     /// Complete native summary with character continuations.
@@ -24,7 +23,6 @@ pub struct NciTrialSections {
 }
 /// Native eligibility fields and whole unclassified criteria.
 #[derive(Clone, Debug, PartialEq, Serialize, Deserialize)]
-#[serde(deny_unknown_fields)]
 #[cfg_attr(feature = "schema", derive(schemars::JsonSchema))]
 pub struct NciEligibilityPage {
     /// Source structured bounds and sex, without interpretation.
@@ -35,7 +33,6 @@ pub struct NciEligibilityPage {
 }
 /// Complete native eligibility stored for immutable paging.
 #[derive(Clone, Debug, PartialEq, Serialize, Deserialize)]
-#[serde(deny_unknown_fields)]
 #[cfg_attr(feature = "schema", derive(schemars::JsonSchema))]
 pub struct NciEligibility {
     /// Source structured fields.
@@ -47,7 +44,6 @@ pub struct NciEligibility {
 }
 /// One intact source criterion; the publisher supplies its classification.
 #[derive(Clone, Debug, PartialEq, Serialize, Deserialize)]
-#[serde(deny_unknown_fields)]
 #[cfg_attr(feature = "schema", derive(schemars::JsonSchema))]
 pub struct NciCriterion {
     /// Original source text, preserving every character.
@@ -61,7 +57,6 @@ pub struct NciCriterion {
 }
 /// Native NCI structured fields; sentinel ages remain native values.
 #[derive(Clone, Debug, PartialEq, Serialize, Deserialize)]
-#[serde(deny_unknown_fields)]
 #[cfg_attr(feature = "schema", derive(schemars::JsonSchema))]
 pub struct NciEligibilityStructured {
     /// Native min age field.
@@ -97,7 +92,6 @@ pub struct NciEligibilityStructured {
 }
 /// One complete NCI outcome with its original vocabulary.
 #[derive(Clone, Debug, PartialEq, Serialize, Deserialize)]
-#[serde(deny_unknown_fields)]
 #[cfg_attr(feature = "schema", derive(schemars::JsonSchema))]
 pub struct NciOutcome {
     /// Original publisher name field.
@@ -115,7 +109,6 @@ pub struct NciOutcome {
 }
 /// Source arm header; interventions follow as indexed records.
 #[derive(Clone, Debug, PartialEq, Serialize, Deserialize)]
-#[serde(deny_unknown_fields)]
 #[cfg_attr(feature = "schema", derive(schemars::JsonSchema))]
 pub struct NciArm {
     /// Original arm name.
@@ -130,7 +123,6 @@ pub struct NciArm {
 }
 /// One original NCI intervention attached to its source arm.
 #[derive(Clone, Debug, PartialEq, Serialize, Deserialize)]
-#[serde(deny_unknown_fields)]
 #[cfg_attr(feature = "schema", derive(schemars::JsonSchema))]
 pub struct NciIntervention {
     /// Native name field.
@@ -158,7 +150,7 @@ pub struct NciIntervention {
 }
 /// A record position preserves every arm/intervention relationship without invented identity.
 #[derive(Clone, Debug, PartialEq, Serialize, Deserialize)]
-#[serde(tag = "record", rename_all = "snake_case", deny_unknown_fields)]
+#[serde(tag = "record", rename_all = "snake_case")]
 #[cfg_attr(feature = "schema", derive(schemars::JsonSchema))]
 pub enum NciArmRecord {
     /// Original arm header, followed by its intervention rows.
@@ -181,7 +173,6 @@ pub enum NciArmRecord {
 
 /// Exact source text fragment with an honest original character count.
 #[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
-#[serde(deny_unknown_fields)]
 #[cfg_attr(feature = "schema", derive(schemars::JsonSchema))]
 pub struct NciTextPage {
     /// Checked request for the next original characters, absent when complete.

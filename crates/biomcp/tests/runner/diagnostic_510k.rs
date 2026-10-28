@@ -1,5 +1,6 @@
 //! Feature diagnostic-510k: exact clearance identity, native fields and cache admission.
 use super::{configuration::invoke, launch::Environment, network_stub::Stub};
+use crate::runner::transcript::trial as transcript_trial;
 use libtest_mimic::Trial;
 use serde_json::{Value, json};
 pub(super) fn trials() -> Vec<Trial> {
@@ -13,12 +14,12 @@ pub(super) fn trials() -> Vec<Trial> {
     ]
     .into_iter()
     .map(|mode| {
-        Trial::test(format!("diagnostic-510k/synthetic-{mode}"), move || {
+        transcript_trial(format!("diagnostic-510k/synthetic-{mode}"), move || {
             run(mode).map_err(Into::into)
         })
     })
     .collect();
-    trials.push(Trial::test(
+    trials.push(transcript_trial(
         "diagnostic-510k/synthetic-companion-pivots",
         || companion().map_err(Into::into),
     ));

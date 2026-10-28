@@ -3,11 +3,12 @@ use super::{
     launch::{Environment, fixtures},
     network_stub::Stub,
 };
+use crate::runner::transcript::trial as transcript_trial;
 use libtest_mimic::Trial;
 use serde_json::{Value, json};
 use std::fs;
 pub(super) fn trial() -> Trial {
-    Trial::test("keys/openfda/companion-website-has-no-key", || {
+    transcript_trial("keys/openfda/companion-website-has-no-key", || {
         check().map_err(Into::into)
     })
 }

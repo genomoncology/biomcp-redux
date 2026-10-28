@@ -2,7 +2,6 @@ use crate::{Attribution, Concept, Curie, FiniteNumber, Text};
 use serde::{Deserialize, Serialize};
 /// A native source association without clinical interpretation.
 #[derive(Clone, Debug, PartialEq, Serialize, Deserialize)]
-#[serde(deny_unknown_fields)]
 #[cfg_attr(feature = "schema", derive(schemars::JsonSchema))]
 pub struct DiseaseAssociation {
     /// The exact requested concept, including a queried parent.
@@ -85,7 +84,6 @@ pub struct DiseaseAssociation {
 }
 /// A publisher relation with distinct endpoints and predicate.
 #[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
-#[serde(deny_unknown_fields)]
 #[cfg_attr(feature = "schema", derive(schemars::JsonSchema))]
 pub struct DiseaseRelation {
     /// Unchanged native cross-reference description when supplied.
@@ -102,7 +100,6 @@ pub struct DiseaseRelation {
 }
 /// A publisher synonym with its scope and language.
 #[derive(Clone, Debug, PartialEq, Serialize, Deserialize)]
-#[serde(deny_unknown_fields)]
 #[cfg_attr(feature = "schema", derive(schemars::JsonSchema))]
 pub struct DiseaseSynonym {
     /// Complete synonym text.
@@ -118,7 +115,6 @@ pub struct DiseaseSynonym {
 }
 /// One source-native selector without a local interpretation.
 #[derive(Clone, Debug, PartialEq, Serialize, Deserialize)]
-#[serde(deny_unknown_fields)]
 #[cfg_attr(feature = "schema", derive(schemars::JsonSchema))]
 pub struct StatisticSelector {
     /// Source field name.
@@ -131,7 +127,6 @@ pub struct StatisticSelector {
 }
 /// One native statistics row with requested and returned dimensions.
 #[derive(Clone, Debug, PartialEq, Serialize, Deserialize)]
-#[serde(deny_unknown_fields)]
 #[cfg_attr(feature = "schema", derive(schemars::JsonSchema))]
 pub struct DiseaseStatistic {
     /// Explicit selected native site ID.
@@ -158,7 +153,6 @@ pub struct DiseaseStatistic {
 }
 /// Source estimate and uncertainty without computed quantities.
 #[derive(Clone, Debug, PartialEq, Serialize, Deserialize)]
-#[serde(deny_unknown_fields)]
 #[cfg_attr(feature = "schema", derive(schemars::JsonSchema))]
 pub struct StatisticEstimate {
     /// Native estimate.
@@ -180,7 +174,6 @@ pub struct StatisticEstimate {
 
 /// One native endpoint with an identifier and an optional source label.
 #[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
-#[serde(deny_unknown_fields)]
 #[cfg_attr(feature = "schema", derive(schemars::JsonSchema))]
 pub struct DiseaseEndpoint {
     /// Exact source identifier.
@@ -204,7 +197,6 @@ fn aggregators<'de, D: serde::Deserializer<'de>>(d: D) -> Result<Aggregators, D:
 
 /// One native association reference, with no invented display label or link.
 #[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
-#[serde(deny_unknown_fields)]
 #[cfg_attr(feature = "schema", derive(schemars::JsonSchema))]
 pub struct DiseaseAssociationReference {
     /// Native evidence or publication identity.
@@ -219,7 +211,6 @@ pub struct DiseaseAssociationReference {
 }
 /// A named native qualifier without an inferred role.
 #[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
-#[serde(deny_unknown_fields)]
 #[cfg_attr(feature = "schema", derive(schemars::JsonSchema))]
 pub struct DiseaseAssociationQualifier {
     /// Original native qualifier field.

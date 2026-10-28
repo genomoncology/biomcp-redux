@@ -1,6 +1,7 @@
 //! Feature pathway-wikipathways: explicit atomic catalog replacement and stored-only reads.
 use super::launch::Environment;
 use crate::runner::pathway_budgets as budgets;
+use crate::runner::transcript::trial as transcript_trial;
 use libtest_mimic::Trial;
 use serde_json::{Value, json};
 use std::{
@@ -14,25 +15,25 @@ const SEARCH: &str = "https://www.wikipathways.org/json/findPathwaysByText.json"
 const GET: &str = "https://www.wikipathways.org/json/getPathwayInfo.json";
 pub(super) fn trials() -> Vec<Trial> {
     vec![
-        Trial::test(
+        transcript_trial(
             "wikipathways/exact-source-species-before-text-normalization",
             || exact_species().map_err(Into::into),
         ),
-        Trial::test("wikipathways/stale-and-expired-stored-reads", || {
+        transcript_trial("wikipathways/stale-and-expired-stored-reads", || {
             read_policy().map_err(Into::into)
         }),
-        Trial::test("wikipathways/stored-identity-pages-and-replacement", || {
+        transcript_trial("wikipathways/stored-identity-pages-and-replacement", || {
             run().map_err(Into::into)
         }),
-        Trial::test(
+        transcript_trial(
             "wikipathways/independent-union-legs-and-round-robin",
             || union().map_err(Into::into),
         ),
-        Trial::test(
+        transcript_trial(
             "wikipathways/concurrent-readers-during-pair-replacement",
             || concurrent::run().map_err(Into::into),
         ),
-        Trial::test("wikipathways/native-disclosure-measurements", || {
+        transcript_trial("wikipathways/native-disclosure-measurements", || {
             native::run().map_err(Into::into)
         })
         .with_ignored_flag(

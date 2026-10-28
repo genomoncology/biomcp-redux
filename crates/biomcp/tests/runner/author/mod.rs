@@ -1,5 +1,6 @@
 //! Feature author-search: retained source contracts and output measurements.
 use super::{launch::Environment, mcp};
+use crate::runner::transcript::trial as transcript_trial;
 use libtest_mimic::Trial;
 use serde_json::{Value, json};
 use std::{fs, io::Write, path::Path};
@@ -11,22 +12,22 @@ pub(super) fn trials() -> Vec<Trial> {
     let root = super::launch::fixtures().join("author-native");
     let absent = !root.is_dir();
     vec![
-        Trial::test("author-search/disabled-warm-source-pools", || {
+        transcript_trial("author-search/disabled-warm-source-pools", || {
             disabled_pool::check().map_err(Into::into)
         }),
-        Trial::test("author-search/zero-io-controls", || {
+        transcript_trial("author-search/zero-io-controls", || {
             controls::check().map_err(Into::into)
         }),
-        Trial::test("author-papers/help-and-markdown", || {
+        transcript_trial("author-papers/help-and-markdown", || {
             help().map_err(Into::into)
         }),
-        Trial::test("author-search/retained-native-pool-contract", || {
+        transcript_trial("author-search/retained-native-pool-contract", || {
             pool::check("pool").map_err(Into::into)
         }),
-        Trial::test("author-search/stale-source-provenance", || {
+        transcript_trial("author-search/stale-source-provenance", || {
             pool::check("stale").map_err(Into::into)
         }),
-        Trial::test(
+        transcript_trial(
             "author-search/retained-native-records-and-costs",
             move || native(&root).map_err(Into::into),
         )

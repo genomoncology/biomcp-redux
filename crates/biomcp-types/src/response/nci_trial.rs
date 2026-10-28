@@ -3,7 +3,6 @@ use crate::{NctId, Text, TrialGet, TrialSearch};
 use serde::{Deserialize, Serialize};
 /// NCI trial card without registry status or phase coercion.
 #[derive(Clone, Debug, PartialEq, Serialize, Deserialize)]
-#[serde(deny_unknown_fields)]
 #[cfg_attr(feature = "schema", derive(schemars::JsonSchema))]
 pub struct NciTrial {
     /// Publisher NCI identifier.
@@ -25,7 +24,6 @@ pub struct NciTrial {
 }
 /// One NCI disease concept; names never substitute for an NCIt identity.
 #[derive(Clone, Debug, PartialEq, Serialize, Deserialize)]
-#[serde(deny_unknown_fields)]
 #[cfg_attr(feature = "schema", derive(schemars::JsonSchema))]
 pub struct NciDisease {
     /// Source concept name.
@@ -53,7 +51,6 @@ pub struct NciDisease {
 }
 /// NCI search page in native order with native count.
 #[derive(Clone, Debug, PartialEq, Serialize, Deserialize)]
-#[serde(deny_unknown_fields)]
 #[cfg_attr(feature = "schema", derive(schemars::JsonSchema))]
 pub struct NciTrialPage {
     /// Source rows, never merged with another provider.
@@ -74,7 +71,6 @@ impl super::ResponseBody for NciTrialPage {
 }
 /// Independent exact NCI answers in caller order.
 #[derive(Clone, Debug, PartialEq, Serialize, Deserialize)]
-#[serde(deny_unknown_fields)]
 #[cfg_attr(feature = "schema", derive(schemars::JsonSchema))]
 pub struct NciTrialCards {
     /// One independent answer per requested identity.
@@ -89,7 +85,6 @@ impl super::ResponseBody for NciTrialCards {
 }
 /// An exact NCI card and its source state.
 #[derive(Clone, Debug, PartialEq, Serialize, Deserialize)]
-#[serde(deny_unknown_fields)]
 #[cfg_attr(feature = "schema", derive(schemars::JsonSchema))]
 pub struct NciTrialItem {
     /// Exact caller identity.
@@ -115,7 +110,6 @@ pub struct NciTrialItem {
 
 /// Compact source disease reference; the diseases section retains every coding field.
 #[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
-#[serde(deny_unknown_fields)]
 #[cfg_attr(feature = "schema", derive(schemars::JsonSchema))]
 pub struct NciDiseaseRef {
     /// Native source name.

@@ -3,7 +3,6 @@ use serde::{Deserialize, Serialize};
 use std::collections::BTreeMap;
 /// Source-native PgxGeneIdentity fields; no clinical interpretation.
 #[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
-#[serde(deny_unknown_fields)]
 #[cfg_attr(feature = "schema", derive(schemars::JsonSchema))]
 pub struct PgxGeneIdentity {
     /// Native `symbol`; literal source value.
@@ -23,7 +22,6 @@ pub struct PgxGeneIdentity {
 }
 /// Source-native PgxPair fields; no clinical interpretation.
 #[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
-#[serde(deny_unknown_fields)]
 #[cfg_attr(feature = "schema", derive(schemars::JsonSchema))]
 pub struct PgxPair {
     /// Native `pairid`; literal source value.
@@ -62,7 +60,6 @@ pub struct PgxPair {
 /// fn interpret(value: biodata::PgxRecommendation) -> biodata::Statement { value }
 /// ```
 #[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
-#[serde(deny_unknown_fields)]
 #[cfg_attr(feature = "schema", derive(schemars::JsonSchema))]
 pub struct PgxRecommendation {
     /// Native `recommendationid`; literal source value.
@@ -94,7 +91,6 @@ pub struct PgxRecommendation {
 }
 /// Source-native PgxDrugRecommendation fields; no clinical interpretation.
 #[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
-#[serde(deny_unknown_fields)]
 #[cfg_attr(feature = "schema", derive(schemars::JsonSchema))]
 pub struct PgxDrugRecommendation {
     /// Native `id`; literal source value.
@@ -132,7 +128,6 @@ pub struct PgxDrugRecommendation {
 }
 /// Source-native PgxGuidelineGene fields; no clinical interpretation.
 #[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
-#[serde(deny_unknown_fields)]
 #[cfg_attr(feature = "schema", derive(schemars::JsonSchema))]
 pub struct PgxGuidelineGene {
     /// Native `url`; literal source value.
@@ -143,7 +138,6 @@ pub struct PgxGuidelineGene {
 }
 /// Source-native PgxGuidelineReference fields; no clinical interpretation.
 #[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
-#[serde(deny_unknown_fields)]
 #[cfg_attr(feature = "schema", derive(schemars::JsonSchema))]
 pub struct PgxGuidelineReference {
     /// Native `guideline_name`; literal source value.
@@ -163,7 +157,6 @@ pub struct PgxGuidelineReference {
 /// fn interpret(value: biodata::PgxDiplotypeResult) -> biodata::Statement { value }
 /// ```
 #[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
-#[serde(deny_unknown_fields)]
 #[cfg_attr(feature = "schema", derive(schemars::JsonSchema))]
 pub struct PgxDiplotypeResult {
     /// Native `genesymbol`; literal source value.

@@ -1,5 +1,6 @@
 //! Declared MyVariant query construction and native paging cross the real TLS boundary.
 use super::{launch::Environment, network_stub::Stub};
+use crate::runner::transcript::trial as transcript_trial;
 use libtest_mimic::Trial;
 use serde_json::{Value, json};
 use std::fs;
@@ -7,31 +8,31 @@ use std::fs;
 mod transcripts;
 pub(super) fn trials() -> Vec<Trial> {
     let mut trials = vec![
-        Trial::test(
+        transcript_trial(
             "variant-search/component-terms-preserve-comparable-payload",
             || terms_budget().map_err(Into::into),
         ),
-        Trial::test(
+        transcript_trial(
             "variant-search/source-coordinate-build-and-unknown-metadata",
             || metadata().map_err(Into::into),
         ),
-        Trial::test(
+        transcript_trial(
             "variant-search/native-window-discloses-unretrieved-total",
             || window().map_err(Into::into),
         ),
-        Trial::test(
+        transcript_trial(
             "variant-search/declared-symbol-escapes-query-syntax",
             || literal_gene().map_err(Into::into),
         ),
-        Trial::test(
+        transcript_trial(
             "variant-search/raw-region-build-and-native-duplicates",
             || raw_and_region().map_err(Into::into),
         ),
-        Trial::test(
+        transcript_trial(
             "variant-search/valid-zero-and-failed-page-cache-admission",
             || zero_and_failed().map_err(Into::into),
         ),
-        Trial::test(
+        transcript_trial(
             "variant-search/declared-protein-native-walk-and-warm-page",
             || walk().map_err(Into::into),
         ),

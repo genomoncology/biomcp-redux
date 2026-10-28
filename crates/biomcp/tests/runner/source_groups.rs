@@ -1,11 +1,12 @@
 //! Feature source-controls: callers see group consequences before disabling sources.
 use super::{configuration::invoke, launch::Environment};
+use crate::runner::transcript::trial as transcript_trial;
 use biomcp_adapters::registry;
 use libtest_mimic::Trial;
 use serde_json::Value;
 
 pub(super) fn trials() -> Vec<Trial> {
-    vec![Trial::test(
+    vec![transcript_trial(
         "sources/group-consequences-help-and-health",
         || check().map_err(Into::into),
     )]

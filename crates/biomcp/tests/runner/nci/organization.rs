@@ -1,17 +1,18 @@
 //! Native organization continuations retain a complete observation without another request.
 use super::super::{launch::Environment, nci::invoke, response_cases::copy_capture};
+use crate::runner::transcript::trial as transcript_trial;
 use libtest_mimic::Trial;
 use serde_json::{Value, json};
 type Check = Result<(), String>;
 pub(super) fn trials() -> Vec<Trial> {
     vec![
-        Trial::test("organization/research-keeps-uncitable-rows", || {
+        transcript_trial("organization/research-keeps-uncitable-rows", || {
             research().map_err(Into::into)
         }),
-        Trial::test("organization/native-local-pages", || {
+        transcript_trial("organization/native-local-pages", || {
             pages().map_err(Into::into)
         }),
-        Trial::test("organization/bounded-failures", || {
+        transcript_trial("organization/bounded-failures", || {
             failures().map_err(Into::into)
         }),
     ]

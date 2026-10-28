@@ -1,5 +1,6 @@
 //! Features variant and drug-ema: rejected optional source text keeps the reply usable.
 use super::super::{configuration::invoke, network_stub::Stub, response_cases::checked_steps};
+use crate::runner::transcript::trial as transcript_trial;
 use libtest_mimic::Trial;
 use serde_json::{Value, json};
 #[path = "adapter_reactome_bad_values.rs"]
@@ -14,32 +15,32 @@ mod repeated_references;
 
 pub(super) fn trials() -> Vec<Trial> {
     let mut trials = vec![
-        Trial::test(
+        transcript_trial(
             "pathway-reactome/invalid-discovery-names-keep-siblings",
             || reactome_discovery::check().map_err(Into::into),
         ),
-        Trial::test(
+        transcript_trial(
             "pathway-reactome/invalid-metadata-shapes-keep-siblings",
             || reactome_bad_values::check().map_err(Into::into),
         ),
-        Trial::test(
+        transcript_trial(
             "pathway-reactome/repeated-reference-invalid-fields-are-disclosed",
             || repeated_references::check().map_err(Into::into),
         ),
-        Trial::test(
+        transcript_trial(
             "pathway-reactome/invalid-optional-fields-keep-records",
             || reactome().map_err(Into::into),
         ),
-        Trial::test("variant/invalid-clinvar-condition-id-is-disclosed", || {
+        transcript_trial("variant/invalid-clinvar-condition-id-is-disclosed", || {
             clinvar_condition_id().map_err(Into::into)
         }),
-        Trial::test("variant/invalid-rcv-condition-names-own-record", || {
+        transcript_trial("variant/invalid-rcv-condition-names-own-record", || {
             clinvar_rcv().map_err(Into::into)
         }),
-        Trial::test("variant/empty-clinvar-text-keeps-assertion", || {
+        transcript_trial("variant/empty-clinvar-text-keeps-assertion", || {
             clinvar().map_err(Into::into)
         }),
-        Trial::test("drug-ema/empty-text-keeps-medicine", || {
+        transcript_trial("drug-ema/empty-text-keeps-medicine", || {
             ema().map_err(|e| e.to_string().into())
         }),
     ];

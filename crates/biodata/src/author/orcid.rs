@@ -12,7 +12,6 @@ pub enum OrcidPublicVisibility {
 }
 /// Native ORCID external identifier before any article pivot.
 #[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
-#[serde(deny_unknown_fields)]
 #[cfg_attr(feature = "schema", derive(schemars::JsonSchema))]
 pub struct OrcidExternalId {
     /// Open native external-id-type.
@@ -30,7 +29,6 @@ pub struct OrcidExternalId {
 }
 /// Source and assertion origin remain distinct provider claims.
 #[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
-#[serde(deny_unknown_fields)]
 #[cfg_attr(feature = "schema", derive(schemars::JsonSchema))]
 pub struct OrcidAssertionSource {
     /// Native source ORCID iD.
@@ -54,7 +52,6 @@ pub struct OrcidAssertionSource {
 }
 /// One public summary, retained in native group order without representative selection.
 #[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
-#[serde(deny_unknown_fields)]
 #[cfg_attr(feature = "schema", derive(schemars::JsonSchema))]
 pub struct OrcidWorkAssertion {
     /// Source assertion identifier scoped to this ORCID record.
@@ -95,7 +92,6 @@ pub struct OrcidWorkAssertion {
 }
 /// One native work group is one group, regardless of assertion multiplicity.
 #[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
-#[serde(deny_unknown_fields)]
 #[cfg_attr(feature = "schema", derive(schemars::JsonSchema))]
 pub struct OrcidWorkGroup {
     /// Native group identifiers in source order.

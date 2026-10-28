@@ -1,7 +1,9 @@
 //! Feature study-catalog: stored literal search never synchronizes implicitly.
 use super::{configuration::invoke, launch::Environment};
+use crate::runner::transcript::trial as transcript_trial;
 use libtest_mimic::Trial;
 use serde_json::{Value, json};
+use sha2::{Digest, Sha256};
 use std::{
     fs,
     path::{Path, PathBuf},
@@ -10,22 +12,22 @@ type Check = Result<(), String>;
 const URL: &str = "https://www.cbioportal.org/api/studies?projection=DETAILED";
 pub(super) fn trials() -> Vec<Trial> {
     let mut cases = vec![
-        Trial::test("study-catalog/replacement-binds-pool-revision", || {
+        transcript_trial("study-catalog/replacement-binds-pool-revision", || {
             revision().map_err(Into::into)
         }),
-        Trial::test("study-catalog/expiry-stale-and-zero-network", || {
+        transcript_trial("study-catalog/expiry-stale-and-zero-network", || {
             lifetimes().map_err(Into::into)
         }),
-        Trial::test("study-catalog/mcp-markdown-help", || {
+        transcript_trial("study-catalog/mcp-markdown-help", || {
             surfaces().map_err(Into::into)
         }),
-        Trial::test("study-catalog/literal-pages-and-selectors", || {
+        transcript_trial("study-catalog/literal-pages-and-selectors", || {
             search().map_err(Into::into)
         }),
-        Trial::test("study-catalog/atomic-replacement-and-policy", || {
+        transcript_trial("study-catalog/atomic-replacement-and-policy", || {
             replacement().map_err(Into::into)
         }),
-        Trial::test("study-catalog/missing-bundle-explicit-sync", || {
+        transcript_trial("study-catalog/missing-bundle-explicit-sync", || {
             missing().map_err(Into::into)
         }),
     ];
@@ -59,7 +61,11 @@ pub(super) fn rows() -> Value {
 pub(super) fn seed(env: &Environment, body: Value, status: u16) -> Result<PathBuf, String> {
     let dir = env.root().join("replay/cbioportal");
     fs::create_dir_all(&dir).map_err(|e| e.to_string())?;
-    let key = "6a22562d8dcf66701258cac4800e9ad4d5275fdfd1ac5eee038c0e4c9d651085";
+    // The recording filename belongs to the same canonical GET URL as its body.
+    let key = Sha256::digest(format!("GET\0{URL}").as_bytes())
+        .iter()
+        .map(|byte| format!("{byte:02x}"))
+        .collect::<String>();
     let recording = json!(
         {"source":"cbioportal","method":"GET","url":URL,"exchanges":[{"status":status,"content_type":"application/json","delay_ms":0,
         "retry_after_ms":null,"body":{"kind":"text","value":body.to_string()}}]}

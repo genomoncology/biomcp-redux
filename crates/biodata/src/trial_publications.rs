@@ -3,7 +3,6 @@ use crate::{License, Pmid, Text};
 use serde::{Deserialize, Serialize};
 /// An unchanged registry reference in source order.
 #[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
-#[serde(deny_unknown_fields)]
 #[cfg_attr(feature = "schema", derive(schemars::JsonSchema))]
 pub struct TrialReference {
     /// Registry-supplied PubMed identity, when present.
@@ -18,7 +17,6 @@ pub struct TrialReference {
 }
 /// A posted source document; a URL never comes from caller-supplied filename text.
 #[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
-#[serde(deny_unknown_fields)]
 #[cfg_attr(feature = "schema", derive(schemars::JsonSchema))]
 pub struct TrialDocument {
     /// Exact advertised portable source filename.

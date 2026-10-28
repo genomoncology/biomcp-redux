@@ -23,6 +23,7 @@ pub const SOURCES: &[&SourceSpec] = &[
     &crate::fda_cdx::SPEC,
     &crate::fda_pma::SPEC,
     &crate::fda_510k::SPEC,
+    &crate::fda_device_recall::SPEC,
     &crate::gwas::SPEC,
     &crate::myvariant::SPEC,
     &crate::allele_registry::SPEC,
@@ -211,6 +212,7 @@ fn get_probe(source: Source) -> Option<(&'static str, ProbeParams)> {
         return Some(probe);
     }
     Some(match source {
+        Source::FdaDeviceRecall => ("/device/recall.json", vec![("limit", Arg::Num(1))]),
         Source::Gtr => (crate::gtr::HEALTH_PATH, vec![]),
         Source::WhoIvd => (crate::who_ivd::HEALTH_PATH, vec![]),
         Source::WhoPq => (crate::who_pq::HEALTH_PATH, vec![]),

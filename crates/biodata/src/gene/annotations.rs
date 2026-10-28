@@ -14,7 +14,7 @@ crate::canonical_enum! {
 #[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
 #[serde(try_from = "ManeFields")]
 #[cfg_attr(feature = "schema", derive(schemars::JsonSchema))]
-#[cfg_attr(feature = "schema", schemars(!try_from, deny_unknown_fields))]
+#[cfg_attr(feature = "schema", schemars(!try_from))]
 pub struct Mane {
     /// Source-stated transcript status.
     pub status: ManeStatus,
@@ -62,7 +62,6 @@ impl Mane {
 }
 /// A whole source-provided summary with attribution and stated date precision.
 #[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
-#[serde(deny_unknown_fields)]
 #[cfg_attr(feature = "schema", derive(schemars::JsonSchema))]
 pub struct Summary {
     /// Entire summary text.
@@ -75,7 +74,6 @@ pub struct Summary {
 }
 
 #[derive(Deserialize)]
-#[serde(deny_unknown_fields)]
 struct ManeFields {
     status: ManeStatus,
     refseq: Accession,

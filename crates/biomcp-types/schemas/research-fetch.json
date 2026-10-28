@@ -46,7 +46,6 @@
   },
   "$id": "biomcp.research-fetch/2",
   "$schema": "https://json-schema.org/draft/2020-12/schema",
-  "additionalProperties": false,
   "description": "Research fetch response using the existing CLI Markdown view.",
   "properties": {
     "id": {

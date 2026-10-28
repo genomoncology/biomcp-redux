@@ -7,7 +7,6 @@ use serde::{Deserialize, Serialize};
 #[cfg_attr(feature = "schema", schemars(with = "Fields"))]
 pub struct GeneRef(Fields);
 #[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
-#[serde(deny_unknown_fields)]
 #[cfg_attr(feature = "schema", derive(schemars::JsonSchema))]
 struct Fields {
     #[serde(skip_serializing_if = "Option::is_none")]

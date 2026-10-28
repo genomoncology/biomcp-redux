@@ -66,8 +66,8 @@ pub(super) fn local(args: &[String]) -> Check {
         )
     };
     globals.extend_from_slice(args);
-    let child = environment
-        .command(env!("CARGO_BIN_EXE_biomcp"), &globals)
+    let mut command = environment.command(env!("CARGO_BIN_EXE_biomcp"), &globals);
+    let child = command
         .stdin(Stdio::piped())
         .stdout(Stdio::piped())
         .stderr(Stdio::piped())
@@ -86,6 +86,9 @@ pub(super) fn local(args: &[String]) -> Check {
         drop(process.child.stdin.take());
     }
     let (status, stdout, stderr) = process.finish()?;
+    command
+        .record(status, &stdout, "cli")
+        .map_err(|e| e.to_string())?;
     if !status.success() || stdout.is_empty() {
         return Err(format!(
             "documented command {args:?} exited {status}: {}",

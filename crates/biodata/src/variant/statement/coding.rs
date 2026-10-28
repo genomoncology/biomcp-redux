@@ -1,7 +1,7 @@
 use serde::{Deserialize, Serialize};
 /// A code in one explicitly named source framework.
 #[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
-#[serde(tag = "system", content = "code", deny_unknown_fields)]
+#[serde(tag = "system", content = "code")]
 #[cfg_attr(feature = "schema", derive(schemars::JsonSchema))]
 #[non_exhaustive]
 pub enum Coding {

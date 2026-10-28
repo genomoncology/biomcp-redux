@@ -43,6 +43,7 @@ const LAYERS: &[(&str, &[&str])] = &[
             "biomcp-types",
             "biomcp-fetch",
             "serde",
+            "serde_ignored",
             "quick-xml",
             "thiserror",
             "calamine",

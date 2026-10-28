@@ -1,4 +1,5 @@
 //! Features drug-mychem, disease-ols and disease-mydisease: malformed optional fields retain usable replies.
+use crate::runner::transcript::trial as transcript_trial;
 use crate::runner::{configuration::invoke, network_stub::Stub};
 use libtest_mimic::Trial;
 use serde_json::{Value, json};
@@ -16,7 +17,7 @@ pub(super) fn trials() -> Vec<Trial> {
             } else {
                 "disease-mydisease"
             };
-            Trial::test(
+            transcript_trial(
                 format!("{feature}/bad-values-keep-reply-{family}"),
                 move || {
                     check(family)
@@ -42,12 +43,12 @@ pub(super) fn trials() -> Vec<Trial> {
         } else {
             ("xrefs", json!({"doid":[" DOID:3910"]}), "mondo.xrefs.doid")
         };
-        trials.push(Trial::test(
+        trials.push(transcript_trial(
             format!("disease-{family}/padded-native-reference-id-is-disclosed"),
             move || check_cases(family, vec![case.clone()]).map_err(Into::into),
         ));
     }
-    trials.push(Trial::test(
+    trials.push(transcript_trial(
         "drug-mychem/malformed-component-member-keeps-siblings",
         || {
             check_cases(
@@ -61,7 +62,7 @@ pub(super) fn trials() -> Vec<Trial> {
             .map_err(Into::into)
         },
     ));
-    trials.push(Trial::test(
+    trials.push(transcript_trial(
         "trial-search/invalid-resolver-label-stops-name-request",
         || missing_trial_label().map_err(Into::into),
     ));

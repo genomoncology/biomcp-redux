@@ -1,5 +1,6 @@
 //! Feature adverse-event-search: synthetic literal selectors and native report navigation.
 use super::{configuration::invoke, launch::Environment, network_stub::Stub};
+use crate::runner::transcript::trial as transcript_trial;
 use libtest_mimic::Trial;
 use serde_json::{Value, json};
 type Check = Result<(), String>;
@@ -10,7 +11,7 @@ pub(super) fn record_examples(directory: &std::path::Path) -> Check {
     examples::record(directory)
 }
 pub(super) fn trials() -> Vec<Trial> {
-    let mut cases = vec![Trial::test(
+    let mut cases = vec![transcript_trial(
         "adverse-event-search/native-order-and-next",
         || navigation().map_err(Into::into),
     )];
@@ -75,12 +76,12 @@ pub(super) fn trials() -> Vec<Trial> {
             " AND patient.reaction.reactionmeddrapt:\"Synthetic reaction\" AND seriousnessdeath:1 AND receivedate:[20240101 TO 20241231]",
         ),
     ] {
-        cases.push(Trial::test(
+        cases.push(transcript_trial(
             format!("adverse-event-search/synthetic-{name}"),
             move || selectors(&flags, suffix).map_err(Into::into),
         ));
     }
-    cases.push(Trial::test(
+    cases.push(transcript_trial(
         "adverse-event-search/200-absence-is-rejected-before-cache",
         || status::run().map_err(Into::into),
     ));

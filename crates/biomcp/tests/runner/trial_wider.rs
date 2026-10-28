@@ -4,18 +4,19 @@
     reason = "Recorded response shapes fail directly"
 )]
 use super::response_cases::checked_steps;
+use crate::runner::transcript::trial as transcript_trial;
 use libtest_mimic::Trial;
 use serde_json::{Value, json};
 type Check = Result<(), Box<dyn std::error::Error>>;
 pub(super) fn trials() -> Vec<Trial> {
     vec![
-        Trial::test("trial/wider-search/short-pages-only", || {
+        transcript_trial("trial/wider-search/short-pages-only", || {
             short_pages().map_err(Into::into)
         }),
-        Trial::test("trial/wider-search/active-policy", || {
+        transcript_trial("trial/wider-search/active-policy", || {
             policy().map_err(Into::into)
         }),
-        Trial::test("trial/wider-search/typed-option-contract", || {
+        transcript_trial("trial/wider-search/typed-option-contract", || {
             options().map_err(Into::into)
         }),
     ]

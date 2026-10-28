@@ -3,6 +3,7 @@ use super::{
     configuration::invoke,
     launch::{Environment, fixtures},
 };
+use crate::runner::transcript::trial as transcript_trial;
 use libtest_mimic::Trial;
 use serde_json::{Value, json};
 use std::{
@@ -13,31 +14,31 @@ type Check = Result<(), String>;
 mod pivots;
 pub(super) fn trials() -> Vec<Trial> {
     vec![
-        Trial::test("diagnostic-cdx/synthetic-ambiguous-link-parameters", || {
+        transcript_trial("diagnostic-cdx/synthetic-ambiguous-link-parameters", || {
             ambiguous_parameters().map_err(Into::into)
         }),
-        Trial::test("diagnostic-cdx/synthetic-entity-boundary", || {
+        transcript_trial("diagnostic-cdx/synthetic-entity-boundary", || {
             entities().map_err(Into::into)
         }),
-        Trial::test("diagnostic-cdx/synthetic-http-owned-application", || {
+        transcript_trial("diagnostic-cdx/synthetic-http-owned-application", || {
             http_owned().map_err(Into::into)
         }),
-        Trial::test("diagnostic-cdx/synthetic-pagination", || {
+        transcript_trial("diagnostic-cdx/synthetic-pagination", || {
             paging().map_err(Into::into)
         }),
-        Trial::test("diagnostic-cdx/markdown-whole-cells", || {
+        transcript_trial("diagnostic-cdx/markdown-whole-cells", || {
             markdown().map_err(Into::into)
         }),
-        Trial::test("diagnostic-cdx/synthetic-owned-identities", || {
+        transcript_trial("diagnostic-cdx/synthetic-owned-identities", || {
             identities().map_err(Into::into)
         }),
-        Trial::test("diagnostic-cdx/synthetic-header-replacement", || {
+        transcript_trial("diagnostic-cdx/synthetic-header-replacement", || {
             replacement().map_err(Into::into)
         }),
-        Trial::test("diagnostic-cdx/synthetic-concurrent-replacement", || {
+        transcript_trial("diagnostic-cdx/synthetic-concurrent-replacement", || {
             concurrent().map_err(Into::into)
         }),
-        Trial::test("diagnostic-cdx/stored-only-policy", || {
+        transcript_trial("diagnostic-cdx/stored-only-policy", || {
             stored().map_err(Into::into)
         }),
     ]
@@ -257,18 +258,23 @@ fn concurrent() -> Check {
     let mut args = env.globals(Some(&replay), false);
     args.extend(search.map(str::to_owned));
     let spawn = |args: &[String]| {
-        env.command(env!("CARGO_BIN_EXE_biomcp"), args)
+        let mut command = env.command(env!("CARGO_BIN_EXE_biomcp"), args);
+        let child = command
             .stdout(std::process::Stdio::piped())
             .stderr(std::process::Stdio::piped())
             .spawn()
-            .map_err(|e| e.to_string())
+            .map_err(|e| e.to_string())?;
+        Ok::<_, String>((child, command))
     };
     let replacement = spawn(&sync)?;
     let readers = [spawn(&args)?, spawn(&args)?];
-    let output = replacement.wait_with_output().map_err(|e| e.to_string())?;
+    let finish = |(child, mut command): (std::process::Child, super::capture::Capture)| {
+        command.wait_with_output(child).map_err(|e| e.to_string())
+    };
+    let output = finish(replacement)?;
     let reader_outputs = readers
         .into_iter()
-        .map(|reader| reader.wait_with_output().map_err(|e| e.to_string()))
+        .map(finish)
         .collect::<Result<Vec<_>, _>>()?;
     if !output.status.success() {
         return Err(format!(

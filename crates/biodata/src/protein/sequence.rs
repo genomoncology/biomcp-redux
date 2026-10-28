@@ -2,7 +2,6 @@ use crate::{AminoAcids, PartialDate, Text, UniProtIsoform};
 use serde::{Deserialize, Serialize};
 /// Native source audit metadata, independent from local retrieval metadata.
 #[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
-#[serde(deny_unknown_fields)]
 #[cfg_attr(feature = "schema", derive(schemars::JsonSchema))]
 pub struct ProteinAudit {
     /// Native entry version, never an isoform version.
@@ -26,7 +25,6 @@ pub struct ProteinAudit {
 }
 /// A directly returned sequence with exact returned identity and audit facts.
 #[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
-#[serde(deny_unknown_fields)]
 #[cfg_attr(feature = "schema", derive(schemars::JsonSchema))]
 pub struct ProteinSequence {
     /// Exact returned accession; never replaced by the requested base entry.
@@ -46,7 +44,6 @@ pub struct ProteinSequence {
 }
 /// One whole source function paragraph and its own evidence.
 #[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
-#[serde(deny_unknown_fields)]
 #[cfg_attr(feature = "schema", derive(schemars::JsonSchema))]
 pub struct ProteinFunction {
     /// Native molecule qualifier; never attributed to another isoform.
@@ -60,7 +57,6 @@ pub struct ProteinFunction {
 }
 /// A source structure cross-reference link; no residue coverage claim.
 #[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
-#[serde(deny_unknown_fields)]
 #[cfg_attr(feature = "schema", derive(schemars::JsonSchema))]
 pub struct ProteinStructureRef {
     /// Native cross-reference database.
@@ -76,7 +72,6 @@ pub struct ProteinStructureRef {
 }
 /// A native cross-reference property pair.
 #[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
-#[serde(deny_unknown_fields)]
 #[cfg_attr(feature = "schema", derive(schemars::JsonSchema))]
 pub struct ProteinStructureProperty {
     /// Native property key.

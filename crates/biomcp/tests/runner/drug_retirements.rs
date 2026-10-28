@@ -1,9 +1,10 @@
 //! Feature drug-retirements: migration never rewrites a query or contacts a source.
 use super::{configuration::invoke, launch::Environment, mcp};
+use crate::runner::transcript::trial as transcript_trial;
 use libtest_mimic::Trial;
 use serde_json::json;
 pub(super) fn trials() -> Vec<Trial> {
-    vec![Trial::test(
+    vec![transcript_trial(
         "drug-retirements/fixed-guidance-before-io",
         || check().map_err(Into::into),
     )]
