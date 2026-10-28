@@ -1,6 +1,7 @@
 # 0375 — Apply the bad-value rule to Reactome
 
-Status: OPEN.
+Status: COMPLETE.
+Landed: 69cbc7a7abeaa62e19facb0c772d51dd8513d6d8
 
 Milestone: 5
 

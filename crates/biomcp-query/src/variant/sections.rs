@@ -16,6 +16,7 @@ pub(super) fn apply(
     query: &VariantGet,
     candidates: &mut [VariantHeader],
     deadline: &mut Deadline<'_>,
+    population_reason: Option<Reason>,
 ) -> (Vec<SourceOutcome>, Vec<Problem>, Option<RequestError>) {
     let mut collected = Collected::default();
     for candidate in candidates {
@@ -62,7 +63,7 @@ pub(super) fn apply(
                 ),
                 VariantSection::Population => attach!(
                     population,
-                    super::population::section(cx, query, candidates, *deadline)
+                    super::population::section(cx, query, candidates, *deadline, population_reason)
                 ),
                 VariantSection::Gwas => {
                     attach!(gwas, super::gwas::section(cx, query, candidates, *deadline))

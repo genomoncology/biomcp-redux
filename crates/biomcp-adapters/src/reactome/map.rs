@@ -1,70 +1,116 @@
 use super::raw;
+use crate::{mapped::Problems, raw::Field};
 use biodata::{Pathway, PathwayId, PathwayLiteratureRef, PathwaySpecies, PathwaySummation, Text};
-use biomcp_types::{PathwayCard, PathwayHeader, PathwaySection};
+use biomcp_types::{PathwayCard, PathwayHeader, PathwaySection, Source};
 
-fn identity(id: &str, name: &str, species: &str, class: &str) -> Option<PathwayHeader> {
+pub(super) fn fields(record: &str) -> Problems {
+    Problems {
+        source: Source::Reactome,
+        record: crate::mapped::record(record),
+        list: Vec::new(),
+    }
+}
+pub(super) fn native_text(value: &Option<Field<String>>) -> Option<&str> {
+    match value {
+        Some(Field::Value(value)) => Some(value),
+        _ => None,
+    }
+}
+pub(super) fn metadata(
+    problems: &mut Problems,
+    field: &str,
+    value: &Option<Field<String>>,
+    required: bool,
+) -> Option<Text> {
+    if value.is_none() && !required {
+        return None;
+    }
+    problems.required(
+        field,
+        native_text(value).and_then(|v| crate::mapped::text(v).ok()),
+    )
+}
+fn identity(id: &str, species: &str, class: &str) -> Option<PathwayId> {
     if species != "Homo sapiens" || !matches!(class, "Pathway" | "TopLevelPathway") {
         return None;
     }
-    let id = id.parse::<biodata::ReactomeId>().ok()?;
+    Some(PathwayId::Reactome(id.parse::<biodata::ReactomeId>().ok()?))
+}
+pub(super) fn hit(row: &raw::Hit, problems: &mut Problems) -> Option<PathwayHeader> {
+    let id = identity(&row.st_id, row.species.first()?, &row.exact_type)?;
+    if row.species.len() != 1 {
+        return None;
+    }
+    // Reactome inserts only these highlight spans into the native display name.
+    let name = native_text(&row.name).map(|name| {
+        name.replace("<span class=\"highlighting\" >", "")
+            .replace("</span>", "")
+    });
+    let name = problems.required("name", name.and_then(|v| crate::mapped::text(&v).ok()))?;
     Some(PathwayHeader {
-        id: PathwayId::Reactome(id),
-        name: Text::new(name).ok()?,
+        id,
+        name,
         species: PathwaySpecies::Human,
         version: None,
         revision: None,
     })
 }
-pub(super) fn hit(row: &raw::Hit) -> Option<PathwayHeader> {
-    if row.species.len() != 1 {
-        return None;
-    }
-    // Reactome inserts only these highlight spans into the native display name.
-    let name = row
-        .name
-        .replace("<span class=\"highlighting\" >", "")
-        .replace("</span>", "");
-    identity(&row.st_id, &name, row.species.first()?, &row.exact_type)
-}
-pub(super) fn header(row: &raw::Card) -> Option<PathwayHeader> {
-    let mut header = identity(
-        &row.st_id,
-        &row.display_name,
-        &row.species_name,
-        &row.schema_class,
-    )?;
+pub(super) fn header(row: &raw::Card, problems: &mut Problems) -> Option<PathwayHeader> {
+    let id = identity(&row.st_id, &row.species_name, &row.schema_class)?;
+    let name = metadata(problems, "name", &row.display_name, true)?;
     let prefix = format!("{}.", row.st_id);
-    let version = row.st_id_version.strip_prefix(&prefix)?;
-    if version.is_empty() || !version.bytes().all(|b| b.is_ascii_digit()) {
-        return None;
-    }
-    header.version = Some(Text::new(&row.st_id_version).ok()?);
-    Some(header)
+    let version = native_text(&row.st_id_version).filter(|v| {
+        v.strip_prefix(&prefix)
+            .is_some_and(|v| !v.is_empty() && v.bytes().all(|b| b.is_ascii_digit()))
+    });
+    let version = problems.required("version", version.and_then(|v| crate::mapped::text(v).ok()));
+    Some(PathwayHeader {
+        id,
+        name,
+        species: PathwaySpecies::Human,
+        version,
+        revision: None,
+    })
 }
-pub(super) fn card(
-    row: raw::Card,
-    summary: bool,
-    problems: &mut crate::mapped::Problems,
-) -> Option<PathwayCard> {
-    let head = header(&row)?;
+pub(super) fn card(row: raw::Card, summary: bool, problems: &mut Problems) -> Option<PathwayCard> {
+    let head = header(&row, problems)?;
     let summations = if summary {
-        row.summation.map(|rows| {
-            rows.into_iter()
-                .map(|r| PathwaySummation {
-                    db_id: r.db_id,
-                    text: r.text,
-                })
-                .collect()
-        })
+        problems
+            .optional("summations", row.summation.map(|v| v.value().ok_or(())))
+            .map(|rows| {
+                rows.into_iter()
+                    .filter_map(|row| {
+                        let row = problems.required("summations.identity", row.value())?;
+                        let text = problems.required(
+                            "summations.text",
+                            row.text
+                                .and_then(Field::value)
+                                .filter(|v| !v.trim().is_empty()),
+                        )?;
+                        Some(PathwaySummation {
+                            db_id: row.db_id,
+                            text: text.into(),
+                        })
+                    })
+                    .collect()
+            })
     } else {
         None
     };
     let references = if summary {
-        row.literature_reference.map(|rows| {
-            rows.into_iter()
-                .map(|row| literature(row, problems))
-                .collect()
-        })
+        problems
+            .optional(
+                "references",
+                row.literature_reference.map(|v| v.value().ok_or(())),
+            )
+            .map(|rows| {
+                rows.into_iter()
+                    .filter_map(|row| {
+                        let row = problems.required("references.identity", row.value())?;
+                        Some(literature(row, problems))
+                    })
+                    .collect()
+            })
     } else {
         None
     };
@@ -92,17 +138,15 @@ pub(super) fn card(
         events: None,
     })
 }
-fn literature(
-    row: raw::Literature,
-    problems: &mut crate::mapped::Problems,
-) -> PathwayLiteratureRef {
+fn literature(row: raw::Literature, problems: &mut Problems) -> PathwayLiteratureRef {
     PathwayLiteratureRef {
         db_id: row.db_id,
         pubmed: problems.optional(
             "references.pubmed",
-            row.pub_med_identifier.map(biodata::Pmid::new),
+            row.pub_med_identifier
+                .map(|v| v.value().and_then(|v| biodata::Pmid::new(v).ok()).ok_or(())),
         ),
-        title: problems.text("references.title", row.title.as_deref()),
-        url: problems.text("references.url", row.url.as_deref()),
+        title: metadata(problems, "references.title", &row.title, false),
+        url: metadata(problems, "references.url", &row.url, false),
     }
 }
