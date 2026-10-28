@@ -19,9 +19,13 @@ import zipfile
 if __package__:
     from .tools import candidate, check
     from .source_revision import revision as source_revision
+    from .notices import generate, payloads, metadata as check_metadata
+    from .license_check import zip_payload
 else:
     from tools import candidate, check
     from source_revision import revision as source_revision
+    from notices import generate, payloads, metadata as check_metadata
+    from license_check import zip_payload
 
 
 def digest(data):
@@ -79,10 +83,11 @@ def wheel(output, binary, provenance):
     files = {
         stem + ".data/scripts/biomcp" + suffix: binary.read_bytes(),
         stem + ".data/scripts/" + provenance["distribution"] + suffix: binary.read_bytes(),
-        metadata + "/METADATA": ("Metadata-Version: 2.1\nName: " + provenance["distribution"] + "\nVersion: " + version + "\nSummary: BioMCP CLI and MCP server\nRequires-Python: >=3.9\n").encode(),
+        metadata + "/METADATA": ("Metadata-Version: 2.1\nName: " + provenance["distribution"] + "\nVersion: " + version + "\nSummary: BioMCP CLI and MCP server\nRequires-Python: >=3.9\nLicense: MIT\nProject-URL: Homepage, https://biomcp.org\nProject-URL: Repository, https://github.com/genomoncology/biomcp\nProject-URL: Documentation, https://biomcp.org\nDescription-Content-Type: text/markdown\n\nBioMCP CLI and MCP server\n\nmcp-name: io.github.genomoncology/biomcp\n").encode(),
         metadata + "/WHEEL": ("Wheel-Version: 1.0\nGenerator: biomcp-local-producer\nRoot-Is-Purelib: false\nTag: py3-none-" + tag + "\n").encode(),
         metadata + "/release.json": json.dumps(provenance, sort_keys=True).encode(),
     }
+    files.update({metadata + "/" + name: data for name, data in payloads(output).items()})
     record = io.StringIO(newline="")
     writer = csv.writer(record)
     for name, data in files.items():
@@ -108,6 +113,8 @@ def inspect(path):
             raise ValueError("wheel must contain one producer record")
         record = json.loads(archive.read(manifests[0]))
         metadata = Parser().parsestr(archive.read(manifests[0].replace("release.json", "METADATA")).decode())
+        check_metadata(metadata)
+        zip_payload(path, manifests[0].removesuffix("release.json"))
         if metadata["Name"] != record["distribution"] or metadata["Version"] != record["version"]:
             raise ValueError("wheel package identity differs from its producer")
         expected_tag = "py3-none-" + record["platform"]
@@ -138,6 +145,8 @@ def channels(output, binary, provenance):
     manifest["server"]["entry_point"] = entry
     manifest["server"]["mcp_config"]["command"] = "${__dirname}/" + entry
     with zipfile.ZipFile(output / ("biomcp-" + provenance["platform"] + ".mcpb"), "w", zipfile.ZIP_DEFLATED) as bundle:
+        for name, data in payloads(output).items():
+            bundle.writestr(name, data)
         bundle.writestr("manifest.json", json.dumps(manifest, sort_keys=True))
         member = zipfile.ZipInfo(entry)
         member.external_attr = 0o100755 << 16
@@ -164,9 +173,16 @@ def binary_archive(output, binary, tag):
             entry.external_attr = 0o100755 << 16
             entry.compress_type = zipfile.ZIP_DEFLATED
             package.writestr(entry, binary.read_bytes())
+            for member, data in payloads(output).items():
+                package.writestr(member, data)
     else:
         with tarfile.open(archive, "w:gz") as package:
             package.add(binary, arcname="biomcp", recursive=False)
+            for member, data in payloads(output).items():
+                entry = tarfile.TarInfo(member)
+                entry.size = len(data)
+                entry.mode = 0o644
+                package.addfile(entry, io.BytesIO(data))
     (output / (name + ".sha256")).write_text(digest(archive.read_bytes()) + "  " + name + "\n")
     return archive
 
@@ -186,6 +202,7 @@ def build(args):
     output.mkdir(parents=True, exist_ok=True)
     distribution = json.loads((Path(__file__).resolve().parent.parent / "server.json").read_text())["packages"][0]["identifier"]
     record = {"distribution": distribution, "version": version, "platform": tag, "profile": args.profile, "cargo_profile": artifact["profile"], "binary_sha256": digest(binary.read_bytes()), "revision": revision}
+    generate(output)
     candidate = wheel(output, binary, record)
     channels(output, binary, record)
     archive = binary_archive(output, binary, tag)

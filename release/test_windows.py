@@ -10,6 +10,7 @@ import tempfile
 import unittest
 
 from release.artifacts import wheel
+from release.test_licenses import write_payloads
 
 
 def pe(imports, delayed=False):
@@ -48,6 +49,7 @@ class WindowsRuntime(unittest.TestCase):
                     record = {'distribution': 'biomcp-cli', 'version': '1.0.0', 'platform': 'win_amd64',
                               'profile': 'release', 'cargo_profile': {'debug_assertions': False, 'opt_level': '3'},
                               'binary_sha256': hashlib.sha256(binary.read_bytes()).hexdigest(), 'revision': 'a' * 40}
+                    write_payloads(root)
                     wheel(root, binary, record)
                     result = subprocess.run([sys.executable, 'release/gate.py', '--prepared', '--artifacts', str(root),
                                              '--scratch', str(root / 'scratch')], capture_output=True, text=True, timeout=20)

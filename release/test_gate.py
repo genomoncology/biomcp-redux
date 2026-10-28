@@ -9,6 +9,8 @@ import tempfile
 import unittest
 import zipfile
 
+from release.test_licenses import write_payloads
+
 from release.artifacts import binary_archive, platform_tag, wheel
 
 
@@ -69,6 +71,7 @@ class InstalledCli(unittest.TestCase):
                 record = {'distribution': 'biomcp-cli', 'version': '1.0.0', 'platform': platform_tag(False),
                           'profile': 'release', 'cargo_profile': {'debug_assertions': False, 'opt_level': '3'},
                           'binary_sha256': hashlib.sha256(binary.read_bytes()).hexdigest(), 'revision': 'a' * 40}
+                write_payloads(output)
                 wheel(output, binary, record)
                 binary_archive(output, binary, record['platform'])
                 manifest = {'name': 'biomcp', 'version': '1.0.0', 'tools': [{'name': 'biomcp'}],

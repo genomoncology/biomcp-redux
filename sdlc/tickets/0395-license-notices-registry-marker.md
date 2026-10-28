@@ -1,6 +1,7 @@
 # 0395 — Ship the license, third-party notices and registry marker
 
-Status: OPEN.
+Status: COMPLETE.
+Landed: e3cb10cd7543f95e5743140af771c9b43f75c0e9
 
 Milestone: 5
 
