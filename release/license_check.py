@@ -34,19 +34,21 @@ def container_payload(path):
             raise ValueError('container archive must contain one image')
         for layer in manifest[0]['Layers']:
             with tarfile.open(fileobj=image.extractfile(layer), mode='r|*') as archive:
+                updates = {}
                 for member in archive:
                     name = member.name.removeprefix('./')
                     parent, _, leaf = name.rpartition('/')
                     if leaf.startswith('.wh.'):
                         removed = (parent + '/' if parent else '') + leaf[4:]
                         if leaf == '.wh..wh..opq':
-                            removed = parent + '/'
+                            removed = parent
                         files = {key: value for key, value in files.items()
-                                 if prefix + key != removed and not (prefix + key).startswith(removed.rstrip('/') + '/')}
+                                 if prefix + key != removed and not (prefix + key).startswith(removed + '/' if removed else '')}
                     elif name.startswith(prefix):
                         relative = name[len(prefix):]
                         if relative in NAMES:
-                            files[relative] = archive.extractfile(member).read() if member.isfile() else b''
+                            updates[relative] = archive.extractfile(member).read() if member.isfile() else b''
+                files.update(updates)
     validate(files)
     return files
 

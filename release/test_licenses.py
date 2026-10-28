@@ -121,7 +121,7 @@ class Licensing(unittest.TestCase):
 
     def test_staging_refuses_container_directory_whiteouts(self):
         from release.test_workflow import Staging
-        for whiteout in ('.wh.usr', 'usr/share/doc/.wh.biomcp', 'usr/share/doc/biomcp/.wh..wh..opq'):
+        for whiteout in ('.wh..wh..opq', '.wh.usr', 'usr/share/doc/.wh.biomcp', 'usr/share/doc/biomcp/.wh..wh..opq'):
             with self.subTest(whiteout=whiteout), tempfile.TemporaryDirectory() as temp:
                 root = Path(temp)
                 staging = Staging()
