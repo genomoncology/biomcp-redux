@@ -1,10 +1,10 @@
 # Upgrade from BioMCP 0.9 to 1.0
 
-This note describes the planned 1.0 migration. Install the approved release through your existing [distribution channel](release.md). Retain the `biomcp-cli` package name, `biomcp` command and stdio `serve` argument. MCP clients call the single `biomcp` tool with the CLI argument array; replace bindings to the old separate typed tools. JSON is the default CLI output. Use `--format md` for Markdown or `--format json` to override configuration.
+This note describes the 1.0 migration. Install BioMCP through your existing [distribution channel](release.md). Retain the `biomcp-cli` package name, `biomcp` command and stdio `serve` argument. MCP clients call the single `biomcp` tool with the CLI argument array; replace bindings to the old separate typed tools. JSON is the default CLI output. Use `--format md` for Markdown or `--format json` to override configuration.
 
 ## Commands
 
-The generated table below lists decided leaf commands and their dropped options from the parity ledger's slice accounting. Its ruling links explain replacements. Section names, aliases and global flags lie outside that ledger; each slice's linked investigation covers them. Unclosed slices and rows marked undecided remain migration work and cannot be treated as approved removals. Regenerate this block with `python3 scripts/parity.py --upgrade` when the accounting changes.
+The generated table below lists decided leaf commands and their dropped options from the parity ledger's slice accounting. Its ruling links explain replacements. Section names, aliases and global flags lie outside that ledger; each slice's linked investigation covers them. Deferred rows identify capabilities unavailable in 1.0.
 
 <!-- upgrade-commands -->
 | 0.9 command | Outcome | Dropped options | Deferred options | Migration ruling |
@@ -143,7 +143,11 @@ Optional `ncbi_email` identifies NCBI requests. Optional `ca_bundle` names a PEM
 
 ## Hosted clients
 
-The approved HTTP interface is `biomcp serve --http [ADDR]`, with MCP at `/mcp` and store health at `/health`. The default bind is `127.0.0.1:8080`. A non-loopback listener requires repeatable `--allow-host HOST` arguments or `http.allowed_hosts` in configuration. Foreign hosts and browser origins are refused. Keep public TLS and authentication at your reverse proxy. Source reachability uses `biomcp health`; the HTTP health endpoint makes no source request. The [HTTP decision](../decisions/2026-10-24-1-0-serves-mcp-over-http.md) owns this contract. Complete installed HTTP proof before publishing 1.0.
+The HTTP interface is `biomcp serve --http [ADDR]`, with MCP at `/mcp` and store health at `/health`. The default bind is `127.0.0.1:8080`. A non-loopback listener requires repeatable `--allow-host HOST` arguments or `http.allowed_hosts` in configuration. Foreign hosts and browser origins are refused. Keep public TLS and authentication at your reverse proxy. Source reachability uses `biomcp health`; the HTTP health endpoint makes no source request. The [HTTP decision](../decisions/2026-10-24-1-0-serves-mcp-over-http.md) owns this contract.
+
+## GenCC submissions
+
+The 0.9 `gencc sync` command becomes `biomcp sync gencc`. It installs or refreshes the complete GenCC CSV bundle. `biomcp get gene ODC1 gencc` reads stored submissions by HGNC identity, preserves each source submission and marks stale data. Reads do not synchronize the bundle.
 
 ## Trial discovery and documents
 
@@ -163,7 +167,7 @@ The old `cbioportal` section names `variant recurrence ID --source cbioportal --
 
 Normalization uses `variant normalize --source car|mutalyzer|variantvalidator|all --hgvs TEXT`; the old positional service and `--input` spelling name this route. VariantValidator and `all` require `--build`. Services preserve independent results, messages and mappings without local repair, transcript choice or consensus.
 
-Only `--review-status`, `--condition` and `--has clinvar` have captured positive advanced-filter mappings. Their literal source fields do not establish that values occur on the same ClinVar submission. Other historical filter mappings remain undecided. Raw `--query` requires `--source myvariant`, stays unchanged under the default policy and cannot combine with named filters. A component restriction refuses opaque raw queries before source access. Gene/protein selectors require the dbNSFP component; there is no hidden field fallback.
+Only `--review-status`, `--condition` and `--has clinvar` have captured positive advanced-filter mappings. Their literal source fields do not establish that values occur on the same ClinVar submission. Other historical filter mappings are deferred in 1.0. Raw `--query` requires `--source myvariant`, stays unchanged under the default policy and cannot combine with named filters. A component restriction refuses opaque raw queries before source access. Gene/protein selectors require the dbNSFP component; there is no hidden field fallback.
 
 Every source and component starts on with publisher terms. Commercial users should set both `noncommercial` and `restricted` in `disable_sources`. Groups switch off matching aggregator fields while other fields remain available; naming `myvariant` switches off the whole service. CLI exclusions add to configuration exclusions, including for cache, replay and returned next actions. Inspect terms in the response and `health`; public API access grants no additional reuse rights.
 

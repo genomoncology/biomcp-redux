@@ -11,7 +11,7 @@ Ian approved all eight recommendations in section 9, as `decisions/2026-10-24-ge
 | 0.9 command | Options | Sources it calls | What it returns | 1.0 |
 | --- | --- | --- | --- | --- |
 | `search gene <q>` or `-q` | `--type`, `--chromosome`, `--region`, `--pathway`, `--go`, `--limit` 1-50, `--offset` | MyGene.info query | Rows of symbol, name, Entrez ID, GRCh38 span, UniProt, OMIM | `search gene <q>`; `-q` is removed. `--type` → `--locus-group` (`use: --locus-group`); `--chromosome` → `--band` (`use: --band`); `--region`, `--pathway`, `--go` dropped (`dropped in 1.0`): no harvested question needs them. `--limit` and `--offset` remain. |
-| `get gene <symbol> [sections]` | 16 sections plus `all` | MyGene.info and Open Targets for the default card | Card with symbol, name, Entrez, Ensembl, chromosome, GRCh38 span, OMIM, UniProt, type, summary, 5 aliases, 5 "clinical" diseases and 5 drugs | `get gene <input>... [sections]`; `all` requests the seven shipped sections. `--section WORD` preserves inputs that equal section words. The card uses HGNC identity and MyGene extras; arbitrary Open Targets diseases and drugs are dropped. |
+| `get gene <symbol> [sections]` | 16 sections plus `all` | MyGene.info and Open Targets for the default card | Card with symbol, name, Entrez, Ensembl, chromosome, GRCh38 span, OMIM, UniProt, type, summary, 5 aliases, 5 "clinical" diseases and 5 drugs | `get gene <input>... [sections]`; `all` requests the shipped sections. `--section WORD` preserves inputs that equal section words. The card uses HGNC identity and MyGene extras; arbitrary Open Targets diseases and drugs are dropped. |
 | section `pathways` | | Reactome and KEGG | Pathway IDs and names | `get gene <input> pathways`; Reactome only; KEGG dropped for its reuse terms. |
 | section `ontology` | | Enrichr GO libraries | Single-gene "enrichment" terms with p-values | Dropped: single-gene enrichment does not answer a harvested question. `dropped in 1.0`. |
 | section `diseases` | | Enrichr DisGeNET and OMIM libraries | Single-gene "enrichment" terms with p-values | Dropped: single-gene enrichment does not answer a harvested question. `dropped in 1.0`. |
@@ -24,7 +24,7 @@ Ian approved all eight recommendations in section 9, as `decisions/2026-10-24-ge
 | section `hpa` | | Human Protein Atlas | Tissue levels and subcellular location | `get gene <input> expression`; `use: expression`. |
 | section `druggability` | | DGIdb and Open Targets | Drug interactions and categories | Drug slice. `moved to the drug entity`. |
 | section `clingen` | | ClinGen bulk files | Validity classifications and dosage | `get gene <input> clingen`; validity and dosage. |
-| section `gencc` | | GenCC bundle | Submission-level validity | Deferred; ClinGen supplies the accepted validity source. `deferred`. |
+| section `gencc` | | GenCC bundle | Submission-level validity | `get gene <input> gencc` reads stored submissions by HGNC identity. `sync gencc` installs or refreshes the complete CSV bundle. |
 | section `constraint` | | gnomAD | pLI, LOEUF, missense Z, synonymous Z | `get gene <input> constraint`; population metrics with version. |
 | section `disgenet` | | DisGeNET, key required | Scored gene-disease pairs | Dropped: ClinGen covers validated links. `dropped in 1.0`. |
 | section `funding` | | NIH RePORTER | Grants naming the gene | Dropped: no harvested question needs grants. `dropped in 1.0`. |
@@ -291,7 +291,7 @@ Sections, a closed enum:
 | `go` | Drop | No example. MyGene.info carries GO if a later case needs it |
 | `interactions` | Drop | No example. Bench biology |
 | `druggability` | Move to the drug slice | Example 16 asks a drug question |
-| `gencc` | Defer | ClinGen answers examples 12 and 13. GenCC returns when a case finds a gene ClinGen has not curated. 26.5 MB bundle |
+| `gencc` | Ship | Stored GenCC submissions retain submitter, disease, inheritance, classification and dates. `sync gencc` installs or refreshes the complete CSV bundle. |
 | `disgenet` | Drop | Needs a key, has license terms, and was unavailable. ClinGen covers validated gene-disease links |
 | `diagnostics` | Move to the diagnostic slice | Genetic tests are their own entity. 7.2 s and 47 KB for BRAF |
 | `funding` | Drop | Not a cancer care question |
@@ -307,7 +307,7 @@ Sections, a closed enum:
 
 Kept: HGNC bundle (complete set and withdrawn file), MyGene.info, UniProt, CIViC, ClinGen bundle, gnomAD, HPA, Reactome. NCBI E-utilities stays as the check for replaced Entrez IDs.
 
-Dropped from the gene slice: Open Targets, Enrichr, QuickGO, STRING, GTEx, DisGeNET, NIH RePORTER, GTR, KEGG, CSpec, DGIdb (to the drug slice), GenCC (deferred).
+Dropped from the gene slice: Open Targets, Enrichr, QuickGO, STRING, GTEx, DisGeNET, NIH RePORTER, GTR, KEGG, CSpec, DGIdb (to the drug slice).
 
 Keyed: OncoKB runs only with the user's key, as section 7 says.
 
