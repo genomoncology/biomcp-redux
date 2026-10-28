@@ -21,15 +21,25 @@ class ReleaseTools(unittest.TestCase):
             command = [sys.executable, str(root / 'release/toolchain.py'), 'check']
             result = subprocess.run(command, capture_output=True, text=True)
             self.assertEqual(result.returncode, 0, result.stderr)
-            mutations = {
-                'rust-toolchain.toml': lambda s: s.replace('1.95.0', '1.94.0'),
-                'release/linux.sh': lambda s: s + '\ncurl https://static.rust-lang.org/rustup/archive/0.0.1/installer\n',
-                'release/matrix.sh': lambda s: s + '\nsh /tmp/rustup.sh --default-toolchain 1.94.0\n',
-                'release/secrets.py': lambda s: s + '\nVERSION = "0.0.1"\n',
-                '.github/workflows/release.yml': lambda s: s.replace(
-                    'python-version: ${{ steps.tools.outputs.python }}', "python-version: '3.11'"),
-            }
-            for name, mutate in mutations.items():
+            mutations = [
+                ('rust-toolchain.toml', lambda s: s.replace('1.95.0', '1.94.0')),
+                ('release/linux.sh', lambda s: s + '\ncurl https://static.rust-lang.org/rustup/archive/0.0.1/installer\n'),
+                ('release/secrets.py', lambda s: s + '\nVERSION = "0.0.1"\n'),
+                ('.github/workflows/release.yml', lambda s: s.replace(
+                    'python-version: ${{ steps.tools.outputs.python }}', "python-version: '3.11'")),
+            ]
+            for name in ('release/linux.sh', 'release/matrix.sh', '.github/workflows/release.yml'):
+                for flag in ('--default-toolchain', '--version'):
+                    for value in (' "0.0.1"', "='0.0.1'", ' 0.0.1'):
+                        mutations.append((name, lambda s, pin=flag + value: s + '\nsh installer ' + pin + '\n'))
+            for occurrence in (1, 2):
+                def remove_reader(text, occurrence=occurrence):
+                    marker = 'python3 release/toolchain.py outputs'
+                    parts = text.split(marker)
+                    parts[occurrence - 1] += 'echo omitted-reader'
+                    return marker.join(parts[:occurrence]) + marker.join(parts[occurrence:])
+                mutations.append(('.github/workflows/release.yml', remove_reader))
+            for name, mutate in mutations:
                 with self.subTest(recipe=name):
                     path = root / name
                     original = path.read_text()

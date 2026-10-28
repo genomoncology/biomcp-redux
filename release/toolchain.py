@@ -22,10 +22,13 @@ def check():
     source = (ROOT / 'rust-toolchain.toml').read_text()
     if not re.search(r'^channel\s*=\s*"' + re.escape(pins['rust']) + r'"\s*$', source, re.M):
         raise ValueError('rust-toolchain.toml differs from release/toolchain.json')
+    # Literal CLI pins belong only in the manifest. Accept shell quoting and =.
+    literal = re.compile(r'''--(?:default-toolchain|version)(?:\s+|=)\s*["']?\d''')
     # Recipes consume these pins rather than maintaining independent versions.
     for name in ('linux.sh', 'matrix.sh'):
         text = (ROOT / 'release' / name).read_text()
-        if 'toolchain.py' not in text or re.search(r'(?:--default-toolchain\s+\d|/cp\d|rustup/archive/\d)', text):
+        if ('toolchain.py' not in text or literal.search(text)
+                or re.search(r'(?:/cp\d|rustup/archive/\d)', text)):
             raise ValueError(name + ' must consume the release tool manifest')
     scanner = (ROOT / 'release/secrets.py').read_text()
     if re.search(r'^VERSION\s*=\s*[\"\']', scanner, re.M):
@@ -36,8 +39,12 @@ def check():
         for field in ('python-version', 'toolchain'):
             if re.search(r'^\s+' + field + r':\s*[\'\"]?\d', text, re.M):
                 raise ValueError('release.yml duplicates a ' + field + ' pin')
-        if re.search(r'cargo install cargo-deny --version\s+\d', text):
-            raise ValueError('release.yml duplicates the cargo-deny pin')
+        if literal.search(text):
+            raise ValueError('release.yml duplicates a release tool pin')
+        for job in ('candidate', 'qualify'):
+            body = re.search(r'(?ms)^  ' + job + r':\n(.*?)(?=^  [a-z-]+:\n|\Z)', text)
+            if not body or 'release/toolchain.py outputs' not in body[1] or 'id: tools' not in body[1]:
+                raise ValueError('release.yml ' + job + ' must read the release tool manifest')
     print('Release tool pins agree')
 
 
