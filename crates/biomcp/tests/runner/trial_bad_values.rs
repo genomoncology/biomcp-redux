@@ -8,6 +8,7 @@ type Check = Result<(), Box<dyn std::error::Error>>;
 
 pub(super) fn trials() -> Vec<Trial> {
     vec![
+        Trial::test("trial-get/malformed-age-is-not-a-source-no-limit", || rejected_age().map_err(Into::into)),
         Trial::test("trial-get/blank-text-is-rejected-with-siblings", || blank_text().map_err(Into::into)),
         Trial::test("trial-search/bad-values-retain-siblings", || {
             search().map_err(Into::into)
@@ -124,4 +125,17 @@ fn blank_text() -> Check {
         "/result/items/0/sections/locations/data/items/0/city":"Scottsdale"}}]))?;
     problem(&out, "facility")?;
     problem(&out, "conditions")
+}
+
+fn rejected_age() -> Check {
+    for invalid in [json!(42), json!(" \t ")] {
+        let out = checked_steps("trial/get/NCT03511664", |_, record| {
+            replace(record, "/exchanges/0/body/value/protocolSection/eligibilityModule/minimumAge", &invalid);
+        }, json!([{"run":["get","trial","NCT03511664","eligibility"],"expect":{
+            "/status":"partial",
+            "/result/items/0/sections/eligibility/data/minimum_age":null,
+            "/result/items/0/sections/eligibility/data/maximum_age/state":"no_limit"}}]))?;
+        problem(&out, "minimumAge")?;
+    }
+    Ok(())
 }

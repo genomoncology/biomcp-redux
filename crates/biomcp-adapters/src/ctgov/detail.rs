@@ -93,7 +93,7 @@ struct Protocol {
 #[serde(rename_all = "camelCase")]
 struct Identification {
     nct_id: NctId,
-    brief_title: Option<Field<biodata::Text>>,
+    brief_title: Option<Field<Box<str>>>,
 }
 #[derive(Default, Deserialize)]
 #[serde(rename_all = "camelCase")]
@@ -261,16 +261,14 @@ impl Protocol {
                 self.identification_module.nct_id
             )
             .into(),
-            title: problems
-                .required_field("briefTitle", self.identification_module.brief_title.take())
-                .map(|v| v.as_str().into()),
+            title: problems.required_native_text("briefTitle", self.identification_module.brief_title.take()),
             status: problems.required_field("overallStatus", status.overall_status),
             phases: problems.fields("phases", design.phases),
             study_type: problems.required_field("studyType", design.study_type),
             conditions: problems
                 .field("conditionsModule", self.conditions_module.take())
                 .map_or_else(Box::default, |v| {
-                    problems.fields("conditions", v.conditions)
+                    problems.native_texts("conditions", v.conditions)
                 }),
             interventions: interventions
                 .iter()
@@ -308,14 +306,14 @@ impl Sponsor {
     fn name(self, problems: &mut Problems) -> Option<Box<str>> {
         problems
             .field("leadSponsor", self.lead_sponsor)
-            .and_then(|s| problems.field("leadSponsor.name", s.name))
+            .and_then(|s| problems.native_text("leadSponsor.name", s.name))
     }
 }
 impl Eligibility {
     fn mapped(self, problems: &mut Problems) -> TrialEligibility {
         TrialEligibility {
-            minimum_age: age(problems.field("minimumAge", self.minimum_age)),
-            maximum_age: age(problems.field("maximumAge", self.maximum_age)),
+            minimum_age: age("minimumAge", self.minimum_age, problems),
+            maximum_age: age("maximumAge", self.maximum_age, problems),
             sex: problems.field("sex", self.sex),
             healthy_volunteers: problems.field("healthyVolunteers", self.healthy_volunteers),
             criteria: problems.field("eligibilityCriteria", self.eligibility_criteria),
@@ -342,15 +340,18 @@ impl Outcomes {
         .flat_map(|(kind, rows)| rows.into_vec().into_iter().map(move |v| (kind, v)))
         .map(|(kind, v)| TrialOutcome {
             kind,
-            measure: problems.required_field("outcomes.measure", v.measure),
+            measure: problems.required_native_text("outcomes.measure", v.measure),
             description: problems.field("outcomes.description", v.description),
-            time_frame: problems.field("outcomes.timeFrame", v.time_frame),
+            time_frame: problems.native_text("outcomes.timeFrame", v.time_frame),
         })
         .collect()
     }
 }
-fn age(value: Option<Box<str>>) -> TrialAgeBound {
-    value.map_or(TrialAgeBound::NoLimit, |raw| TrialAgeBound::Source { raw })
+fn age(field: &str, value: Option<Field<Box<str>>>, problems: &mut Problems) -> Option<TrialAgeBound> {
+    match value {
+        None => Some(TrialAgeBound::NoLimit),
+        Some(value) => problems.native_text(field, Some(value)).map(|raw| TrialAgeBound::Source { raw }),
+    }
 }
 
 impl Arms {
@@ -361,11 +362,11 @@ impl Arms {
                 .into_vec()
                 .into_iter()
                 .map(|v| TrialArm {
-                    label: problems.required_field("armGroups.label", v.label),
+                    label: problems.required_native_text("armGroups.label", v.label),
                     kind: problems.field("armGroups.type", v.kind),
                     description: problems.field("armsInterventions.description", v.description),
                     intervention_names: problems
-                        .fields("armGroups.interventionNames", v.intervention_names),
+                        .native_texts("armGroups.interventionNames", v.intervention_names),
                 })
                 .collect(),
             problems
@@ -373,12 +374,12 @@ impl Arms {
                 .into_vec()
                 .into_iter()
                 .map(|v| TrialIntervention {
-                    name: problems.required_field("interventions.name", v.name),
+                    name: problems.required_native_text("interventions.name", v.name),
                     kind: problems.field("interventions.type", v.kind),
                     description: problems.field("armsInterventions.description", v.description),
                     arm_group_labels: problems
-                        .fields("interventions.armGroupLabels", v.arm_group_labels),
-                    other_names: problems.fields("interventions.otherNames", v.other_names),
+                        .native_texts("interventions.armGroupLabels", v.arm_group_labels),
+                    other_names: problems.native_texts("interventions.otherNames", v.other_names),
                 })
                 .collect(),
         )

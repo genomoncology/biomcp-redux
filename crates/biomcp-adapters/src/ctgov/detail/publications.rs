@@ -18,8 +18,8 @@ impl Reference {
     pub(super) fn mapped(self, problems: &mut Problems) -> TrialReference {
         TrialReference {
             pmid: problems.field("references.pmid", self.pmid),
-            kind: problems.required_field("references.kind", self.kind),
-            citation: problems.required_field("references.citation", self.citation),
+            kind: problems.required_native_text("references.kind", self.kind),
+            citation: problems.required_native_text("references.citation", self.citation),
         }
     }
 }
@@ -69,7 +69,7 @@ impl Documents {
 }
 impl Document {
     fn mapped(self, id: NctId, problems: &mut Problems) -> Option<TrialDocument> {
-        let name = problems.required_field("largeDocs.filename", self.filename)?;
+        let name = problems.required_native_text("largeDocs.filename", self.filename)?;
         let name = problems.optional(
             "largeDocs.filename",
             Some(if filename(&name) {
@@ -91,10 +91,10 @@ impl Document {
         Some(TrialDocument {
             filename: name,
             url,
-            kind: problems.required_field("largeDocs.typeAbbrev", self.type_abbrev),
-            label: problems.field("largeDocs.label", self.label),
+            kind: problems.required_native_text("largeDocs.typeAbbrev", self.type_abbrev),
+            label: problems.native_text("largeDocs.label", self.label),
             date: problems.field("largeDocs.date", self.date),
-            uploaded: problems.field("largeDocs.uploadDate", self.upload_date),
+            uploaded: problems.native_text("largeDocs.uploadDate", self.upload_date),
             size: problems.field("largeDocs.size", self.size),
             has_protocol: problems.field("largeDocs.hasProtocol", self.has_protocol),
             has_sap: problems.field("largeDocs.hasSap", self.has_sap),

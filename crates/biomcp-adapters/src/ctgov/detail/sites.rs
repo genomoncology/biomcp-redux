@@ -62,8 +62,8 @@ impl ContactsLocations {
             .into_vec()
             .into_iter()
             .map(|v| TrialOfficial {
-                name: problems.field("overallOfficials.name", v.name),
-                affiliation: problems.field("overallOfficials.affiliation", v.affiliation),
+                name: problems.native_text("overallOfficials.name", v.name),
+                affiliation: problems.native_text("overallOfficials.affiliation", v.affiliation),
                 role: problems.field("overallOfficials.role", v.role),
             })
             .collect();
@@ -74,22 +74,22 @@ impl ContactsLocations {
 impl Contact {
     fn mapped(self, problems: &mut Problems) -> TrialContact {
         TrialContact {
-            name: problems.field("name", self.name),
+            name: problems.native_text("name", self.name),
             role: problems.field("role", self.role),
-            phone: problems.field("phone", self.phone),
-            phone_ext: problems.field("phoneExt", self.phone_ext),
-            email: problems.field("email", self.email),
+            phone: problems.native_text("phone", self.phone),
+            phone_ext: problems.native_text("phoneExt", self.phone_ext),
+            email: problems.native_text("email", self.email),
         }
     }
 }
 impl Location {
     fn mapped(self, problems: &mut Problems) -> TrialLocation {
         TrialLocation {
-            facility: problems.field("facility", self.facility),
-            city: problems.field("city", self.city),
-            state: problems.field("state", self.state),
-            zip: problems.field("zip", self.zip),
-            country: problems.field("country", self.country),
+            facility: problems.native_text("facility", self.facility),
+            city: problems.native_text("city", self.city),
+            state: problems.native_text("state", self.state),
+            zip: problems.native_text("zip", self.zip),
+            country: problems.native_text("country", self.country),
             status: problems.field("locations.status", self.status),
             coordinates: problems.field("geoPoint", self.geo_point).map(|v| v.0),
             contacts: problems

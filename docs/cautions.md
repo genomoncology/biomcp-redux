@@ -136,3 +136,5 @@ GenCC documents its new-format CSV export, weekly publication cadence, condition
 ClinicalTrials.gov records keep valid fields when a status, date, phase or other nonidentity value cannot map. The reply reports a field problem and omits the rejected value. An invalid NCT ID excludes its study from a search page or fails that exact record request. Overall status values follow the [publisher enum metadata](https://clinicaltrials.gov/api/v2/studies/enums), including `TEMPORARILY_NOT_AVAILABLE`.
 
 The trial page, trial card, trial header and trial document result schemas change major versions because rejected source fields can now be null. Existing valid source values keep their wire representation.
+
+A rejected registry age value stays unknown. It does not become the source’s missing-age state. Nonblank native text keeps its original bytes; blank native text is omitted with a field problem.

@@ -58,9 +58,9 @@ pub enum TrialAgeBound {
 #[cfg_attr(feature = "schema", derive(schemars::JsonSchema))]
 pub struct TrialEligibility {
     /// Registry minimum age.
-    pub minimum_age: TrialAgeBound,
+    pub minimum_age: Option<TrialAgeBound>,
     /// Registry maximum age.
-    pub maximum_age: TrialAgeBound,
+    pub maximum_age: Option<TrialAgeBound>,
     /// Registry sex restriction.
     pub sex: Option<TrialSex>,
     /// Registry healthy volunteer flag.
