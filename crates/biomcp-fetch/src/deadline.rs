@@ -7,17 +7,19 @@ use std::{
     time::{Duration, Instant},
 };
 
+#[expect(
+    clippy::disallowed_types,
+    reason = "Name the shared cancellation flag borrowed by a command deadline"
+)]
+type CancellationFlag = std::sync::Arc<std::sync::atomic::AtomicBool>;
+
 /// An absolute request budget measured by the transport clock.
 #[derive(Clone, Copy, Debug)]
 pub struct Deadline<'a> {
     end: Instant,
     frozen: Option<Instant>,
     clock: Option<&'a VirtualClock>,
-    #[expect(
-        clippy::disallowed_types,
-        reason = "A borrowed cancellation flag follows this command deadline"
-    )]
-    cancelled: Option<&'a std::sync::Arc<std::sync::atomic::AtomicBool>>,
+    cancelled: Option<&'a CancellationFlag>,
 }
 
 #[derive(Debug)]
