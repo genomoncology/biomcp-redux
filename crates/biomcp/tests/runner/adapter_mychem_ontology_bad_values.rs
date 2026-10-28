@@ -30,6 +30,21 @@ pub(super) fn trials() -> Vec<Trial> {
             )
         })
         .collect();
+    for family in ["ols", "mydisease"] {
+        let case = if family == "ols" {
+            (
+                "obo_xref",
+                json!([{"database":"DOID", "id":" 12"}]),
+                "xref.id",
+            )
+        } else {
+            ("xrefs", json!({"doid":[" DOID:3910"]}), "mondo.xrefs.doid")
+        };
+        trials.push(Trial::test(
+            format!("disease-{family}/padded-native-reference-id-is-disclosed"),
+            move || check_cases(family, vec![case.clone()]).map_err(Into::into),
+        ));
+    }
     trials.push(Trial::test(
         "trial-search/invalid-resolver-label-stops-name-request",
         || missing_trial_label().map_err(Into::into),
@@ -37,7 +52,9 @@ pub(super) fn trials() -> Vec<Trial> {
     trials
 }
 fn check(family: &str) -> Result<(), String> {
-    let cases = cases(family);
+    check_cases(family, cases(family))
+}
+fn check_cases(family: &str, cases: Vec<(&str, Value, &str)>) -> Result<(), String> {
     for (field, invalid, expected) in cases {
         let (host, mut body, pointer) = match family {
             "mydisease-doid" => (
@@ -334,7 +351,6 @@ fn cases(family: &str) -> Vec<(&'static str, Value, &'static str)> {
                 "mondo.synonym.bad scope",
             ),
             ("xrefs", json!({"doid":[""]}), "mondo.xrefs.doid"),
-            ("xrefs", json!({"doid":[" DOID:3910"]}), "mondo.xrefs.doid"),
             ("parents", json!(["invalid:"]), "mondo.parents"),
             ("consider", json!(["invalid:"]), "mondo.consider"),
             ("replaced_by", json!(["invalid:"]), "mondo.replaced_by"),
