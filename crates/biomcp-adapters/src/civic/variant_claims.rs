@@ -9,12 +9,12 @@ use biomcp_types::{CivicStatement, Problem, ProblemCode, Reason, Source, SourceR
 
 struct Claim<'a> {
     id: u64,
-    kind: &'a Text,
-    status: &'a Text,
-    significance: &'a Text,
+    kind: &'a biodata::SourceText,
+    status: &'a biodata::SourceText,
+    significance: &'a biodata::SourceText,
     direction: &'a Text,
     level: Option<Term>,
-    classification: Term,
+    classification: Option<Term>,
     disease: Option<&'a raw::Disease>,
     therapies: &'a [raw::Therapy],
     origin: Option<&'a Text>,
@@ -56,10 +56,7 @@ pub(super) fn evidence(
                 label: raw.evidence_level.clone(),
                 coding: code.map(biodata::Coding::CivicEvidenceLevel),
             }),
-            classification: Term {
-                label: raw.significance.clone(),
-                coding: None,
-            },
+            classification: classification(&raw.significance),
             disease: raw.disease.as_ref(),
             therapies: &raw.therapies,
             origin: None,
@@ -75,15 +72,10 @@ pub(super) fn assertion(
     subject: Option<&VariantRef>,
     problems: &mut Vec<Problem>,
 ) -> Result<CivicStatement, RequestError> {
-    let (classification, level) = amp(raw.amp_level.as_ref()).unwrap_or_else(|| {
-        (
-            Term {
-                label: raw.significance.clone(),
-                coding: None,
-            },
-            None,
-        )
-    });
+    let (classification, level) = match amp(raw.amp_level.as_ref()) {
+        Some((classification, level)) => (Some(classification), level),
+        None => (classification(&raw.significance), None),
+    };
     build(
         Claim {
             id: raw.id,
@@ -121,7 +113,8 @@ fn build(
     let proposition = proposition(row.kind.as_str());
     let statement = subject
         .zip(proposition)
-        .map(|(subject, proposition)| Statement {
+        .zip(native.classification.clone())
+        .map(|((subject, proposition), classification)| Statement {
             subject: subject.clone(),
             proposition,
             predicate: predicate(row.kind.as_str(), row.significance.as_str()),
@@ -130,7 +123,7 @@ fn build(
                 "DOES_NOT_SUPPORT" => Some(Direction::Disputes),
                 _ => None,
             },
-            classification: native.classification.clone(),
+            classification,
             strength: native.strength.clone(),
             condition: native.condition.clone(),
             therapies: native.therapies.clone(),
@@ -262,4 +255,11 @@ fn amp(label: Option<&Text>) -> Option<(Term, Option<Term>)> {
             coding: Some(Coding::AmpAscoCap2017Level(level)),
         }),
     ))
+}
+
+fn classification(label: &biodata::SourceText) -> Option<Term> {
+    Text::new(label.as_str()).ok().map(|label| Term {
+        label,
+        coding: None,
+    })
 }

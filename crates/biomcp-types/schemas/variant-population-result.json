@@ -1074,6 +1074,10 @@
       ],
       "type": "string"
     },
+    "CivicKind": {
+      "description": "Native publisher vocabulary; new values are retained unchanged. Known values: DIAGNOSTIC; PROGNOSTIC; PREDICTIVE; PREDISPOSING; FUNCTIONAL; ONCOGENIC; ",
+      "type": "string"
+    },
     "CivicMember": {
       "additionalProperties": false,
       "description": "A native CIViC member, including members without a common-model subject.",
@@ -1257,6 +1261,10 @@
       ],
       "type": "object"
     },
+    "CivicSignificance": {
+      "description": "Native publisher vocabulary; new values are retained unchanged. Known values: SENSITIVITYRESPONSE; RESISTANCE; BETTER_OUTCOME; POOR_OUTCOME; POSITIVE; NEGATIVE; NA; ADVERSE_RESPONSE; PATHOGENIC; LIKELY_PATHOGENIC; BENIGN; LIKELY_BENIGN; UNCERTAIN_SIGNIFICANCE; REDUCED_SENSITIVITY; GAIN_OF_FUNCTION; LOSS_OF_FUNCTION; UNALTERED_FUNCTION; NEOMORPHIC; UNKNOWN; DOMINANT_NEGATIVE; PREDISPOSITION; PROTECTIVENESS; ONCOGENICITY; LIKELY_ONCOGENIC; ONCOGENIC; ",
+      "type": "string"
+    },
     "CivicStatement": {
       "additionalProperties": false,
       "description": "One CIViC claim with native labels that exceed the common statement model.",
@@ -1273,7 +1281,7 @@
           "description": "Original provider direction; disputes never implies the opposite effect."
         },
         "kind": {
-          "$ref": "#/$defs/Text",
+          "$ref": "#/$defs/CivicKind",
           "description": "Source claim category, without a fallback proposition."
         },
         "native": {
@@ -1294,7 +1302,7 @@
         "significance": {
           "anyOf": [
             {
-              "$ref": "#/$defs/Text"
+              "$ref": "#/$defs/CivicSignificance"
             },
             {
               "type": "null"
@@ -1318,7 +1326,7 @@
           "type": "boolean"
         },
         "status": {
-          "$ref": "#/$defs/Text",
+          "$ref": "#/$defs/CivicStatus",
           "description": "Native curation state, without implying that every row is accepted."
         }
       },
@@ -1328,6 +1336,10 @@
         "status"
       ],
       "type": "object"
+    },
+    "CivicStatus": {
+      "description": "Native publisher vocabulary; new values are retained unchanged. Known values: ACCEPTED; SUBMITTED; REJECTED; ",
+      "type": "string"
     },
     "ClingenCgcVicc2022Code": {
       "description": "Checked ClingenCgcVicc2022 codes.",
@@ -1549,7 +1561,7 @@
       "description": "One source-named component upload timestamp.",
       "properties": {
         "date": {
-          "$ref": "#/$defs/Text",
+          "$ref": "#/$defs/SourceTimestamp",
           "description": "Unchanged source timestamp."
         },
         "name": {
@@ -1616,6 +1628,11 @@
       ],
       "type": "object"
     },
+    "CosmicId": {
+      "description": "A COSMIC genomic, legacy transcript or noncoding variant identifier; its kind is retained.",
+      "pattern": "^COS[VMN][1-9][0-9]*$",
+      "type": "string"
+    },
     "CosmicIdentity": {
       "description": "Relationship between a carried historical fragment and its aggregator record.",
       "enum": [
@@ -1650,7 +1667,7 @@
           "description": "Source chromosome label."
         },
         "cosmic_id": {
-          "$ref": "#/$defs/Text",
+          "$ref": "#/$defs/CosmicId",
           "description": "Native COSMIC record identifier."
         },
         "hg19": {
@@ -4720,6 +4737,33 @@
       ],
       "type": "string"
     },
+    "SourceTimestamp": {
+      "additionalProperties": false,
+      "description": "Native source timestamp and the availability of its timezone.",
+      "properties": {
+        "timezone": {
+          "$ref": "#/$defs/SourceTimestampTimezone",
+          "description": "Whether the native timestamp includes a timezone."
+        },
+        "value": {
+          "$ref": "#/$defs/Text",
+          "description": "Exact source-supplied timestamp."
+        }
+      },
+      "required": [
+        "value",
+        "timezone"
+      ],
+      "type": "object"
+    },
+    "SourceTimestampTimezone": {
+      "description": "Availability of timezone information in a native timestamp.",
+      "enum": [
+        "in_value",
+        "source_gave_none"
+      ],
+      "type": "string"
+    },
     "Span0": {
       "additionalProperties": false,
       "description": "A zero-based half-open span with ordered bounds; empty spans are valid.",
@@ -6259,7 +6303,7 @@
       "type": "object"
     }
   },
-  "$id": "biomcp.variant-population/4",
+  "$id": "biomcp.variant-population/5",
   "$schema": "https://json-schema.org/draft/2020-12/schema",
   "additionalProperties": false,
   "description": "One versioned command response; schema identity comes only from its body type.",
@@ -6316,7 +6360,7 @@
       "description": "Answer when available."
     },
     "schema": {
-      "const": "biomcp.variant-population/4",
+      "const": "biomcp.variant-population/5",
       "type": "string"
     },
     "sources": {

@@ -186,6 +186,10 @@
       ],
       "type": "string"
     },
+    "CivicKind": {
+      "description": "Native publisher vocabulary; new values are retained unchanged. Known values: DIAGNOSTIC; PROGNOSTIC; PREDICTIVE; PREDISPOSING; FUNCTIONAL; ONCOGENIC; ",
+      "type": "string"
+    },
     "CivicNativeClaim": {
       "additionalProperties": false,
       "description": "Source facts retained without inventing a common-model subject or proposition.",
@@ -252,6 +256,10 @@
       ],
       "type": "object"
     },
+    "CivicSignificance": {
+      "description": "Native publisher vocabulary; new values are retained unchanged. Known values: SENSITIVITYRESPONSE; RESISTANCE; BETTER_OUTCOME; POOR_OUTCOME; POSITIVE; NEGATIVE; NA; ADVERSE_RESPONSE; PATHOGENIC; LIKELY_PATHOGENIC; BENIGN; LIKELY_BENIGN; UNCERTAIN_SIGNIFICANCE; REDUCED_SENSITIVITY; GAIN_OF_FUNCTION; LOSS_OF_FUNCTION; UNALTERED_FUNCTION; NEOMORPHIC; UNKNOWN; DOMINANT_NEGATIVE; PREDISPOSITION; PROTECTIVENESS; ONCOGENICITY; LIKELY_ONCOGENIC; ONCOGENIC; ",
+      "type": "string"
+    },
     "CivicStatement": {
       "additionalProperties": false,
       "description": "One CIViC claim with native labels that exceed the common statement model.",
@@ -268,7 +276,7 @@
           "description": "Original provider direction; disputes never implies the opposite effect."
         },
         "kind": {
-          "$ref": "#/$defs/Text",
+          "$ref": "#/$defs/CivicKind",
           "description": "Source claim category, without a fallback proposition."
         },
         "native": {
@@ -289,7 +297,7 @@
         "significance": {
           "anyOf": [
             {
-              "$ref": "#/$defs/Text"
+              "$ref": "#/$defs/CivicSignificance"
             },
             {
               "type": "null"
@@ -313,7 +321,7 @@
           "type": "boolean"
         },
         "status": {
-          "$ref": "#/$defs/Text",
+          "$ref": "#/$defs/CivicStatus",
           "description": "Native curation state, without implying that every row is accepted."
         }
       },
@@ -323,6 +331,10 @@
         "status"
       ],
       "type": "object"
+    },
+    "CivicStatus": {
+      "description": "Native publisher vocabulary; new values are retained unchanged. Known values: ACCEPTED; SUBMITTED; REJECTED; ",
+      "type": "string"
     },
     "ClingenCgcVicc2022Code": {
       "description": "Checked ClingenCgcVicc2022 codes.",

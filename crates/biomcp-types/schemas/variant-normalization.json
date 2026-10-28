@@ -26,12 +26,12 @@
       "description": "A provider field name and its unchanged text.",
       "properties": {
         "field": {
-          "description": "Native field path or assembly label.",
-          "type": "string"
+          "$ref": "#/$defs/SourceText",
+          "description": "Native field path or assembly label."
         },
         "value": {
-          "description": "Unchanged source text.",
-          "type": "string"
+          "$ref": "#/$defs/SourceText",
+          "description": "Unchanged source text."
         }
       },
       "required": [
@@ -45,19 +45,23 @@
       "description": "Provider warning, error or informational message.",
       "properties": {
         "category": {
-          "description": "Native message category.",
-          "type": "string"
+          "$ref": "#/$defs/SourceText",
+          "description": "Native message category."
         },
         "code": {
-          "description": "Native code when supplied.",
-          "type": [
-            "string",
-            "null"
-          ]
+          "anyOf": [
+            {
+              "$ref": "#/$defs/SourceText"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "description": "Native code when supplied."
         },
         "text": {
-          "description": "Unchanged message body, including whitespace.",
-          "type": "string"
+          "$ref": "#/$defs/SourceText",
+          "description": "Unchanged message body, including whitespace."
         }
       },
       "required": [
@@ -71,11 +75,15 @@
       "description": "One provider's own descriptions, messages and version metadata.",
       "properties": {
         "corrected": {
-          "description": "Source corrected description, without local edits.",
-          "type": [
-            "string",
-            "null"
-          ]
+          "anyOf": [
+            {
+              "$ref": "#/$defs/SourceText"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "description": "Source corrected description, without local edits."
         },
         "mappings": {
           "description": "Mapping rows in native service order, labeled by their provider field.",
@@ -92,11 +100,15 @@
           "type": "array"
         },
         "normalized": {
-          "description": "Source normalized description, without local edits.",
-          "type": [
-            "string",
-            "null"
-          ]
+          "anyOf": [
+            {
+              "$ref": "#/$defs/SourceText"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "description": "Source normalized description, without local edits."
         },
         "outcome": {
           "$ref": "#/$defs/VariantResolution",
@@ -689,6 +701,10 @@
         "failed",
         "skipped"
       ],
+      "type": "string"
+    },
+    "SourceText": {
+      "description": "Unchanged free source text, including empty values and surrounding whitespace.",
       "type": "string"
     },
     "Status": {

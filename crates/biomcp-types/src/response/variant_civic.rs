@@ -113,8 +113,9 @@ pub struct CivicStatement {
 #[serde(deny_unknown_fields)]
 #[cfg_attr(feature = "schema", derive(schemars::JsonSchema))]
 pub struct CivicNativeClaim {
-    /// Whole native classification.
-    pub classification: crate::Term,
+    /// Native classification when its source text is nonempty; significance remains on the claim.
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub classification: Option<crate::Term>,
     /// Native level, when present.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub strength: Option<crate::Term>,

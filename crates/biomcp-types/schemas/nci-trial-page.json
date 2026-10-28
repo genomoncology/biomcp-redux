@@ -239,7 +239,7 @@
           "description": "Native source name."
         },
         "nci_thesaurus_concept_id": {
-          "$ref": "#/$defs/Text",
+          "$ref": "#/$defs/NcitId",
           "description": "Source NCIt identity."
         }
       },
@@ -326,7 +326,7 @@
         "phase": {
           "anyOf": [
             {
-              "$ref": "#/$defs/Text"
+              "$ref": "#/$defs/NciTrialPhase"
             },
             {
               "type": "null"
@@ -382,6 +382,15 @@
         "attribution"
       ],
       "type": "object"
+    },
+    "NciTrialPhase": {
+      "description": "Native publisher vocabulary; new values are retained unchanged. Known values: NA; 0; I; I_II; II; II_III; III; IV; ",
+      "type": "string"
+    },
+    "NcitId": {
+      "description": "A native NCI Thesaurus concept code.",
+      "pattern": "^C[0-9]+$",
+      "type": "string"
     },
     "NctId": {
       "description": "Canonical ClinicalTrials.gov identifier.",
@@ -1420,7 +1429,7 @@
       "type": "string"
     }
   },
-  "$id": "biomcp.nci-trial-page/3",
+  "$id": "biomcp.nci-trial-page/4",
   "$schema": "https://json-schema.org/draft/2020-12/schema",
   "additionalProperties": false,
   "description": "One versioned command response; schema identity comes only from its body type.",
@@ -1477,7 +1486,7 @@
       "description": "Answer when available."
     },
     "schema": {
-      "const": "biomcp.nci-trial-page/3",
+      "const": "biomcp.nci-trial-page/4",
       "type": "string"
     },
     "sources": {
