@@ -58,6 +58,34 @@ class ReleaseTools(unittest.TestCase):
                     self.assertIn(Path(name).name, result.stderr)
                     path.write_text(original)
 
+    def test_supply_chain_pins_refuse_floating_images_and_installer_mismatch(self):
+        with tempfile.TemporaryDirectory() as directory:
+            root = Path(directory)
+            shutil.copytree(ROOT / 'release', root / 'release')
+            shutil.copytree(ROOT / '.github', root / '.github')
+            shutil.copyfile(ROOT / 'rust-toolchain.toml', root / 'rust-toolchain.toml')
+            path = root / 'release/toolchain.json'
+            pins = json.loads(path.read_text())
+            for key in ('manylinux-x86_64', 'manylinux-aarch64', 'runtime'):
+                changed = json.loads(json.dumps(pins))
+                changed['images'][key] = 'example/image:latest'
+                path.write_text(json.dumps(changed))
+                result = subprocess.run([sys.executable, 'release/toolchain.py', 'check'],
+                                        cwd=root, capture_output=True, text=True)
+                self.assertNotEqual(result.returncode, 0)
+                self.assertIn('digest', result.stderr)
+            path.write_text(json.dumps(pins))
+            # Execute the real installer command with only its download boundary replaced.
+            runner = """import io, runpy, sys, urllib.request
+urllib.request.urlopen = lambda *a, **k: io.BytesIO(b'wrong installer')
+sys.argv = ['release/toolchain.py', 'install-rust']
+runpy.run_path(sys.argv[0], run_name='__main__')
+"""
+            result = subprocess.run([sys.executable, '-c', runner], cwd=root,
+                                    capture_output=True, text=True)
+            self.assertNotEqual(result.returncode, 0)
+            self.assertIn('rustup installer checksum differs', result.stderr)
+
     def test_cold_stages_report_all_failures_and_run_later_stages(self):
         with tempfile.TemporaryDirectory() as directory:
             root = Path(directory)
