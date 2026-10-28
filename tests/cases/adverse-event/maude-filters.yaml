@@ -38,10 +38,10 @@
         "/page/total": 1,
         "/result/items/0/id": "160",
         "": {
-          "max_bytes": 1800
+          "max_bytes": 1201
         }
       },
-      "max_bytes": 1801,
+      "max_bytes": 1202,
       "full_output_bytes": true
     }
   ],
