@@ -62,7 +62,7 @@ impl Contact {
             name: problems.field("name", self.name),
             role: problems.field("role", self.role),
             phone: problems.field("phone", self.phone),
-            phone_ext: problems.field("phone_ext", self.phone_ext),
+            phone_ext: problems.field("phoneExt", self.phone_ext),
             email: problems.field("email", self.email),
         }
     }
@@ -75,7 +75,7 @@ impl Location {
             state: problems.field("state", self.state),
             zip: problems.field("zip", self.zip),
             country: problems.field("country", self.country),
-            status: problems.field("status", self.status),
+            status: problems.field("locations.status", self.status),
             coordinates: problems.field("geoPoint", self.geo_point).map(|v| v.0),
             contacts: problems.fields("locations.contacts", self.contacts).into_vec().into_iter().map(|v| v.mapped(problems)).collect(),
         }

@@ -107,7 +107,9 @@ struct RawDate {
 }
 impl RawDate {
     fn mapped(self, field: &str, problems: &mut Problems) -> Option<TrialDate> {
-        let date = problems.field(&format!("{field}.date"), self.date)?;
+        let path = format!("{field}.date");
+        let date = problems.field(&path, self.date);
+        let date = problems.required(&path, date)?;
         Some(TrialDate {
             date,
             kind: problems.field(&format!("{field}.type"), self.kind),

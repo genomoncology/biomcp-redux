@@ -32,7 +32,7 @@ impl Reply for Version {
 #[serde(rename_all = "camelCase")]
 pub(super) struct RawPage {
     pub(super) total_count: Option<u64>,
-    pub(super) studies: Option<Vec<Study>>,
+    pub(super) studies: Option<Vec<Field<Study>>>,
     pub(super) next_page_token: Option<Text>,
 }
 impl Reply for RawPage {
@@ -57,6 +57,7 @@ impl Reply for RawPage {
                 .is_some_and(|total| studies.len() as u64 > total)
             || studies
                 .iter()
+                .filter_map(Field::as_ref)
                 .any(|r| !ids.insert(r.protocol_section.identification_module.nct_id))
         {
             return Err(BadReply);
@@ -115,11 +116,11 @@ impl Protocol {
     pub(super) fn contains_condition_words(&self, condition: &str) -> bool {
         let requested = words(condition);
         let present: Vec<String> = self.conditions_module.as_ref()
-            .and_then(|v| if let Field::Value(v) = v { Some(v) } else { None })
+            .and_then(Field::as_ref)
             .and_then(|v| v.conditions.as_ref())
-            .and_then(|v| if let Field::Value(v) = v { Some(v) } else { None })
+            .and_then(Field::as_ref)
             .into_iter().flatten()
-            .filter_map(|v| if let Field::Value(v) = v { Some(v) } else { None })
+            .filter_map(Field::as_ref)
             .flat_map(|value| words(value.as_str())).collect();
         requested.iter().all(|word| present.contains(word))
     }
