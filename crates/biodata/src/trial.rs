@@ -47,7 +47,8 @@ crate::wire_enum! {
     }
 }
 crate::wire_enum! {
-    /// Source-native registry value.
+    /// Publisher Status enum for OverallStatus from
+    /// <https://clinicaltrials.gov/api/v2/studies/enums>.
     TrialStatus {
         /// Registry ACTIVE_NOT_RECRUITING value.
         ActiveNotRecruiting => "ACTIVE_NOT_RECRUITING",

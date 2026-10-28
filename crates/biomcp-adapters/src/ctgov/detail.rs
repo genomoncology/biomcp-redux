@@ -111,6 +111,9 @@ struct RawDate {
     kind: Option<Field<biodata::TrialDateKind>>,
 }
 impl RawDate {
+    fn field(field: &str, value: Option<Field<Self>>, problems: &mut Problems) -> Option<TrialDate> {
+        problems.field(field, value).and_then(|date| date.mapped(field, problems))
+    }
     fn mapped(self, field: &str, problems: &mut Problems) -> Option<TrialDate> {
         let path = format!("{field}.date");
         let date = problems.field(&path, self.date);
@@ -227,10 +230,7 @@ impl Protocol {
             title: problems
                 .required_field("briefTitle", self.identification_module.brief_title)
                 .map(|v| v.as_str().into()),
-            status: {
-                let value = problems.field("overallStatus", status.overall_status);
-                problems.required("overallStatus", value)
-            },
+            status: problems.required_field("overallStatus", status.overall_status),
             phases: problems.fields("phases", design.phases),
             study_type: problems.required_field("studyType", design.study_type),
             conditions: problems
@@ -242,31 +242,12 @@ impl Protocol {
                 .iter()
                 .filter_map(|v| v.name.clone())
                 .collect(),
-            sponsor: problems
-                .field(
-                    "sponsorCollaboratorsModule",
-                    self.sponsor_collaborators_module,
-                )
-                .and_then(|s| problems.field("leadSponsor", s.lead_sponsor))
-                .and_then(|s| problems.field("leadSponsor.name", s.name)),
-            start: problems
-                .field("startDateStruct", status.start_date_struct)
-                .and_then(|d| d.mapped("startDateStruct", &mut problems)),
-            primary_completion: problems
-                .field(
-                    "primaryCompletionDateStruct",
-                    status.primary_completion_date_struct,
-                )
-                .and_then(|d| d.mapped("primaryCompletionDateStruct", &mut problems)),
-            completion: problems
-                .field("completionDateStruct", status.completion_date_struct)
-                .and_then(|d| d.mapped("completionDateStruct", &mut problems)),
-            updated: problems
-                .field(
-                    "lastUpdatePostDateStruct",
-                    status.last_update_post_date_struct,
-                )
-                .and_then(|d| d.mapped("lastUpdatePostDateStruct", &mut problems)),
+            sponsor: problems.field("sponsorCollaboratorsModule", self.sponsor_collaborators_module)
+                .and_then(|s| s.name(&mut problems)),
+            start: RawDate::field("startDateStruct", status.start_date_struct, &mut problems),
+            primary_completion: RawDate::field("primaryCompletionDateStruct", status.primary_completion_date_struct, &mut problems),
+            completion: RawDate::field("completionDateStruct", status.completion_date_struct, &mut problems),
+            updated: RawDate::field("lastUpdatePostDateStruct", status.last_update_post_date_struct, &mut problems),
             brief_summary: problems
                 .field("descriptionModule", self.description_module)
                 .and_then(|d| problems.field("briefSummary", d.brief_summary)),
@@ -280,21 +261,30 @@ impl Protocol {
             contacts,
             officials,
             card,
-            eligibility: problems
-                .field("eligibilityModule", self.eligibility_module)
-                .map(|v| TrialEligibility {
-                    minimum_age: age(problems.field("minimumAge", v.minimum_age)),
-                    maximum_age: age(problems.field("maximumAge", v.maximum_age)),
-                    sex: problems.field("sex", v.sex),
-                    healthy_volunteers: problems.field("healthyVolunteers", v.healthy_volunteers),
-                    criteria: problems.field("eligibilityCriteria", v.eligibility_criteria),
-                }),
+            eligibility: problems.field("eligibilityModule", self.eligibility_module).map(|v| v.mapped(&mut problems)),
             outcomes: problems
                 .field("outcomesModule", self.outcomes_module)
                 .map_or_else(Box::default, |o| o.rows(&mut problems)),
             problems: problems.list,
             arms: arm_rows,
             interventions,
+        }
+    }
+}
+impl Sponsor {
+    fn name(self, problems: &mut Problems) -> Option<Box<str>> {
+        problems.field("leadSponsor", self.lead_sponsor)
+            .and_then(|s| problems.field("leadSponsor.name", s.name))
+    }
+}
+impl Eligibility {
+    fn mapped(self, problems: &mut Problems) -> TrialEligibility {
+        TrialEligibility {
+            minimum_age: age(problems.field("minimumAge", self.minimum_age)),
+            maximum_age: age(problems.field("maximumAge", self.maximum_age)),
+            sex: problems.field("sex", self.sex),
+            healthy_volunteers: problems.field("healthyVolunteers", self.healthy_volunteers),
+            criteria: problems.field("eligibilityCriteria", self.eligibility_criteria),
         }
     }
 }
