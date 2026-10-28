@@ -71,7 +71,7 @@ fn nulls() -> Result<(), String> {
     ]}});
     registry.validate(&explicit, &[], true)?;
     let mut other_schema = explicit;
-    other_schema["schema"] = json!(unrelated);
+    *other_schema.get_mut("schema").ok_or("missing schema")? = json!(unrelated);
     let rows = [
         other_schema,
         json!({"schema":association, "aggregator_knowledge_source":null}),
