@@ -202,7 +202,7 @@ Commands:
   drug           Literal single-source candidate discovery, without an implicit identity selection.
   gene           Search genes by text, cytoband, or their intersection.
   article        Checked search selectors and pool cursor.
-  trial          Search one provider with bounded pages and source-native counts; default ClinicalTrials.gov, explicit keyed NCI. NCI --facility matches exact organization names; a listed site is not necessarily enrolling.
+  trial          Search ClinicalTrials.gov or keyed NCI with native counts. NCI --facility matches exact organization names; a listed site is not necessarily enrolling.
   variant        Discover source candidates using one declared selector, without interpreting free text.
 
 Options:
@@ -1230,7 +1230,7 @@ pubtator: entity and word search including full text; needs the right entity ID;
 ## biomcp search trial
 
 ```text
-Search one provider with bounded pages and source-native counts; default ClinicalTrials.gov, explicit keyed NCI. NCI --facility matches exact organization names; a listed site is not necessarily enrolling.
+Search ClinicalTrials.gov or keyed NCI with native counts. NCI --facility matches exact organization names; a listed site is not necessarily enrolling.
 
 Usage: biomcp search trial [OPTIONS] [query]
 
@@ -1340,7 +1340,7 @@ Options:
 
 ```
 
-Search one source with bounded pages and source counts; default ClinicalTrials.gov, explicit keyed NCI. NCI --facility matches exact organization names; a listed site is not necessarily enrolling.
+Search ClinicalTrials.gov or keyed NCI with source counts. NCI --facility matches exact organization names; a listed site is not necessarily enrolling.
 
 - `--age`: Age in years; unstated source bounds count as no limit.
 - `--condition`: Condition alternatives joined with OR; NCI requires NCIt codes.
