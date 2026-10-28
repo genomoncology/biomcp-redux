@@ -110,6 +110,38 @@ def classification_case(change):
     return {"case": change, "result": result, "witness": witness}
 
 
+def publication_growth_case(change='addition'):
+    # Retained LitVar diagnostics: 1590 PMIDs, 200-ID iCite batches,
+    # unchanged PubMed selection, then one insertion and rebatching.
+    old = [str(10000000 + i) for i in range(1590)]
+    new = old[:650] + ['20000000'] + old[650:]
+    if change == 'removal':
+        old, new = new, old
+    def requests(ids):
+        rows = [{'identity': 'publications', 'source': 'litvar', 'role': 'Publications',
+                 'status': 200, 'provenance': {'discovery': {'namespace': 'pmid', 'ids': ids}}}]
+        for start in range(0, len(ids), 200):
+            batch = ids[start:start + 200]
+            rows.append({'identity': ','.join(batch), 'source': 'icite', 'role': 'Raw',
+                         'status': 200, 'provenance': {'input_context': 'fixed-request',
+                         'inputs': {'namespace': 'pmid', 'ids': batch}}})
+        rows.append({'identity': 'same-pubmed', 'source': 'pubmed', 'role': 'Summary',
+                     'status': 200})
+        return rows
+    before, after = requests(old), requests(new)
+    if change == 'missing-batch':
+        after.pop(-2)
+    if change == 'parameter':
+        for row in after[1:-1]:
+            row['provenance']['input_context'] = 'changed-request'
+    if change == 'unproven':
+        after[0]['provenance']['discovery']['ids'] = old
+    return {'case': 'article/litvar/akt1-rsid-citations.yaml',
+            'result': {'drift': ['icite: request-plan-changed', 'icite: request-plan-added']},
+            'witness': [{'ordinal': 1, 'baseline': {'requests': before},
+                         'live': {'requests': after}}]}
+
+
 class NightlyCommand(unittest.TestCase):
     def setUp(self):
         self.temp = tempfile.TemporaryDirectory()
@@ -336,6 +368,27 @@ class NightlyCommand(unittest.TestCase):
                 ('500-output', 'failure', 1)]:
             with self.subTest(change=change):
                 self.classified(classification_case(change), expected, code)
+
+    def test_publication_count_change_keeps_request_diagnostics(self):
+        for change, expected in [('addition', 'churn'), ('removal', 'churn'),
+                                 ('missing-batch', 'failure'), ('parameter', 'failure'),
+                                 ('unproven', 'failure')]:
+            with self.subTest(change=change):
+                row = publication_growth_case(change)
+                self.classified(row, expected, 0 if expected == 'churn' else 1)
+                saved = json.loads((self.copied() / 'report.json').read_text())
+                self.assertEqual(saved['case_sample'][0]['witness'], row['witness'])
+                self.assertEqual(saved['case_sample'][0]['result'], row['result'])
+
+    def test_trial_continuation_uses_live_follow_and_excludes_recorded_mcp_token(self):
+        case = json.loads((ROOT / 'tests/cases/trial/walk.yaml').read_text())
+        live = [step for step in case['steps'] if not step.get('offline')]
+        self.assertEqual(live[0]['run'], ['search', 'trial', '--condition', 'melanoma'])
+        self.assertEqual(live[1]['follow'], 'page')
+        self.assertEqual(len(live), 2)
+        recorded = [step for step in case['steps'] if 'mcp' in step][0]
+        self.assertIn('--next-page', recorded['mcp'])
+        self.assertTrue(recorded['offline'])
 
     def test_failed_copy_or_manifest_keeps_scratch(self):
         for failure in ['fail', 'manifest']:
