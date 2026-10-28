@@ -108,6 +108,42 @@ fn published_variant_identifiers_round_trip_without_text_inference() -> Check {
     Ok(())
 }
 #[test]
+fn hgvs_reference_and_syntax_checks_preserve_positionless_forms() -> Check {
+    // HGVS 21.1: recommendations/uncertain, RNA/splicing and background/refseq.
+    for (text, valid) in [
+        ("chr7:g.???", false),
+        ("chr7:g.100A>T word", false),
+        ("NM_005228.5:c.???", false),
+        ("NM_005228.5:c.2369C>T word", false),
+        ("NM_005228.5:c.2369C>T\t", false),
+        ("NP_005219.2:c.2369C>T", false),
+        ("XP_005219.2:r.2369c>u", false),
+        ("ENSP00000288602.1:g.100A>T", false),
+        ("LRG_199p1:n.100A>T", false),
+        ("NC_000007.14(NP_005219.2):c.2369C>T", false),
+        ("NP_005219.2:p.???", false),
+        ("NP_005219.2:p.?", true),
+        ("NP_005219.2:p.0", true),
+        ("NP_005219.2:p.0?", true),
+        ("NP_005219.2:p.=", true),
+        ("NP_005219.2:p.(=)", true),
+        ("NP_005219.2:p.(?)", true),
+        ("NM_005228.5:r.?", true),
+        ("NM_005228.5:r.(?)", true),
+        ("NM_005228.5:r.=", true),
+        ("NM_005228.5:r.(=)", true),
+        ("NM_005228.5:r.spl", true),
+        ("NM_005228.5:r.spl?", true),
+        ("NM_005228.5:r.(spl?)", true),
+        ("NM_005228.5:c.2369C>T", true),
+    ] {
+        assert_eq!(text.parse::<HgvsText>().is_ok(), valid, "{text}");
+        assert_eq!(Expression::hgvs(Text::new(text)?).is_ok(), valid, "{text}");
+    }
+    Ok(())
+}
+
+#[test]
 fn shared_public_fixture_checks_identity_and_source_alleles() -> Check {
     let rows: Vec<serde_json::Value> =
         serde_json::from_str(include_str!("../../../tests/fixtures/variant/common.json"))?;
