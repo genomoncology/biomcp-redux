@@ -218,6 +218,9 @@ fn sources(root: &Value, row: &Value, name: &str) -> Vec<Source> {
     {
         return vec![Source::WhoIvd];
     }
+    if row.pointer("/properties/identity_status/const").and_then(Value::as_str) == Some("device_recall") {
+        return vec![Source::FdaDeviceRecall];
+    }
     let fixed = match name {
         "NciTrialPage" | "NciTrialCards" => Some(Source::Nci),
         "AuthorPage" | "AuthorCards" => Some(Source::SemanticScholar),
@@ -232,6 +235,7 @@ fn sources(root: &Value, row: &Value, name: &str) -> Vec<Source> {
         {
             Some("who_ivd_product") => Some(Source::WhoIvd),
             Some("clearance") => Some(Source::Fda510k),
+            Some("device_recall") => Some(Source::FdaDeviceRecall),
             _ => None,
         },
     };

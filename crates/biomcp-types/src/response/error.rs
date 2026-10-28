@@ -101,6 +101,8 @@ singleton! {
         DiagnosticSource => "choose --source gtr or fda-cdx for search; choose --source gtr, who-ivd, fda-pma or fda-510k for exact get",
         DiagnosticWho => "WHO discovery, type and marker search are deferred; use: get diagnostic PRODUCT-ID --source who-ivd",
         DiagnosticSearchSources => "choose --source gtr, who-ivd or fda-cdx for search; choose --source gtr, who-ivd, fda-pma or fda-510k for exact get",
+        DiagnosticRecallSources => "choose --source gtr, who-ivd, fda-cdx or fda-device-recall for search; \
+            choose --source gtr, who-ivd, fda-pma, fda-510k or fda-device-recall for exact get",
         DiagnosticType => "use: --type",
         DiagnosticCondition => "use: --condition-id MedGen:CUI with --source gtr; use an exact product card with --source who-ivd",
         DiagnosticManufacturer => "manufacturer and laboratory selectors are deferred",

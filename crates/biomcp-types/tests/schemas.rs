@@ -46,6 +46,7 @@ mod disease;
 fn common_registry() -> Vec<Contract> {
     contracts! {
         Accession => ("accession", "biodata.accession/2"),
+        DeviceRecallNumber => ("device-recall-number", "biodata.device-recall-number/1"),
         Chromosome => ("chromosome", "biodata.chromosome/1"),
         Base => ("base", "biodata.base/1"),
         Sequence => ("sequence", "biodata.sequence/1"),
