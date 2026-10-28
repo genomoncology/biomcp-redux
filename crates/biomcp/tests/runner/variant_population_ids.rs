@@ -24,9 +24,13 @@ fn unknown_build() -> Result<(), String> {
     let stub = Stub::for_source("myvariant.info", "application/json", |_| {
         Ok(json!({"total":3,"hits":[
             {"_id":"chr10:g.114758349C>T","dbsnp":{"rsid":"rs7903146"}},
-            {"_id":"chr10:g.114758349C>G","chrom":"10","hg19":{"start":114758349,"end":114758349},"hg38":{"start":114758349,"end":114758349},"dbsnp":{"rsid":"rs7903146"}},
-            {"_id":"chr10:g.114758349del","dbsnp":{"rsid":"rs7903146"},"clingen":{"caid":"CA123643"}}
-        ]}).to_string())
+            {"_id":"chr10:g.114758349C>G","chrom":"10",
+                "hg19":{"start":114758349,"end":114758349},
+                "hg38":{"start":114758349,"end":114758349},"dbsnp":{"rsid":"rs7903146"}},
+            {"_id":"chr10:g.114758349del","dbsnp":{"rsid":"rs7903146"},
+                "clingen":{"caid":"CA123643"}}
+        ]})
+        .to_string())
     })?;
     let env = environment(&stub)?;
     let output = execute(&env, &["variant", "population", "rs7903146"])?;
@@ -103,9 +107,14 @@ fn ambiguous() -> Result<(), String> {
 fn candidates(_: &str) -> Result<String, String> {
     // Synthetic reply-only multiallelic control; no claim about these public IDs.
     Ok(json!({"total":2,"hits":[
-        {"_id":"chr10:g.114758349C>T","chrom":"10","hg19":{"start":114758349,"end":114758349},"dbsnp":{"rsid":"rs7903146"},"clinvar":{"variant_id":7413}},
-        {"_id":"chr10:g.114758349C>G","chrom":"10","hg19":{"start":114758349,"end":114758349},"dbsnp":{"rsid":"rs7903146"},"clinvar":{"variant_id":7413}}
-    ]}).to_string())
+        {"_id":"chr10:g.114758349C>T","chrom":"10",
+            "hg19":{"start":114758349,"end":114758349},
+            "dbsnp":{"rsid":"rs7903146"},"clinvar":{"variant_id":7413}},
+        {"_id":"chr10:g.114758349C>G","chrom":"10",
+            "hg19":{"start":114758349,"end":114758349},
+            "dbsnp":{"rsid":"rs7903146"},"clinvar":{"variant_id":7413}}
+    ]})
+    .to_string())
 }
 
 fn single() -> Result<(), String> {
