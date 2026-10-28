@@ -1,7 +1,7 @@
-#[path = "native_vocabulary.rs"]
-mod native_vocabulary;
 //! Group entity trials without growing the case entry point.
 use libtest_mimic::Trial;
+#[path = "native_vocabulary.rs"]
+mod native_vocabulary;
 
 #[path = "adapter_bad_values.rs"]
 mod adapter_bad_values;
