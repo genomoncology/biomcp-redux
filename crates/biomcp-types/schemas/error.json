@@ -107,7 +107,6 @@
         "renamed; use: --received-from",
         "renamed; use: --received-to",
         "only --serious death and --serious hospitalization are supported",
-        "only --serious any, --serious death and --serious hospitalization are supported",
         "this adverse-event filter is not supported",
         "renamed; use: --source faers",
         "use: search adverse-event <TEXT> --source maude",

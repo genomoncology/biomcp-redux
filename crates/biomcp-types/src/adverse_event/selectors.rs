@@ -18,6 +18,14 @@ biodata::wire_enum! { described
         Death => "death",
         /// Native report hospitalization flag.
         Hospitalization => "hospitalization",
+        /// Native report life-threatening flag.
+        Lifethreatening => "lifethreatening",
+        /// Native report disabling flag.
+        Disabling => "disabling",
+        /// Native report congenital anomaly flag.
+        CongenitalAnomaly => "congenital-anomaly",
+        /// Native report other serious flag.
+        Other => "other",
     }
 }
 biodata::wire_enum! { described

@@ -122,11 +122,11 @@ const CASES: &[(&str, &str)] = &[
     ),
     (
         "search adverse-event text --serious ",
-        "only --serious any, --serious death and --serious hospitalization are supported",
+        "--serious accepts any, death, hospitalization, lifethreatening, disabling, congenital-anomaly or other",
     ),
     (
         "search adverse-event text --serious=ANY",
-        "only --serious any, --serious death and --serious hospitalization are supported",
+        "--serious accepts any, death, hospitalization, lifethreatening, disabling, congenital-anomaly or other",
     ),
     (
         "search adverse-event text --source maude --serious any",
@@ -134,19 +134,15 @@ const CASES: &[(&str, &str)] = &[
     ),
     (
         "search adverse-event text --serious true",
-        "only --serious any, --serious death and --serious hospitalization are supported",
+        "--serious accepts any, death, hospitalization, lifethreatening, disabling, congenital-anomaly or other",
     ),
     (
         "search adverse-event text --serious disability",
-        "only --serious any, --serious death and --serious hospitalization are supported",
+        "--serious accepts any, death, hospitalization, lifethreatening, disabling, congenital-anomaly or other",
     ),
     (
         "search adverse-event text --serious life-threatening",
-        "only --serious any, --serious death and --serious hospitalization are supported",
-    ),
-    (
-        "search adverse-event text --serious other",
-        "only --serious any, --serious death and --serious hospitalization are supported",
+        "--serious accepts any, death, hospitalization, lifethreatening, disabling, congenital-anomaly or other",
     ),
     (
         "search adverse-event text --suspect-only",
@@ -347,23 +343,15 @@ const CASES: &[(&str, &str)] = &[
     ),
     (
         "search adverse-event text --serious=hospitalisation",
-        "only --serious any, --serious death and --serious hospitalization are supported",
-    ),
-    (
-        "search adverse-event text --serious=lifethreatening",
-        "only --serious any, --serious death and --serious hospitalization are supported",
-    ),
-    (
-        "search adverse-event text --serious=disabling",
-        "only --serious any, --serious death and --serious hospitalization are supported",
+        "--serious accepts any, death, hospitalization, lifethreatening, disabling, congenital-anomaly or other",
     ),
     (
         "search adverse-event text --serious=congenital",
-        "only --serious any, --serious death and --serious hospitalization are supported",
+        "--serious accepts any, death, hospitalization, lifethreatening, disabling, congenital-anomaly or other",
     ),
     (
         "search adverse-event text --serious=congenital_anomaly",
-        "only --serious any, --serious death and --serious hospitalization are supported",
+        "--serious accepts any, death, hospitalization, lifethreatening, disabling, congenital-anomaly or other",
     ),
     (
         "search adverse-event text --count=reaction",

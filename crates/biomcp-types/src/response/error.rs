@@ -79,7 +79,7 @@ singleton! {
         AdverseTo => "renamed; use: --received-to",
         // Preserve the published error/1 literal; active guidance uses AdverseSeriousChoices.
         AdverseSerious => "only --serious death and --serious hospitalization are supported",
-        AdverseSeriousChoices => "only --serious any, --serious death and --serious hospitalization are supported",
+        AdverseSeriousChoices => "--serious accepts any, death, hospitalization, lifethreatening, disabling, congenital-anomaly or other",
         AdverseFilter => "this adverse-event filter is not supported",
         AdverseFaers => "renamed; use: --source faers",
         AdverseMaude => "use: search adverse-event <TEXT> --source maude",

@@ -33,6 +33,10 @@ pub(super) fn record(directory: &Path) -> Check {
             "--received-to",
             "2024-12-31",
         ],
+        vec!["search", "adverse-event", "pembrolizumab", "--serious", "lifethreatening"],
+        vec!["search", "adverse-event", "pembrolizumab", "--serious", "disabling"],
+        vec!["search", "adverse-event", "pembrolizumab", "--serious", "congenital-anomaly"],
+        vec!["search", "adverse-event", "pembrolizumab", "--serious", "other"],
         vec!["get", "adverse-event", "100"],
         vec!["get", "adverse-event", "100", "reactions"],
     ]
@@ -59,12 +63,12 @@ pub(super) fn record(directory: &Path) -> Check {
     if std::fs::read_dir(directory.join("faers"))
         .map_err(|e| e.to_string())?
         .count()
-        != 3
+        != 7
     {
         return Err("synthetic recordings were not retained".into());
     }
-    if stub.finish()?.len() != 4 {
-        return Err("synthetic examples did not record four actual requests".into());
+    if stub.finish()?.len() != 8 {
+        return Err("synthetic examples did not record eight actual requests".into());
     }
     Ok(())
 }
