@@ -1,4 +1,5 @@
 use serde_json::Value;
+use super::policy::{ContractKind, Reviews};
 use std::collections::{BTreeMap, BTreeSet};
 
 type Check<T> = Result<T, String>;
@@ -28,11 +29,17 @@ struct Shape {
 }
 
 pub(super) fn check(old: &Value, new: &Value) -> Check<()> {
+    check_reviewed(old, new, ContractKind::Query, &Reviews::default())
+}
+
+pub(super) fn check_reviewed(old: &Value, new: &Value, kind: ContractKind, reviews: &Reviews) -> Check<()> {
     let old_shapes = shapes(old)?;
     let new_shapes = shapes(new)?;
     let (old_name, old_major) = identity(old)?;
     let (new_name, new_major) = identity(new)?;
-    if old_name != new_name || new_major < old_major {
+    if new_major < old_major
+        || old_name != new_name && !(new_major > old_major && reviews.successor(old, new))
+    {
         return Err("schema identity changed or major version decreased".into());
     }
     if new_major > old_major {
@@ -52,6 +59,7 @@ pub(super) fn check(old: &Value, new: &Value) -> Check<()> {
                 .as_ref()
                 .is_some_and(|format| new.string_format.as_ref() != Some(format))
             || old.pattern != new.pattern
+                && !reviews.pattern(old_name, old_major, &path, old.pattern.as_deref(), new.pattern.as_deref())
             || new
                 .minimum
                 .is_some_and(|bound| old.minimum.is_none_or(|old| bound > old))
@@ -65,7 +73,10 @@ pub(super) fn check(old: &Value, new: &Value) -> Check<()> {
                 })
             })
             || old.types != new.types
-            || !new.required.is_subset(&old.required)
+            || match kind {
+                ContractKind::Query => !new.required.is_subset(&old.required),
+                ContractKind::Reply => !old.required.is_subset(&new.required),
+            }
             || new.minimum_length > old.minimum_length
             || new.minimum_items > old.minimum_items
             || new.unique_items && !old.unique_items
