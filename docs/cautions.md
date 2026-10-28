@@ -145,3 +145,9 @@ A rejected registry age value stays unknown. It does not become the source’s m
 `search organization --source nci` sends NCI's documented name, city, state or province, country, postal code, organization family and coordinate radius selectors. `--name` uses the publisher's partial match. Names are not unique, and NCI publishes no organization ID. Each search row includes the exact source name, location, trial count and optional published address, coordinates, family and public contacts. There is no organization get command.
 
 The count covers trials of every status, including closed trials. It does not count recruiting trials alone. One bounded unsized request supplies the complete organization observation. Returned page commands retain that snapshot and page it locally. A too-broad refusal names the filters that can narrow the request. Source bucket failures remain failures and never establish zero matches.
+
+## NCI biomarker concepts
+
+`search biomarker --source nci --name PD-L1` searches NCI's native concept names and synonyms. `get biomarker C96022` searches by an exact NCIt code. Both require the user's NCI key. The public tier returns codes, name, type, trial count, synonyms, parent and ancestor codes, and native `eligibility_criterion` values. A code can return several native rows; BioMCP then returns candidates without choosing one. Counts cover NCI trials across statuses.
+
+These commands return terminology. `search diagnostic --biomarker` filters diagnostic tests, and `search trial --variant` searches literal variant text. Native inclusion and exclusion values remain source assertions and do not establish patient eligibility. Search pages retain one bounded observation. A broad request can return narrowing guidance; a source failure never establishes zero concepts.

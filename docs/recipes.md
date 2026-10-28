@@ -708,3 +708,10 @@ biomcp schema biomcp.help/3
 biomcp help relations
 ```
 
+
+## NCI biomarker concepts
+
+```sh
+biomcp search biomarker --source nci --name PD-L1
+biomcp get biomarker C96022
+```

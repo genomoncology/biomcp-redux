@@ -178,3 +178,12 @@ Only `--review-status`, `--condition` and `--has clinvar` have captured positive
 Every source and component starts on with publisher terms. Commercial users should set both `noncommercial` and `restricted` in `disable_sources`. Groups switch off matching aggregator fields while other fields remain available; naming `myvariant` switches off the whole service. CLI exclusions add to configuration exclusions, including for cache, replay and returned next actions. Inspect terms in the response and `health`; public API access grants no additional reuse rights.
 
 A direct dbSNP adapter is dropped from 1.0. rsIDs remain available through MyVariant and the ClinGen Allele Registry with their intermediary provenance.
+
+## NCI biomarker terminology
+
+| Command | Behavior |
+| --- | --- |
+| `search biomarker --source nci --name PD-L1` | Search NCI concept names and synonyms with the user's key. Headers retain typed code lists, native type lists and NCI trial counts. Returned page commands retain one bounded observation. |
+| `get biomarker C96022` | Search the exact NCIt code and return its native card or every candidate when several rows match. The public tier returns synonyms, parent and ancestor codes, and native eligibility criteria. |
+
+These concept commands differ from diagnostic `--biomarker` filters and literal trial `--variant` searches. Native criteria do not establish patient eligibility.
