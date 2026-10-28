@@ -32,7 +32,9 @@ pub(super) fn exchange_retained(
 ) -> Result<Vec<Value>, String> {
     let mut args = vec!["serve".into()];
     args.extend_from_slice(globals);
-    let transcript_args = frames
+    let mut transcript_args = args.clone();
+    transcript_args.push("<requests>".into());
+    transcript_args.extend(frames
         .iter()
         .map(serde_json::to_string)
         .collect::<Result<Vec<_>, _>>()
