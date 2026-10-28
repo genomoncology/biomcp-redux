@@ -95,6 +95,7 @@ class Staging(unittest.TestCase):
             notes = (staged / "RELEASE-NOTES.md").read_text()
             self.assertIn("gh attestation verify", notes)
             self.assertIn("--source-ref refs/tags/v1.0.0", notes)
+            self.assertIn("replace --source-ref with the actual rehearsal ref", notes)
             self.assertIn("--repo genomoncology/biomcp", notes)
             self.assertIn("a" * 40, notes)
             checksums = root / "subjects.sha256"
