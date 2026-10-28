@@ -7,6 +7,7 @@ use super::{launch::Environment, network_stub::Stub};
 use libtest_mimic::Trial;
 use serde_json::{Value, json};
 use std::{fs, path::Path};
+mod facility;
 mod organization;
 type Check = Result<(), String>;
 const KEY: &str = "synthetic-nci-stored-key";
@@ -15,6 +16,7 @@ pub(super) fn trials() -> Vec<Trial> {
         wire().map_err(Into::into)
     })];
     trials.extend(organization::trials());
+    trials.extend(facility::trials());
     trials
 }
 fn reply(request: &str) -> Result<String, String> {
