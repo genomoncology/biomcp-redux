@@ -38,7 +38,7 @@ pub(super) fn check_reviewed(old: &Value, new: &Value, kind: ContractKind, revie
     let (old_name, old_major) = identity(old)?;
     let (new_name, new_major) = identity(new)?;
     if new_major < old_major
-        || old_name != new_name && !(new_major > old_major && reviews.successor(old, new))
+        || old_name != new_name && !(new_major > old_major && matches!(kind, ContractKind::Reply) && reviews.successor(old, new))
     {
         return Err("schema identity changed or major version decreased".into());
     }
@@ -59,7 +59,7 @@ pub(super) fn check_reviewed(old: &Value, new: &Value, kind: ContractKind, revie
                 .as_ref()
                 .is_some_and(|format| new.string_format.as_ref() != Some(format))
             || old.pattern != new.pattern
-                && !reviews.pattern(old_name, old_major, &path, old.pattern.as_deref(), new.pattern.as_deref())
+                && !(matches!(kind, ContractKind::Reply) && reviews.pattern(old_name, old_major, &path, old.pattern.as_deref(), new.pattern.as_deref()))
             || new
                 .minimum
                 .is_some_and(|bound| old.minimum.is_none_or(|old| bound > old))
@@ -496,6 +496,7 @@ fn validate_keywords(object: &serde_json::Map<String, Value>, path: &str) -> Che
             "maxItems",
             "uniqueItems",
             "x-enum-descriptions",
+            "x-extensible-enum",
             "x-positional",
             "x-trailing-section",
             "x-comma-separated",
@@ -528,6 +529,7 @@ fn validate_keywords(object: &serde_json::Map<String, Value>, path: &str) -> Che
                         "title",
                         "description",
                         "x-enum-descriptions",
+            "x-extensible-enum",
                         "x-positional",
                         "x-trailing-section",
                         "x-comma-separated",

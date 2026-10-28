@@ -2,7 +2,6 @@ use crate::{FiniteNumber, PredictorScore, Text};
 use serde::{Deserialize, Serialize};
 /// Metadata for a component carried by an aggregator.
 #[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
-#[serde(deny_unknown_fields)]
 #[cfg_attr(feature = "schema", derive(schemars::JsonSchema))]
 pub struct VariantComponent {
     /// Independently reviewed publisher terms; no blanket aggregator grant.
@@ -31,7 +30,6 @@ pub struct VariantComponent {
 }
 /// Source prediction scores and the terms of their individual components.
 #[derive(Clone, Debug, PartialEq, Serialize, Deserialize)]
-#[serde(deny_unknown_fields)]
 #[cfg_attr(feature = "schema", derive(schemars::JsonSchema))]
 pub struct VariantPredictors {
     /// How the source chromosome label was reference-qualified.
@@ -48,7 +46,6 @@ pub struct VariantPredictors {
 }
 /// Source conservation measurements; no local pathogenicity inference.
 #[derive(Clone, Debug, PartialEq, Serialize, Deserialize)]
-#[serde(deny_unknown_fields)]
 #[cfg_attr(feature = "schema", derive(schemars::JsonSchema))]
 pub struct VariantConservation {
     /// How the source chromosome label was reference-qualified.
@@ -65,7 +62,6 @@ pub struct VariantConservation {
 }
 /// Historical COSMIC fields carried by MyVariant, without direct COSMIC access.
 #[derive(Clone, Debug, PartialEq, Serialize, Deserialize)]
-#[serde(deny_unknown_fields)]
 #[cfg_attr(feature = "schema", derive(schemars::JsonSchema))]
 pub struct VariantCosmic {
     /// Number of native historical fragments before paging.
@@ -82,7 +78,6 @@ pub struct VariantCosmic {
 }
 /// One source record from MyVariant's historical COSMIC copy.
 #[derive(Clone, Debug, PartialEq, Serialize, Deserialize)]
-#[serde(deny_unknown_fields)]
 #[cfg_attr(feature = "schema", derive(schemars::JsonSchema))]
 pub struct CosmicRecord {
     /// MyVariant parent record association; this does not establish allele equivalence.
@@ -122,7 +117,6 @@ biodata::wire_enum! {
 }
 /// Historical coordinates exactly as carried by the component.
 #[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
-#[serde(deny_unknown_fields)]
 #[cfg_attr(feature = "schema", derive(schemars::JsonSchema))]
 pub struct CosmicCoordinates {
     /// Source start value, without coordinate conversion.
@@ -133,7 +127,6 @@ pub struct CosmicCoordinates {
 
 /// Terms attached to one independently licensed source component.
 #[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
-#[serde(deny_unknown_fields)]
 #[cfg_attr(feature = "schema", derive(schemars::JsonSchema))]
 pub struct ComponentTerms {
     /// Publisher use category.
@@ -147,7 +140,6 @@ pub struct ComponentTerms {
 
 /// Unchanged native context values associated with a source field path.
 #[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
-#[serde(deny_unknown_fields)]
 #[cfg_attr(feature = "schema", derive(schemars::JsonSchema))]
 pub struct PredictorContext {
     /// Native source field path.
@@ -158,7 +150,6 @@ pub struct PredictorContext {
 }
 /// One source-named component upload timestamp.
 #[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
-#[serde(deny_unknown_fields)]
 #[cfg_attr(feature = "schema", derive(schemars::JsonSchema))]
 pub struct ComponentUpload {
     /// Source subcollection name.
@@ -177,7 +168,6 @@ biodata::wire_enum! {
 
 /// Terms attached to a named carried component on a consumer response.
 #[derive(Clone, Debug, PartialEq, Eq, serde::Serialize, serde::Deserialize)]
-#[serde(deny_unknown_fields)]
 #[cfg_attr(feature = "schema", derive(schemars::JsonSchema))]
 pub struct ComponentLabel {
     /// Native component name.

@@ -2,7 +2,6 @@ use crate::{Build, FiniteNumber, PopulationDataType, PopulationSex, Text, Varian
 use serde::{Deserialize, Serialize};
 /// Bounded population summary with independent optional sequencing datasets.
 #[derive(Clone, Debug, PartialEq, Serialize, Deserialize)]
-#[serde(deny_unknown_fields)]
 #[cfg_attr(feature = "schema", derive(schemars::JsonSchema))]
 pub struct VariantPopulation {
     /// Source allele identifier.
@@ -20,7 +19,6 @@ pub struct VariantPopulation {
 }
 /// Native gnomAD counts retained when a dataset release cannot be established.
 #[derive(Clone, Debug, PartialEq, Serialize, Deserialize)]
-#[serde(deny_unknown_fields)]
 #[cfg_attr(feature = "schema", derive(schemars::JsonSchema))]
 pub struct GnomadCounts {
     /// Checked total from a release supplied alongside matching source counts.
@@ -47,7 +45,6 @@ pub struct GnomadCounts {
 }
 /// One page of exact rsID catalog associations.
 #[derive(Clone, Debug, PartialEq, Serialize, Deserialize)]
-#[serde(deny_unknown_fields)]
 #[cfg_attr(feature = "schema", derive(schemars::JsonSchema))]
 pub struct VariantGwas {
     /// Exact source rsID.
@@ -63,7 +60,6 @@ pub struct VariantGwas {
 }
 /// Source association with unchanged trait and effect labels.
 #[derive(Clone, Debug, PartialEq, Serialize, Deserialize)]
-#[serde(deny_unknown_fields)]
 #[cfg_attr(feature = "schema", derive(schemars::JsonSchema))]
 pub struct GwasAssociation {
     /// Native association identity.
@@ -117,7 +113,6 @@ pub struct GwasAssociation {
 }
 /// Catalog effect allele paired with its exact rsID.
 #[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
-#[serde(deny_unknown_fields)]
 #[cfg_attr(feature = "schema", derive(schemars::JsonSchema))]
 pub struct GwasEffectAllele {
     /// Source rsID.
@@ -127,7 +122,6 @@ pub struct GwasEffectAllele {
 }
 /// Population summary and one explicitly requested ancestry-detail page.
 #[derive(Clone, Debug, PartialEq, Serialize, Deserialize)]
-#[serde(deny_unknown_fields)]
 #[cfg_attr(feature = "schema", derive(schemars::JsonSchema))]
 pub struct VariantPopulationResult {
     /// Source population state; missing datasets stay absent within its summary.
@@ -146,7 +140,6 @@ impl super::ResponseBody for VariantPopulationResult {
 
 /// Source ontology mapping as supplied by GWAS Catalog.
 #[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
-#[serde(deny_unknown_fields)]
 #[cfg_attr(feature = "schema", derive(schemars::JsonSchema))]
 pub struct GwasTrait {
     /// Exact source ontology identifier spelling.

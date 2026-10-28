@@ -7,7 +7,6 @@ use serde::{Deserialize, Serialize};
 #[cfg_attr(feature = "schema", schemars(with = "Bounds"))]
 pub struct Bound(Bounds);
 #[derive(Clone, Copy, Debug, PartialEq, Eq, Serialize, Deserialize)]
-#[serde(deny_unknown_fields)]
 #[cfg_attr(feature = "schema", derive(schemars::JsonSchema))]
 #[cfg_attr(feature = "schema", schemars(extend("anyOf" = [{"required":["min"]},{"required":["max"]}])))]
 struct Bounds {
@@ -53,7 +52,6 @@ impl Bound {
 #[cfg_attr(feature = "schema", schemars(with = "SpanFields"))]
 pub struct UncertainSpan0(SpanFields);
 #[derive(Clone, Copy, Debug, PartialEq, Eq, Serialize, Deserialize)]
-#[serde(deny_unknown_fields)]
 #[cfg_attr(feature = "schema", derive(schemars::JsonSchema))]
 struct SpanFields {
     start: Bound,

@@ -84,7 +84,7 @@ fn enum_schemas_validate_canonical_public_values() {
 }
 
 #[test]
-fn record_schema_matches_serialization_and_rejects_unknown_fields() {
+fn record_schema_matches_serialization_and_ignores_unknown_fields() {
     let problem_validator = validator::<Problem>();
     for record in [None, Some(Text::new("record-123").unwrap())] {
         let problem = Problem {
@@ -97,7 +97,7 @@ fn record_schema_matches_serialization_and_rejects_unknown_fields() {
         assert!(problem_validator.is_valid(&value));
         let mut unknown = value.clone();
         unknown["unexpected"] = json!(true);
-        assert!(!problem_validator.is_valid(&unknown));
+        assert!(problem_validator.is_valid(&unknown));
         for field in ["source", "field", "code"] {
             let mut missing = value.clone();
             missing.as_object_mut().unwrap().remove(field);

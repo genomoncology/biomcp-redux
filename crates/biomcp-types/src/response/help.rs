@@ -1,7 +1,6 @@
 use serde::Serialize;
 /// Requested help path, with the root represented by an empty object.
 #[derive(Clone, Debug, PartialEq, Eq, Serialize)]
-#[serde(deny_unknown_fields)]
 #[cfg_attr(feature = "schema", derive(schemars::JsonSchema))]
 pub struct HelpQuery {
     /// Command words whose help was requested.
@@ -10,7 +9,6 @@ pub struct HelpQuery {
 }
 /// Generated command reference from the shipped query schemas and cases.
 #[derive(Clone, Debug, Serialize)]
-#[serde(deny_unknown_fields)]
 #[cfg_attr(feature = "schema", derive(schemars::JsonSchema))]
 pub struct Help {
     /// Commands available at this help path.
@@ -23,7 +21,6 @@ impl super::ResponseBody for Help {
 }
 /// One command and its generated arguments.
 #[derive(Clone, Debug, Serialize)]
-#[serde(deny_unknown_fields)]
 #[cfg_attr(feature = "schema", derive(schemars::JsonSchema))]
 pub struct HelpCommand {
     /// Command words after the executable name.
@@ -50,7 +47,6 @@ pub struct HelpCommand {
 }
 /// One schema argument, retaining its bounds and position.
 #[derive(Clone, Debug, Serialize)]
-#[serde(deny_unknown_fields)]
 #[cfg_attr(feature = "schema", derive(schemars::JsonSchema))]
 pub struct HelpArgument {
     /// Positional name or long flag.
@@ -82,7 +78,6 @@ pub struct HelpArgument {
 }
 /// A documented closed vocabulary word.
 #[derive(Clone, Debug, Serialize)]
-#[serde(deny_unknown_fields)]
 #[cfg_attr(feature = "schema", derive(schemars::JsonSchema))]
 pub struct HelpWord {
     /// Accepted spelling.

@@ -3,7 +3,7 @@ use crate::Text;
 use serde::{Deserialize, Serialize};
 /// Molecular profile reference with exact study membership.
 #[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
-#[serde(rename_all = "camelCase", deny_unknown_fields)]
+#[serde(rename_all = "camelCase")]
 #[cfg_attr(feature = "schema", derive(schemars::JsonSchema))]
 pub struct StudyProfile {
     /// Exact native profile ID; never constructed from a study ID.
@@ -28,7 +28,7 @@ pub struct StudyProfile {
 }
 /// Sample-list metadata without a representation for member sample IDs.
 #[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
-#[serde(rename_all = "camelCase", deny_unknown_fields)]
+#[serde(rename_all = "camelCase")]
 #[cfg_attr(feature = "schema", derive(schemars::JsonSchema))]
 pub struct StudySampleList {
     /// Exact native list ID.
@@ -56,7 +56,7 @@ crate::wire_enum! {
 }
 /// Publisher file reference; repository blob bytes never mean data-content bytes.
 #[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
-#[serde(rename_all = "camelCase", deny_unknown_fields)]
+#[serde(rename_all = "camelCase")]
 #[cfg_attr(feature = "schema", derive(schemars::JsonSchema))]
 pub struct StudyFile {
     /// Native repository entry name.

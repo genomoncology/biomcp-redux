@@ -60,7 +60,6 @@ text_value!(
 
 /// An assembly-qualified zero-based half-open source interval.
 #[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
-#[serde(deny_unknown_fields)]
 #[cfg_attr(feature = "schema", derive(schemars::JsonSchema))]
 pub struct GenomicInterval {
     /// Source-stated assembly, omitted when absent.

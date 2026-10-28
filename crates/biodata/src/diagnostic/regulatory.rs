@@ -5,7 +5,6 @@ use crate::{
 use serde::{Deserialize, Serialize};
 /// Whole WHO listing, retaining each original product-code row in source order.
 #[derive(Clone, Debug, PartialEq, Serialize, Deserialize)]
-#[serde(deny_unknown_fields)]
 #[cfg_attr(feature = "schema", derive(schemars::JsonSchema))]
 pub struct WhoIvdProduct {
     /// Native product listing identity.
@@ -16,7 +15,6 @@ pub struct WhoIvdProduct {
 }
 /// One original WHO CSV row; each repeated field retains its own row scope.
 #[derive(Clone, Debug, PartialEq, Serialize, Deserialize)]
-#[serde(deny_unknown_fields)]
 #[cfg_attr(feature = "schema", derive(schemars::JsonSchema))]
 pub struct WhoIvdRow {
     /// Complete native product name cell; no interpretation or inferred date.
@@ -36,7 +34,6 @@ pub struct WhoIvdRow {
 }
 /// One FDA PMA record; an absent supplement differs from a native empty base cell.
 #[derive(Clone, Debug, PartialEq, Serialize, Deserialize)]
-#[serde(deny_unknown_fields)]
 #[cfg_attr(feature = "schema", derive(schemars::JsonSchema))]
 pub struct DeviceSubmission {
     /// Native base application.
@@ -92,7 +89,6 @@ pub struct DeviceSubmission {
 }
 /// Exact executable PMA identity established by a companion row’s device cell.
 #[derive(Clone, Debug, PartialEq, Serialize, Deserialize)]
-#[serde(deny_unknown_fields)]
 #[cfg_attr(feature = "schema", derive(schemars::JsonSchema))]
 pub struct PmaIdentity {
     /// Native base application number.
@@ -103,7 +99,6 @@ pub struct PmaIdentity {
 }
 /// Whole physical source-table cell and its own links.
 #[derive(Clone, Debug, PartialEq, Serialize, Deserialize)]
-#[serde(deny_unknown_fields)]
 #[cfg_attr(feature = "schema", derive(schemars::JsonSchema))]
 pub struct DiagnosticCell {
     /// Original complete text, including empty strings and line breaks.
@@ -114,7 +109,6 @@ pub struct DiagnosticCell {
 }
 /// Source link without a name-based identity inference.
 #[derive(Clone, Debug, PartialEq, Serialize, Deserialize)]
-#[serde(deny_unknown_fields)]
 #[cfg_attr(feature = "schema", derive(schemars::JsonSchema))]
 pub struct DiagnosticCellLink {
     /// Original source URL.
@@ -126,7 +120,6 @@ pub struct DiagnosticCellLink {
 }
 /// A typed drug application established by its own complete source cell and link.
 #[derive(Clone, Debug, PartialEq, Serialize, Deserialize)]
-#[serde(deny_unknown_fields)]
 #[cfg_attr(feature = "schema", derive(schemars::JsonSchema))]
 pub struct DiagnosticDrugApplication {
     /// Published NDA/BLA prefix and six digits.
@@ -137,7 +130,7 @@ pub struct DiagnosticDrugApplication {
 }
 /// A physical companion-table row; the two table layouts cannot acquire each other’s cells.
 #[derive(Clone, Debug, PartialEq, Serialize, Deserialize)]
-#[serde(tag = "kind", rename_all = "snake_case", deny_unknown_fields)]
+#[serde(tag = "kind", rename_all = "snake_case")]
 #[cfg_attr(feature = "schema", derive(schemars::JsonSchema))]
 pub enum CompanionDiagnosticRelation {
     /// One complete native individual table row.
@@ -173,7 +166,6 @@ pub enum CompanionDiagnosticRelation {
 }
 /// Exact native CompanionIndividualCells headers; any extra or changed header is refused.
 #[derive(Clone, Debug, PartialEq, Serialize, Deserialize)]
-#[serde(deny_unknown_fields)]
 #[cfg_attr(feature = "schema", derive(schemars::JsonSchema))]
 pub struct CompanionIndividualCells {
     /// Complete original diagnostic cell.
@@ -197,7 +189,6 @@ pub struct CompanionIndividualCells {
 }
 /// Exact native CompanionGroupCells headers; any extra or changed header is refused.
 #[derive(Clone, Debug, PartialEq, Serialize, Deserialize)]
-#[serde(deny_unknown_fields)]
 #[cfg_attr(feature = "schema", derive(schemars::JsonSchema))]
 pub struct CompanionGroupCells {
     /// Complete original diagnostic cell.

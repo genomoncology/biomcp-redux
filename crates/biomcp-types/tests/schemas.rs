@@ -2,6 +2,8 @@
 #![cfg(feature = "schema")]
 #[path = "schemas/compatibility.rs"]
 mod compatibility;
+#[path = "schemas/generation.rs"]
+mod generation;
 #[path = "schemas/policy.rs"]
 mod policy;
 #[path = "schemas/policy_cases.rs"]
@@ -41,8 +43,10 @@ fn generate<T: JsonSchema>() -> Value {
 
 macro_rules! contracts {
         ($($ty:ty => ($name:literal, $id:expr $(, $kind:ident)?)),+ $(,)?) => {
-            vec![$(Contract { kind: contracts!(@kind $($kind)?), name: $name, id: $id, generate: generate::<$ty> }),+]
+            vec![$(Contract { kind: contracts!(@kind $($kind)?), name: $name, id: $id, generate: contracts!(@generate $ty $(, $kind)?) }),+]
         };
+        (@generate $ty:ty, query) => { crate::generation::query::<$ty> };
+        (@generate $ty:ty) => { crate::generation::reply::<$ty> };
         (@kind query) => { crate::policy::ContractKind::Query };
         (@kind) => { crate::policy::ContractKind::Reply };
     }

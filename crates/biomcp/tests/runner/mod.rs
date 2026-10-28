@@ -124,6 +124,7 @@ mod research;
 mod response_cases;
 mod schema;
 mod schema_proof;
+mod schema_evolution;
 mod scholar;
 mod semantic_tables;
 mod skill;

@@ -7,7 +7,6 @@ use serde::{Deserialize, Serialize};
 
 /// Compact native laboratory context without authorization interpretation.
 #[derive(Clone, Debug, PartialEq, Serialize, Deserialize)]
-#[serde(deny_unknown_fields)]
 #[cfg_attr(feature = "schema", derive(schemars::JsonSchema))]
 pub struct DiagnosticLaboratory {
     /// Native laboratory identifier.
@@ -24,7 +23,6 @@ pub struct DiagnosticLaboratory {
 }
 /// Small resolved GTR candidate; broad gene and condition arrays stay off the header.
 #[derive(Clone, Debug, PartialEq, Serialize, Deserialize)]
-#[serde(deny_unknown_fields)]
 #[cfg_attr(feature = "schema", derive(schemars::JsonSchema))]
 pub struct GtrHeader {
     /// Complete source accession and version.
@@ -83,7 +81,6 @@ pub enum DiagnosticCandidate {
 }
 /// Native flags retain distinct source meanings and exact source codes.
 #[derive(Clone, Debug, PartialEq, Serialize, Deserialize)]
-#[serde(deny_unknown_fields)]
 #[cfg_attr(feature = "schema", derive(schemars::JsonSchema))]
 pub struct GtrNativeStatus {
     /// Current version flag, not current clinical availability.
@@ -103,7 +100,6 @@ pub struct GtrNativeStatus {
 }
 /// Exact GTR card retains native context but never embeds its broad relation lists.
 #[derive(Clone, Debug, PartialEq, Serialize, Deserialize)]
-#[serde(deny_unknown_fields)]
 #[cfg_attr(feature = "schema", derive(schemars::JsonSchema))]
 pub struct GtrCard {
     /// Source identity header.
@@ -136,7 +132,7 @@ pub struct GtrCard {
 }
 /// Exactly one source-owned diagnostic card; conflicts have no card variant.
 #[derive(Clone, Debug, PartialEq, Serialize, Deserialize)]
-#[serde(tag = "kind", rename_all = "snake_case", deny_unknown_fields)]
+#[serde(tag = "kind", rename_all = "snake_case")]
 #[cfg_attr(feature = "schema", derive(schemars::JsonSchema))]
 pub enum DiagnosticCard {
     /// Exact resolved GTR accession/version.
@@ -154,7 +150,6 @@ impl ResponseBody for DiagnosticCard {
 }
 /// One bounded regulatory fragment from the exact selected native submission.
 #[derive(Clone, Debug, PartialEq, Serialize, Deserialize)]
-#[serde(deny_unknown_fields)]
 #[cfg_attr(feature = "schema", derive(schemars::JsonSchema))]
 pub struct DiagnosticRegulatoryFragment {
     /// Exact selected native record and its dated regulatory metadata.
@@ -193,8 +188,7 @@ macro_rules! page {
     ($name:ident, $row:ty, $query:ty, $schema:literal, $doc:literal) => {
         #[doc = $doc]
         #[derive(Clone, Debug, PartialEq, Serialize, Deserialize)]
-        #[serde(deny_unknown_fields)]
-        #[cfg_attr(feature = "schema", derive(schemars::JsonSchema))]
+                #[cfg_attr(feature = "schema", derive(schemars::JsonSchema))]
         pub struct $name {
             /// Complete source-owned rows in native order; envelope totals count native rows.
             #[serde(default, skip_serializing_if = "<[_]>::is_empty")]
@@ -263,7 +257,6 @@ page!(
 );
 /// Compact exact PMA row identity; its native empty base cell is explicit.
 #[derive(Clone, Debug, PartialEq, Serialize, Deserialize)]
-#[serde(deny_unknown_fields)]
 #[cfg_attr(feature = "schema", derive(schemars::JsonSchema))]
 pub struct DiagnosticPmaHeader {
     /// Native application.
@@ -289,7 +282,6 @@ pub struct DiagnosticPmaHeader {
 }
 /// Selected PMA card; statement text stays behind its bounded regulatory page.
 #[derive(Clone, Debug, PartialEq, Serialize, Deserialize)]
-#[serde(deny_unknown_fields)]
 #[cfg_attr(feature = "schema", derive(schemars::JsonSchema))]
 pub struct DiagnosticPmaCard {
     /// Exact selected source header.
@@ -300,7 +292,6 @@ pub struct DiagnosticPmaCard {
 }
 /// Dated metadata belonging only to the selected submission.
 #[derive(Clone, Debug, PartialEq, Serialize, Deserialize)]
-#[serde(deny_unknown_fields)]
 #[cfg_attr(feature = "schema", derive(schemars::JsonSchema))]
 pub struct DiagnosticPmaRegulatory {
     /// Native date_received when supplied, including empty.
@@ -328,7 +319,6 @@ pub struct DiagnosticPmaRegulatory {
 
 /// Native 510(k) fields without harmonized or inferred clinical content.
 #[derive(Clone, Debug, PartialEq, Serialize, Deserialize)]
-#[serde(deny_unknown_fields)]
 #[cfg_attr(feature = "schema", derive(schemars::JsonSchema))]
 pub struct DiagnosticClearance {
     /// Exact native K number.

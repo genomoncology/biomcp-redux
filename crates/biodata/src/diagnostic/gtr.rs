@@ -2,7 +2,6 @@ use crate::{Concept, Curie, GeneRef, GtrTestId};
 use serde::{Deserialize, Serialize};
 /// One complete GTR test-version row; repeated identities remain separate records.
 #[derive(Clone, Debug, PartialEq, Serialize, Deserialize)]
-#[serde(deny_unknown_fields)]
 #[cfg_attr(feature = "schema", derive(schemars::JsonSchema))]
 pub struct GtrTestVersion {
     /// Complete accession and version.
@@ -104,7 +103,6 @@ crate::wire_enum! {
 }
 /// Native gene relation; its numeric ID comes only from the gene row.
 #[derive(Clone, Debug, PartialEq, Serialize, Deserialize)]
-#[serde(deny_unknown_fields)]
 #[cfg_attr(feature = "schema", derive(schemars::JsonSchema))]
 pub struct GtrGeneRelation {
     /// Complete owning test accession/version.
@@ -125,7 +123,6 @@ pub struct GtrGeneRelation {
 }
 /// Native condition membership; SNOMED cells never become GeneID.
 #[derive(Clone, Debug, PartialEq, Serialize, Deserialize)]
-#[serde(deny_unknown_fields)]
 #[cfg_attr(feature = "schema", derive(schemars::JsonSchema))]
 pub struct GtrConditionRelation {
     /// Complete owning test accession/version.
@@ -141,7 +138,6 @@ pub struct GtrConditionRelation {
 }
 /// One entry from one independent native method list.
 #[derive(Clone, Debug, PartialEq, Serialize, Deserialize)]
-#[serde(deny_unknown_fields)]
 #[cfg_attr(feature = "schema", derive(schemars::JsonSchema))]
 pub struct GtrMethod {
     /// Complete owning test accession/version.

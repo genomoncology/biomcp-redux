@@ -3,7 +3,6 @@ use biodata::{GwasAssociationId, GwasStudyId, Pmid};
 use serde::{Deserialize, Serialize};
 /// One native association page, also used for a study associations section.
 #[derive(Clone, Debug, PartialEq, Serialize, Deserialize)]
-#[serde(deny_unknown_fields)]
 #[cfg_attr(feature = "schema", derive(schemars::JsonSchema))]
 pub struct GwasPage {
     /// Shared complete association records.
@@ -25,7 +24,6 @@ impl ResponseBody for GwasPage {
 }
 /// Exact association card; no second association representation.
 #[derive(Clone, Debug, PartialEq, Serialize, Deserialize)]
-#[serde(deny_unknown_fields)]
 #[cfg_attr(feature = "schema", derive(schemars::JsonSchema))]
 pub struct GwasAssociationCard {
     /// The shared source association record.
@@ -37,7 +35,6 @@ impl ResponseBody for GwasAssociationCard {
 }
 /// Source reported gene identity, without a causal-gene interpretation.
 #[derive(Clone, Debug, PartialEq, Serialize, Deserialize)]
-#[serde(deny_unknown_fields)]
 #[cfg_attr(feature = "schema", derive(schemars::JsonSchema))]
 pub struct GwasReportedGene {
     /// Native source gene name.
@@ -52,7 +49,6 @@ pub struct GwasReportedGene {
 }
 /// One native locus with independent reported genes and risk-allele text.
 #[derive(Clone, Debug, PartialEq, Serialize, Deserialize)]
-#[serde(deny_unknown_fields)]
 #[cfg_attr(feature = "schema", derive(schemars::JsonSchema))]
 pub struct GwasLocus {
     /// Complete source locus description.
@@ -71,7 +67,6 @@ pub struct GwasLocus {
 }
 /// One bounded locus section for an association.
 #[derive(Clone, Debug, PartialEq, Serialize, Deserialize)]
-#[serde(deny_unknown_fields)]
 #[cfg_attr(feature = "schema", derive(schemars::JsonSchema))]
 pub struct GwasLoci {
     /// Exact owning association.
@@ -90,7 +85,6 @@ impl ResponseBody for GwasLoci {
 }
 /// Native study card; independent source descriptions are never reconciled.
 #[derive(Clone, Debug, PartialEq, Serialize, Deserialize)]
-#[serde(deny_unknown_fields)]
 #[cfg_attr(feature = "schema", derive(schemars::JsonSchema))]
 pub struct GwasStudy {
     /// Exact accession.
@@ -161,7 +155,6 @@ impl ResponseBody for GwasStudy {
 }
 /// Native country and region metadata.
 #[derive(Clone, Debug, PartialEq, Serialize, Deserialize)]
-#[serde(deny_unknown_fields)]
 #[cfg_attr(feature = "schema", derive(schemars::JsonSchema))]
 pub struct GwasCountry {
     /// Original country label including NR.
@@ -175,7 +168,6 @@ pub struct GwasCountry {
 }
 /// One independent source ancestry row; counts are never summed.
 #[derive(Clone, Debug, PartialEq, Serialize, Deserialize)]
-#[serde(deny_unknown_fields)]
 #[cfg_attr(feature = "schema", derive(schemars::JsonSchema))]
 pub struct GwasAncestry {
     /// Native discovery or replication stage.
@@ -198,7 +190,6 @@ pub struct GwasAncestry {
 }
 /// Bounded retained ancestry relation for one exact study.
 #[derive(Clone, Debug, PartialEq, Serialize, Deserialize)]
-#[serde(deny_unknown_fields)]
 #[cfg_attr(feature = "schema", derive(schemars::JsonSchema))]
 pub struct GwasAncestries {
     /// Exact owning study.

@@ -10,7 +10,7 @@ pub trait ResponseBody: Serialize {
 }
 /// One versioned command response; schema identity comes only from its body type.
 #[derive(Clone, Debug, Serialize)]
-#[serde(bound = "T: ResponseBody", deny_unknown_fields)]
+#[serde(bound = "T: ResponseBody")]
 #[cfg_attr(feature = "schema", derive(schemars::JsonSchema))]
 #[cfg_attr(
     feature = "schema",

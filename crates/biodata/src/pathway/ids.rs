@@ -48,7 +48,6 @@ impl std::fmt::Display for ReactomeIdInvalid {
 impl std::error::Error for ReactomeIdInvalid {}
 /// A pathway reference without membership or hierarchy data.
 #[derive(Clone, Debug, PartialEq, Serialize, Deserialize)]
-#[serde(deny_unknown_fields)]
 #[cfg_attr(feature = "schema", derive(schemars::JsonSchema))]
 pub struct PathwayRef {
     /// Human stable identifier.

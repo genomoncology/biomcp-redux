@@ -3,7 +3,6 @@ use serde::{Deserialize, Serialize};
 
 /// Native source timestamp and the availability of its timezone.
 #[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
-#[serde(deny_unknown_fields)]
 #[cfg_attr(feature = "schema", derive(schemars::JsonSchema))]
 pub struct SourceTimestamp {
     /// Exact source-supplied timestamp.

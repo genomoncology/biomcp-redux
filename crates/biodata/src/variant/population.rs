@@ -8,7 +8,6 @@ use serde::{Deserialize, Serialize};
 #[cfg_attr(feature = "schema", schemars(with = "Fields"))]
 pub struct PopulationFrequency(Fields);
 #[derive(Clone, Debug, PartialEq, Serialize, Deserialize)]
-#[serde(deny_unknown_fields)]
 #[cfg_attr(feature = "schema", derive(schemars::JsonSchema))]
 struct Fields {
     subject: VariantRef,

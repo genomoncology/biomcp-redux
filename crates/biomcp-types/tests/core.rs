@@ -122,7 +122,7 @@ fn text_construction_and_json_share_trimming_and_validation() {
 }
 
 #[test]
-fn problems_round_trip_with_optional_record_and_reject_unknown_fields() {
+fn problems_round_trip_with_optional_record_and_ignore_unknown_fields() {
     for record in [None, Some(Text::new("record-123").unwrap())] {
         let problem = Problem {
             source: Source::PubMed,
@@ -145,7 +145,7 @@ fn problems_round_trip_with_optional_record_and_reject_unknown_fields() {
         );
         let mut extra = json;
         extra["unexpected"] = true.into();
-        assert!(serde_json::from_value::<Problem>(extra).is_err());
+        assert_eq!(serde_json::from_value::<Problem>(extra).unwrap(), problem);
     }
     let invalid = r#"{"source":"pubmed","record":"  ","field":"pmid","code":"value.unknown"}"#;
     let error = serde_json::from_str::<Problem>(invalid).unwrap_err();

@@ -7,7 +7,6 @@ use serde::{Deserialize, Serialize};
 
 /// Human gene identity and whole source annotations, independent of response cards.
 #[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
-#[serde(deny_unknown_fields)]
 #[cfg_attr(feature = "schema", derive(schemars::JsonSchema))]
 pub struct Gene {
     /// HGNC identifier.

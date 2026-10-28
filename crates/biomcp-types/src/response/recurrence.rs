@@ -2,7 +2,6 @@ use crate::{NcbiGeneId, Text, Variant, VariantRecurrenceQuery};
 use serde::{Deserialize, Serialize};
 /// Exact-allele observations confined to one explicitly bounded source page.
 #[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
-#[serde(deny_unknown_fields)]
 #[cfg_attr(feature = "schema", derive(schemars::JsonSchema))]
 pub struct VariantRecurrence {
     /// Source-qualified resolved identity; omitted when resolution failed.
@@ -38,7 +37,6 @@ impl super::ResponseBody for VariantRecurrence {
 }
 /// Source-native descriptive metadata, without treating access groups as licenses.
 #[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
-#[serde(deny_unknown_fields)]
 #[cfg_attr(feature = "schema", derive(schemars::JsonSchema))]
 pub struct RecurrenceStudy {
     /// Source study title.
@@ -52,7 +50,6 @@ pub struct RecurrenceStudy {
 }
 /// Public access grants no study-specific commercial reuse permission.
 #[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
-#[serde(deny_unknown_fields)]
 #[cfg_attr(feature = "schema", derive(schemars::JsonSchema))]
 pub struct RecurrenceTerms {
     /// Study-specific rights remain unverified.

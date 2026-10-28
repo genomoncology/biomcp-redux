@@ -7,7 +7,6 @@ mod reference;
 pub use reference::{Curie, VariantRef};
 /// One source claim, kept in its own framework and context.
 #[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
-#[serde(deny_unknown_fields)]
 #[cfg_attr(feature = "schema", derive(schemars::JsonSchema))]
 pub struct Statement {
     /// Source-owned subject reference.
@@ -48,7 +47,6 @@ pub struct Statement {
 }
 /// A source label with optional explicitly supported coding.
 #[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
-#[serde(deny_unknown_fields)]
 #[cfg_attr(feature = "schema", derive(schemars::JsonSchema))]
 pub struct Term {
     /// Original label.
@@ -59,7 +57,6 @@ pub struct Term {
 }
 /// One source concept with its optional ontology identifier.
 #[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
-#[serde(deny_unknown_fields)]
 #[cfg_attr(feature = "schema", derive(schemars::JsonSchema))]
 pub struct Concept {
     /// Source-stated concept identifier.
@@ -70,7 +67,6 @@ pub struct Concept {
 }
 /// Provenance for one source record.
 #[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
-#[serde(deny_unknown_fields)]
 #[cfg_attr(feature = "schema", derive(schemars::JsonSchema))]
 pub struct Attribution {
     /// Source responsible for the claim.
@@ -98,6 +94,7 @@ pub struct Attribution {
 crate::wire_enum! {
     /// Domain of a source claim.
     #[non_exhaustive]
+    #[cfg_attr(feature = "schema", schemars(extend("x-enum-open" = true)))]
     Proposition {
         /// Published pathogenicity value.
         Pathogenicity => "pathogenicity",
@@ -118,6 +115,7 @@ crate::wire_enum! {
 crate::wire_enum! {
     /// Assessment direction stated by the source.
     #[non_exhaustive]
+    #[cfg_attr(feature = "schema", schemars(extend("x-enum-open" = true)))]
     Direction {
         /// Published supports value.
         Supports => "supports",
@@ -130,6 +128,7 @@ crate::wire_enum! {
 crate::wire_enum! {
     /// VA-Spec 1.1 proposition relationships in native snake_case.
     #[non_exhaustive]
+    #[cfg_attr(feature = "schema", schemars(extend("x-enum-open" = true)))]
     Predicate {
         /// Published is_causal_for value.
         IsCausalFor => "is_causal_for",

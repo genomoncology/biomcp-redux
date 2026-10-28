@@ -2,7 +2,6 @@ use crate::{Allele, Build, Expression, GeneRef, Text, VariantId};
 use serde::{Deserialize, Serialize};
 /// One source's own expression, assembly and optional source-stated interbase allele.
 #[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
-#[serde(deny_unknown_fields)]
 #[cfg_attr(feature = "schema", derive(schemars::JsonSchema))]
 pub struct Representation {
     /// Source asserting this form.
@@ -18,7 +17,6 @@ pub struct Representation {
 }
 /// Variant entity with source-stated identities, forms and genes; no disclosure policy.
 #[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
-#[serde(deny_unknown_fields)]
 #[cfg_attr(feature = "schema", derive(schemars::JsonSchema))]
 pub struct Variant {
     /// All source identifiers, without inferred aliases.

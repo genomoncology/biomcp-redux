@@ -5,7 +5,6 @@ use crate::{
 use serde::{Deserialize, Serialize};
 /// Trial answers in original input order, retaining independent states.
 #[derive(Clone, Debug, PartialEq, Serialize, Deserialize)]
-#[serde(deny_unknown_fields)]
 #[cfg_attr(feature = "schema", derive(schemars::JsonSchema))]
 pub struct TrialCards {
     /// One answer per requested input, including absence and failure.
@@ -23,7 +22,6 @@ impl super::ResponseBody for TrialCards {
 }
 /// Result for one exact requested NCT identity.
 #[derive(Clone, Debug, PartialEq, Serialize, Deserialize)]
-#[serde(deny_unknown_fields)]
 #[cfg_attr(feature = "schema", derive(schemars::JsonSchema))]
 pub struct TrialCardItem {
     /// Exact requested identity.
@@ -45,7 +43,6 @@ pub struct TrialCardItem {
 }
 /// Independently bounded sections from the same source protocol snapshot.
 #[derive(Clone, Debug, Default, PartialEq, Serialize, Deserialize)]
-#[serde(deny_unknown_fields)]
 #[cfg_attr(feature = "schema", derive(schemars::JsonSchema))]
 pub struct TrialSections {
     /// Source publication records, without inferred roles.
@@ -72,7 +69,6 @@ pub struct TrialSections {
 }
 /// Character paging preserves source whitespace and counts Unicode scalar values.
 #[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
-#[serde(deny_unknown_fields)]
 #[cfg_attr(feature = "schema", derive(schemars::JsonSchema))]
 pub struct TrialEligibilityPage {
     /// Checked request for the next intact fragment, absent when complete.
@@ -98,7 +94,7 @@ pub struct TrialEligibilityPage {
 }
 /// Whole-record page retaining collection order.
 #[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
-#[serde(deny_unknown_fields, bound(deserialize = "T: Deserialize<'de>"))]
+#[serde(bound(deserialize = "T: Deserialize<'de>"))]
 #[cfg_attr(feature = "schema", derive(schemars::JsonSchema))]
 pub struct TrialRecords<T> {
     /// Checked request for the next intact records, absent when complete.

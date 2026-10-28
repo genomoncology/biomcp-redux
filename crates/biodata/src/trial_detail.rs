@@ -3,7 +3,6 @@ use crate::{Markdown, NctId, PartialDate, StudyType, TrialPhase, TrialSex, Trial
 use serde::{Deserialize, Serialize};
 /// Complete default registry card.
 #[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
-#[serde(deny_unknown_fields)]
 #[cfg_attr(feature = "schema", derive(schemars::JsonSchema))]
 pub struct TrialCard {
     /// Exact registry identity.
@@ -41,7 +40,7 @@ pub struct TrialCard {
 }
 /// Source age limit; absence is explicit and never a fabricated number.
 #[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
-#[serde(tag = "state", rename_all = "snake_case", deny_unknown_fields)]
+#[serde(tag = "state", rename_all = "snake_case")]
 #[cfg_attr(feature = "schema", derive(schemars::JsonSchema))]
 pub enum TrialAgeBound {
     /// Registry supplied no limit.
@@ -54,7 +53,6 @@ pub enum TrialAgeBound {
 }
 /// Structured eligibility fields and complete original criteria.
 #[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
-#[serde(deny_unknown_fields)]
 #[cfg_attr(feature = "schema", derive(schemars::JsonSchema))]
 pub struct TrialEligibility {
     /// Registry minimum age.
@@ -81,7 +79,6 @@ crate::wire_enum! {
 }
 /// One whole registered outcome with its attached time frame.
 #[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
-#[serde(deny_unknown_fields)]
 #[cfg_attr(feature = "schema", derive(schemars::JsonSchema))]
 pub struct TrialOutcome {
     /// Source collection.
@@ -95,7 +92,6 @@ pub struct TrialOutcome {
 }
 /// Registry arm with source intervention relationships.
 #[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
-#[serde(deny_unknown_fields)]
 #[cfg_attr(feature = "schema", derive(schemars::JsonSchema))]
 pub struct TrialArm {
     /// Exact arm label.
@@ -110,7 +106,6 @@ pub struct TrialArm {
 }
 /// Registry intervention, retaining aliases and arm labels.
 #[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
-#[serde(deny_unknown_fields)]
 #[cfg_attr(feature = "schema", derive(schemars::JsonSchema))]
 pub struct TrialIntervention {
     /// Exact source name.
@@ -138,7 +133,6 @@ crate::wire_enum! {
 }
 /// A registry date retains its actual or estimated qualifier.
 #[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
-#[serde(deny_unknown_fields)]
 #[cfg_attr(feature = "schema", derive(schemars::JsonSchema))]
 pub struct TrialDate {
     /// Checked source date at its original precision.
@@ -149,6 +143,7 @@ pub struct TrialDate {
 crate::wire_enum! {
     /// Native registry arm group type from the publisher enum metadata.
     #[non_exhaustive]
+    #[cfg_attr(feature = "schema", schemars(extend("x-enum-open" = true)))]
     TrialArmKind {
         /// EXPERIMENTAL source value.
         Experimental => "EXPERIMENTAL",
@@ -167,6 +162,7 @@ crate::wire_enum! {
 crate::wire_enum! {
     /// Native registry intervention type from the publisher enum metadata.
     #[non_exhaustive]
+    #[cfg_attr(feature = "schema", schemars(extend("x-enum-open" = true)))]
     TrialInterventionKind {
         /// BEHAVIORAL source value.
         Behavioral => "BEHAVIORAL",

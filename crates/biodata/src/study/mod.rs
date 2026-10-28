@@ -5,7 +5,7 @@ pub use id::*;
 use serde::{Deserialize, Serialize};
 /// Compact source study identity; source codes and counts retain their own scope.
 #[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
-#[serde(rename_all = "camelCase", deny_unknown_fields)]
+#[serde(rename_all = "camelCase")]
 #[cfg_attr(feature = "schema", derive(schemars::JsonSchema))]
 pub struct StudyHeader {
     /// Exact case-sensitive source identity.
@@ -27,7 +27,7 @@ pub struct StudyHeader {
 }
 /// Source-specific study card metadata; no inferred denominator or gene aggregate.
 #[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
-#[serde(rename_all = "camelCase", deny_unknown_fields)]
+#[serde(rename_all = "camelCase")]
 #[cfg_attr(feature = "schema", derive(schemars::JsonSchema))]
 pub struct Study {
     /// Compact study identity and publication references.
@@ -59,7 +59,7 @@ pub struct Study {
 }
 /// One native resource scope; counts remain attached to its study and resource.
 #[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
-#[serde(rename_all = "camelCase", deny_unknown_fields)]
+#[serde(rename_all = "camelCase")]
 #[cfg_attr(feature = "schema", derive(schemars::JsonSchema))]
 pub struct StudyResourceCount {
     /// Native resource ID.

@@ -66,7 +66,6 @@ impl Span0 {
 }
 
 #[derive(Deserialize)]
-#[serde(deny_unknown_fields)]
 struct SpanBounds {
     start: u32,
     end: u32,

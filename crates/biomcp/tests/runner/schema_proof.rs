@@ -5,7 +5,11 @@ use std::sync::Arc;
 
 pub(super) fn trials(registry: Arc<Registry>) -> Vec<Trial> {
     let raw_registry = Arc::clone(&registry);
+    let evolution_registry = Arc::clone(&registry);
     vec![
+        Trial::test("schema/recorded-reply-accepts-future-fields-and-enum-names", move || {
+            super::schema_evolution::recorded_reply(&evolution_registry).map_err(Into::into)
+        }),
         Trial::test("schema/catalog-and-help-reply-discovery", || {
             discovery().map_err(Into::into)
         }),
