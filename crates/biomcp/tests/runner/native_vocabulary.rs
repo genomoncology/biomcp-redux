@@ -1,5 +1,5 @@
 //! Features trial-nci and cell-line-identity: new publisher values retain their native text.
-use super::{response_cases, run_case, schema};
+use crate::runner::{response_cases, run_case, schema};
 use libtest_mimic::Trial;
 use serde_json::{Value, json};
 use std::fs;

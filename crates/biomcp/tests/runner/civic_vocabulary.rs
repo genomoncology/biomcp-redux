@@ -4,20 +4,23 @@ use crate::runner::{launch::Environment, network_stub::Stub};
 use serde_json::json;
 
 pub(super) fn unknown() -> Result<(), String> {
-    for (native, known, field, output) in [
-        ("status", "ACCEPTED", "status", "status"),
-        ("evidenceType", "PREDICTIVE", "evidenceType", "kind"),
-        ("significance", "RESISTANCE", "significance", "significance"),
+    for (native, reply, field, output) in [
+        (
+            "status",
+            status_body as fn(&str) -> Result<String, String>,
+            "status",
+            "status",
+        ),
+        ("evidenceType", kind_body, "evidenceType", "kind"),
+        (
+            "significance",
+            significance_body,
+            "significance",
+            "significance",
+        ),
     ] {
         let env = Environment::new().map_err(|e| e.to_string())?;
-        let stub = Stub::for_source("civicdb.org", "application/json", move |request| {
-            civic_body(request).map(|body| {
-                body.replace(
-                    &format!("\"{native}\":\"{known}\""),
-                    &format!("\"{native}\":\"new native value\""),
-                )
-            })
-        })?;
+        let stub = Stub::for_source("civicdb.org", "application/json", reply)?;
         configure(&env, &stub)?;
         let value = run(
             &env,
@@ -50,4 +53,22 @@ pub(super) fn unknown() -> Result<(), String> {
         stub.finish()?;
     }
     Ok(())
+}
+
+fn changed(request: &str, field: &str, known: &str) -> Result<String, String> {
+    civic_body(request).map(|body| {
+        body.replace(
+            &format!("\"{field}\":\"{known}\""),
+            &format!("\"{field}\":\"new native value\""),
+        )
+    })
+}
+fn status_body(request: &str) -> Result<String, String> {
+    changed(request, "status", "ACCEPTED")
+}
+fn kind_body(request: &str) -> Result<String, String> {
+    changed(request, "evidenceType", "PREDICTIVE")
+}
+fn significance_body(request: &str) -> Result<String, String> {
+    changed(request, "significance", "RESISTANCE")
 }
