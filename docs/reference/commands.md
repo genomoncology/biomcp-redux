@@ -463,7 +463,7 @@ Options:
 ```
 
 Search five reviewed human UniProt headers by exact text or exact gene.
-No variant effect, structure, interaction or clinical meaning is inferred. No bioinformatics tool runs. BioMCP's local request deadline expired. The health probe uses a shorter local cap than protein requests. InterPro documents that some queries take minutes; this timeout does not establish an outage. Please retry later or check https://www.ebi.ac.uk/interpro/. See https://interpro-documentation.readthedocs.io/en/latest/faq.html.
+No variant effect, structure, interaction or clinical meaning is inferred. No bioinformatics tool runs.
 
 - `--gene`: Exact source gene field, without identifier inference.
 - `--limit`: Five rows by default; no more than 25.
@@ -2560,7 +2560,7 @@ Options:
 
 ```
 
-Read protein sequences, features and source relationships. BioMCP's local request deadline expired. The health probe uses a shorter local cap than protein requests. InterPro documents that some queries take minutes; this timeout does not establish an outage. Please retry later or check https://www.ebi.ac.uk/interpro/. See https://interpro-documentation.readthedocs.io/en/latest/faq.html.
+Read protein sequences, features and source relationships.
 
 
 ## biomcp protein features
@@ -2610,7 +2610,7 @@ Options:
 
 ```
 
-Page five source UniProt features by exact type and displayed residue. No variant effect or clinical meaning is inferred; no bioinformatics tool runs. BioMCP's local request deadline expired. The health probe uses a shorter local cap than protein requests. InterPro documents that some queries take minutes; this timeout does not establish an outage. Please retry later or check https://www.ebi.ac.uk/interpro/. See https://interpro-documentation.readthedocs.io/en/latest/faq.html.
+Page five source UniProt features by exact type and displayed residue. No variant effect or clinical meaning is inferred; no bioinformatics tool runs.
 
 - `accession`: Exact source protein sequence identity.
 - `--limit`: Five rows by default, at most 25.
@@ -2660,7 +2660,7 @@ Options:
 
 ```
 
-Page five source isoforms, exact-participant complexes or PDB links. Source identities stay separate. No structure, interaction or clinical meaning is inferred; no bioinformatics tool runs. BioMCP's local request deadline expired. The health probe uses a shorter local cap than protein requests. InterPro documents that some queries take minutes; this timeout does not establish an outage. Please retry later or check https://www.ebi.ac.uk/interpro/. See https://interpro-documentation.readthedocs.io/en/latest/faq.html.
+Page five source isoforms, exact-participant complexes or PDB links. Source identities stay separate. No structure, interaction or clinical meaning is inferred; no bioinformatics tool runs.
 
 - `accession`: Exact source protein sequence identity.
 - `--limit`: Five rows by default, at most 25.
@@ -2760,7 +2760,7 @@ Options:
 
 ```
 
-Page five source isoforms, exact-participant complexes or PDB links. Source identities stay separate. No structure, interaction or clinical meaning is inferred; no bioinformatics tool runs. BioMCP's local request deadline expired. The health probe uses a shorter local cap than protein requests. InterPro documents that some queries take minutes; this timeout does not establish an outage. Please retry later or check https://www.ebi.ac.uk/interpro/. See https://interpro-documentation.readthedocs.io/en/latest/faq.html.
+Page five source isoforms, exact-participant complexes or PDB links. Source identities stay separate. No structure, interaction or clinical meaning is inferred; no bioinformatics tool runs.
 
 - `accession`: Exact source protein sequence identity.
 - `--limit`: Five rows by default, at most 25.
@@ -2811,7 +2811,7 @@ Options:
 
 ```
 
-Page five source participants of an exact Complex Portal complex containing the anchor. No interaction or clinical meaning is inferred; no bioinformatics tool runs. BioMCP's local request deadline expired. The health probe uses a shorter local cap than protein requests. InterPro documents that some queries take minutes; this timeout does not establish an outage. Please retry later or check https://www.ebi.ac.uk/interpro/. See https://interpro-documentation.readthedocs.io/en/latest/faq.html.
+Page five source participants of an exact Complex Portal complex containing the anchor. No interaction or clinical meaning is inferred; no bioinformatics tool runs.
 
 - `accession`: Exact source protein sequence identity.
 - `--complex`: Exact complex whose source participants contain the anchor.
@@ -2860,7 +2860,7 @@ Options:
 
 ```
 
-Page five source isoforms, exact-participant complexes or PDB links. Source identities stay separate. No structure, interaction or clinical meaning is inferred; no bioinformatics tool runs. BioMCP's local request deadline expired. The health probe uses a shorter local cap than protein requests. InterPro documents that some queries take minutes; this timeout does not establish an outage. Please retry later or check https://www.ebi.ac.uk/interpro/. See https://interpro-documentation.readthedocs.io/en/latest/faq.html.
+Page five source isoforms, exact-participant complexes or PDB links. Source identities stay separate. No structure, interaction or clinical meaning is inferred; no bioinformatics tool runs.
 
 - `accession`: Exact source protein sequence identity.
 - `--limit`: Five rows by default, at most 25.
@@ -2901,7 +2901,7 @@ Options:
 ```
 
 Read one complete source sequence for an exact source accession.
-No variant effect, structure or clinical meaning is inferred; no bioinformatics tool runs. BioMCP's local request deadline expired. The health probe uses a shorter local cap than protein requests. InterPro documents that some queries take minutes; this timeout does not establish an outage. Please retry later or check https://www.ebi.ac.uk/interpro/. See https://interpro-documentation.readthedocs.io/en/latest/faq.html.
+No variant effect, structure or clinical meaning is inferred; no bioinformatics tool runs.
 
 - `isoform`: Exact isoform or base accession; no canonical suffix is synthesized.
 

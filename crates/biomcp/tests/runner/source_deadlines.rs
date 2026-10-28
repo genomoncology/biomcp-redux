@@ -82,13 +82,21 @@ fn check(
         evidence.display()
     )
     .map_err(|e| e.to_string())?;
-    let pointer = if source == "interpro" { "/result/sources" } else { "/sources" };
-    let row = reply.pointer(pointer).and_then(Value::as_array)
+    let pointer = if source == "interpro" {
+        "/result/sources"
+    } else {
+        "/sources"
+    };
+    let row = reply
+        .pointer(pointer)
+        .and_then(Value::as_array)
         .ok_or_else(|| format!("missing rows: {reply}"))?
-        .iter().find(|r| r.get("source").and_then(Value::as_str) == Some(source))
+        .iter()
+        .find(|r| r.get("source").and_then(Value::as_str) == Some(source))
         .ok_or("missing source")?;
     if row.get("reason").and_then(Value::as_str) != Some("deadline_exceeded")
-        || row.get("state").and_then(Value::as_str) != Some("failed") {
+        || row.get("state").and_then(Value::as_str) != Some("failed")
+    {
         return Err(format!("synthetic latency lost source reason: {row}"));
     }
     let notices = row.get("notices").unwrap_or(&Value::Null).to_string();

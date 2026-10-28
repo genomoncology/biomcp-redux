@@ -27,14 +27,16 @@ pub(super) fn run() -> Result<(), String> {
     let notice = refused
         .pointer("/sources/0/notices/0")
         .ok_or("quota guidance")?;
-    let seconds = notice.get("retry_after_seconds")
+    let seconds = notice
+        .get("retry_after_seconds")
         .and_then(Value::as_u64)
         .ok_or("seconds left")?;
     if refused.get("status").and_then(Value::as_str) != Some("failed")
         || notice.get("kind").and_then(Value::as_str) != Some("request_guidance")
         || seconds == 0
         || seconds > 120
-        || !notice.get("message")
+        || !notice
+            .get("message")
             .and_then(Value::as_str)
             .unwrap_or("")
             .contains("https://wonder.cdc.gov/wonder/help/wonder-api.html")
