@@ -15,6 +15,7 @@ pub struct DiseaseConcept {
     pub id: Option<Curie>,
     /// Native display label when supplied and valid.
     #[serde(default, skip_serializing_if = "Option::is_none")]
+    #[cfg_attr(feature = "schema", schemars(with = "Text"))]
     pub label: Option<Text>,
 }
 /// One source candidate without a selected identity.
