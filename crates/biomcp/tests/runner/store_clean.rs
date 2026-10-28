@@ -1,4 +1,5 @@
 //! Cleanup is exercised through the isolated real command and shared SQLite file.
+use crate::runner::transcript::trial as transcript_trial;
 use super::launch::Environment;
 use libtest_mimic::Trial;
 use rusqlite::{Connection, params};
@@ -8,10 +9,10 @@ type Check<T = ()> = Result<T, Box<dyn std::error::Error>>;
 
 pub(super) fn trials() -> Vec<Trial> {
     vec![
-        Trial::test("store-clean/expired-owned-state", || {
+        transcript_trial("store-clean/expired-owned-state", || {
             clean().map_err(|e| e.to_string().into())
         }),
-        Trial::test("store-clean/publish-preserves-live-reader", || {
+        transcript_trial("store-clean/publish-preserves-live-reader", || {
             publish().map_err(|e| e.to_string().into())
         }),
     ]

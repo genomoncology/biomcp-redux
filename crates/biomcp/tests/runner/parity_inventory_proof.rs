@@ -1,11 +1,12 @@
 //! Contract: offline inventory cannot hide a missing direct fact projection.
+use crate::runner::transcript::trial as transcript_trial;
 use super::launch::Environment;
 use libtest_mimic::Trial;
 use serde_json::{Value, json};
 use std::{fs, path::Path};
 
 pub(super) fn trial() -> Trial {
-    Trial::test("parity/inventory-requires-every-direct-fact", || {
+    transcript_trial("parity/inventory-requires-every-direct-fact", || {
         check().map_err(Into::into)
     })
 }

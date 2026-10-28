@@ -1,10 +1,11 @@
 //! Feature cell-line-all: bounded independent first pages with visible source outcomes.
+use crate::runner::transcript::trial as transcript_trial;
 use super::*;
 mod controls;
 const MEASURE: bool = false;
 use super::chembl::surface;
 pub(super) fn trials() -> Vec<Trial> {
-    let mut trials = vec![Trial::test("cell-line-all/bounded-first-pages", || {
+    let mut trials = vec![transcript_trial("cell-line-all/bounded-first-pages", || {
         native().map_err(Into::into)
     })];
     trials.extend(controls::trials());

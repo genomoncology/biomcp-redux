@@ -1,4 +1,5 @@
 //! Source settings through the installed command boundary, isolated from user state.
+use crate::runner::transcript::trial as transcript_trial;
 use super::{
     configuration::{cached, invoke, root},
     launch::Environment,
@@ -10,33 +11,33 @@ use std::{fs, path::PathBuf};
 type Check = Result<(), String>;
 pub(super) fn trials() -> Vec<Trial> {
     vec![
-        Trial::test("sources/article-resolver-retries-respect-disabled", || {
+        transcript_trial("sources/article-resolver-retries-respect-disabled", || {
             article_resolver_retries().map_err(Into::into)
         }),
-        Trial::test(
+        transcript_trial(
             "sources/next-preserves-selected-config-and-cli-policy",
             || next_config().map_err(Into::into),
         ),
-        Trial::test("sources/keyed-health-uses-declared-api-route", || {
+        transcript_trial("sources/keyed-health-uses-declared-api-route", || {
             keyed_health().map_err(Into::into)
         }),
-        Trial::test("sources/disabled-leg-preserves-enabled-fold", || {
+        transcript_trial("sources/disabled-leg-preserves-enabled-fold", || {
             enabled_fold().map_err(Into::into)
         }),
-        Trial::test("sources/health-keeps-local-recording-errors-typed", || {
+        transcript_trial("sources/health-keeps-local-recording-errors-typed", || {
             health_local().map_err(Into::into)
         }),
-        Trial::test("sources/disabled-before-warm-cache-and-sync", || {
+        transcript_trial("sources/disabled-before-warm-cache-and-sync", || {
             disabled().map_err(Into::into)
         }),
-        Trial::test(
+        transcript_trial(
             "sources/health-terms-disable-union-and-unknown-refusal",
             || source_health().map_err(Into::into),
         ),
-        Trial::test("sources/disabled-pools-never-restore-or-hydrate", || {
+        transcript_trial("sources/disabled-pools-never-restore-or-hydrate", || {
             stored_pool().map_err(Into::into)
         }),
-        Trial::test("sources/disabled-recording-sends-no-request", || {
+        transcript_trial("sources/disabled-recording-sends-no-request", || {
             no_request().map_err(Into::into)
         }),
     ]

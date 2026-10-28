@@ -1,4 +1,5 @@
 //! Feature diagnostic-gtr: local reads require an explicit complete synchronization.
+use crate::runner::transcript::trial as transcript_trial;
 mod mechanics;
 mod native_value;
 use super::{configuration::invoke, launch::Environment};
@@ -7,24 +8,24 @@ use serde_json::json;
 
 pub(super) fn trials() -> Vec<Trial> {
     vec![
-        Trial::test("diagnostic-gtr/native-gene-values-preserve-bundle", || {
+        transcript_trial("diagnostic-gtr/native-gene-values-preserve-bundle", || {
             native_value::run().map_err(Into::into)
         }),
-        Trial::test(
+        transcript_trial(
             "diagnostic-gtr/markdown-preserves-native-facts-and-next",
             || mechanics::markdown().map_err(Into::into),
         ),
-        Trial::test("diagnostic-gtr/read-does-not-synchronize", || {
+        transcript_trial("diagnostic-gtr/read-does-not-synchronize", || {
             missing().map_err(Into::into)
         }),
-        Trial::test(
+        transcript_trial(
             "diagnostic-gtr/failed-replacement-keeps-complete-pair",
             || mechanics::replacement().map_err(Into::into),
         ),
-        Trial::test("diagnostic-gtr/policy-before-stored-data", || {
+        transcript_trial("diagnostic-gtr/policy-before-stored-data", || {
             mechanics::policy().map_err(Into::into)
         }),
-        Trial::test(
+        transcript_trial(
             "diagnostic-gtr/conflict-before-current-version-filter",
             || mechanics::conflict().map_err(Into::into),
         ),

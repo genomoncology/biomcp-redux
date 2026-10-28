@@ -1,4 +1,5 @@
 //! Required publisher provenance is measured separately from unchanged payload caps.
+use crate::runner::transcript::trial as transcript_trial;
 #[path = "../../src/view/escape.rs"]
 pub(super) mod text;
 use libtest_mimic::Trial;
@@ -6,18 +7,18 @@ use serde_json::{Value, json};
 
 pub(super) fn trials() -> Vec<Trial> {
     vec![
-        Trial::test(
+        transcript_trial(
             "source-controls/stored-outcomes-use-current-registry-terms",
             || stored_terms().map_err(Into::into),
         ),
-        Trial::test("source-controls/outcomes-retain-registry-terms", || {
+        transcript_trial("source-controls/outcomes-retain-registry-terms", || {
             envelopes().map_err(Into::into)
         }),
-        Trial::test(
+        transcript_trial(
             "runner/markdown-terms-subtraction-keeps-payload-ceilings",
             || markdown_subtraction().map_err(Into::into),
         ),
-        Trial::test("runner/terms-subtraction-keeps-payload-ceilings", || {
+        transcript_trial("runner/terms-subtraction-keeps-payload-ceilings", || {
             subtraction().map_err(Into::into)
         }),
     ]

@@ -1,4 +1,5 @@
 //! Feature study-failures: synthetic source faults preserve accepted metadata and fail explicitly.
+use crate::runner::transcript::trial as transcript_trial;
 use super::{call, rows, seed, study_files, study_get};
 use crate::runner::launch::Environment;
 use libtest_mimic::Trial;
@@ -9,13 +10,13 @@ pub(super) fn trials() -> Vec<Trial> {
     let mut trials = Vec::new();
     for surface in ["catalog", "profiles", "sample-lists", "files"] {
         for fault in ["429", "500", "timeout", "broken-json", "error-object"] {
-            trials.push(Trial::test(
+            trials.push(transcript_trial(
                 format!("study-failures/synthetic-{surface}-{fault}"),
                 move || failure(surface, fault).map_err(Into::into),
             ));
         }
     }
-    trials.push(Trial::test(
+    trials.push(transcript_trial(
         "study-failures/synthetic-bundle-identity",
         || bundle_identity().map_err(Into::into),
     ));

@@ -1,9 +1,10 @@
 //! People can read every command shape and copy its next commands.
+use crate::runner::transcript::trial as transcript_trial;
 use super::launch::Environment;
 use libtest_mimic::Trial;
 use serde_json::{Value, json};
 pub(super) fn trials() -> Vec<Trial> {
-    vec![Trial::test("markdown-view/command-shapes", || {
+    vec![transcript_trial("markdown-view/command-shapes", || {
         shapes().map_err(Into::into)
     })]
 }

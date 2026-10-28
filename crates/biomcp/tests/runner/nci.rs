@@ -1,4 +1,5 @@
 //! NCI security boundary through real isolated CLI commands and a synthetic TLS peer.
+use crate::runner::transcript::trial as transcript_trial;
 #![expect(
     clippy::indexing_slicing,
     reason = "Synthetic recording mutations fail directly on fixture shape drift"
@@ -11,7 +12,7 @@ mod organization;
 type Check = Result<(), String>;
 const KEY: &str = "synthetic-nci-stored-key";
 pub(super) fn trials() -> Vec<Trial> {
-    let mut trials = vec![Trial::test("trial/nci/wire-and-failures", || {
+    let mut trials = vec![transcript_trial("trial/nci/wire-and-failures", || {
         wire().map_err(Into::into)
     })];
     trials.extend(organization::trials());

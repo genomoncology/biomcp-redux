@@ -1,4 +1,5 @@
 //! Ambiguous published IDs keep every source allele and executable population steps.
+use crate::runner::transcript::trial as transcript_trial;
 use super::{environment, execute};
 use crate::runner::network_stub::Stub;
 use libtest_mimic::Trial;
@@ -6,19 +7,19 @@ use serde_json::{Value, json};
 
 pub(super) fn trials() -> Vec<Trial> {
     vec![
-        Trial::test(
+        transcript_trial(
             "variant/population-ambiguous-ids-retain-source-alleles",
             || ambiguous().map_err(Into::into),
         ),
-        Trial::test(
+        transcript_trial(
             "variant/population-single-id-follows-source-ca-identity",
             || single().map_err(Into::into),
         ),
-        Trial::test(
+        transcript_trial(
             "variant/population-unknown-build-keeps-candidate-steps",
             || unknown_build().map_err(Into::into),
         ),
-        Trial::test(
+        transcript_trial(
             "variant/population-dbsnp-alias-cannot-authorize-ca-join",
             || malformed_alias().map_err(Into::into),
         ),

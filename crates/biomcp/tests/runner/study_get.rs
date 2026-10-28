@@ -1,4 +1,5 @@
 //! Feature study-get: exact stored cards and bounded source metadata without member IDs.
+use crate::runner::transcript::trial as transcript_trial;
 use super::{rows, seed};
 use crate::runner::launch::Environment;
 use libtest_mimic::Trial;
@@ -9,17 +10,17 @@ pub(super) fn trials() -> Vec<Trial> {
     let native = crate::runner::launch::fixtures().join("study-get-cases");
     let available = native.is_dir();
     vec![
-        Trial::test("study-get/retained-native", move || {
+        transcript_trial("study-get/retained-native", move || {
             retained(&native).map_err(Into::into)
         })
         .with_ignored_flag(!available),
-        Trial::test("study-get/complete-pages-and-native-counts", || {
+        transcript_trial("study-get/complete-pages-and-native-counts", || {
             pages().map_err(Into::into)
         }),
-        Trial::test("study-get/identity-failures-and-policy", || {
+        transcript_trial("study-get/identity-failures-and-policy", || {
             failures().map_err(Into::into)
         }),
-        Trial::test("study-get/admission-and-absent-count", || {
+        transcript_trial("study-get/admission-and-absent-count", || {
             admission().map_err(Into::into)
         }),
     ]

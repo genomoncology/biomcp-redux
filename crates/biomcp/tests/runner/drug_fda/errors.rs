@@ -1,17 +1,18 @@
+use crate::runner::transcript::trial as transcript_trial;
 use super::super::{configuration::invoke, network_stub::Stub};
 use super::{Check, application, both, exact_setup, setup_status};
 use libtest_mimic::Trial;
 use serde_json::{Value, json};
 pub(super) fn trials() -> Vec<Trial> {
     let mut trials = vec![
-        Trial::test(
+        transcript_trial(
             "drug-approvals/refuse-wrong-application-before-cache",
             || wrong().map_err(Into::into),
         ),
-        Trial::test("drug-approvals/disabled-before-io", || {
+        transcript_trial("drug-approvals/disabled-before-io", || {
             disabled().map_err(Into::into)
         }),
-        Trial::test("drug-approvals/native-absence-is-source-local", || {
+        transcript_trial("drug-approvals/native-absence-is-source-local", || {
             absence().map_err(Into::into)
         }),
     ];
@@ -28,7 +29,7 @@ pub(super) fn trials() -> Vec<Trial> {
             r#"{"error":{"code":"NOT_FOUND","message":"route missing"}}"#,
         ),
     ] {
-        trials.push(Trial::test(
+        trials.push(transcript_trial(
             format!("drug-approvals/reject-{name}"),
             move || reject(status, body).map_err(Into::into),
         ));

@@ -1,4 +1,5 @@
 //! Research wrappers map the existing CLI result without provider calls.
+use crate::runner::transcript::trial as transcript_trial;
 #[path = "research_links.rs"]
 mod links;
 #[path = "research_registry.rs"]
@@ -13,16 +14,16 @@ use serde_json::{Value, json};
 
 pub(super) fn trials() -> Vec<Trial> {
     vec![
-        Trial::test("mcp/research-registry-record-links", || {
+        transcript_trial("mcp/research-registry-record-links", || {
             links::check().map_err(Into::into)
         }),
-        Trial::test("mcp/research-registry-projection-paths", || {
+        transcript_trial("mcp/research-registry-projection-paths", || {
             registry::check().map_err(Into::into)
         }),
-        Trial::test("mcp/research-search-fetch-parity", || {
+        transcript_trial("mcp/research-search-fetch-parity", || {
             parity().map_err(Into::into)
         }),
-        Trial::test("mcp/research-phenotype-search-fetch", || {
+        transcript_trial("mcp/research-phenotype-search-fetch", || {
             phenotype().map_err(Into::into)
         }),
     ]

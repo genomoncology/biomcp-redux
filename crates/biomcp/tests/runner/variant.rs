@@ -1,4 +1,5 @@
 //! Exact source request spelling crosses the real command and TLS transport.
+use crate::runner::transcript::trial as transcript_trial;
 use super::{launch::Environment, network_stub::Stub};
 use libtest_mimic::Trial;
 use serde_json::{Value, json};
@@ -9,43 +10,43 @@ mod labels;
 mod roundtrip;
 pub(super) fn trials() -> Vec<Trial> {
     let mut trials = vec![
-        Trial::test("variant/printed-repeat-identity-round-trips", || {
+        transcript_trial("variant/printed-repeat-identity-round-trips", || {
             roundtrip::check().map_err(Into::into)
         }),
-        Trial::test("variant/unpaired-native-labels-remain-context", || {
+        transcript_trial("variant/unpaired-native-labels-remain-context", || {
             labels::check().map_err(Into::into)
         }),
-        Trial::test("variant/malformed-score-is-not-missing-identity", || {
+        transcript_trial("variant/malformed-score-is-not-missing-identity", || {
             malformed_score().map_err(Into::into)
         }),
-        Trial::test("variant/disabled-clinvar-identity-never-queries", || {
+        transcript_trial("variant/disabled-clinvar-identity-never-queries", || {
             disabled_clinvar_identity().map_err(Into::into)
         }),
-        Trial::test("variant/component-groups-guard-warm-data", || {
+        transcript_trial("variant/component-groups-guard-warm-data", || {
             component_groups().map_err(Into::into)
         }),
-        Trial::test("variant/missing-historical-fragment-is-empty", || {
+        transcript_trial("variant/missing-historical-fragment-is-empty", || {
             missing_component().map_err(Into::into)
         }),
-        Trial::test("variant/historical-fragment-walk-is-warm", || {
+        transcript_trial("variant/historical-fragment-walk-is-warm", || {
             components::component_walk().map_err(Into::into)
         }),
-        Trial::test(
+        transcript_trial(
             "variant/component-rights-and-historical-association",
             || components().map_err(Into::into),
         ),
-        Trial::test("variant/mixed-identity-page-never-enters-cache", || {
+        transcript_trial("variant/mixed-identity-page-never-enters-cache", || {
             mixed_page().map_err(Into::into)
         }),
-        Trial::test(
+        transcript_trial(
             "variant/validator-keeps-native-order-and-transcript-only-forms",
             || validator_order().map_err(Into::into),
         ),
-        Trial::test("variant/native-candidate-walk-is-warm", || {
+        transcript_trial("variant/native-candidate-walk-is-warm", || {
             candidate_walk().map_err(Into::into)
         }),
-        Trial::test("variant/car-projection-wire", || car().map_err(Into::into)),
-        Trial::test("variant/myvariant-exact-build-wire", || {
+        transcript_trial("variant/car-projection-wire", || car().map_err(Into::into)),
+        transcript_trial("variant/myvariant-exact-build-wire", || {
             myvariant().map_err(Into::into)
         }),
     ];

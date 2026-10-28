@@ -1,4 +1,5 @@
 //! Response-boundary tables use the same binary, schema and isolation as YAML cases.
+use crate::runner::transcript::trial as transcript_trial;
 #![expect(
     clippy::unwrap_used,
     clippy::indexing_slicing,
@@ -24,7 +25,7 @@ pub(super) fn trials() -> Vec<Trial> {
         ("gene-sections/graphql-boundaries", graphql::check),
     ]
     .into_iter()
-    .map(|(name, check)| Trial::test(name, move || check().map_err(|e| e.to_string().into())))
+    .map(|(name, check)| transcript_trial(name, move || check().map_err(|e| e.to_string().into())))
     .collect()
 }
 

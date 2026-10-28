@@ -1,11 +1,12 @@
 //! Feature protein-domains-complexes: synthetic returned identities are dropped before caching.
+use crate::runner::transcript::trial as transcript_trial;
 use super::super::mcp;
 use super::*;
 pub(super) fn trials() -> Vec<Trial> {
     ["accession", "isoform", "ipr", "cpx"]
         .into_iter()
         .map(|kind| {
-            Trial::test(
+            transcript_trial(
                 format!("protein-domains-complexes/synthetic-wrong-{kind}-not-cached"),
                 move || run(kind).map_err(Into::into),
             )

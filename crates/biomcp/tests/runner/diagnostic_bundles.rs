@@ -1,4 +1,5 @@
 //! Feature diagnostic-retirements: old stored data remains visible without refresh.
+use crate::runner::transcript::trial as transcript_trial;
 use super::{
     configuration::invoke,
     launch::{Environment, fixtures},
@@ -11,7 +12,7 @@ pub(super) fn trials() -> Vec<Trial> {
     ["gtr", "who-ivd", "fda-cdx"]
         .into_iter()
         .map(|source| {
-            Trial::test(
+            transcript_trial(
                 format!("diagnostic-retirements/{source}-stale-bundle"),
                 move || stale(source).map_err(Into::into),
             )

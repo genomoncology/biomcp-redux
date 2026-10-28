@@ -1,21 +1,22 @@
 //! Feature phenotype-sections: source-owned text and direct link disclosure.
+use crate::runner::transcript::trial as transcript_trial;
 use super::{Stub, invoke, setup};
 use libtest_mimic::Trial;
 use serde_json::{Value, json};
 pub(super) fn trials() -> Vec<Trial> {
     vec![
-        Trial::test(
+        transcript_trial(
             "phenotype-sections/refresh-preserves-card-snapshot-and-policy",
             || retained().map_err(Into::into),
         ),
-        Trial::test("phenotype-sections/native-classes-and-direct-links", || {
+        transcript_trial("phenotype-sections/native-classes-and-direct-links", || {
             monarch().map_err(Into::into)
         }),
-        Trial::test(
+        transcript_trial(
             "phenotype-sections/empty-unavailable-and-missing-retained-reply",
             || absent().map_err(Into::into),
         ),
-        Trial::test(
+        transcript_trial(
             "phenotype-sections/retained-local-pages-and-executable-card-actions",
             || pages().map_err(Into::into),
         ),

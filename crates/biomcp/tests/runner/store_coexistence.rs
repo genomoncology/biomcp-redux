@@ -1,4 +1,5 @@
 //! Feature store-coexistence: allowed reads retain both owned store generations.
+use crate::runner::transcript::trial as transcript_trial;
 use super::{configuration::invoke, launch::Environment};
 use libtest_mimic::Trial;
 use rusqlite::{Connection, params};
@@ -24,7 +25,7 @@ pub(super) fn trials() -> Vec<Trial> {
     ]
     .into_iter()
     .map(|(name, run)| {
-        Trial::test(format!("store-coexistence/{name}"), move || {
+        transcript_trial(format!("store-coexistence/{name}"), move || {
             run().map_err(|e| e.to_string().into())
         })
     })

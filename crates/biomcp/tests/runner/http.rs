@@ -1,4 +1,5 @@
 //! MCP HTTP through the actual process and isolated local sockets.
+use crate::runner::transcript::trial as transcript_trial;
 use super::launch::Environment;
 use libtest_mimic::Trial;
 use serde_json::{Value, json};
@@ -12,21 +13,21 @@ type Check = Result<(), String>;
 
 pub(super) fn trials() -> Vec<Trial> {
     vec![
-        Trial::test("mcp-http/local-health-and-discovery", || {
+        transcript_trial("mcp-http/local-health-and-discovery", || {
             lifecycle().map_err(Into::into)
         }),
-        Trial::test(
+        transcript_trial(
             "mcp-http/revisions-parity-and-concurrent-identities",
             || protocols().map_err(Into::into),
         ),
-        Trial::test(
+        transcript_trial(
             "mcp-http/host-origin-method-and-metadata-boundaries",
             || admission().map_err(Into::into),
         ),
-        Trial::test("mcp-http/framing-resource-deadlines-and-shutdown", || {
+        transcript_trial("mcp-http/framing-resource-deadlines-and-shutdown", || {
             super::http_limits::check().map_err(Into::into)
         }),
-        Trial::test("mcp-http/storage-refusal-and-nonlocal-bind", || {
+        transcript_trial("mcp-http/storage-refusal-and-nonlocal-bind", || {
             storage().map_err(Into::into)
         }),
     ]

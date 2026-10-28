@@ -1,4 +1,5 @@
 //! Housekeeping runs through the isolated installed command boundary.
+use crate::runner::transcript::trial as transcript_trial;
 #[path = "housekeeping_path.rs"]
 mod stable_path;
 
@@ -10,10 +11,10 @@ type Check<T = ()> = Result<T, Box<dyn std::error::Error>>;
 
 pub(super) fn trials() -> Vec<Trial> {
     let mut trials = vec![
-        Trial::test("housekeeping/offline-provenance-and-config", || {
+        transcript_trial("housekeeping/offline-provenance-and-config", || {
             check().map_err(|error| error.to_string().into())
         }),
-        Trial::test("housekeeping/invalid-globals-ignore-key-config", || {
+        transcript_trial("housekeeping/invalid-globals-ignore-key-config", || {
             invalid_globals().map_err(|error| error.to_string().into())
         }),
     ];

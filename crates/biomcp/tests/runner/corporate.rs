@@ -1,4 +1,5 @@
 //! Corporate network settings cross the isolated command boundary.
+use crate::runner::transcript::trial as transcript_trial;
 use super::launch::Environment;
 use libtest_mimic::Trial;
 use serde_json::{Value, json};
@@ -6,15 +7,15 @@ use std::{fs, net::TcpListener};
 
 pub(super) fn trials() -> Vec<Trial> {
     vec![
-        Trial::test(
+        transcript_trial(
             "network/configuration-causes-and-automatic-sync-limit",
             || configuration().map_err(Into::into),
         ),
-        Trial::test("network/proxy-environment-failure", || {
+        transcript_trial("network/proxy-environment-failure", || {
             proxy().map_err(Into::into)
         }),
-        Trial::test("network/bad-ca-is-local", || bad_ca().map_err(Into::into)),
-        Trial::test("network/additive-ca-tls-and-proxy-isolation", || {
+        transcript_trial("network/bad-ca-is-local", || bad_ca().map_err(Into::into)),
+        transcript_trial("network/additive-ca-tls-and-proxy-isolation", || {
             tls().map_err(Into::into)
         }),
     ]

@@ -1,4 +1,5 @@
 //! Feature drug-label: tokenized discovery retains complete brand identity.
+use crate::runner::transcript::trial as transcript_trial;
 use super::super::network_stub::Stub;
 use super::{Check, both, environment, field, identity, page, record};
 use libtest_mimic::Trial;
@@ -20,7 +21,7 @@ pub(super) fn trials() -> Vec<Trial> {
     ]
     .into_iter()
     .map(|(name, typed, returned, found)| {
-        Trial::test(format!("drug-label/fallback-{name}"), move || {
+        transcript_trial(format!("drug-label/fallback-{name}"), move || {
             fallback(typed, returned, found).map_err(Into::into)
         })
     })

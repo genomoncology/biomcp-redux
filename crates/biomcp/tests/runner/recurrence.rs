@@ -1,10 +1,11 @@
 //! Explicit cohort bounds cross the executable and TLS; no clinical interpretation.
+use crate::runner::transcript::trial as transcript_trial;
 use super::{launch::Environment, network_stub::Stub};
 use libtest_mimic::Trial;
 use serde_json::{Value, json};
 use std::fs;
 pub(super) fn trials() -> Vec<Trial> {
-    vec![Trial::test(
+    vec![transcript_trial(
         "variant-recurrence/exact-page-wire-and-warm-cache",
         || wire().map_err(Into::into),
     )]

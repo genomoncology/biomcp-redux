@@ -1,4 +1,5 @@
 //! Feature disease-seer: native site choices and independent annual statistics.
+use crate::runner::transcript::trial as transcript_trial;
 use super::{launch::Environment, network_stub::Stub};
 use libtest_mimic::Trial;
 use serde_json::{Value, json};
@@ -8,32 +9,32 @@ mod native;
 pub(super) use native::run as native;
 pub(super) fn trials() -> Vec<Trial> {
     vec![
-        Trial::test(
+        transcript_trial(
             "disease-seer/stale-valid-rows-retain-rejected-reply-problem",
             || failures::stale_rejection().map_err(Into::into),
         ),
-        Trial::test(
+        transcript_trial(
             "disease-seer/wrong-site-drops-before-cache-and-corrected-reply-recovers",
             || failures::wrong_site().map_err(Into::into),
         ),
-        Trial::test(
+        transcript_trial(
             "disease-seer/catalog-keeps-native-sites-and-local-pages",
             || catalog().map_err(Into::into),
         ),
-        Trial::test("disease-seer/incidence-preserves-stage-rows", || {
+        transcript_trial("disease-seer/incidence-preserves-stage-rows", || {
             incidence().map_err(Into::into)
         }),
-        Trial::test(
+        transcript_trial(
             "disease-seer/survival-keeps-observed-and-model-only-years",
             || survival().map_err(Into::into),
         ),
-        Trial::test("disease-seer/selectors-refuse-before-io", || {
+        transcript_trial("disease-seer/selectors-refuse-before-io", || {
             failures::selectors().map_err(Into::into)
         }),
-        Trial::test("disease-seer/failures-retain-source-and-terms", || {
+        transcript_trial("disease-seer/failures-retain-source-and-terms", || {
             failures::run().map_err(Into::into)
         }),
-        Trial::test(
+        transcript_trial(
             "disease-seer/disabled-source-bypasses-retained-data",
             || failures::disabled().map_err(Into::into),
         ),

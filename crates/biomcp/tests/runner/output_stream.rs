@@ -1,14 +1,15 @@
 //! Schema output survives closed readers; Markdown omits an absent query.
+use crate::runner::transcript::trial as transcript_trial;
 use super::{launch::Environment, process::Process};
 use libtest_mimic::Trial;
 use std::{io::Read, process::Stdio};
 
 pub(super) fn trials() -> Vec<Trial> {
     vec![
-        Trial::test("schema/closed-output-reader", || {
+        transcript_trial("schema/closed-output-reader", || {
             closed_reader().map_err(Into::into)
         }),
-        Trial::test("markdown-view/absent-query", || {
+        transcript_trial("markdown-view/absent-query", || {
             absent_query().map_err(Into::into)
         }),
     ]

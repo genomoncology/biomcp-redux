@@ -1,31 +1,32 @@
 //! Feature phenotype-associations: exact direct native rows and safe identity pivots.
+use crate::runner::transcript::trial as transcript_trial;
 use super::budgets;
 use super::{Stub, invoke, setup};
 use libtest_mimic::Trial;
 use serde_json::{Value, json};
 pub(super) fn trials() -> Vec<Trial> {
     vec![
-        Trial::test(
+        transcript_trial(
             "phenotype-associations/recorded-timeout-keeps-source-and-terms",
             || timeout().map_err(Into::into),
         ),
-        Trial::test(
+        transcript_trial(
             "phenotype-associations/card-actions-keep-one-row-default-and-explicit-limits",
             || cards().map_err(Into::into),
         ),
-        Trial::test(
+        transcript_trial(
             "phenotype-associations/direct-pages-preserve-native-rows",
             || exact().map_err(Into::into),
         ),
-        Trial::test(
+        transcript_trial(
             "phenotype-associations/native-two-row-paging-and-row-local-fields",
             || pages().map_err(Into::into),
         ),
-        Trial::test(
+        transcript_trial(
             "phenotype-associations/bad-endpoints-taxa-and-outages-never-cache",
             || failures().map_err(Into::into),
         ),
-        Trial::test(
+        transcript_trial(
             "phenotype-associations/disabled-components-skip-cached-and-recorded-pages",
             || disabled().map_err(Into::into),
         ),

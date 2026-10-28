@@ -1,4 +1,5 @@
 //! Feature diagnostic-cdx: synthetic stored companion rows retain owned identities.
+use crate::runner::transcript::trial as transcript_trial;
 use super::{
     configuration::invoke,
     launch::{Environment, fixtures},
@@ -13,31 +14,31 @@ type Check = Result<(), String>;
 mod pivots;
 pub(super) fn trials() -> Vec<Trial> {
     vec![
-        Trial::test("diagnostic-cdx/synthetic-ambiguous-link-parameters", || {
+        transcript_trial("diagnostic-cdx/synthetic-ambiguous-link-parameters", || {
             ambiguous_parameters().map_err(Into::into)
         }),
-        Trial::test("diagnostic-cdx/synthetic-entity-boundary", || {
+        transcript_trial("diagnostic-cdx/synthetic-entity-boundary", || {
             entities().map_err(Into::into)
         }),
-        Trial::test("diagnostic-cdx/synthetic-http-owned-application", || {
+        transcript_trial("diagnostic-cdx/synthetic-http-owned-application", || {
             http_owned().map_err(Into::into)
         }),
-        Trial::test("diagnostic-cdx/synthetic-pagination", || {
+        transcript_trial("diagnostic-cdx/synthetic-pagination", || {
             paging().map_err(Into::into)
         }),
-        Trial::test("diagnostic-cdx/markdown-whole-cells", || {
+        transcript_trial("diagnostic-cdx/markdown-whole-cells", || {
             markdown().map_err(Into::into)
         }),
-        Trial::test("diagnostic-cdx/synthetic-owned-identities", || {
+        transcript_trial("diagnostic-cdx/synthetic-owned-identities", || {
             identities().map_err(Into::into)
         }),
-        Trial::test("diagnostic-cdx/synthetic-header-replacement", || {
+        transcript_trial("diagnostic-cdx/synthetic-header-replacement", || {
             replacement().map_err(Into::into)
         }),
-        Trial::test("diagnostic-cdx/synthetic-concurrent-replacement", || {
+        transcript_trial("diagnostic-cdx/synthetic-concurrent-replacement", || {
             concurrent().map_err(Into::into)
         }),
-        Trial::test("diagnostic-cdx/stored-only-policy", || {
+        transcript_trial("diagnostic-cdx/stored-only-policy", || {
             stored().map_err(Into::into)
         }),
     ]

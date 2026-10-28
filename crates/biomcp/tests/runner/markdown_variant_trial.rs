@@ -1,11 +1,12 @@
 //! Variant and trial Markdown shapes reuse the existing isolated command contract.
+use crate::runner::transcript::trial as transcript_trial;
 use super::markdown_shapes::{Shape, check};
 use libtest_mimic::Trial;
 pub(super) fn trials() -> Vec<Trial> {
     let mut trials: Vec<_> = SHAPES
         .iter()
         .map(|(name, shape)| {
-            Trial::test(format!("markdown-view/{name}"), move || {
+            transcript_trial(format!("markdown-view/{name}"), move || {
                 check(shape).map_err(Into::into)
             })
         })

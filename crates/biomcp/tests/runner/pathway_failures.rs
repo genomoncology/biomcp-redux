@@ -1,4 +1,5 @@
 //! Feature pathway-failures: synthetic source faults cannot become empty or cached answers.
+use crate::runner::transcript::trial as transcript_trial;
 use crate::runner::pathway_budgets as budgets;
 mod absence;
 mod fixtures;
@@ -23,27 +24,27 @@ pub(super) fn trials() -> Vec<Trial> {
     let mut trials: Vec<_> = ROUTES
         .iter()
         .map(|&(route, args)| {
-            Trial::test(format!("pathway-failures/synthetic-{route}"), move || {
+            transcript_trial(format!("pathway-failures/synthetic-{route}"), move || {
                 faults(route, args).map_err(Into::into)
             })
         })
         .collect();
-    trials.push(Trial::test(
+    trials.push(transcript_trial(
         "pathway-failures/synthetic-foreign-reactome-identity",
         || identities().map_err(Into::into),
     ));
-    trials.push(Trial::test(
+    trials.push(transcript_trial(
         "pathway-failures/unsupported-pairings-before-io",
         || pairings().map_err(Into::into),
     ));
-    trials.push(Trial::test(
+    trials.push(transcript_trial(
         "pathway-failures/synthetic-exact-absence-versus-foreign404",
         || absence::run().map_err(Into::into),
     ));
-    trials.push(Trial::test("pathway-failures/kept-limit-aliases", || {
+    trials.push(transcript_trial("pathway-failures/kept-limit-aliases", || {
         limits().map_err(Into::into)
     }));
-    trials.push(Trial::test(
+    trials.push(transcript_trial(
         "pathway-failures/synthetic-oversized-source-admission",
         || oversized::run().map_err(Into::into),
     ));

@@ -1,4 +1,5 @@
 //! Positive section views reuse the existing synthetic source responders.
+use crate::runner::transcript::trial as transcript_trial;
 // Ceilings are ceil(j11380 measured comparable Markdown bytes * 1.15).
 use super::{
     launch::Environment,
@@ -12,7 +13,7 @@ pub(super) fn trials() -> Vec<Trial> {
     ["civic", "hotspots", "oncokb"]
         .into_iter()
         .map(|source| {
-            Trial::test(format!("markdown-view/variant-{source}-data"), move || {
+            transcript_trial(format!("markdown-view/variant-{source}-data"), move || {
                 positive(source).map_err(Into::into)
             })
         })

@@ -1,4 +1,5 @@
 //! variant-assertions: optional NCBI credentials cross only the outgoing wire.
+use crate::runner::transcript::trial as transcript_trial;
 use super::{launch::Environment, network_stub::Stub};
 use libtest_mimic::Trial;
 use serde_json::{Value, json};
@@ -8,7 +9,7 @@ const KEY: &str = "synthetic-clinvar-ncbi-key";
 const COMMAND: &[&str] = &["get", "variant", "clinvar:13961", "clinvar"];
 
 pub(super) fn trials() -> Vec<Trial> {
-    vec![Trial::test(
+    vec![transcript_trial(
         "variant-assertions/optional-ncbi-key-is-outgoing-only",
         || configured().map_err(Into::into),
     )]

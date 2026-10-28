@@ -1,23 +1,24 @@
 //! Feature source-controls: drug declarations and admission use the shared registry.
+use crate::runner::transcript::trial as transcript_trial;
 use super::{configuration::invoke, launch::Environment};
 use libtest_mimic::Trial;
 use serde_json::{Value, json};
 type Check = Result<(), String>;
 pub(super) fn trials() -> Vec<Trial> {
     vec![
-        Trial::test("drug-registry/publisher-declarations", || {
+        transcript_trial("drug-registry/publisher-declarations", || {
             declarations().map_err(Into::into)
         }),
-        Trial::test("drug-registry/disabled-health-no-io", || {
+        transcript_trial("drug-registry/disabled-health-no-io", || {
             disabled_health().map_err(Into::into)
         }),
-        Trial::test("drug-registry/enabled-health-native-probes", || {
+        transcript_trial("drug-registry/enabled-health-native-probes", || {
             enabled_health().map_err(Into::into)
         }),
-        Trial::test("drug-registry/component-projection", || {
+        transcript_trial("drug-registry/component-projection", || {
             projection().map_err(Into::into)
         }),
-        Trial::test("drug-registry/disabled-before-cache-and-replay", || {
+        transcript_trial("drug-registry/disabled-before-cache-and-replay", || {
             admission().map_err(Into::into)
         }),
     ]

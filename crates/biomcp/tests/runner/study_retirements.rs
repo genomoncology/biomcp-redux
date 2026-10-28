@@ -1,4 +1,5 @@
 //! Feature study-retirements: legacy calculations and charts fail before source access.
+use crate::runner::transcript::trial as transcript_trial;
 use crate::runner::{configuration::invoke, launch::Environment, mcp};
 use libtest_mimic::Trial;
 use serde_json::{Value, json};
@@ -52,17 +53,17 @@ pub(super) fn trials() -> Vec<Trial> {
         .into_iter()
         .enumerate()
         .map(|(index, (args, message))| {
-            Trial::test(
+            transcript_trial(
                 format!("study-retirements/fixed-guidance-{index}"),
                 move || check(&args, message).map_err(Into::into),
             )
         })
         .collect();
-    trials.push(Trial::test(
+    trials.push(transcript_trial(
         "study-retirements/environment-does-not-read-directory",
         || directory().map_err(Into::into),
     ));
-    trials.push(Trial::test("study-retirements/argument-boundaries", || {
+    trials.push(transcript_trial("study-retirements/argument-boundaries", || {
         boundaries().map_err(Into::into)
     }));
     trials

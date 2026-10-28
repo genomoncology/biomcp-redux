@@ -1,4 +1,5 @@
 //! Feature drug-approvals: native application candidates and independent product history.
+use crate::runner::transcript::trial as transcript_trial;
 use super::{configuration::invoke, launch::Environment, network_stub::Stub};
 use libtest_mimic::Trial;
 use serde_json::{Value, json};
@@ -8,20 +9,20 @@ mod errors;
 mod names;
 pub(super) fn trials() -> Vec<Trial> {
     let mut trials = vec![
-        Trial::test("drug-approvals/literal-application-candidates", || {
+        transcript_trial("drug-approvals/literal-application-candidates", || {
             search().map_err(Into::into)
         }),
-        Trial::test(
+        transcript_trial(
             "drug-approvals/application-history-keeps-product-scope",
             || approvals().map_err(Into::into),
         ),
-        Trial::test("drug-approvals/missing-product-is-unavailable", || {
+        transcript_trial("drug-approvals/missing-product-is-unavailable", || {
             missing_product().map_err(Into::into)
         }),
-        Trial::test("drug-approvals/application-card-has-no-events", || {
+        transcript_trial("drug-approvals/application-card-has-no-events", || {
             card().map_err(Into::into)
         }),
-        Trial::test("drug-approvals/all-candidate-gets-and-page-survive", || {
+        transcript_trial("drug-approvals/all-candidate-gets-and-page-survive", || {
             navigation().map_err(Into::into)
         }),
     ];

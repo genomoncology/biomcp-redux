@@ -1,5 +1,6 @@
 //! Feature drug-mychem: native replies captured 2026-10-25, delivered by a local TLS peer.
 //! Imatinib card fixture is a labeled identity subset. Full native replies stay in source evidence.
+use crate::runner::transcript::trial as transcript_trial;
 use super::{configuration::invoke, launch::Environment, network_stub::Stub};
 use libtest_mimic::Trial;
 use serde_json::{Value, json};
@@ -19,20 +20,20 @@ pub(super) fn trials() -> Vec<Trial> {
     .into_iter()
     .enumerate()
     .map(|(n, name)| {
-        Trial::test(format!("drug-mychem/{name}"), move || {
+        transcript_trial(format!("drug-mychem/{name}"), move || {
             check(n).map_err(Into::into)
         })
     })
     .collect();
-    trials.push(Trial::test(
+    trials.push(transcript_trial(
         "drug-mychem/reject-wrong-identity-before-cache",
         || wrong_identity().map_err(Into::into),
     ));
-    trials.push(Trial::test(
+    trials.push(transcript_trial(
         "drug-mychem/component-policy-before-request-and-projection",
         || component_policy().map_err(Into::into),
     ));
-    trials.push(Trial::test("drug-mychem/complete-xrefs-page-walk", || {
+    trials.push(transcript_trial("drug-mychem/complete-xrefs-page-walk", || {
         xrefs_walk().map_err(Into::into)
     }));
     trials

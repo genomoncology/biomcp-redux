@@ -1,4 +1,4 @@
-use std::{fs, io, path::Path, process::Command, sync::Arc};
+use std::{fs, io, path::Path, sync::Arc};
 
 #[path = "../../../biomcp-fetch/tests/support/environment.rs"]
 mod child_environment;
@@ -7,6 +7,7 @@ pub(super) use child_environment::ENV_PATHS;
 #[derive(Debug)]
 pub(super) struct Environment {
     root: Arc<tempfile::TempDir>,
+    transcript: Option<Arc<super::transcript::Context>>,
 }
 
 impl Environment {
@@ -14,6 +15,7 @@ impl Environment {
         let root = child_environment::new()?;
         Ok(Self {
             root: Arc::new(root),
+            transcript: super::transcript::current(),
         })
     }
 
@@ -53,7 +55,7 @@ impl Environment {
         clippy::disallowed_methods,
         reason = "The launcher alone selects an explicitly installed artifact"
     )]
-    pub(super) fn command(&self, program: impl AsRef<Path>, args: &[String]) -> Command {
+    pub(super) fn command(&self, program: impl AsRef<Path>, args: &[String]) -> super::capture::Capture {
         let mut command =
             child_environment::command(&executable(program.as_ref()), self.root.path(), args);
         if std::env::current_exe().is_ok_and(|runner| runner == program.as_ref()) {
@@ -65,7 +67,7 @@ impl Environment {
                 }
             }
         }
-        command
+        super::capture::Capture::new(command, if program.as_ref() == Path::new(env!("CARGO_BIN_EXE_biomcp")) { self.transcript.clone() } else { None }, args, self.root.path())
     }
 }
 

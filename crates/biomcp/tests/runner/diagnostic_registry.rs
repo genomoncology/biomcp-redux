@@ -1,4 +1,5 @@
 //! Feature source-controls: public diagnostic declarations before runtime dispatch exists.
+use crate::runner::transcript::trial as transcript_trial;
 use super::{configuration::invoke, launch::Environment};
 use biomcp_adapters::registry;
 use biomcp_types::{Reason, SourceState};
@@ -29,16 +30,16 @@ pub(super) fn trials() -> Vec<Trial> {
     SOURCES
         .iter()
         .map(|&(source, usage, url)| {
-            Trial::test(
+            transcript_trial(
                 format!("diagnostic-registry/{source}-declaration"),
                 move || declaration(source, usage, url).map_err(Into::into),
             )
         })
         .chain([
-            Trial::test("diagnostic-registry/policy-before-io", || {
+            transcript_trial("diagnostic-registry/policy-before-io", || {
                 admission::run().map_err(Into::into)
             }),
-            Trial::test("diagnostic-registry/configuration-union", || {
+            transcript_trial("diagnostic-registry/configuration-union", || {
                 switches().map_err(Into::into)
             }),
         ])

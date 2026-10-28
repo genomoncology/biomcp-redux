@@ -1,4 +1,5 @@
 //! Explicit external-input proof: unchanged source bodies never enter Git.
+use crate::runner::transcript::trial as transcript_trial;
 use super::field;
 use super::{Check, both, get_args, identity, setup_raw, walk};
 use libtest_mimic::Trial;
@@ -12,7 +13,7 @@ pub(super) fn trials() -> Vec<Trial> {
     (0..9)
         .map(|n| {
             let root = PathBuf::from(&root);
-            Trial::test(format!("drug-label-captured/native-{n}"), move || {
+            transcript_trial(format!("drug-label-captured/native-{n}"), move || {
                 check(&root, n).map_err(Into::into)
             })
         })

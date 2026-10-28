@@ -1,4 +1,5 @@
 //! Feature protein-sections: native coordinates, alternative identities and bounded disclosure.
+use crate::runner::transcript::trial as transcript_trial;
 use super::{configuration::invoke, launch::Environment, network_stub::Stub};
 use libtest_mimic::Trial;
 use serde_json::{Value, json};
@@ -9,18 +10,18 @@ pub(super) fn trials() -> Vec<Trial> {
     let path = super::launch::fixtures().join("protein-section-native/cases");
     let absent = !path.is_dir();
     vec![
-        Trial::test(
+        transcript_trial(
             "protein-sections/retained-native-facts-and-costs",
             move || native::run(&path).map_err(Into::into),
         )
         .with_ignored_flag(absent),
-        Trial::test("protein-sections/displayed-bounds-and-identity", || {
+        transcript_trial("protein-sections/displayed-bounds-and-identity", || {
             boundaries::features().map_err(Into::into)
         }),
-        Trial::test("protein-sections/direct-sequence-admission", || {
+        transcript_trial("protein-sections/direct-sequence-admission", || {
             boundaries::sequence().map_err(Into::into)
         }),
-        Trial::test(
+        transcript_trial(
             "protein-sections/source-failures-retain-section-state",
             || failures().map_err(Into::into),
         ),

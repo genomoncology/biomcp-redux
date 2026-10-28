@@ -1,19 +1,20 @@
 //! P24 separates source-local empty, exact absence and source failure.
+use crate::runner::transcript::trial as transcript_trial;
 use super::budgets;
 use super::{Environment, Stub, invoke, record, setup};
 use libtest_mimic::Trial;
 use serde_json::{Value, json};
 pub(super) fn trials() -> Vec<Trial> {
-    let mut rows = vec![Trial::test(
+    let mut rows = vec![transcript_trial(
         "phenotype-identity/P24-synthetic-empty-absent-failure-states",
         || states().map_err(Into::into),
     )];
-    rows.push(Trial::test(
+    rows.push(transcript_trial(
         "phenotype-identity/synthetic-short-limit-keeps-native-page",
         || short_limit().map_err(Into::into),
     ));
     for source in ["hpo", "monarch"] {
-        rows.push(Trial::test(
+        rows.push(transcript_trial(
             format!("phenotype-identity/synthetic-disabled-{source}-fresh-before-cache"),
             move || disabled(source).map_err(Into::into),
         ));

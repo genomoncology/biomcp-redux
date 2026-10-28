@@ -1,4 +1,5 @@
 //! Source failures use synthetic HTTP and recorded deadlines, never live faults.
+use crate::runner::transcript::trial as transcript_trial;
 use super::*;
 pub(super) fn trials() -> Vec<Trial> {
     let mut out = vec![];
@@ -11,19 +12,19 @@ pub(super) fn trials() -> Vec<Trial> {
         "wrong-gene",
         "unknown-field",
     ] {
-        out.push(Trial::test(
+        out.push(transcript_trial(
             format!("clinpgx-annotations/reject-{name}"),
             move || failure(name).map_err(Into::into),
         ));
     }
-    out.push(Trial::test("clinpgx-annotations/recorded-timeout", || {
+    out.push(transcript_trial("clinpgx-annotations/recorded-timeout", || {
         timeout().map_err(Into::into)
     }));
-    out.push(Trial::test(
+    out.push(transcript_trial(
         "clinpgx-annotations/exclusive-selectors",
         || selectors().map_err(Into::into),
     ));
-    out.push(Trial::test(
+    out.push(transcript_trial(
         "clinpgx-annotations/missing-snapshot-no-http",
         || missing_snapshot().map_err(Into::into),
     ));

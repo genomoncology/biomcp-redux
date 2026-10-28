@@ -1,4 +1,5 @@
 //! Features drug-mychem, variant-search and variant-identity: selectable pages stay reachable.
+use crate::runner::transcript::trial as transcript_trial;
 use super::{configuration::invoke, network_stub::Stub};
 use libtest_mimic::Trial;
 use serde_json::{Value, json};
@@ -8,7 +9,7 @@ pub(super) fn trials() -> Vec<Trial> {
         .into_iter()
         .flat_map(|mode| {
             [false, true].into_iter().map(move |terminal| {
-                Trial::test(
+                transcript_trial(
                     format!("navigation/{mode}/terminal-{terminal}"),
                     move || check(mode, terminal).map_err(Into::into),
                 )

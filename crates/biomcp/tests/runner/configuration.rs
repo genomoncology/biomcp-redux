@@ -1,4 +1,5 @@
 //! Process settings and persistent case-cache ownership through the shipped binary.
+use crate::runner::transcript::trial as transcript_trial;
 use super::{launch::Environment, mcp};
 use libtest_mimic::Trial;
 use serde_json::{Value, json};
@@ -60,28 +61,28 @@ pub(super) fn cached(args: &[&str], case: &Path, recording: Option<&Path>) -> Ve
 }
 pub(super) fn trials() -> Vec<Trial> {
     vec![
-        Trial::test("gene/version-one-default-cache-remains-readable", || {
+        transcript_trial("gene/version-one-default-cache-remains-readable", || {
             default_cache_migration().map_err(Into::into)
         }),
-        Trial::test("article/concurrent-process-pool-publication", || {
+        transcript_trial("article/concurrent-process-pool-publication", || {
             article_processes().map_err(Into::into)
         }),
-        Trial::test("article/persistent-replay-command-epochs", || {
+        transcript_trial("article/persistent-replay-command-epochs", || {
             article_replay_epoch().map_err(Into::into)
         }),
-        Trial::test("article/owners-refused-before-journal-and-tables", || {
+        transcript_trial("article/owners-refused-before-journal-and-tables", || {
             article_owners().map_err(Into::into)
         }),
-        Trial::test("gene/next-commands-preserve-hyphen-positionals", || {
+        transcript_trial("gene/next-commands-preserve-hyphen-positionals", || {
             next_positionals().map_err(Into::into)
         }),
-        Trial::test("gene/persistent-case-cache-owns-all-writes", || {
+        transcript_trial("gene/persistent-case-cache-owns-all-writes", || {
             ownership().map_err(Into::into)
         }),
-        Trial::test("gene/refuses-unowned-case-cache-paths", || {
+        transcript_trial("gene/refuses-unowned-case-cache-paths", || {
             refusals().map_err(Into::into)
         }),
-        Trial::test("gene/checked-command-and-config-boundaries", || {
+        transcript_trial("gene/checked-command-and-config-boundaries", || {
             boundaries().map_err(Into::into)
         }),
     ]

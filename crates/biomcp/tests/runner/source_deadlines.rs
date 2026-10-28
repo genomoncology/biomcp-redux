@@ -1,4 +1,5 @@
 //! Feature source-controls: synthetic delayed exchanges explain bounded source latency.
+use crate::runner::transcript::trial as transcript_trial;
 use super::{configuration::invoke, launch::Environment};
 use libtest_mimic::Trial;
 mod quota;
@@ -30,12 +31,12 @@ pub(super) fn trials() -> Vec<Trial> {
     ]
     .into_iter()
     .map(|(source, fixture, words, help, expected)| {
-        Trial::test(
+        transcript_trial(
             format!("source-deadlines/{source}/reply-and-help-guidance"),
             move || check(source, fixture, &words, &help, expected).map_err(Into::into),
         )
     })
-    .chain(std::iter::once(Trial::test(
+    .chain(std::iter::once(transcript_trial(
         "source-deadlines/wonder/shared-quota-reply",
         || quota::run().map_err(Into::into),
     )))

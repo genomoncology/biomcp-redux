@@ -1,4 +1,5 @@
 //! Feature author-orcid: a bounded whole reply fails before any partial group list.
+use crate::runner::transcript::trial as transcript_trial;
 use super::{configuration::invoke, launch::Environment, network_stub::Stub};
 use libtest_mimic::Trial;
 use serde_json::json;
@@ -11,7 +12,7 @@ pub(super) fn trials() -> Vec<Trial> {
     trials
 }
 fn existing_trials() -> Vec<Trial> {
-    vec![Trial::test(
+    vec![transcript_trial(
         "author-orcid/oversized-whole-reply-is-failed",
         || oversized().map_err(Into::into),
     )]

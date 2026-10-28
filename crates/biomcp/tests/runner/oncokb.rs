@@ -1,4 +1,5 @@
 //! The keyed annotation boundary crosses the actual CLI and synthetic TLS peer.
+use crate::runner::transcript::trial as transcript_trial;
 use super::{launch::Environment, network_stub::Stub};
 use libtest_mimic::Trial;
 use serde_json::{Value, json};
@@ -8,16 +9,16 @@ const INPUT: &str = "chr7:g.140753336A>T";
 const SECTION: &str = "/result/candidates/0/sections/oncokb";
 pub(super) fn trials() -> Vec<Trial> {
     vec![
-        Trial::test("variant/oncokb-environment-key-config-precedence", || {
+        transcript_trial("variant/oncokb-environment-key-config-precedence", || {
             environment_key().map_err(Into::into)
         }),
-        Trial::test("variant/oncokb-key-policy-wire", || {
+        transcript_trial("variant/oncokb-key-policy-wire", || {
             wire().map_err(Into::into)
         }),
-        Trial::test("variant/oncokb-server-key-reload", || {
+        transcript_trial("variant/oncokb-server-key-reload", || {
             reload().map_err(Into::into)
         }),
-        Trial::test("variant/oncokb-reflected-key-never-leaves-wire", || {
+        transcript_trial("variant/oncokb-reflected-key-never-leaves-wire", || {
             echo().map_err(Into::into)
         }),
     ]

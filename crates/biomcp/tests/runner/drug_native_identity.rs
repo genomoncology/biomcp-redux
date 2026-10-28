@@ -1,4 +1,5 @@
 //! Feature drug-native-sources: a wrong native identity never poisons the exact-ID cache.
+use crate::runner::transcript::trial as transcript_trial;
 use super::{
     configuration::invoke, drug_native::fixture_root, launch::Environment, network_stub::Stub,
 };
@@ -18,7 +19,7 @@ pub(super) fn trials() -> Vec<Trial> {
     ]
     .into_iter()
     .map(|(source, file, pointer, host)| {
-        Trial::test(
+        transcript_trial(
             format!("drug-native/{source}-identity-before-cache"),
             move || check(source, file, pointer, host).map_err(Into::into),
         )

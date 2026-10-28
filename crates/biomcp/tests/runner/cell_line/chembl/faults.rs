@@ -1,32 +1,33 @@
+use crate::runner::transcript::trial as transcript_trial;
 use super::*;
 pub(super) fn trials() -> Vec<Trial> {
     let mut trials = Vec::new();
     for assay in [false, true] {
         for fault in ["429", "500", "broken", "html", "timeout"] {
-            trials.push(Trial::test(
+            trials.push(transcript_trial(
                 format!("cell-line-chembl/fault/{}/{fault}", surface(assay)),
                 move || failure(assay, fault).map_err(Into::into),
             ));
         }
         for fault in ["mismatch", "missing", "malformed", "bad-page", "next"] {
-            trials.push(Trial::test(
+            trials.push(transcript_trial(
                 format!("cell-line-chembl/cache/{}/{fault}", surface(assay)),
                 move || admission(assay, fault).map_err(Into::into),
             ));
         }
-        trials.push(Trial::test(
+        trials.push(transcript_trial(
             format!("cell-line-chembl/cache/{}/disabled", surface(assay)),
             move || disabled(assay).map_err(Into::into),
         ));
-        trials.push(Trial::test(
+        trials.push(transcript_trial(
             format!("cell-line-chembl/provenance/{}/500", surface(assay)),
             move || release(assay).map_err(Into::into),
         ));
     }
-    trials.push(Trial::test("cell-line-chembl/synthetic/zero", || {
+    trials.push(transcript_trial("cell-line-chembl/synthetic/zero", || {
         zero().map_err(Into::into)
     }));
-    trials.push(Trial::test("cell-line-chembl/synthetic/more", || {
+    trials.push(transcript_trial("cell-line-chembl/synthetic/more", || {
         more().map_err(Into::into)
     }));
     trials

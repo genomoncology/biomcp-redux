@@ -1,4 +1,5 @@
 //! Feature pathway-wikipathways-genes: native data-node membership without identifier guesses.
+use crate::runner::transcript::trial as transcript_trial;
 use super::{launch::Environment, network_stub::Stub};
 use crate::runner::pathway_budgets as budgets;
 use libtest_mimic::Trial;
@@ -11,7 +12,7 @@ use super::configuration::invoke;
 
 pub(super) fn trials() -> Vec<Trial> {
     vec![
-        Trial::test("wikipathways-genes/retained-output-ceilings", || {
+        transcript_trial("wikipathways-genes/retained-output-ceilings", || {
             native::saved().map_err(Into::into)
         })
         .with_ignored_flag(
@@ -19,23 +20,23 @@ pub(super) fn trials() -> Vec<Trial> {
                 .join("wikipathways-genes-native/outputs.json")
                 .is_file(),
         ),
-        Trial::test(
+        transcript_trial(
             "wikipathways-genes/exact-xrefs-and-distinct-gene-pivots",
             || joins::run().map_err(Into::into),
         ),
-        Trial::test(
+        transcript_trial(
             "wikipathways-genes/single-attempt-provider-failures",
             || single_attempt().map_err(Into::into),
         ),
-        Trial::test(
+        transcript_trial(
             "wikipathways-genes/native-kinds-and-retained-paging",
             || paging().map_err(Into::into),
         ),
-        Trial::test(
+        transcript_trial(
             "wikipathways-genes/failed-bodies-never-enter-retained-membership",
             || failures().map_err(Into::into),
         ),
-        Trial::test("wikipathways-genes/retained-native-measurements", || {
+        transcript_trial("wikipathways-genes/retained-native-measurements", || {
             native::run().map_err(Into::into)
         })
         .with_ignored_flag(

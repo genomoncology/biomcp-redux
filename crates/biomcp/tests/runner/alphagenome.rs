@@ -1,10 +1,11 @@
 //! Feature variant-alphagenome: required keys stop before variant resolution or any provider request.
+use crate::runner::transcript::trial as transcript_trial;
 use super::{launch::Environment, network_stub::Stub};
 use libtest_mimic::Trial;
 use serde_json::{Value, json};
 const SECTION: &str = "/result/candidates/0/sections/alphagenome";
 pub(super) fn trials() -> Vec<Trial> {
-    vec![Trial::test(
+    vec![transcript_trial(
         "variant/alphagenome-keyless-zero-network",
         || keyless().map_err(Into::into),
     )]

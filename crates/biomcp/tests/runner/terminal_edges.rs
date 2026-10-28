@@ -1,4 +1,5 @@
 //! Feature markdown-view, network and MCP boundaries through isolated commands.
+use crate::runner::transcript::trial as transcript_trial;
 use super::{launch::Environment, network_stub::Stub, process::Process};
 use libtest_mimic::Trial;
 use serde_json::{Value, json};
@@ -16,7 +17,7 @@ pub(super) fn trials() -> Vec<Trial> {
     ]
     .into_iter()
     .map(|(name, check)| {
-        Trial::test(format!("terminal-edges/{name}"), move || {
+        transcript_trial(format!("terminal-edges/{name}"), move || {
             check().map_err(|e| e.to_string().into())
         })
     })

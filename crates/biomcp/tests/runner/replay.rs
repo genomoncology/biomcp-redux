@@ -1,4 +1,5 @@
 //! Feature gene-identity: replay misses stay source failures and repeated server calls use checked cache.
+use crate::runner::transcript::trial as transcript_trial;
 use super::{launch::Environment, mcp};
 use libtest_mimic::Trial;
 use serde_json::{Value, json};
@@ -12,10 +13,10 @@ use std::{
 
 pub(super) fn trials() -> Vec<Trial> {
     vec![
-        Trial::test("gene/replay-missing-recording-reason", || {
+        transcript_trial("gene/replay-missing-recording-reason", || {
             missing().map_err(Into::into)
         }),
-        Trial::test("gene/replay-server-reuses-checked-reply", || {
+        transcript_trial("gene/replay-server-reuses-checked-reply", || {
             repeated().map_err(Into::into)
         }),
     ]

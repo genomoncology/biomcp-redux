@@ -1,4 +1,5 @@
 //! Features pathway-wikipathways and diagnostic-cdx: external locks retain typed failures.
+use crate::runner::transcript::trial as transcript_trial;
 use super::super::{
     diagnostic_cdx, launch::Environment, mcp::request, publication::Peer, schema::Registry,
     wikipathways,
@@ -8,10 +9,10 @@ use serde_json::{Value, json};
 
 pub(super) fn trials() -> Vec<Trial> {
     vec![
-        Trial::test("wikipathways/held-store-lock-names-local-failure", || {
+        transcript_trial("wikipathways/held-store-lock-names-local-failure", || {
             locked(false).map_err(Into::into)
         }),
-        Trial::test("diagnostic-cdx/held-store-lock-names-local-failure", || {
+        transcript_trial("diagnostic-cdx/held-store-lock-names-local-failure", || {
             locked(true).map_err(Into::into)
         }),
     ]

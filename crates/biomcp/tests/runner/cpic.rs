@@ -1,11 +1,12 @@
 //! Feature cpic-pgx: synthetic native retrieval through the actual CLI and MCP.
+use crate::runner::transcript::trial as transcript_trial;
 mod rows;
 use super::{configuration::invoke, launch::Environment, network_stub::Stub};
 use libtest_mimic::Trial;
 use serde_json::{Value, json};
 type Check = Result<(), String>;
 pub(super) fn trials() -> Vec<Trial> {
-    let mut out = vec![Trial::test("cpic-pgx/recorded-timeout", || {
+    let mut out = vec![transcript_trial("cpic-pgx/recorded-timeout", || {
         timeout().map_err(Into::into)
     })];
     for name in [
@@ -19,7 +20,7 @@ pub(super) fn trials() -> Vec<Trial> {
         "empty",
         "missing-second-gene",
     ] {
-        out.push(Trial::test(
+        out.push(transcript_trial(
             format!("cpic-pgx/{name}-network-cache-replay"),
             move || scenario(name).map_err(Into::into),
         ));
@@ -38,7 +39,7 @@ pub(super) fn trials() -> Vec<Trial> {
         "429",
         "500",
     ] {
-        out.push(Trial::test(format!("cpic-pgx/reject-{name}"), move || {
+        out.push(transcript_trial(format!("cpic-pgx/reject-{name}"), move || {
             failure(name).map_err(Into::into)
         }));
     }

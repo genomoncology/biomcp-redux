@@ -1,4 +1,5 @@
 //! Feature gwas-get: exact records and retained independent context pages.
+use crate::runner::transcript::trial as transcript_trial;
 use super::{configuration::invoke, gwas_budgets, launch::Environment, network_stub::Stub};
 use libtest_mimic::Trial;
 use serde_json::{Value, json};
@@ -12,16 +13,16 @@ mod state;
 mod synthetic;
 pub(super) fn trials() -> Vec<Trial> {
     let mut trials = vec![
-        Trial::test("gwas-get/exact-identities-and-no-cache-admission", || {
+        transcript_trial("gwas-get/exact-identities-and-no-cache-admission", || {
             synthetic::identity().map_err(Into::into)
         }),
-        Trial::test("gwas-get/ancestry-walk-ownership-and-source-policy", || {
+        transcript_trial("gwas-get/ancestry-walk-ownership-and-source-policy", || {
             synthetic::ancestry().map_err(Into::into)
         }),
-        Trial::test("gwas-get/loci-and-native-study-page-actions", || {
+        transcript_trial("gwas-get/loci-and-native-study-page-actions", || {
             synthetic::contexts().map_err(Into::into)
         }),
-        Trial::test("gwas-get/retained-native-records-and-costs", || {
+        transcript_trial("gwas-get/retained-native-records-and-costs", || {
             native::run().map_err(Into::into)
         })
         .with_ignored_flag(

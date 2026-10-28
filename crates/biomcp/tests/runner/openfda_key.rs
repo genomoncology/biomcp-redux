@@ -1,4 +1,5 @@
 //! Feature key-registration: optional openFDA keys cross only the declared TLS wire.
+use crate::runner::transcript::trial as transcript_trial;
 use super::{launch::Environment, network_stub::Stub};
 use libtest_mimic::Trial;
 use serde_json::{Value, json};
@@ -22,7 +23,7 @@ pub(super) fn trials() -> Vec<Trial> {
     .into_iter()
     .flat_map(|(source, entity, id)| {
         [0, 1, 2].into_iter().map(move |mode| {
-            Trial::test(format!("keys/openfda/{source}/{mode}"), move || {
+            transcript_trial(format!("keys/openfda/{source}/{mode}"), move || {
                 check(source, entity, id, mode).map_err(Into::into)
             })
         })

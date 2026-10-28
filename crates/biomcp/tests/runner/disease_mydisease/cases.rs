@@ -1,27 +1,28 @@
+use crate::runner::transcript::trial as transcript_trial;
 use super::{Environment, Stub, annotation, args, invoke, record, replay, setup};
 use libtest_mimic::Trial;
 use serde_json::{Value, json};
 use std::fs;
 pub(super) fn trials() -> Vec<Trial> {
     vec![
-        Trial::test(
+        transcript_trial(
             "disease-mydisease/no-borrowed-definition-or-consider-parent",
             || missing().map_err(Into::into),
         ),
-        Trial::test("disease-mydisease/unsupported-before-io", || {
+        transcript_trial("disease-mydisease/unsupported-before-io", || {
             unsupported().map_err(Into::into)
         }),
-        Trial::test(
+        transcript_trial(
             "disease-mydisease/unproven-identity-never-enters-cache",
             || wrong().map_err(Into::into),
         ),
-        Trial::test("disease-mydisease/failures-retain-source-and-terms", || {
+        transcript_trial("disease-mydisease/failures-retain-source-and-terms", || {
             failures().map_err(Into::into)
         }),
-        Trial::test("disease-mydisease/timeout-retains-source-and-terms", || {
+        transcript_trial("disease-mydisease/timeout-retains-source-and-terms", || {
             timeout().map_err(Into::into)
         }),
-        Trial::test("disease-mydisease/disabled-projections-and-cache", || {
+        transcript_trial("disease-mydisease/disabled-projections-and-cache", || {
             disabled().map_err(Into::into)
         }),
     ]

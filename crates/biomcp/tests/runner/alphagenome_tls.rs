@@ -1,4 +1,5 @@
 //! Feature variant-alphagenome: the CLI preserves native groups through a local TLS gRPC peer.
+use crate::runner::transcript::trial as transcript_trial;
 use super::{alphagenome::invoke, launch::Environment};
 use libtest_mimic::Trial;
 use serde_json::{Value, json};
@@ -24,7 +25,7 @@ const SECTION: &str = "/result/candidates/0/sections/alphagenome";
 const KEY: &str = "synthetic-alphagenome-cli-placeholder";
 pub(super) fn trials() -> Vec<Trial> {
     let mut trials = installed_trials();
-    trials.push(Trial::test(
+    trials.push(transcript_trial(
         "variant/alphagenome-source-identity-refusals",
         || refusals().map_err(Into::into),
     ));
@@ -32,7 +33,7 @@ pub(super) fn trials() -> Vec<Trial> {
     trials
 }
 pub(super) fn installed_trials() -> Vec<Trial> {
-    vec![Trial::test(
+    vec![transcript_trial(
         "variant/alphagenome-native-groups-local-tls",
         || run().map_err(Into::into),
     )]

@@ -1,4 +1,5 @@
 //! Feature pathway-retirements: fixed migration guidance precedes parsing and I/O.
+use crate::runner::transcript::trial as transcript_trial;
 use super::launch::Environment;
 use crate::runner::pathway_budgets as budgets;
 use libtest_mimic::Trial;
@@ -17,7 +18,7 @@ pub(super) fn trials() -> Vec<Trial> {
     cases()
         .into_iter()
         .map(|(args, message)| {
-            Trial::test(format!("pathway-retirements/{args}"), move || {
+            transcript_trial(format!("pathway-retirements/{args}"), move || {
                 check(&args, message).map_err(Into::into)
             })
         })

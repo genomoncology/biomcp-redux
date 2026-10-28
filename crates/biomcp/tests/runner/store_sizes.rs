@@ -1,10 +1,11 @@
 //! Feature source-controls: health measures owned files without attributing shared pages.
+use crate::runner::transcript::trial as transcript_trial;
 use super::{Environment, invoke};
 use libtest_mimic::Trial;
 use serde_json::Value;
 use std::{fs, path::Path};
 pub(super) fn trials() -> Vec<Trial> {
-    vec![Trial::test(
+    vec![transcript_trial(
         "sources/health-measures-owned-store-files",
         || measured().map_err(Into::into),
     )]

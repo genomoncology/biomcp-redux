@@ -1,4 +1,5 @@
 //! Feature drug-failures: every kept source preserves synthetic failures and publisher terms.
+use crate::runner::transcript::trial as transcript_trial;
 use super::{configuration::invoke, launch::Environment, network_stub::Stub};
 use libtest_mimic::Trial;
 use serde_json::{Value, json};
@@ -70,7 +71,7 @@ pub(super) fn trials() -> Vec<Trial> {
     let mut trials = SOURCES
         .iter()
         .map(|source| {
-            Trial::test(
+            transcript_trial(
                 format!(
                     "drug-failures/{}/synthetic-503-429-timeout-broken",
                     source.name
@@ -79,7 +80,7 @@ pub(super) fn trials() -> Vec<Trial> {
             )
         })
         .collect::<Vec<_>>();
-    trials.push(Trial::test("drug-failures/ema-record-broken-body", || {
+    trials.push(transcript_trial("drug-failures/ema-record-broken-body", || {
         ema_record().map_err(Into::into)
     }));
     trials

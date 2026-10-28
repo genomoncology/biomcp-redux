@@ -1,5 +1,6 @@
 //! Feature drug-next-steps: source-listed EGFR context captured once on 2026-10-25.
 //! Combined-source capture is projected to each product's explicit one-stream selector.
+use crate::runner::transcript::trial as transcript_trial;
 use super::super::{launch::Environment, network_stub::Stub, proof};
 use libtest_mimic::Trial;
 use serde_json::{Value, json};
@@ -11,7 +12,7 @@ const BODY: &str = include_str!("../../../../../tests/fixtures/drug/civic/next-c
 const META: &str =
     include_str!("../../../../../tests/fixtures/drug/civic/next-context.provenance.json");
 pub(super) fn trials() -> Vec<Trial> {
-    vec![Trial::test(
+    vec![transcript_trial(
         "drug-next-steps/native-d05-source-listed-lookup",
         || run().map_err(Into::into),
     )]

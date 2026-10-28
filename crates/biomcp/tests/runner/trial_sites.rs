@@ -1,4 +1,5 @@
 //! Original registry site walks and response-only attachment/status boundaries.
+use crate::runner::transcript::trial as transcript_trial;
 #![expect(
     clippy::indexing_slicing,
     reason = "Checked captures and command envelopes fail directly on shape drift"
@@ -13,17 +14,17 @@ use serde_json::{Value, json};
 type Check = Result<(), Box<dyn std::error::Error>>;
 pub(super) fn trials() -> Vec<Trial> {
     vec![
-        Trial::test(
+        transcript_trial(
             "trial/sites/whole-source-location-and-contact-walks",
             || walks().map_err(|e| e.to_string().into()),
         ),
-        Trial::test("trial/sites/contact-attachment-and-source-status", || {
+        transcript_trial("trial/sites/contact-attachment-and-source-status", || {
             attachments().map_err(|e| e.to_string().into())
         }),
-        Trial::test("trial/sites/checked-geographic-coordinates", || {
+        transcript_trial("trial/sites/checked-geographic-coordinates", || {
             coordinates().map_err(|e| e.to_string().into())
         }),
-        Trial::test("trial/sites/old-snapshot-owner-expires", || {
+        transcript_trial("trial/sites/old-snapshot-owner-expires", || {
             old_owner().map_err(|e| e.to_string().into())
         }),
     ]

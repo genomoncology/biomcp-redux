@@ -1,4 +1,5 @@
 //! Summary metadata pages never request or return whole sample membership.
+use crate::runner::transcript::trial as transcript_trial;
 use super::{
     launch::Environment,
     network_stub::Stub,
@@ -7,7 +8,7 @@ use super::{
 use libtest_mimic::Trial;
 use serde_json::{Value, json};
 pub(super) fn trials() -> Vec<Trial> {
-    vec![Trial::test(
+    vec![transcript_trial(
         "variant-recurrence/bounded-summary-list-discovery",
         || prove().map_err(Into::into),
     )]

@@ -1,4 +1,5 @@
 //! Feature source-controls: adverse event publisher declarations precede dispatch.
+use crate::runner::transcript::trial as transcript_trial;
 use super::{configuration::invoke, launch::Environment};
 use libtest_mimic::Trial;
 use serde_json::Value;
@@ -7,22 +8,22 @@ pub(super) fn trials() -> Vec<Trial> {
     ["faers", "maude"]
         .into_iter()
         .map(|source| {
-            Trial::test(
+            transcript_trial(
                 format!("adverse-event-registry/{source}-declaration"),
                 move || declaration(source).map_err(Into::into),
             )
         })
         .chain([
-            Trial::test("adverse-event-registry/policy-before-io", || {
+            transcript_trial("adverse-event-registry/policy-before-io", || {
                 admission::run().map_err(Into::into)
             }),
-            Trial::test("adverse-event-registry/health-switch-union", || {
+            transcript_trial("adverse-event-registry/health-switch-union", || {
                 health_switches().map_err(Into::into)
             }),
-            Trial::test("adverse-event-registry/health-before-io", || {
+            transcript_trial("adverse-event-registry/health-before-io", || {
                 health_before_io().map_err(Into::into)
             }),
-            Trial::test("adverse-event-registry/outcome-terms", || {
+            transcript_trial("adverse-event-registry/outcome-terms", || {
                 outcomes().map_err(Into::into)
             }),
         ])

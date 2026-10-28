@@ -1,3 +1,4 @@
+use crate::runner::transcript::trial as transcript_trial;
 use super::launch::{ENV_PATHS, Environment};
 use libtest_mimic::Trial;
 use std::{env, fs, path::Path};
@@ -9,10 +10,10 @@ type Check = Result<(), String>;
 
 pub(crate) fn trials() -> Vec<Trial> {
     let mut trials = vec![
-        Trial::test("article-semantic-sections/checked-edge-boundaries", || {
+        transcript_trial("article-semantic-sections/checked-edge-boundaries", || {
             super::semantic_tables::check().map_err(|e| e.to_string().into())
         }),
-        Trial::test("runner/rejects-increasing-citation-counts", || {
+        transcript_trial("runner/rejects-increasing-citation-counts", || {
             let assertion = super::assertions::Assertion::Nonincreasing;
             if assertion.check("", &serde_json::json!([8, 9])).is_ok() {
                 return Err("increasing counts accepted".into());
@@ -21,20 +22,20 @@ pub(crate) fn trials() -> Vec<Trial> {
                 .check("", &serde_json::json!([9, 9, 0]))
                 .map_err(Into::into)
         }),
-        Trial::test("runner/null-and-empty-boundaries", || {
+        transcript_trial("runner/null-and-empty-boundaries", || {
             boundaries().map_err(Into::into)
         }),
-        Trial::test("runner/rejects-bad-cases", || {
+        transcript_trial("runner/rejects-bad-cases", || {
             negatives().map_err(Into::into)
         }),
-        Trial::test("runner/selects-and-lists-cases", || {
+        transcript_trial("runner/selects-and-lists-cases", || {
             selection().map_err(Into::into)
         }),
-        Trial::test("runner/isolates-child-environments", || {
+        transcript_trial("runner/isolates-child-environments", || {
             isolation().map_err(Into::into)
         }),
         #[cfg(unix)]
-        Trial::test("schema/output-failure", || {
+        transcript_trial("schema/output-failure", || {
             output_failure().map_err(Into::into)
         }),
     ];

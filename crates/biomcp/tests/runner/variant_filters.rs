@@ -1,4 +1,5 @@
 //! Named source filters intersect declared selectors without interpreting source labels.
+use crate::runner::transcript::trial as transcript_trial;
 use super::{launch::Environment, network_stub::Stub};
 use libtest_mimic::Trial;
 use serde_json::{Value, json};
@@ -6,11 +7,11 @@ use std::fs;
 
 pub(super) fn trials() -> Vec<Trial> {
     vec![
-        Trial::test(
+        transcript_trial(
             "variant-search/literal-filters-preserve-page-and-cache",
             || filters().map_err(Into::into),
         ),
-        Trial::test(
+        transcript_trial(
             "variant-search/component-groups-survive-page-action",
             || restricted_page().map_err(Into::into),
         ),

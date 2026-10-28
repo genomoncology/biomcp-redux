@@ -1,11 +1,12 @@
 //! Feature pathway-reactome: retain a runtime pool token while changing caller selectors.
+use crate::runner::transcript::trial as transcript_trial;
 use super::launch::{Environment, fixtures};
 use crate::runner::pathway_budgets as budgets;
 use libtest_mimic::Trial;
 use serde_json::{Value, json};
 
 pub(super) fn trials() -> Vec<Trial> {
-    vec![Trial::test(
+    vec![transcript_trial(
         "pathway-command/pool-bindings-before-source-io",
         || bindings().map_err(Into::into),
     )]

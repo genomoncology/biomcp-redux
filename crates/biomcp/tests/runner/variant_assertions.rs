@@ -1,50 +1,51 @@
 //! Source assertion identity, source-local absence and cache admission through the CLI.
+use crate::runner::transcript::trial as transcript_trial;
 use super::{launch::Environment, network_stub::Stub};
 use libtest_mimic::Trial;
 use serde_json::{Value, json};
 use std::fs;
 pub(super) fn trials() -> Vec<Trial> {
     vec![
-        Trial::test(
+        transcript_trial(
             "variant/assertions-erepo-invalid-document-never-caches",
             || history(2).map_err(Into::into),
         ),
-        Trial::test(
+        transcript_trial(
             "variant/assertions-erepo-invalid-fields-never-cache",
             || invalid_fields().map_err(Into::into),
         ),
-        Trial::test(
+        transcript_trial(
             "variant/assertions-synthetic-drug-response-stays-native",
             || drug_response().map_err(Into::into),
         ),
-        Trial::test(
+        transcript_trial(
             "variant/assertions-current-version-keeps-summary-panel",
             || current_version().map_err(Into::into),
         ),
-        Trial::test(
+        transcript_trial(
             "variant/assertions-disabled-before-identity-and-join",
             || disabled().map_err(Into::into),
         ),
-        Trial::test(
+        transcript_trial(
             "variant/assertions-native-row-walk-preserves-unmapped",
             || native_walk().map_err(Into::into),
         ),
-        Trial::test(
+        transcript_trial(
             "variant/assertions-erepo-selected-version-uses-only-document",
             || history(0).map_err(Into::into),
         ),
-        Trial::test(
+        transcript_trial(
             "variant/assertions-erepo-wrong-version-is-never-cached",
             || history(1).map_err(Into::into),
         ),
-        Trial::test(
+        transcript_trial(
             "variant/assertions-erepo-source-zero-is-not-unknown-allele",
             || erepo_absence().map_err(Into::into),
         ),
-        Trial::test("variant/assertions-erepo-route404-is-not-empty", || {
+        transcript_trial("variant/assertions-erepo-route404-is-not-empty", || {
             route_failure().map_err(Into::into)
         }),
-        Trial::test(
+        transcript_trial(
             "variant/assertions-erepo-private-identity-never-caches",
             || wrong_identity().map_err(Into::into),
         ),

@@ -1,4 +1,5 @@
 //! LitVar response boundaries through the existing isolated command runner.
+use crate::runner::transcript::trial as transcript_trial;
 #![expect(
     clippy::unwrap_used,
     clippy::indexing_slicing,
@@ -28,13 +29,13 @@ const RSID: &[&str] = &[
 ];
 pub(super) fn trials() -> Vec<Trial> {
     vec![
-        Trial::test("article/litvar/response-boundaries", || {
+        transcript_trial("article/litvar/response-boundaries", || {
             boundaries().map_err(|e| e.to_string().into())
         }),
-        Trial::test("article/litvar/empty-recovery", || {
+        transcript_trial("article/litvar/empty-recovery", || {
             empty_recovery().map_err(|e| e.to_string().into())
         }),
-        Trial::test("article/litvar/source-failures", || {
+        transcript_trial("article/litvar/source-failures", || {
             failures().map_err(|e| e.to_string().into())
         }),
     ]

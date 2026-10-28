@@ -1,4 +1,5 @@
 //! Feature study-catalog: stored literal search never synchronizes implicitly.
+use crate::runner::transcript::trial as transcript_trial;
 use super::{configuration::invoke, launch::Environment};
 use libtest_mimic::Trial;
 use serde_json::{Value, json};
@@ -10,22 +11,22 @@ type Check = Result<(), String>;
 const URL: &str = "https://www.cbioportal.org/api/studies?projection=DETAILED";
 pub(super) fn trials() -> Vec<Trial> {
     let mut cases = vec![
-        Trial::test("study-catalog/replacement-binds-pool-revision", || {
+        transcript_trial("study-catalog/replacement-binds-pool-revision", || {
             revision().map_err(Into::into)
         }),
-        Trial::test("study-catalog/expiry-stale-and-zero-network", || {
+        transcript_trial("study-catalog/expiry-stale-and-zero-network", || {
             lifetimes().map_err(Into::into)
         }),
-        Trial::test("study-catalog/mcp-markdown-help", || {
+        transcript_trial("study-catalog/mcp-markdown-help", || {
             surfaces().map_err(Into::into)
         }),
-        Trial::test("study-catalog/literal-pages-and-selectors", || {
+        transcript_trial("study-catalog/literal-pages-and-selectors", || {
             search().map_err(Into::into)
         }),
-        Trial::test("study-catalog/atomic-replacement-and-policy", || {
+        transcript_trial("study-catalog/atomic-replacement-and-policy", || {
             replacement().map_err(Into::into)
         }),
-        Trial::test("study-catalog/missing-bundle-explicit-sync", || {
+        transcript_trial("study-catalog/missing-bundle-explicit-sync", || {
             missing().map_err(Into::into)
         }),
     ];

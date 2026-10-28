@@ -1,11 +1,12 @@
 //! Exercise diagnostic dependency planning through the runner, without live sources.
+use crate::runner::transcript::trial as transcript_trial;
 use super::launch::{Environment, fixtures};
 use libtest_mimic::Trial;
 use serde_json::{Value, json};
 use std::fs;
 
 pub(super) fn trials() -> Vec<Trial> {
-    vec![Trial::test(
+    vec![transcript_trial(
         "live-source-checks/follow-predecessors",
         || check().map_err(|e| e.to_string().into()),
     )]

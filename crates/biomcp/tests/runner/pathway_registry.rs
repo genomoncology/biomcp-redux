@@ -1,4 +1,5 @@
 //! Feature source-controls: public pathway declarations before runtime dispatch exists.
+use crate::runner::transcript::trial as transcript_trial;
 use super::launch::Environment;
 use crate::runner::pathway_budgets as budgets;
 use biomcp_adapters::registry;
@@ -20,19 +21,19 @@ pub(super) fn trials() -> Vec<Trial> {
     SOURCES
         .iter()
         .map(|&(source, usage, url)| {
-            Trial::test(
+            transcript_trial(
                 format!("pathway-registry/{source}-declaration"),
                 move || declaration(source, usage, url).map_err(Into::into),
             )
         })
         .chain([
-            Trial::test("source-registry/canonical-record-urls", || {
+            transcript_trial("source-registry/canonical-record-urls", || {
                 record_urls::run().map_err(Into::into)
             }),
-            Trial::test("pathway-registry/policy-before-io", || {
+            transcript_trial("pathway-registry/policy-before-io", || {
                 admission::run().map_err(Into::into)
             }),
-            Trial::test("pathway-registry/configuration-union", || {
+            transcript_trial("pathway-registry/configuration-union", || {
                 switches().map_err(Into::into)
             }),
         ])

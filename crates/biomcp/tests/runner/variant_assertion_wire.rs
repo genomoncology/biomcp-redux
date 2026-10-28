@@ -1,8 +1,9 @@
+use crate::runner::transcript::trial as transcript_trial;
 use super::network_stub::Stub;
 use libtest_mimic::Trial;
 use serde_json::{Value, json};
 pub(super) fn trials() -> Vec<Trial> {
-    vec![Trial::test("variant/assertions-source-wire", || {
+    vec![transcript_trial("variant/assertions-source-wire", || {
         assertions_wire().map_err(Into::into)
     })]
 }

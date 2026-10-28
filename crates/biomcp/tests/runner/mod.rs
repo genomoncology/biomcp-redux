@@ -1,3 +1,4 @@
+use crate::runner::transcript::trial as transcript_trial;
 mod adverse_event_failures;
 mod adverse_event_registry;
 mod adverse_event_retirements;
@@ -66,6 +67,8 @@ mod key_help;
 mod key_registration;
 mod key_reload;
 mod launch;
+mod capture;
+mod transcript;
 mod litvar_tables;
 pub(crate) mod live;
 mod live_follow_proof;
@@ -233,7 +236,7 @@ pub(super) fn discover(root: &Path, include_proof: bool) -> Result<Vec<Trial>, S
                 .collect::<Result<Vec<_>, _>>()?
                 .join("/");
             let registry = Arc::clone(&registry);
-            Ok(Trial::test(name, move || {
+            Ok(transcript_trial(name, move || {
                 run_case(&path, &registry).map(|_| ()).map_err(Into::into)
             }))
         })
@@ -293,6 +296,7 @@ fn run_case(path: &Path, registry: &schema::Registry) -> Result<Value, String> {
         .map(|name| launch::fixtures().join("replies").join(name));
     let mut previous = None;
     for (index, (step, expectations)) in case.steps.iter().zip(&expectations).enumerate() {
+        transcript::case_step(index);
         previous = Some(
             run_sequence(
                 step,
@@ -321,14 +325,14 @@ pub(super) fn protocol_trials() -> Vec<Trial> {
     trials.extend(output_stream::trials());
     trials.extend(discovery_trials());
     trials.extend(research::trials());
-    trials.push(Trial::test("article-help/executable-examples", || {
+    trials.push(transcript_trial("article-help/executable-examples", || {
         help_examples::check().map_err(Into::into)
     }));
-    trials.push(Trial::test(
+    trials.push(transcript_trial(
         "article-supplements/ping-after-bounded-refusal",
         || supplement_tables::ping_after_refusal().map_err(Into::into),
     ));
-    trials.push(Trial::test("article-saves/explicit-original-files", || {
+    trials.push(transcript_trial("article-saves/explicit-original-files", || {
         article_save::check().map_err(Into::into)
     }));
     trials.extend(live_proof::trials());
@@ -343,10 +347,10 @@ pub(super) fn protocol_trials() -> Vec<Trial> {
     trials.extend(protein_domains::trials());
     trials.extend(trial_group::trials());
     trials.extend(clinvar_key::trials());
-    trials.push(Trial::test("article-fulltext/source-boundaries", || {
+    trials.push(transcript_trial("article-fulltext/source-boundaries", || {
         pmc_tables::check().map_err(|e| e.to_string().into())
     }));
-    trials.push(Trial::test("article-search/snapshot-replacement", || {
+    trials.push(transcript_trial("article-search/snapshot-replacement", || {
         pool_tables::check().map_err(Into::into)
     }));
     trials.extend(configuration::trials());
@@ -380,7 +384,7 @@ pub(super) fn protocol_trials() -> Vec<Trial> {
     trials.extend(markdown_shapes::trials());
     trials.extend(markdown_variant_trial::trials());
     trials.extend(markdown_sources::trials());
-    trials.push(Trial::test("mcp/ping-passes-held-provider-call", || {
+    trials.push(transcript_trial("mcp/ping-passes-held-provider-call", || {
         held_proxy::check().map_err(Into::into)
     }));
     trials

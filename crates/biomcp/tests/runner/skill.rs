@@ -1,4 +1,5 @@
 //! Agent guidance through the isolated executable and filesystem boundary.
+use crate::runner::transcript::trial as transcript_trial;
 use super::launch::Environment;
 use libtest_mimic::Trial;
 use serde_json::{Value, json};
@@ -26,7 +27,7 @@ const EXAMPLES: [(&str, usize); 17] = [
 ];
 
 pub(super) fn trials() -> Vec<Trial> {
-    vec![Trial::test("skill/catalog-and-managed-install", || {
+    vec![transcript_trial("skill/catalog-and-managed-install", || {
         check().map_err(|error| error.to_string().into())
     })]
 }
