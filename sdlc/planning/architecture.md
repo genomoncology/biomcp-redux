@@ -1689,10 +1689,10 @@ The values above are illustrative, and the names in them are omitted from some h
 
 ### 8.5 Errors and exit codes
 
-An error prints one envelope with schema `biomcp.error/1`:
+An error prints one envelope with schema `biomcp.error/2`:
 
 ```json
-{ "schema": "biomcp.error/1", "status": "usage", "error": { "code": "usage.retired", "message": "use: search trial --gene <gene>" } }
+{ "schema": "biomcp.error/2", "status": "usage", "error": { "code": "usage.retired", "message": "use: search trial --gene <gene>" } }
 ```
 
 `main` returns `std::process::ExitCode` explicitly. Nothing calls `std::process::exit`. One function in `exit.rs` maps the outcome:
