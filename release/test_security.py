@@ -42,6 +42,44 @@ class Screening(unittest.TestCase):
                 with self.assertRaises(FileNotFoundError):
                     scan("history", repo, ROOT / "target/security-tools")
 
+    def test_history_scan_excludes_detached_siblings_but_keeps_candidate_and_named_refs(self):
+        with tempfile.TemporaryDirectory() as temporary:
+            root = Path(temporary).resolve()
+            repo, sibling = root / "repo", root / "sibling"
+            repo.mkdir()
+            env = {**environment(root), "PATH": os.defpath, "GIT_CONFIG_NOSYSTEM": "1"}
+            def git(*args):
+                return subprocess.check_output(["git", "-C", str(repo), *args], env=env,
+                                               stderr=subprocess.DEVNULL).decode().strip()
+            git("init", "--quiet")
+            git("config", "user.name", "Fixture")
+            git("config", "user.email", "fixture@example.invalid")
+            git("commit", "--quiet", "--allow-empty", "-m", "Initial fixture")
+            clean = git("rev-parse", "HEAD")
+            git("worktree", "add", "--quiet", "--detach", str(sibling))
+            token = "ghp_" + secrets.token_hex(18)
+            (sibling / "credential.txt").write_text("access_token = " + token + "\n")
+            git("-C", str(sibling), "add", ".")
+            git("-C", str(sibling), "commit", "--quiet", "-m", "Add sibling fixture")
+            secret = git("-C", str(sibling), "rev-parse", "HEAD")
+            def screen(expected):
+                result = subprocess.run([sys.executable, str(ROOT / "release/secrets.py"), "history", str(repo)],
+                                        cwd=ROOT, env=env, capture_output=True, text=True)
+                self.assertEqual(result.returncode, expected, "history scope changed")
+                self.assertNotIn(token, result.stdout + result.stderr)
+            screen(0)
+            git("branch", "reviewed-ref", secret)
+            screen(1)
+            git("branch", "-D", "reviewed-ref")
+            # The secret remains in candidate history after its file is removed.
+            git("checkout", "--detach", secret)
+            git("rm", "credential.txt")
+            git("commit", "--quiet", "-m", "Remove candidate fixture")
+            screen(1)
+            # Replacement refs must not hide the candidate's actual ancestry.
+            git("replace", "HEAD", clean)
+            screen(1)
+
     def test_scanner_rejects_historical_and_nested_artifact_secrets_without_disclosure(self):
         with tempfile.TemporaryDirectory() as temporary:
             root = Path(temporary).resolve()
@@ -226,6 +264,11 @@ class Screening(unittest.TestCase):
                 self.assertEqual(result.returncode, expected, "exact history binding changed behavior")
                 self.assertNotIn(token, result.stdout + result.stderr)
             screen(entries, 0)
+            sibling = root / "sibling"
+            git("worktree", "add", "--quiet", "--detach", str(sibling), base["commit"])
+            git("-C", str(sibling), "commit", "--quiet", "--allow-empty", "-m", "Sibling binding fixture")
+            sibling_commit = git("-C", str(sibling), "rev-parse", "HEAD")
+            screen([{**r, "commit": sibling_commit} for r in entries], 2)
             screen([{**r, "line": 2} for r in entries], 1)
             screen([{**r, "rule": "unrelated-rule"} for r in entries], 1)
             screen([{**r, "commit": empty} for r in entries], 2)
