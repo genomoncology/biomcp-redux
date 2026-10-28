@@ -22,7 +22,7 @@ pub struct Component {
     pub name: &'static str,
     /// Native component identity, distinct from the aggregate identity.
     pub id: Curie,
-    /// Complete source primary label.
+    /// Native primary display label when present and valid.
     pub label: Option<Text>,
     /// Complete optional source definition, without borrowing another component's text.
     pub definition: Option<Text>,

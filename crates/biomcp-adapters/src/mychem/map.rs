@@ -25,11 +25,9 @@ fn components(
             .find(|c| c.name == name)
             .is_some_and(|c| !c.disabled_on_leg(leg))
         {
-            for value in values {
-                if let Some(value) = problems.required(name, value.value()) {
-                    for row in value.values() {
-                        rows.push((name, super::normalize::component(row, name, problems)));
-                    }
+            if let Some(value) = values.and_then(|value| problems.required(name, value.value())) {
+                for row in value.values() {
+                    rows.push((name, super::normalize::component(row, name, problems)));
                 }
             }
         }
