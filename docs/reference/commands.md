@@ -1198,7 +1198,7 @@ Options:
           Intervention alternatives joined with OR; supported by ClinicalTrials.gov.
 
       --keyword <keyword>...
-          General text alternatives joined with OR; different filters combine with AND.
+          Repeat for ClinicalTrials.gov general text alternatives joined with OR; different filters combine with AND. NCI accepts one keyword.
 
       --lat <lat>
           Radius center latitude in degrees.
@@ -1258,7 +1258,7 @@ Search one source with bounded pages and source counts; default ClinicalTrials.g
 - `--has-results`: Require posted source results.
 - `--id`: Exact NCT identity in a conjunction with other filters.
 - `--intervention`: Intervention alternatives joined with OR; supported by ClinicalTrials.gov.
-- `--keyword`: General text alternatives joined with OR; different filters combine with AND.
+- `--keyword`: Repeat for ClinicalTrials.gov general text alternatives joined with OR; different filters combine with AND. NCI accepts one keyword.
 - `--lat`: Radius center latitude in degrees.
 - `--limit`: Headers per page; NCI applies its own lower publisher limit.
 - `--lon`: Radius center longitude in degrees.

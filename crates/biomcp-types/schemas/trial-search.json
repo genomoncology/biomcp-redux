@@ -112,7 +112,6 @@
         "$ref": "#/$defs/Text"
       },
       "maxItems": 5,
-      "minItems": 1,
       "type": "array"
     },
     "condition_id": {
@@ -157,16 +156,14 @@
         "$ref": "#/$defs/Text"
       },
       "maxItems": 5,
-      "minItems": 1,
       "type": "array"
     },
     "keyword": {
-      "description": "General text alternatives joined with OR; different filters combine with AND.",
+      "description": "Repeat for ClinicalTrials.gov general text alternatives joined with OR; different filters combine with AND. NCI accepts one keyword.",
       "items": {
         "$ref": "#/$defs/Text"
       },
       "maxItems": 5,
-      "minItems": 1,
       "type": "array"
     },
     "lat": {

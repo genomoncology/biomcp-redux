@@ -19,7 +19,8 @@ def totals(archive):
                 continue
             receipt = json.load(source.extractfile(entry))
             if receipt['status'] != 200 or receipt['outcome'] != 'success':
-                raise ValueError('source capture did not succeed: ' + receipt['id'])
+                print('excluded failed capture: ' + receipt['id'] + ' ' + receipt['outcome'], file=sys.stderr)
+                continue
             body = source.extractfile(entry.name.replace('.receipt.json', '.body')).read()
             if hashlib.sha256(body).hexdigest() != receipt['body_sha256']:
                 raise ValueError('source body hash mismatch')

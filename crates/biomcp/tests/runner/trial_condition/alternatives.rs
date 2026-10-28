@@ -20,9 +20,35 @@ pub(super) fn run() -> Result<(), String> {
         Ok(json!({"totalCount":1,"studies":[]}).to_string())
     })?;
     let env = setup(&stub)?;
-    let args: Vec<String> = ["search","trial","--condition","lung cancer","--condition","melanoma","--intervention","radiation therapy","--intervention","pembrolizumab","--keyword","quality of life","--keyword","survival","--exact-condition"].iter().map(|v| (*v).into()).collect();
+    let args: Vec<String> = [
+        "search",
+        "trial",
+        "--condition",
+        "lung cancer",
+        "--condition",
+        "melanoma",
+        "--intervention",
+        "radiation therapy",
+        "--intervention",
+        "pembrolizumab",
+        "--keyword",
+        "quality of life",
+        "--keyword",
+        "survival",
+        "--exact-condition",
+    ]
+    .iter()
+    .map(|v| (*v).into())
+    .collect();
     let value = invoke(&env, &args, 0)?;
-    for (field, expected) in [("condition",json!(["lung cancer","melanoma"])),("intervention",json!(["radiation therapy","pembrolizumab"])),("keyword",json!(["quality of life","survival"]))] {
+    for (field, expected) in [
+        ("condition", json!(["lung cancer", "melanoma"])),
+        (
+            "intervention",
+            json!(["radiation therapy", "pembrolizumab"]),
+        ),
+        ("keyword", json!(["quality of life", "survival"])),
+    ] {
         if value.pointer(&format!("/query/{field}")) != Some(&expected) {
             return Err(format!("lost echoed values: {value}"));
         }
@@ -41,25 +67,50 @@ pub(super) fn run() -> Result<(), String> {
 }
 
 pub(super) fn nci() -> Result<(), String> {
-    let stub = Stub::for_source("clinicaltrialsapi.cancer.gov", "application/json", |request| {
-        if !request.contains("diseases.nci_thesaurus_concept_id=C3224&diseases.nci_thesaurus_concept_id=C4872&") {
-            return Err(format!("NCI lost repeated native disease fields: {request}"));
-        }
-        Ok(json!({"total":3,"data":[]}).to_string())
-    })?;
+    let stub = Stub::for_source(
+        "clinicaltrialsapi.cancer.gov",
+        "application/json",
+        |request| {
+            if !request.contains(
+                "diseases.nci_thesaurus_concept_id=C3224&diseases.nci_thesaurus_concept_id=C4872&",
+            ) {
+                return Err(format!(
+                    "NCI lost repeated native disease fields: {request}"
+                ));
+            }
+            Ok(json!({"total":3,"data":[]}).to_string())
+        },
+    )?;
     let env = setup(&stub)?;
-    let args: Vec<String> = ["search","trial","--source","nci","--condition","C3224","--condition","C4872","--count-only"].iter().map(|v| (*v).into()).collect();
+    let args: Vec<String> = [
+        "search",
+        "trial",
+        "--source",
+        "nci",
+        "--condition",
+        "C3224",
+        "--condition",
+        "C4872",
+        "--count-only",
+    ]
+    .iter()
+    .map(|v| (*v).into())
+    .collect();
     let value = invoke(&env, &args, 0)?;
-    if value.pointer("/page/total") != Some(&json!(3)) || value.pointer("/query/condition") != Some(&json!(["C3224","C4872"])) {
+    if value.pointer("/page/total") != Some(&json!(3))
+        || value.pointer("/query/condition") != Some(&json!(["C3224", "C4872"]))
+    {
         return Err(format!("NCI lost source-native count or query: {value}"));
     }
     let mut refused = args.clone();
-    refused.extend(["--intervention".into(),"pembrolizumab".into()]);
+    refused.extend(["--intervention".into(), "pembrolizumab".into()]);
     let value = invoke(&env, &refused, 2)?;
     if value.pointer("/error/option") != Some(&json!("--intervention")) {
         return Err(format!("NCI accepted intervention: {value}"));
     }
-    if stub.finish()?.len() != 1 { return Err("refused NCI filter reached source".into()); }
+    if stub.finish()?.len() != 1 {
+        return Err("refused NCI filter reached source".into());
+    }
     Ok(())
 }
 
@@ -84,7 +135,19 @@ pub(super) fn mismatch() -> Result<(), String> {
     })?;
     let env = setup(&stub)?;
     for (limit, mismatch) in [("1", false), ("2", true)] {
-        let args: Vec<String> = ["search","trial","--condition","lung cancer","--condition","melanoma","--limit",limit].iter().map(|v| (*v).into()).collect();
+        let args: Vec<String> = [
+            "search",
+            "trial",
+            "--condition",
+            "lung cancer",
+            "--condition",
+            "melanoma",
+            "--limit",
+            limit,
+        ]
+        .iter()
+        .map(|v| (*v).into())
+        .collect();
         let value = invoke(&env, &args, 0)?;
         if value.pointer("/sources/0/notices/0").is_some() != mismatch {
             return Err(format!("per-value mismatch was {mismatch}: {value}"));
