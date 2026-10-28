@@ -1,7 +1,7 @@
 {
   "method": "GET",
   "source": "myvariant",
-  "url": "https://myvariant.info/v1/query?q=rs113488022&size=1000&from=0&fields=_id%2Cdbsnp.rsid%2Cdbsnp.gene.symbol%2Csnpeff.ann&assembly=hg19",
+  "url": "https://myvariant.info/v1/query?q=rs113488022&size=1000&from=0&fields=_id%2Cdbsnp.rsid%2Cdbsnp.gene.symbol&assembly=hg19",
   "exchanges": [
     {
       "fetched": 1792872656,
