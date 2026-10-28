@@ -44,74 +44,7 @@ fn problem(value: &Value, source: &str, field: &str, record: &str) -> Result<(),
     Ok(())
 }
 fn orcid() -> Result<(), String> {
-    for (path, invalid, field) in [
-        ("/type", json!(""), "work_type"),
-        (
-            "/external-ids/external-id/0/external-id-relationship",
-            json!(""),
-            "external_ids.relationship",
-        ),
-        (
-            "/external-ids/external-id/0/external-id-type",
-            json!(""),
-            "external_ids",
-        ),
-        (
-            "/external-ids/external-id/0/external-id-value",
-            json!(""),
-            "external_ids",
-        ),
-        ("/title/title", json!({"value":""}), "title"),
-        ("/title/subtitle", json!({"value":""}), "subtitle"),
-        (
-            "/title/translated-title",
-            json!({"content":""}),
-            "translated_title",
-        ),
-        ("/journal-title", json!({"value":""}), "journal_title"),
-        ("/url", json!({"value":""}), "url"),
-        ("/display-index", json!(""), "display_index"),
-        (
-            "/publication-date",
-            json!({"year":{"value":"bad"}}),
-            "publication_date",
-        ),
-        (
-            "/source/source-name",
-            json!({"value":""}),
-            "source.source_name",
-        ),
-        (
-            "/source/assertion-origin-name",
-            json!({"value":""}),
-            "source.assertion_origin_name",
-        ),
-        (
-            "/source/source-orcid",
-            json!({"path":"invalid"}),
-            "source.source_orcid",
-        ),
-        (
-            "/source/source-client-id",
-            json!({"path":"invalid"}),
-            "source.source_client_id",
-        ),
-        (
-            "/source/assertion-origin-orcid",
-            json!({"path":"invalid"}),
-            "source.assertion_origin_orcid",
-        ),
-        (
-            "/source/assertion-origin-client-id",
-            json!({"path":"invalid"}),
-            "source.assertion_origin_client_id",
-        ),
-        (
-            "/external-ids/external-id/0/external-id-url",
-            json!({"value":""}),
-            "external_ids.url",
-        ),
-    ] {
+    for (path, invalid, field) in work_values().into_iter().chain(work_source_values()) {
         let value = checked_case(
             "orcid/visibility",
             &["author", "papers", "orcid:0000-0002-4299-3018"],
@@ -150,52 +83,82 @@ fn orcid() -> Result<(), String> {
     }
     Ok(())
 }
+fn work_values() -> Vec<(&'static str, Value, &'static str)> {
+    vec![
+        ("/type", json!(""), "work_type"),
+        (
+            "/external-ids/external-id/0/external-id-relationship",
+            json!(""),
+            "external_ids.relationship",
+        ),
+        (
+            "/external-ids/external-id/0/external-id-type",
+            json!(""),
+            "external_ids",
+        ),
+        (
+            "/external-ids/external-id/0/external-id-value",
+            json!(""),
+            "external_ids",
+        ),
+        ("/title/title", json!({"value":""}), "title"),
+        ("/title/subtitle", json!({"value":""}), "subtitle"),
+        (
+            "/title/translated-title",
+            json!({"content":""}),
+            "translated_title",
+        ),
+        ("/journal-title", json!({"value":""}), "journal_title"),
+        ("/url", json!({"value":""}), "url"),
+        ("/display-index", json!(""), "display_index"),
+        (
+            "/publication-date",
+            json!({"year":{"value":"bad"}}),
+            "publication_date",
+        ),
+    ]
+}
+fn work_source_values() -> Vec<(&'static str, Value, &'static str)> {
+    vec![
+        (
+            "/source/source-name",
+            json!({"value":""}),
+            "source.source_name",
+        ),
+        (
+            "/source/assertion-origin-name",
+            json!({"value":""}),
+            "source.assertion_origin_name",
+        ),
+        (
+            "/source/source-orcid",
+            json!({"path":"invalid"}),
+            "source.source_orcid",
+        ),
+        (
+            "/source/source-client-id",
+            json!({"path":"invalid"}),
+            "source.source_client_id",
+        ),
+        (
+            "/source/assertion-origin-orcid",
+            json!({"path":"invalid"}),
+            "source.assertion_origin_orcid",
+        ),
+        (
+            "/source/assertion-origin-client-id",
+            json!({"path":"invalid"}),
+            "source.assertion_origin_client_id",
+        ),
+        (
+            "/external-ids/external-id/0/external-id-url",
+            json!({"value":""}),
+            "external_ids.url",
+        ),
+    ]
+}
 fn pubmed() -> Result<(), String> {
-    for (field, extra) in [
-        ("title", ""),
-        ("journal", "<Journal><Title></Title></Journal>"),
-        ("doi", ""),
-        ("pmcid", ""),
-        (
-            "authors",
-            "<AuthorList><Author><CollectiveName> </CollectiveName></Author></AuthorList>",
-        ),
-        (
-            "abstract_parts.label",
-            "<Abstract><AbstractText Label=\"\">Valid abstract</AbstractText></Abstract>",
-        ),
-        ("corrections.pmid", ""),
-        (
-            "date",
-            "<Journal><JournalIssue><PubDate><Year>bad</Year></PubDate></JournalIssue></Journal>",
-        ),
-        (
-            "date_prose",
-            "<Journal><JournalIssue><PubDate><MedlineDate>2024 Spring</MedlineDate></PubDate></JournalIssue></Journal>",
-        ),
-        (
-            "electronic_date",
-            "<ArticleDate DateType=\"Electronic\"><Year>2024</Year><Month>Feb</Month><Day>31</Day></ArticleDate>",
-        ),
-        (
-            "abstract_parts.text",
-            "<Abstract><AbstractText> </AbstractText></Abstract>",
-        ),
-        ("mesh.descriptor", ""),
-        ("mesh.qualifiers.name", ""),
-        ("keywords", ""),
-        (
-            "affiliations",
-            concat!(
-                "<AuthorList><Author><CollectiveName>Valid author</CollectiveName>",
-                "<AffiliationInfo><Affiliation> </Affiliation></AffiliationInfo></Author></AuthorList>"
-            ),
-        ),
-        (
-            "orcids",
-            "<AuthorList><Author><CollectiveName>Valid author</CollectiveName><Identifier Source=\"ORCID\"> </Identifier></Author></AuthorList>",
-        ),
-    ] {
+    for (field, extra) in article_values() {
         let ids = match field {
             "doi" => "<ArticleId IdType=\"doi\">bad</ArticleId>",
             "pmcid" => "<ArticleId IdType=\"pmc\">bad</ArticleId>",
@@ -266,6 +229,53 @@ fn pubmed() -> Result<(), String> {
         }
     }
     Ok(())
+}
+fn article_values() -> Vec<(&'static str, &'static str)> {
+    vec![
+        ("title", ""),
+        ("journal", "<Journal><Title></Title></Journal>"),
+        ("doi", ""),
+        ("pmcid", ""),
+        (
+            "authors",
+            "<AuthorList><Author><CollectiveName> </CollectiveName></Author></AuthorList>",
+        ),
+        (
+            "abstract_parts.label",
+            "<Abstract><AbstractText Label=\"\">Valid abstract</AbstractText></Abstract>",
+        ),
+        ("corrections.pmid", ""),
+        (
+            "date",
+            "<Journal><JournalIssue><PubDate><Year>bad</Year></PubDate></JournalIssue></Journal>",
+        ),
+        (
+            "date_prose",
+            "<Journal><JournalIssue><PubDate><MedlineDate>2024 Spring</MedlineDate></PubDate></JournalIssue></Journal>",
+        ),
+        (
+            "electronic_date",
+            "<ArticleDate DateType=\"Electronic\"><Year>2024</Year><Month>Feb</Month><Day>31</Day></ArticleDate>",
+        ),
+        (
+            "abstract_parts.text",
+            "<Abstract><AbstractText> </AbstractText></Abstract>",
+        ),
+        ("mesh.descriptor", ""),
+        ("mesh.qualifiers.name", ""),
+        ("keywords", ""),
+        (
+            "affiliations",
+            concat!(
+                "<AuthorList><Author><CollectiveName>Valid author</CollectiveName>",
+                "<AffiliationInfo><Affiliation> </Affiliation></AffiliationInfo></Author></AuthorList>"
+            ),
+        ),
+        (
+            "orcids",
+            "<AuthorList><Author><CollectiveName>Valid author</CollectiveName><Identifier Source=\"ORCID\"> </Identifier></Author></AuthorList>",
+        ),
+    ]
 }
 fn person() -> Result<(), String> {
     for field in ["credit-name", "given-names", "family-name", "all"] {
