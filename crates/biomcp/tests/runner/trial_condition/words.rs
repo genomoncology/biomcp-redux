@@ -4,14 +4,12 @@ use serde_json::{Value, json};
 use std::fs;
 
 pub(super) fn mismatch() -> Result<(), String> {
-    let native = super::super::launch::fixtures()
-        .join("replies/trial/condition-words/broad.body");
-    let body = fs::read_to_string(native).map_err(|e| e.to_string())?;
-    let stub = Stub::for_source("clinicaltrials.gov", "application/json", move |request| {
+    let stub = Stub::for_source("clinicaltrials.gov", "application/json", |request| {
         if request.starts_with("GET /api/v2/studies?")
             && request.contains("query.cond=Snyder-Robinson%20syndrome")
         {
-            return Ok(body.clone());
+            return fs::read_to_string(super::super::launch::fixtures()
+                .join("replies/trial/condition-words/broad.body")).map_err(|e| e.to_string());
         }
         if request.starts_with("GET /api/v2/version ") {
             return Ok(json!({"dataTimestamp":"2026-10-27T00:00:00"}).to_string());
