@@ -1,5 +1,6 @@
 //! Feature drug-identity: conflicting or absent source identity cannot enter the cache.
 use super::{configuration::invoke, launch::Environment, network_stub::Stub};
+use crate::runner::transcript::trial as transcript_trial;
 use libtest_mimic::Trial;
 use serde_json::{Value, json};
 use std::fs;
@@ -7,13 +8,13 @@ pub(super) fn trials() -> Vec<Trial> {
     let mut trials = ["wrong-therapy", "missing-join", "conflicting-spl"]
         .into_iter()
         .map(|fault| {
-            Trial::test(
+            transcript_trial(
                 format!("drug-identity/synthetic-{fault}-before-cache"),
                 move || check(fault).map_err(Into::into),
             )
         })
         .collect::<Vec<_>>();
-    trials.push(Trial::test(
+    trials.push(transcript_trial(
         "drug-identity/stale-fallback-keeps-rejected-record-problem",
         || stale().map_err(Into::into),
     ));

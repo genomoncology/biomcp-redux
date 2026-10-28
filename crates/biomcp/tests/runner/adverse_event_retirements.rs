@@ -1,13 +1,14 @@
 //! Feature adverse-event-retirements: migration never rewrites a query or contacts a source.
 use super::{configuration::invoke, launch::Environment, mcp};
+use crate::runner::transcript::trial as transcript_trial;
 use libtest_mimic::Trial;
 use serde_json::json;
 pub(super) fn trials() -> Vec<Trial> {
     vec![
-        Trial::test("adverse-event-retirements/fixed-guidance-before-io", || {
+        transcript_trial("adverse-event-retirements/fixed-guidance-before-io", || {
             check().map_err(Into::into)
         }),
-        Trial::test(
+        transcript_trial(
             "adverse-event-retirements/option-and-literal-boundaries",
             || boundaries().map_err(Into::into),
         ),

@@ -455,3 +455,15 @@ fn all_eight_consumer_schemas_accept_their_source_owned_views() {
     );
     assert!(serde_json::from_value::<DiagnosticGenes>(json!({"items":[condition()]})).is_err());
 }
+
+#[test]
+fn recall_reply_ignores_new_card_and_header_fields() {
+    let value = json!({
+        "header": {"recall_number": "Z-1234-2025", "future_header": true},
+        "future_card": true
+    });
+    assert_eq!(
+        roundtrip::<DeviceRecallCard>(value),
+        json!({"header": {"recall_number": "Z-1234-2025"}})
+    );
+}

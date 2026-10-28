@@ -1,5 +1,6 @@
 //! Feature source-controls: protein publishers have one open declaration each.
 use super::{configuration::invoke, launch::Environment};
+use crate::runner::transcript::trial as transcript_trial;
 use biomcp_adapters::registry;
 use biomcp_types::{Reason, SourceState};
 use libtest_mimic::Trial;
@@ -9,16 +10,16 @@ mod admission;
 mod health;
 pub(super) fn trials() -> Vec<Trial> {
     let mut trials = vec![
-        Trial::test("protein-registry/bounded-health", || {
+        transcript_trial("protein-registry/bounded-health", || {
             health::run().map_err(Into::into)
         }),
-        Trial::test("protein-registry/policy-before-io", || {
+        transcript_trial("protein-registry/policy-before-io", || {
             admission::run().map_err(Into::into)
         }),
-        Trial::test("protein-registry/configuration-and-cli", || {
+        transcript_trial("protein-registry/configuration-and-cli", || {
             switches().map_err(Into::into)
         }),
-        Trial::test("protein-registry/no-string", || {
+        transcript_trial("protein-registry/no-string", || {
             if registry::SOURCES
                 .iter()
                 .any(|s| s.source.to_string() == "string")
@@ -49,7 +50,7 @@ pub(super) fn trials() -> Vec<Trial> {
             "https://www.uniprot.org/help/license",
         ),
     ] {
-        trials.push(Trial::test(
+        trials.push(transcript_trial(
             format!("protein-registry/{name}-declaration"),
             move || declaration(name, usage, terms, url).map_err(Into::into),
         ));

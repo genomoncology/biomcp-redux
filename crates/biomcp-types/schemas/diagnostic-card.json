@@ -9,9 +9,175 @@
       ],
       "type": "string"
     },
+    "DeviceRecallHeader": {
+      "description": "Native medical device product recall header, independent of event grouping.",
+      "properties": {
+        "event_number": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/Text"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "description": "Native res_event_number."
+        },
+        "firm": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/Text"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "description": "Native recalling_firm."
+        },
+        "initiated": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/PartialDate"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "description": "Native event_date_initiated, preserving the source day."
+        },
+        "product_code": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/Text"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "description": "Native device category code."
+        },
+        "recall_number": {
+          "$ref": "#/$defs/DeviceRecallNumber",
+          "description": "Exact native product_res_number."
+        },
+        "status": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/Text"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "description": "Native recall_status, without interpreting completion."
+        }
+      },
+      "required": [
+        "recall_number"
+      ],
+      "type": "object"
+    },
+    "DeviceRecallNumber": {
+      "description": "Native FDA product recall number, independent of its event number.",
+      "pattern": "^Z-[0-9]{4}-[0-9]{4}$",
+      "type": "string"
+    },
     "DiagnosticCard": {
       "description": "Exactly one source-owned diagnostic card; conflicts have no card variant.",
       "oneOf": [
+        {
+          "description": "Exact native medical device recall with an optional exact enforcement classification.",
+          "properties": {
+            "classification": {
+              "anyOf": [
+                {
+                  "$ref": "#/$defs/Text"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "description": "Classification from an exact enforcement recall_number match, absent without that match."
+            },
+            "distribution_pattern": {
+              "anyOf": [
+                {
+                  "$ref": "#/$defs/Text"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "description": "Native distribution_pattern."
+            },
+            "header": {
+              "$ref": "#/$defs/DeviceRecallHeader",
+              "description": "Native recall identity and dates."
+            },
+            "k_numbers": {
+              "description": "Top-level native 510(k) submission entries; harmonized openfda fields never enter this list.",
+              "items": {
+                "$ref": "#/$defs/Text"
+              },
+              "type": [
+                "array",
+                "null"
+              ]
+            },
+            "kind": {
+              "const": "device_recall",
+              "type": "string"
+            },
+            "pma_numbers": {
+              "description": "Top-level native PMA submission entries; no code-level identifiers enter this list.",
+              "items": {
+                "$ref": "#/$defs/Text"
+              },
+              "type": [
+                "array",
+                "null"
+              ]
+            },
+            "product_description": {
+              "anyOf": [
+                {
+                  "$ref": "#/$defs/Text"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "description": "Native product_description."
+            },
+            "reason": {
+              "anyOf": [
+                {
+                  "$ref": "#/$defs/Text"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "description": "Native reason_for_recall."
+            },
+            "root_cause": {
+              "anyOf": [
+                {
+                  "$ref": "#/$defs/Text"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "description": "Native root_cause_description."
+            }
+          },
+          "required": [
+            "kind",
+            "header"
+          ],
+          "type": "object"
+        },
         {
           "description": "Exact resolved GTR accession/version.",
           "properties": {
@@ -244,7 +410,7 @@
               "type": "null"
             }
           ],
-          "description": "gtr: genes, conditions, methods. fda-pma: regulatory, supplements. WHO and 510(k) have no sections; omit for the card.",
+          "description": "GTR: genes, conditions, methods. PMA: regulatory, supplements.\nWHO, 510(k) and device recalls have no sections; omit for the card.",
           "x-positional": 1
         },
         "section_limit": {
@@ -263,7 +429,7 @@
         },
         "source": {
           "$ref": "#/$defs/DiagnosticGetSource",
-          "description": "Explicit source; gtr needs accession/version, who-ivd a known Product ID, fda-pma a P number, fda-510k a K number."
+          "description": "Explicit source: GTR accession/version, WHO Product ID, PMA P number,\n510(k) K number or device recall Z-NNNN-YYYY."
         },
         "supplement": {
           "anyOf": [
@@ -289,7 +455,8 @@
         "gtr",
         "who-ivd",
         "fda-pma",
-        "fda-510k"
+        "fda-510k",
+        "fda-device-recall"
       ],
       "type": "string"
     },
@@ -535,6 +702,11 @@
       ],
       "type": "object"
     },
+    "PartialDate": {
+      "description": "A Gregorian date preserving year, month or day precision.",
+      "pattern": "^[0-9]{4}(-[0-9]{2}(-[0-9]{2})?)?$",
+      "type": "string"
+    },
     "PmaNumber": {
       "description": "Native FDA PMA base application number.",
       "pattern": "^P[0-9]{6}$",
@@ -749,6 +921,7 @@
         " FDA companion diagnostic device tables.",
         " openFDA premarket approval submissions.",
         " FDA native 510(k) clearance records.",
+        " openFDA medical device product recall records.",
         " Clinical Pharmacogenetics Implementation Consortium.",
         " ClinPGx pharmacogenomics annotations.",
         " Public cBioPortal with study-specific reuse terms.",
@@ -822,6 +995,7 @@
         "fda-cdx",
         "fda-pma",
         "fda-510k",
+        "fda-device-recall",
         "cpic",
         "clinpgx",
         "cbioportal",

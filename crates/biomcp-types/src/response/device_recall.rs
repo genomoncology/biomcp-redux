@@ -2,7 +2,6 @@ use biodata::{DeviceRecallNumber, PartialDate, Text};
 use serde::{Deserialize, Serialize};
 /// Native medical device product recall header, independent of event grouping.
 #[derive(Clone, Debug, PartialEq, Serialize, Deserialize)]
-#[serde(deny_unknown_fields)]
 #[cfg_attr(feature = "schema", derive(schemars::JsonSchema))]
 pub struct DeviceRecallHeader {
     /// Exact native product_res_number.
@@ -25,8 +24,8 @@ pub struct DeviceRecallHeader {
 }
 /// Exact recall details. Submission numbers belong only to this native recall record.
 #[derive(Clone, Debug, PartialEq, Serialize, Deserialize)]
-#[serde(deny_unknown_fields)]
 #[cfg_attr(feature = "schema", derive(schemars::JsonSchema))]
+#[cfg_attr(feature = "schema", schemars(inline))]
 pub struct DeviceRecallCard {
     /// Native recall identity and dates.
     pub header: DeviceRecallHeader,

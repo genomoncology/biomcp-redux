@@ -1,14 +1,15 @@
 //! Features trial-nci and cell-line-identity: new publisher values retain their native text.
+use crate::runner::transcript::trial as transcript_trial;
 use crate::runner::{response_cases, run_case, schema};
 use libtest_mimic::Trial;
 use serde_json::{Value, json};
 use std::fs;
 pub(super) fn trials() -> Vec<Trial> {
     vec![
-        Trial::test("trial-nci/unknown-phase-keeps-trial", || {
+        transcript_trial("trial-nci/unknown-phase-keeps-trial", || {
             check(true).map_err(Into::into)
         }),
-        Trial::test("cell-line-identity/unknown-sex-keeps-cell", || {
+        transcript_trial("cell-line-identity/unknown-sex-keeps-cell", || {
             check(false).map_err(Into::into)
         }),
     ]

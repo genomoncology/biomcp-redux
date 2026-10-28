@@ -1,14 +1,15 @@
 //! The shipped command owns key configuration and never includes its value in output.
 use super::launch::Environment;
+use crate::runner::transcript::trial as transcript_trial;
 use libtest_mimic::Trial;
 use serde_json::{Value, json};
 use std::path::PathBuf;
 pub(super) fn trials() -> Vec<Trial> {
     vec![
-        Trial::test("article/optional-scholar-key-is-outgoing-only", || {
+        transcript_trial("article/optional-scholar-key-is-outgoing-only", || {
             configured().map_err(Into::into)
         }),
-        Trial::test(
+        transcript_trial(
             "article/scholar-key-crosses-only-the-outgoing-header",
             || outgoing().map_err(Into::into),
         ),

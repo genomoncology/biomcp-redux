@@ -1,5 +1,6 @@
 //! Feature protein-domains-complexes: source facts and exact membership.
 use super::{configuration::invoke, launch::Environment, network_stub::Stub};
+use crate::runner::transcript::trial as transcript_trial;
 use libtest_mimic::Trial;
 use serde_json::{Value, json};
 use std::fs;
@@ -21,36 +22,36 @@ pub(super) fn trials() -> Vec<Trial> {
     trials.extend(bad_values::trials());
     trials.extend(retirements::trials());
     trials.extend(identities::trials());
-    trials.push(Trial::test(
+    trials.push(transcript_trial(
         "protein-domains-complexes/P24-no-analysis-tool-discovery",
         || policy::run().map_err(Into::into),
     ));
-    trials.push(Trial::test(
+    trials.push(transcript_trial(
         "protein-domains-complexes/synthetic-all-first-pages-and-disabled",
         || composite::run().map_err(Into::into),
     ));
     trials.extend(vec![
-        Trial::test(
+        transcript_trial(
             "protein-domains-complexes/card-sections-and-source-policy",
             || cards::run().map_err(Into::into),
         ),
-        Trial::test("protein-domains-complexes/source-failures", || {
+        transcript_trial("protein-domains-complexes/source-failures", || {
             failures::run().map_err(Into::into)
         }),
-        Trial::test(
+        transcript_trial(
             "protein-domains-complexes/native-pointer-retained-walk",
             || paging::run().map_err(Into::into),
         ),
-        Trial::test(
+        transcript_trial(
             "protein-domains-complexes/retained-native-facts-and-costs",
             move || native::run(&root).map_err(Into::into),
         )
         .with_ignored_flag(absent),
-        Trial::test(
+        transcript_trial(
             "protein-domains-complexes/exact-members-and-retained-pages",
             || complexes::run().map_err(Into::into),
         ),
-        Trial::test(
+        transcript_trial(
             "protein-domains-complexes/native-types-and-fragments",
             || domains().map_err(Into::into),
         ),

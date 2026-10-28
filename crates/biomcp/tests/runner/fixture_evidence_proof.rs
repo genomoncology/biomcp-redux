@@ -1,5 +1,6 @@
 //! Feature runner: failed local peers retain diagnostics and synthetic scratch.
 use super::super::{launch::Environment, network_stub::Stub};
+use crate::runner::transcript::trial as transcript_trial;
 use libtest_mimic::Trial;
 use std::{
     fs,
@@ -9,10 +10,10 @@ use std::{
 
 pub(super) fn trials() -> Vec<Trial> {
     vec![
-        Trial::test("runner/retains-failed-local-peer-state", || {
+        transcript_trial("runner/retains-failed-local-peer-state", || {
             check().map_err(Into::into)
         }),
-        Trial::test("runner/single-source-capturing-callback", || {
+        transcript_trial("runner/single-source-capturing-callback", || {
             capturing_callback().map_err(|error| error.to_string().into())
         }),
     ]

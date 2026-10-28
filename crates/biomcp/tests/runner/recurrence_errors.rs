@@ -4,25 +4,26 @@ use super::{
     network_stub::Stub,
     recurrence::{args, call, cbio, config, row},
 };
+use crate::runner::transcript::trial as transcript_trial;
 use libtest_mimic::Trial;
 use serde_json::{Value, json};
 pub(super) fn trials() -> Vec<Trial> {
     vec![
-        Trial::test(
+        transcript_trial(
             "variant-recurrence/unsupported-identity-stops-before-cohort",
             || unsupported().map_err(Into::into),
         ),
-        Trial::test("variant-recurrence/empty-page-is-an-observed-zero", || {
+        transcript_trial("variant-recurrence/empty-page-is-an-observed-zero", || {
             empty().map_err(Into::into)
         }),
-        Trial::test(
+        transcript_trial(
             "variant-recurrence/missing-fields-never-become-denominators",
             || missing().map_err(Into::into),
         ),
-        Trial::test("variant-recurrence/wrong-cohort-never-enters-cache", || {
+        transcript_trial("variant-recurrence/wrong-cohort-never-enters-cache", || {
             mismatch().map_err(Into::into)
         }),
-        Trial::test(
+        transcript_trial(
             "variant-recurrence/provider-rejections-never-enter-cache",
             || rejected().map_err(Into::into),
         ),

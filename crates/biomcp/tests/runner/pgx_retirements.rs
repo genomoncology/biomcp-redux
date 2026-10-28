@@ -1,5 +1,6 @@
 //! Feature pgx-retirements: fixed guidance, no query repair or phase inference.
 use super::{configuration::invoke, launch::Environment, mcp};
+use crate::runner::transcript::trial as transcript_trial;
 use libtest_mimic::Trial;
 use serde_json::json;
 pub(super) fn trials() -> Vec<Trial> {
@@ -7,13 +8,13 @@ pub(super) fn trials() -> Vec<Trial> {
         .iter()
         .enumerate()
         .map(|(index, &(words, message))| {
-            Trial::test(
+            transcript_trial(
                 format!("pgx-retirements/fixed-guidance-{index}"),
                 move || check(words, message).map_err(Into::into),
             )
         })
         .collect::<Vec<_>>();
-    trials.push(Trial::test(
+    trials.push(transcript_trial(
         "pgx-retirements/option-values-stay-literal",
         || boundaries().map_err(Into::into),
     ));

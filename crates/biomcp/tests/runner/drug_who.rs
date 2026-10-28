@@ -1,6 +1,7 @@
 //! Feature drug-who-medicines: explicit sync, native cells and exact references.
 mod navigation;
 use super::{configuration::invoke, launch::Environment, mcp, network_stub::Stub};
+use crate::runner::transcript::trial as transcript_trial;
 use libtest_mimic::Trial;
 use serde_json::{Value, json};
 use std::{
@@ -10,10 +11,10 @@ use std::{
 type Check = Result<(), String>;
 pub(super) fn trials() -> Vec<Trial> {
     vec![
-        Trial::test("drug-who/native-rows-local-reads-and-replacement", || {
+        transcript_trial("drug-who/native-rows-local-reads-and-replacement", || {
             check().map_err(Into::into)
         }),
-        Trial::test("drug-who/all-candidates-keep-continuation", || {
+        transcript_trial("drug-who/all-candidates-keep-continuation", || {
             navigation::check().map_err(Into::into)
         }),
     ]

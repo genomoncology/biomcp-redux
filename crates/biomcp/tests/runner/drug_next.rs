@@ -1,6 +1,7 @@
 //! Feature drug-next-steps: wholly synthetic D05/D17/D19-shaped source contexts.
 //! These fixtures test selector propagation, never clinical answers or licensed annotations.
 use super::{configuration::invoke, launch::Environment, network_stub::Stub};
+use crate::runner::transcript::trial as transcript_trial;
 use libtest_mimic::Trial;
 use serde_json::{Value, json};
 use std::fs;
@@ -24,7 +25,7 @@ pub(super) fn trials() -> Vec<Trial> {
             .into_iter()
             .enumerate()
             .map(|(n, name)| {
-                Trial::test(format!("drug-next-steps/{name}"), move || {
+                transcript_trial(format!("drug-next-steps/{name}"), move || {
                     run(n).map_err(Into::into)
                 })
             })

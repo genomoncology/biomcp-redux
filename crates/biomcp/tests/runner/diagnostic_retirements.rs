@@ -1,5 +1,6 @@
 //! Feature diagnostic-retirements: fixed guidance never repairs source queries.
 use super::{configuration::invoke, launch::Environment, mcp};
+use crate::runner::transcript::trial as transcript_trial;
 use libtest_mimic::Trial;
 use serde_json::json;
 // j19098 measured the largest value-free typed argument error envelope.
@@ -9,14 +10,15 @@ pub(super) fn trials() -> Vec<Trial> {
         .iter()
         .enumerate()
         .map(|(i, &(words, message))| {
-            Trial::test(
+            transcript_trial(
                 format!("diagnostic-retirements/fixed-guidance-{i}"),
                 move || check(words, message, "usage.retired").map_err(Into::into),
             )
         })
-        .chain([Trial::test("diagnostic-retirements/literal-values", || {
-            boundaries().map_err(Into::into)
-        })])
+        .chain([transcript_trial(
+            "diagnostic-retirements/literal-values",
+            || boundaries().map_err(Into::into),
+        )])
         .collect()
 }
 fn check(words: &str, message: &str, code: &str) -> Result<(), String> {

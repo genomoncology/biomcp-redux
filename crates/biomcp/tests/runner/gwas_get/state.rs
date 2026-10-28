@@ -1,17 +1,18 @@
 //! Warm reads, source policy, stale results and lost continuations remain distinct.
 use super::*;
+use crate::runner::transcript::trial as transcript_trial;
 pub(super) fn trials() -> Vec<Trial> {
     vec![
-        Trial::test("gwas-get/synthetic-successful-empty-collections", || {
+        transcript_trial("gwas-get/synthetic-successful-empty-collections", || {
             empty().map_err(Into::into)
         }),
-        Trial::test("gwas-get/warm-fresh-and-disabled-before-io", || {
+        transcript_trial("gwas-get/warm-fresh-and-disabled-before-io", || {
             warm().map_err(Into::into)
         }),
-        Trial::test("gwas-get/stale-is-partial-with-fresh-action", || {
+        transcript_trial("gwas-get/stale-is-partial-with-fresh-action", || {
             stale().map_err(Into::into)
         }),
-        Trial::test(
+        transcript_trial(
             "gwas-get/expired-ancestry-restarts-original-selection",
             || expired().map_err(Into::into),
         ),

@@ -3,6 +3,7 @@ use super::{
     configuration::invoke,
     launch::{Environment, fixtures},
 };
+use crate::runner::transcript::trial as transcript_trial;
 use libtest_mimic::Trial;
 use serde_json::{Value, json};
 use std::{
@@ -12,14 +13,14 @@ use std::{
 type Check = Result<(), String>;
 pub(super) fn trials() -> Vec<Trial> {
     vec![
-        Trial::test("drug-ddinter/default-five-and-explicit-ten", || {
+        transcript_trial("drug-ddinter/default-five-and-explicit-ten", || {
             default_pages().map_err(Into::into)
         }),
-        Trial::test(
+        transcript_trial(
             "drug-ddinter/failed-parts-preserve-stored-set-and-policy",
             || check().map_err(Into::into),
         ),
-        Trial::test(
+        transcript_trial(
             "drug-ddinter/missing-local-set-offers-explicit-sync",
             || missing().map_err(Into::into),
         ),
