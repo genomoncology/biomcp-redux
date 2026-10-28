@@ -3,8 +3,10 @@ use super::{configuration::invoke as raw_invoke, launch::Environment, network_st
 use libtest_mimic::Trial;
 use serde_json::{Value, json};
 pub(super) type Check = Result<(), String>;
+mod filters;
 pub(super) fn trials() -> Vec<Trial> {
-    vec![
+    let mut trials = filters::trials();
+    trials.extend(vec![
         Trial::test("maude-reports/synthetic-snapshot-survives-refresh", || {
             super::maude_snapshot::run().map_err(Into::into)
         }),
@@ -31,7 +33,8 @@ pub(super) fn trials() -> Vec<Trial> {
         Trial::test("maude-reports/synthetic-oversized-narrative", || {
             oversized().map_err(Into::into)
         }),
-    ]
+    ]);
+    trials
 }
 pub(super) fn row() -> Value {
     json!(

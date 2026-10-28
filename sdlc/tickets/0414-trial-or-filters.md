@@ -1,6 +1,7 @@
 # 0414 — Join repeated trial conditions, interventions and terms with OR
 
-Status: OPEN.
+Status: COMPLETE.
+Landed: 953f2f943877dd15f167ee63967160cb26545d91
 
 Milestone: 5
 
