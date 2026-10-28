@@ -48,6 +48,9 @@ pub fn members(leg: &Leg<'_>, id: &ReactomeId) -> Result<Mapped<Members>, Reques
         for reference in row.ref_entities {
             value.reference_occurrences += 1;
             let (namespace, identifier) = reference.st_id.split_once(':').ok_or_else(bad_reply)?;
+            let name = problems.text("members.name", reference.display_name.as_deref());
+            let source_url = problems.text("members.source_url", reference.url.as_deref());
+            let schema_class = problems.text("members.schema_class", Some(&reference.schema_class));
             if let Some(existing) = value.items.iter_mut().find(|m| {
                 m.reference.namespace.as_deref() == Some(namespace)
                     && m.reference.value.as_str() == identifier
@@ -73,11 +76,10 @@ pub fn members(leg: &Leg<'_>, id: &ReactomeId) -> Result<Mapped<Members>, Reques
                         ),
                         value: crate::mapped::text(identifier).map_err(|_| bad_reply())?,
                     },
-                    name: problems.text("members.name", reference.display_name.as_deref()),
-                    source_url: problems.text("members.source_url", reference.url.as_deref()),
+                    name,
+                    source_url,
                     gene: None,
-                    schema_class: problems
-                        .text("members.schema_class", Some(&reference.schema_class)),
+                    schema_class,
                     physical_context_count: 1,
                     participants: Some(vec![participant.clone()].into()),
                 });
