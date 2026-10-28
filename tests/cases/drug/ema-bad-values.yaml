@@ -1,0 +1,197 @@
+{
+  "feature": "drug-ema",
+  "story": "Invalid item fields leave the exact EMA identity readable and name every rejected field; absent optional dates remain absent.",
+  "replay": "drug/ema-bad-values",
+  "steps": [
+    {
+      "run": [
+        "sync",
+        "ema"
+      ],
+      "mcp": [
+        "sync",
+        "ema"
+      ],
+      "expect": {
+        "/status": "complete",
+        "/result/rows": 2
+      },
+      "max_bytes": 8000
+    },
+    {
+      "run": [
+        "get",
+        "drug",
+        "EMEA/H/C/000406",
+        "--source",
+        "ema"
+      ],
+      "mcp": [
+        "get",
+        "drug",
+        "EMEA/H/C/000406",
+        "--source",
+        "ema"
+      ],
+      "expect": {
+        "/status": "complete",
+        "/result/header/id": "EMEA/H/C/000406",
+        "/result/header/name": null,
+        "/result/header/type": null,
+        "/result/header/url": null,
+        "/result/version": null,
+        "/result/updated": null,
+        "/problems": [
+          {
+            "source": "ema",
+            "record": "EMEA/H/C/000406",
+            "field": "name_of_medicine",
+            "code": "value_unknown"
+          },
+          {
+            "source": "ema",
+            "record": "EMEA/H/C/000406",
+            "field": "category",
+            "code": "value_unknown"
+          },
+          {
+            "source": "ema",
+            "record": "EMEA/H/C/000406",
+            "field": "medicine_url",
+            "code": "value_unknown"
+          },
+          {
+            "source": "ema",
+            "record": "EMEA/H/C/000406",
+            "field": "revision_number",
+            "code": "value_unknown"
+          },
+          {
+            "source": "ema",
+            "record": "EMEA/H/C/000406",
+            "field": "last_updated_date",
+            "code": "value_unknown"
+          }
+        ]
+      },
+      "max_bytes": 8000
+    },
+    {
+      "run": [
+        "get",
+        "drug",
+        "EMEA/H/C/000406",
+        "--source",
+        "ema",
+        "--section",
+        "regulatory"
+      ],
+      "mcp": [
+        "get",
+        "drug",
+        "EMEA/H/C/000406",
+        "--source",
+        "ema",
+        "--section",
+        "regulatory"
+      ],
+      "expect": {
+        "/status": "complete",
+        "/result/identity/id": "EMEA/H/C/000406",
+        "/result/regulatory/data/records/0/dates": [],
+        "/problems": [
+          {
+            "source": "ema",
+            "record": "EMEA/H/C/000406",
+            "field": "name_of_medicine",
+            "code": "value_unknown"
+          },
+          {
+            "source": "ema",
+            "record": "EMEA/H/C/000406",
+            "field": "category",
+            "code": "value_unknown"
+          },
+          {
+            "source": "ema",
+            "record": "EMEA/H/C/000406",
+            "field": "medicine_url",
+            "code": "value_unknown"
+          },
+          {
+            "source": "ema",
+            "record": "EMEA/H/C/000406",
+            "field": "last_updated_date",
+            "code": "value_unknown"
+          },
+          {
+            "source": "ema",
+            "record": "EMEA/H/C/000406",
+            "field": "marketing_authorisation_date",
+            "code": "value_unknown"
+          },
+          {
+            "source": "ema",
+            "record": "EMEA/H/C/000406",
+            "field": "medicine_status",
+            "code": "value_unknown"
+          },
+          {
+            "source": "ema",
+            "record": "EMEA/H/C/000406",
+            "field": "opinion_status",
+            "code": "value_unknown"
+          },
+          {
+            "source": "ema",
+            "record": "EMEA/H/C/000406",
+            "field": "therapeutic_indication",
+            "code": "value_unknown"
+          },
+          {
+            "source": "ema",
+            "record": "EMEA/H/C/000406",
+            "field": "revision_number",
+            "code": "value_unknown"
+          },
+          {
+            "source": "ema",
+            "record": "EMEA/H/C/000406",
+            "field": "marketing_authorisation_developer_applicant_holder",
+            "code": "value_unknown"
+          }
+        ]
+      },
+      "max_bytes": 8000
+    },
+    {
+      "run": [
+        "get",
+        "drug",
+        "EMEA/H/C/004124",
+        "--source",
+        "ema"
+      ],
+      "mcp": [
+        "get",
+        "drug",
+        "EMEA/H/C/004124",
+        "--source",
+        "ema"
+      ],
+      "expect": {
+        "/status": "complete",
+        "/result/header/name": "Tagrisso",
+        "/problems": [
+          {
+            "source": "ema",
+            "record": "EMEA/H/C/004124",
+            "field": "category",
+            "code": "value_unknown"
+          }
+        ]
+      },
+      "max_bytes": 8000
+    }
+  ]
+}
