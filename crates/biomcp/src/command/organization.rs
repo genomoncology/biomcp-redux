@@ -8,7 +8,18 @@ pub(super) fn encode(
     body: QueryBody,
 ) -> io::Result<Outcome> {
     match body {
-        QueryBody::OrganizationPage(body) => {
+        QueryBody::OrganizationPage(mut body) => {
+            for row in &mut body.items {
+                row.next = Some(crate::spell::step(
+                    biomcp_types::StepKind::Pivot,
+                    &biomcp_query::Action::Run {
+                        request: biomcp_types::Request::SearchTrial(
+                            biomcp_types::TrialSearch::for_nci_facility(row.name.clone()),
+                        ),
+                        fresh: false,
+                    },
+                )?);
+            }
             let body = (meta.status != Status::Failed).then_some(body);
             meta.encode(q, body)
         }

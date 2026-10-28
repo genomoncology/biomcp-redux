@@ -2,6 +2,7 @@
 pub mod organization;
 mod organization_map;
 mod organization_raw;
+mod sites;
 use biodata::{NctId, Text};
 
 use biomcp_fetch::{
@@ -65,6 +66,8 @@ pub struct Trial {
     brief_summary: Option<Box<str>>,
     #[serde(default)]
     diseases: Vec<NciDisease>,
+    #[serde(default)]
+    sites: Vec<crate::raw::Field<sites::Site>>,
     eligibility: Option<biomcp_types::NciEligibility>,
     #[serde(default)]
     arms: Vec<Arm>,
@@ -112,6 +115,8 @@ impl Trial {
             brief_title: self.brief_title.clone(),
             current_trial_status: self.current_trial_status.clone(),
             phase: self.phase.clone(),
+            matched_site: None,
+            matching_sites: None,
             brief_summary: if summary {
                 self.brief_summary
                     .as_ref()
@@ -191,6 +196,9 @@ pub fn parameters(query: &TrialSearch) -> Vec<(String, String)> {
     if let Some(value) = query.keyword().first() {
         params.push(("keyword".into(), value.as_str().into()));
     }
+    if let Some(name) = query.facility() {
+        params.push(("sites.org_name".into(), name.as_str().into()));
+    }
     for field in [
         "nci_id",
         "nct_id",
@@ -200,6 +208,9 @@ pub fn parameters(query: &TrialSearch) -> Vec<(String, String)> {
         "diseases",
     ] {
         params.push(("include".into(), field.into()));
+    }
+    if query.facility().is_some() {
+        params.push(("include".into(), "sites".into()));
     }
     params
 }

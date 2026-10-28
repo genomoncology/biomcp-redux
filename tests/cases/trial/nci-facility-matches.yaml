@@ -40,6 +40,42 @@
         "/result/items/0/matched_site/recruitment_status": "CLOSED TO ACCRUAL"
       },
       "max_bytes": 2600
+    },
+    {
+      "run": [
+        "search",
+        "trial",
+        "--source",
+        "nci",
+        "--facility",
+        "Dana-Farber Cancer Institute",
+        "--lat",
+        "42.3",
+        "--lon",
+        "-71.1",
+        "--distance",
+        "10mi"
+      ],
+      "mcp": [
+        "search",
+        "trial",
+        "--source",
+        "nci",
+        "--facility",
+        "Dana-Farber Cancer Institute",
+        "--lat",
+        "42.3",
+        "--lon",
+        "-71.1",
+        "--distance",
+        "10mi"
+      ],
+      "exit": 2,
+      "is_error": true,
+      "offline": true,
+      "expect": {
+        "/error/message": "the registry cannot bind --facility and radius to one site; choose one filter"
+      }
     }
   ]
 }

@@ -15,13 +15,13 @@ biodata::wire_enum! {
         Other => "other",
     }
 }
-/// Search one provider with bounded pages and source-native counts; default ClinicalTrials.gov, explicit keyed NCI, never a fallback.
+/// Search one provider with bounded pages and source-native counts; default ClinicalTrials.gov, explicit keyed NCI. NCI --facility matches exact organization names; a listed site is not necessarily enrolling.
 #[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
 #[serde(try_from = "Fields")]
 #[cfg_attr(feature = "schema", derive(schemars::JsonSchema))]
 #[cfg_attr(feature = "schema", schemars(with = "Fields"))]
 pub struct TrialSearch(Box<Fields>);
-#[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
+#[derive(Clone, Debug, Default, PartialEq, Eq, Serialize, Deserialize)]
 #[serde(deny_unknown_fields)]
 #[cfg_attr(feature = "schema", derive(schemars::JsonSchema))]
 struct Fields {
@@ -123,7 +123,7 @@ struct Fields {
     )]
     #[cfg_attr(feature = "schema", schemars(with = "u32"))]
     age: Option<u32>,
-    /// Exact registry facility field; cannot combine with radius.
+    /// Exact facility name; NCI matches organization names case-insensitively. A listed site is not necessarily enrolling. Cannot combine with radius.
     #[serde(
         default,
         deserialize_with = "super::gene::present",
@@ -219,6 +219,15 @@ fn default_limit() -> u32 {
 }
 crate::query::validation::checked_query!(TrialSearch, Fields);
 impl TrialSearch {
+    /// Search NCI trials at the exact published organization name.
+    pub fn for_nci_facility(name: Text) -> Self {
+        Self(Box::new(Fields {
+            source: TrialSource::Nci,
+            facility: Some(name),
+            limit: default_limit(),
+            ..Fields::default()
+        }))
+    }
     /// Explicit source selected by the caller.
     pub fn source(&self) -> TrialSource {
         self.0.source
@@ -276,7 +285,7 @@ impl TrialSearch {
     pub fn age(&self) -> Option<&u32> {
         self.0.age.as_ref()
     }
-    /// Exact registry facility field; cannot combine with radius.
+    /// Exact facility name; NCI matches organization names case-insensitively. A listed site is not necessarily enrolling. Cannot combine with radius.
     pub fn facility(&self) -> Option<&Text> {
         self.0.facility.as_ref()
     }
@@ -487,7 +496,6 @@ impl TrialSearch {
             (self.study_type().is_some(), F::StudyType),
             (self.sex().is_some(), F::Sex),
             (self.age().is_some(), F::Age),
-            (self.facility().is_some(), F::Facility),
             (self.lat().is_some(), F::Latitude),
             (self.sponsor().is_some(), F::Sponsor),
             (self.sponsor_type().is_some(), F::SponsorType),

@@ -40,22 +40,33 @@
         "/result/items/3/count": 3376,
         "/result/items/3/name": "Dana-Farber Cancer Institute",
         "/result/items/0": {
-          "max_bytes": 463
+          "max_bytes": 650
         },
         "/result/items/1": {
-          "max_bytes": 463
+          "max_bytes": 650
         },
         "/result/items/2": {
-          "max_bytes": 463
+          "max_bytes": 650
         },
         "/result/items/3": {
-          "max_bytes": 463
+          "max_bytes": 650
         },
         "/result/items/4": {
-          "max_bytes": 463
-        }
+          "max_bytes": 650
+        },
+        "/result/items/3/next/kind": "pivot",
+        "/result/items/3/next/args": [
+          "search",
+          "trial",
+          "--source",
+          "nci",
+          "--facility",
+          "Dana-Farber Cancer Institute",
+          "--limit",
+          "10"
+        ]
       },
-      "max_bytes": 2939
+      "max_bytes": 4000
     }
   ]
 }

@@ -146,7 +146,19 @@ fn apply(
     if let QueryBody::NciTrialPage(body) = &mut out.body
         && !q.count_only()
     {
-        body.items = page.data.into_iter().map(|r| r.card(false)).collect();
+        body.items = page
+            .data
+            .into_iter()
+            .map(|r| {
+                if let Some(name) = q.facility() {
+                    let mapped = r.facility_card(name);
+                    out.problems.extend(mapped.problems);
+                    mapped.value
+                } else {
+                    r.card(false)
+                }
+            })
+            .collect();
         let problems: Vec<_> = body.items.iter().filter_map(phase_problem).collect();
         out.problems.extend(problems);
     }
