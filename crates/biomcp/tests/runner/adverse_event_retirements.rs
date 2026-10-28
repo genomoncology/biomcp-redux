@@ -125,6 +125,14 @@ const CASES: &[(&str, &str)] = &[
         "only --serious any, --serious death and --serious hospitalization are supported",
     ),
     (
+        "search adverse-event text --serious=ANY",
+        "only --serious any, --serious death and --serious hospitalization are supported",
+    ),
+    (
+        "search adverse-event text --source maude --serious any",
+        "this adverse-event filter is not supported",
+    ),
+    (
         "search adverse-event text --serious true",
         "only --serious any, --serious death and --serious hospitalization are supported",
     ),

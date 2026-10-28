@@ -15,9 +15,21 @@ pub(super) fn trials() -> Vec<Trial> {
         || navigation().map_err(Into::into),
     )];
     for (name, flags, suffix) in [
-        ("serious-any", vec!["--source", "faers", "--serious", "any"], " AND serious:1"),
-        ("serious-death", vec!["--serious", "death"], " AND seriousnessdeath:1"),
-        ("serious-hospitalization", vec!["--serious", "hospitalization"], " AND seriousnesshospitalization:1"),
+        (
+            "serious-any",
+            vec!["--source", "faers", "--serious", "any"],
+            " AND serious:1",
+        ),
+        (
+            "serious-death",
+            vec!["--serious", "death"],
+            " AND seriousnessdeath:1",
+        ),
+        (
+            "serious-hospitalization",
+            vec!["--serious", "hospitalization"],
+            " AND seriousnesshospitalization:1",
+        ),
         (
             "from",
             vec!["--received-from", "2024-01-01"],
