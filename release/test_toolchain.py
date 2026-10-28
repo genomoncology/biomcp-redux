@@ -23,8 +23,8 @@ class ReleaseTools(unittest.TestCase):
             self.assertEqual(result.returncode, 0, result.stderr)
             mutations = {
                 'rust-toolchain.toml': lambda s: s.replace('1.95.0', '1.94.0'),
-                'release/linux.sh': lambda s: s + '\n# rustup/archive/0.0.1\n',
-                'release/matrix.sh': lambda s: s + '\n# --default-toolchain 1.94.0\n',
+                'release/linux.sh': lambda s: s + '\ncurl https://static.rust-lang.org/rustup/archive/0.0.1/installer\n',
+                'release/matrix.sh': lambda s: s + '\nsh /tmp/rustup.sh --default-toolchain 1.94.0\n',
                 'release/secrets.py': lambda s: s + '\nVERSION = "0.0.1"\n',
                 '.github/workflows/release.yml': lambda s: s.replace(
                     'python-version: ${{ steps.tools.outputs.python }}', "python-version: '3.11'"),
