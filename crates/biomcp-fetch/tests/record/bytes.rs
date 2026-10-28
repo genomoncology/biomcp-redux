@@ -126,23 +126,38 @@ pub(super) fn only_bounded_json_reports_typed_overflow() {
             let worker = scope.spawn(|| {
                 let leg = fetch.leg(spec, fetch.deadline(Duration::from_secs(10)));
                 match kind {
-                    "bounded" => leg.json_bounded::<Answer>(&spec.get("/answer"), &[], 8).map(|_| ()),
-                    "json" => leg.json::<Answer>(&spec.get("/answer").bytes(8), &[]).map(|_| ()),
+                    "bounded" => leg
+                        .json_bounded::<Answer>(&spec.get("/answer"), &[], 8)
+                        .map(|_| ()),
+                    "json" => leg
+                        .json::<Answer>(&spec.get("/answer").bytes(8), &[])
+                        .map(|_| ()),
                     _ => leg.bytes(&spec.get("/answer").bytes(8), &[]).map(|_| ()),
                 }
             });
-            let media = if kind == "bytes" { "application/octet-stream" } else { "application/json" };
+            let media = if kind == "bytes" {
+                "application/octet-stream"
+            } else {
+                "application/json"
+            };
             let body = "{\"answer\":true}";
             server.next().raw(&format!(
                 "HTTP/1.1 200 OK\r\nContent-Type: {media}\r\nContent-Length: {}\r\nConnection: close\r\n\r\n{body}", body.len()
             ));
-            let expected = if kind == "bounded" { biomcp_types::Reason::TooLarge } else { biomcp_types::Reason::BadReply };
+            let expected = if kind == "bounded" {
+                biomcp_types::Reason::TooLarge
+            } else {
+                biomcp_types::Reason::BadReply
+            };
             let actual = worker.join().unwrap();
             assert!(
                 matches!(&actual, Err(RequestError::Source(error)) if error.reason == expected),
                 "{kind}: expected {expected:?}, got {actual:?}"
             );
         });
-        assert!(server.requests.try_recv().is_err(), "overflow never retries the unsized observation");
+        assert!(
+            server.requests.try_recv().is_err(),
+            "overflow never retries the unsized observation"
+        );
     }
 }

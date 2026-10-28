@@ -49,7 +49,7 @@ biomcp search trial --condition melanoma
 Which NCI organizations match Boston, MA?
 
 ```sh
-biomcp search organization --source nci --city Boston --state MA
+biomcp search organization --source nci --city Boston --state MA --limit 5
 ```
 
 NCI organization names are not unique. Their trial counts cover every status, including closed trials. Search rows include published address and public contact fields. Organization search requires your NCI key.

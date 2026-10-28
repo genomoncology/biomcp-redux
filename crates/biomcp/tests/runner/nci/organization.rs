@@ -87,7 +87,13 @@ fn pages() -> Check {
     Ok(())
 }
 fn failures() -> Check {
-    for kind in ["overflow", "bucket", "bucket-500", "bad-value", "cut-collection"] {
+    for kind in [
+        "overflow",
+        "bucket",
+        "bucket-500",
+        "bad-value",
+        "cut-collection",
+    ] {
         let env = environment()?;
         let replay = env.root().join("reply");
         copy_capture("organization/native", &replay, |_, record| {
@@ -135,7 +141,11 @@ fn failures() -> Check {
                 }
             }
             _ => {
-                let reason = if kind == "bucket-500" { "unavailable" } else { "bad_reply" };
+                let reason = if kind == "bucket-500" {
+                    "unavailable"
+                } else {
+                    "bad_reply"
+                };
                 if answer.pointer("/sources/0/reason") != Some(&json!(reason))
                     || answer.get("page").is_some()
                     || answer.pointer("/sources/0/state") != Some(&json!("failed"))
@@ -151,7 +161,11 @@ fn mutate(record: &mut Value, kind: &str) {
     if let Some(exchange) = record.pointer_mut("/exchanges/0") {
         match kind {
             "bucket" | "bucket-500" => {
-                if kind == "bucket-500" && let Some(status) = exchange.get_mut("status") { *status = json!(500); }
+                if kind == "bucket-500"
+                    && let Some(status) = exchange.get_mut("status")
+                {
+                    *status = json!(500);
+                }
                 if let Some(body) = exchange.get_mut("body") {
                     *body = json!({"kind":"json","value":{
                         "total":0,"data":[],

@@ -4,7 +4,9 @@ use biomcp_fetch::{Arg, Endpoint, Freshness, Leg, RequestError};
 use biomcp_types::{Organization, OrganizationSearch};
 /// Maximum complete organization observation before a typed narrowing refusal.
 pub const MAX_BYTES: u64 = 1024 * 1024;
-const SEARCH: Endpoint = super::SPEC.get("/organizations").fresh(Freshness::Days(1))
+const SEARCH: Endpoint = super::SPEC
+    .get("/organizations")
+    .fresh(Freshness::Days(1))
     .once();
 /// Exact documented native selectors; size and offset never reach this endpoint.
 fn parameters(q: &OrganizationSearch) -> Vec<(&'static str, &Text)> {
