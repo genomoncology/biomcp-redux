@@ -96,7 +96,7 @@
           "description": "Native biomarker concept name."
         },
         "type": {
-          "description": "Native type values, including an explicitly empty list.",
+          "description": "Native type values; an empty source list is omitted.",
           "items": {
             "$ref": "#/$defs/Text"
           },
@@ -106,7 +106,6 @@
       "required": [
         "codes",
         "name",
-        "type",
         "count"
       ],
       "type": "object"
