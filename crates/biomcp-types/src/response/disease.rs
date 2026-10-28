@@ -11,7 +11,8 @@ use serde::{Deserialize, Serialize};
 #[cfg_attr(feature = "schema", derive(schemars::JsonSchema))]
 pub struct DiseaseConcept {
     /// Source-stated exact identifier.
-    pub id: Curie,
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub id: Option<Curie>,
     /// Native display label when supplied and valid.
     #[serde(default, skip_serializing_if = "Option::is_none")]
     pub label: Option<Text>,

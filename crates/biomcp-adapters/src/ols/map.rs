@@ -107,7 +107,7 @@ pub(super) fn record(term: raw::Term, ontology: DiseaseOntology) -> Result<Recor
             returned_id: term.obo_id.clone(),
             alias: None,
             concept: DiseaseConcept {
-                id: term.obo_id,
+                id: Some(term.obo_id),
                 label,
             },
             definition,

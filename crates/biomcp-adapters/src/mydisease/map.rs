@@ -96,7 +96,7 @@ pub(super) fn annotation(record: native::Record) -> Result<Mapped<Annotation>, R
                 returned_id: record.returned_id.clone(),
                 alias: None,
                 concept: DiseaseConcept {
-                    id: primary.id.clone(),
+                    id: Some(primary.id.clone()),
                     label: primary.label.clone(),
                 },
                 definition: primary.definition.clone(),
