@@ -88,7 +88,16 @@ fn pages() -> Check {
             .and_then(Value::as_str)
             .is_some_and(|s| s.ends_with("name=PD-L1"))
         {
-            expected = Some(record.pointer("/exchanges/0/body/value/data").and_then(Value::as_array).ok_or("native rows")?.iter().map(|row| { let mut header = json!({"name":row["name"],"codes":row["codes"],"type":row["type"],"count":row["count"]}); super::super::assertions::omit_empty_lists(&mut header); header }).collect::<Vec<_>>());
+            let native = record.pointer("/exchanges/0/body/value/data")
+                .and_then(Value::as_array).ok_or("native rows")?;
+            expected = Some(native.iter().map(|row| {
+                let mut header = json!({
+                    "name":row["name"], "codes":row["codes"],
+                    "type":row["type"], "count":row["count"]
+                });
+                super::super::assertions::omit_empty_lists(&mut header);
+                header
+            }).collect::<Vec<_>>());
         }
     }
     if expected.as_ref() != Some(&rows) {
@@ -145,7 +154,10 @@ fn mutate(record: &mut Value, kind: &str) {
                 exchange["body"] = json!({"kind":"text","value":"x".repeat(1024*1024+1)});
             }
             "bucket" | "bucket-500" => {
-                exchange["body"] = json!({"kind":"json","value":{"total":0,"data":[],"error":{"type":"too_many_buckets_exception","reason":"synthetic bucket limit"}}});
+                exchange["body"] = json!({
+                    "kind":"json", "value":{"total":0,"data":[],
+                    "error":{"type":"too_many_buckets_exception","reason":"synthetic bucket limit"}}
+                });
                 if kind == "bucket-500" {
                     exchange["status"] = json!(500);
                 }

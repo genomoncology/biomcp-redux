@@ -13,7 +13,9 @@ fn nci() -> BiomarkerSource {
 fn limit() -> u32 {
     5
 }
-/// Find NCI biomarker concepts by name or synonym. The public tier returns codes, name, type, trial count, synonyms, parent_ids, ancestor_ids and eligibility_criterion. These concepts differ from diagnostic --biomarker filters and literal trial --variant text. Native criteria do not establish patient eligibility.
+#[doc = "Find NCI biomarker concepts by name or synonym. The public tier returns codes, name, type, trial count, synonyms, \
+    parent_ids, ancestor_ids and eligibility_criterion. These concepts differ from diagnostic --biomarker filters and \
+    literal trial --variant text. Native criteria do not establish patient eligibility."]
 #[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
 #[serde(try_from = "SearchFields")]
 #[cfg_attr(feature = "schema", derive(schemars::JsonSchema))]
@@ -92,7 +94,9 @@ impl BiomarkerSearch {
         q
     }
 }
-/// Search NCI by exact NCIt code. Several native rows return candidates without choosing one. The public tier returns codes, name, type, trial count, synonyms, parent_ids, ancestor_ids and eligibility_criterion. No clinical interpretation is performed.
+#[doc = "Search NCI by exact NCIt code. Several native rows return candidates without choosing one. The public tier returns \
+    codes, name, type, trial count, synonyms, parent_ids, ancestor_ids and eligibility_criterion. No clinical interpretation \
+    is performed."]
 #[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
 #[serde(deny_unknown_fields)]
 #[cfg_attr(feature = "schema", derive(schemars::JsonSchema))]
