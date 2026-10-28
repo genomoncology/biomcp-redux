@@ -13,7 +13,14 @@ fn check() -> Result<(), String> {
     let env = super::source_environment(&stub)?;
     let search = invoke(
         &env,
-        strings(&["search", "variant", "--query", "BRAF", "--source", "myvariant"]),
+        strings(&[
+            "search",
+            "variant",
+            "--query",
+            "BRAF",
+            "--source",
+            "myvariant",
+        ]),
         0,
     )?;
     let ids = search
