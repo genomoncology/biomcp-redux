@@ -244,7 +244,7 @@ pub(super) fn bounded(name: &str, value: &serde_json::Value) -> Result<(), Strin
         "ClinPGx empty" => 569,
         "ClinPGx 429" => 584,
         "ClinPGx 500" => 583,
-        "ClinPGx broken" | "ClinPGx status" | "ClinPGx unknown-field" | "ClinPGx wrong-gene" => 655,
+        "ClinPGx broken" | "ClinPGx status" | "ClinPGx unknown-field" | "ClinPGx unknown-nested-field" | "ClinPGx wrong-gene" => 655,
         "ClinPGx wrong-accession" => 534,
         "ClinPGx timeout" => 468,
         _ => return Err(format!("missing PGx output measurement: {name}")),
