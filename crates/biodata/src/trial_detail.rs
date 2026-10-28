@@ -33,6 +33,7 @@ pub struct TrialCard {
     /// Whole brief summary, preserving whitespace.
     pub brief_summary: Option<Markdown>,
     /// Canonical publisher record URL.
+    #[cfg_attr(feature = "schema", schemars(extend("format" = "uri")))]
     pub url: Box<str>,
 }
 /// Source age limit; absence is explicit and never a fabricated number.

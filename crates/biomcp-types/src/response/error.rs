@@ -31,7 +31,7 @@ singleton! {
 }
 
 singleton! {
-    /// The stable error code for an invalid schema request.
+    /// Stable error codes for command usage, local failures and expired results.
     pub ErrorCode { SchemaUsage => "usage.schema",
  Arguments => "usage.arguments",
  UnknownCommand => "usage.unknown_command",
@@ -253,6 +253,7 @@ singleton! {
 #[cfg_attr(feature = "schema", derive(schemars::JsonSchema))]
 struct ErrorDetail {
     #[serde(default, skip_serializing_if = "Option::is_none")]
+    #[cfg_attr(feature = "schema", schemars(extend("format" = "uri")))]
     url: Option<crate::Text>,
     #[serde(default, skip_serializing_if = "Option::is_none")]
     source: Option<crate::Source>,

@@ -1,6 +1,7 @@
 {
   "$defs": {
     "ArticleInput": {
+      "description": "A validated canonical ArticleInput string.",
       "pattern": "^(?:[1-9][0-9]*|PMC[1-9][0-9]*|PPR[0-9]*[1-9][0-9]*|(?:https?://doi\\.org/)?10\\.[0-9]+/[^\\s\\x00-\\x1f\\x7f]+)$",
       "type": "string"
     },
@@ -33,7 +34,8 @@
         },
         "url": {
           "$ref": "#/$defs/Text",
-          "description": "Source URL for the original material."
+          "description": "Source URL for the original material.",
+          "format": "uri"
         }
       },
       "required": [
@@ -264,6 +266,7 @@
       "type": "object"
     },
     "Pmcid": {
+      "description": "Canonical PMC identifier, with an explicit namespace.",
       "pattern": "^PMC[1-9][0-9]*$",
       "type": "string"
     },
@@ -583,6 +586,7 @@
       "type": "object"
     },
     "SheetRows": {
+      "description": "A validated canonical SheetRows string.",
       "pattern": "^[1-9][0-9]*-[1-9][0-9]*$",
       "type": "string"
     },
@@ -910,6 +914,7 @@
         },
         "terms_url": {
           "description": "Publisher page documenting the terms.",
+          "format": "uri",
           "type": "string"
         },
         "use": {
@@ -943,7 +948,8 @@
               "type": "null"
             }
           ],
-          "description": "Link to that entry."
+          "description": "Link to that entry.",
+          "format": "uri"
         }
       },
       "required": [
@@ -1099,7 +1105,8 @@
               "type": "null"
             }
           ],
-          "description": "Unsupported file URL, returned without downloading it."
+          "description": "Unsupported file URL, returned without downloading it.",
+          "format": "uri"
         }
       },
       "required": [

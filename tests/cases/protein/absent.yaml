@@ -16,8 +16,7 @@
         "/sources/0/source": "uniprot",
         "/sources/0/terms": "CC BY 4.0"
       },
-      "max_bytes": 235,
-      "max_tokens": 59
+      "max_bytes": 235
     }
   ]
 }

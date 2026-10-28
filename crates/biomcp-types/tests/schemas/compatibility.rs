@@ -3,6 +3,8 @@ use std::collections::{BTreeMap, BTreeSet};
 
 type Check<T> = Result<T, String>;
 
+const STRING_FORMATS: &[&str] = &["date", "date-time", "uri", "uri-reference"];
+
 #[derive(Debug, Default)]
 struct Shape {
     types: BTreeSet<String>,
@@ -18,6 +20,7 @@ struct Shape {
     maximum: Option<Bound>,
     closed: bool,
     markdown: bool,
+    string_format: Option<String>,
     impossible: bool,
     map_values: bool,
     map_keys: bool,
@@ -44,6 +47,10 @@ pub(super) fn check(old: &Value, new: &Value) -> Check<()> {
             || new.map_values && !old.map_values
             || new.map_keys && !old.map_keys
             || old.markdown && !new.markdown
+            || old
+                .string_format
+                .as_ref()
+                .is_some_and(|format| new.string_format.as_ref() != Some(format))
             || old.pattern != new.pattern
             || new
                 .minimum
@@ -234,16 +241,7 @@ fn collect(node: &Value, path: &str, shapes: &mut BTreeMap<String, Shape>) -> Ch
     if let Some(maximum) = node.get("maximum") {
         shape.maximum = Some(bound(node, maximum)?);
     }
-    if node.get("format").is_some_and(|format| {
-        format != "uint32"
-            && format != "uint64"
-            && format != "int64"
-            && format != "double"
-            && format != "markdown"
-    }) {
-        return Err("unsupported format".into());
-    }
-    shape.markdown |= node.get("format").is_some_and(|v| v == "markdown");
+    collect_format(node, shape)?;
     if let Some(values) = node.get("enum") {
         shape.values = Some(
             values
@@ -277,6 +275,31 @@ fn collect(node: &Value, path: &str, shapes: &mut BTreeMap<String, Shape>) -> Ch
         shape.minimum_length = minimum.as_u64().ok_or("invalid minLength")?;
     }
     collect_map(node, shape)
+}
+
+fn collect_format(node: &Value, shape: &mut Shape) -> Check<()> {
+    if node.get("format").is_some_and(|format| {
+        format != "uint32"
+            && format != "uint64"
+            && format != "int64"
+            && format != "double"
+            && format != "markdown"
+            && !format
+                .as_str()
+                .is_some_and(|format| STRING_FORMATS.contains(&format))
+    }) {
+        return Err("unsupported format".into());
+    }
+    if let Some(format) = node.get("format").and_then(Value::as_str)
+        && STRING_FORMATS.contains(&format)
+    {
+        if !shape.types.contains("string") {
+            return Err("string format requires a string schema".into());
+        }
+        shape.string_format = Some(format.into());
+    }
+    shape.markdown |= node.get("format").is_some_and(|v| v == "markdown");
+    Ok(())
 }
 
 fn collect_map(node: &Value, shape: &mut Shape) -> Check<()> {
@@ -482,6 +505,11 @@ fn validate_keywords(object: &serde_json::Map<String, Value>, path: &str) -> Che
             && !(composition == "anyOf" && selectors(&Value::Object(object.clone()))?.is_some())
             && object.keys().any(|key| {
                 key != composition
+                    && !(key == "format"
+                        && object
+                            .get(key)
+                            .and_then(Value::as_str)
+                            .is_some_and(|format| STRING_FORMATS.contains(&format)))
                     && ![
                         "$schema",
                         "$id",

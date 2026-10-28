@@ -712,6 +712,7 @@
       "type": "object"
     },
     "NctId": {
+      "description": "Canonical ClinicalTrials.gov identifier.",
       "pattern": "^NCT(?!00000000)[0-9]{8}$",
       "type": "string"
     },
@@ -1820,6 +1821,7 @@
         },
         "terms_url": {
           "description": "Publisher page documenting the terms.",
+          "format": "uri",
           "type": "string"
         },
         "use": {
@@ -1853,7 +1855,8 @@
               "type": "null"
             }
           ],
-          "description": "Link to that entry."
+          "description": "Link to that entry.",
+          "format": "uri"
         }
       },
       "required": [

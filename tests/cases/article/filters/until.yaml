@@ -15,7 +15,6 @@
         "50"
       ],
       "max_bytes": 15291,
-      "max_tokens": 3823,
       "expect": {
         "/status": "complete",
         "/sources/0/term": "AKT1 E17K AND 1800:2010[dp]",

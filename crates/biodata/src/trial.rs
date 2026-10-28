@@ -23,7 +23,12 @@ impl std::fmt::Display for NctId {
         write!(f, "NCT{:08}", self.0)
     }
 }
-crate::text_value!(NctId, "NctId", r"^NCT(?!00000000)[0-9]{8}$");
+crate::text_value!(
+    NctId,
+    "NctId",
+    r"^NCT(?!00000000)[0-9]{8}$",
+    "Canonical ClinicalTrials.gov identifier."
+);
 crate::wire_enum! {
     /// Source-native registry value.
     TrialPhase {

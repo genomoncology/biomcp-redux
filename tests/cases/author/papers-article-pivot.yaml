@@ -30,7 +30,6 @@
         ]
       },
       "max_bytes": 1303,
-      "max_tokens": 326,
       "full_output_bytes": true
     },
     {
@@ -59,7 +58,6 @@
         ]
       },
       "max_bytes": 1303,
-      "max_tokens": 326,
       "full_output_bytes": true,
       "offline": true
     }
