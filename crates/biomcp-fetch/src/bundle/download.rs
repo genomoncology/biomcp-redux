@@ -11,7 +11,7 @@ use crate::{
 use biomcp_types::Reason;
 use std::{
     fs,
-    io::{Read, Write},
+    io::{Read, Seek, Write},
     time::{Duration, Instant},
 };
 struct Transfer<'a> {
@@ -273,7 +273,11 @@ impl Leg<'_> {
         }
         self.stream(t, response, R::MAX_BYTES)?;
         t.file.flush().map_err(|_| CacheError::Database)?;
-        let body = fs::read(t.file.path()).map_err(|_| CacheError::Database)?;
+        t.file.rewind().map_err(|_| CacheError::Database)?;
+        let mut body = Vec::new();
+        t.file
+            .read_to_end(&mut body)
+            .map_err(|_| CacheError::Database)?;
         let url = format!("{}{}", self.spec.base.trim_end_matches('/'), b.path);
         self.observe_bundle(
             (&crate::retry::identity(&url), &url),
