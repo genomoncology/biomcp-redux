@@ -5,6 +5,8 @@ use serde_json::{Value, json};
 use std::fs;
 #[path = "variant_population_ids.rs"]
 mod ids;
+#[path = "variant_population_get.rs"]
+mod get;
 pub(super) fn trials() -> Vec<Trial> {
     let mut trials = vec![
         Trial::test("variant/population-source-given-grch38-snv", || {
@@ -34,6 +36,7 @@ pub(super) fn trials() -> Vec<Trial> {
         }),
     ];
     trials.extend(ids::trials());
+    trials.extend(get::trials());
     trials
 }
 fn gwas_zero() -> Result<(), String> {
