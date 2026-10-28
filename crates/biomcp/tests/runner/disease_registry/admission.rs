@@ -114,6 +114,7 @@ pub(super) fn run() -> Check {
         |_| "application/json",
         |_| Ok(r#"{"present":true}"#.into()),
     )?;
+    stub.retain(&env);
     let network = Network::new(
         None,
         Some(Secret::new(format!("http://{}", stub.address))),

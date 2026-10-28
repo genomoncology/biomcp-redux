@@ -30,6 +30,7 @@ pub(super) fn trials() -> Vec<Trial> {
 }
 fn configure(environment: &Environment, stub: &Stub) -> Result<(), String> {
     let ca = environment.root().join("synthetic-ca.pem");
+    stub.retain(environment);
     fs::write(&ca, &stub.certificate).map_err(|e| e.to_string())?;
     environment
         .config(&json!({"proxy":format!("http://{}",stub.address),"ca_bundle":ca}))

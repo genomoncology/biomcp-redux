@@ -63,6 +63,9 @@ pub(super) fn baseline_in(
     args.extend(selection.baseline_command.clone());
     let mut command = env.command(binary, &args);
     let peers = peers(&registry, selection, bodies, &mut command)?;
+    for peer in &peers {
+        peer.retain(env);
+    }
     let mut result =
         execution::invoke_command(command, &args, &out.join(format!("{index}-baseline")))?;
     execution::select_stream(
