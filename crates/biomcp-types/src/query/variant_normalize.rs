@@ -13,6 +13,7 @@ struct Fields {
     /// Explicit service; all preserves independent results without consensus.
     source: NormalizationSource,
     /// Reference-qualified HGVS, or chromosome genomic HGVS with an explicit build for CAR.
+    /// Checked for reference and syntax only; no full HGVS parser.
     #[cfg_attr(feature = "schema", schemars(schema_with = "hgvs_schema"))]
     hgvs: String,
     /// Caller assembly; required when VariantValidator is selected.

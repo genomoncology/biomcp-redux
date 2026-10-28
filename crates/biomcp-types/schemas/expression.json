@@ -39,7 +39,7 @@
   "$id": "biodata.expression/2",
   "$schema": "https://json-schema.org/draft/2020-12/schema",
   "additionalProperties": false,
-  "description": "Source expression checked for its declared published form, without normalization.",
+  "description": "Source expression checked for its reference and syntax only, without a full parser or normalization.",
   "properties": {
     "syntax": {
       "$ref": "#/$defs/ExpressionSyntax"

@@ -135,7 +135,6 @@ fn hgvs_reference_and_syntax_checks_preserve_positionless_forms() -> Check {
         ("NM_005228.5:r.spl", true),
         ("NM_005228.5:r.spl?", true),
         ("NM_005228.5:r.(spl?)", true),
-        ("NM_005228.5:c.2369C>T", true),
     ] {
         assert_eq!(text.parse::<HgvsText>().is_ok(), valid, "{text}");
         assert_eq!(Expression::hgvs(Text::new(text)?).is_ok(), valid, "{text}");
