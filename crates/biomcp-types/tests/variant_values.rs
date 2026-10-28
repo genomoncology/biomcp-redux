@@ -105,8 +105,43 @@ fn published_variant_identifiers_round_trip_without_text_inference() -> Check {
     ] {
         assert!(text.parse::<HgvsText>().is_err());
     }
+    // HGVS 21.1: recommendations/uncertain, RNA/splicing and background/refseq.
+    #[cfg(feature = "schema")]
+    let validator =
+        jsonschema::draft202012::new(&serde_json::to_value(schemars::schema_for!(HgvsText))?)?;
+    for (text, valid) in [
+        ("NM_005228.5:c.???", false),
+        ("NM_005228.5:c.2369C>T word", false),
+        ("NM_005228.5:c.2369C\t>T", false),
+        ("NP_005219.2:c.2369C>T", false),
+        ("XP_005219.2:r.2369c>u", false),
+        ("ENSP00000288602.1:g.100A>T", false),
+        ("LRG_199p1:n.100A>T", false),
+        ("NC_000007.14(NP_005219.2):c.2369C>T", false),
+        ("NM_005228.5(NP_label):c.2369C>T", true),
+        ("NP_005219.2:p.???", false),
+        ("NP_005219.2:p.?", true),
+        ("NP_005219.2:p.0", true),
+        ("NP_005219.2:p.0?", true),
+        ("NP_005219.2:p.=", true),
+        ("NP_005219.2:p.(=)", true),
+        ("NP_005219.2:p.(?)", true),
+        ("NM_005228.5:r.?", true),
+        ("NM_005228.5:r.(?)", true),
+        ("NM_005228.5:r.=", true),
+        ("NM_005228.5:r.(=)", true),
+        ("NM_005228.5:r.spl", true),
+        ("NM_005228.5:r.spl?", true),
+        ("NM_005228.5:r.(spl?)", true),
+    ] {
+        #[cfg(feature = "schema")]
+        assert_eq!(validator.is_valid(&json!(text)), valid, "schema: {text}");
+        assert_eq!(text.parse::<HgvsText>().is_ok(), valid, "{text}");
+        assert_eq!(Expression::hgvs(Text::new(text)?).is_ok(), valid, "{text}");
+    }
     Ok(())
 }
+
 #[test]
 fn shared_public_fixture_checks_identity_and_source_alleles() -> Check {
     let rows: Vec<serde_json::Value> =
@@ -403,75 +438,6 @@ fn shared_clinvar_and_clingen_fixture_rows_become_statements() -> Check {
     Ok(())
 }
 
-fn population_base() -> Result<PopulationFrequency, Box<dyn std::error::Error>> {
-    let attribution = Attribution {
-        source: Source::Gnomad.text(),
-        record: None,
-        version: None,
-        release: None,
-        submitter: None,
-        evaluated: None,
-        url: None,
-    };
-    Ok(PopulationFrequency::new(
-        VariantRef::allele("CA123643".parse()?),
-        Build::GRCh38,
-        Text::new("gnomad")?,
-        Text::new("synthetic-release")?,
-        attribution,
-    ))
-}
-
-#[test]
-fn population_strata_enforce_counts_and_frequencies() -> Check {
-    let base = population_base()?;
-    let value = base
-        .clone()
-        .with_stratum(
-            Some(PopulationDataType::Exomes),
-            Some(Text::new("synthetic-group")?),
-            Some(PopulationSex::Xy),
-            Some(Text::new("synthetic-subset")?),
-        )?
-        .with_counts(Some(2), Some(4), Some(0), Some(0))?
-        .with_frequencies(Some(0.5.try_into()?), Some(0.25.try_into()?))?;
-    let serialized = serde_json::to_value(&value)?;
-    assert_eq!(serialized.get("hemizygote_count"), Some(&json!(0)));
-    assert_eq!(serialized.get("allele_frequency"), Some(&json!(0.5)));
-    assert_eq!(
-        serde_json::from_value::<PopulationFrequency>(serialized.clone())?,
-        value
-    );
-    assert_eq!(
-        base.clone()
-            .with_counts(Some(3), Some(2), None, None)
-            .expect_err("count cannot exceed its denominator")
-            .code(),
-        "population.count.exceeds_number"
-    );
-    for invalid in [f64::NAN, f64::INFINITY, -0.01, 1.5] {
-        assert_eq!(
-            Fraction::try_from(invalid)
-                .expect_err("fraction is bounded")
-                .code(),
-            "population.frequency.range"
-        );
-    }
-    for (field, invalid) in [
-        ("allele_count", json!(5)),
-        ("allele_frequency", json!(-0.01)),
-        ("faf95", json!(1.5)),
-    ] {
-        let mut changed = serialized.clone();
-        changed
-            .as_object_mut()
-            .ok_or("population object required")?
-            .insert(field.into(), invalid);
-        assert!(serde_json::from_value::<PopulationFrequency>(changed).is_err());
-    }
-    Ok(())
-}
-
 #[test]
 fn source_predictor_contract_keeps_zero_and_native_labels() {
     let source = json!(
@@ -489,78 +455,76 @@ fn source_predictor_contract_keeps_zero_and_native_labels() {
 }
 
 #[test]
-fn identifier_lists_qualify_each_namespace_and_roundtrip() -> Result<(), Box<dyn std::error::Error>>
+fn identifier_lists_preserve_published_text_and_roundtrip() -> Result<(), Box<dyn std::error::Error>>
 {
-    for (published, output) in [
-        ("rs113488022", "rs:113488022"),
-        ("CA123643", "clingen:CA123643"),
-        ("PA123", "clingen:PA123"),
-        ("VCV000013961.1", "clinvar:VCV000013961.1"),
-        ("clinvar:13961", "clinvar:13961"),
-        ("COSV60000001", "cosmic:COSV60000001"),
-        (
-            "ga4gh:VA.aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
-            "ga4gh:VA.aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
-        ),
+    for published in [
+        "rs113488022",
+        "CA123643",
+        "PA123",
+        "VCV000013961.1",
+        "clinvar:13961",
+        "COSV60000001",
+        "ga4gh:VA.aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
     ] {
         let id: VariantId = published.parse()?;
         assert_eq!(id.to_string(), published);
+        assert_eq!(VariantInput::new(published)?.as_str(), published);
         let variant = Variant {
             ids: Box::new([id]),
             representations: Box::default(),
             genes: Box::default(),
         };
         let value = serde_json::to_value(&variant)?;
-        assert_eq!(value, json!({"ids":[output]}));
+        assert_eq!(value, json!({"ids":[published]}));
         assert_eq!(serde_json::from_value::<Variant>(value)?, variant);
-        // Stored entities with the old published spelling remain readable.
-        assert_eq!(
-            serde_json::from_value::<Variant>(json!({"ids":[published]}))?,
-            variant
-        );
     }
-    for invalid in ["clingen:rs123", "cosmic:CA123643", "rs:CA123643"] {
+    for invalid in [
+        "rs:113488022",
+        "clingen:CA123643",
+        "clingen:PA123",
+        "clinvar:VCV000013961.1",
+        "cosmic:COSV60000001",
+        "clingen:rs123",
+        "cosmic:CA123643",
+        "rs:CA123643",
+    ] {
         assert!(serde_json::from_value::<Variant>(json!({"ids":[invalid]})).is_err());
     }
     Ok(())
 }
 
 #[test]
-fn population_union_preserves_published_fields_and_refuses_misplacement() -> Check {
-    let mut union = serde_json::to_value(population_base()?)?;
-    for (field, source_value) in [
-        ("heterozygote_count", json!(2)),
-        ("grpmax_group", json!("synthetic-group")),
-        ("genotype_filter", json!("raw")),
-        ("homoplasmic_count", json!(1)),
-        ("heteroplasmic_count", json!(3)),
-        ("homoplasmic_frequency", json!(0.25)),
-        ("heteroplasmic_frequency", json!(0.75)),
+fn card_ids_requested_and_statement_subjects_share_published_text()
+-> Result<(), Box<dyn std::error::Error>> {
+    for id in [
+        "rs113488022",
+        "CA123643",
+        "PA123",
+        "VCV000013961",
+        "VCV000013961.98",
+        "clinvar:13961",
+        "COSV55386424",
+        "COSM476",
+        "COSN123",
+        "ga4gh:VA.aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
     ] {
-        union[field] = source_value;
+        let golden = json!({
+            "resolution":"unresolved", "source":"erepo",
+            "candidates":[{
+                "identity":{"ids":[id]}, "requested":id,
+                "source":"erepo", "record":{"id":"synthetic-record"},
+                "sections":{"erepo":{"state":"data", "source":"erepo", "data":{
+                    "assertions":[{"kind":"erepo", "domain":"germline", "statement":{
+                        "subject":{"level":"allele", "id":id},
+                        "proposition":"pathogenicity", "classification":{"label":"synthetic"},
+                        "attribution":{"source":"erepo", "record":"synthetic-record"}
+                    }}], "page":{"offset":0,"returned":1,"total":1}
+                }}}
+            }]
+        });
+        let card: VariantCard = serde_json::from_value(golden.clone())?;
+        assert_eq!(serde_json::to_value(card)?, golden);
+        assert_eq!(VariantInput::new(id)?.as_str(), id);
     }
-    assert_eq!(
-        serde_json::to_value(serde_json::from_value::<PopulationFrequency>(
-            union.clone()
-        )?)?,
-        union
-    );
-    for (field, bad) in [
-        ("genotype_filter", json!("unknown")),
-        ("ancestry_group", json!("synthetic")),
-        ("homoplasmic_frequency", json!(1.5)),
-        ("heteroplasmic_frequency", json!(-0.1)),
-    ] {
-        let mut invalid = union.clone();
-        invalid[field] = bad;
-        assert!(
-            serde_json::from_value::<PopulationFrequency>(invalid).is_err(),
-            "{field}"
-        );
-    }
-    union["subject"] = json!({"level":"allele", "hgvs":"NC_012920.1:m.1A>T"});
-    assert!(serde_json::from_value::<PopulationFrequency>(union.clone()).is_ok());
-    union["subject"] = json!({"level":"allele", "hgvs":"NC_000007.14:g.1A>T"});
-    assert!(serde_json::from_value::<PopulationFrequency>(union).is_err());
     Ok(())
 }

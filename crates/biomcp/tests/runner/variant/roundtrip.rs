@@ -1,6 +1,16 @@
 //! Feature variant-identity: printed repeat keys retain their required assembly.
 use crate::runner::{configuration::invoke, mcp, network_stub::Stub, schema::Registry};
 use serde_json::{Value, json};
+#[path = "hgvs_input.rs"]
+mod hgvs_input;
+
+pub(super) fn trials() -> Vec<libtest_mimic::Trial> {
+    vec![libtest_mimic::Trial::test(
+        "variant/implausible-hgvs-never-queries",
+        || hgvs_input::check().map_err(Into::into),
+    )]
+}
+
 use std::io::Write;
 
 const REPEAT: &str = "chr19:g.11106928AAG[1]";
@@ -90,7 +100,7 @@ fn bounded(label: &str, card: &Value, ceiling: usize) -> Result<(), String> {
 fn identity(card: &Value) -> Result<(), String> {
     if card.pointer("/result/resolution") != Some(&json!("resolved"))
         || card.pointer("/result/candidates/0/record/id") != Some(&json!(REPEAT))
-        || card.pointer("/result/candidates/0/identity/ids") != Some(&json!(["rs:876657378"]))
+        || card.pointer("/result/candidates/0/identity/ids") != Some(&json!(["rs876657378"]))
         || card.pointer("/result/candidates/0/identity/representations/0/expression/value")
             != Some(&json!(REPEAT))
     {

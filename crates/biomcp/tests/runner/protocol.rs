@@ -492,6 +492,8 @@ fn discovery_description(text: &str) -> Check {
         return Err("command description exceeds budget".into());
     }
     for word in [
+        "search organization --source nci --name --city --state --country --postal-code --family --lat --lon \
+            --distance --limit --offset --pool;names not unique;counts all trial statuses;no get",
         "search cell-line query --query/-q --limit/-l --offset",
         "get cell-line CVCL_ID|SOURCE:ID --section-limit --section-offset :names|identity|xrefs|variants|chembl|all",
         "cell-line assay-count",

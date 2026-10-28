@@ -1,6 +1,7 @@
 # 0435 — Refuse malformed HGVS text before any source call
 
-Status: OPEN.
+Status: COMPLETE.
+Landed: 4762723f34bf9af13deb0046a82f63283471c8d3
 
 Milestone: 5
 

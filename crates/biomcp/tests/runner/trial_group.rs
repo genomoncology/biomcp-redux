@@ -7,6 +7,7 @@ use super::{
 pub(super) fn trials() -> Vec<Trial> {
     [
         trial_tables::trials(),
+        super::trial_bad_values::trials(),
         trial_wider::trials(),
         trial_get::trials(),
         super::trial_eligibility::trials(),
