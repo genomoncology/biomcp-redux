@@ -35,7 +35,6 @@
       ],
       "expect": {
         "/status": "complete",
-        "/result/header/id": "EMEA/H/C/000406",
         "/problems": [
           {
             "source": "ema",
@@ -68,11 +67,16 @@
             "code": "value.unknown"
           }
         ],
-        "/result/header": {
+        "/result": {
           "equals": {
-            "id": "EMEA/H/C/000406",
-            "source": "ema",
-            "identity_level": "unknown"
+            "header": {
+              "id": "EMEA/H/C/000406",
+              "source": "ema",
+              "identity_level": "unknown"
+            },
+            "available_sections": [
+              "regulatory"
+            ]
           }
         }
       },
