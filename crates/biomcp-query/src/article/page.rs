@@ -79,6 +79,7 @@ pub(super) fn read<'a>(
         out.status = Status::Failed;
         return Ok(());
     }
+    status::append(&mut out.problems, pool.problems.clone());
     let id = pool.info.id.as_str();
     let mut rows = store.page(id, query.offset(), query.limit())?;
     let missing: Vec<_> = rows

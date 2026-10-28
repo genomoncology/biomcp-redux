@@ -16,6 +16,7 @@ pub(super) fn trials() -> Vec<Trial> {
                 pubmed()
                     .and_then(|_| summaries())
                     .and_then(|_| notices())
+                    .and_then(|_| stored_notice_problems())
                     .map_err(Into::into)
             },
         ),
@@ -285,6 +286,7 @@ fn person() -> Result<(), String> {
             0,
         )?;
         if field == "all" {
+            super::super::schema::Registry::embedded()?.validate(&value, &[], true)?;
             if value.pointer("/result/items/0/card/header/id")
                 != Some(&json!("orcid:0000-0002-4299-3018"))
                 || value.pointer("/result/items/0/card/header/name").is_some()
@@ -444,6 +446,55 @@ fn notices() -> Result<(), String> {
         }
         if stub.finish()?.len() != 1 {
             return Err("empty PubMed search sent another request".into());
+        }
+    }
+    Ok(())
+}
+fn stored_notice_problems() -> Result<(), String> {
+    for count in [0, 1] {
+        let stub = Stub::for_sources(
+            &["eutils.ncbi.nlm.nih.gov"],
+            |_| "application/json",
+            move |request| {
+                Ok(if request.contains("esearch.fcgi") {
+                    let ids: Vec<_> = if count == 0 { vec![] } else { vec!["123"] };
+                    json!({"esearchresult":{"count":count.to_string(), "idlist":ids,
+                    "errorlist":{"phrasesnotfound":[{}]}}})
+                } else {
+                    json!({"result":{"uids":["123"],"123":{"uid":"123","title":"Valid title"}}})
+                }
+                .to_string())
+            },
+        )?;
+        let env = super::super::variant::source_environment(&stub)?;
+        let args = ["search", "article", "synthetic", "--source", "pubmed"]
+            .map(str::to_owned)
+            .to_vec();
+        let first = invoke(&env, args.clone(), 0)?;
+        let mut offline = args;
+        offline.push("--offline".into());
+        let second = invoke(&env, offline, 0)?;
+        for pointer in [
+            "/problems",
+            "/page/pool",
+            "/page/total",
+            "/status",
+            "/result",
+        ] {
+            if first.pointer(pointer) != second.pointer(pointer) {
+                return Err(format!(
+                    "stored notice changed {pointer}: {first} -> {second}"
+                ));
+            }
+        }
+        if second.pointer("/problems/0/field") != Some(&json!("notices.not_found_words"))
+            || second.pointer("/problems/0/record").is_some()
+            || second.pointer("/page/total") != Some(&json!(count))
+        {
+            return Err(format!("pool-scoped notice problem lost: {second}"));
+        }
+        if stub.finish()?.len() != (count + 1) as usize {
+            return Err("cached notice requested the provider".into());
         }
     }
     Ok(())

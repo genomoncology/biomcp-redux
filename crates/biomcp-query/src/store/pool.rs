@@ -9,6 +9,7 @@ pub(crate) struct Pool {
     pub info: PoolInfo,
     pub key: Vec<u8>,
     pub sources: Vec<SourceOutcome>,
+    pub problems: Vec<Problem>,
 }
 /// Fixed identity and independently hydrated metadata.
 pub(crate) struct StoredItem {
@@ -38,6 +39,8 @@ impl Store<'_> {
                 .optional()
                 .map_err(db)?;
             row.map(|(id, key, created, expires, size, sources)| {
+                let (sources, problems) = serde_json::from_str::<Metadata>(&sources)
+                    .map_err(|_| CacheError::Database)?.parts();
                 Ok(Pool {
                     info: PoolInfo {
                         id: Text::new(&id).map_err(|_| CacheError::Database)?,
@@ -47,7 +50,8 @@ impl Store<'_> {
                     },
 
                     key,
-                    sources: serde_json::from_str(&sources).map_err(|_| CacheError::Database)?,
+                    sources,
+                    problems,
                 })
             })
             .transpose()
@@ -65,7 +69,10 @@ impl Store<'_> {
             let created = Self::now();
             let expires = created.saturating_add(86400);
             let id: String = tx.query_row("SELECT lower(hex(randomblob(16)))", [], |r| r.get(0)).map_err(db)?;
-            let outcomes = serde_json::to_string(sources).map_err(|_| CacheError::Database)?;
+            let global: Vec<_> = problems.iter().filter(|p| p.record.is_none()).cloned().collect();
+            let metadata = if global.is_empty() { Metadata::Sources(sources.into()) }
+                else { Metadata::Problems { sources: sources.into(), problems: global } };
+            let outcomes = serde_json::to_string(&metadata).map_err(|_| CacheError::Database)?;
             let size = u32::try_from(items.len()).map_err(|_| CacheError::Database)?;
             tx.execute(
                 "INSERT INTO pool(id,request_key,created,expires,size,outcomes) VALUES (?1,?2,?3,?4,?5,?6)",
@@ -110,6 +117,7 @@ impl Store<'_> {
                 },
                 key: key.into(),
                 sources: sources.into(),
+                problems: metadata.parts().1,
             })
         })
     }
@@ -152,6 +160,7 @@ impl Store<'_> {
                 },
                 key: key.into(),
                 sources: sources.into(),
+                problems: Vec::new(),
             })
         })
     }
@@ -285,5 +294,24 @@ impl Store<'_> {
             }
             Ok(())
         })
+    }
+}
+
+// Existing source-only rows remain readable; only pool-scoped problems need metadata.
+#[derive(serde::Serialize, serde::Deserialize)]
+#[serde(untagged)]
+enum Metadata {
+    Sources(Vec<SourceOutcome>),
+    Problems {
+        sources: Vec<SourceOutcome>,
+        problems: Vec<Problem>,
+    },
+}
+impl Metadata {
+    fn parts(self) -> (Vec<SourceOutcome>, Vec<Problem>) {
+        match self {
+            Self::Sources(sources) => (sources, Vec::new()),
+            Self::Problems { sources, problems } => (sources, problems),
+        }
     }
 }
