@@ -1,6 +1,11 @@
 use biomcp_types::{DrugCard, DrugHeader};
 use serde_json::json;
 
+#[expect(
+    clippy::expect_used,
+    clippy::indexing_slicing,
+    reason = "Drug schema contract fixtures require known fields and valid local serialization"
+)]
 pub(super) fn header_and_card_exclude_deeper_disclosures_from_the_public_contract() {
     let header = json!({"id":"CHEMBL941", "source":"chembl", "name":"native name", "identity_level":"unknown"});
     let decoded: DrugHeader = serde_json::from_value(header.clone()).expect("header");
