@@ -54,7 +54,7 @@ impl Document {
                             .and_then(|xrefs| match xrefs { Field::Value(v) => v.get("doid"), Field::Invalid(_) => None })
                             .is_some_and(|values| match values {
                                 OneOrMany::One(value) => {
-                                    matches!(value, Field::Value(v) if matches!(v, Field::Value(v) if v.as_str().parse::<Curie>().ok().as_ref() == Some(id)))
+                                    matches!(value, Field::Value(v) if v.as_str().parse::<Curie>().ok().as_ref() == Some(id))
                                 }
                                 OneOrMany::Many(values) => values
                                     .iter()

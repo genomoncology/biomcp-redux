@@ -4,7 +4,11 @@ use crate::{
     mapped::Problems,
     raw::{Field, OneOrMany},
 };
-fn field(value: Option<Field<String>>, field: &str, problems: &mut Problems) -> Option<String> {
+fn optional_string(
+    value: Option<Field<String>>,
+    field: &str,
+    problems: &mut Problems,
+) -> Option<String> {
     crate::mapped::field_text(
         &mut problems.list,
         problems.source,
@@ -24,7 +28,7 @@ fn many(
             values
                 .values()
                 .into_iter()
-                .filter_map(|v| field(Some(v), field, problems))
+                .filter_map(|v| optional_string(Some(v), field, problems))
                 .collect(),
         )
     })
@@ -41,41 +45,41 @@ pub(super) fn component(raw: ReceivedComponent, name: &str, problems: &mut Probl
                 })
                 .collect()
         }),
-        id: field(raw.id, &format!("{name}.id"), problems),
-        name: field(raw.name, &format!("{name}.name"), problems),
-        molecule_chembl_id: field(
+        id: optional_string(raw.id, &format!("{name}.id"), problems),
+        name: optional_string(raw.name, &format!("{name}.name"), problems),
+        molecule_chembl_id: optional_string(
             raw.molecule_chembl_id,
             &format!("{name}.molecule_chembl_id"),
             problems,
         ),
-        pref_name: field(raw.pref_name, &format!("{name}.pref_name"), problems),
-        molecule_type: field(
+        pref_name: optional_string(raw.pref_name, &format!("{name}.pref_name"), problems),
+        molecule_type: optional_string(
             raw.molecule_type,
             &format!("{name}.molecule_type"),
             problems,
         ),
-        ligand_id: field(raw.ligand_id, &format!("{name}.ligand_id"), problems),
-        r#type: field(raw.r#type, &format!("{name}.type"), problems),
-        unii: field(raw.unii, &format!("{name}.unii"), problems),
-        display_name: field(raw.display_name, &format!("{name}.display_name"), problems),
-        ingredient_type: field(
+        ligand_id: optional_string(raw.ligand_id, &format!("{name}.ligand_id"), problems),
+        r#type: optional_string(raw.r#type, &format!("{name}.type"), problems),
+        unii: optional_string(raw.unii, &format!("{name}.unii"), problems),
+        display_name: optional_string(raw.display_name, &format!("{name}.display_name"), problems),
+        ingredient_type: optional_string(
             raw.ingredient_type,
             &format!("{name}.ingredient_type"),
             problems,
         ),
-        product_id: field(raw.product_id, &format!("{name}.product_id"), problems),
-        productndc: field(raw.productndc, &format!("{name}.productndc"), problems),
-        producttypename: field(
+        product_id: optional_string(raw.product_id, &format!("{name}.product_id"), problems),
+        productndc: optional_string(raw.productndc, &format!("{name}.productndc"), problems),
+        producttypename: optional_string(
             raw.producttypename,
             &format!("{name}.producttypename"),
             problems,
         ),
-        nonproprietaryname: field(
+        nonproprietaryname: optional_string(
             raw.nonproprietaryname,
             &format!("{name}.nonproprietaryname"),
             problems,
         ),
-        proprietaryname: field(
+        proprietaryname: optional_string(
             raw.proprietaryname,
             &format!("{name}.proprietaryname"),
             problems,
@@ -85,7 +89,7 @@ pub(super) fn component(raw: ReceivedComponent, name: &str, problems: &mut Probl
             values
                 .into_iter()
                 .map(|v| Synonym {
-                    molecule_synonym: field(
+                    molecule_synonym: optional_string(
                         v.molecule_synonym,
                         &format!("{name}.molecule_synonyms.molecule_synonym"),
                         problems,
@@ -94,21 +98,21 @@ pub(super) fn component(raw: ReceivedComponent, name: &str, problems: &mut Probl
                 .collect()
         }),
         molecule_hierarchy: raw.molecule_hierarchy.map(|v| Hierarchy {
-            active_chembl_id: field(
+            active_chembl_id: optional_string(
                 v.active_chembl_id,
                 &format!("{name}.molecule_hierarchy.active_chembl_id"),
                 problems,
             ),
-            parent_chembl_id: field(
+            parent_chembl_id: optional_string(
                 v.parent_chembl_id,
                 &format!("{name}.molecule_hierarchy.parent_chembl_id"),
                 problems,
             ),
         }),
-        chembl_id: field(raw.chembl_id, &format!("{name}.chembl_id"), problems),
-        rxcui: field(raw.rxcui, &format!("{name}.rxcui"), problems),
-        ncit: field(raw.ncit, &format!("{name}.ncit"), problems),
-        applicationnumber: field(
+        chembl_id: optional_string(raw.chembl_id, &format!("{name}.chembl_id"), problems),
+        rxcui: optional_string(raw.rxcui, &format!("{name}.rxcui"), problems),
+        ncit: optional_string(raw.ncit, &format!("{name}.ncit"), problems),
+        applicationnumber: optional_string(
             raw.applicationnumber,
             &format!("{name}.applicationnumber"),
             problems,
