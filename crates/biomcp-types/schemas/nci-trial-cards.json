@@ -420,7 +420,6 @@
       "type": "object"
     },
     "NciMatchedSite": {
-      "additionalProperties": false,
       "description": "Compact source site observation; its presence does not establish enrollment.",
       "properties": {
         "org_city": {
