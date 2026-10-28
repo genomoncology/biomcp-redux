@@ -102,7 +102,7 @@ fn fetch_using(
         && replay_cache.is_none()
         && let Some(parent) = cache.as_ref().and_then(|path| path.parent())
     {
-        fs::create_dir_all(parent).map_err(|_| ())?;
+        create_cache_directory(parent).map_err(|_| ())?;
     }
     let secrets = secrets_from(file.as_ref());
     let network = network(file.as_ref())?;
@@ -137,6 +137,17 @@ fn fetch_using(
         biomcp_fetch::FetchError::Proxy => ConfigError::field("proxy").into(),
         _ => ().into(),
     })
+}
+
+fn create_cache_directory(path: &std::path::Path) -> std::io::Result<()> {
+    let mut directory = fs::DirBuilder::new();
+    directory.recursive(true);
+    #[cfg(unix)]
+    {
+        use std::os::unix::fs::DirBuilderExt;
+        directory.mode(0o700);
+    }
+    directory.create(path)
 }
 
 fn disabled_sources(

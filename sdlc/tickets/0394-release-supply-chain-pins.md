@@ -1,6 +1,7 @@
 # 0394 — Pin release images and bootstrap tools
 
-Status: OPEN.
+Status: COMPLETE.
+Landed: 195795eb66a14200978832dfc932ec361b20d1ee
 
 Milestone: 5
 

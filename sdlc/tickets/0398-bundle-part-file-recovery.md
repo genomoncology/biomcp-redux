@@ -1,6 +1,7 @@
 # 0398 — Recover bundle part files after an interrupted sync
 
-Status: OPEN.
+Status: COMPLETE.
+Landed: e2132dd471d61a4a355c03b5b97a028d45957247
 
 Milestone: 5
 

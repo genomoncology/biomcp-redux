@@ -1,6 +1,6 @@
 # 0325 — Record experiment 497's germline literature retrieval comparison
 
-Status: OPEN.
+Status: COMPLETE.
 
 Milestone: 5
 

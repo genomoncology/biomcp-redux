@@ -148,6 +148,10 @@ class LinuxContainers(unittest.TestCase):
         self.assertEqual(len(baseline), 13)
         self.assertEqual(len(supplied), len(baseline))
         self.assertEqual(sum(row[0] == 'run' for row in baseline), 10)
+        pins = json.loads((ROOT / 'release/toolchain.json').read_text())
+        build, = [row for row in baseline if row[0] == 'build']
+        self.assertIn('runtime_image=' + pins['images']['runtime'], build)
+        self.assertIn('runtime_packages=' + ' '.join(pins['runtime-packages']), build)
         for plain, labeled in zip(baseline, supplied):
             with self.subTest(command=plain):
                 self.assertNotIn('--label', plain)

@@ -57,6 +57,10 @@ def inside(report):
 
 
 def cold(report, container_args):
+    if __package__:
+        from .toolchain import manifest
+    else:
+        from toolchain import manifest
     # Clone only tracked source and history, with no host HOME, caches or tools.
     revision = subprocess.check_output(['git', 'rev-parse', 'HEAD'], text=True).strip()
     rows = []
@@ -71,7 +75,7 @@ def cold(report, container_args):
             env = {key: value for key, value in os.environ.items()
                    if key in ('PATH', 'HOME', 'DOCKER_HOST', 'DOCKER_CONTEXT',
                               'DOCKER_CONFIG', 'XDG_RUNTIME_DIR')}
-            env.update(BUILD_IMAGE='quay.io/pypa/manylinux_2_28_' + wheel_arch,
+            env.update(BUILD_IMAGE=manifest()['images']['manylinux-' + wheel_arch],
                        BIOMCP_RELEASE_COLD='1', BIOMCP_BUILD_REVISION=revision)
             stage_report = report.with_name(report.stem + '-' + arch + '.json')
             env['BIOMCP_RELEASE_REPORT'] = str(stage_report)

@@ -1,6 +1,6 @@
 # 0098 — Compare 1.0 with 0.9.4 on outside question sets (PM-owned, no developer lane)
 
-Status: OPEN.
+Status: COMPLETE.
 
 Milestone: 5
 
