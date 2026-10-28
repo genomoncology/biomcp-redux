@@ -471,15 +471,21 @@ fn notices() -> Result<(), String> {
     Ok(())
 }
 fn stored_notice_problems() -> Result<(), String> {
-    for count in [0, 1] {
+    for count in [0, 1, 2] {
         let stub = Stub::for_sources(
             &["eutils.ncbi.nlm.nih.gov"],
             |_| "application/json",
             move |request| {
                 Ok(if request.contains("esearch.fcgi") {
-                    let ids: Vec<_> = if count == 0 { vec![] } else { vec!["123"] };
+                    let ids = match count {
+                        0 => vec![],
+                        1 => vec!["123"],
+                        _ => vec!["124", "123"],
+                    };
                     json!({"esearchresult":{"count":count.to_string(), "idlist":ids,
                     "errorlist":{"phrasesnotfound":[{}]}}})
+                } else if count == 2 {
+                    json!({"result":{"uids":["124","123"],"124":{"uid":"124","title":""},"123":{"uid":"123","title":""}}})
                 } else {
                     json!({"result":{"uids":["123"],"123":{"uid":"123","title":"Valid title"}}})
                 }
@@ -513,7 +519,15 @@ fn stored_notice_problems() -> Result<(), String> {
         {
             return Err(format!("pool-scoped notice problem lost: {second}"));
         }
-        if stub.finish()?.len() != (count + 1) as usize {
+        if count == 2
+            && (second.pointer("/problems/1/record") != Some(&json!("124"))
+                || second.pointer("/problems/2/record") != Some(&json!("123")))
+        {
+            return Err(format!(
+                "cached summary problems lost pool rank order: {second}"
+            ));
+        }
+        if stub.finish()?.len() != usize::from(count > 0) + 1 {
             return Err("cached notice requested the provider".into());
         }
     }
