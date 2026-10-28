@@ -41,7 +41,7 @@ def generate(output):
     except subprocess.CalledProcessError:
         installed = ''
     if installed != 'cargo-about ' + version:
-        subprocess.run(['cargo', 'install', 'cargo-about', '--locked', '--version', version], check=True)
+        subprocess.run(['cargo', 'install', 'cargo-about', '--locked', '--version', version, '--features', 'cli'], check=True)
     policy = tomllib.loads((ROOT / 'deny.toml').read_text())['licenses']
     config = {'accepted': policy['allow']}
     for entry in policy.get('exceptions', []):
