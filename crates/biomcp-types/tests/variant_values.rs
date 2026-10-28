@@ -105,11 +105,10 @@ fn published_variant_identifiers_round_trip_without_text_inference() -> Check {
     ] {
         assert!(text.parse::<HgvsText>().is_err());
     }
-    Ok(())
-}
-#[test]
-fn hgvs_reference_and_syntax_checks_preserve_positionless_forms() -> Check {
     // HGVS 21.1: recommendations/uncertain, RNA/splicing and background/refseq.
+    #[cfg(feature = "schema")]
+    let validator =
+        jsonschema::draft202012::new(&serde_json::to_value(schemars::schema_for!(HgvsText))?)?;
     for (text, valid) in [
         ("chr7:g.???", false),
         ("chr7:g.100A>T word", false),
@@ -136,6 +135,8 @@ fn hgvs_reference_and_syntax_checks_preserve_positionless_forms() -> Check {
         ("NM_005228.5:r.spl?", true),
         ("NM_005228.5:r.(spl?)", true),
     ] {
+        #[cfg(feature = "schema")]
+        assert_eq!(validator.is_valid(&json!(text)), valid, "schema: {text}");
         assert_eq!(text.parse::<HgvsText>().is_ok(), valid, "{text}");
         assert_eq!(Expression::hgvs(Text::new(text)?).is_ok(), valid, "{text}");
     }
