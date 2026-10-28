@@ -64,3 +64,23 @@ fn growable_enum_contracts_keep_known_values_and_accept_future_names() {
     let closed = json!({"$id":"biodata.example/1", "type":"string", "enum":["first","second"]});
     assert!(check_reviewed(&old, &closed, ContractKind::Reply, &Reviews::default()).is_err());
 }
+
+
+#[test]
+fn extensible_annotations_cannot_hide_enum_or_const_assertions_through_references() {
+    for assertion in [json!({"enum":["first"]}), json!({"const":"first"})] {
+        let mut value = json!({"$id":"biodata.example/1", "type":"string", "x-extensible-enum":["first"]});
+        value.as_object_mut().unwrap().extend(assertion.as_object().unwrap().clone());
+        assert!(check_reviewed(&value, &value, ContractKind::Reply, &Reviews::default()).is_err());
+        let mut referenced = json!({"$id":"biodata.example/1", "$ref":"#/$defs/E", "x-extensible-enum":["first"],
+            "$defs":{"E":{"type":"string"}}});
+        referenced["$defs"]["E"].as_object_mut().unwrap().extend(assertion.as_object().unwrap().clone());
+        assert!(check_reviewed(&referenced, &referenced, ContractKind::Reply, &Reviews::default()).is_err());
+    }
+    let optional = json!({"$id":"biodata.example/1", "anyOf":[{"$ref":"#/$defs/E"},{"type":"null"}],
+        "$defs":{"E":{"type":"string","x-extensible-enum":["first"]}}});
+    assert!(check_reviewed(&optional, &optional, ContractKind::Reply, &Reviews::default()).is_ok());
+    let optional = json!({"$id":"biodata.example/1", "anyOf":[
+        {"type":"string","x-extensible-enum":["first"]},{"type":"null"}]});
+    assert!(check_reviewed(&optional, &optional, ContractKind::Reply, &Reviews::default()).is_ok());
+}

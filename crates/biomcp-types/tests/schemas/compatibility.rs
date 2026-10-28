@@ -11,6 +11,7 @@ struct Shape {
     types: BTreeSet<String>,
     values: Option<BTreeSet<String>>,
     open_enum: bool,
+    enum_assertion: bool,
     required: BTreeSet<String>,
     selectors: Option<Vec<BTreeSet<String>>>,
     minimum_length: u64,
@@ -271,6 +272,10 @@ fn collect(node: &Value, path: &str, shapes: &mut BTreeMap<String, Shape>) -> Ch
     }
     collect_format(node, shape)?;
     shape.open_enum |= node.get("x-extensible-enum").is_some();
+    shape.enum_assertion |= node.get("enum").is_some() || node.get("const").is_some();
+    if shape.open_enum && shape.enum_assertion {
+        return Err(format!("closed assertion on extensible enum at {path}"));
+    }
     if let Some(values) = node.get("enum").or_else(|| node.get("x-extensible-enum")) {
         shape.values = Some(
             values
