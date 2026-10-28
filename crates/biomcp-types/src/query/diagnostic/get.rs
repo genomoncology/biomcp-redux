@@ -108,6 +108,7 @@ impl DiagnosticGet {
 fn validate_source(v: &GetFields) -> Result<(), QueryInvalid> {
     let valid_id = match v.source {
         DiagnosticGetSource::Gtr => v.id.as_str().parse::<GtrTestId>().is_ok(),
+        DiagnosticGetSource::FdaDeviceRecall => v.id.as_str().parse::<biodata::DeviceRecallNumber>().is_ok(),
         DiagnosticGetSource::WhoIvd => v.id.as_str().parse::<WhoProductId>().is_ok(),
         DiagnosticGetSource::Fda510k => {
             v.id.as_str().parse::<biodata::DiagnosticDeviceId>().is_ok()
@@ -131,7 +132,7 @@ fn validate_source(v: &GetFields) -> Result<(), QueryInvalid> {
             v.section,
             None | Some(DiagnosticSection::Regulatory | DiagnosticSection::Supplements)
         ),
-        DiagnosticGetSource::WhoIvd | DiagnosticGetSource::Fda510k => v.section.is_none(),
+        DiagnosticGetSource::WhoIvd | DiagnosticGetSource::Fda510k | DiagnosticGetSource::FdaDeviceRecall => v.section.is_none(),
     };
     if !valid_section {
         return Err(QueryInvalid::new(&["section", "source"]));
@@ -144,7 +145,7 @@ fn validate_source(v: &GetFields) -> Result<(), QueryInvalid> {
     }
     if matches!(
         v.source,
-        DiagnosticGetSource::WhoIvd | DiagnosticGetSource::Fda510k
+        DiagnosticGetSource::WhoIvd | DiagnosticGetSource::Fda510k | DiagnosticGetSource::FdaDeviceRecall
     ) {
         if v.section_limit.is_some() {
             return Err(QueryInvalid::new(&["section_limit", "source"]));
@@ -153,7 +154,7 @@ fn validate_source(v: &GetFields) -> Result<(), QueryInvalid> {
             return Err(QueryInvalid::new(&["section_offset", "source"]));
         }
     }
-    if v.source == DiagnosticGetSource::Fda510k && v.bundle_revision.is_some() {
+    if matches!(v.source, DiagnosticGetSource::Fda510k | DiagnosticGetSource::FdaDeviceRecall) && v.bundle_revision.is_some() {
         return Err(QueryInvalid::new(&["bundle_revision", "source"]));
     }
     Ok(())

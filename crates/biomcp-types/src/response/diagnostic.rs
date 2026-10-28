@@ -47,6 +47,11 @@ pub struct GtrHeader {
 )]
 #[cfg_attr(feature = "schema", derive(schemars::JsonSchema))]
 pub enum DiagnosticCandidate {
+    /// One native product recall record; repeated event numbers remain separate records.
+    DeviceRecall {
+        /// Source-owned compact recall fields.
+        header: super::DeviceRecallHeader,
+    },
     /// One matched WHO product with cells from its first matching native row.
     WhoIvd {
         /// Exact source product identifier.
@@ -139,6 +144,8 @@ pub struct GtrCard {
 #[serde(tag = "kind", rename_all = "snake_case", deny_unknown_fields)]
 #[cfg_attr(feature = "schema", derive(schemars::JsonSchema))]
 pub enum DiagnosticCard {
+    /// Exact native medical device recall with an optional exact enforcement classification.
+    DeviceRecall(Box<super::DeviceRecallCard>),
     /// Exact resolved GTR accession/version.
     GtrTest(Box<GtrCard>),
     /// All native rows under one WHO Product ID.
@@ -179,6 +186,8 @@ biodata::wire_enum! {
 biodata::wire_enum! {
     /// Meaning of the envelope's total for a source-owned diagnostic page.
     DiagnosticCountUnit {
+        /// Native product recall records, without deduplication by event or harm inference.
+        RecallRecords => "recall_records",
         /// Distinct WHO Product IDs, grouping repeated code rows.
         ProductIdentities => "product_identities",
         /// Distinct exact GTR accession and version identities.

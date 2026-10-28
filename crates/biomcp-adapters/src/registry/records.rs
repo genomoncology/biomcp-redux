@@ -116,6 +116,12 @@ pub const DECLARATIONS: &[RecordDeclaration] = &[
         ),
     },
     RecordDeclaration {
+        source: Source::FdaDeviceRecall,
+        kind: RecordKind::Diagnostic,
+        display_name: "FDA medical device recall",
+        template: Some("https://api.fda.gov/device/recall.json?search=product_res_number.exact%3A%22{id}%22&limit=1&skip=0"),
+    },
+    RecordDeclaration {
         source: Source::Fda510k,
         kind: RecordKind::Diagnostic,
         display_name: "FDA 510(k) submission",

@@ -11,6 +11,9 @@ pub(super) fn candidates(
 ) {
     for row in rows {
         let fields = match row {
+            DiagnosticCandidate::DeviceRecall { header } => {
+                serde_json::json!({"id":header.recall_number,"source":"fda-device-recall"})
+            }
             DiagnosticCandidate::Resolved { header, .. } => {
                 serde_json::json!({"id":header.id,"source":"gtr"})
             }

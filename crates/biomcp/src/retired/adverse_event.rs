@@ -16,7 +16,7 @@ const FLAGS: &[(&str, ErrorMessage)] = &[
     ("--age-max", ErrorMessage::AdverseFilter),
     ("--reporter", ErrorMessage::AdverseFilter),
     ("--count", ErrorMessage::AdverseFilter),
-    ("--classification", ErrorMessage::AdverseRecalls),
+    ("--classification", ErrorMessage::AdverseDeviceRecalls),
     ("-l", ErrorMessage::DiseaseLimit),
     ("-j", ErrorMessage::DiseaseJson),
     ("--json", ErrorMessage::DiseaseJson),
@@ -72,7 +72,7 @@ pub(super) fn message(args: &[OsString]) -> Option<ErrorMessage> {
             return match inline.or_else(|| args.next().and_then(|v| v.to_str())) {
                 Some("faers") => Some(ErrorMessage::AdverseFaers),
                 Some("device" | "devices" | "maude") => Some(ErrorMessage::AdverseMaude),
-                Some("recall" | "recalls" | "enforcement") => Some(ErrorMessage::AdverseRecalls),
+                Some("recall" | "recalls" | "enforcement") => Some(ErrorMessage::AdverseDeviceRecalls),
                 _ => None,
             };
         }
