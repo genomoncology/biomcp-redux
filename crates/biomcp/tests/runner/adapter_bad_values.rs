@@ -2,9 +2,15 @@
 use super::super::{configuration::invoke, network_stub::Stub, response_cases::checked_steps};
 use libtest_mimic::Trial;
 use serde_json::{Value, json};
+#[path = "adapter_repeated_references.rs"]
+mod repeated_references;
 
 pub(super) fn trials() -> Vec<Trial> {
     vec![
+        Trial::test(
+            "pathway-reactome/repeated-reference-invalid-fields-are-disclosed",
+            || repeated_references::check().map_err(Into::into),
+        ),
         Trial::test(
             "pathway-reactome/invalid-optional-fields-keep-records",
             || reactome().map_err(Into::into),
