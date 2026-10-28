@@ -66,6 +66,8 @@ fn common_registry() -> Vec<Contract> {
         ClinVarVariationId => ("clinvar-variation-id", "biodata.clinvar-variation-id/1"),
         ClinVarAlleleId => ("clinvar-allele-id", "biodata.clinvar-allele-id/1"),
         CosmicId => ("cosmic-id", "biodata.cosmic-id/1"),
+        MondoId => ("mondo-id", "biodata.mondo-id/1"),
+        NcitId => ("ncit-id", "biodata.ncit-id/1"),
         VrsId => ("vrs-id", "biodata.vrs-id/1"),
         Contig => ("contig", "biodata.contig/1"),
 
