@@ -48,7 +48,7 @@ fn markdown() -> Check {
             "P00533",
             "sequence",
             "--disable-sources",
-            "interpro,complexportal",
+            "interpro,complex-portal",
         ]
         .map(str::to_owned),
     );
