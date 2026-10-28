@@ -151,7 +151,7 @@ The 0.9 `gencc sync` command becomes `biomcp sync gencc`. It installs or refresh
 
 ## Trial discovery and documents
 
-`search trial TEXT` sends general registry text; `--condition TEXT` searches conditions only. `--gene`, `--variant` and `--criteria` support discovery and never determine clinical eligibility. `--mutation` and `--biomarker` retire in favor of literal `--variant` text. The semantic therapy-line filters retire with `--criteria` guidance. Registry update dates use `--updated-since` and `--updated-until`. Search offset paging becomes the opaque `--next-page` action; keep the same filters.
+`search trial TEXT` sends general registry text; `--condition TEXT` uses the registry condition query, including its native expansions. `--gene`, `--variant` and `--criteria` support discovery and never determine clinical eligibility. `--mutation` and `--biomarker` retire in favor of literal `--variant` text. The semantic therapy-line filters retire with `--criteria` guidance. Registry update dates use `--updated-since` and `--updated-until`. Search offset paging becomes the opaque `--next-page` action; keep the same filters.
 
 ClinicalTrials.gov is the default. Explicit `--source nci` requires the user's NCI key and preserves NCI's own counts and statuses without fallback. NCI condition filters require NCIt identifiers; repeat `--condition` for source-native OR. NCI accepts one `--keyword` for explicit free text and refuses interventions. ClinicalTrials.gov accepts repeated `--condition`, `--intervention` and `--keyword` alternatives joined with OR; different options combine with AND. Unsupported registry-only filters return guidance before any request. Automatic disease resolution is not shipped.
 
