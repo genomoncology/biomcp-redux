@@ -10,7 +10,6 @@ use std::{
     time::Duration,
 };
 type Check = Result<(), String>;
-
 pub(super) fn trials() -> Vec<Trial> {
     vec![
         transcript_trial("mcp-http/local-health-and-discovery", || {

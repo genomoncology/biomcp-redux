@@ -269,11 +269,7 @@ fn concurrent() -> Check {
     let replacement = spawn(&sync)?;
     let readers = [spawn(&args)?, spawn(&args)?];
     let finish = |(child, mut command): (std::process::Child, super::capture::Capture)| {
-        let output = child.wait_with_output().map_err(|e| e.to_string())?;
-        command
-            .record(output.status, &output.stdout, "cli")
-            .map_err(|e| e.to_string())?;
-        Ok::<_, String>(output)
+        command.wait_with_output(child).map_err(|e| e.to_string())
     };
     let output = finish(replacement)?;
     let reader_outputs = readers

@@ -224,7 +224,6 @@ fn candidates_body(_: &str) -> Result<String, String> {
     )
     .to_string())
 }
-
 pub(super) fn source_environment(stub: &Stub) -> Result<Environment, String> {
     let environment = Environment::new().map_err(|e| e.to_string())?;
     let ca = environment.root().join("synthetic-ca.pem");

@@ -6,7 +6,7 @@ use std::{
     io,
     ops::{Deref, DerefMut},
     path::Path,
-    process::{Command, ExitStatus, Output, Stdio},
+    process::{Child, Command, ExitStatus, Output, Stdio},
     sync::Arc,
 };
 
@@ -46,6 +46,11 @@ impl Capture {
     }
     pub(super) fn output(&mut self) -> io::Result<Output> {
         let output = self.command.output()?;
+        self.record(output.status, &output.stdout, "cli")?;
+        Ok(output)
+    }
+    pub(super) fn wait_with_output(&mut self, child: Child) -> io::Result<Output> {
+        let output = child.wait_with_output()?;
         self.record(output.status, &output.stdout, "cli")?;
         Ok(output)
     }
