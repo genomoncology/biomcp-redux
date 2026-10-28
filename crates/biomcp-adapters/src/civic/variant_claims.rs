@@ -10,7 +10,7 @@ use biomcp_types::{CivicStatement, Problem, ProblemCode, Reason, Source, SourceR
 struct Claim<'a> {
     id: u64,
     kind: &'a biodata::SourceText,
-    status: &'a biodata::SourceText,
+    status: &'a biomcp_types::CivicStatus,
     significance: &'a biodata::SourceText,
     direction: &'a Text,
     level: Option<Term>,
@@ -114,7 +114,7 @@ fn build(
     } else {
         biomcp_types::CivicKind::from(row.kind.as_str().to_owned())
     };
-    let status = biomcp_types::CivicStatus::from(row.status.as_str().to_owned());
+    let status = row.status.clone();
     let significance = if row.assertion {
         biomcp_types::CivicSignificance::from_assertion(row.significance.as_str().to_owned())
     } else {

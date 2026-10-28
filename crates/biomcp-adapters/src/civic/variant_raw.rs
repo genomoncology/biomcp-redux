@@ -54,7 +54,7 @@ pub(super) struct Feature {
 #[serde(rename_all = "camelCase")]
 pub(super) struct Evidence {
     pub id: u64,
-    pub status: biodata::SourceText,
+    pub status: biomcp_types::CivicStatus,
     pub evidence_type: biodata::SourceText,
     pub evidence_level: Text,
     pub evidence_direction: Text,
@@ -67,7 +67,7 @@ pub(super) struct Evidence {
 #[serde(rename_all = "camelCase")]
 pub(super) struct Assertion {
     pub id: u64,
-    pub status: biodata::SourceText,
+    pub status: biomcp_types::CivicStatus,
     pub assertion_type: biodata::SourceText,
     pub assertion_direction: Text,
     pub significance: biodata::SourceText,

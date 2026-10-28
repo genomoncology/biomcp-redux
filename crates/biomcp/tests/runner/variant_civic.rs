@@ -8,6 +8,9 @@ mod vocabulary;
 
 pub(super) fn trials() -> Vec<Trial> {
     vec![
+        Trial::test("drug-civic/unknown-status-keeps-native-claims", || {
+            vocabulary::drug_status().map_err(Into::into)
+        }),
         Trial::test(
             "variant/civic-unknown-stream-vocabulary-keeps-claims",
             || vocabulary::stream_context().map_err(Into::into),

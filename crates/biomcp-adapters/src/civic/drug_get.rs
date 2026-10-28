@@ -90,10 +90,10 @@ fn matches(
 ) -> bool {
     let id = query.input().to_string().parse::<u64>().ok();
     let claim = |profile: &raw::Profile,
-                 status: &biodata::SourceText,
+                 status: &biomcp_types::CivicStatus,
                  therapies: &[super::variant_raw::Therapy]| {
         query.civic_profile().is_none_or(|id| id == profile.id)
-            && status.as_str() == "ACCEPTED"
+            && (matches!(status, biomcp_types::CivicStatus::Accepted) || status.is_unknown())
             && therapies.iter().any(|t| t.id == id)
             && therapies
                 .iter()

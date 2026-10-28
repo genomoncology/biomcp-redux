@@ -99,3 +99,59 @@ pub(super) fn stream_context() -> Result<(), String> {
     }
     Ok(())
 }
+
+pub(super) fn drug_status() -> Result<(), String> {
+    for status in [
+        " new curation state ",
+        " ACCEPTED ",
+        "",
+        "SUBMITTED",
+        "REJECTED",
+    ] {
+        let env = Environment::new().map_err(|e| e.to_string())?;
+        let stub = Stub::for_sources(
+            &["civicdb.org"],
+            |_| "application/json",
+            move |request| {
+                crate::runner::drug_civic_fixtures::reply(request).map(|body| {
+                    body.replace(
+                        "\"status\":\"ACCEPTED\"",
+                        &format!("\"status\":\"{status}\""),
+                    )
+                })
+            },
+        )?;
+        configure(&env, &stub)?;
+        let result = run(&env, &["get", "drug", "5", "civic", "--source", "civic"])?;
+        if matches!(status, "SUBMITTED" | "REJECTED") {
+            if result.pointer("/result/civic/reason") != Some(&json!("bad_reply")) {
+                return Err(format!(
+                    "known nonaccepted curation status passed the source filter: {result}"
+                ));
+            }
+        } else {
+            for (stream, record) in [("evidence", "EID259"), ("assertions", "AID85")] {
+                let base = format!("/result/civic/data/{stream}/records/0/claim");
+                if result.pointer(&format!("{base}/status")) != Some(&json!(status))
+                    || result.pointer(&format!("{base}/statement")).is_some()
+                    || result.pointer(&format!("{base}/native")).is_none()
+                    || !result
+                        .get("problems")
+                        .and_then(|v| v.as_array())
+                        .is_some_and(|rows| {
+                            rows.iter().any(|p| {
+                                p.get("field") == Some(&json!("status"))
+                                    && p.get("record") == Some(&json!(record))
+                            })
+                        })
+                {
+                    return Err(format!(
+                        "unknown drug claim status lost native facts, gained a common claim, or lacks its field problem: {result}"
+                    ));
+                }
+            }
+        }
+        stub.finish()?;
+    }
+    Ok(())
+}
