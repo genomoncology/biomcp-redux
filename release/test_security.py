@@ -129,7 +129,7 @@ class Screening(unittest.TestCase):
                                         cwd=ROOT, env=env, capture_output=True, text=True)
                 self.assertEqual(result.returncode, 1, "planted binary or merge fixture must fail screening")
                 self.assertNotIn(token, result.stdout + result.stderr)
-                self.assertTrue(all(set(json.loads(line)) == {"file", "rule"} for line in result.stdout.splitlines()))
+                self.assertTrue(all(set(json.loads(line)) == ({"file", "rule", "level"} if json.loads(line).get("level") == "info" else {"file", "rule"}) for line in result.stdout.splitlines()))
                 return result.stdout
             for name in ["biomcp.exe", "package.dist-info/release.json"]:
                 with zipfile.ZipFile(artifacts / "candidate.whl", "w") as archive:
@@ -243,7 +243,9 @@ class Screening(unittest.TestCase):
             git("init", "--quiet")
             git("config", "user.name", "Fixture")
             git("config", "user.email", "fixture@example.invalid")
-            git("commit", "--quiet", "--allow-empty", "-m", "Initial fixture")
+            (repo / "opaque.bin").write_bytes(b"PK\x03\x04synthetic opaque fixture")
+            git("add", ".")
+            git("commit", "--quiet", "-m", "Initial fixture")
             empty = git("rev-parse", "HEAD")
             token = "ghp_" + secrets.token_hex(18)
             path = "tests/replies/credential.json"
@@ -256,22 +258,29 @@ class Screening(unittest.TestCase):
                     "file": path, "line": 1, "reason": "Synthetic exact-binding refusal fixture."}
             entries = [{**base, "rule": rule} for rule in ["github-pat", "generic-api-key"]]
             ignore = tools / "secrets.ignore.jsonl"
-            def screen(records, expected):
+            def screen(records, expected, code=None, row=1):
                 ignore.write_text("".join(json.dumps(row) + "\n" for row in records))
                 result = subprocess.run([sys.executable, str(tools / "secrets.py"), "history", str(repo),
                                          "--cache", str(ROOT / "target/security-tools")],
                                         cwd=ROOT, env=env, capture_output=True, text=True)
                 self.assertEqual(result.returncode, expected, "exact history binding changed behavior")
                 self.assertNotIn(token, result.stdout + result.stderr)
+                self.assertNotIn('api_key =', result.stdout + result.stderr)
+                if expected == 0:
+                    informational = [json.loads(line) for line in result.stdout.splitlines() if line.startswith("{")]
+                    self.assertTrue(informational)
+                    self.assertTrue(all(item.get("level") == "info" for item in informational))
+                if code:
+                    self.assertEqual(result.stderr, json.dumps({"code": code, "row": row}) + "\n")
             screen(entries, 0)
             sibling = root / "sibling"
             git("worktree", "add", "--quiet", "--detach", str(sibling), base["commit"])
             git("-C", str(sibling), "commit", "--quiet", "--allow-empty", "-m", "Sibling binding fixture")
             sibling_commit = git("-C", str(sibling), "rev-parse", "HEAD")
-            screen([{**r, "commit": sibling_commit} for r in entries], 2)
-            screen([{**r, "line": 2} for r in entries], 1)
+            screen([entries[0], {**entries[1], "commit": sibling_commit}], 2, "history-ignore-unreachable-commit", row=2)
+            screen([{**r, "line": 2} for r in entries], 2, "history-ignore-wrong-line")
             screen([{**r, "rule": "unrelated-rule"} for r in entries], 1)
-            screen([{**r, "commit": empty} for r in entries], 2)
+            screen([{**r, "commit": empty} for r in entries], 2, "history-ignore-wrong-blob")
             file.write_text(file.read_text() + "changed blob\n")
             git("add", ".")
             git("commit", "--quiet", "-m", "Change the same path")
