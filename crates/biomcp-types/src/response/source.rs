@@ -44,16 +44,24 @@ pub struct SourceOutcome {
     /// Retrieved identity depth.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub fetched: Option<u32>,
-    /// Provider query notices that do not indicate failure.
+    /// Source notices and request recovery guidance.
     #[serde(default, skip_serializing_if = "Vec::is_empty")]
     pub notices: Vec<SourceNotice>,
 }
 
-/// A provider query interpretation notice.
+/// A source notice or request recovery step.
 #[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
 #[serde(tag = "kind", rename_all = "snake_case", deny_unknown_fields)]
 #[cfg_attr(feature = "schema", derive(schemars::JsonSchema))]
 pub enum SourceNotice {
+    /// Local request limits and source-specific recovery guidance.
+    RequestGuidance {
+        /// Reviewed guidance without provider response text.
+        message: Box<str>,
+        /// Seconds left before another source request may be admitted.
+        #[serde(skip_serializing_if = "Option::is_none")]
+        retry_after_seconds: Option<u64>,
+    },
     /// Registered conditions lack the literal words requested in a condition search.
     ConditionWordMismatch {
         /// The source searches several fields and can expand terms; no expansion cause is inferred.

@@ -1,6 +1,7 @@
 # 0386 — Explain the GWAS, InterPro and CDC WONDER deadlines
 
-Status: OPEN.
+Status: COMPLETE.
+Landed: c73ec2b99a7783044b8a35ec3f234eda0b6e0548
 
 Milestone: 5
 
