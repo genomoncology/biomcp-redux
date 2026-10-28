@@ -11,12 +11,37 @@ import sys
 import tarfile
 import tempfile
 import unittest
+from unittest.mock import patch
 import zipfile
 
 ROOT = Path(__file__).resolve().parents[1]
 
 
 class Screening(unittest.TestCase):
+    def test_history_scan_uses_isolated_git_location_and_fails_closed_without_git(self):
+        from release.secrets import scan
+        with tempfile.TemporaryDirectory() as temporary:
+            root = Path(temporary).resolve()
+            repo, tools, missing = [root / name for name in ["repo", "usr/local/bin", "missing"]]
+            for directory in [repo, tools, missing]:
+                directory.mkdir(parents=True)
+            (tools / "git").symlink_to(shutil.which("git"))
+            env = {**environment(root), "PATH": str(tools), "GIT_CONFIG_NOSYSTEM": "1"}
+            for args in [["init", "--quiet"], ["-c", "user.name=Fixture", "-c", "user.email=fixture@example.invalid",
+                          "commit", "--quiet", "--allow-empty", "-m", "Initial fixture"]]:
+                subprocess.run(["git", "-C", str(repo), *args], env=env, check=True, capture_output=True)
+            original_search = os.get_exec_path
+            def isolated_search(env=None):
+                # Relocate fixed system directories into owned scratch. Real
+                # subprocess lookup and Git still execute; no host tools change.
+                return [str(tools) if entry == "/usr/local/bin" else str(missing)
+                        for entry in original_search(env)]
+            with patch("os.defpath", str(missing)), patch("os.get_exec_path", side_effect=isolated_search), patch.dict(os.environ, {"PATH": str(missing)}):
+                self.assertEqual(scan("history", repo, ROOT / "target/security-tools"), 0)
+                (tools / "git").unlink()
+                with self.assertRaises(FileNotFoundError):
+                    scan("history", repo, ROOT / "target/security-tools")
+
     def test_scanner_rejects_historical_and_nested_artifact_secrets_without_disclosure(self):
         with tempfile.TemporaryDirectory() as temporary:
             root = Path(temporary).resolve()
