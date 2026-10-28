@@ -159,7 +159,14 @@
           "description": "Exact native participant identifier supporting admission."
         },
         "name": {
-          "$ref": "#/$defs/Text",
+          "anyOf": [
+            {
+              "$ref": "#/$defs/Text"
+            },
+            {
+              "type": "null"
+            }
+          ],
           "description": "Native source name."
         },
         "participant_total": {
@@ -170,7 +177,10 @@
         },
         "predicted": {
           "description": "Literal native predictedComplex flag.",
-          "type": "boolean"
+          "type": [
+            "boolean",
+            "null"
+          ]
         },
         "taxon": {
           "description": "Source taxonomy identifier.",
@@ -186,9 +196,7 @@
       },
       "required": [
         "id",
-        "name",
         "taxon",
-        "predicted",
         "participant_total",
         "matched_participant",
         "url"
@@ -735,7 +743,7 @@
       "type": "string"
     }
   },
-  "$id": "biomcp.protein-complexes/2",
+  "$id": "biomcp.protein-complexes/3",
   "$schema": "https://json-schema.org/draft/2020-12/schema",
   "additionalProperties": false,
   "description": "One versioned command response; schema identity comes only from its body type.",
@@ -792,7 +800,7 @@
       "description": "Answer when available."
     },
     "schema": {
-      "const": "biomcp.protein-complexes/2",
+      "const": "biomcp.protein-complexes/3",
       "type": "string"
     },
     "sources": {

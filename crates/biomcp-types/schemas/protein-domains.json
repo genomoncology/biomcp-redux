@@ -315,7 +315,14 @@
           "description": "Source record and release facts."
         },
         "entry_type": {
-          "$ref": "#/$defs/Text",
+          "anyOf": [
+            {
+              "$ref": "#/$defs/Text"
+            },
+            {
+              "type": "null"
+            }
+          ],
           "description": "Literal source entry type, including family, site and repeat."
         },
         "id": {
@@ -337,7 +344,14 @@
           "type": "array"
         },
         "name": {
-          "$ref": "#/$defs/Text",
+          "anyOf": [
+            {
+              "$ref": "#/$defs/Text"
+            },
+            {
+              "type": "null"
+            }
+          ],
           "description": "Native integrated name."
         },
         "protein": {
@@ -365,8 +379,6 @@
       },
       "required": [
         "id",
-        "name",
-        "entry_type",
         "protein",
         "attribution"
       ],
@@ -963,7 +975,7 @@
       "type": "string"
     }
   },
-  "$id": "biomcp.protein-domains/2",
+  "$id": "biomcp.protein-domains/3",
   "$schema": "https://json-schema.org/draft/2020-12/schema",
   "additionalProperties": false,
   "description": "One versioned command response; schema identity comes only from its body type.",
@@ -1020,7 +1032,7 @@
       "description": "Answer when available."
     },
     "schema": {
-      "const": "biomcp.protein-domains/2",
+      "const": "biomcp.protein-domains/3",
       "type": "string"
     },
     "sources": {
