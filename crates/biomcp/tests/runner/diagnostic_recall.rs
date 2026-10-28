@@ -7,6 +7,8 @@ pub(super) fn trials() -> Vec<Trial> {
         firm().map_err(Into::into)
     }), Trial::test("diagnostic-device-recall/exact-card-native-ids-and-classification", || {
         cards().map_err(Into::into)
+    }), Trial::test("diagnostic-device-recall/invalid-selectors-before-io", || {
+        invalid().map_err(Into::into)
     })]
 }
 fn firm() -> Result<(), String> {
@@ -101,5 +103,34 @@ fn cards() -> Result<(), String> {
         if cli != tool || cli.get("result") != card.get("result") { return Err("recall replay changed result".into()); }
         if stub.finish()?.len() != 2 { return Err("recall get did not make exactly two source calls".into()); }
     }
+    Ok(())
+}
+
+fn invalid() -> Result<(), String> {
+    let stub = Stub::for_source("api.fda.gov", "application/json", |_| Err("invalid selector reached HTTP".into()))?;
+    let env = environment(&stub)?;
+    for words in [
+        vec!["search","diagnostic","--source","fda-device-recall","--gene","BRAF"],
+        vec!["search","diagnostic","--source","fda-device-recall","--marker","Synthetic"],
+        vec!["search","diagnostic","--source","fda-device-recall","--bundle-revision","synthetic"],
+        vec!["search","diagnostic","--source","fda-device-recall","--initiated-from","2024-02-30"],
+        vec!["search","diagnostic","--source","fda-device-recall","--initiated-from","2024"],
+        vec!["search","diagnostic","--source","fda-device-recall","--initiated-from","2024-02-01","--initiated-to","2024-01-01"],
+        vec!["search","diagnostic","--source","gtr","--product-code","ABC"],
+        vec!["search","diagnostic","--source","who-ivd","--initiated-to","2024-01-01"],
+        vec!["get","diagnostic","Z-1-2024","--source","fda-device-recall"],
+        vec!["get","diagnostic","K000001","--source","fda-device-recall"],
+        vec!["get","diagnostic","Z-0001-2024","genes","--source","fda-device-recall"],
+        vec!["get","diagnostic","Z-0001-2024","--source","fda-device-recall","--section-limit","1"],
+        vec!["get","diagnostic","Z-0001-2024","--source","fda-device-recall","--section-offset","1"],
+        vec!["get","diagnostic","Z-0001-2024","--source","fda-device-recall","--supplement","S001"],
+        vec!["get","diagnostic","Z-0001-2024","--source","fda-device-recall","--bundle-revision","synthetic"],
+    ] {
+        let args = words.into_iter().map(str::to_owned).collect::<Vec<_>>();
+        let cli = invoke(&env,args.clone(),2)?;
+        let tool = mcp::call_with_globals(&env,&args,true,&[])?;
+        if cli != tool || cli.get("error").is_none() { return Err(format!("selector accepted: {args:?}: {cli} / {tool}")); }
+    }
+    if !stub.finish()?.is_empty() { return Err("invalid recall selector opened network".into()); }
     Ok(())
 }
