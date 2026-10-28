@@ -1,5 +1,6 @@
 //! Compare selected harvested facts through both actual executables.
 use super::{Case, Step, assertions, launch::Environment, load_floors};
+use crate::runner::transcript::trial as transcript_trial;
 use serde::Deserialize;
 use serde_json::{Value, json};
 use std::{collections::BTreeMap, fs, path::Path, process::ExitCode};
@@ -503,7 +504,7 @@ fn verdict(output: &Value, pointer: &str, assertion: &assertions::Assertion<'_>)
 // Harness contract: the public mode must reject an actual binary of the wrong release.
 pub(super) fn trials() -> Vec<libtest_mimic::Trial> {
     let mut trials = shared_proof::trials();
-    trials.push(libtest_mimic::Trial::test(
+    trials.push(transcript_trial(
         "parity/reject-wrong-baseline-release",
         || {
             let env = Environment::new().map_err(|e| e.to_string())?;

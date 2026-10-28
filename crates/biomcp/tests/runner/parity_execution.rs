@@ -40,7 +40,7 @@ pub(super) fn invoke(
     invoke_command(env.command(binary, args), args, out)
 }
 pub(super) fn invoke_command(
-    mut command: std::process::Command,
+    mut command: super::super::capture::Capture,
     args: &[String],
     out: &Path,
 ) -> Result<Value, String> {
@@ -51,6 +51,9 @@ pub(super) fn invoke_command(
         .spawn()
         .map_err(|e| e.to_string())?;
     let (status, stdout, stderr) = super::super::process::Process::new(child)?.finish()?;
+    command
+        .record(status, &stdout, "cli")
+        .map_err(|e| e.to_string())?;
     let elapsed = started.elapsed().as_micros();
     let stdout_path = out.with_extension("stdout");
     let stderr_path = out.with_extension("stderr");

@@ -137,6 +137,8 @@ canonical_enum! {
         FdaPma => "fda-pma",
         /// FDA native 510(k) clearance records.
         Fda510k => "fda-510k",
+        /// openFDA medical device product recall records.
+        FdaDeviceRecall => "fda-device-recall",
         /// Clinical Pharmacogenetics Implementation Consortium.
         Cpic => "cpic",
         /// ClinPGx pharmacogenomics annotations.

@@ -2,14 +2,14 @@
   "$defs": {
     "Build": {
       "description": "The assembly stated by the source; no default is inferred.",
-      "enum": [
-        "GRCh37",
-        "GRCh38"
-      ],
       "type": "string",
       "x-enum-descriptions": [
         " Genome Reference Consortium human build 37.",
         " Genome Reference Consortium human build 38."
+      ],
+      "x-extensible-enum": [
+        "GRCh37",
+        "GRCh38"
       ]
     },
     "Chromosome": {
@@ -17,26 +17,25 @@
       "pattern": "^([1-9]|1[0-9]|2[0-2]|X|Y|MT)$",
       "type": "string"
     },
-    "Cytoband": {
-      "description": " A single nuclear cytogenetic band, without a range or location descriptor.",
-      "pattern": "^([1-9]|1[0-9]|2[0-2]|X|Y)[pq][1-9][0-9](\\.[0-9]+)?$",
-      "type": "string"
-    },
     "EnsemblGeneId": {
       "description": " A human Ensembl gene stable identifier with a separately retained version.",
       "pattern": "^ENSG[0-9]{11}(\\.[1-9][0-9]*)?$",
       "type": "string"
     },
+    "GeneLocation": {
+      "description": "HGNC location text with a parsed interpretation when its syntax is known.",
+      "type": "string"
+    },
     "GeneStatus": {
       "description": "HGNC approval status.",
-      "enum": [
-        "approved",
-        "withdrawn"
-      ],
       "type": "string",
       "x-enum-descriptions": [
         " An HGNC approved record.",
         " An HGNC withdrawn record."
+      ],
+      "x-extensible-enum": [
+        "approved",
+        "withdrawn"
       ]
     },
     "GeneSymbol": {
@@ -45,7 +44,6 @@
       "type": "string"
     },
     "GenomicInterval": {
-      "additionalProperties": false,
       "description": "An assembly-qualified zero-based half-open source interval.",
       "properties": {
         "build": {
@@ -92,13 +90,6 @@
     },
     "LocusGroup": {
       "description": "HGNC locus group, separate from a missing source value.",
-      "enum": [
-        "protein_coding",
-        "non_coding_rna",
-        "pseudogene",
-        "phenotype",
-        "other"
-      ],
       "type": "string",
       "x-enum-descriptions": [
         " Protein coding.",
@@ -106,37 +97,17 @@
         " Pseudogene.",
         " Phenotype.",
         " HGNC's stated other group."
+      ],
+      "x-extensible-enum": [
+        "protein_coding",
+        "non_coding_rna",
+        "pseudogene",
+        "phenotype",
+        "other"
       ]
     },
     "LocusType": {
       "description": "HGNC locus type; Unknown is a source-stated value, distinct from absence.",
-      "enum": [
-        "gene_with_protein_product",
-        "rna_cluster",
-        "long_non_coding_rna",
-        "micro_rna",
-        "misc_rna",
-        "ribosomal_rna",
-        "small_nuclear_rna",
-        "small_nucleolar_rna",
-        "transfer_rna",
-        "vault_rna",
-        "y_rna",
-        "phenotype_only",
-        "pseudogene",
-        "complex_locus_constituent",
-        "endogenous_retrovirus",
-        "fragile_site",
-        "immunoglobulin_gene",
-        "immunoglobulin_pseudogene",
-        "readthrough",
-        "region",
-        "t_cell_receptor_gene",
-        "t_cell_receptor_pseudogene",
-        "transposable_element",
-        "unknown",
-        "virus_integration_site"
-      ],
       "type": "string",
       "x-enum-descriptions": [
         " HGNC gene with protein product.",
@@ -164,10 +135,36 @@
         " HGNC transposable element.",
         " HGNC unknown.",
         " HGNC virus integration site."
+      ],
+      "x-extensible-enum": [
+        "gene_with_protein_product",
+        "rna_cluster",
+        "long_non_coding_rna",
+        "micro_rna",
+        "misc_rna",
+        "ribosomal_rna",
+        "small_nuclear_rna",
+        "small_nucleolar_rna",
+        "transfer_rna",
+        "vault_rna",
+        "y_rna",
+        "phenotype_only",
+        "pseudogene",
+        "complex_locus_constituent",
+        "endogenous_retrovirus",
+        "fragile_site",
+        "immunoglobulin_gene",
+        "immunoglobulin_pseudogene",
+        "readthrough",
+        "region",
+        "t_cell_receptor_gene",
+        "t_cell_receptor_pseudogene",
+        "transposable_element",
+        "unknown",
+        "virus_integration_site"
       ]
     },
     "Mane": {
-      "additionalProperties": false,
       "description": "A source-stated MANE pair with versioned sequence accessions.",
       "properties": {
         "ensembl": {
@@ -194,14 +191,14 @@
     },
     "ManeStatus": {
       "description": "The source-stated MANE transcript status.",
-      "enum": [
-        "select",
-        "plus_clinical"
-      ],
       "type": "string",
       "x-enum-descriptions": [
         " MANE Select transcript pair.",
         " MANE Plus Clinical transcript pair."
+      ],
+      "x-extensible-enum": [
+        "select",
+        "plus_clinical"
       ]
     },
     "NcbiGeneId": {
@@ -220,7 +217,6 @@
       "type": "string"
     },
     "Span0": {
-      "additionalProperties": false,
       "description": "A zero-based half-open span with ordered bounds; empty spans are valid.",
       "properties": {
         "end": {
@@ -244,18 +240,17 @@
     },
     "Strand": {
       "description": "Source-stated forward or reverse strand.",
-      "enum": [
-        "+",
-        "-"
-      ],
       "type": "string",
       "x-enum-descriptions": [
         " Forward strand.",
         " Reverse strand."
+      ],
+      "x-extensible-enum": [
+        "+",
+        "-"
       ]
     },
     "Summary": {
-      "additionalProperties": false,
       "description": "A whole source-provided summary with attribution and stated date precision.",
       "properties": {
         "dated": {
@@ -286,12 +281,12 @@
     },
     "SummarySource": {
       "description": "The attribution on a source-provided summary, independent of fetch providers.",
-      "enum": [
-        "refseq"
-      ],
       "type": "string",
       "x-enum-descriptions": [
         " RefSeq attribution."
+      ],
+      "x-extensible-enum": [
+        "refseq"
       ]
     },
     "Text": {
@@ -305,9 +300,8 @@
       "type": "string"
     }
   },
-  "$id": "biodata.gene/3",
+  "$id": "biodata.gene/4",
   "$schema": "https://json-schema.org/draft/2020-12/schema",
-  "additionalProperties": false,
   "description": "Human gene identity and whole source annotations, independent of response cards.",
   "properties": {
     "aliases": {
@@ -346,13 +340,13 @@
     "location": {
       "anyOf": [
         {
-          "$ref": "#/$defs/Cytoband"
+          "$ref": "#/$defs/GeneLocation"
         },
         {
           "type": "null"
         }
       ],
-      "description": "Single stated band, if available."
+      "description": "Source-stated location, including unparsed publisher text."
     },
     "locus_group": {
       "$ref": "#/$defs/LocusGroup",

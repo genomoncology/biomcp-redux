@@ -7,7 +7,6 @@ pub use query::{PhenotypeGet, PhenotypeSearch, PhenotypeSection, PhenotypeSource
 use serde::{Deserialize, Serialize};
 /// Independent source identity card and its available sections.
 #[derive(Clone, Debug, PartialEq, Serialize, Deserialize)]
-#[serde(deny_unknown_fields)]
 #[cfg_attr(feature = "schema", derive(schemars::JsonSchema))]
 pub struct PhenotypeTermCard {
     /// Complete source-specific native card.
@@ -27,7 +26,6 @@ macro_rules! page {
     ($name:ident, $row:ty, $query:ty, $schema:literal, $doc:literal) => {
         #[doc = $doc]
         #[derive(Clone, Debug, PartialEq, Serialize, Deserialize)]
-        #[serde(deny_unknown_fields)]
         #[cfg_attr(feature = "schema", derive(schemars::JsonSchema))]
         pub struct $name {
             /// Native ordered rows; empty remains an empty collection.
@@ -78,7 +76,6 @@ macro_rules! associations {
     ($name:ident, $schema:literal, $doc:literal) => {
         #[doc = $doc]
         #[derive(Clone, Debug, PartialEq, Serialize, Deserialize)]
-        #[serde(deny_unknown_fields)]
         #[cfg_attr(feature = "schema", derive(schemars::JsonSchema))]
         pub struct $name {
             /// Native association rows in source order, without deduplication.

@@ -1,11 +1,12 @@
 //! Optional retained-body replay; publisher bodies remain outside Git.
 use super::Check;
+use crate::runner::transcript::trial as transcript_trial;
 use libtest_mimic::Trial;
 use serde_json::{Value, json};
 use sha2::{Digest, Sha256};
 use std::path::{Path, PathBuf};
 pub(super) fn trials() -> Vec<Trial> {
-    let mut tests = vec![Trial::test(
+    let mut tests = vec![transcript_trial(
         "drug-approvals/native-proof-retains-success-and-failure",
         || retention().map_err(Into::into),
     )];
@@ -16,7 +17,7 @@ pub(super) fn trials() -> Vec<Trial> {
         (0..15)
             .map(|n| {
                 let root = PathBuf::from(&root);
-                Trial::test(format!("drug-approvals/native-retained-{n}"), move || {
+                transcript_trial(format!("drug-approvals/native-retained-{n}"), move || {
                     native(&root, n).map_err(Into::into)
                 })
             })

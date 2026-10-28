@@ -168,11 +168,6 @@ dependencies = [
 name = "biomcp"
 version = "1.0.0"
 dependencies = [
- "prost",
- "tonic",
- "tokio-rustls",
- "tokio",
- "h2",
  "base64 0.23.1",
  "biodata",
  "biomcp-adapters",
@@ -181,10 +176,12 @@ dependencies = [
  "biomcp-types",
  "clap",
  "ctrlc",
+ "h2",
  "httparse",
  "jsonschema",
  "libtest-mimic",
  "nix",
+ "prost",
  "rcgen",
  "rpassword",
  "rusqlite",
@@ -196,7 +193,10 @@ dependencies = [
  "shlex",
  "tempfile",
  "time",
+ "tokio",
+ "tokio-rustls",
  "toml",
+ "tonic",
 ]
 
 [[package]]
@@ -210,6 +210,7 @@ dependencies = [
  "csv",
  "quick-xml",
  "serde",
+ "serde_ignored",
  "serde_json",
  "tempfile",
  "zip",
@@ -2020,6 +2021,16 @@ dependencies = [
  "proc-macro2",
  "quote",
  "syn 3.0.9",
+]
+
+[[package]]
+name = "serde_ignored"
+version = "0.1.14"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "115dffd5f3853e06e746965a20dcbae6ee747ae30b543d91b0e089668bb07798"
+dependencies = [
+ "serde",
+ "serde_core",
 ]
 
 [[package]]

@@ -1,21 +1,22 @@
 //! Synthetic sync faults keep both previously accepted catalogs intact.
 use super::{Check, Environment, call, fixtures};
+use crate::runner::transcript::trial as transcript_trial;
 use libtest_mimic::Trial;
 use serde_json::{Value, json};
 pub(super) fn trials() -> Vec<Trial> {
     vec![
-        Trial::test(
+        transcript_trial(
             "pathway-failures/synthetic-wikipathways-rejected-identity",
             || rejected_identity().map_err(Into::into),
         ),
-        Trial::test(
+        transcript_trial(
             "pathway-failures/synthetic-wikipathways-human-scope-absence",
             || identities().map_err(Into::into),
         ),
-        Trial::test("pathway-failures/synthetic-wikipathways-sync", || {
+        transcript_trial("pathway-failures/synthetic-wikipathways-sync", || {
             failures().map_err(Into::into)
         }),
-        Trial::test(
+        transcript_trial(
             "pathway-failures/synthetic-partial-independent-legs",
             || partial().map_err(Into::into),
         ),

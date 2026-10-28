@@ -1,4 +1,4 @@
-use std::{fs, io, path::Path, process::Command, sync::Arc};
+use std::{fs, io, path::Path, sync::Arc};
 
 #[path = "../../../biomcp-fetch/tests/support/environment.rs"]
 mod child_environment;
@@ -7,6 +7,7 @@ pub(super) use child_environment::ENV_PATHS;
 #[derive(Debug)]
 pub(super) struct Environment {
     root: Arc<tempfile::TempDir>,
+    transcript: Option<Arc<super::transcript::Context>>,
 }
 
 impl Environment {
@@ -14,6 +15,7 @@ impl Environment {
         let root = child_environment::new()?;
         Ok(Self {
             root: Arc::new(root),
+            transcript: super::transcript::current(),
         })
     }
 
@@ -48,15 +50,29 @@ impl Environment {
         self.root.path()
     }
 
+    pub(super) fn command(
+        &self,
+        program: impl AsRef<Path>,
+        args: &[String],
+    ) -> super::capture::Capture {
+        self.command_with_arguments(program, args, args)
+    }
+
     // All case steps and launch-boundary proofs use this child-only boundary.
     #[expect(
         clippy::disallowed_methods,
         reason = "The launcher alone selects an explicitly installed artifact"
     )]
-    pub(super) fn command(&self, program: impl AsRef<Path>, args: &[String]) -> Command {
+    pub(super) fn command_with_arguments(
+        &self,
+        program: impl AsRef<Path>,
+        args: &[String],
+        transcript_args: &[String],
+    ) -> super::capture::Capture {
         let mut command =
             child_environment::command(&executable(program.as_ref()), self.root.path(), args);
-        if std::env::current_exe().is_ok_and(|runner| runner == program.as_ref()) {
+        let nested = std::env::current_exe().is_ok_and(|runner| runner == program.as_ref());
+        if nested {
             // Nested runner proofs must retain the selection, never falling
             // back to Cargo's binary merely because a helper cleared its env.
             for key in ["BIOMCP_TEST_EXECUTABLE", "BIOMCP_TEST_FIXTURES"] {
@@ -65,7 +81,16 @@ impl Environment {
                 }
             }
         }
-        command
+        super::capture::Capture::new(
+            command,
+            if !nested {
+                self.transcript.clone()
+            } else {
+                None
+            },
+            transcript_args,
+            self.root.path(),
+        )
     }
 }
 

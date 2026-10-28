@@ -1,5 +1,6 @@
 //! Feature disease-ols: literal ontology discovery and exact source concepts.
 use super::{launch::Environment, network_stub::Stub};
+use crate::runner::transcript::trial as transcript_trial;
 use libtest_mimic::Trial;
 use serde_json::{Value, json};
 use std::io::Write;
@@ -8,33 +9,33 @@ mod native;
 pub(super) use native::run as native;
 pub(super) fn trials() -> Vec<Trial> {
     vec![
-        Trial::test("disease-ols/retired-spellings-never-open-source", || {
+        transcript_trial("disease-ols/retired-spellings-never-open-source", || {
             retired_requests().map_err(Into::into)
         }),
-        Trial::test(
+        transcript_trial(
             "disease-ols/literal-zero-never-repairs-to-exact-get",
             || literal_zero().map_err(Into::into),
         ),
-        Trial::test("disease-ols/max-page-keeps-all-candidate-actions", || {
+        transcript_trial("disease-ols/max-page-keeps-all-candidate-actions", || {
             maximum().map_err(Into::into)
         }),
-        Trial::test("disease-ols/native-order-and-literal-selectors", || {
+        transcript_trial("disease-ols/native-order-and-literal-selectors", || {
             search().map_err(Into::into)
         }),
-        Trial::test(
+        transcript_trial(
             "disease-ols/exact-identity-and-independent-sections",
             || exact().map_err(Into::into),
         ),
-        Trial::test("disease-ols/refuses-wrong-record-before-cache", || {
+        transcript_trial("disease-ols/refuses-wrong-record-before-cache", || {
             wrong().map_err(Into::into)
         }),
-        Trial::test("disease-ols/empty-is-not-provider-failure", || {
+        transcript_trial("disease-ols/empty-is-not-provider-failure", || {
             failures().map_err(Into::into)
         }),
-        Trial::test("disease-ols/timeout-retains-source-terms", || {
+        transcript_trial("disease-ols/timeout-retains-source-terms", || {
             timeout().map_err(Into::into)
         }),
-        Trial::test("disease-ols/disabled-component-bypasses-cache", || {
+        transcript_trial("disease-ols/disabled-component-bypasses-cache", || {
             disabled().map_err(Into::into)
         }),
     ]

@@ -26,8 +26,8 @@ pub use id::{Cytoband, EnsemblGeneId, GeneSymbol, HgncId, NcbiGeneId, OmimId, Un
 
 mod gene;
 pub use gene::{
-    Gene, GeneRef, GeneStatus, HgncStatus, LocusGroup, LocusType, Mane, ManeStatus, MatchKind,
-    Summary, SummarySource,
+    Gene, GeneLocation, GeneLocationKind, GeneRef, GeneStatus, HgncStatus, LocusGroup, LocusType,
+    Mane, ManeStatus, MatchKind, Summary, SummarySource,
 };
 
 pub use coord::{Build, Contig, GenomicInterval, Strand};
@@ -81,10 +81,10 @@ pub use variant::{
     Term, VariantRef,
 };
 
-pub use variant::{PopulationDataType, PopulationFrequency, PopulationSex};
+pub use variant::{GenotypeFilter, PopulationDataType, PopulationFrequency, PopulationSex};
 
 mod number;
-pub use number::{FiniteNumber, FiniteNumberError};
+pub use number::{FiniteNumber, FiniteNumberError, Fraction};
 
 pub use variant::PredictorScore;
 

@@ -1,9 +1,10 @@
 //! Article Markdown presents dropped-word notices before article records.
 use super::launch::Environment;
+use crate::runner::transcript::trial as transcript_trial;
 use libtest_mimic::Trial;
 
 pub(super) fn trials() -> Vec<Trial> {
-    vec![Trial::test(
+    vec![transcript_trial(
         "article-search/dropped-words-precede-articles",
         || check().map_err(Into::into),
     )]

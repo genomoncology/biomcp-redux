@@ -6,9 +6,10 @@ use biomcp_types::{PgxAnnotationGet, PgxAnnotationKind, PgxGet};
 use serde::Deserialize;
 /// Bounded whole native collection with no claimed server-wide total.
 #[derive(Debug, Deserialize)]
-#[serde(deny_unknown_fields)]
+#[serde(deny_unknown_fields, bound(deserialize = "T: Deserialize<'de>"))]
 struct Native<T> {
     /// Complete native result.
+    #[serde(deserialize_with = "crate::strict_input::deserialize")]
     data: T,
     status: Box<str>,
 }

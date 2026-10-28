@@ -6,7 +6,12 @@ use serde::{Deserialize, Serialize};
 #[serde(try_from = "GetFields")]
 #[cfg_attr(feature = "schema", derive(schemars::JsonSchema))]
 #[cfg_attr(feature = "schema", schemars(with = "GetFields"))]
-pub struct DiagnosticGet(GetFields);
+pub struct DiagnosticGet {
+    #[serde(flatten)]
+    fields: GetFields,
+    #[serde(skip)]
+    recall_number: Option<biodata::DeviceRecallNumber>,
+}
 #[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
 #[serde(deny_unknown_fields)]
 #[cfg_attr(feature = "schema", derive(schemars::JsonSchema))]
@@ -14,9 +19,11 @@ struct GetFields {
     /// Exact native identity, including version for GTR.
     #[cfg_attr(feature = "schema", schemars(extend("x-positional" = 0)))]
     id: Text,
-    /// Explicit source; gtr needs accession/version, who-ivd a known Product ID, fda-pma a P number, fda-510k a K number.
+    /// Explicit source: GTR accession/version, WHO Product ID, PMA P number,
+    /// 510(k) K number or device recall Z-NNNN-YYYY.
     source: DiagnosticGetSource,
-    /// gtr: genes, conditions, methods. fda-pma: regulatory, supplements. WHO and 510(k) have no sections; omit for the card.
+    /// GTR: genes, conditions, methods. PMA: regulatory, supplements.
+    /// WHO, 510(k) and device recalls have no sections; omit for the card.
     #[serde(default, skip_serializing_if = "Option::is_none")]
     #[cfg_attr(feature = "schema", schemars(extend("x-positional" = 1)))]
     section: Option<DiagnosticSection>,
@@ -42,34 +49,50 @@ crate::query::validation::checked_query!(DiagnosticGet, GetFields);
 impl TryFrom<GetFields> for DiagnosticGet {
     type Error = QueryInvalid;
     fn try_from(v: GetFields) -> Result<Self, Self::Error> {
+        let recall_number = if v.source == DiagnosticGetSource::FdaDeviceRecall {
+            Some(
+                v.id.as_str()
+                    .parse()
+                    .map_err(|_| QueryInvalid::new(&["id", "source"]))?,
+            )
+        } else {
+            None
+        };
         validate_source(&v)?;
         if v.section_limit.is_some_and(|v| !(1..=50).contains(&v)) {
             return Err(QueryInvalid::new(&["section_limit"]));
         }
-        Ok(Self(v))
+        Ok(Self {
+            fields: v,
+            recall_number,
+        })
     }
 }
 impl DiagnosticGet {
     /// Exact checked source identity.
     pub fn id(&self) -> &Text {
-        &self.0.id
+        &self.fields.id
+    }
+    /// Native recall identity parsed once by the checked input boundary.
+    pub fn recall_number(&self) -> Option<&biodata::DeviceRecallNumber> {
+        self.recall_number.as_ref()
     }
     /// Explicit selected source.
     pub fn source(&self) -> DiagnosticGetSource {
-        self.0.source
+        self.fields.source
     }
     /// One supported named page.
     pub fn section(&self) -> Option<DiagnosticSection> {
-        self.0.section
+        self.fields.section
     }
     /// Explicit selected supplement, absent for the base.
     pub fn supplement(&self) -> Option<&PmaSupplement> {
-        self.0.supplement.as_ref()
+        self.fields.supplement.as_ref()
     }
     /// Maximum rows or fragments per section page.
     pub fn section_limit(&self) -> u32 {
-        self.0.section_limit.unwrap_or_else(|| {
-            if self.0.section == Some(DiagnosticSection::Regulatory) {
+        self.fields.section_limit.unwrap_or_else(|| {
+            if self.fields.section == Some(DiagnosticSection::Regulatory) {
                 1
             } else {
                 limit()
@@ -78,21 +101,21 @@ impl DiagnosticGet {
     }
     /// Native row or text-fragment offset.
     pub fn section_offset(&self) -> u32 {
-        self.0.section_offset
+        self.fields.section_offset
     }
     /// Stored source snapshot.
     pub fn bundle_revision(&self) -> Option<&Text> {
-        self.0.bundle_revision.as_ref()
+        self.fields.bundle_revision.as_ref()
     }
     /// Continue the exact selected section and record.
     pub fn at_section_offset(&self, offset: u32) -> Self {
         let mut q = self.clone();
-        q.0.section_offset = offset;
+        q.fields.section_offset = offset;
         q
     }
     /// Select a supported section; invalid source combinations remain refused.
     pub fn with_section(&self, section: DiagnosticSection) -> Result<Self, QueryInvalid> {
-        let mut q = self.0.clone();
+        let mut q = self.fields.clone();
         q.section = Some(section);
         q.section_offset = 0;
         q.try_into()
@@ -100,7 +123,7 @@ impl DiagnosticGet {
     /// Bind the selected record to one immutable stored revision.
     pub fn with_bundle_revision(&self, revision: Text) -> Self {
         let mut q = self.clone();
-        q.0.bundle_revision = Some(revision);
+        q.fields.bundle_revision = Some(revision);
         q
     }
 }
@@ -108,6 +131,7 @@ impl DiagnosticGet {
 fn validate_source(v: &GetFields) -> Result<(), QueryInvalid> {
     let valid_id = match v.source {
         DiagnosticGetSource::Gtr => v.id.as_str().parse::<GtrTestId>().is_ok(),
+        DiagnosticGetSource::FdaDeviceRecall => true,
         DiagnosticGetSource::WhoIvd => v.id.as_str().parse::<WhoProductId>().is_ok(),
         DiagnosticGetSource::Fda510k => {
             v.id.as_str().parse::<biodata::DiagnosticDeviceId>().is_ok()
@@ -131,7 +155,9 @@ fn validate_source(v: &GetFields) -> Result<(), QueryInvalid> {
             v.section,
             None | Some(DiagnosticSection::Regulatory | DiagnosticSection::Supplements)
         ),
-        DiagnosticGetSource::WhoIvd | DiagnosticGetSource::Fda510k => v.section.is_none(),
+        DiagnosticGetSource::WhoIvd
+        | DiagnosticGetSource::Fda510k
+        | DiagnosticGetSource::FdaDeviceRecall => v.section.is_none(),
     };
     if !valid_section {
         return Err(QueryInvalid::new(&["section", "source"]));
@@ -144,7 +170,9 @@ fn validate_source(v: &GetFields) -> Result<(), QueryInvalid> {
     }
     if matches!(
         v.source,
-        DiagnosticGetSource::WhoIvd | DiagnosticGetSource::Fda510k
+        DiagnosticGetSource::WhoIvd
+            | DiagnosticGetSource::Fda510k
+            | DiagnosticGetSource::FdaDeviceRecall
     ) {
         if v.section_limit.is_some() {
             return Err(QueryInvalid::new(&["section_limit", "source"]));
@@ -153,7 +181,11 @@ fn validate_source(v: &GetFields) -> Result<(), QueryInvalid> {
             return Err(QueryInvalid::new(&["section_offset", "source"]));
         }
     }
-    if v.source == DiagnosticGetSource::Fda510k && v.bundle_revision.is_some() {
+    if matches!(
+        v.source,
+        DiagnosticGetSource::Fda510k | DiagnosticGetSource::FdaDeviceRecall
+    ) && v.bundle_revision.is_some()
+    {
         return Err(QueryInvalid::new(&["bundle_revision", "source"]));
     }
     Ok(())

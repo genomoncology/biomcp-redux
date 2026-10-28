@@ -7,6 +7,7 @@ use super::{
     launch::Environment,
     response_cases::{checked_steps, copy_capture},
 };
+use crate::runner::transcript::trial as transcript_trial;
 use libtest_mimic::Trial;
 use serde_json::{Value, json};
 use std::fs;
@@ -23,19 +24,19 @@ const IDS: [&str; 8] = [
 ];
 pub(super) fn trials() -> Vec<Trial> {
     vec![
-        Trial::test("trial/get/absent-fields-and-version-failure", || {
+        transcript_trial("trial/get/absent-fields-and-version-failure", || {
             optional_source().map_err(|e| e.to_string().into())
         }),
-        Trial::test("trial/get/exact-source-section-walks", || {
+        transcript_trial("trial/get/exact-source-section-walks", || {
             walks().map_err(|e| e.to_string().into())
         }),
-        Trial::test("trial/get/identity-and-failure-boundaries", || {
+        transcript_trial("trial/get/identity-and-failure-boundaries", || {
             failures().map_err(|e| e.to_string().into())
         }),
-        Trial::test("trial/get/independent-input-states", || {
+        transcript_trial("trial/get/independent-input-states", || {
             batch().map_err(|e| e.to_string().into())
         }),
-        Trial::test("trial/get/checked-source-continuations", || {
+        transcript_trial("trial/get/checked-source-continuations", || {
             continuations().map_err(|e| e.to_string().into())
         }),
     ]

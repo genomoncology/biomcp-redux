@@ -1,15 +1,17 @@
 //! Housekeeping selects a stable executable without trusting a different installation.
 use super::{Check, Environment, success};
+use crate::runner::transcript::trial as transcript_trial;
 use libtest_mimic::Trial;
 use serde_json::Value;
 use std::{fs, path::Path};
 
 pub(super) fn trials() -> Vec<Trial> {
-    let mut trials = vec![Trial::test("housekeeping/config-path-fallbacks", || {
-        fallbacks().map_err(|error| error.to_string().into())
-    })];
+    let mut trials = vec![transcript_trial(
+        "housekeeping/config-path-fallbacks",
+        || fallbacks().map_err(|error| error.to_string().into()),
+    )];
     if cfg!(unix) {
-        trials.push(Trial::test(
+        trials.push(transcript_trial(
             "housekeeping/config-survives-symlink-upgrade",
             || upgrade().map_err(|error| error.to_string().into()),
         ));

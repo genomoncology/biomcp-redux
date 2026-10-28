@@ -36,7 +36,7 @@ crate::text_value!(
 );
 /// A source subject reference, never an embedded variant entity.
 #[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
-#[serde(tag = "level", rename_all = "snake_case", deny_unknown_fields)]
+#[serde(tag = "level", rename_all = "snake_case")]
 #[cfg_attr(feature = "schema", derive(schemars::JsonSchema))]
 enum Fields {
     /// Exact allele identifier or reference-qualified notation.
@@ -81,6 +81,15 @@ impl TryFrom<Fields> for VariantRef {
     }
 }
 impl VariantRef {
+    pub(crate) fn allele_accession(&self) -> Option<crate::Accession> {
+        match &self.0 {
+            Fields::Allele(AlleleRef {
+                hgvs: Some(hgvs), ..
+            }) => hgvs.accession().ok(),
+            _ => None,
+        }
+    }
+
     /// Reference one checked source allele identifier.
     pub fn allele(id: VariantId) -> Self {
         Self(Fields::Allele(AlleleRef {
@@ -137,8 +146,8 @@ impl Serialize for VariantRef {
 }
 
 #[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
-#[serde(deny_unknown_fields)]
 #[cfg_attr(feature = "schema", derive(schemars::JsonSchema))]
+#[cfg_attr(feature = "schema", schemars(inline))]
 struct AlleleRef {
     /// Source identifier.
     #[serde(default, skip_serializing_if = "Option::is_none")]
@@ -148,8 +157,8 @@ struct AlleleRef {
     hgvs: Option<HgvsText>,
 }
 #[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
-#[serde(deny_unknown_fields)]
 #[cfg_attr(feature = "schema", derive(schemars::JsonSchema))]
+#[cfg_attr(feature = "schema", schemars(inline))]
 struct ProteinRef {
     /// Source gene.
     gene: GeneRef,
@@ -161,7 +170,7 @@ struct ProteinRef {
     label: Option<Text>,
 }
 #[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
-#[serde(tag = "level", rename_all = "snake_case", deny_unknown_fields)]
+#[serde(tag = "level", rename_all = "snake_case")]
 #[cfg_attr(feature = "schema", derive(schemars::JsonSchema))]
 enum LeafRef {
     Allele(AlleleRef),

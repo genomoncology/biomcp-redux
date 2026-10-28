@@ -1,5 +1,6 @@
 //! CIViC exact membership crosses the real CLI, source policy, POST body and TLS cache.
 use super::{launch::Environment, network_stub::Stub};
+use crate::runner::transcript::trial as transcript_trial;
 use libtest_mimic::Trial;
 use serde_json::{Value, json};
 use std::fs;
@@ -8,33 +9,33 @@ mod vocabulary;
 
 pub(super) fn trials() -> Vec<Trial> {
     vec![
-        Trial::test("drug-civic/unknown-status-keeps-native-claims", || {
+        transcript_trial("drug-civic/unknown-status-keeps-native-claims", || {
             vocabulary::drug_status().map_err(Into::into)
         }),
-        Trial::test(
+        transcript_trial(
             "variant/civic-unknown-stream-vocabulary-keeps-claims",
             || vocabulary::stream_context().map_err(Into::into),
         ),
-        Trial::test("variant/civic-unknown-vocabulary-keeps-claims", || {
+        transcript_trial("variant/civic-unknown-vocabulary-keeps-claims", || {
             vocabulary::unknown().map_err(Into::into)
         }),
-        Trial::test("variant/civic-exact-profile-membership", || {
+        transcript_trial("variant/civic-exact-profile-membership", || {
             exact().map_err(Into::into)
         }),
-        Trial::test("variant/civic-unjoined-profile-is-not-cached", || {
+        transcript_trial("variant/civic-unjoined-profile-is-not-cached", || {
             unjoined().map_err(Into::into)
         }),
-        Trial::test("variant/civic-poisoned-warm-cache-is-rechecked", || {
+        transcript_trial("variant/civic-poisoned-warm-cache-is-rechecked", || {
             poisoned().map_err(Into::into)
         }),
-        Trial::test(
+        transcript_trial(
             "variant/civic-graphql-errors-retain-valid-uncached-facts",
             || graphql_errors().map_err(Into::into),
         ),
-        Trial::test("variant/civic-native-cursor-must-progress", || {
+        transcript_trial("variant/civic-native-cursor-must-progress", || {
             stalled_cursor().map_err(Into::into)
         }),
-        Trial::test(
+        transcript_trial(
             "variant/civic-compound-profile-retains-all-native-members",
             || compound().map_err(Into::into),
         ),

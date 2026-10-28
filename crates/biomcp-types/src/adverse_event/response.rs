@@ -11,7 +11,6 @@ pub use rows::{
 };
 /// Small source report header without a drug title, flattened lists or count buckets.
 #[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
-#[serde(deny_unknown_fields)]
 #[cfg_attr(feature = "schema", derive(schemars::JsonSchema))]
 pub struct AdverseEventHeader {
     /// Exact published source identity.
@@ -40,7 +39,6 @@ AdverseEventReactionMatch {
 }
 /// Ordered report headers; totals count reports with no population denominator.
 #[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
-#[serde(deny_unknown_fields)]
 #[cfg_attr(feature = "schema", derive(schemars::JsonSchema))]
 pub struct AdverseEventPage {
     /// Explicit analyzed reaction selector semantics when a reaction was supplied.
@@ -64,12 +62,11 @@ pub struct AdverseEventPage {
     pub components: Box<[ComponentLabel]>,
 }
 impl ResponseBody for AdverseEventPage {
-    const SCHEMA: &'static str = "biomcp.adverse-event-page/2";
+    const SCHEMA: &'static str = "biomcp.adverse-event-page/3";
     type Query = AdverseEventSearch;
 }
 /// FAERS card with native report-level facts and independent collection lengths.
 #[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
-#[serde(deny_unknown_fields)]
 #[cfg_attr(feature = "schema", derive(schemars::JsonSchema))]
 pub struct AdverseEventFaersCard {
     /// Exact selected report identity.
@@ -123,7 +120,6 @@ impl ResponseBody for AdverseEventFaersCard {
 }
 /// MAUDE card; native device/patient counts remain separate from array lengths.
 #[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
-#[serde(deny_unknown_fields)]
 #[cfg_attr(feature = "schema", derive(schemars::JsonSchema))]
 pub struct AdverseEventMaudeCard {
     /// Exact selected report identity.
@@ -177,7 +173,7 @@ impl ResponseBody for AdverseEventMaudeCard {
 }
 /// One complete-row page tied to the retained report snapshot.
 #[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
-#[serde(deny_unknown_fields, bound(deserialize = "T: Deserialize<'de>"))]
+#[serde(bound(deserialize = "T: Deserialize<'de>"))]
 #[cfg_attr(feature = "schema", derive(schemars::JsonSchema))]
 pub struct AdverseEventRecords<T> {
     /// Source ordered whole rows.
@@ -192,7 +188,6 @@ macro_rules! section {
     ($name:ident, $row:ty, $field:ident, $schema:literal) => {
         /// A bounded report section; all rows belong to the exact header and snapshot.
         #[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
-        #[serde(deny_unknown_fields)]
         #[cfg_attr(feature = "schema", derive(schemars::JsonSchema))]
         pub struct $name {
             /// Exact source report identity and version.
@@ -237,7 +232,6 @@ section!(
 );
 /// One selected original identifier array, owned by an absolute drug index.
 #[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
-#[serde(deny_unknown_fields)]
 #[cfg_attr(feature = "schema", derive(schemars::JsonSchema))]
 pub struct AdverseEventIdentifierRecords {
     /// Absolute native drug-array index within this report snapshot.
@@ -254,7 +248,7 @@ macro_rules! identifiers {
     ($($variant:ident, $field:ident, $wire:literal);+ $(;)?) => {
         /// Exactly one closed named identifier page in its original report snapshot.
         #[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
-        #[serde(tag = "section", deny_unknown_fields)]
+        #[serde(tag = "section")]
         #[cfg_attr(feature = "schema", derive(schemars::JsonSchema))]
         pub enum AdverseEventIdentifiers {
             $(

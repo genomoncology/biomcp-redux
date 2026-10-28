@@ -192,7 +192,6 @@ crate::canonical_enum! {
 #[cfg_attr(feature = "schema", schemars(with = "Fields"))]
 pub struct Expression(Fields);
 #[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
-#[serde(deny_unknown_fields)]
 #[cfg_attr(feature = "schema", derive(schemars::JsonSchema))]
 struct Fields {
     syntax: ExpressionSyntax,

@@ -1,7 +1,6 @@
 {
   "$defs": {
     "Attribution": {
-      "additionalProperties": false,
       "description": "Provenance for one source record.",
       "properties": {
         "evaluated": {
@@ -92,7 +91,6 @@
       "type": "string"
     },
     "StatisticEstimate": {
-      "additionalProperties": false,
       "description": "Source estimate and uncertainty without computed quantities.",
       "properties": {
         "count": {
@@ -152,7 +150,6 @@
       "type": "object"
     },
     "StatisticSelector": {
-      "additionalProperties": false,
       "description": "One source-native selector without a local interpretation.",
       "properties": {
         "code": {
@@ -189,7 +186,6 @@
   },
   "$id": "biodata.disease-statistic/1",
   "$schema": "https://json-schema.org/draft/2020-12/schema",
-  "additionalProperties": false,
   "description": "One native statistics row with requested and returned dimensions.",
   "properties": {
     "attribution": {

@@ -4,7 +4,6 @@ use biodata::{Study, StudyFile, StudyHeader, StudyId, StudyProfile, StudySampleL
 use serde::{Deserialize, Serialize};
 /// Metadata catalog revision and acquisition time; never a biological release date.
 #[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
-#[serde(deny_unknown_fields)]
 #[cfg_attr(feature = "schema", derive(schemars::JsonSchema))]
 pub struct StudySnapshot {
     /// Immutable bundle revision.
@@ -14,7 +13,6 @@ pub struct StudySnapshot {
 }
 /// Source-ordered checked study headers from one retained catalog.
 #[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
-#[serde(deny_unknown_fields)]
 #[cfg_attr(feature = "schema", derive(schemars::JsonSchema))]
 pub struct StudyPage {
     /// Whole source headers, without expanded descriptions.
@@ -31,7 +29,6 @@ impl ResponseBody for StudyPage {
 }
 /// Exact card with independent live section states and catalog provenance.
 #[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
-#[serde(deny_unknown_fields)]
 #[cfg_attr(feature = "schema", derive(schemars::JsonSchema))]
 pub struct StudyCard {
     /// Exact publisher study page for this checked source identity.
@@ -59,7 +56,6 @@ macro_rules! page {
     ($name:ident,$row:ty,$schema:literal) => {
         /// One independently acquired, bounded native metadata collection.
         #[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
-        #[serde(deny_unknown_fields)]
         #[cfg_attr(feature = "schema", derive(schemars::JsonSchema))]
         pub struct $name {
             /// Exact study scope of this collection.
@@ -86,7 +82,6 @@ page!(
 );
 /// One native repository directory page; blob sizes do not describe data content.
 #[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
-#[serde(deny_unknown_fields)]
 #[cfg_attr(feature = "schema", derive(schemars::JsonSchema))]
 pub struct StudyFiles {
     /// Exact study directory scope.

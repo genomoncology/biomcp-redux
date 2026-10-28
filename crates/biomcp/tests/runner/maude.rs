@@ -1,5 +1,6 @@
 //! Feature maude-reports: synthetic source-native device reports through CLI and MCP.
 use super::{configuration::invoke as raw_invoke, launch::Environment, network_stub::Stub};
+use crate::runner::transcript::trial as transcript_trial;
 use libtest_mimic::Trial;
 use serde_json::{Value, json};
 pub(super) type Check = Result<(), String>;
@@ -7,30 +8,30 @@ mod filters;
 pub(super) fn trials() -> Vec<Trial> {
     let mut trials = filters::trials();
     trials.extend(vec![
-        Trial::test("maude-reports/synthetic-snapshot-survives-refresh", || {
+        transcript_trial("maude-reports/synthetic-snapshot-survives-refresh", || {
             super::maude_snapshot::run().map_err(Into::into)
         }),
-        Trial::test(
+        transcript_trial(
             "maude-reports/component-admission-before-cache-replay-http",
             || super::maude_policy::run().map_err(Into::into),
         ),
-        Trial::test(
+        transcript_trial(
             "maude-reports/retained-d03-no-match-adapter-fixture",
             || absence().map_err(Into::into),
         ),
-        Trial::test("maude-reports/synthetic-search-and-card", || {
+        transcript_trial("maude-reports/synthetic-search-and-card", || {
             search_card().map_err(Into::into)
         }),
-        Trial::test("maude-reports/synthetic-complete-section-pages", || {
+        transcript_trial("maude-reports/synthetic-complete-section-pages", || {
             sections().map_err(Into::into)
         }),
-        Trial::test("maude-reports/synthetic-policy-before-io", || {
+        transcript_trial("maude-reports/synthetic-policy-before-io", || {
             policy().map_err(Into::into)
         }),
-        Trial::test("maude-reports/synthetic-wrong-key-never-cached", || {
+        transcript_trial("maude-reports/synthetic-wrong-key-never-cached", || {
             wrong_key().map_err(Into::into)
         }),
-        Trial::test("maude-reports/synthetic-oversized-narrative", || {
+        transcript_trial("maude-reports/synthetic-oversized-narrative", || {
             oversized().map_err(Into::into)
         }),
     ]);

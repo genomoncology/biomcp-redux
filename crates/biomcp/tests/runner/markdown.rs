@@ -1,9 +1,10 @@
 //! The text view must print source Markdown as literal data once; JSON remains the MCP contract.
 use super::launch::Environment;
+use crate::runner::transcript::trial as transcript_trial;
 use libtest_mimic::Trial;
 use serde_json::Value;
 pub(super) fn trials() -> Vec<Trial> {
-    let mut trials = vec![Trial::test(
+    let mut trials = vec![transcript_trial(
         "article/markdown-view-preserves-source-text",
         || check().map_err(Into::into),
     )];

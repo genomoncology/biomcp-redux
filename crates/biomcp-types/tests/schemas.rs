@@ -1,9 +1,15 @@
 //! Public schema contract tests; file I/O stays outside the pure library.
 #![cfg(feature = "schema")]
+#[path = "schemas/annotations.rs"]
+mod annotations;
 #[path = "schemas/compatibility.rs"]
 mod compatibility;
 #[path = "schemas/compatibility_cases.rs"]
 mod compatibility_cases;
+#[path = "schemas/generation.rs"]
+mod generation;
+#[path = "schemas/policy.rs"]
+mod policy;
 #[path = "schemas/release.rs"]
 mod release;
 #[path = "schemas/values.rs"]
@@ -16,6 +22,7 @@ use serde_json::Value;
 use std::{fs, path::Path};
 
 struct Contract {
+    kind: crate::policy::ContractKind,
     name: &'static str,
     id: &'static str,
     generate: fn() -> Value,
@@ -35,9 +42,13 @@ fn generate<T: JsonSchema>() -> Value {
 }
 
 macro_rules! contracts {
-        ($($ty:ty => ($name:literal, $id:expr)),+ $(,)?) => {
-            vec![$(Contract { name: $name, id: $id, generate: generate::<$ty> }),+]
+        ($($ty:ty => ($name:literal, $id:expr $(, $kind:ident)?)),+ $(,)?) => {
+            vec![$(Contract { kind: contracts!(@kind $($kind)?), name: $name, id: $id, generate: contracts!(@generate $ty $(, $kind)?) }),+]
         };
+        (@generate $ty:ty, query) => { crate::generation::query::<$ty> };
+        (@generate $ty:ty) => { crate::generation::reply::<$ty> };
+        (@kind query) => { crate::policy::ContractKind::Query };
+        (@kind) => { crate::policy::ContractKind::Reply };
     }
 
 #[path = "schemas/disease.rs"]
@@ -46,6 +57,7 @@ mod disease;
 fn common_registry() -> Vec<Contract> {
     contracts! {
         Accession => ("accession", "biodata.accession/2"),
+        DeviceRecallNumber => ("device-recall-number", "biodata.device-recall-number/1"),
         Chromosome => ("chromosome", "biodata.chromosome/1"),
         Base => ("base", "biodata.base/1"),
         Sequence => ("sequence", "biodata.sequence/1"),
@@ -83,22 +95,22 @@ fn research_registry() -> Vec<Contract> {
 
 fn article_registry() -> Vec<Contract> {
     contracts! {
-        ArticleEvidence => ("article-evidence", "biodata.article-evidence/1"),
-        ArticleRecommend => ("article-recommend", "biodata.article-recommend/1"),
+        ArticleEvidence => ("article-evidence", "biodata.article-evidence/1", query),
+        ArticleRecommend => ("article-recommend", "biodata.article-recommend/1", query),
         Envelope<ArticleEvidenceResult> => ("article-evidence-result", "biomcp.article-evidence/2"),
         Envelope<ArticleRecommendations> => ("article-recommendations", "biomcp.article-recommendations/4"),
-        ArticlePdf => ("article-pdf", "biodata.article-pdf/1"),
+        ArticlePdf => ("article-pdf", "biodata.article-pdf/1", query),
         Envelope<ArticlePdfResult> => ("article-pdf-result", "biomcp.article-pdf/2"),
-        ArticleSupplement => ("article-supplement", "biodata.article-supplement/1"),
+        ArticleSupplement => ("article-supplement", "biodata.article-supplement/1", query),
         Envelope<ArticleSupplementResult> => ("article-supplement-result", "biomcp.article-supplement/3"),
-        ArticleText => ("article-text", "biodata.article-text/2"),
+        ArticleText => ("article-text", "biodata.article-text/2", query),
         Envelope<ArticleTextResult> => ("article-text-result", "biomcp.article-text/3"),
-        ArticleEdges => ("article-edges", "biodata.article-edges/2"),
+        ArticleEdges => ("article-edges", "biodata.article-edges/2", query),
         Envelope<ArticleEdgePage> => ("article-edge-page", "biomcp.article-edges/5"),
-        ArticleGet => ("article-get", "biodata.article-get/2"),
+        ArticleGet => ("article-get", "biodata.article-get/2", query),
         Article => ("article", "biodata.article/2"),
         Envelope<ArticleCards> => ("article-cards", "biomcp.article-cards/4"),
-        ArticleSearch => ("article-search", "biodata.article-search/1"),
+        ArticleSearch => ("article-search", "biodata.article-search/1", query),
         ArticleHeader => ("article-header", "biodata.article_header/3"),
         Envelope<ArticlePage> => ("article-page", "biomcp.article-page/4"),
         EuropePmcId => ("europepmc-id", "biodata.europepmc-id/1"),
@@ -115,9 +127,9 @@ mod phenotype;
 
 fn registry() -> Vec<Contract> {
     let mut contracts = contracts! {
-        OrganizationSearch => ("organization-search", "biomcp.organization-search/1"),
+        OrganizationSearch => ("organization-search", "biomcp.organization-search/1", query),
         Envelope<OrganizationPage> => ("organization-page", "biomcp.organization-page/1"),
-        TrialDocumentGet => ("trial-document", "biodata.trial-document/1"),
+        TrialDocumentGet => ("trial-document", "biodata.trial-document/1", query),
         Envelope<TrialDocumentResult> => ("trial-document-result", "biomcp.trial-document/3"),
         HttpHealth => ("http-health", "biomcp.http-health/1"),
         Envelope<Health> => ("health", "biomcp.health/3"),
@@ -127,11 +139,11 @@ fn registry() -> Vec<Contract> {
         Envelope<KeyHelp> => ("key", "biomcp.key/2"),
         Envelope<RegisteredKeys> => ("registered-keys", "biomcp.registered-keys/2"),
         ErrorEnvelope => ("error", "biomcp.error/1"),
-        GeneGet => ("gene-get", "biodata.gene-get/1"),
-        GeneSearch => ("gene-search", "biodata.gene-search/1"),
-        Request => ("request", "biodata.request/28"),
-        Envelope<GeneCards> => ("gene-cards", "biomcp.gene-cards/6"),
-        Envelope<GenePage> => ("gene-page", "biomcp.gene-page/3"),
+        GeneGet => ("gene-get", "biodata.gene-get/1", query),
+        GeneSearch => ("gene-search", "biodata.gene-search/1", query),
+        Request => ("request", "biodata.request/28", query),
+        Envelope<GeneCards> => ("gene-cards", "biomcp.gene-cards/7"),
+        Envelope<GenePage> => ("gene-page", "biomcp.gene-page/4"),
         Envelope<StoreClean> => ("store-clean", "biomcp.store-clean/1"),
         Envelope<SyncResult> => ("sync", "biomcp.sync/5"),
         HgncId => ("hgnc-id", "biodata.hgnc-id/1"),
@@ -143,10 +155,10 @@ fn registry() -> Vec<Contract> {
         Reason => ("reason", "biodata.reason/1"),
         ProblemCode => ("problem-code", "biodata.problem-code/1"),
         Problem => ("problem", "biodata.problem/1"),
-        GeneInput => ("gene-input", "biodata.gene-input/1"),
-        Gene => ("gene", "biodata.gene/3"),
-        GeneHeader => ("gene-header", "biomcp.gene-header/2"),
-        GeneResolution => ("gene-resolution", "biodata.gene-resolution/3"),
+        GeneInput => ("gene-input", "biodata.gene-input/1", query),
+        Gene => ("gene", "biodata.gene/4"),
+        GeneHeader => ("gene-header", "biomcp.gene-header/3"),
+        GeneResolution => ("gene-resolution", "biodata.gene-resolution/4"),
         NcbiGeneId => ("ncbi-gene-id", "biodata.ncbi-gene-id/1"),
         EnsemblGeneId => ("ensembl-gene-id", "biodata.ensembl-gene-id/1"),
         GeneSymbol => ("gene-symbol", "biodata.gene-symbol/2"),
@@ -155,6 +167,7 @@ fn registry() -> Vec<Contract> {
         AccessionBase => ("accession-base", "biodata.accession-base/1"),
         GeneRef => ("gene-ref", "biodata.gene-ref/1"),
         Cytoband => ("cytoband", "biodata.cytoband/1"),
+        GeneLocation => ("gene-location", "biodata.gene-location/1"),
         GenomicInterval => ("genomic-interval", "biodata.genomic-interval/2"),
         GeneStatus => ("gene-status", "biodata.gene-status/1"),
         LocusGroup => ("locus-group", "biodata.locus-group/1"),
@@ -169,8 +182,8 @@ fn registry() -> Vec<Contract> {
         Strand => ("strand", "biodata.strand/1"),
     };
     contracts.extend(contracts! {
-        GwasGetCommand => ("gwas-get", "biomcp.gwas-get/1"),
-        GwasSearchCommand => ("gwas-search", "biomcp.gwas-search/2"),
+        GwasGetCommand => ("gwas-get", "biomcp.gwas-get/1", query),
+        GwasSearchCommand => ("gwas-search", "biomcp.gwas-search/2", query),
         Envelope<GwasPage> => ("gwas-page", "biomcp.gwas-page/3"),
         Envelope<GwasAssociationCard> => ("gwas-association", "biomcp.gwas-association/1"),
         Envelope<GwasLoci> => ("gwas-loci", "biomcp.gwas-loci/1"),
@@ -196,8 +209,8 @@ fn registry() -> Vec<Contract> {
 }
 fn study_registry() -> Vec<Contract> {
     contracts! {
-        StudySearch => ("study-search", "biomcp.study-search/1"),
-        StudyGet => ("study-get", "biomcp.study-get/1"),
+        StudySearch => ("study-search", "biomcp.study-search/1", query),
+        StudyGet => ("study-get", "biomcp.study-get/1", query),
         Envelope<StudyPage> => ("study-page", "biomcp.study-page/1"),
         Envelope<StudyCard> => ("study-card", "biomcp.study-card/2"),
         Envelope<StudyProfiles> => ("study-profiles", "biomcp.study-profiles/1"),
@@ -208,10 +221,10 @@ fn study_registry() -> Vec<Contract> {
 
 fn adverse_event_contracts() -> Vec<Contract> {
     contracts! {
-        PgxSearch => ("pgx-search", "biomcp.pgx-search/2"),
-        PgxGet => ("pgx-get", "biomcp.pgx-get/1"),
-        PgxGetCommand => ("pgx-get-command", "biomcp.pgx-get-command/1"),
-        PgxAnnotationGet => ("pgx-annotation-get", "biomcp.pgx-annotation-get/1"),
+        PgxSearch => ("pgx-search", "biomcp.pgx-search/2", query),
+        PgxGet => ("pgx-get", "biomcp.pgx-get/1", query),
+        PgxGetCommand => ("pgx-get-command", "biomcp.pgx-get-command/1", query),
+        PgxAnnotationGet => ("pgx-annotation-get", "biomcp.pgx-annotation-get/1", query),
         Envelope<PgxPage> => ("pgx-page", "biomcp.pgx-page/2"),
         Envelope<PgxCard> => ("pgx-card", "biomcp.pgx-card/1"),
         Envelope<PgxGuidelines> => ("pgx-guidelines", "biomcp.pgx-guidelines/1"),
@@ -219,10 +232,10 @@ fn adverse_event_contracts() -> Vec<Contract> {
         Envelope<PgxDiplotype> => ("pgx-diplotype", "biomcp.pgx-diplotype/1"),
         Envelope<PgxAnnotations> => ("pgx-annotations", "biomcp.pgx-annotations/1"),
         Envelope<PgxAnnotation> => ("pgx-annotation", "biomcp.pgx-annotation/1"),
-        AdverseEventSearch => ("adverse-event-search", "biomcp.adverse-event-search/2"),
-        AdverseEventGet => ("adverse-event-get", "biomcp.adverse-event-get/1"),
-        Envelope<VaersSummary> => ("vaers-summary", "biomcp.vaers-summary/1"),
-        Envelope<AdverseEventPage> => ("adverse-event-page", "biomcp.adverse-event-page/2"),
+        AdverseEventSearch => ("adverse-event-search", "biomcp.adverse-event-search/2", query),
+        AdverseEventGet => ("adverse-event-get", "biomcp.adverse-event-get/1", query),
+        Envelope<VaersSummary> => ("vaers-summary", "biomcp.vaers-summary/2"),
+        Envelope<AdverseEventPage> => ("adverse-event-page", "biomcp.adverse-event-page/3"),
         Envelope<AdverseEventFaersCard> => ("adverse-event-faers-card", "biomcp.adverse-event-faers-card/1"),
         Envelope<AdverseEventMaudeCard> => ("adverse-event-maude-card", "biomcp.adverse-event-maude-card/1"),
         Envelope<AdverseEventDrugs> => ("adverse-event-drugs", "biomcp.adverse-event-drugs/1"),
@@ -235,20 +248,20 @@ fn adverse_event_contracts() -> Vec<Contract> {
 
 fn variant_contracts() -> Vec<Contract> {
     contracts! {
-        VariantAssertionsGet => ("variant-assertions", "biodata.variant-assertions/2"),
+        VariantAssertionsGet => ("variant-assertions", "biodata.variant-assertions/2", query),
         Envelope<VariantAssertions> => ("variant-assertions-result", "biomcp.variant-assertions/4"),
-        PopulationFrequency => ("population-frequency", "biodata.population-frequency/4"),
-        VariantPopulationQuery => ("variant-population", "biodata.variant-population/3"),
-        Envelope<VariantPopulationResult> => ("variant-population-result", "biomcp.variant-population/7"),
+        PopulationFrequency => ("population-frequency", "biodata.population-frequency/5"),
+        VariantPopulationQuery => ("variant-population", "biodata.variant-population/3", query),
+        Envelope<VariantPopulationResult> => ("variant-population-result", "biomcp.variant-population/8"),
         Statement => ("statement", "biodata.statement/4"),
-        VariantRecurrenceQuery => ("variant-recurrence-query", "biodata.variant-recurrence-query/3"),
+        VariantRecurrenceQuery => ("variant-recurrence-query", "biodata.variant-recurrence-query/3", query),
         Envelope<VariantRecurrence> => ("variant-recurrence", "biomcp.variant-recurrence/6"),
-        VariantNormalize => ("variant-normalize", "biodata.variant-normalize/4"),
+        VariantNormalize => ("variant-normalize", "biodata.variant-normalize/4", query),
         Envelope<VariantNormalization> => ("variant-normalization", "biomcp.variant-normalization/5"),
-        VariantSearch => ("variant-search", "biodata.variant-search/2"),
-        Envelope<VariantPage> => ("variant-page", "biomcp.variant-page/10"),
-        VariantGet => ("variant-get", "biodata.variant-get/3"),
-        Envelope<VariantCard> => ("variant-card", "biomcp.variant-card/9"),
+        VariantSearch => ("variant-search", "biodata.variant-search/2", query),
+        Envelope<VariantPage> => ("variant-page", "biomcp.variant-page/11"),
+        VariantGet => ("variant-get", "biodata.variant-get/3", query),
+        Envelope<VariantCard> => ("variant-card", "biomcp.variant-card/10"),
     }
 }
 
@@ -270,11 +283,11 @@ fn drug_contracts() -> Vec<Contract> {
         DrugInteractionClaim => ("drug-interaction-claim", "biodata.drug-interaction-claim/3"),
         AuthorizationDate => ("authorization-date", "biodata.authorization-date/1"),
         AuthorizationEvent => ("authorization-event", "biodata.authorization-event/2"),
-        DrugNameSelector => ("drug-name-selector", "biomcp.drug-name-selector/1"),
-        DrugSearch => ("drug-search", "biomcp.drug-search/2"),
-        DrugGet => ("drug-get", "biomcp.drug-get/2"),
-        DrugWhoGet => ("drug-who-get", "biomcp.drug-who-get/1"),
-        DrugGetCommand => ("drug-get-command", "biomcp.drug-get-command/1"),
+        DrugNameSelector => ("drug-name-selector", "biomcp.drug-name-selector/1", query),
+        DrugSearch => ("drug-search", "biomcp.drug-search/2", query),
+        DrugGet => ("drug-get", "biomcp.drug-get/2", query),
+        DrugWhoGet => ("drug-who-get", "biomcp.drug-who-get/1", query),
+        DrugGetCommand => ("drug-get-command", "biomcp.drug-get-command/1", query),
         DrugWhoRow => ("drug-who-row", "biomcp.drug-who-row/1"),
         Envelope<DrugWhoPage> => ("drug-who-page", "biomcp.drug-who-page/1"),
         Envelope<DrugWhoCard> => ("drug-who-card", "biomcp.drug-who-card/1"),
@@ -297,8 +310,8 @@ fn drug_contracts() -> Vec<Contract> {
 
 fn diagnostic_contracts() -> Vec<Contract> {
     contracts! {
-        DiagnosticSearch => ("diagnostic-search", "biomcp.diagnostic-search/1"),
-        DiagnosticGet => ("diagnostic-get", "biomcp.diagnostic-get/1"),
+        DiagnosticSearch => ("diagnostic-search", "biomcp.diagnostic-search/1", query),
+        DiagnosticGet => ("diagnostic-get", "biomcp.diagnostic-get/1", query),
         Envelope<DiagnosticPage> => ("diagnostic-page", "biomcp.diagnostic-page/2"),
         Envelope<DiagnosticCard> => ("diagnostic-card", "biomcp.diagnostic-card/1"),
         Envelope<DiagnosticGenes> => ("diagnostic-genes", "biomcp.diagnostic-genes/2"),
@@ -312,13 +325,13 @@ fn diagnostic_contracts() -> Vec<Contract> {
 
 fn trial_contracts() -> Vec<Contract> {
     contracts! {
-        TrialGet => ("trial-get", "biodata.trial-get/1"),
+        TrialGet => ("trial-get", "biodata.trial-get/1", query),
         Envelope<NciTrialCards> => ("nci-trial-cards", "biomcp.nci-trial-cards/3"),
         Envelope<NciTrialPage> => ("nci-trial-page", "biomcp.nci-trial-page/5"),
         Envelope<TrialCards> => ("trial-cards", "biomcp.trial-cards/5"),
         TrialConditionResolution => ("trial-condition-resolution", "biomcp.trial-condition-resolution/2"),
-        TrialSearch => ("trial-search", "biodata.trial-search/3"),
-        Envelope<TrialPage> => ("trial-page", "biomcp.trial-page/9"),
+        TrialSearch => ("trial-search", "biodata.trial-search/3", query),
+        Envelope<TrialPage> => ("trial-page", "biomcp.trial-page/10"),
         NctId => ("nct-id", "biodata.nct-id/1"),
         TrialHeader => ("trial-header", "biodata.trial_header/2"),
     }
@@ -332,20 +345,21 @@ fn trial_contracts() -> Vec<Contract> {
 fn checked_in_schemas_match_types() {
     let update = std::env::var_os("UPDATE_SCHEMAS").is_some_and(|value| value == "1");
     let root = Path::new(env!("CARGO_MANIFEST_DIR")).join("schemas");
+    let reviews = policy::read_reviews().expect("read reviewed schema transitions");
     // Collect and check the whole registry before writing any contract.
     let pending: Vec<_> = registry()
         .into_iter()
         .map(|contract| {
             let mut new = (contract.generate)();
             new["$id"] = contract.id.into();
-            compatibility::check(&new, &new)
+            compatibility::check_reviewed(&new, &new, contract.kind, &reviews)
                 .unwrap_or_else(|error| panic!("{}: {error}", contract.name));
             let path = root.join(format!("{}.json", contract.name));
             if path.exists() {
                 let old: Value =
                     serde_json::from_str(&fs::read_to_string(&path).expect("read contract"))
                         .expect("parse contract");
-                compatibility::check(&old, &new)
+                compatibility::check_reviewed(&old, &new, contract.kind, &reviews)
                     .unwrap_or_else(|error| panic!("{}: {error}", contract.name));
             } else {
                 assert!(update, "missing {}", path.display());
@@ -437,10 +451,10 @@ fn flat_value(root: &Value, node: &Value) {
 
 fn pathway_contracts() -> Vec<Contract> {
     contracts! {
-        PathwaySearch => ("pathway-search", "biomcp.pathway-search/2"),
-        PathwayGet => ("pathway-get", "biomcp.pathway-get/2"),
-        PathwayGenesQuery => ("pathway-genes-query", "biomcp.pathway-genes-query/2"),
-        PathwayEventsQuery => ("pathway-events-query", "biomcp.pathway-events-query/1"),
+        PathwaySearch => ("pathway-search", "biomcp.pathway-search/2", query),
+        PathwayGet => ("pathway-get", "biomcp.pathway-get/2", query),
+        PathwayGenesQuery => ("pathway-genes-query", "biomcp.pathway-genes-query/2", query),
+        PathwayEventsQuery => ("pathway-events-query", "biomcp.pathway-events-query/1", query),
         Envelope<WikiPathwaysSync> => ("wikipathways-sync", "biomcp.wikipathways-sync/2"),
         Envelope<PathwayPage> => ("pathway-page", "biomcp.pathway-page/3"),
         Envelope<PathwayCard> => ("pathway-card", "biomcp.pathway-card/5"),
@@ -451,13 +465,13 @@ fn pathway_contracts() -> Vec<Contract> {
 
 fn protein_contracts() -> Vec<Contract> {
     contracts! {
-        ProteinFeaturesQuery => ("protein-features-query", "biomcp.protein-features-query/1"),
-        ProteinRelationQuery => ("protein-relation-query", "biomcp.protein-relation-query/1"),
-        ProteinDomainsQuery => ("protein-domains-query", "biomcp.protein-domains-query/1"),
-        ProteinComplexMembersQuery => ("protein-complex-members-query", "biomcp.protein-complex-members-query/1"),
-        ProteinSequenceQuery => ("protein-sequence-query", "biomcp.protein-sequence-query/1"),
-        ProteinSearch => ("protein-search", "biomcp.protein-search/1"),
-        ProteinGet => ("protein-get", "biomcp.protein-get/1"),
+        ProteinFeaturesQuery => ("protein-features-query", "biomcp.protein-features-query/1", query),
+        ProteinRelationQuery => ("protein-relation-query", "biomcp.protein-relation-query/1", query),
+        ProteinDomainsQuery => ("protein-domains-query", "biomcp.protein-domains-query/1", query),
+        ProteinComplexMembersQuery => ("protein-complex-members-query", "biomcp.protein-complex-members-query/1", query),
+        ProteinSequenceQuery => ("protein-sequence-query", "biomcp.protein-sequence-query/1", query),
+        ProteinSearch => ("protein-search", "biomcp.protein-search/1", query),
+        ProteinGet => ("protein-get", "biomcp.protein-get/1", query),
         Envelope<ProteinPage> => ("protein-page", "biomcp.protein-page/1"),
         Envelope<ProteinCard> => ("protein-card", "biomcp.protein-card/4"),
         Envelope<ProteinFeatures> => ("protein-features", "biomcp.protein-features/1"),
@@ -477,4 +491,91 @@ mod author;
 #[test]
 fn generated_schemas_preserve_release_contracts() -> Result<(), Box<dyn std::error::Error>> {
     release::generated_schemas_preserve_release_contracts()
+}
+
+#[test]
+fn published_reply_contracts_are_open_and_query_choices_stay_closed() {
+    for contract in registry() {
+        let mut schema = (contract.generate)();
+        schema["$id"] = contract.id.into();
+        compatibility::check_reviewed(&schema, &schema, contract.kind, &policy::Reviews::default())
+            .unwrap_or_else(|error| panic!("{}: {error}", contract.name));
+        match contract.kind {
+            policy::ContractKind::Reply => assert_open(&schema, contract.name),
+            policy::ContractKind::Query => {
+                assert!(
+                    schema.get("x-extensible-enum").is_none(),
+                    "{}",
+                    contract.name
+                );
+            }
+        }
+    }
+    for (schema, expected) in [
+        (generation::reply::<biomcp_types::Source>(), "hgnc"),
+        (generation::reply::<biomcp_types::Reason>(), "not_found"),
+        (generation::reply::<biomcp_types::DrugSource>(), "chembl"),
+        (generation::reply::<biodata::Proposition>(), "pathogenicity"),
+        (generation::reply::<biodata::Predicate>(), "is_causal_for"),
+    ] {
+        assert!(schema.get("enum").is_none(), "reply enum remains closed");
+        assert!(
+            schema["x-extensible-enum"]
+                .as_array()
+                .unwrap()
+                .contains(&expected.into())
+        );
+        let validator = jsonschema::draft202012::new(&schema).unwrap();
+        assert!(validator.is_valid(&serde_json::json!("future_value")));
+        assert!(!validator.is_valid(&serde_json::json!(42)));
+    }
+    let drug = generation::query::<biomcp_types::DrugGet>();
+    let validator = jsonschema::draft202012::new(&drug).unwrap();
+    assert!(validator.is_valid(&serde_json::json!({"input":"CHEMBL941","source":"chembl"})));
+    assert!(
+        !validator.is_valid(&serde_json::json!({"input":"CHEMBL941","source":"future_source"}))
+    );
+    let schema = generation::query::<biomcp_types::GeneGet>();
+    assert_eq!(schema["additionalProperties"], false);
+    let validator = jsonschema::draft202012::new(&schema).unwrap();
+    assert!(validator.is_valid(&serde_json::json!({"input":["KRAS"]})));
+    assert!(!validator.is_valid(&serde_json::json!({"input":["KRAS"],"future_field":true})));
+}
+
+fn assert_open(value: &Value, name: &str) {
+    match value {
+        Value::Object(object) => {
+            assert_ne!(
+                object.get("additionalProperties"),
+                Some(&Value::Bool(false)),
+                "{name}"
+            );
+            assert!(
+                !object.contains_key("x-enum-open"),
+                "unpublished marker in {name}"
+            );
+            for child in object.values() {
+                assert_open(child, name);
+            }
+        }
+        Value::Array(items) => {
+            for child in items {
+                assert_open(child, name);
+            }
+        }
+        _ => {}
+    }
+}
+
+#[test]
+fn population_frequencies_share_one_bounded_fraction() {
+    let schema = generate::<biodata::PopulationFrequency>();
+    for field in ["allele_frequency", "faf95"] {
+        assert_eq!(
+            schema["properties"][field]["anyOf"][0]["$ref"], "#/$defs/Fraction",
+            "{field} uses Fraction"
+        );
+    }
+    assert_eq!(schema["$defs"]["Fraction"]["minimum"], 0.0);
+    assert_eq!(schema["$defs"]["Fraction"]["maximum"], 1.0);
 }

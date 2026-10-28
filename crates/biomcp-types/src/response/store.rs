@@ -1,6 +1,5 @@
 /// Counts removed by explicit local store cleanup. Fresh state and bundles remain.
 #[derive(Clone, Debug, Default, PartialEq, serde::Serialize, serde::Deserialize)]
-#[serde(deny_unknown_fields)]
 #[cfg_attr(feature = "schema", derive(schemars::JsonSchema))]
 pub struct StoreClean {
     /// Expired source replies.
@@ -21,7 +20,6 @@ impl super::ResponseBody for StoreClean {
 
 /// Measured lengths of owned files, including unused database pages and present sidecars.
 #[derive(Clone, Debug, Default, serde::Serialize, serde::Deserialize)]
-#[serde(deny_unknown_fields)]
 #[cfg_attr(feature = "schema", derive(schemars::JsonSchema))]
 pub struct StoreSize {
     /// All measured owned files, including retained generations and partial downloads.

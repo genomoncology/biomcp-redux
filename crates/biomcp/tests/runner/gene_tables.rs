@@ -9,6 +9,7 @@ mod hgnc;
 mod mygene;
 
 use super::response_cases::case;
+use crate::runner::transcript::trial as transcript_trial;
 use libtest_mimic::Trial;
 use serde_json::Value;
 
@@ -24,7 +25,7 @@ pub(super) fn trials() -> Vec<Trial> {
         ("gene-sections/graphql-boundaries", graphql::check),
     ]
     .into_iter()
-    .map(|(name, check)| Trial::test(name, move || check().map_err(|e| e.to_string().into())))
+    .map(|(name, check)| transcript_trial(name, move || check().map_err(|e| e.to_string().into())))
     .collect()
 }
 
