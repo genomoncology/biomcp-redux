@@ -4,6 +4,8 @@ Status: OPEN.
 
 Milestone: 5
 
+Depends on: 0388
+
 ## Outcome
 
 `drug-who/native-rows-local-reads-and-replacement` passes in full test runs. The cause of its bare JSON parse failure is found from the diagnostic context added at 0da96b3bd and fixed at its owner, whether in the replacement recording, the case fixture or MCP parsing.
