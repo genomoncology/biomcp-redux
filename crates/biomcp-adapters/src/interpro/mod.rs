@@ -4,6 +4,7 @@ use biomcp_types::{Source, Use};
 use std::time::Duration;
 /// One publisher declaration owns admission, terms and keyless request policy.
 pub static SPEC: SourceSpec = SourceSpec {
+    destinations: biomcp_fetch::Destinations::Primary,
     user_agent: None,
     source: Source::InterPro,
     base: "https://www.ebi.ac.uk/interpro/api",
@@ -30,6 +31,9 @@ pub struct Page {
     pub total: u64,
     /// Source cursor, checked against the accession and request selectors.
     pub cursor: Option<Text>,
+    /// Rejected optional fields for retained rows.
+    #[serde(default, skip_serializing_if = "Vec::is_empty")]
+    pub problems: Vec<biomcp_types::Problem>,
 }
 /// Fetch a native accession page; type selection remains over the retained complete collection.
 pub fn page(
@@ -69,8 +73,10 @@ pub fn page(
     if raw.results.is_empty() && cursor.is_some() {
         return Err(bad());
     }
+    let mapped = map::rows(raw.results, id)?;
     Ok(Page {
-        items: map::rows(raw.results, id)?,
+        items: mapped.value,
+        problems: mapped.problems,
         total: raw.count,
         cursor,
     })

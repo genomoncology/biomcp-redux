@@ -2,10 +2,13 @@ use super::launch::{ENV_PATHS, Environment};
 use libtest_mimic::Trial;
 use std::{env, fs, path::Path};
 
+#[path = "fixture_evidence_proof.rs"]
+mod fixture_evidence_proof;
+
 type Check = Result<(), String>;
 
 pub(crate) fn trials() -> Vec<Trial> {
-    vec![
+    let mut trials = vec![
         Trial::test("article-semantic-sections/checked-edge-boundaries", || {
             super::semantic_tables::check().map_err(|e| e.to_string().into())
         }),
@@ -30,10 +33,13 @@ pub(crate) fn trials() -> Vec<Trial> {
         Trial::test("runner/isolates-child-environments", || {
             isolation().map_err(Into::into)
         }),
+        #[cfg(unix)]
         Trial::test("schema/output-failure", || {
             output_failure().map_err(Into::into)
         }),
-    ]
+    ];
+    trials.extend(fixture_evidence_proof::trials());
+    trials
 }
 
 fn put(root: &Path, relative: &str, step: &str) -> Check {
@@ -311,10 +317,12 @@ fn isolation() -> Check {
     Ok(())
 }
 
+#[cfg(unix)]
 fn output_failure() -> Check {
-    // Close the reader before spawning so the first write must hit a broken pipe.
-    let (reader, writer) = std::io::pipe().map_err(|error| error.to_string())?;
-    drop(reader);
+    // An unconnected datagram rejects writes with a non-BrokenPipe error.
+    // Unlike a read-only file, Rust stdout does not silently treat it as closed.
+    let socket = std::os::unix::net::UnixDatagram::unbound().map_err(|e| e.to_string())?;
+    let writer: std::os::fd::OwnedFd = socket.into();
     let output = Environment::new()
         .map_err(|error| error.to_string())?
         .command(

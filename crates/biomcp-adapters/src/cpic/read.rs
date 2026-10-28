@@ -80,7 +80,7 @@ pub fn card(leg: &Leg<'_>, query: &PgxGet) -> Result<Page<PgxGeneIdentity>, Requ
     let gene = format!("eq.{}", query.gene());
     read(
         leg,
-        "/gene",
+        super::GENE_PATH,
         &[
             (
                 "select",

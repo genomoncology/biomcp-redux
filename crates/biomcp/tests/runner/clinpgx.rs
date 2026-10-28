@@ -28,6 +28,7 @@ pub(super) fn trials() -> Vec<Trial> {
 fn environment(stub: &Stub) -> Result<Environment, String> {
     let env = Environment::new().map_err(|e| e.to_string())?;
     let ca = env.root().join("ca.pem");
+    stub.retain(&env);
     std::fs::write(&ca, &stub.certificate).map_err(|e| e.to_string())?;
     env.config(&json!({"ca_bundle":ca,"proxy":format!("http://{}",stub.address)}))
         .map_err(|e| e.to_string())?;
@@ -187,7 +188,9 @@ fn verify(name: &str, v: &Value, native: &Value) -> Check {
         return Err("clinical default exceeds its reviewed output ceiling".into());
     }
     if name == "annotation" {
-        if v.pointer("/result/annotation") != native.get("data") {
+        let mut expected = native.get("data").cloned().ok_or("native data")?;
+        super::assertions::omit_empty_lists(&mut expected);
+        if v.pointer("/result/annotation") != Some(&expected) {
             return Err("base fields changed".into());
         }
         return Ok(());
@@ -195,13 +198,14 @@ fn verify(name: &str, v: &Value, native: &Value) -> Check {
     let rows = v
         .pointer("/result/items")
         .and_then(Value::as_array)
-        .ok_or("items")?;
+        .map(Vec::as_slice)
+        .unwrap_or_default();
     let expected = native
         .get("data")
         .and_then(Value::as_array)
         .ok_or("native array")?;
-    if rows
-        != &expected
+    let mut expected_rows = json!(
+        expected
             .iter()
             .take(match name {
                 "wide" => 5,
@@ -210,6 +214,13 @@ fn verify(name: &str, v: &Value, native: &Value) -> Check {
             })
             .cloned()
             .collect::<Vec<_>>()
+    );
+    super::assertions::omit_empty_lists(&mut expected_rows);
+    if rows
+        != expected_rows
+            .as_array()
+            .map(Vec::as_slice)
+            .unwrap_or_default()
         || v.pointer("/result/page/total") != Some(&json!(expected.len()))
         || v.pointer("/result/page/total_kind") != Some(&json!("observed"))
     {

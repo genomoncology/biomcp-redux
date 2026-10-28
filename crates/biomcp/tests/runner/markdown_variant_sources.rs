@@ -31,6 +31,7 @@ fn positive(source: &str) -> Result<(), String> {
     let stub = Stub::for_sources(hosts, |_| "application/json", reply)?;
     let env = Environment::new().map_err(|e| e.to_string())?;
     let ca = env.root().join("synthetic-ca.pem");
+    stub.retain(&env);
     fs::write(&ca, &stub.certificate).map_err(|e| e.to_string())?;
     let config = json!({"proxy":format!("http://{}",stub.address),"ca_bundle":ca,
         "keys":{"oncokb_api_key":"synthetic-markdown-key"}});
@@ -93,7 +94,7 @@ fn positive(source: &str) -> Result<(), String> {
                 " Oncokb\n\n",
                 "**state:** data",
                 "Oncogenic",
-                "Synthetic mutation effect.",
+                "Synthetic mutation effect&#46;",
             ],
             max_bytes: 2470,
         },

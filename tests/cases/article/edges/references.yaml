@@ -43,8 +43,7 @@
         "items": "/result/items",
         "max_pages": 30
       },
-      "max_bytes": 8843,
-      "max_tokens": 2211
+      "max_bytes": 8843
     },
     {
       "run": [
@@ -60,8 +59,14 @@
         "/status": "partial",
         "/result/items/7/pmid": "30192171",
         "/result/items/7/contexts/total": 1,
-        "/problems/0/record": "30192171",
-        "/problems/0/field": "summary"
+        "/problems": {
+          "includes": {
+            "source": "pubmed",
+            "record": "30192171",
+            "field": "summary",
+            "code": "value.unknown"
+          }
+        }
       }
     }
   ],

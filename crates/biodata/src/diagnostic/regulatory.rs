@@ -11,6 +11,7 @@ pub struct WhoIvdProduct {
     /// Native product listing identity.
     pub id: WhoProductId,
     /// All original rows belonging to this exact product, without clipping.
+    #[serde(default, skip_serializing_if = "<[_]>::is_empty")]
     pub native_rows: Box<[WhoIvdRow]>,
 }
 /// One original WHO CSV row; each repeated field retains its own row scope.
@@ -108,6 +109,7 @@ pub struct DiagnosticCell {
     /// Original complete text, including empty strings and line breaks.
     pub text: Box<str>,
     /// Only links physically owned by this cell, in native order.
+    #[serde(default, skip_serializing_if = "<[_]>::is_empty")]
     pub links: Box<[DiagnosticCellLink]>,
 }
 /// Source link without a name-based identity inference.
@@ -116,6 +118,7 @@ pub struct DiagnosticCell {
 #[cfg_attr(feature = "schema", derive(schemars::JsonSchema))]
 pub struct DiagnosticCellLink {
     /// Original source URL.
+    #[cfg_attr(feature = "schema", schemars(extend("format" = "uri-reference")))]
     pub href: Box<str>,
     /// Native label when the capture supplies one.
     #[serde(default, skip_serializing_if = "Option::is_none")]
@@ -129,6 +132,7 @@ pub struct DiagnosticDrugApplication {
     /// Published NDA/BLA prefix and six digits.
     pub id: FdaDrugApplication,
     /// The same cell’s owned source URL.
+    #[cfg_attr(feature = "schema", schemars(extend("format" = "uri")))]
     pub url: Box<str>,
 }
 /// A physical companion-table row; the two table layouts cannot acquire each other’s cells.
@@ -145,8 +149,10 @@ pub enum CompanionDiagnosticRelation {
         /// Whole cells keyed by this table’s exact headers.
         cells: CompanionIndividualCells,
         /// Device facts from this row’s own dedicated device cell only.
+        #[serde(default, skip_serializing_if = "<[_]>::is_empty")]
         device_ids: Box<[DiagnosticDeviceId]>,
         /// Unambiguous typed applications owned by this row’s drug cell.
+        #[serde(default, skip_serializing_if = "<[_]>::is_empty")]
         drug_applications: Box<[DiagnosticDrugApplication]>,
     },
     /// One complete native group table row.
@@ -158,8 +164,10 @@ pub enum CompanionDiagnosticRelation {
         /// Whole cells keyed by this table’s exact headers.
         cells: CompanionGroupCells,
         /// Device facts from this row’s own dedicated device cell only.
+        #[serde(default, skip_serializing_if = "<[_]>::is_empty")]
         device_ids: Box<[DiagnosticDeviceId]>,
         /// Unambiguous typed applications owned by this row’s drug cell.
+        #[serde(default, skip_serializing_if = "<[_]>::is_empty")]
         drug_applications: Box<[DiagnosticDrugApplication]>,
     },
 }

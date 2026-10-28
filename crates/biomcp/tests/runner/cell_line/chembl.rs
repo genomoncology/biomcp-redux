@@ -140,7 +140,6 @@ fn markdown(phase: &str, env: &Environment, words: &[&str], value: &Value) -> Re
     if !MEASURE && text.len() > ceiling(phase, "markdown")? {
         return Err("Markdown exceeds measured cap".into());
     }
-    let plain = text.replace("\\_", "_");
     for fact in [
         value.pointer("/result/id"),
         value.pointer("/result/items/items/0/id"),
@@ -149,7 +148,7 @@ fn markdown(phase: &str, env: &Environment, words: &[&str], value: &Value) -> Re
         value.pointer("/result/items/items/0/clo"),
     ] {
         if let Some(fact) = fact.and_then(Value::as_str)
-            && !plain.contains(fact)
+            && !text.contains(&super::super::source_terms::text::escape(fact))
         {
             return Err(format!("Markdown lost {fact}"));
         }
@@ -229,7 +228,8 @@ pub(super) fn native_facts(value: &Value, id: &str) -> Result<(), String> {
     let actual = value
         .pointer("/result/items/items")
         .and_then(Value::as_array)
-        .ok_or("result rows")?;
+        .map(Vec::as_slice)
+        .unwrap_or_default();
     if rows.len() != actual.len() {
         return Err("metadata dropped complete source rows".into());
     }

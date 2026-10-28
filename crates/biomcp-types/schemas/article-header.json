@@ -1,22 +1,27 @@
 {
   "$defs": {
     "Doi": {
+      "description": "DOI preserving source spelling with ASCII-insensitive equality.",
       "pattern": "^10\\.[0-9]+/[^\\s\\x00-\\x1f\\x7f]+$",
       "type": "string"
     },
     "EuropePmcId": {
+      "description": "Europe PMC source prefix followed by its positive numeric local identifier.",
       "pattern": "^[A-Z]{1,8}[0-9]*[1-9][0-9]*$",
       "type": "string"
     },
     "PartialDate": {
+      "description": "A Gregorian date preserving year, month or day precision.",
       "pattern": "^[0-9]{4}(-[0-9]{2}(-[0-9]{2})?)?$",
       "type": "string"
     },
     "Pmcid": {
+      "description": "Canonical PMC identifier, with an explicit namespace.",
       "pattern": "^PMC[1-9][0-9]*$",
       "type": "string"
     },
     "Pmid": {
+      "description": "Positive PubMed identifier.",
       "pattern": "^[1-9][0-9]*$",
       "type": "string"
     },
@@ -71,6 +76,7 @@
       ]
     },
     "SemanticScholarAuthorId": {
+      "description": "A checked source-local Semantic Scholar author identifier, never a person identity.",
       "pattern": "^[1-9][0-9]*$",
       "type": "string"
     },
@@ -80,7 +86,7 @@
       "type": "string"
     }
   },
-  "$id": "biodata.article_header/2",
+  "$id": "biodata.article_header/3",
   "$schema": "https://json-schema.org/draft/2020-12/schema",
   "additionalProperties": false,
   "description": "Citation metadata from PubMed or Europe PMC.",
@@ -200,8 +206,6 @@
     }
   },
   "required": [
-    "title",
-    "types",
     "author_count"
   ],
   "title": "ArticleHeader",

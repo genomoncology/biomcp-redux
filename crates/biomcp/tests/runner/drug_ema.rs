@@ -26,7 +26,7 @@ fn malformed() -> Result<(), String> {
             .ok_or("missing body")?,
     )
     .map_err(|e| e.to_string())?;
-    for fault in ["total", "duplicate", "date", "metadata"] {
+    for fault in ["total", "duplicate", "metadata", "identity"] {
         let env = Environment::new().map_err(|e| e.to_string())?;
         let replay = env.root().join("replay");
         let source = replay.join("ema");
@@ -45,13 +45,13 @@ fn malformed() -> Result<(), String> {
         let mut bad = body.clone();
         let (pointer, value) = match fault {
             "total" => ("/meta/total_records", 5.into()),
+            "identity" => ("/data/1/ema_product_number", "".into()),
             "duplicate" => (
                 "/data/1/ema_product_number",
                 bad.pointer("/data/0/ema_product_number")
                     .ok_or("missing first identity")?
                     .clone(),
             ),
-            "date" => ("/data/1/marketing_authorisation_date", "31/02/2016".into()),
             _ => ("/meta/timestamp", "".into()),
         };
         replace(&mut bad, pointer, value)?;

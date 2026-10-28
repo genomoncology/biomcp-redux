@@ -16,6 +16,7 @@ pub struct CellLineXref {
     pub label: Option<Text>,
     /// Native source URL when supplied.
     #[serde(skip_serializing_if = "Option::is_none")]
+    #[cfg_attr(feature = "schema", schemars(extend("format" = "uri")))]
     pub url: Option<Text>,
     /// Native source category when supplied.
     #[serde(skip_serializing_if = "Option::is_none")]
@@ -54,15 +55,17 @@ pub struct CellLineIdentity {
     /// Native source category.
     pub category: Text,
     /// Complete native species references.
+    #[serde(default, skip_serializing_if = "<[_]>::is_empty")]
     pub species: Box<[CellLineXref]>,
     /// Complete native disease references; NCIt and ORDO stay separate.
+    #[serde(default, skip_serializing_if = "<[_]>::is_empty")]
     pub diseases: Box<[CellLineXref]>,
     /// Native age expression without conversion.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub age: Option<Text>,
     /// Native sex label without classification.
     #[serde(skip_serializing_if = "Option::is_none")]
-    pub sex: Option<Text>,
+    pub sex: Option<super::CellLineSex>,
 }
 /// Complete source warning with its native scope; no stock classifier is derived.
 #[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
@@ -141,9 +144,12 @@ pub struct CellLineVariation {
     #[serde(skip_serializing_if = "Option::is_none")]
     pub zygosity: Option<Text>,
     /// Every native gene member, including both fusion members.
+    #[serde(default, skip_serializing_if = "<[_]>::is_empty")]
     pub genes: Box<[CellLineGene]>,
     /// Every other variation cross-reference in native order.
+    #[serde(default, skip_serializing_if = "<[_]>::is_empty")]
     pub references: Box<[CellLineXref]>,
     /// Every native provenance row in source order; no PMID is required.
+    #[serde(default, skip_serializing_if = "<[_]>::is_empty")]
     pub provenance: Box<[CellLineProvenance]>,
 }

@@ -20,6 +20,7 @@ use std::{collections::BTreeMap, time::Duration};
 pub use variant::variant;
 /// Public CIViC GraphQL source policy.
 pub static SPEC: SourceSpec = SourceSpec {
+    destinations: biomcp_fetch::Destinations::Primary,
     user_agent: None,
     terms: biomcp_fetch::Terms {
         name: "CC0 1.0",

@@ -25,7 +25,7 @@
         "cpic"
       ],
       "expect": {
-        "/schema": "biomcp.pgx_page/2",
+        "/schema": "biomcp.pgx-page/2",
         "/status": "failed",
         "/query/source": "cpic",
         "/sources/0/state": "skipped",
@@ -61,7 +61,7 @@
         "cpic"
       ],
       "expect": {
-        "/schema": "biomcp.pgx_card/1",
+        "/schema": "biomcp.pgx-card/1",
         "/status": "failed",
         "/query/source": "cpic",
         "/sources/0/state": "skipped",
@@ -72,8 +72,7 @@
       },
       "exit": 4,
       "is_error": true,
-      "max_bytes": 223,
-      "max_tokens": 56
+      "max_bytes": 223
     },
     {
       "run": [
@@ -99,7 +98,7 @@
         "cpic"
       ],
       "expect": {
-        "/schema": "biomcp.pgx_recommendations/1",
+        "/schema": "biomcp.pgx-recommendations/1",
         "/status": "failed",
         "/query/source": "cpic",
         "/sources/0/state": "skipped",
@@ -110,8 +109,7 @@
       },
       "exit": 4,
       "is_error": true,
-      "max_bytes": 268,
-      "max_tokens": 67
+      "max_bytes": 268
     },
     {
       "run": [
@@ -137,7 +135,7 @@
         "cpic"
       ],
       "expect": {
-        "/schema": "biomcp.pgx_guidelines/1",
+        "/schema": "biomcp.pgx-guidelines/1",
         "/status": "failed",
         "/query/source": "cpic",
         "/sources/0/state": "skipped",
@@ -179,7 +177,7 @@
         "cpic"
       ],
       "expect": {
-        "/schema": "biomcp.pgx_diplotype/1",
+        "/schema": "biomcp.pgx-diplotype/1",
         "/status": "failed",
         "/query/source": "cpic",
         "/sources/0/state": "skipped",
@@ -190,8 +188,7 @@
       },
       "exit": 4,
       "is_error": true,
-      "max_bytes": 279,
-      "max_tokens": 70
+      "max_bytes": 279
     }
   ]
 }

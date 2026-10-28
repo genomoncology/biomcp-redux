@@ -5,15 +5,14 @@ steps:
   - run: [schema, biodata.source/1]
     mcp: [schema, biodata.source/1]
     max_bytes: 4096
-    max_tokens: 1024
     expect:
       /$id: biodata.source/1
   - run: []
     mcp: []
-    exit: 2
-    is_error: true
+    is_error: false
     expect:
-      /status: usage
+      /schema: biomcp.help/3
+      /status: complete
   - mcp: [serve]
     is_error: true
     expect:

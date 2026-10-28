@@ -52,7 +52,7 @@ pub struct CitationContexts {
     #[serde(skip_serializing_if = "Option::is_none")]
     pub source_cursor: Option<u32>,
     /// Source-reported citation intents.
-    #[serde(skip_serializing_if = "Option::is_none")]
+    #[serde(skip_serializing_if = "biodata::absent_or_empty")]
     pub intents: Option<Box<[CitationIntent]>>,
     /// Missing is distinct from false.
     #[serde(skip_serializing_if = "Option::is_none")]
@@ -83,7 +83,7 @@ pub struct ArticleEvidenceResult {
     pub fulltext: Option<Section<CitationParagraphs>>,
 }
 impl super::super::ResponseBody for ArticleEvidenceResult {
-    const SCHEMA: &'static str = "biomcp.article_evidence/2";
+    const SCHEMA: &'static str = "biomcp.article-evidence/2";
     type Query = crate::ArticleEvidence;
 }
 /// Source-native recommendation page.
@@ -92,6 +92,7 @@ impl super::super::ResponseBody for ArticleEvidenceResult {
 #[cfg_attr(feature = "schema", derive(schemars::JsonSchema))]
 pub struct ArticleRecommendations {
     /// Papers in provider order, without a local topic filter.
+    #[serde(default, skip_serializing_if = "<[_]>::is_empty")]
     pub items: Box<[crate::ArticleItem]>,
     /// Provider's default pool, stated without a clinical relevance claim.
     pub scope: Box<str>,
@@ -100,6 +101,6 @@ pub struct ArticleRecommendations {
     pub notice: Option<EvidenceNotice>,
 }
 impl super::super::ResponseBody for ArticleRecommendations {
-    const SCHEMA: &'static str = "biomcp.article_recommendations/3";
+    const SCHEMA: &'static str = "biomcp.article-recommendations/4";
     type Query = crate::ArticleRecommend;
 }

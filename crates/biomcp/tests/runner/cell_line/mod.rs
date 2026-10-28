@@ -41,6 +41,7 @@ pub(super) fn trials() -> Vec<Trial> {
 fn setup(stub: &Stub) -> Result<Environment, String> {
     let env = Environment::new().map_err(|e| e.to_string())?;
     let ca = env.root().join("cellosaurus-ca.pem");
+    stub.retain(&env);
     fs::write(&ca, &stub.certificate).map_err(|e| e.to_string())?;
     env.config(&json!({"proxy":format!("http://{}",stub.address),"ca_bundle":ca}))
         .map_err(|e| e.to_string())?;
@@ -203,7 +204,11 @@ fn recorded_stub() -> Result<Stub, String> {
         },
     )
 }
-fn path(value: &Value, path: &str, expected: Value) -> Result<(), String> {
+fn path(value: &Value, path: &str, mut expected: Value) -> Result<(), String> {
+    if expected == serde_json::json!([]) && value.pointer(path).is_none() {
+        return Ok(());
+    }
+    super::assertions::omit_empty_lists(&mut expected);
     if value.pointer(path) != Some(&expected) {
         return Err(format!(
             "{path}: expected {expected}, got {:?}",
@@ -247,26 +252,25 @@ fn markdown(
     if !measure && text.len() > ceiling(phase, "markdown")? {
         return Err("native Markdown exceeds measured output cap".into());
     }
-    let unescaped = text.replace("\\_", "_");
     let result = value.get("result").ok_or("result")?;
     let header = result
         .get("header")
         .or_else(|| result.pointer("/items/0"))
         .ok_or("header")?;
     for field in ["accession", "name"] {
-        if !unescaped.contains(
+        if !text.contains(&super::source_terms::text::escape(
             header
                 .get(field)
                 .and_then(Value::as_str)
                 .ok_or("header fact")?,
-        ) {
+        )) {
             return Err(format!("Markdown lost {field}"));
         }
     }
     if let Some(warning) = result
         .pointer("/warnings/items/0/text")
         .and_then(Value::as_str)
-        && !unescaped.contains(warning)
+        && !text.contains(&super::source_terms::text::escape(warning))
     {
         return Err("Markdown shortened qualified warning".into());
     }

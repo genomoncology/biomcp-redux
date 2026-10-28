@@ -231,6 +231,7 @@ fn header_and_card_exclude_deeper_disclosures_from_the_public_contract() {
         [
             "id",
             "identity_level",
+            "matched_name",
             "name",
             "source",
             "type",
@@ -266,7 +267,7 @@ fn civic_therapy_streams_keep_independent_totals_and_profile_context() {
         "members":[{"record":{"id":"1"},"label":"synthetic allele","feature":"BRAF","reference_build":"GRCH38"}]},
         "oncokb_missing":["variant"],"claim":{"record":{"id":"EID259"},"kind":"PREDICTIVE","status":"ACCEPTED"},"therapies":[{"id":"5",
         "source":"civic","name":"synthetic therapy","identity_level":"unknown"}] }],"page":{"returned":1,"total":169,"next":next}},
-        "assertions":{"records":[],"page":{"returned":0,"total":1}} }} }
+        "assertions":{"page":{"returned":0,"total":1}} }} }
     );
     let decoded: DrugCivic = serde_json::from_value(response.clone()).expect("independent streams");
     assert_eq!(
@@ -515,9 +516,9 @@ fn interaction_keeps_both_bundle_origins_and_refuses_duplicate_attribution() {
 fn changed_native_record_responses_publish_version_three_and_checked_target_schema() {
     use biodata::DrugTargetRelation;
     use biomcp_types::{DrugIndications, DrugInteractions, DrugTargets, ResponseBody};
-    assert_eq!(DrugTargets::SCHEMA, "biomcp.drug_targets/3");
-    assert_eq!(DrugIndications::SCHEMA, "biomcp.drug_indications/3");
-    assert_eq!(DrugInteractions::SCHEMA, "biomcp.drug_interactions/3");
+    assert_eq!(DrugTargets::SCHEMA, "biomcp.drug-targets/3");
+    assert_eq!(DrugIndications::SCHEMA, "biomcp.drug-indications/3");
+    assert_eq!(DrugInteractions::SCHEMA, "biomcp.drug-interactions/3");
     let validator =
         jsonschema::draft202012::new(&schemars::schema_for!(DrugTargetRelation).to_value())
             .expect("target schema");

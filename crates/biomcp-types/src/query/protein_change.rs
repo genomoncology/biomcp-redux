@@ -41,27 +41,42 @@ impl FromStr for ProteinQuery {
         let value = value.strip_prefix("p.").unwrap_or(value);
         let first = value
             .find(|c: char| c.is_ascii_digit())
-            .ok_or(super::gene::QueryInvalid)?;
+            .ok_or_else(|| super::gene::QueryInvalid::new(&["variant"]))?;
         let end = value
             .rfind(|c: char| c.is_ascii_digit())
-            .ok_or(super::gene::QueryInvalid)?
+            .ok_or_else(|| super::gene::QueryInvalid::new(&["variant"]))?
             + 1;
         let residue = |v: &str| {
             AMINO
                 .iter()
                 .position(|(one, three)| v == *one || v == *three)
-                .ok_or(super::gene::QueryInvalid)
+                .ok_or_else(|| super::gene::QueryInvalid::new(&["variant"]))
         };
-        let digits = value.get(first..end).ok_or(super::gene::QueryInvalid)?;
-        if digits.starts_with('0') || !digits.bytes().all(|c| c.is_ascii_digit()) {
-            return Err(super::gene::QueryInvalid);
+        let digits = value
+            .get(first..end)
+            .ok_or_else(|| super::gene::QueryInvalid::new(&["variant"]))?;
+        if digits.starts_with('0') {
+            return Err(super::gene::QueryInvalid::new(&["variant"]));
         }
-        let position = digits.parse().map_err(|_| super::gene::QueryInvalid)?;
+        if !digits.bytes().all(|c| c.is_ascii_digit()) {
+            return Err(super::gene::QueryInvalid::new(&["variant"]));
+        }
+        let position = digits
+            .parse()
+            .map_err(|_| super::gene::QueryInvalid::new(&["variant"]))?;
         Ok(Self {
             original: original.into(),
-            from: residue(value.get(..first).ok_or(super::gene::QueryInvalid)?)?,
+            from: residue(
+                value
+                    .get(..first)
+                    .ok_or_else(|| super::gene::QueryInvalid::new(&["variant"]))?,
+            )?,
             position,
-            to: residue(value.get(end..).ok_or(super::gene::QueryInvalid)?)?,
+            to: residue(
+                value
+                    .get(end..)
+                    .ok_or_else(|| super::gene::QueryInvalid::new(&["variant"]))?,
+            )?,
         })
     }
 }

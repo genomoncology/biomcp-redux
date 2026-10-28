@@ -7,6 +7,7 @@ pub use search::{Search, search};
 use std::time::Duration;
 /// One publisher declaration for health, outcomes and admission before any I/O.
 pub static SPEC: SourceSpec = SourceSpec {
+    destinations: biomcp_fetch::Destinations::Primary,
     user_agent: None,
     source: Source::WhoIvd,
     base: "https://extranet.who.int/prequal",
@@ -46,6 +47,7 @@ pub fn sync(
         last_modified: None,
         rows: info.rows,
         bytes: info.bytes,
+        downloaded_bytes: info.downloaded_bytes,
         duplicate_identities: None,
     })
 }
@@ -78,4 +80,14 @@ pub fn get(
         native_rows: rows.into_iter().map(|row| row.value.into()).collect(),
     });
     Ok((product, info))
+}
+
+/// Small read-only publisher probe; never an export or synchronization.
+pub(crate) const HEALTH_PATH: &str = "/vitro-diagnostics/prequalified/in-vitro-diagnostics";
+
+/// Inspect this source's complete local set without synchronizing it.
+pub(crate) fn bundle_state(
+    leg: &biomcp_fetch::Leg<'_>,
+) -> Result<biomcp_types::LocalBundleState, biomcp_fetch::RequestError> {
+    SET.state(leg)
 }

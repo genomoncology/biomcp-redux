@@ -9,6 +9,7 @@ use biomcp_types::Source;
 use std::time::Duration;
 /// Shared public person and works declaration.
 pub static SPEC: SourceSpec = SourceSpec {
+    destinations: biomcp_fetch::Destinations::Primary,
     user_agent: None,
     source: Source::Orcid,
     terms: biomcp_fetch::Terms {
@@ -34,7 +35,10 @@ fn endpoint(id: &OrcidId, section: &str) -> Result<biomcp_fetch::Endpoint, Reque
         .fresh(Freshness::Days(1)))
 }
 /// Read only the public professional name from the requested person record.
-pub fn card(leg: &Leg<'_>, id: &OrcidId) -> Result<Option<AuthorCard>, RequestError> {
+pub fn card(
+    leg: &Leg<'_>,
+    id: &OrcidId,
+) -> Result<crate::Mapped<Option<AuthorCard>>, RequestError> {
     let (record, _) =
         leg.json_received_checked::<raw::Person>(&endpoint(id, "person")?, &[], |r| {
             if r.path == format!("/{id}/person")
@@ -48,7 +52,10 @@ pub fn card(leg: &Leg<'_>, id: &OrcidId) -> Result<Option<AuthorCard>, RequestEr
     record.card(id).map_err(|_| bad_reply())
 }
 /// Read one whole bounded works reply and preserve groups and assertion order.
-pub fn works(leg: &Leg<'_>, id: &OrcidId) -> Result<Box<[OrcidWorkGroup]>, RequestError> {
+pub fn works(
+    leg: &Leg<'_>,
+    id: &OrcidId,
+) -> Result<crate::Mapped<Box<[OrcidWorkGroup]>>, RequestError> {
     let (record, _) =
         leg.json_received_checked::<works::Works>(&endpoint(id, "works")?, &[], |r| {
             if r.identity(id) {
@@ -57,7 +64,7 @@ pub fn works(leg: &Leg<'_>, id: &OrcidId) -> Result<Box<[OrcidWorkGroup]>, Reque
                 Err(BadReply)
             }
         })?;
-    record.groups().map_err(|_| bad_reply())
+    Ok(record.groups())
 }
 
 fn bad_reply() -> RequestError {

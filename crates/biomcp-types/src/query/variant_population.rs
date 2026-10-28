@@ -20,7 +20,7 @@ struct Fields {
     #[serde(default, skip_serializing_if = "Option::is_none")]
     build: Option<Build>,
     /// Read source ancestry groups, preserving overlapping groups individually.
-    #[serde(default)]
+    #[serde(default, skip_serializing_if = "std::ops::Not::not")]
     detail: bool,
     /// Maximum rows per page.
     #[serde(default = "limit")]
@@ -36,12 +36,13 @@ fn resolver() -> VariantResolver {
 fn limit() -> u32 {
     10
 }
+crate::query::validation::checked_query!(VariantPopulationQuery, Fields);
 impl TryFrom<Fields> for VariantPopulationQuery {
     type Error = super::gene::QueryInvalid;
     fn try_from(fields: Fields) -> Result<Self, Self::Error> {
         VariantGet::new(fields.input.clone(), fields.resolver, fields.build)?;
         if !(1..=50).contains(&fields.limit) {
-            return Err(super::gene::QueryInvalid);
+            return Err(super::gene::QueryInvalid::new(&["limit"]));
         }
         Ok(Self(fields))
     }
@@ -50,6 +51,19 @@ impl VariantPopulationQuery {
     /// Read checked identity selectors without changing their meaning.
     pub fn identity(&self) -> Result<VariantGet, super::gene::QueryInvalid> {
         VariantGet::new(self.0.input.clone(), self.0.resolver, self.0.build)
+    }
+    /// Select one source candidate while retaining population-detail selectors.
+    pub fn with_identity(
+        &self,
+        input: VariantInput,
+        build: Option<Build>,
+    ) -> Result<Self, super::gene::QueryInvalid> {
+        let mut query = self.clone();
+        query.0.input = input;
+        query.0.build = build;
+        query.0.resolver = VariantResolver::Car;
+        query.0.offset = 0;
+        Self::try_from(query.0)
     }
     /// Whether source ancestry detail was requested.
     pub fn detail(&self) -> bool {

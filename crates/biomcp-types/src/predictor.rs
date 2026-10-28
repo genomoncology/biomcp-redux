@@ -13,6 +13,7 @@ pub struct VariantComponent {
     #[serde(default, skip_serializing_if = "Option::is_none")]
     pub version: Option<Text>,
     /// Component license URL, without any inferred grant.
+    #[cfg_attr(feature = "schema", schemars(extend("format" = "uri")))]
     pub license: Text,
     /// Aggregator build version.
     pub aggregator_build: Text,
@@ -39,8 +40,10 @@ pub struct VariantPredictors {
     #[serde(default, skip_serializing_if = "<[ _ ]>::is_empty")]
     pub context: Box<[PredictorContext]>,
     /// Every retained source score in declared field order.
+    #[serde(default, skip_serializing_if = "<[_]>::is_empty")]
     pub scores: Box<[PredictorScore]>,
     /// Independent component versions and licenses.
+    #[serde(default, skip_serializing_if = "<[_]>::is_empty")]
     pub components: Box<[VariantComponent]>,
 }
 /// Source conservation measurements; no local pathogenicity inference.
@@ -54,8 +57,10 @@ pub struct VariantConservation {
     #[serde(default, skip_serializing_if = "<[ _ ]>::is_empty")]
     pub context: Box<[PredictorContext]>,
     /// Every retained source measurement in declared field order.
+    #[serde(default, skip_serializing_if = "<[_]>::is_empty")]
     pub scores: Box<[PredictorScore]>,
     /// Independent component versions and licenses.
+    #[serde(default, skip_serializing_if = "<[_]>::is_empty")]
     pub components: Box<[VariantComponent]>,
 }
 /// Historical COSMIC fields carried by MyVariant, without direct COSMIC access.
@@ -69,8 +74,10 @@ pub struct VariantCosmic {
     #[serde(default, skip_serializing_if = "Option::is_none")]
     pub next: Option<crate::VariantGet>,
     /// Native historical records in source order.
+    #[serde(default, skip_serializing_if = "<[_]>::is_empty")]
     pub records: Box<[CosmicRecord]>,
     /// Snapshot version, dates, warning and terms.
+    #[serde(default, skip_serializing_if = "<[_]>::is_empty")]
     pub components: Box<[VariantComponent]>,
 }
 /// One source record from MyVariant's historical COSMIC copy.
@@ -83,7 +90,7 @@ pub struct CosmicRecord {
     /// Fragment identity has not been independently verified.
     pub identity: CosmicIdentity,
     /// Native COSMIC record identifier.
-    pub cosmic_id: Text,
+    pub cosmic_id: biodata::CosmicId,
     /// Unmodified source reference spelling.
     #[serde(default, skip_serializing_if = "Option::is_none")]
     pub reference: Option<Text>,
@@ -134,6 +141,7 @@ pub struct ComponentTerms {
     /// Publisher terms name.
     pub name: Text,
     /// Publisher terms page.
+    #[cfg_attr(feature = "schema", schemars(extend("format" = "uri")))]
     pub url: Text,
 }
 
@@ -145,6 +153,7 @@ pub struct PredictorContext {
     /// Native source field path.
     pub field: Text,
     /// Every native value in source array order.
+    #[serde(default, skip_serializing_if = "<[_]>::is_empty")]
     pub values: Box<[Text]>,
 }
 /// One source-named component upload timestamp.
@@ -155,7 +164,7 @@ pub struct ComponentUpload {
     /// Source subcollection name.
     pub name: Text,
     /// Unchanged source timestamp.
-    pub date: Text,
+    pub date: crate::SourceTimestamp,
 }
 
 biodata::wire_enum! {

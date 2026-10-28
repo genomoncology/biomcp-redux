@@ -1,6 +1,7 @@
 {
   "$defs": {
     "Accession": {
+      "description": "A reference sequence accession: RefSeq or Ensembl with its version, or LRG.",
       "pattern": "^((N[CGMPRTW]|X[MPR])_([0-9]{6}|[0-9]{9})\\.[1-9][0-9]*|ENS[GTP][0-9]{11}\\.[1-9][0-9]*|LRG_[0-9]+([tp][0-9]+)?)$",
       "type": "string"
     },
@@ -33,6 +34,465 @@
         "location",
         "reference",
         "alternate"
+      ],
+      "type": "object"
+    },
+    "AlphaGenomeBiosample": {
+      "additionalProperties": false,
+      "description": "Native biosample metadata.",
+      "properties": {
+        "name": {
+          "description": "Publisher sample name.",
+          "type": "string"
+        },
+        "stage": {
+          "description": "Publisher stage text, when supplied.",
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "type": {
+          "$ref": "#/$defs/AlphaGenomeBiosampleType",
+          "description": "Publisher sample category."
+        }
+      },
+      "required": [
+        "type",
+        "name"
+      ],
+      "type": "object"
+    },
+    "AlphaGenomeBiosampleType": {
+      "description": "Publisher BiosampleType vocabulary.",
+      "enum": [
+        "BIOSAMPLE_TYPE_UNSPECIFIED",
+        "BIOSAMPLE_TYPE_PRIMARY_CELL",
+        "BIOSAMPLE_TYPE_IN_VITRO_DIFFERENTIATED_CELLS",
+        "BIOSAMPLE_TYPE_CELL_LINE",
+        "BIOSAMPLE_TYPE_TISSUE",
+        "BIOSAMPLE_TYPE_TECHNICAL_SAMPLE",
+        "BIOSAMPLE_TYPE_ORGANOID"
+      ],
+      "type": "string"
+    },
+    "AlphaGenomeDataType": {
+      "description": "Original tensor scalar representation.",
+      "enum": [
+        "DATA_TYPE_FLOAT32"
+      ],
+      "type": "string"
+    },
+    "AlphaGenomeEndedness": {
+      "description": "Publisher Endedness vocabulary.",
+      "enum": [
+        "ENDEDNESS_UNSPECIFIED",
+        "ENDEDNESS_SINGLE",
+        "ENDEDNESS_PAIRED"
+      ],
+      "type": "string"
+    },
+    "AlphaGenomeGene": {
+      "additionalProperties": false,
+      "description": "Native gene metadata for a tensor row.",
+      "properties": {
+        "gene_id": {
+          "$ref": "#/$defs/Text",
+          "description": "Publisher gene identifier."
+        },
+        "junction_end": {
+          "description": "Publisher junction end, when supplied.",
+          "format": "int64",
+          "type": [
+            "integer",
+            "null"
+          ]
+        },
+        "junction_start": {
+          "description": "Publisher junction start, when supplied.",
+          "format": "int64",
+          "type": [
+            "integer",
+            "null"
+          ]
+        },
+        "name": {
+          "description": "Publisher gene name.",
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "strand": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/AlphaGenomeStrand"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "description": "Publisher gene strand."
+        },
+        "type": {
+          "description": "Publisher gene type.",
+          "type": [
+            "string",
+            "null"
+          ]
+        }
+      },
+      "required": [
+        "gene_id"
+      ],
+      "type": "object"
+    },
+    "AlphaGenomeInterval": {
+      "additionalProperties": false,
+      "description": "A requested interval; the scoring response does not echo an interval field.",
+      "properties": {
+        "chromosome": {
+          "$ref": "#/$defs/Contig",
+          "description": "Exact chromosome sent."
+        },
+        "end": {
+          "description": "Zero-based exclusive end.",
+          "format": "int64",
+          "type": "integer"
+        },
+        "start": {
+          "description": "Zero-based inclusive start.",
+          "format": "int64",
+          "type": "integer"
+        },
+        "strand": {
+          "$ref": "#/$defs/AlphaGenomeStrand",
+          "description": "Requested strand."
+        }
+      },
+      "required": [
+        "chromosome",
+        "start",
+        "end",
+        "strand"
+      ],
+      "type": "object"
+    },
+    "AlphaGenomeNonfiniteKind": {
+      "description": "Native nonfinite scalar category, without assigning a missing-value meaning.",
+      "enum": [
+        "nan",
+        "positive_infinity",
+        "negative_infinity"
+      ],
+      "type": "string"
+    },
+    "AlphaGenomeOntology": {
+      "additionalProperties": false,
+      "description": "Native ontology identity.",
+      "properties": {
+        "id": {
+          "description": "Publisher numeric identifier.",
+          "format": "int64",
+          "type": "integer"
+        },
+        "ontology_type": {
+          "$ref": "#/$defs/AlphaGenomeOntologyType",
+          "description": "Publisher ontology vocabulary."
+        }
+      },
+      "required": [
+        "ontology_type",
+        "id"
+      ],
+      "type": "object"
+    },
+    "AlphaGenomeOntologyType": {
+      "description": "Publisher OntologyType vocabulary.",
+      "enum": [
+        "ONTOLOGY_TYPE_UNSPECIFIED",
+        "ONTOLOGY_TYPE_CLO",
+        "ONTOLOGY_TYPE_UBERON",
+        "ONTOLOGY_TYPE_CL",
+        "ONTOLOGY_TYPE_EFO",
+        "ONTOLOGY_TYPE_NTR"
+      ],
+      "type": "string"
+    },
+    "AlphaGenomeScalar": {
+      "anyOf": [
+        {
+          "$ref": "#/$defs/FiniteNumber",
+          "description": "A finite JSON number."
+        },
+        {
+          "additionalProperties": false,
+          "description": "A native nonfinite value without invented units, payload meaning or missingness.",
+          "properties": {
+            "kind": {
+              "$ref": "#/$defs/AlphaGenomeNonfiniteKind",
+              "description": "Exact scalar category."
+            }
+          },
+          "required": [
+            "kind"
+          ],
+          "type": "object"
+        }
+      ],
+      "description": "One native scalar; finite values remain JSON numbers and nonfinite values stay explicit."
+    },
+    "AlphaGenomeScorer": {
+      "description": "The scorer explicitly requested at this ordinal; not a native response label.",
+      "enum": [
+        "gene_mask_lfc_rna_seq",
+        "gene_mask_splicing_splice_sites",
+        "center_mask_diff_mean_dnase_501"
+      ],
+      "type": "string"
+    },
+    "AlphaGenomeScorerPage": {
+      "additionalProperties": false,
+      "description": "Independent page of one requested scorer's native values.",
+      "properties": {
+        "data_type": {
+          "$ref": "#/$defs/AlphaGenomeDataType",
+          "description": "Original scalar representation."
+        },
+        "next": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/VariantGet"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "description": "Next explicit section request, when more native values remain."
+        },
+        "page": {
+          "$ref": "#/$defs/PageInfo",
+          "description": "Value paging within this scorer only."
+        },
+        "request_ordinal": {
+          "description": "Request position used to associate this unlabelled response group.",
+          "format": "uint32",
+          "minimum": 0,
+          "type": "integer"
+        },
+        "requested_scorer": {
+          "$ref": "#/$defs/AlphaGenomeScorer",
+          "description": "Requested scorer identity, distinct from native metadata."
+        },
+        "rows": {
+          "description": "Paged values in native row-major order.",
+          "items": {
+            "$ref": "#/$defs/AlphaGenomeValue"
+          },
+          "type": "array"
+        },
+        "shape": {
+          "description": "Complete native tensor dimensions, including every plane.",
+          "items": {
+            "format": "uint32",
+            "minimum": 0,
+            "type": "integer"
+          },
+          "maxItems": 3,
+          "minItems": 3,
+          "type": "array"
+        }
+      },
+      "required": [
+        "request_ordinal",
+        "requested_scorer",
+        "data_type",
+        "shape",
+        "page"
+      ],
+      "type": "object"
+    },
+    "AlphaGenomeStrand": {
+      "description": "Publisher Strand vocabulary.",
+      "enum": [
+        "STRAND_UNSPECIFIED",
+        "STRAND_POSITIVE",
+        "STRAND_NEGATIVE",
+        "STRAND_UNSTRANDED"
+      ],
+      "type": "string"
+    },
+    "AlphaGenomeTrack": {
+      "additionalProperties": false,
+      "description": "Native metadata for one tensor track.",
+      "properties": {
+        "assay": {
+          "description": "Publisher assay text.",
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "biosample": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/AlphaGenomeBiosample"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "description": "Native biosample, when supplied."
+        },
+        "data_source": {
+          "description": "Publisher data source.",
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "endedness": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/AlphaGenomeEndedness"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "description": "Publisher sequence endedness."
+        },
+        "genetically_modified": {
+          "description": "Publisher modification flag.",
+          "type": [
+            "boolean",
+            "null"
+          ]
+        },
+        "gtex_tissue": {
+          "description": "Publisher GTEx tissue.",
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "histone_mark_code": {
+          "description": "Publisher histone mark.",
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "name": {
+          "description": "Publisher track name.",
+          "type": "string"
+        },
+        "nonzero_mean": {
+          "description": "Publisher nonzero mean, without assigning score units.",
+          "format": "double",
+          "type": [
+            "number",
+            "null"
+          ]
+        },
+        "ontology_term": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/AlphaGenomeOntology"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "description": "Native ontology identity, when supplied."
+        },
+        "strand": {
+          "$ref": "#/$defs/AlphaGenomeStrand",
+          "description": "Publisher strand value."
+        },
+        "transcription_factor_code": {
+          "description": "Publisher transcription factor code.",
+          "type": [
+            "string",
+            "null"
+          ]
+        }
+      },
+      "required": [
+        "name",
+        "strand"
+      ],
+      "type": "object"
+    },
+    "AlphaGenomeValue": {
+      "additionalProperties": false,
+      "description": "One native tensor value with its unchanged coordinate and metadata.",
+      "properties": {
+        "gene": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/AlphaGenomeGene"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "description": "Native gene metadata, omitted for a nongene aggregate row."
+        },
+        "tensor_index": {
+          "description": "Native row-major tensor coordinate; plane, row and track indices.",
+          "items": {
+            "format": "uint32",
+            "minimum": 0,
+            "type": "integer"
+          },
+          "maxItems": 3,
+          "minItems": 3,
+          "type": "array"
+        },
+        "track": {
+          "$ref": "#/$defs/AlphaGenomeTrack",
+          "description": "Native metadata for the corresponding track."
+        },
+        "value": {
+          "$ref": "#/$defs/AlphaGenomeScalar",
+          "description": "Exact numeric value represented by the source scalar."
+        }
+      },
+      "required": [
+        "tensor_index",
+        "value",
+        "track"
+      ],
+      "type": "object"
+    },
+    "AlphaGenomeVariant": {
+      "additionalProperties": false,
+      "description": "Exact genomic coordinates supplied in the request and echoed by the source.",
+      "properties": {
+        "alternate_bases": {
+          "$ref": "#/$defs/Sequence",
+          "description": "Exact alternate sequence sent."
+        },
+        "chromosome": {
+          "$ref": "#/$defs/Contig",
+          "description": "Exact chromosome sent."
+        },
+        "position": {
+          "description": "One-based source position.",
+          "format": "int64",
+          "type": "integer"
+        },
+        "reference_bases": {
+          "$ref": "#/$defs/Sequence",
+          "description": "Exact reference sequence sent."
+        }
+      },
+      "required": [
+        "chromosome",
+        "position",
+        "reference_bases",
+        "alternate_bases"
       ],
       "type": "object"
     },
@@ -237,10 +697,6 @@
           "type": "array"
         }
       },
-      "required": [
-        "source_conditions",
-        "related_conditions"
-      ],
       "type": "object"
     },
     "AssertionDetail": {
@@ -524,7 +980,8 @@
               "type": "null"
             }
           ],
-          "description": "Source record link."
+          "description": "Source record link.",
+          "format": "uri"
         },
         "version": {
           "anyOf": [
@@ -617,6 +1074,10 @@
       ],
       "type": "string"
     },
+    "CivicKind": {
+      "description": "Native publisher vocabulary; new values are retained unchanged. Known values: DIAGNOSTIC; PROGNOSTIC; PREDICTIVE; PREDISPOSING; FUNCTIONAL; ONCOGENIC; ",
+      "type": "string"
+    },
     "CivicMember": {
       "additionalProperties": false,
       "description": "A native CIViC member, including members without a common-model subject.",
@@ -694,8 +1155,15 @@
           "type": "array"
         },
         "classification": {
-          "$ref": "#/$defs/Term",
-          "description": "Whole native classification."
+          "anyOf": [
+            {
+              "$ref": "#/$defs/Term"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "description": "Native classification when its source text is nonempty; significance remains on the claim."
         },
         "condition": {
           "anyOf": [
@@ -728,7 +1196,6 @@
         }
       },
       "required": [
-        "classification",
         "attribution"
       ],
       "type": "object"
@@ -793,14 +1260,16 @@
         "label",
         "compound",
         "membership",
-        "members",
         "evidence_count",
         "assertion_count",
-        "statements",
         "evidence_page",
         "assertion_page"
       ],
       "type": "object"
+    },
+    "CivicSignificance": {
+      "description": "Native publisher vocabulary; new values are retained unchanged. Known values: SENSITIVITYRESPONSE; RESISTANCE; BETTER_OUTCOME; POOR_OUTCOME; POSITIVE; NEGATIVE; NA; ADVERSE_RESPONSE; PATHOGENIC; LIKELY_PATHOGENIC; BENIGN; LIKELY_BENIGN; UNCERTAIN_SIGNIFICANCE; REDUCED_SENSITIVITY; GAIN_OF_FUNCTION; LOSS_OF_FUNCTION; UNALTERED_FUNCTION; NEOMORPHIC; UNKNOWN; DOMINANT_NEGATIVE; PREDISPOSITION; PROTECTIVENESS; ONCOGENICITY; LIKELY_ONCOGENIC; ONCOGENIC; ",
+      "type": "string"
     },
     "CivicStatement": {
       "additionalProperties": false,
@@ -818,7 +1287,7 @@
           "description": "Original provider direction; disputes never implies the opposite effect."
         },
         "kind": {
-          "$ref": "#/$defs/Text",
+          "$ref": "#/$defs/CivicKind",
           "description": "Source claim category, without a fallback proposition."
         },
         "native": {
@@ -839,7 +1308,7 @@
         "significance": {
           "anyOf": [
             {
-              "$ref": "#/$defs/Text"
+              "$ref": "#/$defs/CivicSignificance"
             },
             {
               "type": "null"
@@ -863,7 +1332,7 @@
           "type": "boolean"
         },
         "status": {
-          "$ref": "#/$defs/Text",
+          "$ref": "#/$defs/CivicStatus",
           "description": "Native curation state, without implying that every row is accepted."
         }
       },
@@ -873,6 +1342,10 @@
         "status"
       ],
       "type": "object"
+    },
+    "CivicStatus": {
+      "description": "Native publisher vocabulary; new values are retained unchanged. Known values: ACCEPTED; SUBMITTED; REJECTED; ",
+      "type": "string"
     },
     "ClingenCgcVicc2022Code": {
       "description": "Checked ClingenCgcVicc2022 codes.",
@@ -1074,7 +1547,8 @@
         },
         "url": {
           "$ref": "#/$defs/Text",
-          "description": "Publisher terms page."
+          "description": "Publisher terms page.",
+          "format": "uri"
         },
         "usage": {
           "$ref": "#/$defs/Use",
@@ -1093,7 +1567,7 @@
       "description": "One source-named component upload timestamp.",
       "properties": {
         "date": {
-          "$ref": "#/$defs/Text",
+          "$ref": "#/$defs/SourceTimestamp",
           "description": "Unchanged source timestamp."
         },
         "name": {
@@ -1132,6 +1606,11 @@
       ],
       "type": "object"
     },
+    "Contig": {
+      "description": "A source chromosome or scaffold name without spelling normalization.",
+      "pattern": "^[\\x21-\\x7e]{1,255}$",
+      "type": "string"
+    },
     "CosmicCoordinates": {
       "additionalProperties": false,
       "description": "Historical coordinates exactly as carried by the component.",
@@ -1154,6 +1633,11 @@
         "end"
       ],
       "type": "object"
+    },
+    "CosmicId": {
+      "description": "A COSMIC genomic, legacy transcript or noncoding variant identifier; its kind is retained.",
+      "pattern": "^COS[VMN][1-9][0-9]*$",
+      "type": "string"
     },
     "CosmicIdentity": {
       "description": "Relationship between a carried historical fragment and its aggregator record.",
@@ -1189,7 +1673,7 @@
           "description": "Source chromosome label."
         },
         "cosmic_id": {
-          "$ref": "#/$defs/Text",
+          "$ref": "#/$defs/CosmicId",
           "description": "Native COSMIC record identifier."
         },
         "hg19": {
@@ -1260,6 +1744,7 @@
       "type": "object"
     },
     "Curie": {
+      "description": "Checked prefix:local ontology identifier.",
       "pattern": "^[A-Za-z0-9_.-]+:[^\\s\\x00-\\x1f\\x7f-\\x9f]+$",
       "type": "string"
     },
@@ -1273,6 +1758,7 @@
       "type": "string"
     },
     "EnsemblGeneId": {
+      "description": " A human Ensembl gene stable identifier with a separately retained version.",
       "pattern": "^ENSG[0-9]{11}(\\.[1-9][0-9]*)?$",
       "type": "string"
     },
@@ -1382,6 +1868,7 @@
       "type": "object"
     },
     "GeneSymbol": {
+      "description": "Source spelling of a gene symbol, with ASCII case-insensitive identity.",
       "pattern": "^[A-Za-z][A-Za-z0-9._/@-]{0,254}$",
       "type": "string"
     },
@@ -1620,8 +2107,6 @@
       "required": [
         "id",
         "study",
-        "traits",
-        "alleles",
         "p_value"
       ],
       "type": "object"
@@ -1665,10 +2150,12 @@
       "type": "object"
     },
     "HgncId": {
+      "description": "An HGNC identifier with canonical namespace and positive numeric value.",
       "pattern": "^HGNC:[1-9][0-9]*$",
       "type": "string"
     },
     "HgvsText": {
+      "description": "Reference-qualified notation with its original text, without a molecular parse.",
       "pattern": "^((N[CGMPRTW]|X[MPR])_([0-9]{6}|[0-9]{9})\\.[0-9]+|ENS[GTP][0-9]{11}\\.[0-9]+|LRG_[0-9]+([tp][0-9]+)?)(\\(([A-Za-z][A-Za-z0-9._/@-]*|[A-Za-z0-9_.]+)\\))?:[gcnrpmo]\\.[\\x20-\\x7e]+$",
       "type": "string"
     },
@@ -1746,8 +2233,7 @@
         "membership",
         "gene",
         "residue",
-        "tumor_count",
-        "alternates"
+        "tumor_count"
       ],
       "type": "object"
     },
@@ -1831,10 +2317,12 @@
       ]
     },
     "MyVariantQuery": {
+      "description": "A validated canonical MyVariantQuery string.",
       "pattern": "\\S",
       "type": "string"
     },
     "NcbiGeneId": {
+      "description": "A positive NCBI Gene identifier in canonical decimal text.",
       "pattern": "^[1-9][0-9]*$",
       "type": "string"
     },
@@ -1851,7 +2339,8 @@
               "type": "null"
             }
           ],
-          "description": "Native citation link."
+          "description": "Native citation link.",
+          "format": "uri"
         },
         "text": {
           "description": "Complete native citation content.",
@@ -1937,7 +2426,8 @@
                   "type": "null"
                 }
               ],
-              "description": "Source link."
+              "description": "Source link.",
+              "format": "uri"
             },
             "text": {
               "description": "Native text, without trimming.",
@@ -2046,7 +2536,6 @@
               "type": "array"
             },
             "approved_indications": {
-              "default": [],
               "description": "Native approved indication labels.",
               "items": {
                 "$ref": "#/$defs/Text"
@@ -2054,7 +2543,6 @@
               "type": "array"
             },
             "citations": {
-              "default": [],
               "description": "Source PMID citations.",
               "items": {
                 "$ref": "#/$defs/Pmid"
@@ -2076,7 +2564,6 @@
               "type": "array"
             },
             "excluded_tumor_types": {
-              "default": [],
               "description": "Native excluded contexts, never filled from the caller context.",
               "items": {
                 "$ref": "#/$defs/Concept"
@@ -2192,10 +2679,12 @@
       "type": "object"
     },
     "PartialDate": {
+      "description": "A Gregorian date preserving year, month or day precision.",
       "pattern": "^[0-9]{4}(-[0-9]{2}(-[0-9]{2})?)?$",
       "type": "string"
     },
     "Pmid": {
+      "description": "Positive PubMed identifier.",
       "pattern": "^[1-9][0-9]*$",
       "type": "string"
     },
@@ -2411,8 +2900,7 @@
         }
       },
       "required": [
-        "field",
-        "values"
+        "field"
       ],
       "type": "object"
     },
@@ -2519,7 +3007,12 @@
       "type": "string"
     },
     "ProteinQuery": {
+      "description": "A validated canonical ProteinQuery string.",
       "pattern": "^(p\\.)?(A|Ala|R|Arg|N|Asn|D|Asp|C|Cys|E|Glu|Q|Gln|G|Gly|H|His|I|Ile|L|Leu|K|Lys|M|Met|F|Phe|P|Pro|S|Ser|T|Thr|W|Trp|Y|Tyr|V|Val|U|Sec|O|Pyl|\\*|Ter)[1-9][0-9]*(A|Ala|R|Arg|N|Asn|D|Asp|C|Cys|E|Glu|Q|Gln|G|Gly|H|His|I|Ile|L|Leu|K|Lys|M|Met|F|Phe|P|Pro|S|Ser|T|Thr|W|Trp|Y|Tyr|V|Val|U|Sec|O|Pyl|\\*|Ter)$",
+      "type": "string"
+    },
+    "QualifiedVariantId": {
+      "pattern": "^(rs:[1-9][0-9]*|clingen:(CA[0-9]{6,}|PA[1-9][0-9]*)|clinvar:(VCV[0-9]{9}(\\.[1-9][0-9]*)?|[1-9][0-9]*)|cosmic:COS[VMN][1-9][0-9]*|ga4gh:VA\\.[A-Za-z0-9_-]{32})$",
       "type": "string"
     },
     "Reason": {
@@ -2531,6 +3024,7 @@
         "unsupported",
         "too_large",
         "rate_limited",
+        "local_quota",
         "unavailable",
         "tls",
         "proxy",
@@ -2552,6 +3046,7 @@
         " The local reader does not support the file or container format.",
         " The response exceeds an explicit reader resource bound.",
         " The source limited the request rate.",
+        " The local source quota refused admission without a network request.",
         " The source was unavailable.",
         " Platform or configured certificate verification failed.",
         " Connecting to or negotiating the configured proxy failed.",
@@ -2638,6 +3133,127 @@
           "properties": {
             "data": {
               "$ref": "#/$defs/VariantPredictors",
+              "description": "Whole section data."
+            },
+            "source": {
+              "$ref": "#/$defs/Source",
+              "description": "Source identity."
+            },
+            "state": {
+              "const": "data",
+              "type": "string"
+            }
+          },
+          "required": [
+            "state",
+            "source",
+            "data"
+          ],
+          "type": "object"
+        },
+        {
+          "additionalProperties": false,
+          "description": "The source answered with no data.",
+          "properties": {
+            "record": {
+              "anyOf": [
+                {
+                  "$ref": "#/$defs/SourceRecord"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "description": "Native entry, if any."
+            },
+            "source": {
+              "$ref": "#/$defs/Source",
+              "description": "Source identity."
+            },
+            "state": {
+              "const": "empty",
+              "type": "string"
+            }
+          },
+          "required": [
+            "state",
+            "source"
+          ],
+          "type": "object"
+        },
+        {
+          "additionalProperties": false,
+          "description": "A requested source failed.",
+          "properties": {
+            "reason": {
+              "$ref": "#/$defs/Reason",
+              "description": "Typed reason."
+            },
+            "source": {
+              "$ref": "#/$defs/Source",
+              "description": "Source identity."
+            },
+            "state": {
+              "const": "unavailable",
+              "type": "string"
+            }
+          },
+          "required": [
+            "state",
+            "source",
+            "reason"
+          ],
+          "type": "object"
+        },
+        {
+          "additionalProperties": false,
+          "description": "User settings prevented the source request.",
+          "properties": {
+            "reason": {
+              "$ref": "#/$defs/Reason",
+              "description": "Typed reason."
+            },
+            "source": {
+              "$ref": "#/$defs/Source",
+              "description": "Source identity."
+            },
+            "state": {
+              "const": "skipped",
+              "type": "string"
+            }
+          },
+          "required": [
+            "state",
+            "source",
+            "reason"
+          ],
+          "type": "object"
+        },
+        {
+          "additionalProperties": false,
+          "description": "Entity facts rule this section out.",
+          "properties": {
+            "state": {
+              "const": "not_applicable",
+              "type": "string"
+            }
+          },
+          "required": [
+            "state"
+          ],
+          "type": "object"
+        }
+      ]
+    },
+    "Section10": {
+      "description": "A requested section has exactly one state.",
+      "oneOf": [
+        {
+          "additionalProperties": false,
+          "description": "The source returned data.",
+          "properties": {
+            "data": {
+              "$ref": "#/$defs/VariantHotspots",
               "description": "Whole section data."
             },
             "source": {
@@ -3363,7 +3979,7 @@
           "description": "The source returned data.",
           "properties": {
             "data": {
-              "$ref": "#/$defs/VariantOncokb",
+              "$ref": "#/$defs/VariantAlphaGenome",
               "description": "Whole section data."
             },
             "source": {
@@ -3484,7 +4100,7 @@
           "description": "The source returned data.",
           "properties": {
             "data": {
-              "$ref": "#/$defs/VariantCivic",
+              "$ref": "#/$defs/VariantOncokb",
               "description": "Whole section data."
             },
             "source": {
@@ -3605,7 +4221,7 @@
           "description": "The source returned data.",
           "properties": {
             "data": {
-              "$ref": "#/$defs/VariantHotspots",
+              "$ref": "#/$defs/VariantCivic",
               "description": "Whole section data."
             },
             "source": {
@@ -3719,6 +4335,7 @@
       ]
     },
     "Sequence": {
+      "description": "A literal IUPAC DNA sequence; empty sequences express insertions or deletions.",
       "pattern": "^[ACGTNRYSWKMBDHV]*$",
       "type": "string"
     },
@@ -3757,6 +4374,7 @@
         "erepo",
         "gwas",
         "clingen",
+        "gencc",
         "pubmed",
         "europepmc",
         "litvar",
@@ -3770,6 +4388,7 @@
         "nci",
         "civic",
         "hotspots",
+        "alphagenome",
         "oncokb",
         "myvariant",
         "car",
@@ -3829,6 +4448,7 @@
         " ClinGen Evidence Repository.",
         " GWAS Catalog v2.",
         " ClinGen.",
+        " GenCC submitter assessments.",
         " PubMed.",
         " Europe PMC.",
         " NCBI LitVar2.",
@@ -3842,6 +4462,7 @@
         " NCI Clinical Trials Search.",
         " CIViC.",
         " Cancer Hotspots residue recurrence.",
+        " AlphaGenome.",
         " OncoKB.",
         " MyVariant.info aggregation.",
         " ClinGen Allele Registry.",
@@ -3888,8 +4509,55 @@
       ]
     },
     "SourceNotice": {
-      "description": "A provider query interpretation notice.",
+      "description": "A source notice or request recovery step.",
       "oneOf": [
+        {
+          "additionalProperties": false,
+          "description": "Local request limits and source-specific recovery guidance.",
+          "properties": {
+            "kind": {
+              "const": "request_guidance",
+              "type": "string"
+            },
+            "message": {
+              "description": "Reviewed guidance without provider response text.",
+              "type": "string"
+            },
+            "retry_after_seconds": {
+              "description": "Seconds left before another source request may be admitted.",
+              "format": "uint64",
+              "minimum": 0,
+              "type": [
+                "integer",
+                "null"
+              ]
+            }
+          },
+          "required": [
+            "kind",
+            "message"
+          ],
+          "type": "object"
+        },
+        {
+          "additionalProperties": false,
+          "description": "Registered conditions lack the literal words requested in a condition search.",
+          "properties": {
+            "kind": {
+              "const": "condition_word_mismatch",
+              "type": "string"
+            },
+            "message": {
+              "description": "The source searches several fields and can expand terms; no expansion cause is inferred.",
+              "type": "string"
+            }
+          },
+          "required": [
+            "kind",
+            "message"
+          ],
+          "type": "object"
+        },
         {
           "additionalProperties": false,
           "description": "A checked provider answer survived a local cache failure.",
@@ -3930,6 +4598,51 @@
         },
         {
           "additionalProperties": false,
+          "description": "An empty LitVar lookup can be repeated with a caller-supplied rsID.",
+          "properties": {
+            "kind": {
+              "const": "litvar_rsid_hint",
+              "type": "string"
+            },
+            "message": {
+              "description": "Guidance that never supplies or infers an rsID.",
+              "type": "string"
+            }
+          },
+          "required": [
+            "kind",
+            "message"
+          ],
+          "type": "object"
+        },
+        {
+          "additionalProperties": false,
+          "description": "PubMed supplied a named ESearch warning without changing its phrases.",
+          "properties": {
+            "kind": {
+              "const": "pubmed_warning",
+              "type": "string"
+            },
+            "name": {
+              "description": "Original provider warning name, including names added by PubMed later.",
+              "type": "string"
+            },
+            "phrases": {
+              "description": "Original provider phrases, preserving whitespace and quotes.",
+              "items": {
+                "type": "string"
+              },
+              "type": "array"
+            }
+          },
+          "required": [
+            "kind",
+            "name"
+          ],
+          "type": "object"
+        },
+        {
+          "additionalProperties": false,
           "description": "PubMed did not index these words.",
           "properties": {
             "kind": {
@@ -3945,8 +4658,7 @@
             }
           },
           "required": [
-            "kind",
-            "words"
+            "kind"
           ],
           "type": "object"
         }
@@ -3975,7 +4687,7 @@
           ]
         },
         "notices": {
-          "description": "Provider query notices that do not indicate failure.",
+          "description": "Source notices and request recovery guidance.",
           "items": {
             "$ref": "#/$defs/SourceNotice"
           },
@@ -4017,6 +4729,7 @@
         },
         "terms_url": {
           "description": "Publisher page documenting the terms.",
+          "format": "uri",
           "type": "string"
         },
         "use": {
@@ -4050,7 +4763,8 @@
               "type": "null"
             }
           ],
-          "description": "Link to that entry."
+          "description": "Link to that entry.",
+          "format": "uri"
         }
       },
       "required": [
@@ -4066,6 +4780,33 @@
         "syncing",
         "failed",
         "skipped"
+      ],
+      "type": "string"
+    },
+    "SourceTimestamp": {
+      "additionalProperties": false,
+      "description": "Native source timestamp and the availability of its timezone.",
+      "properties": {
+        "timezone": {
+          "$ref": "#/$defs/SourceTimestampTimezone",
+          "description": "Whether the native timestamp includes a timezone."
+        },
+        "value": {
+          "$ref": "#/$defs/Text",
+          "description": "Exact source-supplied timestamp."
+        }
+      },
+      "required": [
+        "value",
+        "timezone"
+      ],
+      "type": "object"
+    },
+    "SourceTimestampTimezone": {
+      "description": "Availability of timezone information in a native timestamp.",
+      "enum": [
+        "in_value",
+        "source_gave_none"
       ],
       "type": "string"
     },
@@ -4235,8 +4976,7 @@
         }
       },
       "required": [
-        "kind",
-        "args"
+        "kind"
       ],
       "type": "object"
     },
@@ -4354,7 +5094,7 @@
         "ids": {
           "description": "All source identifiers, without inferred aliases.",
           "items": {
-            "$ref": "#/$defs/VariantId"
+            "$ref": "#/$defs/QualifiedVariantId"
           },
           "type": "array"
         },
@@ -4366,6 +5106,42 @@
           "type": "array"
         }
       },
+      "type": "object"
+    },
+    "VariantAlphaGenome": {
+      "additionalProperties": false,
+      "description": "Paged native scorer results with explicit request provenance.",
+      "properties": {
+        "build": {
+          "$ref": "#/$defs/Build",
+          "description": "Source-resolved assembly used for the request."
+        },
+        "requested_interval": {
+          "$ref": "#/$defs/AlphaGenomeInterval",
+          "description": "Exact requested interval, never claimed as a returned interval."
+        },
+        "requested_model_version": {
+          "description": "Checkpoint field sent; empty means the publisher default was requested.",
+          "type": "string"
+        },
+        "scorers": {
+          "description": "Native scorer groups associated only by requested position.",
+          "items": {
+            "$ref": "#/$defs/AlphaGenomeScorerPage"
+          },
+          "type": "array"
+        },
+        "variant": {
+          "$ref": "#/$defs/AlphaGenomeVariant",
+          "description": "Exact request identity, checked against native metadata."
+        }
+      },
+      "required": [
+        "build",
+        "variant",
+        "requested_interval",
+        "requested_model_version"
+      ],
       "type": "object"
     },
     "VariantAssertion": {
@@ -4452,7 +5228,6 @@
         }
       },
       "required": [
-        "assertions",
         "page"
       ],
       "type": "object"
@@ -4541,7 +5316,6 @@
         }
       },
       "required": [
-        "profiles",
         "page"
       ],
       "type": "object"
@@ -4560,7 +5334,8 @@
         },
         "license": {
           "$ref": "#/$defs/Text",
-          "description": "Component license URL, without any inferred grant."
+          "description": "Component license URL, without any inferred grant.",
+          "format": "uri"
         },
         "name": {
           "$ref": "#/$defs/Text",
@@ -4651,9 +5426,7 @@
         }
       },
       "required": [
-        "subject_qualification",
-        "scores",
-        "components"
+        "subject_qualification"
       ],
       "type": "object"
     },
@@ -4694,9 +5467,7 @@
         }
       },
       "required": [
-        "total",
-        "records",
-        "components"
+        "total"
       ],
       "type": "object"
     },
@@ -4844,7 +5615,6 @@
       },
       "required": [
         "rs_id",
-        "associations",
         "page"
       ],
       "type": "object"
@@ -4904,6 +5674,13 @@
         "source": {
           "$ref": "#/$defs/Source",
           "description": "Source responsible for this identity."
+        },
+        "transcripts": {
+          "description": "Source-paired transcript identifiers and unchanged coding and protein notation.",
+          "items": {
+            "$ref": "#/$defs/VariantTranscript"
+          },
+          "type": "array"
         }
       },
       "required": [
@@ -4952,16 +5729,17 @@
         }
       },
       "required": [
-        "records",
         "page"
       ],
       "type": "object"
     },
     "VariantId": {
+      "description": "Published variant-level identifiers, with each identifier's level retained.",
       "pattern": "^(rs[1-9][0-9]*|CA[0-9]{6,}|PA[1-9][0-9]*|VCV[0-9]{9}(\\.[1-9][0-9]*)?|clinvar:[1-9][0-9]*|COS[VMN][1-9][0-9]*|ga4gh:VA\\.[A-Za-z0-9_-]{32})$",
       "type": "string"
     },
     "VariantInput": {
+      "description": "A validated canonical VariantInput string.",
       "pattern": "(^(rs[1-9][0-9]*|CA[0-9]{6,}|PA[1-9][0-9]*|VCV[0-9]{9}(\\.[1-9][0-9]*)?|clinvar:[1-9][0-9]*|COS[VMN][1-9][0-9]*|ga4gh:VA\\.[A-Za-z0-9_-]{32})$|^((N[CGMPRTW]|X[MPR])_([0-9]{6}|[0-9]{9})\\.[0-9]+|ENS[GTP][0-9]{11}\\.[0-9]+|LRG_[0-9]+([tp][0-9]+)?)(\\(([A-Za-z][A-Za-z0-9._/@-]*|[A-Za-z0-9_.]+)\\))?:[gcnrpmo]\\.[\\x20-\\x7e]+$|^[1-9][0-9]*$|^chr([1-9][0-9]*|X|Y|M|MT):g\\.[\\x21-\\x7e]+$)",
       "type": "string"
     },
@@ -5063,7 +5841,6 @@
         "build",
         "tumor_type",
         "variant_exist",
-        "records",
         "page"
       ],
       "type": "object"
@@ -5118,8 +5895,7 @@
         }
       },
       "required": [
-        "source_query",
-        "items"
+        "source_query"
       ],
       "type": "object"
     },
@@ -5200,9 +5976,7 @@
         }
       },
       "required": [
-        "subject_qualification",
-        "scores",
-        "components"
+        "subject_qualification"
       ],
       "type": "object"
     },
@@ -5320,6 +6094,7 @@
       ]
     },
     "VariantRegion": {
+      "description": "A validated canonical VariantRegion string.",
       "pattern": "^chr([1-9]|1[0-9]|2[0-2]|X|Y|MT):[1-9][0-9]*-[1-9][0-9]*$",
       "type": "string"
     },
@@ -5433,6 +6208,7 @@
         "population",
         "gwas",
         "civic",
+        "alphagenome",
         "oncokb",
         "hotspots",
         "predict",
@@ -5447,6 +6223,7 @@
         " gnomAD population observations.",
         " GWAS Catalog associations.",
         " CIViC molecular-profile evidence.",
+        " Keyed AlphaGenome native numeric scorer values.",
         " Keyed OncoKB annotation with explicit tumor context and build.",
         " Cancer Hotspots candidate residue counts; no established exact allele join or clinical actionability.",
         " MyVariant source predictor scores.",
@@ -5459,10 +6236,21 @@
       "additionalProperties": false,
       "description": "Source-specific sections, absent unless explicitly selected.",
       "properties": {
+        "alphagenome": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/Section7"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "description": "Explicit keyed AlphaGenome numeric scorer result."
+        },
         "civic": {
           "anyOf": [
             {
-              "$ref": "#/$defs/Section8"
+              "$ref": "#/$defs/Section9"
             },
             {
               "type": "null"
@@ -5528,7 +6316,7 @@
         "hotspots": {
           "anyOf": [
             {
-              "$ref": "#/$defs/Section9"
+              "$ref": "#/$defs/Section10"
             },
             {
               "type": "null"
@@ -5539,7 +6327,7 @@
         "oncokb": {
           "anyOf": [
             {
-              "$ref": "#/$defs/Section7"
+              "$ref": "#/$defs/Section8"
             },
             {
               "type": "null"
@@ -5571,9 +6359,71 @@
         }
       },
       "type": "object"
+    },
+    "VariantTranscript": {
+      "additionalProperties": false,
+      "description": "A source-paired transcript annotation, without inferred transcript equivalence.",
+      "properties": {
+        "component": {
+          "$ref": "#/$defs/Text",
+          "description": "Native component and field carrying the paired annotation."
+        },
+        "gene": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/Text"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "description": "Source-stated gene symbol."
+        },
+        "hgvs_c": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/Text"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "description": "Source transcript notation from the coding field, including native n. or r. forms."
+        },
+        "hgvs_p": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/Text"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "description": "Source protein notation, never translated from coding notation."
+        },
+        "matched": {
+          "description": "Whether this row's source notation matched the declared caller notation.",
+          "type": "boolean"
+        },
+        "source": {
+          "$ref": "#/$defs/Source",
+          "description": "Provider carrying this annotation."
+        },
+        "transcript": {
+          "$ref": "#/$defs/Text",
+          "description": "Transcript identifier exactly as published, including its source version."
+        }
+      },
+      "required": [
+        "source",
+        "component",
+        "transcript",
+        "matched"
+      ],
+      "type": "object"
     }
   },
-  "$id": "biomcp.variant_page/6",
+  "$id": "biomcp.variant-page/9",
   "$schema": "https://json-schema.org/draft/2020-12/schema",
   "additionalProperties": false,
   "description": "One versioned command response; schema identity comes only from its body type.",
@@ -5630,7 +6480,7 @@
       "description": "Answer when available."
     },
     "schema": {
-      "const": "biomcp.variant_page/6",
+      "const": "biomcp.variant-page/9",
       "type": "string"
     },
     "sources": {

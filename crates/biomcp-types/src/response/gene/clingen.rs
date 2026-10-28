@@ -5,7 +5,12 @@ use serde::{Deserialize, Serialize};
 #[serde(deny_unknown_fields)]
 #[cfg_attr(feature = "schema", derive(schemars::JsonSchema))]
 pub struct ClinGenGene {
+    /// Outcome of the gene–disease validity source read.
+    pub validity_status: crate::SourceOutcome,
+    /// Outcome of the dosage sensitivity source read.
+    pub dosage_status: crate::SourceOutcome,
     /// Whole gene–disease validity records in file order.
+    #[serde(default, skip_serializing_if = "<[_]>::is_empty")]
     pub validity: Box<[ClinGenValidity]>,
     /// Source haploinsufficiency assessment, when a dosage record exists.
     #[serde(skip_serializing_if = "Option::is_none")]
@@ -25,7 +30,7 @@ pub struct ClinGenValidity {
     /// Source disease label.
     pub disease: Text,
     /// Source MONDO identifier.
-    pub mondo_id: Text,
+    pub mondo_id: biodata::MondoId,
     /// Source mode of inheritance.
     pub mode_of_inheritance: Text,
     /// Source classification without inference.
@@ -35,5 +40,6 @@ pub struct ClinGenValidity {
     /// Source expert panel.
     pub expert_panel: Text,
     /// Source report URL.
+    #[cfg_attr(feature = "schema", schemars(extend("format" = "uri")))]
     pub report_url: Text,
 }

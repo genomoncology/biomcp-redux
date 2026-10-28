@@ -24,6 +24,11 @@ Each fragment names its MyVariant parent record, preserves the component's origi
 
 Every component is on by default. Commercial users should set `"disable_sources": ["noncommercial", "restricted"]` in the configuration file. The same groups work with `--disable-sources`. Groups switch off matching component fields while other aggregator fields remain available. Naming `myvariant` switches off the entire service. These settings apply before requests and prevent disabled values from returning through cached replies or replay. Public API access grants no additional component rights. The retired `predictions` spelling names `predict` as its replacement. Select a native assertion ID and version to inspect its source details. Source-local absence does not establish allele absence. Selected historical records include an exact version link and compact native assessments. A conflict flag preserves disagreements between source outcome labels and identifiers; the original nested evidence remains behind the source link.
 
+
+## AlphaGenome scores
+
+The section requires the user's key, configured with `biomcp key set alphagenome` or `ALPHAGENOME_API_KEY`, and a source-resolved GRCh38 allele. Mitochondrial alleles return `unsupported` because this integration has not verified chromosome mapping and interval handling for them. Each scorer retains native numeric values, tensor coordinates and track and gene metadata. Finite values remain JSON numbers. Native nonfinite values carry `kind` as `nan`, `positive_infinity` or `negative_infinity`; Markdown shows `NaN`, `+Inf` or `-Inf`. These categories do not assert missingness. Section paging applies independently to every scorer. Scorer names, the interval and checkpoint selection describe the request. The source does not supply score units or a returned model version. Scores do not classify a variant. The publisher's [terms](https://alphagenome.google/terms) govern use; the service is labeled restricted.
+
 ## Population counts
 
 The population join requires one source-given GRCh38 single-nucleotide allele. Missing or ambiguous join information produces a problem before gnomAD is called. Exome and genome records remain independent. The source selector does not establish a dataset release. Each request also asks for the source VA cohort release and counts. A typed population-frequency record requires that same response to supply a release for the matching total cohort and matching allele counts. Replies preserve native counts and report a problem when the release is missing or the counts disagree. A missing dataset stays absent; a reported zero stays zero. BioMCP does not compute a frequency from counts or sum overlapping ancestry and sex groups.
@@ -119,3 +124,11 @@ The reply preserves native names, tissue, organism, taxon and optional EFO/CLO i
 ## Cell-line sections
 
 Each source keeps its own outcome and release dates. Composite reads never request assay counts. PharmacoDB drug response remains deferred until a data reuse grant is published, and the HPA expression route remains deferred until an exact cell identity join exists.
+
+## GenCC submissions
+
+`get gene ODC1 gencc` reads the local GenCC bundle by HGNC identity. Run `sync gencc` to install or refresh it. Reads keep stale rows and mark the source stale. Health checks report publisher reachability and local bundle readiness separately.
+
+Each record keeps GenCC's submission ID, version, submitter, disease, inheritance, classification and dates in file order. BioMCP neither merges submissions nor ranks classifications. An empty section means the stored export contains no matching rows.
+
+GenCC documents its new-format CSV export, weekly publication cadence, conditional requests and download policy on its [download page](https://thegencc.org/download). Its [terms](https://thegencc.org/terms) identify CC0 1.0 and request attribution to GenCC and its contributors. The [GenCC publication](https://pmc.ncbi.nlm.nih.gov/articles/PMC7613247/) describes the submission fields.

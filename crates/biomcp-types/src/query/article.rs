@@ -244,37 +244,50 @@ fn sort() -> ArticleSort {
 fn limit() -> u32 {
     10
 }
+crate::query::validation::checked_query!(ArticleSearch, Fields);
 impl TryFrom<Fields> for ArticleSearch {
     type Error = QueryInvalid;
     fn try_from(v: Fields) -> Result<Self, QueryInvalid> {
-        if !(1..=50).contains(&v.limit)
-            || v.source.is_empty()
-            || v.source
-                .iter()
-                .enumerate()
-                .any(|(i, source)| v.source.iter().take(i).any(|prior| prior == source))
-            || [
-                &v.text, &v.variant, &v.disease, &v.drug, &v.author, &v.journal,
-            ]
+        if !(1..=50).contains(&v.limit) {
+            return Err(QueryInvalid::new(&["limit"]));
+        }
+        if v.source.is_empty() {
+            return Err(QueryInvalid::new(&["source"]));
+        }
+        if v.source
             .iter()
-            .all(|v| v.is_none())
-                && v.gene.is_none()
-                && v.since.is_none()
-                && v.until.is_none()
-                && v.kind.is_none()
-            || v.since.zip(v.until).is_some_and(|(since, until)| {
-                (
-                    since.year(),
-                    since.month().unwrap_or(1),
-                    since.day().unwrap_or(1),
-                ) > (
-                    until.year(),
-                    until.month().unwrap_or(12),
-                    until.day().unwrap_or(31),
-                )
-            })
+            .enumerate()
+            .any(|(i, source)| v.source.iter().take(i).any(|prior| prior == source))
         {
-            return Err(QueryInvalid);
+            return Err(QueryInvalid::new(&["source"]));
+        }
+        if [
+            &v.text, &v.variant, &v.disease, &v.drug, &v.author, &v.journal,
+        ]
+        .iter()
+        .all(|v| v.is_none())
+            && v.gene.is_none()
+            && v.since.is_none()
+            && v.until.is_none()
+            && v.kind.is_none()
+        {
+            return Err(QueryInvalid::new(&[
+                "text", "variant", "disease", "drug", "author", "journal", "gene", "since",
+                "until", "type",
+            ]));
+        }
+        if v.since.zip(v.until).is_some_and(|(since, until)| {
+            (
+                since.year(),
+                since.month().unwrap_or(1),
+                since.day().unwrap_or(1),
+            ) > (
+                until.year(),
+                until.month().unwrap_or(12),
+                until.day().unwrap_or(31),
+            )
+        }) {
+            return Err(QueryInvalid::new(&["since", "until"]));
         }
         Ok(Self(v))
     }
@@ -370,6 +383,37 @@ impl ArticleSearch {
 }
 
 impl ArticleSearch {
+    /// Start a PubMed search for one source-stated gene.
+    pub fn for_gene(gene: GeneInput) -> Self {
+        Self(Fields {
+            gene: Some(gene),
+            text: None,
+            variant: None,
+            disease: None,
+            drug: None,
+            author: None,
+            journal: None,
+            since: None,
+            until: None,
+            kind: None,
+            source: sources(),
+            sort: sort(),
+            limit: limit(),
+            offset: 0,
+            pool: None,
+            open_access: false,
+            no_preprints: false,
+            retracted: RetractionFilter::default(),
+        })
+    }
+    /// Broaden an exact gene and variant search without changing its other filters.
+    pub fn without_variant(&self) -> Option<Self> {
+        self.gene()?;
+        self.variant()?;
+        let mut value = self.with_source(ArticleSource::Pubmed);
+        value.0.variant = None;
+        Some(value)
+    }
     /// Restart once per supplied word group, dropping only that group in fixed order.
     /// Gene identity and every other selector remain unchanged.
     pub fn term_drops(&self) -> Vec<Self> {
@@ -397,31 +441,43 @@ impl ArticleSearch {
     pub fn variant(&self) -> Option<&Text> {
         self.0.variant.as_ref()
     }
-    /// Quote each supplied word group for PubMed while retaining its filters.
-    pub fn quoted(&self) -> Option<Self> {
+    /// Offer PubMed title/abstract terms without relying on phrase interpretation.
+    pub fn strict_pubmed(&self) -> Option<Self> {
+        let mut words = self.words();
+        if let Some(gene) = self.gene() {
+            words = format!("{gene} {words}");
+        }
+        if words.contains('[') || words.contains(']') {
+            return None;
+        }
+        let terms: Vec<_> = words
+            .split_whitespace()
+            .map(|word| word.trim_matches('"'))
+            .filter(|word| !word.is_empty())
+            .map(|word| format!("{word}[Title/Abstract]"))
+            .collect();
+        if terms.is_empty() {
+            return None;
+        }
         let mut value = self.page(0, None);
         value.0.source = Box::new([ArticleSource::Pubmed]);
-        let mut changed = false;
-        for term in [
-            &mut value.0.text,
-            &mut value.0.variant,
-            &mut value.0.drug,
-            &mut value.0.disease,
-        ]
-        .into_iter()
-        .flatten()
-        {
-            if !term.as_str().contains('"') {
-                *term = Text::new(&format!("\"{term}\"")).ok()?;
-                changed = true;
-            }
-        }
-        changed.then_some(value)
+        value.0.text = Some(Text::new(&terms.join(" AND ")).ok()?);
+        value.0.gene = None;
+        value.0.variant = None;
+        value.0.drug = None;
+        value.0.disease = None;
+        Some(value)
     }
     /// Restart with an exact candidate rsID, retaining source and order choices.
     pub fn with_variant(&self, variant: Text) -> Self {
         let mut value = self.page(0, None);
         value.0.variant = Some(variant);
+        value
+    }
+    /// Restart with one source while retaining the request selectors.
+    pub fn with_source(&self, source: ArticleSource) -> Self {
+        let mut value = self.page(0, None);
+        value.0.source = Box::new([source]);
         value
     }
     /// Restart with the approved PubMed and LitVar discovery sources.

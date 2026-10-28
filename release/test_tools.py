@@ -10,6 +10,8 @@ import tempfile
 import unittest
 import zipfile
 
+from release.test_licenses import write_payloads
+
 from release.artifacts import channels
 
 ROOT = Path(__file__).resolve().parents[1]
@@ -55,7 +57,7 @@ class DesktopTools(unittest.TestCase):
             source = root / "crates/biomcp/src/mcp/research.rs"
             original = source.read_text()
             planted = re.sub(r'\[\s*\(\s*"search"\s*,',
-                             lambda _: '[("fourth", "query", "A fake fourth tool", "fake/1"), ("search",',
+                             lambda _: '[("fourth", "query", "A fake fourth tool"), ("search",',
                              original, count=1)
             self.assertNotEqual(planted, original, "planted tool did not change the source")
             source.write_text(planted)
@@ -70,14 +72,14 @@ class DesktopTools(unittest.TestCase):
             self.assertEqual(result.returncode, 0, result.stderr)
             original = source.read_text()
             mutations = [
-                ('[("fourth", "query", "A \\"quoted\\" tool", "fake/1"), ("search",', "desktop manifest tools differ"),
-                ('[(name(), "query", "A computed tool", "fake/1"), ("search",', "unrecognized server tool declarations"),
+                ('[("fourth", "query", "A \\"quoted\\" tool"), ("search",', "desktop manifest tools differ"),
+                ('[(name(), "query", "A computed tool"), ("search",', "unrecognized server tool declarations"),
             ]
             value["tools"] = [tool for tool in value["tools"] if tool["name"] != "fourth"]
             manifest.write_text(json.dumps(value))
             for replacement, error in mutations:
                 with self.subTest(replacement=replacement):
-                    source.write_text(original.replace('[("fourth", "query", "A fake fourth tool", "fake/1"), ("search",', replacement, 1))
+                    source.write_text(original.replace('[("fourth", "query", "A fake fourth tool"), ("search",', replacement, 1))
                     result = self.check(root)
                     self.assertNotEqual(result.returncode, 0)
                     self.assertIn(error, result.stderr)
@@ -91,6 +93,7 @@ class DesktopTools(unittest.TestCase):
             frames = [{"jsonrpc": "2.0", "id": 1, "result": {}}, {"jsonrpc": "2.0", "id": 2, "result": {"tools": tools}}]
             binary.write_text("#!" + sys.executable + "\nimport sys\nsys.stdin.read()\nprint(" + repr("\n".join(json.dumps(frame) for frame in frames)) + ")\n")
             binary.chmod(0o755)
+            write_payloads(root)
             channels(root, binary, {"version": "1.0.0", "platform": "test"})
             with zipfile.ZipFile(root / "biomcp-test.mcpb") as bundle:
                 manifest = json.loads(bundle.read("manifest.json"))

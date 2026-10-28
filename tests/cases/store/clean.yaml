@@ -42,7 +42,8 @@
           "count": 1
         }
       },
-      "max_bytes": 600
+      "max_bytes": 1364
     }
-  ]
+  ],
+  "verified": "Help byte limits use j18463 output plus fifteen percent for defaults, aliases, inherited options and examples; higher existing limits remain."
 }

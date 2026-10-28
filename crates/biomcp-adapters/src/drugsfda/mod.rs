@@ -4,6 +4,7 @@ use biomcp_types::Source;
 use std::time::Duration;
 /// Publisher policy shared by health, request admission and response outcomes.
 pub static SPEC: SourceSpec = SourceSpec {
+    destinations: biomcp_fetch::Destinations::Primary,
     user_agent: None,
     source: Source::Drugsfda,
     base: "https://api.fda.gov/drug/drugsfda.json",
@@ -112,6 +113,7 @@ impl Application {
     /// An application endpoint establishes application identity, without choosing a brand.
     pub fn header(&self) -> DrugHeader {
         DrugHeader {
+            matched_name: None,
             id: self.application_number.clone(),
             source: DrugSource::Drugsfda,
             name: None,

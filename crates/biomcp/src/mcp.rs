@@ -3,6 +3,7 @@ mod current;
 mod framing;
 pub(crate) mod http;
 mod legacy;
+mod output_schema;
 mod protocol;
 mod research;
 mod rpc;
@@ -70,7 +71,6 @@ pub(crate) fn serve(
                 Some(protocol::error(Value::Null, -32700, "Parse error"))
             }
             Event::Input(Frame::Oversized) => {
-                eof = true;
                 Some(protocol::error(Value::Null, -32600, "Frame too large"))
             }
             Event::Input(Frame::Message(frame)) => server.message(&frame)?,
@@ -99,7 +99,7 @@ fn start_input(sender: mpsc::SyncSender<Event>) -> io::Result<()> {
             let mut input = io::stdin().lock();
             loop {
                 let frame = framing::read(&mut input).unwrap_or(Frame::Malformed);
-                let terminal = !matches!(frame, Frame::Message(_));
+                let terminal = matches!(frame, Frame::Malformed | Frame::Eof);
                 if sender.send(Event::Input(frame)).is_err() || terminal {
                     break;
                 }
@@ -147,7 +147,7 @@ impl Server {
                 };
                 (Ok(std::sync::Arc::new(fetch)), Some(cancellation))
             }
-            Err(error) => (Err(*error), None),
+            Err(error) => (Err(error.clone()), None),
         };
         self.start_call(key, id, modern, cancellation, move || {
             research::execute(&call, &globals, &fetch, false)

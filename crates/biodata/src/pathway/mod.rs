@@ -24,10 +24,10 @@ pub struct Pathway {
     #[serde(default, skip_serializing_if = "Option::is_none")]
     pub description: Option<Box<str>>,
     /// Native Reactome summation objects in source order; not concatenated.
-    #[serde(default, skip_serializing_if = "Option::is_none")]
+    #[serde(default, skip_serializing_if = "crate::absent_or_empty")]
     pub summations: Option<Box<[PathwaySummation]>>,
     /// Native pathway-level literature references, separate from each summation.
-    #[serde(default, skip_serializing_if = "Option::is_none")]
+    #[serde(default, skip_serializing_if = "crate::absent_or_empty")]
     pub references: Option<Box<[PathwayLiteratureRef]>>,
     /// WikiPathways catalog citedIn cell, including a native empty cell.
     #[serde(default, skip_serializing_if = "Option::is_none")]
@@ -65,6 +65,7 @@ pub struct PathwayMember {
     pub name: Option<Text>,
     /// Native reference URL, including therapeutic references without a drug action.
     #[serde(default, skip_serializing_if = "Option::is_none")]
+    #[cfg_attr(feature = "schema", schemars(extend("format" = "uri")))]
     pub source_url: Option<Text>,
     /// Exact resolved gene identifier, absent when no checked join exists.
     #[serde(default, skip_serializing_if = "Option::is_none")]
@@ -75,7 +76,7 @@ pub struct PathwayMember {
     /// Number of source physical entity contexts carrying this exact reference.
     pub physical_context_count: u64,
     /// Complete physical contexts, disclosed only by the explicit details view.
-    #[serde(default, skip_serializing_if = "Option::is_none")]
+    #[serde(default, skip_serializing_if = "crate::absent_or_empty")]
     pub participants: Option<Box<[PathwayParticipant]>>,
 }
 /// An event object or unresolved integer reference; never the parent's inferred ID.
@@ -97,6 +98,7 @@ pub enum PathwayEventRef {
         id: Option<ReactomeId>,
         /// Publisher record URL for the event's own stable identity, never the parent pathway.
         #[serde(default, skip_serializing_if = "Option::is_none")]
+        #[cfg_attr(feature = "schema", schemars(extend("format" = "uri")))]
         source_url: Option<Text>,
         /// Whole native stIdVersion, separate from the event stable identity.
         #[serde(default, skip_serializing_if = "Option::is_none")]
@@ -135,6 +137,7 @@ pub struct PathwayLiteratureRef {
     pub title: Option<Text>,
     /// Source record URL when supplied.
     #[serde(default, skip_serializing_if = "Option::is_none")]
+    #[cfg_attr(feature = "schema", schemars(extend("format" = "uri")))]
     pub url: Option<Text>,
 }
 /// One native physical entity carrying a membership reference.

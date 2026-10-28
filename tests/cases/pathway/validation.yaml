@@ -24,8 +24,7 @@
         "/error/code": "pool.expired",
         "/next/0/kind": "restart"
       },
-      "max_bytes": 227,
-      "max_tokens": 57
+      "max_bytes": 227
     },
     {
       "run": [
@@ -38,8 +37,7 @@
       "expect": {
         "/error/code": "usage.arguments"
       },
-      "max_bytes": 166,
-      "max_tokens": 42,
+      "max_bytes": 210,
       "mcp": [
         "search",
         "pathway",
@@ -60,8 +58,7 @@
       "expect": {
         "/error/code": "usage.arguments"
       },
-      "max_bytes": 166,
-      "max_tokens": 42,
+      "max_bytes": 210,
       "mcp": [
         "search",
         "pathway",
@@ -84,7 +81,6 @@
         "/error/code": "usage.arguments"
       },
       "max_bytes": 166,
-      "max_tokens": 42,
       "mcp": [
         "search",
         "pathway",
@@ -107,7 +103,6 @@
         "/error/code": "usage.arguments"
       },
       "max_bytes": 166,
-      "max_tokens": 42,
       "mcp": [
         "search",
         "pathway",
@@ -128,7 +123,6 @@
         "/error/code": "usage.arguments"
       },
       "max_bytes": 166,
-      "max_tokens": 42,
       "mcp": [
         "get",
         "pathway",
@@ -145,13 +139,9 @@
       "exit": 1,
       "expect": {
         "/status": "absent",
-        "/result/items": {
-          "count": 0
-        },
         "/result/page/total": 0
       },
       "max_bytes": 343,
-      "max_tokens": 87,
       "mcp": [
         "search",
         "pathway",
@@ -189,7 +179,6 @@
         "/status": "absent"
       },
       "max_bytes": 216,
-      "max_tokens": 55,
       "mcp": [
         "get",
         "pathway",

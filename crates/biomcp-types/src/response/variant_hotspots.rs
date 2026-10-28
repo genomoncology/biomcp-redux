@@ -10,6 +10,7 @@ pub struct VariantHotspots {
     #[serde(skip_serializing_if = "Option::is_none")]
     pub reason: Option<crate::Reason>,
     /// Native residue records in source order.
+    #[serde(default, skip_serializing_if = "<[_]>::is_empty")]
     pub records: Box<[HotspotRecord]>,
     /// Disclosure bounds for this section.
     pub page: PageInfo,
@@ -35,6 +36,7 @@ pub struct HotspotRecord {
     /// Tumors reported for this residue by the source.
     pub tumor_count: u64,
     /// Source alternate amino acids and their counts.
+    #[serde(default, skip_serializing_if = "<[_]>::is_empty")]
     pub alternates: Box<[HotspotAlternate]>,
 }
 

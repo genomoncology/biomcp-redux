@@ -5,10 +5,11 @@ use biodata::HgncId;
 use biomcp_fetch::{
     Bundle, Fetch, Find, Freshness, KeyKind, KeyUse, Leg, RequestError, RowFormat, SourceSpec,
 };
-use biomcp_types::{ClinGenGene, Source, SyncResult};
+use biomcp_types::{ClinGenValidity, Source, SyncResult};
 use std::{marker::PhantomData, time::Duration};
 /// ClinGen published summaries are generated anew for each request.
 pub static SPEC: SourceSpec = SourceSpec {
+    destinations: biomcp_fetch::Destinations::Primary,
     user_agent: None,
     terms: biomcp_fetch::Terms {
         name: "CC0 1.0",
@@ -48,36 +49,42 @@ pub fn sync(fetch: &Fetch) -> Result<SyncResult, RequestError> {
         duplicate_identities: None,
         rows: validity.rows + dosage.rows,
         bytes: validity.bytes + dosage.bytes,
+        downloaded_bytes: validity.downloaded_bytes + dosage.downloaded_bytes,
     })
 }
-/// Read complete source assessments for one identity, synchronizing first use.
-pub fn gene(leg: &Leg<'_>, id: HgncId) -> Result<Option<ClinGenGene>, RequestError> {
-    let text = id.to_string();
-    let validity = leg.rows(&VALIDITY, Find::Exact(KeyKind::Id, &text))?;
-    let dosage = leg.rows(&DOSAGE, Find::Exact(KeyKind::Id, &text))?;
-    if validity.is_empty() && dosage.is_empty() {
-        return Ok(None);
-    }
-    if dosage.len() > 1 {
+/// Read gene–disease validity without depending on the dosage summary.
+pub fn validity(leg: &Leg<'_>, id: HgncId) -> Result<Box<[ClinGenValidity]>, RequestError> {
+    leg.rows(&VALIDITY, Find::Exact(KeyKind::Id, &id.to_string()))?
+        .into_iter()
+        .map(raw::Validity::checked)
+        .collect()
+}
+/// Checked dosage fields from the independent dosage summary.
+#[derive(Debug)]
+pub struct Dosage {
+    /// Published haploinsufficiency assessment.
+    pub haploinsufficiency: biodata::Text,
+    /// Published triplosensitivity assessment.
+    pub triplosensitivity: biodata::Text,
+    /// Published assessment date.
+    pub date: biodata::Text,
+}
+/// Read dosage sensitivity without depending on the validity summary.
+pub fn dosage(leg: &Leg<'_>, id: HgncId) -> Result<Option<Dosage>, RequestError> {
+    let rows = leg.rows(&DOSAGE, Find::Exact(KeyKind::Id, &id.to_string()))?;
+    if rows.len() > 1 {
         return Err(bad());
     }
-    let (haploinsufficiency, triplosensitivity, dosage_date) = match dosage.into_iter().next() {
-        Some(row) => (
-            Some(row.haploinsufficiency.ok_or_else(bad)?),
-            Some(row.triplosensitivity.ok_or_else(bad)?),
-            Some(row.date.ok_or_else(bad)?),
-        ),
-        None => (None, None, None),
-    };
-    Ok(Some(ClinGenGene {
-        validity: validity
-            .into_iter()
-            .map(raw::Validity::checked)
-            .collect::<Result<_, _>>()?,
-        haploinsufficiency,
-        triplosensitivity,
-        dosage_date,
-    }))
+    rows.into_iter()
+        .next()
+        .map(|row| {
+            Ok(Dosage {
+                haploinsufficiency: row.haploinsufficiency.ok_or_else(bad)?,
+                triplosensitivity: row.triplosensitivity.ok_or_else(bad)?,
+                date: row.date.ok_or_else(bad)?,
+            })
+        })
+        .transpose()
 }
 fn bad() -> RequestError {
     biomcp_fetch::SourceError {
@@ -87,4 +94,13 @@ fn bad() -> RequestError {
         retry_after: None,
     }
     .into()
+}
+
+/// Small publisher landing page, never a validity or dosage export.
+pub(crate) const HEALTH_PATH: &str = "/kb";
+/// Both source-owned stored files are required for complete local readiness.
+pub(crate) fn bundle_state(leg: &Leg<'_>) -> Result<biomcp_types::LocalBundleState, RequestError> {
+    Ok(leg
+        .stored_bundle_state(&VALIDITY)?
+        .with(leg.stored_bundle_state(&DOSAGE)?))
 }

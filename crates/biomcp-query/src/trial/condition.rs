@@ -57,7 +57,7 @@ pub(super) fn resolve<'a>(
         }
         Err(_) => None,
     };
-    if value.is_none() && resolution.concept.is_some() {
+    if value.is_none() && resolution.concept.is_some() && query.source() == TrialSource::Nci {
         out.problems.push(biomcp_types::Problem {
             source: Source::MyDisease,
             record: Text::new(&input.to_string()).ok(),
@@ -85,7 +85,7 @@ fn resolved(
         .filter(|row| row.object.id.to_string().starts_with("NCIT:"))
         .collect();
     if source == TrialSource::Ctgov {
-        return Some(label);
+        return label;
     }
     let choices: std::collections::BTreeSet<_> = resolution
         .ncit_candidates
@@ -115,5 +115,30 @@ fn assign(out: &mut Outcome, resolution: TrialConditionResolution) {
         QueryBody::TrialPage(page) => page.condition_resolution = Some(resolution),
         QueryBody::NciTrialPage(page) => page.condition_resolution = Some(resolution),
         _ => (),
+    }
+}
+
+/// A lexical mismatch does not establish why the registry matched a record.
+pub(super) fn word_notice(
+    query: &biomcp_types::TrialSearch,
+    fresh: bool,
+    source: &mut biomcp_types::SourceOutcome,
+    outcome: &mut super::Outcome,
+) {
+    source.notices.push(biomcp_types::SourceNotice::ConditionWordMismatch {
+        message: concat!(
+            "Some returned trials do not contain all searched words in their registered conditions. ",
+            "ClinicalTrials.gov condition search also covers titles, keywords and indexed terms ",
+            "and may expand synonyms."
+        ).into(),
+    });
+    if let Some(query) = query.exact_condition_search() {
+        outcome.next.push((
+            biomcp_types::StepKind::Disambiguate,
+            super::Action::Run {
+                request: biomcp_types::Request::SearchTrial(query),
+                fresh,
+            },
+        ));
     }
 }

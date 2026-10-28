@@ -1,29 +1,36 @@
 use super::{Annotation, native};
 use crate::Mapped;
-use biodata::{
-    Attribution, Concept, Curie, DiseaseEndpoint, DiseaseRelation, DiseaseSynonym, Text,
-};
+use biodata::{Attribution, Curie, DiseaseEndpoint, DiseaseRelation, DiseaseSynonym};
 use biomcp_fetch::{InputError, RequestError};
 use biomcp_types::{
-    ComponentLabel, ComponentTerms, DiseaseCard, DiseaseSection, Problem, ProblemCode, Source,
+    ComponentLabel, ComponentTerms, DiseaseCard, DiseaseConcept, DiseaseSection, Source,
 };
 
-fn text(value: &str) -> Result<Text, RequestError> {
-    Text::new(value).map_err(|_| InputError::Serialization.into())
-}
 fn attribution(
     id: &Curie,
     source: &str,
     version: Option<u64>,
 ) -> Result<Attribution, RequestError> {
     Ok(Attribution {
-        source: text(source)?,
-        record: Some(text(&id.to_string())?),
-        version: version.map(|v| text(&v.to_string())).transpose()?,
+        source: crate::mapped::text(source)
+            .map_err(|_| RequestError::Input(InputError::Serialization))?,
+        record: Some(
+            crate::mapped::text(&id.to_string())
+                .map_err(|_| RequestError::Input(InputError::Serialization))?,
+        ),
+        version: version
+            .map(|v| {
+                crate::mapped::text(&v.to_string())
+                    .map_err(|_| RequestError::Input(InputError::Serialization))
+            })
+            .transpose()?,
         release: None,
         submitter: None,
         evaluated: None,
-        url: Some(text(&format!("https://mydisease.info/v1/disease/{id}"))?),
+        url: Some(
+            crate::mapped::text(&format!("https://mydisease.info/v1/disease/{id}"))
+                .map_err(|_| RequestError::Input(InputError::Serialization))?,
+        ),
     })
 }
 fn terms(components: &[native::Component]) -> Result<Box<[ComponentLabel]>, RequestError> {
@@ -33,11 +40,14 @@ fn terms(components: &[native::Component]) -> Result<Box<[ComponentLabel]>, Requ
             let component = crate::disease_sources::components::get(Source::MyDisease, value.name)
                 .ok_or(InputError::Serialization)?;
             Ok(ComponentLabel {
-                component: text(component.name)?,
+                component: crate::mapped::text(component.name)
+                    .map_err(|_| RequestError::Input(InputError::Serialization))?,
                 terms: ComponentTerms {
                     usage: component.terms.usage,
-                    name: text(component.terms.name)?,
-                    url: text(component.terms.url)?,
+                    name: crate::mapped::text(component.terms.name)
+                        .map_err(|_| RequestError::Input(InputError::Serialization))?,
+                    url: crate::mapped::text(component.terms.url)
+                        .map_err(|_| RequestError::Input(InputError::Serialization))?,
                 },
             })
         })
@@ -58,10 +68,10 @@ fn predicate(component: &native::Component, field: &str) -> Result<Curie, Reques
 fn endpoint(component: &native::Component) -> DiseaseEndpoint {
     DiseaseEndpoint {
         id: component.id.clone(),
-        label: Some(component.label.clone()),
+        label: component.label.clone(),
     }
 }
-fn xref_id(value: &native::Value) -> Option<Curie> {
+fn xref_id(value: &native::Reference) -> Option<Curie> {
     let prefix = value.field.to_ascii_uppercase();
     let native = value.value.as_str();
     if native
@@ -85,7 +95,7 @@ pub(super) fn annotation(record: native::Record) -> Result<Mapped<Annotation>, R
                 requested_id: record.requested_id.clone(),
                 returned_id: record.returned_id.clone(),
                 alias: None,
-                concept: Concept {
+                concept: DiseaseConcept {
                     id: Some(primary.id.clone()),
                     label: primary.label.clone(),
                 },
@@ -104,6 +114,7 @@ pub(super) fn annotation(record: native::Record) -> Result<Mapped<Annotation>, R
         problems: Vec::new(),
     };
     for component in &record.components {
+        mapped.problems.extend(component.problems.iter().cloned());
         rows(component, &mut mapped)?;
     }
     let value = &mut mapped.value;
@@ -141,25 +152,33 @@ fn rows(
     } else {
         "synonym"
     };
+    let mut problems = crate::mapped::Problems {
+        source: Source::MyDisease,
+        record: crate::mapped::record(&component.id),
+        list: Vec::new(),
+    };
     for value in &component.synonyms {
+        let field = format!("{synonym_field}.{}", value.field);
+        let scope = problems.optional(
+            &format!("{}.{}", root(component), field),
+            Some(predicate(component, &field)),
+        );
         mapped.value.synonyms.push(DiseaseSynonym {
             value: value.value.clone(),
-            scope: Some(predicate(
-                component,
-                &format!("{synonym_field}.{}", value.field),
-            )?),
+            scope,
             language: None,
             attribution: attribution.clone(),
         });
     }
+    mapped.problems.extend(problems.list);
     for value in &component.xrefs {
         let Some(id) = xref_id(value) else {
-            mapped.problems.push(Problem {
-                source: Source::MyDisease,
-                record: Some(text(&component.id.to_string())?),
-                field: format!("{}.xrefs.{}", root(component), value.field).into(),
-                code: ProblemCode::ValueUnknown,
-            });
+            crate::mapped::push_problem(
+                &mut mapped.problems,
+                Source::MyDisease,
+                crate::mapped::record(&component.id),
+                &format!("{}.xrefs.{}", root(component), value.field),
+            );
             continue;
         };
         mapped.value.xrefs.push(DiseaseRelation {

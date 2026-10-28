@@ -5,7 +5,7 @@ import re
 import json
 import subprocess
 
-CONTRACT = re.compile(r"([a-z][a-z0-9-]*): (.+[.!?]) Contracts: `([a-z][a-z0-9-]*)/([a-z][a-z0-9_]*)` \(features: `([a-z][a-z0-9_-]*(?:,[a-z][a-z0-9_-]*)*)`\)\.")
+CONTRACT = re.compile(r"([a-z][a-z0-9-]*): (.+[.!?]) Contracts: `([a-z][a-z0-9-]*)/([a-z][a-z0-9_]*)`(?: \(features: `([a-z][a-z0-9_-]*(?:,[a-z][a-z0-9_-]*)*)`\))?\.")
 
 
 def targets(root):
@@ -24,13 +24,13 @@ def targets(root):
         text = manifest.read_text()
         if not re.search(r'^name = "' + re.escape(package) + r'"$', text, re.M):
             raise ValueError(f"public contract package differs: {package}")
-        for flag in features.split(","):
+        for flag in features.split(",") if features else []:
             if not re.search(r"^" + re.escape(flag) + r"\s*=", text, re.M):
                 raise ValueError(f"public contract feature does not exist: {package}/{flag}")
         key = (package, target)
         if any(row[:2] == key for row in result):
             raise ValueError(f"duplicate public contract target: {package}/{target}")
-        result.append((package, target, features, feature))
+        result.append((package, target, features or "-", feature))
     return result
 
 

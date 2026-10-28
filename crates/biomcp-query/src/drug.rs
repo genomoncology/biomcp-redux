@@ -51,7 +51,8 @@ pub fn search(cx: &Ctx<'_>, query: &DrugSearch) -> Outcome {
     out.sources
         .push(status::source(Source::Mychem, leg.finish(), error));
     if let Ok(page) = result {
-        searched(query, cx.fresh, page, &mut out);
+        out.problems = page.problems;
+        searched(query, cx.fresh, page.value, &mut out);
     }
     component_outcomes(cx, &mut out, true);
     command.finish(deadline.remaining());
@@ -139,6 +140,10 @@ fn selected_get(cx: &Ctx<'_>, query: &DrugGet) -> Outcome {
                     },
                 ));
             }
+            if !document.problems.is_empty() {
+                out.status = Status::Partial;
+            }
+            out.problems = document.problems;
             out.body = QueryBody::DrugCard(Some(document.value.card));
         }
     }
@@ -253,10 +258,11 @@ mod native;
 fn searched(query: &DrugSearch, fresh: bool, page: DrugPage, out: &mut Outcome) {
     out.status = if page.items.is_empty() {
         Status::Absent
-    } else if out
-        .sources
-        .iter()
-        .any(|s| s.state == biomcp_types::SourceState::Stale)
+    } else if !out.problems.is_empty()
+        || out
+            .sources
+            .iter()
+            .any(|s| s.state == biomcp_types::SourceState::Stale)
     {
         Status::Partial
     } else {

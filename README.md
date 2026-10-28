@@ -24,7 +24,7 @@ BioMCP reads `$XDG_CONFIG_HOME/biomcp/config.json` or `~/.config/biomcp/config.j
 
 Use `biomcp key set oncokb` to enter your own key at a prompt that hides input. Keys stay in the configuration folder and out of shell history. `biomcp key list` reports credential names and origins without values. Source-specific environment variables remain available; `biomcp help key oncokb` explains the supported names. A source that requires your account or license sends no request without your key. An optional key raises its source's limit; the source remains available at its public limit without it.
 
-For company networks, `ca_bundle` adds PEM certificates to platform trust and keeps verification enabled. `proxy` sets an explicit HTTP or HTTPS proxy. Otherwise BioMCP uses `HTTPS_PROXY`, `HTTP_PROXY` and `NO_PROXY`. Use `biomcp help network ca_bundle` or `biomcp help network proxy` for details.
+For company networks, `ca_bundle` adds PEM certificates to platform trust and keeps verification enabled. `proxy` sets an explicit HTTP or HTTPS proxy. Otherwise BioMCP prefers `https_proxy`, `http_proxy` and `no_proxy` over `HTTPS_PROXY`, `HTTP_PROXY` and `NO_PROXY`. Use `biomcp help network ca_bundle` or `biomcp help network proxy` for details.
 
 ## Ask a question
 
@@ -64,4 +64,4 @@ The documentation check does not run the exact `uv tool install biomcp-cli` or `
 
 Run `make docs-generate` after command changes and `make docs-check` to check generated documentation and execute documented examples against recordings. Run `make landing-gate` for the routine formatting, lint, coverage and dependency checks. See [ROADMAP.md](ROADMAP.md) for scope and source availability.
 
-`make schema-release-check` compares generated schemas with the portable snapshot named in `release/schema-baseline.json`. It uses the generator’s existing schema major-version compatibility rules and preserves the ordinary schema drift check. Missing, malformed or incomplete baselines fail the gate. The recorded 1.0.0 snapshot is a provisional candidate input. It is neither the selected final release candidate nor a published release. Final candidate selection must refresh or verify the manifest, source commit, schema inventory and archive checksum against that candidate before release. Preserve the selected 1.0.0 schema set so 1.0.1 compares against it. Future releases must record the actual last released schema set; this check never publishes or updates a baseline.
+`make schema-release-check` compares generated schemas with the portable snapshot named in `release/schema-baseline.json`. It enforces schema major-version compatibility and rejects missing, malformed or incomplete baselines. Release artifact checks install and exercise the produced package in an isolated environment.

@@ -1,4 +1,6 @@
 //! Required publisher provenance is measured separately from unchanged payload caps.
+#[path = "../../src/view/escape.rs"]
+pub(super) mod text;
 use libtest_mimic::Trial;
 use serde_json::{Value, json};
 
@@ -185,6 +187,9 @@ pub(super) fn markdown_bytes(text: &str, value: &Value) -> Result<usize, String>
         .split_once("## Sources\n\n")
         .ok_or("missing source table")?
         .1;
+    if !table.starts_with('|') {
+        return markdown_object_bytes(table, rows);
+    }
     let lines: Vec<_> = table
         .lines()
         .take_while(|line| line.starts_with('|'))
@@ -228,7 +233,16 @@ pub(super) fn markdown_bytes(text: &str, value: &Value) -> Result<usize, String>
                     .and_then(|r| r.get(*field))
                     .and_then(Value::as_str)
                     .ok_or("missing publisher value")?;
-                if *cell != format!(" {} ", markdown_scalar(expected)) {
+                if *cell
+                    != format!(
+                        " {} ",
+                        if *field == "terms_url" {
+                            text::source_link(expected)
+                        } else {
+                            text::escape(expected)
+                        }
+                    )
+                {
                     return Err("changed Markdown publisher terms".into());
                 }
             }
@@ -237,18 +251,32 @@ pub(super) fn markdown_bytes(text: &str, value: &Value) -> Result<usize, String>
     }
     Ok(bytes)
 }
-fn markdown_scalar(value: &str) -> String {
-    value
-        .chars()
-        .map(|c| match c {
-            '&' => "&amp;".into(),
-            '<' => "&lt;".into(),
-            '>' => "&gt;".into(),
-            '\n' | '\r' => " ".into(),
-            '\\' | '*' | '_' | '`' | '|' | '[' | ']' => format!("\\{c}"),
-            _ => c.to_string(),
-        })
-        .collect()
+fn markdown_object_bytes(table: &str, rows: &[Value]) -> Result<usize, String> {
+    let mut rest = table;
+    let mut bytes = 0;
+    for row in rows {
+        for field in ["terms", "terms_url", "use"] {
+            let value = row
+                .get(field)
+                .and_then(Value::as_str)
+                .ok_or("missing publisher value")?;
+            let rendered = if field == "terms_url" {
+                text::source_link(value)
+            } else {
+                text::escape(value)
+            };
+            let line = format!("**{}:** {rendered}\n\n", text::escape(field));
+            let (before, after) = rest
+                .split_once(&line)
+                .ok_or("changed Markdown publisher terms")?;
+            if before.contains("**use:**") {
+                return Err("source objects lost publisher fields".into());
+            }
+            bytes += line.len();
+            rest = after;
+        }
+    }
+    Ok(bytes)
 }
 fn markdown_subtraction() -> Result<(), String> {
     let outcome = biomcp_adapters::registry::outcome(
@@ -258,7 +286,8 @@ fn markdown_subtraction() -> Result<(), String> {
     );
     let text = format!(
         "## Sources\n\n| Source | State | Terms | Terms url | Use |\n| --- | --- | --- | --- | --- |\n| hgnc | ok | {} | {} | open |\n\n",
-        outcome.terms, outcome.terms_url
+        text::escape(&outcome.terms),
+        text::source_link(&outcome.terms_url)
     );
     let value = json!({"sources":[outcome]});
     let expected = "## Sources\n\n| Source | State |\n| --- | --- |\n| hgnc | ok |\n\n";
@@ -270,7 +299,7 @@ fn markdown_subtraction() -> Result<(), String> {
         return Err("ordinary Markdown earned a deduction".into());
     }
     for changed in [
-        text.replace("CC0 1.0", "wrong terms"),
+        text.replace(&text::escape("CC0 1.0"), "wrong terms"),
         text.replace(" Terms ", " Missing "),
     ] {
         if markdown_bytes(&changed, &value).is_ok() {

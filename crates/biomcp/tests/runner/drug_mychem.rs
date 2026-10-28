@@ -73,6 +73,7 @@ fn check(n: usize) -> Check {
     )?;
     let env = Environment::new().map_err(|e| e.to_string())?;
     let cert = env.root().join("ca.pem");
+    stub.retain(&env);
     std::fs::write(&cert, &stub.certificate).map_err(|e| e.to_string())?;
     env.config(&json!({"ca_bundle":cert,"proxy":format!("http://{}",stub.address)}))
         .map_err(|e| e.to_string())?;
@@ -154,12 +155,19 @@ fn verify(n: usize, value: &Value, selected: &Value) -> Check {
         if value.pointer("/result/cross_references").is_some()
             || value.pointer("/result/parents").is_some()
             || value.pointer("/result/products").is_some()
-            || value
-                .get("problems")
-                .and_then(Value::as_array)
-                .is_some_and(|p| !p.is_empty())
         {
             return Err("identity card expanded native link scope".into());
+        }
+        let expected = if n == 6 {
+            json!([{"source":"mychem", "record":"KTUFNOKKBVMGRW-UHFFFAOYSA-N", "field":"drugcentral.xrefs.pdb_chem_id", "code":"value.unknown"}])
+        } else {
+            json!([])
+        };
+        let problems = value.get("problems").cloned().unwrap_or_else(|| json!([]));
+        if problems != expected {
+            return Err(format!(
+                "native rejected reference lost its disclosure: {value}"
+            ));
         }
         if next(value, "section")?.is_none() {
             return Err("identity card lacks xrefs action".into());
@@ -207,6 +215,7 @@ fn wrong_identity() -> Check {
         Ok("{\"_id\":\"different-native-document\"}".into())
     })?;
     let cert = env.root().join("ca.pem");
+    stub.retain(&env);
     std::fs::write(&cert, &stub.certificate).map_err(|e| e.to_string())?;
     env.config(&json!({"ca_bundle":cert,"proxy":format!("http://{}",stub.address)}))
         .map_err(|e| e.to_string())?;
@@ -238,6 +247,7 @@ fn component_policy() -> Check {
         Ok(REPLIES.get(6).ok_or("fixture")?.to_string())
     })?;
     let cert = env.root().join("ca.pem");
+    stub.retain(&env);
     std::fs::write(&cert, &stub.certificate).map_err(|e| e.to_string())?;
     env.config(&json!({"ca_bundle":cert,"proxy":format!("http://{}",stub.address),"disable_sources":["chembl"]}))
         .map_err(|e| e.to_string())?;
@@ -294,6 +304,7 @@ fn xrefs_walk() -> Check {
         Ok(REPLIES.get(6).ok_or("fixture")?.to_string())
     })?;
     let cert = env.root().join("ca.pem");
+    stub.retain(&env);
     std::fs::write(&cert, &stub.certificate).map_err(|e| e.to_string())?;
     env.config(&json!({"ca_bundle":cert,"proxy":format!("http://{}",stub.address)}))
         .map_err(|e| e.to_string())?;

@@ -16,7 +16,7 @@ Each key is read from the config file's `keys` or its environment variable, sent
 - [x] NCI Clinical Trials Search key (keyed)
 - [x] openFDA key (optional)
 - Dropped: UMLS keyed integration; the [disease source ruling](sdlc/planning/slices/disease.md) found no indispensable keyed dependency.
-- [ ] AlphaGenome key (keyed); [ticket 0198](sdlc/tickets/0198-alphagenome-variant-section.md), after [transport design 0271](sdlc/tickets/0271-alphagenome-grpc-transport-design.md)
+- [x] AlphaGenome key (keyed); [ticket 0198](sdlc/tickets/0198-alphagenome-variant-section.md), after [transport design 0271](sdlc/tickets/0271-alphagenome-grpc-transport-design.md)
 - [ ] ORCID credentials (optional); Keyed proof remains deferred until an `ORCID_ACCESS_TOKEN` is available; public access uses the keyless rate
 
 ## Parity with 0.9.3
@@ -25,9 +25,9 @@ Each key is read from the config file's `keys` or its environment variable, sent
 | Measure | Count |
 | --- | --- |
 | 0.9 commands and options | 110 commands, 377 options |
-| Ported or renamed | 67 commands, 165 options |
-| Dropped by ruling | 38 commands, 185 options |
-| Deferred by ruling | 5 commands, 27 options |
+| Ported or renamed | 69 commands, 165 options |
+| Dropped by ruling | 37 commands, 185 options |
+| Deferred by ruling | 4 commands, 27 options |
 | Not yet decided | 0 commands, 0 options |
 <!-- /parity-ledger -->
 
@@ -48,7 +48,7 @@ The ledger uses released 0.9.3 as its fixed historical baseline. The agent compa
 - [x] Outside-in runner with size ceilings and coverage floor
 - [x] Enforced test placement with documented library exceptions
 - [x] The one MCP tool over the CLI grammar
-- [ ] Release pipeline carried over from 0.9; final candidate and publication follow the [release ruling](sdlc/planning/release.md)
+- [x] Release pipeline carried over from 0.9; [ticket 0289](sdlc/tickets/0289-release-pipeline.md)
 - [x] MCP over streamable HTTP at `/mcp`, with a `/health` endpoint
 - [x] `biomcp health`: each source's reachability, latency, terms and on or off state
 - [x] `biomcp key set`: register API keys once in the config folder, out of environment variables and shell history
@@ -100,7 +100,7 @@ Sources:
 - [x] OncoKB (keyed)
 - Moved to the drug slice: DGIdb and Open Targets druggability
 - Moved to the cell-line slice: Cellosaurus
-- Deferred: GenCC (bundle)
+- [x] GenCC (bundle), explicit sync and the gene `gencc` section
 - Dropped: QuickGO, STRING, Enrichr, DisGeNET, NIH RePORTER, KEGG, GTEx, COSMIC Cancer Gene Census
 
 ### Article
@@ -142,7 +142,7 @@ Live source checks:
 
 - [x] Successful Semantic Scholar search and native open-access filter capture
 - [x] Positive Semantic Scholar TLDR for 17611497
-- [ ] Successful LitSense2 AKT1 search; [ticket 0072](sdlc/tickets/0072-litsense-live-proof.md)
+- [x] Successful LitSense2 AKT1 search; [ticket 0072](sdlc/tickets/0072-litsense-live-proof.md)
 
 
 ## Milestone 2: variants and trials
@@ -158,7 +158,7 @@ Live source checks:
 - [x] Token budget
 - [x] MCP parity
 - [x] Docs
-- [x] 0.9 command accounting; unproved advanced filters remain explicitly undecided
+- [x] 0.9 command accounting
 
 Sources:
 - [x] MyVariant.info
@@ -173,7 +173,7 @@ Sources:
 - [x] ClinGen evidence repository
 - [x] Mutalyzer and VariantValidator (named normalization services)
 - Deferred: variant-specific UniProt and InterPro
-- [ ] AlphaGenome (keyed): numeric predictions section, no plots; [ticket 0198](sdlc/tickets/0198-alphagenome-variant-section.md)
+- [x] AlphaGenome (keyed): numeric predictions section, no plots; [ticket 0198](sdlc/tickets/0198-alphagenome-variant-section.md)
 - Dropped: a direct dbSNP adapter, because rsIDs come through MyVariant and the ClinGen Allele Registry
 
 The OncoKB variant source proof uses an approved demo capture. The product requires the caller's configured key.
@@ -462,8 +462,8 @@ The measured CLI/MCP envelopes carry per-case ceilings. Every 0.9 timing and out
 
 ## Milestone 5: parity and release
 
-- [ ] Every 0.9 command and option ported, renamed or dropped by ruling; [ticket 0275](sdlc/tickets/0275-cross-cutting-parity-accounting.md), after [inventory 0276](sdlc/tickets/0276-parity-inventory-and-deferred-outcome.md)
-- [ ] Docs rewritten; milestone 5 owns the full rewrite under [ticket 0280’s deferral](sdlc/tickets/0280-docs-drift-and-roadmap-hygiene.md)
-- [ ] Release rehearsal on every platform; the [release plan](sdlc/planning/release.md) requires final-candidate installed proof
+- [x] Every 0.9 command and option ported, renamed, deferred or dropped by ruling; [ticket 0275](sdlc/tickets/0275-cross-cutting-parity-accounting.md), after [inventory 0276](sdlc/tickets/0276-parity-inventory-and-deferred-outcome.md)
+- [x] Docs rewritten; [ticket 0292](sdlc/tickets/0292-docs-rewrite.md)
+- [ ] Release rehearsal on every platform; [ticket 0293](sdlc/tickets/0293-final-release-rehearsal.md) requires final-candidate installed proof
 - [ ] Agent comparison on outside judged question sets, for every slice; the [comparison requirement](sdlc/planning/slices.md) uses the latest released baseline named above
-- [ ] The current BioMCP repo's history replaced with this repo's; the [repository transition ruling](sdlc/decisions/2026-10-23-a-clean-repo-whose-history-replaces-biomcp.md) requires explicit approval for the release and history replacement
+- [ ] This repository's history appended to the public repository with one merge commit, preserving old tags and releases; [ticket 0294](sdlc/tickets/0294-history-replacement.md) requires release approval before the append, tag and publication

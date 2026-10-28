@@ -1,6 +1,7 @@
 {
   "$defs": {
     "DrugId": {
+      "description": "A published native drug record identifier, without a consumer source prefix.",
       "pattern": "^(?:[A-Z][A-Z0-9_.-]*:)?[A-Za-z0-9][A-Za-z0-9_.-]*(/[A-Za-z0-9_.-]+)*$",
       "type": "string"
     },
@@ -38,7 +39,22 @@
         " Source-stated unknown identity."
       ]
     },
+    "DrugNameMatch": {
+      "description": "Complete native name fields matching the requested label name.",
+      "enum": [
+        "brand",
+        "generic",
+        "both"
+      ],
+      "type": "string",
+      "x-enum-descriptions": [
+        " The complete brand name matches.",
+        " The complete generic name matches.",
+        " Both complete name fields match."
+      ]
+    },
     "DrugSource": {
+      "description": "A supported drug data source.",
       "enum": [
         "who-pq",
         "mychem",
@@ -71,6 +87,17 @@
       "$ref": "#/$defs/DrugIdentityLevel",
       "description": "Level established only by the endpoint or record type."
     },
+    "matched_name": {
+      "anyOf": [
+        {
+          "$ref": "#/$defs/DrugNameMatch"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "description": "Complete native name fields matching the search input; omitted outside label searches."
+    },
     "name": {
       "$ref": "#/$defs/Text",
       "description": "Original source display name."
@@ -99,7 +126,8 @@
           "type": "null"
         }
       ],
-      "description": "Source record URL."
+      "description": "Source record URL.",
+      "format": "uri"
     },
     "version": {
       "anyOf": [

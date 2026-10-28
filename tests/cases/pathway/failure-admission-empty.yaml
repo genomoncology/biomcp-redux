@@ -19,17 +19,13 @@
         "/status": "partial",
         "/sources/0/source": "reactome",
         "/sources/0/terms": "CC0 1.0 database data",
-        "/result/items": {
-          "count": 0
-        },
         "/result/page/total": 917,
         "/result/page/next_offset": 5,
         "/problems": {
           "count": 5
         }
       },
-      "max_bytes": 1071,
-      "max_tokens": 268
+      "max_bytes": 1071
     },
     {
       "run": [
@@ -43,7 +39,6 @@
         "/status": "failed"
       },
       "max_bytes": 266,
-      "max_tokens": 67,
       "mcp": [
         "search",
         "pathway",

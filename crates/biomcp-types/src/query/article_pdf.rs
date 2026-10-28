@@ -11,7 +11,7 @@ pub struct ArticlePdf {
     /// Destination file or existing folder.
     pub save: Text,
     /// Replace an existing file only when explicitly requested.
-    #[serde(default)]
+    #[serde(default, skip_serializing_if = "std::ops::Not::not")]
     pub replace: bool,
 }
 
@@ -32,3 +32,5 @@ impl ArticlePdf {
         format!("{name}.pdf")
     }
 }
+
+crate::query::validation::checked_query!(ArticlePdf);

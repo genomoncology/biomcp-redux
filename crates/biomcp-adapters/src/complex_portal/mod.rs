@@ -4,6 +4,7 @@ use biomcp_types::{Source, Use};
 use std::time::Duration;
 /// One publisher declaration owns admission, terms and keyless request policy.
 pub static SPEC: SourceSpec = SourceSpec {
+    destinations: biomcp_fetch::Destinations::Primary,
     user_agent: None,
     source: Source::ComplexPortal,
     base: "https://www.ebi.ac.uk/intact/complex-ws",
@@ -28,6 +29,9 @@ pub struct Complex {
     pub header: ProteinComplexHeader,
     /// Source participants, including non-proteins.
     pub members: Vec<ProteinComplexMember>,
+    /// Rejected optional source fields retained with the complex.
+    #[serde(default, skip_serializing_if = "Vec::is_empty")]
+    pub problems: Vec<biomcp_types::Problem>,
 }
 /// A complete admitted collection with an independent source search count.
 #[derive(Clone, Debug, Serialize, Deserialize)]

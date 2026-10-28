@@ -1,28 +1,8 @@
 {
   "feature": "pathway-help",
-  "story": "Every pathway command documents its sources, selectors, sections, paging and two parsed case examples.",
   "steps": [
     {
-      "run": [
-        "help",
-        "search",
-        "pathway"
-      ],
-      "mcp": [
-        "help",
-        "search",
-        "pathway"
-      ],
       "expect": {
-        "/status": "complete",
-        "/result/commands/0/command": [
-          "search",
-          "pathway"
-        ],
-        "/result/commands/0/examples": {
-          "count": 2
-        },
-        "/result/commands/0/description": "Search Reactome (default) or WikiPathways human pathways. Membership names a source and release; it implies no therapy, response or actionability. No enrichment is calculated.",
         "/result/commands/0/arguments/*/name": {
           "includes_all_of": [
             "--fresh",
@@ -40,32 +20,31 @@
             "reactome",
             "wikipathways"
           ]
-        }
-      },
-      "max_bytes": 1861,
-      "max_tokens": 466
-    },
-    {
-      "run": [
-        "help",
-        "get",
-        "pathway"
-      ],
-      "mcp": [
-        "help",
-        "get",
-        "pathway"
-      ],
-      "expect": {
-        "/status": "complete",
+        },
         "/result/commands/0/command": [
-          "get",
+          "search",
           "pathway"
         ],
+        "/result/commands/0/description": "Search Reactome (default) or WikiPathways human pathways. Membership names a source and release; it implies no therapy, response or actionability. No enrichment is calculated.",
         "/result/commands/0/examples": {
           "count": 2
         },
-        "/result/commands/0/description": "Get an exact human Reactome R-HSA or WikiPathways WP card. Read whole summary, genes, Reactome events or bounded all sections. Membership names a source and release; it implies no therapy, response or actionability. No enrichment is calculated.",
+        "/status": "complete"
+      },
+      "max_bytes": 2918,
+      "mcp": [
+        "help",
+        "search",
+        "pathway"
+      ],
+      "run": [
+        "help",
+        "search",
+        "pathway"
+      ]
+    },
+    {
+      "expect": {
         "/result/commands/0/arguments/*/name": {
           "includes_all_of": [
             "--fresh",
@@ -76,6 +55,14 @@
             "--section-offset"
           ]
         },
+        "/result/commands/0/command": [
+          "get",
+          "pathway"
+        ],
+        "/result/commands/0/description": "Get an exact human Reactome R-HSA or WikiPathways WP card. Read whole summary, genes, Reactome events or bounded all sections. Membership names a source and release; it implies no therapy, response or actionability. No enrichment is calculated.",
+        "/result/commands/0/examples": {
+          "count": 2
+        },
         "/result/commands/0/sections/*/word": {
           "includes_all_of": [
             "summary",
@@ -83,31 +70,23 @@
             "events",
             "all"
           ]
-        }
+        },
+        "/status": "complete"
       },
-      "max_bytes": 2202
-    },
-    {
-      "run": [
-        "help",
-        "pathway",
-        "genes"
-      ],
+      "max_bytes": 3001,
       "mcp": [
         "help",
-        "pathway",
-        "genes"
+        "get",
+        "pathway"
       ],
+      "run": [
+        "help",
+        "get",
+        "pathway"
+      ]
+    },
+    {
       "expect": {
-        "/status": "complete",
-        "/result/commands/0/command": [
-          "pathway",
-          "genes"
-        ],
-        "/result/commands/0/examples": {
-          "count": 2
-        },
-        "/result/commands/0/description": "Read Reactome exact references or WikiPathways GeneProduct data nodes. The details layer discloses complete Reactome physical contexts. Membership names a source and release; it implies no therapy, response or actionability. No enrichment is calculated.",
         "/result/commands/0/arguments/*/name": {
           "includes_all_of": [
             "details",
@@ -116,31 +95,31 @@
             "--offset",
             "--pool"
           ]
-        }
-      },
-      "max_bytes": 1481
-    },
-    {
-      "run": [
-        "help",
-        "pathway",
-        "events"
-      ],
-      "mcp": [
-        "help",
-        "pathway",
-        "events"
-      ],
-      "expect": {
-        "/status": "complete",
+        },
         "/result/commands/0/command": [
           "pathway",
-          "events"
+          "genes"
         ],
+        "/result/commands/0/description": "Read Reactome exact references or WikiPathways GeneProduct data nodes. The details layer discloses complete Reactome physical contexts. Membership names a source and release; it implies no therapy, response or actionability. No enrichment is calculated.",
         "/result/commands/0/examples": {
           "count": 2
         },
-        "/result/commands/0/description": "Read Reactome event objects and unresolved native integer references in source order. Membership names a source and release; it implies no therapy, response or actionability. No enrichment is calculated.",
+        "/status": "complete"
+      },
+      "max_bytes": 2487,
+      "mcp": [
+        "help",
+        "pathway",
+        "genes"
+      ],
+      "run": [
+        "help",
+        "pathway",
+        "genes"
+      ]
+    },
+    {
+      "expect": {
         "/result/commands/0/arguments/*/name": {
           "includes_all_of": [
             "id",
@@ -148,36 +127,57 @@
             "--offset",
             "--pool"
           ]
-        }
+        },
+        "/result/commands/0/command": [
+          "pathway",
+          "events"
+        ],
+        "/result/commands/0/description": "Read Reactome event objects and unresolved source integer references in source order. Membership names a source and release; it implies no therapy, response or actionability. No enrichment is calculated.",
+        "/result/commands/0/examples": {
+          "count": 2
+        },
+        "/status": "complete"
       },
-      "max_bytes": 1210
-    },
-    {
+      "max_bytes": 2218,
+      "mcp": [
+        "help",
+        "pathway",
+        "events"
+      ],
       "run": [
         "help",
-        "sync",
-        "wikipathways"
-      ],
+        "pathway",
+        "events"
+      ]
+    },
+    {
+      "expect": {
+        "/result/commands/0/arguments": {
+          "count": 5
+        },
+        "/result/commands/0/command": [
+          "sync",
+          "wikipathways"
+        ],
+        "/result/commands/0/description": "Replace WikiPathways search/get metadata catalogs atomically; reads never sync. Membership names a source and release; it implies no therapy, response or actionability. No enrichment is calculated.",
+        "/result/commands/0/examples": {
+          "count": 2
+        },
+        "/status": "complete"
+      },
+      "max_bytes": 1479,
       "mcp": [
         "help",
         "sync",
         "wikipathways"
       ],
-      "expect": {
-        "/status": "complete",
-        "/result/commands/0/command": [
-          "sync",
-          "wikipathways"
-        ],
-        "/result/commands/0/examples": {
-          "count": 2
-        },
-        "/result/commands/0/description": "Replace WikiPathways search/get metadata catalogs atomically; reads never sync. Membership names a source and release; it implies no therapy, response or actionability. No enrichment is calculated.",
-        "/result/commands/0/arguments": {
-          "count": 0
-        }
-      },
-      "max_bytes": 521
+      "run": [
+        "help",
+        "sync",
+        "wikipathways"
+      ]
     }
-  ]
+  ],
+  "story": "Every pathway command documents its sources, selectors, sections, paging and two parsed case examples.",
+  "verified": "Help byte limits use j18463 output plus fifteen percent for defaults, aliases, inherited options and examples; higher existing limits remain."
 }

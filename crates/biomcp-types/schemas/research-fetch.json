@@ -1,11 +1,17 @@
 {
   "$defs": {
+    "Markdown": {
+      "description": "Nonempty text with surrounding Unicode whitespace removed.",
+      "format": "markdown",
+      "minLength": 1,
+      "type": "string"
+    },
     "ResearchEnvelope": {
       "description": "Forward-compatible envelope metadata; entity fields use their CLI schemas.",
       "properties": {
         "schema": {
-          "description": "Original CLI schema identity; its schema describes all entity fields.",
-          "type": "string"
+          "$ref": "#/$defs/Text",
+          "description": "Original CLI schema identity; its schema describes all entity fields."
         },
         "status": {
           "$ref": "#/$defs/Status",
@@ -17,6 +23,10 @@
         "status"
       ],
       "type": "object"
+    },
+    "SourceText": {
+      "description": "Unchanged free source text, including empty values and surrounding whitespace.",
+      "type": "string"
     },
     "Status": {
       "description": "Overall command outcome.",
@@ -34,22 +44,22 @@
       "type": "string"
     }
   },
-  "$id": "biomcp.research-fetch/1",
+  "$id": "biomcp.research-fetch/2",
   "$schema": "https://json-schema.org/draft/2020-12/schema",
   "additionalProperties": false,
   "description": "Research fetch response using the existing CLI Markdown view.",
   "properties": {
     "id": {
-      "description": "Unchanged caller identifier.",
-      "type": "string"
+      "$ref": "#/$defs/SourceText",
+      "description": "Unchanged caller identifier."
     },
     "metadata": {
       "$ref": "#/$defs/ResearchEnvelope",
       "description": "Complete original CLI envelope."
     },
     "text": {
-      "description": "Complete Markdown view of the bounded CLI record.",
-      "type": "string"
+      "$ref": "#/$defs/Markdown",
+      "description": "Complete Markdown view of the bounded CLI record."
     },
     "title": {
       "$ref": "#/$defs/Text",
@@ -57,7 +67,8 @@
     },
     "url": {
       "$ref": "#/$defs/Text",
-      "description": "Nonempty canonical source URL."
+      "description": "Nonempty canonical source URL.",
+      "format": "uri"
     }
   },
   "required": [

@@ -515,17 +515,17 @@ Closed sets: `PublicationType` (non-exhaustive: `randomized_controlled_trial`, `
 
 `ArticleInput` is free text that the edge parses into a `Pmid` (digits), a `Pmcid`, a `Doi` (starts `10.`, or a `doi.org` URL) or a `EuropePmcId`.
 
-`Article` (schema `biodata.article/1`), from PubMed EFetch, or from Europe PMC for a record with no PMID:
+`Article` (schema `biodata.article/2`), from PubMed EFetch, or from Europe PMC for a record with no PMID:
 
 - `pmid: Option<Pmid>`, `pmcid: Option<Pmcid>`, `doi: Option<Doi>`, `europepmc_id: Option<EuropePmcId>`; at least one is present
-- `title: Text`, `journal: Option<Text>`, `date: Option<PartialDate>`
+- `title: Option<Text>`, `journal: Option<Text>`, `date: Option<PartialDate>`
 - `types: Box<[PublicationType]>`
 - `corrections: Box<[Correction]>`, each `{ kind: CorrectionKind, relation: CorrectionRelation, pmid: Option<Pmid> }`, where `relation` is `notice` when the PMID names the correction notice and `original` when it names the corrected paper
 - `published_as: Option<ArticleRef>`, for a preprint whose Europe PMC record links its published version
 - `authors: Box<[Text]>`, whole
 - `abstract_parts: Box<[AbstractPart]>`, each `{ label: Option<Text>, text: Markdown }`, where the JATS converter below turns italics, bold, superscripts and subscripts into Markdown
 
-`ArticleHeader` (schema `biodata.article_header/1`): `pmid`, `doi`, `pmcid`, `europepmc_id`, `title`, `journal`, `date`, `types`, `first_author` and `author_count`. A header for a row with no PMID carries `types_unknown: true`, because no PubMed record says whether it was retracted.
+`ArticleHeader` (schema `biodata.article_header/3`): `pmid`, `doi`, `pmcid`, `europepmc_id`, `title`, `journal`, `date`, `types`, `first_author` and `author_count`. A header for a row with no PMID carries `types_unknown: true`, because no PubMed record says whether it was retracted.
 
 `ArticleItem` holds an optional checked `key`, an optional `pmid`, an optional hydrated `header`, `found_by`, optional iCite `cited_by`, and an optional source `sentence`. A source row survives missing header metadata; DOI joins retain the raw secondary DOI even when another identifier wins key priority. `found_by` records native ranks only for a multi-source fold. The sentence is the first matching sentence returned in LitSense2 order. These source facts belong to the item, not the hydrated header.
 
@@ -869,7 +869,7 @@ Each case was checked on 2026-10-23 against live PubMed, LitVar2, LitSense2, Eur
 | 18 | The pool is fixed | case 15's walk run twice, then a page read with the network disabled | identical order; the last page has no page step; the offline page makes no request | none | fold/live-rank.yaml; fold/live-reverse.yaml |
 | 19 | A named source fails (issue 97) | case 15 with a recorded Europe PMC HTTP 500 | status partial; europepmc named with reason; the walk still holds all 192 PubMed PMIDs; `next` holds a `fresh` step | 8,000 bytes | fold/synthetic-epmc-500.yaml |
 | 20 | PubMed fails in a fold | case 15 with a recorded PubMed timeout | status failed; the error names pubmed | 600 bytes | fold/synthetic-pubmed-deadline.yaml |
-| 21 | Similarity is not a match | `search article "AKT1 E17K capivasertib breast cancer" --source litsense` | items returned in LitSense2's order, each with `sentence` holding a section and text; status complete; help text for `litsense` says a hit is a resemblance, not a match | 7,000 bytes | Outside the repo: AKT1 successful sentence capture remains unproved. litsense/licensed-subset.yaml tests a marked CC BY subset of the nonsense response. |
+| 21 | Similarity is not a match | `search article "AKT1 E17K capivasertib breast cancer" --source litsense` | items returned in LitSense2's order, each with `sentence` holding a section and text; status complete; help text for `litsense` says a hit is a resemblance, not a match | 7,000 bytes | Successful AKT1 capture and exact CLI/MCP replay are archived outside Git. litsense/akt1-licensed-subset.yaml proves native paper order, deduplication and every first sentence/section through CLI and MCP using an explicitly synthetic CC BY-only subset; exact rights and source archive digest are in tests/replies/article/litsense/README.md. |
 | 22 | A filter a source cannot apply | `search article --gene AKT1 --variant E17K --author Carpten --source pubmed,litvar` | usage error with code unsupported_filter naming litvar and `--author`; no request | 400 bytes | litvar/unsupported.yaml |
 | 23 | A sort a source cannot apply | `search article --gene AKT1 --variant E17K --source litvar --sort date` | usage error with code unsupported_filter naming litvar and `--sort date` | 400 bytes | litvar/unsupported.yaml |
 | 24 | LitVar2 without a variant | `search article AKT1 --source litvar` | usage error naming `--variant` | 400 bytes | litvar/unsupported.yaml |

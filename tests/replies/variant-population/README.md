@@ -3,3 +3,12 @@ These fixtures contain synthetic response-only edits over request identities emi
 The BRAF control preserves the reviewed public GRCh38 source allele, dataset, exome allele count and denominator, and null genome. Its per-group counts and filter are explicitly synthetic; group IDs use the documented source grammar. The recorded reply does not establish a dataset release, so native counts remain available while typed frequency projection is withheld. The GWAS zero reproduces the reviewed public source-local zero and preserves the current v2 rsID request. Error status, timing and malformed bodies are synthetic; three status exchanges exercise the existing bounded retry policy. No fixture supplies a clinical classification or a derived allele frequency.
 
 The gnomAD request wrappers use the actual CLI recorder identity emitted by the local synthetic TLS case in job j11213 at afd0c3be. The expanded request asks for VA release, count and cohort fields in that same response. Existing exchanges, including bodies and original fetch dates, remain unchanged. Their missing VA releases still yield native counts and a dataset-version problem. These are reused synthetic responses delivered locally, not new provider captures. The live release-bearing allele capture remains separate.
+
+`source-ca-identity.json` minimizes the existing byte-faithful MyVariant capture
+`myvariant/get_braf_v600e_grch38_20260806.json` from the source fixture archive.
+The original receipt gives SHA-256
+`78f7159bf545e417740ddf3781643c267b18cef2e21da9e7c34aa5e2830f1aed`
+and request
+`https://myvariant.info/v1/variant/chr7%3Ag.140753336A%3ET?assembly=hg38`.
+Only the source record identity, coordinate metadata, rsID and ClinGen CAid remain.
+The query envelope and downstream count reply in the local transport case are synthetic.

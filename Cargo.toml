@@ -8,7 +8,24 @@ edition = "2024"
 rust-version = "1.95.0"
 license = "MIT"
 
+[profile.dev]
+debug = "line-tables-only"
+
+[profile.dev.package."*"]
+debug = false
+
+[profile.test]
+debug = "line-tables-only"
+
+[profile.test.package."*"]
+debug = false
+
 [workspace.dependencies]
+biodata = { version = "=1.0.0", path = "crates/biodata" }
+biomcp-adapters = { version = "=1.0.0", path = "crates/biomcp-adapters" }
+biomcp-fetch = { version = "=1.0.0", path = "crates/biomcp-fetch" }
+biomcp-query = { version = "=1.0.0", path = "crates/biomcp-query" }
+biomcp-types = { version = "=1.0.0", path = "crates/biomcp-types" }
 shlex = "=2.0.1"
 winnow = { version = "1.0.4", default-features = false, features = ["ascii", "alloc"] }
 url = "2.5.8"
@@ -18,7 +35,7 @@ ctrlc = { version = "=3.5.2", features = ["termination"] }
 clap = { version = "4.6.7", default-features = false, features = ["std", "string", "derive"] }
 serde = { version = "1.0.229", default-features = false, features = ["std", "derive"] }
 # Keep finite numeric source values stable across CLI and MCP JSON boundaries.
-serde_json = { version = "1.0.154", features = ["float_roundtrip"] }
+serde_json = { version = "1.0.154", features = ["float_roundtrip", "raw_value"] }
 toml = { version = "1.1.8", default-features = false, features = ["parse", "serde", "std"] }
 tempfile = "3.27.0"
 libtest-mimic = "0.8.2"

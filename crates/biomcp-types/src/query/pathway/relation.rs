@@ -47,10 +47,12 @@ macro_rules! relation {
         #[cfg_attr(feature = "schema", derive(schemars::JsonSchema))]
         #[cfg_attr(feature = "schema", schemars(with = $wire))]
         pub struct $name($fields);
+        crate::query::validation::checked_query!($name, $fields);
         impl TryFrom<$fields> for $name {
             type Error = QueryInvalid;
             fn try_from(v: $fields) -> Result<Self, Self::Error> {
-                if !valid_limit(v.limit) || !$check(&v) { return Err(QueryInvalid); }
+                if !valid_limit(v.limit) { return Err(QueryInvalid::new(&["limit"])); }
+        $check(&v)?;
                 Ok(Self(v))
             }
         }
@@ -107,9 +109,15 @@ impl PathwayGenesQuery {
     }
 }
 
-fn valid_genes(v: &GeneFields) -> bool {
-    reactome(&v.id) || v.details.is_none()
+fn valid_genes(v: &GeneFields) -> Result<(), QueryInvalid> {
+    if !reactome(&v.id) && v.details.is_some() {
+        return Err(QueryInvalid::new(&["id", "details"]));
+    }
+    Ok(())
 }
-fn valid_events(v: &EventFields) -> bool {
-    reactome(&v.id)
+fn valid_events(v: &EventFields) -> Result<(), QueryInvalid> {
+    if !reactome(&v.id) {
+        return Err(QueryInvalid::new(&["id"]));
+    }
+    Ok(())
 }

@@ -1,18 +1,19 @@
-# 0294 — Replace the public BioMCP repository history with this repository's
+# 0294 — Append this repository's history to the public BioMCP repository
 
 Status: OPEN.
 
 Milestone: 5
 
-Depends on: 0293
+Depends on: 0293, 0402
 
 ## Outcome
 
-After Ian approves the 1.0 release, the public BioMCP repository's history is replaced with this repository's history, keeping its stars, issues and release history, as the repository transition decision says.
+After Ian approves, the public BioMCP main gains one merge commit whose parents are its previous main and the approved 1.0 candidate and whose files equal that candidate, so the old history, tags, stars, issues and releases stay and this repository's history follows them.
 
-- Why: milestones.md makes this the last step of 1.0.
-- Starts from: `2026-10-23-a-clean-repo-whose-history-replaces-biomcp.md`, `2026-10-19-public-repos-skip-history-scrubs.md`, 0279's public text check, and the public repository's settings.
-- Rules: nothing runs before Ian's explicit approval of this step. A written runbook with a rollback goes to Ian with the approval request. The release operator performs the push.
-- Proof: after the push, the public repository shows this history, its stars and releases are intact, and the 1.0 tag matches the approved candidate.
+- Why: Ian ruled on 2026-10-27 to append, not replace (`2026-10-27-append-history-to-biomcp.md`), because the public repository has earlier releases.
+- Starts from: that decision, the `release/1.0` candidate in 0293, and the public repository's settings.
+- Rules: nothing is pushed to the public repository before Ian's explicit approval of this step. A rehearsal on a scratch clone shows the merge, that old tags resolve and that the merge tree equals the candidate before the approval request. The release operator performs the push without force.
+- Release order (PM ruling 2026-10-28, pre-release review `sdlc/records/2026-10-28-pre-release-review.md`): one Ian approval covers the append, the tag and publication. Then the append, then the `v1.0.0` tag on the public merge commit, then the release workflow on that tag, then the operators publish from that run. This ticket owns the tag step.
+- Proof: after the push, the public repository shows both histories, v0.9.3 and older tags resolve, stars and releases are intact, and the merge tree equals the approved candidate.
 - Changes: none in this repository.
 - Defers: nothing.

@@ -4,6 +4,7 @@ use biomcp_types::Source;
 use std::time::Duration;
 /// Publisher policy for health, outcomes and admission before any I/O.
 pub static SPEC: SourceSpec = SourceSpec {
+    destinations: biomcp_fetch::Destinations::Primary,
     user_agent: None,
     source: Source::ClinPgx,
     base: "https://api.clinpgx.org/v1",
@@ -19,3 +20,6 @@ pub static SPEC: SourceSpec = SourceSpec {
 
 mod read;
 pub use read::{annotation, clinical, references};
+
+/// Native clinical annotation collection shared by reads and the bounded health probe.
+pub(crate) const CLINICAL_PATH: &str = "/data/clinicalAnnotation";

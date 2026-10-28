@@ -1,3 +1,17 @@
+// Pair each new public response export here with a crate-root re-export in `lib.rs`.
+// `unreachable_pub` reports a missing crate-root re-export.
+mod alphagenome;
+mod alphagenome_enums;
+pub use alphagenome::{
+    AlphaGenomeBiosample, AlphaGenomeDataType, AlphaGenomeGene, AlphaGenomeInterval,
+    AlphaGenomeOntology, AlphaGenomeScorer, AlphaGenomeScorerPage, AlphaGenomeTrack,
+    AlphaGenomeValue, AlphaGenomeVariant, VariantAlphaGenome,
+};
+pub use alphagenome_enums::{
+    AlphaGenomeBiosampleType, AlphaGenomeEndedness, AlphaGenomeOntologyType, AlphaGenomeStrand,
+};
+mod catalog;
+pub use catalog::{SchemaCatalog, SchemaEntry};
 mod article;
 pub use article::{ArticlePdfResult, OpenAccessStatus, PdfLink, PdfSaved};
 pub use article::{
@@ -27,14 +41,16 @@ mod gene;
 mod help;
 mod key;
 pub use gene::{Oncokb, OncokbCard, OncokbGeneType, OncokbTranscript};
-pub use help::{Help, HelpArgument, HelpCommand, HelpWord};
+pub use help::{Help, HelpArgument, HelpCommand, HelpQuery, HelpWord};
 pub use key::{KeyHelp, KeyState, RegisteredKey, RegisteredKeys};
 mod page;
 mod section;
 mod source;
+mod source_timestamp;
+pub use source_timestamp::{SourceTimestamp, SourceTimestampTimezone};
 mod status;
 mod store;
-pub use store::StoreClean;
+pub use store::{BundleSize, StoreClean, StoreSize};
 mod step;
 pub use envelope::{Envelope, ResponseBody};
 pub use gene::{GeneCards, GeneItem, GenePage, QueryBody};
@@ -49,8 +65,8 @@ pub use gene::{SyncQuery, SyncResult};
 pub use gene::{Constraint, GeneSections, Protein};
 
 pub use gene::{
-    CancerPtpm, Capped, CivicGene, ClinGenGene, ClinGenValidity, GeneExpression, PathwayRef,
-    ReactomeId, ReactomeIdInvalid, RnaAbundance, TissueNtpm,
+    CancerPtpm, Capped, CivicGene, ClinGenGene, ClinGenValidity, GenccGene, GenccSubmission,
+    GeneExpression, PathwayRef, ReactomeId, ReactomeIdInvalid, RnaAbundance, TissueNtpm,
 };
 
 mod article_sections;
@@ -60,7 +76,9 @@ pub use article_sections::{
 
 mod health;
 pub use health::{
-    ComponentHealth, DisableGroup, DisabledComponent, Health, HttpHealth, SourceHealth,
+    ComponentHealth, ConfigurationHealth, ConfigurationNotice, ConfigurationNoticeCode,
+    ConfigurationVariable, DisableGroup, DisabledComponent, Health, HttpHealth, LocalBundleState,
+    SourceHealth,
 };
 
 pub use article::{
@@ -72,7 +90,9 @@ mod recurrence;
 pub use recurrence::{RecurrenceGranularity, RecurrenceStudy, RecurrenceTerms, VariantRecurrence};
 mod variant;
 mod variant_normalize;
-pub use variant::{VariantCard, VariantHeader, VariantPage, VariantResolution, VariantSections};
+pub use variant::{
+    VariantCard, VariantHeader, VariantPage, VariantResolution, VariantSections, VariantTranscript,
+};
 pub use variant_normalize::{
     NormalizationField, NormalizationMessage, NormalizationResult, VariantNormalization,
 };
@@ -131,9 +151,9 @@ pub use trial_header::TrialHeader;
 
 mod disease;
 pub use disease::{
-    DiseaseAssociationItem, DiseaseCard, DiseaseGenes, DiseaseHeader, DiseaseHierarchy,
-    DiseaseIncidence, DiseasePage, DiseasePhenotypes, DiseaseSite, DiseaseSites, DiseaseSurvival,
-    DiseaseSynonyms, DiseaseXrefs,
+    DiseaseAssociationItem, DiseaseCard, DiseaseConcept, DiseaseGenes, DiseaseHeader,
+    DiseaseHierarchy, DiseaseIncidence, DiseasePage, DiseasePhenotypes, DiseaseSite, DiseaseSites,
+    DiseaseSurvival, DiseaseSynonyms, DiseaseXrefs,
 };
 
 mod diagnostic;
@@ -141,3 +161,11 @@ pub use diagnostic::*;
 
 mod pathway;
 pub use pathway::*;
+mod alphagenome_scalar;
+pub use alphagenome_scalar::{AlphaGenomeNonfiniteKind, AlphaGenomeScalar};
+
+mod civic_vocabulary;
+pub use civic_vocabulary::{CivicKind, CivicSignificance, CivicStatus};
+
+mod nci_phase;
+pub use nci_phase::NciTrialPhase;

@@ -1,4 +1,5 @@
 use super::raw::*;
+use crate::mapped::push_problem;
 use crate::{
     Mapped,
     raw::{Field, OneOrMany},
@@ -141,21 +142,18 @@ fn project_conservation(out: &mut Output, db: Dbnsfp) -> Result<(), RequestError
     Ok(())
 }
 impl Output {
-    fn problem(&mut self, field: &str) {
-        self.problems.push(Problem {
-            source: Source::MyVariant,
-            record: Some(self.id.clone()),
-            field: field.into(),
-            code: ProblemCode::ValueUnknown,
-        });
-    }
     fn context(&mut self, path: &str, values: Texts) -> Result<(), RequestError> {
         match values {
             Some(Field::Value(values)) => self.context.push(PredictorContext {
                 field: Text::new(path).map_err(|_| super::super::leg_bad())?,
                 values: values.values().into(),
             }),
-            Some(Field::Invalid(_)) => self.problem(path),
+            Some(Field::Invalid(_)) => push_problem(
+                &mut self.problems,
+                Source::MyVariant,
+                Some(self.id.clone()),
+                path,
+            ),
             None => {}
         }
         Ok(())
@@ -183,7 +181,12 @@ impl Output {
         }
         let Some(values) = values else { return Ok(()) };
         let Field::Value(values) = values else {
-            self.problem(path);
+            push_problem(
+                &mut self.problems,
+                Source::MyVariant,
+                Some(self.id.clone()),
+                path,
+            );
             return Ok(());
         };
         let array = matches!(&values, OneOrMany::Many(_));

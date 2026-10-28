@@ -23,6 +23,13 @@ pub(super) fn source(cx: &Ctx<'_>, query: &VariantGet) -> Option<Source> {
     {
         return Some(source);
     }
+    if *section == S::AlphaGenome
+        && !cx
+            .fetch
+            .has_key(biomcp_fetch::SecretName::AlphaGenomeApiKey)
+    {
+        return Some(source);
+    }
     match (query.input().namespace().ok()?, section) {
         (VariantNamespace::Ca, S::Civic | S::Erepo) | (VariantNamespace::ClinVar, S::Clinvar) => {
             Some(source)
@@ -60,12 +67,13 @@ pub(super) fn get(
             id: query.input().text().clone(),
             url: None,
         },
+        transcripts: Box::default(),
         myvariant: None,
         sections: None,
         component_terms: Box::default(),
     }];
     let (sources, problems, local) =
-        super::sections::apply(cx, query, &mut candidates, &mut deadline);
+        super::sections::apply(cx, query, &mut candidates, &mut deadline, None);
     let status = if sources.is_empty()
         || sources
             .iter()
@@ -98,6 +106,7 @@ pub(super) fn get(
         next: {
             let mut next = next;
             next.extend(super::oncokb::next(query, &sources));
+            next.extend(super::alphagenome::next(&sources));
             next
         },
         local,

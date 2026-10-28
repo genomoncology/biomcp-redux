@@ -82,6 +82,7 @@ fn acquire(
                 duplicate_identities: None,
                 rows: info.rows,
                 bytes: info.bytes,
+                downloaded_bytes: info.downloaded_bytes,
             })
         }
         Bundle::Ema => biomcp_adapters::ema::sync(fetch).map(|info| biomcp_types::SyncResult {
@@ -91,8 +92,10 @@ fn acquire(
             duplicate_identities: None,
             rows: info.rows,
             bytes: info.bytes,
+            downloaded_bytes: info.downloaded_bytes,
         }),
         Bundle::ClinGen => biomcp_adapters::clingen::sync(fetch),
+        Bundle::Gencc => biomcp_adapters::gencc::sync(fetch),
         Bundle::Hgnc => {
             biomcp_adapters::hgnc::sync(fetch, biomcp_adapters::hgnc::HgncBundle::Complete)
                 .and_then(|complete| {
@@ -107,6 +110,7 @@ fn acquire(
                         duplicate_identities: None,
                         rows: complete.rows + withdrawn.rows,
                         bytes: complete.bytes + withdrawn.bytes,
+                        downloaded_bytes: complete.downloaded_bytes + withdrawn.downloaded_bytes,
                     })
                 })
         }

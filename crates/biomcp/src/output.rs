@@ -5,34 +5,15 @@ pub(crate) fn command(
     outcome: &crate::command::Outcome,
     args: &[std::ffi::OsString],
 ) -> io::Result<()> {
-    if crate::grammar::is_housekeeping(args) {
+    if crate::grammar::is_housekeeping(args)
+        && crate::grammar::parse(args)
+            .ok()
+            .is_none_or(|parsed| parsed.help.is_none())
+    {
         return bytes(&outcome.cli_bytes);
     }
-    let mut words = args.iter().take_while(|arg| *arg != "--");
-    let mut format = None;
-    while let Some(word) = words.next().and_then(|arg| arg.to_str()) {
-        if word == "--format" {
-            format = words.next().and_then(|arg| arg.to_str());
-        } else if let Some(value) = word.strip_prefix("--format=") {
-            format = Some(value);
-        }
-    }
-    let format = format
-        .map(|value| {
-            if value == "md" {
-                crate::grammar::Format::Md
-            } else {
-                crate::grammar::Format::Json
-            }
-        })
-        .or_else(|| {
-            crate::config::format(
-                crate::grammar::parse(args)
-                    .ok()
-                    .and_then(|p| p.globals.config)
-                    .as_ref(),
-            )
-        });
+    let (format, config) = crate::grammar::presentation(args).unwrap_or_default();
+    let format = format.or_else(|| crate::config::format(config.as_ref()));
     let bytes = match format {
         Some(crate::grammar::Format::Md) if outcome.value.get("schema").is_some() => {
             crate::view::markdown(&outcome.value)?
@@ -44,10 +25,12 @@ pub(crate) fn command(
 
 pub(crate) fn bytes(bytes: &[u8]) -> io::Result<()> {
     let mut stdout = io::stdout().lock();
-    stdout.write_all(bytes)?;
-    stdout.flush()
+    match stdout.write_all(bytes).and_then(|()| stdout.flush()) {
+        Err(error) if error.kind() == io::ErrorKind::BrokenPipe => Ok(()),
+        result => result,
+    }
 }
 
-pub(crate) fn diagnostic(message: &'static [u8]) {
+pub(crate) fn diagnostic(message: &[u8]) {
     let _ = io::stderr().lock().write_all(message);
 }

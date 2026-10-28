@@ -36,14 +36,18 @@ struct Fields {
 fn limit() -> u32 {
     10
 }
+crate::query::validation::checked_query!(ArticleEdges, Fields);
 impl TryFrom<Fields> for ArticleEdges {
     type Error = QueryInvalid;
     fn try_from(v: Fields) -> Result<Self, Self::Error> {
-        if matches!(v.pmid, ArticleInput::EuropePmc(_))
-            || !(1..=50).contains(&v.limit)
-            || (v.source == EdgeSource::Icite && !matches!(v.pmid, ArticleInput::Pmid(_)))
-        {
-            return Err(QueryInvalid);
+        if matches!(v.pmid, ArticleInput::EuropePmc(_)) {
+            return Err(QueryInvalid::new(&["pmid"]));
+        }
+        if !(1..=50).contains(&v.limit) {
+            return Err(QueryInvalid::new(&["limit"]));
+        }
+        if v.source == EdgeSource::Icite && !matches!(v.pmid, ArticleInput::Pmid(_)) {
+            return Err(QueryInvalid::new(&["source", "pmid"]));
         }
         Ok(Self(v))
     }

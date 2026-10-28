@@ -1,6 +1,6 @@
 //! Preserve native identity relations and their component record attribution.
 use super::{map::text, raw::Component};
-use biodata::{Attribution, DrugIdentity, DrugIdentityLevel, DrugIdentityRelation, Text};
+use biodata::{Attribution, DrugIdentity, DrugIdentityLevel, DrugIdentityRelation};
 use biomcp_fetch::BadReply;
 pub(super) fn strings(values: &crate::raw::OneOrMany<String>) -> Vec<&str> {
     match values {
@@ -59,15 +59,9 @@ pub(super) fn native_xrefs(
     for (namespace, ids) in c.xrefs.as_ref().into_iter().flatten() {
         let relation = format!("{component}.xrefs.{namespace}");
         for id in strings(ids) {
-            match reference(record, component, c, &relation, id, None) {
-                Ok(row) => rows.push(row),
-                Err(_) => problems.push(biomcp_types::Problem {
-                    source: biomcp_types::Source::Mychem,
-                    record: Text::new(record).ok(),
-                    field: relation.clone().into(),
-                    code: biomcp_types::ProblemCode::ValueUnknown,
-                }),
-            }
+            rows.extend(mapped_reference(
+                record, component, c, &relation, id, None, problems,
+            ));
         }
     }
     rows
@@ -82,4 +76,28 @@ fn native_record<'a>(component: &str, c: &'a Component) -> Option<&'a str> {
         "ndc" => c.product_id.as_deref().or(c.productndc.as_deref()),
         _ => None,
     }
+}
+
+pub(super) fn mapped_reference(
+    record: &str,
+    component: &str,
+    c: &Component,
+    relation: &str,
+    target: &str,
+    name: Option<&str>,
+    problems: &mut Vec<biomcp_types::Problem>,
+) -> Option<DrugIdentityRelation> {
+    let mut context = crate::mapped::Problems {
+        source: biomcp_types::Source::Mychem,
+        record: crate::mapped::record(record),
+        list: Vec::new(),
+    };
+    let value = context.optional(
+        relation,
+        Some(reference(record, component, c, relation, target, name)),
+    );
+    for problem in context.list {
+        crate::mapped::push_problem(problems, problem.source, problem.record, &problem.field);
+    }
+    value
 }

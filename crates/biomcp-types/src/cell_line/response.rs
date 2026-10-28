@@ -24,6 +24,7 @@ pub struct CellLineHeader {
 #[cfg_attr(feature = "schema", derive(schemars::JsonSchema))]
 pub struct CellLinePage {
     /// Native result order, without reranking or selected identity.
+    #[serde(default, skip_serializing_if = "<[_]>::is_empty")]
     pub items: Box<[CellLineHeader]>,
     /// Independently fetched publisher release, never a result total.
     #[serde(skip_serializing_if = "Option::is_none")]
@@ -45,6 +46,7 @@ pub struct CellLineCard {
     #[serde(skip_serializing_if = "Option::is_none")]
     pub header: Option<CellLineHeader>,
     /// Candidate identities without first-hit selection.
+    #[serde(default, skip_serializing_if = "<[_]>::is_empty")]
     pub candidates: Box<[CellLineHeader]>,
     /// Selected entry dates and version, separate from release metadata.
     #[serde(skip_serializing_if = "Option::is_none")]
@@ -54,16 +56,18 @@ pub struct CellLineCard {
     pub age: Option<Text>,
     /// Native sex label when supplied.
     #[serde(skip_serializing_if = "Option::is_none")]
-    pub sex: Option<Text>,
+    pub sex: Option<CellLineSex>,
     /// Selected card warnings, up to three whole rows; not a fetch state.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub warnings: Option<Capped<CellLineWarning>>,
     /// Publisher URL for the selected identity.
     #[serde(skip_serializing_if = "Option::is_none")]
+    #[cfg_attr(feature = "schema", schemars(extend("format" = "uri")))]
     pub url: Option<Text>,
     /// Only explicitly requested sections carry a state.
     pub sections: CellLineSections,
     /// Supported disclosures not requested.
+    #[serde(default, skip_serializing_if = "<[_]>::is_empty")]
     pub more: Box<[CellLineSection]>,
     /// Independently fetched publisher release.
     #[serde(skip_serializing_if = "Option::is_none")]
@@ -239,35 +243,35 @@ pub struct CellLineAssayCount {
     pub assay_count: u64,
 }
 impl ResponseBody for CellLinePage {
-    const SCHEMA: &'static str = "biomcp.cell_line_page/2";
+    const SCHEMA: &'static str = "biomcp.cell-line-page/2";
     type Query = CellLineSearch;
 }
 impl ResponseBody for CellLineCard {
-    const SCHEMA: &'static str = "biomcp.cell_line_card/3";
+    const SCHEMA: &'static str = "biomcp.cell-line-card/3";
     type Query = CellLineGet;
 }
 impl ResponseBody for CellLineNames {
-    const SCHEMA: &'static str = "biomcp.cell_line_names/1";
+    const SCHEMA: &'static str = "biomcp.cell-line-names/1";
     type Query = CellLineGet;
 }
 impl ResponseBody for CellLineIdentityPage {
-    const SCHEMA: &'static str = "biomcp.cell_line_identity/1";
+    const SCHEMA: &'static str = "biomcp.cell-line-identity/1";
     type Query = CellLineGet;
 }
 impl ResponseBody for CellLineXrefs {
-    const SCHEMA: &'static str = "biomcp.cell_line_xrefs/1";
+    const SCHEMA: &'static str = "biomcp.cell-line-xrefs/1";
     type Query = CellLineGet;
 }
 impl ResponseBody for CellLineVariants {
-    const SCHEMA: &'static str = "biomcp.cell_line_variants/2";
+    const SCHEMA: &'static str = "biomcp.cell-line-variants/2";
     type Query = CellLineGet;
 }
 impl ResponseBody for CellLineChembl {
-    const SCHEMA: &'static str = "biomcp.cell_line_chembl/2";
+    const SCHEMA: &'static str = "biomcp.cell-line-chembl/2";
     type Query = CellLineGet;
 }
 impl ResponseBody for CellLineAssayCount {
-    const SCHEMA: &'static str = "biomcp.cell_line_assay_count/2";
+    const SCHEMA: &'static str = "biomcp.cell-line-assay-count/2";
     type Query = CellLineAssayCountQuery;
 }
 

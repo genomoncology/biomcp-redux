@@ -21,13 +21,9 @@
       ],
       "expect": {
         "/status": "complete",
-        "/page/total": 0,
-        "/result/items": {
-          "count": 0
-        }
+        "/page/total": 0
       },
-      "max_bytes": 716,
-      "max_tokens": 179
+      "max_bytes": 716
     }
   ]
 }

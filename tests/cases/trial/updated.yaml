@@ -38,10 +38,10 @@
             "NCT02339571"
           ]
         },
-        "/result/source_updated": "2026-10-23T09:00:04"
+        "/result/source_updated/value": "2026-10-23T09:00:04",
+        "/result/source_updated/timezone": "source_gave_none"
       },
-      "max_bytes": 5598,
-      "max_tokens": 1400
+      "max_bytes": 5598
     }
   ]
 }

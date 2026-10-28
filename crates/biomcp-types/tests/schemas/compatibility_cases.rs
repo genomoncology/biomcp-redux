@@ -309,3 +309,82 @@ fn compatibility_checks_native_gene_maps_signed_positions_and_impossible_element
         assert!(super::compatibility::check(&loose, &changed).is_err());
     }
 }
+
+#[test]
+fn compatibility_preserves_standard_string_format_annotations_and_assertions() {
+    let plain = json!({"$id":"biodata.example/1", "type":"string", "pattern":"^x"});
+    for format in ["date", "date-time", "uri", "uri-reference"] {
+        let mut annotated = plain.clone();
+        annotated["format"] = json!(format);
+        // Draft 2020-12 uses the format annotation vocabulary by default.
+        assert!(check(&plain, &annotated).is_ok());
+        assert!(check(&annotated, &annotated).is_ok());
+        assert!(check(&annotated, &plain).is_err());
+        let mut narrowed = annotated.clone();
+        narrowed["minLength"] = json!(2);
+        assert!(check(&plain, &narrowed).is_err());
+        narrowed = annotated.clone();
+        narrowed["pattern"] = json!("^xx");
+        assert!(check(&plain, &narrowed).is_err());
+        narrowed = annotated.clone();
+        narrowed["type"] = json!("integer");
+        assert!(check(&narrowed, &narrowed).is_err());
+        narrowed = annotated.clone();
+        narrowed["format"] = json!(if format == "uri" {
+            "uri-reference"
+        } else {
+            "uri"
+        });
+        assert!(check(&annotated, &narrowed).is_err());
+    }
+}
+
+#[test]
+fn compatibility_accepts_rfc_annotations_beside_string_references_without_assertion_siblings() {
+    for old in [
+        json!({"$id":"biodata.example/1", "$ref":"#/$defs/Text",
+            "$defs":{"Text":{"type":"string","minLength":1}}}),
+        json!({"$id":"biodata.example/1", "anyOf":[{"$ref":"#/$defs/Text"},{"type":"null"}],
+            "$defs":{"Text":{"type":"string","minLength":1}}}),
+    ] {
+        for format in ["date", "date-time", "uri", "uri-reference"] {
+            let mut new = old.clone();
+            new["format"] = json!(format);
+            assert!(check(&old, &new).is_ok());
+            assert!(check(&new, &old).is_err());
+            new["minLength"] = json!(2);
+            assert!(check(&old, &new).is_err());
+        }
+        let mut unknown = old.clone();
+        unknown["format"] = json!("unchecked");
+        assert!(check(&old, &unknown).is_err());
+    }
+}
+
+#[test]
+fn compatibility_preserves_each_disjoint_scalar_branch() {
+    let old = json!({"$id":"biodata.example/1", "anyOf":[
+        {"$ref":"#/$defs/Finite"},
+        {"type":"object","properties":{"kind":{"type":"string","enum":["nan","positive_infinity","negative_infinity"]}},
+         "required":["kind"],"additionalProperties":false}],
+        "$defs":{"Finite":{"type":"number","format":"double"}}});
+    assert!(check(&old, &old).is_ok());
+    let mut reordered = old.clone();
+    reordered["anyOf"].as_array_mut().unwrap().reverse();
+    assert!(check(&old, &reordered).is_ok());
+    let mut number_narrowed = old.clone();
+    number_narrowed["$defs"]["Finite"]["minimum"] = json!(0);
+    assert!(check(&old, &number_narrowed).is_err());
+    let mut object_narrowed = old.clone();
+    object_narrowed["anyOf"][1]["properties"]["kind"]["enum"] = json!(["nan"]);
+    assert!(check(&old, &object_narrowed).is_err());
+    for unsupported in [
+        json!([{"type":"number"},{"type":"string"}]),
+        json!([{"type":"object"},{"type":"object"}]),
+        json!([{"type":"number"},{"type":"object"},{"type":"null"}]),
+    ] {
+        let mut new = old.clone();
+        new["anyOf"] = unsupported;
+        assert!(check(&new, &new).is_err());
+    }
+}

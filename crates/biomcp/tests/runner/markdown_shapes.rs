@@ -13,7 +13,9 @@ pub(super) struct Shape {
     pub(super) required: &'static [&'static str],
     pub(super) max_bytes: usize,
 }
-// Measured Markdown plus 15%; the protein ceiling also respects the matching
+// Article card/reader ceilings use literal-text measurements from j17875 plus 15%.
+// Author help uses j19122 measurements plus 15%. Other measured Markdown plus
+// 15%; the protein ceiling also respects the matching
 // 0.9 JSON baseline. Reader, supplement-row and usage shapes have no comparable old output.
 const SHAPES: &[Shape] = &[
     Shape {
@@ -25,27 +27,27 @@ const SHAPES: &[Shape] = &[
             "limit",
             "pool",
             "source",
-            "Topic-wide author ranking and cross-provider merging are unavailable.",
+            "Topic-wide author ranking and cross-source merging are unavailable&#46;",
         ],
-        max_bytes: 1839,
+        max_bytes: 2657,
     },
     Shape {
         args: &["help", "get", "author"],
         replies: "",
-        required: &["id", "provider records", "Counts cover"],
-        max_bytes: 1486,
+        required: &["id", "source records", "Counts cover"],
+        max_bytes: 2134,
     },
     Shape {
         args: &["help", "author"],
         replies: "",
         required: &["query", "offset", "limit", "pool", "source", "id"],
-        max_bytes: 5305,
+        max_bytes: 8822,
     },
     Shape {
         args: &["help", "author", "papers"],
         replies: "",
         required: &["id", "details", "full", "limit", "offset", "pool"],
-        max_bytes: 2165,
+        max_bytes: 3009,
     },
     Shape {
         args: &["search", "pathway", "Signaling by EGFR"],
@@ -134,17 +136,17 @@ const SHAPES: &[Shape] = &[
         args: &["get", "article", "33123537"],
         replies: "article/get/synthetic-derived",
         required: &[
-            "# Effect of AKT1 (p. E17K) Hotspot Mutation on Malignant Tumorigenesis and Prognosis.",
+            "# Effect of AKT1 (p&#46; E17K) Hotspot Mutation on Malignant Tumorigenesis and Prognosis&#46;",
             "**status:**",
             "biomcp",
         ],
-        max_bytes: 2421,
+        max_bytes: 2803,
     },
     Shape {
         args: &["article", "text", "PMC5606870", "--part", "1"],
         replies: "article/fulltext/synthetic",
-        required: &["## Introduction", "*text*", "**state:** data"],
-        max_bytes: 650,
+        required: &["\\#\\# Introduction", "\\*text\\*", "**state:** data"],
+        max_bytes: 786,
     },
     Shape {
         args: &[
@@ -162,11 +164,11 @@ const SHAPES: &[Shape] = &[
             "Rows",
             "| Sheet | Row | Cells | Cells | Row |",
             concat!(
-                "| ST2 | 87 | \\[\\] | \\[\\] | 1 | 1 | true | 0 | ",
-                "Supplemental Table 2: Individual Tier 2 Variants. |"
+                "| ST2 | 87 |  |  | 1 | 1 | true | 0 | ",
+                "Supplemental Table 2&#58; Individual Tier 2 Variants&#46; |"
             ),
             "AXIN2",
-            "p.Pro245Ser",
+            "p&#46;Pro245Ser",
             "biomcp article supplement 28944238 MGG3-5-553-s002.xlsx",
         ],
         max_bytes: 4934,
@@ -174,15 +176,26 @@ const SHAPES: &[Shape] = &[
     Shape {
         args: &["get", "gene"],
         replies: "gene/main",
-        required: &["# Error", "**status:** usage", "usage.arguments"],
-        max_bytes: 151,
+        required: &[
+            "# Error",
+            "**status:** usage",
+            "usage&#46;arguments",
+            "**option:** input",
+        ],
+        // j18069 measured 154 Markdown bytes with a named argument, plus 15%.
+        max_bytes: 178,
     },
 ];
 fn shapes() -> Result<(), String> {
-    for shape in SHAPES {
-        check(shape)?;
+    let failures: Vec<_> = SHAPES
+        .iter()
+        .filter_map(|shape| check(shape).err())
+        .collect();
+    if failures.is_empty() {
+        Ok(())
+    } else {
+        Err(failures.join("\n"))
     }
-    Ok(())
 }
 pub(super) fn check(shape: &Shape) -> Result<(), String> {
     let env = Environment::new().map_err(|e| e.to_string())?;
@@ -280,19 +293,25 @@ fn check_tool(
             .canonicalize()
             .map_err(|e| e.to_string())?;
         if tool.pointer("/query/save") != Some(&json!(path))
-            || tool.pointer("/query/replace") != Some(&json!(false))
+            || tool.pointer("/query/replace").is_some()
             || tool.pointer("/result/file/data/path") != Some(&json!(absolute.to_string_lossy()))
         {
             return Err("stdio save changed its explicit new destination".into());
         }
         // Preserve receipt parity after checking the deliberate destination difference.
-        for pointer in ["/query/save", "/query/replace", "/result/file/data/path"] {
+        for pointer in ["/query/save", "/result/file/data/path"] {
             *tool
                 .pointer_mut(pointer)
                 .ok_or("stdio save receipt field")? = value
                 .pointer(pointer)
                 .ok_or("CLI save receipt field")?
                 .clone();
+        }
+        if let Some(replace) = value.pointer("/query/replace") {
+            tool.get_mut("query")
+                .and_then(Value::as_object_mut)
+                .ok_or("stdio save query")?
+                .insert("replace".into(), replace.clone());
         }
     }
     if &tool != value {

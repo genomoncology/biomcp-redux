@@ -71,7 +71,10 @@ impl Entry {
 }
 /// Read only one exact contents directory. No entry download URL is requested.
 pub fn files(leg: &Leg<'_>, id: &StudyId) -> Result<Directory, RequestError> {
-    let url = format!("https://api.github.com/repos/cBioPortal/datahub/contents/public/{id}");
+    let url = format!(
+        "{}/repos/cBioPortal/datahub/contents/public/{id}",
+        super::super::GITHUB_ORIGIN
+    );
     let endpoint = SPEC
         .download(&url)?
         .fresh(Freshness::Days(1))

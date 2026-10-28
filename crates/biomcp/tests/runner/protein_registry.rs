@@ -63,7 +63,7 @@ fn declaration(name: &str, usage: &str, terms: &str, url: &str) -> Check {
         .iter()
         .find(|r| r["source"] == name)
         .ok_or("missing protein source")?;
-    if row["usage"] != usage
+    if row["use"] != usage
         || row["terms"] != terms
         || row["terms_url"] != url
         || row["disabled"] != false

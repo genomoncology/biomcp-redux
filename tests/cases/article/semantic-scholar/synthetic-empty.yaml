@@ -21,10 +21,8 @@
       "max_bytes": 672,
       "expect": {
         "/status": "complete",
-        "/page/total": 0,
-        "/result/items": []
-      },
-      "max_tokens": 168
+        "/page/total": 0
+      }
     }
   ],
   "verified": "Measured CLI output at43f22fd: 584 bytes by step; ceilings are ceil(actual*1.15). These synthetic boundary replies and named-source responses have no matching0.9 JSON baseline. Actual canonical captures: j9693, j9708 and j9753. Successful keyless source verification remains0061.",

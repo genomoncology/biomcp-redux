@@ -55,6 +55,12 @@ pub fn sync(fetch: &Fetch) -> Result<SyncResult, RequestError> {
         last_modified: None,
         rows: info.rows,
         bytes: info.bytes,
+        downloaded_bytes: info.downloaded_bytes,
         duplicate_identities: Some(counts.values().filter(|&&n| n > 1).count() as u64),
     })
+}
+
+/// Inspect this source's complete local set without synchronizing it.
+pub(crate) fn state(leg: &Leg<'_>) -> Result<biomcp_types::LocalBundleState, RequestError> {
+    SET.state(leg)
 }

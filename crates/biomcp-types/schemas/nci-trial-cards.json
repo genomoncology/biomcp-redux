@@ -167,11 +167,10 @@
           "description": "Source concept name."
         },
         "nci_thesaurus_concept_id": {
-          "$ref": "#/$defs/Text",
+          "$ref": "#/$defs/NcitId",
           "description": "Publisher NCIt identity."
         },
         "parents": {
-          "default": [],
           "description": "Original immediate ancestors.",
           "items": {
             "$ref": "#/$defs/Text"
@@ -179,7 +178,6 @@
           "type": "array"
         },
         "synonyms": {
-          "default": [],
           "description": "Original alternative labels.",
           "items": {
             "$ref": "#/$defs/Text"
@@ -187,7 +185,6 @@
           "type": "array"
         },
         "type": {
-          "default": [],
           "description": "Original concept categories.",
           "items": {
             "$ref": "#/$defs/Text"
@@ -210,7 +207,7 @@
           "description": "Native source name."
         },
         "nci_thesaurus_concept_id": {
-          "$ref": "#/$defs/Text",
+          "$ref": "#/$defs/NcitId",
           "description": "Source NCIt identity."
         }
       },
@@ -396,7 +393,7 @@
           "description": "Native name field."
         },
         "nci_thesaurus_concept_id": {
-          "$ref": "#/$defs/Text",
+          "$ref": "#/$defs/NcitId",
           "description": "Native nci thesaurus concept id field."
         },
         "parents": {
@@ -427,9 +424,7 @@
       },
       "required": [
         "name",
-        "nci_thesaurus_concept_id",
-        "parents",
-        "synonyms"
+        "nci_thesaurus_concept_id"
       ],
       "type": "object"
     },
@@ -545,7 +540,7 @@
         "phase": {
           "anyOf": [
             {
-              "$ref": "#/$defs/Text"
+              "$ref": "#/$defs/NciTrialPhase"
             },
             {
               "type": "null"
@@ -580,7 +575,6 @@
         }
       },
       "required": [
-        "items",
         "attribution"
       ],
       "type": "object"
@@ -649,6 +643,10 @@
       ],
       "type": "object"
     },
+    "NciTrialPhase": {
+      "description": "Native publisher vocabulary; new values are retained unchanged. Known values: NA; 0; I; I_II; II; II_III; III; IV; ",
+      "type": "string"
+    },
     "NciTrialSections": {
       "additionalProperties": false,
       "description": "Independently paged native collections from one immutable source record.",
@@ -711,7 +709,13 @@
       },
       "type": "object"
     },
+    "NcitId": {
+      "description": "A native NCI Thesaurus concept code.",
+      "pattern": "^C[0-9]+$",
+      "type": "string"
+    },
     "NctId": {
+      "description": "Canonical ClinicalTrials.gov identifier.",
       "pattern": "^NCT(?!00000000)[0-9]{8}$",
       "type": "string"
     },
@@ -856,6 +860,7 @@
         "unsupported",
         "too_large",
         "rate_limited",
+        "local_quota",
         "unavailable",
         "tls",
         "proxy",
@@ -877,6 +882,7 @@
         " The local reader does not support the file or container format.",
         " The response exceeds an explicit reader resource bound.",
         " The source limited the request rate.",
+        " The local source quota refused admission without a network request.",
         " The source was unavailable.",
         " Platform or configured certificate verification failed.",
         " Connecting to or negotiating the configured proxy failed.",
@@ -1512,6 +1518,7 @@
         "erepo",
         "gwas",
         "clingen",
+        "gencc",
         "pubmed",
         "europepmc",
         "litvar",
@@ -1525,6 +1532,7 @@
         "nci",
         "civic",
         "hotspots",
+        "alphagenome",
         "oncokb",
         "myvariant",
         "car",
@@ -1584,6 +1592,7 @@
         " ClinGen Evidence Repository.",
         " GWAS Catalog v2.",
         " ClinGen.",
+        " GenCC submitter assessments.",
         " PubMed.",
         " Europe PMC.",
         " NCBI LitVar2.",
@@ -1597,6 +1606,7 @@
         " NCI Clinical Trials Search.",
         " CIViC.",
         " Cancer Hotspots residue recurrence.",
+        " AlphaGenome.",
         " OncoKB.",
         " MyVariant.info aggregation.",
         " ClinGen Allele Registry.",
@@ -1643,8 +1653,55 @@
       ]
     },
     "SourceNotice": {
-      "description": "A provider query interpretation notice.",
+      "description": "A source notice or request recovery step.",
       "oneOf": [
+        {
+          "additionalProperties": false,
+          "description": "Local request limits and source-specific recovery guidance.",
+          "properties": {
+            "kind": {
+              "const": "request_guidance",
+              "type": "string"
+            },
+            "message": {
+              "description": "Reviewed guidance without provider response text.",
+              "type": "string"
+            },
+            "retry_after_seconds": {
+              "description": "Seconds left before another source request may be admitted.",
+              "format": "uint64",
+              "minimum": 0,
+              "type": [
+                "integer",
+                "null"
+              ]
+            }
+          },
+          "required": [
+            "kind",
+            "message"
+          ],
+          "type": "object"
+        },
+        {
+          "additionalProperties": false,
+          "description": "Registered conditions lack the literal words requested in a condition search.",
+          "properties": {
+            "kind": {
+              "const": "condition_word_mismatch",
+              "type": "string"
+            },
+            "message": {
+              "description": "The source searches several fields and can expand terms; no expansion cause is inferred.",
+              "type": "string"
+            }
+          },
+          "required": [
+            "kind",
+            "message"
+          ],
+          "type": "object"
+        },
         {
           "additionalProperties": false,
           "description": "A checked provider answer survived a local cache failure.",
@@ -1685,6 +1742,51 @@
         },
         {
           "additionalProperties": false,
+          "description": "An empty LitVar lookup can be repeated with a caller-supplied rsID.",
+          "properties": {
+            "kind": {
+              "const": "litvar_rsid_hint",
+              "type": "string"
+            },
+            "message": {
+              "description": "Guidance that never supplies or infers an rsID.",
+              "type": "string"
+            }
+          },
+          "required": [
+            "kind",
+            "message"
+          ],
+          "type": "object"
+        },
+        {
+          "additionalProperties": false,
+          "description": "PubMed supplied a named ESearch warning without changing its phrases.",
+          "properties": {
+            "kind": {
+              "const": "pubmed_warning",
+              "type": "string"
+            },
+            "name": {
+              "description": "Original provider warning name, including names added by PubMed later.",
+              "type": "string"
+            },
+            "phrases": {
+              "description": "Original provider phrases, preserving whitespace and quotes.",
+              "items": {
+                "type": "string"
+              },
+              "type": "array"
+            }
+          },
+          "required": [
+            "kind",
+            "name"
+          ],
+          "type": "object"
+        },
+        {
+          "additionalProperties": false,
           "description": "PubMed did not index these words.",
           "properties": {
             "kind": {
@@ -1700,8 +1802,7 @@
             }
           },
           "required": [
-            "kind",
-            "words"
+            "kind"
           ],
           "type": "object"
         }
@@ -1730,7 +1831,7 @@
           ]
         },
         "notices": {
-          "description": "Provider query notices that do not indicate failure.",
+          "description": "Source notices and request recovery guidance.",
           "items": {
             "$ref": "#/$defs/SourceNotice"
           },
@@ -1772,6 +1873,7 @@
         },
         "terms_url": {
           "description": "Publisher page documenting the terms.",
+          "format": "uri",
           "type": "string"
         },
         "use": {
@@ -1805,7 +1907,8 @@
               "type": "null"
             }
           ],
-          "description": "Link to that entry."
+          "description": "Link to that entry.",
+          "format": "uri"
         }
       },
       "required": [
@@ -1851,8 +1954,7 @@
         }
       },
       "required": [
-        "kind",
-        "args"
+        "kind"
       ],
       "type": "object"
     },
@@ -1964,7 +2066,6 @@
         }
       },
       "required": [
-        "items",
         "offset",
         "total"
       ],
@@ -2006,7 +2107,6 @@
         }
       },
       "required": [
-        "items",
         "offset",
         "total"
       ],
@@ -2048,7 +2148,6 @@
         }
       },
       "required": [
-        "items",
         "offset",
         "total"
       ],
@@ -2090,7 +2189,6 @@
         }
       },
       "required": [
-        "items",
         "offset",
         "total"
       ],
@@ -2132,7 +2230,6 @@
         }
       },
       "required": [
-        "items",
         "offset",
         "total"
       ],
@@ -2185,7 +2282,7 @@
       "type": "string"
     }
   },
-  "$id": "biomcp.nci_trial_cards/2",
+  "$id": "biomcp.nci-trial-cards/3",
   "$schema": "https://json-schema.org/draft/2020-12/schema",
   "additionalProperties": false,
   "description": "One versioned command response; schema identity comes only from its body type.",
@@ -2242,7 +2339,7 @@
       "description": "Answer when available."
     },
     "schema": {
-      "const": "biomcp.nci_trial_cards/2",
+      "const": "biomcp.nci-trial-cards/3",
       "type": "string"
     },
     "sources": {

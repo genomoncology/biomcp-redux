@@ -52,7 +52,9 @@ article! {
     #[cfg_attr(feature = "schema", schemars(with = "Pmcid"))]
     pub pmcid: Option<Pmcid>,
     /// Whole title with inline text preserved.
-    pub title: Text,
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    #[cfg_attr(feature = "schema", schemars(with = "Text"))]
+    pub title: Option<Text>,
     /// Journal name.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub journal: Option<Text>,
@@ -63,12 +65,15 @@ article! {
     #[serde(default, skip_serializing_if = "Option::is_none")]
     pub electronic_date: Option<PartialDate>,
     /// Every clinically meaningful source publication type.
+    #[serde(default, skip_serializing_if = "<[_]>::is_empty")]
     pub types: Box<[PublicationType]>,
     /// Related correction notices or originals.
+    #[serde(default, skip_serializing_if = "<[_]>::is_empty")]
     pub corrections: Box<[Correction]>,
     /// Authors in source order.
     pub authors: A,
     /// Whole abstract, preserving labels and source order.
+    #[serde(default, skip_serializing_if = "<[_]>::is_empty")]
     pub abstract_parts: Box<[AbstractPart]>,
 }
 impl Article {

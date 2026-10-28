@@ -21,8 +21,7 @@
         "citations",
         "17611497"
       ],
-      "max_bytes": 4550,
-      "max_tokens": 1138
+      "max_bytes": 5378
     },
     {
       "run": [
@@ -37,9 +36,8 @@
         }
       },
       "offline": true,
-      "max_bytes": 4550,
-      "max_tokens": 1138
+      "max_bytes": 5378
     }
   ],
-  "verified": "Measured3956bytes/989tokens. Bounds add15percent below the recorded0.9 JSON7.2KB for this command."
+  "verified": "The reply with disclosed PubMed optional-field problems measured 4676 comparable bytes in j19520. Both fresh and offline ceilings add fifteen percent to that measurement and remain below the recorded 0.9 JSON 7.2KB for this command."
 }

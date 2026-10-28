@@ -1,16 +1,9 @@
 use super::{Selection, Statistic, raw};
+use crate::mapped::problem;
 use biodata::{Attribution, DiseaseStatistic, FiniteNumber, StatisticEstimate, StatisticSelector};
 use biomcp_fetch::BadReply;
-use biomcp_types::{Problem, ProblemCode, Source};
+use biomcp_types::{Problem, Source};
 
-pub(super) fn problem(field: &str) -> Problem {
-    Problem {
-        source: Source::Seer,
-        record: None,
-        field: field.into(),
-        code: ProblemCode::ValueUnknown,
-    }
-}
 fn selector(name: &str, code: &str) -> Result<StatisticSelector, BadReply> {
     Ok(StatisticSelector {
         name: name.parse().map_err(|_| BadReply)?,
@@ -96,19 +89,19 @@ pub(super) fn rows(
 ) -> Result<(Vec<DiseaseStatistic>, Vec<Problem>), BadReply> {
     let requested = requested(query)?;
     let mut problems = vec![
-        problem("dataset_membership"),
-        problem("registry_membership"),
+        problem(Source::Seer, None, "dataset_membership"),
+        problem(Source::Seer, None, "registry_membership"),
     ];
     problems.extend(if matches!(query.statistic, Statistic::Incidence { .. }) {
         vec![
-            problem("standard_population"),
-            problem("observed_or_delay_adjusted_rate"),
+            problem(Source::Seer, None, "standard_population"),
+            problem(Source::Seer, None, "observed_or_delay_adjusted_rate"),
         ]
     } else {
         vec![
-            problem("modeling_method"),
-            problem("eligibility"),
-            problem("age_adjustment"),
+            problem(Source::Seer, None, "modeling_method"),
+            problem(Source::Seer, None, "eligibility"),
+            problem(Source::Seer, None, "age_adjustment"),
         ]
     });
     let mut rows = Vec::new();
@@ -163,7 +156,7 @@ fn mismatches(
         if expected.is_some_and(|e| e != &selector.code) {
             let field = format!("returned_selectors.{}", selector.name);
             if !problems.iter().any(|p| p.field.as_ref() == field) {
-                problems.push(problem(&field));
+                problems.push(problem(Source::Seer, None, &field));
             }
         }
     }

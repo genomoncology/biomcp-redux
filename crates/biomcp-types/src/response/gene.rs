@@ -1,5 +1,7 @@
 mod civic;
 mod clingen;
+mod gencc;
+pub use gencc::{GenccGene, GenccSubmission};
 mod constraint;
 mod expression;
 mod oncokb;
@@ -44,6 +46,7 @@ pub struct GeneItem {
 #[cfg_attr(feature = "schema", derive(schemars::JsonSchema))]
 pub struct GeneCards {
     /// Requested inputs and their answers.
+    #[serde(default, skip_serializing_if = "<[_]>::is_empty")]
     pub items: Box<[GeneItem]>,
 }
 /// One page of gene headers.
@@ -52,14 +55,15 @@ pub struct GeneCards {
 #[cfg_attr(feature = "schema", derive(schemars::JsonSchema))]
 pub struct GenePage {
     /// Headers after ranking and paging.
+    #[serde(default, skip_serializing_if = "<[_]>::is_empty")]
     pub items: Box<[GeneHeader]>,
 }
 impl ResponseBody for GeneCards {
-    const SCHEMA: &'static str = "biomcp.gene_cards/4";
+    const SCHEMA: &'static str = "biomcp.gene-cards/6";
     type Query = GeneGet;
 }
 impl ResponseBody for GenePage {
-    const SCHEMA: &'static str = "biomcp.gene_page/3";
+    const SCHEMA: &'static str = "biomcp.gene-page/3";
     type Query = GeneSearch;
 }
 /// Typed dispatch result before the interface constructs an envelope.
@@ -345,12 +349,14 @@ pub struct SyncResult {
     pub rows: u64,
     /// Imported source-file bytes before native file decoding.
     pub bytes: u64,
+    /// Source body bytes received in this sync; excludes previous partials, 304 reuse and replay.
+    pub downloaded_bytes: u64,
     /// Distinct repeated identities across the whole source version report.
     #[serde(default, skip_serializing_if = "Option::is_none")]
     pub duplicate_identities: Option<u64>,
 }
 impl ResponseBody for SyncResult {
-    const SCHEMA: &'static str = "biomcp.sync/4";
+    const SCHEMA: &'static str = "biomcp.sync/5";
     type Query = SyncQuery;
 }
 
@@ -368,6 +374,9 @@ pub struct GeneSections {
     /// ClinGen validity and dosage assessments.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub clingen: Option<Section<ClinGenGene>>,
+    /// GenCC assessments, retained separately for each submitter.
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub gencc: Option<Section<GenccGene>>,
     /// Population constraint reported by gnomAD.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub constraint: Option<Section<Constraint>>,

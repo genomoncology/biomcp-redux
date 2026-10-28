@@ -24,10 +24,19 @@ esac
 complete="$profile_dir/coverage-complete"
 summary=$(mktemp)
 saved=$(mktemp -d)
+clear_profiles() {
+    python3 - "$profile_dir" <<'PYCLEAR'
+from pathlib import Path
+import sys
+
+for profile in Path(sys.argv[1]).glob('*.profraw'):
+    profile.unlink(missing_ok=True)
+PYCLEAR
+}
 cleanup() {
     # Excluded profiles never remain available to a later outside-in report.
     if [ -f "$saved/collecting-library" ]; then
-        rm -f "$profile_dir"/*.profraw
+        clear_profiles
         for profile in "$saved"/*.profraw; do
             [ ! -f "$profile" ] || mv "$profile" "$profile_dir/"
         done
@@ -79,10 +88,14 @@ case "${1:-run}" in
         # Build both collections before reporting, so neither gains a smaller
         # denominator from product functions linked only by the other collection.
         cargo test --workspace --locked --no-run
-        rm -f "$profile_dir"/*.profraw
+        clear_profiles
         LLVM_PROFILE_FILE="$profile_dir/cases-%m-%p.profraw"
         export LLVM_PROFILE_FILE
-        if ! cargo test --locked -p biomcp --test cases; then
+        set --
+        if [ -n "${RUST_TEST_THREADS:-}" ]; then
+            set -- -- --test-threads "$RUST_TEST_THREADS"
+        fi
+        if ! cargo test --locked -p biomcp --test cases "$@"; then
             echo 'coverage: cases collection incomplete because its suite failed' >&2
             exit 1
         fi
@@ -92,8 +105,10 @@ case "${1:-run}" in
         printf '%s\n' "$contracts" | while IFS="$(printf '\t')" read -r package target features owner; do
             [ -n "$package" ] || continue
             echo "coverage: counted public contract $package/$target; feature $owner; cargo features $features"
+            set --
+            if [ "$features" != "-" ]; then set -- --features "$features"; fi
             LLVM_PROFILE_FILE="$profile_dir/contracts-%m-%p.profraw" \
-                cargo test --locked -p "$package" --test "$target" --features "$features" || {
+                cargo test --locked -p "$package" --test "$target" "$@" || {
                 echo 'coverage: public contract collection incomplete because its suite failed' >&2
                 exit 1
             }

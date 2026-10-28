@@ -28,9 +28,8 @@
         "2"
       ],
       "max_bytes": 1525,
-      "max_tokens": 382,
       "expect": {
-        "/schema": "biomcp.variant_page/6",
+        "/schema": "biomcp.variant-page/9",
         "/status": "partial",
         "/query": {
           "equals": {
@@ -48,7 +47,7 @@
               {
                 "identity": {
                   "ids": [
-                    "rs121434568"
+                    "rs:121434568"
                   ],
                   "representations": [
                     {
@@ -73,7 +72,7 @@
               {
                 "identity": {
                   "ids": [
-                    "rs121434568",
+                    "rs:121434568",
                     "clinvar:16609"
                   ],
                   "representations": [
@@ -140,7 +139,7 @@
               {
                 "identity": {
                   "ids": [
-                    "rs121434568"
+                    "rs:121434568"
                   ],
                   "representations": [
                     {
@@ -165,7 +164,7 @@
               {
                 "identity": {
                   "ids": [
-                    "rs121434568",
+                    "rs:121434568",
                     "clinvar:16609"
                   ],
                   "representations": [

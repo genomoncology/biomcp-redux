@@ -53,3 +53,6 @@ Each waits for a consumer or for Ian. None has tickets.
 - Study analysis and charts.
 - Python and TypeScript bindings for `biodata`.
 - A merge of `biodata` with another biodata crate into one open-source crate.
+- Bounded reading of PDF supplements and appendices, which experiment 497 showed hold variant evidence that BioMCP can only link today. Its 2026-10-27 rerun confirmed the gap remains.
+- A sourced lookup from a gene and protein change to its rsID, so an empty LitVar protein lookup such as CDH1 D882N can reach the rsID's papers. Experiment 495's 2026-10-27 recheck raised it; 0335's recovery steps cover 1.0.
+- A `schema validate` command that checks a JSON document against a published schema, and a field-path listing per schema for `jq` users. Experiment 501 raised both on 2026-10-28, following Ian's direction that the CLI tells an agent what JSON it will emit, shows any schema and validates a document against one.

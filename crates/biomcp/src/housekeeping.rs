@@ -74,6 +74,7 @@ pub(crate) fn help() -> Vec<biomcp_types::HelpCommand> {
             entries
         })
         .map(|(path, command)| biomcp_types::HelpCommand {
+            reply_schemas: Vec::new(),
             command: path,
             description: command
                 .get_about()
@@ -92,6 +93,15 @@ pub(crate) fn help() -> Vec<biomcp_types::HelpCommand> {
                         "boolean"
                     }
                     .into(),
+                    aliases: arg
+                        .get_short()
+                        .map(|c| format!("-{c}"))
+                        .into_iter()
+                        .collect(),
+                    default: arg
+                        .get_default_values()
+                        .first()
+                        .map(|v| v.to_string_lossy().into_owned()),
                     required: arg.is_required_set(),
                     position: arg.get_index().map(|index| (index - 1) as u64),
                     minimum: None,

@@ -5,10 +5,13 @@
 )]
 use super::response_cases::{checked_case, checked_steps};
 use libtest_mimic::Trial;
-use serde_json::json;
+use serde_json::{Value, json};
 type Check = Result<(), Box<dyn std::error::Error>>;
 pub(super) fn trials() -> Vec<Trial> {
     vec![
+        Trial::test("trial/native-timestamp-and-query-echo", || {
+            timestamp().map_err(Into::into)
+        }),
         Trial::test("trial/missing-study-array-is-not-an-empty-page", || {
             missing_studies().map_err(Into::into)
         }),
@@ -191,9 +194,12 @@ fn count_failure() -> Check {
     )?;
     let mut args = vec!["search", "trial", "--condition", "melanoma", "--next-page"];
     let token = first
-        .pointer("/next/0/args")
-        .and_then(|v| v.as_array())
-        .and_then(|args| args.windows(2).find(|pair| pair[0] == "--next-page"))
+        .get("next")
+        .and_then(Value::as_array)
+        .into_iter()
+        .flatten()
+        .filter_map(|step| step.get("args").and_then(Value::as_array))
+        .find_map(|args| args.windows(2).find(|pair| pair[0] == "--next-page"))
         .and_then(|pair| pair[1].as_str())
         .ok_or("missing source continuation")?;
     args.push(token);
@@ -211,11 +217,42 @@ fn count_failure() -> Check {
         },
         json!(
             [{"run":args,"mcp":args,"expect":{"/status":"partial","/result/items":{"count":10},"/sources/0/reason":"unavailable",
-            "/result/count_request":{"count":4}}}]
+            } }]
         ),
     )?;
     if output.get("page").is_some() || output["sources"][0].get("count").is_some() {
         return Err("failed native count asserted a total".into());
+    }
+    Ok(())
+}
+
+fn timestamp() -> Check {
+    for (native, timezone) in [
+        ("2026-10-23T09:00:04", "source_gave_none"),
+        ("2026-10-23T09:00:04Z", "in_value"),
+        ("2026-10-23T09:00:04+03:00", "in_value"),
+        ("2026-10-23T09:00:04-04:00", "in_value"),
+    ] {
+        let output = checked_case(
+            "trial/condition",
+            &["search", "trial", "--condition", "melanoma"],
+            |_, record| {
+                if let Some(value) = record.pointer_mut("/exchanges/0/body/value/dataTimestamp") {
+                    *value = json!(native);
+                }
+            },
+            json!({"/result/source_updated/value":native,
+                "/result/source_updated/timezone":timezone,
+                "/query/condition":"melanoma","/query/limit":10}),
+            0,
+        )?;
+        if output["result"].get("request").is_some()
+            || output["result"].get("count_request").is_some()
+            || output["query"].get("has_results").is_some()
+            || output["query"].get("count_only").is_some()
+        {
+            return Err("trial reply echoed provider parameters or unset false flags".into());
+        }
     }
     Ok(())
 }

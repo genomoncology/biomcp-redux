@@ -1,27 +1,8 @@
 {
   "feature": "gwas-search",
-  "story": "GWAS help exposes every selector, section, page option and two parsed case examples.",
   "steps": [
     {
-      "run": [
-        "help",
-        "search",
-        "gwas"
-      ],
-      "mcp": [
-        "help",
-        "search",
-        "gwas"
-      ],
       "expect": {
-        "/status": "complete",
-        "/result/commands/0/command": [
-          "search",
-          "gwas"
-        ],
-        "/result/commands/0/examples": {
-          "count": 2
-        },
         "/result/commands/0/arguments/*/name": {
           "includes_all_of": [
             "query",
@@ -39,31 +20,30 @@
             "--pool"
           ]
         },
-        "/result/commands/0/description": "Source associations in default p-value-ascending order. Reports no personal risk, causal variant or gene, or clinical interpretation of a statistic."
-      },
-      "max_bytes": 2714,
-      "max_tokens": 679
-    },
-    {
-      "run": [
-        "help",
-        "get",
-        "gwas"
-      ],
-      "mcp": [
-        "help",
-        "get",
-        "gwas"
-      ],
-      "expect": {
-        "/status": "complete",
         "/result/commands/0/command": [
-          "get",
+          "search",
           "gwas"
         ],
+        "/result/commands/0/description": "Source associations in default p-value-ascending order. Reports no personal risk, causal variant or gene, or clinical interpretation of a statistic. BioMCP's local request deadline expired. GWAS Catalog response times can vary; retry later or use https://www.ebi.ac.uk/gwas/. Contact the GWAS Catalog helpdesk if this persists.",
         "/result/commands/0/examples": {
           "count": 2
         },
+        "/status": "complete"
+      },
+      "max_bytes": 3775,
+      "mcp": [
+        "help",
+        "search",
+        "gwas"
+      ],
+      "run": [
+        "help",
+        "search",
+        "gwas"
+      ]
+    },
+    {
+      "expect": {
         "/result/commands/0/arguments/*/name": {
           "includes_all_of": [
             "id",
@@ -73,15 +53,35 @@
             "--snapshot"
           ]
         },
-        "/result/commands/0/description": "Source association or study and native context. Reports no personal risk, causal variant or gene, or clinical interpretation of a statistic.",
+        "/result/commands/0/command": [
+          "get",
+          "gwas"
+        ],
+        "/result/commands/0/description": "Source association or study and source context. Reports no personal risk, causal variant or gene, or clinical interpretation of a statistic. BioMCP's local request deadline expired. GWAS Catalog response times can vary; retry later or use https://www.ebi.ac.uk/gwas/. Contact the GWAS Catalog helpdesk if this persists.",
+        "/result/commands/0/examples": {
+          "count": 2
+        },
         "/result/commands/0/sections/*/word": [
           "loci",
           "associations",
           "ancestries"
-        ]
+        ],
+        "/status": "complete"
       },
-      "max_bytes": 1617,
-      "max_tokens": 404
+      "max_bytes": 2680,
+      "max_tokens": 671,
+      "mcp": [
+        "help",
+        "get",
+        "gwas"
+      ],
+      "run": [
+        "help",
+        "get",
+        "gwas"
+      ]
     }
-  ]
+  ],
+  "story": "GWAS help exposes every selector, section, page option and two parsed case examples.",
+  "verified": "Help byte limits use j18463 output plus fifteen percent for defaults, aliases, inherited options and examples; higher existing limits remain."
 }

@@ -17,6 +17,7 @@ pub static SPEC: SourceSpec = SourceSpec {
     },
     quota: &crate::quotas::WHO,
     key: KeyUse::None,
+    destinations: biomcp_fetch::Destinations::Primary,
     user_agent: None,
     deadline: Duration::from_secs(15),
 };
@@ -43,6 +44,7 @@ pub fn sync(fetch: &Fetch) -> Result<biomcp_types::SyncResult, RequestError> {
         last_modified: None,
         rows: info.rows,
         bytes: info.bytes,
+        downloaded_bytes: info.downloaded_bytes,
         duplicate_identities: None,
     })
 }
@@ -71,4 +73,14 @@ pub fn get(
         native_rows: rows,
     });
     Ok((card, info))
+}
+
+/// Small read-only publisher probe; never an export or synchronization.
+pub(crate) const HEALTH_PATH: &str = "/medicines/prequalified/finished-pharmaceutical-products";
+
+/// Inspect this source's complete local set without synchronizing it.
+pub(crate) fn bundle_state(
+    leg: &biomcp_fetch::Leg<'_>,
+) -> Result<biomcp_types::LocalBundleState, biomcp_fetch::RequestError> {
+    SET.state(leg)
 }

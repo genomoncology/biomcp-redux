@@ -235,7 +235,7 @@ fn native_short_page_keeps_total_scope_and_next_position() {
 #[test]
 fn wiki_metadata_sync_receipts_keep_each_catalog_scope() {
     let receipt = json!(
-        {"search":{"sha256":"search-digest","bytes":2346682,"revision":"search-revision","human_rows":1131,"total_rows":2218},
+        {"downloaded_bytes":0,"search":{"sha256":"search-digest","bytes":2346682,"revision":"search-revision","human_rows":1131,"total_rows":2218},
         "get":{"sha256":"get-digest","bytes":1224217,"revision":"get-revision","human_rows":1131,"total_rows":2218}}
     );
     assert_eq!(

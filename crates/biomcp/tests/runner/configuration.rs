@@ -122,6 +122,7 @@ fn default_cache_migration() -> Check {
     let env = Environment::new().map_err(|e| e.to_string())?;
     let stub = super::network_stub::Stub::new()?;
     let ca = env.root().join("ca.pem");
+    stub.retain(&env);
     fs::write(&ca, &stub.certificate).map_err(|e| e.to_string())?;
     env.config(&json!({"ca_bundle":ca,"proxy":format!("http://{}",stub.address)}))
         .map_err(|e| e.to_string())?;
@@ -211,7 +212,7 @@ fn ownership() -> Check {
         cached(&["sync", "hgnc"], &sync_case, Some(&root())),
         0,
     )?;
-    if value.get("schema") != Some(&json!("biomcp.sync/4"))
+    if value.get("schema") != Some(&json!("biomcp.sync/5"))
         || value.pointer("/result/rows") != Some(&json!(176))
         || value.pointer("/query/source") != Some(&json!("hgnc"))
     {

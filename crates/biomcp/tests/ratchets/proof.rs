@@ -238,12 +238,56 @@ fn source_registry_accepts_directory_and_file_modules_and_names_missing_entry() 
         put(
             tree.path(),
             &format!("crates/biomcp-adapters/src/{path}"),
-            declaration,
+            &format!("pub static SPEC: SourceSpec = {declaration};"),
         )?;
     }
     check(tree.path())?;
+    let auxiliary = "crates/biomcp-adapters/src/directory/other.rs";
+    put(
+        tree.path(),
+        auxiliary,
+        &format!("pub static EXTRA: SourceSpec = {declaration};"),
+    )?;
+    let failure = check(tree.path())
+        .err()
+        .ok_or("unregistered auxiliary source accepted")?
+        .to_string();
+    assert!(
+        failure.contains("&crate::directory::other::EXTRA"),
+        "{failure}"
+    );
+    put(
+        tree.path(),
+        "crates/biomcp-adapters/src/registry.rs",
+        "&crate::directory::SPEC, &crate::single_file::SPEC, &crate::directory::other::EXTRA",
+    )?;
+    check(tree.path())?;
+    put(
+        tree.path(),
+        auxiliary,
+        &format!(
+            "pub static EXTRA: SourceSpec = {declaration};\nfn hidden() {{\n    let other = {declaration};\n}}\n"
+        ),
+    )?;
+    let failure = check(tree.path())
+        .err()
+        .ok_or("dynamic source escaped the registry")?
+        .to_string();
+    assert!(
+        failure.contains("source declarations require named statics"),
+        "{failure}"
+    );
+    put(
+        tree.path(),
+        auxiliary,
+        &format!("pub static EXTRA: SourceSpec = {declaration};"),
+    )?;
     let path = "crates/biomcp-adapters/src/missing.rs";
-    put(tree.path(), path, declaration)?;
+    put(
+        tree.path(),
+        path,
+        &format!("pub static SPEC: SourceSpec = {declaration};"),
+    )?;
     let failure = check(tree.path())
         .err()
         .ok_or("unregistered single-file source accepted")?
@@ -294,4 +338,69 @@ fn request_reason_mapping_cannot_be_copied() -> Check {
             RequestError::Source(e) = error { if e.reason == Reason::NotFound { absent() } }",
     )?;
     super::reasons::check(root.path())
+}
+
+#[test]
+fn generated_exception_cannot_hide_product_code() -> Check {
+    let tree = tree()?;
+    let path = "crates/biomcp-fetch/src/grpc/proto.rs";
+    let wrapper = r#"#![allow(dead_code, reason="pinned generation")]
+include!("generated/mod.rs");
+"#;
+    put(tree.path(), path, wrapper)?;
+    check(tree.path())?;
+    rejects(
+        path,
+        &(wrapper.to_owned() + "fn hidden() {}"),
+        "generated exception requires only",
+    )?;
+    for modified in [
+        wrapper.replace("dead_code", "dead_code, unused_variables"),
+        wrapper.replace("allow", "expect"),
+        format!("fn hidden() {{}}\n{wrapper}"),
+    ] {
+        rejects(path, &modified, "generated exception requires only")?;
+    }
+    rejects(
+        path,
+        &wrapper.replace("dead_code", "unused_imports"),
+        "suppressions forbidden",
+    )?;
+    rejects(
+        "crates/biodata/src/lib.rs",
+        wrapper,
+        "suppressions forbidden",
+    )?;
+    Ok(())
+}
+
+#[test]
+fn adapter_mapping_helpers_require_one_owner() -> Check {
+    for declaration in ["fn problem() {}", "fn text() {}"] {
+        rejects(
+            "crates/biomcp-adapters/src/example/map.rs",
+            declaration,
+            "mapping helpers belong in mapped.rs",
+        )?;
+    }
+    Ok(())
+}
+
+#[test]
+fn new_optional_drop_requires_its_own_classification() -> Check {
+    let tree = tree()?;
+    let path = "crates/biomcp-adapters/src/new_source/details.rs";
+    put(
+        tree.path(),
+        path,
+        "fn map() { /* .ok() */ let native = \".ok()\"; }",
+    )?;
+    check(tree.path())?;
+    for source in [
+        "fn map() { let title = input.parse().ok(); }",
+        "fn map() { let title = input.parse() . ok ( ); }",
+    ] {
+        rejects(path, source, "classify new optional-value drop")?;
+    }
+    Ok(())
 }

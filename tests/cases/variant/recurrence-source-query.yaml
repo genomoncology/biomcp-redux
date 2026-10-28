@@ -41,7 +41,7 @@
       ],
       "max_bytes": 4788,
       "expect": {
-        "/schema": "biomcp.variant_recurrence/4",
+        "/schema": "biomcp.variant-recurrence/5",
         "/result/observed_sample_count": 1,
         "/result/examined_rows": 3,
         "/result/all_pages_read": false,
@@ -50,8 +50,7 @@
         "/result/study/description": "Synthetic notice: commercial reuse requires separate permission",
         "/result/matching_granularity": "exact_genomic_allele",
         "/problems/0/field": "sample_set.selected_sample_count"
-      },
-      "max_tokens": 1197
+      }
     }
   ]
 }

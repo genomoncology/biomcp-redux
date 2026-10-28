@@ -120,6 +120,10 @@ const ALLOWED: &[(&str, &str)] = &[
         "Exercise retained gene-keyed Monarch rows through the private mapper without adding a gene-keyed command.",
     ),
     (
+        "crates/biomcp-adapters/tests/alphagenome_registration.rs",
+        "Exercise restricted source registration and required-key admission before a product section exists.",
+    ),
+    (
         "crates/biomcp-adapters/tests/batch_bounds.rs",
         "Exercise literal indexed lookup inputs outside command validation and empty/oversized batches or chunks beyond command limits.",
     ),
@@ -132,8 +136,16 @@ const ALLOWED: &[(&str, &str)] = &[
         "Reject invalid table spans and duplicate table IDs before allocation with a tiny decoder boundary table.",
     ),
     (
+        "crates/biomcp-fetch/src/cache/contention.rs",
+        "Order independent SQLite snapshots and writer admission at the private transaction boundary without product hooks.",
+    ),
+    (
         "crates/biomcp-fetch/src/destination_tests.rs",
         "Cover public DNS address and redirect rejection tables without contacting private destinations.",
+    ),
+    (
+        "crates/biomcp-fetch/src/grpc/dns_tests.rs",
+        "Prove a stalled platform lookup cannot outlive its caller budget or begin a stream, without changing the host resolver configuration.",
     ),
     (
         "crates/biomcp-fetch/src/retry_tests.rs",
@@ -142,6 +154,18 @@ const ALLOWED: &[(&str, &str)] = &[
     (
         "crates/biomcp-fetch/src/xml_tests.rs",
         "Cover inline XML markup and decoder limits with many tiny inputs.",
+    ),
+    (
+        "crates/biomcp-fetch/tests/alphagenome.rs",
+        "Exercise the selected request encoding and complete bounded envelopes through the public protocol API.",
+    ),
+    (
+        "crates/biomcp-fetch/tests/alphagenome/routing.rs",
+        "Exercise required-key admission and placeholder credential routing through a local TLS stream.",
+    ),
+    (
+        "crates/biomcp-fetch/tests/score_variant.rs",
+        "Exercise the ruled scoring request and complete scorer admission through the public protocol API.",
     ),
     (
         "crates/biomcp-fetch/tests/batch.rs",
@@ -154,6 +178,10 @@ const ALLOWED: &[(&str, &str)] = &[
     (
         "crates/biomcp-fetch/tests/bundle/download.rs",
         "Exercise transport ownership, local server behavior and cache/record failures through its public API.",
+    ),
+    (
+        "crates/biomcp-fetch/tests/bundle/native.rs",
+        "Exercise complete native TSV replacement sets and decoded bounds through the public transport API.",
     ),
     (
         "crates/biomcp-fetch/tests/bundle/rows.rs",
@@ -174,6 +202,22 @@ const ALLOWED: &[(&str, &str)] = &[
     (
         "crates/biomcp-fetch/tests/cache/storage.rs",
         "Exercise transport ownership, local server behavior and cache/record failures through its public API.",
+    ),
+    (
+        "crates/biomcp-fetch/tests/grpc_persistence.rs",
+        "Exercise checked RPC cache admission and bounded recording replay through the public transport API.",
+    ),
+    (
+        "crates/biomcp-fetch/tests/grpc_persistence/policy.rs",
+        "Exercise credential containment, concurrent stream capture and atomic publication through the public transport API.",
+    ),
+    (
+        "crates/biomcp-fetch/tests/grpc_persistence/process.rs",
+        "Exercise ordinary checked reply cache reuse from an isolated second process through the public transport API.",
+    ),
+    (
+        "crates/biomcp-fetch/tests/grpc_worker.rs",
+        "Exercise blocking streaming RPC admission, local TLS HTTP/2, proxy routing, deadlines and cancellation through the public transport API.",
     ),
     (
         "crates/biomcp-fetch/tests/offline.rs",
@@ -202,6 +246,10 @@ const ALLOWED: &[(&str, &str)] = &[
     (
         "crates/biomcp-fetch/tests/support/cache_process.rs",
         "Exercise transport ownership, local server behavior and cache/record failures through its public API.",
+    ),
+    (
+        "crates/biomcp-fetch/tests/tensors.rs",
+        "Exercise bounded tensor decoding with synthetic protobuf payloads through its public API.",
     ),
     (
         "crates/biomcp-fetch/tests/transport.rs",

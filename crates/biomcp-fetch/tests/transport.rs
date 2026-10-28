@@ -40,7 +40,16 @@ struct Stub {
 )]
 impl Stub {
     fn new(status: u16, content_type: &str, body: &str, blocked: Option<&str>) -> Self {
-        let listener = TcpListener::bind("127.0.0.1:0").unwrap();
+        Self::new_at("127.0.0.1:0", status, content_type, body, blocked)
+    }
+    fn new_at(
+        address: &str,
+        status: u16,
+        content_type: &str,
+        body: &str,
+        blocked: Option<&str>,
+    ) -> Self {
+        let listener = TcpListener::bind(address).unwrap();
         let base = Box::leak(format!("http://{}", listener.local_addr().unwrap()).into_boxed_str());
         let reply = format!(
             "HTTP/1.1 {status} Stub\r\nContent-Type: {content_type}\r\nContent-Length: {}\r\nConnection: close\r\n\r\n{body}",
@@ -89,6 +98,7 @@ impl Stub {
     }
     fn spec(&self, key: KeyUse, deadline: Duration) -> &'static SourceSpec {
         Box::leak(Box::new(SourceSpec {
+            destinations: biomcp_fetch::Destinations::Primary,
             user_agent: None,
             terms: biomcp_fetch::Terms {
                 name: "Synthetic test data",
@@ -507,7 +517,10 @@ mod network;
 #[test]
 fn publisher_destinations_refuse_private_hosts_and_applicable_proxies_before_connecting() {
     let stub = Stub::new(200, "application/pdf", "%PDF-owned", None);
-    let spec = stub.spec(KeyUse::None, Duration::from_secs(5));
+    let spec = Box::leak(Box::new(SourceSpec {
+        destinations: biomcp_fetch::Destinations::PublisherPdf,
+        ..*stub.spec(KeyUse::None, Duration::from_secs(5))
+    }));
     for url in [
         "http://127.0.0.1/file.pdf",
         "http://127.1/file.pdf",

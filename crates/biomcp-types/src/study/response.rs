@@ -18,6 +18,7 @@ pub struct StudySnapshot {
 #[cfg_attr(feature = "schema", derive(schemars::JsonSchema))]
 pub struct StudyPage {
     /// Whole source headers, without expanded descriptions.
+    #[serde(default, skip_serializing_if = "<[_]>::is_empty")]
     pub items: Box<[StudyHeader]>,
     /// Snapshot-scoped matching counts and offset.
     pub page: PageInfo,
@@ -25,7 +26,7 @@ pub struct StudyPage {
     pub snapshot: StudySnapshot,
 }
 impl ResponseBody for StudyPage {
-    const SCHEMA: &'static str = "biomcp.study_page/1";
+    const SCHEMA: &'static str = "biomcp.study-page/1";
     type Query = StudySearch;
 }
 /// Exact card with independent live section states and catalog provenance.
@@ -34,6 +35,7 @@ impl ResponseBody for StudyPage {
 #[cfg_attr(feature = "schema", derive(schemars::JsonSchema))]
 pub struct StudyCard {
     /// Exact publisher study page for this checked source identity.
+    #[cfg_attr(feature = "schema", schemars(extend("format" = "uri")))]
     pub source_url: Text,
     /// Native card metadata, preserving all source count distinctions.
     pub study: Study,
@@ -50,7 +52,7 @@ pub struct StudyCard {
     pub files: Option<Section<StudyFiles>>,
 }
 impl ResponseBody for StudyCard {
-    const SCHEMA: &'static str = "biomcp.study_card/2";
+    const SCHEMA: &'static str = "biomcp.study-card/2";
     type Query = StudyGet;
 }
 macro_rules! page {
@@ -63,6 +65,7 @@ macro_rules! page {
             /// Exact study scope of this collection.
             pub study_id: StudyId,
             /// Complete ordered metadata records, never member sample IDs.
+            #[serde(default, skip_serializing_if = "<[_]>::is_empty")]
             pub items: Box<[$row]>,
             /// Bounds and source-stated total for this collection.
             pub page: PageInfo,
@@ -75,11 +78,11 @@ macro_rules! page {
         }
     };
 }
-page!(StudyProfiles, StudyProfile, "biomcp.study_profiles/1");
+page!(StudyProfiles, StudyProfile, "biomcp.study-profiles/1");
 page!(
     StudySampleLists,
     StudySampleList,
-    "biomcp.study_sample_lists/1"
+    "biomcp.study-sample-lists/1"
 );
 /// One native repository directory page; blob sizes do not describe data content.
 #[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
@@ -89,6 +92,7 @@ pub struct StudyFiles {
     /// Exact study directory scope.
     pub study_id: StudyId,
     /// Source-ordered repository file references.
+    #[serde(default, skip_serializing_if = "<[_]>::is_empty")]
     pub items: Box<[StudyFile]>,
     /// Bounds within the complete received directory.
     pub page: PageInfo,
@@ -96,9 +100,10 @@ pub struct StudyFiles {
     pub acquired: u64,
     /// Native LICENSE publisher link, independent of the current file page.
     #[serde(default, skip_serializing_if = "Option::is_none")]
+    #[cfg_attr(feature = "schema", schemars(extend("format" = "uri")))]
     pub license_notice: Option<Text>,
 }
 impl ResponseBody for StudyFiles {
-    const SCHEMA: &'static str = "biomcp.study_files/1";
+    const SCHEMA: &'static str = "biomcp.study-files/1";
     type Query = StudyGet;
 }

@@ -1,8 +1,10 @@
 use super::{SPEC, map, raw};
 use crate::Mapped;
+use crate::mapped::problem;
+use crate::mapped::record as record_text;
 use biodata::{ReactomeId, Text};
 use biomcp_fetch::{Arg, BadReply, Freshness, Leg, RequestError};
-use biomcp_types::{PathwayCard, PathwayHeader, PathwaySearch};
+use biomcp_types::{PathwayCard, PathwayHeader, PathwaySearch, Source};
 /// One native page; rejected rows do not change its native position or total.
 #[derive(Debug)]
 pub struct Page {
@@ -44,7 +46,7 @@ pub fn search(leg: &Leg<'_>, q: &PathwaySearch) -> Result<Page, RequestError> {
             raw::Search::Page { results, .. } => results
                 .iter()
                 .flat_map(|g| &g.entries)
-                .all(|r| map::hit(r).is_some()),
+                .all(|r| map::hit(r, &mut map::fields(&r.st_id)).is_some()),
             raw::Search::Empty(_) => false,
         },
     )?;
@@ -59,10 +61,17 @@ pub fn search(leg: &Leg<'_>, q: &PathwaySearch) -> Result<Page, RequestError> {
             total,
         } => {
             for row in results.into_iter().flat_map(|g| g.entries) {
-                match map::hit(&row) {
+                let mut fields = map::fields(&row.st_id);
+                match map::hit(&row, &mut fields) {
                     Some(header) => rows.value.push(header),
-                    None => rows.problems.push(map::problem(&row.st_id, "identity")),
+                    None if fields.list.is_empty() => rows.problems.push(problem(
+                        Source::Reactome,
+                        record_text(&row.st_id),
+                        "identity",
+                    )),
+                    None => {}
                 }
+                rows.problems.extend(fields.list);
             }
             (total, count)
         }
@@ -80,17 +89,25 @@ pub fn top_level(leg: &Leg<'_>) -> Result<Mapped<Vec<PathwayHeader>>, RequestErr
         .get("/data/pathways/top/Homo%20sapiens")
         .fresh(Freshness::Days(7));
     let rows = leg.json_checked_cache::<raw::Cards>(&endpoint, &[], |v| {
-        v.0.iter().all(|r| map::header(r).is_some())
+        v.0.iter()
+            .all(|r| map::header(r, &mut map::fields(&r.st_id)).is_some())
     })?;
     let mut mapped = Mapped {
         value: Vec::new(),
         problems: Vec::new(),
     };
     for row in rows.0 {
-        match map::header(&row) {
+        let mut fields = map::fields(&row.st_id);
+        match map::header(&row, &mut fields) {
             Some(v) => mapped.value.push(v),
-            None => mapped.problems.push(map::problem(&row.st_id, "identity")),
+            None if fields.list.is_empty() => mapped.problems.push(problem(
+                Source::Reactome,
+                record_text(&row.st_id),
+                "identity",
+            )),
+            None => {}
         }
+        mapped.problems.extend(fields.list);
     }
     Ok(mapped)
 }
@@ -105,7 +122,7 @@ pub fn card(
         .with_path(format!("/data/query/{id}"))?
         .fresh(Freshness::Days(7));
     let row = match leg.json_checked_cache::<raw::Card>(&endpoint, &[], |r| {
-        r.st_id == id.as_str() && map::card(r.clone(), true).is_some()
+        r.st_id == id.as_str() && map::header(r, &mut map::fields(&r.st_id)).is_some()
     }) {
         Err(RequestError::Source(e)) if e.reason == biomcp_types::Reason::NotFound => {
             return Ok(Mapped {
@@ -115,15 +132,23 @@ pub fn card(
         }
         result => result?,
     };
-    let value = (row.st_id == id.as_str())
-        .then(|| map::card(row, summary))
-        .flatten();
-    let problems = if value.is_none() {
-        vec![map::problem(id.as_str(), "identity")]
-    } else {
-        Vec::new()
+    let mut problems = crate::mapped::Problems {
+        source: Source::Reactome,
+        record: crate::mapped::text(id.as_str()).ok(),
+        list: Vec::new(),
     };
-    Ok(Mapped { value, problems })
+    let value = (row.st_id == id.as_str())
+        .then(|| map::card(row, summary, &mut problems))
+        .flatten();
+    let value = if problems.list.is_empty() {
+        problems.required("identity", value)
+    } else {
+        value
+    };
+    Ok(Mapped {
+        value,
+        problems: problems.list,
+    })
 }
 /// Read the source database release independently from pathway version.
 pub fn release(leg: &Leg<'_>) -> Result<Text, RequestError> {

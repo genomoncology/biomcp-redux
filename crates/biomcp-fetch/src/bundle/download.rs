@@ -3,7 +3,7 @@ use super::{
     store::{self, Meta, Part},
 };
 use crate::{
-    CacheError, Deadline, Leg, Mode, RecordError, RequestError,
+    CacheError, Deadline, Leg, Mode, RequestError,
     declaration::Method,
     prepared::Prepared,
     record::{Body, Exchange},
@@ -11,7 +11,7 @@ use crate::{
 use biomcp_types::Reason;
 use std::{
     fs,
-    io::{Read, Write},
+    io::{Read, Seek, Write},
     time::{Duration, Instant},
 };
 struct Transfer<'a> {
@@ -19,6 +19,7 @@ struct Transfer<'a> {
     file: &'a mut tempfile::NamedTempFile,
     part: &'a mut Part,
     auto: bool,
+    downloaded_bytes: u64,
     started: Instant,
 }
 impl Leg<'_> {
@@ -85,6 +86,7 @@ impl Leg<'_> {
             file: &mut file,
             part: &mut part,
             auto,
+            downloaded_bytes: 0,
             started,
         };
         let result = self.download(
@@ -121,40 +123,9 @@ impl Leg<'_> {
                 .map(|m| store::info(b, m))
                 .ok_or(CacheError::Database.into());
         }
-        let _permit = self
-            .fetch
-            .limiters
-            .acquire(self.spec.quota, self.keyed(), self.budget())
-            .ok_or_else(|| self.failure(Reason::Syncing, None))?;
         let url = format!("{}{}", self.spec.base.trim_end_matches('/'), b.path);
         let key = crate::retry::identity(&url);
-        let exchange = self
-            .fetch
-            .recordings
-            .replay_bundle(self.spec.source, &key, &url)
-            .map_err(RequestError::Recording)?
-            .ok_or(RequestError::Recording(RecordError::Missing))?;
-        if !self
-            .budget()
-            .advance(Duration::from_millis(exchange.delay_ms))
-        {
-            return Err(self.failure(Reason::DeadlineExceeded, None).into());
-        }
-        self.observe_bundle(
-            (&key, &url),
-            Some(exchange.status),
-            exchange.body.bytes(),
-            b.format,
-            Duration::from_millis(exchange.delay_ms),
-        );
-        if exchange.status != 200 {
-            return Err(self
-                .failure(
-                    crate::retry::status_reason(exchange.status),
-                    Some(exchange.status),
-                )
-                .into());
-        }
+        let exchange = super::replay::exchange(self, b, &key, &url)?;
         if exchange.body.bytes().len() as u64 > R::MAX_BYTES {
             return Err(self.failure(Reason::BadReply, Some(200)).into());
         }
@@ -187,6 +158,7 @@ impl Leg<'_> {
                 .fetch
                 .limiters
                 .acquire(self.spec.quota, keyed, self.budget())
+                .map_err(|delay| self.quota_failure(delay))?
                 .ok_or_else(|| self.failure(Reason::Syncing, None))?;
             t.started = Instant::now();
             let response = self.wire_call(&prepared, b.format.media(), &headers);
@@ -301,7 +273,11 @@ impl Leg<'_> {
         }
         self.stream(t, response, R::MAX_BYTES)?;
         t.file.flush().map_err(|_| CacheError::Database)?;
-        let body = fs::read(t.file.path()).map_err(|_| CacheError::Database)?;
+        t.file.rewind().map_err(|_| CacheError::Database)?;
+        let mut body = Vec::new();
+        t.file
+            .read_to_end(&mut body)
+            .map_err(|_| CacheError::Database)?;
         let url = format!("{}{}", self.spec.base.trim_end_matches('/'), b.path);
         self.observe_bundle(
             (&crate::retry::identity(&url), &url),
@@ -325,6 +301,7 @@ impl Leg<'_> {
         provenance(&mut meta, &body);
         if matches!(self.fetch.mode, Mode::Record { .. }) {
             let exchange = Exchange {
+                rpc: None,
                 fetched: crate::cache::now(),
                 status: 200,
                 content_type: b.format.media().into(),
@@ -352,7 +329,9 @@ impl Leg<'_> {
         {
             return Err(self.failure(Reason::Syncing, None).into());
         }
-        Ok(store::info(b, &meta))
+        let mut info = store::info(b, &meta);
+        info.downloaded_bytes = t.downloaded_bytes;
+        Ok(info)
     }
     fn validate_range(
         &self,
@@ -437,6 +416,7 @@ impl Leg<'_> {
             }
             t.file.write_all(bytes).map_err(|_| CacheError::Database)?;
             t.part.bytes += n as u64;
+            t.downloaded_bytes += n as u64;
         }
         if t.part.total.is_some_and(|n| n != t.part.bytes) {
             return Err(self.failure(Reason::BadReply, Some(status)).into());
@@ -537,7 +517,7 @@ fn resume(
                 reset(file, part)?;
             }
         }
-        // claim transfers only a released predecessor's file to this holder.
+        // claim transfers the validated predecessor's file to this holder.
         if let Err(error) = fs::remove_file(prior.path)
             && error.kind() != std::io::ErrorKind::NotFound
         {

@@ -10,6 +10,7 @@ use std::time::Duration;
 
 /// Source declaration used to open a MyGene.info transport leg.
 pub static SPEC: SourceSpec = SourceSpec {
+    destinations: biomcp_fetch::Destinations::Primary,
     user_agent: None,
     terms: biomcp_fetch::Terms {
         name: "MyGene.info Terms of Use; upstream data terms",

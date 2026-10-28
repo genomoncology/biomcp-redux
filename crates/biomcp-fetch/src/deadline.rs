@@ -188,7 +188,7 @@ impl<'a> CommandDeadline<'a> {
 /// Wall-clock bound for cooperative local parsing, including replay commands.
 #[derive(Clone, Debug)]
 pub struct LocalDeadline {
-    end: Instant,
+    pub(crate) end: Instant,
     cancelled: Option<std::sync::Arc<std::sync::atomic::AtomicBool>>,
 }
 impl LocalDeadline {

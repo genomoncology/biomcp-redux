@@ -25,10 +25,14 @@ pub enum Bundle {
     Hgnc,
     /// ClinGen validity and dosage files.
     ClinGen,
+    /// GenCC submission export.
+    Gencc,
 }
 /// Typed action before an interface spells command arguments.
 #[derive(Clone, Debug, PartialEq, Eq)]
 pub enum Action {
+    /// Offer a PubMed search with its source explicit in the caller command.
+    PubmedSearch(biomcp_types::ArticleSearch),
     /// Follow an exact checked author record to its deferred native paper surface.
     AuthorPapers(biomcp_types::AuthorPapersQuery),
     /// Remove expired local state and older incompatible cache files.

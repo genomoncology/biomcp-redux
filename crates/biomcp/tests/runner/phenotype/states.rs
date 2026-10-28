@@ -67,7 +67,7 @@ fn states() -> Result<(), String> {
         )?;
         if kind == "empty" {
             if result.pointer("/page/total") != Some(&json!(0))
-                || result.pointer("/result/items") != Some(&json!([]))
+                || result.pointer("/result/items").is_some()
             {
                 return Err(format!("successful empty search lost: {result}"));
             }

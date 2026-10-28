@@ -4,7 +4,7 @@ use super::{
     raw,
 };
 use crate::Mapped;
-use biodata::{Cytoband, Gene, GeneStatus, GeneSymbol, HgncId, Text};
+use biodata::{Gene, GeneStatus, GeneSymbol, HgncId, Text};
 
 pub(super) fn genes(rows: Vec<raw::Gene>) -> Mapped<Vec<Gene>> {
     let mut problems = Vec::new();
@@ -51,7 +51,7 @@ fn gene(row: raw::Gene, f: &mut Fields) -> Option<Gene> {
         status,
         locus_type,
         mane: mane_select.into_iter().collect(),
-        location: Cytoband::new(raw::cell(&row.location)).ok(),
+        location: f.optional("location", raw::cell(&row.location)),
         entrez_id: f.optional("entrez_id", raw::cell(&row.entrez_id)),
         ensembl_id: f.optional("ensembl_id", raw::cell(&row.ensembl_gene_id)),
         previous_symbols: f.list("previous_symbols", raw::cell(&row.prev_symbol)),

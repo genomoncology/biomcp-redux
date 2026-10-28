@@ -5,6 +5,8 @@
 )]
 use crate::{CacheError, Deadline};
 use rusqlite::{Connection, OpenFlags, OptionalExtension, params};
+#[cfg(test)]
+mod contention;
 mod schema;
 pub use schema::{SchemaOwner, check_owners};
 pub(crate) use schema::{check_current_owners, check_predecessor, db_error};
@@ -82,6 +84,20 @@ impl Cache {
         path: &Path,
         owners: &[SchemaOwner],
     ) -> Result<Self, CacheError> {
+        #[cfg(unix)]
+        {
+            use std::os::unix::fs::OpenOptionsExt;
+            match std::fs::OpenOptions::new()
+                .write(true)
+                .create_new(true)
+                .mode(0o600)
+                .open(path)
+            {
+                Ok(_) => {}
+                Err(error) if error.kind() == std::io::ErrorKind::AlreadyExists => {}
+                Err(_) => return Err(CacheError::Database),
+            }
+        }
         let mut connection = Connection::open(path).map_err(db_error)?;
         check_owners(&connection, owners)?;
         connection.busy_timeout(OPEN_WAIT).map_err(db_error)?;
@@ -279,6 +295,14 @@ impl Cache {
             tx.commit().map_err(db_error)
         })
     }
+}
+
+// Required writers reserve admission before reading a snapshot they will mutate.
+pub(crate) fn write_transaction(
+    connection: &Connection,
+) -> Result<rusqlite::Transaction<'_>, CacheError> {
+    rusqlite::Transaction::new_unchecked(connection, rusqlite::TransactionBehavior::Immediate)
+        .map_err(db_error)
 }
 
 pub(crate) fn sql_deadline(

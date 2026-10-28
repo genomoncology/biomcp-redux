@@ -73,7 +73,7 @@ fn short_pages() -> Check {
                         }
                     }
                 },
-                json!([{"run": args, "mcp": args, "expect": {"/status":"complete", "/result/items":{"count": count}}}]),
+                json!([{"run": args, "mcp": args, "expect": {"/status":"complete", "/page/returned": count}}]),
             )?;
             let expected = if count < 10 {
                 json!([{"kind":"disambiguate", "args":wider}])
@@ -176,7 +176,7 @@ fn policy() -> Check {
             }
         },
         json!([{"run":args, "mcp":args,"expect":{
-            "/status":"complete", "/result/items":{"count":0}, "/next":[{
+            "/status":"complete",  "/next":[{
                 "kind":"disambiguate", "args":["--disable-sources","pubmed","search","trial","--condition","melanoma","--criteria","BRAF","--fresh"]
             }]
         }}]),

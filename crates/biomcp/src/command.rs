@@ -6,7 +6,7 @@ mod diagnostic;
 mod disease;
 mod drug;
 mod drug_label;
-mod local;
+pub(crate) mod local;
 mod maintenance;
 mod mcp_policy;
 mod pathway;
@@ -41,6 +41,14 @@ fn dispatch_using(
         &Result<std::sync::Arc<biomcp_fetch::Fetch>, crate::config::StartupError>,
     )>,
 ) -> io::Result<Outcome> {
+    if let [command] = args
+        && command == "schema"
+    {
+        return encode(
+            Envelope::new(Status::Complete, (), Some(crate::schema::catalog())),
+            crate::exit::Status::Success,
+        );
+    }
     if let [command, name] = args
         && command == "schema"
         && let Some(text) = name.to_str().and_then(crate::schema::find)
@@ -56,7 +64,7 @@ fn dispatch_using(
     }
     let mut parsed = match crate::grammar::parse(args) {
         Ok(parsed) => parsed,
-        Err(()) => return usage(args),
+        Err(cause) => return usage_with_argument(args, cause.argument),
     };
     if let Some((globals, _)) = shared
         && parsed.globals.inherit(globals).is_err()
@@ -65,7 +73,10 @@ fn dispatch_using(
     }
     if let Some(command) = parsed.key {
         return if shared.is_some() {
-            usage(args)
+            encode(
+                ErrorEnvelope::mcp_unavailable(biomcp_types::ErrorMessage::McpKey),
+                crate::exit::Status::Usage,
+            )
         } else {
             crate::keys::run(command, &parsed.globals)
         };
@@ -73,14 +84,18 @@ fn dispatch_using(
     let Some(action) = parsed.action else {
         return usage(args);
     };
-    if shared.is_some() && !mcp_policy::allows(&action, &parsed.globals, !allow_save) {
-        return encode(ErrorEnvelope::arguments(), crate::exit::Status::Usage);
+    if shared.is_some()
+        && let Some(error) = mcp_policy::refusal(&action, &parsed.globals, !allow_save)
+    {
+        return encode(error, crate::exit::Status::Usage);
     }
     if let Some(path) = parsed.help {
         return encode(
             Envelope::new(
                 Status::Complete,
-                path.clone(),
+                biomcp_types::HelpQuery {
+                    command: path.clone(),
+                },
                 Some(crate::help::dispatch(&path)?),
             ),
             crate::exit::Status::Success,
@@ -110,6 +125,15 @@ pub(crate) fn execute(
     allow_save: bool,
 ) -> io::Result<Outcome> {
     match action {
+        Action::PubmedSearch(q) => execute(
+            fetch,
+            Action::Run {
+                request: Request::SearchArticle(q),
+                fresh: false,
+            },
+            globals,
+            allow_save,
+        ),
         Action::AuthorPapers(q) => execute(
             fetch,
             Action::Run {
@@ -124,7 +148,9 @@ pub(crate) fn execute(
             encode(
                 Envelope::new(
                     Status::Complete,
-                    path.clone(),
+                    biomcp_types::HelpQuery {
+                        command: path.clone(),
+                    },
                     Some(crate::help::dispatch(&path)?),
                 ),
                 crate::exit::Status::Success,
@@ -358,16 +384,36 @@ fn tool_using(
     dispatch_using(args, allow_save, Some((globals, fetch)))
 }
 fn usage(args: &[OsString]) -> io::Result<Outcome> {
+    usage_with_argument(args, None)
+}
+fn usage_with_argument(args: &[OsString], argument: Option<String>) -> io::Result<Outcome> {
+    if let Some(path) = crate::grammar::unknown_command(args) {
+        let mut error = ErrorEnvelope::unknown_command();
+        error.next = vec![biomcp_types::Step {
+            kind: biomcp_types::StepKind::Configure,
+            args: std::iter::once("help".into())
+                .chain(path.into_iter().map(String::into_boxed_str))
+                .collect::<Vec<_>>()
+                .into(),
+        }];
+        return encode(error, crate::exit::Status::Usage);
+    }
+    if let Some(error) = crate::grammar::normalization_build(args) {
+        return encode(error, crate::exit::Status::Usage);
+    }
     let mut words = crate::grammar::command_words(args);
     let root = words.next();
-    let mut error = if matches!(
-        root,
-        Some("sync" | "key" | "store" | "version" | "mcp-config" | "skill")
-    ) || root.is_some_and(|root| {
-        crate::grammar::QUERIES
-            .iter()
-            .any(|(verb, _, _)| *verb == root)
-    }) {
+    let option = argument.or_else(|| crate::grammar::argument_error(args));
+    let mut error = if option.is_some()
+        || matches!(
+            root,
+            Some("sync" | "key" | "store" | "version" | "mcp-config" | "skill")
+        )
+        || root.is_some_and(|root| {
+            crate::grammar::QUERIES
+                .iter()
+                .any(|(verb, _, _)| *verb == root)
+        }) {
         ErrorEnvelope::arguments()
     } else {
         ErrorEnvelope::schema_usage()
@@ -410,12 +456,16 @@ fn usage(args: &[OsString]) -> io::Result<Outcome> {
             })
             .collect();
     }
+    if let Some(option) = option {
+        error = error.with_argument(option.into());
+    }
     encode(error, crate::exit::Status::Usage)
 }
 fn key_help(source: biomcp_types::Source) -> io::Result<Outcome> {
     let name = match source {
         biomcp_types::Source::SemanticScholar => biomcp_fetch::SecretName::SemanticScholarApiKey,
         biomcp_types::Source::PubMed => biomcp_fetch::SecretName::NcbiApiKey,
+        biomcp_types::Source::AlphaGenome => biomcp_fetch::SecretName::AlphaGenomeApiKey,
         biomcp_types::Source::Nci => biomcp_fetch::SecretName::NciApiKey,
         biomcp_types::Source::OpenfdaLabel => biomcp_fetch::SecretName::OpenfdaApiKey,
         biomcp_types::Source::Orcid => biomcp_fetch::SecretName::OrcidAccessToken,
@@ -465,7 +515,7 @@ fn run_request(
 ) -> io::Result<biomcp_query::Outcome> {
     let cx = biomcp_query::Ctx {
         ncbi_email: crate::config::ncbi_email(globals)
-            .map_err(|()| io::Error::other("local configuration failed"))?,
+            .map_err(|_| io::Error::other("local configuration failed"))?,
         fetch,
         budget: crate::config::BUDGET,
         fresh,
@@ -522,6 +572,7 @@ fn bundle_source(bundle: Bundle) -> biomcp_types::Source {
         Bundle::Ddinter => biomcp_types::Source::Ddinter,
         Bundle::Hgnc => biomcp_types::Source::Hgnc,
         Bundle::ClinGen => biomcp_types::Source::ClinGen,
+        Bundle::Gencc => biomcp_types::Source::Gencc,
     }
 }
 

@@ -11,6 +11,8 @@ pub(super) mod parity;
 mod parity_inventory_proof;
 mod parity_shape_proof;
 use execution::run_step;
+mod alphagenome;
+mod alphagenome_tls;
 mod cache_contention;
 pub(super) mod cell_line;
 mod clinpgx;
@@ -50,8 +52,11 @@ mod drug_who;
 mod evidence;
 mod faers_get;
 mod faers_search;
+mod format_selection;
 mod gene_tables;
+mod health_bundles;
 mod held_proxy;
+mod help_entry;
 mod help_examples;
 mod housekeeping;
 mod hpo_registry;
@@ -65,6 +70,7 @@ mod litvar_tables;
 pub(crate) mod live;
 mod live_follow_proof;
 mod live_proof;
+mod local_files;
 mod markdown;
 mod markdown_shapes;
 mod markdown_sources;
@@ -87,6 +93,7 @@ mod oncokb;
 mod oncokb_context;
 mod openfda_key;
 mod openfda_website;
+mod output_stream;
 mod pathway_budgets;
 mod pathway_commands;
 mod pathway_failures;
@@ -107,6 +114,7 @@ mod protein_domains;
 mod protein_registry;
 mod protein_sections;
 mod protocol;
+mod public_grammar;
 mod publication;
 mod recurrence;
 mod recurrence_errors;
@@ -120,12 +128,15 @@ mod scholar;
 mod semantic_tables;
 mod skill;
 mod source_controls;
+mod source_deadlines;
 mod source_groups;
 mod source_terms;
+mod source_text;
 mod store_clean;
 mod store_coexistence;
 mod study_catalog;
 mod supplement_tables;
+mod terminal_edges;
 mod trial_condition;
 mod trial_documents;
 mod trial_eligibility;
@@ -145,8 +156,8 @@ mod variant_population_release;
 mod variant_search;
 mod wikipathways;
 
-// Approved complete CLI help ceiling; entity and MCP budgets remain separate.
-pub(super) const CLI_HELP_BYTES: usize = 106000;
+// Complete help: j18463 measured 114273 bytes; reviewed ceiling adds fifteen percent.
+pub(super) const CLI_HELP_BYTES: usize = 131414;
 
 use libtest_mimic::Trial;
 use serde::Deserialize;
@@ -296,10 +307,18 @@ fn run_case(path: &Path, registry: &schema::Registry) -> Result<Value, String> {
     previous.ok_or_else(|| "case requires at least one step".into())
 }
 
+fn discovery_trials() -> Vec<Trial> {
+    let mut trials = housekeeping::trials();
+    trials.extend(help_entry::trials());
+    trials.extend(skill::trials());
+    trials.extend(public_grammar::trials());
+    trials
+}
+
 pub(super) fn protocol_trials() -> Vec<Trial> {
     let mut trials = protocol::trials();
-    trials.extend(housekeeping::trials());
-    trials.extend(skill::trials());
+    trials.extend(output_stream::trials());
+    trials.extend(discovery_trials());
     trials.extend(research::trials());
     trials.push(Trial::test("article-help/executable-examples", || {
         help_examples::check().map_err(Into::into)
@@ -342,6 +361,8 @@ pub(super) fn protocol_trials() -> Vec<Trial> {
     trials.extend(evidence::trials());
     trials.extend(pdf::trials());
     trials.extend(source_controls::trials());
+    trials.extend(health_bundles::trials());
+    trials.extend(source_deadlines::trials());
     trials.extend(source_groups::trials());
     trials.extend(trial_groups::drug_trials());
     trials.extend(disease_trials());
@@ -351,24 +372,9 @@ pub(super) fn protocol_trials() -> Vec<Trial> {
     trials.extend(http::trials());
     trials.extend(mcp_boundaries::trials());
     trials.extend(corporate::trials());
+    trials.extend(format_selection::trials());
+    trials.extend(terminal_edges::trials());
     trials.extend(variant::trials());
-    trials.extend(variant_assertion_wire::trials());
-    trials.extend(variant_assertions::trials());
-    trials.extend(variant_discovery::trials());
-    trials.extend(variant_condition_relationship::trials());
-    trials.extend(variant_population::trials());
-    trials.extend(variant_population_release::trials());
-    trials.extend(oncokb::trials());
-    trials.extend(oncokb_context::trials());
-    trials.extend(variant_civic::trials());
-    trials.extend(variant_hotspots::trials());
-    trials.extend(recurrence::trials());
-    trials.extend(recurrence_errors::trials());
-    trials.extend(recurrence_metadata::trials());
-    trials.extend(normalization::trials());
-    trials.extend(variant_search::trials());
-    trials.extend(next_navigation::trials());
-    trials.extend(variant_filters::trials());
     trials.extend(markdown::trials());
     trials.extend(markdown_shapes::trials());
     trials.extend(markdown_variant_trial::trials());
@@ -522,6 +528,10 @@ pub(super) fn installed_process_proof() -> Result<(), String> {
 // Run installed HTTP ownership checks without resolving a build-checkout case directory.
 pub(super) fn installed_http_trials() -> Vec<Trial> {
     http::trials()
+}
+
+pub(super) fn installed_alphagenome_trials() -> Vec<Trial> {
+    alphagenome_tls::installed_trials()
 }
 
 mod variant_assertion_wire;

@@ -1,5 +1,12 @@
 {
   "$defs": {
+    "BundleSize": {
+      "description": "Why physical bytes cannot be attributed to one local bundle.",
+      "enum": [
+        "shared_storage"
+      ],
+      "type": "string"
+    },
     "CacheProblem": {
       "description": "A local cache failure that leaves the provider outcome intact.",
       "enum": [
@@ -43,7 +50,8 @@
         },
         "url": {
           "$ref": "#/$defs/Text",
-          "description": "Publisher terms page."
+          "description": "Publisher terms page.",
+          "format": "uri"
         },
         "usage": {
           "$ref": "#/$defs/Use",
@@ -56,6 +64,69 @@
         "url"
       ],
       "type": "object"
+    },
+    "ConfigurationHealth": {
+      "additionalProperties": false,
+      "description": "Local configuration notices contain names and positions, never supplied entries.",
+      "properties": {
+        "notices": {
+          "description": "First skipped entries in their original comma-separated order.",
+          "items": {
+            "$ref": "#/$defs/ConfigurationNotice"
+          },
+          "type": "array"
+        },
+        "omitted_entries": {
+          "description": "Remaining skipped entries omitted from this bounded section.",
+          "format": "uint32",
+          "minimum": 0,
+          "type": "integer"
+        }
+      },
+      "required": [
+        "omitted_entries"
+      ],
+      "type": "object"
+    },
+    "ConfigurationNotice": {
+      "additionalProperties": false,
+      "description": "One unsupported bypass entry skipped without changing other routing rules.",
+      "properties": {
+        "code": {
+          "$ref": "#/$defs/ConfigurationNoticeCode",
+          "description": "Stable notice identity."
+        },
+        "entry": {
+          "description": "One-based position in the comma-separated environment setting.",
+          "format": "uint32",
+          "minimum": 0,
+          "type": "integer"
+        },
+        "variable": {
+          "$ref": "#/$defs/ConfigurationVariable",
+          "description": "Environment variable owning the entry."
+        }
+      },
+      "required": [
+        "variable",
+        "entry",
+        "code"
+      ],
+      "type": "object"
+    },
+    "ConfigurationNoticeCode": {
+      "description": "Nonfatal local configuration conditions.",
+      "enum": [
+        "unparseable_entry"
+      ],
+      "type": "string"
+    },
+    "ConfigurationVariable": {
+      "description": "Settings whose ignored entries can be reported safely.",
+      "enum": [
+        "NO_PROXY"
+      ],
+      "type": "string"
     },
     "DisableGroup": {
       "additionalProperties": false,
@@ -81,9 +152,7 @@
         }
       },
       "required": [
-        "group",
-        "sources",
-        "components"
+        "group"
       ],
       "type": "object"
     },
@@ -110,8 +179,18 @@
       "additionalProperties": false,
       "description": "Source reachability and publisher terms, independent of local HTTP service health.",
       "properties": {
+        "configuration": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/ConfigurationHealth"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "description": "Bounded local settings notices, independent of source probes."
+        },
         "disable_groups": {
-          "default": [],
           "description": "Sources and carried components excluded by each supported terms group.",
           "items": {
             "$ref": "#/$defs/DisableGroup"
@@ -124,12 +203,25 @@
             "$ref": "#/$defs/SourceHealth"
           },
           "type": "array"
+        },
+        "store": {
+          "$ref": "#/$defs/StoreSize",
+          "description": "File lengths measured locally without attributing shared pages to bundles."
         }
       },
       "required": [
-        "sources"
+        "store"
       ],
       "type": "object"
+    },
+    "LocalBundleState": {
+      "description": "Local bundle availability. Persisted synchronization leases do not prove process liveness.",
+      "enum": [
+        "missing",
+        "fresh",
+        "stale"
+      ],
+      "type": "string"
     },
     "PageInfo": {
       "additionalProperties": false,
@@ -272,6 +364,7 @@
         "unsupported",
         "too_large",
         "rate_limited",
+        "local_quota",
         "unavailable",
         "tls",
         "proxy",
@@ -293,6 +386,7 @@
         " The local reader does not support the file or container format.",
         " The response exceeds an explicit reader resource bound.",
         " The source limited the request rate.",
+        " The local source quota refused admission without a network request.",
         " The source was unavailable.",
         " Platform or configured certificate verification failed.",
         " Connecting to or negotiating the configured proxy failed.",
@@ -323,6 +417,7 @@
         "erepo",
         "gwas",
         "clingen",
+        "gencc",
         "pubmed",
         "europepmc",
         "litvar",
@@ -336,6 +431,7 @@
         "nci",
         "civic",
         "hotspots",
+        "alphagenome",
         "oncokb",
         "myvariant",
         "car",
@@ -395,6 +491,7 @@
         " ClinGen Evidence Repository.",
         " GWAS Catalog v2.",
         " ClinGen.",
+        " GenCC submitter assessments.",
         " PubMed.",
         " Europe PMC.",
         " NCBI LitVar2.",
@@ -408,6 +505,7 @@
         " NCI Clinical Trials Search.",
         " CIViC.",
         " Cancer Hotspots residue recurrence.",
+        " AlphaGenome.",
         " OncoKB.",
         " MyVariant.info aggregation.",
         " ClinGen Allele Registry.",
@@ -457,6 +555,28 @@
       "additionalProperties": false,
       "description": "One bounded source probe, without credentials or provider error text.",
       "properties": {
+        "bundle": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/LocalBundleState"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "description": "Last validated local bundle, independent of publisher reachability."
+        },
+        "bundle_size": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/BundleSize"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "description": "Per-bundle physical size is unavailable in shared storage."
+        },
         "components": {
           "description": "Independently licensed carried components, without separate network probes.",
           "items": {
@@ -476,6 +596,13 @@
             "integer",
             "null"
           ]
+        },
+        "notices": {
+          "description": "Local probe limits and recovery guidance.",
+          "items": {
+            "$ref": "#/$defs/SourceNotice"
+          },
+          "type": "array"
         },
         "reason": {
           "anyOf": [
@@ -502,9 +629,10 @@
         },
         "terms_url": {
           "$ref": "#/$defs/Text",
-          "description": "Publisher terms page."
+          "description": "Publisher terms page.",
+          "format": "uri"
         },
-        "usage": {
+        "use": {
           "$ref": "#/$defs/Use",
           "description": "Reviewed source category, not blanket permission for each record."
         }
@@ -513,15 +641,62 @@
         "source",
         "terms",
         "terms_url",
-        "usage",
+        "use",
         "disabled",
         "state"
       ],
       "type": "object"
     },
     "SourceNotice": {
-      "description": "A provider query interpretation notice.",
+      "description": "A source notice or request recovery step.",
       "oneOf": [
+        {
+          "additionalProperties": false,
+          "description": "Local request limits and source-specific recovery guidance.",
+          "properties": {
+            "kind": {
+              "const": "request_guidance",
+              "type": "string"
+            },
+            "message": {
+              "description": "Reviewed guidance without provider response text.",
+              "type": "string"
+            },
+            "retry_after_seconds": {
+              "description": "Seconds left before another source request may be admitted.",
+              "format": "uint64",
+              "minimum": 0,
+              "type": [
+                "integer",
+                "null"
+              ]
+            }
+          },
+          "required": [
+            "kind",
+            "message"
+          ],
+          "type": "object"
+        },
+        {
+          "additionalProperties": false,
+          "description": "Registered conditions lack the literal words requested in a condition search.",
+          "properties": {
+            "kind": {
+              "const": "condition_word_mismatch",
+              "type": "string"
+            },
+            "message": {
+              "description": "The source searches several fields and can expand terms; no expansion cause is inferred.",
+              "type": "string"
+            }
+          },
+          "required": [
+            "kind",
+            "message"
+          ],
+          "type": "object"
+        },
         {
           "additionalProperties": false,
           "description": "A checked provider answer survived a local cache failure.",
@@ -562,6 +737,51 @@
         },
         {
           "additionalProperties": false,
+          "description": "An empty LitVar lookup can be repeated with a caller-supplied rsID.",
+          "properties": {
+            "kind": {
+              "const": "litvar_rsid_hint",
+              "type": "string"
+            },
+            "message": {
+              "description": "Guidance that never supplies or infers an rsID.",
+              "type": "string"
+            }
+          },
+          "required": [
+            "kind",
+            "message"
+          ],
+          "type": "object"
+        },
+        {
+          "additionalProperties": false,
+          "description": "PubMed supplied a named ESearch warning without changing its phrases.",
+          "properties": {
+            "kind": {
+              "const": "pubmed_warning",
+              "type": "string"
+            },
+            "name": {
+              "description": "Original provider warning name, including names added by PubMed later.",
+              "type": "string"
+            },
+            "phrases": {
+              "description": "Original provider phrases, preserving whitespace and quotes.",
+              "items": {
+                "type": "string"
+              },
+              "type": "array"
+            }
+          },
+          "required": [
+            "kind",
+            "name"
+          ],
+          "type": "object"
+        },
+        {
+          "additionalProperties": false,
           "description": "PubMed did not index these words.",
           "properties": {
             "kind": {
@@ -577,8 +797,7 @@
             }
           },
           "required": [
-            "kind",
-            "words"
+            "kind"
           ],
           "type": "object"
         }
@@ -607,7 +826,7 @@
           ]
         },
         "notices": {
-          "description": "Provider query notices that do not indicate failure.",
+          "description": "Source notices and request recovery guidance.",
           "items": {
             "$ref": "#/$defs/SourceNotice"
           },
@@ -649,6 +868,7 @@
         },
         "terms_url": {
           "description": "Publisher page documenting the terms.",
+          "format": "uri",
           "type": "string"
         },
         "use": {
@@ -703,8 +923,7 @@
         }
       },
       "required": [
-        "kind",
-        "args"
+        "kind"
       ],
       "type": "object"
     },
@@ -724,6 +943,43 @@
       ],
       "type": "string"
     },
+    "StoreSize": {
+      "additionalProperties": false,
+      "description": "Measured lengths of owned files, including unused database pages and present sidecars.",
+      "properties": {
+        "active_bytes": {
+          "description": "Active database plus its present WAL and SHM files, counted once each.",
+          "format": "uint64",
+          "minimum": 0,
+          "type": "integer"
+        },
+        "partial_download_bytes": {
+          "description": "Incomplete download files belonging to active or retained databases.",
+          "format": "uint64",
+          "minimum": 0,
+          "type": "integer"
+        },
+        "retained_bytes": {
+          "description": "Retained database generations plus their present WAL and SHM files.",
+          "format": "uint64",
+          "minimum": 0,
+          "type": "integer"
+        },
+        "total_bytes": {
+          "description": "All measured owned files, including retained generations and partial downloads.",
+          "format": "uint64",
+          "minimum": 0,
+          "type": "integer"
+        }
+      },
+      "required": [
+        "total_bytes",
+        "active_bytes",
+        "retained_bytes",
+        "partial_download_bytes"
+      ],
+      "type": "object"
+    },
     "Text": {
       "description": "Nonempty text with surrounding Unicode whitespace removed.",
       "minLength": 1,
@@ -740,7 +996,7 @@
       "type": "string"
     }
   },
-  "$id": "biomcp.health/2",
+  "$id": "biomcp.health/3",
   "$schema": "https://json-schema.org/draft/2020-12/schema",
   "additionalProperties": false,
   "description": "One versioned command response; schema identity comes only from its body type.",
@@ -797,7 +1053,7 @@
       "description": "Answer when available."
     },
     "schema": {
-      "const": "biomcp.health/2",
+      "const": "biomcp.health/3",
       "type": "string"
     },
     "sources": {

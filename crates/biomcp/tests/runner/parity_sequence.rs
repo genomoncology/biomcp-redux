@@ -93,6 +93,8 @@ pub(super) fn compare(
         "application/json",
         |_| Err("candidate attempted a provider connection".into()),
     )?;
+    guard.retain(&candidate);
+    guard.retain(&old);
     let mut config = case.config.clone().unwrap_or(json!({}));
     execution::field(
         &mut config,

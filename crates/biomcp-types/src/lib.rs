@@ -9,7 +9,11 @@ pub use research::{
 };
 mod predictor;
 mod query;
+// Export new public response types inside `response` and again at the crate root.
+// `unreachable_pub` reports a missing crate-root re-export.
 mod response;
+pub use response::{SchemaCatalog, SchemaEntry};
+pub use response::{SourceTimestamp, SourceTimestampTimezone};
 mod source;
 
 pub use predictor::{
@@ -39,7 +43,6 @@ pub use query::{RecurrenceSource, VariantRecurrenceQuery};
 pub use query::{TrialFilter, TrialSearch, TrialSource};
 pub use query::{TrialGet, TrialSection};
 pub use query::{VariantInput, VariantNamespace};
-pub use response::ComponentHealth;
 pub use response::TrialParameter;
 pub use response::VariantPage;
 pub use response::{AnnotatedEntity, AnnotationKind, Annotations, ArticleSections, Tldr};
@@ -62,17 +65,21 @@ pub use response::{
     ArticleSupplementResult, CellFragment, FileKind, FirstSheetRow, SheetInfo, SheetRow,
     SupplementContent, SupplementFile, Supplements,
 };
+pub use response::{BundleSize, ComponentHealth, StoreSize};
 pub use response::{
-    CancerPtpm, Capped, CivicGene, ClinGenGene, ClinGenValidity, GeneExpression, PathwayRef,
-    ReactomeId, ReactomeIdInvalid, RnaAbundance, TissueNtpm,
+    CancerPtpm, Capped, CivicGene, ClinGenGene, ClinGenValidity, GenccGene, GenccSubmission,
+    GeneExpression, PathwayRef, ReactomeId, ReactomeIdInvalid, RnaAbundance, TissueNtpm,
 };
 pub use response::{
     CivicClaimPage, CivicMember, CivicMembership, CivicNativeClaim, CivicProfile, CivicStatement,
     HotspotAlternate, HotspotMembership, HotspotRecord, OncokbCitation, OncokbVariantRecord,
     VariantCivic, VariantHotspots, VariantOncokb, VariantSections,
 };
+pub use response::{
+    ConfigurationHealth, ConfigurationNotice, ConfigurationNoticeCode, ConfigurationVariable,
+    DisableGroup, DisabledComponent, Health, HttpHealth, LocalBundleState, SourceHealth,
+};
 pub use response::{Constraint, GeneSections, Protein};
-pub use response::{DisableGroup, DisabledComponent, Health, HttpHealth, SourceHealth};
 pub use response::{
     Envelope, GeneCards, GeneItem, GenePage, ItemStatus, PageInfo, QueryBody, ResponseBody,
     Section, SourceOutcome, SourceRecord, SourceState, Status, Step, StepKind,
@@ -83,7 +90,7 @@ pub use response::{
     VariantPopulationResult,
 };
 pub use response::{
-    Help, HelpArgument, HelpCommand, HelpWord, KeyHelp, KeyState, Oncokb, OncokbCard,
+    Help, HelpArgument, HelpCommand, HelpQuery, HelpWord, KeyHelp, KeyState, Oncokb, OncokbCard,
     OncokbGeneType, OncokbTranscript, RegisteredKey, RegisteredKeys, StoreClean, SyncQuery,
     SyncResult,
 };
@@ -104,7 +111,7 @@ pub use response::{
 };
 pub use response::{TrialConditionResolution, TrialPage};
 pub use response::{TrialDocumentResult, TrialDocumentSaved};
-pub use response::{VariantCard, VariantHeader, VariantResolution};
+pub use response::{VariantCard, VariantHeader, VariantResolution, VariantTranscript};
 pub use source::{Reason, Source, Use};
 
 mod article;
@@ -130,22 +137,22 @@ pub use response::{
 pub use query::{DiseaseGet, DiseaseOntology, DiseaseSearch, DiseaseSection, DiseaseSource};
 
 pub use response::{
-    DiseaseAssociationItem, DiseaseCard, DiseaseGenes, DiseaseHeader, DiseaseHierarchy,
-    DiseaseIncidence, DiseasePage, DiseasePhenotypes, DiseaseSite, DiseaseSites, DiseaseSurvival,
-    DiseaseSynonyms, DiseaseXrefs,
+    DiseaseAssociationItem, DiseaseCard, DiseaseConcept, DiseaseGenes, DiseaseHeader,
+    DiseaseHierarchy, DiseaseIncidence, DiseasePage, DiseasePhenotypes, DiseaseSite, DiseaseSites,
+    DiseaseSurvival, DiseaseSynonyms, DiseaseXrefs,
 };
 mod drug;
 pub use drug::{
     DrugApprovals, DrugCard, DrugCivic, DrugCivicClaim, DrugCivicMember, DrugCivicPage,
     DrugCivicProfile, DrugCivicStreams, DrugFdaCandidate, DrugFdaDocument, DrugFdaIngredient,
     DrugFdaPage, DrugFdaProduct, DrugFdaProperty, DrugFdaSubmission, DrugGet, DrugHeader,
-    DrugIndications, DrugInteractions, DrugLabel, DrugLabelFragment, DrugLabelText,
+    DrugIndications, DrugInteractions, DrugLabel, DrugLabelFragment, DrugLabelText, DrugNameMatch,
     DrugNameSelector, DrugOncokbLookup, DrugOncokbMissing, DrugPage, DrugRecords, DrugRegulatory,
     DrugSearch, DrugSection, DrugSource, DrugTargets, DrugWhoCard, DrugWhoGet, DrugWhoPage,
     DrugWhoRow, DrugXrefs,
 };
 
-pub use query::QueryInvalid;
+pub use query::{CheckedQuery, QueryInvalid};
 
 mod adverse_event;
 pub use adverse_event::{
@@ -204,3 +211,17 @@ pub use cell_line::*;
 
 mod author;
 pub use author::*;
+
+pub use response::{
+    AlphaGenomeBiosample, AlphaGenomeDataType, AlphaGenomeGene, AlphaGenomeInterval,
+    AlphaGenomeOntology, AlphaGenomeScorer, AlphaGenomeScorerPage, AlphaGenomeTrack,
+    AlphaGenomeValue, AlphaGenomeVariant, VariantAlphaGenome,
+};
+pub use response::{
+    AlphaGenomeBiosampleType, AlphaGenomeEndedness, AlphaGenomeOntologyType, AlphaGenomeStrand,
+};
+pub use response::{AlphaGenomeNonfiniteKind, AlphaGenomeScalar};
+
+pub use response::{CivicKind, CivicSignificance, CivicStatus};
+
+pub use response::NciTrialPhase;

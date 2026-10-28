@@ -9,7 +9,9 @@ const SET: BundleSet<Native> = BundleSet {
     name: "fda-cdx",
     fresh: Freshness::Days(7),
     row: PhantomData,
-    format: RowFormat::Document,
+    format: RowFormat::Document {
+        media: biomcp_fetch::DocumentMedia::Html,
+    },
     parts: &[BundlePart {
         name: "companion",
         path: "/medical-devices/in-vitro-diagnostics/list-fda-authorized-companion-diagnostic-devices-in-vitro-and-imaging-tools",
@@ -30,6 +32,12 @@ pub fn sync(fetch: &Fetch) -> Result<SyncResult, RequestError> {
         last_modified: None,
         rows: info.rows,
         bytes: info.bytes,
+        downloaded_bytes: info.downloaded_bytes,
         duplicate_identities: None,
     })
+}
+
+/// Inspect this source's complete local set without synchronizing it.
+pub(crate) fn state(leg: &Leg<'_>) -> Result<biomcp_types::LocalBundleState, RequestError> {
+    SET.state(leg)
 }

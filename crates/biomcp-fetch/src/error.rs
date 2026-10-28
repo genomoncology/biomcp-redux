@@ -14,7 +14,7 @@ pub struct SourceError {
     pub reason: Reason,
     /// HTTP status when a response was received.
     pub status: Option<u16>,
-    /// Provider-stated retry delay, when present on a rate-limit refusal.
+    /// Provider retry delay or remaining local quota spacing, when present.
     pub retry_after: Option<std::time::Duration>,
 }
 
@@ -30,8 +30,16 @@ impl std::error::Error for SourceError {}
 #[derive(Clone, Copy, Debug)]
 #[non_exhaustive]
 pub enum FetchError {
+    /// Streaming allocation limits must describe finite supported resources.
+    StreamingLimits,
     /// The configured proxy could not be parsed.
     Proxy,
+    /// The HTTP proxy environment setting is invalid.
+    HttpProxy,
+    /// The HTTPS proxy environment setting is invalid.
+    HttpsProxy,
+    /// A bypass rule contains credentials or a malformed port.
+    ProxyBypass,
     /// The configured additive certificates could not be checked.
     Certificates,
     /// The body limit must allow one byte for overflow detection.
@@ -45,7 +53,11 @@ pub enum FetchError {
 impl fmt::Display for FetchError {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
         f.write_str(match self {
+            Self::StreamingLimits => "fetch.streaming_limits",
             Self::Proxy => "fetch.proxy",
+            Self::HttpProxy => "fetch.http_proxy",
+            Self::HttpsProxy => "fetch.https_proxy",
+            Self::ProxyBypass => "fetch.proxy_bypass",
             Self::Certificates => "fetch.certificates",
             Self::BodyLimit => "fetch.body_limit",
             Self::Cache(error) => return error.fmt(f),
@@ -161,6 +173,8 @@ impl From<RecordError> for RequestError {
 /// Input failures retain no caller text or serializer diagnostics.
 #[derive(Clone, Copy, Debug, PartialEq, Eq)]
 pub enum InputError {
+    /// The request origin is absent from its source declaration.
+    Host,
     /// A runtime endpoint path is not canonical or attempts to supply URL parts.
     Path,
     /// The call does not match the endpoint's declared body encoding.
@@ -173,6 +187,7 @@ pub enum InputError {
 impl fmt::Display for InputError {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
         f.write_str(match self {
+            Self::Host => "fetch.input_host",
             Self::Path => "fetch.input_path",
             Self::Method => "fetch.input_method",
             Self::Serialization => "fetch.input_serialization",

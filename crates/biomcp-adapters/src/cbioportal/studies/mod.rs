@@ -10,7 +10,9 @@ const CATALOG: Bundle<raw::CatalogRow> = Bundle {
     spec: &SPEC,
     name: "cbioportal-studies",
     path: "/studies?projection=DETAILED",
-    format: RowFormat::Document,
+    format: RowFormat::Document {
+        media: biomcp_fetch::DocumentMedia::Json,
+    },
     fresh: Freshness::Days(7),
     row: PhantomData,
 };
@@ -32,6 +34,7 @@ pub fn sync(fetch: &Fetch) -> Result<SyncResult, RequestError> {
         last_modified: info.last_modified,
         rows: info.rows,
         bytes: info.bytes,
+        downloaded_bytes: info.downloaded_bytes,
         duplicate_identities: None,
     })
 }
@@ -82,3 +85,8 @@ mod sections;
 pub use sections::{Records, profiles, sample_lists};
 mod files;
 pub use files::{Directory, files};
+
+/// Inspect this source's validated local catalog without reading rows or synchronizing.
+pub(crate) fn bundle_state(leg: &Leg<'_>) -> Result<biomcp_types::LocalBundleState, RequestError> {
+    leg.stored_bundle_state(&CATALOG)
+}

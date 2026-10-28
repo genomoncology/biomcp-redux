@@ -3,9 +3,21 @@ use super::{launch::Environment, network_stub::Stub};
 use libtest_mimic::Trial;
 use serde_json::{Value, json};
 use std::fs;
+#[path = "civic_vocabulary.rs"]
+mod vocabulary;
 
 pub(super) fn trials() -> Vec<Trial> {
     vec![
+        Trial::test("drug-civic/unknown-status-keeps-native-claims", || {
+            vocabulary::drug_status().map_err(Into::into)
+        }),
+        Trial::test(
+            "variant/civic-unknown-stream-vocabulary-keeps-claims",
+            || vocabulary::stream_context().map_err(Into::into),
+        ),
+        Trial::test("variant/civic-unknown-vocabulary-keeps-claims", || {
+            vocabulary::unknown().map_err(Into::into)
+        }),
         Trial::test("variant/civic-exact-profile-membership", || {
             exact().map_err(Into::into)
         }),
@@ -30,6 +42,7 @@ pub(super) fn trials() -> Vec<Trial> {
 }
 fn configure(environment: &Environment, stub: &Stub) -> Result<(), String> {
     let ca = environment.root().join("synthetic-ca.pem");
+    stub.retain(environment);
     fs::write(&ca, &stub.certificate).map_err(|e| e.to_string())?;
     environment
         .config(&json!({"proxy":format!("http://{}",stub.address),"ca_bundle":ca}))
@@ -319,10 +332,7 @@ fn unjoined() -> Result<(), String> {
         let value = run(&environment, &args)?;
         let base = "/result/candidates/0/sections/civic/data/profiles/0";
         if value.pointer(&format!("{base}/membership")) != Some(&json!("candidate"))
-            || value
-                .pointer(&format!("{base}/statements"))
-                .and_then(Value::as_array)
-                .is_none_or(|rows| !rows.is_empty())
+            || value.pointer(&format!("{base}/statements")).is_some()
             || value
                 .pointer(&format!("{base}/evidence_page/next"))
                 .is_some()

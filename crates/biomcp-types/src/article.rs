@@ -72,7 +72,9 @@ pub struct ArticleHeader {
     #[serde(skip_serializing_if = "Option::is_none")]
     pub europepmc_id: Option<EuropePmcId>,
     /// Whole source title.
-    pub title: Text,
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    #[cfg_attr(feature = "schema", schemars(with = "Text"))]
+    pub title: Option<Text>,
     /// Journal name.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub journal: Option<Text>,
@@ -83,6 +85,7 @@ pub struct ArticleHeader {
     #[serde(default, skip_serializing_if = "Option::is_none")]
     pub electronic_date: Option<PartialDate>,
     /// Clinical publication types.
+    #[serde(default, skip_serializing_if = "<[_]>::is_empty")]
     pub types: Box<[PublicationType]>,
     /// The provider does not supply checked publication types.
     #[serde(default, skip_serializing_if = "is_false")]

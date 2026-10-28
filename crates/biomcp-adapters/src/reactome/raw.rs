@@ -1,3 +1,4 @@
+use crate::raw::Field;
 use biomcp_fetch::{BadReply, Reply};
 use serde::Deserialize;
 use std::num::NonZeroU64;
@@ -22,7 +23,7 @@ pub(super) struct Group {
 #[serde(rename_all = "camelCase")]
 pub(super) struct Hit {
     pub st_id: String,
-    pub name: String,
+    pub name: Option<Field<String>>,
     pub exact_type: String,
     pub species: Vec<String>,
 }
@@ -66,31 +67,31 @@ impl Reply for Search {
     }
 }
 
-#[derive(Clone, Deserialize)]
+#[derive(Deserialize)]
 #[serde(rename_all = "camelCase")]
 pub(super) struct Card {
     pub st_id: String,
-    pub display_name: String,
+    pub display_name: Option<Field<String>>,
     pub species_name: String,
     pub schema_class: String,
-    pub st_id_version: String,
-    pub summation: Option<Vec<Summation>>,
-    pub literature_reference: Option<Vec<Literature>>,
+    pub st_id_version: Option<Field<String>>,
+    pub summation: Option<Field<Vec<Field<Summation>>>>,
+    pub literature_reference: Option<Field<Vec<Field<Literature>>>>,
 }
-#[derive(Clone, Deserialize)]
+#[derive(Deserialize)]
 #[serde(rename_all = "camelCase")]
 pub(super) struct Summation {
     pub db_id: NonZeroU64,
-    pub text: Box<str>,
+    pub text: Option<Field<String>>,
 }
-#[derive(Clone, Deserialize)]
+#[derive(Deserialize)]
 #[serde(rename_all = "camelCase")]
 pub(super) struct Literature {
     pub db_id: NonZeroU64,
-    pub pub_med_identifier: Option<u32>,
-    pub title: Option<String>,
+    pub pub_med_identifier: Option<Field<u32>>,
+    pub title: Option<Field<String>>,
     #[serde(alias = "uniformResourceLocator")]
-    pub url: Option<String>,
+    pub url: Option<Field<String>>,
 }
 impl Reply for Card {
     fn check(&self) -> Result<(), BadReply> {

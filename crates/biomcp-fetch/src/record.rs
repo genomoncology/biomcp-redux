@@ -14,6 +14,8 @@ use std::{
     time::Duration,
 };
 
+#[path = "record_rpc.rs"]
+pub(crate) mod rpc;
 #[path = "record_sidecar.rs"]
 mod sidecar;
 const MAX_FILE_BYTES: u64 = 16 * 1024 * 1024;
@@ -21,6 +23,34 @@ const MAX_BUNDLE_FILE_BYTES: u64 = crate::MAX_BUNDLE_BYTES * 6 + 64 * 1024;
 const MAX_METADATA_BYTES: usize = 8192;
 const MAX_EXCHANGES: usize = 128;
 const LOCK: &str = ".record-owner";
+
+/// Request identity metadata keeps GET and HEAD captures separate without POST fields.
+#[derive(Clone, Copy)]
+pub(crate) enum Request<'a> {
+    Get,
+    Head,
+    Post(&'a crate::prepared::PostMetadata),
+}
+impl<'a> From<Option<&'a crate::prepared::PostMetadata>> for Request<'a> {
+    fn from(post: Option<&'a crate::prepared::PostMetadata>) -> Self {
+        post.map_or(Self::Get, Self::Post)
+    }
+}
+impl<'a> Request<'a> {
+    fn method(self) -> &'static str {
+        match self {
+            Self::Get => "GET",
+            Self::Head => "HEAD",
+            Self::Post(_) => "POST",
+        }
+    }
+    fn post(self) -> Option<&'a crate::prepared::PostMetadata> {
+        match self {
+            Self::Post(post) => Some(post),
+            _ => None,
+        }
+    }
+}
 
 /// An opaque temporary cache shared by one replay case and its offline checks.
 #[derive(Clone)]
@@ -168,6 +198,8 @@ struct Recording {
 #[derive(Clone, Debug, Serialize, Deserialize)]
 #[serde(deny_unknown_fields)]
 pub(crate) struct Exchange {
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub(crate) rpc: Option<rpc::Rpc>,
     #[serde(default)]
     pub(crate) fetched: i64,
     pub(crate) status: u16,
@@ -229,7 +261,8 @@ impl Body {
 }
 impl Exchange {
     fn valid(&self) -> bool {
-        (100..=599).contains(&self.status)
+        self.rpc.as_ref().is_none_or(rpc::Rpc::valid)
+            && (100..=599).contains(&self.status)
             && self
                 .pagination
                 .as_ref()
@@ -314,10 +347,10 @@ impl Recordings {
         source: biomcp_types::Source,
         key: &[u8; 32],
         url: &str,
-        post: Option<&crate::prepared::PostMetadata>,
+        request: Request<'_>,
         max_body: u64,
     ) -> Result<Option<Exchange>, RecordError> {
-        self.replay_bounded(source, key, url, post, max_body, MAX_FILE_BYTES)
+        self.replay_bounded(source, key, url, request, max_body, MAX_FILE_BYTES)
     }
     pub(crate) fn replay_bundle(
         &self,
@@ -329,7 +362,7 @@ impl Recordings {
             source,
             key,
             url,
-            None,
+            Request::Get,
             crate::MAX_BUNDLE_BYTES,
             MAX_BUNDLE_FILE_BYTES,
         )
@@ -339,7 +372,7 @@ impl Recordings {
         source: biomcp_types::Source,
         key: &[u8; 32],
         url: &str,
-        post: Option<&crate::prepared::PostMetadata>,
+        request: Request<'_>,
         max_body: u64,
         file_limit: u64,
     ) -> Result<Option<Exchange>, RecordError> {
@@ -351,7 +384,7 @@ impl Recordings {
             std::collections::btree_map::Entry::Occupied(entry) => entry.into_mut(),
             std::collections::btree_map::Entry::Vacant(entry) => {
                 let (recording, file_bytes) =
-                    read(&path(dir, source, key), source, url, post, file_limit)?;
+                    read(&path(dir, source, key), source, url, request, file_limit)?;
                 entry.insert(Cursor {
                     recording,
                     file_bytes,
@@ -371,6 +404,9 @@ impl Recordings {
         if let Body::Sidecar(name) = &value.body {
             value.body = Body::Bytes(sidecar::read(&path(dir, source, key), name, max_body)?);
         }
+        if matches!(request, Request::Head) && !value.body.bytes().is_empty() {
+            return Err(RecordError::Malformed);
+        }
         cursor.next += 1;
         if value.body.bytes().len() as u64 > max_body {
             return Err(RecordError::Limit);
@@ -382,10 +418,10 @@ impl Recordings {
         source: biomcp_types::Source,
         key: &[u8; 32],
         url: &str,
-        post: Option<&crate::prepared::PostMetadata>,
+        request: Request<'_>,
         exchange: Exchange,
     ) -> Result<(), RecordError> {
-        self.append_bounded(source, key, url, post, exchange, MAX_FILE_BYTES)
+        self.append_bounded(source, key, url, request, exchange, MAX_FILE_BYTES)
     }
     pub(crate) fn append_bundle(
         &self,
@@ -394,14 +430,21 @@ impl Recordings {
         url: &str,
         exchange: Exchange,
     ) -> Result<(), RecordError> {
-        self.append_bounded(source, key, url, None, exchange, MAX_BUNDLE_FILE_BYTES)
+        self.append_bounded(
+            source,
+            key,
+            url,
+            Request::Get,
+            exchange,
+            MAX_BUNDLE_FILE_BYTES,
+        )
     }
     fn append_bounded(
         &self,
         source: biomcp_types::Source,
         key: &[u8; 32],
         url: &str,
-        post: Option<&crate::prepared::PostMetadata>,
+        request: Request<'_>,
         exchange: Exchange,
         limit: u64,
     ) -> Result<(), RecordError> {
@@ -415,8 +458,8 @@ impl Recordings {
         let recording = sequences
             .entry((source, *key))
             .or_insert_with(|| Recording {
-                method: if post.is_some() { "POST" } else { "GET" }.into(),
-                post: post.cloned(),
+                method: request.method().into(),
+                post: request.post().cloned(),
                 source,
                 url: url.into(),
                 exchanges: Vec::new(),
@@ -449,7 +492,7 @@ fn read(
     path: &Path,
     source: biomcp_types::Source,
     url: &str,
-    post: Option<&crate::prepared::PostMetadata>,
+    request: Request<'_>,
     limit: u64,
 ) -> Result<(Recording, u64), RecordError> {
     let file = fs::File::open(path).map_err(|error| {
@@ -467,8 +510,8 @@ fn read(
         return Err(RecordError::Limit);
     }
     let value: Recording = serde_json::from_slice(&bytes).map_err(|_| RecordError::Malformed)?;
-    if value.method != if post.is_some() { "POST" } else { "GET" }
-        || value.post.as_ref() != post
+    if value.method != request.method()
+        || value.post.as_ref() != request.post()
         || value.source != source
         || value.url != url
         || value.url.len() > MAX_METADATA_BYTES

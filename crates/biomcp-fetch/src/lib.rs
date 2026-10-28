@@ -1,6 +1,7 @@
 //! Checked blocking source requests with explicit configuration and deadlines.
 
 mod cancellation;
+pub mod grpc;
 mod observe;
 pub use cancellation::Cancellation;
 mod observe_context;
@@ -12,12 +13,15 @@ mod cache;
 mod cache_access;
 mod cache_hgnc;
 mod cleanup;
+mod store_size;
 pub use cache_access::CacheAccess;
 mod cache_request;
 mod containment;
 mod deadline;
 mod declaration;
 mod destination;
+mod hosts;
+pub use hosts::Destinations;
 mod error;
 mod network;
 mod prepared;
@@ -34,8 +38,9 @@ pub mod xml;
 
 pub use batch::MAX_BATCH_WORKERS;
 pub use bundle::{
-    Bundle, BundleInfo, BundlePart, BundleSet, Find, KeyKind, Keys, MAX_BUNDLE_BYTES, Row,
-    RowFormat, SetRow, bundle_sha256, decode_bundle_document, encode_bundle_row,
+    Bundle, BundleInfo, BundlePart, BundleSet, DocumentMedia, Find, KeyKind, Keys,
+    MAX_BUNDLE_BYTES, Row, RowFormat, SetRow, bundle_sha256, decode_bundle_document,
+    encode_bundle_row,
 };
 pub use cache::{CACHE_NAMESPACE_VERSION, SchemaOwner, VERSION, check_owners};
 pub use deadline::{CommandDeadline, Deadline, LocalDeadline};
@@ -76,6 +81,8 @@ pub trait Reply: serde::de::DeserializeOwned {
 /// Explicit transport configuration. Construction reads no environment settings.
 #[derive(Debug)]
 pub struct FetchConfig {
+    /// Bounded streaming RPC resources, independent of blocking HTTP requests.
+    pub grpc_limits: grpc::Limits,
     /// Explicit bounded wire summaries, disabled by default.
     pub observations: Option<std::sync::Arc<Observations>>,
     /// Other schema owners checked before any cache mutation.
@@ -111,6 +118,7 @@ pub struct FetchConfig {
 impl Default for FetchConfig {
     fn default() -> Self {
         Self {
+            grpc_limits: grpc::Limits::default(),
             observations: None,
             cache_owners: Vec::new(),
             disabled_sources: Default::default(),
@@ -139,6 +147,7 @@ impl Default for FetchConfig {
 pub struct Fetch {
     secrets: std::sync::Arc<Secrets>,
     agents: std::sync::Arc<network::Agents>,
+    grpc_worker: std::sync::Arc<grpc::Worker>,
     cancelled: Option<std::sync::Arc<std::sync::atomic::AtomicBool>>,
     mode: Mode,
     limiters: std::sync::Arc<quota::Limiters>,
@@ -160,11 +169,19 @@ impl fmt::Debug for Fetch {
 }
 
 impl Fetch {
+    /// Bounded nonfatal settings notices for local health diagnostics.
+    pub fn configuration_health(&self) -> Option<&biomcp_types::ConfigurationHealth> {
+        self.config.network.configuration()
+    }
     /// Open a client using platform TLS roots and only the supplied proxy.
     pub fn open(mut config: FetchConfig) -> Result<Self, FetchError> {
         if config.max_body == u64::MAX {
             return Err(FetchError::BodyLimit);
         }
+        let grpc_worker = std::sync::Arc::new(grpc::Worker::new(
+            config.network.clone(),
+            config.grpc_limits,
+        )?);
         let agents = network::Agents::new(&config.network, config.proxy.as_ref())?;
         if matches!(config.mode, Mode::Replay { .. }) && config.replay_cache.is_none() {
             config.replay_cache = Some(
@@ -193,6 +210,7 @@ impl Fetch {
         Ok(Self {
             secrets: std::sync::Arc::new(std::mem::take(&mut config.secrets)),
             agents: std::sync::Arc::new(agents),
+            grpc_worker,
             cancelled: None,
             mode: std::mem::take(&mut config.mode),
             cache,
@@ -206,6 +224,10 @@ impl Fetch {
         })
     }
 
+    /// Whether this command explicitly forbids upstream requests.
+    pub fn is_offline(&self) -> bool {
+        matches!(self.mode, Mode::Offline)
+    }
     /// Whether the explicit source policy prevents every read and request.
     pub fn disabled(&self, source: biomcp_types::Source) -> bool {
         self.disabled_sources.contains(&source)
@@ -348,6 +370,8 @@ impl Default for Mode {
 /// The retained stale state of a completed source leg.
 #[derive(Debug, Default)]
 pub struct LegReport {
+    /// Body bytes read from HTTP in this leg, excluding cache and replay.
+    pub(crate) downloaded_bytes: u64,
     /// Successful replies with their canonical identity and original fetch time.
     pub replies: Vec<ReplyMetadata>,
     /// Whether any request served a checked stale reply.
@@ -386,6 +410,11 @@ impl Leg<'_> {
     }
     /// Finish the leg without clearing failures after later successful requests.
     pub fn finish(self) -> LegReport {
+        self.take_report()
+    }
+    /// Drain one read's report while retaining the source deadline and refreshed bundles.
+    /// Call only after all requests contributing to that read have joined.
+    pub fn take_report(&self) -> LegReport {
         std::mem::take(
             &mut *self
                 .report

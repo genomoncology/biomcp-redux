@@ -21,6 +21,7 @@ biodata::canonical_enum! {
 #[cfg_attr(feature = "schema", derive(schemars::JsonSchema))]
 pub struct PdfLink {
     /// Source publisher URL.
+    #[cfg_attr(feature = "schema", schemars(extend("format" = "uri")))]
     pub url: Text,
     /// Source access status.
     pub status: OpenAccessStatus,
@@ -51,6 +52,6 @@ pub struct ArticlePdfResult {
     pub file: crate::Section<PdfSaved>,
 }
 impl super::super::ResponseBody for ArticlePdfResult {
-    const SCHEMA: &'static str = "biomcp.article_pdf/2";
+    const SCHEMA: &'static str = "biomcp.article-pdf/2";
     type Query = crate::ArticlePdf;
 }

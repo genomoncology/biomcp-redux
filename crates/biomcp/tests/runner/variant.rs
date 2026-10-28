@@ -7,7 +7,7 @@ mod components;
 mod labels;
 mod roundtrip;
 pub(super) fn trials() -> Vec<Trial> {
-    vec![
+    let mut trials = vec![
         Trial::test("variant/printed-repeat-identity-round-trips", || {
             roundtrip::check().map_err(Into::into)
         }),
@@ -47,7 +47,27 @@ pub(super) fn trials() -> Vec<Trial> {
         Trial::test("variant/myvariant-exact-build-wire", || {
             myvariant().map_err(Into::into)
         }),
-    ]
+    ];
+    trials.extend(super::variant_assertion_wire::trials());
+    trials.extend(super::variant_assertions::trials());
+    trials.extend(super::variant_discovery::trials());
+    trials.extend(super::variant_condition_relationship::trials());
+    trials.extend(super::variant_population::trials());
+    trials.extend(super::variant_population_release::trials());
+    trials.extend(super::oncokb::trials());
+    trials.extend(super::oncokb_context::trials());
+    trials.extend(super::alphagenome::trials());
+    trials.extend(super::alphagenome_tls::trials());
+    trials.extend(super::variant_civic::trials());
+    trials.extend(super::variant_hotspots::trials());
+    trials.extend(super::recurrence::trials());
+    trials.extend(super::recurrence_errors::trials());
+    trials.extend(super::recurrence_metadata::trials());
+    trials.extend(super::normalization::trials());
+    trials.extend(super::variant_search::trials());
+    trials.extend(super::next_navigation::trials());
+    trials.extend(super::variant_filters::trials());
+    trials
 }
 fn car() -> Result<(), String> {
     let (output, requests) = call(
@@ -71,7 +91,7 @@ fn car() -> Result<(), String> {
     ) {
         return Err(format!("CAR projection must preserve literal plus modifiers: {request}"));
     }
-    if output.pointer("/result/candidates/0/identity/ids/0") != Some(&json!("CA123643")) {
+    if output.pointer("/result/candidates/0/identity/ids/0") != Some(&json!("clingen:CA123643")) {
         return Err(format!("source identity lost: {output}"));
     }
     Ok(())
@@ -87,7 +107,7 @@ fn myvariant() -> Result<(), String> {
     };
     if !request.starts_with(
         "GET \
-        /v1/variant/chr7%3Ag.140753336A%3ET?fields=_id%2Cdbsnp.rsid%2Cdbsnp.gene.symbol%2Cclinvar.variant_id\
+        /v1/variant/chr7%3Ag.140753336A%3ET?fields=_id%2Cdbsnp.rsid%2Cdbsnp.gene.symbol%2Cclinvar.variant_id%2Csnpeff.ann\
         &assembly=hg38 HTTP/1.1",
     ) {
         return Err(format!("exact annotation endpoint/build was not sent: {request}"));
@@ -204,6 +224,7 @@ fn candidates_body(_: &str) -> Result<String, String> {
 pub(super) fn source_environment(stub: &Stub) -> Result<Environment, String> {
     let environment = Environment::new().map_err(|e| e.to_string())?;
     let ca = environment.root().join("synthetic-ca.pem");
+    stub.retain(&environment);
     fs::write(&ca, &stub.certificate).map_err(|e| e.to_string())?;
     environment
         .config(&json!({"proxy":format!("http://{}", stub.address), "ca_bundle":ca}))
@@ -340,6 +361,14 @@ fn components() -> Result<(), String> {
             "native scores or independent terms changed: {value}"
         ));
     }
+    if value.pointer(&format!(
+        "{base}/conservation/data/components/0/uploads/0/date"
+    )) != Some(&json!({"value":"2020-01-01T00:00:00.123456Z", "timezone":"in_value"}))
+    {
+        return Err(format!(
+            "component upload timestamp lost its precision or timezone: {value}"
+        ));
+    }
     Ok(())
 }
 fn component_body(request: &str) -> Result<String, String> {
@@ -350,7 +379,7 @@ fn component_body(request: &str) -> Result<String, String> {
             "license_url":"https://example.org/component-terms","upload_date":"2019-01-01T00:00:00Z","note":"synthetic historical snapshot"},
             "cadd":{"version":null,"license_url":"https://example.org/cadd-terms","upload_date":"2019-01-01T00:00:00Z"},
             "dbnsfp":{"version":"synthetic-4.8a","license_url":"https://example.org/dbnsfp-terms",
-            "upload_date":{"synthetic_part":"2020-01-01T00:00:00Z"}} }}
+            "upload_date":{"synthetic_part":"2020-01-01T00:00:00.123456Z"}} }}
         )
         .to_string());
     }

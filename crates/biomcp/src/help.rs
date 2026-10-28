@@ -1,5 +1,9 @@
 //! Schema-fed command help shared with MCP discovery.
 
+mod discovery;
+mod schema_fields;
+use schema_fields::{resolve, value_type};
+mod public_grammar;
 mod source_settings;
 
 use biomcp_types::{Help, HelpArgument, HelpCommand, HelpWord};
@@ -12,16 +16,21 @@ pub(crate) fn dispatch(path: &[String]) -> io::Result<Help> {
     {
         return Ok(source_settings::help(topic));
     }
+    if path == ["network"] {
+        let mut help = network("ca_bundle");
+        help.commands.extend(network("proxy").commands);
+        return Ok(help);
+    }
     if let [category, setting] = path
         && category == "network"
     {
         return Ok(network(setting));
     }
-    let commands = commands()?
+    let mut commands: Vec<_> = commands()?
         .into_iter()
         .filter(|c| {
             path.is_empty()
-                || c.command == path
+                || c.command.starts_with(path)
                 || (path.len() == 1
                     && path.first().is_some_and(|word| word == "skill")
                     && c.command.first() == path.first())
@@ -31,6 +40,9 @@ pub(crate) fn dispatch(path: &[String]) -> io::Result<Help> {
                     && c.command.first() == path.first())
         })
         .collect();
+    if !path.is_empty() {
+        public_grammar::scoped_globals(&mut commands);
+    }
     Ok(Help { commands })
 }
 fn commands() -> io::Result<Vec<HelpCommand>> {
@@ -50,6 +62,7 @@ fn commands() -> io::Result<Vec<HelpCommand>> {
             .collect();
         let sections = section_words(&schema);
         commands.push(HelpCommand {
+            reply_schemas: crate::schema::replies(id, verb, entity),
             command: vec![verb.into(), entity.into()],
             description: command_description(verb, entity, &schema),
             arguments,
@@ -68,10 +81,22 @@ fn commands() -> io::Result<Vec<HelpCommand>> {
     }
     commands.extend(crate::housekeeping::help());
     extra_commands(&mut commands, &examples);
+    commands.extend(network("ca_bundle").commands);
+    commands.extend(network("proxy").commands);
+    commands.push(topic("exit", crate::exit::reference()));
+
+    public_grammar::augment(&mut commands)?;
+    discovery::complete(&mut commands);
+    for command in &mut commands {
+        if command.reply_schemas.is_empty() {
+            command.reply_schemas = crate::schema::local_replies(&command.command);
+        }
+    }
+    source_settings::timing(&mut commands);
     Ok(commands)
 }
-const AUTHOR_BOUNDARY: &str = " Author IDs identify provider records, not resolved people. Counts cover that provider record. \
-    Missing metadata is unavailable. Topic-wide author ranking and cross-provider merging are \
+const AUTHOR_BOUNDARY: &str = " Author IDs identify source records, not resolved people. Counts cover that source record. \
+    Missing metadata is unavailable. Topic-wide author ranking and cross-source merging are \
     unavailable. Semantic Scholar and ORCID are noncommercial; commercial users disable both with \
     --disable-sources noncommercial or config disable_sources. Optional keys: biomcp key set \
     semantic-scholar or S2_API_KEY; biomcp key set orcid or ORCID_ACCESS_TOKEN. IDs use \
@@ -83,7 +108,18 @@ const CELL_LINE_BOUNDARY: &str = "An assay count is not an activity or sensitivi
 fn command_description(verb: &str, entity: &str, schema: &Value) -> String {
     let mut description = text(schema, "description");
     if entity == "author" || verb == "author" {
-        description.push_str(AUTHOR_BOUNDARY);
+        let boundary = if verb == "search" {
+            AUTHOR_BOUNDARY
+                .split("; papers supports")
+                .next()
+                .unwrap_or(AUTHOR_BOUNDARY)
+        } else {
+            AUTHOR_BOUNDARY
+        };
+        description.push_str(boundary);
+    }
+    if verb == "article" && entity == "references" {
+        description = "Page the PubMed papers referenced by one checked article identifier.".into();
     }
     if entity == "cell-line" || verb == "cell-line" {
         description.push(' ');
@@ -104,12 +140,8 @@ fn extra_commands(commands: &mut Vec<HelpCommand>, examples: &BTreeMap<String, V
             "Report publisher terms and bounded source reachability; at most one page for each implemented source.",
         ),
         (
-            vec!["sync", "[hgnc|clingen]"],
+            vec!["sync", "[hgnc|clingen|gencc]"],
             "Synchronize a local source bundle.",
-        ),
-        (
-            vec!["schema", "<artifact id>"],
-            "Print a checked-in schema artifact.",
         ),
         (
             vec!["help", "[COMMAND...]"],
@@ -131,10 +163,13 @@ fn extra_commands(commands: &mut Vec<HelpCommand>, examples: &BTreeMap<String, V
             vec!["serve"],
             "Serve MCP over stdio or --http [ADDR]. Non-loopback binds require --allow-host HOST or \
                 http.allowed_hosts; neither authenticates callers. HTTP refuses sync, store clean and --fresh. \
-                Stdio saves refuse --replace.",
+                Stdio saves refuse --replace. MCP revisions: 2026-07-28, 2025-11-25, 2025-06-18, 2025-03-26. \
+                Send MCP-Protocol-Version on HTTP requests. Without it, initialize uses its requested legacy revision; \
+                other requests default to 2025-03-26. Unsupported headers return HTTP 400.",
         ),
     ] {
         commands.push(HelpCommand {
+            reply_schemas: Vec::new(),
             command: command.into_iter().map(String::from).collect(),
             description: description.into(),
             arguments: Vec::new(),
@@ -148,6 +183,7 @@ fn extra_commands(commands: &mut Vec<HelpCommand>, examples: &BTreeMap<String, V
         biomcp_fetch::SecretName::ALL
             .iter()
             .map(|name| HelpCommand {
+                reply_schemas: Vec::new(),
                 command: vec!["help".into(), "key".into(), name.source().into()],
                 description: "Show credential registration and environment fallback names.".into(),
                 arguments: Vec::new(),
@@ -160,8 +196,11 @@ fn extra_commands(commands: &mut Vec<HelpCommand>, examples: &BTreeMap<String, V
 fn bundle_commands(commands: &mut Vec<HelpCommand>, examples: &BTreeMap<String, Vec<Vec<String>>>) {
     for &bundle in crate::grammar::BUNDLE_HELP {
         commands.push(HelpCommand {
+            reply_schemas: Vec::new(),
             command: vec!["sync".into(), bundle.into()],
-            description: if bundle == "wikipathways" {
+            description: if matches!(bundle, "hgnc" | "clingen") {
+                "Synchronize a local source bundle."
+            } else if bundle == "wikipathways" {
                 "Replace WikiPathways search/get metadata catalogs atomically; reads never sync. Membership names a \
                     source and release; it implies no therapy, response or actionability. No enrichment is calculated."
             } else {
@@ -204,8 +243,14 @@ fn argument(name: &str, node: &Value, root: &Value) -> HelpArgument {
         } else {
             format!("--{}", name.replace('_', "-"))
         },
+        aliases: Vec::new(),
+        default: node.get("default").map(|v| {
+            v.as_str()
+                .map(str::to_owned)
+                .unwrap_or_else(|| v.to_string())
+        }),
         description: text(node, "description"),
-        value_type: text(resolved, "type"),
+        value_type: value_type(resolved),
         required: field(root, "required")
             .as_array()
             .is_some_and(|v| v.iter().any(|v| v == name)),
@@ -223,12 +268,6 @@ fn argument(name: &str, node: &Value, root: &Value) -> HelpArgument {
             .filter_map(|v| v.as_str().map(String::from))
             .collect(),
     }
-}
-fn resolve<'a>(node: &'a Value, root: &'a Value) -> &'a Value {
-    field(node, "$ref")
-        .as_str()
-        .and_then(|s| root.pointer(s.trim_start_matches('#')))
-        .unwrap_or(node)
 }
 fn text(node: &Value, key: &str) -> String {
     node[key].as_str().unwrap_or_default().into()
@@ -255,7 +294,7 @@ pub(crate) fn tree() -> String {
         }) {
             continue;
         }
-        if command.command == ["sync", "[hgnc|clingen]"] {
+        if command.command == ["sync", "[hgnc|clingen|gencc]"] {
             continue;
         }
         let mut line = command.command.join(" ");
@@ -311,7 +350,7 @@ fn tree_intro() -> Vec<String> {
     vec![
         "help CMD;schema ID".into(),
         CELL_LINE_BOUNDARY.into(),
-        "Author IDs name provider records;no ranking/merge. Both sources noncommercial;--disable-sources \
+        "Author IDs name source records;no ranking/merge. Both sources noncommercial;--disable-sources \
             noncommercial. Optional keys: biomcp key set semantic-scholar (S2_API_KEY);biomcp key set orcid \
             (ORCID_ACCESS_TOKEN)"
             .into(),
@@ -509,13 +548,17 @@ fn network(setting: &str) -> Help {
         Keep certificate verification enabled."
         }
         _ => {
-            "Set proxy in config.json to an HTTP or HTTPS proxy URL. Otherwise HTTPS_PROXY and HTTP_PROXY \
-                select routes for their schemes; NO_PROXY bypasses exact hosts/IPs, .domain, *.domain, optional \
-                ports, or *. An explicit proxy overrides proxy environment settings."
+            "Set proxy in config.json to an HTTP or HTTPS proxy URL. Otherwise https_proxy/HTTPS_PROXY and http_proxy/HTTP_PROXY \
+                select routes for their schemes; lower case wins when both names are set. no_proxy/NO_PROXY bypasses \
+                exact hosts/IPs, CIDR ranges, .domain, *.domain, optional \
+                ports, or *. Bare IPv6 is accepted. Unsupported entries are skipped and health reports configuration notices. \
+                Malformed ports and credentials refuse with the variable name. An explicit proxy overrides proxy environment settings. \
+                Publisher PDF downloads are refused when a proxy applies."
         }
     };
     Help {
         commands: vec![HelpCommand {
+            reply_schemas: crate::schema::local_replies(&["help".into()]),
             command: vec!["help".into(), "network".into(), setting.into()],
             description: description.into(),
             arguments: Vec::new(),
@@ -523,5 +566,17 @@ fn network(setting: &str) -> Help {
             section_rule: None,
             examples: Vec::new(),
         }],
+    }
+}
+
+fn topic(name: &str, description: String) -> HelpCommand {
+    HelpCommand {
+        command: vec!["help".into(), name.into()],
+        description,
+        reply_schemas: crate::schema::local_replies(&["help".into()]),
+        arguments: Vec::new(),
+        sections: Vec::new(),
+        section_rule: None,
+        examples: Vec::new(),
     }
 }

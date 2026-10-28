@@ -33,6 +33,7 @@ pub struct VariantOncokb {
     #[serde(skip_serializing_if = "Option::is_none")]
     pub allele_exist: Option<bool>,
     /// Source claims and text in native field order.
+    #[serde(default, skip_serializing_if = "<[_]>::is_empty")]
     pub records: Box<[OncokbVariantRecord]>,
     /// Disclosure bounds over the records, independent of identity paging.
     pub page: PageInfo,
@@ -60,6 +61,7 @@ pub enum OncokbVariantRecord {
         text: Option<Box<str>>,
         /// Source link.
         #[serde(skip_serializing_if = "Option::is_none")]
+        #[cfg_attr(feature = "schema", schemars(extend("format" = "uri")))]
         link: Option<Text>,
     },
     /// Native narrative, split only at checked character boundaries.
@@ -109,6 +111,7 @@ pub enum OncokbVariantRecord {
         statement_unmapped: bool,
         /// Source PMID citations.
         #[serde(default)]
+        #[serde(skip_serializing_if = "<[_]>::is_empty")]
         citations: Box<[crate::Pmid]>,
         /// Native non-PubMed citations, with their complete source content and links.
         #[serde(default, skip_serializing_if = "<[ _ ]>::is_empty")]
@@ -118,9 +121,11 @@ pub enum OncokbVariantRecord {
         description: Option<Box<str>>,
         /// Native excluded contexts, never filled from the caller context.
         #[serde(default)]
+        #[serde(skip_serializing_if = "<[_]>::is_empty")]
         excluded_tumor_types: Box<[Concept]>,
         /// Native approved indication labels.
         #[serde(default)]
+        #[serde(skip_serializing_if = "<[_]>::is_empty")]
         approved_indications: Box<[Text]>,
         /// Native FDA level label, independent of the evidence level.
         #[serde(skip_serializing_if = "Option::is_none")]
@@ -142,5 +147,6 @@ pub struct OncokbCitation {
     pub text: Option<Box<str>>,
     /// Native citation link.
     #[serde(skip_serializing_if = "Option::is_none")]
+    #[cfg_attr(feature = "schema", schemars(extend("format" = "uri")))]
     pub link: Option<Text>,
 }

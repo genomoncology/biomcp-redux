@@ -25,12 +25,6 @@
         "/status": "complete",
         "/page/total": 354,
         "/result/items/0/nct_id": "NCT05355701",
-        "/result/request": {
-          "includes": {
-            "name": "query.term",
-            "value": "BRAF"
-          }
-        },
         "/sources/*/source": {
           "equals": [
             "hgnc",
@@ -38,8 +32,7 @@
           ]
         }
       },
-      "max_bytes": 5714,
-      "max_tokens": 1429
+      "max_bytes": 5714
     },
     {
       "run": [
@@ -57,8 +50,7 @@
           ]
         }
       },
-      "max_bytes": 402,
-      "max_tokens": 101
+      "max_bytes": 402
     }
   ]
 }

@@ -4,6 +4,7 @@ use biomcp_types::Source;
 use std::time::Duration;
 /// Publisher policy for health, outcomes and admission before any I/O.
 pub static SPEC: SourceSpec = SourceSpec {
+    destinations: biomcp_fetch::Destinations::Primary,
     user_agent: None,
     source: Source::Cpic,
     base: "https://api.cpicpgx.org/v1",
@@ -18,3 +19,6 @@ pub static SPEC: SourceSpec = SourceSpec {
 };
 mod read;
 pub use read::{Page, card, diplotype, drug_recommendations, guidelines, recommendations, search};
+
+/// Native gene collection shared by record reads and the bounded health probe.
+pub(crate) const GENE_PATH: &str = "/gene";

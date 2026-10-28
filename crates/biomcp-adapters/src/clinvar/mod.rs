@@ -11,6 +11,7 @@ use biomcp_types::{Source, VariantAssertion};
 use std::time::Duration;
 /// ClinVar shares the existing NCBI quota and optional user key.
 pub static SPEC: SourceSpec = SourceSpec {
+    destinations: biomcp_fetch::Destinations::Primary,
     user_agent: None,
     terms: biomcp_fetch::Terms {
         name: "NCBI policy; submission rights remain source-specific",
@@ -32,7 +33,7 @@ pub fn assertions(
     leg: &Leg<'_>,
     id: &str,
     selection: Option<(&str, Option<&str>)>,
-) -> Result<Vec<VariantAssertion>, RequestError> {
+) -> Result<crate::Mapped<Vec<VariantAssertion>>, RequestError> {
     let vcv = selection.filter(|(id, _)| id.starts_with("VCV"));
     let selected = vcv.map(|(record, version)| {
         version.map_or_else(|| record.to_owned(), |v| format!("{record}.{v}"))
@@ -59,5 +60,8 @@ pub fn assertions(
             Err(BadReply)
         }
     })?;
-    Ok(reply.rows)
+    Ok(crate::Mapped {
+        value: reply.rows,
+        problems: reply.problems,
+    })
 }

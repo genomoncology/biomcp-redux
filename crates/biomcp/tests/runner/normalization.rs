@@ -28,6 +28,7 @@ pub(super) fn trials() -> Vec<Trial> {
 fn environment(stub: &Stub) -> Result<Environment, String> {
     let environment = Environment::new().map_err(|e| e.to_string())?;
     let ca = environment.root().join("normalization-ca.pem");
+    stub.retain(&environment);
     fs::write(&ca, &stub.certificate).map_err(|e| e.to_string())?;
     environment
         .config(&json!({"proxy":format!("http://{}",stub.address),"ca_bundle":ca}))

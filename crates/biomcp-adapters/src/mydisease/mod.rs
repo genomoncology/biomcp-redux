@@ -6,7 +6,7 @@ use biodata::Curie;
 use biomcp_fetch::{Arg, BadReply, Freshness, InputError, Leg, PathSegment, RequestError};
 use biomcp_fetch::{KeyUse, SourceSpec, Terms};
 use biomcp_types::{Source, Use};
-pub use native::{Component, Record, Value};
+pub use native::{Component, Record, Reference, Value};
 /// Complete exact annotation before independently bounded response pages.
 #[derive(Debug)]
 pub struct Annotation {
@@ -26,6 +26,7 @@ pub fn annotation(leg: &Leg<'_>, id: &Curie) -> Result<crate::Mapped<Annotation>
 use std::time::Duration;
 /// Publisher policy shared by health, admission and response outcomes.
 pub static SPEC: SourceSpec = SourceSpec {
+    destinations: biomcp_fetch::Destinations::Primary,
     user_agent: None,
     source: Source::MyDisease,
     base: "https://mydisease.info/v1",

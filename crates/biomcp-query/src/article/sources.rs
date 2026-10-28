@@ -11,6 +11,7 @@ pub(super) struct ResultLeg {
     pub(super) source: ArticleSource,
     pub(super) outcome: SourceOutcome,
     pub(super) items: Vec<ArticleItem>,
+    pub(super) problems: Vec<biomcp_types::Problem>,
     pub(super) dois: Vec<Option<biodata::Doi>>,
     pub(super) elapsed: Duration,
     pub(super) error: Option<RequestError>,
@@ -75,6 +76,7 @@ pub(super) fn search<'a>(
         .find(|e| status::local(*e).is_some());
     for result in &results {
         out.sources.push(result.outcome.clone());
+        status::append(&mut out.problems, result.problems.clone());
     }
     if let Some(error) = error {
         return Err(error);
@@ -148,11 +150,13 @@ fn pubmed_search<'a>(
     let error = result.as_ref().err().copied();
     let mut outcome = status::source(Source::PubMed, leg.finish(), error);
     outcome.term = Text::new(term).ok();
+    let mut problems = Vec::new();
     let items = match result {
         Ok(ids) => {
             outcome.count = Some(ids.count);
             outcome.fetched = Some(ids.ids.len() as u32);
             outcome.notices.extend(ids.notices);
+            problems.extend(ids.problems);
             ids.ids
                 .into_iter()
                 .map(|id| ArticleItem {
@@ -171,6 +175,7 @@ fn pubmed_search<'a>(
         Err(_) => Vec::new(),
     };
     ResultLeg {
+        problems,
         source: ArticleSource::Pubmed,
         outcome,
         items,
@@ -201,6 +206,7 @@ fn europe_search<'a>(
         Err(_) => Vec::new(),
     };
     ResultLeg {
+        problems: Vec::new(),
         source: ArticleSource::Europepmc,
         outcome,
         items,
@@ -282,8 +288,15 @@ fn prepare_litvar<'a>(
             out.status = Status::Absent;
             out.sources
                 .push(status::source(Source::LitVar, leg.finish(), None));
+            if candidates.is_empty() {
+                super::empty_litvar::recover(query, out);
+            }
             for candidate in &candidates {
-                for variant in [&candidate.rsid, &candidate.name] {
+                for variant in candidate
+                    .rsid
+                    .iter()
+                    .chain(std::iter::once(&candidate.name))
+                {
                     if query.variant() == Some(variant) {
                         continue;
                     }
@@ -311,15 +324,15 @@ fn litvar_search((leg, selected): PreparedLitvar<'_>) -> ResultLeg {
     let term = selected
         .as_ref()
         .ok()
-        .map(|selected| selected.rsid().clone());
+        .map(|selected| selected.term().clone());
     let result = selected.and_then(|selected| litvar::publications(&leg, selected));
     let elapsed = start.saturating_sub(leg.remaining());
     let error = result.as_ref().err().copied();
     let mut outcome = status::source(Source::LitVar, leg.finish(), error);
     outcome.term = term;
     let items = match result {
-        Ok(litvar::Search { rsid, count, ids }) => {
-            outcome.term = Some(rsid);
+        Ok(litvar::Search { term, count, ids }) => {
+            outcome.term = Some(term);
             outcome.count = Some(count);
             outcome.fetched = Some(ids.len() as u32);
             ids.into_iter()
@@ -339,6 +352,7 @@ fn litvar_search((leg, selected): PreparedLitvar<'_>) -> ResultLeg {
         Err(_) => Vec::new(),
     };
     ResultLeg {
+        problems: Vec::new(),
         source: ArticleSource::Litvar,
         outcome,
         items,

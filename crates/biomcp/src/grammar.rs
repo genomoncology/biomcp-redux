@@ -1,5 +1,13 @@
 //! Schema-fed command parsing shared by CLI and MCP.
+mod arguments;
 mod entity;
+mod entry;
+pub(crate) use entry::entry_aliases;
+mod errors;
+mod metadata;
+mod validation;
+use arguments::command_for;
+pub(crate) use errors::{argument_error, normalization_build};
 pub(crate) mod gwas;
 mod local;
 mod queries;
@@ -10,6 +18,9 @@ pub(crate) use queries::QUERIES;
 pub(crate) use queries::query_schema;
 
 pub(crate) const BUNDLE_HELP: &[&str] = &[
+    "hgnc",
+    "clingen",
+    "gencc",
     "wikipathways",
     "cbioportal-studies",
     "ema",
@@ -61,17 +72,27 @@ pub(crate) fn global_arguments() -> Command {
         .disable_help_flag(true)
         .disable_help_subcommand(true)
         .disable_version_flag(true)
+        .after_help(
+            entry_aliases()
+                .iter()
+                .map(|alias| format!("{}: {}", alias.flags().join(", "), alias.description()))
+                .collect::<Vec<_>>()
+                .join("\n"),
+        )
         .arg_required_else_help(true)
         .subcommand_required(true);
     root = root.arg(
         Arg::new("format")
             .long("format")
+            .help("Choose JSON or Markdown output; configuration can change the default.")
+            .default_value("json")
             .global(true)
             .value_parser(["json", "md"]),
     );
     root = root.arg(
         Arg::new("disable-sources")
             .long("disable-sources")
+            .help("Exclude source names or source terms groups.")
             .global(true)
             .num_args(1)
             .value_delimiter(',')
@@ -81,6 +102,8 @@ pub(crate) fn global_arguments() -> Command {
         root = root.arg(
             Arg::new(name)
                 .long(name)
+                .hide(name != "config")
+                .help("Read configuration from this file.")
                 .global(true)
                 .value_parser(clap::value_parser!(PathBuf)),
         );
@@ -89,6 +112,11 @@ pub(crate) fn global_arguments() -> Command {
         root = root.arg(
             Arg::new(name)
                 .long(name)
+                .help(if name == "offline" {
+                    "Read local data without source requests."
+                } else {
+                    "Request fresh source data instead of cached replies."
+                })
                 .global(true)
                 .action(ArgAction::SetTrue)
                 .overrides_with(name),
@@ -139,7 +167,7 @@ fn scan_command_words(args: &[OsString], tolerate_unknown: bool) -> impl Iterato
     words.filter_map(|arg| arg.to_str())
 }
 
-fn root() -> Result<Command, ()> {
+pub(crate) fn root() -> Result<Command, ()> {
     let mut root = global_arguments();
     for (index, &(verb, _, _)) in QUERIES.iter().enumerate() {
         if QUERIES
@@ -157,39 +185,55 @@ fn root() -> Result<Command, ()> {
         }
         root = root.subcommand(command);
     }
-    root = root.subcommand(Command::new("sync").arg(Arg::new("bundle").value_parser([
-        "wikipathways",
-        "cbioportal-studies",
-        "hgnc",
-        "clingen",
-        "ema",
-        "ddinter",
-        "who-pq",
-        "gtr",
-        "who-ivd",
-        "fda-cdx",
-    ])));
-    root = root.subcommands(local::housekeeping_commands());
-    root = root.subcommand(Command::new("health"));
     root = root.subcommand(
-        Command::new("list")
-            .subcommand_required(true)
-            .subcommand(Command::new("author")),
+        Command::new("sync").arg(
+            Arg::new("bundle")
+                .help("Local source bundle to synchronize.")
+                .default_value("hgnc")
+                .value_parser(clap::builder::PossibleValuesParser::new(
+                    BUNDLE_HELP.iter().copied(),
+                )),
+        ),
     );
+    root = root.subcommands(local::housekeeping_commands());
+    root = root.subcommand(Command::new("health").after_help("Example: biomcp health --offline"));
     root = root.subcommand(
         Command::new("store")
             .subcommand_required(true)
-            .subcommand(Command::new("clean")),
+            .subcommand(Command::new("clean").after_help("Example: biomcp store clean")),
     );
     root = root.subcommand(crate::keys::grammar());
-    root = root.subcommand(local::help_command());
-    Ok(root.subcommand(local::serve_command()))
+    root = root.subcommand(local::serve_command());
+    root = root.subcommand(
+        Command::new("schema")
+            .about("List every schema identity and description with biomcp schema, or print one schema artifact with biomcp schema <id>.")
+            .after_help("Example: biomcp schema\nExample: biomcp schema biomcp.help/3")
+            .arg(
+                Arg::new("artifact-id")
+                    .index(1)
+                    .help("Artifact ID to print; omit it to list available schemas."),
+            ),
+    );
+    let help = local::help_command(&root);
+    root = root.subcommand(help);
+    Ok(metadata::describe(root))
 }
 
-pub(crate) fn parse(args: &[OsString]) -> Result<Parsed, ()> {
-    let root = root()?;
+#[derive(Debug, Default)]
+pub(crate) struct ParseInvalid {
+    pub(crate) argument: Option<String>,
+}
+impl From<()> for ParseInvalid {
+    fn from(_: ()) -> Self {
+        Self::default()
+    }
+}
+pub(crate) fn parse(args: &[OsString]) -> Result<Parsed, ParseInvalid> {
+    let mut root = root()?;
+    root.build();
+    let args = entry::arguments(args, &root);
     let matches = root
-        .try_get_matches_from(std::iter::once(OsString::from("biomcp")).chain(args.iter().cloned()))
+        .try_get_matches_from(std::iter::once(OsString::from("biomcp")).chain(args))
         .map_err(|_| ())?;
     let globals = globals(&matches)?;
     let (verb, matches) = matches.subcommand().ok_or(())?;
@@ -216,12 +260,12 @@ pub(crate) fn parse(args: &[OsString]) -> Result<Parsed, ()> {
             http: None,
         });
     }
-    let help = help_path(verb, matches)?;
+    let help = entry::help_path(verb, matches)?;
     let action = if verb == "store" {
         Action::StoreClean
     } else if verb == "health" {
         Action::Health
-    } else if verb == "help" || verb == "list" {
+    } else if verb == "help" {
         Action::KeyHelp(local::help_source(matches)?)
     } else if verb == "sync" {
         Action::Sync {
@@ -235,12 +279,15 @@ pub(crate) fn parse(args: &[OsString]) -> Result<Parsed, ()> {
                 Some("who-pq") => Bundle::WhoPq,
                 Some("ddinter") => Bundle::Ddinter,
                 Some("clingen") => Bundle::ClinGen,
+                Some("gencc") => Bundle::Gencc,
                 _ => Bundle::Hgnc,
             },
         }
     } else {
         let (entity, matches) = matches.subcommand().ok_or(())?;
-        let request = request(verb, entity, matches)?;
+        let request = request(verb, entity, matches).map_err(|cause| ParseInvalid {
+            argument: validation::argument_names(verb, entity, matches, &cause),
+        })?;
         Action::Run {
             request,
             fresh: globals.fresh,
@@ -255,31 +302,35 @@ pub(crate) fn parse(args: &[OsString]) -> Result<Parsed, ()> {
         help,
     })
 }
-fn help_path(verb: &str, matches: &clap::ArgMatches) -> Result<Option<Vec<String>>, ()> {
-    Ok(if verb == "list" {
-        Some(vec!["author".into()])
-    } else if verb == "help" {
-        match matches.subcommand() {
-            Some(("key", _)) => None,
-            Some((name @ ("version" | "mcp-config" | "skill" | "sources" | "config"), _)) => {
-                Some(vec![name.into()])
-            }
-            Some(("author", matches)) if matches.subcommand().is_none() => {
-                Some(vec!["author".into()])
-            }
-            Some(("network", matches)) => Some(vec![
-                "network".into(),
-                matches.get_one::<String>("setting").ok_or(())?.clone(),
-            ]),
-            Some((verb, matches)) => {
-                Some(vec![verb.into(), matches.subcommand().ok_or(())?.0.into()])
-            }
-            None => Some(Vec::new()),
-        }
-    } else {
-        None
-    })
+
+// Presentation uses the same grammar without requiring valid command operands.
+// Unknown tokens still stop the parser; aliases and positional data keep their grammar meaning.
+pub(crate) fn presentation(args: &[OsString]) -> Option<(Option<Format>, Option<PathBuf>)> {
+    let mut parser = root().ok()?.ignore_errors(true);
+    parser.build();
+    let args = entry::arguments(args, &parser);
+    let matches = parser
+        .try_get_matches_from(std::iter::once(OsString::from("biomcp")).chain(args))
+        .ok()?;
+    Some((
+        explicit_format(&matches),
+        matches.get_one::<PathBuf>("config").cloned(),
+    ))
 }
+
+fn explicit_format(matches: &clap::ArgMatches) -> Option<Format> {
+    matches
+        .get_one::<String>("format")
+        .filter(|_| matches.value_source("format") == Some(clap::parser::ValueSource::CommandLine))
+        .map(|value| {
+            if value == "md" {
+                Format::Md
+            } else {
+                Format::Json
+            }
+        })
+}
+
 fn globals(matches: &clap::ArgMatches) -> Result<Globals, ()> {
     let globals = Globals {
         config: matches.get_one::<PathBuf>("config").cloned(),
@@ -295,9 +346,7 @@ fn globals(matches: &clap::ArgMatches) -> Result<Globals, ()> {
         case_cache: matches.get_one::<PathBuf>("case-cache").cloned(),
         offline: matches.get_flag("offline"),
         fresh: matches.get_flag("fresh"),
-        format: matches
-            .get_one::<String>("format")
-            .map(|v| if v == "md" { Format::Md } else { Format::Json }),
+        format: explicit_format(matches),
     };
     globals.check()?;
     Ok(globals)
@@ -308,79 +357,6 @@ fn properties(schema: &Value) -> Result<&Map<String, Value>, ()> {
         .get("properties")
         .and_then(Value::as_object)
         .ok_or(())
-}
-fn command_for(name: &'static str, schema: &Value) -> Result<Command, ()> {
-    let mut command = Command::new(name)
-        .disable_help_flag(true)
-        .disable_help_subcommand(true);
-    for (name, property) in properties(schema)? {
-        if let Some(flags) = property.get("x-cli-flags").and_then(Value::as_object) {
-            for flag in flags.keys() {
-                command = command.arg(
-                    Arg::new(flag.clone())
-                        .long(flag.clone())
-                        .action(ArgAction::SetTrue)
-                        .conflicts_with_all(flags.keys().filter(|other| *other != flag).cloned()),
-                );
-            }
-            continue;
-        }
-        let mut argument = Arg::new(name.clone());
-        if let Some(position) = property.get("x-positional").and_then(Value::as_u64) {
-            argument = argument.index(position as usize + 1);
-        } else {
-            argument = argument.long(name.replace('_', "-"));
-        }
-        if schema
-            .get("required")
-            .and_then(Value::as_array)
-            .is_some_and(|required| required.contains(&Value::String(name.clone())))
-        {
-            argument = argument.required(true);
-        }
-        if property_type(property) == Some("array") {
-            argument = if property.get("x-comma-separated") == Some(&Value::Bool(true)) {
-                argument
-                    .num_args(1)
-                    .value_delimiter(',')
-                    .action(ArgAction::Append)
-            } else if property.get("x-trailing-section").is_some() {
-                argument.num_args(1).action(ArgAction::Append)
-            } else {
-                argument.num_args(1..).action(ArgAction::Append)
-            };
-        }
-        command = command.arg(if property_type(property) == Some("boolean") {
-            argument.action(ArgAction::SetTrue)
-        } else {
-            argument.value_parser(clap::builder::StringValueParser::new())
-        });
-    }
-    if matches!(name, "cell-line" | "author") && properties(schema)?.contains_key("query") {
-        command = command
-            .mut_arg("query", |arg| {
-                arg.required(false).required_unless_present("query_option")
-            })
-            .mut_arg("limit", |arg| arg.short('l'))
-            .arg(
-                Arg::new("query_option")
-                    .long("query")
-                    .short('q')
-                    .conflicts_with("query"),
-            );
-    }
-    Ok(if name == "gwas" {
-        gwas::aliases(command, schema)
-    } else if schema.get("$id").and_then(Value::as_str).is_some_and(|id| {
-        id.starts_with("biomcp.pathway-")
-            || id.starts_with("biomcp.author-")
-            || id == "biomcp.phenotype-search-query/1"
-    }) && properties(schema)?.contains_key("limit")
-    {
-        command.mut_arg("limit", |argument| argument.short('l'))
-    } else {
-        command
-    })
 }
 fn arguments(matches: &clap::ArgMatches, schema: &Value) -> Result<Value, ()> {
     let mut result = Map::new();
@@ -481,8 +457,13 @@ fn split_sections(result: &mut Map<String, Value>, schema: &Value) -> Result<(),
     Ok(())
 }
 
-fn request(verb: &str, entity: &str, matches: &clap::ArgMatches) -> Result<Request, ()> {
-    let value = request_arguments(verb, entity, matches)?;
+fn request(
+    verb: &str,
+    entity: &str,
+    matches: &clap::ArgMatches,
+) -> Result<Request, biomcp_types::QueryInvalid> {
+    let value = request_arguments(verb, entity, matches)
+        .map_err(|_| biomcp_types::QueryInvalid::default())?;
     match (verb, entity) {
         ("search" | "get", "gwas") => gwas::request(verb, value),
         ("cell-line", "assay-count") => entity::request(verb, entity, value),
@@ -493,73 +474,58 @@ fn request(verb: &str, entity: &str, matches: &clap::ArgMatches) -> Result<Reque
             "pgx" | "adverse-event" | "disease" | "drug" | "diagnostic" | "pathway" | "phenotype"
             | "protein" | "study" | "cell-line" | "author",
         ) => entity::request(verb, entity, value),
-        ("variant", "assertions") => serde_json::from_value::<VariantAssertionsGet>(value)
-            .map(Request::VariantAssertions)
-            .map_err(|_| ()),
-        ("variant", "population") => serde_json::from_value::<VariantPopulationQuery>(value)
-            .map(Request::VariantPopulation)
-            .map_err(|_| ()),
-        ("variant", "normalize") => serde_json::from_value::<biomcp_types::VariantNormalize>(value)
-            .map(Request::VariantNormalize)
-            .map_err(|_| ()),
-        ("search", "variant") => serde_json::from_value::<biomcp_types::VariantSearch>(value)
-            .map(Request::SearchVariant)
-            .map_err(|_| ()),
-        ("variant", "recurrence") => serde_json::from_value::<VariantRecurrenceQuery>(value)
-            .map(Request::VariantRecurrence)
-            .map_err(|_| ()),
-        ("get", "variant") => serde_json::from_value::<biomcp_types::VariantGet>(value)
-            .map(Request::GetVariant)
-            .map_err(|_| ()),
-        ("get", "trial") => serde_json::from_value::<biomcp_types::TrialGet>(value)
-            .map(Request::GetTrial)
-            .map_err(|_| ()),
-        ("search", "trial") => serde_json::from_value::<biomcp_types::TrialSearch>(value)
-            .map(Request::SearchTrial)
-            .map_err(|_| ()),
-        ("trial", "document") => serde_json::from_value::<biomcp_types::TrialDocumentGet>(value)
-            .map(Request::TrialDocument)
-            .map_err(|_| ()),
-        ("article", "pdf") => serde_json::from_value::<biomcp_types::ArticlePdf>(value)
-            .map(Request::ArticlePdf)
-            .map_err(|_| ()),
+        ("variant", "assertions") => {
+            validation::decode::<VariantAssertionsGet>(value).map(Request::VariantAssertions)
+        }
+        ("variant", "population") => {
+            validation::decode::<VariantPopulationQuery>(value).map(Request::VariantPopulation)
+        }
+        ("variant", "normalize") => validation::decode::<biomcp_types::VariantNormalize>(value)
+            .map(Request::VariantNormalize),
+        ("search", "variant") => {
+            validation::decode::<biomcp_types::VariantSearch>(value).map(Request::SearchVariant)
+        }
+        ("variant", "recurrence") => {
+            validation::decode::<VariantRecurrenceQuery>(value).map(Request::VariantRecurrence)
+        }
+        ("get", "variant") => {
+            validation::decode::<biomcp_types::VariantGet>(value).map(Request::GetVariant)
+        }
+        ("get", "trial") => {
+            validation::decode::<biomcp_types::TrialGet>(value).map(Request::GetTrial)
+        }
+        ("search", "trial") => {
+            validation::decode::<biomcp_types::TrialSearch>(value).map(Request::SearchTrial)
+        }
+        ("trial", "document") => {
+            validation::decode::<biomcp_types::TrialDocumentGet>(value).map(Request::TrialDocument)
+        }
+        ("article", "pdf") => {
+            validation::decode::<biomcp_types::ArticlePdf>(value).map(Request::ArticlePdf)
+        }
         ("article", "citation-evidence") => {
-            serde_json::from_value::<biomcp_types::ArticleEvidence>(value)
-                .map(Request::ArticleEvidence)
-                .map_err(|_| ())
+            validation::decode::<biomcp_types::ArticleEvidence>(value).map(Request::ArticleEvidence)
         }
         ("article", "recommendations") => {
-            serde_json::from_value::<biomcp_types::ArticleRecommend>(value)
+            validation::decode::<biomcp_types::ArticleRecommend>(value)
                 .map(Request::ArticleRecommend)
-                .map_err(|_| ())
         }
-        ("article", "supplement") => {
-            serde_json::from_value::<biomcp_types::ArticleSupplement>(value)
-                .map(Request::ArticleSupplement)
-                .map_err(|_| ())
+        ("article", "supplement") => validation::decode::<biomcp_types::ArticleSupplement>(value)
+            .map(Request::ArticleSupplement),
+        ("article", "text") => validation::decode::<ArticleText>(value).map(Request::ArticleText),
+        ("article", "citations") => {
+            validation::decode::<ArticleEdges>(value).map(Request::ArticleCitations)
         }
-        ("article", "text") => serde_json::from_value::<ArticleText>(value)
-            .map(Request::ArticleText)
-            .map_err(|_| ()),
-        ("article", "citations") => serde_json::from_value::<ArticleEdges>(value)
-            .map(Request::ArticleCitations)
-            .map_err(|_| ()),
-        ("article", "references") => serde_json::from_value::<ArticleEdges>(value)
-            .map(Request::ArticleReferences)
-            .map_err(|_| ()),
-        ("get", "article") => serde_json::from_value::<ArticleGet>(value)
-            .map(Request::GetArticle)
-            .map_err(|_| ()),
-        ("search", "article") => serde_json::from_value::<ArticleSearch>(value)
-            .map(Request::SearchArticle)
-            .map_err(|_| ()),
-        ("get", "gene") => serde_json::from_value::<GeneGet>(value)
-            .map(Request::GetGene)
-            .map_err(|_| ()),
-        ("search", "gene") => serde_json::from_value::<GeneSearch>(value)
-            .map(Request::SearchGene)
-            .map_err(|_| ()),
-        _ => Err(()),
+        ("article", "references") => {
+            validation::decode::<ArticleEdges>(value).map(Request::ArticleReferences)
+        }
+        ("get", "article") => validation::decode::<ArticleGet>(value).map(Request::GetArticle),
+        ("search", "article") => {
+            validation::decode::<ArticleSearch>(value).map(Request::SearchArticle)
+        }
+        ("get", "gene") => validation::decode::<GeneGet>(value).map(Request::GetGene),
+        ("search", "gene") => validation::decode::<GeneSearch>(value).map(Request::SearchGene),
+        _ => Err(biomcp_types::QueryInvalid::default()),
     }
 }
 
@@ -597,4 +563,8 @@ fn property_type(property: &Value) -> Option<&str> {
         .iter()
         .all(|s| s.as_str().is_some_and(|s| s == kind || s == "null"))
         .then_some(kind)
+}
+
+pub(crate) fn unknown_command(args: &[OsString]) -> Option<Vec<String>> {
+    entry::unknown_command(args, &root().ok()?)
 }

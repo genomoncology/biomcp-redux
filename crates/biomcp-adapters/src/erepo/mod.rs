@@ -7,6 +7,7 @@ use biomcp_types::{Source, VariantAssertion};
 use std::time::Duration;
 /// Exact public evidence repository policy; record rights remain source-specific.
 pub static SPEC: SourceSpec = SourceSpec {
+    destinations: biomcp_fetch::Destinations::Primary,
     user_agent: None,
     terms: biomcp_fetch::Terms {
         name: "ClinGen sharing policy; record rights unverified",

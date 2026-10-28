@@ -79,6 +79,7 @@ pub(super) fn read<'a>(
         out.status = Status::Failed;
         return Ok(());
     }
+    status::append(&mut out.problems, pool.problems.clone());
     let id = pool.info.id.as_str();
     let mut rows = store.page(id, query.offset(), query.limit())?;
     let missing: Vec<_> = rows
@@ -94,7 +95,6 @@ pub(super) fn read<'a>(
         store.set_deadline(consume(deadline, started, leg.remaining()));
         match result {
             Ok(mapped) => {
-                status::append(&mut out.problems, mapped.problems.clone());
                 let source = status::source(Source::PubMed, leg.finish(), None);
                 if let Some(current) = out.sources.iter_mut().find(|s| s.source == Source::PubMed) {
                     status::retain_source_state(current, &source);

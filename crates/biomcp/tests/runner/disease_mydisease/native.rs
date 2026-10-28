@@ -184,7 +184,10 @@ fn sections(
     fs::create_dir(&retained).map_err(|e| e.to_string())?;
     fs::write(retained.join("cli.stdout"), &output.stdout).map_err(|e| e.to_string())?;
     fs::write(retained.join("cli.stderr"), &output.stderr).map_err(|e| e.to_string())?;
-    if !output.status.success() || !String::from_utf8_lossy(&output.stdout).contains(id) {
+    if !output.status.success()
+        || !String::from_utf8_lossy(&output.stdout)
+            .contains(&super::super::source_terms::text::escape(id))
+    {
         return Err("Markdown lost exact requested identity".into());
     }
     Ok(())
@@ -280,6 +283,7 @@ pub(super) fn retention() -> Result<(), String> {
         let row = json!({"requested_id":"MONDO:0005061","returned_id":if fail {"MONDO:9999999"} else {"MONDO:0005061"},"directory":"synthetic"});
         let result = prove_row(root.path(), &env, 0, &row);
         drop(env);
+        let requests = stub.finish()?;
         if temporary.exists() || result.is_err() != fail {
             return Err(format!("unexpected synthetic proof result: {result:?}"));
         }
@@ -291,7 +295,7 @@ pub(super) fn retention() -> Result<(), String> {
         {
             return Err(format!("failed before the intended comparison: {result:?}"));
         }
-        if stub.finish()?.len() != 1 {
+        if requests.len() != 1 {
             return Err("synthetic proof fetched more than once".into());
         }
         let output = root.path().join("product-proof");

@@ -37,6 +37,10 @@ pub(crate) static CLINGEN: Quota =
     Quota::new(SourceKey::declare("clingen"), Rate::per_second(1), None, 1);
 
 // Conservative local policy; no published numeric provider limit.
+pub(crate) static GENCC: Quota =
+    Quota::new(SourceKey::declare("gencc"), Rate::per_second(1), None, 1);
+
+// Conservative local policy; no published numeric provider limit.
 pub(crate) static HPA: Quota = Quota::new(SourceKey::declare("hpa"), Rate::per_second(1), None, 1);
 
 // Conservative public ORCID policy, independent of optional token.
@@ -192,13 +196,14 @@ pub(crate) static CPIC: Quota =
 pub(crate) static CLINPGX: Quota =
     Quota::new(SourceKey::declare("clinpgx"), Rate::per_second(1), None, 1);
 
-/// CDC WONDER shared minimum spacing.
+/// CDC automated-query spacing: https://wonder.cdc.gov/wonder/help/wonder-api.html
 pub(crate) static WONDER: Quota = Quota::new(
     SourceKey::declare("wonder"),
-    Rate::every_seconds(16),
+    Rate::every_seconds(120),
     None,
     1,
-);
+)
+.refuse_wait();
 
 // Conservative serial published-catalog download policy; not a provider quota.
 pub(crate) static WIKIPATHWAYS: Quota = Quota::new(
@@ -225,6 +230,14 @@ pub(crate) static COMPLEX_PORTAL: Quota = Quota::new(
 pub(crate) static CELLOSAURUS: Quota = Quota::new(
     SourceKey::declare("cellosaurus"),
     Rate::per_second(2),
+    None,
+    1,
+);
+
+// Conservative serial local policy; no published numeric provider quota verified.
+pub(crate) static ALPHAGENOME: Quota = Quota::new(
+    SourceKey::declare("alphagenome"),
+    Rate::per_second(1),
     None,
     1,
 );

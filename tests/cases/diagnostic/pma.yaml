@@ -19,7 +19,6 @@
         "fda-pma"
       ],
       "max_bytes": 1134,
-      "max_tokens": 284,
       "expect": {
         "/status": "complete",
         "/result/kind": "pma_submission",
@@ -56,7 +55,6 @@
         "S020"
       ],
       "max_bytes": 1106,
-      "max_tokens": 277,
       "expect": {
         "/result/header/supplement_number": "S020",
         "/result/sections": [
@@ -89,7 +87,6 @@
         "S021"
       ],
       "max_bytes": 1106,
-      "max_tokens": 277,
       "expect": {
         "/result/header/supplement_number": "S021"
       }
@@ -112,7 +109,6 @@
         "supplements"
       ],
       "max_bytes": 2793,
-      "max_tokens": 699,
       "expect": {
         "/page/total": 7,
         "/result/items": {
@@ -153,7 +149,6 @@
         "5"
       ],
       "max_bytes": 1428,
-      "max_tokens": 357,
       "expect": {
         "/page/total": 7,
         "/result/items": {
@@ -180,7 +175,6 @@
         "regulatory"
       ],
       "max_bytes": 8324,
-      "max_tokens": 2081,
       "expect": {
         "/result/items": {
           "count": 1
@@ -209,7 +203,6 @@
         "S999"
       ],
       "max_bytes": 345,
-      "max_tokens": 87,
       "expect": {
         "/status": "absent"
       },
@@ -231,7 +224,6 @@
         "fda-pma"
       ],
       "max_bytes": 322,
-      "max_tokens": 81,
       "expect": {
         "/status": "absent"
       },

@@ -1,5 +1,5 @@
-use crate::{ComponentLabel, Source};
-use biodata::{Attribution, Concept, Curie, DiseaseRelation};
+use crate::{ComponentLabel, DiseaseConcept, Source};
+use biodata::{Attribution, Curie, DiseaseRelation};
 use serde::{Deserialize, Serialize};
 /// Exact condition identity used for one trial request, without eligibility inference.
 #[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
@@ -13,7 +13,7 @@ pub struct TrialConditionResolution {
     pub resolver: Option<Source>,
     /// Returned concept with its unchanged native primary label.
     #[serde(default, skip_serializing_if = "Option::is_none")]
-    pub concept: Option<Concept>,
+    pub concept: Option<DiseaseConcept>,
     /// Native relation proving a requested alias, when required.
     #[serde(default, skip_serializing_if = "Option::is_none")]
     pub alias: Option<DiseaseRelation>,

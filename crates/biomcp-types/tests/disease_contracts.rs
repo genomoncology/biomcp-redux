@@ -61,7 +61,7 @@ fn exact_identity_and_statistics_selectors_cannot_be_mixed() {
 fn card_refuses_hidden_associations_statistics_and_related_entities() {
     let card = json!(
         {"requested_id":"MONDO:0007254","returned_id":"MONDO:0007254","concept":{"id":"MONDO:0007254","label":"breast cancer"},
-        "attribution":{"source":"synthetic"},"sections":[],"components":[]}
+        "attribution":{"source":"synthetic"},}
     );
     roundtrip::<DiseaseCard>(card.clone()).unwrap();
     for field in [
@@ -83,8 +83,8 @@ fn association_keeps_parent_request_and_native_child_without_becoming_statement(
     let row = json!(
         {"requested_id":"MONDO:0019003","subject":{"id":"HGNC:9967","label":"RET"},"object":{"id":"MONDO:0008234","label":"MEN2A"},
         "predicate":"biolink:gene_associated_with_condition","original_subject":"NCBIGene:5979","original_object":"Orphanet:247698",
-        "aggregator_knowledge_source":["infores:monarchinitiative"],"attribution":{"source":"synthetic"},"evidence":[],"qualifiers":[],
-        "subject_closure":[],"object_closure":["MONDO:0019003"]}
+        "aggregator_knowledge_source":["infores:monarchinitiative"],"attribution":{"source":"synthetic"},
+        "object_closure":["MONDO:0019003"]}
     );
     assert_eq!(roundtrip::<DiseaseAssociation>(row.clone()).unwrap(), row);
     assert!(serde_json::from_value::<Statement>(row).is_err());
@@ -142,7 +142,7 @@ fn association_component_terms_stay_bound_to_the_native_row() {
     let row = json!(
         {"association":{"requested_id":"MONDO:0019003","subject":{"id":"HGNC:9967","label":"RET"},"object":{"id":"MONDO:0008234",
         "label":"MEN2A"},"predicate":"biolink:gene_associated_with_condition","attribution":{"source":"synthetic","record":"edge-1",
-        "version":"2026-01-01"},"evidence":[],"qualifiers":[],"subject_closure":[],"object_closure":["MONDO:0019003"]},
+        "version":"2026-01-01"},"object_closure":["MONDO:0019003"]},
         "components":[{"component":"hpo","terms":{"usage":"attribution","name":"Synthetic attribution terms",
         "url":"https://example.invalid/terms"}}]}
     );
@@ -221,17 +221,17 @@ fn native_alias_proof_keeps_unlabeled_endpoints_and_raw_description() {
     assert!(serde_json::from_value::<biodata::DiseaseRelation>(invalid).is_err());
     let card = json!(
         {"requested_id":"DOID:3910","returned_id":"MONDO:0005061","alias":relation,"concept":{"id":"MONDO:0005061","label":"synthetic"},
-        "replaced_by":null,"attribution":{"source":"synthetic"},"sections":[],"components":[]}
+        "replaced_by":null,"attribution":{"source":"synthetic"},}
     );
     assert_eq!(roundtrip::<DiseaseCard>(card.clone()).unwrap(), card);
 }
 
 #[test]
-fn association_aggregators_keep_missing_null_and_checked_lists_distinct() {
+fn association_aggregators_keep_native_null_and_omit_empty_lists() {
     let base = json!(
         {"requested_id":"MONDO:0019003","subject":{"id":"HGNC:9967","label":"Synthetic"},"object":{"id":"MONDO:0007958",
-        "label":"Synthetic child"},"predicate":"biolink:associated_with","attribution":{"source":"synthetic"},"evidence":[],"qualifiers":[],
-        "subject_closure":[],"object_closure":[]}
+        "label":"Synthetic child"},"predicate":"biolink:associated_with","attribution":{"source":"synthetic"},
+        }
     );
     assert_eq!(roundtrip::<DiseaseAssociation>(base.clone()).unwrap(), base);
     for sources in [
@@ -240,8 +240,15 @@ fn association_aggregators_keep_missing_null_and_checked_lists_distinct() {
         json!(["infores:monarchinitiative", "infores:hpo-annotations"]),
     ] {
         let mut row = base.clone();
+        let empty = sources == json!([]);
         row["aggregator_knowledge_source"] = sources;
-        assert_eq!(roundtrip::<DiseaseAssociation>(row.clone()).unwrap(), row);
+        let output = roundtrip::<DiseaseAssociation>(row.clone()).unwrap();
+        if empty {
+            row.as_object_mut()
+                .unwrap()
+                .remove("aggregator_knowledge_source");
+        }
+        assert_eq!(output, row);
     }
     for sources in [json!("infores:monarchinitiative"), json!(["invalid"])] {
         let mut row = base.clone();
@@ -254,8 +261,8 @@ fn association_aggregators_keep_missing_null_and_checked_lists_distinct() {
 fn association_native_numbers_are_independent_and_never_derived() {
     let base = json!(
         {"requested_id":"MONDO:0019003","subject":{"id":"MONDO:0019003","label":"Synthetic"},"object":{"id":"HP:0000001",
-        "label":"Synthetic feature"},"predicate":"biolink:has_phenotype","attribution":{"source":"synthetic"},"evidence":[],"qualifiers":[],
-        "subject_closure":[],"object_closure":[]}
+        "label":"Synthetic feature"},"predicate":"biolink:has_phenotype","attribution":{"source":"synthetic"},
+        }
     );
     for (field, value) in [
         ("has_count", json!(0)),
@@ -279,7 +286,7 @@ fn association_references_allow_native_urls_without_invented_labels() {
         "label":"Synthetic feature"},"predicate":"biolink:has_phenotype","attribution":{"source":"synthetic"},
         "evidence":[{"id":"ECO:0000501","url":"http://purl.obolibrary.org/obo/ECO_0000501"}],"publications":[{"id":"PMID:1",
         "url":"http://identifiers.org/pubmed/1"}],"qualifiers":[{"field":"frequency_qualifier","id":"HP:0040283",
-        "label":"Synthetic frequency"}],"subject_closure":[],"object_closure":[]}
+        "label":"Synthetic frequency"}],}
     );
     assert_eq!(roundtrip::<DiseaseAssociation>(row.clone()).unwrap(), row);
 }
@@ -312,11 +319,11 @@ fn source_scoped_defaults_preserve_explicit_limits_and_reject_null_or_zero() {
 }
 
 #[test]
-fn association_evidence_keeps_unavailable_empty_and_populated_distinct() {
+fn association_evidence_omits_empty_lists_and_keeps_populated_terms() {
     let base = json!(
         {"requested_id":"MONDO:0019003","subject":{"id":"MONDO:0019003","label":"Synthetic"},"object":{"id":"HP:0000001",
-        "label":"Synthetic feature"},"predicate":"biolink:has_phenotype","attribution":{"source":"synthetic"},"qualifiers":[],
-        "subject_closure":[],"object_closure":[]}
+        "label":"Synthetic feature"},"predicate":"biolink:has_phenotype","attribution":{"source":"synthetic"},
+        }
     );
     assert_eq!(roundtrip::<DiseaseAssociation>(base.clone()).unwrap(), base);
     let mut unavailable = base.clone();
@@ -327,7 +334,12 @@ fn association_evidence_keeps_unavailable_empty_and_populated_distinct() {
         json!([{"id":"ECO:0000501","label":"Synthetic evidence"}]),
     ] {
         let mut row = base.clone();
+        let empty = evidence == json!([]);
         row["evidence"] = evidence;
-        assert_eq!(roundtrip::<DiseaseAssociation>(row.clone()).unwrap(), row);
+        let output = roundtrip::<DiseaseAssociation>(row.clone()).unwrap();
+        if empty {
+            row.as_object_mut().unwrap().remove("evidence");
+        }
+        assert_eq!(output, row);
     }
 }

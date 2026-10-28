@@ -30,6 +30,7 @@ pub struct DrugWhoRow {
 #[cfg_attr(feature = "schema", derive(schemars::JsonSchema))]
 pub struct DrugWhoPage {
     /// Bounded native rows in export order.
+    #[serde(default, skip_serializing_if = "<[_]>::is_empty")]
     pub items: Box<[DrugWhoRow]>,
     /// Matching rows in the complete local snapshot.
     pub total: u64,
@@ -42,6 +43,7 @@ pub struct DrugWhoCard {
     /// Exact requested and source-matched reference.
     pub reference: Text,
     /// Every native row for that reference, without invented fields.
+    #[serde(default, skip_serializing_if = "<[_]>::is_empty")]
     pub native_rows: Box<[DrugWhoRow]>,
 }
 /// WHO exact-reference selector keeps the shared DrugId contract unchanged.
@@ -60,11 +62,12 @@ struct Fields {
     /// Explicit source who-pq; prequalification is source-scoped.
     source: DrugSource,
 }
+crate::query::validation::checked_query!(DrugWhoGet, Fields);
 impl TryFrom<Fields> for DrugWhoGet {
     type Error = QueryInvalid;
     fn try_from(fields: Fields) -> Result<Self, Self::Error> {
         if fields.source != DrugSource::WhoPq {
-            return Err(QueryInvalid);
+            return Err(QueryInvalid::new(&["source"]));
         }
         Ok(Self(fields))
     }
@@ -83,10 +86,10 @@ impl DrugWhoGet {
     }
 }
 impl ResponseBody for DrugWhoPage {
-    const SCHEMA: &'static str = "biomcp.drug_who_page/1";
+    const SCHEMA: &'static str = "biomcp.drug-who-page/1";
     type Query = crate::DrugSearch;
 }
 impl ResponseBody for DrugWhoCard {
-    const SCHEMA: &'static str = "biomcp.drug_who_card/1";
+    const SCHEMA: &'static str = "biomcp.drug-who-card/1";
     type Query = DrugWhoGet;
 }

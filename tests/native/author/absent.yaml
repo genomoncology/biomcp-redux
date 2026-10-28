@@ -22,8 +22,7 @@
         "/sources/0/state": "ok"
       },
       "full_output_bytes": true,
-      "max_bytes": 433,
-      "max_tokens": 109
+      "max_bytes": 433
     }
   ]
 }

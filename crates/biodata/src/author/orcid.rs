@@ -20,9 +20,12 @@ pub struct OrcidExternalId {
     /// Unchanged native identifier value.
     pub value: Text,
     /// Open native relationship, including self and part-of.
-    pub relationship: Text,
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    #[cfg_attr(feature = "schema", schemars(with = "Text"))]
+    pub relationship: Option<Text>,
     /// Native identifier URL.
     #[serde(skip_serializing_if = "Option::is_none")]
+    #[cfg_attr(feature = "schema", schemars(extend("format" = "uri")))]
     pub url: Option<Text>,
 }
 /// Source and assertion origin remain distinct provider claims.
@@ -66,7 +69,9 @@ pub struct OrcidWorkAssertion {
     #[serde(skip_serializing_if = "Option::is_none")]
     pub translated_title: Option<Text>,
     /// Open native work type.
-    pub work_type: Text,
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    #[cfg_attr(feature = "schema", schemars(with = "Text"))]
+    pub work_type: Option<Text>,
     /// Native partial publication date.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub publication_date: Option<PartialDate>,
@@ -75,8 +80,10 @@ pub struct OrcidWorkAssertion {
     pub journal_title: Option<Text>,
     /// Native work URL.
     #[serde(skip_serializing_if = "Option::is_none")]
+    #[cfg_attr(feature = "schema", schemars(extend("format" = "uri")))]
     pub url: Option<Text>,
     /// Every native assertion identifier in order.
+    #[serde(default, skip_serializing_if = "<[_]>::is_empty")]
     pub external_ids: Box<[OrcidExternalId]>,
     /// Native source and origin provenance.
     pub source: OrcidAssertionSource,
@@ -92,8 +99,10 @@ pub struct OrcidWorkAssertion {
 #[cfg_attr(feature = "schema", derive(schemars::JsonSchema))]
 pub struct OrcidWorkGroup {
     /// Native group identifiers in source order.
+    #[serde(default, skip_serializing_if = "<[_]>::is_empty")]
     pub external_ids: Box<[OrcidExternalId]>,
     /// Every public summary in native source order.
+    #[serde(default, skip_serializing_if = "<[_]>::is_empty")]
     pub assertions: Box<[OrcidWorkAssertion]>,
 }
 impl std::str::FromStr for OrcidPublicVisibility {

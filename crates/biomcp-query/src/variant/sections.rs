@@ -16,6 +16,7 @@ pub(super) fn apply(
     query: &VariantGet,
     candidates: &mut [VariantHeader],
     deadline: &mut Deadline<'_>,
+    population_reason: Option<Reason>,
 ) -> (Vec<SourceOutcome>, Vec<Problem>, Option<RequestError>) {
     let mut collected = Collected::default();
     for candidate in candidates {
@@ -62,7 +63,7 @@ pub(super) fn apply(
                 ),
                 VariantSection::Population => attach!(
                     population,
-                    super::population::section(cx, query, candidates, *deadline)
+                    super::population::section(cx, query, candidates, *deadline, population_reason)
                 ),
                 VariantSection::Gwas => {
                     attach!(gwas, super::gwas::section(cx, query, candidates, *deadline))
@@ -74,6 +75,10 @@ pub(super) fn apply(
                 VariantSection::Hotspots => attach!(
                     hotspots,
                     super::hotspots::section(cx, query, candidates, *deadline)
+                ),
+                VariantSection::AlphaGenome => attach!(
+                    alphagenome,
+                    super::alphagenome::section(cx, query, candidates, *deadline)
                 ),
                 VariantSection::Oncokb => attach!(
                     oncokb,
@@ -112,6 +117,7 @@ pub(super) fn source(section: VariantSection) -> Option<Source> {
         VariantSection::Gwas => Some(Source::Gwas),
         VariantSection::Civic => Some(Source::Civic),
         VariantSection::Oncokb => Some(Source::Oncokb),
+        VariantSection::AlphaGenome => Some(Source::AlphaGenome),
         VariantSection::Hotspots => Some(Source::CancerHotspots),
         _ => None,
     }
@@ -164,6 +170,7 @@ fn selected(query: &VariantGet) -> impl Iterator<Item = VariantSection> + '_ {
         VariantSection::Civic,
         VariantSection::Hotspots,
         VariantSection::Oncokb,
+        VariantSection::AlphaGenome,
         VariantSection::Predict,
         VariantSection::Conservation,
         VariantSection::Cosmic,

@@ -52,6 +52,7 @@ fn wrong_set() -> Check {
     )?;
     let env = Environment::new().map_err(|e| e.to_string())?;
     let cert = env.root().join("ca.pem");
+    stub.retain(&env);
     std::fs::write(&cert, &stub.certificate).map_err(|e| e.to_string())?;
     env.config(&json!({"ca_bundle":cert,"proxy":format!("http://{}",stub.address)}))
         .map_err(|e| e.to_string())?;
@@ -68,7 +69,7 @@ fn wrong_set() -> Check {
 fn rejection(status: u16, message: &'static str) -> Check {
     let (env, stub) = setup(
         json!({"error":{"code":"NOT_FOUND","message":message}}),
-        "openfda.brand_name.exact%3A%22Tagrisso%22".into(),
+        "openfda.brand_name.exact%3A%22Tagrisso%22%20OR%20openfda.generic_name.exact%3A%22Tagrisso%22".into(),
         status,
     )?;
     let args = vec![

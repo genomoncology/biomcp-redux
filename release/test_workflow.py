@@ -2,23 +2,50 @@
 import hashlib
 import json
 from pathlib import Path
+import re
 import subprocess
 import sys
 import tempfile
 import unittest
 import zipfile
 
+from release.test_licenses import archive as write_archive, payloads, wheel_fixture, write_payloads
+
 
 class Staging(unittest.TestCase):
+    def test_workflow_attests_all_subjects_before_candidate_upload(self):
+        workflow = Path(".github/workflows/release.yml").read_text()
+        stage = workflow.split("\n  stage:\n", 1)[1].split("\n  release-operator:\n", 1)[0]
+        self.assertIn("subject-checksums: ${{ runner.temp }}/subjects.sha256", stage)
+        self.assertIn("create-storage-record: false", stage)
+        self.assertIn("push-to-registry: false", stage)
+        attest = re.search(r"      - name: Attest every staged artifact\n(.*?)(?=      - )", stage, re.S)
+        self.assertIsNotNone(attest)
+        self.assertRegex(attest[1], r"uses: actions/attest@[0-9a-f]{40}")
+        self.assertNotIn("if:", attest[1])
+        self.assertLess(stage.index("release/secrets.py artifacts"), attest.start())
+        self.assertLess(attest.end(), stage.index("name: release-candidate"))
+        for job in re.split(r"\n  [a-z-]+:\n", workflow.split("jobs:\n", 1)[1])[1:]:
+            grants = set(re.findall(r"^      ([a-z-]+): write$", job, re.M))
+            self.assertEqual(grants, {"id-token", "attestations"} if "Attest every staged artifact" in job else set())
+
+    def test_tag_builds_skip_cache_restore(self):
+        workflow = Path('.github/workflows/release.yml').read_text()
+        caches = re.findall(r'      - uses: actions/cache@[^\n]+\n(.*?)(?=      - |\Z)', workflow, re.S)
+        self.assertTrue(caches)
+        for cache in caches:
+            self.assertIn("        if: github.ref_type != 'tag'\n", cache)
+
     def test_environment_requires_an_independent_operator(self):
         for rules, accepted in [([], False), ([{"type": "required_reviewers", "reviewers": []}], False),
                                 ([{"type": "required_reviewers", "reviewers": [{"type": "Team"}], "prevent_self_review": False}], False),
                                 ([{"type": "required_reviewers", "reviewers": [{"type": "Team"}], "prevent_self_review": True}], True)]:
-            with self.subTest(rules=rules), tempfile.TemporaryDirectory() as directory:
-                settings = Path(directory) / "environment.json"
-                settings.write_text(json.dumps({"protection_rules": rules}))
-                result = subprocess.run([sys.executable, "release/workflow.py", "protection", str(settings)], capture_output=True, text=True)
-                self.assertEqual(result.returncode == 0, accepted, result.stderr)
+            for bypass in (False, True):
+                with self.subTest(rules=rules, bypass=bypass), tempfile.TemporaryDirectory() as directory:
+                    settings = Path(directory) / "environment.json"
+                    settings.write_text(json.dumps({"protection_rules": rules, "can_admins_bypass": bypass}))
+                    result = subprocess.run([sys.executable, "release/workflow.py", "protection", str(settings)], capture_output=True, text=True)
+                    self.assertEqual(result.returncode == 0, accepted and not bypass, result.stderr)
 
     def prepare(self, root):
         artifacts = root / "artifacts"
@@ -29,20 +56,23 @@ class Staging(unittest.TestCase):
         for platform, archive in zip(platforms, archives):
             directory = artifacts / platform
             directory.mkdir(parents=True)
-            record = {"version": "1.0.0", "revision": "a" * 40,
-                      "platform": platform, "distribution": "biomcp-cli"}
+            _, record = wheel_fixture(directory, platform)
+            write_payloads(directory)
             (directory / "release.json").write_text(json.dumps(record))
             name = "biomcp-" + archive
-            (directory / name).write_bytes(platform.encode())
-            digest = hashlib.sha256(platform.encode()).hexdigest()
+            write_archive(directory / name, {"biomcp": platform.encode(), **payloads()})
+            digest = hashlib.sha256((directory / name).read_bytes()).hexdigest()
             (directory / (name + ".sha256")).write_text(digest + "  " + name + "\n")
-            (directory / ("biomcp_cli-1.0.0-py3-none-" + platform + ".whl")).touch()
-            (directory / ("biomcp-" + platform + ".mcpb")).touch()
+            write_archive(directory / ("biomcp-" + platform + ".mcpb"), payloads())
             registry = {"name": "io.github.genomoncology/biomcp", "version": "1.0.0"}
             (directory / "server.json").write_text(json.dumps(registry))
             if platform.startswith("manylinux"):
                 arch = "amd64" if platform.endswith("x86_64") else "arm64"
-                (directory / ("biomcp-container-" + arch + ".tar")).touch()
+                layer = directory / "layer.tar"
+                write_archive(layer, {"usr/share/doc/biomcp/" + name: value for name, value in payloads().items()})
+                write_archive(directory / ("biomcp-container-" + arch + ".tar"), {
+                    "manifest.json": b'[ {"Layers": ["layer.tar"]} ]', "layer.tar": layer.read_bytes()})
+                layer.unlink()
         plugin = root / "plugin"
         (plugin / ".claude-plugin").mkdir(parents=True)
         (plugin / ".claude-plugin/plugin.json").write_text('{"name":"biomcp","version":"1.0.0","skills":["./skills/"]}')
@@ -67,20 +97,38 @@ class Staging(unittest.TestCase):
             formula = (staged / "biomcp.rb").read_text()
             for arch in ["arm64", "x86_64"]:
                 self.assertIn("https://github.com/genomoncology/biomcp/releases/download/v1.0.0/biomcp-darwin-" + arch + ".tar.gz", formula)
-                digest = hashlib.sha256(("macosx_11_0_" + arch).encode()).hexdigest()
+                digest = hashlib.sha256((artifacts / ("macosx_11_0_" + arch) / ("biomcp-darwin-" + arch + ".tar.gz")).read_bytes()).hexdigest()
                 self.assertIn(digest, formula)
             self.assertNotIn("file:", formula)
             self.assertEqual(len(list(staged.glob("*.whl"))), 5)
             self.assertEqual(len(list(staged.glob("*.mcpb"))), 3)
             self.assertEqual(len(list(staged.glob("biomcp-container-*.tar"))), 2)
             self.assertEqual((staged / "install.sh").read_bytes(), Path("release/install.sh").read_bytes())
+            notes = (staged / "RELEASE-NOTES.md").read_text()
+            self.assertIn("gh attestation verify", notes)
+            self.assertIn("--source-ref refs/tags/v1.0.0", notes)
+            self.assertIn("replace --source-ref with the actual rehearsal ref", notes)
+            self.assertIn("--repo genomoncology/biomcp", notes)
+            self.assertIn("a" * 40, notes)
+            checksums = root / "subjects.sha256"
+            subjects = subprocess.run([sys.executable, "release/workflow.py", "subjects",
+                                       "--artifacts", str(staged), "--output", str(checksums)],
+                                      capture_output=True, text=True)
+            self.assertEqual(subjects.returncode, 0, subjects.stderr)
+            actual = {name: digest for digest, name in
+                      (line.split("  ", 1) for line in checksums.read_text().splitlines())}
+            expected = {path.name: hashlib.sha256(path.read_bytes()).hexdigest()
+                        for path in staged.iterdir()}
+            self.assertEqual(actual, expected)
             with zipfile.ZipFile(staged / "biomcp-plugin.zip") as archive:
                 self.assertIn(".claude-plugin/marketplace.json", archive.namelist())
+                for name, data in payloads().items():
+                    self.assertEqual(archive.read(name), data)
                 self.assertEqual(archive.read("skills/SKILL.md"), b"BioMCP guide\n")
                 self.assertEqual(json.loads(archive.read(".claude-plugin/plugin.json"))["skills"], ["./skills/"])
 
     def test_stage_refuses_incomplete_or_mixed_candidates(self):
-        for defect in ["missing-platform", "revision", "checksum", "registry", "plugin", "skills"]:
+        for defect in ["missing-platform", "revision", "checksum", "registry", "plugin", "skills", "plugin-version"]:
             with self.subTest(defect=defect), tempfile.TemporaryDirectory() as directory:
                 root = Path(directory)
                 artifacts, plugin = self.prepare(root)
@@ -96,9 +144,36 @@ class Staging(unittest.TestCase):
                     (linux / "server.json").write_text('{"version":"0.9.3"}')
                 elif defect == "plugin":
                     (plugin / ".claude-plugin/plugin.json").write_text('{"name":"other"}')
-                else:
+                elif defect == "skills":
                     (plugin / ".claude-plugin/plugin.json").write_text('{"name":"biomcp"}')
+                else:
+                    path = plugin / ".claude-plugin/plugin.json"
+                    metadata = json.loads(path.read_text())
+                    del metadata['version']
+                    path.write_text(json.dumps(metadata))
                 self.assertNotEqual(self.stage(root, artifacts, plugin).returncode, 0)
+
+    def test_subjects_refuse_missing_empty_or_unsafe_staging(self):
+        for defect in ["missing", "empty", "symlink", "newline", "output-inside"]:
+            with self.subTest(defect=defect), tempfile.TemporaryDirectory() as directory:
+                root = Path(directory)
+                staged = root / "staged"
+                if defect != "missing":
+                    staged.mkdir()
+                if defect == "symlink":
+                    (root / "outside").write_bytes(b"outside")
+                    (staged / "link").symlink_to(root / "outside")
+                elif defect == "newline":
+                    (staged / "bad\nname").touch()
+                output = root / "subjects.sha256"
+                if defect == "output-inside":
+                    (staged / "artifact").write_bytes(b"candidate")
+                    output = staged / "subjects.sha256"
+                result = subprocess.run([sys.executable, "release/workflow.py", "subjects",
+                                         "--artifacts", str(staged), "--output", str(output)],
+                                        capture_output=True, text=True)
+                self.assertNotEqual(result.returncode, 0)
+                self.assertFalse(output.exists())
 
 
 if __name__ == "__main__":

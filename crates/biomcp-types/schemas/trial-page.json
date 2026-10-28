@@ -61,7 +61,8 @@
               "type": "null"
             }
           ],
-          "description": "Source record link."
+          "description": "Source record link.",
+          "format": "uri"
         },
         "version": {
           "anyOf": [
@@ -120,12 +121,12 @@
         }
       },
       "required": [
-        "items",
         "total"
       ],
       "type": "object"
     },
     "Chromosome": {
+      "description": "A primary chromosome in the caller's reference build.",
       "pattern": "^([1-9]|1[0-9]|2[0-2]|X|Y|MT)$",
       "type": "string"
     },
@@ -158,7 +159,8 @@
         },
         "url": {
           "$ref": "#/$defs/Text",
-          "description": "Publisher terms page."
+          "description": "Publisher terms page.",
+          "format": "uri"
         },
         "usage": {
           "$ref": "#/$defs/Use",
@@ -172,9 +174,19 @@
       ],
       "type": "object"
     },
-    "Concept": {
+    "Curie": {
+      "description": "Checked prefix:local ontology identifier.",
+      "pattern": "^[A-Za-z0-9_.-]+:[^\\s\\x00-\\x1f\\x7f-\\x9f]+$",
+      "type": "string"
+    },
+    "Cytoband": {
+      "description": " A single nuclear cytogenetic band, without a range or location descriptor.",
+      "pattern": "^([1-9]|1[0-9]|2[0-2]|X|Y)[pq][1-9][0-9](\\.[0-9]+)?$",
+      "type": "string"
+    },
+    "DiseaseConcept": {
       "additionalProperties": false,
-      "description": "One source concept with its optional ontology identifier.",
+      "description": "A disease identity whose optional display label never determines record admission.",
       "properties": {
         "id": {
           "anyOf": [
@@ -185,25 +197,14 @@
               "type": "null"
             }
           ],
-          "description": "Source-stated concept identifier."
+          "description": "Source-stated exact identifier."
         },
         "label": {
           "$ref": "#/$defs/Text",
-          "description": "Original concept label."
+          "description": "Native display label when supplied and valid."
         }
       },
-      "required": [
-        "label"
-      ],
       "type": "object"
-    },
-    "Curie": {
-      "pattern": "^[A-Za-z0-9_.-]+:[^\\s\\x00-\\x1f\\x7f-\\x9f]+$",
-      "type": "string"
-    },
-    "Cytoband": {
-      "pattern": "^([1-9]|1[0-9]|2[0-2]|X|Y)[pq][1-9][0-9](\\.[0-9]+)?$",
-      "type": "string"
     },
     "DiseaseEndpoint": {
       "additionalProperties": false,
@@ -267,6 +268,7 @@
       "type": "object"
     },
     "EnsemblGeneId": {
+      "description": " A human Ensembl gene stable identifier with a separately retained version.",
       "pattern": "^ENSG[0-9]{11}(\\.[1-9][0-9]*)?$",
       "type": "string"
     },
@@ -397,11 +399,6 @@
         "symbol",
         "status",
         "locus_group",
-        "previous_symbols",
-        "aliases",
-        "uniprot",
-        "omim",
-        "spans",
         "name"
       ],
       "type": "object"
@@ -463,6 +460,7 @@
       "type": "object"
     },
     "GeneInput": {
+      "description": "An input classified before source resolution; aliases remain free text.",
       "pattern": "\\S",
       "type": "string"
     },
@@ -510,8 +508,7 @@
             }
           },
           "required": [
-            "resolution",
-            "candidates"
+            "resolution"
           ],
           "type": "object"
         },
@@ -547,8 +544,7 @@
             "resolution",
             "hgnc_id",
             "symbol",
-            "hgnc_status",
-            "merged_into"
+            "hgnc_status"
           ],
           "type": "object"
         },
@@ -581,6 +577,7 @@
       ]
     },
     "GeneSymbol": {
+      "description": "Source spelling of a gene symbol, with ASCII case-insensitive identity.",
       "pattern": "^[A-Za-z][A-Za-z0-9._/@-]{0,254}$",
       "type": "string"
     },
@@ -626,6 +623,7 @@
       "type": "object"
     },
     "HgncId": {
+      "description": "An HGNC identifier with canonical namespace and positive numeric value.",
       "pattern": "^HGNC:[1-9][0-9]*$",
       "type": "string"
     },
@@ -799,14 +797,17 @@
       ]
     },
     "NcbiGeneId": {
+      "description": "A positive NCBI Gene identifier in canonical decimal text.",
       "pattern": "^[1-9][0-9]*$",
       "type": "string"
     },
     "NctId": {
+      "description": "Canonical ClinicalTrials.gov identifier.",
       "pattern": "^NCT(?!00000000)[0-9]{8}$",
       "type": "string"
     },
     "OmimId": {
+      "description": " A six-digit OMIM identifier, preserving all six digits.",
       "pattern": "^[0-9]{6}$",
       "type": "string"
     },
@@ -859,6 +860,7 @@
       "type": "object"
     },
     "PartialDate": {
+      "description": "A Gregorian date preserving year, month or day precision.",
       "pattern": "^[0-9]{4}(-[0-9]{2}(-[0-9]{2})?)?$",
       "type": "string"
     },
@@ -969,6 +971,7 @@
         "unsupported",
         "too_large",
         "rate_limited",
+        "local_quota",
         "unavailable",
         "tls",
         "proxy",
@@ -990,6 +993,7 @@
         " The local reader does not support the file or container format.",
         " The response exceeds an explicit reader resource bound.",
         " The source limited the request rate.",
+        " The local source quota refused admission without a network request.",
         " The source was unavailable.",
         " Platform or configured certificate verification failed.",
         " Connecting to or negotiating the configured proxy failed.",
@@ -1020,6 +1024,7 @@
         "erepo",
         "gwas",
         "clingen",
+        "gencc",
         "pubmed",
         "europepmc",
         "litvar",
@@ -1033,6 +1038,7 @@
         "nci",
         "civic",
         "hotspots",
+        "alphagenome",
         "oncokb",
         "myvariant",
         "car",
@@ -1092,6 +1098,7 @@
         " ClinGen Evidence Repository.",
         " GWAS Catalog v2.",
         " ClinGen.",
+        " GenCC submitter assessments.",
         " PubMed.",
         " Europe PMC.",
         " NCBI LitVar2.",
@@ -1105,6 +1112,7 @@
         " NCI Clinical Trials Search.",
         " CIViC.",
         " Cancer Hotspots residue recurrence.",
+        " AlphaGenome.",
         " OncoKB.",
         " MyVariant.info aggregation.",
         " ClinGen Allele Registry.",
@@ -1151,8 +1159,55 @@
       ]
     },
     "SourceNotice": {
-      "description": "A provider query interpretation notice.",
+      "description": "A source notice or request recovery step.",
       "oneOf": [
+        {
+          "additionalProperties": false,
+          "description": "Local request limits and source-specific recovery guidance.",
+          "properties": {
+            "kind": {
+              "const": "request_guidance",
+              "type": "string"
+            },
+            "message": {
+              "description": "Reviewed guidance without provider response text.",
+              "type": "string"
+            },
+            "retry_after_seconds": {
+              "description": "Seconds left before another source request may be admitted.",
+              "format": "uint64",
+              "minimum": 0,
+              "type": [
+                "integer",
+                "null"
+              ]
+            }
+          },
+          "required": [
+            "kind",
+            "message"
+          ],
+          "type": "object"
+        },
+        {
+          "additionalProperties": false,
+          "description": "Registered conditions lack the literal words requested in a condition search.",
+          "properties": {
+            "kind": {
+              "const": "condition_word_mismatch",
+              "type": "string"
+            },
+            "message": {
+              "description": "The source searches several fields and can expand terms; no expansion cause is inferred.",
+              "type": "string"
+            }
+          },
+          "required": [
+            "kind",
+            "message"
+          ],
+          "type": "object"
+        },
         {
           "additionalProperties": false,
           "description": "A checked provider answer survived a local cache failure.",
@@ -1193,6 +1248,51 @@
         },
         {
           "additionalProperties": false,
+          "description": "An empty LitVar lookup can be repeated with a caller-supplied rsID.",
+          "properties": {
+            "kind": {
+              "const": "litvar_rsid_hint",
+              "type": "string"
+            },
+            "message": {
+              "description": "Guidance that never supplies or infers an rsID.",
+              "type": "string"
+            }
+          },
+          "required": [
+            "kind",
+            "message"
+          ],
+          "type": "object"
+        },
+        {
+          "additionalProperties": false,
+          "description": "PubMed supplied a named ESearch warning without changing its phrases.",
+          "properties": {
+            "kind": {
+              "const": "pubmed_warning",
+              "type": "string"
+            },
+            "name": {
+              "description": "Original provider warning name, including names added by PubMed later.",
+              "type": "string"
+            },
+            "phrases": {
+              "description": "Original provider phrases, preserving whitespace and quotes.",
+              "items": {
+                "type": "string"
+              },
+              "type": "array"
+            }
+          },
+          "required": [
+            "kind",
+            "name"
+          ],
+          "type": "object"
+        },
+        {
+          "additionalProperties": false,
           "description": "PubMed did not index these words.",
           "properties": {
             "kind": {
@@ -1208,8 +1308,7 @@
             }
           },
           "required": [
-            "kind",
-            "words"
+            "kind"
           ],
           "type": "object"
         }
@@ -1238,7 +1337,7 @@
           ]
         },
         "notices": {
-          "description": "Provider query notices that do not indicate failure.",
+          "description": "Source notices and request recovery guidance.",
           "items": {
             "$ref": "#/$defs/SourceNotice"
           },
@@ -1280,6 +1379,7 @@
         },
         "terms_url": {
           "description": "Publisher page documenting the terms.",
+          "format": "uri",
           "type": "string"
         },
         "use": {
@@ -1304,6 +1404,33 @@
         "syncing",
         "failed",
         "skipped"
+      ],
+      "type": "string"
+    },
+    "SourceTimestamp": {
+      "additionalProperties": false,
+      "description": "Native source timestamp and the availability of its timezone.",
+      "properties": {
+        "timezone": {
+          "$ref": "#/$defs/SourceTimestampTimezone",
+          "description": "Whether the native timestamp includes a timezone."
+        },
+        "value": {
+          "$ref": "#/$defs/Text",
+          "description": "Exact source-supplied timestamp."
+        }
+      },
+      "required": [
+        "value",
+        "timezone"
+      ],
+      "type": "object"
+    },
+    "SourceTimestampTimezone": {
+      "description": "Availability of timezone information in a native timestamp.",
+      "enum": [
+        "in_value",
+        "source_gave_none"
       ],
       "type": "string"
     },
@@ -1367,8 +1494,7 @@
         }
       },
       "required": [
-        "kind",
-        "args"
+        "kind"
       ],
       "type": "object"
     },
@@ -1490,7 +1616,7 @@
         "concept": {
           "anyOf": [
             {
-              "$ref": "#/$defs/Concept"
+              "$ref": "#/$defs/DiseaseConcept"
             },
             {
               "type": "null"
@@ -1574,14 +1700,14 @@
         },
         "url": {
           "$ref": "#/$defs/Text",
-          "description": "Publisher's canonical record URL."
+          "description": "Publisher's canonical record URL.",
+          "format": "uri"
         }
       },
       "required": [
         "nct_id",
         "title",
         "status",
-        "phases",
         "conditions",
         "interventions",
         "updated",
@@ -1591,7 +1717,7 @@
     },
     "TrialPage": {
       "additionalProperties": false,
-      "description": "Registry page preserving source order and exact request parameters.",
+      "description": "Registry page preserving source order and source processing time.",
       "properties": {
         "attribution": {
           "description": "Publisher attribution.",
@@ -1607,16 +1733,6 @@
             }
           ],
           "description": "Exact condition identity and source-provided mapping, absent for literal text."
-        },
-        "count_request": {
-          "description": "Exact cached native count request when a continuation omits its total.",
-          "items": {
-            "$ref": "#/$defs/TrialParameter"
-          },
-          "type": [
-            "array",
-            "null"
-          ]
         },
         "gene_resolution": {
           "anyOf": [
@@ -1636,17 +1752,10 @@
           },
           "type": "array"
         },
-        "request": {
-          "description": "Exact parameters sent to the study search endpoint.",
-          "items": {
-            "$ref": "#/$defs/TrialParameter"
-          },
-          "type": "array"
-        },
         "source_updated": {
           "anyOf": [
             {
-              "$ref": "#/$defs/Text"
+              "$ref": "#/$defs/SourceTimestamp"
             },
             {
               "type": "null"
@@ -1656,28 +1765,7 @@
         }
       },
       "required": [
-        "items",
-        "request",
         "attribution"
-      ],
-      "type": "object"
-    },
-    "TrialParameter": {
-      "additionalProperties": false,
-      "description": "One exact source request parameter, in canonical name order.",
-      "properties": {
-        "name": {
-          "description": "Native parameter name.",
-          "type": "string"
-        },
-        "value": {
-          "description": "Exact unencoded parameter value.",
-          "type": "string"
-        }
-      },
-      "required": [
-        "name",
-        "value"
       ],
       "type": "object"
     },
@@ -1712,7 +1800,6 @@
           "description": "Exact MONDO or DOID CURIE resolved by MyDisease; NCI also accepts explicit NCIT:C codes."
         },
         "count_only": {
-          "default": false,
           "description": "Source total only; no returned study rows.",
           "type": "boolean"
         },
@@ -1724,6 +1811,10 @@
           "$ref": "#/$defs/Text",
           "description": "Source distance with explicit mi or km units."
         },
+        "exact_condition": {
+          "description": "Ask ClinicalTrials.gov to restrict matching to the registered condition phrase; its support is partial.",
+          "type": "boolean"
+        },
         "facility": {
           "$ref": "#/$defs/Text",
           "description": "Exact registry facility field; cannot combine with radius."
@@ -1733,7 +1824,6 @@
           "description": "Resolve one checked gene for registry text discovery only; no eligibility judgment."
         },
         "has_results": {
-          "default": false,
           "description": "Require posted source results.",
           "type": "boolean"
         },
@@ -1854,6 +1944,7 @@
       "type": "string"
     },
     "UniProtAcc": {
+      "description": " A whole UniProt base accession, without an isoform suffix.",
       "pattern": "^([OPQ][0-9][A-Z0-9]{3}[0-9]|[A-NR-Z][0-9]([A-Z][A-Z0-9]{2}[0-9]){1,2})$",
       "type": "string"
     },
@@ -1868,7 +1959,7 @@
       "type": "string"
     }
   },
-  "$id": "biomcp.trial_page/5",
+  "$id": "biomcp.trial-page/7",
   "$schema": "https://json-schema.org/draft/2020-12/schema",
   "additionalProperties": false,
   "description": "One versioned command response; schema identity comes only from its body type.",
@@ -1925,7 +2016,7 @@
       "description": "Answer when available."
     },
     "schema": {
-      "const": "biomcp.trial_page/5",
+      "const": "biomcp.trial-page/7",
       "type": "string"
     },
     "sources": {

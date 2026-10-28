@@ -36,6 +36,7 @@ pub(super) fn identity(id: &str, name: &str) -> Result<DrugIdentity, biodata::Er
 }
 pub(super) fn header(identity: DrugIdentity) -> DrugHeader {
     DrugHeader {
+        matched_name: None,
         id: identity.id,
         source: DrugSource::Ddinter,
         name: identity.name,

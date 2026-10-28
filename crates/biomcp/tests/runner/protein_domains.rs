@@ -3,6 +3,7 @@ use super::{configuration::invoke, launch::Environment, network_stub::Stub};
 use libtest_mimic::Trial;
 use serde_json::{Value, json};
 use std::fs;
+mod bad_values;
 mod card_failures;
 mod cards;
 mod complexes;
@@ -17,6 +18,7 @@ pub(super) fn trials() -> Vec<Trial> {
     let root = super::launch::fixtures().join("protein-domain-native");
     let absent = !root.is_dir();
     let mut trials = card_failures::trials();
+    trials.extend(bad_values::trials());
     trials.extend(retirements::trials());
     trials.extend(identities::trials());
     trials.push(Trial::test(
@@ -160,6 +162,7 @@ fn call(env: &Environment, args: &[&str], exit: i32) -> Result<Value, String> {
 fn setup(stub: &Stub) -> Result<Environment, String> {
     let env = Environment::new().map_err(|e| e.to_string())?;
     let ca = env.root().join("source-ca.pem");
+    stub.retain(&env);
     fs::write(&ca, &stub.certificate).map_err(|e| e.to_string())?;
     env.config(&json!({"proxy":format!("http://{}",stub.address),"ca_bundle":ca}))
         .map_err(|e| e.to_string())?;

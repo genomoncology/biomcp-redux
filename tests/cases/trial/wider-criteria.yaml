@@ -45,6 +45,20 @@
               "trial",
               "--condition",
               "basal cell carcinoma",
+              "--exact-condition",
+              "--gene",
+              "PTCH1",
+              "--limit",
+              "100"
+            ]
+          },
+          {
+            "kind": "disambiguate",
+            "args": [
+              "search",
+              "trial",
+              "--condition",
+              "basal cell carcinoma",
               "--criteria",
               "PTCH1",
               "--limit",
@@ -53,8 +67,7 @@
           }
         ]
       },
-      "max_bytes": 3675,
-      "max_tokens": 919
+      "max_bytes": 3675
     },
     {
       "run": [
@@ -96,8 +109,7 @@
           ]
         }
       },
-      "max_bytes": 6593,
-      "max_tokens": 1649
+      "max_bytes": 6593
     }
   ]
 }

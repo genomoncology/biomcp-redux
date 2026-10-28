@@ -1,8 +1,21 @@
+#[path = "adapter_values.rs"]
+pub(super) mod adapter_values;
 use super::{Check, dependencies, rust_files};
 use std::{collections::BTreeSet, fs, path::Path};
 
+// The sole dead-code exception contains only the private generated closure include.
+const GENERATED_PROTO: &str = "crates/biomcp-fetch/src/grpc/proto.rs";
+
 // New exceptions require a reviewed path and reason here.
 const EXCEPTIONS: &[(&str, &str)] = &[
+    (
+        "crates/biomcp-fetch/src/grpc/worker.rs",
+        "Serialize lazy runtime initialization and join its sole worker thread",
+    ),
+    (
+        GENERATED_PROTO,
+        "Retain the complete pinned generated provider import closure",
+    ),
     (
         "crates/biomcp-adapters/src/monarch/native_contracts.rs",
         "Locate and read retained external bodies only inside the ignored private mapper contract",
@@ -74,6 +87,7 @@ const ADAPTER_LIMIT: usize = 300;
 
 pub(super) fn check(root: &Path) -> Check {
     super::placement::check(root)?;
+    adapter_values::check(root)?;
     let sqlite = dependencies::sqlite_aliases(root)?;
     let mut keys = BTreeSet::new();
     let crates = root.join("crates");
@@ -112,6 +126,7 @@ pub(super) fn check(root: &Path) -> Check {
                 return fail(&relative, "file line limit exceeded");
             }
             let tokens = tokens(&text);
+            adapter_helpers(&relative, &tokens)?;
             source_terms(root, &relative, &tokens)?;
             if relative != "crates/biomcp-types/src/response/source.rs"
                 && relative != "crates/biomcp-adapters/src/registry.rs"
@@ -161,9 +176,8 @@ fn attributes(path: &str, tokens: &[String]) -> Check {
             .collect();
         let suppression = attribute.iter().any(|v| matches!(*v, "allow" | "expect"));
         if suppression
-            && attribute
-                .iter()
-                .any(|v| matches!(*v, "dead_code" | "unused_imports"))
+            && (attribute.contains(&"unused_imports")
+                || attribute.contains(&"dead_code") && path != GENERATED_PROTO)
         {
             return fail(path, "dead_code and unused_imports suppressions forbidden");
         }
@@ -171,6 +185,39 @@ fn attributes(path: &str, tokens: &[String]) -> Check {
             && (!EXCEPTIONS.iter().any(|(file, _)| *file == path) || !attribute.contains(&"reason"))
         {
             return fail(path, "lint exception requires listed location and reason");
+        }
+        if path == GENERATED_PROTO && suppression {
+            let after = tail
+                .iter()
+                .position(|v| v == "]")
+                .and_then(|i| tail.get(i + 1..));
+            let only_include = ["include", "!", "(", "\"generated/mod.rs\"", ")", ";"];
+            let only_dead_code = matches!(
+                attribute.as_slice(),
+                ["[", "allow", "(", "dead_code", ",", "reason", "=", _, ")"]
+                    | [
+                        "[",
+                        "allow",
+                        "(",
+                        "dead_code",
+                        ",",
+                        "reason",
+                        "=",
+                        _,
+                        ",",
+                        ")"
+                    ]
+            );
+            if !only_dead_code
+                || i != 0
+                || tokens.get(i + 1).is_none_or(|v| v != "!")
+                || after.is_none_or(|v| v.iter().map(String::as_str).ne(only_include))
+            {
+                return fail(
+                    path,
+                    "generated exception requires only the private closure include",
+                );
+            }
         }
         if path.starts_with("crates/biomcp-adapters/")
             && path.ends_with("/raw.rs")
@@ -347,14 +394,32 @@ fn source_terms(root: &Path, path: &str, tokens: &[String]) -> Check {
                 return fail(path, "source declaration requires publisher terms");
             }
         }
-        let module = path
+        let relative = path
             .strip_prefix("crates/biomcp-adapters/src/")
-            .unwrap_or("")
-            .split('/')
-            .next()
             .unwrap_or("");
-        let module = module.strip_suffix(".rs").unwrap_or(module);
-        let expected = format!("&crate::{module}::SPEC");
+        let module = relative.strip_suffix(".rs").unwrap_or(relative);
+        let module = module
+            .strip_suffix("/mod")
+            .unwrap_or(module)
+            .replace('/', "::");
+        let prefix = tokens
+            .get(..i)
+            .ok_or("source declaration offset is invalid")?;
+        let Some(position) = prefix.iter().rposition(|token| token == "static") else {
+            return fail(path, "source declarations require named statics");
+        };
+        if prefix
+            .get(position..)
+            .ok_or("source static offset is invalid")?
+            .iter()
+            .any(|token| matches!(token.as_str(), ";" | "{" | "}"))
+        {
+            return fail(path, "source declarations require named statics");
+        }
+        let name = tokens
+            .get(position + 1)
+            .ok_or("source static lacks a name")?;
+        let expected = format!("&crate::{module}::{name}");
         let registry = fs::read_to_string(root.join("crates/biomcp-adapters/src/registry.rs"))?;
         if !registry.contains(&expected) {
             return fail(
@@ -362,6 +427,28 @@ fn source_terms(root: &Path, path: &str, tokens: &[String]) -> Check {
                 &format!("implemented source must appear in source registry: expected {expected}"),
             );
         }
+    }
+    Ok(())
+}
+
+fn adapter_helpers(path: &str, tokens: &[String]) -> Check {
+    if !path.starts_with("crates/biomcp-adapters/src/")
+        || path == "crates/biomcp-adapters/src/mapped.rs"
+    {
+        return Ok(());
+    }
+    // These decode or render text formats; they do not construct neutral Text values.
+    let format_text = matches!(
+        path,
+        "crates/biomcp-adapters/src/xml_element.rs"
+            | "crates/biomcp-adapters/src/jats/markdown.rs"
+            | "crates/biomcp-adapters/src/sheet/xlsx.rs"
+    );
+    if tokens
+        .windows(2)
+        .any(|pair| matches!(pair, [word, name] if word == "fn" && (name == "problem" || name == "text" && !format_text)))
+    {
+        return fail(path, "adapter mapping helpers belong in mapped.rs");
     }
     Ok(())
 }

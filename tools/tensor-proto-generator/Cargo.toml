@@ -1,0 +1,11 @@
+[package]
+name = "tensor-proto-generator"
+version = "0.0.0"
+edition = "2024"
+publish = false
+
+[workspace]
+
+[dependencies]
+prost-build = { version = "=0.14.3", default-features = false, features = ["format"] }
+protoc-bin-vendored = "=3.2.0"

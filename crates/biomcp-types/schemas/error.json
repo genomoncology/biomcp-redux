@@ -10,10 +10,12 @@
       "type": "string"
     },
     "ErrorCode": {
-      "description": "The stable error code for an invalid schema request.",
+      "description": "Stable error codes for command usage, local failures and expired results.",
       "enum": [
         "usage.schema",
         "usage.arguments",
+        "usage.mcp_unavailable",
+        "usage.unknown_command",
         "usage.retired",
         "local.failure",
         "pool.expired",
@@ -64,7 +66,8 @@
             {
               "type": "null"
             }
-          ]
+          ],
+          "format": "uri"
         },
         "valid_values": {
           "items": {
@@ -90,8 +93,12 @@
         "choose one of the source selector values",
         "a selected source does not support the requested filters",
         "citation ordering exceeds the PMID limit; narrow the search",
-        "expected schema <known artifact id>",
+        "use biomcp schema to list known artifact IDs",
         "expected a supported command with checked arguments",
+        "sync is unavailable over MCP; run it from the command line",
+        "store clean is unavailable over MCP; run it from the command line",
+        "key is unavailable over MCP; run it from the command line",
+        "unknown command; use the suggested help command",
         "local configuration, cache or recording failed",
         "use: search gwas with --gene, --trait, --trait-id, --variant, --study or --pubmed; --include-child-traits requires --trait-id; --extended-geneset requires --gene; use exact GCST accessions, rsIDs, positive PMIDs and native trait IDs without repair; --limit is 1..50 and --offset is a nonnegative integer; source p-value order is fixed with no --sort or local prefix intersection",
         "use: get gwas association:<positive ID> [loci] or get gwas <exact GCST accession> [associations|ancestries]; bare numbers are unsupported; sections must match the resource kind; --section-limit is 1..50 and --section-offset is a nonnegative integer; identities are never repaired",
@@ -311,6 +318,7 @@
         "erepo",
         "gwas",
         "clingen",
+        "gencc",
         "pubmed",
         "europepmc",
         "litvar",
@@ -324,6 +332,7 @@
         "nci",
         "civic",
         "hotspots",
+        "alphagenome",
         "oncokb",
         "myvariant",
         "car",
@@ -383,6 +392,7 @@
         " ClinGen Evidence Repository.",
         " GWAS Catalog v2.",
         " ClinGen.",
+        " GenCC submitter assessments.",
         " PubMed.",
         " Europe PMC.",
         " NCBI LitVar2.",
@@ -396,6 +406,7 @@
         " NCI Clinical Trials Search.",
         " CIViC.",
         " Cancer Hotspots residue recurrence.",
+        " AlphaGenome.",
         " OncoKB.",
         " MyVariant.info aggregation.",
         " ClinGen Allele Registry.",
@@ -458,8 +469,7 @@
         }
       },
       "required": [
-        "kind",
-        "args"
+        "kind"
       ],
       "type": "object"
     },

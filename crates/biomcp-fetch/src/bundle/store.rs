@@ -1,7 +1,7 @@
 use super::{Bundle, BundleInfo, Find, KeyKind, Row};
 use crate::{
     CacheError, Deadline,
-    cache::{Cache, db_error, now},
+    cache::{Cache, db_error, now, write_transaction},
 };
 use rusqlite::{Connection, OptionalExtension, params};
 const PART_PREFIX: &str = ".tmp";
@@ -26,27 +26,29 @@ pub(super) struct Part {
     pub total: Option<u64>,
 }
 impl Part {
-    fn validate(&self, folder: &std::path::Path) -> Result<(), CacheError> {
+    fn validate(&self, folder: &std::path::Path) -> Result<bool, CacheError> {
         let path = std::path::Path::new(&self.path);
         let parent = path.parent().ok_or(CacheError::Database)?;
-        let name = path.file_name().and_then(|n| n.to_str());
-        let valid_name = name
-            .and_then(|n| n.strip_prefix(PART_PREFIX))
-            .is_some_and(|n| {
-                n.len() == PART_RANDOM && n.bytes().all(|b| b.is_ascii_alphanumeric())
-            });
+        let valid_name = path
+            .file_name()
+            .and_then(|n| n.to_str())
+            .is_some_and(part_name);
         if !valid_name
             || parent.canonicalize().map_err(|_| CacheError::Database)?
                 != folder.canonicalize().map_err(|_| CacheError::Database)?
-            || !path
-                .symlink_metadata()
-                .map_err(|_| CacheError::Database)?
-                .is_file()
         {
             return Err(CacheError::Database);
         }
-        Ok(())
+        match path.symlink_metadata() {
+            Ok(meta) if meta.is_file() => Ok(true),
+            Err(error) if error.kind() == std::io::ErrorKind::NotFound => Ok(false),
+            _ => Err(CacheError::Database),
+        }
     }
+}
+pub(crate) fn part_name(name: &str) -> bool {
+    name.strip_prefix(PART_PREFIX)
+        .is_some_and(|n| n.len() == PART_RANDOM && n.bytes().all(|b| b.is_ascii_alphanumeric()))
 }
 pub(super) fn create_part(folder: &std::path::Path) -> Result<tempfile::NamedTempFile, CacheError> {
     tempfile::Builder::new()
@@ -91,6 +93,7 @@ pub(super) fn info<R: Row>(b: &Bundle<R>, m: &Meta) -> BundleInfo {
         last_modified: m.modified.as_deref().map(Into::into),
         name: b.name,
         bytes: m.bytes,
+        downloaded_bytes: 0,
         rows: m.rows,
         fresh: m.fresh_until > now(),
         content_revision: m.content_revision.as_deref().map(Into::into),
@@ -146,7 +149,7 @@ impl Cache {
         d: Deadline<'_>,
     ) -> Result<Option<Part>, CacheError> {
         self.write_sql(d, |c| {
-            let tx = c.unchecked_transaction().map_err(db_error)?;
+            let tx = write_transaction(c)?;
             let old = tx
                 .query_row(
                     "SELECT holder,lease_until,url,part,bytes,etag,total FROM bundle_sync WHERE name=?1",
@@ -170,20 +173,17 @@ impl Cache {
             if old.as_ref().is_some_and(|(h, until, _, _)| h.is_some() && *until > now()) {
                 return Err(CacheError::Busy);
             }
-            // A released file transfers to this claim. An active predecessor keeps its file,
-            // even after lease expiry; its completion still owns cleanup of that path.
-            let part = old.and_then(|(h, _, u, mut p)| {
-                if h.is_some() {
-                    return None;
+            // Released and expired files transfer to this claim. A still-running
+            // expired holder cannot retain or publish after this transaction.
+            let part = old.map(|(h, _, u, mut p)| -> Result<_, CacheError> {
+                if !p.validate(&self.1)? {
+                    return Ok(None);
                 }
-                if u != url {
+                if h.is_some() || u != url {
                     p.bytes = 0;
                 }
-                Some(p)
-            });
-            if let Some(part) = &part {
-                part.validate(&self.1)?;
-            }
+                Ok(Some(p))
+            }).transpose()?.flatten();
             tx.execute(
                 "INSERT INTO bundle_sync VALUES(?1,?2,?3,?4,?5,0,NULL,NULL) ON CONFLICT(name) DO UPDATE SET \
                 holder=excluded.holder,lease_until=excluded.lease_until,url=excluded.url,part=excluded.part,bytes=0,\

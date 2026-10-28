@@ -32,7 +32,7 @@ Six crates. Each exists because a rule needs a crate boundary to enforce it.
 | --- | --- | --- | --- |
 | `biodata` | Neutral entity values, identifiers, coordinates, notation and closed vocabularies. JSON Schemas. | `serde`, `winnow`; `schemars` behind the `schema` feature | Any workspace crate, any I/O crate, `serde_json` outside tests |
 | `biomcp-types` | BioMCP queries, requests, source identities and response disclosure; generated contract schemas | `biodata`, `serde`; `schemars` behind the `schema` feature | Any I/O crate, transport, adapters or services |
-| `biomcp-fetch` | The transport: HTTP, quotas, deadlines, retry, body limits, decoding, reply checks, the reply cache, offline, record and replay, bundle sync and bundle rows | `biodata`, `biomcp-types`, `ureq`, `rusqlite`, `serde`, `serde_json`, `quick-xml`, `sha2`, `url`, `rustls`, `rustls-platform-verifier`, `httpdate`, `tempfile`, `csv`, `flate2`, `thiserror` | `biomcp-adapters`, `biomcp-query`, `clap` |
+| `biomcp-fetch` | The transport: HTTP, quotas, deadlines, retry, body limits, decoding, reply checks, the reply cache, offline, record and replay, bundle sync and bundle rows | `biodata`, `biomcp-types`, `ureq`, `rusqlite`, `serde`, `serde_json`, `quick-xml`, `sha2`, `url`, `rustls`, `rustls-platform-verifier`, `httpdate`, `tempfile`, `csv`, `flate2`, `thiserror`, `prost`, `zstd` | `biomcp-adapters`, `biomcp-query`, `clap` |
 | `biomcp-adapters` | One module per source: a source description, endpoints, raw reply types with their checks and mapping into biodata | `biodata`, `biomcp-types`, `biomcp-fetch`, `serde`, `quick-xml`, `calamine`, `csv`, `zip`, `thiserror` | `ureq`, `rusqlite`, `serde_json`, `biomcp-query`, `clap` |
 | `biomcp-query` | The services and the store: resolve, fan out, merge, rank, pool, page, sections and next steps | `biodata`, `biomcp-types`, `biomcp-fetch`, `biomcp-adapters`, `rusqlite`, `serde_json`, `sha2`, `thiserror` | `ureq`, `clap` |
 | `biomcp` | The binary: CLI grammar, MCP server, config file, Markdown view, the runner's test target, later the web mode | every crate above, `clap`, `serde`, `serde_json`, `httparse`, `base64`, `ctrlc`, `rpassword`, `tempfile`, `sha2`, `shlex` | `ureq`, `rusqlite` |
@@ -501,6 +501,12 @@ The CLI path maps to the tag mechanically: `search gene` is `search_gene` and `t
 
 Every command returns one envelope. Its body type changes by command, and each body names its own query type, so `query` echoes only the command that ran.
 
+The envelope omits empty collections, including source identity lists and empty search pages. The case runner checks product envelopes from recorded CLI and MCP calls. Raw provider recordings retain their native arrays. Query echoes omit inactive false flags and retain values that shape the request, including limits, filters, source selections and continuations. Trial search results omit the raw provider parameter lists. Help echoes its path as a `command` list inside the query object; root help echoes an empty query object.
+
+Variant identity lists serialize through one namespace owner. Their entries use `rs:`, `clingen:`, `clinvar:`, `cosmic:` or the source's `ga4gh:` prefix. Published identifiers and the accepted command input grammar stay unchanged. A ClinVar accession retains its `VCV` spelling after the namespace prefix, and ClinGen identifiers retain `CA` or `PA`.
+
+Trial `source_updated` contains the native `value` and a typed `timezone` marker. The recorded ClinicalTrials.gov version replies provide timestamps without timezone text, so these replies say `source_gave_none`. A native timestamp with `Z` or an offset retains that text and says `in_value`. BioMCP infers no timezone. Date-only source update fields retain their `PartialDate` type. The reviewed source evidence is the version response in `tests/replies/trial/condition/ctgov/`; the publisher documents the version endpoint in [its API reference](https://clinicaltrials.gov/data-api/api).
+
 ```rust
 /// Every response body names its schema and the query that produced it.
 pub trait ResponseBody: Serialize {
@@ -557,7 +563,8 @@ pub enum Reason { NotFound, RateLimited, Unavailable, Rejected, BadReply, Deadli
 - Generation must stay inside the compatibility checker's [supported subset](../../crates/biomcp-types/tests/schemas/compatibility.rs). Use `wire_enum!` for checked string enums. Optional unions contain one value and null; `oneOf` supports internally tagged object branches, not unit-enum branches. Unsupported keywords such as `uniqueItems` fail even when generating an initial schema. Enforce source uniqueness at runtime and keep its existing proof. Do not expand the checker to accommodate a new derive form or keyword.
 - The same test runs a compatibility check. It resolves every `$ref` through `$defs` and lists each schema as JSON pointer paths with their types. Every path and type in the checked-in schema must still exist in the new one unless the major version rose. Adding an optional field keeps the version. Removing, renaming or retyping a field raises it.
 - The same test checks that every query schema stays inside the grammar's subset: a flat object whose properties are strings, integers, booleans, string enums, or arrays of those, with no nested objects, `oneOf` or `anyOf` other than an optional value, and one allowed exception: a root `anyOf` of `required` lists that says at least one selector must be present, such as `query` or `band` on a gene search. A query type outside the subset fails here, before the grammar sees it.
-- The binary embeds the checked-in schema files with `include_str!`. `biomcp schema <name>` prints one, the grammar reads them, and the MCP tool list cites them. The checked-in files are the one authority, and the drift test keeps them equal to the types.
+- The binary embeds the checked-in schema files with `include_str!`. `biomcp schema <name>` prints one, and the grammar reads them. The checked-in files are the one authority, and the drift test keeps them equal to the types.
+- MCP advertises compact reply envelopes with schema IDs selected from the help catalog. The result has object type. Error, research projection and raw schema-document forms remain available. Clients retrieve full contracts through `biomcp schema <id>`, including calls through the MCP tool. Discovery embeds no full reply graph and requires no schema resolver.
 - The public contract tests in `crates/biomcp-types/tests/` check JSON round trips, and `crates/biomcp-types/tests/schemas/values.rs` checks canonical enum spellings against their schemas. BioMCP writes and reads only JSON, so other formats wait for a consumer.
 
 ### 3.10 How types carry progressive disclosure
@@ -967,6 +974,15 @@ Proof must install archives and wheels outside the checkout and exercise both co
 
 The structural risks are duplicated protocol truth, unshared transport state and testing source builds instead of installed artifacts. Pinned proto generation, a single Fetch owner, one cache-admission predicate for live/cache/replay, and the installed-platform rehearsal address those risks. No product code, dependencies, runtime, credentials or provider calls belong to this design change.
 
+
+#### AlphaGenome scoring section
+
+The variant section uses the ruled legacy `ScoreRequest` without exposing request selectors. Mitochondrial inputs remain unsupported before RPC because the integration lacks a verified chromosome mapping and interval contract. The publisher [FAQ](https://www.alphagenomedocs.com/faqs.html) identifies the human assembly; it does not establish that mitochondrial contract. Source resolution establishes the GRCh38 allele before the scoring leg. MyVariant chromosome notation receives its existing assembly-qualified accession before CAR resolves the unchanged genomic expression. A missing key skips both resolution and scoring when AlphaGenome is the only requested section.
+
+The pinned publisher [client conversion](https://github.com/google-deepmind/alphagenome/blob/55943112b83439e0c2512110f1ae607d4b5b492a/src/alphagenome/models/v1/dna_client.py#L332-L384) and [scorer conversion](https://github.com/google-deepmind/alphagenome/blob/55943112b83439e0c2512110f1ae607d4b5b492a/src/alphagenome/models/variant_scorers.py#L732-L807) document plane, gene row and track axis order. The response retains every native plane and metadata row. A nongene aggregate has no invented gene. Requested scorer identity and interval remain request provenance because the response has no native scorer label or interval field. The response does not add units or a returned model version.
+
+Each scorer pages scalar rows independently through the existing section offset and limit. Every reply includes all scorer groups, their complete native shapes and dtypes, and each group's own next request. Tensor coordinates preserve native row-major order. Bounds derive from the complete approved scoring capture and apply before result publication. Licensed raw replies and numerical replay inputs remain outside Git. The CLI contracts reuse the shared local TLS peer and child environment.
+
 ## 5. Source adapters
 
 ### 5.1 The shape
@@ -979,6 +995,79 @@ An adapter is one folder with three files:
 
 `#[serde(default)]` is banned in `raw.rs`. A field the provider may omit is an `Option`, and the top-level `check` decides whether its absence makes the reply an error. A missing result list can therefore never decode as an empty answer.
 
+Every present source field that cannot map is omitted and produces a `Problem` naming that field. The adapter returns the remaining item through `Mapped { value, problems }`. A missing optional field produces no problem. An invalid required identity still fails the item. Mapping never guesses a value from prose. Optional collection members follow the same rule individually.
+
+Complex Portal and InterPro use the following field classifications. These classify conversion sites, not work status.
+
+| Source site | Classification | Mapping contract |
+| --- | --- | --- |
+| Complex Portal names, prediction flag, participant name, stoichiometry and organism text | Migrated | Raw optional fields retain invalid shapes; shared mapping helpers omit the field and name it in a problem. |
+| Complex Portal participant cross-references and optional UniProt projection | Migrated | Each invalid reference or projection produces a field problem; valid participant identifiers and sibling references remain. |
+| Complex Portal record accession, participant identifier and type, human complex admission and anchor join | Identity refusal | These establish the requested relationship; failure does not create a replacement identity. |
+| Complex Portal missing interactors and unmatched anchor | Legitimate absence | Missing search participants trigger exact detail lookup; a detail without the anchor does not establish membership. |
+| Complex Portal organism taxonomy projection | Migrated; legitimate absence for the source sentinel | A malformed taxon suffix produces `participants.taxon` while preserving the organism literal. The existing `chemical synthesis; -2` source sentinel has no taxon and produces no problem. Zero and other negative values are rejected. Complex admission separately requires the human taxon. |
+| InterPro integrated name and type, member database names and accessions, signature names and discontinuity status | Migrated | Shared helpers disclose rejected fields. An invalid signature key omits that signature while retaining siblings. A missing type never matches an explicit type filter. |
+| InterPro protein length, location and fragment containers, and fragment coordinates | Migrated | Invalid optional length is omitted. An invalid coordinate omits its whole fragment and names the coordinate; valid sibling fragments remain. |
+| InterPro accession, native source database, protein accession and human organism admission, count and cursor | Identity refusal | Strict parsing and admission protect source identity and complete native pagination. |
+| Both sources' missing optional metadata and empty optional collections | Legitimate absence | No bad-value problem is created for absence. |
+
+Protein source collections retain field problems with their stored values. Native page aggregation, retained pages, complex member steps and protein card sections carry those problems to the reply.
+
+
+`mapped.rs` owns rejected-field construction, deduplication and text validation. Adapters retain source-specific parsing and pass its results to that owner. Required identity text uses the strict shared conversion. Optional text uses the shared problem context, so empty or invalid text cannot fail unrelated fields.
+
+Reactome classifies its mapping checks at their owning boundary:
+
+| Boundary | Classification | Behavior |
+|---|---|---|
+| `reactome/map.rs` pathway ID, species and pathway class | Identity refusal | Reject a row outside the requested native identity and human pathway scope. |
+| `reactome/map.rs` header names and native version | Migrated | Report `name` or `version`; omit a row whose required name cannot map and omit only an invalid version. |
+| `reactome/map.rs` summary collections, rows and literature fields | Migrated | Report the collection, row identity or field; preserve accepted siblings and complete source text. |
+| `reactome/mod.rs` accession mapping ID and human pathway scope | Identity refusal | Reject the row with the existing `pathways` problem. |
+| `reactome/mod.rs` accession mapping display name | Migrated | Report `pathways.name` and omit the row without inventing a required label. |
+| `reactome/relation_raw.rs` database IDs and namespaced reference consistency | Identity refusal | Require positive database IDs and matching nonempty native reference identities. |
+| `reactome/relations.rs` participant names and classes | Migrated | Report `participants.name` or `participants.schema_class`; omit unusable physical contexts and retain native counts. |
+| `reactome/relations.rs` reference metadata | Migrated | Validate every occurrence before grouping; retain first-occurrence output and report later invalid metadata. |
+| `reactome/relations.rs` event ID and species | Identity refusal | Reject the event without inferring an identity or changing its species. |
+| `reactome/relations.rs` event version, name and class | Migrated | Omit rejected metadata with its named problem and retain the event identity. |
+| `reactome/raw.rs` search counters, exact empty response and database release | Source protocol refusal | Require the native protocol envelope and positive source release. A release request failure marks the source failure and retains an accepted pathway card. |
+| Optional omitted metadata, checked not-found replies and provenance conversion from checked IDs | Legitimate absence | Do not manufacture a value or a missing-field problem. Generated event URLs derive from validated pathway IDs. Numeric release text derives from the checked source release. |
+
+The MyChem and disease adapter boundaries classify received values as follows. `DiseaseConcept` keeps the previous identifier wire shape and permits an omitted display label. Source record admission still requires the exact identifier. Trial condition resolution retains a missing label and makes no name request without it.
+
+| Family and site | Classification | Boundary |
+| --- | --- | --- |
+| MyChem `raw::Hit.id`, exact returned-ID check | Identity refusal | The aggregate drug ID identifies the requested document. |
+| MyChem `normalize::component` scalar text, aliases, synonym text and component containers | Migrated | The shared field mapper omits bad values and records their component-qualified field. Reference strings keep their original bytes until the ID parser checks them. Header and card construction receive validated text. |
+| MyChem `map::references_for`, `map::parents_for`, `links::native_xrefs` | Migrated | Reference target parse failures pass through the shared optional mapper. The reference is omitted. |
+| MyChem header name and type, reference name and native attribution record | Migrated | Optional strict conversions consume only text admitted by `normalize::component`. |
+| MyChem numeric version conversion and generated URL | Legitimate absence | Versions come from unsigned integers. URL text contains the admitted aggregate ID. Missing optional metadata stays absent. |
+| OLS `raw::Hit` and `raw::Term` `obo_id`, `ontology_name`; exact ontology and ID checks | Identity refusal | The CURIE identifies the term and the ontology routes its identity. Display labels and IRIs have no identity role. |
+| OLS `map::record` label, IRI, descriptions, consider and replacement IDs; `search` label and IRI | Migrated | Native reference codes stay as strings until their typed parser runs. Invalid optional text or IDs produce card or search problems. Empty optional lists and missing metadata produce no problem. |
+| OLS `map::iri_id` parse results and `xrefs` target parse | Migrated | The caller passes every failed parse to `Problems::required` for the received field. The documented OBO IRI conversion preserves the native namespace and local ID. |
+| OLS `synonyms` names and scope metadata, `xrefs` database, ID and description | Migrated | Invalid collection members are omitted or lose their optional field with a named problem. Valid peers remain. |
+| OLS `get` optional result transpose and static xref predicate | Legitimate absence | A publisher response with no exact term returns absence. The predicate is a source mapping constant. |
+| MyDisease `raw::Document.id`, component ID, `check` and alias `matches` parses | Identity refusal | Top-level and component CURIEs identify the returned record. A requested alias requires a source-provided exact cross-reference. |
+| MyDisease `native::component` label, definition, synonym and xref text, parents, consider and replacement IDs | Migrated | Native xref codes stay as strings until the CURIE parser runs. Shared mapping admits each optional field or member independently and retains component-qualified problems. |
+| MyDisease `map::xref_id` parse results and received synonym scope predicates | Migrated | `rows` reports the namespace-qualified field through the shared problem owner whenever the parse returns no target. |
+| MyDisease generated attribution, numeric version, component terms and static parent predicate | Legitimate absence | Values derive from admitted identities, unsigned versions and the registered component names. Missing optional metadata stays absent. |
+
+`crates/biomcp/tests/ratchets/adapter_value_audit.json` records the PubMed and ORCID field classifications and existing mapping drops. The source ratchet rejects new `.ok()` sites without a classification. Entries marked `pending_audit` retain explicit family ownership and do not claim a completed audit. PubMed citation problems travel with the fetched citation. ORCID work snapshots retain their problems beside the groups and source outcome. Optional fields never change required source paths, publication IDs or assertion identities. Titles, author names, work types and external-ID relationships are optional display metadata. An invalid external-ID kind or value omits that member and reports `external_ids`; the work and group remain. The five fields retain their present nonnullable text schema while becoming optional properties. Article pool metadata keeps source-level problems in the same publication transaction as the items and outcomes. Its private reader accepts both the existing source-outcome array and the metadata object. Problems without a record remain scoped to their pool, including empty pools; item problems retain their PMID scope.
+
+Response consumers previously received these fields as required properties. Each affected contract takes a major version change when the property becomes optional. The compatibility check and historical release schemas stay unchanged.
+
+| Previous schema | Current schema |
+| --- | --- |
+| `biomcp.article-cards/3` | `biomcp.article-cards/4` |
+| `biomcp.article-edges/4` | `biomcp.article-edges/5` |
+| `biodata.article_header/2` | `biodata.article_header/3` |
+| `biomcp.article-page/3` | `biomcp.article-page/4` |
+| `biomcp.article-recommendations/3` | `biomcp.article-recommendations/4` |
+| `biodata.article/1` | `biodata.article/2` |
+| `biomcp.author-card/3` | `biomcp.author-card/4` |
+| `biomcp.author-page/2` | `biomcp.author-page/3` |
+| `biomcp.orcid-works/2` | `biomcp.orcid-works/3` |
+
 Shared helpers live once in `biomcp-adapters/src/`:
 
 ```rust
@@ -990,8 +1079,8 @@ Shared helpers live once in `biomcp-adapters/src/`:
 pub struct Mapped<T> { pub value: T, pub problems: Vec<Problem> }
 pub struct Problems { source: Source, record: Option<Text>, list: Vec<Problem> }
 impl Problems {
-    pub(crate) fn required<T, E: Into<ProblemCode>>(&mut self, field: &str, r: Result<T, E>) -> Option<T>;
-    pub(crate) fn optional<T, E: Into<ProblemCode>>(&mut self, field: &str, r: Option<Result<T, E>>) -> Option<T>;
+    pub(crate) fn required<T>(&mut self, field: &str, value: Option<T>) -> Option<T>;
+    pub(crate) fn optional<T, E>(&mut self, field: &str, value: Option<Result<T, E>>) -> Option<T>;
 }
 
 // one page from one source, before any merge
@@ -1647,7 +1736,7 @@ MCP offers the main `biomcp` tool and read-only research `search` and `fetch` wr
     "required": ["args"],
     "additionalProperties": false
   },
-  "outputSchema": { "type": "object", "description": "The BioMCP envelope. Its schema field names the exact response schema.", "properties": { "schema": { "type": "string" }, "status": { "type": "string" } }, "required": ["schema", "status"] }
+  "outputSchema": { "type": "object", "description": "Compact reply envelope. Use biomcp schema <id> for its full contract.", "properties": { "schema": { "enum": ["biomcp.gene-cards/4"] }, "status": { "type": "string" }, "result": { "type": "object" } }, "required": ["schema", "status"] }
 }
 ```
 
@@ -1656,7 +1745,7 @@ The description embeds the command tree generated from the embedded schemas: eac
 `biomcp serve` speaks MCP over standard input and output from one file, `mcp.rs`, written to the specification:
 
 - Messages are newline-delimited JSON-RPC 2.0 objects. A JSON array is refused with an Invalid Request error, because batching is not part of the pinned revisions.
-- The server supports two pinned revisions: 2026-07-28, the current one, and 2025-11-25, the last one with an `initialize` handshake. A small adapter at the protocol edge handles each era, and both feed one dispatcher. Current clients use `server/discover` and send the version in each request's metadata. Legacy clients send `initialize`, and the server answers with 2025-11-25. A request for any other revision gets the error the current specification names. A revision is added or dropped only with its cases.
+- The server supports the current revision 2026-07-28 and initialization revisions 2025-11-25, 2025-06-18 and 2025-03-26. A small adapter at the protocol edge handles each era, and both feed one dispatcher. Current clients use `server/discover` and send the version in each request's metadata. Legacy clients send `initialize`. The server preserves a supported initialization revision and negotiates other initialization requests to its latest legacy revision. A request for any other revision gets the error the current specification names. A revision is added or dropped only with its cases.
 - Every notification is accepted silently, including `notifications/initialized` and `notifications/cancelled`.
 - `ping`, `tools/list` and `tools/call` are answered. Every other request gets a Method Not Found error.
 - The main `biomcp` tool parses `args` with `grammar::parse` and runs `run`. Global flags that make no sense in a server, such as `--config`, `--record` and `--replay`, are refused.
@@ -1677,7 +1766,7 @@ Help is JSON by default and comes from the schemas. `biomcp help` lists the enti
 
 The reviewed blocking server boundary uses `httparse` for HTTP syntax and a narrow socket owner in `mcp/http.rs`. It adds no async runtime. `http/wire.rs` owns `MAX_HEAD`, `MAX_BODY` and the absolute `READ_BUDGET`; `MAX_BODY` uses the stdio frame cap. `MAX_CONNECTIONS` bounds accepted worker handles with no application queue. Each socket carries one request and closes after its response. Content-Length frames are bounded before body allocation. Chunked frames use the library’s chunk-size and trailer parsers with bounded cumulative wire bytes and decoded body bytes. Ambiguous length/transfer encoding, unsupported transfer encodings and pipelined requests are refused before admission. Ctrl-C and termination signals use `ctrlc` to notify the server-owned bounded stop channel. The accept loop stops within `ACCEPT_POLL`, drops the listener and joins admitted workers under their existing read and command deadlines. No separate background process survives. The HTTP tests exercise this boundary through real isolated sockets.
 
-HTTP uses stateless JSON responses for both MCP revisions and never mints sessions. Each request selects its own revision and identifiers. The 2026 request mirrors follow the [official Streamable HTTP contract](https://modelcontextprotocol.io/specification/2026-07-28/basic/transports/streamable-http): protocol version and method must match the body, and named methods require a matching decoded name. Metadata mismatches return HTTP 400 and error -32020. Unsupported methods return HTTP 404. Legacy initialization remains available without affecting another request. Accepted notifications return an empty 202. GET and DELETE on `/mcp` return 405.
+HTTP uses stateless JSON responses for every supported MCP revision and never mints sessions. Each request selects its own revision and identifiers. The 2026 request mirrors follow the [official Streamable HTTP contract](https://modelcontextprotocol.io/specification/2026-07-28/basic/transports/streamable-http): protocol version and method must match the body, and named methods require a matching decoded name. Metadata mismatches return HTTP 400 and error -32020. Unsupported methods return HTTP 404. Legacy initialization remains available without affecting another request. The pinned [2025-11-25 lifecycle](https://modelcontextprotocol.io/specification/2025-11-25/basic/lifecycle#version-negotiation), [2025-06-18 lifecycle](https://modelcontextprotocol.io/specification/2025-06-18/basic/lifecycle#version-negotiation) and [2025-03-26 lifecycle](https://modelcontextprotocol.io/specification/2025-03-26/basic/lifecycle#version-negotiation) require the initialization result to preserve a supported requested revision. HTTP uses the same legacy negotiation. The [2025-11-25 header rule](https://modelcontextprotocol.io/specification/2025-11-25/basic/transports#protocol-version-header) and [2025-06-18 header rule](https://modelcontextprotocol.io/specification/2025-06-18/basic/transports#protocol-version-header) require HTTP 400 for an unsupported header and recommend 2025-03-26 when a missing header leaves the version unknown. A headerless initialization identifies its legacy revision from `params.protocolVersion`; later headerless requests use 2025-03-26 because this server retains no session state. The [2026-07-28 header rule](https://modelcontextprotocol.io/specification/2026-07-28/basic/transports/streamable-http#protocol-version-header) permits this fallback for servers that support older clients. An explicitly unsupported HTTP revision returns HTTP 400 and the current specification's `UnsupportedProtocolVersionError` (-32022) with the supported revision list. Accepted notifications return an empty 202. GET and DELETE on `/mcp` return 405.
 
 Host checks cover health, errors and MCP. Authority parsing checks bracketed IPv6, ports and DNS labels before case normalization and comparison. Browser Origin is refused, CORS is disabled and forwarding headers confer no authority. Non-loopback listeners require `--allow-host` or `http.allowed_hosts`; configuration and flags combine. `/health` returns the generated `biomcp.http-health/1` body and 200 or 503 after the owned query store opens under `HEALTH_BUDGET`. It makes no source requests and exposes no paths, SQL or settings.
 
@@ -1730,7 +1819,7 @@ pub(crate) fn load(globals: &Globals) -> Result<Settings, ConfigError>;
 - An unknown key, a wrong type or a bad value fails with a named error that gives the key path.
 - Tests set `XDG_CONFIG_HOME` and `XDG_CACHE_HOME` to empty temporary folders per case.
 
-Corporate routing uses the config file's `proxy` for both schemes when present. Otherwise `HTTP_PROXY` serves HTTP and `HTTPS_PROXY` serves HTTPS; no scheme falls back to the other. Only uppercase names are read. `NO_PROXY` is a comma-separated list: a bare host or IP matches exactly, `.domain` matches that domain and its subdomains, `*.domain` matches subdomains only, and `*` bypasses every proxy. Rules may specify a numeric port, including bracketed IPv6 literals. CIDR, malformed ports and credentials in bypass rules refuse as local configuration failures. Host matching ignores ASCII case and uses label boundaries.
+Corporate routing uses the config file's `proxy` for both schemes when present. Otherwise `HTTP_PROXY` serves HTTP and `HTTPS_PROXY` serves HTTPS; no scheme falls back to the other. Only uppercase names are read. `NO_PROXY` is a comma-separated list: a bare host or IP matches exactly, `.domain` matches that domain and its subdomains, `*.domain` matches subdomains only, and `*` bypasses every proxy. Bare IPv6 addresses and IPv4 or IPv6 CIDR ranges match numeric destination addresses. Rules may specify a numeric port, including bracketed IPv6 literals. Malformed ports and credentials in bypass rules refuse as local configuration failures and name `NO_PROXY` without its value. Other unsupported entries are skipped. Ordinary commands remain silent; `health` reports bounded configuration notices with the variable, entry position and notice code. Configuration failures name the environment variable or config file field without its value. Host matching ignores ASCII case and uses label boundaries.
 
 `ca_bundle` names a PEM file read at the settings boundary. Its certificate anchors add to platform trust for every source and each request codec. Missing, unreadable, malformed, empty or oversized bundles fail locally before provider requests. The configured path is relative to the process directory unless absolute. Client certificates remain deferred. Fetch owns immutable trust settings and separate connection pools for direct, HTTP-proxy and HTTPS-proxy routes, so trust and route changes cannot reuse a previous Fetch's connections. A target TLS failure remains `tls` after a successful CONNECT; only proxy connection or negotiation failures become `proxy`. Envelope fix steps follow `help network ca_bundle` and `help network proxy`.
 
@@ -1833,9 +1922,11 @@ The runner's YAML reader is a test dependency. The original `serde_yaml` is arch
 - **Parity.** Every step with both `run` and `mcp` compares the two envelopes.
 - **Quota.** The eight-parallel-call case in section 4.5.
 
+The source ratchet permits `dead_code` only in the private `crates/biomcp-fetch/src/grpc/proto.rs` generated-message wrapper. That file contains only the checked closure include. Its pinned regeneration check must reproduce every committed generated file. The ordinary file size limits remain in force. Product code and unused imports receive no exception.
+
 ### 10.3 Coverage
 
-`make coverage` runs the case suite under `cargo llvm-cov`. The runner spawns the binary as a subprocess, so the target uses `cargo llvm-cov show-env` to build an instrumented binary and sets a profile file pattern per process. Every spawned binary then writes its own profile, and the cases report merges them. The counted collection also runs only the reviewed public type-contract targets explicitly named with feature ownership and Cargo features in `sdlc/features.md`. These tests deserialize literal caller inputs through exported types and assert published validation and wire facts without hooks. The command-only figure prints separately for historical comparison. Unlisted contracts and library unit tests run in a separate excluded profile collection and never raise the floor figure. A target needs review before its feature entry can count; the historical permitted-test inventory below grants no counting authority. Both reports use the same product-source denominator; test targets, internal test modules, generated output and build scripts are excluded.
+`make coverage` runs the case suite under `cargo llvm-cov`. The runner spawns the binary as a subprocess, so the target uses `cargo llvm-cov show-env` to build an instrumented binary and sets a profile file pattern per process. Every spawned binary then writes its own profile, and the cases report merges them. The counted collection also runs only the reviewed public type-contract targets explicitly named with feature ownership and any required Cargo features in `sdlc/features.md`. These tests deserialize literal caller inputs through exported types and assert published validation and wire facts without hooks. The command-only figure prints separately for historical comparison. Unlisted contracts and library unit tests run in a separate excluded profile collection and never raise the floor figure. A target needs review before its feature entry can count; the historical permitted-test inventory below grants no counting authority. Both reports use the same product-source denominator; test targets, internal test modules, generated output and build scripts are excluded.
 
 The landing gate fails when line coverage falls more than 0.2 points below the floor in `coverage.floor`. The tolerance absorbs counting noise between runs. Only the lander raises the floor, after a landing whose coverage exceeds it. `make unreached` lists the lines no case runs, for the reviewer. Each listed line is either deleted or given a case.
 
@@ -1873,20 +1964,31 @@ The ratchet owns the authoritative file and reason list below and checks this ta
 | `crates/biomcp-types/tests/schemas/values.rs` | Exercise checked values and schema contracts through the public library API. |
 | `crates/biomcp-types/tests/value_conventions.rs` | Exercise checked values and schema contracts through the public library API. |
 | `crates/biomcp-adapters/src/monarch/native_contracts.rs` | Exercise retained gene-keyed Monarch rows through the private mapper without adding a gene-keyed command. |
+| `crates/biomcp-adapters/tests/alphagenome_registration.rs` | Exercise restricted source registration and required-key admission before a product section exists. |
 | `crates/biomcp-adapters/tests/batch_bounds.rs` | Exercise literal indexed lookup inputs outside command validation and empty/oversized batches or chunks beyond command limits. |
 | `crates/biomcp-adapters/tests/pmc_body.rs` | Reconstruct complete source rows and retain JATS reference IDs and links omitted from command JSON. |
 | `crates/biomcp-adapters/tests/pmc_limits.rs` | Reject invalid table spans and duplicate table IDs before allocation with a tiny decoder boundary table. |
+| `crates/biomcp-fetch/src/cache/contention.rs` | Order independent SQLite snapshots and writer admission at the private transaction boundary without product hooks. |
 | `crates/biomcp-fetch/src/destination_tests.rs` | Cover public DNS address and redirect rejection tables without contacting private destinations. |
+| `crates/biomcp-fetch/src/grpc/dns_tests.rs` | Prove a stalled platform lookup cannot outlive its caller budget or begin a stream, without changing the host resolver configuration. |
 | `crates/biomcp-fetch/src/retry_tests.rs` | Cover Retry-After forms and backoff boundaries without one recording per table row. |
 | `crates/biomcp-fetch/src/xml_tests.rs` | Cover inline XML markup and decoder limits with many tiny inputs. |
+| `crates/biomcp-fetch/tests/alphagenome.rs` | Exercise the selected request encoding and complete bounded envelopes through the public protocol API. |
+| `crates/biomcp-fetch/tests/alphagenome/routing.rs` | Exercise required-key admission and placeholder credential routing through a local TLS stream. |
+| `crates/biomcp-fetch/tests/score_variant.rs` | Exercise the ruled scoring request and complete scorer admission through the public protocol API. |
 | `crates/biomcp-fetch/tests/batch.rs` | Exercise transport ownership, local server behavior and cache/record failures through its public API. |
 | `crates/biomcp-fetch/tests/bundle.rs` | Exercise transport ownership, local server behavior and cache/record failures through its public API. |
 | `crates/biomcp-fetch/tests/bundle/download.rs` | Exercise transport ownership, local server behavior and cache/record failures through its public API. |
+| `crates/biomcp-fetch/tests/bundle/native.rs` | Exercise complete native TSV replacement sets and decoded bounds through the public transport API. |
 | `crates/biomcp-fetch/tests/bundle/rows.rs` | Exercise transport ownership, local server behavior and cache/record failures through its public API. |
 | `crates/biomcp-fetch/tests/cache.rs` | Exercise transport ownership, local server behavior and cache/record failures through its public API. |
 | `crates/biomcp-fetch/tests/cache/credentials.rs` | Exercise transport ownership, local server behavior and cache/record failures through its public API. |
 | `crates/biomcp-fetch/tests/cache/freshness.rs` | Exercise transport ownership, local server behavior and cache/record failures through its public API. |
 | `crates/biomcp-fetch/tests/cache/storage.rs` | Exercise transport ownership, local server behavior and cache/record failures through its public API. |
+| `crates/biomcp-fetch/tests/grpc_persistence.rs` | Exercise checked RPC cache admission and bounded recording replay through the public transport API. |
+| `crates/biomcp-fetch/tests/grpc_persistence/policy.rs` | Exercise credential containment, concurrent stream capture and atomic publication through the public transport API. |
+| `crates/biomcp-fetch/tests/grpc_persistence/process.rs` | Exercise ordinary checked reply cache reuse from an isolated second process through the public transport API. |
+| `crates/biomcp-fetch/tests/grpc_worker.rs` | Exercise blocking streaming RPC admission, local TLS HTTP/2, proxy routing, deadlines and cancellation through the public transport API. |
 | `crates/biomcp-fetch/tests/offline.rs` | Exercise transport ownership, local server behavior and cache/record failures through its public API. |
 | `crates/biomcp-fetch/tests/paths.rs` | Exercise transport ownership, local server behavior and cache/record failures through its public API. |
 | `crates/biomcp-fetch/tests/post.rs` | Exercise transport ownership, local server behavior and cache/record failures through its public API. |
@@ -1894,6 +1996,7 @@ The ratchet owns the authoritative file and reason list below and checks this ta
 | `crates/biomcp-fetch/tests/record.rs` | Exercise transport ownership, local server behavior and cache/record failures through its public API. |
 | `crates/biomcp-fetch/tests/retries.rs` | Exercise transport ownership, local server behavior and cache/record failures through its public API. |
 | `crates/biomcp-fetch/tests/support/cache_process.rs` | Exercise transport ownership, local server behavior and cache/record failures through its public API. |
+| `crates/biomcp-fetch/tests/tensors.rs` | Exercise bounded tensor decoding with synthetic protobuf payloads through its public API. |
 | `crates/biomcp-fetch/tests/transport.rs` | Exercise transport ownership, local server behavior and cache/record failures through its public API. |
 | `crates/biomcp-fetch/tests/transport/network.rs` | Exercise transport ownership, local server behavior and cache/record failures through its public API. |
 | `crates/biomcp-fetch/tests/transport/credentials.rs` | Exercise transport ownership, local server behavior and cache/record failures through its public API. |

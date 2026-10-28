@@ -48,7 +48,7 @@
     {"run": ["search", "article", "--author", "--date-from"], "mcp": ["search", "article", "--author", "--date-from"], "expect": {"/error/code": "usage.arguments"}, "exit": 2, "is_error": true},
     {"run": ["search", "article", "--source=--query"], "mcp": ["search", "article", "--source=--query"], "expect": {"/error/code": "usage.arguments"}, "exit": 2, "is_error": true},
     {"run": ["article", "supplement", "assets", "indexing"], "mcp": ["article", "supplement", "assets", "indexing"], "expect": {"/error/code": "usage.arguments"}, "exit": 2, "is_error": true},
-    {"run": ["search", "article", "--", "--query"], "mcp": ["search", "article", "--", "--query"], "expect": {"/schema": "biomcp.article_page/3", "/query/text": "--query", "/status": "failed"}, "exit": 5, "is_error": true},
+    {"run": ["search", "article", "--", "--query"], "mcp": ["search", "article", "--", "--query"], "expect": {"/schema": "biomcp.article-page/4", "/query/text": "--query", "/status": "failed"}, "exit": 5, "is_error": true},
     {"run": ["get", "article", "secret-input", "--section", "annotations", "assets"], "mcp": ["get", "article", "secret-input", "--section", "annotations", "assets"], "expect": {"/error/code": "usage.arguments"}, "exit": 2, "is_error": true},
     # PDF remains a capability. Its old flag names the replacement section; retained TLDR, evidence and recommendations stay outside retirement.
     {"run": ["get", "article", "secret-input", "--pdf"], "mcp": ["get", "article", "secret-input", "--pdf"], "expect": {"/error": {"equals": {"code": "usage.retired", "message": "use: get article <id> pdf"}}}, "exit": 2, "is_error": true, "max_bytes": 400},

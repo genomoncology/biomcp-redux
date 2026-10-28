@@ -21,21 +21,32 @@
           "type": "array"
         }
       },
-      "required": [
-        "commands"
-      ],
       "type": "object"
     },
     "HelpArgument": {
       "additionalProperties": false,
       "description": "One schema argument, retaining its bounds and position.",
       "properties": {
+        "aliases": {
+          "description": "Alternative accepted flags.",
+          "items": {
+            "type": "string"
+          },
+          "type": "array"
+        },
         "choices": {
           "description": "Allowed scalar values.",
           "items": {
             "type": "string"
           },
           "type": "array"
+        },
+        "default": {
+          "description": "Value used when the argument is omitted.",
+          "type": [
+            "string",
+            "null"
+          ]
         },
         "description": {
           "description": "Field documentation.",
@@ -85,8 +96,7 @@
         "name",
         "description",
         "value_type",
-        "required",
-        "choices"
+        "required"
       ],
       "type": "object"
     },
@@ -122,6 +132,13 @@
           },
           "type": "array"
         },
+        "reply_schemas": {
+          "description": "Canonical reply contracts; empty for commands with no schema reply.",
+          "items": {
+            "type": "string"
+          },
+          "type": "array"
+        },
         "section_rule": {
           "description": "How to disambiguate section words from inputs.",
           "type": [
@@ -138,12 +155,22 @@
         }
       },
       "required": [
-        "command",
-        "description",
-        "arguments",
-        "sections",
-        "examples"
+        "description"
       ],
+      "type": "object"
+    },
+    "HelpQuery": {
+      "additionalProperties": false,
+      "description": "Requested help path, with the root represented by an empty object.",
+      "properties": {
+        "command": {
+          "description": "Command words whose help was requested.",
+          "items": {
+            "type": "string"
+          },
+          "type": "array"
+        }
+      },
       "type": "object"
     },
     "HelpWord": {
@@ -306,6 +333,7 @@
         "unsupported",
         "too_large",
         "rate_limited",
+        "local_quota",
         "unavailable",
         "tls",
         "proxy",
@@ -327,6 +355,7 @@
         " The local reader does not support the file or container format.",
         " The response exceeds an explicit reader resource bound.",
         " The source limited the request rate.",
+        " The local source quota refused admission without a network request.",
         " The source was unavailable.",
         " Platform or configured certificate verification failed.",
         " Connecting to or negotiating the configured proxy failed.",
@@ -357,6 +386,7 @@
         "erepo",
         "gwas",
         "clingen",
+        "gencc",
         "pubmed",
         "europepmc",
         "litvar",
@@ -370,6 +400,7 @@
         "nci",
         "civic",
         "hotspots",
+        "alphagenome",
         "oncokb",
         "myvariant",
         "car",
@@ -429,6 +460,7 @@
         " ClinGen Evidence Repository.",
         " GWAS Catalog v2.",
         " ClinGen.",
+        " GenCC submitter assessments.",
         " PubMed.",
         " Europe PMC.",
         " NCBI LitVar2.",
@@ -442,6 +474,7 @@
         " NCI Clinical Trials Search.",
         " CIViC.",
         " Cancer Hotspots residue recurrence.",
+        " AlphaGenome.",
         " OncoKB.",
         " MyVariant.info aggregation.",
         " ClinGen Allele Registry.",
@@ -488,8 +521,55 @@
       ]
     },
     "SourceNotice": {
-      "description": "A provider query interpretation notice.",
+      "description": "A source notice or request recovery step.",
       "oneOf": [
+        {
+          "additionalProperties": false,
+          "description": "Local request limits and source-specific recovery guidance.",
+          "properties": {
+            "kind": {
+              "const": "request_guidance",
+              "type": "string"
+            },
+            "message": {
+              "description": "Reviewed guidance without provider response text.",
+              "type": "string"
+            },
+            "retry_after_seconds": {
+              "description": "Seconds left before another source request may be admitted.",
+              "format": "uint64",
+              "minimum": 0,
+              "type": [
+                "integer",
+                "null"
+              ]
+            }
+          },
+          "required": [
+            "kind",
+            "message"
+          ],
+          "type": "object"
+        },
+        {
+          "additionalProperties": false,
+          "description": "Registered conditions lack the literal words requested in a condition search.",
+          "properties": {
+            "kind": {
+              "const": "condition_word_mismatch",
+              "type": "string"
+            },
+            "message": {
+              "description": "The source searches several fields and can expand terms; no expansion cause is inferred.",
+              "type": "string"
+            }
+          },
+          "required": [
+            "kind",
+            "message"
+          ],
+          "type": "object"
+        },
         {
           "additionalProperties": false,
           "description": "A checked provider answer survived a local cache failure.",
@@ -530,6 +610,51 @@
         },
         {
           "additionalProperties": false,
+          "description": "An empty LitVar lookup can be repeated with a caller-supplied rsID.",
+          "properties": {
+            "kind": {
+              "const": "litvar_rsid_hint",
+              "type": "string"
+            },
+            "message": {
+              "description": "Guidance that never supplies or infers an rsID.",
+              "type": "string"
+            }
+          },
+          "required": [
+            "kind",
+            "message"
+          ],
+          "type": "object"
+        },
+        {
+          "additionalProperties": false,
+          "description": "PubMed supplied a named ESearch warning without changing its phrases.",
+          "properties": {
+            "kind": {
+              "const": "pubmed_warning",
+              "type": "string"
+            },
+            "name": {
+              "description": "Original provider warning name, including names added by PubMed later.",
+              "type": "string"
+            },
+            "phrases": {
+              "description": "Original provider phrases, preserving whitespace and quotes.",
+              "items": {
+                "type": "string"
+              },
+              "type": "array"
+            }
+          },
+          "required": [
+            "kind",
+            "name"
+          ],
+          "type": "object"
+        },
+        {
+          "additionalProperties": false,
           "description": "PubMed did not index these words.",
           "properties": {
             "kind": {
@@ -545,8 +670,7 @@
             }
           },
           "required": [
-            "kind",
-            "words"
+            "kind"
           ],
           "type": "object"
         }
@@ -575,7 +699,7 @@
           ]
         },
         "notices": {
-          "description": "Provider query notices that do not indicate failure.",
+          "description": "Source notices and request recovery guidance.",
           "items": {
             "$ref": "#/$defs/SourceNotice"
           },
@@ -617,6 +741,7 @@
         },
         "terms_url": {
           "description": "Publisher page documenting the terms.",
+          "format": "uri",
           "type": "string"
         },
         "use": {
@@ -671,8 +796,7 @@
         }
       },
       "required": [
-        "kind",
-        "args"
+        "kind"
       ],
       "type": "object"
     },
@@ -708,7 +832,7 @@
       "type": "string"
     }
   },
-  "$id": "biomcp.help/2",
+  "$id": "biomcp.help/3",
   "$schema": "https://json-schema.org/draft/2020-12/schema",
   "additionalProperties": false,
   "description": "One versioned command response; schema identity comes only from its body type.",
@@ -750,11 +874,8 @@
       "type": "array"
     },
     "query": {
-      "description": "Parsed query.",
-      "items": {
-        "type": "string"
-      },
-      "type": "array"
+      "$ref": "#/$defs/HelpQuery",
+      "description": "Parsed query."
     },
     "result": {
       "anyOf": [
@@ -768,7 +889,7 @@
       "description": "Answer when available."
     },
     "schema": {
-      "const": "biomcp.help/2",
+      "const": "biomcp.help/3",
       "type": "string"
     },
     "sources": {

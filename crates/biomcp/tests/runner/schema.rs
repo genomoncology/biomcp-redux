@@ -81,6 +81,7 @@ impl Registry {
             .get("schema")
             .and_then(Value::as_str)
             .ok_or("schema validation: result requires a string schema identity")?;
+        reject_empty_lists(value, "")?;
         let validator = self
             .validators
             .get(id)
@@ -96,6 +97,26 @@ impl Registry {
         }
         Ok(())
     }
+}
+
+fn reject_empty_lists(value: &Value, path: &str) -> Result<(), String> {
+    match value {
+        Value::Array(items) => {
+            if items.is_empty() {
+                return Err(format!("product reply contains an empty list at {path}"));
+            }
+            for (index, item) in items.iter().enumerate() {
+                reject_empty_lists(item, &format!("{path}/{index}"))?;
+            }
+        }
+        Value::Object(fields) => {
+            for (name, item) in fields {
+                reject_empty_lists(item, &format!("{path}/{name}"))?;
+            }
+        }
+        _ => {}
+    }
+    Ok(())
 }
 
 #[derive(Clone)]

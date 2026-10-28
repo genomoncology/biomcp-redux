@@ -28,9 +28,8 @@
         "GRCh37"
       ],
       "max_bytes": 1187,
-      "max_tokens": 297,
       "expect": {
-        "/schema": "biomcp.variant_page/6",
+        "/schema": "biomcp.variant-page/9",
         "/status": "partial",
         "/query": {
           "equals": {
@@ -49,7 +48,7 @@
               {
                 "identity": {
                   "ids": [
-                    "rs121434568",
+                    "rs:121434568",
                     "clinvar:16609"
                   ],
                   "representations": [
@@ -127,8 +126,7 @@
             "name": "dbNSFP academic branch and individual component terms",
             "url": "https://sites.google.com/site/jpopgen/dbNSFP"
           }
-        },
-        "/result/items": []
+        }
       }
     },
     {
@@ -152,7 +150,7 @@
               {
                 "identity": {
                   "ids": [
-                    "rs121434568",
+                    "rs:121434568",
                     "clinvar:16609"
                   ],
                   "representations": [

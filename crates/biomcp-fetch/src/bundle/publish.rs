@@ -6,7 +6,7 @@ use super::{
 };
 use crate::{
     CacheError, Deadline,
-    cache::{Cache, db_error, sql_deadline},
+    cache::{Cache, db_error, sql_deadline, write_transaction},
 };
 use rusqlite::{Connection, params};
 
@@ -35,10 +35,11 @@ impl Cache {
                 tx.commit().map_err(db_error)?;
             }
         }
-        // A busy attempt rolls back before retry; staged rows remain private.
+        // Reserve the writer before reading ownership. A deferred read snapshot
+        // cannot upgrade after a concurrent query owner commits a new WAL frame.
         self.publish_sql(deadline, || {
             sql_deadline(&connection, deadline)?;
-            let tx = connection.unchecked_transaction().map_err(db_error)?;
+            let tx = write_transaction(&connection)?;
             if let Some(holder) = holder {
                 let owned: bool = tx
                     .query_row(

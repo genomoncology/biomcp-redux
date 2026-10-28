@@ -1,4 +1,6 @@
 //! Checked source replies mapped into shared human gene values.
+/// Restricted AlphaGenome prediction service.
+pub mod alphagenome;
 pub mod hgnc;
 mod mapped;
 pub mod mygene;
@@ -22,6 +24,7 @@ pub mod wikipathways;
 pub mod civic;
 
 pub mod clingen;
+pub mod gencc;
 
 pub mod hpa;
 
@@ -42,6 +45,7 @@ pub mod pdf;
 pub mod semantic_scholar;
 mod xml_element;
 
+pub mod guidance;
 pub mod registry;
 
 /// Sentence resemblance in native provider order.

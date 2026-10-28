@@ -3,6 +3,8 @@ use std::collections::{BTreeMap, BTreeSet};
 
 type Check<T> = Result<T, String>;
 
+const STRING_FORMATS: &[&str] = &["date", "date-time", "uri", "uri-reference"];
+
 #[derive(Debug, Default)]
 struct Shape {
     types: BTreeSet<String>,
@@ -18,6 +20,7 @@ struct Shape {
     maximum: Option<Bound>,
     closed: bool,
     markdown: bool,
+    string_format: Option<String>,
     impossible: bool,
     map_values: bool,
     map_keys: bool,
@@ -44,6 +47,10 @@ pub(super) fn check(old: &Value, new: &Value) -> Check<()> {
             || new.map_values && !old.map_values
             || new.map_keys && !old.map_keys
             || old.markdown && !new.markdown
+            || old
+                .string_format
+                .as_ref()
+                .is_some_and(|format| new.string_format.as_ref() != Some(format))
             || old.pattern != new.pattern
             || new
                 .minimum
@@ -139,8 +146,14 @@ fn visit(
     if let Some(branches) = node.get("anyOf")
         && selectors(node)?.is_none()
     {
-        for branch in optional_branches(branches)? {
-            visit(root, branch, path, shapes, refs)?;
+        if let Ok(branches) = optional_branches(branches) {
+            for branch in branches {
+                visit(root, branch, path, shapes, refs)?;
+            }
+        } else {
+            for (kind, branch) in scalar_branches(root, branches)? {
+                visit(root, branch, &format!("{path}/@type={kind}"), shapes, refs)?;
+            }
         }
     }
     if let Some(branches) = node.get("oneOf") {
@@ -228,16 +241,7 @@ fn collect(node: &Value, path: &str, shapes: &mut BTreeMap<String, Shape>) -> Ch
     if let Some(maximum) = node.get("maximum") {
         shape.maximum = Some(bound(node, maximum)?);
     }
-    if node.get("format").is_some_and(|format| {
-        format != "uint32"
-            && format != "uint64"
-            && format != "int64"
-            && format != "double"
-            && format != "markdown"
-    }) {
-        return Err("unsupported format".into());
-    }
-    shape.markdown |= node.get("format").is_some_and(|v| v == "markdown");
+    collect_format(node, shape)?;
     if let Some(values) = node.get("enum") {
         shape.values = Some(
             values
@@ -271,6 +275,31 @@ fn collect(node: &Value, path: &str, shapes: &mut BTreeMap<String, Shape>) -> Ch
         shape.minimum_length = minimum.as_u64().ok_or("invalid minLength")?;
     }
     collect_map(node, shape)
+}
+
+fn collect_format(node: &Value, shape: &mut Shape) -> Check<()> {
+    if node.get("format").is_some_and(|format| {
+        format != "uint32"
+            && format != "uint64"
+            && format != "int64"
+            && format != "double"
+            && format != "markdown"
+            && !format
+                .as_str()
+                .is_some_and(|format| STRING_FORMATS.contains(&format))
+    }) {
+        return Err("unsupported format".into());
+    }
+    if let Some(format) = node.get("format").and_then(Value::as_str)
+        && STRING_FORMATS.contains(&format)
+    {
+        if !shape.types.contains("string") {
+            return Err("string format requires a string schema".into());
+        }
+        shape.string_format = Some(format.into());
+    }
+    shape.markdown |= node.get("format").is_some_and(|v| v == "markdown");
+    Ok(())
 }
 
 fn collect_map(node: &Value, shape: &mut Shape) -> Check<()> {
@@ -346,6 +375,37 @@ fn optional_branches(branches: &Value) -> Check<&[Value]> {
         return Err("unsupported anyOf value".into());
     }
     Ok(branches)
+}
+
+// The scalar representation permits exactly two disjoint JSON types. Keep
+// their paths separate so constraints in one branch cannot hide the other.
+fn scalar_branches<'a>(root: &Value, branches: &'a Value) -> Check<Vec<(String, &'a Value)>> {
+    let branches = branches.as_array().ok_or("invalid scalar anyOf")?;
+    if branches.len() != 2 {
+        return Err("unsupported scalar union".into());
+    }
+    let mut kinds = BTreeSet::new();
+    let mut result = Vec::new();
+    for branch in branches {
+        let resolved = if let Some(reference) = branch.get("$ref") {
+            root.pointer(
+                reference
+                    .as_str()
+                    .and_then(|r| r.strip_prefix('#'))
+                    .filter(|r| r.starts_with("/$defs/"))
+                    .ok_or("unsupported scalar reference")?,
+            )
+            .ok_or("unresolved scalar reference")?
+        } else {
+            branch
+        };
+        let kind = resolved["type"].as_str().ok_or("missing scalar type")?;
+        if !["number", "object"].contains(&kind) || !kinds.insert(kind) {
+            return Err("unsupported scalar union".into());
+        }
+        result.push((kind.to_owned(), branch));
+    }
+    Ok(result)
 }
 
 // These unions are internally tagged objects. Branch identity includes both
@@ -429,25 +489,14 @@ fn validate_keywords(object: &serde_json::Map<String, Value>, path: &str) -> Che
             "x-trailing-section",
             "x-comma-separated",
             "x-cli-flags",
+            "x-reply-query-titles",
         ]
         .contains(&key.as_str())
         {
             return Err(format!("unsupported keyword {key} at {path}"));
         }
     }
-    validate_cli_flags(object.get("x-cli-flags"))?;
-    if object
-        .get("x-trailing-section")
-        .is_some_and(|value| value != &Value::Bool(true))
-    {
-        return Err("unsupported trailing-section annotation".into());
-    }
-    if object
-        .get("x-comma-separated")
-        .is_some_and(|v| v != &Value::Bool(true))
-    {
-        return Err("unsupported comma-separated annotation".into());
-    }
+    validate_annotations(object)?;
     // These generated forms carry annotations beside a reference or union,
     // never assertions. Assertions would intersect, while Shape only records
     // one constraint at each path; refuse them instead of merging incorrectly.
@@ -456,6 +505,11 @@ fn validate_keywords(object: &serde_json::Map<String, Value>, path: &str) -> Che
             && !(composition == "anyOf" && selectors(&Value::Object(object.clone()))?.is_some())
             && object.keys().any(|key| {
                 key != composition
+                    && !(key == "format"
+                        && object
+                            .get(key)
+                            .and_then(Value::as_str)
+                            .is_some_and(|format| STRING_FORMATS.contains(&format)))
                     && ![
                         "$schema",
                         "$id",
@@ -467,6 +521,7 @@ fn validate_keywords(object: &serde_json::Map<String, Value>, path: &str) -> Che
                         "x-trailing-section",
                         "x-comma-separated",
                         "x-cli-flags",
+                        "x-reply-query-titles",
                         "default",
                     ]
                     .contains(&key.as_str())
@@ -476,6 +531,33 @@ fn validate_keywords(object: &serde_json::Map<String, Value>, path: &str) -> Che
                 "unsupported assertion sibling of {composition} at {path}"
             ));
         }
+    }
+    Ok(())
+}
+
+fn validate_annotations(object: &serde_json::Map<String, Value>) -> Check<()> {
+    validate_cli_flags(object.get("x-cli-flags"))?;
+    if object.get("x-reply-query-titles").is_some_and(|value| {
+        !value.as_array().is_some_and(|titles| {
+            !titles.is_empty()
+                && titles
+                    .iter()
+                    .all(|title| title.as_str().is_some_and(|title| !title.is_empty()))
+        })
+    }) {
+        return Err("invalid reply query title annotation".into());
+    }
+    if object
+        .get("x-trailing-section")
+        .is_some_and(|value| value != &Value::Bool(true))
+    {
+        return Err("unsupported trailing-section annotation".into());
+    }
+    if object
+        .get("x-comma-separated")
+        .is_some_and(|v| v != &Value::Bool(true))
+    {
+        return Err("unsupported comma-separated annotation".into());
     }
     Ok(())
 }

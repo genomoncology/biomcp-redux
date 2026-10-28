@@ -1,6 +1,7 @@
 {
   "$defs": {
     "GeneInput": {
+      "description": "An input classified before source resolution; aliases remain free text.",
       "pattern": "\\S",
       "type": "string"
     },
@@ -10,6 +11,7 @@
         "protein",
         "civic",
         "clingen",
+        "gencc",
         "constraint",
         "expression",
         "pathways",
@@ -21,6 +23,7 @@
         " Reviewed human proteins.",
         " CIViC gene curation.",
         " ClinGen validity and dosage.",
+        " GenCC submitter assessments.",
         " Population constraint metrics.",
         " Human Protein Atlas expression.",
         " Human Reactome pathways.",

@@ -10,6 +10,7 @@ use serde::{Deserialize, Serialize};
 #[cfg_attr(feature = "schema", derive(schemars::JsonSchema))]
 pub struct AuthorPage {
     /// Source candidates; no deduplication by display name.
+    #[serde(default, skip_serializing_if = "<[_]>::is_empty")]
     pub items: Box<[AuthorHeader]>,
     /// Native matching-record total, if supplied.
     #[serde(skip_serializing_if = "Option::is_none")]
@@ -21,6 +22,7 @@ pub struct AuthorPage {
 #[cfg_attr(feature = "schema", derive(schemars::JsonSchema))]
 pub struct AuthorCards {
     /// Exact returned source cards, with no cross-source links.
+    #[serde(default, skip_serializing_if = "<[_]>::is_empty")]
     pub items: Box<[AuthorCardItem]>,
 }
 /// One exact input and its independent outcome.
@@ -46,6 +48,7 @@ macro_rules! papers {
             /// Requested provider record.
             pub author: AuthorId,
             /// Original source order; no native corpus total is claimed.
+            #[serde(default, skip_serializing_if = "<[_]>::is_empty")]
             pub items: Box<[$row]>,
         }
     };
@@ -77,27 +80,28 @@ pub struct OrcidWorks {
     /// Requested exact ORCID record.
     pub author: biodata::OrcidId,
     /// Whole groups in native order, with every public assertion.
+    #[serde(default, skip_serializing_if = "<[_]>::is_empty")]
     pub groups: Box<[OrcidWorkGroup]>,
     /// Observed groups in the complete received reply, never a publication total.
     pub observed_groups: u64,
 }
 impl ResponseBody for AuthorPage {
-    const SCHEMA: &'static str = "biomcp.author_page/2";
+    const SCHEMA: &'static str = "biomcp.author-page/3";
     type Query = AuthorSearch;
 }
 impl ResponseBody for AuthorCards {
-    const SCHEMA: &'static str = "biomcp.author_card/3";
+    const SCHEMA: &'static str = "biomcp.author-card/4";
     type Query = AuthorGet;
 }
 impl ResponseBody for AuthorPapers {
-    const SCHEMA: &'static str = "biomcp.author_papers/1";
+    const SCHEMA: &'static str = "biomcp.author-papers/1";
     type Query = AuthorPapersQuery;
 }
 impl ResponseBody for AuthorPaperDetails {
-    const SCHEMA: &'static str = "biomcp.author_paper_details/1";
+    const SCHEMA: &'static str = "biomcp.author-paper-details/1";
     type Query = AuthorPapersQuery;
 }
 impl ResponseBody for OrcidWorks {
-    const SCHEMA: &'static str = "biomcp.orcid_works/2";
+    const SCHEMA: &'static str = "biomcp.orcid-works/3";
     type Query = AuthorPapersQuery;
 }

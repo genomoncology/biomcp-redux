@@ -57,12 +57,13 @@ pub struct PathwayPageInfo {
 #[cfg_attr(feature = "schema", derive(schemars::JsonSchema))]
 pub struct PathwayPage {
     /// Whole admitted pathway headers in native order.
+    #[serde(default, skip_serializing_if = "<[_]>::is_empty")]
     pub items: Box<[PathwayHeader]>,
     /// Native position and total provenance.
     pub page: PathwayPageInfo,
 }
 impl ResponseBody for PathwayPage {
-    const SCHEMA: &'static str = "biomcp.pathway_page/3";
+    const SCHEMA: &'static str = "biomcp.pathway-page/3";
     type Query = PathwaySearch;
 }
 /// One checked source pathway with supported disclosures and whole native text.
@@ -79,6 +80,7 @@ pub struct PathwayCard {
     #[serde(default, skip_serializing_if = "Option::is_none")]
     pub description_truncated: Option<bool>,
     /// Source-supported named sections; WikiPathways excludes events.
+    #[serde(default, skip_serializing_if = "<[_]>::is_empty")]
     pub sections: Box<[PathwaySection]>,
     /// Requested bounded membership page, including its explicit source state.
     #[serde(default, skip_serializing_if = "Option::is_none")]
@@ -88,7 +90,7 @@ pub struct PathwayCard {
     pub events: Option<crate::Section<PathwayEvents>>,
 }
 impl ResponseBody for PathwayCard {
-    const SCHEMA: &'static str = "biomcp.pathway_card/5";
+    const SCHEMA: &'static str = "biomcp.pathway-card/5";
     type Query = PathwayGet;
 }
 macro_rules! relation_page {
@@ -101,6 +103,7 @@ macro_rules! relation_page {
             /// Exact source pathway owning this relation.
             pub header: PathwayHeader,
             /// Whole native references; unresolved identities remain visible.
+            #[serde(default, skip_serializing_if = "<[_]>::is_empty")]
             pub items: Box<[$row]>,
             /// Relation-specific count provenance and continuation.
             pub page: PathwayPageInfo,
@@ -119,6 +122,7 @@ pub struct PathwayGenes {
     /// Exact source pathway owning this relation.
     pub header: PathwayHeader,
     /// Distinct namespaced source references in first occurrence order.
+    #[serde(default, skip_serializing_if = "<[_]>::is_empty")]
     pub items: Box<[PathwayMember]>,
     /// Distinct-reference total and continuation.
     pub page: PathwayPageInfo,
@@ -128,14 +132,14 @@ pub struct PathwayGenes {
     pub physical_entities: u64,
 }
 impl ResponseBody for PathwayGenes {
-    const SCHEMA: &'static str = "biomcp.pathway_genes/4";
+    const SCHEMA: &'static str = "biomcp.pathway-genes/4";
     type Query = PathwayGenesQuery;
 }
 relation_page!(
     PathwayEvents,
     PathwayEventRef,
     PathwayEventsQuery,
-    "biomcp.pathway_events/2"
+    "biomcp.pathway-events/2"
 );
 /// Receipt for one independently validated WikiPathways metadata catalog.
 #[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
@@ -158,6 +162,8 @@ pub struct WikiPathwaysCatalogReceipt {
 #[serde(deny_unknown_fields)]
 #[cfg_attr(feature = "schema", derive(schemars::JsonSchema))]
 pub struct WikiPathwaysSync {
+    /// Source body bytes received in this synchronization; excludes replay.
+    pub downloaded_bytes: u64,
     /// Search metadata catalog receipt.
     pub search: WikiPathwaysCatalogReceipt,
     /// Exact-get metadata catalog receipt.
@@ -165,6 +171,6 @@ pub struct WikiPathwaysSync {
 }
 
 impl ResponseBody for WikiPathwaysSync {
-    const SCHEMA: &'static str = "biomcp.wikipathways_sync/1";
+    const SCHEMA: &'static str = "biomcp.wikipathways-sync/2";
     type Query = crate::SyncQuery;
 }

@@ -37,6 +37,7 @@ pub struct PgxPair {
     /// Native `guidelinename`; literal source value.
     pub guidelinename: Option<Box<str>>,
     /// Native `guidelineurl`; literal source value.
+    #[cfg_attr(feature = "schema", schemars(extend("format" = "uri")))]
     pub guidelineurl: Option<Box<str>>,
     /// Native `cpiclevel`; literal source value.
     pub cpiclevel: Box<str>,
@@ -68,6 +69,7 @@ pub struct PgxRecommendation {
     /// Native `guidelinename`; literal source value.
     pub guidelinename: Box<str>,
     /// Native `guidelineurl`; literal source value.
+    #[cfg_attr(feature = "schema", schemars(extend("format" = "uri")))]
     pub guidelineurl: Box<str>,
     /// Native `implications`; literal source value.
     pub implications: BTreeMap<super::PgxGeneKey, Box<str>>,
@@ -128,6 +130,7 @@ pub struct PgxDrugRecommendation {
 #[cfg_attr(feature = "schema", derive(schemars::JsonSchema))]
 pub struct PgxGuidelineGene {
     /// Native `url`; literal source value.
+    #[cfg_attr(feature = "schema", schemars(extend("format" = "uri")))]
     pub url: Box<str>,
     /// Native `symbol`; literal source value.
     pub symbol: GeneSymbol,
@@ -140,10 +143,13 @@ pub struct PgxGuidelineReference {
     /// Native `guideline_name`; literal source value.
     pub guideline_name: Box<str>,
     /// Native `guideline_url`; literal source value.
+    #[cfg_attr(feature = "schema", schemars(extend("format" = "uri")))]
     pub guideline_url: Box<str>,
     /// Native `drugs`; literal source value.
+    #[serde(default, skip_serializing_if = "<[_]>::is_empty")]
     pub drugs: Box<[Box<str>]>,
     /// Native `genes`; literal source value.
+    #[serde(default, skip_serializing_if = "<[_]>::is_empty")]
     pub genes: Box<[PgxGuidelineGene]>,
 }
 /// Source-native PgxDiplotypeResult fields; no clinical interpretation.

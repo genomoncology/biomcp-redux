@@ -19,16 +19,17 @@
         }
       },
       "required": [
-        "items",
         "total"
       ],
       "type": "object"
     },
     "NctId": {
+      "description": "Canonical ClinicalTrials.gov identifier.",
       "pattern": "^NCT(?!00000000)[0-9]{8}$",
       "type": "string"
     },
     "PartialDate": {
+      "description": "A Gregorian date preserving year, month or day precision.",
       "pattern": "^[0-9]{4}(-[0-9]{2}(-[0-9]{2})?)?$",
       "type": "string"
     },
@@ -107,14 +108,14 @@
     },
     "url": {
       "$ref": "#/$defs/Text",
-      "description": "Publisher's canonical record URL."
+      "description": "Publisher's canonical record URL.",
+      "format": "uri"
     }
   },
   "required": [
     "nct_id",
     "title",
     "status",
-    "phases",
     "conditions",
     "interventions",
     "updated",

@@ -43,15 +43,16 @@ fn ceiling(value: &Value, schema: &str) -> Option<(usize, usize)> {
         return Some(if value.get("next").is_some() {
             (250, 250)
         } else {
-            (165, 165)
+            // j19028: typed argument names, 218 compact bytes plus 15 percent.
+            (251, 251)
         });
     }
     if value.get("status") == Some(&json!("failed")) {
         return match schema {
-            "biomcp.adverse_event_page/2" => Some((364, 232)),
-            "biomcp.adverse_event_maude_card/1" => Some((472, 340)),
-            "biomcp.adverse_event_devices/1" => Some((481, 349)),
-            "biomcp.adverse_event_narrative/1" => Some((500, 367)),
+            "biomcp.adverse-event-page/2" => Some((364, 232)),
+            "biomcp.adverse-event-maude-card/1" => Some((472, 340)),
+            "biomcp.adverse-event-devices/1" => Some((481, 349)),
+            "biomcp.adverse-event-narrative/1" => Some((500, 367)),
             _ => None,
         };
     }
@@ -59,10 +60,10 @@ fn ceiling(value: &Value, schema: &str) -> Option<(usize, usize)> {
         return Some((733, 601));
     }
     match schema {
-        "biomcp.adverse_event_page/2" => Some((948, 816)),
-        "biomcp.adverse_event_maude_card/1" => Some((1497, 1364)),
-        "biomcp.adverse_event_devices/1" => Some((1241, 1109)),
-        "biomcp.adverse_event_narrative/1" => Some((912, 780)),
+        "biomcp.adverse-event-page/2" => Some((948, 816)),
+        "biomcp.adverse-event-maude-card/1" => Some((1497, 1364)),
+        "biomcp.adverse-event-devices/1" => Some((1241, 1109)),
+        "biomcp.adverse-event-narrative/1" => Some((912, 780)),
         _ => None,
     }
 }

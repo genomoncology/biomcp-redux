@@ -3,7 +3,14 @@ use super::{configuration::invoke, launch::Environment, network_stub::Stub};
 use libtest_mimic::Trial;
 use serde_json::json;
 use std::fs;
+#[path = "pubmed_orcid_bad_values.rs"]
+mod bad_values;
 pub(super) fn trials() -> Vec<Trial> {
+    let mut trials = bad_values::trials();
+    trials.extend(existing_trials());
+    trials
+}
+fn existing_trials() -> Vec<Trial> {
     vec![Trial::test(
         "author-orcid/oversized-whole-reply-is-failed",
         || oversized().map_err(Into::into),
@@ -15,6 +22,7 @@ fn oversized() -> Result<(), String> {
     })?;
     let env = Environment::new().map_err(|e| e.to_string())?;
     let ca = env.root().join("ca.pem");
+    stub.retain(&env);
     fs::write(&ca, &stub.certificate).map_err(|e| e.to_string())?;
     env.config(&json!({"ca_bundle":ca,"proxy":format!("http://{}",stub.address)}))
         .map_err(|e| e.to_string())?;

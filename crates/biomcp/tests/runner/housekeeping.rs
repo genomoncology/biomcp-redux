@@ -1,4 +1,7 @@
 //! Housekeeping runs through the isolated installed command boundary.
+#[path = "housekeeping_path.rs"]
+mod stable_path;
+
 use super::launch::Environment;
 use libtest_mimic::Trial;
 use serde_json::{Value, json};
@@ -6,14 +9,16 @@ use std::{fs, path::Path, process::Output};
 type Check<T = ()> = Result<T, Box<dyn std::error::Error>>;
 
 pub(super) fn trials() -> Vec<Trial> {
-    vec![
+    let mut trials = vec![
         Trial::test("housekeeping/offline-provenance-and-config", || {
             check().map_err(|error| error.to_string().into())
         }),
         Trial::test("housekeeping/invalid-globals-ignore-key-config", || {
             invalid_globals().map_err(|error| error.to_string().into())
         }),
-    ]
+    ];
+    trials.extend(stable_path::trials());
+    trials
 }
 fn run(env: &Environment, args: &[&str], empty: bool) -> Check<Output> {
     let words: Vec<_> = args.iter().map(|s| (*s).to_owned()).collect();
@@ -46,9 +51,11 @@ fn check() -> Check {
     let config = env.root().join("config/biomcp/config.json");
     fs::write(&config, b"invalid config must never be read")?;
     for empty in [false, true] {
-        let output = run(&env, &["version", "--offline"], empty)?;
-        if success(&output)? != format!("biomcp {}\n", env!("CARGO_PKG_VERSION")) {
-            return Err("wrong version".into());
+        for args in [["version", "--offline"], ["--version", "--offline"]] {
+            let output = run(&env, &args, empty)?;
+            if success(&output)? != format!("biomcp {}\n", env!("CARGO_PKG_VERSION")) {
+                return Err("wrong version".into());
+            }
         }
         let output = run(&env, &["version", "--verbose", "--offline"], empty)?;
         let text = success(&output)?;
@@ -59,7 +66,7 @@ fn check() -> Check {
         }
         if !text.contains(&format!("Commit: {}\n", env!("BIOMCP_BUILD_COMMIT")))
             || !text.contains(&format!("Target: {}\n", env!("BIOMCP_BUILD_TARGET")))
-            || !text.contains("biomcp.help/2")
+            || !text.contains(<biomcp_types::Help as biomcp_types::ResponseBody>::SCHEMA)
             || !text.contains("biomcp.error/1")
         {
             return Err("verbose build or schema provenance differs from this artifact".into());
@@ -190,9 +197,9 @@ fn shell_client(env: &Environment, empty: bool) -> Check {
 fn limit(args: &[&str], executable: &Path) -> Check<usize> {
     let (mut bytes, path) = match args {
         ["version", ..] if args.contains(&"--verbose") => (7023, None),
-        ["version", ..] => (13, None),
-        ["help", "version", ..] => (426, None),
-        ["help", "mcp-config", ..] => (838, None),
+        ["version" | "--version", ..] => (13, None),
+        ["help", "version", ..] => (1275, None),
+        ["help", "mcp-config", ..] => (1650, None),
         ["mcp-config", ..] if args.contains(&"unknown") => (221, None),
         ["mcp-config", ..] if args.contains(&"codex") => (94, Some(true)),
         ["mcp-config", ..] if args.contains(&"servers") || args.contains(&"vscode") => {

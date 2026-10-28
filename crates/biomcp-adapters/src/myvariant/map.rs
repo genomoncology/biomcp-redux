@@ -1,13 +1,15 @@
 use super::raw::{Genes, Hit, OneOrMany};
 use crate::Mapped;
+use crate::mapped::problem;
 use biodata::{Build, Expression, ExpressionSyntax, Representation, Text, Variant, VariantId};
 
-use biomcp_types::{Problem, ProblemCode, Source, SourceRecord, VariantHeader};
+use biomcp_types::{Problem, Source, SourceRecord, VariantHeader};
 pub(super) fn candidates(
     hits: Vec<Hit>,
     query: &str,
     build: Option<Build>,
     allow_clinvar: bool,
+    allow_snpeff: bool,
 ) -> Mapped<Vec<VariantHeader>> {
     let mut value = Vec::new();
     let mut problems = Vec::new();
@@ -22,14 +24,14 @@ pub(super) fn candidates(
             })
             .unwrap_or_default();
         if !hit.matches(query) || value.iter().any(|v: &VariantHeader| v.record.id == hit.id) {
-            problems.push(problem(hit.id, "identity"));
+            problems.push(problem(Source::MyVariant, Some(hit.id), "identity"));
             continue;
         }
         let mut ids = Vec::new();
         for alias in aliases {
             match alias.as_str().parse::<VariantId>() {
-                Ok(id) => ids.push(id),
-                Err(_) => problems.push(problem(hit.id.clone(), "ids")),
+                Ok(id @ VariantId::Rs(_)) => ids.push(id),
+                _ => problems.push(problem(Source::MyVariant, Some(hit.id.clone()), "ids")),
             }
         }
         if allow_clinvar
@@ -38,24 +40,19 @@ pub(super) fn candidates(
         {
             ids.push(VariantId::ClinVarVariation(id));
         }
-        let component_terms = component_terms(&ids);
-        let mut genes = Vec::new();
-        if let Some(source_genes) = hit.dbsnp.and_then(|d| d.gene) {
-            let source_genes = match source_genes {
-                Genes::One(v) => vec![v],
-                Genes::Many(v) => v,
-            };
-            for gene in source_genes {
-                if let Some(symbol) = gene.symbol {
-                    match biodata::GeneRef::new(symbol, None, None, None) {
-                        Ok(g) => genes.push(g),
-                        Err(_) => problems.push(problem(hit.id.clone(), "genes")),
-                    }
-                }
-            }
+        let mut component_terms = component_terms(&ids).into_vec();
+        let transcripts =
+            super::transcripts::map(hit.snpeff.filter(|_| allow_snpeff), &hit.id, &mut problems);
+        if !transcripts.is_empty() {
+            component_terms.extend(super::transcripts::label());
         }
+        let genes = genes(hit.dbsnp.and_then(|d| d.gene), &hit.id, &mut problems);
         if build.is_none() {
-            problems.push(problem(hit.id.clone(), "representations.build"));
+            problems.push(problem(
+                Source::MyVariant,
+                Some(hit.id.clone()),
+                "representations.build",
+            ));
         }
         let expression = Expression::new(ExpressionSyntax::HgvsG, hit.id.clone(), None);
         let representations = match expression {
@@ -66,7 +63,11 @@ pub(super) fn candidates(
                 allele: None,
             }],
             Err(_) => {
-                problems.push(problem(hit.id.clone(), "representations"));
+                problems.push(problem(
+                    Source::MyVariant,
+                    Some(hit.id.clone()),
+                    "representations",
+                ));
                 continue;
             }
         };
@@ -81,21 +82,14 @@ pub(super) fn candidates(
                 id: hit.id,
                 url: None,
             },
+            transcripts,
             myvariant: None,
             requested: None,
             sections: None,
-            component_terms,
+            component_terms: component_terms.into(),
         });
     }
     Mapped { value, problems }
-}
-fn problem(record: Text, field: &str) -> Problem {
-    Problem {
-        source: Source::MyVariant,
-        record: Some(record),
-        field: field.into(),
-        code: ProblemCode::ValueUnknown,
-    }
 }
 
 fn component_terms(ids: &[VariantId]) -> Box<[biomcp_types::ComponentLabel]> {
@@ -112,4 +106,26 @@ fn component_terms(ids: &[VariantId]) -> Box<[biomcp_types::ComponentLabel]> {
     } else {
         Box::default()
     }
+}
+
+fn genes(
+    source: Option<Genes>,
+    record: &Text,
+    problems: &mut Vec<Problem>,
+) -> Vec<biodata::GeneRef> {
+    let mut genes = Vec::new();
+    let source_genes = match source {
+        Some(Genes::One(v)) => vec![v],
+        Some(Genes::Many(v)) => v,
+        None => return genes,
+    };
+    for gene in source_genes {
+        if let Some(symbol) = gene.symbol {
+            match biodata::GeneRef::new(symbol, None, None, None) {
+                Ok(g) => genes.push(g),
+                Err(_) => problems.push(problem(Source::MyVariant, Some(record.clone()), "genes")),
+            }
+        }
+    }
+    genes
 }

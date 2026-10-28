@@ -29,8 +29,7 @@
         "/query/offset": 0
       },
       "full_output_bytes": true,
-      "max_bytes": 2764,
-      "max_tokens": 691
+      "max_bytes": 2764
     }
   ]
 }

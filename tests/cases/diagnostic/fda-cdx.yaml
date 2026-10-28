@@ -13,9 +13,8 @@
         "fda-cdx"
       ],
       "max_bytes": 354,
-      "max_tokens": 89,
       "expect": {
-        "/schema": "biomcp.sync/4",
+        "/schema": "biomcp.sync/5",
         "/result/rows": 9
       }
     },
@@ -33,9 +32,8 @@
         "fda-cdx"
       ],
       "max_bytes": 7486,
-      "max_tokens": 1872,
       "expect": {
-        "/schema": "biomcp.diagnostic_companion/1",
+        "/schema": "biomcp.diagnostic-companion/1",
         "/page/offset": 0,
         "/page/returned": 5,
         "/page/total": 9
@@ -63,9 +61,8 @@
         "fda-cdx"
       ],
       "max_bytes": 5917,
-      "max_tokens": 1480,
       "expect": {
-        "/schema": "biomcp.diagnostic_companion/1",
+        "/schema": "biomcp.diagnostic-companion/1",
         "/page/offset": 5,
         "/page/returned": 4,
         "/page/total": 9
@@ -89,9 +86,8 @@
         "P200010"
       ],
       "max_bytes": 8163,
-      "max_tokens": 2041,
       "expect": {
-        "/schema": "biomcp.diagnostic_companion/1",
+        "/schema": "biomcp.diagnostic-companion/1",
         "/page/offset": 0,
         "/page/returned": 5,
         "/page/total": 6
@@ -123,9 +119,8 @@
         "fda-cdx"
       ],
       "max_bytes": 1635,
-      "max_tokens": 409,
       "expect": {
-        "/schema": "biomcp.diagnostic_companion/1",
+        "/schema": "biomcp.diagnostic-companion/1",
         "/page/offset": 5,
         "/page/returned": 1,
         "/page/total": 6
@@ -149,9 +144,8 @@
         "P200010/S026"
       ],
       "max_bytes": 2100,
-      "max_tokens": 525,
       "expect": {
-        "/schema": "biomcp.diagnostic_companion/1",
+        "/schema": "biomcp.diagnostic-companion/1",
         "/page/offset": 0,
         "/page/returned": 1,
         "/page/total": 1,
@@ -176,9 +170,8 @@
         "P150013/S020"
       ],
       "max_bytes": 2846,
-      "max_tokens": 712,
       "expect": {
-        "/schema": "biomcp.diagnostic_companion/1",
+        "/schema": "biomcp.diagnostic-companion/1",
         "/page/offset": 0,
         "/page/returned": 2,
         "/page/total": 2
@@ -202,9 +195,8 @@
         "KRAS"
       ],
       "max_bytes": 7641,
-      "max_tokens": 1911,
       "expect": {
-        "/schema": "biomcp.diagnostic_companion/1",
+        "/schema": "biomcp.diagnostic-companion/1",
         "/page/offset": 0,
         "/page/returned": 5,
         "/page/total": 8,
@@ -237,9 +229,8 @@
         "fda-cdx"
       ],
       "max_bytes": 4990,
-      "max_tokens": 1248,
       "expect": {
-        "/schema": "biomcp.diagnostic_companion/1",
+        "/schema": "biomcp.diagnostic-companion/1",
         "/page/offset": 5,
         "/page/returned": 3,
         "/page/total": 8
@@ -256,10 +247,9 @@
         "sync",
         "fda-cdx"
       ],
-      "max_bytes": 394,
-      "max_tokens": 99,
+      "max_bytes": 1391,
       "expect": {
-        "/schema": "biomcp.help/2",
+        "/schema": "biomcp.help/3",
         "/result/commands/0/command": [
           "sync",
           "fda-cdx"
@@ -277,10 +267,9 @@
         "search",
         "diagnostic"
       ],
-      "max_bytes": 2654,
-      "max_tokens": 664,
+      "max_bytes": 3792,
       "expect": {
-        "/schema": "biomcp.help/2",
+        "/schema": "biomcp.help/3",
         "/result/commands/0/command": [
           "search",
           "diagnostic"
@@ -299,11 +288,11 @@
         "--fresh"
       ],
       "max_bytes": 354,
-      "max_tokens": 89,
       "expect": {
-        "/schema": "biomcp.sync/4",
+        "/schema": "biomcp.sync/5",
         "/result/rows": 9
       }
     }
-  ]
+  ],
+  "verified": "Help byte limits use j18463 output plus fifteen percent for defaults, aliases, inherited options and examples; higher existing limits remain."
 }

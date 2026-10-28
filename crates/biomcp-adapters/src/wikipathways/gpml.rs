@@ -4,9 +4,10 @@ use super::{
     gpml_raw::{Document, MAX_BYTES},
 };
 use crate::Mapped;
+use crate::mapped::problem;
 use biodata::{PathwayMember, PathwaySourceRef, Text, WikiPathwaysId};
 use biomcp_fetch::{Freshness, Leg, RequestError};
-use biomcp_types::{Problem, ProblemCode, Source};
+use biomcp_types::Source;
 use std::collections::BTreeSet;
 
 /// Complete GeneProduct nodes and observed source node counts, before paging.
@@ -30,14 +31,7 @@ fn invalid() -> RequestError {
     }
     .into()
 }
-fn problem(id: &WikiPathwaysId, field: String) -> Problem {
-    Problem {
-        source: Source::WikiPathways,
-        record: id.as_str().parse().ok(),
-        field: field.into(),
-        code: ProblemCode::ValueUnknown,
-    }
-}
+
 /// Fetch exactly the publisher's documented GPML locator and validate identity before caching.
 pub fn members(leg: &Leg<'_>, id: &WikiPathwaysId) -> Result<Mapped<Members>, RequestError> {
     let endpoint = SPEC
@@ -62,8 +56,9 @@ pub fn members(leg: &Leg<'_>, id: &WikiPathwaysId) -> Result<Mapped<Members>, Re
         if node.kind.as_deref() != Some("GeneProduct") {
             if node.namespace.as_deref().is_none_or(str::is_empty) {
                 problems.push(problem(
-                    id,
-                    format!(
+                    Source::WikiPathways,
+                    id.as_str().parse().ok(),
+                    &format!(
                         "data_nodes.{}.xref",
                         node.kind.as_deref().unwrap_or("unknown")
                     ),
@@ -74,7 +69,11 @@ pub fn members(leg: &Leg<'_>, id: &WikiPathwaysId) -> Result<Mapped<Members>, Re
         if node.namespace.as_deref().is_none_or(str::is_empty)
             || node.value.as_deref().is_none_or(str::is_empty)
         {
-            problems.push(problem(id, "genes.reference".into()));
+            problems.push(problem(
+                Source::WikiPathways,
+                id.as_str().parse().ok(),
+                "genes.reference",
+            ));
         }
         items.push(PathwayMember {
             reference: PathwaySourceRef {

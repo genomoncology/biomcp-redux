@@ -8,16 +8,19 @@ pub struct ProteinComplexHeader {
     /// Native complex accession.
     pub id: ComplexPortalId,
     /// Native source name.
-    pub name: Text,
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub name: Option<Text>,
     /// Source taxonomy identifier.
     pub taxon: u32,
     /// Literal native predictedComplex flag.
-    pub predicted: bool,
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub predicted: Option<bool>,
     /// Actual participants in this exact complex, never a complex search total.
     pub participant_total: u64,
     /// Exact native participant identifier supporting admission.
     pub matched_participant: Text,
     /// Native complex record URL.
+    #[cfg_attr(feature = "schema", schemars(extend("format" = "uri")))]
     pub url: Text,
 }
 /// A native participant; names never establish a protein identity.

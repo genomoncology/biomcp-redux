@@ -355,10 +355,9 @@
       "exit": 4,
       "is_error": true,
       "expect": {
-        "/schema": "biomcp.variant_page/6",
+        "/schema": "biomcp.variant-page/9",
         "/status": "failed",
-        "/sources/0/reason": "disabled",
-        "/result/items": []
+        "/sources/0/reason": "disabled"
       }
     },
     {
@@ -385,10 +384,9 @@
       "exit": 4,
       "is_error": true,
       "expect": {
-        "/schema": "biomcp.variant_page/6",
+        "/schema": "biomcp.variant-page/9",
         "/status": "failed",
-        "/sources/0/reason": "disabled",
-        "/result/items": []
+        "/sources/0/reason": "disabled"
       }
     },
     {
@@ -415,10 +413,9 @@
       "exit": 4,
       "is_error": true,
       "expect": {
-        "/schema": "biomcp.variant_page/6",
+        "/schema": "biomcp.variant-page/9",
         "/status": "failed",
-        "/sources/0/reason": "disabled",
-        "/result/items": []
+        "/sources/0/reason": "disabled"
       }
     },
     {
@@ -445,10 +442,9 @@
       "exit": 4,
       "is_error": true,
       "expect": {
-        "/schema": "biomcp.variant_page/6",
+        "/schema": "biomcp.variant-page/9",
         "/status": "failed",
-        "/sources/0/reason": "disabled",
-        "/result/items": []
+        "/sources/0/reason": "disabled"
       }
     },
     {
@@ -475,10 +471,9 @@
       "exit": 4,
       "is_error": true,
       "expect": {
-        "/schema": "biomcp.variant_page/6",
+        "/schema": "biomcp.variant-page/9",
         "/status": "failed",
-        "/sources/0/reason": "disabled",
-        "/result/items": []
+        "/sources/0/reason": "disabled"
       }
     }
   ]

@@ -19,7 +19,6 @@
         "/status": "complete"
       },
       "max_bytes": 864,
-      "max_tokens": 216,
       "full_output_bytes": true
     },
     {
@@ -28,8 +27,7 @@
         "/status": "complete"
       },
       "full_output_bytes": true,
-      "max_bytes": 678,
-      "max_tokens": 170
+      "max_bytes": 678
     },
     {
       "run": [
@@ -52,14 +50,10 @@
         "/status": "failed",
         "/sources/0/source": "semantic-scholar",
         "/sources/0/state": "skipped",
-        "/sources/0/reason": "disabled",
-        "/result/items": {
-          "equals": []
-        }
+        "/sources/0/reason": "disabled"
       },
       "full_output_bytes": true,
-      "max_bytes": 429,
-      "max_tokens": 108
+      "max_bytes": 429
     },
     {
       "run": [
@@ -90,14 +84,10 @@
         "/status": "failed",
         "/sources/0/source": "semantic-scholar",
         "/sources/0/state": "skipped",
-        "/sources/0/reason": "disabled",
-        "/result/items": {
-          "equals": []
-        }
+        "/sources/0/reason": "disabled"
       },
       "full_output_bytes": true,
-      "max_bytes": 478,
-      "max_tokens": 120
+      "max_bytes": 478
     },
     {
       "run": [
@@ -120,14 +110,10 @@
         "/status": "failed",
         "/sources/0/source": "semantic-scholar",
         "/sources/0/state": "skipped",
-        "/sources/0/reason": "disabled",
-        "/result/items": {
-          "equals": []
-        }
+        "/sources/0/reason": "disabled"
       },
       "full_output_bytes": true,
-      "max_bytes": 429,
-      "max_tokens": 108
+      "max_bytes": 429
     },
     {
       "run": [
@@ -158,14 +144,10 @@
         "/status": "failed",
         "/sources/0/source": "semantic-scholar",
         "/sources/0/state": "skipped",
-        "/sources/0/reason": "disabled",
-        "/result/items": {
-          "equals": []
-        }
+        "/sources/0/reason": "disabled"
       },
       "full_output_bytes": true,
-      "max_bytes": 478,
-      "max_tokens": 120
+      "max_bytes": 478
     }
   ]
 }

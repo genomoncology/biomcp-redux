@@ -63,7 +63,7 @@ fn declarations() -> Check {
             .iter()
             .find(|r| r["source"] == name)
             .ok_or_else(|| format!("missing {name}"))?;
-        if row["usage"] != usage || row["terms_url"] != url || row["disabled"] != false {
+        if row["use"] != usage || row["terms_url"] != url || row["disabled"] != false {
             return Err(format!("wrong declaration: {row}"));
         }
         if row["terms"].as_str().is_none_or(|s| s.is_empty()) {
@@ -377,6 +377,7 @@ fn enabled_health() -> Check {
         |_| Ok("{}".into()),
     )?;
     let cert = env.root().join("private-ca.pem");
+    stub.retain(&env);
     std::fs::write(&cert, &stub.certificate).map_err(|e| e.to_string())?;
     env.config(&json!({"ca_bundle":cert,"proxy":format!("http://{}",stub.address)}))
         .map_err(|e| e.to_string())?;

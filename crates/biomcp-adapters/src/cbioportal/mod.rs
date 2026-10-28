@@ -5,8 +5,11 @@ use biomcp_fetch::{Arg, BadReply, Freshness, KeyUse, Leg, PathSegment, RequestEr
 use biomcp_types::{RecurrenceStudy, Source, VariantRecurrenceQuery};
 pub use raw::Mutation;
 use std::time::Duration;
+/// Reviewed DataHub directory API origin.
+pub(crate) const GITHUB_ORIGIN: &str = "https://api.github.com";
 /// Study-specific terms must be verified independently of public read access.
 pub static SPEC: SourceSpec = SourceSpec {
+    destinations: biomcp_fetch::Destinations::Additional(&[GITHUB_ORIGIN]),
     user_agent: None,
     source: Source::Cbioportal,
     base: "https://www.cbioportal.org/api",
@@ -158,3 +161,5 @@ fn sample_count(
 /// Stored public catalog metadata.
 pub mod studies;
 pub use studies::sync as sync_studies;
+
+pub(crate) use studies::bundle_state;

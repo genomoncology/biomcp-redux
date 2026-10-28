@@ -33,9 +33,11 @@ pub struct AuthorHeader {
     /// Exact qualified provider record.
     pub id: AuthorId,
     /// Source display name, never a join key.
-    pub name: Text,
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    #[cfg_attr(feature = "schema", schemars(with = "Text"))]
+    pub name: Option<Text>,
     /// Native affiliation labels; no employment claim.
-    #[serde(skip_serializing_if = "Option::is_none")]
+    #[serde(skip_serializing_if = "crate::absent_or_empty")]
     pub affiliations: Option<Box<[Text]>>,
     /// Source record counts when supplied.
     #[serde(skip_serializing_if = "Option::is_none")]
@@ -50,6 +52,7 @@ pub struct AuthorCard {
     pub header: AuthorHeader,
     /// Provider record link.
     #[serde(skip_serializing_if = "Option::is_none")]
+    #[cfg_attr(feature = "schema", schemars(extend("format" = "uri")))]
     pub url: Option<Text>,
 }
 /// One indexed paper in source order; identifiers come only from that source.
@@ -69,6 +72,7 @@ pub struct AuthorPaperHeader {
     #[serde(skip_serializing_if = "Option::is_none")]
     pub doi: Option<Doi>,
     /// Every other native paper identifier.
+    #[serde(default, skip_serializing_if = "<[_]>::is_empty")]
     pub external_ids: Box<[AuthorPaperExternalId]>,
     /// Whole source title.
     pub title: Text,
@@ -105,6 +109,7 @@ pub struct AuthorByline {
 pub struct AuthorPaperAccess {
     /// Native PDF URL.
     #[serde(skip_serializing_if = "Option::is_none")]
+    #[cfg_attr(feature = "schema", schemars(extend("format" = "uri")))]
     pub url: Option<Text>,
     /// Open native access status.
     #[serde(skip_serializing_if = "Option::is_none")]
@@ -145,12 +150,12 @@ pub struct AuthorPaperDetail {
     #[serde(skip_serializing_if = "Option::is_none")]
     pub open_access_pdf: Option<AuthorPaperAccess>,
     /// Native study labels.
-    #[serde(skip_serializing_if = "Option::is_none")]
+    #[serde(skip_serializing_if = "crate::absent_or_empty")]
     pub fields_of_study: Option<Box<[Text]>>,
     /// Native publication type labels.
-    #[serde(skip_serializing_if = "Option::is_none")]
+    #[serde(skip_serializing_if = "crate::absent_or_empty")]
     pub publication_types: Option<Box<[Text]>>,
     /// Native ordered byline; completeness is unknown.
-    #[serde(skip_serializing_if = "Option::is_none")]
+    #[serde(skip_serializing_if = "crate::absent_or_empty")]
     pub authors: Option<Box<[AuthorByline]>>,
 }

@@ -6,6 +6,8 @@ import sys
 import tempfile
 from pathlib import Path
 
+from parity import LEDGER_END, LEDGER_START, UPGRADE_END, UPGRADE_START, table, upgrade
+
 ROOT = Path(__file__).resolve().parents[1]
 
 
@@ -18,11 +20,16 @@ def check(root):
     )
 
 
+def replace_block(text, start, end, generated):
+    return text.split(start, 1)[0] + generated + text.split(end, 1)[1]
+
+
 def main():
     with tempfile.TemporaryDirectory() as directory:
         root = Path(directory)
         for name in (
             "ROADMAP.md",
+            "docs/reference/commands.md",
             "sdlc/features.md",
             "sdlc/planning/upgrade.md",
             "sdlc/planning/parity-0.9.3.json",
@@ -35,6 +42,8 @@ def main():
             "tests/cases",
             "crates/biomcp/tests/runner",
             "crates/biomcp-types",
+            "crates/biomcp-fetch",
+            "crates/biomcp-adapters",
         ):
             shutil.copytree(ROOT / name, root / name)
         result = check(root)
@@ -49,6 +58,21 @@ def main():
             result
         )
         roadmap.write_text(original)
+        accounting = root / "sdlc/planning/slices/cross-cutting.md"
+        original_accounting = accounting.read_text()
+        note = root / "sdlc/planning/upgrade.md"
+        original_note = note.read_text()
+        for outcome in ("Deferred by ruling", "Dropped by ruling"):
+            accounting.write_text(original_accounting.replace(
+                "| `health` | Ported or renamed |", f"| `health` | {outcome} |", 1
+            ))
+            roadmap.write_text(replace_block(original, LEDGER_START, LEDGER_END, table(root)))
+            note.write_text(replace_block(original_note, UPGRADE_START, UPGRADE_END, upgrade(root)))
+            result = check(root)
+            assert result.returncode != 0 and "appears in command reference" in result.stderr, result
+        accounting.write_text(original_accounting)
+        roadmap.write_text(original)
+        note.write_text(original_note)
         note = root / "sdlc/planning/upgrade.md"
         original_note = note.read_text()
         note.write_text(

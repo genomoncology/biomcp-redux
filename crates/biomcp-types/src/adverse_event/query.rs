@@ -47,9 +47,11 @@ struct SearchFields {
     serious: Option<AdverseEventSerious>,
     /// Inclusive first FDA receipt lower bound, YYYY-MM-DD.
     #[serde(default, skip_serializing_if = "Option::is_none")]
+    #[cfg_attr(feature = "schema", schemars(extend("format" = "date")))]
     received_from: Option<PartialDate>,
     /// Inclusive first FDA receipt upper bound, YYYY-MM-DD.
     #[serde(default, skip_serializing_if = "Option::is_none")]
+    #[cfg_attr(feature = "schema", schemars(extend("format" = "date")))]
     received_to: Option<PartialDate>,
     /// Native report headers or VAERS rows per page; default five.
     #[serde(default = "default_limit")]
@@ -59,26 +61,46 @@ struct SearchFields {
     #[serde(default)]
     offset: u32,
 }
+crate::query::validation::checked_query!(AdverseEventSearch, SearchFields);
 impl TryFrom<SearchFields> for AdverseEventSearch {
     type Error = QueryInvalid;
     fn try_from(v: SearchFields) -> Result<Self, Self::Error> {
-        if !(1..=50).contains(&v.limit)
-            || !full_day(v.received_from)
-            || !full_day(v.received_to)
-            || v.received_from
-                .zip(v.received_to)
-                .is_some_and(|(a, b)| a.to_string() > b.to_string())
-            || (v.source != AdverseEventSource::Vaers
-                && (v.section.is_some() || v.snapshot.is_some()))
-            || (v.source == AdverseEventSource::Vaers
-                && super::vaers::vaers_vaccine_code(v.text.as_str()).is_none())
-            || (v.source != AdverseEventSource::Faers
-                && (v.reaction.is_some()
-                    || v.serious.is_some()
-                    || v.received_from.is_some()
-                    || v.received_to.is_some()))
+        if !(1..=50).contains(&v.limit) {
+            return Err(QueryInvalid::new(&["limit"]));
+        }
+        if !full_day(v.received_from) {
+            return Err(QueryInvalid::new(&["received_from"]));
+        }
+        if !full_day(v.received_to) {
+            return Err(QueryInvalid::new(&["received_to"]));
+        }
+        if v.received_from
+            .zip(v.received_to)
+            .is_some_and(|(a, b)| a.to_string() > b.to_string())
         {
-            return Err(QueryInvalid);
+            return Err(QueryInvalid::new(&["received_from", "received_to"]));
+        }
+        if v.source != AdverseEventSource::Vaers && (v.section.is_some() || v.snapshot.is_some()) {
+            return Err(QueryInvalid::new(&["source", "section", "snapshot"]));
+        }
+        if v.source == AdverseEventSource::Vaers
+            && super::vaers::vaers_vaccine_code(v.text.as_str()).is_none()
+        {
+            return Err(QueryInvalid::new(&["source", "text"]));
+        }
+        if v.source != AdverseEventSource::Faers
+            && (v.reaction.is_some()
+                || v.serious.is_some()
+                || v.received_from.is_some()
+                || v.received_to.is_some())
+        {
+            return Err(QueryInvalid::new(&[
+                "source",
+                "reaction",
+                "serious",
+                "received_from",
+                "received_to",
+            ]));
         }
         Ok(Self(v))
     }
@@ -191,17 +213,26 @@ struct GetFields {
     #[serde(default)]
     section_offset: u32,
 }
+crate::query::validation::checked_query!(AdverseEventGet, GetFields);
 impl TryFrom<GetFields> for AdverseEventGet {
     type Error = QueryInvalid;
     fn try_from(v: GetFields) -> Result<Self, Self::Error> {
-        if v.source == AdverseEventSource::Vaers
-            || (v.source == AdverseEventSource::Maude
-                && !v.id.as_str().bytes().all(|b| b.is_ascii_digit()))
-            || !(1..=50).contains(&v.section_limit)
-            || v.section.is_some_and(|s| s.source() != v.source)
-            || v.drug_index.is_some() != v.section.is_some_and(AdverseEventSection::is_identifier)
+        if v.source == AdverseEventSource::Vaers {
+            return Err(QueryInvalid::new(&["source"]));
+        }
+        if v.source == AdverseEventSource::Maude
+            && !v.id.as_str().bytes().all(|b| b.is_ascii_digit())
         {
-            return Err(QueryInvalid);
+            return Err(QueryInvalid::new(&["source", "id"]));
+        }
+        if !(1..=50).contains(&v.section_limit) {
+            return Err(QueryInvalid::new(&["section_limit"]));
+        }
+        if v.section.is_some_and(|s| s.source() != v.source) {
+            return Err(QueryInvalid::new(&["section", "source"]));
+        }
+        if v.drug_index.is_some() != v.section.is_some_and(AdverseEventSection::is_identifier) {
+            return Err(QueryInvalid::new(&["drug_index", "section"]));
         }
         Ok(Self(v))
     }

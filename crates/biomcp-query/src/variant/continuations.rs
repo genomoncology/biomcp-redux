@@ -42,6 +42,15 @@ pub(super) fn collect(candidates: &[VariantHeader], next: &mut Vec<(StepKind, Ac
                 }
             }
         }
+        if let Some(alphagenome) = data(&sections.alphagenome) {
+            for query in alphagenome
+                .scorers
+                .iter()
+                .filter_map(|scorer| scorer.next.as_ref())
+            {
+                push(next, StepKind::Page, Request::GetVariant(query.clone()));
+            }
+        }
     }
 }
 fn data<T>(section: &Option<Section<T>>) -> Option<&T> {
@@ -71,27 +80,24 @@ pub(super) fn next(
         || resolution == VariantResolution::Resolved
             && candidates.iter().any(|row| {
                 row.source == Source::MyVariant && row.record.id.as_str() != query.input().as_str()
+                    || row
+                        .sections
+                        .as_ref()
+                        .and_then(|s| s.population.as_ref())
+                        .is_some_and(|s| {
+                            matches!(
+                                s,
+                                Section::Unavailable {
+                                    reason: biomcp_types::Reason::NoJoinId,
+                                    ..
+                                }
+                            )
+                        })
             })
     {
         for row in candidates {
-            if let Ok(input) = row.record.id.as_str().parse()
-                && let Ok(q) = VariantGet::new(
-                    input,
-                    query.resolver(),
-                    row.identity
-                        .representations
-                        .iter()
-                        .find_map(|r| r.build)
-                        .or(query.build()),
-                )
-            {
-                next.push((
-                    StepKind::Disambiguate,
-                    Action::Run {
-                        request: Request::GetVariant(q),
-                        fresh: false,
-                    },
-                ));
+            if let Some(request) = candidate_request(query, resolution, row) {
+                push(&mut next, StepKind::Disambiguate, request);
             }
         }
     }
@@ -120,5 +126,43 @@ pub(super) fn next(
         ));
     }
     collect(candidates, &mut next);
+    if query.input().namespace().ok() == Some(biomcp_types::VariantNamespace::Rs) {
+        for gene in candidates.iter().flat_map(|row| &row.identity.genes) {
+            push(
+                &mut next,
+                StepKind::Pivot,
+                Request::SearchArticle(biomcp_types::ArticleSearch::for_gene(
+                    biomcp_types::GeneInput::Text(gene.label().clone()),
+                )),
+            );
+        }
+    }
     next
+}
+
+fn candidate_request(
+    query: &VariantGet,
+    resolution: VariantResolution,
+    row: &VariantHeader,
+) -> Option<Request> {
+    if super::population_identity::requested(query) {
+        return Some(match super::population_identity::choice(row)? {
+            Request::GetVariant(q) if resolution == VariantResolution::Candidates => {
+                Request::GetVariant(q.with_sections(query.sections().into()))
+            }
+            request => request,
+        });
+    }
+    Some(Request::GetVariant(
+        VariantGet::new(
+            row.record.id.as_str().parse().ok()?,
+            query.resolver(),
+            row.identity
+                .representations
+                .iter()
+                .find_map(|r| r.build)
+                .or(query.build()),
+        )
+        .ok()?,
+    ))
 }

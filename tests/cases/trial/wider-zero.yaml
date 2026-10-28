@@ -61,11 +61,9 @@
               "L576P"
             ]
           }
-        ],
-        "/result/items": []
+        ]
       },
-      "max_bytes": 1541,
-      "max_tokens": 386
+      "max_bytes": 1541
     },
     {
       "run": [
@@ -202,6 +200,20 @@
               "trial",
               "--condition",
               "gastrointestinal stromal tumor",
+              "--exact-condition",
+              "--gene",
+              "KIT",
+              "--limit",
+              "100"
+            ]
+          },
+          {
+            "kind": "disambiguate",
+            "args": [
+              "search",
+              "trial",
+              "--condition",
+              "gastrointestinal stromal tumor",
               "--criteria",
               "KIT",
               "--limit",
@@ -210,8 +222,7 @@
           }
         ]
       },
-      "max_bytes": 47371,
-      "max_tokens": 11843
+      "max_bytes": 47371
     }
   ]
 }

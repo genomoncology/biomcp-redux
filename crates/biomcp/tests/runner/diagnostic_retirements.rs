@@ -2,6 +2,8 @@
 use super::{configuration::invoke, launch::Environment, mcp};
 use libtest_mimic::Trial;
 use serde_json::json;
+// j19098 measured the largest value-free typed argument error envelope.
+const USAGE_BYTES: usize = 252;
 pub(super) fn trials() -> Vec<Trial> {
     CASES
         .iter()
@@ -39,10 +41,14 @@ fn check(words: &str, message: &str, code: &str) -> Result<(), String> {
     if mcp::call_with_globals(&env, &args, true, &[])? != value {
         return Err(format!("{words}: CLI/MCP guidance differs"));
     }
-    let measured = serde_json::to_vec(&json!({"schema":"biomcp.error/1","status":"usage",
+    let measured = if code == "usage.arguments" {
+        USAGE_BYTES
+    } else {
+        serde_json::to_vec(&json!({"schema":"biomcp.error/1","status":"usage",
         "error":{"code":code,"message":message}}))
-    .map_err(|e| e.to_string())?
-    .len();
+        .map_err(|e| e.to_string())?
+        .len()
+    };
 
     if serde_json::to_vec(&value).map_err(|e| e.to_string())?.len() > (measured * 115).div_ceil(100)
     {
@@ -211,29 +217,29 @@ pub(super) fn bounded(value: &serde_json::Value) -> Result<(), String> {
     // Full compact synthetic maxima measured by j13382.
     let baseline: usize = match (schema, kind, status) {
         // New WHO search view, full compact maximum measured by j13465.
-        ("biomcp.diagnostic_page/2", "", _)
+        ("biomcp.diagnostic-page/2", "", _)
             if value.pointer("/query/source") == Some(&json!("who-ivd")) =>
         {
             2249
         }
-        ("biomcp.diagnostic_card/1", "", "absent") => 281,
-        ("biomcp.diagnostic_card/1", "", "failed") => 436,
-        ("biomcp.diagnostic_card/1", "", "partial") => 393,
-        ("biomcp.diagnostic_card/1", "clearance", "complete") => 725,
-        ("biomcp.diagnostic_card/1", "gtr_test", "complete") => 1519,
-        ("biomcp.diagnostic_card/1", "gtr_test", "partial") => 1559,
-        ("biomcp.diagnostic_card/1", "who_ivd_product", "complete") => 2578,
-        ("biomcp.diagnostic_card/1", "who_ivd_product", "partial") => 2576,
-        ("biomcp.diagnostic_companion/1", "", "complete") => 7879,
-        ("biomcp.diagnostic_companion/1", "", "failed") => 410,
-        ("biomcp.diagnostic_companion/1", "", "partial") => 7035,
-        ("biomcp.diagnostic_genes/2", "", "complete") => 867,
-        ("biomcp.diagnostic_page/2", "", "failed") => 379,
-        ("biomcp.diagnostic_regulatory/1", "", "complete") => 7260,
-        ("biomcp.diagnostic_supplements/1", "", "complete") => 1414,
-        ("biomcp.error/1", "", "usage") => 196,
-        ("biomcp.sync/4", "", "complete") => 348,
-        ("biomcp.sync/4", "", "failed") => 337,
+        ("biomcp.diagnostic-card/1", "", "absent") => 281,
+        ("biomcp.diagnostic-card/1", "", "failed") => 436,
+        ("biomcp.diagnostic-card/1", "", "partial") => 393,
+        ("biomcp.diagnostic-card/1", "clearance", "complete") => 725,
+        ("biomcp.diagnostic-card/1", "gtr_test", "complete") => 1519,
+        ("biomcp.diagnostic-card/1", "gtr_test", "partial") => 1559,
+        ("biomcp.diagnostic-card/1", "who_ivd_product", "complete") => 2578,
+        ("biomcp.diagnostic-card/1", "who_ivd_product", "partial") => 2576,
+        ("biomcp.diagnostic-companion/1", "", "complete") => 7879,
+        ("biomcp.diagnostic-companion/1", "", "failed") => 410,
+        ("biomcp.diagnostic-companion/1", "", "partial") => 7035,
+        ("biomcp.diagnostic-genes/2", "", "complete") => 867,
+        ("biomcp.diagnostic-page/2", "", "failed") => 379,
+        ("biomcp.diagnostic-regulatory/1", "", "complete") => 7260,
+        ("biomcp.diagnostic-supplements/1", "", "complete") => 1414,
+        ("biomcp.error/1", "", "usage") => USAGE_BYTES,
+        ("biomcp.sync/5", "", "complete") => 348,
+        ("biomcp.sync/5", "", "failed") => 337,
         _ => {
             return Err(format!(
                 "unmeasured diagnostic envelope: {schema}/{kind}/{status}"

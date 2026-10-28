@@ -6,7 +6,7 @@ pub use efetch::{FetchedArticle, fetch_articles, resolve_ids};
 pub(crate) use map::publication_type;
 mod raw;
 use crate::{Mapped, quotas};
-use biodata::{Pmid, Text};
+use biodata::Pmid;
 
 use biomcp_fetch::{
     Arg, Credential, Endpoint, Freshness, KeyPlace, KeyUse, Leg, RequestError, Secret, SecretName,
@@ -17,6 +17,7 @@ use biomcp_types::{ArticleSort, Source, SourceNotice};
 use std::time::Duration;
 /// Shared NCBI E-utilities policy.
 pub static SPEC: SourceSpec = SourceSpec {
+    destinations: biomcp_fetch::Destinations::Primary,
     user_agent: None,
     terms: biomcp_fetch::Terms {
         name: "NCBI policies; publisher rights in abstracts",
@@ -53,6 +54,8 @@ pub struct SearchIds {
     pub count: u64,
     /// PubMed words it could not find.
     pub notices: Vec<SourceNotice>,
+    /// Rejected optional notice fields.
+    pub problems: Vec<biomcp_types::Problem>,
 }
 /// Retrieve the application's fixed requested window in the requested native provider order.
 pub fn search_ids(
@@ -80,21 +83,54 @@ pub fn search_ids(
         &SEARCH
     };
     let raw = leg.json::<raw::Search>(endpoint, &params)?.esearchresult;
-    let notices = raw
+    let mut problems = crate::mapped::Problems {
+        source: Source::PubMed,
+        record: None,
+        list: Vec::new(),
+    };
+    let mut notices = Vec::new();
+    if let Some(errors) = raw
         .errorlist
-        .and_then(|e| e.phrasesnotfound)
-        .map(|words| SourceNotice::NotFoundWords {
+        .and_then(|v| problems.required("notices.not_found_words", v.value()))
+        && let Some(words) = errors
+            .phrasesnotfound
+            .and_then(|v| problems.required("notices.not_found_words", v.value()))
+    {
+        notices.push(SourceNotice::NotFoundWords {
             words: words
                 .into_iter()
-                .filter_map(|s| Text::new(&s).ok())
+                .filter_map(|v| {
+                    let s = problems.required("notices.not_found_words", v.value())?;
+                    problems.text("notices.not_found_words", Some(&s))
+                })
                 .collect(),
-        })
-        .into_iter()
-        .collect();
+        });
+    }
+    if let Some(warnings) = raw
+        .warninglist
+        .and_then(|v| problems.required("notices.pubmed_warnings", v.value()))
+    {
+        for (name, phrases) in warnings {
+            if let Some(phrases) =
+                problems.required("notices.pubmed_warning.phrases", phrases.value())
+            {
+                notices.push(SourceNotice::PubmedWarning {
+                    name,
+                    phrases: phrases
+                        .into_iter()
+                        .filter_map(|v| {
+                            problems.required("notices.pubmed_warning.phrases", v.value())
+                        })
+                        .collect(),
+                });
+            }
+        }
+    }
     Ok(SearchIds {
         ids: raw.idlist,
         count: raw.count,
         notices,
+        problems: problems.list,
     })
 }
 /// Retrieve a selected page's metadata. Each result is joined by checked PMID.

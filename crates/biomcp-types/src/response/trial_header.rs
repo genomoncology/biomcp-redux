@@ -12,6 +12,7 @@ pub struct TrialHeader {
     /// Registry's overall status, independent of site status.
     pub status: TrialStatus,
     /// Source phases; absent phases remain absent.
+    #[serde(default, skip_serializing_if = "<[_]>::is_empty")]
     pub phases: Box<[TrialPhase]>,
     /// Source condition names.
     pub conditions: crate::Capped<Text>,
@@ -20,5 +21,6 @@ pub struct TrialHeader {
     /// Last posted registry update.
     pub updated: PartialDate,
     /// Publisher's canonical record URL.
+    #[cfg_attr(feature = "schema", schemars(extend("format" = "uri")))]
     pub url: Text,
 }

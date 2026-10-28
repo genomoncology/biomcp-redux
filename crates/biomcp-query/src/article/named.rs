@@ -32,6 +32,7 @@ pub(super) fn litsense<'a>(
         outcome.fetched = Some(items.len() as u32);
     }
     ResultLeg {
+        problems: Vec::new(),
         source: ArticleSource::Litsense,
         outcome,
         items,
@@ -98,6 +99,7 @@ pub(super) fn pubtator<'a>(
         Err(_) => Vec::new(),
     };
     ResultLeg {
+        problems: Vec::new(),
         source: ArticleSource::Pubtator,
         outcome,
         items,

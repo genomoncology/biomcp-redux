@@ -35,6 +35,7 @@ pub struct GtrHeader {
     /// Native laboratory context.
     pub laboratory: DiagnosticLaboratory,
     /// Source record URL.
+    #[cfg_attr(feature = "schema", schemars(extend("format" = "uri")))]
     pub url: Text,
 }
 /// A conflict is visible once without a selected name or card.
@@ -130,6 +131,7 @@ pub struct GtrCard {
     /// Whole original license number list, independently retained.
     pub state_license_numbers: Box<str>,
     /// Source-supported named pages.
+    #[serde(default, skip_serializing_if = "<[_]>::is_empty")]
     pub sections: Box<[DiagnosticSection]>,
 }
 /// Exactly one source-owned diagnostic card; conflicts have no card variant.
@@ -147,7 +149,7 @@ pub enum DiagnosticCard {
     Clearance(DiagnosticClearance),
 }
 impl ResponseBody for DiagnosticCard {
-    const SCHEMA: &'static str = "biomcp.diagnostic_card/1";
+    const SCHEMA: &'static str = "biomcp.diagnostic-card/1";
     type Query = DiagnosticGet;
 }
 /// One bounded regulatory fragment from the exact selected native submission.
@@ -195,6 +197,7 @@ macro_rules! page {
         #[cfg_attr(feature = "schema", derive(schemars::JsonSchema))]
         pub struct $name {
             /// Complete source-owned rows in native order; envelope totals count native rows.
+            #[serde(default, skip_serializing_if = "<[_]>::is_empty")]
             pub items: Box<[$row]>,
             /// Exact meaning of the envelope total; supplied by the owning source command.
             #[serde(default, skip_serializing_if = "Option::is_none")]
@@ -213,49 +216,49 @@ page!(
     DiagnosticPage,
     DiagnosticCandidate,
     DiagnosticSearch,
-    "biomcp.diagnostic_page/2",
+    "biomcp.diagnostic-page/2",
     "Source-ordered GTR test candidates or WHO product headers."
 );
 page!(
     DiagnosticGenes,
     GtrGeneRelation,
     DiagnosticGet,
-    "biomcp.diagnostic_genes/2",
+    "biomcp.diagnostic-genes/2",
     "Native GTR gene relation rows without variant-coverage inference."
 );
 page!(
     DiagnosticConditions,
     GtrConditionRelation,
     DiagnosticGet,
-    "biomcp.diagnostic_conditions/2",
+    "biomcp.diagnostic-conditions/2",
     "Native GTR condition rows without ontology or clinical conversion."
 );
 page!(
     DiagnosticMethods,
     GtrMethod,
     DiagnosticGet,
-    "biomcp.diagnostic_methods/2",
+    "biomcp.diagnostic-methods/2",
     "Independent native method entries without positional pairing."
 );
 page!(
     DiagnosticRegulatory,
     DiagnosticRegulatoryFragment,
     DiagnosticGet,
-    "biomcp.diagnostic_regulatory/1",
+    "biomcp.diagnostic-regulatory/1",
     "Exact selected submission regulatory text fragments."
 );
 page!(
     DiagnosticSupplements,
     DiagnosticPmaHeader,
     DiagnosticGet,
-    "biomcp.diagnostic_supplements/1",
+    "biomcp.diagnostic-supplements/1",
     "Native supplement records retaining exact identity and independent dated decisions."
 );
 page!(
     DiagnosticCompanion,
     CompanionDiagnosticRelation,
     DiagnosticSearch,
-    "biomcp.diagnostic_companion/1",
+    "biomcp.diagnostic-companion/1",
     "Whole distinct physical companion-table rows with cell-owned identifiers."
 );
 /// Compact exact PMA row identity; its native empty base cell is explicit.
@@ -281,6 +284,7 @@ pub struct DiagnosticPmaHeader {
     #[serde(default, skip_serializing_if = "Option::is_none")]
     pub decision_code: Option<Box<str>>,
     /// Exact source record URL.
+    #[cfg_attr(feature = "schema", schemars(extend("format" = "uri")))]
     pub url: Text,
 }
 /// Selected PMA card; statement text stays behind its bounded regulatory page.
@@ -291,6 +295,7 @@ pub struct DiagnosticPmaCard {
     /// Exact selected source header.
     pub header: DiagnosticPmaHeader,
     /// Source-supported pages for this exact base or supplement.
+    #[serde(default, skip_serializing_if = "<[_]>::is_empty")]
     pub sections: Box<[DiagnosticSection]>,
 }
 /// Dated metadata belonging only to the selected submission.

@@ -84,7 +84,12 @@ impl FromStr for Base {
         Ok(base)
     }
 }
-text_value!(Base, "Base", "^[ACGTNRYSWKMBDHV]$");
+text_value!(
+    Base,
+    "Base",
+    "^[ACGTNRYSWKMBDHV]$",
+    "One nucleotide: the four DNA bases and the IUPAC ambiguity codes. It renders as its upper-case letter."
+);
 /// A literal IUPAC DNA sequence; empty sequences express insertions or deletions.
 #[derive(Clone, Debug, PartialEq, Eq)]
 pub struct Sequence(Box<[Base]>);
@@ -129,4 +134,9 @@ impl fmt::Display for Sequence {
         Ok(())
     }
 }
-text_value!(Sequence, "Sequence", "^[ACGTNRYSWKMBDHV]*$");
+text_value!(
+    Sequence,
+    "Sequence",
+    "^[ACGTNRYSWKMBDHV]*$",
+    "A literal IUPAC DNA sequence; empty sequences express insertions or deletions."
+);

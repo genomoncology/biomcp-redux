@@ -73,9 +73,10 @@ pub fn get(cx: &Ctx<'_>, query: &DiseaseGet) -> Outcome {
 }
 fn apply(out: &mut Outcome, query: &DiseaseGet, record: ols::Record) {
     let components = record.card.components.clone();
+    out.problems = record.problems;
     match query.section() {
         Some(DiseaseSection::Synonyms) => {
-            out.problems = record.synonyms.problems;
+            out.problems.extend(record.synonyms.problems);
             let (items, total) = slice(record.synonyms.value, query);
             out.page = Some(page_info(query.section_offset(), items.len() as u32, total));
             out.body = QueryBody::DiseaseSynonyms(DiseaseSynonyms {
@@ -84,7 +85,7 @@ fn apply(out: &mut Outcome, query: &DiseaseGet, record: ols::Record) {
             });
         }
         Some(DiseaseSection::Xrefs) => {
-            out.problems = record.xrefs.problems;
+            out.problems.extend(record.xrefs.problems);
             let (items, total) = slice(record.xrefs.value, query);
             out.page = Some(page_info(query.section_offset(), items.len() as u32, total));
             out.body = QueryBody::DiseaseXrefs(DiseaseXrefs {
@@ -93,6 +94,8 @@ fn apply(out: &mut Outcome, query: &DiseaseGet, record: ols::Record) {
             });
         }
         _ => {
+            out.problems.extend(record.synonyms.problems);
+            out.problems.extend(record.xrefs.problems);
             for section in record.card.sections.iter() {
                 out.next.push((
                     StepKind::Section,

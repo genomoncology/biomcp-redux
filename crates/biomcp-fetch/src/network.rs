@@ -2,6 +2,8 @@
 use crate::{FetchError, Secret};
 use rustls::pki_types::{CertificateDer, pem::PemObject};
 use std::{fmt, sync::Arc};
+mod bypass;
+use bypass::Bypass;
 
 /// Checked additional trust anchors. Formatting never exposes certificate bytes.
 #[derive(Clone, Default)]
@@ -38,6 +40,7 @@ pub struct Network {
     https: Option<ureq::Proxy>,
     bypass: Vec<Bypass>,
     roots: Certificates,
+    configuration: biomcp_types::ConfigurationHealth,
 }
 impl fmt::Debug for Network {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
@@ -48,38 +51,85 @@ impl fmt::Debug for Network {
 }
 impl Network {
     pub(crate) fn requires_proxy(&self, explicit: bool, uri: &ureq::http::Uri) -> bool {
-        if explicit {
-            return true;
-        }
-        if self.bypass.iter().any(|rule| rule.matches(uri)) {
-            return false;
+        !matches!(self.route(explicit, uri), Route::Direct)
+    }
+    fn route(&self, explicit: bool, uri: &ureq::http::Uri) -> Route {
+        if !explicit && self.bypass.iter().any(|rule| rule.matches(uri)) {
+            return Route::Direct;
         }
         if uri.scheme_str() == Some("https") {
-            self.https.is_some()
+            if explicit || self.https.is_some() {
+                Route::Https
+            } else {
+                Route::Direct
+            }
+        } else if explicit || self.http.is_some() {
+            Route::Http
         } else {
-            self.http.is_some()
+            Route::Direct
         }
+    }
+    pub(crate) fn rpc_proxy(
+        &self,
+        explicit: Option<&Secret>,
+        uri: &ureq::http::Uri,
+    ) -> Result<Option<ureq::Proxy>, FetchError> {
+        if explicit.is_some() {
+            return proxy(explicit);
+        }
+        Ok(match self.route(false, uri) {
+            Route::Direct => None,
+            Route::Http => self.http.clone(),
+            Route::Https => self.https.clone(),
+        })
+    }
+    pub(crate) fn rpc_tls(&self) -> Result<rustls::ClientConfig, FetchError> {
+        crate::tls::configuration(self.roots.0.clone())
+    }
+
+    /// Whether unsupported bypass entries were skipped; never returns their text.
+    pub(super) fn configuration(&self) -> Option<&biomcp_types::ConfigurationHealth> {
+        (!self.configuration.notices.is_empty()).then_some(&self.configuration)
     }
 
     /// Check HTTP/HTTPS proxy URLs, comma-separated bypass rules and additive roots.
     /// Bypass supports exact hosts/IPs, .domain (including the domain), *.domain
-    /// (subdomains only), optional ports, and a lone * for every destination.
+    /// (subdomains only), IP CIDR ranges, optional ports, and * for every destination.
+    /// Unsupported entries are skipped; credentials and malformed ports refuse.
     pub fn new(
         http: Option<Secret>,
         https: Option<Secret>,
         no_proxy: &str,
         roots: Certificates,
     ) -> Result<Self, FetchError> {
+        let mut bypass = Vec::new();
+        let mut configuration = biomcp_types::ConfigurationHealth::default();
+        for (index, entry) in no_proxy.split(',').map(str::trim).enumerate() {
+            if entry.is_empty() {
+                continue;
+            }
+            match Bypass::parse(entry)? {
+                Some(rule) => bypass.push(rule),
+                None if configuration.notices.len() < 8 => {
+                    configuration
+                        .notices
+                        .push(biomcp_types::ConfigurationNotice {
+                            variable: biomcp_types::ConfigurationVariable::NoProxy,
+                            entry: u32::try_from(index).unwrap_or(u32::MAX).saturating_add(1),
+                            code: biomcp_types::ConfigurationNoticeCode::UnparseableEntry,
+                        })
+                }
+                None => {
+                    configuration.omitted_entries = configuration.omitted_entries.saturating_add(1)
+                }
+            }
+        }
         Ok(Self {
-            http: proxy(http.as_ref())?,
-            https: proxy(https.as_ref())?,
+            http: proxy(http.as_ref()).map_err(|_| FetchError::HttpProxy)?,
+            https: proxy(https.as_ref()).map_err(|_| FetchError::HttpsProxy)?,
             roots,
-            bypass: no_proxy
-                .split(',')
-                .map(str::trim)
-                .filter(|s| !s.is_empty())
-                .map(Bypass::parse)
-                .collect::<Result<_, _>>()?,
+            bypass,
+            configuration,
         })
     }
 }
@@ -93,90 +143,6 @@ fn proxy(value: Option<&Secret>) -> Result<Option<ureq::Proxy>, FetchError> {
             Ok(proxy)
         })
         .transpose()
-}
-#[derive(Clone)]
-struct Bypass {
-    host: String,
-    port: Option<u16>,
-    suffix: bool,
-    bare: bool,
-}
-impl Bypass {
-    fn parse(text: &str) -> Result<Self, FetchError> {
-        if text == "*" {
-            return Ok(Self {
-                host: String::new(),
-                port: None,
-                suffix: true,
-                bare: true,
-            });
-        }
-        let (suffix, bare, text) = if let Some(rest) = text.strip_prefix("*.") {
-            (true, false, rest)
-        } else if let Some(rest) = text.strip_prefix('.') {
-            (true, true, rest)
-        } else {
-            (false, true, text)
-        };
-        let authority: ureq::http::uri::Authority = text.parse().map_err(|_| FetchError::Proxy)?;
-        let host = authority
-            .host()
-            .trim_matches(['[', ']'])
-            .to_ascii_lowercase();
-        if host.is_empty()
-            || host.contains(['*', '/', '@'])
-            || (suffix && host.parse::<std::net::IpAddr>().is_ok())
-        {
-            return Err(FetchError::Proxy);
-        }
-        // Authority accepts a nonnumeric port; refuse rather than silently widen a rule.
-        let tail = if text.starts_with('[') {
-            text.split_once(']')
-                .map(|(_, tail)| tail)
-                .ok_or(FetchError::Proxy)?
-        } else {
-            text.strip_prefix(authority.host())
-                .ok_or(FetchError::Proxy)?
-        };
-        let port = if tail.is_empty() {
-            None
-        } else {
-            Some(
-                tail.strip_prefix(':')
-                    .ok_or(FetchError::Proxy)?
-                    .parse::<u16>()
-                    .map_err(|_| FetchError::Proxy)?,
-            )
-        };
-        Ok(Self {
-            host,
-            port,
-            suffix,
-            bare,
-        })
-    }
-    fn matches(&self, uri: &ureq::http::Uri) -> bool {
-        let host = uri
-            .host()
-            .unwrap_or("")
-            .trim_matches(['[', ']'])
-            .to_ascii_lowercase();
-        let port = uri
-            .port_u16()
-            .unwrap_or(if uri.scheme_str() == Some("https") {
-                443
-            } else {
-                80
-            });
-        self.port.is_none_or(|required| required == port)
-            && ((self.bare && host == self.host)
-                || (self.suffix
-                    && (self.host.is_empty() || host.parse::<std::net::IpAddr>().is_err())
-                    && (self.host.is_empty()
-                        || host
-                            .strip_suffix(&self.host)
-                            .is_some_and(|prefix| prefix.ends_with('.')))))
-    }
 }
 pub(crate) struct Agents {
     direct: ureq::Agent,
@@ -240,12 +206,17 @@ impl Agents {
         let Ok(uri) = url.parse::<ureq::http::Uri>() else {
             return &self.direct;
         };
-        if !explicit && network.bypass.iter().any(|rule| rule.matches(&uri)) {
-            &self.direct
-        } else if uri.scheme_str() == Some("https") {
-            &self.https
-        } else {
-            &self.http
+        match network.route(explicit, &uri) {
+            Route::Direct => &self.direct,
+            Route::Http => &self.http,
+            Route::Https => &self.https,
         }
     }
+}
+
+#[derive(Clone, Copy)]
+enum Route {
+    Direct,
+    Http,
+    Https,
 }

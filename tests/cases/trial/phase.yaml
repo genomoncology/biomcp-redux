@@ -38,10 +38,10 @@
             "NCT05770102"
           ]
         },
-        "/result/source_updated": "2026-10-23T09:00:04"
+        "/result/source_updated/value": "2026-10-23T09:00:04",
+        "/result/source_updated/timezone": "source_gave_none"
       },
-      "max_bytes": 5864,
-      "max_tokens": 1466
+      "max_bytes": 5864
     }
   ],
   "harvest": "Required-provenance exception measured by j10455: 5099 bytes minus 2000 bytes for exact source parameters, processing timestamp, attribution, row URLs, update dates and intervention names leaves 3099 bytes; comparable 0.9 output was 4135 bytes. Preserve every required fact."

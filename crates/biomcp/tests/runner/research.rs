@@ -60,7 +60,7 @@ pub(super) fn call(
     if serde_json::from_str::<Value>(text).map_err(|e| e.to_string())? != *value {
         return Err("research text differs from structured content".into());
     }
-    if result.get("isError") == Some(&json!(false)) {
+    {
         let tool = replies
             .iter()
             .find(|v| v.get("id") == Some(&json!(0)))
@@ -73,6 +73,15 @@ pub(super) fn call(
             .map_err(|e| e.to_string())?
             .validate(value)
             .map_err(|e| e.to_string())?;
+        if let Some(id) = value
+            .get("schema")
+            .or_else(|| value.pointer("/metadata/envelope/schema"))
+            .or_else(|| value.pointer("/metadata/schema"))
+            .and_then(Value::as_str)
+            && !super::schema_proof::reply_ids(schema).contains(id)
+        {
+            return Err(format!("tool returned an unadvertised schema ID: {id}"));
+        }
     }
     use std::io::Write;
     writeln!(
@@ -154,6 +163,12 @@ fn scenario(query: &str, args: Vec<&str>, capture: &str) -> Result<(), String> {
     let globals = env.globals(Some(&recording), false);
     let args = args.into_iter().map(str::to_owned).collect::<Vec<_>>();
     let cli = command(&env, &args, &globals, 0)?;
+    if capture == "protein/synthetic" {
+        let main = call(&env, "biomcp", json!({"args":args}), &globals)?;
+        if main != cli {
+            return Err("main tool schema result differs from CLI".into());
+        }
+    }
     let wrapped = call(&env, "search", json!({"query":query}), &globals)?;
     if wrapped.pointer("/metadata/envelope") != Some(&cli) {
         return Err(format!("search metadata lost CLI fields: {wrapped}"));
@@ -245,7 +260,8 @@ fn fetch_parity(
         let cap = match args.get(1).map(String::as_str) {
             Some("article") => 6289,
             Some("trial") => 5047,
-            _ => 2451,
+            // Literal Markdown projection: j17918 measured 2459 bytes plus 15%.
+            _ => 2828,
         };
         bounded(&fetched, cap)?;
         if fetched.get("metadata") != Some(&cli_get)

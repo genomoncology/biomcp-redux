@@ -102,27 +102,40 @@ struct Fields {
     #[serde(default)]
     offset: u32,
 }
+crate::query::validation::checked_query!(ArticleSupplement, Fields);
 impl TryFrom<Fields> for ArticleSupplement {
     type Error = QueryInvalid;
     fn try_from(v: Fields) -> Result<Self, QueryInvalid> {
-        if matches!(v.input, ArticleInput::Doi(_))
-            || [
-                v.rows.is_some(),
-                v.find.is_some(),
-                v.variant.is_some(),
-                v.save.is_some(),
-            ]
-            .into_iter()
-            .filter(|v| *v)
-            .count()
-                > 1
-            || v.file.as_str().contains(['/', '\\'])
-            || matches!(v.file.as_str(), "." | "..")
-            || v.sheet.is_some() && v.rows.is_none()
-            || v.save.is_some() && v.offset != 0
-            || v.replace && v.save.is_none()
+        if matches!(v.input, ArticleInput::Doi(_)) {
+            return Err(QueryInvalid::new(&["input"]));
+        }
+        if [
+            v.rows.is_some(),
+            v.find.is_some(),
+            v.variant.is_some(),
+            v.save.is_some(),
+        ]
+        .into_iter()
+        .filter(|v| *v)
+        .count()
+            > 1
         {
-            return Err(QueryInvalid);
+            return Err(QueryInvalid::new(&["rows", "find", "variant", "save"]));
+        }
+        if v.file.as_str().contains(['/', '\\']) {
+            return Err(QueryInvalid::new(&["file"]));
+        }
+        if matches!(v.file.as_str(), "." | "..") {
+            return Err(QueryInvalid::new(&["file"]));
+        }
+        if v.sheet.is_some() && v.rows.is_none() {
+            return Err(QueryInvalid::new(&["sheet", "rows"]));
+        }
+        if v.save.is_some() && v.offset != 0 {
+            return Err(QueryInvalid::new(&["save", "offset"]));
+        }
+        if v.replace && v.save.is_none() {
+            return Err(QueryInvalid::new(&["replace", "save"]));
         }
         Ok(Self(v))
     }

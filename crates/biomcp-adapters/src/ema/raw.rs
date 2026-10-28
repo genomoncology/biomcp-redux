@@ -9,18 +9,17 @@ pub(super) struct Meta {
 #[derive(Debug)]
 pub(super) struct Medicine {
     pub id: biodata::DrugId,
-    pub name: biodata::Text,
     pub source: biodata::Text,
     pub record: biodata::Text,
     pub meta: Meta,
-    pub fields: BTreeMap<String, String>,
+    pub fields: BTreeMap<String, crate::raw::Field<String>>,
 }
 #[derive(Deserialize)]
 struct Fields {
     #[serde(rename = "_bundle_meta")]
     meta: Meta,
     #[serde(flatten)]
-    fields: BTreeMap<String, String>,
+    fields: BTreeMap<String, crate::raw::Field<String>>,
 }
 impl<'de> Deserialize<'de> for Medicine {
     fn deserialize<D: serde::Deserializer<'de>>(deserializer: D) -> Result<Self, D::Error> {
@@ -31,21 +30,15 @@ impl<'de> Deserialize<'de> for Medicine {
 impl TryFrom<Fields> for Medicine {
     type Error = BadReply;
     fn try_from(value: Fields) -> Result<Self, Self::Error> {
-        let field = |name| value.fields.get(name).ok_or(BadReply);
+        let field = |name| match value.fields.get(name) {
+            Some(crate::raw::Field::Value(value)) => Ok(value.as_str()),
+            _ => Err(BadReply),
+        };
         let id = field("ema_product_number")?.parse().map_err(|_| BadReply)?;
-        let name = biodata::Text::new(field("name_of_medicine")?).map_err(|_| BadReply)?;
-        field("category")?;
-        field("medicine_status")?;
-        for (key, text) in &value.fields {
-            if key.ends_with("_date") && !text.is_empty() {
-                date(text)?;
-            }
-        }
         let source = biodata::Text::new("ema").map_err(|_| BadReply)?;
         let record = biodata::Text::new(field("ema_product_number")?).map_err(|_| BadReply)?;
         Ok(Self {
             id,
-            name,
             source,
             record,
             meta: value.meta,
@@ -64,6 +57,14 @@ pub(super) fn date(text: &str) -> Result<biodata::PartialDate, BadReply> {
         .parse()
         .map_err(|_| BadReply)
 }
+impl Medicine {
+    pub(super) fn field(&self, name: &str) -> Option<Result<&str, BadReply>> {
+        self.fields.get(name).map(|value| match value {
+            crate::raw::Field::Value(value) => Ok(value.as_str()),
+            crate::raw::Field::Invalid(_) => Err(BadReply),
+        })
+    }
+}
 impl Row for Medicine {
     fn check_bundle(&self, rows: usize) -> Result<(), BadReply> {
         if self.meta.total_records != rows {
@@ -74,14 +75,11 @@ impl Row for Medicine {
     fn keys(&self) -> Keys {
         Keys {
             exact: vec![(KeyKind::Id, self.id.to_string().into())],
-            words: vec![self.name.to_string().into()],
+            words: self
+                .field("name_of_medicine")
+                .and_then(Result::ok)
+                .map(|name| vec![name.into()])
+                .unwrap_or_default(),
         }
-    }
-}
-impl Medicine {
-    pub(super) fn text(&self, field: &str) -> Option<biodata::Text> {
-        self.fields
-            .get(field)
-            .and_then(|v| biodata::Text::new(v).ok())
     }
 }

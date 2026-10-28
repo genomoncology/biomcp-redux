@@ -18,7 +18,7 @@ struct Fields {
     #[cfg_attr(feature="schema", schemars(extend("x-positional"=1)))]
     cited: ArticleInput,
     /// Include the citing paper's own explicit reference paragraphs.
-    #[serde(default)]
+    #[serde(default, skip_serializing_if = "std::ops::Not::not")]
     fulltext: bool,
     /// Stored checked source scan and original hit positions.
     #[serde(
@@ -35,16 +35,21 @@ struct Fields {
     #[serde(default)]
     paragraph_offset: u32,
 }
+crate::query::validation::checked_query!(ArticleEvidence, Fields);
 impl TryFrom<Fields> for ArticleEvidence {
     type Error = QueryInvalid;
     fn try_from(v: Fields) -> Result<Self, QueryInvalid> {
         if [&v.citing, &v.cited]
             .iter()
             .any(|id| matches!(id, ArticleInput::EuropePmc(_)))
-            || v.pool.is_none() && (v.offset != 0 || v.paragraph_offset != 0)
-            || !v.fulltext && v.paragraph_offset != 0
         {
-            return Err(QueryInvalid);
+            return Err(QueryInvalid::new(&["citing", "cited"]));
+        }
+        if v.pool.is_none() && (v.offset != 0 || v.paragraph_offset != 0) {
+            return Err(QueryInvalid::new(&["pool", "offset", "paragraph_offset"]));
+        }
+        if !v.fulltext && v.paragraph_offset != 0 {
+            return Err(QueryInvalid::new(&["fulltext", "paragraph_offset"]));
         }
         Ok(Self(v))
     }

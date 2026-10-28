@@ -7,9 +7,11 @@ mod map;
 /// Capture-proven component measurements.
 pub mod measurements;
 mod metadata;
+mod population;
 mod raw;
 mod search;
 mod search_build;
+mod transcripts;
 use crate::{Mapped, quotas};
 use biodata::Text;
 use biomcp_fetch::{Arg, Endpoint, Freshness, KeyUse, Leg, PathSegment, RequestError, SourceSpec};
@@ -18,6 +20,7 @@ pub use search::{SearchPage, search};
 use std::time::Duration;
 /// Public reads retain each component's independent terms.
 pub static SPEC: SourceSpec = SourceSpec {
+    destinations: biomcp_fetch::Destinations::Primary,
     user_agent: None,
     terms: biomcp_fetch::Terms {
         name: "MyVariant.info terms and component data licenses",
@@ -40,8 +43,24 @@ pub fn lookup(
     query: &str,
     build: biodata::Build,
 ) -> Result<Mapped<Vec<VariantHeader>>, RequestError> {
+    lookup_with(leg, query, build, false)
+}
+/// Resolve population identities with candidate-bound canonical allele identifiers.
+pub fn population_lookup(
+    leg: &Leg<'_>,
+    query: &str,
+    build: biodata::Build,
+) -> Result<Mapped<Vec<VariantHeader>>, RequestError> {
+    lookup_with(leg, query, build, true)
+}
+fn lookup_with(
+    leg: &Leg<'_>,
+    query: &str,
+    build: biodata::Build,
+    population: bool,
+) -> Result<Mapped<Vec<VariantHeader>>, RequestError> {
     if query.starts_with("chr") {
-        return annotation(leg, query, build);
+        return annotation(leg, query, build, population);
     }
     let assembly = if build == biodata::Build::GRCh38 {
         "hg38"
@@ -57,7 +76,7 @@ pub fn lookup(
         }
         .into());
     }
-    let fields = fields(leg);
+    let fields = projection(leg, population);
     let mut offset = 0;
     let mut hits = Vec::new();
     loop {
@@ -82,12 +101,7 @@ pub fn lookup(
             return Err(leg_bad());
         }
     }
-    Ok(map::candidates(
-        hits,
-        query,
-        Some(build),
-        !components::disabled_on_leg(leg, "clinvar"),
-    ))
+    Ok(mapped(leg, hits, query, build, population))
 }
 fn leg_bad() -> RequestError {
     biomcp_fetch::SourceError {
@@ -109,6 +123,7 @@ fn annotation(
     leg: &Leg<'_>,
     id: &str,
     build: biodata::Build,
+    population: bool,
 ) -> Result<Mapped<Vec<VariantHeader>>, RequestError> {
     let assembly = if build == biodata::Build::GRCh38 {
         "hg38"
@@ -116,7 +131,7 @@ fn annotation(
         "hg19"
     };
     let endpoint = VARIANT.clone().with_segments(&[PathSegment::new(id)?]);
-    let fields = fields(leg);
+    let fields = projection(leg, population);
     let (hit, _) = leg.json_received_checked::<raw::Hit>(
         &endpoint,
         &[
@@ -131,17 +146,16 @@ fn annotation(
             }
         },
     )?;
-    Ok(map::candidates(
-        vec![hit],
-        id,
-        Some(build),
-        !components::disabled_on_leg(leg, "clinvar"),
-    ))
+    Ok(mapped(leg, vec![hit], id, build, population))
 }
 
 /// Filter independently disabled carried components before creating a request identity.
 pub(super) fn fields(leg: &Leg<'_>) -> String {
-    allowed_fields(leg, FIELDS)
+    annotation_fields(leg, FIELDS)
+}
+/// Include the shared source-paired transcript projection in identity reads.
+pub(super) fn annotation_fields(leg: &Leg<'_>, fields: &str) -> String {
+    allowed_fields(leg, &format!("{fields},{}", transcripts::FIELD))
 }
 /// Apply the same component policy to each declared source projection.
 pub(super) fn allowed_fields(leg: &Leg<'_>, fields: &str) -> String {
@@ -150,4 +164,31 @@ pub(super) fn allowed_fields(leg: &Leg<'_>, fields: &str) -> String {
         .filter(|field| !components::disabled_on_leg(leg, field.split('.').next().unwrap_or(field)))
         .collect::<Vec<_>>()
         .join(",")
+}
+
+fn projection(leg: &Leg<'_>, population: bool) -> String {
+    if population {
+        population::fields(leg)
+    } else {
+        fields(leg)
+    }
+}
+fn mapped(
+    leg: &Leg<'_>,
+    hits: Vec<raw::Hit>,
+    query: &str,
+    build: biodata::Build,
+    population: bool,
+) -> Mapped<Vec<VariantHeader>> {
+    if population {
+        population::candidates(leg, hits, query)
+    } else {
+        map::candidates(
+            hits,
+            query,
+            Some(build),
+            !components::disabled_on_leg(leg, "clinvar"),
+            !components::disabled_on_leg(leg, "snpeff"),
+        )
+    }
 }

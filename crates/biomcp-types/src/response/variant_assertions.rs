@@ -8,6 +8,7 @@ use serde::{Deserialize, Serialize};
 #[cfg_attr(feature = "schema", derive(schemars::JsonSchema))]
 pub struct VariantAssertions {
     /// Source assertion rows in native order.
+    #[serde(default, skip_serializing_if = "<[_]>::is_empty")]
     pub assertions: Box<[VariantAssertion]>,
     /// Page bounds over native rows.
     pub page: PageInfo,
@@ -16,7 +17,7 @@ pub struct VariantAssertions {
     pub next: Option<VariantAssertionsGet>,
 }
 impl super::ResponseBody for VariantAssertions {
-    const SCHEMA: &'static str = "biomcp.variant_assertions/3";
+    const SCHEMA: &'static str = "biomcp.variant-assertions/3";
     type Query = VariantAssertionsGet;
 }
 /// A native record/domain pair, never a vote or merged classification.
@@ -126,8 +127,10 @@ pub struct AssertionConditionRelationship {
     #[serde(skip_serializing_if = "Option::is_none")]
     pub relationship_type: Option<Text>,
     /// Conditions on the source trait that owns this relationship.
+    #[serde(default, skip_serializing_if = "<[_]>::is_empty")]
     pub source_conditions: Box<[AssertionCondition]>,
     /// Conditions named by the related source trait.
+    #[serde(default, skip_serializing_if = "<[_]>::is_empty")]
     pub related_conditions: Box<[AssertionCondition]>,
 }
 /// A native condition with independently optional identifier and label.

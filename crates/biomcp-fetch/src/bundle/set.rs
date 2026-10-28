@@ -47,6 +47,14 @@ impl<R: Row> Row for SetRow<R> {
     }
 }
 impl<R: Row> BundleSet<R> {
+    /// Inspect the complete stored set without downloading any part.
+    pub fn state(
+        &self,
+        leg: &crate::Leg<'_>,
+    ) -> Result<biomcp_types::LocalBundleState, RequestError> {
+        leg.stored_bundle_state(&self.stored())
+    }
+
     pub(super) fn stored(&self) -> Bundle<SetRow<R>> {
         Bundle {
             spec: self.spec,
@@ -72,22 +80,24 @@ impl Fetch {
         let mut bytes = 0_u64;
         for part in set.parts {
             let format = part.format.unwrap_or(set.format);
-            let endpoint = set
-                .spec
-                .get(part.path)
-                .bytes(match format {
-                    RowFormat::NativeCsv { max_bytes } => max_bytes.min(super::MAX_BUNDLE_BYTES),
-                    _ => R::MAX_BYTES.min(super::MAX_BUNDLE_BYTES),
-                })
-                .fresh(Freshness::Never);
-            let body = leg.bytes_checked(&endpoint, &[], |body| {
+            let limit = match format {
+                RowFormat::NativeCsv { max_bytes } => max_bytes.min(super::MAX_BUNDLE_BYTES),
+                _ => R::MAX_BYTES.min(super::MAX_BUNDLE_BYTES),
+            };
+            let endpoint = set.spec.get(part.path).bytes(limit).fresh(Freshness::Never);
+            let check = |body: &[u8]| {
                 let parsed = parse::part_rows::<R>(body, format, part.name)
                     .map_err(|_| biomcp_types::Reason::BadReply)?;
                 if parsed.is_empty() {
                     return Err(biomcp_types::Reason::BadReply);
                 }
                 Ok(())
-            })?;
+            };
+            let media = match format {
+                RowFormat::Document { media } => Some(media),
+                _ => None,
+            };
+            let body = leg.bytes_checked_media(&endpoint, &[], media, check)?;
             bytes = bytes.saturating_add(body.len() as u64);
             if bytes > super::MAX_BUNDLE_BYTES {
                 return Err(leg
@@ -124,7 +134,9 @@ impl Fetch {
             retrieved_at: Some(crate::cache::now()),
         };
         cache.publish(&bundle, None, &metadata, Some(&complete), leg.budget())?;
-        Ok(store::info(&bundle, &metadata))
+        let mut info = store::info(&bundle, &metadata);
+        info.downloaded_bytes = leg.finish().downloaded_bytes;
+        Ok(info)
     }
 }
 fn append_part(

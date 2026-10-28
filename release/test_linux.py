@@ -58,6 +58,10 @@ if '/bin/bash' in args:
             info = tarfile.TarInfo('biomcp')
             info.size = 9
             archive.addfile(info, io.BytesIO(b'candidate'))
+            for name in ('LICENSE', 'THIRD-PARTY-NOTICES.txt'):
+                entry = tarfile.TarInfo(name)
+                entry.size = len(b'fixture notice')
+                archive.addfile(entry, io.BytesIO(b'fixture notice'))
         pathlib.Path('target/debug').mkdir(parents=True)
         pathlib.Path('target/debug/container-output').touch()
         pathlib.Path('proof/fixtures').mkdir(parents=True)
@@ -65,6 +69,8 @@ if '/bin/bash' in args:
         gate = pathlib.Path('proof/tools/release/gate.py')
         gate.parent.mkdir(parents=True)
         gate.write_text(os.environ['GATE_FIXTURE'])
+        shutil.copyfile('release/toolchain.py', gate.parent / 'toolchain.py')
+        shutil.copyfile('release/toolchain.json', gate.parent / 'toolchain.json')
     else:
         # Execute the installation shell with mounted paths and disposable storage.
         with tempfile.TemporaryDirectory() as container:
@@ -77,6 +83,8 @@ if '/bin/bash' in args:
         assert not pathlib.Path(container).exists()
 elif '/usr/bin/sha256sum' in args:
     print(hashlib.sha256(b'candidate').hexdigest(), '/usr/local/bin/biomcp')
+elif '/bin/cat' in args:
+    sys.stdout.buffer.write(pathlib.Path('container', pathlib.Path(args[-1]).name).read_bytes())
 elif args[-2:] == ['schema', 'biodata.problem/1']:
     print('{"$id":"biodata.problem/1"}')
 elif args[-1] == 'help':
@@ -98,7 +106,7 @@ class LinuxContainers(unittest.TestCase):
         with tempfile.TemporaryDirectory() as directory:
             root = Path(directory)
             (root / 'release').mkdir()
-            for name in ('linux.sh', 'container_check.py', 'smoke.py', 'Dockerfile'):
+            for name in ('linux.sh', 'container_check.py', 'smoke.py', 'Dockerfile', 'toolchain.py', 'toolchain.json', 'source_revision.py'):
                 shutil.copyfile(ROOT / 'release' / name, root / 'release' / name)
             shutil.copyfile(ROOT / 'Makefile', root / 'Makefile')
             bindir = root / 'bin'
@@ -114,11 +122,16 @@ class LinuxContainers(unittest.TestCase):
             record = root / 'docker.jsonl'
             env = environment(root)
             env.update(PATH=str(bindir) + os.pathsep + os.environ['PATH'],
-                       BUILD_IMAGE='build-image', DOCKER_RECORD=str(record),
+                       BUILD_IMAGE='build-image', DOCKER_RECORD=str(record), BIOMCP_BUILD_REVISION='a' * 40,
                        GATE_FIXTURE='ROWS = ' + repr(REPORT) + '\n' + GATE)
             result = subprocess.run(['make', 'release-linux', 'CONTAINER_ARGS=' + shlex.join(extra).replace('$', '$$')],
                                     cwd=root, env=env, capture_output=True, text=True)
             self.assertEqual(result.returncode, 0, result.stdout + result.stderr)
+            containers = [json.loads(line) for line in result.stdout.splitlines()
+                          if line.startswith('{') and json.loads(line).get('artifact') == 'docker']
+            self.assertEqual(len(containers), 1, result.stdout)
+            self.assertEqual(containers[0]['result'], 'pass')
+            self.assertIn('alphagenome-local-tls', containers[0]['checks'])
             self.assertFalse((root / 'injected').exists())
             self.assertEqual((root / 'dist/biomcp-container-amd64.tar').read_bytes(),
                              b'container archive')
@@ -138,9 +151,13 @@ class LinuxContainers(unittest.TestCase):
                  '--user=0:0', '--env=HOME=/root']
         baseline = self.run_release([])
         supplied = self.run_release(extra)
-        self.assertEqual(len(baseline), 12)
+        self.assertEqual(len(baseline), 15)
         self.assertEqual(len(supplied), len(baseline))
-        self.assertEqual(sum(row[0] == 'run' for row in baseline), 9)
+        self.assertEqual(sum(row[0] == 'run' for row in baseline), 12)
+        pins = json.loads((ROOT / 'release/toolchain.json').read_text())
+        build, = [row for row in baseline if row[0] == 'build']
+        self.assertIn('runtime_image=' + pins['images']['runtime'], build)
+        self.assertIn('runtime_packages=' + ' '.join(pins['runtime-packages']), build)
         for plain, labeled in zip(baseline, supplied):
             with self.subTest(command=plain):
                 self.assertNotIn('--label', plain)
@@ -154,9 +171,10 @@ class LinuxContainers(unittest.TestCase):
                                         '<revision>' if arg.startswith('BIOMCP_BUILD_REVISION=') else arg
                                         for arg in row]
                 self.assertEqual(normalize(labeled), normalize(plain))
-        self.assertEqual([row[-1] for row in baseline[3:10]],
-                         ['/usr/local/bin/biomcp', 'biodata.problem/1', 'help', 'serve',
-                          '1', '--installed-process-proof', '--installed-http-proof'])
+        self.assertEqual([row[-1] for row in baseline[3:13]],
+                         ['/usr/local/bin/biomcp', '/usr/share/doc/biomcp/LICENSE',
+                          '/usr/share/doc/biomcp/THIRD-PARTY-NOTICES.txt', 'biodata.problem/1', 'help', 'serve',
+                          '1', '--installed-process-proof', '--installed-http-proof', '--installed-alphagenome-proof'])
 
 
 if __name__ == '__main__':

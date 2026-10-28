@@ -22,7 +22,6 @@
         "cosmic"
       ],
       "max_bytes": 32583,
-      "max_tokens": 8146,
       "expect": {
         "/status": "complete",
         "/result/candidates": {
@@ -59,7 +58,6 @@
         "noncommercial"
       ],
       "max_bytes": 32583,
-      "max_tokens": 8146,
       "expect": {
         "/result/candidates/0/sections/predict/state": "skipped",
         "/result/candidates/0/sections/predict/reason": "disabled",
@@ -89,7 +87,6 @@
         "restricted"
       ],
       "max_bytes": 32583,
-      "max_tokens": 8146,
       "expect": {
         "/result/candidates/0/sections/predict/state": "data",
         "/result/candidates/0/sections/conservation/state": "data",
@@ -121,12 +118,8 @@
         "myvariant"
       ],
       "max_bytes": 32583,
-      "max_tokens": 8146,
       "expect": {
-        "/result/resolution": "unavailable",
-        "/result/candidates": {
-          "count": 0
-        }
+        "/result/resolution": "unavailable"
       },
       "exit": 4,
       "is_error": true
