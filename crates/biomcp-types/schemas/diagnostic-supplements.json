@@ -12,6 +12,7 @@
     "DiagnosticCountUnit": {
       "description": "Meaning of the envelope's total for a source-owned diagnostic page.",
       "enum": [
+        "recall_records",
         "product_identities",
         "test_identities",
         "native_relation_rows",
@@ -48,7 +49,7 @@
               "type": "null"
             }
           ],
-          "description": "gtr: genes, conditions, methods. fda-pma: regulatory, supplements. WHO and 510(k) have no sections; omit for the card.",
+          "description": "GTR: genes, conditions, methods. PMA: regulatory, supplements.\nWHO, 510(k) and device recalls have no sections; omit for the card.",
           "x-positional": 1
         },
         "section_limit": {
@@ -67,7 +68,7 @@
         },
         "source": {
           "$ref": "#/$defs/DiagnosticGetSource",
-          "description": "Explicit source; gtr needs accession/version, who-ivd a known Product ID, fda-pma a P number, fda-510k a K number."
+          "description": "Explicit source: GTR accession/version, WHO Product ID, PMA P number,\n510(k) K number or device recall Z-NNNN-YYYY."
         },
         "supplement": {
           "anyOf": [
@@ -93,7 +94,8 @@
         "gtr",
         "who-ivd",
         "fda-pma",
-        "fda-510k"
+        "fda-510k",
+        "fda-device-recall"
       ],
       "type": "string"
     },
@@ -471,6 +473,7 @@
         "fda-cdx",
         "fda-pma",
         "fda-510k",
+        "fda-device-recall",
         "cpic",
         "clinpgx",
         "cbioportal",
@@ -545,6 +548,7 @@
         " FDA companion diagnostic device tables.",
         " openFDA premarket approval submissions.",
         " FDA native 510(k) clearance records.",
+        " openFDA medical device product recall records.",
         " Clinical Pharmacogenetics Implementation Consortium.",
         " ClinPGx pharmacogenomics annotations.",
         " Public cBioPortal with study-specific reuse terms.",

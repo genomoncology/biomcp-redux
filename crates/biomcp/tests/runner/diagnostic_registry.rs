@@ -24,6 +24,7 @@ const SOURCES: &[(&str, &str, &str)] = &[
     ),
     ("fda-pma", "open", "https://open.fda.gov/terms/"),
     ("fda-510k", "open", "https://open.fda.gov/terms/"),
+    ("fda-device-recall", "open", "https://open.fda.gov/terms/"),
 ];
 pub(super) fn trials() -> Vec<Trial> {
     SOURCES
@@ -102,6 +103,7 @@ fn switches() -> Check {
         "fda-cdx",
         "fda-pma",
         "fda-510k",
+        "fda-device-recall",
         "noncommercial",
     ] {
         let env = Environment::new().map_err(|e| e.to_string())?;

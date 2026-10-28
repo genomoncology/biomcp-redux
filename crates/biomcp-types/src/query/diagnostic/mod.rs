@@ -1,5 +1,5 @@
 use super::QueryInvalid;
-use biodata::{DiagnosticDeviceId, FdaDrugApplication, GeneSymbol, NcbiGeneId, Text};
+use biodata::{DiagnosticDeviceId, FdaDrugApplication, GeneSymbol, NcbiGeneId, PartialDate, Text};
 use serde::{Deserialize, Serialize};
 mod get;
 pub use get::DiagnosticGet;
@@ -8,14 +8,16 @@ biodata::wire_enum! {
     /// One explicit diagnostic discovery source.
     DiagnosticSearchSource { #[doc = "Native Gtr spelling."] Gtr => "gtr",
  #[doc = "Native FdaCdx spelling."] FdaCdx => "fda-cdx",
- #[doc = "Stored WHO product headers."] WhoIvd => "who-ivd" }
+ #[doc = "Stored WHO product headers."] WhoIvd => "who-ivd",
+ #[doc = "Native recalls for every medical device."] FdaDeviceRecall => "fda-device-recall" }
 }
 biodata::wire_enum! {
     /// One explicit exact diagnostic record source.
     DiagnosticGetSource { #[doc = "Native Gtr spelling."] Gtr => "gtr",
  #[doc = "Native WhoIvd spelling."] WhoIvd => "who-ivd",
  #[doc = "Native FdaPma spelling."] FdaPma => "fda-pma",
- #[doc = "Native 510(k) clearance spelling."] Fda510k => "fda-510k" }
+ #[doc = "Native 510(k) clearance spelling."] Fda510k => "fda-510k",
+ #[doc = "Exact native medical device recall."] FdaDeviceRecall => "fda-device-recall" }
 }
 biodata::wire_enum! {
     described
@@ -31,7 +33,7 @@ biodata::wire_enum! {
 fn limit() -> u32 {
     5
 }
-/// Search one diagnostic source. A listing is not authorization; a companion row is not a treatment recommendation.
+/// Search five source records by default. FDA device recalls cover every medical device; totals count recall records, without harm inference.
 #[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
 #[serde(try_from = "SearchFields")]
 #[cfg_attr(feature = "schema", derive(schemars::JsonSchema))]
@@ -41,7 +43,7 @@ pub struct DiagnosticSearch(SearchFields);
 #[serde(deny_unknown_fields)]
 #[cfg_attr(feature = "schema", derive(schemars::JsonSchema))]
 struct SearchFields {
-    /// Explicit native GTR, WHO IVD or FDA companion discovery.
+    /// Explicit native GTR, WHO IVD, FDA companion or medical device recall discovery.
     source: DiagnosticSearchSource,
     /// Exact source GeneID, exclusive with gene symbol.
     #[serde(default, skip_serializing_if = "Option::is_none")]
@@ -68,9 +70,18 @@ struct SearchFields {
     /// Literal whole-word phrase in WHO's Pathogen/Disease/Marker cell.
     #[serde(default, skip_serializing_if = "Option::is_none")]
     marker: Option<Text>,
-    /// Literal whole-word phrase in WHO's Manufacturer name cell.
+    /// WHO manufacturer words or native FDA recalling_firm phrase.
     #[serde(default, skip_serializing_if = "Option::is_none")]
     manufacturer: Option<Text>,
+    /// Exact native FDA device recall product code.
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    product_code: Option<Text>,
+    /// Inclusive initiation date, YYYY-MM-DD; FDA device recalls only.
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    initiated_from: Option<PartialDate>,
+    /// Inclusive initiation date, YYYY-MM-DD; FDA device recalls only.
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    initiated_to: Option<PartialDate>,
     /// Five results by default; at most fifty source rows or product headers.
     #[serde(default = "limit")]
     #[cfg_attr(feature = "schema", schemars(range(min = 1, max = 50)))]
@@ -92,6 +103,9 @@ impl TryFrom<SearchFields> for DiagnosticSearch {
             || v.test_type.is_some();
         let cdx = v.device_id.is_some() || v.drug_application.is_some() || v.biomarker.is_some();
         let who = v.marker.is_some() || v.manufacturer.is_some();
+        let recall =
+            v.product_code.is_some() || v.initiated_from.is_some() || v.initiated_to.is_some();
+        validate_recall(&v, gtr || cdx, recall)?;
         if !(1..=50).contains(&v.limit) {
             return Err(QueryInvalid::new(&["limit"]));
         }
@@ -140,10 +154,11 @@ impl TryFrom<SearchFields> for DiagnosticSearch {
                 "biomarker",
             ]));
         }
-        if [v.marker.as_ref(), v.manufacturer.as_ref()]
-            .into_iter()
-            .flatten()
-            .any(|v| !v.as_str().chars().any(char::is_alphanumeric))
+        if v.source == DiagnosticSearchSource::WhoIvd
+            && [v.marker.as_ref(), v.manufacturer.as_ref()]
+                .into_iter()
+                .flatten()
+                .any(|v| !v.as_str().chars().any(char::is_alphanumeric))
         {
             return Err(QueryInvalid::new(&["marker", "manufacturer"]));
         }
@@ -200,9 +215,21 @@ impl DiagnosticSearch {
     pub fn marker(&self) -> Option<&Text> {
         self.0.marker.as_ref()
     }
-    /// Literal WHO manufacturer words.
+    /// WHO manufacturer words or native FDA recalling_firm phrase.
     pub fn manufacturer(&self) -> Option<&Text> {
         self.0.manufacturer.as_ref()
+    }
+    /// Exact native recall device category code.
+    pub fn product_code(&self) -> Option<&Text> {
+        self.0.product_code.as_ref()
+    }
+    /// Inclusive source initiation range.
+    pub fn initiated_from(&self) -> Option<PartialDate> {
+        self.0.initiated_from
+    }
+    /// Inclusive source initiation range.
+    pub fn initiated_to(&self) -> Option<PartialDate> {
+        self.0.initiated_to
     }
     /// Native rows per page.
     pub fn limit(&self) -> u32 {
@@ -228,4 +255,47 @@ impl DiagnosticSearch {
         v.0.bundle_revision = Some(revision);
         v
     }
+}
+
+fn validate_recall(v: &SearchFields, other: bool, filters: bool) -> Result<(), QueryInvalid> {
+    if v.source != DiagnosticSearchSource::FdaDeviceRecall {
+        if filters {
+            return Err(QueryInvalid::new(&[
+                "source",
+                "product_code",
+                "initiated_from",
+                "initiated_to",
+            ]));
+        }
+        return Ok(());
+    }
+    if other || v.marker.is_some() || v.bundle_revision.is_some() {
+        return Err(QueryInvalid::new(&[
+            "source",
+            "gene_id",
+            "gene",
+            "condition_id",
+            "type",
+            "device_id",
+            "drug_application",
+            "biomarker",
+            "marker",
+            "bundle_revision",
+        ]));
+    }
+    for (name, date) in [
+        ("initiated_from", v.initiated_from),
+        ("initiated_to", v.initiated_to),
+    ] {
+        if date.is_some_and(|d| d.day().is_none()) {
+            return Err(QueryInvalid::new(&[name]));
+        }
+    }
+    if v.initiated_from
+        .zip(v.initiated_to)
+        .is_some_and(|(a, b)| a.to_string() > b.to_string())
+    {
+        return Err(QueryInvalid::new(&["initiated_from", "initiated_to"]));
+    }
+    Ok(())
 }

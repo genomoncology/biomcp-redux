@@ -223,6 +223,12 @@ fn sources(root: &Value, row: &Value, name: &str) -> Vec<Source> {
     {
         return vec![Source::WhoIvd];
     }
+    // rows() has already selected the header, so its enclosing discriminator is absent.
+    if matches!(name, "DiagnosticCard" | "DiagnosticPage")
+        && scalar_path(root, row, &["recall_number"], false)
+    {
+        return vec![Source::FdaDeviceRecall];
+    }
     let fixed = match name {
         "NciTrialPage" | "NciTrialCards" => Some(Source::Nci),
         "AuthorPage" | "AuthorCards" => Some(Source::SemanticScholar),

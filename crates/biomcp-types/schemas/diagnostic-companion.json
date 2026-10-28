@@ -252,6 +252,7 @@
     "DiagnosticCountUnit": {
       "description": "Meaning of the envelope's total for a source-owned diagnostic page.",
       "enum": [
+        "recall_records",
         "product_identities",
         "test_identities",
         "native_relation_rows",
@@ -286,7 +287,7 @@
     },
     "DiagnosticSearch": {
       "additionalProperties": false,
-      "description": "Search one diagnostic source. A listing is not authorization; a companion row is not a treatment recommendation.",
+      "description": "Search five source records by default. FDA device recalls cover every medical device; totals count recall records, without harm inference.",
       "properties": {
         "biomarker": {
           "anyOf": [
@@ -365,6 +366,28 @@
           ],
           "description": "Exact source GeneID, exclusive with gene symbol."
         },
+        "initiated_from": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/PartialDate"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "description": "Inclusive initiation date, YYYY-MM-DD; FDA device recalls only."
+        },
+        "initiated_to": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/PartialDate"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "description": "Inclusive initiation date, YYYY-MM-DD; FDA device recalls only."
+        },
         "limit": {
           "default": 5,
           "description": "Five results by default; at most fifty source rows or product headers.",
@@ -382,7 +405,7 @@
               "type": "null"
             }
           ],
-          "description": "Literal whole-word phrase in WHO's Manufacturer name cell."
+          "description": "WHO manufacturer words or native FDA recalling_firm phrase."
         },
         "marker": {
           "anyOf": [
@@ -402,9 +425,20 @@
           "minimum": 0,
           "type": "integer"
         },
+        "product_code": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/Text"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "description": "Exact native FDA device recall product code."
+        },
         "source": {
           "$ref": "#/$defs/DiagnosticSearchSource",
-          "description": "Explicit native GTR, WHO IVD or FDA companion discovery."
+          "description": "Explicit native GTR, WHO IVD, FDA companion or medical device recall discovery."
         },
         "type": {
           "anyOf": [
@@ -428,7 +462,8 @@
       "enum": [
         "gtr",
         "fda-cdx",
-        "who-ivd"
+        "who-ivd",
+        "fda-device-recall"
       ],
       "type": "string"
     },
@@ -503,6 +538,11 @@
         "total"
       ],
       "type": "object"
+    },
+    "PartialDate": {
+      "description": "A Gregorian date preserving year, month or day precision.",
+      "pattern": "^[0-9]{4}(-[0-9]{2}(-[0-9]{2})?)?$",
+      "type": "string"
     },
     "PoolInfo": {
       "additionalProperties": false,
@@ -704,6 +744,7 @@
         "fda-cdx",
         "fda-pma",
         "fda-510k",
+        "fda-device-recall",
         "cpic",
         "clinpgx",
         "cbioportal",
@@ -778,6 +819,7 @@
         " FDA companion diagnostic device tables.",
         " openFDA premarket approval submissions.",
         " FDA native 510(k) clearance records.",
+        " openFDA medical device product recall records.",
         " Clinical Pharmacogenetics Implementation Consortium.",
         " ClinPGx pharmacogenomics annotations.",
         " Public cBioPortal with study-specific reuse terms.",

@@ -71,6 +71,7 @@ pub fn display_name(source: Source) -> &'static str {
         Source::WhoIvd => "WHO prequalified diagnostic",
         Source::FdaCdx => "FDA companion diagnostic",
         Source::FdaPma => "FDA premarket approval",
+        Source::FdaDeviceRecall => "FDA medical device recall",
         Source::Fda510k => "FDA 510(k) submission",
         Source::Cpic => "CPIC",
         Source::ClinPgx => "ClinPGx",

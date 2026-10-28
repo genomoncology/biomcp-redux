@@ -258,19 +258,19 @@ const CASES: &[(&str, &str)] = &[
     ),
     (
         "search adverse-event text --type recall",
-        "recalls are outside this entity",
+        "use: search diagnostic --source fda-device-recall; covers every medical device",
     ),
     (
         "search adverse-event text --type recalls",
-        "recalls are outside this entity",
+        "use: search diagnostic --source fda-device-recall; covers every medical device",
     ),
     (
         "search adverse-event text --type enforcement",
-        "recalls are outside this entity",
+        "use: search diagnostic --source fda-device-recall; covers every medical device",
     ),
     (
         "search adverse-event text --classification 1",
-        "recalls are outside this entity",
+        "use: search diagnostic --source fda-device-recall; covers every medical device",
     ),
     (
         "search adverse-event text --source all",
@@ -483,15 +483,15 @@ const CASES: &[(&str, &str)] = &[
     ),
     (
         "search adverse-event text --type=recall",
-        "recalls are outside this entity",
+        "use: search diagnostic --source fda-device-recall; covers every medical device",
     ),
     (
         "search adverse-event text --type=recalls",
-        "recalls are outside this entity",
+        "use: search diagnostic --source fda-device-recall; covers every medical device",
     ),
     (
         "search adverse-event text --type=enforcement",
-        "recalls are outside this entity",
+        "use: search diagnostic --source fda-device-recall; covers every medical device",
     ),
     (
         "get adverse-event 100 --section=outcomes",

@@ -30,6 +30,8 @@ pub(super) const IDS: &[&str] = &[
     "/id",
     "/id/id",
     "/header/id",
+    "/header/recall_number",
+    "/recall_number",
     "/concept/id",
     "/product/id",
     "/protein/accession",
