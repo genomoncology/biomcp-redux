@@ -24,6 +24,7 @@ impl Record {
     pub fn header(&self) -> Result<DrugHeader, RequestError> {
         self.check().map_err(|_| bad())?;
         Ok(DrugHeader {
+            matched_name: None,
             id: self.set_id.clone(),
             source: DrugSource::OpenfdaLabel,
             version: Some(self.version.clone()),

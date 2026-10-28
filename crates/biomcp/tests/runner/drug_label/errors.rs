@@ -69,7 +69,7 @@ fn wrong_set() -> Check {
 fn rejection(status: u16, message: &'static str) -> Check {
     let (env, stub) = setup(
         json!({"error":{"code":"NOT_FOUND","message":message}}),
-        "openfda.brand_name.exact%3A%22Tagrisso%22".into(),
+        "openfda.brand_name.exact%3A%22Tagrisso%22%20OR%20openfda.generic_name.exact%3A%22Tagrisso%22".into(),
         status,
     )?;
     let args = vec![

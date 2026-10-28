@@ -30,3 +30,6 @@ pub use who::{DrugWhoCard, DrugWhoGet, DrugWhoPage, DrugWhoRow};
 mod command;
 #[cfg(feature = "schema")]
 pub use command::DrugGetCommand;
+
+mod name_match;
+pub use name_match::DrugNameMatch;

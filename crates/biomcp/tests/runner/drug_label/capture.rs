@@ -53,7 +53,9 @@ fn check(root: &Path, n: usize) -> Check {
         let brand = field(&id, "brand").as_str().ok_or("brand")?;
         let (env, stub) = setup_raw(
             raw.clone(),
-            format!("openfda.brand_name.exact%3A%22{brand}%22"),
+            format!(
+                "openfda.brand_name.exact%3A%22{brand}%22%20OR%20openfda.generic_name.exact%3A%22{brand}%22"
+            ),
             200,
         )?;
         let args = vec![

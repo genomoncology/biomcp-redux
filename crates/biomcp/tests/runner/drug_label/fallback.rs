@@ -2,7 +2,7 @@
 use super::super::network_stub::Stub;
 use super::{Check, both, environment, field, identity, page, record};
 use libtest_mimic::Trial;
-use serde_json::json;
+use serde_json::{Value, json};
 
 pub(super) fn trials() -> Vec<Trial> {
     [
@@ -14,6 +14,8 @@ pub(super) fn trials() -> Vec<Trial> {
             true,
         ),
         ("different-longer-brand", "Gleevec", "Gleevec Extra", false),
+        ("generic-case", "daraxonrasib", "RASONQUE", true),
+        ("partial-generic", "daraxon", "RASONQUE", false),
         ("different-brand", "Gleevec", "Herceptin", false),
     ]
     .into_iter()
@@ -27,10 +29,19 @@ pub(super) fn trials() -> Vec<Trial> {
 fn fallback(typed: &str, returned: &str, found: bool) -> Check {
     let mut id = identity(0)?;
     *id.get_mut("brand").ok_or("brand")? = json!(returned);
-    let body = page(record(&id)).to_string();
+    let mut row = record(&id);
+    row.get_mut("openfda")
+        .and_then(Value::as_object_mut)
+        .ok_or("openfda names")?
+        .insert("generic_name".into(), json!(["DARAXONRASIB"]));
+    let body = page(row).to_string();
     let encoded = typed.replace(' ', "%20");
-    let exact = target(&format!("openfda.brand_name.exact%3A%22{encoded}%22"));
-    let tokenized = target(&format!("openfda.brand_name%3A%22{encoded}%22"));
+    let exact = target(&format!(
+        "openfda.brand_name.exact%3A%22{encoded}%22%20OR%20openfda.generic_name.exact%3A%22{encoded}%22"
+    ));
+    let tokenized = target(&format!(
+        "openfda.brand_name%3A%22{encoded}%22%20OR%20openfda.generic_name%3A%22{encoded}%22"
+    ));
     let tokenized_status = tokenized.clone();
     let stub = Stub::for_source_status(
         "api.fda.gov",
@@ -70,6 +81,14 @@ fn fallback(typed: &str, returned: &str, found: bool) -> Check {
             || value.pointer("/result/items/0/name") != Some(&json!(returned))
         {
             return Err("fallback lost complete brand identity".into());
+        }
+        let basis = if typed == "daraxonrasib" {
+            "generic"
+        } else {
+            "brand"
+        };
+        if value.pointer("/result/items/0/matched_name") != Some(&json!(basis)) {
+            return Err("fallback lost matched name basis".into());
         }
     } else if field(&value, "status") != "absent"
         || value.pointer("/result/items").is_some()
