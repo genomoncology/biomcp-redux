@@ -59,11 +59,11 @@ pub struct GenePage {
     pub items: Box<[GeneHeader]>,
 }
 impl ResponseBody for GeneCards {
-    const SCHEMA: &'static str = "biomcp.gene-cards/6";
+    const SCHEMA: &'static str = "biomcp.gene-cards/7";
     type Query = GeneGet;
 }
 impl ResponseBody for GenePage {
-    const SCHEMA: &'static str = "biomcp.gene-page/3";
+    const SCHEMA: &'static str = "biomcp.gene-page/4";
     type Query = GeneSearch;
 }
 /// Typed dispatch result before the interface constructs an envelope.

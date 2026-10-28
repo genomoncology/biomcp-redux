@@ -21,9 +21,9 @@ pub struct GeneHeader {
     pub symbol: GeneSymbol,
     /// HGNC locus group.
     pub locus_group: LocusGroup,
-    /// A single stated band, if available.
+    /// Source-stated location, including unparsed publisher text.
     #[serde(skip_serializing_if = "Option::is_none")]
-    pub location: Option<Cytoband>,
+    pub location: Option<GeneLocation>,
     /// HGNC record status.
     pub status: GeneStatus,
     /// Gene name.

@@ -1,6 +1,7 @@
 # 0441 — Keep gene locations that HGNC states in other forms
 
-Status: OPEN.
+Status: COMPLETE.
+Landed: 3cd3429ef3e8bba7f7e73bd199a2cd3e1c56bcae
 
 Milestone: 5
 

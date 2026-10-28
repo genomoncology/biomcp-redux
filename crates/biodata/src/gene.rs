@@ -10,3 +10,6 @@ pub use model::Gene;
 
 mod reference;
 pub use reference::GeneRef;
+
+mod location;
+pub use location::{GeneLocation, GeneLocationKind};
