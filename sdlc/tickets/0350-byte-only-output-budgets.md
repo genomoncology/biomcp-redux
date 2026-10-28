@@ -1,6 +1,7 @@
 # 0350 — Drop token ceilings that only restate a byte ceiling
 
-Status: OPEN.
+Status: COMPLETE.
+Landed: ef4547881a4aca2c811a84f207f6820a215176fa
 
 Milestone: 5
 

@@ -15,8 +15,7 @@
         "/status": "complete",
         "/result/items/0/sections/features/state": "empty"
       },
-      "max_bytes": 1125,
-      "max_tokens": 282
+      "max_bytes": 1125
     }
   ]
 }

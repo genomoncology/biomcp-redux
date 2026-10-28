@@ -32,8 +32,7 @@
         "/query/section": "details"
       },
       "full_output_bytes": true,
-      "max_bytes": 24198,
-      "max_tokens": 6050
+      "max_bytes": 24198
     },
     {
       "run": [
@@ -65,8 +64,7 @@
         "/query/section": "details"
       },
       "full_output_bytes": true,
-      "max_bytes": 24198,
-      "max_tokens": 6050
+      "max_bytes": 24198
     }
   ]
 }

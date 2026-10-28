@@ -28,8 +28,7 @@
         ]
       },
       "full_output_bytes": true,
-      "max_bytes": 1191,
-      "max_tokens": 298
+      "max_bytes": 1191
     },
     {
       "run": [
@@ -53,8 +52,7 @@
         ]
       },
       "full_output_bytes": true,
-      "max_bytes": 1191,
-      "max_tokens": 298
+      "max_bytes": 1191
     },
     {
       "run": [
@@ -78,8 +76,7 @@
         ]
       },
       "full_output_bytes": true,
-      "max_bytes": 1191,
-      "max_tokens": 298
+      "max_bytes": 1191
     },
     {
       "run": [
@@ -105,8 +102,7 @@
         ]
       },
       "full_output_bytes": true,
-      "max_bytes": 1191,
-      "max_tokens": 298
+      "max_bytes": 1191
     },
     {
       "run": [
@@ -130,8 +126,7 @@
         ]
       },
       "full_output_bytes": true,
-      "max_bytes": 1191,
-      "max_tokens": 298
+      "max_bytes": 1191
     }
   ]
 }

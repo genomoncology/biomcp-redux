@@ -39,7 +39,8 @@
           "type": "null"
         }
       ],
-      "description": "Native target link, only when supplied."
+      "description": "Native target link, only when supplied.",
+      "format": "uri"
     }
   },
   "required": [

@@ -40,8 +40,7 @@
         "/next/0/kind": "pivot"
       },
       "full_output_bytes": true,
-      "max_bytes": 1146,
-      "max_tokens": 287
+      "max_bytes": 1146
     }
   ]
 }
