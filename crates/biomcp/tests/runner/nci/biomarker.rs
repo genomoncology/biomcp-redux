@@ -88,16 +88,23 @@ fn pages() -> Check {
             .and_then(Value::as_str)
             .is_some_and(|s| s.ends_with("name=PD-L1"))
         {
-            let native = record.pointer("/exchanges/0/body/value/data")
-                .and_then(Value::as_array).ok_or("native rows")?;
-            expected = Some(native.iter().map(|row| {
-                let mut header = json!({
-                    "name":row["name"], "codes":row["codes"],
-                    "type":row["type"], "count":row["count"]
-                });
-                super::super::assertions::omit_empty_lists(&mut header);
-                header
-            }).collect::<Vec<_>>());
+            let native = record
+                .pointer("/exchanges/0/body/value/data")
+                .and_then(Value::as_array)
+                .ok_or("native rows")?;
+            expected = Some(
+                native
+                    .iter()
+                    .map(|row| {
+                        let mut header = json!({
+                            "name":row["name"], "codes":row["codes"],
+                            "type":row["type"], "count":row["count"]
+                        });
+                        super::super::assertions::omit_empty_lists(&mut header);
+                        header
+                    })
+                    .collect::<Vec<_>>(),
+            );
         }
     }
     if expected.as_ref() != Some(&rows) {
