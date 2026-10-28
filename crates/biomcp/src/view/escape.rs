@@ -11,6 +11,11 @@ pub(crate) fn escape(text: &str) -> String {
             '@' => out.push_str("&#64;"),
             '\n' => out.push_str("&#10;"),
             '\r' => out.push_str("&#13;"),
+            ch if ch.is_control()
+                || matches!(ch, '\u{061c}' | '\u{200e}' | '\u{200f}' | '\u{202a}'..='\u{202e}' | '\u{2066}'..='\u{2069}') =>
+            {
+                out.push_str(&format!("\\u{{{:04x}}}", u32::from(ch)));
+            }
             '\\' | '*' | '_' | '`' | '|' | '[' | ']' | '#' | '!' | '~' => {
                 out.push('\\');
                 out.push(ch);
