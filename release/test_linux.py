@@ -119,6 +119,11 @@ class LinuxContainers(unittest.TestCase):
             result = subprocess.run(['make', 'release-linux', 'CONTAINER_ARGS=' + shlex.join(extra).replace('$', '$$')],
                                     cwd=root, env=env, capture_output=True, text=True)
             self.assertEqual(result.returncode, 0, result.stdout + result.stderr)
+            containers = [json.loads(line) for line in result.stdout.splitlines()
+                          if line.startswith('{') and json.loads(line).get('artifact') == 'docker']
+            self.assertEqual(len(containers), 1, result.stdout)
+            self.assertEqual(containers[0]['result'], 'pass')
+            self.assertIn('alphagenome-local-tls', containers[0]['checks'])
             self.assertFalse((root / 'injected').exists())
             self.assertEqual((root / 'dist/biomcp-container-amd64.tar').read_bytes(),
                              b'container archive')
