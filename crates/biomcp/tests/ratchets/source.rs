@@ -1,5 +1,5 @@
 #[path = "adapter_values.rs"]
-mod adapter_values;
+pub(super) mod adapter_values;
 use super::{Check, dependencies, rust_files};
 use std::{collections::BTreeSet, fs, path::Path};
 

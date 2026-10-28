@@ -18,31 +18,41 @@ struct Site {
 }
 pub(super) fn check(root: &Path) -> Check {
     let audit: Audit = serde_json::from_str(include_str!("adapter_value_audit.json"))?;
+    for (relative, site, count) in sites(root)? {
+        let allowed = audit
+            .sites
+            .iter()
+            .find(|entry| entry.path == relative && entry.site == site);
+        if !allowed.is_some_and(|entry| {
+            count <= entry.maximum
+                && !entry.reason.is_empty()
+                && !entry.owner.is_empty()
+                && matches!(
+                    entry.class.as_str(),
+                    "migrated" | "identity_refusal" | "legitimate_absence" | "pending_audit"
+                )
+        }) {
+            return Err(format!("{relative}: classify new optional-value drop: {site}").into());
+        }
+    }
+    Ok(())
+}
+pub(crate) fn sites(
+    root: &Path,
+) -> Result<Vec<(String, String, usize)>, Box<dyn std::error::Error>> {
+    let mut result = Vec::new();
     for path in rust_files(&root.join("crates/biomcp-adapters/src"))? {
         let relative = path
             .strip_prefix(root)?
             .to_string_lossy()
             .replace('\\', "/");
         for (site, count) in fingerprints(&tokens(&fs::read_to_string(&path)?)) {
-            let allowed = audit
-                .sites
-                .iter()
-                .find(|entry| entry.path == relative && entry.site == site);
-            if !allowed.is_some_and(|entry| {
-                count <= entry.maximum
-                    && !entry.reason.is_empty()
-                    && !entry.owner.is_empty()
-                    && matches!(
-                        entry.class.as_str(),
-                        "migrated" | "identity_refusal" | "legitimate_absence" | "pending_audit"
-                    )
-            }) {
-                return Err(format!("{relative}: classify new optional-value drop: {site}").into());
-            }
+            result.push((relative.clone(), site, count));
         }
     }
-    Ok(())
+    Ok(result)
 }
+
 fn fingerprints(tokens: &[String]) -> BTreeMap<String, usize> {
     let mut result = BTreeMap::new();
     let mut function = "module";
