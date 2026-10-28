@@ -182,7 +182,8 @@ fn empty() -> Outcome {
     }
 }
 fn partial(snapshot: &Snapshot) -> bool {
-    snapshot.version.is_none()
+    !snapshot.detail.problems.is_empty()
+        || snapshot.version.is_none()
         || snapshot
             .sources
             .iter()

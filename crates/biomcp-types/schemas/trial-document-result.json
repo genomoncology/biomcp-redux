@@ -865,7 +865,10 @@
         },
         "kind": {
           "description": "Native document type abbreviation.",
-          "type": "string"
+          "type": [
+            "string",
+            "null"
+          ]
         },
         "label": {
           "description": "Source label.",
@@ -903,7 +906,6 @@
       "required": [
         "filename",
         "url",
-        "kind",
         "license"
       ],
       "type": "object"
@@ -994,7 +996,7 @@
       "type": "string"
     }
   },
-  "$id": "biomcp.trial-document/2",
+  "$id": "biomcp.trial-document/3",
   "$schema": "https://json-schema.org/draft/2020-12/schema",
   "additionalProperties": false,
   "description": "One versioned command response; schema identity comes only from its body type.",
@@ -1051,7 +1053,7 @@
       "description": "Answer when available."
     },
     "schema": {
-      "const": "biomcp.trial-document/2",
+      "const": "biomcp.trial-document/3",
       "type": "string"
     },
     "sources": {

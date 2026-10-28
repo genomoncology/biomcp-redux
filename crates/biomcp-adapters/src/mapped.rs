@@ -57,6 +57,60 @@ impl Problems {
     pub(crate) fn optional<T, E>(&mut self, field: &str, value: Option<Result<T, E>>) -> Option<T> {
         self.required(field, value?.ok())
     }
+    pub(crate) fn field<T>(
+        &mut self,
+        field: &str,
+        value: Option<crate::raw::Field<T>>,
+    ) -> Option<T> {
+        self.optional(field, value.map(|v| v.value().ok_or(())))
+    }
+    pub(crate) fn required_field<T>(
+        &mut self,
+        field: &str,
+        value: Option<crate::raw::Field<T>>,
+    ) -> Option<T> {
+        let value = self.field(field, value);
+        self.required(field, value)
+    }
+    pub(crate) fn fields<T>(
+        &mut self,
+        field: &str,
+        value: Option<crate::raw::Field<Vec<crate::raw::Field<T>>>>,
+    ) -> Box<[T]> {
+        self.field(field, value)
+            .unwrap_or_default()
+            .into_iter()
+            .filter_map(|v| self.field(field, Some(v)))
+            .collect()
+    }
+    /// Validate native text through the shared boundary without changing its source bytes.
+    pub(crate) fn native_text(
+        &mut self,
+        field: &str,
+        value: Option<crate::raw::Field<Box<str>>>,
+    ) -> Option<Box<str>> {
+        let value = self.field(field, value)?;
+        self.text(field, Some(&value)).map(|_| value)
+    }
+    pub(crate) fn required_native_text(
+        &mut self,
+        field: &str,
+        value: Option<crate::raw::Field<Box<str>>>,
+    ) -> Option<Box<str>> {
+        let value = self.native_text(field, value);
+        self.required(field, value)
+    }
+    pub(crate) fn native_texts(
+        &mut self,
+        field: &str,
+        value: Option<crate::raw::Field<Vec<crate::raw::Field<Box<str>>>>>,
+    ) -> Box<[Box<str>]> {
+        self.field(field, value)
+            .unwrap_or_default()
+            .into_iter()
+            .filter_map(|value| self.native_text(field, Some(value)))
+            .collect()
+    }
     pub(crate) fn text(&mut self, field: &str, value: Option<&str>) -> Option<biodata::Text> {
         self.optional(field, value.map(text))
     }
