@@ -23,8 +23,8 @@ pub use id::{Cytoband, EnsemblGeneId, GeneSymbol, HgncId, NcbiGeneId, OmimId, Un
 
 mod gene;
 pub use gene::{
-    Gene, GeneRef, GeneStatus, HgncStatus, LocusGroup, LocusType, Mane, ManeStatus, MatchKind,
-    Summary, SummarySource,
+    Gene, GeneLocation, GeneLocationKind, GeneRef, GeneStatus, HgncStatus, LocusGroup, LocusType,
+    Mane, ManeStatus, MatchKind, Summary, SummarySource,
 };
 
 pub use coord::{Build, Contig, GenomicInterval, Strand};
