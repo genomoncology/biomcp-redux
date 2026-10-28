@@ -210,7 +210,11 @@ impl Limiter {
         }
     }
 
-    fn acquire<'a>(self: Arc<Self>, keyed: bool, deadline: Deadline<'a>) -> Result<Option<Permit<'a>>, Duration> {
+    fn acquire<'a>(
+        self: Arc<Self>,
+        keyed: bool,
+        deadline: Deadline<'a>,
+    ) -> Result<Option<Permit<'a>>, Duration> {
         let rate = if keyed {
             self.quota.keyed_rate.unwrap_or(self.quota.rate)
         } else {

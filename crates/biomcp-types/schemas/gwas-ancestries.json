@@ -396,6 +396,7 @@
         "unsupported",
         "too_large",
         "rate_limited",
+        "local_quota",
         "unavailable",
         "tls",
         "proxy",
@@ -417,6 +418,7 @@
         " The local reader does not support the file or container format.",
         " The response exceeds an explicit reader resource bound.",
         " The source limited the request rate.",
+        " The local source quota refused admission without a network request.",
         " The source was unavailable.",
         " Platform or configured certificate verification failed.",
         " Connecting to or negotiating the configured proxy failed.",
@@ -582,8 +584,36 @@
       ]
     },
     "SourceNotice": {
-      "description": "A provider query interpretation notice.",
+      "description": "A source notice or request recovery step.",
       "oneOf": [
+        {
+          "additionalProperties": false,
+          "description": "Local request limits and source-specific recovery guidance.",
+          "properties": {
+            "kind": {
+              "const": "request_guidance",
+              "type": "string"
+            },
+            "message": {
+              "description": "Reviewed guidance without provider response text.",
+              "type": "string"
+            },
+            "retry_after_seconds": {
+              "description": "Seconds left before another source request may be admitted.",
+              "format": "uint64",
+              "minimum": 0,
+              "type": [
+                "integer",
+                "null"
+              ]
+            }
+          },
+          "required": [
+            "kind",
+            "message"
+          ],
+          "type": "object"
+        },
         {
           "additionalProperties": false,
           "description": "Registered conditions lack the literal words requested in a condition search.",
@@ -732,7 +762,7 @@
           ]
         },
         "notices": {
-          "description": "Provider query notices that do not indicate failure.",
+          "description": "Source notices and request recovery guidance.",
           "items": {
             "$ref": "#/$defs/SourceNotice"
           },

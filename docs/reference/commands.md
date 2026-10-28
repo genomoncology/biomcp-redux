@@ -398,7 +398,7 @@ Options:
 
 ```
 
-Source associations in default p-value-ascending order. Reports no personal risk, causal variant or gene, or clinical interpretation of a statistic.
+Source associations in default p-value-ascending order. Reports no personal risk, causal variant or gene, or clinical interpretation of a statistic. BioMCP's local request deadline expired. GWAS Catalog response times can vary; retry later or use https://www.ebi.ac.uk/gwas/. Contact the GWAS Catalog helpdesk if this persists.
 
 - `--extended-geneset`: Source extended gene set; requires gene.
 - `--gene`: Exact source mapped gene; legacy positional query aliases this field.
@@ -463,7 +463,7 @@ Options:
 ```
 
 Search five reviewed human UniProt headers by exact text or exact gene.
-No variant effect, structure, interaction or clinical meaning is inferred. No bioinformatics tool runs.
+No variant effect, structure, interaction or clinical meaning is inferred. No bioinformatics tool runs. BioMCP's local request deadline expired. The health probe uses a shorter local cap than protein requests. InterPro documents that some queries take minutes; this timeout does not establish an outage. Please retry later or check https://www.ebi.ac.uk/interpro/. See https://interpro-documentation.readthedocs.io/en/latest/faq.html.
 
 - `--gene`: Exact source gene field, without identifier inference.
 - `--limit`: Five rows by default; no more than 25.
@@ -826,7 +826,7 @@ Options:
 
 ```
 
-Search five report headers by default. VAERS accepts MMR, COVID19, COVID-19 vaccine or one exact qualified source influenza code, matched without case; use influenza to list codes and labels. Tables remain separate and are never summed. One report may list several vaccines. VAERS returns five reported symptom rows by default; seriousness and age select independent tables. Counts are reports, not people. Reports do not show that a vaccine caused an event and cannot measure risk or compare vaccine safety.
+Search five report headers by default. VAERS accepts MMR, COVID19, COVID-19 vaccine or one exact qualified source influenza code, matched without case; use influenza to list codes and labels. Tables remain separate and are never summed. One report may list several vaccines. VAERS returns five reported symptom rows by default; seriousness and age select independent tables. Counts are reports, not people. Reports do not show that a vaccine caused an event and cannot measure risk or compare vaccine safety. CDC WONDER can take longer than BioMCP's local command deadline. Use the interactive form at https://wonder.cdc.gov/vaers.html for a longer query. See https://wonder.cdc.gov/wonder/help/faq.html. BioMCP's local quota refused this request before contacting CDC WONDER. Retry after the reported seconds left. Automated queries must follow the spacing at https://wonder.cdc.gov/wonder/help/wonder-api.html.
 
 - `--limit`: Source report headers or VAERS rows per page; default five.
 - `--offset`: Source row offset. VAERS continuation requires its retained snapshot.
@@ -1536,7 +1536,7 @@ Options:
 
 ```
 
-Source association or study and source context. Reports no personal risk, causal variant or gene, or clinical interpretation of a statistic.
+Source association or study and source context. Reports no personal risk, causal variant or gene, or clinical interpretation of a statistic. BioMCP's local request deadline expired. GWAS Catalog response times can vary; retry later or use https://www.ebi.ac.uk/gwas/. Contact the GWAS Catalog helpdesk if this persists.
 
 - `id`: Qualified association ID or exact GCST study accession.
 - `section`: Association loci or study associations and ancestries.
@@ -1592,7 +1592,7 @@ Options:
 
 Read source protein cards; a symbol returns candidates without choosing a protein.
 Sections disclose source facts with independent row bounds; function keeps all paragraphs.
-No variant effect, structure, interaction or clinical meaning is inferred. No bioinformatics tool runs.
+No variant effect, structure, interaction or clinical meaning is inferred. No bioinformatics tool runs. BioMCP's local request deadline expired. The health probe uses a shorter local cap than protein requests. InterPro documents that some queries take minutes; this timeout does not establish an outage. Please retry later or check https://www.ebi.ac.uk/interpro/. See https://interpro-documentation.readthedocs.io/en/latest/faq.html.
 
 - `input`: Source accessions or gene symbols, preserving caller order.
 - `--section`: Select source sections or all bounded first pages; function keeps one whole text record.
@@ -1985,7 +1985,7 @@ Options:
 
 ```
 
-Exact source report identity and an optional independently paged section.
+Exact source report identity and an optional independently paged section. CDC WONDER can take longer than BioMCP's local command deadline. Use the interactive form at https://wonder.cdc.gov/vaers.html for a longer query. See https://wonder.cdc.gov/wonder/help/faq.html. BioMCP's local quota refused this request before contacting CDC WONDER. Retry after the reported seconds left. Automated queries must follow the spacing at https://wonder.cdc.gov/wonder/help/wonder-api.html.
 
 - `--drug-index`: Absolute source-array index; required only for identifier sections.
 - `id`: Published report ID with no source prefix.
@@ -2560,7 +2560,7 @@ Options:
 
 ```
 
-Read protein sequences, features and source relationships.
+Read protein sequences, features and source relationships. BioMCP's local request deadline expired. The health probe uses a shorter local cap than protein requests. InterPro documents that some queries take minutes; this timeout does not establish an outage. Please retry later or check https://www.ebi.ac.uk/interpro/. See https://interpro-documentation.readthedocs.io/en/latest/faq.html.
 
 
 ## biomcp protein features
@@ -2610,7 +2610,7 @@ Options:
 
 ```
 
-Page five source UniProt features by exact type and displayed residue. No variant effect or clinical meaning is inferred; no bioinformatics tool runs.
+Page five source UniProt features by exact type and displayed residue. No variant effect or clinical meaning is inferred; no bioinformatics tool runs. BioMCP's local request deadline expired. The health probe uses a shorter local cap than protein requests. InterPro documents that some queries take minutes; this timeout does not establish an outage. Please retry later or check https://www.ebi.ac.uk/interpro/. See https://interpro-documentation.readthedocs.io/en/latest/faq.html.
 
 - `accession`: Exact source protein sequence identity.
 - `--limit`: Five rows by default, at most 25.
@@ -2660,7 +2660,7 @@ Options:
 
 ```
 
-Page five source isoforms, exact-participant complexes or PDB links. Source identities stay separate. No structure, interaction or clinical meaning is inferred; no bioinformatics tool runs.
+Page five source isoforms, exact-participant complexes or PDB links. Source identities stay separate. No structure, interaction or clinical meaning is inferred; no bioinformatics tool runs. BioMCP's local request deadline expired. The health probe uses a shorter local cap than protein requests. InterPro documents that some queries take minutes; this timeout does not establish an outage. Please retry later or check https://www.ebi.ac.uk/interpro/. See https://interpro-documentation.readthedocs.io/en/latest/faq.html.
 
 - `accession`: Exact source protein sequence identity.
 - `--limit`: Five rows by default, at most 25.
@@ -2711,7 +2711,7 @@ Options:
 
 ```
 
-Page five source InterPro matches with original types and fragments. No structure or clinical meaning is inferred; no bioinformatics tool runs.
+Page five source InterPro matches with original types and fragments. No structure or clinical meaning is inferred; no bioinformatics tool runs. BioMCP's local request deadline expired. The health probe uses a shorter local cap than protein requests. InterPro documents that some queries take minutes; this timeout does not establish an outage. Please retry later or check https://www.ebi.ac.uk/interpro/. See https://interpro-documentation.readthedocs.io/en/latest/faq.html.
 
 - `accession`: Exact source protein sequence identity.
 - `--limit`: Five rows by default, at most 25.
@@ -2760,7 +2760,7 @@ Options:
 
 ```
 
-Page five source isoforms, exact-participant complexes or PDB links. Source identities stay separate. No structure, interaction or clinical meaning is inferred; no bioinformatics tool runs.
+Page five source isoforms, exact-participant complexes or PDB links. Source identities stay separate. No structure, interaction or clinical meaning is inferred; no bioinformatics tool runs. BioMCP's local request deadline expired. The health probe uses a shorter local cap than protein requests. InterPro documents that some queries take minutes; this timeout does not establish an outage. Please retry later or check https://www.ebi.ac.uk/interpro/. See https://interpro-documentation.readthedocs.io/en/latest/faq.html.
 
 - `accession`: Exact source protein sequence identity.
 - `--limit`: Five rows by default, at most 25.
@@ -2811,7 +2811,7 @@ Options:
 
 ```
 
-Page five source participants of an exact Complex Portal complex containing the anchor. No interaction or clinical meaning is inferred; no bioinformatics tool runs.
+Page five source participants of an exact Complex Portal complex containing the anchor. No interaction or clinical meaning is inferred; no bioinformatics tool runs. BioMCP's local request deadline expired. The health probe uses a shorter local cap than protein requests. InterPro documents that some queries take minutes; this timeout does not establish an outage. Please retry later or check https://www.ebi.ac.uk/interpro/. See https://interpro-documentation.readthedocs.io/en/latest/faq.html.
 
 - `accession`: Exact source protein sequence identity.
 - `--complex`: Exact complex whose source participants contain the anchor.
@@ -2860,7 +2860,7 @@ Options:
 
 ```
 
-Page five source isoforms, exact-participant complexes or PDB links. Source identities stay separate. No structure, interaction or clinical meaning is inferred; no bioinformatics tool runs.
+Page five source isoforms, exact-participant complexes or PDB links. Source identities stay separate. No structure, interaction or clinical meaning is inferred; no bioinformatics tool runs. BioMCP's local request deadline expired. The health probe uses a shorter local cap than protein requests. InterPro documents that some queries take minutes; this timeout does not establish an outage. Please retry later or check https://www.ebi.ac.uk/interpro/. See https://interpro-documentation.readthedocs.io/en/latest/faq.html.
 
 - `accession`: Exact source protein sequence identity.
 - `--limit`: Five rows by default, at most 25.
@@ -2901,7 +2901,7 @@ Options:
 ```
 
 Read one complete source sequence for an exact source accession.
-No variant effect, structure or clinical meaning is inferred; no bioinformatics tool runs.
+No variant effect, structure or clinical meaning is inferred; no bioinformatics tool runs. BioMCP's local request deadline expired. The health probe uses a shorter local cap than protein requests. InterPro documents that some queries take minutes; this timeout does not establish an outage. Please retry later or check https://www.ebi.ac.uk/interpro/. See https://interpro-documentation.readthedocs.io/en/latest/faq.html.
 
 - `isoform`: Exact isoform or base accession; no canonical suffix is synthesized.
 
@@ -4145,7 +4145,7 @@ Example: biomcp health --offline
 
 ```
 
-Report publisher terms and bounded source reachability; at most one page for each implemented source.
+Report publisher terms and bounded source reachability; at most one page for each implemented source. BioMCP's local request deadline expired. GWAS Catalog response times can vary; retry later or use https://www.ebi.ac.uk/gwas/. Contact the GWAS Catalog helpdesk if this persists. BioMCP's local request deadline expired. The health probe uses a shorter local cap than protein requests. InterPro documents that some queries take minutes; this timeout does not establish an outage. Please retry later or check https://www.ebi.ac.uk/interpro/. See https://interpro-documentation.readthedocs.io/en/latest/faq.html. CDC WONDER can take longer than BioMCP's local command deadline. Use the interactive form at https://wonder.cdc.gov/vaers.html for a longer query. See https://wonder.cdc.gov/wonder/help/faq.html. BioMCP's local quota refused this request before contacting CDC WONDER. Retry after the reported seconds left. Automated queries must follow the spacing at https://wonder.cdc.gov/wonder/help/wonder-api.html.
 
 
 ## biomcp store

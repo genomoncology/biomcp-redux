@@ -202,7 +202,8 @@ pub(crate) static WONDER: Quota = Quota::new(
     Rate::every_seconds(120),
     None,
     1,
-).refuse_wait();
+)
+.refuse_wait();
 
 // Conservative serial published-catalog download policy; not a provider quota.
 pub(crate) static WIKIPATHWAYS: Quota = Quota::new(

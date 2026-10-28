@@ -111,8 +111,15 @@ fn source_probe(
                 return Err(error);
             }
             let reason = crate::status::reason(error).unwrap_or(Reason::Unavailable);
-            let retry = match error { RequestError::Source(error) => error.retry_after, _ => None };
-            notices.extend(biomcp_adapters::guidance::notices(spec.source, Some(reason), retry));
+            let retry = match error {
+                RequestError::Source(error) => error.retry_after,
+                _ => None,
+            };
+            notices.extend(biomcp_adapters::guidance::notices(
+                spec.source,
+                Some(reason),
+                retry,
+            ));
             let state = if reason == Reason::Disabled {
                 SourceState::Skipped
             } else {
