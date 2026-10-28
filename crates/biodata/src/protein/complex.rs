@@ -9,13 +9,11 @@ pub struct ProteinComplexHeader {
     pub id: ComplexPortalId,
     /// Native source name.
     #[serde(default, skip_serializing_if = "Option::is_none")]
-    #[cfg_attr(feature = "schema", schemars(with = "Text"))]
     pub name: Option<Text>,
     /// Source taxonomy identifier.
     pub taxon: u32,
     /// Literal native predictedComplex flag.
     #[serde(default, skip_serializing_if = "Option::is_none")]
-    #[cfg_attr(feature = "schema", schemars(with = "bool"))]
     pub predicted: Option<bool>,
     /// Actual participants in this exact complex, never a complex search total.
     pub participant_total: u64,

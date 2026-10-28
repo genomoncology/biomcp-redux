@@ -51,7 +51,7 @@ pub struct ProteinDomains {
     pub native_total: u64,
 }
 impl ResponseBody for ProteinDomains {
-    const SCHEMA: &'static str = "biomcp.protein-domains/2";
+    const SCHEMA: &'static str = "biomcp.protein-domains/3";
     type Query = ProteinDomainsQuery;
 }
 page!(
@@ -73,7 +73,7 @@ pub struct ProteinComplexes {
     pub native_total: u64,
 }
 impl ResponseBody for ProteinComplexes {
-    const SCHEMA: &'static str = "biomcp.protein-complexes/2";
+    const SCHEMA: &'static str = "biomcp.protein-complexes/3";
     type Query = ProteinRelationQuery;
 }
 page!(
@@ -100,7 +100,7 @@ pub struct ProteinCard {
     pub items: Box<[ProteinCardItem]>,
 }
 impl ResponseBody for ProteinCard {
-    const SCHEMA: &'static str = "biomcp.protein-card/3";
+    const SCHEMA: &'static str = "biomcp.protein-card/4";
     type Query = ProteinGet;
 }
 /// One requested identity and its source outcome, without first-hit selection.
