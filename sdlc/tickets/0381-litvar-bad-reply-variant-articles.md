@@ -4,6 +4,8 @@ Status: OPEN.
 
 Milestone: 5
 
+Depends on: 0388
+
 ## Outcome
 
 The cause of LitVar returning `bad_reply` for `search article --gene NAA10 --variant E100K --source litvar` is found and fixed. Variant article search for NAA10 E100K, by gene and protein change and by its rsID rs2065171629, accounts for every PMID that 0.9.3's `variant articles rs2065171629 --limit 25` returned: each is found, reached by a next step, or recorded as not mentioning the variant.
