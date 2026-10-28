@@ -1,4 +1,5 @@
 use biodata::{Curie, Text};
+use crate::raw::Field;
 use biomcp_fetch::{BadReply, Reply};
 use serde::Deserialize;
 #[derive(Deserialize)]
@@ -43,28 +44,28 @@ pub(super) struct Term {
     pub label: Text,
     pub ontology_name: Text,
     pub iri: Text,
-    pub description: Vec<Text>,
+    pub description: Vec<Field<Text>>,
     pub is_obsolete: Option<bool>,
-    pub term_replaced_by: Option<Vec<Text>>,
+    pub term_replaced_by: Option<Vec<Field<Text>>>,
     pub annotation: Annotation,
-    pub synonyms: Vec<Text>,
+    pub synonyms: Vec<Field<Text>>,
     pub obo_synonym: Option<Vec<Synonym>>,
     pub obo_xref: Option<Vec<Xref>>,
 }
 #[derive(Deserialize)]
 pub(super) struct Annotation {
-    pub consider: Option<Vec<Text>>,
+    pub consider: Option<Vec<Field<Text>>>,
 }
 #[derive(Deserialize)]
 pub(super) struct Synonym {
-    pub name: Text,
-    pub scope: Option<Text>,
+    pub name: Field<Text>,
+    pub scope: Option<Field<Text>>,
 }
 #[derive(Deserialize)]
 pub(super) struct Xref {
-    pub database: Text,
-    pub id: Text,
-    pub description: Option<Box<str>>,
+    pub database: Field<Text>,
+    pub id: Field<Text>,
+    pub description: Option<Field<Text>>,
 }
 impl Reply for Exact {
     fn check(&self) -> Result<(), BadReply> {

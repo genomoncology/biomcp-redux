@@ -1,4 +1,4 @@
-use crate::raw::OneOrMany;
+use crate::raw::{Field, OneOrMany};
 use biodata::{Curie, Text};
 use biomcp_fetch::{BadReply, Reply};
 use serde::Deserialize;
@@ -54,11 +54,11 @@ impl Document {
                             .and_then(|xrefs| xrefs.get("doid"))
                             .is_some_and(|values| match values {
                                 OneOrMany::One(value) => {
-                                    value.as_str().parse::<Curie>().ok().as_ref() == Some(id)
+                                    matches!(value, Field::Value(v) if matches!(v, Field::Value(v) if v.as_str().parse::<Curie>().ok().as_ref() == Some(id)))
                                 }
                                 OneOrMany::Many(values) => values
                                     .iter()
-                                    .any(|v| v.as_str().parse::<Curie>().ok().as_ref() == Some(id)),
+                                    .any(|v| matches!(v, Field::Value(v) if v.as_str().parse::<Curie>().ok().as_ref() == Some(id))),
                             })
                     })))
     }
@@ -70,12 +70,12 @@ pub(super) struct Component {
     #[serde(alias = "name")]
     pub label: Text,
     #[serde(alias = "def")]
-    pub definition: Option<Text>,
+    pub definition: Option<Field<Text>>,
     #[serde(alias = "synonyms")]
-    pub synonym: Option<BTreeMap<String, OneOrMany<Text>>>,
-    pub xrefs: Option<BTreeMap<String, OneOrMany<Text>>>,
-    pub parents: Option<Box<[Curie]>>,
+    pub synonym: Option<BTreeMap<String, OneOrMany<Field<Text>>>>,
+    pub xrefs: Option<BTreeMap<String, OneOrMany<Field<Text>>>>,
+    pub parents: Option<Box<[Field<Curie>]>>,
     pub is_obsolete: Option<bool>,
-    pub consider: Option<Box<[Curie]>>,
-    pub replaced_by: Option<Box<[Curie]>>,
+    pub consider: Option<Box<[Field<Curie>]>>,
+    pub replaced_by: Option<Box<[Field<Curie>]>>,
 }

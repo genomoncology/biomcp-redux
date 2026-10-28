@@ -51,7 +51,8 @@ pub fn search(cx: &Ctx<'_>, query: &DrugSearch) -> Outcome {
     out.sources
         .push(status::source(Source::Mychem, leg.finish(), error));
     if let Ok(page) = result {
-        searched(query, cx.fresh, page, &mut out);
+        out.problems = page.problems;
+        searched(query, cx.fresh, page.value, &mut out);
     }
     component_outcomes(cx, &mut out, true);
     command.finish(deadline.remaining());

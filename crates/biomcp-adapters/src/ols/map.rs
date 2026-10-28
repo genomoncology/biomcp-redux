@@ -1,6 +1,5 @@
 use super::{Record, raw};
 use crate::Mapped;
-use crate::mapped::problem;
 use crate::mapped::record as record_text;
 use biodata::{
     Attribution, Concept, Curie, DiseaseEndpoint, DiseaseRelation, DiseaseSynonym, Text,
@@ -49,28 +48,14 @@ pub(super) fn record(term: raw::Term, ontology: DiseaseOntology) -> Result<Recor
     if !xrefs.value.is_empty() {
         sections.push(DiseaseSection::Xrefs);
     }
-    let consider = ids(term.annotation.consider.as_deref().unwrap_or_default())?;
-    let replaced_by = term
-        .term_replaced_by
-        .as_ref()
-        .map(|values| ids(values))
-        .transpose()?
-        .flatten();
-    let definition = if term.description.is_empty() {
-        None
-    } else {
-        Some(
-            crate::mapped::text(
-                &term
-                    .description
-                    .iter()
-                    .map(Text::as_str)
-                    .collect::<Vec<_>>()
-                    .join("\n\n"),
-            )
-            .map_err(|_| RequestError::Input(InputError::Serialization))?,
-        )
-    };
+    let mut problems = crate::mapped::Problems { source: Source::Ols, record: record_text(&term.obo_id), list: Vec::new() };
+    let consider = ids(term.annotation.consider.as_deref().unwrap_or_default(), "annotation.consider", &mut problems);
+    let replaced_by = term.term_replaced_by.as_ref().and_then(|values| ids(values, "term_replaced_by", &mut problems));
+    let descriptions: Vec<_> = term.description.iter().filter_map(|value| match value {
+        crate::raw::Field::Value(v) => Some(v.as_str()),
+        crate::raw::Field::Invalid(_) => { problems.required::<()>("description", None); None }
+    }).collect();
+    let definition = if descriptions.is_empty() { None } else { problems.text("description", Some(&descriptions.join("\n\n"))) };
     Ok(Record {
         card: DiseaseCard {
             requested_id: term.obo_id.clone(),
@@ -90,17 +75,15 @@ pub(super) fn record(term: raw::Term, ontology: DiseaseOntology) -> Result<Recor
         },
         synonyms,
         xrefs,
+        problems: problems.list,
     })
 }
-fn ids(values: &[Text]) -> Result<Option<Box<[Curie]>>, RequestError> {
-    if values.is_empty() {
-        return Ok(None);
-    }
-    values
-        .iter()
-        .map(|v| iri_id(v.as_str()).ok_or_else(|| InputError::Serialization.into()))
-        .collect::<Result<Vec<_>, _>>()
-        .map(|v| Some(v.into()))
+fn ids(values: &[crate::raw::Field<Text>], field: &str, problems: &mut crate::mapped::Problems) -> Option<Box<[Curie]>> {
+    if values.is_empty() { return None; }
+    Some(values.iter().filter_map(|v| problems.required(field, match v {
+        crate::raw::Field::Value(v) => iri_id(v.as_str()),
+        crate::raw::Field::Invalid(_) => None,
+    })).collect())
 }
 fn iri_id(value: &str) -> Option<Curie> {
     if let Some(native) = value.strip_prefix("http://purl.obolibrary.org/obo/") {
@@ -117,22 +100,17 @@ fn synonyms(term: &raw::Term, attribution: &Attribution) -> Mapped<Vec<DiseaseSy
         problems: Vec::new(),
     };
     for name in &term.synonyms {
-        let native = term
-            .obo_synonym
-            .as_deref()
-            .unwrap_or_default()
-            .iter()
-            .find(|v| &v.name == name);
-        let scope = native
-            .and_then(|s| s.scope.as_ref())
-            .and_then(|s| format!("oboInOwl:{}", s.as_str()).parse().ok());
-        if native.is_some_and(|s| s.scope.is_some()) && scope.is_none() {
-            mapped.problems.push(problem(
-                Source::Ols,
-                record_text(&term.obo_id),
-                "synonym.scope",
-            ));
-        }
+        let crate::raw::Field::Value(name) = name else {
+            crate::mapped::push_problem(&mut mapped.problems, Source::Ols, record_text(&term.obo_id), "synonyms");
+            continue;
+        };
+        let native = term.obo_synonym.as_deref().unwrap_or_default().iter().find(|v| matches!(&v.name, crate::raw::Field::Value(v) if v == name));
+        let mut problems = crate::mapped::Problems { source: Source::Ols, record: record_text(&term.obo_id), list: Vec::new() };
+        let scope = problems.optional("synonym.scope", native.and_then(|s| s.scope.as_ref()).map(|s| match s {
+            crate::raw::Field::Value(s) => format!("oboInOwl:{}", s.as_str()).parse().map_err(|_| ()),
+            crate::raw::Field::Invalid(_) => Err(()),
+        }));
+        mapped.problems.extend(problems.list);
         mapped.value.push(DiseaseSynonym {
             value: name.clone(),
             scope,
@@ -148,15 +126,18 @@ fn xrefs(term: &raw::Term, attribution: &Attribution) -> Mapped<Vec<DiseaseRelat
         problems: Vec::new(),
     };
     for native in term.obo_xref.as_deref().unwrap_or_default() {
-        let Ok(id) = format!("{}:{}", native.database, native.id).parse() else {
-            mapped
-                .problems
-                .push(problem(Source::Ols, record_text(&term.obo_id), "xref.id"));
-            continue;
-        };
-        let Ok(predicate) = "oboInOwl:hasDbXref".parse() else {
-            continue;
-        };
+        let mut problems = crate::mapped::Problems { source: Source::Ols, record: record_text(&term.obo_id), list: Vec::new() };
+        let id = problems.required("xref.id", match (&native.database, &native.id) {
+            (crate::raw::Field::Value(database), crate::raw::Field::Value(id)) => format!("{database}:{id}").parse().ok(),
+            _ => None,
+        });
+        let description = problems.optional("xref.description", native.description.as_ref().map(|v| match v {
+            crate::raw::Field::Value(v) => Ok::<_, ()>(v.as_str().into()),
+            crate::raw::Field::Invalid(_) => Err(()),
+        }));
+        mapped.problems.extend(problems.list);
+        let Some(id) = id else { continue; };
+        let Ok(predicate) = "oboInOwl:hasDbXref".parse() else { continue; };
         mapped.value.push(DiseaseRelation {
             subject: DiseaseEndpoint {
                 id: term.obo_id.clone(),
@@ -165,7 +146,7 @@ fn xrefs(term: &raw::Term, attribution: &Attribution) -> Mapped<Vec<DiseaseRelat
             predicate,
             object: DiseaseEndpoint { id, label: None },
             attribution: attribution.clone(),
-            description: native.description.clone(),
+            description,
         });
     }
     mapped
