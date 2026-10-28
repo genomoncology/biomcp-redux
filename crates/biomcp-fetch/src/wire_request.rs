@@ -20,6 +20,8 @@ impl Leg<'_> {
         let url = outgoing.as_deref().unwrap_or(&prepared.url);
         let mut request = if prepared.post.is_some() {
             agent.post(url)
+        } else if prepared.method == crate::declaration::Method::Head {
+            agent.head(url).force_send_body()
         } else {
             agent.get(url).force_send_body()
         }
