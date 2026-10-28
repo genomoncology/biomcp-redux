@@ -27,7 +27,7 @@ pub(super) fn trials() -> Vec<Trial> {
 fn markdown() -> Check {
     let env = Environment::new()?;
     let replay = env.root().join("recordings");
-    let source = "Synthetic\u{1b}[31m\u{0}\u{7}\u{9}\u{7f}\u{85}\u{202a}\u{202e}\u{202c}\u{2066}\u{2069} protein";
+    let source = "Synthetic\u{1b}[31m\u{0}\u{7}\u{9}\u{7f}\u{85}\u{061c}\u{200e}\u{200f}\u{202a}\u{202e}\u{202c}\u{2066}\u{2069} protein";
     let mut changed = false;
     super::response_cases::copy_capture("protein/synthetic", &replay, |_, record| {
         if let Some(name) = record.pointer_mut(
@@ -35,15 +35,37 @@ fn markdown() -> Check {
         ) {
             *name = json!(source);
             changed = true;
+            record["exchanges"][0]["body"]["value"]["genes"] =
+                json!([{"geneName": {"value": source}}]);
         }
     })?;
     assert!(changed, "protein name fixture missing");
     let mut args = env.globals(Some(&replay), false);
-    args.extend(["get", "protein", "P00533"].map(str::to_owned));
+    args.extend(
+        [
+            "get",
+            "protein",
+            "P00533",
+            "sequence",
+            "--disable-sources",
+            "interpro,complexportal",
+        ]
+        .map(str::to_owned),
+    );
     let output = env.command(env!("CARGO_BIN_EXE_biomcp"), &args).output()?;
     assert!(output.status.success());
     let value: Value = serde_json::from_slice(&output.stdout)?;
     assert!(value.to_string().contains("Synthetic"));
+    assert!(
+        value["next"]
+            .as_array()
+            .is_some_and(|steps| steps.iter().any(|step| {
+                step["args"]
+                    .as_array()
+                    .is_some_and(|args| args.iter().any(|arg| arg == source))
+            })),
+        "upstream gene name must reach a next command: {value}"
+    );
     assert!(String::from_utf8(output.stdout)?.contains("\\u001b"));
     assert!(
         value.to_string().contains('\u{202e}'),
@@ -54,7 +76,7 @@ fn markdown() -> Check {
     assert!(output.status.success());
     let text = String::from_utf8(output.stdout)?;
     for ch in source.chars().filter(|ch| {
-        ch.is_control() || matches!(ch, '\u{202a}'..='\u{202e}' | '\u{2066}'..='\u{2069}')
+        ch.is_control() || matches!(ch, '\u{061c}' | '\u{200e}' | '\u{200f}' | '\u{202a}'..='\u{202e}' | '\u{2066}'..='\u{2069}')
     }) {
         assert!(!text.contains(ch), "raw control {ch:?}: {text:?}");
         assert!(
