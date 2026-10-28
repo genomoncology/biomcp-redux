@@ -153,6 +153,7 @@ fn registry() -> Vec<Contract> {
         AccessionBase => ("accession-base", "biodata.accession-base/1"),
         GeneRef => ("gene-ref", "biodata.gene-ref/1"),
         Cytoband => ("cytoband", "biodata.cytoband/1"),
+        GeneLocation => ("gene-location", "biodata.gene-location/1"),
         GenomicInterval => ("genomic-interval", "biodata.genomic-interval/2"),
         GeneStatus => ("gene-status", "biodata.gene-status/1"),
         LocusGroup => ("locus-group", "biodata.locus-group/1"),
