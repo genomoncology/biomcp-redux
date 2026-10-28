@@ -1,6 +1,7 @@
 {
   "$defs": {
     "DrugId": {
+      "description": "A published native drug record identifier, without a consumer source prefix.",
       "pattern": "^(?:[A-Z][A-Z0-9_.-]*:)?[A-Za-z0-9][A-Za-z0-9_.-]*(/[A-Za-z0-9_.-]+)*$",
       "type": "string"
     },
@@ -53,6 +54,7 @@
       ]
     },
     "DrugSource": {
+      "description": "A supported drug data source.",
       "enum": [
         "who-pq",
         "mychem",
@@ -124,7 +126,8 @@
           "type": "null"
         }
       ],
-      "description": "Source record URL."
+      "description": "Source record URL.",
+      "format": "uri"
     },
     "version": {
       "anyOf": [

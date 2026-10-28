@@ -20,8 +20,7 @@
         "/sources/0/reason": "unavailable",
         "/page/total": 4,
         "/result/items/2/key/id": "10.1038/NATURE05933"
-      },
-      "max_tokens": 616
+      }
     },
     {
       "run": [
@@ -36,8 +35,7 @@
       "expect": {
         "/status": "partial",
         "/sources/0/reason": "unavailable"
-      },
-      "max_tokens": 616
+      }
     }
   ],
   "live_check": "synthetic or recorded failure proof; no live refresh"

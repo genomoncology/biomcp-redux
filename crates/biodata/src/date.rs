@@ -91,5 +91,6 @@ impl fmt::Display for PartialDate {
 text_value!(
     PartialDate,
     "PartialDate",
-    r"^[0-9]{4}(-[0-9]{2}(-[0-9]{2})?)?$"
+    r"^[0-9]{4}(-[0-9]{2}(-[0-9]{2})?)?$",
+    "A Gregorian date preserving year, month or day precision."
 );

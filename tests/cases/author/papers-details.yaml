@@ -30,7 +30,6 @@
         "/result/items/0/is_open_access": false
       },
       "max_bytes": 1359,
-      "max_tokens": 340,
       "full_output_bytes": true
     },
     {
@@ -59,7 +58,6 @@
         "/result/items/0/is_open_access": false
       },
       "max_bytes": 1359,
-      "max_tokens": 340,
       "full_output_bytes": true
     }
   ]
