@@ -11,7 +11,7 @@ fn default_limit() -> u32 {
 fn full_day(date: Option<PartialDate>) -> bool {
     date.is_none_or(|d| d.day().is_some())
 }
-#[doc = " Search five report headers by default. VAERS accepts MMR, COVID19, COVID-19 vaccine or \
+#[doc = " Search five report headers by default. MAUDE accepts device text or a manufacturer, product-code or problem filter. One report may list several devices; filters may match different devices. VAERS accepts MMR, COVID19, COVID-19 vaccine or \
     one exact qualified native influenza code, matched without case; use influenza to list \
     codes and labels. Tables remain separate and are never summed. One report may list \
     several vaccines. VAERS returns five reported symptom rows by default; seriousness and \
@@ -28,7 +28,18 @@ pub struct AdverseEventSearch(SearchFields);
 struct SearchFields {
     /// Literal drug text, MAUDE device phrase or exact supported VAERS vaccine.
     #[cfg_attr(feature = "schema", schemars(extend("x-positional" = 0)))]
-    text: Text,
+    #[serde(default, deserialize_with = "crate::query::present", skip_serializing_if = "Option::is_none")]
+    #[cfg_attr(feature = "schema", schemars(with = "Text"))]
+    text: Option<Text>,
+    /// MAUDE manufacturer phrase on device.manufacturer_d_name. A report may list several devices; filters may match different devices.
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    manufacturer: Option<Text>,
+    /// MAUDE exact native device.device_report_product_code; repeated codes join with OR.
+    #[serde(default, skip_serializing_if = "Vec::is_empty")]
+    product_code: Vec<Text>,
+    /// MAUDE phrase on native product_problems.
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    problem: Option<Text>,
     /// FAERS by default; VAERS accepts only exact supported vaccine names.
     #[serde(default = "default_source")]
     source: AdverseEventSource,
@@ -65,6 +76,13 @@ crate::query::validation::checked_query!(AdverseEventSearch, SearchFields);
 impl TryFrom<SearchFields> for AdverseEventSearch {
     type Error = QueryInvalid;
     fn try_from(v: SearchFields) -> Result<Self, Self::Error> {
+        let maude_filter = v.manufacturer.is_some() || !v.product_code.is_empty() || v.problem.is_some();
+        if v.source != AdverseEventSource::Maude && maude_filter {
+            return Err(QueryInvalid::new(&["source", "manufacturer", "product_code", "problem"]));
+        }
+        if v.text.is_none() && !(v.source == AdverseEventSource::Maude && maude_filter) {
+            return Err(QueryInvalid::new(&["text", "manufacturer", "product_code", "problem"]));
+        }
         if !(1..=50).contains(&v.limit) {
             return Err(QueryInvalid::new(&["limit"]));
         }
@@ -84,7 +102,7 @@ impl TryFrom<SearchFields> for AdverseEventSearch {
             return Err(QueryInvalid::new(&["source", "section", "snapshot"]));
         }
         if v.source == AdverseEventSource::Vaers
-            && super::vaers::vaers_vaccine_code(v.text.as_str()).is_none()
+            && v.text.as_ref().and_then(|text| super::vaers::vaers_vaccine_code(text.as_str())).is_none()
         {
             return Err(QueryInvalid::new(&["source", "text"]));
         }
@@ -137,12 +155,18 @@ impl AdverseEventSearch {
     }
     /// Exact supported vaccine code, never an inferred code bridge.
     pub fn vaccine(&self) -> Option<&'static str> {
-        super::vaers::vaers_vaccine_code(self.0.text.as_str())
+        self.0.text.as_ref().and_then(|text| super::vaers::vaers_vaccine_code(text.as_str()))
     }
     /// Literal source text.
-    pub fn text(&self) -> &Text {
-        &self.0.text
+    pub fn text(&self) -> Option<&Text> {
+        self.0.text.as_ref()
     }
+    /// Native MAUDE manufacturer phrase.
+    pub fn manufacturer(&self) -> Option<&Text> { self.0.manufacturer.as_ref() }
+    /// Exact native MAUDE product codes joined with OR.
+    pub fn product_code(&self) -> &[Text] { &self.0.product_code }
+    /// Native MAUDE product problem phrase.
+    pub fn problem(&self) -> Option<&Text> { self.0.problem.as_ref() }
     /// Selected source.
     pub fn source(&self) -> AdverseEventSource {
         self.0.source

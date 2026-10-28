@@ -15,8 +15,6 @@ const FLAGS: &[(&str, ErrorMessage)] = &[
     ("--age-min", ErrorMessage::AdverseFilter),
     ("--age-max", ErrorMessage::AdverseFilter),
     ("--reporter", ErrorMessage::AdverseFilter),
-    ("--manufacturer", ErrorMessage::AdverseFilter),
-    ("--product-code", ErrorMessage::AdverseFilter),
     ("--count", ErrorMessage::AdverseFilter),
     ("--classification", ErrorMessage::AdverseRecalls),
     ("-l", ErrorMessage::DiseaseLimit),
@@ -28,6 +26,7 @@ pub(super) fn message(args: &[OsString]) -> Option<ErrorMessage> {
     let mut source = None;
     let mut serious = None;
     let mut faers_filter = false;
+    let mut maude_filter = false;
     let mut section = None;
     let mut shared = None;
     let mut literal = false;
@@ -60,6 +59,9 @@ pub(super) fn message(args: &[OsString]) -> Option<ErrorMessage> {
         {
             faers_filter = true;
         }
+        if adverse && matches!(flag, "--manufacturer" | "--product-code" | "--problem") {
+            maude_filter = true;
+        }
         if adverse && let Some(found) = super::find(FLAGS, flag) {
             return Some(found);
         }
@@ -84,6 +86,9 @@ pub(super) fn message(args: &[OsString]) -> Option<ErrorMessage> {
                 _ => (),
             }
         }
+    }
+    if maude_filter && source != Some("maude") {
+        return Some(ErrorMessage::AdverseFilter);
     }
     if source == Some("vaers") && faers_filter {
         return Some(ErrorMessage::VaersFilter);
