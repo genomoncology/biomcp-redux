@@ -31,7 +31,7 @@ pub(super) struct Complex {
     #[serde(rename = "complexName")]
     pub name: Option<crate::raw::Field<String>>,
     pub organism_name: String,
-    pub predicted_complex: bool,
+    pub predicted_complex: Option<crate::raw::Field<bool>>,
     pub interactors: Option<Vec<Member>>,
 }
 #[derive(Debug, Deserialize)]
@@ -41,7 +41,7 @@ pub(super) struct Detail {
     pub id: ComplexPortalId,
     pub name: Option<crate::raw::Field<String>>,
     pub species: String,
-    pub predicted_complex: bool,
+    pub predicted_complex: Option<crate::raw::Field<bool>>,
     pub participants: Vec<Member>,
 }
 impl Reply for Detail {

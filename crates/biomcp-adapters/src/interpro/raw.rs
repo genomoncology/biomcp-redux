@@ -17,20 +17,6 @@ impl Reply for Page {
             if row.metadata.source_database != "interpro" {
                 return Err(BadReply);
             }
-            for protein in &row.proteins {
-                if protein.protein_length == Some(0) {
-                    return Err(BadReply);
-                }
-                for location in &protein.entry_protein_locations {
-                    if location.fragments.iter().any(|f| {
-                        f.start == 0
-                            || f.end < f.start
-                            || protein.protein_length.is_some_and(|n| f.end > n)
-                    }) {
-                        return Err(BadReply);
-                    }
-                }
-            }
         }
         Ok(())
     }
@@ -58,16 +44,12 @@ pub(super) struct Metadata {
     pub source_database: String,
     #[serde(rename = "type")]
     pub entry_type: Option<crate::raw::Field<String>>,
-    pub member_databases: Option<
-        crate::raw::Field<
-            BTreeMap<String, crate::raw::Field<BTreeMap<String, crate::raw::Field<String>>>>,
-        >,
-    >,
+    pub member_databases: Option<MemberDatabases>,
 }
 #[derive(Debug, Deserialize)]
 pub(super) struct Protein {
     pub accession: String,
-    pub protein_length: Option<u32>,
+    pub protein_length: Option<crate::raw::Field<u32>>,
     pub organism: Option<String>,
     pub entry_protein_locations: Vec<Location>,
 }
@@ -77,8 +59,12 @@ pub(super) struct Location {
 }
 #[derive(Debug, Deserialize)]
 pub(super) struct Fragment {
-    pub start: u32,
-    pub end: u32,
+    pub start: crate::raw::Field<u32>,
+    pub end: crate::raw::Field<u32>,
     #[serde(rename = "dc-status")]
     pub dc_status: Option<crate::raw::Field<String>>,
 }
+
+pub(super) type MemberDatabases = crate::raw::Field<
+    BTreeMap<String, crate::raw::Field<BTreeMap<String, crate::raw::Field<String>>>>,
+>;

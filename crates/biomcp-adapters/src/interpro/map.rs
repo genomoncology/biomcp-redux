@@ -30,75 +30,22 @@ pub(super) fn rows(
             "type",
             entry.metadata.entry_type,
         );
-        let mut signatures = Vec::new();
-        if let Some(field) = entry.metadata.member_databases {
-            if let Some(databases) = problems.required("member_databases", field.value()) {
-                for (database, entries) in databases {
-                    let Some(database) =
-                        problems.text("member_databases.database", Some(&database))
-                    else {
-                        continue;
-                    };
-                    let Some(entries) =
-                        problems.required("member_databases.entries", entries.value())
-                    else {
-                        continue;
-                    };
-                    for (accession, name) in entries {
-                        let Some(accession) =
-                            problems.text("member_databases.accession", Some(&accession))
-                        else {
-                            continue;
-                        };
-                        signatures.push(ProteinMemberSignature {
-                            database: database.clone(),
-                            accession,
-                            name: crate::mapped::field_text(
-                                &mut problems.list,
-                                problems.source,
-                                problems.record.clone(),
-                                "member_databases.name",
-                                Some(name),
-                            ),
-                        });
-                    }
-                }
-            }
-        }
+        let signatures = signatures(entry.metadata.member_databases, &mut problems);
         for protein in entry.proteins {
-            let locations = protein
-                .entry_protein_locations
-                .into_iter()
-                .map(|location| {
-                    let fragments = location
-                        .fragments
-                        .into_iter()
-                        .map(|f| {
-                            let start =
-                                Bound::new(Some(f.start), Some(f.start)).map_err(|_| bad())?;
-                            let end = Bound::new(Some(f.end), Some(f.end)).map_err(|_| bad())?;
-                            Ok(ProteinDomainFragment {
-                                span: UncertainSpan0::from_inclusive(start, end)
-                                    .map_err(|_| bad())?,
-                                dc_status: crate::mapped::field_text(
-                                    &mut problems.list,
-                                    problems.source,
-                                    problems.record.clone(),
-                                    "dc-status",
-                                    f.dc_status,
-                                ),
-                            })
-                        })
-                        .collect::<Result<Box<[_]>, RequestError>>()?;
-                    Ok(ProteinDomainLocation { fragments })
-                })
-                .collect::<Result<Box<[_]>, RequestError>>()?;
+            let protein_length = protein
+                .protein_length
+                .and_then(|v| problems.required("protein_length", v.value().filter(|n| *n > 0)));
+            let locations = locations(
+                protein.entry_protein_locations,
+                protein_length,
+                &mut problems,
+            );
             rows.push(ProteinDomainMatch {
                 id: entry.metadata.accession.clone(),
                 name: name.clone(),
                 entry_type: entry_type.clone(),
                 protein: id.clone(),
-                protein_length: protein.protein_length,
+                protein_length,
                 taxon: Some(9606),
                 locations,
                 member_signatures: signatures.clone().into(),
@@ -128,4 +75,91 @@ pub(super) fn rows(
         value: rows,
         problems: all_problems,
     })
+}
+
+fn signatures(
+    raw: Option<raw::MemberDatabases>,
+    problems: &mut crate::mapped::Problems,
+) -> Vec<ProteinMemberSignature> {
+    let mut signatures = Vec::new();
+    if let Some(field) = raw {
+        if let Some(databases) = problems.required("member_databases", field.value()) {
+            for (database, entries) in databases {
+                let Some(database) = problems.text("member_databases.database", Some(&database))
+                else {
+                    continue;
+                };
+                let Some(entries) = problems.required("member_databases.entries", entries.value())
+                else {
+                    continue;
+                };
+                for (accession, name) in entries {
+                    let Some(accession) =
+                        problems.text("member_databases.accession", Some(&accession))
+                    else {
+                        continue;
+                    };
+                    signatures.push(ProteinMemberSignature {
+                        database: database.clone(),
+                        accession,
+                        name: crate::mapped::field_text(
+                            &mut problems.list,
+                            problems.source,
+                            problems.record.clone(),
+                            "member_databases.name",
+                            Some(name),
+                        ),
+                    });
+                }
+            }
+        }
+    }
+    signatures
+}
+fn locations(
+    raw: Vec<raw::Location>,
+    length: Option<u32>,
+    problems: &mut crate::mapped::Problems,
+) -> Box<[ProteinDomainLocation]> {
+    raw.into_iter()
+        .map(|location| {
+            let fragments = location
+                .fragments
+                .into_iter()
+                .filter_map(|f| {
+                    let start =
+                        problems.required("fragments.start", f.start.value().filter(|n| *n > 0));
+                    let end = problems.required(
+                        "fragments.end",
+                        f.end
+                            .value()
+                            .filter(|n| *n > 0 && length.is_none_or(|len| *n <= len)),
+                    );
+                    let (start, end) = (start?, end?);
+                    if end < start {
+                        problems.required::<()>("fragments.end", None);
+                        return None;
+                    }
+                    let span = problems.optional(
+                        "fragments.span",
+                        Some(Bound::new(Some(start), Some(start)).and_then(|start| {
+                            Bound::new(Some(end), Some(end))
+                                .and_then(|end| UncertainSpan0::from_inclusive(start, end))
+                        })),
+                    )?;
+                    Some(ProteinDomainFragment {
+                        span,
+                        dc_status: crate::mapped::field_text(
+                            &mut problems.list,
+                            problems.source,
+                            problems.record.clone(),
+                            "dc-status",
+                            f.dc_status,
+                        ),
+                    })
+                })
+                .collect();
+            ProteinDomainLocation { fragments }
+        })
+        .collect()
 }

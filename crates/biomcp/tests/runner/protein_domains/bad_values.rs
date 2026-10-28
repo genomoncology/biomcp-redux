@@ -1,13 +1,73 @@
 //! Feature protein-domains-complexes: bad optional facts retain source identities.
 use super::*;
 pub(super) fn trials() -> Vec<Trial> {
-    vec![Trial::test(
-        "protein-domains-complexes/invalid-optional-fields-are-disclosed",
-        || run().map_err(Into::into),
-    )]
+    vec![
+        Trial::test(
+            "protein-domains-complexes/invalid-optional-fields-are-disclosed",
+            || run().map_err(Into::into),
+        ),
+        Trial::test(
+            "protein-domains-complexes/invalid-fragments-keep-valid-siblings",
+            || fragments().map_err(Into::into),
+        ),
+    ]
 }
 fn run() -> Result<(), String> {
     for (command, path, field, absent) in [
+        (
+            "domains",
+            "/results/0/metadata/name",
+            "name",
+            "/result/items/0/name",
+        ),
+        (
+            "domains",
+            "/results/0/metadata/type",
+            "type",
+            "/result/items/0/entry_type",
+        ),
+        (
+            "domains",
+            "/results/0/proteins/0/protein_length",
+            "protein_length",
+            "/result/items/0/protein_length",
+        ),
+        (
+            "domains",
+            "/results/0/metadata/member_databases",
+            "member_databases",
+            "/result/items/0/member_signatures",
+        ),
+        (
+            "domains",
+            "/results/0/metadata/member_databases/Pfam",
+            "member_databases.entries",
+            "/result/items/0/member_signatures",
+        ),
+        (
+            "complexes",
+            "/elements/0/complexName",
+            "name",
+            "/result/items/0/name",
+        ),
+        (
+            "complexes",
+            "/elements/0/predictedComplex",
+            "predictedComplex",
+            "/result/items/0/predicted",
+        ),
+        (
+            "complex-members",
+            "/participants/0/xrefs",
+            "participants.xrefs",
+            "/result/items/0/xrefs",
+        ),
+        (
+            "complex-members",
+            "/participants/0/xrefs/0/identifier",
+            "participants.xrefs",
+            "/result/items/0/xrefs",
+        ),
         (
             "domains",
             "/results/0/metadata/member_databases/Pfam/PF00870",
@@ -53,6 +113,8 @@ fn run() -> Result<(), String> {
             let env = setup(&stub)?;
             let args = if command == "domains" {
                 vec!["protein", command, "P38398"]
+            } else if command == "complexes" {
+                vec!["protein", command, "P38398"]
             } else {
                 vec!["protein", command, "P38398", "--complex", "CPX-715"]
             };
@@ -72,6 +134,37 @@ fn run() -> Result<(), String> {
             }
             stub.finish()?;
         }
+    }
+    Ok(())
+}
+
+fn fragments() -> Result<(), String> {
+    for (field, invalid) in [
+        ("start", json!(0)),
+        ("start", json!("bad")),
+        ("end", json!(0)),
+        ("end", json!(2001)),
+        ("end", json!({})),
+    ] {
+        let stub = Stub::for_source("www.ebi.ac.uk", "application/json", move |_| {
+            let mut bad = json!({"start":10,"end":20});
+            bad[field] = invalid.clone();
+            Ok(json!({"count":1,"next":null,"results":[{"metadata":{"accession":"IPR002117","name":"Valid","source_database":"interpro","type":"family"},"proteins":[{"accession":"p38398","organism":"9606","protein_length":2000,"entry_protein_locations":[{"fragments":[bad,{"start":30,"end":40}]}]}]}]}).to_string())
+        })?;
+        let env = setup(&stub)?;
+        let value = call(&env, &["protein", "domains", "P38398"], 0)?;
+        if value.pointer("/result/items/0/locations/0/fragments/0/span/start/min")
+            != Some(&json!(29))
+            || value
+                .pointer("/result/items/0/locations/0/fragments/1")
+                .is_some()
+            || value.pointer("/problems/0/field") != Some(&json!(format!("fragments.{field}")))
+        {
+            return Err(format!(
+                "bad coordinate lost siblings or field problem: {value}"
+            ));
+        }
+        stub.finish()?;
     }
     Ok(())
 }

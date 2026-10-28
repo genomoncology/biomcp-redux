@@ -89,7 +89,9 @@ pub(super) fn complex(
             raw.name,
         ),
         taxon: 9606,
-        predicted: raw.predicted_complex,
+        predicted: raw
+            .predicted_complex
+            .and_then(|v| problems.required("predictedComplex", v.value())),
         participant_total: members.len() as u64,
         matched_participant: crate::mapped::text(anchor.as_str()).map_err(|_| bad())?,
         url: crate::mapped::text(&format!(
