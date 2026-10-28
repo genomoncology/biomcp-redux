@@ -111,8 +111,14 @@ struct RawDate {
     kind: Option<Field<biodata::TrialDateKind>>,
 }
 impl RawDate {
-    fn field(field: &str, value: Option<Field<Self>>, problems: &mut Problems) -> Option<TrialDate> {
-        problems.field(field, value).and_then(|date| date.mapped(field, problems))
+    fn field(
+        field: &str,
+        value: Option<Field<Self>>,
+        problems: &mut Problems,
+    ) -> Option<TrialDate> {
+        problems
+            .field(field, value)
+            .and_then(|date| date.mapped(field, problems))
     }
     fn mapped(self, field: &str, problems: &mut Problems) -> Option<TrialDate> {
         let path = format!("{field}.date");
@@ -203,13 +209,19 @@ impl Protocol {
             record: crate::mapped::record(self.identification_module.nct_id),
             list: Vec::new(),
         };
-        let arms = problems.field("armsInterventionsModule", self.arms_interventions_module.take());
+        let arms = problems.field(
+            "armsInterventionsModule",
+            self.arms_interventions_module.take(),
+        );
         let (arm_rows, interventions) = arms.map_or_else(
             || (Box::default(), Box::default()),
             |arms| arms.rows(&mut problems),
         );
         let (locations, contacts, officials) = problems
-            .field("contactsLocationsModule", self.contacts_locations_module.take())
+            .field(
+                "contactsLocationsModule",
+                self.contacts_locations_module.take(),
+            )
             .map_or_else(
                 || (Box::default(), Box::default(), Box::default()),
                 |sites| sites.rows(&mut problems),
@@ -224,7 +236,9 @@ impl Protocol {
             contacts,
             officials,
             card,
-            eligibility: problems.field("eligibilityModule", self.eligibility_module).map(|v| v.mapped(&mut problems)),
+            eligibility: problems
+                .field("eligibilityModule", self.eligibility_module)
+                .map(|v| v.mapped(&mut problems)),
             outcomes: problems
                 .field("outcomesModule", self.outcomes_module)
                 .map_or_else(Box::default, |o| o.rows(&mut problems)),
@@ -262,22 +276,38 @@ impl Protocol {
                 .iter()
                 .filter_map(|v| v.name.clone())
                 .collect(),
-            sponsor: problems.field("sponsorCollaboratorsModule", self.sponsor_collaborators_module.take())
+            sponsor: problems
+                .field(
+                    "sponsorCollaboratorsModule",
+                    self.sponsor_collaborators_module.take(),
+                )
                 .and_then(|s| s.name(problems)),
             start: RawDate::field("startDateStruct", status.start_date_struct, problems),
-            primary_completion: RawDate::field("primaryCompletionDateStruct", status.primary_completion_date_struct, problems),
-            completion: RawDate::field("completionDateStruct", status.completion_date_struct, problems),
-            updated: RawDate::field("lastUpdatePostDateStruct", status.last_update_post_date_struct, problems),
+            primary_completion: RawDate::field(
+                "primaryCompletionDateStruct",
+                status.primary_completion_date_struct,
+                problems,
+            ),
+            completion: RawDate::field(
+                "completionDateStruct",
+                status.completion_date_struct,
+                problems,
+            ),
+            updated: RawDate::field(
+                "lastUpdatePostDateStruct",
+                status.last_update_post_date_struct,
+                problems,
+            ),
             brief_summary: problems
                 .field("descriptionModule", self.description_module.take())
                 .and_then(|d| problems.field("briefSummary", d.brief_summary)),
         }
     }
-
 }
 impl Sponsor {
     fn name(self, problems: &mut Problems) -> Option<Box<str>> {
-        problems.field("leadSponsor", self.lead_sponsor)
+        problems
+            .field("leadSponsor", self.lead_sponsor)
             .and_then(|s| problems.field("leadSponsor.name", s.name))
     }
 }

@@ -36,7 +36,9 @@ pub fn download(cx: &Ctx<'_>, query: &TrialDocumentGet, allow: bool) -> Download
         let incomplete_manifest = detail.problems.iter().any(|problem| {
             problem.field.starts_with("largeDoc") || problem.field.starts_with("documentSection")
         });
-        if !detail.problems.is_empty() { out.status = Status::Partial; }
+        if !detail.problems.is_empty() {
+            out.status = Status::Partial;
+        }
         out.problems.extend(detail.problems);
         let Some(document) = detail
             .documents
@@ -86,5 +88,4 @@ fn missing_document(out: &mut Outcome, incomplete_manifest: bool) {
     } else {
         out.body = QueryBody::TextPositionError;
     }
-
 }
