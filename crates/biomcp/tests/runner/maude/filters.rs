@@ -13,11 +13,20 @@ pub(super) fn trials() -> Vec<Trial> {
         }),
     ]
 }
-fn both(env: &Environment, args: Vec<String>, exit: i32, globals: &[String]) -> Result<Value, String> {
+fn both(
+    env: &Environment,
+    args: Vec<String>,
+    exit: i32,
+    globals: &[String],
+) -> Result<Value, String> {
     let cli = invoke(env, super::super::launch::arguments(&args, globals), exit)?;
-    let tool = mcp::call_retained(env, &args, exit >= 2, globals, Some(env.root())).map_err(|error| {
-        format!("{args:?}: {error}; raw MCP: {}", std::fs::read_to_string(env.root().join("mcp.stdout")).unwrap_or_default())
-    })?;
+    let tool =
+        mcp::call_retained(env, &args, exit >= 2, globals, Some(env.root())).map_err(|error| {
+            format!(
+                "{args:?}: {error}; raw MCP: {}",
+                std::fs::read_to_string(env.root().join("mcp.stdout")).unwrap_or_default()
+            )
+        })?;
     if cli != tool {
         return Err(format!("CLI/MCP differ: {cli} / {tool}"));
     }
@@ -53,7 +62,7 @@ fn selectors() -> Result<(), String> {
         ];
         args.extend(flags.iter().map(|s| (*s).to_owned()));
         let globals = ["--record".into(), recording.to_string_lossy().into_owned()];
-        let value = both(&env, args.clone(), 0, &globals)?;
+        let value = invoke(&env, super::super::launch::arguments(&args, &globals), 0)?;
         if value.pointer("/result/source_query") != Some(&json!(expected))
             || value.pointer("/page/total") != Some(&json!(if empty { 0 } else { 1 }))
         {
