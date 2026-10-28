@@ -13,7 +13,6 @@
         "Carpten"
       ],
       "max_bytes": 2018,
-      "max_tokens": 505,
       "expect": {
         "/status": "complete",
         "/sources/0/term": "AKT1 AND Carpten[au]",

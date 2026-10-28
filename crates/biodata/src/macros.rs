@@ -3,6 +3,10 @@
 #[macro_export]
 macro_rules! text_value {
     ($ty:ty, $schema_name:expr, $pattern:expr) => {
+        $crate::text_value!($ty, $schema_name, $pattern,
+            concat!("A validated canonical ", $schema_name, " string."));
+    };
+    ($ty:ty, $schema_name:expr, $pattern:expr, $description:expr) => {
         impl serde::Serialize for $ty {
             fn serialize<S: serde::Serializer>(&self, serializer: S) -> Result<S::Ok, S::Error> {
                 serializer.collect_str(self)
@@ -31,7 +35,7 @@ macro_rules! text_value {
                 $schema_name.into()
             }
             fn json_schema(_: &mut schemars::SchemaGenerator) -> schemars::Schema {
-                schemars::json_schema!({"type":"string", "pattern":$pattern})
+                schemars::json_schema!({"description":$description, "type":"string", "pattern":$pattern})
             }
         }
     };

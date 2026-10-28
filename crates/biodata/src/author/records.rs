@@ -50,6 +50,7 @@ pub struct AuthorCard {
     pub header: AuthorHeader,
     /// Provider record link.
     #[serde(skip_serializing_if = "Option::is_none")]
+    #[cfg_attr(feature = "schema", schemars(extend("format" = "uri")))]
     pub url: Option<Text>,
 }
 /// One indexed paper in source order; identifiers come only from that source.
@@ -105,6 +106,7 @@ pub struct AuthorByline {
 pub struct AuthorPaperAccess {
     /// Native PDF URL.
     #[serde(skip_serializing_if = "Option::is_none")]
+    #[cfg_attr(feature = "schema", schemars(extend("format" = "uri")))]
     pub url: Option<Text>,
     /// Open native access status.
     #[serde(skip_serializing_if = "Option::is_none")]

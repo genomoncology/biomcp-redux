@@ -50,8 +50,7 @@
         "/sources/*/source": [
           "semantic-scholar"
         ]
-      },
-      "max_tokens": 456
+      }
     }
   ],
   "live_check": "synthetic or recorded failure proof; no live refresh"

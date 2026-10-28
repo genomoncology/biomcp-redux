@@ -81,6 +81,7 @@ pub struct DrugFdaDocument {
     /// Source document identifier.
     pub id: Text,
     /// Original source URL.
+    #[cfg_attr(feature = "schema", schemars(extend("format" = "uri")))]
     pub url: Text,
     /// Native document date, independent of event dates.
     pub date: PartialDate,

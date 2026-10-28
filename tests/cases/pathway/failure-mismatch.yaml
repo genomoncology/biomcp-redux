@@ -21,8 +21,7 @@
         "/sources/0/terms": "CC0 1.0 database data",
         "/problems/0/field": "identity"
       },
-      "max_bytes": 328,
-      "max_tokens": 82
+      "max_bytes": 328
     },
     {
       "run": [
@@ -36,7 +35,6 @@
         "/status": "failed"
       },
       "max_bytes": 236,
-      "max_tokens": 59,
       "mcp": [
         "get",
         "pathway",

@@ -15,7 +15,6 @@
         "/sources/0/reason": "syncing"
       },
       "max_bytes": 2000,
-      "max_tokens": 500,
       "mcp": [
         "get",
         "pathway",

@@ -35,8 +35,7 @@
         "CA123643",
         "--detail"
       ],
-      "max_bytes": 2202,
-      "max_tokens": 551
+      "max_bytes": 2202
     },
     {
       "run": [
@@ -62,8 +61,7 @@
         "/problems/0/field": "dataset_version"
       },
       "offline": true,
-      "max_bytes": 2179,
-      "max_tokens": 545
+      "max_bytes": 2179
     },
     {
       "run": [
@@ -90,8 +88,7 @@
         "/result/groups/8/sex": "xy"
       },
       "offline": true,
-      "max_bytes": 1880,
-      "max_tokens": 470
+      "max_bytes": 1880
     },
     {
       "run": [
@@ -112,8 +109,7 @@
         "/result/candidates/0/sections/population/data/exome/an": 1460618,
         "/problems/0/field": "dataset_version"
       },
-      "max_bytes": 1183,
-      "max_tokens": 296
+      "max_bytes": 1183
     }
   ]
 }

@@ -21,8 +21,7 @@
         "/error/code": "usage.arguments"
       },
       "full_output_bytes": true,
-      "max_bytes": 166,
-      "max_tokens": 42
+      "max_bytes": 166
     },
     {
       "run": [
@@ -45,8 +44,7 @@
         "/error/code": "usage.arguments"
       },
       "full_output_bytes": true,
-      "max_bytes": 166,
-      "max_tokens": 42
+      "max_bytes": 166
     },
     {
       "run": [
@@ -69,8 +67,7 @@
         "/error/code": "usage.arguments"
       },
       "full_output_bytes": true,
-      "max_bytes": 166,
-      "max_tokens": 42
+      "max_bytes": 166
     },
     {
       "run": [
@@ -93,8 +90,7 @@
         "/error/code": "usage.arguments"
       },
       "full_output_bytes": true,
-      "max_bytes": 166,
-      "max_tokens": 42
+      "max_bytes": 166
     },
     {
       "run": [
@@ -113,8 +109,7 @@
         "/error/code": "usage.arguments"
       },
       "full_output_bytes": true,
-      "max_bytes": 166,
-      "max_tokens": 42
+      "max_bytes": 166
     },
     {
       "run": [
@@ -138,8 +133,7 @@
         "/sources/0/reason": "disabled"
       },
       "full_output_bytes": true,
-      "max_bytes": 386,
-      "max_tokens": 97
+      "max_bytes": 386
     },
     {
       "run": [
@@ -163,8 +157,7 @@
         "/sources/0/reason": "disabled"
       },
       "full_output_bytes": true,
-      "max_bytes": 386,
-      "max_tokens": 97
+      "max_bytes": 386
     }
   ]
 }

@@ -7,20 +7,20 @@ license.workspace = true
 
 [dependencies]
 shlex.workspace = true
-biomcp-types = { path = "../biomcp-types", features = ["schema"] }
+biomcp-types = { workspace = true, features = ["schema"] }
 sha2.workspace = true
 rpassword = "=7.5.4"
 tempfile.workspace = true
 base64.workspace = true
 httparse.workspace = true
 ctrlc.workspace = true
-clap.workspace = true
+clap = { workspace = true, features = ["error-context"] }
 serde.workspace = true
-biomcp-fetch = { path = "../biomcp-fetch" }
-biomcp-adapters = { path = "../biomcp-adapters" }
-biomcp-query = { path = "../biomcp-query" }
+biomcp-fetch = { workspace = true }
+biomcp-adapters = { workspace = true }
+biomcp-query = { workspace = true }
 serde_json.workspace = true
-biodata = { path = "../biodata", features = ["schema"] }
+biodata = { workspace = true, features = ["schema"] }
 
 [build-dependencies]
 serde-saphyr.workspace = true
