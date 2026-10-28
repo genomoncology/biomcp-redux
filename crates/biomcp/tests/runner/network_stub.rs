@@ -48,9 +48,9 @@ impl Stub {
     pub(super) fn for_source(
         host: &'static str,
         content_type: &'static str,
-        reply: fn(&str) -> Result<String, String>,
+        reply: impl FnMut(&str) -> Result<String, String> + Send + 'static,
     ) -> Result<Self, String> {
-        Self::with_length(host, move |_| content_type, reply, |_, bytes| bytes)
+        Self::for_sources(&[host], move |_| content_type, reply)
     }
     pub(super) fn with_length(
         host: &'static str,
