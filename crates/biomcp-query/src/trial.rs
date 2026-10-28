@@ -29,7 +29,9 @@ pub(crate) fn search(cx: &Ctx<'_>, query: &TrialSearch) -> Outcome {
     let leg = cx.fetch.leg(&ctgov::SPEC, deadline).fresh(cx.fresh);
     let started = leg.remaining();
     let mut params = ctgov::parameters(query, gene.as_deref());
-    let conditions = condition.as_ref().map_or(query.condition(), std::slice::from_ref);
+    let conditions = condition
+        .as_ref()
+        .map_or(query.condition(), std::slice::from_ref);
     if query.condition_id().is_some()
         && let Some(condition) = conditions.first()
     {

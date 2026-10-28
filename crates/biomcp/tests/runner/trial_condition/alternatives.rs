@@ -56,8 +56,7 @@ pub(super) fn run() -> Result<(), String> {
     stub.finish()?;
     for field in ["condition", "intervention", "keyword"] {
         for count in [1, 5, 6] {
-            let mut value = json!({});
-            value[field] = json!(vec!["value"; count]);
+            let value = json!({(field): vec!["value"; count]});
             if serde_json::from_value::<biomcp_types::TrialSearch>(value).is_ok() != (count <= 5) {
                 return Err(format!("wrong boundary for {count} {field} values"));
             }
@@ -168,7 +167,18 @@ pub(super) fn conjunction() -> Result<(), String> {
         Ok(json!({"totalCount":0,"studies":[]}).to_string())
     })?;
     let env = setup(&stub)?;
-    let args: Vec<String> = ["search","trial","first OR second","--keyword","quality of life","--keyword","survival"].iter().map(|v| (*v).into()).collect();
+    let args: Vec<String> = [
+        "search",
+        "trial",
+        "first OR second",
+        "--keyword",
+        "quality of life",
+        "--keyword",
+        "survival",
+    ]
+    .iter()
+    .map(|v| (*v).into())
+    .collect();
     invoke(&env, &args, 0)?;
     stub.finish()?;
     Ok(())
