@@ -179,11 +179,6 @@
       "pattern": "^[A-Za-z0-9_.-]+:[^\\s\\x00-\\x1f\\x7f-\\x9f]+$",
       "type": "string"
     },
-    "Cytoband": {
-      "description": " A single nuclear cytogenetic band, without a range or location descriptor.",
-      "pattern": "^([1-9]|1[0-9]|2[0-2]|X|Y)[pq][1-9][0-9](\\.[0-9]+)?$",
-      "type": "string"
-    },
     "DiseaseConcept": {
       "additionalProperties": false,
       "description": "A disease identity whose optional display label never determines record admission.",
@@ -312,13 +307,13 @@
         "location": {
           "anyOf": [
             {
-              "$ref": "#/$defs/Cytoband"
+              "$ref": "#/$defs/GeneLocation"
             },
             {
               "type": "null"
             }
           ],
-          "description": "Single stated band, if available."
+          "description": "Source-stated location, including unparsed publisher text."
         },
         "locus_group": {
           "$ref": "#/$defs/LocusGroup",
@@ -414,13 +409,13 @@
         "location": {
           "anyOf": [
             {
-              "$ref": "#/$defs/Cytoband"
+              "$ref": "#/$defs/GeneLocation"
             },
             {
               "type": "null"
             }
           ],
-          "description": "A single stated band, if available."
+          "description": "Source-stated location, including unparsed publisher text."
         },
         "locus_group": {
           "$ref": "#/$defs/LocusGroup",
@@ -462,6 +457,10 @@
     "GeneInput": {
       "description": "An input classified before source resolution; aliases remain free text.",
       "pattern": "\\S",
+      "type": "string"
+    },
+    "GeneLocation": {
+      "description": "HGNC location text with a parsed interpretation when its syntax is known.",
       "type": "string"
     },
     "GeneResolution": {
@@ -1971,7 +1970,7 @@
       "type": "string"
     }
   },
-  "$id": "biomcp.trial-page/8",
+  "$id": "biomcp.trial-page/9",
   "$schema": "https://json-schema.org/draft/2020-12/schema",
   "additionalProperties": false,
   "description": "One versioned command response; schema identity comes only from its body type.",
@@ -2028,7 +2027,7 @@
       "description": "Answer when available."
     },
     "schema": {
-      "const": "biomcp.trial-page/8",
+      "const": "biomcp.trial-page/9",
       "type": "string"
     },
     "sources": {
