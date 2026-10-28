@@ -24,7 +24,7 @@
         "1"
       ],
       "expect": {
-        "/status": "complete",
+        "/status": "partial",
         "/result/content/state": "not_applicable",
         "/sources/*/source": [
           "pubmed"
@@ -33,9 +33,18 @@
           "get",
           "article",
           "21217686"
-        ]
+        ],
+        "/problems": {
+          "includes": {
+            "source": "pubmed",
+            "record": "21217686",
+            "field": "electronic_date",
+            "code": "value.unknown"
+          }
+        }
       },
-      "max_bytes": 306
+      "max_bytes": 423
     }
-  ]
+  ],
+  "verified": "The reply with disclosed PubMed optional-field problems measured 367 comparable bytes in j19522; the updated ceiling adds fifteen percent. Existing recorded source replies are unchanged. Diagnostic j19526 old/full/without-new-problems bytes: 306/367/265. Removing only the new electronic_date problem satisfies the old bound. The preceding get step has no byte ceiling and measured 1219 bytes both with and without new problems."
 }

@@ -37,7 +37,7 @@ fn restart(q: &AuthorPapersQuery, out: &mut Outcome, mismatch: bool) {
 }
 fn key(q: &AuthorPapersQuery) -> Result<Vec<u8>, RequestError> {
     serde_json::to_vec(&(
-        "biomcp.orcid_works_snapshot/1",
+        "biomcp.orcid_works_snapshot/2",
         q.id(),
         q.section(),
         q.limit(),
@@ -81,8 +81,12 @@ fn execute(
             restart(q, out, false);
             return Ok(());
         };
-        let (groups, source): (Box<[OrcidWorkGroup]>, SourceOutcome) =
-            serde_json::from_str(&payload).map_err(|_| CacheError::Database)?;
+        let (groups, source, problems): (
+            Box<[OrcidWorkGroup]>,
+            SourceOutcome,
+            Vec<biomcp_types::Problem>,
+        ) = serde_json::from_str(&payload).map_err(|_| CacheError::Database)?;
+        out.problems.extend(problems);
         (groups, source, pool)
     } else {
         if q.pool().is_some() {
@@ -97,9 +101,11 @@ fn execute(
             super::source_error(reply.as_ref().err().copied()),
         );
         out.sources.push(source.clone());
-        let groups = reply?;
-        let payload =
-            serde_json::to_string(&(&groups, &source)).map_err(|_| CacheError::Database)?;
+        let mapped = reply?;
+        let groups = mapped.value;
+        out.problems.extend(mapped.problems);
+        let payload = serde_json::to_string(&(&groups, &source, &out.problems))
+            .map_err(|_| CacheError::Database)?;
         let size = u32::try_from(groups.len()).map_err(|_| CacheError::Database)?;
         let pool =
             store.publish_source_pool(&expected, &payload, size, std::slice::from_ref(&source))?;
@@ -159,7 +165,7 @@ fn pivots(out: &mut Outcome, rows: &[OrcidWorkGroup]) {
         .flat_map(|g| &g.assertions)
         .flat_map(|a| &a.external_ids)
     {
-        if id.relationship.as_str() != "self" {
+        if id.relationship.as_ref().map(biodata::Text::as_str) != Some("self") {
             continue;
         }
         let input = match id.kind.as_str() {

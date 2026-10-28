@@ -132,7 +132,7 @@ impl Row {
                 europepmc_id: Some(local),
                 doi: self.doi,
                 pmcid: self.pmcid,
-                title,
+                title: Some(title),
                 journal: self.journal_title,
                 date: self.first_publication_date,
                 electronic_date: None,

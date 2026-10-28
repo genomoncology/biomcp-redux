@@ -9,6 +9,7 @@ pub(crate) struct Pool {
     pub info: PoolInfo,
     pub key: Vec<u8>,
     pub sources: Vec<SourceOutcome>,
+    pub problems: Vec<Problem>,
 }
 /// Fixed identity and independently hydrated metadata.
 pub(crate) struct StoredItem {
@@ -38,6 +39,7 @@ impl Store<'_> {
                 .optional()
                 .map_err(db)?;
             row.map(|(id, key, created, expires, size, sources)| {
+                let (sources, problems) = metadata(&sources)?;
                 Ok(Pool {
                     info: PoolInfo {
                         id: Text::new(&id).map_err(|_| CacheError::Database)?,
@@ -47,7 +49,8 @@ impl Store<'_> {
                     },
 
                     key,
-                    sources: serde_json::from_str(&sources).map_err(|_| CacheError::Database)?,
+                    sources,
+                    problems,
                 })
             })
             .transpose()
@@ -65,7 +68,10 @@ impl Store<'_> {
             let created = Self::now();
             let expires = created.saturating_add(86400);
             let id: String = tx.query_row("SELECT lower(hex(randomblob(16)))", [], |r| r.get(0)).map_err(db)?;
-            let outcomes = serde_json::to_string(sources).map_err(|_| CacheError::Database)?;
+            let global: Vec<_> = problems.iter().filter(|p| p.record.is_none()).cloned().collect();
+            let outcomes = if global.is_empty() { serde_json::to_string(sources) }
+                else { serde_json::to_string(&serde_json::json!({"sources":sources,"problems":global})) }
+                .map_err(|_| CacheError::Database)?;
             let size = u32::try_from(items.len()).map_err(|_| CacheError::Database)?;
             tx.execute(
                 "INSERT INTO pool(id,request_key,created,expires,size,outcomes) VALUES (?1,?2,?3,?4,?5,?6)",
@@ -110,6 +116,7 @@ impl Store<'_> {
                 },
                 key: key.into(),
                 sources: sources.into(),
+                problems: global,
             })
         })
     }
@@ -152,6 +159,7 @@ impl Store<'_> {
                 },
                 key: key.into(),
                 sources: sources.into(),
+                problems: Vec::new(),
             })
         })
     }
@@ -286,4 +294,25 @@ impl Store<'_> {
             Ok(())
         })
     }
+}
+
+// Existing source-only rows remain readable; only pool-scoped problems need metadata.
+fn metadata(text: &str) -> Result<(Vec<SourceOutcome>, Vec<Problem>), CacheError> {
+    let mut value: serde_json::Value =
+        serde_json::from_str(text).map_err(|_| CacheError::Database)?;
+    if value.is_array() {
+        return serde_json::from_value(value)
+            .map(|sources| (sources, Vec::new()))
+            .map_err(|_| CacheError::Database);
+    }
+    let fields = value
+        .as_object_mut()
+        .filter(|v| v.len() == 2)
+        .ok_or(CacheError::Database)?;
+    let sources = fields.remove("sources").ok_or(CacheError::Database)?;
+    let problems = fields.remove("problems").ok_or(CacheError::Database)?;
+    Ok((
+        serde_json::from_value(sources).map_err(|_| CacheError::Database)?,
+        serde_json::from_value(problems).map_err(|_| CacheError::Database)?,
+    ))
 }

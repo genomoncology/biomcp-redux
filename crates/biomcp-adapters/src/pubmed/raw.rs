@@ -12,14 +12,15 @@ pub(super) struct SearchResult {
     #[serde(deserialize_with = "count")]
     pub count: u64,
     pub idlist: Vec<Pmid>,
-    pub errorlist: Option<ErrorList>,
-    pub warninglist: Option<BTreeMap<String, Vec<String>>>,
+    pub errorlist: Option<Field<ErrorList>>,
+    pub warninglist: Option<Field<Warnings>>,
     #[serde(rename = "ERROR")]
     error: Option<serde::de::IgnoredAny>,
 }
+type Warnings = BTreeMap<String, Field<Vec<Field<String>>>>;
 #[derive(Debug, Deserialize)]
 pub(super) struct ErrorList {
-    pub phrasesnotfound: Option<Vec<String>>,
+    pub phrasesnotfound: Option<Field<Vec<Field<String>>>>,
 }
 impl Reply for Search {
     fn discovery(&self) -> Option<biomcp_fetch::Identities> {

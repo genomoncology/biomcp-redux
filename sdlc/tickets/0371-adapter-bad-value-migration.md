@@ -1,6 +1,7 @@
 # 0371 — Apply the bad-value rule to PubMed and ORCID
 
-Status: OPEN.
+Status: COMPLETE.
+Landed: 145b1870b1e487bccbc29be62215d179501e79e9
 
 Milestone: 5
 

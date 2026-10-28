@@ -42,7 +42,7 @@ impl Record {
                 });
         AuthorHeader {
             id: AuthorId::SemanticScholar(self.author_id),
-            name: self.name,
+            name: Some(self.name),
             affiliations: self.affiliations,
             counts,
         }

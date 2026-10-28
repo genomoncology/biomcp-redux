@@ -3,7 +3,7 @@
   "feature": "article-search",
   "story": "The caller can put Europe PMC first while retaining each source native rank",
   "replay": "article/fold/live",
-  "verified": "The first recorded snapshot supplies this replay process. The live source-order check also matched its own later captured native ranks. The recorded first page is 4882 bytes. Its measured value plus 15 percent is 5615 bytes, bounded here by the matching 0.9 AKT1 E17K JSON baseline of 1307 tokens / 5228 bytes.",
+  "verified": "The first recorded snapshot supplies this replay process. The live source-order check also matched its own later captured native ranks. The recorded first page is 4882 bytes. Its measured value plus 15 percent is 5615 bytes, bounded here by the matching 0.9 AKT1 E17K JSON baseline of 1307 tokens / 5228 bytes. PM-approved mandatory problem disclosures measured 5389 comparable bytes in j19522; the ceiling adds fifteen percent (6198 bytes). The historical 0.9 comparison remains 5228 bytes. Counterfactual measurement must fit the old bound without newly disclosed problems. Diagnostic j19526 old/full/without-new-problems bytes: 5228/5389/5109. Removing only new electronic_date problems satisfies the unchanged historical byte bound.",
   "steps": [
     {
       "run": [
@@ -13,7 +13,7 @@
         "--source",
         "europepmc,pubmed"
       ],
-      "max_bytes": 5228,
+      "max_bytes": 6198,
       "expect": {
         "/status": "complete",
         "/sources/0/source": "europepmc",
