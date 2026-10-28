@@ -1,0 +1,13 @@
+{
+  "deadline_seconds": 25,
+  "max_bytes": 1048576,
+  "spacing_seconds": 1,
+  "requests": [
+    {
+      "id": "firm-recall",
+      "source": "fda-device-recall",
+      "url": "https://api.fda.gov/device/recall.json?search=recalling_firm%3A%22Illumina%22&limit=3&skip=0&sort=event_date_initiated%3Adesc",
+      "response_format": "json"
+    }
+  ]
+}
