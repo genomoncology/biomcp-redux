@@ -198,3 +198,5 @@ query-validation: A caller sees argument names for typed input failures, conflic
 outbound-hosts: Refuse undeclared source request origins before cache, replay or network admission. Contracts: `biomcp-fetch/paths`.
 
 local-file-persistence: Create private Unix cache files and update symlinked credential configuration targets while retaining field order. Cases: `crates/biomcp/tests/runner/local_files.rs`.
+
+diagnostic-device-recall: Search native device recall records, inspect exact recall numbers and follow product codes to MAUDE without inferring harm. Cases: `crates/biomcp/tests/runner/diagnostic_recall.rs`.
