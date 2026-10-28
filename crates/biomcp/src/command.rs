@@ -386,6 +386,9 @@ fn usage(args: &[OsString]) -> io::Result<Outcome> {
         }];
         return encode(error, crate::exit::Status::Usage);
     }
+    if let Some(error) = crate::grammar::normalization_build(args) {
+        return encode(error, crate::exit::Status::Usage);
+    }
     let mut words = crate::grammar::command_words(args);
     let root = words.next();
     let option = crate::grammar::argument_error(args);
