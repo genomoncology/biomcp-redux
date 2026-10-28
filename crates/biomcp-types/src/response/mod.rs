@@ -169,3 +169,6 @@ pub use civic_vocabulary::{CivicKind, CivicSignificance, CivicStatus};
 
 mod nci_phase;
 pub use nci_phase::NciTrialPhase;
+
+mod organization;
+pub use organization::{Organization, OrganizationCoordinates, OrganizationPage};

@@ -43,7 +43,9 @@ enum Navigation<'a> {
 fn navigation(body: &biomcp_types::QueryBody) -> Navigation<'_> {
     use biomcp_types::QueryBody as Body;
     match body {
-        Body::AuthorPage(_) | Body::CellLinePage(_) => Navigation::NativeOrder,
+        Body::OrganizationPage(_) | Body::AuthorPage(_) | Body::CellLinePage(_) => {
+            Navigation::NativeOrder
+        }
         Body::AuthorCards(_) => Navigation::BoundedPma,
         Body::CellLineChembl(_) | Body::CellLineAssayCount(_) => Navigation::BoundedPma,
         Body::CellLineCard(_) => Navigation::BoundedPma,
@@ -248,7 +250,9 @@ fn bounded_navigation(body: &biomcp_types::QueryBody) -> Navigation<'_> {
         Body::DrugTargets(_) | Body::DrugIndications(_) => Navigation::Bounded,
         Body::VariantAssertions(_) | Body::VariantNormalization(_) => Navigation::Bounded,
         Body::NciTrialPage(_) | Body::NciTrialCards(_) => Navigation::Bounded,
-        Body::UnsupportedTrialFilter { .. } | Body::NciDiseaseError => Navigation::Bounded,
+        Body::OrganizationTooBroad
+        | Body::UnsupportedTrialFilter { .. }
+        | Body::NciDiseaseError => Navigation::Bounded,
         Body::VariantQueryPolicyError | Body::VariantPopulation(_) => Navigation::Bounded,
         Body::VariantRecurrence(_) | Body::TrialDocument(_) => Navigation::Bounded,
         Body::TrialCards(_) | Body::TrialPage(_) | Body::ArticlePdf(_) => Navigation::Bounded,

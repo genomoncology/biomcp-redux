@@ -29,7 +29,7 @@
       ],
       "max_bytes": 1187,
       "expect": {
-        "/schema": "biomcp.variant-page/9",
+        "/schema": "biomcp.variant-page/10",
         "/status": "partial",
         "/query": {
           "equals": {
@@ -48,7 +48,7 @@
               {
                 "identity": {
                   "ids": [
-                    "rs:121913428",
+                    "rs121913428",
                     "clinvar:45225"
                   ],
                   "representations": [
@@ -115,7 +115,7 @@
               {
                 "identity": {
                   "ids": [
-                    "rs:121913428",
+                    "rs121913428",
                     "clinvar:45225"
                   ],
                   "representations": [

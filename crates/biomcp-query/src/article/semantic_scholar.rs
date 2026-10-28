@@ -71,15 +71,6 @@ pub struct DoiResolution {
     /// Malformed summary fields retained alongside valid mappings.
     pub problems: Vec<biomcp_types::Problem>,
 }
-/// Resolve DOI-only rows using PubMed's actual DOI field, retaining unmatched rows.
-/// Return a failed join explicitly; the caller retains the original source items.
-pub fn resolve_dois<'a>(
-    cx: &Ctx<'a>,
-    items: &mut [ArticleItem],
-    deadline: &mut Deadline<'a>,
-) -> DoiResolution {
-    resolve_dois_with(cx, items, deadline, &[])
-}
 // Raw source identities survive conversion even when no title/header exists.
 pub(super) fn resolve_dois_with<'a>(
     cx: &Ctx<'a>,

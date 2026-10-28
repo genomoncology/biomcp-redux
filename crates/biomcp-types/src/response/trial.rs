@@ -20,7 +20,7 @@ pub struct TrialPage {
     pub attribution: String,
 }
 impl super::ResponseBody for TrialPage {
-    const SCHEMA: &'static str = "biomcp.trial-page/9";
+    const SCHEMA: &'static str = "biomcp.trial-page/10";
     type Query = crate::TrialSearch;
 }
 

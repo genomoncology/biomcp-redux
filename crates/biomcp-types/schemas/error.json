@@ -21,6 +21,7 @@
         "pool.expired",
         "usage.pool_mismatch",
         "usage.too_many_pmids",
+        "usage.too_broad",
         "usage.unsupported_filter"
       ],
       "type": "string"
@@ -88,6 +89,7 @@
     "ErrorMessage": {
       "description": "Fixed input-free error and migration guidance.",
       "enum": [
+        "organization search is too broad; narrow --name, --city, --state, --country, --postal-code, --family or --lat/--lon/--distance",
         "--p-value is not yet supported; threshold filtering is deferred",
         "--p-value threshold must be a positive probability in scientific notation",
         "choose one of the source selector values",
