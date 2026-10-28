@@ -68,6 +68,50 @@ fn check() -> Result<(), Box<dyn std::error::Error>> {
     }
     // Ordinary replay still executes the local error and follows its real restart.
     super::run_case(&witnessed, &super::schema::Registry::embedded()?)?;
+    continuation_context()?;
+    Ok(())
+}
+fn continuation_context() -> Result<(), Box<dyn std::error::Error>> {
+    let env = Environment::new()?;
+    let replay = fixtures().join("replies/trial/walk");
+    let mut capture = json!({});
+    let (first, observations) = super::live::witness::invoke(
+        &env,
+        &[
+            "search".into(),
+            "trial".into(),
+            "--condition".into(),
+            "melanoma".into(),
+        ],
+        Some(&replay),
+        1,
+        &mut capture,
+        "baseline",
+    )?;
+    let token = observations
+        .iter()
+        .find_map(|row| row.provenance.discovery.as_ref())
+        .ok_or("missing checked registry token discovery")?;
+    let args = super::action(&first, "page")?;
+    let (_, observations) =
+        super::live::witness::invoke(&env, &args, Some(&replay), 2, &mut capture, "baseline")?;
+    let request = observations
+        .iter()
+        .find(|row| row.role.ends_with("::RawPage"))
+        .ok_or("missing registry continuation observation")?;
+    let inputs = request
+        .provenance
+        .inputs
+        .as_ref()
+        .ok_or("missing continuation token input")?;
+    if token.namespace != "ctgov-page"
+        || token.ids.len() != 1
+        || inputs.namespace != token.namespace
+        || inputs.ids != token.ids
+        || request.provenance.input_context.is_none()
+    {
+        return Err("continuation provenance did not follow the checked first page".into());
+    }
     Ok(())
 }
 fn diagnostic(
