@@ -295,6 +295,7 @@ fn framing() -> Check {
     };
     assert_eq!(refusal.pointer("/error/code"), Some(&json!(-32600)));
     assert_eq!(ping.get("id"), Some(&json!("after")));
-    assert_eq!(ping.get("result"), Some(&json!({})));
+    assert!(ping.get("error").is_none());
+    assert_eq!(ping.pointer("/result/resultType"), Some(&json!("complete")));
     Ok(())
 }
