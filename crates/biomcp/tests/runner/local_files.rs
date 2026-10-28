@@ -1,4 +1,4 @@
-//! Local persistence through the real CLI, with synthetic files and isolated homes.
+//! Feature local-file-persistence: real CLI files in isolated homes contain only synthetic data.
 use super::{key_registration::invoke, launch::Environment};
 use std::fs;
 type Check = Result<(), String>;
@@ -66,6 +66,7 @@ pub(super) fn modes() -> Check {
     #[cfg(unix)]
     {
         use std::os::unix::fs::PermissionsExt;
+        let mut failures = Vec::new();
         for existing in [false, true] {
             let env = Environment::new().map_err(|e| e.to_string())?;
             let folder = env.root().join("cache/biomcp");
@@ -90,7 +91,7 @@ pub(super) fn modes() -> Check {
                     & 0o777)
             };
             if mode(&folder)? != if existing { 0o755 } else { 0o700 } {
-                return Err("cache folder mode changed or is not owner-only".into());
+                failures.push("cache folder mode changed or is not owner-only");
             }
             let database = fs::read_dir(&folder)
                 .map_err(|e| e.to_string())?
@@ -99,8 +100,11 @@ pub(super) fn modes() -> Check {
                 .find(|path| path.extension().is_some_and(|ext| ext == "sqlite"))
                 .ok_or("cache database missing")?;
             if mode(&database)? != 0o600 {
-                return Err("cache database is not owner-only".into());
+                failures.push("cache database is not owner-only");
             }
+        }
+        if !failures.is_empty() {
+            return Err(failures.join("; "));
         }
     }
     Ok(())

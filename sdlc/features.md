@@ -196,3 +196,5 @@ variant-alphagenome: Read independently paged native scoring groups for one sour
 
 query-validation: A caller sees argument names for typed input failures, conflicting fields and invalid ranges without rejected values. Cases: `tests/cases/grammar/semantic-arguments.yaml`.
 outbound-hosts: Refuse undeclared source request origins before cache, replay or network admission. Contracts: `biomcp-fetch/paths`.
+
+local-file-persistence: Create private Unix cache files and update symlinked credential configuration targets while retaining field order. Cases: `crates/biomcp/tests/runner/local_files.rs`.
