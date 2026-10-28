@@ -195,8 +195,6 @@ impl Works {
             .group
             .into_iter()
             .filter_map(|g| {
-                problems.record = record(&self.path);
-                let external_ids = g.external_ids.convert(&mut problems);
                 let assertions: Box<[_]> = g
                     .work_summary
                     .into_iter()
@@ -209,6 +207,8 @@ impl Works {
                 if assertions.is_empty() {
                     None
                 } else {
+                    problems.record = record(&self.path);
+                    let external_ids = g.external_ids.convert(&mut problems);
                     Some(OrcidWorkGroup {
                         external_ids,
                         assertions,

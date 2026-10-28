@@ -5,11 +5,11 @@ use serde_json::{Value, json};
 pub(super) fn trials() -> Vec<Trial> {
     vec![
         Trial::test("author-orcid/invalid-optional-fields-are-disclosed", || {
-            orcid().map_err(Into::into)
+            orcid().and_then(|_| person()).map_err(Into::into)
         }),
         Trial::test(
             "article-get/pubmed-invalid-optional-fields-are-disclosed",
-            || pubmed().map_err(Into::into),
+            || pubmed().and_then(|_| summaries()).map_err(Into::into),
         ),
     ]
 }
@@ -122,6 +122,20 @@ fn pubmed() -> Result<(), String> {
             "<Abstract><AbstractText Label=\"\">Valid abstract</AbstractText></Abstract>",
         ),
         ("corrections.pmid", ""),
+        (
+            "date",
+            "<Journal><JournalIssue><PubDate><Year>bad</Year></PubDate></JournalIssue></Journal>",
+        ),
+        (
+            "electronic_date",
+            "<ArticleDate DateType=\"Electronic\"><Year>2024</Year><Month>Feb</Month><Day>31</Day></ArticleDate>",
+        ),
+        (
+            "abstract_parts.text",
+            "<Abstract><AbstractText> </AbstractText></Abstract>",
+        ),
+        ("mesh.descriptor", ""),
+        ("mesh.qualifiers.name", ""),
         ("keywords", ""),
         (
             "affiliations",
@@ -142,12 +156,18 @@ fn pubmed() -> Result<(), String> {
                 "<CommentsCorrectionsList><CommentsCorrections RefType=\"ErratumIn\"><PMID>bad</PMID></CommentsCorrections></CommentsCorrectionsList>"
             }
             "keywords" => "<KeywordList><Keyword> </Keyword></KeywordList>",
+            "mesh.descriptor" => {
+                "<MeshHeadingList><MeshHeading><DescriptorName MajorTopicYN=\"N\"> </DescriptorName></MeshHeading></MeshHeadingList>"
+            }
+            "mesh.qualifiers.name" => {
+                "<MeshHeadingList><MeshHeading><DescriptorName MajorTopicYN=\"N\">Valid descriptor</DescriptorName><QualifierName MajorTopicYN=\"N\"> </QualifierName></MeshHeading></MeshHeadingList>"
+            }
             _ => "",
         };
         let xml = format!(
             "<PubmedArticleSet><PubmedArticle><MedlineCitation><PMID>123</PMID><Article><ArticleTitle>Valid title</ArticleTitle>{extra}</Article>{citation}</MedlineCitation><PubmedData><ArticleIdList>{ids}</ArticleIdList></PubmedData></PubmedArticle></PubmedArticleSet>"
         );
-        let stub = Stub::for_source("eutils.ncbi.nlm.nih.gov", "application/xml", move |_| {
+        let stub = Stub::for_sources("eutils.ncbi.nlm.nih.gov", "application/xml", move |_| {
             Ok(xml.clone())
         })?;
         let env = super::super::variant::source_environment(&stub)?;
@@ -164,6 +184,94 @@ fn pubmed() -> Result<(), String> {
         problem(&value, "pubmed", field, "123")?;
         if stub.finish()?.len() != 1 {
             return Err("unexpected PubMed requests".into());
+        }
+    }
+    Ok(())
+}
+fn person() -> Result<(), String> {
+    for field in ["credit-name", "given-names", "family-name"] {
+        let mut name = json!({"path":"0000-0002-4299-3018", "visibility":"public", "credit-name":{"value":"Credit"}, "given-names":{"value":"Given"}, "family-name":{"value":"Family"}});
+        name[field] = json!({"value":""});
+        let body = json!({"path":"/0000-0002-4299-3018/person", "name":name}).to_string();
+        let stub = Stub::for_sources(
+            &["pub.orcid.org"],
+            |_| "application/json",
+            move |_| Ok(body.clone()),
+        )?;
+        let env = super::super::variant::source_environment(&stub)?;
+        let value = invoke(
+            &env,
+            ["get", "author", "orcid:0000-0002-4299-3018"]
+                .map(str::to_owned)
+                .to_vec(),
+            0,
+        )?;
+        problem(
+            &value,
+            "orcid",
+            &field.replace('-', "_"),
+            "/0000-0002-4299-3018/person",
+        )?;
+        let expected = if field == "credit-name" {
+            "Given Family"
+        } else {
+            "Credit"
+        };
+        if value.pointer("/result/items/0/card/header/name") != Some(&json!(expected)) {
+            return Err(format!("name lost: {value}"));
+        }
+        stub.finish()?;
+    }
+    Ok(())
+}
+fn summaries() -> Result<(), String> {
+    for (field, invalid, problem_field) in [
+        ("fulljournalname", json!(""), "journal"),
+        ("pubdate", json!("bad"), "date"),
+        ("epubdate", json!("2024 Feb 31"), "electronic_date"),
+        ("authors", json!([{"name":""}]), "first_author"),
+        ("authors", json!({}), "authors"),
+        ("pubtype", json!([""]), "types"),
+        (
+            "articleids",
+            json!([{"idtype":"doi", "value":"bad"}]),
+            "doi",
+        ),
+        (
+            "articleids",
+            json!([{"idtype":"pmc", "value":"bad"}]),
+            "pmcid",
+        ),
+        ("articleids", json!({}), "articleids"),
+    ] {
+        let mut row = json!({"uid":"123", "title":"Valid title", "pubdate":"2024 Jan 2", "authors":[{"name":"Valid author"}]});
+        row[field] = invalid;
+        let summary = json!({"result":{"uids":["123"],"123":row}}).to_string();
+        let stub = Stub::for_sources(
+            &["eutils.ncbi.nlm.nih.gov"],
+            |_| "application/json",
+            move |request| {
+                Ok(if request.contains("esearch.fcgi") {
+                    json!({"esearchresult":{"count":"1","idlist":["123"]}}).to_string()
+                } else {
+                    summary.clone()
+                })
+            },
+        )?;
+        let env = super::super::variant::source_environment(&stub)?;
+        let value = invoke(
+            &env,
+            ["search", "article", "synthetic", "--source", "pubmed"]
+                .map(str::to_owned)
+                .to_vec(),
+            0,
+        )?;
+        problem(&value, "pubmed", problem_field, "123")?;
+        if value.pointer("/result/items/0/header/pmid") != Some(&json!("123")) {
+            return Err(format!("summary lost: {value}"));
+        }
+        if stub.finish()?.len() != 2 {
+            return Err("unexpected PubMed search requests".into());
         }
     }
     Ok(())

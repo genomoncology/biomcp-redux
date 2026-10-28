@@ -81,7 +81,8 @@ fn header(row: SummaryRow, key: &str, problems: &mut Vec<Problem>) -> Option<Art
         .unwrap_or_default()
         .into_iter()
         .filter_map(|v| context.required("types", v.value()))
-        .filter_map(|s| publication_type(&s))
+        .filter_map(|s| context.text("types", Some(&s)))
+        .filter_map(|s| publication_type(s.as_str()))
         .collect();
     let mut doi = None;
     let mut pmcid = None;
