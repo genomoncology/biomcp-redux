@@ -33,7 +33,7 @@ pub fn assertions(
     leg: &Leg<'_>,
     id: &str,
     selection: Option<(&str, Option<&str>)>,
-) -> Result<Vec<VariantAssertion>, RequestError> {
+) -> Result<crate::Mapped<Vec<VariantAssertion>>, RequestError> {
     let vcv = selection.filter(|(id, _)| id.starts_with("VCV"));
     let selected = vcv.map(|(record, version)| {
         version.map_or_else(|| record.to_owned(), |v| format!("{record}.{v}"))
@@ -60,5 +60,8 @@ pub fn assertions(
             Err(BadReply)
         }
     })?;
-    Ok(reply.rows)
+    Ok(crate::Mapped {
+        value: reply.rows,
+        problems: reply.problems,
+    })
 }

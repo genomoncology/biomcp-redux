@@ -1,7 +1,7 @@
 use super::{bad, raw};
 use biodata::{
     Attribution, Bound, ProteinDomainFragment, ProteinDomainLocation, ProteinDomainMatch,
-    ProteinMemberSignature, Text, UncertainSpan0, UniProtIsoform,
+    ProteinMemberSignature, UncertainSpan0, UniProtIsoform,
 };
 use biomcp_fetch::RequestError;
 pub(super) fn rows(
@@ -14,9 +14,9 @@ pub(super) fn rows(
         for (database, entries) in entry.metadata.member_databases.into_iter().flatten() {
             for (accession, name) in entries {
                 signatures.push(ProteinMemberSignature {
-                    database: text(&database)?,
-                    accession: text(&accession)?,
-                    name: Some(text(&name)?),
+                    database: crate::mapped::text(&database).map_err(|_| bad())?,
+                    accession: crate::mapped::text(&accession).map_err(|_| bad())?,
+                    name: Some(crate::mapped::text(&name).map_err(|_| bad())?),
                 });
             }
         }
@@ -52,12 +52,18 @@ pub(super) fn rows(
                 locations,
                 member_signatures: signatures.clone().into(),
                 attribution: Attribution {
-                    source: text("interpro")?,
-                    record: Some(text(entry.metadata.accession.as_str())?),
-                    url: Some(text(&format!(
-                        "https://www.ebi.ac.uk/interpro/entry/InterPro/{}",
-                        entry.metadata.accession
-                    ))?),
+                    source: crate::mapped::text("interpro").map_err(|_| bad())?,
+                    record: Some(
+                        crate::mapped::text(entry.metadata.accession.as_str())
+                            .map_err(|_| bad())?,
+                    ),
+                    url: Some(
+                        crate::mapped::text(&format!(
+                            "https://www.ebi.ac.uk/interpro/entry/InterPro/{}",
+                            entry.metadata.accession
+                        ))
+                        .map_err(|_| bad())?,
+                    ),
                     version: None,
                     release: None,
                     submitter: None,
@@ -67,7 +73,4 @@ pub(super) fn rows(
         }
     }
     Ok(rows)
-}
-fn text(v: &str) -> Result<Text, RequestError> {
-    Text::new(v).map_err(|_| bad())
 }

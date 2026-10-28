@@ -113,13 +113,19 @@ fn read(
             query
                 .assertion()
                 .map(|id| (id.as_str(), query.version().map(|v| v.as_str()))),
-        ),
+        )
+        .map(|value| biomcp_adapters::Mapped {
+            value,
+            problems: Vec::new(),
+        }),
     };
     let error = result.as_ref().err().copied();
     let outcome = status::source(spec.source, leg.finish(), error);
+    let mut problems = Vec::new();
     let section = match result {
         Ok(rows) => {
-            let data = page(query, rows);
+            problems = rows.problems;
+            let data = page(query, rows.value);
             if data.page.total == 0 {
                 Section::Empty {
                     source: spec.source,
@@ -140,7 +146,7 @@ fn read(
     (
         section,
         vec![outcome],
-        Vec::new(),
+        problems,
         error.and_then(status::local),
     )
 }

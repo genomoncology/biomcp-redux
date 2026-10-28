@@ -1,5 +1,5 @@
 use super::{Complex, bad, raw};
-use biodata::{ProteinComplexHeader, ProteinComplexMember, Text, UniProtIsoform};
+use biodata::{ProteinComplexHeader, ProteinComplexMember, UniProtIsoform};
 use biomcp_fetch::RequestError;
 pub(super) fn members(rows: Vec<raw::Member>) -> Result<Vec<ProteinComplexMember>, RequestError> {
     rows.into_iter()
@@ -23,10 +23,14 @@ pub(super) fn members(rows: Vec<raw::Member>) -> Result<Vec<ProteinComplexMember
                 })
                 .collect::<Result<Box<[_]>, RequestError>>()?;
             Ok(ProteinComplexMember {
-                id: text(&r.identifier)?,
-                participant_type: text(&r.interactor_type)?,
+                id: crate::mapped::text(&r.identifier).map_err(|_| bad())?,
+                participant_type: crate::mapped::text(&r.interactor_type).map_err(|_| bad())?,
                 taxon: r.organism_name.as_deref().and_then(raw::taxon),
-                organism: r.organism_name.as_deref().map(text).transpose()?,
+                organism: r
+                    .organism_name
+                    .as_deref()
+                    .map(|v| crate::mapped::text(v).map_err(|_| bad()))
+                    .transpose()?,
                 name: r.name,
                 stoichiometry: r.stochiometry,
                 xrefs,
@@ -53,14 +57,12 @@ pub(super) fn complex(
         taxon: 9606,
         predicted: raw.predicted_complex,
         participant_total: members.len() as u64,
-        matched_participant: text(anchor.as_str())?,
-        url: text(&format!(
+        matched_participant: crate::mapped::text(anchor.as_str()).map_err(|_| bad())?,
+        url: crate::mapped::text(&format!(
             "https://www.ebi.ac.uk/complexportal/complex/{}",
             raw.id
-        ))?,
+        ))
+        .map_err(|_| bad())?,
     };
     Ok(Some(Complex { header, members }))
-}
-pub(super) fn text(s: &str) -> Result<Text, RequestError> {
-    Text::new(s).map_err(|_| bad())
 }

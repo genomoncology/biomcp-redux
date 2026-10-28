@@ -1,5 +1,6 @@
+pub(super) use crate::mapped::text;
 use crate::xml_element::Element;
-use biodata::{Attribution, Text, VariantRef};
+use biodata::{Attribution, VariantRef};
 
 use biomcp_fetch::BadReply;
 use biomcp_types::{
@@ -19,7 +20,9 @@ pub(super) fn aggregate(
     kind: AssertionKind,
     subject: VariantRef,
     conditions: Vec<AssertionCondition>,
+    problems: &mut crate::mapped::Problems,
 ) -> Result<Vec<VariantAssertion>, BadReply> {
+    problems.record = record.attr("Accession")?.as_deref().map(text).transpose()?;
     let mut rows = Vec::new();
     for (name, domain) in DOMAINS {
         let Some(group) = class.child(name)? else {
@@ -27,33 +30,31 @@ pub(super) fn aggregate(
         };
         let descriptions = group.children("Description")?;
         for description in descriptions {
-            let label = text(&description.text()?)?;
+            let Some(label) = problems.text("description", Some(&description.text()?)) else {
+                continue;
+            };
             let evaluated = description
                 .attr("DateLastEvaluated")?
                 .or(group.attr("DateLastEvaluated")?);
-            let attribution = attribution(record, evaluated, None)?;
-            let review = group
-                .value(&["ReviewStatus"])?
-                .map(|s| text(&s))
-                .transpose()?;
+            let attribution = attribution(record, evaluated, None, problems)?;
+            let review = problems.text("review_status", group.value(&["ReviewStatus"])?.as_deref());
             let detail = AssertionDetail {
-                impact_therapies: description
-                    .attr("DrugForTherapeuticAssertion")?
-                    .as_deref()
-                    .map(text)
-                    .transpose()?,
-                impact_assertion_type: description
-                    .attr("ClinicalImpactAssertionType")?
-                    .as_deref()
-                    .map(text)
-                    .transpose()?,
-                impact_clinical_significance: description
-                    .attr("ClinicalImpactClinicalSignificance")?
-                    .as_deref()
-                    .map(text)
-                    .transpose()?,
+                impact_therapies: problems.text(
+                    "impact_therapies",
+                    description.attr("DrugForTherapeuticAssertion")?.as_deref(),
+                ),
+                impact_assertion_type: problems.text(
+                    "impact_assertion_type",
+                    description.attr("ClinicalImpactAssertionType")?.as_deref(),
+                ),
+                impact_clinical_significance: problems.text(
+                    "impact_clinical_significance",
+                    description
+                        .attr("ClinicalImpactClinicalSignificance")?
+                        .as_deref(),
+                ),
                 conditions: if let Some(list) = group.child("ConditionList")? {
-                    super::detail::conditions(list)?.into()
+                    super::detail::conditions(list, problems)?.into()
                 } else {
                     conditions.clone().into()
                 },
@@ -75,52 +76,54 @@ pub(super) fn aggregate(
 pub(super) fn submission(
     record: Element<'_>,
     subject: VariantRef,
+    problems: &mut crate::mapped::Problems,
 ) -> Result<Vec<VariantAssertion>, BadReply> {
     let accession = record.child("ClinVarAccession")?.ok_or(BadReply)?;
     let Some(class) = record.child("Classification")? else {
         return Ok(Vec::new());
     };
-    let detail = super::detail::submission(record)?;
     let attribution = attribution(
         accession,
         class.attr("DateLastEvaluated")?,
         accession.attr("SubmitterName")?,
+        problems,
     )?;
-    let review = class
-        .value(&["ReviewStatus"])?
-        .map(|s| text(&s))
-        .transpose()?;
+    let detail = super::detail::submission(record, problems)?;
+    let review = problems.text("review_status", class.value(&["ReviewStatus"])?.as_deref());
     let mut rows = Vec::new();
     for (name, domain) in DOMAINS {
         let Some(value) = class.child(name)? else {
             continue;
         };
         let label = value.value(&["Description"])?.unwrap_or(value.text()?);
+        let Some(label) = problems.text("description", Some(&label)) else {
+            continue;
+        };
         let mut detail = detail.clone();
-        detail.impact_assertion_type = value
-            .attr("ClinicalImpactAssertionType")?
-            .as_deref()
-            .map(text)
-            .transpose()?;
-        detail.impact_clinical_significance = value
-            .attr("ClinicalImpactClinicalSignificance")?
-            .as_deref()
-            .map(text)
-            .transpose()?;
-        detail.impact_therapies = value
-            .attr("DrugForTherapeuticAssertion")?
-            .as_deref()
-            .map(text)
-            .transpose()?;
+        detail.impact_assertion_type = problems.text(
+            "impact_assertion_type",
+            value.attr("ClinicalImpactAssertionType")?.as_deref(),
+        );
+        detail.impact_clinical_significance = problems.text(
+            "impact_clinical_significance",
+            value.attr("ClinicalImpactClinicalSignificance")?.as_deref(),
+        );
+        detail.impact_therapies = problems.text(
+            "impact_therapies",
+            value.attr("DrugForTherapeuticAssertion")?.as_deref(),
+        );
         detail.comments = class
             .children("Comment")?
             .iter()
-            .map(|c| text(&c.text()?))
-            .collect::<Result<_, _>>()?;
+            .map(|c| c.text())
+            .collect::<Result<Vec<_>, _>>()?
+            .iter()
+            .filter_map(|s| problems.text("comments", Some(s)))
+            .collect();
         rows.push(crate::assertion::row(
             AssertionKind::Scv,
             domain,
-            text(&label)?,
+            label,
             attribution.clone(),
             subject.clone(),
             detail.clone(),
@@ -133,6 +136,7 @@ fn attribution(
     record: Element<'_>,
     evaluated: Option<String>,
     submitter: Option<String>,
+    problems: &mut crate::mapped::Problems,
 ) -> Result<Attribution, BadReply> {
     let id = record.attr("Accession")?.ok_or(BadReply)?;
     let version = record.attr("Version")?;
@@ -145,20 +149,16 @@ fn attribution(
     {
         return Err(BadReply);
     }
+    problems.record = Some(text(&id)?);
     Ok(Attribution {
         source: Source::ClinVar.text(),
         record: Some(text(&id)?),
-        version: version.map(|s| text(&s)).transpose()?,
+        version: problems.text("version", version.as_deref()),
         release: None,
-        submitter: submitter.map(|s| text(&s)).transpose()?,
-        evaluated: evaluated
-            .map(|s| s.parse().map_err(|_| BadReply))
-            .transpose()?,
+        submitter: problems.text("submitter", submitter.as_deref()),
+        evaluated: problems.optional("evaluated", evaluated.map(|s| s.parse())),
         url: Some(text(&format!(
             "https://www.ncbi.nlm.nih.gov/clinvar/?term={full}"
         ))?),
     })
-}
-pub(super) fn text(value: &str) -> Result<Text, BadReply> {
-    Text::new(value).map_err(|_| BadReply)
 }

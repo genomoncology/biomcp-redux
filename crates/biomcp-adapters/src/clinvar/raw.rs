@@ -6,6 +6,7 @@ use serde::Deserialize;
 pub(super) struct Records {
     pub id: Option<String>,
     pub rows: Vec<VariantAssertion>,
+    pub problems: Vec<biomcp_types::Problem>,
     pub accession: Option<String>,
     pub version: Option<String>,
 }
@@ -25,6 +26,7 @@ impl XmlReply for Records {
             return Ok(Self {
                 id: None,
                 rows: Vec::new(),
+                problems: Vec::new(),
                 accession: None,
                 version: None,
             });
@@ -41,6 +43,13 @@ impl XmlReply for Records {
         let subject =
             biodata::VariantRef::allele(format!("clinvar:{id}").parse().map_err(|_| BadReply)?);
         let mut rows = Vec::new();
+        let mut problems = crate::mapped::Problems {
+            source: biomcp_types::Source::ClinVar,
+            record: archive
+                .attr("Accession")?
+                .and_then(|s| crate::mapped::text(&s).ok()),
+            list: Vec::new(),
+        };
         if let Some(class) = classified.child("Classifications")? {
             rows.extend(super::map::aggregate(
                 archive,
@@ -48,29 +57,37 @@ impl XmlReply for Records {
                 AssertionKind::Vcv,
                 subject.clone(),
                 Vec::new(),
+                &mut problems,
             )?);
         }
         if let Some(rcvs) = classified.child("RCVList")? {
             for rcv in rcvs.children("RCVAccession")? {
                 if let Some(class) = rcv.child("RCVClassifications")? {
+                    problems.record = rcv
+                        .attr("Accession")?
+                        .as_deref()
+                        .map(crate::mapped::text)
+                        .transpose()?;
                     rows.extend(super::map::aggregate(
                         rcv,
                         class,
                         AssertionKind::Rcv,
                         subject.clone(),
-                        super::detail::rcv_conditions(rcv)?,
+                        super::detail::rcv_conditions(rcv, &mut problems)?,
+                        &mut problems,
                     )?);
                 }
             }
         }
         if let Some(scvs) = classified.child("ClinicalAssertionList")? {
             for scv in scvs.children("ClinicalAssertion")? {
-                rows.extend(super::map::submission(scv, subject.clone())?);
+                rows.extend(super::map::submission(scv, subject.clone(), &mut problems)?);
             }
         }
         Ok(Self {
             id: Some(id),
             rows,
+            problems: problems.list,
             accession: archive.attr("Accession")?,
             version: archive.attr("Version")?,
         })
