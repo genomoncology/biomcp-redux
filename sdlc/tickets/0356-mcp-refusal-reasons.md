@@ -1,6 +1,7 @@
 # 0356 — Say why MCP refuses a local-only command
 
-Status: OPEN.
+Status: COMPLETE.
+Landed: be1dd1d5e660123651a5152b8f072e602159abef
 
 Milestone: 5
 

@@ -153,7 +153,7 @@ impl Leg<'_> {
                 self.spec.source,
                 &identity.key,
                 &identity.url,
-                Some(&identity.post),
+                Some(&identity.post).into(),
                 limits.wire_bytes as u64,
             )?
             .ok_or(RecordError::Missing)?;

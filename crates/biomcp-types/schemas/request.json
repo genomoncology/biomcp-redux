@@ -474,11 +474,6 @@
       "pattern": "^[A-Za-z0-9]+[_:][A-Za-z0-9_-]+$",
       "type": "string"
     },
-    "HgvsText": {
-      "description": "Reference-qualified notation with its original text, without a molecular parse.",
-      "pattern": "^((N[CGMPRTW]|X[MPR])_([0-9]{6}|[0-9]{9})\\.[0-9]+|ENS[GTP][0-9]{11}\\.[0-9]+|LRG_[0-9]+([tp][0-9]+)?)(\\(([A-Za-z][A-Za-z0-9._/@-]*|[A-Za-z0-9_.]+)\\))?:[gcnrpmo]\\.[\\x20-\\x7e]+$",
-      "type": "string"
-    },
     "HpId": {
       "description": "Exact Human Phenotype Ontology identifier with seven decimal digits.",
       "pattern": "^HP:[0-9]{7}$",
@@ -915,7 +910,7 @@
       ]
     }
   },
-  "$id": "biodata.request/26",
+  "$id": "biodata.request/27",
   "$schema": "https://json-schema.org/draft/2020-12/schema",
   "description": "One checked query. Housekeeping actions are separate.",
   "oneOf": [
@@ -3190,8 +3185,9 @@
           "type": "string"
         },
         "hgvs": {
-          "$ref": "#/$defs/HgvsText",
-          "description": "Unchanged reference-qualified HGVS; no local molecular parse."
+          "description": "Reference-qualified HGVS, or chromosome genomic HGVS with an explicit build for CAR.",
+          "pattern": "(^((N[CGMPRTW]|X[MPR])_([0-9]{6}|[0-9]{9})\\.[0-9]+|ENS[GTP][0-9]{11}\\.[0-9]+|LRG_[0-9]+([tp][0-9]+)?)(\\(([A-Za-z][A-Za-z0-9._/@-]*|[A-Za-z0-9_.]+)\\))?:[gcnrpmo]\\.[\\x20-\\x7e]+$|^chr([1-9][0-9]*|X|Y|M|MT):g\\.[\\x21-\\x7e]+$)",
+          "type": "string"
         },
         "limit": {
           "default": 10,

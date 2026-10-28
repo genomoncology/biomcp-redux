@@ -38,7 +38,7 @@ impl Reply for Page {
 /// Send one declared native query window and validate it before cache admission.
 pub fn search(leg: &Leg<'_>, query: &VariantSearch) -> Result<SearchPage, RequestError> {
     let term = query.source_query();
-    let fields = super::allowed_fields(leg, FIELDS);
+    let fields = super::annotation_fields(leg, FIELDS);
     let mut args = vec![
         ("q", Arg::Text(&term)),
         ("size", Arg::Num(u64::from(query.limit()))),
@@ -80,8 +80,16 @@ pub fn search(leg: &Leg<'_>, query: &VariantSearch) -> Result<SearchPage, Reques
             id.as_str(),
             build,
             !super::components::disabled_on_leg(leg, "clinvar"),
+            !super::components::disabled_on_leg(leg, "snpeff"),
         );
-        rows.value.extend(mapped.value);
+        for mut row in mapped.value {
+            for transcript in &mut row.transcripts {
+                transcript.matched = transcript.hgvs_p.as_ref().is_some_and(|p| {
+                    query.matches_protein(transcript.gene.as_ref().map(|g| g.as_str()), p.as_str())
+                });
+            }
+            rows.value.push(row);
+        }
         rows.problems.extend(mapped.problems);
     }
     Ok(SearchPage {

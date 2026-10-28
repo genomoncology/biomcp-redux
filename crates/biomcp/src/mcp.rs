@@ -3,6 +3,7 @@ mod current;
 mod framing;
 pub(crate) mod http;
 mod legacy;
+mod output_schema;
 mod protocol;
 mod research;
 mod rpc;

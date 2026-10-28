@@ -1,6 +1,7 @@
 # 0368 — Probe HGNC reachability in health without a download
 
-Status: OPEN.
+Status: COMPLETE.
+Landed: b2c76b843df962c3174b57ea4cf70adf6571ea74
 
 Milestone: 5
 
