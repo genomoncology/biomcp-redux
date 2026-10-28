@@ -15,7 +15,7 @@ ROOT = Path(__file__).resolve().parents[1]
 
 
 def manifest():
-    return json.loads((ROOT / 'release/toolchain.json').read_text())
+    return json.loads(Path(__file__).with_name('toolchain.json').read_text())
 
 
 def check():
