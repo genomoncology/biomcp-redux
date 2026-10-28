@@ -72,7 +72,7 @@ pub struct ArticleHeader {
     #[serde(skip_serializing_if = "Option::is_none")]
     pub europepmc_id: Option<EuropePmcId>,
     /// Whole source title.
-    #[serde(skip_serializing_if = "Option::is_none")]
+    #[serde(default, skip_serializing_if = "Option::is_none")]
     #[cfg_attr(feature = "schema", schemars(with = "Text"))]
     pub title: Option<Text>,
     /// Journal name.
