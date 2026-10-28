@@ -23,16 +23,17 @@ static QUOTA: biomcp_fetch::Quota = biomcp_fetch::Quota::new(
 const SECTION: &str = "/result/candidates/0/sections/alphagenome";
 const KEY: &str = "synthetic-alphagenome-cli-placeholder";
 pub(super) fn trials() -> Vec<Trial> {
-    let mut trials = vec![
-        Trial::test("variant/alphagenome-native-groups-local-tls", || {
-            run().map_err(Into::into)
-        }),
-        Trial::test("variant/alphagenome-source-identity-refusals", || {
-            refusals().map_err(Into::into)
-        }),
-    ];
+    let mut trials = installed_trials();
+    trials.push(Trial::test("variant/alphagenome-source-identity-refusals", || {
+        refusals().map_err(Into::into)
+    }));
     trials.extend(capture::trials());
     trials
+}
+pub(super) fn installed_trials() -> Vec<Trial> {
+    vec![Trial::test("variant/alphagenome-native-groups-local-tls", || {
+        run().map_err(Into::into)
+    })]
 }
 fn run() -> Result<(), String> {
     for (status, id) in [

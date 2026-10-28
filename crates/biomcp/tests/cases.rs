@@ -18,13 +18,18 @@ fn main() -> ExitCode {
     if let Some(code) = native_proof() {
         return code;
     }
-    if env::args().nth(1).as_deref() == Some("--installed-http-proof") {
+    let installed = match env::args().nth(1).as_deref() {
+        Some("--installed-http-proof") => Some(runner::installed_http_trials()),
+        Some("--installed-alphagenome-proof") => Some(runner::installed_alphagenome_trials()),
+        _ => None,
+    };
+    if let Some(trials) = installed {
         if env::args().len() != 2 {
             return ExitCode::FAILURE;
         }
         return libtest_mimic::run(
             &Arguments::from_iter(env::args().take(1)),
-            runner::installed_http_trials(),
+            trials,
         )
         .exit_code();
     }

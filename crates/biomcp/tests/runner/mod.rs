@@ -525,6 +525,10 @@ pub(super) fn installed_http_trials() -> Vec<Trial> {
     http::trials()
 }
 
+pub(super) fn installed_alphagenome_trials() -> Vec<Trial> {
+    alphagenome_tls::installed_trials()
+}
+
 mod variant_assertion_wire;
 mod variant_assertions;
 mod variant_condition_relationship;

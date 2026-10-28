@@ -33,6 +33,8 @@ def main():
     checks.append("ordinary-cache-two-process")
     subprocess.run(executable + ["--installed-http-proof"], check=True)
     checks.append("mcp-http")
+    subprocess.run(executable + ["--installed-alphagenome-proof"], check=True)
+    checks.append("alphagenome-local-tls")
     print(json.dumps({"artifact": "docker", "platform": "linux/" + arch, "result": "pass", "checks": checks}))
 
 

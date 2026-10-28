@@ -58,6 +58,8 @@ def smoke(binary, runner, fixtures, version, server_args=("serve",)):
         checks.append("ordinary-cache-two-process")
         subprocess.run([str(runner), "--installed-http-proof"], env=env, cwd=root, check=True, timeout=120)
         checks.append("mcp-http")
+        subprocess.run([str(runner), "--installed-alphagenome-proof"], env=env, cwd=root, check=True, timeout=120)
+        checks.append("alphagenome-local-tls")
         return {"tools": tools, "checks": checks}
 
 def mcp_probe(command, env, root, version):
