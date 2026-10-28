@@ -113,14 +113,19 @@ mod cell_line;
 #[path = "schemas/phenotype.rs"]
 mod phenotype;
 
-fn registry() -> Vec<Contract> {
-    let mut contracts = contracts! {
+fn nci_discovery_contracts() -> Vec<Contract> {
+    contracts! {
         BiomarkerSearch => ("biomarker-search", "biomcp.biomarker-search/1"),
         BiomarkerGet => ("biomarker-get", "biomcp.biomarker-get/1"),
         Envelope<BiomarkerPage> => ("biomarker-page", "biomcp.biomarker-page/1"),
         Envelope<BiomarkerResult> => ("biomarker-result", "biomcp.biomarker-result/1"),
         OrganizationSearch => ("organization-search", "biomcp.organization-search/1"),
         Envelope<OrganizationPage> => ("organization-page", "biomcp.organization-page/1"),
+    }
+}
+
+fn registry() -> Vec<Contract> {
+    let mut contracts = contracts! {
         TrialDocumentGet => ("trial-document", "biodata.trial-document/1"),
         Envelope<TrialDocumentResult> => ("trial-document-result", "biomcp.trial-document/3"),
         HttpHealth => ("http-health", "biomcp.http-health/1"),
@@ -182,6 +187,7 @@ fn registry() -> Vec<Contract> {
         Envelope<GwasStudy> => ("gwas-study", "biomcp.gwas-study/1"),
         Envelope<GwasAncestries> => ("gwas-ancestries", "biomcp.gwas-ancestries/1"),
     });
+    contracts.extend(nci_discovery_contracts());
     contracts.extend(diagnostic_contracts());
     contracts.extend(pathway_contracts());
     contracts.extend(protein_contracts());
