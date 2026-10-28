@@ -20,7 +20,7 @@ fn run(env: &Environment, args: &[&str]) -> Check<Vec<u8>> {
     // measured at the executable boundary in j16298. Keep fifteen percent headroom.
     let measured: usize = match args.get(1).map(String::as_str) {
         None | Some("render") => 2479,
-        Some("9" | "trial-recruitment") => 1166,
+        Some("9" | "trial-recruitment") => 1344,
         Some("list") => 955,
         Some("install") => 117,
         Some("status") => 55,

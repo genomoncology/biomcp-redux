@@ -22,6 +22,6 @@ Compare this broader query with the preceding exact-variant search. It removes t
 
 ## Next
 
-Inspect full registry eligibility text and any continued criteria. Run broader gene and program searches suggested by returned commands before calling a screen complete. A complete response does not mean a complete screen; the clinical team must assess fit and confirm current recruitment. Contact the study team to confirm eligibility and current recruitment.
+An exact variant search is a starting point. Run the broader gene and program searches BioMCP suggests before reporting a trial screen as complete. Inspect full registry eligibility text and any continued criteria. A complete response does not mean a complete screen; the clinical team must assess fit. Contact the study team to confirm eligibility and current recruitment.
 
 Read response status, problems and source terms at every step. Recorded replies demonstrate the commands; live replies can change.
