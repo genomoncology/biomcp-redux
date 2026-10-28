@@ -79,8 +79,25 @@ class Installer(unittest.TestCase):
         self.assertIn("gh attestation verify ARTIFACT --repo genomoncology/biomcp", result.stdout)
         self.assertIn("--signer-workflow genomoncology/biomcp/.github/workflows/release.yml", result.stdout)
         self.assertIn("--source-digest COMMIT", result.stdout)
+        self.assertIn("--source-ref refs/tags/vX.Y.Z", result.stdout)
         self.assertIn("SHA-256 checksum", result.stdout)
         self.assertFalse(self.destination.exists())
+
+    def test_empty_or_unset_home_needs_an_explicit_install_directory(self):
+        archive, checksum = candidate(self.root, 'local.tar.gz')
+        for home in (None, ''):
+            with self.subTest(home=home):
+                self.environment.pop('HOME', None)
+                self.environment.pop('BIOMCP_INSTALL_DIR', None)
+                if home is not None:
+                    self.environment['HOME'] = home
+                self.assertEqual(self.install('--help').returncode, 0)
+                result = self.install()
+                self.assertNotEqual(result.returncode, 0)
+                self.assertIn('HOME is unset or empty', result.stderr)
+                result = self.install(str(archive), checksum, str(self.destination))
+                self.assertEqual(result.returncode, 0, result.stderr)
+                self.destination.joinpath('biomcp').unlink()
 
     def test_public_platform_archives_and_version_interface(self):
         platforms = [("Linux", "x86_64", "linux-x86_64", ".tar.gz"), ("Linux", "aarch64", "linux-arm64", ".tar.gz"), ("Darwin", "arm64", "darwin-arm64", ".tar.gz"), ("Darwin", "x86_64", "darwin-x86_64", ".tar.gz"), ("MSYS_NT-10.0", "x86_64", "windows-x86_64", ".zip"), ("MINGW64_NT-10.0", "amd64", "windows-x86_64", ".zip"), ("CYGWIN_NT-10.0", "x86_64", "windows-x86_64", ".zip")]
