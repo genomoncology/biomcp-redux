@@ -1,5 +1,7 @@
 //! Normalize optional source text before card and page construction.
-use super::raw::{Component, Hierarchy, ReceivedComponent, Synonym};
+use super::raw::{
+    Component, Hierarchy, ReceivedComponent, ReceivedHierarchy, ReceivedSynonym, Synonym,
+};
 use crate::{
     mapped::Problems,
     raw::{Field, OneOrMany},
@@ -35,19 +37,7 @@ fn many(
 }
 pub(super) fn component(raw: ReceivedComponent, name: &str, problems: &mut Problems) -> Component {
     Component {
-        xrefs: raw
-            .xrefs
-            .and_then(|v| problems.required(&format!("{name}.xrefs"), v.value()))
-            .map(|values| {
-                values
-                    .into_iter()
-                    .map(|(field, values)| {
-                        let values = many(Some(values), &format!("{name}.xrefs.{field}"), problems)
-                            .unwrap_or_else(|| OneOrMany::Many(Vec::new()));
-                        (field, values)
-                    })
-                    .collect()
-            }),
+        xrefs: xrefs(raw.xrefs, name, problems),
         id: optional_string(raw.id, &format!("{name}.id"), problems),
         name: optional_string(raw.name, &format!("{name}.name"), problems),
         molecule_chembl_id: optional_string(
@@ -88,40 +78,8 @@ pub(super) fn component(raw: ReceivedComponent, name: &str, problems: &mut Probl
             problems,
         ),
         synonyms: many(raw.synonyms, &format!("{name}.synonyms"), problems),
-        molecule_synonyms: raw
-            .molecule_synonyms
-            .and_then(|v| problems.required(&format!("{name}.molecule_synonyms"), v.value()))
-            .map(|values| {
-                values
-                    .into_iter()
-                    .filter_map(|v| {
-                        let v =
-                            problems.required(&format!("{name}.molecule_synonyms"), v.value())?;
-                        Some(Synonym {
-                            molecule_synonym: optional_string(
-                                v.molecule_synonym,
-                                &format!("{name}.molecule_synonyms.molecule_synonym"),
-                                problems,
-                            ),
-                        })
-                    })
-                    .collect()
-            }),
-        molecule_hierarchy: raw
-            .molecule_hierarchy
-            .and_then(|v| problems.required(&format!("{name}.molecule_hierarchy"), v.value()))
-            .map(|v| Hierarchy {
-                active_chembl_id: optional_string(
-                    v.active_chembl_id,
-                    &format!("{name}.molecule_hierarchy.active_chembl_id"),
-                    problems,
-                ),
-                parent_chembl_id: optional_string(
-                    v.parent_chembl_id,
-                    &format!("{name}.molecule_hierarchy.parent_chembl_id"),
-                    problems,
-                ),
-            }),
+        molecule_synonyms: synonyms(raw.molecule_synonyms, name, problems),
+        molecule_hierarchy: hierarchy(raw.molecule_hierarchy, name, problems),
         chembl_id: optional_string(raw.chembl_id, &format!("{name}.chembl_id"), problems),
         rxcui: optional_string(raw.rxcui, &format!("{name}.rxcui"), problems),
         ncit: optional_string(raw.ncit, &format!("{name}.ncit"), problems),
@@ -139,4 +97,66 @@ pub(super) fn component(raw: ReceivedComponent, name: &str, problems: &mut Probl
             problems,
         ),
     }
+}
+
+fn xrefs(
+    values: Option<Field<std::collections::BTreeMap<String, OneOrMany<Field<String>>>>>,
+    name: &str,
+    problems: &mut Problems,
+) -> Option<std::collections::BTreeMap<String, OneOrMany<String>>> {
+    values
+        .and_then(|v| problems.required(&format!("{name}.xrefs"), v.value()))
+        .map(|values| {
+            values
+                .into_iter()
+                .map(|(field, values)| {
+                    let values = many(Some(values), &format!("{name}.xrefs.{field}"), problems)
+                        .unwrap_or_else(|| OneOrMany::Many(Vec::new()));
+                    (field, values)
+                })
+                .collect()
+        })
+}
+fn synonyms(
+    values: Option<Field<Vec<Field<ReceivedSynonym>>>>,
+    name: &str,
+    problems: &mut Problems,
+) -> Option<Vec<Synonym>> {
+    values
+        .and_then(|v| problems.required(&format!("{name}.molecule_synonyms"), v.value()))
+        .map(|values| {
+            values
+                .into_iter()
+                .filter_map(|v| {
+                    let v = problems.required(&format!("{name}.molecule_synonyms"), v.value())?;
+                    Some(Synonym {
+                        molecule_synonym: optional_string(
+                            v.molecule_synonym,
+                            &format!("{name}.molecule_synonyms.molecule_synonym"),
+                            problems,
+                        ),
+                    })
+                })
+                .collect()
+        })
+}
+fn hierarchy(
+    values: Option<Field<ReceivedHierarchy>>,
+    name: &str,
+    problems: &mut Problems,
+) -> Option<Hierarchy> {
+    values
+        .and_then(|v| problems.required(&format!("{name}.molecule_hierarchy"), v.value()))
+        .map(|v| Hierarchy {
+            active_chembl_id: optional_string(
+                v.active_chembl_id,
+                &format!("{name}.molecule_hierarchy.active_chembl_id"),
+                problems,
+            ),
+            parent_chembl_id: optional_string(
+                v.parent_chembl_id,
+                &format!("{name}.molecule_hierarchy.parent_chembl_id"),
+                problems,
+            ),
+        })
 }

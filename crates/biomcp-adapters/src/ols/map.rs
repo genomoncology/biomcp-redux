@@ -86,21 +86,7 @@ pub(super) fn record(term: raw::Term, ontology: DiseaseOntology) -> Result<Recor
         "term_replaced_by",
         &mut problems,
     );
-    let descriptions: Vec<_> = array(&term.description, "description", &mut problems)
-        .iter()
-        .filter_map(|value| match value {
-            crate::raw::Field::Value(v) => Some(v.as_str()),
-            crate::raw::Field::Invalid(_) => {
-                problems.required::<()>("description", None);
-                None
-            }
-        })
-        .collect();
-    let definition = if descriptions.is_empty() {
-        None
-    } else {
-        problems.text("description", Some(&descriptions.join("\n\n")))
-    };
+    let definition = definition(&term.description, &mut problems);
     Ok(Record {
         card: DiseaseCard {
             requested_id: term.obo_id.clone(),
@@ -122,6 +108,26 @@ pub(super) fn record(term: raw::Term, ontology: DiseaseOntology) -> Result<Recor
         xrefs,
         problems: problems.list,
     })
+}
+fn definition(
+    values: &Option<crate::raw::Field<Vec<crate::raw::Field<Text>>>>,
+    problems: &mut crate::mapped::Problems,
+) -> Option<Text> {
+    let descriptions: Vec<_> = array(values, "description", problems)
+        .iter()
+        .filter_map(|value| match value {
+            crate::raw::Field::Value(v) => Some(v.as_str()),
+            crate::raw::Field::Invalid(_) => {
+                problems.required::<()>("description", None);
+                None
+            }
+        })
+        .collect();
+    if descriptions.is_empty() {
+        None
+    } else {
+        problems.text("description", Some(&descriptions.join("\n\n")))
+    }
 }
 fn array<'a, T>(
     value: &'a Option<crate::raw::Field<Vec<T>>>,
