@@ -11,7 +11,9 @@ fn default_limit() -> u32 {
 fn full_day(date: Option<PartialDate>) -> bool {
     date.is_none_or(|d| d.day().is_some())
 }
-#[doc = " Search five report headers by default. MAUDE accepts device text or a manufacturer, product-code or problem filter. One report may list several devices; filters may match different devices. VAERS accepts MMR, COVID19, COVID-19 vaccine or \
+#[doc = " Search five report headers by default. MAUDE accepts device text or a manufacturer, \
+    product-code or problem filter. One report may list several devices; filters may match \
+    different devices. VAERS accepts MMR, COVID19, COVID-19 vaccine or \
     one exact qualified native influenza code, matched without case; use influenza to list \
     codes and labels. Tables remain separate and are never summed. One report may list \
     several vaccines. VAERS returns five reported symptom rows by default; seriousness and \

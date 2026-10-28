@@ -168,7 +168,12 @@ const CASES: &[(&[&str], &str, bool)] = &[
             "--problem",
             "False Positive Result",
         ],
-        "device.generic_name:\"Synthetic device\" AND device.manufacturer_d_name:\"Synthetic maker\" AND device.device_report_product_code.exact:\"ABC\" AND product_problems:\"False Positive Result\"",
+        concat!(
+            "device.generic_name:\"Synthetic device\" AND ",
+            "device.manufacturer_d_name:\"Synthetic maker\" AND ",
+            "device.device_report_product_code.exact:\"ABC\" AND ",
+            "product_problems:\"False Positive Result\""
+        ),
         false,
     ),
     (
