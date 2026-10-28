@@ -4,9 +4,11 @@ use libtest_mimic::Trial;
 use serde_json::{Value, json};
 #[path = "adapter_repeated_references.rs"]
 mod repeated_references;
+#[path = "adapter_mychem_ontology_bad_values.rs"]
+mod mychem_ontology;
 
 pub(super) fn trials() -> Vec<Trial> {
-    vec![
+    let mut trials = vec![
         Trial::test(
             "pathway-reactome/repeated-reference-invalid-fields-are-disclosed",
             || repeated_references::check().map_err(Into::into),
@@ -27,7 +29,9 @@ pub(super) fn trials() -> Vec<Trial> {
         Trial::test("drug-ema/empty-text-keeps-medicine", || {
             ema().map_err(|e| e.to_string().into())
         }),
-    ]
+    ];
+    trials.extend(mychem_ontology::trials());
+    trials
 }
 fn check(value: &Value, field: &str, absent: &str) -> Result<(), String> {
     let problems = value
