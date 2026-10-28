@@ -8,11 +8,12 @@ fn list(value: Option<Field<Vec<Field<Text>>>>, field: &str, id: Option<Text>, p
         Field::Value(values) => values,
         Field::Invalid(_) => { push_problem(problems, SOURCE, id, field); return None; }
     };
-    Some(values.into_iter().filter_map(|v| {
+    let values: Box<[_]> = values.into_iter().filter_map(|v| {
         let value = v.value();
         if value.is_none() { push_problem(problems, SOURCE, id.clone(), field); }
         value
-    }).collect())
+    }).collect();
+    (!values.is_empty()).then_some(values)
 }
 pub(super) fn mapped(row: raw::Record) -> Mapped<DeviceRecallCard> {
     let mut problems = Vec::new();
