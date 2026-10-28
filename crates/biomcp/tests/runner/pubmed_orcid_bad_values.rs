@@ -167,9 +167,11 @@ fn pubmed() -> Result<(), String> {
         let xml = format!(
             "<PubmedArticleSet><PubmedArticle><MedlineCitation><PMID>123</PMID><Article><ArticleTitle>Valid title</ArticleTitle>{extra}</Article>{citation}</MedlineCitation><PubmedData><ArticleIdList>{ids}</ArticleIdList></PubmedData></PubmedArticle></PubmedArticleSet>"
         );
-        let stub = Stub::for_sources("eutils.ncbi.nlm.nih.gov", "application/xml", move |_| {
-            Ok(xml.clone())
-        })?;
+        let stub = Stub::for_sources(
+            &["eutils.ncbi.nlm.nih.gov"],
+            |_| "application/xml",
+            move |_| Ok(xml.clone()),
+        )?;
         let env = super::super::variant::source_environment(&stub)?;
         let value = invoke(
             &env,
