@@ -32,7 +32,12 @@ pub(super) fn for_tool(name: &str) -> io::Result<Value> {
             "$schema":{"const":"https://json-schema.org/draft/2020-12/schema"}},
             "required":["$id","$schema"]}));
     } else {
-        branches.push(shape(&canonical(&format!("biomcp.research-{name}/1"))?)?);
+        let id = match name {
+            "search" => biomcp_types::ResearchSearch::<biomcp_types::ResearchEnvelope>::SCHEMA,
+            "fetch" => biomcp_types::ResearchFetch::<biomcp_types::ResearchEnvelope>::SCHEMA,
+            _ => return Err(io::Error::other("unknown research tool")),
+        };
+        branches.push(shape(&canonical(id)?)?);
     }
     Ok(
         json!({"type":"object","description":"Compact reply shape. Use biomcp schema <id> for the complete contract.","anyOf":branches}),

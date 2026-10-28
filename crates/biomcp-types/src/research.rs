@@ -64,3 +64,12 @@ pub struct ResearchFetch<M> {
     /// Complete original CLI envelope.
     pub metadata: M,
 }
+
+impl<M> ResearchSearch<M> {
+    /// Canonical schema identity shared by discovery and the generated artifact registry.
+    pub const SCHEMA: &'static str = "biomcp.research-search/2";
+}
+impl<M> ResearchFetch<M> {
+    /// Canonical schema identity shared by discovery and the generated artifact registry.
+    pub const SCHEMA: &'static str = "biomcp.research-fetch/2";
+}

@@ -35,7 +35,7 @@ fn generate<T: JsonSchema>() -> Value {
 }
 
 macro_rules! contracts {
-        ($($ty:ty => ($name:literal, $id:literal)),+ $(,)?) => {
+        ($($ty:ty => ($name:literal, $id:expr)),+ $(,)?) => {
             vec![$(Contract { name: $name, id: $id, generate: generate::<$ty> }),+]
         };
     }
@@ -76,8 +76,8 @@ fn common_registry() -> Vec<Contract> {
 
 fn research_registry() -> Vec<Contract> {
     contracts! {
-        ResearchSearch<ResearchEnvelope> => ("research-search", "biomcp.research-search/2"),
-        ResearchFetch<ResearchEnvelope> => ("research-fetch", "biomcp.research-fetch/2"),
+        ResearchSearch<ResearchEnvelope> => ("research-search", ResearchSearch::<ResearchEnvelope>::SCHEMA),
+        ResearchFetch<ResearchEnvelope> => ("research-fetch", ResearchFetch::<ResearchEnvelope>::SCHEMA),
     }
 }
 
