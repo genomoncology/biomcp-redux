@@ -223,6 +223,9 @@ fn vocabulary() -> Check {
     )
 }
 
+// HGNC REST fetch/symbol/{SHOX,CRLF2,MT-ND1}, checked 2026-10-28.
+// Field contract: https://hgnc.genenames.org/help/statistics-and-downloads/
+// DMD's range comes from the retained gene/main HGNC dataset.
 fn locations() -> Check {
     for (symbol, id, name, location) in [
         ("SHOX", "HGNC:10853", "SHOX homeobox", "Xp22.33 and Yp11.32"),
@@ -254,6 +257,13 @@ fn locations() -> Check {
                             ("hgnc_id", id),
                             ("name", name),
                             ("location", location),
+                            ("entrez_id", ""),
+                            ("ensembl_gene_id", ""),
+                            ("alias_symbol", ""),
+                            ("prev_symbol", ""),
+                            ("uniprot_ids", ""),
+                            ("omim_id", ""),
+                            ("mane_select", ""),
                         ],
                     );
                 }
