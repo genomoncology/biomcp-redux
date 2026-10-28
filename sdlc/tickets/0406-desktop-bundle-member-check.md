@@ -1,6 +1,7 @@
 # 0406 — Accept the legal files in the desktop bundle member check
 
-Status: OPEN.
+Status: COMPLETE.
+Landed: 653907b8576d2b28e5a1ed80c946c3ec500e75c9
 
 Milestone: 5
 

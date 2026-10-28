@@ -12,6 +12,7 @@ import tempfile
 import zipfile
 
 from artifacts import cargo, inspect
+from notices import NAMES as LEGAL_NAMES
 from windows import check_runtime
 from smoke import environment, smoke
 from local_server import server, https_server
@@ -140,7 +141,7 @@ def installed(args):
     with zipfile.ZipFile(bundle) as package:
         manifest = json.loads(package.read("manifest.json"))
         entry = manifest["server"]["entry_point"]
-        if set(package.namelist()) != {"manifest.json", entry} or entry not in {"server/biomcp", "server/biomcp.exe"}:
+        if set(package.namelist()) != {"manifest.json", entry, *LEGAL_NAMES} or entry not in {"server/biomcp", "server/biomcp.exe"}:
             raise ValueError("unexpected desktop bundle members")
         extension.mkdir()
         binary = extension / entry
