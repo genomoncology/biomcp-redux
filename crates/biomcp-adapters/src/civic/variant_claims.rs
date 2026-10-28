@@ -149,15 +149,34 @@ fn build(
             code: ProblemCode::ValueUnknown,
         });
     }
+    let kind = biomcp_types::CivicKind::from(row.kind.as_str().to_owned());
+    let status = biomcp_types::CivicStatus::from(row.status.as_str().to_owned());
+    let significance = biomcp_types::CivicSignificance::from(row.significance.as_str().to_owned());
+    for (unknown, field) in [
+        (
+            kind.is_unknown(),
+            if row.assertion {
+                "assertionType"
+            } else {
+                "evidenceType"
+            },
+        ),
+        (status.is_unknown(), "status"),
+        (significance.is_unknown(), "significance"),
+    ] {
+        if unknown {
+            crate::mapped::push_problem(problems, Source::Civic, Some(id.clone()), field);
+        }
+    }
     Ok(CivicStatement {
         statement_unmapped: statement.is_none(),
         statement,
         native,
         record: SourceRecord { id, url: Some(url) },
-        kind: row.kind.clone(),
-        status: row.status.clone(),
+        kind,
+        status,
         direction: Some(row.direction.clone()),
-        significance: Some(row.significance.clone()),
+        significance: Some(significance),
     })
 }
 fn native_claim(row: &Claim<'_>, id: &Text, url: &Text) -> biomcp_types::CivicNativeClaim {

@@ -120,3 +120,43 @@ macro_rules! canonical_enum {
         }
     };
 }
+
+/// Define a publisher vocabulary that retains new source values unchanged.
+#[macro_export]
+macro_rules! native_enum {
+    ($(#[$doc:meta])* $name:ident { $($(#[$vdoc:meta])* $variant:ident => $literal:literal),+ $(,)? }) => {
+        $(#[$doc])*
+        #[derive(Clone, Debug, PartialEq, Eq, serde::Deserialize)]
+        #[serde(from = "String")]
+        pub enum $name {
+            $($(#[$vdoc])* $variant,)+
+            /// A new publisher value, retained without interpretation.
+            Unknown($crate::SourceText),
+        }
+        impl $name {
+            /// Borrow the exact publisher spelling.
+            pub fn as_str(&self) -> &str {
+                match self { $(Self::$variant => $literal,)+ Self::Unknown(value) => value.as_str() }
+            }
+            /// Whether this value falls outside the published vocabulary.
+            pub fn is_unknown(&self) -> bool { matches!(self, Self::Unknown(_)) }
+        }
+        impl From<String> for $name {
+            fn from(value: String) -> Self {
+                match value.as_str() { $($literal => Self::$variant,)+ _ => Self::Unknown(value.into()) }
+            }
+        }
+        impl serde::Serialize for $name {
+            fn serialize<S: serde::Serializer>(&self, serializer: S) -> Result<S::Ok, S::Error> {
+                serializer.serialize_str(self.as_str())
+            }
+        }
+        #[cfg(feature = "schema")]
+        impl schemars::JsonSchema for $name {
+            fn schema_name() -> std::borrow::Cow<'static, str> { stringify!($name).into() }
+            fn json_schema(_: &mut schemars::SchemaGenerator) -> schemars::Schema {
+                schemars::json_schema!({"type":"string", "x-known-values":[$($literal),+]})
+            }
+        }
+    }
+}
