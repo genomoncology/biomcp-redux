@@ -98,7 +98,11 @@ fn fixture(family: &str) -> (&'static str, Value, &'static str) {
         "mychem" => ("mychem.info", json!({"_id":"CHEMBL25"}), ""),
         "ols" => (
             "www.ebi.ac.uk",
-            json!({"_embedded":{"terms":[{"obo_id":"MONDO:0005061","label":"Valid disease","ontology_name":"mondo","iri":"http://purl.obolibrary.org/obo/MONDO_0005061","description":[],"synonyms":["valid"],"annotation":{}}]}}),
+            json!({"_embedded":{"terms":[{
+                "obo_id":"MONDO:0005061", "label":"Valid disease", "ontology_name":"mondo",
+                "iri":"http://purl.obolibrary.org/obo/MONDO_0005061",
+                "description":[], "synonyms":["valid"], "annotation":{}
+            }]}}),
             "/_embedded/terms/0",
         ),
         _ => (
