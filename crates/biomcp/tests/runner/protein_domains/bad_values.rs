@@ -186,6 +186,21 @@ fn run() -> Result<(), String> {
                     return Err(format!("bad field lost its single record problem: {value}"));
                 }
             }
+            if command == "domains" && field == "type" {
+                let filtered = call(
+                    &env,
+                    &["protein", "domains", "P38398", "--type", "family"],
+                    0,
+                )?;
+                if filtered.pointer("/result/items/0").is_some()
+                    || filtered.pointer("/page/total") != Some(&json!(0))
+                    || filtered.get("problems") != value.get("problems")
+                {
+                    return Err(format!(
+                        "missing native type was guessed or lost its problem: {filtered}"
+                    ));
+                }
+            }
             let cached = call(&env, &args, 0)?;
             if cached.get("problems") != value.get("problems") {
                 return Err("retained collection lost problems".into());
