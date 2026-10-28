@@ -2,6 +2,8 @@
 #![cfg(feature = "schema")]
 #[path = "schemas/compatibility.rs"]
 mod compatibility;
+#[path = "schemas/annotations.rs"]
+mod annotations;
 #[path = "schemas/compatibility_cases.rs"]
 mod compatibility_cases;
 #[path = "schemas/generation.rs"]
