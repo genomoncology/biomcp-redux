@@ -2,9 +2,6 @@
 use biodata::{DrugId, DrugIdentityLevel};
 use biomcp_types::{DrugGet, DrugSearch};
 use serde_json::json;
-#[cfg(feature = "schema")]
-#[path = "drug/reply_readers.rs"]
-mod reply_readers;
 #[test]
 fn published_ids_roundtrip_without_source_prefixes() {
     for value in [
