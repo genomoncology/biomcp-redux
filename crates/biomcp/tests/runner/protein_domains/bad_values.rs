@@ -3,6 +3,10 @@ use super::*;
 pub(super) fn trials() -> Vec<Trial> {
     vec![
         Trial::test(
+            "protein-domains-complexes/invalid-collection-members-keep-siblings",
+            || nested().map_err(Into::into),
+        ),
+        Trial::test(
             "protein-domains-complexes/invalid-optional-fields-are-disclosed",
             || run().map_err(Into::into),
         ),
@@ -112,6 +116,11 @@ fn run() -> Result<(), String> {
         ),
     ] {
         for invalid in [json!(""), json!(true), Value::Null] {
+            let invalid = if field == "predictedComplex" && invalid == json!(true) {
+                json!(1)
+            } else {
+                invalid
+            };
             let absent_value = invalid.is_null();
             if absent_value
                 && ["/identifier", "/PF00870", "/Pfam"]
@@ -125,19 +134,7 @@ fn run() -> Result<(), String> {
                 |_| "application/json",
                 move |request| {
                     let mut body = if command == "domains" {
-                        json!({"count":1,
-                    "next":null,
-                    "results":[{"metadata":{"accession":"IPR002117",
-                    "name":"Native family",
-                    "source_database":"interpro",
-                    "type":"family",
-                    "member_databases":{"Pfam":{"PF00870":"Valid"}}},
-                    "proteins":[{"accession":"p38398",
-                    "organism":"9606",
-                    "protein_length":2000,
-                    "entry_protein_locations":[{"fragments":[{"start":1,
-                    "end":10,
-                    "dc-status":"CONTINUOUS"}]}]}]}]})
+                        domain_reply(json!([{"start":1,"end":10,"dc-status":"CONTINUOUS"}]))
                     } else {
                         serde_json::from_str(&super::complexes::reply(request)?)
                             .map_err(|e| e.to_string())?
@@ -207,6 +204,7 @@ fn fragments() -> Result<(), String> {
         ("start", json!(0)),
         ("start", json!("bad")),
         ("end", json!(0)),
+        ("end", json!(9)),
         ("end", json!(2001)),
         ("end", json!({})),
     ] {
@@ -216,19 +214,7 @@ fn fragments() -> Result<(), String> {
             move |_| {
                 let mut bad = json!({"start":10,"end":20});
                 bad[field] = invalid.clone();
-                Ok(json!({"count":1,
-                    "next":null,
-                    "results":[{"metadata":{"accession":"IPR002117",
-                    "name":"Valid",
-                    "source_database":"interpro",
-                    "type":"family"},
-                    "proteins":[{"accession":"p38398",
-                    "organism":"9606",
-                    "protein_length":2000,
-                    "entry_protein_locations":[{"fragments":[bad,
-                    {"start":30,
-                    "end":40}]}]}]}]})
-                .to_string())
+                Ok(domain_reply(json!([bad,{"start":30,"end":40}])).to_string())
             },
         )?;
         let env = setup(&stub)?;
@@ -242,6 +228,121 @@ fn fragments() -> Result<(), String> {
         {
             return Err(format!(
                 "bad coordinate lost siblings or field problem: {value}"
+            ));
+        }
+        stub.finish()?;
+    }
+    Ok(())
+}
+
+fn domain_reply(fragments: Value) -> Value {
+    json!({
+        "count":1, "next":null,
+        "results":[{
+            "metadata":{
+                "accession":"IPR002117", "name":"Native family", "source_database":"interpro",
+                "type":"family", "member_databases":{"Pfam":{"PF00870":"Valid"}}
+            },
+            "proteins":[{
+                "accession":"p38398", "organism":"9606", "protein_length":2000,
+                "entry_protein_locations":[{"fragments":fragments}]
+            }]
+        }]
+    })
+}
+
+fn nested() -> Result<(), String> {
+    for (command, path, field, invalid, present, expected, absent) in [
+        (
+            "domains",
+            "/results/0/metadata/member_databases",
+            "member_databases.database",
+            json!({"":{"PF00001":"Bad"},"Pfam":{"PF00870":"Valid"}}),
+            "/result/items/0/member_signatures/0/accession",
+            json!("PF00870"),
+            "/result/items/0/member_signatures/1",
+        ),
+        (
+            "domains",
+            "/results/0/metadata/member_databases",
+            "member_databases.accession",
+            json!({"Pfam":{"":"Bad","PF00870":"Valid"}}),
+            "/result/items/0/member_signatures/0/accession",
+            json!("PF00870"),
+            "/result/items/0/member_signatures/1",
+        ),
+        (
+            "domains",
+            "/results/0/proteins/0/protein_length",
+            "protein_length",
+            json!(0),
+            "/result/items/0/id",
+            json!("IPR002117"),
+            "/result/items/0/protein_length",
+        ),
+        (
+            "complex-members",
+            "/participants/1/identifier",
+            "participants.protein",
+            json!("native-unresolved-protein"),
+            "/result/items/1/id",
+            json!("native-unresolved-protein"),
+            "/result/items/1/protein",
+        ),
+        (
+            "complex-members",
+            "/participants/0/xrefs",
+            "participants.xrefs",
+            json!([{"database":"","identifier":"bad"},{"database":"valid","identifier":"good"}]),
+            "/result/items/0/xrefs/0",
+            json!("valid:good"),
+            "/result/items/0/xrefs/1",
+        ),
+        (
+            "complex-members",
+            "/participants/0/xrefs",
+            "participants.crossReferences",
+            json!(true),
+            "/result/items/0/id",
+            json!("P38398"),
+            "/result/items/0/xrefs",
+        ),
+    ] {
+        let stub = Stub::for_sources(
+            &["www.ebi.ac.uk"],
+            |_| "application/json",
+            move |request| {
+                let mut body = if command == "domains" {
+                    domain_reply(json!([]))
+                } else {
+                    serde_json::from_str(&super::complexes::reply(request)?)
+                        .map_err(|e| e.to_string())?
+                };
+                *body.pointer_mut(path).ok_or("fixture field")? = invalid.clone();
+                if field == "participants.crossReferences" {
+                    let member = body
+                        .pointer_mut("/participants/0")
+                        .and_then(Value::as_object_mut)
+                        .ok_or("member")?;
+                    let value = member.remove("xrefs").ok_or("xrefs")?;
+                    member.insert("crossReferences".into(), value);
+                }
+                Ok(body.to_string())
+            },
+        )?;
+        let env = setup(&stub)?;
+        let args = if command == "domains" {
+            vec!["protein", command, "P38398"]
+        } else {
+            vec!["protein", command, "P38398", "--complex", "CPX-715"]
+        };
+        let value = call(&env, &args, 0)?;
+        if value.pointer(present) != Some(&expected)
+            || value.pointer(absent).is_some()
+            || value.pointer("/problems/0/field") != Some(&json!(field))
+        {
+            return Err(format!(
+                "bad {field} lost valid siblings or disclosure: {value}"
             ));
         }
         stub.finish()?;

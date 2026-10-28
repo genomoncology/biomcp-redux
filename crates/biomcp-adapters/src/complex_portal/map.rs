@@ -18,13 +18,18 @@ pub(super) fn members(
                 None
             };
             let mut xrefs = Vec::new();
-            if let Some(field) = r.xrefs.or(r.cross_references) {
-                if let Some(values) = problems.required("participants.xrefs", field.value()) {
+            let (field_name, references) = if r.xrefs.is_some() {
+                ("participants.xrefs", r.xrefs)
+            } else {
+                ("participants.crossReferences", r.cross_references)
+            };
+            if let Some(field) = references {
+                if let Some(values) = problems.required(field_name, field.value()) {
                     for value in values {
                         let parsed = value
                             .value()
                             .and_then(|x| format!("{}:{}", x.database, x.identifier).parse().ok());
-                        if let Some(value) = problems.required("participants.xrefs", parsed) {
+                        if let Some(value) = problems.required(field_name, parsed) {
                             xrefs.push(value);
                         }
                     }
