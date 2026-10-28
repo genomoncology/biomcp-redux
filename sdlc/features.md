@@ -195,3 +195,4 @@ alphagenome-score-protocol: Encode the ruled human scoring request and admit exa
 variant-alphagenome: Read independently paged native scoring groups for one source-resolved GRCh38 variant with the caller's required key. Cases: `crates/biomcp/tests/runner/alphagenome.rs`, `crates/biomcp/tests/runner/alphagenome_tls.rs`, `crates/biomcp/tests/runner/alphagenome_capture.rs`.
 
 query-validation: A caller sees argument names for typed input failures, conflicting fields and invalid ranges without rejected values. Cases: `tests/cases/grammar/semantic-arguments.yaml`.
+outbound-hosts: Refuse undeclared source request origins before cache, replay or network admission. Contracts: `biomcp-fetch/paths`.

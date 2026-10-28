@@ -19,6 +19,8 @@ mod containment;
 mod deadline;
 mod declaration;
 mod destination;
+mod hosts;
+pub use hosts::Destinations;
 mod error;
 mod network;
 mod prepared;

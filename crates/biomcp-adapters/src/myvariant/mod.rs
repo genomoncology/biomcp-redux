@@ -19,6 +19,7 @@ pub use search::{SearchPage, search};
 use std::time::Duration;
 /// Public reads retain each component's independent terms.
 pub static SPEC: SourceSpec = SourceSpec {
+    destinations: biomcp_fetch::Destinations::Primary,
     user_agent: None,
     terms: biomcp_fetch::Terms {
         name: "MyVariant.info terms and component data licenses",

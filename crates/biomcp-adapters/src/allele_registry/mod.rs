@@ -8,6 +8,7 @@ use biomcp_types::{Source, VariantHeader};
 use std::time::Duration;
 /// Public GET access; raw output redistribution rights remain unverified.
 pub static SPEC: SourceSpec = SourceSpec {
+    destinations: biomcp_fetch::Destinations::Primary,
     user_agent: None,
     terms: biomcp_fetch::Terms {
         name: "ClinGen Allele Registry service terms; output rights require review",

@@ -4,6 +4,8 @@ use std::time::Duration;
 /// A source declaration enforced by the transport.
 #[derive(Debug)]
 pub struct SourceSpec {
+    /// Additional outbound destinations; the base URL declares the primary origin.
+    pub destinations: crate::Destinations,
     /// Source-owned compatibility header; absent keeps the transport default.
     pub user_agent: Option<&'static str>,
     /// Source reported on failures.
