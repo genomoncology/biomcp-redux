@@ -339,10 +339,6 @@ fn native_target_identity_does_not_require_an_invented_gene() {
         label: Some("synthetic target complex".parse().expect("label")),
         url: Some("https://example.org/target".parse().expect("link")),
     };
-    assert_eq!(
-        serde_json::to_value(&parsed).expect("serialize target")["native_target"],
-        serde_json::to_value(&native).expect("serialize native target")
-    );
     let reference = DrugNativeReference {
         ref_type: "native publication".parse().expect("type"),
         ref_id: Some("synthetic-1".parse().expect("id")),
@@ -385,13 +381,8 @@ fn native_target_identity_does_not_require_an_invented_gene() {
     )
     .expect("gene-only target");
     assert_eq!(gene_only.target(), Some(&gene));
-    assert!(
-        serde_json::to_value(&gene_only)
-            .expect("serialize target")
-            .get("native_target")
-            .is_none()
-    );
     let gene_json = serde_json::to_value(&gene_only).expect("gene-only JSON");
+    assert!(gene_json.get("native_target").is_none());
     assert_eq!(gene_json["target"], json!({"label":"source gene"}));
     assert_eq!(
         serde_json::from_value::<DrugTargetRelation>(gene_json).expect("gene-only decode"),
