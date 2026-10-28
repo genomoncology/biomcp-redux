@@ -2,6 +2,7 @@
 import hashlib
 import json
 from pathlib import Path
+import re
 import subprocess
 import sys
 import tempfile
@@ -10,6 +11,22 @@ import zipfile
 
 
 class Staging(unittest.TestCase):
+    def test_workflow_attests_all_subjects_before_candidate_upload(self):
+        workflow = Path(".github/workflows/release.yml").read_text()
+        stage = workflow.split("\n  stage:\n", 1)[1].split("\n  release-operator:\n", 1)[0]
+        self.assertIn("subject-checksums: ${{ runner.temp }}/subjects.sha256", stage)
+        self.assertIn("create-storage-record: false", stage)
+        self.assertIn("push-to-registry: false", stage)
+        attest = re.search(r"      - name: Attest every staged artifact\n(.*?)(?=      - )", stage, re.S)
+        self.assertIsNotNone(attest)
+        self.assertRegex(attest[1], r"uses: actions/attest@[0-9a-f]{40}")
+        self.assertNotIn("if:", attest[1])
+        self.assertLess(stage.index("release/secrets.py artifacts"), attest.start())
+        self.assertLess(attest.end(), stage.index("name: release-candidate"))
+        for job in re.split(r"\n  [a-z-]+:\n", workflow.split("jobs:\n", 1)[1])[1:]:
+            grants = set(re.findall(r"^      ([a-z-]+): write$", job, re.M))
+            self.assertEqual(grants, {"id-token", "attestations"} if "Attest every staged artifact" in job else set())
+
     def test_environment_requires_an_independent_operator(self):
         for rules, accepted in [([], False), ([{"type": "required_reviewers", "reviewers": []}], False),
                                 ([{"type": "required_reviewers", "reviewers": [{"type": "Team"}], "prevent_self_review": False}], False),
