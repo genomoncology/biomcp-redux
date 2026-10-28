@@ -827,7 +827,7 @@ Options:
           Request fresh source data instead of cached replies.
 
       --serious <serious>
-          FAERS report flag: death or hospitalization; never a reaction outcome.
+          FAERS report flag: any uses the source seriousness flag; the specific flags can overlap. Never a reaction outcome.
 
       --snapshot <snapshot>
           Retained VAERS table for provider-free continuation.
@@ -848,7 +848,7 @@ Search five report headers by default. MAUDE accepts device text or a manufactur
 - `--received-from`: Inclusive first FDA receipt lower bound, YYYY-MM-DD.
 - `--received-to`: Inclusive first FDA receipt upper bound, YYYY-MM-DD.
 - `section`: Independent VAERS table; omitted means reported symptoms.
-- `--serious`: FAERS report flag: death or hospitalization; never a reaction outcome.
+- `--serious`: FAERS report flag: any uses the source seriousness flag; the specific flags can overlap. Never a reaction outcome.
 - `--snapshot`: Retained VAERS table for source-free continuation.
 - `--source`: FAERS by default; VAERS accepts only exact supported vaccine names.
 - `text`: Exact drug text, MAUDE device phrase or exact supported VAERS vaccine.

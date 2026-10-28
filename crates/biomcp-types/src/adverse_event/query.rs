@@ -59,7 +59,7 @@ struct SearchFields {
     /// FAERS MedDRA term phrase match, not exact equality.
     #[serde(default, skip_serializing_if = "Option::is_none")]
     reaction: Option<Text>,
-    /// FAERS report flag: death or hospitalization; never a reaction outcome.
+    /// FAERS report flag: any uses the source seriousness flag; the specific flags can overlap. Never a reaction outcome.
     #[serde(default, skip_serializing_if = "Option::is_none")]
     serious: Option<AdverseEventSerious>,
     /// Inclusive first FDA receipt lower bound, YYYY-MM-DD.

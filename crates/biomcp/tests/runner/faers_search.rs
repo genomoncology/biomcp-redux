@@ -16,6 +16,41 @@ pub(super) fn trials() -> Vec<Trial> {
     )];
     for (name, flags, suffix) in [
         (
+            "serious-lifethreatening",
+            vec!["--serious", "lifethreatening"],
+            " AND seriousnesslifethreatening:1",
+        ),
+        (
+            "serious-disabling",
+            vec!["--serious", "disabling"],
+            " AND seriousnessdisabling:1",
+        ),
+        (
+            "serious-congenital-anomaly",
+            vec!["--serious", "congenital-anomaly"],
+            " AND seriousnesscongenitalanomali:1",
+        ),
+        (
+            "serious-other",
+            vec!["--serious", "other"],
+            " AND seriousnessother:1",
+        ),
+        (
+            "serious-any",
+            vec!["--source", "faers", "--serious", "any"],
+            " AND serious:1",
+        ),
+        (
+            "serious-death",
+            vec!["--serious", "death"],
+            " AND seriousnessdeath:1",
+        ),
+        (
+            "serious-hospitalization",
+            vec!["--serious", "hospitalization"],
+            " AND seriousnesshospitalization:1",
+        ),
+        (
             "from",
             vec!["--received-from", "2024-01-01"],
             " AND receivedate:[20240101 TO *]",
@@ -192,6 +227,7 @@ fn selectors(flags: &[&str], suffix: &str) -> Check {
     let value = both(&env, words, 0)?;
     if value.pointer("/result/source_query") != Some(&json!(expected))
         || value.pointer("/page/total") != Some(&json!(20))
+        || value.pointer("/result/items/0/serious") != Some(&json!("1"))
     {
         return Err(format!("synthetic selector changed: {value}"));
     }

@@ -103,7 +103,15 @@ fn every_closed_selector_and_published_id_roundtrips() {
         assert_eq!(q.source().as_str(), source);
         assert_eq!(q.section_limit(), 5);
     }
-    for flag in ["death", "hospitalization"] {
+    for flag in [
+        "any",
+        "death",
+        "hospitalization",
+        "lifethreatening",
+        "disabling",
+        "congenital-anomaly",
+        "other",
+    ] {
         assert_eq!(roundtrip::<AdverseEventSerious>(json!(flag)).unwrap(), flag);
     }
     for name in [
