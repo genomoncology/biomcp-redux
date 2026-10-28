@@ -79,6 +79,7 @@ fn check(family: &str) -> Result<(), String> {
                 .ok_or("term")?
                 .insert("synonyms".into(), json!(["valid"]));
         }
+        let keeps_valid = has_string(&invalid, "valid");
         let stub = Stub::for_source_status(
             host,
             "application/json",
@@ -128,9 +129,20 @@ fn check(family: &str) -> Result<(), String> {
             .get("problems")
             .and_then(Value::as_array)
             .ok_or_else(|| format!("{family}/{field} lost problem: {value}"))?;
-        if !problems
+        let named: Vec<_> = problems
             .iter()
-            .any(|p| p.get("field") == Some(&json!(expected)))
+            .filter(|p| p.get("field") == Some(&json!(expected)))
+            .collect();
+        let record = if family == "mychem" {
+            "CHEMBL25"
+        } else if family == "mydisease-doid" {
+            "DOID:3910"
+        } else {
+            "MONDO:0005061"
+        };
+        if named.len() != 1
+            || named.first().and_then(|p| p.get("record")) != Some(&json!(record))
+            || (keeps_valid && !value.get("result").is_some_and(|v| has_string(v, "valid")))
             || value.get("status") != Some(&json!("partial"))
             || value.get("result").is_none_or(Value::is_null)
             || value.get("result").is_some_and(contains_invalid)
@@ -187,15 +199,19 @@ fn cases(family: &str) -> Vec<(&'static str, Value, &'static str)> {
                 ("drugbank.name", json!(42), "drugbank.name"),
                 (
                     "drugbank.synonyms",
-                    json!(["valid", ""]),
+                    json!(["valid", "", ""]),
                     "drugbank.synonyms",
                 ),
                 (
                     "drugcentral.synonyms",
-                    json!(["valid", ""]),
+                    json!(["valid", "", ""]),
                     "drugcentral.synonyms",
                 ),
-                ("gtopdb.synonyms", json!(["valid", ""]), "gtopdb.synonyms"),
+                (
+                    "gtopdb.synonyms",
+                    json!(["valid", "", ""]),
+                    "gtopdb.synonyms",
+                ),
                 (
                     "chembl.molecule_synonyms",
                     json!([{"molecule_synonym":""}]),
@@ -214,12 +230,12 @@ fn cases(family: &str) -> Vec<(&'static str, Value, &'static str)> {
                 ("drugbank.id", json!("invalid:"), "drugbank.id"),
                 (
                     "openfda.generic_name",
-                    json!(["valid", ""]),
+                    json!(["valid", "", ""]),
                     "openfda.generic_name",
                 ),
                 (
                     "openfda.brand_name",
-                    json!(["valid", ""]),
+                    json!(["valid", "", ""]),
                     "openfda.brand_name",
                 ),
                 ("openfda.spl_set_id", json!([""]), "openfda.spl_set_id"),
@@ -234,9 +250,9 @@ fn cases(family: &str) -> Vec<(&'static str, Value, &'static str)> {
         "ols" => vec![
             ("label", json!(""), "label"),
             ("iri", json!(""), "iri"),
-            ("description", json!(["valid", ""]), "description"),
+            ("description", json!(["valid", "", ""]), "description"),
             ("description", json!(42), "description"),
-            ("synonyms", json!(["valid", ""]), "synonyms"),
+            ("synonyms", json!(["valid", "", ""]), "synonyms"),
             ("term_replaced_by", json!(["invalid:"]), "term_replaced_by"),
             (
                 "annotation",
@@ -391,4 +407,13 @@ fn missing_trial_label() -> Result<(), String> {
         return Err("unexpected resolver or trial request".into());
     }
     Ok(())
+}
+
+fn has_string(value: &Value, expected: &str) -> bool {
+    match value {
+        Value::String(value) => value == expected,
+        Value::Array(values) => values.iter().any(|value| has_string(value, expected)),
+        Value::Object(values) => values.values().any(|value| has_string(value, expected)),
+        _ => false,
+    }
 }
