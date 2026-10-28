@@ -15,15 +15,6 @@ pub(crate) fn search(cx: &Ctx<'_>, query: &TrialSearch) -> Outcome {
     if query.source() == biomcp_types::TrialSource::Nci {
         return nci::search(cx, query);
     }
-    if let Some(option) = query.unsupported() {
-        let mut out = empty();
-        out.body = QueryBody::UnsupportedTrialFilter {
-            source: Source::ClinicalTrialsGov,
-            option,
-        };
-        return out;
-    }
-
     let mut outcome = empty();
     let command = cx.fetch.command_deadline(cx.budget);
     let mut deadline = command.deadline();
@@ -38,10 +29,15 @@ pub(crate) fn search(cx: &Ctx<'_>, query: &TrialSearch) -> Outcome {
     let leg = cx.fetch.leg(&ctgov::SPEC, deadline).fresh(cx.fresh);
     let started = leg.remaining();
     let mut params = ctgov::parameters(query, gene.as_deref());
-    if let Some(condition) = condition {
-        params.insert("query.cond".into(), condition.to_string());
+    let conditions = condition
+        .as_ref()
+        .map_or(query.condition(), std::slice::from_ref);
+    if query.condition_id().is_some()
+        && let Some(condition) = conditions.first()
+    {
+        params.insert("query.cond".into(), format!("({condition})"));
     }
-    let result = ctgov::search(&leg, &params);
+    let result = ctgov::search(&leg, &params, conditions);
     let rejected = matches!(
         &result,
         Err(biomcp_fetch::RequestError::Source(error)) if error.status == Some(400)

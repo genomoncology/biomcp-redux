@@ -1810,8 +1810,12 @@
           "type": "integer"
         },
         "condition": {
-          "$ref": "#/$defs/Text",
-          "description": "Registry condition text, or an NCIt code for NCI; use --keyword for NCI free text."
+          "description": "Condition alternatives joined with OR; NCI requires NCIt codes.",
+          "items": {
+            "$ref": "#/$defs/Text"
+          },
+          "maxItems": 5,
+          "type": "array"
         },
         "condition_id": {
           "$ref": "#/$defs/Curie",
@@ -1850,12 +1854,20 @@
           "description": "Exact NCT identity in a conjunction with other filters."
         },
         "intervention": {
-          "$ref": "#/$defs/Text",
-          "description": "Literal source intervention text."
+          "description": "Intervention alternatives joined with OR; supported by ClinicalTrials.gov.",
+          "items": {
+            "$ref": "#/$defs/Text"
+          },
+          "maxItems": 5,
+          "type": "array"
         },
         "keyword": {
-          "$ref": "#/$defs/Text",
-          "description": "NCI free text; explicit keyword mode never substitutes for a disease identity."
+          "description": "Repeat for ClinicalTrials.gov general text alternatives joined with OR; different filters combine with AND. NCI accepts one keyword.",
+          "items": {
+            "$ref": "#/$defs/Text"
+          },
+          "maxItems": 5,
+          "type": "array"
         },
         "lat": {
           "$ref": "#/$defs/Text",

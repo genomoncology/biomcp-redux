@@ -56,14 +56,16 @@ pub fn parameters(query: &TrialSearch, gene: Option<&str>) -> BTreeMap<String, S
             "NCTId,BriefTitle,OverallStatus,Phase,Condition,InterventionName,LastUpdatePostDate,HasResults".into(),
         ),
     ]);
-    for (name, value) in [
+    for (name, values) in [
         ("query.cond", query.condition()),
         ("query.intr", query.intervention()),
-        ("pageToken", query.next_page()),
     ] {
-        if let Some(value) = value {
-            p.insert(name.into(), value.as_str().into());
+        if !values.is_empty() {
+            p.insert(name.into(), alternatives(values));
         }
+    }
+    if let Some(value) = query.next_page() {
+        p.insert("pageToken".into(), value.as_str().into());
     }
     let mut text = Vec::new();
     if let Some(value) = query.query() {
@@ -74,6 +76,17 @@ pub fn parameters(query: &TrialSearch, gene: Option<&str>) -> BTreeMap<String, S
     }
     if let Some(value) = gene {
         text.push(value.to_owned());
+    }
+    if !query.keyword().is_empty() {
+        let keywords = if text.is_empty() {
+            alternatives(query.keyword())
+        } else {
+            for value in &mut text {
+                *value = format!("({value})");
+            }
+            format!("({})", alternatives(query.keyword()))
+        };
+        text.push(keywords);
     }
     if !text.is_empty() {
         p.insert("query.term".into(), text.join(" AND "));
@@ -117,12 +130,18 @@ pub fn parameters(query: &TrialSearch, gene: Option<&str>) -> BTreeMap<String, S
 }
 fn advanced(query: &TrialSearch) -> String {
     let mut advanced = Vec::new();
-    if query.exact_condition()
-        && let Some(condition) = query.condition()
-    {
+    if query.exact_condition() {
         advanced.push(format!(
-            "AREA[Condition]EXPANSION[None]{}",
-            quote(condition.as_str())
+            "({})",
+            query
+                .condition()
+                .iter()
+                .map(|condition| format!(
+                    "(AREA[Condition]EXPANSION[None]{})",
+                    quote(condition.as_str())
+                ))
+                .collect::<Vec<_>>()
+                .join(" OR ")
         ));
     }
     if let Some(id) = query.id() {
@@ -177,6 +196,7 @@ fn quote(value: &str) -> String {
 pub fn search(
     leg: &Leg<'_>,
     params: &BTreeMap<String, String>,
+    conditions: &[Text],
 ) -> Result<SearchPage, RequestError> {
     let raw = fetch_page(leg, params)?;
     let mut total = raw.total_count;
@@ -192,14 +212,18 @@ pub fn search(
         }
         count_request = Some(count);
     }
-    let condition_word_mismatch = params.get("query.cond").is_some_and(|condition| {
-        raw.studies
-            .as_deref()
-            .unwrap_or_default()
-            .iter()
-            .filter_map(crate::raw::Field::as_ref)
-            .any(|row| !row.protocol_section.contains_condition_words(condition))
-    });
+    let condition_word_mismatch = raw
+        .studies
+        .as_deref()
+        .unwrap_or_default()
+        .iter()
+        .filter_map(crate::raw::Field::as_ref)
+        .any(|row| {
+            conditions.iter().any(|condition| {
+                !row.protocol_section
+                    .contains_condition_words(condition.as_str())
+            })
+        });
     let mut rejected = Vec::new();
     let mapped = raw
         .studies
@@ -253,4 +277,12 @@ fn bad() -> RequestError {
         retry_after: None,
     }
     .into()
+}
+
+fn alternatives(values: &[Text]) -> String {
+    values
+        .iter()
+        .map(|value| format!("({})", value.as_str()))
+        .collect::<Vec<_>>()
+        .join(" OR ")
 }
