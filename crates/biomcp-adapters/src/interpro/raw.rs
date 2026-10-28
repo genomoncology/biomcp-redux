@@ -58,7 +58,11 @@ pub(super) struct Metadata {
     pub source_database: String,
     #[serde(rename = "type")]
     pub entry_type: Option<crate::raw::Field<String>>,
-    pub member_databases: Option<crate::raw::Field<BTreeMap<String, crate::raw::Field<BTreeMap<String, crate::raw::Field<String>>>>>>>,
+    pub member_databases: Option<
+        crate::raw::Field<
+            BTreeMap<String, crate::raw::Field<BTreeMap<String, crate::raw::Field<String>>>>,
+        >,
+    >,
 }
 #[derive(Debug, Deserialize)]
 pub(super) struct Protein {
