@@ -49,7 +49,7 @@ fn malformed_alias() -> Result<(), String> {
         let env = environment(&stub)?;
         let output = execute(&env, &["variant", "population", "rs113488022"])?;
         let requests = stub.finish()?;
-        if requests.len() != 1 || !requests[0].1.starts_with("GET /v1/query?") {
+        if !matches!(requests.as_slice(), [(_, request)] if request.starts_with("GET /v1/query?")) {
             return Err(format!(
                 "dbSNP alias authorized a downstream request: {requests:?}"
             ));
