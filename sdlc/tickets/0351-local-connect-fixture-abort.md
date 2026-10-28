@@ -4,6 +4,8 @@ Status: OPEN.
 
 Milestone: 5
 
+Depends on: 0388
+
 ## Outcome
 
 The cause of the connection abort (OS error 53) seen once in `adverse-event-get/synthetic-source-admission-before-retained-read` during native job j18030 is found and fixed. If it does not recur, the shared local CONNECT and TLS fixture instead keeps enough evidence on failure to explain the next one: the phase labels the lander added, the peer and phase of the failing I/O, and the fixture's scratch state kept when a case fails.

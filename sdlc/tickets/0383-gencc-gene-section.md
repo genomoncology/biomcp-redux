@@ -4,6 +4,8 @@ Status: OPEN.
 
 Milestone: 5
 
+Depends on: 0388
+
 ## Outcome
 
 `get gene NAME gencc` returns GenCC's submission-level gene-disease validity records from a synced GenCC bundle, keyed by HGNC ID, with each submitter, classification, disease and date as GenCC publishes them. `sync gencc` downloads the CC0 submissions export from the current new-format CSV endpoint (`submissions-export-csv?format=new`, its 31-column contract) through the shared CSV bundle reader (PM ruling m10791 ask 7) and handles 429 with the shared bounded retry.

@@ -1,6 +1,7 @@
 # 0358 — Give each MCP tool a compact outputSchema that names its reply schemas
 
-Status: OPEN.
+Status: COMPLETE.
+Landed: 7d3b5f4b031071640b44d0d070f4afef8c3bb9f2
 
 Milestone: 5
 

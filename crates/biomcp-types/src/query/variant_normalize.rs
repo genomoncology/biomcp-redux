@@ -1,4 +1,4 @@
-use crate::{Build, HgvsText};
+use crate::{Build, HgvsText, VariantInput, VariantNamespace};
 use serde::{Deserialize, Serialize};
 /// Send unchanged reference-qualified notation to explicitly named services.
 #[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
@@ -12,8 +12,9 @@ pub struct VariantNormalize(Fields);
 struct Fields {
     /// Explicit service; all preserves independent results without consensus.
     source: NormalizationSource,
-    /// Unchanged reference-qualified HGVS; no local molecular parse.
-    hgvs: HgvsText,
+    /// Reference-qualified HGVS, or chromosome genomic HGVS with an explicit build for CAR.
+    #[cfg_attr(feature = "schema", schemars(schema_with = "hgvs_schema"))]
+    hgvs: String,
     /// Caller assembly; required when VariantValidator is selected.
     #[serde(default, skip_serializing_if = "Option::is_none")]
     build: Option<Build>,
@@ -35,8 +36,13 @@ impl TryFrom<Fields> for VariantNormalize {
         if !(1..=50).contains(&f.limit) {
             return Err(super::gene::QueryInvalid::new(&["limit"]));
         }
-        if f.hgvs.as_str().len() > 2048 {
+        if f.hgvs.as_str().len() > 2048 || !valid_hgvs(&f) {
             return Err(super::gene::QueryInvalid::new(&["hgvs"]));
+        }
+        if f.build
+            .is_some_and(|build| !Self::supports_build(&f.hgvs, build))
+        {
+            return Err(super::gene::QueryInvalid::new(&["hgvs", "build"]));
         }
         if matches!(
             f.source,
@@ -53,13 +59,45 @@ impl TryFrom<Fields> for VariantNormalize {
         Ok(Self(f))
     }
 }
+fn valid_hgvs(fields: &Fields) -> bool {
+    fields.hgvs.as_str().parse::<HgvsText>().is_ok()
+        || fields.source == NormalizationSource::Car
+            && fields.build.is_some()
+            && VariantInput::new(fields.hgvs.as_str())
+                .and_then(|value| value.namespace())
+                .is_ok_and(|namespace| namespace == VariantNamespace::Chromosome)
+}
+#[cfg(feature = "schema")]
+fn hgvs_schema(_: &mut schemars::SchemaGenerator) -> schemars::Schema {
+    schemars::json_schema!({
+        "type": "string",
+        "pattern": format!("({}|^chr([1-9][0-9]*|X|Y|M|MT):g\\.[\\x21-\\x7e]+$)", HgvsText::PATTERN)
+    })
+}
 impl VariantNormalize {
+    /// Refuse only a provable primary-reference conflict; never assign an unknown accession.
+    pub fn supports_build(input: &str, build: Build) -> bool {
+        let Ok(accession) = input
+            .parse::<HgvsText>()
+            .and_then(|value| value.accession())
+        else {
+            return true;
+        };
+        let other = if build == Build::GRCh37 {
+            Build::GRCh38
+        } else {
+            Build::GRCh37
+        };
+        biodata::Chromosome::from_accession(accession, build).is_ok()
+            || biodata::Chromosome::from_accession(accession, other).is_err()
+    }
+
     /// Selected service set.
     pub fn source(&self) -> NormalizationSource {
         self.0.source
     }
     /// Unchanged caller description.
-    pub fn hgvs(&self) -> &HgvsText {
+    pub fn hgvs(&self) -> &str {
         &self.0.hgvs
     }
     /// Explicit caller assembly.

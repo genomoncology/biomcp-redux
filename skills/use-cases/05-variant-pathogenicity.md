@@ -1,9 +1,27 @@
-# Inspect source variant assertions
+# Inspect native variant assertions
 
-This released alias retrieves native assertions. Keep each source assessment in its original scope.
+## Question
+
+Which assertions does a named source return for this explicit variant record?
+
+## 1. Retrieve and inspect
 
 ```sh
-biomcp get variant CA000434 erepo
+biomcp variant assertions clinvar:13961 --source clinvar
 ```
 
-Read response problems and source terms before using the record. Follow its returned next commands for additional pages or sections.
+Read the resolved allele identity, submitted assertion, condition, submitter, review information and dates where supplied. Preserve differences between assertions.
+
+## 2. Retrieve and inspect
+
+```sh
+biomcp get variant clinvar:13961 clinvar
+```
+
+Inspect the same source section through the get route. Confirm the requested identity and source outcomes before following record links.
+
+## Next
+
+Review the underlying submissions and evidence. Do not turn an aggregate label into a patient diagnosis or a treatment recommendation.
+
+Read response status, problems and source terms at every step. Recorded replies demonstrate the commands; live replies can change.

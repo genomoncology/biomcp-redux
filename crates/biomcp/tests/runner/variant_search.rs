@@ -3,8 +3,10 @@ use super::{launch::Environment, network_stub::Stub};
 use libtest_mimic::Trial;
 use serde_json::{Value, json};
 use std::fs;
+#[path = "variant_transcripts.rs"]
+mod transcripts;
 pub(super) fn trials() -> Vec<Trial> {
-    vec![
+    let mut trials = vec![
         Trial::test(
             "variant-search/component-terms-preserve-comparable-payload",
             || terms_budget().map_err(Into::into),
@@ -33,7 +35,9 @@ pub(super) fn trials() -> Vec<Trial> {
             "variant-search/declared-protein-native-walk-and-warm-page",
             || walk().map_err(Into::into),
         ),
-    ]
+    ];
+    trials.extend(transcripts::trials());
+    trials
 }
 fn walk() -> Result<(), String> {
     let stub = Stub::for_source("myvariant.info", "application/json", body)?;
@@ -397,7 +401,7 @@ fn metadata() -> Result<(), String> {
     Ok(())
 }
 fn metadata_body(request: &str) -> Result<String, String> {
-    if !request.contains("%2Cchrom%2Chg19%2Chg38&assembly=hg38 HTTP/1.1") {
+    if !request.contains("%2Cchrom%2Chg19%2Chg38%2Csnpeff.ann&assembly=hg38 HTTP/1.1") {
         return Err(format!("source metadata fields missing: {request}"));
     }
     let index = request

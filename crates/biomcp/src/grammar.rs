@@ -7,7 +7,7 @@ mod errors;
 mod metadata;
 mod validation;
 use arguments::command_for;
-pub(crate) use errors::argument_error;
+pub(crate) use errors::{argument_error, normalization_build};
 pub(crate) mod gwas;
 mod local;
 mod queries;

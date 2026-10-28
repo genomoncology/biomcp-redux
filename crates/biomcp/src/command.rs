@@ -73,7 +73,10 @@ fn dispatch_using(
     }
     if let Some(command) = parsed.key {
         return if shared.is_some() {
-            usage(args)
+            encode(
+                ErrorEnvelope::mcp_unavailable(biomcp_types::ErrorMessage::McpKey),
+                crate::exit::Status::Usage,
+            )
         } else {
             crate::keys::run(command, &parsed.globals)
         };
@@ -81,8 +84,10 @@ fn dispatch_using(
     let Some(action) = parsed.action else {
         return usage(args);
     };
-    if shared.is_some() && !mcp_policy::allows(&action, &parsed.globals, !allow_save) {
-        return encode(ErrorEnvelope::arguments(), crate::exit::Status::Usage);
+    if shared.is_some()
+        && let Some(error) = mcp_policy::refusal(&action, &parsed.globals, !allow_save)
+    {
+        return encode(error, crate::exit::Status::Usage);
     }
     if let Some(path) = parsed.help {
         return encode(
@@ -387,6 +392,9 @@ fn usage_with_argument(args: &[OsString], argument: Option<String>) -> io::Resul
                 .collect::<Vec<_>>()
                 .into(),
         }];
+        return encode(error, crate::exit::Status::Usage);
+    }
+    if let Some(error) = crate::grammar::normalization_build(args) {
         return encode(error, crate::exit::Status::Usage);
     }
     let mut words = crate::grammar::command_words(args);
