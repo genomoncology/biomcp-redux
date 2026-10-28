@@ -53,12 +53,10 @@ fn orcid() -> Result<(), String> {
                 if source == "orcid"
                     && let Some(assertion) =
                         capture.pointer_mut("/exchanges/0/body/value/group/0/work-summary/0")
-                {
-                    if let Some(object) =
+                    && let Some(object) =
                         assertion.pointer_mut(parent).and_then(Value::as_object_mut)
-                    {
-                        object.insert(key.into(), invalid.clone());
-                    }
+                {
+                    object.insert(key.into(), invalid.clone());
                 }
             },
             json!({"/result/groups/0/assertions/0/put_code":1}),
