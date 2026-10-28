@@ -132,3 +132,11 @@ Each source keeps its own outcome and release dates. Composite reads never reque
 Each record keeps GenCC's submission ID, version, submitter, disease, inheritance, classification and dates in file order. BioMCP neither merges submissions nor ranks classifications. An empty section means the stored export contains no matching rows.
 
 GenCC documents its new-format CSV export, weekly publication cadence, conditional requests and download policy on its [download page](https://thegencc.org/download). Its [terms](https://thegencc.org/terms) identify CC0 1.0 and request attribution to GenCC and its contributors. The [GenCC publication](https://pmc.ncbi.nlm.nih.gov/articles/PMC7613247/) describes the submission fields.
+
+## Medical device recalls
+
+`search diagnostic --source fda-device-recall` covers every medical device. It searches the native recalling firm phrase, exact product code and inclusive initiation dates. Totals count product recall records, including separate records under one event number. A count makes no claim about harm.
+
+The card preserves the recall's reason, root cause, product description and distribution pattern. Its submission numbers come only from top-level `k_numbers` and `pma_numbers` in the [device recall fields](https://open.fda.gov/apis/device/recall/searchable-fields/). Harmonized `openfda` identifiers describe the product code and never populate the card. One exact [device enforcement](https://open.fda.gov/apis/device/enforcement/) recall-number lookup supplies classification when present; absence leaves classification absent. A failed lookup preserves the recall card and discloses a partial result.
+
+The MAUDE next step selects the recall's product code across manufacturers. Recall records and adverse-event reports remain separate source facts. Neither establishes product-specific harm or clinical suitability.

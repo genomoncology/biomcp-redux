@@ -24,6 +24,7 @@ const SOURCES: &[(&str, &str, &str)] = &[
     ),
     ("fda-pma", "open", "https://open.fda.gov/terms/"),
     ("fda-510k", "open", "https://open.fda.gov/terms/"),
+    ("fda-device-recall", "open", "https://open.fda.gov/terms/"),
 ];
 pub(super) fn trials() -> Vec<Trial> {
     SOURCES
