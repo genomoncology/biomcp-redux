@@ -77,7 +77,7 @@ fn malformed_alias() -> Result<(), String> {
                     problems.iter().any(|p| {
                         p["source"] == "myvariant"
                             && p["field"] == "ids"
-                            && p["code"] == "value_unknown"
+                            && p["code"] == "value.unknown"
                     })
                 })
         {
