@@ -8,10 +8,48 @@ use std::{
 };
 
 pub(super) fn trials() -> Vec<Trial> {
-    vec![Trial::test(
-        "runner/retains-failed-local-peer-state",
-        || check().map_err(Into::into),
-    )]
+    vec![
+        Trial::test("runner/retains-failed-local-peer-state", || {
+            check().map_err(Into::into)
+        }),
+        Trial::test("runner/single-source-capturing-callback", || {
+            capturing_callback().map_err(|error| error.to_string().into())
+        }),
+    ]
+}
+fn capturing_callback() -> Result<(), Box<dyn std::error::Error>> {
+    use biomcp_fetch::{Certificates, Fetch, FetchConfig, Network, Secret};
+    use std::time::Duration;
+
+    let mut reply = String::from("captured");
+    let stub = Stub::for_source("eutils.ncbi.nlm.nih.gov", "text/plain", move |_| {
+        reply.push('!');
+        Ok(reply.clone())
+    })?;
+    let env = Environment::new()?;
+    stub.retain(&env);
+    let fetch = Fetch::open(FetchConfig {
+        network: Network::new(
+            None,
+            Some(Secret::new(format!("http://{}", stub.address))),
+            "",
+            Certificates::from_pem(stub.certificate.as_bytes())?,
+        )?,
+        ..FetchConfig::default()
+    })?;
+    let source = &biomcp_adapters::pubmed::SPEC;
+    for (path, expected) in [("/first", "captured!"), ("/second", "captured!!")] {
+        let body = fetch
+            .leg(source, fetch.deadline(Duration::from_secs(5)))
+            .bytes(&source.get(path).bytes(64), &[])?;
+        if body != expected.as_bytes() {
+            return Err("single-source callback lost its captured mutable state".into());
+        }
+    }
+    if stub.finish()?.len() != 2 {
+        return Err("capturing callback did not serve both requests".into());
+    }
+    Ok(())
 }
 fn check() -> Result<(), String> {
     let healthy = Environment::new().map_err(|e| e.to_string())?;
