@@ -55,7 +55,7 @@ docs-check:
 	python3 scripts/test_build_workers.py
 	python3 scripts/test_nightly_live_check.py
 	python3 -m unittest release.test_installer release.test_checks release.test_gate
-	python3 -m unittest release.test_workflow release.test_security
+	python3 -m unittest release.test_workflow release.test_security release.test_licenses
 .PHONY: release-linux
 release-linux:
 	sh release/linux.sh $(CONTAINER_ARGS)
