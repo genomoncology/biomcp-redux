@@ -217,6 +217,12 @@ impl Leg<'_> {
         }
     }
 
+    pub(crate) fn quota_failure(&self, delay: Duration) -> SourceError {
+        let mut error = self.failure(Reason::LocalQuota, None);
+        error.retry_after = Some(delay);
+        error
+    }
+
     pub(crate) fn check_source(&self) -> Result<(), RequestError> {
         if self.fetch.disabled(self.spec.source) {
             return Err(self.failure(Reason::Disabled, None).into());
@@ -313,6 +319,7 @@ impl Leg<'_> {
                 .fetch
                 .limiters
                 .acquire(self.spec.quota, keyed, self.budget())
+                .map_err(|delay| self.quota_failure(delay))?
                 .ok_or_else(|| self.failure(Reason::DeadlineExceeded, None))?;
             let started = Instant::now();
             let exchange = self.exchange(prepared, codec);

@@ -1,6 +1,7 @@
 # 0366 — Report bundle and store sizes
 
-Status: OPEN.
+Status: COMPLETE.
+Landed: 087f3a5de57b6f1a29e321be01913018d9f12c6d
 
 Milestone: 5
 

@@ -13,7 +13,7 @@
         "who-pq"
       ],
       "expect": {
-        "/schema": "biomcp.sync/4",
+        "/schema": "biomcp.sync/5",
         "/status": "complete",
         "/query/source": "who-pq",
         "/result/rows": 4,
@@ -33,7 +33,7 @@
         "--fresh"
       ],
       "expect": {
-        "/schema": "biomcp.sync/4",
+        "/schema": "biomcp.sync/5",
         "/status": "complete",
         "/query/source": "who-pq",
         "/result/rows": 4,

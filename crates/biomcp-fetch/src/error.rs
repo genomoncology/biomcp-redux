@@ -14,7 +14,7 @@ pub struct SourceError {
     pub reason: Reason,
     /// HTTP status when a response was received.
     pub status: Option<u16>,
-    /// Provider-stated retry delay, when present on a rate-limit refusal.
+    /// Provider retry delay or remaining local quota spacing, when present.
     pub retry_after: Option<std::time::Duration>,
 }
 

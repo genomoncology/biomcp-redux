@@ -14,7 +14,7 @@
       ],
       "max_bytes": 354,
       "expect": {
-        "/schema": "biomcp.sync/4",
+        "/schema": "biomcp.sync/5",
         "/result/rows": 9
       }
     },
@@ -289,7 +289,7 @@
       ],
       "max_bytes": 354,
       "expect": {
-        "/schema": "biomcp.sync/4",
+        "/schema": "biomcp.sync/5",
         "/result/rows": 9
       }
     }

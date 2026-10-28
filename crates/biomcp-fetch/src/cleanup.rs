@@ -60,7 +60,7 @@ impl crate::CacheAccess {
         Ok(removed)
     }
 }
-fn namespace(name: &str) -> Option<(u32, u32)> {
+pub(crate) fn namespace(name: &str) -> Option<(u32, u32)> {
     let (fetch, query) = name
         .strip_prefix("cache-")?
         .strip_suffix(".sqlite")?

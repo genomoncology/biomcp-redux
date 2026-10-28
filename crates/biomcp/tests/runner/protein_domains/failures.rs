@@ -115,12 +115,12 @@ fn copy(original: &Path, target: &Path, kind: &str) -> Result<(), String> {
     Ok(())
 }
 
-// Complete synthetic envelopes measured in j15006, with fifteen percent headroom.
+// Complete envelopes: j15006; InterPro timeout guidance: j19312. Fifteen percent headroom.
 fn relation_ceilings(command: &str, kind: &str) -> Result<(usize, usize), String> {
     Ok(match (command, kind) {
         ("domains", "429") => (528, 527),
         ("domains", "500") => (527, 526),
-        ("domains", "timeout") => (534, 533),
+        ("domains", "timeout") => (975, 973),
         ("domains", "broken") => (525, 524),
         ("domains", "error") => (525, 524),
         ("complexes", "429") => (526, 525),
