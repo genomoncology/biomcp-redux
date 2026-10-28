@@ -12,11 +12,6 @@ import subprocess
 import sys
 import tempfile
 
-if __package__:
-    from .toolchain import manifest
-else:
-    from toolchain import manifest
-
 
 def run_stage(rows, name, command):
     print('Release stage: ' + name, flush=True)
@@ -62,6 +57,10 @@ def inside(report):
 
 
 def cold(report, container_args):
+    if __package__:
+        from .toolchain import manifest
+    else:
+        from toolchain import manifest
     # Clone only tracked source and history, with no host HOME, caches or tools.
     revision = subprocess.check_output(['git', 'rev-parse', 'HEAD'], text=True).strip()
     rows = []
