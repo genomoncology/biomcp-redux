@@ -56,12 +56,11 @@ fn selectors() -> Result<(), String> {
         let mut args = vec![
             "search".into(),
             "adverse-event".into(),
-            "--source".into(),
-            "maude".into(),
             "--limit".into(),
             "1".into(),
         ];
         args.extend(flags.iter().map(|s| (*s).to_owned()));
+        args.extend(["--source".into(), "maude".into()]);
         let globals = ["--record".into(), recording.to_string_lossy().into_owned()];
         let value = invoke(&env, super::super::launch::arguments(&args, &globals), exit)?;
         if value.pointer("/result/source_query") != Some(&json!(expected))
