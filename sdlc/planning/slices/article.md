@@ -515,17 +515,17 @@ Closed sets: `PublicationType` (non-exhaustive: `randomized_controlled_trial`, `
 
 `ArticleInput` is free text that the edge parses into a `Pmid` (digits), a `Pmcid`, a `Doi` (starts `10.`, or a `doi.org` URL) or a `EuropePmcId`.
 
-`Article` (schema `biodata.article/1`), from PubMed EFetch, or from Europe PMC for a record with no PMID:
+`Article` (schema `biodata.article/2`), from PubMed EFetch, or from Europe PMC for a record with no PMID:
 
 - `pmid: Option<Pmid>`, `pmcid: Option<Pmcid>`, `doi: Option<Doi>`, `europepmc_id: Option<EuropePmcId>`; at least one is present
-- `title: Text`, `journal: Option<Text>`, `date: Option<PartialDate>`
+- `title: Option<Text>`, `journal: Option<Text>`, `date: Option<PartialDate>`
 - `types: Box<[PublicationType]>`
 - `corrections: Box<[Correction]>`, each `{ kind: CorrectionKind, relation: CorrectionRelation, pmid: Option<Pmid> }`, where `relation` is `notice` when the PMID names the correction notice and `original` when it names the corrected paper
 - `published_as: Option<ArticleRef>`, for a preprint whose Europe PMC record links its published version
 - `authors: Box<[Text]>`, whole
 - `abstract_parts: Box<[AbstractPart]>`, each `{ label: Option<Text>, text: Markdown }`, where the JATS converter below turns italics, bold, superscripts and subscripts into Markdown
 
-`ArticleHeader` (schema `biodata.article_header/1`): `pmid`, `doi`, `pmcid`, `europepmc_id`, `title`, `journal`, `date`, `types`, `first_author` and `author_count`. A header for a row with no PMID carries `types_unknown: true`, because no PubMed record says whether it was retracted.
+`ArticleHeader` (schema `biodata.article_header/3`): `pmid`, `doi`, `pmcid`, `europepmc_id`, `title`, `journal`, `date`, `types`, `first_author` and `author_count`. A header for a row with no PMID carries `types_unknown: true`, because no PubMed record says whether it was retracted.
 
 `ArticleItem` holds an optional checked `key`, an optional `pmid`, an optional hydrated `header`, `found_by`, optional iCite `cited_by`, and an optional source `sentence`. A source row survives missing header metadata; DOI joins retain the raw secondary DOI even when another identifier wins key priority. `found_by` records native ranks only for a multi-source fold. The sentence is the first matching sentence returned in LitSense2 order. These source facts belong to the item, not the hydrated header.
 

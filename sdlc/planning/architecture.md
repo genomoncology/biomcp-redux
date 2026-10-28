@@ -1001,6 +1001,20 @@ Every present source field that cannot map is omitted and produces a `Problem` n
 
 `crates/biomcp/tests/ratchets/adapter_value_audit.json` records the PubMed and ORCID field classifications and existing mapping drops. The source ratchet rejects new `.ok()` sites without a classification. Entries marked `pending_audit` retain explicit family ownership and do not claim a completed audit. PubMed citation problems travel with the fetched citation. ORCID work snapshots retain their problems beside the groups and source outcome. Optional fields never change required source paths, publication IDs or assertion identities. Titles, author names, work types and external-ID relationships are optional display metadata. An invalid external-ID kind or value omits that member and reports `external_ids`; the work and group remain. The five fields retain their present nonnullable text schema while becoming optional properties. Article pool metadata keeps source-level problems in the same publication transaction as the items and outcomes. Its private reader accepts both the existing source-outcome array and the metadata object. Problems without a record remain scoped to their pool, including empty pools; item problems retain their PMID scope.
 
+Response consumers previously received these fields as required properties. Each affected contract takes a major version change when the property becomes optional. The compatibility check and historical release schemas stay unchanged.
+
+| Previous schema | Current schema |
+| --- | --- |
+| `biomcp.article-cards/3` | `biomcp.article-cards/4` |
+| `biomcp.article-edges/4` | `biomcp.article-edges/5` |
+| `biodata.article_header/2` | `biodata.article_header/3` |
+| `biomcp.article-page/3` | `biomcp.article-page/4` |
+| `biomcp.article-recommendations/3` | `biomcp.article-recommendations/4` |
+| `biodata.article/1` | `biodata.article/2` |
+| `biomcp.author-card/3` | `biomcp.author-card/4` |
+| `biomcp.author-page/2` | `biomcp.author-page/3` |
+| `biomcp.orcid-works/2` | `biomcp.orcid-works/3` |
+
 Shared helpers live once in `biomcp-adapters/src/`:
 
 ```rust

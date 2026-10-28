@@ -12,7 +12,7 @@
       ],
       "expect": {
         "/status": "complete",
-        "/schema": "biomcp.author-page/2",
+        "/schema": "biomcp.author-page/3",
         "/result/items/*/id": [
           "semantic-scholar:2162869982",
           "semantic-scholar:113751091"
