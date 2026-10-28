@@ -39,7 +39,9 @@
         "/result/items/0/diseases/items": {
           "count": 3
         },
-        "/query/condition": "C3224"
+        "/query/condition": [
+          "C3224"
+        ]
       },
       "max_bytes": 1711
     },

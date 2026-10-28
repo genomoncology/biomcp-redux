@@ -33,13 +33,23 @@
     "AdverseEventSerious": {
       "description": "Report-level seriousness filter, independent of reaction outcome.",
       "enum": [
+        "any",
         "death",
-        "hospitalization"
+        "hospitalization",
+        "lifethreatening",
+        "disabling",
+        "congenital-anomaly",
+        "other"
       ],
       "type": "string",
       "x-enum-descriptions": [
+        " Native report seriousness flag.",
         " Native report death flag.",
-        " Native report hospitalization flag."
+        " Native report hospitalization flag.",
+        " Native report life-threatening flag.",
+        " Native report disabling flag.",
+        " Native report congenital anomaly flag.",
+        " Native report other serious flag."
       ]
     },
     "AdverseEventSource": {
@@ -912,7 +922,7 @@
       ]
     }
   },
-  "$id": "biodata.request/27",
+  "$id": "biodata.request/28",
   "$schema": "https://json-schema.org/draft/2020-12/schema",
   "description": "One checked query. Housekeeping actions are separate.",
   "oneOf": [
@@ -2473,12 +2483,41 @@
           "minimum": 1,
           "type": "integer"
         },
+        "manufacturer": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/Text"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "description": "MAUDE manufacturer phrase on device.manufacturer_d_name. A report may list several devices; filters may match different devices."
+        },
         "offset": {
           "default": 0,
           "description": "Native row offset. VAERS continuation requires its retained snapshot.",
           "format": "uint32",
           "minimum": 0,
           "type": "integer"
+        },
+        "problem": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/Text"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "description": "MAUDE phrase on native product_problems."
+        },
+        "product_code": {
+          "description": "MAUDE exact native device.device_report_product_code; repeated codes join with OR.",
+          "items": {
+            "$ref": "#/$defs/Text"
+          },
+          "type": "array"
         },
         "reaction": {
           "anyOf": [
@@ -2536,7 +2575,7 @@
               "type": "null"
             }
           ],
-          "description": "FAERS report flag: death or hospitalization; never a reaction outcome."
+          "description": "FAERS report flag: any uses the source seriousness flag; the specific flags can overlap. Never a reaction outcome."
         },
         "snapshot": {
           "anyOf": [
@@ -2561,8 +2600,7 @@
         }
       },
       "required": [
-        "command",
-        "text"
+        "command"
       ],
       "type": "object"
     },
@@ -3522,8 +3560,12 @@
           "type": "string"
         },
         "condition": {
-          "$ref": "#/$defs/Text",
-          "description": "Registry condition text, or an NCIt code for NCI; use --keyword for NCI free text."
+          "description": "Condition alternatives joined with OR; NCI requires NCIt codes.",
+          "items": {
+            "$ref": "#/$defs/Text"
+          },
+          "maxItems": 5,
+          "type": "array"
         },
         "condition_id": {
           "$ref": "#/$defs/Curie",
@@ -3562,12 +3604,20 @@
           "description": "Exact NCT identity in a conjunction with other filters."
         },
         "intervention": {
-          "$ref": "#/$defs/Text",
-          "description": "Literal source intervention text."
+          "description": "Intervention alternatives joined with OR; supported by ClinicalTrials.gov.",
+          "items": {
+            "$ref": "#/$defs/Text"
+          },
+          "maxItems": 5,
+          "type": "array"
         },
         "keyword": {
-          "$ref": "#/$defs/Text",
-          "description": "NCI free text; explicit keyword mode never substitutes for a disease identity."
+          "description": "Repeat for ClinicalTrials.gov general text alternatives joined with OR; different filters combine with AND. NCI accepts one keyword.",
+          "items": {
+            "$ref": "#/$defs/Text"
+          },
+          "maxItems": 5,
+          "type": "array"
         },
         "lat": {
           "$ref": "#/$defs/Text",

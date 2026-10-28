@@ -105,21 +105,29 @@
       "run": [
         "search",
         "trial",
+        "--source",
+        "nci",
         "--keyword",
-        "melanoma"
+        "melanoma",
+        "--keyword",
+        "lung cancer"
       ],
       "mcp": [
         "search",
         "trial",
+        "--source",
+        "nci",
         "--keyword",
-        "melanoma"
+        "melanoma",
+        "--keyword",
+        "lung cancer"
       ],
       "exit": 2,
       "is_error": true,
       "offline": true,
       "expect": {
         "/error/code": "usage.unsupported_filter",
-        "/error/source": "ctgov",
+        "/error/source": "nci",
         "/error/option": "--keyword"
       }
     }
