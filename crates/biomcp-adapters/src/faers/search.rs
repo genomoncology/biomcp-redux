@@ -23,7 +23,7 @@ fn literal(value: &str) -> String {
 }
 /// Exact literal source expression with analyzed reaction phrase-match semantics.
 pub fn expression(query: &AdverseEventSearch) -> String {
-    let text = literal(query.text().as_str());
+    let text = literal(query.text().map_or("", biodata::Text::as_str));
     let mut selector = format!(
         "(patient.drug.openfda.generic_name:{text} OR patient.drug.openfda.brand_name:{text} OR patient.drug.medicinalproduct:{text})"
     );
@@ -35,8 +35,13 @@ pub fn expression(query: &AdverseEventSearch) -> String {
     }
     if let Some(flag) = query.serious() {
         let field = match flag {
+            AdverseEventSerious::Any => "serious",
             AdverseEventSerious::Death => "seriousnessdeath",
             AdverseEventSerious::Hospitalization => "seriousnesshospitalization",
+            AdverseEventSerious::Lifethreatening => "seriousnesslifethreatening",
+            AdverseEventSerious::Disabling => "seriousnessdisabling",
+            AdverseEventSerious::CongenitalAnomaly => "seriousnesscongenitalanomali",
+            AdverseEventSerious::Other => "seriousnessother",
         };
         selector.push_str(&format!(" AND {field}:1"));
     }
