@@ -116,3 +116,28 @@ pub(super) fn cut_binary_body_is_refused_before_returning_bytes() {
     });
     assert!(server.requests.try_recv().is_err());
 }
+
+pub(super) fn only_bounded_json_reports_typed_overflow() {
+    for kind in ["bounded", "json", "bytes"] {
+        let server = Server::new();
+        let spec = spec(&server);
+        let fetch = fetch(Mode::default());
+        thread::scope(|scope| {
+            let worker = scope.spawn(|| {
+                let leg = fetch.leg(spec, fetch.deadline(Duration::from_secs(10)));
+                match kind {
+                    "bounded" => leg.json_bounded::<Answer>(&spec.get("/answer"), &[], 8).map(|_| ()),
+                    "json" => leg.json::<Answer>(&spec.get("/answer").bytes(8), &[]).map(|_| ()),
+                    _ => leg.bytes(&spec.get("/answer").bytes(8), &[]).map(|_| ()),
+                }
+            });
+            server.next().respond(200, if kind == "bytes" { "application/octet-stream" } else { "application/json" }, "{\"answer\":true}");
+            let expected = if kind == "bounded" { biomcp_types::Reason::TooLarge } else { biomcp_types::Reason::BadReply };
+            assert!(
+                matches!(worker.join().unwrap(), Err(RequestError::Source(error)) if error.reason == expected),
+                "only the opt-in complete observation changes overflow classification"
+            );
+        });
+        assert!(server.requests.try_recv().is_err(), "overflow never retries the unsized observation");
+    }
+}

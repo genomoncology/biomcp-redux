@@ -135,7 +135,8 @@ fn failures() -> Check {
                 }
             }
             _ => {
-                if answer.pointer("/sources/0/reason") != Some(&json!("bad_reply")) || answer.get("page").is_some()
+                if answer.pointer("/sources/0/reason") != Some(&json!("bad_reply"))
+                    || answer.get("page").is_some()
                     || answer.pointer("/sources/0/state") != Some(&json!("failed"))
                 {
                     return Err("source failure became zero organizations".into());
@@ -150,7 +151,10 @@ fn mutate(record: &mut Value, kind: &str) {
         match kind {
             "bucket" => {
                 if let Some(body) = exchange.get_mut("body") {
-                    *body = json!({"kind":"json","value":{"total":0,"data":[],"error":{"type":"too_many_buckets_exception","reason":"synthetic bucket limit"}}});
+                    *body = json!({"kind":"json","value":{
+                        "total":0,"data":[],
+                        "error":{"type":"too_many_buckets_exception","reason":"synthetic bucket limit"}
+                    }});
                 }
             }
             "overflow" => {

@@ -51,7 +51,8 @@ singleton! {
 
 singleton! {
     /// Fixed input-free error and migration guidance.
-    pub ErrorMessage { OrganizationTooBroad => "organization search is too broad; narrow --name, --city, --state, --country, --postal-code, --family or --lat/--lon/--distance",
+    pub ErrorMessage { OrganizationTooBroad => "organization search is too broad; narrow --name, --city, --state, --country, \
+        --postal-code, --family or --lat/--lon/--distance",
  GwasThreshold => "--p-value is not yet supported; threshold filtering is deferred",
  GwasPositiveThreshold => "--p-value threshold must be a positive probability in scientific notation",
  SourceSelector => "choose one of the source selector values",

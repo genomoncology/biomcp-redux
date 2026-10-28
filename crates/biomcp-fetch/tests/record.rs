@@ -467,6 +467,11 @@ fn cut_binary_body_never_returns_partial_bytes() {
 }
 
 #[test]
+fn bounded_json_overflow_preserves_existing_reader_errors() {
+    bytes::only_bounded_json_reports_typed_overflow();
+}
+
+#[test]
 fn head_metadata_capture_never_reads_the_object_or_collides_with_get() {
     let dir = tempfile::tempdir().unwrap();
     let server = Server::new();

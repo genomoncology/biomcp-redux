@@ -323,7 +323,8 @@ pub(crate) fn tree() -> String {
             line.push_str(" --gene --reviewed");
         }
         if command.command == ["search", "organization"] {
-            line.push_str(" --source nci --name --city --state --country --postal-code --family --lat --lon --distance --limit --offset --pool;names not unique;counts all trial statuses;no get");
+            line.push_str(" --source nci --name --city --state --country --postal-code --family --lat --lon \
+            --distance --limit --offset --pool;names not unique;counts all trial statuses;no get");
         }
         author_selectors(&command, &mut line);
         cell_line_selectors(&command, &mut line);
