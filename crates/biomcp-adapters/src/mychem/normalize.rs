@@ -9,14 +9,14 @@ fn optional_string(
     field: &str,
     problems: &mut Problems,
 ) -> Option<String> {
-    crate::mapped::field_text(
-        &mut problems.list,
-        problems.source,
-        problems.record.clone(),
+    problems.optional(
         field,
-        value,
+        value.map(|value| {
+            let value = value.value().ok_or(())?;
+            // Keep reference bytes intact until their ID parser has checked them.
+            crate::mapped::text(&value).map(|_| value).map_err(|_| ())
+        }),
     )
-    .map(|v| v.to_string())
 }
 fn many(
     value: Option<OneOrMany<Field<String>>>,

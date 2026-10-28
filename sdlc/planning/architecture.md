@@ -1004,7 +1004,7 @@ The MyChem and disease adapter boundaries classify received values as follows. `
 | Family and site | Classification | Boundary |
 | --- | --- | --- |
 | MyChem `raw::Hit.id`, exact returned-ID check | Identity refusal | The aggregate drug ID identifies the requested document. |
-| MyChem `normalize::component` scalar text, aliases, synonym text and component containers | Migrated | The shared field mapper omits bad values and records their component-qualified field. Header and card construction receive validated text. |
+| MyChem `normalize::component` scalar text, aliases, synonym text and component containers | Migrated | The shared field mapper omits bad values and records their component-qualified field. Reference strings keep their original bytes until the ID parser checks them. Header and card construction receive validated text. |
 | MyChem `map::references_for`, `map::parents_for`, `links::native_xrefs` | Migrated | Reference target parse failures pass through the shared optional mapper. The reference is omitted. |
 | MyChem header name and type, reference name and native attribution record | Migrated | Optional strict conversions consume only text admitted by `normalize::component`. |
 | MyChem numeric version conversion and generated URL | Legitimate absence | Versions come from unsigned integers. URL text contains the admitted aggregate ID. Missing optional metadata stays absent. |

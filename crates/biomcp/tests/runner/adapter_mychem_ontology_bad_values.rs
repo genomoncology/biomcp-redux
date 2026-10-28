@@ -229,6 +229,11 @@ fn cases(family: &str) -> Vec<(&'static str, Value, &'static str)> {
                 ),
                 ("drugbank.id", json!("invalid:"), "drugbank.id"),
                 (
+                    "drugcentral.xrefs.pdb_chem_id",
+                    json!(" STI"),
+                    "drugcentral.xrefs.pdb_chem_id",
+                ),
+                (
                     "openfda.generic_name",
                     json!(["valid", "", ""]),
                     "openfda.generic_name",
