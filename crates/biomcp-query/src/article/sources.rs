@@ -11,6 +11,7 @@ pub(super) struct ResultLeg {
     pub(super) source: ArticleSource,
     pub(super) outcome: SourceOutcome,
     pub(super) items: Vec<ArticleItem>,
+    pub(super) problems: Vec<biomcp_types::Problem>,
     pub(super) dois: Vec<Option<biodata::Doi>>,
     pub(super) elapsed: Duration,
     pub(super) error: Option<RequestError>,
@@ -75,6 +76,7 @@ pub(super) fn search<'a>(
         .find(|e| status::local(*e).is_some());
     for result in &results {
         out.sources.push(result.outcome.clone());
+        status::append(&mut out.problems, result.problems.clone());
     }
     if let Some(error) = error {
         return Err(error);
@@ -148,11 +150,13 @@ fn pubmed_search<'a>(
     let error = result.as_ref().err().copied();
     let mut outcome = status::source(Source::PubMed, leg.finish(), error);
     outcome.term = Text::new(term).ok();
+    let mut problems = Vec::new();
     let items = match result {
         Ok(ids) => {
             outcome.count = Some(ids.count);
             outcome.fetched = Some(ids.ids.len() as u32);
             outcome.notices.extend(ids.notices);
+            problems.extend(ids.problems);
             ids.ids
                 .into_iter()
                 .map(|id| ArticleItem {
@@ -171,6 +175,7 @@ fn pubmed_search<'a>(
         Err(_) => Vec::new(),
     };
     ResultLeg {
+        problems,
         source: ArticleSource::Pubmed,
         outcome,
         items,
@@ -201,6 +206,7 @@ fn europe_search<'a>(
         Err(_) => Vec::new(),
     };
     ResultLeg {
+        problems: Vec::new(),
         source: ArticleSource::Europepmc,
         outcome,
         items,
@@ -346,6 +352,7 @@ fn litvar_search((leg, selected): PreparedLitvar<'_>) -> ResultLeg {
         Err(_) => Vec::new(),
     };
     ResultLeg {
+        problems: Vec::new(),
         source: ArticleSource::Litvar,
         outcome,
         items,

@@ -35,7 +35,10 @@ fn endpoint(id: &OrcidId, section: &str) -> Result<biomcp_fetch::Endpoint, Reque
         .fresh(Freshness::Days(1)))
 }
 /// Read only the public professional name from the requested person record.
-pub fn card(leg: &Leg<'_>, id: &OrcidId) -> Result<Option<AuthorCard>, RequestError> {
+pub fn card(
+    leg: &Leg<'_>,
+    id: &OrcidId,
+) -> Result<crate::Mapped<Option<AuthorCard>>, RequestError> {
     let (record, _) =
         leg.json_received_checked::<raw::Person>(&endpoint(id, "person")?, &[], |r| {
             if r.path == format!("/{id}/person")

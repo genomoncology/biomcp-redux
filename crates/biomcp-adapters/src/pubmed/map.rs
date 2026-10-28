@@ -121,20 +121,35 @@ fn header(row: SummaryRow, key: &str, problems: &mut Vec<Problem>) -> Option<Art
         author_count,
     })
 }
-fn date(s: &str) -> Option<PartialDate> {
+fn date(s: &str) -> Result<PartialDate, biomcp_fetch::BadReply> {
     let mut words = s.split_whitespace();
-    let year = words.next()?.parse().ok()?;
-    let Some(month) = words.next() else {
-        return PartialDate::new(year, None, None).ok();
-    };
-    let month = [
+    let year = words
+        .next()
+        .ok_or(biomcp_fetch::BadReply)?
+        .parse()
+        .map_err(|_| biomcp_fetch::BadReply)?;
+    let month = words.next().map(month).transpose()?;
+    let day = words
+        .next()
+        .map(str::parse)
+        .transpose()
+        .map_err(|_| biomcp_fetch::BadReply)?;
+    if words.next().is_some() {
+        return Err(biomcp_fetch::BadReply);
+    }
+    PartialDate::new(year, month, day).map_err(|_| biomcp_fetch::BadReply)
+}
+pub(super) fn month(value: &str) -> Result<u8, biomcp_fetch::BadReply> {
+    if let Ok(month) = value.parse() {
+        return Ok(month);
+    }
+    [
         "Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec",
     ]
     .iter()
-    .position(|m| *m == month)
-    .and_then(|m| u8::try_from(m + 1).ok());
-    let day = words.next().and_then(|d| d.parse().ok());
-    PartialDate::new(year, month, if month.is_some() { day } else { None }).ok()
+    .position(|m| *m == value)
+    .and_then(|m| u8::try_from(m + 1).ok())
+    .ok_or(biomcp_fetch::BadReply)
 }
 pub(crate) fn publication_type(s: &str) -> Option<P> {
     Some(match s {
@@ -168,5 +183,6 @@ fn optional_date(
     field: &str,
     problems: &mut Problems,
 ) -> Option<PartialDate> {
-    problems.required(field, value?.value().and_then(|v| date(&v)))
+    let value = problems.required(field, value?.value())?;
+    problems.optional(field, Some(date(&value)))
 }

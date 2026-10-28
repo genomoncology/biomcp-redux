@@ -52,6 +52,7 @@ pub(super) fn search<'a>(
         Err(_) => Vec::new(),
     };
     super::sources::ResultLeg {
+        problems: Vec::new(),
         source: ArticleSource::SemanticScholar,
         outcome,
         items,
@@ -117,6 +118,7 @@ pub(super) fn resolve_dois_with<'a>(
                 .collect::<Vec<_>>()
                 .join(" OR ");
             let ids = pubmed::search_ids(&leg, &term, ArticleSort::Rank, cx.ncbi_email.as_ref())?;
+            problems.extend(ids.problems);
             for chunk in ids.ids.chunks(50) {
                 let mapped = pubmed::summaries(&leg, chunk, cx.ncbi_email.as_ref())?;
                 problems.extend(mapped.problems);

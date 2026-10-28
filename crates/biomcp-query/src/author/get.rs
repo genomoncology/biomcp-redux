@@ -20,12 +20,17 @@ pub fn get(cx: &Ctx<'_>, q: &AuthorGet) -> Outcome {
         };
         let leg = cx.fetch.leg(spec, deadline).fresh(cx.fresh);
         let reply = match input {
-            AuthorId::SemanticScholar(id) => author::card(&leg, id).map(Some),
+            AuthorId::SemanticScholar(id) => {
+                author::card(&leg, id).map(|value| biomcp_adapters::Mapped {
+                    value: Some(value),
+                    problems: Vec::new(),
+                })
+            }
             AuthorId::Orcid(id) => biomcp_adapters::orcid::card(&leg, id),
         };
         let mut state = match &reply {
-            Ok(Some(_)) => Status::Complete,
-            Ok(None) => Status::Absent,
+            Ok(mapped) if mapped.value.is_some() => Status::Complete,
+            Ok(_) => Status::Absent,
             Err(biomcp_fetch::RequestError::Source(e)) if e.reason == Reason::NotFound => {
                 Status::Absent
             }
@@ -47,10 +52,14 @@ pub fn get(cx: &Ctx<'_>, q: &AuthorGet) -> Outcome {
         } else {
             out.sources.push(outcome);
         }
+        let card = reply.ok().and_then(|mapped| {
+            out.problems.extend(mapped.problems);
+            mapped.value
+        });
         items.push(AuthorCardItem {
             input: input.clone(),
             status: state,
-            card: reply.ok().flatten(),
+            card,
         });
     }
     out.status = status::status(items.iter().map(|i| i.status));

@@ -142,7 +142,11 @@ fn article(root: Element<'_>) -> Result<FetchedArticle, BadReply> {
         .transpose()?
         .ok_or(BadReply)?;
     let journal = problems.text("journal", row.value(&["Journal", "Title"])?.as_deref());
-    let date = pubdate(row.at(&["Journal", "JournalIssue", "PubDate"])?)?;
+    let date = pubdate(
+        row.at(&["Journal", "JournalIssue", "PubDate"])?,
+        "date",
+        &mut problems,
+    )?;
     let mut doi = None;
     let mut pmcid = None;
     if let Some(ids) = root.at(&["PubmedData", "ArticleIdList"])? {
@@ -174,7 +178,7 @@ fn article(root: Element<'_>) -> Result<FetchedArticle, BadReply> {
             title,
             journal,
             date,
-            electronic_date: electronic_date(row, date)?,
+            electronic_date: electronic_date(row, date, &mut problems)?,
             types: types.into(),
             corrections: corrections(citation, &mut problems)?.into(),
             authors: authors(row, &mut problems)?.into(),
@@ -186,10 +190,12 @@ fn article(root: Element<'_>) -> Result<FetchedArticle, BadReply> {
 fn electronic_date(
     row: Element<'_>,
     print: Option<PartialDate>,
+    problems: &mut Problems,
 ) -> Result<Option<PartialDate>, BadReply> {
     for date in row.children("ArticleDate")? {
         if date.attr("DateType")?.as_deref() == Some("Electronic") {
-            return Ok(pubdate(Some(date))?.filter(|electronic| Some(*electronic) != print));
+            return Ok(pubdate(Some(date), "electronic_date", problems)?
+                .filter(|electronic| Some(*electronic) != print));
         }
     }
     Ok(None)
@@ -268,25 +274,27 @@ fn corrections(
     }
     Ok(out)
 }
-fn pubdate(node: Option<Element<'_>>) -> Result<Option<PartialDate>, BadReply> {
+fn pubdate(
+    node: Option<Element<'_>>,
+    field: &str,
+    problems: &mut Problems,
+) -> Result<Option<PartialDate>, BadReply> {
     let Some(node) = node else { return Ok(None) };
-    let Some(year) = node.value(&["Year"])?.and_then(|s| s.parse().ok()) else {
+    // MedlineDate has no component year; do not infer one from its native prose.
+    let Some(year) = node.value(&["Year"])? else {
         return Ok(None);
     };
-    let month = node.value(&["Month"])?.and_then(|s| {
-        s.parse().ok().or_else(|| {
-            [
-                "Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec",
-            ]
-            .iter()
-            .position(|m| *m == s)
-            .and_then(|n| u8::try_from(n + 1).ok())
-        })
-    });
-    let day = if month.is_some() {
-        node.value(&["Day"])?.and_then(|s| s.parse().ok())
-    } else {
-        None
-    };
-    Ok(PartialDate::new(year, month, day).ok())
+    let month = node.value(&["Month"])?;
+    let day = node.value(&["Day"])?;
+    let value = (|| {
+        let year = year.parse().map_err(|_| BadReply)?;
+        let month = month.as_deref().map(super::map::month).transpose()?;
+        let day = day
+            .as_deref()
+            .map(str::parse)
+            .transpose()
+            .map_err(|_| BadReply)?;
+        PartialDate::new(year, month, day).map_err(|_| BadReply)
+    })();
+    Ok(problems.optional(field, Some(value)))
 }

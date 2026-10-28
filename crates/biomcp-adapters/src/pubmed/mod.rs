@@ -6,7 +6,7 @@ pub use efetch::{FetchedArticle, fetch_articles, resolve_ids};
 pub(crate) use map::publication_type;
 mod raw;
 use crate::{Mapped, quotas};
-use biodata::{Pmid, Text};
+use biodata::Pmid;
 
 use biomcp_fetch::{
     Arg, Credential, Endpoint, Freshness, KeyPlace, KeyUse, Leg, RequestError, Secret, SecretName,
@@ -54,6 +54,8 @@ pub struct SearchIds {
     pub count: u64,
     /// PubMed words it could not find.
     pub notices: Vec<SourceNotice>,
+    /// Rejected optional notice fields.
+    pub problems: Vec<biomcp_types::Problem>,
 }
 /// Retrieve the application's fixed requested window in the requested native provider order.
 pub fn search_ids(
@@ -81,13 +83,18 @@ pub fn search_ids(
         &SEARCH
     };
     let raw = leg.json::<raw::Search>(endpoint, &params)?.esearchresult;
+    let mut problems = crate::mapped::Problems {
+        source: Source::PubMed,
+        record: None,
+        list: Vec::new(),
+    };
     let mut notices: Vec<_> = raw
         .errorlist
         .and_then(|e| e.phrasesnotfound)
         .map(|words| SourceNotice::NotFoundWords {
             words: words
                 .into_iter()
-                .filter_map(|s| Text::new(&s).ok())
+                .filter_map(|s| problems.text("notices.not_found_words", Some(&s)))
                 .collect(),
         })
         .into_iter()
@@ -105,6 +112,7 @@ pub fn search_ids(
         ids: raw.idlist,
         count: raw.count,
         notices,
+        problems: problems.list,
     })
 }
 /// Retrieve a selected page's metadata. Each result is joined by checked PMID.
