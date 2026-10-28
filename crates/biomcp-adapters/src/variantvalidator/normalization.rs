@@ -19,7 +19,10 @@ pub fn normalize(
     result.version = raw
         .metadata
         .into_iter()
-        .map(|(field, value)| NormalizationField { field, value })
+        .map(|(field, value)| NormalizationField {
+            field: field.into(),
+            value: value.into(),
+        })
         .collect();
     let mut mappings = Vec::new();
     let mut messages = Vec::new();
@@ -28,7 +31,7 @@ pub fn normalize(
             messages.push(NormalizationMessage {
                 category: "validation_warnings".into(),
                 code: None,
-                text,
+                text: text.into(),
             });
         }
         for (field, value) in [
@@ -42,30 +45,30 @@ pub fn normalize(
         ] {
             if let Some(value) = value.filter(|s| !s.is_empty()) {
                 mappings.push(NormalizationField {
-                    field: format!("{key}.{field}"),
-                    value,
+                    field: format!("{key}.{field}").into(),
+                    value: value.into(),
                 });
             }
         }
         for (field, value) in row.hgvs_predicted_protein_consequence.into_iter().flatten() {
             if !value.is_empty() {
                 mappings.push(NormalizationField {
-                    field: format!("{key}.hgvs_predicted_protein_consequence.{field}"),
-                    value,
+                    field: format!("{key}.hgvs_predicted_protein_consequence.{field}").into(),
+                    value: value.into(),
                 });
             }
         }
         for (assembly, locus) in row.primary_assembly_loci.into_iter().flatten() {
             mappings.push(NormalizationField {
-                field: format!("{key}.primary_assembly_loci.{assembly}"),
-                value: locus.hgvs_genomic_description.to_string(),
+                field: format!("{key}.primary_assembly_loci.{assembly}").into(),
+                value: locus.hgvs_genomic_description.to_string().into(),
             });
         }
         for loci in row.alt_genomic_loci.into_iter().flatten() {
             for (assembly, locus) in loci {
                 mappings.push(NormalizationField {
-                    field: format!("{key}.alt_genomic_loci.{assembly}"),
-                    value: locus.hgvs_genomic_description.to_string(),
+                    field: format!("{key}.alt_genomic_loci.{assembly}").into(),
+                    value: locus.hgvs_genomic_description.to_string().into(),
                 });
             }
         }

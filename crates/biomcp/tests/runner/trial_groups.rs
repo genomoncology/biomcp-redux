@@ -1,5 +1,7 @@
 //! Group entity trials without growing the case entry point.
 use libtest_mimic::Trial;
+#[path = "native_vocabulary.rs"]
+mod native_vocabulary;
 
 #[path = "adapter_bad_values.rs"]
 mod adapter_bad_values;
@@ -42,6 +44,7 @@ pub(super) fn drug_trials() -> Vec<Trial> {
     trials.extend(super::drug_next::trials());
     trials.extend(super::drug_ema::trials());
     trials.extend(adapter_bad_values::trials());
+    trials.extend(native_vocabulary::trials());
     trials.extend(super::drug_who::trials());
     trials.extend(super::drug_ddinter::trials());
     trials.extend(super::drug_fda::trials());

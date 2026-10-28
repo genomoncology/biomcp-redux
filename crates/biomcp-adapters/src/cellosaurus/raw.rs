@@ -27,7 +27,7 @@ pub(super) struct Record {
     pub species_list: Option<Box<[CellLineXref]>>,
     pub disease_list: Option<Box<[CellLineXref]>>,
     pub age: Option<Text>,
-    pub sex: Option<Text>,
+    pub sex: Option<biodata::CellLineSex>,
     pub created: Option<PartialDate>,
     pub last_updated: Option<PartialDate>,
     pub entry_version: Option<Text>,

@@ -221,3 +221,7 @@ pub use response::{
     AlphaGenomeBiosampleType, AlphaGenomeEndedness, AlphaGenomeOntologyType, AlphaGenomeStrand,
 };
 pub use response::{AlphaGenomeNonfiniteKind, AlphaGenomeScalar};
+
+pub use response::{CivicKind, CivicSignificance, CivicStatus};
+
+pub use response::NciTrialPhase;

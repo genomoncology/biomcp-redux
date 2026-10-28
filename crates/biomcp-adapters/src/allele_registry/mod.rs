@@ -95,14 +95,14 @@ pub fn normalize(
         result.outcome = biomcp_types::VariantResolution::Rejected;
         let mut messages = vec![biomcp_types::NormalizationMessage {
             category: "description".into(),
-            code: Some(code.to_string()),
-            text: raw.error_description.unwrap_or_default(),
+            code: Some(code.to_string().into()),
+            text: raw.error_description.unwrap_or_default().into(),
         }];
         if let Some(text) = raw.message {
             messages.push(biomcp_types::NormalizationMessage {
                 category: "message".into(),
                 code: None,
-                text,
+                text: text.into(),
             });
         }
         result.messages = messages.into();
@@ -112,7 +112,7 @@ pub fn normalize(
         if let Some(value) = raw.id {
             mappings.push(biomcp_types::NormalizationField {
                 field: "@id".into(),
-                value: value.to_string(),
+                value: value.to_string().into(),
             });
         }
         for row in raw.genomic.into_iter().flatten() {
@@ -120,9 +120,9 @@ pub fn normalize(
                 mappings.push(biomcp_types::NormalizationField {
                     field: row.assembly.as_ref().map_or_else(
                         || "genomicAlleles.hgvs".into(),
-                        |b| format!("genomicAlleles.{}.hgvs", b.as_str()),
+                        |b| format!("genomicAlleles.{}.hgvs", b.as_str()).into(),
                     ),
-                    value: value.to_string(),
+                    value: value.to_string().into(),
                 });
             }
         }
@@ -132,7 +132,7 @@ pub fn normalize(
                     for hgvs in [forms.ensembl, forms.refseq].into_iter().flatten() {
                         mappings.push(biomcp_types::NormalizationField {
                             field: "transcriptAlleles.MANE.hgvs".into(),
-                            value: hgvs.hgvs.to_string(),
+                            value: hgvs.hgvs.to_string().into(),
                         });
                     }
                 }

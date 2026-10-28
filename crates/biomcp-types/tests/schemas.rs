@@ -35,7 +35,7 @@ fn generate<T: JsonSchema>() -> Value {
 }
 
 macro_rules! contracts {
-        ($($ty:ty => ($name:literal, $id:literal)),+ $(,)?) => {
+        ($($ty:ty => ($name:literal, $id:expr)),+ $(,)?) => {
             vec![$(Contract { name: $name, id: $id, generate: generate::<$ty> }),+]
         };
     }
@@ -66,6 +66,8 @@ fn common_registry() -> Vec<Contract> {
         ClinVarVariationId => ("clinvar-variation-id", "biodata.clinvar-variation-id/1"),
         ClinVarAlleleId => ("clinvar-allele-id", "biodata.clinvar-allele-id/1"),
         CosmicId => ("cosmic-id", "biodata.cosmic-id/1"),
+        MondoId => ("mondo-id", "biodata.mondo-id/1"),
+        NcitId => ("ncit-id", "biodata.ncit-id/1"),
         VrsId => ("vrs-id", "biodata.vrs-id/1"),
         Contig => ("contig", "biodata.contig/1"),
 
@@ -74,8 +76,8 @@ fn common_registry() -> Vec<Contract> {
 
 fn research_registry() -> Vec<Contract> {
     contracts! {
-        ResearchSearch<ResearchEnvelope> => ("research-search", "biomcp.research-search/1"),
-        ResearchFetch<ResearchEnvelope> => ("research-fetch", "biomcp.research-fetch/1"),
+        ResearchSearch<ResearchEnvelope> => ("research-search", ResearchSearch::<ResearchEnvelope>::SCHEMA),
+        ResearchFetch<ResearchEnvelope> => ("research-fetch", ResearchFetch::<ResearchEnvelope>::SCHEMA),
     }
 }
 
@@ -126,7 +128,7 @@ fn registry() -> Vec<Contract> {
         GeneGet => ("gene-get", "biodata.gene-get/1"),
         GeneSearch => ("gene-search", "biodata.gene-search/1"),
         Request => ("request", "biodata.request/27"),
-        Envelope<GeneCards> => ("gene-cards", "biomcp.gene-cards/5"),
+        Envelope<GeneCards> => ("gene-cards", "biomcp.gene-cards/6"),
         Envelope<GenePage> => ("gene-page", "biomcp.gene-page/3"),
         Envelope<StoreClean> => ("store-clean", "biomcp.store-clean/1"),
         Envelope<SyncResult> => ("sync", "biomcp.sync/5"),
@@ -235,16 +237,16 @@ fn variant_contracts() -> Vec<Contract> {
         Envelope<VariantAssertions> => ("variant-assertions-result", "biomcp.variant-assertions/3"),
         PopulationFrequency => ("population-frequency", "biodata.population-frequency/3"),
         VariantPopulationQuery => ("variant-population", "biodata.variant-population/2"),
-        Envelope<VariantPopulationResult> => ("variant-population-result", "biomcp.variant-population/4"),
+        Envelope<VariantPopulationResult> => ("variant-population-result", "biomcp.variant-population/6"),
         Statement => ("statement", "biodata.statement/3"),
         VariantRecurrenceQuery => ("variant-recurrence-query", "biodata.variant-recurrence-query/2"),
         Envelope<VariantRecurrence> => ("variant-recurrence", "biomcp.variant-recurrence/5"),
         VariantNormalize => ("variant-normalize", "biodata.variant-normalize/3"),
         Envelope<VariantNormalization> => ("variant-normalization", "biomcp.variant-normalization/4"),
         VariantSearch => ("variant-search", "biodata.variant-search/2"),
-        Envelope<VariantPage> => ("variant-page", "biomcp.variant-page/7"),
+        Envelope<VariantPage> => ("variant-page", "biomcp.variant-page/9"),
         VariantGet => ("variant-get", "biodata.variant-get/2"),
-        Envelope<VariantCard> => ("variant-card", "biomcp.variant-card/6"),
+        Envelope<VariantCard> => ("variant-card", "biomcp.variant-card/8"),
     }
 }
 
@@ -284,7 +286,7 @@ fn drug_contracts() -> Vec<Contract> {
         Envelope<DrugLabel> => ("drug-label", "biomcp.drug-label/3"),
         Envelope<DrugTargets> => ("drug-targets", "biomcp.drug-targets/3"),
         Envelope<DrugIndications> => ("drug-indications", "biomcp.drug-indications/3"),
-        Envelope<DrugCivic> => ("drug-civic", "biomcp.drug-civic/4"),
+        Envelope<DrugCivic> => ("drug-civic", "biomcp.drug-civic/5"),
         Envelope<DrugApprovals> => ("drug-approvals", "biomcp.drug-approvals/3"),
         Envelope<DrugRegulatory> => ("drug-regulatory", "biomcp.drug-regulatory/2"),
         Envelope<DrugInteractions> => ("drug-interactions", "biomcp.drug-interactions/3"),
@@ -309,8 +311,8 @@ fn diagnostic_contracts() -> Vec<Contract> {
 fn trial_contracts() -> Vec<Contract> {
     contracts! {
         TrialGet => ("trial-get", "biodata.trial-get/1"),
-        Envelope<NciTrialCards> => ("nci-trial-cards", "biomcp.nci-trial-cards/2"),
-        Envelope<NciTrialPage> => ("nci-trial-page", "biomcp.nci-trial-page/3"),
+        Envelope<NciTrialCards> => ("nci-trial-cards", "biomcp.nci-trial-cards/3"),
+        Envelope<NciTrialPage> => ("nci-trial-page", "biomcp.nci-trial-page/4"),
         Envelope<TrialCards> => ("trial-cards", "biomcp.trial-cards/3"),
         TrialConditionResolution => ("trial-condition-resolution", "biomcp.trial-condition-resolution/1"),
         TrialSearch => ("trial-search", "biodata.trial-search/2"),

@@ -58,7 +58,7 @@ pub struct Trial {
     nct_id: NctId,
     brief_title: Text,
     current_trial_status: Text,
-    phase: Option<Text>,
+    phase: Option<biomcp_types::NciTrialPhase>,
     brief_summary: Option<Box<str>>,
     #[serde(default)]
     diseases: Vec<NciDisease>,

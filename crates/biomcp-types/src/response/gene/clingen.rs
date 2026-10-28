@@ -30,7 +30,7 @@ pub struct ClinGenValidity {
     /// Source disease label.
     pub disease: Text,
     /// Source MONDO identifier.
-    pub mondo_id: Text,
+    pub mondo_id: biodata::MondoId,
     /// Source mode of inheritance.
     pub mode_of_inheritance: Text,
     /// Source classification without inference.

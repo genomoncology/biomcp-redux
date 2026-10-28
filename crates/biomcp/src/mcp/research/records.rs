@@ -18,7 +18,7 @@ fn hit(args: Vec<String>, title: &str, url: &str) -> Option<ResearchHit> {
     }
     let id = shlex::try_join(args.iter().map(String::as_str)).ok()?;
     Some(ResearchHit {
-        id,
+        id: Text::new(&id).ok()?,
         title: Text::new(title).ok()?,
         url: Text::new(url).ok()?,
     })
@@ -174,7 +174,7 @@ pub(super) fn fetch(entity: &str, id: &str, envelope: &Value) -> Option<Research
         }
         _ => native::fetch(entity, result, first, envelope),
     }?;
-    found.id = id.into();
+    found.id = Text::new(id).ok()?;
     Some(found)
 }
 

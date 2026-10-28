@@ -9,12 +9,12 @@ use biomcp_types::{CivicStatement, Problem, ProblemCode, Reason, Source, SourceR
 
 struct Claim<'a> {
     id: u64,
-    kind: &'a Text,
-    status: &'a Text,
-    significance: &'a Text,
+    kind: &'a biodata::SourceText,
+    status: &'a biomcp_types::CivicStatus,
+    significance: &'a biodata::SourceText,
     direction: &'a Text,
     level: Option<Term>,
-    classification: Term,
+    classification: Option<Term>,
     disease: Option<&'a raw::Disease>,
     therapies: &'a [raw::Therapy],
     origin: Option<&'a Text>,
@@ -56,10 +56,7 @@ pub(super) fn evidence(
                 label: raw.evidence_level.clone(),
                 coding: code.map(biodata::Coding::CivicEvidenceLevel),
             }),
-            classification: Term {
-                label: raw.significance.clone(),
-                coding: None,
-            },
+            classification: classification(&raw.significance),
             disease: raw.disease.as_ref(),
             therapies: &raw.therapies,
             origin: None,
@@ -75,15 +72,10 @@ pub(super) fn assertion(
     subject: Option<&VariantRef>,
     problems: &mut Vec<Problem>,
 ) -> Result<CivicStatement, RequestError> {
-    let (classification, level) = amp(raw.amp_level.as_ref()).unwrap_or_else(|| {
-        (
-            Term {
-                label: raw.significance.clone(),
-                coding: None,
-            },
-            None,
-        )
-    });
+    let (classification, level) = match amp(raw.amp_level.as_ref()) {
+        Some((classification, level)) => (Some(classification), level),
+        None => (classification(&raw.significance), None),
+    };
     build(
         Claim {
             id: raw.id,
@@ -117,11 +109,15 @@ fn build(
     let id = Text::new(&format!("{prefix}{}", row.id)).map_err(|_| failure(Reason::BadReply))?;
     let url = Text::new(&format!("https://civicdb.org/{path}/{}", row.id))
         .map_err(|_| failure(Reason::BadReply))?;
+    let (kind, status, significance) = vocabulary(&row);
     let native = native_claim(&row, &id, &url);
-    let proposition = proposition(row.kind.as_str());
+    let proposition = (!kind.is_unknown())
+        .then(|| proposition(row.kind.as_str()))
+        .flatten();
     let statement = subject
         .zip(proposition)
-        .map(|(subject, proposition)| Statement {
+        .zip(native.classification.clone())
+        .map(|((subject, proposition), classification)| Statement {
             subject: subject.clone(),
             proposition,
             predicate: predicate(row.kind.as_str(), row.significance.as_str()),
@@ -130,7 +126,7 @@ fn build(
                 "DOES_NOT_SUPPORT" => Some(Direction::Disputes),
                 _ => None,
             },
-            classification: native.classification.clone(),
+            classification,
             strength: native.strength.clone(),
             condition: native.condition.clone(),
             therapies: native.therapies.clone(),
@@ -149,15 +145,31 @@ fn build(
             code: ProblemCode::ValueUnknown,
         });
     }
+    for (unknown, field) in [
+        (
+            kind.is_unknown(),
+            if row.assertion {
+                "assertionType"
+            } else {
+                "evidenceType"
+            },
+        ),
+        (status.is_unknown(), "status"),
+        (significance.is_unknown(), "significance"),
+    ] {
+        if unknown {
+            crate::mapped::push_problem(problems, Source::Civic, Some(id.clone()), field);
+        }
+    }
     Ok(CivicStatement {
         statement_unmapped: statement.is_none(),
         statement,
         native,
         record: SourceRecord { id, url: Some(url) },
-        kind: row.kind.clone(),
-        status: row.status.clone(),
+        kind,
+        status,
         direction: Some(row.direction.clone()),
-        significance: Some(row.significance.clone()),
+        significance: Some(significance),
     })
 }
 fn native_claim(row: &Claim<'_>, id: &Text, url: &Text) -> biomcp_types::CivicNativeClaim {
@@ -243,4 +255,32 @@ fn amp(label: Option<&Text>) -> Option<(Term, Option<Term>)> {
             coding: Some(Coding::AmpAscoCap2017Level(level)),
         }),
     ))
+}
+
+fn classification(label: &biodata::SourceText) -> Option<Term> {
+    Text::new(label.as_str()).ok().map(|label| Term {
+        label,
+        coding: None,
+    })
+}
+
+fn vocabulary(
+    row: &Claim<'_>,
+) -> (
+    biomcp_types::CivicKind,
+    biomcp_types::CivicStatus,
+    biomcp_types::CivicSignificance,
+) {
+    let kind = if row.assertion {
+        biomcp_types::CivicKind::from_assertion(row.kind.as_str().to_owned())
+    } else {
+        biomcp_types::CivicKind::from(row.kind.as_str().to_owned())
+    };
+    let status = row.status.clone();
+    let significance = if row.assertion {
+        biomcp_types::CivicSignificance::from_assertion(row.significance.as_str().to_owned())
+    } else {
+        biomcp_types::CivicSignificance::from_evidence(row.significance.as_str().to_owned())
+    };
+    (kind, status, significance)
 }

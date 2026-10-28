@@ -33,7 +33,7 @@ pub(super) fn components(
                         .map(|(name, date)| {
                             Ok(ComponentUpload {
                                 name: Text::new(name).map_err(|_| super::leg_bad())?,
-                                date: date.clone(),
+                                date: date.clone().into(),
                             })
                         })
                         .collect::<Result<Vec<_>, RequestError>>()?,

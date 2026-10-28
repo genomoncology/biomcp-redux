@@ -65,7 +65,7 @@ pub struct CellLineIdentity {
     pub age: Option<Text>,
     /// Native sex label without classification.
     #[serde(skip_serializing_if = "Option::is_none")]
-    pub sex: Option<Text>,
+    pub sex: Option<super::CellLineSex>,
 }
 /// Complete source warning with its native scope; no stock classifier is derived.
 #[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]

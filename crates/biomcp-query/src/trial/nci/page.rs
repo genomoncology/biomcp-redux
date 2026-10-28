@@ -46,6 +46,9 @@ pub(super) fn render(
         diseases: None,
     };
     let id = s.detail.card.nct_id;
+    if let Some(problem) = super::phase_problem(&s.detail.card) {
+        out.problems.push(problem);
+    }
     if requested(TrialSection::Summary) {
         sections.summary = Some(summary(q, &s, pool.as_ref(), out));
     }

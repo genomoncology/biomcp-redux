@@ -163,3 +163,9 @@ mod pathway;
 pub use pathway::*;
 mod alphagenome_scalar;
 pub use alphagenome_scalar::{AlphaGenomeNonfiniteKind, AlphaGenomeScalar};
+
+mod civic_vocabulary;
+pub use civic_vocabulary::{CivicKind, CivicSignificance, CivicStatus};
+
+mod nci_phase;
+pub use nci_phase::NciTrialPhase;
