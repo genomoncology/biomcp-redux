@@ -1,5 +1,6 @@
 {
   "name": "biomcp",
+  "version": "1.0.0",
   "description": "Biomedical search and evidence retrieval MCP server",
   "skills": ["./skills/"],
   "author": {

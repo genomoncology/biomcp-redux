@@ -17,6 +17,11 @@ def main():
     checksum = subprocess.check_output(common + ["--entrypoint", "/usr/bin/sha256sum", image, "/usr/local/bin/biomcp"], text=True).split()[0]
     require(checksum == hashlib.sha256((Path(proof) / "biomcp").read_bytes()).hexdigest(), "container binary differs from the candidate")
     checks = ["candidate-bytes"]
+    for name in ('LICENSE', 'THIRD-PARTY-NOTICES.txt'):
+        contents = subprocess.check_output(common + ['--entrypoint', '/bin/cat', image,
+                                                    '/usr/share/doc/biomcp/' + name])
+        require(contents == (Path(proof) / name).read_bytes(), 'container ' + name + ' differs from candidate')
+    checks.append('license-notices')
     for args, key in [(["schema", "biodata.problem/1"], "$id"), (["help"], "commands")]:
         result = subprocess.run(common + [image] + args, capture_output=True, text=True, check=True)
         value = json.loads(result.stdout)

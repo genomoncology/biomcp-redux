@@ -5,7 +5,7 @@ import sys
 from pathlib import Path
 
 from contract_targets import targets
-from parity import LEDGER_END, LEDGER_START, UPGRADE_END, UPGRADE_START, table, upgrade
+from parity import LEDGER_END, LEDGER_START, UPGRADE_END, UPGRADE_START, rows, table, upgrade
 
 
 def check(root):
@@ -21,6 +21,14 @@ def check(root):
     actual = UPGRADE_START + note.split(UPGRADE_START, 1)[1].split(UPGRADE_END, 1)[0] + UPGRADE_END
     if actual != upgrade(root):
         raise ValueError("upgrade commands differ: run python3 scripts/parity.py --upgrade and replace its block")
+    reference = (root / "docs/reference/commands.md").read_text()
+    commands = set(re.findall(r"^## biomcp (.+)$", reference, re.MULTILINE))
+    for path, (command, outcome, *_) in rows(root):
+        name = command.strip("`")
+        # 0.9 placed the bundle before sync; the current grammar places sync first.
+        current = "sync " + name.removesuffix(" sync") if name.endswith(" sync") else name
+        if outcome in ("Deferred by ruling", "Dropped by ruling") and current in commands:
+            raise ValueError(f"{path}: {command} is {outcome.lower()} but appears in command reference")
     cases = {path.relative_to(root).as_posix() for path in (root / "tests/cases").rglob("*.yaml")}
     if not cases:
         raise ValueError("no outside-in cases found")

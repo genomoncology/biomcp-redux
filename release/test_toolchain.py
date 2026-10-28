@@ -39,14 +39,14 @@ class ReleaseTools(unittest.TestCase):
                         def inject_pin(text, name=name, flag=flag, value=value):
                             if name.endswith('.yml') and flag == '--version':
                                 return text.replace('--version "${{ steps.tools.outputs.cargo_deny }}"', flag + value)
-                            interpreter = 'python3' if name.endswith('.yml') else 'python'
+                            interpreter = 'python'
                             original = interpreter + ' release/toolchain.py install-rust'
                             tool = 'sh /tmp/rustup-init' if flag == '--default-toolchain' else 'cargo install cargo-deny'
                             return text.replace(original, tool + ' ' + flag + value)
                         mutations.append((name, inject_pin))
             for occurrence in (1, 2):
                 def remove_reader(text, occurrence=occurrence):
-                    marker = 'python3 release/toolchain.py outputs'
+                    marker = 'release/toolchain.py outputs'
                     parts = text.split(marker)
                     parts[occurrence - 1] += 'echo omitted-reader'
                     return marker.join(parts[:occurrence]) + marker.join(parts[occurrence:])

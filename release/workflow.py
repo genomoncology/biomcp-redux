@@ -15,6 +15,14 @@ else:
     from toolchain import manifest
 
 
+if __package__:
+    from .license_check import native, zip_payload
+    from .notices import payloads
+else:
+    from license_check import native, zip_payload
+    from notices import payloads
+
+
 PLATFORMS = [
     {"os": "ubuntu-24.04", "platform": "manylinux_2_28_x86_64", "arch": "amd64", "image": manifest()["images"]["manylinux-x86_64"]},
     {"os": "ubuntu-24.04-arm", "platform": "manylinux_2_28_aarch64", "arch": "arm64", "image": manifest()["images"]["manylinux-aarch64"]},
@@ -38,6 +46,8 @@ def identity(args):
 def protection(args):
     # https://docs.github.com/en/rest/deployments/environments#get-an-environment
     settings = json.loads(args.settings.read_text())
+    if settings.get('can_admins_bypass') is not False:
+        raise ValueError('release-publication must disable admin bypass')
     rules = settings.get("protection_rules", [])
     if not any(rule.get("type") == "required_reviewers" and rule.get("reviewers")
                and rule.get("prevent_self_review") is True for rule in rules):
@@ -60,6 +70,7 @@ def candidates(args):
 
 
 def copy_native(directory, output, tag, registry):
+    native(directory, tag)
     for pattern in ["*.whl", "*.tar.gz", "*.zip"]:
         for path in directory.glob(pattern):
             shutil.copy2(path, output / path.name)
@@ -98,7 +109,7 @@ def formula(output, version):
     (output / "biomcp.rb").write_text("\n".join(lines))
 
 
-def plugin(source, output, version):
+def plugin(source, output, version, notices):
     metadata = json.loads((source / ".claude-plugin/plugin.json").read_text())
     marketplace = json.loads((source / ".claude-plugin/marketplace.json").read_text())
     entry, = marketplace["plugins"]
@@ -106,6 +117,8 @@ def plugin(source, output, version):
         raise ValueError("plugin and marketplace must preserve the candidate identity")
     if metadata.get("skills") != ["./skills/"]:
         raise ValueError("plugin must discover the canonical skills directory")
+    if metadata.get('version') != version:
+        raise ValueError('plugin manifest must carry the candidate version')
     if entry["mcpServers"] != {"biomcp": {"command": "biomcp", "args": ["serve"]}}:
         raise ValueError("plugin must launch installed biomcp serve")
     guide = source / "skills/SKILL.md"
@@ -114,6 +127,8 @@ def plugin(source, output, version):
     metadata["version"] = entry["version"] = version
     paths = [path for path in (source / "skills").rglob("*") if path.is_file()]
     with zipfile.ZipFile(output / "biomcp-plugin.zip", "w", zipfile.ZIP_DEFLATED) as archive:
+        for name, data in payloads(notices).items():
+            archive.writestr(name, data)
         for name, value in [("plugin", metadata), ("marketplace", marketplace)]:
             archive.writestr(".claude-plugin/" + name + ".json", json.dumps(value, indent=2) + "\n")
         for path in sorted(paths):
@@ -126,10 +141,10 @@ def release_notes(output, version, revision):
         "Before installation, verify each downloaded release artifact with a current GitHub CLI:\n\n"
         "```sh\ngh attestation verify ARTIFACT --repo genomoncology/biomcp "
         "--signer-workflow genomoncology/biomcp/.github/workflows/release.yml "
-        f"--source-digest {revision}\n```\n\n"
+        f"--source-ref refs/tags/v{version} --source-digest {revision}\n```\n\n"
         "Replace ARTIFACT with the downloaded file. Compare the source commit above with the release's "
         "tag before accepting it. For a rehearsal, use the repository that ran the workflow for both "
-        "repository arguments; the source commit must match that run. Verification fails if the file, "
+        "repository arguments and replace --source-ref with the actual rehearsal ref. The source commit must match that run. Verification fails if the file, "
         "signer workflow or source commit differs. Stop if verification fails.\n\n"
         "The installer also checks the archive's SHA-256 checksum. Attestations identify the workflow "
         "and source that produced the bytes; they do not establish that the software is defect-free.\n"
@@ -172,7 +187,8 @@ def stage(args):
     (args.output / "server.json").write_text(json.dumps(registry, indent=2) + "\n")
     shutil.copy2(Path(__file__).parent / "install.sh", args.output / "install.sh")
     formula(args.output, args.version)
-    plugin(args.plugin, args.output, args.version)
+    plugin(args.plugin, args.output, args.version, next(iter(records.values())))
+    zip_payload(args.output / "biomcp-plugin.zip")
     index = {"version": args.version, "revision": args.revision,
              "image": "ghcr.io/genomoncology/biomcp", "publication": "requires Ian's approval and the release operator"}
     (args.output / "candidate.json").write_text(json.dumps(index, indent=2) + "\n")

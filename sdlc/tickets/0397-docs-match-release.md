@@ -1,6 +1,7 @@
 # 0397 — Make the user docs describe the released product
 
-Status: OPEN.
+Status: COMPLETE.
+Landed: f9182372da42eab9a9e2043046ce8f365f458407
 
 Milestone: 5
 

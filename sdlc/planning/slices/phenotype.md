@@ -136,12 +136,12 @@ The inspected 0.9 source revision is `4050fdc7dbdf4d713d94cf02a39a147b863665be`.
 | Translations | Deferred. | No harvested multilingual question requires them. |
 | HPO ontology/annotation bundles and Monarch graph bundles | Deferred. | Bounded entity access answers the accepted questions; no whole-bundle download is justified. |
 
-The counted ledger preserves the earlier disease ruling on the old ranking leaf. Its reused spelling now serves literal term search, which is separately accounted above. The old similarity option slots remain dropped rather than being relabeled as the new term-search contract.
+The counted ledger records the shipped literal term search under the reused spelling. The earlier disease ruling still drops symptom-to-disease ranking and automatic HPO resolution. The old similarity option slots remain dropped rather than being relabeled as the new term-search contract.
 
 <!-- parity-accounting -->
 | 0.9 leaf command | Command outcome | Ported or renamed options | Dropped options | Deferred options | Undecided options | Ruling |
 | --- | --- | --- | --- | --- | --- | --- |
-| `search phenotype` | Dropped by ruling | — | `--limit`, `--offset` | — | — | Drop symptom-to-disease ranking and automatic HPO resolution; literal Monarch term discovery and explicit source associations have independent contracts. Similarity stays deferred. |
+| `search phenotype` | Ported or renamed | — | `--limit`, `--offset` | — | — | Literal Monarch term discovery ships under this spelling. Drop symptom-to-disease ranking and automatic HPO resolution; literal Monarch term discovery and explicit source associations have independent contracts. Similarity stays deferred. |
 <!-- /parity-accounting -->
 
 The complete closed public-issue inventory returned 57 issues. No issue title or body contained phenotype, Monarch or HPO. The investigation must preserve the inventory and filter as external evidence; this means zero entity-specific closed issues were found, not that general transport, cache or MCP issues cease to apply.

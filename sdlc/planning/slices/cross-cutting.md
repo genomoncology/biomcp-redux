@@ -4,7 +4,7 @@ This table accounts for released leaves that have no entity owner. [The released
 
 The 0.9.3 `batch` command has positional entity choices, not separate entity leaves. Its four canonical option slots are `--mode`, `--sections`, `--source` and `--pdf`. `serve` is a parent with a `serve http` alias for `serve-http`; parent flags and aliases add no leaves or slots. `list` has positional topic values. Global flags and positional sections stay outside the denominator.
 
-A deferred row records an accepted future capability. The PM also keeps version and mcp-config as approved ports with implementation in ticket 0288; their ported classification does not claim shipped behavior. This ticket changes documentation only. The named product tickets own implementation and executable migration guidance.
+A deferred row records a capability unavailable in 1.0. Ported rows describe shipped commands and their migration paths.
 
 <!-- parity-accounting -->
 | 0.9 leaf command | Command outcome | Ported or renamed options | Dropped options | Deferred options | Undecided options | Ruling |
@@ -23,7 +23,7 @@ A deferred row records an accepted future capability. The PM also keeps version 
 | `chart violin` | Dropped by ruling | — | — | — | — | The 2026-10-23 search-and-get scope ruling excludes charts and study analysis from 1.0. Request source-native records through explicit entity commands instead. |
 | `chart waterfall` | Dropped by ruling | — | — | — | — | The 2026-10-23 search-and-get scope ruling excludes charts and study analysis from 1.0. Request source-native records through explicit entity commands instead. |
 | `discover` | Dropped by ruling | — | `--full`, `--limit`, `--offset`, `--search` | — | — | The 2026-10-24 no-text-heuristics ruling removes intent routing, local ranking and rewritten fallback searches. Choose an explicit entity search and send literal source text. |
-| `gencc sync` | Deferred by ruling | — | — | — | — | The gene slice section 1 defers the GenCC bundle and section; ClinGen supplies the accepted validity source. No GenCC synchronization is approved for the initial slice. |
+| `gencc sync` | Ported or renamed | — | — | — | — | Use sync gencc to install or refresh the complete GenCC CSV bundle. The gene gencc section reads stored submissions by HGNC identity and preserves source rows and stale markers. |
 | `serve-http` | Ported or renamed | `--allowed-hosts`, `--host`, `--port` | `--unsafe-allow-any-host` | — | — | The 2026-10-24 HTTP ruling and architecture section 8.9 use serve --http ADDR; host and port become ADDR and allowed-hosts becomes repeatable --allow-host HOST. A non-loopback listener requires an explicit allowlist. |
 | `skill install` | Ported or renamed | `--force` | — | — | — | Ticket 0187 ports the released skill guide, catalog, named example aliases, rendering, explicit-directory install and managed status. Guide commands share the existing executable-example case witnesses. Install retains --force repair and refuses traversal and symbolic links. |
 | `skill list` | Ported or renamed | — | — | — | — | Ticket 0187 ports the released skill guide, catalog, named example aliases, rendering, explicit-directory install and managed status. Guide commands share the existing executable-example case witnesses. Install retains --force repair and refuses traversal and symbolic links. |

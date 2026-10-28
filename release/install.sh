@@ -7,7 +7,7 @@ usage() {
   echo 'Usage: install.sh [--version TAG] [--help]'
   echo '       install.sh ARCHIVE SHA256 INSTALL_DIR'
   echo 'Before installation, verify the downloaded artifact with a current GitHub CLI:'
-  echo '  gh attestation verify ARTIFACT --repo genomoncology/biomcp --signer-workflow genomoncology/biomcp/.github/workflows/release.yml --source-digest COMMIT'
+  echo '  gh attestation verify ARTIFACT --repo genomoncology/biomcp --signer-workflow genomoncology/biomcp/.github/workflows/release.yml --source-ref refs/tags/vX.Y.Z --source-digest COMMIT'
   echo 'Use the release tag commit for COMMIT. Stop if verification fails.'
   echo 'The installer also requires the archive SHA-256 checksum.'
 }
@@ -86,7 +86,7 @@ scratch=$(mktemp -d)
 stage=''
 cleanup() { rm -rf "$scratch"; [ -z "$stage" ] || rm -f "$stage"; }
 trap cleanup EXIT
-install_dir=${BIOMCP_INSTALL_DIR:-$HOME/.local/bin}
+install_dir=${BIOMCP_INSTALL_DIR:-}
 binary=biomcp
 if [ "$#" -eq 3 ] && [[ "$1" != -* ]]; then
   archive=$1
@@ -103,6 +103,10 @@ else
       *) usage >&2; fail "Unknown argument: $1" ;;
     esac
   done
+  if [ -z "$install_dir" ]; then
+    [ -n "${HOME:-}" ] || fail 'HOME is unset or empty; set BIOMCP_INSTALL_DIR explicitly'
+    install_dir=$HOME/.local/bin
+  fi
   [[ "$version" =~ ^[[:alnum:]][[:alnum:]._-]*$ ]] || fail 'Invalid release version'
   system=$(uname -s)
   machine=$(uname -m)
@@ -142,16 +146,36 @@ actual=${actual%% *}
 expected=$(printf '%s' "$expected" | tr '[:upper:]' '[:lower:]')
 [ "$actual" = "$expected" ] || fail 'Archive checksum mismatch'
 
-# Read only the single regular executable. Never extract archive paths.
+# Accept the current notice-bearing layout and the legacy binary-only layout.
+# Read only the regular executable. Never extract archive paths.
+archive_members() {
+  local member executable=$2 binary_seen=0 license_seen=0 notices_seen=0
+  while IFS= read -r member; do
+    case "$member" in
+      "$executable")
+        [ "$binary_seen" -eq 0 ] || fail 'Duplicate archive executable'
+        binary_seen=1 ;;
+      LICENSE)
+        [ "$license_seen" -eq 0 ] || fail 'Duplicate archive license'
+        license_seen=1 ;;
+      THIRD-PARTY-NOTICES.txt)
+        [ "$notices_seen" -eq 0 ] || fail 'Duplicate archive notices'
+        notices_seen=1 ;;
+      *) fail 'Unexpected archive contents' ;;
+    esac
+  done <<< "$1"
+  [ "$binary_seen" -eq 1 ] || fail 'Missing archive executable'
+  [ "$license_seen" -eq "$notices_seen" ] || fail 'Incomplete archive notices'
+}
 case "$archive" in
   *.zip)
     binary=biomcp.exe
     command -v unzip >/dev/null 2>&1 || fail 'unzip is required to install on Windows shells'
-    [ "$(unzip -Z -1 "$archive")" = biomcp.exe ] || fail 'Unexpected archive contents'
+    archive_members "$(unzip -Z -1 "$archive")" biomcp.exe
     unzip -p "$archive" biomcp.exe > "$scratch/executable" ;;
   *)
-    [ "$(tar -tzf "$archive")" = biomcp ] || fail 'Unexpected archive contents'
-    [[ "$(tar -tvzf "$archive")" = -* ]] || fail 'Archive executable is not a regular file'
+    archive_members "$(tar -tzf "$archive")" biomcp
+    [[ "$(tar -tvzf "$archive" biomcp)" = -* ]] || fail 'Archive executable is not a regular file'
     tar -xOzf "$archive" biomcp > "$scratch/executable" ;;
 esac
 [ -s "$scratch/executable" ] || fail 'Archive executable is empty'

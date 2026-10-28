@@ -10,6 +10,8 @@ import tempfile
 import unittest
 import zipfile
 
+from release.test_licenses import write_payloads
+
 from release.artifacts import channels
 
 ROOT = Path(__file__).resolve().parents[1]
@@ -91,6 +93,7 @@ class DesktopTools(unittest.TestCase):
             frames = [{"jsonrpc": "2.0", "id": 1, "result": {}}, {"jsonrpc": "2.0", "id": 2, "result": {"tools": tools}}]
             binary.write_text("#!" + sys.executable + "\nimport sys\nsys.stdin.read()\nprint(" + repr("\n".join(json.dumps(frame) for frame in frames)) + ")\n")
             binary.chmod(0o755)
+            write_payloads(root)
             channels(root, binary, {"version": "1.0.0", "platform": "test"})
             with zipfile.ZipFile(root / "biomcp-test.mcpb") as bundle:
                 manifest = json.loads(bundle.read("manifest.json"))

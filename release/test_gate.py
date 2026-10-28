@@ -9,6 +9,8 @@ import tempfile
 import unittest
 import zipfile
 
+from release.test_licenses import write_payloads
+
 from release.artifacts import binary_archive, platform_tag, wheel
 
 
@@ -26,6 +28,8 @@ if args[0] in ('version', 'health'):
         sys.exit(7)
     if args == ['version']:
         print('biomcp 1.0.0')
+    elif args == ['version', '--verbose']:
+        print('biomcp 1.0.0\nCommit: ' + ('b' if FAIL == 'commit' else 'a') * 40 + '\nTarget: fixture')
     elif args == ['health', '--offline']:
         print(json.dumps({'status': 'complete', 'result': {'sources': [
             {'source': 'synthetic', 'disabled': 'synthetic' in disabled, 'state': 'skipped',
@@ -55,7 +59,7 @@ else:
 @unittest.skipIf(os.name == 'nt', 'synthetic executables use POSIX shebangs')
 class InstalledCli(unittest.TestCase):
     def test_installed_cli_rows_bind_results_and_fail_on_cli_exit(self):
-        for fail in ('', 'version', 'health'):
+        for fail in ('', 'version', 'health', 'commit'):
             with self.subTest(fail=fail), tempfile.TemporaryDirectory() as directory:
                 root = Path(directory)
                 output = root / 'dist'
@@ -67,6 +71,7 @@ class InstalledCli(unittest.TestCase):
                 record = {'distribution': 'biomcp-cli', 'version': '1.0.0', 'platform': platform_tag(False),
                           'profile': 'release', 'cargo_profile': {'debug_assertions': False, 'opt_level': '3'},
                           'binary_sha256': hashlib.sha256(binary.read_bytes()).hexdigest(), 'revision': 'a' * 40}
+                write_payloads(output)
                 wheel(output, binary, record)
                 binary_archive(output, binary, record['platform'])
                 manifest = {'name': 'biomcp', 'version': '1.0.0', 'tools': [{'name': 'biomcp'}],
@@ -91,18 +96,18 @@ class InstalledCli(unittest.TestCase):
                                         capture_output=True, text=True, timeout=120)
                 if fail:
                     self.assertNotEqual(result.returncode, 0)
-                    self.assertIn('installed CLI command failed', result.stderr)
+                    self.assertIn('installed CLI commit differs' if fail == 'commit' else 'installed CLI command failed', result.stderr)
                     continue
                 self.assertEqual(result.returncode, 0, result.stdout + result.stderr)
                 rows = json.loads((scratch / 'report.json').read_text())
                 cli = [row for row in rows if 'command' in row]
-                self.assertEqual(len(cli), 10)
+                self.assertEqual(len(cli), 15)
                 executed = [json.loads(line) for line in log.read_text().splitlines()]
                 for artifact in ('wheel', 'desktop-extension', 'mcp-registry', 'install-script', 'download-install-script'):
                     selected = [row for row in cli if row['artifact'] == artifact]
-                    self.assertEqual([row['command'] for row in selected], [['version'], ['health', '--offline']])
+                    self.assertEqual([row['command'] for row in selected], [['version'], ['version', '--verbose'], ['health', '--offline']])
                     self.assertEqual(selected[0]['output'], 'biomcp 1.0.0\n')
-                    self.assertEqual(selected[1]['output']['result']['sources'][0]['reason'], 'disabled')
+                    self.assertEqual(selected[2]['output']['result']['sources'][0]['reason'], 'disabled')
                     for row in selected:
                         self.assertEqual(row['revision'], record['revision'])
                         self.assertEqual(row['binary_sha256'], record['binary_sha256'])
