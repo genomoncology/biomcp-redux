@@ -33,7 +33,12 @@ impl fmt::Display for GwasStudyId {
         self.0.fmt(f)
     }
 }
-text_value!(GwasStudyId, "GwasStudyId", "^GCST[0-9]{6,}$");
+text_value!(
+    GwasStudyId,
+    "GwasStudyId",
+    "^GCST[0-9]{6,}$",
+    "Exact Catalog study accession; case and leading zeros survive."
+);
 
 /// A positive Catalog association ID qualified by resource kind.
 #[derive(Clone, Copy, Debug, PartialEq, Eq, PartialOrd, Ord)]
@@ -65,7 +70,8 @@ impl fmt::Display for GwasAssociationId {
 text_value!(
     GwasAssociationId,
     "GwasAssociationId",
-    "^association:[1-9][0-9]*$"
+    "^association:[1-9][0-9]*$",
+    "A positive Catalog association ID qualified by resource kind."
 );
 
 /// Native ontology identifier; namespaces are preserved without an EFO restriction.
@@ -95,7 +101,8 @@ impl fmt::Display for GwasTraitId {
 text_value!(
     GwasTraitId,
     "GwasTraitId",
-    "^[A-Za-z0-9]+[_:][A-Za-z0-9_-]+$"
+    "^[A-Za-z0-9]+[_:][A-Za-z0-9_-]+$",
+    "Native ontology identifier; namespaces are preserved without an EFO restriction."
 );
 
 mod probability;

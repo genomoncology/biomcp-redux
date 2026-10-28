@@ -1,4 +1,7 @@
 //! Housekeeping runs through the isolated installed command boundary.
+#[path = "housekeeping_path.rs"]
+mod stable_path;
+
 use super::launch::Environment;
 use libtest_mimic::Trial;
 use serde_json::{Value, json};
@@ -6,14 +9,16 @@ use std::{fs, path::Path, process::Output};
 type Check<T = ()> = Result<T, Box<dyn std::error::Error>>;
 
 pub(super) fn trials() -> Vec<Trial> {
-    vec![
+    let mut trials = vec![
         Trial::test("housekeeping/offline-provenance-and-config", || {
             check().map_err(|error| error.to_string().into())
         }),
         Trial::test("housekeeping/invalid-globals-ignore-key-config", || {
             invalid_globals().map_err(|error| error.to_string().into())
         }),
-    ]
+    ];
+    trials.extend(stable_path::trials());
+    trials
 }
 fn run(env: &Environment, args: &[&str], empty: bool) -> Check<Output> {
     let words: Vec<_> = args.iter().map(|s| (*s).to_owned()).collect();

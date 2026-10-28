@@ -35,6 +35,7 @@
       "type": "object"
     },
     "Curie": {
+      "description": "Checked prefix:local ontology identifier.",
       "pattern": "^[A-Za-z0-9_.-]+:[^\\s\\x00-\\x1f\\x7f-\\x9f]+$",
       "type": "string"
     },
@@ -166,6 +167,7 @@
       "type": "string"
     },
     "DiagnosticDeviceId": {
+      "description": "Source device identifier; DEN and H identifiers imply no executable get.",
       "pattern": "^(P[0-9]{6}(/S(00[1-9]|0[1-9][0-9]|[1-9][0-9]{2}))?|K[0-9]{6}|DEN[0-9]{6}|H[0-9]{6})$",
       "type": "string"
     },
@@ -402,10 +404,12 @@
       "type": "string"
     },
     "EnsemblGeneId": {
+      "description": " A human Ensembl gene stable identifier with a separately retained version.",
       "pattern": "^ENSG[0-9]{11}(\\.[1-9][0-9]*)?$",
       "type": "string"
     },
     "FdaDrugApplication": {
+      "description": "Cell-owned drug application preserving native NDA/BLA prefix and leading zeros.",
       "pattern": "^(NDA|BLA)[0-9]{6}$",
       "type": "string"
     },
@@ -453,6 +457,7 @@
       "type": "object"
     },
     "GeneSymbol": {
+      "description": "Source spelling of a gene symbol, with ASCII case-insensitive identity.",
       "pattern": "^[A-Za-z][A-Za-z0-9._/@-]{0,254}$",
       "type": "string"
     },
@@ -561,7 +566,8 @@
         },
         "url": {
           "$ref": "#/$defs/Text",
-          "description": "Source record URL."
+          "description": "Source record URL.",
+          "format": "uri"
         }
       },
       "required": [
@@ -612,6 +618,7 @@
       "type": "string"
     },
     "GtrTestId": {
+      "description": "Complete native GTR accession and positive version.",
       "pattern": "^GTR[0-9]{9}\\.[1-9][0-9]*$",
       "type": "string"
     },
@@ -684,10 +691,12 @@
       "type": "string"
     },
     "HgncId": {
+      "description": "An HGNC identifier with canonical namespace and positive numeric value.",
       "pattern": "^HGNC:[1-9][0-9]*$",
       "type": "string"
     },
     "NcbiGeneId": {
+      "description": "A positive NCBI Gene identifier in canonical decimal text.",
       "pattern": "^[1-9][0-9]*$",
       "type": "string"
     },
@@ -1191,6 +1200,7 @@
         },
         "terms_url": {
           "description": "Publisher page documenting the terms.",
+          "format": "uri",
           "type": "string"
         },
         "use": {
@@ -1282,6 +1292,7 @@
       "type": "string"
     },
     "WhoProductId": {
+      "description": "WHO product listing identity, independent of product codes.",
       "pattern": "^[0-9]{4,5}-([0-9]{3}|[0-9]{5})-[0-9]{2}$",
       "type": "string"
     }

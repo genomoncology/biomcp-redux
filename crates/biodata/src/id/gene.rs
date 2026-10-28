@@ -35,7 +35,12 @@ impl fmt::Display for NcbiGeneId {
         self.get().fmt(f)
     }
 }
-text_value!(NcbiGeneId, "NcbiGeneId", "^[1-9][0-9]*$");
+text_value!(
+    NcbiGeneId,
+    "NcbiGeneId",
+    "^[1-9][0-9]*$",
+    "A positive NCBI Gene identifier in canonical decimal text."
+);
 
 /// Source spelling of a gene symbol, with ASCII case-insensitive identity.
 #[derive(Clone, Debug)]
@@ -91,12 +96,13 @@ impl fmt::Display for GeneSymbol {
 text_value!(
     GeneSymbol,
     "GeneSymbol",
-    format!(r"^[A-Za-z][A-Za-z0-9._/@-]{{0,{}}}$", Self::MAX_LEN - 1)
+    format!(r"^[A-Za-z][A-Za-z0-9._/@-]{{0,{}}}$", Self::MAX_LEN - 1),
+    "Source spelling of a gene symbol, with ASCII case-insensitive identity."
 );
 
 macro_rules! accession {
-    ($(#[$doc:meta])* $name:ident, $error:ident, $schema:literal, $pattern:literal, $check:expr) => {
-        $(#[$doc])*
+    ($(#[doc = $doc:literal])* $name:ident, $error:ident, $schema:literal, $pattern:literal, $check:expr) => {
+        $(#[doc = $doc])*
         #[derive(Clone, Debug, PartialEq, Eq, Hash, PartialOrd, Ord)]
         pub struct $name(Box<str>);
         impl $name {
@@ -107,7 +113,7 @@ macro_rules! accession {
         }
         impl FromStr for $name { type Err = Error; fn from_str(value: &str) -> Result<Self, Error> { Self::new(value) } }
         impl fmt::Display for $name { fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result { f.write_str(self.as_str()) } }
-        text_value!($name, $schema, $pattern);
+        text_value!($name, $schema, $pattern, concat!($($doc),*));
     };
 }
 // Keep literal schema names for text_value's diagnostic concat.

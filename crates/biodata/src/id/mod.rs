@@ -39,7 +39,12 @@ impl fmt::Display for HgncId {
     }
 }
 
-text_value!(HgncId, "HgncId", format!("^{}[1-9][0-9]*$", Self::PREFIX));
+text_value!(
+    HgncId,
+    "HgncId",
+    format!("^{}[1-9][0-9]*$", Self::PREFIX),
+    "An HGNC identifier with canonical namespace and positive numeric value."
+);
 
 mod article;
 pub use article::{Doi, EuropePmcId, Pmcid, Pmid, SemanticScholarId};
