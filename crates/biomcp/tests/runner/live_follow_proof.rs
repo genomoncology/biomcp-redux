@@ -1,6 +1,6 @@
 //! Exercise diagnostic dependency planning through the runner, without live sources.
-use crate::runner::transcript::trial as transcript_trial;
 use super::launch::{Environment, fixtures};
+use crate::runner::transcript::trial as transcript_trial;
 use libtest_mimic::Trial;
 use serde_json::{Value, json};
 use std::fs;

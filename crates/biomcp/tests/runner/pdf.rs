@@ -1,6 +1,6 @@
 //! Explicit PDF files through the real command and stdio MCP boundary.
-use crate::runner::transcript::trial as transcript_trial;
 use super::launch::{Environment, fixtures};
+use crate::runner::transcript::trial as transcript_trial;
 use libtest_mimic::Trial;
 use serde_json::{Value, json};
 use sha2::{Digest, Sha256};

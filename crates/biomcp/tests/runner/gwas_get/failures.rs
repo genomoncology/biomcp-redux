@@ -1,6 +1,6 @@
 //! Synthetic faults cover each independently fetched GWAS resource.
-use crate::runner::transcript::trial as transcript_trial;
 use super::*;
+use crate::runner::transcript::trial as transcript_trial;
 pub(super) fn trials() -> Vec<Trial> {
     let mut trials = Vec::new();
     for surface in ["association", "study", "associations", "ancestries", "loci"] {

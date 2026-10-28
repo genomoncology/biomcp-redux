@@ -1,10 +1,10 @@
 //! Feature diagnostic-retirements: old stored data remains visible without refresh.
-use crate::runner::transcript::trial as transcript_trial;
 use super::{
     configuration::invoke,
     launch::{Environment, fixtures},
     mcp,
 };
+use crate::runner::transcript::trial as transcript_trial;
 use libtest_mimic::Trial;
 use serde_json::{Value, json};
 use std::{fs, io::Write};

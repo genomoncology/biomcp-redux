@@ -1,7 +1,7 @@
 //! Feature pathway-reactome: retain a runtime pool token while changing caller selectors.
-use crate::runner::transcript::trial as transcript_trial;
 use super::launch::{Environment, fixtures};
 use crate::runner::pathway_budgets as budgets;
+use crate::runner::transcript::trial as transcript_trial;
 use libtest_mimic::Trial;
 use serde_json::{Value, json};
 

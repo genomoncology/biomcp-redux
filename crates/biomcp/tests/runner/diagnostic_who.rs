@@ -1,11 +1,11 @@
 //! Feature diagnostic-who: exact cards consume a complete explicit stored export.
-use crate::runner::transcript::trial as transcript_trial;
 mod mechanics;
 mod search;
 use super::{
     configuration::invoke,
     launch::{Environment, fixtures},
 };
+use crate::runner::transcript::trial as transcript_trial;
 use libtest_mimic::Trial;
 use serde_json::{Value, json};
 use std::{

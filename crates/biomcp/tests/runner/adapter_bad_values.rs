@@ -1,6 +1,6 @@
 //! Features variant and drug-ema: rejected optional source text keeps the reply usable.
-use crate::runner::transcript::trial as transcript_trial;
 use super::super::{configuration::invoke, network_stub::Stub, response_cases::checked_steps};
+use crate::runner::transcript::trial as transcript_trial;
 use libtest_mimic::Trial;
 use serde_json::{Value, json};
 #[path = "adapter_reactome_bad_values.rs"]

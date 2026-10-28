@@ -1,9 +1,9 @@
 //! Housekeeping runs through the isolated installed command boundary.
-use crate::runner::transcript::trial as transcript_trial;
 #[path = "housekeeping_path.rs"]
 mod stable_path;
 
 use super::launch::Environment;
+use crate::runner::transcript::trial as transcript_trial;
 use libtest_mimic::Trial;
 use serde_json::{Value, json};
 use std::{fs, path::Path, process::Output};

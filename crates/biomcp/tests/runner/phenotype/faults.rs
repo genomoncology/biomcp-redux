@@ -1,7 +1,7 @@
 //! Synthetic failures preserve source outcomes and never admit rejected values.
-use crate::runner::transcript::trial as transcript_trial;
 use super::budgets;
 use super::{Environment, Stub, invoke, setup};
+use crate::runner::transcript::trial as transcript_trial;
 use libtest_mimic::Trial;
 use serde_json::{Value, json};
 use std::fs;

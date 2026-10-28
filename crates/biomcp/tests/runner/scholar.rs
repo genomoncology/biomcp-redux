@@ -1,6 +1,6 @@
 //! The shipped command owns key configuration and never includes its value in output.
-use crate::runner::transcript::trial as transcript_trial;
 use super::launch::Environment;
+use crate::runner::transcript::trial as transcript_trial;
 use libtest_mimic::Trial;
 use serde_json::{Value, json};
 use std::path::PathBuf;

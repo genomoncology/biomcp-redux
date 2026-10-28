@@ -1,6 +1,6 @@
 //! Feature gene-identity: replay misses stay source failures and repeated server calls use checked cache.
-use crate::runner::transcript::trial as transcript_trial;
 use super::{launch::Environment, mcp};
+use crate::runner::transcript::trial as transcript_trial;
 use libtest_mimic::Trial;
 use serde_json::{Value, json};
 use std::{

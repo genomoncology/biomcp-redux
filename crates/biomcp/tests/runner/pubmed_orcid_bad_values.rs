@@ -1,6 +1,6 @@
 //! Features article-get, article-search and author-orcid: invalid optional fields retain source records.
-use crate::runner::transcript::trial as transcript_trial;
 use super::super::{configuration::invoke, network_stub::Stub, response_cases::checked_case};
+use crate::runner::transcript::trial as transcript_trial;
 use libtest_mimic::Trial;
 use serde_json::{Value, json};
 pub(super) fn trials() -> Vec<Trial> {

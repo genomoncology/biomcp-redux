@@ -1,9 +1,9 @@
 //! Feature diagnostic-cdx: synthetic stored companion rows retain owned identities.
-use crate::runner::transcript::trial as transcript_trial;
 use super::{
     configuration::invoke,
     launch::{Environment, fixtures},
 };
+use crate::runner::transcript::trial as transcript_trial;
 use libtest_mimic::Trial;
 use serde_json::{Value, json};
 use std::{

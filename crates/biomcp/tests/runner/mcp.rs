@@ -47,7 +47,9 @@ pub(super) fn exchange_retained(
     }
     drop(stdin);
     let (status, stdout, stderr) = process.finish()?;
-    command.record(status, &stdout, "mcp").map_err(|e| e.to_string())?;
+    command
+        .record(status, &stdout, "mcp")
+        .map_err(|e| e.to_string())?;
     if let Some(directory) = directory {
         std::fs::write(directory.join("mcp.stdout"), &stdout).map_err(|e| e.to_string())?;
         std::fs::write(directory.join("mcp.stderr"), &stderr).map_err(|e| e.to_string())?;

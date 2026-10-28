@@ -1,7 +1,7 @@
 //! Feature cpic-pgx: synthetic native retrieval through the actual CLI and MCP.
-use crate::runner::transcript::trial as transcript_trial;
 mod rows;
 use super::{configuration::invoke, launch::Environment, network_stub::Stub};
+use crate::runner::transcript::trial as transcript_trial;
 use libtest_mimic::Trial;
 use serde_json::{Value, json};
 type Check = Result<(), String>;
@@ -39,9 +39,10 @@ pub(super) fn trials() -> Vec<Trial> {
         "429",
         "500",
     ] {
-        out.push(transcript_trial(format!("cpic-pgx/reject-{name}"), move || {
-            failure(name).map_err(Into::into)
-        }));
+        out.push(transcript_trial(
+            format!("cpic-pgx/reject-{name}"),
+            move || failure(name).map_err(Into::into),
+        ));
     }
     out
 }

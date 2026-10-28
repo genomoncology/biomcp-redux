@@ -1,8 +1,8 @@
 //! Feature diagnostic-gtr: local reads require an explicit complete synchronization.
-use crate::runner::transcript::trial as transcript_trial;
 mod mechanics;
 mod native_value;
 use super::{configuration::invoke, launch::Environment};
+use crate::runner::transcript::trial as transcript_trial;
 use libtest_mimic::Trial;
 use serde_json::json;
 

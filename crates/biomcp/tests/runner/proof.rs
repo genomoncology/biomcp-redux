@@ -1,5 +1,5 @@
-use crate::runner::transcript::trial as transcript_trial;
 use super::launch::{ENV_PATHS, Environment};
+use crate::runner::transcript::trial as transcript_trial;
 use libtest_mimic::Trial;
 use std::{env, fs, path::Path};
 

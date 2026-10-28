@@ -1,5 +1,4 @@
 //! Exact registry protocol integrity through real CLI/MCP and immutable page walks.
-use crate::runner::transcript::trial as transcript_trial;
 #![expect(
     clippy::indexing_slicing,
     reason = "Captured source fixtures and checked envelopes fail directly on shape drift"
@@ -8,6 +7,7 @@ use super::{
     launch::Environment,
     response_cases::{checked_steps, copy_capture},
 };
+use crate::runner::transcript::trial as transcript_trial;
 use libtest_mimic::Trial;
 use serde_json::{Value, json};
 use std::fs;

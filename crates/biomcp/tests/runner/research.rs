@@ -1,5 +1,4 @@
 //! Research wrappers map the existing CLI result without provider calls.
-use crate::runner::transcript::trial as transcript_trial;
 #[path = "research_links.rs"]
 mod links;
 #[path = "research_registry.rs"]
@@ -9,6 +8,7 @@ use super::{
     mcp::{exchange, request},
     trial_get::command,
 };
+use crate::runner::transcript::trial as transcript_trial;
 use libtest_mimic::Trial;
 use serde_json::{Value, json};
 

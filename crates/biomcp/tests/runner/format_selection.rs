@@ -1,6 +1,6 @@
 //! Feature markdown-view: each format/configuration branch runs independently.
-use crate::runner::transcript::trial as transcript_trial;
 use super::launch::Environment;
+use crate::runner::transcript::trial as transcript_trial;
 use libtest_mimic::Trial;
 use serde_json::{Value, json};
 use std::fs;
@@ -61,9 +61,10 @@ pub(super) fn trials() -> Vec<Trial> {
             4,
         ),
     ] {
-        trials.push(transcript_trial(format!("terminal-format/{name}"), move || {
-            check(&words, exit, None, Config::Absent).map_err(|e| e.to_string().into())
-        }));
+        trials.push(transcript_trial(
+            format!("terminal-format/{name}"),
+            move || check(&words, exit, None, Config::Absent).map_err(|e| e.to_string().into()),
+        ));
     }
     trials
 }

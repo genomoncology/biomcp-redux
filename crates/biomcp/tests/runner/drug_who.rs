@@ -1,7 +1,7 @@
 //! Feature drug-who-medicines: explicit sync, native cells and exact references.
-use crate::runner::transcript::trial as transcript_trial;
 mod navigation;
 use super::{configuration::invoke, launch::Environment, mcp, network_stub::Stub};
+use crate::runner::transcript::trial as transcript_trial;
 use libtest_mimic::Trial;
 use serde_json::{Value, json};
 use std::{

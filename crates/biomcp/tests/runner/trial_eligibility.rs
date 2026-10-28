@@ -1,6 +1,6 @@
 //! Structural eligibility boundaries through recorded CLI requests.
-use crate::runner::transcript::trial as transcript_trial;
 use super::{launch::Environment, response_cases::copy_capture, trial_get::command};
+use crate::runner::transcript::trial as transcript_trial;
 use libtest_mimic::Trial;
 use serde_json::{Value, json};
 type Check = Result<(), Box<dyn std::error::Error>>;

@@ -1,6 +1,6 @@
 //! Feature adverse-event-search: real command policy precedes cache, replay and HTTP.
-use crate::runner::transcript::trial as transcript_trial;
 use super::{Check, args, both, environment, expression, setup};
+use crate::runner::transcript::trial as transcript_trial;
 use libtest_mimic::Trial;
 use serde_json::{Value, json};
 pub(super) fn trials() -> Vec<Trial> {

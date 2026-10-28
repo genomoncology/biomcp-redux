@@ -1,6 +1,6 @@
 //! Cleanup is exercised through the isolated real command and shared SQLite file.
-use crate::runner::transcript::trial as transcript_trial;
 use super::launch::Environment;
+use crate::runner::transcript::trial as transcript_trial;
 use libtest_mimic::Trial;
 use rusqlite::{Connection, params};
 use serde_json::{Value, json};

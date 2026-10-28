@@ -1,6 +1,6 @@
 //! Closed parser edge cases reject undeclared namespace and selector shapes.
-use crate::runner::transcript::trial as transcript_trial;
 use super::{Selection, Step, projection::Projection, request};
+use crate::runner::transcript::trial as transcript_trial;
 use libtest_mimic::Trial;
 use serde_json::{Value, json};
 

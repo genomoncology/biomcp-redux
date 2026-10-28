@@ -1,6 +1,6 @@
 //! Article Markdown presents dropped-word notices before article records.
-use crate::runner::transcript::trial as transcript_trial;
 use super::launch::Environment;
+use crate::runner::transcript::trial as transcript_trial;
 use libtest_mimic::Trial;
 
 pub(super) fn trials() -> Vec<Trial> {

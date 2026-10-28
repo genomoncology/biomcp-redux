@@ -1,7 +1,7 @@
 //! Feature study-files: references retain native blob facts and publisher notices.
-use crate::runner::transcript::trial as transcript_trial;
 use super::{call, rows, seed};
 use crate::runner::launch::Environment;
+use crate::runner::transcript::trial as transcript_trial;
 use libtest_mimic::Trial;
 use serde_json::{Value, json};
 use sha2::{Digest, Sha256};

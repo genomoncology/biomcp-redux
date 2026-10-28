@@ -1,6 +1,6 @@
 //! Compare selected harvested facts through both actual executables.
-use crate::runner::transcript::trial as transcript_trial;
 use super::{Case, Step, assertions, launch::Environment, load_floors};
+use crate::runner::transcript::trial as transcript_trial;
 use serde::Deserialize;
 use serde_json::{Value, json};
 use std::{collections::BTreeMap, fs, path::Path, process::ExitCode};

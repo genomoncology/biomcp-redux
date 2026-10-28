@@ -1,10 +1,10 @@
 //! Source settings through the installed command boundary, isolated from user state.
-use crate::runner::transcript::trial as transcript_trial;
 use super::{
     configuration::{cached, invoke, root},
     launch::Environment,
     mcp,
 };
+use crate::runner::transcript::trial as transcript_trial;
 use libtest_mimic::Trial;
 use serde_json::{Value, json};
 use std::{fs, path::PathBuf};

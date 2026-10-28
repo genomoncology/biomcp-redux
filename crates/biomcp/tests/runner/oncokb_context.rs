@@ -1,6 +1,6 @@
 //! Resolve keyed source selectors while keyless calls stop before identity I/O.
-use crate::runner::transcript::trial as transcript_trial;
 use super::{launch::Environment, network_stub::Stub, oncokb};
+use crate::runner::transcript::trial as transcript_trial;
 use libtest_mimic::Trial;
 use serde_json::{Value, json};
 use std::fs;

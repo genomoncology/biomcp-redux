@@ -1,6 +1,6 @@
 //! Feature phenotype-sections: source-owned text and direct link disclosure.
-use crate::runner::transcript::trial as transcript_trial;
 use super::{Stub, invoke, setup};
+use crate::runner::transcript::trial as transcript_trial;
 use libtest_mimic::Trial;
 use serde_json::{Value, json};
 pub(super) fn trials() -> Vec<Trial> {

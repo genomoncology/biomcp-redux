@@ -1,6 +1,6 @@
 //! Process settings and persistent case-cache ownership through the shipped binary.
-use crate::runner::transcript::trial as transcript_trial;
 use super::{launch::Environment, mcp};
+use crate::runner::transcript::trial as transcript_trial;
 use libtest_mimic::Trial;
 use serde_json::{Value, json};
 use std::{

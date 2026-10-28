@@ -1,5 +1,5 @@
-use crate::runner::transcript::trial as transcript_trial;
 use super::{Environment, Stub, annotation, args, invoke, record, replay, setup};
+use crate::runner::transcript::trial as transcript_trial;
 use libtest_mimic::Trial;
 use serde_json::{Value, json};
 use std::fs;

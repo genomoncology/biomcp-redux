@@ -1,5 +1,4 @@
 //! Original registry site walks and response-only attachment/status boundaries.
-use crate::runner::transcript::trial as transcript_trial;
 #![expect(
     clippy::indexing_slicing,
     reason = "Checked captures and command envelopes fail directly on shape drift"
@@ -9,6 +8,7 @@ use super::{
     response_cases::{checked_steps, copy_capture},
     trial_get::{command, original},
 };
+use crate::runner::transcript::trial as transcript_trial;
 use libtest_mimic::Trial;
 use serde_json::{Value, json};
 type Check = Result<(), Box<dyn std::error::Error>>;

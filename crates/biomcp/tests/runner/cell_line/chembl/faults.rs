@@ -1,5 +1,5 @@
-use crate::runner::transcript::trial as transcript_trial;
 use super::*;
+use crate::runner::transcript::trial as transcript_trial;
 pub(super) fn trials() -> Vec<Trial> {
     let mut trials = Vec::new();
     for assay in [false, true] {

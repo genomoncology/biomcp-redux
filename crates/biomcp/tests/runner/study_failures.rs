@@ -1,7 +1,7 @@
 //! Feature study-failures: synthetic source faults preserve accepted metadata and fail explicitly.
-use crate::runner::transcript::trial as transcript_trial;
 use super::{call, rows, seed, study_files, study_get};
 use crate::runner::launch::Environment;
+use crate::runner::transcript::trial as transcript_trial;
 use libtest_mimic::Trial;
 use serde_json::{Value, json};
 use std::{fs, path::Path};

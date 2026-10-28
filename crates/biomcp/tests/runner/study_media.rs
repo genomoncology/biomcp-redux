@@ -1,9 +1,9 @@
 //! Feature study-catalog: synchronize the publisher's JSON representation.
-use crate::runner::transcript::trial as transcript_trial;
 use super::{
     super::{configuration::invoke, launch::Environment, network_stub::Stub},
     rows,
 };
+use crate::runner::transcript::trial as transcript_trial;
 use libtest_mimic::Trial;
 use serde_json::json;
 use std::fs;

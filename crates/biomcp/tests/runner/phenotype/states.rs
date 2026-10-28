@@ -1,7 +1,7 @@
 //! P24 separates source-local empty, exact absence and source failure.
-use crate::runner::transcript::trial as transcript_trial;
 use super::budgets;
 use super::{Environment, Stub, invoke, record, setup};
+use crate::runner::transcript::trial as transcript_trial;
 use libtest_mimic::Trial;
 use serde_json::{Value, json};
 pub(super) fn trials() -> Vec<Trial> {

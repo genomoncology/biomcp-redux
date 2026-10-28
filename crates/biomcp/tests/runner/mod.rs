@@ -1,4 +1,3 @@
-use crate::runner::transcript::trial as transcript_trial;
 mod adverse_event_failures;
 mod adverse_event_registry;
 mod adverse_event_retirements;
@@ -11,10 +10,12 @@ mod orcid;
 pub(super) mod parity;
 mod parity_inventory_proof;
 mod parity_shape_proof;
+use crate::runner::transcript::trial as transcript_trial;
 use execution::run_step;
 mod alphagenome;
 mod alphagenome_tls;
 mod cache_contention;
+mod capture;
 pub(super) mod cell_line;
 mod clinpgx;
 mod clinvar_key;
@@ -67,8 +68,6 @@ mod key_help;
 mod key_registration;
 mod key_reload;
 mod launch;
-mod capture;
-mod transcript;
 mod litvar_tables;
 pub(crate) mod live;
 mod live_follow_proof;
@@ -140,6 +139,7 @@ mod store_coexistence;
 mod study_catalog;
 mod supplement_tables;
 mod terminal_edges;
+mod transcript;
 mod trial_bad_values;
 mod trial_condition;
 mod trial_documents;
@@ -332,9 +332,10 @@ pub(super) fn protocol_trials() -> Vec<Trial> {
         "article-supplements/ping-after-bounded-refusal",
         || supplement_tables::ping_after_refusal().map_err(Into::into),
     ));
-    trials.push(transcript_trial("article-saves/explicit-original-files", || {
-        article_save::check().map_err(Into::into)
-    }));
+    trials.push(transcript_trial(
+        "article-saves/explicit-original-files",
+        || article_save::check().map_err(Into::into),
+    ));
     trials.extend(live_proof::trials());
     trials.extend(live_follow_proof::trials());
     trials.extend(gene_tables::trials());
@@ -347,12 +348,14 @@ pub(super) fn protocol_trials() -> Vec<Trial> {
     trials.extend(protein_domains::trials());
     trials.extend(trial_group::trials());
     trials.extend(clinvar_key::trials());
-    trials.push(transcript_trial("article-fulltext/source-boundaries", || {
-        pmc_tables::check().map_err(|e| e.to_string().into())
-    }));
-    trials.push(transcript_trial("article-search/snapshot-replacement", || {
-        pool_tables::check().map_err(Into::into)
-    }));
+    trials.push(transcript_trial(
+        "article-fulltext/source-boundaries",
+        || pmc_tables::check().map_err(|e| e.to_string().into()),
+    ));
+    trials.push(transcript_trial(
+        "article-search/snapshot-replacement",
+        || pool_tables::check().map_err(Into::into),
+    ));
     trials.extend(configuration::trials());
     trials.extend(replay::trials());
     trials.extend(article_recovery::trials());
@@ -384,9 +387,10 @@ pub(super) fn protocol_trials() -> Vec<Trial> {
     trials.extend(markdown_shapes::trials());
     trials.extend(markdown_variant_trial::trials());
     trials.extend(markdown_sources::trials());
-    trials.push(transcript_trial("mcp/ping-passes-held-provider-call", || {
-        held_proxy::check().map_err(Into::into)
-    }));
+    trials.push(transcript_trial(
+        "mcp/ping-passes-held-provider-call",
+        || held_proxy::check().map_err(Into::into),
+    ));
     trials
 }
 

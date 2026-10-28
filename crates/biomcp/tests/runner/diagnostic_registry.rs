@@ -1,6 +1,6 @@
 //! Feature source-controls: public diagnostic declarations before runtime dispatch exists.
-use crate::runner::transcript::trial as transcript_trial;
 use super::{configuration::invoke, launch::Environment};
+use crate::runner::transcript::trial as transcript_trial;
 use biomcp_adapters::registry;
 use biomcp_types::{Reason, SourceState};
 use libtest_mimic::Trial;

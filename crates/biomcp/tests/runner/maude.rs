@@ -1,6 +1,6 @@
 //! Feature maude-reports: synthetic source-native device reports through CLI and MCP.
-use crate::runner::transcript::trial as transcript_trial;
 use super::{configuration::invoke as raw_invoke, launch::Environment, network_stub::Stub};
+use crate::runner::transcript::trial as transcript_trial;
 use libtest_mimic::Trial;
 use serde_json::{Value, json};
 pub(super) type Check = Result<(), String>;

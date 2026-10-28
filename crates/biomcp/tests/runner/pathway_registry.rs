@@ -1,7 +1,7 @@
 //! Feature source-controls: public pathway declarations before runtime dispatch exists.
-use crate::runner::transcript::trial as transcript_trial;
 use super::launch::Environment;
 use crate::runner::pathway_budgets as budgets;
+use crate::runner::transcript::trial as transcript_trial;
 use biomcp_adapters::registry;
 use biomcp_types::{Reason, SourceState};
 use libtest_mimic::Trial;

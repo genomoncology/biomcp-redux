@@ -1,10 +1,10 @@
 //! Summary metadata pages never request or return whole sample membership.
-use crate::runner::transcript::trial as transcript_trial;
 use super::{
     launch::Environment,
     network_stub::Stub,
     recurrence::{args, call, cbio, config},
 };
+use crate::runner::transcript::trial as transcript_trial;
 use libtest_mimic::Trial;
 use serde_json::{Value, json};
 pub(super) fn trials() -> Vec<Trial> {

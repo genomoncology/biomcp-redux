@@ -1,6 +1,6 @@
 //! Feature protein-search: dynamic pool bindings and lifetimes through the shipped command.
-use crate::runner::transcript::trial as transcript_trial;
 use super::{configuration::invoke, launch::Environment};
+use crate::runner::transcript::trial as transcript_trial;
 use libtest_mimic::Trial;
 use serde_json::Value;
 type Check = Result<(), String>;

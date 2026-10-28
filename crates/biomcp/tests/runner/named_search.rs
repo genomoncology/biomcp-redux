@@ -1,11 +1,11 @@
 //! Named provider boundaries through the shared isolated command runner.
-use crate::runner::transcript::trial as transcript_trial;
 #![expect(
     clippy::unwrap_used,
     clippy::indexing_slicing,
     reason = "Checked captures and response-only edits fail directly on malformed fixture shapes"
 )]
 use super::response_cases::{checked_case, checked_steps};
+use crate::runner::transcript::trial as transcript_trial;
 use libtest_mimic::Trial;
 use serde_json::json;
 type Check = Result<(), Box<dyn std::error::Error>>;

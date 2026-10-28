@@ -1,7 +1,7 @@
 //! Feature drug-native-sources: retained native bodies delivered locally through real record and replay.
 //! Original source dates and request identities remain in fixture provenance; delivery is not a live provider check.
-use crate::runner::transcript::trial as transcript_trial;
 use super::{configuration::invoke, launch::Environment, network_stub::Stub};
+use crate::runner::transcript::trial as transcript_trial;
 use libtest_mimic::Trial;
 use serde::Deserialize;
 use serde_json::{Map, Value, json};

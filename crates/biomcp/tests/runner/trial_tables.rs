@@ -1,10 +1,10 @@
 //! Registry failure and pre-request boundaries through the isolated real command.
-use crate::runner::transcript::trial as transcript_trial;
 #![expect(
     clippy::indexing_slicing,
     reason = "Checked captures fail directly when a fixture shape changes"
 )]
 use super::response_cases::{checked_case, checked_steps};
+use crate::runner::transcript::trial as transcript_trial;
 use libtest_mimic::Trial;
 use serde_json::{Value, json};
 type Check = Result<(), Box<dyn std::error::Error>>;

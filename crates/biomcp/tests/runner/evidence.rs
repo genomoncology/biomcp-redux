@@ -1,11 +1,11 @@
 //! Stored cursor and hit positions through real command record/replay boundaries.
-use crate::runner::transcript::trial as transcript_trial;
 #![expect(
     clippy::unwrap_used,
     clippy::indexing_slicing,
     reason = "Checked test envelopes fail at the malformed boundary"
 )]
 use super::{launch::Environment, response_cases::checked_steps};
+use crate::runner::transcript::trial as transcript_trial;
 use libtest_mimic::Trial;
 use serde_json::{Value, json};
 use std::fs;

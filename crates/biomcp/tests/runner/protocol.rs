@@ -1,4 +1,3 @@
-use crate::runner::transcript::trial as transcript_trial;
 #[path = "protocol_schemas.rs"]
 mod schemas;
 use super::{
@@ -6,6 +5,7 @@ use super::{
     mcp::{exchange, request},
     process::Process,
 };
+use crate::runner::transcript::trial as transcript_trial;
 use libtest_mimic::Trial;
 use serde_json::{Value, json};
 use std::{io::Write, process::Stdio, time::Instant};

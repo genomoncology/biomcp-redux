@@ -1,6 +1,6 @@
 //! Variant and trial Markdown shapes reuse the existing isolated command contract.
-use crate::runner::transcript::trial as transcript_trial;
 use super::markdown_shapes::{Shape, check};
+use crate::runner::transcript::trial as transcript_trial;
 use libtest_mimic::Trial;
 pub(super) fn trials() -> Vec<Trial> {
     let mut trials: Vec<_> = SHAPES

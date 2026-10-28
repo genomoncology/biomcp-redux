@@ -1,9 +1,9 @@
 //! Features pathway-wikipathways and diagnostic-cdx: external locks retain typed failures.
-use crate::runner::transcript::trial as transcript_trial;
 use super::super::{
     diagnostic_cdx, launch::Environment, mcp::request, publication::Peer, schema::Registry,
     wikipathways,
 };
+use crate::runner::transcript::trial as transcript_trial;
 use libtest_mimic::Trial;
 use serde_json::{Value, json};
 

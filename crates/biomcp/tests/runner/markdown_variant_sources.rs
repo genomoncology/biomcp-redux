@@ -1,11 +1,11 @@
 //! Positive section views reuse the existing synthetic source responders.
-use crate::runner::transcript::trial as transcript_trial;
 // Ceilings are ceil(j11380 measured comparable Markdown bytes * 1.15).
 use super::{
     launch::Environment,
     markdown_shapes::{Shape, check_environment},
     network_stub::Stub,
 };
+use crate::runner::transcript::trial as transcript_trial;
 use libtest_mimic::Trial;
 use serde_json::json;
 use std::fs;

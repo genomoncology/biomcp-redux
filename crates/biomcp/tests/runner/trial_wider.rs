@@ -1,10 +1,10 @@
 //! Wider searches are explicit alternatives and never provider requests.
-use crate::runner::transcript::trial as transcript_trial;
 #![expect(
     clippy::indexing_slicing,
     reason = "Recorded response shapes fail directly"
 )]
 use super::response_cases::checked_steps;
+use crate::runner::transcript::trial as transcript_trial;
 use libtest_mimic::Trial;
 use serde_json::{Value, json};
 type Check = Result<(), Box<dyn std::error::Error>>;

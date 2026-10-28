@@ -1,6 +1,6 @@
 //! Feature store-coexistence: allowed reads retain both owned store generations.
-use crate::runner::transcript::trial as transcript_trial;
 use super::{configuration::invoke, launch::Environment};
+use crate::runner::transcript::trial as transcript_trial;
 use libtest_mimic::Trial;
 use rusqlite::{Connection, params};
 use serde_json::{Value, json};

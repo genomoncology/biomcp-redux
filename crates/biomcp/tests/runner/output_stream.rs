@@ -1,6 +1,6 @@
 //! Schema output survives closed readers; Markdown omits an absent query.
-use crate::runner::transcript::trial as transcript_trial;
 use super::{launch::Environment, process::Process};
+use crate::runner::transcript::trial as transcript_trial;
 use libtest_mimic::Trial;
 use std::{io::Read, process::Stdio};
 

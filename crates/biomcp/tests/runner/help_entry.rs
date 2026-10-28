@@ -1,6 +1,6 @@
 //! Public aliases preserve formatted help and unknown commands offer safe executable recovery.
-use crate::runner::transcript::trial as transcript_trial;
 use super::launch::Environment;
+use crate::runner::transcript::trial as transcript_trial;
 use libtest_mimic::Trial;
 use serde_json::Value;
 

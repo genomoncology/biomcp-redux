@@ -1,7 +1,7 @@
 //! Feature drug-civic: source bodies fetched 2026-10-25 are delivered locally, recorded and replayed.
 //! Original fetch dates and request hashes remain in fixtures/drug/civic/provenance.json.
-use crate::runner::transcript::trial as transcript_trial;
 use super::{configuration::invoke, launch::Environment, network_stub::Stub};
+use crate::runner::transcript::trial as transcript_trial;
 use libtest_mimic::Trial;
 use serde_json::{Value, json};
 use std::fs;

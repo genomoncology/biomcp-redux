@@ -1,6 +1,6 @@
 //! Feature source-controls: synthetic delayed exchanges explain bounded source latency.
-use crate::runner::transcript::trial as transcript_trial;
 use super::{configuration::invoke, launch::Environment};
+use crate::runner::transcript::trial as transcript_trial;
 use libtest_mimic::Trial;
 mod quota;
 use serde_json::Value;

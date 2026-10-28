@@ -1,6 +1,6 @@
 //! Synthetic composites preserve failure, empty, skip and identity boundaries.
-use crate::runner::transcript::trial as transcript_trial;
 use super::*;
+use crate::runner::transcript::trial as transcript_trial;
 pub(super) fn trials() -> Vec<Trial> {
     let mut trials = vec![transcript_trial(
         "cell-line-all/retired-zero-provider-requests",

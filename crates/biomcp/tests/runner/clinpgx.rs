@@ -1,8 +1,8 @@
 //! Feature clinpgx-annotations: native tiers through actual CLI and MCP.
-use crate::runner::transcript::trial as transcript_trial;
 mod failures;
 mod rows;
 use super::{configuration::invoke, launch::Environment, network_stub::Stub};
+use crate::runner::transcript::trial as transcript_trial;
 use libtest_mimic::Trial;
 use serde_json::{Value, json};
 type Check = Result<(), String>;

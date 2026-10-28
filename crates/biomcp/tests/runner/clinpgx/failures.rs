@@ -1,6 +1,6 @@
 //! Source failures use synthetic HTTP and recorded deadlines, never live faults.
-use crate::runner::transcript::trial as transcript_trial;
 use super::*;
+use crate::runner::transcript::trial as transcript_trial;
 pub(super) fn trials() -> Vec<Trial> {
     let mut out = vec![];
     for name in [
@@ -17,9 +17,10 @@ pub(super) fn trials() -> Vec<Trial> {
             move || failure(name).map_err(Into::into),
         ));
     }
-    out.push(transcript_trial("clinpgx-annotations/recorded-timeout", || {
-        timeout().map_err(Into::into)
-    }));
+    out.push(transcript_trial(
+        "clinpgx-annotations/recorded-timeout",
+        || timeout().map_err(Into::into),
+    ));
     out.push(transcript_trial(
         "clinpgx-annotations/exclusive-selectors",
         || selectors().map_err(Into::into),

@@ -1,7 +1,7 @@
 //! Ambiguous published IDs keep every source allele and executable population steps.
-use crate::runner::transcript::trial as transcript_trial;
 use super::{environment, execute};
 use crate::runner::network_stub::Stub;
+use crate::runner::transcript::trial as transcript_trial;
 use libtest_mimic::Trial;
 use serde_json::{Value, json};
 

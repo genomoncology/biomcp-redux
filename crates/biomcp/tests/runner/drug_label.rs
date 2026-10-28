@@ -1,7 +1,7 @@
 //! Feature drug-label: captured identity subsets with explicitly synthetic label prose.
 //! Whole native label bodies remain outside Git in the reviewed source evidence.
-use crate::runner::transcript::trial as transcript_trial;
 use super::{configuration::invoke, launch::Environment, network_stub::Stub};
+use crate::runner::transcript::trial as transcript_trial;
 use libtest_mimic::Trial;
 use serde_json::{Value, json};
 type Check = Result<(), String>;
@@ -14,17 +14,20 @@ mod walk;
 pub(super) fn trials() -> Vec<Trial> {
     let mut trials = Vec::new();
     for n in 0..3 {
-        trials.push(transcript_trial(format!("drug-label/brand-{n}"), move || {
-            search(n).map_err(Into::into)
-        }));
+        trials.push(transcript_trial(
+            format!("drug-label/brand-{n}"),
+            move || search(n).map_err(Into::into),
+        ));
     }
-    trials.push(transcript_trial("drug-label/native-brand-not-found", || {
-        absent().map_err(Into::into)
-    }));
+    trials.push(transcript_trial(
+        "drug-label/native-brand-not-found",
+        || absent().map_err(Into::into),
+    ));
     for n in 3..9 {
-        trials.push(transcript_trial(format!("drug-label/spl-card-{n}"), move || {
-            card(n).map_err(Into::into)
-        }));
+        trials.push(transcript_trial(
+            format!("drug-label/spl-card-{n}"),
+            move || card(n).map_err(Into::into),
+        ));
     }
     trials.push(transcript_trial("drug-label/five-native-headings", || {
         headings().map_err(Into::into)

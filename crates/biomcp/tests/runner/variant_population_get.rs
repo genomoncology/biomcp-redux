@@ -1,7 +1,7 @@
 //! Ordinary get reuses the reviewed population identity path through local TLS replies.
-use crate::runner::transcript::trial as transcript_trial;
 use super::{environment, execute, ids, population_body};
 use crate::runner::network_stub::Stub;
+use crate::runner::transcript::trial as transcript_trial;
 use libtest_mimic::Trial;
 use serde_json::{Value, json};
 

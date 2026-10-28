@@ -1,6 +1,6 @@
 //! Synthetic sync faults keep both previously accepted catalogs intact.
-use crate::runner::transcript::trial as transcript_trial;
 use super::{Check, Environment, call, fixtures};
+use crate::runner::transcript::trial as transcript_trial;
 use libtest_mimic::Trial;
 use serde_json::{Value, json};
 pub(super) fn trials() -> Vec<Trial> {

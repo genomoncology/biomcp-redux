@@ -1,6 +1,6 @@
 //! Key registration crosses the real CLI boundary without real credentials.
-use crate::runner::transcript::trial as transcript_trial;
 use super::launch::Environment;
+use crate::runner::transcript::trial as transcript_trial;
 use libtest_mimic::Trial;
 use serde_json::{Value, json};
 use std::{fs, io::Write, process::Stdio};

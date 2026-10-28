@@ -1,6 +1,6 @@
 //! Feature adverse-event-failures: synthetic failures preserve source identity and terms.
-use crate::runner::transcript::trial as transcript_trial;
 use super::{configuration::invoke, launch::Environment, network_stub::Stub};
+use crate::runner::transcript::trial as transcript_trial;
 use libtest_mimic::Trial;
 use serde_json::{Value, json};
 use std::{fs, path::Path};

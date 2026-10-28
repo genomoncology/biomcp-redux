@@ -1,6 +1,6 @@
 //! Features drug-mychem, variant-search and variant-identity: selectable pages stay reachable.
-use crate::runner::transcript::trial as transcript_trial;
 use super::{configuration::invoke, network_stub::Stub};
+use crate::runner::transcript::trial as transcript_trial;
 use libtest_mimic::Trial;
 use serde_json::{Value, json};
 

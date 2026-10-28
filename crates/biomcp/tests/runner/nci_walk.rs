@@ -1,10 +1,10 @@
 //! Native NCI record walks retain every source row and every original text character.
-use crate::runner::transcript::trial as transcript_trial;
 #![expect(
     clippy::indexing_slicing,
     reason = "Captured source and checked JSON shapes fail directly on drift"
 )]
 use super::{launch::Environment, nci::invoke, response_cases::copy_capture};
+use crate::runner::transcript::trial as transcript_trial;
 use libtest_mimic::Trial;
 use serde_json::{Value, json};
 use std::fs;

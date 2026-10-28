@@ -1,7 +1,7 @@
 //! Feature protein-domains-complexes: synthetic identity and optional failures remain explicit.
-use crate::runner::transcript::trial as transcript_trial;
 use super::super::mcp;
 use super::*;
+use crate::runner::transcript::trial as transcript_trial;
 pub(super) fn trials() -> Vec<Trial> {
     let mut trials = Vec::new();
     for source in ["uniprot", "interpro", "complex-portal"] {

@@ -1,7 +1,7 @@
 //! Feature protein-search: retired spellings give fixed guidance before any request.
-use crate::runner::transcript::trial as transcript_trial;
 use super::super::mcp;
 use super::*;
+use crate::runner::transcript::trial as transcript_trial;
 const CLI_SECTION_USAGE_BYTES: usize = 166;
 const MCP_SECTION_USAGE_BYTES: usize = 165;
 pub(super) fn trials() -> Vec<Trial> {

@@ -1,6 +1,6 @@
 //! Feature diagnostic-510k: exact clearance identity, native fields and cache admission.
-use crate::runner::transcript::trial as transcript_trial;
 use super::{configuration::invoke, launch::Environment, network_stub::Stub};
+use crate::runner::transcript::trial as transcript_trial;
 use libtest_mimic::Trial;
 use serde_json::{Value, json};
 pub(super) fn trials() -> Vec<Trial> {

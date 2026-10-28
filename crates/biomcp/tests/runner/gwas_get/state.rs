@@ -1,6 +1,6 @@
 //! Warm reads, source policy, stale results and lost continuations remain distinct.
-use crate::runner::transcript::trial as transcript_trial;
 use super::*;
+use crate::runner::transcript::trial as transcript_trial;
 pub(super) fn trials() -> Vec<Trial> {
     vec![
         transcript_trial("gwas-get/synthetic-successful-empty-collections", || {

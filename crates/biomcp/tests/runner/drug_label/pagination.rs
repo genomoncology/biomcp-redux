@@ -1,14 +1,15 @@
 //! Feature drug-label: fallback continuation counts native rows before identity filtering.
-use crate::runner::transcript::trial as transcript_trial;
 use super::super::network_stub::Stub;
 use super::{Check, both, environment, field, identity, record};
+use crate::runner::transcript::trial as transcript_trial;
 use libtest_mimic::Trial;
 use serde_json::{Value, json};
 
 pub(super) fn trials() -> Vec<Trial> {
-    vec![transcript_trial("drug-label/fallback-native-pagination", || {
-        walk().map_err(Into::into)
-    })]
+    vec![transcript_trial(
+        "drug-label/fallback-native-pagination",
+        || walk().map_err(Into::into),
+    )]
 }
 fn walk() -> Check {
     let mut rejected = identity(0)?;

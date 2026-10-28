@@ -1,7 +1,7 @@
 //! Feature study-get: exact stored cards and bounded source metadata without member IDs.
-use crate::runner::transcript::trial as transcript_trial;
 use super::{rows, seed};
 use crate::runner::launch::Environment;
+use crate::runner::transcript::trial as transcript_trial;
 use libtest_mimic::Trial;
 use serde_json::{Value, json};
 use std::{fs, io::Write, path::Path};

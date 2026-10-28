@@ -1,5 +1,4 @@
 //! Source publications, explicit source-byte saves and independently complete section walks.
-use crate::runner::transcript::trial as transcript_trial;
 #![expect(
     clippy::indexing_slicing,
     reason = "Captured JSON regression witnesses fail at the named field"
@@ -8,6 +7,7 @@ use super::{
     launch::{Environment, fixtures},
     response_cases::copy_capture,
 };
+use crate::runner::transcript::trial as transcript_trial;
 use libtest_mimic::Trial;
 use serde_json::{Value, json};
 use sha2::{Digest, Sha256};

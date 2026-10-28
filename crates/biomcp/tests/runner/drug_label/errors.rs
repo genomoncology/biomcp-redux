@@ -1,7 +1,7 @@
-use crate::runner::transcript::trial as transcript_trial;
 use super::super::{configuration::invoke, launch::Environment, network_stub::Stub};
 use super::field;
 use super::{Check, both, get_args, identity, page, record, setup};
+use crate::runner::transcript::trial as transcript_trial;
 use libtest_mimic::Trial;
 use serde_json::json;
 pub(super) fn trials() -> Vec<Trial> {

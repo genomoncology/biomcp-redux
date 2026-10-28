@@ -1,5 +1,4 @@
 //! Feature phenotype-identity: literal candidates and independent source term cards.
-use crate::runner::transcript::trial as transcript_trial;
 mod association_native;
 mod associations;
 mod budgets;
@@ -10,6 +9,7 @@ mod section_native;
 mod sections;
 mod states;
 use super::{launch::Environment, network_stub::Stub};
+use crate::runner::transcript::trial as transcript_trial;
 use libtest_mimic::Trial;
 pub(super) use native::run as native;
 use serde_json::{Value, json};

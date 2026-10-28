@@ -1,7 +1,7 @@
 //! Required publisher provenance is measured separately from unchanged payload caps.
-use crate::runner::transcript::trial as transcript_trial;
 #[path = "../../src/view/escape.rs"]
 pub(super) mod text;
+use crate::runner::transcript::trial as transcript_trial;
 use libtest_mimic::Trial;
 use serde_json::{Value, json};
 

@@ -1,6 +1,6 @@
 //! Feature cell-line-chembl: exact source metadata and separately requested assay totals.
-use crate::runner::transcript::trial as transcript_trial;
 use super::*;
+use crate::runner::transcript::trial as transcript_trial;
 mod faults;
 pub(super) mod surface;
 use surface::{compared, invoke_measured, measure_bytes, measure_mcp, parity};

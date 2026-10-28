@@ -1,7 +1,7 @@
 //! Feature pathway-wikipathways-genes: native data-node membership without identifier guesses.
-use crate::runner::transcript::trial as transcript_trial;
 use super::{launch::Environment, network_stub::Stub};
 use crate::runner::pathway_budgets as budgets;
+use crate::runner::transcript::trial as transcript_trial;
 use libtest_mimic::Trial;
 use serde_json::{Value, json};
 use std::fs;

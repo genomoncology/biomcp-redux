@@ -1,7 +1,7 @@
 //! Feature drug-next-steps: source-listed EGFR context captured once on 2026-10-25.
 //! Combined-source capture is projected to each product's explicit one-stream selector.
-use crate::runner::transcript::trial as transcript_trial;
 use super::super::{launch::Environment, network_stub::Stub, proof};
+use crate::runner::transcript::trial as transcript_trial;
 use libtest_mimic::Trial;
 use serde_json::{Value, json};
 use std::{

@@ -5,9 +5,10 @@ use libtest_mimic::Trial;
 use serde_json::{Value, json};
 
 pub(super) fn trials() -> Vec<Trial> {
-    vec![transcript_trial("variant/printed-identifiers-roundtrip", || {
-        check().map_err(Into::into)
-    })]
+    vec![transcript_trial(
+        "variant/printed-identifiers-roundtrip",
+        || check().map_err(Into::into),
+    )]
 }
 fn check() -> Result<(), String> {
     let stub = Stub::for_source("myvariant.info", "application/json", body)?;

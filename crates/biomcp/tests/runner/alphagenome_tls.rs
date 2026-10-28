@@ -1,6 +1,6 @@
 //! Feature variant-alphagenome: the CLI preserves native groups through a local TLS gRPC peer.
-use crate::runner::transcript::trial as transcript_trial;
 use super::{alphagenome::invoke, launch::Environment};
+use crate::runner::transcript::trial as transcript_trial;
 use libtest_mimic::Trial;
 use serde_json::{Value, json};
 #[path = "alphagenome_capture.rs"]

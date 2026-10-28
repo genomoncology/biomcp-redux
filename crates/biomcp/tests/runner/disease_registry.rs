@@ -1,6 +1,6 @@
 //! Feature source-controls: disease services and carried components share publisher policy.
-use crate::runner::transcript::trial as transcript_trial;
 use super::{configuration::invoke, launch::Environment};
+use crate::runner::transcript::trial as transcript_trial;
 use libtest_mimic::Trial;
 use serde_json::Value;
 type Check = Result<(), String>;

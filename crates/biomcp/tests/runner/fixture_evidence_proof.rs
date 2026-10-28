@@ -1,6 +1,6 @@
 //! Feature runner: failed local peers retain diagnostics and synthetic scratch.
-use crate::runner::transcript::trial as transcript_trial;
 use super::super::{launch::Environment, network_stub::Stub};
+use crate::runner::transcript::trial as transcript_trial;
 use libtest_mimic::Trial;
 use std::{
     fs,

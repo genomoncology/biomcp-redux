@@ -1,6 +1,6 @@
 //! Feature adverse-event-retirements: migration never rewrites a query or contacts a source.
-use crate::runner::transcript::trial as transcript_trial;
 use super::{configuration::invoke, launch::Environment, mcp};
+use crate::runner::transcript::trial as transcript_trial;
 use libtest_mimic::Trial;
 use serde_json::json;
 pub(super) fn trials() -> Vec<Trial> {

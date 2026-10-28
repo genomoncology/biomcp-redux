@@ -1,5 +1,5 @@
-use crate::runner::transcript::trial as transcript_trial;
 use super::{launch::Environment, live, response_cases};
+use crate::runner::transcript::trial as transcript_trial;
 use biomcp_fetch::Observation;
 use libtest_mimic::Trial;
 use serde_json::{Value, json};

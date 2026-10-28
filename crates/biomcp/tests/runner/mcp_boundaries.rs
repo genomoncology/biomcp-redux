@@ -1,6 +1,6 @@
 //! MCP transport authority is checked before provider requests or filesystem changes.
-use crate::runner::transcript::trial as transcript_trial;
 use super::{http::Server, launch::Environment, network_stub::Stub};
+use crate::runner::transcript::trial as transcript_trial;
 use libtest_mimic::Trial;
 use serde_json::{Value, json};
 use std::fs;

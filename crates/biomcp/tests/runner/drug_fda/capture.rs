@@ -1,6 +1,6 @@
 //! Optional retained-body replay; publisher bodies remain outside Git.
-use crate::runner::transcript::trial as transcript_trial;
 use super::Check;
+use crate::runner::transcript::trial as transcript_trial;
 use libtest_mimic::Trial;
 use serde_json::{Value, json};
 use sha2::{Digest, Sha256};

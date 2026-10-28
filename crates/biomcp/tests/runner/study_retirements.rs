@@ -63,9 +63,10 @@ pub(super) fn trials() -> Vec<Trial> {
         "study-retirements/environment-does-not-read-directory",
         || directory().map_err(Into::into),
     ));
-    trials.push(transcript_trial("study-retirements/argument-boundaries", || {
-        boundaries().map_err(Into::into)
-    }));
+    trials.push(transcript_trial(
+        "study-retirements/argument-boundaries",
+        || boundaries().map_err(Into::into),
+    ));
     trials
 }
 fn boundaries() -> Check {

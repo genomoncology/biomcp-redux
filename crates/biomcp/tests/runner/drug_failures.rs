@@ -1,6 +1,6 @@
 //! Feature drug-failures: every kept source preserves synthetic failures and publisher terms.
-use crate::runner::transcript::trial as transcript_trial;
 use super::{configuration::invoke, launch::Environment, network_stub::Stub};
+use crate::runner::transcript::trial as transcript_trial;
 use libtest_mimic::Trial;
 use serde_json::{Value, json};
 use std::{fs, path::Path};
@@ -80,9 +80,10 @@ pub(super) fn trials() -> Vec<Trial> {
             )
         })
         .collect::<Vec<_>>();
-    trials.push(transcript_trial("drug-failures/ema-record-broken-body", || {
-        ema_record().map_err(Into::into)
-    }));
+    trials.push(transcript_trial(
+        "drug-failures/ema-record-broken-body",
+        || ema_record().map_err(Into::into),
+    ));
     trials
 }
 fn ema_record() -> Check {

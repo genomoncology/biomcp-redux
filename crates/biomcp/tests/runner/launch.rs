@@ -55,7 +55,11 @@ impl Environment {
         clippy::disallowed_methods,
         reason = "The launcher alone selects an explicitly installed artifact"
     )]
-    pub(super) fn command(&self, program: impl AsRef<Path>, args: &[String]) -> super::capture::Capture {
+    pub(super) fn command(
+        &self,
+        program: impl AsRef<Path>,
+        args: &[String],
+    ) -> super::capture::Capture {
         let mut command =
             child_environment::command(&executable(program.as_ref()), self.root.path(), args);
         if std::env::current_exe().is_ok_and(|runner| runner == program.as_ref()) {
@@ -67,7 +71,16 @@ impl Environment {
                 }
             }
         }
-        super::capture::Capture::new(command, if program.as_ref() == Path::new(env!("CARGO_BIN_EXE_biomcp")) { self.transcript.clone() } else { None }, args, self.root.path())
+        super::capture::Capture::new(
+            command,
+            if program.as_ref() == Path::new(env!("CARGO_BIN_EXE_biomcp")) {
+                self.transcript.clone()
+            } else {
+                None
+            },
+            args,
+            self.root.path(),
+        )
     }
 }
 

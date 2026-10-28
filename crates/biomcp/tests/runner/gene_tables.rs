@@ -1,5 +1,4 @@
 //! Response-boundary tables use the same binary, schema and isolation as YAML cases.
-use crate::runner::transcript::trial as transcript_trial;
 #![expect(
     clippy::unwrap_used,
     clippy::indexing_slicing,
@@ -10,6 +9,7 @@ mod hgnc;
 mod mygene;
 
 use super::response_cases::case;
+use crate::runner::transcript::trial as transcript_trial;
 use libtest_mimic::Trial;
 use serde_json::Value;
 

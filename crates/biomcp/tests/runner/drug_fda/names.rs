@@ -1,6 +1,6 @@
 //! Feature drug-approvals: replay keeps application identity and exact shared brand names.
-use crate::runner::transcript::trial as transcript_trial;
 use super::{Check, application, both, invoke, setup};
+use crate::runner::transcript::trial as transcript_trial;
 use libtest_mimic::Trial;
 use serde_json::json;
 
