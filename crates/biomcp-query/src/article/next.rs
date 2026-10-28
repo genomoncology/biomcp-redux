@@ -117,6 +117,9 @@ pub(super) fn search(
             .insert(0, (StepKind::Disambiguate, Action::PubmedSearch(strict)));
     }
     if !partial && total < u64::from(query.limit()) {
+        if let Some(broader) = query.without_variant() {
+            push(&mut out.next, StepKind::Disambiguate, Request::SearchArticle(broader));
+        }
         out.next.extend(query.term_drops().into_iter().map(|query| {
             (
                 StepKind::Disambiguate,

@@ -129,5 +129,12 @@ pub(super) fn next(
         ));
     }
     collect(candidates, &mut next);
+    if query.input().namespace().ok() == Some(biomcp_types::VariantNamespace::Rs) {
+        for gene in candidates.iter().flat_map(|row| &row.identity.genes) {
+            push(&mut next, StepKind::Pivot, Request::SearchArticle(
+                biomcp_types::ArticleSearch::for_gene(biomcp_types::GeneInput::Text(gene.label().clone())),
+            ));
+        }
+    }
     next
 }
