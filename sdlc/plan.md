@@ -49,6 +49,7 @@ Robustness and public-text fixes come first, because the parity run, the docs an
 
 ### 6. Rehearse and release
 
+- Switch to the extracted BioData 1.0 crate once every code ticket lands, with an empty reply diff and an unchanged schema comparison (0459).
 - Cut the release candidate from main once every ticket above lands (0336).
 
 - Rehearse the final candidate on every platform (0293).
