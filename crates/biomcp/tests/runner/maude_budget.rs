@@ -49,7 +49,7 @@ fn ceiling(value: &Value, schema: &str) -> Option<(usize, usize)> {
     }
     if value.get("status") == Some(&json!("failed")) {
         return match schema {
-            "biomcp.adverse-event-page/2" => Some((364, 232)),
+            "biomcp.adverse-event-page/3" => Some((364, 232)),
             "biomcp.adverse-event-maude-card/1" => Some((472, 340)),
             "biomcp.adverse-event-devices/1" => Some((481, 349)),
             "biomcp.adverse-event-narrative/1" => Some((500, 367)),
@@ -60,7 +60,7 @@ fn ceiling(value: &Value, schema: &str) -> Option<(usize, usize)> {
         return Some((733, 601));
     }
     match schema {
-        "biomcp.adverse-event-page/2" => Some((948, 816)),
+        "biomcp.adverse-event-page/3" => Some((948, 816)),
         "biomcp.adverse-event-maude-card/1" => Some((1497, 1364)),
         "biomcp.adverse-event-devices/1" => Some((1241, 1109)),
         "biomcp.adverse-event-narrative/1" => Some((912, 780)),
