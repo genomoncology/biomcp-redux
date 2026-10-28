@@ -108,6 +108,10 @@ const ALLOWED: &[(&str, &str)] = &[
         "Exercise checked values and schema contracts through the public library API.",
     ),
     (
+        "crates/biomcp-types/tests/schemas/ownership.rs",
+        "Check published schema namespaces against the crate that defines each Rust type.",
+    ),
+    (
         "crates/biomcp-types/tests/schemas/values.rs",
         "Exercise checked values and schema contracts through the public library API.",
     ),
