@@ -66,7 +66,7 @@ pub struct NciTrialPage {
     pub attribution: Box<str>,
 }
 impl super::ResponseBody for NciTrialPage {
-    const SCHEMA: &'static str = "biomcp.nci-trial-page/3";
+    const SCHEMA: &'static str = "biomcp.nci-trial-page/4";
     type Query = TrialSearch;
 }
 /// Independent exact NCI answers in caller order.

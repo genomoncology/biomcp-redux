@@ -69,7 +69,7 @@ pub struct DiseaseCard {
     pub components: Box<[ComponentLabel]>,
 }
 impl ResponseBody for DiseaseCard {
-    const SCHEMA: &'static str = "biomcp.disease-card/2";
+    const SCHEMA: &'static str = "biomcp.disease-card/3";
     type Query = DiseaseGet;
 }
 /// One publisher catalog site, independent of ontology identities.
@@ -123,7 +123,7 @@ page!(
     DiseasePage,
     DiseaseHeader,
     DiseaseSearch,
-    "biomcp.disease-page/1",
+    "biomcp.disease-page/2",
     "One source-ordered disease candidate page."
 );
 page!(
