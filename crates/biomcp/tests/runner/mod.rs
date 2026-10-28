@@ -52,6 +52,7 @@ mod drug_who;
 mod evidence;
 mod faers_get;
 mod faers_search;
+mod format_selection;
 mod gene_tables;
 mod health_bundles;
 mod held_proxy;
@@ -370,6 +371,7 @@ pub(super) fn protocol_trials() -> Vec<Trial> {
     trials.extend(http::trials());
     trials.extend(mcp_boundaries::trials());
     trials.extend(corporate::trials());
+    trials.extend(format_selection::trials());
     trials.extend(terminal_edges::trials());
     trials.extend(variant::trials());
     trials.extend(markdown::trials());

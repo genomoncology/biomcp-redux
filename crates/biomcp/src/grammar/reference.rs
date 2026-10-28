@@ -237,3 +237,102 @@ fn refresh_expectations(step: &mut serde_json::Value, reply: &serde_json::Value)
     }
     changed
 }
+
+// Temporary parser diagnosis; remove after the outside-in format matrix proves the shared selector.
+#[test]
+#[ignore]
+fn presentation_partial_match_probe() -> Check {
+    use std::io::Write as _;
+    let mut cases = Vec::new();
+    for words in [
+        vec!["health", "--offline"],
+        vec!["get", "gene", "--offline"],
+        vec!["get", "trial", "not-a-trial", "--offline"],
+    ] {
+        for format in [None, Some("json"), Some("md")] {
+            for config in [false, true] {
+                let mut args = words.clone();
+                if config {
+                    args.extend(["--config", "explicit-config.json"]);
+                }
+                if let Some(format) = format {
+                    args.extend(["--format", format]);
+                }
+                cases.push((args, format, config));
+            }
+        }
+    }
+    let mut failures = Vec::new();
+    for (args, expected_format, expected_config) in cases {
+        let (format, config) = partial_presentation_probe(&args)?;
+        writeln!(
+            std::io::stdout(),
+            "PRESENTATION_MATRIX {}",
+            serde_json::json!({"args":args,"format":format,"config":config})
+        )?;
+        if format.as_deref() != expected_format || config.is_some() != expected_config {
+            failures.push(args);
+        }
+    }
+    assert!(
+        failures.is_empty(),
+        "canonical partial grammar lost globals: {failures:?}"
+    );
+    for args in [
+        vec!["get", "gene", "--help", "--format", "md"],
+        vec!["get", "gene", "--offline", "--", "--format", "md"],
+        vec![
+            "--format",
+            "md",
+            "get",
+            "gene",
+            "BRAF",
+            "--offline",
+            "--unknown",
+        ],
+        vec![
+            "get",
+            "gene",
+            "BRAF",
+            "--offline",
+            "--unknown",
+            "--format",
+            "md",
+        ],
+        vec![
+            "search",
+            "article",
+            "--limit",
+            "not-a-number",
+            "--format",
+            "md",
+            "--offline",
+        ],
+    ] {
+        let (format, config) = partial_presentation_probe(&args)?;
+        writeln!(
+            std::io::stdout(),
+            "PRESENTATION_BOUNDARY {}",
+            serde_json::json!({"args":args,"format":format,"config":config})
+        )?;
+    }
+    Ok(())
+}
+
+#[cfg(test)]
+fn partial_presentation_probe(
+    args: &[&str],
+) -> Result<(Option<String>, Option<PathBuf>), Box<dyn std::error::Error>> {
+    let args: Vec<std::ffi::OsString> = args.iter().map(Into::into).collect();
+    let mut parser = super::root().map_err(|()| "grammar unavailable")?;
+    parser.build();
+    let args = super::entry::arguments(&args, &parser);
+    let matches = parser
+        .ignore_errors(true)
+        .try_get_matches_from(std::iter::once(std::ffi::OsString::from("biomcp")).chain(args))?;
+    let format = matches
+        .get_one::<String>("format")
+        .filter(|_| matches.value_source("format") == Some(clap::parser::ValueSource::CommandLine))
+        .cloned();
+    Ok((format, matches.get_one::<PathBuf>("config").cloned()))
+}
