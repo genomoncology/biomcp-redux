@@ -258,18 +258,27 @@ fn concurrent() -> Check {
     let mut args = env.globals(Some(&replay), false);
     args.extend(search.map(str::to_owned));
     let spawn = |args: &[String]| {
-        env.command(env!("CARGO_BIN_EXE_biomcp"), args)
+        let mut command = env.command(env!("CARGO_BIN_EXE_biomcp"), args);
+        let child = command
             .stdout(std::process::Stdio::piped())
             .stderr(std::process::Stdio::piped())
             .spawn()
-            .map_err(|e| e.to_string())
+            .map_err(|e| e.to_string())?;
+        Ok::<_, String>((child, command))
     };
     let replacement = spawn(&sync)?;
     let readers = [spawn(&args)?, spawn(&args)?];
-    let output = replacement.wait_with_output().map_err(|e| e.to_string())?;
+    let finish = |(child, mut command): (std::process::Child, super::capture::Capture)| {
+        let output = child.wait_with_output().map_err(|e| e.to_string())?;
+        command
+            .record(output.status, &output.stdout, "cli")
+            .map_err(|e| e.to_string())?;
+        Ok::<_, String>(output)
+    };
+    let output = finish(replacement)?;
     let reader_outputs = readers
         .into_iter()
-        .map(|reader| reader.wait_with_output().map_err(|e| e.to_string()))
+        .map(finish)
         .collect::<Result<Vec<_>, _>>()?;
     if !output.status.success() {
         return Err(format!(

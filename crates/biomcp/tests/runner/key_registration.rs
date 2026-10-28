@@ -43,8 +43,8 @@ pub(super) fn invoke(
     exit: i32,
 ) -> Result<Value, String> {
     let args = args.iter().map(|s| (*s).into()).collect::<Vec<_>>();
-    let mut child = env
-        .command(env!("CARGO_BIN_EXE_biomcp"), &args)
+    let mut command = env.command(env!("CARGO_BIN_EXE_biomcp"), &args);
+    let mut child = command
         .stdin(Stdio::piped())
         .stdout(Stdio::piped())
         .stderr(Stdio::piped())
@@ -57,6 +57,9 @@ pub(super) fn invoke(
         .write_all(input.as_bytes())
         .map_err(|e| e.to_string())?;
     let output = child.wait_with_output().map_err(|e| e.to_string())?;
+    command
+        .record(output.status, &output.stdout, "cli")
+        .map_err(|e| e.to_string())?;
     if output.status.code() != Some(exit) {
         return Err(format!("wrong exit: {:?}", output.status));
     }
