@@ -79,7 +79,12 @@ fn check(family: &str) -> Result<(), String> {
                 .ok_or("term")?
                 .insert("synonyms".into(), json!(["valid"]));
         }
-        let stub = Stub::for_source(host, "application/json", move |_| Ok(body.to_string()))?;
+        let stub = Stub::for_source_status(
+            host,
+            "application/json",
+            move |_| Ok(body.to_string()),
+            |_| 200,
+        )?;
         let env = crate::runner::variant::source_environment(&stub)?;
         let section = if field.contains("xrefs")
             || field.contains("molecule_hierarchy")
@@ -303,7 +308,12 @@ fn search(family: &str) -> Result<(), String> {
             "label",
         )
     };
-    let stub = Stub::for_source(host, "application/json", move |_| Ok(body.to_string()))?;
+    let stub = Stub::for_source_status(
+        host,
+        "application/json",
+        move |_| Ok(body.to_string()),
+        |_| 200,
+    )?;
     let env = crate::runner::variant::source_environment(&stub)?;
     let mut args = vec![
         "search",
