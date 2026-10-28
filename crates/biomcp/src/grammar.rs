@@ -6,7 +6,7 @@ pub(crate) use entry::entry_aliases;
 mod errors;
 mod metadata;
 use arguments::command_for;
-pub(crate) use errors::argument_error;
+pub(crate) use errors::{argument_error, normalization_build};
 pub(crate) mod gwas;
 mod local;
 mod queries;

@@ -29,6 +29,7 @@ pub(super) fn trials() -> Vec<Trial> {
             missing().map_err(Into::into)
         }),
     ];
+    cases.extend(study_media::trials());
     cases.extend(study_get::trials());
     cases.extend(study_files::trials());
     cases.extend(study_retirements::trials());
@@ -41,6 +42,8 @@ mod study_failures;
 mod study_files;
 #[path = "study_get.rs"]
 mod study_get;
+#[path = "study_media.rs"]
+mod study_media;
 #[path = "study_retirements.rs"]
 mod study_retirements;
 pub(super) fn rows() -> Value {

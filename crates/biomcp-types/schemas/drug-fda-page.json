@@ -13,9 +13,17 @@
       "additionalProperties": false,
       "description": "One candidate application and its independent source-listed products.",
       "properties": {
+        "id": {
+          "$ref": "#/$defs/DrugId",
+          "description": "Exact application identifier, shared with the retained application identity."
+        },
         "identity": {
           "$ref": "#/$defs/DrugHeader",
           "description": "Exact native application identity; no product has been selected."
+        },
+        "name": {
+          "$ref": "#/$defs/Text",
+          "description": "Exact brand wording shared by every product; omitted for zero or differing brands."
         },
         "products": {
           "description": "Complete native product candidates within this application.",
@@ -26,6 +34,7 @@
         }
       },
       "required": [
+        "id",
         "identity",
         "products"
       ],
@@ -925,7 +934,7 @@
       "type": "string"
     }
   },
-  "$id": "biomcp.drug-fda-page/1",
+  "$id": "biomcp.drug-fda-page/2",
   "$schema": "https://json-schema.org/draft/2020-12/schema",
   "additionalProperties": false,
   "description": "One versioned command response; schema identity comes only from its body type.",
@@ -982,7 +991,7 @@
       "description": "Answer when available."
     },
     "schema": {
-      "const": "biomcp.drug-fda-page/1",
+      "const": "biomcp.drug-fda-page/2",
       "type": "string"
     },
     "sources": {

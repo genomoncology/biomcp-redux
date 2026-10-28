@@ -10,6 +10,7 @@ mod metadata;
 mod raw;
 mod search;
 mod search_build;
+mod transcripts;
 use crate::{Mapped, quotas};
 use biodata::Text;
 use biomcp_fetch::{Arg, Endpoint, Freshness, KeyUse, Leg, PathSegment, RequestError, SourceSpec};
@@ -87,6 +88,7 @@ pub fn lookup(
         query,
         Some(build),
         !components::disabled_on_leg(leg, "clinvar"),
+        !components::disabled_on_leg(leg, "snpeff"),
     ))
 }
 fn leg_bad() -> RequestError {
@@ -136,12 +138,17 @@ fn annotation(
         id,
         Some(build),
         !components::disabled_on_leg(leg, "clinvar"),
+        !components::disabled_on_leg(leg, "snpeff"),
     ))
 }
 
 /// Filter independently disabled carried components before creating a request identity.
 pub(super) fn fields(leg: &Leg<'_>) -> String {
-    allowed_fields(leg, FIELDS)
+    annotation_fields(leg, FIELDS)
+}
+/// Include the shared source-paired transcript projection in identity reads.
+pub(super) fn annotation_fields(leg: &Leg<'_>, fields: &str) -> String {
+    allowed_fields(leg, &format!("{fields},{}", transcripts::FIELD))
 }
 /// Apply the same component policy to each declared source projection.
 pub(super) fn allowed_fields(leg: &Leg<'_>, fields: &str) -> String {

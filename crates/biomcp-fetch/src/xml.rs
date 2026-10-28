@@ -9,7 +9,7 @@ const NESTING: usize = 64;
 pub(crate) enum Codec {
     Json,
     Xml,
-    Bytes,
+    Bytes(&'static str),
     Probe,
 }
 impl Codec {
@@ -17,7 +17,7 @@ impl Codec {
         match self {
             Self::Json => "application/json",
             Self::Xml => "application/xml",
-            Self::Bytes => "application/octet-stream",
+            Self::Bytes(media) => media,
             Self::Probe => "*/*",
         }
     }
@@ -25,7 +25,7 @@ impl Codec {
         let mut parts = media.split(';');
         let name = parts.next().unwrap_or("").trim().to_ascii_lowercase();
         match self {
-            Self::Bytes => true,
+            Self::Bytes(_) => true,
             Self::Probe => true,
             Self::Json => {
                 name == self.name() || name.starts_with("application/") && name.ends_with("+json")
@@ -162,7 +162,7 @@ impl<'a, T: Reply> Decoder<'a, T> {
         self.validate.map_or(Ok(()), |check| check(bytes))
     }
     pub(crate) fn binary(&self) -> bool {
-        matches!(self.codec, Codec::Bytes)
+        matches!(self.codec, Codec::Bytes(_))
     }
     pub(crate) fn octet_stream(mut self, accepted: Option<&'static str>) -> Self {
         self.octet_stream = accepted;
@@ -369,6 +369,11 @@ impl Reply for Bytes {
     }
 }
 impl<'a> Decoder<'a, Bytes> {
+    pub(crate) fn document_media(mut self, media: crate::DocumentMedia) -> Self {
+        self.codec = Codec::Bytes(media.media());
+        self
+    }
+
     pub(crate) fn checked_bytes(
         limit: u64,
         check: &'a dyn Fn(&[u8]) -> Result<(), biomcp_types::Reason>,
@@ -379,7 +384,7 @@ impl<'a> Decoder<'a, Bytes> {
     }
     pub(crate) fn bytes(limit: u64) -> Self {
         Self {
-            codec: Codec::Bytes,
+            codec: Codec::Bytes("application/octet-stream"),
             validate: None,
             check: None,
             cache_if: None,

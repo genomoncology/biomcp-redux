@@ -1,6 +1,7 @@
 # 0365 — Accept a GRCh37 genomic HGVS in variant normalize
 
-Status: OPEN.
+Status: COMPLETE.
+Landed: 41c85c7ce837f564b605faacf0599ed619a75d96
 
 Milestone: 5
 

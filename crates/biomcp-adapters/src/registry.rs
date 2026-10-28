@@ -115,29 +115,21 @@ pub fn disabled(names: &[String]) -> Result<BTreeSet<Source>, biodata::Error> {
     Ok(disabled)
 }
 
-/// Whether the publisher was reached or has no admitted small health probe.
-#[derive(Clone, Copy, Debug, Eq, PartialEq)]
-pub enum ProbeOutcome {
-    /// One bounded publisher request succeeded.
-    Reachable,
-    /// No safe small publisher probe is available for this release.
-    Unavailable,
-}
-/// One bounded source probe. Unavailable capability is distinct from a failed publisher.
+/// One bounded source probe through the checked transport.
 pub fn probe(
     spec: &'static SourceSpec,
     leg: &biomcp_fetch::Leg<'_>,
-) -> Result<ProbeOutcome, biomcp_fetch::RequestError> {
-    if spec.source == Source::Hgnc {
-        return Ok(ProbeOutcome::Unavailable);
-    }
-    request_probe(spec, leg).map(|()| ProbeOutcome::Reachable)
+) -> Result<(), biomcp_fetch::RequestError> {
+    request_probe(spec, leg)
 }
 /// One bounded read-only endpoint, never a data synchronization.
 fn request_probe(
     spec: &'static SourceSpec,
     leg: &biomcp_fetch::Leg<'_>,
 ) -> Result<(), biomcp_fetch::RequestError> {
+    if spec.source == Source::Hgnc {
+        return crate::hgnc::probe(leg);
+    }
     if spec.source == Source::Faers {
         crate::adverse_event_sources::components::meddra(leg)?;
     }

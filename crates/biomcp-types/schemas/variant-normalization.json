@@ -21,11 +21,6 @@
       ],
       "type": "string"
     },
-    "HgvsText": {
-      "description": "Reference-qualified notation with its original text, without a molecular parse.",
-      "pattern": "^((N[CGMPRTW]|X[MPR])_([0-9]{6}|[0-9]{9})\\.[0-9]+|ENS[GTP][0-9]{11}\\.[0-9]+|LRG_[0-9]+([tp][0-9]+)?)(\\(([A-Za-z][A-Za-z0-9._/@-]*|[A-Za-z0-9_.]+)\\))?:[gcnrpmo]\\.[\\x20-\\x7e]+$",
-      "type": "string"
-    },
     "NormalizationField": {
       "additionalProperties": false,
       "description": "A provider field name and its unchanged text.",
@@ -778,8 +773,9 @@
           "description": "Caller assembly; required when VariantValidator is selected."
         },
         "hgvs": {
-          "$ref": "#/$defs/HgvsText",
-          "description": "Unchanged reference-qualified HGVS; no local molecular parse."
+          "description": "Reference-qualified HGVS, or chromosome genomic HGVS with an explicit build for CAR.",
+          "pattern": "(^((N[CGMPRTW]|X[MPR])_([0-9]{6}|[0-9]{9})\\.[0-9]+|ENS[GTP][0-9]{11}\\.[0-9]+|LRG_[0-9]+([tp][0-9]+)?)(\\(([A-Za-z][A-Za-z0-9._/@-]*|[A-Za-z0-9_.]+)\\))?:[gcnrpmo]\\.[\\x20-\\x7e]+$|^chr([1-9][0-9]*|X|Y|M|MT):g\\.[\\x21-\\x7e]+$)",
+          "type": "string"
         },
         "limit": {
           "default": 10,
@@ -820,7 +816,7 @@
       "type": "string"
     }
   },
-  "$id": "biomcp.variant-normalization/3",
+  "$id": "biomcp.variant-normalization/4",
   "$schema": "https://json-schema.org/draft/2020-12/schema",
   "additionalProperties": false,
   "description": "One versioned command response; schema identity comes only from its body type.",
@@ -877,7 +873,7 @@
       "description": "Answer when available."
     },
     "schema": {
-      "const": "biomcp.variant-normalization/3",
+      "const": "biomcp.variant-normalization/4",
       "type": "string"
     },
     "sources": {

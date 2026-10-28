@@ -67,7 +67,7 @@ pub(super) fn part_rows<R: Row>(
 
 pub(super) fn rows<R: Row>(body: &[u8], format: RowFormat) -> Result<Vec<Parsed>, BadReply> {
     match format {
-        RowFormat::Document => R::decode_document(body)?
+        RowFormat::Document { .. } => R::decode_document(body)?
             .into_iter()
             .map(|row| {
                 let decoded: R = serde_json::from_str(&row).map_err(|_| BadReply)?;

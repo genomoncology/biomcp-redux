@@ -110,7 +110,7 @@ pub use response::{
 };
 pub use response::{TrialConditionResolution, TrialPage};
 pub use response::{TrialDocumentResult, TrialDocumentSaved};
-pub use response::{VariantCard, VariantHeader, VariantResolution};
+pub use response::{VariantCard, VariantHeader, VariantResolution, VariantTranscript};
 pub use source::{Reason, Source, Use};
 
 mod article;
