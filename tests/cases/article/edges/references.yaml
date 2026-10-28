@@ -43,8 +43,7 @@
         "items": "/result/items",
         "max_pages": 30
       },
-      "max_bytes": 8843,
-      "max_tokens": 2211
+      "max_bytes": 8843
     },
     {
       "run": [

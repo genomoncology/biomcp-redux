@@ -52,6 +52,7 @@ pub struct DrugIdentity {
     pub r#type: Option<Text>,
     /// Native record URL.
     #[serde(default, skip_serializing_if = "Option::is_none")]
+    #[cfg_attr(feature = "schema", schemars(extend("format" = "uri")))]
     pub url: Option<Text>,
 }
 /// One explicitly source-stated identifier, parent, product or formulation relation.

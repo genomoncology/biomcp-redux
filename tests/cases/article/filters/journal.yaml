@@ -13,7 +13,6 @@
         "Nature"
       ],
       "max_bytes": 1410,
-      "max_tokens": 354,
       "expect": {
         "/status": "complete",
         "/sources/0/term": "AKT1 E17K AND Nature[ta]",

@@ -90,4 +90,9 @@ impl fmt::Display for Chromosome {
         f.write_str(&self.name())
     }
 }
-text_value!(Chromosome, "Chromosome", r"^([1-9]|1[0-9]|2[0-2]|X|Y|MT)$");
+text_value!(
+    Chromosome,
+    "Chromosome",
+    r"^([1-9]|1[0-9]|2[0-2]|X|Y|MT)$",
+    "A primary chromosome in the caller's reference build."
+);

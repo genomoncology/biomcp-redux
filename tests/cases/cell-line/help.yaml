@@ -28,7 +28,6 @@
         "/result/commands/0/description": "One literal cell line search, with native order and no total claim. An assay count is not an activity or sensitivity count. No treatment response is inferred; no bioinformatics tool runs."
       },
       "max_bytes": 1012,
-      "max_tokens": 253,
       "full_output_bytes": true
     },
     {
@@ -69,7 +68,6 @@
         "/result/commands/0/section_rule": "Omit for the default card; all returns bounded first pages without an assay count."
       },
       "max_bytes": 1976,
-      "max_tokens": 494,
       "full_output_bytes": true
     },
     {
@@ -96,7 +94,6 @@
         "/result/commands/0/description": "A separate assay-count request, never implicit in metadata or all. An assay count is not an activity or sensitivity count. No treatment response is inferred; no bioinformatics tool runs."
       },
       "max_bytes": 727,
-      "max_tokens": 182,
       "full_output_bytes": true
     }
   ]

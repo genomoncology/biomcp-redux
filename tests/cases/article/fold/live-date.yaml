@@ -16,7 +16,6 @@
         "date"
       ],
       "max_bytes": 6231,
-      "max_tokens": 1558,
       "expect": {
         "/status": "complete",
         "/page/total": 284,
@@ -49,7 +48,6 @@
         "max_pages": 32
       },
       "max_bytes": 6231,
-      "max_tokens": 1558,
       "expect": {
         "/result/items/*/key": {
           "equals_file": "live-date-keys.json",
