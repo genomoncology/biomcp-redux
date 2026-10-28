@@ -18,6 +18,7 @@ use std::{fs, path::Path};
 struct Contract {
     name: &'static str,
     id: &'static str,
+    rust_type: &'static str,
     generate: fn() -> Value,
 }
 
@@ -36,7 +37,7 @@ fn generate<T: JsonSchema>() -> Value {
 
 macro_rules! contracts {
         ($($ty:ty => ($name:literal, $id:expr)),+ $(,)?) => {
-            vec![$(Contract { name: $name, id: $id, generate: generate::<$ty> }),+]
+            vec![$(Contract { name: $name, id: $id, rust_type: std::any::type_name::<$ty>(), generate: generate::<$ty> }),+]
         };
     }
 
@@ -322,6 +323,25 @@ fn trial_contracts() -> Vec<Contract> {
         Envelope<TrialPage> => ("trial-page", "biomcp.trial-page/10"),
         NctId => ("nct-id", "biodata.nct-id/1"),
         TrialHeader => ("trial-header", "biodata.trial_header/2"),
+    }
+}
+
+#[test]
+fn schema_ids_follow_type_ownership() {
+    for contract in registry() {
+        let namespace = if contract.rust_type.starts_with("biodata::") {
+            "biodata."
+        } else {
+            assert!(contract.rust_type.starts_with("biomcp_types::"));
+            "biomcp."
+        };
+        assert!(
+            contract.id.starts_with(namespace) && !contract.id.contains('_'),
+            "{} ({}) must use {namespace} and hyphens: {}",
+            contract.name,
+            contract.rust_type,
+            contract.id
+        );
     }
 }
 
