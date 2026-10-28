@@ -224,12 +224,15 @@ fn a_stalled_body_keeps_its_partial_bytes_and_resumes_within_a_new_budget() {
 fn recovered_parts_reject_unowned_paths_without_touching_them() {
     for scenario in [
         "outside",
+        "missing-outside",
         "traversal",
         "nested",
         "wrong-name",
+        "missing-wrong-name",
         "missing",
         "directory",
         "symlink",
+        "dangling-symlink",
     ] {
         for holder in [None, Some("expired")] {
             recovered_path_case(scenario, holder);
@@ -254,19 +257,36 @@ fn recovered_path_case(scenario: &str, holder: Option<&str>) {
     std::fs::write(&sentinel, "keep this file").unwrap();
     let prior = match scenario {
         "outside" => sentinel.clone(),
+        "missing-outside" => dir.path().join(".tmpDEF456"),
         "traversal" => parts.join("../.tmpABC123"),
         "nested" => parts.join("nested/.tmpABC123"),
-        "wrong-name" => parts.join("sentinel"),
+        "wrong-name" | "missing-wrong-name" => parts.join("sentinel"),
         _ => parts.join(".tmpABC123"),
     };
-    if scenario == "symlink" {
+    if matches!(scenario, "symlink" | "dangling-symlink") {
         #[cfg(unix)]
-        std::os::unix::fs::symlink(&sentinel, &prior).unwrap();
+        std::os::unix::fs::symlink(
+            if scenario == "dangling-symlink" {
+                dir.path().join("absent")
+            } else {
+                sentinel.clone()
+            },
+            &prior,
+        )
+        .unwrap();
         #[cfg(not(unix))]
         return;
     } else if scenario == "directory" {
         std::fs::create_dir(&prior).unwrap();
-    } else if !["missing", "outside", "traversal"].contains(&scenario) {
+    } else if ![
+        "missing",
+        "missing-outside",
+        "missing-wrong-name",
+        "outside",
+        "traversal",
+    ]
+    .contains(&scenario)
+    {
         std::fs::write(&prior, "keep this file").unwrap();
     }
     let db = rusqlite::Connection::open(&path).unwrap();
@@ -304,7 +324,11 @@ fn recovered_path_case(scenario: &str, holder: Option<&str>) {
         std::fs::read_to_string(&sentinel).unwrap(),
         "keep this file"
     );
-    assert!(prior.symlink_metadata().is_ok(), "{scenario}");
+    assert_eq!(
+        prior.symlink_metadata().is_ok(),
+        !scenario.starts_with("missing-"),
+        "{scenario}"
+    );
 }
 
 #[test]
@@ -467,11 +491,10 @@ fn killed_download_is_reclaimed_after_its_lease_expires() {
         ).into_bytes(),
         continuation: Some(wait),
     }).unwrap();
-    let end = std::time::Instant::now() + Duration::from_secs(10);
     while std::fs::metadata(&old_path).unwrap().len() == 0 {
         assert!(
-            std::time::Instant::now() < end,
-            "child never wrote its body"
+            old.process.try_wait().unwrap().is_none(),
+            "child exited before writing its body"
         );
         std::thread::yield_now();
     }
