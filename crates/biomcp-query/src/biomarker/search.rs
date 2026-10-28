@@ -118,7 +118,7 @@ fn page(
             out.next.push((
                 StepKind::Disambiguate,
                 Action::Run {
-                    request: Request::GetBiomarker(biomcp_types::BiomarkerGet::one(*id)),
+                    request: Request::GetBiomarker(biomcp_types::BiomarkerGet::one(id.clone())),
                     fresh: false,
                 },
             ));

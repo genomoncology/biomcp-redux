@@ -29,7 +29,7 @@ pub fn get(leg: &Leg<'_>, id: NcitId) -> Result<crate::Mapped<Vec<BiomarkerCard>
         &[("codes", Arg::Text(&code))],
         MAX_BYTES,
         |page| {
-            if page.data.iter().all(|row| row.codes.contains(&id)) {
+            if page.data.iter().all(|row| row.codes.contains(id)) {
                 Ok(())
             } else {
                 Err(BadReply)

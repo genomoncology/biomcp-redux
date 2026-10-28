@@ -7,7 +7,7 @@ pub fn get(cx: &Ctx<'_>, q: &BiomarkerGet) -> Outcome {
     let command = cx.fetch.command_deadline(cx.budget);
     let deadline = command.deadline();
     let leg = cx.fetch.leg(&nci::SPEC, deadline).fresh(cx.fresh);
-    let reply = nci::biomarker::get(&leg, q.id);
+    let reply = nci::biomarker::get(&leg, &q.id);
     let error = reply.as_ref().err().copied();
     let source = status::source(Source::Nci, leg.finish(), error);
     let mut out = Outcome {
