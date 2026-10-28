@@ -82,6 +82,7 @@ impl Registry {
             .and_then(Value::as_str)
             .ok_or("schema validation: result requires a string schema identity")?;
         reject_empty_lists(value, "")?;
+        reject_nulls(value, "", id)?;
         let validator = self
             .validators
             .get(id)
@@ -112,6 +113,46 @@ fn reject_empty_lists(value: &Value, path: &str) -> Result<(), String> {
         Value::Object(fields) => {
             for (name, item) in fields {
                 reject_empty_lists(item, &format!("{path}/{name}"))?;
+            }
+        }
+        _ => {}
+    }
+    Ok(())
+}
+
+// DiseaseAssociation explicitly preserves a publisher null separately from a missing aggregator.
+// Only its association-row position in the four public response types admits that value.
+fn explicit_null(path: &str, schema: &str) -> bool {
+    use biomcp_types::{
+        DiseaseGenes, DiseasePhenotypes, PhenotypeDiseases, PhenotypeGenes, ResponseBody,
+    };
+    let association = [
+        DiseaseGenes::SCHEMA,
+        DiseasePhenotypes::SCHEMA,
+        PhenotypeDiseases::SCHEMA,
+        PhenotypeGenes::SCHEMA,
+    ]
+    .contains(&schema);
+    let parts: Vec<_> = path.split('/').collect();
+    association
+        && matches!(parts.as_slice(), ["", "result", "items", index, "association", "aggregator_knowledge_source"]
+            if index.parse::<usize>().is_ok())
+}
+
+fn reject_nulls(value: &Value, path: &str, schema: &str) -> Result<(), String> {
+    match value {
+        Value::Null if !explicit_null(path, schema) => {
+            return Err(format!("product reply contains null at {path}"));
+        }
+        Value::Array(items) => {
+            for (index, item) in items.iter().enumerate() {
+                reject_nulls(item, &format!("{path}/{index}"), schema)?;
+            }
+        }
+        Value::Object(fields) => {
+            for (name, item) in fields {
+                let name = name.replace('~', "~0").replace('/', "~1");
+                reject_nulls(item, &format!("{path}/{name}"), schema)?;
             }
         }
         _ => {}
