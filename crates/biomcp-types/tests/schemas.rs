@@ -326,30 +326,8 @@ fn trial_contracts() -> Vec<Contract> {
 }
 
 #[test]
-#[expect(
-    clippy::disallowed_methods,
-    reason = "Schema definition contract tests own file I/O outside the pure library"
-)]
 fn checked_in_schema_definition_names_have_one_body() {
-    let root = Path::new(env!("CARGO_MANIFEST_DIR")).join("schemas");
-    let mut definitions = std::collections::BTreeMap::new();
-    for contract in registry() {
-        let path = root.join(format!("{}.json", contract.name));
-        let schema: Value =
-            serde_json::from_str(&fs::read_to_string(&path).expect("read contract"))
-                .expect("parse contract");
-        for (name, body) in schema["$defs"].as_object().into_iter().flatten() {
-            if let Some((previous, owner)) = definitions.get(name) {
-                assert_eq!(
-                    previous, body,
-                    "definition {name} differs between {owner} and {}",
-                    contract.name
-                );
-            } else {
-                definitions.insert(name.clone(), (body.clone(), contract.name));
-            }
-        }
-    }
+    release::checked_in_schema_definition_names_have_one_body();
 }
 
 #[test]
