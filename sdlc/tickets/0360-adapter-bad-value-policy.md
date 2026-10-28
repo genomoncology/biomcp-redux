@@ -1,6 +1,7 @@
 # 0360 — Record every bad source value as a problem through shared helpers
 
-Status: OPEN.
+Status: COMPLETE.
+Landed: 33113b465d2310286a99ba83cce78f8163d62f3a
 
 Milestone: 5
 

@@ -1,8 +1,10 @@
 use super::{GeneConstraint, raw};
 use crate::Mapped;
+use crate::mapped::push_problem;
+use crate::mapped::record as record_text;
 use biodata::{EnsemblGeneId, Text};
 
-use biomcp_types::{Constraint, Problem, ProblemCode, Source};
+use biomcp_types::{Constraint, Source};
 
 pub(super) fn constraints(raw: raw::Aliases, ids: &[EnsemblGeneId]) -> Vec<GeneConstraint> {
     ids.iter()
@@ -16,7 +18,12 @@ pub(super) fn constraints(raw: raw::Aliases, ids: &[EnsemblGeneId]) -> Vec<GeneC
             let mut problems = Vec::new();
             let constraint = gene.and_then(|gene| {
                 if gene.gene_id != id.base() {
-                    problem(&mut problems, id, "gene_id");
+                    push_problem(
+                        &mut problems,
+                        Source::Gnomad,
+                        record_text(id.base()),
+                        "gene_id",
+                    );
                     return None;
                 }
                 let raw = gene.gnomad_constraint.as_ref()?;
@@ -31,12 +38,22 @@ pub(super) fn constraints(raw: raw::Aliases, ids: &[EnsemblGeneId]) -> Vec<GeneC
                             {
                                 return Some(text);
                             }
-                            problem(&mut problems, id, "flags");
+                            push_problem(
+                                &mut problems,
+                                Source::Gnomad,
+                                record_text(id.base()),
+                                "flags",
+                            );
                             None
                         })
                         .collect(),
                     Some(_) => {
-                        problem(&mut problems, id, "flags");
+                        push_problem(
+                            &mut problems,
+                            Source::Gnomad,
+                            record_text(id.base()),
+                            "flags",
+                        );
                         Vec::new()
                     }
                 };
@@ -60,12 +77,4 @@ pub(super) fn constraints(raw: raw::Aliases, ids: &[EnsemblGeneId]) -> Vec<GeneC
             }
         })
         .collect()
-}
-fn problem(problems: &mut Vec<Problem>, id: &EnsemblGeneId, field: &str) {
-    problems.push(Problem {
-        source: Source::Gnomad,
-        record: Text::new(id.base()).ok(),
-        field: field.into(),
-        code: ProblemCode::ValueUnknown,
-    });
 }

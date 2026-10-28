@@ -20,9 +20,14 @@ pub enum VariantNamespace {
     Unsupported,
 }
 impl VariantInput {
+    /// Maximum bytes in one published identifier.
+    pub const MAX_BYTES: usize = 2048;
     /// Check the identifier's spelling while preserving every supplied character.
     pub fn new(value: &str) -> Result<Self, Error> {
-        if value.is_empty() || value.len() > 2048 || !value.bytes().all(|b| b.is_ascii_graphic()) {
+        if value.is_empty()
+            || value.len() > Self::MAX_BYTES
+            || !value.bytes().all(|b| b.is_ascii_graphic())
+        {
             return Err(Error::VariantInputInvalid);
         }
         let input = Self(crate::Text::new(value).map_err(|_| Error::VariantInputInvalid)?);

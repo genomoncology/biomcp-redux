@@ -46,6 +46,7 @@ pub(super) fn check() -> Check {
 
 fn optional() -> Check {
     for (field, value, problem) in [
+        ("location", "invalid", "location"),
         ("locus_type", "new provider locus", "locus_type"),
         ("entrez_id", "0", "entrez_id"),
         ("ensembl_gene_id", "bad", "ensembl_id"),
@@ -64,6 +65,7 @@ fn optional() -> Check {
                 }
             },
             json!({"/result/items/0/answer/gene/hgnc_id": "HGNC:1097",
+            "/problems": {"count": 1},
             "/problems/*/field": {"includes": problem},
             "/problems/*/record": {"includes": "HGNC:1097"}}),
             0,

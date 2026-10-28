@@ -1,17 +1,18 @@
 use super::{Record, raw};
 use crate::Mapped;
+use crate::mapped::problem;
+use crate::mapped::record as record_text;
 use biodata::{
     Attribution, Concept, Curie, DiseaseEndpoint, DiseaseRelation, DiseaseSynonym, Text,
 };
 use biomcp_fetch::{InputError, RequestError};
 use biomcp_types::{
-    ComponentLabel, ComponentTerms, DiseaseCard, DiseaseOntology, DiseaseSection, Problem,
-    ProblemCode, Source,
+    ComponentLabel, ComponentTerms, DiseaseCard, DiseaseOntology, DiseaseSection, Source,
 };
 pub(super) fn attribution(id: &Curie, iri: &Text, ontology: DiseaseOntology) -> Attribution {
     Attribution {
         source: Text::new(ontology.as_str()).unwrap_or_else(|_| iri.clone()),
-        record: Text::new(&id.to_string()).ok(),
+        record: record_text(id),
         url: Some(iri.clone()),
         version: None,
         release: None,
@@ -19,19 +20,20 @@ pub(super) fn attribution(id: &Curie, iri: &Text, ontology: DiseaseOntology) -> 
         evaluated: None,
     }
 }
-fn text(value: &str) -> Result<Text, RequestError> {
-    Text::new(value).map_err(|_| InputError::Serialization.into())
-}
+
 /// Reviewed component terms remain separate from transport service terms.
 pub fn components(ontology: DiseaseOntology) -> Result<Box<[ComponentLabel]>, RequestError> {
     let component = crate::disease_sources::components::get(Source::Ols, ontology.as_str())
         .ok_or(InputError::Serialization)?;
     Ok(vec![ComponentLabel {
-        component: text(component.name)?,
+        component: crate::mapped::text(component.name)
+            .map_err(|_| RequestError::Input(InputError::Serialization))?,
         terms: ComponentTerms {
             usage: component.terms.usage,
-            name: text(component.terms.name)?,
-            url: text(component.terms.url)?,
+            name: crate::mapped::text(component.terms.name)
+                .map_err(|_| RequestError::Input(InputError::Serialization))?,
+            url: crate::mapped::text(component.terms.url)
+                .map_err(|_| RequestError::Input(InputError::Serialization))?,
         },
     }]
     .into())
@@ -57,14 +59,17 @@ pub(super) fn record(term: raw::Term, ontology: DiseaseOntology) -> Result<Recor
     let definition = if term.description.is_empty() {
         None
     } else {
-        Some(text(
-            &term
-                .description
-                .iter()
-                .map(Text::as_str)
-                .collect::<Vec<_>>()
-                .join("\n\n"),
-        )?)
+        Some(
+            crate::mapped::text(
+                &term
+                    .description
+                    .iter()
+                    .map(Text::as_str)
+                    .collect::<Vec<_>>()
+                    .join("\n\n"),
+            )
+            .map_err(|_| RequestError::Input(InputError::Serialization))?,
+        )
     };
     Ok(Record {
         card: DiseaseCard {
@@ -106,14 +111,6 @@ fn iri_id(value: &str) -> Option<Curie> {
     }
 }
 
-fn problem(id: &Curie, field: &str) -> Problem {
-    Problem {
-        source: Source::Ols,
-        record: Text::new(&id.to_string()).ok(),
-        field: field.into(),
-        code: ProblemCode::ValueUnknown,
-    }
-}
 fn synonyms(term: &raw::Term, attribution: &Attribution) -> Mapped<Vec<DiseaseSynonym>> {
     let mut mapped = Mapped {
         value: Vec::new(),
@@ -130,7 +127,11 @@ fn synonyms(term: &raw::Term, attribution: &Attribution) -> Mapped<Vec<DiseaseSy
             .and_then(|s| s.scope.as_ref())
             .and_then(|s| format!("oboInOwl:{}", s.as_str()).parse().ok());
         if native.is_some_and(|s| s.scope.is_some()) && scope.is_none() {
-            mapped.problems.push(problem(&term.obo_id, "synonym.scope"));
+            mapped.problems.push(problem(
+                Source::Ols,
+                record_text(&term.obo_id),
+                "synonym.scope",
+            ));
         }
         mapped.value.push(DiseaseSynonym {
             value: name.clone(),
@@ -148,7 +149,9 @@ fn xrefs(term: &raw::Term, attribution: &Attribution) -> Mapped<Vec<DiseaseRelat
     };
     for native in term.obo_xref.as_deref().unwrap_or_default() {
         let Ok(id) = format!("{}:{}", native.database, native.id).parse() else {
-            mapped.problems.push(problem(&term.obo_id, "xref.id"));
+            mapped
+                .problems
+                .push(problem(Source::Ols, record_text(&term.obo_id), "xref.id"));
             continue;
         };
         let Ok(predicate) = "oboInOwl:hasDbXref".parse() else {

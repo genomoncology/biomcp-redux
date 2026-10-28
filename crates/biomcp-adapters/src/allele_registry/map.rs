@@ -3,11 +3,12 @@ use super::{
     raw::{Allele as RawAllele, Genomic},
 };
 use crate::Mapped;
+use crate::mapped::problem;
 use biodata::{
     Allele, Build, Expression, Representation, SequenceLocation, Span0, Text, Variant, VariantId,
 };
 
-use biomcp_types::{Problem, ProblemCode, Source, SourceRecord, VariantHeader};
+use biomcp_types::{Problem, Source, SourceRecord, VariantHeader};
 pub(super) fn allele(raw: RawAllele) -> Result<Resolution, biomcp_fetch::BadReply> {
     if let Some(error) = raw.error_type {
         return Ok(Resolution::Rejected(error));
@@ -55,7 +56,11 @@ pub(super) fn allele(raw: RawAllele) -> Result<Resolution, biomcp_fetch::BadRepl
                             build: None,
                             allele: None,
                         }),
-                        Err(_) => problems.push(problem(&record, "representations.expression")),
+                        Err(_) => problems.push(problem(
+                            Source::AlleleRegistry,
+                            Some(record.clone()),
+                            "representations.expression",
+                        )),
                     }
                 }
             }
@@ -86,13 +91,21 @@ fn genomic(g: Genomic, record: &Text, out: &mut Vec<Representation>, problems: &
         .as_ref()
         .and_then(|a| a.as_str().parse::<Build>().ok());
     if g.assembly.is_some() && build.is_none() {
-        problems.push(problem(record, "representations.build"));
+        problems.push(problem(
+            Source::AlleleRegistry,
+            Some(record.clone()),
+            "representations.build",
+        ));
     }
     for notation in g.hgvs {
         let expression = match Expression::hgvs(notation.clone()) {
             Ok(v) => v,
             Err(_) => {
-                problems.push(problem(record, "representations.expression"));
+                problems.push(problem(
+                    Source::AlleleRegistry,
+                    Some(record.clone()),
+                    "representations.expression",
+                ));
                 continue;
             }
         };
@@ -109,7 +122,11 @@ fn genomic(g: Genomic, record: &Text, out: &mut Vec<Representation>, problems: &
                 })
         });
         if !agrees {
-            problems.push(problem(record, "representations.chromosome"));
+            problems.push(problem(
+                Source::AlleleRegistry,
+                Some(record.clone()),
+                "representations.chromosome",
+            ));
         }
         let allele = if agrees && g.coordinates.len() == 1 {
             g.coordinates.first().and_then(|c| {
@@ -127,7 +144,11 @@ fn genomic(g: Genomic, record: &Text, out: &mut Vec<Representation>, problems: &
             None
         };
         if allele.is_none() {
-            problems.push(problem(record, "representations.allele"));
+            problems.push(problem(
+                Source::AlleleRegistry,
+                Some(record.clone()),
+                "representations.allele",
+            ));
         }
         out.push(Representation {
             source: Source::AlleleRegistry.text(),
@@ -135,13 +156,5 @@ fn genomic(g: Genomic, record: &Text, out: &mut Vec<Representation>, problems: &
             build,
             allele,
         });
-    }
-}
-fn problem(record: &Text, field: &str) -> Problem {
-    Problem {
-        source: Source::AlleleRegistry,
-        record: Some(record.clone()),
-        field: field.into(),
-        code: ProblemCode::ValueUnknown,
     }
 }

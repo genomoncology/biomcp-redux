@@ -33,6 +33,7 @@ impl Therapy {
     }
     pub(super) fn header(self) -> Result<DrugHeader, RequestError> {
         Ok(DrugHeader {
+            matched_name: None,
             id: self
                 .id
                 .to_string()

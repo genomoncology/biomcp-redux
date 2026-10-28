@@ -36,11 +36,6 @@ impl TryFrom<Fields> for Medicine {
         let name = biodata::Text::new(field("name_of_medicine")?).map_err(|_| BadReply)?;
         field("category")?;
         field("medicine_status")?;
-        for (key, text) in &value.fields {
-            if key.ends_with("_date") && !text.is_empty() {
-                date(text)?;
-            }
-        }
         let source = biodata::Text::new("ema").map_err(|_| BadReply)?;
         let record = biodata::Text::new(field("ema_product_number")?).map_err(|_| BadReply)?;
         Ok(Self {
@@ -76,12 +71,5 @@ impl Row for Medicine {
             exact: vec![(KeyKind::Id, self.id.to_string().into())],
             words: vec![self.name.to_string().into()],
         }
-    }
-}
-impl Medicine {
-    pub(super) fn text(&self, field: &str) -> Option<biodata::Text> {
-        self.fields
-            .get(field)
-            .and_then(|v| biodata::Text::new(v).ok())
     }
 }

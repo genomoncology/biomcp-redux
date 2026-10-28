@@ -1,9 +1,11 @@
 use super::raw::{Summary, SummaryRow, SummaryValue};
+use crate::mapped::push_problem;
+use crate::mapped::record as record_text;
 use crate::{Mapped, raw::Field};
 use biodata::{PartialDate, Pmid, Text};
 
 use biomcp_types::{ArticleHeader, PublicationType as P};
-use biomcp_types::{Problem, ProblemCode, Source};
+use biomcp_types::{Problem, Source};
 /// Preserve selected identities when a summary is absent, invalid or mismatched.
 pub(super) fn summaries(reply: Summary, ids: &[Box<str>]) -> Mapped<Vec<ArticleHeader>> {
     let mut problems = Vec::new();
@@ -11,7 +13,7 @@ pub(super) fn summaries(reply: Summary, ids: &[Box<str>]) -> Mapped<Vec<ArticleH
     for id in ids {
         let mapped = matches!(reply.result.get(id.as_ref()), Some(SummaryValue::Row(_)));
         if !mapped {
-            problem(&mut problems, id, "summary");
+            push_problem(&mut problems, Source::PubMed, Text::new(id).ok(), "summary");
         }
     }
     for (key, row) in reply.result {
@@ -19,7 +21,7 @@ pub(super) fn summaries(reply: Summary, ids: &[Box<str>]) -> Mapped<Vec<ArticleH
             continue;
         }
         if !ids.iter().any(|id| id.as_ref() == key) {
-            problem(&mut problems, &key, "pmid");
+            push_problem(&mut problems, Source::PubMed, Text::new(&key).ok(), "pmid");
             continue;
         }
         let header = match row {
@@ -29,7 +31,12 @@ pub(super) fn summaries(reply: Summary, ids: &[Box<str>]) -> Mapped<Vec<ArticleH
         if let Some(header) = header {
             value.push(header);
         } else {
-            problem(&mut problems, &key, "summary");
+            push_problem(
+                &mut problems,
+                Source::PubMed,
+                Text::new(&key).ok(),
+                "summary",
+            );
         }
     }
     Mapped { value, problems }
@@ -72,20 +79,20 @@ fn header(row: SummaryRow, key: &str, problems: &mut Vec<Problem>) -> Option<Art
     let mut pmcid = None;
     for item in row.articleids.and_then(Field::value).unwrap_or_default() {
         let Some(item) = item.value() else {
-            problem(problems, key, "articleids");
+            push_problem(problems, Source::PubMed, record_text(key), "articleids");
             continue;
         };
         match item.idtype.as_str() {
             "doi" => {
                 doi = item.value.parse().ok();
                 if doi.is_none() {
-                    problem(problems, key, "doi");
+                    push_problem(problems, Source::PubMed, record_text(key), "doi");
                 }
             }
             "pmc" => {
                 pmcid = item.value.parse().ok();
                 if pmcid.is_none() {
-                    problem(problems, key, "pmcid");
+                    push_problem(problems, Source::PubMed, record_text(key), "pmcid");
                 }
             }
             _ => {}
@@ -147,15 +154,4 @@ pub(crate) fn publication_type(s: &str) -> Option<P> {
         "Published Erratum" => P::Erratum,
         _ => return None,
     })
-}
-fn problem(problems: &mut Vec<Problem>, key: &str, field: &str) {
-    let p = Problem {
-        source: Source::PubMed,
-        record: Text::new(key).ok(),
-        field: field.into(),
-        code: ProblemCode::ValueUnknown,
-    };
-    if !problems.contains(&p) {
-        problems.push(p);
-    }
 }

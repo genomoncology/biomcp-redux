@@ -1,4 +1,5 @@
 //! Canonical seer publisher declaration.
+use crate::mapped::problem;
 use biomcp_fetch::{KeyUse, SourceSpec, Terms};
 use biomcp_types::{Source, Use};
 use std::time::Duration;
@@ -112,8 +113,8 @@ pub fn catalog(leg: &Leg<'_>, limit: u32, offset: u32) -> Result<Page<DiseaseSit
         total,
         metadata,
         problems: vec![
-            map::problem("catalog.publisher_date"),
-            map::problem("catalog.publisher_version"),
+            problem(Source::Seer, None, "catalog.publisher_date"),
+            problem(Source::Seer, None, "catalog.publisher_version"),
         ],
     })
 }

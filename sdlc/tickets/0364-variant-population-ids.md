@@ -1,6 +1,7 @@
 # 0364 — List candidate alleles when variant population gets an rsID or ClinVar ID
 
-Status: OPEN.
+Status: COMPLETE.
+Landed: b359506517c52a505fa38bbb4dac590455ef5d87
 
 Milestone: 5
 

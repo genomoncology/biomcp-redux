@@ -146,7 +146,7 @@ pub use drug::{
     DrugApprovals, DrugCard, DrugCivic, DrugCivicClaim, DrugCivicMember, DrugCivicPage,
     DrugCivicProfile, DrugCivicStreams, DrugFdaCandidate, DrugFdaDocument, DrugFdaIngredient,
     DrugFdaPage, DrugFdaProduct, DrugFdaProperty, DrugFdaSubmission, DrugGet, DrugHeader,
-    DrugIndications, DrugInteractions, DrugLabel, DrugLabelFragment, DrugLabelText,
+    DrugIndications, DrugInteractions, DrugLabel, DrugLabelFragment, DrugLabelText, DrugNameMatch,
     DrugNameSelector, DrugOncokbLookup, DrugOncokbMissing, DrugPage, DrugRecords, DrugRegulatory,
     DrugSearch, DrugSection, DrugSource, DrugTargets, DrugWhoCard, DrugWhoGet, DrugWhoPage,
     DrugWhoRow, DrugXrefs,

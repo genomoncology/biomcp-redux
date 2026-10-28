@@ -1,6 +1,7 @@
 # 0354 — Find openFDA labels by generic name
 
-Status: OPEN.
+Status: COMPLETE.
+Landed: eb9d41c82269dbdef499cc92db17635bdac57bb4
 
 Milestone: 5
 

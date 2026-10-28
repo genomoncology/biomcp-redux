@@ -24,10 +24,19 @@ esac
 complete="$profile_dir/coverage-complete"
 summary=$(mktemp)
 saved=$(mktemp -d)
+clear_profiles() {
+    python3 - "$profile_dir" <<'PYCLEAR'
+from pathlib import Path
+import sys
+
+for profile in Path(sys.argv[1]).glob('*.profraw'):
+    profile.unlink(missing_ok=True)
+PYCLEAR
+}
 cleanup() {
     # Excluded profiles never remain available to a later outside-in report.
     if [ -f "$saved/collecting-library" ]; then
-        rm -f "$profile_dir"/*.profraw
+        clear_profiles
         for profile in "$saved"/*.profraw; do
             [ ! -f "$profile" ] || mv "$profile" "$profile_dir/"
         done
@@ -79,7 +88,7 @@ case "${1:-run}" in
         # Build both collections before reporting, so neither gains a smaller
         # denominator from product functions linked only by the other collection.
         cargo test --workspace --locked --no-run
-        rm -f "$profile_dir"/*.profraw
+        clear_profiles
         LLVM_PROFILE_FILE="$profile_dir/cases-%m-%p.profraw"
         export LLVM_PROFILE_FILE
         set --

@@ -82,19 +82,19 @@ impl Record {
         let subject = VariantRef::allele(self.ca_id.parse().map_err(|_| super::bad())?);
         let attribution = Attribution {
             source: Source::Erepo.text(),
-            record: Some(text(&self.id)?),
-            version: Some(text(&self.version)?),
+            record: Some(crate::mapped::text(&self.id).map_err(|_| super::bad())?),
+            version: Some(crate::mapped::text(&self.version).map_err(|_| super::bad())?),
             release: None,
-            submitter: self.ep.as_deref().map(text).transpose()?,
+            submitter: self.ep.as_deref().map(|v| crate::mapped::text(v).map_err(|_| super::bad())).transpose()?,
             evaluated: None,
             url: self
                 .uuid
                 .as_ref()
                 .map(|uuid| {
-                    text(&format!(
+                    crate::mapped::text(&format!(
                         "https://erepo.clinicalgenome.org/evrepo/ui/classification/{uuid}?version={}",
                         self.version
-                    ))
+                    )).map_err(|_| super::bad())
                 })
                 .transpose()?,
         };
@@ -106,13 +106,17 @@ impl Record {
                     .mondo
                     .map(|v| v.parse().map_err(|_| super::bad()))
                     .transpose()?,
-                label: Some(text(&label)?),
+                label: Some(crate::mapped::text(&label).map_err(|_| super::bad())?),
             }],
             None => vec![],
         };
         let detail = AssertionDetail {
             conditions: conditions.into(),
-            summary: self.summary.as_deref().map(text).transpose()?,
+            summary: self
+                .summary
+                .as_deref()
+                .map(|v| crate::mapped::text(v).map_err(|_| super::bad()))
+                .transpose()?,
             unmet_criteria: strings(self.unmet.unwrap_or_default())?,
             published: self
                 .published
@@ -128,7 +132,7 @@ impl Record {
         let mut row = crate::assertion::row(
             AssertionKind::Erepo,
             AssertionDomain::Germline,
-            text(&self.classification)?,
+            crate::mapped::text(&self.classification).map_err(|_| super::bad())?,
             attribution,
             subject,
             detail,
@@ -139,16 +143,23 @@ impl Record {
             statement.gene_context = self
                 .gene
                 .map(|s| {
-                    biodata::GeneRef::new(text(&s)?, None, None, None).map_err(|_| super::bad())
+                    biodata::GeneRef::new(
+                        crate::mapped::text(&s).map_err(|_| super::bad())?,
+                        None,
+                        None,
+                        None,
+                    )
+                    .map_err(|_| super::bad())
                 })
                 .transpose()?;
         }
         Ok(row)
     }
 }
-pub(super) fn text(value: &str) -> Result<Text, RequestError> {
-    Text::new(value).map_err(|_| super::bad())
-}
+
 fn strings(values: Vec<String>) -> Result<Box<[Text]>, RequestError> {
-    values.iter().map(|s| text(s)).collect()
+    values
+        .iter()
+        .map(|s| crate::mapped::text(s).map_err(|_| super::bad()))
+        .collect()
 }

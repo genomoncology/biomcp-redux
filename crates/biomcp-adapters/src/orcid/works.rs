@@ -35,8 +35,8 @@ struct Url {
     value: String,
 }
 impl Url {
-    fn text(self) -> Option<Text> {
-        self.value.parse().ok()
+    fn into_text(self) -> Option<Text> {
+        crate::mapped::text(&self.value).ok()
     }
 }
 impl Identifiers {
@@ -47,7 +47,7 @@ impl Identifiers {
                 kind: id.external_id_type,
                 value: id.external_id_value,
                 relationship: id.external_id_relationship,
-                url: id.external_id_url.and_then(Url::text),
+                url: id.external_id_url.and_then(Url::into_text),
             })
             .collect()
     }
@@ -153,7 +153,7 @@ impl Assertion {
                 .map(Date::convert)
                 .transpose()?,
             journal_title: self.journal_title.map(|v| v.value),
-            url: self.url.and_then(Url::text),
+            url: self.url.and_then(Url::into_text),
             external_ids: self.external_ids.convert(),
             source: self.source.convert(),
             visibility: OrcidPublicVisibility::Public,
