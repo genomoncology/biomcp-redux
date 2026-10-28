@@ -10,6 +10,35 @@ import unittest
 
 
 class InstalledTemporarySpace(unittest.TestCase):
+    def test_actual_installed_cli_refuses_a_different_candidate_commit(self):
+        # Use the selected built executable through the same CLI checker as every installer.
+        with tempfile.TemporaryDirectory() as directory:
+            binary = Path(directory) / ('biomcp.exe' if os.name == 'nt' else 'biomcp')
+            shutil.copy2(os.environ['BIOMCP_INSTALLED_BINARY'], binary)
+            script = """
+import hashlib, json, pathlib, sys
+sys.path.insert(0, 'release')
+from gate import cli_checks
+binary = pathlib.Path(sys.argv[1])
+import subprocess
+verbose = subprocess.check_output([str(binary), 'version', '--verbose'], text=True)
+revision = next(line.removeprefix('Commit: ') for line in verbose.splitlines() if line.startswith('Commit: '))
+record = {'version': verbose.splitlines()[0].removeprefix('biomcp '),
+          'revision': revision, 'binary_sha256': hashlib.sha256(binary.read_bytes()).hexdigest()}
+rows = cli_checks(binary, record)
+assert [row['command'] for row in rows] == [['version'], ['version', '--verbose'], ['health', '--offline']]
+record['revision'] = ('b' if revision == 'a' * 40 else 'a') * 40
+try:
+    cli_checks(binary, record)
+except ValueError as error:
+    assert str(error) == 'installed CLI commit differs from candidate', error
+else:
+    raise AssertionError('wrong candidate commit passed')
+"""
+            result = subprocess.run([sys.executable, '-c', script, str(binary)],
+                                    capture_output=True, text=True, timeout=120)
+            self.assertEqual(result.returncode, 0, result.stdout + result.stderr)
+
     @unittest.skipUnless(sys.platform == 'darwin' and shutil.which('brew'), 'staged formula installation needs macOS Homebrew')
     def test_staged_formula_installs_the_selected_candidate(self):
         import hashlib

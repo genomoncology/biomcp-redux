@@ -128,7 +128,7 @@ def release_notes(output, version, revision):
         f"--source-ref refs/tags/v{version} --source-digest {revision}\n```\n\n"
         "Replace ARTIFACT with the downloaded file. Compare the source commit above with the release's "
         "tag before accepting it. For a rehearsal, use the repository that ran the workflow for both "
-        "repository arguments; the source commit must match that run. Verification fails if the file, "
+        "repository arguments and replace --source-ref with the actual rehearsal ref. The source commit must match that run. Verification fails if the file, "
         "signer workflow or source commit differs. Stop if verification fails.\n\n"
         "The installer also checks the archive's SHA-256 checksum. Attestations identify the workflow "
         "and source that produced the bytes; they do not establish that the software is defect-free.\n"
