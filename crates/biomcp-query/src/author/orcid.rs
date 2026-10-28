@@ -86,10 +86,8 @@ fn execute(
             SourceOutcome,
             Vec<biomcp_types::Problem>,
         ) = serde_json::from_str(&payload).map_err(|_| CacheError::Database)?;
-        {
-            out.problems.extend(problems);
-            (groups, source, pool)
-        }
+        out.problems.extend(problems);
+        (groups, source, pool)
     } else {
         if q.pool().is_some() {
             restart(q, out, mismatch);
