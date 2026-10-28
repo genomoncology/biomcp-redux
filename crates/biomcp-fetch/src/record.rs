@@ -114,10 +114,6 @@ impl ReplayCache {
             _directory: None,
         })))
     }
-    /// Open only an owned marked case directory, refusing foreign or linked files.
-    fn open_case(path: &Path) -> Result<Self, CacheError> {
-        Self::open_case_with_owners(path, &[])
-    }
     /// Open an owned case after checking every declared schema owner.
     pub fn open_case_with_owners(
         path: &Path,
