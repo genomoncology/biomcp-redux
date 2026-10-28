@@ -199,4 +199,4 @@ outbound-hosts: Refuse undeclared source request origins before cache, replay or
 
 local-file-persistence: Create private Unix cache files and update symlinked credential configuration targets while retaining field order. Cases: `crates/biomcp/tests/runner/local_files.rs`.
 
-organization-nci: Find source-native NCI organizations with bounded snapshots and local paging. Cases: `tests/cases/organization/`.
+organization-nci: Find source-native NCI organizations with bounded snapshots and local paging. Cases: `tests/cases/organization/*.yaml`.

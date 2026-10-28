@@ -21,6 +21,7 @@ pub(crate) fn query_schema(request: &Request) -> &'static str {
         Request::GetProtein(_) => "biomcp.protein-get/1",
         Request::SearchPhenotype(_) => "biomcp.phenotype-search-query/1",
         Request::GetPhenotype(_) => "biomcp.phenotype-get/1",
+        Request::SearchOrganization(_) => "biomcp.organization-search/1",
         Request::SearchPathway(_) => "biomcp.pathway-search/2",
         Request::GetPathway(_) => "biomcp.pathway-get/2",
         Request::PathwayGenes(_) => "biomcp.pathway-genes-query/2",
@@ -60,6 +61,7 @@ pub(crate) fn query_schema(request: &Request) -> &'static str {
     }
 }
 pub(crate) const QUERIES: &[(&str, &str, &str)] = &[
+    ("search", "organization", "biomcp.organization-search/1"),
     ("author", "papers", "biomcp.author-papers-query/1"),
     ("search", "author", "biomcp.author-search-query/2"),
     ("get", "author", "biomcp.author-get-query/2"),

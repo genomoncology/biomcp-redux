@@ -43,7 +43,7 @@ enum Navigation<'a> {
 fn navigation(body: &biomcp_types::QueryBody) -> Navigation<'_> {
     use biomcp_types::QueryBody as Body;
     match body {
-        Body::AuthorPage(_) | Body::CellLinePage(_) => Navigation::NativeOrder,
+        Body::OrganizationPage(_) | Body::AuthorPage(_) | Body::CellLinePage(_) => Navigation::NativeOrder,
         Body::AuthorCards(_) => Navigation::BoundedPma,
         Body::CellLineChembl(_) | Body::CellLineAssayCount(_) => Navigation::BoundedPma,
         Body::CellLineCard(_) => Navigation::BoundedPma,

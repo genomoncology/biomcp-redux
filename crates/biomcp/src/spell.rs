@@ -101,6 +101,7 @@ fn query_value(request: &Request) -> Result<Value, serde_json::Error> {
         Request::GetProtein(q) => serde_json::to_value(q),
         Request::SearchPhenotype(q) => serde_json::to_value(q),
         Request::GetPhenotype(q) => phenotype_value(q),
+        Request::SearchOrganization(q) => serde_json::to_value(q),
         Request::SearchPathway(q) => serde_json::to_value(q),
         Request::GetPathway(q) => serde_json::to_value(q),
         Request::PathwayGenes(q) => serde_json::to_value(q),
@@ -229,6 +230,7 @@ fn command_verb(request: &Request) -> &'static str {
         | Request::SearchGwas(_)
         | Request::SearchProtein(_)
         | Request::SearchPhenotype(_)
+        | Request::SearchOrganization(_)
         | Request::SearchPathway(_)
         | Request::SearchStudy(_)
         | Request::SearchPgx(_)
@@ -277,6 +279,7 @@ fn base_entity(request: &Request) -> &'static str {
     other_entity(request)
 }
 fn other_entity(request: &Request) -> &'static str {
+    if matches!(request, Request::SearchOrganization(_)) { return "organization"; }
     if matches!(request, Request::SearchProtein(_) | Request::GetProtein(_)) {
         "protein"
     } else if matches!(request, Request::SearchStudy(_) | Request::GetStudy(_)) {

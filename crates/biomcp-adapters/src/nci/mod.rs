@@ -1,4 +1,7 @@
 //! Explicit keyed NCI trial access, without registry vocabulary translation.
+pub mod organization;
+mod organization_raw;
+mod organization_map;
 use biodata::{NctId, Text};
 
 use biomcp_fetch::{

@@ -239,6 +239,12 @@ fn response_body(meta: ResponseMeta, request: Request, body: QueryBody) -> io::R
         | Request::ProteinComplexMembers(_)
         | Request::ProteinStructures(_)
         | Request::ProteinSequence(_) => protein::encode(meta, request, body),
+        Request::SearchOrganization(q) => match body {
+            QueryBody::OrganizationPage(body) => { let body = (meta.status != Status::Failed).then_some(body); meta.encode(q, body) },
+            QueryBody::OrganizationTooBroad => usage_envelope(ErrorEnvelope::organization_too_broad()),
+            QueryBody::PoolError { mismatch } => pool_error(mismatch, meta.next),
+            _ => Err(io::Error::other("organization response mismatch")),
+        },
         Request::SearchPathway(_)
         | Request::GetPathway(_)
         | Request::PathwayGenes(_)
