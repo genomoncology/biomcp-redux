@@ -51,7 +51,7 @@ fn gene(row: raw::Gene, f: &mut Fields) -> Option<Gene> {
         status,
         locus_type,
         mane: mane_select.into_iter().collect(),
-        location: f.optional("location", raw::cell(&row.location)),
+        location: (!raw::cell(&row.location).is_empty()).then(|| raw::cell(&row.location).into()),
         entrez_id: f.optional("entrez_id", raw::cell(&row.entrez_id)),
         ensembl_id: f.optional("ensembl_id", raw::cell(&row.ensembl_gene_id)),
         previous_symbols: f.list("previous_symbols", raw::cell(&row.prev_symbol)),

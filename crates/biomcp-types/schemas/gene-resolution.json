@@ -17,11 +17,6 @@
       "pattern": "^([1-9]|1[0-9]|2[0-2]|X|Y|MT)$",
       "type": "string"
     },
-    "Cytoband": {
-      "description": " A single nuclear cytogenetic band, without a range or location descriptor.",
-      "pattern": "^([1-9]|1[0-9]|2[0-2]|X|Y)[pq][1-9][0-9](\\.[0-9]+)?$",
-      "type": "string"
-    },
     "EnsemblGeneId": {
       "description": " A human Ensembl gene stable identifier with a separately retained version.",
       "pattern": "^ENSG[0-9]{11}(\\.[1-9][0-9]*)?$",
@@ -66,13 +61,13 @@
         "location": {
           "anyOf": [
             {
-              "$ref": "#/$defs/Cytoband"
+              "$ref": "#/$defs/GeneLocation"
             },
             {
               "type": "null"
             }
           ],
-          "description": "Single stated band, if available."
+          "description": "Source-stated location, including unparsed publisher text."
         },
         "locus_group": {
           "$ref": "#/$defs/LocusGroup",
@@ -167,13 +162,13 @@
         "location": {
           "anyOf": [
             {
-              "$ref": "#/$defs/Cytoband"
+              "$ref": "#/$defs/GeneLocation"
             },
             {
               "type": "null"
             }
           ],
-          "description": "A single stated band, if available."
+          "description": "Source-stated location, including unparsed publisher text."
         },
         "locus_group": {
           "$ref": "#/$defs/LocusGroup",
@@ -211,6 +206,10 @@
         "name"
       ],
       "type": "object"
+    },
+    "GeneLocation": {
+      "description": "HGNC location text with a parsed interpretation when its syntax is known.",
+      "type": "string"
     },
     "GeneStatus": {
       "description": "HGNC approval status.",
@@ -540,7 +539,7 @@
       "type": "string"
     }
   },
-  "$id": "biodata.gene-resolution/3",
+  "$id": "biodata.gene-resolution/4",
   "$schema": "https://json-schema.org/draft/2020-12/schema",
   "description": "Resolution outcomes preserve ambiguity and withdrawn identity.",
   "oneOf": [
