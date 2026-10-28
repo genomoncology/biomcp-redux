@@ -1,6 +1,7 @@
 # 0393 — Make the release workflow run and prove what it claims
 
-Status: OPEN.
+Status: COMPLETE.
+Landed: 6f16dfec01853bfcbe9a87c5faa47338ec972c15
 
 Milestone: 5
 

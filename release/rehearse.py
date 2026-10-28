@@ -59,10 +59,12 @@ def inside(report):
 def cold(report, container_args):
     if __package__:
         from .toolchain import manifest
+        from .source_revision import revision as source_revision
     else:
         from toolchain import manifest
+        from source_revision import revision as source_revision
     # Clone only tracked source and history, with no host HOME, caches or tools.
-    revision = subprocess.check_output(['git', 'rev-parse', 'HEAD'], text=True).strip()
+    revision = source_revision()
     rows = []
     report = report.resolve()
     report.parent.mkdir(parents=True, exist_ok=True)

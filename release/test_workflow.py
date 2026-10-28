@@ -38,11 +38,12 @@ class Staging(unittest.TestCase):
         for rules, accepted in [([], False), ([{"type": "required_reviewers", "reviewers": []}], False),
                                 ([{"type": "required_reviewers", "reviewers": [{"type": "Team"}], "prevent_self_review": False}], False),
                                 ([{"type": "required_reviewers", "reviewers": [{"type": "Team"}], "prevent_self_review": True}], True)]:
-            with self.subTest(rules=rules), tempfile.TemporaryDirectory() as directory:
-                settings = Path(directory) / "environment.json"
-                settings.write_text(json.dumps({"protection_rules": rules}))
-                result = subprocess.run([sys.executable, "release/workflow.py", "protection", str(settings)], capture_output=True, text=True)
-                self.assertEqual(result.returncode == 0, accepted, result.stderr)
+            for bypass in (False, True):
+                with self.subTest(rules=rules, bypass=bypass), tempfile.TemporaryDirectory() as directory:
+                    settings = Path(directory) / "environment.json"
+                    settings.write_text(json.dumps({"protection_rules": rules, "can_admins_bypass": bypass}))
+                    result = subprocess.run([sys.executable, "release/workflow.py", "protection", str(settings)], capture_output=True, text=True)
+                    self.assertEqual(result.returncode == 0, accepted and not bypass, result.stderr)
 
     def prepare(self, root):
         artifacts = root / "artifacts"
@@ -100,6 +101,8 @@ class Staging(unittest.TestCase):
             self.assertEqual((staged / "install.sh").read_bytes(), Path("release/install.sh").read_bytes())
             notes = (staged / "RELEASE-NOTES.md").read_text()
             self.assertIn("gh attestation verify", notes)
+            self.assertIn("--source-ref refs/tags/v1.0.0", notes)
+            self.assertIn("replace --source-ref with the actual rehearsal ref", notes)
             self.assertIn("--repo genomoncology/biomcp", notes)
             self.assertIn("a" * 40, notes)
             checksums = root / "subjects.sha256"
@@ -118,7 +121,7 @@ class Staging(unittest.TestCase):
                 self.assertEqual(json.loads(archive.read(".claude-plugin/plugin.json"))["skills"], ["./skills/"])
 
     def test_stage_refuses_incomplete_or_mixed_candidates(self):
-        for defect in ["missing-platform", "revision", "checksum", "registry", "plugin", "skills"]:
+        for defect in ["missing-platform", "revision", "checksum", "registry", "plugin", "skills", "plugin-version"]:
             with self.subTest(defect=defect), tempfile.TemporaryDirectory() as directory:
                 root = Path(directory)
                 artifacts, plugin = self.prepare(root)
@@ -134,8 +137,13 @@ class Staging(unittest.TestCase):
                     (linux / "server.json").write_text('{"version":"0.9.3"}')
                 elif defect == "plugin":
                     (plugin / ".claude-plugin/plugin.json").write_text('{"name":"other"}')
-                else:
+                elif defect == "skills":
                     (plugin / ".claude-plugin/plugin.json").write_text('{"name":"biomcp"}')
+                else:
+                    path = plugin / ".claude-plugin/plugin.json"
+                    metadata = json.loads(path.read_text())
+                    del metadata['version']
+                    path.write_text(json.dumps(metadata))
                 self.assertNotEqual(self.stage(root, artifacts, plugin).returncode, 0)
 
     def test_subjects_refuse_missing_empty_or_unsafe_staging(self):
