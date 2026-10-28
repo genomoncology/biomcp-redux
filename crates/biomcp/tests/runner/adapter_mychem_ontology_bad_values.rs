@@ -4,7 +4,7 @@ use libtest_mimic::Trial;
 use serde_json::{Value, json};
 
 pub(super) fn trials() -> Vec<Trial> {
-    ["mychem", "ols", "mydisease"]
+    ["mychem", "ols", "mydisease", "mydisease-doid"]
         .into_iter()
         .map(|family| {
             let feature = if family == "mychem" {
@@ -15,7 +15,15 @@ pub(super) fn trials() -> Vec<Trial> {
                 "disease-mydisease"
             };
             Trial::test(format!("{feature}/bad-values-keep-reply"), move || {
-                check(family).map_err(Into::into)
+                check(family)
+                    .and_then(|_| {
+                        if matches!(family, "mychem" | "ols") {
+                            search(family)
+                        } else {
+                            Ok(())
+                        }
+                    })
+                    .map_err(Into::into)
             })
         })
         .collect()
@@ -24,6 +32,11 @@ fn check(family: &str) -> Result<(), String> {
     let cases = cases(family);
     for (field, invalid, expected) in cases {
         let (host, mut body, pointer) = match family {
+            "mydisease-doid" => (
+                "mydisease.info",
+                json!({"_id":"DOID:3910","disease_ontology":{"doid":"DOID:3910","name":"Valid disease"}}),
+                "/disease_ontology",
+            ),
             "mychem" => ("mychem.info", json!({"_id":"CHEMBL25"}), ""),
             "ols" => (
                 "www.ebi.ac.uk",
@@ -73,7 +86,21 @@ fn check(family: &str) -> Result<(), String> {
         let mut args = if family == "mychem" {
             vec!["get", "drug", "CHEMBL25", "--source", "mychem"]
         } else {
-            vec!["get", "disease", "MONDO:0005061", "--source", family]
+            vec![
+                "get",
+                "disease",
+                if family == "mydisease-doid" {
+                    "DOID:3910"
+                } else {
+                    "MONDO:0005061"
+                },
+                "--source",
+                if family == "mydisease-doid" {
+                    "mydisease"
+                } else {
+                    family
+                },
+            ]
         };
         if let Some(section) = section {
             if family != "mychem" || section == "xrefs" {
@@ -216,6 +243,27 @@ fn cases(family: &str) -> Vec<(&'static str, Value, &'static str)> {
                 "xref.description",
             ),
         ],
+        "mydisease-doid" => vec![
+            ("name", json!(""), "disease_ontology.name"),
+            ("def", json!(""), "disease_ontology.def"),
+            (
+                "synonyms",
+                json!({"exact":["valid", ""]}),
+                "disease_ontology.synonyms.exact",
+            ),
+            (
+                "xrefs",
+                json!({"mondo":[""]}),
+                "disease_ontology.xrefs.mondo",
+            ),
+            ("parents", json!(["invalid:"]), "disease_ontology.parents"),
+            ("consider", json!(["invalid:"]), "disease_ontology.consider"),
+            (
+                "replaced_by",
+                json!(["invalid:"]),
+                "disease_ontology.replaced_by",
+            ),
+        ],
         _ => vec![
             ("label", json!(""), "mondo.label"),
             ("definition", json!(""), "mondo.definition"),
@@ -231,4 +279,52 @@ fn cases(family: &str) -> Vec<(&'static str, Value, &'static str)> {
             ("replaced_by", json!(["invalid:"]), "mondo.replaced_by"),
         ],
     }
+}
+
+fn search(family: &str) -> Result<(), String> {
+    let (host, body, expected) = if family == "mychem" {
+        (
+            "mychem.info",
+            json!({"total":1,"hits":[{"_id":"CHEMBL25","drugbank":{"name":""}}]}),
+            "drugbank.name",
+        )
+    } else {
+        (
+            "www.ebi.ac.uk",
+            json!({"response":{"numFound":1,"start":0,"docs":[{"obo_id":"MONDO:0005061","label":"","ontology_name":"mondo","iri":""}]}}),
+            "label",
+        )
+    };
+    let stub = Stub::for_source(host, "application/json", move |_| Ok(body.to_string()))?;
+    let env = crate::runner::variant::source_environment(&stub)?;
+    let mut args = vec![
+        "search",
+        if family == "mychem" {
+            "drug"
+        } else {
+            "disease"
+        },
+        "valid",
+        "--source",
+        family,
+    ];
+    if family == "ols" {
+        args.extend(["--ontology", "mondo"]);
+    }
+    let value = invoke(&env, args.into_iter().map(str::to_owned).collect(), 0)?;
+    if value.pointer("/result/items/0").is_none()
+        || value.pointer("/result/items/0/header/name").is_some()
+        || !value
+            .get("problems")
+            .and_then(Value::as_array)
+            .is_some_and(|values| {
+                values
+                    .iter()
+                    .any(|v| v.get("field") == Some(&json!(expected)))
+            })
+    {
+        return Err(format!("bad search field lost item or problem: {value}"));
+    }
+    stub.finish()?;
+    Ok(())
 }

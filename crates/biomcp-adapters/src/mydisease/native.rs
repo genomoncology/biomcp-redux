@@ -61,7 +61,10 @@ pub(super) fn component(name: &'static str, raw: super::raw::Component) -> Compo
         list: Vec::new(),
     };
     let definition = problems.optional(
-        &format!("{root}.definition"),
+        &format!(
+            "{root}.{}",
+            if name == "doid" { "def" } else { "definition" }
+        ),
         raw.definition.map(|v| v.value().ok_or(())),
     );
     let synonyms = values(
@@ -88,7 +91,7 @@ pub(super) fn component(name: &'static str, raw: super::raw::Component) -> Compo
         name,
         id: raw.id,
         label: problems.optional(
-            &format!("{root}.label"),
+            &format!("{root}.{}", if name == "doid" { "name" } else { "label" }),
             raw.label.map(|v| v.value().ok_or(())),
         ),
         definition,
