@@ -50,12 +50,25 @@ impl Leg<'_> {
         params: &[(&str, Arg<'_>)],
         check: impl Fn(&[u8]) -> Result<(), Reason>,
     ) -> Result<Vec<u8>, RequestError> {
+        self.bytes_checked_media(ep, params, None, check)
+    }
+    pub(crate) fn bytes_checked_media(
+        &self,
+        ep: &Endpoint,
+        params: &[(&str, Arg<'_>)],
+        media: Option<crate::DocumentMedia>,
+        check: impl Fn(&[u8]) -> Result<(), Reason>,
+    ) -> Result<Vec<u8>, RequestError> {
         let limit = ep
             .byte_limit
             .filter(|v| *v > 0 && *v < u64::MAX)
             .ok_or(InputError::BodyLimit)?;
-        self.parameters(ep, params, Decoder::checked_bytes(limit, &check))
-            .map(|(v, _)| v.0)
+        let decoder = Decoder::checked_bytes(limit, &check);
+        let decoder = match media {
+            Some(media) => decoder.document_media(media),
+            None => decoder,
+        };
+        self.parameters(ep, params, decoder).map(|(v, _)| v.0)
     }
     /// Probe declared reachability through the same bounded transport, quota and replay policy.
     /// Probe replies never enter the checked data cache.
@@ -159,7 +172,7 @@ impl Leg<'_> {
         } else {
             format!("{}{}", self.spec.base.trim_end_matches('/'), ep.path)
         };
-        let (url, body) = if ep.method == Method::Get {
+        let (url, body) = if matches!(ep.method, Method::Get | Method::Head) {
             (
                 crate::retry::canonical(&url, params, self.spec.key),
                 Vec::new(),
@@ -390,7 +403,7 @@ impl Leg<'_> {
                 self.spec.source,
                 &prepared.identity,
                 &prepared.url,
-                prepared.post.as_ref(),
+                prepared.recording(),
                 codec.limit.unwrap_or(self.fetch.config.max_body),
             )
             .map_err(|error| {
@@ -427,16 +440,20 @@ impl Leg<'_> {
             .and_then(|v| crate::retry::retry_after(v, std::time::SystemTime::now()));
         let fetched = crate::cache::now();
         let recording = matches!(self.fetch.mode, crate::Mode::Record { .. });
-        let body = self.read_body(
-            &mut response,
-            status,
-            recording
-                || self.keyed()
-                || !prepared.outgoing.is_empty()
-                || codec.json_rejections && matches!(status, 400 | 422)
-                || codec.json_absence && status == 404,
-            codec.limit.unwrap_or(self.fetch.config.max_body),
-        )?;
+        let body = if prepared.method == Method::Head {
+            Vec::new()
+        } else {
+            self.read_body(
+                &mut response,
+                status,
+                recording
+                    || self.keyed()
+                    || !prepared.outgoing.is_empty()
+                    || codec.json_rejections && matches!(status, 400 | 422)
+                    || codec.json_absence && status == 404,
+                codec.limit.unwrap_or(self.fetch.config.max_body),
+            )?
+        };
         let wire = Wire {
             fetched,
             status,
@@ -505,7 +522,7 @@ impl Leg<'_> {
             self.spec.source,
             &prepared.identity,
             &prepared.url,
-            prepared.post.as_ref(),
+            prepared.recording(),
             exchange,
         )
     }

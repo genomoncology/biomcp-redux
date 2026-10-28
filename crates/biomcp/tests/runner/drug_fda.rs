@@ -5,6 +5,7 @@ use serde_json::{Value, json};
 type Check = Result<(), String>;
 mod capture;
 mod errors;
+mod names;
 pub(super) fn trials() -> Vec<Trial> {
     let mut trials = vec![
         Trial::test("drug-approvals/literal-application-candidates", || {
@@ -25,6 +26,7 @@ pub(super) fn trials() -> Vec<Trial> {
         }),
     ];
     trials.extend(errors::trials());
+    trials.extend(names::trials());
     trials.extend(capture::trials());
     trials
 }

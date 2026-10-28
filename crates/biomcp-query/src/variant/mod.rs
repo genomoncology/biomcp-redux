@@ -73,6 +73,7 @@ pub fn get(cx: &Ctx<'_>, query: &VariantGet) -> Outcome {
         sources.push(source);
         local = local.or(error);
     }
+    match_transcripts(query, &mut candidates);
     let page = candidate_page(query, resolution, &mut candidates);
     let (section_sources, section_problems, section_error) =
         sections::apply(cx, query, &mut candidates, &mut deadline);
@@ -98,6 +99,35 @@ pub fn get(cx: &Ctx<'_>, query: &VariantGet) -> Outcome {
     };
     command.finish(deadline.remaining());
     out
+}
+fn match_transcripts(query: &VariantGet, candidates: &mut [VariantHeader]) {
+    for candidate in candidates {
+        for transcript in &mut candidate.transcripts {
+            transcript.matched =
+                query
+                    .input()
+                    .as_str()
+                    .split_once(':')
+                    .is_some_and(|(id, notation)| {
+                        transcript.transcript.as_str() == transcript_reference(id)
+                            && transcript
+                                .hgvs_c
+                                .as_ref()
+                                .is_some_and(|c| c.as_str() == notation)
+                    });
+        }
+    }
+}
+fn transcript_reference(reference: &str) -> &str {
+    let Some((outer, inner)) = reference.split_once('(') else {
+        return reference;
+    };
+    let inner = inner.strip_suffix(')').unwrap_or(inner);
+    if inner.parse::<biodata::Accession>().is_ok() {
+        inner
+    } else {
+        outer
+    }
 }
 fn classify(len: usize) -> VariantResolution {
     match len {
@@ -228,6 +258,8 @@ fn enrich(
                     problems.extend(found.problems);
                     for row in found.value {
                         candidate.myvariant = Some(row.identity);
+                        candidate.transcripts = row.transcripts;
+                        candidate.component_terms = row.component_terms;
                     }
                 }
                 Err(e) => {

@@ -48,8 +48,19 @@ pub const CLINVAR: Component = Component {
         usage: Use::Restricted,
     },
 };
+/// The carried SnpEff annotation keeps its own publisher terms.
+pub const SNPEFF: Component = Component {
+    source: Source::MyVariant,
+    native_source: None,
+    name: "snpeff",
+    terms: Terms {
+        name: "MyVariant SnpEff annotation terms",
+        url: "http://bit.ly/2suyRKt",
+        usage: Use::Restricted,
+    },
+};
 /// Component declarations used consistently by health and named sections.
-pub const COMPONENTS: &[Component] = &[CADD, DBNSFP, COSMIC, CLINVAR];
+pub const COMPONENTS: &[Component] = &[CADD, DBNSFP, COSMIC, CLINVAR, SNPEFF];
 /// Resolve component terms from their canonical declaration.
 pub fn terms(name: &str) -> Option<Terms> {
     COMPONENTS.iter().find(|c| c.name == name).map(|c| c.terms)
