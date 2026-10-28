@@ -11,7 +11,11 @@ pub(super) fn trials() -> Vec<Trial> {
 fn check() -> Result<(), String> {
     let stub = Stub::for_source("myvariant.info", "application/json", body)?;
     let env = super::source_environment(&stub)?;
-    let search = invoke(&env, strings(&["search", "variant", "--query", "BRAF"]), 0)?;
+    let search = invoke(
+        &env,
+        strings(&["search", "variant", "--query", "BRAF", "--source", "myvariant"]),
+        0,
+    )?;
     let ids = search
         .pointer("/result/items/0/identity/ids")
         .and_then(Value::as_array)
