@@ -142,16 +142,24 @@ actual=${actual%% *}
 expected=$(printf '%s' "$expected" | tr '[:upper:]' '[:lower:]')
 [ "$actual" = "$expected" ] || fail 'Archive checksum mismatch'
 
-# Read only the single regular executable. Never extract archive paths.
+# Accept the current notice-bearing layout and the legacy binary-only layout.
+# Read only the regular executable. Never extract archive paths.
+archive_members() {
+  local members=$1 executable=$2
+  members=$(printf '%s\n' "$members" | LC_ALL=C sort)
+  [ "$members" = "$executable" ] || \
+    [ "$members" = "$(printf '%s\n' LICENSE THIRD-PARTY-NOTICES.txt "$executable" | LC_ALL=C sort)" ] || \
+    fail 'Unexpected archive contents'
+}
 case "$archive" in
   *.zip)
     binary=biomcp.exe
     command -v unzip >/dev/null 2>&1 || fail 'unzip is required to install on Windows shells'
-    [ "$(unzip -Z -1 "$archive")" = biomcp.exe ] || fail 'Unexpected archive contents'
+    archive_members "$(unzip -Z -1 "$archive")" biomcp.exe
     unzip -p "$archive" biomcp.exe > "$scratch/executable" ;;
   *)
-    [ "$(tar -tzf "$archive")" = biomcp ] || fail 'Unexpected archive contents'
-    [[ "$(tar -tvzf "$archive")" = -* ]] || fail 'Archive executable is not a regular file'
+    archive_members "$(tar -tzf "$archive")" biomcp
+    [[ "$(tar -tvzf "$archive" biomcp)" = -* ]] || fail 'Archive executable is not a regular file'
     tar -xOzf "$archive" biomcp > "$scratch/executable" ;;
 esac
 [ -s "$scratch/executable" ] || fail 'Archive executable is empty'
