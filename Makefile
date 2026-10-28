@@ -54,7 +54,7 @@ docs-check:
 	python3 scripts/test_coverage.py
 	python3 scripts/test_build_workers.py
 	python3 scripts/test_nightly_live_check.py
-	python3 -m unittest release.test_installer release.test_checks release.test_gate
+	python3 -m unittest release.test_installer release.test_checks release.test_gate release.test_windows
 	python3 -m unittest release.test_workflow release.test_security
 .PHONY: release-linux
 release-linux:

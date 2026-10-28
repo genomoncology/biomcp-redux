@@ -12,6 +12,7 @@ import tempfile
 import zipfile
 
 from artifacts import cargo, inspect
+from windows import check_runtime
 from smoke import environment, smoke
 from local_server import server, https_server
 
@@ -94,6 +95,10 @@ def installed(args):
     record = inspect(wheel)  # All distributions must match these Cargo candidate bytes.
     if not re.fullmatch(r"[0-9a-f]{40}", record["revision"]):
         raise ValueError("candidate revision must be a full Git commit")
+    if record["platform"].startswith("win_"):
+        with zipfile.ZipFile(wheel) as package:
+            entry, = [name for name in package.namelist() if name.endswith(".data/scripts/biomcp.exe")]
+            check_runtime(package.read(entry), record["platform"])
     root = args.scratch.resolve()
     root.mkdir(parents=True, exist_ok=True)
     fixtures = root / "fixtures"
@@ -115,13 +120,14 @@ def installed(args):
     def check(kind, binary, server_args=("serve",), declared_tools=None):
         if hashlib.sha256(binary.read_bytes()).hexdigest() != record["binary_sha256"]:
             raise ValueError(kind + " installed bytes differ from the candidate")
+        check_runtime(binary.read_bytes(), record["platform"])
         for row in cli_checks(binary, record):
             results.append({"artifact": kind, "platform": record["platform"], **row})
             print(json.dumps(results[-1]), flush=True)
         completed = smoke(binary, executable, fixtures, record["version"], server_args)
         if declared_tools is not None and sorted(completed["tools"]) != sorted(declared_tools):
             raise ValueError("desktop manifest tools differ from installed server")
-        results.append({"artifact": kind, "platform": record["platform"], "result": "pass", "checks": ["candidate-bytes"] + completed["checks"]})
+        results.append({"artifact": kind, "platform": record["platform"], "result": "pass", "checks": ["candidate-bytes"] + (["windows-static-crt"] if record["platform"].startswith("win_") else []) + completed["checks"]})
         print(json.dumps(results[-1]), flush=True)
     check("wheel", install_wheel(wheel, root / "venv", root, args.python))
     bundle = next(output.glob("*.mcpb"))

@@ -1,6 +1,7 @@
 # 0396 — Link the Windows C runtime statically
 
-Status: OPEN.
+Status: COMPLETE.
+Landed: 619943d307692f64cadd339ebb63dfed65d1fd9d
 
 Milestone: 5
 
