@@ -28,9 +28,9 @@ struct Fields {
     /// Explicit provider; defaults to ClinicalTrials.gov and never falls back.
     #[serde(default, skip_serializing_if = "TrialSource::is_default")]
     source: TrialSource,
-    /// General text alternatives joined with OR; different filters combine with AND.
+    /// Repeat for ClinicalTrials.gov general text alternatives joined with OR; different filters combine with AND. NCI accepts one keyword.
     #[serde(default, skip_serializing_if = "<[ _ ]>::is_empty")]
-    #[cfg_attr(feature = "schema", schemars(length(min = 1, max = MAX_ALTERNATIVES)))]
+    #[cfg_attr(feature = "schema", schemars(length(max = MAX_ALTERNATIVES)))]
     keyword: Box<[Text]>,
     /// General registry discovery text.
     #[serde(
@@ -42,7 +42,7 @@ struct Fields {
     query: Option<Text>,
     /// Condition alternatives joined with OR; NCI requires NCIt codes.
     #[serde(default, skip_serializing_if = "<[ _ ]>::is_empty")]
-    #[cfg_attr(feature = "schema", schemars(length(min = 1, max = MAX_ALTERNATIVES)))]
+    #[cfg_attr(feature = "schema", schemars(length(max = MAX_ALTERNATIVES)))]
     condition: Box<[Text]>,
     /// Ask ClinicalTrials.gov to restrict matching to the registered condition phrase; its support is partial.
     #[serde(default, skip_serializing_if = "std::ops::Not::not")]
@@ -57,7 +57,7 @@ struct Fields {
     condition_id: Option<biodata::Curie>,
     /// Intervention alternatives joined with OR; supported by ClinicalTrials.gov.
     #[serde(default, skip_serializing_if = "<[ _ ]>::is_empty")]
-    #[cfg_attr(feature = "schema", schemars(length(min = 1, max = MAX_ALTERNATIVES)))]
+    #[cfg_attr(feature = "schema", schemars(length(max = MAX_ALTERNATIVES)))]
     intervention: Box<[Text]>,
     /// Resolve one checked gene for registry text discovery only; no eligibility judgment.
     #[serde(
@@ -223,7 +223,7 @@ impl TrialSearch {
     pub fn source(&self) -> TrialSource {
         self.0.source
     }
-    /// Explicit NCI free text.
+    /// General text alternatives; NCI accepts one explicit keyword.
     pub fn keyword(&self) -> &[Text] {
         &self.0.keyword
     }

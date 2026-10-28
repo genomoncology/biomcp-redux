@@ -1152,8 +1152,8 @@ Options:
           [default: json]
           [possible values: json, md]
 
-      --condition <condition>
-          Registry condition text, or an NCIt code for NCI; use --keyword for NCI free text.
+      --condition <condition>...
+          Condition alternatives joined with OR; NCI requires NCIt codes.
 
       --disable-sources <disable-sources>
           Exclude source names or source terms groups.
@@ -1194,11 +1194,11 @@ Options:
       --id <id>
           Exact NCT identity in a conjunction with other filters.
 
-      --intervention <intervention>
-          Literal source intervention text.
+      --intervention <intervention>...
+          Intervention alternatives joined with OR; supported by ClinicalTrials.gov.
 
-      --keyword <keyword>
-          NCI free text; explicit keyword mode never substitutes for a disease identity.
+      --keyword <keyword>...
+          General text alternatives joined with OR; different filters combine with AND.
 
       --lat <lat>
           Radius center latitude in degrees.
@@ -1247,7 +1247,7 @@ Options:
 Search one source with bounded pages and source counts; default ClinicalTrials.gov, explicit keyed NCI, never a fallback.
 
 - `--age`: Age in years; unstated source bounds count as no limit.
-- `--condition`: Registry condition text, or an NCIt code for NCI; use --keyword for NCI free text.
+- `--condition`: Condition alternatives joined with OR; NCI requires NCIt codes.
 - `--condition-id`: Exact MONDO or DOID CURIE resolved by MyDisease; NCI also accepts explicit NCIT:C codes.
 - `--count-only`: Source total only; no returned study rows.
 - `--criteria`: Search exact registry eligibility text for discovery only; no eligibility judgment.
@@ -1257,8 +1257,8 @@ Search one source with bounded pages and source counts; default ClinicalTrials.g
 - `--gene`: Resolve one checked gene for registry text discovery only; no eligibility judgment.
 - `--has-results`: Require posted source results.
 - `--id`: Exact NCT identity in a conjunction with other filters.
-- `--intervention`: Exact source intervention text.
-- `--keyword`: NCI free text; explicit keyword mode never substitutes for a disease identity.
+- `--intervention`: Intervention alternatives joined with OR; supported by ClinicalTrials.gov.
+- `--keyword`: General text alternatives joined with OR; different filters combine with AND.
 - `--lat`: Radius center latitude in degrees.
 - `--limit`: Headers per page; NCI applies its own lower publisher limit.
 - `--lon`: Radius center longitude in degrees.

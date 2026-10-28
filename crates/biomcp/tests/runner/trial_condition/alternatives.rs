@@ -29,10 +29,12 @@ pub(super) fn run() -> Result<(), String> {
     }
     stub.finish()?;
     for field in ["condition", "intervention", "keyword"] {
-        let mut value = json!({});
-        value[field] = json!(["a","b","c","d","e","f"]);
-        if serde_json::from_value::<biomcp_types::TrialSearch>(value).is_ok() {
-            return Err(format!("accepted sixth {field}"));
+        for count in [1, 5, 6] {
+            let mut value = json!({});
+            value[field] = json!(vec!["value"; count]);
+            if serde_json::from_value::<biomcp_types::TrialSearch>(value).is_ok() != (count <= 5) {
+                return Err(format!("wrong boundary for {count} {field} values"));
+            }
         }
     }
     Ok(())
@@ -68,17 +70,25 @@ pub(super) fn mismatch() -> Result<(), String> {
         }
         // One value matches every native condition; the other value does not.
         // Flattening all values into one string hides which input lost words.
+        let conditions = if request.contains("pageSize=1&") {
+            json!(["Lung Cancer", "Melanoma"])
+        } else {
+            json!(["Lung Cancer"])
+        };
         Ok(json!({"totalCount":1,"studies":[{"protocolSection":{
             "identificationModule":{"nctId":"NCT00000001","briefTitle":"Synthetic native condition"},
-            "statusModule":{"overallStatus":"RECRUITING"},
-            "conditionsModule":{"conditions":["Lung Cancer"]}
+            "statusModule":{"overallStatus":"RECRUITING","lastUpdatePostDateStruct":{"date":"2026-10-28"}},
+            "designModule":{},
+            "conditionsModule":{"conditions":conditions}
         }}]}).to_string())
     })?;
     let env = setup(&stub)?;
-    let args: Vec<String> = ["search","trial","--condition","lung cancer","--condition","melanoma"].iter().map(|v| (*v).into()).collect();
-    let value = invoke(&env, &args, 0)?;
-    if value.pointer("/sources/0/notices/0").is_none() {
-        return Err(format!("second condition mismatch lost: {value}"));
+    for (limit, mismatch) in [("1", false), ("2", true)] {
+        let args: Vec<String> = ["search","trial","--condition","lung cancer","--condition","melanoma","--limit",limit].iter().map(|v| (*v).into()).collect();
+        let value = invoke(&env, &args, 0)?;
+        if value.pointer("/sources/0/notices/0").is_some() != mismatch {
+            return Err(format!("per-value mismatch was {mismatch}: {value}"));
+        }
     }
     stub.finish()?;
     Ok(())
