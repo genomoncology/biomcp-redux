@@ -154,9 +154,12 @@ fn replacement(env: &Environment, replay: &Path, get: &[&str], before: &Value) -
         }
     }
     let [path] = recordings.as_slice() else {
-        return Err(format!("expected one WHO recording, found {}", recordings.len()));
+        return Err(format!(
+            "expected one WHO recording, found {}",
+            recordings.len()
+        ));
     };
-    let bytes = fs::read(&path).map_err(|e| e.to_string())?;
+    let bytes = fs::read(path).map_err(|e| e.to_string())?;
     let original: Value = serde_json::from_slice(&bytes).map_err(|e| {
         format!(
             "WHO recording {} ({} bytes): {e}",
@@ -174,7 +177,7 @@ fn replacement(env: &Environment, replay: &Path, get: &[&str], before: &Value) -
         };
         *changed.pointer_mut("/exchanges/0/body").ok_or("body")? =
             json!({"kind":"text", "value":text});
-        fs::write(&path, changed.to_string()).map_err(|e| e.to_string())?;
+        fs::write(path, changed.to_string()).map_err(|e| e.to_string())?;
         let failed = pair(env, replay, &["sync", "who-pq"], 4)?;
         if failed.pointer("/sources/0/reason") != Some(&json!("bad_reply"))
             || pair(env, replay, get, 0)? != *before
