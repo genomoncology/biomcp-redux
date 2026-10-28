@@ -38,7 +38,7 @@ fn bad() -> RequestError {
 }
 /// Download both metadata catalogs and publish their checked pair atomically.
 pub fn sync(fetch: &Fetch) -> Result<WikiPathwaysSync, RequestError> {
-    fetch.sync_set(&CATALOGS)?;
+    let info = fetch.sync_set(&CATALOGS)?;
     let leg = fetch.leg(&SPEC, fetch.deadline(SPEC.deadline));
     let (rows, _) = leg.stored_set_rows(&CATALOGS, Find::Exact(KeyKind::Band, "catalog"))?;
     let search = rows
@@ -55,7 +55,11 @@ pub fn sync(fetch: &Fetch) -> Result<WikiPathwaysSync, RequestError> {
         .value
         .receipt
         .clone();
-    Ok(WikiPathwaysSync { search, get })
+    Ok(WikiPathwaysSync {
+        search,
+        get,
+        downloaded_bytes: info.downloaded_bytes,
+    })
 }
 /// Search only native titles in original catalog order, with exact source species admission.
 pub fn search(leg: &Leg<'_>, text: &str) -> Result<(Vec<PathwayHeader>, BundleInfo), RequestError> {

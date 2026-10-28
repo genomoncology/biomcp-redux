@@ -4,7 +4,8 @@ use serde_json::{Value, json};
 pub(super) fn check(value: &Value) -> Check {
     let full = serde_json::to_vec(value).map_err(|e| e.to_string())?.len();
     let comparable = crate::runner::source_terms::size(value, "")?;
-    // j13466 measured scoped complete shapes; j13429 measured failures and expiry.
+    // j13466 measured complete shapes; j13429 measured failures and expiry.
+    // j19310 measured the deadline reply with source recovery guidance.
     let (measured_full, measured_comparable): (usize, usize) = if value.get("error").is_some() {
         (224, 224)
     } else if value.get("status") != Some(&json!("complete")) {
@@ -14,7 +15,7 @@ pub(super) fn check(value: &Value) -> Check {
             let measured = match value.pointer("/sources/0/reason").and_then(Value::as_str) {
                 Some("rate_limited") => 298,
                 Some("unavailable") => 297,
-                Some("deadline_exceeded") => 303,
+                Some("deadline_exceeded") => 551,
                 Some("rejected") => 294,
                 _ => 295,
             };

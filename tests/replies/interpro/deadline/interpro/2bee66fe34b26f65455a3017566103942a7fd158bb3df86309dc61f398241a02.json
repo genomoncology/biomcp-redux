@@ -1,0 +1,17 @@
+{
+  "source": "interpro",
+  "method": "GET",
+  "url": "https://www.ebi.ac.uk/interpro/api/entry/interpro/protein/uniprot/P00533/?page_size=5",
+  "exchanges": [
+    {
+      "status": 200,
+      "content_type": "application/json",
+      "delay_ms": 180000,
+      "retry_after_ms": null,
+      "body": {
+        "kind": "text",
+        "value": "synthetic delayed health exchange; no provider reply"
+      }
+    }
+  ]
+}

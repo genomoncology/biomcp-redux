@@ -196,13 +196,14 @@ pub(crate) static CPIC: Quota =
 pub(crate) static CLINPGX: Quota =
     Quota::new(SourceKey::declare("clinpgx"), Rate::per_second(1), None, 1);
 
-/// CDC WONDER shared minimum spacing.
+/// CDC automated-query spacing: https://wonder.cdc.gov/wonder/help/wonder-api.html
 pub(crate) static WONDER: Quota = Quota::new(
     SourceKey::declare("wonder"),
-    Rate::every_seconds(16),
+    Rate::every_seconds(120),
     None,
     1,
-);
+)
+.refuse_wait();
 
 // Conservative serial published-catalog download policy; not a provider quota.
 pub(crate) static WIKIPATHWAYS: Quota = Quota::new(

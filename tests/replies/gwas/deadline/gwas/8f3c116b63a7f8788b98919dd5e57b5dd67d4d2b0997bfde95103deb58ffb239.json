@@ -1,0 +1,17 @@
+{
+  "source": "gwas",
+  "method": "GET",
+  "url": "https://www.ebi.ac.uk/gwas/rest/api/v2/associations?direction=asc&extended_geneset=false&mapped_gene=BRAF&page=0&size=3&sort=p_value",
+  "exchanges": [
+    {
+      "status": 200,
+      "content_type": "application/json",
+      "delay_ms": 180000,
+      "retry_after_ms": null,
+      "body": {
+        "kind": "text",
+        "value": "synthetic delayed exchange; no provider reply"
+      }
+    }
+  ]
+}

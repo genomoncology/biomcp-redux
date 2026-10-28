@@ -15,6 +15,7 @@ pub(super) fn exchange<R: Row>(
             .fetch
             .limiters
             .acquire(leg.spec.quota, leg.keyed(), leg.budget())
+            .map_err(|delay| leg.quota_failure(delay))?
             .ok_or_else(|| leg.failure(Reason::Syncing, None))?;
         let exchange = leg
             .fetch
