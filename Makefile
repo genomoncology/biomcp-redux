@@ -41,6 +41,8 @@ unreached:
 
 .PHONY: docs-check
 docs-check:
+	python3 release/toolchain.py check
+	python3 -m unittest release.test_toolchain
 	cargo test --locked -p biomcp --bin biomcp grammar::reference::reference_matches_grammar $(TEST_THREADS)
 	cargo test --locked -p biomcp --test cases article-help/executable-examples $(TEST_THREADS)
 	python3 release/tools.py
@@ -92,3 +94,7 @@ tensor-proto-check:
 .PHONY: secrets
 secrets:
 	python3 release/secrets.py history .
+
+.PHONY: release-cold
+release-cold:
+	python3 release/rehearse.py cold --report "$(COLD_REPORT)" -- $(CONTAINER_ARGS)

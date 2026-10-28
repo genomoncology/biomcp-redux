@@ -32,7 +32,8 @@ class ReleaseTools(unittest.TestCase):
             root = Path(directory)
             (root / 'release').mkdir()
             shutil.copyfile(ROOT / 'release/rehearse.py', root / 'release/rehearse.py')
-            stub = '''import os, sys\nfrom pathlib import Path\nwith open('seen', 'a') as stream: stream.write(Path(sys.argv[0]).stem + ':' + ' '.join(sys.argv[1:]) + '\\n')\nsys.exit(7 if Path(sys.argv[0]).stem in {'toolchain', 'artifacts'} else 0)\n'''
+            shutil.copyfile(ROOT / 'release/toolchain.json', root / 'release/toolchain.json')
+            stub = '''import os, sys\nfrom pathlib import Path\nwith open('seen', 'a') as stream: stream.write(Path(sys.argv[0]).stem + ':' + ' '.join(sys.argv[1:]) + '\\n')\nsys.exit(7 if Path(sys.argv[0]).stem == 'artifacts' or (Path(sys.argv[0]).stem == 'toolchain' and sys.argv[1] == 'install-rust') else 0)\n'''
             for name in ('toolchain', 'artifacts', 'gate', 'workflow', 'secrets'):
                 (root / ('release/' + name + '.py')).write_text(stub)
             bindir = root / 'bin'

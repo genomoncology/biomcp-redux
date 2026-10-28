@@ -98,7 +98,7 @@ class LinuxContainers(unittest.TestCase):
         with tempfile.TemporaryDirectory() as directory:
             root = Path(directory)
             (root / 'release').mkdir()
-            for name in ('linux.sh', 'container_check.py', 'smoke.py', 'Dockerfile'):
+            for name in ('linux.sh', 'container_check.py', 'smoke.py', 'Dockerfile', 'toolchain.py', 'toolchain.json'):
                 shutil.copyfile(ROOT / 'release' / name, root / 'release' / name)
             shutil.copyfile(ROOT / 'Makefile', root / 'Makefile')
             bindir = root / 'bin'
