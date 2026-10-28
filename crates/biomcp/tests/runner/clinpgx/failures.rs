@@ -10,6 +10,7 @@ pub(super) fn trials() -> Vec<Trial> {
         "wrong-accession",
         "wrong-gene",
         "unknown-field",
+        "unknown-nested-field",
     ] {
         out.push(Trial::test(
             format!("clinpgx-annotations/reject-{name}"),
@@ -49,8 +50,13 @@ fn failure(name: &'static str) -> Check {
     if name == "status" {
         *body.get_mut("status").ok_or("status")? = json!("error");
     }
-    if name == "unknown-field" {
-        body.pointer_mut("/data/0")
+    if matches!(name, "unknown-field" | "unknown-nested-field") {
+        let path = if name == "unknown-nested-field" {
+            "/data/0/location/genes/0"
+        } else {
+            "/data/0"
+        };
+        body.pointer_mut(path)
             .and_then(Value::as_object_mut)
             .ok_or("row")?
             .insert("unknown_field".into(), json!(true));
