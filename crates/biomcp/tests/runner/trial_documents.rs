@@ -86,37 +86,7 @@ fn saves() -> Check {
         bytes, b"%PDF-1.7\nSynthetic document save witness; no source document text.\n",
         "Document saves must publish complete bytes with the exact receipt"
     );
-    let sha: String = Sha256::digest(&bytes)
-        .iter()
-        .map(|b| format!("{b:02x}"))
-        .collect();
-    assert_eq!(
-        out.pointer("/result/file/data/path"),
-        Some(&json!(path.canonicalize()?.to_string_lossy())),
-        "Document saves must publish complete bytes with the exact receipt"
-    );
-    assert_eq!(
-        out.pointer("/result/file/data/bytes"),
-        Some(&json!(bytes.len())),
-        "Document saves must publish complete bytes with the exact receipt"
-    );
-    assert_eq!(
-        out.pointer("/result/file/data/sha256"),
-        Some(&json!(sha)),
-        "Document saves must publish complete bytes with the exact receipt"
-    );
-    assert_eq!(
-        out.pointer("/result/file/data/document/license"),
-        Some(&json!("other")),
-        "Document saves must publish complete bytes with the exact receipt"
-    );
-    assert_eq!(
-        out.pointer("/result/file/data/document/url"),
-        Some(&json!(
-            "https://cdn.clinicaltrials.gov/large-docs/80/NCT04303780/SAP_001.pdf"
-        )),
-        "Document saves must publish complete bytes with the exact receipt"
-    );
+    let sha = save_receipt(&out, &path, &bytes)?;
     fs::write(&path, b"caller original")?;
     command(&env, &replay, &args(&folder), 2)?;
     assert_eq!(
@@ -170,6 +140,44 @@ fn saves() -> Check {
         "Document saves must publish complete bytes with the exact receipt"
     );
     Ok(())
+}
+fn save_receipt(
+    out: &Value,
+    path: &Path,
+    bytes: &[u8],
+) -> Result<String, Box<dyn std::error::Error>> {
+    let sha: String = Sha256::digest(bytes)
+        .iter()
+        .map(|b| format!("{b:02x}"))
+        .collect();
+    assert_eq!(
+        out.pointer("/result/file/data/path"),
+        Some(&json!(path.canonicalize()?.to_string_lossy())),
+        "Document saves must publish complete bytes with the exact receipt"
+    );
+    assert_eq!(
+        out.pointer("/result/file/data/bytes"),
+        Some(&json!(bytes.len())),
+        "Document saves must publish complete bytes with the exact receipt"
+    );
+    assert_eq!(
+        out.pointer("/result/file/data/sha256"),
+        Some(&json!(sha)),
+        "Document saves must publish complete bytes with the exact receipt"
+    );
+    assert_eq!(
+        out.pointer("/result/file/data/document/license"),
+        Some(&json!("other")),
+        "Document saves must publish complete bytes with the exact receipt"
+    );
+    assert_eq!(
+        out.pointer("/result/file/data/document/url"),
+        Some(&json!(
+            "https://cdn.clinicaltrials.gov/large-docs/80/NCT04303780/SAP_001.pdf"
+        )),
+        "Document saves must publish complete bytes with the exact receipt"
+    );
+    Ok(sha)
 }
 fn metadata_only(env: &Environment) -> Result<std::path::PathBuf, Box<dyn std::error::Error>> {
     let replay = env.root().join("manifest-only");

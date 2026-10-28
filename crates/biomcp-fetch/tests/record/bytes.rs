@@ -66,23 +66,7 @@ pub(super) fn ordered_binary_sidecars_round_trip_and_refuse_hostile_paths() {
         .unwrap()
         .as_str()
         .unwrap();
-    for hostile in [
-        "../outside.bin",
-        "/absolute.bin",
-        "nested/file.bin",
-        "missing.bin",
-    ] {
-        let mut value = original_value.clone();
-        *value.pointer_mut("/exchanges/0/body/value").unwrap() = hostile.into();
-        std::fs::write(&path, serde_json::to_vec(&value).unwrap()).unwrap();
-        let replay = fetch(Mode::Replay {
-            dir: dir.path().to_owned(),
-        });
-        assert!(
-            matches!(bytes(&replay, spec), Err(RequestError::Recording(_))),
-            "Binary replay must preserve order and reject unsafe sidecars"
-        );
-    }
+    refuse_hostile_sidecars(dir.path(), spec, &path, &original_value);
     // Disabled policy wins even when replay would open a hostile sidecar.
     let disabled = replay.restrict_sources([biomcp_types::Source::PubMed].into());
     assert!(
@@ -118,6 +102,31 @@ pub(super) fn ordered_binary_sidecars_round_trip_and_refuse_hostile_paths() {
         server.requests.try_recv().is_err(),
         "Binary replay must preserve order and reject unsafe sidecars"
     );
+}
+
+fn refuse_hostile_sidecars(
+    dir: &Path,
+    spec: &'static SourceSpec,
+    path: &Path,
+    original_value: &serde_json::Value,
+) {
+    for hostile in [
+        "../outside.bin",
+        "/absolute.bin",
+        "nested/file.bin",
+        "missing.bin",
+    ] {
+        let mut value = original_value.clone();
+        *value.pointer_mut("/exchanges/0/body/value").unwrap() = hostile.into();
+        std::fs::write(path, serde_json::to_vec(&value).unwrap()).unwrap();
+        let replay = fetch(Mode::Replay {
+            dir: dir.to_owned(),
+        });
+        assert!(
+            matches!(bytes(&replay, spec), Err(RequestError::Recording(_))),
+            "Binary replay must preserve order and reject unsafe sidecars"
+        );
+    }
 }
 
 pub(super) fn cut_binary_body_is_refused_before_returning_bytes() {

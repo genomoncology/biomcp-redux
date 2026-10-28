@@ -126,12 +126,9 @@ fn proxy() -> Check {
         assert_eq!(
             value.pointer("/error/option"),
             Some(&json!(if cfg!(windows) { upper } else { lower })),
-            "Commands must respect the configured proxy policy"
+            "Honor the configured proxy"
         );
-        assert!(
-            output.stderr.is_empty(),
-            "Commands must respect the configured proxy policy"
-        );
+        assert!(output.stderr.is_empty(), "Honor the configured proxy");
     }
     // Invalid upper-case settings ensure the unfixed program cannot reach a provider.
     // Windows has case-insensitive names, so it cannot hold this conflicting pair.
@@ -157,20 +154,13 @@ fn proxy() -> Check {
         let output = command.output()?;
         let value: Value = serde_json::from_slice(&output.stdout)?;
         assert!(output.status.success(), "{value}");
-        assert!(
-            output.stderr.is_empty(),
-            "Commands must respect the configured proxy policy"
-        );
+        assert!(output.stderr.is_empty(), "Honor the configured proxy");
         assert_eq!(
             value.pointer("/result/rows"),
             Some(&json!(176)),
-            "Commands must respect the configured proxy policy"
+            "Honor the configured proxy"
         );
-        assert_eq!(
-            stub.finish()?.len(),
-            2,
-            "Commands must respect the configured proxy policy"
-        );
+        assert_eq!(stub.finish()?.len(), 2, "Honor the configured proxy");
     }
     if cfg!(windows) {
         return Ok(());

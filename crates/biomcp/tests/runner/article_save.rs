@@ -1,4 +1,5 @@
 //! Explicit saves preserve source bytes and leave ownership with the caller.
+use super::article_save_reply::cut_reply;
 use super::launch::{Environment, fixtures};
 use serde_json::{Value, json};
 use sha2::{Digest, Sha256};
@@ -403,7 +404,7 @@ fn cut_body() -> Check {
                 "binary/octet-stream"
             }
         },
-        super::article_save_reply::cut_reply,
+        cut_reply,
         |request, bytes| {
             if request.contains(".xlsx?") {
                 bytes + 100

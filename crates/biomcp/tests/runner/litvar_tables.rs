@@ -279,7 +279,7 @@ fn empty_recovery() -> Check {
         assert_eq!(
             steps.len(),
             expected.len() + 1,
-            "Empty LitVar results must retain their source and recovery path"
+            "Empty results must keep recovery steps"
         );
         for (step, source) in steps.iter().zip(expected) {
             let mut args = vec!["search", "article", "--gene", "KRAS", "--variant", "G12C"];
@@ -292,7 +292,7 @@ fn empty_recovery() -> Check {
             assert_eq!(
                 step["args"],
                 json!(args),
-                "Empty LitVar results must retain their source and recovery path"
+                "Empty results must keep recovery steps"
             );
         }
         let mut broader = vec!["search", "article", "--gene", "KRAS"];
@@ -302,18 +302,22 @@ fn empty_recovery() -> Check {
         assert_eq!(
             steps.last().ok_or("missing broader gene search")?["args"],
             json!(broader),
-            "Empty LitVar results must retain their source and recovery path"
+            "Empty results must keep recovery steps"
         );
         assert_eq!(
             output["sources"][1]["notices"][0]["kind"], "litvar_rsid_hint",
-            "Empty LitVar results must retain their source and recovery path"
+            "Empty results must keep recovery steps"
         );
         assert_eq!(
             output["sources"][1]["notices"][0]["message"],
             "If you have an rsID, look it up in LitVar with --variant RSID --source litvar.",
-            "Empty LitVar results must retain their source and recovery path"
+            "Empty results must keep recovery steps"
         );
     }
+    markdown_recovery()
+}
+
+fn markdown_recovery() -> Check {
     let directory = tempfile::tempdir()?;
     super::response_cases::copy_capture(
         "article/litvar/kras-g12c",
@@ -330,12 +334,12 @@ fn empty_recovery() -> Check {
     assert_eq!(
         output.status.code(),
         Some(1),
-        "Empty LitVar results must retain their source and recovery path"
+        "Empty results must keep recovery steps"
     );
     let text = String::from_utf8(output.stdout)?;
     assert!(
         text.contains("If you have an rsID, look it up in LitVar"),
-        "Empty LitVar results must retain their source and recovery path"
+        "Empty results must keep recovery steps"
     );
     Ok(())
 }
