@@ -15,7 +15,7 @@ biodata::wire_enum! {
         Other => "other",
     }
 }
-/// Search one provider with bounded pages and source-native counts; default ClinicalTrials.gov, explicit keyed NCI. NCI --facility matches exact organization names; a listed site is not necessarily enrolling.
+/// Search ClinicalTrials.gov or keyed NCI with native counts. NCI --facility matches exact organization names; a listed site is not necessarily enrolling.
 #[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
 #[serde(try_from = "Fields")]
 #[cfg_attr(feature = "schema", derive(schemars::JsonSchema))]
