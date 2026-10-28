@@ -1,7 +1,6 @@
 {
   "$defs": {
     "Attribution": {
-      "additionalProperties": false,
       "description": "Provenance for one source record.",
       "properties": {
         "evaluated": {
@@ -87,7 +86,6 @@
       "type": "string"
     },
     "DrugIdentity": {
-      "additionalProperties": false,
       "description": "One source record identity, without any equivalence or authorization claim.",
       "properties": {
         "id": {
@@ -139,21 +137,6 @@
     },
     "DrugIdentityLevel": {
       "description": "Identity level established by the source endpoint or record type, never inferred from ID shape.",
-      "enum": [
-        "ingredient",
-        "salt",
-        "clinical_formulation",
-        "branded_product",
-        "spl_set",
-        "spl_version",
-        "ndc_package",
-        "fda_application",
-        "fda_product",
-        "ema_authorization",
-        "ema_application",
-        "orphan_designation",
-        "unknown"
-      ],
       "type": "string",
       "x-enum-descriptions": [
         " Source-stated ingredient identity.",
@@ -169,10 +152,24 @@
         " Source-stated ema application identity.",
         " Source-stated orphan designation identity.",
         " Source-stated unknown identity."
+      ],
+      "x-extensible-enum": [
+        "ingredient",
+        "salt",
+        "clinical_formulation",
+        "branded_product",
+        "spl_set",
+        "spl_version",
+        "ndc_package",
+        "fda_application",
+        "fda_product",
+        "ema_authorization",
+        "ema_application",
+        "orphan_designation",
+        "unknown"
       ]
     },
     "DrugNativeReference": {
-      "additionalProperties": false,
       "description": "Typed source reference shared by mechanism and indication records.",
       "properties": {
         "ref_id": {
@@ -209,7 +206,6 @@
       "type": "object"
     },
     "DrugNativeTarget": {
-      "additionalProperties": false,
       "description": "One source-native target identity, without inventing a gene label.",
       "properties": {
         "id": {
@@ -256,7 +252,6 @@
       "type": "string"
     },
     "GeneRef": {
-      "additionalProperties": false,
       "description": "A source-stated gene reference; its label never implies an identifier.",
       "properties": {
         "ensembl_gene_id": {
@@ -321,7 +316,6 @@
   },
   "$id": "biodata.drug-target-relation/3",
   "$schema": "https://json-schema.org/draft/2020-12/schema",
-  "additionalProperties": false,
   "anyOf": [
     {
       "required": [

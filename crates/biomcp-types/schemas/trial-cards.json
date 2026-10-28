@@ -16,18 +16,6 @@
     },
     "License": {
       "description": "License reported by the bucket metadata record.",
-      "enum": [
-        "cc_by",
-        "cc_by_nc",
-        "cc_by_sa",
-        "cc_by_nc_sa",
-        "cc_by_nd",
-        "cc_by_nc_nd",
-        "cc0",
-        "public_domain",
-        "tdm",
-        "other"
-      ],
       "type": "string",
       "x-enum-descriptions": [
         " Creative Commons Attribution.",
@@ -40,6 +28,18 @@
         " Public domain.",
         " Text and data mining manuscript terms.",
         " The bucket reports another license."
+      ],
+      "x-extensible-enum": [
+        "cc_by",
+        "cc_by_nc",
+        "cc_by_sa",
+        "cc_by_nc_sa",
+        "cc_by_nd",
+        "cc_by_nc_nd",
+        "cc0",
+        "public_domain",
+        "tdm",
+        "other"
       ]
     },
     "Markdown": {
@@ -54,7 +54,6 @@
       "type": "string"
     },
     "PageInfo": {
-      "additionalProperties": false,
       "description": "Search counts after filtering and deduplication.",
       "properties": {
         "offset": {
@@ -112,7 +111,6 @@
       "type": "string"
     },
     "PoolInfo": {
-      "additionalProperties": false,
       "description": "Fixed lifetime and size of a stored search snapshot.",
       "properties": {
         "created": {
@@ -147,7 +145,6 @@
       "type": "object"
     },
     "Problem": {
-      "additionalProperties": false,
       "description": "A field that could not be accepted from a source record.",
       "properties": {
         "code": {
@@ -183,41 +180,20 @@
     },
     "ProblemCode": {
       "description": "A stable code for a rejected field value.",
-      "enum": [
-        "value.unknown",
-        "collection.incomplete",
-        "identity.conflict"
-      ],
       "type": "string",
       "x-enum-descriptions": [
         " The field value was not recognized.",
         " Native collection exceeds the admitted complete source page.",
         " A source repeats one exact identity with incompatible records."
+      ],
+      "x-extensible-enum": [
+        "value.unknown",
+        "collection.incomplete",
+        "identity.conflict"
       ]
     },
     "Reason": {
       "description": "Why a source could not supply data.",
-      "enum": [
-        "not_found",
-        "not_open",
-        "not_pdf",
-        "unsupported",
-        "too_large",
-        "rate_limited",
-        "local_quota",
-        "unavailable",
-        "tls",
-        "proxy",
-        "rejected",
-        "bad_reply",
-        "deadline_exceeded",
-        "offline",
-        "no_key",
-        "disabled",
-        "replay_miss",
-        "syncing",
-        "no_join_id"
-      ],
       "type": "string",
       "x-enum-descriptions": [
         " The requested record was not found.",
@@ -239,13 +215,33 @@
         " No recording matched the request.",
         " The source data was being synchronized.",
         " Identity lacks the identifier required to join this source."
+      ],
+      "x-extensible-enum": [
+        "not_found",
+        "not_open",
+        "not_pdf",
+        "unsupported",
+        "too_large",
+        "rate_limited",
+        "local_quota",
+        "unavailable",
+        "tls",
+        "proxy",
+        "rejected",
+        "bad_reply",
+        "deadline_exceeded",
+        "offline",
+        "no_key",
+        "disabled",
+        "replay_miss",
+        "syncing",
+        "no_join_id"
       ]
     },
     "Section": {
       "description": "A requested section has exactly one state.",
       "oneOf": [
         {
-          "additionalProperties": false,
           "description": "The source returned data.",
           "properties": {
             "data": {
@@ -269,7 +265,6 @@
           "type": "object"
         },
         {
-          "additionalProperties": false,
           "description": "The source answered with no data.",
           "properties": {
             "record": {
@@ -299,7 +294,6 @@
           "type": "object"
         },
         {
-          "additionalProperties": false,
           "description": "A requested source failed.",
           "properties": {
             "reason": {
@@ -323,7 +317,6 @@
           "type": "object"
         },
         {
-          "additionalProperties": false,
           "description": "User settings prevented the source request.",
           "properties": {
             "reason": {
@@ -347,7 +340,6 @@
           "type": "object"
         },
         {
-          "additionalProperties": false,
           "description": "Entity facts rule this section out.",
           "properties": {
             "state": {
@@ -366,7 +358,6 @@
       "description": "A requested section has exactly one state.",
       "oneOf": [
         {
-          "additionalProperties": false,
           "description": "The source returned data.",
           "properties": {
             "data": {
@@ -390,7 +381,6 @@
           "type": "object"
         },
         {
-          "additionalProperties": false,
           "description": "The source answered with no data.",
           "properties": {
             "record": {
@@ -420,7 +410,6 @@
           "type": "object"
         },
         {
-          "additionalProperties": false,
           "description": "A requested source failed.",
           "properties": {
             "reason": {
@@ -444,7 +433,6 @@
           "type": "object"
         },
         {
-          "additionalProperties": false,
           "description": "User settings prevented the source request.",
           "properties": {
             "reason": {
@@ -468,7 +456,6 @@
           "type": "object"
         },
         {
-          "additionalProperties": false,
           "description": "Entity facts rule this section out.",
           "properties": {
             "state": {
@@ -487,7 +474,6 @@
       "description": "A requested section has exactly one state.",
       "oneOf": [
         {
-          "additionalProperties": false,
           "description": "The source returned data.",
           "properties": {
             "data": {
@@ -511,7 +497,6 @@
           "type": "object"
         },
         {
-          "additionalProperties": false,
           "description": "The source answered with no data.",
           "properties": {
             "record": {
@@ -541,7 +526,6 @@
           "type": "object"
         },
         {
-          "additionalProperties": false,
           "description": "A requested source failed.",
           "properties": {
             "reason": {
@@ -565,7 +549,6 @@
           "type": "object"
         },
         {
-          "additionalProperties": false,
           "description": "User settings prevented the source request.",
           "properties": {
             "reason": {
@@ -589,7 +572,6 @@
           "type": "object"
         },
         {
-          "additionalProperties": false,
           "description": "Entity facts rule this section out.",
           "properties": {
             "state": {
@@ -608,7 +590,6 @@
       "description": "A requested section has exactly one state.",
       "oneOf": [
         {
-          "additionalProperties": false,
           "description": "The source returned data.",
           "properties": {
             "data": {
@@ -632,7 +613,6 @@
           "type": "object"
         },
         {
-          "additionalProperties": false,
           "description": "The source answered with no data.",
           "properties": {
             "record": {
@@ -662,7 +642,6 @@
           "type": "object"
         },
         {
-          "additionalProperties": false,
           "description": "A requested source failed.",
           "properties": {
             "reason": {
@@ -686,7 +665,6 @@
           "type": "object"
         },
         {
-          "additionalProperties": false,
           "description": "User settings prevented the source request.",
           "properties": {
             "reason": {
@@ -710,7 +688,6 @@
           "type": "object"
         },
         {
-          "additionalProperties": false,
           "description": "Entity facts rule this section out.",
           "properties": {
             "state": {
@@ -729,7 +706,6 @@
       "description": "A requested section has exactly one state.",
       "oneOf": [
         {
-          "additionalProperties": false,
           "description": "The source returned data.",
           "properties": {
             "data": {
@@ -753,7 +729,6 @@
           "type": "object"
         },
         {
-          "additionalProperties": false,
           "description": "The source answered with no data.",
           "properties": {
             "record": {
@@ -783,7 +758,6 @@
           "type": "object"
         },
         {
-          "additionalProperties": false,
           "description": "A requested source failed.",
           "properties": {
             "reason": {
@@ -807,7 +781,6 @@
           "type": "object"
         },
         {
-          "additionalProperties": false,
           "description": "User settings prevented the source request.",
           "properties": {
             "reason": {
@@ -831,7 +804,6 @@
           "type": "object"
         },
         {
-          "additionalProperties": false,
           "description": "Entity facts rule this section out.",
           "properties": {
             "state": {
@@ -850,7 +822,6 @@
       "description": "A requested section has exactly one state.",
       "oneOf": [
         {
-          "additionalProperties": false,
           "description": "The source returned data.",
           "properties": {
             "data": {
@@ -874,7 +845,6 @@
           "type": "object"
         },
         {
-          "additionalProperties": false,
           "description": "The source answered with no data.",
           "properties": {
             "record": {
@@ -904,7 +874,6 @@
           "type": "object"
         },
         {
-          "additionalProperties": false,
           "description": "A requested source failed.",
           "properties": {
             "reason": {
@@ -928,7 +897,6 @@
           "type": "object"
         },
         {
-          "additionalProperties": false,
           "description": "User settings prevented the source request.",
           "properties": {
             "reason": {
@@ -952,7 +920,6 @@
           "type": "object"
         },
         {
-          "additionalProperties": false,
           "description": "Entity facts rule this section out.",
           "properties": {
             "state": {
@@ -971,7 +938,6 @@
       "description": "A requested section has exactly one state.",
       "oneOf": [
         {
-          "additionalProperties": false,
           "description": "The source returned data.",
           "properties": {
             "data": {
@@ -995,7 +961,6 @@
           "type": "object"
         },
         {
-          "additionalProperties": false,
           "description": "The source answered with no data.",
           "properties": {
             "record": {
@@ -1025,7 +990,6 @@
           "type": "object"
         },
         {
-          "additionalProperties": false,
           "description": "A requested source failed.",
           "properties": {
             "reason": {
@@ -1049,7 +1013,6 @@
           "type": "object"
         },
         {
-          "additionalProperties": false,
           "description": "User settings prevented the source request.",
           "properties": {
             "reason": {
@@ -1073,7 +1036,6 @@
           "type": "object"
         },
         {
-          "additionalProperties": false,
           "description": "Entity facts rule this section out.",
           "properties": {
             "state": {
@@ -1090,79 +1052,6 @@
     },
     "Source": {
       "description": "A source of BioMCP data, identified by its canonical short name.",
-      "enum": [
-        "hgnc",
-        "mygene",
-        "reactome",
-        "wikipathways",
-        "hpa",
-        "uniprot",
-        "interpro",
-        "complex-portal",
-        "gnomad",
-        "clinvar",
-        "erepo",
-        "gwas",
-        "clingen",
-        "gencc",
-        "pubmed",
-        "europepmc",
-        "litvar",
-        "litsense",
-        "semantic-scholar",
-        "orcid",
-        "pmc-oa",
-        "icite",
-        "pubtator",
-        "ctgov",
-        "nci",
-        "civic",
-        "hotspots",
-        "alphagenome",
-        "oncokb",
-        "myvariant",
-        "car",
-        "mutalyzer",
-        "variantvalidator",
-        "mychem",
-        "chembl",
-        "opentargets",
-        "openfda-label",
-        "drugsfda",
-        "ema",
-        "who-pq",
-        "ddinter",
-        "drugbank-open",
-        "drugcentral",
-        "gtopdb",
-        "unii",
-        "ndc",
-        "openfda-xref",
-        "ols",
-        "mydisease",
-        "monarch",
-        "seer",
-        "mondo",
-        "doid",
-        "ncit",
-        "hpo",
-        "orphanet",
-        "omim",
-        "faers",
-        "vaers",
-        "maude",
-        "meddra",
-        "gmdn",
-        "gtr",
-        "who-ivd",
-        "fda-cdx",
-        "fda-pma",
-        "fda-510k",
-        "cpic",
-        "clinpgx",
-        "cbioportal",
-        "cellosaurus"
-      ],
       "type": "string",
       "x-enum-descriptions": [
         " HGNC.",
@@ -1236,13 +1125,85 @@
         " ClinPGx pharmacogenomics annotations.",
         " Public cBioPortal with study-specific reuse terms.",
         " Cellosaurus cell line identity."
+      ],
+      "x-extensible-enum": [
+        "hgnc",
+        "mygene",
+        "reactome",
+        "wikipathways",
+        "hpa",
+        "uniprot",
+        "interpro",
+        "complex-portal",
+        "gnomad",
+        "clinvar",
+        "erepo",
+        "gwas",
+        "clingen",
+        "gencc",
+        "pubmed",
+        "europepmc",
+        "litvar",
+        "litsense",
+        "semantic-scholar",
+        "orcid",
+        "pmc-oa",
+        "icite",
+        "pubtator",
+        "ctgov",
+        "nci",
+        "civic",
+        "hotspots",
+        "alphagenome",
+        "oncokb",
+        "myvariant",
+        "car",
+        "mutalyzer",
+        "variantvalidator",
+        "mychem",
+        "chembl",
+        "opentargets",
+        "openfda-label",
+        "drugsfda",
+        "ema",
+        "who-pq",
+        "ddinter",
+        "drugbank-open",
+        "drugcentral",
+        "gtopdb",
+        "unii",
+        "ndc",
+        "openfda-xref",
+        "ols",
+        "mydisease",
+        "monarch",
+        "seer",
+        "mondo",
+        "doid",
+        "ncit",
+        "hpo",
+        "orphanet",
+        "omim",
+        "faers",
+        "vaers",
+        "maude",
+        "meddra",
+        "gmdn",
+        "gtr",
+        "who-ivd",
+        "fda-cdx",
+        "fda-pma",
+        "fda-510k",
+        "cpic",
+        "clinpgx",
+        "cbioportal",
+        "cellosaurus"
       ]
     },
     "SourceNotice": {
       "description": "A source notice or request recovery step.",
       "oneOf": [
         {
-          "additionalProperties": false,
           "description": "Local request limits and source-specific recovery guidance.",
           "properties": {
             "kind": {
@@ -1270,7 +1231,6 @@
           "type": "object"
         },
         {
-          "additionalProperties": false,
           "description": "Registered conditions lack the literal words requested in a condition search.",
           "properties": {
             "kind": {
@@ -1289,7 +1249,6 @@
           "type": "object"
         },
         {
-          "additionalProperties": false,
           "description": "A checked provider answer survived a local cache failure.",
           "properties": {
             "kind": {
@@ -1308,7 +1267,6 @@
           "type": "object"
         },
         {
-          "additionalProperties": false,
           "description": "The source still has graph pages after the bounded fetch window.",
           "properties": {
             "fallback": {
@@ -1327,7 +1285,6 @@
           "type": "object"
         },
         {
-          "additionalProperties": false,
           "description": "An empty LitVar lookup can be repeated with a caller-supplied rsID.",
           "properties": {
             "kind": {
@@ -1346,7 +1303,6 @@
           "type": "object"
         },
         {
-          "additionalProperties": false,
           "description": "PubMed supplied a named ESearch warning without changing its phrases.",
           "properties": {
             "kind": {
@@ -1372,7 +1328,6 @@
           "type": "object"
         },
         {
-          "additionalProperties": false,
           "description": "PubMed did not index these words.",
           "properties": {
             "kind": {
@@ -1395,7 +1350,6 @@
       ]
     },
     "SourceOutcome": {
-      "additionalProperties": false,
       "description": "One source's outcome, without provider text.",
       "properties": {
         "count": {
@@ -1477,7 +1431,6 @@
       "type": "object"
     },
     "SourceRecord": {
-      "additionalProperties": false,
       "description": "The source's own entry for an entity.",
       "properties": {
         "id": {
@@ -1514,7 +1467,6 @@
       "type": "string"
     },
     "SourceTimestamp": {
-      "additionalProperties": false,
       "description": "Native source timestamp and the availability of its timezone.",
       "properties": {
         "timezone": {
@@ -1551,7 +1503,6 @@
       "type": "string"
     },
     "Step": {
-      "additionalProperties": false,
       "description": "A command argument list spelled from a typed action.",
       "properties": {
         "args": {
@@ -1605,7 +1556,6 @@
       "description": "Source age limit; absence is explicit and never a fabricated number.",
       "oneOf": [
         {
-          "additionalProperties": false,
           "description": "Registry supplied no limit.",
           "properties": {
             "state": {
@@ -1619,7 +1569,6 @@
           "type": "object"
         },
         {
-          "additionalProperties": false,
           "description": "Unchanged source value; no local age conversion.",
           "properties": {
             "raw": {
@@ -1640,7 +1589,6 @@
       ]
     },
     "TrialArm": {
-      "additionalProperties": false,
       "description": "Registry arm with source intervention relationships.",
       "properties": {
         "description": {
@@ -1684,21 +1632,20 @@
     },
     "TrialArmKind": {
       "description": "Native registry arm group type from the publisher enum metadata.",
-      "enum": [
+      "type": "string",
+      "x-extensible-enum": [
         "EXPERIMENTAL",
         "ACTIVE_COMPARATOR",
         "PLACEBO_COMPARATOR",
         "SHAM_COMPARATOR",
         "NO_INTERVENTION",
         "OTHER"
-      ],
-      "type": "string"
+      ]
     },
     "TrialArmRecord": {
       "description": "Source arm rows followed by source intervention rows, each in its native order.",
       "oneOf": [
         {
-          "additionalProperties": false,
           "description": "Original arm with its intervention names.",
           "properties": {
             "data": {
@@ -1716,7 +1663,6 @@
           "type": "object"
         },
         {
-          "additionalProperties": false,
           "description": "Original intervention with aliases and arm labels.",
           "properties": {
             "data": {
@@ -1736,7 +1682,6 @@
       ]
     },
     "TrialCard": {
-      "additionalProperties": false,
       "description": "Complete default registry card.",
       "properties": {
         "brief_summary": {
@@ -1848,7 +1793,6 @@
       "type": "object"
     },
     "TrialCardItem": {
-      "additionalProperties": false,
       "description": "Result for one exact requested NCT identity.",
       "properties": {
         "card": {
@@ -1905,7 +1849,6 @@
       "type": "object"
     },
     "TrialCards": {
-      "additionalProperties": false,
       "description": "Trial answers in original input order, retaining independent states.",
       "properties": {
         "attribution": {
@@ -1937,7 +1880,6 @@
       "type": "object"
     },
     "TrialContact": {
-      "additionalProperties": false,
       "description": "A registry contact with its source role and original contact details.",
       "properties": {
         "email": {
@@ -1986,7 +1928,6 @@
       "description": "Distinct registry-wide contact collections; site contacts stay on locations.",
       "oneOf": [
         {
-          "additionalProperties": false,
           "description": "A central contact for this trial.",
           "properties": {
             "data": {
@@ -2004,7 +1945,6 @@
           "type": "object"
         },
         {
-          "additionalProperties": false,
           "description": "An overall official for this trial.",
           "properties": {
             "data": {
@@ -2035,7 +1975,6 @@
       "type": "string"
     },
     "TrialCoordinates": {
-      "additionalProperties": false,
       "description": "Checked geographic coordinates in degrees; no genomic coordinate type is involved.",
       "properties": {
         "latitude": {
@@ -2054,7 +1993,6 @@
       "type": "object"
     },
     "TrialDate": {
-      "additionalProperties": false,
       "description": "A registry date retains its actual or estimated qualifier.",
       "properties": {
         "date": {
@@ -2087,7 +2025,6 @@
       "type": "string"
     },
     "TrialDocument": {
-      "additionalProperties": false,
       "description": "A posted source document; a URL never comes from caller-supplied filename text.",
       "properties": {
         "date": {
@@ -2172,7 +2109,6 @@
       "type": "object"
     },
     "TrialEligibilityPage": {
-      "additionalProperties": false,
       "description": "Character paging preserves source whitespace and counts Unicode scalar values.",
       "properties": {
         "continuation": {
@@ -2244,7 +2180,6 @@
       "type": "object"
     },
     "TrialGet": {
-      "additionalProperties": false,
       "description": "Retrieve exact trial cards in input order; request bounded intact source sections with independent continuations.",
       "properties": {
         "input": {
@@ -2295,7 +2230,6 @@
       "type": "object"
     },
     "TrialIntervention": {
-      "additionalProperties": false,
       "description": "Registry intervention, retaining aliases and arm labels.",
       "properties": {
         "arm_group_labels": {
@@ -2346,7 +2280,8 @@
     },
     "TrialInterventionKind": {
       "description": "Native registry intervention type from the publisher enum metadata.",
-      "enum": [
+      "type": "string",
+      "x-extensible-enum": [
         "BEHAVIORAL",
         "BIOLOGICAL",
         "COMBINATION_PRODUCT",
@@ -2358,11 +2293,9 @@
         "PROCEDURE",
         "RADIATION",
         "OTHER"
-      ],
-      "type": "string"
+      ]
     },
     "TrialLocation": {
-      "additionalProperties": false,
       "description": "One source site, kept whole during pagination.",
       "properties": {
         "city": {
@@ -2433,7 +2366,6 @@
       "type": "object"
     },
     "TrialOfficial": {
-      "additionalProperties": false,
       "description": "An overall official, distinct from a central or site contact.",
       "properties": {
         "affiliation": {
@@ -2475,7 +2407,6 @@
       "type": "string"
     },
     "TrialOutcome": {
-      "additionalProperties": false,
       "description": "One whole registered outcome with its attached time frame.",
       "properties": {
         "description": {
@@ -2533,7 +2464,6 @@
       "type": "string"
     },
     "TrialRecords": {
-      "additionalProperties": false,
       "description": "Whole-record page retaining collection order.",
       "properties": {
         "continuation": {
@@ -2574,7 +2504,6 @@
       "type": "object"
     },
     "TrialRecords2": {
-      "additionalProperties": false,
       "description": "Whole-record page retaining collection order.",
       "properties": {
         "continuation": {
@@ -2615,7 +2544,6 @@
       "type": "object"
     },
     "TrialRecords3": {
-      "additionalProperties": false,
       "description": "Whole-record page retaining collection order.",
       "properties": {
         "continuation": {
@@ -2656,7 +2584,6 @@
       "type": "object"
     },
     "TrialRecords4": {
-      "additionalProperties": false,
       "description": "Whole-record page retaining collection order.",
       "properties": {
         "continuation": {
@@ -2697,7 +2624,6 @@
       "type": "object"
     },
     "TrialRecords5": {
-      "additionalProperties": false,
       "description": "Whole-record page retaining collection order.",
       "properties": {
         "continuation": {
@@ -2738,7 +2664,6 @@
       "type": "object"
     },
     "TrialRecords6": {
-      "additionalProperties": false,
       "description": "Whole-record page retaining collection order.",
       "properties": {
         "continuation": {
@@ -2779,7 +2704,6 @@
       "type": "object"
     },
     "TrialReference": {
-      "additionalProperties": false,
       "description": "An unchanged registry reference in source order.",
       "properties": {
         "citation": {
@@ -2837,7 +2761,6 @@
       ]
     },
     "TrialSections": {
-      "additionalProperties": false,
       "description": "Independently bounded sections from the same source protocol snapshot.",
       "properties": {
         "arms": {
@@ -2984,8 +2907,7 @@
   },
   "$id": "biomcp.trial-cards/3",
   "$schema": "https://json-schema.org/draft/2020-12/schema",
-  "additionalProperties": false,
-  "description": "One versioned command response; schema identity comes only from its body type.",
+  "description": "One versioned command response; schema identity comes only from its body type.\nJSON readers ignore unknown fields and unknown growable enum values within a major.",
   "properties": {
     "local_error": {
       "anyOf": [

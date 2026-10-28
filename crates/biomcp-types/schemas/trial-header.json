@@ -1,7 +1,6 @@
 {
   "$defs": {
     "Capped": {
-      "additionalProperties": false,
       "description": "A bounded list with the total before its cap was applied.",
       "properties": {
         "items": {
@@ -72,7 +71,6 @@
   },
   "$id": "biodata.trial_header/1",
   "$schema": "https://json-schema.org/draft/2020-12/schema",
-  "additionalProperties": false,
   "description": "Small source-attributed trial discovery record.",
   "properties": {
     "conditions": {

@@ -32,7 +32,6 @@
       "type": "string"
     },
     "AssertionAssessment": {
-      "additionalProperties": false,
       "description": "Source assessment labels and identifiers remain independent.",
       "properties": {
         "criterion": {
@@ -132,7 +131,6 @@
       "type": "object"
     },
     "AssertionCondition": {
-      "additionalProperties": false,
       "description": "A native condition with independently optional identifier and label.",
       "properties": {
         "accession": {
@@ -183,7 +181,6 @@
       "type": "object"
     },
     "AssertionConditionRelationship": {
-      "additionalProperties": false,
       "description": "A source trait relationship without assigning a clinical interpretation.",
       "properties": {
         "related_conditions": {
@@ -215,7 +212,6 @@
       "type": "object"
     },
     "AssertionDetail": {
-      "additionalProperties": false,
       "description": "Source details that do not fit the compact shared statement.",
       "properties": {
         "approved": {
@@ -355,7 +351,6 @@
       "type": "object"
     },
     "AssertionDocument": {
-      "additionalProperties": false,
       "description": "Native SEPIO facts kept separate from common interpretation fields.",
       "properties": {
         "assessments": {
@@ -435,7 +430,6 @@
       "type": "string"
     },
     "Attribution": {
-      "additionalProperties": false,
       "description": "Provenance for one source record.",
       "properties": {
         "evaluated": {
@@ -561,7 +555,6 @@
       "description": "A code in one explicitly named source framework.",
       "oneOf": [
         {
-          "additionalProperties": false,
           "description": "OncoKB oncogenicity vocabulary.",
           "properties": {
             "code": {
@@ -579,7 +572,6 @@
           "type": "object"
         },
         {
-          "additionalProperties": false,
           "description": "OncoKB evidence levels.",
           "properties": {
             "code": {
@@ -597,7 +589,6 @@
           "type": "object"
         },
         {
-          "additionalProperties": false,
           "description": "CIViC evidence level.",
           "properties": {
             "code": {
@@ -615,7 +606,6 @@
           "type": "object"
         },
         {
-          "additionalProperties": false,
           "description": "acmg_amp_2015 vocabulary.",
           "properties": {
             "code": {
@@ -633,7 +623,6 @@
           "type": "object"
         },
         {
-          "additionalProperties": false,
           "description": "clingen_low_penetrance_2024 vocabulary.",
           "properties": {
             "code": {
@@ -651,7 +640,6 @@
           "type": "object"
         },
         {
-          "additionalProperties": false,
           "description": "amp_asco_cap_2017_tier vocabulary.",
           "properties": {
             "code": {
@@ -669,7 +657,6 @@
           "type": "object"
         },
         {
-          "additionalProperties": false,
           "description": "amp_asco_cap_2017_level vocabulary.",
           "properties": {
             "code": {
@@ -687,7 +674,6 @@
           "type": "object"
         },
         {
-          "additionalProperties": false,
           "description": "clingen_cgc_vicc_2022 vocabulary.",
           "properties": {
             "code": {
@@ -707,7 +693,6 @@
       ]
     },
     "Concept": {
-      "additionalProperties": false,
       "description": "One source concept with its optional ontology identifier.",
       "properties": {
         "id": {
@@ -738,12 +723,12 @@
     },
     "Direction": {
       "description": "Assessment direction stated by the source.",
-      "enum": [
+      "type": "string",
+      "x-extensible-enum": [
         "supports",
         "disputes",
         "neutral"
-      ],
-      "type": "string"
+      ]
     },
     "EnsemblGeneId": {
       "description": " A human Ensembl gene stable identifier with a separately retained version.",
@@ -751,7 +736,6 @@
       "type": "string"
     },
     "GeneRef": {
-      "additionalProperties": false,
       "description": "A source-stated gene reference; its label never implies an identifier.",
       "properties": {
         "ensembl_gene_id": {
@@ -806,7 +790,6 @@
     "LeafRef": {
       "oneOf": [
         {
-          "additionalProperties": false,
           "properties": {
             "hgvs": {
               "anyOf": [
@@ -841,7 +824,6 @@
           "type": "object"
         },
         {
-          "additionalProperties": false,
           "properties": {
             "gene": {
               "$ref": "#/$defs/GeneRef",
@@ -919,7 +901,6 @@
       "type": "string"
     },
     "PageInfo": {
-      "additionalProperties": false,
       "description": "Search counts after filtering and deduplication.",
       "properties": {
         "offset": {
@@ -977,7 +958,6 @@
       "type": "string"
     },
     "PoolInfo": {
-      "additionalProperties": false,
       "description": "Fixed lifetime and size of a stored search snapshot.",
       "properties": {
         "created": {
@@ -1013,7 +993,8 @@
     },
     "Predicate": {
       "description": "VA-Spec 1.1 proposition relationships in native snake_case.",
-      "enum": [
+      "type": "string",
+      "x-extensible-enum": [
         "is_causal_for",
         "is_oncogenic_for",
         "has_clinical_significance_for",
@@ -1024,11 +1005,9 @@
         "associated_with_better_outcome_for",
         "associated_with_worse_outcome_for",
         "impacts_function_of"
-      ],
-      "type": "string"
+      ]
     },
     "Problem": {
-      "additionalProperties": false,
       "description": "A field that could not be accepted from a source record.",
       "properties": {
         "code": {
@@ -1064,21 +1043,22 @@
     },
     "ProblemCode": {
       "description": "A stable code for a rejected field value.",
-      "enum": [
-        "value.unknown",
-        "collection.incomplete",
-        "identity.conflict"
-      ],
       "type": "string",
       "x-enum-descriptions": [
         " The field value was not recognized.",
         " Native collection exceeds the admitted complete source page.",
         " A source repeats one exact identity with incompatible records."
+      ],
+      "x-extensible-enum": [
+        "value.unknown",
+        "collection.incomplete",
+        "identity.conflict"
       ]
     },
     "Proposition": {
       "description": "Domain of a source claim.",
-      "enum": [
+      "type": "string",
+      "x-extensible-enum": [
         "pathogenicity",
         "oncogenicity",
         "clinical_significance",
@@ -1086,32 +1066,10 @@
         "diagnostic",
         "prognostic",
         "functional_impact"
-      ],
-      "type": "string"
+      ]
     },
     "Reason": {
       "description": "Why a source could not supply data.",
-      "enum": [
-        "not_found",
-        "not_open",
-        "not_pdf",
-        "unsupported",
-        "too_large",
-        "rate_limited",
-        "local_quota",
-        "unavailable",
-        "tls",
-        "proxy",
-        "rejected",
-        "bad_reply",
-        "deadline_exceeded",
-        "offline",
-        "no_key",
-        "disabled",
-        "replay_miss",
-        "syncing",
-        "no_join_id"
-      ],
       "type": "string",
       "x-enum-descriptions": [
         " The requested record was not found.",
@@ -1133,83 +1091,31 @@
         " No recording matched the request.",
         " The source data was being synchronized.",
         " Identity lacks the identifier required to join this source."
+      ],
+      "x-extensible-enum": [
+        "not_found",
+        "not_open",
+        "not_pdf",
+        "unsupported",
+        "too_large",
+        "rate_limited",
+        "local_quota",
+        "unavailable",
+        "tls",
+        "proxy",
+        "rejected",
+        "bad_reply",
+        "deadline_exceeded",
+        "offline",
+        "no_key",
+        "disabled",
+        "replay_miss",
+        "syncing",
+        "no_join_id"
       ]
     },
     "Source": {
       "description": "A source of BioMCP data, identified by its canonical short name.",
-      "enum": [
-        "hgnc",
-        "mygene",
-        "reactome",
-        "wikipathways",
-        "hpa",
-        "uniprot",
-        "interpro",
-        "complex-portal",
-        "gnomad",
-        "clinvar",
-        "erepo",
-        "gwas",
-        "clingen",
-        "gencc",
-        "pubmed",
-        "europepmc",
-        "litvar",
-        "litsense",
-        "semantic-scholar",
-        "orcid",
-        "pmc-oa",
-        "icite",
-        "pubtator",
-        "ctgov",
-        "nci",
-        "civic",
-        "hotspots",
-        "alphagenome",
-        "oncokb",
-        "myvariant",
-        "car",
-        "mutalyzer",
-        "variantvalidator",
-        "mychem",
-        "chembl",
-        "opentargets",
-        "openfda-label",
-        "drugsfda",
-        "ema",
-        "who-pq",
-        "ddinter",
-        "drugbank-open",
-        "drugcentral",
-        "gtopdb",
-        "unii",
-        "ndc",
-        "openfda-xref",
-        "ols",
-        "mydisease",
-        "monarch",
-        "seer",
-        "mondo",
-        "doid",
-        "ncit",
-        "hpo",
-        "orphanet",
-        "omim",
-        "faers",
-        "vaers",
-        "maude",
-        "meddra",
-        "gmdn",
-        "gtr",
-        "who-ivd",
-        "fda-cdx",
-        "fda-pma",
-        "fda-510k",
-        "cpic",
-        "clinpgx",
-        "cbioportal",
-        "cellosaurus"
-      ],
       "type": "string",
       "x-enum-descriptions": [
         " HGNC.",
@@ -1283,13 +1189,85 @@
         " ClinPGx pharmacogenomics annotations.",
         " Public cBioPortal with study-specific reuse terms.",
         " Cellosaurus cell line identity."
+      ],
+      "x-extensible-enum": [
+        "hgnc",
+        "mygene",
+        "reactome",
+        "wikipathways",
+        "hpa",
+        "uniprot",
+        "interpro",
+        "complex-portal",
+        "gnomad",
+        "clinvar",
+        "erepo",
+        "gwas",
+        "clingen",
+        "gencc",
+        "pubmed",
+        "europepmc",
+        "litvar",
+        "litsense",
+        "semantic-scholar",
+        "orcid",
+        "pmc-oa",
+        "icite",
+        "pubtator",
+        "ctgov",
+        "nci",
+        "civic",
+        "hotspots",
+        "alphagenome",
+        "oncokb",
+        "myvariant",
+        "car",
+        "mutalyzer",
+        "variantvalidator",
+        "mychem",
+        "chembl",
+        "opentargets",
+        "openfda-label",
+        "drugsfda",
+        "ema",
+        "who-pq",
+        "ddinter",
+        "drugbank-open",
+        "drugcentral",
+        "gtopdb",
+        "unii",
+        "ndc",
+        "openfda-xref",
+        "ols",
+        "mydisease",
+        "monarch",
+        "seer",
+        "mondo",
+        "doid",
+        "ncit",
+        "hpo",
+        "orphanet",
+        "omim",
+        "faers",
+        "vaers",
+        "maude",
+        "meddra",
+        "gmdn",
+        "gtr",
+        "who-ivd",
+        "fda-cdx",
+        "fda-pma",
+        "fda-510k",
+        "cpic",
+        "clinpgx",
+        "cbioportal",
+        "cellosaurus"
       ]
     },
     "SourceNotice": {
       "description": "A source notice or request recovery step.",
       "oneOf": [
         {
-          "additionalProperties": false,
           "description": "Local request limits and source-specific recovery guidance.",
           "properties": {
             "kind": {
@@ -1317,7 +1295,6 @@
           "type": "object"
         },
         {
-          "additionalProperties": false,
           "description": "Registered conditions lack the literal words requested in a condition search.",
           "properties": {
             "kind": {
@@ -1336,7 +1313,6 @@
           "type": "object"
         },
         {
-          "additionalProperties": false,
           "description": "A checked provider answer survived a local cache failure.",
           "properties": {
             "kind": {
@@ -1355,7 +1331,6 @@
           "type": "object"
         },
         {
-          "additionalProperties": false,
           "description": "The source still has graph pages after the bounded fetch window.",
           "properties": {
             "fallback": {
@@ -1374,7 +1349,6 @@
           "type": "object"
         },
         {
-          "additionalProperties": false,
           "description": "An empty LitVar lookup can be repeated with a caller-supplied rsID.",
           "properties": {
             "kind": {
@@ -1393,7 +1367,6 @@
           "type": "object"
         },
         {
-          "additionalProperties": false,
           "description": "PubMed supplied a named ESearch warning without changing its phrases.",
           "properties": {
             "kind": {
@@ -1419,7 +1392,6 @@
           "type": "object"
         },
         {
-          "additionalProperties": false,
           "description": "PubMed did not index these words.",
           "properties": {
             "kind": {
@@ -1442,7 +1414,6 @@
       ]
     },
     "SourceOutcome": {
-      "additionalProperties": false,
       "description": "One source's outcome, without provider text.",
       "properties": {
         "count": {
@@ -1535,7 +1506,6 @@
       "type": "string"
     },
     "Statement": {
-      "additionalProperties": false,
       "description": "One source claim, kept in its own framework and context.",
       "properties": {
         "allele_origin": {
@@ -1661,7 +1631,6 @@
       "type": "string"
     },
     "Step": {
-      "additionalProperties": false,
       "description": "A command argument list spelled from a typed action.",
       "properties": {
         "args": {
@@ -1698,7 +1667,6 @@
       "type": "string"
     },
     "Term": {
-      "additionalProperties": false,
       "description": "A source label with optional explicitly supported coding.",
       "properties": {
         "coding": {
@@ -1728,7 +1696,6 @@
       "type": "string"
     },
     "UnmappedAssertion": {
-      "additionalProperties": false,
       "description": "Source classification retained when its category has no approved shared proposition.",
       "properties": {
         "attribution": {
@@ -1775,7 +1742,6 @@
       "type": "string"
     },
     "VariantAssertion": {
-      "additionalProperties": false,
       "description": "A native record/domain pair, never a vote or merged classification.",
       "properties": {
         "detail": {
@@ -1831,7 +1797,6 @@
       "type": "object"
     },
     "VariantAssertions": {
-      "additionalProperties": false,
       "description": "One source-ordered page, with native record and classification boundaries intact.",
       "properties": {
         "assertions": {
@@ -1863,7 +1828,6 @@
       "type": "object"
     },
     "VariantAssertionsGet": {
-      "additionalProperties": false,
       "description": "Page assertions from one explicitly selected evidence source.",
       "properties": {
         "assertion": {
@@ -1932,7 +1896,6 @@
       "description": "Checked source subject reference; at least one source identity or label is required.",
       "oneOf": [
         {
-          "additionalProperties": false,
           "description": "Exact allele identifier or reference-qualified notation.",
           "properties": {
             "hgvs": {
@@ -1968,7 +1931,6 @@
           "type": "object"
         },
         {
-          "additionalProperties": false,
           "description": "Protein-level assertion, without genomic conversion.",
           "properties": {
             "gene": {
@@ -2009,7 +1971,6 @@
           "type": "object"
         },
         {
-          "additionalProperties": false,
           "description": "Compound source profile, without an inferred allele.",
           "properties": {
             "label": {
@@ -2044,8 +2005,7 @@
   },
   "$id": "biomcp.variant-assertions/3",
   "$schema": "https://json-schema.org/draft/2020-12/schema",
-  "additionalProperties": false,
-  "description": "One versioned command response; schema identity comes only from its body type.",
+  "description": "One versioned command response; schema identity comes only from its body type.\nJSON readers ignore unknown fields and unknown growable enum values within a major.",
   "properties": {
     "local_error": {
       "anyOf": [

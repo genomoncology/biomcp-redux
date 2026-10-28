@@ -6,7 +6,6 @@
       "type": "string"
     },
     "Allele": {
-      "additionalProperties": false,
       "description": "Source-stated interbase replacement; equality never claims normalized equivalence.",
       "properties": {
         "alternate": {
@@ -28,18 +27,17 @@
     },
     "Build": {
       "description": "The assembly stated by the source; no default is inferred.",
-      "enum": [
-        "GRCh37",
-        "GRCh38"
-      ],
       "type": "string",
       "x-enum-descriptions": [
         " Genome Reference Consortium human build 37.",
         " Genome Reference Consortium human build 38."
+      ],
+      "x-extensible-enum": [
+        "GRCh37",
+        "GRCh38"
       ]
     },
     "Expression": {
-      "additionalProperties": false,
       "description": "Source expression checked for its declared published form, without normalization.",
       "properties": {
         "syntax": {
@@ -67,19 +65,6 @@
     },
     "ExpressionSyntax": {
       "description": "Published syntax label for a source-preserved expression.",
-      "enum": [
-        "hgvs.g",
-        "hgvs.c",
-        "hgvs.n",
-        "hgvs.r",
-        "hgvs.p",
-        "hgvs.m",
-        "hgvs.o",
-        "spdi",
-        "gnomad",
-        "vcf",
-        "iscn"
-      ],
       "type": "string",
       "x-enum-descriptions": [
         " HGVS genomic description.",
@@ -93,6 +78,19 @@
         " gnomAD chromosome-position-reference-alternate identifier.",
         " Padded VCF chromosome-position-reference-alternate text.",
         " Source-preserved cytogenetic notation."
+      ],
+      "x-extensible-enum": [
+        "hgvs.g",
+        "hgvs.c",
+        "hgvs.n",
+        "hgvs.r",
+        "hgvs.p",
+        "hgvs.m",
+        "hgvs.o",
+        "spdi",
+        "gnomad",
+        "vcf",
+        "iscn"
       ]
     },
     "Sequence": {
@@ -101,7 +99,6 @@
       "type": "string"
     },
     "SequenceLocation": {
-      "additionalProperties": false,
       "description": "An interbase interval on one versioned sequence accession.",
       "properties": {
         "sequence": {
@@ -120,7 +117,6 @@
       "type": "object"
     },
     "Span0": {
-      "additionalProperties": false,
       "description": "A zero-based half-open span with ordered bounds; empty spans are valid.",
       "properties": {
         "end": {
@@ -150,7 +146,6 @@
   },
   "$id": "biodata.representation/3",
   "$schema": "https://json-schema.org/draft/2020-12/schema",
-  "additionalProperties": false,
   "description": "One source's own expression, assembly and optional source-stated interbase allele.",
   "properties": {
     "allele": {

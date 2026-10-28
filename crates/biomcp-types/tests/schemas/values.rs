@@ -159,12 +159,14 @@ fn value_schemas_describe_canonical_text_and_coordinate_bounds() {
     for value in [
         json!({"start":0}),
         json!({"end":1}),
-        json!({"start":0,"end":1,"extra":true}),
         json!({"start":-1,"end":1}),
         json!({"start":0,"end":4294967296_u64}),
     ] {
         assert!(!span.is_valid(&value));
     }
+    let extended = json!({"start":0,"end":1,"extra":true});
+    assert!(span.is_valid(&extended));
+    assert_eq!(serde_json::from_value::<Span0>(extended).unwrap(), Span0::new(0, 1).unwrap());
     // These constraints require runtime checks beyond JSON Schema's vocabulary.
     let overflow = json!("HGNC:4294967296");
     assert!(id.is_valid(&overflow));
@@ -220,8 +222,8 @@ fn usage_error_round_trips_and_rejects_changed_contract_values() {
             .as_object_mut()
             .unwrap()
             .insert("unexpected".into(), json!(true));
-        assert!(!schema.is_valid(&unknown));
-        assert!(serde_json::from_value::<ErrorEnvelope>(unknown).is_err());
+        assert!(schema.is_valid(&unknown));
+        assert_eq!(serde_json::from_value::<ErrorEnvelope>(unknown).unwrap(), envelope);
         for field in fields {
             let mut missing = value.clone();
             missing

@@ -1,7 +1,6 @@
 {
   "$defs": {
     "Attribution": {
-      "additionalProperties": false,
       "description": "Provenance for one source record.",
       "properties": {
         "evaluated": {
@@ -87,7 +86,6 @@
       "type": "string"
     },
     "DiseaseEndpoint": {
-      "additionalProperties": false,
       "description": "One native endpoint with an identifier and an optional source label.",
       "properties": {
         "id": {
@@ -124,7 +122,6 @@
   },
   "$id": "biodata.disease-relation/2",
   "$schema": "https://json-schema.org/draft/2020-12/schema",
-  "additionalProperties": false,
   "description": "A publisher relation with distinct endpoints and predicate.",
   "properties": {
     "attribution": {

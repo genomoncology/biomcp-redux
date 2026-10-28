@@ -1,7 +1,6 @@
 {
   "$defs": {
     "ArticleHeader": {
-      "additionalProperties": false,
       "description": "Citation metadata from PubMed or Europe PMC.",
       "properties": {
         "author_count": {
@@ -124,7 +123,6 @@
       "type": "object"
     },
     "ArticleItem": {
-      "additionalProperties": false,
       "description": "One original pool position, including a summary hole.",
       "properties": {
         "cited_by": {
@@ -148,7 +146,6 @@
           "description": "First citation context and the source's complete context count."
         },
         "found_by": {
-          "additionalProperties": false,
           "description": "Native one-based source positions, disclosed only for multiple sources.",
           "properties": {
             "europepmc": {
@@ -325,7 +322,6 @@
       ]
     },
     "ArticlePage": {
-      "additionalProperties": false,
       "description": "A slice of the stored article source order.",
       "properties": {
         "candidates": {
@@ -346,7 +342,6 @@
       "type": "object"
     },
     "ArticleSearch": {
-      "additionalProperties": false,
       "anyOf": [
         {
           "required": [
@@ -498,7 +493,6 @@
       "type": "object"
     },
     "ArticleSentence": {
-      "additionalProperties": false,
       "description": "Source-provided sentence resemblance, without a claim of clinical relevance.",
       "properties": {
         "section": {
@@ -566,7 +560,6 @@
       "type": "string"
     },
     "Capped": {
-      "additionalProperties": false,
       "description": "A bounded list with the total before its cap was applied.",
       "properties": {
         "items": {
@@ -590,16 +583,16 @@
     },
     "CitationIntent": {
       "description": "Source-reported reason for citing a paper.",
-      "enum": [
-        "background",
-        "result",
-        "methodology"
-      ],
       "type": "string",
       "x-enum-descriptions": [
         " The source cites background information.",
         " The source cites a reported result.",
         " The source cites a method."
+      ],
+      "x-extensible-enum": [
+        "background",
+        "result",
+        "methodology"
       ]
     },
     "Doi": {
@@ -618,7 +611,6 @@
       "type": "string"
     },
     "LitVarCandidate": {
-      "additionalProperties": false,
       "description": "Public LitVar2 autocomplete candidate, without a clinical ranking claim.",
       "properties": {
         "count": {
@@ -650,7 +642,6 @@
       "type": "object"
     },
     "PageInfo": {
-      "additionalProperties": false,
       "description": "Search counts after filtering and deduplication.",
       "properties": {
         "offset": {
@@ -713,7 +704,6 @@
       "type": "string"
     },
     "PoolInfo": {
-      "additionalProperties": false,
       "description": "Fixed lifetime and size of a stored search snapshot.",
       "properties": {
         "created": {
@@ -748,7 +738,6 @@
       "type": "object"
     },
     "Problem": {
-      "additionalProperties": false,
       "description": "A field that could not be accepted from a source record.",
       "properties": {
         "code": {
@@ -784,43 +773,20 @@
     },
     "ProblemCode": {
       "description": "A stable code for a rejected field value.",
-      "enum": [
-        "value.unknown",
-        "collection.incomplete",
-        "identity.conflict"
-      ],
       "type": "string",
       "x-enum-descriptions": [
         " The field value was not recognized.",
         " Native collection exceeds the admitted complete source page.",
         " A source repeats one exact identity with incompatible records."
+      ],
+      "x-extensible-enum": [
+        "value.unknown",
+        "collection.incomplete",
+        "identity.conflict"
       ]
     },
     "PublicationType": {
       "description": "Clinically meaningful PubMed publication types.",
-      "enum": [
-        "randomized_controlled_trial",
-        "clinical_trial",
-        "clinical_trial_phase_1",
-        "clinical_trial_phase_2",
-        "clinical_trial_phase_3",
-        "clinical_trial_phase_4",
-        "meta_analysis",
-        "systematic_review",
-        "review",
-        "practice_guideline",
-        "guideline",
-        "case_report",
-        "observational_study",
-        "multicenter_study",
-        "letter",
-        "comment",
-        "editorial",
-        "preprint",
-        "retracted_publication",
-        "retraction_notice",
-        "erratum"
-      ],
       "type": "string",
       "x-enum-descriptions": [
         " Randomized controlled trial.",
@@ -844,31 +810,33 @@
         " Retracted publication.",
         " Retraction notice.",
         " Erratum."
+      ],
+      "x-extensible-enum": [
+        "randomized_controlled_trial",
+        "clinical_trial",
+        "clinical_trial_phase_1",
+        "clinical_trial_phase_2",
+        "clinical_trial_phase_3",
+        "clinical_trial_phase_4",
+        "meta_analysis",
+        "systematic_review",
+        "review",
+        "practice_guideline",
+        "guideline",
+        "case_report",
+        "observational_study",
+        "multicenter_study",
+        "letter",
+        "comment",
+        "editorial",
+        "preprint",
+        "retracted_publication",
+        "retraction_notice",
+        "erratum"
       ]
     },
     "Reason": {
       "description": "Why a source could not supply data.",
-      "enum": [
-        "not_found",
-        "not_open",
-        "not_pdf",
-        "unsupported",
-        "too_large",
-        "rate_limited",
-        "local_quota",
-        "unavailable",
-        "tls",
-        "proxy",
-        "rejected",
-        "bad_reply",
-        "deadline_exceeded",
-        "offline",
-        "no_key",
-        "disabled",
-        "replay_miss",
-        "syncing",
-        "no_join_id"
-      ],
       "type": "string",
       "x-enum-descriptions": [
         " The requested record was not found.",
@@ -890,6 +858,27 @@
         " No recording matched the request.",
         " The source data was being synchronized.",
         " Identity lacks the identifier required to join this source."
+      ],
+      "x-extensible-enum": [
+        "not_found",
+        "not_open",
+        "not_pdf",
+        "unsupported",
+        "too_large",
+        "rate_limited",
+        "local_quota",
+        "unavailable",
+        "tls",
+        "proxy",
+        "rejected",
+        "bad_reply",
+        "deadline_exceeded",
+        "offline",
+        "no_key",
+        "disabled",
+        "replay_miss",
+        "syncing",
+        "no_join_id"
       ]
     },
     "RetractionFilter": {
@@ -912,79 +901,6 @@
     },
     "Source": {
       "description": "A source of BioMCP data, identified by its canonical short name.",
-      "enum": [
-        "hgnc",
-        "mygene",
-        "reactome",
-        "wikipathways",
-        "hpa",
-        "uniprot",
-        "interpro",
-        "complex-portal",
-        "gnomad",
-        "clinvar",
-        "erepo",
-        "gwas",
-        "clingen",
-        "gencc",
-        "pubmed",
-        "europepmc",
-        "litvar",
-        "litsense",
-        "semantic-scholar",
-        "orcid",
-        "pmc-oa",
-        "icite",
-        "pubtator",
-        "ctgov",
-        "nci",
-        "civic",
-        "hotspots",
-        "alphagenome",
-        "oncokb",
-        "myvariant",
-        "car",
-        "mutalyzer",
-        "variantvalidator",
-        "mychem",
-        "chembl",
-        "opentargets",
-        "openfda-label",
-        "drugsfda",
-        "ema",
-        "who-pq",
-        "ddinter",
-        "drugbank-open",
-        "drugcentral",
-        "gtopdb",
-        "unii",
-        "ndc",
-        "openfda-xref",
-        "ols",
-        "mydisease",
-        "monarch",
-        "seer",
-        "mondo",
-        "doid",
-        "ncit",
-        "hpo",
-        "orphanet",
-        "omim",
-        "faers",
-        "vaers",
-        "maude",
-        "meddra",
-        "gmdn",
-        "gtr",
-        "who-ivd",
-        "fda-cdx",
-        "fda-pma",
-        "fda-510k",
-        "cpic",
-        "clinpgx",
-        "cbioportal",
-        "cellosaurus"
-      ],
       "type": "string",
       "x-enum-descriptions": [
         " HGNC.",
@@ -1058,13 +974,85 @@
         " ClinPGx pharmacogenomics annotations.",
         " Public cBioPortal with study-specific reuse terms.",
         " Cellosaurus cell line identity."
+      ],
+      "x-extensible-enum": [
+        "hgnc",
+        "mygene",
+        "reactome",
+        "wikipathways",
+        "hpa",
+        "uniprot",
+        "interpro",
+        "complex-portal",
+        "gnomad",
+        "clinvar",
+        "erepo",
+        "gwas",
+        "clingen",
+        "gencc",
+        "pubmed",
+        "europepmc",
+        "litvar",
+        "litsense",
+        "semantic-scholar",
+        "orcid",
+        "pmc-oa",
+        "icite",
+        "pubtator",
+        "ctgov",
+        "nci",
+        "civic",
+        "hotspots",
+        "alphagenome",
+        "oncokb",
+        "myvariant",
+        "car",
+        "mutalyzer",
+        "variantvalidator",
+        "mychem",
+        "chembl",
+        "opentargets",
+        "openfda-label",
+        "drugsfda",
+        "ema",
+        "who-pq",
+        "ddinter",
+        "drugbank-open",
+        "drugcentral",
+        "gtopdb",
+        "unii",
+        "ndc",
+        "openfda-xref",
+        "ols",
+        "mydisease",
+        "monarch",
+        "seer",
+        "mondo",
+        "doid",
+        "ncit",
+        "hpo",
+        "orphanet",
+        "omim",
+        "faers",
+        "vaers",
+        "maude",
+        "meddra",
+        "gmdn",
+        "gtr",
+        "who-ivd",
+        "fda-cdx",
+        "fda-pma",
+        "fda-510k",
+        "cpic",
+        "clinpgx",
+        "cbioportal",
+        "cellosaurus"
       ]
     },
     "SourceNotice": {
       "description": "A source notice or request recovery step.",
       "oneOf": [
         {
-          "additionalProperties": false,
           "description": "Local request limits and source-specific recovery guidance.",
           "properties": {
             "kind": {
@@ -1092,7 +1080,6 @@
           "type": "object"
         },
         {
-          "additionalProperties": false,
           "description": "Registered conditions lack the literal words requested in a condition search.",
           "properties": {
             "kind": {
@@ -1111,7 +1098,6 @@
           "type": "object"
         },
         {
-          "additionalProperties": false,
           "description": "A checked provider answer survived a local cache failure.",
           "properties": {
             "kind": {
@@ -1130,7 +1116,6 @@
           "type": "object"
         },
         {
-          "additionalProperties": false,
           "description": "The source still has graph pages after the bounded fetch window.",
           "properties": {
             "fallback": {
@@ -1149,7 +1134,6 @@
           "type": "object"
         },
         {
-          "additionalProperties": false,
           "description": "An empty LitVar lookup can be repeated with a caller-supplied rsID.",
           "properties": {
             "kind": {
@@ -1168,7 +1152,6 @@
           "type": "object"
         },
         {
-          "additionalProperties": false,
           "description": "PubMed supplied a named ESearch warning without changing its phrases.",
           "properties": {
             "kind": {
@@ -1194,7 +1177,6 @@
           "type": "object"
         },
         {
-          "additionalProperties": false,
           "description": "PubMed did not index these words.",
           "properties": {
             "kind": {
@@ -1217,7 +1199,6 @@
       ]
     },
     "SourceOutcome": {
-      "additionalProperties": false,
       "description": "One source's outcome, without provider text.",
       "properties": {
         "count": {
@@ -1320,7 +1301,6 @@
       "type": "string"
     },
     "Step": {
-      "additionalProperties": false,
       "description": "A command argument list spelled from a typed action.",
       "properties": {
         "args": {
@@ -1374,8 +1354,7 @@
   },
   "$id": "biomcp.article-page/4",
   "$schema": "https://json-schema.org/draft/2020-12/schema",
-  "additionalProperties": false,
-  "description": "One versioned command response; schema identity comes only from its body type.",
+  "description": "One versioned command response; schema identity comes only from its body type.\nJSON readers ignore unknown fields and unknown growable enum values within a major.",
   "properties": {
     "local_error": {
       "anyOf": [

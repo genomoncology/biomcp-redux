@@ -1,7 +1,6 @@
 {
   "$defs": {
     "Attribution": {
-      "additionalProperties": false,
       "description": "Provenance for one source record.",
       "properties": {
         "evaluated": {
@@ -83,14 +82,14 @@
     },
     "Build": {
       "description": "The assembly stated by the source; no default is inferred.",
-      "enum": [
-        "GRCh37",
-        "GRCh38"
-      ],
       "type": "string",
       "x-enum-descriptions": [
         " Genome Reference Consortium human build 37.",
         " Genome Reference Consortium human build 38."
+      ],
+      "x-extensible-enum": [
+        "GRCh37",
+        "GRCh38"
       ]
     },
     "CacheProblem": {
@@ -103,7 +102,6 @@
       "type": "string"
     },
     "Capped": {
-      "additionalProperties": false,
       "description": "A bounded list with the total before its cap was applied.",
       "properties": {
         "items": {
@@ -131,7 +129,6 @@
       "type": "string"
     },
     "ComponentLabel": {
-      "additionalProperties": false,
       "description": "Terms attached to a named carried component on a consumer response.",
       "properties": {
         "component": {
@@ -150,7 +147,6 @@
       "type": "object"
     },
     "ComponentTerms": {
-      "additionalProperties": false,
       "description": "Terms attached to one independently licensed source component.",
       "properties": {
         "name": {
@@ -185,7 +181,6 @@
       "type": "string"
     },
     "DiseaseConcept": {
-      "additionalProperties": false,
       "description": "A disease identity whose optional display label never determines record admission.",
       "properties": {
         "id": {
@@ -207,7 +202,6 @@
       "type": "object"
     },
     "DiseaseEndpoint": {
-      "additionalProperties": false,
       "description": "One native endpoint with an identifier and an optional source label.",
       "properties": {
         "id": {
@@ -232,7 +226,6 @@
       "type": "object"
     },
     "DiseaseRelation": {
-      "additionalProperties": false,
       "description": "A publisher relation with distinct endpoints and predicate.",
       "properties": {
         "attribution": {
@@ -273,7 +266,6 @@
       "type": "string"
     },
     "Gene": {
-      "additionalProperties": false,
       "description": "Human gene identity and whole source annotations, independent of response cards.",
       "properties": {
         "aliases": {
@@ -404,7 +396,6 @@
       "type": "object"
     },
     "GeneHeader": {
-      "additionalProperties": false,
       "description": "Enough gene identity to choose a search result.",
       "properties": {
         "hgnc_id": {
@@ -468,7 +459,6 @@
       "description": "Resolution outcomes preserve ambiguity and withdrawn identity.",
       "oneOf": [
         {
-          "additionalProperties": false,
           "description": "One resolved identity and its source match.",
           "properties": {
             "gene": {
@@ -492,7 +482,6 @@
           "type": "object"
         },
         {
-          "additionalProperties": false,
           "description": "Every candidate, with no silent selection.",
           "properties": {
             "candidates": {
@@ -513,7 +502,6 @@
           "type": "object"
         },
         {
-          "additionalProperties": false,
           "description": "The original withdrawn identity and stated successors.",
           "properties": {
             "hgnc_id": {
@@ -549,7 +537,6 @@
           "type": "object"
         },
         {
-          "additionalProperties": false,
           "description": "No source identity matched.",
           "properties": {
             "resolution": {
@@ -566,14 +553,14 @@
     },
     "GeneStatus": {
       "description": "HGNC approval status.",
-      "enum": [
-        "approved",
-        "withdrawn"
-      ],
       "type": "string",
       "x-enum-descriptions": [
         " An HGNC approved record.",
         " An HGNC withdrawn record."
+      ],
+      "x-extensible-enum": [
+        "approved",
+        "withdrawn"
       ]
     },
     "GeneSymbol": {
@@ -582,7 +569,6 @@
       "type": "string"
     },
     "GenomicInterval": {
-      "additionalProperties": false,
       "description": "An assembly-qualified zero-based half-open source interval.",
       "properties": {
         "build": {
@@ -629,25 +615,18 @@
     },
     "HgncStatus": {
       "description": "HGNC's stated withdrawn-file status.",
-      "enum": [
-        "entry_withdrawn",
-        "merged_split"
-      ],
       "type": "string",
       "x-enum-descriptions": [
         " Entry withdrawn.",
         " Entry merged or split."
+      ],
+      "x-extensible-enum": [
+        "entry_withdrawn",
+        "merged_split"
       ]
     },
     "LocusGroup": {
       "description": "HGNC locus group, separate from a missing source value.",
-      "enum": [
-        "protein_coding",
-        "non_coding_rna",
-        "pseudogene",
-        "phenotype",
-        "other"
-      ],
       "type": "string",
       "x-enum-descriptions": [
         " Protein coding.",
@@ -655,37 +634,17 @@
         " Pseudogene.",
         " Phenotype.",
         " HGNC's stated other group."
+      ],
+      "x-extensible-enum": [
+        "protein_coding",
+        "non_coding_rna",
+        "pseudogene",
+        "phenotype",
+        "other"
       ]
     },
     "LocusType": {
       "description": "HGNC locus type; Unknown is a source-stated value, distinct from absence.",
-      "enum": [
-        "gene_with_protein_product",
-        "rna_cluster",
-        "long_non_coding_rna",
-        "micro_rna",
-        "misc_rna",
-        "ribosomal_rna",
-        "small_nuclear_rna",
-        "small_nucleolar_rna",
-        "transfer_rna",
-        "vault_rna",
-        "y_rna",
-        "phenotype_only",
-        "pseudogene",
-        "complex_locus_constituent",
-        "endogenous_retrovirus",
-        "fragile_site",
-        "immunoglobulin_gene",
-        "immunoglobulin_pseudogene",
-        "readthrough",
-        "region",
-        "t_cell_receptor_gene",
-        "t_cell_receptor_pseudogene",
-        "transposable_element",
-        "unknown",
-        "virus_integration_site"
-      ],
       "type": "string",
       "x-enum-descriptions": [
         " HGNC gene with protein product.",
@@ -713,10 +672,36 @@
         " HGNC transposable element.",
         " HGNC unknown.",
         " HGNC virus integration site."
+      ],
+      "x-extensible-enum": [
+        "gene_with_protein_product",
+        "rna_cluster",
+        "long_non_coding_rna",
+        "micro_rna",
+        "misc_rna",
+        "ribosomal_rna",
+        "small_nuclear_rna",
+        "small_nucleolar_rna",
+        "transfer_rna",
+        "vault_rna",
+        "y_rna",
+        "phenotype_only",
+        "pseudogene",
+        "complex_locus_constituent",
+        "endogenous_retrovirus",
+        "fragile_site",
+        "immunoglobulin_gene",
+        "immunoglobulin_pseudogene",
+        "readthrough",
+        "region",
+        "t_cell_receptor_gene",
+        "t_cell_receptor_pseudogene",
+        "transposable_element",
+        "unknown",
+        "virus_integration_site"
       ]
     },
     "Mane": {
-      "additionalProperties": false,
       "description": "A source-stated MANE pair with versioned sequence accessions.",
       "properties": {
         "ensembl": {
@@ -743,18 +728,17 @@
     },
     "ManeStatus": {
       "description": "The source-stated MANE transcript status.",
-      "enum": [
-        "select",
-        "plus_clinical"
-      ],
       "type": "string",
       "x-enum-descriptions": [
         " MANE Select transcript pair.",
         " MANE Plus Clinical transcript pair."
+      ],
+      "x-extensible-enum": [
+        "select",
+        "plus_clinical"
       ]
     },
     "Match": {
-      "additionalProperties": false,
       "description": "A source-stated match, preserving the text that matched.",
       "properties": {
         "kind": {
@@ -774,16 +758,6 @@
     },
     "MatchKind": {
       "description": "How a source matched a gene input.",
-      "enum": [
-        "symbol",
-        "previous_symbol",
-        "alias",
-        "ncbi_alias",
-        "hgnc_id",
-        "entrez_id",
-        "ensembl_id",
-        "band"
-      ],
       "type": "string",
       "x-enum-descriptions": [
         " Current symbol.",
@@ -794,6 +768,16 @@
         " NCBI Gene identifier.",
         " Ensembl gene identifier.",
         " Cytogenetic band."
+      ],
+      "x-extensible-enum": [
+        "symbol",
+        "previous_symbol",
+        "alias",
+        "ncbi_alias",
+        "hgnc_id",
+        "entrez_id",
+        "ensembl_id",
+        "band"
       ]
     },
     "NcbiGeneId": {
@@ -812,7 +796,6 @@
       "type": "string"
     },
     "PageInfo": {
-      "additionalProperties": false,
       "description": "Search counts after filtering and deduplication.",
       "properties": {
         "offset": {
@@ -879,7 +862,6 @@
       "type": "string"
     },
     "PoolInfo": {
-      "additionalProperties": false,
       "description": "Fixed lifetime and size of a stored search snapshot.",
       "properties": {
         "created": {
@@ -914,7 +896,6 @@
       "type": "object"
     },
     "Problem": {
-      "additionalProperties": false,
       "description": "A field that could not be accepted from a source record.",
       "properties": {
         "code": {
@@ -950,41 +931,20 @@
     },
     "ProblemCode": {
       "description": "A stable code for a rejected field value.",
-      "enum": [
-        "value.unknown",
-        "collection.incomplete",
-        "identity.conflict"
-      ],
       "type": "string",
       "x-enum-descriptions": [
         " The field value was not recognized.",
         " Native collection exceeds the admitted complete source page.",
         " A source repeats one exact identity with incompatible records."
+      ],
+      "x-extensible-enum": [
+        "value.unknown",
+        "collection.incomplete",
+        "identity.conflict"
       ]
     },
     "Reason": {
       "description": "Why a source could not supply data.",
-      "enum": [
-        "not_found",
-        "not_open",
-        "not_pdf",
-        "unsupported",
-        "too_large",
-        "rate_limited",
-        "local_quota",
-        "unavailable",
-        "tls",
-        "proxy",
-        "rejected",
-        "bad_reply",
-        "deadline_exceeded",
-        "offline",
-        "no_key",
-        "disabled",
-        "replay_miss",
-        "syncing",
-        "no_join_id"
-      ],
       "type": "string",
       "x-enum-descriptions": [
         " The requested record was not found.",
@@ -1006,83 +966,31 @@
         " No recording matched the request.",
         " The source data was being synchronized.",
         " Identity lacks the identifier required to join this source."
+      ],
+      "x-extensible-enum": [
+        "not_found",
+        "not_open",
+        "not_pdf",
+        "unsupported",
+        "too_large",
+        "rate_limited",
+        "local_quota",
+        "unavailable",
+        "tls",
+        "proxy",
+        "rejected",
+        "bad_reply",
+        "deadline_exceeded",
+        "offline",
+        "no_key",
+        "disabled",
+        "replay_miss",
+        "syncing",
+        "no_join_id"
       ]
     },
     "Source": {
       "description": "A source of BioMCP data, identified by its canonical short name.",
-      "enum": [
-        "hgnc",
-        "mygene",
-        "reactome",
-        "wikipathways",
-        "hpa",
-        "uniprot",
-        "interpro",
-        "complex-portal",
-        "gnomad",
-        "clinvar",
-        "erepo",
-        "gwas",
-        "clingen",
-        "gencc",
-        "pubmed",
-        "europepmc",
-        "litvar",
-        "litsense",
-        "semantic-scholar",
-        "orcid",
-        "pmc-oa",
-        "icite",
-        "pubtator",
-        "ctgov",
-        "nci",
-        "civic",
-        "hotspots",
-        "alphagenome",
-        "oncokb",
-        "myvariant",
-        "car",
-        "mutalyzer",
-        "variantvalidator",
-        "mychem",
-        "chembl",
-        "opentargets",
-        "openfda-label",
-        "drugsfda",
-        "ema",
-        "who-pq",
-        "ddinter",
-        "drugbank-open",
-        "drugcentral",
-        "gtopdb",
-        "unii",
-        "ndc",
-        "openfda-xref",
-        "ols",
-        "mydisease",
-        "monarch",
-        "seer",
-        "mondo",
-        "doid",
-        "ncit",
-        "hpo",
-        "orphanet",
-        "omim",
-        "faers",
-        "vaers",
-        "maude",
-        "meddra",
-        "gmdn",
-        "gtr",
-        "who-ivd",
-        "fda-cdx",
-        "fda-pma",
-        "fda-510k",
-        "cpic",
-        "clinpgx",
-        "cbioportal",
-        "cellosaurus"
-      ],
       "type": "string",
       "x-enum-descriptions": [
         " HGNC.",
@@ -1156,13 +1064,85 @@
         " ClinPGx pharmacogenomics annotations.",
         " Public cBioPortal with study-specific reuse terms.",
         " Cellosaurus cell line identity."
+      ],
+      "x-extensible-enum": [
+        "hgnc",
+        "mygene",
+        "reactome",
+        "wikipathways",
+        "hpa",
+        "uniprot",
+        "interpro",
+        "complex-portal",
+        "gnomad",
+        "clinvar",
+        "erepo",
+        "gwas",
+        "clingen",
+        "gencc",
+        "pubmed",
+        "europepmc",
+        "litvar",
+        "litsense",
+        "semantic-scholar",
+        "orcid",
+        "pmc-oa",
+        "icite",
+        "pubtator",
+        "ctgov",
+        "nci",
+        "civic",
+        "hotspots",
+        "alphagenome",
+        "oncokb",
+        "myvariant",
+        "car",
+        "mutalyzer",
+        "variantvalidator",
+        "mychem",
+        "chembl",
+        "opentargets",
+        "openfda-label",
+        "drugsfda",
+        "ema",
+        "who-pq",
+        "ddinter",
+        "drugbank-open",
+        "drugcentral",
+        "gtopdb",
+        "unii",
+        "ndc",
+        "openfda-xref",
+        "ols",
+        "mydisease",
+        "monarch",
+        "seer",
+        "mondo",
+        "doid",
+        "ncit",
+        "hpo",
+        "orphanet",
+        "omim",
+        "faers",
+        "vaers",
+        "maude",
+        "meddra",
+        "gmdn",
+        "gtr",
+        "who-ivd",
+        "fda-cdx",
+        "fda-pma",
+        "fda-510k",
+        "cpic",
+        "clinpgx",
+        "cbioportal",
+        "cellosaurus"
       ]
     },
     "SourceNotice": {
       "description": "A source notice or request recovery step.",
       "oneOf": [
         {
-          "additionalProperties": false,
           "description": "Local request limits and source-specific recovery guidance.",
           "properties": {
             "kind": {
@@ -1190,7 +1170,6 @@
           "type": "object"
         },
         {
-          "additionalProperties": false,
           "description": "Registered conditions lack the literal words requested in a condition search.",
           "properties": {
             "kind": {
@@ -1209,7 +1188,6 @@
           "type": "object"
         },
         {
-          "additionalProperties": false,
           "description": "A checked provider answer survived a local cache failure.",
           "properties": {
             "kind": {
@@ -1228,7 +1206,6 @@
           "type": "object"
         },
         {
-          "additionalProperties": false,
           "description": "The source still has graph pages after the bounded fetch window.",
           "properties": {
             "fallback": {
@@ -1247,7 +1224,6 @@
           "type": "object"
         },
         {
-          "additionalProperties": false,
           "description": "An empty LitVar lookup can be repeated with a caller-supplied rsID.",
           "properties": {
             "kind": {
@@ -1266,7 +1242,6 @@
           "type": "object"
         },
         {
-          "additionalProperties": false,
           "description": "PubMed supplied a named ESearch warning without changing its phrases.",
           "properties": {
             "kind": {
@@ -1292,7 +1267,6 @@
           "type": "object"
         },
         {
-          "additionalProperties": false,
           "description": "PubMed did not index these words.",
           "properties": {
             "kind": {
@@ -1315,7 +1289,6 @@
       ]
     },
     "SourceOutcome": {
-      "additionalProperties": false,
       "description": "One source's outcome, without provider text.",
       "properties": {
         "count": {
@@ -1408,7 +1381,6 @@
       "type": "string"
     },
     "SourceTimestamp": {
-      "additionalProperties": false,
       "description": "Native source timestamp and the availability of its timezone.",
       "properties": {
         "timezone": {
@@ -1435,7 +1407,6 @@
       "type": "string"
     },
     "Span0": {
-      "additionalProperties": false,
       "description": "A zero-based half-open span with ordered bounds; empty spans are valid.",
       "properties": {
         "end": {
@@ -1478,7 +1449,6 @@
       "type": "string"
     },
     "Step": {
-      "additionalProperties": false,
       "description": "A command argument list spelled from a typed action.",
       "properties": {
         "args": {
@@ -1516,14 +1486,14 @@
     },
     "Strand": {
       "description": "Source-stated forward or reverse strand.",
-      "enum": [
-        "+",
-        "-"
-      ],
       "type": "string",
       "x-enum-descriptions": [
         " Forward strand.",
         " Reverse strand."
+      ],
+      "x-extensible-enum": [
+        "+",
+        "-"
       ]
     },
     "StudyType": {
@@ -1536,7 +1506,6 @@
       "type": "string"
     },
     "Summary": {
-      "additionalProperties": false,
       "description": "A whole source-provided summary with attribution and stated date precision.",
       "properties": {
         "dated": {
@@ -1567,12 +1536,12 @@
     },
     "SummarySource": {
       "description": "The attribution on a source-provided summary, independent of fetch providers.",
-      "enum": [
-        "refseq"
-      ],
       "type": "string",
       "x-enum-descriptions": [
         " RefSeq attribution."
+      ],
+      "x-extensible-enum": [
+        "refseq"
       ]
     },
     "Text": {
@@ -1581,7 +1550,6 @@
       "type": "string"
     },
     "TrialConditionResolution": {
-      "additionalProperties": false,
       "description": "Exact condition identity used for one trial request, without eligibility inference.",
       "properties": {
         "alias": {
@@ -1664,7 +1632,6 @@
       "type": "object"
     },
     "TrialHeader": {
-      "additionalProperties": false,
       "description": "Small source-attributed trial discovery record.",
       "properties": {
         "conditions": {
@@ -1716,7 +1683,6 @@
       "type": "object"
     },
     "TrialPage": {
-      "additionalProperties": false,
       "description": "Registry page preserving source order and source processing time.",
       "properties": {
         "attribution": {
@@ -1782,7 +1748,6 @@
       "type": "string"
     },
     "TrialSearch": {
-      "additionalProperties": false,
       "description": "Search one provider with bounded pages and source-native counts; default ClinicalTrials.gov, explicit keyed NCI, never a fallback.",
       "properties": {
         "age": {
@@ -1961,8 +1926,7 @@
   },
   "$id": "biomcp.trial-page/7",
   "$schema": "https://json-schema.org/draft/2020-12/schema",
-  "additionalProperties": false,
-  "description": "One versioned command response; schema identity comes only from its body type.",
+  "description": "One versioned command response; schema identity comes only from its body type.\nJSON readers ignore unknown fields and unknown growable enum values within a major.",
   "properties": {
     "local_error": {
       "anyOf": [
