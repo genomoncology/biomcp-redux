@@ -33,6 +33,8 @@ pub const VERSION: Endpoint = SPEC.get("/version").fresh(Freshness::Days(1));
 pub struct SearchPage {
     /// Source order, untouched.
     pub items: Vec<TrialHeader>,
+    /// Rejected nonidentity fields from retained studies.
+    pub problems: Vec<biomcp_types::Problem>,
     /// At least one complete native condition list lacks the searched words.
     pub condition_word_mismatch: bool,
     /// Exact native total.
@@ -197,15 +199,14 @@ pub fn search(
             .iter()
             .any(|row| !row.protocol_section.contains_condition_words(condition))
     });
+    let mapped = raw.studies.unwrap_or_default().into_iter()
+        .map(|row| row.protocol_section.header()).collect::<Result<Vec<_>, _>>()
+        .map_err(|_| bad())?;
+    let (items, problems): (Vec<_>, Vec<_>) = mapped.into_iter().map(|row| (row.value, row.problems)).unzip();
     Ok(SearchPage {
+        problems: problems.into_iter().flatten().collect(),
         condition_word_mismatch,
-        items: raw
-            .studies
-            .unwrap_or_default()
-            .into_iter()
-            .map(|row| row.protocol_section.header())
-            .collect::<Result<Vec<_>, _>>()
-            .map_err(|_| bad())?,
+        items,
         total,
         count_error,
         count_request,

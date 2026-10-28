@@ -1,6 +1,8 @@
 //! One registry record request with a typed protocol projection, checked against its requested identity before caching.
 mod publications;
 mod sites;
+use crate::{mapped::Problems, raw::Field};
+use biomcp_types::Source;
 use biodata::{
     Markdown, NctId, StudyType, TrialAgeBound, TrialArm, TrialCard, TrialDate, TrialEligibility,
     TrialIntervention, TrialOutcome, TrialOutcomeKind, TrialPhase, TrialSex, TrialStatus,
@@ -12,6 +14,8 @@ use serde::{Deserialize, Serialize};
 #[derive(Clone, Debug, Serialize, Deserialize)]
 #[serde(deny_unknown_fields)]
 pub struct Detail {
+    /// Rejected nonidentity fields retained with this snapshot.
+    pub problems: Vec<biomcp_types::Problem>,
     /// Whole sites with attached contacts.
     pub locations: Box<[biodata::TrialLocation]>,
     /// Registry-wide central contacts.
@@ -62,10 +66,6 @@ struct Study {
 }
 impl Reply for Study {
     fn check(&self) -> Result<(), BadReply> {
-        let p = &self.protocol_section;
-        if p.identification_module.brief_title.trim().is_empty() {
-            return Err(BadReply);
-        }
         if let Some(documents) = &self.document_section {
             documents.check()?;
         }
@@ -91,36 +91,37 @@ struct Protocol {
 #[serde(rename_all = "camelCase")]
 struct Identification {
     nct_id: NctId,
-    brief_title: Box<str>,
+    brief_title: Option<Field<biodata::Text>>,
 }
 #[derive(Deserialize)]
 #[serde(rename_all = "camelCase")]
 struct Status {
-    overall_status: TrialStatus,
-    last_update_post_date_struct: RawDate,
-    start_date_struct: Option<RawDate>,
-    primary_completion_date_struct: Option<RawDate>,
-    completion_date_struct: Option<RawDate>,
+    overall_status: Option<Field<TrialStatus>>,
+    last_update_post_date_struct: Option<Field<RawDate>>,
+    start_date_struct: Option<Field<RawDate>>,
+    primary_completion_date_struct: Option<Field<RawDate>>,
+    completion_date_struct: Option<Field<RawDate>>,
 }
 #[derive(Deserialize)]
 struct RawDate {
-    date: biodata::PartialDate,
+    date: Option<Field<biodata::PartialDate>>,
     #[serde(rename = "type")]
-    kind: Option<biodata::TrialDateKind>,
+    kind: Option<Field<biodata::TrialDateKind>>,
 }
 impl RawDate {
-    fn mapped(self) -> TrialDate {
-        TrialDate {
-            date: self.date,
-            kind: self.kind,
-        }
+    fn mapped(self, field: &str, problems: &mut Problems) -> Option<TrialDate> {
+        let date = problems.field(&format!("{field}.date"), self.date)?;
+        Some(TrialDate {
+            date,
+            kind: problems.field(&format!("{field}.type"), self.kind),
+        })
     }
 }
 #[derive(Deserialize)]
 #[serde(rename_all = "camelCase")]
 struct Design {
-    study_type: StudyType,
-    phases: Option<Box<[TrialPhase]>>,
+    study_type: Option<Field<StudyType>>,
+    phases: Option<Field<Vec<Field<TrialPhase>>>>,
 }
 #[derive(Deserialize)]
 #[serde(rename_all = "camelCase")]
@@ -145,7 +146,7 @@ struct Name {
 struct Eligibility {
     minimum_age: Option<Box<str>>,
     maximum_age: Option<Box<str>>,
-    sex: Option<TrialSex>,
+    sex: Option<Field<TrialSex>>,
     healthy_volunteers: Option<bool>,
     eligibility_criteria: Option<Markdown>,
 }
@@ -174,7 +175,7 @@ struct Arms {
 struct Arm {
     label: Box<str>,
     #[serde(rename = "type")]
-    kind: Option<biodata::TrialArmKind>,
+    kind: Option<Field<biodata::TrialArmKind>>,
     description: Option<Markdown>,
     intervention_names: Option<Box<[Box<str>]>>,
 }
@@ -183,13 +184,14 @@ struct Arm {
 struct Intervention {
     name: Box<str>,
     #[serde(rename = "type")]
-    kind: Option<biodata::TrialInterventionKind>,
+    kind: Option<Field<biodata::TrialInterventionKind>>,
     description: Option<Markdown>,
     arm_group_labels: Option<Box<[Box<str>]>>,
     other_names: Option<Box<[Box<str>]>>,
 }
 impl Protocol {
     fn detail(self) -> Detail {
+        let mut problems = Problems { source: Source::ClinicalTrialsGov, record: crate::mapped::record(self.identification_module.nct_id), list: Vec::new() };
         let arms = self.arms_interventions_module;
         let (locations, contacts, officials) = self.contacts_locations_module.map_or_else(
             || (Box::default(), Box::default(), Box::default()),
@@ -202,10 +204,10 @@ impl Protocol {
                 self.identification_module.nct_id
             )
             .into(),
-            title: self.identification_module.brief_title,
-            status: self.status_module.overall_status,
-            phases: self.design_module.phases.unwrap_or_default(),
-            study_type: self.design_module.study_type,
+            title: problems.field("briefTitle", self.identification_module.brief_title).map(|v| v.as_str().into()),
+            status: { let value = problems.field("overallStatus", self.status_module.overall_status); problems.required("overallStatus", value) },
+            phases: problems.fields("phases", self.design_module.phases),
+            study_type: problems.field("studyType", self.design_module.study_type),
             conditions: self
                 .conditions_module
                 .and_then(|v| v.conditions)
@@ -221,20 +223,14 @@ impl Protocol {
             sponsor: self
                 .sponsor_collaborators_module
                 .and_then(|s| s.lead_sponsor.map(|s| s.name)),
-            start: self.status_module.start_date_struct.map(RawDate::mapped),
-            primary_completion: self
-                .status_module
-                .primary_completion_date_struct
-                .map(RawDate::mapped),
-            completion: self
-                .status_module
-                .completion_date_struct
-                .map(RawDate::mapped),
-            updated: self.status_module.last_update_post_date_struct.mapped(),
+            start: problems.field("startDateStruct", self.status_module.start_date_struct).and_then(|d| d.mapped("startDateStruct", &mut problems)),
+            primary_completion: problems.field("primaryCompletionDateStruct", self.status_module.primary_completion_date_struct).and_then(|d| d.mapped("primaryCompletionDateStruct", &mut problems)),
+            completion: problems.field("completionDateStruct", self.status_module.completion_date_struct).and_then(|d| d.mapped("completionDateStruct", &mut problems)),
+            updated: problems.field("lastUpdatePostDateStruct", self.status_module.last_update_post_date_struct).and_then(|d| d.mapped("lastUpdatePostDateStruct", &mut problems)),
             brief_summary: self.description_module.and_then(|d| d.brief_summary),
         };
         let (arm_rows, interventions) =
-            arms.map_or_else(|| (Box::default(), Box::default()), Arms::rows);
+            arms.map_or_else(|| (Box::default(), Box::default()), |arms| arms.rows(&mut problems));
         Detail {
             references: self
                 .references_module
@@ -252,10 +248,11 @@ impl Protocol {
             eligibility: self.eligibility_module.map(|v| TrialEligibility {
                 minimum_age: age(v.minimum_age),
                 maximum_age: age(v.maximum_age),
-                sex: v.sex,
+                sex: problems.field("sex", v.sex),
                 healthy_volunteers: v.healthy_volunteers,
                 criteria: v.eligibility_criteria,
             }),
+            problems: problems.list,
             outcomes: self
                 .outcomes_module
                 .map_or_else(Box::default, Outcomes::rows),
@@ -297,7 +294,7 @@ fn age(value: Option<Box<str>>) -> TrialAgeBound {
 }
 
 impl Arms {
-    fn rows(self) -> (Box<[TrialArm]>, Box<[TrialIntervention]>) {
+    fn rows(self, problems: &mut Problems) -> (Box<[TrialArm]>, Box<[TrialIntervention]>) {
         (
             self.arm_groups
                 .unwrap_or_default()
@@ -305,7 +302,7 @@ impl Arms {
                 .into_iter()
                 .map(|v| TrialArm {
                     label: v.label,
-                    kind: v.kind,
+                    kind: problems.field("armGroups.type", v.kind),
                     description: v.description,
                     intervention_names: v.intervention_names.unwrap_or_default(),
                 })
@@ -316,7 +313,7 @@ impl Arms {
                 .into_iter()
                 .map(|v| TrialIntervention {
                     name: v.name,
-                    kind: v.kind,
+                    kind: problems.field("interventions.type", v.kind),
                     description: v.description,
                     arm_group_labels: v.arm_group_labels.unwrap_or_default(),
                     other_names: v.other_names.unwrap_or_default(),

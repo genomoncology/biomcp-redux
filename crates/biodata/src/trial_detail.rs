@@ -9,14 +9,14 @@ pub struct TrialCard {
     /// Exact registry identity.
     pub nct_id: NctId,
     /// Complete brief title.
-    pub title: Box<str>,
+    pub title: Option<Box<str>>,
     /// Source overall status.
-    pub status: TrialStatus,
+    pub status: Option<TrialStatus>,
     /// Source phases without inferred defaults.
     #[serde(default, skip_serializing_if = "<[_]>::is_empty")]
     pub phases: Box<[TrialPhase]>,
     /// Native study type.
-    pub study_type: StudyType,
+    pub study_type: Option<StudyType>,
     /// All registered condition names.
     #[serde(default, skip_serializing_if = "<[_]>::is_empty")]
     pub conditions: Box<[Box<str>]>,
@@ -32,7 +32,7 @@ pub struct TrialCard {
     /// Source completion date, when present.
     pub completion: Option<TrialDate>,
     /// Last posted registry update.
-    pub updated: TrialDate,
+    pub updated: Option<TrialDate>,
     /// Whole brief summary, preserving whitespace.
     pub brief_summary: Option<Markdown>,
     /// Canonical publisher record URL.

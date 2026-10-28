@@ -69,6 +69,8 @@ crate::wire_enum! {
         Available => "AVAILABLE",
         /// Registry NO_LONGER_AVAILABLE value.
         NoLongerAvailable => "NO_LONGER_AVAILABLE",
+        /// Registry TEMPORARILY_NOT_AVAILABLE value.
+        TemporarilyNotAvailable => "TEMPORARILY_NOT_AVAILABLE",
         /// Registry APPROVED_FOR_MARKETING value.
         ApprovedForMarketing => "APPROVED_FOR_MARKETING",
         /// Registry WITHHELD value.

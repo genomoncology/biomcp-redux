@@ -98,6 +98,8 @@ fn apply_page(
     outcome: &mut Outcome,
     mut page: ctgov::SearchPage,
 ) {
+    if !page.problems.is_empty() { outcome.status = Status::Partial; }
+    outcome.problems.append(&mut page.problems);
     let short = page.items.len() < query.limit() as usize
         && page
             .total

@@ -1,4 +1,6 @@
 //! Checked native registry replies and their small discovery projection.
+use crate::{mapped::{Mapped, Problems}, raw::Field};
+use biomcp_types::Source;
 use biodata::{NctId, PartialDate, Text, TrialPhase, TrialStatus};
 
 use biomcp_fetch::{BadReply, Reply};
@@ -71,82 +73,88 @@ pub(super) struct Study {
 #[serde(rename_all = "camelCase")]
 pub(super) struct Protocol {
     identification_module: Identification,
-    status_module: Status,
-    design_module: Design,
-    conditions_module: Option<Conditions>,
-    arms_interventions_module: Option<Interventions>,
+    status_module: Option<Field<Status>>,
+    design_module: Option<Field<Design>>,
+    conditions_module: Option<Field<Conditions>>,
+    arms_interventions_module: Option<Field<Interventions>>,
 }
 #[derive(Deserialize)]
 #[serde(rename_all = "camelCase")]
 struct Identification {
     nct_id: NctId,
-    brief_title: Text,
+    brief_title: Option<Field<Text>>,
 }
 #[derive(Deserialize)]
 #[serde(rename_all = "camelCase")]
 struct Status {
-    overall_status: TrialStatus,
-    last_update_post_date_struct: Updated,
+    overall_status: Option<Field<TrialStatus>>,
+    last_update_post_date_struct: Option<Field<Updated>>,
 }
 #[derive(Deserialize)]
 struct Updated {
-    date: PartialDate,
+    date: Option<Field<PartialDate>>,
 }
 #[derive(Deserialize)]
 #[serde(rename_all = "camelCase")]
 struct Design {
-    phases: Option<Box<[TrialPhase]>>,
+    phases: Option<Field<Vec<Field<TrialPhase>>>>,
 }
 #[derive(Deserialize)]
 struct Conditions {
-    conditions: Option<Box<[Text]>>,
+    conditions: Option<Field<Vec<Field<Text>>>>,
 }
 #[derive(Deserialize)]
 struct Interventions {
-    interventions: Option<Vec<Intervention>>,
+    interventions: Option<Field<Vec<Field<Intervention>>>>,
 }
 #[derive(Deserialize)]
 struct Intervention {
-    name: Text,
+    name: Option<Field<Text>>,
 }
 impl Protocol {
     pub(super) fn contains_condition_words(&self, condition: &str) -> bool {
         let requested = words(condition);
-        let present: Vec<String> = self
-            .conditions_module
-            .as_ref()
-            .and_then(|module| module.conditions.as_deref())
-            .unwrap_or_default()
-            .iter()
-            .flat_map(|value| words(value.as_str()))
-            .collect();
+        let present: Vec<String> = self.conditions_module.as_ref()
+            .and_then(|v| if let Field::Value(v) = v { Some(v) } else { None })
+            .and_then(|v| v.conditions.as_ref())
+            .and_then(|v| if let Field::Value(v) = v { Some(v) } else { None })
+            .into_iter().flatten()
+            .filter_map(|v| if let Field::Value(v) = v { Some(v) } else { None })
+            .flat_map(|value| words(value.as_str())).collect();
         requested.iter().all(|word| present.contains(word))
     }
 
-    pub(super) fn header(self) -> Result<TrialHeader, BadReply> {
-        Ok(TrialHeader {
+    pub(super) fn header(self) -> Result<Mapped<TrialHeader>, BadReply> {
+        let mut problems = Problems { source: Source::ClinicalTrialsGov, record: crate::mapped::record(self.identification_module.nct_id), list: Vec::new() };
+        let status = problems.field("statusModule", self.status_module);
+        let (status, updated) = if let Some(status) = status {
+            let overall = problems.field("overallStatus", status.overall_status);
+            let overall = problems.required("overallStatus", overall);
+            let updated = problems.field("lastUpdatePostDateStruct", status.last_update_post_date_struct)
+                .and_then(|d| problems.field("lastUpdatePostDateStruct.date", d.date));
+            let updated = problems.required("lastUpdatePostDateStruct.date", updated);
+            (overall, updated)
+        } else { (problems.required("overallStatus", None), problems.required("lastUpdatePostDateStruct.date", None)) };
+        let phases = problems.field("designModule", self.design_module)
+            .map_or_else(Box::default, |d| problems.fields("phases", d.phases));
+        let value = TrialHeader {
             nct_id: self.identification_module.nct_id,
             url: Text::new(&format!(
                 "https://clinicaltrials.gov/study/{}",
                 self.identification_module.nct_id
             ))
             .map_err(|_| BadReply)?,
-            title: self.identification_module.brief_title,
-            status: self.status_module.overall_status,
-            phases: self.design_module.phases.unwrap_or_default(),
-            conditions: names(
-                self.conditions_module
-                    .map_or_else(Vec::new, |v| v.conditions.unwrap_or_default().into_vec()),
-            ),
-            interventions: names(self.arms_interventions_module.map_or_else(Vec::new, |v| {
-                v.interventions
-                    .unwrap_or_default()
-                    .into_iter()
-                    .map(|i| i.name)
-                    .collect()
-            })),
-            updated: self.status_module.last_update_post_date_struct.date,
-        })
+            title: problems.field("briefTitle", self.identification_module.brief_title),
+            status,
+            phases,
+            conditions: names(problems.field("conditionsModule", self.conditions_module)
+                .map_or_else(Vec::new, |v| problems.fields("conditions", v.conditions).into_vec())),
+            interventions: names(problems.field("armsInterventionsModule", self.arms_interventions_module)
+                .map_or_else(Vec::new, |v| problems.fields("interventions", v.interventions).into_vec())
+                .into_iter().filter_map(|v| problems.field("interventions.name", v.name)).collect()),
+            updated,
+        };
+        Ok(Mapped { value, problems: problems.list })
     }
 }
 

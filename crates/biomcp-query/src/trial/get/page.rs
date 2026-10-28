@@ -63,6 +63,7 @@ pub(super) fn render(
             },
         ));
     }
+    out.problems.extend(snapshot.detail.problems.iter().cloned());
     Ok(TrialCardItem {
         input: id,
         status: if super::partial(&snapshot) {
