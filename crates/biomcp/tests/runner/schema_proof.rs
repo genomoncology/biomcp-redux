@@ -85,9 +85,10 @@ fn nulls() -> Result<(), String> {
         json!({"schema":association, "result/items/0/association/aggregator_knowledge_source":null}),
     ];
     for value in rows {
-        if !registry.validate(&value, &[], true).is_err_and(|error| {
-            error.starts_with("product reply contains null at ")
-        }) {
+        if !registry
+            .validate(&value, &[], true)
+            .is_err_and(|error| error.starts_with("product reply contains null at "))
+        {
             return Err("runner admitted null outside the explicit association value".into());
         }
     }
