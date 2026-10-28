@@ -8,7 +8,7 @@
       "nci_api_key": "synthetic-nci-replay"
     }
   },
-  "verified": "2026-10-28 bounded public-tier NCI capture. Unsized native totals and row counts preserved. Named personal contact fields omitted from replay when contact_name is not Site Public Contact; other published fields remain unchanged. Raw gzip bytes retained separately with SHA-256 proof.",
+  "verified": "2026-10-28 bounded public-tier NCI capture. Unsized native totals and row counts preserved. Named personal contact fields omitted from replay when contact_name is not Site Public Contact; other published fields remain unchanged. Raw gzip bytes retained separately with SHA-256 proof. Measured CLI output 2555 bytes; largest row 402 bytes. Ceilings add fifteen percent.",
   "steps": [
     {
       "run": [
@@ -38,9 +38,24 @@
         "/result/items/0/name": "Dana Farber Community Cancer Care-Quincy",
         "/result/items/0/count": 7,
         "/result/items/3/count": 3376,
-        "/result/items/3/name": "Dana-Farber Cancer Institute"
+        "/result/items/3/name": "Dana-Farber Cancer Institute",
+        "/result/items/0": {
+          "max_bytes": 463
+        },
+        "/result/items/1": {
+          "max_bytes": 463
+        },
+        "/result/items/2": {
+          "max_bytes": 463
+        },
+        "/result/items/3": {
+          "max_bytes": 463
+        },
+        "/result/items/4": {
+          "max_bytes": 463
+        }
       },
-      "max_bytes": 8000
+      "max_bytes": 2939
     }
   ]
 }

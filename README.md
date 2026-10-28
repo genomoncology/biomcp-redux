@@ -46,14 +46,6 @@ Which registered trials match melanoma?
 biomcp search trial --condition melanoma
 ```
 
-Which NCI organizations match Boston, MA?
-
-```sh
-biomcp search organization --source nci --city Boston --state MA --limit 5
-```
-
-NCI organization names are not unique. Their trial counts cover every status, including closed trials. Search rows include published address and public contact fields. Organization search requires your NCI key.
-
 These commands come from recorded cases. Live replies can change. Inspect source outcomes before interpreting a result. Follow returned next commands to page records, inspect source sections or resolve an ambiguous identity. A missing result does not establish absence.
 
 JSON is the default output. Use `--format md` for readable Markdown with tables and copyable next commands, or set `"format": "md"` in configuration. MCP always returns JSON. The [command reference](docs/reference/commands.md) lists every command, option and section. The [worked commands](docs/recipes.md) provide more examples. The [source and entity cautions](docs/cautions.md) explain interpretation limits.

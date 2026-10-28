@@ -8,7 +8,7 @@
       "nci_api_key": "synthetic-nci-replay"
     }
   },
-  "verified": "Synthetic field-name contract. The single row preserves the actual organization name and trial count from the bounded 2026-10-28 capture; total=1 is synthetic and does not claim this combined live query was made.",
+  "verified": "Synthetic field-name contract. The single row preserves the actual organization name and trial count from the bounded 2026-10-28 capture; total=1 is synthetic and does not claim this combined live query was made. Measured CLI output 1057 bytes; largest row 402 bytes. Ceilings add fifteen percent.",
   "steps": [
     {
       "run": [
@@ -62,9 +62,12 @@
       "expect": {
         "/page/total": 1,
         "/result/items/0/name": "Dana-Farber Cancer Institute",
-        "/result/items/0/count": 3376
+        "/result/items/0/count": 3376,
+        "/result/items/0": {
+          "max_bytes": 463
+        }
       },
-      "max_bytes": 5000
+      "max_bytes": 1216
     }
   ]
 }
