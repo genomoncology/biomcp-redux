@@ -403,8 +403,7 @@ fn shared_clinvar_and_clingen_fixture_rows_become_statements() -> Check {
     Ok(())
 }
 
-#[test]
-fn population_strata_enforce_counts_and_frequencies() -> Check {
+fn population_base() -> Result<PopulationFrequency, Box<dyn std::error::Error>> {
     let attribution = Attribution {
         source: Source::Gnomad.text(),
         record: None,
@@ -414,13 +413,18 @@ fn population_strata_enforce_counts_and_frequencies() -> Check {
         evaluated: None,
         url: None,
     };
-    let base = PopulationFrequency::new(
+    Ok(PopulationFrequency::new(
         VariantRef::allele("CA123643".parse()?),
         Build::GRCh38,
         Text::new("gnomad")?,
         Text::new("synthetic-release")?,
         attribution,
-    );
+    ))
+}
+
+#[test]
+fn population_strata_enforce_counts_and_frequencies() -> Check {
+    let base = population_base()?;
     let value = base
         .clone()
         .with_stratum(
@@ -453,43 +457,6 @@ fn population_strata_enforce_counts_and_frequencies() -> Check {
             "population.frequency.range"
         );
     }
-    let mut union = serialized.clone();
-    union
-        .as_object_mut()
-        .ok_or("population object required")?
-        .remove("ancestry_group");
-    for (field, source_value) in [
-        ("heterozygote_count", json!(2)),
-        ("grpmax_group", json!("synthetic-group")),
-        ("genotype_filter", json!("raw")),
-        ("homoplasmic_count", json!(1)),
-        ("heteroplasmic_count", json!(3)),
-        ("homoplasmic_frequency", json!(0.25)),
-        ("heteroplasmic_frequency", json!(0.75)),
-    ] {
-        union[field] = source_value;
-    }
-    assert_eq!(
-        serde_json::to_value(serde_json::from_value::<PopulationFrequency>(
-            union.clone()
-        )?)?,
-        union
-    );
-    for (field, bad) in [
-        ("genotype_filter", json!("unknown")),
-        ("ancestry_group", json!("synthetic")),
-        ("homoplasmic_frequency", json!(1.5)),
-        ("heteroplasmic_frequency", json!(-0.1)),
-    ] {
-        let mut invalid = union.clone();
-        invalid[field] = bad;
-        assert!(
-            serde_json::from_value::<PopulationFrequency>(invalid).is_err(),
-            "{field}"
-        );
-    }
-    union["subject"] = json!({"level":"allele", "hgvs":"NC_000007.14:g.1A>T"});
-    assert!(serde_json::from_value::<PopulationFrequency>(union).is_err());
     for (field, invalid) in [
         ("allele_count", json!(5)),
         ("allele_frequency", json!(-0.01)),
@@ -555,5 +522,45 @@ fn identifier_lists_qualify_each_namespace_and_roundtrip() -> Result<(), Box<dyn
     for invalid in ["clingen:rs123", "cosmic:CA123643", "rs:CA123643"] {
         assert!(serde_json::from_value::<Variant>(json!({"ids":[invalid]})).is_err());
     }
+    Ok(())
+}
+
+#[test]
+fn population_union_preserves_published_fields_and_refuses_misplacement() -> Check {
+    let mut union = serde_json::to_value(population_base()?)?;
+    for (field, source_value) in [
+        ("heterozygote_count", json!(2)),
+        ("grpmax_group", json!("synthetic-group")),
+        ("genotype_filter", json!("raw")),
+        ("homoplasmic_count", json!(1)),
+        ("heteroplasmic_count", json!(3)),
+        ("homoplasmic_frequency", json!(0.25)),
+        ("heteroplasmic_frequency", json!(0.75)),
+    ] {
+        union[field] = source_value;
+    }
+    assert_eq!(
+        serde_json::to_value(serde_json::from_value::<PopulationFrequency>(
+            union.clone()
+        )?)?,
+        union
+    );
+    for (field, bad) in [
+        ("genotype_filter", json!("unknown")),
+        ("ancestry_group", json!("synthetic")),
+        ("homoplasmic_frequency", json!(1.5)),
+        ("heteroplasmic_frequency", json!(-0.1)),
+    ] {
+        let mut invalid = union.clone();
+        invalid[field] = bad;
+        assert!(
+            serde_json::from_value::<PopulationFrequency>(invalid).is_err(),
+            "{field}"
+        );
+    }
+    union["subject"] = json!({"level":"allele", "hgvs":"NC_012920.1:m.1A>T"});
+    assert!(serde_json::from_value::<PopulationFrequency>(union.clone()).is_ok());
+    union["subject"] = json!({"level":"allele", "hgvs":"NC_000007.14:g.1A>T"});
+    assert!(serde_json::from_value::<PopulationFrequency>(union).is_err());
     Ok(())
 }
