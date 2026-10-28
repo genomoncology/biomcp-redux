@@ -1,11 +1,15 @@
 use super::raw::Wrapped;
-use crate::{Mapped, mapped::{Problems, record}, raw::Field};
-use biomcp_types::Source;
+use crate::{
+    Mapped,
+    mapped::{Problems, record},
+    raw::Field,
+};
 use biodata::{
     OrcidAssertionSource, OrcidClientId, OrcidExternalId, OrcidId, OrcidPublicVisibility,
     OrcidWorkAssertion, OrcidWorkGroup, PartialDate, Text,
 };
 use biomcp_fetch::{BadReply, Reply};
+use biomcp_types::Source;
 use serde::Deserialize;
 use std::num::NonZeroU64;
 #[derive(Deserialize)]
@@ -117,12 +121,30 @@ struct Origin {
 impl Origin {
     fn convert(self, problems: &mut Problems) -> OrcidAssertionSource {
         OrcidAssertionSource {
-            source_orcid: optional(problems, "source.source_orcid", self.source_orcid).map(|v| v.path),
-            source_client_id: optional(problems, "source.source_client_id", self.source_client_id).map(|v| v.path),
-            source_name: optional(problems, "source.source_name", self.source_name).map(|v| v.value),
-            assertion_origin_orcid: optional(problems, "source.assertion_origin_orcid", self.assertion_origin_orcid).map(|v| v.path),
-            assertion_origin_client_id: optional(problems, "source.assertion_origin_client_id", self.assertion_origin_client_id).map(|v| v.path),
-            assertion_origin_name: optional(problems, "source.assertion_origin_name", self.assertion_origin_name).map(|v| v.value),
+            source_orcid: optional(problems, "source.source_orcid", self.source_orcid)
+                .map(|v| v.path),
+            source_client_id: optional(problems, "source.source_client_id", self.source_client_id)
+                .map(|v| v.path),
+            source_name: optional(problems, "source.source_name", self.source_name)
+                .map(|v| v.value),
+            assertion_origin_orcid: optional(
+                problems,
+                "source.assertion_origin_orcid",
+                self.assertion_origin_orcid,
+            )
+            .map(|v| v.path),
+            assertion_origin_client_id: optional(
+                problems,
+                "source.assertion_origin_client_id",
+                self.assertion_origin_client_id,
+            )
+            .map(|v| v.path),
+            assertion_origin_name: optional(
+                problems,
+                "source.assertion_origin_name",
+                self.assertion_origin_name,
+            )
+            .map(|v| v.value),
         }
     }
 }
@@ -164,20 +186,46 @@ impl Works {
                 .all(|s| s.path == format!("/{id}/work/{}", s.put_code))
     }
     pub(super) fn groups(self) -> Mapped<Box<[OrcidWorkGroup]>> {
-        let mut problems = Problems { source: Source::Orcid, record: record(&self.path), list: Vec::new() };
-        let value = self.group.into_iter().filter_map(|g| {
-            problems.record = record(&self.path);
-            let external_ids = g.external_ids.convert(&mut problems);
-            let assertions: Box<[_]> = g.work_summary.into_iter()
-                .filter(|s| s.visibility.as_deref() == Some("public"))
-                .map(|s| { problems.record = record(&s.path); s.convert(&mut problems) }).collect();
-            if assertions.is_empty() { None } else { Some(OrcidWorkGroup { external_ids, assertions }) }
-        }).collect();
-        Mapped { value, problems: problems.list }
+        let mut problems = Problems {
+            source: Source::Orcid,
+            record: record(&self.path),
+            list: Vec::new(),
+        };
+        let value = self
+            .group
+            .into_iter()
+            .filter_map(|g| {
+                problems.record = record(&self.path);
+                let external_ids = g.external_ids.convert(&mut problems);
+                let assertions: Box<[_]> = g
+                    .work_summary
+                    .into_iter()
+                    .filter(|s| s.visibility.as_deref() == Some("public"))
+                    .map(|s| {
+                        problems.record = record(&s.path);
+                        s.convert(&mut problems)
+                    })
+                    .collect();
+                if assertions.is_empty() {
+                    None
+                } else {
+                    Some(OrcidWorkGroup {
+                        external_ids,
+                        assertions,
+                    })
+                }
+            })
+            .collect();
+        Mapped {
+            value,
+            problems: problems.list,
+        }
     }
 }
 impl Reply for Works {
-    fn check(&self) -> Result<(), BadReply> { Ok(()) }
+    fn check(&self) -> Result<(), BadReply> {
+        Ok(())
+    }
 }
 fn optional<T>(problems: &mut Problems, field: &str, value: Option<Field<T>>) -> Option<T> {
     problems.required(field, value?.value())

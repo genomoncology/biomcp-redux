@@ -55,7 +55,10 @@ pub fn get(cx: &Ctx<'_>, query: &ArticleGet) -> Outcome {
         }),
         sources: sources(query, source),
         page: None,
-        problems: records.iter().flat_map(|(record, _)| record.problems.iter().cloned()).collect(),
+        problems: records
+            .iter()
+            .flat_map(|(record, _)| record.problems.iter().cloned())
+            .collect(),
         next: Vec::new(),
         local,
     };

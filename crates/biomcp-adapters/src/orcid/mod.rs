@@ -49,7 +49,10 @@ pub fn card(leg: &Leg<'_>, id: &OrcidId) -> Result<Option<AuthorCard>, RequestEr
     record.card(id).map_err(|_| bad_reply())
 }
 /// Read one whole bounded works reply and preserve groups and assertion order.
-pub fn works(leg: &Leg<'_>, id: &OrcidId) -> Result<crate::Mapped<Box<[OrcidWorkGroup]>>, RequestError> {
+pub fn works(
+    leg: &Leg<'_>,
+    id: &OrcidId,
+) -> Result<crate::Mapped<Box<[OrcidWorkGroup]>>, RequestError> {
     let (record, _) =
         leg.json_received_checked::<works::Works>(&endpoint(id, "works")?, &[], |r| {
             if r.identity(id) {

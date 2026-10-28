@@ -1,6 +1,6 @@
 use super::raw::{Summary, SummaryRow, SummaryValue};
-use crate::mapped::{push_problem, Problems, field_text};
 use crate::mapped::record as record_text;
+use crate::mapped::{Problems, field_text, push_problem};
 use crate::{Mapped, raw::Field};
 use biodata::{PartialDate, Pmid, Text};
 
@@ -50,12 +50,25 @@ fn header(row: SummaryRow, key: &str, problems: &mut Vec<Problem>) -> Option<Art
         return None;
     }
     let title = Text::new(&row.title.and_then(Field::value)?).ok()?;
-    let journal = field_text(problems, Source::PubMed, record_text(key), "journal", row.fulljournalname);
-    let mut context = Problems { source: Source::PubMed, record: record_text(key), list: Vec::new() };
+    let journal = field_text(
+        problems,
+        Source::PubMed,
+        record_text(key),
+        "journal",
+        row.fulljournalname,
+    );
+    let mut context = Problems {
+        source: Source::PubMed,
+        record: record_text(key),
+        list: Vec::new(),
+    };
     let date = optional_date(row.pubdate, "date", &mut context);
     let electronic_date = optional_date(row.epubdate, "electronic_date", &mut context)
         .filter(|electronic| Some(*electronic) != date);
-    let authors = row.authors.and_then(|v| context.required("authors", v.value())).unwrap_or_default();
+    let authors = row
+        .authors
+        .and_then(|v| context.required("authors", v.value()))
+        .unwrap_or_default();
     let author_count = u32::try_from(authors.len()).ok()?;
     let first_author = authors
         .into_iter()
@@ -72,7 +85,11 @@ fn header(row: SummaryRow, key: &str, problems: &mut Vec<Problem>) -> Option<Art
         .collect();
     let mut doi = None;
     let mut pmcid = None;
-    for item in row.articleids.and_then(|v| context.required("articleids", v.value())).unwrap_or_default() {
+    for item in row
+        .articleids
+        .and_then(|v| context.required("articleids", v.value()))
+        .unwrap_or_default()
+    {
         let Some(item) = item.value() else {
             push_problem(problems, Source::PubMed, record_text(key), "articleids");
             continue;
@@ -146,6 +163,10 @@ pub(crate) fn publication_type(s: &str) -> Option<P> {
     })
 }
 
-fn optional_date(value: Option<Field<String>>, field: &str, problems: &mut Problems) -> Option<PartialDate> {
+fn optional_date(
+    value: Option<Field<String>>,
+    field: &str,
+    problems: &mut Problems,
+) -> Option<PartialDate> {
     problems.required(field, value?.value().and_then(|v| date(&v)))
 }

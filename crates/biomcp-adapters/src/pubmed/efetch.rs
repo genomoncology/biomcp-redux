@@ -1,8 +1,8 @@
 use super::{SPEC, map::publication_type};
-use crate::xml_element::Element;
 use crate::mapped::{Problems, record};
-use biomcp_types::{Problem, Source};
+use crate::xml_element::Element;
 use biodata::{PartialDate, Pmid, Text};
+use biomcp_types::{Problem, Source};
 
 use biomcp_fetch::{
     Arg, BadReply, Endpoint, Freshness, Leg, Reply, ReplyMetadata, RequestError, Secret,
@@ -131,7 +131,11 @@ fn article(root: Element<'_>) -> Result<FetchedArticle, BadReply> {
         .ok_or(BadReply)?
         .parse()
         .map_err(|_| BadReply)?;
-    let mut problems = Problems { source: Source::PubMed, record: record(pmid), list: Vec::new() };
+    let mut problems = Problems {
+        source: Source::PubMed,
+        record: record(pmid),
+        list: Vec::new(),
+    };
     let title = row
         .value(&["ArticleTitle"])?
         .map(|s| crate::mapped::text(&s))
@@ -204,7 +208,9 @@ fn authors(row: Element<'_>, problems: &mut Problems) -> Result<Vec<Text>, BadRe
                     .collect::<Vec<_>>()
                     .join(" ")
             };
-            if let Some(name) = problems.text("authors", Some(&name)) { out.push(name); }
+            if let Some(name) = problems.text("authors", Some(&name)) {
+                out.push(name);
+            }
         }
     }
     Ok(out)
@@ -224,7 +230,10 @@ fn abstracts(row: Element<'_>, problems: &mut Problems) -> Result<Vec<AbstractPa
     }
     Ok(out)
 }
-fn corrections(citation: Element<'_>, problems: &mut Problems) -> Result<Vec<Correction>, BadReply> {
+fn corrections(
+    citation: Element<'_>,
+    problems: &mut Problems,
+) -> Result<Vec<Correction>, BadReply> {
     let mut out = Vec::new();
     if let Some(list) = citation.child("CommentsCorrectionsList")? {
         for item in list.children("CommentsCorrections")? {
@@ -250,7 +259,10 @@ fn corrections(citation: Element<'_>, problems: &mut Problems) -> Result<Vec<Cor
             out.push(Correction {
                 kind,
                 relation,
-                pmid: problems.optional("corrections.pmid", item.value(&["PMID"])?.map(|s| s.parse())),
+                pmid: problems.optional(
+                    "corrections.pmid",
+                    item.value(&["PMID"])?.map(|s| s.parse()),
+                ),
             });
         }
     }

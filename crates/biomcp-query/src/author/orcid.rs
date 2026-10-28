@@ -81,9 +81,15 @@ fn execute(
             restart(q, out, false);
             return Ok(());
         };
-        let (groups, source, problems): (Box<[OrcidWorkGroup]>, SourceOutcome, Vec<biomcp_types::Problem>) =
-            serde_json::from_str(&payload).map_err(|_| CacheError::Database)?;
-        { out.problems.extend(problems); (groups, source, pool) }
+        let (groups, source, problems): (
+            Box<[OrcidWorkGroup]>,
+            SourceOutcome,
+            Vec<biomcp_types::Problem>,
+        ) = serde_json::from_str(&payload).map_err(|_| CacheError::Database)?;
+        {
+            out.problems.extend(problems);
+            (groups, source, pool)
+        }
     } else {
         if q.pool().is_some() {
             restart(q, out, mismatch);
@@ -100,8 +106,8 @@ fn execute(
         let mapped = reply?;
         let groups = mapped.value;
         out.problems.extend(mapped.problems);
-        let payload =
-            serde_json::to_string(&(&groups, &source, &out.problems)).map_err(|_| CacheError::Database)?;
+        let payload = serde_json::to_string(&(&groups, &source, &out.problems))
+            .map_err(|_| CacheError::Database)?;
         let size = u32::try_from(groups.len()).map_err(|_| CacheError::Database)?;
         let pool =
             store.publish_source_pool(&expected, &payload, size, std::slice::from_ref(&source))?;

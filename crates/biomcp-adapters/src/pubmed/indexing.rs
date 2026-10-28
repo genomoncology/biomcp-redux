@@ -1,28 +1,44 @@
-use crate::xml_element::Element;
 use crate::mapped::Problems;
+use crate::xml_element::Element;
 
 use biomcp_fetch::BadReply;
 use biomcp_types::Capped;
 use biomcp_types::{Indexing, MeshHeading, MeshQualifier};
-pub(super) fn parse(citation: Element<'_>, row: Element<'_>, problems: &mut Problems) -> Result<Indexing, BadReply> {
+pub(super) fn parse(
+    citation: Element<'_>,
+    row: Element<'_>,
+    problems: &mut Problems,
+) -> Result<Indexing, BadReply> {
     let mut mesh = Vec::new();
     if let Some(list) = citation.child("MeshHeadingList")? {
         for heading in list.children("MeshHeading")? {
             let descriptor = heading.child("DescriptorName")?.ok_or(BadReply)?;
-            let Some(name) = problems.text("mesh.descriptor", Some(&descriptor.text()?)) else { continue; };
+            let Some(name) = problems.text("mesh.descriptor", Some(&descriptor.text()?)) else {
+                continue;
+            };
             let mut qualifiers = Vec::new();
             for qualifier in heading.children("QualifierName")? {
-                if let Some(name) = problems.text("mesh.qualifiers.name", Some(&qualifier.text()?)) {
-                    qualifiers.push(MeshQualifier { name, major: major(qualifier)? });
+                if let Some(name) = problems.text("mesh.qualifiers.name", Some(&qualifier.text()?))
+                {
+                    qualifiers.push(MeshQualifier {
+                        name,
+                        major: major(qualifier)?,
+                    });
                 }
             }
-            mesh.push(MeshHeading { descriptor: name, major: major(descriptor)?, qualifiers: qualifiers.into() });
+            mesh.push(MeshHeading {
+                descriptor: name,
+                major: major(descriptor)?,
+                qualifiers: qualifiers.into(),
+            });
         }
     }
     let mut keywords = Vec::new();
     for list in citation.children("KeywordList")? {
         for keyword in list.children("Keyword")? {
-            if let Some(value) = problems.text("keywords", Some(&keyword.text()?)) { keywords.push(value); }
+            if let Some(value) = problems.text("keywords", Some(&keyword.text()?)) {
+                keywords.push(value);
+            }
         }
     }
     let mut affiliations = Vec::new();
@@ -31,12 +47,16 @@ pub(super) fn parse(citation: Element<'_>, row: Element<'_>, problems: &mut Prob
         for author in list.children("Author")? {
             for info in author.children("AffiliationInfo")? {
                 for affiliation in info.children("Affiliation")? {
-                    if let Some(value) = problems.text("affiliations", Some(&affiliation.text()?)) { affiliations.push(value); }
+                    if let Some(value) = problems.text("affiliations", Some(&affiliation.text()?)) {
+                        affiliations.push(value);
+                    }
                 }
             }
             for identifier in author.children("Identifier")? {
                 if identifier.attr("Source")?.as_deref() == Some("ORCID") {
-                    let Some(id) = problems.text("orcids", Some(&identifier.text()?)) else { continue; };
+                    let Some(id) = problems.text("orcids", Some(&identifier.text()?)) else {
+                        continue;
+                    };
                     if !orcids.contains(&id) {
                         orcids.push(id);
                     }
