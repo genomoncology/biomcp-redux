@@ -1687,16 +1687,37 @@
           "type": "array"
         },
         "status": {
-          "$ref": "#/$defs/TrialStatus",
-          "description": "Registry's overall status, independent of site status."
+          "anyOf": [
+            {
+              "$ref": "#/$defs/TrialStatus"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "description": "Registry overall status, absent when missing or rejected; independent of site status."
         },
         "title": {
-          "$ref": "#/$defs/Text",
-          "description": "Complete brief title."
+          "anyOf": [
+            {
+              "$ref": "#/$defs/Text"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "description": "Source brief title, absent when missing or rejected."
         },
         "updated": {
-          "$ref": "#/$defs/PartialDate",
-          "description": "Last posted registry update."
+          "anyOf": [
+            {
+              "$ref": "#/$defs/PartialDate"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "description": "Last posted registry update, absent when missing or rejected."
         },
         "url": {
           "$ref": "#/$defs/Text",
@@ -1706,11 +1727,8 @@
       },
       "required": [
         "nct_id",
-        "title",
-        "status",
         "conditions",
         "interventions",
-        "updated",
         "url"
       ],
       "type": "object"
@@ -1937,6 +1955,7 @@
         "WITHDRAWN",
         "AVAILABLE",
         "NO_LONGER_AVAILABLE",
+        "TEMPORARILY_NOT_AVAILABLE",
         "APPROVED_FOR_MARKETING",
         "WITHHELD",
         "UNKNOWN"
@@ -1959,7 +1978,7 @@
       "type": "string"
     }
   },
-  "$id": "biomcp.trial-page/7",
+  "$id": "biomcp.trial-page/8",
   "$schema": "https://json-schema.org/draft/2020-12/schema",
   "additionalProperties": false,
   "description": "One versioned command response; schema identity comes only from its body type.",
@@ -2016,7 +2035,7 @@
       "description": "Answer when available."
     },
     "schema": {
-      "const": "biomcp.trial-page/7",
+      "const": "biomcp.trial-page/8",
       "type": "string"
     },
     "sources": {

@@ -64,13 +64,24 @@ impl Problems {
     ) -> Option<T> {
         self.optional(field, value.map(|v| v.value().ok_or(())))
     }
-    pub(crate) fn required_field<T>(&mut self, field: &str, value: Option<crate::raw::Field<T>>) -> Option<T> {
+    pub(crate) fn required_field<T>(
+        &mut self,
+        field: &str,
+        value: Option<crate::raw::Field<T>>,
+    ) -> Option<T> {
         let value = self.field(field, value);
         self.required(field, value)
     }
-    pub(crate) fn fields<T>(&mut self, field: &str, value: Option<crate::raw::Field<Vec<crate::raw::Field<T>>>>) -> Box<[T]> {
-        self.field(field, value).unwrap_or_default().into_iter()
-            .filter_map(|v| self.field(field, Some(v))).collect()
+    pub(crate) fn fields<T>(
+        &mut self,
+        field: &str,
+        value: Option<crate::raw::Field<Vec<crate::raw::Field<T>>>>,
+    ) -> Box<[T]> {
+        self.field(field, value)
+            .unwrap_or_default()
+            .into_iter()
+            .filter_map(|v| self.field(field, Some(v)))
+            .collect()
     }
     pub(crate) fn text(&mut self, field: &str, value: Option<&str>) -> Option<biodata::Text> {
         self.optional(field, value.map(text))

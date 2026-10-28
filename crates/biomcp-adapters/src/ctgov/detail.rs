@@ -115,7 +115,10 @@ impl RawDate {
         let path = format!("{field}.date");
         let date = problems.field(&path, self.date);
         let kind = problems.field(&format!("{field}.type"), self.kind);
-        Some(TrialDate { date: problems.required(&path, date)?, kind })
+        Some(TrialDate {
+            date: problems.required(&path, date)?,
+            kind,
+        })
     }
 }
 #[derive(Default, Deserialize)]
@@ -221,14 +224,29 @@ impl Protocol {
                 self.identification_module.nct_id
             )
             .into(),
-            title: problems.required_field("briefTitle", self.identification_module.brief_title).map(|v| v.as_str().into()),
-            status: { let value = problems.field("overallStatus", status.overall_status); problems.required("overallStatus", value) },
+            title: problems
+                .required_field("briefTitle", self.identification_module.brief_title)
+                .map(|v| v.as_str().into()),
+            status: {
+                let value = problems.field("overallStatus", status.overall_status);
+                problems.required("overallStatus", value)
+            },
             phases: problems.fields("phases", design.phases),
             study_type: problems.required_field("studyType", design.study_type),
-            conditions: problems.field("conditionsModule", self.conditions_module)
-                .map_or_else(Box::default, |v| problems.fields("conditions", v.conditions)),
-            interventions: interventions.iter().filter_map(|v| v.name.clone()).collect(),
-            sponsor: problems.field("sponsorCollaboratorsModule", self.sponsor_collaborators_module)
+            conditions: problems
+                .field("conditionsModule", self.conditions_module)
+                .map_or_else(Box::default, |v| {
+                    problems.fields("conditions", v.conditions)
+                }),
+            interventions: interventions
+                .iter()
+                .filter_map(|v| v.name.clone())
+                .collect(),
+            sponsor: problems
+                .field(
+                    "sponsorCollaboratorsModule",
+                    self.sponsor_collaborators_module,
+                )
                 .and_then(|s| problems.field("leadSponsor", s.lead_sponsor))
                 .and_then(|s| problems.field("leadSponsor.name", s.name)),
             start: problems
@@ -299,11 +317,11 @@ impl Outcomes {
         .into_iter()
         .flat_map(|(kind, rows)| rows.into_vec().into_iter().map(move |v| (kind, v)))
         .map(|(kind, v)| TrialOutcome {
-                kind,
-                measure: problems.required_field("outcomes.measure", v.measure),
-                description: problems.field("outcomes.description", v.description),
-                time_frame: problems.field("outcomes.timeFrame", v.time_frame),
-            })
+            kind,
+            measure: problems.required_field("outcomes.measure", v.measure),
+            description: problems.field("outcomes.description", v.description),
+            time_frame: problems.field("outcomes.timeFrame", v.time_frame),
+        })
         .collect()
     }
 }

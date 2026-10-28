@@ -66,28 +66,92 @@ fn search() -> Check {
 fn detail() -> Check {
     for (path, invalid, field) in [
         ("identificationModule/briefTitle", json!(42), "briefTitle"),
-        ("statusModule/startDateStruct/type", json!("FUTURE"), "startDateStruct.type"),
-        ("eligibilityModule/healthyVolunteers", json!(42), "healthyVolunteers"),
-        ("eligibilityModule/eligibilityCriteria", json!(42), "eligibilityCriteria"),
-        ("conditionsModule/conditions", json!(["valid",42]), "conditions"),
-        ("armsInterventionsModule/interventions/0/type", json!("FUTURE"), "interventions.type"),
-        ("armsInterventionsModule/interventions/0/name", json!(42), "interventions.name"),
-        ("contactsLocationsModule/locations/0/status", json!("FUTURE"), "locations.status"),
-        ("contactsLocationsModule/locations/0/geoPoint", json!({"lat":999,"lon":3}), "geoPoint"),
-        ("referencesModule/references/0/pmid", json!("bad"), "references.pmid"),
-        ("documentSection/largeDocumentModule/largeDocs/0/date", json!("2026-99-99"), "largeDocs.date"),
-        ("documentSection/largeDocumentModule/largeDocs/0/size", json!("bad"), "largeDocs.size"),
-        ("documentSection/largeDocumentModule/largeDocs/0/filename", json!("../evil.pdf"), "largeDocs.filename"),
+        (
+            "statusModule/startDateStruct/type",
+            json!("FUTURE"),
+            "startDateStruct.type",
+        ),
+        (
+            "eligibilityModule/healthyVolunteers",
+            json!(42),
+            "healthyVolunteers",
+        ),
+        (
+            "eligibilityModule/eligibilityCriteria",
+            json!(42),
+            "eligibilityCriteria",
+        ),
+        (
+            "conditionsModule/conditions",
+            json!(["valid", 42]),
+            "conditions",
+        ),
+        (
+            "armsInterventionsModule/interventions/0/type",
+            json!("FUTURE"),
+            "interventions.type",
+        ),
+        (
+            "armsInterventionsModule/interventions/0/name",
+            json!(42),
+            "interventions.name",
+        ),
+        (
+            "contactsLocationsModule/locations/0/status",
+            json!("FUTURE"),
+            "locations.status",
+        ),
+        (
+            "contactsLocationsModule/locations/0/geoPoint",
+            json!({"lat":999,"lon":3}),
+            "geoPoint",
+        ),
+        (
+            "referencesModule/references/0/pmid",
+            json!("bad"),
+            "references.pmid",
+        ),
+        (
+            "documentSection/largeDocumentModule/largeDocs/0/date",
+            json!("2026-99-99"),
+            "largeDocs.date",
+        ),
+        (
+            "documentSection/largeDocumentModule/largeDocs/0/size",
+            json!("bad"),
+            "largeDocs.size",
+        ),
+        (
+            "documentSection/largeDocumentModule/largeDocs/0/filename",
+            json!("../evil.pdf"),
+            "largeDocs.filename",
+        ),
         ("statusModule", json!(42), "statusModule"),
         ("designModule", json!(42), "designModule"),
     ] {
-        let output = checked_steps("trial/get/NCT03511664", |_, record| {
-            let prefix = if path.starts_with("documentSection/") { "" } else { "protocolSection/" };
-            replace(record, &format!("/exchanges/0/body/value/{prefix}{path}"), &invalid);
-        }, json!([{"run":["get","trial","NCT03511664"],"expect":{
-            "/status":"partial","/result/items/0/card/nct_id":"NCT03511664"}}]))?;
+        let output = checked_steps(
+            "trial/get/NCT03511664",
+            |_, record| {
+                let prefix = if path.starts_with("documentSection/") {
+                    ""
+                } else {
+                    "protocolSection/"
+                };
+                replace(
+                    record,
+                    &format!("/exchanges/0/body/value/{prefix}{path}"),
+                    &invalid,
+                );
+            },
+            json!([{"run":["get","trial","NCT03511664"],"expect":{
+            "/status":"partial","/result/items/0/card/nct_id":"NCT03511664"}}]),
+        )?;
         problem(&output, field)?;
-        if !output.pointer("/result/items/0/card/brief_summary").and_then(Value::as_str).is_some_and(|text| text.contains("PSMA")) {
+        if !output
+            .pointer("/result/items/0/card/brief_summary")
+            .and_then(Value::as_str)
+            .is_some_and(|text| text.contains("PSMA"))
+        {
             return Err("rejected metadata lost the independent source summary".into());
         }
     }

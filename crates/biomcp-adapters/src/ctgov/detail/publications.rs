@@ -70,7 +70,14 @@ impl Documents {
 impl Document {
     fn mapped(self, id: NctId, problems: &mut Problems) -> Option<TrialDocument> {
         let name = problems.required_field("largeDocs.filename", self.filename)?;
-        let name = problems.optional("largeDocs.filename", Some(if filename(&name) { Text::new(&name).map_err(|_| ()) } else { Err(()) }))?;
+        let name = problems.optional(
+            "largeDocs.filename",
+            Some(if filename(&name) {
+                Text::new(&name).map_err(|_| ())
+            } else {
+                Err(())
+            }),
+        )?;
         // Only the validated source manifest supplies the filename.
         let id = id.to_string();
         let suffix = id.get(9..).unwrap_or_default();
