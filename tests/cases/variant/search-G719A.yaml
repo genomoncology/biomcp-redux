@@ -48,7 +48,7 @@
               {
                 "identity": {
                   "ids": [
-                    "rs:121913428",
+                    "rs121913428",
                     "clinvar:45225"
                   ],
                   "representations": [
@@ -115,7 +115,7 @@
               {
                 "identity": {
                   "ids": [
-                    "rs:121913428",
+                    "rs121913428",
                     "clinvar:45225"
                   ],
                   "representations": [

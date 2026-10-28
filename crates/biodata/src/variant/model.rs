@@ -23,14 +23,6 @@ pub struct Representation {
 pub struct Variant {
     /// All source identifiers, without inferred aliases.
     #[serde(default, skip_serializing_if = "<[ _ ]>::is_empty")]
-    #[serde(
-        serialize_with = "super::output_ids::serialize",
-        deserialize_with = "super::output_ids::deserialize"
-    )]
-    #[cfg_attr(
-        feature = "schema",
-        schemars(with = "Box<[super::output_ids::Qualified]>")
-    )]
     pub ids: Box<[VariantId]>,
     /// Every source-qualified representation.
     #[serde(default, skip_serializing_if = "<[ _ ]>::is_empty")]

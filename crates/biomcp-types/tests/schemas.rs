@@ -56,7 +56,7 @@ fn common_registry() -> Vec<Contract> {
         ExpressionSyntax => ("expression-syntax", "biodata.expression-syntax/1"),
         Representation => ("representation", "biodata.representation/3"),
         VariantId => ("variant-id", "biodata.variant-id/2"),
-        Variant => ("variant", "biodata.variant/4"),
+        Variant => ("variant", "biodata.variant/5"),
         RsId => ("rs-id", "biodata.rs-id/1"),
         CaId => ("ca-id", "biodata.ca-id/1"),
         PaId => ("pa-id", "biodata.pa-id/1"),

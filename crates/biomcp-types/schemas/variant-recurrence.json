@@ -299,10 +299,6 @@
         " A source repeats one exact identity with incompatible records."
       ]
     },
-    "QualifiedVariantId": {
-      "pattern": "^(rs:[1-9][0-9]*|clingen:(CA[0-9]{6,}|PA[1-9][0-9]*)|clinvar:(VCV[0-9]{9}(\\.[1-9][0-9]*)?|[1-9][0-9]*)|cosmic:COS[VMN][1-9][0-9]*|ga4gh:VA\\.[A-Za-z0-9_-]{32})$",
-      "type": "string"
-    },
     "Reason": {
       "description": "Why a source could not supply data.",
       "enum": [
@@ -987,7 +983,7 @@
         "ids": {
           "description": "All source identifiers, without inferred aliases.",
           "items": {
-            "$ref": "#/$defs/QualifiedVariantId"
+            "$ref": "#/$defs/VariantId"
           },
           "type": "array"
         },
@@ -1000,6 +996,11 @@
         }
       },
       "type": "object"
+    },
+    "VariantId": {
+      "description": "Published variant-level identifiers, with each identifier's level retained.",
+      "pattern": "^(rs[1-9][0-9]*|CA[0-9]{6,}|PA[1-9][0-9]*|VCV[0-9]{9}(\\.[1-9][0-9]*)?|clinvar:[1-9][0-9]*|COS[VMN][1-9][0-9]*|ga4gh:VA\\.[A-Za-z0-9_-]{32})$",
+      "type": "string"
     },
     "VariantInput": {
       "description": "A validated canonical VariantInput string.",

@@ -4,6 +4,7 @@ use libtest_mimic::Trial;
 use serde_json::{Value, json};
 use std::fs;
 mod components;
+mod identifiers;
 mod labels;
 mod roundtrip;
 pub(super) fn trials() -> Vec<Trial> {
@@ -49,6 +50,7 @@ pub(super) fn trials() -> Vec<Trial> {
         }),
     ];
     trials.extend(roundtrip::trials());
+    trials.extend(identifiers::trials());
     trials.extend(super::variant_assertion_wire::trials());
     trials.extend(super::variant_assertions::trials());
     trials.extend(super::variant_discovery::trials());
@@ -92,7 +94,7 @@ fn car() -> Result<(), String> {
     ) {
         return Err(format!("CAR projection must preserve literal plus modifiers: {request}"));
     }
-    if output.pointer("/result/candidates/0/identity/ids/0") != Some(&json!("clingen:CA123643")) {
+    if output.pointer("/result/candidates/0/identity/ids/0") != Some(&json!("CA123643")) {
         return Err(format!("source identity lost: {output}"));
     }
     Ok(())
