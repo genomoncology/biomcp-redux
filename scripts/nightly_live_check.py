@@ -98,7 +98,7 @@ def discovery_changes(before, after):
     return changes
 
 
-def dependent_change(removed, added, discoveries):
+def dependent_change(removed, added, discoveries, before, after):
     groups = {}
     for side, requests in enumerate((removed, added)):
         for request in requests:
@@ -110,6 +110,21 @@ def dependent_change(removed, added, discoveries):
                 return 'uncertain'
             group = (request['source'], request['role'], inputs['namespace'], context)
             groups.setdefault(group, [[], []])[side].append(inputs['ids'])
+    # At a batch boundary only one side has a changed request. Include its
+    # unchanged peers so the existing context and the entire selection prove
+    # that the added/removed batch follows discovery rather than new parameters.
+    for group, rows in groups.items():
+        if all(rows):
+            continue
+        rows[:] = [[], []]
+        for side, requests in enumerate((before.values(), after.values())):
+            for request in requests:
+                provenance = request.get('provenance') or {}
+                inputs = provenance.get('inputs') or {}
+                key = (request['source'], request['role'], inputs.get('namespace'),
+                       provenance.get('input_context'))
+                if key == group:
+                    rows[side].append(inputs['ids'])
     for (_, _, namespace, _), (old_rows, new_rows) in groups.items():
         old = {value for row in old_rows for value in row}
         new = {value for row in new_rows for value in row}
@@ -126,8 +141,18 @@ def dependent_change(removed, added, discoveries):
 
 
 def same_window(old, new, left, right):
-    if not old or not new or len(old) != len(new):
+    if not old or not new:
         return False
+    if len(old) != len(new):
+        # A source insertion/removal can rebatch the remaining discovery tail.
+        # Require the entire tail on both sides and an unchanged prefix; an
+        # arbitrary missing request must not become evidence of source churn.
+        if not (set(left) < set(right) or set(right) < set(left)):
+            return False
+        start = len(left) - len(old)
+        return (start >= 0 and len(right) - len(new) == start
+                and left[:start] == right[:start]
+                and set(left[start:]) == old and set(right[start:]) == new)
     for start in range(len(left) - len(old) + 1):
         stop = start + len(old)
         if set(left[start:stop]) == old and set(right[start:stop]) == new:
@@ -145,7 +170,7 @@ def command_classification(capture, discoveries):
     removed = [before[key] for key in before.keys() - after.keys()]
     added = [after[key] for key in after.keys() - before.keys()]
     # Proven 429-only outcomes are nonfatal; unrelated plan changes still need proof.
-    plan = dependent_change(removed, added, discoveries) if removed or added else 'healthy'
+    plan = dependent_change(removed, added, discoveries, before, after) if removed or added else 'healthy'
     if plan in ('failure', 'uncertain'):
         return plan
     return 'throttled' if 429 in statuses else plan
