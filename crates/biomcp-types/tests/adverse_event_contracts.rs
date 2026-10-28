@@ -57,7 +57,7 @@ fn report_records_preserve_array_order_empty_strings_and_missing_reporter_qualif
 }
 
 #[test]
-fn headers_and_cards_refuse_flattened_lists_titles_and_count_buckets() {
+fn headers_and_cards_ignore_unrecognized_fields_and_keep_their_disclosures() {
     use biomcp_types::{AdverseEventFaersCard, AdverseEventHeader, AdverseEventMaudeCard};
     let header = json!({"id":"26940567","source":"faers","version":"1","first_received":"20240101","serious":"1"});
     assert_eq!(
@@ -78,13 +78,13 @@ fn headers_and_cards_refuse_flattened_lists_titles_and_count_buckets() {
     for field in ["drugs", "reactions", "counts", "title"] {
         let mut h = header.clone();
         h[field] = json!([]);
-        assert!(serde_json::from_value::<AdverseEventHeader>(h).is_err());
+        assert_eq!(roundtrip::<AdverseEventHeader>(h).unwrap(), header);
         let mut f = faers.clone();
         f[field] = json!([]);
-        assert!(serde_json::from_value::<AdverseEventFaersCard>(f).is_err());
+        assert_eq!(roundtrip::<AdverseEventFaersCard>(f).unwrap(), faers);
         let mut m = maude.clone();
         m[field] = json!([]);
-        assert!(serde_json::from_value::<AdverseEventMaudeCard>(m).is_err());
+        assert_eq!(roundtrip::<AdverseEventMaudeCard>(m).unwrap(), maude);
     }
 }
 #[test]

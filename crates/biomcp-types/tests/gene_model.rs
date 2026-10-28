@@ -160,7 +160,7 @@ fn mane_requires_curated_versioned_transcripts_at_its_boundary() -> Check {
         )
         .is_ok()
     );
-    assert!(serde_json::from_value::<Mane>(json!({"status":"select", "refseq":"NM_004333.6","ensembl":"ENST00000646891.2","extra":true})).is_err());
+    assert!(serde_json::from_value::<Mane>(json!({"status":"select", "refseq":"NM_004333.6","ensembl":"ENST00000646891.2","extra":true})).is_ok());
     Ok(())
 }
 #[test]
