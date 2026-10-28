@@ -178,7 +178,7 @@ fn validation() -> Check {
     if reply(&replies, &json!("invalid-method"))?.pointer("/error/code") != Some(&json!(-32600)) {
         return Err("invalid request must preserve its valid correlation ID".into());
     }
-    let versions = json!(["2026-07-28", "2025-11-25"]);
+    let versions = json!(["2026-07-28", "2025-11-25", "2025-06-18", "2025-03-26"]);
     if reply(&replies, &json!(1))?.pointer("/result/supportedVersions") != Some(&versions)
         || reply(&replies, &json!(2))?.pointer("/error/data/supported") != Some(&versions)
     {

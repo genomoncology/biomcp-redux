@@ -10,6 +10,7 @@
       "type": "string"
     },
     "GeneInput": {
+      "description": "An input classified before source resolution; aliases remain free text.",
       "pattern": "\\S",
       "type": "string"
     },
@@ -393,6 +394,7 @@
       ]
     },
     "ReactomeId": {
+      "description": "A checked human Reactome stable pathway identifier.",
       "pattern": "^R-HSA-[1-9][0-9]*$",
       "type": "string"
     },
@@ -764,6 +766,7 @@
         },
         "terms_url": {
           "description": "Publisher page documenting the terms.",
+          "format": "uri",
           "type": "string"
         },
         "use": {
@@ -855,6 +858,7 @@
       "type": "string"
     },
     "WikiPathwaysId": {
+      "description": "A checked WikiPathways identity without its revision.",
       "pattern": "^WP[1-9][0-9]*$",
       "type": "string"
     }

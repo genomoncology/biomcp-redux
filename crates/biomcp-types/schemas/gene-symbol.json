@@ -1,6 +1,7 @@
 {
   "$id": "biodata.gene-symbol/2",
   "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "description": "Source spelling of a gene symbol, with ASCII case-insensitive identity.",
   "pattern": "^[A-Za-z][A-Za-z0-9._/@-]{0,254}$",
   "title": "GeneSymbol",
   "type": "string"

@@ -18,8 +18,7 @@
         "/sources/0/source": "uniprot",
         "/sources/0/state": "skipped"
       },
-      "max_bytes": 340,
-      "max_tokens": 85
+      "max_bytes": 340
     }
   ]
 }

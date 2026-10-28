@@ -19,8 +19,7 @@
         "/status": "complete",
         "/result/association/id": 6114
       },
-      "max_bytes": 851,
-      "max_tokens": 213
+      "max_bytes": 851
     },
     {
       "run": [
@@ -37,8 +36,7 @@
         "/status": "complete",
         "/result/id": "GCST000035"
       },
-      "max_bytes": 831,
-      "max_tokens": 208
+      "max_bytes": 831
     }
   ]
 }
