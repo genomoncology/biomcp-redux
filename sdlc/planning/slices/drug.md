@@ -361,6 +361,22 @@ The default-page proof is retained on Yellow in `0135-default-budget-proof/j1257
 
 The actual default ChEMBL request is retained separately in `0135-default-budget-proof/chembl-default/chembl-default-j12580.tar.gz` (SHA-256 `0b03c9d911ce041cbc0a84311ca5c4eebae14699c078eb19533f7ea9881f02d6`, 61 verified files). The one approved keyless GET returned HTTP 200 on 2026-10-25 at 05:26:25.228963 UTC. Its 2,018-byte native body has SHA-256 `bfcaee4523956f0c9778eea3c07eb7e43a6c98203519259c552d1d73dabe2221`. The retained `2292-chembl-default-proof/recording` directory supplies the optional replay case above; its source date and native limit ten remain unchanged. Actual raw CLI/MCP output, protocol, recording, recipe and caps survive. Earlier setup faults made no provider calls and supply no positive measurement. No historical clinical parity follows from these defaults.
 
+### EMA field rejection classifications
+
+The EMA adapter keeps bundle integrity checks separate from item mapping. The raw item map retains invalid field shapes through the shared `Field<String>` decoder. The mapper passes rejected values through `mapped::Problems` and preserves the exact product identifier.
+
+| Site | Classification | Contract |
+| --- | --- | --- |
+| `ema/raw.rs`: `ema_product_number` parse and neutral record construction | Identity refusal | Missing, malformed or invalid identifiers refuse the item. Bundle synchronization remains atomic. |
+| `ema/raw.rs`: `_bundle_meta.timestamp`, `_bundle_meta.total_records`, `check_bundle` | Source integrity refusal | Invalid bundle metadata and inconsistent totals refuse the whole bundle and preserve the prior complete bundle. |
+| `ema/map.rs`: `name_of_medicine`, `category`, `medicine_status` | Migrated | Missing or invalid required non-identity fields are omitted with one named problem per record. |
+| `ema/map.rs`: `medicine_url`, `revision_number`, `opinion_status`, `therapeutic_indication`, `marketing_authorisation_developer_applicant_holder` | Migrated | Present invalid values and shapes are omitted with a named problem. Missing optional values remain absent. |
+| `ema/map.rs`: `last_updated_date` and native `*_date` values | Migrated | Invalid nonempty dates and invalid shapes are omitted with a named problem. |
+| `ema/map.rs`: empty date strings and absent optional fields | Legitimate absence | The feed uses an empty date for no stated date. It produces no problem. |
+| `ema/map.rs`: date-role text conversion | Legitimate absence | The role comes from a field key ending in `_date`, which guarantees nonempty text. No source value is discarded at this conversion. |
+| `ema/raw.rs`: source constant and indexed name extraction | Legitimate absence | The source constant is valid by construction. An invalid or missing name has no search words, while exact identifier reads disclose its mapping problem. |
+| `ema/mod.rs`: empty lookup, `matched_name`, unsupported card fields and section metadata | Legitimate absence | No row means no exact match. Unpublished values remain absent. Bundle version comes from validated bundle metadata. |
+
 ### Ian's questions
 
 None. The PM settled candidate-only names, explicit source selection with one default source, source-scoped regulator/interaction records, named full label text, the interactions spelling, published identifiers, shared bundle sync, and the PharmacoDB/CVX retirements. These bundles fall within the approved bundle decision. This revision adds no cost or commitment requiring Ian, no public service, and no downstream tickets.

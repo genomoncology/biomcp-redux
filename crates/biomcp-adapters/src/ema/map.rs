@@ -6,15 +6,18 @@ pub(super) fn header(row: &raw::Medicine, problems: &mut crate::mapped::Problems
         matched_name: None,
         id: row.id.clone(),
         source: DrugSource::Ema,
-        name: Some(row.name.clone()),
+        name: {
+            let name = item(row, problems, "name_of_medicine");
+            problems.required("name_of_medicine", name)
+        },
         version: None,
         // The feed's category describes Human/Veterinary, not identity granularity.
         identity_level: DrugIdentityLevel::Unknown,
-        r#type: problems.text("category", row.fields.get("category").map(String::as_str)),
-        url: problems.text(
-            "medicine_url",
-            row.fields.get("medicine_url").map(String::as_str),
-        ),
+        r#type: {
+            let category = item(row, problems, "category");
+            problems.required("category", category)
+        },
+        url: item(row, problems, "medicine_url"),
     }
 }
 pub(super) fn card(row: &raw::Medicine, problems: &mut crate::mapped::Problems) -> DrugCard {
@@ -25,16 +28,12 @@ pub(super) fn card(row: &raw::Medicine, problems: &mut crate::mapped::Problems) 
         parents: Box::default(),
         products: Box::default(),
         formulations: Box::default(),
-        version: problems.text(
-            "revision_number",
-            row.fields.get("revision_number").map(String::as_str),
-        ),
+        version: item(row, problems, "revision_number"),
         updated: problems.optional(
             "last_updated_date",
-            row.fields
-                .get("last_updated_date")
-                .filter(|v| !v.is_empty())
-                .map(|s| raw::date(s)),
+            row.field("last_updated_date")
+                .filter(|value| !matches!(value, Ok("")))
+                .map(|value| value.and_then(raw::date)),
         ),
         retrieved: None,
         available_sections: vec![DrugSection::Regulatory].into(),
@@ -49,10 +48,15 @@ pub(super) fn event(
         .fields
         .iter()
         .filter(|(key, _)| key.ends_with("_date"))
-        .filter_map(|(key, value)| {
+        .filter_map(|(key, _)| {
             Some(AuthorizationDate {
                 role: Text::new(key).ok()?,
-                date: problems.optional(key, (!value.is_empty()).then(|| raw::date(value)))?,
+                date: problems.optional(
+                    key,
+                    row.field(key)
+                        .filter(|value| !matches!(value, Ok("")))
+                        .map(|value| value.and_then(raw::date)),
+                )?,
             })
         })
         .collect();
@@ -60,38 +64,33 @@ pub(super) fn event(
         record: row.id.clone(),
         product_number: None,
         jurisdiction: None,
-        status: problems.text(
-            "medicine_status",
-            row.fields.get("medicine_status").map(String::as_str),
-        ),
-        kind: problems.text(
-            "opinion_status",
-            row.fields.get("opinion_status").map(String::as_str),
-        ),
+        status: {
+            let status = item(row, problems, "medicine_status");
+            problems.required("medicine_status", status)
+        },
+        kind: item(row, problems, "opinion_status"),
         dates,
-        indication: problems.text(
-            "therapeutic_indication",
-            row.fields.get("therapeutic_indication").map(String::as_str),
-        ),
+        indication: item(row, problems, "therapeutic_indication"),
         attribution: Attribution {
             source: row.source.clone(),
             record: Some(row.record.clone()),
-            version: problems.text(
-                "revision_number",
-                row.fields.get("revision_number").map(String::as_str),
-            ),
+            version: item(row, problems, "revision_number"),
             release: Some(row.meta.timestamp.clone()),
-            submitter: problems.text(
+            submitter: item(
+                row,
+                problems,
                 "marketing_authorisation_developer_applicant_holder",
-                row.fields
-                    .get("marketing_authorisation_developer_applicant_holder")
-                    .map(String::as_str),
             ),
             evaluated: None,
-            url: problems.text(
-                "medicine_url",
-                row.fields.get("medicine_url").map(String::as_str),
-            ),
+            url: item(row, problems, "medicine_url"),
         },
     }
+}
+
+fn item(row: &raw::Medicine, problems: &mut crate::mapped::Problems, field: &str) -> Option<Text> {
+    problems.optional(
+        field,
+        row.field(field)
+            .map(|value| value.and_then(crate::mapped::text)),
+    )
 }
