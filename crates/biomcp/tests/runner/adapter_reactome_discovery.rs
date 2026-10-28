@@ -58,19 +58,9 @@ fn pathway_mapping() -> Result<(), Box<dyn std::error::Error>> {
                 if source != "reactome" {
                     return;
                 }
-                let Some(body) = capture.pointer_mut("/exchanges/0/body/value") else {
-                    return;
-                };
-                let Some(text) = body.as_str() else {
-                    return;
-                };
-                let Ok(mut rows) = serde_json::from_str::<Value>(text) else {
-                    return;
-                };
-                if let Some(row) = rows.pointer_mut("/0/displayName") {
-                    *row = invalid.clone();
+                if let Some(name) = capture.pointer_mut("/exchanges/0/body/value/0/displayName") {
+                    *name = invalid.clone();
                 }
-                *body = json!(rows.to_string());
             },
             json!([{"run":["get", "gene", "BRAF", "pathways"], "exit":0}]),
         )?;
