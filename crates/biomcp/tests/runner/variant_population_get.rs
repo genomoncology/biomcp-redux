@@ -42,17 +42,33 @@ fn sourced(hgvs: bool) -> Result<(), String> {
 }
 
 fn ambiguous() -> Result<(), String> {
-    let stub = Stub::for_source("myvariant.info", "application/json", ids::candidates)?;
+    let stub = Stub::for_source("myvariant.info", "application/json", |_| {
+        // Synthetic multiallelic GRCh38 records can each join, but the shared rsID cannot.
+        let mut body: Value = serde_json::from_str(&ids::candidates("")?).map_err(|e| e.to_string())?;
+        for row in body["hits"].as_array_mut().ok_or("missing hits")? {
+            let row = row.as_object_mut().ok_or("missing candidate")?;
+            let coordinates = row.remove("hg19").ok_or("missing source coordinates")?;
+            row.insert("hg38".into(), coordinates);
+            row.insert("clingen".into(), json!({"caid":"CA123643"}));
+        }
+        Ok(body.to_string())
+    })?;
     let env = environment(&stub)?;
-    // Paging to one displayed row must not turn a multiallelic ID into one allele.
-    let output = execute(&env, &["get", "variant", "rs7903146", "population", "--limit", "1"])?;
-    if output.pointer("/result/resolution") != Some(&json!("candidates"))
-        || output.pointer("/page/total") != Some(&json!(2))
-        || output.pointer("/result/candidates/0/sections/population/data").is_some()
-        || output.get("next").and_then(Value::as_array).is_none_or(|steps| steps.len() < 2)
-        || stub.finish()?.len() != 1
-    {
-        return Err(format!("ordinary get selected an ambiguous source allele: {output}"));
+    for limit in ["10", "1"] {
+        // Paging to one displayed row must not turn a multiallelic ID into one allele.
+        let output = execute(&env, &["get", "variant", "rs7903146", "population", "--limit", limit])?;
+        let rows = output.pointer("/result/candidates").and_then(Value::as_array).ok_or("missing candidates")?;
+        if output.pointer("/result/resolution") != Some(&json!("candidates"))
+            || output.pointer("/page/total") != Some(&json!(2))
+            || rows.len() != if limit == "1" { 1 } else { 2 }
+            || rows.iter().any(|row| row.pointer("/sections/population/data").is_some())
+            || output.get("next").and_then(Value::as_array).is_none_or(|steps| steps.len() < 2)
+        {
+            return Err(format!("ordinary get selected an ambiguous source allele: {output}"));
+        }
+    }
+    if stub.finish()?.len() != 1 {
+        return Err("ambiguous source identity triggered a downstream request".into());
     }
     Ok(())
 }

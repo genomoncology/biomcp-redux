@@ -35,36 +35,33 @@ pub fn get(cx: &Ctx<'_>, query: &VariantGet) -> Outcome {
         return out;
     }
     let spec = source(query);
-    let leg = cx.fetch.leg(spec, deadline).fresh(cx.fresh);
-    let mut problems = Vec::new();
-    let started = leg.remaining();
-    let result = resolve(query, &leg, &mut problems);
-    deadline = deadline.after_stage(started.saturating_sub(leg.remaining()));
-    let error = result.as_ref().err().copied();
-    let mut main_source = status::source(spec.source, leg.finish(), error);
-    let mut candidates = Vec::new();
-    let mut rejection = None;
-    let mut resolution = VariantResolution::Unavailable;
-    if let Ok((rows, rejected)) = result {
-        candidates = rows;
-        rejection = rejected;
-        resolution = if rejection.is_some() {
-            VariantResolution::Rejected
-        } else if candidates.is_empty() && !problems.is_empty() {
-            VariantResolution::Unavailable
-        } else {
-            classify(candidates.len())
-        };
-    }
-    if matches!(error, Some(RequestError::Source(e)) if e.reason == Reason::NotFound) {
+    let population = query.sections().iter().any(|section| matches!(section, biomcp_types::VariantSection::Population | biomcp_types::VariantSection::All)) && !cx.fetch.disabled(Source::Gnomad);
+    let found = population_identity::read(cx, query, deadline, population);
+    deadline = deadline.after_stage(found.elapsed);
+    let mut problems = found.problems;
+    let mut candidates = found.rows;
+    let rejection = found.rejection;
+    let mut resolution = if found.error.is_some() {
+        VariantResolution::Unavailable
+    } else if rejection.is_some() {
+        VariantResolution::Rejected
+    } else if candidates.is_empty() && !problems.is_empty() {
+        VariantResolution::Unavailable
+    } else {
+        classify(candidates.len())
+    };
+    if matches!(found.error, Some(RequestError::Source(e)) if e.reason == Reason::NotFound) {
         resolution = VariantResolution::Absent;
     }
-    if rejection.is_some() {
-        main_source.state = biomcp_types::SourceState::Failed;
-        main_source.reason = Some(Reason::Rejected);
-    }
-    let mut sources = vec![main_source];
-    let mut local = error.and_then(status::local);
+    let population_reason = if population && resolution == VariantResolution::Candidates {
+        Some(Reason::NoJoinId)
+    } else if population {
+        found.reason
+    } else {
+        None
+    };
+    let mut sources = found.sources;
+    let mut local = found.local;
     if query.sections().is_empty()
         && spec.source == Source::AlleleRegistry
         && resolution == VariantResolution::Resolved
@@ -76,7 +73,7 @@ pub fn get(cx: &Ctx<'_>, query: &VariantGet) -> Outcome {
     match_transcripts(query, &mut candidates);
     let page = candidate_page(query, resolution, &mut candidates);
     let (section_sources, section_problems, section_error) =
-        sections::apply(cx, query, &mut candidates, &mut deadline);
+        sections::apply(cx, query, &mut candidates, &mut deadline, population_reason);
     sources.extend(section_sources);
     problems.extend(section_problems);
     local = local.or(section_error);
