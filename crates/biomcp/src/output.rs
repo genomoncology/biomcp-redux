@@ -6,10 +6,10 @@ pub(crate) fn command(
     args: &[std::ffi::OsString],
 ) -> io::Result<()> {
     let parsed = crate::grammar::parse(args).ok();
-    if crate::grammar::is_housekeeping(args) {
-        if parsed.as_ref().is_none_or(|parsed| parsed.help.is_none()) {
-            return bytes(&outcome.cli_bytes);
-        }
+    if crate::grammar::is_housekeeping(args)
+        && parsed.as_ref().is_none_or(|parsed| parsed.help.is_none())
+    {
+        return bytes(&outcome.cli_bytes);
     }
     let format = parsed.and_then(|parsed| {
         parsed
