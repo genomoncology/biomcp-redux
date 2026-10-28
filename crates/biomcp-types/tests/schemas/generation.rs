@@ -66,6 +66,7 @@ fn published_reply_contracts_are_open_and_query_choices_stay_closed() {
     let schema = query::<biomcp_types::GeneGet>();
     assert_eq!(schema["additionalProperties"], false);
     let validator = jsonschema::draft202012::new(&schema).unwrap();
+    assert!(validator.is_valid(&serde_json::json!({"input":["KRAS"]})));
     assert!(!validator.is_valid(&serde_json::json!({"input":["KRAS"],"future_field":true})));
 }
 
