@@ -41,7 +41,8 @@
           "max_bytes": 1800
         }
       },
-      "max_bytes": 1801
+      "max_bytes": 1801,
+      "full_output_bytes": true
     }
   ],
   "story": "A caller searches MAUDE report fields without device text and combines exact native product codes with OR."
