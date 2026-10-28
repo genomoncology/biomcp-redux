@@ -73,7 +73,7 @@ pub struct DoiResolution {
 }
 /// Resolve DOI-only rows using PubMed's actual DOI field, retaining unmatched rows.
 /// Return a failed join explicitly; the caller retains the original source items.
-pub fn resolve_dois<'a>(
+fn resolve_dois<'a>(
     cx: &Ctx<'a>,
     items: &mut [ArticleItem],
     deadline: &mut Deadline<'a>,
