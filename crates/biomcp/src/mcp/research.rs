@@ -118,7 +118,7 @@ pub(super) fn execute(
                 return Ok(outcome);
             };
             serde_json::to_value(biomcp_types::ResearchFetch {
-                id: biodata::Text::new(id).map_err(io::Error::other)?,
+                id: id.clone().into(),
                 title: hit.title,
                 url: hit.url,
                 text: biodata::Markdown::new(

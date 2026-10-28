@@ -53,7 +53,7 @@ pub struct ResearchSearch<M> {
 #[cfg_attr(feature = "schema", derive(schemars::JsonSchema))]
 pub struct ResearchFetch<M> {
     /// Unchanged caller identifier.
-    pub id: biodata::Text,
+    pub id: biodata::SourceText,
     /// Original source title, or exact identifier.
     pub title: crate::Text,
     /// Complete Markdown view of the bounded CLI record.

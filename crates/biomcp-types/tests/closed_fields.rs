@@ -82,3 +82,13 @@ fn normalization_source_text_retains_empty_values_and_whitespace() -> Result<(),
     assert_eq!(serde_json::to_value(message)?, original);
     Ok(())
 }
+
+#[test]
+fn research_fetch_keeps_the_original_caller_identifier() -> Result<(), serde_json::Error> {
+    let original = json!({"id":" gene BRAF ", "title":"BRAF", "text":"source Markdown\n",
+        "url":"https://example.org/BRAF", "metadata":{"schema":"source.schema/1", "status":"complete"}});
+    let fetch: biomcp_types::ResearchFetch<biomcp_types::ResearchEnvelope> =
+        serde_json::from_value(original.clone())?;
+    assert_eq!(serde_json::to_value(fetch)?, original);
+    Ok(())
+}
