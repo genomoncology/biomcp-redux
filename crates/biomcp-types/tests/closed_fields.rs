@@ -19,16 +19,25 @@ fn response_identifiers_use_their_publisher_grammar() {
     for bad in ["unrecognized", "COSM0", "COSM0476"] {
         let mut value = cosmic.clone();
         value["cosmic_id"] = json!(bad);
-        assert!(serde_json::from_value::<CosmicRecord>(value).is_err(), "accepted {bad}");
+        assert!(
+            serde_json::from_value::<CosmicRecord>(value).is_err(),
+            "accepted {bad}"
+        );
     }
     for bad in ["unrecognized", "DOID:0000001", "MONDO:1"] {
         let mut value = mondo.clone();
         value["mondo_id"] = json!(bad);
-        assert!(serde_json::from_value::<ClinGenValidity>(value).is_err(), "accepted {bad}");
+        assert!(
+            serde_json::from_value::<ClinGenValidity>(value).is_err(),
+            "accepted {bad}"
+        );
     }
     for bad in ["unrecognized", "MONDO:0000001", "Cbad"] {
         let mut value = ncit.clone();
         value["nci_thesaurus_concept_id"] = json!(bad);
-        assert!(serde_json::from_value::<NciDiseaseRef>(value).is_err(), "accepted {bad}");
+        assert!(
+            serde_json::from_value::<NciDiseaseRef>(value).is_err(),
+            "accepted {bad}"
+        );
     }
 }

@@ -35,6 +35,18 @@ macro_rules! ontology_id {
     };
 }
 // https://github.com/monarch-initiative/mondo/blob/master/src/ontology/mondo-idranges.owl
-ontology_id!(MondoId, "MONDO:", Some(7), "^MONDO:[0-9]{7}$", "A publisher MONDO identifier with seven digits.");
+ontology_id!(
+    MondoId,
+    "MONDO:",
+    Some(7),
+    "^MONDO:[0-9]{7}$",
+    "A publisher MONDO identifier with seven digits."
+);
 // https://evs.nci.nih.gov/ftp1/GDC/About.html
-ontology_id!(NcitId, "C", None::<usize>, "^C[0-9]+$", "A native NCI Thesaurus concept code.");
+ontology_id!(
+    NcitId,
+    "C",
+    None::<usize>,
+    "^C[0-9]+$",
+    "A native NCI Thesaurus concept code."
+);

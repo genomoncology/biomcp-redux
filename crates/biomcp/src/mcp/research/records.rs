@@ -104,7 +104,7 @@ fn variant(row: &Value, envelope: &Value) -> Option<ResearchHit> {
     let id = text(row, paths::VARIANT_IDS)?;
     hit(
         next_args("variant", id, envelope).or_else(|| variant_args(id, envelope))?,
-        id: Text::new(&id).ok()?,
+        id,
         &variant_url(row, envelope)?,
     )
 }

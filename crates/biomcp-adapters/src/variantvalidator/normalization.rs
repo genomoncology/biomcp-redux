@@ -19,7 +19,10 @@ pub fn normalize(
     result.version = raw
         .metadata
         .into_iter()
-        .map(|(field, value)| NormalizationField { field: field.into(), value: value.into() })
+        .map(|(field, value)| NormalizationField {
+            field: field.into(),
+            value: value.into(),
+        })
         .collect();
     let mut mappings = Vec::new();
     let mut messages = Vec::new();

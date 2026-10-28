@@ -121,8 +121,11 @@ pub(super) fn execute(
                 id: biodata::Text::new(id).map_err(io::Error::other)?,
                 title: hit.title,
                 url: hit.url,
-                text: biodata::Markdown::new(&String::from_utf8(crate::view::markdown(&outcome.value)?)
-                    .map_err(io::Error::other)?).map_err(io::Error::other)?,
+                text: biodata::Markdown::new(
+                    &String::from_utf8(crate::view::markdown(&outcome.value)?)
+                        .map_err(io::Error::other)?,
+                )
+                .map_err(io::Error::other)?,
                 metadata: outcome.value,
             })?
         }
@@ -152,7 +155,8 @@ fn search(call: &Call, envelope: Value) -> io::Result<Value> {
             omitted_rows: u32::try_from(omitted_rows).unwrap_or(u32::MAX),
             note:
                 "Rows without an exact citable get target remain available through the biomcp tool."
-                    .parse().map_err(io::Error::other)?,
+                    .parse()
+                    .map_err(io::Error::other)?,
         },
     })
     .map_err(Into::into)
@@ -174,7 +178,10 @@ fn restrictions(
             words.push(arg.to_owned());
         }
     }
-    hit.id = biodata::Text::new(&shlex::try_join(words.iter().map(String::as_str)).map_err(io::Error::other)?).map_err(io::Error::other)?;
+    hit.id = biodata::Text::new(
+        &shlex::try_join(words.iter().map(String::as_str)).map_err(io::Error::other)?,
+    )
+    .map_err(io::Error::other)?;
     Ok(hit)
 }
 
