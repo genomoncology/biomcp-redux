@@ -48,7 +48,11 @@ pub(super) fn ordered(linked: bool) -> Check {
         .map(|field| updated.find(&format!("\"{field}\"")))
         .collect::<Option<Vec<_>>>()
         .ok_or("lost config field")?;
-    if !positions.windows(2).all(|pair| pair[0] < pair[1]) {
+    if !positions
+        .iter()
+        .zip(positions.iter().skip(1))
+        .all(|(left, right)| left < right)
+    {
         return Err("key set reordered config fields".into());
     }
     Ok(())
