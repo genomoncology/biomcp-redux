@@ -23,7 +23,15 @@ pub(super) fn load(
     let store = Store::open(cx.fetch.cache_access()?, deadline)?;
     store
         .source_snapshot(id.as_str(), &key(q)?, |s| cx.fetch.disabled(s))?
-        .map(|p| serde_json::from_str::<Wire>(&p).map(|(items,sources,problems)| Saved {items,sources,problems}).map_err(|_| CacheError::Database.into()))
+        .map(|p| {
+            serde_json::from_str::<Wire>(&p)
+                .map(|(items, sources, problems)| Saved {
+                    items,
+                    sources,
+                    problems,
+                })
+                .map_err(|_| CacheError::Database.into())
+        })
         .transpose()
 }
 pub(super) fn save(
@@ -32,7 +40,8 @@ pub(super) fn save(
     deadline: Deadline<'_>,
     saved: &Saved,
 ) -> Result<biodata::Text, RequestError> {
-    let payload = serde_json::to_string(&(&saved.items,&saved.sources,&saved.problems)).map_err(|_| CacheError::Database)?;
+    let payload = serde_json::to_string(&(&saved.items, &saved.sources, &saved.problems))
+        .map_err(|_| CacheError::Database)?;
     let mut store = Store::open(cx.fetch.cache_access()?, deadline)?;
     Ok(store.save_source_snapshot(&key(q)?, &payload, &saved.sources)?)
 }

@@ -6,11 +6,12 @@ use serde::Deserialize;
 #[derive(Debug, Deserialize)]
 pub(super) struct Page {
     pub total: u64,
+    error: Option<serde::de::IgnoredAny>,
     pub data: Vec<Organization>,
 }
 impl Reply for Page {
     fn check(&self) -> Result<(), BadReply> {
-        if self.total != self.data.len() as u64 {
+        if self.error.is_some() || self.total != self.data.len() as u64 {
             return Err(BadReply);
         }
         Ok(())

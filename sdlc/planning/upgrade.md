@@ -155,6 +155,12 @@ The 0.9 `gencc sync` command becomes `biomcp sync gencc`. It installs or refresh
 
 ClinicalTrials.gov is the default. Explicit `--source nci` requires the user's NCI key and preserves NCI's own counts and statuses without fallback. NCI condition filters require an NCIt identifier; use `--keyword` for explicit free text. Unsupported registry-only filters return guidance before any request. Automatic disease resolution is not shipped.
 
+NCI organization discovery adds this command:
+
+| Command | Behavior |
+| --- | --- |
+| `search organization --source nci` | Use `--name`, `--city`, `--state`, `--country`, `--postal-code`, `--family` or `--lat`/`--lon`/`--distance`. Names are not unique; native counts include every trial status. Search rows carry published details. No organization ID or get command exists. Returned `--pool` page commands retain one bounded observation. |
+
 Use multiple NCT inputs on `get trial` instead of `batch trial`, and trailing section words instead of batch `--sections`. Cards precede requested sections. Every truncated section has its own continuation. A registry reference's type and position do not identify a primary publication. List `get trial NCT documents`, then save one exact manifest filename with `trial document NCT FILE --save PATH`. Documents are downloaded without text extraction. CLI and stdio MCP support saves; HTTP refuses and returns the source URL.
 
 ## Variant discovery and source records

@@ -11,7 +11,9 @@ mod organization;
 type Check = Result<(), String>;
 const KEY: &str = "synthetic-nci-stored-key";
 pub(super) fn trials() -> Vec<Trial> {
-    let mut trials = vec![Trial::test("trial/nci/wire-and-failures", || { wire().map_err(Into::into) })];
+    let mut trials = vec![Trial::test("trial/nci/wire-and-failures", || {
+        wire().map_err(Into::into)
+    })];
     trials.extend(organization::trials());
     trials
 }

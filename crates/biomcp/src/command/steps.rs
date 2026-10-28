@@ -250,7 +250,9 @@ fn bounded_navigation(body: &biomcp_types::QueryBody) -> Navigation<'_> {
         Body::DrugTargets(_) | Body::DrugIndications(_) => Navigation::Bounded,
         Body::VariantAssertions(_) | Body::VariantNormalization(_) => Navigation::Bounded,
         Body::NciTrialPage(_) | Body::NciTrialCards(_) => Navigation::Bounded,
-        Body::OrganizationTooBroad | Body::UnsupportedTrialFilter { .. } | Body::NciDiseaseError => Navigation::Bounded,
+        Body::OrganizationTooBroad
+        | Body::UnsupportedTrialFilter { .. }
+        | Body::NciDiseaseError => Navigation::Bounded,
         Body::VariantQueryPolicyError | Body::VariantPopulation(_) => Navigation::Bounded,
         Body::VariantRecurrence(_) | Body::TrialDocument(_) => Navigation::Bounded,
         Body::TrialCards(_) | Body::TrialPage(_) | Body::ArticlePdf(_) => Navigation::Bounded,
