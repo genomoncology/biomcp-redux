@@ -1,6 +1,6 @@
 use super::{GeneStatus, LocusGroup, LocusType, Mane, Summary};
 use crate::{
-    Cytoband, EnsemblGeneId, GeneSymbol, GenomicInterval, HgncId, NcbiGeneId, OmimId, Text,
+    GeneLocation, EnsemblGeneId, GeneSymbol, GenomicInterval, HgncId, NcbiGeneId, OmimId, Text,
     UniProtAcc,
 };
 use serde::{Deserialize, Serialize};
@@ -27,9 +27,9 @@ pub struct Gene {
     /// HGNC locus type, if stated and recognized.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub locus_type: Option<LocusType>,
-    /// Single stated band, if available.
+    /// Source-stated location, including unparsed publisher text.
     #[serde(skip_serializing_if = "Option::is_none")]
-    pub location: Option<Cytoband>,
+    pub location: Option<GeneLocation>,
     /// All stated previous symbols.
     #[serde(default, skip_serializing_if = "<[_]>::is_empty")]
     pub previous_symbols: Box<[GeneSymbol]>,

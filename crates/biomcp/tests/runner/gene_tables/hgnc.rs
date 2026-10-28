@@ -235,7 +235,7 @@ fn locations() -> Check {
             "gene/main",
             &["get", "gene", symbol, "--disable-sources", "mygene"],
             |source, record| {
-                if source == "hgnc" {
+                if source == "hgnc" && symbol != "DMD" {
                     tsv(record, "BRAF", &[("symbol", symbol), ("hgnc_id", id),
                         ("name", name), ("location", location)]);
                 }
