@@ -43,7 +43,9 @@ Robustness and public-text fixes come first, because the parity run, the docs an
 
 - Close the public benchmark gaps Ian added on 2026-10-28, corrected by an adversarial design review: build 0414, then 0409, 0411 and 0415 on the trial filters; 0408, then 0410 for the two NCI entities; 0413, then 0412 and 0416 for MAUDE filters and FDA device and drug recalls.
 
-- Close the code quality review's findings (`records/2026-10-28-code-quality-review.md`): first the trial status fix 0417, then the bad-value rule 0418, test integrity 0429 to 0431, dead code and lints 0425 and per-call cost 0427; then the structure work 0419 to 0424, 0426 and 0428, scheduled around the benchmark tickets; then the architecture rewrite 0432.
+- Close the code quality review's findings (`records/2026-10-28-code-quality-review.md`) by the reviewed design in `planning/restructure.md`. Order: the trial status fix 0417, the reply diff 0454 that proves each structure ticket changes nothing it does not name, pure dead code 0425, the installed-binary suite 0429, then 0423, 0434, 0430, 0431, 0456, 0418, 0426, 0457, status rules 0419 and typed next steps 0458, the layer move 0420, the command table 0421, 0427, the source declaration 0422, 0455, 0424, 0428 and finally the architecture rewrite 0432. Each ticket's Depends line holds the exact order.
+
+- Fix the BioData review's data model findings before the tag, because the release gate freezes every pattern, type set and schema ID: 0435 to 0453, with 0436 and 0437 first, and 0444 before 0421.
 
 ### 6. Rehearse and release
 
