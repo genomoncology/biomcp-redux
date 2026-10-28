@@ -123,10 +123,6 @@ pub(crate) const QUERIES: &[(&str, &str, &str)] = &[
     ("get", "variant", "biomcp.variant-get/3"),
     ("variant", "population", "biomcp.variant-population/3"),
     ("search", "variant", "biomcp.variant-search/2"),
-    (
-        "variant",
-        "recurrence",
-        "biomcp.variant-recurrence-query/3",
-    ),
+    ("variant", "recurrence", "biomcp.variant-recurrence-query/3"),
     ("variant", "normalize", "biomcp.variant-normalize/4"),
 ];
