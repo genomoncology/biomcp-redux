@@ -1,16 +1,18 @@
-# 0430 — Make the coverage floor measure outside-in coverage
+# 0430 — Count only product-binary coverage toward the floor
 
 Status: OPEN.
 
 Milestone: 5
 
+Depends on: 0429
+
 ## Outcome
 
-Counted coverage comes only from the product binary running cases and from true type contracts. In-process runner trials move to the excluded library collection or become CLI cases, `#[path]` product includes leave the test binary, stale and non-type contract targets leave the counted list, and test-only modules leave the denominator. The PM sets the new floor from the measured figure.
+The coverage gate counts only lines the `biomcp` binary runs while the `cases` target runs. Harness code, test modules and in-process library calls count toward neither side. The PM sets `coverage.floor` from the first measurement.
 
-- Why: the pre-1.0 code quality review `sdlc/records/2026-10-28-code-quality-review.md`. The floor has stayed at 90.41 since 2026-10-24 while it counts library calls made inside the test binary.
-- Starts from: `scripts/coverage.sh`, `coverage.floor`, `sdlc/features.md`, `tests/ratchets/placement.rs` and the in-process runner files named in the record.
-- Rules: architecture 10.3 is the rule; only the PM sets the floor.
-- Proof: the measured binary-only figure is recorded; a planted in-process trial no longer raises the counted figure.
-- Changes: the files above.
-- Defers: nothing.
+- Why: `scripts/coverage.sh` counts harness profiles and contract targets, and 51 runner files call library crates in-process, so the floor does not measure outside-in proof.
+- Starts from: `scripts/coverage.sh`, `scripts/contract_targets.py`, `coverage.floor`, `crates/biomcp/tests/runner/launch.rs`, the `Contracts:` lines in `sdlc/features.md`, architecture 10.3.
+- Rules: the launcher sets `LLVM_PROFILE_FILE=<dir>/bin-%m-%p.profraw` on every child. `coverage.sh` merges only `bin-` profiles with `llvm-profdata merge` and reports with `llvm-cov report --object` on the binary, because `cargo llvm-cov report` cannot select one object. Library functions the binary never links fall outside the denominator. Generated protobuf code is excluded by path. biodata's contract tests do not count (ruling 3). Only the PM raises the floor, and architecture 10.3 changes to say so (ruling 4). `scripts/contract_targets.py` and the `Contracts:` lines go.
+- Proof: a planted trial that calls a query function in the harness process adds no counted line; deleting the only case that reaches one branch lowers the measured figure; the gate fails 0.3 points below the floor.
+- Changes: the files above, `Makefile`, `docs/development.md`.
+- Defers: converting in-process trials (0431).

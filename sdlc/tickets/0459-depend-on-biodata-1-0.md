@@ -1,0 +1,18 @@
+# 0459 — Depend on the extracted BioData 1.0 crate
+
+Status: OPEN.
+
+Milestone: 5
+
+Depends on: 0198, 0334, 0338, 0339, 0340, 0341, 0342, 0343, 0344, 0345, 0346, 0347, 0348, 0349, 0350, 0351, 0352, 0353, 0354, 0355, 0356, 0357, 0358, 0359, 0360, 0361, 0362, 0363, 0364, 0365, 0366, 0367, 0368, 0369, 0370, 0371, 0372, 0373, 0374, 0375, 0376, 0377, 0378, 0379, 0380, 0381, 0382, 0383, 0384, 0385, 0386, 0387, 0388, 0389, 0390, 0391, 0392, 0393, 0394, 0395, 0396, 0397, 0398, 0399, 0400, 0403, 0404, 0406, 0407, 0408, 0409, 0410, 0411, 0412, 0413, 0414, 0415, 0416, 0417, 0418, 0419, 0420, 0421, 0422, 0423, 0424, 0425, 0426, 0427, 0428, 0429, 0430, 0431, 0432, 0433, 0434, 0435, 0436, 0437, 0438, 0439, 0440, 0441, 0442, 0443, 0444, 0445, 0446, 0447, 0448, 0449, 0450, 0451, 0452, 0453, 0454, 0455, 0456, 0457, 0458
+
+## Outcome
+
+BioMCP builds against the BioData 1.0 crate extracted from this repository's `crates/biodata`, pinned to an exact published revision, and the in-tree copy is removed. The full gate and the schema comparison pass with every `biodata.*` schema byte-identical to the last in-tree export, so the switch changes no output.
+
+- Why: Ian's ruling of 2026-10-28 that BioMCP 1.0 ships depending on BioData 1.0, not an in-tree copy, and that this repository's 1.0 schemas and `biodata.*` IDs are BioData's baseline.
+- Starts from: `crates/biodata`, the workspace manifest, `Cargo.lock`, `deny.toml`, the release build scripts and the schema baseline.
+- Rules: the signal to extract is a PM message giving the main commit after every code ticket above has landed; from that commit until this ticket lands, no change touches `crates/biodata`. The BioData side owns extraction and reconciliation with Genome. A difference in any `biodata.*` schema or reply is a BioData fix, not a BioMCP baseline change. The dependency must resolve on clean hosted runners and in the offline release build, with the source policy in `deny.toml` allowing only the pinned source. Creating the BioData repository and publishing its packages wait for Ian.
+- Proof: a reply diff between the last in-tree build and the switched build is empty; the schema comparison passes; the hosted rehearsal resolves the dependency on every platform.
+- Changes: the manifests, lock file, source policy, release scripts and removal of `crates/biodata`.
+- Defers: FHIR and OMOP, which land in BioData and BioMCP after 1.0.

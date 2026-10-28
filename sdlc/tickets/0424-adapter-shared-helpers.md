@@ -1,18 +1,18 @@
-# 0424 — Share repeated adapter and query helpers
+# 0424 — Share adapter helpers and run variant sections through fan-out
 
 Status: OPEN.
 
 Milestone: 5
 
-Depends on: 0418
+Depends on: 0418, 0455, 0420, 0423
 
 ## Outcome
 
-Shared helpers replace copied code: `SourceError::bad_reply`, one openFDA envelope, one GraphQL alias batch type with a runtime size, `Problems::field`, one `received_date`, one XML root search, one component-disable check, and a bundle partition key kind in place of `KeyKind::Band` misuse. Variant get runs its sections through `fan_out::run`. The trial and evidence snapshot tables become one table with one expiry constant and one disabled-source rule.
+One `bad_reply` constructor, one openFDA envelope, one GraphQL alias batch, one `received_date` and one XML element search replace their copies. Variant sections run through `fan_out::run` like other multi-source gets, and output keeps the declared section order.
 
-- Why: the pre-1.0 code quality review `sdlc/records/2026-10-28-code-quality-review.md`.
-- Starts from: the openFDA adapters (fda_510k, fda_pma, maude, drugsfda, openfda_label, faers), civic, gnomad, `received.rs`, `drug_sources/date.rs`, clinvar, pubmed, the bundle text-search adapters, `crates/biomcp-query/src/variant/sections.rs`, `store/trial.rs`, `store/evidence.rs`.
-- Rules: no behavior change except the snapshot rule and variant timing, which get cases; schedule after 0412, 0413 and 0416 so openFDA work does not collide.
-- Proof: existing cases pass; a variant get case shows sections run in parallel within the deadline; a snapshot case covers a disabled source.
-- Changes: the files above and cases.
-- Defers: nothing.
+- Why: 29 local `fn bad` copies, seven openFDA envelopes, two GraphQL batchers, two date parsers and eight XML root searches each drift separately. Variant sections run one after another.
+- Starts from: the copy sites in restructure (d), `crates/biomcp-query/src/variant/sections.rs`, `fan_out.rs`.
+- Rules: `ratchets/source.rs` refuses `fn bad`, `fn bad_reply`, `fn received_date` and `fn root` outside each helper's home. Rebase variant changes on 0436.
+- Proof: a planted local `fn bad` fails the ratchet; a replay case delays two variant sections under a request deadline that one delay fits and two do not, then asserts both sections complete; it fails on the base build, where the second section times out; the reply diff is empty otherwise.
+- Changes: the copy sites, `crates/biomcp-adapters/src/openfda.rs`, `graphql.rs`, `received.rs`, `xml_element.rs`, the variant section module.
+- Defers: the transport call (0428).
