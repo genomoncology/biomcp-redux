@@ -145,11 +145,23 @@ expected=$(printf '%s' "$expected" | tr '[:upper:]' '[:lower:]')
 # Accept the current notice-bearing layout and the legacy binary-only layout.
 # Read only the regular executable. Never extract archive paths.
 archive_members() {
-  local members=$1 executable=$2
-  members=$(printf '%s\n' "$members" | LC_ALL=C sort)
-  [ "$members" = "$executable" ] || \
-    [ "$members" = "$(printf '%s\n' LICENSE THIRD-PARTY-NOTICES.txt "$executable" | LC_ALL=C sort)" ] || \
-    fail 'Unexpected archive contents'
+  local member executable=$2 binary_seen=0 license_seen=0 notices_seen=0
+  while IFS= read -r member; do
+    case "$member" in
+      "$executable")
+        [ "$binary_seen" -eq 0 ] || fail 'Duplicate archive executable'
+        binary_seen=1 ;;
+      LICENSE)
+        [ "$license_seen" -eq 0 ] || fail 'Duplicate archive license'
+        license_seen=1 ;;
+      THIRD-PARTY-NOTICES.txt)
+        [ "$notices_seen" -eq 0 ] || fail 'Duplicate archive notices'
+        notices_seen=1 ;;
+      *) fail 'Unexpected archive contents' ;;
+    esac
+  done <<< "$1"
+  [ "$binary_seen" -eq 1 ] || fail 'Missing archive executable'
+  [ "$license_seen" -eq "$notices_seen" ] || fail 'Incomplete archive notices'
 }
 case "$archive" in
   *.zip)
