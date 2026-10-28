@@ -44,12 +44,7 @@ pub(crate) fn search(cx: &Ctx<'_>, query: &TrialSearch) -> Outcome {
     let result = ctgov::search(&leg, &params);
     let rejected = matches!(
         &result,
-        Err(biomcp_fetch::RequestError::Source(
-            biomcp_fetch::SourceError {
-                status: Some(400),
-                ..
-            }
-        ))
+        Err(biomcp_fetch::RequestError::Source(error)) if error.status == Some(400)
     );
     let version = match &result {
         Ok(_) => ctgov::version(&leg),
