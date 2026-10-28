@@ -1,6 +1,7 @@
 # 0387 — Fix the shared WHO case parse failure in full test runs
 
-Status: OPEN.
+Status: COMPLETE.
+Landed: eaade764e191e2ebf56a7a4fc6f344e0f065c310
 
 Milestone: 5
 

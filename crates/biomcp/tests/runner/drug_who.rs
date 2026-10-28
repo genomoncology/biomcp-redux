@@ -135,21 +135,42 @@ fn pair(env: &Environment, replay: &Path, args: &[&str], exit: i32) -> Result<Va
     words.extend(args.iter().map(|s| (*s).into()));
     let value = invoke(env, words, exit).map_err(|e| format!("{}: {e}", args.join(" ")))?;
     let command: Vec<String> = args.iter().map(|s| (*s).into()).collect();
-    if mcp::call_with_globals(env, &command, exit == 4, &globals)? != value {
+    if mcp::call_with_globals(env, &command, exit == 4, &globals)
+        .map_err(|e| format!("WHO MCP {}: {e}", args.join(" ")))?
+        != value
+    {
         return Err("WHO CLI/MCP outputs differ".into());
     }
     bounded(&value)?;
     Ok(value)
 }
 fn replacement(env: &Environment, replay: &Path, get: &[&str], before: &Value) -> Check {
-    let path = fs::read_dir(replay.join("who-pq"))
-        .map_err(|e| e.to_string())?
-        .next()
-        .ok_or("missing recording")?
-        .map_err(|e| e.to_string())?
-        .path();
-    let original: Value = serde_json::from_slice(&fs::read(&path).map_err(|e| e.to_string())?)
-        .map_err(|e| e.to_string())?;
+    // A binary decoder publishes payload sidecars beside the JSON recording.
+    // Directory order never identifies the exchange metadata.
+    let mut recordings = Vec::new();
+    for entry in fs::read_dir(replay.join("who-pq")).map_err(|e| e.to_string())? {
+        let path = entry.map_err(|e| e.to_string())?.path();
+        if path
+            .extension()
+            .is_some_and(|extension| extension == "json")
+        {
+            recordings.push(path);
+        }
+    }
+    let [path] = recordings.as_slice() else {
+        return Err(format!(
+            "expected one WHO recording, found {}",
+            recordings.len()
+        ));
+    };
+    let bytes = fs::read(path).map_err(|e| e.to_string())?;
+    let original: Value = serde_json::from_slice(&bytes).map_err(|e| {
+        format!(
+            "WHO recording {} ({} bytes): {e}",
+            path.display(),
+            bytes.len()
+        )
+    })?;
     for fault in ["header", "extra", "malformed", "empty"] {
         let mut changed = original.clone();
         let text = match fault {
@@ -160,7 +181,7 @@ fn replacement(env: &Environment, replay: &Path, get: &[&str], before: &Value) -
         };
         *changed.pointer_mut("/exchanges/0/body").ok_or("body")? =
             json!({"kind":"text", "value":text});
-        fs::write(&path, changed.to_string()).map_err(|e| e.to_string())?;
+        fs::write(path, changed.to_string()).map_err(|e| e.to_string())?;
         let failed = pair(env, replay, &["sync", "who-pq"], 4)?;
         if failed.pointer("/sources/0/reason") != Some(&json!("bad_reply"))
             || pair(env, replay, get, 0)? != *before
