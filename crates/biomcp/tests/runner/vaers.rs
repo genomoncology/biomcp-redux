@@ -7,6 +7,7 @@ mod budget;
 mod failures;
 mod fixture;
 mod influenza;
+mod live;
 mod navigation;
 mod policy;
 mod rejections;
@@ -14,6 +15,9 @@ type Check = Result<(), String>;
 
 pub(super) fn trials() -> Vec<Trial> {
     vec![
+        Trial::test("vaers-summary/complete-cdc-latin1-xml-replay", || {
+            live::run().map_err(Into::into)
+        }),
         Trial::test(
             "vaers-summary/exact-influenza-types-and-native-labels",
             || influenza::run().map_err(Into::into),

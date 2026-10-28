@@ -1,6 +1,7 @@
 # 0363 — Fix the CDC WONDER VAERS reply decoding
 
-Status: OPEN.
+Status: COMPLETE.
+Landed: 8aad84cb036d8e6d686eaa3822ad152d3a87e4c7
 
 Milestone: 5
 

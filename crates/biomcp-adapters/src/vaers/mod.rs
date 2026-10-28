@@ -1,4 +1,5 @@
 //! Explicit CDC WONDER summaries; no report retrieval or vaccine-name bridge.
+mod encoding;
 mod raw;
 use biomcp_fetch::{Arg, BadReply, Freshness, KeyUse, Leg, SourceSpec, Terms};
 use biomcp_types::{Source, Use, VaersSection, VaersSummary};
