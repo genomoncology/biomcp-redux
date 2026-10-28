@@ -133,7 +133,7 @@ fn guidance(
                     return Some(ErrorMessage::AdverseFilter);
                 }
                 if !matches!(value, Some("any" | "death" | "hospitalization")) {
-                    return Some(ErrorMessage::AdverseSerious);
+                    return Some(ErrorMessage::AdverseSeriousChoices);
                 }
             }
             if positional.first() == Some(&"get") {
