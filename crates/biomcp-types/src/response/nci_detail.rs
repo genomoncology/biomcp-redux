@@ -125,6 +125,7 @@ pub struct NciArm {
     #[serde(skip_serializing_if = "Option::is_none")]
     pub description: Option<Box<str>>,
     /// Native arm type.
+    #[serde(skip_serializing_if = "Option::is_none")]
     pub r#type: Option<Text>,
 }
 /// One original NCI intervention attached to its source arm.
@@ -140,6 +141,7 @@ pub struct NciIntervention {
     /// Native nci thesaurus concept id field.
     pub nci_thesaurus_concept_id: biodata::NcitId,
     /// Native r#type field.
+    #[serde(skip_serializing_if = "Option::is_none")]
     pub r#type: Option<Text>,
     /// Native category field.
     #[serde(skip_serializing_if = "Option::is_none")]
