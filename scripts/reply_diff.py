@@ -46,6 +46,13 @@ def normalize(record):
         line = "codex mcp add biomcp -- " + shlex.quote(executable) + " serve\n"
         if text == line:
             text = "codex mcp add biomcp -- <executable> serve\n"
+        # A copied installation may select an owned stable symlink instead.
+        root = record.get("root")
+        if root:
+            text = re.sub(r'("command"\s*:\s*")' + re.escape(json.dumps(root)[1:-1]) + r'(?=/|")',
+                          lambda m: m[1] + "<root>", text)
+            text = re.sub(r"(?m)^(codex mcp add biomcp -- '?)" + re.escape(root) + r"(?=/|$)",
+                          lambda m: m[1] + "<root>", text)
     # Calibration: runner-owned argument paths vary, including JSON request tokens.
     for field in ("root", "checkout"):
         value = record.get(field)
