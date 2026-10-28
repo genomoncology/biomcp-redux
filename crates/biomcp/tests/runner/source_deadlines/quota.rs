@@ -3,6 +3,9 @@ use crate::runner::{launch::Environment, mcp, network_stub::Stub};
 use serde_json::json;
 use std::fs;
 pub(super) fn run() -> Result<(), String> {
+    if biomcp_adapters::vaers::SPEC.quota.interval(false) != std::time::Duration::from_secs(120) {
+        return Err("CDC automated-query spacing changed".into());
+    }
     let stub = Stub::for_source("wonder.cdc.gov", "application/xml", |_| {
         Ok("<synthetic-broken/>".into())
     })?;

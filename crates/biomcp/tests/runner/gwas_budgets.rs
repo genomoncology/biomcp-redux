@@ -48,7 +48,7 @@ pub(super) fn invoke(
         .ok_or_else(|| format!("GWAS phase lacks measurement: {phase}"))?;
     if cli_bytes > (cli_limit * 115).div_ceil(100) || mcp_bytes > (mcp_limit * 115).div_ceil(100) {
         return Err(format!(
-            "GWAS phase {phase} exceeds measured CLI/MCP ceiling"
+            "GWAS phase {phase} exceeds measured CLI/MCP ceiling: {cli_bytes}/{mcp_bytes} bytes"
         ));
     }
     Ok(cli)
