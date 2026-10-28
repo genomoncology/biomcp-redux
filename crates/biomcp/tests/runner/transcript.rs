@@ -1,4 +1,8 @@
 //! Optional transcripts at complete-output boundaries.
+#![expect(
+    clippy::disallowed_types,
+    reason = "The optional transcript writer shares its I/O state across a trial's worker threads"
+)]
 use libtest_mimic::{Failed, Trial};
 use serde_json::{Value, json};
 use sha2::{Digest, Sha256};
