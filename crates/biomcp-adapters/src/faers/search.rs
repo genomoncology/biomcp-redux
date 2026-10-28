@@ -35,8 +35,13 @@ pub fn expression(query: &AdverseEventSearch) -> String {
     }
     if let Some(flag) = query.serious() {
         let field = match flag {
+            AdverseEventSerious::Any => "serious",
             AdverseEventSerious::Death => "seriousnessdeath",
             AdverseEventSerious::Hospitalization => "seriousnesshospitalization",
+            AdverseEventSerious::Lifethreatening => "seriousnesslifethreatening",
+            AdverseEventSerious::Disabling => "seriousnessdisabling",
+            AdverseEventSerious::CongenitalAnomaly => "seriousnesscongenitalanomali",
+            AdverseEventSerious::Other => "seriousnessother",
         };
         selector.push_str(&format!(" AND {field}:1"));
     }
