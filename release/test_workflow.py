@@ -74,6 +74,19 @@ class Staging(unittest.TestCase):
             self.assertEqual(len(list(staged.glob("*.mcpb"))), 3)
             self.assertEqual(len(list(staged.glob("biomcp-container-*.tar"))), 2)
             self.assertEqual((staged / "install.sh").read_bytes(), Path("release/install.sh").read_bytes())
+            notes = (staged / "RELEASE-NOTES.md").read_text()
+            self.assertIn("gh attestation verify", notes)
+            self.assertIn("--repo genomoncology/biomcp", notes)
+            self.assertIn("a" * 40, notes)
+            checksums = root / "subjects.sha256"
+            subjects = subprocess.run([sys.executable, "release/workflow.py", "subjects",
+                                       "--artifacts", str(staged), "--output", str(checksums)],
+                                      capture_output=True, text=True)
+            self.assertEqual(subjects.returncode, 0, subjects.stderr)
+            actual = dict(line.split("  ", 1)[::-1] for line in checksums.read_text().splitlines())
+            expected = {path.name: hashlib.sha256(path.read_bytes()).hexdigest()
+                        for path in staged.iterdir()}
+            self.assertEqual(actual, expected)
             with zipfile.ZipFile(staged / "biomcp-plugin.zip") as archive:
                 self.assertIn(".claude-plugin/marketplace.json", archive.namelist())
                 self.assertEqual(archive.read("skills/SKILL.md"), b"BioMCP guide\n")
@@ -99,6 +112,25 @@ class Staging(unittest.TestCase):
                 else:
                     (plugin / ".claude-plugin/plugin.json").write_text('{"name":"biomcp"}')
                 self.assertNotEqual(self.stage(root, artifacts, plugin).returncode, 0)
+
+    def test_subjects_refuse_missing_empty_or_unsafe_staging(self):
+        for defect in ["missing", "empty", "symlink", "newline"]:
+            with self.subTest(defect=defect), tempfile.TemporaryDirectory() as directory:
+                root = Path(directory)
+                staged = root / "staged"
+                if defect != "missing":
+                    staged.mkdir()
+                if defect == "symlink":
+                    (root / "outside").write_bytes(b"outside")
+                    (staged / "link").symlink_to(root / "outside")
+                elif defect == "newline":
+                    (staged / "bad\nname").touch()
+                output = root / "subjects.sha256"
+                result = subprocess.run([sys.executable, "release/workflow.py", "subjects",
+                                         "--artifacts", str(staged), "--output", str(output)],
+                                        capture_output=True, text=True)
+                self.assertNotEqual(result.returncode, 0)
+                self.assertFalse(output.exists())
 
 
 if __name__ == "__main__":
