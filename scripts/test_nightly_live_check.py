@@ -110,11 +110,11 @@ def classification_case(change):
     return {"case": change, "result": result, "witness": witness}
 
 
-def publication_growth_case(change='addition'):
+def publication_growth_case(change='addition', count=1590, insertion=650):
     # Retained LitVar diagnostics: 1590 PMIDs, 200-ID iCite batches,
     # unchanged PubMed selection, then one insertion and rebatching.
-    old = [str(10000000 + i) for i in range(1590)]
-    new = old[:650] + ['20000000'] + old[650:]
+    old = [str(10000000 + i) for i in range(count)]
+    new = old[:insertion] + ['20000000'] + old[insertion:]
     if change == 'removal':
         old, new = new, old
     def requests(ids):
@@ -379,6 +379,24 @@ class NightlyCommand(unittest.TestCase):
                 saved = json.loads((self.copied() / 'report.json').read_text())
                 self.assertEqual(saved['case_sample'][0]['witness'], row['witness'])
                 self.assertEqual(saved['case_sample'][0]['result'], row['result'])
+
+    def test_publication_change_adds_or_removes_a_whole_batch(self):
+        for change in ('addition', 'removal', 'missing-batch', 'parameter'):
+            with self.subTest(change=change):
+                row = publication_growth_case(change, count=1600, insertion=1600)
+                self.classified(row, 'churn' if change in ('addition', 'removal') else 'failure',
+                                0 if change in ('addition', 'removal') else 1)
+        for change in ('wrong-id', 'parameter', '400'):
+            with self.subTest(extra=change):
+                row = publication_growth_case(count=1600, insertion=1600)
+                added = row['witness'][0]['live']['requests'][-2]
+                if change == 'wrong-id':
+                    added['provenance']['inputs']['ids'] = ['unexplained']
+                elif change == 'parameter':
+                    added['provenance']['input_context'] = 'changed-request'
+                else:
+                    added['status'] = 400
+                self.classified(row, 'failure', 1)
 
     def test_changed_registry_token_follows_checked_first_page(self):
         row = classification_case('discovery')
