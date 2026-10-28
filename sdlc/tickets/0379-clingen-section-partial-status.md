@@ -4,6 +4,8 @@ Status: OPEN.
 
 Milestone: 5
 
+Depends on: 0388
+
 ## Outcome
 
 The gene ClinGen section reports gene-disease validity and dosage sensitivity with separate statuses, so a failure in one leaves the other's data in the reply with its own status. The existing case that pins a dosage failure to a whole-section `unavailable` changes to expect validity data with a dosage failure.
