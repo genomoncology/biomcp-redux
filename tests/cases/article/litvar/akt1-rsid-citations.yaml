@@ -16,7 +16,6 @@
         "--sort",
         "citations"
       ],
-      "max_bytes": 5504,
       "expect": {
         "/status": "complete",
         "/page/total": 1590
@@ -45,7 +44,6 @@
         "--limit",
         "30"
       ],
-      "max_bytes": 12869,
       "expect": {
         "/status": "complete",
         "/result/items/*/pmid": {

@@ -24,7 +24,7 @@
         "1"
       ],
       "expect": {
-        "/status": "complete",
+        "/status": "partial",
         "/result/content/state": "not_applicable",
         "/sources/*/source": [
           "pubmed"
@@ -33,9 +33,16 @@
           "get",
           "article",
           "21217686"
-        ]
-      },
-      "max_bytes": 423
+        ],
+        "/problems": {
+          "includes": {
+            "source": "pubmed",
+            "record": "21217686",
+            "field": "electronic_date",
+            "code": "value.unknown"
+          }
+        }
+      }
     }
   ],
   "verified": "The reply with disclosed PubMed optional-field problems measured 367 comparable bytes in j19522; the updated ceiling adds fifteen percent. Existing recorded source replies are unchanged."

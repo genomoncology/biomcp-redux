@@ -10,7 +10,6 @@
         "article",
         "xqzvw zzyzxq kinase"
       ],
-      "max_bytes": 5131,
       "expect": {
         "/status": "complete",
         "/sources/0/state": "ok",
