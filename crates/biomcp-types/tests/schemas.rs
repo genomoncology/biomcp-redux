@@ -326,8 +326,8 @@ fn trial_contracts() -> Vec<Contract> {
 }
 
 #[test]
-fn checked_in_schema_definition_names_have_one_body() {
-    release::checked_in_schema_definition_names_have_one_body();
+fn checked_in_schema_definition_names_have_one_body() -> Result<(), Box<dyn std::error::Error>> {
+    release::checked_in_schema_definition_names_have_one_body()
 }
 
 #[test]
