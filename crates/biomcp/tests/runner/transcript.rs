@@ -77,7 +77,10 @@ pub(super) fn case_step(index: usize) {
     }
 }
 pub(super) fn hash(value: &[u8]) -> String {
-    format!("{:x}", Sha256::digest(value))
+    Sha256::digest(value)
+        .iter()
+        .map(|byte| format!("{byte:02x}"))
+        .collect()
 }
 impl Context {
     fn write(&self, key: &str, value: &Value) -> Result<(), String> {
