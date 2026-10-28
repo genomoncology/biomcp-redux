@@ -139,5 +139,3 @@ pub use author::*;
 pub fn absent_or_empty<T>(value: &Option<Box<[T]>>) -> bool {
     value.as_ref().is_none_or(|items| items.is_empty())
 }
-
-pub use cell_line::CellLineSex;

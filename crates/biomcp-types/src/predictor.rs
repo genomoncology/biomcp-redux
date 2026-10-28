@@ -164,7 +164,7 @@ pub struct ComponentUpload {
     /// Source subcollection name.
     pub name: Text,
     /// Unchanged source timestamp.
-    pub date: Text,
+    pub date: crate::SourceTimestamp,
 }
 
 biodata::wire_enum! {

@@ -355,7 +355,7 @@
       "exit": 4,
       "is_error": true,
       "expect": {
-        "/schema": "biomcp.variant-page/7",
+        "/schema": "biomcp.variant-page/8",
         "/status": "failed",
         "/sources/0/reason": "disabled"
       }
@@ -384,7 +384,7 @@
       "exit": 4,
       "is_error": true,
       "expect": {
-        "/schema": "biomcp.variant-page/7",
+        "/schema": "biomcp.variant-page/8",
         "/status": "failed",
         "/sources/0/reason": "disabled"
       }
@@ -413,7 +413,7 @@
       "exit": 4,
       "is_error": true,
       "expect": {
-        "/schema": "biomcp.variant-page/7",
+        "/schema": "biomcp.variant-page/8",
         "/status": "failed",
         "/sources/0/reason": "disabled"
       }
@@ -442,7 +442,7 @@
       "exit": 4,
       "is_error": true,
       "expect": {
-        "/schema": "biomcp.variant-page/7",
+        "/schema": "biomcp.variant-page/8",
         "/status": "failed",
         "/sources/0/reason": "disabled"
       }
@@ -471,7 +471,7 @@
       "exit": 4,
       "is_error": true,
       "expect": {
-        "/schema": "biomcp.variant-page/7",
+        "/schema": "biomcp.variant-page/8",
         "/status": "failed",
         "/sources/0/reason": "disabled"
       }
