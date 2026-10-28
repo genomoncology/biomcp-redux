@@ -72,7 +72,7 @@ fn valid_hgvs(fields: &Fields) -> bool {
 fn hgvs_schema(_: &mut schemars::SchemaGenerator) -> schemars::Schema {
     schemars::json_schema!({
         "type": "string",
-        "pattern": format!("({}|^chr([1-9][0-9]*|X|Y|M|MT):g\\.[\\x21-\\x7e]+$)", HgvsText::PATTERN)
+        "pattern": format!("({}|{})", HgvsText::PATTERN, VariantInput::CHROMOSOME_PATTERN)
     })
 }
 impl VariantNormalize {

@@ -115,7 +115,7 @@ fn hgvs_reference_and_syntax_checks_preserve_positionless_forms() -> Check {
         ("chr7:g.100A>T word", false),
         ("NM_005228.5:c.???", false),
         ("NM_005228.5:c.2369C>T word", false),
-        ("NM_005228.5:c.2369C>T\t", false),
+        ("NM_005228.5:c.2369C\t>T", false),
         ("NP_005219.2:c.2369C>T", false),
         ("XP_005219.2:r.2369c>u", false),
         ("ENSP00000288602.1:g.100A>T", false),

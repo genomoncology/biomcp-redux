@@ -8,9 +8,20 @@ pub(super) fn check() -> Result<(), String> {
         "application/json",
         |_| Ok("{}".into()),
     )?;
-    let environment = super::source_environment(&stub)?;
+    let environment = super::super::source_environment(&stub)?;
     for args in [
         vec!["get", "variant", "NM_005228.5:c.???"],
+        vec!["get", "variant", "chr7:g.???", "--build", "GRCh38"],
+        vec![
+            "variant",
+            "normalize",
+            "--source",
+            "car",
+            "--hgvs",
+            "chr7:g.???",
+            "--build",
+            "GRCh38",
+        ],
         vec![
             "variant",
             "normalize",
