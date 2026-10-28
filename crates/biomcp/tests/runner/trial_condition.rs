@@ -3,12 +3,16 @@ use super::{launch::Environment, network_stub::Stub};
 use libtest_mimic::Trial;
 use serde_json::{Value, json};
 use std::fs;
+mod alternatives;
 mod native;
 mod words;
 pub(super) use native::run as native;
 
 pub(super) fn trials() -> Vec<Trial> {
     vec![
+        Trial::test("trial-search/repeated-source-filters", || {
+            alternatives::run().map_err(Into::into)
+        }),
         Trial::test("trial-search/condition-complete-native-words", || {
             words::complete_conditions().map_err(Into::into)
         }),
