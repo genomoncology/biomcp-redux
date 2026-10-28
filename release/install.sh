@@ -6,6 +6,10 @@ set -euo pipefail
 usage() {
   echo 'Usage: install.sh [--version TAG] [--help]'
   echo '       install.sh ARCHIVE SHA256 INSTALL_DIR'
+  echo 'Before installation, verify the downloaded artifact with a current GitHub CLI:'
+  echo '  gh attestation verify ARTIFACT --repo genomoncology/biomcp --signer-workflow genomoncology/biomcp/.github/workflows/release.yml --source-digest COMMIT'
+  echo 'Use the release tag commit for COMMIT. Stop if verification fails.'
+  echo 'The installer also requires the archive SHA-256 checksum.'
 }
 
 fail() { echo "$*" >&2; exit 1; }

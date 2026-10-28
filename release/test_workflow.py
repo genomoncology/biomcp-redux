@@ -100,7 +100,8 @@ class Staging(unittest.TestCase):
                                        "--artifacts", str(staged), "--output", str(checksums)],
                                       capture_output=True, text=True)
             self.assertEqual(subjects.returncode, 0, subjects.stderr)
-            actual = dict(line.split("  ", 1)[::-1] for line in checksums.read_text().splitlines())
+            actual = {name: digest for digest, name in
+                      (line.split("  ", 1) for line in checksums.read_text().splitlines())}
             expected = {path.name: hashlib.sha256(path.read_bytes()).hexdigest()
                         for path in staged.iterdir()}
             self.assertEqual(actual, expected)
@@ -131,7 +132,7 @@ class Staging(unittest.TestCase):
                 self.assertNotEqual(self.stage(root, artifacts, plugin).returncode, 0)
 
     def test_subjects_refuse_missing_empty_or_unsafe_staging(self):
-        for defect in ["missing", "empty", "symlink", "newline"]:
+        for defect in ["missing", "empty", "symlink", "newline", "output-inside"]:
             with self.subTest(defect=defect), tempfile.TemporaryDirectory() as directory:
                 root = Path(directory)
                 staged = root / "staged"
@@ -143,6 +144,9 @@ class Staging(unittest.TestCase):
                 elif defect == "newline":
                     (staged / "bad\nname").touch()
                 output = root / "subjects.sha256"
+                if defect == "output-inside":
+                    (staged / "artifact").write_bytes(b"candidate")
+                    output = staged / "subjects.sha256"
                 result = subprocess.run([sys.executable, "release/workflow.py", "subjects",
                                          "--artifacts", str(staged), "--output", str(output)],
                                         capture_output=True, text=True)
