@@ -24,6 +24,10 @@
       ],
       "type": "object"
     },
+    "SourceText": {
+      "description": "Unchanged free source text, including empty values and surrounding whitespace.",
+      "type": "string"
+    },
     "Status": {
       "description": "Overall command outcome.",
       "enum": [
@@ -46,7 +50,7 @@
   "description": "Research fetch response using the existing CLI Markdown view.",
   "properties": {
     "id": {
-      "$ref": "#/$defs/Text",
+      "$ref": "#/$defs/SourceText",
       "description": "Unchanged caller identifier."
     },
     "metadata": {

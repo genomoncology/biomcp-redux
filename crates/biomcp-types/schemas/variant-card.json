@@ -1155,8 +1155,15 @@
           "type": "array"
         },
         "classification": {
-          "$ref": "#/$defs/Term",
-          "description": "Whole native classification."
+          "anyOf": [
+            {
+              "$ref": "#/$defs/Term"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "description": "Native classification when its source text is nonempty; significance remains on the claim."
         },
         "condition": {
           "anyOf": [
@@ -1189,7 +1196,6 @@
         }
       },
       "required": [
-        "classification",
         "attribution"
       ],
       "type": "object"
@@ -6274,7 +6280,7 @@
       "type": "object"
     }
   },
-  "$id": "biomcp.variant-card/7",
+  "$id": "biomcp.variant-card/8",
   "$schema": "https://json-schema.org/draft/2020-12/schema",
   "additionalProperties": false,
   "description": "One versioned command response; schema identity comes only from its body type.",
@@ -6331,7 +6337,7 @@
       "description": "Answer when available."
     },
     "schema": {
-      "const": "biomcp.variant-card/7",
+      "const": "biomcp.variant-card/8",
       "type": "string"
     },
     "sources": {

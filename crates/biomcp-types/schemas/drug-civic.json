@@ -217,8 +217,15 @@
           "type": "array"
         },
         "classification": {
-          "$ref": "#/$defs/Term",
-          "description": "Whole native classification."
+          "anyOf": [
+            {
+              "$ref": "#/$defs/Term"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "description": "Native classification when its source text is nonempty; significance remains on the claim."
         },
         "condition": {
           "anyOf": [
@@ -251,7 +258,6 @@
         }
       },
       "required": [
-        "classification",
         "attribution"
       ],
       "type": "object"
@@ -2439,7 +2445,7 @@
       ]
     }
   },
-  "$id": "biomcp.drug-civic/4",
+  "$id": "biomcp.drug-civic/5",
   "$schema": "https://json-schema.org/draft/2020-12/schema",
   "additionalProperties": false,
   "description": "One versioned command response; schema identity comes only from its body type.",
@@ -2496,7 +2502,7 @@
       "description": "Answer when available."
     },
     "schema": {
-      "const": "biomcp.drug-civic/4",
+      "const": "biomcp.drug-civic/5",
       "type": "string"
     },
     "sources": {
