@@ -77,6 +77,7 @@ singleton! {
             reactions for native outcomes; the old hospitalization and disability mappings were wrong",
         AdverseFrom => "renamed; use: --received-from",
         AdverseTo => "renamed; use: --received-to",
+        // Preserve the published error/1 literal; active guidance uses AdverseSeriousChoices.
         AdverseSerious => "only --serious death and --serious hospitalization are supported",
         AdverseSeriousChoices => "only --serious any, --serious death and --serious hospitalization are supported",
         AdverseFilter => "this adverse-event filter is not supported",
