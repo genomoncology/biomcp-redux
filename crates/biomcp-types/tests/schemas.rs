@@ -237,16 +237,16 @@ fn variant_contracts() -> Vec<Contract> {
         Envelope<VariantAssertions> => ("variant-assertions-result", "biomcp.variant-assertions/3"),
         PopulationFrequency => ("population-frequency", "biodata.population-frequency/3"),
         VariantPopulationQuery => ("variant-population", "biodata.variant-population/2"),
-        Envelope<VariantPopulationResult> => ("variant-population-result", "biomcp.variant-population/5"),
+        Envelope<VariantPopulationResult> => ("variant-population-result", "biomcp.variant-population/6"),
         Statement => ("statement", "biodata.statement/3"),
         VariantRecurrenceQuery => ("variant-recurrence-query", "biodata.variant-recurrence-query/2"),
         Envelope<VariantRecurrence> => ("variant-recurrence", "biomcp.variant-recurrence/5"),
         VariantNormalize => ("variant-normalize", "biodata.variant-normalize/3"),
         Envelope<VariantNormalization> => ("variant-normalization", "biomcp.variant-normalization/4"),
         VariantSearch => ("variant-search", "biodata.variant-search/2"),
-        Envelope<VariantPage> => ("variant-page", "biomcp.variant-page/8"),
+        Envelope<VariantPage> => ("variant-page", "biomcp.variant-page/9"),
         VariantGet => ("variant-get", "biodata.variant-get/2"),
-        Envelope<VariantCard> => ("variant-card", "biomcp.variant-card/7"),
+        Envelope<VariantCard> => ("variant-card", "biomcp.variant-card/8"),
     }
 }
 
