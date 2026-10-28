@@ -60,6 +60,8 @@ For native HTTP clients, `biomcp serve --http` listens at `http://127.0.0.1:8080
 
 ## Develop
 
-`make docs-generate` generates the command reference and examples from the grammar and recorded cases. `make docs-check` checks generated documentation and executes documented examples against recordings. `make landing-gate` runs formatting, lint, coverage and dependency checks. [ROADMAP.md](ROADMAP.md) records scope and source availability.
+The documentation check does not run the exact `uv tool install biomcp-cli` or `uv tool upgrade biomcp-cli` shell instructions. Release artifact checks install and exercise the produced package in an isolated environment.
+
+Run `make docs-generate` after command changes and `make docs-check` to check generated documentation and execute documented examples against recordings. Run `make landing-gate` for the routine formatting, lint, coverage and dependency checks. See [ROADMAP.md](ROADMAP.md) for scope and source availability.
 
 `make schema-release-check` compares generated schemas with the portable snapshot named in `release/schema-baseline.json`. It enforces schema major-version compatibility and rejects missing, malformed or incomplete baselines. Release artifact checks install and exercise the produced package in an isolated environment.
