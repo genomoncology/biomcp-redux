@@ -26,15 +26,7 @@ impl TryFrom<Fields> for TrialSearch {
                 return Err(QueryInvalid::new(&["condition_id", "source"]));
             }
         }
-        for (name, values) in [
-            ("condition", &f.condition),
-            ("intervention", &f.intervention),
-            ("keyword", &f.keyword),
-        ] {
-            if values.len() > super::MAX_ALTERNATIVES {
-                return Err(QueryInvalid::new(&[name]));
-            }
-        }
+        validate_alternatives(&f)?;
         validate_exact_condition(&f)?;
         if !(1..=100).contains(&f.limit) {
             return Err(QueryInvalid::new(&["limit"]));
@@ -118,4 +110,17 @@ fn valid_condition_id(id: &biodata::Curie, source: TrialSource) -> bool {
         }
         _ => false,
     }
+}
+
+fn validate_alternatives(f: &Fields) -> Result<(), QueryInvalid> {
+    for (name, values) in [
+        ("condition", &f.condition),
+        ("intervention", &f.intervention),
+        ("keyword", &f.keyword),
+    ] {
+        if values.len() > super::MAX_ALTERNATIVES {
+        return Err(QueryInvalid::new(&[name]));
+        }
+    }
+    Ok(())
 }
