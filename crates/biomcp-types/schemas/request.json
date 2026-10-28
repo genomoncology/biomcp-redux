@@ -534,6 +534,13 @@
       ],
       "type": "string"
     },
+    "OrganizationSource": {
+      "description": "Organization discovery source.",
+      "enum": [
+        "nci"
+      ],
+      "type": "string"
+    },
     "PartialDate": {
       "description": "A Gregorian date preserving year, month or day precision.",
       "pattern": "^[0-9]{4}(-[0-9]{2}(-[0-9]{2})?)?$",
@@ -926,6 +933,87 @@
   "$schema": "https://json-schema.org/draft/2020-12/schema",
   "description": "One checked query. Housekeeping actions are separate.",
   "oneOf": [
+    {
+      "additionalProperties": false,
+      "description": "Find NCI organization names without assigning an identity.",
+      "properties": {
+        "city": {
+          "$ref": "#/$defs/Text",
+          "description": "Native organization city."
+        },
+        "command": {
+          "const": "search_organization",
+          "type": "string"
+        },
+        "country": {
+          "$ref": "#/$defs/Text",
+          "description": "Native organization country."
+        },
+        "distance": {
+          "$ref": "#/$defs/Text",
+          "description": "Positive radius with explicit mi or km units."
+        },
+        "family": {
+          "$ref": "#/$defs/Text",
+          "description": "Native organization family."
+        },
+        "lat": {
+          "$ref": "#/$defs/Text",
+          "description": "Radius center latitude in degrees; requires lon and distance."
+        },
+        "limit": {
+          "default": 5,
+          "description": "Five headers by default, at most fifty.",
+          "format": "uint32",
+          "maximum": 50,
+          "minimum": 1,
+          "type": "integer"
+        },
+        "lon": {
+          "$ref": "#/$defs/Text",
+          "description": "Radius center longitude in degrees; requires lat and distance."
+        },
+        "name": {
+          "$ref": "#/$defs/Text",
+          "description": "NCI partial organization name; names are not unique."
+        },
+        "offset": {
+          "default": 0,
+          "description": "Offset within the complete retained organization snapshot.",
+          "format": "uint32",
+          "minimum": 0,
+          "type": "integer"
+        },
+        "pool": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/Text"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "description": "Snapshot identity retained by continuation commands."
+        },
+        "postal_code": {
+          "$ref": "#/$defs/Text",
+          "description": "Native postal code."
+        },
+        "source": {
+          "$ref": "#/$defs/OrganizationSource",
+          "description": "Explicit keyed NCI source."
+        },
+        "state": {
+          "$ref": "#/$defs/Text",
+          "description": "Native state or province."
+        }
+      },
+      "required": [
+        "command",
+        "source"
+      ],
+      "type": "object"
+    },
     {
       "additionalProperties": false,
       "description": "Discover native author candidates without identity reconciliation.",

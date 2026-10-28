@@ -31,6 +31,7 @@ pub mod pgx;
 /// Explicit native device report cards and sections.
 pub mod adverse_event_maude;
 
+pub mod organization;
 /// Native human pathway discovery and exact cards.
 pub mod pathway;
 /// Literal phenotype discovery and exact independent source cards.

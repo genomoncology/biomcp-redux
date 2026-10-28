@@ -97,6 +97,7 @@ pub fn run(cx: &Ctx<'_>, request: &Request) -> Outcome {
         Request::GetProtein(q) => crate::protein::get(cx, q),
         Request::SearchPhenotype(q) => crate::phenotype::search(cx, q),
         Request::GetPhenotype(q) => crate::phenotype::get(cx, q),
+        Request::SearchOrganization(q) => crate::organization::search(cx, q),
         Request::SearchPathway(q) => crate::pathway::search(cx, q),
         Request::GetPathway(q) => crate::pathway::get(cx, q),
         Request::PathwayGenes(q) => crate::pathway::genes(cx, q),

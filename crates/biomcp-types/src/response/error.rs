@@ -41,6 +41,7 @@ singleton! {
  PoolExpired => "pool.expired",
  PoolMismatch => "usage.pool_mismatch",
  TooManyPmids => "usage.too_many_pmids",
+ TooBroad => "usage.too_broad",
  UnsupportedFilter => "usage.unsupported_filter" }
 }
 
@@ -50,7 +51,9 @@ singleton! {
 
 singleton! {
     /// Fixed input-free error and migration guidance.
-    pub ErrorMessage { GwasThreshold => "--p-value is not yet supported; threshold filtering is deferred",
+    pub ErrorMessage { OrganizationTooBroad => "organization search is too broad; narrow --name, --city, --state, --country, \
+        --postal-code, --family or --lat/--lon/--distance",
+ GwasThreshold => "--p-value is not yet supported; threshold filtering is deferred",
  GwasPositiveThreshold => "--p-value threshold must be a positive probability in scientific notation",
  SourceSelector => "choose one of the source selector values",
  UnsupportedFilter => "a selected source does not support the requested filters",
@@ -290,6 +293,14 @@ pub struct ErrorEnvelope {
 }
 
 impl ErrorEnvelope {
+    /// Refuse an organization collection beyond its bounded observation.
+    pub fn organization_too_broad() -> Self {
+        let mut error = Self::arguments();
+        error.error.code = ErrorCode::TooBroad;
+        error.error.message = ErrorMessage::OrganizationTooBroad;
+        error.error.source = Some(crate::Source::Nci);
+        error
+    }
     /// Name a refused command with fixed guidance and no caller arguments.
     pub fn mcp_unavailable(message: ErrorMessage) -> Self {
         let mut error = Self::arguments();

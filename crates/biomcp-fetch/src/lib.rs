@@ -8,6 +8,7 @@ mod observe_context;
 pub use observe::{MAX_OBSERVATIONS, Observation, Observations, Shape};
 pub use observe_context::{Identities, Provenance};
 mod batch;
+mod bounded_json;
 mod bundle;
 mod cache;
 mod cache_access;
