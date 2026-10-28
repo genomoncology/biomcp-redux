@@ -21,10 +21,7 @@ impl super::Trial {
         };
         let expected = name.as_str().to_lowercase();
         let mut count = 0;
-        for row in self.sites {
-            let Some(row) = p.field("sites", Some(row)) else {
-                continue;
-            };
+        for row in p.fields("sites", self.sites) {
             let Some(org_name) = p.required_field("sites.org_name", row.org_name) else {
                 continue;
             };

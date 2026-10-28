@@ -66,8 +66,7 @@ pub struct Trial {
     brief_summary: Option<Box<str>>,
     #[serde(default)]
     diseases: Vec<NciDisease>,
-    #[serde(default)]
-    sites: Vec<crate::raw::Field<sites::Site>>,
+    sites: Option<crate::raw::Field<Vec<crate::raw::Field<sites::Site>>>>,
     eligibility: Option<biomcp_types::NciEligibility>,
     #[serde(default)]
     arms: Vec<Arm>,
