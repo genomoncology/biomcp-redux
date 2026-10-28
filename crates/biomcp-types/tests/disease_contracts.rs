@@ -58,10 +58,10 @@ fn exact_identity_and_statistics_selectors_cannot_be_mixed() {
 }
 
 #[test]
-fn card_refuses_hidden_associations_statistics_and_related_entities() {
+fn card_omits_unrecognized_associations_statistics_and_related_entities() {
     let card = json!(
         {"requested_id":"MONDO:0007254","returned_id":"MONDO:0007254","concept":{"id":"MONDO:0007254","label":"breast cancer"},
-        "attribution":{"source":"synthetic"},}
+        "attribution":{"source":"synthetic"},"replaced_by":null}
     );
     roundtrip::<DiseaseCard>(card.clone()).unwrap();
     for field in [

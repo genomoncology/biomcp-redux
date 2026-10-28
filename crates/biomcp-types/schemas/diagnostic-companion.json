@@ -103,7 +103,7 @@
       ]
     },
     "CompanionGroupCells": {
-      "description": "Exact native CompanionGroupCells headers; any extra or changed header is refused.",
+      "description": "Known native group-table cells keyed by their exact source headers.",
       "properties": {
         "Device Indication for a Specific Group of Oncology Therapeutic Products and Trade Name (Generic) – NDA/BLA": {
           "$ref": "#/$defs/DiagnosticCell",
@@ -131,7 +131,7 @@
       "type": "object"
     },
     "CompanionIndividualCells": {
-      "description": "Exact native CompanionIndividualCells headers; any extra or changed header is refused.",
+      "description": "Known native individual-table cells keyed by their exact source headers.",
       "properties": {
         "Biomarker(s)": {
           "$ref": "#/$defs/DiagnosticCell",
