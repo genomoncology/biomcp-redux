@@ -25,13 +25,13 @@
         "location": {
           "anyOf": [
             {
-              "$ref": "#/$defs/Cytoband"
+              "$ref": "#/$defs/GeneLocation"
             },
             {
               "type": "null"
             }
           ],
-          "description": "A single stated band, if available."
+          "description": "Source-stated location, including unparsed publisher text."
         },
         "locus_group": {
           "$ref": "#/$defs/LocusGroup",
@@ -69,6 +69,10 @@
         "name"
       ],
       "type": "object"
+    },
+    "GeneLocation": {
+      "description": "HGNC location text with a parsed interpretation when its syntax is known.",
+      "type": "string"
     },
     "GenePage": {
       "additionalProperties": false,
@@ -854,7 +858,7 @@
       "type": "string"
     }
   },
-  "$id": "biomcp.gene-page/3",
+  "$id": "biomcp.gene-page/4",
   "$schema": "https://json-schema.org/draft/2020-12/schema",
   "additionalProperties": false,
   "description": "One versioned command response; schema identity comes only from its body type.",
@@ -911,7 +915,7 @@
       "description": "Answer when available."
     },
     "schema": {
-      "const": "biomcp.gene-page/3",
+      "const": "biomcp.gene-page/4",
       "type": "string"
     },
     "sources": {

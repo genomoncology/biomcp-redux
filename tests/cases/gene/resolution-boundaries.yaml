@@ -1,6 +1,6 @@
 live_check: public
 feature: gene-commands
-story: Exact gene identities preserve optional absence and do not confuse identifier families
+story: Exact gene identities retain range locations and do not confuse identifier families
 replay: gene/main
 steps:
   - run: [search, gene, DMD]
@@ -9,6 +9,7 @@ steps:
         equals:
           hgnc_id: HGNC:2928
           symbol: DMD
+          location: Xp21.2-p21.1
           name: dystrophin
           locus_group: protein_coding
           status: approved
