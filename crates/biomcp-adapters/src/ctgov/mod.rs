@@ -76,11 +76,15 @@ pub fn parameters(query: &TrialSearch, gene: Option<&str>) -> BTreeMap<String, S
         text.push(value.to_owned());
     }
     if !query.keyword().is_empty() {
-        text.push(if text.is_empty() {
+        let keywords = if text.is_empty() {
             alternatives(query.keyword())
         } else {
+            for value in &mut text {
+                *value = format!("({value})");
+            }
             format!("({})", alternatives(query.keyword()))
-        });
+        };
+        text.push(keywords);
     }
     if !text.is_empty() {
         p.insert("query.term".into(), text.join(" AND "));

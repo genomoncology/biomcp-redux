@@ -156,3 +156,20 @@ pub(super) fn mismatch() -> Result<(), String> {
     stub.finish()?;
     Ok(())
 }
+
+pub(super) fn conjunction() -> Result<(), String> {
+    let stub = Stub::for_source("clinicaltrials.gov", "application/json", |request| {
+        if request.starts_with("GET /api/v2/version ") {
+            return Ok(json!({"dataTimestamp":"2026-10-28T00:00:00"}).to_string());
+        }
+        if !request.contains("query.term=%28first%20OR%20second%29%20AND%20%28%28quality%20of%20life%29%20OR%20%28survival%29%29") {
+            return Err(format!("different options lost AND grouping: {request}"));
+        }
+        Ok(json!({"totalCount":0,"studies":[]}).to_string())
+    })?;
+    let env = setup(&stub)?;
+    let args: Vec<String> = ["search","trial","first OR second","--keyword","quality of life","--keyword","survival"].iter().map(|v| (*v).into()).collect();
+    invoke(&env, &args, 0)?;
+    stub.finish()?;
+    Ok(())
+}

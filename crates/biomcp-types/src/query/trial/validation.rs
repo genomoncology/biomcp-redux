@@ -119,7 +119,7 @@ fn validate_alternatives(f: &Fields) -> Result<(), QueryInvalid> {
         ("keyword", &f.keyword),
     ] {
         if values.len() > super::MAX_ALTERNATIVES {
-        return Err(QueryInvalid::new(&[name]));
+            return Err(QueryInvalid::new(&[name]));
         }
     }
     Ok(())

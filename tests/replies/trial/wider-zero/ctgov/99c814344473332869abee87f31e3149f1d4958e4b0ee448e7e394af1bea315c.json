@@ -11,10 +11,9 @@
       "retry_after_ms": null,
       "body": {
         "kind": "json",
-        "value": {
-          "totalCount": 0,
-          "studies": []
-        }
+        "value": {"totalCount":0,"studies":[
+
+]}
       }
     }
   ]

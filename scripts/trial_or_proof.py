@@ -7,6 +7,7 @@ import os
 from pathlib import Path
 import sys
 import tarfile
+from urllib.parse import parse_qs, urlsplit
 
 DECODED_LIMIT = 1024 * 1024
 
@@ -36,6 +37,15 @@ def totals(archive):
             total = value.get('totalCount', value.get('total'))
             if not isinstance(total, int) or total <= 0:
                 raise ValueError('native source count must be positive: ' + receipt['id'])
+            if receipt['source'] == 'nci':
+                requested = set(parse_qs(urlsplit(receipt['url']).query).get('diseases.nci_thesaurus_concept_id', []))
+                rows = value.get('data', [])
+                if not requested or not rows:
+                    raise ValueError('missing NCI disease witness')
+                for row in rows:
+                    codes = {disease['nci_thesaurus_concept_id'] for disease in row.get('diseases', [])}
+                    if not requested.intersection(codes):
+                        raise ValueError('returned NCI trial lacks requested disease code')
             result[receipt['id']] = total
     return result
 
