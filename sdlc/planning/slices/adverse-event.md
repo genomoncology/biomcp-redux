@@ -313,7 +313,7 @@ All native facts below were captured October 25, 2026 in j12641. Publisher dates
 |---|---|---|
 | Default positional FAERS; explicit source | F01 five rows,total 105020; F20 skip 5 same total. | Literal escaping/empty input; default/explicit equality. |
 | --reaction | F02 myocarditis 2147; F03 pneumonitis 2608. | No synonym rewrite; unsupported syntax. |
-| --serious any/death/hospitalization | Native serious:1; F13 total 18819; F14 total 44253. | Any uses the source seriousness flag. Bare/unknown values reject; native flags can overlap. |
+| --serious any/death/hospitalization | Native serious:1, retained 2026-10-28 capture and replay case serious-any; F13 total 18819; F14 total 44253. | Any uses the source seriousness flag. Bare/unknown values reject; native flags can overlap. |
 | --received-from/--received-to | F15 both bounds,total 16093. | Each one-sided builder, invalid/reversed dates and combination with reaction; those requests were not natively captured. A15 remains unanswered. |
 | --limit/--offset | F01 five rows/F20 skip 5. | Bounds, result window, snapshot expiry and exact selector preservation. |
 | MAUDE positional/source | D01 total 23863 and D05 exact key. | Four FAERS filters reject before I/O; no wildcard expansion. |

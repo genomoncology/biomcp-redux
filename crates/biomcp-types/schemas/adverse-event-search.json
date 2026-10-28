@@ -3,11 +3,13 @@
     "AdverseEventSerious": {
       "description": "Report-level seriousness filter, independent of reaction outcome.",
       "enum": [
+        "any",
         "death",
         "hospitalization"
       ],
       "type": "string",
       "x-enum-descriptions": [
+        " Native report seriousness flag.",
         " Native report death flag.",
         " Native report hospitalization flag."
       ]
@@ -127,7 +129,7 @@
           "type": "null"
         }
       ],
-      "description": "FAERS report flag: death or hospitalization; never a reaction outcome."
+      "description": "FAERS report flag: any uses the source seriousness flag; death and hospitalization can overlap. Never a reaction outcome."
     },
     "snapshot": {
       "anyOf": [

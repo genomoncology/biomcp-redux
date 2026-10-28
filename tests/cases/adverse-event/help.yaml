@@ -22,7 +22,7 @@
             "--offset"
           ]
         },
-        "/result/commands/0/arguments/6/description": "FAERS report flag: death or hospitalization; never a reaction outcome.",
+        "/result/commands/0/arguments/6/description": "FAERS report flag: any uses the source seriousness flag; death and hospitalization can overlap. Never a reaction outcome.",
         "/result/commands/0/arguments/8/choices": [
           "faers",
           "maude",
