@@ -1,5 +1,5 @@
 //! Source population strata, without computed frequencies or classification.
-use crate::{Attribution, Build, FiniteNumber, Text, VariantRef};
+use crate::{Attribution, Build, Fraction, Text, VariantRef};
 use serde::{Deserialize, Serialize};
 /// One checked stratum of one source dataset release.
 #[derive(Clone, Debug, PartialEq, Serialize, Deserialize)]
@@ -27,17 +27,29 @@ struct Fields {
     #[serde(default, skip_serializing_if = "Option::is_none")]
     allele_number: Option<u64>,
     #[serde(default, skip_serializing_if = "Option::is_none")]
-    #[cfg_attr(feature = "schema", schemars(range(min = 0, max = 1)))]
-    allele_frequency: Option<FiniteNumber>,
+    allele_frequency: Option<Fraction>,
     #[serde(default, skip_serializing_if = "Option::is_none")]
     homozygote_count: Option<u64>,
     #[serde(default, skip_serializing_if = "Option::is_none")]
     hemizygote_count: Option<u64>,
     #[serde(default, skip_serializing_if = "Option::is_none")]
-    #[cfg_attr(feature = "schema", schemars(range(min = 0, max = 1)))]
-    faf95: Option<FiniteNumber>,
+    faf95: Option<Fraction>,
     #[serde(default, skip_serializing_if = "<[ _ ]>::is_empty")]
     filters: Box<[Text]>,
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    genotype_filter: Option<GenotypeFilter>,
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    grpmax_group: Option<Text>,
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    heterozygote_count: Option<u64>,
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    homoplasmic_count: Option<u64>,
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    heteroplasmic_count: Option<u64>,
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    homoplasmic_frequency: Option<Fraction>,
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    heteroplasmic_frequency: Option<Fraction>,
     attribution: Attribution,
 }
 impl TryFrom<Fields> for PopulationFrequency {
@@ -50,12 +62,20 @@ impl TryFrom<Fields> for PopulationFrequency {
         {
             return Err(crate::Error::PopulationCountExceedsNumber);
         }
-        if [fields.allele_frequency, fields.faf95]
-            .into_iter()
-            .flatten()
-            .any(|n| !(0.0..=1.0).contains(&f64::from(n)))
+        if fields.ancestry_group.is_some() && fields.grpmax_group.is_some() {
+            return Err(crate::Error::PopulationGrpmaxMisplaced);
+        }
+        let has_mt_field = fields.homoplasmic_count.is_some()
+            || fields.heteroplasmic_count.is_some()
+            || fields.homoplasmic_frequency.is_some()
+            || fields.heteroplasmic_frequency.is_some();
+        if has_mt_field
+            && fields.subject.allele_accession().is_some_and(|accession| {
+                crate::Chromosome::from_accession(accession, fields.build)
+                    .is_ok_and(|chromosome| chromosome.number() != 25)
+            })
         {
-            return Err(crate::Error::PopulationFrequencyRange);
+            return Err(crate::Error::PopulationMitochondrialFieldMisplaced);
         }
         Ok(Self(fields))
     }
@@ -85,6 +105,13 @@ impl PopulationFrequency {
             homozygote_count: None,
             hemizygote_count: None,
             faf95: None,
+            genotype_filter: None,
+            grpmax_group: None,
+            heterozygote_count: None,
+            homoplasmic_count: None,
+            heteroplasmic_count: None,
+            homoplasmic_frequency: None,
+            heteroplasmic_frequency: None,
             filters: Box::default(),
         })
     }
@@ -95,12 +122,12 @@ impl PopulationFrequency {
         ancestry_group: Option<Text>,
         sex: Option<PopulationSex>,
         subset: Option<Text>,
-    ) -> Self {
+    ) -> Result<Self, crate::Error> {
         self.0.data_type = data_type;
         self.0.ancestry_group = ancestry_group;
         self.0.sex = sex;
         self.0.subset = subset;
-        self
+        self.0.try_into()
     }
     /// Preserve source counts while refusing an allele count above its denominator.
     pub fn with_counts(
@@ -119,8 +146,8 @@ impl PopulationFrequency {
     /// Preserve only source-reported frequencies in the closed interval zero to one.
     pub fn with_frequencies(
         mut self,
-        allele_frequency: Option<FiniteNumber>,
-        faf95: Option<FiniteNumber>,
+        allele_frequency: Option<Fraction>,
+        faf95: Option<Fraction>,
     ) -> Result<Self, crate::Error> {
         self.0.allele_frequency = allele_frequency;
         self.0.faf95 = faf95;
@@ -150,5 +177,13 @@ crate::wire_enum! {
         Xx => "xx",
         /// Source XY stratum.
         Xy => "xy",
+    }
+}
+
+crate::wire_enum! {
+    /// Source count filtering state.
+    GenotypeFilter {
+        /// Source counts before its genotype filters.
+        Raw => "raw",
     }
 }

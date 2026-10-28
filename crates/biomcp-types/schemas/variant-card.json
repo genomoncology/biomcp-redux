@@ -1788,6 +1788,11 @@
       "format": "double",
       "type": "number"
     },
+    "Fraction": {
+      "maximum": 1.0,
+      "minimum": 0.0,
+      "type": "number"
+    },
     "GeneRef": {
       "description": "A source-stated gene reference; its label never implies an identifier.",
       "properties": {
@@ -1833,6 +1838,13 @@
     "GeneSymbol": {
       "description": "Source spelling of a gene symbol, with ASCII case-insensitive identity.",
       "pattern": "^[A-Za-z][A-Za-z0-9._/@-]{0,254}$",
+      "type": "string"
+    },
+    "GenotypeFilter": {
+      "description": "Source count filtering state.",
+      "enum": [
+        "raw"
+      ],
       "type": "string"
     },
     "GnomadCounts": {
@@ -2688,7 +2700,7 @@
         "allele_frequency": {
           "anyOf": [
             {
-              "$ref": "#/$defs/FiniteNumber"
+              "$ref": "#/$defs/Fraction"
             },
             {
               "type": "null"
@@ -2738,7 +2750,7 @@
         "faf95": {
           "anyOf": [
             {
-              "$ref": "#/$defs/FiniteNumber"
+              "$ref": "#/$defs/Fraction"
             },
             {
               "type": "null"
@@ -2751,12 +2763,76 @@
           },
           "type": "array"
         },
+        "genotype_filter": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/GenotypeFilter"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "grpmax_group": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/Text"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
         "hemizygote_count": {
           "format": "uint64",
           "minimum": 0,
           "type": [
             "integer",
             "null"
+          ]
+        },
+        "heteroplasmic_count": {
+          "format": "uint64",
+          "minimum": 0,
+          "type": [
+            "integer",
+            "null"
+          ]
+        },
+        "heteroplasmic_frequency": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/Fraction"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "heterozygote_count": {
+          "format": "uint64",
+          "minimum": 0,
+          "type": [
+            "integer",
+            "null"
+          ]
+        },
+        "homoplasmic_count": {
+          "format": "uint64",
+          "minimum": 0,
+          "type": [
+            "integer",
+            "null"
+          ]
+        },
+        "homoplasmic_frequency": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/Fraction"
+            },
+            {
+              "type": "null"
+            }
           ]
         },
         "homozygote_count": {
@@ -6159,7 +6235,7 @@
       "type": "object"
     }
   },
-  "$id": "biomcp.variant-card/9",
+  "$id": "biomcp.variant-card/10",
   "$schema": "https://json-schema.org/draft/2020-12/schema",
   "description": "One versioned command response; schema identity comes only from its body type.\nJSON readers ignore unknown fields and unknown growable enum values within a major.",
   "properties": {
@@ -6215,7 +6291,7 @@
       "description": "Answer when available."
     },
     "schema": {
-      "const": "biomcp.variant-card/9",
+      "const": "biomcp.variant-card/10",
       "type": "string"
     },
     "sources": {

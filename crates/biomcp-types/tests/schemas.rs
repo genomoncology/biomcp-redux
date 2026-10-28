@@ -250,18 +250,18 @@ fn variant_contracts() -> Vec<Contract> {
     contracts! {
         VariantAssertionsGet => ("variant-assertions", "biodata.variant-assertions/2", query),
         Envelope<VariantAssertions> => ("variant-assertions-result", "biomcp.variant-assertions/4"),
-        PopulationFrequency => ("population-frequency", "biodata.population-frequency/4"),
+        PopulationFrequency => ("population-frequency", "biodata.population-frequency/5"),
         VariantPopulationQuery => ("variant-population", "biodata.variant-population/3", query),
-        Envelope<VariantPopulationResult> => ("variant-population-result", "biomcp.variant-population/7"),
+        Envelope<VariantPopulationResult> => ("variant-population-result", "biomcp.variant-population/8"),
         Statement => ("statement", "biodata.statement/4"),
         VariantRecurrenceQuery => ("variant-recurrence-query", "biodata.variant-recurrence-query/3", query),
         Envelope<VariantRecurrence> => ("variant-recurrence", "biomcp.variant-recurrence/6"),
         VariantNormalize => ("variant-normalize", "biodata.variant-normalize/4", query),
         Envelope<VariantNormalization> => ("variant-normalization", "biomcp.variant-normalization/5"),
         VariantSearch => ("variant-search", "biodata.variant-search/2", query),
-        Envelope<VariantPage> => ("variant-page", "biomcp.variant-page/10"),
+        Envelope<VariantPage> => ("variant-page", "biomcp.variant-page/11"),
         VariantGet => ("variant-get", "biodata.variant-get/3", query),
-        Envelope<VariantCard> => ("variant-card", "biomcp.variant-card/9"),
+        Envelope<VariantCard> => ("variant-card", "biomcp.variant-card/10"),
     }
 }
 
@@ -565,4 +565,17 @@ fn assert_open(value: &Value, name: &str) {
         }
         _ => {}
     }
+}
+
+#[test]
+fn population_frequencies_share_one_bounded_fraction() {
+    let schema = generate::<biodata::PopulationFrequency>();
+    for field in ["allele_frequency", "faf95"] {
+        assert_eq!(
+            schema["properties"][field]["anyOf"][0]["$ref"], "#/$defs/Fraction",
+            "{field} uses Fraction"
+        );
+    }
+    assert_eq!(schema["$defs"]["Fraction"]["minimum"], 0.0);
+    assert_eq!(schema["$defs"]["Fraction"]["maximum"], 1.0);
 }

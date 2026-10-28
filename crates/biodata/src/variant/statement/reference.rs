@@ -78,6 +78,15 @@ impl TryFrom<Fields> for VariantRef {
     }
 }
 impl VariantRef {
+    pub(crate) fn allele_accession(&self) -> Option<crate::Accession> {
+        match &self.0 {
+            Fields::Allele(AlleleRef {
+                hgvs: Some(hgvs), ..
+            }) => hgvs.accession().ok(),
+            _ => None,
+        }
+    }
+
     /// Reference one checked source allele identifier.
     pub fn allele(id: VariantId) -> Self {
         Self(Fields::Allele(AlleleRef {
