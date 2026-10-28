@@ -407,6 +407,11 @@ impl Leg<'_> {
     }
     /// Finish the leg without clearing failures after later successful requests.
     pub fn finish(self) -> LegReport {
+        self.take_report()
+    }
+    /// Drain one read's report while retaining the source deadline and refreshed bundles.
+    /// Call only after all requests contributing to that read have joined.
+    pub fn take_report(&self) -> LegReport {
         std::mem::take(
             &mut *self
                 .report

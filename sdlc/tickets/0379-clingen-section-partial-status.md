@@ -1,6 +1,7 @@
 # 0379 — Keep ClinGen validity and dosage status separate
 
-Status: OPEN.
+Status: COMPLETE.
+Landed: 93f826a0db221c6e1ea78f49dd984d5e71b87f55
 
 Milestone: 5
 

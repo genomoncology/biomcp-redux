@@ -128,6 +128,10 @@
           ],
           "description": "Source dosage assessment date, preserving its original spelling."
         },
+        "dosage_status": {
+          "$ref": "#/$defs/SourceOutcome",
+          "description": "Outcome of the dosage sensitivity source read."
+        },
         "haploinsufficiency": {
           "anyOf": [
             {
@@ -156,8 +160,16 @@
             "$ref": "#/$defs/ClinGenValidity"
           },
           "type": "array"
+        },
+        "validity_status": {
+          "$ref": "#/$defs/SourceOutcome",
+          "description": "Outcome of the gene–disease validity source read."
         }
       },
+      "required": [
+        "validity_status",
+        "dosage_status"
+      ],
       "type": "object"
     },
     "ClinGenValidity": {
@@ -2889,7 +2901,7 @@
       "type": "string"
     }
   },
-  "$id": "biomcp.gene-cards/4",
+  "$id": "biomcp.gene-cards/5",
   "$schema": "https://json-schema.org/draft/2020-12/schema",
   "additionalProperties": false,
   "description": "One versioned command response; schema identity comes only from its body type.",
@@ -2946,7 +2958,7 @@
       "description": "Answer when available."
     },
     "schema": {
-      "const": "biomcp.gene-cards/4",
+      "const": "biomcp.gene-cards/5",
       "type": "string"
     },
     "sources": {

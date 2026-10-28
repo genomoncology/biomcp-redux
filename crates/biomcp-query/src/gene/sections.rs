@@ -223,6 +223,16 @@ impl SectionValue {
         match self {
             Self::Protein(value) => matches!(value, Section::Unavailable { .. }),
             Self::Civic(value) => matches!(value, Section::Unavailable { .. }),
+            Self::ClinGen(Section::Data { data, .. }) => {
+                [&data.validity_status, &data.dosage_status]
+                    .into_iter()
+                    .any(|outcome| {
+                        matches!(
+                            outcome.state,
+                            SourceState::Failed | SourceState::Stale | SourceState::Syncing
+                        )
+                    })
+            }
             Self::ClinGen(value) => matches!(value, Section::Unavailable { .. }),
             Self::Constraint(value) => matches!(value, Section::Unavailable { .. }),
             Self::Expression(value) => matches!(value, Section::Unavailable { .. }),
@@ -283,7 +293,8 @@ pub(super) fn join(items: &mut [GeneItem], result: &SectionResult) {
         };
         if !matches!(value, SectionValue::Oncokb(..))
             && (value.unavailable()
-                || result.source.state == SourceState::Stale
+                || (result.source.state == SourceState::Stale
+                    && !matches!(value, SectionValue::ClinGen(_)))
                 || result
                     .problems
                     .iter()
