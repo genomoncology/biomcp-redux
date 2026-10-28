@@ -1,4 +1,4 @@
-//! Features article-get and author-orcid: invalid optional fields retain source records.
+//! Features article-get, article-search and author-orcid: invalid optional fields retain source records.
 use super::super::{configuration::invoke, network_stub::Stub, response_cases::checked_case};
 use libtest_mimic::Trial;
 use serde_json::{Value, json};
@@ -12,9 +12,12 @@ pub(super) fn trials() -> Vec<Trial> {
         }),
         Trial::test(
             "article-get/pubmed-invalid-optional-fields-are-disclosed",
+            || pubmed().map_err(Into::into),
+        ),
+        Trial::test(
+            "article-search/pubmed-invalid-optional-fields-are-disclosed",
             || {
-                pubmed()
-                    .and_then(|_| summaries())
+                summaries()
                     .and_then(|_| notices())
                     .and_then(|_| stored_notice_problems())
                     .map_err(Into::into)
@@ -167,6 +170,10 @@ fn pubmed() -> Result<(), String> {
             "<Journal><JournalIssue><PubDate><Year>bad</Year></PubDate></JournalIssue></Journal>",
         ),
         (
+            "date_prose",
+            "<Journal><JournalIssue><PubDate><MedlineDate>2024 Spring</MedlineDate></PubDate></JournalIssue></Journal>",
+        ),
+        (
             "electronic_date",
             "<ArticleDate DateType=\"Electronic\"><Year>2024</Year><Month>Feb</Month><Day>31</Day></ArticleDate>",
         ),
@@ -235,8 +242,10 @@ fn pubmed() -> Result<(), String> {
         if value.pointer("/result/items/0/answer/card/pmid") != Some(&json!("123")) {
             return Err(format!("article lost: {value}"));
         }
+        let field = if field == "date_prose" { "date" } else { field };
         problem(&value, "pubmed", field, "123")?;
         if field == "title" {
+            super::super::schema::Registry::embedded()?.validate(&value, &[], true)?;
             if value.pointer("/result/items/0/answer/card/title").is_some() {
                 return Err("bad title survived".into());
             }
