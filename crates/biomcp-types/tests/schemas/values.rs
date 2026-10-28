@@ -526,3 +526,13 @@ fn generated_links_expose_uri_metadata() {
         }
     }
 }
+
+#[test]
+fn population_frequencies_share_one_bounded_fraction() {
+    let schema = super::generate::<biodata::PopulationFrequency>();
+    for field in ["allele_frequency", "faf95"] {
+        assert_eq!(schema["properties"][field]["anyOf"][0]["$ref"], "#/$defs/Fraction", "{field} uses Fraction");
+    }
+    assert_eq!(schema["$defs"]["Fraction"]["minimum"], 0.0);
+    assert_eq!(schema["$defs"]["Fraction"]["maximum"], 1.0);
+}
