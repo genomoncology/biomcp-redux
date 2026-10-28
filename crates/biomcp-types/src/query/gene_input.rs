@@ -57,6 +57,17 @@ impl fmt::Display for GeneInput {
 text_value!(
     GeneInput,
     "GeneInput",
-    r"\S",
+    {
+        let whitespace = biodata::schema_pattern::WHITESPACE;
+        let hgnc = HgncId::pattern();
+        let ensembl = EnsemblGeneId::pattern();
+        let ncbi = NcbiGeneId::pattern();
+        format!(
+            r"^[{whitespace}]*(?:{}|{}|{}|(?!(?:[Hh][Gg][Nn][Cc]:|[Ee][Nn][Ss][Gg]))(?![0-9]+[{whitespace}]*$)[^{whitespace}](?:[\s\S]*[^{whitespace}])?)[{whitespace}]*$",
+            hgnc.trim_start_matches('^').trim_end_matches('$'),
+            ensembl.trim_start_matches('^').trim_end_matches('$'),
+            ncbi.trim_start_matches('^').trim_end_matches('$')
+        )
+    },
     "An input classified before source resolution; aliases remain free text."
 );

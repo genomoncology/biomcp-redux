@@ -22,7 +22,7 @@ pub enum VariantNamespace {
 impl VariantInput {
     #[cfg(feature = "schema")]
     pub(crate) const CHROMOSOME_PATTERN: &'static str =
-        r"^chr([1-9][0-9]*|X|Y|M|MT):g\.[\x21-\x7e]*[0-9][\x21-\x7e]*$";
+        r"^chr([1-9]|1[0-9]|2[0-2]|X|Y|M|MT):g\.[\x21-\x7e]*[0-9][\x21-\x7e]*$";
 
     /// Maximum bytes in one published identifier.
     pub const MAX_BYTES: usize = 2048;
@@ -87,9 +87,11 @@ text_value!(
     VariantInput,
     "VariantInput",
     format!(
-        "({}|{}|^[1-9][0-9]*$|{})",
-        crate::VariantId::PATTERN,
-        crate::HgvsText::PATTERN,
+        "^(?=[\\x21-\\x7e]{{1,{}}}$)({}|{}|^{}$|{})",
+        Self::MAX_BYTES,
+        crate::VariantId::pattern(),
+        crate::HgvsText::pattern(),
+        biodata::schema_pattern::decimal(u64::MAX),
         Self::CHROMOSOME_PATTERN
     )
 );

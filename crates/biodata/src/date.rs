@@ -1,7 +1,7 @@
 use crate::{Error, text_value};
 use std::{fmt, str::FromStr};
 
-/// A Gregorian date preserving year, month or day precision.
+/// A Gregorian date preserving year, month or day precision. The parser additionally validates the calendar day, including leap years.
 #[derive(Clone, Copy, Debug, PartialEq, Eq, Hash)]
 pub struct PartialDate {
     year: u16,
@@ -91,6 +91,6 @@ impl fmt::Display for PartialDate {
 text_value!(
     PartialDate,
     "PartialDate",
-    r"^[0-9]{4}(-[0-9]{2}(-[0-9]{2})?)?$",
-    "A Gregorian date preserving year, month or day precision."
+    r"^(?!0000)[0-9]{4}(-(0[1-9]|1[0-2])(-(0[1-9]|[12][0-9]|3[01]))?)?$",
+    "A Gregorian date preserving year, month or day precision. The parser additionally validates the calendar day, including leap years."
 );

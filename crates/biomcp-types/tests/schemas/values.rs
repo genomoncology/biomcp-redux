@@ -167,7 +167,7 @@ fn value_schemas_describe_canonical_text_and_coordinate_bounds() {
     }
     // These constraints require runtime checks beyond JSON Schema's vocabulary.
     let overflow = json!("HGNC:4294967296");
-    assert!(id.is_valid(&overflow));
+    assert!(!id.is_valid(&overflow));
     assert!(serde_json::from_value::<HgncId>(overflow).is_err());
     assert!(date.is_valid(&json!("2023-02-29")));
     assert!(serde_json::from_value::<PartialDate>(json!("2023-02-29")).is_err());
@@ -400,7 +400,7 @@ fn every_generated_schema_describes_its_root() {
 #[test]
 fn generated_metadata_preserves_partial_dates_and_describes_error_codes() {
     let date = generate::<PartialDate>();
-    assert_eq!(date["pattern"], r"^[0-9]{4}(-[0-9]{2}(-[0-9]{2})?)?$");
+    assert_eq!(date["pattern"], PartialDate::pattern());
     assert!(date.get("format").is_none());
     let full_dates = generate::<biomcp_types::AdverseEventSearch>();
     for field in ["received_from", "received_to"] {
@@ -531,20 +531,119 @@ fn generated_links_expose_uri_metadata() {
 fn text_admissions<T: JsonSchema + std::str::FromStr>(examples: &[&str]) {
     let schema = validator::<T>();
     for text in examples {
-        assert_eq!(schema.is_valid(&json!(text)), text.parse::<T>().is_ok(),
-            "{}: {text:?}", std::any::type_name::<T>());
+        assert_eq!(
+            schema.is_valid(&json!(text)),
+            text.parse::<T>().is_ok(),
+            "{}: {text:?}",
+            std::any::type_name::<T>()
+        );
     }
 }
 
 #[test]
 fn text_value_patterns_match_parser_admissions() {
-    text_admissions::<CaId>(&["CA000001", "CA000000", "CA0000001", "CA1000000"]);
-    text_admissions::<VcvId>(&["VCV000000001", "VCV000000000", "VCV000000001.0"]);
-    text_admissions::<RcvId>(&["RCV000000001", "RCV000000000", "RCV000000001.01"]);
-    text_admissions::<ScvId>(&["SCV000000001", "SCV000000000", "SCV000000001.1"]);
-    text_admissions::<Doi>(&["10.1/a", "10.1/a\u{0080}", "10.1/a\u{009f}", "10.1/α", "10.1/a\n"]);
-    text_admissions::<HgvsText>(&["NM_004333.6:c.1A>G", "NM_004333.0:c.1A>G",
-        "NM_004333.6(123):c.1A>G", "NM_004333.6(BRAF):c.1A>G",
-        "NP_004324.1:c.1A>G", "NP_004324.1:p.?",
-        "NC_000007.14(NP_004324.1):g.1A>G"]);
+    macro_rules! cases {
+        ($($ty:ty => [$($text:expr),* $(,)?]),* $(,)?) => {$(
+            text_admissions::<$ty>(&[$($text),*]);
+        )*};
+    }
+    cases! {
+        HgncId => ["HGNC:1", "HGNC:0", "HGNC:4294967295", "HGNC:4294967296"],
+        NcbiGeneId => ["1", "01", "4294967295", "4294967296"],
+        Pmid => ["1", "0", "4294967295", "4294967296"],
+        Pmcid => ["PMC1", "PMC0", "PMC4294967295", "PMC4294967296"],
+        Doi => ["10.1/a", "10.1/a\u{0080}", "10.1/a\u{009f}", "10.1/α", "10.1/a\n", "10.1/a\u{feff}", "10.1/a\u{0085}"],
+        EuropePmcId => ["PPR0001", "PPR0000", "ABCDEFGH1", "ABCDEFGHI1", &format!("PPR{}", "1".repeat(61)), &format!("PPR{}", "1".repeat(62))],
+        SemanticScholarId => ["0123456789abcdef0123456789ABCDEF0123456789", "0123456789abcdef0123456789abcdef012345678g"],
+        GeneSymbol => ["BRAF", "123", "A/B@c", &"A".repeat(255), &"A".repeat(256)],
+        OmimId => ["000001", "00000", "0000000"],
+        UniProtAcc => ["P15056", "A0A023GPI8", "p15056", "P15056-1"],
+        Cytoband => ["7q31.2", "7q01.2", "23q31.2", "7q3"],
+        EnsemblGeneId => ["ENSG00000000001", "ENSG00000000001.1", "ENSG00000000001.0", "ENSG00000000001.4294967295", "ENSG00000000001.4294967296"],
+        CaId => ["CA000001", "CA1", "CA000000", "CA0000001", "CA1000000", "CA18446744073709551615", "CA18446744073709551616"],
+        PaId => ["PA1", "PA0", "PA01", "PA18446744073709551615", "PA18446744073709551616"],
+        RsId => ["rs1", "rs0", "rs01", "rs18446744073709551615", "rs18446744073709551616"],
+        ClinVarVariationId => ["clinvar:1", "clinvar:0", "clinvar:18446744073709551615", "clinvar:18446744073709551616"],
+        ClinVarAlleleId => ["1", "0", "01", "18446744073709551615", "18446744073709551616"],
+        VcvId => ["VCV000000001", "VCV000000000", "VCV000000001.0", "VCV000000001.1"],
+        RcvId => ["RCV000000001", "RCV000000000", "RCV000000001.01"],
+        ScvId => ["SCV000000001", "SCV000000000", "SCV000000001.1"],
+        CosmicId => ["COSV1", "COSM1", "COSN1", "COSV0", "COSV01"],
+        VrsId => ["ga4gh:VA.012345678901234567890123456789_-", "ga4gh:VA.0123456789012345678901234567890+"],
+        VariantId => ["CA000001", "CA000000", "VCV000000001", "VCV000000000", "rs18446744073709551616"],
+        Accession => ["NM_004333.6", "NM_004333.0", "NM_004333.65535", "NM_004333.65536", "NM_000004333.1", "NM_001004333.1", "LRG_0001t01", "LRG_4294967295p65535", "LRG_4294967296", "LRG_1p65536"],
+        AccessionBase => ["NM_004333", "NM_000004333", "NM_001004333", "LRG_4294967296", "ENST00000000001"],
+        HgvsText => ["NM_004333.6:c.1A>G", "NM_004333.0:c.1A>G", "NM_004333.6(123):c.1A>G", "NM_004333.6(BRAF):c.1A>G", "NP_004324.1:c.1A>G", "NP_004324.1:p.?", "NC_000007.14(NP_004324.1):g.1A>G", "NC_000007.14(NP_004324.0):g.1A>G", "NM_004333.65536:c.1A>G"],
+        Base => ["A", "N", "a", "U", "AA"],
+        Sequence => ["", "ACGTRYSWKMBDHVN", "a", "U", "AC GT"],
+        Chromosome => ["1", "22", "23", "X", "MT", "M", "chr1", "01"],
+        Contig => ["chr1", "chr 1", &"x".repeat(255), &"x".repeat(256)],
+        Curie => ["HGNC:1", "A:α", "A:", "A:a\u{0080}", "A:a\u{feff}"],
+        HpId => ["HP:0000001", "HP:000001", "HP:00000001"],
+        MondoId => ["MONDO:0000001", "MONDO:000001", "MONDO:00000001"],
+        NcitId => ["C1", "C01", "C", "C1A"],
+        NctId => ["NCT00000001", "NCT00000000", "NCT000000001"],
+        ReportId => ["0", "0001", "", "FAERS1"],
+        DrugId => ["CHEMBL1", "DB:1", "db:1", "DB:1:2", "DB:1/2", "DB:1//2"],
+        GwasStudyId => ["GCST000001", "GCST000000", "GCST00001", "GCST0000001"],
+        GwasAssociationId => ["association:1", "association:0", "association:18446744073709551615", "association:18446744073709551616"],
+        GwasTraitId => ["EFO_0001", "HP:0000001", "HP:", "_0001"],
+        ReactomeId => ["R-HSA-1", "R-HSA-0", "R-HSA-01", "R-MMU-1"],
+        WikiPathwaysId => ["WP1", "WP0", "WP01", "WP1.1"],
+        UniProtIsoform => ["P15056", "P15056-1", "P15056-0", "P15056-01"],
+        AminoAcids => ["ACDEFGHIKLMNPQRSTVWYUOX", "", "B", "a"],
+        InterProId => ["IPR000001", "IPR00001", "IPR0000001"],
+        ComplexPortalId => ["CPX-1", "CPX-0", "CPX-01"],
+        StudyId => ["study_1", "study/1", "_study"],
+        StudyProfileId => ["study.1", "study/1", "_study"],
+        StudySampleListId => ["study-1", "study/1", "_study"],
+        CbioportalCancerTypeId => ["type_1", "type/1", "_type"],
+        StudyResourceId => ["resource-1", "resource/1", "_resource"],
+        StudyBlobSha => ["0123456789abcdef0123456789abcdef0123456789", "0123456789ABCDEF0123456789ABCDEF0123456789"],
+        StudyImportTime => ["2024-02-29 23:59:59", "0000-01-01 00:00:00", "2024-13-01 00:00:00", "2024-01-32 00:00:00", "2024-01-01 24:00:00"],
+        PartialDate => ["0001", "0000", "2024-02", "2024-13", "2024-01-32"],
+        CellosaurusAccession => ["CVCL_0001", "CVCL_AA01", "CVCL_00001", "CVCL_aa01"],
+        CellLineSourceId => ["DepMap:ACH-1", "DepMap:", "A:a\u{009f}", "A:a\u{feff}"],
+        ChemblCellId => ["CHEMBL1", "CHEMBL01", "CHEMBL", "CHEMBL1A"],
+        GtrTestId => ["GTR000000001.1", "GTR000000001.0", "GTR000000001.01"],
+        WhoProductId => ["1234-123-12", "12345-12345-12", "123-123-12"],
+        PmaNumber => ["P000001", "P00001", "P0000001"],
+        PmaSupplement => ["S001", "S000", "S01", "S1000"],
+        PmaSupplementCell => ["", "S001", "S000", "S01"],
+        FdaDrugApplication => ["NDA000001", "BLA000001", "NDA00001", "NDA0000001"],
+        DiagnosticDeviceId => ["P000001/S001", "P000001/S000", "K000001", "DEN000001", "H000001"],
+        ClinPgxAccession => ["PA1", "PA0", "PA01"],
+        PgxGeneKey => ["BRAF", "123", &"A".repeat(255), &"A".repeat(256)],
+        PgxDiplotypeExpression => [" *1/*2 ", " ", "\u{0085}", "\u{feff}"],
+        SemanticScholarAuthorId => ["1", "0", "01", "A"],
+        OrcidId => ["0000-0002-1825-0097", "0000-0002-1825-009", "0000-0002-1825-00x7"],
+        AuthorId => ["orcid:0000-0002-1825-0097", "semantic-scholar:1", "semanticscholar:1", "semantic-scholar:0"],
+        OrcidClientId => ["0000-0002-1825-0097", "APP-0123456789ABCDEF", "APP-0123456789abcDEF"],
+        ArticleInput => ["1", "PMC1", "PPR0001", "PPR0000", "4294967296", "PMC4294967296", "10.1/a\u{0080}", "https://doi.org/10.1/a"],
+        GeneInput => ["BRAF", " HGNC:1 ", "HGNC:0", "hgnc:1", "ENSGbad", "0001", "4294967296", "Gene alias"],
+        VariantInput => ["CA000001", "CA000000", "VCV000000000", "chr22:g.1A>G", "chr23:g.1A>G", "18446744073709551615", "18446744073709551616"],
+        SheetRows => ["1-1", "01-1", "1-4294967296"],
+        VariantRegion => ["chr1:1-2", "chr23:1-2", "chr1:01-2", "chr1:1-4294967296"],
+        MyVariantQuery => [" query ", " ", "a\u{0080}", "\u{0085}", "\u{feff}", &"a".repeat(4102), &"a".repeat(4103)],
+    }
+}
+
+// These semantic constraints intentionally remain in the parser.
+#[test]
+fn text_value_schema_supersets_name_their_runtime_rules() {
+    fn runtime_rule<T: JsonSchema + std::str::FromStr>(text: &str, rule: &str) {
+        let schema = generate::<T>();
+        assert!(schema["description"].as_str().unwrap().contains(rule));
+        assert!(validator::<T>().is_valid(&json!(text)), "schema: {text}");
+        assert!(text.parse::<T>().is_err(), "parser: {text}");
+    }
+    runtime_rule::<OrcidId>("0000-0002-1825-0098", "checksum");
+    runtime_rule::<AuthorId>("orcid:0000-0002-1825-0098", "checksum");
+    runtime_rule::<OrcidClientId>("0000-0002-1825-0098", "checksum");
+    runtime_rule::<PartialDate>("2023-02-29", "calendar");
+    runtime_rule::<StudyImportTime>("2023-02-29 00:00:00", "calendar");
+    runtime_rule::<SheetRows>("2-1", "end");
+    runtime_rule::<SheetRows>("1-201", "200");
+    runtime_rule::<VariantRegion>("chr1:2-1", "end");
+    runtime_rule::<MyVariantQuery>(&format!("a{}", "α".repeat(2051)), "UTF-8 byte");
 }

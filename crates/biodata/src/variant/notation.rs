@@ -123,22 +123,39 @@ impl fmt::Display for HgvsText {
         f.write_str(self.as_str())
     }
 }
+// Use the owning value patterns for both reference forms and symbol limits.
 #[cfg(feature = "schema")]
-impl HgvsText {
-    /// Canonical wire pattern shared by consumer input schemas.
-    pub const PATTERN: &'static str = concat!(
-        "^(?!(?:[^:(]*\\()?([NX]P_([0-9]{6}|[0-9]{9})\\.[1-9][0-9]*|ENSP[0-9]{11}\\.[1-9][0-9]*|",
-        "LRG_[0-9]+p[0-9]+)(?:\\([^:]*\\)|\\))?:[gcnrmo]\\.)((N[CGMPRTW]|X[MPR])_([0-9]{6}|",
-        "[0-9]{9})\\.[0-9]+|ENS[GTP][0-9]{11}\\.[0-9]+|",
-        "LRG_[0-9]+([tp][0-9]+)?)(\\(([A-Za-z][A-Za-z0-9._/@-]*|",
-        "[A-Za-z0-9_.]+)\\))?:([gcnrpmo]\\.[\\x21-\\x7e]*[0-9][\\x21-\\x7e]*|[pr]\\.(\\?|\\(\\?\\)|=|\\(=\\))|",
-        "r\\.(spl\\??|\\(spl\\?\\)))$",
+fn hgvs_pattern() -> String {
+    let accession = Accession::pattern();
+    let accession = accession.trim_start_matches('^').trim_end_matches('$');
+    let gene = crate::GeneSymbol::pattern();
+    let gene = gene.trim_start_matches('^').trim_end_matches('$');
+    // A valid protein accession requires the protein body, including inner references.
+    let protein = format!(
+        r"(?:[NX]P_[0-9]{{6}}\.{}|[NX]P_(?!000)[0-9]{{9}}\.{}|ENSP[0-9]{{11}}\.{}|LRG_{}p{})",
+        crate::schema_pattern::decimal(u16::MAX.into()),
+        crate::schema_pattern::decimal(u16::MAX.into()),
+        crate::schema_pattern::decimal(u16::MAX.into()),
+        crate::schema_pattern::source_decimal(u32::MAX.into()),
+        crate::schema_pattern::source_decimal(u16::MAX.into())
     );
+    format!(
+        concat!(
+            r"^(?!{protein}(?:\([^)]*\))?:[gcnrmo]\.)",
+            r"(?![^:()]+\({protein}\):[gcnrmo]\.)",
+            r"{accession}(?:\((?:{accession}|{gene})\))?:",
+            r"(?:[gcnrpmo]\.[\x21-\x7e]*[0-9][\x21-\x7e]*|",
+            r"[pr]\.(?:\?|\(\?\)|=|\(=\))|r\.(?:spl\??|\(spl\?\)))$"
+        ),
+        protein = protein,
+        accession = accession,
+        gene = gene
+    )
 }
 text_value!(
     HgvsText,
     "HgvsText",
-    Self::PATTERN,
+    hgvs_pattern(),
     "Reference-qualified notation with its original text, without a molecular parse."
 );
 crate::canonical_enum! {
