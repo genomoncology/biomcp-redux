@@ -13,7 +13,7 @@ impl Reply for Search {
             return Err(BadReply);
         }
         if self.elements.iter().any(|c| {
-            taxon(&c.organism_name) != Some(9606)
+            !taxon(&c.organism_name).is_ok_and(|value| value == Some(9606))
                 || c.interactors
                     .as_ref()
                     .is_some_and(|rows| rows.iter().any(|r| !r.valid()))
@@ -29,9 +29,9 @@ pub(super) struct Complex {
     #[serde(rename = "complexAC")]
     pub id: ComplexPortalId,
     #[serde(rename = "complexName")]
-    pub name: Text,
+    pub name: Option<crate::raw::Field<String>>,
     pub organism_name: String,
-    pub predicted_complex: bool,
+    pub predicted_complex: Option<crate::raw::Field<bool>>,
     pub interactors: Option<Vec<Member>>,
 }
 #[derive(Debug, Deserialize)]
@@ -39,14 +39,16 @@ pub(super) struct Complex {
 pub(super) struct Detail {
     #[serde(rename = "complexAc")]
     pub id: ComplexPortalId,
-    pub name: Text,
+    pub name: Option<crate::raw::Field<String>>,
     pub species: String,
-    pub predicted_complex: bool,
+    pub predicted_complex: Option<crate::raw::Field<bool>>,
     pub participants: Vec<Member>,
 }
 impl Reply for Detail {
     fn check(&self) -> Result<(), BadReply> {
-        if taxon(&self.species) == Some(9606) && self.participants.iter().all(Member::valid) {
+        if taxon(&self.species).is_ok_and(|value| value == Some(9606))
+            && self.participants.iter().all(Member::valid)
+        {
             Ok(())
         } else {
             Err(BadReply)
@@ -58,34 +60,32 @@ impl Reply for Detail {
 pub(super) struct Member {
     pub identifier: String,
     pub interactor_type: String,
-    pub organism_name: Option<String>,
-    pub name: Option<Text>,
-    pub stochiometry: Option<Text>,
-    pub xrefs: Option<Vec<Xref>>,
-    pub cross_references: Option<Vec<Xref>>,
+    pub organism_name: Option<crate::raw::Field<String>>,
+    pub name: Option<crate::raw::Field<String>>,
+    pub stochiometry: Option<crate::raw::Field<String>>,
+    pub xrefs: Option<crate::raw::Field<Vec<crate::raw::Field<Xref>>>>,
+    pub cross_references: Option<crate::raw::Field<Vec<crate::raw::Field<Xref>>>>,
 }
 #[derive(Debug, Deserialize)]
 pub(super) struct Xref {
-    pub database: Text,
-    pub identifier: Text,
+    pub database: String,
+    pub identifier: String,
 }
-pub(super) fn taxon(s: &str) -> Option<u32> {
-    s.rsplit_once(';')?.1.trim().parse().ok()
+pub(super) fn taxon(s: &str) -> Result<Option<u32>, BadReply> {
+    let suffix = s.rsplit_once(';').ok_or(BadReply)?.1.trim();
+    let value: i64 = suffix.parse().map_err(|_| BadReply)?;
+    if value == -2 {
+        return Ok(None);
+    }
+    let taxon = u32::try_from(value).map_err(|_| BadReply)?;
+    if taxon == 0 {
+        return Err(BadReply);
+    }
+    Ok(Some(taxon))
 }
 
 impl Member {
     fn valid(&self) -> bool {
         Text::new(&self.identifier).is_ok_and(|id| id.as_str() == self.identifier)
-            && self
-                .xrefs
-                .as_ref()
-                .or(self.cross_references.as_ref())
-                .into_iter()
-                .flatten()
-                .all(|x| {
-                    format!("{}:{}", x.database, x.identifier)
-                        .parse::<biodata::Curie>()
-                        .is_ok()
-                })
     }
 }

@@ -728,7 +728,14 @@
           "description": "Exact native participant identifier supporting admission."
         },
         "name": {
-          "$ref": "#/$defs/Text",
+          "anyOf": [
+            {
+              "$ref": "#/$defs/Text"
+            },
+            {
+              "type": "null"
+            }
+          ],
           "description": "Native source name."
         },
         "participant_total": {
@@ -739,7 +746,10 @@
         },
         "predicted": {
           "description": "Literal native predictedComplex flag.",
-          "type": "boolean"
+          "type": [
+            "boolean",
+            "null"
+          ]
         },
         "taxon": {
           "description": "Source taxonomy identifier.",
@@ -755,9 +765,7 @@
       },
       "required": [
         "id",
-        "name",
         "taxon",
-        "predicted",
         "participant_total",
         "matched_participant",
         "url"
@@ -842,7 +850,14 @@
           "description": "Source record and release facts."
         },
         "entry_type": {
-          "$ref": "#/$defs/Text",
+          "anyOf": [
+            {
+              "$ref": "#/$defs/Text"
+            },
+            {
+              "type": "null"
+            }
+          ],
           "description": "Literal source entry type, including family, site and repeat."
         },
         "id": {
@@ -864,7 +879,14 @@
           "type": "array"
         },
         "name": {
-          "$ref": "#/$defs/Text",
+          "anyOf": [
+            {
+              "$ref": "#/$defs/Text"
+            },
+            {
+              "type": "null"
+            }
+          ],
           "description": "Native integrated name."
         },
         "protein": {
@@ -892,8 +914,6 @@
       },
       "required": [
         "id",
-        "name",
-        "entry_type",
         "protein",
         "attribution"
       ],
@@ -2944,7 +2964,7 @@
       "type": "string"
     }
   },
-  "$id": "biomcp.protein-card/3",
+  "$id": "biomcp.protein-card/4",
   "$schema": "https://json-schema.org/draft/2020-12/schema",
   "additionalProperties": false,
   "description": "One versioned command response; schema identity comes only from its body type.",
@@ -3001,7 +3021,7 @@
       "description": "Answer when available."
     },
     "schema": {
-      "const": "biomcp.protein-card/3",
+      "const": "biomcp.protein-card/4",
       "type": "string"
     },
     "sources": {

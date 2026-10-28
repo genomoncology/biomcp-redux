@@ -8,9 +8,11 @@ pub struct ProteinDomainMatch {
     /// Integrated entry accession, distinct from member signatures.
     pub id: InterProId,
     /// Native integrated name.
-    pub name: Text,
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub name: Option<Text>,
     /// Literal source entry type, including family, site and repeat.
-    pub entry_type: Text,
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub entry_type: Option<Text>,
     /// Exact native protein identity.
     pub protein: UniProtIsoform,
     /// Source protein length when supplied.
