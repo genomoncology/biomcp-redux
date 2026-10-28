@@ -404,12 +404,3 @@ fn new_optional_drop_requires_its_own_classification() -> Check {
     }
     Ok(())
 }
-
-#[test]
-#[ignore = "Temporary inventory generation using the existing source tokenizer"]
-fn print_adapter_value_fingerprints() -> Check {
-    let root = Path::new(env!("CARGO_MANIFEST_DIR")).join("../..");
-    let sites = super::source::adapter_values::sites(&root)?;
-    println!("ADAPTER_VALUE_INVENTORY {}", serde_json::to_string(&sites)?);
-    Ok(())
-}
