@@ -121,6 +121,11 @@ class LinuxContainers(unittest.TestCase):
             result = subprocess.run(['make', 'release-linux', 'CONTAINER_ARGS=' + shlex.join(extra).replace('$', '$$')],
                                     cwd=root, env=env, capture_output=True, text=True)
             self.assertEqual(result.returncode, 0, result.stdout + result.stderr)
+            containers = [json.loads(line) for line in result.stdout.splitlines()
+                          if line.startswith('{') and json.loads(line).get('artifact') == 'docker']
+            self.assertEqual(len(containers), 1, result.stdout)
+            self.assertEqual(containers[0]['result'], 'pass')
+            self.assertIn('alphagenome-local-tls', containers[0]['checks'])
             self.assertFalse((root / 'injected').exists())
             self.assertEqual((root / 'dist/biomcp-container-amd64.tar').read_bytes(),
                              b'container archive')
@@ -140,9 +145,9 @@ class LinuxContainers(unittest.TestCase):
                  '--user=0:0', '--env=HOME=/root']
         baseline = self.run_release([])
         supplied = self.run_release(extra)
-        self.assertEqual(len(baseline), 12)
+        self.assertEqual(len(baseline), 13)
         self.assertEqual(len(supplied), len(baseline))
-        self.assertEqual(sum(row[0] == 'run' for row in baseline), 9)
+        self.assertEqual(sum(row[0] == 'run' for row in baseline), 10)
         for plain, labeled in zip(baseline, supplied):
             with self.subTest(command=plain):
                 self.assertNotIn('--label', plain)
@@ -156,9 +161,9 @@ class LinuxContainers(unittest.TestCase):
                                         '<revision>' if arg.startswith('BIOMCP_BUILD_REVISION=') else arg
                                         for arg in row]
                 self.assertEqual(normalize(labeled), normalize(plain))
-        self.assertEqual([row[-1] for row in baseline[3:10]],
+        self.assertEqual([row[-1] for row in baseline[3:11]],
                          ['/usr/local/bin/biomcp', 'biodata.problem/1', 'help', 'serve',
-                          '1', '--installed-process-proof', '--installed-http-proof'])
+                          '1', '--installed-process-proof', '--installed-http-proof', '--installed-alphagenome-proof'])
 
 
 if __name__ == '__main__':

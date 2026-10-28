@@ -1,6 +1,7 @@
 # 0392 — Prove AlphaGenome's local TLS path from the installed binary
 
-Status: OPEN.
+Status: COMPLETE.
+Landed: 427add507cd0729c034b003f114175e562b3505b
 
 Milestone: 5
 

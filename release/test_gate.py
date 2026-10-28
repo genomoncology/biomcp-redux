@@ -110,6 +110,7 @@ class InstalledCli(unittest.TestCase):
                         self.assertEqual(row['result'], 'pass')
                         self.assertTrue(any(call['args'] == row['command'] and call['binary'] != str(binary) for call in executed))
                 self.assertTrue(all('mcp-http' in row['checks'] for row in rows if row.get('result') == 'pass' and 'checks' in row))
+                self.assertTrue(all('alphagenome-local-tls' in row['checks'] for row in rows if row.get('result') == 'pass' and 'checks' in row))
 
 
 if __name__ == '__main__':
