@@ -122,8 +122,8 @@ fn command_metadata(commands: &[Value]) -> Result<(), String> {
         }
     }
     for path in paths {
-        if !path.is_empty() {
-            invoke(&["help", &path[0]], 0)?;
+        if let Some(name) = path.first() {
+            invoke(&["help", name], 0)?;
         }
         let command = commands
             .iter()
