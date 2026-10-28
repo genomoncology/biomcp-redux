@@ -276,9 +276,9 @@ fn pubdate(
     problems: &mut Problems,
 ) -> Result<Option<PartialDate>, BadReply> {
     let Some(node) = node else { return Ok(None) };
-    // MedlineDate has no component year; do not infer one from its native prose.
+    // Do not infer date components from native MedlineDate prose.
     let Some(year) = node.value(&["Year"])? else {
-        return Ok(None);
+        return Ok(problems.required(field, None));
     };
     let month = node.value(&["Month"])?;
     let day = node.value(&["Day"])?;
