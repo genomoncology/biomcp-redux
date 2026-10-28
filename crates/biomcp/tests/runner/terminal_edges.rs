@@ -290,9 +290,11 @@ fn framing() -> Check {
         .filter(|line| !line.is_empty())
         .map(serde_json::from_slice)
         .collect::<Result<_, _>>()?;
-    assert_eq!(replies.len(), 2, "{replies:?}");
-    assert_eq!(replies[0].pointer("/error/code"), Some(&json!(-32600)));
-    assert_eq!(replies[1].get("id"), Some(&json!("after")));
-    assert_eq!(replies[1].get("result"), Some(&json!({})));
+    let [refusal, ping] = replies.as_slice() else {
+        return Err(format!("expected refusal and subsequent ping: {replies:?}").into());
+    };
+    assert_eq!(refusal.pointer("/error/code"), Some(&json!(-32600)));
+    assert_eq!(ping.get("id"), Some(&json!("after")));
+    assert_eq!(ping.get("result"), Some(&json!({})));
     Ok(())
 }
