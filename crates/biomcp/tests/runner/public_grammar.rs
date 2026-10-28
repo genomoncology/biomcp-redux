@@ -108,7 +108,11 @@ fn command_metadata(commands: &[Value]) -> Result<(), String> {
         .find(|c| c.get("command").is_none())
         .ok_or("missing command index")?;
     let mut paths = std::collections::BTreeSet::from([Vec::new()]);
-    for line in index["description"].as_str().ok_or("missing index description")?.lines() {
+    for line in index["description"]
+        .as_str()
+        .ok_or("missing index description")?
+        .lines()
+    {
         let (name, _) = line.split_once(": ").ok_or("invalid command index")?;
         paths.insert(vec![name.to_owned()]);
     }

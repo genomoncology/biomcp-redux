@@ -38,17 +38,12 @@ pub(super) fn augment(commands: &mut Vec<HelpCommand>) -> io::Result<()> {
             }
         }
     }
-    for (name, argument) in [
-        (
-            "help",
-            Arg::new("command")
+    if let Some(entry) = commands.iter_mut().find(|entry| entry.command == ["help"]) {
+        entry.arguments.push(metadata(
+            &Arg::new("command")
                 .index(1)
                 .help("Command path or discovery topic to describe."),
-        ),
-    ] {
-        if let Some(entry) = commands.iter_mut().find(|entry| entry.command == [name]) {
-            entry.arguments.push(metadata(&argument));
-        }
+        ));
     }
     augment_entries(commands, &root);
     if let Some(index) = commands.iter_mut().find(|c| c.command.is_empty()) {
