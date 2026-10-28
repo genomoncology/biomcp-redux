@@ -260,6 +260,11 @@ fn cases(family: &str) -> Vec<(&'static str, Value, &'static str)> {
             ("synonyms", json!(["valid", "", ""]), "synonyms"),
             ("term_replaced_by", json!(["invalid:"]), "term_replaced_by"),
             (
+                "term_replaced_by",
+                json!([" MONDO:0005105"]),
+                "term_replaced_by",
+            ),
+            (
                 "annotation",
                 json!({"consider":["invalid:"]}),
                 "annotation.consider",
@@ -314,6 +319,7 @@ fn cases(family: &str) -> Vec<(&'static str, Value, &'static str)> {
                 "mondo.synonym.bad scope",
             ),
             ("xrefs", json!({"doid":[""]}), "mondo.xrefs.doid"),
+            ("xrefs", json!({"doid":[" DOID:3910"]}), "mondo.xrefs.doid"),
             ("parents", json!(["invalid:"]), "mondo.parents"),
             ("consider", json!(["invalid:"]), "mondo.consider"),
             ("replaced_by", json!(["invalid:"]), "mondo.replaced_by"),

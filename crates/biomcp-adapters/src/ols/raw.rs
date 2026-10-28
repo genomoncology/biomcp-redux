@@ -17,7 +17,7 @@ pub(super) struct SearchResponse {
 pub(super) struct Hit {
     pub obo_id: Curie,
     pub label: Option<Field<Text>>,
-    pub ontology_name: Text,
+    pub ontology_name: String,
     pub iri: Option<Field<Text>>,
     pub is_obsolete: Option<bool>,
 }
@@ -42,11 +42,11 @@ pub(super) struct Embedded {
 pub(super) struct Term {
     pub obo_id: Curie,
     pub label: Option<Field<Text>>,
-    pub ontology_name: Text,
+    pub ontology_name: String,
     pub iri: Option<Field<Text>>,
     pub description: Option<Field<Vec<Field<Text>>>>,
     pub is_obsolete: Option<bool>,
-    pub term_replaced_by: Option<Field<Vec<Field<Text>>>>,
+    pub term_replaced_by: Option<Field<Vec<Field<String>>>>,
     pub annotation: Option<Field<Annotation>>,
     pub synonyms: Option<Field<Vec<Field<Text>>>>,
     pub obo_synonym: Option<Field<Vec<Field<Synonym>>>>,
@@ -54,17 +54,17 @@ pub(super) struct Term {
 }
 #[derive(Deserialize)]
 pub(super) struct Annotation {
-    pub consider: Option<Field<Vec<Field<Text>>>>,
+    pub consider: Option<Field<Vec<Field<String>>>>,
 }
 #[derive(Deserialize)]
 pub(super) struct Synonym {
     pub name: Field<Text>,
-    pub scope: Option<Field<Text>>,
+    pub scope: Option<Field<String>>,
 }
 #[derive(Deserialize)]
 pub(super) struct Xref {
-    pub database: Field<Text>,
-    pub id: Field<Text>,
+    pub database: Field<String>,
+    pub id: Field<String>,
     pub description: Option<Field<Text>>,
 }
 impl Reply for Exact {

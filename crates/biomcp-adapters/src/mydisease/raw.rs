@@ -73,7 +73,7 @@ pub(super) struct Component {
     pub definition: Option<Field<Text>>,
     #[serde(alias = "synonyms")]
     pub synonym: Option<Field<BTreeMap<String, OneOrMany<Field<Text>>>>>,
-    pub xrefs: Option<Field<BTreeMap<String, OneOrMany<Field<Text>>>>>,
+    pub xrefs: Option<Field<BTreeMap<String, OneOrMany<Field<String>>>>>,
     pub parents: Option<Field<Box<[Field<Curie>]>>>,
     pub is_obsolete: Option<bool>,
     pub consider: Option<Field<Box<[Field<Curie>]>>>,

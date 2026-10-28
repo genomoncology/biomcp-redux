@@ -71,7 +71,7 @@ fn endpoint(component: &native::Component) -> DiseaseEndpoint {
         label: component.label.clone(),
     }
 }
-fn xref_id(value: &native::Value) -> Option<Curie> {
+fn xref_id(value: &native::Reference) -> Option<Curie> {
     let prefix = value.field.to_ascii_uppercase();
     let native = value.value.as_str();
     if native

@@ -29,7 +29,7 @@ pub struct Component {
     /// Native synonym scope and text, preserving component-local multiplicity.
     pub synonyms: Box<[Value]>,
     /// Native namespace field and original code, without merging namespaces.
-    pub xrefs: Box<[Value]>,
+    pub xrefs: Box<[Reference]>,
     /// Native direct parents; ancestors and consider are never added.
     pub parents: Box<[Curie]>,
     /// Publisher obsolete state, absent when not supplied.
@@ -48,6 +48,14 @@ pub struct Value {
     pub field: String,
     /// Complete source text or code.
     pub value: Text,
+}
+/// One native reference whose code bytes have not passed through display text.
+#[derive(Debug)]
+pub struct Reference {
+    /// Original namespace field.
+    pub field: String,
+    /// Exact source code, checked by the reference mapper.
+    pub value: String,
 }
 pub(super) fn component(name: &'static str, raw: super::raw::Component) -> Component {
     let root = if name == "doid" {
@@ -79,7 +87,7 @@ pub(super) fn component(name: &'static str, raw: super::raw::Component) -> Compo
         ),
         &mut problems,
     );
-    let xrefs = values(raw.xrefs, &format!("{root}.xrefs"), &mut problems);
+    let xrefs = references(raw.xrefs, &format!("{root}.xrefs"), &mut problems);
     let parents = ids(raw.parents, &format!("{root}.parents"), &mut problems).unwrap_or_default();
     let consider = ids(raw.consider, &format!("{root}.consider"), &mut problems);
     let replaced_by = ids(
@@ -138,6 +146,34 @@ fn values(
                 problems.optional(&format!("{root}.{field}"), Some(value.value().ok_or(())))
             {
                 result.push(Value {
+                    field: field.clone(),
+                    value,
+                });
+            }
+        }
+    }
+    result.into()
+}
+
+fn references(
+    fields: Option<
+        crate::raw::Field<
+            std::collections::BTreeMap<String, crate::raw::OneOrMany<crate::raw::Field<String>>>,
+        >,
+    >,
+    root: &str,
+    problems: &mut crate::mapped::Problems,
+) -> Box<[Reference]> {
+    let mut result = Vec::new();
+    for (field, values) in fields
+        .and_then(|fields| problems.required(root, fields.value()))
+        .unwrap_or_default()
+    {
+        for value in values.values() {
+            if let Some(value) =
+                problems.optional(&format!("{root}.{field}"), Some(value.value().ok_or(())))
+            {
+                result.push(Reference {
                     field: field.clone(),
                     value,
                 });

@@ -138,7 +138,7 @@ fn array<'a, T>(
     }
 }
 fn ids(
-    values: &[crate::raw::Field<Text>],
+    values: &[crate::raw::Field<String>],
     field: &str,
     problems: &mut crate::mapped::Problems,
 ) -> Option<Box<[Curie]>> {
