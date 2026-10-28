@@ -1,11 +1,12 @@
 //! Contract: public inventory binds values without borrowing a different case's captures.
 use super::launch::Environment;
+use crate::runner::transcript::trial as transcript_trial;
 use libtest_mimic::Trial;
 use serde_json::{Value, json};
 use std::fs;
 
 pub(super) fn trial() -> Trial {
-    Trial::test("parity/shape-current-question-and-capture", || {
+    transcript_trial("parity/shape-current-question-and-capture", || {
         check().map_err(Into::into)
     })
 }

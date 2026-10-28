@@ -28,7 +28,7 @@
         "clinvar"
       ],
       "expect": {
-        "/schema": "biomcp.variant-page/10",
+        "/schema": "biomcp.variant-page/11",
         "/status": "partial",
         "/query": {
           "equals": {

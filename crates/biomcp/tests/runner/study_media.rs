@@ -3,16 +3,17 @@ use super::{
     super::{configuration::invoke, launch::Environment, network_stub::Stub},
     rows,
 };
+use crate::runner::transcript::trial as transcript_trial;
 use libtest_mimic::Trial;
 use serde_json::json;
 use std::fs;
 
 pub(super) fn trials() -> Vec<Trial> {
     vec![
-        Trial::test("study-catalog/sync-negotiates-json", || {
+        transcript_trial("study-catalog/sync-negotiates-json", || {
             sync().map_err(Into::into)
         }),
-        Trial::test("pathway-wikipathways/sync-negotiates-json", || {
+        transcript_trial("pathway-wikipathways/sync-negotiates-json", || {
             document(
                 "wikipathways",
                 "www.wikipathways.org",
@@ -22,7 +23,7 @@ pub(super) fn trials() -> Vec<Trial> {
             )
             .map_err(Into::into)
         }),
-        Trial::test("diagnostic-cdx/sync-negotiates-html", || {
+        transcript_trial("diagnostic-cdx/sync-negotiates-html", || {
             document(
                 "fda-cdx",
                 "www.fda.gov",

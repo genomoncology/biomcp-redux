@@ -1,6 +1,6 @@
 pub(super) fn cases() -> Vec<(&'static str, &'static str, &'static str)> {
     vec![
-        ("excluded-member", "    expect: {'/enum': {excludes: hgnc}}", "excludes: unexpected member"),
+        ("excluded-member", "    expect: {'/x-extensible-enum': {excludes: hgnc}}", "excludes: unexpected member"),
         ("excluded-wrong-type", "    expect: {'/type': {excludes: hgnc}}", "excludes: expected an array"),
         (
             "mcp-wrong-value",
@@ -15,7 +15,7 @@ pub(super) fn cases() -> Vec<(&'static str, &'static str, &'static str)> {
         ),
         (
             "mcp-pointer",
-            "  - mcp: [schema, biomcp.source/1]\n    expect: {'/enum': {count: 0}}",
+            "  - mcp: [schema, biomcp.source/1]\n    expect: {'/x-extensible-enum': {count: 0}}",
             "count: expected 0",
         ),
         ("mcp-is-error", "  - mcp: [schema, missing/1]", "MCP is_error mismatch"),
@@ -33,50 +33,50 @@ pub(super) fn cases() -> Vec<(&'static str, &'static str, &'static str)> {
             "  - run: [schema, biomcp.problem/1]\n    expect: {'/properties/record/anyOf/*/$ref': [null]}",
             "actual <missing>",
         ),
-        ("count-fraction", "    expect: {'/enum': {count: 1.5}}", "count requires a nonnegative integer"),
+        ("count-fraction", "    expect: {'/x-extensible-enum': {count: 1.5}}", "count requires a nonnegative integer"),
         (
             "rank-negative",
-            "    expect: {'/enum': {rank_of: {hgnc: -1}}}",
+            "    expect: {'/x-extensible-enum': {rank_of: {hgnc: -1}}}",
             "rank_of requires positive integer ranks",
         ),
-        ("count-negative", "    expect: {'/enum': {count: -1}}", "count requires a nonnegative integer"),
+        ("count-negative", "    expect: {'/x-extensible-enum': {count: -1}}", "count requires a nonnegative integer"),
         (
             "count-range",
-            "    expect: {'/enum': {count: {min: 1}}}",
+            "    expect: {'/x-extensible-enum': {count: {min: 1}}}",
             "count requires a nonnegative integer",
         ),
-        ("rank-shape", "    expect: {'/enum': {rank_of: [hgnc]}}", "rank_of requires a nonempty object"),
+        ("rank-shape", "    expect: {'/x-extensible-enum': {rank_of: [hgnc]}}", "rank_of requires a nonempty object"),
         (
             "rank-zero",
-            "    expect: {'/enum': {rank_of: {hgnc: 0}}}",
+            "    expect: {'/x-extensible-enum': {rank_of: {hgnc: 0}}}",
             "rank_of requires positive integer ranks",
         ),
         (
             "rank-range",
-            "    expect: {'/enum': {rank_of: {hgnc: '<3'}}}",
+            "    expect: {'/x-extensible-enum': {rank_of: {hgnc: '<3'}}}",
             "rank_of requires positive integer ranks",
         ),
         ("includes-type", "    expect: {'/type': {includes: string}}", "includes: expected an array"),
         ("count-type", "    expect: {'/type': {count: 6}}", "count: expected an array"),
         ("rank-type", "    expect: {'/type': {rank_of: {string: 1}}}", "rank_of: expected an array"),
-        ("count-wrong", "    expect: {'/enum': {count: 1}}", "count: expected 1, actual"),
+        ("count-wrong", "    expect: {'/x-extensible-enum': {count: 1}}", "count: expected 1, actual"),
         (
             "includes-missing",
-            "    expect: {'/enum': {includes: absent}}",
+            "    expect: {'/x-extensible-enum': {includes: absent}}",
             "includes: expected member \"absent\"",
         ),
         (
             "rank-missing",
-            "    expect: {'/enum': {rank_of: {absent: 1}}}",
+            "    expect: {'/x-extensible-enum': {rank_of: {absent: 1}}}",
             "rank_of absent: expected 1, actual <missing>",
         ),
         (
             "rank-wrong",
-            "    expect: {'/enum': {rank_of: {pubmed: 1}}}",
+            "    expect: {'/x-extensible-enum': {rank_of: {pubmed: 1}}}",
             "rank_of pubmed: expected 1, actual",
         ),
         ("wildcard-type", "    expect: {'/type/*': [null]}", "wildcard requires an array"),
-        ("wildcard-missing", "    expect: {'/enum/*/missing': null}", "actual <missing>"),
+        ("wildcard-missing", "    expect: {'/x-extensible-enum/*/missing': null}", "actual <missing>"),
         ("bad-pointer", "    expect: {'enum': []}", "expected a JSON pointer"),
         ("bad-escape", "    expect: {'/~2': []}", "invalid JSON pointer escape"),
         (
@@ -100,7 +100,7 @@ fn article_cases() -> Vec<(&'static str, &'static str, &'static str)> {
         ("follow-absent", "  - follow: page", "follow action absent"),
         (
             "walk-non-page",
-            "    walk: {items: /enum, max_pages: 2}",
+            "    walk: {items: /x-extensible-enum, max_pages: 2}",
             "walk requires page offset",
         ),
         (
@@ -115,12 +115,12 @@ fn article_cases() -> Vec<(&'static str, &'static str, &'static str)> {
         ),
         (
             "includes-all-missing",
-            "    expect: {'/enum': {includes_all_of: missing-floor.json}}",
+            "    expect: {'/x-extensible-enum': {includes_all_of: missing-floor.json}}",
             "includes_all_of: missing member",
         ),
         (
             "equals-floor-wrong",
-            "    expect: {'/enum': {equals_file: []}}",
+            "    expect: {'/x-extensible-enum': {equals_file: []}}",
             "expected [], actual",
         ),
     ]

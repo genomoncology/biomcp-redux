@@ -17,7 +17,6 @@ biodata::canonical_enum! {
 }
 /// Short source-stated annotation on a gene card.
 #[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
-#[serde(deny_unknown_fields)]
 #[cfg_attr(feature = "schema", derive(schemars::JsonSchema))]
 pub struct OncokbCard {
     /// Source gene classification.
@@ -34,7 +33,6 @@ pub struct OncokbCard {
 }
 /// Source transcript annotation for one genome build.
 #[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
-#[serde(deny_unknown_fields)]
 #[cfg_attr(feature = "schema", derive(schemars::JsonSchema))]
 pub struct OncokbTranscript {
     /// Source-stated isoform, kept separate from HGNC MANE.
@@ -46,7 +44,6 @@ pub struct OncokbTranscript {
 }
 /// Whole OncoKB gene prose and independent transcript annotations.
 #[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
-#[serde(deny_unknown_fields)]
 #[cfg_attr(feature = "schema", derive(schemars::JsonSchema))]
 pub struct Oncokb {
     /// Verified data release version.

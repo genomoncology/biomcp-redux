@@ -1,5 +1,6 @@
 //! Feature disease-monarch: native association facts stay source-owned.
 use super::{launch::Environment, network_stub::Stub};
+use crate::runner::transcript::trial as transcript_trial;
 use libtest_mimic::Trial;
 use serde_json::{Value, json};
 use std::{fs, path::Path};
@@ -8,31 +9,31 @@ mod failures;
 mod native;
 pub(super) use native::run as native;
 pub(super) fn trials() -> Vec<Trial> {
-    let mut trials = vec![Trial::test(
+    let mut trials = vec![transcript_trial(
         "disease-monarch/native-endpoints-and-paging",
         || exact().map_err(Into::into),
     )];
-    trials.push(Trial::test(
+    trials.push(transcript_trial(
         "disease-monarch/phenotype-evidence-and-independent-native-qualifiers",
         || phenotype().map_err(Into::into),
     ));
-    trials.push(Trial::test(
+    trials.push(transcript_trial(
         "disease-monarch/five-checked-genes-keep-pivots-and-native-page",
         || navigation().map_err(Into::into),
     ));
-    trials.push(Trial::test(
+    trials.push(transcript_trial(
         "disease-monarch/only-distinct-checked-native-gene-identities-pivot",
         || checked_identities().map_err(Into::into),
     ));
-    trials.push(Trial::test(
+    trials.push(transcript_trial(
         "disease-monarch/native-aggregators-keep-missing-null-and-arrays",
         || aggregator_presence().map_err(Into::into),
     ));
-    trials.push(Trial::test(
+    trials.push(transcript_trial(
         "disease-monarch/source-defaults-and-explicit-limits",
         || defaults().map_err(Into::into),
     ));
-    trials.push(Trial::test(
+    trials.push(transcript_trial(
         "disease-monarch/evidence-preserves-unavailable-empty-and-populated",
         || evidence::run().map_err(Into::into),
     ));

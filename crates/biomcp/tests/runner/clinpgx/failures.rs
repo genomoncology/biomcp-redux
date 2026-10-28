@@ -1,5 +1,6 @@
 //! Source failures use synthetic HTTP and recorded deadlines, never live faults.
 use super::*;
+use crate::runner::transcript::trial as transcript_trial;
 pub(super) fn trials() -> Vec<Trial> {
     let mut out = vec![];
     for name in [
@@ -10,20 +11,22 @@ pub(super) fn trials() -> Vec<Trial> {
         "wrong-accession",
         "wrong-gene",
         "unknown-field",
+        "unknown-nested-field",
     ] {
-        out.push(Trial::test(
+        out.push(transcript_trial(
             format!("clinpgx-annotations/reject-{name}"),
             move || failure(name).map_err(Into::into),
         ));
     }
-    out.push(Trial::test("clinpgx-annotations/recorded-timeout", || {
-        timeout().map_err(Into::into)
-    }));
-    out.push(Trial::test(
+    out.push(transcript_trial(
+        "clinpgx-annotations/recorded-timeout",
+        || timeout().map_err(Into::into),
+    ));
+    out.push(transcript_trial(
         "clinpgx-annotations/exclusive-selectors",
         || selectors().map_err(Into::into),
     ));
-    out.push(Trial::test(
+    out.push(transcript_trial(
         "clinpgx-annotations/missing-snapshot-no-http",
         || missing_snapshot().map_err(Into::into),
     ));
@@ -49,8 +52,13 @@ fn failure(name: &'static str) -> Check {
     if name == "status" {
         *body.get_mut("status").ok_or("status")? = json!("error");
     }
-    if name == "unknown-field" {
-        body.pointer_mut("/data/0")
+    if matches!(name, "unknown-field" | "unknown-nested-field") {
+        let path = if name == "unknown-nested-field" {
+            "/data/0/location/genes/0"
+        } else {
+            "/data/0"
+        };
+        body.pointer_mut(path)
             .and_then(Value::as_object_mut)
             .ok_or("row")?
             .insert("unknown_field".into(), json!(true));

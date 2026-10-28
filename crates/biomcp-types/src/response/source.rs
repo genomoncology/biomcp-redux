@@ -17,7 +17,6 @@ SourceState {
 }
 /// One source's outcome, without provider text.
 #[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
-#[serde(deny_unknown_fields)]
 #[cfg_attr(feature = "schema", derive(schemars::JsonSchema))]
 pub struct SourceOutcome {
     /// Asked source.
@@ -51,7 +50,7 @@ pub struct SourceOutcome {
 
 /// A source notice or request recovery step.
 #[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
-#[serde(tag = "kind", rename_all = "snake_case", deny_unknown_fields)]
+#[serde(tag = "kind", rename_all = "snake_case")]
 #[cfg_attr(feature = "schema", derive(schemars::JsonSchema))]
 pub enum SourceNotice {
     /// Local request limits and source-specific recovery guidance.

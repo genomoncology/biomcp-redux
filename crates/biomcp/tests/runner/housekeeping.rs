@@ -3,6 +3,7 @@
 mod stable_path;
 
 use super::launch::Environment;
+use crate::runner::transcript::trial as transcript_trial;
 use libtest_mimic::Trial;
 use serde_json::{Value, json};
 use std::{fs, path::Path, process::Output};
@@ -10,10 +11,10 @@ type Check<T = ()> = Result<T, Box<dyn std::error::Error>>;
 
 pub(super) fn trials() -> Vec<Trial> {
     let mut trials = vec![
-        Trial::test("housekeeping/offline-provenance-and-config", || {
+        transcript_trial("housekeeping/offline-provenance-and-config", || {
             check().map_err(|error| error.to_string().into())
         }),
-        Trial::test("housekeeping/invalid-globals-ignore-key-config", || {
+        transcript_trial("housekeeping/invalid-globals-ignore-key-config", || {
             invalid_globals().map_err(|error| error.to_string().into())
         }),
     ];

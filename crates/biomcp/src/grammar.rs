@@ -207,7 +207,10 @@ pub(crate) fn root() -> Result<Command, ()> {
     root = root.subcommand(
         Command::new("schema")
             .about("List every schema identity and description with biomcp schema, or print one schema artifact with biomcp schema <id>.")
-            .after_help("Example: biomcp schema\nExample: biomcp schema biomcp.help/3")
+            .after_help(concat!(
+                "JSON reply readers ignore unknown fields and unknown growable enum values within a major. ",
+                "Query schemas remain closed.\n\nExample: biomcp schema\nExample: biomcp schema biomcp.help/3"
+            ))
             .arg(
                 Arg::new("artifact-id")
                     .index(1)

@@ -1,13 +1,14 @@
 //! Feature generated-help: public grammar and safe argument failures at the CLI boundary.
 use super::launch::Environment;
+use crate::runner::transcript::trial as transcript_trial;
 use libtest_mimic::Trial;
 use serde_json::{Value, json};
 pub(super) fn trials() -> Vec<Trial> {
     vec![
-        Trial::test("public-grammar/argument-errors", || {
+        transcript_trial("public-grammar/argument-errors", || {
             errors().map_err(Into::into)
         }),
-        Trial::test("public-grammar/described-help", || {
+        transcript_trial("public-grammar/described-help", || {
             help().map_err(Into::into)
         }),
     ]

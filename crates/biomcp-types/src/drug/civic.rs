@@ -5,7 +5,6 @@ use serde::{Deserialize, Serialize};
 
 /// Independent accepted therapy claim collections, without profile count inference.
 #[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
-#[serde(deny_unknown_fields)]
 #[cfg_attr(feature = "schema", derive(schemars::JsonSchema))]
 pub struct DrugCivicStreams {
     /// Evidence items filtered by the selected native therapy and optional profile.
@@ -17,7 +16,6 @@ pub struct DrugCivicStreams {
 }
 /// One native claim stream and its own continuation.
 #[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
-#[serde(deny_unknown_fields)]
 #[cfg_attr(feature = "schema", derive(schemars::JsonSchema))]
 pub struct DrugCivicPage {
     /// Native claim order; each row carries the profile to which that claim belongs.
@@ -28,7 +26,6 @@ pub struct DrugCivicPage {
 }
 /// One native claim with its complete source therapy set and molecular profile.
 #[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
-#[serde(deny_unknown_fields)]
 #[cfg_attr(feature = "schema", derive(schemars::JsonSchema))]
 pub struct DrugCivicClaim {
     /// Source molecular profile context; its member expression is never collapsed.
@@ -50,7 +47,6 @@ pub struct DrugCivicClaim {
 }
 /// Profile context embedded in a therapy claim, with no invented profile totals.
 #[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
-#[serde(deny_unknown_fields)]
 #[cfg_attr(feature = "schema", derive(schemars::JsonSchema))]
 pub struct DrugCivicProfile {
     /// Native profile identity and link.
@@ -66,7 +62,6 @@ pub struct DrugCivicProfile {
 
 /// A drug claim member with its source-owned build, without altering variant responses.
 #[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
-#[serde(deny_unknown_fields)]
 #[cfg_attr(feature = "schema", derive(schemars::JsonSchema))]
 pub struct DrugCivicMember {
     /// Existing native member facts and unchanged HGVS descriptions.
@@ -93,7 +88,6 @@ biodata::wire_enum! {
 
 /// Link one source member to a checked variant lookup in its claim's tumor context.
 #[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
-#[serde(deny_unknown_fields)]
 #[cfg_attr(feature = "schema", derive(schemars::JsonSchema))]
 pub struct DrugOncokbLookup {
     /// Native CIViC member ID to which the genomic description belongs.

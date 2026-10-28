@@ -5,6 +5,7 @@ use super::{
     mcp::{exchange, request},
     process::Process,
 };
+use crate::runner::transcript::trial as transcript_trial;
 use libtest_mimic::Trial;
 use serde_json::{Value, json};
 use std::{io::Write, process::Stdio, time::Instant};
@@ -13,32 +14,32 @@ type Check = Result<(), String>;
 
 pub(super) fn trials() -> Vec<Trial> {
     let mut trials = vec![
-        Trial::test("mcp/cancellation-suppresses-later-output", || {
+        transcript_trial("mcp/cancellation-suppresses-later-output", || {
             cancellation().map_err(Into::into)
         }),
-        Trial::test("mcp/versions-and-validation", || {
+        transcript_trial("mcp/versions-and-validation", || {
             validation().map_err(Into::into)
         }),
-        Trial::test("mcp/correlated-calls-drain-on-eof", || {
+        transcript_trial("mcp/correlated-calls-drain-on-eof", || {
             concurrent().map_err(Into::into)
         }),
-        Trial::test("mcp/offline-observations-reuse", || {
+        transcript_trial("mcp/offline-observations-reuse", || {
             offline_observations().map_err(Into::into)
         }),
-        Trial::test("mcp/oversized-frame-drains-active-call", || {
+        transcript_trial("mcp/oversized-frame-drains-active-call", || {
             super::held_proxy::oversized().map_err(Into::into)
         }),
-        Trial::test("mcp/cancel-stops-work-and-frees-capacity", || {
+        transcript_trial("mcp/cancel-stops-work-and-frees-capacity", || {
             super::held_proxy::cancelled().map_err(Into::into)
         }),
-        Trial::test("mcp/cancel-preserves-another-active-call", || {
+        transcript_trial("mcp/cancel-preserves-another-active-call", || {
             super::held_proxy::isolated_cancel().map_err(Into::into)
         }),
-        Trial::test("mcp/bounded-framing", || framing().map_err(Into::into)),
-        Trial::test("mcp/broken-output-with-open-input", || {
+        transcript_trial("mcp/bounded-framing", || framing().map_err(Into::into)),
+        transcript_trial("mcp/broken-output-with-open-input", || {
             broken_output().map_err(Into::into)
         }),
-        Trial::test("mcp/discovers-artifact-command-tree", || {
+        transcript_trial("mcp/discovers-artifact-command-tree", || {
             discovery().map_err(Into::into)
         }),
     ];
@@ -438,10 +439,10 @@ const DISCOVERY_WORDS: &[&str] = &[
     "--drug-index",
     "--section-limit",
     "--section-offset",
-    "search diagnostic --source gtr|fda-cdx|who-ivd",
+    "search diagnostic --source gtr|fda-cdx|who-ivd|fda-device-recall",
     "--marker",
     "--manufacturer",
-    "get diagnostic --source gtr|who-ivd|fda-pma|fda-510k",
+    "get diagnostic --source gtr|who-ivd|fda-pma|fda-510k|fda-device-recall",
     "genes|conditions|methods|regulatory|supplements",
     "sync gtr",
     "sync who-ivd",

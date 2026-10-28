@@ -2,6 +2,7 @@
 mod failures;
 mod rows;
 use super::{configuration::invoke, launch::Environment, network_stub::Stub};
+use crate::runner::transcript::trial as transcript_trial;
 use libtest_mimic::Trial;
 use serde_json::{Value, json};
 type Check = Result<(), String>;
@@ -17,7 +18,7 @@ pub(super) fn trials() -> Vec<Trial> {
         "empty",
         "annotation",
     ] {
-        trials.push(Trial::test(
+        trials.push(transcript_trial(
             format!("clinpgx-annotations/{name}-network-cache-replay"),
             move || scenario(name).map_err(Into::into),
         ));

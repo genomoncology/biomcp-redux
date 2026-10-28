@@ -1,7 +1,6 @@
 {
   "$defs": {
     "Attribution": {
-      "additionalProperties": false,
       "description": "Provenance for one source record.",
       "properties": {
         "evaluated": {
@@ -87,7 +86,6 @@
       "type": "string"
     },
     "DrugIdentity": {
-      "additionalProperties": false,
       "description": "One source record identity, without any equivalence or authorization claim.",
       "properties": {
         "id": {
@@ -139,21 +137,6 @@
     },
     "DrugIdentityLevel": {
       "description": "Identity level established by the source endpoint or record type, never inferred from ID shape.",
-      "enum": [
-        "ingredient",
-        "salt",
-        "clinical_formulation",
-        "branded_product",
-        "spl_set",
-        "spl_version",
-        "ndc_package",
-        "fda_application",
-        "fda_product",
-        "ema_authorization",
-        "ema_application",
-        "orphan_designation",
-        "unknown"
-      ],
       "type": "string",
       "x-enum-descriptions": [
         " Source-stated ingredient identity.",
@@ -169,10 +152,24 @@
         " Source-stated ema application identity.",
         " Source-stated orphan designation identity.",
         " Source-stated unknown identity."
+      ],
+      "x-extensible-enum": [
+        "ingredient",
+        "salt",
+        "clinical_formulation",
+        "branded_product",
+        "spl_set",
+        "spl_version",
+        "ndc_package",
+        "fda_application",
+        "fda_product",
+        "ema_authorization",
+        "ema_application",
+        "orphan_designation",
+        "unknown"
       ]
     },
     "DrugIdentityRelation": {
-      "additionalProperties": false,
       "description": "One explicitly source-stated identifier, parent, product or formulation relation.",
       "properties": {
         "attribution": {
@@ -208,7 +205,6 @@
   },
   "$id": "biodata.drug-product/2",
   "$schema": "https://json-schema.org/draft/2020-12/schema",
-  "additionalProperties": false,
   "description": "A native product record and its explicit formulation links.",
   "properties": {
     "attribution": {

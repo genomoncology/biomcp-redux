@@ -1,5 +1,6 @@
 //! Feature source-controls: public diagnostic declarations before runtime dispatch exists.
 use super::{configuration::invoke, launch::Environment};
+use crate::runner::transcript::trial as transcript_trial;
 use biomcp_adapters::registry;
 use biomcp_types::{Reason, SourceState};
 use libtest_mimic::Trial;
@@ -24,21 +25,22 @@ const SOURCES: &[(&str, &str, &str)] = &[
     ),
     ("fda-pma", "open", "https://open.fda.gov/terms/"),
     ("fda-510k", "open", "https://open.fda.gov/terms/"),
+    ("fda-device-recall", "open", "https://open.fda.gov/terms/"),
 ];
 pub(super) fn trials() -> Vec<Trial> {
     SOURCES
         .iter()
         .map(|&(source, usage, url)| {
-            Trial::test(
+            transcript_trial(
                 format!("diagnostic-registry/{source}-declaration"),
                 move || declaration(source, usage, url).map_err(Into::into),
             )
         })
         .chain([
-            Trial::test("diagnostic-registry/policy-before-io", || {
+            transcript_trial("diagnostic-registry/policy-before-io", || {
                 admission::run().map_err(Into::into)
             }),
-            Trial::test("diagnostic-registry/configuration-union", || {
+            transcript_trial("diagnostic-registry/configuration-union", || {
                 switches().map_err(Into::into)
             }),
         ])
@@ -102,6 +104,7 @@ fn switches() -> Check {
         "fda-cdx",
         "fda-pma",
         "fda-510k",
+        "fda-device-recall",
         "noncommercial",
     ] {
         let env = Environment::new().map_err(|e| e.to_string())?;

@@ -5,28 +5,29 @@
     reason = "Checked test envelopes fail at the malformed boundary"
 )]
 use super::{launch::Environment, response_cases::checked_steps};
+use crate::runner::transcript::trial as transcript_trial;
 use libtest_mimic::Trial;
 use serde_json::{Value, json};
 use std::fs;
 pub(super) fn trials() -> Vec<Trial> {
     vec![
-        Trial::test("article/evidence/independent-source-outcomes", || {
+        transcript_trial("article/evidence/independent-source-outcomes", || {
             independence().map_err(|e| e.to_string().into())
         }),
-        Trial::test("article/evidence/fifth-page-continuation", || {
+        transcript_trial("article/evidence/fifth-page-continuation", || {
             cursor().map_err(Into::into)
         }),
-        Trial::test("article/evidence/overflow-and-reference-identity", || {
+        transcript_trial("article/evidence/overflow-and-reference-identity", || {
             overflow().map_err(|e| e.to_string().into())
         }),
-        Trial::test(
+        transcript_trial(
             "article/evidence/resolver-policy-before-stored-text",
             || resolver_policy().map_err(|e| e.to_string().into()),
         ),
-        Trial::test("article/evidence/exact-context-fragments", || {
+        transcript_trial("article/evidence/exact-context-fragments", || {
             exact_context().map_err(|e| e.to_string().into())
         }),
-        Trial::test("article/evidence/citing-doi-fulltext", || {
+        transcript_trial("article/evidence/citing-doi-fulltext", || {
             citing_doi().map_err(|e| e.to_string().into())
         }),
     ]

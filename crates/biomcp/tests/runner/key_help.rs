@@ -1,5 +1,6 @@
 //! Feature key-registration: each source's help names its own credential settings.
 use super::launch::Environment;
+use crate::runner::transcript::trial as transcript_trial;
 use libtest_mimic::Trial;
 use serde_json::{Value, json};
 pub(super) fn trials() -> Vec<Trial> {
@@ -20,7 +21,7 @@ pub(super) fn trials() -> Vec<Trial> {
     ]
     .into_iter()
     .map(|(source, identity, config, environment)| {
-        Trial::test(format!("keys/{source}/configuration-help"), move || {
+        transcript_trial(format!("keys/{source}/configuration-help"), move || {
             check(source, identity, config, environment).map_err(Into::into)
         })
     })

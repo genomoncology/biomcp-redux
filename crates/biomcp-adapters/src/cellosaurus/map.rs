@@ -18,8 +18,8 @@ pub(super) fn header(row: raw::Record) -> Result<CellLineHeader, RequestError> {
         accession: row.accession().map_err(super::bad)?.clone(),
         name: row.name().map_err(super::bad)?.clone(),
         category: row.category,
-        species: capped(row.species_list.unwrap_or_default().into_vec(), 3),
-        diseases: capped(row.disease_list.unwrap_or_default().into_vec(), 3),
+        species: capped(row.species_list.unwrap_or_default().0.into_vec(), 3),
+        diseases: capped(row.disease_list.unwrap_or_default().0.into_vec(), 3),
     })
 }
 pub(super) fn card(row: raw::Record) -> Result<CellLineCard, RequestError> {
@@ -38,8 +38,8 @@ pub(super) fn card(row: raw::Record) -> Result<CellLineCard, RequestError> {
             accession: accession.clone(),
             name,
             category: row.category,
-            species: capped(row.species_list.unwrap_or_default().into_vec(), 3),
-            diseases: capped(row.disease_list.unwrap_or_default().into_vec(), 3),
+            species: capped(row.species_list.unwrap_or_default().0.into_vec(), 3),
+            diseases: capped(row.disease_list.unwrap_or_default().0.into_vec(), 3),
         }),
         candidates: Box::default(),
         dates: Some(CellLineEntryDates {

@@ -5,6 +5,7 @@
     reason = "Checked captures and response-only edits fail directly on malformed fixture shapes"
 )]
 use super::response_cases::{checked_case, checked_steps};
+use crate::runner::transcript::trial as transcript_trial;
 use libtest_mimic::Trial;
 use serde_json::json;
 type Check = Result<(), Box<dyn std::error::Error>>;
@@ -12,13 +13,13 @@ const WORDS: &str = "next-generation sequencing recommendations advanced cancer 
 const NONSENSE: &str = "xqzvw zzyzxq kinase";
 pub(super) fn trials() -> Vec<Trial> {
     vec![
-        Trial::test("article/named-search/failures", || {
+        transcript_trial("article/named-search/failures", || {
             failures().map_err(|e| e.to_string().into())
         }),
-        Trial::test("article/named-search/paging-and-join", || {
+        transcript_trial("article/named-search/paging-and-join", || {
             paging().map_err(|e| e.to_string().into())
         }),
-        Trial::test("article/named-search/sentences-and-policies", || {
+        transcript_trial("article/named-search/sentences-and-policies", || {
             sentences().map_err(|e| e.to_string().into())
         }),
     ]

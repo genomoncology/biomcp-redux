@@ -167,7 +167,7 @@ fn annotation_tiers_preserve_native_arrays_missing_locations_and_base_history()
         "score":1.5,"scoreDetails":"synthetic details"}
     ))?);
     assert_eq!(roundtrip::<PgxAnnotationDetail>(detail.clone())?, detail);
-    assert!(serde_json::from_value::<PgxAnnotationHeader>(detail).is_err());
+    assert_eq!(roundtrip::<PgxAnnotationHeader>(detail)?, header);
     let reference = json!({"objCls":"GuidelineAnnotation","id":"PA5","name":"synthetic",});
     assert_eq!(
         roundtrip::<PgxAnnotationReference>(reference.clone())?,

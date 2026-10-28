@@ -8,8 +8,8 @@ steps:
     expect:
       /$id: biomcp.source/1
       /type: string
-      /enum/0: hgnc
-      /enum:
+      /x-extensible-enum/0: hgnc
+      /x-extensible-enum:
         includes: pubmed
         rank_of: {hgnc: 1}
         # Historical enum comparison: 302 bytes / 76 estimated tokens.
@@ -18,7 +18,7 @@ steps:
         # j14984 measured the unchanged source enum at 659 bytes.
         # The slice policy permits this source list alone measured size plus 15%.
         max_bytes: 758
-      /enum/*: {includes: gnomad}
+      /x-extensible-enum/*: {includes: gnomad}
   - run: [schema, biomcp.problem/1]
     expect:
       /$id: biomcp.problem/1

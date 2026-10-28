@@ -2,7 +2,6 @@ use super::ReportId;
 use serde::{Deserialize, Serialize};
 /// Independent overlapping report-level flags; no CTCAE or reaction-outcome conversion.
 #[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
-#[serde(deny_unknown_fields)]
 #[cfg_attr(feature = "schema", derive(schemars::JsonSchema))]
 pub struct FaersSeriousness {
     /// Native death string, including a present empty value.
@@ -26,7 +25,6 @@ pub struct FaersSeriousness {
 }
 /// Optional native patient strings without numeric conversion.
 #[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
-#[serde(deny_unknown_fields)]
 #[cfg_attr(feature = "schema", derive(schemars::JsonSchema))]
 pub struct FaersPatient {
     /// Native age string, including a present empty value.
@@ -44,7 +42,6 @@ pub struct FaersPatient {
 }
 /// Source reporter fields; qualification may be absent.
 #[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
-#[serde(deny_unknown_fields)]
 #[cfg_attr(feature = "schema", derive(schemars::JsonSchema))]
 pub struct FaersReporter {
     /// Native qualification string, including a present empty value.
@@ -56,7 +53,6 @@ pub struct FaersReporter {
 }
 /// Only the seven reviewed harmonized identifier collections; no administered-product inference.
 #[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
-#[serde(deny_unknown_fields)]
 #[cfg_attr(feature = "schema", derive(schemars::JsonSchema))]
 // Preserve Some([]) in retained native snapshots; consumer pages disclose counts and rows.
 pub struct FaersIdentifiers {
@@ -84,7 +80,6 @@ pub struct FaersIdentifiers {
 }
 /// One independent native drug row; no join to a reaction row.
 #[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
-#[serde(deny_unknown_fields)]
 #[cfg_attr(feature = "schema", derive(schemars::JsonSchema))]
 pub struct FaersDrug {
     /// Native medicinalproduct string, including a present empty value.
@@ -165,7 +160,6 @@ pub struct FaersDrug {
 }
 /// Native reaction term with separate vocabulary version and outcome.
 #[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
-#[serde(deny_unknown_fields)]
 #[cfg_attr(feature = "schema", derive(schemars::JsonSchema))]
 pub struct FaersReaction {
     /// Native label without an invented CURIE.
@@ -179,7 +173,6 @@ pub struct FaersReaction {
 }
 /// Neutral kept FAERS facts with independent ordered drug and reaction arrays.
 #[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
-#[serde(deny_unknown_fields)]
 #[cfg_attr(feature = "schema", derive(schemars::JsonSchema))]
 pub struct FaersReport {
     /// Opaque published report identifier.

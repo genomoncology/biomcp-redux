@@ -1,5 +1,6 @@
 //! Feature diagnostic-pma: native identity and cardinality guard admission to cache.
 use super::{configuration::invoke, launch::Environment, network_stub::Stub};
+use crate::runner::transcript::trial as transcript_trial;
 use libtest_mimic::Trial;
 use serde_json::{Value, json};
 type Check = Result<(), String>;
@@ -17,16 +18,16 @@ pub(super) fn trials() -> Vec<Trial> {
     ]
     .into_iter()
     .map(|mode| {
-        Trial::test(format!("diagnostic-pma/synthetic-{mode}"), move || {
+        transcript_trial(format!("diagnostic-pma/synthetic-{mode}"), move || {
             boundary(mode).map_err(Into::into)
         })
     })
     .collect();
-    trials.push(Trial::test(
+    trials.push(transcript_trial(
         "diagnostic-pma/synthetic-complete-walks",
         || walks::run().map_err(Into::into),
     ));
-    trials.push(Trial::test(
+    trials.push(transcript_trial(
         "diagnostic-pma/regulatory-missing-and-empty-statement",
         || metadata::run().map_err(Into::into),
     ));
