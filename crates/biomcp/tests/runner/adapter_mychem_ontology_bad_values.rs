@@ -46,6 +46,20 @@ pub(super) fn trials() -> Vec<Trial> {
         ));
     }
     trials.push(Trial::test(
+        "drug-mychem/malformed-component-member-keeps-siblings",
+        || {
+            check_cases(
+                "mychem",
+                vec![(
+                    "drugbank",
+                    json!([{"name":"valid", "id":"DB00001"},42]),
+                    "drugbank",
+                )],
+            )
+            .map_err(Into::into)
+        },
+    ));
+    trials.push(Trial::test(
         "trial-search/invalid-resolver-label-stops-name-request",
         || missing_trial_label().map_err(Into::into),
     ));
@@ -104,7 +118,8 @@ fn check_cases(family: &str, cases: Vec<(&str, Value, &str)>) -> Result<(), Stri
             |_| 200,
         )?;
         let env = crate::runner::variant::source_environment(&stub)?;
-        let section = if field.contains("xrefs")
+        let section = if field == "drugbank"
+            || field.contains("xrefs")
             || field.contains("molecule_hierarchy")
             || field == "obo_xref"
         {
@@ -160,6 +175,10 @@ fn check_cases(family: &str, cases: Vec<(&str, Value, &str)>) -> Result<(), Stri
         if named.len() != 1
             || named.first().and_then(|p| p.get("record")) != Some(&json!(record))
             || (keeps_valid && !value.get("result").is_some_and(|v| has_string(v, "valid")))
+            || (field == "drugbank"
+                && !value
+                    .get("result")
+                    .is_some_and(|v| has_string(v, "DB00001")))
             || value.get("status") != Some(&json!("partial"))
             || value.get("result").is_none_or(Value::is_null)
             || value.get("result").is_some_and(contains_invalid)
