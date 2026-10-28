@@ -126,7 +126,11 @@ pub(super) fn word_notice(
     outcome: &mut super::Outcome,
 ) {
     source.notices.push(biomcp_types::SourceNotice::ConditionWordMismatch {
-        message: "Some returned trials do not contain all searched words in their registered conditions. ClinicalTrials.gov condition search also covers titles, keywords and indexed terms and may expand synonyms.".into(),
+        message: concat!(
+            "Some returned trials do not contain all searched words in their registered conditions. ",
+            "ClinicalTrials.gov condition search also covers titles, keywords and indexed terms ",
+            "and may expand synonyms."
+        ).into(),
     });
     if let Some(query) = query.exact_condition_search() {
         outcome.next.push((
