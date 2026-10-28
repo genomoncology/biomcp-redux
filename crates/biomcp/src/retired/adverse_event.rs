@@ -132,8 +132,19 @@ fn guidance(
                 if source == Some("maude") {
                     return Some(ErrorMessage::AdverseFilter);
                 }
-                if !matches!(value, Some("death" | "hospitalization")) {
-                    return Some(ErrorMessage::AdverseSerious);
+                if !matches!(
+                    value,
+                    Some(
+                        "any"
+                            | "death"
+                            | "hospitalization"
+                            | "lifethreatening"
+                            | "disabling"
+                            | "congenital-anomaly"
+                            | "other"
+                    )
+                ) {
+                    return Some(ErrorMessage::AdverseSeriousChoices);
                 }
             }
             if positional.first() == Some(&"get") {

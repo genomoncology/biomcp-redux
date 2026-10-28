@@ -1,6 +1,7 @@
 # 0407 — Restore the FAERS seriousness filters
 
-Status: OPEN.
+Status: COMPLETE.
+Landed: 5ecdbe8d5cd91e4da2ced65adac41bf77225b597
 
 Milestone: 5
 

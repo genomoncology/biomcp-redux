@@ -1,0 +1,112 @@
+{
+  "feature": "adverse-event-search",
+  "live_check": "Synthetic local transport recordings preserve native report fields; no native clinical-positive claim. Exact outgoing query controls cover the same four mappings.",
+  "story": "A caller selects each restored specific FAERS seriousness flag with its exact native field.",
+  "replay": "adverse-event/faers-serious-flags",
+  "steps": [
+    {
+      "run": [
+        "search",
+        "adverse-event",
+        "pembrolizumab",
+        "--serious",
+        "lifethreatening"
+      ],
+      "mcp": [
+        "search",
+        "adverse-event",
+        "pembrolizumab",
+        "--serious",
+        "lifethreatening"
+      ],
+      "expect": {
+        "/status": "complete",
+        "/query/serious": "lifethreatening",
+        "/result/source_query": "(patient.drug.openfda.generic_name:\"pembrolizumab\" OR patient.drug.openfda.brand_name:\"pembrolizumab\" OR patient.drug.medicinalproduct:\"pembrolizumab\") AND seriousnesslifethreatening:1",
+        "/result/items/0/serious": "1",
+        "/result/items/0/id": "100",
+        "/result/items": {
+          "count": 5
+        }
+      }
+    },
+    {
+      "run": [
+        "search",
+        "adverse-event",
+        "pembrolizumab",
+        "--serious",
+        "disabling"
+      ],
+      "mcp": [
+        "search",
+        "adverse-event",
+        "pembrolizumab",
+        "--serious",
+        "disabling"
+      ],
+      "expect": {
+        "/status": "complete",
+        "/query/serious": "disabling",
+        "/result/source_query": "(patient.drug.openfda.generic_name:\"pembrolizumab\" OR patient.drug.openfda.brand_name:\"pembrolizumab\" OR patient.drug.medicinalproduct:\"pembrolizumab\") AND seriousnessdisabling:1",
+        "/result/items/0/serious": "1",
+        "/result/items/0/id": "100",
+        "/result/items": {
+          "count": 5
+        }
+      }
+    },
+    {
+      "run": [
+        "search",
+        "adverse-event",
+        "pembrolizumab",
+        "--serious",
+        "congenital-anomaly"
+      ],
+      "mcp": [
+        "search",
+        "adverse-event",
+        "pembrolizumab",
+        "--serious",
+        "congenital-anomaly"
+      ],
+      "expect": {
+        "/status": "complete",
+        "/query/serious": "congenital-anomaly",
+        "/result/source_query": "(patient.drug.openfda.generic_name:\"pembrolizumab\" OR patient.drug.openfda.brand_name:\"pembrolizumab\" OR patient.drug.medicinalproduct:\"pembrolizumab\") AND seriousnesscongenitalanomali:1",
+        "/result/items/0/serious": "1",
+        "/result/items/0/id": "100",
+        "/result/items": {
+          "count": 5
+        }
+      }
+    },
+    {
+      "run": [
+        "search",
+        "adverse-event",
+        "pembrolizumab",
+        "--serious",
+        "other"
+      ],
+      "mcp": [
+        "search",
+        "adverse-event",
+        "pembrolizumab",
+        "--serious",
+        "other"
+      ],
+      "expect": {
+        "/status": "complete",
+        "/query/serious": "other",
+        "/result/source_query": "(patient.drug.openfda.generic_name:\"pembrolizumab\" OR patient.drug.openfda.brand_name:\"pembrolizumab\" OR patient.drug.medicinalproduct:\"pembrolizumab\") AND seriousnessother:1",
+        "/result/items/0/serious": "1",
+        "/result/items/0/id": "100",
+        "/result/items": {
+          "count": 5
+        }
+      }
+    }
+  ]
+}
