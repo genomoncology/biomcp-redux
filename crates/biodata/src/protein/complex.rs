@@ -8,7 +8,8 @@ pub struct ProteinComplexHeader {
     /// Native complex accession.
     pub id: ComplexPortalId,
     /// Native source name.
-    pub name: Text,
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub name: Option<Text>,
     /// Source taxonomy identifier.
     pub taxon: u32,
     /// Literal native predictedComplex flag.

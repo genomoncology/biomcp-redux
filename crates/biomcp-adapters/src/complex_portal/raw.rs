@@ -29,7 +29,7 @@ pub(super) struct Complex {
     #[serde(rename = "complexAC")]
     pub id: ComplexPortalId,
     #[serde(rename = "complexName")]
-    pub name: Text,
+    pub name: Option<crate::raw::Field<String>>,
     pub organism_name: String,
     pub predicted_complex: bool,
     pub interactors: Option<Vec<Member>>,
@@ -39,7 +39,7 @@ pub(super) struct Complex {
 pub(super) struct Detail {
     #[serde(rename = "complexAc")]
     pub id: ComplexPortalId,
-    pub name: Text,
+    pub name: Option<crate::raw::Field<String>>,
     pub species: String,
     pub predicted_complex: bool,
     pub participants: Vec<Member>,
@@ -58,16 +58,16 @@ impl Reply for Detail {
 pub(super) struct Member {
     pub identifier: String,
     pub interactor_type: String,
-    pub organism_name: Option<String>,
-    pub name: Option<Text>,
-    pub stochiometry: Option<Text>,
-    pub xrefs: Option<Vec<Xref>>,
-    pub cross_references: Option<Vec<Xref>>,
+    pub organism_name: Option<crate::raw::Field<String>>,
+    pub name: Option<crate::raw::Field<String>>,
+    pub stochiometry: Option<crate::raw::Field<String>>,
+    pub xrefs: Option<crate::raw::Field<Vec<crate::raw::Field<Xref>>>>,
+    pub cross_references: Option<crate::raw::Field<Vec<crate::raw::Field<Xref>>>>,
 }
 #[derive(Debug, Deserialize)]
 pub(super) struct Xref {
-    pub database: Text,
-    pub identifier: Text,
+    pub database: String,
+    pub identifier: String,
 }
 pub(super) fn taxon(s: &str) -> Option<u32> {
     s.rsplit_once(';')?.1.trim().parse().ok()
@@ -76,16 +76,5 @@ pub(super) fn taxon(s: &str) -> Option<u32> {
 impl Member {
     fn valid(&self) -> bool {
         Text::new(&self.identifier).is_ok_and(|id| id.as_str() == self.identifier)
-            && self
-                .xrefs
-                .as_ref()
-                .or(self.cross_references.as_ref())
-                .into_iter()
-                .flatten()
-                .all(|x| {
-                    format!("{}:{}", x.database, x.identifier)
-                        .parse::<biodata::Curie>()
-                        .is_ok()
-                })
     }
 }

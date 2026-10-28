@@ -7,17 +7,62 @@ use biomcp_fetch::RequestError;
 pub(super) fn rows(
     raw: Vec<raw::Entry>,
     id: &UniProtIsoform,
-) -> Result<Vec<ProteinDomainMatch>, RequestError> {
+) -> Result<crate::Mapped<Vec<ProteinDomainMatch>>, RequestError> {
     let mut rows = Vec::new();
+    let mut all_problems = Vec::new();
     for entry in raw {
+        let mut problems = crate::mapped::Problems {
+            source: biomcp_types::Source::InterPro,
+            record: crate::mapped::record(&entry.metadata.accession),
+            list: Vec::new(),
+        };
+        let name = crate::mapped::field_text(
+            &mut problems.list,
+            problems.source,
+            problems.record.clone(),
+            "name",
+            entry.metadata.name,
+        );
+        let entry_type = crate::mapped::field_text(
+            &mut problems.list,
+            problems.source,
+            problems.record.clone(),
+            "type",
+            entry.metadata.entry_type,
+        );
         let mut signatures = Vec::new();
-        for (database, entries) in entry.metadata.member_databases.into_iter().flatten() {
-            for (accession, name) in entries {
-                signatures.push(ProteinMemberSignature {
-                    database: crate::mapped::text(&database).map_err(|_| bad())?,
-                    accession: crate::mapped::text(&accession).map_err(|_| bad())?,
-                    name: Some(crate::mapped::text(&name).map_err(|_| bad())?),
-                });
+        if let Some(field) = entry.metadata.member_databases {
+            if let Some(databases) = problems.required("member_databases", field.value()) {
+                for (database, entries) in databases {
+                    let Some(database) =
+                        problems.text("member_databases.database", Some(&database))
+                    else {
+                        continue;
+                    };
+                    let Some(entries) =
+                        problems.required("member_databases.entries", entries.value())
+                    else {
+                        continue;
+                    };
+                    for (accession, name) in entries {
+                        let Some(accession) =
+                            problems.text("member_databases.accession", Some(&accession))
+                        else {
+                            continue;
+                        };
+                        signatures.push(ProteinMemberSignature {
+                            database: database.clone(),
+                            accession,
+                            name: crate::mapped::field_text(
+                                &mut problems.list,
+                                problems.source,
+                                problems.record.clone(),
+                                "member_databases.name",
+                                Some(name),
+                            ),
+                        });
+                    }
+                }
             }
         }
         for protein in entry.proteins {
@@ -35,7 +80,13 @@ pub(super) fn rows(
                             Ok(ProteinDomainFragment {
                                 span: UncertainSpan0::from_inclusive(start, end)
                                     .map_err(|_| bad())?,
-                                dc_status: f.dc_status,
+                                dc_status: crate::mapped::field_text(
+                                    &mut problems.list,
+                                    problems.source,
+                                    problems.record.clone(),
+                                    "dc-status",
+                                    f.dc_status,
+                                ),
                             })
                         })
                         .collect::<Result<Box<[_]>, RequestError>>()?;
@@ -44,8 +95,8 @@ pub(super) fn rows(
                 .collect::<Result<Box<[_]>, RequestError>>()?;
             rows.push(ProteinDomainMatch {
                 id: entry.metadata.accession.clone(),
-                name: entry.metadata.name.clone(),
-                entry_type: entry.metadata.entry_type.clone(),
+                name: name.clone(),
+                entry_type: entry_type.clone(),
                 protein: id.clone(),
                 protein_length: protein.protein_length,
                 taxon: Some(9606),
@@ -71,6 +122,10 @@ pub(super) fn rows(
                 },
             });
         }
+        all_problems.extend(problems.list);
     }
-    Ok(rows)
+    Ok(crate::Mapped {
+        value: rows,
+        problems: all_problems,
+    })
 }
