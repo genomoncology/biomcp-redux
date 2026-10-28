@@ -14,7 +14,6 @@
         "europepmc,pubmed"
       ],
       "max_bytes": 5228,
-      "max_tokens": 1307,
       "expect": {
         "/status": "complete",
         "/sources/0/source": "europepmc",

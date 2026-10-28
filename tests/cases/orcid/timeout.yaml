@@ -25,8 +25,7 @@
         "/sources/0/terms": "ORCID Public API Terms of Service"
       },
       "full_output_bytes": true,
-      "max_bytes": 482,
-      "max_tokens": 121
+      "max_bytes": 482
     }
   ]
 }

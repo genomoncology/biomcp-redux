@@ -210,7 +210,8 @@
         },
         "report_url": {
           "$ref": "#/$defs/Text",
-          "description": "Exact successful source request URL, never guessed."
+          "description": "Exact successful source request URL, never guessed.",
+          "format": "uri"
         },
         "snapshot": {
           "$ref": "#/$defs/Text",
@@ -218,7 +219,8 @@
         },
         "source_url": {
           "$ref": "#/$defs/Text",
-          "description": "Publisher overview, never a next step."
+          "description": "Publisher overview, never a next step.",
+          "format": "uri"
         }
       },
       "required": [
@@ -315,7 +317,8 @@
         },
         "url": {
           "$ref": "#/$defs/Text",
-          "description": "Publisher terms page."
+          "description": "Publisher terms page.",
+          "format": "uri"
         },
         "usage": {
           "$ref": "#/$defs/Use",
@@ -506,6 +509,7 @@
       ]
     },
     "ReportId": {
+      "description": "Opaque published digits with source carried separately, never a prefixed wrapper.",
       "pattern": "^[0-9]+$",
       "type": "string"
     },
@@ -833,6 +837,7 @@
         },
         "terms_url": {
           "description": "Publisher page documenting the terms.",
+          "format": "uri",
           "type": "string"
         },
         "use": {

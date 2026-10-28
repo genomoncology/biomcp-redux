@@ -39,7 +39,7 @@ macro_rules! checked {
                 f.write_str(self.as_str())
             }
         }
-        crate::text_value!($name, stringify!($name), $pattern);
+        crate::text_value!($name, stringify!($name), $pattern, $doc);
     };
 }
 checked!(

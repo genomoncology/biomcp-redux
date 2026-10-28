@@ -35,8 +35,7 @@
         "/next/5/kind": "page"
       },
       "full_output_bytes": true,
-      "max_bytes": 2112,
-      "max_tokens": 528
+      "max_bytes": 2112
     }
   ]
 }

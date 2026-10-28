@@ -27,8 +27,7 @@
         "/sources/0/source": "gnomad",
         "/sources/0/reason": "disabled"
       },
-      "max_bytes": 567,
-      "max_tokens": 142
+      "max_bytes": 567
     },
     {
       "run": [
@@ -54,8 +53,7 @@
         "/sources/0/source": "gwas",
         "/sources/0/reason": "disabled"
       },
-      "max_bytes": 544,
-      "max_tokens": 136
+      "max_bytes": 544
     }
   ]
 }

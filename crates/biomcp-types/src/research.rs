@@ -12,6 +12,7 @@ pub struct ResearchHit {
     /// Original source title, or its exact identifier when no title is supplied.
     pub title: crate::Text,
     /// Nonempty canonical source record URL.
+    #[cfg_attr(feature = "schema", schemars(extend("format" = "uri")))]
     pub url: crate::Text,
 }
 /// Forward-compatible envelope metadata; entity fields use their CLI schemas.
@@ -57,6 +58,7 @@ pub struct ResearchFetch<M> {
     /// Complete Markdown view of the bounded CLI record.
     pub text: String,
     /// Nonempty canonical source URL.
+    #[cfg_attr(feature = "schema", schemars(extend("format" = "uri")))]
     pub url: crate::Text,
     /// Complete original CLI envelope.
     pub metadata: M,

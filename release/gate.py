@@ -13,7 +13,7 @@ import zipfile
 
 from artifacts import cargo, inspect
 from smoke import environment, smoke
-from local_server import server
+from local_server import server, https_server
 
 
 def installer_environment(root, bash):
@@ -162,8 +162,8 @@ def installed(args):
     for item in [archive, archive.with_name(archive.name + ".sha256")]:
         shutil.copy2(item, release / item.name)
     public_destination = root / "download-installer-bin"
-    with server(downloads) as base:
-        download_env = {**installer_environment(root, bash), "BIOMCP_RELEASE_BASE_URL": base, "BIOMCP_INSTALL_DIR": public_destination.as_posix()}
+    with https_server(downloads, shutil.which("openssl", path=installer_environment(root, bash)["PATH"]) or "openssl") as (base, ca):
+        download_env = {**installer_environment(root, bash), "BIOMCP_RELEASE_BASE_URL": base, "BIOMCP_INSTALL_DIR": public_destination.as_posix(), "CURL_CA_BUNDLE": str(ca)}
         subprocess.run([bash, (source / "release/install.sh").as_posix(), "--version", record["version"]], env=download_env, check=True)
     check("download-install-script", public_destination / ("biomcp" + suffix))
     if not homebrew(output, root, check):

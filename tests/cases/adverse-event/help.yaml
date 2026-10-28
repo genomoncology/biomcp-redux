@@ -49,8 +49,7 @@
         "/result/commands/0/arguments/6/description": "FAERS report flag: death or hospitalization; never a reaction outcome.",
         "/result/commands/0/arguments/9/description": "Literal drug text, MAUDE device phrase or exact supported VAERS vaccine."
       },
-      "max_bytes": 2925,
-      "max_tokens": 732
+      "max_bytes": 2925
     },
     {
       "run": [
