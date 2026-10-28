@@ -5,7 +5,7 @@
 )]
 use super::response_cases::{checked_case, checked_steps};
 use libtest_mimic::Trial;
-use serde_json::json;
+use serde_json::{Value, json};
 type Check = Result<(), Box<dyn std::error::Error>>;
 pub(super) fn trials() -> Vec<Trial> {
     vec![
