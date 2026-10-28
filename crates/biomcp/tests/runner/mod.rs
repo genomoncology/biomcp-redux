@@ -153,7 +153,6 @@ mod variant_search;
 mod wikipathways;
 
 // Complete CLI help measured 106008 bytes in j19104, with fifteen percent headroom.
-// Entity and MCP budgets remain separate.
 pub(super) const CLI_HELP_BYTES: usize = 121910;
 
 use libtest_mimic::Trial;
