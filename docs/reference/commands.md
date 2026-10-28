@@ -29,6 +29,7 @@ Commands:
   store       Manage local cached replies and snapshots.
   key         Register and manage source credentials without showing values.
   serve       Serve MCP over standard input or HTTP.
+  schema      List every schema identity and description with biomcp schema, or print one schema artifact with biomcp schema <id>.
   help        Describe commands and their arguments.
 
 Options:
@@ -72,6 +73,7 @@ health: Report source terms and bounded reachability.
 store: Manage local cached replies and snapshots.
 key: Register and manage source credentials without showing values.
 serve: Serve MCP over standard input or HTTP.
+schema: List every schema identity and description with biomcp schema, or print one schema artifact with biomcp schema <id>.
 help: Describe commands and their arguments.
 
 - `--format`: Choose JSON or Markdown output; configuration can change the default.
@@ -4406,6 +4408,45 @@ Serve MCP over stdio or --http [ADDR]. Non-loopback binds require --allow-host H
 - `--http`: Listen on an HTTP address; omit its value for the loopback default.
 - `--allow-host`: Allow an HTTP Host authority; required for non-loopback listeners.
 
+## biomcp schema
+
+```text
+List every schema identity and description with biomcp schema, or print one schema artifact with biomcp schema <id>.
+
+Usage: biomcp schema [OPTIONS] [artifact-id]
+
+Arguments:
+  [artifact-id]
+          Artifact ID to print; omit it to list available schemas.
+
+Options:
+      --format <format>
+          Choose JSON or Markdown output; configuration can change the default.
+          
+          [default: json]
+          [possible values: json, md]
+
+      --disable-sources <disable-sources>
+          Exclude source names or source terms groups.
+
+      --config <config>
+          Read configuration from this file.
+
+      --offline
+          Read local data without source requests.
+
+      --fresh
+          Request fresh source data instead of cached replies.
+
+Example: biomcp schema
+Example: biomcp schema biomcp.help/3
+
+```
+
+List every schema identity and description with biomcp schema, or print one schema artifact with biomcp schema <id>.
+
+- `artifact-id`: Artifact ID to print; omit it to list available schemas.
+
 ## biomcp help
 
 ```text
@@ -4431,6 +4472,8 @@ Commands:
   store       Manage local cached replies and snapshots.
   key         Register and manage source credentials without showing values.
   serve       Serve MCP over standard input or HTTP.
+  schema      
+  help        Describe commands and their arguments.
   network     
   sources     
   config      
@@ -6992,6 +7035,60 @@ Options:
 
 ```
 
+## biomcp help schema
+
+```text
+Usage: biomcp help schema [OPTIONS]
+
+Options:
+      --format <format>
+          Choose JSON or Markdown output; configuration can change the default.
+          
+          [default: json]
+          [possible values: json, md]
+
+      --disable-sources <disable-sources>
+          Exclude source names or source terms groups.
+
+      --config <config>
+          Read configuration from this file.
+
+      --offline
+          Read local data without source requests.
+
+      --fresh
+          Request fresh source data instead of cached replies.
+
+```
+
+## biomcp help help
+
+```text
+Describe commands and their arguments.
+
+Usage: biomcp help help [OPTIONS]
+
+Options:
+      --format <format>
+          Choose JSON or Markdown output; configuration can change the default.
+          
+          [default: json]
+          [possible values: json, md]
+
+      --disable-sources <disable-sources>
+          Exclude source names or source terms groups.
+
+      --config <config>
+          Read configuration from this file.
+
+      --offline
+          Read local data without source requests.
+
+      --fresh
+          Request fresh source data instead of cached replies.
+
+```
+
 ## biomcp help network
 
 ```text
@@ -7155,12 +7252,6 @@ study -> gwas (search --study)
 trial -> disease (get section diseases)
 variant -> article (search --variant), gwas (get section gwas), gwas (search --variant), trial (search --variant)
 
-
-## biomcp schema
-
-List every schema identity and description, or print one schema artifact.
-
-- `artifact-id`: Artifact ID to print; omit it to list available schemas.
 
 ## biomcp sync hgnc
 
