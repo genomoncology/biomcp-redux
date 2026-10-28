@@ -47,8 +47,22 @@ fn markdown() -> Check {
 }
 
 fn proxy() -> Check {
-    // Windows environment names are case-insensitive, so it has no dual-name state.
-    for dual in [false, true].into_iter().filter(|dual| !cfg!(windows) || !*dual) {
+    for (lower, upper, invalid) in [
+        ("http_proxy", "HTTP_PROXY", "invalid-proxy"),
+        ("https_proxy", "HTTPS_PROXY", "invalid-proxy"),
+        ("no_proxy", "NO_PROXY", "bad:port"),
+    ] {
+        let env = Environment::new()?;
+        let output = env.command(env!("CARGO_BIN_EXE_biomcp"), &["health".into(), "--offline".into()])
+            .env(lower, invalid).output()?;
+        let value: Value = serde_json::from_slice(&output.stdout)?;
+        assert_eq!(output.status.code(), Some(5), "lower-case {lower} ignored: {value}");
+        assert_eq!(value.pointer("/error/option"), Some(&json!(if cfg!(windows) { upper } else { lower })));
+        assert!(output.stderr.is_empty());
+    }
+    // Invalid upper-case settings ensure the unfixed program cannot reach a provider.
+    // Windows has case-insensitive names, so it cannot hold this conflicting pair.
+    if !cfg!(windows) {
         let env = Environment::new()?;
         let stub = Stub::new()?;
         stub.retain(&env);
@@ -58,9 +72,7 @@ fn proxy() -> Check {
         let mut command = env.command(env!("CARGO_BIN_EXE_biomcp"), &["sync".into(), "hgnc".into()]);
         command.env("https_proxy", format!("http://{}", stub.address))
             .env("http_proxy", format!("http://{}", stub.address)).env("no_proxy", "unrelated.invalid");
-        if dual {
-            command.env("HTTP_PROXY", "invalid-upper").env("HTTPS_PROXY", "invalid-upper").env("NO_PROXY", "*");
-        }
+        command.env("HTTP_PROXY", "invalid-upper").env("HTTPS_PROXY", "invalid-upper").env("NO_PROXY", "*");
         let output = command.output()?;
         let value: Value = serde_json::from_slice(&output.stdout)?;
         assert!(output.status.success(), "{value}");
@@ -94,7 +106,7 @@ fn help() -> Check {
 }
 
 fn bypass() -> Check {
-    for bypass in [false, true] {
+    for (bypass, dual) in [(false, false), (false, true), (true, true)] {
         let env = Environment::new()?;
         let target = env.root().join("article.pdf");
         let mut args = env.globals(Some(&super::launch::fixtures().join("replies/article/pdf/synthetic")), false);
@@ -102,7 +114,7 @@ fn bypass() -> Check {
         let mut command = env.command(env!("CARGO_BIN_EXE_biomcp"), &args);
         command.env("https_proxy", "http://127.0.0.1:9")
             .env("no_proxy", if bypass { "storage.imrpress.com" } else { "unrelated.invalid" });
-        if !cfg!(windows) {
+        if dual && !cfg!(windows) {
             command.env("HTTPS_PROXY", "http://127.0.0.1:9")
                 .env("NO_PROXY", if bypass { "unrelated.invalid" } else { "*" });
         }
