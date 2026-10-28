@@ -284,7 +284,10 @@ fn empty_recovery() -> Check {
         if disabled {
             broader.splice(0..0, ["--disable-sources", "europepmc"]);
         }
-        assert_eq!(steps.last().ok_or("missing broader gene search")?["args"], json!(broader));
+        assert_eq!(
+            steps.last().ok_or("missing broader gene search")?["args"],
+            json!(broader)
+        );
         assert_eq!(
             output["sources"][1]["notices"][0]["kind"],
             "litvar_rsid_hint"
