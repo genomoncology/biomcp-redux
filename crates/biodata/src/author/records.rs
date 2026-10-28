@@ -34,6 +34,7 @@ pub struct AuthorHeader {
     pub id: AuthorId,
     /// Source display name, never a join key.
     #[serde(skip_serializing_if = "Option::is_none")]
+    #[cfg_attr(feature = "schema", schemars(with = "Text"))]
     pub name: Option<Text>,
     /// Native affiliation labels; no employment claim.
     #[serde(skip_serializing_if = "crate::absent_or_empty")]

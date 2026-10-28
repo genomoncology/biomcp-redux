@@ -21,6 +21,7 @@ pub struct OrcidExternalId {
     pub value: Text,
     /// Open native relationship, including self and part-of.
     #[serde(skip_serializing_if = "Option::is_none")]
+    #[cfg_attr(feature = "schema", schemars(with = "Text"))]
     pub relationship: Option<Text>,
     /// Native identifier URL.
     #[serde(skip_serializing_if = "Option::is_none")]
@@ -69,6 +70,7 @@ pub struct OrcidWorkAssertion {
     pub translated_title: Option<Text>,
     /// Open native work type.
     #[serde(skip_serializing_if = "Option::is_none")]
+    #[cfg_attr(feature = "schema", schemars(with = "Text"))]
     pub work_type: Option<Text>,
     /// Native partial publication date.
     #[serde(skip_serializing_if = "Option::is_none")]
