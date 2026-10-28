@@ -231,6 +231,8 @@ fn clingen() -> Check {
                 record["exchanges"][0]["body"]["value"] = format!("{}\n", lines.join("\n")).into();
                 if mode == "failed dosage" && dosage {
                     record["exchanges"][0]["status"] = 500.into();
+                    // Three failed attempts exercise exhaustion, not a missing recording.
+                    record["exchanges"] = json!(vec![record["exchanges"][0].clone(); 3]);
                 }
             },
             expect,
