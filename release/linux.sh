@@ -26,7 +26,9 @@ fi
 build_cache=${BIOMCP_RELEASE_COLD:-0}
 build() {
   if [ "$build_cache" != 1 ]; then
-    set -- "$@" -v "$PWD/.release-cache/cargo:/cargo"
+    operation=$1
+    shift
+    set -- "$operation" -v "$PWD/.release-cache/cargo:/cargo" "$@"
   fi
   docker "$@"
 }
