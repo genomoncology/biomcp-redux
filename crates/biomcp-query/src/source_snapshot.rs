@@ -10,8 +10,7 @@ pub(crate) struct Saved<T> {
 }
 type Wire<T> = (Vec<T>, Vec<SourceOutcome>, Vec<Problem>);
 fn key(namespace: &str, q: &impl Serialize) -> Result<Vec<u8>, RequestError> {
-    serde_json::to_vec(&(namespace, q))
-        .map_err(|_| CacheError::Database.into())
+    serde_json::to_vec(&(namespace, q)).map_err(|_| CacheError::Database.into())
 }
 pub(crate) fn load<T: DeserializeOwned>(
     cx: &Ctx<'_>,

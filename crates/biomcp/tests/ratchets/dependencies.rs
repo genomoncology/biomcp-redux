@@ -58,6 +58,7 @@ const LAYERS: &[(&str, &[&str])] = &[
             "biomcp-fetch",
             "biomcp-adapters",
             "rusqlite",
+            "serde",
             "serde_json",
             "sha2",
             "thiserror",

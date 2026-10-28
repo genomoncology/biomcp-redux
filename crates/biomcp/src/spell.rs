@@ -283,7 +283,10 @@ fn base_entity(request: &Request) -> &'static str {
     other_entity(request)
 }
 fn other_entity(request: &Request) -> &'static str {
-    if matches!(request, Request::SearchBiomarker(_) | Request::GetBiomarker(_)) {
+    if matches!(
+        request,
+        Request::SearchBiomarker(_) | Request::GetBiomarker(_)
+    ) {
         return "biomarker";
     }
     if matches!(request, Request::SearchOrganization(_)) {

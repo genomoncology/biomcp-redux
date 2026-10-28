@@ -1,14 +1,18 @@
 //! Checked selectors for NCI biomarker terminology.
+use crate::QueryInvalid;
 use biodata::{NcitId, Text};
 use serde::{Deserialize, Serialize};
-use crate::QueryInvalid;
 biodata::wire_enum! {
     /// Biomarker concept publisher.
     BiomarkerSource { /// NCI Clinical Trials Search.
         Nci => "nci" }
 }
-fn nci() -> BiomarkerSource { BiomarkerSource::Nci }
-fn limit() -> u32 { 5 }
+fn nci() -> BiomarkerSource {
+    BiomarkerSource::Nci
+}
+fn limit() -> u32 {
+    5
+}
 /// Find NCI biomarker concepts by name or synonym. The public tier returns codes, name, type, trial count, synonyms, parent_ids, ancestor_ids and eligibility_criterion. These concepts differ from diagnostic --biomarker filters and literal trial --variant text. Native criteria do not establish patient eligibility.
 #[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
 #[serde(try_from = "SearchFields")]
@@ -22,7 +26,11 @@ struct SearchFields {
     /// Explicit keyed NCI source.
     source: BiomarkerSource,
     /// Native partial name or synonym search.
-    #[serde(default, deserialize_with = "super::present", skip_serializing_if = "Option::is_none")]
+    #[serde(
+        default,
+        deserialize_with = "super::present",
+        skip_serializing_if = "Option::is_none"
+    )]
     #[cfg_attr(feature = "schema", schemars(with = "Text"))]
     name: Option<Text>,
     /// Maximum headers per local page.
@@ -40,30 +48,48 @@ crate::query::validation::checked_query!(BiomarkerSearch, SearchFields);
 impl TryFrom<SearchFields> for BiomarkerSearch {
     type Error = QueryInvalid;
     fn try_from(value: SearchFields) -> Result<Self, Self::Error> {
-        if !(1..=50).contains(&value.limit) { return Err(QueryInvalid::new(&["limit"])); }
+        if !(1..=50).contains(&value.limit) {
+            return Err(QueryInvalid::new(&["limit"]));
+        }
         Ok(Self(value))
     }
 }
 impl BiomarkerSearch {
     /// Native name or synonym selector.
-    pub fn name(&self) -> Option<&Text> { self.0.name.as_ref() }
+    pub fn name(&self) -> Option<&Text> {
+        self.0.name.as_ref()
+    }
     /// Local page size.
-    pub fn limit(&self) -> u32 { self.0.limit }
+    pub fn limit(&self) -> u32 {
+        self.0.limit
+    }
     /// Local snapshot position.
-    pub fn offset(&self) -> u32 { self.0.offset }
+    pub fn offset(&self) -> u32 {
+        self.0.offset
+    }
     /// Retained observation identity.
-    pub fn pool(&self) -> Option<&Text> { self.0.pool.as_ref() }
+    pub fn pool(&self) -> Option<&Text> {
+        self.0.pool.as_ref()
+    }
     /// Continue the same observation.
     pub fn at_page(&self, offset: u32, pool: Text) -> Self {
-        let mut q = self.clone(); q.0.offset = offset; q.0.pool = Some(pool); q
+        let mut q = self.clone();
+        q.0.offset = offset;
+        q.0.pool = Some(pool);
+        q
     }
     /// Restart the native search.
     pub fn restart(&self) -> Self {
-        let mut q = self.clone(); q.0.offset = 0; q.0.pool = None; q
+        let mut q = self.clone();
+        q.0.offset = 0;
+        q.0.pool = None;
+        q
     }
     /// Snapshot selectors exclude page controls.
     pub fn snapshot_query(&self) -> Self {
-        let mut q = self.restart(); q.0.limit = limit(); q
+        let mut q = self.restart();
+        q.0.limit = limit();
+        q
     }
 }
 /// Search NCI by exact NCIt code. Several native rows return candidates without choosing one. The public tier returns codes, name, type, trial count, synonyms, parent_ids, ancestor_ids and eligibility_criterion. No clinical interpretation is performed.
@@ -80,7 +106,9 @@ pub struct BiomarkerGet {
 }
 impl BiomarkerGet {
     /// Construct an exact native code lookup.
-    pub fn one(id: NcitId) -> Self { Self { id, source: nci() } }
+    pub fn one(id: NcitId) -> Self {
+        Self { id, source: nci() }
+    }
 }
 
 crate::query::validation::checked_query!(BiomarkerGet);

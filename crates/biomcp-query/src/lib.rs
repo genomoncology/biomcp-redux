@@ -32,12 +32,12 @@ pub mod pgx;
 pub mod adverse_event_maude;
 
 pub mod biomarker;
-mod source_snapshot;
 pub mod organization;
 /// Native human pathway discovery and exact cards.
 pub mod pathway;
 /// Literal phenotype discovery and exact independent source cards.
 pub mod phenotype;
+mod source_snapshot;
 /// Stored study catalog discovery.
 pub mod study;
 

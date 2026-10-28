@@ -80,4 +80,4 @@ pub(crate) mod validation;
 pub use validation::CheckedQuery;
 
 mod biomarker;
-pub use biomarker::{BiomarkerSearch, BiomarkerGet, BiomarkerSource};
+pub use biomarker::{BiomarkerGet, BiomarkerSearch, BiomarkerSource};

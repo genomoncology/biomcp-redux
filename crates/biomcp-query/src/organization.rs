@@ -50,7 +50,13 @@ fn execute(
         }
         .into());
     }
-    let saved = snapshot::load(cx, "biomcp.organization-snapshot/1", &q.snapshot_query(), q.pool(), deadline)?;
+    let saved = snapshot::load(
+        cx,
+        "biomcp.organization-snapshot/1",
+        &q.snapshot_query(),
+        q.pool(),
+        deadline,
+    )?;
     if q.pool().is_some() && !cx.fresh && saved.is_none() {
         out.body = QueryBody::PoolError { mismatch: false };
         out.next.push((StepKind::Restart, run(q.restart())));
@@ -82,8 +88,23 @@ fn execute(
     let pool = if let Some(pool) = q.pool().filter(|_| !cx.fresh) {
         pool.clone()
     } else {
-        snapshot::save(cx, "biomcp.organization-snapshot/1", &q.snapshot_query(), deadline, &saved)?
+        snapshot::save(
+            cx,
+            "biomcp.organization-snapshot/1",
+            &q.snapshot_query(),
+            deadline,
+            &saved,
+        )?
     };
+    page(q, saved, pool, out);
+    Ok(())
+}
+fn page(
+    q: &OrganizationSearch,
+    saved: snapshot::Saved<biomcp_types::Organization>,
+    pool: biodata::Text,
+    out: &mut Outcome,
+) {
     let total = saved.items.len() as u64;
     let items: Box<[_]> = saved
         .items
@@ -118,7 +139,6 @@ fn execute(
     out.sources = saved.sources;
     out.problems = saved.problems;
     out.body = QueryBody::OrganizationPage(OrganizationPage { items });
-    Ok(())
 }
 fn empty() -> Outcome {
     Outcome {

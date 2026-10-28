@@ -1,6 +1,7 @@
 //! Shared command interpretation and typed outcomes for CLI and MCP.
 mod adverse_event;
 mod author;
+mod biomarker;
 mod cell_line;
 mod diagnostic;
 mod disease;
@@ -9,7 +10,6 @@ mod drug_label;
 pub(crate) mod local;
 mod maintenance;
 mod mcp_policy;
-mod biomarker;
 mod organization;
 mod pathway;
 mod pgx;

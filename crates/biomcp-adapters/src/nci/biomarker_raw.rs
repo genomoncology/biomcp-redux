@@ -11,8 +11,10 @@ pub(super) struct Page {
 }
 impl Reply for Page {
     fn check(&self) -> Result<(), BadReply> {
-        if self.error.is_some() || self.total != self.data.len() as u64
-            || self.data.iter().any(|row| row.codes.is_empty()) {
+        if self.error.is_some()
+            || self.total != self.data.len() as u64
+            || self.data.iter().any(|row| row.codes.is_empty())
+        {
             return Err(BadReply);
         }
         Ok(())

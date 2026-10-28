@@ -174,4 +174,4 @@ mod organization;
 pub use organization::{Organization, OrganizationCoordinates, OrganizationPage};
 
 mod biomarker;
-pub use biomarker::{BiomarkerHeader, BiomarkerCard, BiomarkerPage, BiomarkerResult};
+pub use biomarker::{BiomarkerCard, BiomarkerHeader, BiomarkerPage, BiomarkerResult};

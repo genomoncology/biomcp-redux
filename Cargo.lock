@@ -254,6 +254,7 @@ dependencies = [
  "biomcp-fetch",
  "biomcp-types",
  "rusqlite",
+ "serde",
  "serde_json",
  "sha2",
  "tempfile",

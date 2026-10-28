@@ -322,8 +322,8 @@ pub(crate) fn tree() -> String {
         if command.command == ["search", "protein"] {
             line.push_str(" --gene --reviewed");
         }
-        if command.command.iter().any(|word| word == "biomarker") {
-            line.push_str(" NCI concepts;native codes,type,count,synonyms,parent_ids,ancestor_ids,eligibility_criterion;diagnostic --biomarker filters tests;trial --variant searches literal text");
+        if command.command == ["search", "biomarker"] {
+            line.push_str(";NCI concepts;diagnostic --biomarker tests;trial --variant literal text");
         }
         if command.command == ["search", "organization"] {
             line.push_str(

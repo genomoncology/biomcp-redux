@@ -2,9 +2,16 @@
 use super::{Outcome, ResponseMeta};
 use biomcp_types::{BiomarkerGet, BiomarkerSearch, ErrorEnvelope, QueryBody, Status};
 use std::io;
-pub(super) fn search(meta: ResponseMeta, q: BiomarkerSearch, body: QueryBody) -> io::Result<Outcome> {
+pub(super) fn search(
+    meta: ResponseMeta,
+    q: BiomarkerSearch,
+    body: QueryBody,
+) -> io::Result<Outcome> {
     match body {
-        QueryBody::BiomarkerPage(body) => { let body = (meta.status != Status::Failed).then_some(body); meta.encode(q, body) },
+        QueryBody::BiomarkerPage(body) => {
+            let body = (meta.status != Status::Failed).then_some(body);
+            meta.encode(q, body)
+        }
         QueryBody::BiomarkerTooBroad => super::usage_envelope(ErrorEnvelope::biomarker_too_broad()),
         QueryBody::PoolError { mismatch } => super::pool_error(mismatch, meta.next),
         _ => Err(io::Error::other("biomarker response mismatch")),
@@ -12,7 +19,10 @@ pub(super) fn search(meta: ResponseMeta, q: BiomarkerSearch, body: QueryBody) ->
 }
 pub(super) fn get(meta: ResponseMeta, q: BiomarkerGet, body: QueryBody) -> io::Result<Outcome> {
     match body {
-        QueryBody::BiomarkerResult(body) => { let body = (meta.status != Status::Failed).then_some(body); meta.encode(q, body) },
+        QueryBody::BiomarkerResult(body) => {
+            let body = (meta.status != Status::Failed).then_some(body);
+            meta.encode(q, body)
+        }
         QueryBody::BiomarkerTooBroad => super::usage_envelope(ErrorEnvelope::biomarker_too_broad()),
         _ => Err(io::Error::other("biomarker response mismatch")),
     }
