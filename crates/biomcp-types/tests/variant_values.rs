@@ -490,36 +490,37 @@ fn source_predictor_contract_keeps_zero_and_native_labels() {
 #[test]
 fn identifier_lists_preserve_published_text_and_roundtrip() -> Result<(), Box<dyn std::error::Error>>
 {
-    for (published, output) in [
-        ("rs113488022", "rs113488022"),
-        ("CA123643", "CA123643"),
-        ("PA123", "PA123"),
-        ("VCV000013961.1", "VCV000013961.1"),
-        ("clinvar:13961", "clinvar:13961"),
-        ("COSV60000001", "COSV60000001"),
-        (
-            "ga4gh:VA.aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
-            "ga4gh:VA.aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
-        ),
+    for published in [
+        "rs113488022",
+        "CA123643",
+        "PA123",
+        "VCV000013961.1",
+        "clinvar:13961",
+        "COSV60000001",
+        "ga4gh:VA.aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
     ] {
         let id: VariantId = published.parse()?;
         assert_eq!(id.to_string(), published);
-        assert_eq!(VariantInput::new(output)?.as_str(), published);
+        assert_eq!(VariantInput::new(published)?.as_str(), published);
         let variant = Variant {
             ids: Box::new([id]),
             representations: Box::default(),
             genes: Box::default(),
         };
         let value = serde_json::to_value(&variant)?;
-        assert_eq!(value, json!({"ids":[output]}));
+        assert_eq!(value, json!({"ids":[published]}));
         assert_eq!(serde_json::from_value::<Variant>(value)?, variant);
-        // Stored entities with the old published spelling remain readable.
-        assert_eq!(
-            serde_json::from_value::<Variant>(json!({"ids":[published]}))?,
-            variant
-        );
     }
-    for invalid in ["clingen:rs123", "cosmic:CA123643", "rs:CA123643"] {
+    for invalid in [
+        "rs:113488022",
+        "clingen:CA123643",
+        "clingen:PA123",
+        "clinvar:VCV000013961.1",
+        "cosmic:COSV60000001",
+        "clingen:rs123",
+        "cosmic:CA123643",
+        "rs:CA123643",
+    ] {
         assert!(serde_json::from_value::<Variant>(json!({"ids":[invalid]})).is_err());
     }
     Ok(())
