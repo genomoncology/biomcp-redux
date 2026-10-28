@@ -108,9 +108,8 @@ fn identities() -> Check {
         ],
         0,
     )?;
-    if mismatch
-        .pointer("/result/items/0/drug_applications")
-        .is_some()
+    let applications = mismatch.pointer("/result/items/0/drug_applications");
+    if applications.is_some()
         || mismatch.pointer("/problems/0/code") != Some(&json!("identity.conflict"))
     {
         return Err(format!("mismatched cell supplied identity: {mismatch}"));

@@ -138,15 +138,11 @@ fn pages() -> Result<(), String> {
     ];
     let first = invoke("associations/pages/invoke1", &env, &words, 0)?;
     if first.pointer("/page/returned") != Some(&json!(2))
-        || first
-            .pointer("/result/items/1/association/negated")
-            .is_some()
-        || first
-            .pointer("/result/items/1/association/publications")
-            .is_some()
-        || first
-            .pointer("/result/items/1/association/qualifiers")
-            .is_some()
+        || ["negated", "publications", "qualifiers"].iter().any(|field| {
+            first
+                .pointer(&format!("/result/items/1/association/{field}"))
+                .is_some()
+        })
     {
         return Err(format!("native independent rows collapsed: {first}"));
     }
