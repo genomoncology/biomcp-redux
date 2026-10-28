@@ -1,6 +1,7 @@
 {
   "$id": "biodata.variant-id/2",
   "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "description": "Published variant-level identifiers, with each identifier's level retained.",
   "pattern": "^(rs[1-9][0-9]*|CA[0-9]{6,}|PA[1-9][0-9]*|VCV[0-9]{9}(\\.[1-9][0-9]*)?|clinvar:[1-9][0-9]*|COS[VMN][1-9][0-9]*|ga4gh:VA\\.[A-Za-z0-9_-]{32})$",
   "title": "VariantId",
   "type": "string"

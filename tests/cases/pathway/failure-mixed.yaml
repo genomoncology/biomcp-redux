@@ -28,8 +28,7 @@
           "count": 3
         }
       },
-      "max_bytes": 1328,
-      "max_tokens": 333
+      "max_bytes": 1328
     },
     {
       "run": [
@@ -43,7 +42,6 @@
         "/status": "failed"
       },
       "max_bytes": 266,
-      "max_tokens": 67,
       "mcp": [
         "search",
         "pathway",

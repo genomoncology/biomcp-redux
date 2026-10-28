@@ -1,6 +1,7 @@
 # 0347 — Screen dependencies, secrets and installer downloads in the gate and the release
 
-Status: OPEN.
+Status: COMPLETE.
+Landed: 966298b47b167682391326d7876d344134f1119c
 
 Milestone: 5
 

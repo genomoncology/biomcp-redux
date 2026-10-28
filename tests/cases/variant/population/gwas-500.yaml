@@ -24,8 +24,7 @@
         "/result/candidates/0/sections/gwas/state": "unavailable",
         "/result/candidates/0/sections/gwas/reason": "unavailable"
       },
-      "max_bytes": 563,
-      "max_tokens": 141
+      "max_bytes": 563
     },
     {
       "run": [
@@ -40,8 +39,7 @@
         "/status": "failed",
         "/result/candidates/0/sections/gwas/reason": "offline"
       },
-      "max_bytes": 554,
-      "max_tokens": 139
+      "max_bytes": 554
     }
   ]
 }

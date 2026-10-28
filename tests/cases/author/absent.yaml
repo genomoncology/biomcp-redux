@@ -21,8 +21,7 @@
         "/result/items/0/status": "absent"
       },
       "full_output_bytes": true,
-      "max_bytes": 398,
-      "max_tokens": 100
+      "max_bytes": 398
     }
   ]
 }

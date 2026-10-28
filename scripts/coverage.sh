@@ -82,7 +82,11 @@ case "${1:-run}" in
         rm -f "$profile_dir"/*.profraw
         LLVM_PROFILE_FILE="$profile_dir/cases-%m-%p.profraw"
         export LLVM_PROFILE_FILE
-        if ! cargo test --locked -p biomcp --test cases; then
+        set --
+        if [ -n "${RUST_TEST_THREADS:-}" ]; then
+            set -- -- --test-threads "$RUST_TEST_THREADS"
+        fi
+        if ! cargo test --locked -p biomcp --test cases "$@"; then
             echo 'coverage: cases collection incomplete because its suite failed' >&2
             exit 1
         fi

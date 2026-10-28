@@ -32,7 +32,8 @@
         },
         "url": {
           "$ref": "#/$defs/Text",
-          "description": "Nonempty canonical source record URL."
+          "description": "Nonempty canonical source record URL.",
+          "format": "uri"
         }
       },
       "required": [

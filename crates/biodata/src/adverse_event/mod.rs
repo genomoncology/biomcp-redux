@@ -38,4 +38,9 @@ impl std::fmt::Display for ReportId {
         f.write_str(self.as_str())
     }
 }
-crate::text_value!(ReportId, "ReportId", r"^[0-9]+$");
+crate::text_value!(
+    ReportId,
+    "ReportId",
+    r"^[0-9]+$",
+    "Opaque published digits with source carried separately, never a prefixed wrapper."
+);

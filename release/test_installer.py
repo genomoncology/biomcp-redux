@@ -1,6 +1,6 @@
 """Feature install-script: exercise the actual installer with isolated downloads."""
 from release.artifacts import binary_archive
-from release.local_server import server
+from release.local_server import QuietHandler, https_server, server
 import hashlib
 import io
 import os
@@ -91,7 +91,8 @@ class Installer(unittest.TestCase):
                     tag = "manylinux_2_28_" + ("aarch64" if platform.endswith("arm64") else "x86_64")
                 archive = binary_archive(release, payload, tag)
                 self.assertEqual(archive.name, "biomcp-" + platform + suffix)
-                with server(self.root) as base:
+                with https_server(self.root) as (base, ca):
+                    self.environment["CURL_CA_BUNDLE"] = str(ca)
                     self.environment["BIOMCP_RELEASE_BASE_URL"] = base + "/releases"
                     result = self.install("--version", "1.0.0")
                 self.assertEqual(result.returncode, 0, result.stderr)
@@ -105,7 +106,8 @@ class Installer(unittest.TestCase):
         release = self.root / "releases/latest/download"
         release.mkdir(parents=True)
         archive, checksum = candidate(release, "biomcp-linux-x86_64.tar.gz")
-        with server(self.root) as base:
+        with https_server(self.root) as (base, ca):
+            self.environment["CURL_CA_BUNDLE"] = str(ca)
             self.environment["BIOMCP_RELEASE_BASE_URL"] = base + "/releases"
             self.assertEqual(self.install().returncode, 0)
         self.assertEqual(self.install(str(archive), checksum, str(self.root / "offline")).returncode, 0)
@@ -123,7 +125,8 @@ class Installer(unittest.TestCase):
         release = self.root / "releases/download/v1.0.0"
         release.mkdir(parents=True)
         archive, checksum = candidate(release, "biomcp-linux-x86_64.tar.gz")
-        with server(self.root) as base:
+        with https_server(self.root) as (base, ca):
+            self.environment["CURL_CA_BUNDLE"] = str(ca)
             self.environment.update(BIOMCP_RELEASE_BASE_URL=base + "/releases", BIOMCP_VERSION="v1.0.0")
             for bad in ["0" * 64, checksum + "  other.tar.gz", checksum + "\n" + checksum]:
                 archive.with_name(archive.name + ".sha256").write_text(bad + "\n")
@@ -146,7 +149,8 @@ class Installer(unittest.TestCase):
         self.destination.mkdir()
         installed = self.destination / "biomcp.exe"
         installed.write_bytes(b"previous executable")
-        with server(self.root) as base:
+        with https_server(self.root) as (base, ca):
+            self.environment["CURL_CA_BUNDLE"] = str(ca)
             self.environment.update(BIOMCP_RELEASE_BASE_URL=base + "/releases", BIOMCP_VERSION="v1.0.0")
             archive, _ = candidate(release, "biomcp-windows-x86_64.zip", member="../escape.exe")
             result = self.install()
@@ -181,6 +185,63 @@ class Installer(unittest.TestCase):
             self.assertNotEqual(result.returncode, 0, suffix)
             self.assertIn("symbolic-link install directory", result.stderr)
             self.assertFalse(target.exists())
+
+    def test_downloaders_follow_https_redirects_and_never_contact_http_targets(self):
+        class Counter(QuietHandler):
+            requests = 0
+            def do_GET(self):
+                Counter.requests += 1
+                super().do_GET()
+        class Redirect(QuietHandler):
+            destination = ""
+            def do_GET(self):
+                if self.path.startswith("/safe/"):
+                    self.path = self.path.removeprefix("/safe")
+                    return super().do_GET()
+                self.send_response(302)
+                self.send_header("Location", Redirect.destination + self.path)
+                self.end_headers()
+        self.platform()
+        release = self.root / "download/v1.0.0"
+        release.mkdir(parents=True)
+        candidate(release, "biomcp-linux-x86_64.tar.gz")
+        for tool in ["curl", "wget"]:
+            executable = shutil.which(tool)
+            if not executable:
+                print("Installer redirect proof unavailable: " + tool)
+                continue
+            print("Installer redirect proof uses real " + tool)
+            with self.subTest(downloader=tool), server(self.root, handler=Counter) as insecure, https_server(self.root, handler=Redirect) as (base, ca):
+                for name in ["curl", "wget"]:
+                    (self.bin / name).unlink(missing_ok=True)
+                (self.bin / tool).symlink_to(executable)
+                for name in ["mktemp", "mkdir", "rm", "tr", "tar", "gzip", "cp", "chmod", "mv", "shasum", "sha256sum", "openssl"]:
+                    source = shutil.which(name, path=os.defpath)
+                    if source and not (self.bin / name).exists():
+                        (self.bin / name).symlink_to(source)
+                self.environment.update(PATH=str(self.bin), BIOMCP_RELEASE_BASE_URL=base,
+                                        BIOMCP_VERSION="1.0.0", CURL_CA_BUNDLE=str(ca))
+                config = self.root / "wgetrc"
+                config.write_text("ca_certificate=" + str(ca) + "\n")
+                self.environment["WGETRC"] = str(config)
+                for destination in [base + "/safe", "/safe", "//" + base.removeprefix("https://") + "/safe", "../../../safe"]:
+                    Redirect.destination = destination
+                    result = self.install()
+                    self.assertEqual(result.returncode, 0, result.stderr)
+                    self.destination.joinpath("biomcp").unlink()
+                Redirect.destination = insecure
+                result = self.install()
+                self.assertNotEqual(result.returncode, 0)
+                self.assertEqual(Counter.requests, 0)
+                self.assertFalse(self.destination.joinpath("biomcp").exists())
+
+    def test_plain_http_base_is_refused_before_download(self):
+        self.platform()
+        self.environment["BIOMCP_RELEASE_BASE_URL"] = "http://127.0.0.1:1/releases"
+        result = self.install()
+        self.assertNotEqual(result.returncode, 0)
+        self.assertIn("HTTPS", result.stderr)
+        self.assertFalse(self.destination.exists())
 
     def test_unknown_platform_names_failure_and_help_needs_no_download(self):
         for system, machine, message in [("Plan9", "x86_64", "Plan9"), ("Linux", "mips", "mips"), ("MSYS_NT", "arm64", "windows/arm64")]:

@@ -1,6 +1,7 @@
 {
   "$id": "biodata.vrs-id/1",
   "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "description": "A source-supplied VRS allele identifier; construction never computes a digest.",
   "pattern": "^ga4gh:VA\\.[A-Za-z0-9_-]{32}$",
   "title": "VrsId",
   "type": "string"

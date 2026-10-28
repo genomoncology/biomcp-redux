@@ -1,6 +1,7 @@
 {
   "$defs": {
     "GeneSymbol": {
+      "description": "Source spelling of a gene symbol, with ASCII case-insensitive identity.",
       "pattern": "^[A-Za-z][A-Za-z0-9._/@-]{0,254}$",
       "type": "string"
     },
@@ -15,18 +16,22 @@
       ]
     },
     "GwasStudyId": {
+      "description": "Exact Catalog study accession; case and leading zeros survive.",
       "pattern": "^GCST[0-9]{6,}$",
       "type": "string"
     },
     "GwasTraitId": {
+      "description": "Native ontology identifier; namespaces are preserved without an EFO restriction.",
       "pattern": "^[A-Za-z0-9]+[_:][A-Za-z0-9_-]+$",
       "type": "string"
     },
     "Pmid": {
+      "description": "Positive PubMed identifier.",
       "pattern": "^[1-9][0-9]*$",
       "type": "string"
     },
     "RsId": {
+      "description": " A dbSNP site identifier, never an allele join key.",
       "pattern": "^rs[1-9][0-9]*$",
       "type": "string"
     },

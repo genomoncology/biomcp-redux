@@ -40,8 +40,7 @@
         "/result/condition_resolution/selected_ncit": "NCIT:C3224",
         "/result/items/0/nct_id": "NCT05136196"
       },
-      "max_bytes": 1814,
-      "max_tokens": 454
+      "max_bytes": 1814
     }
   ]
 }
