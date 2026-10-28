@@ -63,6 +63,7 @@ mod http;
 mod http_limits;
 mod key_help;
 mod key_registration;
+mod local_files;
 mod key_reload;
 mod launch;
 mod litvar_tables;

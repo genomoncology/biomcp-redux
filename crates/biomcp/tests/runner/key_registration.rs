@@ -11,6 +11,16 @@ pub(super) fn trials() -> Vec<Trial> {
         Trial::test("trial/nci/key-reload", || {
             super::key_reload::nci().map_err(Into::into)
         }),
+        Trial::test("configuration/local-file-modes", || {
+            super::local_files::modes().map_err(Into::into)
+        }),
+        Trial::test("configuration/key-file-order", || {
+            super::local_files::ordered(false).map_err(Into::into)
+        }),
+        #[cfg(unix)]
+        Trial::test("configuration/key-file-symlink", || {
+            super::local_files::ordered(true).map_err(Into::into)
+        }),
         Trial::test("configuration/key-registration", || {
             registration().map_err(Into::into)
         }),
