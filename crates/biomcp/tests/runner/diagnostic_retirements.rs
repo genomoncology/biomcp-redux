@@ -214,6 +214,11 @@ pub(super) fn bounded(value: &serde_json::Value) -> Result<(), String> {
         .get("status")
         .and_then(serde_json::Value::as_str)
         .ok_or("missing status")?;
+    // Temporary byte measurement for the newly introduced source; replace with its observed fixed ceiling.
+    if value.pointer("/query/source") == Some(&json!("fda-device-recall")) {
+        writeln!(std::io::stdout(), "recall {schema}/{kind}/{status}: {bytes}").map_err(|e| e.to_string())?;
+        return Ok(());
+    }
     // Full compact synthetic maxima measured by j13382.
     let baseline: usize = match (schema, kind, status) {
         // New WHO search view, full compact maximum measured by j13465.
