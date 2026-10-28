@@ -1,6 +1,7 @@
 # 0361 — Map closed source vocabularies to enums and keep IDs and dates typed
 
-Status: OPEN.
+Status: COMPLETE.
+Landed: 4638ad1c781048b3b141d60110cb4423fe80c532
 
 Milestone: 5
 

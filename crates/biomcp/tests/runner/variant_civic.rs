@@ -3,9 +3,21 @@ use super::{launch::Environment, network_stub::Stub};
 use libtest_mimic::Trial;
 use serde_json::{Value, json};
 use std::fs;
+#[path = "civic_vocabulary.rs"]
+mod vocabulary;
 
 pub(super) fn trials() -> Vec<Trial> {
     vec![
+        Trial::test("drug-civic/unknown-status-keeps-native-claims", || {
+            vocabulary::drug_status().map_err(Into::into)
+        }),
+        Trial::test(
+            "variant/civic-unknown-stream-vocabulary-keeps-claims",
+            || vocabulary::stream_context().map_err(Into::into),
+        ),
+        Trial::test("variant/civic-unknown-vocabulary-keeps-claims", || {
+            vocabulary::unknown().map_err(Into::into)
+        }),
         Trial::test("variant/civic-exact-profile-membership", || {
             exact().map_err(Into::into)
         }),

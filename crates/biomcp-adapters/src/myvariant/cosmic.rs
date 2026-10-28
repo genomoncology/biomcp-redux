@@ -91,7 +91,7 @@ impl Rows {
 }
 #[derive(Deserialize)]
 struct Row {
-    cosmic_id: Text,
+    cosmic_id: biodata::CosmicId,
     #[serde(rename = "ref")]
     reference: Option<Text>,
     alt: Option<Text>,

@@ -151,9 +151,9 @@ pub use trial_header::TrialHeader;
 
 mod disease;
 pub use disease::{
-    DiseaseAssociationItem, DiseaseCard, DiseaseGenes, DiseaseHeader, DiseaseHierarchy,
-    DiseaseIncidence, DiseasePage, DiseasePhenotypes, DiseaseSite, DiseaseSites, DiseaseSurvival,
-    DiseaseSynonyms, DiseaseXrefs,
+    DiseaseAssociationItem, DiseaseCard, DiseaseConcept, DiseaseGenes, DiseaseHeader,
+    DiseaseHierarchy, DiseaseIncidence, DiseasePage, DiseasePhenotypes, DiseaseSite, DiseaseSites,
+    DiseaseSurvival, DiseaseSynonyms, DiseaseXrefs,
 };
 
 mod diagnostic;
@@ -163,3 +163,9 @@ mod pathway;
 pub use pathway::*;
 mod alphagenome_scalar;
 pub use alphagenome_scalar::{AlphaGenomeNonfiniteKind, AlphaGenomeScalar};
+
+mod civic_vocabulary;
+pub use civic_vocabulary::{CivicKind, CivicSignificance, CivicStatus};
+
+mod nci_phase;
+pub use nci_phase::NciTrialPhase;

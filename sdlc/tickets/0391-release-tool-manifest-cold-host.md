@@ -1,6 +1,7 @@
 # 0391 — Pin release tools in one manifest and rehearse on a cold host
 
-Status: OPEN.
+Status: COMPLETE.
+Landed: 6d4084b2a69c923ca6114ebc56cd48848cee144d
 
 Milestone: 5
 

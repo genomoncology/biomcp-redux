@@ -1,9 +1,9 @@
 {
   "version": "1.0.0",
   "status": "release-candidate",
-  "source_commit": "e1fb0c7ea7cf6b8def58966ed6a0e7c2756ee564",
+  "source_commit": "64550417956f36f5c1e01411dc03f09b440bf655",
   "archive": "schema-baseline.tar.gz",
-  "sha256": "6c16fd4a55e719fc5b3a1f5129f5b8c3da1f31a09acddd0b28c371615beb6a80",
+  "sha256": "4ff7ac9f477971726a96f27b44fcde917c958558907ea2223f1d13e36811d0fd",
   "schemas": [
     "accession-base.json",
     "accession.json",
@@ -168,9 +168,11 @@
     "mane.json",
     "markdown.json",
     "match-kind.json",
+    "mondo-id.json",
     "ncbi-gene-id.json",
     "nci-trial-cards.json",
     "nci-trial-page.json",
+    "ncit-id.json",
     "nct-id.json",
     "omim-id.json",
     "orcid-works.json",

@@ -6,7 +6,7 @@ use biodata::Curie;
 use biomcp_fetch::{Arg, BadReply, Freshness, InputError, Leg, PathSegment, RequestError};
 use biomcp_fetch::{KeyUse, SourceSpec, Terms};
 use biomcp_types::{Source, Use};
-pub use native::{Component, Record, Value};
+pub use native::{Component, Record, Reference, Value};
 /// Complete exact annotation before independently bounded response pages.
 #[derive(Debug)]
 pub struct Annotation {

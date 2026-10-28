@@ -65,6 +65,8 @@ if '/bin/bash' in args:
         gate = pathlib.Path('proof/tools/release/gate.py')
         gate.parent.mkdir(parents=True)
         gate.write_text(os.environ['GATE_FIXTURE'])
+        shutil.copyfile('release/toolchain.py', gate.parent / 'toolchain.py')
+        shutil.copyfile('release/toolchain.json', gate.parent / 'toolchain.json')
     else:
         # Execute the installation shell with mounted paths and disposable storage.
         with tempfile.TemporaryDirectory() as container:
@@ -98,7 +100,7 @@ class LinuxContainers(unittest.TestCase):
         with tempfile.TemporaryDirectory() as directory:
             root = Path(directory)
             (root / 'release').mkdir()
-            for name in ('linux.sh', 'container_check.py', 'smoke.py', 'Dockerfile'):
+            for name in ('linux.sh', 'container_check.py', 'smoke.py', 'Dockerfile', 'toolchain.py', 'toolchain.json'):
                 shutil.copyfile(ROOT / 'release' / name, root / 'release' / name)
             shutil.copyfile(ROOT / 'Makefile', root / 'Makefile')
             bindir = root / 'bin'

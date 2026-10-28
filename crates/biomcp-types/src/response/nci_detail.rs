@@ -112,7 +112,7 @@ pub struct NciIntervention {
     /// Native description field.
     pub description: Option<Box<str>>,
     /// Native nci thesaurus concept id field.
-    pub nci_thesaurus_concept_id: Text,
+    pub nci_thesaurus_concept_id: biodata::NcitId,
     /// Native r#type field.
     pub r#type: Option<Text>,
     /// Native category field.

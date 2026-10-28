@@ -15,7 +15,7 @@ pub struct NciTrial {
     /// Native status, without a registry translation.
     pub current_trial_status: Text,
     /// Native phase.
-    pub phase: Option<Text>,
+    pub phase: Option<super::NciTrialPhase>,
     /// Native short summary, only on exact retrieval.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub brief_summary: Option<crate::NciTextPage>,
@@ -30,7 +30,7 @@ pub struct NciDisease {
     /// Source concept name.
     pub name: Text,
     /// Publisher NCIt identity.
-    pub nci_thesaurus_concept_id: Text,
+    pub nci_thesaurus_concept_id: biodata::NcitId,
     /// Publisher coding provenance, without local interpretation.
     pub inclusion_indicator: Option<Text>,
     /// Native lead-disease marker.
@@ -66,7 +66,7 @@ pub struct NciTrialPage {
     pub attribution: Box<str>,
 }
 impl super::ResponseBody for NciTrialPage {
-    const SCHEMA: &'static str = "biomcp.nci-trial-page/3";
+    const SCHEMA: &'static str = "biomcp.nci-trial-page/4";
     type Query = TrialSearch;
 }
 /// Independent exact NCI answers in caller order.
@@ -81,7 +81,7 @@ pub struct NciTrialCards {
     pub attribution: Box<str>,
 }
 impl super::ResponseBody for NciTrialCards {
-    const SCHEMA: &'static str = "biomcp.nci-trial-cards/2";
+    const SCHEMA: &'static str = "biomcp.nci-trial-cards/3";
     type Query = TrialGet;
 }
 /// An exact NCI card and its source state.
@@ -118,5 +118,5 @@ pub struct NciDiseaseRef {
     /// Native source name.
     pub name: Text,
     /// Source NCIt identity.
-    pub nci_thesaurus_concept_id: Text,
+    pub nci_thesaurus_concept_id: biodata::NcitId,
 }

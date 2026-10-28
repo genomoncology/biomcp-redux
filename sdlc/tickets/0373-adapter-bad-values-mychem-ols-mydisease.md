@@ -1,6 +1,7 @@
 # 0373 — Apply the bad-value rule to MyChem, OLS and MyDisease
 
-Status: OPEN.
+Status: COMPLETE.
+Landed: 93f0e3a99db30ba22548656ef861cdc52eee16e2
 
 Milestone: 5
 

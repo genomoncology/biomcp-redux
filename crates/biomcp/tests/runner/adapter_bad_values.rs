@@ -6,11 +6,14 @@ use serde_json::{Value, json};
 mod reactome_bad_values;
 #[path = "adapter_reactome_discovery.rs"]
 mod reactome_discovery;
+
+#[path = "adapter_mychem_ontology_bad_values.rs"]
+mod mychem_ontology;
 #[path = "adapter_repeated_references.rs"]
 mod repeated_references;
 
 pub(super) fn trials() -> Vec<Trial> {
-    vec![
+    let mut trials = vec![
         Trial::test(
             "pathway-reactome/invalid-discovery-names-keep-siblings",
             || reactome_discovery::check().map_err(Into::into),
@@ -39,7 +42,9 @@ pub(super) fn trials() -> Vec<Trial> {
         Trial::test("drug-ema/empty-text-keeps-medicine", || {
             ema().map_err(|e| e.to_string().into())
         }),
-    ]
+    ];
+    trials.extend(mychem_ontology::trials());
+    trials
 }
 fn check(value: &Value, field: &str, absent: &str) -> Result<(), String> {
     let problems = value

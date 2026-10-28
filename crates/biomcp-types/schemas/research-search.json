@@ -4,8 +4,8 @@
       "description": "Forward-compatible envelope metadata; entity fields use their CLI schemas.",
       "properties": {
         "schema": {
-          "description": "Original CLI schema identity; its schema describes all entity fields.",
-          "type": "string"
+          "$ref": "#/$defs/Text",
+          "description": "Original CLI schema identity; its schema describes all entity fields."
         },
         "status": {
           "$ref": "#/$defs/Status",
@@ -23,8 +23,8 @@
       "description": "A citable exact source record, without inferred identity or relevance.",
       "properties": {
         "id": {
-          "description": "Exact quoted get argument list, excluding the get verb.",
-          "type": "string"
+          "$ref": "#/$defs/Text",
+          "description": "Exact quoted get argument list, excluding the get verb."
         },
         "title": {
           "$ref": "#/$defs/Text",
@@ -52,8 +52,8 @@
           "description": "Complete original CLI envelope."
         },
         "note": {
-          "description": "Explains where unprojected rows remain available.",
-          "type": "string"
+          "$ref": "#/$defs/Text",
+          "description": "Explains where unprojected rows remain available."
         },
         "omitted_rows": {
           "description": "Native rows that lack an exact citable get target.",
@@ -85,7 +85,7 @@
       "type": "string"
     }
   },
-  "$id": "biomcp.research-search/1",
+  "$id": "biomcp.research-search/2",
   "$schema": "https://json-schema.org/draft/2020-12/schema",
   "additionalProperties": false,
   "description": "Research search response.",

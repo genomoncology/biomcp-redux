@@ -197,7 +197,7 @@
           "description": "Source mode of inheritance."
         },
         "mondo_id": {
-          "$ref": "#/$defs/Text",
+          "$ref": "#/$defs/MondoId",
           "description": "Source MONDO identifier."
         },
         "report_url": {
@@ -1218,6 +1218,11 @@
         " Ensembl gene identifier.",
         " Cytogenetic band."
       ]
+    },
+    "MondoId": {
+      "description": "A publisher MONDO identifier with seven digits.",
+      "pattern": "^MONDO:[0-9]{7}$",
+      "type": "string"
     },
     "NcbiGeneId": {
       "description": "A positive NCBI Gene identifier in canonical decimal text.",
@@ -3186,7 +3191,7 @@
       "type": "string"
     }
   },
-  "$id": "biomcp.gene-cards/5",
+  "$id": "biomcp.gene-cards/6",
   "$schema": "https://json-schema.org/draft/2020-12/schema",
   "additionalProperties": false,
   "description": "One versioned command response; schema identity comes only from its body type.",
@@ -3243,7 +3248,7 @@
       "description": "Answer when available."
     },
     "schema": {
-      "const": "biomcp.gene-cards/5",
+      "const": "biomcp.gene-cards/6",
       "type": "string"
     },
     "sources": {

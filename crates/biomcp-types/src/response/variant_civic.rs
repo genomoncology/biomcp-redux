@@ -97,15 +97,15 @@ pub struct CivicStatement {
     /// Native claim identity, retained even when no common proposition applies.
     pub record: SourceRecord,
     /// Source claim category, without a fallback proposition.
-    pub kind: Text,
+    pub kind: super::CivicKind,
     /// Native curation state, without implying that every row is accepted.
-    pub status: Text,
+    pub status: super::CivicStatus,
     /// Original provider direction; disputes never implies the opposite effect.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub direction: Option<Text>,
     /// Original significance, including when the classification holds an AMP tier.
     #[serde(skip_serializing_if = "Option::is_none")]
-    pub significance: Option<Text>,
+    pub significance: Option<super::CivicSignificance>,
 }
 
 /// Source facts retained without inventing a common-model subject or proposition.
@@ -113,8 +113,9 @@ pub struct CivicStatement {
 #[serde(deny_unknown_fields)]
 #[cfg_attr(feature = "schema", derive(schemars::JsonSchema))]
 pub struct CivicNativeClaim {
-    /// Whole native classification.
-    pub classification: crate::Term,
+    /// Native classification when its source text is nonempty; significance remains on the claim.
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub classification: Option<crate::Term>,
     /// Native level, when present.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub strength: Option<crate::Term>,

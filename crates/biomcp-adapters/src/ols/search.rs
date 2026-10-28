@@ -45,24 +45,31 @@ pub fn search(leg: &Leg<'_>, query: &DiseaseSearch) -> Result<SearchPage, Reques
             Ok(())
         },
     )?;
+    let mut problems = crate::mapped::Problems {
+        source: biomcp_types::Source::Ols,
+        record: None,
+        list: Vec::new(),
+    };
+    let mut value = Vec::new();
+    for hit in page.response.docs {
+        problems.record = crate::mapped::record(&hit.obo_id);
+        let iri = problems.optional("iri", hit.iri.map(|v| v.value().ok_or(())));
+        let label = problems.optional("label", hit.label.map(|v| v.value().ok_or(())));
+        value.push(DiseaseHeader {
+            attribution: map::attribution(&hit.obo_id, iri, ontology)?,
+            concept: biomcp_types::DiseaseConcept {
+                id: Some(hit.obo_id),
+                label,
+            },
+            ontology,
+            obsolete: hit.is_obsolete,
+        });
+    }
     Ok(SearchPage {
         total: page.response.total,
         rows: Mapped {
-            value: page
-                .response
-                .docs
-                .into_iter()
-                .map(|hit| DiseaseHeader {
-                    attribution: map::attribution(&hit.obo_id, &hit.iri, ontology),
-                    concept: biodata::Concept {
-                        id: Some(hit.obo_id),
-                        label: hit.label,
-                    },
-                    ontology,
-                    obsolete: hit.is_obsolete,
-                })
-                .collect(),
-            problems: Vec::new(),
+            value,
+            problems: problems.list,
         },
     })
 }

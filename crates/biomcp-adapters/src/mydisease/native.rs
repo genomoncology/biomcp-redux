@@ -22,14 +22,14 @@ pub struct Component {
     pub name: &'static str,
     /// Native component identity, distinct from the aggregate identity.
     pub id: Curie,
-    /// Complete source primary label.
-    pub label: Text,
+    /// Native primary display label when present and valid.
+    pub label: Option<Text>,
     /// Complete optional source definition, without borrowing another component's text.
     pub definition: Option<Text>,
     /// Native synonym scope and text, preserving component-local multiplicity.
     pub synonyms: Box<[Value]>,
     /// Native namespace field and original code, without merging namespaces.
-    pub xrefs: Box<[Value]>,
+    pub xrefs: Box<[Reference]>,
     /// Native direct parents; ancestors and consider are never added.
     pub parents: Box<[Curie]>,
     /// Publisher obsolete state, absent when not supplied.
@@ -38,40 +38,147 @@ pub struct Component {
     pub consider: Option<Box<[Curie]>>,
     /// Publisher replacements, never selected automatically.
     pub replaced_by: Option<Box<[Curie]>>,
+    /// Rejected optional provider values, attributed to this component.
+    pub problems: Vec<biomcp_types::Problem>,
 }
-/// One original component field value.
+/// One original component synonym value.
 #[derive(Debug)]
 pub struct Value {
-    /// Native scope or namespace spelling.
+    /// Native synonym scope spelling.
     pub field: String,
-    /// Complete source text or code.
+    /// Complete source synonym text.
     pub value: Text,
 }
+/// One native reference whose code bytes have not passed through display text.
+#[derive(Debug)]
+pub struct Reference {
+    /// Original namespace field.
+    pub field: String,
+    /// Exact source code, checked by the reference mapper.
+    pub value: String,
+}
 pub(super) fn component(name: &'static str, raw: super::raw::Component) -> Component {
+    let root = if name == "doid" {
+        "disease_ontology"
+    } else {
+        name
+    };
+    let mut problems = crate::mapped::Problems {
+        source: biomcp_types::Source::MyDisease,
+        record: crate::mapped::record(&raw.id),
+        list: Vec::new(),
+    };
+    let definition = problems.optional(
+        &format!(
+            "{root}.{}",
+            if name == "doid" { "def" } else { "definition" }
+        ),
+        raw.definition.map(|v| v.value().ok_or(())),
+    );
+    let synonyms = values(
+        raw.synonym,
+        &format!(
+            "{root}.{}",
+            if name == "doid" {
+                "synonyms"
+            } else {
+                "synonym"
+            }
+        ),
+        &mut problems,
+    );
+    let xrefs = references(raw.xrefs, &format!("{root}.xrefs"), &mut problems);
+    let parents = ids(raw.parents, &format!("{root}.parents"), &mut problems).unwrap_or_default();
+    let consider = ids(raw.consider, &format!("{root}.consider"), &mut problems);
+    let replaced_by = ids(
+        raw.replaced_by,
+        &format!("{root}.replaced_by"),
+        &mut problems,
+    );
     Component {
         name,
         id: raw.id,
-        label: raw.label,
-        definition: raw.definition,
-        synonyms: values(raw.synonym),
-        xrefs: values(raw.xrefs),
-        parents: raw.parents.unwrap_or_default(),
+        label: problems.optional(
+            &format!("{root}.{}", if name == "doid" { "name" } else { "label" }),
+            raw.label.map(|v| v.value().ok_or(())),
+        ),
+        definition,
+        synonyms,
+        xrefs,
+        parents,
         obsolete: raw.is_obsolete,
-        consider: raw.consider,
-        replaced_by: raw.replaced_by,
+        consider,
+        replaced_by,
+        problems: problems.list,
     }
 }
-fn values(
-    fields: Option<std::collections::BTreeMap<String, crate::raw::OneOrMany<Text>>>,
-) -> Box<[Value]> {
-    fields
-        .unwrap_or_default()
-        .into_iter()
-        .flat_map(|(field, values)| {
-            values.values().into_iter().map(move |value| Value {
-                field: field.clone(),
-                value,
-            })
+fn ids(
+    values: Option<crate::raw::Field<Box<[crate::raw::Field<Curie>]>>>,
+    field: &str,
+    problems: &mut crate::mapped::Problems,
+) -> Option<Box<[Curie]>> {
+    values
+        .and_then(|values| problems.required(field, values.value()))
+        .map(|values| {
+            values
+                .into_vec()
+                .into_iter()
+                .filter_map(|v| problems.optional(field, Some(v.value().ok_or(()))))
+                .collect()
         })
-        .collect()
+}
+fn values(
+    fields: Option<
+        crate::raw::Field<
+            std::collections::BTreeMap<String, crate::raw::OneOrMany<crate::raw::Field<Text>>>,
+        >,
+    >,
+    root: &str,
+    problems: &mut crate::mapped::Problems,
+) -> Box<[Value]> {
+    let mut result = Vec::new();
+    for (field, values) in fields
+        .and_then(|fields| problems.required(root, fields.value()))
+        .unwrap_or_default()
+    {
+        for value in values.values() {
+            if let Some(value) =
+                problems.optional(&format!("{root}.{field}"), Some(value.value().ok_or(())))
+            {
+                result.push(Value {
+                    field: field.clone(),
+                    value,
+                });
+            }
+        }
+    }
+    result.into()
+}
+
+fn references(
+    fields: Option<
+        crate::raw::Field<
+            std::collections::BTreeMap<String, crate::raw::OneOrMany<crate::raw::Field<String>>>,
+        >,
+    >,
+    root: &str,
+    problems: &mut crate::mapped::Problems,
+) -> Box<[Reference]> {
+    let mut result = Vec::new();
+    for (field, values) in fields
+        .and_then(|fields| problems.required(root, fields.value()))
+        .unwrap_or_default()
+    {
+        for value in values.values() {
+            if let Some(value) =
+                problems.optional(&format!("{root}.{field}"), Some(value.value().ok_or(())))
+            {
+                result.push(Reference {
+                    field: field.clone(),
+                    value,
+                });
+            }
+        }
+    }
+    result.into()
 }

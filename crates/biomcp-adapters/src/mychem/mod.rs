@@ -19,6 +19,7 @@ pub static SPEC: SourceSpec = SourceSpec {
 };
 mod links;
 mod map;
+mod normalize;
 mod raw;
 use biomcp_fetch::{Arg, Endpoint, Freshness, Leg, PathSegment, RequestError};
 use biomcp_types::{DrugCard, DrugPage};
@@ -43,7 +44,7 @@ pub fn search(
     query: &str,
     limit: u32,
     offset: u32,
-) -> Result<DrugPage, RequestError> {
+) -> Result<crate::Mapped<DrugPage>, RequestError> {
     let fields = crate::drug_sources::components::allowed_fields(leg, SEARCH_FIELDS);
     let reply = leg.json::<raw::Page>(
         &SEARCH,

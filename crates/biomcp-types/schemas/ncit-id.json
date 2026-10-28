@@ -1,0 +1,8 @@
+{
+  "$id": "biodata.ncit-id/1",
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "description": "A native NCI Thesaurus concept code.",
+  "pattern": "^C[0-9]+$",
+  "title": "NcitId",
+  "type": "string"
+}

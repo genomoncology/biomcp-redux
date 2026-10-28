@@ -18,6 +18,21 @@ pub(super) fn get(cx: &Ctx<'_>, query: &CellLineGet) -> Outcome {
     out.local = error.and_then(status::local);
     if reply.is_ok() {
         out.status = card.status;
+        if card
+            .sex
+            .as_ref()
+            .is_some_and(biodata::CellLineSex::is_unknown)
+        {
+            out.problems.push(biomcp_types::Problem {
+                source: Source::Cellosaurus,
+                record: card
+                    .header
+                    .as_ref()
+                    .and_then(|h| biodata::Text::new(h.accession.as_str()).ok()),
+                field: "sex".into(),
+                code: biomcp_types::ProblemCode::ValueUnknown,
+            });
+        }
         if query.section() == Some(CellLineSection::Chembl)
             && let Some(header) = &card.header
         {

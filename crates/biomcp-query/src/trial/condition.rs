@@ -57,7 +57,7 @@ pub(super) fn resolve<'a>(
         }
         Err(_) => None,
     };
-    if value.is_none() && resolution.concept.is_some() {
+    if value.is_none() && resolution.concept.is_some() && query.source() == TrialSource::Nci {
         out.problems.push(biomcp_types::Problem {
             source: Source::MyDisease,
             record: Text::new(&input.to_string()).ok(),
@@ -85,7 +85,7 @@ fn resolved(
         .filter(|row| row.object.id.to_string().starts_with("NCIT:"))
         .collect();
     if source == TrialSource::Ctgov {
-        return Some(label);
+        return label;
     }
     let choices: std::collections::BTreeSet<_> = resolution
         .ncit_candidates

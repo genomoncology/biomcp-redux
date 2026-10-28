@@ -10,7 +10,7 @@ pub(super) struct Validity {
     #[serde(rename = "DISEASE LABEL")]
     disease: Option<Text>,
     #[serde(rename = "DISEASE ID (MONDO)")]
-    mondo_id: Option<Text>,
+    mondo_id: Option<biodata::MondoId>,
     #[serde(rename = "MOI")]
     mode_of_inheritance: Option<Text>,
     #[serde(rename = "CLASSIFICATION")]

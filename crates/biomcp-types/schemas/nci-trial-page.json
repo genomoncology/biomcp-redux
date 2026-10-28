@@ -134,9 +134,14 @@
       ],
       "type": "object"
     },
-    "Concept": {
+    "Curie": {
+      "description": "Checked prefix:local ontology identifier.",
+      "pattern": "^[A-Za-z0-9_.-]+:[^\\s\\x00-\\x1f\\x7f-\\x9f]+$",
+      "type": "string"
+    },
+    "DiseaseConcept": {
       "additionalProperties": false,
-      "description": "One source concept with its optional ontology identifier.",
+      "description": "A disease identity whose optional display label never determines record admission.",
       "properties": {
         "id": {
           "anyOf": [
@@ -147,22 +152,14 @@
               "type": "null"
             }
           ],
-          "description": "Source-stated concept identifier."
+          "description": "Source-stated exact identifier."
         },
         "label": {
           "$ref": "#/$defs/Text",
-          "description": "Original concept label."
+          "description": "Native display label when supplied and valid."
         }
       },
-      "required": [
-        "label"
-      ],
       "type": "object"
-    },
-    "Curie": {
-      "description": "Checked prefix:local ontology identifier.",
-      "pattern": "^[A-Za-z0-9_.-]+:[^\\s\\x00-\\x1f\\x7f-\\x9f]+$",
-      "type": "string"
     },
     "DiseaseEndpoint": {
       "additionalProperties": false,
@@ -239,7 +236,7 @@
           "description": "Native source name."
         },
         "nci_thesaurus_concept_id": {
-          "$ref": "#/$defs/Text",
+          "$ref": "#/$defs/NcitId",
           "description": "Source NCIt identity."
         }
       },
@@ -326,7 +323,7 @@
         "phase": {
           "anyOf": [
             {
-              "$ref": "#/$defs/Text"
+              "$ref": "#/$defs/NciTrialPhase"
             },
             {
               "type": "null"
@@ -382,6 +379,15 @@
         "attribution"
       ],
       "type": "object"
+    },
+    "NciTrialPhase": {
+      "description": "Native publisher vocabulary; new values are retained unchanged. Known values: NA; 0; I; I_II; II; II_III; III; IV; ",
+      "type": "string"
+    },
+    "NcitId": {
+      "description": "A native NCI Thesaurus concept code.",
+      "pattern": "^C[0-9]+$",
+      "type": "string"
     },
     "NctId": {
       "description": "Canonical ClinicalTrials.gov identifier.",
@@ -1091,7 +1097,7 @@
         "concept": {
           "anyOf": [
             {
-              "$ref": "#/$defs/Concept"
+              "$ref": "#/$defs/DiseaseConcept"
             },
             {
               "type": "null"
@@ -1450,7 +1456,7 @@
       "type": "string"
     }
   },
-  "$id": "biomcp.nci-trial-page/3",
+  "$id": "biomcp.nci-trial-page/4",
   "$schema": "https://json-schema.org/draft/2020-12/schema",
   "additionalProperties": false,
   "description": "One versioned command response; schema identity comes only from its body type.",
@@ -1507,7 +1513,7 @@
       "description": "Answer when available."
     },
     "schema": {
-      "const": "biomcp.nci-trial-page/3",
+      "const": "biomcp.nci-trial-page/4",
       "type": "string"
     },
     "sources": {

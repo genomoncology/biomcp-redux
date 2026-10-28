@@ -64,7 +64,11 @@ pub(super) fn evidence(
     problems: &mut Vec<Problem>,
 ) -> Result<DrugCivicClaim, RequestError> {
     let (profile, subject) = context(raw.molecular_profile)?;
-    let claim = variant_claims::evidence(&raw.claim, subject.as_ref(), problems)?;
+    let claim = variant_claims::evidence(
+        &raw.claim,
+        subject.as_ref().filter(|_| !raw.claim.status.is_unknown()),
+        problems,
+    )?;
     Ok(DrugCivicClaim {
         profile,
         claim,
@@ -79,7 +83,11 @@ pub(super) fn assertion(
     problems: &mut Vec<Problem>,
 ) -> Result<DrugCivicClaim, RequestError> {
     let (profile, subject) = context(raw.molecular_profile)?;
-    let claim = variant_claims::assertion(&raw.claim, subject.as_ref(), problems)?;
+    let claim = variant_claims::assertion(
+        &raw.claim,
+        subject.as_ref().filter(|_| !raw.claim.status.is_unknown()),
+        problems,
+    )?;
     Ok(DrugCivicClaim {
         profile,
         claim,

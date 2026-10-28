@@ -206,7 +206,7 @@
         "sex": {
           "anyOf": [
             {
-              "$ref": "#/$defs/Text"
+              "$ref": "#/$defs/CellLineSex"
             },
             {
               "type": "null"
@@ -817,6 +817,10 @@
         }
       },
       "type": "object"
+    },
+    "CellLineSex": {
+      "description": "Native publisher vocabulary; new values are retained unchanged. Known values: Female; Male; Mixed sex; Sex ambiguous; Sex unspecified; ",
+      "type": "string"
     },
     "CellLineVariants": {
       "additionalProperties": false,

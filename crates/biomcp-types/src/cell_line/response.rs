@@ -56,7 +56,7 @@ pub struct CellLineCard {
     pub age: Option<Text>,
     /// Native sex label when supplied.
     #[serde(skip_serializing_if = "Option::is_none")]
-    pub sex: Option<Text>,
+    pub sex: Option<CellLineSex>,
     /// Selected card warnings, up to three whole rows; not a fetch state.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub warnings: Option<Capped<CellLineWarning>>,

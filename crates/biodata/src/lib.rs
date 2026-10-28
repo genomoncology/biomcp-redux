@@ -2,7 +2,11 @@
 
 pub use id::{Doi, EuropePmcId, Pmcid, Pmid, SemanticScholarId};
 
+mod source_text;
+pub use source_text::SourceText;
+mod ontology_id;
 mod text;
+pub use ontology_id::{MondoId, NcitId};
 
 pub use text::Text;
 

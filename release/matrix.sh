@@ -8,6 +8,7 @@ cleanup() {
   rm -rf "$scratch"
 }
 trap cleanup EXIT HUP INT TERM
+python3 release/toolchain.py check
 revision=$(git rev-parse HEAD)
 version=$(cargo metadata --locked --no-deps --format-version 1 | python3 -c 'import json,sys; print(next(p["version"] for p in json.load(sys.stdin)["packages"] if p["name"] == "biomcp"))')
 mkdir "$scratch/source"
@@ -31,9 +32,11 @@ for arch in amd64 arm64; do
       cd /tmp/build
       export HOME=/tmp/build-home CARGO_HOME=/tmp/cargo RUSTUP_HOME=/tmp/rustup CARGO_BUILD_JOBS=2
       mkdir -p "$HOME"
-      curl --proto "=https" --tlsv1.2 -sSf https://sh.rustup.rs -o /tmp/rustup.sh
-      sh /tmp/rustup.sh -y --no-modify-path --profile minimal --default-toolchain 1.95.0
-      export PATH=/tmp/cargo/bin:/opt/python/cp311-cp311/bin:$PATH
+      python_series=$(python3 release/toolchain.py get python | tr -d .)
+      export PATH=/opt/python/cp$python_series-cp$python_series/bin:$PATH
+      python release/toolchain.py python-check
+      python release/toolchain.py install-rust
+      export PATH=/tmp/cargo/bin:$PATH
       python release/artifacts.py build --manylinux --revision "$BIOMCP_BUILD_REVISION" --output "/output/linux-$BIOMCP_BUILD_ARCH"
       python release/gate.py --prepare-only --artifacts "/output/linux-$BIOMCP_BUILD_ARCH" --scratch /tmp/proof
       cp -a /tmp/proof "/output/proof-$BIOMCP_BUILD_ARCH"
@@ -46,8 +49,10 @@ for arch in amd64 arm64; do
     -v "$scratch/proof-$arch:/proof:ro" "$image" /bin/bash -c '
       set -euo pipefail
       cp -a /proof /tmp/check
-      /opt/python/cp311-cp311/bin/python /tmp/check/tools/release/gate.py --prepared \
-        --python /opt/python/cp311-cp311/bin/python --artifacts /artifacts --scratch /tmp/check
+      python_series=$(python3 /tmp/check/tools/release/toolchain.py get python | tr -d .)
+      python=/opt/python/cp$python_series-cp$python_series/bin/python
+      "$python" /tmp/check/tools/release/gate.py --prepared \
+        --python "$python" --artifacts /artifacts --scratch /tmp/check
     '
   mkdir "$scratch/container-$arch"
   tar -xzf "$scratch/linux-$arch/biomcp-linux-$archive_arch.tar.gz" -C "$scratch/container-$arch"

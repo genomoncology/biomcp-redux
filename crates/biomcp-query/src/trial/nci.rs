@@ -147,5 +147,19 @@ fn apply(
         && !q.count_only()
     {
         body.items = page.data.into_iter().map(|r| r.card(false)).collect();
+        let problems: Vec<_> = body.items.iter().filter_map(phase_problem).collect();
+        out.problems.extend(problems);
     }
+}
+
+fn phase_problem(card: &biomcp_types::NciTrial) -> Option<biomcp_types::Problem> {
+    card.phase
+        .as_ref()
+        .filter(|phase| phase.is_unknown())
+        .map(|_| biomcp_types::Problem {
+            source: Source::Nci,
+            record: Some(card.nci_id.clone()),
+            field: "phase".into(),
+            code: biomcp_types::ProblemCode::ValueUnknown,
+        })
 }
