@@ -398,7 +398,9 @@ fn source_terms(root: &Path, path: &str, tokens: &[String]) -> Check {
             .strip_suffix("/mod")
             .unwrap_or(module)
             .replace('/', "::");
-        let prefix = tokens.get(..i).ok_or("source declaration offset is invalid")?;
+        let prefix = tokens
+            .get(..i)
+            .ok_or("source declaration offset is invalid")?;
         let Some(position) = prefix.iter().rposition(|token| token == "static") else {
             return fail(path, "source declarations require named statics");
         };
