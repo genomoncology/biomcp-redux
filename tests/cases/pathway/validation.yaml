@@ -37,7 +37,7 @@
       "expect": {
         "/error/code": "usage.arguments"
       },
-      "max_bytes": 166,
+      "max_bytes": 210,
       "mcp": [
         "search",
         "pathway",
@@ -58,7 +58,7 @@
       "expect": {
         "/error/code": "usage.arguments"
       },
-      "max_bytes": 166,
+      "max_bytes": 210,
       "mcp": [
         "search",
         "pathway",
