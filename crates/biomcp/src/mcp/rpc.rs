@@ -56,7 +56,16 @@ pub(super) fn message(frame: &[u8], legacy: &mut bool) -> Message {
     let result = match method {
         "ping" => json!({}),
         "server/discover" => current::discover(),
-        "tools/list" => json!({"tools":protocol::tools()}),
+        "tools/list" => match protocol::tools() {
+            Ok(tools) => json!({"tools":tools}),
+            Err(_) => {
+                return Message::Reply(protocol::error(
+                    id.clone(),
+                    -32603,
+                    "Output schema unavailable",
+                ));
+            }
+        },
         "tools/call" => {
             return Message::Tool {
                 id: id.clone(),
