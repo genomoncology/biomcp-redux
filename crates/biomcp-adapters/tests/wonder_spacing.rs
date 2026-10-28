@@ -18,7 +18,7 @@ fn wonder_refuses_shared_spacing_with_retry_delay_before_network() {
         server.next().ok();
         assert!(call.join().unwrap().unwrap().answer);
     });
-    let RequestError::Source(error) = fetch.leg(second, fetch.deadline(Duration::from_millis(1)))
+    let RequestError::Source(error) = fetch.leg(second, fetch.deadline(Duration::from_millis(500)))
         .json::<support::Answer>(&second.get("/second"), &[]).unwrap_err() else {panic!("source failure")};
     // On the old behavior, this reports deadline_exceeded after waiting for admission.
     assert_eq!(error.reason.to_string(), "local_quota");
