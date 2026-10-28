@@ -9,7 +9,7 @@ pub(super) fn trials() -> Vec<Trial> {
 fn run() -> Result<(), String> {
     let root = Path::new(env!("CARGO_MANIFEST_DIR")).join("../..");
     for (source, fixture, words, help, expected) in [
-        ("gwas", "gwas/synthetic", vec!["search", "gwas", "--gene", "BRAF"], vec!["help", "search", "gwas"], "GWAS Catalog"),
+        ("gwas", "gwas/synthetic", vec!["search", "gwas", "--variant", "rs2981582", "--limit", "3"], vec!["help", "search", "gwas"], "GWAS Catalog"),
         ("vaers", "vaers/live-mmr", vec!["search", "adverse-event", "MMR", "--source", "vaers"], vec!["help", "search", "adverse-event"], "interactive form"),
         ("interpro", "protein/examples", vec!["health"], vec!["help", "health"], "InterPro"),
     ] {
