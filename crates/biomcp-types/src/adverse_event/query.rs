@@ -28,7 +28,11 @@ pub struct AdverseEventSearch(SearchFields);
 struct SearchFields {
     /// Literal drug text, MAUDE device phrase or exact supported VAERS vaccine.
     #[cfg_attr(feature = "schema", schemars(extend("x-positional" = 0)))]
-    #[serde(default, deserialize_with = "crate::query::present", skip_serializing_if = "Option::is_none")]
+    #[serde(
+        default,
+        deserialize_with = "crate::query::present",
+        skip_serializing_if = "Option::is_none"
+    )]
     #[cfg_attr(feature = "schema", schemars(with = "Text"))]
     text: Option<Text>,
     /// MAUDE manufacturer phrase on device.manufacturer_d_name. A report may list several devices; filters may match different devices.
@@ -76,12 +80,23 @@ crate::query::validation::checked_query!(AdverseEventSearch, SearchFields);
 impl TryFrom<SearchFields> for AdverseEventSearch {
     type Error = QueryInvalid;
     fn try_from(v: SearchFields) -> Result<Self, Self::Error> {
-        let maude_filter = v.manufacturer.is_some() || !v.product_code.is_empty() || v.problem.is_some();
+        let maude_filter =
+            v.manufacturer.is_some() || !v.product_code.is_empty() || v.problem.is_some();
         if v.source != AdverseEventSource::Maude && maude_filter {
-            return Err(QueryInvalid::new(&["source", "manufacturer", "product_code", "problem"]));
+            return Err(QueryInvalid::new(&[
+                "source",
+                "manufacturer",
+                "product_code",
+                "problem",
+            ]));
         }
         if v.text.is_none() && !(v.source == AdverseEventSource::Maude && maude_filter) {
-            return Err(QueryInvalid::new(&["text", "manufacturer", "product_code", "problem"]));
+            return Err(QueryInvalid::new(&[
+                "text",
+                "manufacturer",
+                "product_code",
+                "problem",
+            ]));
         }
         if !(1..=50).contains(&v.limit) {
             return Err(QueryInvalid::new(&["limit"]));
@@ -102,7 +117,10 @@ impl TryFrom<SearchFields> for AdverseEventSearch {
             return Err(QueryInvalid::new(&["source", "section", "snapshot"]));
         }
         if v.source == AdverseEventSource::Vaers
-            && v.text.as_ref().and_then(|text| super::vaers::vaers_vaccine_code(text.as_str())).is_none()
+            && v.text
+                .as_ref()
+                .and_then(|text| super::vaers::vaers_vaccine_code(text.as_str()))
+                .is_none()
         {
             return Err(QueryInvalid::new(&["source", "text"]));
         }
@@ -155,18 +173,27 @@ impl AdverseEventSearch {
     }
     /// Exact supported vaccine code, never an inferred code bridge.
     pub fn vaccine(&self) -> Option<&'static str> {
-        self.0.text.as_ref().and_then(|text| super::vaers::vaers_vaccine_code(text.as_str()))
+        self.0
+            .text
+            .as_ref()
+            .and_then(|text| super::vaers::vaers_vaccine_code(text.as_str()))
     }
     /// Literal source text.
     pub fn text(&self) -> Option<&Text> {
         self.0.text.as_ref()
     }
     /// Native MAUDE manufacturer phrase.
-    pub fn manufacturer(&self) -> Option<&Text> { self.0.manufacturer.as_ref() }
+    pub fn manufacturer(&self) -> Option<&Text> {
+        self.0.manufacturer.as_ref()
+    }
     /// Exact native MAUDE product codes joined with OR.
-    pub fn product_code(&self) -> &[Text] { &self.0.product_code }
+    pub fn product_code(&self) -> &[Text] {
+        &self.0.product_code
+    }
     /// Native MAUDE product problem phrase.
-    pub fn problem(&self) -> Option<&Text> { self.0.problem.as_ref() }
+    pub fn problem(&self) -> Option<&Text> {
+        self.0.problem.as_ref()
+    }
     /// Selected source.
     pub fn source(&self) -> AdverseEventSource {
         self.0.source

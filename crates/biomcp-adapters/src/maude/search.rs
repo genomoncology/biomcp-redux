@@ -2,20 +2,33 @@ use super::{SPEC, raw};
 use biomcp_fetch::{Arg, BadReply, Freshness, Leg, RequestError};
 use biomcp_types::{AdverseEventHeader, AdverseEventSearch, AdverseEventSource, Source};
 fn phrase(field: &str, text: &biodata::Text) -> String {
-    format!("{field}:\"{}\"", text.as_str().replace('\\', "\\\\").replace('"', "\\\""))
+    format!(
+        "{field}:\"{}\"",
+        text.as_str().replace('\\', "\\\\").replace('"', "\\\"")
+    )
 }
 /// Source-native phrases and exact product-code OR groups joined with AND.
 pub fn expression(query: &AdverseEventSearch) -> String {
     let mut selectors = Vec::new();
-    if let Some(text) = query.text() { selectors.push(phrase("device.generic_name", text)); }
-    if let Some(text) = query.manufacturer() { selectors.push(phrase("device.manufacturer_d_name", text)); }
-    let codes: Vec<_> = query.product_code().iter().map(|text| phrase("device.device_report_product_code.exact", text)).collect();
+    if let Some(text) = query.text() {
+        selectors.push(phrase("device.generic_name", text));
+    }
+    if let Some(text) = query.manufacturer() {
+        selectors.push(phrase("device.manufacturer_d_name", text));
+    }
+    let codes: Vec<_> = query
+        .product_code()
+        .iter()
+        .map(|text| phrase("device.device_report_product_code.exact", text))
+        .collect();
     match codes.len() {
         0 => (),
         1 => selectors.extend(codes),
         _ => selectors.push(format!("({})", codes.join(" OR "))),
     }
-    if let Some(text) = query.problem() { selectors.push(phrase("product_problems", text)); }
+    if let Some(text) = query.problem() {
+        selectors.push(phrase("product_problems", text));
+    }
     selectors.join(" AND ")
 }
 /// Read one source-ordered report page after component admission.

@@ -218,6 +218,7 @@ biomcp get diagnostic GTR000006692.3 --source gtr
 ```sh
 biomcp search adverse-event pembrolizumab
 biomcp search adverse-event pembrolizumab --received-from 2024-01-01 --received-to 2024-12-31
+biomcp search adverse-event --source maude --manufacturer 'Synthetic maker' --product-code ABC --product-code XYZ --problem 'Synthetic problem'
 ```
 
 ## biomcp get adverse-event
