@@ -8,7 +8,7 @@ pub(super) fn trials() -> Vec<Trial> {
     [
         ("gwas", "gwas/deadline", vec!["search", "gwas", "--gene", "BRAF", "--limit", "3"], vec!["help", "search", "gwas"], "GWAS Catalog"),
         ("vaers", "vaers/live-mmr", vec!["search", "adverse-event", "MMR", "--source", "vaers"], vec!["help", "search", "adverse-event"], "interactive form"),
-        ("interpro", "protein/examples", vec!["health"], vec!["help", "health"], "InterPro"),
+        ("interpro", "interpro/deadline", vec!["health"], vec!["help", "health"], "InterPro"),
 
     ].into_iter().map(|(source, fixture, words, help, expected)| {
         Trial::test(format!("source-deadlines/{source}/reply-and-help-guidance"), move || {
