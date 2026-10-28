@@ -67,7 +67,7 @@ pub fn pathways(
     for row in rows.0 {
         let id = row.st_id.parse().ok();
         if row.species_name != "Homo sapiens" || row.schema_class != "Pathway" || id.is_none() {
-            problems.required::<()>("pathways.identity", None);
+            problems.required::<()>("pathways", None);
             continue;
         }
         if let Some(name) = map::metadata(&mut problems, "pathways.name", &row.display_name, true)

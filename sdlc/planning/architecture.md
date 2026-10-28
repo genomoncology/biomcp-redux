@@ -999,6 +999,23 @@ Every present source field that cannot map is omitted and produces a `Problem` n
 
 `mapped.rs` owns rejected-field construction, deduplication and text validation. Adapters retain source-specific parsing and pass its results to that owner. Required identity text uses the strict shared conversion. Optional text uses the shared problem context, so empty or invalid text cannot fail unrelated fields.
 
+Reactome classifies its mapping checks at their owning boundary:
+
+| Boundary | Classification | Behavior |
+|---|---|---|
+| `reactome/map.rs` pathway ID, species and pathway class | Identity refusal | Reject a row outside the requested native identity and human pathway scope. |
+| `reactome/map.rs` header names and native version | Migrated | Report `name` or `version`; omit a row whose required name cannot map and omit only an invalid version. |
+| `reactome/map.rs` summary collections, rows and literature fields | Migrated | Report the collection, row identity or field; preserve accepted siblings and complete source text. |
+| `reactome/mod.rs` accession mapping ID and human pathway scope | Identity refusal | Reject the row with the existing `pathways` problem. |
+| `reactome/mod.rs` accession mapping display name | Migrated | Report `pathways.name` and omit the row without inventing a required label. |
+| `reactome/relation_raw.rs` database IDs and namespaced reference consistency | Identity refusal | Require positive database IDs and matching nonempty native reference identities. |
+| `reactome/relations.rs` participant names and classes | Migrated | Report `participants.name` or `participants.schema_class`; omit unusable physical contexts and retain native counts. |
+| `reactome/relations.rs` reference metadata | Migrated | Validate every occurrence before grouping; retain first-occurrence output and report later invalid metadata. |
+| `reactome/relations.rs` event ID and species | Identity refusal | Reject the event without inferring an identity or changing its species. |
+| `reactome/relations.rs` event version, name and class | Migrated | Omit rejected metadata with its named problem and retain the event identity. |
+| `reactome/raw.rs` search counters, exact empty response and database release | Identity refusal | Require the native protocol envelope and positive source release. |
+| Optional omitted metadata, checked not-found replies and provenance conversion from checked IDs | Legitimate absence | Do not manufacture a value or a missing-field problem. Generated event URLs and numeric release text derive from validated identities. |
+
 Shared helpers live once in `biomcp-adapters/src/`:
 
 ```rust
