@@ -165,34 +165,40 @@ fn failures() -> Check {
     let out = command(&env, &bad, &replace, 4)?;
     assert_eq!(out.pointer("/result/file/reason"), Some(&json!("not_pdf")));
     assert_eq!(fs::read(&path)?, b"caller original");
-    let malformed = env.root().join("malformed-manifest");
-    copy_capture("trial/get/NCT04303780", &malformed, |_, r| {
-        if let Some(d) = r.pointer_mut(
-            "/exchanges/0/body/value/documentSection/largeDocumentModule/largeDocs/0/filename",
-        ) {
-            *d = json!("../../evil.pdf");
+    malformed_manifests(&path)
+}
+fn malformed_manifests(path: &Path) -> Check {
+    for (filename, exit, survivor) in [
+        ("Prot_000.pdf", 2, "SAP_001.pdf"),
+        ("SAP_001.pdf", 4, "Prot_000.pdf"),
+    ] {
+        let fresh = Environment::new()?;
+        let malformed = fresh.root().join("malformed-manifest");
+        copy_capture("trial/get/NCT04303780", &malformed, |_, r| {
+            if let Some(rows) = r.pointer_mut("/exchanges/0/body/value/documentSection/largeDocumentModule/largeDocs")
+                .and_then(Value::as_array_mut)
+                && let Some(document) = rows.iter_mut().find(|d| d["filename"] == filename)
+            {
+                document["filename"] = json!("../../evil.pdf");
+            }
+        })?;
+        let card_args = ["get", "trial", "NCT04303780", "documents"].map(str::to_owned);
+        let card = command(&fresh, &malformed, &card_args, 0)?;
+        assert_eq!(card.pointer("/status"), Some(&json!("partial")));
+        assert_eq!(card.pointer("/result/items/0/card/nct_id"), Some(&json!("NCT04303780")));
+        let rows = card.pointer("/result/items/0/sections/documents/data/items").and_then(Value::as_array).ok_or("documents")?;
+        assert_eq!(rows.len(), 1, "only the malformed manifest row is omitted");
+        assert_eq!(rows[0]["filename"], json!(survivor), "retain the unaffected document");
+        let out = command(&fresh, &malformed, &args(path), exit)?;
+        if exit == 4 {
+            assert_eq!(out.pointer("/result/file/reason"), Some(&json!("bad_reply")));
+            assert_eq!(out.pointer("/problems/0/field"), Some(&json!("largeDocs.filename")));
         }
-    })?;
-    let fresh = Environment::new()?;
-    let card_args = ["get", "trial", "NCT04303780", "documents"].map(str::to_owned);
-    let card = command(&fresh, &malformed, &card_args, 0)?;
-    assert_eq!(card.pointer("/status"), Some(&json!("partial")));
-    assert_eq!(
-        card.pointer("/result/items/0/card/nct_id"),
-        Some(&json!("NCT04303780"))
-    );
-    let out = command(&fresh, &malformed, &args(&path), 4)?;
-    assert_eq!(
-        out.pointer("/result/file/reason"),
-        Some(&json!("bad_reply"))
-    );
-    assert_eq!(
-        out.pointer("/problems/0/field"),
-        Some(&json!("largeDocs.filename"))
-    );
-    assert_eq!(fs::read(&path)?, b"caller original");
+        assert_eq!(fs::read(path)?, b"caller original");
+    }
     Ok(())
 }
+
 fn http() -> Check {
     let env = Environment::new()?;
     let replay = metadata_only(&env)?;
