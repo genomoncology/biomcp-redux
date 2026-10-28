@@ -118,11 +118,11 @@ pub(super) fn execute(
                 return Ok(outcome);
             };
             serde_json::to_value(biomcp_types::ResearchFetch {
-                id: id.clone(),
+                id: biodata::Text::new(id).map_err(io::Error::other)?,
                 title: hit.title,
                 url: hit.url,
-                text: String::from_utf8(crate::view::markdown(&outcome.value)?)
-                    .map_err(io::Error::other)?,
+                text: biodata::Markdown::new(&String::from_utf8(crate::view::markdown(&outcome.value)?)
+                    .map_err(io::Error::other)?).map_err(io::Error::other)?,
                 metadata: outcome.value,
             })?
         }
@@ -152,7 +152,7 @@ fn search(call: &Call, envelope: Value) -> io::Result<Value> {
             omitted_rows: u32::try_from(omitted_rows).unwrap_or(u32::MAX),
             note:
                 "Rows without an exact citable get target remain available through the biomcp tool."
-                    .into(),
+                    .parse().map_err(io::Error::other)?,
         },
     })
     .map_err(Into::into)
@@ -163,7 +163,7 @@ fn restrictions(
     args: &[OsString],
 ) -> io::Result<biomcp_types::ResearchHit> {
     let mut words =
-        shlex::split(&hit.id).ok_or_else(|| io::Error::other("invalid get projection"))?;
+        shlex::split(hit.id.as_str()).ok_or_else(|| io::Error::other("invalid get projection"))?;
     let mut args = args.iter().filter_map(|a| a.to_str());
     while let Some(arg) = args.next() {
         if arg == "--disable-sources" {
@@ -174,7 +174,7 @@ fn restrictions(
             words.push(arg.to_owned());
         }
     }
-    hit.id = shlex::try_join(words.iter().map(String::as_str)).map_err(io::Error::other)?;
+    hit.id = biodata::Text::new(&shlex::try_join(words.iter().map(String::as_str)).map_err(io::Error::other)?).map_err(io::Error::other)?;
     Ok(hit)
 }
 

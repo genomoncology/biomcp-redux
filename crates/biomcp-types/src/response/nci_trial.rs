@@ -30,7 +30,7 @@ pub struct NciDisease {
     /// Source concept name.
     pub name: Text,
     /// Publisher NCIt identity.
-    pub nci_thesaurus_concept_id: Text,
+    pub nci_thesaurus_concept_id: biodata::NcitId,
     /// Publisher coding provenance, without local interpretation.
     pub inclusion_indicator: Option<Text>,
     /// Native lead-disease marker.
@@ -118,5 +118,5 @@ pub struct NciDiseaseRef {
     /// Native source name.
     pub name: Text,
     /// Source NCIt identity.
-    pub nci_thesaurus_concept_id: Text,
+    pub nci_thesaurus_concept_id: biodata::NcitId,
 }

@@ -26,7 +26,7 @@ fn response_identifiers_use_their_publisher_grammar() {
         value["mondo_id"] = json!(bad);
         assert!(serde_json::from_value::<ClinGenValidity>(value).is_err(), "accepted {bad}");
     }
-    for bad in ["unrecognized", "MONDO:0000001", "C0"] {
+    for bad in ["unrecognized", "MONDO:0000001", "Cbad"] {
         let mut value = ncit.clone();
         value["nci_thesaurus_concept_id"] = json!(bad);
         assert!(serde_json::from_value::<NciDiseaseRef>(value).is_err(), "accepted {bad}");

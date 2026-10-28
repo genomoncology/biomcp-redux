@@ -8,7 +8,7 @@ use serde::{Deserialize, Serialize};
 #[cfg_attr(feature = "schema", derive(schemars::JsonSchema))]
 pub struct ResearchHit {
     /// Exact quoted get argument list, excluding the get verb.
-    pub id: String,
+    pub id: biodata::Text,
     /// Original source title, or its exact identifier when no title is supplied.
     pub title: crate::Text,
     /// Nonempty canonical source record URL.
@@ -20,7 +20,7 @@ pub struct ResearchHit {
 #[cfg_attr(feature = "schema", derive(schemars::JsonSchema))]
 pub struct ResearchEnvelope {
     /// Original CLI schema identity; its schema describes all entity fields.
-    pub schema: String,
+    pub schema: biodata::Text,
     /// Original command outcome.
     pub status: Status,
 }
@@ -34,7 +34,7 @@ pub struct ResearchSearchMetadata<M> {
     /// Native rows that lack an exact citable get target.
     pub omitted_rows: u32,
     /// Explains where unprojected rows remain available.
-    pub note: String,
+    pub note: biodata::Text,
 }
 /// Research search response.
 #[derive(Clone, Debug, Serialize, Deserialize)]
@@ -53,11 +53,11 @@ pub struct ResearchSearch<M> {
 #[cfg_attr(feature = "schema", derive(schemars::JsonSchema))]
 pub struct ResearchFetch<M> {
     /// Unchanged caller identifier.
-    pub id: String,
+    pub id: biodata::Text,
     /// Original source title, or exact identifier.
     pub title: crate::Text,
     /// Complete Markdown view of the bounded CLI record.
-    pub text: String,
+    pub text: biodata::Markdown,
     /// Nonempty canonical source URL.
     #[cfg_attr(feature = "schema", schemars(extend("format" = "uri")))]
     pub url: crate::Text,

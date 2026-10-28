@@ -90,7 +90,7 @@ pub struct CosmicRecord {
     /// Fragment identity has not been independently verified.
     pub identity: CosmicIdentity,
     /// Native COSMIC record identifier.
-    pub cosmic_id: Text,
+    pub cosmic_id: biodata::CosmicId,
     /// Unmodified source reference spelling.
     #[serde(default, skip_serializing_if = "Option::is_none")]
     pub reference: Option<Text>,

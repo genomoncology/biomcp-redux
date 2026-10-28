@@ -24,10 +24,10 @@ pub struct NormalizationResult {
     pub outcome: VariantResolution,
     /// Source normalized description, without local edits.
     #[serde(skip_serializing_if = "Option::is_none")]
-    pub normalized: Option<String>,
+    pub normalized: Option<biodata::SourceText>,
     /// Source corrected description, without local edits.
     #[serde(skip_serializing_if = "Option::is_none")]
-    pub corrected: Option<String>,
+    pub corrected: Option<biodata::SourceText>,
     /// Mapping rows in native service order, labeled by their provider field.
     #[serde(default, skip_serializing_if = "<[_]>::is_empty")]
     pub mappings: Box<[NormalizationField]>,
@@ -49,9 +49,9 @@ pub struct NormalizationResult {
 #[cfg_attr(feature = "schema", derive(schemars::JsonSchema))]
 pub struct NormalizationField {
     /// Native field path or assembly label.
-    pub field: String,
+    pub field: biodata::SourceText,
     /// Unchanged source text.
-    pub value: String,
+    pub value: biodata::SourceText,
 }
 /// Provider warning, error or informational message.
 #[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
@@ -59,12 +59,12 @@ pub struct NormalizationField {
 #[cfg_attr(feature = "schema", derive(schemars::JsonSchema))]
 pub struct NormalizationMessage {
     /// Native message category.
-    pub category: String,
+    pub category: biodata::SourceText,
     /// Native code when supplied.
     #[serde(skip_serializing_if = "Option::is_none")]
-    pub code: Option<String>,
+    pub code: Option<biodata::SourceText>,
     /// Unchanged message body, including whitespace.
-    pub text: String,
+    pub text: biodata::SourceText,
 }
 impl NormalizationResult {
     /// An unavailable service has no fabricated descriptions or version.
