@@ -44,13 +44,13 @@ pub(super) fn help(topic: &str) -> Help {
 pub(super) fn timing(commands: &mut [HelpCommand]) {
     for command in commands {
         let sources: &[biomcp_types::Source] = if command.command == ["health"] {
-            &[biomcp_types::Source::Gwas, biomcp_types::Source::Interpro, biomcp_types::Source::Vaers]
+            &[biomcp_types::Source::Gwas, biomcp_types::Source::InterPro, biomcp_types::Source::Vaers]
         } else if command.command.iter().any(|word| word == "gwas") {
             &[biomcp_types::Source::Gwas]
         } else if command.command.iter().any(|word| word == "adverse-event") {
             &[biomcp_types::Source::Vaers]
         } else if command.command.iter().any(|word| word == "protein") {
-            &[biomcp_types::Source::Interpro]
+            &[biomcp_types::Source::InterPro]
         } else { &[] };
         for &source in sources {
             if let Some(guidance) = biomcp_adapters::guidance::deadline(source) {
