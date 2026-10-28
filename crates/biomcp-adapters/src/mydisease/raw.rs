@@ -51,7 +51,7 @@ impl Document {
                     && mondo.is_some_and(|c| {
                         c.xrefs
                             .as_ref()
-                            .and_then(|xrefs| xrefs.get("doid"))
+                            .and_then(|xrefs| match xrefs { Field::Value(v) => v.get("doid"), Field::Invalid(_) => None })
                             .is_some_and(|values| match values {
                                 OneOrMany::One(value) => {
                                     matches!(value, Field::Value(v) if matches!(v, Field::Value(v) if v.as_str().parse::<Curie>().ok().as_ref() == Some(id)))
@@ -72,10 +72,10 @@ pub(super) struct Component {
     #[serde(alias = "def")]
     pub definition: Option<Field<Text>>,
     #[serde(alias = "synonyms")]
-    pub synonym: Option<BTreeMap<String, OneOrMany<Field<Text>>>>,
-    pub xrefs: Option<BTreeMap<String, OneOrMany<Field<Text>>>>,
-    pub parents: Option<Box<[Field<Curie>]>>,
+    pub synonym: Option<Field<BTreeMap<String, OneOrMany<Field<Text>>>>>,
+    pub xrefs: Option<Field<BTreeMap<String, OneOrMany<Field<Text>>>>>,
+    pub parents: Option<Field<Box<[Field<Curie>]>>>,
     pub is_obsolete: Option<bool>,
-    pub consider: Option<Box<[Field<Curie>]>>,
-    pub replaced_by: Option<Box<[Field<Curie>]>>,
+    pub consider: Option<Field<Box<[Field<Curie>]>>>,
+    pub replaced_by: Option<Field<Box<[Field<Curie>]>>>,
 }

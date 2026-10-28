@@ -50,34 +50,91 @@ pub struct Value {
     pub value: Text,
 }
 pub(super) fn component(name: &'static str, raw: super::raw::Component) -> Component {
-    let root = if name == "doid" { "disease_ontology" } else { name };
+    let root = if name == "doid" {
+        "disease_ontology"
+    } else {
+        name
+    };
     let mut problems = crate::mapped::Problems {
         source: biomcp_types::Source::MyDisease,
         record: crate::mapped::record(&raw.id),
         list: Vec::new(),
     };
-    let definition = problems.optional(&format!("{root}.definition"), raw.definition.map(|v| v.value().ok_or(())));
-    let synonyms = values(raw.synonym, &format!("{root}.{}", if name == "doid" { "synonyms" } else { "synonym" }), &mut problems);
+    let definition = problems.optional(
+        &format!("{root}.definition"),
+        raw.definition.map(|v| v.value().ok_or(())),
+    );
+    let synonyms = values(
+        raw.synonym,
+        &format!(
+            "{root}.{}",
+            if name == "doid" {
+                "synonyms"
+            } else {
+                "synonym"
+            }
+        ),
+        &mut problems,
+    );
     let xrefs = values(raw.xrefs, &format!("{root}.xrefs"), &mut problems);
     let parents = ids(raw.parents, &format!("{root}.parents"), &mut problems).unwrap_or_default();
     let consider = ids(raw.consider, &format!("{root}.consider"), &mut problems);
-    let replaced_by = ids(raw.replaced_by, &format!("{root}.replaced_by"), &mut problems);
-    Component { name, id: raw.id, label: raw.label, definition, synonyms, xrefs, parents,
-        obsolete: raw.is_obsolete, consider, replaced_by, problems: problems.list }
+    let replaced_by = ids(
+        raw.replaced_by,
+        &format!("{root}.replaced_by"),
+        &mut problems,
+    );
+    Component {
+        name,
+        id: raw.id,
+        label: raw.label,
+        definition,
+        synonyms,
+        xrefs,
+        parents,
+        obsolete: raw.is_obsolete,
+        consider,
+        replaced_by,
+        problems: problems.list,
+    }
 }
-fn ids(values: Option<Box<[crate::raw::Field<Curie>]>>, field: &str, problems: &mut crate::mapped::Problems) -> Option<Box<[Curie]>> {
-    values.map(|values| values.into_vec().into_iter().filter_map(|v| problems.optional(field, Some(v.value().ok_or(())))).collect())
+fn ids(
+    values: Option<crate::raw::Field<Box<[crate::raw::Field<Curie>]>>>,
+    field: &str,
+    problems: &mut crate::mapped::Problems,
+) -> Option<Box<[Curie]>> {
+    values
+        .and_then(|values| problems.required(field, values.value()))
+        .map(|values| {
+            values
+                .into_vec()
+                .into_iter()
+                .filter_map(|v| problems.optional(field, Some(v.value().ok_or(()))))
+                .collect()
+        })
 }
 fn values(
-    fields: Option<std::collections::BTreeMap<String, crate::raw::OneOrMany<crate::raw::Field<Text>>>>,
+    fields: Option<
+        crate::raw::Field<
+            std::collections::BTreeMap<String, crate::raw::OneOrMany<crate::raw::Field<Text>>>,
+        >,
+    >,
     root: &str,
     problems: &mut crate::mapped::Problems,
 ) -> Box<[Value]> {
     let mut result = Vec::new();
-    for (field, values) in fields.unwrap_or_default() {
+    for (field, values) in fields
+        .and_then(|fields| problems.required(root, fields.value()))
+        .unwrap_or_default()
+    {
         for value in values.values() {
-            if let Some(value) = problems.optional(&format!("{root}.{field}"), Some(value.value().ok_or(()))) {
-                result.push(Value { field: field.clone(), value });
+            if let Some(value) =
+                problems.optional(&format!("{root}.{field}"), Some(value.value().ok_or(())))
+            {
+                result.push(Value {
+                    field: field.clone(),
+                    value,
+                });
             }
         }
     }

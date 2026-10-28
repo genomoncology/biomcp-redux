@@ -5,7 +5,11 @@ use biodata::{DrugIdentityLevel, DrugIdentityRelation};
 use biomcp_fetch::{BadReply, Leg};
 use biomcp_types::{DrugCard, DrugHeader, DrugPage, DrugSource};
 
-fn components(hit: Hit, leg: &Leg<'_>, problems: &mut crate::mapped::Problems) -> (String, Option<u64>, Vec<(&'static str, Component)>) {
+fn components(
+    hit: Hit,
+    leg: &Leg<'_>,
+    problems: &mut crate::mapped::Problems,
+) -> (String, Option<u64>, Vec<(&'static str, Component)>) {
     let mut rows = Vec::new();
     for (name, values) in [
         ("drugbank", hit.drugbank),
@@ -66,7 +70,11 @@ fn header(id: &str, rows: &[(&str, Component)]) -> Result<DrugHeader, BadReply> 
     })
 }
 pub(super) fn page(page: Page, leg: &Leg<'_>) -> Result<crate::Mapped<DrugPage>, BadReply> {
-    let mut problems = crate::mapped::Problems { source: biomcp_types::Source::Mychem, record: None, list: Vec::new() };
+    let mut problems = crate::mapped::Problems {
+        source: biomcp_types::Source::Mychem,
+        record: None,
+        list: Vec::new(),
+    };
     let items = page
         .hits
         .into_iter()
@@ -76,16 +84,23 @@ pub(super) fn page(page: Page, leg: &Leg<'_>) -> Result<crate::Mapped<DrugPage>,
             header(&id, &rows)
         })
         .collect::<Result<Vec<_>, _>>()?;
-    Ok(crate::Mapped { value: DrugPage {
-        items: items.into(),
-        total: Some(page.total),
-    }, problems: problems.list })
+    Ok(crate::Mapped {
+        value: DrugPage {
+            items: items.into(),
+            total: Some(page.total),
+        },
+        problems: problems.list,
+    })
 }
 pub(super) fn card(
     hit: Hit,
     leg: &Leg<'_>,
 ) -> Result<crate::Mapped<super::DrugDocument>, BadReply> {
-    let mut mapped = crate::mapped::Problems { source: biomcp_types::Source::Mychem, record: crate::mapped::record(&hit.id), list: Vec::new() };
+    let mut mapped = crate::mapped::Problems {
+        source: biomcp_types::Source::Mychem,
+        record: crate::mapped::record(&hit.id),
+        list: Vec::new(),
+    };
     let (id, version, rows) = components(hit, leg, &mut mapped);
     let mut card = DrugCard {
         header: header(&id, &rows)?,
@@ -201,7 +216,15 @@ fn references_for(
                 | "ndc.productndc" => name(c),
                 _ => None,
             };
-            refs.extend(super::links::mapped_reference(id, component, c, relation, target, native_name, problems));
+            refs.extend(super::links::mapped_reference(
+                id,
+                component,
+                c,
+                relation,
+                target,
+                native_name,
+                problems,
+            ));
         }
     }
     for (relation, values) in [
@@ -209,7 +232,9 @@ fn references_for(
         ("openfda.application_number", &c.application_number),
     ] {
         for target in values.as_ref().map(strings).unwrap_or_default() {
-            refs.extend(super::links::mapped_reference(id, component, c, relation, target, None, problems));
+            refs.extend(super::links::mapped_reference(
+                id, component, c, relation, target, None, problems,
+            ));
         }
     }
     refs
@@ -233,7 +258,9 @@ fn parents_for(
             ),
         ] {
             if let Some(target) = target {
-                parents.extend(super::links::mapped_reference(id, component, c, relation, target, None, problems));
+                parents.extend(super::links::mapped_reference(
+                    id, component, c, relation, target, None, problems,
+                ));
             }
         }
     }

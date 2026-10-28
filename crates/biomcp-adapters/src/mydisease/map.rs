@@ -2,9 +2,7 @@ use super::{Annotation, native};
 use crate::Mapped;
 use biodata::{Attribution, Concept, Curie, DiseaseEndpoint, DiseaseRelation, DiseaseSynonym};
 use biomcp_fetch::{InputError, RequestError};
-use biomcp_types::{
-    ComponentLabel, ComponentTerms, DiseaseCard, DiseaseSection, Source,
-};
+use biomcp_types::{ComponentLabel, ComponentTerms, DiseaseCard, DiseaseSection, Source};
 
 fn attribution(
     id: &Curie,
@@ -165,7 +163,12 @@ fn rows(
     }
     for value in &component.xrefs {
         let Some(id) = xref_id(value) else {
-            crate::mapped::push_problem(&mut mapped.problems, Source::MyDisease, crate::mapped::record(&component.id), &format!("{}.xrefs.{}", root(component), value.field));
+            crate::mapped::push_problem(
+                &mut mapped.problems,
+                Source::MyDisease,
+                crate::mapped::record(&component.id),
+                &format!("{}.xrefs.{}", root(component), value.field),
+            );
             continue;
         };
         mapped.value.xrefs.push(DiseaseRelation {

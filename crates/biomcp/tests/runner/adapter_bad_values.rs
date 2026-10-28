@@ -2,10 +2,10 @@
 use super::super::{configuration::invoke, network_stub::Stub, response_cases::checked_steps};
 use libtest_mimic::Trial;
 use serde_json::{Value, json};
-#[path = "adapter_repeated_references.rs"]
-mod repeated_references;
 #[path = "adapter_mychem_ontology_bad_values.rs"]
 mod mychem_ontology;
+#[path = "adapter_repeated_references.rs"]
+mod repeated_references;
 
 pub(super) fn trials() -> Vec<Trial> {
     let mut trials = vec![

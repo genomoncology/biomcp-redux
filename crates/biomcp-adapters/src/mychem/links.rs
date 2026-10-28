@@ -59,7 +59,9 @@ pub(super) fn native_xrefs(
     for (namespace, ids) in c.xrefs.as_ref().into_iter().flatten() {
         let relation = format!("{component}.xrefs.{namespace}");
         for id in strings(ids) {
-            rows.extend(mapped_reference(record, component, c, &relation, id, None, problems));
+            rows.extend(mapped_reference(
+                record, component, c, &relation, id, None, problems,
+            ));
         }
     }
     rows
@@ -76,9 +78,26 @@ fn native_record<'a>(component: &str, c: &'a Component) -> Option<&'a str> {
     }
 }
 
-pub(super) fn mapped_reference(record: &str, component: &str, c: &Component, relation: &str, target: &str, name: Option<&str>, problems: &mut Vec<biomcp_types::Problem>) -> Option<DrugIdentityRelation> {
-    let mut context = crate::mapped::Problems { source: biomcp_types::Source::Mychem, record: crate::mapped::record(record), list: Vec::new() };
-    let value = context.optional(relation, Some(reference(record, component, c, relation, target, name)));
-    for problem in context.list { crate::mapped::push_problem(problems, problem.source, problem.record, &problem.field); }
+pub(super) fn mapped_reference(
+    record: &str,
+    component: &str,
+    c: &Component,
+    relation: &str,
+    target: &str,
+    name: Option<&str>,
+    problems: &mut Vec<biomcp_types::Problem>,
+) -> Option<DrugIdentityRelation> {
+    let mut context = crate::mapped::Problems {
+        source: biomcp_types::Source::Mychem,
+        record: crate::mapped::record(record),
+        list: Vec::new(),
+    };
+    let value = context.optional(
+        relation,
+        Some(reference(record, component, c, relation, target, name)),
+    );
+    for problem in context.list {
+        crate::mapped::push_problem(problems, problem.source, problem.record, &problem.field);
+    }
     value
 }

@@ -1,5 +1,5 @@
-use biodata::{Curie, Text};
 use crate::raw::Field;
+use biodata::{Curie, Text};
 use biomcp_fetch::{BadReply, Reply};
 use serde::Deserialize;
 #[derive(Deserialize)]
@@ -44,17 +44,17 @@ pub(super) struct Term {
     pub label: Text,
     pub ontology_name: Text,
     pub iri: Text,
-    pub description: Vec<Field<Text>>,
+    pub description: Option<Field<Vec<Field<Text>>>>,
     pub is_obsolete: Option<bool>,
-    pub term_replaced_by: Option<Vec<Field<Text>>>,
-    pub annotation: Annotation,
-    pub synonyms: Vec<Field<Text>>,
-    pub obo_synonym: Option<Vec<Synonym>>,
-    pub obo_xref: Option<Vec<Xref>>,
+    pub term_replaced_by: Option<Field<Vec<Field<Text>>>>,
+    pub annotation: Option<Field<Annotation>>,
+    pub synonyms: Option<Field<Vec<Field<Text>>>>,
+    pub obo_synonym: Option<Field<Vec<Field<Synonym>>>>,
+    pub obo_xref: Option<Field<Vec<Field<Xref>>>>,
 }
 #[derive(Deserialize)]
 pub(super) struct Annotation {
-    pub consider: Option<Vec<Field<Text>>>,
+    pub consider: Option<Field<Vec<Field<Text>>>>,
 }
 #[derive(Deserialize)]
 pub(super) struct Synonym {
