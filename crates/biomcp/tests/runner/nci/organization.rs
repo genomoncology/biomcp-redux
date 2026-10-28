@@ -5,7 +5,9 @@ use serde_json::{Value, json};
 type Check = Result<(), String>;
 pub(super) fn trials() -> Vec<Trial> {
     vec![
-        Trial::test("organization/research-keeps-uncitable-rows", || research().map_err(Into::into)),
+        Trial::test("organization/research-keeps-uncitable-rows", || {
+            research().map_err(Into::into)
+        }),
         Trial::test("organization/native-local-pages", || {
             pages().map_err(Into::into)
         }),
@@ -212,7 +214,10 @@ fn research() -> Check {
         || result.pointer("/metadata/envelope/page/total") != Some(&json!(11))
         || result.pointer("/metadata/envelope/result/items/0/count") != Some(&json!(7))
     {
-        return Err("research projection invented organization citations or lost native rows and counts".into());
+        return Err(
+            "research projection invented organization citations or lost native rows and counts"
+                .into(),
+        );
     }
     Ok(())
 }
