@@ -1,20 +1,22 @@
 //! Optional transcripts at complete-output boundaries.
-#![expect(
-    clippy::disallowed_types,
-    reason = "The optional transcript writer shares its I/O state across a trial's worker threads"
-)]
 use libtest_mimic::{Failed, Trial};
 use serde_json::{Value, json};
 use sha2::{Digest, Sha256};
-use std::{
-    cell::RefCell,
-    collections::BTreeMap,
-    fs,
-    path::PathBuf,
-    sync::{Arc, Mutex},
-};
+use std::{collections::BTreeMap, fs, path::PathBuf, sync::Arc};
+
+#[expect(
+    clippy::disallowed_types,
+    reason = "The thread-local trial context owns one optional I/O writer"
+)]
+use std::cell::RefCell;
+#[expect(
+    clippy::disallowed_types,
+    reason = "The transcript writer serializes shared record and key I/O"
+)]
+use std::sync::Mutex;
 
 thread_local! {
+    #[expect(clippy::disallowed_types, reason = "Each runner thread selects its own trial's I/O writer")]
     static CURRENT: RefCell<Option<Arc<Context>>> = const { RefCell::new(None) };
 }
 #[derive(Debug, Default)]
@@ -28,11 +30,19 @@ struct State {
 pub(super) struct Context {
     directory: PathBuf,
     name: String,
+    #[expect(
+        clippy::disallowed_types,
+        reason = "Serialize record writes and key allocation across trial workers"
+    )]
     state: Mutex<State>,
 }
 #[expect(
     clippy::disallowed_methods,
     reason = "Optional test transcript boundary reads its destination"
+)]
+#[expect(
+    clippy::disallowed_types,
+    reason = "Construct the one shared writer state for a selected trial"
 )]
 pub(super) fn trial<R>(name: impl Into<String>, run: R) -> Trial
 where

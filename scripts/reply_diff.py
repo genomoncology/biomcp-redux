@@ -3,6 +3,7 @@
 import json
 from pathlib import Path
 import re
+import shlex
 import sys
 
 
@@ -26,22 +27,32 @@ def load(directory):
 
 def normalize(record):
     text = bytes(record["stdout"]).decode("utf-8", errors="surrogateescape")
-    # These values identify the build or checkout rather than the reply behavior.
-    for field in ("executable", "version"):
+    args = record["args"]
+    if args[:1] in (["version"], ["--version"]):
+        # Only the version command's identity line names the package version.
+        version = re.escape(record.get("version", ""))
+        text = re.sub(r"(?m)^biomcp " + version + r"$", "biomcp <version>", text)
+        if "--verbose" in args:
+            text = re.sub(r"(?m)^Commit: [^\n]*", "Commit: <commit>", text)
+            # Calibration: isolated config/cache locations vary between runs.
+            root = re.escape(record.get("root", ""))
+            text = re.sub(r"(?m)^(Config|Cache): " + root + r"(?=/|$)",
+                          lambda m: m[1] + ": <root>", text)
+    if args[:1] == ["mcp-config"]:
+        # mcp-config owns its command field and its complete Codex launch line.
+        executable = record.get("executable", "")
+        text = re.sub(r'("command"\s*:\s*)' + re.escape(json.dumps(executable)),
+                      lambda m: m[1] + '"<executable>"', text)
+        line = "codex mcp add biomcp -- " + shlex.quote(executable) + " serve\n"
+        if text == line:
+            text = "codex mcp add biomcp -- <executable> serve\n"
+    # Calibration: runner-owned argument paths vary, including JSON request tokens.
+    for field in ("root", "checkout"):
         value = record.get(field)
         if value:
-            text = text.replace(value, f"<{field}>")
-            text = text.replace(json.dumps(value)[1:-1], f"<{field}>")
-    if record["args"][:1] == ["version"]:
-        text = re.sub(r"(?m)^Commit: [^\n]*", "Commit: <commit>", text)
-    # Calibration: isolated homes/cache paths and checkout fixture paths vary per run.
-    replacements = [(record.get(field), f"<{field}>") for field in ("root", "checkout")]
-    args = record["args"]
-    for value, replacement in replacements:
-        if value:
-            text = text.replace(value, replacement)
-            text = text.replace(json.dumps(value)[1:-1], replacement)
-            args = [arg.replace(value, replacement) for arg in args]
+            for prefix in {value, json.dumps(value)[1:-1]}:
+                pattern = r'(^|")' + re.escape(prefix) + r'(?=/|$|")'
+                args = [re.sub(pattern, lambda m: m[1] + f"<{field}>", a) for a in args]
     return {"args": args, "surface": record["surface"], "exit": record["exit"], "stdout": text}
 
 

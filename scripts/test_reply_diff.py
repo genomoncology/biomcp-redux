@@ -63,6 +63,17 @@ class ReplyDiff(unittest.TestCase):
         self.assertEqual(result.returncode, 0, result.stderr)
         self.assertEqual(result.stdout, "")
 
+    def test_data_colliding_with_build_metadata_is_never_masked(self):
+        key = "case/source.yaml/step/0"
+        for field in ["version", "executable", "root", "checkout"]:
+            with self.subTest(field=field):
+                for directory, value in [(self.base, "1.0.0"), (self.head, "1.0.1")]:
+                    self.write(directory, key, json.dumps({"source": value}).encode(),
+                               **{field: value})
+                result = self.compare()
+                self.assertEqual(result.returncode, 1, result.stderr)
+                self.assertIn("/0/stdout/source", result.stdout)
+
     def test_uncaptured_trials_are_disclosed(self):
         for directory in [self.base, self.head]:
             self.write(directory, "case/help.yaml/step/0")
