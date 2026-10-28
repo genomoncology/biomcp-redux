@@ -81,8 +81,13 @@ class ReleaseTools(unittest.TestCase):
                 self.assertIn('digest', result.stderr)
             path.write_text(json.dumps(pins))
             # Execute the real installer command with only its download boundary replaced.
-            runner = """import io, runpy, sys, urllib.request
-urllib.request.urlopen = lambda *a, **k: io.BytesIO(b'wrong installer')
+            runner = """import hashlib, io, runpy, sys, urllib.request
+payload = b'wrong installer'
+def download(url, **kwargs):
+    # A compromised origin can replace both the installer and its checksum.
+    value = hashlib.sha256(payload).hexdigest().encode() if url.endswith('.sha256') else payload
+    return io.BytesIO(value)
+urllib.request.urlopen = download
 sys.argv = ['release/toolchain.py', 'install-rust']
 runpy.run_path(sys.argv[0], run_name='__main__')
 """
