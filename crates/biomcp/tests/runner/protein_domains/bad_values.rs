@@ -99,7 +99,7 @@ fn run() -> Result<(), String> {
             "/result/items/0/organism",
         ),
     ] {
-        for invalid in [json!(""), json!({"invalid":true})] {
+        for invalid in [json!(""), json!(true)] {
             let stub = Stub::for_source("www.ebi.ac.uk", "application/json", move |request| {
                 let mut body = if command == "domains" {
                     json!({"count":1,"next":null,"results":[{"metadata":{"accession":"IPR002117","name":"Native family","source_database":"interpro","type":"family","member_databases":{"Pfam":{"PF00870":"Valid"}}},"proteins":[{"accession":"p38398","organism":"9606","protein_length":2000,"entry_protein_locations":[{"fragments":[{"start":1,"end":10,"dc-status":"CONTINUOUS"}]}]}]}]})
