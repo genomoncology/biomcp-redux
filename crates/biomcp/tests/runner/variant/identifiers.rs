@@ -22,7 +22,6 @@ pub(super) fn check() -> Result<(), String> {
     }
     stub.finish()?;
     subjects()
-
 }
 fn strings(args: &[&str]) -> Vec<String> {
     args.iter().map(|s| (*s).into()).collect()
@@ -43,14 +42,20 @@ fn subjects() -> Result<(), String> {
     })?;
     let env = super::source_environment(&stub)?;
     let card = invoke(&env, strings(&["get", "variant", "CA000434", "erepo"]), 0)?;
-    let rows = card.pointer("/result/candidates/0/sections/erepo/data/assertions")
-        .and_then(Value::as_array).ok_or("missing statement rows")?;
+    let rows = card
+        .pointer("/result/candidates/0/sections/erepo/data/assertions")
+        .and_then(Value::as_array)
+        .ok_or("missing statement rows")?;
     for row in rows {
-        let id = row.pointer("/statement/subject/id").and_then(Value::as_str)
+        let id = row
+            .pointer("/statement/subject/id")
+            .and_then(Value::as_str)
             .ok_or("missing statement subject identifier")?;
         let followed = invoke(&env, strings(&["get", "variant", id, "erepo"]), 0)?;
         if followed != card {
-            return Err(format!("printed subject did not roundtrip: {id}: {followed}"));
+            return Err(format!(
+                "printed subject did not roundtrip: {id}: {followed}"
+            ));
         }
     }
     stub.finish()?;

@@ -4,9 +4,9 @@ use libtest_mimic::Trial;
 use serde_json::{Value, json};
 use std::fs;
 mod components;
+mod identifiers;
 mod labels;
 mod roundtrip;
-mod identifiers;
 pub(super) fn trials() -> Vec<Trial> {
     let mut trials = vec![
         Trial::test("variant/printed-identifiers-roundtrip", || {
