@@ -7,8 +7,7 @@ pub fn deadline(source: Source) -> Option<&'static str> {
             https://www.ebi.ac.uk/gwas/. Contact the GWAS Catalog helpdesk if this persists.",
         Source::Interpro => "BioMCP's local request deadline expired. The health probe uses a shorter local cap than protein requests. \
             InterPro documents that some queries take minutes; this timeout does not establish an outage. Please \
-            retry later or check https://www.ebi.ac.uk/interpro/. See https://interpro- \
-            documentation.readthedocs.io/en/latest/faq.html.",
+            retry later or check https://www.ebi.ac.uk/interpro/. See https://interpro-documentation.readthedocs.io/en/latest/faq.html.",
         Source::Vaers => "CDC WONDER can take longer than BioMCP's local command deadline. Use the interactive form at \
             https://wonder.cdc.gov/vaers.html for a longer query. See https://wonder.cdc.gov/wonder/help/faq.html.",
         _ => return None,

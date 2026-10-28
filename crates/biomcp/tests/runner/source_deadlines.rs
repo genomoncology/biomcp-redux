@@ -1,6 +1,7 @@
 //! Feature source-controls: synthetic delayed exchanges explain bounded source latency.
 use super::{configuration::invoke, launch::Environment};
 use libtest_mimic::Trial;
+mod quota;
 use serde_json::Value;
 use std::{fs, io::Write, path::Path};
 pub(super) fn trials() -> Vec<Trial> {
@@ -13,7 +14,7 @@ pub(super) fn trials() -> Vec<Trial> {
         Trial::test(format!("source-deadlines/{source}/reply-and-help-guidance"), move || {
             check(source, fixture, &words, &help, expected).map_err(Into::into)
         })
-    }).collect()
+    }).chain(std::iter::once(Trial::test("source-deadlines/wonder/shared-quota-reply", || quota::run().map_err(Into::into)))).collect()
 }
 fn check(source: &str, fixture: &str, words: &[&str], help: &[&str], expected: &str) -> Result<(), String> {
     let root = Path::new(env!("CARGO_MANIFEST_DIR")).join("../..");
