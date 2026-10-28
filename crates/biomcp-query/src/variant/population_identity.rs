@@ -17,7 +17,12 @@ pub(super) struct Identity {
     pub error: Option<RequestError>,
     pub elapsed: std::time::Duration,
 }
-pub(super) fn read(cx: &Ctx<'_>, query: &VariantGet, deadline: Deadline<'_>, population: bool) -> Identity {
+pub(super) fn read(
+    cx: &Ctx<'_>,
+    query: &VariantGet,
+    deadline: Deadline<'_>,
+    population: bool,
+) -> Identity {
     let mut found = Identity::default();
     let spec = super::source(query);
     let leg = cx.fetch.leg(spec, deadline).fresh(cx.fresh);
@@ -95,12 +100,21 @@ pub(super) fn choice(row: &VariantHeader) -> Option<biomcp_types::Request> {
     let build = row.identity.representations.iter().find_map(|r| r.build);
     let mut input = row.record.id.as_str().parse().ok()?;
     if build.is_none() {
-        let ids: Vec<_> = row.identity.ids.iter().filter(|id| matches!(id, VariantId::Ca(_))).collect();
+        let ids: Vec<_> = row
+            .identity
+            .ids
+            .iter()
+            .filter(|id| matches!(id, VariantId::Ca(_)))
+            .collect();
         if let [id] = ids.as_slice() {
             input = id.to_string().parse().ok()?;
         } else {
-            return Some(Request::SearchVariant(VariantSearch::source_record(&input).ok()?));
+            return Some(Request::SearchVariant(
+                VariantSearch::source_record(&input).ok()?,
+            ));
         }
     }
-    Some(Request::GetVariant(VariantGet::new(input, VariantResolver::Car, build).ok()?))
+    Some(Request::GetVariant(
+        VariantGet::new(input, VariantResolver::Car, build).ok()?,
+    ))
 }

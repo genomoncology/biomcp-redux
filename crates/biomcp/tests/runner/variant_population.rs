@@ -3,10 +3,10 @@ use super::{launch::Environment, network_stub::Stub};
 use libtest_mimic::Trial;
 use serde_json::{Value, json};
 use std::fs;
-#[path = "variant_population_ids.rs"]
-mod ids;
 #[path = "variant_population_get.rs"]
 mod get;
+#[path = "variant_population_ids.rs"]
+mod ids;
 pub(super) fn trials() -> Vec<Trial> {
     let mut trials = vec![
         Trial::test("variant/population-source-given-grch38-snv", || {

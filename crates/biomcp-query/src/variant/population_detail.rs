@@ -134,7 +134,11 @@ fn choices(
         .filter_map(|row| {
             let request = match super::population_identity::choice(row)? {
                 Request::GetVariant(identity) if candidates.len() > 1 => {
-                    Request::VariantPopulation(query.with_identity(identity.input().clone(), identity.build()).ok()?)
+                    Request::VariantPopulation(
+                        query
+                            .with_identity(identity.input().clone(), identity.build())
+                            .ok()?,
+                    )
                 }
                 request => request,
             };

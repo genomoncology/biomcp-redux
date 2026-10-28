@@ -64,7 +64,12 @@ pub(super) fn apply(
                 VariantSection::Population => attach!(
                     population,
                     if let Some(reason) = population_reason {
-                        (Section::unavailable(Source::Gnomad, reason), Vec::new(), Vec::new(), None)
+                        (
+                            Section::unavailable(Source::Gnomad, reason),
+                            Vec::new(),
+                            Vec::new(),
+                            None,
+                        )
                     } else {
                         super::population::section(cx, query, candidates, *deadline)
                     }

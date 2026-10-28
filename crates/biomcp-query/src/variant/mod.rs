@@ -35,7 +35,12 @@ pub fn get(cx: &Ctx<'_>, query: &VariantGet) -> Outcome {
         return out;
     }
     let spec = source(query);
-    let population = query.sections().iter().any(|section| matches!(section, biomcp_types::VariantSection::Population | biomcp_types::VariantSection::All)) && !cx.fetch.disabled(Source::Gnomad);
+    let population = query.sections().iter().any(|section| {
+        matches!(
+            section,
+            biomcp_types::VariantSection::Population | biomcp_types::VariantSection::All
+        )
+    }) && !cx.fetch.disabled(Source::Gnomad);
     let found = population_identity::read(cx, query, deadline, population);
     deadline = deadline.after_stage(found.elapsed);
     let mut problems = found.problems;

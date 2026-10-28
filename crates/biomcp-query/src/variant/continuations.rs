@@ -80,38 +80,57 @@ pub(super) fn next(
         || resolution == VariantResolution::Resolved
             && candidates.iter().any(|row| {
                 row.source == Source::MyVariant && row.record.id.as_str() != query.input().as_str()
-                    || row.sections.as_ref().and_then(|s| s.population.as_ref()).is_some_and(|s| matches!(s, Section::Unavailable { reason: biomcp_types::Reason::NoJoinId, .. }))
+                    || row
+                        .sections
+                        .as_ref()
+                        .and_then(|s| s.population.as_ref())
+                        .is_some_and(|s| {
+                            matches!(
+                                s,
+                                Section::Unavailable {
+                                    reason: biomcp_types::Reason::NoJoinId,
+                                    ..
+                                }
+                            )
+                        })
             })
     {
         for row in candidates {
-            if query.sections().iter().any(|section| matches!(section, biomcp_types::VariantSection::Population | biomcp_types::VariantSection::All)) {
+            if query.sections().iter().any(|section| {
+                matches!(
+                    section,
+                    biomcp_types::VariantSection::Population | biomcp_types::VariantSection::All
+                )
+            }) {
                 if let Some(request) = super::population_identity::choice(row) {
                     let request = match request {
-                        Request::GetVariant(q) if resolution == VariantResolution::Candidates => Request::GetVariant(q.with_sections(query.sections().into())),
+                        Request::GetVariant(q) if resolution == VariantResolution::Candidates => {
+                            Request::GetVariant(q.with_sections(query.sections().into()))
+                        }
                         request => request,
                     };
                     push(&mut next, StepKind::Disambiguate, request);
                 }
             } else {
-            if let Ok(input) = row.record.id.as_str().parse()
-                && let Ok(q) = VariantGet::new(
-                    input,
-                    query.resolver(),
-                    row.identity
-                        .representations
-                        .iter()
-                        .find_map(|r| r.build)
-                        .or(query.build()),
-                )
-            {
-                next.push((
-                    StepKind::Disambiguate,
-                    Action::Run {
-                        request: Request::GetVariant(q),
-                        fresh: false,
-                    },
-                ));
-            }
+                if let Ok(input) = row.record.id.as_str().parse()
+                    && let Ok(q) = VariantGet::new(
+                        input,
+                        query.resolver(),
+                        row.identity
+                            .representations
+                            .iter()
+                            .find_map(|r| r.build)
+                            .or(query.build()),
+                    )
+                {
+                    next.push((
+                        StepKind::Disambiguate,
+                        Action::Run {
+                            request: Request::GetVariant(q),
+                            fresh: false,
+                        },
+                    ));
+                }
             }
         }
     }
