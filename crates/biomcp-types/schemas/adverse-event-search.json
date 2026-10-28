@@ -61,10 +61,10 @@
       ]
     }
   },
-  "$id": "biomcp.adverse-event-search/1",
+  "$id": "biomcp.adverse-event-search/2",
   "$schema": "https://json-schema.org/draft/2020-12/schema",
   "additionalProperties": false,
-  "description": "Search five report headers by default. VAERS accepts MMR, COVID19, COVID-19 vaccine or one exact qualified native influenza code, matched without case; use influenza to list codes and labels. Tables remain separate and are never summed. One report may list several vaccines. VAERS returns five reported symptom rows by default; seriousness and age select independent tables. Counts are reports, not people. Reports do not show that a vaccine caused an event and cannot measure risk or compare vaccine safety.",
+  "description": "Search five report headers by default. MAUDE accepts device text or a manufacturer, product-code or problem filter. One report may list several devices; filters may match different devices. VAERS accepts MMR, COVID19, COVID-19 vaccine or one exact qualified native influenza code, matched without case; use influenza to list codes and labels. Tables remain separate and are never summed. One report may list several vaccines. VAERS returns five reported symptom rows by default; seriousness and age select independent tables. Counts are reports, not people. Reports do not show that a vaccine caused an event and cannot measure risk or compare vaccine safety.",
   "properties": {
     "limit": {
       "default": 5,
@@ -74,12 +74,41 @@
       "minimum": 1,
       "type": "integer"
     },
+    "manufacturer": {
+      "anyOf": [
+        {
+          "$ref": "#/$defs/Text"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "description": "MAUDE manufacturer phrase on device.manufacturer_d_name. A report may list several devices; filters may match different devices."
+    },
     "offset": {
       "default": 0,
       "description": "Native row offset. VAERS continuation requires its retained snapshot.",
       "format": "uint32",
       "minimum": 0,
       "type": "integer"
+    },
+    "problem": {
+      "anyOf": [
+        {
+          "$ref": "#/$defs/Text"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "description": "MAUDE phrase on native product_problems."
+    },
+    "product_code": {
+      "description": "MAUDE exact native device.device_report_product_code; repeated codes join with OR.",
+      "items": {
+        "$ref": "#/$defs/Text"
+      },
+      "type": "array"
     },
     "reaction": {
       "anyOf": [
@@ -161,9 +190,6 @@
       "x-positional": 0
     }
   },
-  "required": [
-    "text"
-  ],
   "title": "AdverseEventSearch",
   "type": "object"
 }

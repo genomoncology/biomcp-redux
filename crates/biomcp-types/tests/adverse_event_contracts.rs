@@ -151,7 +151,10 @@ fn paging_preserves_all_selectors_and_absolute_drug_scope() {
     ))
     .unwrap();
     let next = query.at_offset(2);
-    assert_eq!(next.text().as_str(), "synthetic drug");
+    assert_eq!(
+        next.text().map(biodata::Text::as_str),
+        Some("synthetic drug")
+    );
     assert_eq!(next.source(), AdverseEventSource::Faers);
     assert_eq!(next.reaction().unwrap().as_str(), "synthetic phrase");
     assert_eq!(next.serious(), Some(AdverseEventSerious::Hospitalization));

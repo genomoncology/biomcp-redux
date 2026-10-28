@@ -2483,12 +2483,41 @@
           "minimum": 1,
           "type": "integer"
         },
+        "manufacturer": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/Text"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "description": "MAUDE manufacturer phrase on device.manufacturer_d_name. A report may list several devices; filters may match different devices."
+        },
         "offset": {
           "default": 0,
           "description": "Native row offset. VAERS continuation requires its retained snapshot.",
           "format": "uint32",
           "minimum": 0,
           "type": "integer"
+        },
+        "problem": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/Text"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "description": "MAUDE phrase on native product_problems."
+        },
+        "product_code": {
+          "description": "MAUDE exact native device.device_report_product_code; repeated codes join with OR.",
+          "items": {
+            "$ref": "#/$defs/Text"
+          },
+          "type": "array"
         },
         "reaction": {
           "anyOf": [
@@ -2571,8 +2600,7 @@
         }
       },
       "required": [
-        "command",
-        "text"
+        "command"
       ],
       "type": "object"
     },
