@@ -196,7 +196,7 @@ Commands:
   study          Literal stored metadata search; text is never parsed as a query language. No frequency, denominator, survival or comparison is calculated. Source counts keep their native names.
   pgx            Checked gene-keyed CPIC pair search. No phenotype, phase or dose is calculated.
   diagnostic     Search one diagnostic source. A listing is not authorization; a companion row is not a treatment recommendation.
-  adverse-event  Search five report headers by default. VAERS accepts MMR, COVID19, COVID-19 vaccine or one exact qualified native influenza code, matched without case; use influenza to list codes and labels. Tables remain separate and are never summed. One report may list several vaccines. VAERS returns five reported symptom rows by default; seriousness and age select independent tables. Counts are reports, not people. Reports do not show that a vaccine caused an event and cannot measure risk or compare vaccine safety.
+  adverse-event  Search five report headers by default. MAUDE accepts device text or a manufacturer, product-code or problem filter. One report may list several devices; filters may match different devices. VAERS accepts MMR, COVID19, COVID-19 vaccine or one exact qualified native influenza code, matched without case; use influenza to list codes and labels. Tables remain separate and are never summed. One report may list several vaccines. VAERS returns five reported symptom rows by default; seriousness and age select independent tables. Counts are reports, not people. Reports do not show that a vaccine caused an event and cannot measure risk or compare vaccine safety.
   disease        Literal discovery text or an explicit SEER catalog page.
   drug           Literal single-source candidate discovery, without an implicit identity selection.
   gene           Search genes by text, cytoband, or their intersection.
@@ -772,12 +772,12 @@ Search one diagnostic source. A listing is not authorization; a companion row is
 ## biomcp search adverse-event
 
 ```text
-Search five report headers by default. VAERS accepts MMR, COVID19, COVID-19 vaccine or one exact qualified native influenza code, matched without case; use influenza to list codes and labels. Tables remain separate and are never summed. One report may list several vaccines. VAERS returns five reported symptom rows by default; seriousness and age select independent tables. Counts are reports, not people. Reports do not show that a vaccine caused an event and cannot measure risk or compare vaccine safety.
+Search five report headers by default. MAUDE accepts device text or a manufacturer, product-code or problem filter. One report may list several devices; filters may match different devices. VAERS accepts MMR, COVID19, COVID-19 vaccine or one exact qualified native influenza code, matched without case; use influenza to list codes and labels. Tables remain separate and are never summed. One report may list several vaccines. VAERS returns five reported symptom rows by default; seriousness and age select independent tables. Counts are reports, not people. Reports do not show that a vaccine caused an event and cannot measure risk or compare vaccine safety.
 
-Usage: biomcp search adverse-event [OPTIONS] <text> [section]
+Usage: biomcp search adverse-event [OPTIONS] [text] [section]
 
 Arguments:
-  <text>
+  [text]
           Literal drug text, MAUDE device phrase or exact supported VAERS vaccine.
 
   [section]
@@ -796,11 +796,20 @@ Options:
       --disable-sources <disable-sources>
           Exclude source names or source terms groups.
 
-      --offset <offset>
-          Native row offset. VAERS continuation requires its retained snapshot.
+      --manufacturer <manufacturer>
+          MAUDE manufacturer phrase on device.manufacturer_d_name. A report may list several devices; filters may match different devices.
 
       --config <config>
           Read configuration from this file.
+
+      --offset <offset>
+          Native row offset. VAERS continuation requires its retained snapshot.
+
+      --problem <problem>
+          MAUDE phrase on native product_problems.
+
+      --product-code <product_code>...
+          MAUDE exact native device.device_report_product_code; repeated codes join with OR.
 
       --reaction <reaction>
           FAERS MedDRA term phrase match, not exact equality.
@@ -808,35 +817,38 @@ Options:
       --received-from <received_from>
           Inclusive first FDA receipt lower bound, YYYY-MM-DD.
 
-      --received-to <received_to>
-          Inclusive first FDA receipt upper bound, YYYY-MM-DD.
-
-      --serious <serious>
-          FAERS report flag: death or hospitalization; never a reaction outcome.
-
-      --snapshot <snapshot>
-          Retained VAERS table for provider-free continuation.
-
       --offline
           Read local data without source requests.
 
-      --source <source>
-          FAERS by default; VAERS accepts only exact supported vaccine names.
+      --received-to <received_to>
+          Inclusive first FDA receipt upper bound, YYYY-MM-DD.
 
       --fresh
           Request fresh source data instead of cached replies.
 
+      --serious <serious>
+          FAERS report flag: any uses the source seriousness flag; the specific flags can overlap. Never a reaction outcome.
+
+      --snapshot <snapshot>
+          Retained VAERS table for provider-free continuation.
+
+      --source <source>
+          FAERS by default; VAERS accepts only exact supported vaccine names.
+
 ```
 
-Search five report headers by default. VAERS accepts MMR, COVID19, COVID-19 vaccine or one exact qualified source influenza code, matched without case; use influenza to list codes and labels. Tables remain separate and are never summed. One report may list several vaccines. VAERS returns five reported symptom rows by default; seriousness and age select independent tables. Counts are reports, not people. Reports do not show that a vaccine caused an event and cannot measure risk or compare vaccine safety. CDC WONDER can take longer than BioMCP's local command deadline. Use the interactive form at https://wonder.cdc.gov/vaers.html for a longer query. See https://wonder.cdc.gov/wonder/help/faq.html. BioMCP's local quota refused this request before contacting CDC WONDER. Retry after the reported seconds left. Automated queries must follow the spacing at https://wonder.cdc.gov/wonder/help/wonder-api.html.
+Search five report headers by default. MAUDE accepts device text or a manufacturer, product-code or problem filter. One report may list several devices; filters may match different devices. VAERS accepts MMR, COVID19, COVID-19 vaccine or one exact qualified source influenza code, matched without case; use influenza to list codes and labels. Tables remain separate and are never summed. One report may list several vaccines. VAERS returns five reported symptom rows by default; seriousness and age select independent tables. Counts are reports, not people. Reports do not show that a vaccine caused an event and cannot measure risk or compare vaccine safety. CDC WONDER can take longer than BioMCP's local command deadline. Use the interactive form at https://wonder.cdc.gov/vaers.html for a longer query. See https://wonder.cdc.gov/wonder/help/faq.html. BioMCP's local quota refused this request before contacting CDC WONDER. Retry after the reported seconds left. Automated queries must follow the spacing at https://wonder.cdc.gov/wonder/help/wonder-api.html.
 
 - `--limit`: Source report headers or VAERS rows per page; default five.
+- `--manufacturer`: MAUDE manufacturer phrase on device.manufacturer_d_name. A report may list several devices; filters may match different devices.
 - `--offset`: Source row offset. VAERS continuation requires its retained snapshot.
+- `--problem`: MAUDE phrase on source product_problems.
+- `--product-code`: MAUDE exact source device.device_report_product_code; repeated codes join with OR.
 - `--reaction`: FAERS MedDRA term phrase match, not exact equality.
 - `--received-from`: Inclusive first FDA receipt lower bound, YYYY-MM-DD.
 - `--received-to`: Inclusive first FDA receipt upper bound, YYYY-MM-DD.
 - `section`: Independent VAERS table; omitted means reported symptoms.
-- `--serious`: FAERS report flag: death or hospitalization; never a reaction outcome.
+- `--serious`: FAERS report flag: any uses the source seriousness flag; the specific flags can overlap. Never a reaction outcome.
 - `--snapshot`: Retained VAERS table for source-free continuation.
 - `--source`: FAERS by default; VAERS accepts only exact supported vaccine names.
 - `text`: Exact drug text, MAUDE device phrase or exact supported VAERS vaccine.
@@ -1152,8 +1164,8 @@ Options:
           [default: json]
           [possible values: json, md]
 
-      --condition <condition>
-          Registry condition text, or an NCIt code for NCI; use --keyword for NCI free text.
+      --condition <condition>...
+          Condition alternatives joined with OR; NCI requires NCIt codes.
 
       --disable-sources <disable-sources>
           Exclude source names or source terms groups.
@@ -1194,11 +1206,11 @@ Options:
       --id <id>
           Exact NCT identity in a conjunction with other filters.
 
-      --intervention <intervention>
-          Literal source intervention text.
+      --intervention <intervention>...
+          Intervention alternatives joined with OR; supported by ClinicalTrials.gov.
 
-      --keyword <keyword>
-          NCI free text; explicit keyword mode never substitutes for a disease identity.
+      --keyword <keyword>...
+          Repeat for ClinicalTrials.gov general text alternatives joined with OR; different filters combine with AND. NCI accepts one keyword.
 
       --lat <lat>
           Radius center latitude in degrees.
@@ -1247,7 +1259,7 @@ Options:
 Search one source with bounded pages and source counts; default ClinicalTrials.gov, explicit keyed NCI, never a fallback.
 
 - `--age`: Age in years; unstated source bounds count as no limit.
-- `--condition`: Registry condition text, or an NCIt code for NCI; use --keyword for NCI free text.
+- `--condition`: Condition alternatives joined with OR; NCI requires NCIt codes.
 - `--condition-id`: Exact MONDO or DOID CURIE resolved by MyDisease; NCI also accepts explicit NCIT:C codes.
 - `--count-only`: Source total only; no returned study rows.
 - `--criteria`: Search exact registry eligibility text for discovery only; no eligibility judgment.
@@ -1257,8 +1269,8 @@ Search one source with bounded pages and source counts; default ClinicalTrials.g
 - `--gene`: Resolve one checked gene for registry text discovery only; no eligibility judgment.
 - `--has-results`: Require posted source results.
 - `--id`: Exact NCT identity in a conjunction with other filters.
-- `--intervention`: Exact source intervention text.
-- `--keyword`: NCI free text; explicit keyword mode never substitutes for a disease identity.
+- `--intervention`: Intervention alternatives joined with OR; supported by ClinicalTrials.gov.
+- `--keyword`: Repeat for ClinicalTrials.gov general text alternatives joined with OR; different filters combine with AND. NCI accepts one keyword.
 - `--lat`: Radius center latitude in degrees.
 - `--limit`: Headers per page; NCI applies its own lower publisher limit.
 - `--lon`: Radius center longitude in degrees.

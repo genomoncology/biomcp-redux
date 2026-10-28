@@ -217,7 +217,7 @@ fn adverse_event_contracts() -> Vec<Contract> {
         Envelope<PgxDiplotype> => ("pgx-diplotype", "biomcp.pgx-diplotype/1"),
         Envelope<PgxAnnotations> => ("pgx-annotations", "biomcp.pgx-annotations/1"),
         Envelope<PgxAnnotation> => ("pgx-annotation", "biomcp.pgx-annotation/1"),
-        AdverseEventSearch => ("adverse-event-search", "biomcp.adverse-event-search/1"),
+        AdverseEventSearch => ("adverse-event-search", "biomcp.adverse-event-search/2"),
         AdverseEventGet => ("adverse-event-get", "biomcp.adverse-event-get/1"),
         Envelope<VaersSummary> => ("vaers-summary", "biomcp.vaers-summary/1"),
         Envelope<AdverseEventPage> => ("adverse-event-page", "biomcp.adverse-event-page/2"),
@@ -312,11 +312,11 @@ fn trial_contracts() -> Vec<Contract> {
     contracts! {
         TrialGet => ("trial-get", "biodata.trial-get/1"),
         Envelope<NciTrialCards> => ("nci-trial-cards", "biomcp.nci-trial-cards/3"),
-        Envelope<NciTrialPage> => ("nci-trial-page", "biomcp.nci-trial-page/4"),
+        Envelope<NciTrialPage> => ("nci-trial-page", "biomcp.nci-trial-page/5"),
         Envelope<TrialCards> => ("trial-cards", "biomcp.trial-cards/3"),
         TrialConditionResolution => ("trial-condition-resolution", "biomcp.trial-condition-resolution/2"),
-        TrialSearch => ("trial-search", "biodata.trial-search/2"),
-        Envelope<TrialPage> => ("trial-page", "biomcp.trial-page/7"),
+        TrialSearch => ("trial-search", "biodata.trial-search/3"),
+        Envelope<TrialPage> => ("trial-page", "biomcp.trial-page/8"),
         NctId => ("nct-id", "biodata.nct-id/1"),
         TrialHeader => ("trial-header", "biodata.trial_header/1"),
     }
