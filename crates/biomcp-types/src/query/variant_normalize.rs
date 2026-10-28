@@ -13,6 +13,7 @@ struct Fields {
     /// Explicit service; all preserves independent results without consensus.
     source: NormalizationSource,
     /// Reference-qualified HGVS, or chromosome genomic HGVS with an explicit build for CAR.
+    /// Checked for reference and syntax only; no full HGVS parser.
     #[cfg_attr(feature = "schema", schemars(schema_with = "hgvs_schema"))]
     hgvs: String,
     /// Caller assembly; required when VariantValidator is selected.
@@ -71,7 +72,7 @@ fn valid_hgvs(fields: &Fields) -> bool {
 fn hgvs_schema(_: &mut schemars::SchemaGenerator) -> schemars::Schema {
     schemars::json_schema!({
         "type": "string",
-        "pattern": format!("({}|^chr([1-9][0-9]*|X|Y|M|MT):g\\.[\\x21-\\x7e]+$)", HgvsText::PATTERN)
+        "pattern": format!("({}|{})", HgvsText::PATTERN, VariantInput::CHROMOSOME_PATTERN)
     })
 }
 impl VariantNormalize {

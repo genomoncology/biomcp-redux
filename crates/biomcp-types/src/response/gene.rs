@@ -128,6 +128,10 @@ pub enum QueryBody {
     PhenotypeGenes(crate::PhenotypeGenes),
     /// Native ordered human pathway headers.
     PathwayPage(crate::PathwayPage),
+    /// Native NCI organization observation.
+    OrganizationPage(crate::OrganizationPage),
+    /// Unsized organization observation exceeded its byte bound.
+    OrganizationTooBroad,
     /// Checked exact pathway card or summary.
     PathwayCard(Option<crate::PathwayCard>),
     /// Retained native membership references.

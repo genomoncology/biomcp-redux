@@ -1,6 +1,7 @@
 # 0436 — Print each variant ID one way and accept every ID BioMCP prints
 
-Status: OPEN.
+Status: COMPLETE.
+Landed: 6aa9ab8ac10b075e524e02723821375b5d08b932
 
 Milestone: 5
 

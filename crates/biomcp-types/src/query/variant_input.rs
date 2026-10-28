@@ -20,6 +20,10 @@ pub enum VariantNamespace {
     Unsupported,
 }
 impl VariantInput {
+    #[cfg(feature = "schema")]
+    pub(crate) const CHROMOSOME_PATTERN: &'static str =
+        r"^chr([1-9][0-9]*|X|Y|M|MT):g\.[\x21-\x7e]*[0-9][\x21-\x7e]*$";
+
     /// Maximum bytes in one published identifier.
     pub const MAX_BYTES: usize = 2048;
     /// Check the identifier's spelling while preserving every supplied character.
@@ -59,23 +63,7 @@ impl VariantInput {
         if value.parse::<crate::HgvsText>().is_ok() {
             return Ok(VariantNamespace::Hgvs);
         }
-        let Some((reference, description)) = value.split_once(':') else {
-            return Err(Error::VariantInputInvalid);
-        };
-        if description.len() < 3
-            || !matches!(
-                description.as_bytes().first(),
-                Some(b'c' | b'g' | b'n' | b'p' | b'r' | b'm' | b'o')
-            )
-            || description.as_bytes().get(1) != Some(&b'.')
-        {
-            return Err(Error::VariantInputInvalid);
-        }
-        if description.starts_with("g.")
-            && reference
-                .strip_prefix("chr")
-                .is_some_and(|s| s == "M" || s.parse::<crate::Chromosome>().is_ok())
-        {
+        if crate::Expression::new(crate::ExpressionSyntax::HgvsG, self.0.clone(), None).is_ok() {
             return Ok(VariantNamespace::Chromosome);
         }
         Err(Error::VariantInputInvalid)
@@ -99,8 +87,9 @@ text_value!(
     VariantInput,
     "VariantInput",
     format!(
-        "({}|{}|^[1-9][0-9]*$|^chr([1-9][0-9]*|X|Y|M|MT):g\\.[\\x21-\\x7e]+$)",
+        "({}|{}|^[1-9][0-9]*$|{})",
         crate::VariantId::PATTERN,
-        crate::HgvsText::PATTERN
+        crate::HgvsText::PATTERN,
+        Self::CHROMOSOME_PATTERN
     )
 );

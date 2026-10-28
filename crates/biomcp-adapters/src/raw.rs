@@ -25,6 +25,12 @@ pub(crate) enum Field<T> {
     Invalid(serde::de::IgnoredAny),
 }
 impl<T> Field<T> {
+    pub(crate) fn as_ref(&self) -> Option<&T> {
+        match self {
+            Self::Value(value) => Some(value),
+            Self::Invalid(_) => None,
+        }
+    }
     pub(crate) fn value(self) -> Option<T> {
         match self {
             Self::Value(value) => Some(value),

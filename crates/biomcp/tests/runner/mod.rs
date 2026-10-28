@@ -138,6 +138,7 @@ mod store_coexistence;
 mod study_catalog;
 mod supplement_tables;
 mod terminal_edges;
+mod trial_bad_values;
 mod trial_condition;
 mod trial_documents;
 mod trial_eligibility;

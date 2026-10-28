@@ -2,6 +2,19 @@
   "$defs": {
     "ExpressionSyntax": {
       "description": "Published syntax label for a source-preserved expression.",
+      "enum": [
+        "hgvs.g",
+        "hgvs.c",
+        "hgvs.n",
+        "hgvs.r",
+        "hgvs.p",
+        "hgvs.m",
+        "hgvs.o",
+        "spdi",
+        "gnomad",
+        "vcf",
+        "iscn"
+      ],
       "type": "string",
       "x-enum-descriptions": [
         " HGVS genomic description.",
@@ -15,19 +28,6 @@
         " gnomAD chromosome-position-reference-alternate identifier.",
         " Padded VCF chromosome-position-reference-alternate text.",
         " Source-preserved cytogenetic notation."
-      ],
-      "x-extensible-enum": [
-        "hgvs.g",
-        "hgvs.c",
-        "hgvs.n",
-        "hgvs.r",
-        "hgvs.p",
-        "hgvs.m",
-        "hgvs.o",
-        "spdi",
-        "gnomad",
-        "vcf",
-        "iscn"
       ]
     },
     "Text": {
@@ -38,7 +38,8 @@
   },
   "$id": "biodata.expression/2",
   "$schema": "https://json-schema.org/draft/2020-12/schema",
-  "description": "Source expression checked for its declared published form, without normalization.",
+  "additionalProperties": false,
+  "description": "Source expression checked for its reference and syntax only, without a full parser or normalization.",
   "properties": {
     "syntax": {
       "$ref": "#/$defs/ExpressionSyntax"

@@ -62,12 +62,12 @@ fn common_registry() -> Vec<Contract> {
         Sequence => ("sequence", "biodata.sequence/1"),
         SequenceLocation => ("sequence-location", "biodata.sequence-location/2"),
         Allele => ("allele", "biodata.allele/2"),
-        HgvsText => ("hgvs-text", "biodata.hgvs-text/2"),
+        HgvsText => ("hgvs-text", "biodata.hgvs-text/3"),
         Expression => ("expression", "biodata.expression/2"),
         ExpressionSyntax => ("expression-syntax", "biodata.expression-syntax/1"),
         Representation => ("representation", "biodata.representation/3"),
         VariantId => ("variant-id", "biodata.variant-id/2"),
-        Variant => ("variant", "biodata.variant/4"),
+        Variant => ("variant", "biodata.variant/5"),
         RsId => ("rs-id", "biodata.rs-id/1"),
         CaId => ("ca-id", "biodata.ca-id/1"),
         PaId => ("pa-id", "biodata.pa-id/1"),
@@ -126,8 +126,10 @@ mod phenotype;
 
 fn registry() -> Vec<Contract> {
     let mut contracts = contracts! {
+        OrganizationSearch => ("organization-search", "biomcp.organization-search/1", query),
+        Envelope<OrganizationPage> => ("organization-page", "biomcp.organization-page/1"),
         TrialDocumentGet => ("trial-document", "biodata.trial-document/1", query),
-        Envelope<TrialDocumentResult> => ("trial-document-result", "biomcp.trial-document/2"),
+        Envelope<TrialDocumentResult> => ("trial-document-result", "biomcp.trial-document/3"),
         HttpHealth => ("http-health", "biomcp.http-health/1"),
         Envelope<Health> => ("health", "biomcp.health/3"),
         Markdown => ("markdown", "biodata.markdown/1"),
@@ -244,20 +246,20 @@ fn adverse_event_contracts() -> Vec<Contract> {
 
 fn variant_contracts() -> Vec<Contract> {
     contracts! {
-        VariantAssertionsGet => ("variant-assertions", "biodata.variant-assertions/1", query),
-        Envelope<VariantAssertions> => ("variant-assertions-result", "biomcp.variant-assertions/3"),
-        PopulationFrequency => ("population-frequency", "biodata.population-frequency/3"),
-        VariantPopulationQuery => ("variant-population", "biodata.variant-population/2", query),
-        Envelope<VariantPopulationResult> => ("variant-population-result", "biomcp.variant-population/6"),
-        Statement => ("statement", "biodata.statement/3"),
-        VariantRecurrenceQuery => ("variant-recurrence-query", "biodata.variant-recurrence-query/2", query),
-        Envelope<VariantRecurrence> => ("variant-recurrence", "biomcp.variant-recurrence/5"),
-        VariantNormalize => ("variant-normalize", "biodata.variant-normalize/3", query),
-        Envelope<VariantNormalization> => ("variant-normalization", "biomcp.variant-normalization/4"),
+        VariantAssertionsGet => ("variant-assertions", "biodata.variant-assertions/2", query),
+        Envelope<VariantAssertions> => ("variant-assertions-result", "biomcp.variant-assertions/4"),
+        PopulationFrequency => ("population-frequency", "biodata.population-frequency/4"),
+        VariantPopulationQuery => ("variant-population", "biodata.variant-population/3", query),
+        Envelope<VariantPopulationResult> => ("variant-population-result", "biomcp.variant-population/7"),
+        Statement => ("statement", "biodata.statement/4"),
+        VariantRecurrenceQuery => ("variant-recurrence-query", "biodata.variant-recurrence-query/3", query),
+        Envelope<VariantRecurrence> => ("variant-recurrence", "biomcp.variant-recurrence/6"),
+        VariantNormalize => ("variant-normalize", "biodata.variant-normalize/4", query),
+        Envelope<VariantNormalization> => ("variant-normalization", "biomcp.variant-normalization/5"),
         VariantSearch => ("variant-search", "biodata.variant-search/2", query),
-        Envelope<VariantPage> => ("variant-page", "biomcp.variant-page/9"),
-        VariantGet => ("variant-get", "biodata.variant-get/2", query),
-        Envelope<VariantCard> => ("variant-card", "biomcp.variant-card/8"),
+        Envelope<VariantPage> => ("variant-page", "biomcp.variant-page/10"),
+        VariantGet => ("variant-get", "biodata.variant-get/3", query),
+        Envelope<VariantCard> => ("variant-card", "biomcp.variant-card/9"),
     }
 }
 
@@ -297,7 +299,7 @@ fn drug_contracts() -> Vec<Contract> {
         Envelope<DrugLabel> => ("drug-label", "biomcp.drug-label/3"),
         Envelope<DrugTargets> => ("drug-targets", "biomcp.drug-targets/3"),
         Envelope<DrugIndications> => ("drug-indications", "biomcp.drug-indications/3"),
-        Envelope<DrugCivic> => ("drug-civic", "biomcp.drug-civic/5"),
+        Envelope<DrugCivic> => ("drug-civic", "biomcp.drug-civic/6"),
         Envelope<DrugApprovals> => ("drug-approvals", "biomcp.drug-approvals/3"),
         Envelope<DrugRegulatory> => ("drug-regulatory", "biomcp.drug-regulatory/2"),
         Envelope<DrugInteractions> => ("drug-interactions", "biomcp.drug-interactions/3"),
@@ -324,12 +326,12 @@ fn trial_contracts() -> Vec<Contract> {
         TrialGet => ("trial-get", "biodata.trial-get/1", query),
         Envelope<NciTrialCards> => ("nci-trial-cards", "biomcp.nci-trial-cards/3"),
         Envelope<NciTrialPage> => ("nci-trial-page", "biomcp.nci-trial-page/5"),
-        Envelope<TrialCards> => ("trial-cards", "biomcp.trial-cards/3"),
+        Envelope<TrialCards> => ("trial-cards", "biomcp.trial-cards/5"),
         TrialConditionResolution => ("trial-condition-resolution", "biomcp.trial-condition-resolution/2"),
         TrialSearch => ("trial-search", "biodata.trial-search/3", query),
-        Envelope<TrialPage> => ("trial-page", "biomcp.trial-page/8"),
+        Envelope<TrialPage> => ("trial-page", "biomcp.trial-page/9"),
         NctId => ("nct-id", "biodata.nct-id/1"),
-        TrialHeader => ("trial-header", "biodata.trial_header/1"),
+        TrialHeader => ("trial-header", "biodata.trial_header/2"),
     }
 }
 

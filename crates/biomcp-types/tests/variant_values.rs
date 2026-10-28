@@ -105,8 +105,43 @@ fn published_variant_identifiers_round_trip_without_text_inference() -> Check {
     ] {
         assert!(text.parse::<HgvsText>().is_err());
     }
+    // HGVS 21.1: recommendations/uncertain, RNA/splicing and background/refseq.
+    #[cfg(feature = "schema")]
+    let validator =
+        jsonschema::draft202012::new(&serde_json::to_value(schemars::schema_for!(HgvsText))?)?;
+    for (text, valid) in [
+        ("NM_005228.5:c.???", false),
+        ("NM_005228.5:c.2369C>T word", false),
+        ("NM_005228.5:c.2369C\t>T", false),
+        ("NP_005219.2:c.2369C>T", false),
+        ("XP_005219.2:r.2369c>u", false),
+        ("ENSP00000288602.1:g.100A>T", false),
+        ("LRG_199p1:n.100A>T", false),
+        ("NC_000007.14(NP_005219.2):c.2369C>T", false),
+        ("NM_005228.5(NP_label):c.2369C>T", true),
+        ("NP_005219.2:p.???", false),
+        ("NP_005219.2:p.?", true),
+        ("NP_005219.2:p.0", true),
+        ("NP_005219.2:p.0?", true),
+        ("NP_005219.2:p.=", true),
+        ("NP_005219.2:p.(=)", true),
+        ("NP_005219.2:p.(?)", true),
+        ("NM_005228.5:r.?", true),
+        ("NM_005228.5:r.(?)", true),
+        ("NM_005228.5:r.=", true),
+        ("NM_005228.5:r.(=)", true),
+        ("NM_005228.5:r.spl", true),
+        ("NM_005228.5:r.spl?", true),
+        ("NM_005228.5:r.(spl?)", true),
+    ] {
+        #[cfg(feature = "schema")]
+        assert_eq!(validator.is_valid(&json!(text)), valid, "schema: {text}");
+        assert_eq!(text.parse::<HgvsText>().is_ok(), valid, "{text}");
+        assert_eq!(Expression::hgvs(Text::new(text)?).is_ok(), valid, "{text}");
+    }
     Ok(())
 }
+
 #[test]
 fn shared_public_fixture_checks_identity_and_source_alleles() -> Check {
     let rows: Vec<serde_json::Value> =
@@ -488,38 +523,76 @@ fn source_predictor_contract_keeps_zero_and_native_labels() {
 }
 
 #[test]
-fn identifier_lists_qualify_each_namespace_and_roundtrip() -> Result<(), Box<dyn std::error::Error>>
+fn identifier_lists_preserve_published_text_and_roundtrip() -> Result<(), Box<dyn std::error::Error>>
 {
-    for (published, output) in [
-        ("rs113488022", "rs:113488022"),
-        ("CA123643", "clingen:CA123643"),
-        ("PA123", "clingen:PA123"),
-        ("VCV000013961.1", "clinvar:VCV000013961.1"),
-        ("clinvar:13961", "clinvar:13961"),
-        ("COSV60000001", "cosmic:COSV60000001"),
-        (
-            "ga4gh:VA.aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
-            "ga4gh:VA.aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
-        ),
+    for published in [
+        "rs113488022",
+        "CA123643",
+        "PA123",
+        "VCV000013961.1",
+        "clinvar:13961",
+        "COSV60000001",
+        "ga4gh:VA.aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
     ] {
         let id: VariantId = published.parse()?;
         assert_eq!(id.to_string(), published);
+        assert_eq!(VariantInput::new(published)?.as_str(), published);
         let variant = Variant {
             ids: Box::new([id]),
             representations: Box::default(),
             genes: Box::default(),
         };
         let value = serde_json::to_value(&variant)?;
-        assert_eq!(value, json!({"ids":[output]}));
+        assert_eq!(value, json!({"ids":[published]}));
         assert_eq!(serde_json::from_value::<Variant>(value)?, variant);
-        // Stored entities with the old published spelling remain readable.
-        assert_eq!(
-            serde_json::from_value::<Variant>(json!({"ids":[published]}))?,
-            variant
-        );
     }
-    for invalid in ["clingen:rs123", "cosmic:CA123643", "rs:CA123643"] {
+    for invalid in [
+        "rs:113488022",
+        "clingen:CA123643",
+        "clingen:PA123",
+        "clinvar:VCV000013961.1",
+        "cosmic:COSV60000001",
+        "clingen:rs123",
+        "cosmic:CA123643",
+        "rs:CA123643",
+    ] {
         assert!(serde_json::from_value::<Variant>(json!({"ids":[invalid]})).is_err());
+    }
+    Ok(())
+}
+
+#[test]
+fn card_ids_requested_and_statement_subjects_share_published_text()
+-> Result<(), Box<dyn std::error::Error>> {
+    for id in [
+        "rs113488022",
+        "CA123643",
+        "PA123",
+        "VCV000013961",
+        "VCV000013961.98",
+        "clinvar:13961",
+        "COSV55386424",
+        "COSM476",
+        "COSN123",
+        "ga4gh:VA.aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+    ] {
+        let golden = json!({
+            "resolution":"unresolved", "source":"erepo",
+            "candidates":[{
+                "identity":{"ids":[id]}, "requested":id,
+                "source":"erepo", "record":{"id":"synthetic-record"},
+                "sections":{"erepo":{"state":"data", "source":"erepo", "data":{
+                    "assertions":[{"kind":"erepo", "domain":"germline", "statement":{
+                        "subject":{"level":"allele", "id":id},
+                        "proposition":"pathogenicity", "classification":{"label":"synthetic"},
+                        "attribution":{"source":"erepo", "record":"synthetic-record"}
+                    }}], "page":{"offset":0,"returned":1,"total":1}
+                }}}
+            }]
+        });
+        let card: VariantCard = serde_json::from_value(golden.clone())?;
+        assert_eq!(serde_json::to_value(card)?, golden);
+        assert_eq!(VariantInput::new(id)?.as_str(), id);
     }
     Ok(())
 }

@@ -1622,12 +1622,12 @@
         },
         "label": {
           "description": "Exact arm label.",
-          "type": "string"
+          "type": [
+            "string",
+            "null"
+          ]
         }
       },
-      "required": [
-        "label"
-      ],
       "type": "object"
     },
     "TrialArmKind": {
@@ -1761,20 +1761,44 @@
           "description": "Source start date, when present."
         },
         "status": {
-          "$ref": "#/$defs/TrialStatus",
-          "description": "Source overall status."
+          "anyOf": [
+            {
+              "$ref": "#/$defs/TrialStatus"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "description": "Source overall status, absent when missing or rejected."
         },
         "study_type": {
-          "$ref": "#/$defs/StudyType",
-          "description": "Native study type."
+          "anyOf": [
+            {
+              "$ref": "#/$defs/StudyType"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "description": "Native study type, absent when missing or rejected."
         },
         "title": {
-          "description": "Complete brief title.",
-          "type": "string"
+          "description": "Source brief title, absent when missing or rejected.",
+          "type": [
+            "string",
+            "null"
+          ]
         },
         "updated": {
-          "$ref": "#/$defs/TrialDate",
-          "description": "Last posted registry update."
+          "anyOf": [
+            {
+              "$ref": "#/$defs/TrialDate"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "description": "Last posted registry update, absent when missing or rejected."
         },
         "url": {
           "description": "Canonical publisher record URL.",
@@ -1784,10 +1808,6 @@
       },
       "required": [
         "nct_id",
-        "title",
-        "status",
-        "study_type",
-        "updated",
         "url"
       ],
       "type": "object"
@@ -2065,7 +2085,10 @@
         },
         "kind": {
           "description": "Native document type abbreviation.",
-          "type": "string"
+          "type": [
+            "string",
+            "null"
+          ]
         },
         "label": {
           "description": "Source label.",
@@ -2103,7 +2126,6 @@
       "required": [
         "filename",
         "url",
-        "kind",
         "license"
       ],
       "type": "object"
@@ -2139,11 +2161,25 @@
           ]
         },
         "maximum_age": {
-          "$ref": "#/$defs/TrialAgeBound",
+          "anyOf": [
+            {
+              "$ref": "#/$defs/TrialAgeBound"
+            },
+            {
+              "type": "null"
+            }
+          ],
           "description": "Source maximum age."
         },
         "minimum_age": {
-          "$ref": "#/$defs/TrialAgeBound",
+          "anyOf": [
+            {
+              "$ref": "#/$defs/TrialAgeBound"
+            },
+            {
+              "type": "null"
+            }
+          ],
           "description": "Source minimum age."
         },
         "offset": {
@@ -2171,8 +2207,6 @@
         }
       },
       "required": [
-        "minimum_age",
-        "maximum_age",
         "criteria",
         "offset",
         "total_characters"
@@ -2263,7 +2297,10 @@
         },
         "name": {
           "description": "Exact source name.",
-          "type": "string"
+          "type": [
+            "string",
+            "null"
+          ]
         },
         "other_names": {
           "description": "Source aliases, without invented expansion.",
@@ -2273,9 +2310,6 @@
           "type": "array"
         }
       },
-      "required": [
-        "name"
-      ],
       "type": "object"
     },
     "TrialInterventionKind": {
@@ -2426,7 +2460,10 @@
         },
         "measure": {
           "description": "Original measure text.",
-          "type": "string"
+          "type": [
+            "string",
+            "null"
+          ]
         },
         "time_frame": {
           "description": "Original time frame.",
@@ -2437,8 +2474,7 @@
         }
       },
       "required": [
-        "kind",
-        "measure"
+        "kind"
       ],
       "type": "object"
     },
@@ -2708,11 +2744,17 @@
       "properties": {
         "citation": {
           "description": "Original citation text.",
-          "type": "string"
+          "type": [
+            "string",
+            "null"
+          ]
         },
         "kind": {
           "description": "Native reference classification, such as RESULT or BACKGROUND.",
-          "type": "string"
+          "type": [
+            "string",
+            "null"
+          ]
         },
         "pmid": {
           "anyOf": [
@@ -2726,10 +2768,6 @@
           "description": "Registry-supplied PubMed identity, when present."
         }
       },
-      "required": [
-        "kind",
-        "citation"
-      ],
       "type": "object"
     },
     "TrialSection": {
@@ -2876,7 +2914,7 @@
       "type": "string"
     },
     "TrialStatus": {
-      "description": "Source-native registry value.",
+      "description": "Publisher Status enum for OverallStatus from\n<https://clinicaltrials.gov/api/v2/studies/enums>.",
       "enum": [
         "ACTIVE_NOT_RECRUITING",
         "COMPLETED",
@@ -2888,6 +2926,7 @@
         "WITHDRAWN",
         "AVAILABLE",
         "NO_LONGER_AVAILABLE",
+        "TEMPORARILY_NOT_AVAILABLE",
         "APPROVED_FOR_MARKETING",
         "WITHHELD",
         "UNKNOWN"
@@ -2905,7 +2944,7 @@
       "type": "string"
     }
   },
-  "$id": "biomcp.trial-cards/3",
+  "$id": "biomcp.trial-cards/5",
   "$schema": "https://json-schema.org/draft/2020-12/schema",
   "description": "One versioned command response; schema identity comes only from its body type.\nJSON readers ignore unknown fields and unknown growable enum values within a major.",
   "properties": {
@@ -2961,7 +3000,7 @@
       "description": "Answer when available."
     },
     "schema": {
-      "const": "biomcp.trial-cards/3",
+      "const": "biomcp.trial-cards/5",
       "type": "string"
     },
     "sources": {

@@ -134,7 +134,7 @@ pub struct VariantPopulationResult {
     pub candidates: Box<[crate::VariantHeader]>,
 }
 impl super::ResponseBody for VariantPopulationResult {
-    const SCHEMA: &'static str = "biomcp.variant-population/6";
+    const SCHEMA: &'static str = "biomcp.variant-population/7";
     type Query = crate::VariantPopulationQuery;
 }
 

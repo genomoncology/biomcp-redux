@@ -6,6 +6,7 @@
       "type": "string"
     },
     "Allele": {
+      "additionalProperties": false,
       "description": "Source-stated interbase replacement; equality never claims normalized equivalence.",
       "properties": {
         "alternate": {
@@ -27,14 +28,14 @@
     },
     "Build": {
       "description": "The assembly stated by the source; no default is inferred.",
+      "enum": [
+        "GRCh37",
+        "GRCh38"
+      ],
       "type": "string",
       "x-enum-descriptions": [
         " Genome Reference Consortium human build 37.",
         " Genome Reference Consortium human build 38."
-      ],
-      "x-extensible-enum": [
-        "GRCh37",
-        "GRCh38"
       ]
     },
     "CacheProblem": {
@@ -52,7 +53,8 @@
       "type": "string"
     },
     "Expression": {
-      "description": "Source expression checked for its declared published form, without normalization.",
+      "additionalProperties": false,
+      "description": "Source expression checked for its reference and syntax only, without a full parser or normalization.",
       "properties": {
         "syntax": {
           "$ref": "#/$defs/ExpressionSyntax"
@@ -79,6 +81,19 @@
     },
     "ExpressionSyntax": {
       "description": "Published syntax label for a source-preserved expression.",
+      "enum": [
+        "hgvs.g",
+        "hgvs.c",
+        "hgvs.n",
+        "hgvs.r",
+        "hgvs.p",
+        "hgvs.m",
+        "hgvs.o",
+        "spdi",
+        "gnomad",
+        "vcf",
+        "iscn"
+      ],
       "type": "string",
       "x-enum-descriptions": [
         " HGVS genomic description.",
@@ -92,22 +107,10 @@
         " gnomAD chromosome-position-reference-alternate identifier.",
         " Padded VCF chromosome-position-reference-alternate text.",
         " Source-preserved cytogenetic notation."
-      ],
-      "x-extensible-enum": [
-        "hgvs.g",
-        "hgvs.c",
-        "hgvs.n",
-        "hgvs.r",
-        "hgvs.p",
-        "hgvs.m",
-        "hgvs.o",
-        "spdi",
-        "gnomad",
-        "vcf",
-        "iscn"
       ]
     },
     "GeneRef": {
+      "additionalProperties": false,
       "description": "A source-stated gene reference; its label never implies an identifier.",
       "properties": {
         "ensembl_gene_id": {
@@ -165,6 +168,7 @@
       "type": "string"
     },
     "PageInfo": {
+      "additionalProperties": false,
       "description": "Search counts after filtering and deduplication.",
       "properties": {
         "offset": {
@@ -212,6 +216,7 @@
       "type": "object"
     },
     "PoolInfo": {
+      "additionalProperties": false,
       "description": "Fixed lifetime and size of a stored search snapshot.",
       "properties": {
         "created": {
@@ -246,6 +251,7 @@
       "type": "object"
     },
     "Problem": {
+      "additionalProperties": false,
       "description": "A field that could not be accepted from a source record.",
       "properties": {
         "code": {
@@ -281,24 +287,41 @@
     },
     "ProblemCode": {
       "description": "A stable code for a rejected field value.",
+      "enum": [
+        "value.unknown",
+        "collection.incomplete",
+        "identity.conflict"
+      ],
       "type": "string",
       "x-enum-descriptions": [
         " The field value was not recognized.",
         " Native collection exceeds the admitted complete source page.",
         " A source repeats one exact identity with incompatible records."
-      ],
-      "x-extensible-enum": [
-        "value.unknown",
-        "collection.incomplete",
-        "identity.conflict"
       ]
-    },
-    "QualifiedVariantId": {
-      "pattern": "^(rs:[1-9][0-9]*|clingen:(CA[0-9]{6,}|PA[1-9][0-9]*)|clinvar:(VCV[0-9]{9}(\\.[1-9][0-9]*)?|[1-9][0-9]*)|cosmic:COS[VMN][1-9][0-9]*|ga4gh:VA\\.[A-Za-z0-9_-]{32})$",
-      "type": "string"
     },
     "Reason": {
       "description": "Why a source could not supply data.",
+      "enum": [
+        "not_found",
+        "not_open",
+        "not_pdf",
+        "unsupported",
+        "too_large",
+        "rate_limited",
+        "local_quota",
+        "unavailable",
+        "tls",
+        "proxy",
+        "rejected",
+        "bad_reply",
+        "deadline_exceeded",
+        "offline",
+        "no_key",
+        "disabled",
+        "replay_miss",
+        "syncing",
+        "no_join_id"
+      ],
       "type": "string",
       "x-enum-descriptions": [
         " The requested record was not found.",
@@ -320,27 +343,6 @@
         " No recording matched the request.",
         " The source data was being synchronized.",
         " Identity lacks the identifier required to join this source."
-      ],
-      "x-extensible-enum": [
-        "not_found",
-        "not_open",
-        "not_pdf",
-        "unsupported",
-        "too_large",
-        "rate_limited",
-        "local_quota",
-        "unavailable",
-        "tls",
-        "proxy",
-        "rejected",
-        "bad_reply",
-        "deadline_exceeded",
-        "offline",
-        "no_key",
-        "disabled",
-        "replay_miss",
-        "syncing",
-        "no_join_id"
       ]
     },
     "RecurrenceGranularity": {
@@ -358,6 +360,7 @@
       "type": "string"
     },
     "RecurrenceStudy": {
+      "additionalProperties": false,
       "description": "Source-native descriptive metadata, without treating access groups as licenses.",
       "properties": {
         "citation": {
@@ -393,6 +396,7 @@
       "type": "object"
     },
     "RecurrenceTerms": {
+      "additionalProperties": false,
       "description": "Public access grants no study-specific commercial reuse permission.",
       "properties": {
         "notice": {
@@ -417,6 +421,7 @@
       "type": "object"
     },
     "Representation": {
+      "additionalProperties": false,
       "description": "One source's own expression, assembly and optional source-stated interbase allele.",
       "properties": {
         "allele": {
@@ -462,6 +467,7 @@
       "type": "string"
     },
     "SequenceLocation": {
+      "additionalProperties": false,
       "description": "An interbase interval on one versioned sequence accession.",
       "properties": {
         "sequence": {
@@ -481,6 +487,79 @@
     },
     "Source": {
       "description": "A source of BioMCP data, identified by its canonical short name.",
+      "enum": [
+        "hgnc",
+        "mygene",
+        "reactome",
+        "wikipathways",
+        "hpa",
+        "uniprot",
+        "interpro",
+        "complex-portal",
+        "gnomad",
+        "clinvar",
+        "erepo",
+        "gwas",
+        "clingen",
+        "gencc",
+        "pubmed",
+        "europepmc",
+        "litvar",
+        "litsense",
+        "semantic-scholar",
+        "orcid",
+        "pmc-oa",
+        "icite",
+        "pubtator",
+        "ctgov",
+        "nci",
+        "civic",
+        "hotspots",
+        "alphagenome",
+        "oncokb",
+        "myvariant",
+        "car",
+        "mutalyzer",
+        "variantvalidator",
+        "mychem",
+        "chembl",
+        "opentargets",
+        "openfda-label",
+        "drugsfda",
+        "ema",
+        "who-pq",
+        "ddinter",
+        "drugbank-open",
+        "drugcentral",
+        "gtopdb",
+        "unii",
+        "ndc",
+        "openfda-xref",
+        "ols",
+        "mydisease",
+        "monarch",
+        "seer",
+        "mondo",
+        "doid",
+        "ncit",
+        "hpo",
+        "orphanet",
+        "omim",
+        "faers",
+        "vaers",
+        "maude",
+        "meddra",
+        "gmdn",
+        "gtr",
+        "who-ivd",
+        "fda-cdx",
+        "fda-pma",
+        "fda-510k",
+        "cpic",
+        "clinpgx",
+        "cbioportal",
+        "cellosaurus"
+      ],
       "type": "string",
       "x-enum-descriptions": [
         " HGNC.",
@@ -554,85 +633,13 @@
         " ClinPGx pharmacogenomics annotations.",
         " Public cBioPortal with study-specific reuse terms.",
         " Cellosaurus cell line identity."
-      ],
-      "x-extensible-enum": [
-        "hgnc",
-        "mygene",
-        "reactome",
-        "wikipathways",
-        "hpa",
-        "uniprot",
-        "interpro",
-        "complex-portal",
-        "gnomad",
-        "clinvar",
-        "erepo",
-        "gwas",
-        "clingen",
-        "gencc",
-        "pubmed",
-        "europepmc",
-        "litvar",
-        "litsense",
-        "semantic-scholar",
-        "orcid",
-        "pmc-oa",
-        "icite",
-        "pubtator",
-        "ctgov",
-        "nci",
-        "civic",
-        "hotspots",
-        "alphagenome",
-        "oncokb",
-        "myvariant",
-        "car",
-        "mutalyzer",
-        "variantvalidator",
-        "mychem",
-        "chembl",
-        "opentargets",
-        "openfda-label",
-        "drugsfda",
-        "ema",
-        "who-pq",
-        "ddinter",
-        "drugbank-open",
-        "drugcentral",
-        "gtopdb",
-        "unii",
-        "ndc",
-        "openfda-xref",
-        "ols",
-        "mydisease",
-        "monarch",
-        "seer",
-        "mondo",
-        "doid",
-        "ncit",
-        "hpo",
-        "orphanet",
-        "omim",
-        "faers",
-        "vaers",
-        "maude",
-        "meddra",
-        "gmdn",
-        "gtr",
-        "who-ivd",
-        "fda-cdx",
-        "fda-pma",
-        "fda-510k",
-        "cpic",
-        "clinpgx",
-        "cbioportal",
-        "cellosaurus"
       ]
     },
     "SourceNotice": {
       "description": "A source notice or request recovery step.",
       "oneOf": [
         {
+          "additionalProperties": false,
           "description": "Local request limits and source-specific recovery guidance.",
           "properties": {
             "kind": {
@@ -660,6 +667,7 @@
           "type": "object"
         },
         {
+          "additionalProperties": false,
           "description": "Registered conditions lack the literal words requested in a condition search.",
           "properties": {
             "kind": {
@@ -678,6 +686,7 @@
           "type": "object"
         },
         {
+          "additionalProperties": false,
           "description": "A checked provider answer survived a local cache failure.",
           "properties": {
             "kind": {
@@ -696,6 +705,7 @@
           "type": "object"
         },
         {
+          "additionalProperties": false,
           "description": "The source still has graph pages after the bounded fetch window.",
           "properties": {
             "fallback": {
@@ -714,6 +724,7 @@
           "type": "object"
         },
         {
+          "additionalProperties": false,
           "description": "An empty LitVar lookup can be repeated with a caller-supplied rsID.",
           "properties": {
             "kind": {
@@ -732,6 +743,7 @@
           "type": "object"
         },
         {
+          "additionalProperties": false,
           "description": "PubMed supplied a named ESearch warning without changing its phrases.",
           "properties": {
             "kind": {
@@ -757,6 +769,7 @@
           "type": "object"
         },
         {
+          "additionalProperties": false,
           "description": "PubMed did not index these words.",
           "properties": {
             "kind": {
@@ -779,6 +792,7 @@
       ]
     },
     "SourceOutcome": {
+      "additionalProperties": false,
       "description": "One source's outcome, without provider text.",
       "properties": {
         "count": {
@@ -871,6 +885,7 @@
       "type": "string"
     },
     "Span0": {
+      "additionalProperties": false,
       "description": "A zero-based half-open span with ordered bounds; empty spans are valid.",
       "properties": {
         "end": {
@@ -903,6 +918,7 @@
       "type": "string"
     },
     "Step": {
+      "additionalProperties": false,
       "description": "A command argument list spelled from a typed action.",
       "properties": {
         "args": {
@@ -954,6 +970,7 @@
       "type": "string"
     },
     "Variant": {
+      "additionalProperties": false,
       "description": "Variant entity with source-stated identities, forms and genes; no disclosure policy.",
       "properties": {
         "genes": {
@@ -966,7 +983,7 @@
         "ids": {
           "description": "All source identifiers, without inferred aliases.",
           "items": {
-            "$ref": "#/$defs/QualifiedVariantId"
+            "$ref": "#/$defs/VariantId"
           },
           "type": "array"
         },
@@ -980,12 +997,18 @@
       },
       "type": "object"
     },
+    "VariantId": {
+      "description": "Published variant-level identifiers, with each identifier's level retained.",
+      "pattern": "^(rs[1-9][0-9]*|CA[0-9]{6,}|PA[1-9][0-9]*|VCV[0-9]{9}(\\.[1-9][0-9]*)?|clinvar:[1-9][0-9]*|COS[VMN][1-9][0-9]*|ga4gh:VA\\.[A-Za-z0-9_-]{32})$",
+      "type": "string"
+    },
     "VariantInput": {
       "description": "A validated canonical VariantInput string.",
-      "pattern": "(^(rs[1-9][0-9]*|CA[0-9]{6,}|PA[1-9][0-9]*|VCV[0-9]{9}(\\.[1-9][0-9]*)?|clinvar:[1-9][0-9]*|COS[VMN][1-9][0-9]*|ga4gh:VA\\.[A-Za-z0-9_-]{32})$|^((N[CGMPRTW]|X[MPR])_([0-9]{6}|[0-9]{9})\\.[0-9]+|ENS[GTP][0-9]{11}\\.[0-9]+|LRG_[0-9]+([tp][0-9]+)?)(\\(([A-Za-z][A-Za-z0-9._/@-]*|[A-Za-z0-9_.]+)\\))?:[gcnrpmo]\\.[\\x20-\\x7e]+$|^[1-9][0-9]*$|^chr([1-9][0-9]*|X|Y|M|MT):g\\.[\\x21-\\x7e]+$)",
+      "pattern": "(^(rs[1-9][0-9]*|CA[0-9]{6,}|PA[1-9][0-9]*|VCV[0-9]{9}(\\.[1-9][0-9]*)?|clinvar:[1-9][0-9]*|COS[VMN][1-9][0-9]*|ga4gh:VA\\.[A-Za-z0-9_-]{32})$|^(?!(?:[^:(]*\\()?([NX]P_([0-9]{6}|[0-9]{9})\\.[1-9][0-9]*|ENSP[0-9]{11}\\.[1-9][0-9]*|LRG_[0-9]+p[0-9]+)(?:\\([^:]*\\)|\\))?:[gcnrmo]\\.)((N[CGMPRTW]|X[MPR])_([0-9]{6}|[0-9]{9})\\.[0-9]+|ENS[GTP][0-9]{11}\\.[0-9]+|LRG_[0-9]+([tp][0-9]+)?)(\\(([A-Za-z][A-Za-z0-9._/@-]*|[A-Za-z0-9_.]+)\\))?:([gcnrpmo]\\.[\\x21-\\x7e]*[0-9][\\x21-\\x7e]*|[pr]\\.(\\?|\\(\\?\\)|=|\\(=\\))|r\\.(spl\\??|\\(spl\\?\\)))$|^[1-9][0-9]*$|^chr([1-9][0-9]*|X|Y|M|MT):g\\.[\\x21-\\x7e]*[0-9][\\x21-\\x7e]*$)",
       "type": "string"
     },
     "VariantRecurrence": {
+      "additionalProperties": false,
       "description": "Exact-allele observations confined to one explicitly bounded source page.",
       "properties": {
         "all_pages_read": {
@@ -1072,6 +1095,7 @@
       "type": "object"
     },
     "VariantRecurrenceQuery": {
+      "additionalProperties": false,
       "description": "Observe exact-allele samples within one caller-selected source page.",
       "properties": {
         "gene": {
@@ -1126,9 +1150,10 @@
       "type": "object"
     }
   },
-  "$id": "biomcp.variant-recurrence/5",
+  "$id": "biomcp.variant-recurrence/6",
   "$schema": "https://json-schema.org/draft/2020-12/schema",
-  "description": "One versioned command response; schema identity comes only from its body type.\nJSON readers ignore unknown fields and unknown growable enum values within a major.",
+  "additionalProperties": false,
+  "description": "One versioned command response; schema identity comes only from its body type.",
   "properties": {
     "local_error": {
       "anyOf": [
@@ -1182,7 +1207,7 @@
       "description": "Answer when available."
     },
     "schema": {
-      "const": "biomcp.variant-recurrence/5",
+      "const": "biomcp.variant-recurrence/6",
       "type": "string"
     },
     "sources": {

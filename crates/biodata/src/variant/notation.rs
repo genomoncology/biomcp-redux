@@ -1,3 +1,4 @@
+//! Reference and syntax checks preserve HGVS text without a full molecular parser.
 use crate::{Accession, Error, Text, text_value};
 use serde::{Deserialize, Serialize};
 use std::{fmt, str::FromStr};
@@ -42,25 +43,81 @@ impl FromStr for HgvsText {
             }
             None => reference,
         };
-        outer
+        let accession = outer
             .parse::<Accession>()
             .map_err(|_| Error::HgvsReferenceInvalid)?;
-        if !matches!(
-            body.as_bytes().first(),
-            Some(b'g' | b'c' | b'n' | b'r' | b'p' | b'm' | b'o')
-        ) || body.as_bytes().get(1) != Some(&b'.')
+        let inner = reference.split_once('(').and_then(|(_, inner)| {
+            inner
+                .strip_suffix(')')
+                .and_then(|text| text.parse::<Accession>().ok())
+        });
+        if !body.starts_with("p.")
+            && (protein_reference(accession) || inner.is_some_and(protein_reference))
         {
-            return Err(Error::HgvsSyntaxUnknown);
+            return Err(Error::HgvsReferenceInvalid);
         }
-        if body.len() < 3 {
-            return Err(Error::HgvsBodyEmpty);
-        }
-        if !body.bytes().all(|b| b.is_ascii() && !b.is_ascii_control()) {
-            return Err(Error::HgvsBodyUnprintable);
-        }
+        check_body(body)?;
         Ok(Self(value.into()))
     }
 }
+fn check_body(body: &str) -> Result<(), Error> {
+    if !matches!(
+        body.as_bytes().first(),
+        Some(b'g' | b'c' | b'n' | b'r' | b'p' | b'm' | b'o')
+    ) || body.as_bytes().get(1) != Some(&b'.')
+    {
+        return Err(Error::HgvsSyntaxUnknown);
+    }
+    if body.len() < 3 {
+        return Err(Error::HgvsBodyEmpty);
+    }
+    if !body.bytes().all(|b| b.is_ascii() && !b.is_ascii_control()) {
+        return Err(Error::HgvsBodyUnprintable);
+    }
+    if !body.bytes().all(|b| b.is_ascii_graphic()) {
+        return Err(Error::NotationInvalid);
+    }
+    if !body[2..].bytes().any(|b| b.is_ascii_digit()) && !positionless(body) {
+        return Err(Error::NotationInvalid);
+    }
+    Ok(())
+}
+// HGVS 21.1 defines these positionless forms:
+// https://hgvs-nomenclature.org/stable/recommendations/uncertain/
+// https://hgvs-nomenclature.org/stable/recommendations/RNA/splicing/
+fn positionless(body: &str) -> bool {
+    matches!(
+        body,
+        "p.?"
+            | "p.(?)"
+            | "p.="
+            | "p.(=)"
+            | "r.?"
+            | "r.(?)"
+            | "r.="
+            | "r.(=)"
+            | "r.spl"
+            | "r.spl?"
+            | "r.(spl?)"
+    )
+}
+// https://hgvs-nomenclature.org/stable/background/refseq/#recommended-reference-sequences-types-are
+fn protein_reference(accession: Accession) -> bool {
+    matches!(
+        accession,
+        Accession::RefSeq {
+            prefix: crate::RefSeqPrefix::Np | crate::RefSeqPrefix::Xp,
+            ..
+        } | Accession::Ensembl {
+            feature: crate::EnsemblFeature::Protein,
+            ..
+        } | Accession::Lrg {
+            part: Some(crate::LrgPart::Protein(_)),
+            ..
+        }
+    )
+}
+
 impl fmt::Display for HgvsText {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
         f.write_str(self.as_str())
@@ -69,9 +126,14 @@ impl fmt::Display for HgvsText {
 #[cfg(feature = "schema")]
 impl HgvsText {
     /// Canonical wire pattern shared by consumer input schemas.
-    pub const PATTERN: &'static str = "^((N[CGMPRTW]|X[MPR])_([0-9]{6}|[0-9]{9})\\.[0-9]+|ENS[GTP][0-9]{11}\\.[0-9]+|\
-        LRG_[0-9]+([tp][0-9]+)?)(\\(([A-Za-z][A-Za-z0-9._/@-]*|\
-        [A-Za-z0-9_.]+)\\))?:[gcnrpmo]\\.[\\x20-\\x7e]+$";
+    pub const PATTERN: &'static str = concat!(
+        "^(?!(?:[^:(]*\\()?([NX]P_([0-9]{6}|[0-9]{9})\\.[1-9][0-9]*|ENSP[0-9]{11}\\.[1-9][0-9]*|",
+        "LRG_[0-9]+p[0-9]+)(?:\\([^:]*\\)|\\))?:[gcnrmo]\\.)((N[CGMPRTW]|X[MPR])_([0-9]{6}|",
+        "[0-9]{9})\\.[0-9]+|ENS[GTP][0-9]{11}\\.[0-9]+|",
+        "LRG_[0-9]+([tp][0-9]+)?)(\\(([A-Za-z][A-Za-z0-9._/@-]*|",
+        "[A-Za-z0-9_.]+)\\))?:([gcnrpmo]\\.[\\x21-\\x7e]*[0-9][\\x21-\\x7e]*|[pr]\\.(\\?|\\(\\?\\)|=|\\(=\\))|",
+        "r\\.(spl\\??|\\(spl\\?\\)))$",
+    );
 }
 text_value!(
     HgvsText,
@@ -106,7 +168,7 @@ crate::canonical_enum! {
         Iscn => "iscn",
     }
 }
-/// Source expression checked for its declared published form, without normalization.
+/// Source expression checked for its reference and syntax only, without a full parser or normalization.
 #[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
 #[serde(try_from = "Fields")]
 #[cfg_attr(feature = "schema", derive(schemars::JsonSchema))]
@@ -163,7 +225,7 @@ impl Expression {
                 .is_some_and(|(c, _)| c == "M" || c.parse::<crate::Chromosome>().is_ok());
         if (!qualified && !chromosome)
             || !body.starts_with(&format!("{expected}."))
-            || body.len() < 3
+            || check_body(body).is_err()
         {
             return Err(Error::NotationInvalid);
         }

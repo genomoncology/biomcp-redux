@@ -1,0 +1,100 @@
+{
+  "feature": "organization-nci",
+  "live_check": "synthetic",
+  "story": "Invalid organization filters and unsupported get fail before source I/O.",
+  "steps": [
+    {
+      "run": [
+        "search",
+        "organization",
+        "--source",
+        "nci",
+        "--limit",
+        "0"
+      ],
+      "exit": 2,
+      "expect": {
+        "/error/code": "usage.arguments"
+      },
+      "max_bytes": 600
+    },
+    {
+      "run": [
+        "search",
+        "organization",
+        "--source",
+        "nci",
+        "--lat",
+        "0"
+      ],
+      "exit": 2,
+      "expect": {
+        "/error/code": "usage.arguments"
+      },
+      "max_bytes": 600
+    },
+    {
+      "run": [
+        "search",
+        "organization",
+        "--source",
+        "nci",
+        "--lat",
+        "91",
+        "--lon",
+        "0",
+        "--distance",
+        "1mi"
+      ],
+      "exit": 2,
+      "expect": {
+        "/error/code": "usage.arguments"
+      },
+      "max_bytes": 600
+    },
+    {
+      "run": [
+        "search",
+        "organization",
+        "--source",
+        "nci",
+        "--lat",
+        "0",
+        "--lon",
+        "0",
+        "--distance",
+        "NaNmi"
+      ],
+      "exit": 2,
+      "expect": {
+        "/error/code": "usage.arguments"
+      },
+      "max_bytes": 600
+    },
+    {
+      "run": [
+        "search",
+        "organization",
+        "--source",
+        "ctgov"
+      ],
+      "exit": 2,
+      "expect": {
+        "/error/code": "usage.arguments"
+      },
+      "max_bytes": 600
+    },
+    {
+      "run": [
+        "get",
+        "organization",
+        "Dana-Farber"
+      ],
+      "exit": 2,
+      "expect": {
+        "/error/code": "usage.unknown_command"
+      },
+      "max_bytes": 600
+    }
+  ]
+}
