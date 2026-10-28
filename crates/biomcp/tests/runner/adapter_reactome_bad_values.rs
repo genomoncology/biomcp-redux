@@ -19,7 +19,7 @@ pub(super) fn check() -> Result<(), String> {
         ("genes", "schemaClass", "participants.schema_class"),
     ] {
         for invalid in [json!({"bad":true}), json!("")] {
-        let stub = Stub::for_source("reactome.org", "application/json", move |request| {
+        let stub = Stub::for_sources(&["reactome.org"], |_| "application/json", move |request| {
             let mut card = json!({"stId":"R-HSA-5673001","displayName":"Synthetic pathway",
                 "speciesName":"Homo sapiens","schemaClass":"Pathway","stIdVersion":"R-HSA-5673001.1",
                 "summation":[{"dbId":4,"text":"Valid summary"}],
