@@ -86,9 +86,15 @@ pub struct Quota {
     rate: Rate,
     keyed_rate: Option<Rate>,
     in_flight: u8,
+    refuse_wait: bool,
 }
 
 impl Quota {
+    /// Refuse immediately when the shared source spacing has not elapsed.
+    pub const fn refuse_wait(mut self) -> Self {
+        self.refuse_wait = true;
+        self
+    }
     /// Nominal request interval for this credential policy, excluding bursts.
     /// A diagnostic caller may use it to pace separate command processes.
     pub fn interval(&self, keyed: bool) -> Duration {
@@ -112,6 +118,7 @@ impl Quota {
             rate,
             keyed_rate,
             in_flight,
+            refuse_wait: false,
         }
     }
 }
@@ -125,7 +132,7 @@ impl Limiters {
         quota: &'static Quota,
         keyed: bool,
         deadline: Deadline<'a>,
-    ) -> Option<Permit<'a>> {
+    ) -> Result<Option<Permit<'a>>, Duration> {
         let limiter = self
             .0
             .lock()
@@ -203,7 +210,7 @@ impl Limiter {
         }
     }
 
-    fn acquire<'a>(self: Arc<Self>, keyed: bool, deadline: Deadline<'a>) -> Option<Permit<'a>> {
+    fn acquire<'a>(self: Arc<Self>, keyed: bool, deadline: Deadline<'a>) -> Result<Option<Permit<'a>>, Duration> {
         let rate = if keyed {
             self.quota.keyed_rate.unwrap_or(self.quota.rate)
         } else {
@@ -223,7 +230,7 @@ impl Limiter {
             if deadline.expired() {
                 state.queue.retain(|v| !Arc::ptr_eq(v, &ticket));
                 self.wake.notify_all();
-                return None;
+                return Ok(None);
             }
             let now = state.admission_time(deadline);
             if deadline.expired() {
@@ -247,10 +254,15 @@ impl Limiter {
                 state.updated = Some(now);
                 self.wake.notify_all();
                 drop(state);
-                return Some(Permit {
+                return Ok(Some(Permit {
                     limiter: self,
                     deadline,
-                });
+                }));
+            }
+            if self.quota.refuse_wait {
+                state.queue.retain(|v| !Arc::ptr_eq(v, &ticket));
+                self.wake.notify_all();
+                return Err(delay);
             }
             let wait = if head && state.in_flight < self.quota.in_flight {
                 deadline.remaining().min(delay)

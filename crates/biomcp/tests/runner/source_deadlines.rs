@@ -4,15 +4,19 @@ use libtest_mimic::Trial;
 use serde_json::Value;
 use std::{fs, io::Write, path::Path};
 pub(super) fn trials() -> Vec<Trial> {
-    vec![Trial::test("source-deadlines/reply-and-help-guidance", || run().map_err(Into::into))]
-}
-fn run() -> Result<(), String> {
-    let root = Path::new(env!("CARGO_MANIFEST_DIR")).join("../..");
-    for (source, fixture, words, help, expected) in [
+    [
         ("gwas", "gwas/deadline", vec!["search", "gwas", "--gene", "BRAF", "--limit", "3"], vec!["help", "search", "gwas"], "GWAS Catalog"),
         ("vaers", "vaers/live-mmr", vec!["search", "adverse-event", "MMR", "--source", "vaers"], vec!["help", "search", "adverse-event"], "interactive form"),
         ("interpro", "protein/examples", vec!["health"], vec!["help", "health"], "InterPro"),
-    ] {
+
+    ].into_iter().map(|(source, fixture, words, help, expected)| {
+        Trial::test(format!("source-deadlines/{source}/reply-and-help-guidance"), move || {
+            check(source, fixture, &words, &help, expected).map_err(Into::into)
+        })
+    }).collect()
+}
+fn check(source: &str, fixture: &str, words: &[&str], help: &[&str], expected: &str) -> Result<(), String> {
+    let root = Path::new(env!("CARGO_MANIFEST_DIR")).join("../..");
         let env = Environment::new().map_err(|e| e.to_string())?;
         let evidence = tempfile::Builder::new().prefix(&format!("synthetic-{source}-deadline-"))
             .tempdir_in(super::network_stub::evidence_directory().map_err(|e|e.to_string())?)
@@ -40,6 +44,5 @@ fn run() -> Result<(), String> {
         fs::write(evidence.join("help.json"), &help_reply).map_err(|e|e.to_string())?;
         if !help_reply.contains(expected) || !help_reply.contains("BioMCP") { return Err(format!("missing source guidance in help: {help_reply}")); }
 
-    }
     Ok(())
 }

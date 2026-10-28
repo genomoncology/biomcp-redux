@@ -25,6 +25,9 @@ impl super::ResponseBody for Health {
 #[serde(deny_unknown_fields)]
 #[cfg_attr(feature = "schema", derive(schemars::JsonSchema))]
 pub struct SourceHealth {
+    /// Local probe limits and recovery guidance.
+    #[serde(default, skip_serializing_if = "Vec::is_empty")]
+    pub notices: Vec<crate::SourceNotice>,
     /// Last validated local bundle, independent of publisher reachability.
     #[serde(default, skip_serializing_if = "Option::is_none")]
     pub bundle: Option<LocalBundleState>,

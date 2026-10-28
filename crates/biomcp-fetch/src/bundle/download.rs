@@ -156,6 +156,7 @@ impl Leg<'_> {
                 .fetch
                 .limiters
                 .acquire(self.spec.quota, keyed, self.budget())
+                .map_err(|delay| self.quota_failure(delay))?
                 .ok_or_else(|| self.failure(Reason::Syncing, None))?;
             t.started = Instant::now();
             let response = self.wire_call(&prepared, b.format.media(), &headers);

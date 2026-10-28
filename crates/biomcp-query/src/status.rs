@@ -42,6 +42,7 @@ pub(crate) fn source(
         },
         reason,
     );
+    outcome.notices.extend(biomcp_adapters::guidance::notices(source, reason, error.and_then(|e| match e { RequestError::Source(e) => e.retry_after, _ => None })));
     outcome
         .notices
         .extend(report.cache_problems.into_iter().map(|error| {

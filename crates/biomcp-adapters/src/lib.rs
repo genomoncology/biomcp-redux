@@ -46,6 +46,7 @@ pub mod semantic_scholar;
 mod xml_element;
 
 pub mod registry;
+pub mod guidance;
 
 /// Sentence resemblance in native provider order.
 pub mod litsense;
