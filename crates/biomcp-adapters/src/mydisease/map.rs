@@ -1,8 +1,10 @@
 use super::{Annotation, native};
 use crate::Mapped;
-use biodata::{Attribution, Concept, Curie, DiseaseEndpoint, DiseaseRelation, DiseaseSynonym};
+use biodata::{Attribution, Curie, DiseaseEndpoint, DiseaseRelation, DiseaseSynonym};
 use biomcp_fetch::{InputError, RequestError};
-use biomcp_types::{ComponentLabel, ComponentTerms, DiseaseCard, DiseaseSection, Source};
+use biomcp_types::{
+    ComponentLabel, ComponentTerms, DiseaseCard, DiseaseConcept, DiseaseSection, Source,
+};
 
 fn attribution(
     id: &Curie,
@@ -66,7 +68,7 @@ fn predicate(component: &native::Component, field: &str) -> Result<Curie, Reques
 fn endpoint(component: &native::Component) -> DiseaseEndpoint {
     DiseaseEndpoint {
         id: component.id.clone(),
-        label: Some(component.label.clone()),
+        label: component.label.clone(),
     }
 }
 fn xref_id(value: &native::Value) -> Option<Curie> {
@@ -93,8 +95,8 @@ pub(super) fn annotation(record: native::Record) -> Result<Mapped<Annotation>, R
                 requested_id: record.requested_id.clone(),
                 returned_id: record.returned_id.clone(),
                 alias: None,
-                concept: Concept {
-                    id: Some(primary.id.clone()),
+                concept: DiseaseConcept {
+                    id: primary.id.clone(),
                     label: primary.label.clone(),
                 },
                 definition: primary.definition.clone(),

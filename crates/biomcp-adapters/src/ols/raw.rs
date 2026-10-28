@@ -16,9 +16,9 @@ pub(super) struct SearchResponse {
 #[derive(Deserialize)]
 pub(super) struct Hit {
     pub obo_id: Curie,
-    pub label: Text,
+    pub label: Option<Field<Text>>,
     pub ontology_name: Text,
-    pub iri: Text,
+    pub iri: Option<Field<Text>>,
     pub is_obsolete: Option<bool>,
 }
 impl Reply for Search {
@@ -41,9 +41,9 @@ pub(super) struct Embedded {
 #[derive(Deserialize)]
 pub(super) struct Term {
     pub obo_id: Curie,
-    pub label: Text,
+    pub label: Option<Field<Text>>,
     pub ontology_name: Text,
-    pub iri: Text,
+    pub iri: Option<Field<Text>>,
     pub description: Option<Field<Vec<Field<Text>>>>,
     pub is_obsolete: Option<bool>,
     pub term_replaced_by: Option<Field<Vec<Field<Text>>>>,

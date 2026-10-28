@@ -85,7 +85,7 @@ fn resolved(
         .filter(|row| row.object.id.to_string().starts_with("NCIT:"))
         .collect();
     if source == TrialSource::Ctgov {
-        return Some(label);
+        return label;
     }
     let choices: std::collections::BTreeSet<_> = resolution
         .ncit_candidates

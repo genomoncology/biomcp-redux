@@ -2,17 +2,27 @@ use crate::{
     ComponentLabel, DiseaseGet, DiseaseOntology, DiseaseSearch, DiseaseSection, ResponseBody,
 };
 use biodata::{
-    Attribution, Concept, Curie, DiseaseAssociation, DiseaseRelation, DiseaseStatistic,
-    DiseaseSynonym, Text,
+    Attribution, Curie, DiseaseAssociation, DiseaseRelation, DiseaseStatistic, DiseaseSynonym, Text,
 };
 use serde::{Deserialize, Serialize};
+/// A disease identity whose optional display label never determines record admission.
+#[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
+#[serde(deny_unknown_fields)]
+#[cfg_attr(feature = "schema", derive(schemars::JsonSchema))]
+pub struct DiseaseConcept {
+    /// Source-stated exact identifier.
+    pub id: Curie,
+    /// Native display label when supplied and valid.
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub label: Option<Text>,
+}
 /// One source candidate without a selected identity.
 #[derive(Clone, Debug, PartialEq, Serialize, Deserialize)]
 #[serde(deny_unknown_fields)]
 #[cfg_attr(feature = "schema", derive(schemars::JsonSchema))]
 pub struct DiseaseHeader {
     /// Native concept and optional exact ID.
-    pub concept: Concept,
+    pub concept: DiseaseConcept,
     /// The explicit queried ontology.
     pub ontology: DiseaseOntology,
     /// Publisher obsolete flag when supplied.
@@ -34,7 +44,7 @@ pub struct DiseaseCard {
     #[serde(default, skip_serializing_if = "Option::is_none")]
     pub alias: Option<DiseaseRelation>,
     /// Native identity and complete primary label.
-    pub concept: Concept,
+    pub concept: DiseaseConcept,
     /// Complete source definition when supplied.
     #[serde(default, skip_serializing_if = "Option::is_none")]
     pub definition: Option<Text>,

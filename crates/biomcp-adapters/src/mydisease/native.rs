@@ -23,7 +23,7 @@ pub struct Component {
     /// Native component identity, distinct from the aggregate identity.
     pub id: Curie,
     /// Complete source primary label.
-    pub label: Text,
+    pub label: Option<Text>,
     /// Complete optional source definition, without borrowing another component's text.
     pub definition: Option<Text>,
     /// Native synonym scope and text, preserving component-local multiplicity.
@@ -87,7 +87,10 @@ pub(super) fn component(name: &'static str, raw: super::raw::Component) -> Compo
     Component {
         name,
         id: raw.id,
-        label: raw.label,
+        label: problems.optional(
+            &format!("{root}.label"),
+            raw.label.map(|v| v.value().ok_or(())),
+        ),
         definition,
         synonyms,
         xrefs,

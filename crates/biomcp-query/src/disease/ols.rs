@@ -25,7 +25,8 @@ pub fn search(cx: &Ctx<'_>, query: &DiseaseSearch) -> Outcome {
     if let Ok(page) = reply {
         let returned = page.rows.value.len() as u32;
         for row in &page.rows.value {
-            if let Some(id) = &row.concept.id {
+            {
+                let id = &row.concept.id;
                 let value = serde_json::json!({"id":id,"source":"ols","ontology":row.ontology});
                 if let Ok(get) = serde_json::from_value(value) {
                     out.next

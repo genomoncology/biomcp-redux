@@ -68,7 +68,7 @@ pub(super) struct Component {
     #[serde(alias = "mondo", alias = "doid")]
     pub id: Curie,
     #[serde(alias = "name")]
-    pub label: Text,
+    pub label: Option<Field<Text>>,
     #[serde(alias = "def")]
     pub definition: Option<Field<Text>>,
     #[serde(alias = "synonyms")]

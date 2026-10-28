@@ -1,23 +1,26 @@
 use super::{Record, raw};
 use crate::Mapped;
 use crate::mapped::record as record_text;
-use biodata::{
-    Attribution, Concept, Curie, DiseaseEndpoint, DiseaseRelation, DiseaseSynonym, Text,
-};
+use biodata::{Attribution, Curie, DiseaseEndpoint, DiseaseRelation, DiseaseSynonym, Text};
 use biomcp_fetch::{InputError, RequestError};
 use biomcp_types::{
-    ComponentLabel, ComponentTerms, DiseaseCard, DiseaseOntology, DiseaseSection, Source,
+    ComponentLabel, ComponentTerms, DiseaseCard, DiseaseConcept, DiseaseOntology, DiseaseSection,
+    Source,
 };
-pub(super) fn attribution(id: &Curie, iri: &Text, ontology: DiseaseOntology) -> Attribution {
-    Attribution {
-        source: Text::new(ontology.as_str()).unwrap_or_else(|_| iri.clone()),
+pub(super) fn attribution(
+    id: &Curie,
+    iri: Option<Text>,
+    ontology: DiseaseOntology,
+) -> Result<Attribution, RequestError> {
+    Ok(Attribution {
+        source: crate::mapped::text(ontology.as_str()).map_err(|_| InputError::Serialization)?,
         record: record_text(id),
-        url: Some(iri.clone()),
+        url: iri,
         version: None,
         release: None,
         submitter: None,
         evaluated: None,
-    }
+    })
 }
 
 /// Reviewed component terms remain separate from transport service terms.
@@ -38,7 +41,26 @@ pub fn components(ontology: DiseaseOntology) -> Result<Box<[ComponentLabel]>, Re
     .into())
 }
 pub(super) fn record(term: raw::Term, ontology: DiseaseOntology) -> Result<Record, RequestError> {
-    let attribution = attribution(&term.obo_id, &term.iri, ontology);
+    let mut problems = crate::mapped::Problems {
+        source: Source::Ols,
+        record: record_text(&term.obo_id),
+        list: Vec::new(),
+    };
+    let iri = problems.optional(
+        "iri",
+        term.iri.as_ref().map(|v| match v {
+            crate::raw::Field::Value(v) => Ok(v.clone()),
+            crate::raw::Field::Invalid(_) => Err(()),
+        }),
+    );
+    let label = problems.optional(
+        "label",
+        term.label.as_ref().map(|v| match v {
+            crate::raw::Field::Value(v) => Ok(v.clone()),
+            crate::raw::Field::Invalid(_) => Err(()),
+        }),
+    );
+    let attribution = attribution(&term.obo_id, iri, ontology)?;
     let synonyms = synonyms(&term, &attribution);
     let xrefs = xrefs(&term, &attribution);
     let mut sections = Vec::new();
@@ -48,11 +70,6 @@ pub(super) fn record(term: raw::Term, ontology: DiseaseOntology) -> Result<Recor
     if !xrefs.value.is_empty() {
         sections.push(DiseaseSection::Xrefs);
     }
-    let mut problems = crate::mapped::Problems {
-        source: Source::Ols,
-        record: record_text(&term.obo_id),
-        list: Vec::new(),
-    };
     let consider = term.annotation.as_ref().and_then(|value| match value {
         crate::raw::Field::Value(annotation) => ids(
             array(&annotation.consider, "annotation.consider", &mut problems),
@@ -89,9 +106,9 @@ pub(super) fn record(term: raw::Term, ontology: DiseaseOntology) -> Result<Recor
             requested_id: term.obo_id.clone(),
             returned_id: term.obo_id.clone(),
             alias: None,
-            concept: Concept {
-                id: Some(term.obo_id),
-                label: term.label,
+            concept: DiseaseConcept {
+                id: term.obo_id,
+                label,
             },
             definition,
             obsolete: term.is_obsolete,
@@ -256,7 +273,10 @@ fn xrefs(term: &raw::Term, attribution: &Attribution) -> Mapped<Vec<DiseaseRelat
         mapped.value.push(DiseaseRelation {
             subject: DiseaseEndpoint {
                 id: term.obo_id.clone(),
-                label: Some(term.label.clone()),
+                label: match &term.label {
+                    Some(crate::raw::Field::Value(v)) => Some(v.clone()),
+                    _ => None,
+                },
             },
             predicate,
             object: DiseaseEndpoint { id, label: None },

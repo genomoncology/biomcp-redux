@@ -1,5 +1,5 @@
 //! Features drug-mychem, disease-ols and disease-mydisease: malformed optional fields retain usable replies.
-use super::super::{configuration::invoke, network_stub::Stub};
+use crate::runner::{configuration::invoke, network_stub::Stub};
 use libtest_mimic::Trial;
 use serde_json::{Value, json};
 
@@ -95,7 +95,7 @@ fn check(family: &str) -> Result<(), String> {
                 .insert("synonyms".into(), json!(["valid"]));
         }
         let stub = Stub::for_source(host, "application/json", move |_| Ok(body.to_string()))?;
-        let env = super::super::variant::source_environment(&stub)?;
+        let env = crate::runner::variant::source_environment(&stub)?;
         let mut args = if family == "mychem" {
             vec!["get", "drug", "CHEMBL25", "--source", "mychem"]
         } else {
