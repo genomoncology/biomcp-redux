@@ -107,7 +107,7 @@ fn myvariant() -> Result<(), String> {
     };
     if !request.starts_with(
         "GET \
-        /v1/variant/chr7%3Ag.140753336A%3ET?fields=_id%2Cdbsnp.rsid%2Cdbsnp.gene.symbol%2Cclinvar.variant_id\
+        /v1/variant/chr7%3Ag.140753336A%3ET?fields=_id%2Cdbsnp.rsid%2Cdbsnp.gene.symbol%2Cclinvar.variant_id%2Csnpeff.ann\
         &assembly=hg38 HTTP/1.1",
     ) {
         return Err(format!("exact annotation endpoint/build was not sent: {request}"));
