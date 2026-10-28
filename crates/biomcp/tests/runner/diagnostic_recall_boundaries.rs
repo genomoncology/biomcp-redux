@@ -3,14 +3,18 @@ use super::super::super::{configuration::invoke, maude::environment, mcp, networ
 use libtest_mimic::Trial;
 use serde_json::json;
 pub(super) fn trials() -> Vec<Trial> {
-    ["wrong-recall", "wrong-enforcement", "enforcement-error"]
+    let mut trials: Vec<_> = ["wrong-recall", "wrong-enforcement", "enforcement-error"]
         .into_iter()
         .map(|mode| {
             Trial::test(format!("diagnostic-device-recall/{mode}"), move || {
                 run(mode).map_err(Into::into)
             })
         })
-        .collect()
+        .collect();
+    trials.push(Trial::test("diagnostic-device-recall/research-native-record-links", || {
+        research().map_err(Into::into)
+    }));
+    trials
 }
 fn run(mode: &'static str) -> Result<(), String> {
     let stub = Stub::for_source_status(
@@ -100,4 +104,25 @@ fn reply(mode: &str, req: &str) -> Result<String, String> {
         return Err(format!("wrong recall boundary request: {line}"));
     };
     Ok(json!({"meta":{"results":{"skip":0,"limit":1,"total":1}},"results":[row]}).to_string())
+}
+
+fn research() -> Result<(), String> {
+    use super::super::super::{launch, research::call};
+    let env = launch::Environment::new().map_err(|e| e.to_string())?;
+    let globals = env.globals(Some(&launch::fixtures().join("replies/diagnostic/recall-synthetic")), false);
+    let searched = call(&env, "search", json!({"query":"diagnostic --source fda-device-recall --manufacturer 'Synthetic maker'"}), &globals)?;
+    let hit = searched.pointer("/results/0").ok_or("recall research header missing")?;
+    let id = hit.get("id").and_then(serde_json::Value::as_str).ok_or("recall research ID missing")?;
+    let expected_url = "https://api.fda.gov/device/recall.json?search=product_res_number.exact%3A%22Z-0001-2024%22&limit=1&skip=0";
+    if hit.get("url") != Some(&json!(expected_url))
+        || hit.get("title") != Some(&json!("FDA medical device recall Z-0001-2024"))
+        || !id.contains("--source fda-device-recall") {
+        return Err(format!("recall search lost source-owned citation: {searched}"));
+    }
+    let fetched = call(&env, "fetch", json!({"id":id}), &globals)?;
+    if fetched.get("url") != hit.get("url") || fetched.get("title") != hit.get("title")
+        || fetched.pointer("/metadata/result/header/recall_number") != Some(&json!("Z-0001-2024")) {
+        return Err(format!("recall fetch lost native identity: {fetched}"));
+    }
+    Ok(())
 }
