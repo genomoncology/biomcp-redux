@@ -4,9 +4,12 @@ use libtest_mimic::Trial;
 use serde_json::{Value, json};
 #[path = "adapter_repeated_references.rs"]
 mod repeated_references;
+#[path = "adapter_reactome_bad_values.rs"]
+mod reactome_bad_values;
 
 pub(super) fn trials() -> Vec<Trial> {
     vec![
+        Trial::test("pathway-reactome/invalid-metadata-shapes-keep-siblings", || reactome_bad_values::check().map_err(Into::into)),
         Trial::test(
             "pathway-reactome/repeated-reference-invalid-fields-are-disclosed",
             || repeated_references::check().map_err(Into::into),
