@@ -118,3 +118,12 @@ pub(super) fn choice(row: &VariantHeader) -> Option<biomcp_types::Request> {
         VariantGet::new(input, VariantResolver::Car, build).ok()?,
     ))
 }
+
+pub(super) fn requested(query: &VariantGet) -> bool {
+    query.sections().iter().any(|section| {
+        matches!(
+            section,
+            biomcp_types::VariantSection::Population | biomcp_types::VariantSection::All
+        )
+    })
+}
