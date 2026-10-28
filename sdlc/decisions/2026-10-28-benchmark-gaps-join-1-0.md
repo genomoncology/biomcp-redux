@@ -9,7 +9,7 @@ The 0405 replay of MCP-Bench's BioMCP tasks found capabilities that agents train
 - NCI organization search, and NCI trials at a named organization (0408, 0409).
 - NCI biomarker search, and NCI trials that list a biomarker by exact NCIt code (0410, 0411).
 - NCI trial phase and status filters (0415), which the benchmark's biomarker task needs.
-- FDA recalls (0412). The 0162 ruling that dropped FDA recalls is replaced. Whether device recalls, drug recalls or both ship waits on Ian, because 0.4.6 and 0.9 searched drug recalls and the benchmark uses neither.
+- FDA device recalls (0412) and drug recalls (0416). The 0162 ruling that dropped FDA recalls is replaced. 0.4.6 and 0.9 searched drug recalls and the benchmark uses neither; Ian chose both on 2026-10-28 ("I'm good with both").
 - MAUDE device reports filtered by manufacturer, product code and native product problem (0413), which the benchmark's test-kit step uses.
 - Several trial conditions, interventions or free-text terms joined with OR in one search (0414).
 
