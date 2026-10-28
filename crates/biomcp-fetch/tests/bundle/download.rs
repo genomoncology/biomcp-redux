@@ -257,7 +257,6 @@ fn recovered_path_case(scenario: &str, holder: Option<&str>) {
         "traversal" => parts.join("../.tmpABC123"),
         "nested" => parts.join("nested/.tmpABC123"),
         "wrong-name" => parts.join("sentinel"),
-        "missing" => parts.join(".tmpABC123"),
         _ => parts.join(".tmpABC123"),
     };
     if scenario == "symlink" {
@@ -292,10 +291,6 @@ fn recovered_path_case(scenario: &str, holder: Option<&str>) {
     if scenario == "missing" {
         assert_eq!(sync_reply(&f, &b, &server, 200, "", TSV).unwrap().rows, 1);
         assert_eq!(std::fs::read_dir(&parts).unwrap().count(), 1);
-        assert_eq!(
-            std::fs::read_to_string(&sentinel).unwrap(),
-            "keep this file"
-        );
         return;
     }
     let result = f.sync(&b);

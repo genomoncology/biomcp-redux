@@ -513,7 +513,7 @@ fn resume(
                 reset(file, part)?;
             }
         }
-        // claim transfers only a released predecessor's file to this holder.
+        // claim transfers the validated predecessor's file to this holder.
         if let Err(error) = fs::remove_file(prior.path)
             && error.kind() != std::io::ErrorKind::NotFound
         {
