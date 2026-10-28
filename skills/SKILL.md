@@ -37,5 +37,5 @@ Process exit codes:
 3: expired result pool
 4: source request failed
 5: local configuration, storage or output failed
-Error codes: usage.schema, usage.arguments, usage.unknown_command, usage.retired, local.failure, pool.expired, usage.pool_mismatch, usage.too_many_pmids, usage.unsupported_filter. Source problems and reasons appear in their reply fields.
+Error codes: usage.schema, usage.arguments, usage.mcp_unavailable, usage.unknown_command, usage.retired, local.failure, pool.expired, usage.pool_mismatch, usage.too_many_pmids, usage.unsupported_filter. Source problems and reasons appear in their reply fields.
 <!-- exit-reference:end -->
