@@ -258,7 +258,8 @@ fn concurrent() -> Check {
 }
 
 fn raw(bytes: &[u8]) -> Result<(std::process::ExitStatus, Vec<u8>, Vec<u8>), String> {
-    let child = environment()?
+    let env = environment()?;
+    let child = env
         .command(env!("CARGO_BIN_EXE_biomcp"), &["serve".into()])
         .stdin(Stdio::piped())
         .stdout(Stdio::piped())
@@ -303,7 +304,8 @@ fn broken_output() -> Check {
     let started = Instant::now();
     let (reader, writer) = std::io::pipe().map_err(|e| e.to_string())?;
     drop(reader);
-    let child = environment()?
+    let env = environment()?;
+    let child = env
         .command(env!("CARGO_BIN_EXE_biomcp"), &["serve".into()])
         .stdin(Stdio::piped())
         .stdout(writer)
