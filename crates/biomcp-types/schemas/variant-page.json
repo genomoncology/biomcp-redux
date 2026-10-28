@@ -308,7 +308,6 @@
         "requested_scorer",
         "data_type",
         "shape",
-        "rows",
         "page"
       ],
       "type": "object"
@@ -5040,8 +5039,7 @@
         "build",
         "variant",
         "requested_interval",
-        "requested_model_version",
-        "scorers"
+        "requested_model_version"
       ],
       "type": "object"
     },

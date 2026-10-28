@@ -1,6 +1,7 @@
 {
   "$defs": {
     "Accession": {
+      "description": "A reference sequence accession: RefSeq or Ensembl with its version, or LRG.",
       "pattern": "^((N[CGMPRTW]|X[MPR])_([0-9]{6}|[0-9]{9})\\.[1-9][0-9]*|ENS[GTP][0-9]{11}\\.[1-9][0-9]*|LRG_[0-9]+([tp][0-9]+)?)$",
       "type": "string"
     },
@@ -38,6 +39,7 @@
       ]
     },
     "EnsemblGeneId": {
+      "description": " A human Ensembl gene stable identifier with a separately retained version.",
       "pattern": "^ENSG[0-9]{11}(\\.[1-9][0-9]*)?$",
       "type": "string"
     },
@@ -142,10 +144,12 @@
       "type": "object"
     },
     "HgncId": {
+      "description": "An HGNC identifier with canonical namespace and positive numeric value.",
       "pattern": "^HGNC:[1-9][0-9]*$",
       "type": "string"
     },
     "NcbiGeneId": {
+      "description": "A positive NCBI Gene identifier in canonical decimal text.",
       "pattern": "^[1-9][0-9]*$",
       "type": "string"
     },
@@ -195,6 +199,7 @@
       "type": "object"
     },
     "Sequence": {
+      "description": "A literal IUPAC DNA sequence; empty sequences express insertions or deletions.",
       "pattern": "^[ACGTNRYSWKMBDHV]*$",
       "type": "string"
     },
