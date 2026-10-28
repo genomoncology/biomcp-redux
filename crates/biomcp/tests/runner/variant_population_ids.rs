@@ -27,7 +27,11 @@ pub(super) fn trials() -> Vec<Trial> {
 fn malformed_alias() -> Result<(), String> {
     for count in [1, 2] {
         let stub = Stub::for_sources(
-            &["myvariant.info", "reg.genome.network", "gnomad.broadinstitute.org"],
+            &[
+                "myvariant.info",
+                "reg.genome.network",
+                "gnomad.broadinstitute.org",
+            ],
             |_| "application/json",
             move |request| {
                 if !request.starts_with("GET /v1/query?") {
@@ -46,20 +50,40 @@ fn malformed_alias() -> Result<(), String> {
         let output = execute(&env, &["variant", "population", "rs113488022"])?;
         let requests = stub.finish()?;
         if requests.len() != 1 || !requests[0].1.starts_with("GET /v1/query?") {
-            return Err(format!("dbSNP alias authorized a downstream request: {requests:?}"));
+            return Err(format!(
+                "dbSNP alias authorized a downstream request: {requests:?}"
+            ));
         }
-        let rows = output.pointer("/result/candidates").and_then(Value::as_array)
+        let rows = output
+            .pointer("/result/candidates")
+            .and_then(Value::as_array)
             .ok_or_else(|| format!("malformed alias dropped candidates: {output}"))?;
-        let next = output.get("next").and_then(Value::as_array).ok_or("missing next")?;
-        if rows.len() != count || next.len() != count
-            || rows.iter().any(|row| row.pointer("/identity/ids") != Some(&json!(["rs113488022"])))
-            || next.iter().any(|step| step.to_string().contains("CA123643"))
-            || !output.get("problems").and_then(Value::as_array).is_some_and(|problems| {
-                problems.iter().any(|p| p["source"] == "myvariant" && p["field"] == "ids"
-                    && p["code"] == "value_unknown")
-            })
+        let next = output
+            .get("next")
+            .and_then(Value::as_array)
+            .ok_or("missing next")?;
+        if rows.len() != count
+            || next.len() != count
+            || rows
+                .iter()
+                .any(|row| row.pointer("/identity/ids") != Some(&json!(["rs113488022"])))
+            || next
+                .iter()
+                .any(|step| step.to_string().contains("CA123643"))
+            || !output
+                .get("problems")
+                .and_then(Value::as_array)
+                .is_some_and(|problems| {
+                    problems.iter().any(|p| {
+                        p["source"] == "myvariant"
+                            && p["field"] == "ids"
+                            && p["code"] == "value_unknown"
+                    })
+                })
         {
-            return Err(format!("malformed dbSNP alias escaped source validation: {output}"));
+            return Err(format!(
+                "malformed dbSNP alias escaped source validation: {output}"
+            ));
         }
     }
     Ok(())
