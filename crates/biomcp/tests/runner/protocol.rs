@@ -493,7 +493,7 @@ fn discovery_description(text: &str) -> Check {
         "search cell-line query --query/-q --limit/-l --offset",
         "get cell-line CVCL_ID|SOURCE:ID --section-limit --section-offset :names|identity|xrefs|variants|chembl|all",
         "cell-line assay-count",
-        "Author IDs name provider records;no ranking/merge.",
+        "Author IDs name source records;no ranking/merge.",
         "Both sources noncommercial;--disable-sources noncommercial.",
         "biomcp key set semantic-scholar (S2_API_KEY)",
         "biomcp key set orcid (ORCID_ACCESS_TOKEN)",
