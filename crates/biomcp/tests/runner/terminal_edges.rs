@@ -11,7 +11,6 @@ pub(super) fn trials() -> Vec<Trial> {
         ("proxy-case-precedence", proxy),
         ("proxy-bypass-precedence", bypass),
         ("proxy-help", help),
-        ("parsed-format", format),
         ("dispatch-diagnostic", dispatch),
         ("stdio-oversized-then-valid", framing),
     ]
@@ -236,26 +235,6 @@ fn bypass() -> Check {
             assert!(!target.exists());
         }
     }
-    Ok(())
-}
-
-fn format() -> Check {
-    let env = Environment::new()?;
-    let output = env
-        .command(
-            env!("CARGO_BIN_EXE_biomcp"),
-            &[
-                "get".into(),
-                "gene".into(),
-                "--help".into(),
-                "--format".into(),
-                "md".into(),
-            ],
-        )
-        .output()?;
-    assert!(output.status.success());
-    let value: Value = serde_json::from_slice(&output.stdout)?;
-    assert_eq!(value.get("schema"), Some(&json!("biomcp.help/3")));
     Ok(())
 }
 

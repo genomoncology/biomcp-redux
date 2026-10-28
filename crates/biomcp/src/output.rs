@@ -5,22 +5,15 @@ pub(crate) fn command(
     outcome: &crate::command::Outcome,
     args: &[std::ffi::OsString],
 ) -> io::Result<()> {
-    let parsed = crate::grammar::parse(args).ok();
     if crate::grammar::is_housekeeping(args)
-        && parsed.as_ref().is_none_or(|parsed| parsed.help.is_none())
+        && crate::grammar::parse(args)
+            .ok()
+            .is_none_or(|parsed| parsed.help.is_none())
     {
         return bytes(&outcome.cli_bytes);
     }
-    let format = parsed
-        .as_ref()
-        .and_then(|parsed| parsed.globals.format)
-        .or_else(|| {
-            crate::config::format(
-                parsed
-                    .as_ref()
-                    .and_then(|parsed| parsed.globals.config.as_ref()),
-            )
-        });
+    let (format, config) = crate::grammar::presentation(args).unwrap_or_default();
+    let format = format.or_else(|| crate::config::format(config.as_ref()));
     let bytes = match format {
         Some(crate::grammar::Format::Md) if outcome.value.get("schema").is_some() => {
             crate::view::markdown(&outcome.value)?
