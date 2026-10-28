@@ -36,3 +36,34 @@ fn identity(command: &Command, spellings: &[&str]) -> Option<String> {
                 .find_map(|child| identity(child, spellings))
         })
 }
+
+/// Report the checked assembly vocabulary without retaining a rejected value.
+pub(crate) fn normalization_build(args: &[OsString]) -> Option<biomcp_types::ErrorEnvelope> {
+    let matches = super::root()
+        .ok()?
+        .try_get_matches_from(std::iter::once(OsString::from("biomcp")).chain(args.iter().cloned()))
+        .ok()?;
+    let matches = matches
+        .subcommand_matches("variant")?
+        .subcommand_matches("normalize")?;
+    let build = matches.get_one::<String>("build")?;
+    if build.parse::<biodata::Build>().is_ok_and(|build| {
+        matches
+            .get_one::<String>("hgvs")
+            .is_none_or(|hgvs| biomcp_types::VariantNormalize::supports_build(hgvs, build))
+    }) {
+        return None;
+    }
+    let schema: serde_json::Value =
+        serde_json::from_str(crate::schema::find("biodata.variant-normalize/3")?).ok()?;
+    let values = schema
+        .pointer("/$defs/Build/enum")?
+        .as_array()?
+        .iter()
+        .map(|value| biodata::Text::new(value.as_str()?).ok())
+        .collect::<Option<Vec<_>>>()?;
+    Some(biomcp_types::ErrorEnvelope::argument_values(
+        "--build".into(),
+        values.into(),
+    ))
+}

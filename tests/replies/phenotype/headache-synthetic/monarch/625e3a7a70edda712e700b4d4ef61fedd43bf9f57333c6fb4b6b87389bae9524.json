@@ -1,0 +1,33 @@
+{
+  "method": "GET",
+  "source": "monarch",
+  "url": "https://api-v3.monarchinitiative.org/v3/api/search?q=headache&category=biolink%3APhenotypicFeature&namespace=HP&limit=5&offset=0",
+  "exchanges": [
+    {
+      "status": 200,
+      "content_type": "application/json",
+      "delay_ms": 0,
+      "retry_after_ms": null,
+      "body": {
+        "kind": "json",
+        "value": {
+          "limit": 5,
+          "offset": 0,
+          "total": 1,
+          "items": [
+            {
+              "id": "HP:0002315",
+              "name": "Headache",
+              "category": "biolink:PhenotypicFeature",
+              "namespace": "HP",
+              "score": 1,
+              "matched_field": "name",
+              "match_type": "exact"
+            }
+          ]
+        }
+      },
+      "fetched": 1792980000
+    }
+  ]
+}

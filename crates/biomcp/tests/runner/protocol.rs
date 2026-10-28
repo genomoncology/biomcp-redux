@@ -1,3 +1,5 @@
+#[path = "protocol_schemas.rs"]
+mod schemas;
 use super::{
     launch::Environment,
     mcp::{exchange, request},
@@ -343,7 +345,6 @@ fn discovery() -> Check {
         .filter(|_| tools.len() == 3)
         .ok_or("expected three tools")?;
     if tool.get("name") != Some(&json!("biomcp"))
-        || tool.get("outputSchema") != Some(&json!({"type":"object"}))
         || tool.get("inputSchema")
             != Some(
                 &json!({"type":"object","properties":{"args":{"type":"array","items":{"type":"string"}}},"required":["args"],"additionalProperties":false}),
@@ -351,6 +352,7 @@ fn discovery() -> Check {
     {
         return Err("tool contract differs".into());
     }
+    schemas::check(tools, reply(&replies, &json!(1))?)?;
     let text = tool
         .get("description")
         .and_then(Value::as_str)
@@ -367,8 +369,6 @@ fn discovery() -> Check {
             .ok_or("wrapper description missing")?
             .len();
         if wrapper.pointer("/inputSchema/required") != Some(&json!([key]))
-            || wrapper.pointer("/outputSchema/$id")
-                != Some(&json!(format!("biomcp.research-{name}/1")))
             || wrapper.pointer("/annotations/readOnlyHint") != Some(&json!(true))
         {
             return Err("research tool contract differs".into());

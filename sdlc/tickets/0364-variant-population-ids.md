@@ -4,6 +4,8 @@ Status: OPEN.
 
 Milestone: 5
 
+Depends on: 0387
+
 ## Outcome
 
 `variant population rs7903146` and `variant population clinvar:7413` return the candidate alleles the source gives for that ID, with a next step for each, instead of `failed` with an empty `next` and no reason. An ID with one allele returns its population data.

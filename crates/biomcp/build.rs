@@ -173,7 +173,21 @@ const EXAMPLE_CASES: &[(&str, usize)] = &[
     ("variant/help-recurrence.yaml", 0),
 ];
 
-const GUIDE_CASES: &[(&str, usize)] = &[("trial/wider-zero.yaml", 0), ("trial/wider-zero.yaml", 1)];
+const GUIDE_CASES: &[(&str, usize)] = &[
+    ("trial/wider-zero.yaml", 0),
+    ("trial/wider-zero.yaml", 1),
+    ("article/filters/since.yaml", 2),
+    ("gene/sections/clingen-validity.yaml", 0),
+    ("gene/band.yaml", 0),
+    ("gene/band.yaml", 1),
+    ("gene/p16.yaml", 0),
+    ("gene/search.yaml", 2),
+    ("gene/sections/expression-mir21.yaml", 0),
+    ("gene/sections/pathways-mir21.yaml", 0),
+    ("variant/search-region.yaml", 0),
+    ("phenotype/worked-headache.yaml", 0),
+    ("phenotype/worked-headache.yaml", 1),
+];
 
 fn embed_examples() -> Result<(), Box<dyn Error>> {
     let cases = PathBuf::from(env::var("CARGO_MANIFEST_DIR")?).join("../../tests/cases");

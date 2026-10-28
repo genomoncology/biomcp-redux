@@ -34,6 +34,7 @@ singleton! {
     /// Stable error codes for command usage, local failures and expired results.
     pub ErrorCode { SchemaUsage => "usage.schema",
  Arguments => "usage.arguments",
+ McpUnavailable => "usage.mcp_unavailable",
  UnknownCommand => "usage.unknown_command",
  Retired => "usage.retired",
  Local => "local.failure",
@@ -56,6 +57,9 @@ singleton! {
  TooManyPmids => "citation ordering exceeds the PMID limit; narrow the search",
  SchemaUsage => "use biomcp schema to list known artifact IDs",
  Arguments => "expected a supported command with checked arguments",
+ McpSync => "sync is unavailable over MCP; run it from the command line",
+ McpStoreClean => "store clean is unavailable over MCP; run it from the command line",
+ McpKey => "key is unavailable over MCP; run it from the command line",
  UnknownCommand => "unknown command; use the suggested help command",
  Local => "local configuration, cache or recording failed",
 
@@ -284,6 +288,13 @@ pub struct ErrorEnvelope {
 }
 
 impl ErrorEnvelope {
+    /// Name a refused command with fixed guidance and no caller arguments.
+    pub fn mcp_unavailable(message: ErrorMessage) -> Self {
+        let mut error = Self::arguments();
+        error.error.code = ErrorCode::McpUnavailable;
+        error.error.message = message;
+        error
+    }
     /// Name a rejected configuration field or environment variable without its value.
     pub fn configuration(option: String) -> Self {
         let mut envelope = Self::local();
@@ -375,6 +386,12 @@ impl ErrorEnvelope {
     /// Name a grammar-owned argument without retaining its rejected value.
     pub fn argument(option: Box<str>) -> Self {
         Self::arguments().with_argument(option)
+    }
+    /// Name a checked argument and its supported vocabulary without echoing input.
+    pub fn argument_values(option: Box<str>, values: Box<[crate::Text]>) -> Self {
+        let mut error = Self::argument(option);
+        error.error.valid_values = Some(values);
+        error
     }
     /// Attach a grammar-owned identity while preserving fixed command guidance.
     pub fn with_argument(mut self, option: Box<str>) -> Self {
