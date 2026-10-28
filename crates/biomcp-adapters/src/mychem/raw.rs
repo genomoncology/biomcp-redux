@@ -23,13 +23,13 @@ pub(super) struct Hit {
     pub id: String,
     #[serde(rename = "_version")]
     pub version: Option<u64>,
-    pub drugbank: Option<OneOrMany<ReceivedComponent>>,
-    pub chembl: Option<OneOrMany<ReceivedComponent>>,
-    pub drugcentral: Option<OneOrMany<ReceivedComponent>>,
-    pub gtopdb: Option<OneOrMany<ReceivedComponent>>,
-    pub unii: Option<OneOrMany<ReceivedComponent>>,
-    pub ndc: Option<OneOrMany<ReceivedComponent>>,
-    pub openfda: Option<OneOrMany<ReceivedComponent>>,
+    pub drugbank: Option<crate::raw::Field<OneOrMany<ReceivedComponent>>>,
+    pub chembl: Option<crate::raw::Field<OneOrMany<ReceivedComponent>>>,
+    pub drugcentral: Option<crate::raw::Field<OneOrMany<ReceivedComponent>>>,
+    pub gtopdb: Option<crate::raw::Field<OneOrMany<ReceivedComponent>>>,
+    pub unii: Option<crate::raw::Field<OneOrMany<ReceivedComponent>>>,
+    pub ndc: Option<crate::raw::Field<OneOrMany<ReceivedComponent>>>,
+    pub openfda: Option<crate::raw::Field<OneOrMany<ReceivedComponent>>>,
 }
 impl Reply for Hit {
     fn check(&self) -> Result<(), BadReply> {
@@ -82,7 +82,9 @@ pub(super) struct Hierarchy {
 
 #[derive(Debug, Default, Deserialize)]
 pub(super) struct ReceivedComponent {
-    pub xrefs: Option<std::collections::BTreeMap<String, OneOrMany<crate::raw::Field<String>>>>,
+    pub xrefs: Option<
+        crate::raw::Field<std::collections::BTreeMap<String, OneOrMany<crate::raw::Field<String>>>>,
+    >,
     pub id: Option<crate::raw::Field<String>>,
     pub name: Option<crate::raw::Field<String>>,
     pub molecule_chembl_id: Option<crate::raw::Field<String>>,
@@ -99,8 +101,8 @@ pub(super) struct ReceivedComponent {
     pub nonproprietaryname: Option<crate::raw::Field<String>>,
     pub proprietaryname: Option<crate::raw::Field<String>>,
     pub synonyms: Option<OneOrMany<crate::raw::Field<String>>>,
-    pub molecule_synonyms: Option<Vec<ReceivedSynonym>>,
-    pub molecule_hierarchy: Option<ReceivedHierarchy>,
+    pub molecule_synonyms: Option<crate::raw::Field<Vec<crate::raw::Field<ReceivedSynonym>>>>,
+    pub molecule_hierarchy: Option<crate::raw::Field<ReceivedHierarchy>>,
     pub chembl_id: Option<crate::raw::Field<String>>,
     pub rxcui: Option<crate::raw::Field<String>>,
     pub ncit: Option<crate::raw::Field<String>>,

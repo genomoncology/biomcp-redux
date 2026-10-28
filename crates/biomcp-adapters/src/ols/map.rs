@@ -153,70 +153,62 @@ fn iri_id(value: &str) -> Option<Curie> {
 }
 
 fn synonyms(term: &raw::Term, attribution: &Attribution) -> Mapped<Vec<DiseaseSynonym>> {
-    let mut mapped = Mapped {
-        value: Vec::new(),
-        problems: Vec::new(),
-    };
-    let mut metadata = crate::mapped::Problems {
+    let mut problems = crate::mapped::Problems {
         source: Source::Ols,
         record: record_text(&term.obo_id),
         list: Vec::new(),
     };
-    let synonyms = array(&term.synonyms, "synonyms", &mut metadata);
-    let native_synonyms = array(&term.obo_synonym, "obo_synonym", &mut metadata);
-    for native in native_synonyms {
-        match native {
-            crate::raw::Field::Value(v) => {
-                if matches!(v.name, crate::raw::Field::Invalid(_)) {
-                    metadata.required::<()>("synonym.name", None);
-                }
-            }
-            crate::raw::Field::Invalid(_) => {
-                metadata.required::<()>("obo_synonym", None);
-            }
-        }
-    }
-    for name in synonyms {
-        let crate::raw::Field::Value(name) = name else {
-            crate::mapped::push_problem(
-                &mut mapped.problems,
-                Source::Ols,
-                record_text(&term.obo_id),
-                "synonyms",
-            );
+    let mut native_scopes = Vec::new();
+    for native in array(&term.obo_synonym, "obo_synonym", &mut problems) {
+        let crate::raw::Field::Value(native) = native else {
+            problems.required::<()>("obo_synonym", None);
             continue;
         };
-        let native = native_synonyms
-            .iter()
-            .filter_map(|v| match v {
-                crate::raw::Field::Value(v) => Some(v),
+        let name = problems.required(
+            "synonym.name",
+            match &native.name {
+                crate::raw::Field::Value(name) => Some(name),
                 crate::raw::Field::Invalid(_) => None,
-            })
-            .find(|v| matches!(&v.name, crate::raw::Field::Value(v) if v == name));
-        let mut problems = crate::mapped::Problems {
-            source: Source::Ols,
-            record: record_text(&term.obo_id),
-            list: Vec::new(),
-        };
+            },
+        );
         let scope = problems.optional(
             "synonym.scope",
-            native.and_then(|s| s.scope.as_ref()).map(|s| match s {
-                crate::raw::Field::Value(s) => {
-                    format!("oboInOwl:{}", s.as_str()).parse().map_err(|_| ())
-                }
+            native.scope.as_ref().map(|s| match s {
+                crate::raw::Field::Value(s) => format!("oboInOwl:{}", s.as_str())
+                    .parse::<Curie>()
+                    .map_err(|_| ()),
                 crate::raw::Field::Invalid(_) => Err(()),
             }),
         );
-        mapped.problems.extend(problems.list);
-        mapped.value.push(DiseaseSynonym {
-            value: name.clone(),
-            scope,
-            language: None,
-            attribution: attribution.clone(),
-        });
+        if let Some(name) = name {
+            native_scopes.push((name, scope));
+        }
     }
-    mapped.problems.extend(metadata.list);
-    mapped
+    let mut value = Vec::new();
+    for name in array(&term.synonyms, "synonyms", &mut problems) {
+        let name = problems.required(
+            "synonyms",
+            match name {
+                crate::raw::Field::Value(name) => Some(name),
+                crate::raw::Field::Invalid(_) => None,
+            },
+        );
+        if let Some(name) = name {
+            value.push(DiseaseSynonym {
+                value: name.clone(),
+                scope: native_scopes
+                    .iter()
+                    .find(|(n, _)| *n == name)
+                    .and_then(|(_, s)| s.clone()),
+                language: None,
+                attribution: attribution.clone(),
+            });
+        }
+    }
+    Mapped {
+        value,
+        problems: problems.list,
+    }
 }
 fn xrefs(term: &raw::Term, attribution: &Attribution) -> Mapped<Vec<DiseaseRelation>> {
     let mut mapped = Mapped {

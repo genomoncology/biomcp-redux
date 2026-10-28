@@ -25,12 +25,13 @@ fn components(
             .find(|c| c.name == name)
             .is_some_and(|c| !c.disabled_on_leg(leg))
         {
-            rows.extend(
-                values
-                    .into_iter()
-                    .flat_map(|v| v.values())
-                    .map(|v| (name, super::normalize::component(v, name, problems))),
-            );
+            for value in values {
+                if let Some(value) = problems.required(name, value.value()) {
+                    for row in value.values() {
+                        rows.push((name, super::normalize::component(row, name, problems)));
+                    }
+                }
+            }
         }
     }
     (hit.id, hit.version, rows)
