@@ -1,5 +1,6 @@
 //! Feature source-controls: publisher reachability and stored readiness are independent.
 use super::{configuration::invoke, launch::Environment, network_stub::Stub};
+use crate::runner::transcript::trial as transcript_trial;
 use biomcp_adapters::registry;
 use libtest_mimic::Trial;
 use serde_json::{Value, json};
@@ -39,13 +40,13 @@ const BUNDLES: &[(&str, &[&str])] = &[
 ];
 pub(super) fn trials() -> Vec<Trial> {
     vec![
-        Trial::test("sources/health-publisher-probes-record-and-replay", || {
+        transcript_trial("sources/health-publisher-probes-record-and-replay", || {
             reachable().map_err(Into::into)
         }),
-        Trial::test("sources/health-local-bundles-ignore-abandoned-sync", || {
+        transcript_trial("sources/health-local-bundles-ignore-abandoned-sync", || {
             local().map_err(Into::into)
         }),
-        Trial::test("sources/health-publisher-failure-is-one-request", || {
+        transcript_trial("sources/health-publisher-failure-is-one-request", || {
             failure().map_err(Into::into)
         }),
     ]

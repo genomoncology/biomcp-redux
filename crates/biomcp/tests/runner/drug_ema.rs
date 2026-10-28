@@ -1,15 +1,16 @@
 //! Feature drug-ema: malformed source documents preserve the last complete local bundle.
 mod navigation;
 use super::{configuration::invoke, launch::Environment};
+use crate::runner::transcript::trial as transcript_trial;
 use libtest_mimic::Trial;
 use serde_json::Value;
 
 pub(super) fn trials() -> Vec<Trial> {
     vec![
-        Trial::test("drug-ema/malformed-source-keeps-last-good-bundle", || {
+        transcript_trial("drug-ema/malformed-source-keeps-last-good-bundle", || {
             malformed().map_err(Into::into)
         }),
-        Trial::test("drug-ema/five-candidates-keep-continuation", || {
+        transcript_trial("drug-ema/five-candidates-keep-continuation", || {
             navigation::check().map_err(Into::into)
         }),
     ]

@@ -1,5 +1,6 @@
 //! Feature source-controls: public pgx declarations before runtime dispatch exists.
 use super::{configuration::invoke, launch::Environment};
+use crate::runner::transcript::trial as transcript_trial;
 use biomcp_adapters::registry;
 use biomcp_types::{Reason, SourceState};
 use libtest_mimic::Trial;
@@ -22,18 +23,18 @@ pub(super) fn trials() -> Vec<Trial> {
     SOURCES
         .iter()
         .map(|&(source, usage, url)| {
-            Trial::test(format!("pgx-registry/{source}-declaration"), move || {
+            transcript_trial(format!("pgx-registry/{source}-declaration"), move || {
                 declaration(source, usage, url).map_err(Into::into)
             })
         })
         .chain([
-            Trial::test("pgx-registry/retired-source-before-io", || {
+            transcript_trial("pgx-registry/retired-source-before-io", || {
                 retired().map_err(Into::into)
             }),
-            Trial::test("pgx-registry/policy-before-io", || {
+            transcript_trial("pgx-registry/policy-before-io", || {
                 admission::run().map_err(Into::into)
             }),
-            Trial::test("pgx-registry/configuration-union", || {
+            transcript_trial("pgx-registry/configuration-union", || {
                 switches().map_err(Into::into)
             }),
         ])

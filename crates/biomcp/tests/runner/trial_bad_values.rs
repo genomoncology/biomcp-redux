@@ -1,5 +1,6 @@
 //! Features trial-search and trial-get: malformed nonidentity fields retain their sibling facts.
 use super::response_cases::checked_steps;
+use crate::runner::transcript::trial as transcript_trial;
 use libtest_mimic::Trial;
 use serde_json::{Value, json};
 #[path = "trial_bad_value_cases.rs"]
@@ -8,16 +9,16 @@ type Check = Result<(), Box<dyn std::error::Error>>;
 
 pub(super) fn trials() -> Vec<Trial> {
     vec![
-        Trial::test("trial-get/malformed-age-is-not-a-source-no-limit", || {
+        transcript_trial("trial-get/malformed-age-is-not-a-source-no-limit", || {
             rejected_age().map_err(Into::into)
         }),
-        Trial::test("trial-get/blank-text-is-rejected-with-siblings", || {
+        transcript_trial("trial-get/blank-text-is-rejected-with-siblings", || {
             blank_text().map_err(Into::into)
         }),
-        Trial::test("trial-search/bad-values-retain-siblings", || {
+        transcript_trial("trial-search/bad-values-retain-siblings", || {
             search().map_err(Into::into)
         }),
-        Trial::test("trial-get/bad-values-retain-siblings", || {
+        transcript_trial("trial-get/bad-values-retain-siblings", || {
             detail().map_err(Into::into)
         }),
     ]

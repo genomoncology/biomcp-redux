@@ -1,12 +1,13 @@
 //! Public aliases preserve formatted help and unknown commands offer safe executable recovery.
 use super::launch::Environment;
+use crate::runner::transcript::trial as transcript_trial;
 use libtest_mimic::Trial;
 use serde_json::Value;
 
 type Check = Result<(), Box<dyn std::error::Error>>;
 
 pub(super) fn trials() -> Vec<Trial> {
-    vec![Trial::test(
+    vec![transcript_trial(
         "schema-discovery/help-aliases-and-safe-recovery",
         || check().map_err(|error| error.to_string().into()),
     )]

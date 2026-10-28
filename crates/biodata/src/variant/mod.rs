@@ -23,4 +23,4 @@ mod statement;
 pub use statement::*;
 
 mod population;
-pub use population::{PopulationDataType, PopulationFrequency, PopulationSex};
+pub use population::{GenotypeFilter, PopulationDataType, PopulationFrequency, PopulationSex};

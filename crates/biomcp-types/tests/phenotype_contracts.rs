@@ -124,12 +124,15 @@ fn native_cards_keep_empty_values_independent_sources_and_count_scopes() {
             .unwrap(),
         monarch
     );
-    let mut merged = hpo;
+    let mut merged = hpo.clone();
     merged
         .as_object_mut()
         .unwrap()
         .insert("deprecated".into(), json!(false));
-    assert!(serde_json::from_value::<PhenotypeCard>(merged).is_err());
+    assert_eq!(
+        serde_json::to_value(serde_json::from_value::<PhenotypeCard>(merged).unwrap()).unwrap(),
+        hpo
+    );
     for relationship in [
         None,
         Some("exact"),

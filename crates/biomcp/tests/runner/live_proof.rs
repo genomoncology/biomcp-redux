@@ -1,4 +1,5 @@
 use super::{launch::Environment, live, response_cases};
+use crate::runner::transcript::trial as transcript_trial;
 use biomcp_fetch::Observation;
 use libtest_mimic::Trial;
 use serde_json::{Value, json};
@@ -9,25 +10,25 @@ mod witness_proof;
 
 pub(super) fn trials() -> Vec<Trial> {
     vec![
-        Trial::test("live-source-checks/cache-retries-and-request-plans", || {
+        transcript_trial("live-source-checks/cache-retries-and-request-plans", || {
             comparison().map_err(|e| e.to_string().into())
         }),
-        Trial::test("live-source-checks/summary-retains-late-drift", || {
+        transcript_trial("live-source-checks/summary-retains-late-drift", || {
             summary().map_err(|e| e.to_string().into())
         }),
-        Trial::test("live-source-checks/retained-drift-witnesses", || {
+        transcript_trial("live-source-checks/retained-drift-witnesses", || {
             witness_proof::retained().map_err(Into::into)
         }),
-        Trial::test("live-source-checks/credential-free-witness-urls", || {
+        transcript_trial("live-source-checks/credential-free-witness-urls", || {
             witness_proof::credentials().map_err(Into::into)
         }),
-        Trial::test("live-check/offline-planted-drift", || {
+        transcript_trial("live-check/offline-planted-drift", || {
             check().map_err(|e| e.to_string().into())
         }),
-        Trial::test("live-source-checks/offline-eligibility", || {
+        transcript_trial("live-source-checks/offline-eligibility", || {
             plan().map_err(|e| e.to_string().into())
         }),
-        Trial::test("live-source-checks/raw-wire-formats-and-retries", || {
+        transcript_trial("live-source-checks/raw-wire-formats-and-retries", || {
             formats().map_err(|e| e.to_string().into())
         }),
     ]

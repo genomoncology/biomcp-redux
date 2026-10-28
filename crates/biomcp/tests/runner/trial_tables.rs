@@ -4,30 +4,31 @@
     reason = "Checked captures fail directly when a fixture shape changes"
 )]
 use super::response_cases::{checked_case, checked_steps};
+use crate::runner::transcript::trial as transcript_trial;
 use libtest_mimic::Trial;
 use serde_json::{Value, json};
 type Check = Result<(), Box<dyn std::error::Error>>;
 pub(super) fn trials() -> Vec<Trial> {
     vec![
-        Trial::test("trial/native-timestamp-and-query-echo", || {
+        transcript_trial("trial/native-timestamp-and-query-echo", || {
             timestamp().map_err(Into::into)
         }),
-        Trial::test("trial/missing-study-array-is-not-an-empty-page", || {
+        transcript_trial("trial/missing-study-array-is-not-an-empty-page", || {
             missing_studies().map_err(Into::into)
         }),
-        Trial::test("trial/gene-and-registry-share-command-budget", || {
+        transcript_trial("trial/gene-and-registry-share-command-budget", || {
             sequential_budget(false).map_err(Into::into)
         }),
-        Trial::test("trial/version-timeout-preserves-search-rows", || {
+        transcript_trial("trial/version-timeout-preserves-search-rows", || {
             sequential_budget(true).map_err(Into::into)
         }),
-        Trial::test("trial/count-failure-preserves-continuation-rows", || {
+        transcript_trial("trial/count-failure-preserves-continuation-rows", || {
             count_failure().map_err(Into::into)
         }),
-        Trial::test("trial/disabled-cache-and-source-usage", || {
+        transcript_trial("trial/disabled-cache-and-source-usage", || {
             policy().map_err(Into::into)
         }),
-        Trial::test("trial/source-failures-never-assert-zero", || {
+        transcript_trial("trial/source-failures-never-assert-zero", || {
             failures().map_err(Into::into)
         }),
     ]

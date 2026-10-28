@@ -2,7 +2,6 @@ use crate::Text;
 use serde::{Deserialize, Serialize};
 /// ClinGen gene validity and dosage assessments in published source order.
 #[derive(Clone, Debug, PartialEq, Serialize, Deserialize)]
-#[serde(deny_unknown_fields)]
 #[cfg_attr(feature = "schema", derive(schemars::JsonSchema))]
 pub struct ClinGenGene {
     /// Outcome of the gene–disease validity source read.
@@ -24,7 +23,6 @@ pub struct ClinGenGene {
 }
 /// One published ClinGen gene–disease validity record.
 #[derive(Clone, Debug, PartialEq, Serialize, Deserialize)]
-#[serde(deny_unknown_fields)]
 #[cfg_attr(feature = "schema", derive(schemars::JsonSchema))]
 pub struct ClinGenValidity {
     /// Source disease label.

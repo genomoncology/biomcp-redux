@@ -69,5 +69,6 @@ pub(in crate::uniprot) struct Isoform {
 pub(in crate::uniprot) struct CrossReference {
     pub database: Text,
     pub id: Text,
+    #[serde(default, deserialize_with = "crate::strict_input::deserialize")]
     pub properties: Option<Vec<ProteinStructureProperty>>,
 }

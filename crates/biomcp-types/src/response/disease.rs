@@ -7,7 +7,6 @@ use biodata::{
 use serde::{Deserialize, Serialize};
 /// A disease identity whose optional display label never determines record admission.
 #[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
-#[serde(deny_unknown_fields)]
 #[cfg_attr(feature = "schema", derive(schemars::JsonSchema))]
 pub struct DiseaseConcept {
     /// Source-stated exact identifier.
@@ -20,7 +19,6 @@ pub struct DiseaseConcept {
 }
 /// One source candidate without a selected identity.
 #[derive(Clone, Debug, PartialEq, Serialize, Deserialize)]
-#[serde(deny_unknown_fields)]
 #[cfg_attr(feature = "schema", derive(schemars::JsonSchema))]
 pub struct DiseaseHeader {
     /// Native concept and optional exact ID.
@@ -35,7 +33,6 @@ pub struct DiseaseHeader {
 }
 /// Exact identity and available pages without hidden enrichment.
 #[derive(Clone, Debug, PartialEq, Serialize, Deserialize)]
-#[serde(deny_unknown_fields)]
 #[cfg_attr(feature = "schema", derive(schemars::JsonSchema))]
 pub struct DiseaseCard {
     /// Exact requested identifier.
@@ -74,7 +71,6 @@ impl ResponseBody for DiseaseCard {
 }
 /// One publisher catalog site, independent of ontology identities.
 #[derive(Clone, Debug, PartialEq, Serialize, Deserialize)]
-#[serde(deny_unknown_fields)]
 #[cfg_attr(feature = "schema", derive(schemars::JsonSchema))]
 pub struct DiseaseSite {
     /// Native publisher site code.
@@ -86,7 +82,6 @@ pub struct DiseaseSite {
 }
 /// One native association and the component terms governing that row.
 #[derive(Clone, Debug, PartialEq, Serialize, Deserialize)]
-#[serde(deny_unknown_fields)]
 #[cfg_attr(feature = "schema", derive(schemars::JsonSchema))]
 pub struct DiseaseAssociationItem {
     /// Complete neutral association, including requested and actual endpoints.
@@ -102,8 +97,7 @@ macro_rules! page {
     ($name:ident, $row:ty, $query:ty, $schema:literal, $doc:literal, [$($extra:tt)*]) => {
         #[doc = $doc]
         #[derive(Clone, Debug, PartialEq, Serialize, Deserialize)]
-        #[serde(deny_unknown_fields)]
-        #[cfg_attr(feature = "schema", derive(schemars::JsonSchema))]
+                #[cfg_attr(feature = "schema", derive(schemars::JsonSchema))]
         pub struct $name {
             /// Native source rows; totals in the envelope count rows, not distinct entities.
             #[serde(default, skip_serializing_if = "<[_]>::is_empty")]

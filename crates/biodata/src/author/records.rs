@@ -10,7 +10,6 @@ crate::wire_enum! {
 }
 /// Counts describe only this provider record, never a global publication corpus.
 #[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
-#[serde(deny_unknown_fields)]
 #[cfg_attr(feature = "schema", derive(schemars::JsonSchema))]
 pub struct AuthorCounts {
     /// Counts apply only to this provider record.
@@ -27,7 +26,6 @@ pub struct AuthorCounts {
 }
 /// One source candidate; absent affiliations differ from an empty source collection.
 #[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
-#[serde(deny_unknown_fields)]
 #[cfg_attr(feature = "schema", derive(schemars::JsonSchema))]
 pub struct AuthorHeader {
     /// Exact qualified provider record.
@@ -45,7 +43,6 @@ pub struct AuthorHeader {
 }
 /// Exact source author metadata without identity reconciliation.
 #[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
-#[serde(deny_unknown_fields)]
 #[cfg_attr(feature = "schema", derive(schemars::JsonSchema))]
 pub struct AuthorCard {
     /// Exact source candidate.
@@ -57,7 +54,6 @@ pub struct AuthorCard {
 }
 /// One indexed paper in source order; identifiers come only from that source.
 #[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
-#[serde(deny_unknown_fields)]
 #[cfg_attr(feature = "schema", derive(schemars::JsonSchema))]
 pub struct AuthorPaperHeader {
     /// Native source paper ID.
@@ -85,7 +81,6 @@ pub struct AuthorPaperHeader {
 }
 /// An open native identifier namespace and value; no identity inference.
 #[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
-#[serde(deny_unknown_fields)]
 #[cfg_attr(feature = "schema", derive(schemars::JsonSchema))]
 pub struct AuthorPaperExternalId {
     /// Native namespace and identifier.
@@ -93,7 +88,6 @@ pub struct AuthorPaperExternalId {
 }
 /// One source byline row; repeated display names remain separate.
 #[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
-#[serde(deny_unknown_fields)]
 #[cfg_attr(feature = "schema", derive(schemars::JsonSchema))]
 pub struct AuthorByline {
     /// Source author ID when supplied.
@@ -104,7 +98,6 @@ pub struct AuthorByline {
 }
 /// Native access metadata; access does not establish reuse rights.
 #[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
-#[serde(deny_unknown_fields)]
 #[cfg_attr(feature = "schema", derive(schemars::JsonSchema))]
 pub struct AuthorPaperAccess {
     /// Native PDF URL.
@@ -123,7 +116,6 @@ pub struct AuthorPaperAccess {
 }
 /// Detailed indexed paper metadata for the same native paper page.
 #[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
-#[serde(deny_unknown_fields)]
 #[cfg_attr(feature = "schema", derive(schemars::JsonSchema))]
 pub struct AuthorPaperDetail {
     /// Same compact paper identity.

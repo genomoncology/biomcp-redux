@@ -8,7 +8,6 @@
   },
   "$id": "biodata.drug-disease-reference/1",
   "$schema": "https://json-schema.org/draft/2020-12/schema",
-  "additionalProperties": false,
   "description": "One native disease identifier and its own source label.",
   "properties": {
     "id": {

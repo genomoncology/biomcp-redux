@@ -1,5 +1,6 @@
 //! The actual CLI refuses reflected outbound credentials before persistence or output.
 use super::{launch::Environment, network_stub::Stub};
+use crate::runner::transcript::trial as transcript_trial;
 use libtest_mimic::Trial;
 use serde_json::{Value, json};
 use std::{
@@ -19,10 +20,10 @@ const SEARCH: &[&str] = &[
 
 pub(super) fn trials() -> Vec<Trial> {
     vec![
-        Trial::test("credentials/reflected-wire-never-persists", || {
+        transcript_trial("credentials/reflected-wire-never-persists", || {
             wire().map_err(Into::into)
         }),
-        Trial::test("credentials/contaminated-replay-and-cache-refused", || {
+        transcript_trial("credentials/contaminated-replay-and-cache-refused", || {
             stored().map_err(Into::into)
         }),
     ]

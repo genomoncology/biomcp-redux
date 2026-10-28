@@ -1,7 +1,8 @@
 //! Synthetic source and identity faults never establish empty biology or poison the cache.
 use super::*;
+use crate::runner::transcript::trial as transcript_trial;
 pub(super) fn trials() -> Vec<Trial> {
-    vec![Trial::test(
+    vec![transcript_trial(
         "cell-line-identity/synthetic-faults-no-cache-and-provenance",
         || run(false).map_err(Into::into),
     )]

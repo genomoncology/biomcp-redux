@@ -4,10 +4,11 @@ use super::{
     network_stub::Stub,
     recurrence::{args, call, cbio, config},
 };
+use crate::runner::transcript::trial as transcript_trial;
 use libtest_mimic::Trial;
 use serde_json::{Value, json};
 pub(super) fn trials() -> Vec<Trial> {
-    vec![Trial::test(
+    vec![transcript_trial(
         "variant-recurrence/bounded-summary-list-discovery",
         || prove().map_err(Into::into),
     )]

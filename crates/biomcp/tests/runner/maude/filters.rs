@@ -1,14 +1,15 @@
 //! Feature maude-reports: native search selectors and source boundaries through CLI and MCP.
 use super::super::{configuration::invoke, launch::Environment, mcp, network_stub::Stub};
+use crate::runner::transcript::trial as transcript_trial;
 use libtest_mimic::Trial;
 use serde_json::{Value, json};
 
 pub(super) fn trials() -> Vec<Trial> {
     vec![
-        Trial::test("maude-reports/native-filters-and-replay", || {
+        transcript_trial("maude-reports/native-filters-and-replay", || {
             selectors().map_err(Into::into)
         }),
-        Trial::test("maude-reports/filter-source-boundaries", || {
+        transcript_trial("maude-reports/filter-source-boundaries", || {
             refusals().map_err(Into::into)
         }),
     ]

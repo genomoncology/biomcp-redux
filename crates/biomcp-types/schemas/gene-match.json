@@ -2,16 +2,6 @@
   "$defs": {
     "MatchKind": {
       "description": "How a source matched a gene input.",
-      "enum": [
-        "symbol",
-        "previous_symbol",
-        "alias",
-        "ncbi_alias",
-        "hgnc_id",
-        "entrez_id",
-        "ensembl_id",
-        "band"
-      ],
       "type": "string",
       "x-enum-descriptions": [
         " Current symbol.",
@@ -22,6 +12,16 @@
         " NCBI Gene identifier.",
         " Ensembl gene identifier.",
         " Cytogenetic band."
+      ],
+      "x-extensible-enum": [
+        "symbol",
+        "previous_symbol",
+        "alias",
+        "ncbi_alias",
+        "hgnc_id",
+        "entrez_id",
+        "ensembl_id",
+        "band"
       ]
     },
     "Text": {
@@ -32,7 +32,6 @@
   },
   "$id": "biodata.gene-match/1",
   "$schema": "https://json-schema.org/draft/2020-12/schema",
-  "additionalProperties": false,
   "description": "A source-stated match, preserving the text that matched.",
   "properties": {
     "kind": {

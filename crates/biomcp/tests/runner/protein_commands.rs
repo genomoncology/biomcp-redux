@@ -1,24 +1,25 @@
 //! Feature protein-search: dynamic pool bindings and lifetimes through the shipped command.
 use super::{configuration::invoke, launch::Environment};
+use crate::runner::transcript::trial as transcript_trial;
 use libtest_mimic::Trial;
 use serde_json::Value;
 type Check = Result<(), String>;
 pub(super) fn trials() -> Vec<Trial> {
     vec![
-        Trial::test("protein-search/continuation-count-bound", || {
+        transcript_trial("protein-search/continuation-count-bound", || {
             continuation_count().map_err(|e| e.to_string().into())
         }),
-        Trial::test(
+        transcript_trial(
             "protein-search/continuation-keeps-publication-lifetime",
             || continuation_lifetime().map_err(Into::into),
         ),
-        Trial::test("protein-search/pool-binding-and-lifetime", || {
+        transcript_trial("protein-search/pool-binding-and-lifetime", || {
             pools().map_err(Into::into)
         }),
-        Trial::test("protein-search/native-continuation-admission", || {
+        transcript_trial("protein-search/native-continuation-admission", || {
             links().map_err(|e| e.to_string().into())
         }),
-        Trial::test("protein-search/row-cache-admission", || {
+        transcript_trial("protein-search/row-cache-admission", || {
             cache_admission().map_err(|e| e.to_string().into())
         }),
     ]

@@ -151,3 +151,12 @@ The count covers trials of every status, including closed trials. It does not co
 `search biomarker --source nci --name PD-L1` searches NCI's native concept names and synonyms. `get biomarker C96022` searches by an exact NCIt code. Both require the user's NCI key. The public tier returns codes, name, type, trial count, synonyms, parent and ancestor codes, and native `eligibility_criterion` values. A code can return several native rows; BioMCP then returns candidates without choosing one. Counts cover NCI trials across statuses.
 
 These commands return terminology. `search diagnostic --biomarker` filters diagnostic tests, and `search trial --variant` searches literal variant text. Native inclusion and exclusion values remain source assertions and do not establish patient eligibility. Search pages retain one bounded observation. A broad request can return narrowing guidance; a source failure never establishes zero concepts.
+
+## Medical device recalls
+
+`search diagnostic --source fda-device-recall` covers every medical device. It searches the native recalling firm phrase, exact product code and inclusive initiation dates. The [FDA field mapping](https://github.com/FDA/openfda/blob/master/schemas/device_recall_mapping.json) defines `product_code` as a keyword field and `product_res_number.exact` as the exact recall identity. Totals count product recall records, including separate records under one event number. A count makes no claim about harm.
+
+The card preserves the recall's reason, root cause, product description and distribution pattern. Its submission numbers come only from top-level `k_numbers` and `pma_numbers` in the [device recall fields](https://open.fda.gov/apis/device/recall/searchable-fields/). Harmonized `openfda` identifiers describe the product code and never populate the card. One exact [device enforcement](https://open.fda.gov/apis/device/enforcement/) recall-number lookup supplies classification when present; absence leaves classification absent. A failed lookup preserves the recall card and discloses a partial result.
+
+The MAUDE next step selects the recall's product code across manufacturers. Recall records and adverse-event reports remain separate source facts. Neither establishes product-specific harm or clinical suitability.
+

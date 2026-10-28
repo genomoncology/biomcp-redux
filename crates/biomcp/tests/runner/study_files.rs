@@ -1,6 +1,7 @@
 //! Feature study-files: references retain native blob facts and publisher notices.
 use super::{call, rows, seed};
 use crate::runner::launch::Environment;
+use crate::runner::transcript::trial as transcript_trial;
 use libtest_mimic::Trial;
 use serde_json::{Value, json};
 use sha2::{Digest, Sha256};
@@ -10,14 +11,14 @@ pub(super) fn trials() -> Vec<Trial> {
     let native = crate::runner::launch::fixtures().join("study-files-cases");
     let available = native.is_dir();
     vec![
-        Trial::test("study-files/retained-native", move || {
+        transcript_trial("study-files/retained-native", move || {
             retained(&native).map_err(Into::into)
         })
         .with_ignored_flag(!available),
-        Trial::test("study-files/complete-walk-and-notice", || {
+        transcript_trial("study-files/complete-walk-and-notice", || {
             pages().map_err(Into::into)
         }),
-        Trial::test("study-files/absence-failure-policy", || {
+        transcript_trial("study-files/absence-failure-policy", || {
             failures().map_err(Into::into)
         }),
     ]

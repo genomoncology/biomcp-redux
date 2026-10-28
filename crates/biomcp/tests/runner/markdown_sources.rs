@@ -1,16 +1,17 @@
 //! Real CC BY papers prove source structure through the public command.
 use super::launch::Environment;
+use crate::runner::transcript::trial as transcript_trial;
 use libtest_mimic::Trial;
 use serde_json::{Value, json};
 pub(super) fn trials() -> Vec<Trial> {
     vec![
-        Trial::test("article/fulltext/source-subsection-markdown", || {
+        transcript_trial("article/fulltext/source-subsection-markdown", || {
             subsection().map_err(Into::into)
         }),
-        Trial::test("article/fulltext/source-table-markdown", || {
+        transcript_trial("article/fulltext/source-table-markdown", || {
             table().map_err(Into::into)
         }),
-        Trial::test("article/fulltext/abstract-markdown", || {
+        transcript_trial("article/fulltext/abstract-markdown", || {
             abstract_part().map_err(Into::into)
         }),
     ]

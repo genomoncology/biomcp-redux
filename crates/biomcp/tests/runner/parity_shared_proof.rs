@@ -1,5 +1,6 @@
 //! Closed parser edge cases reject undeclared namespace and selector shapes.
 use super::{Selection, Step, projection::Projection, request};
+use crate::runner::transcript::trial as transcript_trial;
 use libtest_mimic::Trial;
 use serde_json::{Value, json};
 
@@ -7,10 +8,10 @@ pub(super) fn trials() -> Vec<Trial> {
     vec![
         super::operation::trial(),
         super::indexing_proof::trial(),
-        Trial::test("parity/closed-projection-shapes", || {
+        transcript_trial("parity/closed-projection-shapes", || {
             projections().map_err(Into::into)
         }),
-        Trial::test("parity/effective-limit-selector", || {
+        transcript_trial("parity/effective-limit-selector", || {
             selectors().map_err(Into::into)
         }),
     ]

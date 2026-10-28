@@ -20,7 +20,6 @@ pub use protein::Protein;
 use serde::{Deserialize, Serialize};
 /// Answer to one requested input.
 #[derive(Clone, Debug, PartialEq, Serialize, Deserialize)]
-#[serde(deny_unknown_fields)]
 #[cfg_attr(feature = "schema", derive(schemars::JsonSchema))]
 pub struct GeneItem {
     /// Verified keyed source card annotation.
@@ -42,7 +41,6 @@ pub struct GeneItem {
 }
 /// Gene answers in input order.
 #[derive(Clone, Debug, PartialEq, Serialize, Deserialize)]
-#[serde(deny_unknown_fields)]
 #[cfg_attr(feature = "schema", derive(schemars::JsonSchema))]
 pub struct GeneCards {
     /// Requested inputs and their answers.
@@ -51,7 +49,6 @@ pub struct GeneCards {
 }
 /// One page of gene headers.
 #[derive(Clone, Debug, PartialEq, Serialize, Deserialize)]
-#[serde(deny_unknown_fields)]
 #[cfg_attr(feature = "schema", derive(schemars::JsonSchema))]
 pub struct GenePage {
     /// Headers after ranking and paging.
@@ -343,7 +340,6 @@ pub struct SyncQuery {
 }
 /// Published bundle metadata after synchronization.
 #[derive(Clone, Debug, PartialEq, Serialize, Deserialize)]
-#[serde(deny_unknown_fields)]
 #[cfg_attr(feature = "schema", derive(schemars::JsonSchema))]
 pub struct SyncResult {
     /// Catalog content revision and acquisition time, separate from source headers.
@@ -372,7 +368,6 @@ impl ResponseBody for SyncResult {
 
 /// Landed gene sections, each retaining its source and explicit state.
 #[derive(Clone, Debug, PartialEq, Serialize, Deserialize)]
-#[serde(deny_unknown_fields)]
 #[cfg_attr(feature = "schema", derive(schemars::JsonSchema))]
 pub struct GeneSections {
     /// Reviewed human proteins listed by HGNC.

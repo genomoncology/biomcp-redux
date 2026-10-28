@@ -3,7 +3,6 @@ use biodata::{NcitId, Text};
 use serde::{Deserialize, Serialize};
 /// One native biomarker header. Codes identify concepts, not unique result rows.
 #[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
-#[serde(deny_unknown_fields)]
 #[cfg_attr(feature = "schema", derive(schemars::JsonSchema))]
 pub struct BiomarkerHeader {
     /// Published NCIt codes, in source order.
@@ -18,7 +17,6 @@ pub struct BiomarkerHeader {
 }
 /// Native terminology card; source criteria remain uninterpreted.
 #[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
-#[serde(deny_unknown_fields)]
 #[cfg_attr(feature = "schema", derive(schemars::JsonSchema))]
 pub struct BiomarkerCard {
     /// Native concept identity and count.
@@ -38,7 +36,6 @@ pub struct BiomarkerCard {
 }
 /// Local page of a complete bounded source observation.
 #[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
-#[serde(deny_unknown_fields)]
 #[cfg_attr(feature = "schema", derive(schemars::JsonSchema))]
 pub struct BiomarkerPage {
     /// Native biomarker headers in source order.
@@ -51,7 +48,6 @@ impl crate::ResponseBody for BiomarkerPage {
 }
 /// Exact code result; multiple rows are candidates, never a selected card.
 #[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
-#[serde(deny_unknown_fields)]
 #[cfg_attr(feature = "schema", derive(schemars::JsonSchema))]
 pub struct BiomarkerResult {
     /// The sole native row when exactly one row matched.

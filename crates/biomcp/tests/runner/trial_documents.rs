@@ -7,6 +7,7 @@ use super::{
     launch::{Environment, fixtures},
     response_cases::copy_capture,
 };
+use crate::runner::transcript::trial as transcript_trial;
 use libtest_mimic::Trial;
 use serde_json::{Value, json};
 use sha2::{Digest, Sha256};
@@ -14,19 +15,19 @@ use std::{fs, path::Path};
 type Check = Result<(), Box<dyn std::error::Error>>;
 pub(super) fn trials() -> Vec<Trial> {
     vec![
-        Trial::test("trial/documents/linked-reference-article", || {
+        transcript_trial("trial/documents/linked-reference-article", || {
             reference().map_err(|e| e.to_string().into())
         }),
-        Trial::test("trial/documents/explicit-save-and-receipt", || {
+        transcript_trial("trial/documents/explicit-save-and-receipt", || {
             saves().map_err(|e| e.to_string().into())
         }),
-        Trial::test("trial/documents/manifest-membership-and-failure", || {
+        transcript_trial("trial/documents/manifest-membership-and-failure", || {
             failures().map_err(|e| e.to_string().into())
         }),
-        Trial::test("trial/documents/http-refuses-before-download", || {
+        transcript_trial("trial/documents/http-refuses-before-download", || {
             http().map_err(|e| e.to_string().into())
         }),
-        Trial::test("trial/documents/all-section-continuations", || {
+        transcript_trial("trial/documents/all-section-continuations", || {
             continuations().map_err(|e| e.to_string().into())
         }),
     ]

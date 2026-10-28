@@ -1,5 +1,6 @@
 //! Feature source-controls: direct and aggregated HPO share publisher policy.
 use super::{configuration::invoke, launch::Environment};
+use crate::runner::transcript::trial as transcript_trial;
 use biomcp_adapters::registry;
 use biomcp_types::{Reason, Source, SourceState};
 use libtest_mimic::Trial;
@@ -9,16 +10,16 @@ mod admission;
 mod health;
 pub(super) fn trials() -> Vec<Trial> {
     vec![
-        Trial::test("hpo-registry/exact-term-health", || {
+        transcript_trial("hpo-registry/exact-term-health", || {
             health::run().map_err(Into::into)
         }),
-        Trial::test("hpo-registry/declaration", || {
+        transcript_trial("hpo-registry/declaration", || {
             declaration().map_err(Into::into)
         }),
-        Trial::test("hpo-registry/policy-before-io", || {
+        transcript_trial("hpo-registry/policy-before-io", || {
             admission::run().map_err(Into::into)
         }),
-        Trial::test("hpo-registry/configuration-union", || {
+        transcript_trial("hpo-registry/configuration-union", || {
             switches().map_err(Into::into)
         }),
     ]

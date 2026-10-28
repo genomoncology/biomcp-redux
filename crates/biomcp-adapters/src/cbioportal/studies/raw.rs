@@ -21,6 +21,7 @@ pub(super) struct CatalogRow {
     cna_sample_count: u64,
     structural_variant_count: u64,
     treatment_count: u64,
+    #[serde(deserialize_with = "crate::strict_input::deserialize")]
     resource_counts: Box<[StudyResourceCount]>,
     import_date: StudyImportTime,
     groups: Box<str>,

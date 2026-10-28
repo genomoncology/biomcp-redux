@@ -210,6 +210,7 @@ fn enum_strings<'a>(root: &'a Value, node: &'a Value) -> Vec<&'a str> {
                 vec![value]
             } else {
                 v.get("enum")
+                    .or_else(|| v.get("x-extensible-enum"))
                     .and_then(Value::as_array)
                     .map_or_else(Vec::new, |a| a.iter().filter_map(Value::as_str).collect())
             }
@@ -224,6 +225,12 @@ fn sources(root: &Value, row: &Value, name: &str) -> Vec<Source> {
         == Some("who_ivd")
     {
         return vec![Source::WhoIvd];
+    }
+    // rows() has already selected the header, so its enclosing discriminator is absent.
+    if matches!(name, "DiagnosticCard" | "DiagnosticPage")
+        && scalar_path(root, row, &["recall_number"], false)
+    {
+        return vec![Source::FdaDeviceRecall];
     }
     let fixed = match name {
         "NciTrialPage" | "NciTrialCards" => Some(Source::Nci),

@@ -1,6 +1,7 @@
 //! Synthetic failures preserve source outcomes and never admit rejected values.
 use super::budgets;
 use super::{Environment, Stub, invoke, setup};
+use crate::runner::transcript::trial as transcript_trial;
 use libtest_mimic::Trial;
 use serde_json::{Value, json};
 use std::fs;
@@ -16,14 +17,14 @@ pub(super) fn trials() -> Vec<Trial> {
         "genes",
     ] {
         for fault in ["429", "500", "timeout", "broken", "error-body"] {
-            rows.push(Trial::test(
+            rows.push(transcript_trial(
                 format!("phenotype-identity/synthetic-{surface}-{fault}"),
                 move || failure(surface, fault).map_err(Into::into),
             ));
         }
     }
     for fault in ["hpo-id", "monarch-id", "MP", "UPHENO", "taxon"] {
-        rows.push(Trial::test(
+        rows.push(transcript_trial(
             format!("phenotype-identity/synthetic-reject-{fault}-without-cache"),
             move || identity(fault).map_err(Into::into),
         ));
