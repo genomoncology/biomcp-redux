@@ -123,7 +123,7 @@ fn command_metadata(commands: &[Value]) -> Result<(), String> {
     }
     for path in paths {
         if let Some(name) = path.first() {
-            invoke(&["help", name], 0)?;
+            invoke(&["help", name], 0).map_err(|error| format!("help {name}: {error}"))?;
         }
         let command = commands
             .iter()
