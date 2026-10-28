@@ -383,7 +383,11 @@ class NightlyCommand(unittest.TestCase):
     def test_publication_change_adds_or_removes_a_whole_batch(self):
         for change in ('addition', 'removal', 'missing-batch', 'parameter'):
             with self.subTest(change=change):
-                row = publication_growth_case(change, count=1600, insertion=1600)
+                row = publication_growth_case(
+                    'addition' if change == 'missing-batch' else change,
+                    count=1600, insertion=1600)
+                if change == 'missing-batch':
+                    row['witness'][0]['live']['requests'].pop(1)
                 self.classified(row, 'churn' if change in ('addition', 'removal') else 'failure',
                                 0 if change in ('addition', 'removal') else 1)
         for change in ('wrong-id', 'parameter', '400'):
