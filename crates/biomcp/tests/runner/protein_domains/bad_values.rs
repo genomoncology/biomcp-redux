@@ -267,6 +267,33 @@ fn domain_reply(fragments: Value) -> Value {
 fn nested() -> Result<(), String> {
     for (command, path, field, invalid, present, expected, absent) in [
         (
+            "complex-members",
+            "/participants/0/organismName",
+            "participants.taxon",
+            json!("Homo sapiens; abc"),
+            "/result/items/0/organism",
+            json!("Homo sapiens; abc"),
+            "/result/items/0/taxon",
+        ),
+        (
+            "complex-members",
+            "/participants/0/organismName",
+            "participants.taxon",
+            json!("Homo sapiens; 0"),
+            "/result/items/0/organism",
+            json!("Homo sapiens; 0"),
+            "/result/items/0/taxon",
+        ),
+        (
+            "complex-members",
+            "/participants/0/organismName",
+            "participants.taxon",
+            json!("Homo sapiens; -3"),
+            "/result/items/0/organism",
+            json!("Homo sapiens; -3"),
+            "/result/items/0/taxon",
+        ),
+        (
             "domains",
             "/results/0/metadata/member_databases",
             "member_databases.database",

@@ -13,7 +13,7 @@ impl Reply for Search {
             return Err(BadReply);
         }
         if self.elements.iter().any(|c| {
-            taxon(&c.organism_name) != Some(9606)
+            !taxon(&c.organism_name).is_ok_and(|value| value == Some(9606))
                 || c.interactors
                     .as_ref()
                     .is_some_and(|rows| rows.iter().any(|r| !r.valid()))
@@ -46,7 +46,9 @@ pub(super) struct Detail {
 }
 impl Reply for Detail {
     fn check(&self) -> Result<(), BadReply> {
-        if taxon(&self.species) == Some(9606) && self.participants.iter().all(Member::valid) {
+        if taxon(&self.species).is_ok_and(|value| value == Some(9606))
+            && self.participants.iter().all(Member::valid)
+        {
             Ok(())
         } else {
             Err(BadReply)
@@ -69,8 +71,17 @@ pub(super) struct Xref {
     pub database: String,
     pub identifier: String,
 }
-pub(super) fn taxon(s: &str) -> Option<u32> {
-    s.rsplit_once(';')?.1.trim().parse().ok()
+pub(super) fn taxon(s: &str) -> Result<Option<u32>, BadReply> {
+    let suffix = s.rsplit_once(';').ok_or(BadReply)?.1.trim();
+    let value: i64 = suffix.parse().map_err(|_| BadReply)?;
+    if value == -2 {
+        return Ok(None);
+    }
+    let taxon = u32::try_from(value).map_err(|_| BadReply)?;
+    if taxon == 0 {
+        return Err(BadReply);
+    }
+    Ok(Some(taxon))
 }
 
 impl Member {

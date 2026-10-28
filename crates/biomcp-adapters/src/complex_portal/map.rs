@@ -45,7 +45,12 @@ pub(super) fn members(
             Ok(ProteinComplexMember {
                 id: crate::mapped::text(&r.identifier).map_err(|_| bad())?,
                 participant_type: crate::mapped::text(&r.interactor_type).map_err(|_| bad())?,
-                taxon: organism.as_ref().and_then(|s| raw::taxon(s.as_str())),
+                taxon: problems
+                    .optional(
+                        "participants.taxon",
+                        organism.as_ref().map(|s| raw::taxon(s.as_str())),
+                    )
+                    .flatten(),
                 organism,
                 name: crate::mapped::field_text(
                     &mut problems.list,
