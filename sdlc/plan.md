@@ -47,6 +47,7 @@ Robustness and public-text fixes come first, because the parity run, the docs an
 
 - Rehearse the final candidate on every platform (0293).
 - A fresh agent compares the 0.9.3 and 1.0 CLIs blind on about 20 tasks, and every 1.0 regression is fixed or explained (0402).
+- Run MCP-Bench's BioMCP tasks, and InfoMosaic-Bench's if public, against 0.4.6 and 1.0: tool-call replay first, paid agent runs only after Ian approves their cost (0405).
 - Ian approves the public append, the 1.0 tag and publication.
 - Append this repository's history to the public repository with one merge commit, keeping old tags and releases (0294).
 - Tag v1.0.0 on that public merge commit, let the release workflow qualify the tag, and have the release operators publish from that run (0294). The installer and Homebrew download from the public repository's release, so the append and tag come before publication.
