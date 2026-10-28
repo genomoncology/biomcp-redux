@@ -8,7 +8,8 @@ pub(super) fn check() -> Result<(), String> {
         ("url", "members.source_url"),
         ("schemaClass", "members.schema_class"),
     ] {
-        let stub = reference_stub(native)?;
+        for invalid in [json!(""), json!({"bad": true})] {
+        let stub = reference_stub(native, invalid)?;
         let env = super::super::super::variant::source_environment(&stub)?;
         let value = invoke(
             &env,
@@ -69,11 +70,12 @@ pub(super) fn check() -> Result<(), String> {
             return Err(format!("repeated reference changed grouping: {value}"));
         }
         stub.finish()?;
+        }
     }
     Ok(())
 }
 
-fn reference_stub(native: &'static str) -> Result<Stub, String> {
+fn reference_stub(native: &'static str, invalid: Value) -> Result<Stub, String> {
     Stub::for_sources(
         &["reactome.org"],
         |_| "application/json",
@@ -84,7 +86,7 @@ fn reference_stub(native: &'static str) -> Result<Stub, String> {
                 "url":"https://www.uniprot.org/uniprotkb/P31749"
             });
             let first = reference.clone();
-            *reference.get_mut(native).ok_or("missing reference field")? = json!("");
+            *reference.get_mut(native).ok_or("missing reference field")? = invalid.clone();
             Ok(if request.contains("/database/version") {
                 json!(97)
             } else if request.contains("/participants/") {

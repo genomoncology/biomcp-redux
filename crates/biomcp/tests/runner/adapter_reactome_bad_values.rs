@@ -5,6 +5,7 @@ use serde_json::{Value, json};
 pub(super) fn check() -> Result<(), String> {
     for (section, native, field) in [
         ("summary", "stIdVersion", "version"),
+        ("summary", "displayName", "name"),
         ("summary", "summation", "summations"),
         ("summary", "literatureReference", "references"),
         ("summary", "title", "references.title"),
@@ -48,7 +49,7 @@ pub(super) fn check() -> Result<(), String> {
         if !value.get("problems").and_then(Value::as_array).is_some_and(|p| p.iter().any(|p| p.get("field") == Some(&json!(field)))) {
             return Err(format!("bad {field} lost disclosure: {value}"));
         }
-        if section == "summary" && value.pointer("/result/pathway/id") != Some(&json!("R-HSA-5673001")) {
+        if section == "summary" && native != "displayName" && value.pointer("/result/pathway/id") != Some(&json!("R-HSA-5673001")) {
             return Err(format!("bad {field} lost pathway: {value}"));
         }
         if section != "summary" && value.pointer("/result/items").and_then(Value::as_array).is_none_or(Vec::is_empty) {
