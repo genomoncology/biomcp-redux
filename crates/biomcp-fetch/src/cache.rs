@@ -84,6 +84,20 @@ impl Cache {
         path: &Path,
         owners: &[SchemaOwner],
     ) -> Result<Self, CacheError> {
+        #[cfg(unix)]
+        {
+            use std::os::unix::fs::OpenOptionsExt;
+            match std::fs::OpenOptions::new()
+                .write(true)
+                .create_new(true)
+                .mode(0o600)
+                .open(path)
+            {
+                Ok(_) => {}
+                Err(error) if error.kind() == std::io::ErrorKind::AlreadyExists => {}
+                Err(_) => return Err(CacheError::Database),
+            }
+        }
         let mut connection = Connection::open(path).map_err(db_error)?;
         check_owners(&connection, owners)?;
         connection.busy_timeout(OPEN_WAIT).map_err(db_error)?;
