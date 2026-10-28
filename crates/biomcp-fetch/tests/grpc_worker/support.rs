@@ -69,10 +69,6 @@ trait Io: AsyncRead + AsyncWrite + Send + Unpin {}
 impl<T: AsyncRead + AsyncWrite + Send + Unpin> Io for T {}
 type Socket = Box<dyn Io>;
 impl Fixture {
-    #[expect(
-        clippy::disallowed_types,
-        reason = "Count sockets only across this fixture and its joined worker"
-    )]
     pub(super) fn new(hold: Hold, status: u8, proxy: bool, proxy_tls: bool) -> Check<Self> {
         Self::with_messages(hold, status, proxy, proxy_tls, vec![vec![8, 42]])
     }
@@ -85,6 +81,10 @@ impl Fixture {
     ) -> Check<Self> {
         Self::with_http(hold, status, proxy, proxy_tls, messages, None, 200)
     }
+    #[expect(
+        clippy::disallowed_types,
+        reason = "Count sockets only across this fixture and its joined worker"
+    )]
     pub(super) fn with_http(
         hold: Hold,
         status: u8,
