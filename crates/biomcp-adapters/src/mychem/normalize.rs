@@ -95,16 +95,15 @@ pub(super) fn component(raw: ReceivedComponent, name: &str, problems: &mut Probl
                 values
                     .into_iter()
                     .filter_map(|v| {
-                        problems.required(&format!("{name}.molecule_synonyms"), v.value())
-                    })
-                    .collect::<Vec<_>>()
-                    .into_iter()
-                    .map(|v| Synonym {
-                        molecule_synonym: optional_string(
-                            v.molecule_synonym,
-                            &format!("{name}.molecule_synonyms.molecule_synonym"),
-                            problems,
-                        ),
+                        let v =
+                            problems.required(&format!("{name}.molecule_synonyms"), v.value())?;
+                        Some(Synonym {
+                            molecule_synonym: optional_string(
+                                v.molecule_synonym,
+                                &format!("{name}.molecule_synonyms.molecule_synonym"),
+                                problems,
+                            ),
+                        })
                     })
                     .collect()
             }),
