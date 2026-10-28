@@ -1,5 +1,7 @@
 //! Preserve paged native AlphaGenome values without ranking or clinical interpretation.
-use super::alphagenome_enums::*;
+use super::alphagenome_enums::{
+    AlphaGenomeBiosampleType, AlphaGenomeEndedness, AlphaGenomeOntologyType, AlphaGenomeStrand,
+};
 use serde::{Deserialize, Serialize};
 /// Native ontology identity.
 #[derive(Clone, Debug, PartialEq, Serialize, Deserialize)]

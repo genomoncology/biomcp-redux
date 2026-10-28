@@ -1,6 +1,10 @@
 use super::{PgxAnnotationGet, PgxGet, PgxSearch, PgxSource, PgxTotalKind};
 use crate::ResponseBody;
-use biodata::*;
+use biodata::{
+    ClinPgxAccession, GeneSymbol, PgxAnnotationDetail, PgxAnnotationHeader, PgxAnnotationReference,
+    PgxDiplotypeResult, PgxDrugRecommendation, PgxGeneIdentity, PgxGuidelineReference, PgxPair,
+    PgxRecommendation,
+};
 use serde::{Deserialize, Serialize};
 /// Source and declared gene context; no chosen pair or patient result.
 #[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]

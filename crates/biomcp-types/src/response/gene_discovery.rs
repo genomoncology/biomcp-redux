@@ -1,4 +1,6 @@
-use biodata::*;
+use biodata::{
+    Gene, GeneLocation, GeneStatus, GeneSymbol, HgncId, HgncStatus, LocusGroup, MatchKind, Text,
+};
 use serde::{Deserialize, Serialize};
 /// A source-stated match, preserving the text that matched.
 #[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
