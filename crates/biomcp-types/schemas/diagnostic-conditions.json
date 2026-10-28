@@ -76,6 +76,7 @@
     "DiagnosticCountUnit": {
       "description": "Meaning of the envelope's total for a source-owned diagnostic page.",
       "enum": [
+        "recall_records",
         "product_identities",
         "test_identities",
         "native_relation_rows",
@@ -157,7 +158,8 @@
         "gtr",
         "who-ivd",
         "fda-pma",
-        "fda-510k"
+        "fda-510k",
+        "fda-device-recall"
       ],
       "type": "string"
     },
@@ -480,6 +482,7 @@
         "fda-cdx",
         "fda-pma",
         "fda-510k",
+        "fda-device-recall",
         "cpic",
         "clinpgx",
         "cbioportal",
@@ -554,6 +557,7 @@
         " FDA companion diagnostic device tables.",
         " openFDA premarket approval submissions.",
         " FDA native 510(k) clearance records.",
+        " openFDA medical device product recall records.",
         " Clinical Pharmacogenetics Implementation Consortium.",
         " ClinPGx pharmacogenomics annotations.",
         " Public cBioPortal with study-specific reuse terms.",

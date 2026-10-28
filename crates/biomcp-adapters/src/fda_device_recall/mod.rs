@@ -68,7 +68,7 @@ pub struct Failure {
     /// Wrong returned recall identity; never admitted to the cache.
     pub identity_field: Option<&'static str>,
 }
-fn exact<T: DeserializeOwned+Identity>(leg: &Leg<'_>,path:&str,field:&'static str,id:&DeviceRecallNumber) -> Result<Option<T>,Failure> {
+fn exact<T: DeserializeOwned+Identity>(leg: &Leg<'_>,path:&'static str,field:&'static str,id:&DeviceRecallNumber) -> Result<Option<T>,Failure> {
     let selector=format!("{field}.exact:\"{id}\"");
     let endpoint=SPEC.get(path).fresh(Freshness::Days(1)).bytes(2*1024*1024).json_absence();
     let identity=|reply:&raw::Response<T>| !matches!(reply,raw::Response::Page {results,..} if results.iter().any(|r|r.id()!=id));

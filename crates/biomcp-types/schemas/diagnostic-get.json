@@ -6,7 +6,8 @@
         "gtr",
         "who-ivd",
         "fda-pma",
-        "fda-510k"
+        "fda-510k",
+        "fda-device-recall"
       ],
       "type": "string"
     },

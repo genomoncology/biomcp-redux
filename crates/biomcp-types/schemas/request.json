@@ -253,7 +253,8 @@
         "gtr",
         "who-ivd",
         "fda-pma",
-        "fda-510k"
+        "fda-510k",
+        "fda-device-recall"
       ],
       "type": "string"
     },
@@ -262,7 +263,8 @@
       "enum": [
         "gtr",
         "fda-cdx",
-        "who-ivd"
+        "who-ivd",
+        "fda-device-recall"
       ],
       "type": "string"
     },
@@ -2335,6 +2337,28 @@
           ],
           "description": "Exact source GeneID, exclusive with gene symbol."
         },
+        "initiated_from": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/PartialDate"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "description": "Inclusive initiation date, YYYY-MM-DD; FDA device recalls only."
+        },
+        "initiated_to": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/PartialDate"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "description": "Inclusive initiation date, YYYY-MM-DD; FDA device recalls only."
+        },
         "limit": {
           "default": 5,
           "description": "Five results by default; at most fifty source rows or product headers.",
@@ -2352,7 +2376,7 @@
               "type": "null"
             }
           ],
-          "description": "Literal whole-word phrase in WHO's Manufacturer name cell."
+          "description": "WHO manufacturer words or native FDA recalling_firm phrase."
         },
         "marker": {
           "anyOf": [
@@ -2372,9 +2396,20 @@
           "minimum": 0,
           "type": "integer"
         },
+        "product_code": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/Text"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "description": "Exact native FDA device recall product code."
+        },
         "source": {
           "$ref": "#/$defs/DiagnosticSearchSource",
-          "description": "Explicit native GTR, WHO IVD or FDA companion discovery."
+          "description": "Explicit native GTR, WHO IVD, FDA companion or medical device recall discovery."
         },
         "type": {
           "anyOf": [
