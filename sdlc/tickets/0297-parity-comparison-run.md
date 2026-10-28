@@ -1,6 +1,6 @@
 # 0297 — Run the whole parity comparison and fill the size and timing rows
 
-Status: OPEN.
+Status: COMPLETE.
 
 Milestone: 5
 
