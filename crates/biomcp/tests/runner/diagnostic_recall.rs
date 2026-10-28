@@ -4,8 +4,11 @@ use libtest_mimic::Trial;
 use serde_json::{Value, json};
 #[path = "diagnostic_recall_selectors.rs"]
 mod selectors;
+#[path = "diagnostic_recall_boundaries.rs"]
+mod boundaries;
 pub(super) fn trials() -> Vec<Trial> {
     let mut trials = selectors::trials();
+    trials.extend(boundaries::trials());
     trials.extend(
     vec![Trial::test("diagnostic-device-recall/native-firm-search", || {
         firm().map_err(Into::into)

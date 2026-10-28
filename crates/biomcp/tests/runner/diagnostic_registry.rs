@@ -103,6 +103,7 @@ fn switches() -> Check {
         "fda-cdx",
         "fda-pma",
         "fda-510k",
+        "fda-device-recall",
         "noncommercial",
     ] {
         let env = Environment::new().map_err(|e| e.to_string())?;
