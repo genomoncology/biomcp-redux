@@ -46,5 +46,6 @@ Robustness and public-text fixes come first, because the parity run, the docs an
 - Cut the release candidate from main once every ticket above lands (0336).
 
 - Rehearse the final candidate on every platform (0293).
-- Ian approves the release, and the release operators publish.
-- Append this repository's history to the public repository with one merge commit, keeping old tags and releases (0294), after Ian's explicit approval of that step.
+- Ian approves the public append, the 1.0 tag and publication.
+- Append this repository's history to the public repository with one merge commit, keeping old tags and releases (0294).
+- Tag v1.0.0 on that public merge commit, let the release workflow qualify the tag, and have the release operators publish from that run (0294). The installer and Homebrew download from the public repository's release, so the append and tag come before publication.
