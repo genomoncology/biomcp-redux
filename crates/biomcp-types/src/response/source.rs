@@ -44,12 +44,12 @@ pub struct SourceOutcome {
     /// Retrieved identity depth.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub fetched: Option<u32>,
-    /// Provider query notices that do not indicate failure.
+    /// Source notices and request recovery guidance.
     #[serde(default, skip_serializing_if = "Vec::is_empty")]
     pub notices: Vec<SourceNotice>,
 }
 
-/// A provider query interpretation notice.
+/// A source notice or request recovery step.
 #[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
 #[serde(tag = "kind", rename_all = "snake_case", deny_unknown_fields)]
 #[cfg_attr(feature = "schema", derive(schemars::JsonSchema))]
