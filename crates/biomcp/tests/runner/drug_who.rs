@@ -144,12 +144,18 @@ fn pair(env: &Environment, replay: &Path, args: &[&str], exit: i32) -> Result<Va
     Ok(value)
 }
 fn replacement(env: &Environment, replay: &Path, get: &[&str], before: &Value) -> Check {
-    let path = fs::read_dir(replay.join("who-pq"))
-        .map_err(|e| e.to_string())?
-        .next()
-        .ok_or("missing recording")?
-        .map_err(|e| e.to_string())?
-        .path();
+    // A binary decoder publishes payload sidecars beside the JSON recording.
+    // Directory order never identifies the exchange metadata.
+    let mut recordings = Vec::new();
+    for entry in fs::read_dir(replay.join("who-pq")).map_err(|e| e.to_string())? {
+        let path = entry.map_err(|e| e.to_string())?.path();
+        if path.extension().is_some_and(|extension| extension == "json") {
+            recordings.push(path);
+        }
+    }
+    let [path] = recordings.as_slice() else {
+        return Err(format!("expected one WHO recording, found {}", recordings.len()));
+    };
     let bytes = fs::read(&path).map_err(|e| e.to_string())?;
     let original: Value = serde_json::from_slice(&bytes).map_err(|e| {
         format!(
