@@ -501,6 +501,12 @@ The CLI path maps to the tag mechanically: `search gene` is `search_gene` and `t
 
 Every command returns one envelope. Its body type changes by command, and each body names its own query type, so `query` echoes only the command that ran.
 
+The envelope omits empty collections, including source identity lists and empty search pages. The case runner checks product envelopes from recorded CLI and MCP calls. Raw provider recordings retain their native arrays. Query echoes omit inactive false flags and retain values that shape the request, including limits, filters, source selections and continuations. Trial search results omit the raw provider parameter lists. Help echoes its path as a `command` list inside the query object; root help echoes an empty query object.
+
+Variant identity lists serialize through one namespace owner. Their entries use `rs:`, `clingen:`, `clinvar:`, `cosmic:` or the source's `ga4gh:` prefix. Published identifiers and the accepted command input grammar stay unchanged. A ClinVar accession retains its `VCV` spelling after the namespace prefix, and ClinGen identifiers retain `CA` or `PA`.
+
+Trial `source_updated` contains the native `value` and a typed `timezone` marker. The recorded ClinicalTrials.gov version replies provide timestamps without timezone text, so these replies say `source_gave_none`. A native timestamp with `Z` or an offset retains that text and says `in_value`. BioMCP infers no timezone. Date-only source update fields retain their `PartialDate` type. The reviewed source evidence is the version response in `tests/replies/trial/condition/ctgov/`; the publisher documents the version endpoint in [its API reference](https://clinicaltrials.gov/data-api/api).
+
 ```rust
 /// Every response body names its schema and the query that produced it.
 pub trait ResponseBody: Serialize {
@@ -557,7 +563,8 @@ pub enum Reason { NotFound, RateLimited, Unavailable, Rejected, BadReply, Deadli
 - Generation must stay inside the compatibility checker's [supported subset](../../crates/biomcp-types/tests/schemas/compatibility.rs). Use `wire_enum!` for checked string enums. Optional unions contain one value and null; `oneOf` supports internally tagged object branches, not unit-enum branches. Unsupported keywords such as `uniqueItems` fail even when generating an initial schema. Enforce source uniqueness at runtime and keep its existing proof. Do not expand the checker to accommodate a new derive form or keyword.
 - The same test runs a compatibility check. It resolves every `$ref` through `$defs` and lists each schema as JSON pointer paths with their types. Every path and type in the checked-in schema must still exist in the new one unless the major version rose. Adding an optional field keeps the version. Removing, renaming or retyping a field raises it.
 - The same test checks that every query schema stays inside the grammar's subset: a flat object whose properties are strings, integers, booleans, string enums, or arrays of those, with no nested objects, `oneOf` or `anyOf` other than an optional value, and one allowed exception: a root `anyOf` of `required` lists that says at least one selector must be present, such as `query` or `band` on a gene search. A query type outside the subset fails here, before the grammar sees it.
-- The binary embeds the checked-in schema files with `include_str!`. `biomcp schema <name>` prints one, the grammar reads them, and the MCP tool list cites them. The checked-in files are the one authority, and the drift test keeps them equal to the types.
+- The binary embeds the checked-in schema files with `include_str!`. `biomcp schema <name>` prints one, and the grammar reads them. The checked-in files are the one authority, and the drift test keeps them equal to the types.
+- MCP advertises compact reply envelopes with schema IDs selected from the help catalog. The result has object type. Error, research projection and raw schema-document forms remain available. Clients retrieve full contracts through `biomcp schema <id>`, including calls through the MCP tool. Discovery embeds no full reply graph and requires no schema resolver.
 - The public contract tests in `crates/biomcp-types/tests/` check JSON round trips, and `crates/biomcp-types/tests/schemas/values.rs` checks canonical enum spellings against their schemas. BioMCP writes and reads only JSON, so other formats wait for a consumer.
 
 ### 3.10 How types carry progressive disclosure
@@ -1656,7 +1663,7 @@ MCP offers the main `biomcp` tool and read-only research `search` and `fetch` wr
     "required": ["args"],
     "additionalProperties": false
   },
-  "outputSchema": { "type": "object", "description": "The BioMCP envelope. Its schema field names the exact response schema.", "properties": { "schema": { "type": "string" }, "status": { "type": "string" } }, "required": ["schema", "status"] }
+  "outputSchema": { "type": "object", "description": "Compact reply envelope. Use biomcp schema <id> for its full contract.", "properties": { "schema": { "enum": ["biomcp.gene-cards/4"] }, "status": { "type": "string" }, "result": { "type": "object" } }, "required": ["schema", "status"] }
 }
 ```
 
@@ -1888,6 +1895,7 @@ The ratchet owns the authoritative file and reason list below and checks this ta
 | `crates/biomcp-adapters/tests/batch_bounds.rs` | Exercise literal indexed lookup inputs outside command validation and empty/oversized batches or chunks beyond command limits. |
 | `crates/biomcp-adapters/tests/pmc_body.rs` | Reconstruct complete source rows and retain JATS reference IDs and links omitted from command JSON. |
 | `crates/biomcp-adapters/tests/pmc_limits.rs` | Reject invalid table spans and duplicate table IDs before allocation with a tiny decoder boundary table. |
+| `crates/biomcp-fetch/src/cache/contention.rs` | Order independent SQLite snapshots and writer admission at the private transaction boundary without product hooks. |
 | `crates/biomcp-fetch/src/destination_tests.rs` | Cover public DNS address and redirect rejection tables without contacting private destinations. |
 | `crates/biomcp-fetch/src/grpc/dns_tests.rs` | Prove a stalled platform lookup cannot outlive its caller budget or begin a stream, without changing the host resolver configuration. |
 | `crates/biomcp-fetch/src/retry_tests.rs` | Cover Retry-After forms and backoff boundaries without one recording per table row. |
@@ -1898,6 +1906,7 @@ The ratchet owns the authoritative file and reason list below and checks this ta
 | `crates/biomcp-fetch/tests/batch.rs` | Exercise transport ownership, local server behavior and cache/record failures through its public API. |
 | `crates/biomcp-fetch/tests/bundle.rs` | Exercise transport ownership, local server behavior and cache/record failures through its public API. |
 | `crates/biomcp-fetch/tests/bundle/download.rs` | Exercise transport ownership, local server behavior and cache/record failures through its public API. |
+| `crates/biomcp-fetch/tests/bundle/native.rs` | Exercise complete native TSV replacement sets and decoded bounds through the public transport API. |
 | `crates/biomcp-fetch/tests/bundle/rows.rs` | Exercise transport ownership, local server behavior and cache/record failures through its public API. |
 | `crates/biomcp-fetch/tests/cache.rs` | Exercise transport ownership, local server behavior and cache/record failures through its public API. |
 | `crates/biomcp-fetch/tests/cache/credentials.rs` | Exercise transport ownership, local server behavior and cache/record failures through its public API. |

@@ -82,6 +82,7 @@ struct SearchFields {
     #[serde(default, skip_serializing_if = "Option::is_none")]
     bundle_revision: Option<Text>,
 }
+crate::query::validation::checked_query!(DiagnosticSearch, SearchFields);
 impl TryFrom<SearchFields> for DiagnosticSearch {
     type Error = QueryInvalid;
     fn try_from(v: SearchFields) -> Result<Self, Self::Error> {
@@ -91,33 +92,73 @@ impl TryFrom<SearchFields> for DiagnosticSearch {
             || v.test_type.is_some();
         let cdx = v.device_id.is_some() || v.drug_application.is_some() || v.biomarker.is_some();
         let who = v.marker.is_some() || v.manufacturer.is_some();
-        if !(1..=50).contains(&v.limit)
-            || [
-                v.gene.is_some(),
-                v.gene_id.is_some(),
-                v.condition_id.is_some(),
-            ]
-            .into_iter()
-            .filter(|v| *v)
-            .count()
-                > 1
-            || (v.source == DiagnosticSearchSource::Gtr && (cdx || who))
-            || (v.source == DiagnosticSearchSource::FdaCdx && (gtr || who))
-            || (v.source == DiagnosticSearchSource::WhoIvd && (gtr || cdx))
-            || [v.marker.as_ref(), v.manufacturer.as_ref()]
-                .into_iter()
-                .flatten()
-                .any(|v| !v.as_str().chars().any(char::is_alphanumeric))
-            || v.device_id
-                .as_ref()
-                .is_some_and(|id| !(id.as_str().starts_with('P') || id.as_str().starts_with('K')))
-            || v.condition_id.as_ref().is_some_and(|id| {
-                id.as_str()
-                    .strip_prefix("MedGen:C")
-                    .is_none_or(|id| id.is_empty() || !id.bytes().all(|b| b.is_ascii_digit()))
-            })
+        if !(1..=50).contains(&v.limit) {
+            return Err(QueryInvalid::new(&["limit"]));
+        }
+        if [
+            v.gene.is_some(),
+            v.gene_id.is_some(),
+            v.condition_id.is_some(),
+        ]
+        .into_iter()
+        .filter(|v| *v)
+        .count()
+            > 1
         {
-            return Err(QueryInvalid);
+            return Err(QueryInvalid::new(&["gene", "gene_id", "condition_id"]));
+        }
+        if v.source == DiagnosticSearchSource::Gtr && (cdx || who) {
+            return Err(QueryInvalid::new(&[
+                "source",
+                "device_id",
+                "drug_application",
+                "biomarker",
+                "marker",
+                "manufacturer",
+            ]));
+        }
+        if v.source == DiagnosticSearchSource::FdaCdx && (gtr || who) {
+            return Err(QueryInvalid::new(&[
+                "source",
+                "gene_id",
+                "gene",
+                "condition_id",
+                "type",
+                "marker",
+                "manufacturer",
+            ]));
+        }
+        if v.source == DiagnosticSearchSource::WhoIvd && (gtr || cdx) {
+            return Err(QueryInvalid::new(&[
+                "source",
+                "gene_id",
+                "gene",
+                "condition_id",
+                "type",
+                "device_id",
+                "drug_application",
+                "biomarker",
+            ]));
+        }
+        if [v.marker.as_ref(), v.manufacturer.as_ref()]
+            .into_iter()
+            .flatten()
+            .any(|v| !v.as_str().chars().any(char::is_alphanumeric))
+        {
+            return Err(QueryInvalid::new(&["marker", "manufacturer"]));
+        }
+        if v.device_id
+            .as_ref()
+            .is_some_and(|id| !(id.as_str().starts_with('P') || id.as_str().starts_with('K')))
+        {
+            return Err(QueryInvalid::new(&["device_id"]));
+        }
+        if v.condition_id.as_ref().is_some_and(|id| {
+            id.as_str()
+                .strip_prefix("MedGen:C")
+                .is_none_or(|id| id.is_empty() || !id.bytes().all(|b| b.is_ascii_digit()))
+        }) {
+            return Err(QueryInvalid::new(&["condition_id"]));
         }
         Ok(Self(v))
     }

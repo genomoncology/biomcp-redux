@@ -7,6 +7,7 @@ use serde::{Deserialize, Serialize};
 #[cfg_attr(feature = "schema", derive(schemars::JsonSchema))]
 pub struct GwasPage {
     /// Shared complete association records.
+    #[serde(default, skip_serializing_if = "<[_]>::is_empty")]
     pub items: Box<[GwasAssociation]>,
     /// Native page scope and total.
     pub page: PageInfo,
@@ -43,8 +44,10 @@ pub struct GwasReportedGene {
     #[serde(default, skip_serializing_if = "Option::is_none")]
     pub name: Option<Text>,
     /// Exact source Ensembl identifiers.
+    #[serde(default, skip_serializing_if = "<[_]>::is_empty")]
     pub ensembl_ids: Box<[Text]>,
     /// Exact source Entrez identifiers.
+    #[serde(default, skip_serializing_if = "<[_]>::is_empty")]
     pub entrez_ids: Box<[Text]>,
 }
 /// One native locus with independent reported genes and risk-allele text.
@@ -56,8 +59,10 @@ pub struct GwasLocus {
     #[serde(default, skip_serializing_if = "Option::is_none")]
     pub description: Option<Text>,
     /// Source strongest-risk-allele strings.
+    #[serde(default, skip_serializing_if = "<[_]>::is_empty")]
     pub strongest_risk_alleles: Box<[Text]>,
     /// Reported source genes; never inferred from names.
+    #[serde(default, skip_serializing_if = "<[_]>::is_empty")]
     pub author_reported_genes: Box<[GwasReportedGene]>,
     /// Native locus self link.
     #[serde(default, skip_serializing_if = "Option::is_none")]
@@ -72,6 +77,7 @@ pub struct GwasLoci {
     /// Exact owning association.
     pub association: GwasAssociationId,
     /// Native locus rows.
+    #[serde(default, skip_serializing_if = "<[_]>::is_empty")]
     pub items: Box<[GwasLocus]>,
     /// Same-resource relation continuation.
     #[serde(default, skip_serializing_if = "Option::is_none")]
@@ -93,8 +99,10 @@ pub struct GwasStudy {
     #[serde(default, skip_serializing_if = "Option::is_none")]
     pub publication: Option<Pmid>,
     /// Native reported disease traits.
+    #[serde(default, skip_serializing_if = "<[_]>::is_empty")]
     pub reported_traits: Box<[Text]>,
     /// Every native mapped ontology label and ID.
+    #[serde(default, skip_serializing_if = "<[_]>::is_empty")]
     pub ontology_traits: Box<[GwasTrait]>,
     /// Whole discovery sample prose.
     #[serde(default, skip_serializing_if = "Option::is_none")]
@@ -103,10 +111,13 @@ pub struct GwasStudy {
     #[serde(default, skip_serializing_if = "Option::is_none")]
     pub replication_sample_description: Option<Text>,
     /// Native discovery ancestry summaries.
+    #[serde(default, skip_serializing_if = "<[_]>::is_empty")]
     pub discovery_ancestries: Box<[Text]>,
     /// Native replication ancestry summaries.
+    #[serde(default, skip_serializing_if = "<[_]>::is_empty")]
     pub replication_ancestries: Box<[Text]>,
     /// Source technologies.
+    #[serde(default, skip_serializing_if = "<[_]>::is_empty")]
     pub genotyping_technologies: Box<[Text]>,
     /// Source SNP count; missing differs from zero.
     #[serde(default, skip_serializing_if = "Option::is_none")]
@@ -115,7 +126,7 @@ pub struct GwasStudy {
     #[serde(default, skip_serializing_if = "Option::is_none")]
     pub platforms: Option<Text>,
     /// Native array manufacturer labels.
-    #[serde(default, skip_serializing_if = "Option::is_none")]
+    #[serde(default, skip_serializing_if = "biodata::absent_or_empty")]
     pub array_manufacturers: Option<Box<[Text]>>,
     /// Native gene-environment interaction flag.
     #[serde(default, skip_serializing_if = "Option::is_none")]
@@ -173,10 +184,13 @@ pub struct GwasAncestry {
     #[serde(default, skip_serializing_if = "Option::is_none")]
     pub number_of_individuals: Option<u64>,
     /// Original ancestry group labels.
+    #[serde(default, skip_serializing_if = "<[_]>::is_empty")]
     pub ancestry_groups: Box<[Text]>,
     /// Native origin metadata.
+    #[serde(default, skip_serializing_if = "<[_]>::is_empty")]
     pub country_of_origin: Box<[GwasCountry]>,
     /// Native recruitment metadata.
+    #[serde(default, skip_serializing_if = "<[_]>::is_empty")]
     pub country_of_recruitment: Box<[GwasCountry]>,
     /// Native row self link, checked against its owning study by the adapter.
     #[cfg_attr(feature = "schema", schemars(extend("format" = "uri")))]
@@ -190,6 +204,7 @@ pub struct GwasAncestries {
     /// Exact owning study.
     pub study: GwasStudyId,
     /// Independent source rows.
+    #[serde(default, skip_serializing_if = "<[_]>::is_empty")]
     pub items: Box<[GwasAncestry]>,
     /// Retained relation continuation.
     #[serde(default, skip_serializing_if = "Option::is_none")]

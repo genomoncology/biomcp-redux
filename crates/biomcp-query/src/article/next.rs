@@ -126,6 +126,13 @@ pub(super) fn search(
                 },
             )
         }));
+        if let Some(broader) = query.without_variant() {
+            push(
+                &mut out.next,
+                StepKind::Disambiguate,
+                Request::SearchArticle(broader),
+            );
+        }
     }
     variant_step(query, out);
 }

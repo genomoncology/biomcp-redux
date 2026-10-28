@@ -7,6 +7,7 @@ use serde::{Deserialize, Serialize};
 #[cfg_attr(feature = "schema", derive(schemars::JsonSchema))]
 pub struct VariantCivic {
     /// Source profiles in native order; name candidates carry no attached statements.
+    #[serde(default, skip_serializing_if = "<[_]>::is_empty")]
     pub profiles: Box<[CivicProfile]>,
     /// Disclosure bounds for this section.
     pub page: PageInfo,
@@ -30,12 +31,14 @@ pub struct CivicProfile<Continuation = VariantGet> {
     /// Whether a source member was joined to the requested exact identity.
     pub membership: CivicMembership,
     /// Every source member reference, without collapsing compound profiles.
+    #[serde(default, skip_serializing_if = "<[_]>::is_empty")]
     pub members: Box<[CivicMember]>,
     /// Native evidence count, independent of the displayed page.
     pub evidence_count: u64,
     /// Native assertion count, independent of the displayed page.
     pub assertion_count: u64,
     /// Source claims; a compound claim retains a profile subject.
+    #[serde(default, skip_serializing_if = "<[_]>::is_empty")]
     pub statements: Box<[CivicStatement]>,
     /// Native evidence stream and its independent continuation.
     pub evidence_page: CivicClaimPage<Continuation>,

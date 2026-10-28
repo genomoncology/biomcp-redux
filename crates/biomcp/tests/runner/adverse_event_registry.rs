@@ -36,7 +36,7 @@ fn declaration(source: &str) -> Check {
         .and_then(Value::as_array)
         .and_then(|rows| rows.iter().find(|row| row["source"] == source))
         .ok_or_else(|| format!("missing {source}"))?;
-    if row["usage"] != "open"
+    if row["use"] != "open"
         || row["disabled"] != false
         || row["terms_url"] != "https://open.fda.gov/terms/"
     {

@@ -163,6 +163,7 @@ pub struct AlphaGenomeScorerPage {
     /// Complete native tensor dimensions, including every plane.
     pub shape: [u32; 3],
     /// Paged values in native row-major order.
+    #[serde(default, skip_serializing_if = "<[_]>::is_empty")]
     pub rows: Box<[AlphaGenomeValue]>,
     /// Value paging within this scorer only.
     pub page: crate::PageInfo,
@@ -184,5 +185,6 @@ pub struct VariantAlphaGenome {
     /// Checkpoint field sent; empty means the publisher default was requested.
     pub requested_model_version: String,
     /// Native scorer groups associated only by requested position.
+    #[serde(default, skip_serializing_if = "<[_]>::is_empty")]
     pub scorers: Box<[AlphaGenomeScorerPage]>,
 }

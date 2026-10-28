@@ -2,6 +2,7 @@
 use biomcp_fetch::{Credential, KeyPlace, KeyUse, SecretName, SourceSpec};
 /// Publisher policy shared by capture and the future variant section.
 pub static SPEC: SourceSpec = SourceSpec {
+    destinations: biomcp_fetch::Destinations::Primary,
     user_agent: None,
     source: biomcp_types::Source::AlphaGenome,
     terms: biomcp_fetch::Terms {

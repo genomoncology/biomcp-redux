@@ -141,6 +141,7 @@ fn concurrent_replay_legs_share_the_cache_without_spurious_local_busy_errors() {
     let records = directory.path().join("pubmed");
     std::fs::create_dir(&records).unwrap();
     let spec: &'static SourceSpec = Box::leak(Box::new(SourceSpec {
+        destinations: biomcp_fetch::Destinations::Primary,
         user_agent: None,
         terms: biomcp_fetch::Terms {
             name: "Test terms",
@@ -287,6 +288,7 @@ fn native_search_headers_survive_record_replay_and_offline_cache() {
     let server = Server::new();
     let original = spec(&server, KeyUse::None);
     let spec = Box::leak(Box::new(SourceSpec {
+        destinations: biomcp_fetch::Destinations::Primary,
         user_agent: None,
         source: biomcp_types::Source::UniProt,
         base: original.base,

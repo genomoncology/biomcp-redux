@@ -47,6 +47,7 @@ pub struct Supplements {
     /// Article license from the record.
     pub license: License,
     /// Exact JATS/record intersection.
+    #[serde(default, skip_serializing_if = "<[_]>::is_empty")]
     pub files: Box<[SupplementFile]>,
 }
 /// One original sparse row with its numbered first source row.
@@ -61,6 +62,7 @@ pub struct SheetRow {
     /// First original row, including empty cells; never inferred column headings.
     pub first_row: FirstSheetRow,
     /// This row's cells, including empty cells before populated columns.
+    #[serde(default, skip_serializing_if = "<[_]>::is_empty")]
     pub cells: Box<[String]>,
     /// Sparse source cell fragment when the complete row exceeds the output bound.
     #[serde(skip_serializing_if = "Option::is_none")]
@@ -74,6 +76,7 @@ pub struct FirstSheetRow {
     /// Original one-based row number.
     pub row: u32,
     /// Original cells, empty when represented by cell fragments.
+    #[serde(default, skip_serializing_if = "<[_]>::is_empty")]
     pub cells: Box<[String]>,
 }
 /// A bounded portion of one original first-row or selected-row cell.
@@ -121,10 +124,10 @@ pub struct SupplementContent {
     #[serde(skip_serializing_if = "Option::is_none")]
     pub reason: Option<crate::Reason>,
     /// Original sheet dimensions.
-    #[serde(skip_serializing_if = "Option::is_none")]
+    #[serde(skip_serializing_if = "biodata::absent_or_empty")]
     pub sheets: Option<Box<[SheetInfo]>>,
     /// Selected original rows.
-    #[serde(skip_serializing_if = "Option::is_none")]
+    #[serde(skip_serializing_if = "biodata::absent_or_empty")]
     pub rows: Option<Box<[SheetRow]>>,
     /// Explicit absence of matching text from the returned search page.
     #[serde(skip_serializing_if = "Option::is_none")]

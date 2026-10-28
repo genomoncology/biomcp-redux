@@ -15,7 +15,7 @@ struct Fields {
     #[cfg_attr(feature="schema", schemars(length(min=1,max=10), extend("x-positional"=0)))]
     seeds: Box<[ArticleInput]>,
     /// Up to ten negative paper identities.
-    #[serde(default)]
+    #[serde(default, skip_serializing_if = "<[_]>::is_empty")]
     #[cfg_attr(feature = "schema", schemars(length(max = 10)))]
     negative: Box<[ArticleInput]>,
     /// Maximum recommendations requested, in native order.
@@ -37,19 +37,28 @@ struct Fields {
 fn limit() -> u32 {
     10
 }
+crate::query::validation::checked_query!(ArticleRecommend, Fields);
 impl TryFrom<Fields> for ArticleRecommend {
     type Error = QueryInvalid;
     fn try_from(v: Fields) -> Result<Self, QueryInvalid> {
-        if v.seeds.is_empty()
-            || v.seeds.len() > 10
-            || v.negative.len() > 10
-            || !(1..=100).contains(&v.limit)
-            || v.seeds
-                .iter()
-                .chain(v.negative.iter())
-                .any(|id| matches!(id, ArticleInput::EuropePmc(_)))
+        if v.seeds.is_empty() {
+            return Err(QueryInvalid::new(&["seeds"]));
+        }
+        if v.seeds.len() > 10 {
+            return Err(QueryInvalid::new(&["seeds"]));
+        }
+        if v.negative.len() > 10 {
+            return Err(QueryInvalid::new(&["negative"]));
+        }
+        if !(1..=100).contains(&v.limit) {
+            return Err(QueryInvalid::new(&["limit"]));
+        }
+        if v.seeds
+            .iter()
+            .chain(v.negative.iter())
+            .any(|id| matches!(id, ArticleInput::EuropePmc(_)))
         {
-            return Err(QueryInvalid);
+            return Err(QueryInvalid::new(&["seeds", "negative"]));
         }
         Ok(Self(v))
     }

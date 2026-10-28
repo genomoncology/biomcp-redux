@@ -1,33 +1,45 @@
 //! Legacy aliases normalize only the checked gene selector.
 use biomcp_types::Request;
 use serde_json::Value;
-pub(super) fn request(verb: &str, mut value: Value) -> Result<Request, ()> {
+pub(super) fn request(verb: &str, mut value: Value) -> Result<Request, biomcp_types::QueryInvalid> {
     match verb {
         "search" => {
-            let fields = value.as_object_mut().ok_or(())?;
+            let fields = value
+                .as_object_mut()
+                .ok_or_else(biomcp_types::QueryInvalid::default)?;
+            let positional = fields.contains_key("query");
             if let Some(query) = fields.remove("query")
                 && fields.insert("gene".into(), query).is_some()
             {
-                return Err(());
+                return Err(biomcp_types::QueryInvalid::new(&["gene", "query"]));
             }
-            serde_json::from_value(value)
+            super::validation::decode(value)
                 .map(Request::SearchGwas)
-                .map_err(|_| ())
+                .map_err(|cause| {
+                    if positional {
+                        cause.rename("gene", "query")
+                    } else {
+                        cause
+                    }
+                })
         }
         "get" => {
-            let fields = value.as_object_mut().ok_or(())?;
-            let id = fields.get("id").and_then(Value::as_str).ok_or(())?;
+            let fields = value
+                .as_object_mut()
+                .ok_or_else(biomcp_types::QueryInvalid::default)?;
+            let id = fields
+                .get("id")
+                .and_then(Value::as_str)
+                .ok_or_else(biomcp_types::QueryInvalid::default)?;
             let kind = if id.starts_with("association:") {
                 "association"
             } else {
                 "study"
             };
             fields.insert("kind".into(), kind.into());
-            serde_json::from_value::<biomcp_types::GwasGet>(value)
-                .map(Request::from)
-                .map_err(|_| ())
+            super::validation::decode::<biomcp_types::GwasGet>(value).map(Request::from)
         }
-        _ => Err(()),
+        _ => Err(biomcp_types::QueryInvalid::new(&["gene", "query"])),
     }
 }
 pub(super) fn aliases(command: clap::Command, schema: &Value) -> clap::Command {

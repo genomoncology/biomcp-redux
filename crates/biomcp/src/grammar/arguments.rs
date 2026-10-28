@@ -73,6 +73,14 @@ fn aliases(name: &str, schema: &Value, mut command: Command) -> Result<Command, 
             .mut_arg("limit", |arg| arg.short('l'))
             .arg(
                 Arg::new("query_option")
+                    .help(
+                        properties(schema)?
+                            .get("query")
+                            .and_then(|p| p.get("description"))
+                            .and_then(Value::as_str)
+                            .unwrap_or_default()
+                            .to_owned(),
+                    )
                     .long("query")
                     .short('q')
                     .conflicts_with("query"),

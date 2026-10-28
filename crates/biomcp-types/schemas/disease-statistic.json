@@ -252,8 +252,6 @@
   },
   "required": [
     "requested_site",
-    "requested_selectors",
-    "returned_selectors",
     "measure",
     "attribution"
   ],

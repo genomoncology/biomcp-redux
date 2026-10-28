@@ -1,8 +1,11 @@
 # 0351 — Diagnose the local CONNECT and TLS fixture connection abort
 
-Status: OPEN.
+Status: COMPLETE.
+Landed: 4f8bb9cdff6340ee89e370a92111c7c6cdf81ea4
 
 Milestone: 5
+
+Depends on: 0388
 
 ## Outcome
 

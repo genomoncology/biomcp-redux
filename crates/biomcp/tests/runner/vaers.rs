@@ -7,6 +7,7 @@ mod budget;
 mod failures;
 mod fixture;
 mod influenza;
+mod live;
 mod navigation;
 mod policy;
 mod rejections;
@@ -14,6 +15,9 @@ type Check = Result<(), String>;
 
 pub(super) fn trials() -> Vec<Trial> {
     vec![
+        Trial::test("vaers-summary/complete-cdc-latin1-xml-replay", || {
+            live::run().map_err(Into::into)
+        }),
         Trial::test(
             "vaers-summary/exact-influenza-types-and-native-labels",
             || influenza::run().map_err(Into::into),
@@ -93,6 +97,7 @@ fn unsupported() -> Result<(), String> {
 fn environment(stub: &Stub) -> Result<Environment, String> {
     let env = Environment::new().map_err(|e| e.to_string())?;
     let ca = env.root().join("ca.pem");
+    stub.retain(&env);
     std::fs::write(&ca, &stub.certificate).map_err(|e| e.to_string())?;
     env.config(&json!({"ca_bundle":ca,"proxy":format!("http://{}",stub.address)}))
         .map_err(|e| e.to_string())?;
@@ -135,7 +140,7 @@ pub(super) fn research_aggregate() -> Check {
         &[],
     )?;
     if result.to_string().len() > 2376
-        || result.get("results") != Some(&json!([]))
+        || result.get("results").is_some()
         || result.pointer("/metadata/envelope") != Some(&cli)
         || result.pointer("/metadata/omitted_rows") != Some(&json!(3))
     {

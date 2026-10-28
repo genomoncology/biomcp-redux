@@ -26,9 +26,7 @@
           "\"ERCC2 Ala717Gly\""
         ],
         "/sources/0/notices/0/name": "outputmessages",
-        "/sources/0/notices/0/phrases": [],
-        "/sources/0/notices/1/name": "phrasesignored",
-        "/sources/0/notices/1/phrases": []
+        "/sources/0/notices/1/name": "phrasesignored"
       },
       "full_output_bytes": true,
       "mcp": [
@@ -50,7 +48,6 @@
       ],
       "expect": {
         "/status": "complete",
-        "/result/items": [],
         "/sources/0/term": "ERCC2[Title/Abstract] AND Ala717Gly[Title/Abstract]",
         "/sources/0/notices/0/name": "futurewarning",
         "/sources/0/notices/0/phrases": [
@@ -98,9 +95,7 @@
           "\"GATA2 Thr176Pro\""
         ],
         "/sources/0/notices/0/name": "outputmessages",
-        "/sources/0/notices/0/phrases": [],
-        "/sources/0/notices/1/name": "phrasesignored",
-        "/sources/0/notices/1/phrases": []
+        "/sources/0/notices/1/name": "phrasesignored"
       },
       "full_output_bytes": true,
       "mcp": [
@@ -134,9 +129,7 @@
           "\"POT1 Gly404Val\""
         ],
         "/sources/0/notices/0/name": "outputmessages",
-        "/sources/0/notices/0/phrases": [],
-        "/sources/0/notices/1/name": "phrasesignored",
-        "/sources/0/notices/1/phrases": []
+        "/sources/0/notices/1/name": "phrasesignored"
       },
       "full_output_bytes": true,
       "mcp": [
@@ -170,9 +163,7 @@
           "\"GALC Thr109Ala\""
         ],
         "/sources/0/notices/0/name": "outputmessages",
-        "/sources/0/notices/0/phrases": [],
-        "/sources/0/notices/1/name": "phrasesignored",
-        "/sources/0/notices/1/phrases": []
+        "/sources/0/notices/1/name": "phrasesignored"
       },
       "full_output_bytes": true,
       "mcp": [
@@ -206,9 +197,7 @@
           "\"ACD Pro457=\""
         ],
         "/sources/0/notices/0/name": "outputmessages",
-        "/sources/0/notices/0/phrases": [],
-        "/sources/0/notices/1/name": "phrasesignored",
-        "/sources/0/notices/1/phrases": []
+        "/sources/0/notices/1/name": "phrasesignored"
       },
       "full_output_bytes": true,
       "mcp": [

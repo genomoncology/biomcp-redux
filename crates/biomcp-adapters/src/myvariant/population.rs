@@ -32,6 +32,7 @@ pub(super) fn candidates(leg: &Leg<'_>, hits: Vec<Hit>, query: &str) -> Mapped<V
             query,
             build,
             !super::components::disabled_on_leg(leg, "clinvar"),
+            !super::components::disabled_on_leg(leg, "snpeff"),
         );
         if let Some(row) = mapped.value.first_mut() {
             match ca {

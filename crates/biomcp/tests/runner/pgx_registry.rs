@@ -50,7 +50,7 @@ fn declaration(name: &str, usage: &str, url: &str) -> Check {
                 .find(|r| r.get("source").and_then(Value::as_str) == Some(name))
         })
         .ok_or_else(|| format!("missing {name}"))?;
-    if row.get("usage") != Some(&json!(usage))
+    if row.get("use") != Some(&json!(usage))
         || row.get("terms_url") != Some(&json!(url))
         || row.get("disabled") != Some(&json!(false))
         || row.get("terms").and_then(Value::as_str).is_none_or(|t| {
@@ -77,7 +77,7 @@ fn declaration(name: &str, usage: &str, url: &str) -> Check {
         let mut outcome = registry::outcome(source, state, Some(Reason::Disabled));
         outcome.count = Some(0);
         let value = serde_json::to_value(outcome).map_err(|e| e.to_string())?;
-        if value.get("use") != row.get("usage") {
+        if value.get("use") != row.get("use") {
             return Err(format!("lost use: {value}"));
         }
         for field in ["source", "terms", "terms_url"] {

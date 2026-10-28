@@ -1,6 +1,7 @@
 # 0385 — Move variant trial case registration out of the runner root
 
-Status: OPEN.
+Status: COMPLETE.
+Landed: 335b6c4e54841a96fe4156f18d760ec0001c913b
 
 Milestone: 5
 

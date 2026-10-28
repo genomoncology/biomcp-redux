@@ -4,6 +4,8 @@ use std::time::Duration;
 /// A source declaration enforced by the transport.
 #[derive(Debug)]
 pub struct SourceSpec {
+    /// Additional outbound destinations; the base URL declares the primary origin.
+    pub destinations: crate::Destinations,
     /// Source-owned compatibility header; absent keeps the transport default.
     pub user_agent: Option<&'static str>,
     /// Source reported on failures.
@@ -38,6 +40,12 @@ impl SourceSpec {
             exact_count: false,
         }
     }
+    /// Declare a HEAD endpoint that checks metadata without downloading its representation.
+    pub const fn head(&'static self, path: &'static str) -> Endpoint {
+        let mut endpoint = self.get(path);
+        endpoint.method = Method::Head;
+        endpoint
+    }
     /// Declare a credential-free publisher download at a checked dynamic origin.
     /// Only a source with no credential policy can use this boundary.
     pub fn download(&'static self, url: &str) -> Result<Endpoint, crate::InputError> {
@@ -68,6 +76,7 @@ impl SourceSpec {
 #[derive(Clone, Copy, Debug, PartialEq, Eq)]
 pub(crate) enum Method {
     Get,
+    Head,
     Form,
     Json,
 }

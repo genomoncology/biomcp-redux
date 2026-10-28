@@ -112,6 +112,7 @@ fn setup(query: &str, limit: u32) -> Result<(Environment, Stub), String> {
 fn environment(stub: &Stub) -> Result<Environment, String> {
     let env = Environment::new().map_err(|e| e.to_string())?;
     let ca = env.root().join("ca.pem");
+    stub.retain(&env);
     std::fs::write(&ca, &stub.certificate).map_err(|e| e.to_string())?;
     env.config(&json!({"ca_bundle":ca,"proxy":format!("http://{}",stub.address)}))
         .map_err(|e| e.to_string())?;
@@ -156,7 +157,8 @@ fn measure(value: &Value, args: &[String]) -> Check {
         .len();
     // j12915 observed maxima; each full/comparable ceiling adds 15 percent.
     let caps = if value.get("error").is_some() {
-        (165, 165)
+        // j19028: typed argument names, 185 compact bytes plus 15 percent.
+        (213, 213)
     } else if value.pointer("/sources/0/reason") == Some(&json!("bad_reply")) {
         // j12936: 316 full / 201 comparable bytes, plus 15 percent.
         (364, 232)

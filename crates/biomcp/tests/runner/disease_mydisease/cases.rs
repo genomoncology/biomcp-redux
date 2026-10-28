@@ -58,7 +58,7 @@ fn missing() -> Result<(), String> {
         if value.pointer("/result/definition").is_some() {
             return Err("borrowed a component definition".into());
         }
-        let mut expected = json!({"/result/sections":[],"/result/replaced_by":null});
+        let mut expected = json!({"/result/replaced_by":null});
         if id == "MONDO:0007607" {
             super::insert(&mut expected, "/result/obsolete", json!(true))?;
             super::insert(
@@ -71,7 +71,7 @@ fn missing() -> Result<(), String> {
             &directory,
             json!(
                 [{"run":words,"mcp":words,"expect":expected},{"run":["get","disease",id,"hierarchy"],"mcp":["get","disease",id,"hierarchy"],
-                "exit":1,"expect":{"/status":"absent","/page/total":0,"/result/items":[]}}]
+                "exit":1,"expect":{"/status":"absent","/page/total":0,}}]
             ),
         )?;
     }

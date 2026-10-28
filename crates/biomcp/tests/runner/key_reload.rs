@@ -146,6 +146,7 @@ fn check_source(http: bool, fallback: bool, nci: bool) -> Check {
         |_| Ok(r#"{"total":0,"data":[]}"#.into()),
     )?;
     let certificate = assets.root().join("ca.pem");
+    stub.retain(&assets);
     std::fs::write(&certificate, &stub.certificate).map_err(|e| e.to_string())?;
     let mut client = start(
         http,
@@ -189,7 +190,7 @@ fn check_source(http: bool, fallback: bool, nci: bool) -> Check {
                 return Err("server failed to reload key".into());
             }
         } else {
-            if result.pointer("/result/items") != Some(&json!([])) {
+            if result.pointer("/result/items").is_some() {
                 return Err(format!("local synthetic query failed: {result}"));
             }
             expected.push(selected);

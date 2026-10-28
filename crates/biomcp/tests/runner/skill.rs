@@ -4,6 +4,26 @@ use libtest_mimic::Trial;
 use serde_json::{Value, json};
 use std::{fs, path::Path};
 type Check<T = ()> = Result<T, Box<dyn std::error::Error>>;
+// Executable UTF-8 payload sizes measured in j19070; aliases share one owner.
+const EXAMPLES: [(&str, usize); 17] = [
+    ("treatment-lookup", 1069),
+    ("symptom-phenotype", 1381),
+    ("gene-disease-orientation", 715),
+    ("article-follow-up", 1085),
+    ("variant-pathogenicity", 884),
+    ("drug-regulatory", 906),
+    ("gene-function-localization", 1012),
+    ("mechanism-pathway", 806),
+    ("trial-recruitment", 1344),
+    ("pharmacogene-cumulative", 1111),
+    ("disease-locus-mapping", 872),
+    ("cellular-process-regulation", 961),
+    ("mutation-catalog", 760),
+    ("syndrome-disambiguation", 970),
+    ("negative-evidence", 894),
+    ("normalize-to-codes", 1016),
+    ("exact-variant-literature", 893),
+];
 
 pub(super) fn trials() -> Vec<Trial> {
     vec![Trial::test("skill/catalog-and-managed-install", || {
@@ -16,15 +36,19 @@ fn run(env: &Environment, args: &[&str]) -> Check<Vec<u8>> {
     if !output.status.success() {
         return Err(format!("skill command failed: {args:?}: {output:?}").into());
     }
-    // Embedded text measured from the canonical UTF-8 payload; summaries are
-    // measured at the executable boundary in j16298. Keep fifteen percent headroom.
+    // Preserve existing ceilings unless j19122 exceeded their fifteen percent headroom.
     let measured: usize = match args.get(1).map(String::as_str) {
-        None | Some("render") => 2479,
-        Some("9" | "trial-recruitment") => 1166,
-        Some("list") => 955,
+        None | Some("render") => 3258,
+        Some("list") => 1156,
         Some("install") => 117,
         Some("status") => 55,
-        _ => 350,
+        Some(name) => EXAMPLES
+            .iter()
+            .enumerate()
+            .find(|(index, (slug, _))| {
+                *slug == name || name.parse::<usize>().ok() == Some(index + 1)
+            })
+            .map_or(350, |(_, (_, measured))| *measured),
     };
     if output.stdout.len() > (measured * 115).div_ceil(100) {
         return Err(format!("skill output exceeds measured ceiling: {args:?}").into());
@@ -171,28 +195,7 @@ fn manifest_boundary(env: &Environment, target: &Path) -> Check {
 }
 
 fn aliases(env: &Environment) -> Check {
-    for (index, slug) in [
-        "treatment-lookup",
-        "symptom-phenotype",
-        "gene-disease-orientation",
-        "article-follow-up",
-        "variant-pathogenicity",
-        "drug-regulatory",
-        "gene-function-localization",
-        "mechanism-pathway",
-        "trial-recruitment",
-        "pharmacogene-cumulative",
-        "disease-locus-mapping",
-        "cellular-process-regulation",
-        "mutation-catalog",
-        "syndrome-disambiguation",
-        "negative-evidence",
-        "normalize-to-codes",
-        "exact-variant-literature",
-    ]
-    .iter()
-    .enumerate()
-    {
+    for (index, (slug, _)) in EXAMPLES.iter().enumerate() {
         if run(env, &["skill", &(index + 1).to_string()])? != run(env, &["skill", slug])? {
             return Err(format!("released example alias differs: {slug}").into());
         }
@@ -201,14 +204,14 @@ fn aliases(env: &Environment) -> Check {
 }
 
 fn help(env: &Environment) -> Check {
-    // j16298 measured 1348 bytes; retain fifteen percent headroom.
+    // j19122 measured 5612 bytes; retain fifteen percent headroom.
     let output = env
         .command(
             env!("CARGO_BIN_EXE_biomcp"),
             &["help".into(), "skill".into()],
         )
         .output()?;
-    if !output.status.success() || output.stdout.len() > (1348_usize * 115).div_ceil(100) {
+    if !output.status.success() || output.stdout.len() > (5612_usize * 115).div_ceil(100) {
         return Err("skill help exceeds measured ceiling or failed".into());
     }
     let value: Value = serde_json::from_slice(&output.stdout)?;

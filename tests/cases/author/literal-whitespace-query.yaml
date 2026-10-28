@@ -20,7 +20,6 @@
       "expect": {
         "/status": "complete",
         "/query/query": " Louis  Williams ",
-        "/result/items": [],
         "/result/matching_records": 0
       },
       "full_output_bytes": true,

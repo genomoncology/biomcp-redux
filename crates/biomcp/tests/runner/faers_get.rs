@@ -116,6 +116,7 @@ fn setup(mode: &str) -> Result<(Environment, Stub), String> {
     )?;
     let env = Environment::new().map_err(|e| e.to_string())?;
     let ca = env.root().join("ca.pem");
+    stub.retain(&env);
     std::fs::write(&ca, &stub.certificate).map_err(|e| e.to_string())?;
     env.config(&json!({"ca_bundle":ca,"proxy":format!("http://{}",stub.address)}))
         .map_err(|e| e.to_string())?;
@@ -358,7 +359,7 @@ fn identifier_kinds() -> Check {
         if value.get("result").is_some() != expect_result {
             return Err(format!("missing and empty list collapsed: {value}"));
         }
-        if expect_result && value.pointer("/result/unii/records") != Some(&json!([])) {
+        if expect_result && value.pointer("/result/unii/records").is_some() {
             return Err(format!("empty source list: {value}"));
         }
     }

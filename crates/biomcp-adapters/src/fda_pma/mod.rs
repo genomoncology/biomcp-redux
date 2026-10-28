@@ -4,6 +4,7 @@ use biomcp_types::{Source, Use};
 use std::time::Duration;
 /// One publisher declaration for health, outcomes and admission before any I/O.
 pub static SPEC: SourceSpec = SourceSpec {
+    destinations: biomcp_fetch::Destinations::Primary,
     user_agent: None,
     source: Source::FdaPma,
     base: "https://api.fda.gov/device/pma.json",

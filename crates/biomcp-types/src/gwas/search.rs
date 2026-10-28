@@ -103,6 +103,7 @@ struct SearchFields {
 fn limit() -> u32 {
     3
 }
+crate::query::validation::checked_query!(GwasSearch, SearchFields);
 impl TryFrom<SearchFields> for GwasSearch {
     type Error = QueryInvalid;
     fn try_from(f: SearchFields) -> Result<Self, Self::Error> {
@@ -112,12 +113,22 @@ impl TryFrom<SearchFields> for GwasSearch {
             && f.gene.is_none()
             && f.study.is_none()
             && f.pubmed.is_none()
-            || f.include_child_traits && f.trait_id.is_none()
-            || f.extended_geneset && f.gene.is_none()
-            || f.pool.is_some() && f.p_value.is_none()
-            || !(1..=50).contains(&f.limit)
         {
-            return Err(QueryInvalid);
+            return Err(QueryInvalid::new(&[
+                "variant", "trait", "trait_id", "gene", "study", "pubmed",
+            ]));
+        }
+        if f.include_child_traits && f.trait_id.is_none() {
+            return Err(QueryInvalid::new(&["include_child_traits", "trait_id"]));
+        }
+        if f.extended_geneset && f.gene.is_none() {
+            return Err(QueryInvalid::new(&["extended_geneset", "gene"]));
+        }
+        if f.pool.is_some() && f.p_value.is_none() {
+            return Err(QueryInvalid::new(&["pool", "p_value"]));
+        }
+        if !(1..=50).contains(&f.limit) {
+            return Err(QueryInvalid::new(&["limit"]));
         }
         Ok(Self(f))
     }

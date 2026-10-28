@@ -10,7 +10,9 @@ const CATALOG: Bundle<raw::CatalogRow> = Bundle {
     spec: &SPEC,
     name: "cbioportal-studies",
     path: "/studies?projection=DETAILED",
-    format: RowFormat::Document,
+    format: RowFormat::Document {
+        media: biomcp_fetch::DocumentMedia::Json,
+    },
     fresh: Freshness::Days(7),
     row: PhantomData,
 };

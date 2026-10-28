@@ -37,7 +37,7 @@ fn commands(text: &str) -> Result<BTreeSet<Vec<String>>, String> {
     Ok(found)
 }
 
-fn local(args: &[String]) -> Check {
+pub(super) fn local(args: &[String]) -> Check {
     let environment = launch::Environment::new().map_err(|e| e.to_string())?;
     if args == ["serve"] {
         let frames = [
@@ -56,7 +56,15 @@ fn local(args: &[String]) -> Check {
     }
     let replay = environment.root().join("empty-recordings");
     std::fs::create_dir(&replay).map_err(|e| e.to_string())?;
-    let mut globals = environment.globals(Some(&replay), false);
+    // Schema artifacts use the exact raw command path before the option parser.
+    let mut globals = if args.first().is_some_and(|arg| arg == "schema") {
+        Vec::new()
+    } else {
+        environment.globals(
+            (!args.iter().any(|v| v == "--offline")).then_some(replay.as_path()),
+            false,
+        )
+    };
     globals.extend_from_slice(args);
     let child = environment
         .command(env!("CARGO_BIN_EXE_biomcp"), &globals)
@@ -77,8 +85,8 @@ fn local(args: &[String]) -> Check {
     } else {
         drop(process.child.stdin.take());
     }
-    let (status, _, stderr) = process.finish()?;
-    if !status.success() {
+    let (status, stdout, stderr) = process.finish()?;
+    if !status.success() || stdout.is_empty() {
         return Err(format!(
             "documented command {args:?} exited {status}: {}",
             String::from_utf8_lossy(&stderr)

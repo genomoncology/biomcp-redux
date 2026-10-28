@@ -1,4 +1,4 @@
-use std::{fs, io, path::Path, process::Command};
+use std::{fs, io, path::Path, process::Command, sync::Arc};
 
 #[path = "../../../biomcp-fetch/tests/support/environment.rs"]
 mod child_environment;
@@ -6,13 +6,15 @@ pub(super) use child_environment::ENV_PATHS;
 
 #[derive(Debug)]
 pub(super) struct Environment {
-    root: tempfile::TempDir,
+    root: Arc<tempfile::TempDir>,
 }
 
 impl Environment {
     pub(super) fn new() -> io::Result<Self> {
         let root = child_environment::new()?;
-        Ok(Self { root })
+        Ok(Self {
+            root: Arc::new(root),
+        })
     }
 
     pub(super) fn config(&self, value: &serde_json::Value) -> io::Result<()> {
@@ -38,6 +40,10 @@ impl Environment {
             Vec::new()
         }
     }
+    pub(super) fn shared_root(&self) -> Arc<tempfile::TempDir> {
+        Arc::clone(&self.root)
+    }
+
     pub(super) fn root(&self) -> &Path {
         self.root.path()
     }

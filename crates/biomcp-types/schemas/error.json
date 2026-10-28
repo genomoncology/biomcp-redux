@@ -14,6 +14,7 @@
       "enum": [
         "usage.schema",
         "usage.arguments",
+        "usage.mcp_unavailable",
         "usage.unknown_command",
         "usage.retired",
         "local.failure",
@@ -94,6 +95,9 @@
         "citation ordering exceeds the PMID limit; narrow the search",
         "use biomcp schema to list known artifact IDs",
         "expected a supported command with checked arguments",
+        "sync is unavailable over MCP; run it from the command line",
+        "store clean is unavailable over MCP; run it from the command line",
+        "key is unavailable over MCP; run it from the command line",
         "unknown command; use the suggested help command",
         "local configuration, cache or recording failed",
         "use: search gwas with --gene, --trait, --trait-id, --variant, --study or --pubmed; --include-child-traits requires --trait-id; --extended-geneset requires --gene; use exact GCST accessions, rsIDs, positive PMIDs and native trait IDs without repair; --limit is 1..50 and --offset is a nonnegative integer; source p-value order is fixed with no --sort or local prefix intersection",
@@ -314,6 +318,7 @@
         "erepo",
         "gwas",
         "clingen",
+        "gencc",
         "pubmed",
         "europepmc",
         "litvar",
@@ -387,6 +392,7 @@
         " ClinGen Evidence Repository.",
         " GWAS Catalog v2.",
         " ClinGen.",
+        " GenCC submitter assessments.",
         " PubMed.",
         " Europe PMC.",
         " NCBI LitVar2.",
@@ -463,8 +469,7 @@
         }
       },
       "required": [
-        "kind",
-        "args"
+        "kind"
       ],
       "type": "object"
     },

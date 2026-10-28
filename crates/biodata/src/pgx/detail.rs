@@ -46,11 +46,14 @@ pub struct PgxAnnotationDetail {
     pub accession_id: ClinPgxAccession,
     /// Native `allelePhenotypes`; literal source value.
     #[serde(rename = "allelePhenotypes")]
+    #[serde(default, skip_serializing_if = "<[_]>::is_empty")]
     pub allele_phenotypes: Box<[PgxAllelePhenotype]>,
     /// Native `conflictingVariantAnnotationIds`; literal source value.
     #[serde(rename = "conflictingVariantAnnotationIds")]
+    #[serde(default, skip_serializing_if = "<[_]>::is_empty")]
     pub conflicting_variant_annotation_ids: Box<[i64]>,
     /// Native `history`; literal source value.
+    #[serde(default, skip_serializing_if = "<[_]>::is_empty")]
     pub history: Box<[PgxAnnotationHistory]>,
     /// Native `levelOfEvidence`; literal source value.
     #[serde(rename = "levelOfEvidence")]
@@ -69,21 +72,26 @@ pub struct PgxAnnotationDetail {
     pub pediatric: bool,
     /// Native `relatedAlleles`; literal source value.
     #[serde(rename = "relatedAlleles")]
+    #[serde(default, skip_serializing_if = "<[_]>::is_empty")]
     pub related_alleles: Box<[PgxObjectReference]>,
     /// Native `relatedChemicals`; literal source value.
     #[serde(rename = "relatedChemicals")]
+    #[serde(default, skip_serializing_if = "<[_]>::is_empty")]
     pub related_chemicals: Box<[PgxObjectReference]>,
     /// Native `relatedChemicalsLogic`; literal source value.
     #[serde(rename = "relatedChemicalsLogic")]
     pub related_chemicals_logic: Box<str>,
     /// Native `relatedDiseases`; literal source value.
     #[serde(rename = "relatedDiseases")]
+    #[serde(default, skip_serializing_if = "<[_]>::is_empty")]
     pub related_diseases: Box<[PgxObjectReference]>,
     /// Native `relatedGuidelines`; literal source value.
     #[serde(rename = "relatedGuidelines")]
+    #[serde(default, skip_serializing_if = "<[_]>::is_empty")]
     pub related_guidelines: Box<[PgxObjectReference]>,
     /// Native `relatedLabels`; literal source value.
     #[serde(rename = "relatedLabels")]
+    #[serde(default, skip_serializing_if = "<[_]>::is_empty")]
     pub related_labels: Box<[PgxObjectReference]>,
     /// Native `score`; literal source value.
     pub score: crate::FiniteNumber,
@@ -91,6 +99,7 @@ pub struct PgxAnnotationDetail {
     #[serde(rename = "scoreDetails")]
     pub score_details: Box<str>,
     /// Native `types`; literal source value.
+    #[serde(default, skip_serializing_if = "<[_]>::is_empty")]
     pub types: Box<[Box<str>]>,
     /// Native `overrideLevelDescription` when supplied.
     #[serde(rename = "overrideLevelDescription")]

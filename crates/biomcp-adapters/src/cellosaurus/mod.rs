@@ -12,6 +12,7 @@ pub use sections::complete;
 use std::time::Duration;
 /// Publisher access and attribution policy, shared by admission and health.
 pub static SPEC: SourceSpec = SourceSpec {
+    destinations: biomcp_fetch::Destinations::Primary,
     user_agent: None,
     source: Source::Cellosaurus,
     base: "https://api.cellosaurus.org",

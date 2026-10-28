@@ -33,7 +33,7 @@ pub struct VariantRecurrence {
     pub terms: RecurrenceTerms,
 }
 impl super::ResponseBody for VariantRecurrence {
-    const SCHEMA: &'static str = "biomcp.variant-recurrence/4";
+    const SCHEMA: &'static str = "biomcp.variant-recurrence/5";
     type Query = VariantRecurrenceQuery;
 }
 /// Source-native descriptive metadata, without treating access groups as licenses.

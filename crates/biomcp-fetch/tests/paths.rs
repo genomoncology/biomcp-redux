@@ -1,4 +1,4 @@
-//! Runtime source paths preserve declared ownership and ordinary request identities.
+//! Feature outbound-hosts: source paths preserve ownership before storage or network admission.
 #![expect(
     clippy::disallowed_methods,
     reason = "Local public transport fixture owns capture and cache files"
@@ -173,6 +173,192 @@ fn raw_segments_encode_identifier_delimiters_once_and_preserve_literal_identity(
             matches!(PathSegment::new(invalid), Err(InputError::Path)),
             "{invalid:?}"
         );
+    }
+    assert!(server.requests.try_recv().is_err());
+}
+
+#[test]
+fn undeclared_download_host_is_refused_before_replay_admission() {
+    let server = Server::new();
+    let spec = server.spec(
+        Box::leak(Box::new(Quota::new(
+            SourceKey::declare("host-admission"),
+            Rate::per_second(1),
+            None,
+            1,
+        ))),
+        KeyUse::None,
+    );
+    let directory = tempfile::tempdir().unwrap();
+    let fetch = Fetch::open(FetchConfig {
+        mode: Mode::Replay {
+            dir: directory.path().to_owned(),
+        },
+        ..Default::default()
+    })
+    .unwrap();
+    let endpoint = spec.download("https://undeclared.example/data").unwrap();
+    let error = fetch
+        .leg(spec, fetch.deadline(Duration::from_secs(1)))
+        .json::<Answer>(&endpoint, &[])
+        .unwrap_err();
+    assert_eq!(error.to_string(), "fetch.input_host");
+    assert!(server.requests.try_recv().is_err());
+}
+
+#[test]
+fn undeclared_origin_refuses_live_and_offline_without_contacting_the_local_peer() {
+    let server = Server::new();
+    let spec = server.spec(
+        Box::leak(Box::new(Quota::new(
+            SourceKey::declare("host-boundary"),
+            Rate::per_second(1),
+            None,
+            1,
+        ))),
+        KeyUse::None,
+    );
+    for mode in [Mode::default(), Mode::Offline] {
+        let fetch = Fetch::open(FetchConfig {
+            mode,
+            ..Default::default()
+        })
+        .unwrap();
+        // A literal path must not reinterpret the base authority as URL credentials.
+        let endpoint = spec.get(Box::leak(
+            format!(
+                "@localhost:{}/answer",
+                server.base.rsplit(':').next().unwrap()
+            )
+            .into_boxed_str(),
+        ));
+        assert!(matches!(
+            fetch
+                .leg(spec, fetch.deadline(Duration::from_secs(1)))
+                .json::<Answer>(&endpoint, &[]),
+            Err(biomcp_fetch::RequestError::Input(InputError::Host))
+        ));
+    }
+    assert!(server.requests.try_recv().is_err());
+}
+
+#[test]
+fn declared_secondary_origins_are_exact_and_publisher_policy_is_explicit() {
+    let server = Server::new();
+    let template = server.spec(
+        Box::leak(Box::new(Quota::new(
+            SourceKey::declare("secondary-hosts"),
+            Rate::per_second(1000),
+            None,
+            1,
+        ))),
+        KeyUse::None,
+    );
+    let spec = Box::leak(Box::new(biomcp_fetch::SourceSpec {
+        destinations: biomcp_fetch::Destinations::Additional(&["https://cdn.example"]),
+        ..*template
+    }));
+    assert_eq!(spec.request_hosts().unwrap(), ["127.0.0.1", "cdn.example"]);
+    let directory = tempfile::tempdir().unwrap();
+    let fetch = Fetch::open(FetchConfig {
+        mode: Mode::Replay {
+            dir: directory.path().to_owned(),
+        },
+        ..Default::default()
+    })
+    .unwrap();
+    for (url, admitted) in [
+        ("https://cdn.example/file", true),
+        ("https://cdn.example:443/file", true),
+        ("https://cdn.example.other/file", false),
+        ("https://sub.cdn.example/file", false),
+        ("http://cdn.example/file", false),
+        ("https://cdn.example:444/file", false),
+    ] {
+        let endpoint = spec.download(url).unwrap();
+        let error = fetch
+            .leg(spec, fetch.deadline(Duration::from_secs(1)))
+            .json::<Answer>(&endpoint, &[])
+            .unwrap_err();
+        assert_eq!(
+            error.to_string(),
+            if admitted {
+                "fetch.record_missing"
+            } else {
+                "fetch.input_host"
+            },
+            "{url}"
+        );
+    }
+    for origin in [
+        "https://*.example",
+        "https://api.example/path",
+        "https://api.example?x=1",
+    ] {
+        let origins = Box::leak(vec![origin].into_boxed_slice());
+        let spec = biomcp_fetch::SourceSpec {
+            destinations: biomcp_fetch::Destinations::Additional(origins),
+            ..*template
+        };
+        assert!(matches!(spec.request_hosts(), Err(InputError::Host)));
+    }
+    assert!(server.requests.try_recv().is_err());
+}
+
+#[test]
+fn grpc_host_admission_precedes_worker_submission_and_checked_replay() {
+    use biomcp_fetch::grpc::{Limits, StreamDecoder};
+    struct Decoder;
+    impl StreamDecoder for Decoder {
+        type Reply = ();
+        fn message(&mut self, _: &[u8]) -> Result<(), biomcp_fetch::BadReply> {
+            Ok(())
+        }
+        fn finish(self) -> Result<(), biomcp_fetch::BadReply> {
+            Ok(())
+        }
+    }
+    let server = Server::new();
+    let template = server.spec(
+        Box::leak(Box::new(Quota::new(
+            SourceKey::declare("grpc-hosts"),
+            Rate::per_second(1),
+            None,
+            1,
+        ))),
+        KeyUse::None,
+    );
+    let spec = Box::leak(Box::new(biomcp_fetch::SourceSpec {
+        base: "https://*.localhost",
+        ..*template
+    }));
+    let endpoint = spec
+        .grpc("/synthetic.Service/Read")
+        .checked("synthetic/v1", Freshness::Never);
+    let directory = tempfile::tempdir().unwrap();
+    for mode in [
+        Mode::default(),
+        Mode::Replay {
+            dir: directory.path().to_owned(),
+        },
+    ] {
+        let live = matches!(mode, Mode::Live { .. });
+        let fetch = Fetch::open(FetchConfig {
+            mode,
+            ..Default::default()
+        })
+        .unwrap();
+        let leg = fetch.leg(spec, fetch.deadline(Duration::from_secs(1)));
+        if live {
+            assert!(matches!(
+                leg.grpc(&endpoint, &[], |_| Ok(())),
+                Err(biomcp_fetch::RequestError::Input(InputError::Host))
+            ));
+        }
+        assert!(matches!(
+            leg.grpc_checked(&endpoint, &[], |_: Limits| Ok(Decoder)),
+            Err(biomcp_fetch::RequestError::Input(InputError::Host))
+        ));
     }
     assert!(server.requests.try_recv().is_err());
 }

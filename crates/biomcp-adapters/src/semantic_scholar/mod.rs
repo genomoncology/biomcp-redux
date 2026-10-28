@@ -4,6 +4,7 @@ use biomcp_types::Source;
 use std::time::Duration;
 /// Shared policy for search, paper records, graph edges and recommendations.
 pub static SPEC: SourceSpec = SourceSpec {
+    destinations: biomcp_fetch::Destinations::Primary,
     user_agent: None,
     terms: biomcp_fetch::Terms {
         name: "Semantic Scholar API License Agreement",
@@ -22,13 +23,13 @@ pub static SPEC: SourceSpec = SourceSpec {
 
 mod search;
 
-mod pdf;
+pub(crate) mod pdf;
 pub use pdf::{PUBLISHER, PdfLink, PdfRecord, pdf};
 mod graph;
 pub use graph::{Edge, Edges, PaperSummary, edges, paper_endpoint, summary};
 pub use search::{Author, ExternalIds, Paper, Search, search};
 
-mod recommend;
+pub(crate) mod recommend;
 pub use recommend::{RECOMMEND_SPEC, paper_id, recommendations};
 /// Provider-local author discovery and exact metadata.
 pub mod author;

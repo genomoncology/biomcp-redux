@@ -56,7 +56,59 @@ pub(super) fn augment(commands: &mut Vec<HelpCommand>) -> io::Result<()> {
             entry.arguments.push(metadata(&argument));
         }
     }
+    augment_entries(commands, &root);
+    if let Some(index) = commands.iter_mut().find(|c| c.command.is_empty()) {
+        index.description = root
+            .get_subcommands()
+            .map(|c| {
+                format!(
+                    "{}: {}",
+                    c.get_name(),
+                    c.get_about()
+                        .map(ToString::to_string)
+                        .unwrap_or_default()
+                        .split(". ")
+                        .next()
+                        .unwrap_or_default()
+                )
+            })
+            .collect::<Vec<_>>()
+            .join("\n");
+    }
     Ok(())
+}
+fn augment_entries(commands: &mut [HelpCommand], root: &Command) {
+    for entry in commands.iter_mut() {
+        let parser = entry
+            .command
+            .iter()
+            .try_fold(root, |parent, name| parent.find_subcommand(name));
+        if let Some(parser) = parser {
+            if entry.examples.is_empty()
+                && let Some(help) = parser.get_after_help()
+            {
+                entry.examples = help
+                    .to_string()
+                    .lines()
+                    .filter_map(|line| line.strip_prefix("Example: biomcp ").and_then(shlex::split))
+                    .collect();
+            }
+            for arg in parser
+                .get_arguments()
+                .filter(|a| !a.is_hide_set() && !a.is_global_set())
+            {
+                let value = metadata(arg);
+                if let Some(existing) = entry.arguments.iter_mut().find(|a| a.name == value.name) {
+                    existing.aliases = value.aliases;
+                    if existing.default.is_none() {
+                        existing.default = value.default;
+                    }
+                } else {
+                    entry.arguments.push(value);
+                }
+            }
+        }
+    }
 }
 fn add(commands: &mut Vec<HelpCommand>, parser: &Command, path: Vec<String>, root: bool) {
     let mut arguments: Vec<_> = parser
@@ -70,6 +122,8 @@ fn add(commands: &mut Vec<HelpCommand>, parser: &Command, path: Vec<String>, roo
                 name: alias.flags().join(", "),
                 description: alias.description().into(),
                 value_type: "boolean".into(),
+                aliases: Vec::new(),
+                default: Some("false".into()),
                 required: false,
                 position: None,
                 minimum: None,
@@ -118,10 +172,58 @@ fn metadata(arg: &Arg) -> HelpArgument {
             "boolean"
         }
         .into(),
+        aliases: arg
+            .get_short()
+            .map(|c| format!("-{c}"))
+            .into_iter()
+            .collect(),
+        default: default(arg),
         required: arg.is_required_set(),
         position: arg.get_index().map(|i| (i - 1) as u64),
         minimum: None,
         maximum: None,
-        choices: Vec::new(),
+        choices: arg
+            .get_value_parser()
+            .possible_values()
+            .into_iter()
+            .flatten()
+            .map(|v| v.get_name().to_owned())
+            .collect(),
     }
+}
+
+pub(super) fn scoped_globals(commands: &mut [HelpCommand]) {
+    let mut parser = crate::grammar::global_arguments();
+    parser.build();
+    for command in commands {
+        for argument in parser.get_arguments().filter(|arg| !arg.is_hide_set()) {
+            let value = metadata(argument);
+            if !command.arguments.iter().any(|arg| arg.name == value.name) {
+                command.arguments.push(value);
+            }
+        }
+    }
+}
+
+fn default(arg: &Arg) -> Option<String> {
+    if let Some(value) = arg.get_default_values().first() {
+        return Some(value.to_string_lossy().into_owned());
+    }
+    // Ask the parser for an optional flag's omitted value instead of copying it.
+    if arg.get_action().takes_values()
+        && arg
+            .get_num_args()
+            .is_some_and(|range| range.min_values() == 0)
+        && let Some(name) = arg.get_long()
+        && let Ok(matches) = Command::new("help")
+            .arg(arg.clone())
+            .try_get_matches_from(["help".to_owned(), format!("--{name}")])
+    {
+        return matches
+            .try_get_one::<String>(arg.get_id().as_str())
+            .ok()
+            .flatten()
+            .cloned();
+    }
+    None
 }

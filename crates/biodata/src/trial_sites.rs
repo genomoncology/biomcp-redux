@@ -21,6 +21,7 @@ pub struct TrialLocation {
     /// Registry coordinates without a derived distance.
     pub coordinates: Option<TrialCoordinates>,
     /// Contacts belong only to this site, in source order.
+    #[serde(default, skip_serializing_if = "<[_]>::is_empty")]
     pub contacts: Box<[TrialContact]>,
 }
 /// A registry contact with its source role and original contact details.

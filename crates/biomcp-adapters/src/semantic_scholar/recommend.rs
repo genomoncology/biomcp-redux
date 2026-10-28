@@ -7,6 +7,7 @@ use biomcp_types::ArticleInput;
 use serde::{Deserialize, Serialize};
 /// Recommendation API shares credentials, publisher terms and pacing with graph calls.
 pub static RECOMMEND_SPEC: SourceSpec = SourceSpec {
+    destinations: biomcp_fetch::Destinations::Primary,
     user_agent: None,
     base: "https://api.semanticscholar.org/recommendations/v1",
     source: SPEC.source,

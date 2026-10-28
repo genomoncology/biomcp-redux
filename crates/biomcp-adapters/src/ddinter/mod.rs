@@ -12,6 +12,7 @@ use raw::NativeRow;
 use std::time::Duration;
 /// Publisher policy shared by health, request admission and response outcomes.
 pub static SPEC: SourceSpec = SourceSpec {
+    destinations: biomcp_fetch::Destinations::Primary,
     user_agent: None,
     source: Source::Ddinter,
     base: "https://ddinter.scbdd.com",

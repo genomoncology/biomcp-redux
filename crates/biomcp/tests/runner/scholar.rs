@@ -84,6 +84,7 @@ fn outgoing_with_key(configured: bool) -> Result<(), String> {
         |_| Ok(r#"{"total":0,"data":[]}"#.into()),
     )?;
     let certificate = env.root().join("ca.pem");
+    stub.retain(&env);
     std::fs::write(&certificate, &stub.certificate).map_err(|e| e.to_string())?;
     env.config(&json!({
         "ca_bundle":certificate,"proxy":format!("http://{}",stub.address),
@@ -152,7 +153,7 @@ fn replay_keyless(capture: &std::path::Path, mut args: Vec<String>) -> Result<()
     let value: Value = serde_json::from_slice(&output.stdout).map_err(|e| e.to_string())?;
     if !output.status.success()
         || !output.stderr.is_empty()
-        || value.pointer("/result/items") != Some(&json!([]))
+        || value.pointer("/result/items").is_some()
     {
         return Err("credential presence changed the canonical request identity".into());
     }

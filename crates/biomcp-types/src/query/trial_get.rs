@@ -41,6 +41,7 @@ struct Fields {
 fn default_limit() -> u32 {
     10
 }
+crate::query::validation::checked_query!(TrialGet, Fields);
 impl TryFrom<Fields> for TrialGet {
     type Error = QueryInvalid;
     fn try_from(v: Fields) -> Result<Self, Self::Error> {
@@ -48,15 +49,24 @@ impl TryFrom<Fields> for TrialGet {
             && v.section
                 .iter()
                 .any(|s| matches!(s, TrialSection::Diseases | TrialSection::Summary))
-            || !(1..=20).contains(&v.input.len())
-            || !(1..=50).contains(&v.limit)
-            || (v.pool.is_some() || v.offset != 0)
-                && (v.input.len() != 1
-                    || v.section.len() != 1
-                    || v.section.first() == Some(&TrialSection::All))
-            || v.offset != 0 && v.pool.is_none()
         {
-            return Err(QueryInvalid);
+            return Err(QueryInvalid::new(&["source", "section"]));
+        }
+        if !(1..=20).contains(&v.input.len()) {
+            return Err(QueryInvalid::new(&["input"]));
+        }
+        if !(1..=50).contains(&v.limit) {
+            return Err(QueryInvalid::new(&["limit"]));
+        }
+        if (v.pool.is_some() || v.offset != 0)
+            && (v.input.len() != 1
+                || v.section.len() != 1
+                || v.section.first() == Some(&TrialSection::All))
+        {
+            return Err(QueryInvalid::new(&["pool", "offset", "input", "section"]));
+        }
+        if v.offset != 0 && v.pool.is_none() {
+            return Err(QueryInvalid::new(&["offset", "pool"]));
         }
         Ok(Self(v))
     }

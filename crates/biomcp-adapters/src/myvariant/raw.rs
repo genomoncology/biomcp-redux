@@ -10,6 +10,7 @@ pub(super) struct Hit {
     #[serde(rename = "_id")]
     pub id: biodata::Text,
     pub dbsnp: Option<Dbsnp>,
+    pub snpeff: Option<crate::raw::Field<super::transcripts::Snpeff>>,
     pub clinvar: Option<Clinvar>,
     pub clingen: Option<crate::raw::Field<Clingen>>,
     pub chrom: Option<SourceChromosome>,

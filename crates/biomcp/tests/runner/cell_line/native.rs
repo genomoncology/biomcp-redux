@@ -149,7 +149,8 @@ fn headers(
     let items = value
         .pointer("/result/items")
         .and_then(Value::as_array)
-        .ok_or("items")?;
+        .map(Vec::as_slice)
+        .unwrap_or_default();
     let actual: Vec<_> = items
         .iter()
         .filter_map(|r| r.get("accession").and_then(Value::as_str))

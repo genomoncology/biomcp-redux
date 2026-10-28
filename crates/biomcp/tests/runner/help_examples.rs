@@ -21,6 +21,7 @@ pub(super) fn check() -> Result<(), String> {
         .ok_or("help commands missing")?;
     source_description(commands)?;
     let mut printed = collected_examples(commands)?;
+    let advertised = printed.clone();
     let guide = guide_examples(&environment)?;
     printed.extend(guide);
     documents::check(&printed)?;
@@ -30,6 +31,22 @@ pub(super) fn check() -> Result<(), String> {
         "/example-cases.json"
     )))
     .map_err(|e| e.to_string())?;
+    let owned: BTreeSet<Vec<String>> = witnesses
+        .iter()
+        .map(|(file, index)| {
+            let text = fs::read_to_string(launch::fixtures().join("cases").join(file))
+                .map_err(|e| e.to_string())?;
+            let case: Case = serde_saphyr::from_str(&text).map_err(|e| e.to_string())?;
+            case.steps
+                .get(*index)
+                .and_then(|s| s.run.clone())
+                .ok_or("example step missing".into())
+        })
+        .collect::<Result<_, String>>()?;
+    for example in printed.difference(&owned) {
+        documents::local(example)?;
+    }
+    printed.retain(|example| owned.contains(example));
     let registry = schema::Registry::embedded()?;
     for (file, index) in witnesses {
         let path = launch::fixtures().join("cases").join(file);
@@ -51,7 +68,7 @@ pub(super) fn check() -> Result<(), String> {
             .map(|name| launch::fixtures().join("replies").join(name));
         prepare_bundles(&case, index, &environment, &registry, replay.as_deref())?;
         for step in example_steps(step)? {
-            run_sequence(
+            let reply = run_sequence(
                 &step,
                 &environment,
                 &assertions::prepare(&step)?,
@@ -59,6 +76,7 @@ pub(super) fn check() -> Result<(), String> {
                 replay.as_deref(),
                 None,
             )?;
+            check_result(args, &reply, advertised.contains(args))?;
         }
     }
     if !printed.is_empty() {
@@ -67,22 +85,64 @@ pub(super) fn check() -> Result<(), String> {
     Ok(())
 }
 
+fn check_result(args: &[String], reply: &Value, advertised: bool) -> Result<(), String> {
+    if !advertised {
+        return Ok(());
+    }
+    if args.starts_with(&["article".into(), "text".into()])
+        && args.iter().any(|v| v == "--part")
+        && reply
+            .pointer("/result/content/data/markdown")
+            .and_then(Value::as_str)
+            .is_none_or(str::is_empty)
+    {
+        return Err(format!(
+            "help part example returned no article text: {args:?}"
+        ));
+    }
+    if reply
+        .pointer("/result/content/data/markdown")
+        .and_then(Value::as_str)
+        .is_some_and(str::is_empty)
+    {
+        return Err(format!("help example returned empty text: {args:?}"));
+    }
+    for path in [
+        "/result/rows",
+        "/result/items",
+        "/result/content/data/hits",
+        "/result/content/data/matches",
+    ] {
+        if reply
+            .pointer(path)
+            .and_then(Value::as_array)
+            .is_some_and(Vec::is_empty)
+        {
+            return Err(format!(
+                "help example returned an empty result at {path}: {args:?}"
+            ));
+        }
+    }
+    Ok(())
+}
+
 fn collected_examples(commands: &[Value]) -> Result<BTreeSet<Vec<String>>, String> {
     let mut printed = BTreeSet::new();
+    if commands
+        .iter()
+        .any(|command| command["examples"].as_array().is_none_or(Vec::is_empty))
+    {
+        return Err("command help has no example".into());
+    }
     for examples in commands
         .iter()
         .filter_map(|command| command.get("examples").and_then(Value::as_array))
         .filter(|examples| !examples.is_empty())
     {
-        if examples.len() != 2 {
-            return Err("query help requires two examples".into());
-        }
         for example in examples {
             let args: Vec<String> =
                 serde_json::from_value(example.clone()).map_err(|e| e.to_string())?;
-            if !printed.insert(args) {
-                return Err("help repeats an example".into());
-            }
+            printed.insert(args);
         }
     }
     Ok(printed)

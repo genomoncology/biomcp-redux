@@ -50,6 +50,7 @@ pub struct RegisteredKey {
 #[cfg_attr(feature = "schema", derive(schemars::JsonSchema))]
 pub struct RegisteredKeys {
     /// Redacted credential identities.
+    #[serde(default, skip_serializing_if = "Vec::is_empty")]
     pub entries: Vec<RegisteredKey>,
 }
 impl super::ResponseBody for RegisteredKeys {

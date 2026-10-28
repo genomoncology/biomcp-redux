@@ -1,6 +1,7 @@
 # 0378 — Show transcript, c. and p. notation in variant search and the variant card
 
-Status: OPEN.
+Status: COMPLETE.
+Landed: 6a73afa171c89f45478008acd05bcd76be074fdf
 
 Milestone: 5
 

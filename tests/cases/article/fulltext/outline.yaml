@@ -82,6 +82,19 @@
         "/query/find": "AXIN2"
       },
       "max_tokens": 4000
+    },
+    {
+      "run": [
+        "article",
+        "text",
+        "PMC5606870",
+        "--part",
+        "1"
+      ],
+      "expect": {
+        "/status": "complete",
+        "/result/content/data/part": 1
+      }
     }
   ],
   "verified": "2026-10-24: Markdown semantic headings yield4778bytes;5495bytes permits measured+15%. No comparable0.9baseline exists because that command returned a file path. The fulltext section remains below500tokens."

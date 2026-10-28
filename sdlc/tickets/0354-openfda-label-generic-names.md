@@ -4,6 +4,8 @@ Status: OPEN.
 
 Milestone: 5
 
+Depends on: 0387
+
 ## Outcome
 
 `search drug NAME --source openfda-label` finds labels whose `openfda.generic_name` matches the name exactly, as well as labels whose brand name matches. `search drug daraxonrasib --source openfda-label` finds the RASONQUE label.

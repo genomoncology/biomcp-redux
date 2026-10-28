@@ -188,26 +188,26 @@ fn clingen() -> Check {
         "duplicate",
         "missing classification",
         "failed dosage",
+        "failed validity",
+        "both failed",
         "validity only",
         "dosage only",
     ] {
-        let expect = match mode {
-            "failed dosage" => {
-                json!({"/result/items/0/sections/clingen/state":"unavailable", "/sources/2/reason":"unavailable"})
-            }
-            "validity only" => {
-                json!({"/result/items/0/sections/clingen/data/validity": {"count": 1}})
-            }
-            "dosage only" => json!({"/result/items/0/sections/clingen/data/validity": [],
-                "/result/items/0/sections/clingen/data/haploinsufficiency": "Sufficient Evidence for Haploinsufficiency"}),
-            _ => {
-                json!({"/result/items/0/sections/clingen/state": "unavailable", "/sources/2/reason": "bad_reply"})
-            }
+        let expect = clingen_expectation(mode);
+        let args = if matches!(mode, "duplicate" | "missing classification") {
+            vec!["get", "gene", "TP53", "MLH1", "clingen"]
+        } else {
+            vec!["get", "gene", "TP53", "clingen"]
         };
         let answer = checked_case(
             "gene/clingen",
-            &["get", "gene", "TP53", "clingen"],
+            &args,
             |source, record| {
+                if source == "hgnc" {
+                    // Keep this section witness on the recorded TP53 annotation request.
+                    let body = &mut record["exchanges"][0]["body"]["value"];
+                    *body = body.as_str().unwrap().replace("\t4292\t", "\t\t").into();
+                }
                 if source != "clingen" {
                     return;
                 }
@@ -229,21 +229,80 @@ fn clingen() -> Check {
                     _ => (),
                 }
                 record["exchanges"][0]["body"]["value"] = format!("{}\n", lines.join("\n")).into();
-                if mode == "failed dosage" && dosage {
+                if mode == "both failed"
+                    || (mode == "failed dosage" && dosage)
+                    || (mode == "failed validity" && !dosage)
+                {
                     record["exchanges"][0]["status"] = 500.into();
+                    // Keep this independent-status fixture within the shared source budget.
+                    record["exchanges"][0]["delay_ms"] = 0.into();
+                    // Three failed attempts exercise exhaustion, not a missing recording.
+                    record["exchanges"] = json!(vec![record["exchanges"][0].clone(); 3]);
                 }
             },
             expect,
             0,
-        )?;
-        if mode == "validity only"
-            && answer
-                .pointer("/result/items/0/sections/clingen/data/haploinsufficiency")
-                .is_some()
-        {
-            return Err("validity-only source produced haploinsufficiency".into());
-        }
+        )
+        .map_err(|error| format!("ClinGen {mode}: {error}"))?;
+        clingen_checked(mode, &answer)?;
     }
     // sections/local-replay-miss.yaml owns an incomplete bundle recording.
     Ok(())
+}
+
+fn clingen_checked(mode: &str, answer: &Value) -> Check {
+    if matches!(mode, "failed validity" | "both failed" | "dosage only")
+        && answer
+            .pointer("/result/items/0/sections/clingen/data/validity")
+            .is_some()
+    {
+        return Err("absent or failed validity produced a validity list".into());
+    }
+    if matches!(mode, "duplicate" | "missing classification") {
+        for field in ["validity_status", "dosage_status"] {
+            let pointer = format!("/result/items/1/sections/clingen/data/{field}/state");
+            if answer.pointer(&pointer) != Some(&json!("ok")) {
+                return Err(format!("malformed TP53 record affected MLH1 {field}").into());
+            }
+        }
+    }
+    if matches!(mode, "validity only" | "failed dosage" | "both failed")
+        && answer
+            .pointer("/result/items/0/sections/clingen/data/haploinsufficiency")
+            .is_some()
+    {
+        return Err("absent or failed dosage produced haploinsufficiency".into());
+    }
+    Ok(())
+}
+
+fn clingen_expectation(mode: &str) -> Value {
+    match mode {
+        "failed dosage" => {
+            json!({
+                "/result/items/0/sections/clingen/state":"data",
+                "/result/items/0/sections/clingen/data/validity_status/state":"ok",
+                "/result/items/0/sections/clingen/data/dosage_status/state":"failed",
+                "/result/items/0/sections/clingen/data/validity": {"count": 1},
+                "/sources/2/reason":"unavailable"
+            })
+        }
+        "failed validity" => {
+            json!({"/result/items/0/sections/clingen/data/validity_status/state":"failed",
+                "/result/items/0/sections/clingen/data/dosage_status/state":"ok",
+                "/result/items/0/sections/clingen/data/haploinsufficiency":"Sufficient Evidence for Haploinsufficiency"})
+        }
+        "both failed" => {
+            json!({"/result/items/0/sections/clingen/data/validity_status/state":"failed",
+                "/result/items/0/sections/clingen/data/dosage_status/state":"failed"})
+        }
+        "validity only" => {
+            json!({"/result/items/0/sections/clingen/data/validity": {"count": 1}})
+        }
+        "dosage only" => json!({
+            "/result/items/0/sections/clingen/data/haploinsufficiency": "Sufficient Evidence for Haploinsufficiency"}),
+        _ => {
+            json!({"/result/items/0/sections/clingen/state": "data", "/sources/2/reason": "bad_reply"})
+        }
+    }
 }

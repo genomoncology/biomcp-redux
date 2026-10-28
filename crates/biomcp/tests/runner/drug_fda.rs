@@ -5,6 +5,7 @@ use serde_json::{Value, json};
 type Check = Result<(), String>;
 mod capture;
 mod errors;
+mod names;
 pub(super) fn trials() -> Vec<Trial> {
     let mut trials = vec![
         Trial::test("drug-approvals/literal-application-candidates", || {
@@ -25,6 +26,7 @@ pub(super) fn trials() -> Vec<Trial> {
         }),
     ];
     trials.extend(errors::trials());
+    trials.extend(names::trials());
     trials.extend(capture::trials());
     trials
 }
@@ -50,6 +52,7 @@ fn setup_status(body: String, selector: &str, status: u16) -> Result<(Environmen
 fn environment(stub: &Stub) -> Result<Environment, String> {
     let env = Environment::new().map_err(|e| e.to_string())?;
     let cert = env.root().join("ca.pem");
+    stub.retain(&env);
     std::fs::write(&cert, &stub.certificate).map_err(|e| e.to_string())?;
     env.config(&json!({"ca_bundle":cert,"proxy":format!("http://{}",stub.address)}))
         .map_err(|e| e.to_string())?;
@@ -231,7 +234,7 @@ fn missing_product() -> Check {
     let value = both(&env, args, 0)?;
     budget(measure(&value)?, (519, 408))?;
     if value.pointer("/result/approvals/state") != Some(&json!("unavailable"))
-        || value.pointer("/result/products") != Some(&json!([]))
+        || value.pointer("/result/products").is_some()
         || value.get("page").is_some()
         || value.get("next").is_some()
     {

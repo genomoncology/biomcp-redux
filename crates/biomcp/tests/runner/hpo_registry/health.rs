@@ -27,6 +27,7 @@ pub(super) fn run() -> Check {
         },
     )?;
     let cert = env.root().join("private-ca.pem");
+    stub.retain(&env);
     std::fs::write(&cert, &stub.certificate).map_err(|e| e.to_string())?;
     env.config(&json!({"ca_bundle":cert,"proxy":format!("http://{}",stub.address)}))
         .map_err(|e| e.to_string())?;
@@ -55,7 +56,7 @@ pub(super) fn run() -> Check {
             .and_then(|rows| rows.iter().find(|r| r["source"] == "hpo"))
             .ok_or("missing HPO")?;
         if row["state"] != "ok"
-            || row["usage"] != "attribution"
+            || row["use"] != "attribution"
             || row["disabled"] != false
             || row["terms_url"] != "https://human-phenotype-ontology.github.io/license.html"
         {

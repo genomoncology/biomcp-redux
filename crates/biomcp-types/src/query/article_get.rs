@@ -19,6 +19,7 @@ struct Fields {
     #[cfg_attr(feature = "schema", schemars(extend("x-trailing-section" = true)))]
     section: Box<[ArticleSectionWord]>,
 }
+crate::query::validation::checked_query!(ArticleGet, Fields);
 impl TryFrom<Fields> for ArticleGet {
     type Error = QueryInvalid;
     fn try_from(fields: Fields) -> Result<Self, QueryInvalid> {
@@ -36,7 +37,7 @@ impl ArticleGet {
         section: Box<[ArticleSectionWord]>,
     ) -> Result<Self, QueryInvalid> {
         if !(1..=20).contains(&input.len()) {
-            return Err(QueryInvalid);
+            return Err(QueryInvalid::new(&["input"]));
         }
         Ok(Self(Fields { input, section }))
     }
