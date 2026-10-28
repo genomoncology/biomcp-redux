@@ -24,7 +24,9 @@ pub(super) fn check() -> Result<(), String> {
         }
         // Pair-level guideline links do not identify a fetchable CPIC pair record.
         // CellLineIdentityPage is section metadata, not a research search result.
-        if matches!(name, "PgxPage" | "CellLineIdentityPage") {
+        // NCI organizations have no unique ID, canonical record URL or get command;
+        // organization/research-keeps-uncitable-rows proves their metadata disclosure.
+        if matches!(name, "PgxPage" | "CellLineIdentityPage" | "OrganizationPage") {
             continue;
         }
         if name == "PathwayCard" {

@@ -5,6 +5,7 @@ use serde_json::{Value, json};
 type Check = Result<(), String>;
 pub(super) fn trials() -> Vec<Trial> {
     vec![
+        Trial::test("organization/research-keeps-uncitable-rows", || research().map_err(Into::into)),
         Trial::test("organization/native-local-pages", || {
             pages().map_err(Into::into)
         }),
@@ -190,4 +191,28 @@ fn mutate(record: &mut Value, kind: &str) {
             }
         }
     }
+}
+
+fn research() -> Check {
+    let env = environment()?;
+    let replay = super::super::launch::fixtures().join("replies/organization/native");
+    let globals = env.globals(Some(&replay), false);
+    let mut args = query();
+    args.extend_from_slice(&globals);
+    let cli = invoke(&env, &args, 0)?;
+    let result = super::super::research::call(
+        &env,
+        "search",
+        json!({"query":"organization --source nci --name Dana-Farber --limit 2"}),
+        &globals,
+    )?;
+    if result.get("results").is_some()
+        || result.pointer("/metadata/omitted_rows") != Some(&json!(2))
+        || result.pointer("/metadata/envelope") != Some(&cli)
+        || result.pointer("/metadata/envelope/page/total") != Some(&json!(11))
+        || result.pointer("/metadata/envelope/result/items/0/count") != Some(&json!(7))
+    {
+        return Err("research projection invented organization citations or lost native rows and counts".into());
+    }
+    Ok(())
 }
