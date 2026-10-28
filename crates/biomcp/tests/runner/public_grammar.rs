@@ -130,7 +130,13 @@ fn command_metadata(commands: &[Value]) -> Result<(), String> {
     ] {
         let command = commands
             .iter()
-            .find(|c| c["command"] == json!(path))
+            .find(|c| {
+                if path.is_empty() {
+                    c.get("command").is_none()
+                } else {
+                    c["command"] == json!(path)
+                }
+            })
             .ok_or_else(|| format!("missing command {path:?}"))?;
         if command["description"]
             .as_str()
