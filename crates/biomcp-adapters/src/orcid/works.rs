@@ -1,4 +1,4 @@
-use super::raw::Wrapped;
+use super::raw::{Wrapped, optional};
 use crate::{
     Mapped,
     mapped::{Problems, record},
@@ -226,7 +226,4 @@ impl Reply for Works {
     fn check(&self) -> Result<(), BadReply> {
         Ok(())
     }
-}
-fn optional<T>(problems: &mut Problems, field: &str, value: Option<Field<T>>) -> Option<T> {
-    problems.required(field, value?.value())
 }

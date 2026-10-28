@@ -13,7 +13,7 @@ pub(super) fn summaries(reply: Summary, ids: &[Box<str>]) -> Mapped<Vec<ArticleH
     for id in ids {
         let mapped = matches!(reply.result.get(id.as_ref()), Some(SummaryValue::Row(_)));
         if !mapped {
-            push_problem(&mut problems, Source::PubMed, Text::new(id).ok(), "summary");
+            push_problem(&mut problems, Source::PubMed, record_text(id), "summary");
         }
     }
     for (key, row) in reply.result {
@@ -21,7 +21,7 @@ pub(super) fn summaries(reply: Summary, ids: &[Box<str>]) -> Mapped<Vec<ArticleH
             continue;
         }
         if !ids.iter().any(|id| id.as_ref() == key) {
-            push_problem(&mut problems, Source::PubMed, Text::new(&key).ok(), "pmid");
+            push_problem(&mut problems, Source::PubMed, record_text(&key), "pmid");
             continue;
         }
         let header = match row {
@@ -31,12 +31,7 @@ pub(super) fn summaries(reply: Summary, ids: &[Box<str>]) -> Mapped<Vec<ArticleH
         if let Some(header) = header {
             value.push(header);
         } else {
-            push_problem(
-                &mut problems,
-                Source::PubMed,
-                Text::new(&key).ok(),
-                "summary",
-            );
+            push_problem(&mut problems, Source::PubMed, record_text(&key), "summary");
         }
     }
     Mapped { value, problems }

@@ -1,0 +1,481 @@
+{
+  "sites": [
+    {
+      "path": "crates/biomcp-adapters/src/allele_registry/map.rs",
+      "site": "genomic: as_str ( ) . parse : : < Build > ( ) . ok ( )",
+      "maximum": 1,
+      "class": "pending_audit",
+      "owner": "0360-policy-baseline",
+      "reason": "Existing site outside the PubMed and ORCID audit; the owner must review its field semantics"
+    },
+    {
+      "path": "crates/biomcp-adapters/src/allele_registry/map.rs",
+      "site": "genomic: given | { build . zip ( sequence . as_ref ( ) . ok ( )",
+      "maximum": 1,
+      "class": "pending_audit",
+      "owner": "0360-policy-baseline",
+      "reason": "Existing site outside the PubMed and ORCID audit; the owner must review its field semantics"
+    },
+    {
+      "path": "crates/biomcp-adapters/src/allele_registry/map.rs",
+      "site": "genomic: | { Allele : : new ( SequenceLocation { sequence : sequence . ok ( )",
+      "maximum": 1,
+      "class": "pending_audit",
+      "owner": "0360-policy-baseline",
+      "reason": "Existing site outside the PubMed and ORCID audit; the owner must review its field semantics"
+    },
+    {
+      "path": "crates/biomcp-adapters/src/allele_registry/map.rs",
+      "site": "genomic: : : new ( c . start , c . end ) . ok ( )",
+      "maximum": 1,
+      "class": "pending_audit",
+      "owner": "0360-policy-baseline",
+      "reason": "Existing site outside the PubMed and ORCID audit; the owner must review its field semantics"
+    },
+    {
+      "path": "crates/biomcp-adapters/src/allele_registry/map.rs",
+      "site": "genomic: ) ? , } , c . reference . parse ( ) . ok ( )",
+      "maximum": 1,
+      "class": "pending_audit",
+      "owner": "0360-policy-baseline",
+      "reason": "Existing site outside the PubMed and ORCID audit; the owner must review its field semantics"
+    },
+    {
+      "path": "crates/biomcp-adapters/src/allele_registry/map.rs",
+      "site": "genomic: ok ( ) ? , c . allele . parse ( ) . ok ( )",
+      "maximum": 1,
+      "class": "pending_audit",
+      "owner": "0360-policy-baseline",
+      "reason": "Existing site outside the PubMed and ORCID audit; the owner must review its field semantics"
+    },
+    {
+      "path": "crates/biomcp-adapters/src/allele_registry/map.rs",
+      "site": "genomic: allele . parse ( ) . ok ( ) ? , ) . ok ( )",
+      "maximum": 1,
+      "class": "pending_audit",
+      "owner": "0360-policy-baseline",
+      "reason": "Existing site outside the PubMed and ORCID audit; the owner must review its field semantics"
+    },
+    {
+      "path": "crates/biomcp-adapters/src/complex_portal/map.rs",
+      "site": "members: : : new ( r . identifier . as_str ( ) ) . ok ( )",
+      "maximum": 1,
+      "class": "pending_audit",
+      "owner": "0372",
+      "reason": "Existing site outside the PubMed and ORCID audit; the owner must review its field semantics"
+    },
+    {
+      "path": "crates/biomcp-adapters/src/ema/map.rs",
+      "site": "event: ( AuthorizationDate { role : Text : : new ( key ) . ok ( )",
+      "maximum": 1,
+      "class": "pending_audit",
+      "owner": "0374",
+      "reason": "Existing site outside the PubMed and ORCID audit; the owner must review its field semantics"
+    },
+    {
+      "path": "crates/biomcp-adapters/src/gnomad/map.rs",
+      "site": "constraints: , transcript , version : Text : : new ( \"v4\" ) . ok ( )",
+      "maximum": 1,
+      "class": "pending_audit",
+      "owner": "0360-policy-baseline",
+      "reason": "Existing site outside the PubMed and ORCID audit; the owner must review its field semantics"
+    },
+    {
+      "path": "crates/biomcp-adapters/src/gtr/map.rs",
+      "site": "optional: Option < Text > { Text : : new ( value ) . ok ( )",
+      "maximum": 1,
+      "class": "pending_audit",
+      "owner": "0360-policy-baseline",
+      "reason": "Existing site outside the PubMed and ORCID audit; the owner must review its field semantics"
+    },
+    {
+      "path": "crates/biomcp-adapters/src/gtr/map.rs",
+      "site": "relation: . parse : : < biodata : : NcbiGeneId > ( ) . ok ( )",
+      "maximum": 1,
+      "class": "pending_audit",
+      "owner": "0360-policy-baseline",
+      "reason": "Existing site outside the PubMed and ORCID audit; the owner must review its field semantics"
+    },
+    {
+      "path": "crates/biomcp-adapters/src/hgnc/map.rs",
+      "site": "genes: : cell ( & row . hgnc_id ) . parse ( ) . ok ( )",
+      "maximum": 1,
+      "class": "pending_audit",
+      "owner": "0360-policy-baseline",
+      "reason": "Existing site outside the PubMed and ORCID audit; the owner must review its field semantics"
+    },
+    {
+      "path": "crates/biomcp-adapters/src/hgnc/map.rs",
+      "site": "gene: ( raw : : cell ( & row . symbol ) ) . ok ( )",
+      "maximum": 1,
+      "class": "pending_audit",
+      "owner": "0360-policy-baseline",
+      "reason": "Existing site outside the PubMed and ORCID audit; the owner must review its field semantics"
+    },
+    {
+      "path": "crates/biomcp-adapters/src/hgnc/map.rs",
+      "site": "gene: ( raw : : cell ( & row . name ) ) . ok ( )",
+      "maximum": 1,
+      "class": "pending_audit",
+      "owner": "0360-policy-baseline",
+      "reason": "Existing site outside the PubMed and ORCID audit; the owner must review its field semantics"
+    },
+    {
+      "path": "crates/biomcp-adapters/src/hgnc/map.rs",
+      "site": "withdrawn: : cell ( & row . hgnc_id ) . parse ( ) . ok ( )",
+      "maximum": 1,
+      "class": "pending_audit",
+      "owner": "0360-policy-baseline",
+      "reason": "Existing site outside the PubMed and ORCID audit; the owner must review its field semantics"
+    },
+    {
+      "path": "crates/biomcp-adapters/src/hgnc/map.rs",
+      "site": "withdrawn: ( raw : : cell ( & row . symbol ) ) . ok ( )",
+      "maximum": 1,
+      "class": "pending_audit",
+      "owner": "0360-policy-baseline",
+      "reason": "Existing site outside the PubMed and ORCID audit; the owner must review its field semantics"
+    },
+    {
+      "path": "crates/biomcp-adapters/src/hgnc/map.rs",
+      "site": "withdrawn: id | id . parse : : < HgncId > ( ) . ok ( )",
+      "maximum": 1,
+      "class": "pending_audit",
+      "owner": "0360-policy-baseline",
+      "reason": "Existing site outside the PubMed and ORCID audit; the owner must review its field semantics"
+    },
+    {
+      "path": "crates/biomcp-adapters/src/mydisease/map.rs",
+      "site": "xref_id: eq_ignore_ascii_case ( & prefix ) ) { native . parse ( ) . ok ( )",
+      "maximum": 1,
+      "class": "pending_audit",
+      "owner": "0373",
+      "reason": "Existing site outside the PubMed and ORCID audit; the owner must review its field semantics"
+    },
+    {
+      "path": "crates/biomcp-adapters/src/mydisease/map.rs",
+      "site": "xref_id: } else { format ! ( \"{prefix}:{native}\" ) . parse ( ) . ok ( )",
+      "maximum": 1,
+      "class": "pending_audit",
+      "owner": "0373",
+      "reason": "Existing site outside the PubMed and ORCID audit; the owner must review its field semantics"
+    },
+    {
+      "path": "crates/biomcp-adapters/src/mygene/map.rs",
+      "site": "summary: date = PartialDate : : new ( year . parse ( ) . ok ( )",
+      "maximum": 1,
+      "class": "pending_audit",
+      "owner": "0360-policy-baseline",
+      "reason": "Existing site outside the PubMed and ORCID audit; the owner must review its field semantics"
+    },
+    {
+      "path": "crates/biomcp-adapters/src/mygene/map.rs",
+      "site": "summary: ok ( ) ? , Some ( month ) , None ) . ok ( )",
+      "maximum": 1,
+      "class": "pending_audit",
+      "owner": "0360-policy-baseline",
+      "reason": "Existing site outside the PubMed and ORCID audit; the owner must review its field semantics"
+    },
+    {
+      "path": "crates/biomcp-adapters/src/mygene/map.rs",
+      "site": "summary: ( Summary { text : Text : : new ( body ) . ok ( )",
+      "maximum": 1,
+      "class": "pending_audit",
+      "owner": "0360-policy-baseline",
+      "reason": "Existing site outside the PubMed and ORCID audit; the owner must review its field semantics"
+    },
+    {
+      "path": "crates/biomcp-adapters/src/mygene/map.rs",
+      "site": "interval: : Span0 : : new ( start - 1 , end ) . ok ( )",
+      "maximum": 1,
+      "class": "pending_audit",
+      "owner": "0360-policy-baseline",
+      "reason": "Existing site outside the PubMed and ORCID audit; the owner must review its field semantics"
+    },
+    {
+      "path": "crates/biomcp-adapters/src/mygene/map.rs",
+      "site": "map_hit: value | value . parse : : < NcbiGeneId > ( ) . ok ( )",
+      "maximum": 1,
+      "class": "pending_audit",
+      "owner": "0360-policy-baseline",
+      "reason": "Existing site outside the PubMed and ORCID audit; the owner must review its field semantics"
+    },
+    {
+      "path": "crates/biomcp-adapters/src/mygene/map.rs",
+      "site": "map_hit: ( \"HGNC:{value}\" ) . parse : : < HgncId > ( ) . ok ( )",
+      "maximum": 1,
+      "class": "pending_audit",
+      "owner": "0360-policy-baseline",
+      "reason": "Existing site outside the PubMed and ORCID audit; the owner must review its field semantics"
+    },
+    {
+      "path": "crates/biomcp-adapters/src/myvariant/map.rs",
+      "site": "component_terms: _ ) ) ) { Text : : new ( \"clinvar\" ) . ok ( )",
+      "maximum": 1,
+      "class": "pending_audit",
+      "owner": "0360-policy-baseline",
+      "reason": "Existing site outside the PubMed and ORCID audit; the owner must review its field semantics"
+    },
+    {
+      "path": "crates/biomcp-adapters/src/myvariant/map.rs",
+      "site": "component_terms: label ( super : : components : : CLINVAR . terms ) . ok ( )",
+      "maximum": 1,
+      "class": "pending_audit",
+      "owner": "0360-policy-baseline",
+      "reason": "Existing site outside the PubMed and ORCID audit; the owner must review its field semantics"
+    },
+    {
+      "path": "crates/biomcp-adapters/src/myvariant/measurements/map.rs",
+      "site": "project: . parse : : < biodata : : Chromosome > ( ) . ok ( )",
+      "maximum": 1,
+      "class": "pending_audit",
+      "owner": "0360-policy-baseline",
+      "reason": "Existing site outside the PubMed and ORCID audit; the owner must review its field semantics"
+    },
+    {
+      "path": "crates/biomcp-adapters/src/myvariant/measurements/map.rs",
+      "site": "project: . accession ( build ) ) ; qualified . parse ( ) . ok ( )",
+      "maximum": 1,
+      "class": "pending_audit",
+      "owner": "0360-policy-baseline",
+      "reason": "Existing site outside the PubMed and ORCID audit; the owner must review its field semantics"
+    },
+    {
+      "path": "crates/biomcp-adapters/src/ols/map.rs",
+      "site": "iri_id: ) ? ; format ! ( \"{prefix}:{local}\" ) . parse ( ) . ok ( )",
+      "maximum": 1,
+      "class": "pending_audit",
+      "owner": "0373",
+      "reason": "Existing site outside the PubMed and ORCID audit; the owner must review its field semantics"
+    },
+    {
+      "path": "crates/biomcp-adapters/src/ols/map.rs",
+      "site": "iri_id: . ok ( ) } else { value . parse ( ) . ok ( )",
+      "maximum": 1,
+      "class": "pending_audit",
+      "owner": "0373",
+      "reason": "Existing site outside the PubMed and ORCID audit; the owner must review its field semantics"
+    },
+    {
+      "path": "crates/biomcp-adapters/src/ols/map.rs",
+      "site": "synonyms: \"oboInOwl:{}\" , s . as_str ( ) ) . parse ( ) . ok ( )",
+      "maximum": 1,
+      "class": "pending_audit",
+      "owner": "0373",
+      "reason": "Existing site outside the PubMed and ORCID audit; the owner must review its field semantics"
+    },
+    {
+      "path": "crates/biomcp-adapters/src/pubmed/map.rs",
+      "site": "header: ; if key . parse : : < Pmid > ( ) . ok ( )",
+      "maximum": 1,
+      "class": "identity_refusal",
+      "owner": "0371",
+      "reason": "Required summary identity and title refuse the item"
+    },
+    {
+      "path": "crates/biomcp-adapters/src/pubmed/map.rs",
+      "site": "header: . title . and_then ( Field : : value ) ? ) . ok ( )",
+      "maximum": 1,
+      "class": "identity_refusal",
+      "owner": "0371",
+      "reason": "Required summary identity and title refuse the item"
+    },
+    {
+      "path": "crates/biomcp-adapters/src/pubmed/map.rs",
+      "site": "header: = u32 : : try_from ( authors . len ( ) ) . ok ( )",
+      "maximum": 1,
+      "class": "legitimate_absence",
+      "owner": "0371",
+      "reason": "Bounded collection length or month-table index conversion cannot reject optional provider text"
+    },
+    {
+      "path": "crates/biomcp-adapters/src/pubmed/map.rs",
+      "site": "month: | m | u8 : : try_from ( m + 1 ) . ok ( )",
+      "maximum": 1,
+      "class": "legitimate_absence",
+      "owner": "0371",
+      "reason": "Bounded collection length or month-table index conversion cannot reject optional provider text"
+    },
+    {
+      "path": "crates/biomcp-adapters/src/pubtator/map.rs",
+      "site": "entity: and_then ( | s | Text : : new ( s ) . ok ( )",
+      "maximum": 1,
+      "class": "pending_audit",
+      "owner": "0360-policy-baseline",
+      "reason": "Existing site outside the PubMed and ORCID audit; the owner must review its field semantics"
+    },
+    {
+      "path": "crates/biomcp-adapters/src/pubtator/map.rs",
+      "site": "entity: | s | s . as_str ( ) . parse ( ) . ok ( )",
+      "maximum": 1,
+      "class": "pending_audit",
+      "owner": "0360-policy-baseline",
+      "reason": "Existing site outside the PubMed and ORCID audit; the owner must review its field semantics"
+    },
+    {
+      "path": "crates/biomcp-adapters/src/pubtator/map.rs",
+      "site": "entity: > biodata : : NcbiGeneId : : new ( * n ) . ok ( )",
+      "maximum": 1,
+      "class": "pending_audit",
+      "owner": "0360-policy-baseline",
+      "reason": "Existing site outside the PubMed and ORCID audit; the owner must review its field semantics"
+    },
+    {
+      "path": "crates/biomcp-adapters/src/reactome/map.rs",
+      "site": "identity: . parse : : < biodata : : ReactomeId > ( ) . ok ( )",
+      "maximum": 1,
+      "class": "pending_audit",
+      "owner": "0375",
+      "reason": "Existing site outside the PubMed and ORCID audit; the owner must review its field semantics"
+    },
+    {
+      "path": "crates/biomcp-adapters/src/reactome/map.rs",
+      "site": "identity: id ) , name : Text : : new ( name ) . ok ( )",
+      "maximum": 1,
+      "class": "pending_audit",
+      "owner": "0375",
+      "reason": "Existing site outside the PubMed and ORCID audit; the owner must review its field semantics"
+    },
+    {
+      "path": "crates/biomcp-adapters/src/reactome/map.rs",
+      "site": "header: Some ( Text : : new ( & row . st_id_version ) . ok ( )",
+      "maximum": 1,
+      "class": "pending_audit",
+      "owner": "0375",
+      "reason": "Existing site outside the PubMed and ORCID audit; the owner must review its field semantics"
+    },
+    {
+      "path": "crates/biomcp-adapters/src/uniprot/entry/map.rs",
+      "site": "entry: : Text : : new ( id . as_str ( ) ) . ok ( )",
+      "maximum": 1,
+      "class": "pending_audit",
+      "owner": "0360-policy-baseline",
+      "reason": "Existing site outside the PubMed and ORCID audit; the owner must review its field semantics"
+    },
+    {
+      "path": "crates/biomcp-adapters/src/uniprot/entry/map.rs",
+      "site": "header: Text : : new ( & format ! ( \"https://www.uniprot.org/uniprotkb/{accession}/entry\" ) ) . ok ( )",
+      "maximum": 1,
+      "class": "pending_audit",
+      "owner": "0360-policy-baseline",
+      "reason": "Existing site outside the PubMed and ORCID audit; the owner must review its field semantics"
+    }
+  ],
+  "fields": [
+    {
+      "path": "pubmed/map.rs",
+      "class": "migrated",
+      "fields": [
+        "journal",
+        "date",
+        "electronic_date",
+        "authors",
+        "first_author",
+        "types",
+        "articleids",
+        "doi",
+        "pmcid"
+      ],
+      "reason": "Present invalid optional fields use the shared problem context; malformed members name their field"
+    },
+    {
+      "path": "pubmed/efetch.rs",
+      "class": "migrated",
+      "fields": [
+        "journal",
+        "doi",
+        "pmcid",
+        "date",
+        "electronic_date",
+        "authors",
+        "abstract_parts.label",
+        "abstract_parts.text",
+        "corrections.pmid"
+      ],
+      "reason": "The citation and its PMID survive rejected optional XML text and IDs"
+    },
+    {
+      "path": "pubmed/indexing.rs",
+      "class": "migrated",
+      "fields": [
+        "mesh.descriptor",
+        "mesh.qualifiers.name",
+        "keywords",
+        "affiliations",
+        "orcids"
+      ],
+      "reason": "Invalid optional text omits only its member; ORCID values retain native text without new identity heuristics"
+    },
+    {
+      "path": "pubmed/mod.rs",
+      "class": "migrated",
+      "fields": [
+        "notices.not_found_words"
+      ],
+      "reason": "Invalid optional notice text is omitted with a source problem"
+    },
+    {
+      "path": "orcid/raw.rs",
+      "class": "migrated",
+      "fields": [
+        "credit_name",
+        "given_names",
+        "family_name"
+      ],
+      "reason": "Each optional name is decoded tolerantly and checked through the shared context; the existing source selection chooses the display name"
+    },
+    {
+      "path": "orcid/works.rs",
+      "class": "migrated",
+      "fields": [
+        "title",
+        "subtitle",
+        "translated_title",
+        "publication_date",
+        "journal_title",
+        "url",
+        "display_index",
+        "external_ids.url",
+        "source.source_orcid",
+        "source.source_client_id",
+        "source.source_name",
+        "source.assertion_origin_orcid",
+        "source.assertion_origin_client_id",
+        "source.assertion_origin_name"
+      ],
+      "reason": "Tolerant optional raw fields report problems against the work path or whole-works path for group identifiers; stored pages retain the problems"
+    },
+    {
+      "path": "pubmed/raw.rs; pubmed/efetch.rs; orcid/raw.rs; orcid/works.rs",
+      "class": "identity_refusal",
+      "fields": [
+        "PubMed search idlist and count",
+        "PubMed summary uid and matching key and title",
+        "PubMed citation PMID and title",
+        "ORCID requested person/name/works/work paths",
+        "ORCID put_code",
+        "ORCID external ID kind, value and relationship",
+        "ORCID required work_type",
+        "ORCID required display name and derived profile URL"
+      ],
+      "reason": "Required record identities, source assertions and output members retain strict decoding and item refusal"
+    },
+    {
+      "path": "pubmed/map.rs; pubmed/efetch.rs; orcid/raw.rs; orcid/works.rs",
+      "class": "legitimate_absence",
+      "fields": [
+        "Missing or null optional fields",
+        "Missing MedlineDate component year",
+        "Unrecognized native publication-type projection",
+        "Duplicate electronic and print dates",
+        "Unselected ArticleId namespaces",
+        "Unknown correction relation or kind",
+        "Nonpublic person names and work assertions",
+        "Empty public assertion groups",
+        "No available person display name",
+        "No unrequested author summary beyond first author"
+      ],
+      "reason": "These branches represent missing, unselected or inaccessible source facts and never convert an invalid optional text value into silence"
+    }
+  ]
+}

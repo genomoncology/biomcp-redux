@@ -999,6 +999,8 @@ Every present source field that cannot map is omitted and produces a `Problem` n
 
 `mapped.rs` owns rejected-field construction, deduplication and text validation. Adapters retain source-specific parsing and pass its results to that owner. Required identity text uses the strict shared conversion. Optional text uses the shared problem context, so empty or invalid text cannot fail unrelated fields.
 
+`crates/biomcp/tests/ratchets/adapter_value_audit.json` records the PubMed and ORCID field classifications and existing mapping drops. The source ratchet rejects new `.ok()` sites without a classification. Entries marked `pending_audit` retain explicit family ownership and do not claim a completed audit. PubMed citation problems travel with the fetched citation. ORCID work snapshots retain their problems beside the groups and source outcome. Optional fields never change required source paths, publication IDs or assertion identities.
+
 Shared helpers live once in `biomcp-adapters/src/`:
 
 ```rust

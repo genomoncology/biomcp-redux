@@ -91,10 +91,10 @@ impl Reply for Person {
     }
 }
 
-fn optional(
+pub(super) fn optional<T>(
     problems: &mut Problems,
     field: &str,
-    value: Option<Field<Wrapped>>,
-) -> Option<Wrapped> {
+    value: Option<Field<T>>,
+) -> Option<T> {
     problems.required(field, value?.value())
 }

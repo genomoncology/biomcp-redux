@@ -1,3 +1,5 @@
+#[path = "adapter_values.rs"]
+mod adapter_values;
 use super::{Check, dependencies, rust_files};
 use std::{collections::BTreeSet, fs, path::Path};
 
@@ -85,6 +87,7 @@ const ADAPTER_LIMIT: usize = 300;
 
 pub(super) fn check(root: &Path) -> Check {
     super::placement::check(root)?;
+    adapter_values::check(root)?;
     let sqlite = dependencies::sqlite_aliases(root)?;
     let mut keys = BTreeSet::new();
     let crates = root.join("crates");
