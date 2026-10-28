@@ -326,6 +326,10 @@ fn trial_contracts() -> Vec<Contract> {
 }
 
 #[test]
+#[expect(
+    clippy::disallowed_methods,
+    reason = "Schema definition contract tests own file I/O outside the pure library"
+)]
 fn checked_in_schema_definition_names_have_one_body() {
     let root = Path::new(env!("CARGO_MANIFEST_DIR")).join("schemas");
     let mut definitions = std::collections::BTreeMap::new();
