@@ -27,11 +27,7 @@ fn main() -> ExitCode {
         if env::args().len() != 2 {
             return ExitCode::FAILURE;
         }
-        return libtest_mimic::run(
-            &Arguments::from_iter(env::args().take(1)),
-            trials,
-        )
-        .exit_code();
+        return libtest_mimic::run(&Arguments::from_iter(env::args().take(1)), trials).exit_code();
     }
     if env::args().nth(1).as_deref() == Some("--live-check") {
         let mode = env::args().nth(2);
