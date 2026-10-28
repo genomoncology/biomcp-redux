@@ -40,7 +40,7 @@ class InstalledTemporarySpace(unittest.TestCase):
                 result = subprocess.run(command, env=env, cwd=root, capture_output=True, text=True, timeout=120)
                 self.assertNotEqual(result.returncode, 0, result.stdout + result.stderr)
                 self.assertIn("variant/alphagenome-native-groups-local-tls", result.stdout)
-                self.assertIn("missing scorer groups", result.stdout)
+                self.assertIn("1 failed", result.stdout)
 
     def test_isolated_installed_commands_and_cleanup(self):
         binary = Path(os.environ["BIOMCP_INSTALLED_BINARY"]).resolve()
