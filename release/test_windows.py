@@ -38,7 +38,8 @@ def pe(imports, delayed=False):
 
 class WindowsRuntime(unittest.TestCase):
     def test_installed_gate_refuses_redistributable_before_execution(self):
-        for name in ('VCRUNTIME140.dll', 'vcruntime140_1.DLL', 'MSVCP140.dll', 'CONCRT140.dll', 'VCOMP140.DLL', 'MFC140U.dll', 'ATl140.dll'):
+        for name in ('VCRUNTIME140.dll', 'vcruntime140_1.DLL', 'MSVCP140.dll', 'CONCRT140.dll', 'VCOMP140.DLL', 'MFC140U.dll', 'ATl140.dll',
+                     r'.\VCRUNTIME140.dll', 'runtime/VCRUNTIME140.dll', r'C:\runtime\VCRUNTIME140.dll', 'VCRUNTIME140'):
             for delayed in (False, True):
                 with self.subTest(name=name, delayed=delayed), tempfile.TemporaryDirectory() as directory:
                     root = Path(directory)
@@ -51,7 +52,10 @@ class WindowsRuntime(unittest.TestCase):
                     result = subprocess.run([sys.executable, 'release/gate.py', '--prepared', '--artifacts', str(root),
                                              '--scratch', str(root / 'scratch')], capture_output=True, text=True, timeout=20)
                     self.assertNotEqual(result.returncode, 0)
-                    self.assertIn('Windows binary requires Visual C++ redistributable: ' + name, result.stderr)
+                    expected = ('Windows binary requires Visual C++ redistributable: ' + name
+                                if name.lower().endswith('.dll') and not any(char in name for char in '/\\:')
+                                else 'invalid Windows PE: unsupported DLL name')
+                    self.assertIn(expected, result.stderr)
 
     def test_windows_system_imports_pass_and_malformed_images_fail_closed(self):
         from release.windows import check_runtime
