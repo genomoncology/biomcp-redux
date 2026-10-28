@@ -20,20 +20,20 @@ pub(super) struct Works {
 #[derive(Deserialize)]
 #[serde(rename_all = "kebab-case")]
 struct Group {
-    external_ids: Identifiers,
+    external_ids: Option<Field<Identifiers>>,
     work_summary: Vec<Assertion>,
 }
 #[derive(Deserialize)]
 #[serde(rename_all = "kebab-case")]
 struct Identifiers {
-    external_id: Vec<ExternalId>,
+    external_id: Vec<Field<ExternalId>>,
 }
 #[derive(Deserialize)]
 #[serde(rename_all = "kebab-case")]
 struct ExternalId {
     external_id_type: Text,
     external_id_value: Text,
-    external_id_relationship: Text,
+    external_id_relationship: Option<Field<Text>>,
     external_id_url: Option<Field<Url>>,
 }
 #[derive(Deserialize)]
@@ -44,11 +44,19 @@ impl Identifiers {
     fn convert(self, problems: &mut Problems) -> Box<[OrcidExternalId]> {
         self.external_id
             .into_iter()
-            .map(|id| OrcidExternalId {
-                kind: id.external_id_type,
-                value: id.external_id_value,
-                relationship: id.external_id_relationship,
-                url: optional(problems, "external_ids.url", id.external_id_url).map(|v| v.value),
+            .filter_map(|id| {
+                let id = problems.required("external_ids", id.value())?;
+                Some(OrcidExternalId {
+                    kind: id.external_id_type,
+                    value: id.external_id_value,
+                    relationship: optional(
+                        problems,
+                        "external_ids.relationship",
+                        id.external_id_relationship,
+                    ),
+                    url: optional(problems, "external_ids.url", id.external_id_url)
+                        .map(|v| v.value),
+                })
             })
             .collect()
     }
@@ -61,11 +69,11 @@ struct Assertion {
     visibility: Option<String>,
     title: Option<Field<Title>>,
     #[serde(rename = "type")]
-    work_type: Text,
+    work_type: Option<Field<Text>>,
     publication_date: Option<Field<Date>>,
     journal_title: Option<Field<Wrapped>>,
     url: Option<Field<Url>>,
-    external_ids: Identifiers,
+    external_ids: Option<Field<Identifiers>>,
     source: Origin,
     display_index: Option<Field<Text>>,
 }
@@ -164,12 +172,14 @@ impl Assertion {
             title,
             subtitle,
             translated_title,
-            work_type: self.work_type,
+            work_type: optional(problems, "work_type", self.work_type),
             publication_date: optional(problems, "publication_date", self.publication_date)
                 .and_then(|v| problems.optional("publication_date", Some(v.convert()))),
             journal_title: optional(problems, "journal_title", self.journal_title).map(|v| v.value),
             url: optional(problems, "url", self.url).map(|v| v.value),
-            external_ids: self.external_ids.convert(problems),
+            external_ids: optional(problems, "external_ids", self.external_ids)
+                .map(|v| v.convert(problems))
+                .unwrap_or_default(),
             source: self.source.convert(problems),
             visibility: OrcidPublicVisibility::Public,
             display_index: optional(problems, "display_index", self.display_index),
@@ -208,7 +218,9 @@ impl Works {
                     None
                 } else {
                     problems.record = record(&self.path);
-                    let external_ids = g.external_ids.convert(&mut problems);
+                    let external_ids = optional(&mut problems, "external_ids", g.external_ids)
+                        .map(|v| v.convert(&mut problems))
+                        .unwrap_or_default();
                     Some(OrcidWorkGroup {
                         external_ids,
                         assertions,

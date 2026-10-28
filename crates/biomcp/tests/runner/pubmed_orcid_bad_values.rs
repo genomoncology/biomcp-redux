@@ -41,6 +41,22 @@ fn problem(value: &Value, source: &str, field: &str, record: &str) -> Result<(),
 }
 fn orcid() -> Result<(), String> {
     for (path, invalid, field) in [
+        ("/type", json!(""), "work_type"),
+        (
+            "/external-ids/external-id/0/external-id-relationship",
+            json!(""),
+            "external_ids.relationship",
+        ),
+        (
+            "/external-ids/external-id/0/external-id-type",
+            json!(""),
+            "external_ids",
+        ),
+        (
+            "/external-ids/external-id/0/external-id-value",
+            json!(""),
+            "external_ids",
+        ),
         ("/title/title", json!({"value":""}), "title"),
         ("/title/subtitle", json!({"value":""}), "subtitle"),
         (
@@ -115,12 +131,15 @@ fn orcid() -> Result<(), String> {
         problem(&value, "orcid", field, "/0000-0002-4299-3018/work/1")?;
         let path = if field == "external_ids.url" {
             "external_ids/0/url".into()
+        } else if field == "external_ids.relationship" {
+            "external_ids/0/relationship".into()
         } else {
             field.replace('.', "/")
         };
-        if value
-            .pointer(&format!("/result/groups/0/assertions/0/{path}"))
-            .is_some_and(|v| !v.is_null())
+        if field != "external_ids"
+            && value
+                .pointer(&format!("/result/groups/0/assertions/0/{path}"))
+                .is_some_and(|v| !v.is_null())
         {
             return Err(format!("invalid ORCID field survived: {value}"));
         }
@@ -129,6 +148,7 @@ fn orcid() -> Result<(), String> {
 }
 fn pubmed() -> Result<(), String> {
     for (field, extra) in [
+        ("title", ""),
         ("journal", "<Journal><Title></Title></Journal>"),
         ("doi", ""),
         ("pmcid", ""),
@@ -189,13 +209,14 @@ fn pubmed() -> Result<(), String> {
             }
             _ => "",
         };
+        let title = if field == "title" { " " } else { "Valid title" };
         let xml = format!(
             concat!(
                 "<PubmedArticleSet><PubmedArticle><MedlineCitation><PMID>123</PMID><Article>",
-                "<ArticleTitle>Valid title</ArticleTitle>{}</Article>{}</MedlineCitation>",
+                "<ArticleTitle>{}</ArticleTitle>{}</Article>{}</MedlineCitation>",
                 "<PubmedData><ArticleIdList>{}</ArticleIdList></PubmedData></PubmedArticle></PubmedArticleSet>"
             ),
-            extra, citation, ids
+            title, extra, citation, ids
         );
         let stub = Stub::for_sources(
             &["eutils.ncbi.nlm.nih.gov"],
@@ -261,6 +282,7 @@ fn person() -> Result<(), String> {
 }
 fn summaries() -> Result<(), String> {
     for (field, invalid, problem_field) in [
+        ("title", json!(""), "title"),
         ("fulljournalname", json!(""), "journal"),
         ("pubdate", json!("bad"), "date"),
         ("epubdate", json!("2024 Feb 31"), "electronic_date"),
@@ -332,36 +354,66 @@ fn stored_work_problems() -> Result<(), String> {
     problem(&value, "orcid", "title", "/0000-0002-4299-3018/work/1")
 }
 fn notices() -> Result<(), String> {
-    let stub = Stub::for_source("eutils.ncbi.nlm.nih.gov", "application/json", |_| {
-        Ok(
-            json!({"esearchresult":{"count":"0","idlist":[],"errorlist":{"phrasesnotfound":[""]}}})
-                .to_string(),
-        )
-    })?;
-    let env = super::super::variant::source_environment(&stub)?;
-    let value = invoke(
-        &env,
-        ["search", "article", "synthetic", "--source", "pubmed"]
-            .map(str::to_owned)
-            .to_vec(),
-        0,
-    )?;
-    if !value
-        .get("problems")
-        .and_then(Value::as_array)
-        .is_some_and(|ps| {
-            ps.iter().any(|p| {
-                p.get("field") == Some(&json!("notices.not_found_words"))
-                    && p.get("source") == Some(&json!("pubmed"))
+    for (extra, field) in [
+        (
+            json!({"errorlist":{"phrasesnotfound":[""]}}),
+            "notices.not_found_words",
+        ),
+        (
+            json!({"errorlist":{"phrasesnotfound":[{}]}}),
+            "notices.not_found_words",
+        ),
+        (
+            json!({"errorlist":{"phrasesnotfound":{}}}),
+            "notices.not_found_words",
+        ),
+        (json!({"errorlist":[]}), "notices.not_found_words"),
+        (json!({"warninglist":[]}), "notices.pubmed_warnings"),
+        (
+            json!({"warninglist":{"quotedphrasesnotfound":{}}}),
+            "notices.pubmed_warning.phrases",
+        ),
+        (
+            json!({"warninglist":{"quotedphrasesnotfound":[{}]}}),
+            "notices.pubmed_warning.phrases",
+        ),
+    ] {
+        let mut result = json!({"count":"0","idlist":[]});
+        result
+            .as_object_mut()
+            .unwrap()
+            .extend(extra.as_object().unwrap().clone());
+        let body = json!({"esearchresult":result}).to_string();
+        let stub = Stub::for_sources(
+            &["eutils.ncbi.nlm.nih.gov"],
+            |_| "application/json",
+            move |_| Ok(body.clone()),
+        )?;
+        let env = super::super::variant::source_environment(&stub)?;
+        let value = invoke(
+            &env,
+            ["search", "article", "synthetic", "--source", "pubmed"]
+                .map(str::to_owned)
+                .to_vec(),
+            0,
+        )?;
+        if !value
+            .get("problems")
+            .and_then(Value::as_array)
+            .is_some_and(|ps| {
+                ps.iter().any(|p| {
+                    p.get("field") == Some(&json!(field))
+                        && p.get("source") == Some(&json!("pubmed"))
+                })
             })
-        })
-    {
-        return Err(format!(
-            "notice text disappeared without a problem: {value}"
-        ));
-    }
-    if stub.finish()?.len() != 1 {
-        return Err("empty PubMed search sent another request".into());
+        {
+            return Err(format!(
+                "notice text disappeared without a problem: {value}"
+            ));
+        }
+        if stub.finish()?.len() != 1 {
+            return Err("empty PubMed search sent another request".into());
+        }
     }
     Ok(())
 }

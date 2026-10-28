@@ -2,7 +2,7 @@ use super::raw::{Summary, SummaryRow, SummaryValue};
 use crate::mapped::record as record_text;
 use crate::mapped::{Problems, field_text, push_problem};
 use crate::{Mapped, raw::Field};
-use biodata::{PartialDate, Pmid, Text};
+use biodata::{PartialDate, Pmid};
 
 use biomcp_types::{ArticleHeader, PublicationType as P};
 use biomcp_types::{Problem, Source};
@@ -44,7 +44,13 @@ fn header(row: SummaryRow, key: &str, problems: &mut Vec<Problem>) -> Option<Art
     if key.parse::<Pmid>().ok() != Some(id) {
         return None;
     }
-    let title = Text::new(&row.title.and_then(Field::value)?).ok()?;
+    let title = field_text(
+        problems,
+        Source::PubMed,
+        record_text(key),
+        "title",
+        row.title,
+    );
     let journal = field_text(
         problems,
         Source::PubMed,
@@ -75,8 +81,10 @@ fn header(row: SummaryRow, key: &str, problems: &mut Vec<Problem>) -> Option<Art
         .and_then(|v| context.required("types", v.value()))
         .unwrap_or_default()
         .into_iter()
-        .filter_map(|v| context.required("types", v.value()))
-        .filter_map(|s| context.text("types", Some(&s)))
+        .filter_map(|v| {
+            let s = context.required("types", v.value())?;
+            context.text("types", Some(&s))
+        })
         .filter_map(|s| publication_type(s.as_str()))
         .collect();
     let mut doi = None;

@@ -23,13 +23,6 @@ pub(super) fn check(root: &Path) -> Check {
             .strip_prefix(root)?
             .to_string_lossy()
             .replace('\\', "/");
-        if path.file_name().is_none_or(|name| name != "map.rs")
-            && !path.components().any(|part| part.as_os_str() == "map")
-            && !relative.contains("/pubmed/")
-            && !relative.contains("/orcid/")
-        {
-            continue;
-        }
         for (site, count) in fingerprints(&tokens(&fs::read_to_string(&path)?)) {
             let allowed = audit
                 .sites

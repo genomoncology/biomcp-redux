@@ -165,7 +165,7 @@ fn pivots(out: &mut Outcome, rows: &[OrcidWorkGroup]) {
         .flat_map(|g| &g.assertions)
         .flat_map(|a| &a.external_ids)
     {
-        if id.relationship.as_str() != "self" {
+        if id.relationship.as_ref().map(biodata::Text::as_str) != Some("self") {
             continue;
         }
         let input = match id.kind.as_str() {

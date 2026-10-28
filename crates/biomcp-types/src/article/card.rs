@@ -52,7 +52,8 @@ article! {
     #[cfg_attr(feature = "schema", schemars(with = "Pmcid"))]
     pub pmcid: Option<Pmcid>,
     /// Whole title with inline text preserved.
-    pub title: Text,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub title: Option<Text>,
     /// Journal name.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub journal: Option<Text>,

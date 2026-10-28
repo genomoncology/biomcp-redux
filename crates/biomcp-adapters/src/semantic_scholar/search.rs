@@ -134,7 +134,7 @@ impl Paper {
             pmcid,
             doi,
             europepmc_id: None,
-            title,
+            title: Some(title),
             journal: self.venue.and_then(|s| Text::new(&s).ok()),
             electronic_date: None,
             date: self

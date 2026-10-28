@@ -45,26 +45,19 @@ impl Person {
         let given = optional(&mut problems, "given_names", name.given_names);
         let family = optional(&mut problems, "family_name", name.family_name);
         let display = match credit {
-            Some(n) => n.value,
+            Some(n) => Some(n.value),
             None => {
                 let parts: Vec<_> = [given, family]
                     .into_iter()
                     .flatten()
                     .map(|n| n.value)
                     .collect();
+                let value = parts.iter().map(Text::as_str).collect::<Vec<_>>().join(" ");
                 if parts.is_empty() {
-                    return Ok(Mapped {
-                        value: None,
-                        problems: problems.list,
-                    });
+                    None
+                } else {
+                    problems.text("name", Some(&value))
                 }
-                parts
-                    .iter()
-                    .map(Text::as_str)
-                    .collect::<Vec<_>>()
-                    .join(" ")
-                    .parse()
-                    .map_err(|_| BadReply)?
             }
         };
         Ok(Mapped {

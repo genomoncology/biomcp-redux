@@ -136,11 +136,7 @@ fn article(root: Element<'_>) -> Result<FetchedArticle, BadReply> {
         record: record(pmid),
         list: Vec::new(),
     };
-    let title = row
-        .value(&["ArticleTitle"])?
-        .map(|s| crate::mapped::text(&s))
-        .transpose()?
-        .ok_or(BadReply)?;
+    let title = problems.text("title", row.value(&["ArticleTitle"])?.as_deref());
     let journal = problems.text("journal", row.value(&["Journal", "Title"])?.as_deref());
     let date = pubdate(
         row.at(&["Journal", "JournalIssue", "PubDate"])?,
