@@ -64,6 +64,11 @@ missing_debug_implementations = "deny"
 missing_docs = "deny"
 
 [workspace.lints.clippy]
+allow_attributes = "deny"
+wildcard_imports = "deny"
+missing_assert_message = "deny"
+fn_params_excessive_bools = "deny"
+ref_option = "deny"
 allow_attributes_without_reason = "deny"
 unwrap_used = "deny"
 expect_used = "deny"
