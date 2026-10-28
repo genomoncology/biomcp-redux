@@ -197,61 +197,24 @@ struct Intervention {
     other_names: Option<Field<Vec<Field<Box<str>>>>>,
 }
 impl Protocol {
-    fn detail(self) -> Detail {
+    fn detail(mut self) -> Detail {
         let mut problems = Problems {
             source: Source::ClinicalTrialsGov,
             record: crate::mapped::record(self.identification_module.nct_id),
             list: Vec::new(),
         };
-        let status = problems
-            .field("statusModule", self.status_module)
-            .unwrap_or_default();
-        let design = problems
-            .field("designModule", self.design_module)
-            .unwrap_or_default();
-        let arms = problems.field("armsInterventionsModule", self.arms_interventions_module);
+        let arms = problems.field("armsInterventionsModule", self.arms_interventions_module.take());
         let (arm_rows, interventions) = arms.map_or_else(
             || (Box::default(), Box::default()),
             |arms| arms.rows(&mut problems),
         );
         let (locations, contacts, officials) = problems
-            .field("contactsLocationsModule", self.contacts_locations_module)
+            .field("contactsLocationsModule", self.contacts_locations_module.take())
             .map_or_else(
                 || (Box::default(), Box::default(), Box::default()),
                 |sites| sites.rows(&mut problems),
             );
-        let card = TrialCard {
-            nct_id: self.identification_module.nct_id,
-            url: format!(
-                "https://clinicaltrials.gov/study/{}",
-                self.identification_module.nct_id
-            )
-            .into(),
-            title: problems
-                .required_field("briefTitle", self.identification_module.brief_title)
-                .map(|v| v.as_str().into()),
-            status: problems.required_field("overallStatus", status.overall_status),
-            phases: problems.fields("phases", design.phases),
-            study_type: problems.required_field("studyType", design.study_type),
-            conditions: problems
-                .field("conditionsModule", self.conditions_module)
-                .map_or_else(Box::default, |v| {
-                    problems.fields("conditions", v.conditions)
-                }),
-            interventions: interventions
-                .iter()
-                .filter_map(|v| v.name.clone())
-                .collect(),
-            sponsor: problems.field("sponsorCollaboratorsModule", self.sponsor_collaborators_module)
-                .and_then(|s| s.name(&mut problems)),
-            start: RawDate::field("startDateStruct", status.start_date_struct, &mut problems),
-            primary_completion: RawDate::field("primaryCompletionDateStruct", status.primary_completion_date_struct, &mut problems),
-            completion: RawDate::field("completionDateStruct", status.completion_date_struct, &mut problems),
-            updated: RawDate::field("lastUpdatePostDateStruct", status.last_update_post_date_struct, &mut problems),
-            brief_summary: problems
-                .field("descriptionModule", self.description_module)
-                .and_then(|d| problems.field("briefSummary", d.brief_summary)),
-        };
+        let card = self.card(&interventions, &mut problems);
         Detail {
             references: problems
                 .field("referencesModule", self.references_module)
@@ -270,6 +233,47 @@ impl Protocol {
             interventions,
         }
     }
+    fn card(&mut self, interventions: &[TrialIntervention], problems: &mut Problems) -> TrialCard {
+        let status = problems
+            .field("statusModule", self.status_module.take())
+            .unwrap_or_default();
+        let design = problems
+            .field("designModule", self.design_module.take())
+            .unwrap_or_default();
+        TrialCard {
+            nct_id: self.identification_module.nct_id,
+            url: format!(
+                "https://clinicaltrials.gov/study/{}",
+                self.identification_module.nct_id
+            )
+            .into(),
+            title: problems
+                .required_field("briefTitle", self.identification_module.brief_title.take())
+                .map(|v| v.as_str().into()),
+            status: problems.required_field("overallStatus", status.overall_status),
+            phases: problems.fields("phases", design.phases),
+            study_type: problems.required_field("studyType", design.study_type),
+            conditions: problems
+                .field("conditionsModule", self.conditions_module.take())
+                .map_or_else(Box::default, |v| {
+                    problems.fields("conditions", v.conditions)
+                }),
+            interventions: interventions
+                .iter()
+                .filter_map(|v| v.name.clone())
+                .collect(),
+            sponsor: problems.field("sponsorCollaboratorsModule", self.sponsor_collaborators_module.take())
+                .and_then(|s| s.name(problems)),
+            start: RawDate::field("startDateStruct", status.start_date_struct, problems),
+            primary_completion: RawDate::field("primaryCompletionDateStruct", status.primary_completion_date_struct, problems),
+            completion: RawDate::field("completionDateStruct", status.completion_date_struct, problems),
+            updated: RawDate::field("lastUpdatePostDateStruct", status.last_update_post_date_struct, problems),
+            brief_summary: problems
+                .field("descriptionModule", self.description_module.take())
+                .and_then(|d| problems.field("briefSummary", d.brief_summary)),
+        }
+    }
+
 }
 impl Sponsor {
     fn name(self, problems: &mut Problems) -> Option<Box<str>> {
