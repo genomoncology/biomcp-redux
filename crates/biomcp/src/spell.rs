@@ -279,7 +279,9 @@ fn base_entity(request: &Request) -> &'static str {
     other_entity(request)
 }
 fn other_entity(request: &Request) -> &'static str {
-    if matches!(request, Request::SearchOrganization(_)) { return "organization"; }
+    if matches!(request, Request::SearchOrganization(_)) {
+        return "organization";
+    }
     if matches!(request, Request::SearchProtein(_) | Request::GetProtein(_)) {
         "protein"
     } else if matches!(request, Request::SearchStudy(_) | Request::GetStudy(_)) {

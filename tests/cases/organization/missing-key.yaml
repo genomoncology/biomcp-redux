@@ -15,7 +15,7 @@
         "/status": "failed",
         "/sources/0/reason": "no_key"
       },
-      "exit": 1,
+      "exit": 4,
       "max_bytes": 2000
     }
   ]

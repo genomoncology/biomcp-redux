@@ -3,7 +3,9 @@ mod snapshot;
 use crate::{Action, Ctx, Outcome, status};
 use biomcp_adapters::nci;
 use biomcp_fetch::{Deadline, RequestError, SourceError};
-use biomcp_types::{OrganizationPage, OrganizationSearch, QueryBody, Reason, Request, Source, Status, StepKind};
+use biomcp_types::{
+    OrganizationPage, OrganizationSearch, QueryBody, Reason, Request, Source, Status, StepKind,
+};
 /// Find published organizations without assigning identities to names.
 pub fn search(cx: &Ctx<'_>, q: &OrganizationSearch) -> Outcome {
     let command = cx.fetch.command_deadline(cx.budget);
@@ -11,24 +13,44 @@ pub fn search(cx: &Ctx<'_>, q: &OrganizationSearch) -> Outcome {
     let mut out = empty();
     if let Err(error) = execute(cx, q, deadline, &mut out) {
         if out.sources.is_empty() {
-            out.sources.push(biomcp_adapters::registry::outcome(Source::Nci,
-                if status::reason(error) == Some(Reason::Disabled) { biomcp_types::SourceState::Skipped }
-                else { biomcp_types::SourceState::Failed }, status::reason(error)));
+            out.sources.push(biomcp_adapters::registry::outcome(
+                Source::Nci,
+                if status::reason(error) == Some(Reason::Disabled) {
+                    biomcp_types::SourceState::Skipped
+                } else {
+                    biomcp_types::SourceState::Failed
+                },
+                status::reason(error),
+            ));
         }
-        if status::reason(error) == Some(Reason::TooLarge) { out.body = QueryBody::OrganizationTooBroad; }
+        if status::reason(error) == Some(Reason::TooLarge) {
+            out.body = QueryBody::OrganizationTooBroad;
+        }
         out.local = status::local(error);
     }
     if out.sources.iter().any(|s| s.reason == Some(Reason::NoKey)) {
-        out.next.insert(0, (StepKind::Key, Action::KeyHelp(Source::Nci)));
+        out.next
+            .insert(0, (StepKind::Key, Action::KeyHelp(Source::Nci)));
     }
     command.finish(deadline.remaining());
     out
 }
-fn execute(cx: &Ctx<'_>, q: &OrganizationSearch, deadline: Deadline<'_>, out: &mut Outcome) -> Result<(), RequestError> {
+fn execute(
+    cx: &Ctx<'_>,
+    q: &OrganizationSearch,
+    deadline: Deadline<'_>,
+    out: &mut Outcome,
+) -> Result<(), RequestError> {
     if cx.fetch.disabled(Source::Nci) {
-        return Err(SourceError { source: Source::Nci, reason: Reason::Disabled, status: None, retry_after: None }.into());
+        return Err(SourceError {
+            source: Source::Nci,
+            reason: Reason::Disabled,
+            status: None,
+            retry_after: None,
+        }
+        .into());
     }
-    let saved = snapshot::load(cx,q,deadline)?;
+    let saved = snapshot::load(cx, q, deadline)?;
     if q.pool().is_some() && !cx.fresh && saved.is_none() {
         out.body = QueryBody::PoolError { mismatch: false };
         out.next.push((StepKind::Restart, run(q.restart())));
@@ -38,36 +60,82 @@ fn execute(cx: &Ctx<'_>, q: &OrganizationSearch, deadline: Deadline<'_>, out: &m
         Some(saved) => saved,
         None => {
             let leg = cx.fetch.leg(&nci::SPEC, deadline).fresh(cx.fresh);
-            let reply = nci::organization::search(&leg,q);
-            out.sources.push(status::source(Source::Nci,leg.finish(),reply.as_ref().err().copied()));
+            let reply = nci::organization::search(&leg, q);
+            out.sources.push(status::source(
+                Source::Nci,
+                leg.finish(),
+                reply.as_ref().err().copied(),
+            ));
             let reply = reply?;
             let mut sources = std::mem::take(&mut out.sources);
             if let Some(source) = sources.first_mut() {
                 source.count = Some(reply.value.len() as u64);
                 source.fetched = Some(reply.value.len() as u32);
             }
-            snapshot::Saved { items: reply.value, sources, problems: reply.problems }
+            snapshot::Saved {
+                items: reply.value,
+                sources,
+                problems: reply.problems,
+            }
         }
     };
-    let pool = if let Some(pool) = q.pool().filter(|_| !cx.fresh) { pool.clone() }
-        else { snapshot::save(cx,q,deadline,&saved)? };
+    let pool = if let Some(pool) = q.pool().filter(|_| !cx.fresh) {
+        pool.clone()
+    } else {
+        snapshot::save(cx, q, deadline, &saved)?
+    };
     let total = saved.items.len() as u64;
-    let items: Box<[_]> = saved.items.into_iter().skip(q.offset() as usize).take(q.limit() as usize).collect();
+    let items: Box<[_]> = saved
+        .items
+        .into_iter()
+        .skip(q.offset() as usize)
+        .take(q.limit() as usize)
+        .collect();
     let returned = items.len() as u32;
     let next = q.offset().saturating_add(returned);
     if returned > 0 && u64::from(next) < total {
-        out.next.push((StepKind::Page,run(q.at_page(next,pool))));
+        out.next.push((StepKind::Page, run(q.at_page(next, pool))));
     }
-    out.status = if saved.sources.iter().any(|s| s.state == biomcp_types::SourceState::Stale) || !saved.problems.is_empty() { Status::Partial }
-        else if total == 0 { Status::Absent } else { Status::Complete };
-    out.page = Some(biomcp_types::PageInfo {offset:q.offset(),returned,total,pool:None,truncated:None});
+    out.status = if saved
+        .sources
+        .iter()
+        .any(|s| s.state == biomcp_types::SourceState::Stale)
+        || !saved.problems.is_empty()
+    {
+        Status::Partial
+    } else if total == 0 {
+        Status::Absent
+    } else {
+        Status::Complete
+    };
+    out.page = Some(biomcp_types::PageInfo {
+        offset: q.offset(),
+        returned,
+        total,
+        pool: None,
+        truncated: None,
+    });
     out.sources = saved.sources;
     out.problems = saved.problems;
-    out.body = QueryBody::OrganizationPage(OrganizationPage {items});
+    out.body = QueryBody::OrganizationPage(OrganizationPage { items });
     Ok(())
 }
 fn empty() -> Outcome {
-    Outcome { status: Status::Failed, body: QueryBody::OrganizationPage(OrganizationPage {items:Box::default()}),
-        page:None,sources:Vec::new(),problems:Vec::new(),next:Vec::new(),local:None }
+    Outcome {
+        status: Status::Failed,
+        body: QueryBody::OrganizationPage(OrganizationPage {
+            items: Box::default(),
+        }),
+        page: None,
+        sources: Vec::new(),
+        problems: Vec::new(),
+        next: Vec::new(),
+        local: None,
+    }
 }
-fn run(q: OrganizationSearch) -> Action { Action::Run {request:Request::SearchOrganization(q),fresh:false} }
+fn run(q: OrganizationSearch) -> Action {
+    Action::Run {
+        request: Request::SearchOrganization(q),
+        fresh: false,
+    }
+}

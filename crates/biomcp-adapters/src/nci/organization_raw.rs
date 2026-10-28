@@ -10,7 +10,9 @@ pub(super) struct Page {
 }
 impl Reply for Page {
     fn check(&self) -> Result<(), BadReply> {
-        if self.total != self.data.len() as u64 { return Err(BadReply); }
+        if self.total != self.data.len() as u64 {
+            return Err(BadReply);
+        }
         Ok(())
     }
 }

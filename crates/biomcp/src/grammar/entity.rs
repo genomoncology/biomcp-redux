@@ -29,7 +29,9 @@ pub(super) fn request(
         ("get", "protein") => super::validation::decode(value).map(Request::GetProtein),
         ("search", "phenotype") => super::validation::decode(value).map(Request::SearchPhenotype),
         ("get", "phenotype") => super::validation::decode(value).map(Request::GetPhenotype),
-        ("search", "organization") => super::validation::decode(value).map(Request::SearchOrganization),
+        ("search", "organization") => {
+            super::validation::decode(value).map(Request::SearchOrganization)
+        }
         ("search", "pathway") => super::validation::decode(value).map(Request::SearchPathway),
         ("get", "pathway") => super::validation::decode(value).map(Request::GetPathway),
         ("pathway", "genes") => super::validation::decode(value).map(Request::PathwayGenes),
