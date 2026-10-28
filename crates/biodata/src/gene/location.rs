@@ -47,7 +47,10 @@ impl GeneLocation {
 impl From<String> for GeneLocation {
     fn from(value: String) -> Self {
         let kind = parse(&value).unwrap_or(GeneLocationKind::Unparsed);
-        Self { text: value.into(), kind }
+        Self {
+            text: value.into(),
+            kind,
+        }
     }
 }
 impl From<&str> for GeneLocation {
@@ -81,6 +84,9 @@ fn parse(value: &str) -> Option<GeneLocationKind> {
     }
     let mut bands = value.split(" and ");
     let first = Cytoband::new(bands.next()?).ok()?;
-    let additional = bands.map(Cytoband::new).collect::<Result<Box<[_]>, _>>().ok()?;
+    let additional = bands
+        .map(Cytoband::new)
+        .collect::<Result<Box<[_]>, _>>()
+        .ok()?;
     Some(GeneLocationKind::Cytobands { first, additional })
 }

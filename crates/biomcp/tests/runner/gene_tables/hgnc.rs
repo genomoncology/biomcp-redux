@@ -226,8 +226,18 @@ fn vocabulary() -> Check {
 fn locations() -> Check {
     for (symbol, id, name, location) in [
         ("SHOX", "HGNC:10853", "SHOX homeobox", "Xp22.33 and Yp11.32"),
-        ("CRLF2", "HGNC:14281", "cytokine receptor like factor 2", "Xp22.3 and Yp11.3"),
-        ("MT-ND1", "HGNC:7455", "mitochondrially encoded NADH:ubiquinone oxidoreductase core subunit 1", "mitochondria"),
+        (
+            "CRLF2",
+            "HGNC:14281",
+            "cytokine receptor like factor 2",
+            "Xp22.3 and Yp11.3",
+        ),
+        (
+            "MT-ND1",
+            "HGNC:7455",
+            "mitochondrially encoded NADH:ubiquinone oxidoreductase core subunit 1",
+            "mitochondria",
+        ),
         ("DMD", "HGNC:2928", "dystrophin", "Xp21.2-p21.1"),
         ("BRAF", "HGNC:1097", "BRAF name", "publisher location text"),
     ] {
@@ -236,8 +246,16 @@ fn locations() -> Check {
             &["get", "gene", symbol, "--disable-sources", "mygene"],
             |source, record| {
                 if source == "hgnc" && symbol != "DMD" {
-                    tsv(record, "BRAF", &[("symbol", symbol), ("hgnc_id", id),
-                        ("name", name), ("location", location)]);
+                    tsv(
+                        record,
+                        "BRAF",
+                        &[
+                            ("symbol", symbol),
+                            ("hgnc_id", id),
+                            ("name", name),
+                            ("location", location),
+                        ],
+                    );
                 }
             },
             json!({"/result/items/0/answer/gene/symbol": symbol,

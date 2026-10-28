@@ -224,13 +224,23 @@ fn gene_locations_parse_publisher_forms_without_changing_text() -> Check {
         round_trip(&location)?;
         let parsed = match location.kind() {
             GeneLocationKind::Cytobands { first, additional } => {
-                assert_eq!(first.as_str(), text.split(" and ").next().ok_or("no first band")?);
+                assert_eq!(
+                    first.as_str(),
+                    text.split(" and ").next().ok_or("no first band")?
+                );
                 assert_eq!(additional.len(), text.matches(" and ").count());
                 "bands"
             }
             GeneLocationKind::Range { start, end } => {
                 assert_eq!(start.as_str(), text.split('-').next().ok_or("no start")?);
-                assert_eq!(end.as_str(), if text.starts_with('X') { "Xp21.1" } else { "9p21.1" });
+                assert_eq!(
+                    end.as_str(),
+                    if text.starts_with('X') {
+                        "Xp21.1"
+                    } else {
+                        "9p21.1"
+                    }
+                );
                 "range"
             }
             GeneLocationKind::Mitochondrial => "mitochondrial",

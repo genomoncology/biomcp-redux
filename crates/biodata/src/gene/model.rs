@@ -1,6 +1,6 @@
 use super::{GeneStatus, LocusGroup, LocusType, Mane, Summary};
 use crate::{
-    GeneLocation, EnsemblGeneId, GeneSymbol, GenomicInterval, HgncId, NcbiGeneId, OmimId, Text,
+    EnsemblGeneId, GeneLocation, GeneSymbol, GenomicInterval, HgncId, NcbiGeneId, OmimId, Text,
     UniProtAcc,
 };
 use serde::{Deserialize, Serialize};
