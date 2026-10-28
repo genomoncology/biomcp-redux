@@ -12,6 +12,8 @@ biodata::wire_enum! { described
 biodata::wire_enum! { described
     /// Report-level seriousness filter, independent of reaction outcome.
     AdverseEventSerious {
+        /// Native report seriousness flag.
+        Any => "any",
         /// Native report death flag.
         Death => "death",
         /// Native report hospitalization flag.

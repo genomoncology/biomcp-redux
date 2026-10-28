@@ -35,6 +35,7 @@ pub fn expression(query: &AdverseEventSearch) -> String {
     }
     if let Some(flag) = query.serious() {
         let field = match flag {
+            AdverseEventSerious::Any => "serious",
             AdverseEventSerious::Death => "seriousnessdeath",
             AdverseEventSerious::Hospitalization => "seriousnesshospitalization",
         };

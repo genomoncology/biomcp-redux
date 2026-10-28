@@ -132,7 +132,7 @@ fn guidance(
                 if source == Some("maude") {
                     return Some(ErrorMessage::AdverseFilter);
                 }
-                if !matches!(value, Some("death" | "hospitalization")) {
+                if !matches!(value, Some("any" | "death" | "hospitalization")) {
                     return Some(ErrorMessage::AdverseSerious);
                 }
             }

@@ -77,7 +77,7 @@ singleton! {
             reactions for native outcomes; the old hospitalization and disability mappings were wrong",
         AdverseFrom => "renamed; use: --received-from",
         AdverseTo => "renamed; use: --received-to",
-        AdverseSerious => "only --serious death and --serious hospitalization are supported",
+        AdverseSerious => "only --serious any, --serious death and --serious hospitalization are supported",
         AdverseFilter => "this adverse-event filter is not supported",
         AdverseFaers => "renamed; use: --source faers",
         AdverseMaude => "use: search adverse-event <TEXT> --source maude",
