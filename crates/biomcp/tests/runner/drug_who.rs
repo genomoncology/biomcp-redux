@@ -134,7 +134,10 @@ fn pair(env: &Environment, replay: &Path, args: &[&str], exit: i32) -> Result<Va
     words.extend(args.iter().map(|s| (*s).into()));
     let value = invoke(env, words, exit).map_err(|e| format!("{}: {e}", args.join(" ")))?;
     let command: Vec<String> = args.iter().map(|s| (*s).into()).collect();
-    if mcp::call_with_globals(env, &command, exit == 4, &globals)? != value {
+    if mcp::call_with_globals(env, &command, exit == 4, &globals)
+        .map_err(|e| format!("WHO MCP {}: {e}", args.join(" ")))?
+        != value
+    {
         return Err("WHO CLI/MCP outputs differ".into());
     }
     bounded(&value)?;
@@ -147,8 +150,10 @@ fn replacement(env: &Environment, replay: &Path, get: &[&str], before: &Value) -
         .ok_or("missing recording")?
         .map_err(|e| e.to_string())?
         .path();
-    let original: Value = serde_json::from_slice(&fs::read(&path).map_err(|e| e.to_string())?)
-        .map_err(|e| e.to_string())?;
+    let bytes = fs::read(&path).map_err(|e| e.to_string())?;
+    let original: Value = serde_json::from_slice(&bytes).map_err(|e| {
+        format!("WHO recording {} ({} bytes): {e}", path.display(), bytes.len())
+    })?;
     for fault in ["header", "extra", "malformed", "empty"] {
         let mut changed = original.clone();
         let text = match fault {
