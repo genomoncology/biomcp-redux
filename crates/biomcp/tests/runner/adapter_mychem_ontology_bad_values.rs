@@ -131,6 +131,7 @@ fn check(family: &str) -> Result<(), String> {
         if !problems
             .iter()
             .any(|p| p.get("field") == Some(&json!(expected)))
+            || value.get("status") != Some(&json!("partial"))
             || value.get("result").is_none_or(Value::is_null)
             || value.get("result").is_some_and(contains_invalid)
         {

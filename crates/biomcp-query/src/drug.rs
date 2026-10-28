@@ -140,6 +140,10 @@ fn selected_get(cx: &Ctx<'_>, query: &DrugGet) -> Outcome {
                     },
                 ));
             }
+            if !document.problems.is_empty() {
+                out.status = Status::Partial;
+            }
+            out.problems = document.problems;
             out.body = QueryBody::DrugCard(Some(document.value.card));
         }
     }
@@ -254,10 +258,11 @@ mod native;
 fn searched(query: &DrugSearch, fresh: bool, page: DrugPage, out: &mut Outcome) {
     out.status = if page.items.is_empty() {
         Status::Absent
-    } else if out
-        .sources
-        .iter()
-        .any(|s| s.state == biomcp_types::SourceState::Stale)
+    } else if !out.problems.is_empty()
+        || out
+            .sources
+            .iter()
+            .any(|s| s.state == biomcp_types::SourceState::Stale)
     {
         Status::Partial
     } else {
