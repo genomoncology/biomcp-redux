@@ -41,6 +41,8 @@ Robustness and public-text fixes come first, because the parity run, the docs an
 - Rare disease rerun (experiment 499): variant transcripts and HGVS (0378), separate ClinGen statuses (0379), gnomAD from rsID or HGVS (0380), LitVar and variant article recall (0381), trial condition expansion (0382), GenCC section (0383).
 - Order: schema-changing tickets (0341, then 0358, 0359, 0361, 0362) early, because each regenerates the baseline.
 
+- Close the public benchmark gaps Ian added on 2026-10-28: NCI organizations and biomarkers with their trial filters, FDA device recalls with MAUDE manufacturer and product code filters, and OR across repeated trial conditions or interventions (0408 to 0414), after an adversarial design review.
+
 ### 6. Rehearse and release
 
 - Cut the release candidate from main once every ticket above lands (0336).
