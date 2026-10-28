@@ -179,13 +179,11 @@ pub fn parameters(query: &TrialSearch) -> Vec<(String, String)> {
             query.next_page().map_or("0", Text::as_str).into(),
         ),
     ];
-    for (name, value) in [
-        ("diseases.nci_thesaurus_concept_id", query.condition()),
-        ("keyword", query.keyword()),
-    ] {
-        if let Some(value) = value {
-            params.push((name.into(), value.as_str().into()));
-        }
+    for value in query.condition() {
+        params.push(("diseases.nci_thesaurus_concept_id".into(), value.as_str().into()));
+    }
+    if let Some(value) = query.keyword().first() {
+        params.push(("keyword".into(), value.as_str().into()));
     }
     for field in [
         "nci_id",

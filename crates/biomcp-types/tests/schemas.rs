@@ -127,7 +127,7 @@ fn registry() -> Vec<Contract> {
         ErrorEnvelope => ("error", "biomcp.error/1"),
         GeneGet => ("gene-get", "biodata.gene-get/1"),
         GeneSearch => ("gene-search", "biodata.gene-search/1"),
-        Request => ("request", "biodata.request/27"),
+        Request => ("request", "biodata.request/28"),
         Envelope<GeneCards> => ("gene-cards", "biomcp.gene-cards/6"),
         Envelope<GenePage> => ("gene-page", "biomcp.gene-page/3"),
         Envelope<StoreClean> => ("store-clean", "biomcp.store-clean/1"),
@@ -312,11 +312,11 @@ fn trial_contracts() -> Vec<Contract> {
     contracts! {
         TrialGet => ("trial-get", "biodata.trial-get/1"),
         Envelope<NciTrialCards> => ("nci-trial-cards", "biomcp.nci-trial-cards/3"),
-        Envelope<NciTrialPage> => ("nci-trial-page", "biomcp.nci-trial-page/4"),
+        Envelope<NciTrialPage> => ("nci-trial-page", "biomcp.nci-trial-page/5"),
         Envelope<TrialCards> => ("trial-cards", "biomcp.trial-cards/3"),
         TrialConditionResolution => ("trial-condition-resolution", "biomcp.trial-condition-resolution/2"),
-        TrialSearch => ("trial-search", "biodata.trial-search/2"),
-        Envelope<TrialPage> => ("trial-page", "biomcp.trial-page/7"),
+        TrialSearch => ("trial-search", "biodata.trial-search/3"),
+        Envelope<TrialPage> => ("trial-page", "biomcp.trial-page/8"),
         NctId => ("nct-id", "biodata.nct-id/1"),
         TrialHeader => ("trial-header", "biodata.trial_header/1"),
     }

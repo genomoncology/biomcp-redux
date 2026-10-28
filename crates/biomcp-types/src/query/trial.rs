@@ -1,6 +1,7 @@
 mod condition;
 use crate::{GeneInput, NctId, PartialDate, StudyType, Text, TrialSex, TrialStatus};
 use serde::{Deserialize, Serialize};
+const MAX_ALTERNATIVES: usize = 5;
 biodata::wire_enum! {
     /// Registry funding category facet.
     SponsorType {
@@ -27,14 +28,10 @@ struct Fields {
     /// Explicit provider; defaults to ClinicalTrials.gov and never falls back.
     #[serde(default, skip_serializing_if = "TrialSource::is_default")]
     source: TrialSource,
-    /// NCI free text; explicit keyword mode never substitutes for a disease identity.
-    #[serde(
-        default,
-        deserialize_with = "super::gene::present",
-        skip_serializing_if = "Option::is_none"
-    )]
-    #[cfg_attr(feature = "schema", schemars(with = "Text"))]
-    keyword: Option<Text>,
+    /// General text alternatives joined with OR; different filters combine with AND.
+    #[serde(default, skip_serializing_if = "<[ _ ]>::is_empty")]
+    #[cfg_attr(feature = "schema", schemars(length(min = 1, max = MAX_ALTERNATIVES)))]
+    keyword: Box<[Text]>,
     /// General registry discovery text.
     #[serde(
         default,
@@ -43,14 +40,10 @@ struct Fields {
     )]
     #[cfg_attr(feature = "schema", schemars(with = "Text", extend("x-positional" = 0)))]
     query: Option<Text>,
-    /// Registry condition text, or an NCIt code for NCI; use --keyword for NCI free text.
-    #[serde(
-        default,
-        deserialize_with = "super::gene::present",
-        skip_serializing_if = "Option::is_none"
-    )]
-    #[cfg_attr(feature = "schema", schemars(with = "Text"))]
-    condition: Option<Text>,
+    /// Condition alternatives joined with OR; NCI requires NCIt codes.
+    #[serde(default, skip_serializing_if = "<[ _ ]>::is_empty")]
+    #[cfg_attr(feature = "schema", schemars(length(min = 1, max = MAX_ALTERNATIVES)))]
+    condition: Box<[Text]>,
     /// Ask ClinicalTrials.gov to restrict matching to the registered condition phrase; its support is partial.
     #[serde(default, skip_serializing_if = "std::ops::Not::not")]
     exact_condition: bool,
@@ -62,14 +55,10 @@ struct Fields {
     )]
     #[cfg_attr(feature = "schema", schemars(with = "biodata::Curie"))]
     condition_id: Option<biodata::Curie>,
-    /// Literal source intervention text.
-    #[serde(
-        default,
-        deserialize_with = "super::gene::present",
-        skip_serializing_if = "Option::is_none"
-    )]
-    #[cfg_attr(feature = "schema", schemars(with = "Text"))]
-    intervention: Option<Text>,
+    /// Intervention alternatives joined with OR; supported by ClinicalTrials.gov.
+    #[serde(default, skip_serializing_if = "<[ _ ]>::is_empty")]
+    #[cfg_attr(feature = "schema", schemars(length(min = 1, max = MAX_ALTERNATIVES)))]
+    intervention: Box<[Text]>,
     /// Resolve one checked gene for registry text discovery only; no eligibility judgment.
     #[serde(
         default,
@@ -235,25 +224,25 @@ impl TrialSearch {
         self.0.source
     }
     /// Explicit NCI free text.
-    pub fn keyword(&self) -> Option<&Text> {
-        self.0.keyword.as_ref()
+    pub fn keyword(&self) -> &[Text] {
+        &self.0.keyword
     }
 
     /// General registry discovery text.
     pub fn query(&self) -> Option<&Text> {
         self.0.query.as_ref()
     }
-    /// Registry condition text, or an NCIt code for NCI; use --keyword for NCI free text.
-    pub fn condition(&self) -> Option<&Text> {
-        self.0.condition.as_ref()
+    /// Condition alternatives joined with OR; NCI requires NCIt codes.
+    pub fn condition(&self) -> &[Text] {
+        &self.0.condition
     }
     /// Exact caller-selected concept, without a source-name search.
     pub fn condition_id(&self) -> Option<&biodata::Curie> {
         self.0.condition_id.as_ref()
     }
-    /// Literal source intervention text.
-    pub fn intervention(&self) -> Option<&Text> {
-        self.0.intervention.as_ref()
+    /// Intervention alternatives joined with OR; supported by ClinicalTrials.gov.
+    pub fn intervention(&self) -> &[Text] {
+        &self.0.intervention
     }
     /// Resolve one checked gene for registry text discovery only; no eligibility judgment.
     pub fn gene(&self) -> Option<&GeneInput> {
@@ -474,7 +463,7 @@ impl TrialSearch {
     /// Reject a source disease name instead of silently degrading to free text.
     pub fn nci_disease_invalid(&self) -> bool {
         self.source() == TrialSource::Nci
-            && self.condition().is_some_and(|v| {
+            && self.condition().iter().any(|v| {
                 !v.as_str()
                     .strip_prefix('C')
                     .is_some_and(|n| !n.is_empty() && n.bytes().all(|b| b.is_ascii_digit()))
@@ -483,15 +472,16 @@ impl TrialSearch {
     /// Name the first unsupported capability before any source, key, or cache access.
     pub fn unsupported(&self) -> Option<TrialFilter> {
         if self.source() == TrialSource::Ctgov {
-            return self.keyword().map(|_| TrialFilter::Keyword);
+            return None;
         }
         use TrialFilter as F;
         [
             (self.query().is_some(), F::Text),
+            (self.keyword().len() > 1, F::Keyword),
             (self.gene().is_some(), F::Gene),
             (self.variant().is_some(), F::Variant),
             (self.criteria().is_some(), F::Criteria),
-            (self.intervention().is_some(), F::Intervention),
+            (!self.intervention().is_empty(), F::Intervention),
             (self.status().is_some(), F::Status),
             (self.phase().is_some(), F::Phase),
             (self.study_type().is_some(), F::StudyType),

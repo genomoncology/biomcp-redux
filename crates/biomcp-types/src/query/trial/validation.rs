@@ -16,14 +16,19 @@ impl TryFrom<Fields> for TrialSearch {
             f.query = None;
         }
         if let Some(id) = &f.condition_id {
-            if f.condition.is_some() {
+            if !f.condition.is_empty() {
                 return Err(QueryInvalid::new(&["condition_id", "condition"]));
             }
-            if f.keyword.is_some() {
+            if !f.keyword.is_empty() {
                 return Err(QueryInvalid::new(&["condition_id", "keyword"]));
             }
             if !valid_condition_id(id, f.source) {
                 return Err(QueryInvalid::new(&["condition_id", "source"]));
+            }
+        }
+        for (name, values) in [("condition", &f.condition), ("intervention", &f.intervention), ("keyword", &f.keyword)] {
+            if values.len() > super::MAX_ALTERNATIVES {
+                return Err(QueryInvalid::new(&[name]));
             }
         }
         validate_exact_condition(&f)?;
@@ -88,7 +93,7 @@ fn validate_exact_condition(f: &Fields) -> Result<(), QueryInvalid> {
     if f.exact_condition && f.source != TrialSource::Ctgov {
         return Err(QueryInvalid::new(&["exact_condition", "source"]));
     }
-    if f.exact_condition && f.condition.is_none() {
+    if f.exact_condition && f.condition.is_empty() {
         return Err(QueryInvalid::new(&["exact_condition", "condition"]));
     }
     Ok(())

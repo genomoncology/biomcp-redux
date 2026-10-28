@@ -38,10 +38,11 @@ pub(crate) fn search(cx: &Ctx<'_>, query: &TrialSearch) -> Outcome {
     let leg = cx.fetch.leg(&ctgov::SPEC, deadline).fresh(cx.fresh);
     let started = leg.remaining();
     let mut params = ctgov::parameters(query, gene.as_deref());
-    if let Some(condition) = condition {
-        params.insert("query.cond".into(), condition.to_string());
+    let conditions = condition.map_or_else(|| query.condition().to_vec(), |condition| vec![condition]);
+    if query.condition_id().is_some() && let Some(condition) = conditions.first() {
+        params.insert("query.cond".into(), format!("({condition})"));
     }
-    let result = ctgov::search(&leg, &params);
+    let result = ctgov::search(&leg, &params, &conditions);
     let rejected = matches!(
         &result,
         Err(biomcp_fetch::RequestError::Source(error)) if error.status == Some(400)

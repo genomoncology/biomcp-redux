@@ -6,9 +6,9 @@ use std::fs;
 pub(super) fn mismatch() -> Result<(), String> {
     let stub = Stub::for_source("clinicaltrials.gov", "application/json", |request| {
         if request.starts_with("GET /api/v2/studies?")
-            && request.contains("query.cond=Snyder-Robinson%20syndrome")
+            && request.contains("query.cond=%28Snyder-Robinson%20syndrome%29")
         {
-            if request.contains("filter.advanced=AREA%5BCondition%5DEXPANSION%5BNone%5D") {
+            if request.contains("filter.advanced=%28%28AREA%5BCondition%5DEXPANSION%5BNone%5D") {
                 return fs::read_to_string(
                     super::super::launch::fixtures()
                         .join("replies/trial/condition-words/exact.body"),
@@ -45,7 +45,7 @@ pub(super) fn mismatch() -> Result<(), String> {
         return Err("condition notice introduced source requests".into());
     }
     let restriction =
-        "filter.advanced=AREA%5BCondition%5DEXPANSION%5BNone%5D%22Snyder-Robinson%20syndrome%22";
+        "filter.advanced=%28%28AREA%5BCondition%5DEXPANSION%5BNone%5D%22Snyder-Robinson%20syndrome%22%29%29";
     if requests
         .iter()
         .filter(|(connect, request)| {
@@ -205,7 +205,7 @@ pub(super) fn complete_conditions() -> Result<(), String> {
 pub(super) fn exact_boundary() -> Result<(), String> {
     for value in [
         json!({"exact_condition":true}),
-        json!({"source":"nci","condition":"C3224","exact_condition":true}),
+        json!({"source":"nci","condition":["C3224"],"exact_condition":true}),
     ] {
         if serde_json::from_value::<biomcp_types::TrialSearch>(value).is_ok() {
             return Err(
@@ -214,7 +214,7 @@ pub(super) fn exact_boundary() -> Result<(), String> {
         }
     }
     let query: biomcp_types::TrialSearch = serde_json::from_value(json!({
-        "condition":"Snyder-Robinson syndrome", "criteria":"retained eligibility", "phase":"2", "next_page":"opaque"
+        "condition":["Snyder-Robinson syndrome"], "criteria":"retained eligibility", "phase":"2", "next_page":"opaque"
     })).map_err(|e| e.to_string())?;
     let exact = query
         .exact_condition_search()
@@ -227,10 +227,10 @@ pub(super) fn exact_boundary() -> Result<(), String> {
         return Err("exact condition changed filters or retained cursor".into());
     }
     let params = biomcp_adapters::ctgov::parameters(&exact, None);
-    if params.get("query.cond").map(String::as_str) != Some("Snyder-Robinson syndrome")
+    if params.get("query.cond").map(String::as_str) != Some("(Snyder-Robinson syndrome)")
         || params.get("filter.advanced").map(String::as_str)
             != Some(
-                r#"AREA[Condition]EXPANSION[None]"Snyder-Robinson syndrome" AND AREA[Phase]PHASE2 AND AREA[EligibilityCriteria]"retained eligibility""#,
+                r#"((AREA[Condition]EXPANSION[None]"Snyder-Robinson syndrome")) AND AREA[Phase]PHASE2 AND AREA[EligibilityCriteria]"retained eligibility""#,
             )
     {
         return Err(format!(

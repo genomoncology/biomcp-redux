@@ -1,6 +1,6 @@
 //! Repeated trial filters preserve each source-native value at the command boundary.
 use super::super::{Stub, invoke, setup};
-use serde_json::{Value, json};
+use serde_json::json;
 
 pub(super) fn run() -> Result<(), String> {
     let stub = Stub::for_source("clinicaltrials.gov", "application/json", |request| {
@@ -11,7 +11,7 @@ pub(super) fn run() -> Result<(), String> {
             "query.cond=%28lung%20cancer%29%20OR%20%28melanoma%29",
             "query.intr=%28radiation%20therapy%29%20OR%20%28pembrolizumab%29",
             "query.term=%28quality%20of%20life%29%20OR%20%28survival%29",
-            "filter.advanced=%28AREA%5BCondition%5DEXPANSION%5BNone%5D%22lung%20cancer%22%29%20OR%20%28AREA%5BCondition%5DEXPANSION%5BNone%5D%22melanoma%22%29",
+            "filter.advanced=%28%28AREA%5BCondition%5DEXPANSION%5BNone%5D%22lung%20cancer%22%29%20OR%20%28AREA%5BCondition%5DEXPANSION%5BNone%5D%22melanoma%22%29%29",
         ] {
             if !request.contains(clause) {
                 return Err(format!("missing OR clause {clause}: {request}"));
