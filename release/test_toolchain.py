@@ -31,7 +31,14 @@ class ReleaseTools(unittest.TestCase):
             for name in ('release/linux.sh', 'release/matrix.sh', '.github/workflows/release.yml'):
                 for flag in ('--default-toolchain', '--version'):
                     for value in (' "0.0.1"', "='0.0.1'", ' 0.0.1'):
-                        mutations.append((name, lambda s, pin=flag + value: s + '\nsh installer ' + pin + '\n'))
+                        def inject_pin(text, name=name, flag=flag, value=value):
+                            if name.endswith('.yml') and flag == '--version':
+                                return text.replace('--version "${{ steps.tools.outputs.cargo_deny }}"', flag + value)
+                            interpreter = 'python3' if name.endswith('.yml') else 'python'
+                            original = interpreter + ' release/toolchain.py install-rust'
+                            tool = 'sh /tmp/rustup-init' if flag == '--default-toolchain' else 'cargo install cargo-deny'
+                            return text.replace(original, tool + ' ' + flag + value)
+                        mutations.append((name, inject_pin))
             for occurrence in (1, 2):
                 def remove_reader(text, occurrence=occurrence):
                     marker = 'python3 release/toolchain.py outputs'
@@ -43,7 +50,9 @@ class ReleaseTools(unittest.TestCase):
                 with self.subTest(recipe=name):
                     path = root / name
                     original = path.read_text()
-                    path.write_text(mutate(original))
+                    changed = mutate(original)
+                    self.assertNotEqual(changed, original)
+                    path.write_text(changed)
                     result = subprocess.run(command, capture_output=True, text=True)
                     self.assertNotEqual(result.returncode, 0)
                     self.assertIn(Path(name).name, result.stderr)
