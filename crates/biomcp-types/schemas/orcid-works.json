@@ -1014,7 +1014,7 @@
       "type": "string"
     }
   },
-  "$id": "biomcp.orcid-works/2",
+  "$id": "biomcp.orcid-works/3",
   "$schema": "https://json-schema.org/draft/2020-12/schema",
   "additionalProperties": false,
   "description": "One versioned command response; schema identity comes only from its body type.",
@@ -1071,7 +1071,7 @@
       "description": "Answer when available."
     },
     "schema": {
-      "const": "biomcp.orcid-works/2",
+      "const": "biomcp.orcid-works/3",
       "type": "string"
     },
     "sources": {

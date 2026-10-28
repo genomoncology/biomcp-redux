@@ -161,7 +161,7 @@
       "type": "string"
     }
   },
-  "$id": "biodata.article/1",
+  "$id": "biodata.article/2",
   "$schema": "https://json-schema.org/draft/2020-12/schema",
   "additionalProperties": false,
   "anyOf": [

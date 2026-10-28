@@ -831,7 +831,7 @@
       "type": "string"
     }
   },
-  "$id": "biomcp.author-card/3",
+  "$id": "biomcp.author-card/4",
   "$schema": "https://json-schema.org/draft/2020-12/schema",
   "additionalProperties": false,
   "description": "One versioned command response; schema identity comes only from its body type.",
@@ -888,7 +888,7 @@
       "description": "Answer when available."
     },
     "schema": {
-      "const": "biomcp.author-card/3",
+      "const": "biomcp.author-card/4",
       "type": "string"
     },
     "sources": {

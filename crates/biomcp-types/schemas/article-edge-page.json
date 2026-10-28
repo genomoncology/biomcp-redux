@@ -1186,7 +1186,7 @@
       "type": "string"
     }
   },
-  "$id": "biomcp.article-edges/4",
+  "$id": "biomcp.article-edges/5",
   "$schema": "https://json-schema.org/draft/2020-12/schema",
   "additionalProperties": false,
   "description": "One versioned command response; schema identity comes only from its body type.",
@@ -1243,7 +1243,7 @@
       "description": "Answer when available."
     },
     "schema": {
-      "const": "biomcp.article-edges/4",
+      "const": "biomcp.article-edges/5",
       "type": "string"
     },
     "sources": {

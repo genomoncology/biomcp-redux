@@ -86,7 +86,7 @@
       "type": "string"
     }
   },
-  "$id": "biodata.article_header/2",
+  "$id": "biodata.article_header/3",
   "$schema": "https://json-schema.org/draft/2020-12/schema",
   "additionalProperties": false,
   "description": "Citation metadata from PubMed or Europe PMC.",
