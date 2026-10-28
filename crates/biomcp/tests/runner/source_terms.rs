@@ -188,31 +188,7 @@ pub(super) fn markdown_bytes(text: &str, value: &Value) -> Result<usize, String>
         .ok_or("missing source table")?
         .1;
     if !table.starts_with('|') {
-        let mut rest = table;
-        let mut bytes = 0;
-        for row in rows {
-            for field in ["terms", "terms_url", "use"] {
-                let value = row
-                    .get(field)
-                    .and_then(Value::as_str)
-                    .ok_or("missing publisher value")?;
-                let rendered = if field == "terms_url" {
-                    text::source_link(value)
-                } else {
-                    text::escape(value)
-                };
-                let line = format!("**{}:** {rendered}\n\n", text::escape(field));
-                let (before, after) = rest
-                    .split_once(&line)
-                    .ok_or("changed Markdown publisher terms")?;
-                if before.contains("**use:**") {
-                    return Err("source objects lost publisher fields".into());
-                }
-                bytes += line.len();
-                rest = after;
-            }
-        }
-        return Ok(bytes);
+        return markdown_object_bytes(table, rows);
     }
     let lines: Vec<_> = table
         .lines()
@@ -271,6 +247,33 @@ pub(super) fn markdown_bytes(text: &str, value: &Value) -> Result<usize, String>
                 }
             }
             bytes += cell.len() + 1;
+        }
+    }
+    Ok(bytes)
+}
+fn markdown_object_bytes(table: &str, rows: &[Value]) -> Result<usize, String> {
+    let mut rest = table;
+    let mut bytes = 0;
+    for row in rows {
+        for field in ["terms", "terms_url", "use"] {
+            let value = row
+                .get(field)
+                .and_then(Value::as_str)
+                .ok_or("missing publisher value")?;
+            let rendered = if field == "terms_url" {
+                text::source_link(value)
+            } else {
+                text::escape(value)
+            };
+            let line = format!("**{}:** {rendered}\n\n", text::escape(field));
+            let (before, after) = rest
+                .split_once(&line)
+                .ok_or("changed Markdown publisher terms")?;
+            if before.contains("**use:**") {
+                return Err("source objects lost publisher fields".into());
+            }
+            bytes += line.len();
+            rest = after;
         }
     }
     Ok(bytes)
