@@ -7,6 +7,12 @@ type Check = Result<(), Box<dyn std::error::Error>>;
 
 pub(super) fn trials() -> Vec<Trial> {
     vec![
+        Trial::test("mcp-stdio/command-refusal-reasons", || {
+            command_reasons(false).map_err(|e| e.to_string().into())
+        }),
+        Trial::test("mcp-http/command-refusal-reasons", || {
+            command_reasons(true).map_err(|e| e.to_string().into())
+        }),
         Trial::test(
             "mcp-http/refuse-maintenance-and-fresh-before-effects",
             || http().map_err(|e| e.to_string().into()),
@@ -24,13 +30,9 @@ fn stub() -> Result<Stub, String> {
         |_| Ok("{}".into()),
     )
 }
-fn refusal(value: &Value) -> Check {
+fn refusal(value: &Value, code: &str) -> Check {
     assert_eq!(value.get("status"), Some(&json!("usage")), "{value}");
-    assert_eq!(
-        value.pointer("/error/code"),
-        Some(&json!("usage.arguments")),
-        "{value}"
-    );
+    assert_eq!(value.pointer("/error/code"), Some(&json!(code)), "{value}");
     Ok(())
 }
 fn http() -> Check {
@@ -70,6 +72,11 @@ fn http() -> Check {
             reply
                 .pointer("/result/structuredContent")
                 .ok_or("missing tool result")?,
+            if args.first().is_some_and(|arg| *arg == "get") {
+                "usage.arguments"
+            } else {
+                "usage.mcp_unavailable"
+            },
         )?;
         assert_eq!(fs::read(&old)?, before);
         assert_eq!(fs::read_dir(&directory)?.count(), entries);
@@ -101,12 +108,63 @@ fn stdio() -> Check {
             "--replace".into(),
         ]);
         let value = super::mcp::call_with_globals(&env, &args, true, &[])?;
-        refusal(&value)?;
+        refusal(&value, "usage.arguments")?;
         assert_eq!(fs::read(&path)?, b"caller content");
     }
     assert!(
         source.finish()?.is_empty(),
         "refused stdio replacement contacted a provider"
     );
+    Ok(())
+}
+
+fn command_reasons(http: bool) -> Check {
+    let env = Environment::new()?;
+    let server = http.then(|| Server::keys(json!({}), None)).transpose()?;
+    for (words, command) in [
+        (vec!["sync", "wikipathways"], "sync"),
+        (vec!["store", "clean"], "store clean"),
+        (vec!["key", "list"], "key"),
+        (vec!["key", "set", "oncokb", "--replace"], "key"),
+    ] {
+        if !http && command != "key" {
+            continue;
+        }
+        let args: Vec<String> = words
+            .into_iter()
+            .chain(["--offline"])
+            .map(str::to_owned)
+            .collect();
+        let value = if let Some(server) = &server {
+            let frame = super::mcp::request(
+                json!(1),
+                "tools/call",
+                json!({"name":"biomcp","arguments":{"args":args}}),
+            );
+            let (status, reply) = server.request("POST", "/mcp", &frame.to_string())?;
+            assert_eq!(status, 200);
+            assert_eq!(reply.pointer("/result/isError"), Some(&json!(true)));
+            let value = reply
+                .pointer("/result/structuredContent")
+                .ok_or("missing result")?;
+            let text = reply
+                .pointer("/result/content/0/text")
+                .and_then(Value::as_str)
+                .ok_or("missing text")?;
+            assert_eq!(serde_json::from_str::<Value>(text)?, *value);
+            value.clone()
+        } else {
+            super::mcp::call_with_globals(&env, &args, true, &[])?
+        };
+        assert_eq!(value.get("status"), Some(&json!("usage")), "{value}");
+        assert_eq!(
+            value.get("error"),
+            Some(&json!({
+                "code":"usage.mcp_unavailable",
+                "message":format!("{command} is unavailable over MCP; run it from the command line")
+            })),
+            "{value}"
+        );
+    }
     Ok(())
 }

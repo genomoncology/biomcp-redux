@@ -7,7 +7,7 @@ mod components;
 mod labels;
 mod roundtrip;
 pub(super) fn trials() -> Vec<Trial> {
-    vec![
+    let mut trials = vec![
         Trial::test("variant/printed-repeat-identity-round-trips", || {
             roundtrip::check().map_err(Into::into)
         }),
@@ -47,7 +47,27 @@ pub(super) fn trials() -> Vec<Trial> {
         Trial::test("variant/myvariant-exact-build-wire", || {
             myvariant().map_err(Into::into)
         }),
-    ]
+    ];
+    trials.extend(super::variant_assertion_wire::trials());
+    trials.extend(super::variant_assertions::trials());
+    trials.extend(super::variant_discovery::trials());
+    trials.extend(super::variant_condition_relationship::trials());
+    trials.extend(super::variant_population::trials());
+    trials.extend(super::variant_population_release::trials());
+    trials.extend(super::oncokb::trials());
+    trials.extend(super::oncokb_context::trials());
+    trials.extend(super::alphagenome::trials());
+    trials.extend(super::alphagenome_tls::trials());
+    trials.extend(super::variant_civic::trials());
+    trials.extend(super::variant_hotspots::trials());
+    trials.extend(super::recurrence::trials());
+    trials.extend(super::recurrence_errors::trials());
+    trials.extend(super::recurrence_metadata::trials());
+    trials.extend(super::normalization::trials());
+    trials.extend(super::variant_search::trials());
+    trials.extend(super::next_navigation::trials());
+    trials.extend(super::variant_filters::trials());
+    trials
 }
 fn car() -> Result<(), String> {
     let (output, requests) = call(

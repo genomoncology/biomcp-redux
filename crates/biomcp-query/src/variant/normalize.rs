@@ -103,9 +103,9 @@ fn service(
     let leg = cx.fetch.leg(spec, deadline).fresh(cx.fresh);
     let result = match spec.source {
         biomcp_types::Source::AlleleRegistry => {
-            allele_registry::normalize(&leg, query.hgvs().as_str())
+            allele_registry::normalize(&leg, query.hgvs(), query.build())
         }
-        biomcp_types::Source::Mutalyzer => mutalyzer::normalize(&leg, query.hgvs().as_str()),
+        biomcp_types::Source::Mutalyzer => mutalyzer::normalize(&leg, query.hgvs()),
         _ => query
             .build()
             .ok_or(
@@ -117,7 +117,7 @@ fn service(
                 }
                 .into(),
             )
-            .and_then(|build| variantvalidator::normalize(&leg, query.hgvs().as_str(), build)),
+            .and_then(|build| variantvalidator::normalize(&leg, query.hgvs(), build)),
     };
     let error = result.as_ref().err().copied();
     let mut source = status::source(spec.source, leg.finish(), error);

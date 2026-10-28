@@ -40,7 +40,7 @@ pub(crate) fn query_schema(request: &Request) -> &'static str {
         Request::GetDrug(_) | Request::GetWhoMedicine(_) => "biomcp.drug-get-command/1",
         Request::VariantAssertions(_) => "biodata.variant-assertions/1",
         Request::VariantPopulation(_) => "biodata.variant-population/2",
-        Request::VariantNormalize(_) => "biodata.variant-normalize/2",
+        Request::VariantNormalize(_) => "biodata.variant-normalize/3",
         Request::SearchVariant(_) => "biodata.variant-search/2",
         Request::VariantRecurrence(_) => "biodata.variant-recurrence-query/2",
         Request::GetVariant(_) => "biodata.variant-get/2",
@@ -126,5 +126,5 @@ pub(crate) const QUERIES: &[(&str, &str, &str)] = &[
         "recurrence",
         "biodata.variant-recurrence-query/2",
     ),
-    ("variant", "normalize", "biodata.variant-normalize/2"),
+    ("variant", "normalize", "biodata.variant-normalize/3"),
 ];
