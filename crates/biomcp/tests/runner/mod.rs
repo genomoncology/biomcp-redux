@@ -19,6 +19,7 @@ mod clinpgx;
 mod clinvar_key;
 mod configuration;
 mod corporate;
+mod terminal_edges;
 mod cpic;
 mod credential_containment;
 mod diagnostic_510k;
@@ -369,6 +370,7 @@ pub(super) fn protocol_trials() -> Vec<Trial> {
     trials.extend(http::trials());
     trials.extend(mcp_boundaries::trials());
     trials.extend(corporate::trials());
+    trials.extend(terminal_edges::trials());
     trials.extend(variant::trials());
     trials.extend(markdown::trials());
     trials.extend(markdown_shapes::trials());
