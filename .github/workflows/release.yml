@@ -151,9 +151,11 @@ jobs:
           if-no-files-found: error
       - name: State the rehearsal boundary
         run: |
-          echo 'All five native install gates, both Linux container gates and publication payload checks passed.' >> "$GITHUB_STEP_SUMMARY"
-          echo 'No channel was published. Authentication, uploads, directory acceptance, site delivery and latest pointer movement remain unexercised.' >> "$GITHUB_STEP_SUMMARY"
-          echo 'Every staged file has signed build provenance. Verify downloaded files against this repository, workflow and source commit.' >> "$GITHUB_STEP_SUMMARY"
+          {
+            echo 'All five native install gates, both Linux container gates and publication payload checks passed.'
+            echo 'No channel was published. Authentication, uploads, directory acceptance, site delivery and latest pointer movement remain unexercised.'
+            echo 'Every staged file has signed build provenance. Verify downloaded files against this repository, workflow and source commit.'
+          } >> "$GITHUB_STEP_SUMMARY"
 
   release-operator:
     needs: [candidate, stage]
