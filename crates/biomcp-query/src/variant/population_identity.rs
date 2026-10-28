@@ -13,17 +13,28 @@ pub(super) struct Identity {
     pub problems: Vec<Problem>,
     pub local: Option<RequestError>,
     pub reason: Option<Reason>,
+    pub rejection: Option<biodata::Text>,
+    pub error: Option<RequestError>,
+    pub elapsed: std::time::Duration,
 }
-pub(super) fn read(cx: &Ctx<'_>, query: &VariantGet, deadline: Deadline<'_>) -> Identity {
+pub(super) fn read(
+    cx: &Ctx<'_>,
+    query: &VariantGet,
+    deadline: Deadline<'_>,
+    population: bool,
+) -> Identity {
     let mut found = Identity::default();
     let spec = super::source(query);
     let leg = cx.fetch.leg(spec, deadline).fresh(cx.fresh);
-    let result = if spec.source == Source::MyVariant {
+    let started = leg.remaining();
+    let result = if population && spec.source == Source::MyVariant {
         super::myvariant_identity(query, &leg, &mut found.problems, true)
     } else {
         super::resolve(query, &leg, &mut found.problems)
     };
+    found.elapsed = started.saturating_sub(leg.remaining());
     let error = result.as_ref().err().copied();
+    found.error = error;
     found
         .sources
         .push(status::source(spec.source, leg.finish(), error));
@@ -33,10 +44,15 @@ pub(super) fn read(cx: &Ctx<'_>, query: &VariantGet, deadline: Deadline<'_>) -> 
         found.rows = rows;
         if rejection.is_some() {
             found.reason = Some(Reason::Rejected);
+            if let Some(source) = found.sources.first_mut() {
+                source.state = biomcp_types::SourceState::Failed;
+                source.reason = Some(Reason::Rejected);
+            }
         }
+        found.rejection = rejection;
     }
-    if found.rows.len() == 1 && spec.source == Source::MyVariant {
-        canonical(cx, deadline, &mut found);
+    if population && found.rows.len() == 1 && spec.source == Source::MyVariant {
+        canonical(cx, deadline.after_stage(found.elapsed), &mut found);
     }
     found
 }
@@ -57,7 +73,9 @@ fn canonical(cx: &Ctx<'_>, deadline: Deadline<'_>, found: &mut Identity) {
         .fetch
         .leg(&allele_registry::SPEC, deadline)
         .fresh(cx.fresh);
+    let started = leg.remaining();
     let result = allele_registry::by_id(&leg, &id.to_string());
+    found.elapsed += started.saturating_sub(leg.remaining());
     let error = result.as_ref().err().copied();
     found
         .sources
@@ -74,4 +92,38 @@ fn canonical(cx: &Ctx<'_>, deadline: Deadline<'_>, found: &mut Identity) {
         Ok(allele_registry::Resolution::Rejected(_)) => found.reason = Some(Reason::Rejected),
         Err(_) => (),
     }
+}
+
+/// Recover one candidate using its own source build or its single validated CAid.
+pub(super) fn choice(row: &VariantHeader) -> Option<biomcp_types::Request> {
+    use biomcp_types::{Request, VariantResolver, VariantSearch};
+    let build = row.identity.representations.iter().find_map(|r| r.build);
+    let mut input = row.record.id.as_str().parse().ok()?;
+    if build.is_none() {
+        let ids: Vec<_> = row
+            .identity
+            .ids
+            .iter()
+            .filter(|id| matches!(id, VariantId::Ca(_)))
+            .collect();
+        if let [id] = ids.as_slice() {
+            input = id.to_string().parse().ok()?;
+        } else {
+            return Some(Request::SearchVariant(
+                VariantSearch::source_record(&input).ok()?,
+            ));
+        }
+    }
+    Some(Request::GetVariant(
+        VariantGet::new(input, VariantResolver::Car, build).ok()?,
+    ))
+}
+
+pub(super) fn requested(query: &VariantGet) -> bool {
+    query.sections().iter().any(|section| {
+        matches!(
+            section,
+            biomcp_types::VariantSection::Population | biomcp_types::VariantSection::All
+        )
+    })
 }
