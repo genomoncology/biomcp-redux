@@ -36,7 +36,7 @@ def pe(imports, delayed=False):
 
 class WindowsRuntime(unittest.TestCase):
     def test_installed_gate_refuses_redistributable_before_execution(self):
-        for name in ('VCRUNTIME140.dll', 'vcruntime140_1.DLL', 'MSVCP140.dll', 'CONCRT140.dll', 'VCOMP140.DLL'):
+        for name in ('VCRUNTIME140.dll', 'vcruntime140_1.DLL', 'MSVCP140.dll', 'CONCRT140.dll', 'VCOMP140.DLL', 'MFC140U.dll', 'ATl140.dll'):
             for delayed in (False, True):
                 with self.subTest(name=name, delayed=delayed), tempfile.TemporaryDirectory() as directory:
                     root = Path(directory)

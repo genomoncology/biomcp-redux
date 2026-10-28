@@ -3,7 +3,10 @@ import re
 
 
 def imports(data):
-    """Read x64 PE import and delay-import descriptors (Microsoft PE format)."""
+    """Read x64 PE import and delay-import descriptors.
+
+    Format: https://learn.microsoft.com/en-us/windows/win32/debug/pe-format
+    """
     def read(offset, size):
         if offset < 0 or offset + size > len(data):
             raise ValueError('invalid Windows PE: truncated data')
@@ -80,6 +83,6 @@ def check_runtime(data, platform):
         return
     # Windows supplies UCRT itself; these DLL families require the VC redist.
     forbidden = [name for name in imports(data) if re.fullmatch(
-        r'(?:vcruntime|msvcp|msvcr|concrt|vcomp|vcamp|vccorlib)\d+[^/\\]*\.dll', name, re.IGNORECASE)]
+        r'(?:vcruntime|msvcp|msvcr|concrt|vcomp|vcamp|vccorlib|mfc|mfcm|atl)\d+[^/\\]*\.dll', name, re.IGNORECASE)]
     if forbidden:
         raise ValueError('Windows binary requires Visual C++ redistributable: ' + ', '.join(forbidden))
