@@ -1,6 +1,7 @@
 # 0389 — Stop false failures in the nightly live check
 
-Status: OPEN.
+Status: COMPLETE.
+Landed: 218497d38490715882bc40846a9f5adbca6be87c
 
 Milestone: 5
 
