@@ -557,7 +557,8 @@ pub enum Reason { NotFound, RateLimited, Unavailable, Rejected, BadReply, Deadli
 - Generation must stay inside the compatibility checker's [supported subset](../../crates/biomcp-types/tests/schemas/compatibility.rs). Use `wire_enum!` for checked string enums. Optional unions contain one value and null; `oneOf` supports internally tagged object branches, not unit-enum branches. Unsupported keywords such as `uniqueItems` fail even when generating an initial schema. Enforce source uniqueness at runtime and keep its existing proof. Do not expand the checker to accommodate a new derive form or keyword.
 - The same test runs a compatibility check. It resolves every `$ref` through `$defs` and lists each schema as JSON pointer paths with their types. Every path and type in the checked-in schema must still exist in the new one unless the major version rose. Adding an optional field keeps the version. Removing, renaming or retyping a field raises it.
 - The same test checks that every query schema stays inside the grammar's subset: a flat object whose properties are strings, integers, booleans, string enums, or arrays of those, with no nested objects, `oneOf` or `anyOf` other than an optional value, and one allowed exception: a root `anyOf` of `required` lists that says at least one selector must be present, such as `query` or `band` on a gene search. A query type outside the subset fails here, before the grammar sees it.
-- The binary embeds the checked-in schema files with `include_str!`. `biomcp schema <name>` prints one, the grammar reads them, and the MCP tool list cites them. The checked-in files are the one authority, and the drift test keeps them equal to the types.
+- The binary embeds the checked-in schema files with `include_str!`. `biomcp schema <name>` prints one, and the grammar reads them. The checked-in files are the one authority, and the drift test keeps them equal to the types.
+- MCP advertises compact reply envelopes with schema IDs selected from the help catalog. The result has object type. Error, research projection and raw schema-document forms remain available. Clients retrieve full contracts through `biomcp schema <id>`, including calls through the MCP tool. Discovery embeds no full reply graph and requires no schema resolver.
 - The public contract tests in `crates/biomcp-types/tests/` check JSON round trips, and `crates/biomcp-types/tests/schemas/values.rs` checks canonical enum spellings against their schemas. BioMCP writes and reads only JSON, so other formats wait for a consumer.
 
 ### 3.10 How types carry progressive disclosure
@@ -1656,7 +1657,7 @@ MCP offers the main `biomcp` tool and read-only research `search` and `fetch` wr
     "required": ["args"],
     "additionalProperties": false
   },
-  "outputSchema": { "type": "object", "description": "The BioMCP envelope. Its schema field names the exact response schema.", "properties": { "schema": { "type": "string" }, "status": { "type": "string" } }, "required": ["schema", "status"] }
+  "outputSchema": { "type": "object", "description": "Compact reply envelope. Use biomcp schema <id> for its full contract.", "properties": { "schema": { "enum": ["biomcp.gene-cards/4"] }, "status": { "type": "string" }, "result": { "type": "object" } }, "required": ["schema", "status"] }
 }
 ```
 
