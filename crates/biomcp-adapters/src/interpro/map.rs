@@ -117,22 +117,36 @@ fn signatures(
     signatures
 }
 fn locations(
-    raw: Vec<raw::Location>,
+    raw: Option<crate::raw::Field<Vec<crate::raw::Field<raw::Location>>>>,
     length: Option<u32>,
     problems: &mut crate::mapped::Problems,
 ) -> Box<[ProteinDomainLocation]> {
+    let Some(raw) = raw else {
+        return Box::new([]);
+    };
+    let Some(raw) = problems.required("entry_protein_locations", raw.value()) else {
+        return Box::new([]);
+    };
     raw.into_iter()
-        .map(|location| {
+        .filter_map(|location| {
+            let location = problems.required("entry_protein_locations", location.value())?;
             let fragments = location
                 .fragments
+                .and_then(|field| problems.required("fragments", field.value()))
+                .unwrap_or_default()
                 .into_iter()
                 .filter_map(|f| {
-                    let start =
-                        problems.required("fragments.start", f.start.value().filter(|n| *n > 0));
+                    let f = problems.required("fragments", f.value())?;
+                    let start = problems.required(
+                        "fragments.start",
+                        f.start
+                            .and_then(crate::raw::Field::value)
+                            .filter(|n| *n > 0),
+                    );
                     let end = problems.required(
                         "fragments.end",
                         f.end
-                            .value()
+                            .and_then(crate::raw::Field::value)
                             .filter(|n| *n > 0 && length.is_none_or(|len| *n <= len)),
                     );
                     let (start, end) = (start?, end?);
@@ -159,7 +173,7 @@ fn locations(
                     })
                 })
                 .collect();
-            ProteinDomainLocation { fragments }
+            Some(ProteinDomainLocation { fragments })
         })
         .collect()
 }

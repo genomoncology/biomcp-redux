@@ -51,16 +51,16 @@ pub(super) struct Protein {
     pub accession: String,
     pub protein_length: Option<crate::raw::Field<u32>>,
     pub organism: Option<String>,
-    pub entry_protein_locations: Vec<Location>,
+    pub entry_protein_locations: Option<crate::raw::Field<Vec<crate::raw::Field<Location>>>>,
 }
 #[derive(Debug, Deserialize)]
 pub(super) struct Location {
-    pub fragments: Vec<Fragment>,
+    pub fragments: Option<crate::raw::Field<Vec<crate::raw::Field<Fragment>>>>,
 }
 #[derive(Debug, Deserialize)]
 pub(super) struct Fragment {
-    pub start: crate::raw::Field<u32>,
-    pub end: crate::raw::Field<u32>,
+    pub start: Option<crate::raw::Field<u32>>,
+    pub end: Option<crate::raw::Field<u32>>,
     #[serde(rename = "dc-status")]
     pub dc_status: Option<crate::raw::Field<String>>,
 }

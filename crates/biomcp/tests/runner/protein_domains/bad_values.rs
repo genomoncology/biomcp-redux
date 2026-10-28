@@ -16,6 +16,18 @@ fn run() -> Result<(), String> {
     for (command, path, field, absent) in [
         (
             "domains",
+            "/results/0/proteins/0/entry_protein_locations",
+            "entry_protein_locations",
+            "/result/items/0/locations",
+        ),
+        (
+            "domains",
+            "/results/0/proteins/0/entry_protein_locations/0/fragments",
+            "fragments",
+            "/result/items/0/locations/0/fragments",
+        ),
+        (
+            "domains",
             "/results/0/metadata/name",
             "name",
             "/result/items/0/name",
@@ -99,7 +111,15 @@ fn run() -> Result<(), String> {
             "/result/items/0/organism",
         ),
     ] {
-        for invalid in [json!(""), json!(true)] {
+        for invalid in [json!(""), json!(true), Value::Null] {
+            let absent_value = invalid.is_null();
+            if absent_value
+                && ["/identifier", "/PF00870", "/Pfam"]
+                    .iter()
+                    .any(|suffix| path.ends_with(suffix))
+            {
+                continue;
+            }
             let stub = Stub::for_source("www.ebi.ac.uk", "application/json", move |request| {
                 let mut body = if command == "domains" {
                     json!({"count":1,"next":null,"results":[{"metadata":{"accession":"IPR002117","name":"Native family","source_database":"interpro","type":"family","member_databases":{"Pfam":{"PF00870":"Valid"}}},"proteins":[{"accession":"p38398","organism":"9606","protein_length":2000,"entry_protein_locations":[{"fragments":[{"start":1,"end":10,"dc-status":"CONTINUOUS"}]}]}]}]})
@@ -120,13 +140,21 @@ fn run() -> Result<(), String> {
             };
             let value = call(&env, &args, 0)?;
             if value.pointer(absent).is_some()
-                || !value
-                    .get("problems")
-                    .and_then(Value::as_array)
-                    .is_some_and(|p| p.iter().any(|p| p.get("field") == Some(&json!(field))))
+                || (!absent_value
+                    && !value
+                        .get("problems")
+                        .and_then(Value::as_array)
+                        .is_some_and(|p| p.iter().any(|p| p.get("field") == Some(&json!(field)))))
                 || value.pointer("/result/items/0/id").is_none()
             {
                 return Err(format!("bad {field} lost reply or disclosure: {value}"));
+            }
+            if absent_value
+                && value
+                    .get("problems")
+                    .is_some_and(|p| p.as_array().is_none_or(|p| !p.is_empty()))
+            {
+                return Err(format!("absent {field} created problems: {value}"));
             }
             let cached = call(&env, &args, 0)?;
             if cached.get("problems") != value.get("problems") {
