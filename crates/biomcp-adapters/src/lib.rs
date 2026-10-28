@@ -9,6 +9,7 @@ pub mod oncokb;
 pub mod pubmed;
 mod quotas;
 mod raw;
+mod strict_input;
 pub use mapped::Mapped;
 
 pub mod complex_portal;

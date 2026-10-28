@@ -61,11 +61,14 @@ pub struct Trial {
     phase: Option<biomcp_types::NciTrialPhase>,
     brief_summary: Option<Box<str>>,
     #[serde(default)]
+    #[serde(deserialize_with = "crate::strict_input::deserialize")]
     diseases: Vec<NciDisease>,
+    #[serde(default, deserialize_with = "crate::strict_input::deserialize")]
     eligibility: Option<biomcp_types::NciEligibility>,
     #[serde(default)]
     arms: Vec<Arm>,
     #[serde(default)]
+    #[serde(deserialize_with = "crate::strict_input::deserialize")]
     outcome_measures: Vec<biomcp_types::NciOutcome>,
 }
 #[derive(Debug, Deserialize)]
@@ -74,6 +77,7 @@ struct Arm {
     description: Option<Box<str>>,
     r#type: Option<Text>,
     #[serde(default)]
+    #[serde(deserialize_with = "crate::strict_input::deserialize")]
     interventions: Vec<biomcp_types::NciIntervention>,
 }
 /// Native sections and compact card from one validated source record.
