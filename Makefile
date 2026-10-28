@@ -13,7 +13,7 @@ TEST_THREADS = $(if $(strip $(RUST_TEST_THREADS)),-- --test-threads $(RUST_TEST_
 
 .PHONY: landing-gate plain-cli-build fmt lint ratchets test audit coverage unreached
 
-landing-gate: plain-cli-build fmt lint docs-check tensor-proto-check coverage audit secrets
+landing-gate: workflow-lint plain-cli-build fmt lint docs-check tensor-proto-check coverage audit secrets
 
 plain-cli-build:
 	cargo build --locked -p biomcp --bin biomcp --timings
@@ -100,3 +100,7 @@ COLD_REPORT ?= $(CURDIR)/dist/cold-report.json
 .PHONY: release-cold
 release-cold:
 	python3 release/rehearse.py cold --report "$(COLD_REPORT)" -- $(CONTAINER_ARGS)
+
+.PHONY: workflow-lint
+workflow-lint:
+	actionlint

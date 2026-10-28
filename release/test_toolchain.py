@@ -25,6 +25,11 @@ class ReleaseTools(unittest.TestCase):
                 ('rust-toolchain.toml', lambda s: s.replace('1.95.0', '1.94.0')),
                 ('release/linux.sh', lambda s: s + '\ncurl https://static.rust-lang.org/rustup/archive/0.0.1/installer\n'),
                 ('release/secrets.py', lambda s: s + '\nVERSION = "0.0.1"\n'),
+                ('release/Dockerfile', lambda s: s.replace('FROM ${runtime_image}', 'FROM debian:bookworm-slim')),
+                ('release/linux.sh', lambda s: s.replace('toolchain.py image runtime', 'toolchain.py get runtime')),
+                ('release/matrix.sh', lambda s: s.replace('toolchain.py get runtime-packages', 'toolchain.py get unpinned-packages')),
+                ('release/workflow.py', lambda s: s + '\n# quay.io/pypa/manylinux_2_28_x86_64\n'),
+                ('release/rehearse.py', lambda s: s + '\n# quay.io/pypa/manylinux_2_28_aarch64\n'),
                 ('.github/workflows/release.yml', lambda s: s.replace(
                     'python-version: ${{ steps.tools.outputs.python }}', "python-version: '3.11'")),
             ]

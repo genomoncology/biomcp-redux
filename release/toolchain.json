@@ -23,5 +23,32 @@
         "e4a487ee7ccd7d3a7f7ec08657610aa3606637dab924210b3aee62570fb4b080"
       ]
     }
+  },
+  "images": {
+    "manylinux-x86_64": "quay.io/pypa/manylinux_2_28_x86_64@sha256:e0adf18521ad35192df733a6c62d35df7801957d24e0470238aacecfab2188a3",
+    "manylinux-aarch64": "quay.io/pypa/manylinux_2_28_aarch64@sha256:a3e02308c822fb6ce0d12248b0c941817ba5e1a1bc9e7bb5929f29c50eaa40a9",
+    "runtime": "debian:bookworm-slim@sha256:99c0b25c46d0214d5a2091092e7908907dcaecd6a962cde0ac700acee222b6f3"
+  },
+  "runtime-packages": [
+    "ca-certificates=20230311+deb12u1",
+    "openssl=3.0.20-1~deb12u2",
+    "libssl3=3.0.20-1~deb12u2",
+    "debconf=1.5.82"
+  ],
+  "rustup-sha256": {
+    "x86_64-unknown-linux-gnu": "20a06e644b0d9bd2fbdbfd52d42540bdde820ea7df86e92e533c073da0cdd43c",
+    "aarch64-unknown-linux-gnu": "e3853c5a252fca15252d07cb23a1bdd9377a8c6f3efa01531109281ae47f841c",
+    "x86_64-apple-darwin": "9c331076f62b4d0edeae63d9d1c9442d5fe39b37b05025ec8d41c5ed35486496",
+    "aarch64-apple-darwin": "20ef5516c31b1ac2290084199ba77dbbcaa1406c45c1d978ca68558ef5964ef5",
+    "x86_64-pc-windows-msvc": "88d8258dcf6ae4f7a80c7d1088e1f36fa7025a1cfd1343731b4ee6f385121fc0"
+  },
+  "pin-sources": {
+    "images": [
+      "https://quay.io/v2/pypa/manylinux_2_28_x86_64/manifests/latest",
+      "https://quay.io/v2/pypa/manylinux_2_28_aarch64/manifests/latest",
+      "https://registry-1.docker.io/v2/library/debian/manifests/bookworm-slim"
+    ],
+    "runtime-packages": "https://deb.debian.org/debian/dists/bookworm/main/binary-amd64/Packages.gz",
+    "rustup-sha256": "https://static.rust-lang.org/rustup/archive/1.28.2/{target}/rustup-init{suffix}.sha256"
   }
 }
