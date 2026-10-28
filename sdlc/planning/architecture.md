@@ -2006,6 +2006,7 @@ The ratchet owns the authoritative file and reason list below and checks this ta
 | `crates/biomcp-query/tests/article_search.rs` | Exercise concurrent pool publication/hydration, injected SQL corruption, external writers and API-only deadline boundaries. |
 | `crates/biomcp-query/tests/gene_resolution.rs` | Mutate isolated cache freshness and preserve a local bundle failure under an API-only short command deadline. |
 | `crates/biomcp/tests/ratchets.rs` | Enforce repository structure and prove refusal of planted violations in isolated trees. |
+| `crates/biomcp/tests/ratchets/lints.rs` | Prove the shared Clippy settings reject planted scalar, banned-type and reason drift. |
 | `crates/biomcp/tests/ratchets/proof.rs` | Enforce repository structure and prove refusal of planted violations in isolated trees. |
 
 Everything else goes through the runner.

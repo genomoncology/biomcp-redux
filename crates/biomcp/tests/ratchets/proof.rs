@@ -356,7 +356,7 @@ include!("generated/mod.rs");
     )?;
     for modified in [
         wrapper.replace("dead_code", "dead_code, unused_variables"),
-        wrapper.replace("allow", "expect"),
+        wrapper.replace("#![expect", "#[expect"),
         format!("fn hidden() {{}}\n{wrapper}"),
     ] {
         rejects(path, &modified, "generated exception requires only")?;

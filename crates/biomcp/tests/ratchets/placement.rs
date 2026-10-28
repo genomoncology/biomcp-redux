@@ -288,6 +288,10 @@ const ALLOWED: &[(&str, &str)] = &[
         "Enforce repository structure and prove refusal of planted violations in isolated trees.",
     ),
     (
+        "crates/biomcp/tests/ratchets/lints.rs",
+        "Prove the shared Clippy settings reject planted scalar, banned-type and reason drift.",
+    ),
+    (
         "crates/biomcp/tests/ratchets/proof.rs",
         "Enforce repository structure and prove refusal of planted violations in isolated trees.",
     ),
