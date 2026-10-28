@@ -18,8 +18,8 @@ impl Reference {
     pub(super) fn mapped(self, problems: &mut Problems) -> TrialReference {
         TrialReference {
             pmid: problems.field("references.pmid", self.pmid),
-            kind: problems.field("references.kind", self.kind),
-            citation: problems.field("references.citation", self.citation),
+            kind: problems.required_field("references.kind", self.kind),
+            citation: problems.required_field("references.citation", self.citation),
         }
     }
 }
@@ -60,7 +60,7 @@ impl Documents {
 }
 impl Document {
     fn mapped(self, id: NctId, problems: &mut Problems) -> Option<TrialDocument> {
-        let name = problems.field("largeDocs.filename", self.filename)?;
+        let name = problems.required_field("largeDocs.filename", self.filename)?;
         let name = problems.optional("largeDocs.filename", Some(if filename(&name) { Text::new(&name).map_err(|_| ()) } else { Err(()) }))?;
         // Only the validated source manifest supplies the filename.
         let id = id.to_string();
@@ -69,7 +69,7 @@ impl Document {
         Some(TrialDocument {
             filename: name,
             url,
-            kind: problems.field("largeDocs.typeAbbrev", self.type_abbrev),
+            kind: problems.required_field("largeDocs.typeAbbrev", self.type_abbrev),
             label: problems.field("largeDocs.label", self.label),
             date: problems.field("largeDocs.date", self.date),
             uploaded: problems.field("largeDocs.uploadDate", self.upload_date),

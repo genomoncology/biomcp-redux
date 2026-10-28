@@ -203,10 +203,10 @@ impl Protocol {
                 self.identification_module.nct_id
             )
             .into(),
-            title: problems.field("briefTitle", self.identification_module.brief_title).map(|v| v.as_str().into()),
+            title: problems.required_field("briefTitle", self.identification_module.brief_title).map(|v| v.as_str().into()),
             status: { let value = problems.field("overallStatus", status.overall_status); problems.required("overallStatus", value) },
             phases: problems.fields("phases", design.phases),
-            study_type: problems.field("studyType", design.study_type),
+            study_type: problems.required_field("studyType", design.study_type),
             conditions: problems.field("conditionsModule", self.conditions_module)
                 .map_or_else(Box::default, |v| problems.fields("conditions", v.conditions)),
             interventions: interventions.iter().filter_map(|v| v.name.clone()).collect(),
@@ -263,7 +263,7 @@ impl Outcomes {
         })
         .map(|(kind, v)| TrialOutcome {
                 kind,
-                measure: problems.field("outcomes.measure", v.measure),
+                measure: problems.required_field("outcomes.measure", v.measure),
                 description: problems.field("outcomes.description", v.description),
                 time_frame: problems.field("outcomes.timeFrame", v.time_frame),
             })
@@ -281,7 +281,7 @@ impl Arms {
                 .into_vec()
                 .into_iter()
                 .map(|v| TrialArm {
-                    label: problems.field("armGroups.label", v.label),
+                    label: problems.required_field("armGroups.label", v.label),
                     kind: problems.field("armGroups.type", v.kind),
                     description: problems.field("armsInterventions.description", v.description),
                     intervention_names: problems.fields("armGroups.interventionNames", v.intervention_names),
@@ -291,7 +291,7 @@ impl Arms {
                 .into_vec()
                 .into_iter()
                 .map(|v| TrialIntervention {
-                    name: problems.field("interventions.name", v.name),
+                    name: problems.required_field("interventions.name", v.name),
                     kind: problems.field("interventions.type", v.kind),
                     description: problems.field("armsInterventions.description", v.description),
                     arm_group_labels: problems.fields("interventions.armGroupLabels", v.arm_group_labels),

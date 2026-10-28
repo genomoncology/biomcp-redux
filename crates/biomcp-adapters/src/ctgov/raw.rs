@@ -145,7 +145,7 @@ impl Protocol {
                 self.identification_module.nct_id
             ))
             .map_err(|_| BadReply)?,
-            title: problems.field("briefTitle", self.identification_module.brief_title),
+            title: problems.required_field("briefTitle", self.identification_module.brief_title),
             status,
             phases,
             conditions: names(problems.field("conditionsModule", self.conditions_module)
