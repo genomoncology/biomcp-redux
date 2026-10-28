@@ -5,7 +5,9 @@ use serde_json::{Value, json};
 type Check = Result<(), String>;
 pub(super) fn trials() -> Vec<Trial> {
     vec![
-        Trial::test("biomarker/help-means-concepts", || help().map_err(Into::into)),
+        Trial::test("biomarker/help-means-concepts", || {
+            help().map_err(Into::into)
+        }),
         Trial::test("biomarker/native-snapshot-pages", || {
             pages().map_err(Into::into)
         }),
@@ -86,7 +88,7 @@ fn pages() -> Check {
             .and_then(Value::as_str)
             .is_some_and(|s| s.ends_with("name=PD-L1"))
         {
-            expected = Some(record.pointer("/exchanges/0/body/value/data").and_then(Value::as_array).ok_or("native rows")?.iter().map(|row| json!({"name":row["name"],"codes":row["codes"],"type":row["type"],"count":row["count"]})).collect::<Vec<_>>());
+            expected = Some(record.pointer("/exchanges/0/body/value/data").and_then(Value::as_array).ok_or("native rows")?.iter().map(|row| { let mut header = json!({"name":row["name"],"codes":row["codes"],"type":row["type"],"count":row["count"]}); super::super::assertions::omit_empty_lists(&mut header); header }).collect::<Vec<_>>());
         }
     }
     if expected.as_ref() != Some(&rows) {
@@ -209,10 +211,30 @@ fn research() -> Check {
 
 fn help() -> Check {
     let env = environment()?;
-    let answer = invoke(&env, &["help".into(), "search".into(), "biomarker".into()], 0)?;
-    let text = answer.pointer("/result/commands/0/description").and_then(Value::as_str).ok_or("missing biomarker help")?;
-    for field in ["codes", "name", "type", "trial count", "synonyms", "parent_ids", "ancestor_ids", "eligibility_criterion", "diagnostic --biomarker", "trial --variant"] {
-        if !text.contains(field) { return Err(format!("biomarker help omits {field}")); }
+    let answer = invoke(
+        &env,
+        &["help".into(), "search".into(), "biomarker".into()],
+        0,
+    )?;
+    let text = answer
+        .pointer("/result/commands/0/description")
+        .and_then(Value::as_str)
+        .ok_or("missing biomarker help")?;
+    for field in [
+        "codes",
+        "name",
+        "type",
+        "trial count",
+        "synonyms",
+        "parent_ids",
+        "ancestor_ids",
+        "eligibility_criterion",
+        "diagnostic --biomarker",
+        "trial --variant",
+    ] {
+        if !text.contains(field) {
+            return Err(format!("biomarker help omits {field}"));
+        }
     }
     Ok(())
 }

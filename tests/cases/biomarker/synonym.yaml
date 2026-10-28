@@ -29,8 +29,7 @@
         "/result/items/0/type": [
           "reference_gene"
         ],
-        "/result/items/0/count": 326,
-        "/result/items/1/type": []
+        "/result/items/0/count": 326
       },
       "max_bytes": 5000,
       "mcp": [

@@ -10,7 +10,8 @@ pub struct BiomarkerHeader {
     pub codes: Box<[NcitId]>,
     /// Native biomarker concept name.
     pub name: Text,
-    /// Native type values, including an explicitly empty list.
+    /// Native type values; an empty source list is omitted.
+    #[serde(default, skip_serializing_if = "<[_]>::is_empty")]
     pub r#type: Box<[Text]>,
     /// Native NCI trial count across trial statuses.
     pub count: u64,
@@ -23,16 +24,16 @@ pub struct BiomarkerCard {
     /// Native concept identity and count.
     pub header: BiomarkerHeader,
     /// Native synonym values.
-    #[serde(default, skip_serializing_if = "Option::is_none")]
+    #[serde(default, skip_serializing_if = "biodata::absent_or_empty")]
     pub synonyms: Option<Box<[Text]>>,
     /// Native direct parent codes.
-    #[serde(default, skip_serializing_if = "Option::is_none")]
+    #[serde(default, skip_serializing_if = "biodata::absent_or_empty")]
     pub parent_ids: Option<Box<[NcitId]>>,
     /// Native ancestor codes.
-    #[serde(default, skip_serializing_if = "Option::is_none")]
+    #[serde(default, skip_serializing_if = "biodata::absent_or_empty")]
     pub ancestor_ids: Option<Box<[NcitId]>>,
     /// Native eligibility criterion values, exactly as published.
-    #[serde(default, skip_serializing_if = "Option::is_none")]
+    #[serde(default, skip_serializing_if = "biodata::absent_or_empty")]
     pub eligibility_criterion: Option<Box<[Text]>>,
 }
 /// Local page of a complete bounded source observation.
