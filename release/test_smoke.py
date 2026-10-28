@@ -10,6 +10,35 @@ import unittest
 
 
 class InstalledTemporarySpace(unittest.TestCase):
+    @unittest.skipUnless(sys.platform == 'darwin' and shutil.which('brew'), 'staged formula installation needs macOS Homebrew')
+    def test_staged_formula_installs_the_selected_candidate(self):
+        import hashlib
+        from release.artifacts import binary_archive, platform_tag
+        from release.workflow import formula
+        binary = Path(os.environ['BIOMCP_INSTALLED_BINARY']).resolve()
+        verbose = subprocess.check_output([str(binary), 'version', '--verbose'], text=True)
+        revision = next(line.removeprefix('Commit: ') for line in verbose.splitlines() if line.startswith('Commit: '))
+        version = verbose.splitlines()[0].removeprefix('biomcp ')
+        with tempfile.TemporaryDirectory() as directory:
+            root = Path(directory)
+            staged = root / 'staged'
+            staged.mkdir()
+            for arch in ('arm64', 'x86_64'):
+                binary_archive(staged, binary, 'macosx_11_0_' + arch)
+            (staged / 'candidate.json').write_text(json.dumps({'version': version, 'revision': revision}))
+            formula(staged, version)
+            record = {'version': version, 'revision': revision, 'platform': platform_tag(False),
+                      'binary_sha256': hashlib.sha256(binary.read_bytes()).hexdigest()}
+            (root / 'release.json').write_text(json.dumps(record))
+            command = [sys.executable, 'release/gate.py', '--artifacts', str(root),
+                       '--scratch', str(root / 'check'), '--staged-formula', str(staged / 'biomcp.rb')]
+            result = subprocess.run(command, capture_output=True, text=True, timeout=300)
+            self.assertEqual(result.returncode, 0, result.stdout + result.stderr)
+            rows = json.loads((root / 'check/report.json').read_text())
+            self.assertEqual([row['command'] for row in rows], [['version'], ['version', '--verbose'], ['health', '--offline']])
+            self.assertTrue(all(row['artifact'] == 'staged-homebrew-formula' for row in rows))
+            self.assertTrue(all(row['revision'] == revision for row in rows))
+
     def test_installed_alphagenome_uses_selected_binary_without_checkout(self):
         from release.smoke import environment
         with tempfile.TemporaryDirectory() as directory:
