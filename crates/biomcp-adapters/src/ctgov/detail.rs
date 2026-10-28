@@ -52,40 +52,37 @@ pub fn get(leg: &Leg<'_>, id: NctId) -> Result<(Detail, ReplyMetadata), RequestE
     })?;
     let id = raw.protocol_section.identification_module.nct_id;
     let mut detail = raw.protocol_section.detail();
-    detail.documents = raw
-        .document_section
-        .map_or_else(|| Ok(Box::default()), |d| d.mapped(id))
-        .map_err(|_| super::bad())?;
+    let mut problems = Problems { source: Source::ClinicalTrialsGov, record: crate::mapped::record(id), list: detail.problems };
+    detail.documents = problems.field("documentSection", raw.document_section)
+        .map_or_else(Box::default, |d| d.mapped(id, &mut problems));
+    detail.problems = problems.list;
     Ok((detail, metadata))
 }
 #[derive(Deserialize)]
 #[serde(rename_all = "camelCase")]
 struct Study {
     protocol_section: Protocol,
-    document_section: Option<publications::Documents>,
+    document_section: Option<Field<publications::Documents>>,
 }
 impl Reply for Study {
     fn check(&self) -> Result<(), BadReply> {
-        if let Some(documents) = &self.document_section {
-            documents.check()?;
-        }
         Ok(())
     }
 }
 #[derive(Deserialize)]
 #[serde(rename_all = "camelCase")]
 struct Protocol {
-    references_module: Option<publications::References>,
+    references_module: Option<Field<publications::References>>,
     identification_module: Identification,
-    status_module: Status,
-    design_module: Design,
-    description_module: Option<Description>,
-    conditions_module: Option<Conditions>,
-    sponsor_collaborators_module: Option<Sponsor>,
-    eligibility_module: Option<Eligibility>,
-    outcomes_module: Option<Outcomes>,
-    arms_interventions_module: Option<Arms>,
-    contacts_locations_module: Option<sites::ContactsLocations>,
+    status_module: Option<Field<Status>>,
+    design_module: Option<Field<Design>>,
+    description_module: Option<Field<Description>>,
+    conditions_module: Option<Field<Conditions>>,
+    sponsor_collaborators_module: Option<Field<Sponsor>>,
+    eligibility_module: Option<Field<Eligibility>>,
+    outcomes_module: Option<Field<Outcomes>>,
+    arms_interventions_module: Option<Field<Arms>>,
+    contacts_locations_module: Option<Field<sites::ContactsLocations>>,
 }
 #[derive(Deserialize)]
 #[serde(rename_all = "camelCase")]
@@ -93,7 +90,7 @@ struct Identification {
     nct_id: NctId,
     brief_title: Option<Field<biodata::Text>>,
 }
-#[derive(Deserialize)]
+#[derive(Default, Deserialize)]
 #[serde(rename_all = "camelCase")]
 struct Status {
     overall_status: Option<Field<TrialStatus>>,
@@ -117,7 +114,7 @@ impl RawDate {
         })
     }
 }
-#[derive(Deserialize)]
+#[derive(Default, Deserialize)]
 #[serde(rename_all = "camelCase")]
 struct Design {
     study_type: Option<Field<StudyType>>,
@@ -126,76 +123,79 @@ struct Design {
 #[derive(Deserialize)]
 #[serde(rename_all = "camelCase")]
 struct Description {
-    brief_summary: Option<Markdown>,
+    brief_summary: Option<Field<Markdown>>,
 }
 #[derive(Deserialize)]
 struct Conditions {
-    conditions: Option<Box<[Box<str>]>>,
+    conditions: Option<Field<Vec<Field<Box<str>>>>>,
 }
 #[derive(Deserialize)]
 #[serde(rename_all = "camelCase")]
 struct Sponsor {
-    lead_sponsor: Option<Name>,
+    lead_sponsor: Option<Field<Name>>,
 }
 #[derive(Deserialize)]
 struct Name {
-    name: Box<str>,
+    name: Option<Field<Box<str>>>,
 }
 #[derive(Deserialize)]
 #[serde(rename_all = "camelCase")]
 struct Eligibility {
-    minimum_age: Option<Box<str>>,
-    maximum_age: Option<Box<str>>,
+    minimum_age: Option<Field<Box<str>>>,
+    maximum_age: Option<Field<Box<str>>>,
     sex: Option<Field<TrialSex>>,
-    healthy_volunteers: Option<bool>,
-    eligibility_criteria: Option<Markdown>,
+    healthy_volunteers: Option<Field<bool>>,
+    eligibility_criteria: Option<Field<Markdown>>,
 }
 #[derive(Deserialize)]
 #[serde(rename_all = "camelCase")]
 struct Outcomes {
-    primary_outcomes: Option<Vec<Outcome>>,
-    secondary_outcomes: Option<Vec<Outcome>>,
-    other_outcomes: Option<Vec<Outcome>>,
+    primary_outcomes: Option<Field<Vec<Field<Outcome>>>>,
+    secondary_outcomes: Option<Field<Vec<Field<Outcome>>>>,
+    other_outcomes: Option<Field<Vec<Field<Outcome>>>>,
 }
 #[derive(Deserialize)]
 #[serde(rename_all = "camelCase")]
 struct Outcome {
-    measure: Box<str>,
-    description: Option<Markdown>,
-    time_frame: Option<Box<str>>,
+    measure: Option<Field<Box<str>>>,
+    description: Option<Field<Markdown>>,
+    time_frame: Option<Field<Box<str>>>,
 }
 #[derive(Deserialize)]
 #[serde(rename_all = "camelCase")]
 struct Arms {
-    arm_groups: Option<Box<[Arm]>>,
-    interventions: Option<Box<[Intervention]>>,
+    arm_groups: Option<Field<Vec<Field<Arm>>>>,
+    interventions: Option<Field<Vec<Field<Intervention>>>>,
 }
 #[derive(Deserialize)]
 #[serde(rename_all = "camelCase")]
 struct Arm {
-    label: Box<str>,
+    label: Option<Field<Box<str>>>,
     #[serde(rename = "type")]
     kind: Option<Field<biodata::TrialArmKind>>,
-    description: Option<Markdown>,
-    intervention_names: Option<Box<[Box<str>]>>,
+    description: Option<Field<Markdown>>,
+    intervention_names: Option<Field<Vec<Field<Box<str>>>>>,
 }
 #[derive(Deserialize)]
 #[serde(rename_all = "camelCase")]
 struct Intervention {
-    name: Box<str>,
+    name: Option<Field<Box<str>>>,
     #[serde(rename = "type")]
     kind: Option<Field<biodata::TrialInterventionKind>>,
-    description: Option<Markdown>,
-    arm_group_labels: Option<Box<[Box<str>]>>,
-    other_names: Option<Box<[Box<str>]>>,
+    description: Option<Field<Markdown>>,
+    arm_group_labels: Option<Field<Vec<Field<Box<str>>>>>,
+    other_names: Option<Field<Vec<Field<Box<str>>>>>,
 }
 impl Protocol {
     fn detail(self) -> Detail {
         let mut problems = Problems { source: Source::ClinicalTrialsGov, record: crate::mapped::record(self.identification_module.nct_id), list: Vec::new() };
-        let arms = self.arms_interventions_module;
-        let (locations, contacts, officials) = self.contacts_locations_module.map_or_else(
+        let status = problems.field("statusModule", self.status_module).unwrap_or_default();
+        let design = problems.field("designModule", self.design_module).unwrap_or_default();
+        let arms = problems.field("armsInterventionsModule", self.arms_interventions_module);
+        let (arm_rows, interventions) = arms.map_or_else(|| (Box::default(), Box::default()), |arms| arms.rows(&mut problems));
+        let (locations, contacts, officials) = problems.field("contactsLocationsModule", self.contacts_locations_module).map_or_else(
             || (Box::default(), Box::default(), Box::default()),
-            sites::ContactsLocations::rows,
+            |sites| sites.rows(&mut problems),
         );
         let card = TrialCard {
             nct_id: self.identification_module.nct_id,
@@ -205,87 +205,69 @@ impl Protocol {
             )
             .into(),
             title: problems.field("briefTitle", self.identification_module.brief_title).map(|v| v.as_str().into()),
-            status: { let value = problems.field("overallStatus", self.status_module.overall_status); problems.required("overallStatus", value) },
-            phases: problems.fields("phases", self.design_module.phases),
-            study_type: problems.field("studyType", self.design_module.study_type),
-            conditions: self
-                .conditions_module
-                .and_then(|v| v.conditions)
-                .unwrap_or_default(),
-            interventions: arms.as_ref().map_or_else(Box::default, |v| {
-                v.interventions
-                    .as_deref()
-                    .unwrap_or(&[])
-                    .iter()
-                    .map(|v| v.name.clone())
-                    .collect()
-            }),
-            sponsor: self
-                .sponsor_collaborators_module
-                .and_then(|s| s.lead_sponsor.map(|s| s.name)),
-            start: problems.field("startDateStruct", self.status_module.start_date_struct).and_then(|d| d.mapped("startDateStruct", &mut problems)),
-            primary_completion: problems.field("primaryCompletionDateStruct", self.status_module.primary_completion_date_struct).and_then(|d| d.mapped("primaryCompletionDateStruct", &mut problems)),
-            completion: problems.field("completionDateStruct", self.status_module.completion_date_struct).and_then(|d| d.mapped("completionDateStruct", &mut problems)),
-            updated: problems.field("lastUpdatePostDateStruct", self.status_module.last_update_post_date_struct).and_then(|d| d.mapped("lastUpdatePostDateStruct", &mut problems)),
-            brief_summary: self.description_module.and_then(|d| d.brief_summary),
+            status: { let value = problems.field("overallStatus", status.overall_status); problems.required("overallStatus", value) },
+            phases: problems.fields("phases", design.phases),
+            study_type: problems.field("studyType", design.study_type),
+            conditions: problems.field("conditionsModule", self.conditions_module)
+                .map_or_else(Box::default, |v| problems.fields("conditions", v.conditions)),
+            interventions: interventions.iter().filter_map(|v| v.name.clone()).collect(),
+            sponsor: problems.field("sponsorCollaboratorsModule", self.sponsor_collaborators_module)
+                .and_then(|s| problems.field("leadSponsor", s.lead_sponsor))
+                .and_then(|s| problems.field("leadSponsor.name", s.name)),
+            start: problems.field("startDateStruct", status.start_date_struct).and_then(|d| d.mapped("startDateStruct", &mut problems)),
+            primary_completion: problems.field("primaryCompletionDateStruct", status.primary_completion_date_struct).and_then(|d| d.mapped("primaryCompletionDateStruct", &mut problems)),
+            completion: problems.field("completionDateStruct", status.completion_date_struct).and_then(|d| d.mapped("completionDateStruct", &mut problems)),
+            updated: problems.field("lastUpdatePostDateStruct", status.last_update_post_date_struct).and_then(|d| d.mapped("lastUpdatePostDateStruct", &mut problems)),
+            brief_summary: problems.field("descriptionModule", self.description_module).and_then(|d| problems.field("briefSummary", d.brief_summary)),
         };
-        let (arm_rows, interventions) =
-            arms.map_or_else(|| (Box::default(), Box::default()), |arms| arms.rows(&mut problems));
         Detail {
-            references: self
-                .references_module
-                .and_then(|m| m.references)
-                .unwrap_or_default()
-                .into_vec()
-                .into_iter()
-                .map(publications::Reference::mapped)
-                .collect(),
+            references: problems.field("referencesModule", self.references_module)
+                .map_or_else(Box::default, |r| r.rows(&mut problems)),
             documents: Box::default(),
             locations,
             contacts,
             officials,
             card,
-            eligibility: self.eligibility_module.map(|v| TrialEligibility {
-                minimum_age: age(v.minimum_age),
-                maximum_age: age(v.maximum_age),
+            eligibility: problems.field("eligibilityModule", self.eligibility_module).map(|v| TrialEligibility {
+                minimum_age: age(problems.field("minimumAge", v.minimum_age)),
+                maximum_age: age(problems.field("maximumAge", v.maximum_age)),
                 sex: problems.field("sex", v.sex),
-                healthy_volunteers: v.healthy_volunteers,
-                criteria: v.eligibility_criteria,
+                healthy_volunteers: problems.field("healthyVolunteers", v.healthy_volunteers),
+                criteria: problems.field("eligibilityCriteria", v.eligibility_criteria),
             }),
+            outcomes: problems.field("outcomesModule", self.outcomes_module).map_or_else(Box::default, |o| o.rows(&mut problems)),
             problems: problems.list,
-            outcomes: self
-                .outcomes_module
-                .map_or_else(Box::default, Outcomes::rows),
             arms: arm_rows,
             interventions,
         }
     }
 }
 impl Outcomes {
-    fn rows(self) -> Box<[TrialOutcome]> {
+    fn rows(self, problems: &mut Problems) -> Box<[TrialOutcome]> {
         [
             (
                 TrialOutcomeKind::Primary,
-                self.primary_outcomes.unwrap_or_default(),
+                problems.fields("primaryOutcomes", self.primary_outcomes),
             ),
             (
                 TrialOutcomeKind::Secondary,
-                self.secondary_outcomes.unwrap_or_default(),
+                problems.fields("secondaryOutcomes", self.secondary_outcomes),
             ),
             (
                 TrialOutcomeKind::Other,
-                self.other_outcomes.unwrap_or_default(),
+                problems.fields("otherOutcomes", self.other_outcomes),
             ),
         ]
         .into_iter()
         .flat_map(|(kind, rows)| {
-            rows.into_iter().map(move |v| TrialOutcome {
-                kind,
-                measure: v.measure,
-                description: v.description,
-                time_frame: v.time_frame,
-            })
+            rows.into_vec().into_iter().map(move |v| (kind, v))
         })
+        .map(|(kind, v)| TrialOutcome {
+                kind,
+                measure: problems.field("outcomes.measure", v.measure),
+                description: problems.field("outcomes.description", v.description),
+                time_frame: problems.field("outcomes.timeFrame", v.time_frame),
+            })
         .collect()
     }
 }
@@ -296,27 +278,25 @@ fn age(value: Option<Box<str>>) -> TrialAgeBound {
 impl Arms {
     fn rows(self, problems: &mut Problems) -> (Box<[TrialArm]>, Box<[TrialIntervention]>) {
         (
-            self.arm_groups
-                .unwrap_or_default()
+            problems.fields("armGroups", self.arm_groups)
                 .into_vec()
                 .into_iter()
                 .map(|v| TrialArm {
-                    label: v.label,
+                    label: problems.field("armGroups.label", v.label),
                     kind: problems.field("armGroups.type", v.kind),
-                    description: v.description,
-                    intervention_names: v.intervention_names.unwrap_or_default(),
+                    description: problems.field("armsInterventions.description", v.description),
+                    intervention_names: problems.fields("armGroups.interventionNames", v.intervention_names),
                 })
                 .collect(),
-            self.interventions
-                .unwrap_or_default()
+            problems.fields("interventions", self.interventions)
                 .into_vec()
                 .into_iter()
                 .map(|v| TrialIntervention {
-                    name: v.name,
+                    name: problems.field("interventions.name", v.name),
                     kind: problems.field("interventions.type", v.kind),
-                    description: v.description,
-                    arm_group_labels: v.arm_group_labels.unwrap_or_default(),
-                    other_names: v.other_names.unwrap_or_default(),
+                    description: problems.field("armsInterventions.description", v.description),
+                    arm_group_labels: problems.fields("interventions.armGroupLabels", v.arm_group_labels),
+                    other_names: problems.fields("interventions.otherNames", v.other_names),
                 })
                 .collect(),
         )

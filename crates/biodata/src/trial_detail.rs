@@ -87,7 +87,7 @@ pub struct TrialOutcome {
     /// Source collection.
     pub kind: TrialOutcomeKind,
     /// Original measure text.
-    pub measure: Box<str>,
+    pub measure: Option<Box<str>>,
     /// Original description.
     pub description: Option<Markdown>,
     /// Original time frame.
@@ -99,7 +99,7 @@ pub struct TrialOutcome {
 #[cfg_attr(feature = "schema", derive(schemars::JsonSchema))]
 pub struct TrialArm {
     /// Exact arm label.
-    pub label: Box<str>,
+    pub label: Option<Box<str>>,
     /// Native arm type.
     pub kind: Option<TrialArmKind>,
     /// Original arm description.
@@ -114,7 +114,7 @@ pub struct TrialArm {
 #[cfg_attr(feature = "schema", derive(schemars::JsonSchema))]
 pub struct TrialIntervention {
     /// Exact source name.
-    pub name: Box<str>,
+    pub name: Option<Box<str>>,
     /// Native intervention type.
     pub kind: Option<TrialInterventionKind>,
     /// Original description.
