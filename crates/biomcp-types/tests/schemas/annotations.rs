@@ -4,6 +4,9 @@ type Check<T> = Result<T, String>;
 
 pub(super) fn validate(object: &serde_json::Map<String, Value>) -> Check<()> {
     validate_cli_flags(object.get("x-cli-flags"))?;
+    if object.contains_key("enum") && object.contains_key("x-extensible-enum") {
+        return Err("extensible enum cannot have a closed enum assertion".into());
+    }
     if object.get("x-extensible-enum").is_some_and(|value| {
         !value
             .as_array()

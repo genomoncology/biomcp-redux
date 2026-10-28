@@ -58,6 +58,9 @@ fn growable_enum_contracts_keep_known_values_and_accept_future_names() {
     assert!(check_reviewed(&old, &new, ContractKind::Reply, &Reviews::default()).is_ok());
     new["x-extensible-enum"] = json!(["first"]);
     assert!(check_reviewed(&old, &new, ContractKind::Reply, &Reviews::default()).is_err());
+    let mut narrowed = old.clone();
+    narrowed["enum"] = json!(["first", "second"]);
+    assert!(check_reviewed(&old, &narrowed, ContractKind::Reply, &Reviews::default()).is_err());
     let closed = json!({"$id":"biodata.example/1", "type":"string", "enum":["first","second"]});
     assert!(check_reviewed(&old, &closed, ContractKind::Reply, &Reviews::default()).is_err());
 }
