@@ -60,9 +60,12 @@ pub(super) fn text_value_patterns_match_parser_admissions() {
         CosmicId => ["COSV1", "COSM1", "COSN1", "COSV0", "COSV01"],
         VrsId => ["ga4gh:VA.012345678901234567890123456789_-", "ga4gh:VA.0123456789012345678901234567890+"],
         VariantId => ["CA000001", "CA000000", "VCV000000001", "VCV000000000", "rs18446744073709551616"],
-        Accession => ["NM_004333.6", "NM_004333.0", "NM_004333.65535", "NM_004333.65536", "NM_000004333.1", "NM_001004333.1", "LRG_0001t01", "LRG_4294967295p65535", "LRG_4294967296", "LRG_1p65536"],
+        Accession => ["NM_004333.6", "NM_004333.0", "NM_004333.65535", "NM_004333.65536", "NM_000004333.1", "NM_001004333.1", "LRG_0001t01",
+            "LRG_4294967295p65535", "LRG_4294967296", "LRG_1p65536"],
         AccessionBase => ["NM_004333", "NM_000004333", "NM_001004333", "LRG_4294967296", "ENST00000000001"],
-        HgvsText => ["NM_004333.6:c.1A>G", "NM_004333.0:c.1A>G", "NM_004333.6(123):c.1A>G", "NM_004333.6(BRAF):c.1A>G", "NP_004324.1:c.1A>G", "NP_004324.1:p.?", "NC_000007.14(NP_004324.1):g.1A>G", "NC_000007.14(NP_004324.0):g.1A>G", "NM_004333.65536:c.1A>G", &format!("NM_004333.6({}):c.1A>G", "A".repeat(255)), &format!("NM_004333.6({}):c.1A>G", "A".repeat(256))],
+        HgvsText => ["NM_004333.6:c.1A>G", "NM_004333.0:c.1A>G", "NM_004333.6(123):c.1A>G", "NM_004333.6(BRAF):c.1A>G", "NP_004324.1:c.1A>G",
+            "NP_004324.1:p.?", "NC_000007.14(NP_004324.1):g.1A>G", "NC_000007.14(NP_004324.0):g.1A>G", "NM_004333.65536:c.1A>G",
+            &format!("NM_004333.6({}):c.1A>G", "A".repeat(255)), &format!("NM_004333.6({}):c.1A>G", "A".repeat(256))],
         Base => ["A", "N", "a", "U", "AA"],
         Sequence => ["", "ACGTRYSWKMBDHVN", "a", "U", "AC GT"],
         Chromosome => ["1", "22", "23", "X", "MT", "M", "chr1", "01"],
@@ -108,7 +111,8 @@ pub(super) fn text_value_patterns_match_parser_admissions() {
         OrcidId => ["0000-0002-1825-0097", "0000-0002-1825-009", "0000-0002-1825-00x7"],
         AuthorId => ["orcid:0000-0002-1825-0097", "semantic-scholar:1", "semanticscholar:1", "semantic-scholar:0"],
         OrcidClientId => ["0000-0002-1825-0097", "APP-0123456789ABCDEF", "APP-0123456789abcDEF"],
-        ArticleInput => ["1", "PMC1", "PPR0001", "PPRAB0001", "PPRABCDE1", "PPRABCDEF1", "PPR0000", "4294967296", "PMC4294967296", "10.1/a\u{0080}", "https://doi.org/10.1/a"],
+        ArticleInput => ["1", "PMC1", "PPR0001", "PPRAB0001", "PPRABCDE1", "PPRABCDEF1", "PPR0000", "4294967296", "PMC4294967296", "10.1/a\u{0080}",
+            "https://doi.org/10.1/a"],
         GeneInput => ["BRAF", " HGNC:1 ", "HGNC:0", "hgnc:1", "ENSGbad", "0001", "4294967296", "Gene alias"],
         VariantInput => ["CA000001", "CA000000", "VCV000000000", "chr22:g.1A>G", "chr23:g.1A>G", "18446744073709551615", "18446744073709551616"],
         SheetRows => ["1-1", "01-1", "1-4294967296"],
@@ -121,7 +125,12 @@ pub(super) fn text_value_patterns_match_parser_admissions() {
 pub(super) fn text_value_schema_supersets_name_their_runtime_rules() {
     fn runtime_rule<T: JsonSchema + std::str::FromStr>(text: &str, rule: &str) {
         let schema = generate::<T>();
-        assert!(schema["description"].as_str().unwrap().contains(rule));
+        assert!(
+            schema
+                .get("description")
+                .and_then(serde_json::Value::as_str)
+                .is_some_and(|description| description.contains(rule))
+        );
         assert!(validator::<T>().is_valid(&json!(text)), "schema: {text}");
         assert!(text.parse::<T>().is_err(), "parser: {text}");
     }
@@ -137,10 +146,13 @@ pub(super) fn text_value_schema_supersets_name_their_runtime_rules() {
 }
 
 // ProteinQuery stays private; its public parent owns admission at this boundary.
-pub(super) fn protein_query_schema_matches_public_search_admissions() {
+pub(super) fn protein_query_schema_matches_public_search_admissions()
+-> Result<(), Box<dyn std::error::Error>> {
     let schema = generate::<VariantSearch>();
-    let protein = schema.pointer("/$defs/ProteinQuery").unwrap();
-    let validator = jsonschema::draft202012::new(protein).unwrap();
+    let protein = schema
+        .pointer("/$defs/ProteinQuery")
+        .ok_or("missing ProteinQuery schema")?;
+    let validator = jsonschema::draft202012::new(protein)?;
     for text in [
         "V600E",
         "p.Val600Glu",
@@ -158,4 +170,5 @@ pub(super) fn protein_query_schema_matches_public_search_admissions() {
             serde_json::from_value::<VariantSearch>(json!({"gene":"BRAF", "protein":text}));
         assert_eq!(validator.is_valid(&json!(text)), parsed.is_ok(), "{text:?}");
     }
+    Ok(())
 }

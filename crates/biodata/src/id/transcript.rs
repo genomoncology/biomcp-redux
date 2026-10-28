@@ -47,5 +47,6 @@ fn ensembl(value: &str, prefix: &str) -> bool {
 }
 versioned! {
     /// A human Ensembl gene stable identifier with a separately retained version.
-    EnsemblGeneId, EnsemblGeneIdInvalid, "EnsemblGeneId", format!(r"^ENSG[0-9]{{11}}(\.{})?$", crate::schema_pattern::decimal(u32::MAX.into())), |value| ensembl(value, "ENSG")
+    EnsemblGeneId, EnsemblGeneIdInvalid, "EnsemblGeneId",
+    format!(r"^ENSG[0-9]{{11}}(\.{})?$", crate::schema_pattern::decimal(u32::MAX.into())), |value| ensembl(value, "ENSG")
 }

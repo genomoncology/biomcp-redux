@@ -63,10 +63,14 @@ text_value!(
         let ensembl = EnsemblGeneId::pattern();
         let ncbi = NcbiGeneId::pattern();
         format!(
-            r"^[{whitespace}]*(?:{}|{}|{}|(?!(?:[Hh][Gg][Nn][Cc]:|[Ee][Nn][Ss][Gg]))(?![0-9]+[{whitespace}]*$)[^{whitespace}](?:[\s\S]*[^{whitespace}])?)[{whitespace}]*$",
+            concat!(
+                r"^[{whitespace}]*(?:{}|{}|{}|(?!(?:[Hh][Gg][Nn][Cc]:|[Ee][Nn][Ss][Gg]))",
+                r"(?![0-9]+[{whitespace}]*$)[^{whitespace}](?:[\s\S]*[^{whitespace}])?)[{whitespace}]*$"
+            ),
             hgnc.trim_start_matches('^').trim_end_matches('$'),
             ensembl.trim_start_matches('^').trim_end_matches('$'),
-            ncbi.trim_start_matches('^').trim_end_matches('$')
+            ncbi.trim_start_matches('^').trim_end_matches('$'),
+            whitespace = whitespace
         )
     },
     "An input classified before source resolution; aliases remain free text."

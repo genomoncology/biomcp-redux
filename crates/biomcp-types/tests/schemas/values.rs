@@ -541,6 +541,7 @@ fn text_value_schema_supersets_name_their_runtime_rules() {
 }
 
 #[test]
-fn protein_query_schema_matches_public_search_admissions() {
-    text_values::protein_query_schema_matches_public_search_admissions();
+fn protein_query_schema_matches_public_search_admissions() -> Result<(), Box<dyn std::error::Error>>
+{
+    text_values::protein_query_schema_matches_public_search_admissions()
 }
