@@ -269,7 +269,7 @@ fn empty_recovery() -> Check {
         } else {
             vec!["europepmc", "pubmed"]
         };
-        assert_eq!(steps.len(), expected.len());
+        assert_eq!(steps.len(), expected.len() + 1);
         for (step, source) in steps.iter().zip(expected) {
             let mut args = vec!["search", "article", "--gene", "KRAS", "--variant", "G12C"];
             if source != "pubmed" {
@@ -280,6 +280,11 @@ fn empty_recovery() -> Check {
             }
             assert_eq!(step["args"], json!(args));
         }
+        let mut broader = vec!["search", "article", "--gene", "KRAS"];
+        if disabled {
+            broader.splice(0..0, ["--disable-sources", "europepmc"]);
+        }
+        assert_eq!(steps.last().ok_or("missing broader gene search")?["args"], json!(broader));
         assert_eq!(
             output["sources"][1]["notices"][0]["kind"],
             "litvar_rsid_hint"

@@ -22,9 +22,7 @@
             "search",
             "article",
             "--gene",
-            "NAA10",
-            "--source",
-            "pubmed"
+            "NAA10"
           ]
         }
       }
@@ -48,9 +46,7 @@
             "search",
             "article",
             "--gene",
-            "NAA10",
-            "--source",
-            "pubmed"
+            "NAA10"
           ]
         }
       }
