@@ -10,7 +10,7 @@
         "article",
         "xqzvw zzyzxq kinase"
       ],
-      "max_bytes": 4243,
+      "max_bytes": 5131,
       "expect": {
         "/status": "complete",
         "/sources/0/state": "ok",
@@ -23,5 +23,6 @@
         }
       }
     }
-  ]
+  ],
+  "verified": "The reply with disclosed PubMed optional-field problems measured 4461 comparable bytes in j19522; the updated ceiling adds fifteen percent. Existing recorded source replies are unchanged."
 }
