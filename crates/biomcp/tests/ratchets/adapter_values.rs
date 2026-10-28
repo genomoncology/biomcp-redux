@@ -64,8 +64,9 @@ fn fingerprints(tokens: &[String]) -> BTreeMap<String, usize> {
         if tokens
             .get(index..index + 4)
             .is_some_and(|parts| parts == [".", "ok", "(", ")"])
+            && let Some(context) = tokens.get(index.saturating_sub(12)..index + 4)
         {
-            let context = tokens[index.saturating_sub(12)..index + 4].join(" ");
+            let context = context.join(" ");
             *result.entry(format!("{function}: {context}")).or_default() += 1;
         }
     }

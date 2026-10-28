@@ -45,6 +45,7 @@ fn problem(value: &Value, source: &str, field: &str, record: &str) -> Result<(),
 }
 fn orcid() -> Result<(), String> {
     for (path, invalid, field) in work_values().into_iter().chain(work_source_values()) {
+        let (parent, key) = path.rsplit_once('/').ok_or("invalid work fixture path")?;
         let value = checked_case(
             "orcid/visibility",
             &["author", "papers", "orcid:0000-0002-4299-3018"],
@@ -53,7 +54,6 @@ fn orcid() -> Result<(), String> {
                     && let Some(assertion) =
                         capture.pointer_mut("/exchanges/0/body/value/group/0/work-summary/0")
                 {
-                    let (parent, key) = path.rsplit_once('/').unwrap();
                     if let Some(object) =
                         assertion.pointer_mut(parent).and_then(Value::as_object_mut)
                     {
@@ -285,10 +285,10 @@ fn person() -> Result<(), String> {
         });
         if field == "all" {
             for key in ["credit-name", "given-names", "family-name"] {
-                name[key] = json!({"value":""});
+                *name.get_mut(key).ok_or("missing name fixture field")? = json!({"value":""});
             }
         } else {
-            name[field] = json!({"value":""});
+            *name.get_mut(field).ok_or("missing name fixture field")? = json!({"value":""});
         }
         let body = json!({"path":"/0000-0002-4299-3018/person", "name":name}).to_string();
         let stub = Stub::for_sources(
@@ -354,7 +354,9 @@ fn summaries() -> Result<(), String> {
         ("articleids", json!({}), "articleids"),
     ] {
         let mut row = json!({"uid":"123", "title":"Valid title", "pubdate":"2024 Jan 2", "authors":[{"name":"Valid author"}]});
-        row[field] = invalid;
+        row.as_object_mut()
+            .ok_or("invalid summary fixture")?
+            .insert(field.into(), invalid);
         let summary = json!({"result":{"uids":["123"],"123":row}}).to_string();
         let stub = Stub::for_sources(
             &["eutils.ncbi.nlm.nih.gov"],
@@ -431,10 +433,11 @@ fn notices() -> Result<(), String> {
         ),
     ] {
         let mut result = json!({"count":"0","idlist":[]});
+        let extra = extra.as_object().ok_or("invalid notice fixture fields")?;
         result
             .as_object_mut()
-            .unwrap()
-            .extend(extra.as_object().unwrap().clone());
+            .ok_or("invalid notice fixture result")?
+            .extend(extra.clone());
         let body = json!({"esearchresult":result}).to_string();
         let stub = Stub::for_sources(
             &["eutils.ncbi.nlm.nih.gov"],
