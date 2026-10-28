@@ -1,5 +1,7 @@
 mod civic;
 mod clingen;
+mod gencc;
+pub use gencc::{GenccGene, GenccSubmission};
 mod constraint;
 mod expression;
 mod oncokb;
@@ -44,6 +46,7 @@ pub struct GeneItem {
 #[cfg_attr(feature = "schema", derive(schemars::JsonSchema))]
 pub struct GeneCards {
     /// Requested inputs and their answers.
+    #[serde(default, skip_serializing_if = "<[_]>::is_empty")]
     pub items: Box<[GeneItem]>,
 }
 /// One page of gene headers.
@@ -52,10 +55,11 @@ pub struct GeneCards {
 #[cfg_attr(feature = "schema", derive(schemars::JsonSchema))]
 pub struct GenePage {
     /// Headers after ranking and paging.
+    #[serde(default, skip_serializing_if = "<[_]>::is_empty")]
     pub items: Box<[GeneHeader]>,
 }
 impl ResponseBody for GeneCards {
-    const SCHEMA: &'static str = "biomcp.gene-cards/4";
+    const SCHEMA: &'static str = "biomcp.gene-cards/5";
     type Query = GeneGet;
 }
 impl ResponseBody for GenePage {
@@ -370,6 +374,9 @@ pub struct GeneSections {
     /// ClinGen validity and dosage assessments.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub clingen: Option<Section<ClinGenGene>>,
+    /// GenCC assessments, retained separately for each submitter.
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub gencc: Option<Section<GenccGene>>,
     /// Population constraint reported by gnomAD.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub constraint: Option<Section<Constraint>>,

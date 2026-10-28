@@ -9,6 +9,7 @@ mod normalization;
 use std::time::Duration;
 /// Service rights remain distinct from the software license.
 pub static SPEC: SourceSpec = SourceSpec {
+    destinations: biomcp_fetch::Destinations::Primary,
     user_agent: None,
     terms: biomcp_fetch::Terms {
         name: "Mutalyzer service output terms require review",
@@ -148,6 +149,7 @@ pub fn resolve(leg: &Leg<'_>, input: &str) -> Result<Resolution, RequestError> {
             id: notation,
             url: None,
         },
+        transcripts: Box::default(),
         myvariant: None,
         requested: None,
         sections: None,

@@ -3,27 +3,23 @@ mod records;
 use serde_json::{Value, json};
 use std::{ffi::OsString, io, sync::Arc};
 
-pub(super) fn tools() -> Vec<Value> {
+pub(super) fn tools() -> io::Result<Vec<Value>> {
     [
         (
             "search",
             "query",
             "Search BioMCP source headers. Prefix a CLI entity and its arguments, or supply article query text.",
-            "biomcp.research-search/1",
         ),
         (
             "fetch",
             "id",
             "Fetch a search result using its exact id. Returns the CLI record as Markdown with source metadata.",
-            "biomcp.research-fetch/1",
         ),
     ]
     .into_iter()
-    .map(|(name, key, description, schema)| {
-        let output: Value = crate::schema::find(schema)
-            .and_then(|s| serde_json::from_str(s).ok())
-            .unwrap_or(json!({"type":"object"}));
-        json!({"name":name,
+    .map(|(name, key, description)| {
+        let output = super::output_schema::for_tool(name)?;
+        Ok(json!({"name":name,
 "description":description,
 "inputSchema":{"type":"object",
 "properties":{key:{"type":"string"}},
@@ -31,7 +27,7 @@ pub(super) fn tools() -> Vec<Value> {
 "additionalProperties":false},
 "outputSchema":output,
 
-                "annotations":{"readOnlyHint":true,"destructiveHint":false,"openWorldHint":true}})
+                "annotations":{"readOnlyHint":true,"destructiveHint":false,"openWorldHint":true}}))
     })
     .collect()
 }

@@ -9,6 +9,7 @@ use serde::Serialize;
 use std::{collections::BTreeMap, time::Duration};
 /// Source policy for the gnomAD browser GraphQL endpoint.
 pub static SPEC: SourceSpec = SourceSpec {
+    destinations: biomcp_fetch::Destinations::Primary,
     user_agent: None,
     terms: biomcp_fetch::Terms {
         name: "CC0 1.0",

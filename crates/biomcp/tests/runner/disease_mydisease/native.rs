@@ -283,6 +283,7 @@ pub(super) fn retention() -> Result<(), String> {
         let row = json!({"requested_id":"MONDO:0005061","returned_id":if fail {"MONDO:9999999"} else {"MONDO:0005061"},"directory":"synthetic"});
         let result = prove_row(root.path(), &env, 0, &row);
         drop(env);
+        let requests = stub.finish()?;
         if temporary.exists() || result.is_err() != fail {
             return Err(format!("unexpected synthetic proof result: {result:?}"));
         }
@@ -294,7 +295,7 @@ pub(super) fn retention() -> Result<(), String> {
         {
             return Err(format!("failed before the intended comparison: {result:?}"));
         }
-        if stub.finish()?.len() != 1 {
+        if requests.len() != 1 {
             return Err("synthetic proof fetched more than once".into());
         }
         let output = root.path().join("product-proof");

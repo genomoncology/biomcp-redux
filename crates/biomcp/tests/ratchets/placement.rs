@@ -136,6 +136,10 @@ const ALLOWED: &[(&str, &str)] = &[
         "Reject invalid table spans and duplicate table IDs before allocation with a tiny decoder boundary table.",
     ),
     (
+        "crates/biomcp-fetch/src/cache/contention.rs",
+        "Order independent SQLite snapshots and writer admission at the private transaction boundary without product hooks.",
+    ),
+    (
         "crates/biomcp-fetch/src/destination_tests.rs",
         "Cover public DNS address and redirect rejection tables without contacting private destinations.",
     ),
@@ -174,6 +178,10 @@ const ALLOWED: &[(&str, &str)] = &[
     (
         "crates/biomcp-fetch/tests/bundle/download.rs",
         "Exercise transport ownership, local server behavior and cache/record failures through its public API.",
+    ),
+    (
+        "crates/biomcp-fetch/tests/bundle/native.rs",
+        "Exercise complete native TSV replacement sets and decoded bounds through the public transport API.",
     ),
     (
         "crates/biomcp-fetch/tests/bundle/rows.rs",

@@ -10,6 +10,7 @@ use serde::{Deserialize, Serialize};
 use std::time::Duration;
 /// NCI requires the user's own API key for every request, including health probes.
 pub static SPEC: SourceSpec = SourceSpec {
+    destinations: biomcp_fetch::Destinations::Primary,
     user_agent: None,
     source: biomcp_types::Source::Nci,
     base: "https://clinicaltrialsapi.cancer.gov/api/v2",

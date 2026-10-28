@@ -22,7 +22,6 @@
       "x-positional": 0
     },
     "replace": {
-      "default": false,
       "description": "Replace an existing file only when explicitly requested.",
       "type": "boolean"
     },

@@ -99,7 +99,7 @@ fn native_cards_keep_empty_values_independent_sources_and_count_scopes() {
     use biodata::{PhenotypeCard, PhenotypeSynonym};
     let hpo = json!(
         {"source":"hpo","requested_id":"HP:0001250","returned_id":"HP:0001250","label":"Seizure","definition":"","comment":"",
-        "publication_references":[],"hpo_descendant_count":346,"attribution":{"source":"hpo"}}
+        "hpo_descendant_count":346,"attribution":{"source":"hpo"}}
     );
     let card: PhenotypeCard = serde_json::from_value(hpo.clone()).unwrap();
     assert_eq!(serde_json::to_value(card).unwrap(), hpo);
@@ -157,7 +157,7 @@ fn associations_reuse_native_endpoints_and_never_deserialize_as_statements() {
     let row = json!(
         {"requested_id":"HP:0001250","subject":{"id":"HGNC:29529","label":"synthetic gene"},"subject_taxon":"NCBITaxon:9606",
         "object":{"id":"HP:0001250","label":"synthetic term"},"predicate":"biolink:has_phenotype","attribution":{"source":"synthetic"},
-        "evidence":[],"qualifiers":[],"subject_closure":[],"object_closure":[]}
+        }
     );
     let association: DiseaseAssociation = serde_json::from_value(row.clone()).unwrap();
     assert_eq!(serde_json::to_value(association).unwrap(), row);
@@ -229,7 +229,7 @@ fn seven_public_envelopes_keep_source_cards_and_native_section_rows() {
         get.clone(),
         json!(
             {"term":{"source":"hpo","requested_id":"HP:0001250","returned_id":"HP:0001250","label":"Seizure","definition":"",
-            "publication_references":[],"attribution":{"source":"synthetic"}},"sections":["synonyms","xrefs"],"components":[]}
+            "attribution":{"source":"synthetic"}},"sections":["synonyms","xrefs"],"components":[]}
         ),
     )
     .unwrap();

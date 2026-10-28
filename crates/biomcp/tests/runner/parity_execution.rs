@@ -101,6 +101,7 @@ pub(super) fn candidate(
         |_| Err("candidate attempted a provider connection".into()),
     )?;
     let env = Environment::new().map_err(|e| e.to_string())?;
+    guard.retain(&env);
     let mut config = case.config.clone().unwrap_or(json!({}));
     field(
         &mut config,

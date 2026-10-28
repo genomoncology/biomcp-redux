@@ -6,6 +6,7 @@ use serde::Serialize;
 #[cfg_attr(feature = "schema", derive(schemars::JsonSchema))]
 pub struct SchemaCatalog {
     /// Every artifact in canonical identity order.
+    #[serde(default, skip_serializing_if = "Vec::is_empty")]
     pub schemas: Vec<SchemaEntry>,
 }
 impl super::ResponseBody for SchemaCatalog {

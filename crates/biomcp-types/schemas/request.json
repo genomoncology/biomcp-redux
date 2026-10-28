@@ -395,6 +395,7 @@
         "protein",
         "civic",
         "clingen",
+        "gencc",
         "constraint",
         "expression",
         "pathways",
@@ -406,6 +407,7 @@
         " Reviewed human proteins.",
         " CIViC gene curation.",
         " ClinGen validity and dosage.",
+        " GenCC submitter assessments.",
         " Population constraint metrics.",
         " Human Protein Atlas expression.",
         " Human Reactome pathways.",
@@ -472,11 +474,6 @@
     "GwasTraitId": {
       "description": "Native ontology identifier; namespaces are preserved without an EFO restriction.",
       "pattern": "^[A-Za-z0-9]+[_:][A-Za-z0-9_-]+$",
-      "type": "string"
-    },
-    "HgvsText": {
-      "description": "Reference-qualified notation with its original text, without a molecular parse.",
-      "pattern": "^((N[CGMPRTW]|X[MPR])_([0-9]{6}|[0-9]{9})\\.[0-9]+|ENS[GTP][0-9]{11}\\.[0-9]+|LRG_[0-9]+([tp][0-9]+)?)(\\(([A-Za-z][A-Za-z0-9._/@-]*|[A-Za-z0-9_.]+)\\))?:[gcnrpmo]\\.[\\x20-\\x7e]+$",
       "type": "string"
     },
     "HpId": {
@@ -915,7 +912,7 @@
       ]
     }
   },
-  "$id": "biodata.request/26",
+  "$id": "biodata.request/27",
   "$schema": "https://json-schema.org/draft/2020-12/schema",
   "description": "One checked query. Housekeeping actions are separate.",
   "oneOf": [
@@ -1776,7 +1773,6 @@
           "type": "string"
         },
         "fresh": {
-          "default": false,
           "description": "Request a new retained observation.",
           "type": "boolean"
         },
@@ -1822,7 +1818,6 @@
           "x-comma-separated": true
         },
         "top_level": {
-          "default": false,
           "description": "Native human Reactome top-level discovery, exclusive with text and gene.",
           "type": "boolean"
         }
@@ -1841,7 +1836,6 @@
           "type": "string"
         },
         "fresh": {
-          "default": false,
           "description": "Request a new source observation.",
           "type": "boolean"
         },
@@ -3074,7 +3068,6 @@
           "type": "string"
         },
         "detail": {
-          "default": false,
           "description": "Read source ancestry groups, preserving overlapping groups individually.",
           "type": "boolean"
         },
@@ -3190,8 +3183,9 @@
           "type": "string"
         },
         "hgvs": {
-          "$ref": "#/$defs/HgvsText",
-          "description": "Unchanged reference-qualified HGVS; no local molecular parse."
+          "description": "Reference-qualified HGVS, or chromosome genomic HGVS with an explicit build for CAR.",
+          "pattern": "(^((N[CGMPRTW]|X[MPR])_([0-9]{6}|[0-9]{9})\\.[0-9]+|ENS[GTP][0-9]{11}\\.[0-9]+|LRG_[0-9]+([tp][0-9]+)?)(\\(([A-Za-z][A-Za-z0-9._/@-]*|[A-Za-z0-9_.]+)\\))?:[gcnrpmo]\\.[\\x20-\\x7e]+$|^chr([1-9][0-9]*|X|Y|M|MT):g\\.[\\x21-\\x7e]+$)",
+          "type": "string"
         },
         "limit": {
           "default": 10,
@@ -3441,7 +3435,6 @@
           "x-positional": 0
         },
         "replace": {
-          "default": false,
           "description": "Replace an existing file only when explicitly requested.",
           "type": "boolean"
         },
@@ -3537,7 +3530,6 @@
           "description": "Exact MONDO or DOID CURIE resolved by MyDisease; NCI also accepts explicit NCIT:C codes."
         },
         "count_only": {
-          "default": false,
           "description": "Source total only; no returned study rows.",
           "type": "boolean"
         },
@@ -3549,6 +3541,10 @@
           "$ref": "#/$defs/Text",
           "description": "Source distance with explicit mi or km units."
         },
+        "exact_condition": {
+          "description": "Ask ClinicalTrials.gov to restrict matching to the registered condition phrase; its support is partial.",
+          "type": "boolean"
+        },
         "facility": {
           "$ref": "#/$defs/Text",
           "description": "Exact registry facility field; cannot combine with radius."
@@ -3558,7 +3554,6 @@
           "description": "Resolve one checked gene for registry text discovery only; no eligibility judgment."
         },
         "has_results": {
-          "default": false,
           "description": "Require posted source results.",
           "type": "boolean"
         },
@@ -3659,7 +3654,6 @@
           "x-positional": 0
         },
         "replace": {
-          "default": false,
           "description": "Replace an existing file only when explicitly requested.",
           "type": "boolean"
         },
@@ -3694,7 +3688,6 @@
           "type": "string"
         },
         "fulltext": {
-          "default": false,
           "description": "Include the citing paper's own explicit reference paragraphs.",
           "type": "boolean"
         },
@@ -3741,7 +3734,6 @@
           "type": "integer"
         },
         "negative": {
-          "default": [],
           "description": "Up to ten negative paper identities.",
           "items": {
             "$ref": "#/$defs/ArticleInput"

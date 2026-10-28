@@ -23,6 +23,7 @@ pub(super) fn prove() -> Result<(), Box<dyn std::error::Error>> {
         |_| "application/json",
         |_| Ok(r#"{"answer":true}"#.into()),
     )?;
+    stub.retain(&environment);
     let path = environment.root().join("input-context.jsonl");
     let fetch = Fetch::open(FetchConfig {
         observations: Some(Arc::new(biomcp_fetch::Observations::create(&path)?)),

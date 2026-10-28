@@ -3,7 +3,7 @@ use super::{
     store::{self, Meta, Part},
 };
 use crate::{
-    CacheError, Deadline, Leg, Mode, RecordError, RequestError,
+    CacheError, Deadline, Leg, Mode, RequestError,
     declaration::Method,
     prepared::Prepared,
     record::{Body, Exchange},
@@ -123,40 +123,9 @@ impl Leg<'_> {
                 .map(|m| store::info(b, m))
                 .ok_or(CacheError::Database.into());
         }
-        let _permit = self
-            .fetch
-            .limiters
-            .acquire(self.spec.quota, self.keyed(), self.budget())
-            .ok_or_else(|| self.failure(Reason::Syncing, None))?;
         let url = format!("{}{}", self.spec.base.trim_end_matches('/'), b.path);
         let key = crate::retry::identity(&url);
-        let exchange = self
-            .fetch
-            .recordings
-            .replay_bundle(self.spec.source, &key, &url)
-            .map_err(RequestError::Recording)?
-            .ok_or(RequestError::Recording(RecordError::Missing))?;
-        if !self
-            .budget()
-            .advance(Duration::from_millis(exchange.delay_ms))
-        {
-            return Err(self.failure(Reason::DeadlineExceeded, None).into());
-        }
-        self.observe_bundle(
-            (&key, &url),
-            Some(exchange.status),
-            exchange.body.bytes(),
-            b.format,
-            Duration::from_millis(exchange.delay_ms),
-        );
-        if exchange.status != 200 {
-            return Err(self
-                .failure(
-                    crate::retry::status_reason(exchange.status),
-                    Some(exchange.status),
-                )
-                .into());
-        }
+        let exchange = super::replay::exchange(self, b, &key, &url)?;
         if exchange.body.bytes().len() as u64 > R::MAX_BYTES {
             return Err(self.failure(Reason::BadReply, Some(200)).into());
         }

@@ -92,6 +92,7 @@ impl Leg<'_> {
             .check_request(body)
             .map_err(|_| InputError::BodyLimit)?;
         let (uri, path) = checked(self.spec.base, endpoint.path, limits.metadata_bytes)?;
+        self.spec.admit(self.spec.base, false)?;
         let key = self.rpc_key()?;
         let proxy = self
             .fetch

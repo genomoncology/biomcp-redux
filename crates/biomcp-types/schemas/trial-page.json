@@ -121,7 +121,6 @@
         }
       },
       "required": [
-        "items",
         "total"
       ],
       "type": "object"
@@ -403,11 +402,6 @@
         "symbol",
         "status",
         "locus_group",
-        "previous_symbols",
-        "aliases",
-        "uniprot",
-        "omim",
-        "spans",
         "name"
       ],
       "type": "object"
@@ -517,8 +511,7 @@
             }
           },
           "required": [
-            "resolution",
-            "candidates"
+            "resolution"
           ],
           "type": "object"
         },
@@ -554,8 +547,7 @@
             "resolution",
             "hgnc_id",
             "symbol",
-            "hgnc_status",
-            "merged_into"
+            "hgnc_status"
           ],
           "type": "object"
         },
@@ -1033,6 +1025,7 @@
         "erepo",
         "gwas",
         "clingen",
+        "gencc",
         "pubmed",
         "europepmc",
         "litvar",
@@ -1106,6 +1099,7 @@
         " ClinGen Evidence Repository.",
         " GWAS Catalog v2.",
         " ClinGen.",
+        " GenCC submitter assessments.",
         " PubMed.",
         " Europe PMC.",
         " NCBI LitVar2.",
@@ -1168,6 +1162,25 @@
     "SourceNotice": {
       "description": "A provider query interpretation notice.",
       "oneOf": [
+        {
+          "additionalProperties": false,
+          "description": "Registered conditions lack the literal words requested in a condition search.",
+          "properties": {
+            "kind": {
+              "const": "condition_word_mismatch",
+              "type": "string"
+            },
+            "message": {
+              "description": "The source searches several fields and can expand terms; no expansion cause is inferred.",
+              "type": "string"
+            }
+          },
+          "required": [
+            "kind",
+            "message"
+          ],
+          "type": "object"
+        },
         {
           "additionalProperties": false,
           "description": "A checked provider answer survived a local cache failure.",
@@ -1247,8 +1260,7 @@
           },
           "required": [
             "kind",
-            "name",
-            "phrases"
+            "name"
           ],
           "type": "object"
         },
@@ -1269,8 +1281,7 @@
             }
           },
           "required": [
-            "kind",
-            "words"
+            "kind"
           ],
           "type": "object"
         }
@@ -1369,6 +1380,33 @@
       ],
       "type": "string"
     },
+    "SourceTimestamp": {
+      "additionalProperties": false,
+      "description": "Native source timestamp and the availability of its timezone.",
+      "properties": {
+        "timezone": {
+          "$ref": "#/$defs/SourceTimestampTimezone",
+          "description": "Whether the native timestamp includes a timezone."
+        },
+        "value": {
+          "$ref": "#/$defs/Text",
+          "description": "Exact source-supplied timestamp."
+        }
+      },
+      "required": [
+        "value",
+        "timezone"
+      ],
+      "type": "object"
+    },
+    "SourceTimestampTimezone": {
+      "description": "Availability of timezone information in a native timestamp.",
+      "enum": [
+        "in_value",
+        "source_gave_none"
+      ],
+      "type": "string"
+    },
     "Span0": {
       "additionalProperties": false,
       "description": "A zero-based half-open span with ordered bounds; empty spans are valid.",
@@ -1429,8 +1467,7 @@
         }
       },
       "required": [
-        "kind",
-        "args"
+        "kind"
       ],
       "type": "object"
     },
@@ -1644,7 +1681,6 @@
         "nct_id",
         "title",
         "status",
-        "phases",
         "conditions",
         "interventions",
         "updated",
@@ -1654,7 +1690,7 @@
     },
     "TrialPage": {
       "additionalProperties": false,
-      "description": "Registry page preserving source order and exact request parameters.",
+      "description": "Registry page preserving source order and source processing time.",
       "properties": {
         "attribution": {
           "description": "Publisher attribution.",
@@ -1670,16 +1706,6 @@
             }
           ],
           "description": "Exact condition identity and source-provided mapping, absent for literal text."
-        },
-        "count_request": {
-          "description": "Exact cached native count request when a continuation omits its total.",
-          "items": {
-            "$ref": "#/$defs/TrialParameter"
-          },
-          "type": [
-            "array",
-            "null"
-          ]
         },
         "gene_resolution": {
           "anyOf": [
@@ -1699,17 +1725,10 @@
           },
           "type": "array"
         },
-        "request": {
-          "description": "Exact parameters sent to the study search endpoint.",
-          "items": {
-            "$ref": "#/$defs/TrialParameter"
-          },
-          "type": "array"
-        },
         "source_updated": {
           "anyOf": [
             {
-              "$ref": "#/$defs/Text"
+              "$ref": "#/$defs/SourceTimestamp"
             },
             {
               "type": "null"
@@ -1719,28 +1738,7 @@
         }
       },
       "required": [
-        "items",
-        "request",
         "attribution"
-      ],
-      "type": "object"
-    },
-    "TrialParameter": {
-      "additionalProperties": false,
-      "description": "One exact source request parameter, in canonical name order.",
-      "properties": {
-        "name": {
-          "description": "Native parameter name.",
-          "type": "string"
-        },
-        "value": {
-          "description": "Exact unencoded parameter value.",
-          "type": "string"
-        }
-      },
-      "required": [
-        "name",
-        "value"
       ],
       "type": "object"
     },
@@ -1775,7 +1773,6 @@
           "description": "Exact MONDO or DOID CURIE resolved by MyDisease; NCI also accepts explicit NCIT:C codes."
         },
         "count_only": {
-          "default": false,
           "description": "Source total only; no returned study rows.",
           "type": "boolean"
         },
@@ -1787,6 +1784,10 @@
           "$ref": "#/$defs/Text",
           "description": "Source distance with explicit mi or km units."
         },
+        "exact_condition": {
+          "description": "Ask ClinicalTrials.gov to restrict matching to the registered condition phrase; its support is partial.",
+          "type": "boolean"
+        },
         "facility": {
           "$ref": "#/$defs/Text",
           "description": "Exact registry facility field; cannot combine with radius."
@@ -1796,7 +1797,6 @@
           "description": "Resolve one checked gene for registry text discovery only; no eligibility judgment."
         },
         "has_results": {
-          "default": false,
           "description": "Require posted source results.",
           "type": "boolean"
         },
@@ -1932,7 +1932,7 @@
       "type": "string"
     }
   },
-  "$id": "biomcp.trial-page/5",
+  "$id": "biomcp.trial-page/6",
   "$schema": "https://json-schema.org/draft/2020-12/schema",
   "additionalProperties": false,
   "description": "One versioned command response; schema identity comes only from its body type.",
@@ -1989,7 +1989,7 @@
       "description": "Answer when available."
     },
     "schema": {
-      "const": "biomcp.trial-page/5",
+      "const": "biomcp.trial-page/6",
       "type": "string"
     },
     "sources": {

@@ -105,10 +105,7 @@ fn source_probe(
     let result = registry::probe(spec, leg);
     let elapsed = start.saturating_sub(leg.remaining()).as_millis() as u64;
     match result {
-        Ok(registry::ProbeOutcome::Unavailable) => {
-            Ok((SourceState::Skipped, Some(Reason::Unavailable), None))
-        }
-        Ok(registry::ProbeOutcome::Reachable) => Ok((SourceState::Ok, None, Some(elapsed))),
+        Ok(()) => Ok((SourceState::Ok, None, Some(elapsed))),
         Err(error) => {
             if crate::status::local(error).is_some() {
                 return Err(error);

@@ -44,6 +44,7 @@ pub const SOURCES: &[&SourceSpec] = &[
     &crate::clinvar::SPEC,
     &crate::erepo::SPEC,
     &crate::clingen::SPEC,
+    &crate::gencc::SPEC,
     &crate::hpa::SPEC,
     &crate::pubmed::SPEC,
     &crate::europepmc::SPEC,
@@ -72,6 +73,15 @@ pub const SOURCES: &[&SourceSpec] = &[
     &crate::maude::SPEC,
     &crate::vaers::SPEC,
 ];
+/// Additional request declarations share a source identity with its primary API.
+pub const AUXILIARY: &[&SourceSpec] = &[
+    &crate::semantic_scholar::recommend::RECOMMEND_SPEC,
+    &crate::semantic_scholar::pdf::PUBLISHER,
+];
+/// Enumerate every request declaration, including auxiliary APIs and publisher policy.
+pub fn requests() -> impl Iterator<Item = &'static SourceSpec> {
+    SOURCES.iter().chain(AUXILIARY).copied()
+}
 /// Independently labeled fields from every implemented aggregator.
 pub fn components() -> impl Iterator<Item = &'static Component> {
     crate::myvariant::components::all()
@@ -114,29 +124,21 @@ pub fn disabled(names: &[String]) -> Result<BTreeSet<Source>, biodata::Error> {
     Ok(disabled)
 }
 
-/// Whether the publisher was reached or has no admitted small health probe.
-#[derive(Clone, Copy, Debug, Eq, PartialEq)]
-pub enum ProbeOutcome {
-    /// One bounded publisher request succeeded.
-    Reachable,
-    /// No safe small publisher probe is available for this release.
-    Unavailable,
-}
-/// One bounded source probe. Unavailable capability is distinct from a failed publisher.
+/// One bounded source probe through the checked transport.
 pub fn probe(
     spec: &'static SourceSpec,
     leg: &biomcp_fetch::Leg<'_>,
-) -> Result<ProbeOutcome, biomcp_fetch::RequestError> {
-    if spec.source == Source::Hgnc {
-        return Ok(ProbeOutcome::Unavailable);
-    }
-    request_probe(spec, leg).map(|()| ProbeOutcome::Reachable)
+) -> Result<(), biomcp_fetch::RequestError> {
+    request_probe(spec, leg)
 }
 /// One bounded read-only endpoint, never a data synchronization.
 fn request_probe(
     spec: &'static SourceSpec,
     leg: &biomcp_fetch::Leg<'_>,
 ) -> Result<(), biomcp_fetch::RequestError> {
+    if spec.source == Source::Hgnc {
+        return crate::hgnc::probe(leg);
+    }
     if spec.source == Source::Faers {
         crate::adverse_event_sources::components::meddra(leg)?;
     }
@@ -247,6 +249,7 @@ fn get_probe(source: Source) -> Option<(&'static str, ProbeParams)> {
         Source::WikiPathways => ("/help.html", vec![]),
         Source::Hpa => ("/ENSG00000157764.json", vec![]),
         Source::ClinGen => (crate::clingen::HEALTH_PATH, vec![]),
+        Source::Gencc => (crate::gencc::HEALTH_PATH, vec![]),
         _ => return disease_probe(source),
     })
 }
@@ -377,6 +380,7 @@ pub fn bundle_state(
         Source::WikiPathways => crate::wikipathways::bundle_state(leg)?,
         Source::Hgnc => crate::hgnc::bundle_state(leg)?,
         Source::ClinGen => crate::clingen::bundle_state(leg)?,
+        Source::Gencc => crate::gencc::bundle_state(leg)?,
         Source::Gtr => crate::gtr::bundle_state(leg)?,
         Source::WhoIvd => crate::who_ivd::bundle_state(leg)?,
         Source::WhoPq => crate::who_pq::bundle_state(leg)?,

@@ -10,6 +10,7 @@ pub(super) fn run() -> Check {
         |_| Ok("{}".into()),
     )?;
     let cert = env.root().join("private-ca.pem");
+    stub.retain(&env);
     std::fs::write(&cert, &stub.certificate).map_err(|e| e.to_string())?;
     let disabled = registry::SOURCES
         .iter()

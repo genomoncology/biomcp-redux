@@ -7,8 +7,8 @@ pub(super) fn run() -> Result<(), String> {
     for (ids, links, expected) in [
         (None, None, None),
         (Some(json!(null)), Some(json!(null)), None),
-        (Some(json!([])), None, Some(json!([]))),
-        (None, Some(json!([])), Some(json!([]))),
+        (Some(json!([])), None, None),
+        (None, Some(json!([])), None),
         (
             Some(json!(["ECO:0000501"])),
             None,

@@ -33,7 +33,7 @@
           ]
         }
       },
-      "max_bytes": 1463
+      "max_bytes": 2464
     },
     {
       "run": [
@@ -74,9 +74,9 @@
             "all"
           ]
         },
-        "/result/commands/0/section_rule": "Select native sections or all bounded first pages; function keeps one whole text record."
+        "/result/commands/0/section_rule": "Select source sections or all bounded first pages; function keeps one whole text record."
       },
-      "max_bytes": 2206
+      "max_bytes": 3208
     },
     {
       "run": [
@@ -109,7 +109,7 @@
           ]
         }
       },
-      "max_bytes": 1474
+      "max_bytes": 2464
     },
     {
       "run": [
@@ -141,7 +141,7 @@
           ]
         }
       },
-      "max_bytes": 1259
+      "max_bytes": 2248
     },
     {
       "run": [
@@ -172,7 +172,7 @@
           ]
         }
       },
-      "max_bytes": 1149
+      "max_bytes": 2139
     },
     {
       "run": [
@@ -203,7 +203,7 @@
           ]
         }
       },
-      "max_bytes": 1154
+      "max_bytes": 2145
     },
     {
       "run": [
@@ -235,7 +235,7 @@
           ]
         }
       },
-      "max_bytes": 1374
+      "max_bytes": 2372
     },
     {
       "run": [
@@ -266,7 +266,7 @@
           ]
         }
       },
-      "max_bytes": 1159
+      "max_bytes": 2151
     },
     {
       "run": [
@@ -294,7 +294,8 @@
           ]
         }
       },
-      "max_bytes": 682
+      "max_bytes": 1640
     }
-  ]
+  ],
+  "verified": "Help byte limits use j18463 output plus fifteen percent for defaults, aliases, inherited options and examples; higher existing limits remain."
 }

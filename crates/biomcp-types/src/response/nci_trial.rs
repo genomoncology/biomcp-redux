@@ -37,12 +37,15 @@ pub struct NciDisease {
     pub is_lead_disease: Option<bool>,
     /// Original concept categories.
     #[serde(rename = "type", default)]
+    #[serde(skip_serializing_if = "<[_]>::is_empty")]
     pub kind: Box<[Text]>,
     /// Original immediate ancestors.
     #[serde(default)]
+    #[serde(skip_serializing_if = "<[_]>::is_empty")]
     pub parents: Box<[Text]>,
     /// Original alternative labels.
     #[serde(default)]
+    #[serde(skip_serializing_if = "<[_]>::is_empty")]
     pub synonyms: Box<[Text]>,
 }
 /// NCI search page in native order with native count.
@@ -51,8 +54,10 @@ pub struct NciDisease {
 #[cfg_attr(feature = "schema", derive(schemars::JsonSchema))]
 pub struct NciTrialPage {
     /// Source rows, never merged with another provider.
+    #[serde(default, skip_serializing_if = "<[_]>::is_empty")]
     pub items: Box<[NciTrial]>,
     /// Exact source parameters, excluding credentials.
+    #[serde(default, skip_serializing_if = "<[_]>::is_empty")]
     pub request: Box<[crate::TrialParameter]>,
     /// Exact condition identity and source-provided mapping, absent for literal text.
     #[serde(default, skip_serializing_if = "Option::is_none")]
@@ -70,6 +75,7 @@ impl super::ResponseBody for NciTrialPage {
 #[cfg_attr(feature = "schema", derive(schemars::JsonSchema))]
 pub struct NciTrialCards {
     /// One independent answer per requested identity.
+    #[serde(default, skip_serializing_if = "<[_]>::is_empty")]
     pub items: Box<[NciTrialItem]>,
     /// Publisher attribution.
     pub attribution: Box<str>,

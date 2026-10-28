@@ -21,6 +21,7 @@ impl Identity {
         limits: Limits,
     ) -> Result<Self, RequestError> {
         let (uri, path) = rpc::checked(endpoint.spec.base, endpoint.path, limits.metadata_bytes)?;
+        endpoint.spec.admit(endpoint.spec.base, false)?;
         let authority = uri.authority().ok_or(crate::InputError::Path)?.as_str();
         if endpoint.schema.len() > limits.metadata_bytes
             || !endpoint.schema.bytes().all(|b| b.is_ascii_graphic())
@@ -153,7 +154,7 @@ impl Leg<'_> {
                 self.spec.source,
                 &identity.key,
                 &identity.url,
-                Some(&identity.post),
+                Some(&identity.post).into(),
                 limits.wire_bytes as u64,
             )?
             .ok_or(RecordError::Missing)?;

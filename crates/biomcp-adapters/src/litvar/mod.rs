@@ -10,6 +10,7 @@ use serde::Deserialize;
 use std::time::Duration;
 /// Public NCBI LitVar2 policy, independent of E-utilities credentials.
 pub static SPEC: SourceSpec = SourceSpec {
+    destinations: biomcp_fetch::Destinations::Primary,
     user_agent: None,
     terms: biomcp_fetch::Terms {
         name: "NCBI public-domain metadata policy",
@@ -29,12 +30,12 @@ const PUBLICATIONS: Endpoint = SPEC.get("/variant/get").fresh(Freshness::Days(1)
 #[derive(Debug)]
 pub struct Variant {
     id: String,
-    rsid: Text,
+    term: Text,
 }
 impl Variant {
-    /// Selected rsID retained even when the publications request fails.
-    pub fn rsid(&self) -> &Text {
-        &self.rsid
+    /// Source rsID, or its variant name when it has no rsID.
+    pub fn term(&self) -> &Text {
+        &self.term
     }
 }
 /// Result of exact autocomplete selection, before any publication search.
@@ -48,8 +49,8 @@ pub enum Selection {
 /// One selected variant's whole source count and bounded native sequence.
 #[derive(Debug)]
 pub struct Search {
-    /// Selected exact rsID.
-    pub rsid: Text,
+    /// Selected source rsID or variant name.
+    pub term: Text,
     /// Whole source publication count.
     pub count: u64,
     /// Native publication sequence capped at the pool limit.
@@ -70,7 +71,9 @@ pub fn select(leg: &Leg<'_>, gene: Option<&str>, variant: &str) -> Result<Select
     let candidates = leg.json::<Candidates>(&AUTOCOMPLETE, &[("query", Arg::Text(&term))])?;
     let mut matching = candidates.0.iter().filter(|row| {
         if rsid {
-            row.rsid.as_str().eq_ignore_ascii_case(variant)
+            row.rsid
+                .as_ref()
+                .is_some_and(|rsid| rsid.as_str().eq_ignore_ascii_case(variant))
         } else {
             gene.is_some_and(|gene| {
                 row.gene
@@ -94,7 +97,7 @@ pub fn select(leg: &Leg<'_>, gene: Option<&str>, variant: &str) -> Result<Select
     };
     Ok(Selection::Exact(Variant {
         id: selected.id.clone(),
-        rsid: selected.rsid.clone(),
+        term: selected.rsid.as_ref().unwrap_or(&selected.name).clone(),
     }))
 }
 /// Fetch publications only after exact source identity selection.
@@ -105,7 +108,7 @@ pub fn publications(leg: &Leg<'_>, selected: Variant) -> Result<Search, RequestE
         .collect::<Result<Vec<_>, _>>()?;
     let reply = leg.json::<Publications>(&PUBLICATIONS.clone().with_segments(&segments), &[])?;
     Ok(Search {
-        rsid: selected.rsid.clone(),
+        term: selected.term,
         count: reply.pmids_count,
         ids: reply
             .pmids
@@ -121,7 +124,7 @@ struct Candidates(Vec<Candidate>);
 struct Candidate {
     #[serde(rename = "_id", alias = "id")]
     id: String,
-    rsid: Text,
+    rsid: Option<Text>,
     gene: Vec<Text>,
     name: Text,
     pmids_count: u64,
@@ -139,10 +142,10 @@ impl Candidate {
 impl Reply for Candidates {
     fn check(&self) -> Result<(), BadReply> {
         if self.0.len() > 10_000
-            || self
-                .0
-                .iter()
-                .any(|c| PathSegment::new(&c.id).is_err() || !is_rsid(c.rsid.as_str()))
+            || self.0.iter().any(|c| {
+                PathSegment::new(&c.id).is_err()
+                    || c.rsid.as_ref().is_some_and(|rsid| !is_rsid(rsid.as_str()))
+            })
         {
             return Err(BadReply);
         }

@@ -183,6 +183,9 @@ fn expected_records(raw: &Value, section: &str) -> Vec<Value> {
             ));
         }
     }
+    for row in &mut rows {
+        super::assertions::omit_empty_lists(row);
+    }
     rows
 }
 fn failures() -> Check {
@@ -390,7 +393,7 @@ fn optional_source() -> Check {
             }
         },
         json!([{"run":["get","trial","NCT02296125","all"],"expect":{
-            "/status":"complete","/result/items/0/card/phases":[],"/result/items/0/card/conditions":[],"/result/items/0/card/interventions":[],
+            "/status":"complete",
             "/result/items/0/card/start":null,"/result/items/0/card/brief_summary":null,"/result/items/0/card/sponsor":null,
             "/result/items/0/sections/eligibility/state":"empty","/result/items/0/sections/outcomes/state":"empty","/result/items/0/sections/arms/state":"empty"
         }}]),
@@ -409,7 +412,7 @@ fn optional_source() -> Check {
         },
         json!(
             [{"run":["get","trial","NCT02296125"],"expect":{ "/status":"partial","/result/items/0/status":"partial",
-            "/result/items/0/card/nct_id":"NCT02296125","/result/source_updated":null,"/sources/0/reason":"unavailable" }}]
+            "/result/items/0/card/nct_id":"NCT02296125","/sources/0/reason":"unavailable" }}]
         ),
     )?;
     Ok(())

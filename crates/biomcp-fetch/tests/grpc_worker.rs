@@ -10,6 +10,7 @@ static QUOTA: Quota = Quota::new(
     1,
 );
 static SOURCE: SourceSpec = SourceSpec {
+    destinations: biomcp_fetch::Destinations::Primary,
     user_agent: None,
     source: Source::MyGene,
     terms: Terms {

@@ -98,6 +98,19 @@ struct Intervention {
     name: Text,
 }
 impl Protocol {
+    pub(super) fn contains_condition_words(&self, condition: &str) -> bool {
+        let requested = words(condition);
+        let present: Vec<String> = self
+            .conditions_module
+            .as_ref()
+            .and_then(|module| module.conditions.as_deref())
+            .unwrap_or_default()
+            .iter()
+            .flat_map(|value| words(value.as_str()))
+            .collect();
+        requested.iter().all(|word| present.contains(word))
+    }
+
     pub(super) fn header(self) -> Result<TrialHeader, BadReply> {
         Ok(TrialHeader {
             nct_id: self.identification_module.nct_id,
@@ -134,4 +147,12 @@ fn names(mut values: Vec<Text>) -> biomcp_types::Capped<Text> {
         items: values.into(),
         total,
     }
+}
+
+fn words(value: &str) -> Vec<String> {
+    value
+        .split(|c: char| !c.is_alphanumeric())
+        .filter(|word| !word.is_empty())
+        .map(str::to_lowercase)
+        .collect()
 }

@@ -247,9 +247,9 @@
         "sync",
         "fda-cdx"
       ],
-      "max_bytes": 487,
+      "max_bytes": 1391,
       "expect": {
-        "/schema": "biomcp.help/2",
+        "/schema": "biomcp.help/3",
         "/result/commands/0/command": [
           "sync",
           "fda-cdx"
@@ -267,9 +267,9 @@
         "search",
         "diagnostic"
       ],
-      "max_bytes": 2654,
+      "max_bytes": 3792,
       "expect": {
-        "/schema": "biomcp.help/2",
+        "/schema": "biomcp.help/3",
         "/result/commands/0/command": [
           "search",
           "diagnostic"
@@ -293,5 +293,6 @@
         "/result/rows": 9
       }
     }
-  ]
+  ],
+  "verified": "Help byte limits use j18463 output plus fifteen percent for defaults, aliases, inherited options and examples; higher existing limits remain."
 }

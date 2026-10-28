@@ -1,4 +1,5 @@
 //! Publisher URLs and DNS answers checked at the connection boundary.
+use crate::request::Failure;
 use std::net::{IpAddr, Ipv4Addr, Ipv6Addr};
 use ureq::unversioned::{
     resolver::{DefaultResolver, ResolvedSocketAddrs, Resolver},
@@ -100,21 +101,27 @@ impl crate::Leg<'_> {
         &self,
         initial: &str,
         accept: &str,
-    ) -> Result<ureq::http::Response<ureq::Body>, ureq::Error> {
-        let mut url = checked(initial).map_err(|_| rejected())?;
+    ) -> Result<ureq::http::Response<ureq::Body>, Failure> {
+        let transport = Failure::Transport;
+        let mut url = checked(initial).map_err(|_| transport(rejected()))?;
         for redirects in 0..=3 {
-            let uri = url.parse::<ureq::http::Uri>().map_err(|_| rejected())?;
+            self.spec
+                .admit(&url, true)
+                .map_err(|error| Failure::Local(error.into()))?;
+            let uri = url
+                .parse::<ureq::http::Uri>()
+                .map_err(|_| transport(rejected()))?;
             if self
                 .fetch
                 .config
                 .network
                 .requires_proxy(self.fetch.config.proxy.is_some(), &uri)
             {
-                return Err(ureq::Error::ConnectProxyFailed(String::new()));
+                return Err(transport(ureq::Error::ConnectProxyFailed(String::new())));
             }
             let remaining = self.budget().remaining();
             if remaining.is_zero() {
-                return Err(ureq::Error::Timeout(ureq::Timeout::Global));
+                return Err(transport(ureq::Error::Timeout(ureq::Timeout::Global)));
             }
             let response = self
                 .fetch
@@ -125,21 +132,22 @@ impl crate::Leg<'_> {
                 .config()
                 .timeout_global(Some(remaining))
                 .build()
-                .call()?;
+                .call()
+                .map_err(transport)?;
             if !matches!(response.status().as_u16(), 301 | 302 | 303 | 307 | 308) {
                 return Ok(response);
             }
             if redirects == 3 {
-                return Err(rejected());
+                return Err(transport(rejected()));
             }
             let location = response
                 .headers()
                 .get("location")
                 .and_then(|value| value.to_str().ok())
-                .ok_or_else(rejected)?;
-            url = redirect(&url, location)?;
+                .ok_or_else(|| transport(rejected()))?;
+            url = redirect(&url, location).map_err(transport)?;
         }
-        Err(rejected())
+        Err(transport(rejected()))
     }
 }
 fn rejected() -> ureq::Error {

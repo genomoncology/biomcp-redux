@@ -11,6 +11,7 @@ pub struct DrugFdaProduct {
     /// Source brand wording, without inferred ingredient equivalence.
     pub brand_name: Text,
     /// Complete source-listed ingredient and strength pairs.
+    #[serde(default, skip_serializing_if = "<[_]>::is_empty")]
     pub active_ingredients: Box<[DrugFdaIngredient]>,
     /// Native dosage form.
     pub dosage_form: Text,
@@ -59,10 +60,10 @@ pub struct DrugFdaSubmission {
     #[serde(default, skip_serializing_if = "Option::is_none")]
     pub submission_class_code_description: Option<Text>,
     /// Native property collection; missing stays missing and an empty list stays empty.
-    #[serde(default, skip_serializing_if = "Option::is_none")]
+    #[serde(default, skip_serializing_if = "biodata::absent_or_empty")]
     pub submission_property_type: Option<Box<[DrugFdaProperty]>>,
     /// Native documents; document dates remain separate from the submission status date.
-    #[serde(default, skip_serializing_if = "Option::is_none")]
+    #[serde(default, skip_serializing_if = "biodata::absent_or_empty")]
     pub application_docs: Option<Box<[DrugFdaDocument]>>,
 }
 /// A source-stated submission property, without interpretation.
@@ -93,9 +94,16 @@ pub struct DrugFdaDocument {
 #[serde(deny_unknown_fields)]
 #[cfg_attr(feature = "schema", derive(schemars::JsonSchema))]
 pub struct DrugFdaCandidate {
+    /// Exact application identifier, shared with the retained application identity.
+    pub id: biodata::DrugId,
+    /// Exact brand wording shared by every product; omitted for zero or differing brands.
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    #[cfg_attr(feature = "schema", schemars(with = "Text"))]
+    pub name: Option<Text>,
     /// Exact native application identity; no product has been selected.
     pub identity: super::DrugHeader,
     /// Complete native product candidates within this application.
+    #[serde(default, skip_serializing_if = "<[_]>::is_empty")]
     pub products: Box<[DrugFdaProduct]>,
 }
 /// A source-owned application page preserving complete product context and source order.
@@ -104,6 +112,7 @@ pub struct DrugFdaCandidate {
 #[cfg_attr(feature = "schema", derive(schemars::JsonSchema))]
 pub struct DrugFdaPage {
     /// Native applications and products; a phrase match never establishes equivalence.
+    #[serde(default, skip_serializing_if = "<[_]>::is_empty")]
     pub items: Box<[DrugFdaCandidate]>,
     /// Native application total, independent of product count.
     pub total: u64,
@@ -112,6 +121,6 @@ pub struct DrugFdaPage {
     pub source_updated: Option<PartialDate>,
 }
 impl crate::ResponseBody for DrugFdaPage {
-    const SCHEMA: &'static str = "biomcp.drug-fda-page/1";
+    const SCHEMA: &'static str = "biomcp.drug-fda-page/2";
     type Query = super::DrugSearch;
 }

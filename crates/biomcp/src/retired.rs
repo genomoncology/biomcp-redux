@@ -41,7 +41,6 @@ const SECTIONS: &[(&str, ErrorMessage)] = &[
     ("disgenet", ErrorMessage::Dropped),
     ("druggability", ErrorMessage::Drug),
     ("diagnostics", ErrorMessage::Diagnostic),
-    ("gencc", ErrorMessage::Deferred),
 ];
 const ARTICLE_SEARCH: &[(&str, ErrorMessage)] = &[
     ("-k", ErrorMessage::ArticleText),

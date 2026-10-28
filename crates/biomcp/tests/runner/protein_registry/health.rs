@@ -29,6 +29,7 @@ pub(super) fn run() -> Check {
         },
     )?;
     let cert = env.root().join("private-ca.pem");
+    stub.retain(&env);
     std::fs::write(&cert, &stub.certificate).map_err(|e| e.to_string())?;
     env.config(&json!({"ca_bundle":cert,"proxy":format!("http://{}",stub.address)}))
         .map_err(|e| e.to_string())?;
@@ -56,7 +57,7 @@ pub(super) fn run() -> Check {
                 .iter()
                 .find(|r| r["source"] == source)
                 .ok_or("missing health")?;
-            if row["state"] != "ok" || row["usage"] != "open" || row["terms"] != "CC0" {
+            if row["state"] != "ok" || row["use"] != "open" || row["terms"] != "CC0" {
                 return Err(format!("wrong health: {row}"));
             }
         }

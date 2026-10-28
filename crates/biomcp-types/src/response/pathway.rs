@@ -57,6 +57,7 @@ pub struct PathwayPageInfo {
 #[cfg_attr(feature = "schema", derive(schemars::JsonSchema))]
 pub struct PathwayPage {
     /// Whole admitted pathway headers in native order.
+    #[serde(default, skip_serializing_if = "<[_]>::is_empty")]
     pub items: Box<[PathwayHeader]>,
     /// Native position and total provenance.
     pub page: PathwayPageInfo,
@@ -79,6 +80,7 @@ pub struct PathwayCard {
     #[serde(default, skip_serializing_if = "Option::is_none")]
     pub description_truncated: Option<bool>,
     /// Source-supported named sections; WikiPathways excludes events.
+    #[serde(default, skip_serializing_if = "<[_]>::is_empty")]
     pub sections: Box<[PathwaySection]>,
     /// Requested bounded membership page, including its explicit source state.
     #[serde(default, skip_serializing_if = "Option::is_none")]
@@ -101,6 +103,7 @@ macro_rules! relation_page {
             /// Exact source pathway owning this relation.
             pub header: PathwayHeader,
             /// Whole native references; unresolved identities remain visible.
+            #[serde(default, skip_serializing_if = "<[_]>::is_empty")]
             pub items: Box<[$row]>,
             /// Relation-specific count provenance and continuation.
             pub page: PathwayPageInfo,
@@ -119,6 +122,7 @@ pub struct PathwayGenes {
     /// Exact source pathway owning this relation.
     pub header: PathwayHeader,
     /// Distinct namespaced source references in first occurrence order.
+    #[serde(default, skip_serializing_if = "<[_]>::is_empty")]
     pub items: Box<[PathwayMember]>,
     /// Distinct-reference total and continuation.
     pub page: PathwayPageInfo,

@@ -64,7 +64,7 @@ fn dispatch_using(
     }
     let mut parsed = match crate::grammar::parse(args) {
         Ok(parsed) => parsed,
-        Err(()) => return usage(args),
+        Err(cause) => return usage_with_argument(args, cause.argument),
     };
     if let Some((globals, _)) = shared
         && parsed.globals.inherit(globals).is_err()
@@ -73,7 +73,10 @@ fn dispatch_using(
     }
     if let Some(command) = parsed.key {
         return if shared.is_some() {
-            usage(args)
+            encode(
+                ErrorEnvelope::mcp_unavailable(biomcp_types::ErrorMessage::McpKey),
+                crate::exit::Status::Usage,
+            )
         } else {
             crate::keys::run(command, &parsed.globals)
         };
@@ -81,14 +84,18 @@ fn dispatch_using(
     let Some(action) = parsed.action else {
         return usage(args);
     };
-    if shared.is_some() && !mcp_policy::allows(&action, &parsed.globals, !allow_save) {
-        return encode(ErrorEnvelope::arguments(), crate::exit::Status::Usage);
+    if shared.is_some()
+        && let Some(error) = mcp_policy::refusal(&action, &parsed.globals, !allow_save)
+    {
+        return encode(error, crate::exit::Status::Usage);
     }
     if let Some(path) = parsed.help {
         return encode(
             Envelope::new(
                 Status::Complete,
-                path.clone(),
+                biomcp_types::HelpQuery {
+                    command: path.clone(),
+                },
                 Some(crate::help::dispatch(&path)?),
             ),
             crate::exit::Status::Success,
@@ -141,7 +148,9 @@ pub(crate) fn execute(
             encode(
                 Envelope::new(
                     Status::Complete,
-                    path.clone(),
+                    biomcp_types::HelpQuery {
+                        command: path.clone(),
+                    },
                     Some(crate::help::dispatch(&path)?),
                 ),
                 crate::exit::Status::Success,
@@ -375,6 +384,9 @@ fn tool_using(
     dispatch_using(args, allow_save, Some((globals, fetch)))
 }
 fn usage(args: &[OsString]) -> io::Result<Outcome> {
+    usage_with_argument(args, None)
+}
+fn usage_with_argument(args: &[OsString], argument: Option<String>) -> io::Result<Outcome> {
     if let Some(path) = crate::grammar::unknown_command(args) {
         let mut error = ErrorEnvelope::unknown_command();
         error.next = vec![biomcp_types::Step {
@@ -386,9 +398,12 @@ fn usage(args: &[OsString]) -> io::Result<Outcome> {
         }];
         return encode(error, crate::exit::Status::Usage);
     }
+    if let Some(error) = crate::grammar::normalization_build(args) {
+        return encode(error, crate::exit::Status::Usage);
+    }
     let mut words = crate::grammar::command_words(args);
     let root = words.next();
-    let option = crate::grammar::argument_error(args);
+    let option = argument.or_else(|| crate::grammar::argument_error(args));
     let mut error = if option.is_some()
         || matches!(
             root,
@@ -557,6 +572,7 @@ fn bundle_source(bundle: Bundle) -> biomcp_types::Source {
         Bundle::Ddinter => biomcp_types::Source::Ddinter,
         Bundle::Hgnc => biomcp_types::Source::Hgnc,
         Bundle::ClinGen => biomcp_types::Source::ClinGen,
+        Bundle::Gencc => biomcp_types::Source::Gencc,
     }
 }
 

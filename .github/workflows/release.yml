@@ -115,6 +115,8 @@ jobs:
     timeout-minutes: 15
     permissions:
       contents: read
+      id-token: write
+      attestations: write
     steps:
       - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
         with:
@@ -132,6 +134,16 @@ jobs:
           ruby -c staged/biomcp.rb
       - name: Scan every staged publication artifact for secrets
         run: python3 release/secrets.py artifacts staged
+      - name: Enumerate every staged artifact for attestation
+        run: python3 release/workflow.py subjects --artifacts staged --output "$RUNNER_TEMP/subjects.sha256"
+      # https://github.com/actions/attest/tree/v4.2.2
+      # No registry push or storage record needs additional write permissions.
+      - name: Attest every staged artifact
+        uses: actions/attest@1e69f48acb82d1966a394da916b4c1698aa569d6 # v4.2.2
+        with:
+          subject-checksums: ${{ runner.temp }}/subjects.sha256
+          create-storage-record: false
+          push-to-registry: false
       - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
         with:
           name: release-candidate
@@ -139,8 +151,11 @@ jobs:
           if-no-files-found: error
       - name: State the rehearsal boundary
         run: |
-          echo 'All five native install gates, both Linux container gates and publication payload checks passed.' >> "$GITHUB_STEP_SUMMARY"
-          echo 'No channel was published. Authentication, uploads, directory acceptance, site delivery and latest pointer movement remain unexercised.' >> "$GITHUB_STEP_SUMMARY"
+          {
+            echo 'All five native install gates, both Linux container gates and publication payload checks passed.'
+            echo 'No channel was published. Authentication, uploads, directory acceptance, site delivery and latest pointer movement remain unexercised.'
+            echo 'Every staged file has signed build provenance. Verify downloaded files against this repository, workflow and source commit.'
+          } >> "$GITHUB_STEP_SUMMARY"
 
   release-operator:
     needs: [candidate, stage]

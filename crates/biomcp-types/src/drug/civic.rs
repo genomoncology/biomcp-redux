@@ -21,6 +21,7 @@ pub struct DrugCivicStreams {
 #[cfg_attr(feature = "schema", derive(schemars::JsonSchema))]
 pub struct DrugCivicPage {
     /// Native claim order; each row carries the profile to which that claim belongs.
+    #[serde(default, skip_serializing_if = "<[_]>::is_empty")]
     pub records: Box<[DrugCivicClaim]>,
     /// Stream totals and continuation, independent of every other stream.
     pub page: CivicClaimPage<DrugGet>,
@@ -35,6 +36,7 @@ pub struct DrugCivicClaim {
     /// Existing source claim mapping, including unmapped native facts.
     pub claim: CivicStatement,
     /// Complete native therapy identities, without cross-source equivalence.
+    #[serde(default, skip_serializing_if = "<[_]>::is_empty")]
     pub therapies: Box<[DrugHeader]>,
     /// Native combination interaction label when supplied.
     #[serde(default, skip_serializing_if = "Option::is_none")]
@@ -58,6 +60,7 @@ pub struct DrugCivicProfile {
     /// Source complex-profile flag.
     pub compound: bool,
     /// Every source member, including members without a common-model subject.
+    #[serde(default, skip_serializing_if = "<[_]>::is_empty")]
     pub members: Box<[DrugCivicMember]>,
 }
 

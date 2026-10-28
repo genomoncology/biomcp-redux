@@ -33,6 +33,7 @@ struct Fields {
     #[serde(default)]
     offset: u32,
 }
+crate::query::validation::checked_query!(VariantAssertionsGet, Fields);
 impl TryFrom<Fields> for VariantAssertionsGet {
     type Error = super::gene::QueryInvalid;
     fn try_from(fields: Fields) -> Result<Self, Self::Error> {
@@ -40,11 +41,14 @@ impl TryFrom<Fields> for VariantAssertionsGet {
             AssertionSource::Clinvar => VariantNamespace::ClinVar,
             AssertionSource::Erepo => VariantNamespace::Ca,
         };
-        if fields.input.namespace().ok() != Some(expected)
-            || fields.limit.is_some_and(|n| !(1..=50).contains(&n))
-            || fields.version.is_some() && fields.assertion.is_none()
-        {
-            return Err(super::gene::QueryInvalid);
+        if fields.input.namespace().ok() != Some(expected) {
+            return Err(super::gene::QueryInvalid::new(&["input", "source"]));
+        }
+        if fields.limit.is_some_and(|n| !(1..=50).contains(&n)) {
+            return Err(super::gene::QueryInvalid::new(&["limit"]));
+        }
+        if fields.version.is_some() && fields.assertion.is_none() {
+            return Err(super::gene::QueryInvalid::new(&["version", "assertion"]));
         }
         if let Some(id) = &fields.assertion {
             let valid = match fields.source {
@@ -61,7 +65,7 @@ impl TryFrom<Fields> for VariantAssertionsGet {
                 }),
             };
             if !valid {
-                return Err(super::gene::QueryInvalid);
+                return Err(super::gene::QueryInvalid::new(&["assertion", "source"]));
             }
         }
         if let Some(version) = &fields.version {
@@ -70,17 +74,19 @@ impl TryFrom<Fields> for VariantAssertionsGet {
                 AssertionSource::Clinvar => 1,
                 AssertionSource::Erepo => 3,
             };
-            if parts.len() != count
-                || parts.iter().any(|s| {
-                    s.is_empty()
-                        || !s.bytes().all(|b| b.is_ascii_digit())
-                        || s.parse::<u32>().is_err()
-                })
-                || parts
-                    .first()
-                    .is_some_and(|s| s.parse::<u32>().is_ok_and(|n| n == 0))
+            if parts.len() != count {
+                return Err(super::gene::QueryInvalid::new(&["version", "source"]));
+            }
+            if parts.iter().any(|s| {
+                s.is_empty() || !s.bytes().all(|b| b.is_ascii_digit()) || s.parse::<u32>().is_err()
+            }) {
+                return Err(super::gene::QueryInvalid::new(&["version", "source"]));
+            }
+            if parts
+                .first()
+                .is_some_and(|s| s.parse::<u32>().is_ok_and(|n| n == 0))
             {
-                return Err(super::gene::QueryInvalid);
+                return Err(super::gene::QueryInvalid::new(&["version", "source"]));
             }
         }
         Ok(Self(fields))

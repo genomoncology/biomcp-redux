@@ -18,6 +18,7 @@ fn required_key_refuses_without_connections_and_keyed_request_uses_metadata() ->
     )?;
     let source = Box::leak(Box::new(SourceSpec {
         source: Source::AlphaGenome,
+        destinations: biomcp_fetch::Destinations::Primary,
         user_agent: None,
         terms: biomcp_fetch::Terms {
             name: "Synthetic terms",

@@ -206,7 +206,7 @@ fn identities() -> Check {
         1,
     )?;
     if found.pointer("/result/page/total") != Some(&json!(0))
-        || found.pointer("/result/items") != Some(&json!([]))
+        || found.pointer("/result/items").is_some()
     {
         return Err(format!("foreign species entered a result pool: {found}"));
     }

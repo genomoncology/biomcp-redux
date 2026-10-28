@@ -147,8 +147,11 @@ impl<T: Default + Send + 'static> Server<T> {
     }
     pub(super) fn next(&self) -> Request<T> {
         let request = self.requests.recv_timeout(Duration::from_secs(10)).unwrap();
-        if request.text.starts_with("GET ") {
-            assert!(request.body.is_empty(), "GET body must stay empty");
+        if request.text.starts_with("GET ") || request.text.starts_with("HEAD ") {
+            assert!(
+                request.body.is_empty(),
+                "GET and HEAD bodies must stay empty"
+            );
         } else {
             assert!(request.text.starts_with("POST "));
         }
@@ -156,6 +159,7 @@ impl<T: Default + Send + 'static> Server<T> {
     }
     pub(super) fn spec(&self, quota: &'static Quota, key: KeyUse) -> &'static SourceSpec {
         Box::leak(Box::new(SourceSpec {
+            destinations: biomcp_fetch::Destinations::Primary,
             user_agent: None,
             terms: biomcp_fetch::Terms {
                 name: "Synthetic test data",

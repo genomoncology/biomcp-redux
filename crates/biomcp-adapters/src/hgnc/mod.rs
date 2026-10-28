@@ -15,6 +15,7 @@ use std::{marker::PhantomData, time::Duration};
 
 /// HGNC source declaration for published TSV bundles.
 pub static SPEC: SourceSpec = SourceSpec {
+    destinations: biomcp_fetch::Destinations::Primary,
     user_agent: None,
     terms: biomcp_fetch::Terms {
         name: "CC0 1.0",
@@ -43,6 +44,10 @@ const WITHDRAWN: Bundle<raw::Withdrawn> = Bundle {
     fresh: Freshness::Days(7),
     row: PhantomData,
 };
+/// Check publisher metadata through the routed transport without synchronizing rows.
+pub(crate) fn probe(leg: &Leg<'_>) -> Result<(), RequestError> {
+    leg.probe(&SPEC.head(COMPLETE.path), &[])
+}
 /// A published HGNC file, without exposing its wire rows.
 #[derive(Debug, Clone, Copy)]
 pub enum HgncBundle {

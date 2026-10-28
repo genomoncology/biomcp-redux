@@ -7,11 +7,13 @@ use serde::{Deserialize, Serialize};
 pub struct Health {
     /// Sources and carried components excluded by each supported terms group.
     #[serde(default)]
+    #[serde(skip_serializing_if = "<[_]>::is_empty")]
     pub disable_groups: Box<[DisableGroup]>,
     /// Bounded local settings notices, independent of source probes.
     #[serde(default, skip_serializing_if = "Option::is_none")]
     pub configuration: Option<ConfigurationHealth>,
     /// Every implemented adapter, in declaration order.
+    #[serde(default, skip_serializing_if = "<[_]>::is_empty")]
     pub sources: Box<[SourceHealth]>,
     /// File lengths measured locally without attributing shared pages to bundles.
     pub store: crate::StoreSize,
@@ -42,6 +44,7 @@ pub struct SourceHealth {
     #[cfg_attr(feature = "schema", schemars(extend("format" = "uri")))]
     pub terms_url: Text,
     /// Reviewed source category, not blanket permission for each record.
+    #[serde(rename = "use")]
     pub usage: Use,
     /// Whether source policy prevents all requests and cached reads.
     pub disabled: bool,
@@ -87,8 +90,10 @@ pub struct DisableGroup {
     /// Terms category accepted by disable_sources.
     pub group: Use,
     /// Whole sources stopped by this group.
+    #[serde(default, skip_serializing_if = "<[_]>::is_empty")]
     pub sources: Box<[Source]>,
     /// Carried fields stopped while their aggregators remain available.
+    #[serde(default, skip_serializing_if = "<[_]>::is_empty")]
     pub components: Box<[DisabledComponent]>,
 }
 /// One independently labeled carried field excluded by a terms group.
@@ -108,6 +113,7 @@ pub struct DisabledComponent {
 #[cfg_attr(feature = "schema", derive(schemars::JsonSchema))]
 pub struct ConfigurationHealth {
     /// First skipped entries in their original comma-separated order.
+    #[serde(default, skip_serializing_if = "Vec::is_empty")]
     pub notices: Vec<ConfigurationNotice>,
     /// Remaining skipped entries omitted from this bounded section.
     pub omitted_entries: u32,

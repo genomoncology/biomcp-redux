@@ -166,7 +166,6 @@
         }
       },
       "required": [
-        "items",
         "page"
       ],
       "type": "object"
@@ -231,7 +230,6 @@
       "description": "Search Reactome (default) or WikiPathways human pathways. Membership names a source and release; it implies no therapy, response or actionability. No enrichment is calculated.",
       "properties": {
         "fresh": {
-          "default": false,
           "description": "Request a new retained observation.",
           "type": "boolean"
         },
@@ -277,7 +275,6 @@
           "x-comma-separated": true
         },
         "top_level": {
-          "default": false,
           "description": "Native human Reactome top-level discovery, exclusive with text and gene.",
           "type": "boolean"
         }
@@ -458,6 +455,7 @@
         "erepo",
         "gwas",
         "clingen",
+        "gencc",
         "pubmed",
         "europepmc",
         "litvar",
@@ -531,6 +529,7 @@
         " ClinGen Evidence Repository.",
         " GWAS Catalog v2.",
         " ClinGen.",
+        " GenCC submitter assessments.",
         " PubMed.",
         " Europe PMC.",
         " NCBI LitVar2.",
@@ -593,6 +592,25 @@
     "SourceNotice": {
       "description": "A provider query interpretation notice.",
       "oneOf": [
+        {
+          "additionalProperties": false,
+          "description": "Registered conditions lack the literal words requested in a condition search.",
+          "properties": {
+            "kind": {
+              "const": "condition_word_mismatch",
+              "type": "string"
+            },
+            "message": {
+              "description": "The source searches several fields and can expand terms; no expansion cause is inferred.",
+              "type": "string"
+            }
+          },
+          "required": [
+            "kind",
+            "message"
+          ],
+          "type": "object"
+        },
         {
           "additionalProperties": false,
           "description": "A checked provider answer survived a local cache failure.",
@@ -672,8 +690,7 @@
           },
           "required": [
             "kind",
-            "name",
-            "phrases"
+            "name"
           ],
           "type": "object"
         },
@@ -694,8 +711,7 @@
             }
           },
           "required": [
-            "kind",
-            "words"
+            "kind"
           ],
           "type": "object"
         }
@@ -821,8 +837,7 @@
         }
       },
       "required": [
-        "kind",
-        "args"
+        "kind"
       ],
       "type": "object"
     },

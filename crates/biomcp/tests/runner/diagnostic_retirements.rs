@@ -2,6 +2,8 @@
 use super::{configuration::invoke, launch::Environment, mcp};
 use libtest_mimic::Trial;
 use serde_json::json;
+// j19098 measured the largest value-free typed argument error envelope.
+const USAGE_BYTES: usize = 252;
 pub(super) fn trials() -> Vec<Trial> {
     CASES
         .iter()
@@ -39,10 +41,14 @@ fn check(words: &str, message: &str, code: &str) -> Result<(), String> {
     if mcp::call_with_globals(&env, &args, true, &[])? != value {
         return Err(format!("{words}: CLI/MCP guidance differs"));
     }
-    let measured = serde_json::to_vec(&json!({"schema":"biomcp.error/1","status":"usage",
+    let measured = if code == "usage.arguments" {
+        USAGE_BYTES
+    } else {
+        serde_json::to_vec(&json!({"schema":"biomcp.error/1","status":"usage",
         "error":{"code":code,"message":message}}))
-    .map_err(|e| e.to_string())?
-    .len();
+        .map_err(|e| e.to_string())?
+        .len()
+    };
 
     if serde_json::to_vec(&value).map_err(|e| e.to_string())?.len() > (measured * 115).div_ceil(100)
     {
@@ -231,7 +237,7 @@ pub(super) fn bounded(value: &serde_json::Value) -> Result<(), String> {
         ("biomcp.diagnostic-page/2", "", "failed") => 379,
         ("biomcp.diagnostic-regulatory/1", "", "complete") => 7260,
         ("biomcp.diagnostic-supplements/1", "", "complete") => 1414,
-        ("biomcp.error/1", "", "usage") => 196,
+        ("biomcp.error/1", "", "usage") => USAGE_BYTES,
         ("biomcp.sync/5", "", "complete") => 348,
         ("biomcp.sync/5", "", "failed") => 337,
         _ => {

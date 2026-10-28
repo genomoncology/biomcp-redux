@@ -71,7 +71,8 @@ impl Documents {
                 let suffix = id.get(9..).unwrap_or_default();
                 Ok(TrialDocument {
                     url: Text::new(&format!(
-                        "https://cdn.clinicaltrials.gov/large-docs/{suffix}/{id}/{}",
+                        "{}/large-docs/{suffix}/{id}/{}",
+                        super::super::DOCUMENT_ORIGIN,
                         d.filename
                     ))
                     .map_err(|_| BadReply)?,

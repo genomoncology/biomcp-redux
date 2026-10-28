@@ -4,10 +4,20 @@ use libtest_mimic::Trial;
 use serde_json::{Value, json};
 use std::fs;
 mod native;
+mod words;
 pub(super) use native::run as native;
 
 pub(super) fn trials() -> Vec<Trial> {
     vec![
+        Trial::test("trial-search/condition-complete-native-words", || {
+            words::complete_conditions().map_err(Into::into)
+        }),
+        Trial::test("trial-search/condition-exact-boundary", || {
+            words::exact_boundary().map_err(Into::into)
+        }),
+        Trial::test("trial-search/condition-word-mismatch", || {
+            words::mismatch().map_err(Into::into)
+        }),
         Trial::test("trial-search/condition-id-source-policy", || {
             policy().map_err(Into::into)
         }),
@@ -90,7 +100,7 @@ fn failures() -> Result<(), String> {
             serde_json::to_vec(&json!(
                 {"feature":"trial-search","story":"Unresolved exact identity stops before trial I/O","replay":directory,
                 "config":{"keys":{"nci_api_key":"synthetic-trial-condition-key"}},"steps":[{"run":args,"mcp":args,"exit":4,"is_error":true,
-                "expect":{"/status":"failed","/result/request":[]},"max_bytes":ceiling,"max_tokens":(ceiling+3)/4}]}
+                "expect":{"/status":"failed"},"max_bytes":ceiling,"max_tokens":(ceiling+3)/4}]}
             ))
             .map_err(|e| e.to_string())?,
         )
@@ -102,6 +112,7 @@ fn failures() -> Result<(), String> {
 fn setup(stub: &Stub) -> Result<Environment, String> {
     let env = Environment::new().map_err(|e| e.to_string())?;
     let ca = env.root().join("ca.pem");
+    stub.retain(&env);
     fs::write(&ca, &stub.certificate).map_err(|e| e.to_string())?;
     env.config(&json!(
         {"proxy":format!("http://{}",stub.address),"ca_bundle":ca,"keys":{"nci_api_key":"synthetic-trial-condition-key"}}
@@ -125,7 +136,7 @@ fn invoke(env: &Environment, args: &[String], exit: i32) -> Result<Value, String
 }
 
 fn check_failure(case: &str, expected: Option<&str>, value: &Value) -> Result<(), String> {
-    if value.pointer("/result/request") != Some(&json!([])) || value.get("page").is_some() {
+    if value.pointer("/result/request").is_some() || value.get("page").is_some() {
         return Err(format!(
             "{case}: unresolved identity asserted a trial request/count"
         ));

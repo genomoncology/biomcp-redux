@@ -20,7 +20,7 @@ struct Fields {
     #[serde(default, skip_serializing_if = "Option::is_none")]
     build: Option<Build>,
     /// Read source ancestry groups, preserving overlapping groups individually.
-    #[serde(default)]
+    #[serde(default, skip_serializing_if = "std::ops::Not::not")]
     detail: bool,
     /// Maximum rows per page.
     #[serde(default = "limit")]
@@ -36,12 +36,13 @@ fn resolver() -> VariantResolver {
 fn limit() -> u32 {
     10
 }
+crate::query::validation::checked_query!(VariantPopulationQuery, Fields);
 impl TryFrom<Fields> for VariantPopulationQuery {
     type Error = super::gene::QueryInvalid;
     fn try_from(fields: Fields) -> Result<Self, Self::Error> {
         VariantGet::new(fields.input.clone(), fields.resolver, fields.build)?;
         if !(1..=50).contains(&fields.limit) {
-            return Err(super::gene::QueryInvalid);
+            return Err(super::gene::QueryInvalid::new(&["limit"]));
         }
         Ok(Self(fields))
     }

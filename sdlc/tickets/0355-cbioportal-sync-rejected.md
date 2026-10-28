@@ -1,6 +1,7 @@
 # 0355 — Find why sync cbioportal-studies is rejected
 
-Status: OPEN.
+Status: COMPLETE.
+Landed: af36ea6371bbe6296612848b7c0eeb24896c1cfe
 
 Milestone: 5
 

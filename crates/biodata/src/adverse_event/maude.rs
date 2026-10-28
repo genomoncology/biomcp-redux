@@ -131,7 +131,9 @@ pub struct MaudeReport {
     #[serde(default, skip_serializing_if = "Option::is_none")]
     pub number_patients_in_event: Option<Box<str>>,
     /// Ordered native device array.
+    #[serde(default, skip_serializing_if = "<[_]>::is_empty")]
     pub devices: Box<[MaudeDevice]>,
     /// Ordered native narrative array, including an empty array.
+    #[serde(default, skip_serializing_if = "<[_]>::is_empty")]
     pub narrative: Box<[MaudeNarrative]>,
 }

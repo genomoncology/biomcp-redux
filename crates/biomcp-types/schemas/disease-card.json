@@ -253,9 +253,7 @@
         "requested_id",
         "returned_id",
         "concept",
-        "attribution",
-        "sections",
-        "components"
+        "attribution"
       ],
       "type": "object"
     },
@@ -675,6 +673,7 @@
         "erepo",
         "gwas",
         "clingen",
+        "gencc",
         "pubmed",
         "europepmc",
         "litvar",
@@ -748,6 +747,7 @@
         " ClinGen Evidence Repository.",
         " GWAS Catalog v2.",
         " ClinGen.",
+        " GenCC submitter assessments.",
         " PubMed.",
         " Europe PMC.",
         " NCBI LitVar2.",
@@ -810,6 +810,25 @@
     "SourceNotice": {
       "description": "A provider query interpretation notice.",
       "oneOf": [
+        {
+          "additionalProperties": false,
+          "description": "Registered conditions lack the literal words requested in a condition search.",
+          "properties": {
+            "kind": {
+              "const": "condition_word_mismatch",
+              "type": "string"
+            },
+            "message": {
+              "description": "The source searches several fields and can expand terms; no expansion cause is inferred.",
+              "type": "string"
+            }
+          },
+          "required": [
+            "kind",
+            "message"
+          ],
+          "type": "object"
+        },
         {
           "additionalProperties": false,
           "description": "A checked provider answer survived a local cache failure.",
@@ -889,8 +908,7 @@
           },
           "required": [
             "kind",
-            "name",
-            "phrases"
+            "name"
           ],
           "type": "object"
         },
@@ -911,8 +929,7 @@
             }
           },
           "required": [
-            "kind",
-            "words"
+            "kind"
           ],
           "type": "object"
         }
@@ -1038,8 +1055,7 @@
         }
       },
       "required": [
-        "kind",
-        "args"
+        "kind"
       ],
       "type": "object"
     },

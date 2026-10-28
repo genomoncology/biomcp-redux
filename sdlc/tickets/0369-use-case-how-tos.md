@@ -1,6 +1,7 @@
 # 0369 — Grow the skill use cases into worked how-tos
 
-Status: OPEN.
+Status: COMPLETE.
+Landed: ada0b190019c5e52c67a390c252260590a90e268
 
 Milestone: 5
 

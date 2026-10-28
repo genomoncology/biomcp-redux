@@ -297,6 +297,7 @@ fn record_metadata() -> Check {
     )?;
     let env = Environment::new()?;
     let certificate = env.root().join("ca.pem");
+    stub.retain(&env);
     fs::write(&certificate, &stub.certificate)?;
     env.config(&json!({"ca_bundle":certificate}))?;
     let capture = env.root().join("recording");

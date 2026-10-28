@@ -1,10 +1,11 @@
 # 0370 — Attest release artifact provenance
 
-Status: OPEN.
+Status: COMPLETE.
+Landed: ec2a3ef089137acda41d3b6f1bffdb0709cccec2
 
 Milestone: 5
 
-Depends on: 0347
+Depends on: 0347, 0388
 
 ## Outcome
 

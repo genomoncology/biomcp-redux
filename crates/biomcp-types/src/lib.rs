@@ -13,6 +13,7 @@ mod query;
 // `unreachable_pub` reports a missing crate-root re-export.
 mod response;
 pub use response::{SchemaCatalog, SchemaEntry};
+pub use response::{SourceTimestamp, SourceTimestampTimezone};
 mod source;
 
 pub use predictor::{
@@ -66,8 +67,8 @@ pub use response::{
 };
 pub use response::{BundleSize, ComponentHealth, StoreSize};
 pub use response::{
-    CancerPtpm, Capped, CivicGene, ClinGenGene, ClinGenValidity, GeneExpression, PathwayRef,
-    ReactomeId, ReactomeIdInvalid, RnaAbundance, TissueNtpm,
+    CancerPtpm, Capped, CivicGene, ClinGenGene, ClinGenValidity, GenccGene, GenccSubmission,
+    GeneExpression, PathwayRef, ReactomeId, ReactomeIdInvalid, RnaAbundance, TissueNtpm,
 };
 pub use response::{
     CivicClaimPage, CivicMember, CivicMembership, CivicNativeClaim, CivicProfile, CivicStatement,
@@ -89,7 +90,7 @@ pub use response::{
     VariantPopulationResult,
 };
 pub use response::{
-    Help, HelpArgument, HelpCommand, HelpWord, KeyHelp, KeyState, Oncokb, OncokbCard,
+    Help, HelpArgument, HelpCommand, HelpQuery, HelpWord, KeyHelp, KeyState, Oncokb, OncokbCard,
     OncokbGeneType, OncokbTranscript, RegisteredKey, RegisteredKeys, StoreClean, SyncQuery,
     SyncResult,
 };
@@ -110,7 +111,7 @@ pub use response::{
 };
 pub use response::{TrialConditionResolution, TrialPage};
 pub use response::{TrialDocumentResult, TrialDocumentSaved};
-pub use response::{VariantCard, VariantHeader, VariantResolution};
+pub use response::{VariantCard, VariantHeader, VariantResolution, VariantTranscript};
 pub use source::{Reason, Source, Use};
 
 mod article;
@@ -151,7 +152,7 @@ pub use drug::{
     DrugWhoRow, DrugXrefs,
 };
 
-pub use query::QueryInvalid;
+pub use query::{CheckedQuery, QueryInvalid};
 
 mod adverse_event;
 pub use adverse_event::{

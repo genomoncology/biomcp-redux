@@ -1,10 +1,11 @@
 # 0345 — Name the argument in semantic query validation errors
 
-Status: OPEN.
+Status: COMPLETE.
+Landed: beaefa114898e2b92e5d8a509873d6bcd323da7d
 
 Milestone: 5
 
-Depends on: 0339
+Depends on: 0339, 0388
 
 ## Outcome
 

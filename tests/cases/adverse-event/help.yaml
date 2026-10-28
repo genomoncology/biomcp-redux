@@ -1,29 +1,14 @@
 {
   "feature": "adverse-event-search",
-  "story": "Generated adverse-event help exposes native sources, filters, independent sections and two executable examples per command.",
   "live_check": "Help performs no source requests.",
   "steps": [
     {
-      "run": [
-        "help",
-        "search",
-        "adverse-event"
-      ],
-      "mcp": [
-        "help",
-        "search",
-        "adverse-event"
-      ],
       "expect": {
+        "": {
+          "max_bytes": 4224
+        },
         "/result/commands": {
           "count": 1
-        },
-        "/result/commands/0/command": [
-          "search",
-          "adverse-event"
-        ],
-        "/result/commands/0/examples": {
-          "count": 2
         },
         "/result/commands/0/arguments/*/name": {
           "includes_all_of": [
@@ -37,35 +22,58 @@
             "--offset"
           ]
         },
-        "": {
-          "max_bytes": 2924
-        },
-        "/result/commands/0/description": "Search five report headers by default. VAERS accepts MMR, COVID19, COVID-19 vaccine or one exact qualified native influenza code, matched without case; use influenza to list codes and labels. Tables remain separate and are never summed. One report may list several vaccines. VAERS returns five reported symptom rows by default; seriousness and age select independent tables. Counts are reports, not people. Reports do not show that a vaccine caused an event and cannot measure risk or compare vaccine safety.",
+        "/result/commands/0/arguments/6/description": "FAERS report flag: death or hospitalization; never a reaction outcome.",
         "/result/commands/0/arguments/8/choices": [
           "faers",
           "maude",
           "vaers"
         ],
-        "/result/commands/0/arguments/6/description": "FAERS report flag: death or hospitalization; never a reaction outcome.",
-        "/result/commands/0/arguments/9/description": "Literal drug text, MAUDE device phrase or exact supported VAERS vaccine."
+        "/result/commands/0/arguments/9/description": "Exact drug text, MAUDE device phrase or exact supported VAERS vaccine.",
+        "/result/commands/0/command": [
+          "search",
+          "adverse-event"
+        ],
+        "/result/commands/0/description": "Search five report headers by default. VAERS accepts MMR, COVID19, COVID-19 vaccine or one exact qualified source influenza code, matched without case; use influenza to list codes and labels. Tables remain separate and are never summed. One report may list several vaccines. VAERS returns five reported symptom rows by default; seriousness and age select independent tables. Counts are reports, not people. Reports do not show that a vaccine caused an event and cannot measure risk or compare vaccine safety.",
+        "/result/commands/0/examples": {
+          "count": 2
+        }
       },
-      "max_bytes": 2925
-    },
-    {
-      "run": [
-        "help",
-        "get",
-        "adverse-event"
-      ],
+      "max_bytes": 4226,
       "mcp": [
         "help",
-        "get",
+        "search",
         "adverse-event"
       ],
+      "run": [
+        "help",
+        "search",
+        "adverse-event"
+      ]
+    },
+    {
       "expect": {
+        "": {
+          "max_bytes": 4002
+        },
+        "/result/commands/0/arguments/*/name": {
+          "includes_all_of": [
+            "id",
+            "--source",
+            "section",
+            "--snapshot",
+            "--drug-index",
+            "--section-limit",
+            "--section-offset"
+          ]
+        },
+        "/result/commands/0/arguments/6/choices": [
+          "faers",
+          "maude"
+        ],
         "/result/commands/0/examples": {
           "count": 2
         },
+        "/result/commands/0/section_rule": "FAERS owns drugs, reactions and identifiers; MAUDE owns devices and narrative. Omitted means card only.",
         "/result/commands/0/sections/*/word": [
           "drugs",
           "reactions",
@@ -78,29 +86,21 @@
           "application-number",
           "devices",
           "narrative"
-        ],
-        "/result/commands/0/arguments/*/name": {
-          "includes_all_of": [
-            "id",
-            "--source",
-            "section",
-            "--snapshot",
-            "--drug-index",
-            "--section-limit",
-            "--section-offset"
-          ]
-        },
-        "": {
-          "max_bytes": 2579
-        },
-        "/result/commands/0/arguments/6/choices": [
-          "faers",
-          "maude"
-        ],
-        "/result/commands/0/section_rule": "FAERS owns drugs, reactions and identifiers; MAUDE owns devices and narrative. Omitted means card only."
+        ]
       },
-      "max_bytes": 2580
+      "max_bytes": 4004,
+      "mcp": [
+        "help",
+        "get",
+        "adverse-event"
+      ],
+      "run": [
+        "help",
+        "get",
+        "adverse-event"
+      ]
     }
   ],
-  "verified": "j13144 measured search/get compact envelopes at 1663/2242 bytes and stdout including newline at 1664/2243 bytes. Ceilings add fifteen percent. Examples come from parsed case run steps; the existing example check executes every example over its own replay."
+  "story": "Generated adverse-event help exposes native sources, filters, independent sections and two executable examples per command.",
+  "verified": "j13144 measured search/get compact envelopes at 1663/2242 bytes and stdout including newline at 1664/2243 bytes. Ceilings add fifteen percent. Examples come from parsed case run steps; the existing example check executes every example over its own replay. Help byte limits use j18463 output plus fifteen percent for defaults, aliases, inherited options and examples; higher existing limits remain."
 }

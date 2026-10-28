@@ -299,6 +299,10 @@
         " A source repeats one exact identity with incompatible records."
       ]
     },
+    "QualifiedVariantId": {
+      "pattern": "^(rs:[1-9][0-9]*|clingen:(CA[0-9]{6,}|PA[1-9][0-9]*)|clinvar:(VCV[0-9]{9}(\\.[1-9][0-9]*)?|[1-9][0-9]*)|cosmic:COS[VMN][1-9][0-9]*|ga4gh:VA\\.[A-Za-z0-9_-]{32})$",
+      "type": "string"
+    },
     "Reason": {
       "description": "Why a source could not supply data.",
       "enum": [
@@ -499,6 +503,7 @@
         "erepo",
         "gwas",
         "clingen",
+        "gencc",
         "pubmed",
         "europepmc",
         "litvar",
@@ -572,6 +577,7 @@
         " ClinGen Evidence Repository.",
         " GWAS Catalog v2.",
         " ClinGen.",
+        " GenCC submitter assessments.",
         " PubMed.",
         " Europe PMC.",
         " NCBI LitVar2.",
@@ -634,6 +640,25 @@
     "SourceNotice": {
       "description": "A provider query interpretation notice.",
       "oneOf": [
+        {
+          "additionalProperties": false,
+          "description": "Registered conditions lack the literal words requested in a condition search.",
+          "properties": {
+            "kind": {
+              "const": "condition_word_mismatch",
+              "type": "string"
+            },
+            "message": {
+              "description": "The source searches several fields and can expand terms; no expansion cause is inferred.",
+              "type": "string"
+            }
+          },
+          "required": [
+            "kind",
+            "message"
+          ],
+          "type": "object"
+        },
         {
           "additionalProperties": false,
           "description": "A checked provider answer survived a local cache failure.",
@@ -713,8 +738,7 @@
           },
           "required": [
             "kind",
-            "name",
-            "phrases"
+            "name"
           ],
           "type": "object"
         },
@@ -735,8 +759,7 @@
             }
           },
           "required": [
-            "kind",
-            "words"
+            "kind"
           ],
           "type": "object"
         }
@@ -885,8 +908,7 @@
         }
       },
       "required": [
-        "kind",
-        "args"
+        "kind"
       ],
       "type": "object"
     },
@@ -935,7 +957,7 @@
         "ids": {
           "description": "All source identifiers, without inferred aliases.",
           "items": {
-            "$ref": "#/$defs/VariantId"
+            "$ref": "#/$defs/QualifiedVariantId"
           },
           "type": "array"
         },
@@ -948,11 +970,6 @@
         }
       },
       "type": "object"
-    },
-    "VariantId": {
-      "description": "Published variant-level identifiers, with each identifier's level retained.",
-      "pattern": "^(rs[1-9][0-9]*|CA[0-9]{6,}|PA[1-9][0-9]*|VCV[0-9]{9}(\\.[1-9][0-9]*)?|clinvar:[1-9][0-9]*|COS[VMN][1-9][0-9]*|ga4gh:VA\\.[A-Za-z0-9_-]{32})$",
-      "type": "string"
     },
     "VariantInput": {
       "description": "A validated canonical VariantInput string.",
@@ -1102,7 +1119,7 @@
       "type": "object"
     }
   },
-  "$id": "biomcp.variant-recurrence/4",
+  "$id": "biomcp.variant-recurrence/5",
   "$schema": "https://json-schema.org/draft/2020-12/schema",
   "additionalProperties": false,
   "description": "One versioned command response; schema identity comes only from its body type.",
@@ -1159,7 +1176,7 @@
       "description": "Answer when available."
     },
     "schema": {
-      "const": "biomcp.variant-recurrence/4",
+      "const": "biomcp.variant-recurrence/5",
       "type": "string"
     },
     "sources": {

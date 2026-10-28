@@ -72,3 +72,6 @@ mod pathway;
 pub use pathway::{
     PathwayEventsQuery, PathwayGenesQuery, PathwayGet, PathwaySearch, PathwaySection, PathwaySource,
 };
+
+pub(crate) mod validation;
+pub use validation::CheckedQuery;

@@ -25,6 +25,8 @@ pub enum Bundle {
     Hgnc,
     /// ClinGen validity and dosage files.
     ClinGen,
+    /// GenCC submission export.
+    Gencc,
 }
 /// Typed action before an interface spells command arguments.
 #[derive(Clone, Debug, PartialEq, Eq)]

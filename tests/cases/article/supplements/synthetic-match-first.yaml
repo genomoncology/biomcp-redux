@@ -78,7 +78,6 @@
         "Phe1761Ile"
       ],
       "expect": {
-        "/result/content/data/rows": [],
         "/result/content/data/search_message": "No row contains the search term."
       },
       "max_tokens": 649

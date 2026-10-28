@@ -115,6 +115,47 @@ def plugin(source, output, version):
             archive.write(path, path.relative_to(source).as_posix())
 
 
+def release_notes(output, version, revision):
+    (output / "RELEASE-NOTES.md").write_text(
+        f"# BioMCP {version}\n\nCandidate source commit: `{revision}`.\n\n"
+        "Before installation, verify each downloaded release artifact with a current GitHub CLI:\n\n"
+        "```sh\ngh attestation verify ARTIFACT --repo genomoncology/biomcp "
+        "--signer-workflow genomoncology/biomcp/.github/workflows/release.yml "
+        f"--source-digest {revision}\n```\n\n"
+        "Replace ARTIFACT with the downloaded file. Compare the source commit above with the release's "
+        "tag before accepting it. For a rehearsal, use the repository that ran the workflow for both "
+        "repository arguments; the source commit must match that run. Verification fails if the file, "
+        "signer workflow or source commit differs. Stop if verification fails.\n\n"
+        "The installer also checks the archive's SHA-256 checksum. Attestations identify the workflow "
+        "and source that produced the bytes; they do not establish that the software is defect-free.\n"
+    )
+
+
+def subjects(args):
+    root = args.artifacts.resolve()
+    output = args.output.resolve()
+    if not root.is_dir() or root == output or root in output.parents:
+        raise ValueError("subjects require a staged directory and an output outside it")
+    records = []
+    for path in sorted(root.rglob("*")):
+        name = path.relative_to(root).as_posix()
+        if path.is_symlink() or any(char in name for char in "\r\n\\"):
+            raise ValueError("unsafe staged attestation subject")
+        if path.is_dir():
+            continue
+        if not path.is_file():
+            raise ValueError("attestation subjects must be regular files")
+        digest = hashlib.sha256()
+        with path.open("rb") as source:
+            for chunk in iter(lambda: source.read(1024 * 1024), b""):
+                digest.update(chunk)
+        records.append(digest.hexdigest() + "  " + name + "\n")
+    if not records:
+        raise ValueError("staged attestation subjects must not be empty")
+    with args.output.open("x") as target:
+        target.writelines(records)
+
+
 def stage(args):
     records = candidates(args)
     args.output.mkdir(parents=True, exist_ok=False)
@@ -130,6 +171,7 @@ def stage(args):
     index = {"version": args.version, "revision": args.revision,
              "image": "ghcr.io/genomoncology/biomcp", "publication": "requires Ian's approval and the release operator"}
     (args.output / "candidate.json").write_text(json.dumps(index, indent=2) + "\n")
+    release_notes(args.output, args.version, args.revision)
     print(json.dumps(index))
 
 
@@ -147,8 +189,11 @@ def main():
         payloads.add_argument("--" + name, type=Path, required=True)
     for name in ["version", "revision"]:
         payloads.add_argument("--" + name, required=True)
+    attest = commands.add_parser("subjects")
+    attest.add_argument("--artifacts", type=Path, required=True)
+    attest.add_argument("--output", type=Path, required=True)
     args = parser.parse_args()
-    {"identity": identity, "protection": protection, "stage": stage}[args.command](args)
+    {"identity": identity, "protection": protection, "stage": stage, "subjects": subjects}[args.command](args)
 
 
 if __name__ == "__main__":

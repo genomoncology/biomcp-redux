@@ -154,11 +154,6 @@
         "symbol",
         "status",
         "locus_group",
-        "previous_symbols",
-        "aliases",
-        "uniprot",
-        "omim",
-        "spans",
         "name"
       ],
       "type": "object"
@@ -597,8 +592,7 @@
         }
       },
       "required": [
-        "resolution",
-        "candidates"
+        "resolution"
       ],
       "type": "object"
     },
@@ -634,8 +628,7 @@
         "resolution",
         "hgnc_id",
         "symbol",
-        "hgnc_status",
-        "merged_into"
+        "hgnc_status"
       ],
       "type": "object"
     },

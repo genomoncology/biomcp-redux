@@ -8,6 +8,7 @@ use biomcp_types::{Source, VariantHeader};
 use std::time::Duration;
 /// Public GET access; raw output redistribution rights remain unverified.
 pub static SPEC: SourceSpec = SourceSpec {
+    destinations: biomcp_fetch::Destinations::Primary,
     user_agent: None,
     terms: biomcp_fetch::Terms {
         name: "ClinGen Allele Registry service terms; output rights require review",
@@ -29,7 +30,7 @@ const FIELDS: &str = "none+@id+communityStandardTitle+genomicAlleles+transcriptA
 #[derive(Debug)]
 pub enum Resolution {
     /// Source-resolved canonical identity.
-    Found(crate::Mapped<VariantHeader>),
+    Found(Box<crate::Mapped<VariantHeader>>),
     /// Source rejected the unchanged notation.
     Rejected(Text),
 }
@@ -85,9 +86,11 @@ fn bad() -> RequestError {
 pub fn normalize(
     leg: &Leg<'_>,
     input: &str,
+    build: Option<biodata::Build>,
 ) -> Result<biomcp_types::NormalizationResult, RequestError> {
     let mut result = biomcp_types::NormalizationResult::unavailable(Source::AlleleRegistry);
-    let raw = read(leg, input, false)?;
+    let qualified = qualify(input, build)?;
+    let raw = read(leg, &qualified, false)?;
     if let Some(code) = raw.error_type {
         result.outcome = biomcp_types::VariantResolution::Rejected;
         let mut messages = vec![biomcp_types::NormalizationMessage {
@@ -139,4 +142,19 @@ pub fn normalize(
         result.mappings = mappings.into();
     }
     Ok(result)
+}
+
+// CAR GET accepts reference-qualified HGVS. Bind only the explicit chromosome alias
+// through the shared reference table; leave the genomic description unchanged.
+fn qualify(input: &str, build: Option<biodata::Build>) -> Result<String, RequestError> {
+    let Some((chromosome, description)) = input
+        .strip_prefix("chr")
+        .and_then(|value| value.split_once(':'))
+    else {
+        return Ok(input.into());
+    };
+    let build = build.ok_or(bad())?;
+    let chromosome = biodata::Chromosome::parse(if chromosome == "M" { "MT" } else { chromosome })
+        .map_err(|_| bad())?;
+    Ok(format!("{}:{description}", chromosome.accession(build)))
 }

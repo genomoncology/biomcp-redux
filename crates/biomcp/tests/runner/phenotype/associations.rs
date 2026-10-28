@@ -99,6 +99,21 @@ fn exact() -> Result<(), String> {
     Ok(())
 }
 
+fn independent_rows(first: &Value) -> Result<(), String> {
+    if first.pointer("/page/returned") != Some(&json!(2))
+        || ["negated", "publications", "qualifiers"]
+            .iter()
+            .any(|field| {
+                first
+                    .pointer(&format!("/result/items/1/association/{field}"))
+                    .is_some()
+            })
+    {
+        return Err(format!("native independent rows collapsed: {first}"));
+    }
+    Ok(())
+}
+
 fn pages() -> Result<(), String> {
     let stub = Stub::for_source(
         "api-v3.monarchinitiative.org",
@@ -137,17 +152,7 @@ fn pages() -> Result<(), String> {
         "2",
     ];
     let first = invoke("associations/pages/invoke1", &env, &words, 0)?;
-    if first.pointer("/page/returned") != Some(&json!(2))
-        || first
-            .pointer("/result/items/1/association/negated")
-            .is_some()
-        || first
-            .pointer("/result/items/1/association/publications")
-            .is_some()
-        || first.pointer("/result/items/1/association/qualifiers") != Some(&json!([]))
-    {
-        return Err(format!("native independent rows collapsed: {first}"));
-    }
+    independent_rows(&first)?;
     let next = first
         .pointer("/next")
         .and_then(Value::as_array)

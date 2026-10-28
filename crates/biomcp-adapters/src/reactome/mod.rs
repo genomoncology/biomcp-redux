@@ -15,6 +15,7 @@ pub use discovery::{Page, card, release, search, top_level};
 pub use relations::{Members, events, members};
 /// Public Reactome mapping endpoint policy.
 pub static SPEC: SourceSpec = SourceSpec {
+    destinations: biomcp_fetch::Destinations::Primary,
     user_agent: None,
     terms: biomcp_fetch::Terms {
         name: "CC0 1.0 database data",

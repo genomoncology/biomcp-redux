@@ -104,8 +104,7 @@
       ],
       "max_bytes": 313,
       "expect": {
-        "/page/total": 0,
-        "/result/items": []
+        "/page/total": 0
       }
     },
     {
@@ -127,8 +126,7 @@
       ],
       "max_bytes": 329,
       "expect": {
-        "/page/total": 0,
-        "/result/items": []
+        "/page/total": 0
       }
     }
   ]

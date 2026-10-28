@@ -51,6 +51,7 @@ fn checked_no_proxy_boundaries_select_direct_routes() {
         .unwrap();
         let original = stub.spec(KeyUse::None, Duration::from_secs(10));
         let spec = Box::leak(Box::new(SourceSpec {
+            destinations: biomcp_fetch::Destinations::Primary,
             user_agent: None,
             base: Box::leak(base.into_boxed_str()),
             source: original.source,

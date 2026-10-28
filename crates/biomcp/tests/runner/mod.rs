@@ -152,8 +152,8 @@ mod variant_population_release;
 mod variant_search;
 mod wikipathways;
 
-// Approved complete CLI help ceiling; entity and MCP budgets remain separate.
-pub(super) const CLI_HELP_BYTES: usize = 106000;
+// Complete help: j18463 measured 114273 bytes; reviewed ceiling adds fifteen percent.
+pub(super) const CLI_HELP_BYTES: usize = 131414;
 
 use libtest_mimic::Trial;
 use serde::Deserialize;
@@ -367,7 +367,7 @@ pub(super) fn protocol_trials() -> Vec<Trial> {
     trials.extend(http::trials());
     trials.extend(mcp_boundaries::trials());
     trials.extend(corporate::trials());
-    trials.extend(variant_trials());
+    trials.extend(variant::trials());
     trials.extend(markdown::trials());
     trials.extend(markdown_shapes::trials());
     trials.extend(markdown_variant_trial::trials());
@@ -375,30 +375,6 @@ pub(super) fn protocol_trials() -> Vec<Trial> {
     trials.push(Trial::test("mcp/ping-passes-held-provider-call", || {
         held_proxy::check().map_err(Into::into)
     }));
-    trials
-}
-
-fn variant_trials() -> Vec<Trial> {
-    let mut trials = variant::trials();
-    trials.extend(variant_assertion_wire::trials());
-    trials.extend(variant_assertions::trials());
-    trials.extend(variant_discovery::trials());
-    trials.extend(variant_condition_relationship::trials());
-    trials.extend(variant_population::trials());
-    trials.extend(variant_population_release::trials());
-    trials.extend(oncokb::trials());
-    trials.extend(oncokb_context::trials());
-    trials.extend(alphagenome::trials());
-    trials.extend(alphagenome_tls::trials());
-    trials.extend(variant_civic::trials());
-    trials.extend(variant_hotspots::trials());
-    trials.extend(recurrence::trials());
-    trials.extend(recurrence_errors::trials());
-    trials.extend(recurrence_metadata::trials());
-    trials.extend(normalization::trials());
-    trials.extend(variant_search::trials());
-    trials.extend(next_navigation::trials());
-    trials.extend(variant_filters::trials());
     trials
 }
 

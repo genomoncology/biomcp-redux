@@ -13,6 +13,7 @@ use biomcp_types::{Oncokb, OncokbCard, Problem, ProblemCode, Source};
 use std::time::Duration;
 /// Required-key source policy.
 pub static SPEC: SourceSpec = SourceSpec {
+    destinations: biomcp_fetch::Destinations::Primary,
     user_agent: None,
     terms: biomcp_fetch::Terms {
         name: "OncoKB license",

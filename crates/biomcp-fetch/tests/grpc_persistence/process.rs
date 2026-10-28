@@ -51,6 +51,7 @@ fn offline_child() -> Check {
         source: biomcp_types::Source::MyGene,
         quota: &QUOTA,
         key: KeyUse::None,
+        destinations: biomcp_fetch::Destinations::Primary,
         user_agent: None,
         deadline: Duration::from_secs(5),
         terms: biomcp_fetch::Terms {

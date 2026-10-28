@@ -84,7 +84,6 @@
         }
       },
       "required": [
-        "notices",
         "omitted_entries"
       ],
       "type": "object"
@@ -153,9 +152,7 @@
         }
       },
       "required": [
-        "group",
-        "sources",
-        "components"
+        "group"
       ],
       "type": "object"
     },
@@ -194,7 +191,6 @@
           "description": "Bounded local settings notices, independent of source probes."
         },
         "disable_groups": {
-          "default": [],
           "description": "Sources and carried components excluded by each supported terms group.",
           "items": {
             "$ref": "#/$defs/DisableGroup"
@@ -214,7 +210,6 @@
         }
       },
       "required": [
-        "sources",
         "store"
       ],
       "type": "object"
@@ -420,6 +415,7 @@
         "erepo",
         "gwas",
         "clingen",
+        "gencc",
         "pubmed",
         "europepmc",
         "litvar",
@@ -493,6 +489,7 @@
         " ClinGen Evidence Repository.",
         " GWAS Catalog v2.",
         " ClinGen.",
+        " GenCC submitter assessments.",
         " PubMed.",
         " Europe PMC.",
         " NCBI LitVar2.",
@@ -626,7 +623,7 @@
           "description": "Publisher terms page.",
           "format": "uri"
         },
-        "usage": {
+        "use": {
           "$ref": "#/$defs/Use",
           "description": "Reviewed source category, not blanket permission for each record."
         }
@@ -635,7 +632,7 @@
         "source",
         "terms",
         "terms_url",
-        "usage",
+        "use",
         "disabled",
         "state"
       ],
@@ -644,6 +641,25 @@
     "SourceNotice": {
       "description": "A provider query interpretation notice.",
       "oneOf": [
+        {
+          "additionalProperties": false,
+          "description": "Registered conditions lack the literal words requested in a condition search.",
+          "properties": {
+            "kind": {
+              "const": "condition_word_mismatch",
+              "type": "string"
+            },
+            "message": {
+              "description": "The source searches several fields and can expand terms; no expansion cause is inferred.",
+              "type": "string"
+            }
+          },
+          "required": [
+            "kind",
+            "message"
+          ],
+          "type": "object"
+        },
         {
           "additionalProperties": false,
           "description": "A checked provider answer survived a local cache failure.",
@@ -723,8 +739,7 @@
           },
           "required": [
             "kind",
-            "name",
-            "phrases"
+            "name"
           ],
           "type": "object"
         },
@@ -745,8 +760,7 @@
             }
           },
           "required": [
-            "kind",
-            "words"
+            "kind"
           ],
           "type": "object"
         }
@@ -872,8 +886,7 @@
         }
       },
       "required": [
-        "kind",
-        "args"
+        "kind"
       ],
       "type": "object"
     },

@@ -13,7 +13,7 @@
         "sync",
         "who-ivd"
       ],
-      "max_bytes": 447,
+      "max_bytes": 1391,
       "expect": {
         "/result/commands/0/command": [
           "sync",
@@ -43,7 +43,7 @@
         "get",
         "diagnostic"
       ],
-      "max_bytes": 2558,
+      "max_bytes": 3799,
       "expect": {
         "/result/commands/0/examples": {
           "includes": [
@@ -56,5 +56,6 @@
         }
       }
     }
-  ]
+  ],
+  "verified": "Help byte limits use j18463 output plus fifteen percent for defaults, aliases, inherited options and examples; higher existing limits remain."
 }

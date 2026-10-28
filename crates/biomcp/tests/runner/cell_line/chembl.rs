@@ -228,7 +228,8 @@ pub(super) fn native_facts(value: &Value, id: &str) -> Result<(), String> {
     let actual = value
         .pointer("/result/items/items")
         .and_then(Value::as_array)
-        .ok_or("result rows")?;
+        .map(Vec::as_slice)
+        .unwrap_or_default();
     if rows.len() != actual.len() {
         return Err("metadata dropped complete source rows".into());
     }
