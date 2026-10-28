@@ -312,7 +312,7 @@ def scan(mode, target, cache):
             from .smoke import environment
         else:
             from smoke import environment
-        env = {**environment(root), "PATH": os.defpath, "GIT_CONFIG_NOSYSTEM": "1", "GIT_TERMINAL_PROMPT": "0",
+        env = {**environment(root), "PATH": os.pathsep.join(("/usr/local/bin", os.defpath)), "GIT_CONFIG_NOSYSTEM": "1", "GIT_TERMINAL_PROMPT": "0",
                "GIT_NO_LAZY_FETCH": "1", "GIT_GRAFT_FILE": os.devnull, "GIT_CONFIG_COUNT": "2",
                "GIT_CONFIG_KEY_0": "core.hooksPath", "GIT_CONFIG_VALUE_0": os.devnull,
                "GIT_CONFIG_KEY_1": "core.fsmonitor", "GIT_CONFIG_VALUE_1": "false"}
