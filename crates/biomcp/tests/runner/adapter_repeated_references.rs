@@ -30,7 +30,8 @@ pub(super) fn check() -> Result<(), String> {
                 ])
             } else {
                 json!({"stId":"R-HSA-5673001", "displayName":"Synthetic pathway",
-                       "speciesName":"Homo sapiens", "schemaClass":"Pathway"})
+                       "speciesName":"Homo sapiens", "schemaClass":"Pathway",
+                       "stIdVersion":"R-HSA-5673001.1"})
             }
             .to_string())
             },
