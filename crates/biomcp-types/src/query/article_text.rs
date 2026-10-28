@@ -58,25 +58,34 @@ struct Fields {
     #[serde(default)]
     offset: u32,
 }
+crate::query::validation::checked_query!(ArticleText, Fields);
 impl TryFrom<Fields> for ArticleText {
     type Error = QueryInvalid;
     fn try_from(v: Fields) -> Result<Self, QueryInvalid> {
-        if matches!(v.input, ArticleInput::Doi(_))
-            || [
-                v.part.is_some(),
-                v.find.is_some(),
-                v.variant.is_some(),
-                v.save.is_some(),
-            ]
-            .into_iter()
-            .filter(|v| *v)
-            .count()
-                != 1
-            || v.part == Some(0)
-            || (v.part.is_some() || v.save.is_some()) && v.offset != 0
-            || v.replace && v.save.is_none()
+        if matches!(v.input, ArticleInput::Doi(_)) {
+            return Err(QueryInvalid::new(&["input"]));
+        }
+        if [
+            v.part.is_some(),
+            v.find.is_some(),
+            v.variant.is_some(),
+            v.save.is_some(),
+        ]
+        .into_iter()
+        .filter(|v| *v)
+        .count()
+            != 1
         {
-            return Err(QueryInvalid);
+            return Err(QueryInvalid::new(&["part", "find", "variant", "save"]));
+        }
+        if v.part == Some(0) {
+            return Err(QueryInvalid::new(&["part"]));
+        }
+        if (v.part.is_some() || v.save.is_some()) && v.offset != 0 {
+            return Err(QueryInvalid::new(&["part", "save", "offset"]));
+        }
+        if v.replace && v.save.is_none() {
+            return Err(QueryInvalid::new(&["replace", "save"]));
         }
         Ok(Self(v))
     }

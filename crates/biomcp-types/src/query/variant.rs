@@ -71,31 +71,53 @@ fn default_limit() -> u32 {
 fn resolver() -> VariantResolver {
     VariantResolver::Car
 }
+crate::query::validation::checked_query!(VariantGet, Fields);
 impl TryFrom<Fields> for VariantGet {
     type Error = super::gene::QueryInvalid;
     fn try_from(fields: Fields) -> Result<Self, Self::Error> {
-        if !(1..=50).contains(&fields.limit)
-            || fields.section_limit.is_some_and(|n| !(1..=50).contains(&n))
-        {
-            return Err(super::gene::QueryInvalid);
+        if !(1..=50).contains(&fields.limit) {
+            return Err(super::gene::QueryInvalid::new(&["limit"]));
+        }
+        if fields.section_limit.is_some_and(|n| !(1..=50).contains(&n)) {
+            return Err(super::gene::QueryInvalid::new(&["section_limit"]));
         }
         if fields
             .civic_profile
             .is_some_and(|id| id == 0 || id > i32::MAX as u64)
-            || fields.civic_profile.is_some() != fields.civic_kind.is_some()
-            || fields.civic_cursor.is_some() && fields.civic_profile.is_none()
-            || fields.civic_profile.is_some()
-                && !fields
-                    .section
-                    .iter()
-                    .any(|s| matches!(s, VariantSection::Civic | VariantSection::All))
         {
-            return Err(super::gene::QueryInvalid);
+            return Err(super::gene::QueryInvalid::new(&["civic_profile"]));
+        }
+        if fields.civic_profile.is_some() != fields.civic_kind.is_some() {
+            return Err(super::gene::QueryInvalid::new(&[
+                "civic_profile",
+                "civic_kind",
+            ]));
+        }
+        if fields.civic_cursor.is_some() && fields.civic_profile.is_none() {
+            return Err(super::gene::QueryInvalid::new(&[
+                "civic_cursor",
+                "civic_profile",
+            ]));
+        }
+        if fields.civic_profile.is_some()
+            && !fields
+                .section
+                .iter()
+                .any(|s| matches!(s, VariantSection::Civic | VariantSection::All))
+        {
+            return Err(super::gene::QueryInvalid::new(&[
+                "civic_profile",
+                "section",
+            ]));
         }
         if fields.section.contains(&VariantSection::Oncokb)
             && (fields.build.is_none() || fields.tumor_type.is_none())
         {
-            return Err(super::gene::QueryInvalid);
+            return Err(super::gene::QueryInvalid::new(&[
+                "section",
+                "build",
+                "tumor_type",
+            ]));
         }
         let mut query = Self::new(fields.input, fields.resolver, fields.build)?;
         query.0.tumor_type = fields.tumor_type;
@@ -117,12 +139,17 @@ impl VariantGet {
         resolver: VariantResolver,
         build: Option<Build>,
     ) -> Result<Self, super::gene::QueryInvalid> {
-        if input.namespace().ok() == Some(VariantNamespace::Unsupported)
-            || resolver == VariantResolver::Variantvalidator && build.is_none()
-            || build.is_some_and(|b| !matches!(b, Build::GRCh37 | Build::GRCh38))
-            || input.namespace().ok() == Some(VariantNamespace::Chromosome) && build.is_none()
-        {
-            return Err(super::gene::QueryInvalid);
+        if input.namespace().ok() == Some(VariantNamespace::Unsupported) {
+            return Err(super::gene::QueryInvalid::new(&["input"]));
+        }
+        if resolver == VariantResolver::Variantvalidator && build.is_none() {
+            return Err(super::gene::QueryInvalid::new(&["resolver", "build"]));
+        }
+        if build.is_some_and(|b| !matches!(b, Build::GRCh37 | Build::GRCh38)) {
+            return Err(super::gene::QueryInvalid::new(&["build"]));
+        }
+        if input.namespace().ok() == Some(VariantNamespace::Chromosome) && build.is_none() {
+            return Err(super::gene::QueryInvalid::new(&["input", "build"]));
         }
         Ok(Self(Fields {
             input,

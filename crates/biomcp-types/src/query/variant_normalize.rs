@@ -29,22 +29,32 @@ struct Fields {
 fn limit() -> u32 {
     10
 }
+crate::query::validation::checked_query!(VariantNormalize, Fields);
 impl TryFrom<Fields> for VariantNormalize {
     type Error = super::gene::QueryInvalid;
     fn try_from(f: Fields) -> Result<Self, Self::Error> {
-        if !(1..=50).contains(&f.limit)
-            || f.hgvs.as_str().len() > 2048
-            || !valid_hgvs(&f)
-            || f.build
-                .is_some_and(|build| !Self::supports_build(&f.hgvs, build))
-            || matches!(
-                f.source,
-                NormalizationSource::All | NormalizationSource::Variantvalidator
-            ) && f.build.is_none()
-            || f.build
-                .is_some_and(|b| !matches!(b, Build::GRCh37 | Build::GRCh38))
+        if !(1..=50).contains(&f.limit) {
+            return Err(super::gene::QueryInvalid::new(&["limit"]));
+        }
+        if f.hgvs.as_str().len() > 2048 || !valid_hgvs(&f) {
+            return Err(super::gene::QueryInvalid::new(&["hgvs"]));
+        }
+        if f.build
+            .is_some_and(|build| !Self::supports_build(&f.hgvs, build))
         {
-            return Err(super::gene::QueryInvalid);
+            return Err(super::gene::QueryInvalid::new(&["hgvs", "build"]));
+        }
+        if matches!(
+            f.source,
+            NormalizationSource::All | NormalizationSource::Variantvalidator
+        ) && f.build.is_none()
+        {
+            return Err(super::gene::QueryInvalid::new(&["source", "build"]));
+        }
+        if f.build
+            .is_some_and(|b| !matches!(b, Build::GRCh37 | Build::GRCh38))
+        {
+            return Err(super::gene::QueryInvalid::new(&["build"]));
         }
         Ok(Self(f))
     }

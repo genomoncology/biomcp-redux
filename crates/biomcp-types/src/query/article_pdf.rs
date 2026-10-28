@@ -32,3 +32,5 @@ impl ArticlePdf {
         format!("{name}.pdf")
     }
 }
+
+crate::query::validation::checked_query!(ArticlePdf);

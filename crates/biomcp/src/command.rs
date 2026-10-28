@@ -64,7 +64,7 @@ fn dispatch_using(
     }
     let mut parsed = match crate::grammar::parse(args) {
         Ok(parsed) => parsed,
-        Err(()) => return usage(args),
+        Err(cause) => return usage_with_argument(args, cause.argument),
     };
     if let Some((globals, _)) = shared
         && parsed.globals.inherit(globals).is_err()
@@ -380,6 +380,9 @@ fn tool_using(
     dispatch_using(args, allow_save, Some((globals, fetch)))
 }
 fn usage(args: &[OsString]) -> io::Result<Outcome> {
+    usage_with_argument(args, None)
+}
+fn usage_with_argument(args: &[OsString], argument: Option<String>) -> io::Result<Outcome> {
     if let Some(path) = crate::grammar::unknown_command(args) {
         let mut error = ErrorEnvelope::unknown_command();
         error.next = vec![biomcp_types::Step {
@@ -396,7 +399,7 @@ fn usage(args: &[OsString]) -> io::Result<Outcome> {
     }
     let mut words = crate::grammar::command_words(args);
     let root = words.next();
-    let option = crate::grammar::argument_error(args);
+    let option = argument.or_else(|| crate::grammar::argument_error(args));
     let mut error = if option.is_some()
         || matches!(
             root,

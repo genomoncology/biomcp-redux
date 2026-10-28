@@ -28,11 +28,12 @@ macro_rules! relation {
             #[cfg_attr(feature = "schema", schemars(with = "Text"))]
             pool: Option<Text>,
         }
+        crate::query::validation::checked_query!($name, $fields);
         impl TryFrom<$fields> for $name {
             type Error = QueryInvalid;
             fn try_from(v: $fields) -> Result<Self, QueryInvalid> {
-                if !(1..=25).contains(&v.limit) { return Err(QueryInvalid); }
-                $(if !($check)(&v) { return Err(QueryInvalid); })?
+                if !(1..=25).contains(&v.limit) { return Err(QueryInvalid::new(&["limit"])); }
+                $(if !($check)(&v) { return Err(QueryInvalid::new(&["position", "accession"])); })?
                 Ok(Self(v))
             }
         }
@@ -158,3 +159,5 @@ impl ProteinComplexMembersQuery {
         })
     }
 }
+
+crate::query::validation::checked_query!(ProteinSequenceQuery);

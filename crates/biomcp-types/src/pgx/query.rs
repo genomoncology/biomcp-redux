@@ -49,11 +49,15 @@ struct SearchFields {
     #[serde(default)]
     offset: u32,
 }
+crate::query::validation::checked_query!(PgxSearch, SearchFields);
 impl TryFrom<SearchFields> for PgxSearch {
     type Error = QueryInvalid;
     fn try_from(v: SearchFields) -> Result<Self, Self::Error> {
-        if v.source != PgxSource::Cpic || !(1..=50).contains(&v.limit) {
-            return Err(QueryInvalid);
+        if v.source != PgxSource::Cpic {
+            return Err(QueryInvalid::new(&["source"]));
+        }
+        if !(1..=50).contains(&v.limit) {
+            return Err(QueryInvalid::new(&["limit"]));
         }
         Ok(Self(v))
     }
@@ -124,6 +128,7 @@ struct GetFields {
     #[serde(default, skip_serializing_if = "Option::is_none")]
     snapshot: Option<Text>,
 }
+crate::query::validation::checked_query!(PgxGet, GetFields);
 impl TryFrom<GetFields> for PgxGet {
     type Error = QueryInvalid;
     fn try_from(mut v: GetFields) -> Result<Self, Self::Error> {
@@ -131,15 +136,26 @@ impl TryFrom<GetFields> for PgxGet {
         let limit = v
             .section_limit
             .unwrap_or_else(|| section_default(v.source, v.kind));
-        if (v.source == PgxSource::Clinpgx) != annotations
-            || !(1..=50).contains(&limit)
-            || (v.section == Some(PgxSection::Diplotype)) != v.diplotype.is_some()
-            || (v.drug_id.is_some() && v.section != Some(PgxSection::Recommendations))
-            || (v.kind.is_some() && !annotations)
-            || (v.snapshot.is_some() && !annotations)
-            || (v.section.is_none() && v.section_offset != 0)
-        {
-            return Err(QueryInvalid);
+        if (v.source == PgxSource::Clinpgx) != annotations {
+            return Err(QueryInvalid::new(&["source", "section"]));
+        }
+        if !(1..=50).contains(&limit) {
+            return Err(QueryInvalid::new(&["section_limit"]));
+        }
+        if (v.section == Some(PgxSection::Diplotype)) != v.diplotype.is_some() {
+            return Err(QueryInvalid::new(&["section", "diplotype"]));
+        }
+        if v.drug_id.is_some() && v.section != Some(PgxSection::Recommendations) {
+            return Err(QueryInvalid::new(&["drug_id", "section"]));
+        }
+        if v.kind.is_some() && !annotations {
+            return Err(QueryInvalid::new(&["kind", "section"]));
+        }
+        if v.snapshot.is_some() && !annotations {
+            return Err(QueryInvalid::new(&["snapshot", "section"]));
+        }
+        if v.section.is_none() && v.section_offset != 0 {
+            return Err(QueryInvalid::new(&["section", "section_offset"]));
         }
         if annotations && v.kind.is_none() {
             v.kind = Some(PgxAnnotationKind::Clinical);
@@ -241,11 +257,12 @@ struct AnnotationFields {
     /// Required ClinPGx source.
     source: PgxSource,
 }
+crate::query::validation::checked_query!(PgxAnnotationGet, AnnotationFields);
 impl TryFrom<AnnotationFields> for PgxAnnotationGet {
     type Error = QueryInvalid;
     fn try_from(v: AnnotationFields) -> Result<Self, Self::Error> {
         if v.source != PgxSource::Clinpgx {
-            return Err(QueryInvalid);
+            return Err(QueryInvalid::new(&["source"]));
         }
         Ok(Self(v))
     }

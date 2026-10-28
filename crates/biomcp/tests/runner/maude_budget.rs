@@ -43,7 +43,8 @@ fn ceiling(value: &Value, schema: &str) -> Option<(usize, usize)> {
         return Some(if value.get("next").is_some() {
             (250, 250)
         } else {
-            (165, 165)
+            // j19028: typed argument names, 218 compact bytes plus 15 percent.
+            (251, 251)
         });
     }
     if value.get("status") == Some(&json!("failed")) {

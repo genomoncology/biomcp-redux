@@ -18,3 +18,5 @@ pub struct TrialDocumentGet {
     #[serde(default)]
     pub replace: bool,
 }
+
+crate::query::validation::checked_query!(TrialDocumentGet);

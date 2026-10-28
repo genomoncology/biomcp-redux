@@ -244,37 +244,50 @@ fn sort() -> ArticleSort {
 fn limit() -> u32 {
     10
 }
+crate::query::validation::checked_query!(ArticleSearch, Fields);
 impl TryFrom<Fields> for ArticleSearch {
     type Error = QueryInvalid;
     fn try_from(v: Fields) -> Result<Self, QueryInvalid> {
-        if !(1..=50).contains(&v.limit)
-            || v.source.is_empty()
-            || v.source
-                .iter()
-                .enumerate()
-                .any(|(i, source)| v.source.iter().take(i).any(|prior| prior == source))
-            || [
-                &v.text, &v.variant, &v.disease, &v.drug, &v.author, &v.journal,
-            ]
+        if !(1..=50).contains(&v.limit) {
+            return Err(QueryInvalid::new(&["limit"]));
+        }
+        if v.source.is_empty() {
+            return Err(QueryInvalid::new(&["source"]));
+        }
+        if v.source
             .iter()
-            .all(|v| v.is_none())
-                && v.gene.is_none()
-                && v.since.is_none()
-                && v.until.is_none()
-                && v.kind.is_none()
-            || v.since.zip(v.until).is_some_and(|(since, until)| {
-                (
-                    since.year(),
-                    since.month().unwrap_or(1),
-                    since.day().unwrap_or(1),
-                ) > (
-                    until.year(),
-                    until.month().unwrap_or(12),
-                    until.day().unwrap_or(31),
-                )
-            })
+            .enumerate()
+            .any(|(i, source)| v.source.iter().take(i).any(|prior| prior == source))
         {
-            return Err(QueryInvalid);
+            return Err(QueryInvalid::new(&["source"]));
+        }
+        if [
+            &v.text, &v.variant, &v.disease, &v.drug, &v.author, &v.journal,
+        ]
+        .iter()
+        .all(|v| v.is_none())
+            && v.gene.is_none()
+            && v.since.is_none()
+            && v.until.is_none()
+            && v.kind.is_none()
+        {
+            return Err(QueryInvalid::new(&[
+                "text", "variant", "disease", "drug", "author", "journal", "gene", "since",
+                "until", "type",
+            ]));
+        }
+        if v.since.zip(v.until).is_some_and(|(since, until)| {
+            (
+                since.year(),
+                since.month().unwrap_or(1),
+                since.day().unwrap_or(1),
+            ) > (
+                until.year(),
+                until.month().unwrap_or(12),
+                until.day().unwrap_or(31),
+            )
+        }) {
+            return Err(QueryInvalid::new(&["since", "until"]));
         }
         Ok(Self(v))
     }

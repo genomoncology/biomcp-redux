@@ -45,6 +45,7 @@ struct GetFields {
     #[serde(default)]
     fresh: bool,
 }
+crate::query::validation::checked_query!(PathwayGet, GetFields);
 impl TryFrom<GetFields> for PathwayGet {
     type Error = QueryInvalid;
     fn try_from(v: GetFields) -> Result<Self, Self::Error> {
@@ -52,11 +53,14 @@ impl TryFrom<GetFields> for PathwayGet {
             v.section,
             Some(PathwaySection::Genes | PathwaySection::Events)
         );
-        if !valid_limit(v.section_limit)
-            || (v.section == Some(PathwaySection::Events) && !reactome(&v.id))
-            || (!relation && v.section_offset != 0)
-        {
-            return Err(QueryInvalid);
+        if !valid_limit(v.section_limit) {
+            return Err(QueryInvalid::new(&["section_limit"]));
+        }
+        if v.section == Some(PathwaySection::Events) && !reactome(&v.id) {
+            return Err(QueryInvalid::new(&["section", "id"]));
+        }
+        if !relation && v.section_offset != 0 {
+            return Err(QueryInvalid::new(&["section_offset", "section"]));
         }
         Ok(Self(v))
     }

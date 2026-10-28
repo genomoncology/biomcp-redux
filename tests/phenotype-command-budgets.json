@@ -206,7 +206,7 @@
   "section_failures/run/record1@kind=4 [cli]": 449,
   "sections/absent/invoke1 [cli]": 449,
   "sections/absent/invoke2 [cli]": 341,
-  "sections/absent/invoke3 [cli]": 144,
+  "sections/absent/invoke3 [cli]": 173,
   "sections/absent/invoke4 [cli]": 203,
   "sections/monarch/invoke1@section=hierarchy [cli]": 1142,
   "sections/monarch/invoke1@section=synonyms [cli]": 1303,

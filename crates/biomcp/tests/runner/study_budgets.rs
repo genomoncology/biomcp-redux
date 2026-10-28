@@ -29,7 +29,7 @@ const MEASUREMENTS: &[(&str, usize, usize)] = &[
     ("catalog/lifetimes/4", 1877, 1876),
     ("catalog/missing/1", 397, 396),
     ("catalog/missing/2", 417, 416),
-    ("catalog/missing/3", 144, 143),
+    ("catalog/missing/3", 175, 174),
     ("catalog/page_walk/1", 1807, 1806),
     ("catalog/replacement/1", 447, 446),
     ("catalog/replacement/2", 402, 401),
