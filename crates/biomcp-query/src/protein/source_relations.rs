@@ -142,10 +142,11 @@ pub(super) fn read(
     let returned = limit.min(total.saturating_sub(offset.into()) as u32);
     saved.member_steps(q, offset, limit, &mut store, out)?;
     saved.render(q, offset, limit, out)?;
-    out.status = if out
-        .sources
-        .iter()
-        .any(|s| s.state != biomcp_types::SourceState::Ok)
+    out.status = if !out.problems.is_empty()
+        || out
+            .sources
+            .iter()
+            .any(|s| s.state != biomcp_types::SourceState::Ok)
     {
         Status::Partial
     } else {

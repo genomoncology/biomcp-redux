@@ -156,11 +156,32 @@ fn run() -> Result<(), String> {
             {
                 return Err(format!("absent {field} created problems: {value}"));
             }
+            if !absent_value {
+                let expected_record = if command == "domains" {
+                    "IPR002117"
+                } else if command == "complexes" {
+                    "CPX-100"
+                } else {
+                    "CPX-715"
+                };
+                if value.pointer("/problems/0/record") != Some(&json!(expected_record))
+                    || value
+                        .get("problems")
+                        .and_then(Value::as_array)
+                        .map(Vec::len)
+                        != Some(1)
+                    || value.get("status") != Some(&json!("partial"))
+                {
+                    return Err(format!("bad field lost its single record problem: {value}"));
+                }
+            }
             let cached = call(&env, &args, 0)?;
             if cached.get("problems") != value.get("problems") {
                 return Err("retained collection lost problems".into());
             }
-            stub.finish()?;
+            if stub.finish()?.len() != 1 {
+                return Err("retained source values were refetched".into());
+            }
         }
     }
     Ok(())
