@@ -981,7 +981,7 @@
       "type": "object"
     }
   },
-  "$id": "biomcp.vaers-summary/1",
+  "$id": "biomcp.vaers-summary/2",
   "$schema": "https://json-schema.org/draft/2020-12/schema",
   "description": "One versioned command response; schema identity comes only from its body type.\nJSON readers ignore unknown fields and unknown growable enum values within a major.",
   "properties": {
@@ -1037,7 +1037,7 @@
       "description": "Answer when available."
     },
     "schema": {
-      "const": "biomcp.vaers-summary/1",
+      "const": "biomcp.vaers-summary/2",
       "type": "string"
     },
     "sources": {
