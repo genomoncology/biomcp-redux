@@ -294,8 +294,8 @@
           ]
         }
       },
-      "max_bytes": 1974
+      "max_bytes": 1640
     }
   ],
-  "verified": "Help byte limits use j18463 output plus fifteen percent for defaults, aliases, inherited options and examples; higher existing limits remain. j19310 measured protein sequence help at 1716 bytes after source timing guidance; its ceiling adds fifteen percent."
+  "verified": "Help byte limits use j18463 output plus fifteen percent for defaults, aliases, inherited options and examples; higher existing limits remain."
 }

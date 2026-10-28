@@ -53,7 +53,7 @@ pub(super) fn timing(commands: &mut [HelpCommand]) {
             &[biomcp_types::Source::Gwas]
         } else if command.command.iter().any(|word| word == "adverse-event") {
             &[biomcp_types::Source::Vaers]
-        } else if command.command.iter().any(|word| word == "protein") {
+        } else if command.command == ["get", "protein"] || command.command == ["protein", "domains"] {
             &[biomcp_types::Source::InterPro]
         } else {
             &[]
