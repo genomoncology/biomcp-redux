@@ -445,21 +445,55 @@ fn population_strata_enforce_counts_and_frequencies() -> Check {
             .code(),
         "population.count.exceeds_number"
     );
+    for invalid in [f64::NAN, f64::INFINITY, -0.01, 1.5] {
+        assert_eq!(
+            Fraction::try_from(invalid)
+                .expect_err("fraction is bounded")
+                .code(),
+            "population.frequency.range"
+        );
+    }
+    let mut union = serialized.clone();
+    union
+        .as_object_mut()
+        .ok_or("population object required")?
+        .remove("ancestry_group");
+    for (field, source_value) in [
+        ("heterozygote_count", json!(2)),
+        ("grpmax_group", json!("synthetic-group")),
+        ("genotype_filter", json!("raw")),
+        ("homoplasmic_count", json!(1)),
+        ("heteroplasmic_count", json!(3)),
+        ("homoplasmic_frequency", json!(0.25)),
+        ("heteroplasmic_frequency", json!(0.75)),
+    ] {
+        union[field] = source_value;
+    }
     assert_eq!(
-        base.clone()
-            .with_frequencies(Some(1.01.try_into()?), None)
-            .expect_err("frequency is bounded")
-            .code(),
-        "population.frequency.range"
+        serde_json::to_value(serde_json::from_value::<PopulationFrequency>(
+            union.clone()
+        )?)?,
+        union
     );
-    assert!(
-        base.with_frequencies(None, Some((-0.01).try_into()?))
-            .is_err()
-    );
+    for (field, bad) in [
+        ("genotype_filter", json!("unknown")),
+        ("ancestry_group", json!("synthetic")),
+        ("homoplasmic_frequency", json!(1.5)),
+        ("heteroplasmic_frequency", json!(-0.1)),
+    ] {
+        let mut invalid = union.clone();
+        invalid[field] = bad;
+        assert!(
+            serde_json::from_value::<PopulationFrequency>(invalid).is_err(),
+            "{field}"
+        );
+    }
+    union["subject"] = json!({"level":"allele", "hgvs":"NC_000007.14:g.1A>T"});
+    assert!(serde_json::from_value::<PopulationFrequency>(union).is_err());
     for (field, invalid) in [
         ("allele_count", json!(5)),
         ("allele_frequency", json!(-0.01)),
-        ("faf95", json!(1.01)),
+        ("faf95", json!(1.5)),
     ] {
         let mut changed = serialized.clone();
         changed

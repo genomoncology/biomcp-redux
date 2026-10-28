@@ -29,3 +29,25 @@ impl std::fmt::Display for FiniteNumberError {
     }
 }
 impl std::error::Error for FiniteNumberError {}
+
+/// A finite source fraction in the closed interval zero to one.
+#[derive(Clone, Copy, Debug, PartialEq, Serialize, Deserialize)]
+#[serde(try_from = "f64", into = "f64")]
+#[cfg_attr(feature = "schema", derive(schemars::JsonSchema))]
+#[cfg_attr(feature = "schema", schemars(transparent))]
+pub struct Fraction(#[cfg_attr(feature = "schema", schemars(range(min = 0.0, max = 1.0)))] f64);
+impl TryFrom<f64> for Fraction {
+    type Error = crate::Error;
+    fn try_from(value: f64) -> Result<Self, Self::Error> {
+        if value.is_finite() && (0.0..=1.0).contains(&value) {
+            Ok(Self(value))
+        } else {
+            Err(crate::Error::PopulationFrequencyRange)
+        }
+    }
+}
+impl From<Fraction> for f64 {
+    fn from(value: Fraction) -> Self {
+        value.0
+    }
+}

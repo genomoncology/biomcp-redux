@@ -78,10 +78,10 @@ pub use variant::{
     Term, VariantRef,
 };
 
-pub use variant::{PopulationDataType, PopulationFrequency, PopulationSex};
+pub use variant::{GenotypeFilter, PopulationDataType, PopulationFrequency, PopulationSex};
 
 mod number;
-pub use number::{FiniteNumber, FiniteNumberError};
+pub use number::{FiniteNumber, FiniteNumberError, Fraction};
 
 pub use variant::PredictorScore;
 
