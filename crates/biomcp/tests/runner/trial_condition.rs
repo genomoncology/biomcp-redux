@@ -4,10 +4,20 @@ use libtest_mimic::Trial;
 use serde_json::{Value, json};
 use std::fs;
 mod native;
+mod words;
 pub(super) use native::run as native;
 
 pub(super) fn trials() -> Vec<Trial> {
     vec![
+        Trial::test("trial-search/condition-complete-native-words", || {
+            words::complete_conditions().map_err(Into::into)
+        }),
+        Trial::test("trial-search/condition-exact-boundary", || {
+            words::exact_boundary().map_err(Into::into)
+        }),
+        Trial::test("trial-search/condition-word-mismatch", || {
+            words::mismatch().map_err(Into::into)
+        }),
         Trial::test("trial-search/condition-id-source-policy", || {
             policy().map_err(Into::into)
         }),

@@ -1,3 +1,4 @@
+mod condition;
 use crate::{GeneInput, NctId, PartialDate, StudyType, Text, TrialSex, TrialStatus};
 use serde::{Deserialize, Serialize};
 biodata::wire_enum! {
@@ -50,6 +51,9 @@ struct Fields {
     )]
     #[cfg_attr(feature = "schema", schemars(with = "Text"))]
     condition: Option<Text>,
+    /// Ask ClinicalTrials.gov to restrict matching to the registered condition phrase; its support is partial.
+    #[serde(default, skip_serializing_if = "std::ops::Not::not")]
+    exact_condition: bool,
     /// Exact MONDO or DOID CURIE resolved by MyDisease; NCI also accepts explicit NCIT:C codes.
     #[serde(
         default,
@@ -225,7 +229,6 @@ fn default_limit() -> u32 {
     10
 }
 crate::query::validation::checked_query!(TrialSearch, Fields);
-
 impl TrialSearch {
     /// Explicit source selected by the caller.
     pub fn source(&self) -> TrialSource {

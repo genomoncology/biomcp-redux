@@ -1,6 +1,7 @@
 # 0382 — Expose ClinicalTrials.gov condition expansion that matches a different disease
 
-Status: OPEN.
+Status: COMPLETE.
+Landed: e61ab75455adfa9a579f98406f4f07ffdbba3e27
 
 Milestone: 5
 

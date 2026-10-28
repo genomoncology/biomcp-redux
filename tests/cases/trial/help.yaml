@@ -11,6 +11,7 @@
           "--count-only",
           "--criteria",
           "--distance",
+          "--exact-condition",
           "--facility",
           "--gene",
           "--has-results",
@@ -38,12 +39,12 @@
           "--offline",
           "--fresh"
         ],
-        "/result/commands/0/arguments/26/description": "Exact variant text for registry discovery only; no eligibility judgment.",
         "/result/commands/0/arguments/4/description": "Search exact registry eligibility text for discovery only; no eligibility judgment.",
-        "/result/commands/0/arguments/7/description": "Resolve one checked gene for registry text discovery only; no eligibility judgment.",
         "/result/commands/0/examples": {
           "count": 2
-        }
+        },
+        "/result/commands/0/arguments/27/description": "Exact variant text for registry discovery only; no eligibility judgment.",
+        "/result/commands/0/arguments/8/description": "Resolve one checked gene for registry text discovery only; no eligibility judgment."
       },
       "max_bytes": 6393,
       "mcp": [

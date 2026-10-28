@@ -26,6 +26,7 @@ impl TryFrom<Fields> for TrialSearch {
                 return Err(QueryInvalid::new(&["condition_id", "source"]));
             }
         }
+        validate_exact_condition(&f)?;
         if !(1..=100).contains(&f.limit) {
             return Err(QueryInvalid::new(&["limit"]));
         }
@@ -81,6 +82,16 @@ impl TryFrom<Fields> for TrialSearch {
         }
         Ok(Self(Box::new(f)))
     }
+}
+
+fn validate_exact_condition(f: &Fields) -> Result<(), QueryInvalid> {
+    if f.exact_condition && f.source != TrialSource::Ctgov {
+        return Err(QueryInvalid::new(&["exact_condition", "source"]));
+    }
+    if f.exact_condition && f.condition.is_none() {
+        return Err(QueryInvalid::new(&["exact_condition", "condition"]));
+    }
+    Ok(())
 }
 
 fn valid_condition_id(id: &biodata::Curie, source: TrialSource) -> bool {

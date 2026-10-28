@@ -1171,17 +1171,20 @@ Options:
       --distance <distance>
           Source distance with explicit mi or km units.
 
+      --exact-condition
+          Ask ClinicalTrials.gov to restrict matching to the registered condition phrase; its support is partial.
+
       --facility <facility>
           Exact registry facility field; cannot combine with radius.
-
-      --gene <gene>
-          Resolve one checked gene for registry text discovery only; no eligibility judgment.
 
       --offline
           Read local data without source requests.
 
       --fresh
           Request fresh source data instead of cached replies.
+
+      --gene <gene>
+          Resolve one checked gene for registry text discovery only; no eligibility judgment.
 
       --has-results
           Require posted source results.
@@ -1247,6 +1250,7 @@ Search one source with bounded pages and source counts; default ClinicalTrials.g
 - `--count-only`: Source total only; no returned study rows.
 - `--criteria`: Search exact registry eligibility text for discovery only; no eligibility judgment.
 - `--distance`: Source distance with explicit mi or km units.
+- `--exact-condition`: Ask ClinicalTrials.gov to restrict matching to the registered condition phrase; its support is partial.
 - `--facility`: Exact registry facility field; cannot combine with radius.
 - `--gene`: Resolve one checked gene for registry text discovery only; no eligibility judgment.
 - `--has-results`: Require posted source results.

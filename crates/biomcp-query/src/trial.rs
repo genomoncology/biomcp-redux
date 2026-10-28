@@ -44,12 +44,7 @@ pub(crate) fn search(cx: &Ctx<'_>, query: &TrialSearch) -> Outcome {
     let result = ctgov::search(&leg, &params);
     let rejected = matches!(
         &result,
-        Err(biomcp_fetch::RequestError::Source(
-            biomcp_fetch::SourceError {
-                status: Some(400),
-                ..
-            }
-        ))
+        Err(biomcp_fetch::RequestError::Source(error)) if error.status == Some(400)
     );
     let version = match &result {
         Ok(_) => ctgov::version(&leg),
@@ -78,6 +73,9 @@ pub(crate) fn search(cx: &Ctx<'_>, query: &TrialSearch) -> Outcome {
         Status::Complete
     };
     if let Ok(page) = result {
+        if page.condition_word_mismatch {
+            condition::word_notice(query, cx.fresh, &mut source, &mut outcome);
+        }
         source.count = page.total;
         source.fetched = Some(page.items.len() as u32);
         apply_page(query, cx.fresh, gene.as_deref(), &mut outcome, page);
