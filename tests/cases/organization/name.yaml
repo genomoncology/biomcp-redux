@@ -58,12 +58,10 @@
         "/result/items/3/next/args": [
           "search",
           "trial",
-          "--source",
-          "nci",
           "--facility",
           "Dana-Farber Cancer Institute",
-          "--limit",
-          "10"
+          "--source",
+          "nci"
         ]
       },
       "max_bytes": 4000
