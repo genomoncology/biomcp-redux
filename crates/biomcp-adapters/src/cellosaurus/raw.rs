@@ -24,10 +24,8 @@ pub(super) struct Record {
     pub accession_list: Vec<Accession>,
     pub name_list: Vec<Name>,
     pub category: Text,
-    #[serde(default, deserialize_with = "crate::strict_input::deserialize")]
-    pub species_list: Option<Box<[CellLineXref]>>,
-    #[serde(default, deserialize_with = "crate::strict_input::deserialize")]
-    pub disease_list: Option<Box<[CellLineXref]>>,
+    pub species_list: Option<crate::strict_input::Input<Box<[CellLineXref]>>>,
+    pub disease_list: Option<crate::strict_input::Input<Box<[CellLineXref]>>>,
     pub age: Option<Text>,
     pub sex: Option<biodata::CellLineSex>,
     pub created: Option<PartialDate>,

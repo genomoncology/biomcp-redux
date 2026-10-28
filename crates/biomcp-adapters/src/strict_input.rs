@@ -13,3 +13,12 @@ where
     }
     Ok(value)
 }
+
+#[derive(Clone, Debug)]
+pub(crate) struct Input<T>(pub(crate) T);
+
+impl<'de, T: Deserialize<'de>> Deserialize<'de> for Input<T> {
+    fn deserialize<D: Deserializer<'de>>(deserializer: D) -> Result<Self, D::Error> {
+        deserialize(deserializer).map(Self)
+    }
+}
