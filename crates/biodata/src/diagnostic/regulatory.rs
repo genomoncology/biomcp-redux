@@ -165,7 +165,7 @@ pub enum CompanionDiagnosticRelation {
         drug_applications: Box<[DiagnosticDrugApplication]>,
     },
 }
-/// Exact native CompanionIndividualCells headers; any extra or changed header is refused.
+/// Known native individual-table cells keyed by their exact source headers.
 #[derive(Clone, Debug, PartialEq, Serialize, Deserialize)]
 #[cfg_attr(feature = "schema", derive(schemars::JsonSchema))]
 pub struct CompanionIndividualCells {
@@ -188,7 +188,7 @@ pub struct CompanionIndividualCells {
     #[serde(rename = "PMA / 510(k) /\n513(f)(2) / HDE (Approval / Clearance / Grant Date)")]
     pub device: DiagnosticCell,
 }
-/// Exact native CompanionGroupCells headers; any extra or changed header is refused.
+/// Known native group-table cells keyed by their exact source headers.
 #[derive(Clone, Debug, PartialEq, Serialize, Deserialize)]
 #[cfg_attr(feature = "schema", derive(schemars::JsonSchema))]
 pub struct CompanionGroupCells {

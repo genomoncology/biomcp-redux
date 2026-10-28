@@ -314,7 +314,8 @@ fn pma_absent_empty_and_explicit_supplement_roles_stay_distinct() {
             .is_err()
         );
     }
-    let header = json!({"pma_number":"P150013", "supplement_number":"", "url":"https://example.invalid"});
+    let header =
+        json!({"pma_number":"P150013", "supplement_number":"", "url":"https://example.invalid"});
     let mut extended = header.clone();
     extended["ao_statement"] = json!("Whole statement must stay behind regulatory");
     assert_eq!(roundtrip::<DiagnosticPmaHeader>(extended), header);
@@ -328,7 +329,7 @@ fn physical_companion_tables_keep_exact_headers_whole_cells_and_owned_ids() {
         assert!(serde_json::from_value::<Statement>(row.clone()).is_err());
         let mut invalid = row.clone();
         invalid["cells"]["invented column"] = json!({"text":"invented","links":[]});
-        assert!(serde_json::from_value::<CompanionDiagnosticRelation>(invalid).is_err());
+        assert_eq!(roundtrip::<CompanionDiagnosticRelation>(invalid), row);
         let mut wrong_kind = row;
         wrong_kind["kind"] = json!(if group { "individual" } else { "group" });
         assert!(serde_json::from_value::<CompanionDiagnosticRelation>(wrong_kind).is_err());

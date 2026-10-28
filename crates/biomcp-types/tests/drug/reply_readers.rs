@@ -21,7 +21,10 @@ fn header_and_card_exclude_deeper_disclosures_from_the_public_contract() {
         assert_eq!(serde_json::to_value(decoded).expect("header JSON"), header);
         let value = json!({"header":header, extra:[]});
         let decoded = serde_json::from_value::<DrugCard>(value).expect("open card");
-        assert_eq!(serde_json::to_value(decoded).expect("card JSON"), json!({"header":header}));
+        assert_eq!(
+            serde_json::to_value(decoded).expect("card JSON"),
+            json!({"header":header})
+        );
     }
     let schema = serde_json::to_value(schemars::schema_for!(DrugHeader)).expect("header schema");
     let keys: Vec<_> = schema["properties"]
