@@ -129,7 +129,8 @@ class Screening(unittest.TestCase):
                                         cwd=ROOT, env=env, capture_output=True, text=True)
                 self.assertEqual(result.returncode, 1, "planted binary or merge fixture must fail screening")
                 self.assertNotIn(token, result.stdout + result.stderr)
-                self.assertTrue(all(set(json.loads(line)) == ({"file", "rule", "level"} if json.loads(line).get("level") == "info" else {"file", "rule"}) for line in result.stdout.splitlines()))
+                for row in map(json.loads, result.stdout.splitlines()):
+                    self.assertEqual(set(row), {"file", "rule", "level"} if row.get("level") == "info" else {"file", "rule"})
                 return result.stdout
             for name in ["biomcp.exe", "package.dist-info/release.json"]:
                 with zipfile.ZipFile(artifacts / "candidate.whl", "w") as archive:
@@ -194,7 +195,9 @@ class Screening(unittest.TestCase):
                                       cwd=ROOT, env=env, capture_output=True, text=True)
             candidate = artifacts / "candidate.zip"
             candidate.write_bytes(b"PK\x03\x04broken archive")
-            self.assertNotEqual(screen().returncode, 0, "corrupt archive must fail closed")
+            corrupt = screen()
+            self.assertEqual(corrupt.returncode, 2, "corrupt archive must fail closed")
+            self.assertEqual(corrupt.stderr, "Secret screening failed; diagnostic output was suppressed\n")
             candidate.write_bytes(next((ROOT / "tests/replies/article/supplements/synthetic-bound-directory-size").rglob("*.bin")).read_bytes())
             self.assertEqual(screen().returncode, 2, "malformed directory size in a staged archive must fail closed")
             with zipfile.ZipFile(candidate, "w") as archive:
