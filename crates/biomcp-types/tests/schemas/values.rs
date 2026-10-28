@@ -526,3 +526,25 @@ fn generated_links_expose_uri_metadata() {
         }
     }
 }
+
+// Compare admission at the public parser and schema boundaries, including near misses.
+fn text_admissions<T: JsonSchema + std::str::FromStr>(examples: &[&str]) {
+    let schema = validator::<T>();
+    for text in examples {
+        assert_eq!(schema.is_valid(&json!(text)), text.parse::<T>().is_ok(),
+            "{}: {text:?}", std::any::type_name::<T>());
+    }
+}
+
+#[test]
+fn text_value_patterns_match_parser_admissions() {
+    text_admissions::<CaId>(&["CA000001", "CA000000", "CA0000001", "CA1000000"]);
+    text_admissions::<VcvId>(&["VCV000000001", "VCV000000000", "VCV000000001.0"]);
+    text_admissions::<RcvId>(&["RCV000000001", "RCV000000000", "RCV000000001.01"]);
+    text_admissions::<ScvId>(&["SCV000000001", "SCV000000000", "SCV000000001.1"]);
+    text_admissions::<Doi>(&["10.1/a", "10.1/a\u{0080}", "10.1/a\u{009f}", "10.1/α", "10.1/a\n"]);
+    text_admissions::<HgvsText>(&["NM_004333.6:c.1A>G", "NM_004333.0:c.1A>G",
+        "NM_004333.6(123):c.1A>G", "NM_004333.6(BRAF):c.1A>G",
+        "NP_004324.1:c.1A>G", "NP_004324.1:p.?",
+        "NC_000007.14(NP_004324.1):g.1A>G"]);
+}
