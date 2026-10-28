@@ -134,31 +134,6 @@
       ],
       "type": "object"
     },
-    "Concept": {
-      "additionalProperties": false,
-      "description": "One source concept with its optional ontology identifier.",
-      "properties": {
-        "id": {
-          "anyOf": [
-            {
-              "$ref": "#/$defs/Curie"
-            },
-            {
-              "type": "null"
-            }
-          ],
-          "description": "Source-stated concept identifier."
-        },
-        "label": {
-          "$ref": "#/$defs/Text",
-          "description": "Original concept label."
-        }
-      },
-      "required": [
-        "label"
-      ],
-      "type": "object"
-    },
     "Curie": {
       "description": "Checked prefix:local ontology identifier.",
       "pattern": "^[A-Za-z0-9_.-]+:[^\\s\\x00-\\x1f\\x7f-\\x9f]+$",
@@ -191,7 +166,7 @@
           "type": "array"
         },
         "concept": {
-          "$ref": "#/$defs/Concept",
+          "$ref": "#/$defs/DiseaseConcept",
           "description": "Native identity and complete primary label."
         },
         "consider": {
@@ -255,6 +230,28 @@
         "concept",
         "attribution"
       ],
+      "type": "object"
+    },
+    "DiseaseConcept": {
+      "additionalProperties": false,
+      "description": "A disease identity whose optional display label never determines record admission.",
+      "properties": {
+        "id": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/Curie"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "description": "Source-stated exact identifier."
+        },
+        "label": {
+          "$ref": "#/$defs/Text",
+          "description": "Native display label when supplied and valid."
+        }
+      },
       "type": "object"
     },
     "DiseaseEndpoint": {
@@ -1091,7 +1088,7 @@
       "type": "string"
     }
   },
-  "$id": "biomcp.disease-card/2",
+  "$id": "biomcp.disease-card/3",
   "$schema": "https://json-schema.org/draft/2020-12/schema",
   "additionalProperties": false,
   "description": "One versioned command response; schema identity comes only from its body type.",
@@ -1148,7 +1145,7 @@
       "description": "Answer when available."
     },
     "schema": {
-      "const": "biomcp.disease-card/2",
+      "const": "biomcp.disease-card/3",
       "type": "string"
     },
     "sources": {
