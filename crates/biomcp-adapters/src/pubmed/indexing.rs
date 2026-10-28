@@ -12,7 +12,10 @@ pub(super) fn parse(
     let mut mesh = Vec::new();
     if let Some(list) = citation.child("MeshHeadingList")? {
         for heading in list.children("MeshHeading")? {
-            let descriptor = heading.child("DescriptorName")?.ok_or(BadReply)?;
+            let Some(descriptor) = heading.child("DescriptorName")? else {
+                problems.required::<()>("mesh.descriptor", None);
+                continue;
+            };
             let Some(name) = problems.text("mesh.descriptor", Some(&descriptor.text()?)) else {
                 continue;
             };
