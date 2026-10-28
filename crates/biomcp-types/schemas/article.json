@@ -271,7 +271,6 @@
     }
   },
   "required": [
-    "title",
     "authors"
   ],
   "title": "Article",

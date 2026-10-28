@@ -176,8 +176,7 @@
       },
       "required": [
         "kind",
-        "value",
-        "relationship"
+        "value"
       ],
       "type": "object"
     },
@@ -304,7 +303,6 @@
       },
       "required": [
         "put_code",
-        "work_type",
         "source",
         "visibility"
       ],
