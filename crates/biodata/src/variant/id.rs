@@ -1,7 +1,7 @@
 use crate::{Error, text_value};
 use std::{fmt, num::NonZeroU64, str::FromStr};
 macro_rules! numeric_id {
-    ($(#[doc = $doc:literal])* $name:ident, $error:ident, $prefix:literal, $pattern:literal, $padding:literal) => {
+    ($(#[doc = $doc:literal])* $name:ident, $error:ident, $prefix:literal, $padding:literal) => {
         $(#[doc = $doc])*
         #[derive(Clone, Copy, Debug, PartialEq, Eq, Hash)]
         pub struct $name(NonZeroU64);
@@ -32,17 +32,17 @@ macro_rules! numeric_id {
 }
 // Each level has its own checked value, even where the grammar is the same.
 numeric_id!(/// A dbSNP site identifier, never an allele join key.
-    RsId, RsIdInvalid, "rs", "^rs[1-9][0-9]*$", 0);
+    RsId, RsIdInvalid, "rs", 0);
 numeric_id!(/// A ClinGen canonical nucleotide allele identifier.
-    CaId, CaIdInvalid, "CA", "^CA[0-9]{6,}$", 6);
+    CaId, CaIdInvalid, "CA", 6);
 // Registry API documents separate CA nucleotide and PA protein namespaces:
 // https://reg.genome.network/doc/AlleleRegistry_1.01.xx_api_v1.pdf
 numeric_id!(/// A ClinGen canonical protein allele identifier.
-    PaId, PaIdInvalid, "PA", "^PA[1-9][0-9]*$", 0);
+    PaId, PaIdInvalid, "PA", 0);
 numeric_id!(/// A ClinVar variation record, which may represent a compound.
-    ClinVarVariationId, ClinVarVariationIdInvalid, "clinvar:", "^clinvar:[1-9][0-9]*$", 0);
+    ClinVarVariationId, ClinVarVariationIdInvalid, "clinvar:", 0);
 numeric_id!(/// An allele identifier inside a ClinVar record, not a variant identifier.
-    ClinVarAlleleId, ClinVarAlleleIdInvalid, "", "^[1-9][0-9]*$", 0);
+    ClinVarAlleleId, ClinVarAlleleIdInvalid, "", 0);
 macro_rules! accession_id {
     ($(#[doc = $doc:literal])* $name:ident, $error:ident, $prefix:literal) => {
         $(#[doc = $doc])*

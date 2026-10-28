@@ -44,7 +44,7 @@ text_value!(
     ArticleInput,
     "ArticleInput",
     format!(
-        "({}|{}|^PPR(?=[0-9]{{1,61}}$)[0-9]*[1-9][0-9]*$|^(?:https?://doi\\.org/)?{})",
+        "({}|{}|(?=PPR){}|^(?:https?://doi\\.org/)?{})",
         Pmid::pattern(),
         Pmcid::pattern(),
         Doi::pattern().trim_start_matches('^')
