@@ -70,9 +70,56 @@ fn exact(env: &super::Environment, recording: &std::path::Path, words: &[&str], 
     if result.pointer("/page/total") != Some(&json!(0)) || result.pointer("/result/items") != Some(&json!([])) {
         return Err(format!("exact condition did not retain the captured zero: {result}"));
     }
-    let expected = json!({"name":"filter.advanced","value":"AREA[Condition]EXPANSION[None]\"Snyder-Robinson syndrome\""});
+    let expected = json!({"name":"filter.advanced","value":r#"AREA[Condition]EXPANSION[None]"Snyder-Robinson syndrome""#});
     if !result.pointer("/result/request").and_then(Value::as_array).is_some_and(|values| values.contains(&expected)) {
         return Err(format!("missing captured condition field restriction: {result}"));
+    }
+    Ok(())
+}
+
+pub(super) fn complete_conditions() -> Result<(), String> {
+    let stub = Stub::for_source("clinicaltrials.gov", "application/json", |request| {
+        if request.starts_with("GET /api/v2/version ") {
+            return Ok(json!({"dataTimestamp":"2026-10-27T00:00:00"}).to_string());
+        }
+        if !request.starts_with("GET /api/v2/studies?") { return Err("unexpected request".into()); }
+        let mut body: Value = serde_json::from_slice(&fs::read(super::super::launch::fixtures()
+            .join("replies/trial/condition-words/broad.body")).map_err(|e| e.to_string())?)
+            .map_err(|e| e.to_string())?;
+        for study in body.get_mut("studies").and_then(Value::as_array_mut).ok_or("missing studies")? {
+            let conditions = study.pointer_mut("/protocolSection/conditionsModule/conditions").ok_or("missing conditions")?;
+            *conditions = json!(["unrelated first", "unrelated second", "unrelated third", "SNYDER Robinson SYNDROME"]);
+        }
+        Ok(body.to_string())
+    })?;
+    let env = setup(&stub)?;
+    let args = ["search", "trial", "--condition", "Snyder-Robinson syndrome"];
+    let args: Vec<String> = args.iter().map(|v| (*v).into()).collect();
+    let value = invoke(&env, &args, 0)?;
+    if value.pointer("/sources/0/notices").is_some() || value.get("next").is_some() {
+        return Err(format!("matching fourth native condition produced a mismatch: {value}"));
+    }
+    stub.finish()?;
+    Ok(())
+}
+
+pub(super) fn exact_boundary() -> Result<(), String> {
+    for value in [json!({"exact_condition":true}), json!({"source":"nci","condition":"C3224","exact_condition":true})] {
+        if serde_json::from_value::<biomcp_types::TrialSearch>(value).is_ok() {
+            return Err("exact-condition accepted an unsupported source or absent condition".into());
+        }
+    }
+    let query: biomcp_types::TrialSearch = serde_json::from_value(json!({
+        "condition":"Snyder-Robinson syndrome", "criteria":"retained eligibility", "phase":"2", "next_page":"opaque"
+    })).map_err(|e| e.to_string())?;
+    let exact = query.with_exact_condition();
+    if exact.next_page().is_some() || !exact.exact_condition() || exact.criteria() != query.criteria() || exact.phase() != query.phase() {
+        return Err("exact condition changed filters or retained cursor".into());
+    }
+    let params = biomcp_adapters::ctgov::parameters(&exact, None);
+    if params.get("query.cond").map(String::as_str) != Some("Snyder-Robinson syndrome") ||
+        params.get("filter.advanced").map(String::as_str) != Some(r#"AREA[Condition]EXPANSION[None]"Snyder-Robinson syndrome" AND AREA[Phase]PHASE2 AND AREA[EligibilityCriteria]"retained eligibility""#) {
+        return Err(format!("exact condition lost existing advanced conjuncts: {params:?}"));
     }
     Ok(())
 }
