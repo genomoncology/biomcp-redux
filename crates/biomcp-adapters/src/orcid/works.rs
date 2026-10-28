@@ -1,4 +1,6 @@
 use super::raw::Wrapped;
+use crate::{Mapped, mapped::{Problems, record}, raw::Field};
+use biomcp_types::Source;
 use biodata::{
     OrcidAssertionSource, OrcidClientId, OrcidExternalId, OrcidId, OrcidPublicVisibility,
     OrcidWorkAssertion, OrcidWorkGroup, PartialDate, Text,
@@ -28,26 +30,21 @@ struct ExternalId {
     external_id_type: Text,
     external_id_value: Text,
     external_id_relationship: Text,
-    external_id_url: Option<Url>,
+    external_id_url: Option<Field<Url>>,
 }
 #[derive(Deserialize)]
 struct Url {
-    value: String,
-}
-impl Url {
-    fn into_text(self) -> Option<Text> {
-        crate::mapped::text(&self.value).ok()
-    }
+    value: Text,
 }
 impl Identifiers {
-    fn convert(self) -> Box<[OrcidExternalId]> {
+    fn convert(self, problems: &mut Problems) -> Box<[OrcidExternalId]> {
         self.external_id
             .into_iter()
             .map(|id| OrcidExternalId {
                 kind: id.external_id_type,
                 value: id.external_id_value,
                 relationship: id.external_id_relationship,
-                url: id.external_id_url.and_then(Url::into_text),
+                url: optional(problems, "external_ids.url", id.external_id_url).map(|v| v.value),
             })
             .collect()
     }
@@ -58,22 +55,22 @@ struct Assertion {
     path: String,
     put_code: NonZeroU64,
     visibility: Option<String>,
-    title: Option<Title>,
+    title: Option<Field<Title>>,
     #[serde(rename = "type")]
     work_type: Text,
-    publication_date: Option<Date>,
-    journal_title: Option<Wrapped>,
-    url: Option<Url>,
+    publication_date: Option<Field<Date>>,
+    journal_title: Option<Field<Wrapped>>,
+    url: Option<Field<Url>>,
     external_ids: Identifiers,
     source: Origin,
-    display_index: Option<Text>,
+    display_index: Option<Field<Text>>,
 }
 #[derive(Deserialize)]
 #[serde(rename_all = "kebab-case")]
 struct Title {
-    title: Option<Wrapped>,
-    subtitle: Option<Wrapped>,
-    translated_title: Option<TranslatedTitle>,
+    title: Option<Field<Wrapped>>,
+    subtitle: Option<Field<Wrapped>>,
+    translated_title: Option<Field<TranslatedTitle>>,
 }
 #[derive(Deserialize)]
 struct TranslatedTitle {
@@ -110,55 +107,51 @@ struct Identity<T> {
 #[derive(Deserialize)]
 #[serde(rename_all = "kebab-case")]
 struct Origin {
-    source_orcid: Option<Identity<OrcidId>>,
-    source_client_id: Option<Identity<OrcidClientId>>,
-    source_name: Option<Wrapped>,
-    assertion_origin_orcid: Option<Identity<OrcidId>>,
-    assertion_origin_client_id: Option<Identity<OrcidClientId>>,
-    assertion_origin_name: Option<Wrapped>,
+    source_orcid: Option<Field<Identity<OrcidId>>>,
+    source_client_id: Option<Field<Identity<OrcidClientId>>>,
+    source_name: Option<Field<Wrapped>>,
+    assertion_origin_orcid: Option<Field<Identity<OrcidId>>>,
+    assertion_origin_client_id: Option<Field<Identity<OrcidClientId>>>,
+    assertion_origin_name: Option<Field<Wrapped>>,
 }
 impl Origin {
-    fn convert(self) -> OrcidAssertionSource {
+    fn convert(self, problems: &mut Problems) -> OrcidAssertionSource {
         OrcidAssertionSource {
-            source_orcid: self.source_orcid.map(|v| v.path),
-            source_client_id: self.source_client_id.map(|v| v.path),
-            source_name: self.source_name.map(|v| v.value),
-            assertion_origin_orcid: self.assertion_origin_orcid.map(|v| v.path),
-            assertion_origin_client_id: self.assertion_origin_client_id.map(|v| v.path),
-            assertion_origin_name: self.assertion_origin_name.map(|v| v.value),
+            source_orcid: optional(problems, "source.source_orcid", self.source_orcid).map(|v| v.path),
+            source_client_id: optional(problems, "source.source_client_id", self.source_client_id).map(|v| v.path),
+            source_name: optional(problems, "source.source_name", self.source_name).map(|v| v.value),
+            assertion_origin_orcid: optional(problems, "source.assertion_origin_orcid", self.assertion_origin_orcid).map(|v| v.path),
+            assertion_origin_client_id: optional(problems, "source.assertion_origin_client_id", self.assertion_origin_client_id).map(|v| v.path),
+            assertion_origin_name: optional(problems, "source.assertion_origin_name", self.assertion_origin_name).map(|v| v.value),
         }
     }
 }
 impl Assertion {
-    fn convert(self) -> Result<OrcidWorkAssertion, BadReply> {
-        let (title, subtitle, translated_title) = self
-            .title
+    fn convert(self, problems: &mut Problems) -> OrcidWorkAssertion {
+        let (title, subtitle, translated_title) = optional(problems, "title", self.title)
             .map(|v| {
                 (
-                    v.title.map(|v| v.value),
-                    v.subtitle.map(|v| v.value),
-                    v.translated_title.map(|v| v.content),
+                    optional(problems, "title", v.title).map(|v| v.value),
+                    optional(problems, "subtitle", v.subtitle).map(|v| v.value),
+                    optional(problems, "translated_title", v.translated_title).map(|v| v.content),
                 )
             })
             .unwrap_or_default();
-        Ok(OrcidWorkAssertion {
+        OrcidWorkAssertion {
             put_code: self.put_code,
             title,
             subtitle,
             translated_title,
             work_type: self.work_type,
-            publication_date: self
-                .publication_date
-                .as_ref()
-                .map(Date::convert)
-                .transpose()?,
-            journal_title: self.journal_title.map(|v| v.value),
-            url: self.url.and_then(Url::into_text),
-            external_ids: self.external_ids.convert(),
-            source: self.source.convert(),
+            publication_date: optional(problems, "publication_date", self.publication_date)
+                .and_then(|v| problems.optional("publication_date", Some(v.convert()))),
+            journal_title: optional(problems, "journal_title", self.journal_title).map(|v| v.value),
+            url: optional(problems, "url", self.url).map(|v| v.value),
+            external_ids: self.external_ids.convert(problems),
+            source: self.source.convert(problems),
             visibility: OrcidPublicVisibility::Public,
-            display_index: self.display_index,
-        })
+            display_index: optional(problems, "display_index", self.display_index),
+        }
     }
 }
 impl Works {
@@ -170,40 +163,22 @@ impl Works {
                 .flat_map(|g| &g.work_summary)
                 .all(|s| s.path == format!("/{id}/work/{}", s.put_code))
     }
-    pub(super) fn groups(self) -> Result<Box<[OrcidWorkGroup]>, BadReply> {
-        self.group
-            .into_iter()
-            .filter_map(|g| {
-                let assertions = g
-                    .work_summary
-                    .into_iter()
-                    .filter(|s| s.visibility.as_deref() == Some("public"))
-                    .map(Assertion::convert)
-                    .collect::<Result<Box<[_]>, _>>();
-                match assertions {
-                    Ok(assertions) if assertions.is_empty() => None,
-                    Ok(assertions) => Some(Ok(OrcidWorkGroup {
-                        external_ids: g.external_ids.convert(),
-                        assertions,
-                    })),
-                    Err(e) => Some(Err(e)),
-                }
-            })
-            .collect()
+    pub(super) fn groups(self) -> Mapped<Box<[OrcidWorkGroup]>> {
+        let mut problems = Problems { source: Source::Orcid, record: record(&self.path), list: Vec::new() };
+        let value = self.group.into_iter().filter_map(|g| {
+            problems.record = record(&self.path);
+            let external_ids = g.external_ids.convert(&mut problems);
+            let assertions: Box<[_]> = g.work_summary.into_iter()
+                .filter(|s| s.visibility.as_deref() == Some("public"))
+                .map(|s| { problems.record = record(&s.path); s.convert(&mut problems) }).collect();
+            if assertions.is_empty() { None } else { Some(OrcidWorkGroup { external_ids, assertions }) }
+        }).collect();
+        Mapped { value, problems: problems.list }
     }
 }
 impl Reply for Works {
-    fn check(&self) -> Result<(), BadReply> {
-        for s in self
-            .group
-            .iter()
-            .flat_map(|g| &g.work_summary)
-            .filter(|s| s.visibility.as_deref() == Some("public"))
-        {
-            if let Some(date) = &s.publication_date {
-                date.convert()?;
-            }
-        }
-        Ok(())
-    }
+    fn check(&self) -> Result<(), BadReply> { Ok(()) }
+}
+fn optional<T>(problems: &mut Problems, field: &str, value: Option<Field<T>>) -> Option<T> {
+    problems.required(field, value?.value())
 }

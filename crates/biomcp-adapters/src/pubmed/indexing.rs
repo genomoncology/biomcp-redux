@@ -1,34 +1,28 @@
 use crate::xml_element::Element;
+use crate::mapped::Problems;
 
 use biomcp_fetch::BadReply;
 use biomcp_types::Capped;
 use biomcp_types::{Indexing, MeshHeading, MeshQualifier};
-pub(super) fn parse(citation: Element<'_>, row: Element<'_>) -> Result<Indexing, BadReply> {
+pub(super) fn parse(citation: Element<'_>, row: Element<'_>, problems: &mut Problems) -> Result<Indexing, BadReply> {
     let mut mesh = Vec::new();
     if let Some(list) = citation.child("MeshHeadingList")? {
         for heading in list.children("MeshHeading")? {
             let descriptor = heading.child("DescriptorName")?.ok_or(BadReply)?;
-            let qualifiers = heading
-                .children("QualifierName")?
-                .into_iter()
-                .map(|q| {
-                    Ok(MeshQualifier {
-                        name: q.text().and_then(|s| crate::mapped::text(&s))?,
-                        major: major(q)?,
-                    })
-                })
-                .collect::<Result<Vec<_>, BadReply>>()?;
-            mesh.push(MeshHeading {
-                descriptor: descriptor.text().and_then(|s| crate::mapped::text(&s))?,
-                major: major(descriptor)?,
-                qualifiers: qualifiers.into(),
-            });
+            let Some(name) = problems.text("mesh.descriptor", Some(&descriptor.text()?)) else { continue; };
+            let mut qualifiers = Vec::new();
+            for qualifier in heading.children("QualifierName")? {
+                if let Some(name) = problems.text("mesh.qualifiers.name", Some(&qualifier.text()?)) {
+                    qualifiers.push(MeshQualifier { name, major: major(qualifier)? });
+                }
+            }
+            mesh.push(MeshHeading { descriptor: name, major: major(descriptor)?, qualifiers: qualifiers.into() });
         }
     }
     let mut keywords = Vec::new();
     for list in citation.children("KeywordList")? {
         for keyword in list.children("Keyword")? {
-            keywords.push(keyword.text().and_then(|s| crate::mapped::text(&s))?);
+            if let Some(value) = problems.text("keywords", Some(&keyword.text()?)) { keywords.push(value); }
         }
     }
     let mut affiliations = Vec::new();
@@ -37,12 +31,12 @@ pub(super) fn parse(citation: Element<'_>, row: Element<'_>) -> Result<Indexing,
         for author in list.children("Author")? {
             for info in author.children("AffiliationInfo")? {
                 for affiliation in info.children("Affiliation")? {
-                    affiliations.push(affiliation.text().and_then(|s| crate::mapped::text(&s))?);
+                    if let Some(value) = problems.text("affiliations", Some(&affiliation.text()?)) { affiliations.push(value); }
                 }
             }
             for identifier in author.children("Identifier")? {
                 if identifier.attr("Source")?.as_deref() == Some("ORCID") {
-                    let id = identifier.text().and_then(|s| crate::mapped::text(&s))?;
+                    let Some(id) = problems.text("orcids", Some(&identifier.text()?)) else { continue; };
                     if !orcids.contains(&id) {
                         orcids.push(id);
                     }

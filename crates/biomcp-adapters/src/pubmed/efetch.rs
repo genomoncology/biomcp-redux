@@ -1,5 +1,7 @@
 use super::{SPEC, map::publication_type};
 use crate::xml_element::Element;
+use crate::mapped::{Problems, record};
+use biomcp_types::{Problem, Source};
 use biodata::{PartialDate, Pmid, Text};
 
 use biomcp_fetch::{
@@ -17,6 +19,8 @@ pub struct FetchedArticle {
     pub article: Article,
     /// Facts from that same citation.
     pub indexing: biomcp_types::Indexing,
+    /// Rejected optional fields from this exact citation.
+    pub problems: Vec<Problem>,
 }
 const FETCH: Endpoint = SPEC
     .post_form("/efetch.fcgi")
@@ -122,28 +126,26 @@ impl XmlReply for Records {
 fn article(root: Element<'_>) -> Result<FetchedArticle, BadReply> {
     let citation = root.child("MedlineCitation")?.ok_or(BadReply)?;
     let row = citation.child("Article")?.ok_or(BadReply)?;
-    let pmid = citation
+    let pmid: Pmid = citation
         .value(&["PMID"])?
         .ok_or(BadReply)?
         .parse()
         .map_err(|_| BadReply)?;
+    let mut problems = Problems { source: Source::PubMed, record: record(pmid), list: Vec::new() };
     let title = row
         .value(&["ArticleTitle"])?
         .map(|s| crate::mapped::text(&s))
         .transpose()?
         .ok_or(BadReply)?;
-    let journal = row
-        .value(&["Journal", "Title"])?
-        .map(|s| crate::mapped::text(&s))
-        .transpose()?;
+    let journal = problems.text("journal", row.value(&["Journal", "Title"])?.as_deref());
     let date = pubdate(row.at(&["Journal", "JournalIssue", "PubDate"])?)?;
     let mut doi = None;
     let mut pmcid = None;
     if let Some(ids) = root.at(&["PubmedData", "ArticleIdList"])? {
         for id in ids.children("ArticleId")? {
             match id.attr("IdType")?.as_deref() {
-                Some("doi") => doi = Some(id.text()?.parse().map_err(|_| BadReply)?),
-                Some("pmc") => pmcid = Some(id.text()?.parse().map_err(|_| BadReply)?),
+                Some("doi") => doi = problems.optional("doi", Some(id.text()?.parse())),
+                Some("pmc") => pmcid = problems.optional("pmcid", Some(id.text()?.parse())),
                 _ => {}
             }
         }
@@ -159,7 +161,7 @@ fn article(root: Element<'_>) -> Result<FetchedArticle, BadReply> {
         }
     }
     Ok(FetchedArticle {
-        indexing: super::indexing::parse(citation, row)?,
+        indexing: super::indexing::parse(citation, row, &mut problems)?,
         article: Article {
             europepmc_id: None,
             pmid: Some(pmid),
@@ -170,10 +172,11 @@ fn article(root: Element<'_>) -> Result<FetchedArticle, BadReply> {
             date,
             electronic_date: electronic_date(row, date)?,
             types: types.into(),
-            corrections: corrections(citation)?.into(),
-            authors: authors(row)?.into(),
-            abstract_parts: abstracts(row)?.into(),
+            corrections: corrections(citation, &mut problems)?.into(),
+            authors: authors(row, &mut problems)?.into(),
+            abstract_parts: abstracts(row, &mut problems)?.into(),
         },
+        problems: problems.list,
     })
 }
 fn electronic_date(
@@ -188,7 +191,7 @@ fn electronic_date(
     Ok(None)
 }
 
-fn authors(row: Element<'_>) -> Result<Vec<Text>, BadReply> {
+fn authors(row: Element<'_>, problems: &mut Problems) -> Result<Vec<Text>, BadReply> {
     let mut out = Vec::new();
     if let Some(list) = row.child("AuthorList")? {
         for author in list.children("Author")? {
@@ -201,24 +204,19 @@ fn authors(row: Element<'_>) -> Result<Vec<Text>, BadReply> {
                     .collect::<Vec<_>>()
                     .join(" ")
             };
-            if !name.is_empty() {
-                out.push(Text::new(&name).map_err(|_| BadReply)?);
-            }
+            if let Some(name) = problems.text("authors", Some(&name)) { out.push(name); }
         }
     }
     Ok(out)
 }
-fn abstracts(row: Element<'_>) -> Result<Vec<AbstractPart>, BadReply> {
+fn abstracts(row: Element<'_>, problems: &mut Problems) -> Result<Vec<AbstractPart>, BadReply> {
     let mut out = Vec::new();
     if let Some(body) = row.child("Abstract")? {
         for part in body.children("AbstractText")? {
             let value = part.text()?;
-            if !value.trim().is_empty() {
+            if problems.text("abstract_parts.text", Some(&value)).is_some() {
                 out.push(AbstractPart {
-                    label: part
-                        .attr("Label")?
-                        .map(|s| crate::mapped::text(&s))
-                        .transpose()?,
+                    label: problems.text("abstract_parts.label", part.attr("Label")?.as_deref()),
                     text: crate::jats::markdown(part.0)?,
                 });
             }
@@ -226,7 +224,7 @@ fn abstracts(row: Element<'_>) -> Result<Vec<AbstractPart>, BadReply> {
     }
     Ok(out)
 }
-fn corrections(citation: Element<'_>) -> Result<Vec<Correction>, BadReply> {
+fn corrections(citation: Element<'_>, problems: &mut Problems) -> Result<Vec<Correction>, BadReply> {
     let mut out = Vec::new();
     if let Some(list) = citation.child("CommentsCorrectionsList")? {
         for item in list.children("CommentsCorrections")? {
@@ -252,10 +250,7 @@ fn corrections(citation: Element<'_>) -> Result<Vec<Correction>, BadReply> {
             out.push(Correction {
                 kind,
                 relation,
-                pmid: item
-                    .value(&["PMID"])?
-                    .map(|s| s.parse().map_err(|_| BadReply))
-                    .transpose()?,
+                pmid: problems.optional("corrections.pmid", item.value(&["PMID"])?.map(|s| s.parse())),
             });
         }
     }
