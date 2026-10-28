@@ -9,6 +9,7 @@ use serde::Deserialize;
 use std::time::Duration;
 /// Public access does not grant rights in the sentences returned from publishers.
 pub static SPEC: SourceSpec = SourceSpec {
+    destinations: biomcp_fetch::Destinations::Primary,
     user_agent: None,
     terms: biomcp_fetch::Terms {
         name: "NCBI policies; publisher rights in input text",

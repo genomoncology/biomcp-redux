@@ -24,6 +24,7 @@ pub mod wikipathways;
 pub mod civic;
 
 pub mod clingen;
+pub mod gencc;
 
 pub mod hpa;
 

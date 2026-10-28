@@ -70,7 +70,7 @@ pub(super) fn check() -> Result<(), String> {
             "--offset",
             "4294967295",
         ],
-        json!({"/result/items": {"count": 0}}),
+        json!({"/page/returned":0}),
         0,
     )?;
     run(

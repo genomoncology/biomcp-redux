@@ -369,3 +369,43 @@ fn replay_external_writer_stays_external_while_an_admission_owner_does_no_sql() 
         worker.join().unwrap();
     });
 }
+
+#[test]
+fn fresh_bundle_refresh_is_shared_by_one_leg_and_its_batch_children() {
+    let server = support::Server::new();
+    let bundle = declared(&server);
+    let dir = tempfile::tempdir().unwrap();
+    let fetch = cached(&dir.path().join("cache.sqlite"));
+    sync_reply(&fetch, &bundle, &server, 200, "ETag: \"one\"\r\n", TSV).unwrap();
+    let leg = fetch
+        .leg(bundle.spec, fetch.deadline(Duration::from_secs(10)))
+        .fresh(true);
+    std::thread::scope(|scope| {
+        let call = scope.spawn(|| leg.rows(&bundle, Find::Words("kinase")));
+        server.next().respond(304, "", "");
+        assert_eq!(call.join().unwrap().unwrap().len(), 1);
+    });
+    let first_report = leg.take_report();
+    assert!(!first_report.stale);
+    // Reading another gene after draining the report must reuse the refreshed file.
+    // No server reply is supplied: another request is an observable failure.
+    let values = leg.batch(&["BRAF", "MLH1"], |child, symbol| {
+        child.rows(&bundle, Find::Exact(KeyKind::Symbol, symbol))
+    });
+    assert_eq!(
+        values
+            .into_iter()
+            .map(|value| value.unwrap().len())
+            .collect::<Vec<_>>(),
+        [1, 0]
+    );
+    assert!(server.requests.try_recv().is_err());
+    let sibling = fetch
+        .leg(bundle.spec, fetch.deadline(Duration::from_secs(10)))
+        .fresh(true);
+    std::thread::scope(|scope| {
+        let call = scope.spawn(|| sibling.rows(&bundle, Find::Words("kinase")));
+        server.next().respond(304, "", "");
+        assert_eq!(call.join().unwrap().unwrap().len(), 1);
+    });
+}

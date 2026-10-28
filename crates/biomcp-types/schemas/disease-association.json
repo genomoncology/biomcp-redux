@@ -428,10 +428,7 @@
     "subject",
     "predicate",
     "object",
-    "attribution",
-    "qualifiers",
-    "subject_closure",
-    "object_closure"
+    "attribution"
   ],
   "title": "DiseaseAssociation",
   "type": "object"

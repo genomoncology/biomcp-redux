@@ -119,10 +119,7 @@
       ],
       "max_bytes": 32583,
       "expect": {
-        "/result/resolution": "unavailable",
-        "/result/candidates": {
-          "count": 0
-        }
+        "/result/resolution": "unavailable"
       },
       "exit": 4,
       "is_error": true

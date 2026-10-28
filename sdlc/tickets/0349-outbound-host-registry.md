@@ -1,6 +1,7 @@
 # 0349 — Declare every outbound host in one reviewed registry
 
-Status: OPEN.
+Status: COMPLETE.
+Landed: fc8266bc93241170d45b6b798708f6427b5d970a
 
 Milestone: 5
 

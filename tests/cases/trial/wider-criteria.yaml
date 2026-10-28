@@ -45,6 +45,20 @@
               "trial",
               "--condition",
               "basal cell carcinoma",
+              "--exact-condition",
+              "--gene",
+              "PTCH1",
+              "--limit",
+              "100"
+            ]
+          },
+          {
+            "kind": "disambiguate",
+            "args": [
+              "search",
+              "trial",
+              "--condition",
+              "basal cell carcinoma",
               "--criteria",
               "PTCH1",
               "--limit",

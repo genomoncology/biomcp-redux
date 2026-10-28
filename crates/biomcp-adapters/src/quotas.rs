@@ -37,6 +37,10 @@ pub(crate) static CLINGEN: Quota =
     Quota::new(SourceKey::declare("clingen"), Rate::per_second(1), None, 1);
 
 // Conservative local policy; no published numeric provider limit.
+pub(crate) static GENCC: Quota =
+    Quota::new(SourceKey::declare("gencc"), Rate::per_second(1), None, 1);
+
+// Conservative local policy; no published numeric provider limit.
 pub(crate) static HPA: Quota = Quota::new(SourceKey::declare("hpa"), Rate::per_second(1), None, 1);
 
 // Conservative public ORCID policy, independent of optional token.

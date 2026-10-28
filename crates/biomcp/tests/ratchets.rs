@@ -44,3 +44,40 @@ fn repository_obeys_structural_contract() -> Check {
             .as_path(),
     )
 }
+
+#[test]
+fn outbound_registry_lists_only_request_hosts_and_explicit_publisher_policy() -> Check {
+    use biomcp_fetch::Destinations;
+    let mut rows = std::collections::BTreeSet::new();
+    let mut publisher_policies = 0;
+    for spec in biomcp_adapters::registry::requests() {
+        for host in spec.request_hosts()? {
+            rows.insert(format!("{} {host}", spec.source));
+        }
+        if matches!(spec.destinations, Destinations::PublisherPdf) {
+            assert!(spec.base.is_empty());
+            assert!(matches!(spec.key, biomcp_fetch::KeyUse::None));
+            rows.insert(format!(
+                "{} publisher-pdf-public-address-policy",
+                spec.source
+            ));
+            publisher_policies += 1;
+        } else {
+            assert!(!spec.request_hosts()?.is_empty());
+        }
+    }
+    assert_eq!(publisher_policies, 1);
+    assert!(rows.contains("ctgov cdn.clinicaltrials.gov"));
+    assert!(rows.contains("cbioportal api.github.com"));
+    assert!(
+        !rows
+            .iter()
+            .any(|row| row.ends_with(" raw.githubusercontent.com"))
+    );
+    use std::io::Write;
+    let mut output = std::io::stdout().lock();
+    for row in rows {
+        writeln!(output, "{row}")?;
+    }
+    Ok(())
+}

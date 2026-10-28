@@ -80,6 +80,7 @@ fn setup() -> Result<(Environment, Stub), String> {
         },
     )?;
     let ca = env.root().join("ca.pem");
+    stub.retain(&env);
     fs::write(&ca, &stub.certificate).map_err(|e| e.to_string())?;
     env.config(&json!(
         {"proxy":format!("http://{}",stub.address),"ca_bundle":ca,"keys":{"nci_api_key":KEY,
@@ -120,7 +121,7 @@ fn invoke(env: &Environment, mut args: Vec<String>, bad: bool) -> Result<Value, 
     if bad && out.pointer("/sources/0/reason") != Some(&json!("bad_reply")) {
         return Err("contamination was not a sanitized bad_reply".into());
     }
-    if !bad && out.pointer("/result/items") != Some(&json!([])) {
+    if !bad && out.pointer("/result/items").is_some() {
         return Err("ordinary keyed reply changed".into());
     }
     Ok(out)

@@ -12,6 +12,7 @@ use std::{collections::BTreeSet, time::Duration};
 pub const BATCH_LIMIT: usize = 200;
 /// Conservative application quota; no provider rate is claimed.
 pub static SPEC: SourceSpec = SourceSpec {
+    destinations: biomcp_fetch::Destinations::Primary,
     user_agent: None,
     terms: biomcp_fetch::Terms {
         name: "NIH public-domain data",

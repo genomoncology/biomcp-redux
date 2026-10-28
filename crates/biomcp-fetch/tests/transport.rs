@@ -98,6 +98,7 @@ impl Stub {
     }
     fn spec(&self, key: KeyUse, deadline: Duration) -> &'static SourceSpec {
         Box::leak(Box::new(SourceSpec {
+            destinations: biomcp_fetch::Destinations::Primary,
             user_agent: None,
             terms: biomcp_fetch::Terms {
                 name: "Synthetic test data",
@@ -516,7 +517,10 @@ mod network;
 #[test]
 fn publisher_destinations_refuse_private_hosts_and_applicable_proxies_before_connecting() {
     let stub = Stub::new(200, "application/pdf", "%PDF-owned", None);
-    let spec = stub.spec(KeyUse::None, Duration::from_secs(5));
+    let spec = Box::leak(Box::new(SourceSpec {
+        destinations: biomcp_fetch::Destinations::PublisherPdf,
+        ..*stub.spec(KeyUse::None, Duration::from_secs(5))
+    }));
     for url in [
         "http://127.0.0.1/file.pdf",
         "http://127.1/file.pdf",

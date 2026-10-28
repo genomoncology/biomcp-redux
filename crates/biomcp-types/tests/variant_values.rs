@@ -486,3 +486,40 @@ fn source_predictor_contract_keeps_zero_and_native_labels() {
     .expect("an absent record field has no fabricated score");
     assert!(empty.scores.is_empty());
 }
+
+#[test]
+fn identifier_lists_qualify_each_namespace_and_roundtrip() -> Result<(), Box<dyn std::error::Error>>
+{
+    for (published, output) in [
+        ("rs113488022", "rs:113488022"),
+        ("CA123643", "clingen:CA123643"),
+        ("PA123", "clingen:PA123"),
+        ("VCV000013961.1", "clinvar:VCV000013961.1"),
+        ("clinvar:13961", "clinvar:13961"),
+        ("COSV60000001", "cosmic:COSV60000001"),
+        (
+            "ga4gh:VA.aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+            "ga4gh:VA.aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+        ),
+    ] {
+        let id: VariantId = published.parse()?;
+        assert_eq!(id.to_string(), published);
+        let variant = Variant {
+            ids: Box::new([id]),
+            representations: Box::default(),
+            genes: Box::default(),
+        };
+        let value = serde_json::to_value(&variant)?;
+        assert_eq!(value, json!({"ids":[output]}));
+        assert_eq!(serde_json::from_value::<Variant>(value)?, variant);
+        // Stored entities with the old published spelling remain readable.
+        assert_eq!(
+            serde_json::from_value::<Variant>(json!({"ids":[published]}))?,
+            variant
+        );
+    }
+    for invalid in ["clingen:rs123", "cosmic:CA123643", "rs:CA123643"] {
+        assert!(serde_json::from_value::<Variant>(json!({"ids":[invalid]})).is_err());
+    }
+    Ok(())
+}

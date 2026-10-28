@@ -207,7 +207,7 @@ impl crate::Leg<'_> {
             return;
         }
         let banner = match format {
-            crate::RowFormat::Document
+            crate::RowFormat::Document { .. }
             | crate::RowFormat::Tsv
             | crate::RowFormat::NativeTsv { .. }
             | crate::RowFormat::Json { .. }
@@ -218,14 +218,7 @@ impl crate::Leg<'_> {
         for _ in 0..banner {
             header = header.splitn(2, |b| *b == b'\n').nth(1).unwrap_or(&[]);
         }
-        let media = match format {
-            crate::RowFormat::Document => "text/html",
-            crate::RowFormat::Json { .. } => "application/json",
-            crate::RowFormat::Tsv | crate::RowFormat::NativeTsv { .. } => {
-                "text/tab-separated-values"
-            }
-            crate::RowFormat::Csv { .. } | crate::RowFormat::NativeCsv { .. } => "text/csv",
-        };
+        let media = format.media();
         self.observed(
             request.0,
             status,

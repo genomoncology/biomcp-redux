@@ -38,50 +38,13 @@ struct GetFields {
     #[serde(default, skip_serializing_if = "Option::is_none")]
     bundle_revision: Option<Text>,
 }
+crate::query::validation::checked_query!(DiagnosticGet, GetFields);
 impl TryFrom<GetFields> for DiagnosticGet {
     type Error = QueryInvalid;
     fn try_from(v: GetFields) -> Result<Self, Self::Error> {
-        let valid = match v.source {
-            DiagnosticGetSource::Gtr => {
-                v.id.as_str().parse::<GtrTestId>().is_ok()
-                    && v.supplement.is_none()
-                    && matches!(
-                        v.section,
-                        None | Some(
-                            DiagnosticSection::Genes
-                                | DiagnosticSection::Conditions
-                                | DiagnosticSection::Methods
-                        )
-                    )
-            }
-            DiagnosticGetSource::WhoIvd => {
-                v.id.as_str().parse::<WhoProductId>().is_ok()
-                    && v.supplement.is_none()
-                    && v.section.is_none()
-                    && v.section_limit.is_none()
-                    && v.section_offset == 0
-            }
-            DiagnosticGetSource::Fda510k => {
-                v.id.as_str().parse::<biodata::DiagnosticDeviceId>().is_ok()
-                    && v.id.as_str().starts_with('K')
-                    && v.supplement.is_none()
-                    && v.section.is_none()
-                    && v.section_limit.is_none()
-                    && v.section_offset == 0
-                    && v.bundle_revision.is_none()
-            }
-            DiagnosticGetSource::FdaPma => {
-                v.id.as_str().parse::<PmaNumber>().is_ok()
-                    && matches!(
-                        v.section,
-                        None | Some(DiagnosticSection::Regulatory | DiagnosticSection::Supplements)
-                    )
-                    && !(v.supplement.is_some()
-                        && v.section == Some(DiagnosticSection::Supplements))
-            }
-        };
-        if !valid || v.section_limit.is_some_and(|v| !(1..=50).contains(&v)) {
-            return Err(QueryInvalid);
+        validate_source(&v)?;
+        if v.section_limit.is_some_and(|v| !(1..=50).contains(&v)) {
+            return Err(QueryInvalid::new(&["section_limit"]));
         }
         Ok(Self(v))
     }
@@ -140,4 +103,58 @@ impl DiagnosticGet {
         q.0.bundle_revision = Some(revision);
         q
     }
+}
+
+fn validate_source(v: &GetFields) -> Result<(), QueryInvalid> {
+    let valid_id = match v.source {
+        DiagnosticGetSource::Gtr => v.id.as_str().parse::<GtrTestId>().is_ok(),
+        DiagnosticGetSource::WhoIvd => v.id.as_str().parse::<WhoProductId>().is_ok(),
+        DiagnosticGetSource::Fda510k => {
+            v.id.as_str().parse::<biodata::DiagnosticDeviceId>().is_ok()
+                && v.id.as_str().starts_with('K')
+        }
+        DiagnosticGetSource::FdaPma => v.id.as_str().parse::<PmaNumber>().is_ok(),
+    };
+    if !valid_id {
+        return Err(QueryInvalid::new(&["id", "source"]));
+    }
+    let valid_section = match v.source {
+        DiagnosticGetSource::Gtr => matches!(
+            v.section,
+            None | Some(
+                DiagnosticSection::Genes
+                    | DiagnosticSection::Conditions
+                    | DiagnosticSection::Methods
+            )
+        ),
+        DiagnosticGetSource::FdaPma => matches!(
+            v.section,
+            None | Some(DiagnosticSection::Regulatory | DiagnosticSection::Supplements)
+        ),
+        DiagnosticGetSource::WhoIvd | DiagnosticGetSource::Fda510k => v.section.is_none(),
+    };
+    if !valid_section {
+        return Err(QueryInvalid::new(&["section", "source"]));
+    }
+    if v.source != DiagnosticGetSource::FdaPma && v.supplement.is_some() {
+        return Err(QueryInvalid::new(&["supplement", "source"]));
+    }
+    if v.supplement.is_some() && v.section == Some(DiagnosticSection::Supplements) {
+        return Err(QueryInvalid::new(&["supplement", "section"]));
+    }
+    if matches!(
+        v.source,
+        DiagnosticGetSource::WhoIvd | DiagnosticGetSource::Fda510k
+    ) {
+        if v.section_limit.is_some() {
+            return Err(QueryInvalid::new(&["section_limit", "source"]));
+        }
+        if v.section_offset != 0 {
+            return Err(QueryInvalid::new(&["section_offset", "source"]));
+        }
+    }
+    if v.source == DiagnosticGetSource::Fda510k && v.bundle_revision.is_some() {
+        return Err(QueryInvalid::new(&["bundle_revision", "source"]));
+    }
+    Ok(())
 }

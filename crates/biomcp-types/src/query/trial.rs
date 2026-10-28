@@ -1,4 +1,4 @@
-use super::gene::QueryInvalid;
+mod condition;
 use crate::{GeneInput, NctId, PartialDate, StudyType, Text, TrialSex, TrialStatus};
 use serde::{Deserialize, Serialize};
 biodata::wire_enum! {
@@ -51,6 +51,9 @@ struct Fields {
     )]
     #[cfg_attr(feature = "schema", schemars(with = "Text"))]
     condition: Option<Text>,
+    /// Ask ClinicalTrials.gov to restrict matching to the registered condition phrase; its support is partial.
+    #[serde(default, skip_serializing_if = "std::ops::Not::not")]
+    exact_condition: bool,
     /// Exact MONDO or DOID CURIE resolved by MyDisease; NCI also accepts explicit NCIT:C codes.
     #[serde(
         default,
@@ -212,10 +215,10 @@ struct Fields {
     #[cfg_attr(feature = "schema", schemars(with = "Text"))]
     next_page: Option<Text>,
     /// Source total only; no returned study rows.
-    #[serde(default)]
+    #[serde(default, skip_serializing_if = "std::ops::Not::not")]
     count_only: bool,
     /// Require posted source results.
-    #[serde(default)]
+    #[serde(default, skip_serializing_if = "std::ops::Not::not")]
     has_results: bool,
     /// Headers per page; NCI applies its own lower publisher limit.
     #[serde(default = "default_limit")]
@@ -225,62 +228,7 @@ struct Fields {
 fn default_limit() -> u32 {
     10
 }
-impl TryFrom<Fields> for TrialSearch {
-    type Error = QueryInvalid;
-    fn try_from(mut f: Fields) -> Result<Self, Self::Error> {
-        if let Some(id) = f
-            .query
-            .as_ref()
-            .and_then(|q| q.as_str().parse::<NctId>().ok())
-        {
-            if f.id.is_some_and(|explicit| explicit != id) {
-                return Err(QueryInvalid);
-            }
-            f.id = Some(id);
-            f.query = None;
-        }
-        if f.condition_id.as_ref().is_some_and(|id| {
-            f.condition.is_some() || f.keyword.is_some() || !valid_condition_id(id, f.source)
-        }) {
-            return Err(QueryInvalid);
-        }
-        if !(1..=100).contains(&f.limit)
-            || f.age.is_some_and(|v| v > 150)
-            || f.updated_since
-                .zip(f.updated_until)
-                .is_some_and(|(a, b)| a.to_string() > b.to_string())
-            || (f.facility.is_some()
-                && (f.lat.is_some() || f.lon.is_some() || f.distance.is_some()))
-            || [f.lat.is_some(), f.lon.is_some(), f.distance.is_some()]
-                .iter()
-                .filter(|v| **v)
-                .count()
-                % 3
-                != 0
-        {
-            return Err(QueryInvalid);
-        }
-        if let (Some(lat), Some(lon), Some(distance)) = (&f.lat, &f.lon, &f.distance) {
-            let lat = lat.as_str().parse::<f64>().map_err(|_| QueryInvalid)?;
-            let lon = lon.as_str().parse::<f64>().map_err(|_| QueryInvalid)?;
-            let distance = distance
-                .as_str()
-                .strip_suffix("mi")
-                .or_else(|| distance.as_str().strip_suffix("km"))
-                .ok_or(QueryInvalid)?
-                .parse::<f64>()
-                .map_err(|_| QueryInvalid)?;
-            if !(-90.0..=90.0).contains(&lat)
-                || !(-180.0..=180.0).contains(&lon)
-                || !distance.is_finite()
-                || distance <= 0.0
-            {
-                return Err(QueryInvalid);
-            }
-        }
-        Ok(Self(Box::new(f)))
-    }
-}
+crate::query::validation::checked_query!(TrialSearch, Fields);
 impl TrialSearch {
     /// Explicit source selected by the caller.
     pub fn source(&self) -> TrialSource {
@@ -563,19 +511,4 @@ impl TrialSearch {
     }
 }
 
-fn valid_condition_id(id: &biodata::Curie, source: TrialSource) -> bool {
-    let value = id.to_string();
-    let Some((namespace, local)) = value.split_once(':') else {
-        return false;
-    };
-    match namespace {
-        "MONDO" | "DOID" => !local.is_empty() && local.bytes().all(|v| v.is_ascii_digit()),
-        "NCIT" => {
-            source == TrialSource::Nci
-                && local
-                    .strip_prefix('C')
-                    .is_some_and(|v| !v.is_empty() && v.bytes().all(|v| v.is_ascii_digit()))
-        }
-        _ => false,
-    }
-}
+mod validation;

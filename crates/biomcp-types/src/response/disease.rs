@@ -42,7 +42,7 @@ pub struct DiseaseCard {
     #[serde(default, skip_serializing_if = "Option::is_none")]
     pub obsolete: Option<bool>,
     /// Publisher alternatives, never an automatic replacement.
-    #[serde(default, skip_serializing_if = "Option::is_none")]
+    #[serde(default, skip_serializing_if = "biodata::absent_or_empty")]
     pub consider: Option<Box<[Curie]>>,
     /// Publisher explicit replacement identifiers; null preserves no native replacement.
     #[serde(default)]
@@ -50,8 +50,10 @@ pub struct DiseaseCard {
     /// Publisher record and version.
     pub attribution: Attribution,
     /// Available named sections.
+    #[serde(default, skip_serializing_if = "<[_]>::is_empty")]
     pub sections: Box<[DiseaseSection]>,
     /// Applicable component terms.
+    #[serde(default, skip_serializing_if = "<[_]>::is_empty")]
     pub components: Box<[ComponentLabel]>,
 }
 impl ResponseBody for DiseaseCard {
@@ -78,6 +80,7 @@ pub struct DiseaseAssociationItem {
     /// Complete neutral association, including requested and actual endpoints.
     pub association: DiseaseAssociation,
     /// Independently attributed annotation components for this row.
+    #[serde(default, skip_serializing_if = "<[_]>::is_empty")]
     pub components: Box<[ComponentLabel]>,
 }
 macro_rules! page {
@@ -91,8 +94,10 @@ macro_rules! page {
         #[cfg_attr(feature = "schema", derive(schemars::JsonSchema))]
         pub struct $name {
             /// Native source rows; totals in the envelope count rows, not distinct entities.
+            #[serde(default, skip_serializing_if = "<[_]>::is_empty")]
             pub items: Box<[$row]>,
             /// Applicable component use terms, independent of row provenance.
+            #[serde(default, skip_serializing_if = "<[_]>::is_empty")]
             pub components: Box<[ComponentLabel]>,
             $($extra)*
         }

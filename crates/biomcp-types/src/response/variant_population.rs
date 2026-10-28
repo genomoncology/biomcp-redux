@@ -53,6 +53,7 @@ pub struct VariantGwas {
     /// Exact source rsID.
     pub rs_id: VariantId,
     /// Native source associations, without inferred clinical meaning.
+    #[serde(default, skip_serializing_if = "<[_]>::is_empty")]
     pub associations: Box<[GwasAssociation]>,
     /// Exact source page bounds and total.
     pub page: crate::PageInfo,
@@ -70,11 +71,13 @@ pub struct GwasAssociation {
     /// Study accession.
     pub study: Text,
     /// Source reported traits.
+    #[serde(default, skip_serializing_if = "<[_]>::is_empty")]
     pub traits: Box<[Text]>,
     /// Source mapped trait identifiers and whole labels, without clinical inference.
     #[serde(default, skip_serializing_if = "<[ _ ]>::is_empty")]
     pub ontology_traits: Box<[GwasTrait]>,
     /// Every source effect allele paired with its rsID.
+    #[serde(default, skip_serializing_if = "<[_]>::is_empty")]
     pub alleles: Box<[GwasEffectAllele]>,
     /// Reported p value.
     pub p_value: FiniteNumber,

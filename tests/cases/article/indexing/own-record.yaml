@@ -23,9 +23,6 @@
       ],
       "expect": {
         "/result/items/0/sections/indexing/state": "data",
-        "/result/items/0/sections/indexing/data/mesh": {
-          "count": 0
-        },
         "/result/items/0/sections/indexing/data/affiliations/total": 7,
         "/result/items/1/sections/indexing/data/mesh": {
           "count": 8,

@@ -13,7 +13,7 @@
       "expect": {
         "/schema": "biomcp.error/1"
       },
-      "max_bytes": 166
+      "max_bytes": 195
     },
     {
       "run": [
@@ -28,7 +28,7 @@
       "expect": {
         "/schema": "biomcp.error/1"
       },
-      "max_bytes": 166
+      "max_bytes": 195
     },
     {
       "run": [

@@ -73,6 +73,7 @@ fn check(n: usize) -> Check {
     )?;
     let env = Environment::new().map_err(|e| e.to_string())?;
     let cert = env.root().join("ca.pem");
+    stub.retain(&env);
     std::fs::write(&cert, &stub.certificate).map_err(|e| e.to_string())?;
     env.config(&json!({"ca_bundle":cert,"proxy":format!("http://{}",stub.address)}))
         .map_err(|e| e.to_string())?;
@@ -207,6 +208,7 @@ fn wrong_identity() -> Check {
         Ok("{\"_id\":\"different-native-document\"}".into())
     })?;
     let cert = env.root().join("ca.pem");
+    stub.retain(&env);
     std::fs::write(&cert, &stub.certificate).map_err(|e| e.to_string())?;
     env.config(&json!({"ca_bundle":cert,"proxy":format!("http://{}",stub.address)}))
         .map_err(|e| e.to_string())?;
@@ -238,6 +240,7 @@ fn component_policy() -> Check {
         Ok(REPLIES.get(6).ok_or("fixture")?.to_string())
     })?;
     let cert = env.root().join("ca.pem");
+    stub.retain(&env);
     std::fs::write(&cert, &stub.certificate).map_err(|e| e.to_string())?;
     env.config(&json!({"ca_bundle":cert,"proxy":format!("http://{}",stub.address),"disable_sources":["chembl"]}))
         .map_err(|e| e.to_string())?;
@@ -294,6 +297,7 @@ fn xrefs_walk() -> Check {
         Ok(REPLIES.get(6).ok_or("fixture")?.to_string())
     })?;
     let cert = env.root().join("ca.pem");
+    stub.retain(&env);
     std::fs::write(&cert, &stub.certificate).map_err(|e| e.to_string())?;
     env.config(&json!({"ca_bundle":cert,"proxy":format!("http://{}",stub.address)}))
         .map_err(|e| e.to_string())?;

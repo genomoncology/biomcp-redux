@@ -20,6 +20,7 @@ fn restricted_page() -> Result<(), String> {
     let stub = Stub::for_source("myvariant.info", "application/json", restricted_body)?;
     let env = Environment::new().map_err(|e| e.to_string())?;
     let ca = env.root().join("synthetic-ca.pem");
+    stub.retain(&env);
     fs::write(&ca, &stub.certificate).map_err(|e| e.to_string())?;
     env.config(&json!({"proxy":format!("http://{}",stub.address),"ca_bundle":ca, "disable_sources":["noncommercial"]}))
         .map_err(|e| e.to_string())?;
@@ -83,6 +84,7 @@ fn filters() -> Result<(), String> {
     let stub = Stub::for_source("myvariant.info", "application/json", body)?;
     let env = Environment::new().map_err(|e| e.to_string())?;
     let ca = env.root().join("synthetic-ca.pem");
+    stub.retain(&env);
     fs::write(&ca, &stub.certificate).map_err(|e| e.to_string())?;
     env.config(&json!({"proxy":format!("http://{}",stub.address),"ca_bundle":ca}))
         .map_err(|e| e.to_string())?;

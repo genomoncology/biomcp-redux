@@ -24,10 +24,7 @@
       "expect": {
         "/status": "complete",
         "/sources/0/term": "AKT1 E17K",
-        "/sources/0/count": 0,
-        "/result/items": {
-          "count": 0
-        }
+        "/sources/0/count": 0
       },
       "max_bytes": 676
     }

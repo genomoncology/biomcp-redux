@@ -52,6 +52,7 @@ fn wrong_set() -> Check {
     )?;
     let env = Environment::new().map_err(|e| e.to_string())?;
     let cert = env.root().join("ca.pem");
+    stub.retain(&env);
     std::fs::write(&cert, &stub.certificate).map_err(|e| e.to_string())?;
     env.config(&json!({"ca_bundle":cert,"proxy":format!("http://{}",stub.address)}))
         .map_err(|e| e.to_string())?;

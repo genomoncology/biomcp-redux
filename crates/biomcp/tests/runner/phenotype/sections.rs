@@ -180,7 +180,7 @@ fn absent() -> Result<(), String> {
         &["get", "phenotype", "HP:0000001", "xrefs"],
         1,
     )?;
-    if empty.pointer("/result/items") != Some(&json!([]))
+    if empty.pointer("/result/items").is_some()
         || empty.pointer("/page/total") != Some(&json!(0))
         || missing.get("result").is_some()
         || missing.get("page").is_some()

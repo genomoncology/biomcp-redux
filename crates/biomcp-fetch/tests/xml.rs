@@ -124,6 +124,7 @@ fn invalid_xml_media_encodings_documents_and_reply_checks_are_input_free() {
     let fetch = Fetch::open(FetchConfig::default()).unwrap();
     for (media, body) in [
         ("application/json", "<answer>V600E</answer>"),
+        ("text/html;charset=ISO-8859-1", "<answer>V600E</answer>"),
         ("text/html+xml", "<answer>V600E</answer>"),
         ("text/xml; charset=iso-8859-1", "<answer>V600E</answer>"),
         (

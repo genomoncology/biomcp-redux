@@ -9,6 +9,7 @@ use biomcp_types::Source;
 use std::time::Duration;
 /// Shared public person and works declaration.
 pub static SPEC: SourceSpec = SourceSpec {
+    destinations: biomcp_fetch::Destinations::Primary,
     user_agent: None,
     source: Source::Orcid,
     terms: biomcp_fetch::Terms {

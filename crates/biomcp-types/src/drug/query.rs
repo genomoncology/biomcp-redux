@@ -61,13 +61,15 @@ struct SearchFields {
     #[serde(default)]
     offset: u32,
 }
+crate::query::validation::checked_query!(DrugSearch, SearchFields);
 impl TryFrom<SearchFields> for DrugSearch {
     type Error = QueryInvalid;
     fn try_from(fields: SearchFields) -> Result<Self, Self::Error> {
-        if !(1..=50).contains(&fields.limit)
-            || fields.name_selector.is_some() && fields.source != DrugSource::Chembl
-        {
-            return Err(QueryInvalid);
+        if !(1..=50).contains(&fields.limit) {
+            return Err(QueryInvalid::new(&["limit"]));
+        }
+        if fields.name_selector.is_some() && fields.source != DrugSource::Chembl {
+            return Err(QueryInvalid::new(&["name_selector", "source"]));
         }
         Ok(Self(fields))
     }
@@ -123,28 +125,47 @@ struct GetFields {
     #[serde(default, skip_serializing_if = "Option::is_none")]
     civic_cursor: Option<Text>,
 }
+crate::query::validation::checked_query!(DrugGet, GetFields);
 impl TryFrom<GetFields> for DrugGet {
     type Error = QueryInvalid;
     fn try_from(fields: GetFields) -> Result<Self, Self::Error> {
-        if fields.section_limit.is_some_and(|n| !(1..=50).contains(&n))
-            || fields.section.is_empty()
-                && (fields.section_limit.is_some() || fields.section_offset.is_some())
-            || fields.section.contains(&DrugSection::Label) != fields.label_section.is_some()
-            || fields.product_number.is_some() && !fields.section.contains(&DrugSection::Approvals)
-            || !fields.source.accepts(&fields.input)
+        if fields.section_limit.is_some_and(|n| !(1..=50).contains(&n)) {
+            return Err(QueryInvalid::new(&["section_limit"]));
+        }
+        if fields.section.is_empty()
+            && (fields.section_limit.is_some() || fields.section_offset.is_some())
         {
-            return Err(QueryInvalid);
+            return Err(QueryInvalid::new(&[
+                "section",
+                "section_limit",
+                "section_offset",
+            ]));
+        }
+        if fields.section.contains(&DrugSection::Label) != fields.label_section.is_some() {
+            return Err(QueryInvalid::new(&["section", "label_section"]));
+        }
+        if fields.product_number.is_some() && !fields.section.contains(&DrugSection::Approvals) {
+            return Err(QueryInvalid::new(&["product_number", "section"]));
+        }
+        if !fields.source.accepts(&fields.input) {
+            return Err(QueryInvalid::new(&["source", "input"]));
         }
         if fields
             .civic_profile
             .is_some_and(|id| id == 0 || id > i32::MAX as u64)
-            || fields.civic_profile.is_some() && fields.civic_kind.is_none()
-            || fields.civic_cursor.is_some() && fields.civic_kind.is_none()
-            || fields.civic_kind.is_some()
-                && (fields.source != DrugSource::Civic
-                    || !fields.section.contains(&DrugSection::Civic))
         {
-            return Err(QueryInvalid);
+            return Err(QueryInvalid::new(&["civic_profile"]));
+        }
+        if fields.civic_profile.is_some() && fields.civic_kind.is_none() {
+            return Err(QueryInvalid::new(&["civic_profile", "civic_kind"]));
+        }
+        if fields.civic_cursor.is_some() && fields.civic_kind.is_none() {
+            return Err(QueryInvalid::new(&["civic_cursor", "civic_kind"]));
+        }
+        if fields.civic_kind.is_some()
+            && (fields.source != DrugSource::Civic || !fields.section.contains(&DrugSection::Civic))
+        {
+            return Err(QueryInvalid::new(&["civic_kind", "source", "section"]));
         }
         Ok(Self(fields))
     }

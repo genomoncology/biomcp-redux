@@ -30,6 +30,7 @@ pub(super) fn trials() -> Vec<Trial> {
 }
 fn configure(environment: &Environment, stub: &Stub) -> Result<(), String> {
     let ca = environment.root().join("synthetic-ca.pem");
+    stub.retain(environment);
     fs::write(&ca, &stub.certificate).map_err(|e| e.to_string())?;
     environment
         .config(&json!({"proxy":format!("http://{}",stub.address),"ca_bundle":ca}))
@@ -319,10 +320,7 @@ fn unjoined() -> Result<(), String> {
         let value = run(&environment, &args)?;
         let base = "/result/candidates/0/sections/civic/data/profiles/0";
         if value.pointer(&format!("{base}/membership")) != Some(&json!("candidate"))
-            || value
-                .pointer(&format!("{base}/statements"))
-                .and_then(Value::as_array)
-                .is_none_or(|rows| !rows.is_empty())
+            || value.pointer(&format!("{base}/statements")).is_some()
             || value
                 .pointer(&format!("{base}/evidence_page/next"))
                 .is_some()

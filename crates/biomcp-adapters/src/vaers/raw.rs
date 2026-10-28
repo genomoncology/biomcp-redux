@@ -17,6 +17,13 @@ impl Reply for Native {
     }
 }
 impl XmlReply for Native {
+    fn accepts_media(media: &str) -> bool {
+        super::encoding::accepts(media)
+    }
+    fn normalize_body<'a>(media: &str, body: &'a [u8]) -> std::borrow::Cow<'a, [u8]> {
+        super::encoding::normalize(media, body)
+    }
+
     fn decode_xml(xml: &str) -> Result<Self, BadReply> {
         if xml.len() > MAX_XML {
             return Err(BadReply);

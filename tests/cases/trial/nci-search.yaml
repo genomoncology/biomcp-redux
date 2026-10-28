@@ -58,8 +58,7 @@
       "expect": {
         "/status": "complete",
         "/page/total": 1203,
-        "/page/returned": 0,
-        "/result/items": []
+        "/page/returned": 0
       },
       "max_bytes": 854
     }

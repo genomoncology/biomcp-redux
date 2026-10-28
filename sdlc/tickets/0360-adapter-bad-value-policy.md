@@ -4,6 +4,8 @@ Status: OPEN.
 
 Milestone: 5
 
+Depends on: 0387
+
 ## Outcome
 
 One shared helper module records a source value an adapter cannot map: the field is left out, a problem names it, and the reply still returns. It replaces the 17 copies of `fn problem(` and 18 copies of `fn text(`. HGNC, ClinVar, EMA and Reactome named sites use it, including the ClinVar `detail.rs` optional condition qualified-ID `parse().ok()` site, and their problems reach the reply. The architecture states the rule. The remaining adapter families move in 0371 to 0375.

@@ -18,6 +18,7 @@ fn run() -> Result<(), String> {
     )?;
     let env = Environment::new().map_err(|e| e.to_string())?;
     let ca = env.root().join("ca.pem");
+    stub.retain(&env);
     fs::write(&ca, &stub.certificate).map_err(|e| e.to_string())?;
     let disabled = unrelated_sources();
     let config = json!({"proxy":format!("http://{}",stub.address),"ca_bundle":ca,"disable_sources":disabled});

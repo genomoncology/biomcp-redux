@@ -13,6 +13,7 @@ pub use search::{Search, search};
 use std::time::Duration;
 /// One publisher declaration for health, outcomes and admission before any I/O.
 pub static SPEC: SourceSpec = SourceSpec {
+    destinations: biomcp_fetch::Destinations::Primary,
     user_agent: None,
     source: Source::Gtr,
     base: "https://ftp.ncbi.nlm.nih.gov/pub/GTR",

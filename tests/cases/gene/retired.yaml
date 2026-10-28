@@ -481,26 +481,6 @@
     },
     {
       "run": [
-        "get",
-        "gene",
-        "secret-input",
-        "gencc"
-      ],
-      "expect": {
-        "/schema": "biomcp.error/1",
-        "/status": "usage",
-        "/error": {
-          "equals": {
-            "code": "usage.retired",
-            "message": "deferred"
-          }
-        }
-      },
-      "exit": 2,
-      "is_error": true
-    },
-    {
-      "run": [
         "search",
         "gene",
         "--band",

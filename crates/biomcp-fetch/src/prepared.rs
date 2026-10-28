@@ -16,6 +16,7 @@ pub(crate) struct Prepared {
     pub(crate) identity: [u8; 32],
     pub(crate) body: Vec<u8>,
     pub(crate) post: Option<PostMetadata>,
+    pub(crate) method: Method,
     pub(crate) idempotent: bool,
     pub(crate) identity_encoding: bool,
     pub(crate) publisher: bool,
@@ -24,7 +25,7 @@ pub(crate) struct Prepared {
 impl Prepared {
     pub(crate) fn new(url: String, body: Vec<u8>, method: Method, idempotent: bool) -> Self {
         let post = match method {
-            Method::Get => None,
+            Method::Get | Method::Head => None,
             Method::Form | Method::Json => Some(PostMetadata {
                 request_content_type: match method {
                     Method::Form => "application/x-www-form-urlencoded",
@@ -49,6 +50,8 @@ impl Prepared {
                 hash.update(value);
             }
             hash.finalize().into()
+        } else if method == Method::Head {
+            Sha256::digest([b"HEAD\0".as_slice(), url.as_bytes()].concat()).into()
         } else {
             crate::retry::identity(&url)
         };
@@ -58,10 +61,20 @@ impl Prepared {
             identity,
             body,
             post,
+            method,
             idempotent,
             identity_encoding: false,
             publisher: false,
             exact_count: false,
+        }
+    }
+}
+impl Prepared {
+    pub(crate) fn recording(&self) -> crate::record::Request<'_> {
+        if self.method == Method::Head {
+            crate::record::Request::Head
+        } else {
+            self.post.as_ref().into()
         }
     }
 }

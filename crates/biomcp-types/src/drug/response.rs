@@ -135,6 +135,7 @@ pub struct DrugLabelText {
     #[serde(default, skip_serializing_if = "Option::is_none")]
     pub retrieved: Option<PartialDate>,
     /// Native array boundaries; consume the flat text in this order without separators.
+    #[serde(default, skip_serializing_if = "<[_]>::is_empty")]
     pub fragments: Box<[DrugLabelFragment]>,
     /// Zero-based bounded text fragment offset; section_limit is a maximum fragment count.
     pub offset: u32,
@@ -190,6 +191,7 @@ pub struct DrugApprovals {
     /// Selected native identity, checked independently of section facts.
     pub identity: DrugHeader,
     /// Native products, filtered only by an explicit product number; independent of submissions.
+    #[serde(default, skip_serializing_if = "<[_]>::is_empty")]
     pub products: Box<[super::DrugFdaProduct]>,
     /// Native FDA dataset last_updated date, independent of submission dates and retrieval.
     #[serde(default, skip_serializing_if = "Option::is_none")]

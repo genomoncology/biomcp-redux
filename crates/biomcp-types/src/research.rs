@@ -42,6 +42,7 @@ pub struct ResearchSearchMetadata<M> {
 #[cfg_attr(feature = "schema", derive(schemars::JsonSchema))]
 pub struct ResearchSearch<M> {
     /// Citable records in unchanged CLI order.
+    #[serde(default, skip_serializing_if = "Vec::is_empty")]
     pub results: Vec<ResearchHit>,
     /// Original response and projection disclosures.
     pub metadata: ResearchSearchMetadata<M>,

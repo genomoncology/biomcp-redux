@@ -1,3 +1,5 @@
+#[path = "protocol_schemas.rs"]
+mod schemas;
 use super::{
     launch::Environment,
     mcp::{exchange, request},
@@ -256,7 +258,8 @@ fn concurrent() -> Check {
 }
 
 fn raw(bytes: &[u8]) -> Result<(std::process::ExitStatus, Vec<u8>, Vec<u8>), String> {
-    let child = environment()?
+    let env = environment()?;
+    let child = env
         .command(env!("CARGO_BIN_EXE_biomcp"), &["serve".into()])
         .stdin(Stdio::piped())
         .stdout(Stdio::piped())
@@ -301,7 +304,8 @@ fn broken_output() -> Check {
     let started = Instant::now();
     let (reader, writer) = std::io::pipe().map_err(|e| e.to_string())?;
     drop(reader);
-    let child = environment()?
+    let env = environment()?;
+    let child = env
         .command(env!("CARGO_BIN_EXE_biomcp"), &["serve".into()])
         .stdin(Stdio::piped())
         .stdout(writer)
@@ -343,7 +347,6 @@ fn discovery() -> Check {
         .filter(|_| tools.len() == 3)
         .ok_or("expected three tools")?;
     if tool.get("name") != Some(&json!("biomcp"))
-        || tool.get("outputSchema") != Some(&json!({"type":"object"}))
         || tool.get("inputSchema")
             != Some(
                 &json!({"type":"object","properties":{"args":{"type":"array","items":{"type":"string"}}},"required":["args"],"additionalProperties":false}),
@@ -351,6 +354,7 @@ fn discovery() -> Check {
     {
         return Err("tool contract differs".into());
     }
+    schemas::check(tools, reply(&replies, &json!(1))?)?;
     let text = tool
         .get("description")
         .and_then(Value::as_str)
@@ -367,8 +371,6 @@ fn discovery() -> Check {
             .ok_or("wrapper description missing")?
             .len();
         if wrapper.pointer("/inputSchema/required") != Some(&json!([key]))
-            || wrapper.pointer("/outputSchema/$id")
-                != Some(&json!(format!("biomcp.research-{name}/1")))
             || wrapper.pointer("/annotations/readOnlyHint") != Some(&json!(true))
         {
             return Err("research tool contract differs".into());
@@ -493,7 +495,7 @@ fn discovery_description(text: &str) -> Check {
         "search cell-line query --query/-q --limit/-l --offset",
         "get cell-line CVCL_ID|SOURCE:ID --section-limit --section-offset :names|identity|xrefs|variants|chembl|all",
         "cell-line assay-count",
-        "Author IDs name provider records;no ranking/merge.",
+        "Author IDs name source records;no ranking/merge.",
         "Both sources noncommercial;--disable-sources noncommercial.",
         "biomcp key set semantic-scholar (S2_API_KEY)",
         "biomcp key set orcid (ORCID_ACCESS_TOKEN)",

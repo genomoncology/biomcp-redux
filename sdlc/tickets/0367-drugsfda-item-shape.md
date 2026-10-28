@@ -1,6 +1,7 @@
 # 0367 — Give drugsfda search items the same top-level ID and name as other drug sources
 
-Status: OPEN.
+Status: COMPLETE.
+Landed: 29e890817de7c4f9f4085f2f16932883cfaf92f5
 
 Milestone: 5
 

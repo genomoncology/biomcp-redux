@@ -13,12 +13,15 @@ pub struct TrialCard {
     /// Source overall status.
     pub status: TrialStatus,
     /// Source phases without inferred defaults.
+    #[serde(default, skip_serializing_if = "<[_]>::is_empty")]
     pub phases: Box<[TrialPhase]>,
     /// Native study type.
     pub study_type: StudyType,
     /// All registered condition names.
+    #[serde(default, skip_serializing_if = "<[_]>::is_empty")]
     pub conditions: Box<[Box<str>]>,
     /// All registered intervention names.
+    #[serde(default, skip_serializing_if = "<[_]>::is_empty")]
     pub interventions: Box<[Box<str>]>,
     /// Lead sponsor as registered.
     pub sponsor: Option<Box<str>>,
@@ -102,6 +105,7 @@ pub struct TrialArm {
     /// Original arm description.
     pub description: Option<Markdown>,
     /// Source intervention names, including their native prefixes.
+    #[serde(default, skip_serializing_if = "<[_]>::is_empty")]
     pub intervention_names: Box<[Box<str>]>,
 }
 /// Registry intervention, retaining aliases and arm labels.
@@ -116,8 +120,10 @@ pub struct TrialIntervention {
     /// Original description.
     pub description: Option<Markdown>,
     /// Source arm relationships.
+    #[serde(default, skip_serializing_if = "<[_]>::is_empty")]
     pub arm_group_labels: Box<[Box<str>]>,
     /// Source aliases, without invented expansion.
+    #[serde(default, skip_serializing_if = "<[_]>::is_empty")]
     pub other_names: Box<[Box<str>]>,
 }
 

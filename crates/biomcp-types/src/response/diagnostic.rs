@@ -131,6 +131,7 @@ pub struct GtrCard {
     /// Whole original license number list, independently retained.
     pub state_license_numbers: Box<str>,
     /// Source-supported named pages.
+    #[serde(default, skip_serializing_if = "<[_]>::is_empty")]
     pub sections: Box<[DiagnosticSection]>,
 }
 /// Exactly one source-owned diagnostic card; conflicts have no card variant.
@@ -196,6 +197,7 @@ macro_rules! page {
         #[cfg_attr(feature = "schema", derive(schemars::JsonSchema))]
         pub struct $name {
             /// Complete source-owned rows in native order; envelope totals count native rows.
+            #[serde(default, skip_serializing_if = "<[_]>::is_empty")]
             pub items: Box<[$row]>,
             /// Exact meaning of the envelope total; supplied by the owning source command.
             #[serde(default, skip_serializing_if = "Option::is_none")]
@@ -293,6 +295,7 @@ pub struct DiagnosticPmaCard {
     /// Exact selected source header.
     pub header: DiagnosticPmaHeader,
     /// Source-supported pages for this exact base or supplement.
+    #[serde(default, skip_serializing_if = "<[_]>::is_empty")]
     pub sections: Box<[DiagnosticSection]>,
 }
 /// Dated metadata belonging only to the selected submission.

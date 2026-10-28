@@ -24,21 +24,28 @@ pub struct VariantRegion(Box<str>);
 impl FromStr for VariantRegion {
     type Err = QueryInvalid;
     fn from_str(value: &str) -> Result<Self, Self::Err> {
-        let (chromosome, bounds) = value.split_once(':').ok_or(QueryInvalid)?;
+        let (chromosome, bounds) = value
+            .split_once(':')
+            .ok_or_else(|| QueryInvalid::new(&["region"]))?;
         chromosome
             .strip_prefix("chr")
-            .ok_or(QueryInvalid)?
+            .ok_or_else(|| QueryInvalid::new(&["region"]))?
             .parse::<Chromosome>()
-            .map_err(|_| QueryInvalid)?;
-        let (start, end) = bounds.split_once('-').ok_or(QueryInvalid)?;
+            .map_err(|_| QueryInvalid::new(&["region"]))?;
+        let (start, end) = bounds
+            .split_once('-')
+            .ok_or_else(|| QueryInvalid::new(&["region"]))?;
         let position = |v: &str| {
-            if v.starts_with('0') || !v.bytes().all(|b| b.is_ascii_digit()) {
-                return Err(QueryInvalid);
+            if v.starts_with('0') {
+                return Err(QueryInvalid::new(&["region"]));
             }
-            v.parse::<u32>().map_err(|_| QueryInvalid)
+            if !v.bytes().all(|b| b.is_ascii_digit()) {
+                return Err(QueryInvalid::new(&["region"]));
+            }
+            v.parse::<u32>().map_err(|_| QueryInvalid::new(&["region"]))
         };
         if position(start)? > position(end)? {
-            return Err(QueryInvalid);
+            return Err(QueryInvalid::new(&["region"]));
         }
         Ok(Self(value.into()))
     }
@@ -60,8 +67,14 @@ pub struct MyVariantQuery(Box<str>);
 impl FromStr for MyVariantQuery {
     type Err = QueryInvalid;
     fn from_str(value: &str) -> Result<Self, Self::Err> {
-        if value.trim().is_empty() || value.len() > 2048 || value.chars().any(char::is_control) {
-            return Err(QueryInvalid);
+        if value.trim().is_empty() {
+            return Err(QueryInvalid::new(&["query"]));
+        }
+        if value.len() > 2048 {
+            return Err(QueryInvalid::new(&["query"]));
+        }
+        if value.chars().any(char::is_control) {
+            return Err(QueryInvalid::new(&["query"]));
         }
         Ok(Self(value.into()))
     }
@@ -171,6 +184,7 @@ struct Fields {
 fn default_limit() -> u32 {
     10
 }
+crate::query::validation::checked_query!(VariantSearch, Fields);
 impl TryFrom<Fields> for VariantSearch {
     type Error = QueryInvalid;
     fn try_from(f: Fields) -> Result<Self, Self::Error> {
@@ -186,19 +200,34 @@ impl TryFrom<Fields> for VariantSearch {
             && f.gene.is_none()
             && f.protein.is_none()
             && f.region.is_none();
-        if !(protein || region || raw)
-            || !(1..=50).contains(&f.limit)
-            || f.offset >= Self::MAX_RESULTS
-            || (raw && f.filtered())
-            || [&f.review_status, &f.condition]
-                .into_iter()
-                .flatten()
-                .any(|v| {
-                    v.as_str().chars().count() > MAX_FILTER_CHARS
-                        || v.as_str().chars().any(char::is_control)
-                })
+        if !(protein || region || raw) {
+            return Err(QueryInvalid::new(&[
+                "gene", "protein", "region", "build", "query", "source",
+            ]));
+        }
+        if !(1..=50).contains(&f.limit) {
+            return Err(QueryInvalid::new(&["limit"]));
+        }
+        if f.offset >= Self::MAX_RESULTS {
+            return Err(QueryInvalid::new(&["offset"]));
+        }
+        if raw && f.filtered() {
+            return Err(QueryInvalid::new(&[
+                "query",
+                "review_status",
+                "condition",
+                "has",
+            ]));
+        }
+        if [&f.review_status, &f.condition]
+            .into_iter()
+            .flatten()
+            .any(|v| {
+                v.as_str().chars().count() > MAX_FILTER_CHARS
+                    || v.as_str().chars().any(char::is_control)
+            })
         {
-            return Err(QueryInvalid);
+            return Err(QueryInvalid::new(&["review_status", "condition"]));
         }
         Ok(Self(f))
     }
@@ -217,6 +246,18 @@ impl VariantSearch {
     /// Whether the declared selector searches dbNSFP's gene and protein fields.
     pub fn uses_dbnsfp_selector(&self) -> bool {
         self.0.gene.is_some()
+    }
+    /// Compare a source protein spelling with the caller's checked substitution spellings.
+    pub fn matches_protein(&self, gene: Option<&str>, notation: &str) -> bool {
+        self.0
+            .gene
+            .as_ref()
+            .is_some_and(|g| Some(g.as_str()) == gene)
+            && self
+                .0
+                .protein
+                .as_ref()
+                .is_some_and(|p| p.forms().iter().any(|form| form == notation))
     }
     /// Exact declared source query; no alternative notation or free-text guessing.
     pub fn source_query(&self) -> String {

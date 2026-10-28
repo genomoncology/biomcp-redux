@@ -69,6 +69,7 @@ pub fn pdf(leg: &Leg<'_>, input: &ArticleInput) -> Result<PdfRecord, RequestErro
 
 /// Credential-free publisher declaration, distinct from the optional-key API.
 pub static PUBLISHER: biomcp_fetch::SourceSpec = biomcp_fetch::SourceSpec {
+    destinations: biomcp_fetch::Destinations::PublisherPdf,
     user_agent: None,
     source: biomcp_types::Source::SemanticScholar,
     terms: biomcp_fetch::Terms {

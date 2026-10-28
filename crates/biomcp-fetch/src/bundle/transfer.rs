@@ -1,7 +1,9 @@
 //! Copy missing published bundles without modifying their predecessor file.
 use crate::{
     CacheError, Deadline, SchemaOwner,
-    cache::{Cache, check_current_owners, check_predecessor, db_error, sql_deadline},
+    cache::{
+        Cache, check_current_owners, check_predecessor, db_error, sql_deadline, write_transaction,
+    },
 };
 use rusqlite::Connection;
 use std::path::Path;
@@ -48,7 +50,7 @@ impl Cache {
     ) -> Result<bool, CacheError> {
         let mut uri = url::Url::from_file_path(path).map_err(|_| CacheError::Database)?;
         uri.query_pairs_mut().append_pair("mode", "ro");
-        let mut connection = self.owned_connection()?;
+        let connection = self.owned_connection()?;
         sql_deadline(&connection, deadline)?;
         check_current_owners(&connection, owners)?;
         connection
@@ -62,9 +64,7 @@ impl Cache {
             .map_err(db_error)?;
         self.publish_sql(deadline, || {
             sql_deadline(&connection, deadline)?;
-            let tx = connection
-                .transaction_with_behavior(rusqlite::TransactionBehavior::Immediate)
-                .map_err(db_error)?;
+            let tx = write_transaction(&connection)?;
             check_current_owners(&tx, owners)?;
             // Current publication wins, including a concurrent publisher that finished while staging.
             if exists(&tx, "main", name)? {

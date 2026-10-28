@@ -64,7 +64,6 @@
         }
       },
       "required": [
-        "items",
         "total"
       ],
       "type": "object"
@@ -129,6 +128,10 @@
           ],
           "description": "Source dosage assessment date, preserving its original spelling."
         },
+        "dosage_status": {
+          "$ref": "#/$defs/SourceOutcome",
+          "description": "Outcome of the dosage sensitivity source read."
+        },
         "haploinsufficiency": {
           "anyOf": [
             {
@@ -157,10 +160,15 @@
             "$ref": "#/$defs/ClinGenValidity"
           },
           "type": "array"
+        },
+        "validity_status": {
+          "$ref": "#/$defs/SourceOutcome",
+          "description": "Outcome of the gene–disease validity source read."
         }
       },
       "required": [
-        "validity"
+        "validity_status",
+        "dosage_status"
       ],
       "type": "object"
     },
@@ -274,6 +282,104 @@
       "description": "A finite decimal that JSON can represent without losing its value to null.",
       "format": "double",
       "type": "number"
+    },
+    "GenccGene": {
+      "additionalProperties": false,
+      "description": "GenCC records in published order without merged classifications.",
+      "properties": {
+        "submissions": {
+          "description": "Individual submissions in source order.",
+          "items": {
+            "$ref": "#/$defs/GenccSubmission"
+          },
+          "type": "array"
+        }
+      },
+      "required": [
+        "submissions"
+      ],
+      "type": "object"
+    },
+    "GenccSubmission": {
+      "additionalProperties": false,
+      "description": "One source submission; no clinical validity is inferred.",
+      "properties": {
+        "classification": {
+          "$ref": "#/$defs/Text",
+          "description": "Source classification title without inference."
+        },
+        "classification_id": {
+          "$ref": "#/$defs/Text",
+          "description": "Source classification identifier."
+        },
+        "disease": {
+          "$ref": "#/$defs/Text",
+          "description": "Source disease title."
+        },
+        "disease_id": {
+          "$ref": "#/$defs/Text",
+          "description": "Source disease identifier."
+        },
+        "evaluated_date": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/Text"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "description": "Source submitted_as_date, preserving its spelling."
+        },
+        "id": {
+          "$ref": "#/$defs/Text",
+          "description": "Source submission identifier."
+        },
+        "mode_of_inheritance": {
+          "$ref": "#/$defs/Text",
+          "description": "Source inheritance title."
+        },
+        "mode_of_inheritance_id": {
+          "$ref": "#/$defs/Text",
+          "description": "Source inheritance identifier."
+        },
+        "submitted_date": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/Text"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "description": "Source submitted_run_date, preserving its spelling."
+        },
+        "submitter": {
+          "$ref": "#/$defs/Text",
+          "description": "Source submitter title."
+        },
+        "submitter_id": {
+          "$ref": "#/$defs/Text",
+          "description": "Source submitter identifier."
+        },
+        "version": {
+          "$ref": "#/$defs/Text",
+          "description": "Source submission version."
+        }
+      },
+      "required": [
+        "id",
+        "version",
+        "disease_id",
+        "disease",
+        "classification_id",
+        "classification",
+        "mode_of_inheritance_id",
+        "mode_of_inheritance",
+        "submitter_id",
+        "submitter"
+      ],
+      "type": "object"
     },
     "Gene": {
       "additionalProperties": false,
@@ -402,11 +508,6 @@
         "symbol",
         "status",
         "locus_group",
-        "previous_symbols",
-        "aliases",
-        "uniprot",
-        "omim",
-        "spans",
         "name"
       ],
       "type": "object"
@@ -423,9 +524,6 @@
           "type": "array"
         }
       },
-      "required": [
-        "items"
-      ],
       "type": "object"
     },
     "GeneExpression": {
@@ -688,8 +786,7 @@
             }
           },
           "required": [
-            "resolution",
-            "candidates"
+            "resolution"
           ],
           "type": "object"
         },
@@ -725,8 +822,7 @@
             "resolution",
             "hgnc_id",
             "symbol",
-            "hgnc_status",
-            "merged_into"
+            "hgnc_status"
           ],
           "type": "object"
         },
@@ -752,6 +848,7 @@
         "protein",
         "civic",
         "clingen",
+        "gencc",
         "constraint",
         "expression",
         "pathways",
@@ -762,6 +859,7 @@
         " Reviewed human proteins.",
         " CIViC gene curation.",
         " ClinGen validity and dosage.",
+        " GenCC submitter assessments.",
         " Population constraint metrics.",
         " Human Protein Atlas expression.",
         " Human Reactome pathways.",
@@ -774,6 +872,7 @@
         "protein",
         "civic",
         "clingen",
+        "gencc",
         "constraint",
         "expression",
         "pathways",
@@ -785,6 +884,7 @@
         " Reviewed human proteins.",
         " CIViC gene curation.",
         " ClinGen validity and dosage.",
+        " GenCC submitter assessments.",
         " Population constraint metrics.",
         " Human Protein Atlas expression.",
         " Human Reactome pathways.",
@@ -821,7 +921,7 @@
         "constraint": {
           "anyOf": [
             {
-              "$ref": "#/$defs/Section4"
+              "$ref": "#/$defs/Section5"
             },
             {
               "type": "null"
@@ -832,7 +932,7 @@
         "expression": {
           "anyOf": [
             {
-              "$ref": "#/$defs/Section5"
+              "$ref": "#/$defs/Section6"
             },
             {
               "type": "null"
@@ -840,10 +940,21 @@
           ],
           "description": "Human Protein Atlas expression annotations."
         },
+        "gencc": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/Section4"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "description": "GenCC assessments, retained separately for each submitter."
+        },
         "oncokb": {
           "anyOf": [
             {
-              "$ref": "#/$defs/Section7"
+              "$ref": "#/$defs/Section8"
             },
             {
               "type": "null"
@@ -854,7 +965,7 @@
         "pathways": {
           "anyOf": [
             {
-              "$ref": "#/$defs/Section6"
+              "$ref": "#/$defs/Section7"
             },
             {
               "type": "null"
@@ -1889,7 +2000,7 @@
           "description": "The source returned data.",
           "properties": {
             "data": {
-              "$ref": "#/$defs/Constraint",
+              "$ref": "#/$defs/GenccGene",
               "description": "Whole section data."
             },
             "source": {
@@ -2010,7 +2121,7 @@
           "description": "The source returned data.",
           "properties": {
             "data": {
-              "$ref": "#/$defs/GeneExpression",
+              "$ref": "#/$defs/Constraint",
               "description": "Whole section data."
             },
             "source": {
@@ -2131,7 +2242,7 @@
           "description": "The source returned data.",
           "properties": {
             "data": {
-              "$ref": "#/$defs/Capped",
+              "$ref": "#/$defs/GeneExpression",
               "description": "Whole section data."
             },
             "source": {
@@ -2245,6 +2356,127 @@
       ]
     },
     "Section7": {
+      "description": "A requested section has exactly one state.",
+      "oneOf": [
+        {
+          "additionalProperties": false,
+          "description": "The source returned data.",
+          "properties": {
+            "data": {
+              "$ref": "#/$defs/Capped",
+              "description": "Whole section data."
+            },
+            "source": {
+              "$ref": "#/$defs/Source",
+              "description": "Source identity."
+            },
+            "state": {
+              "const": "data",
+              "type": "string"
+            }
+          },
+          "required": [
+            "state",
+            "source",
+            "data"
+          ],
+          "type": "object"
+        },
+        {
+          "additionalProperties": false,
+          "description": "The source answered with no data.",
+          "properties": {
+            "record": {
+              "anyOf": [
+                {
+                  "$ref": "#/$defs/SourceRecord"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "description": "Native entry, if any."
+            },
+            "source": {
+              "$ref": "#/$defs/Source",
+              "description": "Source identity."
+            },
+            "state": {
+              "const": "empty",
+              "type": "string"
+            }
+          },
+          "required": [
+            "state",
+            "source"
+          ],
+          "type": "object"
+        },
+        {
+          "additionalProperties": false,
+          "description": "A requested source failed.",
+          "properties": {
+            "reason": {
+              "$ref": "#/$defs/Reason",
+              "description": "Typed reason."
+            },
+            "source": {
+              "$ref": "#/$defs/Source",
+              "description": "Source identity."
+            },
+            "state": {
+              "const": "unavailable",
+              "type": "string"
+            }
+          },
+          "required": [
+            "state",
+            "source",
+            "reason"
+          ],
+          "type": "object"
+        },
+        {
+          "additionalProperties": false,
+          "description": "User settings prevented the source request.",
+          "properties": {
+            "reason": {
+              "$ref": "#/$defs/Reason",
+              "description": "Typed reason."
+            },
+            "source": {
+              "$ref": "#/$defs/Source",
+              "description": "Source identity."
+            },
+            "state": {
+              "const": "skipped",
+              "type": "string"
+            }
+          },
+          "required": [
+            "state",
+            "source",
+            "reason"
+          ],
+          "type": "object"
+        },
+        {
+          "additionalProperties": false,
+          "description": "Entity facts rule this section out.",
+          "properties": {
+            "state": {
+              "const": "not_applicable",
+              "type": "string"
+            }
+          },
+          "required": [
+            "state"
+          ],
+          "type": "object"
+        }
+      ]
+    },
+    "Section8": {
       "description": "A requested section has exactly one state.",
       "oneOf": [
         {
@@ -2381,6 +2613,7 @@
         "erepo",
         "gwas",
         "clingen",
+        "gencc",
         "pubmed",
         "europepmc",
         "litvar",
@@ -2454,6 +2687,7 @@
         " ClinGen Evidence Repository.",
         " GWAS Catalog v2.",
         " ClinGen.",
+        " GenCC submitter assessments.",
         " PubMed.",
         " Europe PMC.",
         " NCBI LitVar2.",
@@ -2516,6 +2750,25 @@
     "SourceNotice": {
       "description": "A provider query interpretation notice.",
       "oneOf": [
+        {
+          "additionalProperties": false,
+          "description": "Registered conditions lack the literal words requested in a condition search.",
+          "properties": {
+            "kind": {
+              "const": "condition_word_mismatch",
+              "type": "string"
+            },
+            "message": {
+              "description": "The source searches several fields and can expand terms; no expansion cause is inferred.",
+              "type": "string"
+            }
+          },
+          "required": [
+            "kind",
+            "message"
+          ],
+          "type": "object"
+        },
         {
           "additionalProperties": false,
           "description": "A checked provider answer survived a local cache failure.",
@@ -2595,8 +2848,7 @@
           },
           "required": [
             "kind",
-            "name",
-            "phrases"
+            "name"
           ],
           "type": "object"
         },
@@ -2617,8 +2869,7 @@
             }
           },
           "required": [
-            "kind",
-            "words"
+            "kind"
           ],
           "type": "object"
         }
@@ -2793,8 +3044,7 @@
         }
       },
       "required": [
-        "kind",
-        "args"
+        "kind"
       ],
       "type": "object"
     },
@@ -2906,7 +3156,7 @@
       "type": "string"
     }
   },
-  "$id": "biomcp.gene-cards/4",
+  "$id": "biomcp.gene-cards/5",
   "$schema": "https://json-schema.org/draft/2020-12/schema",
   "additionalProperties": false,
   "description": "One versioned command response; schema identity comes only from its body type.",
@@ -2963,7 +3213,7 @@
       "description": "Answer when available."
     },
     "schema": {
-      "const": "biomcp.gene-cards/4",
+      "const": "biomcp.gene-cards/5",
       "type": "string"
     },
     "sources": {

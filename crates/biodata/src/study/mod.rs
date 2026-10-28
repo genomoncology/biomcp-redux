@@ -17,7 +17,7 @@ pub struct StudyHeader {
     /// Native allSampleCount, never a patient or profiled-gene denominator.
     pub all_sample_count: u64,
     /// Every validated source PMID in native order, including repetitions; absent remains absent.
-    #[serde(default, skip_serializing_if = "Option::is_none")]
+    #[serde(default, skip_serializing_if = "crate::absent_or_empty")]
     pub pmids: Option<Box<[Pmid]>>,
     /// Native citation, absent for unpublished records.
     #[serde(default, skip_serializing_if = "Option::is_none")]
@@ -46,6 +46,7 @@ pub struct Study {
     #[serde(default, skip_serializing_if = "Option::is_none")]
     pub patient_count: Option<u64>,
     /// Independent resource-scoped counts, never summed into study totals.
+    #[serde(default, skip_serializing_if = "<[_]>::is_empty")]
     pub resource_counts: Box<[StudyResourceCount]>,
     /// Native timezone-unstated import time.
     pub import_date: StudyImportTime,

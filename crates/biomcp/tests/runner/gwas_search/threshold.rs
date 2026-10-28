@@ -122,8 +122,7 @@ fn crossing() -> Result<(), String> {
     )?;
     let second = follow(&env, &replay, &first, 0)?;
     final_count(&second, 3)?;
-    if second.pointer("/result/items") != Some(&json!([]))
-        || second.pointer("/page/total") != Some(&json!(6))
+    if second.pointer("/result/items").is_some() || second.pointer("/page/total") != Some(&json!(6))
     {
         return Err("source total or empty threshold boundary lost".into());
     }

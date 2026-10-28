@@ -11,6 +11,7 @@ pub use search::search;
 use std::time::Duration;
 /// Current catalog API; retired v1 is never used.
 pub static SPEC: SourceSpec = SourceSpec {
+    destinations: biomcp_fetch::Destinations::Primary,
     user_agent: None,
     terms: biomcp_fetch::Terms {
         name: "GWAS Catalog terms and dataset rights",

@@ -61,10 +61,7 @@ fn help() -> Result<(), String> {
         .ok_or("missing help commands")?;
     command_metadata(commands)?;
     for command in commands {
-        for argument in command["arguments"]
-            .as_array()
-            .ok_or("missing public arguments")?
-        {
+        for argument in arguments(command)? {
             if argument["description"]
                 .as_str()
                 .is_none_or(|s| s.trim().is_empty())
@@ -130,7 +127,13 @@ fn command_metadata(commands: &[Value]) -> Result<(), String> {
     ] {
         let command = commands
             .iter()
-            .find(|c| c["command"] == json!(path))
+            .find(|c| {
+                if path.is_empty() {
+                    c.get("command").is_none()
+                } else {
+                    c["command"] == json!(path)
+                }
+            })
             .ok_or_else(|| format!("missing command {path:?}"))?;
         if command["description"]
             .as_str()
@@ -138,7 +141,7 @@ fn command_metadata(commands: &[Value]) -> Result<(), String> {
         {
             return Err(format!("missing description {path:?}"));
         }
-        for arg in command["arguments"].as_array().ok_or("missing arguments")? {
+        for arg in arguments(command)? {
             if arg["description"]
                 .as_str()
                 .is_none_or(|s| s.trim().is_empty())
@@ -163,4 +166,14 @@ fn command_metadata(commands: &[Value]) -> Result<(), String> {
         }
     }
     Ok(())
+}
+
+fn arguments(command: &Value) -> Result<&[Value], String> {
+    match command.get("arguments") {
+        None => Ok(&[]),
+        Some(value) => value
+            .as_array()
+            .map(Vec::as_slice)
+            .ok_or_else(|| "invalid public arguments".into()),
+    }
 }

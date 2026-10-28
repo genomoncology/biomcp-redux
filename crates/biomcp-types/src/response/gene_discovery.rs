@@ -48,6 +48,7 @@ pub enum GeneResolution {
     /// Every candidate, with no silent selection.
     Ambiguous {
         /// Ordered candidates supplied by the resolver.
+        #[serde(default, skip_serializing_if = "<[_]>::is_empty")]
         candidates: Box<[GeneHeader]>,
     },
     /// The original withdrawn identity and stated successors.
@@ -59,6 +60,7 @@ pub enum GeneResolution {
         /// Stated HGNC withdrawn-file status.
         hgnc_status: HgncStatus,
         /// All stated merge destinations.
+        #[serde(default, skip_serializing_if = "<[_]>::is_empty")]
         merged_into: Box<[HgncId]>,
     },
     /// No source identity matched.

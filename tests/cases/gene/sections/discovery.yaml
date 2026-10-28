@@ -15,6 +15,7 @@
           "protein",
           "civic",
           "clingen",
+          "gencc",
           "constraint",
           "expression",
           "pathways"
@@ -27,6 +28,7 @@
           "protein",
           "civic",
           "clingen",
+          "gencc",
           "constraint",
           "expression",
           "pathways"

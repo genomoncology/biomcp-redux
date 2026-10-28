@@ -20,7 +20,7 @@
         },
         "/result/commands/0/description": "Read an rsID, CAid, ClinVar Variation ID or reference-qualified HGVS; chromosome notation requires --build. Use search variant --gene BRAF --protein V600E for shorthand. Every candidate remains available; source assertions do not classify the variant for the caller."
       },
-      "max_bytes": 4303
+      "max_bytes": 5514
     },
     {
       "run": [
@@ -38,7 +38,7 @@
           "count": 2
         }
       },
-      "max_bytes": 2994
+      "max_bytes": 3976
     },
     {
       "run": [
@@ -56,7 +56,7 @@
           "count": 2
         }
       },
-      "max_bytes": 1484
+      "max_bytes": 2458
     },
     {
       "run": [
@@ -74,7 +74,7 @@
           "count": 2
         }
       },
-      "max_bytes": 1481
+      "max_bytes": 2540
     },
     {
       "run": [
@@ -92,7 +92,7 @@
           "count": 2
         }
       },
-      "max_bytes": 1469
+      "max_bytes": 2493
     },
     {
       "run": [
@@ -110,8 +110,8 @@
           "count": 2
         }
       },
-      "max_bytes": 2150
+      "max_bytes": 3135
     }
   ],
-  "verified": "Get variant and assertions help measured in j16526: 3741 and 1290 CLI bytes. Their caps are ceil(measured bytes * 1.15); token caps are ceil(byte cap / 4). Other help caps retain j11310. No comparable 0.9 schema-generated help baseline exists. MCP tools/list retains its existing description cap."
+  "verified": "Get variant and assertions help measured in j16526: 3741 and 1290 CLI bytes. Their caps are ceil(measured bytes * 1.15); token caps are ceil(byte cap / 4). Other help caps retain j11310. No comparable 0.9 schema-generated help baseline exists. MCP tools/list retains its existing description cap. Help byte limits use j18463 output plus fifteen percent for defaults, aliases, inherited options and examples; higher existing limits remain."
 }

@@ -101,6 +101,7 @@ fn tls() -> Result<(), String> {
     for trusted in [false, true] {
         let env = Environment::new().map_err(|e| e.to_string())?;
         let stub = super::network_stub::Stub::new()?;
+        stub.retain(&env);
         let record = env.root().join("capture");
         if trusted {
             let cert = env.root().join("private-ca.pem");
@@ -260,6 +261,7 @@ fn automatic_sync() -> Result<(), String> {
         let env = Environment::new().map_err(|e| e.to_string())?;
         let stub = super::network_stub::Stub::new()?;
         let ca = env.root().join("ca.pem");
+        stub.retain(&env);
         fs::write(&ca, &stub.certificate).map_err(|e| e.to_string())?;
         env.config(
             &json!({"proxy":format!("http://{}",stub.address), "ca_bundle":ca,
