@@ -48,8 +48,8 @@ fn markdown() -> Check {
 
 fn proxy() -> Check {
     for (lower, upper, invalid) in [
-        ("http_proxy", "HTTP_PROXY", "invalid-proxy"),
-        ("https_proxy", "HTTPS_PROXY", "invalid-proxy"),
+        ("http_proxy", "HTTP_PROXY", "http://[invalid"),
+        ("https_proxy", "HTTPS_PROXY", "http://[invalid"),
         ("no_proxy", "NO_PROXY", "bad:port"),
     ] {
         let env = Environment::new()?;
@@ -72,7 +72,7 @@ fn proxy() -> Check {
         let mut command = env.command(env!("CARGO_BIN_EXE_biomcp"), &["sync".into(), "hgnc".into()]);
         command.env("https_proxy", format!("http://{}", stub.address))
             .env("http_proxy", format!("http://{}", stub.address)).env("no_proxy", "unrelated.invalid");
-        command.env("HTTP_PROXY", "invalid-upper").env("HTTPS_PROXY", "invalid-upper").env("NO_PROXY", "*");
+        command.env("HTTP_PROXY", "http://[invalid-upper").env("HTTPS_PROXY", "http://[invalid-upper").env("NO_PROXY", "*");
         let output = command.output()?;
         let value: Value = serde_json::from_slice(&output.stdout)?;
         assert!(output.status.success(), "{value}");
@@ -87,7 +87,7 @@ fn proxy() -> Check {
     let env = Environment::new()?;
     let output = env.command(env!("CARGO_BIN_EXE_biomcp"), &["health".into(), "--offline".into()])
         .env("http_proxy", "").env("https_proxy", "").env("no_proxy", "")
-        .env("HTTP_PROXY", "invalid-upper").env("HTTPS_PROXY", "invalid-upper").env("NO_PROXY", "bad:port")
+        .env("HTTP_PROXY", "http://[invalid-upper").env("HTTPS_PROXY", "http://[invalid-upper").env("NO_PROXY", "bad:port")
         .output()?;
     assert!(output.status.success(), "{}", String::from_utf8_lossy(&output.stdout));
     Ok(())
