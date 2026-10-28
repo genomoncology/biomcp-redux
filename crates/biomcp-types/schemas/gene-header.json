@@ -6,14 +6,14 @@
     },
     "GeneStatus": {
       "description": "HGNC approval status.",
-      "enum": [
-        "approved",
-        "withdrawn"
-      ],
       "type": "string",
       "x-enum-descriptions": [
         " An HGNC approved record.",
         " An HGNC withdrawn record."
+      ],
+      "x-extensible-enum": [
+        "approved",
+        "withdrawn"
       ]
     },
     "GeneSymbol": {
@@ -28,13 +28,6 @@
     },
     "LocusGroup": {
       "description": "HGNC locus group, separate from a missing source value.",
-      "enum": [
-        "protein_coding",
-        "non_coding_rna",
-        "pseudogene",
-        "phenotype",
-        "other"
-      ],
       "type": "string",
       "x-enum-descriptions": [
         " Protein coding.",
@@ -42,10 +35,16 @@
         " Pseudogene.",
         " Phenotype.",
         " HGNC's stated other group."
+      ],
+      "x-extensible-enum": [
+        "protein_coding",
+        "non_coding_rna",
+        "pseudogene",
+        "phenotype",
+        "other"
       ]
     },
     "Match": {
-      "additionalProperties": false,
       "description": "A source-stated match, preserving the text that matched.",
       "properties": {
         "kind": {
@@ -65,16 +64,6 @@
     },
     "MatchKind": {
       "description": "How a source matched a gene input.",
-      "enum": [
-        "symbol",
-        "previous_symbol",
-        "alias",
-        "ncbi_alias",
-        "hgnc_id",
-        "entrez_id",
-        "ensembl_id",
-        "band"
-      ],
       "type": "string",
       "x-enum-descriptions": [
         " Current symbol.",
@@ -85,6 +74,16 @@
         " NCBI Gene identifier.",
         " Ensembl gene identifier.",
         " Cytogenetic band."
+      ],
+      "x-extensible-enum": [
+        "symbol",
+        "previous_symbol",
+        "alias",
+        "ncbi_alias",
+        "hgnc_id",
+        "entrez_id",
+        "ensembl_id",
+        "band"
       ]
     },
     "Text": {
@@ -95,7 +94,6 @@
   },
   "$id": "biomcp.gene-header/3",
   "$schema": "https://json-schema.org/draft/2020-12/schema",
-  "additionalProperties": false,
   "description": "Enough gene identity to choose a search result.",
   "properties": {
     "hgnc_id": {

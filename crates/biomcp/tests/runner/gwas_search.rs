@@ -1,5 +1,6 @@
 //! Feature gwas-search: source selectors cross the real command boundary.
 use super::{configuration::invoke, gwas_budgets, launch::Environment};
+use crate::runner::transcript::trial as transcript_trial;
 use libtest_mimic::Trial;
 use serde_json::{Value, json};
 use std::{
@@ -16,20 +17,20 @@ pub(super) fn trials() -> Vec<Trial> {
     let native_directory = super::launch::fixtures().join("gwas-native-cases");
     let absent = !native_directory.is_dir();
     vec![
-        Trial::test("gwas-search/stale-source-is-partial", || {
+        transcript_trial("gwas-search/stale-source-is-partial", || {
             state::stale().map_err(Into::into)
         }),
-        Trial::test(
+        transcript_trial(
             "gwas-search/expired-threshold-restarts-original-selectors",
             || state::expired().map_err(Into::into),
         ),
-        Trial::test("gwas-search/native-trait-id-is-never-rewritten", || {
+        transcript_trial("gwas-search/native-trait-id-is-never-rewritten", || {
             state::literal().map_err(Into::into)
         }),
-        Trial::test("gwas-search/malformed-input-guidance-before-io", || {
+        transcript_trial("gwas-search/malformed-input-guidance-before-io", || {
             usage::run().map_err(Into::into)
         }),
-        Trial::test("gwas-search/retained-threshold-witnesses-and-costs", || {
+        transcript_trial("gwas-search/retained-threshold-witnesses-and-costs", || {
             threshold::native(&super::launch::fixtures().join("gwas-threshold-cases"))
                 .map_err(Into::into)
         })
@@ -38,36 +39,36 @@ pub(super) fn trials() -> Vec<Trial> {
                 .join("gwas-threshold-cases")
                 .is_dir(),
         ),
-        Trial::test("gwas-search/threshold-later-page-failures", || {
+        transcript_trial("gwas-search/threshold-later-page-failures", || {
             threshold::failures().map_err(Into::into)
         }),
-        Trial::test("gwas-search/exact-threshold-page-walk", || {
+        transcript_trial("gwas-search/exact-threshold-page-walk", || {
             threshold::walk().map_err(Into::into)
         }),
-        Trial::test(
+        transcript_trial(
             "gwas-search/retained-native-witnesses-and-costs",
             move || native::run(&native_directory).map_err(Into::into),
         )
         .with_ignored_flag(absent),
-        Trial::test("gwas-search/restricted-policy-before-io", || {
+        transcript_trial("gwas-search/restricted-policy-before-io", || {
             policy().map_err(Into::into)
         }),
-        Trial::test("gwas-search/checked-native-selectors-and-aliases", || {
+        transcript_trial("gwas-search/checked-native-selectors-and-aliases", || {
             wire::selectors().map_err(Into::into)
         }),
-        Trial::test("gwas-search/native-offset-and-continuation", || {
+        transcript_trial("gwas-search/native-offset-and-continuation", || {
             wire::paging().map_err(Into::into)
         }),
-        Trial::test("gwas-search/live-warm-cache-and-explicit-fresh", || {
+        transcript_trial("gwas-search/live-warm-cache-and-explicit-fresh", || {
             wire::warm().map_err(Into::into)
         }),
-        Trial::test("gwas-search/reject-before-cache-admission", || {
+        transcript_trial("gwas-search/reject-before-cache-admission", || {
             mechanics::admission().map_err(Into::into)
         }),
-        Trial::test("gwas-search/failures-are-never-empty", || {
+        transcript_trial("gwas-search/failures-are-never-empty", || {
             mechanics::failures().map_err(Into::into)
         }),
-        Trial::test("gwas-search/cli-mcp-help-markdown", || {
+        transcript_trial("gwas-search/cli-mcp-help-markdown", || {
             wire::surfaces().map_err(Into::into)
         }),
     ]

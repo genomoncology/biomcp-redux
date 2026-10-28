@@ -1,6 +1,7 @@
 //! Feature drug-native-sources: retained native bodies delivered locally through real record and replay.
 //! Original source dates and request identities remain in fixture provenance; delivery is not a live provider check.
 use super::{configuration::invoke, launch::Environment, network_stub::Stub};
+use crate::runner::transcript::trial as transcript_trial;
 use libtest_mimic::Trial;
 use serde::Deserialize;
 use serde_json::{Map, Value, json};
@@ -39,17 +40,17 @@ pub(super) fn trials() -> Vec<Trial> {
         Ok(cases) => cases
             .into_iter()
             .map(|case| {
-                Trial::test(format!("drug-native/{}", case.name), move || {
+                transcript_trial(format!("drug-native/{}", case.name), move || {
                     check(case.clone()).map_err(Into::into)
                 })
             })
             .collect(),
-        Err(error) => vec![Trial::test("drug-native/fixture-plan", move || {
+        Err(error) => vec![transcript_trial("drug-native/fixture-plan", move || {
             Err(error.clone().into())
         })],
     };
     if let Some(root) = std::env::var_os("BIOMCP_CHEMBL_DEFAULT_RECORDING") {
-        trials.push(Trial::test(
+        trials.push(transcript_trial(
             "drug-native/chembl-default-retained",
             move || default_retained(PathBuf::from(&root)).map_err(Into::into),
         ));

@@ -16,8 +16,8 @@ pub struct Page<T> {
     pub total: u64,
 }
 #[derive(Deserialize)]
-#[serde(transparent)]
-struct Rows<T>(Vec<T>);
+#[serde(transparent, bound(deserialize = "T: Deserialize<'de>"))]
+struct Rows<T>(#[serde(deserialize_with = "crate::strict_input::deserialize")] Vec<T>);
 impl<T: serde::de::DeserializeOwned> Reply for Rows<T> {
     fn check(&self) -> Result<(), BadReply> {
         Ok(())

@@ -1,6 +1,7 @@
 //! Feature protein-search: retired spellings give fixed guidance before any request.
 use super::super::mcp;
 use super::{Environment, Stub, Trial, invoke, json, setup};
+use crate::runner::transcript::trial as transcript_trial;
 const CLI_SECTION_USAGE_BYTES: usize = 166;
 const MCP_SECTION_USAGE_BYTES: usize = 165;
 pub(super) fn trials() -> Vec<Trial> {
@@ -8,11 +9,11 @@ pub(super) fn trials() -> Vec<Trial> {
         .iter()
         .enumerate()
         .map(|(n, &(command, message, cli_ceiling, mcp_ceiling))| {
-            Trial::test(format!("protein-search/retired-spelling-{n}"), move || {
+            transcript_trial(format!("protein-search/retired-spelling-{n}"), move || {
                 check(command, message, cli_ceiling, mcp_ceiling).map_err(Into::into)
             })
         })
-        .chain([Trial::test(
+        .chain([transcript_trial(
             "protein-search/unsupported-section-and-shared-repeat-grammar",
             || boundaries().map_err(Into::into),
         )])

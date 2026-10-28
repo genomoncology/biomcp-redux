@@ -8,7 +8,6 @@ use biodata::{
 use serde::{Deserialize, Serialize};
 /// Source and declared gene context; no chosen pair or patient result.
 #[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
-#[serde(deny_unknown_fields)]
 #[cfg_attr(feature = "schema", derive(schemars::JsonSchema))]
 pub struct PgxHeader {
     /// Explicit source.
@@ -18,7 +17,6 @@ pub struct PgxHeader {
 }
 /// Independent collection scope; observed counts never imply native source totals.
 #[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
-#[serde(deny_unknown_fields)]
 #[cfg_attr(feature = "schema", derive(schemars::JsonSchema))]
 pub struct PgxPageInfo {
     /// Offset in this collection.
@@ -34,7 +32,6 @@ macro_rules! collection {
     ($name:ident,$row:ty,$query:ty,$schema:literal) => {
         /// Independent source-ordered page of complete native records.
         #[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
-        #[serde(deny_unknown_fields)]
         #[cfg_attr(feature = "schema", derive(schemars::JsonSchema))]
         pub struct $name {
             /// Source and selected gene.
@@ -60,7 +57,7 @@ collection!(
 );
 /// Independent recommendation contracts preserve native table and view shapes.
 #[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
-#[serde(tag = "representation", rename_all = "snake_case", deny_unknown_fields)]
+#[serde(tag = "representation", rename_all = "snake_case")]
 #[cfg_attr(feature = "schema", derive(schemars::JsonSchema))]
 pub enum PgxRecommendations {
     /// Gene-keyed recommendation_view with native names and no inferred drug ID.
@@ -90,7 +87,6 @@ impl ResponseBody for PgxRecommendations {
 }
 /// Compact exact source gene identity, not a selected gene-drug pair.
 #[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
-#[serde(deny_unknown_fields)]
 #[cfg_attr(feature = "schema", derive(schemars::JsonSchema))]
 pub struct PgxCard {
     /// Selected gene and source.
@@ -104,7 +100,6 @@ impl ResponseBody for PgxCard {
 }
 /// Every source-returned mapping for the exact declared expression.
 #[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
-#[serde(deny_unknown_fields)]
 #[cfg_attr(feature = "schema", derive(schemars::JsonSchema))]
 pub struct PgxDiplotype {
     /// Explicit gene and source.
@@ -119,7 +114,7 @@ impl ResponseBody for PgxDiplotype {
 }
 /// One independent ClinPGx collection, preserving its native min-tier shape.
 #[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
-#[serde(tag = "annotationkind", rename_all = "snake_case", deny_unknown_fields)]
+#[serde(tag = "annotationkind", rename_all = "snake_case")]
 #[cfg_attr(feature = "schema", derive(schemars::JsonSchema))]
 pub enum PgxAnnotations {
     /// Complete clinical min rows including location and relationship arrays.
@@ -159,7 +154,6 @@ impl ResponseBody for PgxAnnotations {
 }
 /// Exact clinical annotation identity, distinct from any genomic allele identity.
 #[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
-#[serde(deny_unknown_fields)]
 #[cfg_attr(feature = "schema", derive(schemars::JsonSchema))]
 pub struct PgxAnnotationIdentity {
     /// Explicit ClinPGx source.
@@ -169,7 +163,6 @@ pub struct PgxAnnotationIdentity {
 }
 /// Complete proved base-tier annotation.
 #[derive(Clone, Debug, PartialEq, Serialize, Deserialize)]
-#[serde(deny_unknown_fields)]
 #[cfg_attr(feature = "schema", derive(schemars::JsonSchema))]
 pub struct PgxAnnotation {
     /// Exact selected source identity.

@@ -1,9 +1,10 @@
 //! Native ClinVar disease relationships survive selected SCV detail through both callers.
 use super::{network_stub::Stub, variant::source_environment};
+use crate::runner::transcript::trial as transcript_trial;
 use libtest_mimic::Trial;
 use serde_json::{Value, json};
 pub(super) fn trials() -> Vec<Trial> {
-    vec![Trial::test(
+    vec![transcript_trial(
         "variant/assertions-native-drug-response-disease-relationship",
         || relationship().map_err(Into::into),
     )]

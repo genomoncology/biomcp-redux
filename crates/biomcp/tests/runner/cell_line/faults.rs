@@ -3,8 +3,9 @@ use super::{
     Environment, Stub, Trial, Value, compared, fixture, fs, invoke, json, parity, path,
     recorded_stub, setup,
 };
+use crate::runner::transcript::trial as transcript_trial;
 pub(super) fn trials() -> Vec<Trial> {
-    vec![Trial::test(
+    vec![transcript_trial(
         "cell-line-identity/synthetic-faults-no-cache-and-provenance",
         || run(false).map_err(Into::into),
     )]

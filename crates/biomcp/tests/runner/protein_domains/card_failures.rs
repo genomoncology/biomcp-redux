@@ -1,11 +1,12 @@
 //! Feature protein-domains-complexes: synthetic identity and optional failures remain explicit.
 use super::super::mcp;
 use super::{Environment, Stub, Trial, Value, call, fs, invoke, json, setup};
+use crate::runner::transcript::trial as transcript_trial;
 pub(super) fn trials() -> Vec<Trial> {
     let mut trials = Vec::new();
     for source in ["uniprot", "interpro", "complex-portal"] {
         for fault in ["429", "500", "timeout", "broken", "error"] {
-            trials.push(Trial::test(
+            trials.push(transcript_trial(
                 format!("protein-domains-complexes/synthetic-card-{source}-{fault}"),
                 move || failure(source, fault).map_err(Into::into),
             ));

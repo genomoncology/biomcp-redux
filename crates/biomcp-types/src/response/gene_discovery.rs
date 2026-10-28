@@ -4,7 +4,6 @@ use biodata::{
 use serde::{Deserialize, Serialize};
 /// A source-stated match, preserving the text that matched.
 #[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
-#[serde(deny_unknown_fields)]
 #[cfg_attr(feature = "schema", derive(schemars::JsonSchema))]
 pub struct Match {
     /// The match category.
@@ -14,7 +13,6 @@ pub struct Match {
 }
 /// Enough gene identity to choose a search result.
 #[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
-#[serde(deny_unknown_fields)]
 #[cfg_attr(feature = "schema", derive(schemars::JsonSchema))]
 pub struct GeneHeader {
     /// HGNC identifier.
@@ -36,7 +34,7 @@ pub struct GeneHeader {
 }
 /// Resolution outcomes preserve ambiguity and withdrawn identity.
 #[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
-#[serde(tag = "resolution", rename_all = "snake_case", deny_unknown_fields)]
+#[serde(tag = "resolution", rename_all = "snake_case")]
 #[cfg_attr(feature = "schema", derive(schemars::JsonSchema))]
 #[non_exhaustive]
 pub enum GeneResolution {

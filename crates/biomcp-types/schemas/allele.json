@@ -11,7 +11,6 @@
       "type": "string"
     },
     "SequenceLocation": {
-      "additionalProperties": false,
       "description": "An interbase interval on one versioned sequence accession.",
       "properties": {
         "sequence": {
@@ -30,7 +29,6 @@
       "type": "object"
     },
     "Span0": {
-      "additionalProperties": false,
       "description": "A zero-based half-open span with ordered bounds; empty spans are valid.",
       "properties": {
         "end": {
@@ -55,7 +53,6 @@
   },
   "$id": "biodata.allele/2",
   "$schema": "https://json-schema.org/draft/2020-12/schema",
-  "additionalProperties": false,
   "description": "Source-stated interbase replacement; equality never claims normalized equivalence.",
   "properties": {
     "alternate": {

@@ -11,7 +11,6 @@ crate::wire_enum! {
 }
 /// Neutral pathway facts, without display sections or source calls.
 #[derive(Clone, Debug, PartialEq, Serialize, Deserialize)]
-#[serde(deny_unknown_fields)]
 #[cfg_attr(feature = "schema", derive(schemars::JsonSchema))]
 pub struct Pathway {
     /// Checked source-owned identity.
@@ -41,7 +40,6 @@ pub struct Pathway {
 }
 /// An open source namespace paired with its complete native identifier.
 #[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
-#[serde(deny_unknown_fields)]
 #[cfg_attr(feature = "schema", derive(schemars::JsonSchema))]
 pub struct PathwaySourceRef {
     /// Native namespace; never discarded during a gene join.
@@ -52,7 +50,6 @@ pub struct PathwaySourceRef {
 }
 /// One source membership reference, without name-based gene inference.
 #[derive(Clone, Debug, PartialEq, Serialize, Deserialize)]
-#[serde(deny_unknown_fields)]
 #[cfg_attr(feature = "schema", derive(schemars::JsonSchema))]
 pub struct PathwayMember {
     /// Native data-node identity; repeated references remain separate nodes.
@@ -81,7 +78,7 @@ pub struct PathwayMember {
 }
 /// An event object or unresolved integer reference; never the parent's inferred ID.
 #[derive(Clone, Debug, PartialEq, Serialize, Deserialize)]
-#[serde(tag = "kind", rename_all = "snake_case", deny_unknown_fields)]
+#[serde(tag = "kind", rename_all = "snake_case")]
 #[cfg_attr(feature = "schema", derive(schemars::JsonSchema))]
 pub enum PathwayEventRef {
     /// Native unresolved integer database reference.
@@ -114,7 +111,6 @@ pub enum PathwayEventRef {
 
 /// One native summation, with its own database identity and whole text.
 #[derive(Clone, Debug, PartialEq, Serialize, Deserialize)]
-#[serde(deny_unknown_fields)]
 #[cfg_attr(feature = "schema", derive(schemars::JsonSchema))]
 pub struct PathwaySummation {
     /// Native summation database identity, not the pathway identity.
@@ -124,7 +120,6 @@ pub struct PathwaySummation {
 }
 /// A native pathway-level literature reference; never inferred from prose.
 #[derive(Clone, Debug, PartialEq, Serialize, Deserialize)]
-#[serde(deny_unknown_fields)]
 #[cfg_attr(feature = "schema", derive(schemars::JsonSchema))]
 pub struct PathwayLiteratureRef {
     /// Native literature database reference.
@@ -142,7 +137,6 @@ pub struct PathwayLiteratureRef {
 }
 /// One native physical entity carrying a membership reference.
 #[derive(Clone, Debug, PartialEq, Serialize, Deserialize)]
-#[serde(deny_unknown_fields)]
 #[cfg_attr(feature = "schema", derive(schemars::JsonSchema))]
 pub struct PathwayParticipant {
     /// Native physical entity database identity, distinct from reference identity.

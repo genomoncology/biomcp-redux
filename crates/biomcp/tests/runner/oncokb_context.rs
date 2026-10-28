@@ -1,11 +1,12 @@
 //! Resolve keyed source selectors while keyless calls stop before identity I/O.
 use super::{launch::Environment, network_stub::Stub, oncokb};
+use crate::runner::transcript::trial as transcript_trial;
 use libtest_mimic::Trial;
 use serde_json::{Value, json};
 use std::fs;
 const SECTION: &str = "/result/candidates/0/sections/oncokb";
 pub(super) fn trials() -> Vec<Trial> {
-    vec![Trial::test(
+    vec![transcript_trial(
         "variant/oncokb-resolved-id-and-all-context",
         || run().map_err(Into::into),
     )]

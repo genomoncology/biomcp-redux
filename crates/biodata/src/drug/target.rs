@@ -10,7 +10,6 @@ use serde::{Deserialize, Serialize};
 pub struct DrugTargetRelation(Fields);
 
 #[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
-#[serde(deny_unknown_fields)]
 #[cfg_attr(feature = "schema", derive(schemars::JsonSchema))]
 struct Fields {
     /// Source drug identity.

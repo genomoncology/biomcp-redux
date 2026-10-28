@@ -19,7 +19,6 @@
       "type": "object"
     },
     "ResearchHit": {
-      "additionalProperties": false,
       "description": "A citable exact source record, without inferred identity or relevance.",
       "properties": {
         "id": {
@@ -44,7 +43,6 @@
       "type": "object"
     },
     "ResearchSearchMetadata": {
-      "additionalProperties": false,
       "description": "Search disclosures preserve the original CLI response without inventing hits.",
       "properties": {
         "envelope": {
@@ -87,7 +85,6 @@
   },
   "$id": "biomcp.research-search/2",
   "$schema": "https://json-schema.org/draft/2020-12/schema",
-  "additionalProperties": false,
   "description": "Research search response.",
   "properties": {
     "metadata": {

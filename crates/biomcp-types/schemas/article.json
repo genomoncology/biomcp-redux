@@ -1,7 +1,6 @@
 {
   "$defs": {
     "AbstractPart": {
-      "additionalProperties": false,
       "description": "One source-labelled abstract paragraph.",
       "properties": {
         "label": {
@@ -26,7 +25,6 @@
       "type": "object"
     },
     "Correction": {
-      "additionalProperties": false,
       "description": "One correction relationship supplied by PubMed.",
       "properties": {
         "kind": {
@@ -50,28 +48,28 @@
     },
     "CorrectionKind": {
       "description": "Source correction relationship kind.",
-      "enum": [
-        "retraction",
-        "erratum",
-        "expression_of_concern"
-      ],
       "type": "string",
       "x-enum-descriptions": [
         " Retraction relationship.",
         " Erratum relationship.",
         " Expression of concern relationship."
+      ],
+      "x-extensible-enum": [
+        "retraction",
+        "erratum",
+        "expression_of_concern"
       ]
     },
     "CorrectionRelation": {
       "description": "Direction of a source correction relationship.",
-      "enum": [
-        "notice",
-        "original"
-      ],
       "type": "string",
       "x-enum-descriptions": [
         " The related record is the notice.",
         " The related record is the original."
+      ],
+      "x-extensible-enum": [
+        "notice",
+        "original"
       ]
     },
     "Doi": {
@@ -107,29 +105,6 @@
     },
     "PublicationType": {
       "description": "Clinically meaningful PubMed publication types.",
-      "enum": [
-        "randomized_controlled_trial",
-        "clinical_trial",
-        "clinical_trial_phase_1",
-        "clinical_trial_phase_2",
-        "clinical_trial_phase_3",
-        "clinical_trial_phase_4",
-        "meta_analysis",
-        "systematic_review",
-        "review",
-        "practice_guideline",
-        "guideline",
-        "case_report",
-        "observational_study",
-        "multicenter_study",
-        "letter",
-        "comment",
-        "editorial",
-        "preprint",
-        "retracted_publication",
-        "retraction_notice",
-        "erratum"
-      ],
       "type": "string",
       "x-enum-descriptions": [
         " Randomized controlled trial.",
@@ -153,6 +128,29 @@
         " Retracted publication.",
         " Retraction notice.",
         " Erratum."
+      ],
+      "x-extensible-enum": [
+        "randomized_controlled_trial",
+        "clinical_trial",
+        "clinical_trial_phase_1",
+        "clinical_trial_phase_2",
+        "clinical_trial_phase_3",
+        "clinical_trial_phase_4",
+        "meta_analysis",
+        "systematic_review",
+        "review",
+        "practice_guideline",
+        "guideline",
+        "case_report",
+        "observational_study",
+        "multicenter_study",
+        "letter",
+        "comment",
+        "editorial",
+        "preprint",
+        "retracted_publication",
+        "retraction_notice",
+        "erratum"
       ]
     },
     "Text": {
@@ -163,7 +161,6 @@
   },
   "$id": "biodata.article/2",
   "$schema": "https://json-schema.org/draft/2020-12/schema",
-  "additionalProperties": false,
   "anyOf": [
     {
       "required": [

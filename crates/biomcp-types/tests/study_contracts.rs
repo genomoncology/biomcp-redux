@@ -58,9 +58,9 @@ fn native_counts_and_publication_multiplicity_survive_without_member_ids()
         .ok_or("object")?
         .remove("sampleCount");
     assert_eq!(roundtrip::<StudySampleList>(absent.clone())?, absent);
-    let mut forbidden = list;
+    let mut forbidden = list.clone();
     forbidden["sampleIds"] = json!(["synthetic-member"]);
-    assert!(serde_json::from_value::<StudySampleList>(forbidden).is_err());
+    assert_eq!(roundtrip::<StudySampleList>(forbidden)?, list);
     Ok(())
 }
 #[test]

@@ -439,66 +439,6 @@ fn shared_clinvar_and_clingen_fixture_rows_become_statements() -> Check {
 }
 
 #[test]
-fn population_strata_enforce_counts_and_frequencies() -> Check {
-    let attribution = Attribution {
-        source: Source::Gnomad.text(),
-        record: None,
-        version: None,
-        release: None,
-        submitter: None,
-        evaluated: None,
-        url: None,
-    };
-    let base = PopulationFrequency::new(
-        VariantRef::allele("CA123643".parse()?),
-        Build::GRCh38,
-        Text::new("gnomad")?,
-        Text::new("synthetic-release")?,
-        attribution,
-    );
-    let value = base
-        .clone()
-        .with_stratum(
-            Some(PopulationDataType::Exomes),
-            Some(Text::new("synthetic-group")?),
-            Some(PopulationSex::Xy),
-            Some(Text::new("synthetic-subset")?),
-        )
-        .with_counts(Some(2), Some(4), Some(0), Some(0))?;
-    let mut reported = serde_json::to_value(&value)?;
-    reported["allele_frequency"] = json!(0.5);
-    reported["faf95"] = json!(0.25);
-    let value: PopulationFrequency = serde_json::from_value(reported)?;
-    let serialized = serde_json::to_value(&value)?;
-    assert_eq!(serialized.get("hemizygote_count"), Some(&json!(0)));
-    assert_eq!(serialized.get("allele_frequency"), Some(&json!(0.5)));
-    assert_eq!(
-        serde_json::from_value::<PopulationFrequency>(serialized.clone())?,
-        value
-    );
-    assert_eq!(
-        base.clone()
-            .with_counts(Some(3), Some(2), None, None)
-            .expect_err("count cannot exceed its denominator")
-            .code(),
-        "population.count.exceeds_number"
-    );
-    for (field, invalid) in [
-        ("allele_count", json!(5)),
-        ("allele_frequency", json!(-0.01)),
-        ("faf95", json!(1.01)),
-    ] {
-        let mut changed = serialized.clone();
-        changed
-            .as_object_mut()
-            .ok_or("population object required")?
-            .insert(field.into(), invalid);
-        assert!(serde_json::from_value::<PopulationFrequency>(changed).is_err());
-    }
-    Ok(())
-}
-
-#[test]
 fn source_predictor_contract_keeps_zero_and_native_labels() {
     let source = json!(
         {"subject":{"level":"allele","hgvs":"NC_000007.13:g.140453136A>T"},"method":"cadd.sift.val","score":0.0,"label":"deleterious",

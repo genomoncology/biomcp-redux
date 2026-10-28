@@ -3,7 +3,6 @@ use crate::{Attribution, PartialDate, Text};
 use serde::{Deserialize, Serialize};
 /// A native date kept with its original role.
 #[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
-#[serde(deny_unknown_fields)]
 #[cfg_attr(feature = "schema", derive(schemars::JsonSchema))]
 pub struct AuthorizationDate {
     /// Native date role, without assigning approval meaning.
@@ -13,7 +12,6 @@ pub struct AuthorizationDate {
 }
 /// A source-scoped regulator event; never an identity-card field.
 #[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
-#[serde(deny_unknown_fields)]
 #[cfg_attr(feature = "schema", derive(schemars::JsonSchema))]
 pub struct AuthorizationEvent {
     /// Native regulator record identifier.

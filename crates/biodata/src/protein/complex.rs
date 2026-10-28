@@ -2,7 +2,6 @@ use crate::{ComplexPortalId, Curie, Text, UniProtIsoform};
 use serde::{Deserialize, Serialize};
 /// Exact source complex header admitted by a native participant identity.
 #[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
-#[serde(deny_unknown_fields)]
 #[cfg_attr(feature = "schema", derive(schemars::JsonSchema))]
 pub struct ProteinComplexHeader {
     /// Native complex accession.
@@ -25,7 +24,6 @@ pub struct ProteinComplexHeader {
 }
 /// A native participant; names never establish a protein identity.
 #[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
-#[serde(deny_unknown_fields)]
 #[cfg_attr(feature = "schema", derive(schemars::JsonSchema))]
 pub struct ProteinComplexMember {
     /// Native participant identifier, including non-protein identifiers.

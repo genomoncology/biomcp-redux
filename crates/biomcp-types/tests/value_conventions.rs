@@ -156,7 +156,6 @@ fn coordinates_enforce_integer_bounds_and_half_open_span_order() {
         json!({"start":2,"end":1}),
         json!({"start":0}),
         json!({"end":1}),
-        json!({"start":0,"end":1,"extra":true}),
         json!({"start":-1,"end":1}),
         json!({"start":0,"end":4294967296_u64}),
         json!({"start":"0","end":1}),

@@ -3,21 +3,22 @@ use super::{
     Environment, MEASURE, Stub, Trial, Value, fs, invoke, json, parity, path, reply, setup, stub,
     surface,
 };
+use crate::runner::transcript::trial as transcript_trial;
 pub(super) fn trials() -> Vec<Trial> {
-    let mut trials = vec![Trial::test(
+    let mut trials = vec![transcript_trial(
         "cell-line-all/retired-zero-provider-requests",
         || retired().map_err(Into::into),
     )];
-    trials.push(Trial::test(
+    trials.push(transcript_trial(
         "cell-line-all/paging-controls-zero-provider-requests",
         || paging().map_err(Into::into),
     ));
     for source in ["cellosaurus", "chembl"] {
-        trials.push(Trial::test(
+        trials.push(transcript_trial(
             format!("cell-line-all/policy/{source}"),
             move || policy(source).map_err(Into::into),
         ));
-        trials.push(Trial::test(
+        trials.push(transcript_trial(
             format!("cell-line-all/verification/{source}"),
             move || verification(source).map_err(Into::into),
         ));
@@ -27,7 +28,7 @@ pub(super) fn trials() -> Vec<Trial> {
             if source == "cellosaurus" && fault == "empty" {
                 continue;
             }
-            trials.push(Trial::test(
+            trials.push(transcript_trial(
                 format!("cell-line-all/synthetic/{source}/{fault}"),
                 move || fault_case(source, fault).map_err(Into::into),
             ));

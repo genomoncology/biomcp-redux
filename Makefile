@@ -77,7 +77,10 @@ source-capture:
 .PHONY: docs-generate
 docs-generate:
 	cargo test --locked -p biomcp --bin biomcp grammar::reference::write_reference $(if $(strip $(RUST_TEST_THREADS)),-- --test-threads $(RUST_TEST_THREADS) --ignored,-- --ignored)
-.PHONY: schema-release-check
+.PHONY: schema-generate schema-release-check
+schema-generate:
+	python3 scripts/schema_release.py --generate
+
 schema-release-check:
 	python3 scripts/schema_release.py
 

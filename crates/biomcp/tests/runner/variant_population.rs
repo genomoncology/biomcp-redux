@@ -1,5 +1,6 @@
 //! Population source requests cross the public command and real TLS transport.
 use super::{launch::Environment, network_stub::Stub};
+use crate::runner::transcript::trial as transcript_trial;
 use libtest_mimic::Trial;
 use serde_json::{Value, json};
 use std::fs;
@@ -9,29 +10,29 @@ mod get;
 mod ids;
 pub(super) fn trials() -> Vec<Trial> {
     let mut trials = vec![
-        Trial::test("variant/population-source-given-grch38-snv", || {
+        transcript_trial("variant/population-source-given-grch38-snv", || {
             population().map_err(Into::into)
         }),
-        Trial::test(
+        transcript_trial(
             "variant/population-mismatched-id-never-enters-cache",
             || population_mismatch().map_err(Into::into),
         ),
-        Trial::test("variant/population-unknown-group-remains-native", || {
+        transcript_trial("variant/population-unknown-group-remains-native", || {
             unknown_group().map_err(Into::into)
         }),
-        Trial::test("variant/population-source-chromosome-disagreement", || {
+        transcript_trial("variant/population-source-chromosome-disagreement", || {
             chromosome_mismatch().map_err(Into::into)
         }),
-        Trial::test("variant/population-unpadded-indel-is-unjoinable", || {
+        transcript_trial("variant/population-unpadded-indel-is-unjoinable", || {
             unjoinable().map_err(Into::into)
         }),
-        Trial::test("variant/gwas-native-pages-preserve-effects", || {
+        transcript_trial("variant/gwas-native-pages-preserve-effects", || {
             gwas_walk("rs113488022", 2).map_err(Into::into)
         }),
-        Trial::test("variant/gwas-resolved-id-pins-source-continuation", || {
+        transcript_trial("variant/gwas-resolved-id-pins-source-continuation", || {
             gwas_walk("CA123643", 3).map_err(Into::into)
         }),
-        Trial::test("variant/gwas-v2-valid-zero", || {
+        transcript_trial("variant/gwas-v2-valid-zero", || {
             gwas_zero().map_err(Into::into)
         }),
     ];

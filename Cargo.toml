@@ -35,6 +35,7 @@ ctrlc = { version = "=3.5.2", features = ["termination"] }
 clap = { version = "4.6.7", default-features = false, features = ["std", "string", "derive"] }
 serde = { version = "1.0.229", default-features = false, features = ["std", "derive"] }
 # Keep finite numeric source values stable across CLI and MCP JSON boundaries.
+serde_ignored = "0.1.14"
 serde_json = { version = "1.0.154", features = ["float_roundtrip", "raw_value"] }
 toml = { version = "1.1.8", default-features = false, features = ["parse", "serde", "std"] }
 tempfile = "3.27.0"

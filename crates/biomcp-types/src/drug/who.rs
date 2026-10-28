@@ -4,7 +4,6 @@ use biodata::Text;
 use serde::{Deserialize, Serialize};
 /// Every published cell of one WHO finished-product record, including empty cells.
 #[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
-#[serde(deny_unknown_fields)]
 #[cfg_attr(feature = "schema", derive(schemars::JsonSchema))]
 pub struct DrugWhoRow {
     /// Exact native WHO Reference Number, including spaces and punctuation.
@@ -26,7 +25,6 @@ pub struct DrugWhoRow {
 }
 /// Source-ordered WHO matches; prequalification does not establish US/EU authorization.
 #[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
-#[serde(deny_unknown_fields)]
 #[cfg_attr(feature = "schema", derive(schemars::JsonSchema))]
 pub struct DrugWhoPage {
     /// Bounded native rows in export order.
@@ -37,7 +35,6 @@ pub struct DrugWhoPage {
 }
 /// Source-scoped native rows for one exact WHO reference.
 #[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
-#[serde(deny_unknown_fields)]
 #[cfg_attr(feature = "schema", derive(schemars::JsonSchema))]
 pub struct DrugWhoCard {
     /// Exact requested and source-matched reference.

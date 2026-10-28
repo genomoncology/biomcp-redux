@@ -48,7 +48,6 @@ impl std::fmt::Display for ReactomeIdInvalid {
 impl std::error::Error for ReactomeIdInvalid {}
 /// A pathway reference without membership or hierarchy data.
 #[derive(Clone, Debug, PartialEq, Serialize, Deserialize)]
-#[serde(deny_unknown_fields)]
 #[cfg_attr(feature = "schema", derive(schemars::JsonSchema))]
 pub struct PathwayRef {
     /// Human stable identifier.
@@ -115,12 +114,7 @@ impl std::fmt::Display for PathwayIdInvalid {
 impl std::error::Error for PathwayIdInvalid {}
 /// Source-owned pathway identity; equal names never merge sources.
 #[derive(Clone, Debug, PartialEq, Eq, Hash, Serialize, Deserialize)]
-#[serde(
-    tag = "source",
-    content = "id",
-    rename_all = "lowercase",
-    deny_unknown_fields
-)]
+#[serde(tag = "source", content = "id", rename_all = "lowercase")]
 #[cfg_attr(feature = "schema", derive(schemars::JsonSchema))]
 pub enum PathwayId {
     /// Human Reactome stable identity without a version suffix.

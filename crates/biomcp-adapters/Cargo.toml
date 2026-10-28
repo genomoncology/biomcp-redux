@@ -10,6 +10,7 @@ biomcp-types = { workspace = true }
 biodata = { workspace = true }
 biomcp-fetch = { workspace = true }
 serde.workspace = true
+serde_ignored.workspace = true
 quick-xml.workspace = true
 calamine.workspace = true
 csv.workspace = true

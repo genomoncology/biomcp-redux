@@ -76,8 +76,8 @@ pub(super) fn card(mut row: raw::Record) -> Result<CellLineCard, RequestError> {
             value: r.value.clone(),
         })
         .collect();
-    let species = row.species_list.clone().unwrap_or_default().into_vec();
-    let diseases = row.disease_list.clone().unwrap_or_default().into_vec();
+    let species = row.species_list.clone().unwrap_or_default().0.into_vec();
+    let diseases = row.disease_list.clone().unwrap_or_default().0.into_vec();
     let warnings = super::map::warnings(row.comment_list.as_deref().unwrap_or_default());
     let xrefs = row
         .xref_list

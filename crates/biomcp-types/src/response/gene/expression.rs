@@ -2,7 +2,6 @@ use crate::{FiniteNumber, Text};
 use serde::{Deserialize, Serialize};
 /// HPA tissue RNA abundance in normalized transcripts per million.
 #[derive(Clone, Debug, PartialEq, Serialize, Deserialize)]
-#[serde(deny_unknown_fields)]
 #[cfg_attr(feature = "schema", derive(schemars::JsonSchema))]
 pub struct TissueNtpm {
     /// Exact source tissue name.
@@ -12,7 +11,6 @@ pub struct TissueNtpm {
 }
 /// HPA cancer RNA abundance in protein-coding transcripts per million.
 #[derive(Clone, Debug, PartialEq, Serialize, Deserialize)]
-#[serde(deny_unknown_fields)]
 #[cfg_attr(feature = "schema", derive(schemars::JsonSchema))]
 pub struct CancerPtpm {
     /// Exact source cancer tissue name.
@@ -22,7 +20,6 @@ pub struct CancerPtpm {
 }
 /// Gene-level HPA expression and subcellular annotations.
 #[derive(Clone, Debug, PartialEq, Serialize, Deserialize)]
-#[serde(deny_unknown_fields)]
 #[cfg_attr(feature = "schema", derive(schemars::JsonSchema))]
 pub struct GeneExpression {
     /// Source RNA tissue specificity.

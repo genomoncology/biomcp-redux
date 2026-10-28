@@ -5,6 +5,7 @@ use super::{
     markdown_shapes::{Shape, check_environment},
     network_stub::Stub,
 };
+use crate::runner::transcript::trial as transcript_trial;
 use libtest_mimic::Trial;
 use serde_json::json;
 use std::fs;
@@ -12,7 +13,7 @@ pub(super) fn trials() -> Vec<Trial> {
     ["civic", "hotspots", "oncokb"]
         .into_iter()
         .map(|source| {
-            Trial::test(format!("markdown-view/variant-{source}-data"), move || {
+            transcript_trial(format!("markdown-view/variant-{source}-data"), move || {
                 positive(source).map_err(Into::into)
             })
         })

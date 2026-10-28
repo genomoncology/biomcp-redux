@@ -1,21 +1,29 @@
 use super::schema::Registry;
+use crate::runner::transcript::trial as transcript_trial;
 use libtest_mimic::Trial;
 use serde_json::{Value, json};
 use std::sync::Arc;
 
 pub(super) fn trials(registry: Arc<Registry>) -> Vec<Trial> {
     let raw_registry = Arc::clone(&registry);
+    let evolution_registry = Arc::clone(&registry);
     vec![
-        Trial::test("schema/catalog-and-help-reply-discovery", || {
+        transcript_trial(
+            "schema/recorded-reply-accepts-future-fields-and-enum-names",
+            move || {
+                super::schema_evolution::recorded_reply(&evolution_registry).map_err(Into::into)
+            },
+        ),
+        transcript_trial("schema/catalog-and-help-reply-discovery", || {
             discovery().map_err(Into::into)
         }),
-        Trial::test("runner/validates-results-before-assertions", move || {
+        transcript_trial("runner/validates-results-before-assertions", move || {
             results(&registry).map_err(Into::into)
         }),
-        Trial::test("runner/validates-raw-artifact-request", move || {
+        transcript_trial("runner/validates-raw-artifact-request", move || {
             raw_artifacts(&raw_registry).map_err(Into::into)
         }),
-        Trial::test("runner/resolves-only-registered-schema-references", || {
+        transcript_trial("runner/resolves-only-registered-schema-references", || {
             references().map_err(Into::into)
         }),
     ]

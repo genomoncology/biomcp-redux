@@ -1,5 +1,6 @@
 //! Feature diagnostic-retirements: fixed guidance never repairs source queries.
 use super::{configuration::invoke, launch::Environment, mcp};
+use crate::runner::transcript::trial as transcript_trial;
 use libtest_mimic::Trial;
 use serde_json::json;
 // j19098 measured the largest value-free typed argument error envelope.
@@ -9,14 +10,15 @@ pub(super) fn trials() -> Vec<Trial> {
         .iter()
         .enumerate()
         .map(|(i, &(words, message))| {
-            Trial::test(
+            transcript_trial(
                 format!("diagnostic-retirements/fixed-guidance-{i}"),
                 move || check(words, message, "usage.retired").map_err(Into::into),
             )
         })
-        .chain([Trial::test("diagnostic-retirements/literal-values", || {
-            boundaries().map_err(Into::into)
-        })])
+        .chain([transcript_trial(
+            "diagnostic-retirements/literal-values",
+            || boundaries().map_err(Into::into),
+        )])
         .collect()
 }
 fn check(words: &str, message: &str, code: &str) -> Result<(), String> {
@@ -111,7 +113,8 @@ const CASES: &[(&str, &str)] = &[
     ),
     (
         "get diagnostic GTR000006692.3",
-        "choose --source gtr, who-ivd or fda-cdx for search; choose --source gtr, who-ivd, fda-pma or fda-510k for exact get",
+        "choose --source gtr, who-ivd, fda-cdx or fda-device-recall for search; \
+            choose --source gtr, who-ivd, fda-pma, fda-510k or fda-device-recall for exact get",
     ),
     (
         "--json get diagnostic GTR000006692.3 --source gtr",
@@ -123,11 +126,13 @@ const CASES: &[(&str, &str)] = &[
     ),
     (
         "search diagnostic --gene BRCA1",
-        "choose --source gtr, who-ivd or fda-cdx for search; choose --source gtr, who-ivd, fda-pma or fda-510k for exact get",
+        "choose --source gtr, who-ivd, fda-cdx or fda-device-recall for search; \
+            choose --source gtr, who-ivd, fda-pma, fda-510k or fda-device-recall for exact get",
     ),
     (
         "get diagnostic X --source all",
-        "choose --source gtr, who-ivd or fda-cdx for search; choose --source gtr, who-ivd, fda-pma or fda-510k for exact get",
+        "choose --source gtr, who-ivd, fda-cdx or fda-device-recall for search; \
+            choose --source gtr, who-ivd, fda-pma, fda-510k or fda-device-recall for exact get",
     ),
     (
         "search diagnostic --source gtr --gene BRCA1 -g BRCA1",
@@ -214,8 +219,16 @@ pub(super) fn bounded(value: &serde_json::Value) -> Result<(), String> {
         .get("status")
         .and_then(serde_json::Value::as_str)
         .ok_or("missing status")?;
+    let recall = value.pointer("/query/source") == Some(&json!("fda-device-recall"));
     // Full compact synthetic maxima measured by j13382.
     let baseline: usize = match (schema, kind, status) {
+        // Native recall mechanism maxima measured by j20265.
+        ("biomcp.diagnostic-page/2", "", "complete") if recall => 760,
+        ("biomcp.diagnostic-page/2", "", "partial") if recall => 922,
+        ("biomcp.diagnostic-page/2", "", "absent") if recall => 399,
+        ("biomcp.diagnostic-card/1", "device_recall", "complete") => 924,
+        ("biomcp.diagnostic-card/1", "device_recall", "partial") => 773,
+        ("biomcp.diagnostic-card/1", "", "failed") if recall => 451,
         // New WHO search view, full compact maximum measured by j13465.
         ("biomcp.diagnostic-page/2", "", _)
             if value.pointer("/query/source") == Some(&json!("who-ivd")) =>

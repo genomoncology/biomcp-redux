@@ -6,7 +6,6 @@ use biodata::{
 use serde::{Deserialize, Serialize};
 /// Native author candidates in provider order; search total counts only this query.
 #[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
-#[serde(deny_unknown_fields)]
 #[cfg_attr(feature = "schema", derive(schemars::JsonSchema))]
 pub struct AuthorPage {
     /// Source candidates; no deduplication by display name.
@@ -18,7 +17,6 @@ pub struct AuthorPage {
 }
 /// Exact source cards in input order; outer source outcomes retain failures.
 #[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
-#[serde(deny_unknown_fields)]
 #[cfg_attr(feature = "schema", derive(schemars::JsonSchema))]
 pub struct AuthorCards {
     /// Exact returned source cards, with no cross-source links.
@@ -27,7 +25,6 @@ pub struct AuthorCards {
 }
 /// One exact input and its independent outcome.
 #[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
-#[serde(deny_unknown_fields)]
 #[cfg_attr(feature = "schema", derive(schemars::JsonSchema))]
 pub struct AuthorCardItem {
     /// Requested qualified provider identity.
@@ -42,7 +39,6 @@ macro_rules! papers {
     ($name:ident, $row:ty, $doc:literal) => {
         #[doc = $doc]
         #[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
-        #[serde(deny_unknown_fields)]
         #[cfg_attr(feature = "schema", derive(schemars::JsonSchema))]
         pub struct $name {
             /// Requested provider record.
@@ -72,7 +68,6 @@ biodata::wire_enum! {
 }
 /// Locally paged groups from one complete public ORCID works reply.
 #[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
-#[serde(deny_unknown_fields)]
 #[cfg_attr(feature = "schema", derive(schemars::JsonSchema))]
 pub struct OrcidWorks {
     /// The whole source reply supplies every local page.

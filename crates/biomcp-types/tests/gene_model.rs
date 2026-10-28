@@ -113,9 +113,11 @@ fn gene_resolutions_preserve_every_candidate_and_withdrawn_identity() -> Check {
         serde_json::to_value(GeneResolution::NotFound {})?,
         json!({"resolution":"not_found"})
     );
-    assert!(
-        serde_json::from_value::<GeneResolution>(json!({"resolution":"not_found","gene":{}}))
-            .is_err()
+    let extended: GeneResolution =
+        serde_json::from_value(json!({"resolution":"not_found","gene":{}}))?;
+    assert_eq!(
+        serde_json::to_value(extended)?,
+        json!({"resolution":"not_found"})
     );
     assert!(serde_json::from_value::<Gene>(json!({})).is_err());
     round_trip(&header()?)?;
@@ -161,7 +163,7 @@ fn mane_requires_curated_versioned_transcripts_at_its_boundary() -> Check {
         )
         .is_ok()
     );
-    assert!(serde_json::from_value::<Mane>(json!({"status":"select", "refseq":"NM_004333.6","ensembl":"ENST00000646891.2","extra":true})).is_err());
+    assert!(serde_json::from_value::<Mane>(json!({"status":"select", "refseq":"NM_004333.6","ensembl":"ENST00000646891.2","extra":true})).is_ok());
     Ok(())
 }
 #[test]

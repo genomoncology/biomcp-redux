@@ -1,4 +1,5 @@
 //! Feature cell-line-identity: unchanged retained native requests through the real CLI and MCP.
+use crate::runner::transcript::trial as transcript_trial;
 use std::io::Write;
 mod all;
 mod chembl;
@@ -13,23 +14,23 @@ use libtest_mimic::Trial;
 use serde_json::{Value, json};
 use std::fs;
 pub(super) fn trials() -> Vec<Trial> {
-    let mut tests = vec![Trial::test(
+    let mut tests = vec![transcript_trial(
         "cell-line-identity/native-requests-order-exact-cards-and-costs",
         || native::run(false).map_err(Into::into),
     )];
-    tests.push(Trial::test(
+    tests.push(transcript_trial(
         "cell-line-identity/help-and-markdown-parity",
         || help::run(false).map_err(Into::into),
     ));
-    tests.push(Trial::test(
+    tests.push(transcript_trial(
         "cell-line-identity/research-search-fetch-runtime",
         || research::run(false).map_err(Into::into),
     ));
-    tests.push(Trial::test(
+    tests.push(transcript_trial(
         "cell-line-identity/checked-canonical-accession-search",
         || native::canonical(false).map_err(Into::into),
     ));
-    tests.push(Trial::test(
+    tests.push(transcript_trial(
         "cell-line-sections/native-whole-rows-and-independent-pages",
         || sections::run(false).map_err(Into::into),
     ));

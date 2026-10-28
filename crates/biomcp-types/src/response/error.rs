@@ -87,6 +87,7 @@ singleton! {
         AdverseFaers => "renamed; use: --source faers",
         AdverseMaude => "use: search adverse-event <TEXT> --source maude",
         AdverseRecalls => "recalls are outside this entity",
+        AdverseDeviceRecalls => "use: search diagnostic --source fda-device-recall; covers every medical device",
         AdverseSource => "choose --source faers or --source maude",
 
 
@@ -103,6 +104,8 @@ singleton! {
 
 
         DiagnosticSearchSources => "choose --source gtr, who-ivd or fda-cdx for search; choose --source gtr, who-ivd, fda-pma or fda-510k for exact get",
+        DiagnosticRecallSources => "choose --source gtr, who-ivd, fda-cdx or fda-device-recall for search; \
+            choose --source gtr, who-ivd, fda-pma, fda-510k or fda-device-recall for exact get",
         DiagnosticType => "use: --type",
         DiagnosticCondition => "use: --condition-id MedGen:CUI with --source gtr; use an exact product card with --source who-ivd",
         DiagnosticManufacturer => "manufacturer and laboratory selectors are deferred",
@@ -258,7 +261,6 @@ singleton! {
 }
 
 #[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
-#[serde(deny_unknown_fields)]
 #[cfg_attr(feature = "schema", derive(schemars::JsonSchema))]
 struct ErrorDetail {
     #[serde(default, skip_serializing_if = "Option::is_none")]
@@ -278,7 +280,6 @@ struct ErrorDetail {
 
 /// A versioned error response that never contains caller input.
 #[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
-#[serde(deny_unknown_fields)]
 #[cfg_attr(feature = "schema", derive(schemars::JsonSchema))]
 pub struct ErrorEnvelope {
     schema: ErrorSchema,

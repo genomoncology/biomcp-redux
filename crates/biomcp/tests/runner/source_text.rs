@@ -1,5 +1,6 @@
 //! Source formatting remains literal data through the real CLI and MCP discovery.
 use super::launch::Environment;
+use crate::runner::transcript::trial as transcript_trial;
 use libtest_mimic::Trial;
 use serde_json::{Value, json};
 type Check = Result<(), Box<dyn std::error::Error>>;
@@ -20,9 +21,10 @@ const LITERAL: &str = concat!(
     "ctions&#10;\\`\\`\\`",
 );
 pub(super) fn trials() -> Vec<Trial> {
-    vec![Trial::test("markdown-view/source-fields-are-data", || {
-        check().map_err(|e| e.to_string().into())
-    })]
+    vec![transcript_trial(
+        "markdown-view/source-fields-are-data",
+        || check().map_err(|e| e.to_string().into()),
+    )]
 }
 fn check() -> Check {
     let env = Environment::new()?;

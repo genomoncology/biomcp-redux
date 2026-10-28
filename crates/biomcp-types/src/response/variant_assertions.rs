@@ -4,7 +4,6 @@ use crate::{
 use serde::{Deserialize, Serialize};
 /// One source-ordered page, with native record and classification boundaries intact.
 #[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
-#[serde(deny_unknown_fields)]
 #[cfg_attr(feature = "schema", derive(schemars::JsonSchema))]
 pub struct VariantAssertions {
     /// Source assertion rows in native order.
@@ -22,7 +21,6 @@ impl super::ResponseBody for VariantAssertions {
 }
 /// A native record/domain pair, never a vote or merged classification.
 #[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
-#[serde(deny_unknown_fields)]
 #[cfg_attr(feature = "schema", derive(schemars::JsonSchema))]
 pub struct VariantAssertion {
     /// Aggregate/submission/document context.
@@ -53,7 +51,6 @@ impl VariantAssertion {
 }
 /// Source classification retained when its category has no approved shared proposition.
 #[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
-#[serde(deny_unknown_fields)]
 #[cfg_attr(feature = "schema", derive(schemars::JsonSchema))]
 pub struct UnmappedAssertion {
     /// Unchanged source label.
@@ -69,7 +66,6 @@ pub struct UnmappedAssertion {
 }
 /// Source details that do not fit the compact shared statement.
 #[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize, Default)]
-#[serde(deny_unknown_fields)]
 #[cfg_attr(feature = "schema", derive(schemars::JsonSchema))]
 pub struct AssertionDetail {
     /// Native somatic impact assertion type, without deriving a predicate.
@@ -120,7 +116,6 @@ pub struct AssertionDetail {
 }
 /// A source trait relationship without assigning a clinical interpretation.
 #[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
-#[serde(deny_unknown_fields)]
 #[cfg_attr(feature = "schema", derive(schemars::JsonSchema))]
 pub struct AssertionConditionRelationship {
     /// Relationship type exactly supplied by the source.
@@ -135,7 +130,6 @@ pub struct AssertionConditionRelationship {
 }
 /// A native condition with independently optional identifier and label.
 #[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
-#[serde(deny_unknown_fields)]
 #[cfg_attr(feature = "schema", derive(schemars::JsonSchema))]
 pub struct AssertionCondition {
     /// Native database name without inventing a CURIE prefix.
@@ -191,7 +185,6 @@ fn is_false(value: &bool) -> bool {
 
 /// Native SEPIO facts kept separate from common interpretation fields.
 #[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
-#[serde(deny_unknown_fields)]
 #[cfg_attr(feature = "schema", derive(schemars::JsonSchema))]
 pub struct AssertionDocument {
     /// Source UUID checked against the selected summary link.
@@ -212,7 +205,6 @@ pub struct AssertionDocument {
 }
 /// Source assessment labels and identifiers remain independent.
 #[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
-#[serde(deny_unknown_fields)]
 #[cfg_attr(feature = "schema", derive(schemars::JsonSchema))]
 pub struct AssertionAssessment {
     /// Native criterion code.

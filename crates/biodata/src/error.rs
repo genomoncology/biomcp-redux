@@ -43,6 +43,10 @@ errors! {
     PopulationCountExceedsNumber => "population.count.exceeds_number",
     /// A shared numeric value violates its bounds.
     PopulationFrequencyRange => "population.frequency.range",
+    /// A mitochondrial field appears on a known non-mitochondrial allele.
+    PopulationMitochondrialFieldMisplaced => "population.mt_field.misplaced",
+    /// A source grpmax group appears on a named ancestry stratum.
+    PopulationGrpmaxMisplaced => "population.grpmax.misplaced",
     /// A shared numeric value violates its bounds.
     NumberNonFinite => "number.value.non_finite",
     /// A subject reference lacks its source identity or notation.

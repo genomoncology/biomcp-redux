@@ -7,7 +7,6 @@ use biodata::{
 use serde::{Deserialize, Serialize};
 /// Compact source identity with independently capped species and diseases.
 #[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
-#[serde(deny_unknown_fields)]
 #[cfg_attr(feature = "schema", derive(schemars::JsonSchema))]
 pub struct CellLineHeader {
     /// Exact primary accession.
@@ -23,7 +22,6 @@ pub struct CellLineHeader {
 }
 /// Source-ordered cell line search headers; totals remain unknown.
 #[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
-#[serde(deny_unknown_fields)]
 #[cfg_attr(feature = "schema", derive(schemars::JsonSchema))]
 pub struct CellLinePage {
     /// Native result order, without reranking or selected identity.
@@ -38,7 +36,6 @@ pub struct CellLinePage {
 }
 /// One requested cell identity with explicit ambiguity and requested section states.
 #[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
-#[serde(deny_unknown_fields)]
 #[cfg_attr(feature = "schema", derive(schemars::JsonSchema))]
 pub struct CellLineCard {
     /// Exact original caller identity.
@@ -81,7 +78,6 @@ pub struct CellLineCard {
 }
 /// Requested sections carry explicit states; absent members were not requested.
 #[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
-#[serde(deny_unknown_fields)]
 #[cfg_attr(feature = "schema", derive(schemars::JsonSchema))]
 pub struct CellLineSections {
     /// Requested names section state.
@@ -102,7 +98,6 @@ pub struct CellLineSections {
 }
 /// Native display names with collection-local totals and offset.
 #[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
-#[serde(deny_unknown_fields)]
 #[cfg_attr(feature = "schema", derive(schemars::JsonSchema))]
 pub struct CellLineNames {
     /// Selected exact primary accession.
@@ -120,7 +115,6 @@ pub struct CellLineNames {
 }
 /// Native source cross-references with collection-local totals and offset.
 #[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
-#[serde(deny_unknown_fields)]
 #[cfg_attr(feature = "schema", derive(schemars::JsonSchema))]
 pub struct CellLineXrefs {
     /// Selected exact primary accession.
@@ -138,7 +132,6 @@ pub struct CellLineXrefs {
 }
 /// Whole native variation rows with collection-local totals and offset.
 #[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
-#[serde(deny_unknown_fields)]
 #[cfg_attr(feature = "schema", derive(schemars::JsonSchema))]
 pub struct CellLineVariants {
     /// Selected exact primary accession.
@@ -156,7 +149,6 @@ pub struct CellLineVariants {
 }
 /// Species, diseases and warnings page independently; each total belongs to its own collection.
 #[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
-#[serde(deny_unknown_fields)]
 #[cfg_attr(feature = "schema", derive(schemars::JsonSchema))]
 pub struct CellLineIdentityPage {
     /// Selected exact primary accession.
@@ -178,7 +170,6 @@ pub struct CellLineIdentityPage {
 }
 /// One exact accession-linked ChEMBL cell identity; no assay request is implied.
 #[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
-#[serde(deny_unknown_fields)]
 #[cfg_attr(feature = "schema", derive(schemars::JsonSchema))]
 pub struct CellLineChemblRecord {
     /// Native cell ChEMBL ID, never a compound or target.
@@ -211,7 +202,6 @@ pub struct CellLineChemblRecord {
 }
 /// Exact accession-linked metadata with its own native collection total.
 #[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
-#[serde(deny_unknown_fields)]
 #[cfg_attr(feature = "schema", derive(schemars::JsonSchema))]
 pub struct CellLineChembl {
     /// Independent ChEMBL release, distinct from retrieval time.
@@ -230,7 +220,6 @@ pub struct CellLineChembl {
 }
 /// Native assay total for one source-local cell identity; no activity or sensitivity count.
 #[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
-#[serde(deny_unknown_fields)]
 #[cfg_attr(feature = "schema", derive(schemars::JsonSchema))]
 pub struct CellLineAssayCount {
     /// Independent ChEMBL release, distinct from retrieval time.

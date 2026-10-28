@@ -1,7 +1,6 @@
 use serde::{Deserialize, Serialize};
 /// Configuration names for one keyed source; never includes credential values.
 #[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
-#[serde(deny_unknown_fields)]
 #[cfg_attr(feature = "schema", derive(schemars::JsonSchema))]
 pub struct KeyHelp {
     /// Optional source-specific key guidance.
@@ -32,7 +31,6 @@ biodata::wire_enum! {
 }
 /// Credential identity and redacted presence.
 #[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
-#[serde(deny_unknown_fields)]
 #[cfg_attr(feature = "schema", derive(schemars::JsonSchema))]
 pub struct RegisteredKey {
     /// Source accepted by key set.
@@ -46,7 +44,6 @@ pub struct RegisteredKey {
 }
 /// Results of human credential registration.
 #[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
-#[serde(deny_unknown_fields)]
 #[cfg_attr(feature = "schema", derive(schemars::JsonSchema))]
 pub struct RegisteredKeys {
     /// Redacted credential identities.

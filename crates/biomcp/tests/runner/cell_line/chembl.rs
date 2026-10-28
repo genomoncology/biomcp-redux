@@ -2,17 +2,18 @@
 use super::{
     Environment, Stub, Trial, Value, Write, canonical, ceiling, fs, invoke, json, path, setup,
 };
+use crate::runner::transcript::trial as transcript_trial;
 mod faults;
 pub(super) mod surface;
 use surface::{compared, invoke_measured, measure_bytes, measure_mcp, parity};
 const MEASURE: bool = false;
 pub(super) fn trials() -> Vec<Trial> {
     let mut trials = vec![
-        Trial::test(
+        transcript_trial(
             "cell-line-chembl/exact-native-records-and-assay-total",
             || native().map_err(Into::into),
         ),
-        Trial::test("cell-line-chembl/assay-count-help-and-grammar", || {
+        transcript_trial("cell-line-chembl/assay-count-help-and-grammar", || {
             help().map_err(Into::into)
         }),
     ];

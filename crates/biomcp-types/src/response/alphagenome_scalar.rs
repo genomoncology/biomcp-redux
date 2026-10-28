@@ -13,7 +13,7 @@ biodata::wire_enum! {
 }
 /// One native scalar; finite values remain JSON numbers and nonfinite values stay explicit.
 #[derive(Clone, Copy, Debug, PartialEq, Serialize, Deserialize)]
-#[serde(untagged, deny_unknown_fields)]
+#[serde(untagged)]
 #[cfg_attr(feature = "schema", derive(schemars::JsonSchema))]
 pub enum AlphaGenomeScalar {
     /// A finite JSON number.

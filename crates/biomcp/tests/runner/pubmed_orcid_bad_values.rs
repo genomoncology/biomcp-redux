@@ -1,20 +1,21 @@
 //! Features article-get, article-search and author-orcid: invalid optional fields retain source records.
 use super::super::{configuration::invoke, network_stub::Stub, response_cases::checked_case};
+use crate::runner::transcript::trial as transcript_trial;
 use libtest_mimic::Trial;
 use serde_json::{Value, json};
 pub(super) fn trials() -> Vec<Trial> {
     vec![
-        Trial::test("author-orcid/invalid-optional-fields-are-disclosed", || {
+        transcript_trial("author-orcid/invalid-optional-fields-are-disclosed", || {
             orcid()
                 .and_then(|_| person())
                 .and_then(|_| stored_work_problems())
                 .map_err(Into::into)
         }),
-        Trial::test(
+        transcript_trial(
             "article-get/pubmed-invalid-optional-fields-are-disclosed",
             || pubmed().map_err(Into::into),
         ),
-        Trial::test(
+        transcript_trial(
             "article-search/pubmed-invalid-optional-fields-are-disclosed",
             || {
                 summaries()

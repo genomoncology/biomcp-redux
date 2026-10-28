@@ -1,8 +1,9 @@
 //! Schema discovery entries shipped with an executable.
 use serde::Serialize;
 /// Discoverable contracts shipped with this executable.
+/// JSON reply readers ignore unknown fields and unknown growable enum values within a major.
+/// Growable enums list known values in x-extensible-enum; query schemas remain closed.
 #[derive(Clone, Debug, Serialize)]
-#[serde(deny_unknown_fields)]
 #[cfg_attr(feature = "schema", derive(schemars::JsonSchema))]
 pub struct SchemaCatalog {
     /// Every artifact in canonical identity order.
@@ -15,7 +16,6 @@ impl super::ResponseBody for SchemaCatalog {
 }
 /// One schema identity with its own artifact documentation.
 #[derive(Clone, Debug, Serialize)]
-#[serde(deny_unknown_fields)]
 #[cfg_attr(feature = "schema", derive(schemars::JsonSchema))]
 pub struct SchemaEntry {
     /// Canonical versioned identity accepted by schema ID.

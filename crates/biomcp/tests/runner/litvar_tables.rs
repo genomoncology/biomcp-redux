@@ -5,6 +5,7 @@
     reason = "Checked fixtures and response-only mutations fail directly on malformed shapes"
 )]
 use super::response_cases::{checked_case, checked_steps};
+use crate::runner::transcript::trial as transcript_trial;
 use libtest_mimic::Trial;
 use serde_json::{Value, json};
 type Check = Result<(), Box<dyn std::error::Error>>;
@@ -28,13 +29,13 @@ const RSID: &[&str] = &[
 ];
 pub(super) fn trials() -> Vec<Trial> {
     vec![
-        Trial::test("article/litvar/response-boundaries", || {
+        transcript_trial("article/litvar/response-boundaries", || {
             boundaries().map_err(|e| e.to_string().into())
         }),
-        Trial::test("article/litvar/empty-recovery", || {
+        transcript_trial("article/litvar/empty-recovery", || {
             empty_recovery().map_err(|e| e.to_string().into())
         }),
-        Trial::test("article/litvar/source-failures", || {
+        transcript_trial("article/litvar/source-failures", || {
             failures().map_err(|e| e.to_string().into())
         }),
     ]

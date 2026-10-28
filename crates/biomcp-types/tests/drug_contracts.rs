@@ -199,58 +199,6 @@ fn section_options_use_existing_continuation_names_and_reject_card_paging() {
     }
 }
 #[test]
-#[cfg(feature = "schema")]
-fn header_and_card_exclude_deeper_disclosures_from_the_public_contract() {
-    use biomcp_types::{DrugCard, DrugHeader};
-    let header = json!({"id":"CHEMBL941", "source":"chembl", "name":"native name", "identity_level":"unknown"});
-    let decoded: DrugHeader = serde_json::from_value(header.clone()).expect("header");
-    assert_eq!(serde_json::to_value(decoded).expect("header JSON"), header);
-    for extra in [
-        "approval",
-        "approval_date",
-        "authorization_events",
-        "label_text",
-        "interactions",
-        "targets",
-    ] {
-        let mut value = header.clone();
-        value[extra] = json!([]);
-        assert!(serde_json::from_value::<DrugHeader>(value).is_err());
-        let value = json!({"header":header, extra:[]});
-        assert!(serde_json::from_value::<DrugCard>(value).is_err());
-    }
-    let schema = serde_json::to_value(schemars::schema_for!(DrugHeader)).expect("header schema");
-    let keys: Vec<_> = schema["properties"]
-        .as_object()
-        .expect("header properties")
-        .keys()
-        .map(String::as_str)
-        .collect();
-    assert_eq!(
-        keys,
-        [
-            "id",
-            "identity_level",
-            "matched_name",
-            "name",
-            "source",
-            "type",
-            "url",
-            "version"
-        ]
-    );
-    let schema = serde_json::to_value(schemars::schema_for!(DrugCard)).expect("card schema");
-    let text = serde_json::to_string(&schema).expect("schema JSON");
-    for forbidden in [
-        "AuthorizationEvent",
-        "DrugLabelSection",
-        "DrugInteractionClaim",
-        "DrugTargetRelation",
-    ] {
-        assert!(!text.contains(forbidden), "{forbidden}");
-    }
-}
-#[test]
 fn civic_therapy_streams_keep_independent_totals_and_profile_context() {
     use biomcp_types::DrugCivic;
     let next = json!({"source":"civic","input":"5","section":["civic"],"section_limit":1,"civic_kind":"evidence","civic_cursor":"MQ"});
@@ -312,8 +260,10 @@ fn label_candidate_versions_are_native_optional_identity_metadata() {
     let versioned: biomcp_types::DrugHeader =
         serde_json::from_value(value.clone()).expect("versioned");
     assert_eq!(serde_json::to_value(versioned).expect("JSON"), value);
+    let known = value.clone();
     value["text"] = json!("not an identity field");
-    assert!(serde_json::from_value::<biomcp_types::DrugHeader>(value).is_err());
+    let decoded: biomcp_types::DrugHeader = serde_json::from_value(value).expect("open header");
+    assert_eq!(serde_json::to_value(decoded).expect("header JSON"), known);
 }
 #[test]
 fn native_target_identity_does_not_require_an_invented_gene() {

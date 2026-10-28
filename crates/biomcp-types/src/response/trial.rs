@@ -1,7 +1,6 @@
 use serde::{Deserialize, Serialize};
 /// Registry page preserving source order and source processing time.
 #[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
-#[serde(deny_unknown_fields)]
 #[cfg_attr(feature = "schema", derive(schemars::JsonSchema))]
 pub struct TrialPage {
     /// Native study headers in registry order.
@@ -26,7 +25,6 @@ impl super::ResponseBody for TrialPage {
 
 /// One exact source request parameter, in canonical name order.
 #[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
-#[serde(deny_unknown_fields)]
 #[cfg_attr(feature = "schema", derive(schemars::JsonSchema))]
 pub struct TrialParameter {
     /// Native parameter name.
