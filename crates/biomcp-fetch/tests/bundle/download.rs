@@ -231,77 +231,85 @@ fn recovered_parts_reject_unowned_paths_without_touching_them() {
         "directory",
         "symlink",
     ] {
-        let server = support::Server::new();
-        let b = declared(&server);
-        let dir = tempfile::tempdir().unwrap();
-        let path = dir.path().join("cache.sqlite");
-        let f = Fetch::open(FetchConfig {
-            cache: Some(path.clone()),
-            sync_budget: Duration::from_secs(1),
-            ..Default::default()
-        })
-        .unwrap();
-        let parts = path.with_extension("parts");
-        std::fs::create_dir_all(parts.join("nested")).unwrap();
-        let sentinel = dir.path().join(".tmpABC123");
-        std::fs::write(&sentinel, "keep this file").unwrap();
-        let prior = match scenario {
-            "outside" => sentinel.clone(),
-            "traversal" => parts.join("../.tmpABC123"),
-            "nested" => parts.join("nested/.tmpABC123"),
-            "wrong-name" => parts.join("sentinel"),
-            "missing" => parts.join(".tmpABC123"),
-            _ => parts.join(".tmpABC123"),
-        };
-        if scenario == "symlink" {
-            #[cfg(unix)]
-            std::os::unix::fs::symlink(&sentinel, &prior).unwrap();
-            #[cfg(not(unix))]
-            continue;
-        } else if scenario == "directory" {
-            std::fs::create_dir(&prior).unwrap();
-        } else if !["missing", "outside", "traversal"].contains(&scenario) {
-            std::fs::write(&prior, "keep this file").unwrap();
+        for holder in [None, Some("expired")] {
+            recovered_path_case(scenario, holder);
         }
-        let db = rusqlite::Connection::open(&path).unwrap();
-        db.execute(
-            "INSERT INTO bundle_sync VALUES('genes',NULL,0,?1,?2,0,NULL,NULL)",
-            rusqlite::params![format!("{}/genes", server.base), prior.to_str().unwrap()],
+    }
+}
+
+fn recovered_path_case(scenario: &str, holder: Option<&str>) {
+    let server = support::Server::new();
+    let b = declared(&server);
+    let dir = tempfile::tempdir().unwrap();
+    let path = dir.path().join("cache.sqlite");
+    let f = Fetch::open(FetchConfig {
+        cache: Some(path.clone()),
+        sync_budget: Duration::from_secs(1),
+        ..Default::default()
+    })
+    .unwrap();
+    let parts = path.with_extension("parts");
+    std::fs::create_dir_all(parts.join("nested")).unwrap();
+    let sentinel = dir.path().join(".tmpABC123");
+    std::fs::write(&sentinel, "keep this file").unwrap();
+    let prior = match scenario {
+        "outside" => sentinel.clone(),
+        "traversal" => parts.join("../.tmpABC123"),
+        "nested" => parts.join("nested/.tmpABC123"),
+        "wrong-name" => parts.join("sentinel"),
+        "missing" => parts.join(".tmpABC123"),
+        _ => parts.join(".tmpABC123"),
+    };
+    if scenario == "symlink" {
+        #[cfg(unix)]
+        std::os::unix::fs::symlink(&sentinel, &prior).unwrap();
+        #[cfg(not(unix))]
+        return;
+    } else if scenario == "directory" {
+        std::fs::create_dir(&prior).unwrap();
+    } else if !["missing", "outside", "traversal"].contains(&scenario) {
+        std::fs::write(&prior, "keep this file").unwrap();
+    }
+    let db = rusqlite::Connection::open(&path).unwrap();
+    db.execute(
+        "INSERT INTO bundle_sync VALUES('genes',?3,0,?1,?2,0,NULL,NULL)",
+        rusqlite::params![
+            format!("{}/genes", server.base),
+            prior.to_str().unwrap(),
+            holder
+        ],
+    )
+    .unwrap();
+    let snapshot = || {
+        db.query_row(
+            "SELECT json_array(name,holder,lease_until,url,part,bytes,etag,total) FROM bundle_sync",
+            [],
+            |row| row.get::<_, String>(0),
         )
-        .unwrap();
-        let snapshot = || {
-            db.query_row(
-                "SELECT json_array(name,holder,lease_until,url,part,bytes,etag,total) FROM bundle_sync",
-                [],
-                |row| row.get::<_, String>(0),
-            )
-            .unwrap()
-        };
-        let before = snapshot();
-        if scenario == "missing" {
-            assert_eq!(sync_reply(&f, &b, &server, 200, "", TSV).unwrap().rows, 1);
-            assert_eq!(std::fs::read_dir(&parts).unwrap().count(), 1);
-            assert_eq!(
-                std::fs::read_to_string(&sentinel).unwrap(),
-                "keep this file"
-            );
-            continue;
-        }
-        let result = f.sync(&b);
-        assert!(
-            matches!(result, Err(biomcp_fetch::RequestError::Cache(_))),
-            "{scenario}: {result:?}"
-        );
-        assert_eq!(snapshot(), before, "{scenario}: recovery row changed");
-        assert!(server.requests.try_recv().is_err(), "{scenario}");
+        .unwrap()
+    };
+    let before = snapshot();
+    if scenario == "missing" {
+        assert_eq!(sync_reply(&f, &b, &server, 200, "", TSV).unwrap().rows, 1);
+        assert_eq!(std::fs::read_dir(&parts).unwrap().count(), 1);
         assert_eq!(
             std::fs::read_to_string(&sentinel).unwrap(),
             "keep this file"
         );
-        if scenario != "missing" {
-            assert!(prior.symlink_metadata().is_ok(), "{scenario}");
-        }
+        return;
     }
+    let result = f.sync(&b);
+    assert!(
+        matches!(result, Err(biomcp_fetch::RequestError::Cache(_))),
+        "{scenario}: {result:?}"
+    );
+    assert_eq!(snapshot(), before, "{scenario}: recovery row changed");
+    assert!(server.requests.try_recv().is_err(), "{scenario}");
+    assert_eq!(
+        std::fs::read_to_string(&sentinel).unwrap(),
+        "keep this file"
+    );
+    assert!(prior.symlink_metadata().is_ok(), "{scenario}");
 }
 
 #[test]
@@ -446,7 +454,7 @@ fn fresh_bundle_refresh_is_shared_by_one_leg_and_its_batch_children() {
 
 #[test]
 fn killed_download_is_reclaimed_after_its_lease_expires() {
-    let server = support::Server::new();
+    let server = support::Server::<()>::new();
     let dir = tempfile::tempdir().unwrap();
     let path = dir.path().join("cache.sqlite");
     let _ = cached(&path);
