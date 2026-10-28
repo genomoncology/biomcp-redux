@@ -18,6 +18,7 @@ pub(super) fn check() -> Result<(), String> {
         ("genes", "displayName", "participants.name"),
         ("genes", "schemaClass", "participants.schema_class"),
     ] {
+        for invalid in [json!({"bad":true}), json!("")] {
         let stub = Stub::for_source("reactome.org", "application/json", move |request| {
             let mut card = json!({"stId":"R-HSA-5673001","displayName":"Synthetic pathway",
                 "speciesName":"Homo sapiens","schemaClass":"Pathway","stIdVersion":"R-HSA-5673001.1",
@@ -31,11 +32,11 @@ pub(super) fn check() -> Result<(), String> {
                     "text" => "/summation/0/text".into(),
                     _ => format!("/{native}"),
                 };
-                *card.pointer_mut(&pointer).ok_or("missing fixture field")? = json!({"bad":true});
+                *card.pointer_mut(&pointer).ok_or("missing fixture field")? = invalid.clone();
             } else if section == "events" {
-                event[native] = json!({"bad":true});
+                event[native] = invalid.clone();
             } else {
-                participant[native] = json!({"bad":true});
+                participant[native] = invalid.clone();
             }
             Ok(if request.contains("/database/version") { json!(97) }
                 else if request.contains("/containedEvents") { json!([event, {"dbId":8,"displayName":"Sibling"}]) }
@@ -49,13 +50,14 @@ pub(super) fn check() -> Result<(), String> {
         if !value.get("problems").and_then(Value::as_array).is_some_and(|p| p.iter().any(|p| p.get("field") == Some(&json!(field)))) {
             return Err(format!("bad {field} lost disclosure: {value}"));
         }
-        if section == "summary" && native != "displayName" && value.pointer("/result/pathway/id") != Some(&json!("R-HSA-5673001")) {
+        if section == "summary" && native != "displayName" && value.pointer("/result/pathway/id/id") != Some(&json!("R-HSA-5673001")) {
             return Err(format!("bad {field} lost pathway: {value}"));
         }
         if section != "summary" && value.pointer("/result/items").and_then(Value::as_array).is_none_or(Vec::is_empty) {
             return Err(format!("bad {field} lost valid sibling: {value}"));
         }
         stub.finish()?;
+        }
     }
     Ok(())
 }
