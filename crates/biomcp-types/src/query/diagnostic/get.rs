@@ -19,9 +19,11 @@ struct GetFields {
     /// Exact native identity, including version for GTR.
     #[cfg_attr(feature = "schema", schemars(extend("x-positional" = 0)))]
     id: Text,
-    /// Explicit source; gtr needs accession/version, who-ivd a known Product ID, fda-pma a P number, fda-510k a K number.
+    /// Explicit source: GTR accession/version, WHO Product ID, PMA P number,
+    /// 510(k) K number or device recall Z-NNNN-YYYY.
     source: DiagnosticGetSource,
-    /// gtr: genes, conditions, methods. fda-pma: regulatory, supplements. WHO and 510(k) have no sections; omit for the card.
+    /// GTR: genes, conditions, methods. PMA: regulatory, supplements.
+    /// WHO, 510(k) and device recalls have no sections; omit for the card.
     #[serde(default, skip_serializing_if = "Option::is_none")]
     #[cfg_attr(feature = "schema", schemars(extend("x-positional" = 1)))]
     section: Option<DiagnosticSection>,
