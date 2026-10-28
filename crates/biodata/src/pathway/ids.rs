@@ -114,10 +114,7 @@ impl std::fmt::Display for PathwayIdInvalid {
 impl std::error::Error for PathwayIdInvalid {}
 /// Source-owned pathway identity; equal names never merge sources.
 #[derive(Clone, Debug, PartialEq, Eq, Hash, Serialize, Deserialize)]
-#[serde(
-    tag = "source",
-    content = "id",
-    rename_all = "lowercase")]
+#[serde(tag = "source", content = "id", rename_all = "lowercase")]
 #[cfg_attr(feature = "schema", derive(schemars::JsonSchema))]
 pub enum PathwayId {
     /// Human Reactome stable identity without a version suffix.

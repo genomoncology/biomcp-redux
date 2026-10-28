@@ -38,9 +38,7 @@ pub struct GtrHeader {
 }
 /// A conflict is visible once without a selected name or card.
 #[derive(Clone, Debug, PartialEq, Serialize, Deserialize)]
-#[serde(
-    tag = "identity_status",
-    rename_all = "snake_case")]
+#[serde(tag = "identity_status", rename_all = "snake_case")]
 #[cfg_attr(feature = "schema", derive(schemars::JsonSchema))]
 pub enum DiagnosticCandidate {
     /// One matched WHO product with cells from its first matching native row.

@@ -80,10 +80,7 @@ crate::wire_enum! {
 }
 /// Source-owned native membership or one independent method-list entry.
 #[derive(Clone, Debug, PartialEq, Serialize, Deserialize)]
-#[serde(
-    tag = "kind",
-    content = "relation",
-    rename_all = "snake_case")]
+#[serde(tag = "kind", content = "relation", rename_all = "snake_case")]
 #[cfg_attr(feature = "schema", derive(schemars::JsonSchema))]
 pub enum GtrTestRelation {
     /// Native gene relation row.
