@@ -4,7 +4,7 @@
   "url": "https://clinicaltrialsapi.cancer.gov/api/v2/biomarkers?name=PD-L1",
   "exchanges": [
     {
-      "fetched": 1793192400,
+      "fetched": 1793223566,
       "status": 200,
       "content_type": "application/json",
       "delay_ms": 0,
