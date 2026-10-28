@@ -26,6 +26,7 @@ fn check() -> Check {
         for path in [
             vec!["get", "gene"],
             vec!["version"],
+            vec!["schema"],
             vec!["skill", "install"],
         ] {
             let mut alias = vec!["--format", format];

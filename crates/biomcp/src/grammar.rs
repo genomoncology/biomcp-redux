@@ -204,6 +204,16 @@ pub(crate) fn root() -> Result<Command, ()> {
     );
     root = root.subcommand(crate::keys::grammar());
     root = root.subcommand(local::serve_command());
+    root = root.subcommand(
+        Command::new("schema")
+            .about("List every schema identity and description with biomcp schema, or print one schema artifact with biomcp schema <id>.")
+            .after_help("Example: biomcp schema\nExample: biomcp schema biomcp.help/3")
+            .arg(
+                Arg::new("artifact-id")
+                    .index(1)
+                    .help("Artifact ID to print; omit it to list available schemas."),
+            ),
+    );
     let help = local::help_command(&root);
     root = root.subcommand(help);
     Ok(metadata::describe(root))

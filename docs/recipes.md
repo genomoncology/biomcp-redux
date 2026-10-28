@@ -455,12 +455,6 @@ biomcp health --offline
 biomcp sync hgnc
 ```
 
-## biomcp schema
-
-```sh
-biomcp schema
-```
-
 ## biomcp help
 
 ```sh
@@ -690,6 +684,13 @@ biomcp store clean
 
 ```sh
 biomcp key list
+```
+
+## biomcp schema
+
+```sh
+biomcp schema
+biomcp schema biomcp.help/3
 ```
 
 ## biomcp help relations

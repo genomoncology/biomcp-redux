@@ -8,7 +8,7 @@ pub(super) fn augment(commands: &mut Vec<HelpCommand>) -> io::Result<()> {
     root.build();
     for entry in commands.iter_mut() {
         match entry.command.first().map(String::as_str) {
-            Some("schema" | "help")
+            Some("help")
                 if entry
                     .command
                     .get(1)
@@ -38,23 +38,12 @@ pub(super) fn augment(commands: &mut Vec<HelpCommand>) -> io::Result<()> {
             }
         }
     }
-    for (name, argument) in [
-        (
-            "schema",
-            Arg::new("artifact-id")
-                .index(1)
-                .help("Artifact ID to print; omit it to list available schemas."),
-        ),
-        (
-            "help",
-            Arg::new("command")
+    if let Some(entry) = commands.iter_mut().find(|entry| entry.command == ["help"]) {
+        entry.arguments.push(metadata(
+            &Arg::new("command")
                 .index(1)
                 .help("Command path or discovery topic to describe."),
-        ),
-    ] {
-        if let Some(entry) = commands.iter_mut().find(|entry| entry.command == [name]) {
-            entry.arguments.push(metadata(&argument));
-        }
+        ));
     }
     augment_entries(commands, &root);
     if let Some(index) = commands.iter_mut().find(|c| c.command.is_empty()) {

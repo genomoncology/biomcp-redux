@@ -144,10 +144,6 @@ fn extra_commands(commands: &mut Vec<HelpCommand>, examples: &BTreeMap<String, V
             "Synchronize a local source bundle.",
         ),
         (
-            vec!["schema", "[artifact id]"],
-            "List every schema identity and description, or print one schema artifact.",
-        ),
-        (
             vec!["help", "[COMMAND...]"],
             "Print generated command help.",
         ),

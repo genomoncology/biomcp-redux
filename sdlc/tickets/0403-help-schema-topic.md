@@ -1,6 +1,7 @@
 # 0403 — Make `help schema` work
 
-Status: OPEN.
+Status: COMPLETE.
+Landed: 178a69e18dd778bbf1f43092f52153e10ba2eca0
 
 Milestone: 5
 

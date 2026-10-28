@@ -103,28 +103,28 @@ fn help() -> Result<(), String> {
 }
 
 fn command_metadata(commands: &[Value]) -> Result<(), String> {
-    for path in [
-        vec![],
-        vec!["search"],
-        vec!["article"],
-        vec!["trial"],
-        vec!["variant"],
-        vec!["protein"],
-        vec!["pathway"],
-        vec!["cell-line"],
-        vec!["author"],
-        vec!["health"],
-        vec!["store"],
-        vec!["version"],
-        vec!["mcp-config"],
-        vec!["skill"],
-        vec!["get"],
-        vec!["serve"],
-        vec!["sync"],
-        vec!["key"],
-        vec!["schema"],
-        vec!["help"],
-    ] {
+    let index = commands
+        .iter()
+        .find(|c| c.get("command").is_none())
+        .ok_or("missing command index")?;
+    let mut paths = std::collections::BTreeSet::from([Vec::new()]);
+    for line in index["description"]
+        .as_str()
+        .ok_or("missing index description")?
+        .lines()
+    {
+        let (name, _) = line.split_once(": ").ok_or("invalid command index")?;
+        paths.insert(vec![name.to_owned()]);
+    }
+    for command in commands {
+        if let Some(name) = command.pointer("/command/0").and_then(Value::as_str) {
+            paths.insert(vec![name.to_owned()]);
+        }
+    }
+    for path in paths {
+        if let Some(name) = path.first() {
+            invoke(&["help", name], 0).map_err(|error| format!("help {name}: {error}"))?;
+        }
         let command = commands
             .iter()
             .find(|c| {
