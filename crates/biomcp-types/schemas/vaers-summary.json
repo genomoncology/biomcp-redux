@@ -75,7 +75,7 @@
               "type": "null"
             }
           ],
-          "description": "FAERS report flag: any uses the source seriousness flag; death and hospitalization can overlap. Never a reaction outcome."
+          "description": "FAERS report flag: any uses the source seriousness flag; the specific flags can overlap. Never a reaction outcome."
         },
         "snapshot": {
           "anyOf": [
@@ -109,13 +109,21 @@
       "enum": [
         "any",
         "death",
-        "hospitalization"
+        "hospitalization",
+        "lifethreatening",
+        "disabling",
+        "congenital-anomaly",
+        "other"
       ],
       "type": "string",
       "x-enum-descriptions": [
         " Native report seriousness flag.",
         " Native report death flag.",
-        " Native report hospitalization flag."
+        " Native report hospitalization flag.",
+        " Native report life-threatening flag.",
+        " Native report disabling flag.",
+        " Native report congenital anomaly flag.",
+        " Native report other serious flag."
       ]
     },
     "AdverseEventSource": {

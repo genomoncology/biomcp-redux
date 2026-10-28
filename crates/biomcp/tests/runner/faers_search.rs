@@ -15,10 +15,26 @@ pub(super) fn trials() -> Vec<Trial> {
         || navigation().map_err(Into::into),
     )];
     for (name, flags, suffix) in [
-        ("serious-lifethreatening", vec!["--serious", "lifethreatening"], " AND seriousnesslifethreatening:1"),
-        ("serious-disabling", vec!["--serious", "disabling"], " AND seriousnessdisabling:1"),
-        ("serious-congenital-anomaly", vec!["--serious", "congenital-anomaly"], " AND seriousnesscongenitalanomali:1"),
-        ("serious-other", vec!["--serious", "other"], " AND seriousnessother:1"),
+        (
+            "serious-lifethreatening",
+            vec!["--serious", "lifethreatening"],
+            " AND seriousnesslifethreatening:1",
+        ),
+        (
+            "serious-disabling",
+            vec!["--serious", "disabling"],
+            " AND seriousnessdisabling:1",
+        ),
+        (
+            "serious-congenital-anomaly",
+            vec!["--serious", "congenital-anomaly"],
+            " AND seriousnesscongenitalanomali:1",
+        ),
+        (
+            "serious-other",
+            vec!["--serious", "other"],
+            " AND seriousnessother:1",
+        ),
         (
             "serious-any",
             vec!["--source", "faers", "--serious", "any"],
