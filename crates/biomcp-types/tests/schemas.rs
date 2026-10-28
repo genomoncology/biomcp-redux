@@ -494,13 +494,8 @@ fn published_reply_contracts_are_open_and_query_choices_stay_closed() {
     for contract in registry() {
         let mut schema = (contract.generate)();
         schema["$id"] = contract.id.into();
-        compatibility::check_reviewed(
-            &schema,
-            &schema,
-            contract.kind,
-            &policy::Reviews::default(),
-        )
-        .unwrap_or_else(|error| panic!("{}: {error}", contract.name));
+        compatibility::check_reviewed(&schema, &schema, contract.kind, &policy::Reviews::default())
+            .unwrap_or_else(|error| panic!("{}: {error}", contract.name));
         match contract.kind {
             policy::ContractKind::Reply => assert_open(&schema, contract.name),
             policy::ContractKind::Query => {

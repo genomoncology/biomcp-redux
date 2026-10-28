@@ -39,4 +39,3 @@ fn prepare(node: &mut Value, kind: ContractKind) {
         _ => {}
     }
 }
-

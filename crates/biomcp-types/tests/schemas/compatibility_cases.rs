@@ -1,4 +1,7 @@
-use super::{compatibility::{check, check_reviewed}, policy::{ContractKind, Reviews}};
+use super::{
+    compatibility::{check, check_reviewed},
+    policy::{ContractKind, Reviews},
+};
 use serde_json::{Value, json};
 
 fn contract(properties: Value) -> Value {
