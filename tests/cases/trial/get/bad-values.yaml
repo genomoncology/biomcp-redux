@@ -23,7 +23,7 @@
           ]
         },
         "/problems/*/field": {
-          "equals": [
+          "includes_all_of": [
             "overallStatus",
             "lastUpdatePostDateStruct.date",
             "phases",
@@ -53,7 +53,7 @@
           ]
         },
         "/problems/*/field": {
-          "equals": [
+          "includes_all_of": [
             "overallStatus",
             "lastUpdatePostDateStruct.date",
             "phases",

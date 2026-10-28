@@ -2,11 +2,11 @@
 mod publications;
 mod sites;
 use crate::{mapped::Problems, raw::Field};
-use biomcp_types::Source;
 use biodata::{
     Markdown, NctId, StudyType, TrialAgeBound, TrialArm, TrialCard, TrialDate, TrialEligibility,
     TrialIntervention, TrialOutcome, TrialOutcomeKind, TrialPhase, TrialSex, TrialStatus,
 };
+use biomcp_types::Source;
 
 use biomcp_fetch::{BadReply, Freshness, Leg, Reply, ReplyMetadata, RequestError};
 use serde::{Deserialize, Serialize};
@@ -52,8 +52,13 @@ pub fn get(leg: &Leg<'_>, id: NctId) -> Result<(Detail, ReplyMetadata), RequestE
     })?;
     let id = raw.protocol_section.identification_module.nct_id;
     let mut detail = raw.protocol_section.detail();
-    let mut problems = Problems { source: Source::ClinicalTrialsGov, record: crate::mapped::record(id), list: detail.problems };
-    detail.documents = problems.field("documentSection", raw.document_section)
+    let mut problems = Problems {
+        source: Source::ClinicalTrialsGov,
+        record: crate::mapped::record(id),
+        list: detail.problems,
+    };
+    detail.documents = problems
+        .field("documentSection", raw.document_section)
         .map_or_else(Box::default, |d| d.mapped(id, &mut problems));
     detail.problems = problems.list;
     Ok((detail, metadata))
@@ -187,15 +192,28 @@ struct Intervention {
 }
 impl Protocol {
     fn detail(self) -> Detail {
-        let mut problems = Problems { source: Source::ClinicalTrialsGov, record: crate::mapped::record(self.identification_module.nct_id), list: Vec::new() };
-        let status = problems.field("statusModule", self.status_module).unwrap_or_default();
-        let design = problems.field("designModule", self.design_module).unwrap_or_default();
+        let mut problems = Problems {
+            source: Source::ClinicalTrialsGov,
+            record: crate::mapped::record(self.identification_module.nct_id),
+            list: Vec::new(),
+        };
+        let status = problems
+            .field("statusModule", self.status_module)
+            .unwrap_or_default();
+        let design = problems
+            .field("designModule", self.design_module)
+            .unwrap_or_default();
         let arms = problems.field("armsInterventionsModule", self.arms_interventions_module);
-        let (arm_rows, interventions) = arms.map_or_else(|| (Box::default(), Box::default()), |arms| arms.rows(&mut problems));
-        let (locations, contacts, officials) = problems.field("contactsLocationsModule", self.contacts_locations_module).map_or_else(
-            || (Box::default(), Box::default(), Box::default()),
-            |sites| sites.rows(&mut problems),
+        let (arm_rows, interventions) = arms.map_or_else(
+            || (Box::default(), Box::default()),
+            |arms| arms.rows(&mut problems),
         );
+        let (locations, contacts, officials) = problems
+            .field("contactsLocationsModule", self.contacts_locations_module)
+            .map_or_else(
+                || (Box::default(), Box::default(), Box::default()),
+                |sites| sites.rows(&mut problems),
+            );
         let card = TrialCard {
             nct_id: self.identification_module.nct_id,
             url: format!(
@@ -213,28 +231,49 @@ impl Protocol {
             sponsor: problems.field("sponsorCollaboratorsModule", self.sponsor_collaborators_module)
                 .and_then(|s| problems.field("leadSponsor", s.lead_sponsor))
                 .and_then(|s| problems.field("leadSponsor.name", s.name)),
-            start: problems.field("startDateStruct", status.start_date_struct).and_then(|d| d.mapped("startDateStruct", &mut problems)),
-            primary_completion: problems.field("primaryCompletionDateStruct", status.primary_completion_date_struct).and_then(|d| d.mapped("primaryCompletionDateStruct", &mut problems)),
-            completion: problems.field("completionDateStruct", status.completion_date_struct).and_then(|d| d.mapped("completionDateStruct", &mut problems)),
-            updated: problems.field("lastUpdatePostDateStruct", status.last_update_post_date_struct).and_then(|d| d.mapped("lastUpdatePostDateStruct", &mut problems)),
-            brief_summary: problems.field("descriptionModule", self.description_module).and_then(|d| problems.field("briefSummary", d.brief_summary)),
+            start: problems
+                .field("startDateStruct", status.start_date_struct)
+                .and_then(|d| d.mapped("startDateStruct", &mut problems)),
+            primary_completion: problems
+                .field(
+                    "primaryCompletionDateStruct",
+                    status.primary_completion_date_struct,
+                )
+                .and_then(|d| d.mapped("primaryCompletionDateStruct", &mut problems)),
+            completion: problems
+                .field("completionDateStruct", status.completion_date_struct)
+                .and_then(|d| d.mapped("completionDateStruct", &mut problems)),
+            updated: problems
+                .field(
+                    "lastUpdatePostDateStruct",
+                    status.last_update_post_date_struct,
+                )
+                .and_then(|d| d.mapped("lastUpdatePostDateStruct", &mut problems)),
+            brief_summary: problems
+                .field("descriptionModule", self.description_module)
+                .and_then(|d| problems.field("briefSummary", d.brief_summary)),
         };
         Detail {
-            references: problems.field("referencesModule", self.references_module)
+            references: problems
+                .field("referencesModule", self.references_module)
                 .map_or_else(Box::default, |r| r.rows(&mut problems)),
             documents: Box::default(),
             locations,
             contacts,
             officials,
             card,
-            eligibility: problems.field("eligibilityModule", self.eligibility_module).map(|v| TrialEligibility {
-                minimum_age: age(problems.field("minimumAge", v.minimum_age)),
-                maximum_age: age(problems.field("maximumAge", v.maximum_age)),
-                sex: problems.field("sex", v.sex),
-                healthy_volunteers: problems.field("healthyVolunteers", v.healthy_volunteers),
-                criteria: problems.field("eligibilityCriteria", v.eligibility_criteria),
-            }),
-            outcomes: problems.field("outcomesModule", self.outcomes_module).map_or_else(Box::default, |o| o.rows(&mut problems)),
+            eligibility: problems
+                .field("eligibilityModule", self.eligibility_module)
+                .map(|v| TrialEligibility {
+                    minimum_age: age(problems.field("minimumAge", v.minimum_age)),
+                    maximum_age: age(problems.field("maximumAge", v.maximum_age)),
+                    sex: problems.field("sex", v.sex),
+                    healthy_volunteers: problems.field("healthyVolunteers", v.healthy_volunteers),
+                    criteria: problems.field("eligibilityCriteria", v.eligibility_criteria),
+                }),
+            outcomes: problems
+                .field("outcomesModule", self.outcomes_module)
+                .map_or_else(Box::default, |o| o.rows(&mut problems)),
             problems: problems.list,
             arms: arm_rows,
             interventions,
@@ -258,9 +297,7 @@ impl Outcomes {
             ),
         ]
         .into_iter()
-        .flat_map(|(kind, rows)| {
-            rows.into_vec().into_iter().map(move |v| (kind, v))
-        })
+        .flat_map(|(kind, rows)| rows.into_vec().into_iter().map(move |v| (kind, v)))
         .map(|(kind, v)| TrialOutcome {
                 kind,
                 measure: problems.required_field("outcomes.measure", v.measure),
@@ -277,24 +314,28 @@ fn age(value: Option<Box<str>>) -> TrialAgeBound {
 impl Arms {
     fn rows(self, problems: &mut Problems) -> (Box<[TrialArm]>, Box<[TrialIntervention]>) {
         (
-            problems.fields("armGroups", self.arm_groups)
+            problems
+                .fields("armGroups", self.arm_groups)
                 .into_vec()
                 .into_iter()
                 .map(|v| TrialArm {
                     label: problems.required_field("armGroups.label", v.label),
                     kind: problems.field("armGroups.type", v.kind),
                     description: problems.field("armsInterventions.description", v.description),
-                    intervention_names: problems.fields("armGroups.interventionNames", v.intervention_names),
+                    intervention_names: problems
+                        .fields("armGroups.interventionNames", v.intervention_names),
                 })
                 .collect(),
-            problems.fields("interventions", self.interventions)
+            problems
+                .fields("interventions", self.interventions)
                 .into_vec()
                 .into_iter()
                 .map(|v| TrialIntervention {
                     name: problems.required_field("interventions.name", v.name),
                     kind: problems.field("interventions.type", v.kind),
                     description: problems.field("armsInterventions.description", v.description),
-                    arm_group_labels: problems.fields("interventions.armGroupLabels", v.arm_group_labels),
+                    arm_group_labels: problems
+                        .fields("interventions.armGroupLabels", v.arm_group_labels),
                     other_names: problems.fields("interventions.otherNames", v.other_names),
                 })
                 .collect(),

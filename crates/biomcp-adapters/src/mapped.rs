@@ -57,7 +57,11 @@ impl Problems {
     pub(crate) fn optional<T, E>(&mut self, field: &str, value: Option<Result<T, E>>) -> Option<T> {
         self.required(field, value?.ok())
     }
-    pub(crate) fn field<T>(&mut self, field: &str, value: Option<crate::raw::Field<T>>) -> Option<T> {
+    pub(crate) fn field<T>(
+        &mut self,
+        field: &str,
+        value: Option<crate::raw::Field<T>>,
+    ) -> Option<T> {
         self.optional(field, value.map(|v| v.value().ok_or(())))
     }
     pub(crate) fn required_field<T>(&mut self, field: &str, value: Option<crate::raw::Field<T>>) -> Option<T> {

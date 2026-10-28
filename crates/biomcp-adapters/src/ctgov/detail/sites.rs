@@ -1,8 +1,8 @@
 //! Provider contacts and sites mapped once into source-preserving values.
 use biodata::{TrialContact, TrialCoordinates, TrialLocation, TrialOfficial};
 
-use serde::Deserialize;
 use crate::{mapped::Problems, raw::Field};
+use serde::Deserialize;
 #[derive(Deserialize)]
 #[serde(rename_all = "camelCase")]
 pub(super) struct ContactsLocations {
@@ -45,13 +45,28 @@ type SiteRows = (
 );
 impl ContactsLocations {
     pub(super) fn rows(self, problems: &mut Problems) -> SiteRows {
-        let locations = problems.fields("locations", self.locations).into_vec().into_iter().map(|v| v.mapped(problems)).collect();
-        let contacts = problems.fields("centralContacts", self.central_contacts).into_vec().into_iter().map(|v| v.mapped(problems)).collect();
-        let officials = problems.fields("overallOfficials", self.overall_officials).into_vec().into_iter().map(|v| TrialOfficial {
-            name: problems.field("overallOfficials.name", v.name),
-            affiliation: problems.field("overallOfficials.affiliation", v.affiliation),
-            role: problems.field("overallOfficials.role", v.role),
-        }).collect();
+        let locations = problems
+            .fields("locations", self.locations)
+            .into_vec()
+            .into_iter()
+            .map(|v| v.mapped(problems))
+            .collect();
+        let contacts = problems
+            .fields("centralContacts", self.central_contacts)
+            .into_vec()
+            .into_iter()
+            .map(|v| v.mapped(problems))
+            .collect();
+        let officials = problems
+            .fields("overallOfficials", self.overall_officials)
+            .into_vec()
+            .into_iter()
+            .map(|v| TrialOfficial {
+                name: problems.field("overallOfficials.name", v.name),
+                affiliation: problems.field("overallOfficials.affiliation", v.affiliation),
+                role: problems.field("overallOfficials.role", v.role),
+            })
+            .collect();
         (locations, contacts, officials)
     }
 }
@@ -77,7 +92,12 @@ impl Location {
             country: problems.field("country", self.country),
             status: problems.field("locations.status", self.status),
             coordinates: problems.field("geoPoint", self.geo_point).map(|v| v.0),
-            contacts: problems.fields("locations.contacts", self.contacts).into_vec().into_iter().map(|v| v.mapped(problems)).collect(),
+            contacts: problems
+                .fields("locations.contacts", self.contacts)
+                .into_vec()
+                .into_iter()
+                .map(|v| v.mapped(problems))
+                .collect(),
         }
     }
 }

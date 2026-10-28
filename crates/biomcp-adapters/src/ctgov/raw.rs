@@ -1,7 +1,10 @@
 //! Checked native registry replies and their small discovery projection.
-use crate::{mapped::{Mapped, Problems}, raw::Field};
-use biomcp_types::Source;
+use crate::{
+    mapped::{Mapped, Problems},
+    raw::Field,
+};
 use biodata::{NctId, PartialDate, Text, TrialPhase, TrialStatus};
+use biomcp_types::Source;
 
 use biomcp_fetch::{BadReply, Reply};
 use biomcp_types::TrialHeader;
@@ -115,28 +118,46 @@ struct Intervention {
 impl Protocol {
     pub(super) fn contains_condition_words(&self, condition: &str) -> bool {
         let requested = words(condition);
-        let present: Vec<String> = self.conditions_module.as_ref()
+        let present: Vec<String> = self
+            .conditions_module
+            .as_ref()
             .and_then(Field::as_ref)
             .and_then(|v| v.conditions.as_ref())
             .and_then(Field::as_ref)
-            .into_iter().flatten()
+            .into_iter()
+            .flatten()
             .filter_map(Field::as_ref)
-            .flat_map(|value| words(value.as_str())).collect();
+            .flat_map(|value| words(value.as_str()))
+            .collect();
         requested.iter().all(|word| present.contains(word))
     }
 
     pub(super) fn header(self) -> Result<Mapped<TrialHeader>, BadReply> {
-        let mut problems = Problems { source: Source::ClinicalTrialsGov, record: crate::mapped::record(self.identification_module.nct_id), list: Vec::new() };
+        let mut problems = Problems {
+            source: Source::ClinicalTrialsGov,
+            record: crate::mapped::record(self.identification_module.nct_id),
+            list: Vec::new(),
+        };
         let status = problems.field("statusModule", self.status_module);
         let (status, updated) = if let Some(status) = status {
             let overall = problems.field("overallStatus", status.overall_status);
             let overall = problems.required("overallStatus", overall);
-            let updated = problems.field("lastUpdatePostDateStruct", status.last_update_post_date_struct)
+            let updated = problems
+                .field(
+                    "lastUpdatePostDateStruct",
+                    status.last_update_post_date_struct,
+                )
                 .and_then(|d| problems.field("lastUpdatePostDateStruct.date", d.date));
             let updated = problems.required("lastUpdatePostDateStruct.date", updated);
             (overall, updated)
-        } else { (problems.required("overallStatus", None), problems.required("lastUpdatePostDateStruct.date", None)) };
-        let phases = problems.field("designModule", self.design_module)
+        } else {
+            (
+                problems.required("overallStatus", None),
+                problems.required("lastUpdatePostDateStruct.date", None),
+            )
+        };
+        let phases = problems
+            .field("designModule", self.design_module)
             .map_or_else(Box::default, |d| problems.fields("phases", d.phases));
         let value = TrialHeader {
             nct_id: self.identification_module.nct_id,
@@ -148,14 +169,29 @@ impl Protocol {
             title: problems.required_field("briefTitle", self.identification_module.brief_title),
             status,
             phases,
-            conditions: names(problems.field("conditionsModule", self.conditions_module)
-                .map_or_else(Vec::new, |v| problems.fields("conditions", v.conditions).into_vec())),
-            interventions: names(problems.field("armsInterventionsModule", self.arms_interventions_module)
-                .map_or_else(Vec::new, |v| problems.fields("interventions", v.interventions).into_vec())
-                .into_iter().filter_map(|v| problems.field("interventions.name", v.name)).collect()),
+            conditions: names(
+                problems
+                    .field("conditionsModule", self.conditions_module)
+                    .map_or_else(Vec::new, |v| {
+                        problems.fields("conditions", v.conditions).into_vec()
+                    }),
+            ),
+            interventions: names(
+                problems
+                    .field("armsInterventionsModule", self.arms_interventions_module)
+                    .map_or_else(Vec::new, |v| {
+                        problems.fields("interventions", v.interventions).into_vec()
+                    })
+                    .into_iter()
+                    .filter_map(|v| problems.field("interventions.name", v.name))
+                    .collect(),
+            ),
             updated,
         };
-        Ok(Mapped { value, problems: problems.list })
+        Ok(Mapped {
+            value,
+            problems: problems.list,
+        })
     }
 }
 

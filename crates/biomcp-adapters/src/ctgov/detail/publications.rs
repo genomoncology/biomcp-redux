@@ -1,8 +1,8 @@
 use biodata::License;
 use biodata::{NctId, PartialDate, Pmid, Text, TrialDocument, TrialReference};
 
-use serde::Deserialize;
 use crate::{mapped::Problems, raw::Field};
+use serde::Deserialize;
 #[derive(Deserialize)]
 pub(super) struct References {
     pub(super) references: Option<Field<Vec<Field<Reference>>>>,
@@ -48,14 +48,23 @@ struct Document {
 }
 impl References {
     pub(super) fn rows(self, problems: &mut Problems) -> Box<[TrialReference]> {
-        problems.fields("references", self.references).into_vec().into_iter().map(|v| v.mapped(problems)).collect()
+        problems
+            .fields("references", self.references)
+            .into_vec()
+            .into_iter()
+            .map(|v| v.mapped(problems))
+            .collect()
     }
 }
 impl Documents {
     pub(super) fn mapped(self, id: NctId, problems: &mut Problems) -> Box<[TrialDocument]> {
-        problems.field("largeDocumentModule", self.large_document_module)
+        problems
+            .field("largeDocumentModule", self.large_document_module)
             .map_or_else(Box::default, |m| problems.fields("largeDocs", m.large_docs))
-            .into_vec().into_iter().filter_map(|d| d.mapped(id, problems)).collect()
+            .into_vec()
+            .into_iter()
+            .filter_map(|d| d.mapped(id, problems))
+            .collect()
     }
 }
 impl Document {
@@ -65,7 +74,13 @@ impl Document {
         // Only the validated source manifest supplies the filename.
         let id = id.to_string();
         let suffix = id.get(9..).unwrap_or_default();
-        let url = problems.optional("largeDocs.filename", Some(Text::new(&format!("{}/large-docs/{suffix}/{id}/{name}", super::super::DOCUMENT_ORIGIN))))?;
+        let url = problems.optional(
+            "largeDocs.filename",
+            Some(Text::new(&format!(
+                "{}/large-docs/{suffix}/{id}/{name}",
+                super::super::DOCUMENT_ORIGIN
+            ))),
+        )?;
         Some(TrialDocument {
             filename: name,
             url,

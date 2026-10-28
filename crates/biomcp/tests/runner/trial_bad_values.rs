@@ -6,8 +6,12 @@ type Check = Result<(), Box<dyn std::error::Error>>;
 
 pub(super) fn trials() -> Vec<Trial> {
     vec![
-        Trial::test("trial-search/bad-values-retain-siblings", || search().map_err(Into::into)),
-        Trial::test("trial-get/bad-values-retain-siblings", || detail().map_err(Into::into)),
+        Trial::test("trial-search/bad-values-retain-siblings", || {
+            search().map_err(Into::into)
+        }),
+        Trial::test("trial-get/bad-values-retain-siblings", || {
+            detail().map_err(Into::into)
+        }),
     ]
 }
 fn replace(record: &mut Value, path: &str, invalid: &Value) {
@@ -20,18 +24,40 @@ fn replace(record: &mut Value, path: &str, invalid: &Value) {
 fn search() -> Check {
     for (path, invalid, field) in [
         ("identificationModule/briefTitle", json!(42), "briefTitle"),
-        ("conditionsModule/conditions", json!(["valid", 42]), "conditions"),
-        ("armsInterventionsModule/interventions", json!([{"name":"valid"},42]), "interventions"),
+        (
+            "conditionsModule/conditions",
+            json!(["valid", 42]),
+            "conditions",
+        ),
+        (
+            "armsInterventionsModule/interventions",
+            json!([{"name":"valid"},42]),
+            "interventions",
+        ),
         ("statusModule", json!(42), "statusModule"),
         ("designModule", json!(42), "designModule"),
         ("identificationModule/nctId", json!("bad"), "nctId"),
     ] {
-        let output = checked_steps("trial/status", |_, record| {
-            replace(record, &format!("/exchanges/0/body/value/studies/0/protocolSection/{path}"), &invalid);
-        }, json!([{"run":["search","trial","--condition","melanoma","--status","RECRUITING"],
-            "expect":{"/status":"partial","/result/items/*/nct_id":{"includes":"NCT07381972"}}}]))?;
+        let output = checked_steps(
+            "trial/status",
+            |_, record| {
+                replace(
+                    record,
+                    &format!("/exchanges/0/body/value/studies/0/protocolSection/{path}"),
+                    &invalid,
+                );
+            },
+            json!([{"run":["search","trial","--condition","melanoma","--status","RECRUITING"],
+            "expect":{"/status":"partial","/result/items/*/nct_id":{"includes":"NCT07381972"}}}]),
+        )?;
         problem(&output, field)?;
-        if field == "nctId" && output.pointer("/result/items").and_then(Value::as_array).map(Vec::len) != Some(9) {
+        if field == "nctId"
+            && output
+                .pointer("/result/items")
+                .and_then(Value::as_array)
+                .map(Vec::len)
+                != Some(9)
+        {
             return Err("bad identity did not remove exactly its own study".into());
         }
     }
@@ -68,10 +94,16 @@ fn detail() -> Check {
     Ok(())
 }
 fn problem(output: &Value, field: &str) -> Check {
-    if output.get("problems").and_then(Value::as_array).into_iter().flatten().any(|p| {
-        p.get("source").and_then(Value::as_str) == Some("ctgov")
-            && p.get("field").and_then(Value::as_str) == Some(field)
-    }) {
+    if output
+        .get("problems")
+        .and_then(Value::as_array)
+        .into_iter()
+        .flatten()
+        .any(|p| {
+            p.get("source").and_then(Value::as_str) == Some("ctgov")
+                && p.get("field").and_then(Value::as_str) == Some(field)
+        })
+    {
         Ok(())
     } else {
         Err(format!("missing source field problem for {field}: {output}").into())

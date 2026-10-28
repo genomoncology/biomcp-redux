@@ -116,7 +116,7 @@ mod phenotype;
 fn registry() -> Vec<Contract> {
     let mut contracts = contracts! {
         TrialDocumentGet => ("trial-document", "biodata.trial-document/1"),
-        Envelope<TrialDocumentResult> => ("trial-document-result", "biomcp.trial-document/2"),
+        Envelope<TrialDocumentResult> => ("trial-document-result", "biomcp.trial-document/3"),
         HttpHealth => ("http-health", "biomcp.http-health/1"),
         Envelope<Health> => ("health", "biomcp.health/3"),
         Markdown => ("markdown", "biodata.markdown/1"),

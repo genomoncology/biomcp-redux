@@ -50,7 +50,7 @@
           ]
         },
         "/problems/*/field": {
-          "equals": [
+          "includes_all_of": [
             "overallStatus",
             "overallStatus",
             "lastUpdatePostDateStruct.date",
@@ -106,7 +106,7 @@
           ]
         },
         "/problems/*/field": {
-          "equals": [
+          "includes_all_of": [
             "overallStatus",
             "overallStatus",
             "lastUpdatePostDateStruct.date",

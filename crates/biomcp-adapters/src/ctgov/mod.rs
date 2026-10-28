@@ -201,13 +201,23 @@ pub fn search(
             .any(|row| !row.protocol_section.contains_condition_words(condition))
     });
     let mut rejected = Vec::new();
-    let mapped = raw.studies.unwrap_or_default().into_iter()
+    let mapped = raw
+        .studies
+        .unwrap_or_default()
+        .into_iter()
         .filter_map(|row| match row.value() {
             Some(row) => Some(row.protocol_section.header()),
-            None => { rejected.push(crate::mapped::problem(SPEC.source, None, "nctId")); None }
-        }).collect::<Result<Vec<_>, _>>()
+            None => {
+                rejected.push(crate::mapped::problem(SPEC.source, None, "nctId"));
+                None
+            }
+        })
+        .collect::<Result<Vec<_>, _>>()
         .map_err(|_| bad())?;
-    let (items, problems): (Vec<_>, Vec<_>) = mapped.into_iter().map(|row| (row.value, row.problems)).unzip();
+    let (items, problems): (Vec<_>, Vec<_>) = mapped
+        .into_iter()
+        .map(|row| (row.value, row.problems))
+        .unzip();
     rejected.extend(problems.into_iter().flatten());
     Ok(SearchPage {
         problems: rejected,
