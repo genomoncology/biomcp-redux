@@ -43,9 +43,9 @@ else:
             self.assertEqual(result.returncode, 0, result.stderr)
             completed = json.loads(result.stdout)
             commands = [json.loads(line) for line in log.read_text().splitlines()]
-            self.assertEqual(commands, ["schema", "help", "serve", "--cases", "--installed-process-proof", "--installed-http-proof"])
+            self.assertEqual(commands, ["schema", "help", "serve", "--cases", "--installed-process-proof", "--installed-http-proof", "--installed-alphagenome-proof"])
             self.assertEqual(completed, {"tools": ["biomcp"], "checks": ["schemas", "help", "version", "mcp-all-stdout",
-                             "ordinary-cache-created", "replay-cli-mcp", "ordinary-cache-two-process", "mcp-http"]})
+                             "ordinary-cache-created", "replay-cli-mcp", "ordinary-cache-two-process", "mcp-http", "alphagenome-local-tls"]})
 
     def test_broken_installed_commands_fail_under_optimization(self):
         replies = [
