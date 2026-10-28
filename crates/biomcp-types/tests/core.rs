@@ -11,23 +11,54 @@ where
     T: Copy + Debug + Eq + FromStr<Err = Error> + ToString + Serialize + DeserializeOwned,
 {
     for &(value, name) in rows {
-        assert_eq!(value.to_string(), name);
-        assert_eq!(name.parse::<T>()?, value);
+        assert_eq!(
+            value.to_string(),
+            name,
+            "Closed vocabularies must preserve canonical names and reject other forms"
+        );
+        assert_eq!(
+            name.parse::<T>()?,
+            value,
+            "Closed vocabularies must preserve canonical names and reject other forms"
+        );
         let json = serde_json::to_string(&value)?;
-        assert_eq!(json, format!("\"{name}\""));
-        assert_eq!(serde_json::from_str::<T>(&json)?, value);
+        assert_eq!(
+            json,
+            format!("\"{name}\""),
+            "Closed vocabularies must preserve canonical names and reject other forms"
+        );
+        assert_eq!(
+            serde_json::from_str::<T>(&json)?,
+            value,
+            "Closed vocabularies must preserve canonical names and reject other forms"
+        );
     }
     for input in ["", " ", "distinctive-rejected-input", "HGNC", " hgnc "] {
         let parsed = input.parse::<T>().err().ok_or("accepted an unknown name")?;
-        assert_eq!(parsed, error);
-        assert!(!parsed.to_string().contains("distinctive-rejected-input"));
-        assert!(!format!("{parsed:?}").contains("distinctive-rejected-input"));
+        assert_eq!(
+            parsed, error,
+            "Closed vocabularies must preserve canonical names and reject other forms"
+        );
+        assert!(
+            !parsed.to_string().contains("distinctive-rejected-input"),
+            "Closed vocabularies must preserve canonical names and reject other forms"
+        );
+        assert!(
+            !format!("{parsed:?}").contains("distinctive-rejected-input"),
+            "Closed vocabularies must preserve canonical names and reject other forms"
+        );
         let json = serde_json::to_string(input)?;
         let decoded = serde_json::from_str::<T>(&json)
             .err()
             .ok_or("decoded an unknown name")?;
-        assert!(decoded.to_string().contains(error.code()));
-        assert!(!decoded.to_string().contains("distinctive-rejected-input"));
+        assert!(
+            decoded.to_string().contains(error.code()),
+            "Closed vocabularies must preserve canonical names and reject other forms"
+        );
+        assert!(
+            !decoded.to_string().contains("distinctive-rejected-input"),
+            "Closed vocabularies must preserve canonical names and reject other forms"
+        );
     }
     Ok(())
 }

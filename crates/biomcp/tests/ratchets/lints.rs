@@ -10,7 +10,14 @@ fn read(path: &Path) -> Result<Value, Box<dyn std::error::Error>> {
 pub(super) fn check(root: &Path) -> Check {
     let base = read(&root.join("clippy-base.toml"))?;
     let workspace = read(&root.join("Cargo.toml"))?;
-    if workspace["workspace"]["lints"]["rust"]["unreachable_pub"].as_str() != Some("deny") {
+    if workspace
+        .get("workspace")
+        .and_then(|v| v.get("lints"))
+        .and_then(|v| v.get("rust"))
+        .and_then(|v| v.get("unreachable_pub"))
+        .and_then(Value::as_str)
+        != Some("deny")
+    {
         return Err("workspace must deny unreachable_pub".into());
     }
     for lint in [
@@ -22,7 +29,14 @@ pub(super) fn check(root: &Path) -> Check {
         "ref_option",
         "disallowed_types",
     ] {
-        if workspace["workspace"]["lints"]["clippy"][lint].as_str() != Some("deny") {
+        if workspace
+            .get("workspace")
+            .and_then(|v| v.get("lints"))
+            .and_then(|v| v.get("clippy"))
+            .and_then(|v| v.get(lint))
+            .and_then(Value::as_str)
+            != Some("deny")
+        {
             return Err(format!("workspace must deny {lint}").into());
         }
     }

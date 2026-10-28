@@ -1,8 +1,14 @@
 //! Complete checked cards share one cache identity across independent section pages.
 use super::{Card, raw};
-use biodata::*;
+use biodata::{
+    CellLineGene, CellLineName, CellLineProvenance, CellLineReference, CellLineSourceId,
+    CellLineVariation, CellLineXref, CellosaurusAccession,
+};
 use biomcp_fetch::{Leg, RequestError};
-use biomcp_types::*;
+use biomcp_types::{
+    CellLineCard, CellLineIdentityPage, CellLineNames, CellLineVariants, CellLineXrefs, Section,
+    Source,
+};
 /// Read the retained complete projection with primary and qualified identity checks.
 pub fn complete(
     leg: &Leg<'_>,

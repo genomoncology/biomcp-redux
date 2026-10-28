@@ -1,5 +1,9 @@
 //! Opt-in bounded wire summaries with credential-free request URLs.
 use serde::{Deserialize, Serialize};
+#[expect(
+    clippy::disallowed_types,
+    reason = "Share bounded transport state across the request owners named by this module"
+)]
 use std::{collections::BTreeMap, fs::File, io::Write, path::Path, sync::Mutex};
 /// Maximum attempts retained per command.
 pub const MAX_OBSERVATIONS: usize = 1024;

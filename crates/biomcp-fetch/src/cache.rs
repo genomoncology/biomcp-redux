@@ -6,6 +6,10 @@ mod contention;
 mod schema;
 pub use schema::{SchemaOwner, check_owners};
 pub(crate) use schema::{check_current_owners, check_predecessor, db_error};
+#[expect(
+    clippy::disallowed_types,
+    reason = "Share bounded transport state across the request owners named by this module"
+)]
 use std::{
     path::Path,
     sync::Mutex,
@@ -83,7 +87,6 @@ impl Cache {
         clippy::disallowed_types,
         reason = "Serialize only SQL on the connection shared by transport legs"
     )]
-
     pub(crate) fn open_with_owners(
         path: &Path,
         owners: &[SchemaOwner],
@@ -327,7 +330,6 @@ pub(crate) fn sql_deadline(
     clippy::disallowed_types,
     reason = "Serialize only SQL on the connection shared by transport legs"
 )]
-
 fn try_mutex<T>(mutex: &Mutex<T>) -> Result<std::sync::MutexGuard<'_, T>, CacheError> {
     mutex.try_lock().map_err(|error| match error {
         std::sync::TryLockError::WouldBlock => CacheError::Busy,
@@ -338,7 +340,6 @@ fn try_mutex<T>(mutex: &Mutex<T>) -> Result<std::sync::MutexGuard<'_, T>, CacheE
     clippy::disallowed_types,
     reason = "Serialize only SQL on the connection shared by transport legs"
 )]
-
 fn wait_mutex<'a, T>(
     mutex: &'a Mutex<T>,
     deadline: Deadline<'_>,

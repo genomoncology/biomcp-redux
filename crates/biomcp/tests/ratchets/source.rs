@@ -9,6 +9,10 @@ const GENERATED_PROTO: &str = "crates/biomcp-fetch/src/grpc/proto.rs";
 // New exceptions require a reviewed path and reason here.
 const EXCEPTIONS: &[(&str, &str)] = &[
     (
+        "crates/biomcp-fetch/src/grpc/dns_tests.rs",
+        "Observe completion of the joined test resolver without shared state outside its fixture",
+    ),
+    (
         "crates/biomcp-types/src/gwas/search.rs",
         "Serde serialize_with passes a reference to the entire optional field",
     ),

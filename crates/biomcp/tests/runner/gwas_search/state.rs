@@ -1,5 +1,5 @@
 //! Technical controls retain source semantics rather than inventing clinical negatives.
-use super::*;
+use super::{Environment, Value, body, call, fs, gwas_budgets, json, pairs, seed, url};
 pub(super) fn stale() -> Result<(), String> {
     let env = Environment::new().map_err(|e| e.to_string())?;
     let args = ["search", "gwas", "--pubmed", "17529967"];

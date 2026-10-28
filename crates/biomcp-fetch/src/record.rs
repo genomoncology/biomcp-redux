@@ -1,6 +1,10 @@
 //! Bounded, credential-free captures and atomically consumed replay sequences.
 use crate::{CacheError, Mode, RecordError, cache::Cache};
 use serde::{Deserialize, Serialize};
+#[expect(
+    clippy::disallowed_types,
+    reason = "Share bounded transport state across the request owners named by this module"
+)]
 use std::{
     collections::BTreeMap,
     fs,

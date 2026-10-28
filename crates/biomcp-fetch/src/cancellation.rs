@@ -1,5 +1,9 @@
 //! Independent command transports retain shared data while allowing socket shutdown.
 use crate::{Fetch, FetchError, Mode, network::Agents};
+#[expect(
+    clippy::disallowed_types,
+    reason = "Share bounded transport state across the request owners named by this module"
+)]
 use std::sync::{
     Arc,
     atomic::{AtomicBool, Ordering},
@@ -8,7 +12,6 @@ use std::sync::{
     clippy::disallowed_types,
     reason = "Cancel all request workers through one command-owned atomic flag"
 )]
-
 /// A command's cancellation handle cannot shut down another command's connections.
 pub struct Cancellation {
     agents: Arc<Agents>,

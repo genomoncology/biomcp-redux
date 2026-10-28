@@ -42,7 +42,10 @@ fn command(
         "{}",
         String::from_utf8_lossy(&output.stdout)
     );
-    assert!(output.stderr.is_empty());
+    assert!(
+        output.stderr.is_empty(),
+        "PDF commands must keep diagnostics out of their JSON response"
+    );
     Ok(serde_json::from_slice(&output.stdout)?)
 }
 fn save_args(path: &Path) -> Vec<String> {
@@ -62,31 +65,49 @@ fn saves() -> Check {
     let target = folder.join("41351423.pdf");
     let receipt = command(&env, &replay, &save_args(&folder), 0)?;
     let bytes = fs::read(&target)?;
-    assert!(bytes.starts_with(b"%PDF-"));
+    assert!(
+        bytes.starts_with(b"%PDF-"),
+        "PDF saves must publish the complete file with its exact receipt"
+    );
     let sha: String = Sha256::digest(&bytes)
         .iter()
         .map(|b| format!("{b:02x}"))
         .collect();
     assert_eq!(
         receipt.pointer("/result/file/data/path"),
-        Some(&json!(target.canonicalize()?.to_string_lossy()))
+        Some(&json!(target.canonicalize()?.to_string_lossy())),
+        "PDF saves must publish the complete file with its exact receipt"
     );
     assert_eq!(
         receipt.pointer("/result/file/data/bytes"),
-        Some(&json!(bytes.len()))
+        Some(&json!(bytes.len())),
+        "PDF saves must publish the complete file with its exact receipt"
     );
     assert_eq!(
         receipt.pointer("/result/file/data/sha256"),
-        Some(&json!(sha))
+        Some(&json!(sha)),
+        "PDF saves must publish the complete file with its exact receipt"
     );
     fs::write(&target, b"keep existing bytes")?;
     let refused = command(&env, &replay, &save_args(&folder), 2)?;
-    assert_eq!(refused.pointer("/status"), Some(&json!("usage")));
-    assert_eq!(fs::read(&target)?, b"keep existing bytes");
+    assert_eq!(
+        refused.pointer("/status"),
+        Some(&json!("usage")),
+        "PDF saves must publish the complete file with its exact receipt"
+    );
+    assert_eq!(
+        fs::read(&target)?,
+        b"keep existing bytes",
+        "PDF saves must publish the complete file with its exact receipt"
+    );
     let mut args = save_args(&folder);
     args.push("--replace".into());
     command(&env, &replay, &args, 0)?;
-    assert_eq!(fs::read(&target)?, bytes);
+    assert_eq!(
+        fs::read(&target)?,
+        bytes,
+        "PDF saves must publish the complete file with its exact receipt"
+    );
     let mcp_path = folder.join("stdio.pdf");
     let mcp = super::mcp::call_with_globals(
         &env,
@@ -94,9 +115,21 @@ fn saves() -> Check {
         false,
         &env.globals(Some(&replay), false),
     )?;
-    assert_eq!(mcp.pointer("/result/file/data/sha256"), Some(&json!(sha)));
-    assert_eq!(fs::read(&mcp_path)?, bytes);
-    assert_eq!(fs::read_dir(folder)?.count(), 2);
+    assert_eq!(
+        mcp.pointer("/result/file/data/sha256"),
+        Some(&json!(sha)),
+        "PDF saves must publish the complete file with its exact receipt"
+    );
+    assert_eq!(
+        fs::read(&mcp_path)?,
+        bytes,
+        "PDF saves must publish the complete file with its exact receipt"
+    );
+    assert_eq!(
+        fs::read_dir(folder)?.count(),
+        2,
+        "PDF saves must publish the complete file with its exact receipt"
+    );
     Ok(())
 }
 fn failures() -> Check {
@@ -121,8 +154,16 @@ fn failures() -> Check {
             &args,
             4,
         )?;
-        assert_eq!(fs::read(&target)?, b"preserve on failure");
-        assert_eq!(fs::read_dir(&folder)?.count(), 1);
+        assert_eq!(
+            fs::read(&target)?,
+            b"preserve on failure",
+            "Failed PDF downloads must leave no partial output behind"
+        );
+        assert_eq!(
+            fs::read_dir(&folder)?.count(),
+            1,
+            "Failed PDF downloads must leave no partial output behind"
+        );
     }
     Ok(())
 }
@@ -138,8 +179,15 @@ fn existing_paths() -> Check {
     let mut args = save_args(&target);
     args.push("--replace".into());
     command(&env, &replay, &args, 0)?;
-    assert!(fs::read(&target)?.starts_with(b"%PDF-"));
-    assert_eq!(fs::read(&original)?, b"caller-owned bytes");
+    assert!(
+        fs::read(&target)?.starts_with(b"%PDF-"),
+        "PDF saves must preserve existing caller files and directories"
+    );
+    assert_eq!(
+        fs::read(&original)?,
+        b"caller-owned bytes",
+        "PDF saves must preserve existing caller files and directories"
+    );
     fs::remove_file(&target)?;
     #[cfg(unix)]
     {
@@ -147,15 +195,28 @@ fn existing_paths() -> Check {
             std::os::unix::fs::symlink(destination, &target)?;
             command(&env, &replay, &save_args(&target), 2)?;
             command(&env, &replay, &args, 2)?;
-            assert!(fs::symlink_metadata(&target)?.file_type().is_symlink());
+            assert!(
+                fs::symlink_metadata(&target)?.file_type().is_symlink(),
+                "PDF saves must preserve existing caller files and directories"
+            );
             fs::remove_file(&target)?;
         }
     }
-    assert_eq!(fs::read(&original)?, b"caller-owned bytes");
-    assert!(!env.root().join("missing.pdf").exists());
-    assert!(fs::read_dir(env.root())?.all(|entry| {
-        entry.is_ok_and(|entry| !entry.file_name().to_string_lossy().starts_with(".tmp"))
-    }));
+    assert_eq!(
+        fs::read(&original)?,
+        b"caller-owned bytes",
+        "PDF saves must preserve existing caller files and directories"
+    );
+    assert!(
+        !env.root().join("missing.pdf").exists(),
+        "PDF saves must preserve existing caller files and directories"
+    );
+    assert!(
+        fs::read_dir(env.root())?.all(|entry| {
+            entry.is_ok_and(|entry| !entry.file_name().to_string_lossy().starts_with(".tmp"))
+        }),
+        "PDF saves must preserve existing caller files and directories"
+    );
     Ok(())
 }
 
@@ -176,19 +237,31 @@ fn http_refusal() -> Check {
         json!({"name":"biomcp","arguments":{"args":save_args(&target)}}),
     );
     let (status, reply) = server.request("POST", "/mcp", &call.to_string())?;
-    assert_eq!(status, 200);
-    assert_eq!(reply.pointer("/result/isError"), Some(&json!(true)));
+    assert_eq!(
+        status, 200,
+        "HTTP requests must refuse local PDF saves and retain the source link"
+    );
+    assert_eq!(
+        reply.pointer("/result/isError"),
+        Some(&json!(true)),
+        "HTTP requests must refuse local PDF saves and retain the source link"
+    );
     assert_eq!(
         reply.pointer("/result/structuredContent/status"),
-        Some(&json!("usage"))
+        Some(&json!("usage")),
+        "HTTP requests must refuse local PDF saves and retain the source link"
     );
     assert!(
         reply
             .pointer("/result/structuredContent/error/url")
             .and_then(Value::as_str)
-            .is_some_and(|s| s.ends_with("39100.pdf"))
+            .is_some_and(|s| s.ends_with("39100.pdf")),
+        "HTTP requests must refuse local PDF saves and retain the source link"
     );
-    assert!(!target.exists());
+    assert!(
+        !target.exists(),
+        "HTTP requests must refuse local PDF saves and retain the source link"
+    );
     server.stop()?;
     Ok(())
 }
@@ -228,7 +301,8 @@ fn boundaries() -> Check {
             let result = command(&env, &replay, &args, 0)?;
             assert_eq!(
                 result.pointer("/result/items/0/sections/pdf/data/status"),
-                Some(&json!("gold"))
+                Some(&json!("gold")),
+                "PDF admission must reject oversized or cut replies"
             );
             let expected = json!(["article", "pdf", "41351423", "--save", "41351423.pdf"]);
             assert!(
@@ -237,16 +311,21 @@ fn boundaries() -> Check {
                     .and_then(Value::as_array)
                     .is_some_and(|next| next
                         .iter()
-                        .any(|step| step.get("args") == Some(&expected)))
+                        .any(|step| step.get("args") == Some(&expected))),
+                "PDF admission must reject oversized or cut replies"
             );
         } else {
             let result = command(&env, &replay, &save_args(&target), 4)?;
             assert_eq!(
                 result.pointer("/result/file/reason"),
-                Some(&json!("bad_reply"))
+                Some(&json!("bad_reply")),
+                "PDF admission must reject oversized or cut replies"
             );
         }
-        assert!(!target.exists());
+        assert!(
+            !target.exists(),
+            "PDF admission must reject oversized or cut replies"
+        );
     }
     proxy_paths()
 }
@@ -273,13 +352,30 @@ fn proxy_paths() -> Check {
             .env("NO_PROXY", if bypass { "storage.imrpress.com" } else { "" })
             .output()?;
         let result: Value = serde_json::from_slice(&output.stdout)?;
-        assert_eq!(output.status.code(), Some(if bypass { 0 } else { 4 }));
-        assert!(!String::from_utf8_lossy(&output.stdout).contains("private-proxy-secret"));
+        assert_eq!(
+            output.status.code(),
+            Some(if bypass { 0 } else { 4 }),
+            "PDF requests must preserve the configured proxy boundary"
+        );
+        assert!(
+            !String::from_utf8_lossy(&output.stdout).contains("private-proxy-secret"),
+            "PDF requests must preserve the configured proxy boundary"
+        );
         if bypass {
-            assert!(fs::read(&target)?.starts_with(b"%PDF-"));
+            assert!(
+                fs::read(&target)?.starts_with(b"%PDF-"),
+                "PDF requests must preserve the configured proxy boundary"
+            );
         } else {
-            assert_eq!(result.pointer("/result/file/reason"), Some(&json!("proxy")));
-            assert!(!target.exists());
+            assert_eq!(
+                result.pointer("/result/file/reason"),
+                Some(&json!("proxy")),
+                "PDF requests must preserve the configured proxy boundary"
+            );
+            assert!(
+                !target.exists(),
+                "PDF requests must preserve the configured proxy boundary"
+            );
         }
         assert!(
             listener.accept().is_err(),
@@ -314,20 +410,35 @@ fn record_metadata() -> Check {
         .command(env!("CARGO_BIN_EXE_biomcp"), &args)
         .env("HTTPS_PROXY", format!("http://{}", stub.address))
         .output()?;
-    assert_eq!(output.status.code(), Some(4));
-    assert!(!env.root().join("never.pdf").exists());
+    assert_eq!(
+        output.status.code(),
+        Some(4),
+        "PDF recordings must preserve the checked document metadata"
+    );
+    assert!(
+        !env.root().join("never.pdf").exists(),
+        "PDF recordings must preserve the checked document metadata"
+    );
     let requests = stub.finish()?;
-    assert_eq!(requests.len(), 1);
-    assert!(requests.first().is_some_and(|(_, request)| {
-        request.contains("/paper/PMID%3A33123537?fields=openAccessPdf")
-    }));
+    assert_eq!(
+        requests.len(),
+        1,
+        "PDF recordings must preserve the checked document metadata"
+    );
+    assert!(
+        requests.first().is_some_and(|(_, request)| {
+            request.contains("/paper/PMID%3A33123537?fields=openAccessPdf")
+        }),
+        "PDF recordings must preserve the checked document metadata"
+    );
     for entry in fs::read_dir(capture.join("semantic-scholar"))? {
         let entry = entry?;
         if entry.path().extension().is_some_and(|v| v == "json") {
             let record: Value = serde_json::from_slice(&fs::read(entry.path())?)?;
             assert_eq!(
                 record.pointer("/exchanges/0/body/value/openAccessPdf"),
-                Some(&Value::Null)
+                Some(&Value::Null),
+                "PDF recordings must preserve the checked document metadata"
             );
         }
     }

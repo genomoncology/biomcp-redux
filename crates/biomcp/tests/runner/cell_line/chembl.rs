@@ -1,5 +1,7 @@
 //! Feature cell-line-chembl: exact source metadata and separately requested assay totals.
-use super::*;
+use super::{
+    Environment, Stub, Trial, Value, Write, canonical, ceiling, fs, invoke, json, path, setup,
+};
 mod faults;
 pub(super) mod surface;
 use surface::{compared, invoke_measured, measure_bytes, measure_mcp, parity};

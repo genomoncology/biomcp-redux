@@ -121,7 +121,8 @@ fn paging() -> Check {
                 "complete"
             } else {
                 "partial"
-            }
+            },
+            "Named searches must preserve snapshot paging and continuations"
         );
         if kind != "terminal" {
             assert_eq!(
@@ -130,7 +131,8 @@ fn paging() -> Check {
                     "unavailable"
                 } else {
                     "bad_reply"
-                }
+                },
+                "Named searches must preserve snapshot paging and continuations"
             );
         }
     }
@@ -195,7 +197,8 @@ fn sentences() -> Check {
             .as_array()
             .unwrap()
             .iter()
-            .all(|row| row.get("found_by").is_none())
+            .all(|row| row.get("found_by").is_none()),
+        "Research search results must retain citable native identity"
     );
     let output = checked_case(
         "article/litsense/licensed-subset",
@@ -220,12 +223,14 @@ fn sentences() -> Check {
     )?;
     assert_eq!(
         output["result"]["items"][0]["sentence"]["text"],
-        first["result"]["items"][0]["sentence"]["text"]
+        first["result"]["items"][0]["sentence"]["text"],
+        "Research search results must retain citable native identity"
     );
     assert!(
         output["result"]["items"][0]["sentence"]
             .get("section")
-            .is_none()
+            .is_none(),
+        "Research search results must retain citable native identity"
     );
     invalid_sentences(&args)?;
     let folded = checked_case(
@@ -237,7 +242,8 @@ fn sentences() -> Check {
     )?;
     assert_eq!(
         folded["result"]["items"][1]["sentence"]["text"],
-        first["result"]["items"][0]["sentence"]["text"]
+        first["result"]["items"][0]["sentence"]["text"],
+        "Research search results must retain citable native identity"
     );
     merged_sentence()?;
     policies()?;
@@ -261,7 +267,8 @@ fn policies() -> Check {
     assert!(
         text.contains("resemblance, not a match")
             && text.contains("unrelated")
-            && text.contains("right entity ID")
+            && text.contains("right entity ID"),
+        "Research search must respect the selected source policy"
     );
     for name in ["litsense", "pubtator"] {
         let args = [

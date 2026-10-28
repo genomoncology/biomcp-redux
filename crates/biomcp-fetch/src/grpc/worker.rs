@@ -6,6 +6,10 @@ use super::{
 };
 use crate::{LocalDeadline, Network, Secret};
 use biomcp_types::Reason;
+#[expect(
+    clippy::disallowed_types,
+    reason = "Share bounded transport state across the request owners named by this module"
+)]
 use std::{
     sync::{Arc, Mutex, mpsc},
     thread,

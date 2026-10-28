@@ -2,7 +2,10 @@
 use super::{finish, next};
 use crate::{Ctx, Outcome};
 use biomcp_adapters::clinpgx;
-use biomcp_types::*;
+use biomcp_types::{
+    PgxAnnotation, PgxAnnotationGet, PgxAnnotationIdentity, PgxAnnotationKind, PgxAnnotations,
+    PgxGet, PgxHeader, PgxPageInfo, PgxSource, PgxTotalKind, QueryBody, Request, Source, Status,
+};
 fn page<T>(rows: Vec<T>) -> (Box<[T]>, PgxPageInfo) {
     let total = rows.len() as u64;
     let items: Box<[T]> = rows.into();

@@ -21,7 +21,10 @@ fn validator<T: JsonSchema>() -> jsonschema::Validator {
 fn enum_values<T: JsonSchema + Serialize + DeserializeOwned + std::fmt::Display>(values: &[T]) {
     let validator = validator::<T>();
     for value in values {
-        assert!(validator.is_valid(&serde_json::to_value(value).unwrap()));
+        assert!(
+            validator.is_valid(&serde_json::to_value(value).unwrap()),
+            "Schema literals must preserve the public enum wire contract"
+        );
     }
     for value in [
         json!("distinctive-unrecognized-value"),
@@ -30,7 +33,10 @@ fn enum_values<T: JsonSchema + Serialize + DeserializeOwned + std::fmt::Display>
         json!(123),
         Value::Null,
     ] {
-        assert!(!validator.is_valid(&value));
+        assert!(
+            !validator.is_valid(&value),
+            "Schema literals must preserve the public enum wire contract"
+        );
     }
     let schema = generate::<T>();
     for spelling in schema
@@ -39,8 +45,16 @@ fn enum_values<T: JsonSchema + Serialize + DeserializeOwned + std::fmt::Display>
         .expect("string enum")
     {
         let value: T = serde_json::from_value(spelling.clone()).expect("canonical spelling");
-        assert_eq!(value.to_string(), spelling.as_str().unwrap());
-        assert_eq!(&serde_json::to_value(value).unwrap(), spelling);
+        assert_eq!(
+            value.to_string(),
+            spelling.as_str().unwrap(),
+            "Schema literals must preserve the public enum wire contract"
+        );
+        assert_eq!(
+            &serde_json::to_value(value).unwrap(),
+            spelling,
+            "Schema literals must preserve the public enum wire contract"
+        );
     }
 }
 

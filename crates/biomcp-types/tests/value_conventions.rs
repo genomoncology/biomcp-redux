@@ -13,9 +13,21 @@ where
     T::Err: Debug,
 {
     let value: T = text.parse().unwrap();
-    assert_eq!(value.to_string(), text);
-    assert_eq!(serde_json::to_value(&value).unwrap(), json!(text));
-    assert_eq!(serde_json::from_value::<T>(json!(text)).unwrap(), value);
+    assert_eq!(
+        value.to_string(),
+        text,
+        "Text must preserve its checked roundtrip contract"
+    );
+    assert_eq!(
+        serde_json::to_value(&value).unwrap(),
+        json!(text),
+        "Text must preserve its checked roundtrip contract"
+    );
+    assert_eq!(
+        serde_json::from_value::<T>(json!(text)).unwrap(),
+        value,
+        "Text must preserve its checked roundtrip contract"
+    );
 }
 
 #[test]

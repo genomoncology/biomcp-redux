@@ -46,7 +46,10 @@ fn command(
         "{}",
         String::from_utf8_lossy(&output.stdout)
     );
-    assert!(output.stderr.is_empty());
+    assert!(
+        output.stderr.is_empty(),
+        "Document commands must keep diagnostics out of JSON output"
+    );
     let value: Value = serde_json::from_slice(&output.stdout)?;
     super::schema::Registry::embedded()?.validate(&value, args, exit == 0)?;
     let ceiling = if args.get(3).is_some_and(|s| s == "references") {
@@ -80,8 +83,8 @@ fn saves() -> Check {
     let out = command(&env, &replay, &args(&folder), 0)?;
     let bytes = fs::read(&path)?;
     assert_eq!(
-        bytes,
-        b"%PDF-1.7\nSynthetic document save witness; no source document text.\n"
+        bytes, b"%PDF-1.7\nSynthetic document save witness; no source document text.\n",
+        "Document saves must publish complete bytes with the exact receipt"
     );
     let sha: String = Sha256::digest(&bytes)
         .iter()
@@ -89,30 +92,46 @@ fn saves() -> Check {
         .collect();
     assert_eq!(
         out.pointer("/result/file/data/path"),
-        Some(&json!(path.canonicalize()?.to_string_lossy()))
+        Some(&json!(path.canonicalize()?.to_string_lossy())),
+        "Document saves must publish complete bytes with the exact receipt"
     );
     assert_eq!(
         out.pointer("/result/file/data/bytes"),
-        Some(&json!(bytes.len()))
+        Some(&json!(bytes.len())),
+        "Document saves must publish complete bytes with the exact receipt"
     );
-    assert_eq!(out.pointer("/result/file/data/sha256"), Some(&json!(sha)));
+    assert_eq!(
+        out.pointer("/result/file/data/sha256"),
+        Some(&json!(sha)),
+        "Document saves must publish complete bytes with the exact receipt"
+    );
     assert_eq!(
         out.pointer("/result/file/data/document/license"),
-        Some(&json!("other"))
+        Some(&json!("other")),
+        "Document saves must publish complete bytes with the exact receipt"
     );
     assert_eq!(
         out.pointer("/result/file/data/document/url"),
         Some(&json!(
             "https://cdn.clinicaltrials.gov/large-docs/80/NCT04303780/SAP_001.pdf"
-        ))
+        )),
+        "Document saves must publish complete bytes with the exact receipt"
     );
     fs::write(&path, b"caller original")?;
     command(&env, &replay, &args(&folder), 2)?;
-    assert_eq!(fs::read(&path)?, b"caller original");
+    assert_eq!(
+        fs::read(&path)?,
+        b"caller original",
+        "Document saves must publish complete bytes with the exact receipt"
+    );
     let mut replace = args(&folder);
     replace.push("--replace".into());
     command(&env, &replay, &replace, 0)?;
-    assert_eq!(fs::read(&path)?, bytes);
+    assert_eq!(
+        fs::read(&path)?,
+        bytes,
+        "Document saves must publish complete bytes with the exact receipt"
+    );
     let stdio = folder.join("stdio.pdf");
     let out = super::mcp::call_with_globals(
         &env,
@@ -120,17 +139,36 @@ fn saves() -> Check {
         false,
         &env.globals(Some(&replay), false),
     )?;
-    assert_eq!(out.pointer("/result/file/data/sha256"), Some(&json!(sha)));
-    assert_eq!(fs::read(&stdio)?, bytes);
+    assert_eq!(
+        out.pointer("/result/file/data/sha256"),
+        Some(&json!(sha)),
+        "Document saves must publish complete bytes with the exact receipt"
+    );
+    assert_eq!(
+        fs::read(&stdio)?,
+        bytes,
+        "Document saves must publish complete bytes with the exact receipt"
+    );
     let offline_path = folder.join("offline.pdf");
     let mut offline = env.globals(None, true);
     offline.extend(args(&offline_path));
     let result = env
         .command(env!("CARGO_BIN_EXE_biomcp"), &offline)
         .output()?;
-    assert_eq!(result.status.code(), Some(4));
-    assert!(!offline_path.exists());
-    assert_eq!(fs::read_dir(folder)?.count(), 2);
+    assert_eq!(
+        result.status.code(),
+        Some(4),
+        "Document saves must publish complete bytes with the exact receipt"
+    );
+    assert!(
+        !offline_path.exists(),
+        "Document saves must publish complete bytes with the exact receipt"
+    );
+    assert_eq!(
+        fs::read_dir(folder)?.count(),
+        2,
+        "Document saves must publish complete bytes with the exact receipt"
+    );
     Ok(())
 }
 fn metadata_only(env: &Environment) -> Result<std::path::PathBuf, Box<dyn std::error::Error>> {
@@ -146,14 +184,21 @@ fn failures() -> Check {
         let mut a = args(&path);
         a[3] = bad.into();
         command(&env, &replay, &a, 2)?;
-        assert!(!path.exists());
+        assert!(
+            !path.exists(),
+            "Failed document saves must preserve existing caller files"
+        );
     }
     // No document recording is available: a source failure must preserve an existing destination.
     fs::write(&path, b"caller original")?;
     let mut replace = args(&path);
     replace.push("--replace".into());
     command(&env, &replay, &replace, 5)?;
-    assert_eq!(fs::read(&path)?, b"caller original");
+    assert_eq!(
+        fs::read(&path)?,
+        b"caller original",
+        "Failed document saves must preserve existing caller files"
+    );
     let bad = env.root().join("not-pdf");
     copy_capture("trial/documents/synthetic", &bad, |_, _| {})?;
     for file in fs::read_dir(bad.join("ctgov"))? {
@@ -163,8 +208,16 @@ fn failures() -> Check {
         }
     }
     let out = command(&env, &bad, &replace, 4)?;
-    assert_eq!(out.pointer("/result/file/reason"), Some(&json!("not_pdf")));
-    assert_eq!(fs::read(&path)?, b"caller original");
+    assert_eq!(
+        out.pointer("/result/file/reason"),
+        Some(&json!("not_pdf")),
+        "Failed document saves must preserve existing caller files"
+    );
+    assert_eq!(
+        fs::read(&path)?,
+        b"caller original",
+        "Failed document saves must preserve existing caller files"
+    );
     malformed_manifests(&path)
 }
 fn malformed_manifests(path: &Path) -> Check {
@@ -187,10 +240,15 @@ fn malformed_manifests(path: &Path) -> Check {
         })?;
         let card_args = ["get", "trial", "NCT04303780", "documents"].map(str::to_owned);
         let card = command(&fresh, &malformed, &card_args, 0)?;
-        assert_eq!(card.pointer("/status"), Some(&json!("partial")));
+        assert_eq!(
+            card.pointer("/status"),
+            Some(&json!("partial")),
+            "Malformed document manifests must never publish a file"
+        );
         assert_eq!(
             card.pointer("/result/items/0/card/nct_id"),
-            Some(&json!("NCT04303780"))
+            Some(&json!("NCT04303780")),
+            "Malformed document manifests must never publish a file"
         );
         let rows = card
             .pointer("/result/items/0/sections/documents/data/items")
@@ -206,14 +264,20 @@ fn malformed_manifests(path: &Path) -> Check {
         if exit == 4 {
             assert_eq!(
                 out.pointer("/result/file/reason"),
-                Some(&json!("bad_reply"))
+                Some(&json!("bad_reply")),
+                "Malformed document manifests must never publish a file"
             );
             assert_eq!(
                 out.pointer("/problems/0/field"),
-                Some(&json!("largeDocs.filename"))
+                Some(&json!("largeDocs.filename")),
+                "Malformed document manifests must never publish a file"
             );
         }
-        assert_eq!(fs::read(path)?, b"caller original");
+        assert_eq!(
+            fs::read(path)?,
+            b"caller original",
+            "Malformed document manifests must never publish a file"
+        );
     }
     Ok(())
 }
@@ -229,15 +293,26 @@ fn http() -> Check {
         json!({"name":"biomcp","arguments":{"args":args(&path)}}),
     );
     let (status, reply) = server.request("POST", "/mcp", &call.to_string())?;
-    assert_eq!(status, 200);
-    assert_eq!(reply.pointer("/result/isError"), Some(&json!(true)));
+    assert_eq!(
+        status, 200,
+        "HTTP requests must refuse local document saves and retain links"
+    );
+    assert_eq!(
+        reply.pointer("/result/isError"),
+        Some(&json!(true)),
+        "HTTP requests must refuse local document saves and retain links"
+    );
     assert_eq!(
         reply.pointer("/result/structuredContent/error/url"),
         Some(&json!(
             "https://cdn.clinicaltrials.gov/large-docs/80/NCT04303780/SAP_001.pdf"
-        ))
+        )),
+        "HTTP requests must refuse local document saves and retain links"
     );
-    assert!(!path.exists());
+    assert!(
+        !path.exists(),
+        "HTTP requests must refuse local document saves and retain links"
+    );
     server.stop()?;
     Ok(())
 }
@@ -321,7 +396,10 @@ fn continuations() -> Check {
     let first: Value = serde_json::from_slice(&output.stdout)?;
     let mcp =
         super::mcp::call_with_globals(&env, &args, false, &env.globals(Some(&replay), false))?;
-    assert_eq!(first, mcp);
+    assert_eq!(
+        first, mcp,
+        "Document paging must preserve the exact continuation request"
+    );
     for name in [
         "eligibility",
         "outcomes",
@@ -373,11 +451,16 @@ fn walk_section(name: &str, first: &Value, env: &Environment) -> Check {
         let out: Value = serde_json::from_slice(&output.stdout)?;
         assert_eq!(
             out,
-            super::mcp::call_with_globals(env, &args, false, &offline)?
+            super::mcp::call_with_globals(env, &args, false, &offline)?,
+            "Document pages must retain their source order and metadata"
         );
         super::schema::Registry::embedded()?.validate(&out, &args, true)?;
         data = out["result"]["items"][0]["sections"][name]["data"].clone();
-        assert_eq!(data["offset"], json!(count));
+        assert_eq!(
+            data["offset"],
+            json!(count),
+            "Document pages must retain their source order and metadata"
+        );
         if name == "eligibility" {
             let s = data["criteria"].as_str().ok_or("criteria")?;
             count += s.chars().count();
@@ -390,7 +473,11 @@ fn walk_section(name: &str, first: &Value, env: &Environment) -> Check {
     }
     assert_eq!(count, total, "{name} stranded source content");
     if name == "eligibility" {
-        assert_eq!(text, " Ω source whitespace \n".repeat(800));
+        assert_eq!(
+            text,
+            " Ω source whitespace \n".repeat(800),
+            "Document pages must retain their source order and metadata"
+        );
     } else {
         ordered_records(name, &recovered)?;
     }
@@ -406,8 +493,16 @@ fn reference() -> Check {
     let args = ["get", "trial", "NCT03511664", "references"].map(str::to_owned);
     let out = command(&env, &replay, &args, 0)?;
     let row = &out["result"]["items"][0]["sections"]["references"]["data"]["items"][5];
-    assert_eq!(row["pmid"], json!("34161051"));
-    assert_eq!(row["kind"], json!("RESULT"));
+    assert_eq!(
+        row["pmid"],
+        json!("34161051"),
+        "Document references must retain the exact native artifact identity"
+    );
+    assert_eq!(
+        row["kind"],
+        json!("RESULT"),
+        "Document references must retain the exact native artifact identity"
+    );
     let step = out["next"]
         .as_array()
         .ok_or("next")?
@@ -419,7 +514,10 @@ fn reference() -> Check {
         })
         .ok_or("linked article step")?;
     let args = step["args"].as_array().ok_or("args")?;
-    assert!(args.contains(&row["pmid"]));
+    assert!(
+        args.contains(&row["pmid"]),
+        "Document references must retain the exact native artifact identity"
+    );
     // Select this source PMID from the current-page batch; no reference is reclassified as primary.
     let selected = vec![
         args[0].as_str().ok_or("verb")?.to_owned(),
@@ -429,15 +527,18 @@ fn reference() -> Check {
     let article = command(&env, &replay, &selected, 0)?;
     assert_eq!(
         article.pointer("/result/items/0/answer/card/pmid"),
-        Some(&row["pmid"])
+        Some(&row["pmid"]),
+        "Document references must retain the exact native artifact identity"
     );
     assert_eq!(
         article.pointer("/result/items/0/answer/card/doi"),
-        Some(&json!("10.1056/NEJMoa2107322"))
+        Some(&json!("10.1056/NEJMoa2107322")),
+        "Document references must retain the exact native artifact identity"
     );
     assert_eq!(
         article,
-        super::mcp::call_with_globals(&env, &selected, false, &env.globals(Some(&replay), false))?
+        super::mcp::call_with_globals(&env, &selected, false, &env.globals(Some(&replay), false))?,
+        "Document references must retain the exact native artifact identity"
     );
     Ok(())
 }

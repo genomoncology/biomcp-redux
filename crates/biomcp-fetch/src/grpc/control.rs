@@ -1,5 +1,9 @@
 //! Wake cancellable stream work without detaching its network tasks.
 use crate::LocalDeadline;
+#[expect(
+    clippy::disallowed_types,
+    reason = "Share bounded transport state across the request owners named by this module"
+)]
 use std::sync::{
     Arc, OnceLock,
     atomic::{AtomicBool, AtomicU8, Ordering},

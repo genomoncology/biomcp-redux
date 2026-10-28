@@ -1,4 +1,4 @@
-use super::*;
+use super::{Action, GwasAssociation, GwasGet, GwasLocus, Outcome, Request, StepKind, action};
 use serde_json::json;
 pub(super) fn association(row: &GwasAssociation, out: &mut Outcome) {
     if let Ok(id) = row.study.as_str().parse() {

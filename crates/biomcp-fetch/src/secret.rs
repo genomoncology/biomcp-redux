@@ -72,7 +72,6 @@ impl Secrets {
         clippy::disallowed_types,
         reason = "Resolve one deferred credential once per configured secret"
     )]
-
     /// Resolve a caller-owned credential only when an admitted request needs it.
     /// The loader runs once for this owner, including a missing credential.
     pub fn defer(

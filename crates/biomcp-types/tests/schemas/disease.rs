@@ -55,7 +55,8 @@ where
     let value = serde_json::to_value(Envelope::new(Status::Complete, query, Some(body)))?;
     assert_eq!(
         value.get("schema").and_then(serde_json::Value::as_str),
-        Some(T::SCHEMA)
+        Some(T::SCHEMA),
+        "Disease schemas must retain their versioned envelope contract"
     );
     let validator = jsonschema::draft202012::new(&generate::<Envelope<T>>())?;
     assert!(validator.is_valid(&value), "{value}");

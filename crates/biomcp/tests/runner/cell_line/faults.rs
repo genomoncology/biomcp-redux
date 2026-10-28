@@ -1,5 +1,8 @@
 //! Synthetic source and identity faults never establish empty biology or poison the cache.
-use super::*;
+use super::{
+    Environment, Stub, Trial, Value, compared, fixture, fs, invoke, json, parity, path,
+    recorded_stub, setup,
+};
 pub(super) fn trials() -> Vec<Trial> {
     vec![Trial::test(
         "cell-line-identity/synthetic-faults-no-cache-and-provenance",

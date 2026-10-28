@@ -465,11 +465,15 @@ mod sets {
             .leg(set.spec, fetch.deadline(Duration::from_secs(3)))
             .stored_set_rows(set, Find::Words(word))
             .unwrap();
-        assert_eq!(info.rows, 8);
+        assert_eq!(
+            info.rows, 8,
+            "Bundle rows must retain source names in their published order"
+        );
         assert!(
             info.content_revision
                 .as_deref()
-                .is_some_and(|s| s.starts_with("sha256:"))
+                .is_some_and(|s| s.starts_with("sha256:")),
+            "Bundle rows must retain source names in their published order"
         );
         rows.into_iter().map(|r| r.value.name).collect()
     }

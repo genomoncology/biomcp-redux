@@ -6,10 +6,6 @@ use std::time::Duration;
     dead_code,
     reason = "Reuse the existing local TLS fixture for one private shutdown boundary"
 )]
-#[expect(
-    clippy::disallowed_types,
-    reason = "The local TLS fixture counts sockets across its owned worker"
-)]
 mod support;
 use support::{Call, Check, Fixture, Hold};
 static QUOTA: Quota = Quota::new(
@@ -27,7 +23,7 @@ fn stream_worker_shutdown_cancels_and_joins_active_network_work() -> Check {
     })?;
     let source = fixture.source(false, KeyUse::None);
     let call = Call::start(fetch.clone(), source, Duration::from_secs(5))?;
-    fixture.wait_request()?;
+    while !matches!(fixture.received()?, support::Seen::Request(_, _)) {}
     fetch.grpc_worker.shutdown();
     assert!(call.finish()?.is_err());
     assert!(

@@ -47,8 +47,15 @@ fn run(fetch: &Fetch, query: ArticleSearch, fresh: bool) -> Outcome {
     )
 }
 fn page(out: Outcome) -> (biomcp_types::PageInfo, ArticlePage) {
-    assert_eq!(out.local, None);
-    assert_eq!(out.status, Status::Complete);
+    assert_eq!(
+        out.local, None,
+        "Article pages must preserve their snapshot and paging contract"
+    );
+    assert_eq!(
+        out.status,
+        Status::Complete,
+        "Article pages must preserve their snapshot and paging contract"
+    );
     let QueryBody::ArticlePage(page) = out.body else {
         panic!("article page")
     };

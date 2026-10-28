@@ -56,9 +56,15 @@ fn markdown() -> Check {
         .map(str::to_owned),
     );
     let output = env.command(env!("CARGO_BIN_EXE_biomcp"), &args).output()?;
-    assert!(output.status.success());
+    assert!(
+        output.status.success(),
+        "Markdown output must preserve the command content and exit status"
+    );
     let value: Value = serde_json::from_slice(&output.stdout)?;
-    assert!(value.to_string().contains("Synthetic"));
+    assert!(
+        value.to_string().contains("Synthetic"),
+        "Markdown output must preserve the command content and exit status"
+    );
     assert!(
         value
             .get("next")
@@ -70,14 +76,20 @@ fn markdown() -> Check {
             })),
         "upstream gene name must reach a next command: {value}"
     );
-    assert!(String::from_utf8(output.stdout)?.contains("\\u001b"));
+    assert!(
+        String::from_utf8(output.stdout)?.contains("\\u001b"),
+        "Markdown output must preserve the command content and exit status"
+    );
     assert!(
         value.to_string().contains('\u{202e}'),
         "JSON must retain bidi data"
     );
     args.extend(["--format", "md"].map(str::to_owned));
     let output = env.command(env!("CARGO_BIN_EXE_biomcp"), &args).output()?;
-    assert!(output.status.success());
+    assert!(
+        output.status.success(),
+        "Markdown output must preserve the command content and exit status"
+    );
     let text = String::from_utf8(output.stdout)?;
     for ch in source.chars().filter(|ch| {
         ch.is_control() || matches!(ch, '\u{061c}' | '\u{200e}' | '\u{200f}' | '\u{202a}'..='\u{202e}' | '\u{2066}'..='\u{2069}')
@@ -113,9 +125,13 @@ fn proxy() -> Check {
         );
         assert_eq!(
             value.pointer("/error/option"),
-            Some(&json!(if cfg!(windows) { upper } else { lower }))
+            Some(&json!(if cfg!(windows) { upper } else { lower })),
+            "Commands must respect the configured proxy policy"
         );
-        assert!(output.stderr.is_empty());
+        assert!(
+            output.stderr.is_empty(),
+            "Commands must respect the configured proxy policy"
+        );
     }
     // Invalid upper-case settings ensure the unfixed program cannot reach a provider.
     // Windows has case-insensitive names, so it cannot hold this conflicting pair.
@@ -141,9 +157,20 @@ fn proxy() -> Check {
         let output = command.output()?;
         let value: Value = serde_json::from_slice(&output.stdout)?;
         assert!(output.status.success(), "{value}");
-        assert!(output.stderr.is_empty());
-        assert_eq!(value.pointer("/result/rows"), Some(&json!(176)));
-        assert_eq!(stub.finish()?.len(), 2);
+        assert!(
+            output.stderr.is_empty(),
+            "Commands must respect the configured proxy policy"
+        );
+        assert_eq!(
+            value.pointer("/result/rows"),
+            Some(&json!(176)),
+            "Commands must respect the configured proxy policy"
+        );
+        assert_eq!(
+            stub.finish()?.len(),
+            2,
+            "Commands must respect the configured proxy policy"
+        );
     }
     if cfg!(windows) {
         return Ok(());
@@ -191,8 +218,14 @@ fn help() -> Check {
     ] {
         assert!(text.contains(name), "missing {name}: {text}");
     }
-    assert!(text.contains("lower case"));
-    assert!(text.contains("Publisher PDF downloads are refused when a proxy applies"));
+    assert!(
+        text.contains("lower case"),
+        "Help must expose only supported command syntax"
+    );
+    assert!(
+        text.contains("Publisher PDF downloads are refused when a proxy applies"),
+        "Help must expose only supported command syntax"
+    );
     Ok(())
 }
 
@@ -232,12 +265,25 @@ fn bypass() -> Check {
             Some(if bypass { 0 } else { 4 }),
             "{value}"
         );
-        assert!(output.stderr.is_empty());
+        assert!(
+            output.stderr.is_empty(),
+            "Proxy bypass rules must preserve exact host boundaries"
+        );
         if bypass {
-            assert!(fs::read(&target)?.starts_with(b"%PDF-"));
+            assert!(
+                fs::read(&target)?.starts_with(b"%PDF-"),
+                "Proxy bypass rules must preserve exact host boundaries"
+            );
         } else {
-            assert_eq!(value.pointer("/result/file/reason"), Some(&json!("proxy")));
-            assert!(!target.exists());
+            assert_eq!(
+                value.pointer("/result/file/reason"),
+                Some(&json!("proxy")),
+                "Proxy bypass rules must preserve exact host boundaries"
+            );
+            assert!(
+                !target.exists(),
+                "Proxy bypass rules must preserve exact host boundaries"
+            );
         }
     }
     Ok(())
@@ -261,9 +307,19 @@ fn dispatch() -> Check {
             ],
         )
         .output()?;
-    assert_eq!(output.status.code(), Some(5));
-    assert!(output.stdout.is_empty());
-    assert_eq!(output.stderr, b"biomcp: local configuration failed\n");
+    assert_eq!(
+        output.status.code(),
+        Some(5),
+        "Dispatch must select the requested output and transport"
+    );
+    assert!(
+        output.stdout.is_empty(),
+        "Dispatch must select the requested output and transport"
+    );
+    assert_eq!(
+        output.stderr, b"biomcp: local configuration failed\n",
+        "Dispatch must select the requested output and transport"
+    );
     Ok(())
 }
 
@@ -289,8 +345,14 @@ fn framing() -> Check {
     drop(stdin);
     let (status, stdout, stderr) = process.finish()?;
     sent?;
-    assert!(status.success());
-    assert!(stderr.is_empty());
+    assert!(
+        status.success(),
+        "Stdio responses must preserve one complete protocol frame"
+    );
+    assert!(
+        stderr.is_empty(),
+        "Stdio responses must preserve one complete protocol frame"
+    );
     let replies: Vec<Value> = stdout
         .split(|byte| *byte == b'\n')
         .filter(|line| !line.is_empty())
@@ -299,9 +361,24 @@ fn framing() -> Check {
     let [refusal, ping] = replies.as_slice() else {
         return Err(format!("expected refusal and subsequent ping: {replies:?}").into());
     };
-    assert_eq!(refusal.pointer("/error/code"), Some(&json!(-32600)));
-    assert_eq!(ping.get("id"), Some(&json!("after")));
-    assert!(ping.get("error").is_none());
-    assert_eq!(ping.pointer("/result/resultType"), Some(&json!("complete")));
+    assert_eq!(
+        refusal.pointer("/error/code"),
+        Some(&json!(-32600)),
+        "Stdio responses must preserve one complete protocol frame"
+    );
+    assert_eq!(
+        ping.get("id"),
+        Some(&json!("after")),
+        "Stdio responses must preserve one complete protocol frame"
+    );
+    assert!(
+        ping.get("error").is_none(),
+        "Stdio responses must preserve one complete protocol frame"
+    );
+    assert_eq!(
+        ping.pointer("/result/resultType"),
+        Some(&json!("complete")),
+        "Stdio responses must preserve one complete protocol frame"
+    );
     Ok(())
 }

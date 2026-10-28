@@ -5,6 +5,10 @@
     reason = "Fixture failures fail the contract"
 )]
 #[path = "support/environment.rs"]
+#[expect(
+    clippy::disallowed_types,
+    reason = "This fixture owns the isolated child process launcher"
+)]
 mod child_environment;
 mod support;
 use biomcp_fetch::{

@@ -1,3 +1,7 @@
+#[expect(
+    clippy::disallowed_types,
+    reason = "Share bounded transport state across the request owners named by this module"
+)]
 use std::{
     sync::Mutex,
     time::{Duration, Instant},
@@ -5,14 +9,14 @@ use std::{
 
 /// An absolute request budget measured by the transport clock.
 #[derive(Clone, Copy, Debug)]
-#[expect(
-    clippy::disallowed_types,
-    reason = "Advance replay clocks and observe command cancellation across request workers"
-)]
 pub struct Deadline<'a> {
     end: Instant,
     frozen: Option<Instant>,
     clock: Option<&'a VirtualClock>,
+    #[expect(
+        clippy::disallowed_types,
+        reason = "A borrowed cancellation flag follows this command deadline"
+    )]
     cancelled: Option<&'a std::sync::Arc<std::sync::atomic::AtomicBool>>,
 }
 
