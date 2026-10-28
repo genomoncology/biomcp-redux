@@ -43,6 +43,10 @@ const WITHDRAWN: Bundle<raw::Withdrawn> = Bundle {
     fresh: Freshness::Days(7),
     row: PhantomData,
 };
+/// Check publisher metadata through the routed transport without synchronizing rows.
+pub(crate) fn probe(leg: &Leg<'_>) -> Result<(), RequestError> {
+    leg.probe(&SPEC.head(COMPLETE.path), &[])
+}
 /// A published HGNC file, without exposing its wire rows.
 #[derive(Debug, Clone, Copy)]
 pub enum HgncBundle {

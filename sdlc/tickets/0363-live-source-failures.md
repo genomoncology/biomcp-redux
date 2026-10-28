@@ -1,4 +1,4 @@
-# 0363 — Diagnose the GWAS, InterPro and VAERS live failures
+# 0363 — Fix the CDC WONDER VAERS reply decoding
 
 Status: OPEN.
 
@@ -6,7 +6,7 @@ Milestone: 5
 
 ## Outcome
 
-The causes of these live failures are found and fixed or recorded with the source's own limit: `search gwas --gene BRAF` hitting `deadline_exceeded` after about 15 seconds, CDC WONDER VAERS returning `bad_reply` for MMR and `deadline_exceeded` for COVID19, and InterPro and Semantic Scholar health probes timing out at 3 seconds.
+CDC WONDER VAERS replies with complete XML labelled `text/html; charset=ISO-8859-1`, such as the MMR query that returned `bad_reply`, are admitted and decoded for that source only. The remaining deadline failures moved to 0386 (PM ruling m10791 ask 18).
 
 - Why: the docs lead's product findings report (2026-10-27), item E5, and the PM's live health run on the release candidate. Ian's ruling that 1.0 ships every known fix (2026-10-27).
 - Starts from: the GWAS, VAERS and InterPro adapters, their deadlines and the health probe budget.

@@ -1,6 +1,7 @@
 # 0376 — Keep concurrent readers working during a bundle pair replacement
 
-Status: OPEN.
+Status: COMPLETE.
+Landed: ddec3ed7968b545473da25565ecd7d128cfe1b62
 
 Milestone: 5
 

@@ -21,7 +21,9 @@ const CATALOGS: BundleSet<CatalogRow> = BundleSet {
             format: None,
         },
     ],
-    format: RowFormat::Document,
+    format: RowFormat::Document {
+        media: biomcp_fetch::DocumentMedia::Json,
+    },
     fresh: Freshness::Days(7),
     row: PhantomData,
 };
