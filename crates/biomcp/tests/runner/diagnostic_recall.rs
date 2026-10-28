@@ -2,14 +2,19 @@
 use super::super::{configuration::invoke, maude::environment, mcp, network_stub::Stub};
 use libtest_mimic::Trial;
 use serde_json::{Value, json};
+#[path = "diagnostic_recall_selectors.rs"]
+mod selectors;
 pub(super) fn trials() -> Vec<Trial> {
+    let mut trials = selectors::trials();
+    trials.extend(
     vec![Trial::test("diagnostic-device-recall/native-firm-search", || {
         firm().map_err(Into::into)
     }), Trial::test("diagnostic-device-recall/exact-card-native-ids-and-classification", || {
         cards().map_err(Into::into)
     }), Trial::test("diagnostic-device-recall/invalid-selectors-before-io", || {
         invalid().map_err(Into::into)
-    })]
+    })]);
+    trials
 }
 fn firm() -> Result<(), String> {
     let stub = Stub::for_source("api.fda.gov", "application/json", |request| {
