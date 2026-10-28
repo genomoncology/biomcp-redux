@@ -88,7 +88,7 @@
         "/status": "complete"
       },
       "full_output_bytes": true,
-      "max_bytes": 5445,
+      "max_bytes": 9817,
       "mcp": [
         "help",
         "author"

@@ -74,7 +74,7 @@
             "all"
           ]
         },
-        "/result/commands/0/section_rule": "Select native sections or all bounded first pages; function keeps one whole text record."
+        "/result/commands/0/section_rule": "Select source sections or all bounded first pages; function keeps one whole text record."
       },
       "max_bytes": 3208
     },
