@@ -41,7 +41,7 @@
         ],
         "/result/commands/0/arguments/4/description": "Search exact registry eligibility text for discovery only; no eligibility judgment.",
         "/result/commands/0/examples": {
-          "count": 3
+          "count": 4
         },
         "/result/commands/0/arguments/27/description": "Exact variant text for registry discovery only; no eligibility judgment.",
         "/result/commands/0/arguments/8/description": "Resolve one checked gene for registry text discovery only; no eligibility judgment."
