@@ -155,7 +155,10 @@ macro_rules! native_enum {
         impl schemars::JsonSchema for $name {
             fn schema_name() -> std::borrow::Cow<'static, str> { stringify!($name).into() }
             fn json_schema(_: &mut schemars::SchemaGenerator) -> schemars::Schema {
-                schemars::json_schema!({"type":"string", "x-known-values":[$($literal),+]})
+                schemars::json_schema!({"type":"string", "description":concat!(
+                    "Native publisher vocabulary; new values are retained unchanged. Known values: ",
+                    $($literal, "; ",)+
+                )})
             }
         }
     }
