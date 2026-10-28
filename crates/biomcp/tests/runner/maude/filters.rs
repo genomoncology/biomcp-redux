@@ -13,9 +13,11 @@ pub(super) fn trials() -> Vec<Trial> {
         }),
     ]
 }
-fn both(env: &Environment, args: Vec<String>, exit: i32) -> Result<Value, String> {
-    let cli = invoke(env, args.clone(), exit)?;
-    let tool = mcp::call_with_globals(env, &args, exit >= 2, &[])?;
+fn both(env: &Environment, args: Vec<String>, exit: i32, globals: &[String]) -> Result<Value, String> {
+    let cli = invoke(env, super::super::launch::arguments(&args, globals), exit)?;
+    let tool = mcp::call_retained(env, &args, exit >= 2, globals, Some(env.root())).map_err(|error| {
+        format!("{args:?}: {error}; raw MCP: {}", std::fs::read_to_string(env.root().join("mcp.stdout")).unwrap_or_default())
+    })?;
     if cli != tool {
         return Err(format!("CLI/MCP differ: {cli} / {tool}"));
     }
@@ -50,17 +52,16 @@ fn selectors() -> Result<(), String> {
             "1".into(),
         ];
         args.extend(flags.iter().map(|s| (*s).to_owned()));
-        let mut recorded = args.clone();
-        recorded.extend(["--record".into(), recording.to_string_lossy().into_owned()]);
-        let value = both(&env, recorded, 0)?;
+        let globals = ["--record".into(), recording.to_string_lossy().into_owned()];
+        let value = both(&env, args.clone(), 0, &globals)?;
         if value.pointer("/result/source_query") != Some(&json!(expected))
             || value.pointer("/page/total") != Some(&json!(if empty { 0 } else { 1 }))
         {
             return Err(format!("native selector or count lost: {value}"));
         }
         let replay = Environment::new().map_err(|e| e.to_string())?;
-        args.extend(["--replay".into(), recording.to_string_lossy().into_owned()]);
-        let replayed = both(&replay, args, 0)?;
+        let globals = replay.globals(Some(&recording), false);
+        let replayed = both(&replay, args, 0, &globals)?;
         if replayed.get("result") != value.get("result") {
             return Err("replay changed result".into());
         }
@@ -102,7 +103,7 @@ fn refusals() -> Result<(), String> {
                 } {
                     args.extend(pair.map(str::to_owned));
                 }
-                let value = both(&env, args, 2)?;
+                let value = both(&env, args, 2, &[])?;
                 if value.pointer("/error/code") != Some(&json!("usage.retired"))
                     || value.pointer("/error/message")
                         != Some(&json!("this adverse-event filter is not supported"))
@@ -119,6 +120,7 @@ fn refusals() -> Result<(), String> {
                 .map(str::to_owned)
                 .to_vec(),
             2,
+            &[],
         )?;
         if value.get("error").is_none() {
             return Err(format!("unfiltered search accepted: {value}"));
