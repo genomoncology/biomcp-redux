@@ -274,10 +274,6 @@ fn presentation_partial_match_probe() -> Check {
             failures.push(args);
         }
     }
-    assert!(
-        failures.is_empty(),
-        "canonical partial grammar lost globals: {failures:?}"
-    );
     for args in [
         vec!["get", "gene", "--help", "--format", "md"],
         vec!["get", "gene", "--offline", "--", "--format", "md"],
@@ -316,6 +312,10 @@ fn presentation_partial_match_probe() -> Check {
             serde_json::json!({"args":args,"format":format,"config":config})
         )?;
     }
+    assert!(
+        failures.is_empty(),
+        "canonical partial grammar lost globals: {failures:?}"
+    );
     Ok(())
 }
 
@@ -324,11 +324,12 @@ fn partial_presentation_probe(
     args: &[&str],
 ) -> Result<(Option<String>, Option<PathBuf>), Box<dyn std::error::Error>> {
     let args: Vec<std::ffi::OsString> = args.iter().map(Into::into).collect();
-    let mut parser = super::root().map_err(|()| "grammar unavailable")?;
+    let mut parser = super::root()
+        .map_err(|()| "grammar unavailable")?
+        .ignore_errors(true);
     parser.build();
     let args = super::entry::arguments(&args, &parser);
     let matches = parser
-        .ignore_errors(true)
         .try_get_matches_from(std::iter::once(std::ffi::OsString::from("biomcp")).chain(args))?;
     let format = matches
         .get_one::<String>("format")
