@@ -81,8 +81,13 @@ def imports(data):
 def check_runtime(data, platform):
     if not platform.startswith('win_'):
         return
+    names = imports(data)
+    # Admit only conventional DLL basenames so paths and implicit extensions
+    # cannot hide a runtime dependency from the family check below.
+    if any(not re.fullmatch(r'[a-z0-9_.-]+\.dll', name, re.IGNORECASE) for name in names):
+        raise ValueError('invalid Windows PE: unsupported DLL name')
     # Windows supplies UCRT itself; these DLL families require the VC redist.
-    forbidden = [name for name in imports(data) if re.fullmatch(
+    forbidden = [name for name in names if re.fullmatch(
         r'(?:vcruntime|msvcp|msvcr|concrt|vcomp|vcamp|vccorlib|mfc|mfcm|atl)\d+[^/\\]*\.dll', name, re.IGNORECASE)]
     if forbidden:
         raise ValueError('Windows binary requires Visual C++ redistributable: ' + ', '.join(forbidden))
