@@ -1,25 +1,45 @@
 use super::raw;
-use crate::{mapped::{Mapped, field_text, push_problem, record}, raw::Field};
+use crate::{
+    mapped::{Mapped, field_text, push_problem, record},
+    raw::Field,
+};
 use biodata::Text;
 use biomcp_types::{DeviceRecallCard, DeviceRecallHeader, Problem, Source};
 const SOURCE: Source = Source::FdaDeviceRecall;
-fn list(value: Option<Field<Vec<Field<Text>>>>, field: &str, id: Option<Text>, problems: &mut Vec<Problem>) -> Option<Box<[Text]>> {
+fn list(
+    value: Option<Field<Vec<Field<Text>>>>,
+    field: &str,
+    id: Option<Text>,
+    problems: &mut Vec<Problem>,
+) -> Option<Box<[Text]>> {
     let values = match value? {
         Field::Value(values) => values,
-        Field::Invalid(_) => { push_problem(problems, SOURCE, id, field); return None; }
+        Field::Invalid(_) => {
+            push_problem(problems, SOURCE, id, field);
+            return None;
+        }
     };
-    let values: Box<[_]> = values.into_iter().filter_map(|v| {
-        let value = v.value();
-        if value.is_none() { push_problem(problems, SOURCE, id.clone(), field); }
-        value
-    }).collect();
+    let values: Box<[_]> = values
+        .into_iter()
+        .filter_map(|v| {
+            let value = v.value();
+            if value.is_none() {
+                push_problem(problems, SOURCE, id.clone(), field);
+            }
+            value
+        })
+        .collect();
     (!values.is_empty()).then_some(values)
 }
 pub(super) fn mapped(row: raw::Record) -> Mapped<DeviceRecallCard> {
     let mut problems = Vec::new();
     let id = record(&row.product_res_number);
-    let initiated = row.event_date_initiated.map(|v| v.value().filter(|d| d.day().is_some()));
-    if initiated == Some(None) { push_problem(&mut problems, SOURCE, id.clone(), "event_date_initiated"); }
+    let initiated = row
+        .event_date_initiated
+        .map(|v| v.value().filter(|d| d.day().is_some()));
+    if initiated == Some(None) {
+        push_problem(&mut problems, SOURCE, id.clone(), "event_date_initiated");
+    }
     let mut text = |field, value| field_text(&mut problems, SOURCE, id.clone(), field, value);
     let header = DeviceRecallHeader {
         recall_number: row.product_res_number,
@@ -35,11 +55,28 @@ pub(super) fn mapped(row: raw::Record) -> Mapped<DeviceRecallCard> {
     let distribution_pattern = text("distribution_pattern", row.distribution_pattern);
     let k_numbers = list(row.k_numbers, "k_numbers", id.clone(), &mut problems);
     let pma_numbers = list(row.pma_numbers, "pma_numbers", id, &mut problems);
-    Mapped { value: DeviceRecallCard { header, reason, root_cause, product_description, distribution_pattern,
-        classification: None, k_numbers, pma_numbers }, problems }
+    Mapped {
+        value: DeviceRecallCard {
+            header,
+            reason,
+            root_cause,
+            product_description,
+            distribution_pattern,
+            classification: None,
+            k_numbers,
+            pma_numbers,
+        },
+        problems,
+    }
 }
 pub(super) fn classification(row: raw::Enforcement) -> Mapped<Option<Text>> {
     let mut problems = Vec::new();
-    let value = field_text(&mut problems, SOURCE, record(row.recall_number), "classification", row.classification);
+    let value = field_text(
+        &mut problems,
+        SOURCE,
+        record(row.recall_number),
+        "classification",
+        row.classification,
+    );
     Mapped { value, problems }
 }

@@ -218,7 +218,11 @@ fn sources(root: &Value, row: &Value, name: &str) -> Vec<Source> {
     {
         return vec![Source::WhoIvd];
     }
-    if row.pointer("/properties/identity_status/const").and_then(Value::as_str) == Some("device_recall") {
+    if row
+        .pointer("/properties/identity_status/const")
+        .and_then(Value::as_str)
+        == Some("device_recall")
+    {
         return vec![Source::FdaDeviceRecall];
     }
     let fixed = match name {

@@ -103,7 +103,8 @@ impl TryFrom<SearchFields> for DiagnosticSearch {
             || v.test_type.is_some();
         let cdx = v.device_id.is_some() || v.drug_application.is_some() || v.biomarker.is_some();
         let who = v.marker.is_some() || v.manufacturer.is_some();
-        let recall = v.product_code.is_some() || v.initiated_from.is_some() || v.initiated_to.is_some();
+        let recall =
+            v.product_code.is_some() || v.initiated_from.is_some() || v.initiated_to.is_some();
         validate_recall(&v, gtr || cdx, recall)?;
         if !(1..=50).contains(&v.limit) {
             return Err(QueryInvalid::new(&["limit"]));
@@ -153,10 +154,11 @@ impl TryFrom<SearchFields> for DiagnosticSearch {
                 "biomarker",
             ]));
         }
-        if v.source == DiagnosticSearchSource::WhoIvd && [v.marker.as_ref(), v.manufacturer.as_ref()]
-            .into_iter()
-            .flatten()
-            .any(|v| !v.as_str().chars().any(char::is_alphanumeric))
+        if v.source == DiagnosticSearchSource::WhoIvd
+            && [v.marker.as_ref(), v.manufacturer.as_ref()]
+                .into_iter()
+                .flatten()
+                .any(|v| !v.as_str().chars().any(char::is_alphanumeric))
         {
             return Err(QueryInvalid::new(&["marker", "manufacturer"]));
         }
@@ -218,11 +220,17 @@ impl DiagnosticSearch {
         self.0.manufacturer.as_ref()
     }
     /// Exact native recall device category code.
-    pub fn product_code(&self) -> Option<&Text> { self.0.product_code.as_ref() }
+    pub fn product_code(&self) -> Option<&Text> {
+        self.0.product_code.as_ref()
+    }
     /// Inclusive source initiation range.
-    pub fn initiated_from(&self) -> Option<PartialDate> { self.0.initiated_from }
+    pub fn initiated_from(&self) -> Option<PartialDate> {
+        self.0.initiated_from
+    }
     /// Inclusive source initiation range.
-    pub fn initiated_to(&self) -> Option<PartialDate> { self.0.initiated_to }
+    pub fn initiated_to(&self) -> Option<PartialDate> {
+        self.0.initiated_to
+    }
     /// Native rows per page.
     pub fn limit(&self) -> u32 {
         self.0.limit
@@ -251,16 +259,42 @@ impl DiagnosticSearch {
 
 fn validate_recall(v: &SearchFields, other: bool, filters: bool) -> Result<(), QueryInvalid> {
     if v.source != DiagnosticSearchSource::FdaDeviceRecall {
-        if filters { return Err(QueryInvalid::new(&["source", "product_code", "initiated_from", "initiated_to"])); }
+        if filters {
+            return Err(QueryInvalid::new(&[
+                "source",
+                "product_code",
+                "initiated_from",
+                "initiated_to",
+            ]));
+        }
         return Ok(());
     }
     if other || v.marker.is_some() || v.bundle_revision.is_some() {
-        return Err(QueryInvalid::new(&["source", "gene_id", "gene", "condition_id", "type", "device_id", "drug_application", "biomarker", "marker", "bundle_revision"]));
+        return Err(QueryInvalid::new(&[
+            "source",
+            "gene_id",
+            "gene",
+            "condition_id",
+            "type",
+            "device_id",
+            "drug_application",
+            "biomarker",
+            "marker",
+            "bundle_revision",
+        ]));
     }
-    for (name,date) in [("initiated_from",v.initiated_from),("initiated_to",v.initiated_to)] {
-        if date.is_some_and(|d| d.day().is_none()) { return Err(QueryInvalid::new(&[name])); }
+    for (name, date) in [
+        ("initiated_from", v.initiated_from),
+        ("initiated_to", v.initiated_to),
+    ] {
+        if date.is_some_and(|d| d.day().is_none()) {
+            return Err(QueryInvalid::new(&[name]));
+        }
     }
-    if v.initiated_from.zip(v.initiated_to).is_some_and(|(a,b)| a.to_string() > b.to_string()) {
+    if v.initiated_from
+        .zip(v.initiated_to)
+        .is_some_and(|(a, b)| a.to_string() > b.to_string())
+    {
         return Err(QueryInvalid::new(&["initiated_from", "initiated_to"]));
     }
     Ok(())

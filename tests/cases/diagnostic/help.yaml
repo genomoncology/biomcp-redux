@@ -16,7 +16,7 @@
       "expect": {
         "/result/commands/0/description": "Search five source records by default. FDA device recalls cover every medical device; totals count recall records, without harm inference.",
         "/result/commands/0/examples": {
-          "count": 2
+          "count": 4
         },
         "/result/commands/0/arguments/*/name": {
           "includes_all_of": [
@@ -59,7 +59,7 @@
       "expect": {
         "/result/commands/0/description": "Get one exact source record or supported section. A listing is not authorization; a companion row is not a treatment recommendation.",
         "/result/commands/0/examples": {
-          "count": 2
+          "count": 3
         },
         "/result/commands/0/arguments/*/name": {
           "includes_all_of": [

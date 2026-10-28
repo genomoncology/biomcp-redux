@@ -1,10 +1,10 @@
 //! Explicit diagnostic source ownership; reads consume only complete local snapshots.
 mod clearance;
-mod recall;
 mod companion;
 mod get;
 mod next;
 mod pma;
+mod recall;
 mod who;
 use crate::{Action, Bundle, Ctx, Outcome, status};
 use biomcp_adapters::gtr;
@@ -59,7 +59,9 @@ fn finish_bundle(
 }
 /// Search only stored source-native GTR relations and retain matched selectors.
 pub fn search(cx: &Ctx<'_>, q: &DiagnosticSearch) -> Outcome {
-    if q.source() == DiagnosticSearchSource::FdaDeviceRecall { return recall::search(cx,q); }
+    if q.source() == DiagnosticSearchSource::FdaDeviceRecall {
+        return recall::search(cx, q);
+    }
     if q.source() == DiagnosticSearchSource::FdaCdx {
         return companion::search(cx, q);
     }

@@ -72,7 +72,9 @@ pub(super) fn message(args: &[OsString]) -> Option<ErrorMessage> {
             return match inline.or_else(|| args.next().and_then(|v| v.to_str())) {
                 Some("faers") => Some(ErrorMessage::AdverseFaers),
                 Some("device" | "devices" | "maude") => Some(ErrorMessage::AdverseMaude),
-                Some("recall" | "recalls" | "enforcement") => Some(ErrorMessage::AdverseDeviceRecalls),
+                Some("recall" | "recalls" | "enforcement") => {
+                    Some(ErrorMessage::AdverseDeviceRecalls)
+                }
                 _ => None,
             };
         }

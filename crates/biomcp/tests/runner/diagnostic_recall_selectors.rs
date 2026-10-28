@@ -60,7 +60,7 @@ fn paging()->Result<(),String> {
     if first.pointer("/page/total")!=Some(&json!(2)) || first.get("status")!=Some(&json!("partial"))
         || first.pointer("/result/items/0/header/initiated").is_some()
         || first.pointer("/problems/0/field")!=Some(&json!("event_date_initiated"))
-        || first.pointer("/problems/0/code")!=Some(&json!("value_unknown")) {return Err(format!("bad native date/count lost: {first}"));}
+        || first.pointer("/problems/0/code")!=Some(&json!("value.unknown")) {return Err(format!("bad native date/count lost: {first}"));}
     let next=first.get("next").and_then(Value::as_array).and_then(|steps|steps.iter().find(|v|v.get("kind")==Some(&json!("page"))))
         .and_then(|v|v.get("args")).ok_or("missing next recall page")?;
     let args:Vec<String>=serde_json::from_value(next.clone()).map_err(|e|e.to_string())?;

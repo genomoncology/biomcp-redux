@@ -214,13 +214,16 @@ pub(super) fn bounded(value: &serde_json::Value) -> Result<(), String> {
         .get("status")
         .and_then(serde_json::Value::as_str)
         .ok_or("missing status")?;
-    // Temporary byte measurement for the newly introduced source; replace with its observed fixed ceiling.
-    if value.pointer("/query/source") == Some(&json!("fda-device-recall")) {
-        writeln!(std::io::stdout(), "recall {schema}/{kind}/{status}: {bytes}").map_err(|e| e.to_string())?;
-        return Ok(());
-    }
+    let recall = value.pointer("/query/source") == Some(&json!("fda-device-recall"));
     // Full compact synthetic maxima measured by j13382.
     let baseline: usize = match (schema, kind, status) {
+        // Native recall mechanism maxima measured by j20265.
+        ("biomcp.diagnostic-page/2", "", "complete") if recall => 760,
+        ("biomcp.diagnostic-page/2", "", "partial") if recall => 922,
+        ("biomcp.diagnostic-page/2", "", "absent") if recall => 399,
+        ("biomcp.diagnostic-card/1", "device_recall", "complete") => 924,
+        ("biomcp.diagnostic-card/1", "device_recall", "partial") => 773,
+        ("biomcp.diagnostic-card/1", "", "failed") if recall => 451,
         // New WHO search view, full compact maximum measured by j13465.
         ("biomcp.diagnostic-page/2", "", _)
             if value.pointer("/query/source") == Some(&json!("who-ivd")) =>

@@ -50,13 +50,22 @@ impl TryFrom<GetFields> for DiagnosticGet {
     type Error = QueryInvalid;
     fn try_from(v: GetFields) -> Result<Self, Self::Error> {
         let recall_number = if v.source == DiagnosticGetSource::FdaDeviceRecall {
-            Some(v.id.as_str().parse().map_err(|_| QueryInvalid::new(&["id", "source"]))?)
-        } else { None };
+            Some(
+                v.id.as_str()
+                    .parse()
+                    .map_err(|_| QueryInvalid::new(&["id", "source"]))?,
+            )
+        } else {
+            None
+        };
         validate_source(&v)?;
         if v.section_limit.is_some_and(|v| !(1..=50).contains(&v)) {
             return Err(QueryInvalid::new(&["section_limit"]));
         }
-        Ok(Self { fields: v, recall_number })
+        Ok(Self {
+            fields: v,
+            recall_number,
+        })
     }
 }
 impl DiagnosticGet {
@@ -65,7 +74,9 @@ impl DiagnosticGet {
         &self.fields.id
     }
     /// Native recall identity parsed once by the checked input boundary.
-    pub fn recall_number(&self) -> Option<&biodata::DeviceRecallNumber> { self.recall_number.as_ref() }
+    pub fn recall_number(&self) -> Option<&biodata::DeviceRecallNumber> {
+        self.recall_number.as_ref()
+    }
     /// Explicit selected source.
     pub fn source(&self) -> DiagnosticGetSource {
         self.fields.source
@@ -144,7 +155,9 @@ fn validate_source(v: &GetFields) -> Result<(), QueryInvalid> {
             v.section,
             None | Some(DiagnosticSection::Regulatory | DiagnosticSection::Supplements)
         ),
-        DiagnosticGetSource::WhoIvd | DiagnosticGetSource::Fda510k | DiagnosticGetSource::FdaDeviceRecall => v.section.is_none(),
+        DiagnosticGetSource::WhoIvd
+        | DiagnosticGetSource::Fda510k
+        | DiagnosticGetSource::FdaDeviceRecall => v.section.is_none(),
     };
     if !valid_section {
         return Err(QueryInvalid::new(&["section", "source"]));
@@ -157,7 +170,9 @@ fn validate_source(v: &GetFields) -> Result<(), QueryInvalid> {
     }
     if matches!(
         v.source,
-        DiagnosticGetSource::WhoIvd | DiagnosticGetSource::Fda510k | DiagnosticGetSource::FdaDeviceRecall
+        DiagnosticGetSource::WhoIvd
+            | DiagnosticGetSource::Fda510k
+            | DiagnosticGetSource::FdaDeviceRecall
     ) {
         if v.section_limit.is_some() {
             return Err(QueryInvalid::new(&["section_limit", "source"]));
@@ -166,7 +181,11 @@ fn validate_source(v: &GetFields) -> Result<(), QueryInvalid> {
             return Err(QueryInvalid::new(&["section_offset", "source"]));
         }
     }
-    if matches!(v.source, DiagnosticGetSource::Fda510k | DiagnosticGetSource::FdaDeviceRecall) && v.bundle_revision.is_some() {
+    if matches!(
+        v.source,
+        DiagnosticGetSource::Fda510k | DiagnosticGetSource::FdaDeviceRecall
+    ) && v.bundle_revision.is_some()
+    {
         return Err(QueryInvalid::new(&["bundle_revision", "source"]));
     }
     Ok(())

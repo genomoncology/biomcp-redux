@@ -105,7 +105,9 @@ fn guidance(words: Words<'_>) -> Option<ErrorMessage> {
             ErrorMessage::DiagnosticCondition
         });
     }
-    if words.manufacturer && (verb != "search" || !matches!(words.source, Some("who-ivd" | "fda-device-recall"))) {
+    if words.manufacturer
+        && (verb != "search" || !matches!(words.source, Some("who-ivd" | "fda-device-recall")))
+    {
         return Some(ErrorMessage::DiagnosticManufacturer);
     }
     match (verb, words.source) {
