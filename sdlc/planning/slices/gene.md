@@ -305,7 +305,7 @@ Sections, a closed enum:
 
 ### Sources kept and dropped
 
-Kept: HGNC bundle (complete set and withdrawn file), MyGene.info, UniProt, CIViC, ClinGen bundle, gnomAD, HPA, Reactome. NCBI E-utilities stays as the check for replaced Entrez IDs.
+Kept: HGNC bundle (complete set and withdrawn file), MyGene.info, UniProt, CIViC, ClinGen bundle, GenCC bundle, gnomAD, HPA, Reactome. NCBI E-utilities stays as the check for replaced Entrez IDs.
 
 Dropped from the gene slice: Open Targets, Enrichr, QuickGO, STRING, GTEx, DisGeNET, NIH RePORTER, GTR, KEGG, CSpec, DGIdb (to the drug slice).
 

@@ -464,6 +464,6 @@ The measured CLI/MCP envelopes carry per-case ceilings. Every 0.9 timing and out
 
 - [x] Every 0.9 command and option ported, renamed, deferred or dropped by ruling; [ticket 0275](sdlc/tickets/0275-cross-cutting-parity-accounting.md), after [inventory 0276](sdlc/tickets/0276-parity-inventory-and-deferred-outcome.md)
 - [x] Docs rewritten; [ticket 0292](sdlc/tickets/0292-docs-rewrite.md)
-- [ ] Release rehearsal on every platform; the [release plan](sdlc/planning/release.md) requires final-candidate installed proof
+- [ ] Release rehearsal on every platform; [ticket 0293](sdlc/tickets/0293-final-release-rehearsal.md) requires final-candidate installed proof
 - [ ] Agent comparison on outside judged question sets, for every slice; the [comparison requirement](sdlc/planning/slices.md) uses the latest released baseline named above
 - [ ] This repository's history appended to the public repository with one merge commit, preserving old tags and releases; [ticket 0294](sdlc/tickets/0294-history-replacement.md) requires release approval before the append, tag and publication
