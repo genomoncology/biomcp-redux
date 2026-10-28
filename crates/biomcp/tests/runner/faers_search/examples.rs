@@ -22,7 +22,39 @@ pub(super) fn record(directory: &Path) -> Check {
             }
         },
     )?;
-    for (index, words) in [
+    for (index, words) in commands().into_iter().enumerate() {
+        let env = environment(&stub)?;
+        let words = words.into_iter().map(str::to_owned);
+        let recording = env.root().join(format!("record-{index}"));
+        let mut args = vec!["--record".into(), recording.to_string_lossy().into()];
+        args.extend(words);
+        super::invoke(&env, args, 0)?;
+        for entry in std::fs::read_dir(recording.join("faers")).map_err(|e| e.to_string())? {
+            let entry = entry.map_err(|e| e.to_string())?;
+            if entry.path().extension().is_some_and(|s| s == "json") {
+                std::fs::copy(
+                    entry.path(),
+                    directory.join("faers").join(entry.file_name()),
+                )
+                .map_err(|e| e.to_string())?;
+            }
+        }
+    }
+    if std::fs::read_dir(directory.join("faers"))
+        .map_err(|e| e.to_string())?
+        .count()
+        != 7
+    {
+        return Err("synthetic recordings were not retained".into());
+    }
+    if stub.finish()?.len() != 8 {
+        return Err("synthetic examples did not record eight actual requests".into());
+    }
+    Ok(())
+}
+
+fn commands() -> [Vec<&'static str>; 8] {
+    [
         vec!["search", "adverse-event", "pembrolizumab"],
         vec![
             "search",
@@ -64,35 +96,4 @@ pub(super) fn record(directory: &Path) -> Check {
         vec!["get", "adverse-event", "100"],
         vec!["get", "adverse-event", "100", "reactions"],
     ]
-    .into_iter()
-    .enumerate()
-    {
-        let env = environment(&stub)?;
-        let words = words.into_iter().map(str::to_owned);
-        let recording = env.root().join(format!("record-{index}"));
-        let mut args = vec!["--record".into(), recording.to_string_lossy().into()];
-        args.extend(words);
-        super::invoke(&env, args, 0)?;
-        for entry in std::fs::read_dir(recording.join("faers")).map_err(|e| e.to_string())? {
-            let entry = entry.map_err(|e| e.to_string())?;
-            if entry.path().extension().is_some_and(|s| s == "json") {
-                std::fs::copy(
-                    entry.path(),
-                    directory.join("faers").join(entry.file_name()),
-                )
-                .map_err(|e| e.to_string())?;
-            }
-        }
-    }
-    if std::fs::read_dir(directory.join("faers"))
-        .map_err(|e| e.to_string())?
-        .count()
-        != 7
-    {
-        return Err("synthetic recordings were not retained".into());
-    }
-    if stub.finish()?.len() != 8 {
-        return Err("synthetic examples did not record eight actual requests".into());
-    }
-    Ok(())
 }
