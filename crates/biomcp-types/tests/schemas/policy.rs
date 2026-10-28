@@ -59,3 +59,14 @@ impl Reviews {
         })
     }
 }
+
+#[expect(
+    clippy::disallowed_methods,
+    reason = "Schema contract tests own the independently supplied review file and environment I/O"
+)]
+pub(super) fn read_reviews() -> Result<Reviews, Box<dyn std::error::Error>> {
+    match std::env::var_os("BIOMCP_SCHEMA_REVIEWS") {
+        Some(path) => Ok(serde_json::from_slice(&std::fs::read(path)?)?),
+        None => Ok(Reviews::default()),
+    }
+}

@@ -343,13 +343,14 @@ fn trial_contracts() -> Vec<Contract> {
 fn checked_in_schemas_match_types() {
     let update = std::env::var_os("UPDATE_SCHEMAS").is_some_and(|value| value == "1");
     let root = Path::new(env!("CARGO_MANIFEST_DIR")).join("schemas");
+    let reviews = policy::read_reviews().expect("read reviewed schema transitions");
     // Collect and check the whole registry before writing any contract.
     let pending: Vec<_> = registry()
         .into_iter()
         .map(|contract| {
             let mut new = (contract.generate)();
             new["$id"] = contract.id.into();
-            compatibility::check_reviewed(&new, &new, contract.kind, &policy::Reviews::default())
+            compatibility::check_reviewed(&new, &new, contract.kind, &reviews)
                 .unwrap_or_else(|error| panic!("{}: {error}", contract.name));
             let path = root.join(format!("{}.json", contract.name));
             if path.exists() {
@@ -360,7 +361,7 @@ fn checked_in_schemas_match_types() {
                     &old,
                     &new,
                     contract.kind,
-                    &policy::Reviews::default(),
+                    &reviews,
                 )
                 .unwrap_or_else(|error| panic!("{}: {error}", contract.name));
             } else {
