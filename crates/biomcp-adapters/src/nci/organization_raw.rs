@@ -33,6 +33,7 @@ pub(super) struct Organization {
     pub contact_name: Option<Field<Text>>,
     pub contact_phone: Option<Field<Text>>,
     pub contact_email: Option<Field<Text>>,
-    pub org_coordinates: Option<Field<crate::strict_input::Input<biomcp_types::OrganizationCoordinates>>>,
+    pub org_coordinates:
+        Option<Field<crate::strict_input::Input<biomcp_types::OrganizationCoordinates>>>,
     pub org_va: Option<Field<bool>>,
 }
