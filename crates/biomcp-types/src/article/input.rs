@@ -47,6 +47,7 @@ text_value!(
         "({}|{}|(?=PPR){}|^(?:https?://doi\\.org/)?{})",
         Pmid::pattern(),
         Pmcid::pattern(),
+        EuropePmcId::pattern(),
         Doi::pattern().trim_start_matches('^')
     )
 );
