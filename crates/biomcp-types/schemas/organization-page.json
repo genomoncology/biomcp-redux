@@ -56,6 +56,17 @@
           "$ref": "#/$defs/Text",
           "description": "Exact publisher organization name, never a unique identifier."
         },
+        "next": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/Step"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "description": "Search trials at this exact organization name; names may identify several locations."
+        },
         "org_address_line_1": {
           "anyOf": [
             {

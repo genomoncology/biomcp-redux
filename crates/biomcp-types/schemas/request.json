@@ -3678,7 +3678,7 @@
         },
         "facility": {
           "$ref": "#/$defs/Text",
-          "description": "Exact registry facility field; cannot combine with radius."
+          "description": "Exact facility name; NCI matches organization names case-insensitively. A listed site is not necessarily enrolling. Cannot combine with radius."
         },
         "gene": {
           "$ref": "#/$defs/GeneInput",

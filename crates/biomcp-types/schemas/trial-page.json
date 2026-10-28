@@ -1801,7 +1801,7 @@
     },
     "TrialSearch": {
       "additionalProperties": false,
-      "description": "Search one provider with bounded pages and source-native counts; default ClinicalTrials.gov, explicit keyed NCI, never a fallback.",
+      "description": "Search one provider with bounded pages and source-native counts; default ClinicalTrials.gov, explicit keyed NCI. NCI --facility matches exact organization names; a listed site is not necessarily enrolling.",
       "properties": {
         "age": {
           "description": "Age in years; unstated source bounds count as no limit.",
@@ -1839,7 +1839,7 @@
         },
         "facility": {
           "$ref": "#/$defs/Text",
-          "description": "Exact registry facility field; cannot combine with radius."
+          "description": "Exact facility name; NCI matches organization names case-insensitively. A listed site is not necessarily enrolling. Cannot combine with radius."
         },
         "gene": {
           "$ref": "#/$defs/GeneInput",
