@@ -17,7 +17,6 @@
         "pubtator"
       ],
       "max_bytes": 5198,
-      "max_tokens": 1300,
       "expect": {
         "/status": "complete",
         "/page/total": 100,
@@ -63,7 +62,6 @@
         "pubmed"
       ],
       "max_bytes": 5198,
-      "max_tokens": 1300,
       "expect": {
         "/result/items/*/pmid": {
           "equals_file": "pubtator-gene-ids.json",

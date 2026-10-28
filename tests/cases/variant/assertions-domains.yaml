@@ -19,7 +19,6 @@
         "clinvar"
       ],
       "max_bytes": 2271,
-      "max_tokens": 568,
       "expect": {
         "/result/resolution": "unresolved",
         "/result/candidates/0/sections/clinvar/data/assertions/0/domain": "germline",

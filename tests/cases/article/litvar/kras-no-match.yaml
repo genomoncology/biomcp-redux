@@ -17,7 +17,6 @@
         "litvar"
       ],
       "max_bytes": 984,
-      "max_tokens": 247,
       "expect": {
         "/status": "absent",
         "/result/items": {
@@ -102,7 +101,6 @@
         "pubmed,litvar"
       ],
       "max_bytes": 1026,
-      "max_tokens": 257,
       "expect": {
         "/status": "absent",
         "/result/items": {

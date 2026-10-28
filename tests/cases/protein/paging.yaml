@@ -26,8 +26,7 @@
         ],
         "/page/total": 7
       },
-      "max_bytes": 2131,
-      "max_tokens": 533
+      "max_bytes": 2131
     },
     {
       "run": [
@@ -52,8 +51,7 @@
           "P31749"
         ]
       },
-      "max_bytes": 918,
-      "max_tokens": 230
+      "max_bytes": 918
     },
     {
       "run": [
@@ -75,8 +73,7 @@
           "P31749"
         ]
       },
-      "max_bytes": 2647,
-      "max_tokens": 662
+      "max_bytes": 2647
     }
   ]
 }

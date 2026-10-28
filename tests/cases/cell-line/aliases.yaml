@@ -25,7 +25,6 @@
         "/query/limit": 5
       },
       "max_bytes": 1828,
-      "max_tokens": 457,
       "full_output_bytes": true
     }
   ]

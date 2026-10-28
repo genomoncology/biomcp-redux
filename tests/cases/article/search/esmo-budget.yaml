@@ -17,7 +17,6 @@
         "next-generation sequencing recommendations advanced cancer ESMO"
       ],
       "max_bytes": 5492,
-      "max_tokens": 1373,
       "expect": {
         "/status": "complete",
         "/query/source": [

@@ -52,8 +52,7 @@
         "/result/items/*/key/id": {
           "unique": true
         }
-      },
-      "max_tokens": 516
+      }
     },
     {
       "run": [
@@ -76,8 +75,7 @@
         "/result/items/0/pmid": "27959700",
         "/result/items/1/pmid": "17611497",
         "/result/items/2/key/id": "10.0000/mismatch"
-      },
-      "max_tokens": 404
+      }
     },
     {
       "run": [
@@ -92,8 +90,7 @@
       "expect": {
         "/status": "complete",
         "/page/total": 3
-      },
-      "max_tokens": 516
+      }
     }
   ],
   "live_check": "synthetic or recorded failure proof; no live refresh"

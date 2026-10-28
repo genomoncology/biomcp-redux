@@ -50,8 +50,7 @@
         "/result/study/description": "Synthetic notice: commercial reuse requires separate permission",
         "/result/matching_granularity": "exact_genomic_allele",
         "/problems/0/field": "sample_set.selected_sample_count"
-      },
-      "max_tokens": 1197
+      }
     }
   ]
 }

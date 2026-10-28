@@ -20,5 +20,6 @@ pub struct TrialHeader {
     /// Last posted registry update.
     pub updated: PartialDate,
     /// Publisher's canonical record URL.
+    #[cfg_attr(feature = "schema", schemars(extend("format" = "uri")))]
     pub url: Text,
 }
