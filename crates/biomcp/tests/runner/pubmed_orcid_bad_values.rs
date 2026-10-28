@@ -58,7 +58,7 @@ fn pubmed() -> Result<(), String> {
         let ids = match field { "doi" => "<ArticleId IdType=\"doi\">bad</ArticleId>", "pmcid" => "<ArticleId IdType=\"pmc\">bad</ArticleId>", _ => "" };
         let citation = match field { "corrections.pmid" => "<CommentsCorrectionsList><CommentsCorrections RefType=\"ErratumIn\"><PMID>bad</PMID></CommentsCorrections></CommentsCorrectionsList>", "keywords" => "<KeywordList><Keyword> </Keyword></KeywordList>", _ => "" };
         let xml = format!("<PubmedArticleSet><PubmedArticle><MedlineCitation><PMID>123</PMID><Article><ArticleTitle>Valid title</ArticleTitle>{extra}</Article>{citation}</MedlineCitation><PubmedData><ArticleIdList>{ids}</ArticleIdList></PubmedData></PubmedArticle></PubmedArticleSet>");
-        let stub = Stub::for_source("eutils.ncbi.nlm.nih.gov", "application/xml", move |_| Ok(xml.clone()))?;
+        let stub = Stub::for_sources(&["eutils.ncbi.nlm.nih.gov"], |_| "application/xml", move |_| Ok(xml.clone()))?;
         let env = super::super::variant::source_environment(&stub)?;
         let value = invoke(&env, ["get", "article", "123", "indexing"].map(str::to_owned).to_vec(), 0)?;
         if value.pointer("/result/items/0/answer/card/pmid") != Some(&json!("123")) { return Err(format!("article lost: {value}")); }
