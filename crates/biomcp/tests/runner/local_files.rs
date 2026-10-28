@@ -7,7 +7,11 @@ pub(super) fn ordered(linked: bool) -> Check {
     let env = Environment::new().map_err(|e| e.to_string())?;
     let target = env.root().join("target.json");
     let link = env.root().join("config/biomcp/config.json");
-    let original = r#"{"ncbi_email":"synthetic@example.invalid","format":"json","keys":{"semantic_scholar_api_key":"synthetic-registration-first","ncbi_api_key":"synthetic-registration-first"},"disable_sources":["reactome"]}"#;
+    let original = concat!(
+        r#"{"ncbi_email":"synthetic@example.invalid","format":"json","keys":{"#,
+        r#""semantic_scholar_api_key":"synthetic-registration-first","#,
+        r#""ncbi_api_key":"synthetic-registration-first"},"disable_sources":["reactome"]}"#,
+    );
     fs::write(&target, original).map_err(|e| e.to_string())?;
     fs::create_dir_all(link.parent().ok_or("parent")?).map_err(|e| e.to_string())?;
     if linked {
@@ -70,13 +74,13 @@ pub(super) fn modes() -> Check {
                 fs::set_permissions(&folder, fs::Permissions::from_mode(0o755))
                     .map_err(|e| e.to_string())?;
             }
-            let args = ["store", "status", "--offline"].map(String::from);
+            let args = ["store", "clean", "--offline"].map(String::from);
             let output = env
                 .command(env!("CARGO_BIN_EXE_biomcp"), &args)
                 .output()
                 .map_err(|e| e.to_string())?;
             if !output.status.success() {
-                return Err("offline store status failed".into());
+                return Err("offline store clean failed".into());
             }
             let mode = |path: &std::path::Path| -> Result<u32, String> {
                 Ok(fs::metadata(path)
