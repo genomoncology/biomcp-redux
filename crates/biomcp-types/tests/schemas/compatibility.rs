@@ -10,6 +10,7 @@ const STRING_FORMATS: &[&str] = &["date", "date-time", "uri", "uri-reference"];
 struct Shape {
     types: BTreeSet<String>,
     values: Option<BTreeSet<String>>,
+    open_enum: bool,
     required: BTreeSet<String>,
     selectors: Option<Vec<BTreeSet<String>>>,
     minimum_length: u64,
@@ -87,6 +88,7 @@ pub(super) fn check_reviewed(
                         .any(|old| !new.iter().any(|new| new.is_subset(old)))
                 })
             })
+            || old.open_enum && !new.open_enum
             || old.types != new.types
             || match kind {
                 ContractKind::Query => !new.required.is_subset(&old.required),
@@ -268,6 +270,7 @@ fn collect(node: &Value, path: &str, shapes: &mut BTreeMap<String, Shape>) -> Ch
         shape.maximum = Some(bound(node, maximum)?);
     }
     collect_format(node, shape)?;
+    shape.open_enum |= node.get("x-extensible-enum").is_some();
     if let Some(values) = node.get("enum").or_else(|| node.get("x-extensible-enum")) {
         shape.values = Some(
             values

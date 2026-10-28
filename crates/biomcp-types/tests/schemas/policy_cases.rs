@@ -48,3 +48,17 @@ fn successor_identity_requires_a_review_and_a_new_major() {
     new["$id"] = json!("biodata.renamed/1");
     assert!(check_reviewed(&old, &new, ContractKind::Reply, &reviews).is_err());
 }
+
+
+#[test]
+fn growable_enum_contracts_keep_known_values_and_accept_future_names() {
+    let old = json!({"$id":"biodata.example/1", "type":"string",
+        "x-extensible-enum":["first","second"]});
+    let mut new = old.clone();
+    new["x-extensible-enum"] = json!(["first","second","third"]);
+    assert!(check_reviewed(&old, &new, ContractKind::Reply, &Reviews::default()).is_ok());
+    new["x-extensible-enum"] = json!(["first"]);
+    assert!(check_reviewed(&old, &new, ContractKind::Reply, &Reviews::default()).is_err());
+    let closed = json!({"$id":"biodata.example/1", "type":"string", "enum":["first","second"]});
+    assert!(check_reviewed(&old, &closed, ContractKind::Reply, &Reviews::default()).is_err());
+}
