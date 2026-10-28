@@ -59,7 +59,7 @@ else:
 @unittest.skipIf(os.name == 'nt', 'synthetic executables use POSIX shebangs')
 class InstalledCli(unittest.TestCase):
     def test_installed_cli_rows_bind_results_and_fail_on_cli_exit(self):
-        for fail in ('', 'version', 'health', 'commit'):
+        for fail in ('', 'version', 'health', 'commit', 'LICENSE', 'THIRD-PARTY-NOTICES.txt', 'unexpected'):
             with self.subTest(fail=fail), tempfile.TemporaryDirectory() as directory:
                 root = Path(directory)
                 output = root / 'dist'
@@ -79,6 +79,11 @@ class InstalledCli(unittest.TestCase):
                 with zipfile.ZipFile(output / 'synthetic.mcpb', 'w') as bundle:
                     bundle.writestr('manifest.json', json.dumps(manifest))
                     bundle.writestr('server/biomcp', binary.read_bytes())
+                    for name in ('LICENSE', 'THIRD-PARTY-NOTICES.txt'):
+                        if fail != name:
+                            bundle.writestr(name, (output / name).read_bytes())
+                    if fail == 'unexpected':
+                        bundle.writestr('unexpected.txt', 'unexpected')
                 registry = {'name': 'io.github.genomoncology/biomcp', 'version': '1.0.0', 'packages': [
                     {'registryType': 'pypi', 'identifier': 'biomcp-cli', 'version': '1.0.0', 'transport': {'type': 'stdio'},
                      'packageArguments': [{'type': 'positional', 'value': 'serve'}]}]}
@@ -96,7 +101,9 @@ class InstalledCli(unittest.TestCase):
                                         capture_output=True, text=True, timeout=120)
                 if fail:
                     self.assertNotEqual(result.returncode, 0)
-                    self.assertIn('installed CLI commit differs' if fail == 'commit' else 'installed CLI command failed', result.stderr)
+                    message = ('unexpected desktop bundle members' if fail in ('LICENSE', 'THIRD-PARTY-NOTICES.txt', 'unexpected')
+                               else 'installed CLI commit differs' if fail == 'commit' else 'installed CLI command failed')
+                    self.assertIn(message, result.stderr)
                     continue
                 self.assertEqual(result.returncode, 0, result.stdout + result.stderr)
                 rows = json.loads((scratch / 'report.json').read_text())
