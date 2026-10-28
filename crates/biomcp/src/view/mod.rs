@@ -268,13 +268,14 @@ fn steps(value: &Value, out: &mut String) {
         let args = args
             .iter()
             .filter_map(Value::as_str)
+            .map(escape::controls)
             .map(|arg| {
                 if arg
                     .chars()
                     .all(|c| c.is_ascii_alphanumeric() || "_./:-".contains(c))
                     && !arg.is_empty()
                 {
-                    arg.to_owned()
+                    arg
                 } else {
                     format!("'{}'", arg.replace('\'', "'\\''"))
                 }

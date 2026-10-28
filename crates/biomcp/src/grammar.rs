@@ -310,6 +310,9 @@ fn globals(matches: &clap::ArgMatches) -> Result<Globals, ()> {
         fresh: matches.get_flag("fresh"),
         format: matches
             .get_one::<String>("format")
+            .filter(|_| {
+                matches.value_source("format") == Some(clap::parser::ValueSource::CommandLine)
+            })
             .map(|v| if v == "md" { Format::Md } else { Format::Json }),
     };
     globals.check()?;
