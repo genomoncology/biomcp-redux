@@ -1,6 +1,7 @@
 # 0404 — Find git in the release image during the secret scan
 
-Status: OPEN.
+Status: COMPLETE.
+Landed: dd125a40d4bf4fa485924b84ecf5a316993b47c4
 
 Milestone: 5
 
