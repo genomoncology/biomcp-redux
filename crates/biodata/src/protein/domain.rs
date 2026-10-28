@@ -9,9 +9,11 @@ pub struct ProteinDomainMatch {
     pub id: InterProId,
     /// Native integrated name.
     #[serde(default, skip_serializing_if = "Option::is_none")]
+    #[cfg_attr(feature = "schema", schemars(with = "Text"))]
     pub name: Option<Text>,
     /// Literal source entry type, including family, site and repeat.
     #[serde(default, skip_serializing_if = "Option::is_none")]
+    #[cfg_attr(feature = "schema", schemars(with = "Text"))]
     pub entry_type: Option<Text>,
     /// Exact native protein identity.
     pub protein: UniProtIsoform,
