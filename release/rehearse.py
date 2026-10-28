@@ -11,7 +11,6 @@ import shutil
 import subprocess
 import sys
 import tempfile
-from source_revision import revision as source_revision
 
 
 def run_stage(rows, name, command):
@@ -58,6 +57,7 @@ def inside(report):
 
 
 def cold(report, container_args):
+    from source_revision import revision as source_revision
     # Clone only tracked source and history, with no host HOME, caches or tools.
     revision = source_revision()
     rows = []

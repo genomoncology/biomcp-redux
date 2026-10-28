@@ -100,7 +100,7 @@ class LinuxContainers(unittest.TestCase):
         with tempfile.TemporaryDirectory() as directory:
             root = Path(directory)
             (root / 'release').mkdir()
-            for name in ('linux.sh', 'container_check.py', 'smoke.py', 'Dockerfile', 'toolchain.py', 'toolchain.json'):
+            for name in ('linux.sh', 'container_check.py', 'smoke.py', 'Dockerfile', 'toolchain.py', 'toolchain.json', 'source_revision.py'):
                 shutil.copyfile(ROOT / 'release' / name, root / 'release' / name)
             shutil.copyfile(ROOT / 'Makefile', root / 'Makefile')
             bindir = root / 'bin'
@@ -116,7 +116,7 @@ class LinuxContainers(unittest.TestCase):
             record = root / 'docker.jsonl'
             env = environment(root)
             env.update(PATH=str(bindir) + os.pathsep + os.environ['PATH'],
-                       BUILD_IMAGE='build-image', DOCKER_RECORD=str(record),
+                       BUILD_IMAGE='build-image', DOCKER_RECORD=str(record), BIOMCP_BUILD_REVISION='a' * 40,
                        GATE_FIXTURE='ROWS = ' + repr(REPORT) + '\n' + GATE)
             result = subprocess.run(['make', 'release-linux', 'CONTAINER_ARGS=' + shlex.join(extra).replace('$', '$$')],
                                     cwd=root, env=env, capture_output=True, text=True)
