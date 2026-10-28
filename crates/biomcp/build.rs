@@ -157,6 +157,7 @@ const EXAMPLE_CASES: &[(&str, usize)] = &[
     ("article/recommendations/multi.yaml", 0),
     ("trial/condition.yaml", 0),
     ("trial/intervention.yaml", 0),
+    ("trial/or-options.yaml", 0),
     ("trial/get/NCT04303780.yaml", 0),
     ("trial/documents.yaml", 0),
     ("trial/document-examples.yaml", 0),

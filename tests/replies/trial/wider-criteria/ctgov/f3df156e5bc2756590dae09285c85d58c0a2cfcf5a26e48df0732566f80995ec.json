@@ -1,7 +1,7 @@
 {
   "method": "GET",
   "source": "ctgov",
-  "url": "https://clinicaltrials.gov/api/v2/studies?countTotal=true&fields=NCTId%2CBriefTitle%2COverallStatus%2CPhase%2CCondition%2CInterventionName%2CLastUpdatePostDate%2CHasResults&pageSize=100&query.cond=basal%20cell%20carcinoma&query.term=PTCH1",
+  "url": "https://clinicaltrials.gov/api/v2/studies?countTotal=true&fields=NCTId%2CBriefTitle%2COverallStatus%2CPhase%2CCondition%2CInterventionName%2CLastUpdatePostDate%2CHasResults&pageSize=100&query.cond=%28basal%20cell%20carcinoma%29&query.term=PTCH1",
   "exchanges": [
     {
       "fetched": 1792886268,

@@ -1,7 +1,7 @@
 {
   "method": "GET",
   "source": "ctgov",
-  "url": "https://clinicaltrials.gov/api/v2/studies?aggFilters=sex%3Af&countTotal=true&fields=NCTId%2CBriefTitle%2COverallStatus%2CPhase%2CCondition%2CInterventionName%2CLastUpdatePostDate%2CHasResults&pageSize=10&query.cond=breast%20cancer",
+  "url": "https://clinicaltrials.gov/api/v2/studies?aggFilters=sex%3Af&countTotal=true&fields=NCTId%2CBriefTitle%2COverallStatus%2CPhase%2CCondition%2CInterventionName%2CLastUpdatePostDate%2CHasResults&pageSize=10&query.cond=%28breast%20cancer%29",
   "exchanges": [
     {
       "fetched": 1792863147,

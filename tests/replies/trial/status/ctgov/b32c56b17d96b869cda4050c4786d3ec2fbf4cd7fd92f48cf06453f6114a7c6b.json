@@ -1,7 +1,7 @@
 {
   "method": "GET",
   "source": "ctgov",
-  "url": "https://clinicaltrials.gov/api/v2/studies?countTotal=true&fields=NCTId%2CBriefTitle%2COverallStatus%2CPhase%2CCondition%2CInterventionName%2CLastUpdatePostDate%2CHasResults&filter.overallStatus=RECRUITING&pageSize=10&query.cond=melanoma",
+  "url": "https://clinicaltrials.gov/api/v2/studies?countTotal=true&fields=NCTId%2CBriefTitle%2COverallStatus%2CPhase%2CCondition%2CInterventionName%2CLastUpdatePostDate%2CHasResults&filter.overallStatus=RECRUITING&pageSize=10&query.cond=%28melanoma%29",
   "exchanges": [
     {
       "fetched": 1792863143,

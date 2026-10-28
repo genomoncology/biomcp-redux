@@ -96,8 +96,8 @@ fn short_pages() -> Check {
 // of provider request availability; wire execution is covered by the case above.
 fn options() -> Check {
     let original = json!({
-        "source":"ctgov", "query":"literal AND (text)", "condition":"basal cell carcinoma",
-        "intervention":"literal drug", "gene":"HGNC:9585", "variant":"p.L576P",
+        "source":"ctgov", "query":"literal AND (text)", "condition":["basal cell carcinoma"],
+        "intervention":["literal drug"], "gene":"HGNC:9585", "variant":"p.L576P",
         "status":"RECRUITING", "phase":"1/2", "study_type":"INTERVENTIONAL",
         "sex":"ALL", "age":18, "lat":"40", "lon":"-75", "distance":"50mi",
         "sponsor":"literal sponsor", "sponsor_type":"nih", "updated_since":"2020",
