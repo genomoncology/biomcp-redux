@@ -89,6 +89,7 @@ def main():
         expected = tuple(map(int, pins['python'].split('.')))
         if sys.version_info[:len(expected)] != expected:
             raise ValueError('Python differs from release tool pin: ' + pins['python'])
+        print('Release Python: ' + platform.python_version())
 
 
 if __name__ == '__main__':
