@@ -66,7 +66,11 @@ fn ambiguous() -> Result<(), String> {
         // Synthetic multiallelic GRCh38 records can each join, but the shared rsID cannot.
         let mut body: Value =
             serde_json::from_str(&ids::candidates("")?).map_err(|e| e.to_string())?;
-        for row in body["hits"].as_array_mut().ok_or("missing hits")? {
+        for row in body
+            .get_mut("hits")
+            .and_then(Value::as_array_mut)
+            .ok_or("missing hits")?
+        {
             let row = row.as_object_mut().ok_or("missing candidate")?;
             let coordinates = row.remove("hg19").ok_or("missing source coordinates")?;
             row.insert("hg38".into(), coordinates);
