@@ -13,6 +13,7 @@ mod cache;
 mod cache_access;
 mod cache_hgnc;
 mod cleanup;
+mod store_size;
 pub use cache_access::CacheAccess;
 mod cache_request;
 mod containment;
@@ -369,6 +370,8 @@ impl Default for Mode {
 /// The retained stale state of a completed source leg.
 #[derive(Debug, Default)]
 pub struct LegReport {
+    /// Body bytes read from HTTP in this leg, excluding cache and replay.
+    pub(crate) downloaded_bytes: u64,
     /// Successful replies with their canonical identity and original fetch time.
     pub replies: Vec<ReplyMetadata>,
     /// Whether any request served a checked stale reply.

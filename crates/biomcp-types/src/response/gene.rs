@@ -349,12 +349,14 @@ pub struct SyncResult {
     pub rows: u64,
     /// Imported source-file bytes before native file decoding.
     pub bytes: u64,
+    /// Source body bytes received in this sync; excludes previous partials, 304 reuse and replay.
+    pub downloaded_bytes: u64,
     /// Distinct repeated identities across the whole source version report.
     #[serde(default, skip_serializing_if = "Option::is_none")]
     pub duplicate_identities: Option<u64>,
 }
 impl ResponseBody for SyncResult {
-    const SCHEMA: &'static str = "biomcp.sync/4";
+    const SCHEMA: &'static str = "biomcp.sync/5";
     type Query = SyncQuery;
 }
 
