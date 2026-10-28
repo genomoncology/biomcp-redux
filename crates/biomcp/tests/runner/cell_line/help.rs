@@ -121,7 +121,7 @@ fn discovery(env: &Environment) -> Result<(), String> {
         serde_json::to_vec(reply).map_err(|e| e.to_string())?.len() + 1
     )
     .map_err(|e| e.to_string())?;
-    for words in [vec!["help"], vec!["schema", "biodata.source/1"]] {
+    for words in [vec!["help"], vec!["schema", "biomcp.source/1"]] {
         let output = env
             .command(
                 env!("CARGO_BIN_EXE_biomcp"),

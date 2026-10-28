@@ -4,18 +4,18 @@ pub(super) fn cases() -> Vec<(&'static str, &'static str, &'static str)> {
         ("excluded-wrong-type", "    expect: {'/type': {excludes: hgnc}}", "excludes: expected an array"),
         (
             "mcp-wrong-value",
-            "  - mcp: [schema, biodata.source/1]\n    expect: {'/type': integer}",
+            "  - mcp: [schema, biomcp.source/1]\n    expect: {'/type': integer}",
             "/type: expected",
         ),
-        ("mcp-bytes", "  - mcp: [schema, biodata.source/1]\n    max_bytes: 0", "max_bytes: expected <= 0"),
+        ("mcp-bytes", "  - mcp: [schema, biomcp.source/1]\n    max_bytes: 0", "max_bytes: expected <= 0"),
         (
             "mcp-tokens",
-            "  - mcp: [schema, biodata.source/1]\n    max_tokens: 0",
+            "  - mcp: [schema, biomcp.source/1]\n    max_tokens: 0",
             "max_tokens: expected <= 0",
         ),
         (
             "mcp-pointer",
-            "  - mcp: [schema, biodata.source/1]\n    expect: {'/enum': {count: 0}}",
+            "  - mcp: [schema, biomcp.source/1]\n    expect: {'/enum': {count: 0}}",
             "count: expected 0",
         ),
         ("mcp-is-error", "  - mcp: [schema, missing/1]", "MCP is_error mismatch"),
@@ -30,7 +30,7 @@ pub(super) fn cases() -> Vec<(&'static str, &'static str, &'static str)> {
         ),
         (
             "nested-wildcard-missing",
-            "  - run: [schema, biodata.problem/1]\n    expect: {'/properties/record/anyOf/*/$ref': [null]}",
+            "  - run: [schema, biomcp.problem/1]\n    expect: {'/properties/record/anyOf/*/$ref': [null]}",
             "actual <missing>",
         ),
         ("count-fraction", "    expect: {'/enum': {count: 1.5}}", "count requires a nonnegative integer"),
@@ -86,7 +86,7 @@ pub(super) fn cases() -> Vec<(&'static str, &'static str, &'static str)> {
         ),
         (
             "validate-all-steps",
-            "    expect: {'/type': integer}\n  - run: [schema, biodata.source/1]\n    expect: {'/type': {unknown: null}}",
+            "    expect: {'/type': integer}\n  - run: [schema, biomcp.source/1]\n    expect: {'/type': {unknown: null}}",
             "unknown assertion operator unknown",
         ),
     ]
@@ -105,12 +105,12 @@ fn article_cases() -> Vec<(&'static str, &'static str, &'static str)> {
         ),
         (
             "nonincreasing-wrong-order",
-            "  - run: [schema, biodata.article-search/1]\n    expect: {'/properties/limit/maximum': {nonincreasing: true}}",
+            "  - run: [schema, biomcp.article-search/1]\n    expect: {'/properties/limit/maximum': {nonincreasing: true}}",
             "nonincreasing: expected an array",
         ),
         (
             "unique-duplicate",
-            "  - run: [schema, biodata.gene-resolution/4]\n    expect: {'/oneOf/*/properties/resolution/type': {unique: true}}",
+            "  - run: [schema, biomcp.gene-resolution/4]\n    expect: {'/oneOf/*/properties/resolution/type': {unique: true}}",
             "unique: duplicate member",
         ),
         (

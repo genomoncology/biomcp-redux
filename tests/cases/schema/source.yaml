@@ -3,10 +3,10 @@ feature: schema
 covers: [schema]
 story: A caller inspects the source identifier schema
 steps:
-  - run: [schema, biodata.source/1]
+  - run: [schema, biomcp.source/1]
     max_bytes: 4096
     expect:
-      /$id: biodata.source/1
+      /$id: biomcp.source/1
       /type: string
       /enum/0: hgnc
       /enum:
@@ -19,9 +19,9 @@ steps:
         # The slice policy permits this source list alone measured size plus 15%.
         max_bytes: 758
       /enum/*: {includes: gnomad}
-  - run: [schema, biodata.problem/1]
+  - run: [schema, biomcp.problem/1]
     expect:
-      /$id: biodata.problem/1
+      /$id: biomcp.problem/1
       /properties/field:
         equals: {description: The biodata field name., type: string}
       /properties/record/anyOf/*:
