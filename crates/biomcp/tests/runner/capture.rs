@@ -15,6 +15,8 @@ pub(super) struct Capture {
     context: Option<Arc<Context>>,
     key: Option<String>,
     args: Vec<String>,
+    stable_args: Vec<String>,
+    spawned: bool,
     executable: String,
     root: String,
     finished: bool,
@@ -33,18 +35,29 @@ impl Capture {
                     .replace(env!("CARGO_MANIFEST_DIR"), "<checkout>/crates/biomcp")
             })
             .collect::<Vec<_>>();
-        let key = context.as_ref().map(|c| c.allocate(&stable));
         Self {
             executable: command.get_program().to_string_lossy().into(),
             command,
             context,
-            key,
+            key: None,
+            stable_args: stable,
+            spawned: false,
             args: args.to_vec(),
             root: root.to_string_lossy().into(),
             finished: false,
         }
     }
+    fn prepare(&mut self) {
+        self.key = self.context.as_ref().map(|c| c.allocate(&self.stable_args));
+        self.spawned = true;
+        self.finished = false;
+    }
+    pub(super) fn spawn(&mut self) -> io::Result<Child> {
+        self.prepare();
+        self.command.spawn()
+    }
     pub(super) fn output(&mut self) -> io::Result<Output> {
+        self.prepare();
         let output = self.command.output()?;
         self.record(output.status, &output.stdout, "cli")?;
         Ok(output)
@@ -99,7 +112,8 @@ impl DerefMut for Capture {
 }
 impl Drop for Capture {
     fn drop(&mut self) {
-        if !self.finished
+        if self.spawned
+            && !self.finished
             && let Some(context) = &self.context
         {
             context.uncaptured();
