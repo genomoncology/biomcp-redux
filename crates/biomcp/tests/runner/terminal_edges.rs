@@ -9,6 +9,7 @@ pub(super) fn trials() -> Vec<Trial> {
     [
         ("markdown-controls", markdown as fn() -> Check),
         ("proxy-case-precedence", proxy),
+        ("proxy-bypass-precedence", bypass),
         ("proxy-help", help),
         ("parsed-format", format),
         ("dispatch-diagnostic", dispatch),
@@ -88,6 +89,29 @@ fn help() -> Check {
     Ok(())
 }
 
+fn bypass() -> Check {
+    for bypass in [false, true] {
+        let env = Environment::new()?;
+        let target = env.root().join("article.pdf");
+        let mut args = env.globals(Some(&super::launch::fixtures().join("replies/article/pdf/synthetic")), false);
+        args.extend(["article".into(), "pdf".into(), "41351423".into(), "--save".into(), target.to_string_lossy().into()]);
+        let output = env.command(env!("CARGO_BIN_EXE_biomcp"), &args)
+            .env("https_proxy", "http://127.0.0.1:9").env("HTTPS_PROXY", "http://127.0.0.1:9")
+            .env("no_proxy", if bypass { "storage.imrpress.com" } else { "unrelated.invalid" })
+            .env("NO_PROXY", if bypass { "unrelated.invalid" } else { "*" }).output()?;
+        let value: Value = serde_json::from_slice(&output.stdout)?;
+        assert_eq!(output.status.code(), Some(if bypass { 0 } else { 4 }), "{value}");
+        assert!(output.stderr.is_empty());
+        if bypass {
+            assert!(fs::read(&target)?.starts_with(b"%PDF-"));
+        } else {
+            assert_eq!(value.pointer("/result/file/reason"), Some(&json!("proxy")));
+            assert!(!target.exists());
+        }
+    }
+    Ok(())
+}
+
 fn format() -> Check {
     let env = Environment::new()?;
     let output = env.command(env!("CARGO_BIN_EXE_biomcp"), &[
@@ -95,7 +119,7 @@ fn format() -> Check {
     ]).output()?;
     assert!(output.status.success());
     let value: Value = serde_json::from_slice(&output.stdout)?;
-    assert_eq!(value.get("schema"), Some(&json!("biomcp.help/1")));
+    assert_eq!(value.get("schema"), Some(&json!("biomcp.help/3")));
     Ok(())
 }
 
