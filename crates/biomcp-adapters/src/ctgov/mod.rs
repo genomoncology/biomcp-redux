@@ -112,8 +112,13 @@ pub fn parameters(query: &TrialSearch, gene: Option<&str>) -> BTreeMap<String, S
 }
 fn advanced(query: &TrialSearch) -> String {
     let mut advanced = Vec::new();
-    if query.exact_condition() && let Some(condition) = query.condition() {
-        advanced.push(format!("AREA[Condition]EXPANSION[None]{}", quote(condition.as_str())));
+    if query.exact_condition()
+        && let Some(condition) = query.condition()
+    {
+        advanced.push(format!(
+            "AREA[Condition]EXPANSION[None]{}",
+            quote(condition.as_str())
+        ));
     }
     if let Some(id) = query.id() {
         advanced.push(format!("AREA[NCTId]{id}"));
@@ -183,7 +188,10 @@ pub fn search(
         count_request = Some(count);
     }
     let condition_word_mismatch = params.get("query.cond").is_some_and(|condition| {
-        raw.studies.as_deref().unwrap_or_default().iter()
+        raw.studies
+            .as_deref()
+            .unwrap_or_default()
+            .iter()
             .any(|row| !row.protocol_section.contains_condition_words(condition))
     });
     Ok(SearchPage {

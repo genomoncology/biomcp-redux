@@ -569,4 +569,3 @@ impl TrialSearch {
         .find_map(|(present, option)| present.then_some(option))
     }
 }
-

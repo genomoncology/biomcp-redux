@@ -3549,6 +3549,10 @@
           "$ref": "#/$defs/Text",
           "description": "Source distance with explicit mi or km units."
         },
+        "exact_condition": {
+          "description": "Ask ClinicalTrials.gov to restrict matching to the registered condition phrase; its support is partial.",
+          "type": "boolean"
+        },
         "facility": {
           "$ref": "#/$defs/Text",
           "description": "Exact registry facility field; cannot combine with radius."
