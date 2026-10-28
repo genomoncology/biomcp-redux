@@ -11,12 +11,16 @@ pub(crate) fn command(
     {
         return bytes(&outcome.cli_bytes);
     }
-    let format = parsed.and_then(|parsed| {
-        parsed
-            .globals
-            .format
-            .or_else(|| crate::config::format(parsed.globals.config.as_ref()))
-    });
+    let format = parsed
+        .as_ref()
+        .and_then(|parsed| parsed.globals.format)
+        .or_else(|| {
+            crate::config::format(
+                parsed
+                    .as_ref()
+                    .and_then(|parsed| parsed.globals.config.as_ref()),
+            )
+        });
     let bytes = match format {
         Some(crate::grammar::Format::Md) if outcome.value.get("schema").is_some() => {
             crate::view::markdown(&outcome.value)?
