@@ -47,7 +47,8 @@ fn markdown() -> Check {
 }
 
 fn proxy() -> Check {
-    for dual in [false, true] {
+    // Windows environment names are case-insensitive, so it has no dual-name state.
+    for dual in [false, true].into_iter().filter(|dual| !cfg!(windows) || !*dual) {
         let env = Environment::new()?;
         let stub = Stub::new()?;
         stub.retain(&env);
@@ -66,6 +67,9 @@ fn proxy() -> Check {
         assert!(output.stderr.is_empty());
         assert_eq!(value.pointer("/result/rows"), Some(&json!(176)));
         assert_eq!(stub.finish()?.len(), 2);
+    }
+    if cfg!(windows) {
+        return Ok(());
     }
     // Empty lower-case values override upper-case settings, too. No network is needed.
     let env = Environment::new()?;
@@ -95,10 +99,14 @@ fn bypass() -> Check {
         let target = env.root().join("article.pdf");
         let mut args = env.globals(Some(&super::launch::fixtures().join("replies/article/pdf/synthetic")), false);
         args.extend(["article".into(), "pdf".into(), "41351423".into(), "--save".into(), target.to_string_lossy().into()]);
-        let output = env.command(env!("CARGO_BIN_EXE_biomcp"), &args)
-            .env("https_proxy", "http://127.0.0.1:9").env("HTTPS_PROXY", "http://127.0.0.1:9")
-            .env("no_proxy", if bypass { "storage.imrpress.com" } else { "unrelated.invalid" })
-            .env("NO_PROXY", if bypass { "unrelated.invalid" } else { "*" }).output()?;
+        let mut command = env.command(env!("CARGO_BIN_EXE_biomcp"), &args);
+        command.env("https_proxy", "http://127.0.0.1:9")
+            .env("no_proxy", if bypass { "storage.imrpress.com" } else { "unrelated.invalid" });
+        if !cfg!(windows) {
+            command.env("HTTPS_PROXY", "http://127.0.0.1:9")
+                .env("NO_PROXY", if bypass { "unrelated.invalid" } else { "*" });
+        }
+        let output = command.output()?;
         let value: Value = serde_json::from_slice(&output.stdout)?;
         assert_eq!(output.status.code(), Some(if bypass { 0 } else { 4 }), "{value}");
         assert!(output.stderr.is_empty());
