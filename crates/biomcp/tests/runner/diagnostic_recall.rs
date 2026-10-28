@@ -162,17 +162,17 @@ fn invalid() -> Result<(), String> {
 
 fn card_stub(matched: bool) -> Result<Stub, String> {
     Stub::for_source_status(
-            "api.fda.gov",
-            "application/json",
-            move |request| {
-                let line = request.lines().next().ok_or("missing request")?;
-                if line
-                    == concat!(
-                        "GET /device/recall.json?search=product_res_number.exact%3A%22Z-0001-2024%22",
-                        "&limit=1&skip=0 HTTP/1.1"
-                    )
-                {
-                    return Ok(json!({"meta":{"results":{"skip":0,"limit":1,"total":1}},"results":[{
+        "api.fda.gov",
+        "application/json",
+        move |request| {
+            let line = request.lines().next().ok_or("missing request")?;
+            if line
+                == concat!(
+                    "GET /device/recall.json?search=product_res_number.exact%3A%22Z-0001-2024%22",
+                    "&limit=1&skip=0 HTTP/1.1"
+                )
+            {
+                return Ok(json!({"meta":{"results":{"skip":0,"limit":1,"total":1}},"results":[{
                     "product_res_number":"Z-0001-2024","res_event_number":"101",
                     "recalling_firm":"Synthetic maker","product_code":"ABC","recall_status":"Ongoing",
                     "event_date_initiated":"2024-01-02","reason_for_recall":"Synthetic reason",
@@ -180,159 +180,157 @@ fn card_stub(matched: bool) -> Result<Stub, String> {
                     "distribution_pattern":"Synthetic distribution","k_numbers":["K000001"],"pma_numbers":["P000001"],
                     "openfda":{"k_number":["K999999"],"pma_number":["P999999"]}
                 }]}).to_string());
-                }
-                if line
-                    != concat!(
-                        "GET /device/enforcement.json?search=recall_number.exact%3A%22Z-0001-2024%22",
-                        "&limit=1&skip=0 HTTP/1.1"
-                    )
-                {
-                    return Err(format!("wrong exact recall request: {line}"));
-                }
-                Ok(if matched {
-                    json!({"meta":{"results":{"skip":0,"limit":1,"total":1}},"results":[{
-                        "recall_number":"Z-0001-2024","classification":"Class II"
-                    }]})
-                    .to_string()
-                } else {
-                    json!({"error":{"code":"NOT_FOUND","message":"No matches found!"}}).to_string()
-                })
-            },
-            move |request| {
-                if !matched && request.starts_with("GET /device/enforcement.json?") {
-                    404
-                } else {
-                    200
-                }
-            },
-        )
+            }
+            if line
+                != concat!(
+                    "GET /device/enforcement.json?search=recall_number.exact%3A%22Z-0001-2024%22",
+                    "&limit=1&skip=0 HTTP/1.1"
+                )
+            {
+                return Err(format!("wrong exact recall request: {line}"));
+            }
+            Ok(if matched {
+                json!({"meta":{"results":{"skip":0,"limit":1,"total":1}},"results":[{
+                    "recall_number":"Z-0001-2024","classification":"Class II"
+                }]})
+                .to_string()
+            } else {
+                json!({"error":{"code":"NOT_FOUND","message":"No matches found!"}}).to_string()
+            })
+        },
+        move |request| {
+            if !matched && request.starts_with("GET /device/enforcement.json?") {
+                404
+            } else {
+                200
+            }
+        },
+    )
 }
 
 const INVALID: &[&[&str]] = &[
-
-        &[
-            "search",
-            "diagnostic",
-            "--source",
-            "fda-device-recall",
-            "--gene",
-            "BRAF",
-        ],
-        &[
-            "search",
-            "diagnostic",
-            "--source",
-            "fda-device-recall",
-            "--marker",
-            "Synthetic",
-        ],
-        &[
-            "search",
-            "diagnostic",
-            "--source",
-            "fda-device-recall",
-            "--bundle-revision",
-            "synthetic",
-        ],
-        &[
-            "search",
-            "diagnostic",
-            "--source",
-            "fda-device-recall",
-            "--initiated-from",
-            "2024-02-30",
-        ],
-        &[
-            "search",
-            "diagnostic",
-            "--source",
-            "fda-device-recall",
-            "--initiated-from",
-            "2024",
-        ],
-        &[
-            "search",
-            "diagnostic",
-            "--source",
-            "fda-device-recall",
-            "--initiated-from",
-            "2024-02-01",
-            "--initiated-to",
-            "2024-01-01",
-        ],
-        &[
-            "search",
-            "diagnostic",
-            "--source",
-            "gtr",
-            "--product-code",
-            "ABC",
-        ],
-        &[
-            "search",
-            "diagnostic",
-            "--source",
-            "who-ivd",
-            "--initiated-to",
-            "2024-01-01",
-        ],
-        &[
-            "get",
-            "diagnostic",
-            "Z-1-2024",
-            "--source",
-            "fda-device-recall",
-        ],
-        &[
-            "get",
-            "diagnostic",
-            "K000001",
-            "--source",
-            "fda-device-recall",
-        ],
-        &[
-            "get",
-            "diagnostic",
-            "Z-0001-2024",
-            "genes",
-            "--source",
-            "fda-device-recall",
-        ],
-        &[
-            "get",
-            "diagnostic",
-            "Z-0001-2024",
-            "--source",
-            "fda-device-recall",
-            "--section-limit",
-            "1",
-        ],
-        &[
-            "get",
-            "diagnostic",
-            "Z-0001-2024",
-            "--source",
-            "fda-device-recall",
-            "--section-offset",
-            "1",
-        ],
-        &[
-            "get",
-            "diagnostic",
-            "Z-0001-2024",
-            "--source",
-            "fda-device-recall",
-            "--supplement",
-            "S001",
-        ],
-        &[
-            "get",
-            "diagnostic",
-            "Z-0001-2024",
-            "--source",
-            "fda-device-recall",
-            "--bundle-revision",
-            "synthetic",
-        ],
-
+    &[
+        "search",
+        "diagnostic",
+        "--source",
+        "fda-device-recall",
+        "--gene",
+        "BRAF",
+    ],
+    &[
+        "search",
+        "diagnostic",
+        "--source",
+        "fda-device-recall",
+        "--marker",
+        "Synthetic",
+    ],
+    &[
+        "search",
+        "diagnostic",
+        "--source",
+        "fda-device-recall",
+        "--bundle-revision",
+        "synthetic",
+    ],
+    &[
+        "search",
+        "diagnostic",
+        "--source",
+        "fda-device-recall",
+        "--initiated-from",
+        "2024-02-30",
+    ],
+    &[
+        "search",
+        "diagnostic",
+        "--source",
+        "fda-device-recall",
+        "--initiated-from",
+        "2024",
+    ],
+    &[
+        "search",
+        "diagnostic",
+        "--source",
+        "fda-device-recall",
+        "--initiated-from",
+        "2024-02-01",
+        "--initiated-to",
+        "2024-01-01",
+    ],
+    &[
+        "search",
+        "diagnostic",
+        "--source",
+        "gtr",
+        "--product-code",
+        "ABC",
+    ],
+    &[
+        "search",
+        "diagnostic",
+        "--source",
+        "who-ivd",
+        "--initiated-to",
+        "2024-01-01",
+    ],
+    &[
+        "get",
+        "diagnostic",
+        "Z-1-2024",
+        "--source",
+        "fda-device-recall",
+    ],
+    &[
+        "get",
+        "diagnostic",
+        "K000001",
+        "--source",
+        "fda-device-recall",
+    ],
+    &[
+        "get",
+        "diagnostic",
+        "Z-0001-2024",
+        "genes",
+        "--source",
+        "fda-device-recall",
+    ],
+    &[
+        "get",
+        "diagnostic",
+        "Z-0001-2024",
+        "--source",
+        "fda-device-recall",
+        "--section-limit",
+        "1",
+    ],
+    &[
+        "get",
+        "diagnostic",
+        "Z-0001-2024",
+        "--source",
+        "fda-device-recall",
+        "--section-offset",
+        "1",
+    ],
+    &[
+        "get",
+        "diagnostic",
+        "Z-0001-2024",
+        "--source",
+        "fda-device-recall",
+        "--supplement",
+        "S001",
+    ],
+    &[
+        "get",
+        "diagnostic",
+        "Z-0001-2024",
+        "--source",
+        "fda-device-recall",
+        "--bundle-revision",
+        "synthetic",
+    ],
 ];

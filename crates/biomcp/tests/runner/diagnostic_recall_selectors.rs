@@ -116,7 +116,9 @@ fn paging() -> Result<(), String> {
         } else {
             "Z-0002-2024"
         });
-        *record.get_mut("event_date_initiated").ok_or("missing synthetic date")? = json!("2024-02-30");
+        *record
+            .get_mut("event_date_initiated")
+            .ok_or("missing synthetic date")? = json!("2024-02-30");
         Ok(
             json!({"meta":{"results":{"skip":skip,"limit":1,"total":2}},"results":[record]})
                 .to_string(),

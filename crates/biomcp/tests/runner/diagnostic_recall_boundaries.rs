@@ -77,31 +77,27 @@ fn run(mode: &'static str) -> Result<(), String> {
 }
 
 fn reply(mode: &str, req: &str) -> Result<String, String> {
-
-            let line = req.lines().next().ok_or("missing request")?;
-            let row = if line
-                == concat!(
-                    "GET /device/recall.json?search=product_res_number.exact%3A%22Z-0001-2024%22",
-                    "&limit=1&skip=0 HTTP/1.1"
-                ) {
-                json!({"product_res_number":if mode=="wrong-recall" {"Z-0002-2024"}else{"Z-0001-2024"},
+    let line = req.lines().next().ok_or("missing request")?;
+    let row = if line
+        == concat!(
+            "GET /device/recall.json?search=product_res_number.exact%3A%22Z-0001-2024%22",
+            "&limit=1&skip=0 HTTP/1.1"
+        ) {
+        json!({"product_res_number":if mode=="wrong-recall" {"Z-0002-2024"}else{"Z-0001-2024"},
                 "product_code":"ABC","reason_for_recall":"Synthetic reason"})
-            } else if line
-                == concat!(
-                    "GET /device/enforcement.json?search=recall_number.exact%3A%22Z-0001-2024%22",
-                    "&limit=1&skip=0 HTTP/1.1"
-                )
-                && mode != "wrong-recall"
-            {
-                if mode == "enforcement-error" {
-                    return Ok("{}".into());
-                }
-                json!({"recall_number":"Z-0002-2024","classification":"Class II"})
-            } else {
-                return Err(format!("wrong recall boundary request: {line}"));
-            };
-            Ok(
-                json!({"meta":{"results":{"skip":0,"limit":1,"total":1}},"results":[row]})
-                    .to_string(),
-            )
+    } else if line
+        == concat!(
+            "GET /device/enforcement.json?search=recall_number.exact%3A%22Z-0001-2024%22",
+            "&limit=1&skip=0 HTTP/1.1"
+        )
+        && mode != "wrong-recall"
+    {
+        if mode == "enforcement-error" {
+            return Ok("{}".into());
+        }
+        json!({"recall_number":"Z-0002-2024","classification":"Class II"})
+    } else {
+        return Err(format!("wrong recall boundary request: {line}"));
+    };
+    Ok(json!({"meta":{"results":{"skip":0,"limit":1,"total":1}},"results":[row]}).to_string())
 }
