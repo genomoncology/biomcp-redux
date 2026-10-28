@@ -1,6 +1,7 @@
 # 0388 — Fix the shared history secret scan failure
 
-Status: OPEN.
+Status: COMPLETE.
+Landed: 25138f26feb8f5bfa7d981bae8a90e16196704a8
 
 Milestone: 5
 

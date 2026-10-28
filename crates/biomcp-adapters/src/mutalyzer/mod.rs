@@ -148,6 +148,7 @@ pub fn resolve(leg: &Leg<'_>, input: &str) -> Result<Resolution, RequestError> {
             id: notation,
             url: None,
         },
+        transcripts: Box::default(),
         myvariant: None,
         requested: None,
         sections: None,
