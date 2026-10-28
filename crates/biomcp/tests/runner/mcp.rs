@@ -32,7 +32,13 @@ pub(super) fn exchange_retained(
 ) -> Result<Vec<Value>, String> {
     let mut args = vec!["serve".into()];
     args.extend_from_slice(globals);
-    let mut command = environment.command(env!("CARGO_BIN_EXE_biomcp"), &args);
+    let transcript_args = frames
+        .iter()
+        .map(serde_json::to_string)
+        .collect::<Result<Vec<_>, _>>()
+        .map_err(|e| e.to_string())?;
+    let mut command =
+        environment.command_with_arguments(env!("CARGO_BIN_EXE_biomcp"), &args, &transcript_args);
     let child = command
         .stdin(Stdio::piped())
         .stdout(Stdio::piped())
