@@ -76,17 +76,7 @@ fn header(row: SummaryRow, key: &str, problems: &mut Vec<Problem>) -> Option<Art
         .next()
         .and_then(|v| context.required("first_author", v.value()))
         .and_then(|a| context.text("first_author", Some(&a.name)));
-    let types = row
-        .pubtype
-        .and_then(|v| context.required("types", v.value()))
-        .unwrap_or_default()
-        .into_iter()
-        .filter_map(|v| {
-            let s = context.required("types", v.value())?;
-            context.text("types", Some(&s))
-        })
-        .filter_map(|s| publication_type(s.as_str()))
-        .collect();
+    let types = publication_types(row.pubtype, &mut context);
     let mut doi = None;
     let mut pmcid = None;
     for item in row
@@ -124,6 +114,18 @@ fn header(row: SummaryRow, key: &str, problems: &mut Vec<Problem>) -> Option<Art
         first_author_id: None,
         author_count,
     })
+}
+fn publication_types(value: Option<Field<Vec<Field<String>>>>, context: &mut Problems) -> Vec<P> {
+    value
+        .and_then(|v| context.required("types", v.value()))
+        .unwrap_or_default()
+        .into_iter()
+        .filter_map(|v| {
+            let s = context.required("types", v.value())?;
+            context.text("types", Some(&s))
+        })
+        .filter_map(|s| publication_type(s.as_str()))
+        .collect()
 }
 fn date(s: &str) -> Result<PartialDate, biomcp_fetch::BadReply> {
     let mut words = s.split_whitespace();

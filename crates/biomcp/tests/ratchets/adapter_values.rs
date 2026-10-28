@@ -37,9 +37,8 @@ pub(super) fn check(root: &Path) -> Check {
     }
     Ok(())
 }
-pub(crate) fn sites(
-    root: &Path,
-) -> Result<Vec<(String, String, usize)>, Box<dyn std::error::Error>> {
+type DropSite = (String, String, usize);
+pub(crate) fn sites(root: &Path) -> Result<Vec<DropSite>, Box<dyn std::error::Error>> {
     let mut result = Vec::new();
     for path in rust_files(&root.join("crates/biomcp-adapters/src"))? {
         let relative = path
