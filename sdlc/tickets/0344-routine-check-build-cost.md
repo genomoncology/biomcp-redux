@@ -1,6 +1,7 @@
 # 0344 — Measure the landing gate's builds and keep only the ones it needs
 
-Status: OPEN.
+Status: COMPLETE.
+Landed: 69a64e28fb11be5debb842edbc83c07da893aab9
 
 Milestone: 5
 
