@@ -14,7 +14,16 @@ pub(super) fn section(
     _query: &VariantGet,
     candidates: &[VariantHeader],
     deadline: Deadline<'_>,
+    blocked: Option<Reason>,
 ) -> super::sections::Result<VariantPopulation> {
+    if let Some(reason) = blocked {
+        return (
+            Section::unavailable(Source::Gnomad, reason),
+            Vec::new(),
+            Vec::new(),
+            None,
+        );
+    }
     let Some(id) = join(candidates) else {
         return missing();
     };

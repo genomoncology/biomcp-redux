@@ -96,34 +96,8 @@ pub(super) fn next(
             })
     {
         for row in candidates {
-            if super::population_identity::requested(query) {
-                if let Some(request) = super::population_identity::choice(row) {
-                    let request = match request {
-                        Request::GetVariant(q) if resolution == VariantResolution::Candidates => {
-                            Request::GetVariant(q.with_sections(query.sections().into()))
-                        }
-                        request => request,
-                    };
-                    push(&mut next, StepKind::Disambiguate, request);
-                }
-            } else if let Ok(input) = row.record.id.as_str().parse()
-                && let Ok(q) = VariantGet::new(
-                    input,
-                    query.resolver(),
-                    row.identity
-                        .representations
-                        .iter()
-                        .find_map(|r| r.build)
-                        .or(query.build()),
-                )
-            {
-                next.push((
-                    StepKind::Disambiguate,
-                    Action::Run {
-                        request: Request::GetVariant(q),
-                        fresh: false,
-                    },
-                ));
+            if let Some(request) = candidate_request(query, resolution, row) {
+                push(&mut next, StepKind::Disambiguate, request);
             }
         }
     }
@@ -164,4 +138,31 @@ pub(super) fn next(
         }
     }
     next
+}
+
+fn candidate_request(
+    query: &VariantGet,
+    resolution: VariantResolution,
+    row: &VariantHeader,
+) -> Option<Request> {
+    if super::population_identity::requested(query) {
+        return Some(match super::population_identity::choice(row)? {
+            Request::GetVariant(q) if resolution == VariantResolution::Candidates => {
+                Request::GetVariant(q.with_sections(query.sections().into()))
+            }
+            request => request,
+        });
+    }
+    Some(Request::GetVariant(
+        VariantGet::new(
+            row.record.id.as_str().parse().ok()?,
+            query.resolver(),
+            row.identity
+                .representations
+                .iter()
+                .find_map(|r| r.build)
+                .or(query.build()),
+        )
+        .ok()?,
+    ))
 }
