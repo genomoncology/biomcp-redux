@@ -115,7 +115,7 @@ fn header(row: SummaryRow, key: &str, problems: &mut Vec<Problem>) -> Option<Art
         author_count,
     })
 }
-fn publication_types(value: Option<Field<Vec<Field<String>>>>, context: &mut Problems) -> Vec<P> {
+fn publication_types(value: Option<Field<Vec<Field<String>>>>, context: &mut Problems) -> Box<[P]> {
     value
         .and_then(|v| context.required("types", v.value()))
         .unwrap_or_default()
