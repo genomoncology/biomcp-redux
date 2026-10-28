@@ -5,40 +5,18 @@ pub(crate) fn command(
     outcome: &crate::command::Outcome,
     args: &[std::ffi::OsString],
 ) -> io::Result<()> {
-    let parsed = if crate::grammar::is_housekeeping(args) {
-        let parsed = crate::grammar::parse(args).ok();
+    let parsed = crate::grammar::parse(args).ok();
+    if crate::grammar::is_housekeeping(args) {
         if parsed.as_ref().is_none_or(|parsed| parsed.help.is_none()) {
             return bytes(&outcome.cli_bytes);
         }
-        parsed
-    } else {
-        None
-    };
-    let mut words = args.iter().take_while(|arg| *arg != "--");
-    let mut format = None;
-    while let Some(word) = words.next().and_then(|arg| arg.to_str()) {
-        if word == "--format" {
-            format = words.next().and_then(|arg| arg.to_str());
-        } else if let Some(value) = word.strip_prefix("--format=") {
-            format = Some(value);
-        }
     }
-    let format = format
-        .map(|value| {
-            if value == "md" {
-                crate::grammar::Format::Md
-            } else {
-                crate::grammar::Format::Json
-            }
-        })
-        .or_else(|| {
-            crate::config::format(
-                parsed
-                    .or_else(|| crate::grammar::parse(args).ok())
-                    .and_then(|parsed| parsed.globals.config)
-                    .as_ref(),
-            )
-        });
+    let format = parsed.and_then(|parsed| {
+        parsed
+            .globals
+            .format
+            .or_else(|| crate::config::format(parsed.globals.config.as_ref()))
+    });
     let bytes = match format {
         Some(crate::grammar::Format::Md) if outcome.value.get("schema").is_some() => {
             crate::view::markdown(&outcome.value)?
@@ -56,6 +34,6 @@ pub(crate) fn bytes(bytes: &[u8]) -> io::Result<()> {
     }
 }
 
-pub(crate) fn diagnostic(message: &'static [u8]) {
+pub(crate) fn diagnostic(message: &[u8]) {
     let _ = io::stderr().lock().write_all(message);
 }

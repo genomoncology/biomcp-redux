@@ -71,7 +71,6 @@ pub(crate) fn serve(
                 Some(protocol::error(Value::Null, -32700, "Parse error"))
             }
             Event::Input(Frame::Oversized) => {
-                eof = true;
                 Some(protocol::error(Value::Null, -32600, "Frame too large"))
             }
             Event::Input(Frame::Message(frame)) => server.message(&frame)?,
@@ -100,7 +99,7 @@ fn start_input(sender: mpsc::SyncSender<Event>) -> io::Result<()> {
             let mut input = io::stdin().lock();
             loop {
                 let frame = framing::read(&mut input).unwrap_or(Frame::Malformed);
-                let terminal = !matches!(frame, Frame::Message(_));
+                let terminal = matches!(frame, Frame::Malformed | Frame::Eof);
                 if sender.send(Event::Input(frame)).is_err() || terminal {
                     break;
                 }
