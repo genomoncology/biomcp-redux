@@ -163,6 +163,8 @@ canonical_enum! {
         TooLarge => "too_large",
         /// The source limited the request rate.
         RateLimited => "rate_limited",
+        /// The local source quota refused admission without a network request.
+        LocalQuota => "local_quota",
         /// The source was unavailable.
         Unavailable => "unavailable",
         /// Platform or configured certificate verification failed.

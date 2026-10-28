@@ -14,11 +14,12 @@
       ],
       "max_bytes": 170,
       "expect": {
-        "/schema": "biomcp.sync/4",
+        "/schema": "biomcp.sync/5",
         "/status": "complete",
         "/query/source": "ema",
         "/result/rows": 6,
-        "/result/bytes": 1776
+        "/result/bytes": 1776,
+        "/result/downloaded_bytes": 0
       }
     },
     {
@@ -34,11 +35,12 @@
       ],
       "max_bytes": 170,
       "expect": {
-        "/schema": "biomcp.sync/4",
+        "/schema": "biomcp.sync/5",
         "/status": "complete",
         "/query/source": "ema",
         "/result/rows": 6,
-        "/result/bytes": 1776
+        "/result/bytes": 1776,
+        "/result/downloaded_bytes": 0
       }
     }
   ]

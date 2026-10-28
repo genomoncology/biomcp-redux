@@ -30,11 +30,7 @@ impl Part {
         let path = std::path::Path::new(&self.path);
         let parent = path.parent().ok_or(CacheError::Database)?;
         let name = path.file_name().and_then(|n| n.to_str());
-        let valid_name = name
-            .and_then(|n| n.strip_prefix(PART_PREFIX))
-            .is_some_and(|n| {
-                n.len() == PART_RANDOM && n.bytes().all(|b| b.is_ascii_alphanumeric())
-            });
+        let valid_name = name.is_some_and(part_name);
         if !valid_name
             || parent.canonicalize().map_err(|_| CacheError::Database)?
                 != folder.canonicalize().map_err(|_| CacheError::Database)?
@@ -47,6 +43,10 @@ impl Part {
         }
         Ok(())
     }
+}
+pub(crate) fn part_name(name: &str) -> bool {
+    name.strip_prefix(PART_PREFIX)
+        .is_some_and(|n| n.len() == PART_RANDOM && n.bytes().all(|b| b.is_ascii_alphanumeric()))
 }
 pub(super) fn create_part(folder: &std::path::Path) -> Result<tempfile::NamedTempFile, CacheError> {
     tempfile::Builder::new()
@@ -91,6 +91,7 @@ pub(super) fn info<R: Row>(b: &Bundle<R>, m: &Meta) -> BundleInfo {
         last_modified: m.modified.as_deref().map(Into::into),
         name: b.name,
         bytes: m.bytes,
+        downloaded_bytes: 0,
         rows: m.rows,
         fresh: m.fresh_until > now(),
         content_revision: m.content_revision.as_deref().map(Into::into),
