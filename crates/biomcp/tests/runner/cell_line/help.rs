@@ -145,7 +145,7 @@ fn discovery(env: &Environment) -> Result<(), String> {
             writeln!(
                 std::io::stderr(),
                 "CELL_LINE_DISCOVERY source-enum={}",
-                serde_json::to_vec(schema.get("enum").ok_or("source enum")?)
+                serde_json::to_vec(schema.get("x-extensible-enum").ok_or("source enum")?)
                     .map_err(|e| e.to_string())?
                     .len()
             )

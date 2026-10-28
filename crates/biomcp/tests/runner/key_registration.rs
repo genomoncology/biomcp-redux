@@ -1,5 +1,6 @@
 //! Key registration crosses the real CLI boundary without real credentials.
 use super::launch::Environment;
+use crate::runner::transcript::trial as transcript_trial;
 use libtest_mimic::Trial;
 use serde_json::{Value, json};
 use std::{fs, io::Write, process::Stdio};
@@ -8,29 +9,29 @@ const FIRST: &str = "synthetic-registration-first";
 const SECOND: &str = "synthetic-registration-second";
 pub(super) fn trials() -> Vec<Trial> {
     vec![
-        Trial::test("trial/nci/key-reload", || {
+        transcript_trial("trial/nci/key-reload", || {
             super::key_reload::nci().map_err(Into::into)
         }),
-        Trial::test("configuration/local-file-modes", || {
+        transcript_trial("configuration/local-file-modes", || {
             super::local_files::modes().map_err(Into::into)
         }),
-        Trial::test("configuration/key-file-order", || {
+        transcript_trial("configuration/key-file-order", || {
             super::local_files::ordered(false).map_err(Into::into)
         }),
         #[cfg(unix)]
-        Trial::test("configuration/key-file-symlink", || {
+        transcript_trial("configuration/key-file-symlink", || {
             super::local_files::ordered(true).map_err(Into::into)
         }),
-        Trial::test("configuration/key-registration", || {
+        transcript_trial("configuration/key-registration", || {
             registration().map_err(Into::into)
         }),
-        Trial::test("configuration/key-reload-stdio", || {
+        transcript_trial("configuration/key-reload-stdio", || {
             super::key_reload::check(false, false).map_err(Into::into)
         }),
-        Trial::test("configuration/key-reload-stdio-environment", || {
+        transcript_trial("configuration/key-reload-stdio-environment", || {
             super::key_reload::check(false, true).map_err(Into::into)
         }),
-        Trial::test("configuration/key-reload-http", || {
+        transcript_trial("configuration/key-reload-http", || {
             super::key_reload::check(true, true).map_err(Into::into)
         }),
     ]
@@ -42,8 +43,8 @@ pub(super) fn invoke(
     exit: i32,
 ) -> Result<Value, String> {
     let args = args.iter().map(|s| (*s).into()).collect::<Vec<_>>();
-    let mut child = env
-        .command(env!("CARGO_BIN_EXE_biomcp"), &args)
+    let mut command = env.command(env!("CARGO_BIN_EXE_biomcp"), &args);
+    let mut child = command
         .stdin(Stdio::piped())
         .stdout(Stdio::piped())
         .stderr(Stdio::piped())
@@ -56,6 +57,9 @@ pub(super) fn invoke(
         .write_all(input.as_bytes())
         .map_err(|e| e.to_string())?;
     let output = child.wait_with_output().map_err(|e| e.to_string())?;
+    command
+        .record(output.status, &output.stdout, "cli")
+        .map_err(|e| e.to_string())?;
     if output.status.code() != Some(exit) {
         return Err(format!("wrong exit: {:?}", output.status));
     }

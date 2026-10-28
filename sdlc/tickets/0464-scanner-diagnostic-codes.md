@@ -1,6 +1,7 @@
 # 0464 — Give secret-scan failures safe diagnostic codes
 
-Status: OPEN.
+Status: COMPLETE.
+Landed: 95c9739e03ae324dded81cf6648bd97b15376a20
 
 Milestone: 5
 

@@ -1,19 +1,20 @@
 use super::super::{configuration::invoke, launch::Environment, network_stub::Stub};
 use super::field;
 use super::{Check, both, get_args, identity, page, record, setup};
+use crate::runner::transcript::trial as transcript_trial;
 use libtest_mimic::Trial;
 use serde_json::json;
 pub(super) fn trials() -> Vec<Trial> {
     let mut trials = vec![
-        Trial::test("drug-label/refuse-mismatched-set-before-cache", || {
+        transcript_trial("drug-label/refuse-mismatched-set-before-cache", || {
             wrong_set().map_err(Into::into)
         }),
-        Trial::test("drug-label/disabled-before-label-request", || {
+        transcript_trial("drug-label/disabled-before-label-request", || {
             disabled().map_err(Into::into)
         }),
     ];
     for (status, message) in [(404, "route missing"), (200, "No matches found!")] {
-        trials.push(Trial::test(
+        trials.push(transcript_trial(
             format!("drug-label/refuse-nonnative-absence-{status}"),
             move || rejection(status, message).map_err(Into::into),
         ));

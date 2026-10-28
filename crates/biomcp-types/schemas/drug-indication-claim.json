@@ -1,7 +1,6 @@
 {
   "$defs": {
     "Attribution": {
-      "additionalProperties": false,
       "description": "Provenance for one source record.",
       "properties": {
         "evaluated": {
@@ -82,7 +81,6 @@
       "type": "object"
     },
     "DrugDiseaseReference": {
-      "additionalProperties": false,
       "description": "One native disease identifier and its own source label.",
       "properties": {
         "id": {
@@ -117,7 +115,6 @@
       "type": "string"
     },
     "DrugIdentity": {
-      "additionalProperties": false,
       "description": "One source record identity, without any equivalence or authorization claim.",
       "properties": {
         "id": {
@@ -169,21 +166,6 @@
     },
     "DrugIdentityLevel": {
       "description": "Identity level established by the source endpoint or record type, never inferred from ID shape.",
-      "enum": [
-        "ingredient",
-        "salt",
-        "clinical_formulation",
-        "branded_product",
-        "spl_set",
-        "spl_version",
-        "ndc_package",
-        "fda_application",
-        "fda_product",
-        "ema_authorization",
-        "ema_application",
-        "orphan_designation",
-        "unknown"
-      ],
       "type": "string",
       "x-enum-descriptions": [
         " Source-stated ingredient identity.",
@@ -199,10 +181,24 @@
         " Source-stated ema application identity.",
         " Source-stated orphan designation identity.",
         " Source-stated unknown identity."
+      ],
+      "x-extensible-enum": [
+        "ingredient",
+        "salt",
+        "clinical_formulation",
+        "branded_product",
+        "spl_set",
+        "spl_version",
+        "ndc_package",
+        "fda_application",
+        "fda_product",
+        "ema_authorization",
+        "ema_application",
+        "orphan_designation",
+        "unknown"
       ]
     },
     "DrugNativeReference": {
-      "additionalProperties": false,
       "description": "Typed source reference shared by mechanism and indication records.",
       "properties": {
         "ref_id": {
@@ -239,7 +235,6 @@
       "type": "object"
     },
     "DrugStage": {
-      "additionalProperties": false,
       "description": "One source development-stage field and its unchanged value.",
       "properties": {
         "field": {
@@ -270,7 +265,6 @@
   },
   "$id": "biodata.drug-indication-claim/3",
   "$schema": "https://json-schema.org/draft/2020-12/schema",
-  "additionalProperties": false,
   "description": "A source indication retaining its full population and combination wording.",
   "properties": {
     "attribution": {

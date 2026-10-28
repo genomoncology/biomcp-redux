@@ -1,22 +1,23 @@
 //! Feature adverse-event-get: synthetic exact identity and independent native sections.
 use super::{configuration::invoke, launch::Environment, network_stub::Stub};
+use crate::runner::transcript::trial as transcript_trial;
 use libtest_mimic::Trial;
 use serde_json::{Value, json};
 type Check = Result<(), String>;
 pub(super) fn trials() -> Vec<Trial> {
-    let mut trials = vec![Trial::test(
+    let mut trials = vec![transcript_trial(
         "adverse-event-get/synthetic-sections-and-snapshot",
         || sections().map_err(Into::into),
     )];
-    trials.push(Trial::test(
+    trials.push(transcript_trial(
         "adverse-event-get/synthetic-complete-array-walks",
         || walks().map_err(Into::into),
     ));
-    trials.push(Trial::test(
+    trials.push(transcript_trial(
         "adverse-event-get/synthetic-identifier-kinds",
         || identifier_kinds().map_err(Into::into),
     ));
-    trials.push(Trial::test(
+    trials.push(transcript_trial(
         "adverse-event-get/synthetic-source-admission-before-retained-read",
         || source_policy().map_err(Into::into),
     ));
@@ -30,7 +31,7 @@ pub(super) fn trials() -> Vec<Trial> {
         "missing-reactions",
         "empty-collections",
     ] {
-        trials.push(Trial::test(
+        trials.push(transcript_trial(
             format!("adverse-event-get/synthetic-{mode}"),
             move || identity(mode).map_err(Into::into),
         ));

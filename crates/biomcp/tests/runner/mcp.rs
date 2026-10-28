@@ -32,8 +32,18 @@ pub(super) fn exchange_retained(
 ) -> Result<Vec<Value>, String> {
     let mut args = vec!["serve".into()];
     args.extend_from_slice(globals);
-    let child = environment
-        .command(env!("CARGO_BIN_EXE_biomcp"), &args)
+    let mut transcript_args = args.clone();
+    transcript_args.push("<requests>".into());
+    transcript_args.extend(
+        frames
+            .iter()
+            .map(serde_json::to_string)
+            .collect::<Result<Vec<_>, _>>()
+            .map_err(|e| e.to_string())?,
+    );
+    let mut command =
+        environment.command_with_arguments(env!("CARGO_BIN_EXE_biomcp"), &args, &transcript_args);
+    let child = command
         .stdin(Stdio::piped())
         .stdout(Stdio::piped())
         .stderr(Stdio::piped())
@@ -47,6 +57,9 @@ pub(super) fn exchange_retained(
     }
     drop(stdin);
     let (status, stdout, stderr) = process.finish()?;
+    command
+        .record(status, &stdout, "mcp")
+        .map_err(|e| e.to_string())?;
     if let Some(directory) = directory {
         std::fs::write(directory.join("mcp.stdout"), &stdout).map_err(|e| e.to_string())?;
         std::fs::write(directory.join("mcp.stderr"), &stderr).map_err(|e| e.to_string())?;

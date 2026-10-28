@@ -1,7 +1,6 @@
 {
   "$defs": {
     "Attribution": {
-      "additionalProperties": false,
       "description": "Provenance for one source record.",
       "properties": {
         "evaluated": {
@@ -83,14 +82,14 @@
     },
     "Build": {
       "description": "The assembly stated by the source; no default is inferred.",
-      "enum": [
-        "GRCh37",
-        "GRCh38"
-      ],
       "type": "string",
       "x-enum-descriptions": [
         " Genome Reference Consortium human build 37.",
         " Genome Reference Consortium human build 38."
+      ],
+      "x-extensible-enum": [
+        "GRCh37",
+        "GRCh38"
       ]
     },
     "EnsemblGeneId": {
@@ -98,13 +97,12 @@
       "pattern": "^ENSG[0-9]{11}(\\.[1-9][0-9]*)?$",
       "type": "string"
     },
-    "FiniteNumber": {
-      "description": "A finite decimal that JSON can represent without losing its value to null.",
-      "format": "double",
+    "Fraction": {
+      "maximum": 1.0,
+      "minimum": 0.0,
       "type": "number"
     },
     "GeneRef": {
-      "additionalProperties": false,
       "description": "A source-stated gene reference; its label never implies an identifier.",
       "properties": {
         "ensembl_gene_id": {
@@ -146,6 +144,13 @@
       ],
       "type": "object"
     },
+    "GenotypeFilter": {
+      "description": "Source count filtering state.",
+      "enum": [
+        "raw"
+      ],
+      "type": "string"
+    },
     "HgncId": {
       "description": "An HGNC identifier with canonical namespace and positive numeric value.",
       "pattern": "^HGNC:[1-9][0-9]*$",
@@ -159,7 +164,6 @@
     "LeafRef": {
       "oneOf": [
         {
-          "additionalProperties": false,
           "properties": {
             "hgvs": {
               "anyOf": [
@@ -194,7 +198,6 @@
           "type": "object"
         },
         {
-          "additionalProperties": false,
           "properties": {
             "gene": {
               "$ref": "#/$defs/GeneRef",
@@ -276,7 +279,6 @@
       "description": "Checked source subject reference; at least one source identity or label is required.",
       "oneOf": [
         {
-          "additionalProperties": false,
           "description": "Exact allele identifier or reference-qualified notation.",
           "properties": {
             "hgvs": {
@@ -312,7 +314,6 @@
           "type": "object"
         },
         {
-          "additionalProperties": false,
           "description": "Protein-level assertion, without genomic conversion.",
           "properties": {
             "gene": {
@@ -353,7 +354,6 @@
           "type": "object"
         },
         {
-          "additionalProperties": false,
           "description": "Compound source profile, without an inferred allele.",
           "properties": {
             "label": {
@@ -386,9 +386,8 @@
       ]
     }
   },
-  "$id": "biodata.population-frequency/4",
+  "$id": "biodata.population-frequency/5",
   "$schema": "https://json-schema.org/draft/2020-12/schema",
-  "additionalProperties": false,
   "description": "One checked stratum of one source dataset release.",
   "properties": {
     "allele_count": {
@@ -402,7 +401,7 @@
     "allele_frequency": {
       "anyOf": [
         {
-          "$ref": "#/$defs/FiniteNumber"
+          "$ref": "#/$defs/Fraction"
         },
         {
           "type": "null"
@@ -452,7 +451,7 @@
     "faf95": {
       "anyOf": [
         {
-          "$ref": "#/$defs/FiniteNumber"
+          "$ref": "#/$defs/Fraction"
         },
         {
           "type": "null"
@@ -465,12 +464,76 @@
       },
       "type": "array"
     },
+    "genotype_filter": {
+      "anyOf": [
+        {
+          "$ref": "#/$defs/GenotypeFilter"
+        },
+        {
+          "type": "null"
+        }
+      ]
+    },
+    "grpmax_group": {
+      "anyOf": [
+        {
+          "$ref": "#/$defs/Text"
+        },
+        {
+          "type": "null"
+        }
+      ]
+    },
     "hemizygote_count": {
       "format": "uint64",
       "minimum": 0,
       "type": [
         "integer",
         "null"
+      ]
+    },
+    "heteroplasmic_count": {
+      "format": "uint64",
+      "minimum": 0,
+      "type": [
+        "integer",
+        "null"
+      ]
+    },
+    "heteroplasmic_frequency": {
+      "anyOf": [
+        {
+          "$ref": "#/$defs/Fraction"
+        },
+        {
+          "type": "null"
+        }
+      ]
+    },
+    "heterozygote_count": {
+      "format": "uint64",
+      "minimum": 0,
+      "type": [
+        "integer",
+        "null"
+      ]
+    },
+    "homoplasmic_count": {
+      "format": "uint64",
+      "minimum": 0,
+      "type": [
+        "integer",
+        "null"
+      ]
+    },
+    "homoplasmic_frequency": {
+      "anyOf": [
+        {
+          "$ref": "#/$defs/Fraction"
+        },
+        {
+          "type": "null"
+        }
       ]
     },
     "homozygote_count": {

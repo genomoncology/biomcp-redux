@@ -2,7 +2,6 @@ use crate::ClinPgxAccession;
 use serde::{Deserialize, Serialize};
 /// Source-native PgxObjectReference fields; no clinical interpretation.
 #[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
-#[serde(deny_unknown_fields)]
 #[cfg_attr(feature = "schema", derive(schemars::JsonSchema))]
 pub struct PgxObjectReference {
     /// Native `objCls` when supplied.
@@ -20,7 +19,6 @@ pub struct PgxObjectReference {
 }
 /// Source-native PgxCrossReference fields; no clinical interpretation.
 #[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
-#[serde(deny_unknown_fields)]
 #[cfg_attr(feature = "schema", derive(schemars::JsonSchema))]
 pub struct PgxCrossReference {
     /// Native `id`; literal source value.
@@ -39,7 +37,6 @@ pub struct PgxCrossReference {
 }
 /// Native location diplotype reference; its numeric ID is not a ClinPGx accession.
 #[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
-#[serde(deny_unknown_fields)]
 #[cfg_attr(feature = "schema", derive(schemars::JsonSchema))]
 pub struct PgxDiplotypeReference {
     /// Native `id`; no expression, phase or phenotype is inferred.
@@ -47,7 +44,6 @@ pub struct PgxDiplotypeReference {
 }
 /// Source-native PgxLocation fields; no clinical interpretation.
 #[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
-#[serde(deny_unknown_fields)]
 #[cfg_attr(feature = "schema", derive(schemars::JsonSchema))]
 pub struct PgxLocation {
     /// Native `id`; literal source value.
@@ -108,7 +104,6 @@ pub struct PgxLocation {
 }
 /// Source-native PgxEvidenceTerm fields; no clinical interpretation.
 #[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
-#[serde(deny_unknown_fields)]
 #[cfg_attr(feature = "schema", derive(schemars::JsonSchema))]
 pub struct PgxEvidenceTerm {
     /// Native `id`; literal source value.
@@ -129,7 +124,6 @@ pub struct PgxEvidenceTerm {
 }
 /// Source-native PgxAnnotationHeader fields; no clinical interpretation.
 #[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
-#[serde(deny_unknown_fields)]
 #[cfg_attr(feature = "schema", derive(schemars::JsonSchema))]
 pub struct PgxAnnotationHeader {
     /// Native `id`; literal source value.
@@ -165,7 +159,6 @@ pub struct PgxAnnotationHeader {
 }
 /// Source-native PgxAnnotationReference fields; no clinical interpretation.
 #[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
-#[serde(deny_unknown_fields)]
 #[cfg_attr(feature = "schema", derive(schemars::JsonSchema))]
 pub struct PgxAnnotationReference {
     /// Native `objCls`; literal source value.

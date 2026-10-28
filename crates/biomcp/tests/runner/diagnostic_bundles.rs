@@ -4,6 +4,7 @@ use super::{
     launch::{Environment, fixtures},
     mcp,
 };
+use crate::runner::transcript::trial as transcript_trial;
 use libtest_mimic::Trial;
 use serde_json::{Value, json};
 use std::{fs, io::Write};
@@ -11,7 +12,7 @@ pub(super) fn trials() -> Vec<Trial> {
     ["gtr", "who-ivd", "fda-cdx"]
         .into_iter()
         .map(|source| {
-            Trial::test(
+            transcript_trial(
                 format!("diagnostic-retirements/{source}-stale-bundle"),
                 move || stale(source).map_err(Into::into),
             )

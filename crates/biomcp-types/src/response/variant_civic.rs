@@ -3,7 +3,6 @@ use serde::{Deserialize, Serialize};
 
 /// CIViC molecular profiles with their original membership and separate source claims.
 #[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
-#[serde(deny_unknown_fields)]
 #[cfg_attr(feature = "schema", derive(schemars::JsonSchema))]
 pub struct VariantCivic {
     /// Source profiles in native order; name candidates carry no attached statements.
@@ -18,7 +17,6 @@ pub struct VariantCivic {
 
 /// One source molecular profile, preserving compound expressions.
 #[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
-#[serde(deny_unknown_fields)]
 #[cfg_attr(feature = "schema", derive(schemars::JsonSchema))]
 #[cfg_attr(feature = "schema", schemars(rename = "CivicProfile_{Continuation}"))]
 pub struct CivicProfile<Continuation = VariantGet> {
@@ -48,7 +46,6 @@ pub struct CivicProfile<Continuation = VariantGet> {
 
 /// A native CIViC member, including members without a common-model subject.
 #[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
-#[serde(deny_unknown_fields)]
 #[cfg_attr(feature = "schema", derive(schemars::JsonSchema))]
 pub struct CivicMember {
     /// Native variant identity and link.
@@ -67,7 +64,6 @@ pub struct CivicMember {
 
 /// Native stream bounds; evidence and assertions have separate cursors.
 #[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
-#[serde(deny_unknown_fields)]
 #[cfg_attr(feature = "schema", derive(schemars::JsonSchema))]
 #[cfg_attr(feature = "schema", schemars(rename = "CivicClaimPage_{Continuation}"))]
 pub struct CivicClaimPage<Continuation = VariantGet> {
@@ -82,7 +78,6 @@ pub struct CivicClaimPage<Continuation = VariantGet> {
 
 /// One CIViC claim with native labels that exceed the common statement model.
 #[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
-#[serde(deny_unknown_fields)]
 #[cfg_attr(feature = "schema", derive(schemars::JsonSchema))]
 pub struct CivicStatement {
     /// Native claim cannot be represented by the common subject or proposition model.
@@ -110,7 +105,6 @@ pub struct CivicStatement {
 
 /// Source facts retained without inventing a common-model subject or proposition.
 #[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
-#[serde(deny_unknown_fields)]
 #[cfg_attr(feature = "schema", derive(schemars::JsonSchema))]
 pub struct CivicNativeClaim {
     /// Native classification when its source text is nonempty; significance remains on the claim.

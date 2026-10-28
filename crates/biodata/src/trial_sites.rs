@@ -3,7 +3,6 @@ use crate::FiniteNumber;
 use serde::{Deserialize, Serialize};
 /// One source site, kept whole during pagination.
 #[derive(Clone, Debug, PartialEq, Serialize, Deserialize)]
-#[serde(deny_unknown_fields)]
 #[cfg_attr(feature = "schema", derive(schemars::JsonSchema))]
 pub struct TrialLocation {
     /// Source facility name, absent only when not supplied.
@@ -26,7 +25,6 @@ pub struct TrialLocation {
 }
 /// A registry contact with its source role and original contact details.
 #[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
-#[serde(deny_unknown_fields)]
 #[cfg_attr(feature = "schema", derive(schemars::JsonSchema))]
 pub struct TrialContact {
     /// Source name.
@@ -42,7 +40,6 @@ pub struct TrialContact {
 }
 /// An overall official, distinct from a central or site contact.
 #[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
-#[serde(deny_unknown_fields)]
 #[cfg_attr(feature = "schema", derive(schemars::JsonSchema))]
 pub struct TrialOfficial {
     /// Registered name.
@@ -113,7 +110,6 @@ pub struct TrialCoordinates {
     longitude: FiniteNumber,
 }
 #[derive(Deserialize)]
-#[serde(deny_unknown_fields)]
 #[cfg_attr(feature = "schema", derive(schemars::JsonSchema))]
 struct Coordinates {
     /// Latitude in degrees.

@@ -9,6 +9,7 @@ pub mod oncokb;
 pub mod pubmed;
 mod quotas;
 mod raw;
+mod strict_input;
 pub use mapped::Mapped;
 
 pub mod complex_portal;
@@ -135,3 +136,6 @@ pub mod vaers;
 pub mod cellosaurus;
 
 mod openfda_key;
+
+/// Native medical device recall records and exact enforcement classification.
+pub mod fda_device_recall;

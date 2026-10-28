@@ -10,7 +10,6 @@ use std::{cmp::Ordering, fmt, str::FromStr};
 #[cfg_attr(feature = "schema", schemars(with = "Parts"))]
 pub struct ScientificPValue(Parts);
 #[derive(Clone, Debug, Serialize, Deserialize)]
-#[serde(deny_unknown_fields)]
 #[cfg_attr(feature = "schema", derive(schemars::JsonSchema))]
 struct Parts {
     /// Source mantissa spelling, including significant trailing zeros.

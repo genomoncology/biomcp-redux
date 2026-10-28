@@ -1,21 +1,22 @@
 //! Ordinary get reuses the reviewed population identity path through local TLS replies.
 use super::{environment, execute, ids, population_body};
 use crate::runner::network_stub::Stub;
+use crate::runner::transcript::trial as transcript_trial;
 use libtest_mimic::Trial;
 use serde_json::{Value, json};
 
 pub(super) fn trials() -> Vec<Trial> {
     vec![
-        Trial::test("variant/population-get-rsid-source-ca", || {
+        transcript_trial("variant/population-get-rsid-source-ca", || {
             sourced(false).map_err(Into::into)
         }),
-        Trial::test("variant/population-get-grch38-hgvs", || {
+        transcript_trial("variant/population-get-grch38-hgvs", || {
             sourced(true).map_err(Into::into)
         }),
-        Trial::test("variant/population-get-ambiguous-no-selection", || {
+        transcript_trial("variant/population-get-ambiguous-no-selection", || {
             ambiguous().map_err(Into::into)
         }),
-        Trial::test("variant/population-get-missing-identity-recovery", || {
+        transcript_trial("variant/population-get-missing-identity-recovery", || {
             recovery().map_err(Into::into)
         }),
     ]

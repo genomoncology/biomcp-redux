@@ -13,7 +13,7 @@ pub(super) struct Node {
     pub match_type: Option<Box<str>>,
     pub deprecated: Option<bool>,
     pub has_descendant_count: Option<u64>,
-    pub association_counts: Option<Box<[PhenotypeAssociationCount]>>,
+    pub association_counts: Option<crate::strict_input::Input<Box<[PhenotypeAssociationCount]>>>,
     pub synonym: Option<Box<[Box<str>]>>,
     pub exact_synonym: Option<Box<[Box<str>]>>,
     pub broad_synonym: Option<Box<[Box<str>]>>,

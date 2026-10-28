@@ -46,7 +46,7 @@ pub(super) fn frequency(
         },
     )
     .with_stratum(Some(data_type), None, None, None)
-    .with_counts(Some(subset.ac), Some(subset.an), None, None)
+    .and_then(|frequency| frequency.with_counts(Some(subset.ac), Some(subset.an), None, None))
     .ok()
     .map(|f| f.with_filters(subset.filters.clone().into()))
 }

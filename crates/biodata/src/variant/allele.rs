@@ -2,7 +2,6 @@ use crate::{Accession, Error, Sequence, Span0};
 use serde::{Deserialize, Serialize};
 /// An interbase interval on one versioned sequence accession.
 #[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
-#[serde(deny_unknown_fields)]
 #[cfg_attr(feature = "schema", derive(schemars::JsonSchema))]
 pub struct SequenceLocation {
     /// Versioned source sequence, without an inferred genome build.
@@ -18,7 +17,6 @@ pub struct SequenceLocation {
 #[cfg_attr(feature = "schema", schemars(with = "Fields"))]
 pub struct Allele(Fields);
 #[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
-#[serde(deny_unknown_fields)]
 #[cfg_attr(feature = "schema", derive(schemars::JsonSchema))]
 struct Fields {
     location: SequenceLocation,

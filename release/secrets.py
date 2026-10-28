@@ -143,7 +143,7 @@ def prepare(target, mode, root, env):
         (directory / key).write_text("screened content\n" + payload.decode("utf-8", errors="replace"), encoding="utf-8")
         suffix = name.lower()
         def opaque():
-            print(json.dumps({"file": name, "rule": "opaque-history-blob-decoded-coverage-unavailable"}))
+            print(json.dumps({"file": name, "rule": "opaque-history-blob-decoded-coverage-unavailable", "level": "info"}))
         def member_name(member):
             path = PurePosixPath(member.replace("\\", "/"))
             if path.is_absolute() or ".." in path.parts or (path.parts and ":" in path.parts[0]):
@@ -237,6 +237,13 @@ def prepare(target, mode, root, env):
     return directory, mapping
 
 
+class HistoryBindingError(ValueError):
+    """A reviewed binding failed with a fixed public cause and ledger row."""
+
+    def __init__(self, code, row):
+        self.code, self.row = code, row
+
+
 def history_ignores(target, env, mapping, staging):
     if not HISTORY_IGNORE.exists():
         return []
@@ -244,7 +251,7 @@ def history_ignores(target, env, mapping, staging):
     for key, item in mapping.items():
         index.setdefault((item["blob"], item["file"]), []).append(key)
     translated, reachable = [], None
-    for line in HISTORY_IGNORE.read_text().splitlines():
+    for number, line in enumerate(HISTORY_IGNORE.read_text().splitlines(), 1):
         row = json.loads(line)
         if (set(row) != {"commit", "file", "blob", "rule", "line", "reason"}
                 or not all(re.fullmatch("[a-f0-9]{40}", row[k]) for k in ["commit", "blob"])
@@ -257,11 +264,21 @@ def history_ignores(target, env, mapping, staging):
             continue
         if reachable is None:
             reachable = set(git(target, env, "rev-list", "--objects", "--single-worktree", "--all", "HEAD").decode().splitlines())
-        if row["commit"] not in reachable or git(target, env, "rev-parse", row["commit"] + ":" + row["file"]).decode().strip() != row["blob"]:
-            raise ValueError("history exception does not match its reachable commit")
+        if row["commit"] not in reachable:
+            raise HistoryBindingError("history-ignore-unreachable-commit", number)
+        try:
+            blob = git(target, env, "rev-parse", row["commit"] + ":" + row["file"]).decode().strip()
+        except subprocess.CalledProcessError:
+            raise HistoryBindingError("history-ignore-wrong-blob", number) from None
+        if blob != row["blob"]:
+            raise HistoryBindingError("history-ignore-wrong-blob", number)
         for key in keys:
             if mapping[key]["git_file"] != row["file"]:
                 raise ValueError("history exception must name its actual Git path")
+            payload = (staging / key).read_bytes()
+            lines = payload.count(b"\n") + (not payload.endswith(b"\n")) - 1
+            if row["line"] > lines:
+                raise HistoryBindingError("history-ignore-wrong-line", number)
             translated.append(str(staging / key) + ":" + row["rule"] + ":" + str(row["line"] + 1))
     return translated
 
@@ -348,5 +365,7 @@ if __name__ == "__main__":
     args = parser.parse_args()
     try:
         raise SystemExit(scan(args.mode, args.target, args.cache))
+    except HistoryBindingError as error:
+        parser.exit(2, json.dumps({"code": error.code, "row": error.row}) + "\n")
     except (OSError, ValueError, KeyError, subprocess.SubprocessError, tarfile.TarError, zipfile.BadZipFile, RuntimeError, EOFError, TypeError):
         parser.exit(2, "Secret screening failed; diagnostic output was suppressed\n")

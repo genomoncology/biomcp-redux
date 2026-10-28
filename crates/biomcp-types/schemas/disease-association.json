@@ -1,7 +1,6 @@
 {
   "$defs": {
     "Attribution": {
-      "additionalProperties": false,
       "description": "Provenance for one source record.",
       "properties": {
         "evaluated": {
@@ -82,7 +81,6 @@
       "type": "object"
     },
     "Concept": {
-      "additionalProperties": false,
       "description": "One source concept with its optional ontology identifier.",
       "properties": {
         "id": {
@@ -112,7 +110,6 @@
       "type": "string"
     },
     "DiseaseAssociationQualifier": {
-      "additionalProperties": false,
       "description": "A named native qualifier without an inferred role.",
       "properties": {
         "field": {
@@ -142,7 +139,6 @@
       "type": "object"
     },
     "DiseaseAssociationReference": {
-      "additionalProperties": false,
       "description": "One native association reference, with no invented display label or link.",
       "properties": {
         "id": {
@@ -196,7 +192,6 @@
   },
   "$id": "biodata.disease-association/4",
   "$schema": "https://json-schema.org/draft/2020-12/schema",
-  "additionalProperties": false,
   "description": "A native source association without clinical interpretation.",
   "properties": {
     "agent_type": {

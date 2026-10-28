@@ -1,4 +1,5 @@
 //! Native Article API review never authorizes asset or publisher-origin requests.
+use crate::runner::transcript::trial as transcript_trial;
 // Released src/cli/article/{dispatch,assets,export,workflow}.rs route these operations.
 pub(super) fn validate(args: &[String]) -> Result<(), String> {
     let batch_entity = args.get(1).map(|entity| entity.trim().to_ascii_lowercase());
@@ -49,7 +50,7 @@ fn native_batch(mut options: &[&str]) -> bool {
 }
 
 pub(super) fn trial() -> libtest_mimic::Trial {
-    libtest_mimic::Trial::test("parity/native-article-operation-containment", || {
+    transcript_trial("parity/native-article-operation-containment", || {
         batch_aliases()?;
         for (command, allowed) in [
             (vec!["get", "article", "123"], true),

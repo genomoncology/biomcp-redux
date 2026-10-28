@@ -7,12 +7,12 @@
     },
     "SummarySource": {
       "description": "The attribution on a source-provided summary, independent of fetch providers.",
-      "enum": [
-        "refseq"
-      ],
       "type": "string",
       "x-enum-descriptions": [
         " RefSeq attribution."
+      ],
+      "x-extensible-enum": [
+        "refseq"
       ]
     },
     "Text": {
@@ -23,7 +23,6 @@
   },
   "$id": "biodata.gene-summary/1",
   "$schema": "https://json-schema.org/draft/2020-12/schema",
-  "additionalProperties": false,
   "description": "A whole source-provided summary with attribution and stated date precision.",
   "properties": {
     "dated": {

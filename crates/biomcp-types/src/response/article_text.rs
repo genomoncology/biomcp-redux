@@ -11,7 +11,6 @@ biodata::canonical_enum! {
 }
 /// One independently readable bounded part.
 #[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
-#[serde(deny_unknown_fields)]
 #[cfg_attr(feature = "schema", derive(schemars::JsonSchema))]
 pub struct TextPart {
     /// One-based reader selector.
@@ -25,7 +24,6 @@ pub struct TextPart {
 }
 /// Figure text in document order.
 #[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
-#[serde(deny_unknown_fields)]
 #[cfg_attr(feature = "schema", derive(schemars::JsonSchema))]
 pub struct FigureCaption {
     /// Source label.
@@ -35,7 +33,6 @@ pub struct FigureCaption {
 }
 /// Bucket license and body outline; processing version is not publication chronology.
 #[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
-#[serde(deny_unknown_fields)]
 #[cfg_attr(feature = "schema", derive(schemars::JsonSchema))]
 pub struct FullText {
     /// Selected bucket license.
@@ -57,7 +54,6 @@ pub struct FullText {
 }
 /// One matching paragraph or table row, split when necessary to fit the text budget.
 #[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
-#[serde(deny_unknown_fields)]
 #[cfg_attr(feature = "schema", derive(schemars::JsonSchema))]
 pub struct TextHit {
     /// Outline part containing this text.
@@ -70,7 +66,6 @@ pub struct TextHit {
 }
 /// Body text response; the envelope supplies advancing reader steps.
 #[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
-#[serde(deny_unknown_fields)]
 #[cfg_attr(feature = "schema", derive(schemars::JsonSchema))]
 pub struct ArticleTextResult {
     /// Requested PMC record when known.
@@ -81,7 +76,6 @@ pub struct ArticleTextResult {
 }
 /// One bounded part or matching rows with the bucket license.
 #[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
-#[serde(deny_unknown_fields)]
 #[cfg_attr(feature = "schema", derive(schemars::JsonSchema))]
 pub struct TextContent {
     /// Source URL for an explicit save, including refused destinations.
@@ -126,7 +120,6 @@ impl super::ResponseBody for ArticleTextResult {
 
 /// Explicit saved article file, owned by the caller.
 #[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
-#[serde(deny_unknown_fields)]
 #[cfg_attr(feature = "schema", derive(schemars::JsonSchema))]
 pub struct ArticleSaved {
     /// Absolute caller destination.

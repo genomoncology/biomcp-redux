@@ -34,7 +34,6 @@ crate::canonical_enum! {
 }
 /// One source record identity, without any equivalence or authorization claim.
 #[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
-#[serde(deny_unknown_fields)]
 #[cfg_attr(feature = "schema", derive(schemars::JsonSchema))]
 pub struct DrugIdentity {
     /// Published native record identifier.
@@ -57,7 +56,6 @@ pub struct DrugIdentity {
 }
 /// One explicitly source-stated identifier, parent, product or formulation relation.
 #[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
-#[serde(deny_unknown_fields)]
 #[cfg_attr(feature = "schema", derive(schemars::JsonSchema))]
 pub struct DrugIdentityRelation {
     /// Identity at the other end of the source relation.
@@ -69,7 +67,6 @@ pub struct DrugIdentityRelation {
 }
 /// A native product record and its explicit formulation links.
 #[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
-#[serde(deny_unknown_fields)]
 #[cfg_attr(feature = "schema", derive(schemars::JsonSchema))]
 pub struct DrugProduct {
     /// Source-owned product identity.

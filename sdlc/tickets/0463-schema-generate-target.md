@@ -1,6 +1,7 @@
 # 0463 — Generate schemas through one checked target
 
-Status: OPEN.
+Status: COMPLETE.
+Landed: 15bd171ec9799120fb8dfd7d5311c40174d6e1e2
 
 Milestone: 5
 

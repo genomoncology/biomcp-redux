@@ -2,7 +2,6 @@ use crate::Text;
 use serde::{Deserialize, Serialize};
 /// GenCC records in published order without merged classifications.
 #[derive(Clone, Debug, PartialEq, Serialize, Deserialize)]
-#[serde(deny_unknown_fields)]
 #[cfg_attr(feature = "schema", derive(schemars::JsonSchema))]
 pub struct GenccGene {
     /// Individual submissions in source order.
@@ -10,7 +9,6 @@ pub struct GenccGene {
 }
 /// One source submission; no clinical validity is inferred.
 #[derive(Clone, Debug, PartialEq, Serialize, Deserialize)]
-#[serde(deny_unknown_fields)]
 #[cfg_attr(feature = "schema", derive(schemars::JsonSchema))]
 pub struct GenccSubmission {
     /// Source submission identifier.

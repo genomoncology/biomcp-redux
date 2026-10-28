@@ -2,7 +2,6 @@ use crate::{Capped, CitationIntent, License, Section};
 use serde::{Deserialize, Serialize};
 /// One advancing piece of an original source citation context.
 #[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
-#[serde(deny_unknown_fields)]
 #[cfg_attr(feature = "schema", derive(schemars::JsonSchema))]
 pub struct EvidenceContext {
     /// One-based original source context position.
@@ -15,7 +14,6 @@ pub struct EvidenceContext {
 }
 /// One source paragraph fragment with its own exact outline location.
 #[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
-#[serde(deny_unknown_fields)]
 #[cfg_attr(feature = "schema", derive(schemars::JsonSchema))]
 pub struct EvidenceParagraph {
     /// One-based original body paragraph position.
@@ -41,7 +39,6 @@ biodata::wire_enum! {
 }
 /// Source edge metadata and a bounded advancing context page.
 #[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
-#[serde(deny_unknown_fields)]
 #[cfg_attr(feature = "schema", derive(schemars::JsonSchema))]
 pub struct CitationContexts {
     /// Every context remains accessible through the advancing step.
@@ -63,7 +60,6 @@ pub struct CitationContexts {
 }
 /// Exact JATS reference paragraphs independent of the graph result.
 #[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
-#[serde(deny_unknown_fields)]
 #[cfg_attr(feature = "schema", derive(schemars::JsonSchema))]
 pub struct CitationParagraphs {
     /// Original publisher license category.
@@ -73,7 +69,6 @@ pub struct CitationParagraphs {
 }
 /// Independent graph and optional open-text evidence parts.
 #[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
-#[serde(deny_unknown_fields)]
 #[cfg_attr(feature = "schema", derive(schemars::JsonSchema))]
 pub struct ArticleEvidenceResult {
     /// Source-reported citation contexts.
@@ -88,7 +83,6 @@ impl super::super::ResponseBody for ArticleEvidenceResult {
 }
 /// Source-native recommendation page.
 #[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
-#[serde(deny_unknown_fields)]
 #[cfg_attr(feature = "schema", derive(schemars::JsonSchema))]
 pub struct ArticleRecommendations {
     /// Papers in provider order, without a local topic filter.

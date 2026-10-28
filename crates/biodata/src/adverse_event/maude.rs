@@ -2,7 +2,6 @@ use super::ReportId;
 use serde::{Deserialize, Serialize};
 /// Native device facts; administrative addresses are outside the reviewed projection.
 #[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
-#[serde(deny_unknown_fields)]
 #[cfg_attr(feature = "schema", derive(schemars::JsonSchema))]
 pub struct MaudeDevice {
     /// Native device_sequence_number string, including a present empty value.
@@ -80,7 +79,6 @@ pub struct MaudeDevice {
 }
 /// One unchanged native narrative; never truncate an oversized row.
 #[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
-#[serde(deny_unknown_fields)]
 #[cfg_attr(feature = "schema", derive(schemars::JsonSchema))]
 pub struct MaudeNarrative {
     /// Native mdr_text_key string, including a present empty value.
@@ -98,7 +96,6 @@ pub struct MaudeNarrative {
 }
 /// Kept MAUDE facts; native count strings remain separate from array lengths.
 #[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
-#[serde(deny_unknown_fields)]
 #[cfg_attr(feature = "schema", derive(schemars::JsonSchema))]
 pub struct MaudeReport {
     /// Opaque native report key.

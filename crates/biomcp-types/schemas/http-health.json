@@ -8,7 +8,6 @@
   },
   "$id": "biomcp.http-health/1",
   "$schema": "https://json-schema.org/draft/2020-12/schema",
-  "additionalProperties": false,
   "description": "Local HTTP service health, independent of every upstream source.",
   "properties": {
     "store": {
