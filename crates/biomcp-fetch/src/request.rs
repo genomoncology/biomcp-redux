@@ -50,12 +50,25 @@ impl Leg<'_> {
         params: &[(&str, Arg<'_>)],
         check: impl Fn(&[u8]) -> Result<(), Reason>,
     ) -> Result<Vec<u8>, RequestError> {
+        self.bytes_checked_media(ep, params, None, check)
+    }
+    pub(crate) fn bytes_checked_media(
+        &self,
+        ep: &Endpoint,
+        params: &[(&str, Arg<'_>)],
+        media: Option<crate::DocumentMedia>,
+        check: impl Fn(&[u8]) -> Result<(), Reason>,
+    ) -> Result<Vec<u8>, RequestError> {
         let limit = ep
             .byte_limit
             .filter(|v| *v > 0 && *v < u64::MAX)
             .ok_or(InputError::BodyLimit)?;
-        self.parameters(ep, params, Decoder::checked_bytes(limit, &check))
-            .map(|(v, _)| v.0)
+        let decoder = Decoder::checked_bytes(limit, &check);
+        let decoder = match media {
+            Some(media) => decoder.document_media(media),
+            None => decoder,
+        };
+        self.parameters(ep, params, decoder).map(|(v, _)| v.0)
     }
     /// Probe declared reachability through the same bounded transport, quota and replay policy.
     /// Probe replies never enter the checked data cache.
