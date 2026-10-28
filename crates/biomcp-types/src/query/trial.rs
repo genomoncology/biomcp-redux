@@ -1,3 +1,4 @@
+mod condition;
 use super::gene::QueryInvalid;
 use crate::{GeneInput, NctId, PartialDate, StudyType, Text, TrialSex, TrialStatus};
 use serde::{Deserialize, Serialize};
@@ -51,6 +52,9 @@ struct Fields {
     )]
     #[cfg_attr(feature = "schema", schemars(with = "Text"))]
     condition: Option<Text>,
+    /// Ask ClinicalTrials.gov to restrict matching to the registered condition phrase; its support is partial.
+    #[serde(default, skip_serializing_if = "std::ops::Not::not")]
+    exact_condition: bool,
     /// Exact MONDO or DOID CURIE resolved by MyDisease; NCI also accepts explicit NCIT:C codes.
     #[serde(
         default,
@@ -240,8 +244,11 @@ impl TryFrom<Fields> for TrialSearch {
             f.query = None;
         }
         if f.condition_id.as_ref().is_some_and(|id| {
-            f.condition.is_some() || f.keyword.is_some() || !valid_condition_id(id, f.source)
+            f.condition.is_some() || f.keyword.is_some() || !condition::valid_id(id, f.source)
         }) {
+            return Err(QueryInvalid);
+        }
+        if f.exact_condition && (f.source != TrialSource::Ctgov || f.condition.is_none()) {
             return Err(QueryInvalid);
         }
         if !(1..=100).contains(&f.limit)
@@ -563,19 +570,3 @@ impl TrialSearch {
     }
 }
 
-fn valid_condition_id(id: &biodata::Curie, source: TrialSource) -> bool {
-    let value = id.to_string();
-    let Some((namespace, local)) = value.split_once(':') else {
-        return false;
-    };
-    match namespace {
-        "MONDO" | "DOID" => !local.is_empty() && local.bytes().all(|v| v.is_ascii_digit()),
-        "NCIT" => {
-            source == TrialSource::Nci
-                && local
-                    .strip_prefix('C')
-                    .is_some_and(|v| !v.is_empty() && v.bytes().all(|v| v.is_ascii_digit()))
-        }
-        _ => false,
-    }
-}

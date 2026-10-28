@@ -8,6 +8,10 @@ pub(super) fn mismatch() -> Result<(), String> {
         if request.starts_with("GET /api/v2/studies?")
             && request.contains("query.cond=Snyder-Robinson%20syndrome")
         {
+            if request.contains("filter.advanced=AREA%5BCondition%5DEXPANSION%5BNone%5D") {
+                return fs::read_to_string(super::super::launch::fixtures()
+                    .join("replies/trial/condition-words/exact.body")).map_err(|e| e.to_string());
+            }
             return fs::read_to_string(super::super::launch::fixtures()
                 .join("replies/trial/condition-words/broad.body")).map_err(|e| e.to_string());
         }
@@ -23,14 +27,18 @@ pub(super) fn mismatch() -> Result<(), String> {
     args.extend(["--record".into(), recording.to_string_lossy().into()]);
     let value = invoke(&env, &args, 0)?;
     check(&value)?;
-    if stub.finish()?.len() != 2 {
+    exact(&env, &recording, &words, &value)?;
+    if stub.finish()?.len() != 3 {
         return Err("condition notice introduced source requests".into());
     }
     let case = env.root().join("case.json");
     fs::write(&case, json!({"feature":"trial-search",
         "story":"A condition search reports missing literal words and preserves every source trial",
         "replay":recording,"steps":[{"run":words,"mcp":words,
-        "expect":{"/result/items":{"count":6},"/sources/0/notices/0/kind":"condition_word_mismatch"}}]
+        "expect":{"/result/items":{"count":6},"/sources/0/notices/0/kind":"condition_word_mismatch"}},
+        {"run":["search","trial","--condition","Snyder-Robinson syndrome","--limit","25","--exact-condition"],
+         "mcp":["search","trial","--condition","Snyder-Robinson syndrome","--limit","25","--exact-condition"],
+         "expect":{"/page/total":0,"/result/items":[]}}]
     }).to_string()).map_err(|e| e.to_string())?;
     super::super::run_case(&case, &super::super::schema::Registry::embedded()?)?;
     Ok(())
@@ -45,6 +53,26 @@ fn check(value: &Value) -> Result<(), String> {
         .ok_or("missing trial items")?.iter().filter_map(|v| v.get("nct_id").and_then(Value::as_str)).collect();
     if actual != expected || value.pointer("/page/total") != Some(&json!(6)) {
         return Err("condition notice dropped, reordered or recounted source rows".into());
+    }
+    Ok(())
+}
+
+fn exact(env: &super::Environment, recording: &std::path::Path, words: &[&str], broad: &Value) -> Result<(), String> {
+    let mut args: Vec<String> = words.iter().map(|v| (*v).into()).collect();
+    args.push("--exact-condition".into());
+    let next = broad.pointer("/next/0/args").ok_or("missing exact-condition next command")?;
+    let next: Vec<String> = serde_json::from_value(next.clone()).map_err(|e| e.to_string())?;
+    if !next.iter().any(|arg| arg == "--exact-condition") || next.iter().filter(|arg| arg.as_str() != "--exact-condition").map(String::as_str).collect::<Vec<_>>() != words {
+        return Err(format!("incorrect exact-condition step: {next:?}"));
+    }
+    args.extend(["--record".into(), recording.to_string_lossy().into()]);
+    let result = invoke(env, &args, 0)?;
+    if result.pointer("/page/total") != Some(&json!(0)) || result.pointer("/result/items") != Some(&json!([])) {
+        return Err(format!("exact condition did not retain the captured zero: {result}"));
+    }
+    let expected = json!({"name":"filter.advanced","value":"AREA[Condition]EXPANSION[None]\"Snyder-Robinson syndrome\""});
+    if !result.pointer("/result/request").and_then(Value::as_array).is_some_and(|values| values.contains(&expected)) {
+        return Err(format!("missing captured condition field restriction: {result}"));
     }
     Ok(())
 }

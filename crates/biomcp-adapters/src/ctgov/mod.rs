@@ -30,6 +30,8 @@ pub const VERSION: Endpoint = SPEC.get("/version").fresh(Freshness::Days(1));
 pub struct SearchPage {
     /// Source order, untouched.
     pub items: Vec<TrialHeader>,
+    /// At least one complete native condition list lacks the searched words.
+    pub condition_word_mismatch: bool,
     /// Exact native total.
     pub total: Option<u64>,
     /// Native count lookup failure while page rows remain usable.
@@ -110,6 +112,9 @@ pub fn parameters(query: &TrialSearch, gene: Option<&str>) -> BTreeMap<String, S
 }
 fn advanced(query: &TrialSearch) -> String {
     let mut advanced = Vec::new();
+    if query.exact_condition() && let Some(condition) = query.condition() {
+        advanced.push(format!("AREA[Condition]EXPANSION[None]{}", quote(condition.as_str())));
+    }
     if let Some(id) = query.id() {
         advanced.push(format!("AREA[NCTId]{id}"));
     }
@@ -177,7 +182,12 @@ pub fn search(
         }
         count_request = Some(count);
     }
+    let condition_word_mismatch = params.get("query.cond").is_some_and(|condition| {
+        raw.studies.as_deref().unwrap_or_default().iter()
+            .any(|row| !row.protocol_section.contains_condition_words(condition))
+    });
     Ok(SearchPage {
+        condition_word_mismatch,
         items: raw
             .studies
             .unwrap_or_default()
