@@ -57,7 +57,7 @@ pub(super) fn resolve<'a>(
         }
         Err(_) => None,
     };
-    if value.is_none() && resolution.concept.is_some() {
+    if value.is_none() && resolution.concept.is_some() && query.source() == TrialSource::Nci {
         out.problems.push(biomcp_types::Problem {
             source: Source::MyDisease,
             record: Text::new(&input.to_string()).ok(),

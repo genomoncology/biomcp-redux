@@ -4,7 +4,7 @@ use libtest_mimic::Trial;
 use serde_json::{Value, json};
 
 pub(super) fn trials() -> Vec<Trial> {
-    ["mychem", "ols", "mydisease", "mydisease-doid"]
+    let mut trials: Vec<_> = ["mychem", "ols", "mydisease", "mydisease-doid"]
         .into_iter()
         .map(|family| {
             let feature = if family == "mychem" {
@@ -14,19 +14,27 @@ pub(super) fn trials() -> Vec<Trial> {
             } else {
                 "disease-mydisease"
             };
-            Trial::test(format!("{feature}/bad-values-keep-reply"), move || {
-                check(family)
-                    .and_then(|_| {
-                        if matches!(family, "mychem" | "ols") {
-                            search(family)
-                        } else {
-                            Ok(())
-                        }
-                    })
-                    .map_err(Into::into)
-            })
+            Trial::test(
+                format!("{feature}/bad-values-keep-reply-{family}"),
+                move || {
+                    check(family)
+                        .and_then(|_| {
+                            if matches!(family, "mychem" | "ols") {
+                                search(family)
+                            } else {
+                                Ok(())
+                            }
+                        })
+                        .map_err(Into::into)
+                },
+            )
         })
-        .collect()
+        .collect();
+    trials.push(Trial::test(
+        "trial-search/invalid-resolver-label-stops-name-request",
+        || missing_trial_label().map_err(Into::into),
+    ));
+    trials
 }
 fn check(family: &str) -> Result<(), String> {
     let cases = cases(family);
@@ -313,7 +321,7 @@ fn search(family: &str) -> Result<(), String> {
     }
     let value = invoke(&env, args.into_iter().map(str::to_owned).collect(), 0)?;
     if value.pointer("/result/items/0").is_none()
-        || value.pointer("/result/items/0/header/name").is_some()
+        || value.get("result").is_some_and(contains_invalid)
         || !value
             .get("problems")
             .and_then(Value::as_array)
@@ -326,5 +334,45 @@ fn search(family: &str) -> Result<(), String> {
         return Err(format!("bad search field lost item or problem: {value}"));
     }
     stub.finish()?;
+    Ok(())
+}
+
+fn missing_trial_label() -> Result<(), String> {
+    let stub = Stub::for_source("mydisease.info", "application/json", |_| {
+        Ok(json!({"_id":"MONDO:0005061","mondo":{"mondo":"MONDO:0005061","label":""}}).to_string())
+    })?;
+    let env = crate::runner::variant::source_environment(&stub)?;
+    let value = invoke(
+        &env,
+        [
+            "search",
+            "trial",
+            "--condition-id",
+            "MONDO:0005061",
+            "--limit",
+            "1",
+        ]
+        .into_iter()
+        .map(str::to_owned)
+        .collect(),
+        4,
+    )?;
+    if value.pointer("/result/condition_resolution/concept/id") != Some(&json!("MONDO:0005061"))
+        || value
+            .pointer("/result/condition_resolution/concept/label")
+            .is_some()
+        || value
+            .get("sources")
+            .and_then(Value::as_array)
+            .is_none_or(|sources| sources.len() != 1)
+        || value.pointer("/problems/0/field") != Some(&json!("mondo.label"))
+    {
+        return Err(format!(
+            "unusable resolver label caused trial I/O or lost identity: {value}"
+        ));
+    }
+    if stub.finish()?.len() != 1 {
+        return Err("unexpected resolver or trial request".into());
+    }
     Ok(())
 }
