@@ -7,7 +7,7 @@ usage() {
   echo 'Usage: install.sh [--version TAG] [--help]'
   echo '       install.sh ARCHIVE SHA256 INSTALL_DIR'
   echo 'Before installation, verify the downloaded artifact with a current GitHub CLI:'
-  echo '  gh attestation verify ARTIFACT --repo genomoncology/biomcp --signer-workflow genomoncology/biomcp/.github/workflows/release.yml --source-digest COMMIT'
+  echo '  gh attestation verify ARTIFACT --repo genomoncology/biomcp --signer-workflow genomoncology/biomcp/.github/workflows/release.yml --source-ref refs/tags/vX.Y.Z --source-digest COMMIT'
   echo 'Use the release tag commit for COMMIT. Stop if verification fails.'
   echo 'The installer also requires the archive SHA-256 checksum.'
 }
@@ -86,7 +86,7 @@ scratch=$(mktemp -d)
 stage=''
 cleanup() { rm -rf "$scratch"; [ -z "$stage" ] || rm -f "$stage"; }
 trap cleanup EXIT
-install_dir=${BIOMCP_INSTALL_DIR:-$HOME/.local/bin}
+install_dir=${BIOMCP_INSTALL_DIR:-}
 binary=biomcp
 if [ "$#" -eq 3 ] && [[ "$1" != -* ]]; then
   archive=$1
@@ -103,6 +103,10 @@ else
       *) usage >&2; fail "Unknown argument: $1" ;;
     esac
   done
+  if [ -z "$install_dir" ]; then
+    [ -n "${HOME:-}" ] || fail 'HOME is unset or empty; set BIOMCP_INSTALL_DIR explicitly'
+    install_dir=$HOME/.local/bin
+  fi
   [[ "$version" =~ ^[[:alnum:]][[:alnum:]._-]*$ ]] || fail 'Invalid release version'
   system=$(uname -s)
   machine=$(uname -m)

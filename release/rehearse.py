@@ -11,6 +11,7 @@ import shutil
 import subprocess
 import sys
 import tempfile
+from source_revision import revision as source_revision
 
 
 def run_stage(rows, name, command):
@@ -58,7 +59,7 @@ def inside(report):
 
 def cold(report, container_args):
     # Clone only tracked source and history, with no host HOME, caches or tools.
-    revision = subprocess.check_output(['git', 'rev-parse', 'HEAD'], text=True).strip()
+    revision = source_revision()
     rows = []
     report = report.resolve()
     report.parent.mkdir(parents=True, exist_ok=True)

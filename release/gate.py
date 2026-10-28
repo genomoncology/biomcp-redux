@@ -66,7 +66,7 @@ def cli_checks(binary, record):
             raise ValueError("installed CLI source discovery failed")
         config.write_text(json.dumps({"disable_sources": groups + names}))
         rows = []
-        for command in [["version"], ["health", "--offline"]]:
+        for command in [["version"], ["version", "--verbose"], ["health", "--offline"]]:
             result = subprocess.run([str(binary.resolve())] + command, env=env, cwd=root,
                                     capture_output=True, text=True, timeout=60)
             if result.returncode or result.stderr:
@@ -75,6 +75,10 @@ def cli_checks(binary, record):
                 output = result.stdout
                 if output != "biomcp " + record["version"] + "\n":
                     raise ValueError("installed CLI version differs")
+            elif command == ["version", "--verbose"]:
+                output = result.stdout
+                if not output.startswith('biomcp ' + record['version'] + '\n') or output.splitlines().count('Commit: ' + record['revision']) != 1:
+                    raise ValueError('installed CLI commit differs from candidate')
             else:
                 output = json.loads(result.stdout)
                 sources = output["result"]["sources"]

@@ -1,6 +1,7 @@
 #!/bin/sh
 # Execute both container architectures at the declared platform floor.
 set -eu
+revision=$(python3 release/source_revision.py)
 scratch=$(mktemp -d)
 image_name="biomcp-local-$$"
 cleanup() {
@@ -9,11 +10,10 @@ cleanup() {
 }
 trap cleanup EXIT HUP INT TERM
 python3 release/toolchain.py check
-revision=$(git rev-parse HEAD)
 version=$(cargo metadata --locked --no-deps --format-version 1 | python3 -c 'import json,sys; print(next(p["version"] for p in json.load(sys.stdin)["packages"] if p["name"] == "biomcp"))')
 mkdir "$scratch/source"
 git archive HEAD | tar -x -C "$scratch/source"
-python3 release/artifacts.py build --output "$scratch/native"
+python3 release/artifacts.py build --revision "$revision" --output "$scratch/native"
 python3 release/gate.py --artifacts "$scratch/native" --scratch "$scratch/native-check"
 BIOMCP_CASE_RUNNER="$scratch/native-check/case-runner" \
   BIOMCP_INSTALLED_BINARY="$scratch/native-check/installer-bin/biomcp" \

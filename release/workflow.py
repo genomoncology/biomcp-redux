@@ -33,6 +33,8 @@ def identity(args):
 def protection(args):
     # https://docs.github.com/en/rest/deployments/environments#get-an-environment
     settings = json.loads(args.settings.read_text())
+    if settings.get('can_admins_bypass') is not False:
+        raise ValueError('release-publication must disable admin bypass')
     rules = settings.get("protection_rules", [])
     if not any(rule.get("type") == "required_reviewers" and rule.get("reviewers")
                and rule.get("prevent_self_review") is True for rule in rules):
@@ -101,6 +103,8 @@ def plugin(source, output, version):
         raise ValueError("plugin and marketplace must preserve the candidate identity")
     if metadata.get("skills") != ["./skills/"]:
         raise ValueError("plugin must discover the canonical skills directory")
+    if metadata.get('version') != version:
+        raise ValueError('plugin manifest must carry the candidate version')
     if entry["mcpServers"] != {"biomcp": {"command": "biomcp", "args": ["serve"]}}:
         raise ValueError("plugin must launch installed biomcp serve")
     guide = source / "skills/SKILL.md"
@@ -121,7 +125,7 @@ def release_notes(output, version, revision):
         "Before installation, verify each downloaded release artifact with a current GitHub CLI:\n\n"
         "```sh\ngh attestation verify ARTIFACT --repo genomoncology/biomcp "
         "--signer-workflow genomoncology/biomcp/.github/workflows/release.yml "
-        f"--source-digest {revision}\n```\n\n"
+        f"--source-ref refs/tags/v{version} --source-digest {revision}\n```\n\n"
         "Replace ARTIFACT with the downloaded file. Compare the source commit above with the release's "
         "tag before accepting it. For a rehearsal, use the repository that ran the workflow for both "
         "repository arguments; the source commit must match that run. Verification fails if the file, "

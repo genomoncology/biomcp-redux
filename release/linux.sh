@@ -2,7 +2,7 @@
 # Build once at the wheel floor and qualify the same native and container bytes.
 set -eu
 test -n "$BUILD_IMAGE"
-revision=${BIOMCP_BUILD_REVISION:-$(git rev-parse HEAD)}
+revision=$(python3 release/source_revision.py)
 cold=${BIOMCP_RELEASE_COLD:-0}
 report=${BIOMCP_RELEASE_REPORT:-$PWD/dist/cold-report.json}
 stage() {

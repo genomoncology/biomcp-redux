@@ -18,8 +18,10 @@ import zipfile
 
 if __package__:
     from .tools import candidate, check
+    from .source_revision import revision as source_revision
 else:
     from tools import candidate, check
+    from source_revision import revision as source_revision
 
 
 def digest(data):
@@ -173,7 +175,7 @@ def build(args):
     # Pin the macOS deployment target before Cargo sees the build environment.
     if platform.system() == "Darwin":
         os.environ["MACOSX_DEPLOYMENT_TARGET"] = "11.0"
-    revision = args.revision or run(["git", "rev-parse", "HEAD"]).strip()
+    revision = source_revision(args.revision)
     artifact = cargo(args.profile, revision=revision)
     binary = Path(artifact["executable"])
     metadata = json.loads(run(["cargo", "metadata", "--locked", "--format-version", "1", "--no-deps"]))
