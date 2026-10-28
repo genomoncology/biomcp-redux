@@ -152,7 +152,11 @@ fn replacement(env: &Environment, replay: &Path, get: &[&str], before: &Value) -
         .path();
     let bytes = fs::read(&path).map_err(|e| e.to_string())?;
     let original: Value = serde_json::from_slice(&bytes).map_err(|e| {
-        format!("WHO recording {} ({} bytes): {e}", path.display(), bytes.len())
+        format!(
+            "WHO recording {} ({} bytes): {e}",
+            path.display(),
+            bytes.len()
+        )
     })?;
     for fault in ["header", "extra", "malformed", "empty"] {
         let mut changed = original.clone();
