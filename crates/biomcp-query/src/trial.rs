@@ -38,8 +38,11 @@ pub(crate) fn search(cx: &Ctx<'_>, query: &TrialSearch) -> Outcome {
     let leg = cx.fetch.leg(&ctgov::SPEC, deadline).fresh(cx.fresh);
     let started = leg.remaining();
     let mut params = ctgov::parameters(query, gene.as_deref());
-    let conditions = condition.map_or_else(|| query.condition().to_vec(), |condition| vec![condition]);
-    if query.condition_id().is_some() && let Some(condition) = conditions.first() {
+    let conditions =
+        condition.map_or_else(|| query.condition().to_vec(), |condition| vec![condition]);
+    if query.condition_id().is_some()
+        && let Some(condition) = conditions.first()
+    {
         params.insert("query.cond".into(), format!("({condition})"));
     }
     let result = ctgov::search(&leg, &params, &conditions);

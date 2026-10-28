@@ -180,7 +180,10 @@ pub fn parameters(query: &TrialSearch) -> Vec<(String, String)> {
         ),
     ];
     for value in query.condition() {
-        params.push(("diseases.nci_thesaurus_concept_id".into(), value.as_str().into()));
+        params.push((
+            "diseases.nci_thesaurus_concept_id".into(),
+            value.as_str().into(),
+        ));
     }
     if let Some(value) = query.keyword().first() {
         params.push(("keyword".into(), value.as_str().into()));

@@ -54,7 +54,10 @@ pub fn parameters(query: &TrialSearch, gene: Option<&str>) -> BTreeMap<String, S
             "NCTId,BriefTitle,OverallStatus,Phase,Condition,InterventionName,LastUpdatePostDate,HasResults".into(),
         ),
     ]);
-    for (name, values) in [("query.cond", query.condition()), ("query.intr", query.intervention())] {
+    for (name, values) in [
+        ("query.cond", query.condition()),
+        ("query.intr", query.intervention()),
+    ] {
         if !values.is_empty() {
             p.insert(name.into(), alternatives(values));
         }
@@ -73,7 +76,11 @@ pub fn parameters(query: &TrialSearch, gene: Option<&str>) -> BTreeMap<String, S
         text.push(value.to_owned());
     }
     if !query.keyword().is_empty() {
-        text.push(if text.is_empty() { alternatives(query.keyword()) } else { format!("({})", alternatives(query.keyword())) });
+        text.push(if text.is_empty() {
+            alternatives(query.keyword())
+        } else {
+            format!("({})", alternatives(query.keyword()))
+        });
     }
     if !text.is_empty() {
         p.insert("query.term".into(), text.join(" AND "));
@@ -118,7 +125,18 @@ pub fn parameters(query: &TrialSearch, gene: Option<&str>) -> BTreeMap<String, S
 fn advanced(query: &TrialSearch) -> String {
     let mut advanced = Vec::new();
     if query.exact_condition() {
-        advanced.push(format!("({})", query.condition().iter().map(|condition| format!("(AREA[Condition]EXPANSION[None]{})", quote(condition.as_str()))).collect::<Vec<_>>().join(" OR ")));
+        advanced.push(format!(
+            "({})",
+            query
+                .condition()
+                .iter()
+                .map(|condition| format!(
+                    "(AREA[Condition]EXPANSION[None]{})",
+                    quote(condition.as_str())
+                ))
+                .collect::<Vec<_>>()
+                .join(" OR ")
+        ));
     }
     if let Some(id) = query.id() {
         advanced.push(format!("AREA[NCTId]{id}"));
@@ -188,9 +206,17 @@ pub fn search(
         }
         count_request = Some(count);
     }
-    let condition_word_mismatch = raw.studies.as_deref().unwrap_or_default().iter().any(|row| {
-        conditions.iter().any(|condition| !row.protocol_section.contains_condition_words(condition.as_str()))
-    });
+    let condition_word_mismatch = raw
+        .studies
+        .as_deref()
+        .unwrap_or_default()
+        .iter()
+        .any(|row| {
+            conditions.iter().any(|condition| {
+                !row.protocol_section
+                    .contains_condition_words(condition.as_str())
+            })
+        });
     Ok(SearchPage {
         condition_word_mismatch,
         items: raw
@@ -233,5 +259,9 @@ fn bad() -> RequestError {
 }
 
 fn alternatives(values: &[Text]) -> String {
-    values.iter().map(|value| format!("({})", value.as_str())).collect::<Vec<_>>().join(" OR ")
+    values
+        .iter()
+        .map(|value| format!("({})", value.as_str()))
+        .collect::<Vec<_>>()
+        .join(" OR ")
 }

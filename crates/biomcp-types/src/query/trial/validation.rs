@@ -26,7 +26,11 @@ impl TryFrom<Fields> for TrialSearch {
                 return Err(QueryInvalid::new(&["condition_id", "source"]));
             }
         }
-        for (name, values) in [("condition", &f.condition), ("intervention", &f.intervention), ("keyword", &f.keyword)] {
+        for (name, values) in [
+            ("condition", &f.condition),
+            ("intervention", &f.intervention),
+            ("keyword", &f.keyword),
+        ] {
             if values.len() > super::MAX_ALTERNATIVES {
                 return Err(QueryInvalid::new(&[name]));
             }

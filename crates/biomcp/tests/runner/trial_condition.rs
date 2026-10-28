@@ -10,6 +10,12 @@ pub(super) use native::run as native;
 
 pub(super) fn trials() -> Vec<Trial> {
     vec![
+        Trial::test("trial-search/repeated-condition-mismatch", || {
+            alternatives::mismatch().map_err(Into::into)
+        }),
+        Trial::test("trial-nci/repeated-condition-filters", || {
+            alternatives::nci().map_err(Into::into)
+        }),
         Trial::test("trial-search/repeated-source-filters", || {
             alternatives::run().map_err(Into::into)
         }),

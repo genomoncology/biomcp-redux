@@ -44,8 +44,7 @@ pub(super) fn mismatch() -> Result<(), String> {
     if requests.len() != 4 {
         return Err("condition notice introduced source requests".into());
     }
-    let restriction =
-        "filter.advanced=%28%28AREA%5BCondition%5DEXPANSION%5BNone%5D%22Snyder-Robinson%20syndrome%22%29%29";
+    let restriction = "filter.advanced=%28%28AREA%5BCondition%5DEXPANSION%5BNone%5D%22Snyder-Robinson%20syndrome%22%29%29";
     if requests
         .iter()
         .filter(|(connect, request)| {

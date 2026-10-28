@@ -1,5 +1,5 @@
 //! Repeated trial filters preserve each source-native value at the command boundary.
-use super::super::{Stub, invoke, setup};
+use super::{Stub, invoke, setup};
 use serde_json::json;
 
 pub(super) fn run() -> Result<(), String> {
@@ -35,5 +35,51 @@ pub(super) fn run() -> Result<(), String> {
             return Err(format!("accepted sixth {field}"));
         }
     }
+    Ok(())
+}
+
+pub(super) fn nci() -> Result<(), String> {
+    let stub = Stub::for_source("clinicaltrialsapi.cancer.gov", "application/json", |request| {
+        if !request.contains("diseases.nci_thesaurus_concept_id=C3224&diseases.nci_thesaurus_concept_id=C4872&") {
+            return Err(format!("NCI lost repeated native disease fields: {request}"));
+        }
+        Ok(json!({"total":3,"data":[]}).to_string())
+    })?;
+    let env = setup(&stub)?;
+    let args: Vec<String> = ["search","trial","--source","nci","--condition","C3224","--condition","C4872","--count-only"].iter().map(|v| (*v).into()).collect();
+    let value = invoke(&env, &args, 0)?;
+    if value.pointer("/page/total") != Some(&json!(3)) || value.pointer("/query/condition") != Some(&json!(["C3224","C4872"])) {
+        return Err(format!("NCI lost source-native count or query: {value}"));
+    }
+    let mut refused = args.clone();
+    refused.extend(["--intervention".into(),"pembrolizumab".into()]);
+    let value = invoke(&env, &refused, 2)?;
+    if value.pointer("/error/option") != Some(&json!("--intervention")) {
+        return Err(format!("NCI accepted intervention: {value}"));
+    }
+    if stub.finish()?.len() != 1 { return Err("refused NCI filter reached source".into()); }
+    Ok(())
+}
+
+pub(super) fn mismatch() -> Result<(), String> {
+    let stub = Stub::for_source("clinicaltrials.gov", "application/json", |request| {
+        if request.starts_with("GET /api/v2/version ") {
+            return Ok(json!({"dataTimestamp":"2026-10-28T00:00:00"}).to_string());
+        }
+        // One value matches every native condition; the other value does not.
+        // Flattening all values into one string hides which input lost words.
+        Ok(json!({"totalCount":1,"studies":[{"protocolSection":{
+            "identificationModule":{"nctId":"NCT00000001","briefTitle":"Synthetic native condition"},
+            "statusModule":{"overallStatus":"RECRUITING"},
+            "conditionsModule":{"conditions":["Lung Cancer"]}
+        }}]}).to_string())
+    })?;
+    let env = setup(&stub)?;
+    let args: Vec<String> = ["search","trial","--condition","lung cancer","--condition","melanoma"].iter().map(|v| (*v).into()).collect();
+    let value = invoke(&env, &args, 0)?;
+    if value.pointer("/sources/0/notices/0").is_none() {
+        return Err(format!("second condition mismatch lost: {value}"));
+    }
+    stub.finish()?;
     Ok(())
 }
