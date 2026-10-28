@@ -44,6 +44,7 @@ pub struct GeneItem {
 #[cfg_attr(feature = "schema", derive(schemars::JsonSchema))]
 pub struct GeneCards {
     /// Requested inputs and their answers.
+    #[serde(default, skip_serializing_if = "<[_]>::is_empty")]
     pub items: Box<[GeneItem]>,
 }
 /// One page of gene headers.
@@ -52,6 +53,7 @@ pub struct GeneCards {
 #[cfg_attr(feature = "schema", derive(schemars::JsonSchema))]
 pub struct GenePage {
     /// Headers after ranking and paging.
+    #[serde(default, skip_serializing_if = "<[_]>::is_empty")]
     pub items: Box<[GeneHeader]>,
 }
 impl ResponseBody for GeneCards {

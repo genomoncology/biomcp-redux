@@ -130,3 +130,8 @@ pub use cell_line::*;
 
 mod author;
 pub use author::*;
+
+/// Omit an optional collection when the source supplied no values.
+pub fn absent_or_empty<T>(value: &Option<Box<[T]>>) -> bool {
+    value.as_ref().is_none_or(|items| items.is_empty())
+}

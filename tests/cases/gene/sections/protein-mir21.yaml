@@ -20,8 +20,7 @@
           "includes": "mygene",
           "excludes": "uniprot"
         },
-        "/result/items/0/sections/protein/state": "not_applicable",
-        "/result/items/0/answer/gene/uniprot": []
+        "/result/items/0/sections/protein/state": "not_applicable"
       },
       "max_bytes": 3100,
       "mcp": [

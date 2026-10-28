@@ -150,7 +150,6 @@
       },
       "required": [
         "drug_index",
-        "records",
         "offset",
         "total"
       ],
@@ -191,8 +190,7 @@
             "section",
             "header",
             "snapshot",
-            "unii",
-            "components"
+            "unii"
           ],
           "type": "object"
         },
@@ -228,8 +226,7 @@
             "section",
             "header",
             "snapshot",
-            "rxcui",
-            "components"
+            "rxcui"
           ],
           "type": "object"
         },
@@ -265,8 +262,7 @@
             "section",
             "header",
             "snapshot",
-            "product_ndc",
-            "components"
+            "product_ndc"
           ],
           "type": "object"
         },
@@ -302,8 +298,7 @@
             "section",
             "header",
             "snapshot",
-            "package_ndc",
-            "components"
+            "package_ndc"
           ],
           "type": "object"
         },
@@ -339,8 +334,7 @@
             "section",
             "header",
             "snapshot",
-            "spl_id",
-            "components"
+            "spl_id"
           ],
           "type": "object"
         },
@@ -376,8 +370,7 @@
             "section",
             "header",
             "snapshot",
-            "spl_set_id",
-            "components"
+            "spl_set_id"
           ],
           "type": "object"
         },
@@ -413,8 +406,7 @@
             "section",
             "header",
             "snapshot",
-            "application_number",
-            "components"
+            "application_number"
           ],
           "type": "object"
         }
@@ -928,8 +920,7 @@
           },
           "required": [
             "kind",
-            "name",
-            "phrases"
+            "name"
           ],
           "type": "object"
         },
@@ -950,8 +941,7 @@
             }
           },
           "required": [
-            "kind",
-            "words"
+            "kind"
           ],
           "type": "object"
         }
@@ -1077,8 +1067,7 @@
         }
       },
       "required": [
-        "kind",
-        "args"
+        "kind"
       ],
       "type": "object"
     },

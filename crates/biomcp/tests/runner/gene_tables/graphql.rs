@@ -198,7 +198,7 @@ fn clingen() -> Check {
             "validity only" => {
                 json!({"/result/items/0/sections/clingen/data/validity": {"count": 1}})
             }
-            "dosage only" => json!({"/result/items/0/sections/clingen/data/validity": [],
+            "dosage only" => json!({
                 "/result/items/0/sections/clingen/data/haploinsufficiency": "Sufficient Evidence for Haploinsufficiency"}),
             _ => {
                 json!({"/result/items/0/sections/clingen/state": "unavailable", "/sources/2/reason": "bad_reply"})

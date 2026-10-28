@@ -285,7 +285,7 @@
               "type": "string"
             },
             "publication_references": {
-              "description": "Source publication references, preserving an empty list.",
+              "description": "Source publication references, omitted when empty.",
               "items": {
                 "$ref": "#/$defs/Curie"
               },
@@ -481,9 +481,7 @@
         }
       },
       "required": [
-        "term",
-        "sections",
-        "components"
+        "term"
       ],
       "type": "object"
     },
@@ -845,8 +843,7 @@
           },
           "required": [
             "kind",
-            "name",
-            "phrases"
+            "name"
           ],
           "type": "object"
         },
@@ -867,8 +864,7 @@
             }
           },
           "required": [
-            "kind",
-            "words"
+            "kind"
           ],
           "type": "object"
         }
@@ -994,8 +990,7 @@
         }
       },
       "required": [
-        "kind",
-        "args"
+        "kind"
       ],
       "type": "object"
     },

@@ -22,7 +22,6 @@
         "/result/commands/0/examples": {
           "count": 2
         },
-        "/result/commands/0/sections": [],
         "/status": "complete"
       },
       "max_bytes": 2369,
@@ -88,7 +87,6 @@
         "/result/commands/0/examples": {
           "count": 2
         },
-        "/result/commands/0/sections": [],
         "/status": "complete"
       },
       "max_bytes": 1441,

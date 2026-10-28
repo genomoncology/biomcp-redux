@@ -320,10 +320,7 @@ fn unjoined() -> Result<(), String> {
         let value = run(&environment, &args)?;
         let base = "/result/candidates/0/sections/civic/data/profiles/0";
         if value.pointer(&format!("{base}/membership")) != Some(&json!("candidate"))
-            || value
-                .pointer(&format!("{base}/statements"))
-                .and_then(Value::as_array)
-                .is_none_or(|rows| !rows.is_empty())
+            || value.pointer(&format!("{base}/statements")).is_some()
             || value
                 .pointer(&format!("{base}/evidence_page/next"))
                 .is_some()

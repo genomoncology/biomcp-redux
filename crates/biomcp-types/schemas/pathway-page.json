@@ -166,7 +166,6 @@
         }
       },
       "required": [
-        "items",
         "page"
       ],
       "type": "object"
@@ -231,7 +230,6 @@
       "description": "Search Reactome (default) or WikiPathways human pathways. Membership names a source and release; it implies no therapy, response or actionability. No enrichment is calculated.",
       "properties": {
         "fresh": {
-          "default": false,
           "description": "Request a new retained observation.",
           "type": "boolean"
         },
@@ -277,7 +275,6 @@
           "x-comma-separated": true
         },
         "top_level": {
-          "default": false,
           "description": "Native human Reactome top-level discovery, exclusive with text and gene.",
           "type": "boolean"
         }
@@ -672,8 +669,7 @@
           },
           "required": [
             "kind",
-            "name",
-            "phrases"
+            "name"
           ],
           "type": "object"
         },
@@ -694,8 +690,7 @@
             }
           },
           "required": [
-            "kind",
-            "words"
+            "kind"
           ],
           "type": "object"
         }
@@ -821,8 +816,7 @@
         }
       },
       "required": [
-        "kind",
-        "args"
+        "kind"
       ],
       "type": "object"
     },

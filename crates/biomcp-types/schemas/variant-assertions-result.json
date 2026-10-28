@@ -212,10 +212,6 @@
           "type": "array"
         }
       },
-      "required": [
-        "source_conditions",
-        "related_conditions"
-      ],
       "type": "object"
     },
     "AssertionDetail": {
@@ -1367,8 +1363,7 @@
           },
           "required": [
             "kind",
-            "name",
-            "phrases"
+            "name"
           ],
           "type": "object"
         },
@@ -1389,8 +1384,7 @@
             }
           },
           "required": [
-            "kind",
-            "words"
+            "kind"
           ],
           "type": "object"
         }
@@ -1632,8 +1626,7 @@
         }
       },
       "required": [
-        "kind",
-        "args"
+        "kind"
       ],
       "type": "object"
     },
@@ -1814,7 +1807,6 @@
         }
       },
       "required": [
-        "assertions",
         "page"
       ],
       "type": "object"

@@ -359,7 +359,7 @@ fn identifier_kinds() -> Check {
         if value.get("result").is_some() != expect_result {
             return Err(format!("missing and empty list collapsed: {value}"));
         }
-        if expect_result && value.pointer("/result/unii/records") != Some(&json!([])) {
+        if expect_result && value.pointer("/result/unii/records").is_some() {
             return Err(format!("empty source list: {value}"));
         }
     }

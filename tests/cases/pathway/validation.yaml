@@ -139,9 +139,6 @@
       "exit": 1,
       "expect": {
         "/status": "absent",
-        "/result/items": {
-          "count": 0
-        },
         "/result/page/total": 0
       },
       "max_bytes": 343,

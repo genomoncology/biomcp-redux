@@ -234,7 +234,7 @@ fn missing_product() -> Check {
     let value = both(&env, args, 0)?;
     budget(measure(&value)?, (519, 408))?;
     if value.pointer("/result/approvals/state") != Some(&json!("unavailable"))
-        || value.pointer("/result/products") != Some(&json!([]))
+        || value.pointer("/result/products").is_some()
         || value.get("page").is_some()
         || value.get("next").is_some()
     {

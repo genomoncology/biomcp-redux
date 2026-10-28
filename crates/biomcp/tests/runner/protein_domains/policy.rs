@@ -12,18 +12,15 @@ pub(super) fn run() -> Result<(), String> {
         .and_then(Value::as_array)
         .ok_or("help commands")?
     {
-        let words = command
-            .get("command")
-            .and_then(Value::as_array)
-            .ok_or("command words")?;
+        let empty = Vec::new();
+        let words = match command.get("command") {
+            None => &empty,
+            Some(value) => value.as_array().ok_or("command words")?,
+        };
         if !words.contains(&json!("protein")) {
             continue;
         }
-        for word in command
-            .get("command")
-            .and_then(Value::as_array)
-            .ok_or("command words")?
-        {
+        for word in words {
             if word.as_str().is_some_and(analysis) {
                 return Err("help offers an analysis-tool command".into());
             }

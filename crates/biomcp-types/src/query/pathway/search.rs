@@ -30,7 +30,7 @@ struct SearchFields {
     #[cfg_attr(feature = "schema", schemars(with = "GeneInput"))]
     gene: Option<GeneInput>,
     /// Native human Reactome top-level discovery, exclusive with text and gene.
-    #[serde(default)]
+    #[serde(default, skip_serializing_if = "std::ops::Not::not")]
     top_level: bool,
     /// Sources in caller order; repeated sources take turns without title joins.
     #[serde(default = "default_sources", deserialize_with = "source_list")]
@@ -52,7 +52,7 @@ struct SearchFields {
     #[cfg_attr(feature = "schema", schemars(with = "Text"))]
     pool: Option<Text>,
     /// Request a new retained observation.
-    #[serde(default)]
+    #[serde(default, skip_serializing_if = "std::ops::Not::not")]
     fresh: bool,
 }
 crate::query::validation::checked_query!(PathwaySearch, SearchFields);

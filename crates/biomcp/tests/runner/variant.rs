@@ -91,7 +91,7 @@ fn car() -> Result<(), String> {
     ) {
         return Err(format!("CAR projection must preserve literal plus modifiers: {request}"));
     }
-    if output.pointer("/result/candidates/0/identity/ids/0") != Some(&json!("CA123643")) {
+    if output.pointer("/result/candidates/0/identity/ids/0") != Some(&json!("clingen:CA123643")) {
         return Err(format!("source identity lost: {output}"));
     }
     Ok(())

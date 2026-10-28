@@ -305,7 +305,6 @@
       "required": [
         "put_code",
         "work_type",
-        "external_ids",
         "source",
         "visibility"
       ],
@@ -330,10 +329,6 @@
           "type": "array"
         }
       },
-      "required": [
-        "external_ids",
-        "assertions"
-      ],
       "type": "object"
     },
     "OrcidWorks": {
@@ -365,7 +360,6 @@
       "required": [
         "collection_scope",
         "author",
-        "groups",
         "observed_groups"
       ],
       "type": "object"
@@ -788,8 +782,7 @@
           },
           "required": [
             "kind",
-            "name",
-            "phrases"
+            "name"
           ],
           "type": "object"
         },
@@ -810,8 +803,7 @@
             }
           },
           "required": [
-            "kind",
-            "words"
+            "kind"
           ],
           "type": "object"
         }
@@ -937,8 +929,7 @@
         }
       },
       "required": [
-        "kind",
-        "args"
+        "kind"
       ],
       "type": "object"
     },

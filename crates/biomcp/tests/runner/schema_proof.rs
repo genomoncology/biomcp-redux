@@ -194,7 +194,8 @@ fn discovery() -> Result<(), String> {
     for command in commands {
         let schemas = command["reply_schemas"]
             .as_array()
-            .ok_or("missing reply schemas")?;
+            .map(Vec::as_slice)
+            .unwrap_or_default();
         for (entity, reply) in [
             ("drug", "biomcp.drug-who-card/1"),
             ("pgx", "biomcp.pgx-annotation/1"),

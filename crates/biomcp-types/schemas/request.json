@@ -1771,7 +1771,6 @@
           "type": "string"
         },
         "fresh": {
-          "default": false,
           "description": "Request a new retained observation.",
           "type": "boolean"
         },
@@ -1817,7 +1816,6 @@
           "x-comma-separated": true
         },
         "top_level": {
-          "default": false,
           "description": "Native human Reactome top-level discovery, exclusive with text and gene.",
           "type": "boolean"
         }
@@ -1836,7 +1834,6 @@
           "type": "string"
         },
         "fresh": {
-          "default": false,
           "description": "Request a new source observation.",
           "type": "boolean"
         },
@@ -3069,7 +3066,6 @@
           "type": "string"
         },
         "detail": {
-          "default": false,
           "description": "Read source ancestry groups, preserving overlapping groups individually.",
           "type": "boolean"
         },
@@ -3437,7 +3433,6 @@
           "x-positional": 0
         },
         "replace": {
-          "default": false,
           "description": "Replace an existing file only when explicitly requested.",
           "type": "boolean"
         },
@@ -3533,7 +3528,6 @@
           "description": "Exact MONDO or DOID CURIE resolved by MyDisease; NCI also accepts explicit NCIT:C codes."
         },
         "count_only": {
-          "default": false,
           "description": "Source total only; no returned study rows.",
           "type": "boolean"
         },
@@ -3554,7 +3548,6 @@
           "description": "Resolve one checked gene for registry text discovery only; no eligibility judgment."
         },
         "has_results": {
-          "default": false,
           "description": "Require posted source results.",
           "type": "boolean"
         },
@@ -3655,7 +3648,6 @@
           "x-positional": 0
         },
         "replace": {
-          "default": false,
           "description": "Replace an existing file only when explicitly requested.",
           "type": "boolean"
         },
@@ -3690,7 +3682,6 @@
           "type": "string"
         },
         "fulltext": {
-          "default": false,
           "description": "Include the citing paper's own explicit reference paragraphs.",
           "type": "boolean"
         },
@@ -3737,7 +3728,6 @@
           "type": "integer"
         },
         "negative": {
-          "default": [],
           "description": "Up to ten negative paper identities.",
           "items": {
             "$ref": "#/$defs/ArticleInput"

@@ -297,12 +297,14 @@ fn verify_body(name: &str, cold: &Value, original: &Value, total: usize) -> Chec
         json!([cold.pointer("/result/identity").ok_or("identity")?])
     } else if matches!(name, "diplotype" | "empty") {
         cold.pointer("/result/diplotypes")
-            .ok_or("diplotypes")?
+            .unwrap_or(&json!([]))
             .clone()
     } else {
         cold.pointer("/result/items").ok_or("items")?.clone()
     };
-    if output_rows != *original {
+    let mut expected = original.clone();
+    super::assertions::omit_empty_lists(&mut expected);
+    if output_rows != expected {
         return Err(format!("native context changed: {output_rows}"));
     }
     if let Some(page) = cold.pointer("/result/page")

@@ -240,24 +240,15 @@
       "required": [
         "id",
         "accessionId",
-        "allelePhenotypes",
-        "conflictingVariantAnnotationIds",
-        "history",
         "levelOfEvidence",
         "location",
         "name",
         "objCls",
         "overrideLevel",
         "pediatric",
-        "relatedAlleles",
-        "relatedChemicals",
         "relatedChemicalsLogic",
-        "relatedDiseases",
-        "relatedGuidelines",
-        "relatedLabels",
         "score",
-        "scoreDetails",
-        "types"
+        "scoreDetails"
       ],
       "type": "object"
     },
@@ -554,12 +545,8 @@
       "required": [
         "id",
         "copyNumber",
-        "diplotypes",
         "displayName",
-        "genes",
         "gpPosition",
-        "haplotypes",
-        "linkedObjects",
         "refSeqPosition",
         "tagGene",
         "type"
@@ -975,8 +962,7 @@
           },
           "required": [
             "kind",
-            "name",
-            "phrases"
+            "name"
           ],
           "type": "object"
         },
@@ -997,8 +983,7 @@
             }
           },
           "required": [
-            "kind",
-            "words"
+            "kind"
           ],
           "type": "object"
         }
@@ -1124,8 +1109,7 @@
         }
       },
       "required": [
-        "kind",
-        "args"
+        "kind"
       ],
       "type": "object"
     },

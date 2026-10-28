@@ -115,7 +115,6 @@
       "description": "Exact MONDO or DOID CURIE resolved by MyDisease; NCI also accepts explicit NCIT:C codes."
     },
     "count_only": {
-      "default": false,
       "description": "Source total only; no returned study rows.",
       "type": "boolean"
     },
@@ -136,7 +135,6 @@
       "description": "Resolve one checked gene for registry text discovery only; no eligibility judgment."
     },
     "has_results": {
-      "default": false,
       "description": "Require posted source results.",
       "type": "boolean"
     },

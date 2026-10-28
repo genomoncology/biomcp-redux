@@ -145,8 +145,7 @@
       "required": [
         "header",
         "snapshot",
-        "narrative",
-        "components"
+        "narrative"
       ],
       "type": "object"
     },
@@ -219,7 +218,6 @@
         }
       },
       "required": [
-        "records",
         "offset",
         "total"
       ],
@@ -733,8 +731,7 @@
           },
           "required": [
             "kind",
-            "name",
-            "phrases"
+            "name"
           ],
           "type": "object"
         },
@@ -755,8 +752,7 @@
             }
           },
           "required": [
-            "kind",
-            "words"
+            "kind"
           ],
           "type": "object"
         }
@@ -882,8 +878,7 @@
         }
       },
       "required": [
-        "kind",
-        "args"
+        "kind"
       ],
       "type": "object"
     },

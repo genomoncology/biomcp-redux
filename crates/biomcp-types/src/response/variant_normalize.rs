@@ -6,6 +6,7 @@ use serde::{Deserialize, Serialize};
 #[cfg_attr(feature = "schema", derive(schemars::JsonSchema))]
 pub struct VariantNormalization {
     /// Service results in declared order.
+    #[serde(default, skip_serializing_if = "<[_]>::is_empty")]
     pub results: Box<[NormalizationResult]>,
 }
 impl super::ResponseBody for VariantNormalization {
@@ -28,15 +29,18 @@ pub struct NormalizationResult {
     #[serde(skip_serializing_if = "Option::is_none")]
     pub corrected: Option<String>,
     /// Mapping rows in native service order, labeled by their provider field.
+    #[serde(default, skip_serializing_if = "<[_]>::is_empty")]
     pub mappings: Box<[NormalizationField]>,
     /// Count before mapping pagination.
     pub total_mappings: u32,
     /// Provider messages with original codes, text and category.
+    #[serde(default, skip_serializing_if = "<[_]>::is_empty")]
     pub messages: Box<[NormalizationMessage]>,
     /// Count before provider message pagination.
     #[serde(default)]
     pub total_messages: u32,
     /// Version fields exactly as returned; absent when the service states none.
+    #[serde(default, skip_serializing_if = "<[_]>::is_empty")]
     pub version: Box<[NormalizationField]>,
 }
 /// A provider field name and its unchanged text.

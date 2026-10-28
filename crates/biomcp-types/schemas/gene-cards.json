@@ -64,7 +64,6 @@
         }
       },
       "required": [
-        "items",
         "total"
       ],
       "type": "object"
@@ -159,9 +158,6 @@
           "type": "array"
         }
       },
-      "required": [
-        "validity"
-      ],
       "type": "object"
     },
     "ClinGenValidity": {
@@ -402,11 +398,6 @@
         "symbol",
         "status",
         "locus_group",
-        "previous_symbols",
-        "aliases",
-        "uniprot",
-        "omim",
-        "spans",
         "name"
       ],
       "type": "object"
@@ -423,9 +414,6 @@
           "type": "array"
         }
       },
-      "required": [
-        "items"
-      ],
       "type": "object"
     },
     "GeneExpression": {
@@ -688,8 +676,7 @@
             }
           },
           "required": [
-            "resolution",
-            "candidates"
+            "resolution"
           ],
           "type": "object"
         },
@@ -725,8 +712,7 @@
             "resolution",
             "hgnc_id",
             "symbol",
-            "hgnc_status",
-            "merged_into"
+            "hgnc_status"
           ],
           "type": "object"
         },
@@ -2595,8 +2581,7 @@
           },
           "required": [
             "kind",
-            "name",
-            "phrases"
+            "name"
           ],
           "type": "object"
         },
@@ -2617,8 +2602,7 @@
             }
           },
           "required": [
-            "kind",
-            "words"
+            "kind"
           ],
           "type": "object"
         }
@@ -2793,8 +2777,7 @@
         }
       },
       "required": [
-        "kind",
-        "args"
+        "kind"
       ],
       "type": "object"
     },

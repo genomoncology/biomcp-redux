@@ -17,7 +17,6 @@
         "/result/commands/0/examples": {
           "count": 2
         },
-        "/result/commands/0/sections": [],
         "/status": "complete"
       },
       "full_output_bytes": true,
@@ -44,7 +43,6 @@
         "/result/commands/0/examples": {
           "count": 2
         },
-        "/result/commands/0/sections": [],
         "/status": "complete"
       },
       "full_output_bytes": true,

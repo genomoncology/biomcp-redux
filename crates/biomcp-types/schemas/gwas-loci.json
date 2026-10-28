@@ -148,8 +148,7 @@
         }
       },
       "required": [
-        "association",
-        "items"
+        "association"
       ],
       "type": "object"
     },
@@ -195,10 +194,6 @@
           "type": "array"
         }
       },
-      "required": [
-        "strongest_risk_alleles",
-        "author_reported_genes"
-      ],
       "type": "object"
     },
     "GwasReportedGene": {
@@ -231,10 +226,6 @@
           "description": "Native source gene name."
         }
       },
-      "required": [
-        "ensembl_ids",
-        "entrez_ids"
-      ],
       "type": "object"
     },
     "GwasStudyId": {
@@ -660,8 +651,7 @@
           },
           "required": [
             "kind",
-            "name",
-            "phrases"
+            "name"
           ],
           "type": "object"
         },
@@ -682,8 +672,7 @@
             }
           },
           "required": [
-            "kind",
-            "words"
+            "kind"
           ],
           "type": "object"
         }
@@ -809,8 +798,7 @@
         }
       },
       "required": [
-        "kind",
-        "args"
+        "kind"
       ],
       "type": "object"
     },

@@ -356,8 +356,6 @@
       },
       "required": [
         "requested_site",
-        "requested_selectors",
-        "returned_selectors",
         "measure",
         "attribution"
       ],
@@ -391,10 +389,6 @@
           "type": "array"
         }
       },
-      "required": [
-        "items",
-        "components"
-      ],
       "type": "object"
     },
     "FiniteNumber": {
@@ -813,8 +807,7 @@
           },
           "required": [
             "kind",
-            "name",
-            "phrases"
+            "name"
           ],
           "type": "object"
         },
@@ -835,8 +828,7 @@
             }
           },
           "required": [
-            "kind",
-            "words"
+            "kind"
           ],
           "type": "object"
         }
@@ -1052,8 +1044,7 @@
         }
       },
       "required": [
-        "kind",
-        "args"
+        "kind"
       ],
       "type": "object"
     },

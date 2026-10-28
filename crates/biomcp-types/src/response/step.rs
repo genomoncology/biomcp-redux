@@ -32,5 +32,6 @@ pub struct Step {
     /// Purpose of the action.
     pub kind: StepKind,
     /// CLI and MCP arguments.
+    #[serde(default, skip_serializing_if = "<[_]>::is_empty")]
     pub args: Box<[Box<str>]>,
 }

@@ -89,8 +89,7 @@
             "test_order_code",
             "clia_number",
             "state_licenses",
-            "state_license_numbers",
-            "sections"
+            "state_license_numbers"
           ],
           "type": "object"
         },
@@ -116,8 +115,7 @@
           },
           "required": [
             "kind",
-            "id",
-            "native_rows"
+            "id"
           ],
           "type": "object"
         },
@@ -143,8 +141,7 @@
           },
           "required": [
             "kind",
-            "header",
-            "sections"
+            "header"
           ],
           "type": "object"
         },
@@ -921,8 +918,7 @@
           },
           "required": [
             "kind",
-            "name",
-            "phrases"
+            "name"
           ],
           "type": "object"
         },
@@ -943,8 +939,7 @@
             }
           },
           "required": [
-            "kind",
-            "words"
+            "kind"
           ],
           "type": "object"
         }
@@ -1070,8 +1065,7 @@
         }
       },
       "required": [
-        "kind",
-        "args"
+        "kind"
       ],
       "type": "object"
     },

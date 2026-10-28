@@ -103,7 +103,6 @@
     }
   },
   "required": [
-    "results",
     "metadata"
   ],
   "title": "ResearchSearch",

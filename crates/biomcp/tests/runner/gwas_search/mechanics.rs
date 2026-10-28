@@ -165,8 +165,7 @@ pub(super) fn failures() -> Result<(), String> {
         &["search", "gwas", "--pubmed", "17529967"],
         0,
     )?;
-    if v.pointer("/page/total") != Some(&json!(0)) || v.pointer("/result/items") != Some(&json!([]))
-    {
+    if v.pointer("/page/total") != Some(&json!(0)) || v.pointer("/result/items").is_some() {
         return Err(format!("source zero lost: {v}"));
     }
     invalid(&env, &replay)

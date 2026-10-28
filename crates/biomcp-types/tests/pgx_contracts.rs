@@ -103,7 +103,7 @@ fn annotation() -> serde_json::Value {
         "id":"PA2","symbol":"*3A","name":"synthetic"}],"linkedObjects":[{"objCls":"Haplotype","id":"PA2","symbol":"*3A",
         "name":"synthetic"}],"refSeqPosition":-1,"tagGene":false,"type":"synthetic"},"name":"synthetic annotation",
         "relatedChemicals":[{"objCls":"Chemical","id":"PA3","name":"synthetic first"},{"objCls":"Chemical","id":"PA4",
-        "name":"synthetic second"}],"relatedChemicalsLogic":"synthetic relation","relatedGuidelines":[],"relatedLabels":[],
+        "name":"synthetic second"}],"relatedChemicalsLogic":"synthetic relation",
         "types":["synthetic first","synthetic second"]}
     )
 }
@@ -164,12 +164,11 @@ fn annotation_tiers_preserve_native_arrays_missing_locations_and_base_history()
         "conflictingVariantAnnotationIds":[12,13],"history":[{"id":1,"date":"2026-01-01","type":"synthetic","version":3},{"id":2,
         "date":"2026-02-01","type":"synthetic","version":4,"description":"synthetic change"}],"objCls":"ClinicalAnnotation",
         "overrideLevel":false,"pediatric":false,"relatedAlleles":[{"objCls":"Haplotype","id":"PA2","name":"synthetic","symbol":"*1"}],
-        "relatedDiseases":[],"score":1.5,"scoreDetails":"synthetic details"}
+        "score":1.5,"scoreDetails":"synthetic details"}
     ))?);
     assert_eq!(roundtrip::<PgxAnnotationDetail>(detail.clone())?, detail);
     assert!(serde_json::from_value::<PgxAnnotationHeader>(detail).is_err());
-    let reference =
-        json!({"objCls":"GuidelineAnnotation","id":"PA5","name":"synthetic","crossReferences":[]});
+    let reference = json!({"objCls":"GuidelineAnnotation","id":"PA5","name":"synthetic",});
     assert_eq!(
         roundtrip::<PgxAnnotationReference>(reference.clone())?,
         reference
@@ -291,7 +290,7 @@ fn all_consumer_envelopes_validate_with_independent_source_or_observed_totals()
         .ok_or("object")?
         .extend(serde_json::from_value::<serde_json::Map<String, serde_json::Value>>(json!(
             {"allelePhenotypes":[],"conflictingVariantAnnotationIds":[],"history":[],"objCls":"ClinicalAnnotation","overrideLevel":false,
-            "pediatric":false,"relatedAlleles":[],"relatedDiseases":[],"score":0.0,"scoreDetails":"synthetic"}
+            "pediatric":false,"relatedAlleles":[],"score":0.0,"scoreDetails":"synthetic"}
         ))?);
     envelope::<PgxAnnotation>(
         json!({"id":"PA1234","source":"clinpgx"}),
@@ -301,7 +300,7 @@ fn all_consumer_envelopes_validate_with_independent_source_or_observed_totals()
         let items = if kind == "clinical" {
             json!([clinical])
         } else {
-            json!([{"objCls":"synthetic","id":"PA5","name":"synthetic","crossReferences":[]}])
+            json!([{"objCls":"synthetic","id":"PA5","name":"synthetic",}])
         };
         envelope::<PgxAnnotations>(
             json!({"gene":"TPMT","source":"clinpgx","section":"annotations","kind":kind}),

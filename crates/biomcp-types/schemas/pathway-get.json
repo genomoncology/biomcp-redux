@@ -28,7 +28,6 @@
   "description": "Get an exact human Reactome R-HSA or WikiPathways WP card. Read whole summary, genes, Reactome events or bounded all sections. Membership names a source and release; it implies no therapy, response or actionability. No enrichment is calculated.",
   "properties": {
     "fresh": {
-      "default": false,
       "description": "Request a new source observation.",
       "type": "boolean"
     },

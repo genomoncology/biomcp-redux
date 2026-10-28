@@ -39,7 +39,7 @@ fn empty() -> Result<(), String> {
         let value = call("gwas_get/state/empty/1", &env, &replay, &args, 0)?;
         if value.get("status") != Some(&json!("complete"))
             || value.pointer("/page/total") != Some(&json!(0))
-            || value.pointer("/result/items") != Some(&json!([]))
+            || value.pointer("/result/items").is_some()
         {
             return Err(format!("successful source zero lost: {value}"));
         }

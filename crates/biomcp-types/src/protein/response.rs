@@ -16,6 +16,7 @@ macro_rules! page {
         #[cfg_attr(feature = "schema", derive(schemars::JsonSchema))]
         pub struct $name {
             /// Whole native rows in source order; totals apply only to this collection.
+            #[serde(default, skip_serializing_if = "<[_]>::is_empty")]
             pub items: Box<[$row]>,
         }
         impl ResponseBody for $name {
@@ -44,6 +45,7 @@ page!(
 #[cfg_attr(feature = "schema", derive(schemars::JsonSchema))]
 pub struct ProteinDomains {
     /// Bounded retained rows in source order.
+    #[serde(default, skip_serializing_if = "<[_]>::is_empty")]
     pub items: Box<[ProteinDomainMatch]>,
     /// Native source total before type selection or exact participant admission.
     pub native_total: u64,
@@ -65,6 +67,7 @@ page!(
 #[cfg_attr(feature = "schema", derive(schemars::JsonSchema))]
 pub struct ProteinComplexes {
     /// Bounded retained rows in source order.
+    #[serde(default, skip_serializing_if = "<[_]>::is_empty")]
     pub items: Box<[ProteinComplexHeader]>,
     /// Native source total before type selection or exact participant admission.
     pub native_total: u64,

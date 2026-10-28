@@ -18,7 +18,7 @@ struct Fields {
     #[cfg_attr(feature="schema", schemars(extend("x-positional"=1)))]
     cited: ArticleInput,
     /// Include the citing paper's own explicit reference paragraphs.
-    #[serde(default)]
+    #[serde(default, skip_serializing_if = "std::ops::Not::not")]
     fulltext: bool,
     /// Stored checked source scan and original hit positions.
     #[serde(

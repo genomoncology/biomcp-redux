@@ -15,7 +15,7 @@ struct Fields {
     #[cfg_attr(feature="schema", schemars(length(min=1,max=10), extend("x-positional"=0)))]
     seeds: Box<[ArticleInput]>,
     /// Up to ten negative paper identities.
-    #[serde(default)]
+    #[serde(default, skip_serializing_if = "<[_]>::is_empty")]
     #[cfg_attr(feature = "schema", schemars(length(max = 10)))]
     negative: Box<[ArticleInput]>,
     /// Maximum recommendations requested, in native order.

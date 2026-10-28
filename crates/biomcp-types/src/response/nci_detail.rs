@@ -35,6 +35,7 @@ pub struct NciEligibility {
     /// Source structured fields.
     pub structured: Option<NciEligibilityStructured>,
     /// Whole source criteria, with original metadata.
+    #[serde(default, skip_serializing_if = "<[_]>::is_empty")]
     pub unstructured: Box<[NciCriterion]>,
 }
 /// One intact source criterion; the publisher supplies its classification.
@@ -119,8 +120,10 @@ pub struct NciIntervention {
     /// Native inclusion indicator field.
     pub inclusion_indicator: Option<Text>,
     /// Native parents field.
+    #[serde(default, skip_serializing_if = "<[_]>::is_empty")]
     pub parents: Box<[Text]>,
     /// Native synonyms field.
+    #[serde(default, skip_serializing_if = "<[_]>::is_empty")]
     pub synonyms: Box<[Text]>,
 }
 /// A record position preserves every arm/intervention relationship without invented identity.

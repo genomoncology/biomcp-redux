@@ -90,7 +90,7 @@ fn bounded(label: &str, card: &Value, ceiling: usize) -> Result<(), String> {
 fn identity(card: &Value) -> Result<(), String> {
     if card.pointer("/result/resolution") != Some(&json!("resolved"))
         || card.pointer("/result/candidates/0/record/id") != Some(&json!(REPEAT))
-        || card.pointer("/result/candidates/0/identity/ids") != Some(&json!(["rs876657378"]))
+        || card.pointer("/result/candidates/0/identity/ids") != Some(&json!(["rs:876657378"]))
         || card.pointer("/result/candidates/0/identity/representations/0/expression/value")
             != Some(&json!(REPEAT))
     {

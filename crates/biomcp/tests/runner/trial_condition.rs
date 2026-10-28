@@ -90,7 +90,7 @@ fn failures() -> Result<(), String> {
             serde_json::to_vec(&json!(
                 {"feature":"trial-search","story":"Unresolved exact identity stops before trial I/O","replay":directory,
                 "config":{"keys":{"nci_api_key":"synthetic-trial-condition-key"}},"steps":[{"run":args,"mcp":args,"exit":4,"is_error":true,
-                "expect":{"/status":"failed","/result/request":[]},"max_bytes":ceiling,"max_tokens":(ceiling+3)/4}]}
+                "expect":{"/status":"failed"},"max_bytes":ceiling,"max_tokens":(ceiling+3)/4}]}
             ))
             .map_err(|e| e.to_string())?,
         )
@@ -126,7 +126,7 @@ fn invoke(env: &Environment, args: &[String], exit: i32) -> Result<Value, String
 }
 
 fn check_failure(case: &str, expected: Option<&str>, value: &Value) -> Result<(), String> {
-    if value.pointer("/result/request") != Some(&json!([])) || value.get("page").is_some() {
+    if value.pointer("/result/request").is_some() || value.get("page").is_some() {
         return Err(format!(
             "{case}: unresolved identity asserted a trial request/count"
         ));

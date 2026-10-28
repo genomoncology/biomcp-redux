@@ -788,8 +788,7 @@
           },
           "required": [
             "kind",
-            "name",
-            "phrases"
+            "name"
           ],
           "type": "object"
         },
@@ -810,8 +809,7 @@
             }
           },
           "required": [
-            "kind",
-            "words"
+            "kind"
           ],
           "type": "object"
         }
@@ -963,8 +961,7 @@
         }
       },
       "required": [
-        "kind",
-        "args"
+        "kind"
       ],
       "type": "object"
     },
@@ -1060,7 +1057,6 @@
         "cnaSampleCount",
         "structuralVariantCount",
         "treatmentCount",
-        "resourceCounts",
         "importDate",
         "groups",
         "readPermission",
@@ -1233,7 +1229,6 @@
       },
       "required": [
         "study_id",
-        "items",
         "page",
         "acquired"
       ],
@@ -1437,7 +1432,6 @@
       },
       "required": [
         "study_id",
-        "items",
         "page",
         "acquired"
       ],
@@ -1582,7 +1576,6 @@
       },
       "required": [
         "study_id",
-        "items",
         "page",
         "acquired"
       ],

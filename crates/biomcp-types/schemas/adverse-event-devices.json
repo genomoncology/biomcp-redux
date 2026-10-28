@@ -211,8 +211,7 @@
       "required": [
         "header",
         "snapshot",
-        "devices",
-        "components"
+        "devices"
       ],
       "type": "object"
     },
@@ -359,7 +358,6 @@
         }
       },
       "required": [
-        "records",
         "offset",
         "total"
       ],
@@ -873,8 +871,7 @@
           },
           "required": [
             "kind",
-            "name",
-            "phrases"
+            "name"
           ],
           "type": "object"
         },
@@ -895,8 +892,7 @@
             }
           },
           "required": [
-            "kind",
-            "words"
+            "kind"
           ],
           "type": "object"
         }
@@ -1022,8 +1018,7 @@
         }
       },
       "required": [
-        "kind",
-        "args"
+        "kind"
       ],
       "type": "object"
     },

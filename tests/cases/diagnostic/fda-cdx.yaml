@@ -249,7 +249,7 @@
       ],
       "max_bytes": 1391,
       "expect": {
-        "/schema": "biomcp.help/2",
+        "/schema": "biomcp.help/3",
         "/result/commands/0/command": [
           "sync",
           "fda-cdx"
@@ -269,7 +269,7 @@
       ],
       "max_bytes": 3792,
       "expect": {
-        "/schema": "biomcp.help/2",
+        "/schema": "biomcp.help/3",
         "/result/commands/0/command": [
           "search",
           "diagnostic"

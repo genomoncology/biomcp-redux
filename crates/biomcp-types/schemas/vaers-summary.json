@@ -550,8 +550,7 @@
           },
           "required": [
             "kind",
-            "name",
-            "phrases"
+            "name"
           ],
           "type": "object"
         },
@@ -572,8 +571,7 @@
             }
           },
           "required": [
-            "kind",
-            "words"
+            "kind"
           ],
           "type": "object"
         }
@@ -699,8 +697,7 @@
         }
       },
       "required": [
-        "kind",
-        "args"
+        "kind"
       ],
       "type": "object"
     },
@@ -907,12 +904,8 @@
         "scope",
         "grouping",
         "dataset",
-        "measures",
-        "measure_metadata",
         "report_total",
         "footer",
-        "rows",
-        "notices",
         "interpretation"
       ],
       "type": "object"

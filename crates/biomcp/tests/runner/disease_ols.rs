@@ -455,7 +455,7 @@ fn literal_zero() -> Result<(), String> {
         &directory,
         json!(
             [{"run":["search","disease","MONDO:0007607"],"mcp":["search","disease","MONDO:0007607"],"exit":1,"expect":{"/status":"absent",
-            "/page/total":0,"/result/items":[]},"max_bytes":463}]
+            "/page/total":0,},"max_bytes":463}]
         ),
     )?;
     replay(

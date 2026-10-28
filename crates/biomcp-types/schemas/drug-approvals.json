@@ -231,7 +231,6 @@
       },
       "required": [
         "identity",
-        "products",
         "approvals"
       ],
       "type": "object"
@@ -352,7 +351,6 @@
       "required": [
         "product_number",
         "brand_name",
-        "active_ingredients",
         "dosage_form",
         "marketing_status",
         "reference_drug"
@@ -1279,8 +1277,7 @@
           },
           "required": [
             "kind",
-            "name",
-            "phrases"
+            "name"
           ],
           "type": "object"
         },
@@ -1301,8 +1298,7 @@
             }
           },
           "required": [
-            "kind",
-            "words"
+            "kind"
           ],
           "type": "object"
         }
@@ -1454,8 +1450,7 @@
         }
       },
       "required": [
-        "kind",
-        "args"
+        "kind"
       ],
       "type": "object"
     },

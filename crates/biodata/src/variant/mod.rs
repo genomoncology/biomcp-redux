@@ -1,5 +1,6 @@
 //! Source-qualified variant identity, without local molecular interpretation.
 mod model;
+mod output_ids;
 pub use model::*;
 
 mod accession;

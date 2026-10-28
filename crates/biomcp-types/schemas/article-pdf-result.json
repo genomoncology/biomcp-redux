@@ -15,7 +15,6 @@
           "x-positional": 0
         },
         "replace": {
-          "default": false,
           "description": "Replace an existing file only when explicitly requested.",
           "type": "boolean"
         },
@@ -668,8 +667,7 @@
           },
           "required": [
             "kind",
-            "name",
-            "phrases"
+            "name"
           ],
           "type": "object"
         },
@@ -690,8 +688,7 @@
             }
           },
           "required": [
-            "kind",
-            "words"
+            "kind"
           ],
           "type": "object"
         }
@@ -843,8 +840,7 @@
         }
       },
       "required": [
-        "kind",
-        "args"
+        "kind"
       ],
       "type": "object"
     },

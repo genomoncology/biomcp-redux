@@ -31,17 +31,22 @@ pub struct Gene {
     #[serde(skip_serializing_if = "Option::is_none")]
     pub location: Option<Cytoband>,
     /// All stated previous symbols.
+    #[serde(default, skip_serializing_if = "<[_]>::is_empty")]
     pub previous_symbols: Box<[GeneSymbol]>,
     /// All stated HGNC aliases.
+    #[serde(default, skip_serializing_if = "<[_]>::is_empty")]
     pub aliases: Box<[Text]>,
     /// All stated UniProt base accessions.
+    #[serde(default, skip_serializing_if = "<[_]>::is_empty")]
     pub uniprot: Box<[UniProtAcc]>,
     /// All stated OMIM identifiers.
+    #[serde(default, skip_serializing_if = "<[_]>::is_empty")]
     pub omim: Box<[OmimId]>,
     /// Versioned MANE Select transcript pair, if stated.
     #[serde(default, skip_serializing_if = "<[ _ ]>::is_empty")]
     pub mane: Box<[Mane]>,
     /// Source intervals with explicit assembly and counting rule.
+    #[serde(default, skip_serializing_if = "<[_]>::is_empty")]
     pub spans: Box<[GenomicInterval]>,
     /// Gene name.
     pub name: Text,

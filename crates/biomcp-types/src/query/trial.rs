@@ -211,10 +211,10 @@ struct Fields {
     #[cfg_attr(feature = "schema", schemars(with = "Text"))]
     next_page: Option<Text>,
     /// Source total only; no returned study rows.
-    #[serde(default)]
+    #[serde(default, skip_serializing_if = "std::ops::Not::not")]
     count_only: bool,
     /// Require posted source results.
-    #[serde(default)]
+    #[serde(default, skip_serializing_if = "std::ops::Not::not")]
     has_results: bool,
     /// Headers per page; NCI applies its own lower publisher limit.
     #[serde(default = "default_limit")]
