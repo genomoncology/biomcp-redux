@@ -8,6 +8,9 @@ use serde::Deserialize;
 #[serde(transparent)]
 pub(super) struct FirstPage(pub(super) RawPage);
 impl Reply for FirstPage {
+    fn discovery(&self) -> Option<biomcp_fetch::Identities> {
+        self.0.discovery()
+    }
     fn check(&self) -> Result<(), BadReply> {
         self.0.check()?;
         self.0.total_count.ok_or(BadReply).map(|_| ())
@@ -31,6 +34,15 @@ pub(super) struct RawPage {
     pub(super) next_page_token: Option<Text>,
 }
 impl Reply for RawPage {
+    fn discovery(&self) -> Option<biomcp_fetch::Identities> {
+        biomcp_fetch::Identities::bounded(
+            "ctgov-page",
+            vec![self.next_page_token.as_ref()?.as_str().to_owned()],
+        )
+    }
+    fn input_parameter() -> Option<(&'static str, &'static str)> {
+        Some(("ctgov-page", "pageToken"))
+    }
     fn check(&self) -> Result<(), BadReply> {
         // The registry omits studies for a successful zero count. An absent array
         // without that explicit zero is an incomplete reply, never an empty page.

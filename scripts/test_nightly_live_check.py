@@ -380,6 +380,28 @@ class NightlyCommand(unittest.TestCase):
                 self.assertEqual(saved['case_sample'][0]['witness'], row['witness'])
                 self.assertEqual(saved['case_sample'][0]['result'], row['result'])
 
+    def test_changed_registry_token_follows_checked_first_page(self):
+        row = classification_case('discovery')
+        first = row['witness'][0]
+        before, after = first['baseline']['requests'], first['live']['requests']
+        for requests in (before, after):
+            for request in requests:
+                request['source'] = 'ctgov'
+                for kind in ('discovery', 'inputs'):
+                    if kind in request['provenance']:
+                        request['provenance'][kind]['namespace'] = 'ctgov-page'
+        # The first command discovers its own token. Only its follow changes
+        # request identity, with unchanged non-token parameters and HTTP 200.
+        second = {'ordinal': 2, 'baseline': {'requests': before[1:]},
+                  'live': {'requests': after[1:]}}
+        first['baseline']['requests'] = before[:1]
+        first['live']['requests'] = after[:1]
+        row['witness'].append(second)
+        self.classified(row, 'churn', 0)
+        second['live']['requests'][0]['status'] = 400
+        row['result']['drift'].append('continuation: HTTP status Some(200) -> Some(400)')
+        self.classified(row, 'failure', 1)
+
     def test_trial_continuation_uses_live_follow_and_excludes_recorded_mcp_token(self):
         case = json.loads((ROOT / 'tests/cases/trial/walk.yaml').read_text())
         live = [step for step in case['steps'] if not step.get('offline')]
