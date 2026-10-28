@@ -26,8 +26,8 @@
         "--sort",
         "citations"
       ],
-      "max_bytes": 5036,
-      "max_tokens": 1230
+      "max_bytes": 5938,
+      "max_tokens": 1485
     },
     {
       "run": [
@@ -54,5 +54,5 @@
       "max_tokens": 1230
     }
   ],
-  "verified": "First page measured4379bytes/1095tokens; walk maximum4815bytes/1204tokens. Bounds add15percent; first page is capped by the matching0.9 question1230tokens. The full walk also stays below the matching question1230-token ceiling."
+  "verified": "First page measured4379bytes/1095tokens; walk maximum4815bytes/1204tokens. Bounds add15percent; first page is capped by the matching0.9 question1230tokens. The full walk also stays below the matching question1230-token ceiling. PM-approved mandatory problem disclosures measured 5163 comparable bytes in j19522; the first-page ceiling adds fifteen percent (5938 bytes, 1485 tokens). The historical 0.9 comparison remains 1230 tokens. Counterfactual measurement must fit the old bound without newly disclosed problems."
 }
