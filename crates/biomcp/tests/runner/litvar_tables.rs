@@ -77,11 +77,7 @@ fn boundaries() -> Check {
         0,
     )?;
     for (kind, expected, exit) in [
-        (
-            "empty",
-            json!({"/status":"absent","/result/items":{"count":0}}),
-            1,
-        ),
+        ("empty", json!({"/status":"absent",}), 1),
         (
             "multiple",
             json!({"/status":"absent","/result/candidates":{"count":3}}),
@@ -145,7 +141,7 @@ fn health() -> Check {
         .find(|row| row["source"] == "litvar")
         .ok_or("LitVar missing from source health")?;
     assert_eq!(row["state"], "ok");
-    assert_eq!(row["usage"], "open");
+    assert_eq!(row["use"], "open");
     assert_eq!(row["terms_url"], biomcp_adapters::litvar::SPEC.terms.url);
     Ok(())
 }
@@ -260,7 +256,7 @@ fn empty_recovery() -> Check {
             |source, record| boundary_edit(source, record, "empty"),
             json!([{
                 "run": args, "mcp": args, "exit": 1,
-                "expect": {"/status":"absent", "/result/items":{"count":0}}
+                "expect": {"/status":"absent", }
             }]),
         )?;
         let steps = output["next"].as_array().ok_or("missing recovery steps")?;
@@ -269,7 +265,7 @@ fn empty_recovery() -> Check {
         } else {
             vec!["europepmc", "pubmed"]
         };
-        assert_eq!(steps.len(), expected.len());
+        assert_eq!(steps.len(), expected.len() + 1);
         for (step, source) in steps.iter().zip(expected) {
             let mut args = vec!["search", "article", "--gene", "KRAS", "--variant", "G12C"];
             if source != "pubmed" {
@@ -280,6 +276,14 @@ fn empty_recovery() -> Check {
             }
             assert_eq!(step["args"], json!(args));
         }
+        let mut broader = vec!["search", "article", "--gene", "KRAS"];
+        if disabled {
+            broader.splice(0..0, ["--disable-sources", "europepmc"]);
+        }
+        assert_eq!(
+            steps.last().ok_or("missing broader gene search")?["args"],
+            json!(broader)
+        );
         assert_eq!(
             output["sources"][1]["notices"][0]["kind"],
             "litvar_rsid_hint"

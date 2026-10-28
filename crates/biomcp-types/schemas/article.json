@@ -272,10 +272,7 @@
   },
   "required": [
     "title",
-    "types",
-    "corrections",
-    "authors",
-    "abstract_parts"
+    "authors"
   ],
   "title": "Article",
   "type": "object"

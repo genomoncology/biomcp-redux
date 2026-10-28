@@ -8,9 +8,6 @@ impl Leg<'_> {
         accept: &str,
         headers: &[(&str, String)],
     ) -> Result<ureq::http::Response<ureq::Body>, ureq::Error> {
-        if prepared.publisher {
-            return self.publisher_call(&prepared.url, accept);
-        }
         let agent = self.fetch.agents.for_url(
             &self.fetch.config.network,
             self.fetch.config.proxy.is_some(),
@@ -20,6 +17,8 @@ impl Leg<'_> {
         let url = outgoing.as_deref().unwrap_or(&prepared.url);
         let mut request = if prepared.post.is_some() {
             agent.post(url)
+        } else if prepared.method == crate::declaration::Method::Head {
+            agent.head(url).force_send_body()
         } else {
             agent.get(url).force_send_body()
         }

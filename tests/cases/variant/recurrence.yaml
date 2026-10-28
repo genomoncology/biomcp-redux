@@ -41,7 +41,7 @@
       "exit": 4,
       "is_error": true,
       "expect": {
-        "/schema": "biomcp.variant-recurrence/4",
+        "/schema": "biomcp.variant-recurrence/5",
         "/sources/0/source": "cbioportal",
         "/sources/0/reason": "disabled"
       }

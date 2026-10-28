@@ -87,11 +87,18 @@ struct SearchFields {
     #[cfg_attr(feature = "schema", schemars(with = "Text"))]
     pool: Option<Text>,
 }
+crate::query::validation::checked_query!(ProteinSearch, SearchFields);
 impl TryFrom<SearchFields> for ProteinSearch {
     type Error = QueryInvalid;
     fn try_from(v: SearchFields) -> Result<Self, QueryInvalid> {
-        if v.query.is_some() == v.gene.is_some() || !v.reviewed || !(1..=25).contains(&v.limit) {
-            return Err(QueryInvalid);
+        if v.query.is_some() == v.gene.is_some() {
+            return Err(QueryInvalid::new(&["query", "gene"]));
+        }
+        if !v.reviewed {
+            return Err(QueryInvalid::new(&["reviewed"]));
+        }
+        if !(1..=25).contains(&v.limit) {
+            return Err(QueryInvalid::new(&["limit"]));
         }
         Ok(Self(v))
     }
@@ -161,11 +168,15 @@ struct GetFields {
     #[cfg_attr(feature = "schema", schemars(range(min = 1, max = 25)))]
     section_limit: u32,
 }
+crate::query::validation::checked_query!(ProteinGet, GetFields);
 impl TryFrom<GetFields> for ProteinGet {
     type Error = QueryInvalid;
     fn try_from(v: GetFields) -> Result<Self, QueryInvalid> {
-        if !(1..=20).contains(&v.input.len()) || !(1..=25).contains(&v.section_limit) {
-            return Err(QueryInvalid);
+        if !(1..=20).contains(&v.input.len()) {
+            return Err(QueryInvalid::new(&["input"]));
+        }
+        if !(1..=25).contains(&v.section_limit) {
+            return Err(QueryInvalid::new(&["section_limit"]));
         }
         Ok(Self(v))
     }

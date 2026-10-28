@@ -24,6 +24,7 @@ pub struct CellLineHeader {
 #[cfg_attr(feature = "schema", derive(schemars::JsonSchema))]
 pub struct CellLinePage {
     /// Native result order, without reranking or selected identity.
+    #[serde(default, skip_serializing_if = "<[_]>::is_empty")]
     pub items: Box<[CellLineHeader]>,
     /// Independently fetched publisher release, never a result total.
     #[serde(skip_serializing_if = "Option::is_none")]
@@ -45,6 +46,7 @@ pub struct CellLineCard {
     #[serde(skip_serializing_if = "Option::is_none")]
     pub header: Option<CellLineHeader>,
     /// Candidate identities without first-hit selection.
+    #[serde(default, skip_serializing_if = "<[_]>::is_empty")]
     pub candidates: Box<[CellLineHeader]>,
     /// Selected entry dates and version, separate from release metadata.
     #[serde(skip_serializing_if = "Option::is_none")]
@@ -65,6 +67,7 @@ pub struct CellLineCard {
     /// Only explicitly requested sections carry a state.
     pub sections: CellLineSections,
     /// Supported disclosures not requested.
+    #[serde(default, skip_serializing_if = "<[_]>::is_empty")]
     pub more: Box<[CellLineSection]>,
     /// Independently fetched publisher release.
     #[serde(skip_serializing_if = "Option::is_none")]

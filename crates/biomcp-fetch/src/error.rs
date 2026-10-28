@@ -173,6 +173,8 @@ impl From<RecordError> for RequestError {
 /// Input failures retain no caller text or serializer diagnostics.
 #[derive(Clone, Copy, Debug, PartialEq, Eq)]
 pub enum InputError {
+    /// The request origin is absent from its source declaration.
+    Host,
     /// A runtime endpoint path is not canonical or attempts to supply URL parts.
     Path,
     /// The call does not match the endpoint's declared body encoding.
@@ -185,6 +187,7 @@ pub enum InputError {
 impl fmt::Display for InputError {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
         f.write_str(match self {
+            Self::Host => "fetch.input_host",
             Self::Path => "fetch.input_path",
             Self::Method => "fetch.input_method",
             Self::Serialization => "fetch.input_serialization",

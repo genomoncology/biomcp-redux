@@ -234,6 +234,7 @@ fn bundle_sync_child() {
     };
     let base = Box::leak(std::env::var("BUNDLE_BASE").unwrap().into_boxed_str());
     let spec = Box::leak(Box::new(biomcp_fetch::SourceSpec {
+        destinations: biomcp_fetch::Destinations::Primary,
         user_agent: None,
         terms: biomcp_fetch::Terms {
             name: "Synthetic test data",
@@ -424,177 +425,10 @@ fn replace_recorded_body(path: &std::path::Path, body: &str) {
     std::fs::write(path, serde_json::to_vec(&value).unwrap()).unwrap();
 }
 
-#[test]
-fn fresh_bundle_refresh_is_shared_by_one_leg_and_its_batch_children() {
-    let server = support::Server::new();
-    let bundle = declared(&server);
-    let dir = tempfile::tempdir().unwrap();
-    let fetch = cached(&dir.path().join("cache.sqlite"));
-    sync_reply(&fetch, &bundle, &server, 200, "ETag: \"one\"\r\n", TSV).unwrap();
-    let leg = fetch
-        .leg(bundle.spec, fetch.deadline(Duration::from_secs(10)))
-        .fresh(true);
-    std::thread::scope(|scope| {
-        let call = scope.spawn(|| leg.rows(&bundle, Find::Words("kinase")));
-        server.next().respond(304, "", "");
-        assert_eq!(call.join().unwrap().unwrap().len(), 1);
-    });
-    // No server reply is supplied: another request is an observable failure.
-    let values = leg.batch(&[(), ()], |child, ()| {
-        child.rows(&bundle, Find::Words("kinase"))
-    });
-    assert!(values.into_iter().all(|value| value.is_ok()));
-    assert!(server.requests.try_recv().is_err());
-    let sibling = fetch
-        .leg(bundle.spec, fetch.deadline(Duration::from_secs(10)))
-        .fresh(true);
-    std::thread::scope(|scope| {
-        let call = scope.spawn(|| sibling.rows(&bundle, Find::Words("kinase")));
-        server.next().respond(304, "", "");
-        assert_eq!(call.join().unwrap().unwrap().len(), 1);
-    });
-}
-
 #[path = "bundle/download.rs"]
 mod download;
 #[path = "bundle/rows.rs"]
 mod rows;
 
-// Native quoted TSV and decoded limits share the listed public bundle boundary.
-mod native {
-    use super::*;
-    use biomcp_fetch::{BundlePart, BundleSet};
-    use std::io::Write;
-    const BODY: &str = "symbol\tband\tname\r\nBRAF\t\t\"A \"\"quoted\"\" name\"\r\n";
-    fn gzip(body: &[u8]) -> Vec<u8> {
-        let mut encoder = flate2::write::GzEncoder::new(Vec::new(), flate2::Compression::fast());
-        encoder.write_all(body).unwrap();
-        encoder.finish().unwrap()
-    }
-    fn native(server: &support::Server, limit: u64) -> BundleSet<Gene> {
-        BundleSet {
-            spec: server.spec(&QUOTA, KeyUse::None),
-            name: "native-tsv",
-            parts: &[
-                BundlePart {
-                    name: "compressed",
-                    path: "/one.gz",
-                    format: Some(RowFormat::NativeTsv {
-                        gzip: true,
-                        max_decoded_bytes: 1024,
-                    }),
-                },
-                BundlePart {
-                    name: "plain",
-                    path: "/two",
-                    format: None,
-                },
-            ],
-            format: RowFormat::NativeTsv {
-                gzip: false,
-                max_decoded_bytes: limit,
-            },
-            fresh: Freshness::Days(1),
-            row: PhantomData,
-        }
-    }
-    fn reply(server: &support::Server, body: &[u8]) {
-        let mut bytes = format!(
-            "HTTP/1.1 200 OK\r\nContent-Length: {}\r\nConnection: close\r\n\r\n",
-            body.len()
-        )
-        .into_bytes();
-        bytes.extend_from_slice(body);
-        server.next().bytes(bytes);
-    }
-    #[test]
-    fn malformed_native_quotes_do_not_replace_the_prior_pair() {
-        let server = support::Server::new();
-        let set = native(&server, 1024);
-        let dir = tempfile::tempdir().unwrap();
-        let fetch = cached(&dir.path().join("cache.sqlite"));
-        let bytes = gzip(BODY.as_bytes());
-        std::thread::scope(|scope| {
-            let call = scope.spawn(|| fetch.sync_set(&set));
-            reply(&server, &bytes);
-            reply(&server, BODY.as_bytes());
-            call.join().unwrap().unwrap();
-        });
-        for malformed in [
-            "symbol\tband\tname\nBRAF\t\t\"unterminated",
-            "symbol\tband\tname\nBRAF\t\t\"closed\"suffix\n",
-        ] {
-            std::thread::scope(|scope| {
-                let call = scope.spawn(|| fetch.sync_set(&set));
-                reply(&server, &bytes);
-                reply(&server, malformed.as_bytes());
-                assert!(call.join().unwrap().is_err(), "accepted {malformed:?}");
-            });
-            let leg = fetch.leg(set.spec, fetch.deadline(Duration::from_secs(2)));
-            let (rows, _) = leg
-                .stored_set_rows(&set, Find::Exact(KeyKind::Symbol, "BRAF"))
-                .unwrap();
-            assert_eq!(rows.len(), 2);
-            assert!(rows.iter().all(|r| r.value.name == "A \"quoted\" name"));
-        }
-        for name in ["bare \"quote\"", ""] {
-            std::thread::scope(|scope| {
-                let call = scope.spawn(|| fetch.sync_set(&set));
-                reply(&server, &bytes);
-                let body = format!("symbol\tband\tname\r\nBRAF\t\t{name}\r\n");
-                reply(&server, body.as_bytes());
-                call.join().unwrap().unwrap();
-            });
-            let leg = fetch.leg(set.spec, fetch.deadline(Duration::from_secs(2)));
-            let (rows, _) = leg
-                .stored_set_rows(&set, Find::Exact(KeyKind::Symbol, "BRAF"))
-                .unwrap();
-            assert_eq!(rows.last().unwrap().value.name, name);
-        }
-    }
-    #[test]
-    fn heterogeneous_native_parts_preserve_empty_quoted_cells_and_reject_decoded_overflow() {
-        let server = support::Server::new();
-        let set = native(&server, 1024);
-        let dir = tempfile::tempdir().unwrap();
-        let fetch = cached(&dir.path().join("cache.sqlite"));
-        let bytes = gzip(BODY.as_bytes());
-        std::thread::scope(|scope| {
-            let call = scope.spawn(|| fetch.sync_set(&set));
-            reply(&server, &bytes);
-            reply(&server, BODY.as_bytes());
-            assert_eq!(call.join().unwrap().unwrap().rows, 2);
-        });
-        let read = || {
-            let leg = fetch.leg(set.spec, fetch.deadline(Duration::from_secs(2)));
-            leg.stored_set_rows(&set, Find::Exact(KeyKind::Symbol, "BRAF"))
-                .unwrap()
-        };
-        let (rows, old) = read();
-        assert_eq!(rows.len(), 2);
-        assert_eq!(rows.first().unwrap().value.name, "A \"quoted\" name");
-        assert_eq!(rows.first().unwrap().value.band, "");
-        for truncated in [false, true] {
-            let limited = native(&server, 16);
-            std::thread::scope(|scope| {
-                let call = scope.spawn(|| fetch.sync_set(&limited));
-                reply(
-                    &server,
-                    if truncated {
-                        &bytes[..bytes.len() - 4]
-                    } else {
-                        &bytes
-                    },
-                );
-                if !truncated {
-                    reply(&server, BODY.as_bytes());
-                }
-                assert!(call.join().unwrap().is_err());
-            });
-            let (rows, info) = read();
-            assert_eq!(rows.len(), 2);
-            assert_eq!(info.content_revision, old.content_revision);
-        }
-        assert!(server.requests.try_recv().is_err());
-    }
-}
+#[path = "bundle/native.rs"]
+mod native;

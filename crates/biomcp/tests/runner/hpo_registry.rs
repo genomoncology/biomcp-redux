@@ -31,7 +31,7 @@ fn declaration() -> Check {
         .and_then(Value::as_array)
         .and_then(|rows| rows.iter().find(|r| r["source"] == "hpo"))
         .ok_or("missing direct HPO")?;
-    if row["usage"] != "attribution"
+    if row["use"] != "attribution"
         || row["disabled"] != false
         || row["reason"] != "offline"
         || row["terms"] != "HPO project custom license: attribution, version and integrity"
@@ -66,7 +66,7 @@ fn declaration() -> Check {
         let mut outcome = registry::outcome(Source::Hpo, state, Some(Reason::Disabled));
         outcome.count = Some(0);
         let value = serde_json::to_value(outcome).map_err(|e| e.to_string())?;
-        if value.get("use") != row.get("usage")
+        if value.get("use") != row.get("use")
             || value.get("terms") != row.get("terms")
             || value.get("terms_url") != row.get("terms_url")
             || value.get("fetched").is_some_and(|v| !v.is_null())

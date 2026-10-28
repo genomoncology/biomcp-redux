@@ -41,11 +41,13 @@ mod gene;
 mod help;
 mod key;
 pub use gene::{Oncokb, OncokbCard, OncokbGeneType, OncokbTranscript};
-pub use help::{Help, HelpArgument, HelpCommand, HelpWord};
+pub use help::{Help, HelpArgument, HelpCommand, HelpQuery, HelpWord};
 pub use key::{KeyHelp, KeyState, RegisteredKey, RegisteredKeys};
 mod page;
 mod section;
 mod source;
+mod source_timestamp;
+pub use source_timestamp::{SourceTimestamp, SourceTimestampTimezone};
 mod status;
 mod store;
 pub use store::StoreClean;
@@ -63,8 +65,8 @@ pub use gene::{SyncQuery, SyncResult};
 pub use gene::{Constraint, GeneSections, Protein};
 
 pub use gene::{
-    CancerPtpm, Capped, CivicGene, ClinGenGene, ClinGenValidity, GeneExpression, PathwayRef,
-    ReactomeId, ReactomeIdInvalid, RnaAbundance, TissueNtpm,
+    CancerPtpm, Capped, CivicGene, ClinGenGene, ClinGenValidity, GenccGene, GenccSubmission,
+    GeneExpression, PathwayRef, ReactomeId, ReactomeIdInvalid, RnaAbundance, TissueNtpm,
 };
 
 mod article_sections;
@@ -88,7 +90,9 @@ mod recurrence;
 pub use recurrence::{RecurrenceGranularity, RecurrenceStudy, RecurrenceTerms, VariantRecurrence};
 mod variant;
 mod variant_normalize;
-pub use variant::{VariantCard, VariantHeader, VariantPage, VariantResolution, VariantSections};
+pub use variant::{
+    VariantCard, VariantHeader, VariantPage, VariantResolution, VariantSections, VariantTranscript,
+};
 pub use variant_normalize::{
     NormalizationField, NormalizationMessage, NormalizationResult, VariantNormalization,
 };

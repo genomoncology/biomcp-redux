@@ -138,6 +138,7 @@ fn check(case: Case) -> Check {
     let stub = peer(case.requests.clone())?;
     let env = Environment::new().map_err(|e| e.to_string())?;
     let certificate = env.root().join("ca.pem");
+    stub.retain(&env);
     fs::write(&certificate, &stub.certificate).map_err(|e| e.to_string())?;
     env.config(&json!({"ca_bundle":certificate,"proxy":format!("http://{}",stub.address)}))
         .map_err(|e| e.to_string())?;

@@ -49,6 +49,7 @@ pub(super) fn response(row: Value) -> String {
 pub(super) fn environment(stub: &Stub) -> Result<Environment, String> {
     let env = Environment::new().map_err(|e| e.to_string())?;
     let ca = env.root().join("ca.pem");
+    stub.retain(&env);
     std::fs::write(&ca, &stub.certificate).map_err(|e| e.to_string())?;
     env.config(&json!({"ca_bundle":ca,"proxy":format!("http://{}",stub.address)}))
         .map_err(|e| e.to_string())?;
@@ -306,7 +307,7 @@ fn absence() -> Check {
         1,
     )?;
     if value.get("status") != Some(&json!("absent"))
-        || value.pointer("/result/items") != Some(&json!([]))
+        || value.pointer("/result/items").is_some()
         || value.pointer("/page/total") != Some(&json!(0))
         || value.pointer("/sources/0/state") != Some(&json!("ok"))
     {

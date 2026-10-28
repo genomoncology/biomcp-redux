@@ -36,6 +36,7 @@ pub(super) fn seed(env: &Environment) -> Result<std::path::PathBuf, String> {
         body,
     )?;
     let root = env.root().join("replay");
+    stub.retain(env);
     let fetch = Fetch::open(FetchConfig {
         mode: Mode::Record { dir: root.clone() },
         cache: Some(env.root().join("synthetic-source.sqlite")),

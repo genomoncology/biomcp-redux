@@ -219,6 +219,7 @@ fn cursor() -> Result<(), String> {
     )?;
     let root = env.root().canonicalize().map_err(|e| e.to_string())?;
     let certificate = root.join("ca.pem");
+    stub.retain(&env);
     fs::write(&certificate, &stub.certificate).map_err(|e| e.to_string())?;
     env.config(&json!({"ca_bundle":certificate,"proxy":format!("http://{}",stub.address)}))
         .map_err(|e| e.to_string())?;

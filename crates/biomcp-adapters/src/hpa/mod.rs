@@ -8,6 +8,7 @@ use biomcp_types::{GeneExpression, Reason, Source};
 use std::time::Duration;
 /// HPA source policy with a conservative local quota.
 pub static SPEC: SourceSpec = SourceSpec {
+    destinations: biomcp_fetch::Destinations::Primary,
     user_agent: None,
     terms: biomcp_fetch::Terms {
         name: "CC BY 4.0; third-party conditions",

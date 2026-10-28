@@ -145,6 +145,9 @@ fn expected_records(raw: &Value, section: &str) -> Vec<Value> {
             rows.push(json!({"record":"official","data":{"name":row["name"],"affiliation":row["affiliation"],"role":row["role"]}}))
         }
     }
+    for row in &mut rows {
+        super::assertions::omit_empty_lists(row);
+    }
     rows
 }
 fn attachments() -> Check {

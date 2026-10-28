@@ -16,7 +16,11 @@
       ],
       "expect": {
         "/result/content/data/rows/0/row": 2,
-        "/result/content/data/rows/0/first_row": {"equals": {"row": 1, "cells": []}},
+        "/result/content/data/rows/0/first_row": {
+          "equals": {
+            "row": 1
+          }
+        },
         "/result/content/data/rows/0/cells": [
           "data"
         ]

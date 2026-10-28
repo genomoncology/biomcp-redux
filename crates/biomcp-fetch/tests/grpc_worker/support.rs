@@ -179,6 +179,7 @@ impl Fixture {
         };
         Box::leak(Box::new(SourceSpec {
             source: biomcp_types::Source::MyGene,
+            destinations: biomcp_fetch::Destinations::Primary,
             user_agent: None,
             terms: Terms {
                 name: "Synthetic fixture",

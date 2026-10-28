@@ -115,7 +115,6 @@
       "description": "Exact MONDO or DOID CURIE resolved by MyDisease; NCI also accepts explicit NCIT:C codes."
     },
     "count_only": {
-      "default": false,
       "description": "Source total only; no returned study rows.",
       "type": "boolean"
     },
@@ -127,6 +126,10 @@
       "$ref": "#/$defs/Text",
       "description": "Source distance with explicit mi or km units."
     },
+    "exact_condition": {
+      "description": "Ask ClinicalTrials.gov to restrict matching to the registered condition phrase; its support is partial.",
+      "type": "boolean"
+    },
     "facility": {
       "$ref": "#/$defs/Text",
       "description": "Exact registry facility field; cannot combine with radius."
@@ -136,7 +139,6 @@
       "description": "Resolve one checked gene for registry text discovery only; no eligibility judgment."
     },
     "has_results": {
-      "default": false,
       "description": "Require posted source results.",
       "type": "boolean"
     },

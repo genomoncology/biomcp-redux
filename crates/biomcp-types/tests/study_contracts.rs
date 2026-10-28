@@ -17,7 +17,7 @@ fn header() -> Value {
 fn study() -> Value {
     json!(
         {"header":header(),"description":"Synthetic source description","sequencedSampleCount":1066,"cnaSampleCount":1080,
-        "structuralVariantCount":0,"treatmentCount":0,"resourceCounts":[],"importDate":"2026-08-20 21:46:46","groups":"",
+        "structuralVariantCount":0,"treatmentCount":0,"importDate":"2026-08-20 21:46:46","groups":"",
         "readPermission":true,"publicStudy":true}
     )
 }

@@ -1,7 +1,7 @@
 use super::{Bundle, BundleInfo, Find, KeyKind, Row};
 use crate::{
     CacheError, Deadline,
-    cache::{Cache, db_error, now},
+    cache::{Cache, db_error, now, write_transaction},
 };
 use rusqlite::{Connection, OptionalExtension, params};
 const PART_PREFIX: &str = ".tmp";
@@ -146,7 +146,7 @@ impl Cache {
         d: Deadline<'_>,
     ) -> Result<Option<Part>, CacheError> {
         self.write_sql(d, |c| {
-            let tx = c.unchecked_transaction().map_err(db_error)?;
+            let tx = write_transaction(c)?;
             let old = tx
                 .query_row(
                     "SELECT holder,lease_until,url,part,bytes,etag,total FROM bundle_sync WHERE name=?1",

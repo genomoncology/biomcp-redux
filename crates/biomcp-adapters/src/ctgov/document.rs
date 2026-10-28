@@ -7,7 +7,7 @@ pub fn download(leg: &Leg<'_>, document: &TrialDocument) -> Result<Vec<u8>, Requ
     if !document
         .url
         .as_str()
-        .starts_with("https://cdn.clinicaltrials.gov/large-docs/")
+        .starts_with(&format!("{}/large-docs/", super::DOCUMENT_ORIGIN))
     {
         return Err(bad(Reason::Rejected));
     }

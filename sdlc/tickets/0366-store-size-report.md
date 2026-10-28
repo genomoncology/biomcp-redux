@@ -4,6 +4,8 @@ Status: OPEN.
 
 Milestone: 5
 
+Depends on: 0387
+
 ## Outcome
 
 `biomcp health` reports the measured total bytes of the files the store owns, counting each database, WAL and SHM file once and showing retained generations and partial downloads separately. Per-bundle physical size is reported as unavailable because bundles share one database. `sync` reports the complete source body bytes separately from the bytes downloaded in that invocation.

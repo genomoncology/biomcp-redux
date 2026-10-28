@@ -54,6 +54,11 @@ pub struct SourceOutcome {
 #[serde(tag = "kind", rename_all = "snake_case", deny_unknown_fields)]
 #[cfg_attr(feature = "schema", derive(schemars::JsonSchema))]
 pub enum SourceNotice {
+    /// Registered conditions lack the literal words requested in a condition search.
+    ConditionWordMismatch {
+        /// The source searches several fields and can expand terms; no expansion cause is inferred.
+        message: Box<str>,
+    },
     /// A checked provider answer survived a local cache failure.
     CacheProblem {
         /// Bounded local failure without paths or database diagnostics.
@@ -74,11 +79,13 @@ pub enum SourceNotice {
         /// Original provider warning name, including names added by PubMed later.
         name: String,
         /// Original provider phrases, preserving whitespace and quotes.
+        #[serde(default, skip_serializing_if = "<[_]>::is_empty")]
         phrases: Box<[String]>,
     },
     /// PubMed did not index these words.
     NotFoundWords {
         /// Whole source words.
+        #[serde(default, skip_serializing_if = "<[_]>::is_empty")]
         words: Box<[crate::Text]>,
     },
 }

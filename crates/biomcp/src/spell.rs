@@ -46,6 +46,7 @@ pub(crate) fn action_args(action: &Action) -> Result<Vec<String>, serde_json::Er
                 Bundle::Ddinter => "ddinter",
                 Bundle::Hgnc => "hgnc",
                 Bundle::ClinGen => "clingen",
+                Bundle::Gencc => "gencc",
             }
             .into(),
         ]),

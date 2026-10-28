@@ -121,7 +121,7 @@ fn identities() -> Check {
         run(
             change,
             json!({"/result/items/0/answer/gene/hgnc_id": "HGNC:1097",
-            "/result/items/0/answer/gene/spans": {"count": 0},
+
             "/result/items/0/status": "partial"}),
         )?;
     }

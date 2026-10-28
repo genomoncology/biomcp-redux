@@ -29,6 +29,8 @@ canonical_enum! {
         Gwas => "gwas",
         /// ClinGen.
         ClinGen => "clingen",
+        /// GenCC submitter assessments.
+        Gencc => "gencc",
         /// PubMed.
         PubMed => "pubmed",
         /// Europe PMC.

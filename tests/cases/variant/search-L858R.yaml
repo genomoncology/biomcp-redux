@@ -29,7 +29,7 @@
       ],
       "max_bytes": 1187,
       "expect": {
-        "/schema": "biomcp.variant-page/6",
+        "/schema": "biomcp.variant-page/7",
         "/status": "partial",
         "/query": {
           "equals": {
@@ -48,7 +48,7 @@
               {
                 "identity": {
                   "ids": [
-                    "rs121434568",
+                    "rs:121434568",
                     "clinvar:16609"
                   ],
                   "representations": [
@@ -126,8 +126,7 @@
             "name": "dbNSFP academic branch and individual component terms",
             "url": "https://sites.google.com/site/jpopgen/dbNSFP"
           }
-        },
-        "/result/items": []
+        }
       }
     },
     {
@@ -151,7 +150,7 @@
               {
                 "identity": {
                   "ids": [
-                    "rs121434568",
+                    "rs:121434568",
                     "clinvar:16609"
                   ],
                   "representations": [

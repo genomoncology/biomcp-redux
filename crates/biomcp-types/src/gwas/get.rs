@@ -17,7 +17,7 @@ biodata::wire_enum! {
     }
 }
 /// Explicit resource sum; impossible section and identity pairings fail during decoding.
-#[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
+#[derive(Clone, Debug, PartialEq, Eq, Serialize)]
 #[serde(tag = "kind", rename_all = "snake_case", deny_unknown_fields)]
 #[cfg_attr(feature = "schema", derive(schemars::JsonSchema))]
 pub enum GwasGet {
@@ -73,11 +73,12 @@ struct PageFields {
 fn limit() -> u32 {
     3
 }
+crate::query::validation::checked_query!(GwasSectionPage, PageFields);
 impl TryFrom<PageFields> for GwasSectionPage {
     type Error = QueryInvalid;
     fn try_from(f: PageFields) -> Result<Self, Self::Error> {
         if !(1..=50).contains(&f.section_limit) {
-            return Err(QueryInvalid);
+            return Err(QueryInvalid::new(&["section_limit"]));
         }
         Ok(Self(f))
     }
@@ -219,3 +220,5 @@ impl From<GwasGet> for crate::Request {
         }
     }
 }
+
+mod checked;

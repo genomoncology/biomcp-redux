@@ -47,6 +47,7 @@ fn check(source: &str, entity: &str, id: &str, mode: u8) -> Check {
         |_| 404,
     )?;
     let ca = env.root().join("ca.pem");
+    stub.retain(&env);
     fs::write(&ca, &stub.certificate).map_err(|e| e.to_string())?;
     let mut config = json!({"proxy":format!("http://{}", stub.address),"ca_bundle":ca});
     if mode == 2 {

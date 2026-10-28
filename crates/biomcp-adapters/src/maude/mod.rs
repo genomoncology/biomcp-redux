@@ -4,6 +4,7 @@ use biomcp_types::Source;
 use std::time::Duration;
 /// Publisher policy shared by health, outcomes and request admission.
 pub static SPEC: SourceSpec = SourceSpec {
+    destinations: biomcp_fetch::Destinations::Primary,
     user_agent: None,
     source: Source::Maude,
     base: "https://api.fda.gov/device/event.json",

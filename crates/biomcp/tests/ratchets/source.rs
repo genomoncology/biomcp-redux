@@ -391,14 +391,32 @@ fn source_terms(root: &Path, path: &str, tokens: &[String]) -> Check {
                 return fail(path, "source declaration requires publisher terms");
             }
         }
-        let module = path
+        let relative = path
             .strip_prefix("crates/biomcp-adapters/src/")
-            .unwrap_or("")
-            .split('/')
-            .next()
             .unwrap_or("");
-        let module = module.strip_suffix(".rs").unwrap_or(module);
-        let expected = format!("&crate::{module}::SPEC");
+        let module = relative.strip_suffix(".rs").unwrap_or(relative);
+        let module = module
+            .strip_suffix("/mod")
+            .unwrap_or(module)
+            .replace('/', "::");
+        let prefix = tokens
+            .get(..i)
+            .ok_or("source declaration offset is invalid")?;
+        let Some(position) = prefix.iter().rposition(|token| token == "static") else {
+            return fail(path, "source declarations require named statics");
+        };
+        if prefix
+            .get(position..)
+            .ok_or("source static offset is invalid")?
+            .iter()
+            .any(|token| matches!(token.as_str(), ";" | "{" | "}"))
+        {
+            return fail(path, "source declarations require named statics");
+        }
+        let name = tokens
+            .get(position + 1)
+            .ok_or("source static lacks a name")?;
+        let expected = format!("&crate::{module}::{name}");
         let registry = fs::read_to_string(root.join("crates/biomcp-adapters/src/registry.rs"))?;
         if !registry.contains(&expected) {
             return fail(

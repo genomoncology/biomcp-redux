@@ -74,6 +74,7 @@ pub struct Page<T> {
 }
 /// Publisher policy shared by health, admission and response outcomes.
 pub static SPEC: SourceSpec = SourceSpec {
+    destinations: biomcp_fetch::Destinations::Primary,
     user_agent: None,
     source: Source::Seer,
     base: "https://seer.cancer.gov/statistics-network/explorer/source/content_writers",

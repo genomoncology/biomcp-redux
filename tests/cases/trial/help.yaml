@@ -1,23 +1,9 @@
 {
   "feature": "trial-help",
   "live_check": "local-only generated command help",
-  "story": "Trial help describes source discovery, intact sections and explicit document saves with executable examples.",
   "steps": [
     {
-      "run": [
-        "help",
-        "search",
-        "trial"
-      ],
-      "mcp": [
-        "help",
-        "search",
-        "trial"
-      ],
       "expect": {
-        "/result/commands/0/examples": {
-          "count": 2
-        },
         "/result/commands/0/arguments/*/name": [
           "--age",
           "--condition",
@@ -25,6 +11,7 @@
           "--count-only",
           "--criteria",
           "--distance",
+          "--exact-condition",
           "--facility",
           "--gene",
           "--has-results",
@@ -45,29 +32,51 @@
           "--study-type",
           "--updated-since",
           "--updated-until",
-          "--variant"
+          "--variant",
+          "--format",
+          "--disable-sources",
+          "--config",
+          "--offline",
+          "--fresh"
         ],
-        "/result/commands/0/arguments/26/description": "Literal variant text for registry discovery only; no eligibility judgment.",
-        "/result/commands/0/arguments/7/description": "Resolve one checked gene for registry text discovery only; no eligibility judgment.",
-        "/result/commands/0/arguments/4/description": "Search literal registry eligibility text for discovery only; no eligibility judgment."
-      },
-      "max_bytes": 5163
-    },
-    {
-      "run": [
-        "help",
-        "get",
-        "trial"
-      ],
-      "mcp": [
-        "help",
-        "get",
-        "trial"
-      ],
-      "expect": {
+        "/result/commands/0/arguments/4/description": "Search exact registry eligibility text for discovery only; no eligibility judgment.",
         "/result/commands/0/examples": {
           "count": 2
         },
+        "/result/commands/0/arguments/27/description": "Exact variant text for registry discovery only; no eligibility judgment.",
+        "/result/commands/0/arguments/8/description": "Resolve one checked gene for registry text discovery only; no eligibility judgment."
+      },
+      "max_bytes": 6393,
+      "mcp": [
+        "help",
+        "search",
+        "trial"
+      ],
+      "run": [
+        "help",
+        "search",
+        "trial"
+      ]
+    },
+    {
+      "expect": {
+        "/result/commands/0/arguments/*/name": [
+          "input",
+          "--limit",
+          "--offset",
+          "--pool",
+          "--section",
+          "--source",
+          "--format",
+          "--disable-sources",
+          "--config",
+          "--offline",
+          "--fresh"
+        ],
+        "/result/commands/0/examples": {
+          "count": 2
+        },
+        "/result/commands/0/section_rule": "Optional intact source sections. Default cards only; diseases and summary require NCI. NCI locations, contacts, references and documents are unsupported.",
         "/result/commands/0/sections/*/word": [
           "eligibility",
           "outcomes",
@@ -79,43 +88,50 @@
           "all",
           "diseases",
           "summary"
-        ],
-        "/result/commands/0/arguments/*/name": [
-          "input",
-          "--limit",
-          "--offset",
-          "--pool",
-          "--section",
-          "--source"
-        ],
-        "/result/commands/0/section_rule": "Optional intact source sections. Default cards only; diseases and summary require NCI. NCI locations, contacts, references and documents are unsupported."
+        ]
       },
-      "max_bytes": 3105
-    },
-    {
+      "max_bytes": 4120,
+      "mcp": [
+        "help",
+        "get",
+        "trial"
+      ],
       "run": [
         "help",
-        "trial",
-        "document"
-      ],
+        "get",
+        "trial"
+      ]
+    },
+    {
+      "expect": {
+        "/result/commands/0/arguments/*/name": [
+          "file",
+          "input",
+          "--replace",
+          "--save",
+          "--format",
+          "--disable-sources",
+          "--config",
+          "--offline",
+          "--fresh"
+        ],
+        "/result/commands/0/examples": {
+          "count": 2
+        }
+      },
+      "max_bytes": 2228,
       "mcp": [
         "help",
         "trial",
         "document"
       ],
-      "expect": {
-        "/result/commands/0/examples": {
-          "count": 2
-        },
-        "/result/commands/0/arguments/*/name": [
-          "file",
-          "input",
-          "--replace",
-          "--save"
-        ]
-      },
-      "max_bytes": 1252
+      "run": [
+        "help",
+        "trial",
+        "document"
+      ]
     }
   ],
-  "verified": "Measured compact CLI bytes plus 15 percent in j10693: search trial 4489, get trial 2700, trial document 1088. No comparable released schema-generated help baseline exists. CLI/MCP parity shares these assertions."
+  "story": "Trial help describes source discovery, intact sections and explicit document saves with executable examples.",
+  "verified": "Measured compact CLI bytes plus 15 percent in j10693: search trial 4489, get trial 2700, trial document 1088. No comparable released schema-generated help baseline exists. CLI/MCP parity shares these assertions. Help byte limits use j18463 output plus fifteen percent for defaults, aliases, inherited options and examples; higher existing limits remain."
 }

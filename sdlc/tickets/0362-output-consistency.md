@@ -1,6 +1,7 @@
 # 0362 — Make reply output consistent
 
-Status: OPEN.
+Status: COMPLETE.
+Landed: 8d566e27defb5d96aa2c94371205d6a156505bdc
 
 Milestone: 5
 

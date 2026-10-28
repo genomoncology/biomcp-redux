@@ -63,7 +63,6 @@
         "P245S"
       ],
       "expect": {
-        "/result/content/data/rows": [],
         "/page/total": 0
       }
     },

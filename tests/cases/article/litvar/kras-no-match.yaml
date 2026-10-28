@@ -19,9 +19,6 @@
       "max_bytes": 984,
       "expect": {
         "/status": "absent",
-        "/result/items": {
-          "count": 0
-        },
         "/result/candidates/*/rsid": [
           "rs121913529",
           "rs121913530"
@@ -103,9 +100,6 @@
       "max_bytes": 1026,
       "expect": {
         "/status": "absent",
-        "/result/items": {
-          "count": 0
-        },
         "/result/candidates/*/rsid": [
           "rs121913529",
           "rs121913530"

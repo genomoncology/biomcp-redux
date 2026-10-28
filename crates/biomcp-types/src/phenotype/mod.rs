@@ -13,8 +13,10 @@ pub struct PhenotypeTermCard {
     /// Complete source-specific native card.
     pub term: PhenotypeCard,
     /// Sections available on this source record.
+    #[serde(default, skip_serializing_if = "<[_]>::is_empty")]
     pub sections: Box<[PhenotypeSection]>,
     /// Applicable publisher component terms.
+    #[serde(default, skip_serializing_if = "<[_]>::is_empty")]
     pub components: Box<[ComponentLabel]>,
 }
 impl ResponseBody for PhenotypeTermCard {
@@ -29,8 +31,10 @@ macro_rules! page {
         #[cfg_attr(feature = "schema", derive(schemars::JsonSchema))]
         pub struct $name {
             /// Native ordered rows; empty remains an empty collection.
+            #[serde(default, skip_serializing_if = "<[_]>::is_empty")]
             pub items: Box<[$row]>,
             /// Applicable publisher component terms.
+            #[serde(default, skip_serializing_if = "<[_]>::is_empty")]
             pub components: Box<[ComponentLabel]>,
             /// Original source retrieval seconds, distinct from ontology release.
             #[serde(default, skip_serializing_if = "Option::is_none")]
@@ -78,10 +82,12 @@ macro_rules! associations {
         #[cfg_attr(feature = "schema", derive(schemars::JsonSchema))]
         pub struct $name {
             /// Native association rows in source order, without deduplication.
+            #[serde(default, skip_serializing_if = "<[_]>::is_empty")]
             pub items: Box<[DiseaseAssociationItem]>,
             /// Publisher direct graph scope; this supplies no causal assertion.
             pub direct: bool,
             /// Applicable publisher component terms.
+            #[serde(default, skip_serializing_if = "<[_]>::is_empty")]
             pub components: Box<[ComponentLabel]>,
             /// Original source retrieval time, distinct from dataset release.
             #[serde(default, skip_serializing_if = "Option::is_none")]

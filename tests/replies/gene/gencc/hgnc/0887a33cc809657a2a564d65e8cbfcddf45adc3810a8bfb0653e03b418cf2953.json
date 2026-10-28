@@ -1,0 +1,17 @@
+{
+  "method": "GET",
+  "source": "hgnc",
+  "url": "https://storage.googleapis.com/public-download-files/hgnc/tsv/tsv/hgnc_complete_set.txt",
+  "exchanges": [
+    {
+      "status": 200,
+      "content_type": "text/tab-separated-values",
+      "delay_ms": 0,
+      "retry_after_ms": null,
+      "body": {
+        "kind": "text",
+        "value": "hgnc_id\tsymbol\tname\tlocus_group\tstatus\nHGNC:8109\tODC1\tornithine decarboxylase 1\tprotein-coding gene\tApproved\nHGNC:31586\tMIR21\tmicroRNA 21\tnon-coding RNA\tApproved\n"
+      }
+    }
+  ]
+}

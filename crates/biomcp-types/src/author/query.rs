@@ -54,11 +54,15 @@ struct SearchFields {
     #[cfg_attr(feature = "schema", schemars(with = "Text"))]
     pool: Option<Text>,
 }
+crate::query::validation::checked_query!(AuthorSearch, SearchFields);
 impl TryFrom<SearchFields> for AuthorSearch {
     type Error = QueryInvalid;
     fn try_from(v: SearchFields) -> Result<Self, Self::Error> {
-        if !(1..=25).contains(&v.limit) || v.query.trim().is_empty() {
-            return Err(QueryInvalid);
+        if !(1..=25).contains(&v.limit) {
+            return Err(QueryInvalid::new(&["limit"]));
+        }
+        if v.query.trim().is_empty() {
+            return Err(QueryInvalid::new(&["query"]));
         }
         Ok(Self(v))
     }
@@ -117,11 +121,12 @@ struct GetFields {
     #[cfg_attr(feature = "schema", schemars(length(min = 1, max = MAX_INPUTS), extend("x-positional" = 0)))]
     ids: Box<[AuthorId]>,
 }
+crate::query::validation::checked_query!(AuthorGet, GetFields);
 impl TryFrom<GetFields> for AuthorGet {
     type Error = QueryInvalid;
     fn try_from(v: GetFields) -> Result<Self, Self::Error> {
         if !(1..=MAX_INPUTS).contains(&v.ids.len()) {
-            return Err(QueryInvalid);
+            return Err(QueryInvalid::new(&["ids"]));
         }
         Ok(Self(v))
     }
@@ -178,11 +183,12 @@ struct PapersFields {
     #[cfg_attr(feature = "schema", schemars(with = "Text"))]
     pool: Option<Text>,
 }
+crate::query::validation::checked_query!(AuthorPapersQuery, PapersFields);
 impl TryFrom<PapersFields> for AuthorPapersQuery {
     type Error = QueryInvalid;
     fn try_from(mut v: PapersFields) -> Result<Self, Self::Error> {
         if !(1..=25).contains(&v.limit) {
-            return Err(QueryInvalid);
+            return Err(QueryInvalid::new(&["limit"]));
         }
         if v.full {
             v.section = Some(AuthorPaperSection::Details);

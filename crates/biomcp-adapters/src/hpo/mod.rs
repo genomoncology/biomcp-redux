@@ -6,6 +6,7 @@ use std::time::Duration;
 /// The same publisher declaration governs direct terms and aggregator components.
 /// Reply retrieval time never establishes an ontology version or release date.
 pub static SPEC: SourceSpec = SourceSpec {
+    destinations: biomcp_fetch::Destinations::Primary,
     user_agent: None,
     source: Source::Hpo,
     base: "https://ontology.jax.org",

@@ -93,6 +93,7 @@ fn acquire(
             bytes: info.bytes,
         }),
         Bundle::ClinGen => biomcp_adapters::clingen::sync(fetch),
+        Bundle::Gencc => biomcp_adapters::gencc::sync(fetch),
         Bundle::Hgnc => {
             biomcp_adapters::hgnc::sync(fetch, biomcp_adapters::hgnc::HgncBundle::Complete)
                 .and_then(|complete| {

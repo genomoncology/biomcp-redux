@@ -85,6 +85,7 @@ fn boundary(mode: &'static str) -> Check {
     )?;
     let env = Environment::new().map_err(|e| e.to_string())?;
     let ca = env.root().join("ca.pem");
+    stub.retain(&env);
     std::fs::write(&ca, &stub.certificate).map_err(|e| e.to_string())?;
     let disabled: Vec<&str> = if mode == "disabled" {
         vec!["fda-pma"]

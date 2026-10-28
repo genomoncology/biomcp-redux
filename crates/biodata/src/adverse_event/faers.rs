@@ -58,6 +58,7 @@ pub struct FaersReporter {
 #[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
 #[serde(deny_unknown_fields)]
 #[cfg_attr(feature = "schema", derive(schemars::JsonSchema))]
+// Preserve Some([]) in retained native snapshots; consumer pages disclose counts and rows.
 pub struct FaersIdentifiers {
     /// Ordered native unii strings; missing differs from empty.
     #[serde(default, skip_serializing_if = "Option::is_none")]
@@ -217,7 +218,9 @@ pub struct FaersReport {
     #[serde(default, skip_serializing_if = "Option::is_none")]
     pub reporter: Option<FaersReporter>,
     /// Complete ordered source drug array.
+    #[serde(default, skip_serializing_if = "<[_]>::is_empty")]
     pub drugs: Box<[FaersDrug]>,
     /// Complete ordered source reaction array.
+    #[serde(default, skip_serializing_if = "<[_]>::is_empty")]
     pub reactions: Box<[FaersReaction]>,
 }

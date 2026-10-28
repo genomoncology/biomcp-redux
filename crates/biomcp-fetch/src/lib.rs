@@ -19,6 +19,8 @@ mod containment;
 mod deadline;
 mod declaration;
 mod destination;
+mod hosts;
+pub use hosts::Destinations;
 mod error;
 mod network;
 mod prepared;
@@ -35,8 +37,9 @@ pub mod xml;
 
 pub use batch::MAX_BATCH_WORKERS;
 pub use bundle::{
-    Bundle, BundleInfo, BundlePart, BundleSet, Find, KeyKind, Keys, MAX_BUNDLE_BYTES, Row,
-    RowFormat, SetRow, bundle_sha256, decode_bundle_document, encode_bundle_row,
+    Bundle, BundleInfo, BundlePart, BundleSet, DocumentMedia, Find, KeyKind, Keys,
+    MAX_BUNDLE_BYTES, Row, RowFormat, SetRow, bundle_sha256, decode_bundle_document,
+    encode_bundle_row,
 };
 pub use cache::{CACHE_NAMESPACE_VERSION, SchemaOwner, VERSION, check_owners};
 pub use deadline::{CommandDeadline, Deadline, LocalDeadline};
@@ -404,6 +407,11 @@ impl Leg<'_> {
     }
     /// Finish the leg without clearing failures after later successful requests.
     pub fn finish(self) -> LegReport {
+        self.take_report()
+    }
+    /// Drain one read's report while retaining the source deadline and refreshed bundles.
+    /// Call only after all requests contributing to that read have joined.
+    pub fn take_report(&self) -> LegReport {
         std::mem::take(
             &mut *self
                 .report

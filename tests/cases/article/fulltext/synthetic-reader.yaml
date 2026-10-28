@@ -79,7 +79,6 @@
       ],
       "expect": {
         "/status": "complete",
-        "/result/content/data/hits": [],
         "/page/total": 0
       }
     },
@@ -229,8 +228,7 @@
         "**choice**"
       ],
       "expect": {
-        "/page/total": 0,
-        "/result/content/data/hits": []
+        "/page/total": 0
       }
     }
   ]

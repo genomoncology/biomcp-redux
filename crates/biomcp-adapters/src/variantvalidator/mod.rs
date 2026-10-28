@@ -11,6 +11,7 @@ mod normalization;
 use std::{collections::BTreeMap, time::Duration};
 /// Service terms are independent of the implementation's software license.
 pub static SPEC: SourceSpec = SourceSpec {
+    destinations: biomcp_fetch::Destinations::Primary,
     user_agent: None,
     terms: biomcp_fetch::Terms {
         name: "VariantValidator service output terms require review",
@@ -157,6 +158,7 @@ pub fn resolve(leg: &Leg<'_>, input: &str, build: Build) -> Result<Resolution, R
             },
             source: Source::VariantValidator,
             record: SourceRecord { id: key, url: None },
+            transcripts: Box::default(),
             myvariant: None,
             requested: None,
             sections: None,

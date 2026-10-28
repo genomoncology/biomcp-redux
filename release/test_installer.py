@@ -73,6 +73,15 @@ class Installer(unittest.TestCase):
     def install(self, *args):
         return subprocess.run(["/bin/bash", str(SCRIPT), *args], env=self.environment, cwd=self.home, capture_output=True, text=True, timeout=20)
 
+    def test_help_explains_provenance_and_checksum_before_installation(self):
+        result = self.install("--help")
+        self.assertEqual(result.returncode, 0, result.stderr)
+        self.assertIn("gh attestation verify ARTIFACT --repo genomoncology/biomcp", result.stdout)
+        self.assertIn("--signer-workflow genomoncology/biomcp/.github/workflows/release.yml", result.stdout)
+        self.assertIn("--source-digest COMMIT", result.stdout)
+        self.assertIn("SHA-256 checksum", result.stdout)
+        self.assertFalse(self.destination.exists())
+
     def test_public_platform_archives_and_version_interface(self):
         platforms = [("Linux", "x86_64", "linux-x86_64", ".tar.gz"), ("Linux", "aarch64", "linux-arm64", ".tar.gz"), ("Darwin", "arm64", "darwin-arm64", ".tar.gz"), ("Darwin", "x86_64", "darwin-x86_64", ".tar.gz"), ("MSYS_NT-10.0", "x86_64", "windows-x86_64", ".zip"), ("MINGW64_NT-10.0", "amd64", "windows-x86_64", ".zip"), ("CYGWIN_NT-10.0", "x86_64", "windows-x86_64", ".zip")]
         for system, machine, platform, suffix in platforms:

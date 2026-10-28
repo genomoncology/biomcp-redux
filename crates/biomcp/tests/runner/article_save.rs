@@ -350,6 +350,7 @@ fn cut_body() -> Check {
     )?;
     let env = Environment::new()?;
     let ca = env.root().join("source.pem");
+    stub.retain(&env);
     fs::write(&ca, &stub.certificate)?;
     env.config(&json!({"ca_bundle":ca, "proxy":format!("http://{}",stub.address)}))?;
     let folder = env.root().join("cut");
@@ -433,6 +434,7 @@ fn cache_boundary() -> Check {
     for reader_first in [false, true] {
         let env = Environment::new()?;
         let ca = env.root().join("source.pem");
+        stub.retain(&env);
         fs::write(&ca, &stub.certificate)?;
         env.config(&json!({"ca_bundle":ca, "proxy":format!("http://{}",stub.address)}))?;
         let path = env.root().join("original.csv");

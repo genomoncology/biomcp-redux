@@ -52,7 +52,7 @@ pub struct CitationContexts {
     #[serde(skip_serializing_if = "Option::is_none")]
     pub source_cursor: Option<u32>,
     /// Source-reported citation intents.
-    #[serde(skip_serializing_if = "Option::is_none")]
+    #[serde(skip_serializing_if = "biodata::absent_or_empty")]
     pub intents: Option<Box<[CitationIntent]>>,
     /// Missing is distinct from false.
     #[serde(skip_serializing_if = "Option::is_none")]
@@ -92,6 +92,7 @@ impl super::super::ResponseBody for ArticleEvidenceResult {
 #[cfg_attr(feature = "schema", derive(schemars::JsonSchema))]
 pub struct ArticleRecommendations {
     /// Papers in provider order, without a local topic filter.
+    #[serde(default, skip_serializing_if = "<[_]>::is_empty")]
     pub items: Box<[crate::ArticleItem]>,
     /// Provider's default pool, stated without a clinical relevance claim.
     pub scope: Box<str>,

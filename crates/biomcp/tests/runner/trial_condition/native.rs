@@ -87,7 +87,7 @@ fn cases() -> Vec<(&'static str, &'static str, &'static str, i32, Value)> {
             json!(
                 {"/status":"complete","/query/condition_id":"MONDO:0005105","/result/condition_resolution/resolver":"mydisease",
                 "/result/condition_resolution/concept/id":"MONDO:0005105","/result/condition_resolution/concept/label":"melanoma",
-                "/result/request/3/name":"query.cond","/result/request/3/value":"melanoma","/page/total":3780}
+                "/page/total":3780}
             ),
         ),
         (
@@ -107,7 +107,7 @@ fn cases() -> Vec<(&'static str, &'static str, &'static str, i32, Value)> {
             "nci",
             4,
             json!(
-                {"/status":"failed","/result/request":[],"/result/condition_resolution/concept/id":"MONDO:0005061",
+                {"/status":"failed","/result/condition_resolution/concept/id":"MONDO:0005061",
                 "/result/condition_resolution/alias/object/id":"DOID:3910","/result/condition_resolution/ncit_candidates":{"count":3},
                 "/problems/0/field":"ncit_mapping"}
             ),
@@ -117,7 +117,7 @@ fn cases() -> Vec<(&'static str, &'static str, &'static str, i32, Value)> {
             "MONDO:0800444",
             "nci",
             4,
-            json!({"/status":"failed","/result/request":[],"/result/condition_resolution/concept/id":"MONDO:0800444","/problems/0/field":"ncit_mapping"}),
+            json!({"/status":"failed","/result/condition_resolution/concept/id":"MONDO:0800444","/problems/0/field":"ncit_mapping"}),
         ),
     ]
 }

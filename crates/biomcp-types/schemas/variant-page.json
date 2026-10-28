@@ -308,7 +308,6 @@
         "requested_scorer",
         "data_type",
         "shape",
-        "rows",
         "page"
       ],
       "type": "object"
@@ -698,10 +697,6 @@
           "type": "array"
         }
       },
-      "required": [
-        "source_conditions",
-        "related_conditions"
-      ],
       "type": "object"
     },
     "AssertionDetail": {
@@ -1255,10 +1250,8 @@
         "label",
         "compound",
         "membership",
-        "members",
         "evidence_count",
         "assertion_count",
-        "statements",
         "evidence_page",
         "assertion_page"
       ],
@@ -2091,8 +2084,6 @@
       "required": [
         "id",
         "study",
-        "traits",
-        "alleles",
         "p_value"
       ],
       "type": "object"
@@ -2219,8 +2210,7 @@
         "membership",
         "gene",
         "residue",
-        "tumor_count",
-        "alternates"
+        "tumor_count"
       ],
       "type": "object"
     },
@@ -2523,7 +2513,6 @@
               "type": "array"
             },
             "approved_indications": {
-              "default": [],
               "description": "Native approved indication labels.",
               "items": {
                 "$ref": "#/$defs/Text"
@@ -2531,7 +2520,6 @@
               "type": "array"
             },
             "citations": {
-              "default": [],
               "description": "Source PMID citations.",
               "items": {
                 "$ref": "#/$defs/Pmid"
@@ -2553,7 +2541,6 @@
               "type": "array"
             },
             "excluded_tumor_types": {
-              "default": [],
               "description": "Native excluded contexts, never filled from the caller context.",
               "items": {
                 "$ref": "#/$defs/Concept"
@@ -2890,8 +2877,7 @@
         }
       },
       "required": [
-        "field",
-        "values"
+        "field"
       ],
       "type": "object"
     },
@@ -3000,6 +2986,10 @@
     "ProteinQuery": {
       "description": "A validated canonical ProteinQuery string.",
       "pattern": "^(p\\.)?(A|Ala|R|Arg|N|Asn|D|Asp|C|Cys|E|Glu|Q|Gln|G|Gly|H|His|I|Ile|L|Leu|K|Lys|M|Met|F|Phe|P|Pro|S|Ser|T|Thr|W|Trp|Y|Tyr|V|Val|U|Sec|O|Pyl|\\*|Ter)[1-9][0-9]*(A|Ala|R|Arg|N|Asn|D|Asp|C|Cys|E|Glu|Q|Gln|G|Gly|H|His|I|Ile|L|Leu|K|Lys|M|Met|F|Phe|P|Pro|S|Ser|T|Thr|W|Trp|Y|Tyr|V|Val|U|Sec|O|Pyl|\\*|Ter)$",
+      "type": "string"
+    },
+    "QualifiedVariantId": {
+      "pattern": "^(rs:[1-9][0-9]*|clingen:(CA[0-9]{6,}|PA[1-9][0-9]*)|clinvar:(VCV[0-9]{9}(\\.[1-9][0-9]*)?|[1-9][0-9]*)|cosmic:COS[VMN][1-9][0-9]*|ga4gh:VA\\.[A-Za-z0-9_-]{32})$",
       "type": "string"
     },
     "Reason": {
@@ -4359,6 +4349,7 @@
         "erepo",
         "gwas",
         "clingen",
+        "gencc",
         "pubmed",
         "europepmc",
         "litvar",
@@ -4432,6 +4423,7 @@
         " ClinGen Evidence Repository.",
         " GWAS Catalog v2.",
         " ClinGen.",
+        " GenCC submitter assessments.",
         " PubMed.",
         " Europe PMC.",
         " NCBI LitVar2.",
@@ -4494,6 +4486,25 @@
     "SourceNotice": {
       "description": "A provider query interpretation notice.",
       "oneOf": [
+        {
+          "additionalProperties": false,
+          "description": "Registered conditions lack the literal words requested in a condition search.",
+          "properties": {
+            "kind": {
+              "const": "condition_word_mismatch",
+              "type": "string"
+            },
+            "message": {
+              "description": "The source searches several fields and can expand terms; no expansion cause is inferred.",
+              "type": "string"
+            }
+          },
+          "required": [
+            "kind",
+            "message"
+          ],
+          "type": "object"
+        },
         {
           "additionalProperties": false,
           "description": "A checked provider answer survived a local cache failure.",
@@ -4573,8 +4584,7 @@
           },
           "required": [
             "kind",
-            "name",
-            "phrases"
+            "name"
           ],
           "type": "object"
         },
@@ -4595,8 +4605,7 @@
             }
           },
           "required": [
-            "kind",
-            "words"
+            "kind"
           ],
           "type": "object"
         }
@@ -4887,8 +4896,7 @@
         }
       },
       "required": [
-        "kind",
-        "args"
+        "kind"
       ],
       "type": "object"
     },
@@ -5006,7 +5014,7 @@
         "ids": {
           "description": "All source identifiers, without inferred aliases.",
           "items": {
-            "$ref": "#/$defs/VariantId"
+            "$ref": "#/$defs/QualifiedVariantId"
           },
           "type": "array"
         },
@@ -5052,8 +5060,7 @@
         "build",
         "variant",
         "requested_interval",
-        "requested_model_version",
-        "scorers"
+        "requested_model_version"
       ],
       "type": "object"
     },
@@ -5141,7 +5148,6 @@
         }
       },
       "required": [
-        "assertions",
         "page"
       ],
       "type": "object"
@@ -5230,7 +5236,6 @@
         }
       },
       "required": [
-        "profiles",
         "page"
       ],
       "type": "object"
@@ -5341,9 +5346,7 @@
         }
       },
       "required": [
-        "subject_qualification",
-        "scores",
-        "components"
+        "subject_qualification"
       ],
       "type": "object"
     },
@@ -5384,9 +5387,7 @@
         }
       },
       "required": [
-        "total",
-        "records",
-        "components"
+        "total"
       ],
       "type": "object"
     },
@@ -5534,7 +5535,6 @@
       },
       "required": [
         "rs_id",
-        "associations",
         "page"
       ],
       "type": "object"
@@ -5594,6 +5594,13 @@
         "source": {
           "$ref": "#/$defs/Source",
           "description": "Source responsible for this identity."
+        },
+        "transcripts": {
+          "description": "Source-paired transcript identifiers and unchanged coding and protein notation.",
+          "items": {
+            "$ref": "#/$defs/VariantTranscript"
+          },
+          "type": "array"
         }
       },
       "required": [
@@ -5642,7 +5649,6 @@
         }
       },
       "required": [
-        "records",
         "page"
       ],
       "type": "object"
@@ -5755,7 +5761,6 @@
         "build",
         "tumor_type",
         "variant_exist",
-        "records",
         "page"
       ],
       "type": "object"
@@ -5810,8 +5815,7 @@
         }
       },
       "required": [
-        "source_query",
-        "items"
+        "source_query"
       ],
       "type": "object"
     },
@@ -5892,9 +5896,7 @@
         }
       },
       "required": [
-        "subject_qualification",
-        "scores",
-        "components"
+        "subject_qualification"
       ],
       "type": "object"
     },
@@ -6277,9 +6279,71 @@
         }
       },
       "type": "object"
+    },
+    "VariantTranscript": {
+      "additionalProperties": false,
+      "description": "A source-paired transcript annotation, without inferred transcript equivalence.",
+      "properties": {
+        "component": {
+          "$ref": "#/$defs/Text",
+          "description": "Native component and field carrying the paired annotation."
+        },
+        "gene": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/Text"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "description": "Source-stated gene symbol."
+        },
+        "hgvs_c": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/Text"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "description": "Source transcript notation from the coding field, including native n. or r. forms."
+        },
+        "hgvs_p": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/Text"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "description": "Source protein notation, never translated from coding notation."
+        },
+        "matched": {
+          "description": "Whether this row's source notation matched the declared caller notation.",
+          "type": "boolean"
+        },
+        "source": {
+          "$ref": "#/$defs/Source",
+          "description": "Provider carrying this annotation."
+        },
+        "transcript": {
+          "$ref": "#/$defs/Text",
+          "description": "Transcript identifier exactly as published, including its source version."
+        }
+      },
+      "required": [
+        "source",
+        "component",
+        "transcript",
+        "matched"
+      ],
+      "type": "object"
     }
   },
-  "$id": "biomcp.variant-page/6",
+  "$id": "biomcp.variant-page/7",
   "$schema": "https://json-schema.org/draft/2020-12/schema",
   "additionalProperties": false,
   "description": "One versioned command response; schema identity comes only from its body type.",
@@ -6336,7 +6400,7 @@
       "description": "Answer when available."
     },
     "schema": {
-      "const": "biomcp.variant-page/6",
+      "const": "biomcp.variant-page/7",
       "type": "string"
     },
     "sources": {

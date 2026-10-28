@@ -2,10 +2,13 @@ use super::launch::{ENV_PATHS, Environment};
 use libtest_mimic::Trial;
 use std::{env, fs, path::Path};
 
+#[path = "fixture_evidence_proof.rs"]
+mod fixture_evidence_proof;
+
 type Check = Result<(), String>;
 
 pub(crate) fn trials() -> Vec<Trial> {
-    vec![
+    let mut trials = vec![
         Trial::test("article-semantic-sections/checked-edge-boundaries", || {
             super::semantic_tables::check().map_err(|e| e.to_string().into())
         }),
@@ -34,7 +37,9 @@ pub(crate) fn trials() -> Vec<Trial> {
         Trial::test("schema/output-failure", || {
             output_failure().map_err(Into::into)
         }),
-    ]
+    ];
+    trials.extend(fixture_evidence_proof::trials());
+    trials
 }
 
 fn put(root: &Path, relative: &str, step: &str) -> Check {
