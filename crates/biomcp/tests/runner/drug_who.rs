@@ -149,7 +149,10 @@ fn replacement(env: &Environment, replay: &Path, get: &[&str], before: &Value) -
     let mut recordings = Vec::new();
     for entry in fs::read_dir(replay.join("who-pq")).map_err(|e| e.to_string())? {
         let path = entry.map_err(|e| e.to_string())?.path();
-        if path.extension().is_some_and(|extension| extension == "json") {
+        if path
+            .extension()
+            .is_some_and(|extension| extension == "json")
+        {
             recordings.push(path);
         }
     }
