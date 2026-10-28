@@ -278,6 +278,15 @@ fn recovered_parts_reject_unowned_paths_without_touching_them() {
             .unwrap()
         };
         let before = snapshot();
+        if scenario == "missing" {
+            assert_eq!(sync_reply(&f, &b, &server, 200, "", TSV).unwrap().rows, 1);
+            assert_eq!(std::fs::read_dir(&parts).unwrap().count(), 1);
+            assert_eq!(
+                std::fs::read_to_string(&sentinel).unwrap(),
+                "keep this file"
+            );
+            continue;
+        }
         let result = f.sync(&b);
         assert!(
             matches!(result, Err(biomcp_fetch::RequestError::Cache(_))),
@@ -433,4 +442,52 @@ fn fresh_bundle_refresh_is_shared_by_one_leg_and_its_batch_children() {
         server.next().respond(304, "", "");
         assert_eq!(call.join().unwrap().unwrap().len(), 1);
     });
+}
+
+#[test]
+fn killed_download_is_reclaimed_after_its_lease_expires() {
+    let server = support::Server::new();
+    let dir = tempfile::tempdir().unwrap();
+    let path = dir.path().join("cache.sqlite");
+    let _ = cached(&path);
+    let mut old = Child::start(&path, server.base, "ok");
+    let request = server.next();
+    let db = rusqlite::Connection::open(&path).unwrap();
+    let old_path: String = db
+        .query_row("SELECT part FROM bundle_sync", [], |r| r.get(0))
+        .unwrap();
+    let (release, wait) = std::sync::mpsc::channel();
+    request.reply.send(support::Response {
+        bytes: format!(
+            "HTTP/1.1 200 OK\r\nContent-Length: 1000000\r\nETag: \"one\"\r\nConnection: close\r\n\r\n{}",
+            "x".repeat(32768)
+        ).into_bytes(),
+        continuation: Some(wait),
+    }).unwrap();
+    let end = std::time::Instant::now() + Duration::from_secs(10);
+    while std::fs::metadata(&old_path).unwrap().len() == 0 {
+        assert!(
+            std::time::Instant::now() < end,
+            "child never wrote its body"
+        );
+        std::thread::yield_now();
+    }
+    old.process.kill().unwrap();
+    assert!(!old.process.wait().unwrap().success());
+    drop(release);
+    assert!(std::path::Path::new(&old_path).exists());
+    db.execute("UPDATE bundle_sync SET lease_until=0", [])
+        .unwrap();
+    let mut successor = Child::start(&path, server.base, "ok");
+    let request = server.next();
+    assert!(!request.text.to_ascii_lowercase().contains("range:"));
+    request.respond(200, "", TSV);
+    successor.finish();
+    assert!(!std::path::Path::new(&old_path).exists());
+    assert_eq!(
+        std::fs::read_dir(path.with_extension("parts"))
+            .unwrap()
+            .count(),
+        0
+    );
 }
