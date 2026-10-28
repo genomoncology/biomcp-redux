@@ -54,6 +54,7 @@ fn published_reply_contracts_are_open_and_query_choices_stay_closed() {
     for (schema, expected) in [
         (reply::<biomcp_types::Source>(), "hgnc"),
         (reply::<biomcp_types::Reason>(), "not_found"),
+        (reply::<biomcp_types::DrugSource>(), "chembl"),
         (reply::<biodata::Proposition>(), "pathogenicity"),
         (reply::<biodata::Predicate>(), "is_causal_for"),
     ] {
@@ -63,6 +64,10 @@ fn published_reply_contracts_are_open_and_query_choices_stay_closed() {
         assert!(validator.is_valid(&serde_json::json!("future_value")));
         assert!(!validator.is_valid(&serde_json::json!(42)));
     }
+    let drug = query::<biomcp_types::DrugGet>();
+    let validator = jsonschema::draft202012::new(&drug).unwrap();
+    assert!(validator.is_valid(&serde_json::json!({"input":"CHEMBL941","source":"chembl"})));
+    assert!(!validator.is_valid(&serde_json::json!({"input":"CHEMBL941","source":"future_source"})));
     let schema = query::<biomcp_types::GeneGet>();
     assert_eq!(schema["additionalProperties"], false);
     let validator = jsonschema::draft202012::new(&schema).unwrap();
