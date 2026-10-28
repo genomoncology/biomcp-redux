@@ -63,9 +63,11 @@ fn metadata_stub(
                 };
                 *card.pointer_mut(&pointer).ok_or("missing fixture field")? = invalid.clone();
             } else if section == "events" {
-                event[native] = invalid.clone();
+                *event.get_mut(native).ok_or("missing event fixture field")? = invalid.clone();
             } else {
-                participant[native] = invalid.clone();
+                *participant
+                    .get_mut(native)
+                    .ok_or("missing participant fixture field")? = invalid.clone();
             }
             let body = if request.contains("/database/version") {
                 json!(97)
