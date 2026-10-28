@@ -43,15 +43,20 @@ Robustness and public-text fixes come first, because the parity run, the docs an
 
 - Close the public benchmark gaps Ian added on 2026-10-28, corrected by an adversarial design review: build 0414, then 0409, 0411 and 0415 on the trial filters; 0408, then 0410 for the two NCI entities; 0413, then 0412 and 0416 for MAUDE filters and FDA device and drug recalls.
 
-- Close the code quality review's findings (`records/2026-10-28-code-quality-review.md`): first the trial status fix 0417, then the bad-value rule 0418, test integrity 0429 to 0431, dead code and lints 0425 and per-call cost 0427; then the structure work 0419 to 0424, 0426 and 0428, scheduled around the benchmark tickets; then the architecture rewrite 0432.
+- Close the code quality review's findings (`records/2026-10-28-code-quality-review.md`) by the reviewed design in `planning/restructure.md`. Order: the trial status fix 0417, the reply diff 0454 that proves each structure ticket changes nothing it does not name, pure dead code 0425, the installed-binary suite 0429, then 0423, 0434, 0430, 0431, 0456, 0418, 0426, 0457, status rules 0419 and typed next steps 0458, the layer move 0420, the command table 0421, 0427, the source declaration 0422, 0455, 0424, 0428 and finally the architecture rewrite 0432. Each ticket's Depends line holds the exact order.
+
+- Fix the BioData review's data model findings before the tag, because the release gate freezes every pattern, type set and schema ID: 0435 to 0453, with 0436 and 0437 first, and 0444 before 0421.
 
 ### 6. Rehearse and release
 
+- Test against public data before the cut: parse every CIViC and ClinVar record into 1.0 values (0460) and turn real user queries into cases (0461).
+- Switch to the extracted BioData 1.0 crate once every code ticket lands, with an empty reply diff and an unchanged schema comparison (0459).
 - Cut the release candidate from main once every ticket above lands (0336).
 
 - Rehearse the final candidate on every platform (0293).
 - A fresh agent compares the 0.9.3 and 1.0 CLIs blind on about 20 tasks, and every 1.0 regression is fixed or explained (0402).
 - Run MCP-Bench's BioMCP tasks, and InfoMosaic-Bench's if public, against 0.4.6 and 1.0: tool-call replay first, paid agent runs only after Ian approves their cost (0405).
+- Check the installed candidate against cBioPortal's 62 numeric agent questions (0462).
 - Ian approves the public append, the 1.0 tag and publication.
 - Append this repository's history to the public repository with one merge commit, keeping old tags and releases (0294).
 - Tag v1.0.0 on that public merge commit, let the release workflow qualify the tag, and have the release operators publish from that run (0294). The installer and Homebrew download from the public repository's release, so the append and tag come before publication.

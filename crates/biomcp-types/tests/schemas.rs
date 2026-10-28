@@ -217,7 +217,7 @@ fn adverse_event_contracts() -> Vec<Contract> {
         Envelope<PgxDiplotype> => ("pgx-diplotype", "biomcp.pgx-diplotype/1"),
         Envelope<PgxAnnotations> => ("pgx-annotations", "biomcp.pgx-annotations/1"),
         Envelope<PgxAnnotation> => ("pgx-annotation", "biomcp.pgx-annotation/1"),
-        AdverseEventSearch => ("adverse-event-search", "biomcp.adverse-event-search/1"),
+        AdverseEventSearch => ("adverse-event-search", "biomcp.adverse-event-search/2"),
         AdverseEventGet => ("adverse-event-get", "biomcp.adverse-event-get/1"),
         Envelope<VaersSummary> => ("vaers-summary", "biomcp.vaers-summary/1"),
         Envelope<AdverseEventPage> => ("adverse-event-page", "biomcp.adverse-event-page/2"),

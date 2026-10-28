@@ -89,7 +89,6 @@ fn invalid() -> Check {
             "--received-to",
             "2024-01-01",
         ],
-        vec!["x", "--serious", "other"],
         vec!["x", "--limit", "0"],
     ] {
         let request = ["search", "adverse-event"]
