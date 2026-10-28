@@ -1,18 +1,18 @@
-# 0432 — Make the architecture document describe the code
+# 0432 — Make the architecture describe the code
 
 Status: OPEN.
 
 Milestone: 5
 
-Depends on: 0428
+Depends on: 0428, 0427, 0456, 0457
 
 ## Outcome
 
-Architecture sections 2.1 to 2.4, 4.1, 4.2, 4.13, 5.1, 5.7, 6.1, 7.5, 8.7 and 10 describe the built system and link to the authoritative lists instead of restating them. The dependency ratchet table becomes the authority by amending `2026-10-23-crates-enforce-dependency-direction.md`. Per-ticket tables move to module docs. biomcp-query's public surface narrows to its entry points.
+`sdlc/planning/architecture.md` and the decisions it cites describe the shipped layering, command table, source declarations, value rule, transport call, error types, status rules and test strategy, and name the check that enforces each rule. Stale sections go. The ticket decides whether `scripts/reply_diff.py` stays (ruling 8).
 
-- Why: the pre-1.0 code quality review `sdlc/records/2026-10-28-code-quality-review.md`. The document still says no crate uses an async runtime, lists files that do not exist and shows a 7-method `Leg`.
-- Starts from: `sdlc/planning/architecture.md`, the decision, `crates/biomcp-query/src/lib.rs`.
-- Rules: written after 0419 to 0428 so it describes the final shape; no new rules.
-- Proof: a reviewer checks each section against the code; `pub` items in biomcp-query outside the entry points are gone.
-- Changes: the document, the decision and `crates/biomcp-query/src/lib.rs`.
+- Why: the code quality review found architecture text that the code contradicts, and the restructure changes most sections.
+- Starts from: `sdlc/planning/architecture.md`, `decisions/2026-10-23-crates-enforce-dependency-direction.md`, `sdlc/features.md`, `docs/development.md`, `scripts/reply_diff.py`.
+- Rules: each rule names its check. A rule with no check gets one or goes.
+- Proof: the docs check fails on a planted architecture rule that names a missing check file; a reviewer who did not work on the restructure confirms each section against the code in a recorded read.
+- Changes: the files above.
 - Defers: nothing.

@@ -1,18 +1,18 @@
-# 0418 — Apply the bad-value rule in every adapter
+# 0418 — Apply the bad-value rule in every adapter outside the benchmark families
 
 Status: OPEN.
 
 Milestone: 5
 
-Depends on: 0417
+Depends on: 0417, 0454
 
 ## Outcome
 
-Every adapter maps non-identity fields through the shared `mapped` helpers, so one bad value is left out with a problem and the reply returns. Unchecked pass-through and silent drops (`unwrap_or_default`, `if let Ok`, `#[serde(default)]`) are gone from adapters and from biomcp-query. The audit ratchet sees every drop form in every adapter file and in biomcp-query, and the `#[serde(default)]` ban and 300-line limit apply to every file under an adapter folder.
+Every adapter outside the openFDA, NCI and ctgov families keeps a reply when one non-identity value is bad: it omits that value with one problem naming the field, refuses only a record with a bad identity, and fails only on a bad protocol value. The audit sees every silent-drop form in adapter files, and no adapter site stays unclassified.
 
-- Why: the pre-1.0 code quality review `sdlc/records/2026-10-28-code-quality-review.md`. About 30 of 57 adapters follow other policies; semantic_scholar, erepo, fda_510k, nci, uniprot, litsense, mutalyzer and variantvalidator are named examples. 120 of 143 audit sites are still pending.
-- Starts from: `crates/biomcp-adapters`, `crates/biomcp-query`, `tests/ratchets/adapter_values.rs`, `tests/ratchets/source.rs` and the audit inventory.
-- Rules: migrate family by family in batches that do not collide with 0408 to 0416; identity fields still fail the item; every pending audit site gets a class.
-- Proof: per adapter, a case with one bad non-identity value keeps the reply; the extended ratchet fails on a planted `unwrap_or_default` drop in an adapter and in biomcp-query.
-- Changes: the adapters, query modules, ratchets and cases.
-- Defers: nothing.
+- Why: the pre-1.0 code quality review. About 32 adapters fail whole replies on one bad date or number, such as semantic_scholar, erepo, uniprot, litsense, mutalyzer and variantvalidator, and 120 audit sites are pending.
+- Starts from: the helpers 0417 adds to `crates/biomcp-adapters/src/mapped.rs` and `raw.rs`, `crates/biomcp/tests/ratchets/adapter_values.rs`, `adapter_value_audit.json`, `ratchets/source.rs`, each adapter's `raw.rs` and `map.rs`.
+- Rules: the field table in restructure (d). Use 0417's helpers and add none unless two adapters need the same new one. The audit fingerprints `.ok()`, `if let Ok`, `let Ok .. else` and `filter_map(..ok())` in adapter files, and `unwrap_or_default` in `raw.rs`, in `map.rs` and on parse results. The query layer joins the audit in 0420. `ratchets/source.rs` applies the 300-line cap and the `serde(default)` and `deny_unknown_fields` refusals to every adapter file. Leave `nci`, `fda_*`, `maude`, `drugsfda`, `openfda_label`, `faers`, the recall adapters and `ctgov` alone. Land in family lanes, each a whole change. The variant-family lane rebases on 0436. A reply property that leaves a required set takes a major under 0437's gate.
+- Proof: per adapter, a replay case edits one non-identity value in a real recording and asserts the record kept, the field absent and the problem named, and it fails on the base build; a planted `.ok()` drop in an adapter fails the audit; the reply diff lists only the named cases.
+- Changes: adapter folders in scope, the ratchets, `tests/cases/`, schemas and the baseline.
+- Defers: openFDA and NCI (0455), helper copies (0424), the query-layer audit (0420).

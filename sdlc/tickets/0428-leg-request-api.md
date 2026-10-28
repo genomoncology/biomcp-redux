@@ -1,18 +1,18 @@
-# 0428 — Give the transport one request path
+# 0428 — Replace transport combination methods with one call
 
 Status: OPEN.
 
 Milestone: 5
 
-Depends on: 0427
+Depends on: 0424, 0422
 
 ## Outcome
 
-`Leg` exposes one request function with a small options type in place of 32 combination methods, the generic decoder moves out of `xml.rs`, positional tuples become named structs, and paging cursors share one implementation in biomcp-types.
+`Leg::call(endpoint, input, read)` with a public `Read` options type replaces the combination methods. `probe`, bundle reads, `batch` and `grpc` stay. `Decoded<T>` becomes a named struct. One `Paged` trait replaces the 20 `at_offset` and 12 `restart` copies.
 
-- Why: the pre-1.0 code quality review `sdlc/records/2026-10-28-code-quality-review.md`.
-- Starts from: `crates/biomcp-fetch/src/leg*`, `xml.rs`, `cache_request.rs`, the 19 `at_offset` and 10 `restart` copies and six `page!` macros in biomcp-types.
-- Rules: no behavior change; schedule after the 1.0 feature tickets to avoid collisions.
-- Proof: existing cases pass; single-caller methods are gone.
-- Changes: the files above.
+- Why: each new option combination added a method, and 174 call sites choose among about 30 near-identical names.
+- Starts from: `crates/biomcp-fetch/src/request.rs`, `json_request.rs`, `cache_request.rs`, `counted.rs`, `xml.rs` `Decoder`, the call sites in adapters and query, and the paging copies and `page!` macros in `biomcp-types`.
+- Rules: restructure (e). Count the methods and macros before starting. Reply keys stay, so recordings match. Old methods become delegates, call sites convert, then the delegates go, all on one branch. `page!` macros merge only under the `$defs` names 0438 fixes.
+- Proof: deleting the old methods turns every unconverted call into a compile error; the transport's tests pass with unchanged assertions; the reply diff is empty; every recording still matches with no new recording.
+- Changes: the files above and every adapter folder.
 - Defers: nothing.

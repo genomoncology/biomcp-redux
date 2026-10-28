@@ -4,13 +4,15 @@ Status: OPEN.
 
 Milestone: 5
 
+Depends on: 0454
+
 ## Outcome
 
-The release rehearsal runs the full `cases` target, YAML cases and Rust trials, against the installed candidate through `BIOMCP_TEST_EXECUTABLE`, on the Linux containers and every native target, and reports per-case results.
+The release rehearsal runs every YAML case and every Rust trial in the `cases` target against the installed artifact on each release target, with `tests/` copied outside the checkout. The runner reads cases and fixtures only through `launch::fixtures()` and registers every trial whatever case directory it reads. The three installed proof modes become trials named by feature.
 
-- Why: the pre-1.0 code quality review `sdlc/records/2026-10-28-code-quality-review.md`. The installed artifact runs 1 of 654 YAML cases today, and release builds differ from debug builds.
-- Starts from: `release/smoke.py`, `release/gate.py`, `release/container_check.py`, the test launcher and the rehearsal recipe.
-- Rules: no new framework; the smoke timeout is set from a measured run.
-- Proof: a rehearsal job runs every case against the installed binary and fails when a planted wrong binary is installed.
-- Changes: the release scripts and the rehearsal recipe.
-- Defers: nothing.
+- Why: `release/smoke.py` runs one copied case and three special modes, so 653 cases never touch the artifact users install. `cases.rs` fixes its case directory at compile time, `--cases DIR` skips `proof::trials` and the protocol trials, and 26 test files read `CARGO_MANIFEST_DIR` directly, so a copied fixture tree is silently ignored.
+- Starts from: `release/smoke.py`, `release/rehearse.py`, `release/gate.py`, `crates/biomcp/tests/cases.rs`, `runner/launch.rs`, `runner/proof.rs`, and the 26 test files that read `CARGO_MANIFEST_DIR`.
+- Rules: `BIOMCP_TEST_EXECUTABLE` and `BIOMCP_TEST_FIXTURES` stay the only switches. A ratchet allows `CARGO_MANIFEST_DIR` in test code only in `runner/launch.rs`. The rehearsal timeout is the first measured run plus 15 percent. In-process trials that cannot run against an installed binary are listed for 0431 and not rewritten here. This ticket fixes fixture paths only. Any other failure on a platform, such as timing, a path separator or a missing system library, is filed as its own ticket with its raw log, and that platform's rehearsal marks those cases as expected failures named by ticket until the fix lands. 0293 and 0336 rerun their evidence after this lands.
+- Proof: a planted installed binary that prints one changed schema ID fails the rehearsal, naming the case; a planted test file reading `CARGO_MANIFEST_DIR` fails the ratchet; the rehearsal reports the same case and trial count as the routine suite.
+- Changes: the files above and `docs/development.md`.
+- Defers: removing in-process trials (0431).
