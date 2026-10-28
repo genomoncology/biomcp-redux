@@ -33,9 +33,13 @@ fn markdown() -> Check {
             "/exchanges/0/body/value/proteinDescription/recommendedName/fullName/value",
         ) {
             *name = json!(source);
-            changed = true;
-            record["exchanges"][0]["body"]["value"]["genes"] =
-                json!([{"geneName": {"value": source}}]);
+            if let Some(body) = record
+                .pointer_mut("/exchanges/0/body/value")
+                .and_then(Value::as_object_mut)
+            {
+                body.insert("genes".into(), json!([{"geneName": {"value": source}}]));
+                changed = true;
+            }
         }
     })?;
     assert!(changed, "protein name fixture missing");
@@ -56,11 +60,12 @@ fn markdown() -> Check {
     let value: Value = serde_json::from_slice(&output.stdout)?;
     assert!(value.to_string().contains("Synthetic"));
     assert!(
-        value["next"]
-            .as_array()
+        value
+            .get("next")
+            .and_then(Value::as_array)
             .is_some_and(|steps| steps.iter().any(|step| {
-                step["args"]
-                    .as_array()
+                step.get("args")
+                    .and_then(Value::as_array)
                     .is_some_and(|args| args.iter().any(|arg| arg == source))
             })),
         "upstream gene name must reach a next command: {value}"
