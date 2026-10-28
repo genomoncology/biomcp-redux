@@ -69,6 +69,7 @@ mod litvar_tables;
 pub(crate) mod live;
 mod live_follow_proof;
 mod live_proof;
+mod local_files;
 mod markdown;
 mod markdown_shapes;
 mod markdown_sources;

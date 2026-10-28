@@ -1,6 +1,7 @@
 # 0399 — Keep local cache private and config symlinks intact
 
-Status: OPEN.
+Status: COMPLETE.
+Landed: 50aa3fd6d2670af9907c301cde53ff797531c7de
 
 Milestone: 5
 
