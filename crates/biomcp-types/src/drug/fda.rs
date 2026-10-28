@@ -94,6 +94,12 @@ pub struct DrugFdaDocument {
 #[serde(deny_unknown_fields)]
 #[cfg_attr(feature = "schema", derive(schemars::JsonSchema))]
 pub struct DrugFdaCandidate {
+    /// Exact application identifier, shared with the retained application identity.
+    pub id: biodata::DrugId,
+    /// Exact brand wording shared by every product; omitted for zero or differing brands.
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    #[cfg_attr(feature = "schema", schemars(with = "Text"))]
+    pub name: Option<Text>,
     /// Exact native application identity; no product has been selected.
     pub identity: super::DrugHeader,
     /// Complete native product candidates within this application.
@@ -115,6 +121,6 @@ pub struct DrugFdaPage {
     pub source_updated: Option<PartialDate>,
 }
 impl crate::ResponseBody for DrugFdaPage {
-    const SCHEMA: &'static str = "biomcp.drug-fda-page/1";
+    const SCHEMA: &'static str = "biomcp.drug-fda-page/2";
     type Query = super::DrugSearch;
 }

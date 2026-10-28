@@ -5573,6 +5573,13 @@
         "source": {
           "$ref": "#/$defs/Source",
           "description": "Source responsible for this identity."
+        },
+        "transcripts": {
+          "description": "Source-paired transcript identifiers and unchanged coding and protein notation.",
+          "items": {
+            "$ref": "#/$defs/VariantTranscript"
+          },
+          "type": "array"
         }
       },
       "required": [
@@ -6250,6 +6257,68 @@
           "description": "Native prediction scores."
         }
       },
+      "type": "object"
+    },
+    "VariantTranscript": {
+      "additionalProperties": false,
+      "description": "A source-paired transcript annotation, without inferred transcript equivalence.",
+      "properties": {
+        "component": {
+          "$ref": "#/$defs/Text",
+          "description": "Native component and field carrying the paired annotation."
+        },
+        "gene": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/Text"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "description": "Source-stated gene symbol."
+        },
+        "hgvs_c": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/Text"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "description": "Source transcript notation from the coding field, including native n. or r. forms."
+        },
+        "hgvs_p": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/Text"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "description": "Source protein notation, never translated from coding notation."
+        },
+        "matched": {
+          "description": "Whether this row's source notation matched the declared caller notation.",
+          "type": "boolean"
+        },
+        "source": {
+          "$ref": "#/$defs/Source",
+          "description": "Provider carrying this annotation."
+        },
+        "transcript": {
+          "$ref": "#/$defs/Text",
+          "description": "Transcript identifier exactly as published, including its source version."
+        }
+      },
+      "required": [
+        "source",
+        "component",
+        "transcript",
+        "matched"
+      ],
       "type": "object"
     }
   },

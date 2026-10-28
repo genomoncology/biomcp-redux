@@ -3,8 +3,30 @@ use super::{Application, Product, Submission, date};
 use biodata::{Attribution, AuthorizationDate, AuthorizationEvent};
 use biomcp_fetch::RequestError;
 use biomcp_types::{
-    DrugFdaDocument, DrugFdaIngredient, DrugFdaProduct, DrugFdaProperty, DrugFdaSubmission,
+    DrugFdaCandidate, DrugFdaDocument, DrugFdaIngredient, DrugFdaProduct, DrugFdaProperty,
+    DrugFdaSubmission,
 };
+impl Application {
+    /// Expose an application name only when all native products share exact brand wording.
+    pub fn candidate(&self) -> DrugFdaCandidate {
+        let identity = self.header();
+        let name = self
+            .products
+            .first()
+            .filter(|first| {
+                self.products
+                    .iter()
+                    .all(|p| p.brand_name == first.brand_name)
+            })
+            .map(|product| product.brand_name.clone());
+        DrugFdaCandidate {
+            id: identity.id.clone(),
+            name,
+            identity,
+            products: self.products.iter().map(Product::mapped).collect(),
+        }
+    }
+}
 impl Product {
     /// Map a native product without associating it with any submission.
     pub fn mapped(&self) -> DrugFdaProduct {

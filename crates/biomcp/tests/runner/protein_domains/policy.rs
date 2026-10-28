@@ -2,8 +2,8 @@
 use super::super::CLI_HELP_BYTES;
 use super::super::mcp;
 use super::*;
-// Reviewed output budget 2026-10-26: j15358 compact RPC 7945 bytes plus fifteen percent.
-const MCP_TOOLS_BYTES: usize = 9137;
+// Reviewed compact discovery budget: j18325 measured the RPC; retain the approved fifteen percent margin.
+const MCP_TOOLS_BYTES: usize = (13_703_usize * 115).div_ceil(100);
 pub(super) fn run() -> Result<(), String> {
     let env = Environment::new().map_err(|e| e.to_string())?;
     let help = invoke(&env, vec!["help".into()], 0)?;

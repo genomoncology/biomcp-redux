@@ -231,8 +231,21 @@ fn discovery() -> Result<(), String> {
             replies.insert(id);
         }
     }
+    let advertised = tool_definitions(&environment)?;
+    for tool in &advertised {
+        replies.extend(reply_ids(
+            tool.get("outputSchema").ok_or("missing output schema")?,
+        ));
+    }
+    resolve_replies(&environment, replies)
+}
+
+fn resolve_replies(
+    environment: &super::launch::Environment,
+    replies: std::collections::BTreeSet<&str>,
+) -> Result<(), String> {
     for id in replies {
-        let artifact = invoke(&["schema".into(), id.into()])?;
+        let artifact = discovery_reply(environment, &["schema".into(), id.into()])?;
         if artifact.get("$id").and_then(Value::as_str) != Some(id) {
             return Err(format!("reply schema does not resolve: {id}"));
         }
@@ -261,4 +274,43 @@ fn parent_replies(commands: &[Value]) -> Result<(), String> {
         return Err("parent reply schemas are not sorted and unique".into());
     }
     Ok(())
+}
+
+pub(super) fn reply_ids(schema: &Value) -> std::collections::BTreeSet<&str> {
+    let mut ids = std::collections::BTreeSet::new();
+    if let Some(property) = schema.pointer("/properties/schema") {
+        ids.extend(property.get("const").and_then(Value::as_str));
+        ids.extend(
+            property
+                .get("enum")
+                .and_then(Value::as_array)
+                .into_iter()
+                .flatten()
+                .filter_map(Value::as_str),
+        );
+    }
+    for branch in schema
+        .get("anyOf")
+        .and_then(Value::as_array)
+        .into_iter()
+        .flatten()
+    {
+        ids.extend(reply_ids(branch));
+    }
+    ids
+}
+
+fn tool_definitions(environment: &super::launch::Environment) -> Result<Vec<Value>, String> {
+    let mut reply = super::mcp::exchange(
+        environment,
+        &[super::mcp::request(json!(1), "tools/list", json!({}))],
+    )?
+    .into_iter()
+    .next()
+    .ok_or("missing tool reply")?;
+    let tools = reply
+        .pointer_mut("/result/tools")
+        .map(Value::take)
+        .ok_or("missing tool list")?;
+    serde_json::from_value(tools).map_err(|e| e.to_string())
 }

@@ -67,6 +67,7 @@ pub(super) fn get(
             id: query.input().text().clone(),
             url: None,
         },
+        transcripts: Box::default(),
         myvariant: None,
         sections: None,
         component_terms: Box::default(),

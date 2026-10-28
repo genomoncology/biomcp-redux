@@ -1,0 +1,27 @@
+{
+  "method": "GET",
+  "source": "hpo",
+  "url": "https://ontology.jax.org/api/hp/terms/HP%3A0002315",
+  "exchanges": [
+    {
+      "status": 200,
+      "content_type": "application/json",
+      "delay_ms": 0,
+      "retry_after_ms": null,
+      "body": {
+        "kind": "json",
+        "value": {
+          "id": "HP:0002315",
+          "name": "Headache",
+          "definition": "Cephalgia, or pain sensed in various parts of the head, not confined to the area of distribution of any nerve.",
+          "publicationReferences": [
+            "PMID:15304572"
+          ],
+          "synonyms": [],
+          "xrefs": []
+        }
+      },
+      "fetched": 1792980000
+    }
+  ]
+}

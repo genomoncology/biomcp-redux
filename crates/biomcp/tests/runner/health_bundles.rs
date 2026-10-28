@@ -85,18 +85,6 @@ fn reachable() -> Check {
         )?;
         for source in SOURCES {
             let r = row(&v, source)?;
-            if *source == "hgnc" {
-                if r["state"] != "skipped"
-                    || r["reason"] != "unavailable"
-                    || r["bundle"] != "missing"
-                    || r.get("latency_ms").is_some()
-                {
-                    return Err(format!(
-                        "HGNC invented publisher reachability or downloaded a bundle: {r}"
-                    ));
-                }
-                continue;
-            }
             if r["state"] != "ok"
                 || r.get("reason").is_some()
                 || BUNDLES.iter().any(|(name, _)| name == source) && r["bundle"] != "missing"
@@ -105,7 +93,24 @@ fn reachable() -> Check {
             }
         }
     }
-    if stub.finish()?.len() != SOURCES.len() - 1 {
+    let files = std::fs::read_dir(recording.join("hgnc")).map_err(|e| e.to_string())?;
+    let file = files
+        .into_iter()
+        .next()
+        .ok_or("no HGNC HEAD capture")?
+        .map_err(|e| e.to_string())?;
+    let capture: Value =
+        serde_json::from_slice(&std::fs::read(file.path()).map_err(|e| e.to_string())?)
+            .map_err(|e| e.to_string())?;
+    if capture.get("method").and_then(Value::as_str) != Some("HEAD")
+        || capture.get("post").is_some()
+        || capture.pointer("/exchanges/0/body/value") != Some(&json!(""))
+    {
+        return Err(format!(
+            "HEAD capture carried bundle bytes or lost its method: {capture}"
+        ));
+    }
+    if stub.finish()?.len() != SOURCES.len() {
         return Err("probe retried or replay reached publisher".into());
     }
     Ok(())
@@ -172,29 +177,40 @@ fn local() -> Check {
     Ok(())
 }
 fn failure() -> Check {
-    let env = Environment::new().map_err(|e| e.to_string())?;
-    let stub = Stub::for_source_status(
-        "ftp.ncbi.nlm.nih.gov",
-        "application/json",
-        |_| Ok("{}".into()),
-        |_| 503,
-    )?;
-    configure(&env, &stub)?;
-    let v = invoke(
-        &env,
-        vec![
-            "health".into(),
-            "--disable-sources".into(),
-            disabled(&["gtr"]),
-        ],
-        0,
-    )?;
-    let r = row(&v, "gtr")?;
-    if r["state"] != "failed" || r["reason"] != "unavailable" || r["bundle"] != "missing" {
-        return Err(format!("publisher failure disappeared {r}"));
-    }
-    if stub.finish()?.len() != 1 {
-        return Err("health retried failed publisher".into());
+    for (source, host) in [
+        ("gtr", "ftp.ncbi.nlm.nih.gov"),
+        ("hgnc", "storage.googleapis.com"),
+    ] {
+        let env = Environment::new().map_err(|e| e.to_string())?;
+        let stub = Stub::for_source_status(host, "text/plain", |_| Ok(String::new()), |_| 503)?;
+        configure(&env, &stub)?;
+        let recording = env.root().join("recording");
+        for mode in ["--record", "--replay"] {
+            let v = invoke(
+                &env,
+                vec![
+                    "health".into(),
+                    mode.into(),
+                    recording.to_string_lossy().into(),
+                    "--disable-sources".into(),
+                    disabled(&[source]),
+                ],
+                0,
+            )?;
+            let r = row(&v, source)?;
+            if r["state"] != "failed" || r["reason"] != "unavailable" || r["bundle"] != "missing" {
+                return Err(format!("publisher failure disappeared {r}"));
+            }
+        }
+        let requests = stub.finish()?;
+        if requests.len() != 1
+            || source == "hgnc"
+                && !requests
+                    .first()
+                    .is_some_and(|(_, request)| request.starts_with("HEAD "))
+        {
+            return Err("health retried or downloaded from failed publisher".into());
+        }
     }
     Ok(())
 }
@@ -235,6 +251,7 @@ fn publisher_stub() -> Result<Stub, String> {
             "ddinter.scbdd.com",
             "www.cbioportal.org",
             "www.wikipathways.org",
+            "storage.googleapis.com",
         ],
         |_| "text/plain",
         |request| {
@@ -254,12 +271,19 @@ fn publisher_stub() -> Result<Stub, String> {
                 "/terms/",
                 "/api/studies?pageSize=1",
                 "/help.html",
+                "/public-download-files/hgnc/tsv/tsv/hgnc_complete_set.txt",
             ]
             .contains(&path)
             {
                 return Err(format!(
                     "health fetched undeclared endpoint or bundle: {request}"
                 ));
+            }
+            if path.ends_with("hgnc_complete_set.txt") {
+                if !request.starts_with("HEAD ") {
+                    return Err(format!("HGNC health downloaded its bundle: {request}"));
+                }
+                return Ok(String::new());
             }
             Ok("publisher reachable".into())
         },
