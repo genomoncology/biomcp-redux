@@ -41,3 +41,44 @@ fn response_identifiers_use_their_publisher_grammar() {
         );
     }
 }
+
+#[test]
+fn native_vocabulary_members_keep_exact_publisher_values() -> Result<(), serde_json::Error> {
+    use biodata::CellLineSex;
+    use biomcp_types::{CivicKind, CivicSignificance, CivicStatus, NciTrialPhase};
+    assert!(matches!(
+        serde_json::from_value::<CellLineSex>(json!("Female"))?,
+        CellLineSex::Female
+    ));
+    assert!(matches!(
+        serde_json::from_value::<CivicKind>(json!("PREDICTIVE"))?,
+        CivicKind::Predictive
+    ));
+    assert!(matches!(
+        serde_json::from_value::<CivicStatus>(json!("ACCEPTED"))?,
+        CivicStatus::Accepted
+    ));
+    assert!(matches!(
+        serde_json::from_value::<CivicSignificance>(json!("RESISTANCE"))?,
+        CivicSignificance::Resistance
+    ));
+    assert!(matches!(
+        serde_json::from_value::<NciTrialPhase>(json!("I_II"))?,
+        NciTrialPhase::Phase1And2
+    ));
+    for original in [" new value ", "female", "PHASE1", ""] {
+        let phase = serde_json::from_value::<NciTrialPhase>(json!(original))?;
+        assert!(phase.is_unknown());
+        assert_eq!(serde_json::to_value(phase)?, json!(original));
+    }
+    Ok(())
+}
+
+#[test]
+fn normalization_source_text_retains_empty_values_and_whitespace() -> Result<(), serde_json::Error>
+{
+    let original = json!({"category":" infos ", "code":"", "text":"\n  native text  \n"});
+    let message: biomcp_types::NormalizationMessage = serde_json::from_value(original.clone())?;
+    assert_eq!(serde_json::to_value(message)?, original);
+    Ok(())
+}

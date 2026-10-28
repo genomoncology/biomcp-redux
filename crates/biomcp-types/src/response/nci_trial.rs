@@ -15,7 +15,7 @@ pub struct NciTrial {
     /// Native status, without a registry translation.
     pub current_trial_status: Text,
     /// Native phase.
-    pub phase: Option<Text>,
+    pub phase: Option<super::NciTrialPhase>,
     /// Native short summary, only on exact retrieval.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub brief_summary: Option<crate::NciTextPage>,

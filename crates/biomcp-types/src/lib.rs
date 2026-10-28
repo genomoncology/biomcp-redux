@@ -223,3 +223,5 @@ pub use response::{
 pub use response::{AlphaGenomeNonfiniteKind, AlphaGenomeScalar};
 
 pub use response::{CivicKind, CivicSignificance, CivicStatus};
+
+pub use response::NciTrialPhase;
