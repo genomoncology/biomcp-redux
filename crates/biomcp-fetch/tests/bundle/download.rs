@@ -95,7 +95,7 @@ fn interrupted_download_resumes_only_the_same_representation() {
             }
             let result = call.join().unwrap();
             if ["safe", "ignored", "412"].contains(&scenario) {
-                assert_eq!(result.unwrap().rows, 1);
+                assert_download(result.unwrap(), scenario, cut);
             } else {
                 assert!(result.is_err());
             }
@@ -119,6 +119,17 @@ fn interrupted_download_resumes_only_the_same_representation() {
             0
         );
     }
+}
+
+fn assert_download(info: biomcp_fetch::BundleInfo, scenario: &str, cut: usize) {
+    assert_eq!(info.rows, 1);
+    assert_eq!(info.bytes, TSV.len() as u64);
+    let received = if scenario == "safe" {
+        TSV.len() - cut
+    } else {
+        TSV.len()
+    };
+    assert_eq!(info.downloaded_bytes, received as u64);
 }
 
 #[test]
@@ -368,6 +379,20 @@ fn replay_external_writer_stays_external_while_an_admission_owner_does_no_sql() 
         external.execute_batch("ROLLBACK").unwrap();
         worker.join().unwrap();
     });
+}
+
+#[test]
+fn revalidated_sync_reports_no_download_and_preserves_source_bytes() {
+    let server = support::Server::new();
+    let b = declared(&server);
+    let dir = tempfile::tempdir().unwrap();
+    let f = cached(&dir.path().join("cache.sqlite"));
+    let imported = sync_reply(&f, &b, &server, 200, "ETag: \"one\"\r\n", TSV).unwrap();
+    assert_eq!(imported.bytes, TSV.len() as u64);
+    assert_eq!(imported.downloaded_bytes, TSV.len() as u64);
+    let unchanged = sync_reply(&f, &b, &server, 304, "", "").unwrap();
+    assert_eq!(unchanged.bytes, TSV.len() as u64);
+    assert_eq!(unchanged.downloaded_bytes, 0);
 }
 
 #[test]
