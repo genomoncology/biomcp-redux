@@ -13,6 +13,7 @@ pub struct GwasPage {
     pub page: PageInfo,
     /// Complete qualifying count, unknown until the threshold walk reaches its end.
     #[serde(default)]
+    #[serde(skip_serializing_if = "Option::is_none")]
     pub qualifying_total: Option<u64>,
     /// Same-selector search continuation.
     #[serde(default, skip_serializing_if = "Option::is_none")]

@@ -35,17 +35,22 @@ pub struct PgxPair {
     /// Native `genesymbol`; literal source value.
     pub genesymbol: GeneSymbol,
     /// Native `guidelinename`; literal source value.
+    #[serde(skip_serializing_if = "Option::is_none")]
     pub guidelinename: Option<Box<str>>,
     /// Native `guidelineurl`; literal source value.
     #[cfg_attr(feature = "schema", schemars(extend("format" = "uri")))]
+    #[serde(skip_serializing_if = "Option::is_none")]
     pub guidelineurl: Option<Box<str>>,
     /// Native `cpiclevel`; literal source value.
     pub cpiclevel: Box<str>,
     /// Native `clinpgxlevel`; literal source value.
+    #[serde(skip_serializing_if = "Option::is_none")]
     pub clinpgxlevel: Option<Box<str>>,
     /// Native `pgxtesting`; literal source value.
+    #[serde(skip_serializing_if = "Option::is_none")]
     pub pgxtesting: Option<Box<str>>,
     /// Native `pmids`; literal source value.
+    #[serde(skip_serializing_if = "Option::is_none")]
     pub pmids: Option<Box<[Pmid]>>,
     /// Native `usedforrecommendation`; literal source value.
     pub usedforrecommendation: Box<str>,
@@ -84,6 +89,7 @@ pub struct PgxRecommendation {
     /// Native `population`; literal source value.
     pub population: Box<str>,
     /// Native `comments`; literal source value.
+    #[serde(skip_serializing_if = "Option::is_none")]
     pub comments: Option<Box<str>>,
 }
 /// Source-native PgxDrugRecommendation fields; no clinical interpretation.

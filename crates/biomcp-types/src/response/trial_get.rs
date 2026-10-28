@@ -79,12 +79,16 @@ pub struct TrialEligibilityPage {
     #[serde(default, skip_serializing_if = "Option::is_none")]
     pub continuation: Option<crate::TrialGet>,
     /// Source minimum age.
+    #[serde(skip_serializing_if = "Option::is_none")]
     pub minimum_age: Option<TrialAgeBound>,
     /// Source maximum age.
+    #[serde(skip_serializing_if = "Option::is_none")]
     pub maximum_age: Option<TrialAgeBound>,
     /// Source sex field.
+    #[serde(skip_serializing_if = "Option::is_none")]
     pub sex: Option<TrialSex>,
     /// Source healthy-volunteer field.
+    #[serde(skip_serializing_if = "Option::is_none")]
     pub healthy_volunteers: Option<bool>,
     /// Exact original text fragment, including whitespace.
     pub criteria: Box<str>,

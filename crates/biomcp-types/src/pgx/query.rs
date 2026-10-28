@@ -118,7 +118,11 @@ struct GetFields {
     #[serde(default, skip_serializing_if = "Option::is_none")]
     kind: Option<PgxAnnotationKind>,
     /// Rows per page: three clinical, five elsewhere.
-    #[serde(default, deserialize_with = "explicit_section_limit")]
+    #[serde(
+        default,
+        deserialize_with = "explicit_section_limit",
+        skip_serializing_if = "Option::is_none"
+    )]
     #[cfg_attr(feature = "schema", schemars(with="u32",range(min = 1, max = 50),transform=conditional_limit))]
     section_limit: Option<u32>,
     /// Offset within the selected section.

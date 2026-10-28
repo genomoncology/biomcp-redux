@@ -58,6 +58,7 @@ pub struct DiseaseCard {
     pub consider: Option<Box<[Curie]>>,
     /// Publisher explicit replacement identifiers; null preserves no native replacement.
     #[serde(default)]
+    #[serde(skip_serializing_if = "Option::is_none")]
     pub replaced_by: Option<Box<[Curie]>>,
     /// Publisher record and version.
     pub attribution: Attribution,

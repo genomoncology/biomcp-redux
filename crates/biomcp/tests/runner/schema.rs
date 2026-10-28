@@ -133,10 +133,11 @@ fn explicit_null(path: &str, schema: &str) -> bool {
         PhenotypeGenes::SCHEMA,
     ]
     .contains(&schema);
-    let parts: Vec<_> = path.split('/').collect();
     association
-        && matches!(parts.as_slice(), ["", "result", "items", index, "association", "aggregator_knowledge_source"]
-            if index.parse::<usize>().is_ok())
+        && path
+            .strip_prefix("/result/items/")
+            .and_then(|rest| rest.strip_suffix("/association/aggregator_knowledge_source"))
+            .is_some_and(|index| index.parse::<usize>().is_ok())
 }
 
 fn reject_nulls(value: &Value, path: &str, schema: &str) -> Result<(), String> {

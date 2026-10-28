@@ -53,7 +53,7 @@ fn check(value: &Value, field: &str, absent: &str) -> Result<(), String> {
         .ok_or("missing problems")?;
     if problems.len() != 1
         || problems.first().and_then(|p| p.get("field")) != Some(&json!(field))
-        || value.pointer(absent).is_some_and(|v| !v.is_null())
+        || value.pointer(absent).is_some()
     {
         return Err(format!(
             "bad {field} survived or lost its single problem: {value}"
