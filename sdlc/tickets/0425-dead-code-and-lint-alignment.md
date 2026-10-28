@@ -1,6 +1,7 @@
 # 0425 — Remove dead code
 
-Status: OPEN.
+Status: COMPLETE.
+Landed: 51274eca7e80a5b1f91cddc8da148ddd186eb0d5
 
 Milestone: 5
 

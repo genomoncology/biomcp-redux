@@ -18,7 +18,7 @@ pub struct TrialCards {
     pub attribution: Box<str>,
 }
 impl super::ResponseBody for TrialCards {
-    const SCHEMA: &'static str = "biomcp.trial-cards/3";
+    const SCHEMA: &'static str = "biomcp.trial-cards/5";
     type Query = crate::TrialGet;
 }
 /// Result for one exact requested NCT identity.
@@ -79,9 +79,9 @@ pub struct TrialEligibilityPage {
     #[serde(default, skip_serializing_if = "Option::is_none")]
     pub continuation: Option<crate::TrialGet>,
     /// Source minimum age.
-    pub minimum_age: TrialAgeBound,
+    pub minimum_age: Option<TrialAgeBound>,
     /// Source maximum age.
-    pub maximum_age: TrialAgeBound,
+    pub maximum_age: Option<TrialAgeBound>,
     /// Source sex field.
     pub sex: Option<TrialSex>,
     /// Source healthy-volunteer field.

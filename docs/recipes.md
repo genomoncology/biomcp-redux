@@ -24,6 +24,13 @@ biomcp search author 'Louis Williams'
 biomcp search author 'Louis Williams' --source semanticscholar
 ```
 
+## biomcp search organization
+
+```sh
+biomcp search organization --source nci --name Dana-Farber --limit 5
+biomcp search organization --source nci --city Boston --state MA --limit 5
+```
+
 ## biomcp get author
 
 ```sh

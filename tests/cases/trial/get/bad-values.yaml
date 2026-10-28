@@ -1,0 +1,69 @@
+{
+  "feature": "trial-get",
+  "live_check": "synthetic",
+  "story": "An exact trial card retains its identity and summary when native nonidentity fields cannot map.",
+  "replay": "trial/get/bad-values",
+  "steps": [
+    {
+      "run": [
+        "get",
+        "trial",
+        "NCT03511664"
+      ],
+      "expect": {
+        "/status": "partial",
+        "/result/items/0/status": "partial",
+        "/result/items/0/card/nct_id": "NCT03511664",
+        "/result/items/0/card/status": null,
+        "/result/items/0/card/updated": null,
+        "/result/items/0/card/study_type": null,
+        "/result/items/0/card/phases": {
+          "equals": [
+            "PHASE3"
+          ]
+        },
+        "/problems/*/field": {
+          "includes_all_of": [
+            "overallStatus",
+            "lastUpdatePostDateStruct.date",
+            "phases",
+            "studyType",
+            "sex"
+          ]
+        }
+      },
+      "max_bytes": 8000
+    },
+    {
+      "run": [
+        "get",
+        "trial",
+        "NCT03511664"
+      ],
+      "expect": {
+        "/status": "partial",
+        "/result/items/0/status": "partial",
+        "/result/items/0/card/nct_id": "NCT03511664",
+        "/result/items/0/card/status": null,
+        "/result/items/0/card/updated": null,
+        "/result/items/0/card/study_type": null,
+        "/result/items/0/card/phases": {
+          "equals": [
+            "PHASE3"
+          ]
+        },
+        "/problems/*/field": {
+          "includes_all_of": [
+            "overallStatus",
+            "lastUpdatePostDateStruct.date",
+            "phases",
+            "studyType",
+            "sex"
+          ]
+        }
+      },
+      "max_bytes": 8000,
+      "offline": true
+    }
+  ]
+}

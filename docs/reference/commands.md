@@ -187,6 +187,7 @@ Usage: biomcp search [OPTIONS] <COMMAND>
 
 Commands:
   author         Literal author name query and native window; positional text maps to query.
+  organization   Find NCI organizations. Names are not unique; trial counts cover every status, including closed trials. No organization ID or get is available.
   cell-line      One literal cell line search, with native order and no total claim.
   gwas           Source associations in default p-value-ascending order. Reports no personal risk, causal variant or gene, or clinical interpretation of a statistic.
   protein        Search five reviewed human UniProt headers by literal text or exact gene.
@@ -283,6 +284,89 @@ Exact author name query and source window; positional text maps to query. Author
 - `query`: Exact query from the positional argument or --query.
 - `--source`: Source author source.
 - `--query`: Exact query from the positional argument or --query.
+
+## biomcp search organization
+
+```text
+Find NCI organizations. Names are not unique; trial counts cover every status, including closed trials. No organization ID or get is available.
+
+Usage: biomcp search organization [OPTIONS] --source <source>
+
+Options:
+      --city <city>
+          Native organization city.
+
+      --format <format>
+          Choose JSON or Markdown output; configuration can change the default.
+          
+          [default: json]
+          [possible values: json, md]
+
+      --country <country>
+          Native organization country.
+
+      --disable-sources <disable-sources>
+          Exclude source names or source terms groups.
+
+      --config <config>
+          Read configuration from this file.
+
+      --distance <distance>
+          Positive radius with explicit mi or km units.
+
+      --family <family>
+          Native organization family.
+
+      --lat <lat>
+          Radius center latitude in degrees; requires lon and distance.
+
+      --limit <limit>
+          Five headers by default, at most fifty.
+
+      --lon <lon>
+          Radius center longitude in degrees; requires lat and distance.
+
+      --name <name>
+          NCI partial organization name; names are not unique.
+
+      --offline
+          Read local data without source requests.
+
+      --fresh
+          Request fresh source data instead of cached replies.
+
+      --offset <offset>
+          Offset within the complete retained organization snapshot.
+
+      --pool <pool>
+          Snapshot identity retained by continuation commands.
+
+      --postal-code <postal_code>
+          Native postal code.
+
+      --source <source>
+          Explicit keyed NCI source.
+
+      --state <state>
+          Native state or province.
+
+```
+
+Find NCI organizations. Names are not unique; trial counts cover every status, including closed trials. No organization ID or get is available.
+
+- `--city`: Source organization city.
+- `--country`: Source organization country.
+- `--distance`: Positive radius with explicit mi or km units.
+- `--family`: Source organization family.
+- `--lat`: Radius center latitude in degrees; requires lon and distance.
+- `--limit`: Five headers by default, at most fifty.
+- `--lon`: Radius center longitude in degrees; requires lat and distance.
+- `--name`: NCI partial organization name; names are not unique.
+- `--offset`: Offset within the complete retained organization snapshot.
+- `--pool`: Snapshot identity retained by continuation commands.
+- `--postal-code`: Source postal code.
+- `--source`: Explicit keyed NCI source.
+- `--state`: Source state or province.
 
 ## biomcp search cell-line
 
@@ -3812,6 +3896,7 @@ Options:
 
       --hgvs <hgvs>
           Reference-qualified HGVS, or chromosome genomic HGVS with an explicit build for CAR.
+          Checked for reference and syntax only; no full HGVS parser.
 
       --config <config>
           Read configuration from this file.
@@ -3837,6 +3922,7 @@ Send unchanged reference-qualified notation to explicitly named services.
 
 - `--build`: Caller assembly; required when VariantValidator is selected.
 - `--hgvs`: Reference-qualified HGVS, or chromosome genomic HGVS with an explicit build for CAR.
+Checked for reference and syntax only; no full HGVS parser.
 - `--limit`: Source mapping rows per service, with typed continuation for remaining rows.
 - `--offset`: Source mapping rows to skip per service.
 - `--source`: Explicit service; all preserves independent results without consensus.
@@ -4600,6 +4686,7 @@ Usage: biomcp help search [OPTIONS] [COMMAND]
 
 Commands:
   author         Read papers attributed to a source author record.
+  organization   
   cell-line      Read source cell line assay counts.
   gwas           
   protein        Read protein sequences, features and source relationships.
@@ -4643,6 +4730,32 @@ Options:
 Read papers attributed to a source author record.
 
 Usage: biomcp help search author [OPTIONS]
+
+Options:
+      --format <format>
+          Choose JSON or Markdown output; configuration can change the default.
+          
+          [default: json]
+          [possible values: json, md]
+
+      --disable-sources <disable-sources>
+          Exclude source names or source terms groups.
+
+      --config <config>
+          Read configuration from this file.
+
+      --offline
+          Read local data without source requests.
+
+      --fresh
+          Request fresh source data instead of cached replies.
+
+```
+
+## biomcp help search organization
+
+```text
+Usage: biomcp help search organization [OPTIONS]
 
 Options:
       --format <format>
@@ -7235,7 +7348,7 @@ Process exit codes:
 3: expired result pool
 4: source request failed
 5: local configuration, storage or output failed
-Error codes: usage.schema, usage.arguments, usage.mcp_unavailable, usage.unknown_command, usage.retired, local.failure, pool.expired, usage.pool_mismatch, usage.too_many_pmids, usage.unsupported_filter. Source problems and reasons appear in their reply fields.
+Error codes: usage.schema, usage.arguments, usage.mcp_unavailable, usage.unknown_command, usage.retired, local.failure, pool.expired, usage.pool_mismatch, usage.too_many_pmids, usage.too_broad, usage.unsupported_filter. Source problems and reasons appear in their reply fields.
 
 
 ## biomcp help relations

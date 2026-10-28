@@ -72,7 +72,7 @@ fn call(env: &Environment, extra: &[&str]) -> Result<Value, String> {
     serde_json::from_slice(&output.stdout)
         .map_err(|e| format!("{e}: {}", String::from_utf8_lossy(&output.stdout)))
 }
-fn body(caid: &str) -> String {
+pub(super) fn body(caid: &str) -> String {
     json!(
         {"status":{"code":200,"name":"OK"},"data":[{"caId":caid,"PCERDocID":"PCER000001171","docVersion":"1.1.0",
         "classification":"Pathogenic","condition":"Li-Fraumeni syndrome","mondoId":"MONDO:0018875","ep":"TP53 VCEP","gene":"TP53",

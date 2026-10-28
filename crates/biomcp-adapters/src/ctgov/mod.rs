@@ -33,6 +33,8 @@ pub const VERSION: Endpoint = SPEC.get("/version").fresh(Freshness::Days(1));
 pub struct SearchPage {
     /// Source order, untouched.
     pub items: Vec<TrialHeader>,
+    /// Rejected nonidentity fields from retained studies.
+    pub problems: Vec<biomcp_types::Problem>,
     /// At least one complete native condition list lacks the searched words.
     pub condition_word_mismatch: bool,
     /// Exact native total.
@@ -215,21 +217,36 @@ pub fn search(
         .as_deref()
         .unwrap_or_default()
         .iter()
+        .filter_map(crate::raw::Field::as_ref)
         .any(|row| {
             conditions.iter().any(|condition| {
                 !row.protocol_section
                     .contains_condition_words(condition.as_str())
             })
         });
+    let mut rejected = Vec::new();
+    let mapped = raw
+        .studies
+        .unwrap_or_default()
+        .into_iter()
+        .filter_map(|row| match row.value() {
+            Some(row) => Some(row.protocol_section.header()),
+            None => {
+                rejected.push(crate::mapped::problem(SPEC.source, None, "nctId"));
+                None
+            }
+        })
+        .collect::<Result<Vec<_>, _>>()
+        .map_err(|_| bad())?;
+    let (items, problems): (Vec<_>, Vec<_>) = mapped
+        .into_iter()
+        .map(|row| (row.value, row.problems))
+        .unzip();
+    rejected.extend(problems.into_iter().flatten());
     Ok(SearchPage {
+        problems: rejected,
         condition_word_mismatch,
-        items: raw
-            .studies
-            .unwrap_or_default()
-            .into_iter()
-            .map(|row| row.protocol_section.header())
-            .collect::<Result<Vec<_>, _>>()
-            .map_err(|_| bad())?,
+        items,
         total,
         count_error,
         count_request,

@@ -114,6 +114,8 @@ pub use response::{TrialDocumentResult, TrialDocumentSaved};
 pub use response::{VariantCard, VariantHeader, VariantResolution, VariantTranscript};
 pub use source::{Reason, Source, Use};
 
+pub use query::{OrganizationSearch, OrganizationSource};
+
 mod article;
 
 pub use article::{
@@ -227,3 +229,5 @@ pub use response::{CivicKind, CivicSignificance, CivicStatus};
 pub use response::NciTrialPhase;
 
 pub use response::{DeviceRecallCard, DeviceRecallHeader};
+
+pub use response::{Organization, OrganizationCoordinates, OrganizationPage};

@@ -1,6 +1,7 @@
 # 0417 — Accept every trial status and keep a page on one bad value
 
-Status: OPEN.
+Status: COMPLETE.
+Landed: 2573be55ba803f1434f8d98054209d63c7c77005
 
 Milestone: 5
 

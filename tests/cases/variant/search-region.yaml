@@ -29,7 +29,7 @@
       ],
       "max_bytes": 1525,
       "expect": {
-        "/schema": "biomcp.variant-page/9",
+        "/schema": "biomcp.variant-page/10",
         "/status": "partial",
         "/query": {
           "equals": {
@@ -47,7 +47,7 @@
               {
                 "identity": {
                   "ids": [
-                    "rs:121434568"
+                    "rs121434568"
                   ],
                   "representations": [
                     {
@@ -72,7 +72,7 @@
               {
                 "identity": {
                   "ids": [
-                    "rs:121434568",
+                    "rs121434568",
                     "clinvar:16609"
                   ],
                   "representations": [
@@ -139,7 +139,7 @@
               {
                 "identity": {
                   "ids": [
-                    "rs:121434568"
+                    "rs121434568"
                   ],
                   "representations": [
                     {
@@ -164,7 +164,7 @@
               {
                 "identity": {
                   "ids": [
-                    "rs:121434568",
+                    "rs121434568",
                     "clinvar:16609"
                   ],
                   "representations": [

@@ -417,7 +417,7 @@ impl Leg<'_> {
             )
             .map_err(|error| {
                 if codec.limit.is_some() && error == crate::RecordError::Limit {
-                    Failure::Local(self.failure(Reason::BadReply, None).into())
+                    Failure::Local(self.failure(codec.overflow_reason, None).into())
                 } else {
                     local(error)
                 }
@@ -464,6 +464,7 @@ impl Leg<'_> {
                     || codec.json_rejections && matches!(status, 400 | 422)
                     || codec.json_absence && status == 404,
                 codec.limit.unwrap_or(self.fetch.config.max_body),
+                codec.overflow_reason,
             )?
         };
         let wire = Wire {
@@ -557,7 +558,7 @@ impl Leg<'_> {
             .map_err(|reason| self.failure(reason, Some(status)))?;
         let body = codec.normalized_body(&response.content_type, &response.body);
         if body.len() as u64 > codec.limit.unwrap_or(self.fetch.config.max_body) {
-            return Err(bad());
+            return Err(self.failure(codec.overflow_reason, Some(status)));
         }
         let reply = codec
             .decode_response(&body, response.content_range.as_deref(), status)
