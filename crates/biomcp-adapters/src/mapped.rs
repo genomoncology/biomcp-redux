@@ -84,17 +84,32 @@ impl Problems {
             .collect()
     }
     /// Validate native text through the shared boundary without changing its source bytes.
-    pub(crate) fn native_text(&mut self, field: &str, value: Option<crate::raw::Field<Box<str>>>) -> Option<Box<str>> {
+    pub(crate) fn native_text(
+        &mut self,
+        field: &str,
+        value: Option<crate::raw::Field<Box<str>>>,
+    ) -> Option<Box<str>> {
         let value = self.field(field, value)?;
         self.text(field, Some(&value)).map(|_| value)
     }
-    pub(crate) fn required_native_text(&mut self, field: &str, value: Option<crate::raw::Field<Box<str>>>) -> Option<Box<str>> {
+    pub(crate) fn required_native_text(
+        &mut self,
+        field: &str,
+        value: Option<crate::raw::Field<Box<str>>>,
+    ) -> Option<Box<str>> {
         let value = self.native_text(field, value);
         self.required(field, value)
     }
-    pub(crate) fn native_texts(&mut self, field: &str, value: Option<crate::raw::Field<Vec<crate::raw::Field<Box<str>>>>>) -> Box<[Box<str>]> {
-        self.field(field, value).unwrap_or_default().into_iter()
-            .filter_map(|value| self.native_text(field, Some(value))).collect()
+    pub(crate) fn native_texts(
+        &mut self,
+        field: &str,
+        value: Option<crate::raw::Field<Vec<crate::raw::Field<Box<str>>>>>,
+    ) -> Box<[Box<str>]> {
+        self.field(field, value)
+            .unwrap_or_default()
+            .into_iter()
+            .filter_map(|value| self.native_text(field, Some(value)))
+            .collect()
     }
     pub(crate) fn text(&mut self, field: &str, value: Option<&str>) -> Option<biodata::Text> {
         self.optional(field, value.map(text))

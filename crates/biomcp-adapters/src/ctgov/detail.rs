@@ -261,7 +261,8 @@ impl Protocol {
                 self.identification_module.nct_id
             )
             .into(),
-            title: problems.required_native_text("briefTitle", self.identification_module.brief_title.take()),
+            title: problems
+                .required_native_text("briefTitle", self.identification_module.brief_title.take()),
             status: problems.required_field("overallStatus", status.overall_status),
             phases: problems.fields("phases", design.phases),
             study_type: problems.required_field("studyType", design.study_type),
@@ -347,10 +348,16 @@ impl Outcomes {
         .collect()
     }
 }
-fn age(field: &str, value: Option<Field<Box<str>>>, problems: &mut Problems) -> Option<TrialAgeBound> {
+fn age(
+    field: &str,
+    value: Option<Field<Box<str>>>,
+    problems: &mut Problems,
+) -> Option<TrialAgeBound> {
     match value {
         None => Some(TrialAgeBound::NoLimit),
-        Some(value) => problems.native_text(field, Some(value)).map(|raw| TrialAgeBound::Source { raw }),
+        Some(value) => problems
+            .native_text(field, Some(value))
+            .map(|raw| TrialAgeBound::Source { raw }),
     }
 }
 

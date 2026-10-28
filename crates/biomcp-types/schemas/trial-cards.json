@@ -2225,11 +2225,25 @@
           ]
         },
         "maximum_age": {
-          "$ref": "#/$defs/TrialAgeBound",
+          "anyOf": [
+            {
+              "$ref": "#/$defs/TrialAgeBound"
+            },
+            {
+              "type": "null"
+            }
+          ],
           "description": "Source maximum age."
         },
         "minimum_age": {
-          "$ref": "#/$defs/TrialAgeBound",
+          "anyOf": [
+            {
+              "$ref": "#/$defs/TrialAgeBound"
+            },
+            {
+              "type": "null"
+            }
+          ],
           "description": "Source minimum age."
         },
         "offset": {
@@ -2257,8 +2271,6 @@
         }
       },
       "required": [
-        "minimum_age",
-        "maximum_age",
         "criteria",
         "offset",
         "total_characters"
@@ -3009,7 +3021,7 @@
       "type": "string"
     }
   },
-  "$id": "biomcp.trial-cards/4",
+  "$id": "biomcp.trial-cards/5",
   "$schema": "https://json-schema.org/draft/2020-12/schema",
   "additionalProperties": false,
   "description": "One versioned command response; schema identity comes only from its body type.",
@@ -3066,7 +3078,7 @@
       "description": "Answer when available."
     },
     "schema": {
-      "const": "biomcp.trial-cards/4",
+      "const": "biomcp.trial-cards/5",
       "type": "string"
     },
     "sources": {
