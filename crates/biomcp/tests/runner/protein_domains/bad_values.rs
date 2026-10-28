@@ -120,16 +120,32 @@ fn run() -> Result<(), String> {
             {
                 continue;
             }
-            let stub = Stub::for_source("www.ebi.ac.uk", "application/json", move |request| {
-                let mut body = if command == "domains" {
-                    json!({"count":1,"next":null,"results":[{"metadata":{"accession":"IPR002117","name":"Native family","source_database":"interpro","type":"family","member_databases":{"Pfam":{"PF00870":"Valid"}}},"proteins":[{"accession":"p38398","organism":"9606","protein_length":2000,"entry_protein_locations":[{"fragments":[{"start":1,"end":10,"dc-status":"CONTINUOUS"}]}]}]}]})
-                } else {
-                    serde_json::from_str(&super::complexes::reply(request)?)
-                        .map_err(|e| e.to_string())?
-                };
-                *body.pointer_mut(path).ok_or("missing fixture field")? = invalid.clone();
-                Ok(body.to_string())
-            })?;
+            let stub = Stub::for_sources(
+                &["www.ebi.ac.uk"],
+                |_| "application/json",
+                move |request| {
+                    let mut body = if command == "domains" {
+                        json!({"count":1,
+                    "next":null,
+                    "results":[{"metadata":{"accession":"IPR002117",
+                    "name":"Native family",
+                    "source_database":"interpro",
+                    "type":"family",
+                    "member_databases":{"Pfam":{"PF00870":"Valid"}}},
+                    "proteins":[{"accession":"p38398",
+                    "organism":"9606",
+                    "protein_length":2000,
+                    "entry_protein_locations":[{"fragments":[{"start":1,
+                    "end":10,
+                    "dc-status":"CONTINUOUS"}]}]}]}]})
+                    } else {
+                        serde_json::from_str(&super::complexes::reply(request)?)
+                            .map_err(|e| e.to_string())?
+                    };
+                    *body.pointer_mut(path).ok_or("missing fixture field")? = invalid.clone();
+                    Ok(body.to_string())
+                },
+            )?;
             let env = setup(&stub)?;
             let args = if command == "domains" {
                 vec!["protein", command, "P38398"]
@@ -186,7 +202,6 @@ fn run() -> Result<(), String> {
     }
     Ok(())
 }
-
 fn fragments() -> Result<(), String> {
     for (field, invalid) in [
         ("start", json!(0)),
@@ -195,11 +210,27 @@ fn fragments() -> Result<(), String> {
         ("end", json!(2001)),
         ("end", json!({})),
     ] {
-        let stub = Stub::for_source("www.ebi.ac.uk", "application/json", move |_| {
-            let mut bad = json!({"start":10,"end":20});
-            bad[field] = invalid.clone();
-            Ok(json!({"count":1,"next":null,"results":[{"metadata":{"accession":"IPR002117","name":"Valid","source_database":"interpro","type":"family"},"proteins":[{"accession":"p38398","organism":"9606","protein_length":2000,"entry_protein_locations":[{"fragments":[bad,{"start":30,"end":40}]}]}]}]}).to_string())
-        })?;
+        let stub = Stub::for_sources(
+            &["www.ebi.ac.uk"],
+            |_| "application/json",
+            move |_| {
+                let mut bad = json!({"start":10,"end":20});
+                bad[field] = invalid.clone();
+                Ok(json!({"count":1,
+                    "next":null,
+                    "results":[{"metadata":{"accession":"IPR002117",
+                    "name":"Valid",
+                    "source_database":"interpro",
+                    "type":"family"},
+                    "proteins":[{"accession":"p38398",
+                    "organism":"9606",
+                    "protein_length":2000,
+                    "entry_protein_locations":[{"fragments":[bad,
+                    {"start":30,
+                    "end":40}]}]}]}]})
+                .to_string())
+            },
+        )?;
         let env = setup(&stub)?;
         let value = call(&env, &["protein", "domains", "P38398"], 0)?;
         if value.pointer("/result/items/0/locations/0/fragments/0/span/start/min")
