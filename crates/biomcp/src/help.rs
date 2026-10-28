@@ -323,7 +323,7 @@ pub(crate) fn tree() -> String {
             line.push_str(" --gene --reviewed");
         }
         if command.command == ["search", "biomarker"] {
-            line.push_str(";NCI concepts;diagnostic --biomarker tests;trial --variant literal text");
+            line.push_str(" --source nci --name;NCI concepts;diagnostic --biomarker tests;trial --variant literal text");
         }
         if command.command == ["search", "organization"] {
             line.push_str(

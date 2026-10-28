@@ -492,7 +492,7 @@ fn discovery_description(text: &str) -> Check {
         return Err("command description exceeds budget".into());
     }
     for word in [
-        "search biomarker",
+        "search biomarker --source nci --name",
         "get biomarker",
         ";NCI concepts;diagnostic --biomarker tests;trial --variant literal text",
         "search organization --source nci --name --city --state --country --postal-code --family --lat --lon \
