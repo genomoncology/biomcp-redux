@@ -286,7 +286,11 @@ fn prepare_litvar<'a>(
                 super::empty_litvar::recover(query, out);
             }
             for candidate in &candidates {
-                for variant in [&candidate.rsid, &candidate.name] {
+                for variant in candidate
+                    .rsid
+                    .iter()
+                    .chain(std::iter::once(&candidate.name))
+                {
                     if query.variant() == Some(variant) {
                         continue;
                     }
@@ -314,15 +318,15 @@ fn litvar_search((leg, selected): PreparedLitvar<'_>) -> ResultLeg {
     let term = selected
         .as_ref()
         .ok()
-        .map(|selected| selected.rsid().clone());
+        .map(|selected| selected.term().clone());
     let result = selected.and_then(|selected| litvar::publications(&leg, selected));
     let elapsed = start.saturating_sub(leg.remaining());
     let error = result.as_ref().err().copied();
     let mut outcome = status::source(Source::LitVar, leg.finish(), error);
     outcome.term = term;
     let items = match result {
-        Ok(litvar::Search { rsid, count, ids }) => {
-            outcome.term = Some(rsid);
+        Ok(litvar::Search { term, count, ids }) => {
+            outcome.term = Some(term);
             outcome.count = Some(count);
             outcome.fetched = Some(ids.len() as u32);
             ids.into_iter()

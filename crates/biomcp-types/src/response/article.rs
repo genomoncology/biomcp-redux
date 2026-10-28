@@ -110,8 +110,10 @@ biodata::canonical_enum! {
 #[serde(deny_unknown_fields)]
 #[cfg_attr(feature = "schema", derive(schemars::JsonSchema))]
 pub struct LitVarCandidate {
-    /// Source rsID, available for exact follow-up.
-    pub rsid: crate::Text,
+    /// Source rsID, when the source associates one with this variant.
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    #[cfg_attr(feature = "schema", schemars(with = "crate::Text"))]
+    pub rsid: Option<crate::Text>,
     /// Source gene symbols.
     #[serde(default, skip_serializing_if = "Vec::is_empty")]
     pub gene: Vec<crate::Text>,

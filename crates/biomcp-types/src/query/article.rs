@@ -383,6 +383,37 @@ impl ArticleSearch {
 }
 
 impl ArticleSearch {
+    /// Start a PubMed search for one source-stated gene.
+    pub fn for_gene(gene: GeneInput) -> Self {
+        Self(Fields {
+            gene: Some(gene),
+            text: None,
+            variant: None,
+            disease: None,
+            drug: None,
+            author: None,
+            journal: None,
+            since: None,
+            until: None,
+            kind: None,
+            source: sources(),
+            sort: sort(),
+            limit: limit(),
+            offset: 0,
+            pool: None,
+            open_access: false,
+            no_preprints: false,
+            retracted: RetractionFilter::default(),
+        })
+    }
+    /// Broaden an exact gene and variant search without changing its other filters.
+    pub fn without_variant(&self) -> Option<Self> {
+        self.gene()?;
+        self.variant()?;
+        let mut value = self.with_source(ArticleSource::Pubmed);
+        value.0.variant = None;
+        Some(value)
+    }
     /// Restart once per supplied word group, dropping only that group in fixed order.
     /// Gene identity and every other selector remain unchanged.
     pub fn term_drops(&self) -> Vec<Self> {

@@ -1,6 +1,7 @@
 # 0381 — Fix the LitVar bad reply for NAA10 E100K and match 0.9.3 variant article recall
 
-Status: OPEN.
+Status: COMPLETE.
+Landed: 43b55f80e80f0ef4039c7cb425ce4fef751302fe
 
 Milestone: 5
 
