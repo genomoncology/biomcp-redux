@@ -2,14 +2,14 @@
 #![cfg(feature = "schema")]
 #[path = "schemas/compatibility.rs"]
 mod compatibility;
+#[path = "schemas/compatibility_cases.rs"]
+mod compatibility_cases;
 #[path = "schemas/generation.rs"]
 mod generation;
 #[path = "schemas/policy.rs"]
 mod policy;
 #[path = "schemas/policy_cases.rs"]
 mod policy_cases;
-#[path = "schemas/compatibility_cases.rs"]
-mod compatibility_cases;
 #[path = "schemas/release.rs"]
 mod release;
 #[path = "schemas/values.rs"]
@@ -354,8 +354,13 @@ fn checked_in_schemas_match_types() {
                 let old: Value =
                     serde_json::from_str(&fs::read_to_string(&path).expect("read contract"))
                         .expect("parse contract");
-                compatibility::check_reviewed(&old, &new, contract.kind, &policy::Reviews::default())
-                    .unwrap_or_else(|error| panic!("{}: {error}", contract.name));
+                compatibility::check_reviewed(
+                    &old,
+                    &new,
+                    contract.kind,
+                    &policy::Reviews::default(),
+                )
+                .unwrap_or_else(|error| panic!("{}: {error}", contract.name));
             } else {
                 assert!(update, "missing {}", path.display());
             }

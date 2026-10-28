@@ -1,5 +1,5 @@
 //! Compare generated contracts with an independently recorded release baseline.
-use super::{compatibility, registry, policy::Reviews};
+use super::{compatibility, policy::Reviews, registry};
 use serde_json::Value;
 use std::{collections::BTreeMap, fs, path::Path};
 

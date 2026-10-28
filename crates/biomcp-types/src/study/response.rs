@@ -56,7 +56,7 @@ macro_rules! page {
     ($name:ident,$row:ty,$schema:literal) => {
         /// One independently acquired, bounded native metadata collection.
         #[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
-                #[cfg_attr(feature = "schema", derive(schemars::JsonSchema))]
+        #[cfg_attr(feature = "schema", derive(schemars::JsonSchema))]
         pub struct $name {
             /// Exact study scope of this collection.
             pub study_id: StudyId,

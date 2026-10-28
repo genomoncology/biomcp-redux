@@ -39,7 +39,7 @@ macro_rules! papers {
     ($name:ident, $row:ty, $doc:literal) => {
         #[doc = $doc]
         #[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
-                #[cfg_attr(feature = "schema", derive(schemars::JsonSchema))]
+        #[cfg_attr(feature = "schema", derive(schemars::JsonSchema))]
         pub struct $name {
             /// Requested provider record.
             pub author: AuthorId,

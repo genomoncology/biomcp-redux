@@ -55,9 +55,7 @@ impl Reviews {
 
     pub(super) fn successor(&self, old: &Value, new: &Value) -> bool {
         self.successors.iter().any(|entry| {
-            old["$id"] == entry.from
-                && new["$id"] == entry.to
-                && !entry.review.trim().is_empty()
+            old["$id"] == entry.from && new["$id"] == entry.to && !entry.review.trim().is_empty()
         })
     }
 }

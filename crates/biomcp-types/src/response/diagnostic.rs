@@ -188,7 +188,7 @@ macro_rules! page {
     ($name:ident, $row:ty, $query:ty, $schema:literal, $doc:literal) => {
         #[doc = $doc]
         #[derive(Clone, Debug, PartialEq, Serialize, Deserialize)]
-                #[cfg_attr(feature = "schema", derive(schemars::JsonSchema))]
+        #[cfg_attr(feature = "schema", derive(schemars::JsonSchema))]
         pub struct $name {
             /// Complete source-owned rows in native order; envelope totals count native rows.
             #[serde(default, skip_serializing_if = "<[_]>::is_empty")]

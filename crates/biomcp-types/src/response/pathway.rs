@@ -93,7 +93,7 @@ macro_rules! relation_page {
     ($name:ident, $row:ty, $query:ty, $schema:literal) => {
         /// Independent source-ordered page of whole native references.
         #[derive(Clone, Debug, PartialEq, Serialize, Deserialize)]
-                #[cfg_attr(feature = "schema", derive(schemars::JsonSchema))]
+        #[cfg_attr(feature = "schema", derive(schemars::JsonSchema))]
         pub struct $name {
             /// Exact source pathway owning this relation.
             pub header: PathwayHeader,

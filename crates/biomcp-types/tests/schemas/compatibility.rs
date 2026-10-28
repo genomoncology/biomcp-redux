@@ -1,5 +1,5 @@
-use serde_json::Value;
 use super::policy::{ContractKind, Reviews};
+use serde_json::Value;
 use std::collections::{BTreeMap, BTreeSet};
 
 type Check<T> = Result<T, String>;
@@ -32,13 +32,21 @@ pub(super) fn check(old: &Value, new: &Value) -> Check<()> {
     check_reviewed(old, new, ContractKind::Query, &Reviews::default())
 }
 
-pub(super) fn check_reviewed(old: &Value, new: &Value, kind: ContractKind, reviews: &Reviews) -> Check<()> {
+pub(super) fn check_reviewed(
+    old: &Value,
+    new: &Value,
+    kind: ContractKind,
+    reviews: &Reviews,
+) -> Check<()> {
     let old_shapes = shapes(old)?;
     let new_shapes = shapes(new)?;
     let (old_name, old_major) = identity(old)?;
     let (new_name, new_major) = identity(new)?;
     if new_major < old_major
-        || old_name != new_name && !(new_major > old_major && matches!(kind, ContractKind::Reply) && reviews.successor(old, new))
+        || old_name != new_name
+            && !(new_major > old_major
+                && matches!(kind, ContractKind::Reply)
+                && reviews.successor(old, new))
     {
         return Err("schema identity changed or major version decreased".into());
     }
@@ -59,7 +67,14 @@ pub(super) fn check_reviewed(old: &Value, new: &Value, kind: ContractKind, revie
                 .as_ref()
                 .is_some_and(|format| new.string_format.as_ref() != Some(format))
             || old.pattern != new.pattern
-                && !(matches!(kind, ContractKind::Reply) && reviews.pattern(old_name, old_major, &path, old.pattern.as_deref(), new.pattern.as_deref()))
+                && !(matches!(kind, ContractKind::Reply)
+                    && reviews.pattern(
+                        old_name,
+                        old_major,
+                        &path,
+                        old.pattern.as_deref(),
+                        new.pattern.as_deref(),
+                    ))
             || new
                 .minimum
                 .is_some_and(|bound| old.minimum.is_none_or(|old| bound > old))
@@ -253,7 +268,7 @@ fn collect(node: &Value, path: &str, shapes: &mut BTreeMap<String, Shape>) -> Ch
         shape.maximum = Some(bound(node, maximum)?);
     }
     collect_format(node, shape)?;
-    if let Some(values) = node.get("enum") {
+    if let Some(values) = node.get("enum").or_else(|| node.get("x-extensible-enum")) {
         shape.values = Some(
             values
                 .as_array()
@@ -529,7 +544,7 @@ fn validate_keywords(object: &serde_json::Map<String, Value>, path: &str) -> Che
                         "title",
                         "description",
                         "x-enum-descriptions",
-            "x-extensible-enum",
+                        "x-extensible-enum",
                         "x-positional",
                         "x-trailing-section",
                         "x-comma-separated",

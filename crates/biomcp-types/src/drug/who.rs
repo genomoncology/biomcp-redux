@@ -50,6 +50,7 @@ pub struct DrugWhoCard {
 #[cfg_attr(feature = "schema", schemars(with = "Fields"))]
 pub struct DrugWhoGet(Fields);
 #[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
+#[serde(deny_unknown_fields)]
 #[cfg_attr(feature = "schema", derive(schemars::JsonSchema))]
 struct Fields {
     /// Exact WHO reference number, including native spaces; no name or alias resolution.

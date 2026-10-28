@@ -1,5 +1,8 @@
 //! Contract consumers distinguish query acceptance from reply guarantees.
-use super::{compatibility::check_reviewed, policy::{ContractKind, Reviews}};
+use super::{
+    compatibility::check_reviewed,
+    policy::{ContractKind, Reviews},
+};
 use serde_json::json;
 
 #[test]
@@ -24,7 +27,8 @@ fn pattern_widening_requires_an_exact_reviewed_transition() {
     let reviews: Reviews = serde_json::from_value(json!({"pattern_widenings":[{
         "schema":"biodata.example/1", "path":"", "from":"^a$", "to":"^[ab]$",
         "review":"Accept the additional canonical spelling"
-    }]})).unwrap();
+    }]}))
+    .unwrap();
     assert!(check_reviewed(&old, &new, ContractKind::Reply, &Reviews::default()).is_err());
     assert!(check_reviewed(&old, &new, ContractKind::Reply, &reviews).is_ok());
     new["pattern"] = json!("^b$");
@@ -37,7 +41,8 @@ fn successor_identity_requires_a_review_and_a_new_major() {
     let mut new = json!({"$id":"biodata.renamed/2","type":"string"});
     let reviews: Reviews = serde_json::from_value(json!({"successors":[{
         "from":"biodata.example/1", "to":"biodata.renamed/2", "review":"Rename the contract"
-    }]})).unwrap();
+    }]}))
+    .unwrap();
     assert!(check_reviewed(&old, &new, ContractKind::Reply, &Reviews::default()).is_err());
     assert!(check_reviewed(&old, &new, ContractKind::Reply, &reviews).is_ok());
     new["$id"] = json!("biodata.renamed/1");

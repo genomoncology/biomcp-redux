@@ -9,6 +9,7 @@ pub trait ResponseBody: Serialize {
     type Query: Serialize;
 }
 /// One versioned command response; schema identity comes only from its body type.
+/// JSON readers ignore unknown fields and unknown growable enum values within a major.
 #[derive(Clone, Debug, Serialize)]
 #[serde(bound = "T: ResponseBody")]
 #[cfg_attr(feature = "schema", derive(schemars::JsonSchema))]

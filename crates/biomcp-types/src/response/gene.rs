@@ -322,6 +322,7 @@ pub enum QueryBody {
 
 /// Explicit source synchronization selector.
 #[derive(Clone, Debug, PartialEq, Serialize, Deserialize)]
+#[serde(deny_unknown_fields)]
 #[cfg_attr(feature = "schema", derive(schemars::JsonSchema))]
 pub struct SyncQuery {
     /// Source whose complete identity data is synchronized.

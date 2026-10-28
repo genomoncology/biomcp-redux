@@ -28,7 +28,7 @@ macro_rules! collection {
     ($name:ident,$row:ty,$query:ty,$schema:literal) => {
         /// Independent source-ordered page of complete native records.
         #[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
-                #[cfg_attr(feature = "schema", derive(schemars::JsonSchema))]
+        #[cfg_attr(feature = "schema", derive(schemars::JsonSchema))]
         pub struct $name {
             /// Source and selected gene.
             pub header: PgxHeader,

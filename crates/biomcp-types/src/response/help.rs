@@ -1,6 +1,7 @@
 use serde::Serialize;
 /// Requested help path, with the root represented by an empty object.
 #[derive(Clone, Debug, PartialEq, Eq, Serialize)]
+#[serde(deny_unknown_fields)]
 #[cfg_attr(feature = "schema", derive(schemars::JsonSchema))]
 pub struct HelpQuery {
     /// Command words whose help was requested.

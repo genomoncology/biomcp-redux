@@ -188,7 +188,7 @@ macro_rules! section {
     ($name:ident, $row:ty, $field:ident, $schema:literal) => {
         /// A bounded report section; all rows belong to the exact header and snapshot.
         #[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
-                #[cfg_attr(feature = "schema", derive(schemars::JsonSchema))]
+        #[cfg_attr(feature = "schema", derive(schemars::JsonSchema))]
         pub struct $name {
             /// Exact source report identity and version.
             pub header: AdverseEventHeader,
