@@ -428,7 +428,7 @@ fn population_strata_enforce_counts_and_frequencies() -> Check {
             Some(Text::new("synthetic-group")?),
             Some(PopulationSex::Xy),
             Some(Text::new("synthetic-subset")?),
-        )
+        )?
         .with_counts(Some(2), Some(4), Some(0), Some(0))?
         .with_frequencies(Some(0.5.try_into()?), Some(0.25.try_into()?))?;
     let serialized = serde_json::to_value(&value)?;

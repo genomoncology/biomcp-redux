@@ -123,12 +123,12 @@ impl PopulationFrequency {
         ancestry_group: Option<Text>,
         sex: Option<PopulationSex>,
         subset: Option<Text>,
-    ) -> Self {
+    ) -> Result<Self, crate::Error> {
         self.0.data_type = data_type;
         self.0.ancestry_group = ancestry_group;
         self.0.sex = sex;
         self.0.subset = subset;
-        self
+        self.0.try_into()
     }
     /// Preserve source counts while refusing an allele count above its denominator.
     pub fn with_counts(
