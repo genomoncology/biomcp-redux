@@ -6,7 +6,7 @@
     {
       "id": "product-code",
       "source": "fda-device-recall",
-      "url": "https://api.fda.gov/device/recall.json?search=product_code.exact%3A%22PFF%22&limit=1&skip=0&sort=event_date_initiated%3Adesc",
+      "url": "https://api.fda.gov/device/recall.json?search=product_code%3A%22PFF%22&limit=1&skip=0&sort=event_date_initiated%3Adesc",
       "response_format": "json"
     },
     {
@@ -42,7 +42,7 @@
     {
       "id": "native-submission-fields",
       "source": "fda-device-recall",
-      "url": "https://api.fda.gov/device/recall.json?search=product_code.exact%3A%22FOZ%22&limit=1&skip=0&sort=event_date_initiated%3Adesc",
+      "url": "https://api.fda.gov/device/recall.json?search=product_code%3A%22FOZ%22&limit=1&skip=0&sort=event_date_initiated%3Adesc",
       "response_format": "json"
     }
   ]

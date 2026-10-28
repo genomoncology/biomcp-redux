@@ -28,7 +28,7 @@ fn literal(value: &Text) -> String { format!("\"{}\"",value.as_str().replace('\\
 fn expression(q: &DiagnosticSearch) -> String {
     let mut terms = Vec::new();
     if let Some(v) = q.manufacturer() { terms.push(format!("recalling_firm:{}",literal(v))); }
-    if let Some(v) = q.product_code() { terms.push(format!("product_code.exact:{}",literal(v))); }
+    if let Some(v) = q.product_code() { terms.push(format!("product_code:{}",literal(v))); }
     if q.initiated_from().is_some() || q.initiated_to().is_some() {
         let from = q.initiated_from().map_or_else(|| "*".into(), |d|d.to_string());
         let to = q.initiated_to().map_or_else(|| "*".into(), |d|d.to_string());

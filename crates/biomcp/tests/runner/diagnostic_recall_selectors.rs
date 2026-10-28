@@ -46,7 +46,7 @@ fn paging()->Result<(),String> {
     let stub=Stub::for_source("api.fda.gov","application/json",|req| {
         let line=req.lines().next().ok_or("request")?;
         let skip=if line.contains("&skip=0&") {0}else if line.contains("&skip=1&") {1}else{return Err(format!("wrong paging request: {line}"));};
-        if !line.starts_with("GET /device/recall.json?search=product_code.exact%3A%22ABC%22&limit=1&skip=") {
+        if !line.starts_with("GET /device/recall.json?search=product_code%3A%22ABC%22&limit=1&skip=") {
             return Err(format!("paging lost exact product code: {line}"));
         }
         let mut record=row(if skip==0 {"Z-0001-2024"}else{"Z-0002-2024"});
@@ -74,11 +74,11 @@ fn paging()->Result<(),String> {
     Ok(())
 }
 const CASES:&[(&[&str],&str,bool)]=&[
-    (&["--product-code","ABC"],"product_code.exact:\"ABC\"",false),
-    (&["--product-code","UNKNOWNCODE"],"product_code.exact:\"UNKNOWNCODE\"",true),
+    (&["--product-code","ABC"],"product_code:\"ABC\"",false),
+    (&["--product-code","UNKNOWNCODE"],"product_code:\"UNKNOWNCODE\"",true),
     (&["--initiated-from","2024-01-01"],"event_date_initiated:[2024-01-01 TO *]",false),
     (&["--initiated-to","2024-12-31"],"event_date_initiated:[* TO 2024-12-31]",false),
     (&["--initiated-from","2024-01-01","--initiated-to","2024-12-31"],"event_date_initiated:[2024-01-01 TO 2024-12-31]",false),
     (&["--manufacturer","Synthetic maker","--product-code","ABC","--initiated-from","2024-01-01"],
-        "recalling_firm:\"Synthetic maker\" AND product_code.exact:\"ABC\" AND event_date_initiated:[2024-01-01 TO *]",false),
+        "recalling_firm:\"Synthetic maker\" AND product_code:\"ABC\" AND event_date_initiated:[2024-01-01 TO *]",false),
 ];
