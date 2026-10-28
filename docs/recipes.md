@@ -10,6 +10,13 @@ Choose a command below, inspect its source outcomes and follow its returned next
 biomcp help
 ```
 
+## biomcp search organization
+
+```sh
+biomcp search organization --source nci --name Dana-Farber --limit 5
+biomcp search organization --source nci --city Boston --state MA --limit 5
+```
+
 ## biomcp author papers
 
 ```sh
@@ -620,16 +627,16 @@ biomcp help network proxy
 biomcp help exit
 ```
 
+## biomcp search
+
+```sh
+biomcp search organization --source nci --name Dana-Farber --limit 5
+```
+
 ## biomcp author
 
 ```sh
 biomcp author papers semantic-scholar:123
-```
-
-## biomcp search
-
-```sh
-biomcp search author 'Louis Williams'
 ```
 
 ## biomcp get

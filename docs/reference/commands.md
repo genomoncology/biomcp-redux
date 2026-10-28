@@ -12,8 +12,8 @@ Retrieve source records for biomedical evidence questions.
 Usage: biomcp [OPTIONS] <COMMAND>
 
 Commands:
-  author      Read papers attributed to a source author record.
   search      Search source records by entity and checked filters.
+  author      Read papers attributed to a source author record.
   get         Retrieve one entity and its source sections.
   cell-line   Read source cell line assay counts.
   protein     Read protein sequences, features and source relationships.
@@ -56,8 +56,8 @@ Options:
 
 ```
 
-author: Read papers attributed to a source author record.
 search: Search source records by entity and checked filters.
+author: Read papers attributed to a source author record.
 get: Retrieve one entity and its source sections.
 cell-line: Read source cell line assay counts.
 protein: Read protein sequences, features and source relationships.
@@ -84,100 +84,6 @@ help: Describe commands and their arguments.
 - `-h, --help`: Print scoped command help without source requests.
 - `--version`: Print the installed version without source requests.
 
-## biomcp author
-
-```text
-Read papers attributed to a source author record.
-
-Usage: biomcp author [OPTIONS] <COMMAND>
-
-Commands:
-  papers  One exact provider record's publication window. ORCID sends its whole public works list in one reply and pages groups locally.
-
-Options:
-      --format <format>
-          Choose JSON or Markdown output; configuration can change the default.
-          
-          [default: json]
-          [possible values: json, md]
-
-      --disable-sources <disable-sources>
-          Exclude source names or source terms groups.
-
-      --config <config>
-          Read configuration from this file.
-
-      --offline
-          Read local data without source requests.
-
-      --fresh
-          Request fresh source data instead of cached replies.
-
-```
-
-Read papers attributed to a source author record.
-
-
-## biomcp author papers
-
-```text
-One exact provider record's publication window. ORCID sends its whole public works list in one reply and pages groups locally.
-
-Usage: biomcp author papers [OPTIONS] <id> [section]
-
-Arguments:
-  <id>
-          Exact qualified provider record.
-
-  [section]
-          Detailed disclosure when requested.
-
-Options:
-      --format <format>
-          Choose JSON or Markdown output; configuration can change the default.
-          
-          [default: json]
-          [possible values: json, md]
-
-      --full
-          Legacy alias for details; normalized on construction.
-
-      --disable-sources <disable-sources>
-          Exclude source names or source terms groups.
-
-  -l, --limit <limit>
-          Bounded row count.
-
-      --config <config>
-          Read configuration from this file.
-
-      --offset <offset>
-          Native or retained collection offset.
-
-      --pool <pool>
-          Retained collection identity.
-
-      --offline
-          Read local data without source requests.
-
-      --fresh
-          Request fresh source data instead of cached replies.
-
-```
-
-One exact source record's publication window. ORCID sends its whole public works list in one reply and pages groups locally. Author IDs identify source records, not resolved people. Counts cover that source record. Missing metadata is unavailable. Topic-wide author ranking and cross-source merging are unavailable. Semantic Scholar and ORCID are noncommercial; commercial users disable both with --disable-sources noncommercial or config disable_sources. Optional keys: biomcp key set semantic-scholar or S2_API_KEY; biomcp key set orcid or ORCID_ACCESS_TOKEN. IDs use semantic-scholar:ID (alias semanticscholar:ID) or orcid:ID. Search supports --source semantic-scholar (alias semanticscholar), --query/-q and --limit/-l; papers supports --limit/-l and Semantic Scholar details/--full.
-
-- `--full`: Legacy alias for details; normalized on construction.
-- `id`: Exact qualified source record.
-- `--limit`: Bounded row count.
-- `--offset`: Source or retained collection offset.
-- `--pool`: Retained collection identity.
-- `section`: Detailed disclosure when requested.
-
-Detailed disclosure when requested.
-
-- `details`: Source detailed metadata for the same paper window.
-
 ## biomcp search
 
 ```text
@@ -186,6 +92,7 @@ Search source records by entity and checked filters.
 Usage: biomcp search [OPTIONS] <COMMAND>
 
 Commands:
+  organization   Find NCI organizations. Names are not unique; trial counts cover every status, including closed trials. No organization ID or get is available.
   author         Literal author name query and native window; positional text maps to query.
   cell-line      One literal cell line search, with native order and no total claim.
   gwas           Source associations in default p-value-ascending order. Reports no personal risk, causal variant or gene, or clinical interpretation of a statistic.
@@ -227,6 +134,89 @@ Options:
 
 Search source records by entity and checked filters.
 
+
+## biomcp search organization
+
+```text
+Find NCI organizations. Names are not unique; trial counts cover every status, including closed trials. No organization ID or get is available.
+
+Usage: biomcp search organization [OPTIONS] --source <source>
+
+Options:
+      --city <city>
+          Native organization city.
+
+      --format <format>
+          Choose JSON or Markdown output; configuration can change the default.
+          
+          [default: json]
+          [possible values: json, md]
+
+      --country <country>
+          Native organization country.
+
+      --disable-sources <disable-sources>
+          Exclude source names or source terms groups.
+
+      --config <config>
+          Read configuration from this file.
+
+      --distance <distance>
+          Positive radius with explicit mi or km units.
+
+      --family <family>
+          Native organization family.
+
+      --lat <lat>
+          Radius center latitude in degrees; requires lon and distance.
+
+      --limit <limit>
+          Five headers by default, at most fifty.
+
+      --lon <lon>
+          Radius center longitude in degrees; requires lat and distance.
+
+      --name <name>
+          NCI partial organization name; names are not unique.
+
+      --offline
+          Read local data without source requests.
+
+      --fresh
+          Request fresh source data instead of cached replies.
+
+      --offset <offset>
+          Offset within the complete retained organization snapshot.
+
+      --pool <pool>
+          Snapshot identity retained by continuation commands.
+
+      --postal-code <postal_code>
+          Native postal code.
+
+      --source <source>
+          Explicit keyed NCI source.
+
+      --state <state>
+          Native state or province.
+
+```
+
+Find NCI organizations. Names are not unique; trial counts cover every status, including closed trials. No organization ID or get is available.
+
+- `--city`: Source organization city.
+- `--country`: Source organization country.
+- `--distance`: Positive radius with explicit mi or km units.
+- `--family`: Source organization family.
+- `--lat`: Radius center latitude in degrees; requires lon and distance.
+- `--limit`: Five headers by default, at most fifty.
+- `--lon`: Radius center longitude in degrees; requires lat and distance.
+- `--name`: NCI partial organization name; names are not unique.
+- `--offset`: Offset within the complete retained organization snapshot.
+- `--pool`: Snapshot identity retained by continuation commands.
+- `--postal-code`: Source postal code.
+- `--source`: Explicit keyed NCI source.
+- `--state`: Source state or province.
 
 ## biomcp search author
 
@@ -1349,6 +1339,100 @@ Discover source candidates using one declared selector, without interpreting fre
 - `--region`: Exact one-based inclusive MyVariant region, such as chr7:55259500-55259600; requires --build.
 - `--review-status`: Exact MyVariant clinvar.rcv.review_status phrase; no star conversion. Requires a declared protein or region selector.
 - `--source`: Explicit source language; required for a raw query.
+
+## biomcp author
+
+```text
+Read papers attributed to a source author record.
+
+Usage: biomcp author [OPTIONS] <COMMAND>
+
+Commands:
+  papers  One exact provider record's publication window. ORCID sends its whole public works list in one reply and pages groups locally.
+
+Options:
+      --format <format>
+          Choose JSON or Markdown output; configuration can change the default.
+          
+          [default: json]
+          [possible values: json, md]
+
+      --disable-sources <disable-sources>
+          Exclude source names or source terms groups.
+
+      --config <config>
+          Read configuration from this file.
+
+      --offline
+          Read local data without source requests.
+
+      --fresh
+          Request fresh source data instead of cached replies.
+
+```
+
+Read papers attributed to a source author record.
+
+
+## biomcp author papers
+
+```text
+One exact provider record's publication window. ORCID sends its whole public works list in one reply and pages groups locally.
+
+Usage: biomcp author papers [OPTIONS] <id> [section]
+
+Arguments:
+  <id>
+          Exact qualified provider record.
+
+  [section]
+          Detailed disclosure when requested.
+
+Options:
+      --format <format>
+          Choose JSON or Markdown output; configuration can change the default.
+          
+          [default: json]
+          [possible values: json, md]
+
+      --full
+          Legacy alias for details; normalized on construction.
+
+      --disable-sources <disable-sources>
+          Exclude source names or source terms groups.
+
+  -l, --limit <limit>
+          Bounded row count.
+
+      --config <config>
+          Read configuration from this file.
+
+      --offset <offset>
+          Native or retained collection offset.
+
+      --pool <pool>
+          Retained collection identity.
+
+      --offline
+          Read local data without source requests.
+
+      --fresh
+          Request fresh source data instead of cached replies.
+
+```
+
+One exact source record's publication window. ORCID sends its whole public works list in one reply and pages groups locally. Author IDs identify source records, not resolved people. Counts cover that source record. Missing metadata is unavailable. Topic-wide author ranking and cross-source merging are unavailable. Semantic Scholar and ORCID are noncommercial; commercial users disable both with --disable-sources noncommercial or config disable_sources. Optional keys: biomcp key set semantic-scholar or S2_API_KEY; biomcp key set orcid or ORCID_ACCESS_TOKEN. IDs use semantic-scholar:ID (alias semanticscholar:ID) or orcid:ID. Search supports --source semantic-scholar (alias semanticscholar), --query/-q and --limit/-l; papers supports --limit/-l and Semantic Scholar details/--full.
+
+- `--full`: Legacy alias for details; normalized on construction.
+- `id`: Exact qualified source record.
+- `--limit`: Bounded row count.
+- `--offset`: Source or retained collection offset.
+- `--pool`: Retained collection identity.
+- `section`: Detailed disclosure when requested.
+
+Detailed disclosure when requested.
+
+- `details`: Source detailed metadata for the same paper window.
 
 ## biomcp get
 
@@ -4455,8 +4539,8 @@ Describe commands and their arguments.
 Usage: biomcp help [OPTIONS] [COMMAND]
 
 Commands:
-  author      Read papers attributed to a source author record.
   search      Search source records by entity and checked filters.
+  author      Read papers attributed to a source author record.
   get         Retrieve one entity and its source sections.
   cell-line   Read source cell line assay counts.
   protein     Read protein sequences, features and source relationships.
@@ -4505,63 +4589,6 @@ Print generated command help.
 
 - `command`: Command path or discovery topic to describe.
 
-## biomcp help author
-
-```text
-Read papers attributed to a source author record.
-
-Usage: biomcp help author [OPTIONS] [COMMAND]
-
-Commands:
-  papers  
-
-Options:
-      --format <format>
-          Choose JSON or Markdown output; configuration can change the default.
-          
-          [default: json]
-          [possible values: json, md]
-
-      --disable-sources <disable-sources>
-          Exclude source names or source terms groups.
-
-      --config <config>
-          Read configuration from this file.
-
-      --offline
-          Read local data without source requests.
-
-      --fresh
-          Request fresh source data instead of cached replies.
-
-```
-
-## biomcp help author papers
-
-```text
-Usage: biomcp help author papers [OPTIONS]
-
-Options:
-      --format <format>
-          Choose JSON or Markdown output; configuration can change the default.
-          
-          [default: json]
-          [possible values: json, md]
-
-      --disable-sources <disable-sources>
-          Exclude source names or source terms groups.
-
-      --config <config>
-          Read configuration from this file.
-
-      --offline
-          Read local data without source requests.
-
-      --fresh
-          Request fresh source data instead of cached replies.
-
-```
-
 ## biomcp help search
 
 ```text
@@ -4570,6 +4597,7 @@ Search source records by entity and checked filters.
 Usage: biomcp help search [OPTIONS] [COMMAND]
 
 Commands:
+  organization   
   author         Read papers attributed to a source author record.
   cell-line      Read source cell line assay counts.
   gwas           
@@ -4586,6 +4614,32 @@ Commands:
   article        Read article text, references, citations and files.
   trial          Read trial groups and public documents.
   variant        Read source variant assertions, populations and recurrence.
+
+Options:
+      --format <format>
+          Choose JSON or Markdown output; configuration can change the default.
+          
+          [default: json]
+          [possible values: json, md]
+
+      --disable-sources <disable-sources>
+          Exclude source names or source terms groups.
+
+      --config <config>
+          Read configuration from this file.
+
+      --offline
+          Read local data without source requests.
+
+      --fresh
+          Request fresh source data instead of cached replies.
+
+```
+
+## biomcp help search organization
+
+```text
+Usage: biomcp help search organization [OPTIONS]
 
 Options:
       --format <format>
@@ -5016,6 +5070,63 @@ Options:
 Read source variant assertions, populations and recurrence.
 
 Usage: biomcp help search variant [OPTIONS]
+
+Options:
+      --format <format>
+          Choose JSON or Markdown output; configuration can change the default.
+          
+          [default: json]
+          [possible values: json, md]
+
+      --disable-sources <disable-sources>
+          Exclude source names or source terms groups.
+
+      --config <config>
+          Read configuration from this file.
+
+      --offline
+          Read local data without source requests.
+
+      --fresh
+          Request fresh source data instead of cached replies.
+
+```
+
+## biomcp help author
+
+```text
+Read papers attributed to a source author record.
+
+Usage: biomcp help author [OPTIONS] [COMMAND]
+
+Commands:
+  papers  
+
+Options:
+      --format <format>
+          Choose JSON or Markdown output; configuration can change the default.
+          
+          [default: json]
+          [possible values: json, md]
+
+      --disable-sources <disable-sources>
+          Exclude source names or source terms groups.
+
+      --config <config>
+          Read configuration from this file.
+
+      --offline
+          Read local data without source requests.
+
+      --fresh
+          Request fresh source data instead of cached replies.
+
+```
+
+## biomcp help author papers
+
+```text
+Usage: biomcp help author papers [OPTIONS]
 
 Options:
       --format <format>
@@ -7206,7 +7317,7 @@ Process exit codes:
 3: expired result pool
 4: source request failed
 5: local configuration, storage or output failed
-Error codes: usage.schema, usage.arguments, usage.mcp_unavailable, usage.unknown_command, usage.retired, local.failure, pool.expired, usage.pool_mismatch, usage.too_many_pmids, usage.unsupported_filter. Source problems and reasons appear in their reply fields.
+Error codes: usage.schema, usage.arguments, usage.mcp_unavailable, usage.unknown_command, usage.retired, local.failure, pool.expired, usage.pool_mismatch, usage.too_many_pmids, usage.too_broad, usage.unsupported_filter. Source problems and reasons appear in their reply fields.
 
 
 ## biomcp help relations

@@ -61,9 +61,9 @@ pub(crate) fn query_schema(request: &Request) -> &'static str {
     }
 }
 pub(crate) const QUERIES: &[(&str, &str, &str)] = &[
-    ("search", "organization", "biomcp.organization-search/1"),
     ("author", "papers", "biomcp.author-papers-query/1"),
     ("search", "author", "biomcp.author-search-query/2"),
+    ("search", "organization", "biomcp.organization-search/1"),
     ("get", "author", "biomcp.author-get-query/2"),
     (
         "cell-line",

@@ -6,7 +6,7 @@ use biomcp_types::{Organization, OrganizationSearch};
 pub const MAX_BYTES: u64 = 1024 * 1024;
 const SEARCH: Endpoint = super::SPEC.get("/organizations").fresh(Freshness::Days(1));
 /// Exact documented native selectors; size and offset never reach this endpoint.
-pub fn parameters(q: &OrganizationSearch) -> Vec<(&'static str, &Text)> {
+fn parameters(q: &OrganizationSearch) -> Vec<(&'static str, &Text)> {
     [
         ("name", q.name()),
         ("org_city", q.city()),
