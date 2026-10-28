@@ -45,8 +45,19 @@ pub(super) fn check() -> Result<(), String> {
                 .collect(),
             0,
         )?;
-        let problems = value.get("problems").and_then(Value::as_array);
-        if problems.is_none_or(|p| p.len() != 1 || p[0].get("field") != Some(&json!(field))) {
+        let problems = value
+            .get("problems")
+            .and_then(Value::as_array)
+            .ok_or("missing problems")?;
+        let rejected: Vec<_> = problems
+            .iter()
+            .filter(|p| {
+                p.get("field")
+                    .and_then(Value::as_str)
+                    .is_some_and(|f| f.starts_with("members."))
+            })
+            .collect();
+        if rejected.len() != 1 || rejected[0].get("field") != Some(&json!(field)) {
             return Err(format!(
                 "repeated {native} lost its single disclosure: {value}"
             ));
