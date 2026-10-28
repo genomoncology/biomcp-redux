@@ -9,7 +9,7 @@ use biomcp_types::{
 use std::collections::BTreeSet;
 /// Read one exact GTR test or its independently paged native relations.
 pub fn get(cx: &Ctx<'_>, q: &DiagnosticGet) -> Outcome {
-    if q.source() == DiagnosticGetSource::FdaDeviceRecall { return super::recall::get(cx,q); }
+    if let Some(id) = q.recall_number() { return super::recall::get(cx,q,id); }
     if q.source() == DiagnosticGetSource::WhoIvd {
         return super::who::get(cx, q);
     }

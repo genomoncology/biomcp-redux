@@ -28,18 +28,17 @@ pub(super) fn search(cx:&Ctx<'_>,q:&DiagnosticSearch) -> Outcome {
     command.finish(deadline.remaining());
     out
 }
-pub(super) fn get(cx:&Ctx<'_>,q:&DiagnosticGet) -> Outcome {
+pub(super) fn get(cx:&Ctx<'_>,q:&DiagnosticGet,id:&biodata::DeviceRecallNumber) -> Outcome {
     let mut out=empty(QueryBody::DiagnosticCard(None));
-    let Ok(id)=q.id().as_str().parse::<biodata::DeviceRecallNumber>() else {return out;};
     let command=cx.fetch.command_deadline(cx.budget);
     let deadline=command.deadline();
     let leg=cx.fetch.leg(&adapter::SPEC,deadline).fresh(cx.fresh);
     let mut error=None;
-    match adapter::get(&leg,&id) {
+    match adapter::get(&leg,id) {
         Ok(Some(mut mapped))=>{
             out.status=Status::Complete;
             out.problems.append(&mut mapped.problems);
-            match adapter::classification(&leg,&id) {
+            match adapter::classification(&leg,id) {
                 Ok(mut classification)=>{
                     mapped.value.classification=classification.value;
                     out.problems.append(&mut classification.problems);
