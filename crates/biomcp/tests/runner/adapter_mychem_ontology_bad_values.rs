@@ -279,6 +279,21 @@ fn cases(family: &str) -> Vec<(&'static str, Value, &'static str)> {
             ("obo_xref", json!([{"database":"DOID", "id":""}]), "xref.id"),
             (
                 "obo_xref",
+                json!([{"database":"DOID", "id":" 12"}]),
+                "xref.id",
+            ),
+            (
+                "obo_xref",
+                json!([{"database":" DOID", "id":"12"}]),
+                "xref.id",
+            ),
+            (
+                "obo_synonym",
+                json!([{"name":"valid", "scope":" EXACT"}]),
+                "synonym.scope",
+            ),
+            (
+                "obo_xref",
                 json!([{"database":"DOID", "id":"12", "description":""}]),
                 "xref.description",
             ),
