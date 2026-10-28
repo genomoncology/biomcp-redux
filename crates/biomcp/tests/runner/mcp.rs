@@ -34,11 +34,13 @@ pub(super) fn exchange_retained(
     args.extend_from_slice(globals);
     let mut transcript_args = args.clone();
     transcript_args.push("<requests>".into());
-    transcript_args.extend(frames
-        .iter()
-        .map(serde_json::to_string)
-        .collect::<Result<Vec<_>, _>>()
-        .map_err(|e| e.to_string())?;
+    transcript_args.extend(
+        frames
+            .iter()
+            .map(serde_json::to_string)
+            .collect::<Result<Vec<_>, _>>()
+            .map_err(|e| e.to_string())?,
+    );
     let mut command =
         environment.command_with_arguments(env!("CARGO_BIN_EXE_biomcp"), &args, &transcript_args);
     let child = command
