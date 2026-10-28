@@ -27,6 +27,13 @@ class Staging(unittest.TestCase):
             grants = set(re.findall(r"^      ([a-z-]+): write$", job, re.M))
             self.assertEqual(grants, {"id-token", "attestations"} if "Attest every staged artifact" in job else set())
 
+    def test_tag_builds_skip_cache_restore(self):
+        workflow = Path('.github/workflows/release.yml').read_text()
+        caches = re.findall(r'      - uses: actions/cache@[^\n]+\n(.*?)(?=      - |\Z)', workflow, re.S)
+        self.assertTrue(caches)
+        for cache in caches:
+            self.assertIn("        if: github.ref_type != 'tag'\n", cache)
+
     def test_environment_requires_an_independent_operator(self):
         for rules, accepted in [([], False), ([{"type": "required_reviewers", "reviewers": []}], False),
                                 ([{"type": "required_reviewers", "reviewers": [{"type": "Team"}], "prevent_self_review": False}], False),

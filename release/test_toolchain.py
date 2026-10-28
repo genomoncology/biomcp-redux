@@ -25,6 +25,11 @@ class ReleaseTools(unittest.TestCase):
                 ('rust-toolchain.toml', lambda s: s.replace('1.95.0', '1.94.0')),
                 ('release/linux.sh', lambda s: s + '\ncurl https://static.rust-lang.org/rustup/archive/0.0.1/installer\n'),
                 ('release/secrets.py', lambda s: s + '\nVERSION = "0.0.1"\n'),
+                ('release/Dockerfile', lambda s: s.replace('FROM ${runtime_image}', 'FROM debian:bookworm-slim')),
+                ('release/linux.sh', lambda s: s.replace('toolchain.py image runtime', 'toolchain.py get runtime')),
+                ('release/matrix.sh', lambda s: s.replace('toolchain.py get runtime-packages', 'toolchain.py get unpinned-packages')),
+                ('release/workflow.py', lambda s: s.replace('manifest()["images"]["manylinux-x86_64"]', '"quay.io/pypa/manylinux_2_28_x86_64"')),
+                ('release/rehearse.py', lambda s: s.replace("manifest()['images']['manylinux-' + wheel_arch]", "'quay.io/pypa/manylinux_2_28_' + wheel_arch")),
                 ('.github/workflows/release.yml', lambda s: s.replace(
                     'python-version: ${{ steps.tools.outputs.python }}', "python-version: '3.11'")),
             ]
@@ -57,6 +62,39 @@ class ReleaseTools(unittest.TestCase):
                     self.assertNotEqual(result.returncode, 0)
                     self.assertIn(Path(name).name, result.stderr)
                     path.write_text(original)
+
+    def test_supply_chain_pins_refuse_floating_images_and_installer_mismatch(self):
+        with tempfile.TemporaryDirectory() as directory:
+            root = Path(directory)
+            shutil.copytree(ROOT / 'release', root / 'release')
+            shutil.copytree(ROOT / '.github', root / '.github')
+            shutil.copyfile(ROOT / 'rust-toolchain.toml', root / 'rust-toolchain.toml')
+            path = root / 'release/toolchain.json'
+            pins = json.loads(path.read_text())
+            for key in ('manylinux-x86_64', 'manylinux-aarch64', 'runtime'):
+                changed = json.loads(json.dumps(pins))
+                changed['images'][key] = 'example/image:latest'
+                path.write_text(json.dumps(changed))
+                result = subprocess.run([sys.executable, 'release/toolchain.py', 'check'],
+                                        cwd=root, capture_output=True, text=True)
+                self.assertNotEqual(result.returncode, 0)
+                self.assertIn('digest', result.stderr)
+            path.write_text(json.dumps(pins))
+            # Execute the real installer command with only its download boundary replaced.
+            runner = """import hashlib, io, runpy, sys, urllib.request
+payload = b'wrong installer'
+def download(url, **kwargs):
+    # A compromised origin can replace both the installer and its checksum.
+    value = hashlib.sha256(payload).hexdigest().encode() if url.endswith('.sha256') else payload
+    return io.BytesIO(value)
+urllib.request.urlopen = download
+sys.argv = ['release/toolchain.py', 'install-rust']
+runpy.run_path(sys.argv[0], run_name='__main__')
+"""
+            result = subprocess.run([sys.executable, '-c', runner], cwd=root,
+                                    capture_output=True, text=True)
+            self.assertNotEqual(result.returncode, 0)
+            self.assertIn('rustup installer checksum differs', result.stderr)
 
     def test_cold_stages_report_all_failures_and_run_later_stages(self):
         with tempfile.TemporaryDirectory() as directory:
