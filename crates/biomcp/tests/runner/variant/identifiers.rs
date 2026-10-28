@@ -1,8 +1,14 @@
 //! Feature variant-identity: every printed identity and statement subject is reusable input.
 use crate::runner::{configuration::invoke, network_stub::Stub};
+use libtest_mimic::Trial;
 use serde_json::{Value, json};
 
-pub(super) fn check() -> Result<(), String> {
+pub(super) fn trials() -> Vec<Trial> {
+    vec![Trial::test("variant/printed-identifiers-roundtrip", || {
+        check().map_err(Into::into)
+    })]
+}
+fn check() -> Result<(), String> {
     let stub = Stub::for_source("myvariant.info", "application/json", body)?;
     let env = super::source_environment(&stub)?;
     let search = invoke(&env, strings(&["search", "variant", "--query", "BRAF"]), 0)?;
