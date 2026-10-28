@@ -36,8 +36,7 @@ pub(super) fn run() -> Check {
         let command = args.iter().position(|v| v == "search").ok_or("command")?;
         let tool_args = args.get(command..).ok_or("tool arguments")?;
         let globals = args.get(..command).ok_or("global arguments")?;
-        if crate::runner::mcp::call_with_globals(&env, tool_args, !valid, globals)? != value
-        {
+        if crate::runner::mcp::call_with_globals(&env, tool_args, !valid, globals)? != value {
             return Err(format!("CDC {fault} reply differs through MCP"));
         }
         if valid {
