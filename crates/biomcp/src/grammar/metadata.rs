@@ -11,7 +11,7 @@ pub(super) fn describe(mut command: Command) -> Command {
         "protein" => "Read protein sequences, features and source relationships.",
         "pathway" => "Read pathway genes and source events.",
         "cell-line" => "Read source cell line assay counts.",
-        "author" => "Read papers attributed to a provider author record.",
+        "author" => "Read papers attributed to a source author record.",
         "sync" => "Synchronize a local source bundle.",
         "serve" => "Serve MCP over standard input or HTTP.",
         "key" => "Register and manage source credentials without showing values.",

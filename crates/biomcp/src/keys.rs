@@ -21,17 +21,25 @@ pub(crate) fn grammar() -> clap::Command {
             .value_parser(names())
     };
     clap::Command::new("key")
+        .after_help("Example: biomcp key list")
         .subcommand_required(true)
-        .subcommand(clap::Command::new("list"))
+        .subcommand(clap::Command::new("list").after_help("Example: biomcp key list"))
         .subcommand(
-            clap::Command::new("set").arg(source()).arg(
-                Arg::new("replace")
-                    .long("replace")
-                    .help("Replace an existing stored credential.")
-                    .action(ArgAction::SetTrue),
-            ),
+            clap::Command::new("set")
+                .after_help("Example: biomcp key set oncokb")
+                .arg(source())
+                .arg(
+                    Arg::new("replace")
+                        .long("replace")
+                        .help("Replace an existing stored credential.")
+                        .action(ArgAction::SetTrue),
+                ),
         )
-        .subcommand(clap::Command::new("remove").arg(source()))
+        .subcommand(
+            clap::Command::new("remove")
+                .after_help("Example: biomcp key remove oncokb")
+                .arg(source()),
+        )
 }
 pub(crate) fn parse(matches: &clap::ArgMatches) -> Result<Command, ()> {
     let (verb, matches) = matches.subcommand().ok_or(())?;

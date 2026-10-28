@@ -14,7 +14,8 @@ pub(super) struct Shape {
     pub(super) max_bytes: usize,
 }
 // Article card/reader ceilings use literal-text measurements from j17875 plus 15%.
-// Other measured Markdown plus 15%; the protein ceiling also respects the matching
+// Author help uses j19122 measurements plus 15%. Other measured Markdown plus
+// 15%; the protein ceiling also respects the matching
 // 0.9 JSON baseline. Reader, supplement-row and usage shapes have no comparable old output.
 const SHAPES: &[Shape] = &[
     Shape {
@@ -26,27 +27,27 @@ const SHAPES: &[Shape] = &[
             "limit",
             "pool",
             "source",
-            "Topic-wide author ranking and cross-provider merging are unavailable&#46;",
+            "Topic-wide author ranking and cross-source merging are unavailable&#46;",
         ],
-        max_bytes: 1839,
+        max_bytes: 2657,
     },
     Shape {
         args: &["help", "get", "author"],
         replies: "",
-        required: &["id", "provider records", "Counts cover"],
-        max_bytes: 1486,
+        required: &["id", "source records", "Counts cover"],
+        max_bytes: 2134,
     },
     Shape {
         args: &["help", "author"],
         replies: "",
         required: &["query", "offset", "limit", "pool", "source", "id"],
-        max_bytes: 5305,
+        max_bytes: 8822,
     },
     Shape {
         args: &["help", "author", "papers"],
         replies: "",
         required: &["id", "details", "full", "limit", "offset", "pool"],
-        max_bytes: 2165,
+        max_bytes: 3009,
     },
     Shape {
         args: &["search", "pathway", "Signaling by EGFR"],

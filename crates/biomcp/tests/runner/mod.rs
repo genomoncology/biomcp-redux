@@ -152,8 +152,8 @@ mod variant_population_release;
 mod variant_search;
 mod wikipathways;
 
-// Approved complete CLI help ceiling; entity and MCP budgets remain separate.
-pub(super) const CLI_HELP_BYTES: usize = 106000;
+// Complete help: j18463 measured 114273 bytes; reviewed ceiling adds fifteen percent.
+pub(super) const CLI_HELP_BYTES: usize = 131414;
 
 use libtest_mimic::Trial;
 use serde::Deserialize;

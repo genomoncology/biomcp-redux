@@ -1,20 +1,8 @@
 {
   "feature": "cell-line-identity",
-  "story": "Cell line commands expose sections, paging, exact source identities and two parsed examples without response inference.",
   "steps": [
     {
-      "run": [
-        "help",
-        "search",
-        "cell-line"
-      ],
-      "mcp": [
-        "help",
-        "search",
-        "cell-line"
-      ],
       "expect": {
-        "/status": "complete",
         "/result/commands/0/arguments/*/name": {
           "includes_all_of": [
             "query",
@@ -22,30 +10,27 @@
             "--offset"
           ]
         },
+        "/result/commands/0/description": "One exact cell line search, with source order and no total claim. An assay count is not an activity or sensitivity count. No treatment response is inferred; no bioinformatics tool runs.",
         "/result/commands/0/examples": {
           "count": 2
         },
-        "/result/commands/0/description": "One literal cell line search, with native order and no total claim. An assay count is not an activity or sensitivity count. No treatment response is inferred; no bioinformatics tool runs."
+        "/status": "complete"
       },
-      "max_bytes": 1012,
-      "full_output_bytes": true
-    },
-    {
-      "run": [
-        "help",
-        "get",
-        "cell-line"
-      ],
+      "full_output_bytes": true,
+      "max_bytes": 2136,
       "mcp": [
         "help",
-        "get",
+        "search",
         "cell-line"
       ],
+      "run": [
+        "help",
+        "search",
+        "cell-line"
+      ]
+    },
+    {
       "expect": {
-        "/status": "complete",
-        "/result/commands/0/examples": {
-          "count": 2
-        },
         "/result/commands/0/arguments/*/name": {
           "includes_all_of": [
             "id",
@@ -55,6 +40,10 @@
           ]
         },
         "/result/commands/0/description": "One exact identity and an optional bounded named section. An assay count is not an activity or sensitivity count. No treatment response is inferred; no bioinformatics tool runs.",
+        "/result/commands/0/examples": {
+          "count": 2
+        },
+        "/result/commands/0/section_rule": "Omit for the default card; all returns bounded first pages without an assay count.",
         "/result/commands/0/sections/*/word": {
           "includes_all_of": [
             "names",
@@ -65,36 +54,48 @@
             "all"
           ]
         },
-        "/result/commands/0/section_rule": "Omit for the default card; all returns bounded first pages without an assay count."
+        "/status": "complete"
       },
-      "max_bytes": 1976,
-      "full_output_bytes": true
-    },
-    {
-      "run": [
-        "help",
-        "cell-line",
-        "assay-count"
-      ],
+      "full_output_bytes": true,
+      "max_bytes": 3111,
       "mcp": [
         "help",
-        "cell-line",
-        "assay-count"
+        "get",
+        "cell-line"
       ],
+      "run": [
+        "help",
+        "get",
+        "cell-line"
+      ]
+    },
+    {
       "expect": {
-        "/status": "complete",
-        "/result/commands/0/examples": {
-          "count": 2
-        },
         "/result/commands/0/arguments/*/name": {
           "includes_all_of": [
             "id"
           ]
         },
-        "/result/commands/0/description": "A separate assay-count request, never implicit in metadata or all. An assay count is not an activity or sensitivity count. No treatment response is inferred; no bioinformatics tool runs."
+        "/result/commands/0/description": "A separate assay-count request, never implicit in metadata or all. An assay count is not an activity or sensitivity count. No treatment response is inferred; no bioinformatics tool runs.",
+        "/result/commands/0/examples": {
+          "count": 2
+        },
+        "/status": "complete"
       },
-      "max_bytes": 727,
-      "full_output_bytes": true
+      "full_output_bytes": true,
+      "max_bytes": 1691,
+      "mcp": [
+        "help",
+        "cell-line",
+        "assay-count"
+      ],
+      "run": [
+        "help",
+        "cell-line",
+        "assay-count"
+      ]
     }
-  ]
+  ],
+  "story": "Cell line commands expose sections, paging, exact source identities and two parsed examples without response inference.",
+  "verified": "Help byte limits use j18463 output plus fifteen percent for defaults, aliases, inherited options and examples; higher existing limits remain."
 }

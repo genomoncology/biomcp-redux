@@ -15,7 +15,7 @@ pub struct Health {
     pub sources: Box<[SourceHealth]>,
 }
 impl super::ResponseBody for Health {
-    const SCHEMA: &'static str = "biomcp.health/2";
+    const SCHEMA: &'static str = "biomcp.health/3";
     type Query = ();
 }
 /// One bounded source probe, without credentials or provider error text.
@@ -37,6 +37,7 @@ pub struct SourceHealth {
     #[cfg_attr(feature = "schema", schemars(extend("format" = "uri")))]
     pub terms_url: Text,
     /// Reviewed source category, not blanket permission for each record.
+    #[serde(rename = "use")]
     pub usage: Use,
     /// Whether source policy prevents all requests and cached reads.
     pub disabled: bool,

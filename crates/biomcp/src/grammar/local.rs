@@ -2,6 +2,7 @@ use super::BUNDLE_HELP;
 use clap::{Arg, ArgAction, Command};
 pub(super) fn serve_command() -> Command {
     Command::new("serve")
+        .after_help("Example: biomcp serve\nExample: biomcp help serve")
         .arg(
             Arg::new("http")
                 .long("http")
@@ -35,6 +36,10 @@ pub(super) fn help_command(root: &Command) -> Command {
     )
     .subcommand(Command::new("sources"))
     .subcommand(Command::new("config"))
+    .subcommand(Command::new("exit").about("Explain process exit and error codes."))
+    .subcommand(
+        Command::new("relations").about("Map entities through sections and search filters."),
+    )
 }
 
 fn help_tree(command: &Command) -> Command {
@@ -62,7 +67,7 @@ pub(super) fn help_source(matches: &clap::ArgMatches) -> Result<biomcp_types::So
 pub(crate) fn housekeeping_commands() -> [Command; 3] {
     [
         crate::skill::grammar(),
-        Command::new("version")
+        Command::new("version").after_help("Example: biomcp version")
             .about("Print version; --verbose adds build, schema and path provenance. No source requests or key reads.")
             .arg(
                 Arg::new("verbose")
@@ -70,7 +75,7 @@ pub(crate) fn housekeeping_commands() -> [Command; 3] {
                     .help("Include commit, target, schema versions, config and cache paths.")
                     .action(ArgAction::SetTrue),
             ),
-        Command::new("mcp-config")
+        Command::new("mcp-config").after_help("Example: biomcp mcp-config")
             .about(
                 "Print MCP configuration with this executable’s absolute path. JSON formats name their top-level \
                 object and retain released client aliases. The codex client prints its shell registration command. \

@@ -27,7 +27,7 @@
           ]
         }
       },
-      "max_bytes": 1422
+      "max_bytes": 2490
     },
     {
       "run": [
@@ -69,7 +69,7 @@
           ]
         }
       },
-      "max_bytes": 3291
+      "max_bytes": 4679
     },
     {
       "run": [
@@ -91,7 +91,7 @@
           "count": 2
         }
       },
-      "max_bytes": 429
+      "max_bytes": 1372
     },
     {
       "run": [
@@ -113,8 +113,8 @@
           "count": 2
         }
       },
-      "max_bytes": 448
+      "max_bytes": 1391
     }
   ],
-  "verified": "Measured complete CLI and MCP help envelopes, including the output newline, use 15 percent headroom. Examples are embedded from case run steps and executed with only their owning explicit sync prerequisites."
+  "verified": "Measured complete CLI and MCP help envelopes, including the output newline, use 15 percent headroom. Examples are embedded from case run steps and executed with only their owning explicit sync prerequisites. Help byte limits use j18463 output plus fifteen percent for defaults, aliases, inherited options and examples; higher existing limits remain."
 }

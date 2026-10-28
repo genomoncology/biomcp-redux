@@ -19,16 +19,18 @@ pub(crate) fn grammar() -> Command {
             .required(true)
             .value_parser(clap::value_parser!(PathBuf))
     };
-    Command::new("skill")
+    Command::new("skill").after_help("Example: biomcp skill list")
         .about("Read embedded guidance and worked examples. No source requests. \
             Overview and catalog are bounded by the embedded payload; install and status return one summary. \
             Install writes only inside DIR and refuses symbolic links and parent traversal.")
-        .subcommand(Command::new("list").about("List embedded worked examples."))
-        .subcommand(Command::new("render").about("Print the canonical agent guide."))
-        .subcommand(Command::new("status")
+        .subcommand(Command::new("list").after_help("Example: biomcp skill list").about("List embedded worked examples."))
+        .subcommand(Command::new("render").after_help("Example: biomcp skill render").about("Print the canonical agent guide."))
+        .subcommand(Command::new("status").after_help("Example: biomcp skill status biomcp-guidance")
             .about("Report missing, unmanaged, locally_modified, stale or current guidance.")
             .arg(directory()))
-        .subcommand(Command::new("install").about("Install into DIR/skills/biomcp; a skills or biomcp directory is accepted directly. \
+        .subcommand(Command::new("install")
+            .after_help("Example: biomcp skill install biomcp-guidance")
+            .about("Install into DIR/skills/biomcp; a skills or biomcp directory is accepted directly. \
             Existing files remain unchanged without --force.")
             .arg(directory())
             .arg(Arg::new("force").long("force").action(ArgAction::SetTrue).help("Repair managed files; retain unrelated files.")))
