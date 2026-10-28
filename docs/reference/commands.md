@@ -3879,6 +3879,7 @@ Options:
 
       --hgvs <hgvs>
           Reference-qualified HGVS, or chromosome genomic HGVS with an explicit build for CAR.
+          Checked for reference and syntax only; no full HGVS parser.
 
       --config <config>
           Read configuration from this file.
@@ -3904,6 +3905,7 @@ Send unchanged reference-qualified notation to explicitly named services.
 
 - `--build`: Caller assembly; required when VariantValidator is selected.
 - `--hgvs`: Reference-qualified HGVS, or chromosome genomic HGVS with an explicit build for CAR.
+Checked for reference and syntax only; no full HGVS parser.
 - `--limit`: Source mapping rows per service, with typed continuation for remaining rows.
 - `--offset`: Source mapping rows to skip per service.
 - `--source`: Explicit service; all preserves independent results without consensus.

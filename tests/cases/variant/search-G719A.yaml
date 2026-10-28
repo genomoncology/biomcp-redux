@@ -29,7 +29,7 @@
       ],
       "max_bytes": 1187,
       "expect": {
-        "/schema": "biomcp.variant-page/9",
+        "/schema": "biomcp.variant-page/10",
         "/status": "partial",
         "/query": {
           "equals": {

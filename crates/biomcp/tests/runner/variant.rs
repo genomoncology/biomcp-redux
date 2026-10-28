@@ -48,6 +48,7 @@ pub(super) fn trials() -> Vec<Trial> {
             myvariant().map_err(Into::into)
         }),
     ];
+    trials.extend(roundtrip::trials());
     trials.extend(super::variant_assertion_wire::trials());
     trials.extend(super::variant_assertions::trials());
     trials.extend(super::variant_discovery::trials());

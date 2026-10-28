@@ -31,7 +31,7 @@
       "exit": 4,
       "is_error": true,
       "expect": {
-        "/schema": "biomcp.variant-normalization/4",
+        "/schema": "biomcp.variant-normalization/5",
         "/result/results/0/source": "car",
         "/result/results/1/source": "mutalyzer",
         "/result/results/2/source": "variantvalidator",

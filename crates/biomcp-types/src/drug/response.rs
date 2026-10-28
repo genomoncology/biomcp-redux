@@ -240,7 +240,7 @@ impl ResponseBody for DrugIndications {
     type Query = DrugGet;
 }
 impl ResponseBody for DrugCivic {
-    const SCHEMA: &'static str = "biomcp.drug-civic/5";
+    const SCHEMA: &'static str = "biomcp.drug-civic/6";
     type Query = DrugGet;
 }
 impl ResponseBody for DrugApprovals {
