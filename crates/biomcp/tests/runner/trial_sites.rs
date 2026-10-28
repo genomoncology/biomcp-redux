@@ -207,15 +207,22 @@ fn coordinates() -> Check {
                 }
             },
             json!([
-                {"run":["get","trial","NCT03734029","locations"],"exit":4,"expect":{"/status":"failed","/sources/0/reason":"bad_reply"}},
-                {"run":["get","trial","NCT03734029","locations"],"offline":true,"exit":4,"expect":{"/status":"failed","/sources/0/reason":"offline"}}
+                {"run":["get","trial","NCT03734029","locations"],"expect":{
+                    "/status":"partial","/result/items/0/card/nct_id":"NCT03734029",
+                    "/result/items/0/sections/locations/data/items/0/coordinates":null,
+                    "/result/items/0/sections/locations/data/items/0/facility":"Ironwood Cancer & Research Centers - Chandler II",
+                    "/result/items/0/sections/locations/data/items/1/facility":"Banner MD Anderson Cancer Center",
+                    "/problems/0/field":"geoPoint"}},
+                {"run":["get","trial","NCT03734029","locations"],"offline":true,"expect":{
+                    "/status":"partial","/result/items/0/sections/locations/data/items/0/coordinates":null,
+                    "/problems/0/field":"geoPoint"}}
             ]),
         )?;
     }
     Ok(())
 }
 fn old_owner() -> Check {
-    for version in [1, 2] {
+    for version in [1, 2, 3] {
         old_version(version)?;
     }
     Ok(())

@@ -44,14 +44,7 @@ pub fn download(cx: &Ctx<'_>, query: &TrialDocumentGet, allow: bool) -> Download
             .into_iter()
             .find(|d| d.filename == query.file)
         else {
-            if incomplete_manifest {
-                out.status = Status::Failed;
-                out.body = QueryBody::TrialDocument(TrialDocumentResult {
-                    file: Section::unavailable(Source::ClinicalTrialsGov, biomcp_types::Reason::BadReply),
-                });
-            } else {
-                out.body = QueryBody::TextPositionError;
-            }
+            missing_document(&mut out, incomplete_manifest);
             return Ok(None);
         };
         if !allow {
@@ -82,4 +75,16 @@ pub fn download(cx: &Ctx<'_>, query: &TrialDocumentGet, allow: bool) -> Download
         out,
         file: result.ok().flatten(),
     }
+}
+
+fn missing_document(out: &mut Outcome, incomplete_manifest: bool) {
+    if incomplete_manifest {
+        out.status = Status::Failed;
+        out.body = QueryBody::TrialDocument(TrialDocumentResult {
+            file: Section::unavailable(Source::ClinicalTrialsGov, biomcp_types::Reason::BadReply),
+        });
+    } else {
+        out.body = QueryBody::TextPositionError;
+    }
+
 }
