@@ -39,8 +39,7 @@
         "/result/commands/0/description": "One exact provider record's publication window. ORCID sends its whole public works list in one reply and pages groups locally. Author IDs identify provider records, not resolved people. Counts cover that provider record. Missing metadata is unavailable. Topic-wide author ranking and cross-provider merging are unavailable. Semantic Scholar and ORCID are noncommercial; commercial users disable both with --disable-sources noncommercial or config disable_sources. Optional keys: biomcp key set semantic-scholar or S2_API_KEY; biomcp key set orcid or ORCID_ACCESS_TOKEN. IDs use semantic-scholar:ID (alias semanticscholar:ID) or orcid:ID. Search supports --source semantic-scholar (alias semanticscholar), --query/-q and --limit/-l; papers supports --limit/-l and Semantic Scholar details/--full."
       },
       "full_output_bytes": true,
-      "max_bytes": 2322,
-      "max_tokens": 581
+      "max_bytes": 2322
     }
   ]
 }

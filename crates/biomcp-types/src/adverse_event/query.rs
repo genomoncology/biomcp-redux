@@ -47,9 +47,11 @@ struct SearchFields {
     serious: Option<AdverseEventSerious>,
     /// Inclusive first FDA receipt lower bound, YYYY-MM-DD.
     #[serde(default, skip_serializing_if = "Option::is_none")]
+    #[cfg_attr(feature = "schema", schemars(extend("format" = "date")))]
     received_from: Option<PartialDate>,
     /// Inclusive first FDA receipt upper bound, YYYY-MM-DD.
     #[serde(default, skip_serializing_if = "Option::is_none")]
+    #[cfg_attr(feature = "schema", schemars(extend("format" = "date")))]
     received_to: Option<PartialDate>,
     /// Native report headers or VAERS rows per page; default five.
     #[serde(default = "default_limit")]

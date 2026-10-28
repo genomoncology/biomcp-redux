@@ -28,7 +28,6 @@
         "2"
       ],
       "max_bytes": 1525,
-      "max_tokens": 382,
       "expect": {
         "/schema": "biomcp.variant-page/6",
         "/status": "partial",

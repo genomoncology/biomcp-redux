@@ -33,8 +33,7 @@
           ]
         }
       },
-      "max_bytes": 1463,
-      "max_tokens": 366
+      "max_bytes": 1463
     },
     {
       "run": [
@@ -77,8 +76,7 @@
         },
         "/result/commands/0/section_rule": "Select native sections or all bounded first pages; function keeps one whole text record."
       },
-      "max_bytes": 2206,
-      "max_tokens": 552
+      "max_bytes": 2206
     },
     {
       "run": [
@@ -111,8 +109,7 @@
           ]
         }
       },
-      "max_bytes": 1474,
-      "max_tokens": 369
+      "max_bytes": 1474
     },
     {
       "run": [
@@ -144,8 +141,7 @@
           ]
         }
       },
-      "max_bytes": 1259,
-      "max_tokens": 315
+      "max_bytes": 1259
     },
     {
       "run": [
@@ -176,8 +172,7 @@
           ]
         }
       },
-      "max_bytes": 1149,
-      "max_tokens": 288
+      "max_bytes": 1149
     },
     {
       "run": [
@@ -208,8 +203,7 @@
           ]
         }
       },
-      "max_bytes": 1154,
-      "max_tokens": 289
+      "max_bytes": 1154
     },
     {
       "run": [
@@ -241,8 +235,7 @@
           ]
         }
       },
-      "max_bytes": 1374,
-      "max_tokens": 344
+      "max_bytes": 1374
     },
     {
       "run": [
@@ -273,8 +266,7 @@
           ]
         }
       },
-      "max_bytes": 1159,
-      "max_tokens": 290
+      "max_bytes": 1159
     },
     {
       "run": [
@@ -302,8 +294,7 @@
           ]
         }
       },
-      "max_bytes": 682,
-      "max_tokens": 171
+      "max_bytes": 682
     }
   ]
 }

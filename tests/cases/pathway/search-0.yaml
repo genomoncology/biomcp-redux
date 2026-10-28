@@ -41,8 +41,7 @@
         ],
         "/result/page/total": 900
       },
-      "max_bytes": 1659,
-      "max_tokens": 416
+      "max_bytes": 1659
     },
     {
       "run": [
@@ -82,8 +81,7 @@
         ],
         "/result/page/total": 913
       },
-      "max_bytes": 1578,
-      "max_tokens": 395
+      "max_bytes": 1578
     },
     {
       "run": [
@@ -123,8 +121,7 @@
         ],
         "/result/page/total": 911
       },
-      "max_bytes": 1577,
-      "max_tokens": 395
+      "max_bytes": 1577
     },
     {
       "run": [
@@ -164,8 +161,7 @@
         ],
         "/result/page/total": 901
       },
-      "max_bytes": 1525,
-      "max_tokens": 382
+      "max_bytes": 1525
     },
     {
       "run": [
@@ -205,8 +201,7 @@
         ],
         "/result/page/total": 909
       },
-      "max_bytes": 1574,
-      "max_tokens": 394
+      "max_bytes": 1574
     },
     {
       "run": [
@@ -246,8 +241,7 @@
         ],
         "/result/page/total": 914
       },
-      "max_bytes": 1612,
-      "max_tokens": 403
+      "max_bytes": 1612
     },
     {
       "run": [
@@ -287,8 +281,7 @@
         ],
         "/result/page/total": 899
       },
-      "max_bytes": 1531,
-      "max_tokens": 383
+      "max_bytes": 1531
     },
     {
       "run": [
@@ -328,8 +321,7 @@
         ],
         "/result/page/total": 455
       },
-      "max_bytes": 1532,
-      "max_tokens": 383
+      "max_bytes": 1532
     }
   ]
 }

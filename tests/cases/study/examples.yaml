@@ -18,8 +18,7 @@
           "max_bytes": 512
         }
       },
-      "max_bytes": 321,
-      "max_tokens": 81
+      "max_bytes": 321
     },
     {
       "run": [
@@ -38,8 +37,7 @@
           "max_bytes": 512
         }
       },
-      "max_bytes": 321,
-      "max_tokens": 81
+      "max_bytes": 321
     },
     {
       "run": [
@@ -58,8 +56,7 @@
           "max_bytes": 1068
         }
       },
-      "max_bytes": 877,
-      "max_tokens": 220
+      "max_bytes": 877
     },
     {
       "run": [
@@ -84,8 +81,7 @@
           "max_bytes": 1077
         }
       },
-      "max_bytes": 886,
-      "max_tokens": 222
+      "max_bytes": 886
     },
     {
       "run": [
@@ -104,8 +100,7 @@
           "max_bytes": 1313
         }
       },
-      "max_bytes": 1122,
-      "max_tokens": 281
+      "max_bytes": 1122
     },
     {
       "run": [
@@ -124,8 +119,7 @@
           "max_bytes": 1314
         }
       },
-      "max_bytes": 1123,
-      "max_tokens": 281
+      "max_bytes": 1123
     }
   ]
 }

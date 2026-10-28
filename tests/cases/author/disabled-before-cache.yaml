@@ -14,7 +14,6 @@
         "/status": "complete"
       },
       "max_bytes": 781,
-      "max_tokens": 196,
       "full_output_bytes": true
     },
     {
@@ -40,8 +39,7 @@
         "/sources/0/reason": "disabled"
       },
       "full_output_bytes": true,
-      "max_bytes": 427,
-      "max_tokens": 107
+      "max_bytes": 427
     },
     {
       "run": [
@@ -66,8 +64,7 @@
         "/sources/0/reason": "disabled"
       },
       "full_output_bytes": true,
-      "max_bytes": 427,
-      "max_tokens": 107
+      "max_bytes": 427
     }
   ]
 }

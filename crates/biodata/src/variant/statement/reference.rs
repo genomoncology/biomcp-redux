@@ -28,7 +28,8 @@ impl fmt::Display for Curie {
 crate::text_value!(
     Curie,
     "Curie",
-    "^[A-Za-z0-9_.-]+:[^\\s\\x00-\\x1f\\x7f-\\x9f]+$"
+    "^[A-Za-z0-9_.-]+:[^\\s\\x00-\\x1f\\x7f-\\x9f]+$",
+    "Checked prefix:local ontology identifier."
 );
 /// A source subject reference, never an embedded variant entity.
 #[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]

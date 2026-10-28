@@ -1,6 +1,7 @@
 {
   "$defs": {
     "Accession": {
+      "description": "A reference sequence accession: RefSeq or Ensembl with its version, or LRG.",
       "pattern": "^((N[CGMPRTW]|X[MPR])_([0-9]{6}|[0-9]{9})\\.[1-9][0-9]*|ENS[GTP][0-9]{11}\\.[1-9][0-9]*|LRG_[0-9]+([tp][0-9]+)?)$",
       "type": "string"
     },
@@ -95,6 +96,7 @@
       ]
     },
     "Sequence": {
+      "description": "A literal IUPAC DNA sequence; empty sequences express insertions or deletions.",
       "pattern": "^[ACGTNRYSWKMBDHV]*$",
       "type": "string"
     },

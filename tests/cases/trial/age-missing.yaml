@@ -40,8 +40,7 @@
         },
         "/result/source_updated": "2026-10-23T09:00:04"
       },
-      "max_bytes": 5723,
-      "max_tokens": 1431
+      "max_bytes": 5723
     }
   ]
 }

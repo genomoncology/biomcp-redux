@@ -26,6 +26,7 @@
       "type": "object"
     },
     "AuthorId": {
+      "description": "One provider record; this enum establishes no relationship between its variants.",
       "pattern": "^((semantic-scholar|semanticscholar):[1-9][0-9]*|orcid:[0-9]{4}-[0-9]{4}-[0-9]{4}-[0-9]{3}[0-9X])$",
       "type": "string"
     },
@@ -75,7 +76,8 @@
               "type": "null"
             }
           ],
-          "description": "Native PDF URL."
+          "description": "Native PDF URL.",
+          "format": "uri"
         }
       },
       "type": "object"
@@ -370,10 +372,12 @@
       "type": "string"
     },
     "Curie": {
+      "description": "Checked prefix:local ontology identifier.",
       "pattern": "^[A-Za-z0-9_.-]+:[^\\s\\x00-\\x1f\\x7f-\\x9f]+$",
       "type": "string"
     },
     "Doi": {
+      "description": "DOI preserving source spelling with ASCII-insensitive equality.",
       "pattern": "^10\\.[0-9]+/[^\\s\\x00-\\x1f\\x7f]+$",
       "type": "string"
     },
@@ -426,14 +430,17 @@
       "type": "object"
     },
     "PartialDate": {
+      "description": "A Gregorian date preserving year, month or day precision.",
       "pattern": "^[0-9]{4}(-[0-9]{2}(-[0-9]{2})?)?$",
       "type": "string"
     },
     "Pmcid": {
+      "description": "Canonical PMC identifier, with an explicit namespace.",
       "pattern": "^PMC[1-9][0-9]*$",
       "type": "string"
     },
     "Pmid": {
+      "description": "Positive PubMed identifier.",
       "pattern": "^[1-9][0-9]*$",
       "type": "string"
     },
@@ -566,10 +573,12 @@
       ]
     },
     "SemanticScholarAuthorId": {
+      "description": "A checked source-local Semantic Scholar author identifier, never a person identity.",
       "pattern": "^[1-9][0-9]*$",
       "type": "string"
     },
     "SemanticScholarId": {
+      "description": "Semantic Scholar's stable 40-character hexadecimal paper identifier.",
       "pattern": "^[a-f0-9]{40}$",
       "type": "string"
     },
@@ -897,6 +906,7 @@
         },
         "terms_url": {
           "description": "Publisher page documenting the terms.",
+          "format": "uri",
           "type": "string"
         },
         "use": {
