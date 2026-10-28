@@ -10,6 +10,7 @@
       "type": "string"
     },
     "GwasAssociationId": {
+      "description": "A positive Catalog association ID qualified by resource kind.",
       "pattern": "^association:[1-9][0-9]*$",
       "type": "string"
     },
@@ -199,7 +200,8 @@
               "type": "null"
             }
           ],
-          "description": "Native terms link without an inferred reuse grant."
+          "description": "Native terms link without an inferred reuse grant.",
+          "format": "uri"
         },
         "ontology_traits": {
           "description": "Every native mapped ontology label and ID.",
@@ -287,7 +289,8 @@
               "type": "null"
             }
           ],
-          "description": "Native summary statistics link; not a local download."
+          "description": "Native summary statistics link; not a local download.",
+          "format": "uri"
         },
         "user_requested": {
           "description": "Native user-requested study flag.",
@@ -308,6 +311,7 @@
       "type": "object"
     },
     "GwasStudyId": {
+      "description": "Exact Catalog study accession; case and leading zeros survive.",
       "pattern": "^GCST[0-9]{6,}$",
       "type": "string"
     },
@@ -391,6 +395,7 @@
       "type": "object"
     },
     "Pmid": {
+      "description": "Positive PubMed identifier.",
       "pattern": "^[1-9][0-9]*$",
       "type": "string"
     },
@@ -848,6 +853,7 @@
         },
         "terms_url": {
           "description": "Publisher page documenting the terms.",
+          "format": "uri",
           "type": "string"
         },
         "use": {

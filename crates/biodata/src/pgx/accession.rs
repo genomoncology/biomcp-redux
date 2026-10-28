@@ -33,7 +33,12 @@ impl fmt::Display for ClinPgxAccession {
         f.write_str(self.as_str())
     }
 }
-crate::text_value!(ClinPgxAccession, "ClinPgxAccession", r"^PA[1-9][0-9]*$");
+crate::text_value!(
+    ClinPgxAccession,
+    "ClinPgxAccession",
+    r"^PA[1-9][0-9]*$",
+    "A ClinPGx object accession, distinct from the protein allele namespace PaId."
+);
 
 /// Exact JSON gene key; ordering preserves spelling and never merges differently cased source keys.
 #[derive(Clone, Debug, PartialEq, Eq, PartialOrd, Ord, Hash)]
@@ -59,7 +64,8 @@ impl fmt::Display for PgxGeneKey {
 crate::text_value!(
     PgxGeneKey,
     "PgxGeneKey",
-    r"^[A-Za-z][A-Za-z0-9._/@-]{0,254}$"
+    r"^[A-Za-z][A-Za-z0-9._/@-]{0,254}$",
+    "Exact JSON gene key; ordering preserves spelling and never merges differently cased source keys."
 );
 
 /// Unchanged declared source diplotype expression; no allele sorting, phase or score calculation.
@@ -85,4 +91,9 @@ impl fmt::Display for PgxDiplotypeExpression {
         f.write_str(self.as_str())
     }
 }
-crate::text_value!(PgxDiplotypeExpression, "PgxDiplotypeExpression", r"\S");
+crate::text_value!(
+    PgxDiplotypeExpression,
+    "PgxDiplotypeExpression",
+    r"\S",
+    "Unchanged declared source diplotype expression; no allele sorting, phase or score calculation."
+);

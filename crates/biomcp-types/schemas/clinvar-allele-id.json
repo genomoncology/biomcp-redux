@@ -1,6 +1,7 @@
 {
   "$id": "biodata.clinvar-allele-id/1",
   "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "description": " An allele identifier inside a ClinVar record, not a variant identifier.",
   "pattern": "^[1-9][0-9]*$",
   "title": "ClinVarAlleleId",
   "type": "string"

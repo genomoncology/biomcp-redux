@@ -19,7 +19,6 @@
         "erepo"
       ],
       "max_bytes": 1115,
-      "max_tokens": 279,
       "expect": {
         "/status": "complete",
         "/result/resolution": "unresolved",

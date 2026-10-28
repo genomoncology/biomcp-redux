@@ -84,6 +84,7 @@
       "type": "object"
     },
     "ChemblCellId": {
+      "description": "A ChEMBL source-local cell ID, never a compound or target identity.",
       "pattern": "^CHEMBL[0-9]+$",
       "type": "string"
     },
@@ -136,6 +137,7 @@
       "type": "object"
     },
     "PartialDate": {
+      "description": "A Gregorian date preserving year, month or day precision.",
       "pattern": "^[0-9]{4}(-[0-9]{2}(-[0-9]{2})?)?$",
       "type": "string"
     },
@@ -593,6 +595,7 @@
         },
         "terms_url": {
           "description": "Publisher page documenting the terms.",
+          "format": "uri",
           "type": "string"
         },
         "use": {

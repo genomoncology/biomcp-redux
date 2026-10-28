@@ -137,7 +137,8 @@
                   "type": "null"
                 }
               ],
-              "description": "Publisher record URL for the event's own stable identity, never the parent pathway."
+              "description": "Publisher record URL for the event's own stable identity, never the parent pathway.",
+              "format": "uri"
             },
             "version": {
               "anyOf": [
@@ -465,6 +466,7 @@
       ]
     },
     "ReactomeId": {
+      "description": "A checked human Reactome stable pathway identifier.",
       "pattern": "^R-HSA-[1-9][0-9]*$",
       "type": "string"
     },
@@ -838,6 +840,7 @@
         },
         "terms_url": {
           "description": "Publisher page documenting the terms.",
+          "format": "uri",
           "type": "string"
         },
         "use": {
@@ -929,6 +932,7 @@
       "type": "string"
     },
     "WikiPathwaysId": {
+      "description": "A checked WikiPathways identity without its revision.",
       "pattern": "^WP[1-9][0-9]*$",
       "type": "string"
     }

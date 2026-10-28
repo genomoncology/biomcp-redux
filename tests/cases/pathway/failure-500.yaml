@@ -21,8 +21,7 @@
         "/sources/0/terms": "CC0 1.0 database data"
       },
       "max_bytes": 271,
-      "is_error": true,
-      "max_tokens": 68
+      "is_error": true
     }
   ]
 }

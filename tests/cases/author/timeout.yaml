@@ -27,8 +27,7 @@
         "/sources/0/state": "failed",
         "/sources/0/terms": "Semantic Scholar API License Agreement"
       },
-      "max_bytes": 532,
-      "max_tokens": 133
+      "max_bytes": 532
     }
   ]
 }

@@ -1,6 +1,7 @@
 {
   "$defs": {
     "ChemblCellId": {
+      "description": "A ChEMBL source-local cell ID, never a compound or target identity.",
       "pattern": "^CHEMBL[0-9]+$",
       "type": "string"
     }

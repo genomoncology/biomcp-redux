@@ -1,6 +1,7 @@
 {
   "$defs": {
     "ClinPgxAccession": {
+      "description": "A ClinPGx object accession, distinct from the protein allele namespace PaId.",
       "pattern": "^PA[1-9][0-9]*$",
       "type": "string"
     },

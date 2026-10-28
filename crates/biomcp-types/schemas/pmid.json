@@ -1,6 +1,7 @@
 {
   "$id": "biodata.pmid/1",
   "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "description": "Positive PubMed identifier.",
   "pattern": "^[1-9][0-9]*$",
   "title": "Pmid",
   "type": "string"

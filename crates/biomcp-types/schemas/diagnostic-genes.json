@@ -10,6 +10,7 @@
       "type": "string"
     },
     "Curie": {
+      "description": "Checked prefix:local ontology identifier.",
       "pattern": "^[A-Za-z0-9_.-]+:[^\\s\\x00-\\x1f\\x7f-\\x9f]+$",
       "type": "string"
     },
@@ -157,6 +158,7 @@
       ]
     },
     "EnsemblGeneId": {
+      "description": " A human Ensembl gene stable identifier with a separately retained version.",
       "pattern": "^ENSG[0-9]{11}(\\.[1-9][0-9]*)?$",
       "type": "string"
     },
@@ -250,6 +252,7 @@
       "type": "object"
     },
     "GtrTestId": {
+      "description": "Complete native GTR accession and positive version.",
       "pattern": "^GTR[0-9]{9}\\.[1-9][0-9]*$",
       "type": "string"
     },
@@ -263,10 +266,12 @@
       "type": "string"
     },
     "HgncId": {
+      "description": "An HGNC identifier with canonical namespace and positive numeric value.",
       "pattern": "^HGNC:[1-9][0-9]*$",
       "type": "string"
     },
     "NcbiGeneId": {
+      "description": "A positive NCBI Gene identifier in canonical decimal text.",
       "pattern": "^[1-9][0-9]*$",
       "type": "string"
     },
@@ -319,6 +324,7 @@
       "type": "object"
     },
     "PmaSupplement": {
+      "description": "Explicit native PMA supplement selector; no invented base alias.",
       "pattern": "^S(00[1-9]|0[1-9][0-9]|[1-9][0-9]{2})$",
       "type": "string"
     },
@@ -776,6 +782,7 @@
         },
         "terms_url": {
           "description": "Publisher page documenting the terms.",
+          "format": "uri",
           "type": "string"
         },
         "use": {

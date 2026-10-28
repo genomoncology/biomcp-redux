@@ -17,7 +17,8 @@
               "type": "null"
             }
           ],
-          "description": "Provider record link."
+          "description": "Provider record link.",
+          "format": "uri"
         }
       },
       "required": [
@@ -181,6 +182,7 @@
       "type": "object"
     },
     "AuthorId": {
+      "description": "One provider record; this enum establishes no relationship between its variants.",
       "pattern": "^((semantic-scholar|semanticscholar):[1-9][0-9]*|orcid:[0-9]{4}-[0-9]{4}-[0-9]{4}-[0-9]{3}[0-9X])$",
       "type": "string"
     },
@@ -695,6 +697,7 @@
         },
         "terms_url": {
           "description": "Publisher page documenting the terms.",
+          "format": "uri",
           "type": "string"
         },
         "use": {

@@ -28,8 +28,7 @@
         "/result/population/state": "skipped",
         "/result/population/reason": "disabled"
       },
-      "max_bytes": 306,
-      "max_tokens": 77
+      "max_bytes": 306
     }
   ]
 }

@@ -10,6 +10,7 @@
       "type": "string"
     },
     "ComplexPortalId": {
+      "description": "An exact Complex Portal accession.",
       "pattern": "^CPX-[1-9][0-9]*$",
       "type": "string"
     },
@@ -179,7 +180,8 @@
         },
         "url": {
           "$ref": "#/$defs/Text",
-          "description": "Native complex record URL."
+          "description": "Native complex record URL.",
+          "format": "uri"
         }
       },
       "required": [
@@ -621,6 +623,7 @@
         },
         "terms_url": {
           "description": "Publisher page documenting the terms.",
+          "format": "uri",
           "type": "string"
         },
         "use": {
@@ -702,6 +705,7 @@
       "type": "string"
     },
     "UniProtIsoform": {
+      "description": "A stated UniProt accession with an optional positive isoform number; never imputes -1.",
       "pattern": "^([OPQ][0-9][A-Z0-9]{3}[0-9]|[A-NR-Z][0-9]([A-Z][A-Z0-9]{2}[0-9]){1,2})(-[1-9][0-9]*)?$",
       "type": "string"
     },

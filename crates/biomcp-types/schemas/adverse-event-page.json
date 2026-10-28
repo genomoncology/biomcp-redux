@@ -161,7 +161,8 @@
               "type": "null"
             }
           ],
-          "description": "Inclusive first FDA receipt lower bound, YYYY-MM-DD."
+          "description": "Inclusive first FDA receipt lower bound, YYYY-MM-DD.",
+          "format": "date"
         },
         "received_to": {
           "anyOf": [
@@ -172,7 +173,8 @@
               "type": "null"
             }
           ],
-          "description": "Inclusive first FDA receipt upper bound, YYYY-MM-DD."
+          "description": "Inclusive first FDA receipt upper bound, YYYY-MM-DD.",
+          "format": "date"
         },
         "section": {
           "anyOf": [
@@ -288,7 +290,8 @@
         },
         "url": {
           "$ref": "#/$defs/Text",
-          "description": "Publisher terms page."
+          "description": "Publisher terms page.",
+          "format": "uri"
         },
         "usage": {
           "$ref": "#/$defs/Use",
@@ -351,6 +354,7 @@
       "type": "object"
     },
     "PartialDate": {
+      "description": "A Gregorian date preserving year, month or day precision.",
       "pattern": "^[0-9]{4}(-[0-9]{2}(-[0-9]{2})?)?$",
       "type": "string"
     },
@@ -483,6 +487,7 @@
       ]
     },
     "ReportId": {
+      "description": "Opaque published digits with source carried separately, never a prefixed wrapper.",
       "pattern": "^[0-9]+$",
       "type": "string"
     },
@@ -822,6 +827,7 @@
         },
         "terms_url": {
           "description": "Publisher page documenting the terms.",
+          "format": "uri",
           "type": "string"
         },
         "use": {

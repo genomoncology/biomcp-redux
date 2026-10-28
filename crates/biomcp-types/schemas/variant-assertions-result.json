@@ -499,7 +499,8 @@
               "type": "null"
             }
           ],
-          "description": "Source record link."
+          "description": "Source record link.",
+          "format": "uri"
         },
         "version": {
           "anyOf": [
@@ -735,6 +736,7 @@
       "type": "object"
     },
     "Curie": {
+      "description": "Checked prefix:local ontology identifier.",
       "pattern": "^[A-Za-z0-9_.-]+:[^\\s\\x00-\\x1f\\x7f-\\x9f]+$",
       "type": "string"
     },
@@ -748,6 +750,7 @@
       "type": "string"
     },
     "EnsemblGeneId": {
+      "description": " A human Ensembl gene stable identifier with a separately retained version.",
       "pattern": "^ENSG[0-9]{11}(\\.[1-9][0-9]*)?$",
       "type": "string"
     },
@@ -795,10 +798,12 @@
       "type": "object"
     },
     "HgncId": {
+      "description": "An HGNC identifier with canonical namespace and positive numeric value.",
       "pattern": "^HGNC:[1-9][0-9]*$",
       "type": "string"
     },
     "HgvsText": {
+      "description": "Reference-qualified notation with its original text, without a molecular parse.",
       "pattern": "^((N[CGMPRTW]|X[MPR])_([0-9]{6}|[0-9]{9})\\.[0-9]+|ENS[GTP][0-9]{11}\\.[0-9]+|LRG_[0-9]+([tp][0-9]+)?)(\\(([A-Za-z][A-Za-z0-9._/@-]*|[A-Za-z0-9_.]+)\\))?:[gcnrpmo]\\.[\\x20-\\x7e]+$",
       "type": "string"
     },
@@ -882,6 +887,7 @@
       ]
     },
     "NcbiGeneId": {
+      "description": "A positive NCBI Gene identifier in canonical decimal text.",
       "pattern": "^[1-9][0-9]*$",
       "type": "string"
     },
@@ -965,10 +971,12 @@
       "type": "object"
     },
     "PartialDate": {
+      "description": "A Gregorian date preserving year, month or day precision.",
       "pattern": "^[0-9]{4}(-[0-9]{2}(-[0-9]{2})?)?$",
       "type": "string"
     },
     "Pmid": {
+      "description": "Positive PubMed identifier.",
       "pattern": "^[1-9][0-9]*$",
       "type": "string"
     },
@@ -1455,6 +1463,7 @@
         },
         "terms_url": {
           "description": "Publisher page documenting the terms.",
+          "format": "uri",
           "type": "string"
         },
         "use": {
@@ -1869,10 +1878,12 @@
       "type": "object"
     },
     "VariantId": {
+      "description": "Published variant-level identifiers, with each identifier's level retained.",
       "pattern": "^(rs[1-9][0-9]*|CA[0-9]{6,}|PA[1-9][0-9]*|VCV[0-9]{9}(\\.[1-9][0-9]*)?|clinvar:[1-9][0-9]*|COS[VMN][1-9][0-9]*|ga4gh:VA\\.[A-Za-z0-9_-]{32})$",
       "type": "string"
     },
     "VariantInput": {
+      "description": "A validated canonical VariantInput string.",
       "pattern": "(^(rs[1-9][0-9]*|CA[0-9]{6,}|PA[1-9][0-9]*|VCV[0-9]{9}(\\.[1-9][0-9]*)?|clinvar:[1-9][0-9]*|COS[VMN][1-9][0-9]*|ga4gh:VA\\.[A-Za-z0-9_-]{32})$|^((N[CGMPRTW]|X[MPR])_([0-9]{6}|[0-9]{9})\\.[0-9]+|ENS[GTP][0-9]{11}\\.[0-9]+|LRG_[0-9]+([tp][0-9]+)?)(\\(([A-Za-z][A-Za-z0-9._/@-]*|[A-Za-z0-9_.]+)\\))?:[gcnrpmo]\\.[\\x20-\\x7e]+$|^[1-9][0-9]*$|^chr([1-9][0-9]*|X|Y|M|MT):g\\.[\\x21-\\x7e]+$)",
       "type": "string"
     },

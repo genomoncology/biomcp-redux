@@ -1,6 +1,7 @@
 {
   "$defs": {
     "GeneInput": {
+      "description": "An input classified before source resolution; aliases remain free text.",
       "pattern": "\\S",
       "type": "string"
     },

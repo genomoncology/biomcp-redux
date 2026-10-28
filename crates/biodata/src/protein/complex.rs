@@ -18,6 +18,7 @@ pub struct ProteinComplexHeader {
     /// Exact native participant identifier supporting admission.
     pub matched_participant: Text,
     /// Native complex record URL.
+    #[cfg_attr(feature = "schema", schemars(extend("format" = "uri")))]
     pub url: Text,
 }
 /// A native participant; names never establish a protein identity.

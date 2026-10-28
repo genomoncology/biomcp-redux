@@ -22,8 +22,7 @@
           "citations"
         ]
       },
-      "max_bytes": 4929,
-      "max_tokens": 1233
+      "max_bytes": 4929
     },
     {
       "follow": "sort",
@@ -34,8 +33,7 @@
           "nonincreasing": true
         }
       },
-      "max_bytes": 4899,
-      "max_tokens": 1225
+      "max_bytes": 4899
     }
   ],
   "verified": "Default measured4286bytes/1072tokens; citation strategy4260bytes/1065tokens. Bounds add15percent; default stays below matching0.9 JSON1307tokens. Citation-sort0.9baseline is absent."

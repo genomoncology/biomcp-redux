@@ -219,6 +219,7 @@
       ]
     },
     "DiagnosticDeviceId": {
+      "description": "Source device identifier; DEN and H identifiers imply no executable get.",
       "pattern": "^(P[0-9]{6}(/S(00[1-9]|0[1-9][0-9]|[1-9][0-9]{2}))?|K[0-9]{6}|DEN[0-9]{6}|H[0-9]{6})$",
       "type": "string"
     },
@@ -396,7 +397,8 @@
         },
         "url": {
           "$ref": "#/$defs/Text",
-          "description": "Exact source record URL."
+          "description": "Exact source record URL.",
+          "format": "uri"
         }
       },
       "required": [
@@ -448,7 +450,8 @@
         },
         "url": {
           "$ref": "#/$defs/Text",
-          "description": "Source record URL."
+          "description": "Source record URL.",
+          "format": "uri"
         }
       },
       "required": [
@@ -493,6 +496,7 @@
       "type": "object"
     },
     "GtrTestId": {
+      "description": "Complete native GTR accession and positive version.",
       "pattern": "^GTR[0-9]{9}\\.[1-9][0-9]*$",
       "type": "string"
     },
@@ -545,14 +549,17 @@
       "type": "object"
     },
     "PmaNumber": {
+      "description": "Native FDA PMA base application number.",
       "pattern": "^P[0-9]{6}$",
       "type": "string"
     },
     "PmaSupplement": {
+      "description": "Explicit native PMA supplement selector; no invented base alias.",
       "pattern": "^S(00[1-9]|0[1-9][0-9]|[1-9][0-9]{2})$",
       "type": "string"
     },
     "PmaSupplementCell": {
+      "description": "Native PMA supplement cell; empty denotes base and never becomes S000.",
       "pattern": "^($|S(00[1-9]|0[1-9][0-9]|[1-9][0-9]{2}))$",
       "type": "string"
     },
@@ -1010,6 +1017,7 @@
         },
         "terms_url": {
           "description": "Publisher page documenting the terms.",
+          "format": "uri",
           "type": "string"
         },
         "use": {
@@ -1145,6 +1153,7 @@
       "type": "object"
     },
     "WhoProductId": {
+      "description": "WHO product listing identity, independent of product codes.",
       "pattern": "^[0-9]{4,5}-([0-9]{3}|[0-9]{5})-[0-9]{2}$",
       "type": "string"
     }

@@ -393,7 +393,8 @@
               "type": "null"
             }
           ],
-          "description": "Native source URL when supplied."
+          "description": "Native source URL when supplied.",
+          "format": "uri"
         }
       },
       "required": [
@@ -403,10 +404,12 @@
       "type": "object"
     },
     "CellosaurusAccession": {
+      "description": "A checked Cellosaurus accession; primary identity is verified by the adapter.",
       "pattern": "^CVCL_[A-Z0-9]{4}$",
       "type": "string"
     },
     "HgncId": {
+      "description": "An HGNC identifier with canonical namespace and positive numeric value.",
       "pattern": "^HGNC:[1-9][0-9]*$",
       "type": "string"
     },
@@ -459,6 +462,7 @@
       "type": "object"
     },
     "PartialDate": {
+      "description": "A Gregorian date preserving year, month or day precision.",
       "pattern": "^[0-9]{4}(-[0-9]{2}(-[0-9]{2})?)?$",
       "type": "string"
     },
@@ -916,6 +920,7 @@
         },
         "terms_url": {
           "description": "Publisher page documenting the terms.",
+          "format": "uri",
           "type": "string"
         },
         "use": {

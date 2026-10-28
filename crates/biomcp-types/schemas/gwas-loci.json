@@ -10,6 +10,7 @@
       "type": "string"
     },
     "GwasAssociationId": {
+      "description": "A positive Catalog association ID qualified by resource kind.",
       "pattern": "^association:[1-9][0-9]*$",
       "type": "string"
     },
@@ -183,7 +184,8 @@
               "type": "null"
             }
           ],
-          "description": "Native locus self link."
+          "description": "Native locus self link.",
+          "format": "uri"
         },
         "strongest_risk_alleles": {
           "description": "Source strongest-risk-allele strings.",
@@ -236,6 +238,7 @@
       "type": "object"
     },
     "GwasStudyId": {
+      "description": "Exact Catalog study accession; case and leading zeros survive.",
       "pattern": "^GCST[0-9]{6,}$",
       "type": "string"
     },
@@ -753,6 +756,7 @@
         },
         "terms_url": {
           "description": "Publisher page documenting the terms.",
+          "format": "uri",
           "type": "string"
         },
         "use": {

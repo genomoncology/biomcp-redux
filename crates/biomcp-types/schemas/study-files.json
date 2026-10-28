@@ -511,6 +511,7 @@
         },
         "terms_url": {
           "description": "Publisher page documenting the terms.",
+          "format": "uri",
           "type": "string"
         },
         "use": {
@@ -587,6 +588,7 @@
       "type": "string"
     },
     "StudyBlobSha": {
+      "description": "GitHub repository blob revision, not a data-content checksum.",
       "pattern": "^[0-9a-f]{40}$",
       "type": "string"
     },
@@ -603,11 +605,13 @@
               "type": "null"
             }
           ],
-          "description": "Native download link, absent for directory entries."
+          "description": "Native download link, absent for directory entries.",
+          "format": "uri"
         },
         "htmlUrl": {
           "$ref": "#/$defs/Text",
-          "description": "Publisher browser link."
+          "description": "Publisher browser link.",
+          "format": "uri"
         },
         "kind": {
           "$ref": "#/$defs/StudyFileKind",
@@ -676,7 +680,8 @@
               "type": "null"
             }
           ],
-          "description": "Native LICENSE publisher link, independent of the current file page."
+          "description": "Native LICENSE publisher link, independent of the current file page.",
+          "format": "uri"
         },
         "page": {
           "$ref": "#/$defs/PageInfo",
@@ -738,6 +743,7 @@
       "type": "object"
     },
     "StudyId": {
+      "description": "Opaque case-sensitive cBioPortal study identity, without repair.",
       "pattern": "^[A-Za-z0-9][A-Za-z0-9_.-]*$",
       "type": "string"
     },
