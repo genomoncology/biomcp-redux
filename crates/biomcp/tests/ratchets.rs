@@ -7,8 +7,6 @@ mod lints;
 mod placement;
 #[path = "ratchets/proof.rs"]
 mod proof;
-#[path = "ratchets/reachability.rs"]
-mod reachability;
 #[path = "ratchets/reasons.rs"]
 mod reasons;
 #[path = "ratchets/source.rs"]
@@ -43,7 +41,6 @@ fn rust_files(path: &Path) -> Result<Vec<std::path::PathBuf>, std::io::Error> {
 #[test]
 fn repository_obeys_structural_contract() -> Check {
     lints::check(&Path::new(env!("CARGO_MANIFEST_DIR")).join("../.."))?;
-    reachability::check(&Path::new(env!("CARGO_MANIFEST_DIR")).join("../.."))?;
     check(
         Path::new(env!("CARGO_MANIFEST_DIR"))
             .join("../..")

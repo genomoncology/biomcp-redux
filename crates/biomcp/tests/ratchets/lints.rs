@@ -10,6 +10,9 @@ fn read(path: &Path) -> Result<Value, Box<dyn std::error::Error>> {
 pub(super) fn check(root: &Path) -> Check {
     let base = read(&root.join("clippy-base.toml"))?;
     let workspace = read(&root.join("Cargo.toml"))?;
+    if workspace["workspace"]["lints"]["rust"]["unreachable_pub"].as_str() != Some("deny") {
+        return Err("workspace must deny unreachable_pub".into());
+    }
     for lint in [
         "allow_attributes",
         "allow_attributes_without_reason",
@@ -23,10 +26,15 @@ pub(super) fn check(root: &Path) -> Check {
             return Err(format!("workspace must deny {lint}").into());
         }
     }
+    let mut crates = 0;
     for entry in fs::read_dir(root.join("crates"))? {
         let path = entry?.path().join("clippy.toml");
         let config = read(&path)?;
         compare(&base, &config).map_err(|error| format!("{}: {error}", path.display()))?;
+        crates += 1;
+    }
+    if crates == 0 {
+        return Err("shared lint check found no crates".into());
     }
     Ok(())
 }

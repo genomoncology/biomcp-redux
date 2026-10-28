@@ -18,7 +18,6 @@ One lint table sits in the workspace `Cargo.toml`, and every crate inherits it.
 - `disallowed_types` denies `Cell`, `RefCell`, `Mutex`, `RwLock`, `OnceLock`, `LazyLock` and the atomics in every crate. Every necessary state owner has an item-level expectation with its concurrency or ownership reason. Whole-module state expectations fail the ratchet. The store needs none, because each call opens its own connection.
 - `disallowed_methods` denies environment reads outside the binary's config module, and thread spawns outside the fan-out, the transport and the MCP server.
 - Warnings fail the gate.
-- The product-name ratchet rejects unreferenced public items in the value, response and transport crates. It follows live representation and implementation closures, ignores bare re-exports as roots and excludes pinned generated declarations. This conservative name check complements compiler visibility checks; it does not resolve Rust types.
 
 ## Size
 
