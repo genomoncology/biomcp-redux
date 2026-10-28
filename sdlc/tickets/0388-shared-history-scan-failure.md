@@ -13,4 +13,4 @@ Milestone: 5
 - Rules: fix the real cause. No new ignore, broader allowlist, skipped stage or scanner policy change. Any new allowlist entry is an exact fingerprint for a reviewed non-secret, as 0347 requires. The diagnostic and any report never print scanner match contents.
 - Proof: the diagnostic names the cause, a focused check covers it, and the next full run of one of the three lanes passes the history scan.
 - Changes: depends on the cause.
-- Defers: nothing. Priority: it blocks 0351, 0370 and 0379, which wait for it; no gate bypass.
+- Defers: nothing. Priority: it blocks 0345, 0351, 0370 and 0379, which wait for it; no gate bypass.
