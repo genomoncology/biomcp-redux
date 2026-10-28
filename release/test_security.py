@@ -172,7 +172,7 @@ class Screening(unittest.TestCase):
             tools, repo = root / "tools", root / "repo"
             tools.mkdir()
             repo.mkdir()
-            for name in ["secrets.py", "smoke.py"]:
+            for name in ["secrets.py", "smoke.py", "toolchain.py", "toolchain.json"]:
                 shutil.copy2(ROOT / "release" / name, tools / name)
             env = {**environment(root), "PATH": os.defpath, "GIT_CONFIG_NOSYSTEM": "1"}
             def git(*args):
