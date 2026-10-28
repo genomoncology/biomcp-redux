@@ -83,3 +83,37 @@ biodata::native_enum! {
         Oncogenic => "ONCOGENIC",
     }
 }
+
+impl CivicKind {
+    /// Parse assertion_type_type.rb, which omits evidence's FUNCTIONAL member.
+    pub fn from_assertion(value: String) -> Self {
+        match Self::from(value.clone()) {
+            Self::Functional => Self::Unknown(value.into()),
+            known => known,
+        }
+    }
+}
+impl CivicSignificance {
+    /// Parse evidence_significance_type.rb, which omits assertion's ONCOGENIC member.
+    pub fn from_evidence(value: String) -> Self {
+        match Self::from(value.clone()) {
+            Self::Oncogenic => Self::Unknown(value.into()),
+            known => known,
+        }
+    }
+    /// Parse the exact assertion_significance_type.rb field vocabulary.
+    pub fn from_assertion(value: String) -> Self {
+        match Self::from(value.clone()) {
+            Self::GainOfFunction
+            | Self::LossOfFunction
+            | Self::UnalteredFunction
+            | Self::Neomorphic
+            | Self::UnknownFunction
+            | Self::DominantNegative
+            | Self::Predisposition
+            | Self::Protectiveness
+            | Self::Oncogenicity => Self::Unknown(value.into()),
+            known => known,
+        }
+    }
+}

@@ -109,8 +109,21 @@ fn build(
     let id = Text::new(&format!("{prefix}{}", row.id)).map_err(|_| failure(Reason::BadReply))?;
     let url = Text::new(&format!("https://civicdb.org/{path}/{}", row.id))
         .map_err(|_| failure(Reason::BadReply))?;
+    let kind = if row.assertion {
+        biomcp_types::CivicKind::from_assertion(row.kind.as_str().to_owned())
+    } else {
+        biomcp_types::CivicKind::from(row.kind.as_str().to_owned())
+    };
+    let status = biomcp_types::CivicStatus::from(row.status.as_str().to_owned());
+    let significance = if row.assertion {
+        biomcp_types::CivicSignificance::from_assertion(row.significance.as_str().to_owned())
+    } else {
+        biomcp_types::CivicSignificance::from_evidence(row.significance.as_str().to_owned())
+    };
     let native = native_claim(&row, &id, &url);
-    let proposition = proposition(row.kind.as_str());
+    let proposition = (!kind.is_unknown())
+        .then(|| proposition(row.kind.as_str()))
+        .flatten();
     let statement = subject
         .zip(proposition)
         .zip(native.classification.clone())
@@ -142,9 +155,6 @@ fn build(
             code: ProblemCode::ValueUnknown,
         });
     }
-    let kind = biomcp_types::CivicKind::from(row.kind.as_str().to_owned());
-    let status = biomcp_types::CivicStatus::from(row.status.as_str().to_owned());
-    let significance = biomcp_types::CivicSignificance::from(row.significance.as_str().to_owned());
     for (unknown, field) in [
         (
             kind.is_unknown(),

@@ -14,7 +14,7 @@ pub(super) fn unknown() -> Result<(), String> {
             format!(" {known} "),
             String::new(),
         ] {
-            check(native, known, output, value)?;
+            check(native, known, output, value, 0)?;
         }
     }
     Ok(())
@@ -24,6 +24,7 @@ fn check(
     known: &'static str,
     output: &str,
     value: String,
+    index: usize,
 ) -> Result<(), String> {
     let env = Environment::new().map_err(|e| e.to_string())?;
     let replacement = value.clone();
@@ -51,7 +52,8 @@ fn check(
             "myvariant",
         ],
     )?;
-    let base = "/result/candidates/0/sections/civic/data/profiles/0/statements/0";
+    let base = format!("/result/candidates/0/sections/civic/data/profiles/0/statements/{index}");
+    let record = if index == 0 { "EID1409" } else { "AID7" };
     if result.pointer(&format!("{base}/{output}")) != Some(&json!(value)) {
         return Err(format!(
             "unknown {native} lost its original claim: {result}"
@@ -62,7 +64,7 @@ fn check(
         .and_then(|v| v.as_array())
         .is_some_and(|rows| {
             rows.iter().any(|p| {
-                p.get("field") == Some(&json!(native)) && p.get("record") == Some(&json!("EID1409"))
+                p.get("field") == Some(&json!(native)) && p.get("record") == Some(&json!(record))
             })
         });
     if !disclosed {
@@ -78,5 +80,22 @@ fn check(
         ));
     }
     stub.finish()?;
+    Ok(())
+}
+
+pub(super) fn stream_context() -> Result<(), String> {
+    for (native, known, output, value, index) in [
+        ("assertionType", "PREDICTIVE", "kind", "FUNCTIONAL", 2),
+        (
+            "significance",
+            "SENSITIVITYRESPONSE",
+            "significance",
+            "GAIN_OF_FUNCTION",
+            2,
+        ),
+        ("significance", "RESISTANCE", "significance", "ONCOGENIC", 0),
+    ] {
+        check(native, known, output, value.into(), index)?;
+    }
     Ok(())
 }

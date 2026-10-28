@@ -89,15 +89,16 @@ fn matches(
     count: u32,
 ) -> bool {
     let id = query.input().to_string().parse::<u64>().ok();
-    let claim =
-        |profile: &raw::Profile, status: &Text, therapies: &[super::variant_raw::Therapy]| {
-            query.civic_profile().is_none_or(|id| id == profile.id)
-                && status.as_str() == "ACCEPTED"
-                && therapies.iter().any(|t| t.id == id)
-                && therapies
-                    .iter()
-                    .all(|t| t.id.is_some_and(|id| id > 0 && id <= i32::MAX as u64))
-        };
+    let claim = |profile: &raw::Profile,
+                 status: &biodata::SourceText,
+                 therapies: &[super::variant_raw::Therapy]| {
+        query.civic_profile().is_none_or(|id| id == profile.id)
+            && status.as_str() == "ACCEPTED"
+            && therapies.iter().any(|t| t.id == id)
+            && therapies
+                .iter()
+                .all(|t| t.id.is_some_and(|id| id > 0 && id <= i32::MAX as u64))
+    };
     data.therapy.as_ref().is_some_and(|t| Some(t.id) == id)
         && (kind == Some(CivicClaimKind::Assertions)
             || data.evidence_items.as_ref().is_some_and(|rows| {
