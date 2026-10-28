@@ -104,6 +104,7 @@ impl Leg<'_> {
             .fetch
             .limiters
             .acquire(self.spec.quota, self.keyed(), self.budget())
+            .map_err(|delay| self.quota_failure(delay))?
             .ok_or_else(|| self.failure(Reason::DeadlineExceeded, None))?;
         let mut mark = Instant::now();
         let deadline = self.budget().local();

@@ -147,7 +147,7 @@ fn copy(
     Ok(())
 }
 
-// Complete synthetic envelopes measured in j15006, with fifteen percent headroom.
+// Complete envelopes: j15006; InterPro timeout guidance: j19312. Fifteen percent headroom.
 fn card_ceilings(source: &str, fault: &str) -> Result<(usize, usize), String> {
     Ok(match (source, fault) {
         ("uniprot", "429") => (701, 700),
@@ -157,7 +157,7 @@ fn card_ceilings(source: &str, fault: &str) -> Result<(usize, usize), String> {
         ("uniprot", "error") => (694, 693),
         ("interpro", "429") => (1494, 1493),
         ("interpro", "500") => (1492, 1491),
-        ("interpro", "timeout") => (1506, 1505),
+        ("interpro", "timeout") => (1946, 1945),
         ("interpro", "broken") => (1487, 1486),
         ("interpro", "error") => (1487, 1486),
         ("complex-portal", "429") => (1497, 1495),

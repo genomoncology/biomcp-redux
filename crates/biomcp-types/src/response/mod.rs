@@ -50,7 +50,7 @@ mod source_timestamp;
 pub use source_timestamp::{SourceTimestamp, SourceTimestampTimezone};
 mod status;
 mod store;
-pub use store::StoreClean;
+pub use store::{BundleSize, StoreClean, StoreSize};
 mod step;
 pub use envelope::{Envelope, ResponseBody};
 pub use gene::{GeneCards, GeneItem, GenePage, QueryBody};

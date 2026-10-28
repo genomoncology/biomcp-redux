@@ -44,6 +44,7 @@ pub fn sync(fetch: &Fetch) -> Result<SyncResult, RequestError> {
         duplicate_identities: None,
         rows: info.rows,
         bytes: info.bytes,
+        downloaded_bytes: info.downloaded_bytes,
     })
 }
 /// Read each source submission for the checked HGNC identity.
