@@ -235,6 +235,22 @@ fn pubmed() -> Result<(), String> {
             return Err(format!("article lost: {value}"));
         }
         problem(&value, "pubmed", field, "123")?;
+        if field == "title" {
+            if value.pointer("/result/items/0/answer/card/title").is_some() {
+                return Err("bad title survived".into());
+            }
+            let output = env
+                .command(
+                    env!("CARGO_BIN_EXE_biomcp"),
+                    &["get", "article", "123", "--offline", "--format", "md"].map(str::to_owned),
+                )
+                .output()
+                .map_err(|e| e.to_string())?;
+            let text = String::from_utf8_lossy(&output.stdout);
+            if !output.status.success() || !text.contains("123") || text.contains("Valid title") {
+                return Err(format!("identity-only article Markdown lost: {text}"));
+            }
+        }
         if stub.finish()?.len() != 1 {
             return Err("unexpected PubMed requests".into());
         }
@@ -242,12 +258,18 @@ fn pubmed() -> Result<(), String> {
     Ok(())
 }
 fn person() -> Result<(), String> {
-    for field in ["credit-name", "given-names", "family-name"] {
+    for field in ["credit-name", "given-names", "family-name", "all"] {
         let mut name = json!({
             "path":"0000-0002-4299-3018", "visibility":"public", "credit-name":{"value":"Credit"},
             "given-names":{"value":"Given"}, "family-name":{"value":"Family"}
         });
-        name[field] = json!({"value":""});
+        if field == "all" {
+            for key in ["credit-name", "given-names", "family-name"] {
+                name[key] = json!({"value":""});
+            }
+        } else {
+            name[field] = json!({"value":""});
+        }
         let body = json!({"path":"/0000-0002-4299-3018/person", "name":name}).to_string();
         let stub = Stub::for_sources(
             &["pub.orcid.org"],
@@ -262,19 +284,28 @@ fn person() -> Result<(), String> {
                 .to_vec(),
             0,
         )?;
-        problem(
-            &value,
-            "orcid",
-            &field.replace('-', "_"),
-            "/0000-0002-4299-3018/person",
-        )?;
-        let expected = if field == "credit-name" {
-            "Given Family"
+        if field == "all" {
+            if value.pointer("/result/items/0/card/header/id")
+                != Some(&json!("orcid:0000-0002-4299-3018"))
+                || value.pointer("/result/items/0/card/header/name").is_some()
+            {
+                return Err(format!("identity-only author lost: {value}"));
+            }
         } else {
-            "Credit"
-        };
-        if value.pointer("/result/items/0/card/header/name") != Some(&json!(expected)) {
-            return Err(format!("name lost: {value}"));
+            problem(
+                &value,
+                "orcid",
+                &field.replace('-', "_"),
+                "/0000-0002-4299-3018/person",
+            )?;
+            let expected = if field == "credit-name" {
+                "Given Family"
+            } else {
+                "Credit"
+            };
+            if value.pointer("/result/items/0/card/header/name") != Some(&json!(expected)) {
+                return Err(format!("name lost: {value}"));
+            }
         }
         stub.finish()?;
     }
