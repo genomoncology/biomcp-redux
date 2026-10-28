@@ -22,34 +22,7 @@ pub(super) fn run() -> Check {
         let directory = env.root().join("replay/vaers");
         std::fs::create_dir_all(&directory).map_err(|e| e.to_string())?;
         let mut record = original.clone();
-        record["exchanges"][0]["delay_ms"] = json!(0);
-        if fault == "status" {
-            record["exchanges"][0]["status"] = json!(403);
-        }
-        let raw = record["exchanges"][0]["body"]["value"]
-            .as_str()
-            .ok_or("body")?;
-        let body = match fault {
-            "truncated" => raw[..raw.len() - 20].to_owned(),
-            "html" => "<html><body>Access denied</body></html>".into(),
-            "deep" => format!("{}{}{}", "<page>".repeat(70), raw, "</page>".repeat(70)),
-            "oversized" => raw.replace(
-                "<platform>prod</platform>",
-                &format!("<platform>{}</platform>", "é".repeat(1024 * 1024)),
-            ),
-            "latin1" => raw.replace("MEASLES, MUMPS AND RUBELLA VIRUS VACCINE, LIVE", "café"),
-            _ => raw.to_owned(),
-        };
-        if fault == "latin1" || fault == "oversized" {
-            std::fs::write(
-                directory.join("latin1.bin"),
-                body.chars().map(|c| c as u8).collect::<Vec<_>>(),
-            )
-            .map_err(|e| e.to_string())?;
-            record["exchanges"][0]["body"] = json!({"kind":"sidecar", "value":"latin1.bin"});
-        } else {
-            record["exchanges"][0]["body"]["value"] = json!(body);
-        }
+        mutate(&mut record, fault, &directory)?;
         std::fs::write(
             directory.join("7afc738c58f75b7c824f50ed0651327ced1f0e4c26db7d5b684e46dec027c963.json"),
             serde_json::to_vec(&record).map_err(|e| e.to_string())?,
@@ -61,8 +34,9 @@ pub(super) fn run() -> Check {
         let value = invoke(&env, args.clone(), if valid { 0 } else { 4 })?;
         crate::runner::schema::Registry::embedded()?.validate(&value, &args, true)?;
         let command = args.iter().position(|v| v == "search").ok_or("command")?;
-        if crate::runner::mcp::call_with_globals(&env, &args[command..], !valid, &args[..command])?
-            != value
+        let tool_args = args.get(command..).ok_or("tool arguments")?;
+        let globals = args.get(..command).ok_or("global arguments")?;
+        if crate::runner::mcp::call_with_globals(&env, tool_args, !valid, globals)? != value
         {
             return Err(format!("CDC {fault} reply differs through MCP"));
         }
@@ -86,5 +60,52 @@ pub(super) fn run() -> Check {
             ));
         }
     }
+    Ok(())
+}
+
+fn mutate(record: &mut Value, fault: &str, directory: &std::path::Path) -> Check {
+    let exchange = record
+        .pointer_mut("/exchanges/0")
+        .and_then(Value::as_object_mut)
+        .ok_or("exchange")?;
+    exchange.insert("delay_ms".into(), json!(0));
+    if fault == "status" {
+        exchange.insert("status".into(), json!(403));
+    }
+    let raw = exchange
+        .get("body")
+        .and_then(|body| body.get("value"))
+        .and_then(Value::as_str)
+        .ok_or("body")?;
+    let body = match fault {
+        "truncated" => raw
+            .get(..raw.len().checked_sub(20).ok_or("short body")?)
+            .ok_or("body boundary")?
+            .to_owned(),
+        "html" => "<html><body>Access denied</body></html>".into(),
+        "deep" => format!("{}{}{}", "<page>".repeat(70), raw, "</page>".repeat(70)),
+        "oversized" => raw.replace(
+            "<platform>prod</platform>",
+            &format!("<platform>{}</platform>", "é".repeat(1024 * 1024)),
+        ),
+        "latin1" => raw.replace("MEASLES, MUMPS AND RUBELLA VIRUS VACCINE, LIVE", "café"),
+        _ => raw.to_owned(),
+    };
+    let body = if fault == "latin1" || fault == "oversized" {
+        std::fs::write(
+            directory.join("latin1.bin"),
+            body.chars().map(|c| c as u8).collect::<Vec<_>>(),
+        )
+        .map_err(|e| e.to_string())?;
+        json!({"kind":"sidecar", "value":"latin1.bin"})
+    } else {
+        let mut value = exchange.get("body").cloned().ok_or("body")?;
+        value
+            .as_object_mut()
+            .ok_or("body object")?
+            .insert("value".into(), json!(body));
+        value
+    };
+    exchange.insert("body".into(), body);
     Ok(())
 }
