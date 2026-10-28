@@ -47,6 +47,7 @@ pub fn sync(
         last_modified: None,
         rows: info.rows,
         bytes: info.bytes,
+        downloaded_bytes: info.downloaded_bytes,
         duplicate_identities: None,
     })
 }

@@ -38,6 +38,10 @@ impl Leg<'_> {
                 ));
             }
         }
+        self.report
+            .lock()
+            .unwrap_or_else(std::sync::PoisonError::into_inner)
+            .downloaded_bytes += body.len() as u64;
         Ok(body)
     }
 }

@@ -92,6 +92,7 @@ fn commands() -> io::Result<Vec<HelpCommand>> {
             command.reply_schemas = crate::schema::local_replies(&command.command);
         }
     }
+    source_settings::timing(&mut commands);
     Ok(commands)
 }
 const AUTHOR_BOUNDARY: &str = " Author IDs identify source records, not resolved people. Counts cover that source record. \
