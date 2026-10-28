@@ -19,7 +19,7 @@ def load(directory):
         if key in records:
             raise ValueError(f"duplicate transcript key: {key}")
         records[key] = record
-    if not records:
+    if not records and not uncaptured:
         raise ValueError(f"no transcripts: {directory}")
     return records, uncaptured
 
@@ -90,6 +90,8 @@ def main():
                 print(f"{label} uncaptured trials ({len(missing)}):", file=sys.stderr)
                 for name in sorted(missing):
                     print(f"  {name}", file=sys.stderr)
+        if not base or not head:
+            raise ValueError("comparison requires captured steps in both sets")
         differences = 0
         for key in sorted(base.keys() | head.keys()):
             location = ("/ missing in " + ("HEAD" if key in base else "BASE")
