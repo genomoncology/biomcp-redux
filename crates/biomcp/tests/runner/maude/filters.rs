@@ -40,6 +40,7 @@ fn selectors() -> Result<(), String> {
             encode(expression)
         );
         let empty = *absent;
+        let exit = i32::from(empty);
         let stub = Stub::for_source("api.fda.gov", "application/json", move |req| {
             if req.lines().next() != Some(request.as_str()) {
                 return Err(format!("wrong native query: {req}"));
@@ -62,7 +63,7 @@ fn selectors() -> Result<(), String> {
         ];
         args.extend(flags.iter().map(|s| (*s).to_owned()));
         let globals = ["--record".into(), recording.to_string_lossy().into_owned()];
-        let value = invoke(&env, super::super::launch::arguments(&args, &globals), 0)?;
+        let value = invoke(&env, super::super::launch::arguments(&args, &globals), exit)?;
         if value.pointer("/result/source_query") != Some(&json!(expected))
             || value.pointer("/page/total") != Some(&json!(if empty { 0 } else { 1 }))
         {
@@ -70,7 +71,7 @@ fn selectors() -> Result<(), String> {
         }
         let replay = Environment::new().map_err(|e| e.to_string())?;
         let globals = replay.globals(Some(&recording), false);
-        let replayed = both(&replay, args, 0, &globals)?;
+        let replayed = both(&replay, args, exit, &globals)?;
         if replayed.get("result") != value.get("result") {
             return Err("replay changed result".into());
         }
