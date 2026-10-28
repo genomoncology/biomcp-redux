@@ -66,7 +66,7 @@ fn malformed_alias() -> Result<(), String> {
             || next.len() != count
             || rows
                 .iter()
-                .any(|row| row.pointer("/identity/ids") != Some(&json!(["rs113488022"])))
+                .any(|row| row.pointer("/identity/ids") != Some(&json!(["rs:113488022"])))
             || next
                 .iter()
                 .any(|step| step.to_string().contains("CA123643"))
