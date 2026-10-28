@@ -3,7 +3,6 @@ use super::alphagenome_enums::*;
 use serde::{Deserialize, Serialize};
 /// Native ontology identity.
 #[derive(Clone, Debug, PartialEq, Serialize, Deserialize)]
-#[serde(deny_unknown_fields)]
 #[cfg_attr(feature = "schema", derive(schemars::JsonSchema))]
 pub struct AlphaGenomeOntology {
     /// Publisher ontology vocabulary.
@@ -13,7 +12,6 @@ pub struct AlphaGenomeOntology {
 }
 /// Native biosample metadata.
 #[derive(Clone, Debug, PartialEq, Serialize, Deserialize)]
-#[serde(deny_unknown_fields)]
 #[cfg_attr(feature = "schema", derive(schemars::JsonSchema))]
 pub struct AlphaGenomeBiosample {
     /// Publisher sample category.
@@ -27,7 +25,6 @@ pub struct AlphaGenomeBiosample {
 }
 /// Native metadata for one tensor track.
 #[derive(Clone, Debug, PartialEq, Serialize, Deserialize)]
-#[serde(deny_unknown_fields)]
 #[cfg_attr(feature = "schema", derive(schemars::JsonSchema))]
 pub struct AlphaGenomeTrack {
     /// Publisher track name.
@@ -67,7 +64,6 @@ pub struct AlphaGenomeTrack {
 }
 /// Native gene metadata for a tensor row.
 #[derive(Clone, Debug, PartialEq, Serialize, Deserialize)]
-#[serde(deny_unknown_fields)]
 #[cfg_attr(feature = "schema", derive(schemars::JsonSchema))]
 pub struct AlphaGenomeGene {
     /// Publisher gene identifier.
@@ -90,7 +86,6 @@ pub struct AlphaGenomeGene {
 }
 /// Exact genomic coordinates supplied in the request and echoed by the source.
 #[derive(Clone, Debug, PartialEq, Serialize, Deserialize)]
-#[serde(deny_unknown_fields)]
 #[cfg_attr(feature = "schema", derive(schemars::JsonSchema))]
 pub struct AlphaGenomeVariant {
     /// Exact chromosome sent.
@@ -104,7 +99,6 @@ pub struct AlphaGenomeVariant {
 }
 /// A requested interval; the scoring response does not echo an interval field.
 #[derive(Clone, Debug, PartialEq, Serialize, Deserialize)]
-#[serde(deny_unknown_fields)]
 #[cfg_attr(feature = "schema", derive(schemars::JsonSchema))]
 pub struct AlphaGenomeInterval {
     /// Exact chromosome sent.
@@ -136,7 +130,6 @@ biodata::wire_enum! {
 }
 /// One native tensor value with its unchanged coordinate and metadata.
 #[derive(Clone, Debug, PartialEq, Serialize, Deserialize)]
-#[serde(deny_unknown_fields)]
 #[cfg_attr(feature = "schema", derive(schemars::JsonSchema))]
 pub struct AlphaGenomeValue {
     /// Native row-major tensor coordinate; plane, row and track indices.
@@ -151,7 +144,6 @@ pub struct AlphaGenomeValue {
 }
 /// Independent page of one requested scorer's native values.
 #[derive(Clone, Debug, PartialEq, Serialize, Deserialize)]
-#[serde(deny_unknown_fields)]
 #[cfg_attr(feature = "schema", derive(schemars::JsonSchema))]
 pub struct AlphaGenomeScorerPage {
     /// Request position used to associate this unlabelled response group.
@@ -173,7 +165,6 @@ pub struct AlphaGenomeScorerPage {
 }
 /// Paged native scorer results with explicit request provenance.
 #[derive(Clone, Debug, PartialEq, Serialize, Deserialize)]
-#[serde(deny_unknown_fields)]
 #[cfg_attr(feature = "schema", derive(schemars::JsonSchema))]
 pub struct VariantAlphaGenome {
     /// Source-resolved assembly used for the request.

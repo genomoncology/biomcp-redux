@@ -1,6 +1,7 @@
 # 0437 — Publish open reply schemas and make the gate protect readers
 
-Status: OPEN.
+Status: COMPLETE.
+Landed: 3ef45d0eca68735829fe08f6c7d7e827c5d3e724
 
 Milestone: 5
 

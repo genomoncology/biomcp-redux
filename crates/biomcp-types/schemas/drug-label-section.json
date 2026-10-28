@@ -1,7 +1,6 @@
 {
   "$defs": {
     "Attribution": {
-      "additionalProperties": false,
       "description": "Provenance for one source record.",
       "properties": {
         "evaluated": {
@@ -87,7 +86,6 @@
       "type": "string"
     },
     "DrugLabelReference": {
-      "additionalProperties": false,
       "description": "One independently identified label set and revision.",
       "properties": {
         "attribution": {
@@ -152,7 +150,6 @@
   },
   "$id": "biodata.drug-label-section/2",
   "$schema": "https://json-schema.org/draft/2020-12/schema",
-  "additionalProperties": false,
   "description": "Original label text under one exact native heading.",
   "properties": {
     "heading": {

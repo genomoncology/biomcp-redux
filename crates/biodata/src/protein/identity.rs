@@ -5,7 +5,6 @@ use crate::{
 use serde::{Deserialize, Serialize};
 /// A reviewed human protein listed by the authoritative gene record.
 #[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
-#[serde(deny_unknown_fields)]
 #[cfg_attr(feature = "schema", derive(schemars::JsonSchema))]
 pub struct Protein<A = UniProtAcc> {
     /// Checked primary accession.
@@ -24,7 +23,6 @@ pub struct Protein<A = UniProtAcc> {
 
 /// Native entry metadata wrapping the same Protein identity used by the gene slice.
 #[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
-#[serde(deny_unknown_fields)]
 #[cfg_attr(feature = "schema", derive(schemars::JsonSchema))]
 pub struct ProteinHeader {
     /// Shared gene/protein identity fields; never independently restated.
@@ -47,7 +45,6 @@ pub struct ProteinHeader {
 }
 /// Shared native feature contract without source label remapping.
 #[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
-#[serde(deny_unknown_fields)]
 #[cfg_attr(feature = "schema", derive(schemars::JsonSchema))]
 pub struct UniProtFeature {
     /// Exact source sequence identity.
@@ -74,7 +71,6 @@ pub struct UniProtFeature {
 }
 /// UniProt feature with source attribution and coordinate provenance.
 #[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
-#[serde(deny_unknown_fields)]
 #[cfg_attr(feature = "schema", derive(schemars::JsonSchema))]
 pub struct ProteinFeature {
     /// Shared feature, including native label and residues.
@@ -86,7 +82,6 @@ pub struct ProteinFeature {
 }
 /// One source alternative-product row; all stated identifiers stay together.
 #[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
-#[serde(deny_unknown_fields)]
 #[cfg_attr(feature = "schema", derive(schemars::JsonSchema))]
 pub struct ProteinIsoform {
     /// All source-stated isoform identifiers, including External base identities.

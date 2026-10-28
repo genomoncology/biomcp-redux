@@ -1,13 +1,14 @@
 //! Feature adverse-event-retirements: migration never rewrites a query or contacts a source.
 use super::{configuration::invoke, launch::Environment, mcp};
+use crate::runner::transcript::trial as transcript_trial;
 use libtest_mimic::Trial;
 use serde_json::json;
 pub(super) fn trials() -> Vec<Trial> {
     vec![
-        Trial::test("adverse-event-retirements/fixed-guidance-before-io", || {
+        transcript_trial("adverse-event-retirements/fixed-guidance-before-io", || {
             check().map_err(Into::into)
         }),
-        Trial::test(
+        transcript_trial(
             "adverse-event-retirements/option-and-literal-boundaries",
             || boundaries().map_err(Into::into),
         ),
@@ -258,19 +259,19 @@ const CASES: &[(&str, &str)] = &[
     ),
     (
         "search adverse-event text --type recall",
-        "recalls are outside this entity",
+        "use: search diagnostic --source fda-device-recall; covers every medical device",
     ),
     (
         "search adverse-event text --type recalls",
-        "recalls are outside this entity",
+        "use: search diagnostic --source fda-device-recall; covers every medical device",
     ),
     (
         "search adverse-event text --type enforcement",
-        "recalls are outside this entity",
+        "use: search diagnostic --source fda-device-recall; covers every medical device",
     ),
     (
         "search adverse-event text --classification 1",
-        "recalls are outside this entity",
+        "use: search diagnostic --source fda-device-recall; covers every medical device",
     ),
     (
         "search adverse-event text --source all",
@@ -483,15 +484,15 @@ const CASES: &[(&str, &str)] = &[
     ),
     (
         "search adverse-event text --type=recall",
-        "recalls are outside this entity",
+        "use: search diagnostic --source fda-device-recall; covers every medical device",
     ),
     (
         "search adverse-event text --type=recalls",
-        "recalls are outside this entity",
+        "use: search diagnostic --source fda-device-recall; covers every medical device",
     ),
     (
         "search adverse-event text --type=enforcement",
-        "recalls are outside this entity",
+        "use: search diagnostic --source fda-device-recall; covers every medical device",
     ),
     (
         "get adverse-event 100 --section=outcomes",

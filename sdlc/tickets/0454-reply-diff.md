@@ -1,6 +1,7 @@
 # 0454 — Compare full replies between two builds
 
-Status: OPEN.
+Status: COMPLETE.
+Landed: 34c2fa1c441f165fa3ddf329999a5d2c908c3edf
 
 Milestone: 5
 

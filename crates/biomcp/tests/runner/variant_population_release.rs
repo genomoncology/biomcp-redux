@@ -3,11 +3,12 @@ use super::{
     network_stub::Stub,
     variant_population::{environment, population_body},
 };
+use crate::runner::transcript::trial as transcript_trial;
 use libtest_mimic::Trial;
 use serde_json::{Value, json};
 
 pub(super) fn trials() -> Vec<Trial> {
-    vec![Trial::test(
+    vec![transcript_trial(
         "variant/population-release-from-same-response",
         || release().map_err(Into::into),
     )]

@@ -5,6 +5,7 @@ use super::{
     configuration::invoke,
     launch::{Environment, fixtures},
 };
+use crate::runner::transcript::trial as transcript_trial;
 use libtest_mimic::Trial;
 use serde_json::{Value, json};
 use std::{
@@ -14,31 +15,31 @@ use std::{
 type Check = Result<(), String>;
 pub(super) fn trials() -> Vec<Trial> {
     vec![
-        Trial::test("diagnostic-who-search/overlapping-phrases", || {
+        transcript_trial("diagnostic-who-search/overlapping-phrases", || {
             search::overlapping().map_err(Into::into)
         }),
-        Trial::test(
+        transcript_trial(
             "diagnostic-who-search/full-walk-keeps-candidates-and-revision",
             || search::walk().map_err(Into::into),
         ),
-        Trial::test(
+        transcript_trial(
             "diagnostic-who-search/replacement-and-policy-admission",
             || search::admission().map_err(Into::into),
         ),
-        Trial::test("diagnostic-who/missing-and-unsupported-never-fetch", || {
+        transcript_trial("diagnostic-who/missing-and-unsupported-never-fetch", || {
             missing().map_err(Into::into)
         }),
-        Trial::test("diagnostic-who/policy-before-stored-data", || {
+        transcript_trial("diagnostic-who/policy-before-stored-data", || {
             policy().map_err(Into::into)
         }),
-        Trial::test("diagnostic-who/failed-replacement-keeps-old-copy", || {
+        transcript_trial("diagnostic-who/failed-replacement-keeps-old-copy", || {
             replacement().map_err(Into::into)
         }),
-        Trial::test(
+        transcript_trial(
             "diagnostic-who/two-readers-during-atomic-replacement",
             || mechanics::concurrent().map_err(Into::into),
         ),
-        Trial::test("diagnostic-who/markdown-keeps-native-cells", || {
+        transcript_trial("diagnostic-who/markdown-keeps-native-cells", || {
             mechanics::markdown().map_err(Into::into)
         }),
     ]

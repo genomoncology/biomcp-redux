@@ -5,6 +5,7 @@ use super::{
     mcp::request,
     publication::Peer,
 };
+use crate::runner::transcript::trial as transcript_trial;
 use libtest_mimic::Trial;
 use serde_json::{Value, json};
 
@@ -12,10 +13,10 @@ mod store_locks;
 
 pub(super) fn trials() -> Vec<Trial> {
     let mut trials = vec![
-        Trial::test("cache/checked-gene-survives-write-contention", || {
+        transcript_trial("cache/checked-gene-survives-write-contention", || {
             checked_gene().map_err(Into::into)
         }),
-        Trial::test(
+        transcript_trial(
             "cache/checked-protein-command-survives-write-contention",
             || checked_protein().map_err(Into::into),
         ),

@@ -2,7 +2,6 @@ use crate::{AccessionBase, FiniteNumber, Text};
 use serde::{Deserialize, Serialize};
 /// Source constraint metrics for the source's preferred transcript.
 #[derive(Clone, Debug, PartialEq, Serialize, Deserialize)]
-#[serde(deny_unknown_fields)]
 #[cfg_attr(feature = "schema", derive(schemars::JsonSchema))]
 pub struct Constraint {
     /// Probability of loss-of-function intolerance.

@@ -7,7 +7,7 @@ macro_rules! article {
         #[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
         #[serde(try_from = "ArticleFields<A>")]
         #[cfg_attr(feature = "schema", derive(schemars::JsonSchema))]
-        #[cfg_attr(feature = "schema", schemars(!try_from, deny_unknown_fields,
+        #[cfg_attr(feature = "schema", schemars(!try_from,
             extend("anyOf" = [
                 {"required":["pmid"]},
                 {"required":["pmcid"]},
@@ -19,8 +19,7 @@ macro_rules! article {
         }
         #[derive(Deserialize)]
         #[cfg_attr(feature = "schema", derive(schemars::JsonSchema))]
-        #[serde(deny_unknown_fields)]
-        struct ArticleFields<A> {
+                struct ArticleFields<A> {
             $( $(#[$attribute])* $field: $ty, )*
         }
         impl<A> TryFrom<ArticleFields<A>> for Article<A> {
@@ -100,7 +99,6 @@ impl Article {
 }
 /// One source-labelled abstract paragraph.
 #[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
-#[serde(deny_unknown_fields)]
 #[cfg_attr(feature = "schema", derive(schemars::JsonSchema))]
 pub struct AbstractPart {
     /// Source label, when supplied.
@@ -131,7 +129,6 @@ biodata::canonical_enum! {
 }
 /// One correction relationship supplied by PubMed.
 #[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
-#[serde(deny_unknown_fields)]
 #[cfg_attr(feature = "schema", derive(schemars::JsonSchema))]
 pub struct Correction {
     /// Correction category.

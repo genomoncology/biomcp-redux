@@ -1,14 +1,15 @@
 //! Features variant-identity and variant-assertions expose source reads without fetching assertions.
 use super::{launch::Environment, network_stub::Stub};
+use crate::runner::transcript::trial as transcript_trial;
 use libtest_mimic::Trial;
 use serde_json::{Value, json};
 use std::fs;
 pub(super) fn trials() -> Vec<Trial> {
     vec![
-        Trial::test("variant/card-discovers-clinvar-without-request", || {
+        transcript_trial("variant/card-discovers-clinvar-without-request", || {
             card().map_err(Into::into)
         }),
-        Trial::test(
+        transcript_trial(
             "variant/clinvar-default-page-retains-total-and-continuation",
             || page().map_err(Into::into),
         ),

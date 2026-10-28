@@ -4,7 +4,6 @@ use serde::{Deserialize, Serialize};
 use std::num::NonZeroU32;
 /// One complete native cross-reference; database and accession form the source identity.
 #[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
-#[serde(deny_unknown_fields)]
 #[cfg_attr(feature = "schema", derive(schemars::JsonSchema))]
 pub struct CellLineXref {
     /// Native database name; no fixed vocabulary.
@@ -30,7 +29,6 @@ pub struct CellLineXref {
 }
 /// Entry dates and entry version are independent of dataset release and retrieval time.
 #[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
-#[serde(deny_unknown_fields)]
 #[cfg_attr(feature = "schema", derive(schemars::JsonSchema))]
 pub struct CellLineEntryDates {
     /// Source entry creation date.
@@ -45,7 +43,6 @@ pub struct CellLineEntryDates {
 }
 /// One source cell identity with complete independently scoped species and disease collections.
 #[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
-#[serde(deny_unknown_fields)]
 #[cfg_attr(feature = "schema", derive(schemars::JsonSchema))]
 pub struct CellLineIdentity {
     /// Primary source accession.
@@ -69,7 +66,6 @@ pub struct CellLineIdentity {
 }
 /// Complete source warning with its native scope; no stock classifier is derived.
 #[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
-#[serde(deny_unknown_fields)]
 #[cfg_attr(feature = "schema", derive(schemars::JsonSchema))]
 pub struct CellLineWarning {
     /// Native warning category, such as Problematic cell line.
@@ -79,7 +75,6 @@ pub struct CellLineWarning {
 }
 /// One native display name entry, never an identity key.
 #[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
-#[serde(deny_unknown_fields)]
 #[cfg_attr(feature = "schema", derive(schemars::JsonSchema))]
 pub struct CellLineName {
     /// Native name type, preserving identifier and synonym labels.
@@ -89,7 +84,6 @@ pub struct CellLineName {
 }
 /// A native variation gene member with only a source-supplied HGNC identity.
 #[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
-#[serde(deny_unknown_fields)]
 #[cfg_attr(feature = "schema", derive(schemars::JsonSchema))]
 pub struct CellLineGene {
     /// Complete original source gene cross-reference.
@@ -100,7 +94,6 @@ pub struct CellLineGene {
 }
 /// One native internal publication reference, without requiring PubMed.
 #[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
-#[serde(deny_unknown_fields)]
 #[cfg_attr(feature = "schema", derive(schemars::JsonSchema))]
 pub struct CellLineReference {
     /// Complete native resource reference, for example PubMed=9305600.
@@ -108,7 +101,6 @@ pub struct CellLineReference {
 }
 /// One complete native source row; reference, institution and database provenance stay independent.
 #[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
-#[serde(deny_unknown_fields)]
 #[cfg_attr(feature = "schema", derive(schemars::JsonSchema))]
 pub struct CellLineProvenance {
     /// Native publication reference if supplied.
@@ -126,7 +118,6 @@ pub struct CellLineProvenance {
 }
 /// One complete native variation row; descriptions do not become normalized alleles.
 #[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
-#[serde(deny_unknown_fields)]
 #[cfg_attr(feature = "schema", derive(schemars::JsonSchema))]
 pub struct CellLineVariation {
     /// Native open variation label.

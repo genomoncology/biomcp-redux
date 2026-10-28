@@ -2,7 +2,7 @@ use crate::{Article, ArticleGet, ArticleInput, ArticleMatchKind, Capped, ItemSta
 use serde::{Deserialize, Serialize};
 /// Result of resolving an article selector.
 #[derive(Clone, Debug, PartialEq, Serialize, Deserialize)]
-#[serde(tag = "resolution", rename_all = "snake_case", deny_unknown_fields)]
+#[serde(tag = "resolution", rename_all = "snake_case")]
 #[cfg_attr(feature = "schema", derive(schemars::JsonSchema))]
 pub enum ArticleResolution {
     /// A record whose own identity agrees with the input.
@@ -19,7 +19,6 @@ pub enum ArticleResolution {
 }
 /// Identity evidence for an article card.
 #[derive(Clone, Debug, PartialEq, Serialize, Deserialize)]
-#[serde(deny_unknown_fields)]
 #[cfg_attr(feature = "schema", derive(schemars::JsonSchema))]
 pub struct ArticleMatch {
     /// Namespace used to resolve the card.
@@ -27,7 +26,6 @@ pub struct ArticleMatch {
 }
 /// Answer to one input; shared DOIs may expand to several consecutive items.
 #[derive(Clone, Debug, PartialEq, Serialize, Deserialize)]
-#[serde(deny_unknown_fields)]
 #[cfg_attr(feature = "schema", derive(schemars::JsonSchema))]
 pub struct ArticleCardItem {
     /// Original selector.
@@ -46,7 +44,6 @@ pub struct ArticleCardItem {
 }
 /// Cards in caller order.
 #[derive(Clone, Debug, PartialEq, Serialize, Deserialize)]
-#[serde(deny_unknown_fields)]
 #[cfg_attr(feature = "schema", derive(schemars::JsonSchema))]
 pub struct ArticleCards {
     /// Per-input answers.

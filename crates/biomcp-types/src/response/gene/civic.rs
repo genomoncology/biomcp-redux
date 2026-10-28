@@ -2,7 +2,6 @@ use crate::Text;
 use serde::{Deserialize, Serialize};
 /// CIViC's gene-level entry without evidence or variant lists.
 #[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
-#[serde(deny_unknown_fields)]
 #[cfg_attr(feature = "schema", derive(schemars::JsonSchema))]
 pub struct CivicGene {
     /// CIViC feature identifier.

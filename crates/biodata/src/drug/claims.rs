@@ -4,7 +4,6 @@ use crate::{Attribution, PartialDate, Text};
 use serde::{Deserialize, Serialize};
 /// One independently identified label set and revision.
 #[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
-#[serde(deny_unknown_fields)]
 #[cfg_attr(feature = "schema", derive(schemars::JsonSchema))]
 pub struct DrugLabelReference {
     /// Published SPL set or native label record ID.
@@ -24,7 +23,6 @@ pub struct DrugLabelReference {
 }
 /// Original label text under one exact native heading.
 #[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
-#[serde(deny_unknown_fields)]
 #[cfg_attr(feature = "schema", derive(schemars::JsonSchema))]
 pub struct DrugLabelSection {
     /// Label identity and revision.
@@ -36,7 +34,6 @@ pub struct DrugLabelSection {
 }
 /// A source indication retaining its full population and combination wording.
 #[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
-#[serde(deny_unknown_fields)]
 #[cfg_attr(feature = "schema", derive(schemars::JsonSchema))]
 pub struct DrugIndicationClaim {
     /// Source drug identity.

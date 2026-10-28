@@ -3,7 +3,6 @@ use serde::{Deserialize, Serialize};
 
 /// One source-native target identity, without inventing a gene label.
 #[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
-#[serde(deny_unknown_fields)]
 #[cfg_attr(feature = "schema", derive(schemars::JsonSchema))]
 pub struct DrugNativeTarget {
     /// Source responsible for the native identifier.
@@ -21,7 +20,6 @@ pub struct DrugNativeTarget {
 
 /// One native disease identifier and its own source label.
 #[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
-#[serde(deny_unknown_fields)]
 #[cfg_attr(feature = "schema", derive(schemars::JsonSchema))]
 pub struct DrugDiseaseReference {
     /// Source namespace spelling, such as EFO or MeSH.
@@ -35,7 +33,6 @@ pub struct DrugDiseaseReference {
 
 /// One source development-stage field and its unchanged value.
 #[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
-#[serde(deny_unknown_fields)]
 #[cfg_attr(feature = "schema", derive(schemars::JsonSchema))]
 pub struct DrugStage {
     /// Exact native field name.
@@ -46,7 +43,6 @@ pub struct DrugStage {
 
 /// Typed source reference shared by mechanism and indication records.
 #[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
-#[serde(deny_unknown_fields)]
 #[cfg_attr(feature = "schema", derive(schemars::JsonSchema))]
 pub struct DrugNativeReference {
     /// Native reference type.

@@ -1,7 +1,6 @@
 use serde::{Deserialize, Serialize};
 /// Registry page preserving source order and source processing time.
 #[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
-#[serde(deny_unknown_fields)]
 #[cfg_attr(feature = "schema", derive(schemars::JsonSchema))]
 pub struct TrialPage {
     /// Native study headers in registry order.
@@ -20,13 +19,12 @@ pub struct TrialPage {
     pub attribution: String,
 }
 impl super::ResponseBody for TrialPage {
-    const SCHEMA: &'static str = "biomcp.trial-page/9";
+    const SCHEMA: &'static str = "biomcp.trial-page/10";
     type Query = crate::TrialSearch;
 }
 
 /// One exact source request parameter, in canonical name order.
 #[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
-#[serde(deny_unknown_fields)]
 #[cfg_attr(feature = "schema", derive(schemars::JsonSchema))]
 pub struct TrialParameter {
     /// Native parameter name.

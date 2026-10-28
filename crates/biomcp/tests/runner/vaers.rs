@@ -1,5 +1,6 @@
 //! Feature vaers-summary: explicit vaccine selection and failed source outcomes.
 use super::{configuration::invoke, launch::Environment, network_stub::Stub};
+use crate::runner::transcript::trial as transcript_trial;
 use libtest_mimic::Trial;
 use serde_json::{Value, json};
 mod admission;
@@ -15,35 +16,35 @@ type Check = Result<(), String>;
 
 pub(super) fn trials() -> Vec<Trial> {
     vec![
-        Trial::test("vaers-summary/complete-cdc-latin1-xml-replay", || {
+        transcript_trial("vaers-summary/complete-cdc-latin1-xml-replay", || {
             live::run().map_err(Into::into)
         }),
-        Trial::test(
+        transcript_trial(
             "vaers-summary/exact-influenza-types-and-native-labels",
             || influenza::run().map_err(Into::into),
         ),
-        Trial::test("vaers-summary/policy-before-cache-and-replay", || {
+        transcript_trial("vaers-summary/policy-before-cache-and-replay", || {
             policy::run().map_err(Into::into)
         }),
-        Trial::test("vaers-summary/user-agent-is-source-specific", || {
+        transcript_trial("vaers-summary/user-agent-is-source-specific", || {
             policy::default_agent().map_err(Into::into)
         }),
-        Trial::test(
+        transcript_trial(
             "vaers-summary/invalid-shape-and-identity-never-cache",
             || admission::run().map_err(Into::into),
         ),
-        Trial::test(
+        transcript_trial(
             "vaers-summary/rejected-filters-and-influenza-before-io",
             || rejections::run().map_err(Into::into),
         ),
-        Trial::test("vaers-summary/synthetic-403-429-500-timeout-broken", || {
+        transcript_trial("vaers-summary/synthetic-403-429-500-timeout-broken", || {
             failures::run().map_err(Into::into)
         }),
-        Trial::test(
+        transcript_trial(
             "vaers-summary/independent-tables-retained-walk-and-suppression",
             || navigation::run().map_err(Into::into),
         ),
-        Trial::test("vaers-summary/unsupported-vaccine-before-io", || {
+        transcript_trial("vaers-summary/unsupported-vaccine-before-io", || {
             unsupported().map_err(Into::into)
         }),
     ]

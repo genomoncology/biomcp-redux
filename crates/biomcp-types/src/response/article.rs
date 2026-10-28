@@ -26,7 +26,6 @@ pub enum ArticleKey {
 }
 /// One original pool position, including a summary hole.
 #[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
-#[serde(deny_unknown_fields)]
 #[cfg_attr(feature = "schema", derive(schemars::JsonSchema))]
 pub struct ArticleItem {
     /// Stable checked paper identity when the provider supplies one.
@@ -61,7 +60,6 @@ pub struct ArticleItem {
 }
 /// A slice of the stored article source order.
 #[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
-#[serde(deny_unknown_fields)]
 #[cfg_attr(feature = "schema", derive(schemars::JsonSchema))]
 pub struct ArticlePage {
     /// Original ordered items.
@@ -78,7 +76,6 @@ impl super::ResponseBody for ArticlePage {
 
 /// A page of citing or referenced papers in citation order.
 #[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
-#[serde(deny_unknown_fields)]
 #[cfg_attr(feature = "schema", derive(schemars::JsonSchema))]
 pub struct ArticleEdgePage {
     /// Papers in the fixed edge pool.
@@ -107,7 +104,6 @@ biodata::canonical_enum! {
 
 /// Public LitVar2 autocomplete candidate, without a clinical ranking claim.
 #[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
-#[serde(deny_unknown_fields)]
 #[cfg_attr(feature = "schema", derive(schemars::JsonSchema))]
 pub struct LitVarCandidate {
     /// Source rsID, when the source associates one with this variant.
@@ -130,7 +126,6 @@ pub use evidence::{
 };
 /// Source-provided sentence resemblance, without a claim of clinical relevance.
 #[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
-#[serde(deny_unknown_fields)]
 #[cfg_attr(feature = "schema", derive(schemars::JsonSchema))]
 pub struct ArticleSentence {
     /// Source section, when present.

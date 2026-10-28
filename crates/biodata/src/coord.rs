@@ -37,7 +37,6 @@ impl From<Position1> for u32 {
 /// A zero-based half-open span with ordered bounds; empty spans are valid.
 #[derive(Clone, Copy, Debug, PartialEq, Eq, Hash, Serialize)]
 #[cfg_attr(feature = "schema", derive(schemars::JsonSchema))]
-#[cfg_attr(feature = "schema", schemars(deny_unknown_fields))]
 pub struct Span0 {
     #[cfg_attr(feature = "schema", schemars(range(max = u32::MAX)))]
     start: u32,
@@ -66,7 +65,6 @@ impl Span0 {
 }
 
 #[derive(Deserialize)]
-#[serde(deny_unknown_fields)]
 struct SpanBounds {
     start: u32,
     end: u32,

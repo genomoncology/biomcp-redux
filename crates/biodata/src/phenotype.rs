@@ -47,7 +47,6 @@ impl HpId {
 }
 /// One native term search candidate, without a selected identity.
 #[derive(Clone, Debug, PartialEq, Serialize, Deserialize)]
-#[serde(deny_unknown_fields)]
 #[cfg_attr(feature = "schema", derive(schemars::JsonSchema))]
 pub struct PhenotypeHeader {
     /// Source HP identity.
@@ -68,7 +67,7 @@ pub struct PhenotypeHeader {
 }
 /// Native source card, with independent HPO and Monarch metadata.
 #[derive(Clone, Debug, PartialEq, Serialize, Deserialize)]
-#[serde(tag = "source", rename_all = "snake_case", deny_unknown_fields)]
+#[serde(tag = "source", rename_all = "snake_case")]
 #[cfg_attr(feature = "schema", derive(schemars::JsonSchema))]
 pub enum PhenotypeCard {
     /// The direct HPO term answer.
@@ -120,7 +119,6 @@ pub enum PhenotypeCard {
 }
 /// Native collection counts, without summing scopes or counting patients.
 #[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
-#[serde(deny_unknown_fields)]
 #[cfg_attr(feature = "schema", derive(schemars::JsonSchema))]
 pub struct PhenotypeAssociationCount {
     /// Native category key.
@@ -140,7 +138,6 @@ pub struct PhenotypeAssociationCount {
 }
 /// One native synonym; HPO values remain unclassified.
 #[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
-#[serde(deny_unknown_fields)]
 #[cfg_attr(feature = "schema", derive(schemars::JsonSchema))]
 pub struct PhenotypeSynonym {
     /// Whole source text.
@@ -166,7 +163,6 @@ crate::wire_enum! { described
 }
 /// One exact native cross reference, without equivalence promotion.
 #[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
-#[serde(deny_unknown_fields)]
 #[cfg_attr(feature = "schema", derive(schemars::JsonSchema))]
 pub struct PhenotypeXref {
     /// Exact publisher reference.
@@ -179,7 +175,6 @@ pub struct PhenotypeXref {
 }
 /// One native direct hierarchy link, without traversal or inferred equivalence.
 #[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
-#[serde(deny_unknown_fields)]
 #[cfg_attr(feature = "schema", derive(schemars::JsonSchema))]
 pub struct PhenotypeHierarchyLink {
     /// Exact related term identifier; native parents can be outside HP.

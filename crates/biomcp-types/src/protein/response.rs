@@ -12,7 +12,6 @@ macro_rules! page {
     ($name:ident, $row:ty, $query:ty, $schema:literal, $doc:literal) => {
         #[doc = $doc]
         #[derive(Clone, Debug, PartialEq, Serialize, Deserialize)]
-        #[serde(deny_unknown_fields)]
         #[cfg_attr(feature = "schema", derive(schemars::JsonSchema))]
         pub struct $name {
             /// Whole native rows in source order; totals apply only to this collection.
@@ -41,7 +40,6 @@ page!(
 );
 /// Whole native rows with the independent unfiltered source count.
 #[derive(Clone, Debug, PartialEq, Serialize, Deserialize)]
-#[serde(deny_unknown_fields)]
 #[cfg_attr(feature = "schema", derive(schemars::JsonSchema))]
 pub struct ProteinDomains {
     /// Bounded retained rows in source order.
@@ -63,7 +61,6 @@ page!(
 );
 /// Whole native rows with the independent unfiltered source count.
 #[derive(Clone, Debug, PartialEq, Serialize, Deserialize)]
-#[serde(deny_unknown_fields)]
 #[cfg_attr(feature = "schema", derive(schemars::JsonSchema))]
 pub struct ProteinComplexes {
     /// Bounded retained rows in source order.
@@ -92,7 +89,6 @@ page!(
 );
 /// Answers to requested inputs; ambiguous gene inputs retain all candidates.
 #[derive(Clone, Debug, PartialEq, Serialize, Deserialize)]
-#[serde(deny_unknown_fields)]
 #[cfg_attr(feature = "schema", derive(schemars::JsonSchema))]
 pub struct ProteinCard {
     /// One result per input in caller order.
@@ -105,7 +101,6 @@ impl ResponseBody for ProteinCard {
 }
 /// One requested identity and its source outcome, without first-hit selection.
 #[derive(Clone, Debug, PartialEq, Serialize, Deserialize)]
-#[serde(deny_unknown_fields)]
 #[cfg_attr(feature = "schema", derive(schemars::JsonSchema))]
 pub struct ProteinCardItem {
     /// Original caller identity.
@@ -130,7 +125,6 @@ pub struct ProteinCardItem {
 }
 /// Independent source section states; all discloses bounded first pages only.
 #[derive(Clone, Debug, PartialEq, Serialize, Deserialize)]
-#[serde(deny_unknown_fields)]
 #[cfg_attr(feature = "schema", derive(schemars::JsonSchema))]
 pub struct ProteinSections {
     /// Requested UniProt feature page.
@@ -157,7 +151,6 @@ pub struct ProteinSections {
 }
 /// One directly returned source sequence, with exact identity and audit metadata.
 #[derive(Clone, Debug, PartialEq, Serialize, Deserialize)]
-#[serde(deny_unknown_fields)]
 #[cfg_attr(feature = "schema", derive(schemars::JsonSchema))]
 pub struct ProteinSequenceResult {
     /// Native sequence record; never constructed from another entry.
@@ -169,7 +162,6 @@ impl ResponseBody for ProteinSequenceResult {
 }
 /// Whole source function paragraphs and their own evidence.
 #[derive(Clone, Debug, PartialEq, Serialize, Deserialize)]
-#[serde(deny_unknown_fields)]
 #[cfg_attr(feature = "schema", derive(schemars::JsonSchema))]
 pub struct ProteinFunctionResult {
     /// Native paragraphs in source order, without inferred interpretation.

@@ -7,14 +7,14 @@
     },
     "Build": {
       "description": "The assembly stated by the source; no default is inferred.",
-      "enum": [
-        "GRCh37",
-        "GRCh38"
-      ],
       "type": "string",
       "x-enum-descriptions": [
         " Genome Reference Consortium human build 37.",
         " Genome Reference Consortium human build 38."
+      ],
+      "x-extensible-enum": [
+        "GRCh37",
+        "GRCh38"
       ]
     },
     "CacheProblem": {
@@ -27,7 +27,6 @@
       "type": "string"
     },
     "CancerPtpm": {
-      "additionalProperties": false,
       "description": "HPA cancer RNA abundance in protein-coding transcripts per million.",
       "properties": {
         "ptpm": {
@@ -46,7 +45,6 @@
       "type": "object"
     },
     "Capped": {
-      "additionalProperties": false,
       "description": "A bounded list with the total before its cap was applied.",
       "properties": {
         "items": {
@@ -74,7 +72,6 @@
       "type": "string"
     },
     "CivicGene": {
-      "additionalProperties": false,
       "description": "CIViC's gene-level entry without evidence or variant lists.",
       "properties": {
         "description": {
@@ -114,7 +111,6 @@
       "type": "object"
     },
     "ClinGenGene": {
-      "additionalProperties": false,
       "description": "ClinGen gene validity and dosage assessments in published source order.",
       "properties": {
         "dosage_date": {
@@ -173,7 +169,6 @@
       "type": "object"
     },
     "ClinGenValidity": {
-      "additionalProperties": false,
       "description": "One published ClinGen gene–disease validity record.",
       "properties": {
         "classification": {
@@ -218,7 +213,6 @@
       "type": "object"
     },
     "Constraint": {
-      "additionalProperties": false,
       "description": "Source constraint metrics for the source's preferred transcript.",
       "properties": {
         "flags": {
@@ -268,11 +262,6 @@
       ],
       "type": "object"
     },
-    "Cytoband": {
-      "description": " A single nuclear cytogenetic band, without a range or location descriptor.",
-      "pattern": "^([1-9]|1[0-9]|2[0-2]|X|Y)[pq][1-9][0-9](\\.[0-9]+)?$",
-      "type": "string"
-    },
     "EnsemblGeneId": {
       "description": " A human Ensembl gene stable identifier with a separately retained version.",
       "pattern": "^ENSG[0-9]{11}(\\.[1-9][0-9]*)?$",
@@ -284,7 +273,6 @@
       "type": "number"
     },
     "GenccGene": {
-      "additionalProperties": false,
       "description": "GenCC records in published order without merged classifications.",
       "properties": {
         "submissions": {
@@ -301,7 +289,6 @@
       "type": "object"
     },
     "GenccSubmission": {
-      "additionalProperties": false,
       "description": "One source submission; no clinical validity is inferred.",
       "properties": {
         "classification": {
@@ -382,7 +369,6 @@
       "type": "object"
     },
     "Gene": {
-      "additionalProperties": false,
       "description": "Human gene identity and whole source annotations, independent of response cards.",
       "properties": {
         "aliases": {
@@ -421,13 +407,13 @@
         "location": {
           "anyOf": [
             {
-              "$ref": "#/$defs/Cytoband"
+              "$ref": "#/$defs/GeneLocation"
             },
             {
               "type": "null"
             }
           ],
-          "description": "Single stated band, if available."
+          "description": "Source-stated location, including unparsed publisher text."
         },
         "locus_group": {
           "$ref": "#/$defs/LocusGroup",
@@ -513,7 +499,6 @@
       "type": "object"
     },
     "GeneCards": {
-      "additionalProperties": false,
       "description": "Gene answers in input order.",
       "properties": {
         "items": {
@@ -527,7 +512,6 @@
       "type": "object"
     },
     "GeneExpression": {
-      "additionalProperties": false,
       "description": "Gene-level HPA expression and subcellular annotations.",
       "properties": {
         "rna_cancer_ptpm": {
@@ -595,7 +579,6 @@
       "type": "object"
     },
     "GeneGet": {
-      "additionalProperties": false,
       "description": "Get one to twenty human gene inputs in their original order.",
       "properties": {
         "input": {
@@ -623,7 +606,6 @@
       "type": "object"
     },
     "GeneHeader": {
-      "additionalProperties": false,
       "description": "Enough gene identity to choose a search result.",
       "properties": {
         "hgnc_id": {
@@ -633,13 +615,13 @@
         "location": {
           "anyOf": [
             {
-              "$ref": "#/$defs/Cytoband"
+              "$ref": "#/$defs/GeneLocation"
             },
             {
               "type": "null"
             }
           ],
-          "description": "A single stated band, if available."
+          "description": "Source-stated location, including unparsed publisher text."
         },
         "locus_group": {
           "$ref": "#/$defs/LocusGroup",
@@ -684,7 +666,6 @@
       "type": "string"
     },
     "GeneItem": {
-      "additionalProperties": false,
       "description": "Answer to one requested input.",
       "properties": {
         "answer": {
@@ -742,11 +723,14 @@
       ],
       "type": "object"
     },
+    "GeneLocation": {
+      "description": "HGNC location text with a parsed interpretation when its syntax is known.",
+      "type": "string"
+    },
     "GeneResolution": {
       "description": "Resolution outcomes preserve ambiguity and withdrawn identity.",
       "oneOf": [
         {
-          "additionalProperties": false,
           "description": "One resolved identity and its source match.",
           "properties": {
             "gene": {
@@ -770,7 +754,6 @@
           "type": "object"
         },
         {
-          "additionalProperties": false,
           "description": "Every candidate, with no silent selection.",
           "properties": {
             "candidates": {
@@ -791,7 +774,6 @@
           "type": "object"
         },
         {
-          "additionalProperties": false,
           "description": "The original withdrawn identity and stated successors.",
           "properties": {
             "hgnc_id": {
@@ -827,7 +809,6 @@
           "type": "object"
         },
         {
-          "additionalProperties": false,
           "description": "No source identity matched.",
           "properties": {
             "resolution": {
@@ -844,16 +825,6 @@
     },
     "GeneSection": {
       "description": "A landed section that can be requested for a gene.",
-      "enum": [
-        "protein",
-        "civic",
-        "clingen",
-        "gencc",
-        "constraint",
-        "expression",
-        "pathways",
-        "oncokb"
-      ],
       "type": "string",
       "x-enum-descriptions": [
         " Reviewed human proteins.",
@@ -864,11 +835,8 @@
         " Human Protein Atlas expression.",
         " Human Reactome pathways.",
         " Keyed OncoKB annotations."
-      ]
-    },
-    "GeneSectionWord": {
-      "description": "A section request word, including expansion to all landed sections.",
-      "enum": [
+      ],
+      "x-extensible-enum": [
         "protein",
         "civic",
         "clingen",
@@ -876,9 +844,11 @@
         "constraint",
         "expression",
         "pathways",
-        "oncokb",
-        "all"
-      ],
+        "oncokb"
+      ]
+    },
+    "GeneSectionWord": {
+      "description": "A section request word, including expansion to all landed sections.",
       "type": "string",
       "x-enum-descriptions": [
         " Reviewed human proteins.",
@@ -890,10 +860,20 @@
         " Human Reactome pathways.",
         " Keyed OncoKB annotations.",
         " Every landed section."
+      ],
+      "x-extensible-enum": [
+        "protein",
+        "civic",
+        "clingen",
+        "gencc",
+        "constraint",
+        "expression",
+        "pathways",
+        "oncokb",
+        "all"
       ]
     },
     "GeneSections": {
-      "additionalProperties": false,
       "description": "Landed gene sections, each retaining its source and explicit state.",
       "properties": {
         "civic": {
@@ -989,14 +969,14 @@
     },
     "GeneStatus": {
       "description": "HGNC approval status.",
-      "enum": [
-        "approved",
-        "withdrawn"
-      ],
       "type": "string",
       "x-enum-descriptions": [
         " An HGNC approved record.",
         " An HGNC withdrawn record."
+      ],
+      "x-extensible-enum": [
+        "approved",
+        "withdrawn"
       ]
     },
     "GeneSymbol": {
@@ -1005,7 +985,6 @@
       "type": "string"
     },
     "GenomicInterval": {
-      "additionalProperties": false,
       "description": "An assembly-qualified zero-based half-open source interval.",
       "properties": {
         "build": {
@@ -1052,25 +1031,18 @@
     },
     "HgncStatus": {
       "description": "HGNC's stated withdrawn-file status.",
-      "enum": [
-        "entry_withdrawn",
-        "merged_split"
-      ],
       "type": "string",
       "x-enum-descriptions": [
         " Entry withdrawn.",
         " Entry merged or split."
+      ],
+      "x-extensible-enum": [
+        "entry_withdrawn",
+        "merged_split"
       ]
     },
     "LocusGroup": {
       "description": "HGNC locus group, separate from a missing source value.",
-      "enum": [
-        "protein_coding",
-        "non_coding_rna",
-        "pseudogene",
-        "phenotype",
-        "other"
-      ],
       "type": "string",
       "x-enum-descriptions": [
         " Protein coding.",
@@ -1078,37 +1050,17 @@
         " Pseudogene.",
         " Phenotype.",
         " HGNC's stated other group."
+      ],
+      "x-extensible-enum": [
+        "protein_coding",
+        "non_coding_rna",
+        "pseudogene",
+        "phenotype",
+        "other"
       ]
     },
     "LocusType": {
       "description": "HGNC locus type; Unknown is a source-stated value, distinct from absence.",
-      "enum": [
-        "gene_with_protein_product",
-        "rna_cluster",
-        "long_non_coding_rna",
-        "micro_rna",
-        "misc_rna",
-        "ribosomal_rna",
-        "small_nuclear_rna",
-        "small_nucleolar_rna",
-        "transfer_rna",
-        "vault_rna",
-        "y_rna",
-        "phenotype_only",
-        "pseudogene",
-        "complex_locus_constituent",
-        "endogenous_retrovirus",
-        "fragile_site",
-        "immunoglobulin_gene",
-        "immunoglobulin_pseudogene",
-        "readthrough",
-        "region",
-        "t_cell_receptor_gene",
-        "t_cell_receptor_pseudogene",
-        "transposable_element",
-        "unknown",
-        "virus_integration_site"
-      ],
       "type": "string",
       "x-enum-descriptions": [
         " HGNC gene with protein product.",
@@ -1136,10 +1088,36 @@
         " HGNC transposable element.",
         " HGNC unknown.",
         " HGNC virus integration site."
+      ],
+      "x-extensible-enum": [
+        "gene_with_protein_product",
+        "rna_cluster",
+        "long_non_coding_rna",
+        "micro_rna",
+        "misc_rna",
+        "ribosomal_rna",
+        "small_nuclear_rna",
+        "small_nucleolar_rna",
+        "transfer_rna",
+        "vault_rna",
+        "y_rna",
+        "phenotype_only",
+        "pseudogene",
+        "complex_locus_constituent",
+        "endogenous_retrovirus",
+        "fragile_site",
+        "immunoglobulin_gene",
+        "immunoglobulin_pseudogene",
+        "readthrough",
+        "region",
+        "t_cell_receptor_gene",
+        "t_cell_receptor_pseudogene",
+        "transposable_element",
+        "unknown",
+        "virus_integration_site"
       ]
     },
     "Mane": {
-      "additionalProperties": false,
       "description": "A source-stated MANE pair with versioned sequence accessions.",
       "properties": {
         "ensembl": {
@@ -1166,18 +1144,17 @@
     },
     "ManeStatus": {
       "description": "The source-stated MANE transcript status.",
-      "enum": [
-        "select",
-        "plus_clinical"
-      ],
       "type": "string",
       "x-enum-descriptions": [
         " MANE Select transcript pair.",
         " MANE Plus Clinical transcript pair."
+      ],
+      "x-extensible-enum": [
+        "select",
+        "plus_clinical"
       ]
     },
     "Match": {
-      "additionalProperties": false,
       "description": "A source-stated match, preserving the text that matched.",
       "properties": {
         "kind": {
@@ -1197,16 +1174,6 @@
     },
     "MatchKind": {
       "description": "How a source matched a gene input.",
-      "enum": [
-        "symbol",
-        "previous_symbol",
-        "alias",
-        "ncbi_alias",
-        "hgnc_id",
-        "entrez_id",
-        "ensembl_id",
-        "band"
-      ],
       "type": "string",
       "x-enum-descriptions": [
         " Current symbol.",
@@ -1217,6 +1184,16 @@
         " NCBI Gene identifier.",
         " Ensembl gene identifier.",
         " Cytogenetic band."
+      ],
+      "x-extensible-enum": [
+        "symbol",
+        "previous_symbol",
+        "alias",
+        "ncbi_alias",
+        "hgnc_id",
+        "entrez_id",
+        "ensembl_id",
+        "band"
       ]
     },
     "MondoId": {
@@ -1235,7 +1212,6 @@
       "type": "string"
     },
     "Oncokb": {
-      "additionalProperties": false,
       "description": "Whole OncoKB gene prose and independent transcript annotations.",
       "properties": {
         "background": {
@@ -1287,7 +1263,6 @@
       "type": "object"
     },
     "OncokbCard": {
-      "additionalProperties": false,
       "description": "Short source-stated annotation on a gene card.",
       "properties": {
         "gene_type": {
@@ -1335,13 +1310,6 @@
     },
     "OncokbGeneType": {
       "description": "OncoKB's stated gene classification.",
-      "enum": [
-        "ONCOGENE_AND_TSG",
-        "ONCOGENE",
-        "TSG",
-        "INSUFFICIENT_EVIDENCE",
-        "NEITHER"
-      ],
       "type": "string",
       "x-enum-descriptions": [
         " Both stated roles.",
@@ -1349,10 +1317,16 @@
         " Source-stated tumor suppressor.",
         " Source states insufficient evidence.",
         " Source states neither role."
+      ],
+      "x-extensible-enum": [
+        "ONCOGENE_AND_TSG",
+        "ONCOGENE",
+        "TSG",
+        "INSUFFICIENT_EVIDENCE",
+        "NEITHER"
       ]
     },
     "OncokbTranscript": {
-      "additionalProperties": false,
       "description": "Source transcript annotation for one genome build.",
       "properties": {
         "isoform": {
@@ -1381,7 +1355,6 @@
       "type": "object"
     },
     "PageInfo": {
-      "additionalProperties": false,
       "description": "Search counts after filtering and deduplication.",
       "properties": {
         "offset": {
@@ -1434,7 +1407,6 @@
       "type": "string"
     },
     "PathwayRef": {
-      "additionalProperties": false,
       "description": "A pathway reference without membership or hierarchy data.",
       "properties": {
         "id": {
@@ -1453,7 +1425,6 @@
       "type": "object"
     },
     "PoolInfo": {
-      "additionalProperties": false,
       "description": "Fixed lifetime and size of a stored search snapshot.",
       "properties": {
         "created": {
@@ -1488,7 +1459,6 @@
       "type": "object"
     },
     "Problem": {
-      "additionalProperties": false,
       "description": "A field that could not be accepted from a source record.",
       "properties": {
         "code": {
@@ -1524,20 +1494,19 @@
     },
     "ProblemCode": {
       "description": "A stable code for a rejected field value.",
-      "enum": [
-        "value.unknown",
-        "collection.incomplete",
-        "identity.conflict"
-      ],
       "type": "string",
       "x-enum-descriptions": [
         " The field value was not recognized.",
         " Native collection exceeds the admitted complete source page.",
         " A source repeats one exact identity with incompatible records."
+      ],
+      "x-extensible-enum": [
+        "value.unknown",
+        "collection.incomplete",
+        "identity.conflict"
       ]
     },
     "Protein": {
-      "additionalProperties": false,
       "description": "A reviewed human protein listed by the authoritative gene record.",
       "properties": {
         "accession": {
@@ -1583,27 +1552,6 @@
     },
     "Reason": {
       "description": "Why a source could not supply data.",
-      "enum": [
-        "not_found",
-        "not_open",
-        "not_pdf",
-        "unsupported",
-        "too_large",
-        "rate_limited",
-        "local_quota",
-        "unavailable",
-        "tls",
-        "proxy",
-        "rejected",
-        "bad_reply",
-        "deadline_exceeded",
-        "offline",
-        "no_key",
-        "disabled",
-        "replay_miss",
-        "syncing",
-        "no_join_id"
-      ],
       "type": "string",
       "x-enum-descriptions": [
         " The requested record was not found.",
@@ -1625,6 +1573,27 @@
         " No recording matched the request.",
         " The source data was being synchronized.",
         " Identity lacks the identifier required to join this source."
+      ],
+      "x-extensible-enum": [
+        "not_found",
+        "not_open",
+        "not_pdf",
+        "unsupported",
+        "too_large",
+        "rate_limited",
+        "local_quota",
+        "unavailable",
+        "tls",
+        "proxy",
+        "rejected",
+        "bad_reply",
+        "deadline_exceeded",
+        "offline",
+        "no_key",
+        "disabled",
+        "replay_miss",
+        "syncing",
+        "no_join_id"
       ]
     },
     "RnaAbundance": {
@@ -1637,7 +1606,6 @@
       "description": "A requested section has exactly one state.",
       "oneOf": [
         {
-          "additionalProperties": false,
           "description": "The source returned data.",
           "properties": {
             "data": {
@@ -1664,7 +1632,6 @@
           "type": "object"
         },
         {
-          "additionalProperties": false,
           "description": "The source answered with no data.",
           "properties": {
             "record": {
@@ -1694,7 +1661,6 @@
           "type": "object"
         },
         {
-          "additionalProperties": false,
           "description": "A requested source failed.",
           "properties": {
             "reason": {
@@ -1718,7 +1684,6 @@
           "type": "object"
         },
         {
-          "additionalProperties": false,
           "description": "User settings prevented the source request.",
           "properties": {
             "reason": {
@@ -1742,7 +1707,6 @@
           "type": "object"
         },
         {
-          "additionalProperties": false,
           "description": "Entity facts rule this section out.",
           "properties": {
             "state": {
@@ -1761,7 +1725,6 @@
       "description": "A requested section has exactly one state.",
       "oneOf": [
         {
-          "additionalProperties": false,
           "description": "The source returned data.",
           "properties": {
             "data": {
@@ -1785,7 +1748,6 @@
           "type": "object"
         },
         {
-          "additionalProperties": false,
           "description": "The source answered with no data.",
           "properties": {
             "record": {
@@ -1815,7 +1777,6 @@
           "type": "object"
         },
         {
-          "additionalProperties": false,
           "description": "A requested source failed.",
           "properties": {
             "reason": {
@@ -1839,7 +1800,6 @@
           "type": "object"
         },
         {
-          "additionalProperties": false,
           "description": "User settings prevented the source request.",
           "properties": {
             "reason": {
@@ -1863,7 +1823,6 @@
           "type": "object"
         },
         {
-          "additionalProperties": false,
           "description": "Entity facts rule this section out.",
           "properties": {
             "state": {
@@ -1882,7 +1841,6 @@
       "description": "A requested section has exactly one state.",
       "oneOf": [
         {
-          "additionalProperties": false,
           "description": "The source returned data.",
           "properties": {
             "data": {
@@ -1906,7 +1864,6 @@
           "type": "object"
         },
         {
-          "additionalProperties": false,
           "description": "The source answered with no data.",
           "properties": {
             "record": {
@@ -1936,7 +1893,6 @@
           "type": "object"
         },
         {
-          "additionalProperties": false,
           "description": "A requested source failed.",
           "properties": {
             "reason": {
@@ -1960,7 +1916,6 @@
           "type": "object"
         },
         {
-          "additionalProperties": false,
           "description": "User settings prevented the source request.",
           "properties": {
             "reason": {
@@ -1984,7 +1939,6 @@
           "type": "object"
         },
         {
-          "additionalProperties": false,
           "description": "Entity facts rule this section out.",
           "properties": {
             "state": {
@@ -2003,7 +1957,6 @@
       "description": "A requested section has exactly one state.",
       "oneOf": [
         {
-          "additionalProperties": false,
           "description": "The source returned data.",
           "properties": {
             "data": {
@@ -2027,7 +1980,6 @@
           "type": "object"
         },
         {
-          "additionalProperties": false,
           "description": "The source answered with no data.",
           "properties": {
             "record": {
@@ -2057,7 +2009,6 @@
           "type": "object"
         },
         {
-          "additionalProperties": false,
           "description": "A requested source failed.",
           "properties": {
             "reason": {
@@ -2081,7 +2032,6 @@
           "type": "object"
         },
         {
-          "additionalProperties": false,
           "description": "User settings prevented the source request.",
           "properties": {
             "reason": {
@@ -2105,7 +2055,6 @@
           "type": "object"
         },
         {
-          "additionalProperties": false,
           "description": "Entity facts rule this section out.",
           "properties": {
             "state": {
@@ -2124,7 +2073,6 @@
       "description": "A requested section has exactly one state.",
       "oneOf": [
         {
-          "additionalProperties": false,
           "description": "The source returned data.",
           "properties": {
             "data": {
@@ -2148,7 +2096,6 @@
           "type": "object"
         },
         {
-          "additionalProperties": false,
           "description": "The source answered with no data.",
           "properties": {
             "record": {
@@ -2178,7 +2125,6 @@
           "type": "object"
         },
         {
-          "additionalProperties": false,
           "description": "A requested source failed.",
           "properties": {
             "reason": {
@@ -2202,7 +2148,6 @@
           "type": "object"
         },
         {
-          "additionalProperties": false,
           "description": "User settings prevented the source request.",
           "properties": {
             "reason": {
@@ -2226,7 +2171,6 @@
           "type": "object"
         },
         {
-          "additionalProperties": false,
           "description": "Entity facts rule this section out.",
           "properties": {
             "state": {
@@ -2245,7 +2189,6 @@
       "description": "A requested section has exactly one state.",
       "oneOf": [
         {
-          "additionalProperties": false,
           "description": "The source returned data.",
           "properties": {
             "data": {
@@ -2269,7 +2212,6 @@
           "type": "object"
         },
         {
-          "additionalProperties": false,
           "description": "The source answered with no data.",
           "properties": {
             "record": {
@@ -2299,7 +2241,6 @@
           "type": "object"
         },
         {
-          "additionalProperties": false,
           "description": "A requested source failed.",
           "properties": {
             "reason": {
@@ -2323,7 +2264,6 @@
           "type": "object"
         },
         {
-          "additionalProperties": false,
           "description": "User settings prevented the source request.",
           "properties": {
             "reason": {
@@ -2347,7 +2287,6 @@
           "type": "object"
         },
         {
-          "additionalProperties": false,
           "description": "Entity facts rule this section out.",
           "properties": {
             "state": {
@@ -2366,7 +2305,6 @@
       "description": "A requested section has exactly one state.",
       "oneOf": [
         {
-          "additionalProperties": false,
           "description": "The source returned data.",
           "properties": {
             "data": {
@@ -2390,7 +2328,6 @@
           "type": "object"
         },
         {
-          "additionalProperties": false,
           "description": "The source answered with no data.",
           "properties": {
             "record": {
@@ -2420,7 +2357,6 @@
           "type": "object"
         },
         {
-          "additionalProperties": false,
           "description": "A requested source failed.",
           "properties": {
             "reason": {
@@ -2444,7 +2380,6 @@
           "type": "object"
         },
         {
-          "additionalProperties": false,
           "description": "User settings prevented the source request.",
           "properties": {
             "reason": {
@@ -2468,7 +2403,6 @@
           "type": "object"
         },
         {
-          "additionalProperties": false,
           "description": "Entity facts rule this section out.",
           "properties": {
             "state": {
@@ -2487,7 +2421,6 @@
       "description": "A requested section has exactly one state.",
       "oneOf": [
         {
-          "additionalProperties": false,
           "description": "The source returned data.",
           "properties": {
             "data": {
@@ -2511,7 +2444,6 @@
           "type": "object"
         },
         {
-          "additionalProperties": false,
           "description": "The source answered with no data.",
           "properties": {
             "record": {
@@ -2541,7 +2473,6 @@
           "type": "object"
         },
         {
-          "additionalProperties": false,
           "description": "A requested source failed.",
           "properties": {
             "reason": {
@@ -2565,7 +2496,6 @@
           "type": "object"
         },
         {
-          "additionalProperties": false,
           "description": "User settings prevented the source request.",
           "properties": {
             "reason": {
@@ -2589,7 +2519,6 @@
           "type": "object"
         },
         {
-          "additionalProperties": false,
           "description": "Entity facts rule this section out.",
           "properties": {
             "state": {
@@ -2606,79 +2535,6 @@
     },
     "Source": {
       "description": "A source of BioMCP data, identified by its canonical short name.",
-      "enum": [
-        "hgnc",
-        "mygene",
-        "reactome",
-        "wikipathways",
-        "hpa",
-        "uniprot",
-        "interpro",
-        "complex-portal",
-        "gnomad",
-        "clinvar",
-        "erepo",
-        "gwas",
-        "clingen",
-        "gencc",
-        "pubmed",
-        "europepmc",
-        "litvar",
-        "litsense",
-        "semantic-scholar",
-        "orcid",
-        "pmc-oa",
-        "icite",
-        "pubtator",
-        "ctgov",
-        "nci",
-        "civic",
-        "hotspots",
-        "alphagenome",
-        "oncokb",
-        "myvariant",
-        "car",
-        "mutalyzer",
-        "variantvalidator",
-        "mychem",
-        "chembl",
-        "opentargets",
-        "openfda-label",
-        "drugsfda",
-        "ema",
-        "who-pq",
-        "ddinter",
-        "drugbank-open",
-        "drugcentral",
-        "gtopdb",
-        "unii",
-        "ndc",
-        "openfda-xref",
-        "ols",
-        "mydisease",
-        "monarch",
-        "seer",
-        "mondo",
-        "doid",
-        "ncit",
-        "hpo",
-        "orphanet",
-        "omim",
-        "faers",
-        "vaers",
-        "maude",
-        "meddra",
-        "gmdn",
-        "gtr",
-        "who-ivd",
-        "fda-cdx",
-        "fda-pma",
-        "fda-510k",
-        "cpic",
-        "clinpgx",
-        "cbioportal",
-        "cellosaurus"
-      ],
       "type": "string",
       "x-enum-descriptions": [
         " HGNC.",
@@ -2748,17 +2604,91 @@
         " FDA companion diagnostic device tables.",
         " openFDA premarket approval submissions.",
         " FDA native 510(k) clearance records.",
+        " openFDA medical device product recall records.",
         " Clinical Pharmacogenetics Implementation Consortium.",
         " ClinPGx pharmacogenomics annotations.",
         " Public cBioPortal with study-specific reuse terms.",
         " Cellosaurus cell line identity."
+      ],
+      "x-extensible-enum": [
+        "hgnc",
+        "mygene",
+        "reactome",
+        "wikipathways",
+        "hpa",
+        "uniprot",
+        "interpro",
+        "complex-portal",
+        "gnomad",
+        "clinvar",
+        "erepo",
+        "gwas",
+        "clingen",
+        "gencc",
+        "pubmed",
+        "europepmc",
+        "litvar",
+        "litsense",
+        "semantic-scholar",
+        "orcid",
+        "pmc-oa",
+        "icite",
+        "pubtator",
+        "ctgov",
+        "nci",
+        "civic",
+        "hotspots",
+        "alphagenome",
+        "oncokb",
+        "myvariant",
+        "car",
+        "mutalyzer",
+        "variantvalidator",
+        "mychem",
+        "chembl",
+        "opentargets",
+        "openfda-label",
+        "drugsfda",
+        "ema",
+        "who-pq",
+        "ddinter",
+        "drugbank-open",
+        "drugcentral",
+        "gtopdb",
+        "unii",
+        "ndc",
+        "openfda-xref",
+        "ols",
+        "mydisease",
+        "monarch",
+        "seer",
+        "mondo",
+        "doid",
+        "ncit",
+        "hpo",
+        "orphanet",
+        "omim",
+        "faers",
+        "vaers",
+        "maude",
+        "meddra",
+        "gmdn",
+        "gtr",
+        "who-ivd",
+        "fda-cdx",
+        "fda-pma",
+        "fda-510k",
+        "fda-device-recall",
+        "cpic",
+        "clinpgx",
+        "cbioportal",
+        "cellosaurus"
       ]
     },
     "SourceNotice": {
       "description": "A source notice or request recovery step.",
       "oneOf": [
         {
-          "additionalProperties": false,
           "description": "Local request limits and source-specific recovery guidance.",
           "properties": {
             "kind": {
@@ -2786,7 +2716,6 @@
           "type": "object"
         },
         {
-          "additionalProperties": false,
           "description": "Registered conditions lack the literal words requested in a condition search.",
           "properties": {
             "kind": {
@@ -2805,7 +2734,6 @@
           "type": "object"
         },
         {
-          "additionalProperties": false,
           "description": "A checked provider answer survived a local cache failure.",
           "properties": {
             "kind": {
@@ -2824,7 +2752,6 @@
           "type": "object"
         },
         {
-          "additionalProperties": false,
           "description": "The source still has graph pages after the bounded fetch window.",
           "properties": {
             "fallback": {
@@ -2843,7 +2770,6 @@
           "type": "object"
         },
         {
-          "additionalProperties": false,
           "description": "An empty LitVar lookup can be repeated with a caller-supplied rsID.",
           "properties": {
             "kind": {
@@ -2862,7 +2788,6 @@
           "type": "object"
         },
         {
-          "additionalProperties": false,
           "description": "PubMed supplied a named ESearch warning without changing its phrases.",
           "properties": {
             "kind": {
@@ -2888,7 +2813,6 @@
           "type": "object"
         },
         {
-          "additionalProperties": false,
           "description": "PubMed did not index these words.",
           "properties": {
             "kind": {
@@ -2911,7 +2835,6 @@
       ]
     },
     "SourceOutcome": {
-      "additionalProperties": false,
       "description": "One source's outcome, without provider text.",
       "properties": {
         "count": {
@@ -2993,7 +2916,6 @@
       "type": "object"
     },
     "SourceRecord": {
-      "additionalProperties": false,
       "description": "The source's own entry for an entity.",
       "properties": {
         "id": {
@@ -3030,7 +2952,6 @@
       "type": "string"
     },
     "Span0": {
-      "additionalProperties": false,
       "description": "A zero-based half-open span with ordered bounds; empty spans are valid.",
       "properties": {
         "end": {
@@ -3063,7 +2984,6 @@
       "type": "string"
     },
     "Step": {
-      "additionalProperties": false,
       "description": "A command argument list spelled from a typed action.",
       "properties": {
         "args": {
@@ -3101,18 +3021,17 @@
     },
     "Strand": {
       "description": "Source-stated forward or reverse strand.",
-      "enum": [
-        "+",
-        "-"
-      ],
       "type": "string",
       "x-enum-descriptions": [
         " Forward strand.",
         " Reverse strand."
+      ],
+      "x-extensible-enum": [
+        "+",
+        "-"
       ]
     },
     "Summary": {
-      "additionalProperties": false,
       "description": "A whole source-provided summary with attribution and stated date precision.",
       "properties": {
         "dated": {
@@ -3143,12 +3062,12 @@
     },
     "SummarySource": {
       "description": "The attribution on a source-provided summary, independent of fetch providers.",
-      "enum": [
-        "refseq"
-      ],
       "type": "string",
       "x-enum-descriptions": [
         " RefSeq attribution."
+      ],
+      "x-extensible-enum": [
+        "refseq"
       ]
     },
     "Text": {
@@ -3157,7 +3076,6 @@
       "type": "string"
     },
     "TissueNtpm": {
-      "additionalProperties": false,
       "description": "HPA tissue RNA abundance in normalized transcripts per million.",
       "properties": {
         "ntpm": {
@@ -3191,10 +3109,9 @@
       "type": "string"
     }
   },
-  "$id": "biomcp.gene-cards/6",
+  "$id": "biomcp.gene-cards/7",
   "$schema": "https://json-schema.org/draft/2020-12/schema",
-  "additionalProperties": false,
-  "description": "One versioned command response; schema identity comes only from its body type.",
+  "description": "One versioned command response; schema identity comes only from its body type.\nJSON readers ignore unknown fields and unknown growable enum values within a major.",
   "properties": {
     "local_error": {
       "anyOf": [
@@ -3248,7 +3165,7 @@
       "description": "Answer when available."
     },
     "schema": {
-      "const": "biomcp.gene-cards/6",
+      "const": "biomcp.gene-cards/7",
       "type": "string"
     },
     "sources": {

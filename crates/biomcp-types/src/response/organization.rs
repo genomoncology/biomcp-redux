@@ -3,7 +3,6 @@ use biodata::Text;
 use serde::{Deserialize, Serialize};
 /// One NCI organization search row. Names are not unique; counts cover trials of every status.
 #[derive(Clone, Debug, PartialEq, Serialize, Deserialize)]
-#[serde(deny_unknown_fields)]
 #[cfg_attr(feature = "schema", derive(schemars::JsonSchema))]
 pub struct Organization {
     /// Exact publisher organization name, never a unique identifier.
@@ -58,7 +57,6 @@ pub struct Organization {
 }
 /// Geographic point published by NCI, in degrees.
 #[derive(Clone, Debug, PartialEq, Serialize, Deserialize)]
-#[serde(deny_unknown_fields)]
 #[cfg_attr(feature = "schema", derive(schemars::JsonSchema))]
 pub struct OrganizationCoordinates {
     /// Latitude in degrees.
@@ -68,7 +66,6 @@ pub struct OrganizationCoordinates {
 }
 /// Local page of a complete bounded source observation.
 #[derive(Clone, Debug, PartialEq, Serialize, Deserialize)]
-#[serde(deny_unknown_fields)]
 #[cfg_attr(feature = "schema", derive(schemars::JsonSchema))]
 pub struct OrganizationPage {
     /// Published organizations in source order, with optional source details.

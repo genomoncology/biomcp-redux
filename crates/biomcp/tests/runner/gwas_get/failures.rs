@@ -1,5 +1,6 @@
 //! Synthetic faults cover each independently fetched GWAS resource.
 use super::*;
+use crate::runner::transcript::trial as transcript_trial;
 pub(super) fn trials() -> Vec<Trial> {
     let mut trials = Vec::new();
     for surface in ["association", "study", "associations", "ancestries", "loci"] {
@@ -11,14 +12,14 @@ pub(super) fn trials() -> Vec<Trial> {
             "error-object",
             "missing-array",
         ] {
-            trials.push(Trial::test(
+            trials.push(transcript_trial(
                 format!("gwas-get/synthetic-{surface}-{fault}"),
                 move || failure(surface, fault).map_err(Into::into),
             ));
         }
     }
     for fault in ["page", "duplicate-id", "study", "rsid", "self"] {
-        trials.push(Trial::test(
+        trials.push(transcript_trial(
             format!("gwas-get/synthetic-association-page-{fault}"),
             move || admission(fault).map_err(Into::into),
         ));

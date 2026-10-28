@@ -6,7 +6,6 @@
       "type": "string"
     },
     "Allele": {
-      "additionalProperties": false,
       "description": "Source-stated interbase replacement; equality never claims normalized equivalence.",
       "properties": {
         "alternate": {
@@ -28,14 +27,14 @@
     },
     "Build": {
       "description": "The assembly stated by the source; no default is inferred.",
-      "enum": [
-        "GRCh37",
-        "GRCh38"
-      ],
       "type": "string",
       "x-enum-descriptions": [
         " Genome Reference Consortium human build 37.",
         " Genome Reference Consortium human build 38."
+      ],
+      "x-extensible-enum": [
+        "GRCh37",
+        "GRCh38"
       ]
     },
     "EnsemblGeneId": {
@@ -44,7 +43,6 @@
       "type": "string"
     },
     "Expression": {
-      "additionalProperties": false,
       "description": "Source expression checked for its reference and syntax only, without a full parser or normalization.",
       "properties": {
         "syntax": {
@@ -72,19 +70,6 @@
     },
     "ExpressionSyntax": {
       "description": "Published syntax label for a source-preserved expression.",
-      "enum": [
-        "hgvs.g",
-        "hgvs.c",
-        "hgvs.n",
-        "hgvs.r",
-        "hgvs.p",
-        "hgvs.m",
-        "hgvs.o",
-        "spdi",
-        "gnomad",
-        "vcf",
-        "iscn"
-      ],
       "type": "string",
       "x-enum-descriptions": [
         " HGVS genomic description.",
@@ -98,10 +83,22 @@
         " gnomAD chromosome-position-reference-alternate identifier.",
         " Padded VCF chromosome-position-reference-alternate text.",
         " Source-preserved cytogenetic notation."
+      ],
+      "x-extensible-enum": [
+        "hgvs.g",
+        "hgvs.c",
+        "hgvs.n",
+        "hgvs.r",
+        "hgvs.p",
+        "hgvs.m",
+        "hgvs.o",
+        "spdi",
+        "gnomad",
+        "vcf",
+        "iscn"
       ]
     },
     "GeneRef": {
-      "additionalProperties": false,
       "description": "A source-stated gene reference; its label never implies an identifier.",
       "properties": {
         "ensembl_gene_id": {
@@ -154,7 +151,6 @@
       "type": "string"
     },
     "Representation": {
-      "additionalProperties": false,
       "description": "One source's own expression, assembly and optional source-stated interbase allele.",
       "properties": {
         "allele": {
@@ -200,7 +196,6 @@
       "type": "string"
     },
     "SequenceLocation": {
-      "additionalProperties": false,
       "description": "An interbase interval on one versioned sequence accession.",
       "properties": {
         "sequence": {
@@ -219,7 +214,6 @@
       "type": "object"
     },
     "Span0": {
-      "additionalProperties": false,
       "description": "A zero-based half-open span with ordered bounds; empty spans are valid.",
       "properties": {
         "end": {
@@ -254,7 +248,6 @@
   },
   "$id": "biodata.variant/5",
   "$schema": "https://json-schema.org/draft/2020-12/schema",
-  "additionalProperties": false,
   "description": "Variant entity with source-stated identities, forms and genes; no disclosure policy.",
   "properties": {
     "genes": {

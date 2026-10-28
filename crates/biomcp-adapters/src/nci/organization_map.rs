@@ -55,6 +55,7 @@ pub(super) fn page(raw: Page) -> Mapped<Vec<Organization>> {
                     "org_coordinates",
                     row.org_coordinates.map(|v| {
                         v.value()
+                            .map(|v| v.0)
                             .filter(|v| {
                                 (-90.0..=90.0).contains(&v.lat) && (-180.0..=180.0).contains(&v.lon)
                             })

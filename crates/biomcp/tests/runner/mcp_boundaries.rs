@@ -1,5 +1,6 @@
 //! MCP transport authority is checked before provider requests or filesystem changes.
 use super::{http::Server, launch::Environment, network_stub::Stub};
+use crate::runner::transcript::trial as transcript_trial;
 use libtest_mimic::Trial;
 use serde_json::{Value, json};
 use std::fs;
@@ -7,17 +8,17 @@ type Check = Result<(), Box<dyn std::error::Error>>;
 
 pub(super) fn trials() -> Vec<Trial> {
     vec![
-        Trial::test("mcp-stdio/command-refusal-reasons", || {
+        transcript_trial("mcp-stdio/command-refusal-reasons", || {
             command_reasons(false).map_err(|e| e.to_string().into())
         }),
-        Trial::test("mcp-http/command-refusal-reasons", || {
+        transcript_trial("mcp-http/command-refusal-reasons", || {
             command_reasons(true).map_err(|e| e.to_string().into())
         }),
-        Trial::test(
+        transcript_trial(
             "mcp-http/refuse-maintenance-and-fresh-before-effects",
             || http().map_err(|e| e.to_string().into()),
         ),
-        Trial::test(
+        transcript_trial(
             "article-saves/stdio-refuse-replacement-before-effects",
             || stdio().map_err(|e| e.to_string().into()),
         ),

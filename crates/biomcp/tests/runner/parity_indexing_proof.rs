@@ -1,10 +1,11 @@
 //! Contract: closed projections preserve released indexing values and reject malformed shapes.
 use super::projection::Projection;
+use crate::runner::transcript::trial as transcript_trial;
 use libtest_mimic::Trial;
 use serde_json::{Value, json};
 
 pub(super) fn trial() -> Trial {
-    Trial::test("parity/released-indexing-projections", || {
+    transcript_trial("parity/released-indexing-projections", || {
         check().map_err(Into::into)
     })
 }

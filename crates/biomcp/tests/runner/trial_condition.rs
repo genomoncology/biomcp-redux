@@ -1,5 +1,6 @@
 //! Exact trial disease identity stops before trial I/O when resolution cannot supply a filter.
 use super::{launch::Environment, network_stub::Stub};
+use crate::runner::transcript::trial as transcript_trial;
 use libtest_mimic::Trial;
 use serde_json::{Value, json};
 use std::fs;
@@ -10,31 +11,31 @@ pub(super) use native::run as native;
 
 pub(super) fn trials() -> Vec<Trial> {
     vec![
-        Trial::test("trial-search/keyword-conjunction", || {
+        transcript_trial("trial-search/keyword-conjunction", || {
             alternatives::conjunction().map_err(Into::into)
         }),
-        Trial::test("trial-search/repeated-condition-mismatch", || {
+        transcript_trial("trial-search/repeated-condition-mismatch", || {
             alternatives::mismatch().map_err(Into::into)
         }),
-        Trial::test("trial-nci/repeated-condition-filters", || {
+        transcript_trial("trial-nci/repeated-condition-filters", || {
             alternatives::nci().map_err(Into::into)
         }),
-        Trial::test("trial-search/repeated-source-filters", || {
+        transcript_trial("trial-search/repeated-source-filters", || {
             alternatives::run().map_err(Into::into)
         }),
-        Trial::test("trial-search/condition-complete-native-words", || {
+        transcript_trial("trial-search/condition-complete-native-words", || {
             words::complete_conditions().map_err(Into::into)
         }),
-        Trial::test("trial-search/condition-exact-boundary", || {
+        transcript_trial("trial-search/condition-exact-boundary", || {
             words::exact_boundary().map_err(Into::into)
         }),
-        Trial::test("trial-search/condition-word-mismatch", || {
+        transcript_trial("trial-search/condition-word-mismatch", || {
             words::mismatch().map_err(Into::into)
         }),
-        Trial::test("trial-search/condition-id-source-policy", || {
+        transcript_trial("trial-search/condition-id-source-policy", || {
             policy().map_err(Into::into)
         }),
-        Trial::test("trial-search/condition-id-failures-before-trial", || {
+        transcript_trial("trial-search/condition-id-failures-before-trial", || {
             failures().map_err(Into::into)
         }),
     ]

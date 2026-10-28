@@ -196,7 +196,7 @@ Commands:
   pathway        Search Reactome (default) or WikiPathways human pathways. Membership names a source and release; it implies no therapy, response or actionability. No enrichment is calculated.
   study          Literal stored metadata search; text is never parsed as a query language. No frequency, denominator, survival or comparison is calculated. Source counts keep their native names.
   pgx            Checked gene-keyed CPIC pair search. No phenotype, phase or dose is calculated.
-  diagnostic     Search one diagnostic source. A listing is not authorization; a companion row is not a treatment recommendation.
+  diagnostic     Search five source records by default. FDA device recalls cover every medical device; totals count recall records, without harm inference.
   adverse-event  Search five report headers by default. MAUDE accepts device text or a manufacturer, product-code or problem filter. One report may list several devices; filters may match different devices. VAERS accepts MMR, COVID19, COVID-19 vaccine or one exact qualified native influenza code, matched without case; use influenza to list codes and labels. Tables remain separate and are never summed. One report may list several vaccines. VAERS returns five reported symptom rows by default; seriousness and age select independent tables. Counts are reports, not people. Reports do not show that a vaccine caused an event and cannot measure risk or compare vaccine safety.
   disease        Literal discovery text or an explicit SEER catalog page.
   drug           Literal single-source candidate discovery, without an implicit identity selection.
@@ -773,7 +773,7 @@ Checked gene-keyed CPIC pair search. No phenotype, phase or dose is calculated.
 ## biomcp search diagnostic
 
 ```text
-Search one diagnostic source. A listing is not authorization; a companion row is not a treatment recommendation.
+Search five source records by default. FDA device recalls cover every medical device; totals count recall records, without harm inference.
 
 Usage: biomcp search diagnostic [OPTIONS] --source <source>
 
@@ -811,8 +811,8 @@ Options:
       --gene-id <gene_id>
           Exact source GeneID, exclusive with gene symbol.
 
-      --limit <limit>
-          Five results by default; at most fifty source rows or product headers.
+      --initiated-from <initiated_from>
+          Inclusive initiation date, YYYY-MM-DD; FDA device recalls only.
 
       --offline
           Read local data without source requests.
@@ -820,8 +820,14 @@ Options:
       --fresh
           Request fresh source data instead of cached replies.
 
+      --initiated-to <initiated_to>
+          Inclusive initiation date, YYYY-MM-DD; FDA device recalls only.
+
+      --limit <limit>
+          Five results by default; at most fifty source rows or product headers.
+
       --manufacturer <manufacturer>
-          Literal whole-word phrase in WHO's Manufacturer name cell.
+          WHO manufacturer words or native FDA recalling_firm phrase.
 
       --marker <marker>
           Literal whole-word phrase in WHO's Pathogen/Disease/Marker cell.
@@ -829,15 +835,18 @@ Options:
       --offset <offset>
           Zero-based source result offset.
 
+      --product-code <product_code>
+          Exact native FDA device recall product code.
+
       --source <source>
-          Explicit native GTR, WHO IVD or FDA companion discovery.
+          Explicit native GTR, WHO IVD, FDA companion or medical device recall discovery.
 
       --type <type>
           Exact native test_type value.
 
 ```
 
-Search one diagnostic source. A listing is not authorization; a companion row is not a treatment recommendation.
+Search five source records by default. FDA device recalls cover every medical device; totals count recall records, without harm inference.
 
 - `--biomarker`: Exact table-0 biomarker cell; unsupported in the group table.
 - `--bundle-revision`: Immutable stored bundle revision retained by a continuation.
@@ -846,11 +855,14 @@ Search one diagnostic source. A listing is not authorization; a companion row is
 - `--drug-application`: Cell-owned typed NDA/BLA application.
 - `--gene`: Exact source gene_symbol field, without alias expansion.
 - `--gene-id`: Exact source GeneID, exclusive with gene symbol.
+- `--initiated-from`: Inclusive initiation date, YYYY-MM-DD; FDA device recalls only.
+- `--initiated-to`: Inclusive initiation date, YYYY-MM-DD; FDA device recalls only.
 - `--limit`: Five results by default; at most fifty source rows or product headers.
-- `--manufacturer`: Exact whole-word phrase in WHO's Manufacturer name cell.
+- `--manufacturer`: WHO manufacturer words or source FDA recalling_firm phrase.
 - `--marker`: Exact whole-word phrase in WHO's Pathogen/Disease/Marker cell.
 - `--offset`: Zero-based source result offset.
-- `--source`: Explicit source GTR, WHO IVD or FDA companion discovery.
+- `--product-code`: Exact source FDA device recall product code.
+- `--source`: Explicit source GTR, WHO IVD, FDA companion or medical device recall discovery.
 - `--type`: Exact source test_type value.
 
 ## biomcp search adverse-event
@@ -1977,7 +1989,8 @@ Arguments:
           Exact native identity, including version for GTR.
 
   [section]
-          gtr: genes, conditions, methods. fda-pma: regulatory, supplements. WHO and 510(k) have no sections; omit for the card.
+          GTR: genes, conditions, methods. PMA: regulatory, supplements.
+          WHO, 510(k) and device recalls have no sections; omit for the card.
 
 Options:
       --bundle-revision <bundle_revision>
@@ -2002,7 +2015,8 @@ Options:
           Zero-based native row or fragment offset.
 
       --source <source>
-          Explicit source; gtr needs accession/version, who-ivd a known Product ID, fda-pma a P number, fda-510k a K number.
+          Explicit source: GTR accession/version, WHO Product ID, PMA P number,
+          510(k) K number or device recall Z-NNNN-YYYY.
 
       --supplement <supplement>
           Exact native PMA supplement; absent selects the base row.
@@ -2019,13 +2033,16 @@ Get one exact source record or supported section. A listing is not authorization
 
 - `--bundle-revision`: Immutable stored bundle revision retained by a continuation.
 - `id`: Exact source identity, including version for GTR.
-- `section`: gtr: genes, conditions, methods. fda-pma: regulatory, supplements. WHO and 510(k) have no sections; omit for the card.
+- `section`: GTR: genes, conditions, methods. PMA: regulatory, supplements.
+WHO, 510(k) and device recalls have no sections; omit for the card.
 - `--section-limit`: Maximum source rows; omitted means five rows, or one regulatory fragment.
 - `--section-offset`: Zero-based source row or fragment offset.
-- `--source`: Explicit source; gtr needs accession/version, who-ivd a known Product ID, fda-pma a P number, fda-510k a K number.
+- `--source`: Explicit source: GTR accession/version, WHO Product ID, PMA P number,
+510(k) K number or device recall Z-NNNN-YYYY.
 - `--supplement`: Exact source PMA supplement; absent selects the base row.
 
-gtr: genes, conditions, methods. fda-pma: regulatory, supplements. WHO and 510(k) have no sections; omit for the card.
+GTR: genes, conditions, methods. PMA: regulatory, supplements.
+WHO, 510(k) and device recalls have no sections; omit for the card.
 
 - `genes`: GTR source gene rows; five per page.
 - `conditions`: GTR source condition rows; five per page.
@@ -4535,6 +4552,8 @@ Options:
 
       --fresh
           Request fresh source data instead of cached replies.
+
+JSON reply readers ignore unknown fields and unknown growable enum values within a major. Query schemas remain closed.
 
 Example: biomcp schema
 Example: biomcp schema biomcp.help/3

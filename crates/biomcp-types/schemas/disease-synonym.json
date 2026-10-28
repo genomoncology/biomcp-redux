@@ -1,7 +1,6 @@
 {
   "$defs": {
     "Attribution": {
-      "additionalProperties": false,
       "description": "Provenance for one source record.",
       "properties": {
         "evaluated": {
@@ -99,7 +98,6 @@
   },
   "$id": "biodata.disease-synonym/1",
   "$schema": "https://json-schema.org/draft/2020-12/schema",
-  "additionalProperties": false,
   "description": "A publisher synonym with its scope and language.",
   "properties": {
     "attribution": {

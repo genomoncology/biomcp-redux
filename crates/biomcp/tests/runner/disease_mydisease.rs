@@ -1,5 +1,6 @@
 //! Feature disease-mydisease: exact annotation without fallback or hidden enrichment.
 use super::{launch::Environment, network_stub::Stub};
+use crate::runner::transcript::trial as transcript_trial;
 use libtest_mimic::Trial;
 use serde_json::{Value, json};
 use std::{fs, path::Path};
@@ -7,11 +8,11 @@ mod cases;
 mod native;
 pub(super) use native::run as native;
 pub(super) fn trials() -> Vec<Trial> {
-    let mut tests = vec![Trial::test(
+    let mut tests = vec![transcript_trial(
         "disease-mydisease/exact-alias-and-independent-pages",
         || exact().map_err(Into::into),
     )];
-    tests.push(Trial::test(
+    tests.push(transcript_trial(
         "disease-mydisease/native-proof-retains-success-and-failure",
         || native::retention().map_err(Into::into),
     ));

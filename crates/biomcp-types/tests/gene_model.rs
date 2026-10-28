@@ -112,9 +112,11 @@ fn gene_resolutions_preserve_every_candidate_and_withdrawn_identity() -> Check {
         serde_json::to_value(GeneResolution::NotFound {})?,
         json!({"resolution":"not_found"})
     );
-    assert!(
-        serde_json::from_value::<GeneResolution>(json!({"resolution":"not_found","gene":{}}))
-            .is_err()
+    let extended: GeneResolution =
+        serde_json::from_value(json!({"resolution":"not_found","gene":{}}))?;
+    assert_eq!(
+        serde_json::to_value(extended)?,
+        json!({"resolution":"not_found"})
     );
     assert!(serde_json::from_value::<Gene>(json!({})).is_err());
     round_trip(&header()?)?;
@@ -160,7 +162,7 @@ fn mane_requires_curated_versioned_transcripts_at_its_boundary() -> Check {
         )
         .is_ok()
     );
-    assert!(serde_json::from_value::<Mane>(json!({"status":"select", "refseq":"NM_004333.6","ensembl":"ENST00000646891.2","extra":true})).is_err());
+    assert!(serde_json::from_value::<Mane>(json!({"status":"select", "refseq":"NM_004333.6","ensembl":"ENST00000646891.2","extra":true})).is_ok());
     Ok(())
 }
 #[test]
@@ -201,5 +203,52 @@ fn genomic_intervals_preserve_assembly_strand_and_scaffold_names() -> Check {
     };
     round_trip(&summary)?;
     assert!(serde_json::to_value(summary)?.get("dated").is_none());
+    Ok(())
+}
+
+#[test]
+fn gene_locations_parse_publisher_forms_without_changing_text() -> Check {
+    for (text, kind) in [
+        ("Xp22.33 and Yp11.32", "bands"),
+        ("Xp22.3 and Yp11.3", "bands"),
+        ("7q34", "bands"),
+        ("Xp21.2-p21.1", "range"),
+        ("9p21.2-9p21.1", "range"),
+        ("mitochondria", "mitochondrial"),
+        ("publisher location text", "unparsed"),
+        ("7q34 and invalid", "unparsed"),
+        ("Xp21.2-invalid", "unparsed"),
+        (" 7q34 ", "unparsed"),
+    ] {
+        let location = GeneLocation::from(text);
+        assert_eq!(location.as_str(), text);
+        assert_eq!(serde_json::to_value(&location)?, text);
+        round_trip(&location)?;
+        let parsed = match location.kind() {
+            GeneLocationKind::Cytobands { first, additional } => {
+                assert_eq!(
+                    first.as_str(),
+                    text.split(" and ").next().ok_or("no first band")?
+                );
+                assert_eq!(additional.len(), text.matches(" and ").count());
+                "bands"
+            }
+            GeneLocationKind::Range { start, end } => {
+                assert_eq!(start.as_str(), text.split('-').next().ok_or("no start")?);
+                assert_eq!(
+                    end.as_str(),
+                    if text.starts_with('X') {
+                        "Xp21.1"
+                    } else {
+                        "9p21.1"
+                    }
+                );
+                "range"
+            }
+            GeneLocationKind::Mitochondrial => "mitochondrial",
+            GeneLocationKind::Unparsed => "unparsed",
+        };
+        assert_eq!(parsed, kind);
+    }
     Ok(())
 }
