@@ -179,6 +179,7 @@ impl ResponseBody for AdverseEventMaudeCard {
 #[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
 #[serde(deny_unknown_fields, bound(deserialize = "T: Deserialize<'de>"))]
 #[cfg_attr(feature = "schema", derive(schemars::JsonSchema))]
+#[cfg_attr(feature = "schema", schemars(rename = "AdverseEventRecords_{T}"))]
 pub struct AdverseEventRecords<T> {
     /// Source ordered whole rows.
     #[serde(default, skip_serializing_if = "<[_]>::is_empty")]

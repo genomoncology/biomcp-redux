@@ -20,7 +20,7 @@ pub struct VariantCivic {
 #[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
 #[serde(deny_unknown_fields)]
 #[cfg_attr(feature = "schema", derive(schemars::JsonSchema))]
-#[cfg_attr(feature = "schema", schemars(rename = "CivicProfile"))]
+#[cfg_attr(feature = "schema", schemars(rename = "CivicProfile_{Continuation}"))]
 pub struct CivicProfile<Continuation = VariantGet> {
     /// Native profile identity and link.
     pub record: SourceRecord,
@@ -69,7 +69,7 @@ pub struct CivicMember {
 #[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
 #[serde(deny_unknown_fields)]
 #[cfg_attr(feature = "schema", derive(schemars::JsonSchema))]
-#[cfg_attr(feature = "schema", schemars(rename = "CivicClaimPage"))]
+#[cfg_attr(feature = "schema", schemars(rename = "CivicClaimPage_{Continuation}"))]
 pub struct CivicClaimPage<Continuation = VariantGet> {
     /// Number of native rows displayed in this stream.
     pub returned: u32,

@@ -331,10 +331,9 @@ fn checked_in_schema_definition_names_have_one_body() {
     let mut definitions = std::collections::BTreeMap::new();
     for contract in registry() {
         let path = root.join(format!("{}.json", contract.name));
-        let schema: Value = serde_json::from_str(
-            &fs::read_to_string(&path).expect("read contract"),
-        )
-        .expect("parse contract");
+        let schema: Value =
+            serde_json::from_str(&fs::read_to_string(&path).expect("read contract"))
+                .expect("parse contract");
         for (name, body) in schema["$defs"].as_object().into_iter().flatten() {
             if let Some((previous, owner)) = definitions.get(name) {
                 assert_eq!(
