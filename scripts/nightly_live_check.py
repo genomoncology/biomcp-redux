@@ -126,8 +126,18 @@ def dependent_change(removed, added, discoveries):
 
 
 def same_window(old, new, left, right):
-    if not old or not new or len(old) != len(new):
+    if not old or not new:
         return False
+    if len(old) != len(new):
+        # A source insertion/removal can rebatch the remaining discovery tail.
+        # Require the entire tail on both sides and an unchanged prefix; an
+        # arbitrary missing request must not become evidence of source churn.
+        if not (set(left) < set(right) or set(right) < set(left)):
+            return False
+        start = len(left) - len(old)
+        return (start >= 0 and len(right) - len(new) == start
+                and left[:start] == right[:start]
+                and set(left[start:]) == old and set(right[start:]) == new)
     for start in range(len(left) - len(old) + 1):
         stop = start + len(old)
         if set(left[start:stop]) == old and set(right[start:stop]) == new:
