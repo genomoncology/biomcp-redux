@@ -67,13 +67,8 @@ pub struct MyVariantQuery(Box<str>);
 impl FromStr for MyVariantQuery {
     type Err = QueryInvalid;
     fn from_str(value: &str) -> Result<Self, Self::Err> {
-        if value.trim().is_empty() {
-            return Err(QueryInvalid::new(&["query"]));
-        }
-        if value.len() > 2048 {
-            return Err(QueryInvalid::new(&["query"]));
-        }
-        if value.chars().any(char::is_control) {
+        let maximum = crate::VariantInput::MAX_BYTES * 2 + "_id:\"\"".len();
+        if value.trim().is_empty() || value.len() > maximum || value.chars().any(char::is_control) {
             return Err(QueryInvalid::new(&["query"]));
         }
         Ok(Self(value.into()))
@@ -233,6 +228,23 @@ impl TryFrom<Fields> for VariantSearch {
     }
 }
 impl VariantSearch {
+    /// Inspect one unchanged source record without assigning an assembly.
+    /// https://docs.myvariant.info/en/latest/doc/variant_query_service.html#fielded-queries
+    pub fn source_record(id: &crate::VariantInput) -> Result<Self, QueryInvalid> {
+        Self::try_from(Fields {
+            gene: None,
+            protein: None,
+            region: None,
+            build: None,
+            query: Some(format!("_id:\"{}\"", literal(id.as_str())).parse()?),
+            source: Some(VariantSearchSource::Myvariant),
+            review_status: None,
+            condition: None,
+            has: None,
+            limit: default_limit(),
+            offset: 0,
+        })
+    }
     /// Maximum native result window this command retrieves; larger totals are disclosed.
     pub const MAX_RESULTS: u32 = 10_000;
     /// Whether this search requires the independently controlled ClinVar component.

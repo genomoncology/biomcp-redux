@@ -135,6 +135,9 @@ pub struct VariantPopulationResult {
     /// Selected native groups, qualified by sequencing subset.
     #[serde(default, skip_serializing_if = "<[ _ ]>::is_empty")]
     pub groups: Box<[GnomadCounts]>,
+    /// Source allele candidates when this input does not identify one joinable allele.
+    #[serde(default, skip_serializing_if = "<[ _ ]>::is_empty")]
+    pub candidates: Box<[crate::VariantHeader]>,
 }
 impl super::ResponseBody for VariantPopulationResult {
     const SCHEMA: &'static str = "biomcp.variant-population/4";

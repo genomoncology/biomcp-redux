@@ -7,12 +7,14 @@ use biomcp_types::{
     GnomadCounts, PageInfo, QueryBody, Reason, Request, Section, Source, Status, StepKind,
     VariantPopulationQuery, VariantPopulationResult,
 };
+
 pub(crate) fn get(cx: &Ctx<'_>, query: &VariantPopulationQuery) -> Outcome {
     let command = cx.fetch.command_deadline(cx.budget);
     let deadline = command.deadline();
-    let (population, groups, sources, problems, local) = read(cx, query, deadline);
-    let total = groups.len() as u64;
-    let groups: Box<[_]> = groups
+    let mut read = read(cx, query, deadline);
+    let total = read.groups.len() as u64;
+    let groups: Box<[_]> = read
+        .groups
         .into_iter()
         .skip(query.offset() as usize)
         .take(query.limit() as usize)
@@ -25,105 +27,149 @@ pub(crate) fn get(cx: &Ctx<'_>, query: &VariantPopulationQuery) -> Outcome {
         pool: None,
         truncated: None,
     });
-    let next = if query.offset() as u64 + u64::from(returned) < total {
-        vec![(
+    let mut next = Vec::new();
+    if query.offset() as u64 + u64::from(returned) < total {
+        next.push((
             StepKind::Page,
             Action::Run {
                 request: Request::VariantPopulation(query.at_offset(query.offset() + returned)),
                 fresh: false,
             },
-        )]
-    } else {
-        Vec::new()
-    };
-    let status = match population {
-        Section::Data { .. } if problems.is_empty() => Status::Complete,
+        ));
+    }
+    next.extend(choices(query, &read.candidates));
+    let status = match &read.population {
+        Section::Data { .. } if read.problems.is_empty() => Status::Complete,
         Section::Data { .. } => Status::Partial,
+        _ if read.candidates.len() > 1 && read.problems.is_empty() => Status::Complete,
+        _ if read.candidates.len() > 1 => Status::Partial,
         Section::Empty { .. } => Status::Absent,
         _ => Status::Failed,
     };
     let out = Outcome {
         status,
-        body: QueryBody::VariantPopulation(VariantPopulationResult { population, groups }),
+        body: QueryBody::VariantPopulation(VariantPopulationResult {
+            population: read.population,
+            groups,
+            candidates: std::mem::take(&mut read.candidates).into(),
+        }),
         page,
-        sources,
-        problems,
+        sources: read.sources,
+        problems: read.problems,
         next,
-        local,
+        local: read.local,
     };
     command.finish(deadline.remaining());
     out
 }
-type PopulationRead = (
-    Section<biomcp_types::VariantPopulation>,
-    Vec<GnomadCounts>,
-    Vec<biomcp_types::SourceOutcome>,
-    Vec<biomcp_types::Problem>,
-    Option<RequestError>,
-);
+struct PopulationRead {
+    population: Section<biomcp_types::VariantPopulation>,
+    groups: Vec<GnomadCounts>,
+    candidates: Vec<biomcp_types::VariantHeader>,
+    sources: Vec<biomcp_types::SourceOutcome>,
+    problems: Vec<biomcp_types::Problem>,
+    local: Option<RequestError>,
+}
 fn read(
     cx: &Ctx<'_>,
     query: &VariantPopulationQuery,
     deadline: biomcp_fetch::Deadline<'_>,
 ) -> PopulationRead {
-    let mut problems = Vec::new();
-    let mut sources = Vec::new();
-    let mut local = None;
-    if cx.fetch.disabled(Source::Gnomad) {
-        return (
-            Section::Skipped {
-                source: Source::Gnomad,
-                reason: Reason::Disabled,
-            },
-            Vec::new(),
-            sources,
-            problems,
-            local,
-        );
-    }
-    let mut rows = Vec::new();
-    if let Ok(identity) = query.identity() {
-        let spec = super::source(&identity);
-        let leg = cx.fetch.leg(spec, deadline).fresh(cx.fresh);
-        let found = super::resolve(&identity, &leg, &mut problems);
-        let error = found.as_ref().err().copied();
-        sources.push(status::source(spec.source, leg.finish(), error));
-        local = error.and_then(status::local);
-        if let Ok((candidates, None)) = found {
-            rows = candidates;
-        }
-        if let Some(reason) = error.and_then(status::reason) {
-            return (
-                Section::unavailable(Source::Gnomad, reason),
-                Vec::new(),
-                sources,
-                problems,
-                local,
-            );
-        }
-    }
-    let Some(id) = super::population::join(&rows) else {
-        problems.push(biomcp_types::Problem {
-            source: Source::Gnomad,
-            record: None,
-            field: "GRCh38_allele".into(),
-            code: biomcp_types::ProblemCode::ValueUnknown,
-        });
-        return (
-            Section::Unavailable {
-                source: Source::Gnomad,
-                reason: Reason::NoJoinId,
-            },
-            Vec::new(),
-            sources,
-            problems,
-            local,
-        );
+    let mut read = PopulationRead {
+        population: Section::unavailable(Source::Gnomad, Reason::NoJoinId),
+        groups: Vec::new(),
+        candidates: Vec::new(),
+        sources: Vec::new(),
+        problems: Vec::new(),
+        local: None,
     };
-    let (section, groups, source, error) = load(cx, query, &id, &rows, &mut problems, deadline);
-    problems.extend(projection_problems(&section, &groups));
-    sources.push(source);
-    (section, groups, sources, problems, local.or(error))
+    if cx.fetch.disabled(Source::Gnomad) {
+        read.population = Section::unavailable(Source::Gnomad, Reason::Disabled);
+        return read;
+    }
+    if let Ok(identity) = query.identity() {
+        let found = super::population_identity::read(cx, &identity, deadline);
+        read.sources = found.sources;
+        read.problems = found.problems;
+        read.local = found.local;
+        read.candidates = found.rows;
+        if let Some(reason) = found.reason {
+            read.population = Section::unavailable(Source::Gnomad, reason);
+            return read;
+        }
+    }
+    let Some(id) = super::population::join(&read.candidates) else {
+        if read.candidates.len() < 2 {
+            read.problems.push(biomcp_types::Problem {
+                source: Source::Gnomad,
+                record: None,
+                field: "GRCh38_allele".into(),
+                code: biomcp_types::ProblemCode::ValueUnknown,
+            });
+        }
+        return read;
+    };
+    let (section, groups, source, error) = load(
+        cx,
+        query,
+        &id,
+        &read.candidates,
+        &mut read.problems,
+        deadline,
+    );
+    read.problems.extend(projection_problems(&section, &groups));
+    read.sources.push(source);
+    read.population = section;
+    read.groups = groups;
+    read.local = read.local.or(error);
+    read.candidates.clear();
+    read
+}
+fn choices(
+    query: &VariantPopulationQuery,
+    candidates: &[biomcp_types::VariantHeader],
+) -> Vec<(StepKind, Action)> {
+    candidates
+        .iter()
+        .filter_map(|row| {
+            let build = row.identity.representations.iter().find_map(|r| r.build);
+            let mut input = row.record.id.as_str().parse().ok()?;
+            if build.is_none() {
+                let ids: Vec<_> = row
+                    .identity
+                    .ids
+                    .iter()
+                    .filter(|id| matches!(id, biodata::VariantId::Ca(_)))
+                    .collect();
+                if let [id] = ids.as_slice() {
+                    input = id.to_string().parse().ok()?;
+                } else {
+                    return Some((
+                        StepKind::Disambiguate,
+                        Action::Run {
+                            request: Request::SearchVariant(
+                                biomcp_types::VariantSearch::source_record(&input).ok()?,
+                            ),
+                            fresh: false,
+                        },
+                    ));
+                }
+            }
+            let selected = query.with_identity(input, build).ok()?;
+            let request = if candidates.len() > 1 {
+                Request::VariantPopulation(selected)
+            } else {
+                Request::GetVariant(selected.identity().ok()?)
+            };
+            Some((
+                StepKind::Disambiguate,
+                Action::Run {
+                    request,
+                    fresh: false,
+                },
+            ))
+        })
+        .collect()
 }
 fn load(
     cx: &Ctx<'_>,

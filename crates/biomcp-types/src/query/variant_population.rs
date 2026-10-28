@@ -52,6 +52,19 @@ impl VariantPopulationQuery {
     pub fn identity(&self) -> Result<VariantGet, super::gene::QueryInvalid> {
         VariantGet::new(self.0.input.clone(), self.0.resolver, self.0.build)
     }
+    /// Select one source candidate while retaining population-detail selectors.
+    pub fn with_identity(
+        &self,
+        input: VariantInput,
+        build: Option<Build>,
+    ) -> Result<Self, super::gene::QueryInvalid> {
+        let mut query = self.clone();
+        query.0.input = input;
+        query.0.build = build;
+        query.0.resolver = VariantResolver::Car;
+        query.0.offset = 0;
+        Self::try_from(query.0)
+    }
     /// Whether source ancestry detail was requested.
     pub fn detail(&self) -> bool {
         self.0.detail

@@ -30,8 +30,8 @@ pub(super) fn candidates(
         let mut ids = Vec::new();
         for alias in aliases {
             match alias.as_str().parse::<VariantId>() {
-                Ok(id) => ids.push(id),
-                Err(_) => problems.push(problem(Source::MyVariant, Some(hit.id.clone()), "ids")),
+                Ok(id @ VariantId::Rs(_)) => ids.push(id),
+                _ => problems.push(problem(Source::MyVariant, Some(hit.id.clone()), "ids")),
             }
         }
         if allow_clinvar

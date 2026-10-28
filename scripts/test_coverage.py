@@ -16,6 +16,9 @@ if args[:2] == ['llvm-cov', 'show-env']:
     print('export LLVM_PROFILE_FILE="' + str(profiles / 'default-%m-%p.profraw') + '"')
 elif args[:2] == ['llvm-cov', 'clean']:
     profiles.mkdir()
+    (profiles / 'unrelated.keep').write_text('keep')
+    for index in range(64):
+        (profiles / f'stale-{index}.profraw').write_text('stale')
 elif args[:2] == ['llvm-cov', 'report']:
     names = [p.name for p in profiles.glob('*.profraw')]
     missing = 100
@@ -35,6 +38,9 @@ elif args[0] == 'test' and '--no-run' not in args:
         calls.write(' '.join(args) + '\n')
     profile = os.environ['LLVM_PROFILE_FILE'].replace('%m','fake').replace('%p','1')
     Path(profile).write_text('profile')
+    if 'library-' in profile:
+        for index in range(64):
+            Path(profile + f'-{index}.profraw').write_text('profile')
 '''
 
 
@@ -54,6 +60,12 @@ def main():
         cargo = tools / "cargo"
         cargo.write_text(CARGO)
         cargo.chmod(0o755)
+        # Reproduce the operating system's argument ceiling with a small bound.
+        remove = tools / "rm"
+        remove.write_text("#!/usr/bin/env python3\nimport subprocess, sys\n"
+                          "if len(sys.argv) > 32: raise SystemExit('Argument list too long')\n"
+                          "raise SystemExit(subprocess.call(['/bin/rm', *sys.argv[1:]]))\n")
+        remove.chmod(0o755)
         env = dict(os.environ, PATH=str(tools) + os.pathsep + os.environ["PATH"],
                    PROOF_PROFILES=str(root / "profiles"), PROOF_CALLS=str(root / "calls"),
                    RUST_TEST_THREADS="3")
@@ -72,6 +84,8 @@ def main():
         tensor_calls = [call for call in calls if "--test tensors" in call]
         assert len(tensor_calls) == 1 and "--features" not in tensor_calls[0], tensor_calls
         assert not list((root / "profiles").glob("library-*.profraw"))
+        assert not list((root / "profiles").glob("stale-*.profraw"))
+        assert (root / "profiles/unrelated.keep").read_text() == "keep"
         report = subprocess.run(["sh", "scripts/coverage.sh", "report"], cwd=root, env=env,
                                 capture_output=True, text=True, check=False)
         assert report.returncode == 0 and "100 5 95%" in report.stdout, report

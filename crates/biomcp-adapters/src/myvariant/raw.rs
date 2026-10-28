@@ -12,6 +12,7 @@ pub(super) struct Hit {
     pub dbsnp: Option<Dbsnp>,
     pub snpeff: Option<crate::raw::Field<super::transcripts::Snpeff>>,
     pub clinvar: Option<Clinvar>,
+    pub clingen: Option<crate::raw::Field<Clingen>>,
     pub chrom: Option<SourceChromosome>,
     pub hg19: Option<SourceSpan>,
     pub hg38: Option<SourceSpan>,
@@ -99,4 +100,9 @@ pub(super) enum SourceChromosome {
 pub(super) enum SourceSpan {
     Bounds { start: u64, end: u64 },
     Malformed(serde::de::IgnoredAny),
+}
+
+#[derive(Debug, Deserialize)]
+pub(super) struct Clingen {
+    pub caid: crate::raw::Field<biodata::Text>,
 }
