@@ -202,6 +202,8 @@ biomcp get pgx --gene DPYD --source cpic diplotype --diplotype '*1/*2A'
 ## biomcp search diagnostic
 
 ```sh
+biomcp search diagnostic --source fda-device-recall --manufacturer 'Synthetic maker'
+biomcp search diagnostic --source fda-device-recall --product-code ABC
 biomcp search diagnostic --source gtr --gene BRCA1
 biomcp search diagnostic --source gtr --condition-id MedGen:C2676676
 ```
@@ -209,6 +211,7 @@ biomcp search diagnostic --source gtr --condition-id MedGen:C2676676
 ## biomcp get diagnostic
 
 ```sh
+biomcp get diagnostic Z-0001-2024 --source fda-device-recall
 biomcp get diagnostic 0466-046-00 --source who-ivd
 biomcp get diagnostic GTR000006692.3 --source gtr
 ```
@@ -701,15 +704,3 @@ biomcp schema biomcp.help/3
 biomcp help relations
 ```
 
-
-## Find medical device recall records
-
-Search a recalling firm, an exact device category code or an inclusive initiation range. These commands cover every medical device and count recall records.
-
-```sh
-biomcp search diagnostic --source fda-device-recall --manufacturer 'Synthetic maker'
-biomcp search diagnostic --source fda-device-recall --product-code ABC
-biomcp get diagnostic Z-0001-2024 --source fda-device-recall
-```
-
-The recall card offers a MAUDE search for the same product code across manufacturers. Inspect source records separately before drawing any conclusion.

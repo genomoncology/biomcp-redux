@@ -76,51 +76,7 @@ fn firm() -> Result<(), String> {
 
 fn cards() -> Result<(), String> {
     for matched in [true, false] {
-        let stub = Stub::for_source_status(
-            "api.fda.gov",
-            "application/json",
-            move |request| {
-                let line = request.lines().next().ok_or("missing request")?;
-                if line
-                    == concat!(
-                        "GET /device/recall.json?search=product_res_number.exact%3A%22Z-0001-2024%22",
-                        "&limit=1&skip=0 HTTP/1.1"
-                    )
-                {
-                    return Ok(json!({"meta":{"results":{"skip":0,"limit":1,"total":1}},"results":[{
-                    "product_res_number":"Z-0001-2024","res_event_number":"101",
-                    "recalling_firm":"Synthetic maker","product_code":"ABC","recall_status":"Ongoing",
-                    "event_date_initiated":"2024-01-02","reason_for_recall":"Synthetic reason",
-                    "root_cause_description":"Synthetic cause","product_description":"Synthetic description",
-                    "distribution_pattern":"Synthetic distribution","k_numbers":["K000001"],"pma_numbers":["P000001"],
-                    "openfda":{"k_number":["K999999"],"pma_number":["P999999"]}
-                }]}).to_string());
-                }
-                if line
-                    != concat!(
-                        "GET /device/enforcement.json?search=recall_number.exact%3A%22Z-0001-2024%22",
-                        "&limit=1&skip=0 HTTP/1.1"
-                    )
-                {
-                    return Err(format!("wrong exact recall request: {line}"));
-                }
-                Ok(if matched {
-                    json!({"meta":{"results":{"skip":0,"limit":1,"total":1}},"results":[{
-                        "recall_number":"Z-0001-2024","classification":"Class II"
-                    }]})
-                    .to_string()
-                } else {
-                    json!({"error":{"code":"NOT_FOUND","message":"No matches found!"}}).to_string()
-                })
-            },
-            move |request| {
-                if !matched && request.starts_with("GET /device/enforcement.json?") {
-                    404
-                } else {
-                    200
-                }
-            },
-        )?;
+        let stub = card_stub(matched)?;
         let env = environment(&stub)?;
         let args = [
             "get",
@@ -190,133 +146,8 @@ fn invalid() -> Result<(), String> {
         Err("invalid selector reached HTTP".into())
     })?;
     let env = environment(&stub)?;
-    for words in [
-        vec![
-            "search",
-            "diagnostic",
-            "--source",
-            "fda-device-recall",
-            "--gene",
-            "BRAF",
-        ],
-        vec![
-            "search",
-            "diagnostic",
-            "--source",
-            "fda-device-recall",
-            "--marker",
-            "Synthetic",
-        ],
-        vec![
-            "search",
-            "diagnostic",
-            "--source",
-            "fda-device-recall",
-            "--bundle-revision",
-            "synthetic",
-        ],
-        vec![
-            "search",
-            "diagnostic",
-            "--source",
-            "fda-device-recall",
-            "--initiated-from",
-            "2024-02-30",
-        ],
-        vec![
-            "search",
-            "diagnostic",
-            "--source",
-            "fda-device-recall",
-            "--initiated-from",
-            "2024",
-        ],
-        vec![
-            "search",
-            "diagnostic",
-            "--source",
-            "fda-device-recall",
-            "--initiated-from",
-            "2024-02-01",
-            "--initiated-to",
-            "2024-01-01",
-        ],
-        vec![
-            "search",
-            "diagnostic",
-            "--source",
-            "gtr",
-            "--product-code",
-            "ABC",
-        ],
-        vec![
-            "search",
-            "diagnostic",
-            "--source",
-            "who-ivd",
-            "--initiated-to",
-            "2024-01-01",
-        ],
-        vec![
-            "get",
-            "diagnostic",
-            "Z-1-2024",
-            "--source",
-            "fda-device-recall",
-        ],
-        vec![
-            "get",
-            "diagnostic",
-            "K000001",
-            "--source",
-            "fda-device-recall",
-        ],
-        vec![
-            "get",
-            "diagnostic",
-            "Z-0001-2024",
-            "genes",
-            "--source",
-            "fda-device-recall",
-        ],
-        vec![
-            "get",
-            "diagnostic",
-            "Z-0001-2024",
-            "--source",
-            "fda-device-recall",
-            "--section-limit",
-            "1",
-        ],
-        vec![
-            "get",
-            "diagnostic",
-            "Z-0001-2024",
-            "--source",
-            "fda-device-recall",
-            "--section-offset",
-            "1",
-        ],
-        vec![
-            "get",
-            "diagnostic",
-            "Z-0001-2024",
-            "--source",
-            "fda-device-recall",
-            "--supplement",
-            "S001",
-        ],
-        vec![
-            "get",
-            "diagnostic",
-            "Z-0001-2024",
-            "--source",
-            "fda-device-recall",
-            "--bundle-revision",
-            "synthetic",
-        ],
-    ] {
-        let args = words.into_iter().map(str::to_owned).collect::<Vec<_>>();
+    for words in INVALID {
+        let args = words.iter().map(|v| (*v).to_owned()).collect::<Vec<_>>();
         let cli = invoke(&env, args.clone(), 2)?;
         let tool = mcp::call_with_globals(&env, &args, true, &[])?;
         if cli != tool || cli.get("error").is_none() {
@@ -328,3 +159,180 @@ fn invalid() -> Result<(), String> {
     }
     Ok(())
 }
+
+fn card_stub(matched: bool) -> Result<Stub, String> {
+    Stub::for_source_status(
+            "api.fda.gov",
+            "application/json",
+            move |request| {
+                let line = request.lines().next().ok_or("missing request")?;
+                if line
+                    == concat!(
+                        "GET /device/recall.json?search=product_res_number.exact%3A%22Z-0001-2024%22",
+                        "&limit=1&skip=0 HTTP/1.1"
+                    )
+                {
+                    return Ok(json!({"meta":{"results":{"skip":0,"limit":1,"total":1}},"results":[{
+                    "product_res_number":"Z-0001-2024","res_event_number":"101",
+                    "recalling_firm":"Synthetic maker","product_code":"ABC","recall_status":"Ongoing",
+                    "event_date_initiated":"2024-01-02","reason_for_recall":"Synthetic reason",
+                    "root_cause_description":"Synthetic cause","product_description":"Synthetic description",
+                    "distribution_pattern":"Synthetic distribution","k_numbers":["K000001"],"pma_numbers":["P000001"],
+                    "openfda":{"k_number":["K999999"],"pma_number":["P999999"]}
+                }]}).to_string());
+                }
+                if line
+                    != concat!(
+                        "GET /device/enforcement.json?search=recall_number.exact%3A%22Z-0001-2024%22",
+                        "&limit=1&skip=0 HTTP/1.1"
+                    )
+                {
+                    return Err(format!("wrong exact recall request: {line}"));
+                }
+                Ok(if matched {
+                    json!({"meta":{"results":{"skip":0,"limit":1,"total":1}},"results":[{
+                        "recall_number":"Z-0001-2024","classification":"Class II"
+                    }]})
+                    .to_string()
+                } else {
+                    json!({"error":{"code":"NOT_FOUND","message":"No matches found!"}}).to_string()
+                })
+            },
+            move |request| {
+                if !matched && request.starts_with("GET /device/enforcement.json?") {
+                    404
+                } else {
+                    200
+                }
+            },
+        )
+}
+
+const INVALID: &[&[&str]] = &[
+
+        &[
+            "search",
+            "diagnostic",
+            "--source",
+            "fda-device-recall",
+            "--gene",
+            "BRAF",
+        ],
+        &[
+            "search",
+            "diagnostic",
+            "--source",
+            "fda-device-recall",
+            "--marker",
+            "Synthetic",
+        ],
+        &[
+            "search",
+            "diagnostic",
+            "--source",
+            "fda-device-recall",
+            "--bundle-revision",
+            "synthetic",
+        ],
+        &[
+            "search",
+            "diagnostic",
+            "--source",
+            "fda-device-recall",
+            "--initiated-from",
+            "2024-02-30",
+        ],
+        &[
+            "search",
+            "diagnostic",
+            "--source",
+            "fda-device-recall",
+            "--initiated-from",
+            "2024",
+        ],
+        &[
+            "search",
+            "diagnostic",
+            "--source",
+            "fda-device-recall",
+            "--initiated-from",
+            "2024-02-01",
+            "--initiated-to",
+            "2024-01-01",
+        ],
+        &[
+            "search",
+            "diagnostic",
+            "--source",
+            "gtr",
+            "--product-code",
+            "ABC",
+        ],
+        &[
+            "search",
+            "diagnostic",
+            "--source",
+            "who-ivd",
+            "--initiated-to",
+            "2024-01-01",
+        ],
+        &[
+            "get",
+            "diagnostic",
+            "Z-1-2024",
+            "--source",
+            "fda-device-recall",
+        ],
+        &[
+            "get",
+            "diagnostic",
+            "K000001",
+            "--source",
+            "fda-device-recall",
+        ],
+        &[
+            "get",
+            "diagnostic",
+            "Z-0001-2024",
+            "genes",
+            "--source",
+            "fda-device-recall",
+        ],
+        &[
+            "get",
+            "diagnostic",
+            "Z-0001-2024",
+            "--source",
+            "fda-device-recall",
+            "--section-limit",
+            "1",
+        ],
+        &[
+            "get",
+            "diagnostic",
+            "Z-0001-2024",
+            "--source",
+            "fda-device-recall",
+            "--section-offset",
+            "1",
+        ],
+        &[
+            "get",
+            "diagnostic",
+            "Z-0001-2024",
+            "--source",
+            "fda-device-recall",
+            "--supplement",
+            "S001",
+        ],
+        &[
+            "get",
+            "diagnostic",
+            "Z-0001-2024",
+            "--source",
+            "fda-device-recall",
+            "--bundle-revision",
+            "synthetic",
+        ],
+
+];
