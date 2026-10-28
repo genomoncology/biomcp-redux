@@ -2979,7 +2979,7 @@
       "type": "string"
     },
     "TrialStatus": {
-      "description": "Source-native registry value.",
+      "description": "Publisher Status enum for OverallStatus from\n<https://clinicaltrials.gov/api/v2/studies/enums>.",
       "enum": [
         "ACTIVE_NOT_RECRUITING",
         "COMPLETED",

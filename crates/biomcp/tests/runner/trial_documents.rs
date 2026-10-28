@@ -174,8 +174,13 @@ fn failures() -> Check {
         }
     })?;
     let fresh = Environment::new()?;
+    let card_args = ["get", "trial", "NCT04303780", "documents"].map(str::to_owned);
+    let card = command(&fresh, &malformed, &card_args, 0)?;
+    assert_eq!(card.pointer("/status"), Some(&json!("partial")));
+    assert_eq!(card.pointer("/result/items/0/card/nct_id"), Some(&json!("NCT04303780")));
     let out = command(&fresh, &malformed, &args(&path), 4)?;
-    assert_eq!(out.pointer("/sources/0/reason"), Some(&json!("bad_reply")));
+    assert_eq!(out.pointer("/result/file/reason"), Some(&json!("bad_reply")));
+    assert_eq!(out.pointer("/problems/0/field"), Some(&json!("largeDocs.filename")));
     assert_eq!(fs::read(&path)?, b"caller original");
     Ok(())
 }

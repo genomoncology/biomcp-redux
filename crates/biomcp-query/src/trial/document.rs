@@ -33,13 +33,25 @@ pub fn download(cx: &Ctx<'_>, query: &TrialDocumentGet, allow: bool) -> Download
         local: None,
     };
     let result = ctgov::detail::get(&leg, query.input).and_then(|(detail, _)| {
+        let incomplete_manifest = detail.problems.iter().any(|problem| {
+            problem.field.starts_with("largeDoc") || problem.field.starts_with("documentSection")
+        });
+        if !detail.problems.is_empty() { out.status = Status::Partial; }
+        out.problems.extend(detail.problems);
         let Some(document) = detail
             .documents
             .into_vec()
             .into_iter()
             .find(|d| d.filename == query.file)
         else {
-            out.body = QueryBody::TextPositionError;
+            if incomplete_manifest {
+                out.status = Status::Failed;
+                out.body = QueryBody::TrialDocument(TrialDocumentResult {
+                    file: Section::unavailable(Source::ClinicalTrialsGov, biomcp_types::Reason::BadReply),
+                });
+            } else {
+                out.body = QueryBody::TextPositionError;
+            }
             return Ok(None);
         };
         if !allow {
