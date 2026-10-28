@@ -119,8 +119,8 @@ def dependent_change(removed, added, discoveries, before, after):
         rows[:] = [[], []]
         for side, requests in enumerate((before.values(), after.values())):
             for request in requests:
-                provenance = request.get('provenance', {})
-                inputs = provenance.get('inputs', {})
+                provenance = request.get('provenance') or {}
+                inputs = provenance.get('inputs') or {}
                 key = (request['source'], request['role'], inputs.get('namespace'),
                        provenance.get('input_context'))
                 if key == group:
