@@ -23,15 +23,15 @@ pub(super) fn members(
             } else {
                 ("participants.crossReferences", r.cross_references)
             };
-            if let Some(field) = references {
-                if let Some(values) = problems.required(field_name, field.value()) {
-                    for value in values {
-                        let parsed = value
-                            .value()
-                            .and_then(|x| format!("{}:{}", x.database, x.identifier).parse().ok());
-                        if let Some(value) = problems.required(field_name, parsed) {
-                            xrefs.push(value);
-                        }
+            if let Some(field) = references
+                && let Some(values) = problems.required(field_name, field.value())
+            {
+                for value in values {
+                    let parsed = value
+                        .value()
+                        .and_then(|x| format!("{}:{}", x.database, x.identifier).parse().ok());
+                    if let Some(value) = problems.required(field_name, parsed) {
+                        xrefs.push(value);
                     }
                 }
             }

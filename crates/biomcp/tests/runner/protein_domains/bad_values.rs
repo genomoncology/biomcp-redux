@@ -144,9 +144,7 @@ fn run() -> Result<(), String> {
                 },
             )?;
             let env = setup(&stub)?;
-            let args = if command == "domains" {
-                vec!["protein", command, "P38398"]
-            } else if command == "complexes" {
+            let args = if command != "complex-members" {
                 vec!["protein", command, "P38398"]
             } else {
                 vec!["protein", command, "P38398", "--complex", "CPX-715"]

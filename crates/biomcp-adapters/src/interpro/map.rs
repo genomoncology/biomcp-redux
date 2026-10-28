@@ -82,35 +82,33 @@ fn signatures(
     problems: &mut crate::mapped::Problems,
 ) -> Vec<ProteinMemberSignature> {
     let mut signatures = Vec::new();
-    if let Some(field) = raw {
-        if let Some(databases) = problems.required("member_databases", field.value()) {
-            for (database, entries) in databases {
-                let Some(database) = problems.text("member_databases.database", Some(&database))
+    if let Some(field) = raw
+        && let Some(databases) = problems.required("member_databases", field.value())
+    {
+        for (database, entries) in databases {
+            let Some(database) = problems.text("member_databases.database", Some(&database)) else {
+                continue;
+            };
+            let Some(entries) = problems.required("member_databases.entries", entries.value())
+            else {
+                continue;
+            };
+            for (accession, name) in entries {
+                let Some(accession) = problems.text("member_databases.accession", Some(&accession))
                 else {
                     continue;
                 };
-                let Some(entries) = problems.required("member_databases.entries", entries.value())
-                else {
-                    continue;
-                };
-                for (accession, name) in entries {
-                    let Some(accession) =
-                        problems.text("member_databases.accession", Some(&accession))
-                    else {
-                        continue;
-                    };
-                    signatures.push(ProteinMemberSignature {
-                        database: database.clone(),
-                        accession,
-                        name: crate::mapped::field_text(
-                            &mut problems.list,
-                            problems.source,
-                            problems.record.clone(),
-                            "member_databases.name",
-                            Some(name),
-                        ),
-                    });
-                }
+                signatures.push(ProteinMemberSignature {
+                    database: database.clone(),
+                    accession,
+                    name: crate::mapped::field_text(
+                        &mut problems.list,
+                        problems.source,
+                        problems.record.clone(),
+                        "member_databases.name",
+                        Some(name),
+                    ),
+                });
             }
         }
     }
@@ -151,7 +149,7 @@ fn locations(
                     );
                     let (start, end) = (start?, end?);
                     if end < start {
-                        problems.required::<()>("fragments.end", None);
+                        let _ = problems.required::<()>("fragments.end", None);
                         return None;
                     }
                     let span = problems.optional(
