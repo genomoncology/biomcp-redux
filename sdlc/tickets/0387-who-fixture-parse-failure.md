@@ -13,4 +13,4 @@ Milestone: 5
 - Rules: fix the real cause; no retry, skip, timeout change or new framework. A focused pass alone is not a root cause.
 - Proof: a deterministic reproduction failed before the fix and passes after, or the diagnostic witness names the cause and a case covers it; the next full run passes this case.
 - Changes: depends on the cause.
-- Defers: nothing. Priority: it blocks 0360 and 0354; land it ahead of them, or let 0360 and 0354 land on focused proof of their own changes once this ticket owns the failure.
+- Defers: nothing. Priority: it blocks 0360 and 0354, which wait for it; no gate bypass.
