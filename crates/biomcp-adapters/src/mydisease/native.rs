@@ -41,12 +41,12 @@ pub struct Component {
     /// Rejected optional provider values, attributed to this component.
     pub problems: Vec<biomcp_types::Problem>,
 }
-/// One original component field value.
+/// One original component synonym value.
 #[derive(Debug)]
 pub struct Value {
-    /// Native scope or namespace spelling.
+    /// Native synonym scope spelling.
     pub field: String,
-    /// Complete source text or code.
+    /// Complete source synonym text.
     pub value: Text,
 }
 /// One native reference whose code bytes have not passed through display text.
