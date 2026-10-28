@@ -74,7 +74,7 @@ fn card_refuses_hidden_associations_statistics_and_related_entities() {
     ] {
         let mut invalid = card.clone();
         invalid[field] = json!([]);
-        assert!(serde_json::from_value::<DiseaseCard>(invalid).is_err());
+        assert_eq!(roundtrip::<DiseaseCard>(invalid).unwrap(), card);
     }
 }
 

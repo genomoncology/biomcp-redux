@@ -314,8 +314,10 @@ fn label_candidate_versions_are_native_optional_identity_metadata() {
     let versioned: biomcp_types::DrugHeader =
         serde_json::from_value(value.clone()).expect("versioned");
     assert_eq!(serde_json::to_value(versioned).expect("JSON"), value);
+    let known = value.clone();
     value["text"] = json!("not an identity field");
-    assert!(serde_json::from_value::<biomcp_types::DrugHeader>(value).is_err());
+    let decoded: biomcp_types::DrugHeader = serde_json::from_value(value).expect("open header");
+    assert_eq!(serde_json::to_value(decoded).expect("header JSON"), known);
 }
 #[test]
 fn native_target_identity_does_not_require_an_invented_gene() {

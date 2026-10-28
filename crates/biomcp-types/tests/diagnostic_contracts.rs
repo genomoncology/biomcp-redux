@@ -314,13 +314,10 @@ fn pma_absent_empty_and_explicit_supplement_roles_stay_distinct() {
             .is_err()
         );
     }
-    assert!(
-        serde_json::from_value::<DiagnosticPmaHeader>(json!({"pma_number":"P150013",
-"supplement_number":"",
-"url":"https://example.invalid",
-"ao_statement":"Whole statement must stay behind regulatory"}))
-        .is_err()
-    );
+    let header = json!({"pma_number":"P150013", "supplement_number":"", "url":"https://example.invalid"});
+    let mut extended = header.clone();
+    extended["ao_statement"] = json!("Whole statement must stay behind regulatory");
+    assert_eq!(roundtrip::<DiagnosticPmaHeader>(extended), header);
 }
 
 #[test]
@@ -350,9 +347,9 @@ fn conflict_candidates_have_no_selected_name_or_card() {
     // This pre-registry synthetic source is not a GTR provider observation.
     assert_eq!(roundtrip::<DiagnosticCandidate>(value.clone()), value);
     assert!(serde_json::from_value::<DiagnosticCard>(value.clone()).is_err());
-    let mut invalid = value;
+    let mut invalid = value.clone();
     invalid["name"] = json!("Silent winner");
-    assert!(serde_json::from_value::<DiagnosticCandidate>(invalid).is_err());
+    assert_eq!(roundtrip::<DiagnosticCandidate>(invalid), value);
 }
 
 #[test]

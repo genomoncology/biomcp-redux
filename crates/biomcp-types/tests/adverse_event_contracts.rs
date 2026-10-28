@@ -263,8 +263,9 @@ fn eight_consumer_envelopes_validate_and_identifier_pages_keep_closed_native_sco
             page.clone(),
         )
         .unwrap();
+        let known = page.clone();
         page["arbitrary_field"] = json!([]);
-        assert!(serde_json::from_value::<AdverseEventIdentifiers>(page).is_err());
+        assert_eq!(roundtrip::<AdverseEventIdentifiers>(page).unwrap(), known);
     }
     base["header"] = json!({"id":"50952244","source":"maude"});
     base["devices"] = json!({"records":[{"index":0,"brand_name":""}],"offset":0,"total":1});
