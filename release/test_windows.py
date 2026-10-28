@@ -1,5 +1,7 @@
 """Release contract checks use PE fixtures without a Windows toolchain."""
+import configparser
 import hashlib
+import json
 from pathlib import Path
 import struct
 import subprocess
@@ -60,9 +62,12 @@ class WindowsRuntime(unittest.TestCase):
                 check_runtime(data, 'win_amd64')
 
     def test_static_runtime_configuration_is_target_specific(self):
-        import tomllib
-        config = tomllib.loads(Path('.cargo/config.toml').read_text())
-        self.assertEqual(config, {'target': {'x86_64-pc-windows-msvc': {'rustflags': ['-C', 'target-feature=+crt-static']}}})
+        config = configparser.ConfigParser()
+        config.read('.cargo/config.toml')
+        target = 'target.x86_64-pc-windows-msvc'
+        self.assertEqual(config.sections(), [target])
+        self.assertEqual(list(config[target]), ['rustflags'])
+        self.assertEqual(json.loads(config[target]['rustflags']), ['-C', 'target-feature=+crt-static'])
 
 
 if __name__ == '__main__':
