@@ -1015,8 +1015,8 @@ The MyChem and disease adapter boundaries classify received values as follows. `
 | OLS `get` optional result transpose and static xref predicate | Legitimate absence | A publisher response with no exact term returns absence. The predicate is a source mapping constant. |
 | MyDisease `raw::Document.id`, component ID, `check` and alias `matches` parses | Identity refusal | Top-level and component CURIEs identify the returned record. A requested alias requires a source-provided exact cross-reference. |
 | MyDisease `native::component` label, definition, synonym and xref text, parents, consider and replacement IDs | Migrated | Shared mapping admits each optional field or member independently and retains component-qualified problems. |
-| MyDisease `map::xref_id` parse results | Migrated | `rows` reports the namespace-qualified field through the shared problem owner whenever the parse returns no target. |
-| MyDisease generated attribution, numeric version, component terms and source predicate | Legitimate absence | Values derive from admitted identities, unsigned versions and the registered component names. Missing optional metadata stays absent. |
+| MyDisease `map::xref_id` parse results and received synonym scope predicates | Migrated | `rows` reports the namespace-qualified field through the shared problem owner whenever the parse returns no target. |
+| MyDisease generated attribution, numeric version, component terms and static parent predicate | Legitimate absence | Values derive from admitted identities, unsigned versions and the registered component names. Missing optional metadata stays absent. |
 
 Shared helpers live once in `biomcp-adapters/src/`:
 

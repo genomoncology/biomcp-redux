@@ -152,17 +152,25 @@ fn rows(
     } else {
         "synonym"
     };
+    let mut problems = crate::mapped::Problems {
+        source: Source::MyDisease,
+        record: crate::mapped::record(&component.id),
+        list: Vec::new(),
+    };
     for value in &component.synonyms {
+        let field = format!("{synonym_field}.{}", value.field);
+        let scope = problems.optional(
+            &format!("{}.{}", root(component), field),
+            Some(predicate(component, &field)),
+        );
         mapped.value.synonyms.push(DiseaseSynonym {
             value: value.value.clone(),
-            scope: Some(predicate(
-                component,
-                &format!("{synonym_field}.{}", value.field),
-            )?),
+            scope,
             language: None,
             attribution: attribution.clone(),
         });
     }
+    mapped.problems.extend(problems.list);
     for value in &component.xrefs {
         let Some(id) = xref_id(value) else {
             crate::mapped::push_problem(

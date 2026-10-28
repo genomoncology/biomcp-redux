@@ -286,6 +286,11 @@ fn cases(family: &str) -> Vec<(&'static str, Value, &'static str)> {
                 json!({"exact":["valid", ""]}),
                 "mondo.synonym.exact",
             ),
+            (
+                "synonym",
+                json!({"bad scope":["valid"]}),
+                "mondo.synonym.bad scope",
+            ),
             ("xrefs", json!({"doid":[""]}), "mondo.xrefs.doid"),
             ("parents", json!(["invalid:"]), "mondo.parents"),
             ("consider", json!(["invalid:"]), "mondo.consider"),
