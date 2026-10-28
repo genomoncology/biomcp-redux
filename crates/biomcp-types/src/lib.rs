@@ -137,9 +137,9 @@ pub use response::{
 pub use query::{DiseaseGet, DiseaseOntology, DiseaseSearch, DiseaseSection, DiseaseSource};
 
 pub use response::{
-    DiseaseAssociationItem, DiseaseCard, DiseaseGenes, DiseaseHeader, DiseaseHierarchy,
-    DiseaseIncidence, DiseasePage, DiseasePhenotypes, DiseaseSite, DiseaseSites, DiseaseSurvival,
-    DiseaseSynonyms, DiseaseXrefs,
+    DiseaseAssociationItem, DiseaseCard, DiseaseConcept, DiseaseGenes, DiseaseHeader,
+    DiseaseHierarchy, DiseaseIncidence, DiseasePage, DiseasePhenotypes, DiseaseSite, DiseaseSites,
+    DiseaseSurvival, DiseaseSynonyms, DiseaseXrefs,
 };
 mod drug;
 pub use drug::{

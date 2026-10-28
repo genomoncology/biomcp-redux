@@ -1033,6 +1033,25 @@ Reactome classifies its mapping checks at their owning boundary:
 | `reactome/raw.rs` search counters, exact empty response and database release | Source protocol refusal | Require the native protocol envelope and positive source release. A release request failure marks the source failure and retains an accepted pathway card. |
 | Optional omitted metadata, checked not-found replies and provenance conversion from checked IDs | Legitimate absence | Do not manufacture a value or a missing-field problem. Generated event URLs derive from validated pathway IDs. Numeric release text derives from the checked source release. |
 
+The MyChem and disease adapter boundaries classify received values as follows. `DiseaseConcept` keeps the previous identifier wire shape and permits an omitted display label. Source record admission still requires the exact identifier. Trial condition resolution retains a missing label and makes no name request without it.
+
+| Family and site | Classification | Boundary |
+| --- | --- | --- |
+| MyChem `raw::Hit.id`, exact returned-ID check | Identity refusal | The aggregate drug ID identifies the requested document. |
+| MyChem `normalize::component` scalar text, aliases, synonym text and component containers | Migrated | The shared field mapper omits bad values and records their component-qualified field. Reference strings keep their original bytes until the ID parser checks them. Header and card construction receive validated text. |
+| MyChem `map::references_for`, `map::parents_for`, `links::native_xrefs` | Migrated | Reference target parse failures pass through the shared optional mapper. The reference is omitted. |
+| MyChem header name and type, reference name and native attribution record | Migrated | Optional strict conversions consume only text admitted by `normalize::component`. |
+| MyChem numeric version conversion and generated URL | Legitimate absence | Versions come from unsigned integers. URL text contains the admitted aggregate ID. Missing optional metadata stays absent. |
+| OLS `raw::Hit` and `raw::Term` `obo_id`, `ontology_name`; exact ontology and ID checks | Identity refusal | The CURIE identifies the term and the ontology routes its identity. Display labels and IRIs have no identity role. |
+| OLS `map::record` label, IRI, descriptions, consider and replacement IDs; `search` label and IRI | Migrated | Native reference codes stay as strings until their typed parser runs. Invalid optional text or IDs produce card or search problems. Empty optional lists and missing metadata produce no problem. |
+| OLS `map::iri_id` parse results and `xrefs` target parse | Migrated | The caller passes every failed parse to `Problems::required` for the received field. The documented OBO IRI conversion preserves the native namespace and local ID. |
+| OLS `synonyms` names and scope metadata, `xrefs` database, ID and description | Migrated | Invalid collection members are omitted or lose their optional field with a named problem. Valid peers remain. |
+| OLS `get` optional result transpose and static xref predicate | Legitimate absence | A publisher response with no exact term returns absence. The predicate is a source mapping constant. |
+| MyDisease `raw::Document.id`, component ID, `check` and alias `matches` parses | Identity refusal | Top-level and component CURIEs identify the returned record. A requested alias requires a source-provided exact cross-reference. |
+| MyDisease `native::component` label, definition, synonym and xref text, parents, consider and replacement IDs | Migrated | Native xref codes stay as strings until the CURIE parser runs. Shared mapping admits each optional field or member independently and retains component-qualified problems. |
+| MyDisease `map::xref_id` parse results and received synonym scope predicates | Migrated | `rows` reports the namespace-qualified field through the shared problem owner whenever the parse returns no target. |
+| MyDisease generated attribution, numeric version, component terms and static parent predicate | Legitimate absence | Values derive from admitted identities, unsigned versions and the registered component names. Missing optional metadata stays absent. |
+
 Shared helpers live once in `biomcp-adapters/src/`:
 
 ```rust

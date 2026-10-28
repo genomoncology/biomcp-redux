@@ -174,9 +174,19 @@
       ],
       "type": "object"
     },
-    "Concept": {
+    "Curie": {
+      "description": "Checked prefix:local ontology identifier.",
+      "pattern": "^[A-Za-z0-9_.-]+:[^\\s\\x00-\\x1f\\x7f-\\x9f]+$",
+      "type": "string"
+    },
+    "Cytoband": {
+      "description": " A single nuclear cytogenetic band, without a range or location descriptor.",
+      "pattern": "^([1-9]|1[0-9]|2[0-2]|X|Y)[pq][1-9][0-9](\\.[0-9]+)?$",
+      "type": "string"
+    },
+    "DiseaseConcept": {
       "additionalProperties": false,
-      "description": "One source concept with its optional ontology identifier.",
+      "description": "A disease identity whose optional display label never determines record admission.",
       "properties": {
         "id": {
           "anyOf": [
@@ -187,27 +197,14 @@
               "type": "null"
             }
           ],
-          "description": "Source-stated concept identifier."
+          "description": "Source-stated exact identifier."
         },
         "label": {
           "$ref": "#/$defs/Text",
-          "description": "Original concept label."
+          "description": "Native display label when supplied and valid."
         }
       },
-      "required": [
-        "label"
-      ],
       "type": "object"
-    },
-    "Curie": {
-      "description": "Checked prefix:local ontology identifier.",
-      "pattern": "^[A-Za-z0-9_.-]+:[^\\s\\x00-\\x1f\\x7f-\\x9f]+$",
-      "type": "string"
-    },
-    "Cytoband": {
-      "description": " A single nuclear cytogenetic band, without a range or location descriptor.",
-      "pattern": "^([1-9]|1[0-9]|2[0-2]|X|Y)[pq][1-9][0-9](\\.[0-9]+)?$",
-      "type": "string"
     },
     "DiseaseEndpoint": {
       "additionalProperties": false,
@@ -1619,7 +1616,7 @@
         "concept": {
           "anyOf": [
             {
-              "$ref": "#/$defs/Concept"
+              "$ref": "#/$defs/DiseaseConcept"
             },
             {
               "type": "null"
@@ -1962,7 +1959,7 @@
       "type": "string"
     }
   },
-  "$id": "biomcp.trial-page/6",
+  "$id": "biomcp.trial-page/7",
   "$schema": "https://json-schema.org/draft/2020-12/schema",
   "additionalProperties": false,
   "description": "One versioned command response; schema identity comes only from its body type.",
@@ -2019,7 +2016,7 @@
       "description": "Answer when available."
     },
     "schema": {
-      "const": "biomcp.trial-page/6",
+      "const": "biomcp.trial-page/7",
       "type": "string"
     },
     "sources": {

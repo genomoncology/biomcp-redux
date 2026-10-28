@@ -5,6 +5,8 @@ use biomcp_types::{DiseaseCard, DiseaseGet};
 /// The exact card and complete native section rows, sliced by the query layer.
 #[derive(Debug)]
 pub struct Record {
+    /// Rejected optional card fields.
+    pub problems: Vec<biomcp_types::Problem>,
     /// Exact identity and native metadata.
     pub card: DiseaseCard,
     /// Every native synonym, with scope absent when the publisher omits it.

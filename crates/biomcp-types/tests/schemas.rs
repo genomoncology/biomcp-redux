@@ -314,9 +314,9 @@ fn trial_contracts() -> Vec<Contract> {
         Envelope<NciTrialCards> => ("nci-trial-cards", "biomcp.nci-trial-cards/3"),
         Envelope<NciTrialPage> => ("nci-trial-page", "biomcp.nci-trial-page/4"),
         Envelope<TrialCards> => ("trial-cards", "biomcp.trial-cards/3"),
-        TrialConditionResolution => ("trial-condition-resolution", "biomcp.trial-condition-resolution/1"),
+        TrialConditionResolution => ("trial-condition-resolution", "biomcp.trial-condition-resolution/2"),
         TrialSearch => ("trial-search", "biodata.trial-search/2"),
-        Envelope<TrialPage> => ("trial-page", "biomcp.trial-page/6"),
+        Envelope<TrialPage> => ("trial-page", "biomcp.trial-page/7"),
         NctId => ("nct-id", "biodata.nct-id/1"),
         TrialHeader => ("trial-header", "biodata.trial_header/1"),
     }
