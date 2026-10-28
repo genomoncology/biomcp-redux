@@ -1,4 +1,4 @@
-# 0413 — Filter MAUDE device reports by manufacturer and product code
+# 0413 — Filter MAUDE device reports by manufacturer, product code and problem
 
 Status: OPEN.
 
@@ -6,11 +6,11 @@ Milestone: 5
 
 ## Outcome
 
-`biomcp search adverse-event --source maude` accepts `--manufacturer <name>` and `--product-code <code>`, mapped exactly to openFDA's device manufacturer and product code fields, alongside the existing device phrase. A recall from 0412 names this search for its product code as a next step.
+`biomcp search adverse-event --source maude` accepts `--manufacturer` (phrase on `device.manufacturer_d_name`), `--product-code` (exact on `device.device_report_product_code`, repeatable and joined with OR) and `--problem` (phrase on native `product_problems`). The device phrase becomes optional when one of these is present. FAERS and VAERS still refuse these options. Help says one report can list several devices, so filters may match different devices in one report.
 
-- Why: `decisions/2026-10-28-benchmark-gaps-join-1-0.md`. 0.4.6 filtered device events by manufacturer, and a product code joins recalls, clearances and problem reports for one device type.
-- Starts from: the MAUDE adapter, openFDA's device event searchable fields and 0412.
-- Rules: keys are read only when the source is called and never printed or recorded. Bounded live captures within the source's published limits; no licensed content in fixtures. Follow the entity, header, card, section and paging rules in `sdlc/planning/architecture.md`, the shared bad-value helper and typed IDs. New schemas get IDs with hyphens and enter the 1.0 baseline. Help, examples, the generated command reference, the upgrade table and MCP tool text name the new surface. No text heuristics. Counts are reports, not people or device failures.
-- Proof: replay cases for each filter, both together and an unknown code; bounded captures.
-- Changes: the MAUDE filter grammar, adapter, help and cases.
+- Why: `decisions/2026-10-28-benchmark-gaps-join-1-0.md`. MCP-Bench's test-kit step searches device reports by problem, and 0.4.6 filtered by manufacturer. Repeated product codes are the allowed form of 0.4.6's hand-made genomics code list, which the no-text-heuristics rule bans.
+- Starts from: `crates/biomcp/src/retired/adverse_event.rs` (both flags are retired today), `crates/biomcp/tests/runner/adverse_event_retirements.rs`, `crates/biomcp-types/src/adverse_event/query.rs`, `crates/biomcp-query/src/adverse_event_maude/rows.rs` and the slice rows at `sdlc/planning/slices/adverse-event.md` 441 and 511, which this replaces.
+- Rules: follow `sdlc/planning/architecture.md` and the shared source rules in `decisions/2026-10-28-benchmark-gaps-join-1-0.md`. NCI returns zero, not an error, for a wrong field name, so every NCI proof includes a positive case that a wrong build would fail. Retirement becomes source-aware, including when `--source` follows the flag. Making the phrase optional changes the adverse-event search schema and takes its major bump.
+- Proof: replay cases for each filter, two product codes, a filter without a phrase, FAERS and VAERS refusals in both argument orders, and an unknown code; bounded captures.
+- Changes: the files above, schemas, help, the slice rows, the upgrade table and cases.
 - Defers: nothing.

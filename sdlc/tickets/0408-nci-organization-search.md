@@ -6,11 +6,12 @@ Milestone: 5
 
 ## Outcome
 
-`biomcp search organization --source nci` finds NCI clinical trial organizations by name, city, state or province, country and type, and `biomcp get organization` returns one. Each header gives the native NCI organization identity, name, city, state, country and the source's trial count; the card adds address, coordinates, organization family and public contact fields as published.
+`biomcp search organization --source nci` finds NCI clinical trial organizations by name (NCI's partial match), city, state or province, country, postal code, organization family or a coordinate radius. Each header gives the exact NCI name, city, state, country and NCI's trial count; the card adds address, coordinates, family and public contact fields as published. There is no `get`, because NCI publishes no organization ID; help says names are not unique and that the count covers trials of every status, not only recruiting ones.
 
-- Why: `decisions/2026-10-28-benchmark-gaps-join-1-0.md`. MCP-Bench asks whether trial sites match Boston's large cancer centers, and 0.4.6 offered `nci_organization_searcher`.
-- Starts from: the NCI adapter and its key handling, NCI CTS API v2 `/organizations` (a 2026-10-28 check for "Dana-Farber" returned name, address, `org_coordinates`, `org_family`, contact fields and `count`), and 0.4.6's tool arguments.
-- Rules: keys are read only when the source is called and never printed or recorded. Bounded live captures within the source's published limits; no licensed content in fixtures. Follow the entity, header, card, section and paging rules in `sdlc/planning/architecture.md`, the shared bad-value helper and typed IDs. New schemas get IDs with hyphens and enter the 1.0 baseline. Help, examples, the generated command reference, the upgrade table and MCP tool text name the new surface. No text heuristics. Reviewer checks which native field is a stable organization ID before `get` is designed; if none exists, `get` is dropped and the ticket says so.
-- Proof: replay cases for name and city searches, paging, a missing key refusal and a bad value with a problem; one bounded keyed capture.
-- Changes: a new organization entity, the NCI adapter, schemas, help and cases.
+- Why: `decisions/2026-10-28-benchmark-gaps-join-1-0.md`. MCP-Bench asks whether trial sites match Boston's large cancer centers.
+- Starts from: the NCI adapter and key handling, NCI CTS API v2 `/organizations` and its documented filters (`name`, `org_city`, `org_state_or_province`, `org_country`, `org_postal_code`, `org_family`, `org_coordinates_lat/lon/dist`).
+- Rules: follow `sdlc/planning/architecture.md` and the shared source rules in `decisions/2026-10-28-benchmark-gaps-join-1-0.md`. NCI returns zero, not an error, for a wrong field name, so every NCI proof includes a positive case that a wrong build would fail.
+- Paging (PM ruling, the adversarial design review of 2026-10-28): `/organizations` takes only `size` and returns a total only when unsized. BioMCP makes one unsized request under a byte bound, keeps it as a snapshot and pages it locally by offset; above the bound it refuses with a typed "too broad" reason naming the narrowing filters. NCI's `too_many_buckets` error maps to a source problem, never zero results.
+- Proof: replay cases for a name search, a city and state search, local paging, the too-broad refusal, a synthetic bucket error, a missing key and a bad value with a problem; one bounded keyed capture.
+- Changes: a new organization entity, `crates/biomcp-adapters/src/nci`, schemas, help, the MCP command tree and cases.
 - Defers: organizations from other registries.

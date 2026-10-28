@@ -1,16 +1,18 @@
-# 0412 — Search FDA device recalls
+# 0412 — Search FDA recalls
 
-Status: OPEN.
+Status: OPEN. Scope waits on Ian: device recalls, drug recalls or both.
 
 Milestone: 5
 
+Depends on: 0413
+
 ## Outcome
 
-`biomcp search diagnostic --source fda-device-recall` finds FDA medical device recalls by firm, product code, product text and date range, and `get diagnostic` returns one recall by its native identity. Each header gives the recall identity, firm, product code, classification when the enforcement report supplies it, status and initiation date; the card adds the reason, root cause, product description, distribution pattern and linked 510(k) or PMA numbers as published.
+For device recalls: `biomcp search diagnostic --source fda-device-recall` searches openFDA `device/recall.json` by recalling firm (phrase, reusing `--manufacturer`), exact `--product-code` and an initiation date range, and `get diagnostic` returns one recall by its typed `Z-NNNN-YYYY` product recall number. Each header gives the recall number, event number, firm, product code, status and initiation date; the card adds reason, root cause, product description, distribution pattern and only the top-level 510(k) and PMA numbers. `get` adds the classification from one exact enforcement lookup when one exists, and leaves it absent otherwise. A recall names the 0413 MAUDE search for its product code, from any manufacturer, as a next step. The retired adverse-event recall message points here and says what it covers.
 
-- Why: `decisions/2026-10-28-benchmark-gaps-join-1-0.md`. MCP-Bench asks about problems with genomic test kits. The 0162 ruling that dropped FDA recalls is replaced.
-- Starts from: openFDA `device/recall.json` and `device/enforcement.json` (a 2026-10-28 check for recalling firm Illumina returned 10 records from each), the existing openFDA device adapters (MAUDE, 510(k), PMA) and their key handling. The reviewer decides whether recall and enforcement are one source joined by a published identity or two sources, and whether recalls belong under `diagnostic` or another existing entity.
-- Rules: keys are read only when the source is called and never printed or recorded. Bounded live captures within the source's published limits; no licensed content in fixtures. Follow the entity, header, card, section and paging rules in `sdlc/planning/architecture.md`, the shared bad-value helper and typed IDs. New schemas get IDs with hyphens and enter the 1.0 baseline. Help, examples, the generated command reference, the upgrade table and MCP tool text name the new surface. No text heuristics. Counts are records, never products harmed; no causal or safety-rate wording.
-- Proof: replay cases for firm, product code and date searches, a get, paging and a bad value with a problem; bounded captures.
-- Changes: the adapter, source registration, outbound host policy row if needed, schemas, help and cases.
-- Defers: drug and food recalls.
+- Why: `decisions/2026-10-28-benchmark-gaps-join-1-0.md`. The 0162 recall drop is replaced.
+- Starts from: openFDA `device/recall.json` and `device/enforcement.json` (`product_res_number` equals `recall_number`; enforcement held 1 of 3 Illumina recalls), `crates/biomcp-adapters/src/fda_510k`, `fda_pma`, `crates/biomcp-types/src/query/diagnostic/mod.rs` and `crates/biomcp/src/retired/adverse_event.rs`.
+- Rules: follow `sdlc/planning/architecture.md` and the shared source rules in `decisions/2026-10-28-benchmark-gaps-join-1-0.md`. NCI returns zero, not an error, for a wrong field name, so every NCI proof includes a positive case that a wrong build would fail. Never project `openfda` fields such as `openfda.k_number`, which describe the product code, not the recalled product. Counts are product recall records, not products harmed or events. Help says the source covers every medical device. If Ian adds drug recalls, they use `drug/enforcement.json` as 0.9 did, under the drug entity, in their own ticket.
+- Proof: replay cases for firm, product code and date searches, a get with and without an enforcement match, paging, an `openfda` field never shown and a bad value with a problem; bounded captures.
+- Changes: a new source, its typed ID, `crates/biomcp-types/src/query/diagnostic/mod.rs`, the retired recall message, schemas, help and cases.
+- Defers: food recalls.
