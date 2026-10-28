@@ -9,6 +9,7 @@ mod drug_label;
 pub(crate) mod local;
 mod maintenance;
 mod mcp_policy;
+mod biomarker;
 mod organization;
 mod pathway;
 mod pgx;
@@ -240,6 +241,8 @@ fn response_body(meta: ResponseMeta, request: Request, body: QueryBody) -> io::R
         | Request::ProteinComplexMembers(_)
         | Request::ProteinStructures(_)
         | Request::ProteinSequence(_) => protein::encode(meta, request, body),
+        Request::SearchBiomarker(q) => biomarker::search(meta, q, body),
+        Request::GetBiomarker(q) => biomarker::get(meta, q, body),
         Request::SearchOrganization(q) => organization::encode(meta, q, body),
         Request::SearchPathway(_)
         | Request::GetPathway(_)

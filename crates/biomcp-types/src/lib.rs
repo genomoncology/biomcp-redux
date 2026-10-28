@@ -229,3 +229,6 @@ pub use response::{CivicKind, CivicSignificance, CivicStatus};
 pub use response::NciTrialPhase;
 
 pub use response::{Organization, OrganizationCoordinates, OrganizationPage};
+
+pub use query::{BiomarkerSearch, BiomarkerGet, BiomarkerSource};
+pub use response::{BiomarkerHeader, BiomarkerCard, BiomarkerPage, BiomarkerResult};

@@ -51,7 +51,8 @@ singleton! {
 
 singleton! {
     /// Fixed input-free error and migration guidance.
-    pub ErrorMessage { OrganizationTooBroad => "organization search is too broad; narrow --name, --city, --state, --country, \
+    pub ErrorMessage { BiomarkerTooBroad => "biomarker search is too broad; narrow --name or get one exact NCIt code",
+        OrganizationTooBroad => "organization search is too broad; narrow --name, --city, --state, --country, \
         --postal-code, --family or --lat/--lon/--distance",
  GwasThreshold => "--p-value is not yet supported; threshold filtering is deferred",
  GwasPositiveThreshold => "--p-value threshold must be a positive probability in scientific notation",
@@ -293,6 +294,14 @@ pub struct ErrorEnvelope {
 }
 
 impl ErrorEnvelope {
+    /// Refuse a biomarker observation beyond its byte bound.
+    pub fn biomarker_too_broad() -> Self {
+        let mut error = Self::arguments();
+        error.error.code = ErrorCode::TooBroad;
+        error.error.message = ErrorMessage::BiomarkerTooBroad;
+        error.error.source = Some(crate::Source::Nci);
+        error
+    }
     /// Refuse an organization collection beyond its bounded observation.
     pub fn organization_too_broad() -> Self {
         let mut error = Self::arguments();

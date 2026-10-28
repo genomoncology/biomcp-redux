@@ -1,5 +1,5 @@
 //! Organization discovery pages one complete NCI observation locally.
-mod snapshot;
+use crate::source_snapshot as snapshot;
 use crate::{Action, Ctx, Outcome, status};
 use biomcp_adapters::nci;
 use biomcp_fetch::{Deadline, RequestError, SourceError};
@@ -50,7 +50,7 @@ fn execute(
         }
         .into());
     }
-    let saved = snapshot::load(cx, q, deadline)?;
+    let saved = snapshot::load(cx, "biomcp.organization-snapshot/1", &q.snapshot_query(), q.pool(), deadline)?;
     if q.pool().is_some() && !cx.fresh && saved.is_none() {
         out.body = QueryBody::PoolError { mismatch: false };
         out.next.push((StepKind::Restart, run(q.restart())));
@@ -82,7 +82,7 @@ fn execute(
     let pool = if let Some(pool) = q.pool().filter(|_| !cx.fresh) {
         pool.clone()
     } else {
-        snapshot::save(cx, q, deadline, &saved)?
+        snapshot::save(cx, "biomcp.organization-snapshot/1", &q.snapshot_query(), deadline, &saved)?
     };
     let total = saved.items.len() as u64;
     let items: Box<[_]> = saved

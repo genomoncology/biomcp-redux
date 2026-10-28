@@ -1,4 +1,7 @@
 //! Explicit keyed NCI trial access, without registry vocabulary translation.
+pub mod biomarker;
+mod biomarker_map;
+mod biomarker_raw;
 pub mod organization;
 mod organization_map;
 mod organization_raw;

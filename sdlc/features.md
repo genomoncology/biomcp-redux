@@ -201,4 +201,4 @@ local-file-persistence: Create private Unix cache files and update symlinked cre
 
 organization-nci: Find source-native NCI organizations with bounded snapshots and local paging. Cases: `tests/cases/organization/*.yaml`, `crates/biomcp/tests/runner/nci/organization.rs`.
 
-biomarker-nci: Find NCI biomarker concepts by name or synonym and retrieve native concept rows by NCIt code.
+biomarker-nci: Find NCI biomarker concepts by name or synonym and retrieve native concept rows by NCIt code. Cases: `tests/cases/biomarker/*.yaml`, `crates/biomcp/tests/runner/nci/biomarker.rs`.

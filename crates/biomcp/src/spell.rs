@@ -81,6 +81,8 @@ fn request_args(request: &Request) -> Result<Vec<String>, serde_json::Error> {
 
 fn query_value(request: &Request) -> Result<Value, serde_json::Error> {
     match request {
+        Request::SearchBiomarker(q) => serde_json::to_value(q),
+        Request::GetBiomarker(q) => serde_json::to_value(q),
         Request::AuthorPapers(q) => serde_json::to_value(q),
         Request::SearchAuthor(q) => serde_json::to_value(q),
         Request::GetAuthor(q) => serde_json::to_value(q),
@@ -206,7 +208,8 @@ fn command_verb(request: &Request) -> &'static str {
         | Request::ArticleText(_)
         | Request::ArticleCitations(_)
         | Request::ArticleReferences(_) => "article",
-        Request::GetAuthor(_)
+        Request::GetBiomarker(_)
+        | Request::GetAuthor(_)
         | Request::GetCellLine(_)
         | Request::GetGwasAssociation(_)
         | Request::GetGwasStudy(_)
@@ -225,7 +228,8 @@ fn command_verb(request: &Request) -> &'static str {
         | Request::GetTrial(_)
         | Request::GetGene(_)
         | Request::GetArticle(_) => "get",
-        Request::SearchAuthor(_)
+        Request::SearchBiomarker(_)
+        | Request::SearchAuthor(_)
         | Request::SearchCellLine(_)
         | Request::SearchGwas(_)
         | Request::SearchProtein(_)
@@ -279,6 +283,9 @@ fn base_entity(request: &Request) -> &'static str {
     other_entity(request)
 }
 fn other_entity(request: &Request) -> &'static str {
+    if matches!(request, Request::SearchBiomarker(_) | Request::GetBiomarker(_)) {
+        return "biomarker";
+    }
     if matches!(request, Request::SearchOrganization(_)) {
         return "organization";
     }

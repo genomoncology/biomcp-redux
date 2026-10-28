@@ -43,7 +43,7 @@ enum Navigation<'a> {
 fn navigation(body: &biomcp_types::QueryBody) -> Navigation<'_> {
     use biomcp_types::QueryBody as Body;
     match body {
-        Body::OrganizationPage(_) | Body::AuthorPage(_) | Body::CellLinePage(_) => {
+        Body::BiomarkerPage(_) | Body::BiomarkerResult(_) | Body::OrganizationPage(_) | Body::AuthorPage(_) | Body::CellLinePage(_) => {
             Navigation::NativeOrder
         }
         Body::AuthorCards(_) => Navigation::BoundedPma,
@@ -250,7 +250,7 @@ fn bounded_navigation(body: &biomcp_types::QueryBody) -> Navigation<'_> {
         Body::DrugTargets(_) | Body::DrugIndications(_) => Navigation::Bounded,
         Body::VariantAssertions(_) | Body::VariantNormalization(_) => Navigation::Bounded,
         Body::NciTrialPage(_) | Body::NciTrialCards(_) => Navigation::Bounded,
-        Body::OrganizationTooBroad
+        Body::BiomarkerTooBroad | Body::OrganizationTooBroad
         | Body::UnsupportedTrialFilter { .. }
         | Body::NciDiseaseError => Navigation::Bounded,
         Body::VariantQueryPolicyError | Body::VariantPopulation(_) => Navigation::Bounded,

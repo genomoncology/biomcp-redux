@@ -78,3 +78,6 @@ pub use organization::{OrganizationSearch, OrganizationSource};
 
 pub(crate) mod validation;
 pub use validation::CheckedQuery;
+
+mod biomarker;
+pub use biomarker::{BiomarkerSearch, BiomarkerGet, BiomarkerSource};
