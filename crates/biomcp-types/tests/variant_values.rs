@@ -488,15 +488,15 @@ fn source_predictor_contract_keeps_zero_and_native_labels() {
 }
 
 #[test]
-fn identifier_lists_qualify_each_namespace_and_roundtrip() -> Result<(), Box<dyn std::error::Error>>
+fn identifier_lists_preserve_published_text_and_roundtrip() -> Result<(), Box<dyn std::error::Error>>
 {
     for (published, output) in [
-        ("rs113488022", "rs:113488022"),
-        ("CA123643", "clingen:CA123643"),
-        ("PA123", "clingen:PA123"),
-        ("VCV000013961.1", "clinvar:VCV000013961.1"),
+        ("rs113488022", "rs113488022"),
+        ("CA123643", "CA123643"),
+        ("PA123", "PA123"),
+        ("VCV000013961.1", "VCV000013961.1"),
         ("clinvar:13961", "clinvar:13961"),
-        ("COSV60000001", "cosmic:COSV60000001"),
+        ("COSV60000001", "COSV60000001"),
         (
             "ga4gh:VA.aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
             "ga4gh:VA.aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
@@ -504,6 +504,7 @@ fn identifier_lists_qualify_each_namespace_and_roundtrip() -> Result<(), Box<dyn
     ] {
         let id: VariantId = published.parse()?;
         assert_eq!(id.to_string(), published);
+        assert_eq!(VariantInput::new(output)?.as_str(), published);
         let variant = Variant {
             ids: Box::new([id]),
             representations: Box::default(),
