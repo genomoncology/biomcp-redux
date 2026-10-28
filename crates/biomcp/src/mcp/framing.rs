@@ -12,10 +12,13 @@ pub(super) enum Frame {
 
 pub(super) fn read(input: &mut impl BufRead) -> io::Result<Frame> {
     let mut frame = Vec::new();
+    let mut oversized = false;
     loop {
         let available = input.fill_buf()?;
         if available.is_empty() {
-            return Ok(if frame.is_empty() {
+            return Ok(if oversized {
+                Frame::Oversized
+            } else if frame.is_empty() {
                 Frame::Eof
             } else {
                 Frame::Malformed
@@ -23,13 +26,17 @@ pub(super) fn read(input: &mut impl BufRead) -> io::Result<Frame> {
         }
         let newline = available.iter().position(|b| *b == b'\n');
         let length = newline.map_or(available.len(), |n| n + 1);
-        if frame.len() + length > MAX_FRAME_BYTES {
-            return Ok(Frame::Oversized);
+        oversized |= frame.len() + length > MAX_FRAME_BYTES;
+        if !oversized {
+            frame.extend(available.iter().take(length));
         }
-        frame.extend(available.iter().take(length));
         input.consume(length);
         if newline.is_some() {
-            return Ok(Frame::Message(frame));
+            return Ok(if oversized {
+                Frame::Oversized
+            } else {
+                Frame::Message(frame)
+            });
         }
     }
 }

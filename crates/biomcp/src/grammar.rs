@@ -293,6 +293,34 @@ pub(crate) fn parse(args: &[OsString]) -> Result<Parsed, ParseInvalid> {
     })
 }
 
+// Presentation uses the same grammar without requiring valid command operands.
+// Unknown tokens still stop the parser; aliases and positional data keep their grammar meaning.
+pub(crate) fn presentation(args: &[OsString]) -> Option<(Option<Format>, Option<PathBuf>)> {
+    let mut parser = root().ok()?.ignore_errors(true);
+    parser.build();
+    let args = entry::arguments(args, &parser);
+    let matches = parser
+        .try_get_matches_from(std::iter::once(OsString::from("biomcp")).chain(args))
+        .ok()?;
+    Some((
+        explicit_format(&matches),
+        matches.get_one::<PathBuf>("config").cloned(),
+    ))
+}
+
+fn explicit_format(matches: &clap::ArgMatches) -> Option<Format> {
+    matches
+        .get_one::<String>("format")
+        .filter(|_| matches.value_source("format") == Some(clap::parser::ValueSource::CommandLine))
+        .map(|value| {
+            if value == "md" {
+                Format::Md
+            } else {
+                Format::Json
+            }
+        })
+}
+
 fn globals(matches: &clap::ArgMatches) -> Result<Globals, ()> {
     let globals = Globals {
         config: matches.get_one::<PathBuf>("config").cloned(),
@@ -308,9 +336,7 @@ fn globals(matches: &clap::ArgMatches) -> Result<Globals, ()> {
         case_cache: matches.get_one::<PathBuf>("case-cache").cloned(),
         offline: matches.get_flag("offline"),
         fresh: matches.get_flag("fresh"),
-        format: matches
-            .get_one::<String>("format")
-            .map(|v| if v == "md" { Format::Md } else { Format::Json }),
+        format: explicit_format(matches),
     };
     globals.check()?;
     Ok(globals)

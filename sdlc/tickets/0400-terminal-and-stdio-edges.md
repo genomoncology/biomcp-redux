@@ -1,6 +1,7 @@
 # 0400 — Close terminal, proxy and stdio edge cases
 
-Status: OPEN.
+Status: COMPLETE.
+Landed: 5a62251d9109eaaa985f1d5e820f6aef94e54b7c
 
 Milestone: 5
 

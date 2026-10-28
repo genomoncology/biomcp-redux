@@ -187,17 +187,24 @@ fn network(file: Option<&ConfigFile>) -> Result<biomcp_fetch::Network, ConfigErr
         .transpose()?
         .unwrap_or_default();
     let explicit = file.is_some_and(|file| file.proxy.is_some());
-    let proxy = |name| {
+    let setting = |lower, upper| {
         if explicit {
-            None
+            (upper, None)
         } else {
-            variable(name).map(|v| Secret::new(v.to_string_lossy().into_owned()))
+            network_variable(lower, upper)
         }
     };
-    let bypass = if explicit { None } else { variable("NO_PROXY") };
+    let (http_name, http) = setting("http_proxy", "HTTP_PROXY");
+    let (https_name, https) = setting("https_proxy", "HTTPS_PROXY");
+    let (bypass_name, bypass) = setting("no_proxy", "NO_PROXY");
+    let proxy = |value: Option<OsString>| {
+        value
+            .filter(|value| !value.is_empty())
+            .map(|value| Secret::new(value.to_string_lossy().into_owned()))
+    };
     biomcp_fetch::Network::new(
-        proxy("HTTP_PROXY"),
-        proxy("HTTPS_PROXY"),
+        proxy(http),
+        proxy(https),
         &bypass
             .map(|v| v.to_string_lossy().into_owned())
             .unwrap_or_default(),
@@ -205,11 +212,25 @@ fn network(file: Option<&ConfigFile>) -> Result<biomcp_fetch::Network, ConfigErr
     )
     .map_err(|error| {
         ConfigError::field(match error {
-            biomcp_fetch::FetchError::HttpProxy => "HTTP_PROXY",
-            biomcp_fetch::FetchError::HttpsProxy => "HTTPS_PROXY",
-            _ => "NO_PROXY",
+            biomcp_fetch::FetchError::HttpProxy => http_name,
+            biomcp_fetch::FetchError::HttpsProxy => https_name,
+            _ => bypass_name,
         })
     })
+}
+
+#[expect(
+    clippy::disallowed_methods,
+    reason = "Only the settings boundary reads the process environment"
+)]
+fn network_variable(lower: &'static str, upper: &'static str) -> (&'static str, Option<OsString>) {
+    // Windows uses one case-insensitive name; retain the established diagnostic spelling.
+    if !cfg!(windows)
+        && let Some(value) = std::env::var_os(lower)
+    {
+        return (lower, Some(value));
+    }
+    (upper, std::env::var_os(upper))
 }
 
 pub(crate) fn format(path: Option<&PathBuf>) -> Option<crate::grammar::Format> {

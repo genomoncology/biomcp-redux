@@ -552,10 +552,12 @@ fn network(setting: &str) -> Help {
         Keep certificate verification enabled."
         }
         _ => {
-            "Set proxy in config.json to an HTTP or HTTPS proxy URL. Otherwise HTTPS_PROXY and HTTP_PROXY \
-                select routes for their schemes; NO_PROXY bypasses exact hosts/IPs, CIDR ranges, .domain, *.domain, optional \
+            "Set proxy in config.json to an HTTP or HTTPS proxy URL. Otherwise https_proxy/HTTPS_PROXY and http_proxy/HTTP_PROXY \
+                select routes for their schemes; lower case wins when both names are set. no_proxy/NO_PROXY bypasses \
+                exact hosts/IPs, CIDR ranges, .domain, *.domain, optional \
                 ports, or *. Bare IPv6 is accepted. Unsupported entries are skipped and health reports configuration notices. \
-                Malformed ports and credentials refuse with the variable name. An explicit proxy overrides proxy environment settings."
+                Malformed ports and credentials refuse with the variable name. An explicit proxy overrides proxy environment settings. \
+                Publisher PDF downloads are refused when a proxy applies."
         }
     };
     Help {

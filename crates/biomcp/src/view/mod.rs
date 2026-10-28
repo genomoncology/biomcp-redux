@@ -257,6 +257,18 @@ fn table(items: &[Value], preferred: &[&str], source_links: bool, out: &mut Stri
     }
     out.push('\n');
 }
+// Fenced command text retains shell syntax while making terminal controls visible.
+fn controls(text: &str) -> String {
+    let mut out = String::with_capacity(text.len());
+    for ch in text.chars() {
+        if escape::control(ch) {
+            out.push_str(&escape::visible(ch));
+        } else {
+            out.push(ch);
+        }
+    }
+    out
+}
 fn steps(value: &Value, out: &mut String) {
     for step in value.as_array().into_iter().flatten() {
         let Some(args) = step.get("args").and_then(Value::as_array) else {
@@ -268,13 +280,14 @@ fn steps(value: &Value, out: &mut String) {
         let args = args
             .iter()
             .filter_map(Value::as_str)
+            .map(controls)
             .map(|arg| {
                 if arg
                     .chars()
                     .all(|c| c.is_ascii_alphanumeric() || "_./:-".contains(c))
                     && !arg.is_empty()
                 {
-                    arg.to_owned()
+                    arg
                 } else {
                     format!("'{}'", arg.replace('\'', "'\\''"))
                 }

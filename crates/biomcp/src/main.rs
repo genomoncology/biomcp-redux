@@ -22,12 +22,10 @@ fn main() -> ExitCode {
     let args = config::arguments();
     if let Ok(parsed) = grammar::parse(&args) {
         if let Some(command) = parsed.housekeeping {
-            return exit::finish(
-                command
-                    .render(&parsed.globals)
-                    .and_then(|bytes| output::bytes(&bytes)),
-                exit::Status::Success,
-            );
+            return match command.render(&parsed.globals) {
+                Ok(bytes) => exit::finish(output::bytes(&bytes), exit::Status::Success),
+                Err(error) => exit::failure(error),
+            };
         }
         if parsed.action.is_none() && parsed.key.is_none() {
             let globals = parsed.globals;
@@ -39,7 +37,7 @@ fn main() -> ExitCode {
                             Ok(outcome) => {
                                 exit::finish(output::command(&outcome, &args), outcome.status)
                             }
-                            Err(error) => exit::finish(Err(error), exit::Status::Local),
+                            Err(error) => exit::failure(error),
                         }
                     }
                     Err(mcp::http::StartError::AllowHost) => exit::finish(
@@ -60,6 +58,6 @@ fn main() -> ExitCode {
     }
     match command::dispatch(&args) {
         Ok(outcome) => exit::finish(output::command(&outcome, &args), outcome.status),
-        Err(error) => exit::finish(Err(error), exit::Status::Success),
+        Err(error) => exit::failure(error),
     }
 }

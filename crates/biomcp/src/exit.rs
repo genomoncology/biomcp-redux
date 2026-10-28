@@ -20,6 +20,11 @@ pub(crate) fn finish(result: io::Result<()>, status: Status) -> ExitCode {
     }
 }
 
+pub(crate) fn failure(error: io::Error) -> ExitCode {
+    crate::output::diagnostic(format!("biomcp: {error}\n").as_bytes());
+    ExitCode::from(Status::Local.code())
+}
+
 impl From<biomcp_types::Status> for Status {
     fn from(status: biomcp_types::Status) -> Self {
         match status {

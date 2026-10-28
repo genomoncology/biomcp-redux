@@ -60,6 +60,7 @@ pub(super) fn render(value: &Value, out: &mut String) {
                 .flatten()
                 .filter_map(Value::as_str);
             if let Ok(line) = shlex::try_join(args) {
+                let line = super::controls(&line);
                 out.push_str(&format!("```sh\nbiomcp {line}\n```\n\n"));
             }
         }
