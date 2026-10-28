@@ -11,7 +11,6 @@ pub(super) mod parity;
 mod parity_inventory_proof;
 mod parity_shape_proof;
 use execution::run_step;
-mod adapter_bad_values;
 mod alphagenome;
 mod alphagenome_tls;
 mod cache_contention;

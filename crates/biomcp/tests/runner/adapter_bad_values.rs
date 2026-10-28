@@ -1,5 +1,5 @@
 //! Features variant and drug-ema: rejected optional source text keeps the reply usable.
-use super::{configuration::invoke, network_stub::Stub, response_cases::checked_steps};
+use super::super::{configuration::invoke, network_stub::Stub, response_cases::checked_steps};
 use libtest_mimic::Trial;
 use serde_json::{Value, json};
 
@@ -40,14 +40,14 @@ fn check(value: &Value, field: &str, absent: &str) -> Result<(), String> {
 }
 fn clinvar() -> Result<(), String> {
     let stub = Stub::for_source("eutils.ncbi.nlm.nih.gov", "application/xml", |request| {
-        super::variant_assertion_wire::clinvar_body(request).map(|xml| {
+        super::super::variant_assertion_wire::clinvar_body(request).map(|xml| {
             xml.replace(
                 "<ReviewStatus>criteria provided, single submitter</ReviewStatus>",
                 "<ReviewStatus></ReviewStatus>",
             )
         })
     })?;
-    let env = super::variant::source_environment(&stub)?;
+    let env = super::super::variant::source_environment(&stub)?;
     let args = [
         "variant",
         "assertions",
@@ -156,7 +156,7 @@ fn reactome() -> Result<(), String> {
             }
             .to_string())
         })?;
-        let env = super::variant::source_environment(&stub)?;
+        let env = super::super::variant::source_environment(&stub)?;
         let args = if section == "summary" {
             vec!["get", "pathway", "R-HSA-5673001", "summary"]
         } else {
@@ -174,7 +174,7 @@ fn reactome() -> Result<(), String> {
 
 fn clinvar_rcv() -> Result<(), String> {
     let stub = Stub::for_source("eutils.ncbi.nlm.nih.gov", "application/xml", |request| {
-        super::variant_assertion_wire::clinvar_body(request).map(|xml| {
+        super::super::variant_assertion_wire::clinvar_body(request).map(|xml| {
             xml.replace(
                 "<ClinicalAssertionList>",
                 concat!(
@@ -188,7 +188,7 @@ fn clinvar_rcv() -> Result<(), String> {
             )
         })
     })?;
-    let env = super::variant::source_environment(&stub)?;
+    let env = super::super::variant::source_environment(&stub)?;
     let args = [
         "variant",
         "assertions",
@@ -218,10 +218,10 @@ fn clinvar_rcv() -> Result<(), String> {
 
 fn clinvar_condition_id() -> Result<(), String> {
     let stub = Stub::for_source("eutils.ncbi.nlm.nih.gov", "application/xml", |request| {
-        super::variant_assertion_wire::clinvar_body(request)
+        super::super::variant_assertion_wire::clinvar_body(request)
             .map(|xml| xml.replace("ID=\"114480\"", "ID=\"invalid:\""))
     })?;
-    let env = super::variant::source_environment(&stub)?;
+    let env = super::super::variant::source_environment(&stub)?;
     let args = [
         "variant",
         "assertions",
