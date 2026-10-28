@@ -12,6 +12,8 @@ import tarfile
 import tempfile
 import unittest
 import zipfile
+
+from release.test_licenses import write_payloads
 from unittest.mock import patch
 
 SCRIPT = Path(__file__).with_name("install.sh").resolve()
@@ -98,6 +100,7 @@ class Installer(unittest.TestCase):
                     tag = "macosx_11_0_" + platform.removeprefix("darwin-")
                 else:
                     tag = "manylinux_2_28_" + ("aarch64" if platform.endswith("arm64") else "x86_64")
+                write_payloads(release)
                 archive = binary_archive(release, payload, tag)
                 self.assertEqual(archive.name, "biomcp-" + platform + suffix)
                 with https_server(self.root) as (base, ca):

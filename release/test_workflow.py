@@ -9,6 +9,8 @@ import tempfile
 import unittest
 import zipfile
 
+from release.test_licenses import archive as write_archive, payloads, wheel_fixture, write_payloads
+
 
 class Staging(unittest.TestCase):
     def test_workflow_attests_all_subjects_before_candidate_upload(self):
@@ -46,20 +48,23 @@ class Staging(unittest.TestCase):
         for platform, archive in zip(platforms, archives):
             directory = artifacts / platform
             directory.mkdir(parents=True)
-            record = {"version": "1.0.0", "revision": "a" * 40,
-                      "platform": platform, "distribution": "biomcp-cli"}
+            _, record = wheel_fixture(directory, platform)
+            write_payloads(directory)
             (directory / "release.json").write_text(json.dumps(record))
             name = "biomcp-" + archive
-            (directory / name).write_bytes(platform.encode())
-            digest = hashlib.sha256(platform.encode()).hexdigest()
+            write_archive(directory / name, {"biomcp": platform.encode(), **payloads()})
+            digest = hashlib.sha256((directory / name).read_bytes()).hexdigest()
             (directory / (name + ".sha256")).write_text(digest + "  " + name + "\n")
-            (directory / ("biomcp_cli-1.0.0-py3-none-" + platform + ".whl")).touch()
-            (directory / ("biomcp-" + platform + ".mcpb")).touch()
+            write_archive(directory / ("biomcp-" + platform + ".mcpb"), payloads())
             registry = {"name": "io.github.genomoncology/biomcp", "version": "1.0.0"}
             (directory / "server.json").write_text(json.dumps(registry))
             if platform.startswith("manylinux"):
                 arch = "amd64" if platform.endswith("x86_64") else "arm64"
-                (directory / ("biomcp-container-" + arch + ".tar")).touch()
+                layer = directory / "layer.tar"
+                write_archive(layer, {"usr/share/doc/biomcp/" + name: value for name, value in payloads().items()})
+                write_archive(directory / ("biomcp-container-" + arch + ".tar"), {
+                    "manifest.json": b'[ {"Layers": ["layer.tar"]} ]', "layer.tar": layer.read_bytes()})
+                layer.unlink()
         plugin = root / "plugin"
         (plugin / ".claude-plugin").mkdir(parents=True)
         (plugin / ".claude-plugin/plugin.json").write_text('{"name":"biomcp","version":"1.0.0","skills":["./skills/"]}')
@@ -84,7 +89,7 @@ class Staging(unittest.TestCase):
             formula = (staged / "biomcp.rb").read_text()
             for arch in ["arm64", "x86_64"]:
                 self.assertIn("https://github.com/genomoncology/biomcp/releases/download/v1.0.0/biomcp-darwin-" + arch + ".tar.gz", formula)
-                digest = hashlib.sha256(("macosx_11_0_" + arch).encode()).hexdigest()
+                digest = hashlib.sha256((artifacts / ("macosx_11_0_" + arch) / ("biomcp-darwin-" + arch + ".tar.gz")).read_bytes()).hexdigest()
                 self.assertIn(digest, formula)
             self.assertNotIn("file:", formula)
             self.assertEqual(len(list(staged.glob("*.whl"))), 5)
@@ -107,6 +112,8 @@ class Staging(unittest.TestCase):
             self.assertEqual(actual, expected)
             with zipfile.ZipFile(staged / "biomcp-plugin.zip") as archive:
                 self.assertIn(".claude-plugin/marketplace.json", archive.namelist())
+                for name, data in payloads().items():
+                    self.assertEqual(archive.read(name), data)
                 self.assertEqual(archive.read("skills/SKILL.md"), b"BioMCP guide\n")
                 self.assertEqual(json.loads(archive.read(".claude-plugin/plugin.json"))["skills"], ["./skills/"])
 

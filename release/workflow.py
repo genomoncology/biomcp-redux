@@ -10,6 +10,14 @@ import sys
 import zipfile
 
 
+if __package__:
+    from .license_check import native, zip_payload
+    from .notices import payloads
+else:
+    from license_check import native, zip_payload
+    from notices import payloads
+
+
 PLATFORMS = [
     {"os": "ubuntu-24.04", "platform": "manylinux_2_28_x86_64", "arch": "amd64", "image": "quay.io/pypa/manylinux_2_28_x86_64"},
     {"os": "ubuntu-24.04-arm", "platform": "manylinux_2_28_aarch64", "arch": "arm64", "image": "quay.io/pypa/manylinux_2_28_aarch64"},
@@ -55,6 +63,7 @@ def candidates(args):
 
 
 def copy_native(directory, output, tag, registry):
+    native(directory, tag)
     for pattern in ["*.whl", "*.tar.gz", "*.zip"]:
         for path in directory.glob(pattern):
             shutil.copy2(path, output / path.name)
@@ -93,7 +102,7 @@ def formula(output, version):
     (output / "biomcp.rb").write_text("\n".join(lines))
 
 
-def plugin(source, output, version):
+def plugin(source, output, version, notices):
     metadata = json.loads((source / ".claude-plugin/plugin.json").read_text())
     marketplace = json.loads((source / ".claude-plugin/marketplace.json").read_text())
     entry, = marketplace["plugins"]
@@ -109,6 +118,8 @@ def plugin(source, output, version):
     metadata["version"] = entry["version"] = version
     paths = [path for path in (source / "skills").rglob("*") if path.is_file()]
     with zipfile.ZipFile(output / "biomcp-plugin.zip", "w", zipfile.ZIP_DEFLATED) as archive:
+        for name, data in payloads(notices).items():
+            archive.writestr(name, data)
         for name, value in [("plugin", metadata), ("marketplace", marketplace)]:
             archive.writestr(".claude-plugin/" + name + ".json", json.dumps(value, indent=2) + "\n")
         for path in sorted(paths):
@@ -167,7 +178,8 @@ def stage(args):
     (args.output / "server.json").write_text(json.dumps(registry, indent=2) + "\n")
     shutil.copy2(Path(__file__).parent / "install.sh", args.output / "install.sh")
     formula(args.output, args.version)
-    plugin(args.plugin, args.output, args.version)
+    plugin(args.plugin, args.output, args.version, next(iter(records.values())))
+    zip_payload(args.output / "biomcp-plugin.zip")
     index = {"version": args.version, "revision": args.revision,
              "image": "ghcr.io/genomoncology/biomcp", "publication": "requires Ian's approval and the release operator"}
     (args.output / "candidate.json").write_text(json.dumps(index, indent=2) + "\n")

@@ -18,6 +18,11 @@ def payloads():
     return {'LICENSE': LICENSE, 'THIRD-PARTY-NOTICES.txt': NOTICES}
 
 
+def write_payloads(directory):
+    for name, data in payloads().items():
+        (directory / name).write_bytes(data)
+
+
 def archive(path, files):
     if path.name.endswith(('.tar.gz', '.tar')):
         with tarfile.open(path, 'w:gz' if path.name.endswith('.gz') else 'w') as target:
