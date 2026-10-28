@@ -28,8 +28,8 @@ class ReleaseTools(unittest.TestCase):
                 ('release/Dockerfile', lambda s: s.replace('FROM ${runtime_image}', 'FROM debian:bookworm-slim')),
                 ('release/linux.sh', lambda s: s.replace('toolchain.py image runtime', 'toolchain.py get runtime')),
                 ('release/matrix.sh', lambda s: s.replace('toolchain.py get runtime-packages', 'toolchain.py get unpinned-packages')),
-                ('release/workflow.py', lambda s: s + '\n# quay.io/pypa/manylinux_2_28_x86_64\n'),
-                ('release/rehearse.py', lambda s: s + '\n# quay.io/pypa/manylinux_2_28_aarch64\n'),
+                ('release/workflow.py', lambda s: s.replace('manifest()["images"]["manylinux-x86_64"]', '"quay.io/pypa/manylinux_2_28_x86_64"')),
+                ('release/rehearse.py', lambda s: s.replace("manifest()['images']['manylinux-' + wheel_arch]", "'quay.io/pypa/manylinux_2_28_' + wheel_arch")),
                 ('.github/workflows/release.yml', lambda s: s.replace(
                     'python-version: ${{ steps.tools.outputs.python }}', "python-version: '3.11'")),
             ]
