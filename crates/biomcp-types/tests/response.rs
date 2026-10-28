@@ -39,11 +39,15 @@ fn every_section_state_round_trips_without_conflating_data_and_failure() {
             state
         );
     }
-    let extended = json!({"state":"unavailable","source":"civic","reason":"unavailable","data":"bad"});
-    assert_eq!(serde_json::from_value::<Section<Text>>(extended).unwrap(), Section::Unavailable {
-        source: Source::Civic,
-        reason: Reason::Unavailable,
-    });
+    let extended =
+        json!({"state":"unavailable","source":"civic","reason":"unavailable","data":"bad"});
+    assert_eq!(
+        serde_json::from_value::<Section<Text>>(extended).unwrap(),
+        Section::Unavailable {
+            source: Source::Civic,
+            reason: Reason::Unavailable,
+        }
+    );
 }
 
 #[test]
