@@ -6,8 +6,12 @@ use std::fs;
 mod components;
 mod labels;
 mod roundtrip;
+mod identifiers;
 pub(super) fn trials() -> Vec<Trial> {
     let mut trials = vec![
+        Trial::test("variant/printed-identifiers-roundtrip", || {
+            identifiers::check().map_err(Into::into)
+        }),
         Trial::test("variant/printed-repeat-identity-round-trips", || {
             roundtrip::check().map_err(Into::into)
         }),
@@ -91,7 +95,7 @@ fn car() -> Result<(), String> {
     ) {
         return Err(format!("CAR projection must preserve literal plus modifiers: {request}"));
     }
-    if output.pointer("/result/candidates/0/identity/ids/0") != Some(&json!("clingen:CA123643")) {
+    if output.pointer("/result/candidates/0/identity/ids/0") != Some(&json!("CA123643")) {
         return Err(format!("source identity lost: {output}"));
     }
     Ok(())

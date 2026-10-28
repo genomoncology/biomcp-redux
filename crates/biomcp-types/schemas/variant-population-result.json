@@ -3001,10 +3001,6 @@
       ],
       "type": "string"
     },
-    "QualifiedVariantId": {
-      "pattern": "^(rs:[1-9][0-9]*|clingen:(CA[0-9]{6,}|PA[1-9][0-9]*)|clinvar:(VCV[0-9]{9}(\\.[1-9][0-9]*)?|[1-9][0-9]*)|cosmic:COS[VMN][1-9][0-9]*|ga4gh:VA\\.[A-Za-z0-9_-]{32})$",
-      "type": "string"
-    },
     "Reason": {
       "description": "Why a source could not supply data.",
       "enum": [
@@ -5084,7 +5080,7 @@
         "ids": {
           "description": "All source identifiers, without inferred aliases.",
           "items": {
-            "$ref": "#/$defs/QualifiedVariantId"
+            "$ref": "#/$defs/VariantId"
           },
           "type": "array"
         },
@@ -6339,7 +6335,7 @@
       "type": "object"
     }
   },
-  "$id": "biomcp.variant-population/6",
+  "$id": "biomcp.variant-population/7",
   "$schema": "https://json-schema.org/draft/2020-12/schema",
   "additionalProperties": false,
   "description": "One versioned command response; schema identity comes only from its body type.",
@@ -6396,7 +6392,7 @@
       "description": "Answer when available."
     },
     "schema": {
-      "const": "biomcp.variant-population/6",
+      "const": "biomcp.variant-population/7",
       "type": "string"
     },
     "sources": {

@@ -3011,10 +3011,6 @@
       "pattern": "^(p\\.)?(A|Ala|R|Arg|N|Asn|D|Asp|C|Cys|E|Glu|Q|Gln|G|Gly|H|His|I|Ile|L|Leu|K|Lys|M|Met|F|Phe|P|Pro|S|Ser|T|Thr|W|Trp|Y|Tyr|V|Val|U|Sec|O|Pyl|\\*|Ter)[1-9][0-9]*(A|Ala|R|Arg|N|Asn|D|Asp|C|Cys|E|Glu|Q|Gln|G|Gly|H|His|I|Ile|L|Leu|K|Lys|M|Met|F|Phe|P|Pro|S|Ser|T|Thr|W|Trp|Y|Tyr|V|Val|U|Sec|O|Pyl|\\*|Ter)$",
       "type": "string"
     },
-    "QualifiedVariantId": {
-      "pattern": "^(rs:[1-9][0-9]*|clingen:(CA[0-9]{6,}|PA[1-9][0-9]*)|clinvar:(VCV[0-9]{9}(\\.[1-9][0-9]*)?|[1-9][0-9]*)|cosmic:COS[VMN][1-9][0-9]*|ga4gh:VA\\.[A-Za-z0-9_-]{32})$",
-      "type": "string"
-    },
     "Reason": {
       "description": "Why a source could not supply data.",
       "enum": [
@@ -5094,7 +5090,7 @@
         "ids": {
           "description": "All source identifiers, without inferred aliases.",
           "items": {
-            "$ref": "#/$defs/QualifiedVariantId"
+            "$ref": "#/$defs/VariantId"
           },
           "type": "array"
         },
@@ -6423,7 +6419,7 @@
       "type": "object"
     }
   },
-  "$id": "biomcp.variant-page/9",
+  "$id": "biomcp.variant-page/10",
   "$schema": "https://json-schema.org/draft/2020-12/schema",
   "additionalProperties": false,
   "description": "One versioned command response; schema identity comes only from its body type.",
@@ -6480,7 +6476,7 @@
       "description": "Answer when available."
     },
     "schema": {
-      "const": "biomcp.variant-page/9",
+      "const": "biomcp.variant-page/10",
       "type": "string"
     },
     "sources": {
