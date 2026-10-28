@@ -100,12 +100,10 @@ struct Intervention {
 impl Protocol {
     pub(super) fn contains_condition_words(&self, condition: &str) -> bool {
         let requested = words(condition);
-        requested.is_empty() || self.conditions_module.as_ref()
-            .and_then(|module| module.conditions.as_deref())
-            .unwrap_or_default().iter().any(|value| {
-                let present = words(value.as_str());
-                requested.iter().all(|word| present.contains(word))
-            })
+        let present: Vec<String> = self.conditions_module.as_ref()
+            .and_then(|module| module.conditions.as_deref()).unwrap_or_default()
+            .iter().flat_map(|value| words(value.as_str())).collect();
+        requested.iter().all(|word| present.contains(word))
     }
 
     pub(super) fn header(self) -> Result<TrialHeader, BadReply> {

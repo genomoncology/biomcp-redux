@@ -86,9 +86,11 @@ pub(super) fn complete_conditions() -> Result<(), String> {
         let mut body: Value = serde_json::from_slice(&fs::read(super::super::launch::fixtures()
             .join("replies/trial/condition-words/broad.body")).map_err(|e| e.to_string())?)
             .map_err(|e| e.to_string())?;
-        for study in body.get_mut("studies").and_then(Value::as_array_mut).ok_or("missing studies")? {
+        for (index, study) in body.get_mut("studies").and_then(Value::as_array_mut).ok_or("missing studies")?.iter_mut().enumerate() {
             let conditions = study.pointer_mut("/protocolSection/conditionsModule/conditions").ok_or("missing conditions")?;
-            *conditions = json!(["unrelated first", "unrelated second", "unrelated third", "SNYDER Robinson SYNDROME"]);
+            *conditions = if index % 2 == 0 {
+                json!(["unrelated first", "unrelated second", "unrelated third", "SNYDER Robinson SYNDROME"])
+            } else { json!(["Snyder-Robinson", "syndrome"]) };
         }
         Ok(body.to_string())
     })?;
@@ -97,7 +99,7 @@ pub(super) fn complete_conditions() -> Result<(), String> {
     let args: Vec<String> = args.iter().map(|v| (*v).into()).collect();
     let value = invoke(&env, &args, 0)?;
     if value.pointer("/sources/0/notices").is_some() || value.get("next").is_some() {
-        return Err(format!("matching fourth native condition produced a mismatch: {value}"));
+        return Err(format!("complete native condition words produced a mismatch: {value}"));
     }
     stub.finish()?;
     Ok(())
