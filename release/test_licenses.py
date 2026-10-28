@@ -118,3 +118,22 @@ class Licensing(unittest.TestCase):
             else:
                 del files[missing]
         archive(path, files)
+
+    def test_staging_refuses_container_directory_whiteouts(self):
+        from release.test_workflow import Staging
+        for whiteout in ('.wh.usr', 'usr/share/doc/.wh.biomcp', 'usr/share/doc/biomcp/.wh..wh..opq'):
+            with self.subTest(whiteout=whiteout), tempfile.TemporaryDirectory() as temp:
+                root = Path(temp)
+                staging = Staging()
+                artifacts, plugin = staging.prepare(root)
+                path, = (artifacts / 'manylinux_2_28_x86_64').glob('biomcp-container-*.tar')
+                with tarfile.open(path) as source:
+                    files = {entry.name: source.extractfile(entry).read() for entry in source if entry.isfile()}
+                layer = root / 'upper.tar'
+                archive(layer, {whiteout: b''})
+                files['upper.tar'] = layer.read_bytes()
+                files['manifest.json'] = b'[{"Layers": ["layer.tar", "upper.tar"]}]'
+                archive(path, files)
+                result = staging.stage(root, artifacts, plugin)
+                self.assertNotEqual(result.returncode, 0, result.stdout)
+                self.assertIn('requires LICENSE', result.stderr)

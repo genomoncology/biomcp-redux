@@ -36,12 +36,17 @@ def container_payload(path):
             with tarfile.open(fileobj=image.extractfile(layer), mode='r|*') as archive:
                 for member in archive:
                     name = member.name.removeprefix('./')
-                    if name.startswith(prefix):
+                    parent, _, leaf = name.rpartition('/')
+                    if leaf.startswith('.wh.'):
+                        removed = (parent + '/' if parent else '') + leaf[4:]
+                        if leaf == '.wh..wh..opq':
+                            removed = parent + '/'
+                        files = {key: value for key, value in files.items()
+                                 if prefix + key != removed and not (prefix + key).startswith(removed.rstrip('/') + '/')}
+                    elif name.startswith(prefix):
                         relative = name[len(prefix):]
                         if relative in NAMES:
                             files[relative] = archive.extractfile(member).read() if member.isfile() else b''
-                        elif relative.startswith('.wh.'):
-                            files.pop(relative[4:], None)
     validate(files)
     return files
 
