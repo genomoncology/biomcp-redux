@@ -1,0 +1,22 @@
+{
+  "feature": "organization-nci",
+  "story": "Organization search reports a missing source key without claiming zero organizations.",
+  "steps": [
+    {
+      "run": [
+        "search",
+        "organization",
+        "--source",
+        "nci",
+        "--name",
+        "Dana-Farber"
+      ],
+      "expect": {
+        "/status": "failed",
+        "/sources/0/reason": "no_key"
+      },
+      "exit": 1,
+      "max_bytes": 2000
+    }
+  ]
+}
