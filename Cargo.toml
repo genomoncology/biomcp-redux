@@ -8,6 +8,18 @@ edition = "2024"
 rust-version = "1.95.0"
 license = "MIT"
 
+[profile.dev]
+debug = "line-tables-only"
+
+[profile.dev.package."*"]
+debug = false
+
+[profile.test]
+debug = "line-tables-only"
+
+[profile.test.package."*"]
+debug = false
+
 [workspace.dependencies]
 biodata = { version = "=1.0.0", path = "crates/biodata" }
 biomcp-adapters = { version = "=1.0.0", path = "crates/biomcp-adapters" }

@@ -55,7 +55,7 @@ class DesktopTools(unittest.TestCase):
             source = root / "crates/biomcp/src/mcp/research.rs"
             original = source.read_text()
             planted = re.sub(r'\[\s*\(\s*"search"\s*,',
-                             lambda _: '[("fourth", "query", "A fake fourth tool", "fake/1"), ("search",',
+                             lambda _: '[("fourth", "query", "A fake fourth tool"), ("search",',
                              original, count=1)
             self.assertNotEqual(planted, original, "planted tool did not change the source")
             source.write_text(planted)
@@ -70,14 +70,14 @@ class DesktopTools(unittest.TestCase):
             self.assertEqual(result.returncode, 0, result.stderr)
             original = source.read_text()
             mutations = [
-                ('[("fourth", "query", "A \\"quoted\\" tool", "fake/1"), ("search",', "desktop manifest tools differ"),
-                ('[(name(), "query", "A computed tool", "fake/1"), ("search",', "unrecognized server tool declarations"),
+                ('[("fourth", "query", "A \\"quoted\\" tool"), ("search",', "desktop manifest tools differ"),
+                ('[(name(), "query", "A computed tool"), ("search",', "unrecognized server tool declarations"),
             ]
             value["tools"] = [tool for tool in value["tools"] if tool["name"] != "fourth"]
             manifest.write_text(json.dumps(value))
             for replacement, error in mutations:
                 with self.subTest(replacement=replacement):
-                    source.write_text(original.replace('[("fourth", "query", "A fake fourth tool", "fake/1"), ("search",', replacement, 1))
+                    source.write_text(original.replace('[("fourth", "query", "A fake fourth tool"), ("search",', replacement, 1))
                     result = self.check(root)
                     self.assertNotEqual(result.returncode, 0)
                     self.assertIn(error, result.stderr)
