@@ -1,5 +1,7 @@
 mod civic;
 mod clingen;
+mod gencc;
+pub use gencc::{GenccGene, GenccSubmission};
 mod constraint;
 mod expression;
 mod oncokb;
@@ -370,6 +372,9 @@ pub struct GeneSections {
     /// ClinGen validity and dosage assessments.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub clingen: Option<Section<ClinGenGene>>,
+    /// GenCC assessments, retained separately for each submitter.
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub gencc: Option<Section<GenccGene>>,
     /// Population constraint reported by gnomAD.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub constraint: Option<Section<Constraint>>,

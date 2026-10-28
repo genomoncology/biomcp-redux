@@ -46,13 +46,14 @@ pub(super) fn run() -> Result<(), String> {
         }
     }
 
-    if serde_json::to_vec(&help).map_err(|e| e.to_string())?.len() + 1 > CLI_HELP_BYTES
-        || serde_json::to_vec(replies.first().ok_or("tool reply")?)
-            .map_err(|e| e.to_string())?
-            .len()
-            > MCP_TOOLS_BYTES
-    {
-        return Err("help or MCP discovery exceeded its named ceiling".into());
+    let help_bytes = serde_json::to_vec(&help).map_err(|e| e.to_string())?.len() + 1;
+    let tools_bytes = serde_json::to_vec(replies.first().ok_or("tool reply")?)
+        .map_err(|e| e.to_string())?
+        .len();
+    if help_bytes > CLI_HELP_BYTES || tools_bytes > MCP_TOOLS_BYTES {
+        return Err(format!(
+            "help or MCP discovery exceeded its named ceiling: help={help_bytes}/{CLI_HELP_BYTES}, tools={tools_bytes}/{MCP_TOOLS_BYTES}"
+        ));
     }
     Ok(())
 }

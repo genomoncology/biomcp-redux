@@ -67,8 +67,8 @@ pub use response::{
     SupplementContent, SupplementFile, Supplements,
 };
 pub use response::{
-    CancerPtpm, Capped, CivicGene, ClinGenGene, ClinGenValidity, GeneExpression, PathwayRef,
-    ReactomeId, ReactomeIdInvalid, RnaAbundance, TissueNtpm,
+    CancerPtpm, Capped, CivicGene, ClinGenGene, ClinGenValidity, GenccGene, GenccSubmission,
+    GeneExpression, PathwayRef, ReactomeId, ReactomeIdInvalid, RnaAbundance, TissueNtpm,
 };
 pub use response::{
     CivicClaimPage, CivicMember, CivicMembership, CivicNativeClaim, CivicProfile, CivicStatement,

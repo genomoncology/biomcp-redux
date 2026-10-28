@@ -15,6 +15,7 @@ const SOURCES: &[&str] = &[
     "fda-510k",
     "vaers",
     "clingen",
+    "gencc",
     "ema",
     "ddinter",
     "cbioportal",
@@ -32,6 +33,7 @@ const BUNDLES: &[(&str, &[&str])] = &[
     ("fda-cdx", &["fda-cdx"]),
     ("hgnc", &["hgnc", "hgnc-withdrawn"]),
     ("clingen", &["clingen-validity", "clingen-dosage"]),
+    ("gencc", &["gencc-submissions"]),
 ];
 pub(super) fn trials() -> Vec<Trial> {
     vec![
@@ -248,6 +250,7 @@ fn publisher_stub() -> Result<Stub, String> {
             "api.fda.gov",
             "wonder.cdc.gov",
             "search.clinicalgenome.org",
+            "thegencc.org",
             "www.ema.europa.eu",
             "ddinter.scbdd.com",
             "www.cbioportal.org",
@@ -268,6 +271,7 @@ fn publisher_stub() -> Result<Stub, String> {
                 "/device/510k.json?limit=1",
                 "/datause.html",
                 "/kb",
+                "/",
                 "/en/about-us/about-website/legal-notice",
                 "/terms/",
                 "/api/studies?pageSize=1",

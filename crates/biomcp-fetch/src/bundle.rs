@@ -4,6 +4,7 @@ mod native;
 mod parse;
 mod publish;
 mod read;
+mod replay;
 mod set;
 mod transfer;
 pub use set::{BundlePart, BundleSet, SetRow};

@@ -190,6 +190,8 @@ biodata::canonical_enum! {
         Civic => "civic",
         /// ClinGen validity and dosage.
         ClinGen => "clingen",
+        /// GenCC submitter assessments.
+        Gencc => "gencc",
         /// Population constraint metrics.
         Constraint => "constraint",
         /// Human Protein Atlas expression.
@@ -211,6 +213,8 @@ biodata::canonical_enum! {
         Civic => "civic",
         /// ClinGen validity and dosage.
         ClinGen => "clingen",
+        /// GenCC submitter assessments.
+        Gencc => "gencc",
         /// Population constraint metrics.
         Constraint => "constraint",
         /// Human Protein Atlas expression.

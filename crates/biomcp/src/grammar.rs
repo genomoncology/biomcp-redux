@@ -20,6 +20,7 @@ pub(crate) use queries::query_schema;
 pub(crate) const BUNDLE_HELP: &[&str] = &[
     "hgnc",
     "clingen",
+    "gencc",
     "wikipathways",
     "cbioportal-studies",
     "ema",
@@ -268,6 +269,7 @@ pub(crate) fn parse(args: &[OsString]) -> Result<Parsed, ParseInvalid> {
                 Some("who-pq") => Bundle::WhoPq,
                 Some("ddinter") => Bundle::Ddinter,
                 Some("clingen") => Bundle::ClinGen,
+                Some("gencc") => Bundle::Gencc,
                 _ => Bundle::Hgnc,
             },
         }

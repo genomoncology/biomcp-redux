@@ -54,15 +54,16 @@ pub(crate) fn get(
     }) {
         steps.push(sync());
     }
-    if sources.iter().any(|source| {
-        source.source == biomcp_types::Source::ClinGen && source.state != SourceState::Ok
-    }) {
-        steps.push((
-            StepKind::Sync,
-            Action::Sync {
-                bundle: Bundle::ClinGen,
-            },
-        ));
+    for (source, bundle) in [
+        (biomcp_types::Source::ClinGen, Bundle::ClinGen),
+        (biomcp_types::Source::Gencc, Bundle::Gencc),
+    ] {
+        if sources
+            .iter()
+            .any(|outcome| outcome.source == source && outcome.state != SourceState::Ok)
+        {
+            steps.push((StepKind::Sync, Action::Sync { bundle }));
+        }
     }
     if sources.iter().any(|source| {
         source.source == biomcp_types::Source::Oncokb

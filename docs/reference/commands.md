@@ -2230,6 +2230,7 @@ Trailing section words select sections. Use --section WORD to keep inputs that e
 - `protein`: Reviewed human proteins.
 - `civic`: CIViC gene curation.
 - `clingen`: ClinGen validity and dosage.
+- `gencc`: GenCC submitter assessments.
 - `constraint`: Population constraint metrics.
 - `expression`: Human Protein Atlas expression.
 - `pathways`: Human Reactome pathways.
@@ -3821,7 +3822,7 @@ Arguments:
           Local source bundle to synchronize.
           
           [default: hgnc]
-          [possible values: hgnc, clingen, wikipathways, cbioportal-studies, ema, ddinter, who-pq, gtr, who-ivd, fda-cdx]
+          [possible values: hgnc, clingen, gencc, wikipathways, cbioportal-studies, ema, ddinter, who-pq, gtr, who-ivd, fda-cdx]
 
 Options:
       --format <format>
@@ -6254,6 +6255,7 @@ Usage: biomcp help sync [OPTIONS] [COMMAND]
 Commands:
   hgnc                
   clingen             
+  gencc               
   wikipathways        
   cbioportal-studies  
   ema                 
@@ -6314,6 +6316,32 @@ Options:
 
 ```text
 Usage: biomcp help sync clingen [OPTIONS]
+
+Options:
+      --format <format>
+          Choose JSON or Markdown output; configuration can change the default.
+          
+          [default: json]
+          [possible values: json, md]
+
+      --disable-sources <disable-sources>
+          Exclude source names or source terms groups.
+
+      --config <config>
+          Read configuration from this file.
+
+      --offline
+          Read local data without source requests.
+
+      --fresh
+          Request fresh source data instead of cached replies.
+
+```
+
+## biomcp help sync gencc
+
+```text
+Usage: biomcp help sync gencc [OPTIONS]
 
 Options:
       --format <format>
@@ -7142,6 +7170,11 @@ Synchronize a local source bundle.
 ## biomcp sync clingen
 
 Synchronize a local source bundle.
+
+
+## biomcp sync gencc
+
+Replace the complete validated local bundle atomically. Reads use stored data and never synchronize. Failed replacement preserves the last usable bundle.
 
 
 ## biomcp sync wikipathways

@@ -572,6 +572,7 @@ fn bundle_source(bundle: Bundle) -> biomcp_types::Source {
         Bundle::Ddinter => biomcp_types::Source::Ddinter,
         Bundle::Hgnc => biomcp_types::Source::Hgnc,
         Bundle::ClinGen => biomcp_types::Source::ClinGen,
+        Bundle::Gencc => biomcp_types::Source::Gencc,
     }
 }
 

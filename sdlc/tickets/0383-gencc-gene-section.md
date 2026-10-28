@@ -1,6 +1,7 @@
 # 0383 — Add the GenCC gene section
 
-Status: OPEN.
+Status: COMPLETE.
+Landed: 2131d5b7c60746372aec3659ffede25eec0114fd
 
 Milestone: 5
 

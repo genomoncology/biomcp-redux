@@ -65,8 +65,8 @@ pub use gene::{SyncQuery, SyncResult};
 pub use gene::{Constraint, GeneSections, Protein};
 
 pub use gene::{
-    CancerPtpm, Capped, CivicGene, ClinGenGene, ClinGenValidity, GeneExpression, PathwayRef,
-    ReactomeId, ReactomeIdInvalid, RnaAbundance, TissueNtpm,
+    CancerPtpm, Capped, CivicGene, ClinGenGene, ClinGenValidity, GenccGene, GenccSubmission,
+    GeneExpression, PathwayRef, ReactomeId, ReactomeIdInvalid, RnaAbundance, TissueNtpm,
 };
 
 mod article_sections;
