@@ -9,7 +9,7 @@ mod capture;
     clippy::disallowed_types,
     reason = "The shared local TLS test fixture counts accepted sockets across its worker thread"
 )]
-#[allow(
+#[expect(
     dead_code,
     reason = "One shared TLS fixture serves transport and CLI contracts"
 )]

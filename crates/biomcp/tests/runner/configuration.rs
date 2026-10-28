@@ -429,7 +429,10 @@ fn article_owners() -> Check {
         ));
         let case = env.root().join("case");
         let replay = if owned {
-            Some(biomcp_fetch::ReplayCache::create_case(&case).map_err(|e| e.to_string())?)
+            Some(
+                biomcp_fetch::ReplayCache::create_case_with_owners(&case, &[])
+                    .map_err(|e| e.to_string())?,
+            )
         } else {
             None
         };

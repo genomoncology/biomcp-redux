@@ -258,7 +258,6 @@ fn declared_secondary_origins_are_exact_and_publisher_policy_is_explicit() {
         destinations: biomcp_fetch::Destinations::Additional(&["https://cdn.example"]),
         ..*template
     }));
-    assert_eq!(spec.request_hosts().unwrap(), ["127.0.0.1", "cdn.example"]);
     let directory = tempfile::tempdir().unwrap();
     let fetch = Fetch::open(FetchConfig {
         mode: Mode::Replay {
@@ -289,18 +288,6 @@ fn declared_secondary_origins_are_exact_and_publisher_policy_is_explicit() {
             },
             "{url}"
         );
-    }
-    for origin in [
-        "https://*.example",
-        "https://api.example/path",
-        "https://api.example?x=1",
-    ] {
-        let origins = Box::leak(vec![origin].into_boxed_slice());
-        let spec = biomcp_fetch::SourceSpec {
-            destinations: biomcp_fetch::Destinations::Additional(origins),
-            ..*template
-        };
-        assert!(matches!(spec.request_hosts(), Err(InputError::Host)));
     }
     assert!(server.requests.try_recv().is_err());
 }

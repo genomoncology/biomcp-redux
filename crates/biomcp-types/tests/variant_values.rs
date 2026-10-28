@@ -464,8 +464,11 @@ fn population_strata_enforce_counts_and_frequencies() -> Check {
             Some(PopulationSex::Xy),
             Some(Text::new("synthetic-subset")?),
         )
-        .with_counts(Some(2), Some(4), Some(0), Some(0))?
-        .with_frequencies(Some(0.5.try_into()?), Some(0.25.try_into()?))?;
+        .with_counts(Some(2), Some(4), Some(0), Some(0))?;
+    let mut reported = serde_json::to_value(&value)?;
+    reported["allele_frequency"] = json!(0.5);
+    reported["faf95"] = json!(0.25);
+    let value: PopulationFrequency = serde_json::from_value(reported)?;
     let serialized = serde_json::to_value(&value)?;
     assert_eq!(serialized.get("hemizygote_count"), Some(&json!(0)));
     assert_eq!(serialized.get("allele_frequency"), Some(&json!(0.5)));
@@ -479,17 +482,6 @@ fn population_strata_enforce_counts_and_frequencies() -> Check {
             .expect_err("count cannot exceed its denominator")
             .code(),
         "population.count.exceeds_number"
-    );
-    assert_eq!(
-        base.clone()
-            .with_frequencies(Some(1.01.try_into()?), None)
-            .expect_err("frequency is bounded")
-            .code(),
-        "population.frequency.range"
-    );
-    assert!(
-        base.with_frequencies(None, Some((-0.01).try_into()?))
-            .is_err()
     );
     for (field, invalid) in [
         ("allele_count", json!(5)),

@@ -1,6 +1,5 @@
 //! Per-command SQLite owner for fixed search snapshots.
 #![expect(
-    clippy::disallowed_types,
     clippy::disallowed_methods,
     reason = "Keep wall time and SQLite state inside the reviewed store boundary"
 )]

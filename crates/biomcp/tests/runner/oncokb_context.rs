@@ -138,8 +138,8 @@ fn empty_components(value: &Value) -> Result<(), String> {
 }
 fn component_requests(requests: &[(String, String)]) -> Result<usize, String> {
     for fields in [
-        "fields=_id%2Ccadd.phred%2Ccadd.rawscore%2Ccadd.sift%2Cdbnsfp.hgvsp%2Cdbnsfp.ensembl.transcriptid%2Cd\
-            bnsfp.polyphen2%2Cdbnsfp.revel%2Cdbnsfp.mutationtaster",
+        "fields=_id%2Ccadd.phred%2Ccadd.rawscore%2Ccadd.sift%2Cdbnsfp.hgvsp%2Cdbnsfp.ensembl.transcriptid%2Cdbnsfp.polyphen2\
+                    %2Cdbnsfp.revel%2Cdbnsfp.mutationtaster",
         "fields=_id%2Cdbnsfp.hgvsp%2Cdbnsfp.ensembl.transcriptid%2Cdbnsfp.gerp%2B%2B%2Cdbnsfp.phastcons%2Cdbnsfp.phylop%2Cdbnsfp.siphy_29way",
         "fields=_id%2Ccosmic",
     ] {

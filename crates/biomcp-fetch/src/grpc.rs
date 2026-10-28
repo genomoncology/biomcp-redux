@@ -42,3 +42,7 @@ impl std::fmt::Display for CodecError {
     }
 }
 impl std::error::Error for CodecError {}
+
+#[cfg(test)]
+#[path = "../tests/grpc_worker/shutdown.rs"]
+mod shutdown_tests;

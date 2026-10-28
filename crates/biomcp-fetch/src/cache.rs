@@ -1,8 +1,4 @@
 //! Transport-owned SQLite schema. Other owners and tables remain untouched.
-#![expect(
-    clippy::disallowed_types,
-    reason = "Serialize only SQL on one connection shared by transport legs"
-)]
 use crate::{CacheError, Deadline};
 use rusqlite::{Connection, OpenFlags, OptionalExtension, params};
 #[cfg(test)]
@@ -26,6 +22,10 @@ const OPEN_WAIT: Duration = Duration::from_secs(5);
 // One connection is shared by source legs. Its lock covers only SQLite work;
 // callers decode and check owned bytes after the guard has been released.
 #[derive(Debug)]
+#[expect(
+    clippy::disallowed_types,
+    reason = "Serialize only SQL on the connection shared by transport legs"
+)]
 pub(crate) struct Cache(
     Mutex<Connection>,
     pub(crate) std::path::PathBuf,
@@ -79,6 +79,10 @@ impl Cache {
         }
         Ok(connection)
     }
+    #[expect(
+        clippy::disallowed_types,
+        reason = "Serialize only SQL on the connection shared by transport legs"
+    )]
 
     pub(crate) fn open_with_owners(
         path: &Path,
@@ -270,9 +274,8 @@ impl Cache {
                 "INSERT INTO reply(key,source,url,status,content_type,body,fetched_at,fresh_until,content_range,pagination) \
         VALUES (?1,?2,?3,?4,?5,?6,?7,?8,?9,?10)
                 ON CONFLICT(key) DO UPDATE SET \
-        source=excluded.source,url=excluded.url,status=excluded.status,content_type=excluded.content_type,bo\
-        dy=excluded.body,fetched_at=excluded.fetched_at,fresh_until=excluded.fresh_until,content_range=exclu\
-        ded.content_range,pagination=excluded.pagination",
+        source=excluded.source,url=excluded.url,status=excluded.status,content_type=excluded.content_type,body=excluded.body,\
+                    fetched_at=excluded.fetched_at,fresh_until=excluded.fresh_until,content_range=excluded.content_range,pagination=excluded.pagination",
                 params![
                     key,
                     source.to_string(),
@@ -320,6 +323,10 @@ pub(crate) fn sql_deadline(
         })
         .map_err(db_error)
 }
+#[expect(
+    clippy::disallowed_types,
+    reason = "Serialize only SQL on the connection shared by transport legs"
+)]
 
 fn try_mutex<T>(mutex: &Mutex<T>) -> Result<std::sync::MutexGuard<'_, T>, CacheError> {
     mutex.try_lock().map_err(|error| match error {
@@ -327,6 +334,10 @@ fn try_mutex<T>(mutex: &Mutex<T>) -> Result<std::sync::MutexGuard<'_, T>, CacheE
         std::sync::TryLockError::Poisoned(_) => CacheError::Database,
     })
 }
+#[expect(
+    clippy::disallowed_types,
+    reason = "Serialize only SQL on the connection shared by transport legs"
+)]
 
 fn wait_mutex<'a, T>(
     mutex: &'a Mutex<T>,

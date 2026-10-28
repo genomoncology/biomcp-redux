@@ -197,6 +197,7 @@ dependencies = [
  "tempfile",
  "time",
  "toml",
+ "url",
 ]
 
 [[package]]

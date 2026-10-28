@@ -87,10 +87,10 @@ fn body(present: bool) -> String {
             ID=\"1893254\"><ClinVarAccession Accession=\"SCV000965609\" Version=\"1\" \
             SubmitterName=\"Synthetic submitter\"/><Classification \
             DateLastEvaluated=\"2019-05-21\"><GermlineClassification>drug \
-            response</GermlineClassification></Classification><ObservedInList><ObservedIn><Sample><Origin>somati\
-            c</Origin></Sample></ObservedIn></ObservedInList><TraitSet \
+            response</GermlineClassification></Classification><ObservedInList><ObservedIn><Sample><Origin>somatic</Origin></Sample>\
+                    </ObservedIn></ObservedInList><TraitSet \
             Type=\"DrugResponse\"><Trait><Name><ElementValue Type=\"Preferred\">Dabrafenib \
-            response</ElementValue></Name>{relationship}</Trait></TraitSet></ClinicalAssertion></ClinicalAsserti\
-            onList></ClassifiedRecord></VariationArchive></ClinVarResult-Set>"
+            response</ElementValue></Name>{relationship}</Trait></TraitSet></ClinicalAssertion></ClinicalAssertionList>\
+                    </ClassifiedRecord></VariationArchive></ClinVarResult-Set>"
     )
 }

@@ -35,6 +35,10 @@ enum SecretValue {
     Ready(Secret),
     Deferred(DeferredSecret),
 }
+#[expect(
+    clippy::disallowed_types,
+    reason = "Resolve one deferred credential once per configured secret"
+)]
 // A caller-supplied credential resolves once per Secrets owner, never globally.
 struct DeferredSecret {
     resolved: std::sync::OnceLock<Option<Secret>>,
@@ -64,6 +68,10 @@ impl Secrets {
     pub fn insert(&mut self, name: SecretName, value: Secret) {
         self.0.insert(name, SecretValue::Ready(value));
     }
+    #[expect(
+        clippy::disallowed_types,
+        reason = "Resolve one deferred credential once per configured secret"
+    )]
 
     /// Resolve a caller-owned credential only when an admitted request needs it.
     /// The loader runs once for this owner, including a missing credential.

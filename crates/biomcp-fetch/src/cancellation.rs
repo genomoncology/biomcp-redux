@@ -4,6 +4,10 @@ use std::sync::{
     Arc,
     atomic::{AtomicBool, Ordering},
 };
+#[expect(
+    clippy::disallowed_types,
+    reason = "Cancel all request workers through one command-owned atomic flag"
+)]
 
 /// A command's cancellation handle cannot shut down another command's connections.
 pub struct Cancellation {
@@ -23,6 +27,10 @@ impl Cancellation {
     }
 }
 impl Fetch {
+    #[expect(
+        clippy::disallowed_types,
+        reason = "Cancel all request workers through one command-owned atomic flag"
+    )]
     /// Isolate cancellable connections while retaining quotas, cache, recordings and observations.
     pub fn cancellable(&self) -> Result<(Self, Cancellation), FetchError> {
         let agents = Arc::new(Agents::new(

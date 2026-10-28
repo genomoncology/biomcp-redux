@@ -6,6 +6,10 @@ use std::sync::{
 };
 
 #[derive(Debug, Default)]
+#[expect(
+    clippy::disallowed_types,
+    reason = "Acknowledge stream cancellation before releasing the worker permit"
+)]
 pub(super) struct Stop {
     flag: AtomicBool,
     wake: tokio::sync::Notify,
@@ -40,6 +44,10 @@ pub(super) async fn deadline(deadline: &LocalDeadline) {
     }
 }
 #[derive(Debug, Default)]
+#[expect(
+    clippy::disallowed_types,
+    reason = "Acknowledge stream cancellation before releasing the worker permit"
+)]
 pub(super) struct CallState {
     phase: AtomicU8,
     outcome: OnceLock<Result<(), biomcp_types::Reason>>,

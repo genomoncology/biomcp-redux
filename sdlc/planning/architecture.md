@@ -1936,6 +1936,8 @@ The ratchet owns the authoritative file and reason list below and checks this ta
 
 | File | Reason |
 | --- | --- |
+| `crates/biomcp-fetch/src/hosts_tests.rs` | Check credential-free exact publisher origins at the private admission boundary without a product inventory helper. |
+| `crates/biomcp-fetch/tests/grpc_worker/shutdown.rs` | Prove cancellation joins active network work at the private worker boundary without exporting shutdown control. |
 | `crates/biomcp/src/grammar/reference.rs` | Generate and compare documentation at the private parser boundary without adding a public command. |
 | `crates/biomcp/src/mcp/worker_tests.rs` | Inject a panic at the private worker completion boundary because public requests cannot intentionally panic. |
 | `crates/biomcp/src/config/deferred_keys_tests.rs` | Observe forbidden credential environment reads at the private settings boundary while executing real commands. |
