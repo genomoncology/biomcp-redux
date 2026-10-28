@@ -29,7 +29,7 @@ const FIELDS: &str = "none+@id+communityStandardTitle+genomicAlleles+transcriptA
 #[derive(Debug)]
 pub enum Resolution {
     /// Source-resolved canonical identity.
-    Found(crate::Mapped<VariantHeader>),
+    Found(Box<crate::Mapped<VariantHeader>>),
     /// Source rejected the unchanged notation.
     Rejected(Text),
 }
