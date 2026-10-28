@@ -1,10 +1,10 @@
 # Plan: parity and release
 
-This plan covers milestone 5. Every 1.0 entity slice has landed, so this milestone proves that 1.0 keeps what 0.9 users rely on, makes 1.0 safe to run as a long-lived server, documents it, builds every release artifact, and ends with the history replacement after Ian approves the release. It names stages and the tickets that own them.
+This plan covers milestone 5. Every 1.0 entity slice has landed, so this milestone proves that 1.0 keeps what 0.9 users rely on, makes 1.0 safe to run as a long-lived server, documents it, builds every release artifact, and ends, after a blind comparison with 0.9.3 and Ian's approval, with the history append to the public repository, the 1.0 tag and publication. It names stages and the tickets that own them.
 
 ## Why this order
 
-Robustness and public-text fixes come first, because the parity run, the docs and the rehearsal should all measure the code that will ship. The parity run comes before the docs rewrite, because any fact 1.0 loses against 0.9 becomes a fix that the docs must describe. The pipeline and schema gate come before the rehearsal, because the rehearsal installs what the pipeline builds. The history replacement is last because it is the step that cannot be undone.
+Robustness and public-text fixes come first, because the parity run, the docs and the rehearsal should all measure the code that will ship. The parity run comes before the docs rewrite, because any fact 1.0 loses against 0.9 becomes a fix that the docs must describe. The pipeline and schema gate come before the rehearsal, because the rehearsal installs what the pipeline builds. The public history append, tag and publication come last because they cannot be undone.
 
 ## Stages
 
