@@ -1,4 +1,4 @@
-use super::{SPEC, relation_raw as raw};
+use super::{SPEC, map, relation_raw as raw};
 use crate::Mapped;
 use crate::mapped::problem;
 use crate::mapped::record as record_text;
@@ -40,17 +40,40 @@ pub fn members(leg: &Leg<'_>, id: &ReactomeId) -> Result<Mapped<Members>, Reques
         physical_entities: rows.0.len() as u64,
     };
     for row in rows.0 {
-        let participant = PathwayParticipant {
-            db_id: row.pe_db_id,
-            name: crate::mapped::text(&row.display_name).map_err(|_| bad_reply())?,
-            schema_class: crate::mapped::text(&row.schema_class).map_err(|_| bad_reply())?,
-        };
+        let name = map::metadata(&mut problems, "participants.name", &row.display_name, true);
+        let schema_class = map::metadata(
+            &mut problems,
+            "participants.schema_class",
+            &row.schema_class,
+            true,
+        );
+        let participant = name
+            .zip(schema_class)
+            .map(|(name, schema_class)| PathwayParticipant {
+                db_id: row.pe_db_id,
+                name,
+                schema_class,
+            });
         for reference in row.ref_entities {
             value.reference_occurrences += 1;
             let (namespace, identifier) = reference.st_id.split_once(':').ok_or_else(bad_reply)?;
-            let name = problems.text("members.name", reference.display_name.as_deref());
-            let source_url = problems.text("members.source_url", reference.url.as_deref());
-            let schema_class = problems.text("members.schema_class", Some(&reference.schema_class));
+            let name = map::metadata(
+                &mut problems,
+                "members.name",
+                &reference.display_name,
+                false,
+            );
+            let source_url =
+                map::metadata(&mut problems, "members.source_url", &reference.url, false);
+            let schema_class = map::metadata(
+                &mut problems,
+                "members.schema_class",
+                &reference.schema_class,
+                true,
+            );
+            let Some(participant) = &participant else {
+                continue;
+            };
             if let Some(existing) = value.items.iter_mut().find(|m| {
                 m.reference.namespace.as_deref() == Some(namespace)
                     && m.reference.value.as_str() == identifier
@@ -155,9 +178,19 @@ pub fn events(
                         })
                         .transpose()?,
                     id: native_id,
-                    version: problems.text("events.version", v.st_id_version.as_deref()),
-                    name: problems.text("events.name", v.display_name.as_deref()),
-                    schema_class: problems.text("events.schema_class", v.schema_class.as_deref()),
+                    version: map::metadata(
+                        &mut problems,
+                        "events.version",
+                        &v.st_id_version,
+                        false,
+                    ),
+                    name: map::metadata(&mut problems, "events.name", &v.display_name, false),
+                    schema_class: map::metadata(
+                        &mut problems,
+                        "events.schema_class",
+                        &v.schema_class,
+                        false,
+                    ),
                 });
             }
         }
