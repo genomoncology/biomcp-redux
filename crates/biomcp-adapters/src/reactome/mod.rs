@@ -1,9 +1,9 @@
 //! Lowest-level human pathway mappings from Reactome.
 use crate::{Mapped, quotas};
-use biodata::{Text, UniProtAcc};
+use biodata::UniProtAcc;
 
 use biomcp_fetch::{Arg, BadReply, Freshness, KeyUse, Leg, Reply, RequestError, SourceSpec};
-use biomcp_types::{PathwayRef, Problem, ProblemCode, Source};
+use biomcp_types::{PathwayRef, Source};
 use serde::Deserialize;
 use std::time::Duration;
 mod discovery;
@@ -39,7 +39,7 @@ impl Reply for Rows {
 #[serde(rename_all = "camelCase")]
 struct Row {
     st_id: String,
-    display_name: String,
+    display_name: Option<crate::raw::Field<String>>,
     species_name: String,
     schema_class: String,
 }
@@ -63,29 +63,21 @@ pub fn pathways(
         Err(error) => return Err(error),
     };
     let mut value = Vec::new();
-    let mut problems = Vec::new();
+    let mut problems = map::fields(accession.as_str());
     for row in rows.0 {
-        let mapped = row
-            .st_id
-            .parse()
-            .ok()
-            .zip(Text::new(&row.display_name).ok());
-        if row.species_name == "Homo sapiens"
-            && row.schema_class == "Pathway"
-            && let Some((st_id, display_name)) = mapped
+        let id = row.st_id.parse().ok();
+        if row.species_name != "Homo sapiens" || row.schema_class != "Pathway" || id.is_none() {
+            problems.required::<()>("pathways", None);
+            continue;
+        }
+        if let Some(name) = map::metadata(&mut problems, "pathways.name", &row.display_name, true)
+            && let Some(id) = id
         {
-            value.push(PathwayRef {
-                id: st_id,
-                name: display_name,
-            });
-        } else {
-            problems.push(Problem {
-                source: Source::Reactome,
-                record: Text::new(accession.as_str()).ok(),
-                field: "pathways".into(),
-                code: ProblemCode::ValueUnknown,
-            });
+            value.push(PathwayRef { id, name });
         }
     }
-    Ok(Mapped { value, problems })
+    Ok(Mapped {
+        value,
+        problems: problems.list,
+    })
 }

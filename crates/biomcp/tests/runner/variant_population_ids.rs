@@ -172,7 +172,7 @@ fn ambiguous() -> Result<(), String> {
     }
     Ok(())
 }
-fn candidates(_: &str) -> Result<String, String> {
+pub(super) fn candidates(_: &str) -> Result<String, String> {
     // Synthetic reply-only multiallelic control; no claim about these public IDs.
     Ok(json!({"total":2,"hits":[
         {"_id":"chr10:g.114758349C>T","chrom":"10",
@@ -216,7 +216,7 @@ fn single() -> Result<(), String> {
     }
     Ok(())
 }
-fn source_ca(request: &str) -> Result<String, String> {
+pub(super) fn source_ca(request: &str) -> Result<String, String> {
     if request.starts_with("GET /v1/query?") {
         let hit: Value = serde_json::from_str(include_str!(concat!(
             env!("CARGO_MANIFEST_DIR"),

@@ -1,6 +1,7 @@
 # 0390 — Let the single-source test stub take a capturing callback
 
-Status: OPEN.
+Status: COMPLETE.
+Landed: 018186e76008b52af5e23a6a5ad674663f1927b1
 
 Milestone: 5
 

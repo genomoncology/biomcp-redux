@@ -3,6 +3,8 @@ use super::{launch::Environment, network_stub::Stub};
 use libtest_mimic::Trial;
 use serde_json::{Value, json};
 use std::fs;
+#[path = "variant_population_get.rs"]
+mod get;
 #[path = "variant_population_ids.rs"]
 mod ids;
 pub(super) fn trials() -> Vec<Trial> {
@@ -34,6 +36,7 @@ pub(super) fn trials() -> Vec<Trial> {
         }),
     ];
     trials.extend(ids::trials());
+    trials.extend(get::trials());
     trials
 }
 fn gwas_zero() -> Result<(), String> {

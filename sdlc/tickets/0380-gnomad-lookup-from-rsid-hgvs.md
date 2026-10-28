@@ -1,6 +1,7 @@
 # 0380 — Look up gnomAD from an rsID or GRCh38 HGVS
 
-Status: OPEN.
+Status: COMPLETE.
+Landed: 9985825a8596fab0ab4e00cf1811fe97e1b80bfd
 
 Milestone: 5
 

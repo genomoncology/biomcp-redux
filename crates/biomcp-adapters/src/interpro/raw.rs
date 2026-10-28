@@ -1,4 +1,4 @@
-use biodata::{InterProId, Text};
+use biodata::InterProId;
 use biomcp_fetch::{BadReply, Reply};
 use serde::Deserialize;
 use std::collections::BTreeMap;
@@ -16,20 +16,6 @@ impl Reply for Page {
         for row in &self.results {
             if row.metadata.source_database != "interpro" {
                 return Err(BadReply);
-            }
-            for protein in &row.proteins {
-                if protein.protein_length == Some(0) {
-                    return Err(BadReply);
-                }
-                for location in &protein.entry_protein_locations {
-                    if location.fragments.iter().any(|f| {
-                        f.start == 0
-                            || f.end < f.start
-                            || protein.protein_length.is_some_and(|n| f.end > n)
-                    }) {
-                        return Err(BadReply);
-                    }
-                }
             }
         }
         Ok(())
@@ -54,27 +40,31 @@ pub(super) struct Entry {
 #[derive(Debug, Deserialize)]
 pub(super) struct Metadata {
     pub accession: InterProId,
-    pub name: Text,
+    pub name: Option<crate::raw::Field<String>>,
     pub source_database: String,
     #[serde(rename = "type")]
-    pub entry_type: Text,
-    pub member_databases: Option<BTreeMap<String, BTreeMap<String, String>>>,
+    pub entry_type: Option<crate::raw::Field<String>>,
+    pub member_databases: Option<MemberDatabases>,
 }
 #[derive(Debug, Deserialize)]
 pub(super) struct Protein {
     pub accession: String,
-    pub protein_length: Option<u32>,
+    pub protein_length: Option<crate::raw::Field<u32>>,
     pub organism: Option<String>,
-    pub entry_protein_locations: Vec<Location>,
+    pub entry_protein_locations: Option<crate::raw::Field<Vec<crate::raw::Field<Location>>>>,
 }
 #[derive(Debug, Deserialize)]
 pub(super) struct Location {
-    pub fragments: Vec<Fragment>,
+    pub fragments: Option<crate::raw::Field<Vec<crate::raw::Field<Fragment>>>>,
 }
 #[derive(Debug, Deserialize)]
 pub(super) struct Fragment {
-    pub start: u32,
-    pub end: u32,
+    pub start: Option<crate::raw::Field<u32>>,
+    pub end: Option<crate::raw::Field<u32>>,
     #[serde(rename = "dc-status")]
-    pub dc_status: Option<Text>,
+    pub dc_status: Option<crate::raw::Field<String>>,
 }
+
+pub(super) type MemberDatabases = crate::raw::Field<
+    BTreeMap<String, crate::raw::Field<BTreeMap<String, crate::raw::Field<String>>>>,
+>;

@@ -58,7 +58,7 @@ impl Selection {
     }
     fn key(&self) -> Result<Vec<u8>, CacheError> {
         let mut h = Sha256::new();
-        h.update(b"biomcp.protein_source_relations/1\0");
+        h.update(b"biomcp.protein_source_relations/2\0");
         h.update(serde_json::to_vec(&self.request(None)).map_err(|_| CacheError::Database)?);
         Ok(h.finalize().to_vec())
     }
@@ -142,10 +142,11 @@ pub(super) fn read(
     let returned = limit.min(total.saturating_sub(offset.into()) as u32);
     saved.member_steps(q, offset, limit, &mut store, out)?;
     saved.render(q, offset, limit, out)?;
-    out.status = if out
-        .sources
-        .iter()
-        .any(|s| s.state != biomcp_types::SourceState::Ok)
+    out.status = if !out.problems.is_empty()
+        || out
+            .sources
+            .iter()
+            .any(|s| s.state != biomcp_types::SourceState::Ok)
     {
         Status::Partial
     } else {

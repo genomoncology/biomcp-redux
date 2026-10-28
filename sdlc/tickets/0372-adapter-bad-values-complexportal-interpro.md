@@ -1,6 +1,7 @@
 # 0372 — Apply the bad-value rule to ComplexPortal and InterPro
 
-Status: OPEN.
+Status: COMPLETE.
+Landed: c6d8cb94fe57578c62cb5a8b2a2b5a3403812ddb
 
 Milestone: 5
 

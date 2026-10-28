@@ -997,7 +997,41 @@ An adapter is one folder with three files:
 
 Every present source field that cannot map is omitted and produces a `Problem` naming that field. The adapter returns the remaining item through `Mapped { value, problems }`. A missing optional field produces no problem. An invalid required identity still fails the item. Mapping never guesses a value from prose. Optional collection members follow the same rule individually.
 
+Complex Portal and InterPro use the following field classifications. These classify conversion sites, not work status.
+
+| Source site | Classification | Mapping contract |
+| --- | --- | --- |
+| Complex Portal names, prediction flag, participant name, stoichiometry and organism text | Migrated | Raw optional fields retain invalid shapes; shared mapping helpers omit the field and name it in a problem. |
+| Complex Portal participant cross-references and optional UniProt projection | Migrated | Each invalid reference or projection produces a field problem; valid participant identifiers and sibling references remain. |
+| Complex Portal record accession, participant identifier and type, human complex admission and anchor join | Identity refusal | These establish the requested relationship; failure does not create a replacement identity. |
+| Complex Portal missing interactors and unmatched anchor | Legitimate absence | Missing search participants trigger exact detail lookup; a detail without the anchor does not establish membership. |
+| Complex Portal organism taxonomy projection | Migrated; legitimate absence for the source sentinel | A malformed taxon suffix produces `participants.taxon` while preserving the organism literal. The existing `chemical synthesis; -2` source sentinel has no taxon and produces no problem. Zero and other negative values are rejected. Complex admission separately requires the human taxon. |
+| InterPro integrated name and type, member database names and accessions, signature names and discontinuity status | Migrated | Shared helpers disclose rejected fields. An invalid signature key omits that signature while retaining siblings. A missing type never matches an explicit type filter. |
+| InterPro protein length, location and fragment containers, and fragment coordinates | Migrated | Invalid optional length is omitted. An invalid coordinate omits its whole fragment and names the coordinate; valid sibling fragments remain. |
+| InterPro accession, native source database, protein accession and human organism admission, count and cursor | Identity refusal | Strict parsing and admission protect source identity and complete native pagination. |
+| Both sources' missing optional metadata and empty optional collections | Legitimate absence | No bad-value problem is created for absence. |
+
+Protein source collections retain field problems with their stored values. Native page aggregation, retained pages, complex member steps and protein card sections carry those problems to the reply.
+
+
 `mapped.rs` owns rejected-field construction, deduplication and text validation. Adapters retain source-specific parsing and pass its results to that owner. Required identity text uses the strict shared conversion. Optional text uses the shared problem context, so empty or invalid text cannot fail unrelated fields.
+
+Reactome classifies its mapping checks at their owning boundary:
+
+| Boundary | Classification | Behavior |
+|---|---|---|
+| `reactome/map.rs` pathway ID, species and pathway class | Identity refusal | Reject a row outside the requested native identity and human pathway scope. |
+| `reactome/map.rs` header names and native version | Migrated | Report `name` or `version`; omit a row whose required name cannot map and omit only an invalid version. |
+| `reactome/map.rs` summary collections, rows and literature fields | Migrated | Report the collection, row identity or field; preserve accepted siblings and complete source text. |
+| `reactome/mod.rs` accession mapping ID and human pathway scope | Identity refusal | Reject the row with the existing `pathways` problem. |
+| `reactome/mod.rs` accession mapping display name | Migrated | Report `pathways.name` and omit the row without inventing a required label. |
+| `reactome/relation_raw.rs` database IDs and namespaced reference consistency | Identity refusal | Require positive database IDs and matching nonempty native reference identities. |
+| `reactome/relations.rs` participant names and classes | Migrated | Report `participants.name` or `participants.schema_class`; omit unusable physical contexts and retain native counts. |
+| `reactome/relations.rs` reference metadata | Migrated | Validate every occurrence before grouping; retain first-occurrence output and report later invalid metadata. |
+| `reactome/relations.rs` event ID and species | Identity refusal | Reject the event without inferring an identity or changing its species. |
+| `reactome/relations.rs` event version, name and class | Migrated | Omit rejected metadata with its named problem and retain the event identity. |
+| `reactome/raw.rs` search counters, exact empty response and database release | Source protocol refusal | Require the native protocol envelope and positive source release. A release request failure marks the source failure and retains an accepted pathway card. |
+| Optional omitted metadata, checked not-found replies and provenance conversion from checked IDs | Legitimate absence | Do not manufacture a value or a missing-field problem. Generated event URLs derive from validated pathway IDs. Numeric release text derives from the checked source release. |
 
 Shared helpers live once in `biomcp-adapters/src/`:
 

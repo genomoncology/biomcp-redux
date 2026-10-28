@@ -88,7 +88,7 @@ fn read(
         return read;
     }
     if let Ok(identity) = query.identity() {
-        let found = super::population_identity::read(cx, &identity, deadline);
+        let found = super::population_identity::read(cx, &identity, deadline, true);
         read.sources = found.sources;
         read.problems = found.problems;
         read.local = found.local;
@@ -132,34 +132,15 @@ fn choices(
     candidates
         .iter()
         .filter_map(|row| {
-            let build = row.identity.representations.iter().find_map(|r| r.build);
-            let mut input = row.record.id.as_str().parse().ok()?;
-            if build.is_none() {
-                let ids: Vec<_> = row
-                    .identity
-                    .ids
-                    .iter()
-                    .filter(|id| matches!(id, biodata::VariantId::Ca(_)))
-                    .collect();
-                if let [id] = ids.as_slice() {
-                    input = id.to_string().parse().ok()?;
-                } else {
-                    return Some((
-                        StepKind::Disambiguate,
-                        Action::Run {
-                            request: Request::SearchVariant(
-                                biomcp_types::VariantSearch::source_record(&input).ok()?,
-                            ),
-                            fresh: false,
-                        },
-                    ));
+            let request = match super::population_identity::choice(row)? {
+                Request::GetVariant(identity) if candidates.len() > 1 => {
+                    Request::VariantPopulation(
+                        query
+                            .with_identity(identity.input().clone(), identity.build())
+                            .ok()?,
+                    )
                 }
-            }
-            let selected = query.with_identity(input, build).ok()?;
-            let request = if candidates.len() > 1 {
-                Request::VariantPopulation(selected)
-            } else {
-                Request::GetVariant(selected.identity().ok()?)
+                request => request,
             };
             Some((
                 StepKind::Disambiguate,
