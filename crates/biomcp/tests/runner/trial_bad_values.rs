@@ -6,6 +6,7 @@ type Check = Result<(), Box<dyn std::error::Error>>;
 
 pub(super) fn trials() -> Vec<Trial> {
     vec![
+        Trial::test("trial-get/blank-text-is-rejected-with-siblings", || blank_text().map_err(Into::into)),
         Trial::test("trial-search/bad-values-retain-siblings", || {
             search().map_err(Into::into)
         }),
@@ -172,4 +173,17 @@ fn problem(output: &Value, field: &str) -> Check {
     } else {
         Err(format!("missing source field problem for {field}: {output}").into())
     }
+}
+
+fn blank_text() -> Check {
+    let out = checked_steps("trial/get/NCT03511664", |_, record| {
+        replace(record, "/exchanges/0/body/value/protocolSection/contactsLocationsModule/locations/0/facility", &json!(" \t "));
+        replace(record, "/exchanges/0/body/value/protocolSection/conditionsModule/conditions", &json!(["  valid condition  ", " \t ", "second condition"]));
+    }, json!([{"run":["get","trial","NCT03511664","locations"],"expect":{
+        "/status":"partial","/result/items/0/card/nct_id":"NCT03511664",
+        "/result/items/0/card/conditions":{"equals":["  valid condition  ","second condition"]},
+        "/result/items/0/sections/locations/data/items/0/facility":null,
+        "/result/items/0/sections/locations/data/items/0/city":"Buenos Aires"}}]))?;
+    problem(&out, "facility")?;
+    problem(&out, "conditions")
 }
