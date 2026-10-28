@@ -255,40 +255,9 @@ fn recovered_path_case(scenario: &str, holder: Option<&str>) {
     std::fs::create_dir_all(parts.join("nested")).unwrap();
     let sentinel = dir.path().join(".tmpABC123");
     std::fs::write(&sentinel, "keep this file").unwrap();
-    let prior = match scenario {
-        "outside" => sentinel.clone(),
-        "missing-outside" => dir.path().join(".tmpDEF456"),
-        "traversal" => parts.join("../.tmpABC123"),
-        "nested" => parts.join("nested/.tmpABC123"),
-        "wrong-name" | "missing-wrong-name" => parts.join("sentinel"),
-        _ => parts.join(".tmpABC123"),
-    };
-    if matches!(scenario, "symlink" | "dangling-symlink") {
-        #[cfg(unix)]
-        std::os::unix::fs::symlink(
-            if scenario == "dangling-symlink" {
-                dir.path().join("absent")
-            } else {
-                sentinel.clone()
-            },
-            &prior,
-        )
-        .unwrap();
-        #[cfg(not(unix))]
+    let Some(prior) = recovered_part_path(scenario, dir.path(), &parts, &sentinel) else {
         return;
-    } else if scenario == "directory" {
-        std::fs::create_dir(&prior).unwrap();
-    } else if ![
-        "missing",
-        "missing-outside",
-        "missing-wrong-name",
-        "outside",
-        "traversal",
-    ]
-    .contains(&scenario)
-    {
-        std::fs::write(&prior, "keep this file").unwrap();
-    }
+    };
     let db = rusqlite::Connection::open(&path).unwrap();
     db.execute(
         "INSERT INTO bundle_sync VALUES('genes',?3,0,?1,?2,0,NULL,NULL)",
@@ -329,6 +298,49 @@ fn recovered_path_case(scenario: &str, holder: Option<&str>) {
         !scenario.starts_with("missing-"),
         "{scenario}"
     );
+}
+
+fn recovered_part_path(
+    scenario: &str,
+    dir: &std::path::Path,
+    parts: &std::path::Path,
+    sentinel: &std::path::Path,
+) -> Option<std::path::PathBuf> {
+    let prior = match scenario {
+        "outside" => sentinel.to_path_buf(),
+        "missing-outside" => dir.join(".tmpDEF456"),
+        "traversal" => parts.join("../.tmpABC123"),
+        "nested" => parts.join("nested/.tmpABC123"),
+        "wrong-name" | "missing-wrong-name" => parts.join("sentinel"),
+        _ => parts.join(".tmpABC123"),
+    };
+    if matches!(scenario, "symlink" | "dangling-symlink") {
+        #[cfg(unix)]
+        std::os::unix::fs::symlink(
+            if scenario == "dangling-symlink" {
+                dir.join("absent")
+            } else {
+                sentinel.to_path_buf()
+            },
+            &prior,
+        )
+        .unwrap();
+        #[cfg(not(unix))]
+        return None;
+    } else if scenario == "directory" {
+        std::fs::create_dir(&prior).unwrap();
+    } else if ![
+        "missing",
+        "missing-outside",
+        "missing-wrong-name",
+        "outside",
+        "traversal",
+    ]
+    .contains(&scenario)
+    {
+        std::fs::write(&prior, "keep this file").unwrap();
+    }
+    Some(prior)
 }
 
 #[test]
