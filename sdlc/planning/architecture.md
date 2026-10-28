@@ -999,6 +999,25 @@ Every present source field that cannot map is omitted and produces a `Problem` n
 
 `mapped.rs` owns rejected-field construction, deduplication and text validation. Adapters retain source-specific parsing and pass its results to that owner. Required identity text uses the strict shared conversion. Optional text uses the shared problem context, so empty or invalid text cannot fail unrelated fields.
 
+The MyChem and disease adapter boundaries classify received values as follows. `DiseaseConcept` keeps the previous identifier wire shape and permits an omitted display label. Source record admission still requires the exact identifier. Trial condition resolution retains a missing label and makes no name request without it.
+
+| Family and site | Classification | Boundary |
+| --- | --- | --- |
+| MyChem `raw::Hit.id`, exact returned-ID check | Identity refusal | The aggregate drug ID identifies the requested document. |
+| MyChem `normalize::component` scalar text, aliases, synonym text and component containers | Migrated | The shared field mapper omits bad values and records their component-qualified field. Header and card construction receive validated text. |
+| MyChem `map::references_for`, `map::parents_for`, `links::native_xrefs` | Migrated | Reference target parse failures pass through the shared optional mapper. The reference is omitted. |
+| MyChem header name and type, reference name and native attribution record | Migrated | Optional strict conversions consume only text admitted by `normalize::component`. |
+| MyChem numeric version conversion and generated URL | Legitimate absence | Versions come from unsigned integers. URL text contains the admitted aggregate ID. Missing optional metadata stays absent. |
+| OLS `raw::Hit` and `raw::Term` `obo_id`, `ontology_name`; exact ontology and ID checks | Identity refusal | The CURIE identifies the term and the ontology routes its identity. Display labels and IRIs have no identity role. |
+| OLS `map::record` label, IRI, descriptions, consider and replacement IDs; `search` label and IRI | Migrated | Invalid optional text or IDs produce card or search problems. Empty optional lists and missing metadata produce no problem. |
+| OLS `map::iri_id` parse results and `xrefs` target parse | Migrated | The caller passes every failed parse to `Problems::required` for the received field. The documented OBO IRI conversion preserves the native namespace and local ID. |
+| OLS `synonyms` names and scope metadata, `xrefs` database, ID and description | Migrated | Invalid collection members are omitted or lose their optional field with a named problem. Valid peers remain. |
+| OLS `get` optional result transpose and static xref predicate | Legitimate absence | A publisher response with no exact term returns absence. The predicate is a source mapping constant. |
+| MyDisease `raw::Document.id`, component ID, `check` and alias `matches` parses | Identity refusal | Top-level and component CURIEs identify the returned record. A requested alias requires a source-provided exact cross-reference. |
+| MyDisease `native::component` label, definition, synonym and xref text, parents, consider and replacement IDs | Migrated | Shared mapping admits each optional field or member independently and retains component-qualified problems. |
+| MyDisease `map::xref_id` parse results | Migrated | `rows` reports the namespace-qualified field through the shared problem owner whenever the parse returns no target. |
+| MyDisease generated attribution, numeric version, component terms and source predicate | Legitimate absence | Values derive from admitted identities, unsigned versions and the registered component names. Missing optional metadata stays absent. |
+
 Shared helpers live once in `biomcp-adapters/src/`:
 
 ```rust
