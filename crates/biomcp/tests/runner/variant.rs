@@ -361,6 +361,14 @@ fn components() -> Result<(), String> {
             "native scores or independent terms changed: {value}"
         ));
     }
+    if value.pointer(&format!(
+        "{base}/conservation/data/components/0/uploads/0/date"
+    )) != Some(&json!({"value":"2020-01-01T00:00:00.123456Z", "timezone":"in_value"}))
+    {
+        return Err(format!(
+            "component upload timestamp lost its precision or timezone: {value}"
+        ));
+    }
     Ok(())
 }
 fn component_body(request: &str) -> Result<String, String> {
@@ -371,7 +379,7 @@ fn component_body(request: &str) -> Result<String, String> {
             "license_url":"https://example.org/component-terms","upload_date":"2019-01-01T00:00:00Z","note":"synthetic historical snapshot"},
             "cadd":{"version":null,"license_url":"https://example.org/cadd-terms","upload_date":"2019-01-01T00:00:00Z"},
             "dbnsfp":{"version":"synthetic-4.8a","license_url":"https://example.org/dbnsfp-terms",
-            "upload_date":{"synthetic_part":"2020-01-01T00:00:00Z"}} }}
+            "upload_date":{"synthetic_part":"2020-01-01T00:00:00.123456Z"}} }}
         )
         .to_string());
     }
