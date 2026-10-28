@@ -4,10 +4,14 @@ use libtest_mimic::Trial;
 use serde_json::{Value, json};
 use std::fs;
 mod components;
+mod hgvs_input;
 mod labels;
 mod roundtrip;
 pub(super) fn trials() -> Vec<Trial> {
     let mut trials = vec![
+        Trial::test("variant/implausible-hgvs-never-queries", || {
+            hgvs_input::check().map_err(Into::into)
+        }),
         Trial::test("variant/printed-repeat-identity-round-trips", || {
             roundtrip::check().map_err(Into::into)
         }),
