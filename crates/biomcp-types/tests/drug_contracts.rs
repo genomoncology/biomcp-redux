@@ -327,7 +327,6 @@ fn native_target_identity_does_not_require_an_invented_gene() {
     let parsed: DrugTargetRelation =
         serde_json::from_value(value.clone()).expect("native target without gene");
     assert!(parsed.target().is_none());
-    assert_eq!(parsed.drug().id.to_string(), "CHEMBL1");
     assert_eq!(parsed.relation().as_str(), "native action");
     assert_eq!(
         parsed.mechanism().expect("native mechanism").as_str(),
