@@ -40,20 +40,7 @@ pub fn members(leg: &Leg<'_>, id: &ReactomeId) -> Result<Mapped<Members>, Reques
         physical_entities: rows.0.len() as u64,
     };
     for row in rows.0 {
-        let name = map::metadata(&mut problems, "participants.name", &row.display_name, true);
-        let schema_class = map::metadata(
-            &mut problems,
-            "participants.schema_class",
-            &row.schema_class,
-            true,
-        );
-        let participant = name
-            .zip(schema_class)
-            .map(|(name, schema_class)| PathwayParticipant {
-                db_id: row.pe_db_id,
-                name,
-                schema_class,
-            });
+        let participant = participant(&row, &mut problems);
         for reference in row.ref_entities {
             value.reference_occurrences += 1;
             let (namespace, identifier) = reference.st_id.split_once(':').ok_or_else(bad_reply)?;
@@ -114,6 +101,25 @@ pub fn members(leg: &Leg<'_>, id: &ReactomeId) -> Result<Mapped<Members>, Reques
         problems: problems.list,
     })
 }
+fn participant(
+    row: &raw::Participant,
+    problems: &mut crate::mapped::Problems,
+) -> Option<PathwayParticipant> {
+    let name = map::metadata(problems, "participants.name", &row.display_name, true);
+    let schema_class = map::metadata(
+        problems,
+        "participants.schema_class",
+        &row.schema_class,
+        true,
+    );
+    name.zip(schema_class)
+        .map(|(name, schema_class)| PathwayParticipant {
+            db_id: row.pe_db_id,
+            name,
+            schema_class,
+        })
+}
+
 /// Read contained events while retaining every unresolved native integer reference.
 pub fn events(
     leg: &Leg<'_>,
