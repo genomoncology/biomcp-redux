@@ -381,6 +381,8 @@ fn checked_in_schemas_match_types() {
 #[test]
 fn consumed_queries_stay_inside_the_flat_command_grammar() {
     for schema in [
+        generate::<BiomarkerSearch>(),
+        generate::<BiomarkerGet>(),
         generate::<StudySearch>(),
         generate::<StudyGet>(),
         generate::<GeneGet>(),

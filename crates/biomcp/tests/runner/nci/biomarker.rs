@@ -5,6 +5,7 @@ use serde_json::{Value, json};
 type Check = Result<(), String>;
 pub(super) fn trials() -> Vec<Trial> {
     vec![
+        Trial::test("biomarker/help-means-concepts", || help().map_err(Into::into)),
         Trial::test("biomarker/native-snapshot-pages", || {
             pages().map_err(Into::into)
         }),
@@ -202,6 +203,16 @@ fn research() -> Check {
         if answer.pointer(pointer).is_some() {
             return Err("ambiguous or malformed value acquired a selected result".into());
         }
+    }
+    Ok(())
+}
+
+fn help() -> Check {
+    let env = environment()?;
+    let answer = invoke(&env, &["help".into(), "search".into(), "biomarker".into()], 0)?;
+    let text = answer.pointer("/result/commands/0/description").and_then(Value::as_str).ok_or("missing biomarker help")?;
+    for field in ["codes", "name", "type", "trial count", "synonyms", "parent_ids", "ancestor_ids", "eligibility_criterion", "diagnostic --biomarker", "trial --variant"] {
+        if !text.contains(field) { return Err(format!("biomarker help omits {field}")); }
     }
     Ok(())
 }
