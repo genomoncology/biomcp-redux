@@ -40,10 +40,15 @@ pub(super) fn mismatch() -> Result<(), String> {
     let value = invoke(&env, &args, 0)?;
     check(&value)?;
     exact(&env, &recording, &words, &value)?;
-    if stub.finish()?.len() != 3 {
+    if stub.finish()?.len() != 4 {
         return Err("condition notice introduced source requests".into());
     }
-    replay(&env, &recording, &words, json!({"/result/items":{"count":6},"/sources/0/notices/0/kind":"condition_word_mismatch"}))?;
+    replay(
+        &env,
+        &recording,
+        &words,
+        json!({"/result/items":{"count":6},"/sources/0/notices/0/kind":"condition_word_mismatch"}),
+    )?;
     Ok(())
 }
 
@@ -116,11 +121,21 @@ fn exact(
         ));
     }
     let words: Vec<_> = exact_args.iter().map(String::as_str).collect();
-    replay(env, &recording, &words, json!({"/page/total":0,"/result/items":[]}))?;
+    replay(
+        env,
+        &recording,
+        &words,
+        json!({"/page/total":0,"/result/items":[]}),
+    )?;
     Ok(())
 }
 
-fn replay(env: &super::Environment, recording: &std::path::Path, words: &[&str], expect: Value) -> Result<(), String> {
+fn replay(
+    env: &super::Environment,
+    recording: &std::path::Path,
+    words: &[&str],
+    expect: Value,
+) -> Result<(), String> {
     let case = env.root().join("case.json");
     fs::write(&case, json!({"feature":"trial-search",
         "story":"A condition search preserves source rows and offers an explicit registered-phrase restriction",

@@ -191,9 +191,12 @@ fn count_failure() -> Check {
     )?;
     let mut args = vec!["search", "trial", "--condition", "melanoma", "--next-page"];
     let token = first
-        .pointer("/next/0/args")
-        .and_then(|v| v.as_array())
-        .and_then(|args| args.windows(2).find(|pair| pair[0] == "--next-page"))
+        .get("next")
+        .and_then(Value::as_array)
+        .into_iter()
+        .flatten()
+        .filter_map(|step| step.get("args").and_then(Value::as_array))
+        .find_map(|args| args.windows(2).find(|pair| pair[0] == "--next-page"))
         .and_then(|pair| pair[1].as_str())
         .ok_or("missing source continuation")?;
     args.push(token);

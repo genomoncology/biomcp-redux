@@ -201,6 +201,20 @@
               "trial",
               "--condition",
               "gastrointestinal stromal tumor",
+              "--exact-condition",
+              "--gene",
+              "KIT",
+              "--limit",
+              "100"
+            ]
+          },
+          {
+            "kind": "disambiguate",
+            "args": [
+              "search",
+              "trial",
+              "--condition",
+              "gastrointestinal stromal tumor",
               "--criteria",
               "KIT",
               "--limit",
