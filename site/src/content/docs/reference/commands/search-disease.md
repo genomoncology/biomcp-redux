@@ -7,10 +7,10 @@ reader: A BioMCP user or agent checking one command
 sidebar:
   label: search disease
 kind: reference
-verified: 2026-10-27
+verified: 2026-10-28
 ---
 
-`biomcp search disease` is a command of BioMCP 1.0.0, the command-line tool and MCP server that reads biomedical data sources. It finds disease concepts by text, or lists SEER cancer sites. This page lists its arguments and examples.
+`biomcp search disease` is a command of BioMCP 1.0.0, the command-line tool and MCP server that reads biomedical data sources. It finds disease concepts by text, or lists SEER cancer sites. This page lists its arguments, examples and reply.
 
 The program's help describes it:
 
@@ -47,6 +47,10 @@ biomcp search disease --source seer --limit 1
 ```sh
 biomcp search disease --source seer --limit 1 --offset 1
 ```
+
+## Reply
+
+The reply is one JSON object. Its schema is [`biomcp.disease_sites/2`](/reference/schemas/biomcp-disease-sites-2/), whose page shows a real reply and its fields.
 
 ## Next
 

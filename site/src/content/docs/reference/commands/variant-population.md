@@ -7,10 +7,10 @@ reader: A BioMCP user or agent checking one command
 sidebar:
   label: variant population
 kind: reference
-verified: 2026-10-27
+verified: 2026-10-28
 ---
 
-`biomcp variant population` is a command of BioMCP 1.0.0, the command-line tool and MCP server that reads biomedical data sources. It lists gnomAD population frequency details for one variant. This page lists its arguments and examples.
+`biomcp variant population` is a command of BioMCP 1.0.0, the command-line tool and MCP server that reads biomedical data sources. It lists gnomAD population frequency details for one variant. This page lists its arguments, examples and reply.
 
 The program's help describes it:
 
@@ -44,6 +44,10 @@ biomcp variant population CA123643 --detail
 ```sh
 biomcp variant population CA123643 --detail --offset 10
 ```
+
+## Reply
+
+The reply is one JSON object. Its schema is [`biomcp.variant_population/4`](/reference/schemas/biomcp-variant-population-4/), whose page shows a real reply and its fields.
 
 ## Next
 

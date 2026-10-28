@@ -9,10 +9,10 @@ reader: A BioMCP user or agent checking one command
 sidebar:
   label: article citation-evidence
 kind: reference
-verified: 2026-10-27
+verified: 2026-10-28
 ---
 
-`biomcp article citation-evidence` is a command of BioMCP 1.0.0, the command-line tool and MCP server that reads biomedical data sources. It shows where and how one article cites another, with the citing passage when the full text is open. This page lists its arguments and examples.
+`biomcp article citation-evidence` is a command of BioMCP 1.0.0, the command-line tool and MCP server that reads biomedical data sources. It shows where and how one article cites another, with the citing passage when the full text is open. This page lists its arguments, examples and reply.
 
 The program's help describes it:
 
@@ -46,6 +46,10 @@ biomcp article citation-evidence 33123537 17611497
 ```sh
 biomcp article citation-evidence 33123537 17611497 --fulltext
 ```
+
+## Reply
+
+The reply is one JSON object. Its schema is [`biomcp.article_evidence/2`](/reference/schemas/biomcp-article-evidence-2/), whose page shows a real reply and its fields.
 
 ## Next
 

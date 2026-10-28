@@ -7,10 +7,10 @@ reader: A BioMCP user or agent checking one command
 sidebar:
   label: sync ema
 kind: reference
-verified: 2026-10-27
+verified: 2026-10-28
 ---
 
-`biomcp sync ema` is a command of BioMCP 1.0.0, the command-line tool and MCP server that reads biomedical data sources. It downloads the European Medicines Agency [bundle](/local-data/) that EMA drug commands read. This page lists its examples.
+`biomcp sync ema` is a command of BioMCP 1.0.0, the command-line tool and MCP server that reads biomedical data sources. It downloads the European Medicines Agency [bundle](/local-data/) that EMA drug commands read. This page lists its examples and reply.
 
 The program's help describes it:
 
@@ -37,6 +37,10 @@ biomcp sync ema
 ```sh
 biomcp sync ema --fresh
 ```
+
+## Reply
+
+The reply is one JSON object. Its schema is [`biomcp.sync/4`](/reference/schemas/biomcp-sync-4/), whose page shows a real reply and its fields.
 
 ## Next
 

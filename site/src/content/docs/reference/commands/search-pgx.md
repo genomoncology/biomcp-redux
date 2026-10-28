@@ -7,10 +7,10 @@ reader: A BioMCP user or agent checking one command
 sidebar:
   label: search pgx
 kind: reference
-verified: 2026-10-27
+verified: 2026-10-28
 ---
 
-`biomcp search pgx` is a command of BioMCP 1.0.0, the command-line tool and MCP server that reads biomedical data sources. It finds CPIC gene-drug pairs for a gene. This page lists its arguments and examples.
+`biomcp search pgx` is a command of BioMCP 1.0.0, the command-line tool and MCP server that reads biomedical data sources. It finds CPIC gene-drug pairs for a gene. This page lists its arguments, examples and reply.
 
 The program's help describes it:
 
@@ -47,6 +47,10 @@ biomcp search pgx --gene DPYD --source cpic
 ```sh
 biomcp search pgx --gene DPYD --source cpic --limit 1 --cpic-level B/C
 ```
+
+## Reply
+
+The reply is one JSON object. Its schema is [`biomcp.pgx_page/2`](/reference/schemas/biomcp-pgx-page-2/), whose page shows a real reply and its fields.
 
 ## Next
 

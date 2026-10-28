@@ -8,10 +8,10 @@ reader: A BioMCP user or agent checking one command
 sidebar:
   label: get variant
 kind: reference
-verified: 2026-10-27
+verified: 2026-10-28
 ---
 
-`biomcp get variant` is a command of BioMCP 1.0.0, the command-line tool and MCP server that reads biomedical data sources. It reads a variant by rsID, ClinVar ID, ClinGen allele ID or HGVS, and optionally sections such as ClinVar or population. A [section word](/concepts/progressive-disclosure/) after the identifier adds one more part of the record to the reply. This page lists its arguments, sections and examples.
+`biomcp get variant` is a command of BioMCP 1.0.0, the command-line tool and MCP server that reads biomedical data sources. It reads a variant by rsID, ClinVar ID, ClinGen allele ID or HGVS, and optionally sections such as ClinVar or population. A [section word](/concepts/progressive-disclosure/) after the identifier adds one more part of the record to the reply. This page lists its arguments, sections, examples and reply.
 
 The program's help describes it:
 
@@ -69,6 +69,10 @@ biomcp get variant clinvar:13961 clinvar
 ```sh
 biomcp get variant CA000434 erepo
 ```
+
+## Reply
+
+The reply is one JSON object. Its schema is [`biomcp.variant_card/5`](/reference/schemas/biomcp-variant-card-5/), whose page shows a real reply and its fields.
 
 ## Next
 

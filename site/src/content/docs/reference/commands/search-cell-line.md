@@ -7,10 +7,10 @@ reader: A BioMCP user or agent checking one command
 sidebar:
   label: search cell-line
 kind: reference
-verified: 2026-10-27
+verified: 2026-10-28
 ---
 
-`biomcp search cell-line` is a command of BioMCP 1.0.0, the command-line tool and MCP server that reads biomedical data sources. It finds cell lines by name in Cellosaurus. This page lists its arguments and examples.
+`biomcp search cell-line` is a command of BioMCP 1.0.0, the command-line tool and MCP server that reads biomedical data sources. It finds cell lines by name in Cellosaurus. This page lists its arguments, examples and reply.
 
 The program's help describes it:
 
@@ -41,6 +41,10 @@ biomcp search cell-line MOLM13
 ```sh
 biomcp search cell-line --query 'MV4;11'
 ```
+
+## Reply
+
+The reply is one JSON object. Its schema is [`biomcp.cell_line_page/2`](/reference/schemas/biomcp-cell-line-page-2/), whose page shows a real reply and its fields.
 
 ## Next
 

@@ -7,10 +7,10 @@ reader: A BioMCP user or agent checking one command
 sidebar:
   label: sync
 kind: reference
-verified: 2026-10-27
+verified: 2026-10-28
 ---
 
-`biomcp sync` is a command of BioMCP 1.0.0, the command-line tool and MCP server that reads biomedical data sources. It downloads a source's [bundle](/local-data/), a local copy that commands read. This page lists its usage.
+`biomcp sync` is a command of BioMCP 1.0.0, the command-line tool and MCP server that reads biomedical data sources. It downloads a source's [bundle](/local-data/), a local copy that commands read. This page lists its reply.
 
 The program's help describes it:
 
@@ -21,6 +21,10 @@ The program's help describes it:
 ```text
 biomcp sync [hgnc|clingen]
 ```
+
+## Reply
+
+The reply is one JSON object. Its schema is [`biomcp.sync/4`](/reference/schemas/biomcp-sync-4/), whose page shows a real reply and its fields.
 
 ## Next
 

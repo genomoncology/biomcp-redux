@@ -7,10 +7,10 @@ reader: A BioMCP user or agent checking one command
 sidebar:
   label: pathway genes
 kind: reference
-verified: 2026-10-27
+verified: 2026-10-28
 ---
 
-`biomcp pathway genes` is a command of BioMCP 1.0.0, the command-line tool and MCP server that reads biomedical data sources. It lists the genes and gene products of one pathway. This page lists its arguments and examples.
+`biomcp pathway genes` is a command of BioMCP 1.0.0, the command-line tool and MCP server that reads biomedical data sources. It lists the genes and gene products of one pathway. This page lists its arguments, examples and reply.
 
 The program's help describes it:
 
@@ -43,6 +43,10 @@ biomcp pathway genes R-HSA-5673001
 ```sh
 biomcp pathway genes R-HSA-5673001 details
 ```
+
+## Reply
+
+The reply is one JSON object. Its schema is [`biomcp.pathway_genes/4`](/reference/schemas/biomcp-pathway-genes-4/), whose page shows a real reply and its fields.
 
 ## Next
 

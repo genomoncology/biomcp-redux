@@ -7,10 +7,10 @@ reader: A BioMCP user or agent checking one command
 sidebar:
   label: get protein
 kind: reference
-verified: 2026-10-27
+verified: 2026-10-28
 ---
 
-`biomcp get protein` is a command of BioMCP 1.0.0, the command-line tool and MCP server that reads biomedical data sources. It reads UniProt protein records by accession, and optionally sections such as domains or sequence. A [section word](/concepts/progressive-disclosure/) after the identifier adds one more part of the record to the reply. This page lists its arguments, sections and examples.
+`biomcp get protein` is a command of BioMCP 1.0.0, the command-line tool and MCP server that reads biomedical data sources. It reads UniProt protein records by accession, and optionally sections such as domains or sequence. A [section word](/concepts/progressive-disclosure/) after the identifier adds one more part of the record to the reply. This page lists its arguments, sections, examples and reply.
 
 The program's help describes it:
 
@@ -58,6 +58,10 @@ biomcp get protein P00533 Q9UIF7 P38398-2
 ```sh
 biomcp get protein EGFR
 ```
+
+## Reply
+
+The reply is one JSON object. Its schema is [`biomcp.protein_card/3`](/reference/schemas/biomcp-protein-card-3/), whose page shows a real reply and its fields.
 
 ## Next
 

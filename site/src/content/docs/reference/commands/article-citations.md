@@ -7,10 +7,10 @@ reader: A BioMCP user or agent checking one command
 sidebar:
   label: article citations
 kind: reference
-verified: 2026-10-27
+verified: 2026-10-28
 ---
 
-`biomcp article citations` is a command of BioMCP 1.0.0, the command-line tool and MCP server that reads biomedical data sources. It lists the papers that cite one PubMed article, a page at a time. This page lists its arguments and examples.
+`biomcp article citations` is a command of BioMCP 1.0.0, the command-line tool and MCP server that reads biomedical data sources. It lists the papers that cite one PubMed article, a page at a time. This page lists its arguments, examples and reply.
 
 The program's help describes it:
 
@@ -47,6 +47,10 @@ biomcp article citations 17611497
 ```sh
 biomcp article citations 23000897 --source semantic-scholar
 ```
+
+## Reply
+
+The reply is one JSON object. Its schema is [`biomcp.article_edges/4`](/reference/schemas/biomcp-article-edges-4/), whose page shows a real reply and its fields.
 
 ## Next
 

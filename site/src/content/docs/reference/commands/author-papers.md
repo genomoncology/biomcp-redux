@@ -7,10 +7,10 @@ reader: A BioMCP user or agent checking one command
 sidebar:
   label: author papers
 kind: reference
-verified: 2026-10-27
+verified: 2026-10-28
 ---
 
-`biomcp author papers` is a command of BioMCP 1.0.0, the command-line tool and MCP server that reads biomedical data sources. It lists the papers of one author record from Semantic Scholar or ORCID, a page at a time. A [section word](/concepts/progressive-disclosure/) after the identifier adds one more part of the record to the reply. This page lists its arguments, sections and examples.
+`biomcp author papers` is a command of BioMCP 1.0.0, the command-line tool and MCP server that reads biomedical data sources. It lists the papers of one author record from Semantic Scholar or ORCID, a page at a time. A [section word](/concepts/progressive-disclosure/) after the identifier adds one more part of the record to the reply. This page lists its arguments, sections, examples and reply.
 
 The program's help describes it:
 
@@ -52,6 +52,10 @@ biomcp author papers semantic-scholar:123
 ```sh
 biomcp author papers semantic-scholar:123 details
 ```
+
+## Reply
+
+The reply is one JSON object. Its schema is one of [`biomcp.author_papers/1`](/reference/schemas/biomcp-author-papers-1/), [`biomcp.author_paper_details/1`](/reference/schemas/biomcp-author-paper-details-1/), whose page shows a real reply and its fields.
 
 ## Next
 

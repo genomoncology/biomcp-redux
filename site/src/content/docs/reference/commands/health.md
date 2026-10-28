@@ -7,10 +7,10 @@ reader: A BioMCP user or agent checking one command
 sidebar:
   label: health
 kind: reference
-verified: 2026-10-27
+verified: 2026-10-28
 ---
 
-`biomcp health` is a command of BioMCP 1.0.0, the command-line tool and MCP server that reads biomedical data sources. It lists every source with its terms and checks that each one answers. This page lists its usage.
+`biomcp health` is a command of BioMCP 1.0.0, the command-line tool and MCP server that reads biomedical data sources. It lists every source with its terms and checks that each one answers. This page lists its reply.
 
 The program's help describes it:
 
@@ -21,6 +21,10 @@ The program's help describes it:
 ```text
 biomcp health
 ```
+
+## Reply
+
+The reply is one JSON object. Its schema is [`biomcp.health/2`](/reference/schemas/biomcp-health-2/), whose page shows a real reply and its fields.
 
 ## Next
 

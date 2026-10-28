@@ -7,10 +7,10 @@ reader: A BioMCP user or agent checking one command
 sidebar:
   label: search variant
 kind: reference
-verified: 2026-10-27
+verified: 2026-10-28
 ---
 
-`biomcp search variant` is a command of BioMCP 1.0.0, the command-line tool and MCP server that reads biomedical data sources. It finds variants by gene, protein change, region or another single selector. This page lists its arguments and examples.
+`biomcp search variant` is a command of BioMCP 1.0.0, the command-line tool and MCP server that reads biomedical data sources. It finds variants by gene, protein change, region or another single selector. This page lists its arguments, examples and reply.
 
 The program's help describes it:
 
@@ -53,6 +53,10 @@ biomcp search variant --gene EGFR --protein L858R --build GRCh37
 ```sh
 biomcp search variant --gene CHEK2 --protein Arg117Gly --build GRCh37
 ```
+
+## Reply
+
+The reply is one JSON object. Its schema is [`biomcp.variant_page/6`](/reference/schemas/biomcp-variant-page-6/), whose page shows a real reply and its fields.
 
 ## Next
 

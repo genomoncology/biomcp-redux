@@ -8,10 +8,10 @@ reader: A developer or agent parsing BioMCP JSON
 sidebar:
   label: biomcp.drug_regulatory/2
 kind: reference
-verified: 2026-10-27
+verified: 2026-10-28
 ---
 
-BioMCP 1.0.0 prints one JSON object, the reply, for each command. [`biomcp get drug regulatory`](/reference/commands/get-drug/) replies with `schema` set to `biomcp.drug_regulatory/2`. Read this page when your code parses that reply: it shows a real one, then the fields only this schema has. [Shared types](/reference/schemas/types/) defines the rest.
+BioMCP 1.0.0 prints one JSON object, the reply, for each command. [`biomcp get drug regulatory`](/reference/commands/get-drug/) and [`biomcp get drug`](/reference/commands/get-drug/) reply with `schema` set to `biomcp.drug_regulatory/2`. Read this page when your code parses that reply: it shows a real one, then the fields only this schema has. [Shared types](/reference/schemas/types/) defines the rest.
 
 ## Commands that return it
 

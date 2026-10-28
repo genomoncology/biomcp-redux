@@ -8,10 +8,10 @@ reader: A BioMCP user or agent checking one command
 sidebar:
   label: get drug
 kind: reference
-verified: 2026-10-27
+verified: 2026-10-28
 ---
 
-`biomcp get drug` is a command of BioMCP 1.0.0, the command-line tool and MCP server that reads biomedical data sources. It reads one drug record by its ID in one source, and optionally a section such as its label or approvals. A [section word](/concepts/progressive-disclosure/) after the identifier adds one more part of the record to the reply. This page lists its arguments, sections and examples.
+`biomcp get drug` is a command of BioMCP 1.0.0, the command-line tool and MCP server that reads biomedical data sources. It reads one drug record by its ID in one source, and optionally a section such as its label or approvals. A [section word](/concepts/progressive-disclosure/) after the identifier adds one more part of the record to the reply. This page lists its arguments, sections, examples and reply.
 
 The program's help describes it:
 
@@ -68,6 +68,10 @@ biomcp get drug EMEA/H/C/000406 --source ema
 ```sh
 biomcp get drug EMEA/H/C/000406 regulatory --source ema
 ```
+
+## Reply
+
+The reply is one JSON object. Its schema is one of [`biomcp.drug_card/2`](/reference/schemas/biomcp-drug-card-2/), [`biomcp.drug_regulatory/2`](/reference/schemas/biomcp-drug-regulatory-2/), whose page shows a real reply and its fields.
 
 ## Next
 

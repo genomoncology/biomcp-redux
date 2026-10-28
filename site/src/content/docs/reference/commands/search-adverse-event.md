@@ -7,10 +7,10 @@ reader: A BioMCP user or agent checking one command
 sidebar:
   label: search adverse-event
 kind: reference
-verified: 2026-10-27
+verified: 2026-10-28
 ---
 
-`biomcp search adverse-event` is a command of BioMCP 1.0.0, the command-line tool and MCP server that reads biomedical data sources. It finds adverse event reports in FAERS, VAERS or MAUDE, five at a time. A [section word](/concepts/progressive-disclosure/) after the identifier adds one more part of the record to the reply. This page lists its arguments, sections and examples.
+`biomcp search adverse-event` is a command of BioMCP 1.0.0, the command-line tool and MCP server that reads biomedical data sources. It finds adverse event reports in FAERS, VAERS or MAUDE, five at a time. A [section word](/concepts/progressive-disclosure/) after the identifier adds one more part of the record to the reply. This page lists its arguments, sections, examples and reply.
 
 The program's help describes it:
 
@@ -63,6 +63,10 @@ biomcp search adverse-event pembrolizumab
 biomcp search adverse-event pembrolizumab --received-from 2024-01-01 \
   --received-to 2024-12-31
 ```
+
+## Reply
+
+The reply is one JSON object. Its schema is [`biomcp.adverse_event_page/2`](/reference/schemas/biomcp-adverse-event-page-2/), whose page shows a real reply and its fields.
 
 ## Next
 

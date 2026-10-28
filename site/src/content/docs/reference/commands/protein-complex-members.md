@@ -7,10 +7,10 @@ reader: A BioMCP user or agent checking one command
 sidebar:
   label: protein complex-members
 kind: reference
-verified: 2026-10-27
+verified: 2026-10-28
 ---
 
-`biomcp protein complex-members` is a command of BioMCP 1.0.0, the command-line tool and MCP server that reads biomedical data sources. It lists the members of one Complex Portal complex that holds the protein, five at a time. This page lists its arguments and examples.
+`biomcp protein complex-members` is a command of BioMCP 1.0.0, the command-line tool and MCP server that reads biomedical data sources. It lists the members of one Complex Portal complex that holds the protein, five at a time. This page lists its arguments, examples and reply.
 
 The program's help describes it:
 
@@ -43,6 +43,10 @@ biomcp protein complex-members P00533 --complex CPX-715
 ```sh
 biomcp protein complex-members P00533 --complex CPX-715 --limit 1
 ```
+
+## Reply
+
+The reply is one JSON object. Its schema is [`biomcp.protein_complex_members/1`](/reference/schemas/biomcp-protein-complex-members-1/), whose page shows a real reply and its fields.
 
 ## Next
 

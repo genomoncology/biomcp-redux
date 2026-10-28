@@ -92,7 +92,7 @@ The header of `scripts/check-landing.mjs` gives each rule's exact test. `product
 - `npm run landing -- --worklist FILE` writes the violations grouped by the file where each fix goes.
 - `npm run landing -- --pages REGEX` checks only the matching routes, with no duplicate check and no screenshots.
 
-The build does not run the landing checks yet. Once `npm run landing -- --strict` passes, `npm run build` runs it as its last step, and a new violation fails the build.
+`npm run build` runs `check-landing.mjs --strict --no-shots` as its last step, so a new violation the allowlist does not cover fails the build. It needs Playwright with Chromium.
 
 ## Publishing
 

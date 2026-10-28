@@ -8,10 +8,10 @@ reader: A BioMCP user or agent checking one command
 sidebar:
   label: article supplement
 kind: reference
-verified: 2026-10-27
+verified: 2026-10-28
 ---
 
-`biomcp article supplement` is a command of BioMCP 1.0.0, the command-line tool and MCP server that reads biomedical data sources. It reads one supplementary file of an article, or the rows of it that match a search, or saves the file. This page lists its arguments and examples.
+`biomcp article supplement` is a command of BioMCP 1.0.0, the command-line tool and MCP server that reads biomedical data sources. It reads one supplementary file of an article, or the rows of it that match a search, or saves the file. This page lists its arguments, examples and reply.
 
 The program's help describes it:
 
@@ -48,6 +48,10 @@ biomcp article supplement 28944238 MGG3-5-553-s002.xlsx
 ```sh
 biomcp article supplement 28944238 MGG3-5-553-s002.xlsx --variant P245S
 ```
+
+## Reply
+
+The reply is one JSON object. Its schema is [`biomcp.article_supplement/3`](/reference/schemas/biomcp-article-supplement-3/), whose page shows a real reply and its fields.
 
 ## Next
 

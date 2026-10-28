@@ -8,10 +8,10 @@ reader: A BioMCP user or agent checking one command
 sidebar:
   label: get adverse-event
 kind: reference
-verified: 2026-10-27
+verified: 2026-10-28
 ---
 
-`biomcp get adverse-event` is a command of BioMCP 1.0.0, the command-line tool and MCP server that reads biomedical data sources. It reads one adverse event report by its ID, and optionally one section such as its drugs or reactions. A [section word](/concepts/progressive-disclosure/) after the identifier adds one more part of the record to the reply. This page lists its arguments, sections and examples.
+`biomcp get adverse-event` is a command of BioMCP 1.0.0, the command-line tool and MCP server that reads biomedical data sources. It reads one adverse event report by its ID, and optionally one section such as its drugs or reactions. A [section word](/concepts/progressive-disclosure/) after the identifier adds one more part of the record to the reply. This page lists its arguments, sections, examples and reply.
 
 The program's help describes it:
 
@@ -68,6 +68,10 @@ biomcp get adverse-event 100
 ```sh
 biomcp get adverse-event 100 reactions
 ```
+
+## Reply
+
+The reply is one JSON object. Its schema is [`biomcp.adverse_event_faers_card/1`](/reference/schemas/biomcp-adverse-event-faers-card-1/), whose page shows a real reply and its fields.
 
 ## Next
 

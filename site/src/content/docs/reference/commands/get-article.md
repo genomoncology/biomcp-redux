@@ -8,10 +8,10 @@ reader: A BioMCP user or agent checking one command
 sidebar:
   label: get article
 kind: reference
-verified: 2026-10-27
+verified: 2026-10-28
 ---
 
-`biomcp get article` is a command of BioMCP 1.0.0, the command-line tool and MCP server that reads biomedical data sources. It reads one to twenty articles by PMID, PMCID or DOI, and optionally sections such as the full text. A [section word](/concepts/progressive-disclosure/) after the identifier adds one more part of the record to the reply. This page lists its arguments, sections and examples.
+`biomcp get article` is a command of BioMCP 1.0.0, the command-line tool and MCP server that reads biomedical data sources. It reads one to twenty articles by PMID, PMCID or DOI, and optionally sections such as the full text. A [section word](/concepts/progressive-disclosure/) after the identifier adds one more part of the record to the reply. This page lists its arguments, sections, examples and reply.
 
 The program's help describes it:
 
@@ -56,6 +56,10 @@ biomcp get article 33123537
 ```sh
 biomcp get article PPR1295425 fulltext
 ```
+
+## Reply
+
+The reply is one JSON object. Its schema is [`biomcp.article_cards/3`](/reference/schemas/biomcp-article-cards-3/), whose page shows a real reply and its fields.
 
 ## Next
 

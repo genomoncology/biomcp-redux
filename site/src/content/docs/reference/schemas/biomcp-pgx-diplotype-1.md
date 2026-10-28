@@ -8,10 +8,10 @@ reader: A developer or agent parsing BioMCP JSON
 sidebar:
   label: biomcp.pgx_diplotype/1
 kind: reference
-verified: 2026-10-27
+verified: 2026-10-28
 ---
 
-BioMCP 1.0.0 prints one JSON object, the reply, for each command. [`biomcp get pgx diplotype`](/reference/commands/get-pgx/) replies with `schema` set to `biomcp.pgx_diplotype/1`. Read this page when your code parses that reply: it shows a real one, then the fields only this schema has. [Shared types](/reference/schemas/types/) defines the rest.
+BioMCP 1.0.0 prints one JSON object, the reply, for each command. [`biomcp get pgx diplotype`](/reference/commands/get-pgx/) and [`biomcp get pgx`](/reference/commands/get-pgx/) reply with `schema` set to `biomcp.pgx_diplotype/1`. Read this page when your code parses that reply: it shows a real one, then the fields only this schema has. [Shared types](/reference/schemas/types/) defines the rest.
 
 ## Commands that return it
 

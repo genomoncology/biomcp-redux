@@ -7,10 +7,10 @@ reader: A BioMCP user or agent checking one command
 sidebar:
   label: pathway events
 kind: reference
-verified: 2026-10-27
+verified: 2026-10-28
 ---
 
-`biomcp pathway events` is a command of BioMCP 1.0.0, the command-line tool and MCP server that reads biomedical data sources. It lists the events, such as reactions, of one Reactome pathway. This page lists its arguments and examples.
+`biomcp pathway events` is a command of BioMCP 1.0.0, the command-line tool and MCP server that reads biomedical data sources. It lists the events, such as reactions, of one Reactome pathway. This page lists its arguments, examples and reply.
 
 The program's help describes it:
 
@@ -42,6 +42,10 @@ biomcp pathway events R-HSA-5673001
 ```sh
 biomcp pathway events R-HSA-5673001 --limit 50
 ```
+
+## Reply
+
+The reply is one JSON object. Its schema is [`biomcp.pathway_events/2`](/reference/schemas/biomcp-pathway-events-2/), whose page shows a real reply and its fields.
 
 ## Next
 

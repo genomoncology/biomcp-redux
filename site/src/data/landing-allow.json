@@ -17,6 +17,286 @@
       "rule": "L5",
       "route": "/reference/schemas/types/",
       "reason": "The one home of every type that more than one reply schema uses (over 300). Readers reach it by an anchor link from a schema page, not by reading it through; its opening says so. Splitting it would define the shared types on more than one page."
+    },
+    {
+      "rule": "L1",
+      "route": "/getting-started/first-query/",
+      "match": "| BRAF",
+      "reason": "The Markdown reply of biomcp search gene is shown whole on purpose: the quickstart teaches its five parts, and the wide Result table (BRAF, BANCR and BRAFP1 rows) is how the product prints it. The block scrolls inside its box at 390 px."
+    },
+    {
+      "rule": "L8",
+      "route": "/reference/commands/search-article/",
+      "match": "pubtator: entity",
+      "reason": "Quoted help text from the program, where \"entity\" means a PubTator3 concept (gene, disease, chemical), not a BioMCP entity. Generated pages quote help verbatim; reported as a product fix to reword the help."
+    },
+    {
+      "rule": "L8",
+      "route": "/reference/schemas/biomcp-article-page-3/",
+      "match": "pubtator: entity",
+      "reason": "Quoted help text from the program, where \"entity\" means a PubTator3 concept (gene, disease, chemical), not a BioMCP entity. Generated pages quote help verbatim; reported as a product fix to reword the help."
+    },
+    {
+      "rule": "L8",
+      "route": "/reference/schemas/biomcp-drug-civic-4/",
+      "match": "owning-entity",
+      "reason": "Schema field description from the program (\"owning-entity request\"), quoted on the generated schema page. Reported as a product fix to reword the description."
+    },
+    {
+      "rule": "L8",
+      "route": "/reference/schemas/types/",
+      "match": "physical entities",
+      "reason": "Schema field description from the program (\"physical entities\", a Reactome term), quoted on the generated shared types page. Reported as a product fix."
+    },
+    {
+      "rule": "L5",
+      "route": "/reference/commands/",
+      "reason": "The index of all 86 commands, one row each with its plain description. Readers search it or jump by entity; the length is the command list."
+    },
+    {
+      "rule": "L5",
+      "route": "/reference/data-sources/",
+      "reason": "The table of all 57 sources with use group, key and terms. It is the one home of that table; /sources/ links here instead of repeating it."
+    },
+    {
+      "rule": "L5",
+      "route": "/reference/schemas/",
+      "reason": "The index of every reply schema with the commands that return it, one row per schema. The length is the schema list."
+    },
+    {
+      "rule": "L5",
+      "route": "/reference/upgrade-map/",
+      "reason": "The full 0.9 to 1.0 command and flag map, one row per old form. Readers find their old command by search; /upgrade-from-0-9/ is the short guide."
+    },
+    {
+      "rule": "L5",
+      "route": "/reference/commands/get-drug/",
+      "reason": "Generated command reference: the arguments table lists its options and section words across eleven drug sources. Each row is a real option a reader looks up; nothing repeats."
+    },
+    {
+      "rule": "L5",
+      "route": "/reference/commands/get-variant/",
+      "reason": "Generated command reference: the arguments table lists its options and section words across the variant sources. Each row is a real option a reader looks up; nothing repeats."
+    },
+    {
+      "rule": "L5",
+      "route": "/reference/commands/search-article/",
+      "reason": "Generated command reference: the arguments table lists its filters and the help text for six article sources. Each row is a real option a reader looks up; nothing repeats."
+    },
+    {
+      "rule": "L5",
+      "route": "/reference/commands/search-trial/",
+      "reason": "Generated command reference: the arguments table lists its filters for ClinicalTrials.gov and NCI. Each row is a real option a reader looks up; nothing repeats."
+    },
+    {
+      "rule": "L5",
+      "route": "/reference/schemas/biomcp-adverse-event-faers-card-1/",
+      "reason": "Generated schema page: a real example reply and the result and query field tables stay open; every other type is already collapsed in <details>. The remaining length is the reply and its top-level fields."
+    },
+    {
+      "rule": "L5",
+      "route": "/reference/schemas/biomcp-adverse-event-maude-card-1/",
+      "reason": "Generated schema page: a real example reply and the result and query field tables stay open; every other type is already collapsed in <details>. The remaining length is the reply and its top-level fields."
+    },
+    {
+      "rule": "L5",
+      "route": "/reference/schemas/biomcp-article-page-3/",
+      "reason": "Generated schema page: a real example reply and the result and query field tables stay open; every other type is already collapsed in <details>. The remaining length is the reply and its top-level fields."
+    },
+    {
+      "rule": "L5",
+      "route": "/reference/schemas/biomcp-gwas-study-1/",
+      "reason": "Generated schema page: a real example reply and the result and query field tables stay open; every other type is already collapsed in <details>. The remaining length is the reply and its top-level fields."
+    },
+    {
+      "rule": "L5",
+      "route": "/reference/schemas/biomcp-pathway-card-5/",
+      "reason": "Generated schema page: a real example reply and the result and query field tables stay open; every other type is already collapsed in <details>. The remaining length is the reply and its top-level fields."
+    },
+    {
+      "rule": "L5",
+      "route": "/reference/schemas/biomcp-variant-page-6/",
+      "reason": "Generated schema page: a real example reply and the result and query field tables stay open; every other type is already collapsed in <details>. The remaining length is the reply and its top-level fields."
+    },
+    {
+      "rule": "L5",
+      "route": "/reference/schemas/biomcp-variant-recurrence-4/",
+      "reason": "Generated schema page: a real example reply and the result and query field tables stay open; every other type is already collapsed in <details>. The remaining length is the reply and its top-level fields."
+    },
+    {
+      "rule": "L5",
+      "route": "/getting-started/first-query/",
+      "reason": "The quickstart: four steps and two failures, each with the real reply a first-time reader needs to see. Markdown duplicates of three replies were removed; the rest is the tutorial."
+    },
+    {
+      "rule": "L5",
+      "route": "/concepts/progressive-disclosure/",
+      "reason": "The one explanation of the command grammar (entities, sections, relation commands, next, pages, sources), each shown with one real reply. The parts depend on each other; splitting would scatter one concept."
+    },
+    {
+      "rule": "L5",
+      "route": "/results/",
+      "reason": "The one home of the reply envelope, statuses and source outcomes, each with a real reply. Long terms text in the example is already cut."
+    },
+    {
+      "rule": "L5",
+      "route": "/genes-and-proteins/",
+      "reason": "One task through four linked steps (gene card, sections, protein, pathway), each with a real reply."
+    },
+    {
+      "rule": "L5",
+      "route": "/diseases-and-phenotypes/",
+      "reason": "One how-to of six short steps, each a single real reply of a few lines; the length is the number of steps."
+    },
+    {
+      "rule": "L5",
+      "route": "/studies-and-cell-lines/",
+      "reason": "One how-to of four steps, each with one real reply."
+    },
+    {
+      "rule": "L5",
+      "route": "/getting-started/api-keys/",
+      "reason": "Keys only after the config.json settings moved to their own page; the rest is the key list, a throwaway key set and the key table."
+    },
+    {
+      "rule": "L5",
+      "route": "/getting-started/remote-http/",
+      "reason": "One server setup in order: start, check health, open beyond loopback, reverse proxy. The MCP-over-HTTP exchange is the example the steps rely on."
+    },
+    {
+      "rule": "L5",
+      "route": "/local-data/",
+      "reason": "One home of the bundles: which sources use them, their sizes, sync, offline use and cleaning, each with a real reply."
+    },
+    {
+      "rule": "L5",
+      "route": "/sources/",
+      "reason": "The use-group guide after its duplicate source tables moved to /reference/data-sources/; the remaining tables define the groups."
+    },
+    {
+      "rule": "L5",
+      "route": "/upgrade-from-0-9/",
+      "reason": "The upgrade guide: what changed, the command map summary and the flag behavior with real replies; the full map is on /reference/upgrade-map/."
+    },
+    {
+      "rule": "L5",
+      "route": "/troubleshooting/usage-errors/",
+      "reason": "One error family (usage.*), each entry with cause, fix and the real error reply."
+    },
+    {
+      "rule": "L5",
+      "route": "/how-to/annotate-variants/",
+      "reason": "One variant through five linked steps, each with a real reply; population counts need their table."
+    },
+    {
+      "rule": "L5",
+      "route": "/how-to/find-trials/",
+      "reason": "One trial search through five linked steps plus the NCI alternative and the screening limits, each with a real reply."
+    },
+    {
+      "rule": "L5",
+      "route": "/how-to/clinvar-classification/",
+      "reason": "Three steps, each with one real ClinVar reply; within 100 px of the limit."
+    },
+    {
+      "rule": "L5",
+      "route": "/how-to/companion-diagnostics/",
+      "reason": "Four steps, each with one real reply; the row count comparison needs both listings."
+    },
+    {
+      "rule": "L5",
+      "route": "/how-to/gnomad-frequency/",
+      "reason": "Three steps, each with one real gnomAD reply; within 60 px of the limit."
+    },
+    {
+      "rule": "L5",
+      "route": "/blog/biomcp-pubmed-articles/",
+      "reason": "A dated post following one paper through four commands, each with its real reply."
+    },
+    {
+      "rule": "L5",
+      "route": "/blog/daraxonrasib-trials-and-reports/",
+      "reason": "Part 2 of a split tutorial: four steps and the summary table, each step with its real reply."
+    },
+    {
+      "rule": "L6",
+      "route": "/reference/commands/sync*",
+      "reason": "The sync commands share one help description in the program and one page layout; each page names its own bundle and the source it feeds. Reported as a product fix: give each sync command its own help line."
+    },
+    {
+      "rule": "L6",
+      "route": "/reference/commands/help-key-*",
+      "reason": "Each help key page has the same layout and its own key table (setting, source, config field, environment variable)."
+    },
+    {
+      "rule": "L6",
+      "route": "/reference/commands/protein-*",
+      "reason": "Sibling protein relation commands share their arguments and layout; each lists different records (features, isoforms, domains, complexes, structures)."
+    },
+    {
+      "rule": "L6",
+      "route": "/reference/commands/*author*",
+      "reason": "The author commands share their identifier arguments and layout; each reads a different record."
+    },
+    {
+      "rule": "L6",
+      "route": "/reference/commands/skill*",
+      "reason": "The skill commands share the skill help text and layout; each does a different step (list, render, install, status)."
+    },
+    {
+      "rule": "L6",
+      "route": "/reference/commands/article-cit*",
+      "reason": "Sibling citation commands share their arguments and layout; citations reads papers that cite, references papers cited."
+    },
+    {
+      "rule": "L6",
+      "route": "/reference/commands/article-references/",
+      "reason": "Sibling of article citations with the same arguments and layout; it lists the papers an article cites."
+    },
+    {
+      "rule": "L6",
+      "route": "/reference/commands/pathway-*",
+      "reason": "Sibling pathway relation commands share their arguments and layout; genes and events read different collections."
+    },
+    {
+      "rule": "L6",
+      "route": "/reference/schemas/biomcp-*",
+      "reason": "Sibling section schemas of one entity (for example a cell line's names, xrefs and variants) share the envelope, query type and layout; each page shows its own reply and the fields only it has. Shared types already live on /reference/schemas/types/."
+    },
+    {
+      "rule": "L6",
+      "route": "/sources/drugsfda/",
+      "reason": "openFDA-family source pages share the publisher terms and key text; each names a different dataset and example."
+    },
+    {
+      "rule": "L6",
+      "route": "/sources/openfda/",
+      "reason": "openFDA-family source pages share the publisher terms and key text; each names a different dataset and example."
+    },
+    {
+      "rule": "L6",
+      "route": "/sources/faers/",
+      "reason": "FAERS and MAUDE are both openFDA report sources with the same terms and key; each page has its own example."
+    },
+    {
+      "rule": "L6",
+      "route": "/sources/maude/",
+      "reason": "FAERS and MAUDE are both openFDA report sources with the same terms and key; each page has its own example."
+    },
+    {
+      "rule": "L6",
+      "route": "/sources/fda-510k/",
+      "reason": "The 510(k) and PMA device sources share openFDA terms and key; each reads a different record type."
+    },
+    {
+      "rule": "L6",
+      "route": "/sources/fda-pma/",
+      "reason": "The 510(k) and PMA device sources share openFDA terms and key; each reads a different record type."
+    },
+    {
+      "rule": "L6",
+      "route": "/sources/pharmgkb/",
+      "reason": "CPIC and ClinPGx share one ClinPGx data use policy; each page has its own commands and example."
     }
   ]
 }

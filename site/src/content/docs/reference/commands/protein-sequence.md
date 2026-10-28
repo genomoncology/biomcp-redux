@@ -7,10 +7,10 @@ reader: A BioMCP user or agent checking one command
 sidebar:
   label: protein sequence
 kind: reference
-verified: 2026-10-27
+verified: 2026-10-28
 ---
 
-`biomcp protein sequence` is a command of BioMCP 1.0.0, the command-line tool and MCP server that reads biomedical data sources. It prints the whole amino-acid sequence of one UniProt protein or isoform. This page lists its arguments and examples.
+`biomcp protein sequence` is a command of BioMCP 1.0.0, the command-line tool and MCP server that reads biomedical data sources. It prints the whole amino-acid sequence of one UniProt protein or isoform. This page lists its arguments, examples and reply.
 
 The program's help describes it:
 
@@ -40,6 +40,10 @@ biomcp protein sequence P00533
 ```sh
 biomcp protein sequence P00533 --fresh
 ```
+
+## Reply
+
+The reply is one JSON object. Its schema is [`biomcp.protein_sequence/1`](/reference/schemas/biomcp-protein-sequence-1/), whose page shows a real reply and its fields.
 
 ## Next
 

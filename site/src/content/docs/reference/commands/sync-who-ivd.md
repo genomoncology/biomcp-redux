@@ -7,10 +7,10 @@ reader: A BioMCP user or agent checking one command
 sidebar:
   label: sync who-ivd
 kind: reference
-verified: 2026-10-27
+verified: 2026-10-28
 ---
 
-`biomcp sync who-ivd` is a command of BioMCP 1.0.0, the command-line tool and MCP server that reads biomedical data sources. It downloads the WHO prequalified diagnostics [bundle](/local-data/). This page lists its examples.
+`biomcp sync who-ivd` is a command of BioMCP 1.0.0, the command-line tool and MCP server that reads biomedical data sources. It downloads the WHO prequalified diagnostics [bundle](/local-data/). This page lists its examples and reply.
 
 The program's help describes it:
 
@@ -37,6 +37,10 @@ biomcp sync who-ivd
 ```sh
 biomcp sync who-ivd --fresh
 ```
+
+## Reply
+
+The reply is one JSON object. Its schema is [`biomcp.sync/4`](/reference/schemas/biomcp-sync-4/), whose page shows a real reply and its fields.
 
 ## Next
 

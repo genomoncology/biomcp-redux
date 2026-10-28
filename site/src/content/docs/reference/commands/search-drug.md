@@ -7,10 +7,10 @@ reader: A BioMCP user or agent checking one command
 sidebar:
   label: search drug
 kind: reference
-verified: 2026-10-27
+verified: 2026-10-28
 ---
 
-`biomcp search drug` is a command of BioMCP 1.0.0, the command-line tool and MCP server that reads biomedical data sources. It finds drugs by name in one source. This page lists its arguments and examples.
+`biomcp search drug` is a command of BioMCP 1.0.0, the command-line tool and MCP server that reads biomedical data sources. It finds drugs by name in one source. This page lists its arguments, examples and reply.
 
 The program's help describes it:
 
@@ -47,6 +47,10 @@ biomcp search drug Tibsovo --source ema --limit 1
 ```sh
 biomcp search drug Tibsovo --source ema --limit 1 --offset 1 --fresh
 ```
+
+## Reply
+
+The reply is one JSON object. Its schema is [`biomcp.drug_page/3`](/reference/schemas/biomcp-drug-page-3/), whose page shows a real reply and its fields.
 
 ## Next
 

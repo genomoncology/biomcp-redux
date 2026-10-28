@@ -7,10 +7,10 @@ reader: A BioMCP user or agent checking one command
 sidebar:
   label: cell-line assay-count
 kind: reference
-verified: 2026-10-27
+verified: 2026-10-28
 ---
 
-`biomcp cell-line assay-count` is a command of BioMCP 1.0.0, the command-line tool and MCP server that reads biomedical data sources. It counts the ChEMBL assays recorded for one cell line. This page lists its arguments and examples.
+`biomcp cell-line assay-count` is a command of BioMCP 1.0.0, the command-line tool and MCP server that reads biomedical data sources. It counts the ChEMBL assays recorded for one cell line. This page lists its arguments, examples and reply.
 
 The program's help describes it:
 
@@ -39,6 +39,10 @@ biomcp cell-line assay-count CHEMBL3706573
 ```sh
 biomcp cell-line assay-count CHEMBL3706573 --fresh
 ```
+
+## Reply
+
+The reply is one JSON object. Its schema is [`biomcp.cell_line_assay_count/2`](/reference/schemas/biomcp-cell-line-assay-count-2/), whose page shows a real reply and its fields.
 
 ## Next
 

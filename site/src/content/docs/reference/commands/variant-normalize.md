@@ -8,10 +8,10 @@ reader: A BioMCP user or agent checking one command
 sidebar:
   label: variant normalize
 kind: reference
-verified: 2026-10-27
+verified: 2026-10-28
 ---
 
-`biomcp variant normalize` is a command of BioMCP 1.0.0, the command-line tool and MCP server that reads biomedical data sources. It sends an HGVS variant name to the ClinGen Allele Registry, Mutalyzer or VariantValidator to check and normalize it. This page lists its arguments and examples.
+`biomcp variant normalize` is a command of BioMCP 1.0.0, the command-line tool and MCP server that reads biomedical data sources. It sends an HGVS variant name to the ClinGen Allele Registry, Mutalyzer or VariantValidator to check and normalize it. This page lists its arguments, examples and reply.
 
 The program's help describes it:
 
@@ -49,6 +49,10 @@ biomcp variant normalize --source mutalyzer --hgvs 'NM_004333.4:c.1799T>A'
 biomcp variant normalize --source variantvalidator \
   --hgvs 'NM_004333.4:c.1799T>A' --build GRCh38
 ```
+
+## Reply
+
+The reply is one JSON object. Its schema is [`biomcp.variant_normalization/3`](/reference/schemas/biomcp-variant-normalization-3/), whose page shows a real reply and its fields.
 
 ## Next
 

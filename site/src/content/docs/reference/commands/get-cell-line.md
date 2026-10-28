@@ -7,10 +7,10 @@ reader: A BioMCP user or agent checking one command
 sidebar:
   label: get cell-line
 kind: reference
-verified: 2026-10-27
+verified: 2026-10-28
 ---
 
-`biomcp get cell-line` is a command of BioMCP 1.0.0, the command-line tool and MCP server that reads biomedical data sources. It reads one cell line by its ID, and optionally one named section such as its variants. A [section word](/concepts/progressive-disclosure/) after the identifier adds one more part of the record to the reply. This page lists its arguments, sections and examples.
+`biomcp get cell-line` is a command of BioMCP 1.0.0, the command-line tool and MCP server that reads biomedical data sources. It reads one cell line by its ID, and optionally one named section such as its variants. A [section word](/concepts/progressive-disclosure/) after the identifier adds one more part of the record to the reply. This page lists its arguments, sections, examples and reply.
 
 The program's help describes it:
 
@@ -55,6 +55,10 @@ biomcp get cell-line CVCL_2119
 ```sh
 biomcp get cell-line CVCL_0004
 ```
+
+## Reply
+
+The reply is one JSON object. Its schema is [`biomcp.cell_line_card/3`](/reference/schemas/biomcp-cell-line-card-3/), whose page shows a real reply and its fields.
 
 ## Next
 

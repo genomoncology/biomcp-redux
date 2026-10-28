@@ -8,10 +8,10 @@ reader: A BioMCP user or agent checking one command
 sidebar:
   label: get pgx
 kind: reference
-verified: 2026-10-27
+verified: 2026-10-28
 ---
 
-`biomcp get pgx` is a command of BioMCP 1.0.0, the command-line tool and MCP server that reads biomedical data sources. It reads pharmacogenomic records from CPIC or ClinPGx, such as guidelines, recommendations or annotations. A [section word](/concepts/progressive-disclosure/) after the identifier adds one more part of the record to the reply. This page lists its arguments, sections and examples.
+`biomcp get pgx` is a command of BioMCP 1.0.0, the command-line tool and MCP server that reads biomedical data sources. It reads pharmacogenomic records from CPIC or ClinPGx, such as guidelines, recommendations or annotations. A [section word](/concepts/progressive-disclosure/) after the identifier adds one more part of the record to the reply. This page lists its arguments, sections, examples and reply.
 
 The program's help describes it:
 
@@ -64,6 +64,10 @@ biomcp get pgx --gene DPYD --source cpic
 ```sh
 biomcp get pgx --gene DPYD --source cpic diplotype --diplotype '*1/*2A'
 ```
+
+## Reply
+
+The reply is one JSON object. Its schema is one of [`biomcp.pgx_card/1`](/reference/schemas/biomcp-pgx-card-1/), [`biomcp.pgx_diplotype/1`](/reference/schemas/biomcp-pgx-diplotype-1/), whose page shows a real reply and its fields.
 
 ## Next
 

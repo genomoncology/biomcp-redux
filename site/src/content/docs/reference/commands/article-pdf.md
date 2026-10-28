@@ -7,10 +7,10 @@ reader: A BioMCP user or agent checking one command
 sidebar:
   label: article pdf
 kind: reference
-verified: 2026-10-27
+verified: 2026-10-28
 ---
 
-`biomcp article pdf` is a command of BioMCP 1.0.0, the command-line tool and MCP server that reads biomedical data sources. It downloads an article's PDF from its publisher to a file you name. This page lists its arguments and examples.
+`biomcp article pdf` is a command of BioMCP 1.0.0, the command-line tool and MCP server that reads biomedical data sources. It downloads an article's PDF from its publisher to a file you name. This page lists its arguments, examples and reply.
 
 The program's help describes it:
 
@@ -41,6 +41,10 @@ biomcp article pdf 41351423 --save owned.pdf --replace
 ```sh
 biomcp article pdf 41351423 --save second.pdf --replace
 ```
+
+## Reply
+
+The reply is one JSON object. Its schema is [`biomcp.article_pdf/2`](/reference/schemas/biomcp-article-pdf-2/), whose page shows a real reply and its fields.
 
 ## Next
 

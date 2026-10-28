@@ -7,10 +7,10 @@ reader: A BioMCP user or agent checking one command
 sidebar:
   label: search phenotype
 kind: reference
-verified: 2026-10-27
+verified: 2026-10-28
 ---
 
-`biomcp search phenotype` is a command of BioMCP 1.0.0, the command-line tool and MCP server that reads biomedical data sources. It finds Human Phenotype Ontology (HP) terms by text in HPO or Monarch. This page lists its arguments and examples.
+`biomcp search phenotype` is a command of BioMCP 1.0.0, the command-line tool and MCP server that reads biomedical data sources. It finds Human Phenotype Ontology (HP) terms by text in HPO or Monarch. This page lists its arguments, examples and reply.
 
 The program's help describes it:
 
@@ -46,6 +46,10 @@ biomcp search phenotype synthetic
 ```sh
 biomcp search phenotype synthetic --limit 1
 ```
+
+## Reply
+
+The reply is one JSON object. Its schema is [`biomcp.phenotype-search/1`](/reference/schemas/biomcp-phenotype-search-1/), whose page shows a real reply and its fields.
 
 ## Next
 
