@@ -123,34 +123,6 @@ pub(super) fn check(
     } else {
         0
     };
-    if let Ok(value) = &parsed
-        && let Some(args) = &step.run
-        && ["BRCA1", "europepmc,pubmed", "21217686", "rs121434592", "xqzvw zzyzxq kinase"]
-            .iter().any(|needle| args.iter().any(|arg| arg.contains(needle)))
-    {
-        let compact = serde_json::to_vec(value).map_err(|e| e.to_string())?;
-        if compact.len() != stdout.trim_ascii().len() {
-            return Err("measurement requires unchanged compact stdout format".into());
-        }
-        let mut without = value.clone();
-        let mut removed = Vec::new();
-        if let Some(problems) = without.get_mut("problems").and_then(Value::as_array_mut) {
-            problems.retain(|problem| {
-                let new = problem.get("source").and_then(Value::as_str) == Some("pubmed")
-                    && matches!(problem.get("field").and_then(Value::as_str), Some("date" | "electronic_date"));
-                if new { removed.push(problem.clone()); }
-                !new
-            });
-            if problems.is_empty() {
-                without.as_object_mut().ok_or("measurement envelope")?.remove("problems");
-            }
-        }
-        let without = serde_json::to_vec(&without).map_err(|e| e.to_string())?;
-        eprintln!("PROBLEM_MEASUREMENT {:?} comparable={} without_new={} removed={}", args,
-            stdout.len() - terms_bytes,
-            stdout.len() - terms_bytes - (compact.len() - without.len()),
-            serde_json::to_string(&removed).map_err(|e| e.to_string())?);
-    }
     ceiling(
         "stdout",
         "max_bytes",
