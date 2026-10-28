@@ -27,7 +27,9 @@ fn components(
         {
             if let Some(value) = values.and_then(|value| problems.required(name, value.value())) {
                 for row in value.values() {
-                    rows.push((name, super::normalize::component(row, name, problems)));
+                    if let Some(row) = problems.required(name, row.value()) {
+                        rows.push((name, super::normalize::component(row, name, problems)));
+                    }
                 }
             }
         }

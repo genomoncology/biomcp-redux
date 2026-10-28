@@ -23,13 +23,13 @@ pub(super) struct Hit {
     pub id: String,
     #[serde(rename = "_version")]
     pub version: Option<u64>,
-    pub drugbank: Option<crate::raw::Field<OneOrMany<ReceivedComponent>>>,
-    pub chembl: Option<crate::raw::Field<OneOrMany<ReceivedComponent>>>,
-    pub drugcentral: Option<crate::raw::Field<OneOrMany<ReceivedComponent>>>,
-    pub gtopdb: Option<crate::raw::Field<OneOrMany<ReceivedComponent>>>,
-    pub unii: Option<crate::raw::Field<OneOrMany<ReceivedComponent>>>,
-    pub ndc: Option<crate::raw::Field<OneOrMany<ReceivedComponent>>>,
-    pub openfda: Option<crate::raw::Field<OneOrMany<ReceivedComponent>>>,
+    pub drugbank: Option<crate::raw::Field<OneOrMany<crate::raw::Field<ReceivedComponent>>>>,
+    pub chembl: Option<crate::raw::Field<OneOrMany<crate::raw::Field<ReceivedComponent>>>>,
+    pub drugcentral: Option<crate::raw::Field<OneOrMany<crate::raw::Field<ReceivedComponent>>>>,
+    pub gtopdb: Option<crate::raw::Field<OneOrMany<crate::raw::Field<ReceivedComponent>>>>,
+    pub unii: Option<crate::raw::Field<OneOrMany<crate::raw::Field<ReceivedComponent>>>>,
+    pub ndc: Option<crate::raw::Field<OneOrMany<crate::raw::Field<ReceivedComponent>>>>,
+    pub openfda: Option<crate::raw::Field<OneOrMany<crate::raw::Field<ReceivedComponent>>>>,
 }
 impl Reply for Hit {
     fn check(&self) -> Result<(), BadReply> {
