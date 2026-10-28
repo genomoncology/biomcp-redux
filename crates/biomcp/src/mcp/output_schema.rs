@@ -16,7 +16,7 @@ pub(super) fn for_tool(name: &str) -> io::Result<Value> {
     if name == "fetch" {
         ids.extend(crate::schema::local_replies(&["help".into()]));
     }
-    let health = canonical("biomcp.health/2")?;
+    let health = canonical(<biomcp_types::Health as biomcp_types::ResponseBody>::SCHEMA)?;
     let mut envelope = shape(&health)?;
     let properties = envelope
         .get_mut("properties")
