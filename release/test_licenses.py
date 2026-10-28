@@ -72,3 +72,49 @@ class Licensing(unittest.TestCase):
                 archive(path, files)
                 result = subprocess.run([sys.executable, 'release/artifacts.py', 'inspect', str(path)], capture_output=True, text=True)
                 self.assertEqual(result.returncode == 0, defect is None, result.stderr)
+
+    def test_staging_refuses_missing_license_notice_or_registry_marker(self):
+        from release.test_workflow import Staging
+        for kind in ('wheel', 'archive', 'desktop', 'container'):
+            for missing in ('LICENSE', 'THIRD-PARTY-NOTICES.txt', 'marker'):
+                if missing == 'marker' and kind != 'wheel':
+                    continue
+                with self.subTest(kind=kind, missing=missing), tempfile.TemporaryDirectory() as temp:
+                    root = Path(temp)
+                    staging = Staging()
+                    artifacts, plugin = staging.prepare(root)
+                    tag = 'macosx_11_0_arm64' if kind == 'desktop' else 'manylinux_2_28_x86_64'
+                    directory = artifacts / tag
+                    pattern = {'wheel': '*.whl', 'archive': '*.tar.gz', 'desktop': '*.mcpb',
+                               'container': 'biomcp-container-*.tar'}[kind]
+                    path, = directory.glob(pattern)
+                    self.remove(path, missing, kind)
+                    if kind == 'archive':
+                        path.with_name(path.name + '.sha256').write_text(hashlib.sha256(path.read_bytes()).hexdigest() + '  ' + path.name)
+                    result = staging.stage(root, artifacts, plugin)
+                    self.assertNotEqual(result.returncode, 0, result.stdout)
+                    self.assertIn('requires', result.stderr)
+
+    def remove(self, path, missing, kind):
+        if kind in ('wheel', 'desktop'):
+            with zipfile.ZipFile(path) as source:
+                files = {name: source.read(name) for name in source.namelist()}
+            prefix = 'biomcp_cli-1.0.0.dist-info/' if kind == 'wheel' else ''
+            if missing == 'marker':
+                files[prefix + 'METADATA'] = files[prefix + 'METADATA'].replace(b'mcp-name:', b'other:')
+            else:
+                del files[prefix + missing]
+        else:
+            with tarfile.open(path) as source:
+                files = {entry.name: source.extractfile(entry).read() for entry in source if entry.isfile()}
+            if kind == 'container':
+                with tarfile.open(fileobj=io.BytesIO(files['layer.tar'])) as source:
+                    layer = {entry.name: source.extractfile(entry).read() for entry in source if entry.isfile()}
+                del layer['usr/share/doc/biomcp/' + missing]
+                with tempfile.TemporaryDirectory() as temp:
+                    target = Path(temp) / 'layer.tar'
+                    archive(target, layer)
+                    files['layer.tar'] = target.read_bytes()
+            else:
+                del files[missing]
+        archive(path, files)

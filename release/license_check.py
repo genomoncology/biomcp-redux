@@ -1,5 +1,4 @@
 """Read required license payloads from each distribution without installing it."""
-import io
 import json
 from pathlib import Path
 import tarfile
@@ -34,7 +33,7 @@ def container_payload(path):
         if len(manifest) != 1:
             raise ValueError('container archive must contain one image')
         for layer in manifest[0]['Layers']:
-            with tarfile.open(fileobj=io.BytesIO(image.extractfile(layer).read())) as archive:
+            with tarfile.open(fileobj=image.extractfile(layer), mode='r|*') as archive:
                 for member in archive:
                     name = member.name.removeprefix('./')
                     if name.startswith(prefix):
@@ -55,10 +54,13 @@ def native(directory, tag):
         from artifacts import inspect
     wheel, = directory.glob('*.whl')
     record = inspect(wheel)
+    wheel_notices = zip_payload(wheel, wheel.name.split("-py3-none-")[0] + ".dist-info/")
     if record != json.loads((directory / 'release.json').read_text()):
         raise ValueError('wheel producer differs from candidate record')
     archive, = [path for path in directory.iterdir() if path.name.endswith(('.tar.gz', '.zip'))]
     reference = tar_payload(archive) if archive.name.endswith('.tar.gz') else zip_payload(archive)
+    if reference != wheel_notices:
+        raise ValueError('wheel notices differ from archive')
     if reference != {name: (directory / name).read_bytes() for name in NAMES}:
         raise ValueError('archive notices differ from producer')
     if tag.startswith(('macosx_', 'win_')):

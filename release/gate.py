@@ -109,6 +109,7 @@ def installed(args):
                 path.chmod(0o444)
         shutil.copy2(Path(cargo("release", tests=True)["executable"]), executable)
         shutil.copytree(source / "release", root / "tools/release", dirs_exist_ok=True, ignore=shutil.ignore_patterns("__pycache__"))
+        shutil.copy2(source / "LICENSE", root / "tools/LICENSE")
     if args.prepare_only:
         return
     results = []
