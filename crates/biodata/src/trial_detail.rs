@@ -8,14 +8,14 @@ use serde::{Deserialize, Serialize};
 pub struct TrialCard {
     /// Exact registry identity.
     pub nct_id: NctId,
-    /// Complete brief title.
+    /// Source brief title, absent when missing or rejected.
     pub title: Option<Box<str>>,
-    /// Source overall status.
+    /// Source overall status, absent when missing or rejected.
     pub status: Option<TrialStatus>,
     /// Source phases without inferred defaults.
     #[serde(default, skip_serializing_if = "<[_]>::is_empty")]
     pub phases: Box<[TrialPhase]>,
-    /// Native study type.
+    /// Native study type, absent when missing or rejected.
     pub study_type: Option<StudyType>,
     /// All registered condition names.
     #[serde(default, skip_serializing_if = "<[_]>::is_empty")]
@@ -31,7 +31,7 @@ pub struct TrialCard {
     pub primary_completion: Option<TrialDate>,
     /// Source completion date, when present.
     pub completion: Option<TrialDate>,
-    /// Last posted registry update.
+    /// Last posted registry update, absent when missing or rejected.
     pub updated: Option<TrialDate>,
     /// Whole brief summary, preserving whitespace.
     pub brief_summary: Option<Markdown>,

@@ -109,11 +109,8 @@ impl RawDate {
     fn mapped(self, field: &str, problems: &mut Problems) -> Option<TrialDate> {
         let path = format!("{field}.date");
         let date = problems.field(&path, self.date);
-        let date = problems.required(&path, date)?;
-        Some(TrialDate {
-            date,
-            kind: problems.field(&format!("{field}.type"), self.kind),
-        })
+        let kind = problems.field(&format!("{field}.type"), self.kind);
+        Some(TrialDate { date: problems.required(&path, date)?, kind })
     }
 }
 #[derive(Default, Deserialize)]
