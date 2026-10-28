@@ -648,6 +648,12 @@
           "minimum": 0,
           "type": "integer"
         },
+        "downloaded_bytes": {
+          "description": "Source body bytes received in this sync; excludes previous partials, 304 reuse and replay.",
+          "format": "uint64",
+          "minimum": 0,
+          "type": "integer"
+        },
         "duplicate_identities": {
           "description": "Distinct repeated identities across the whole source version report.",
           "format": "uint64",
@@ -691,7 +697,8 @@
       },
       "required": [
         "rows",
-        "bytes"
+        "bytes",
+        "downloaded_bytes"
       ],
       "type": "object"
     },
@@ -711,7 +718,7 @@
       "type": "string"
     }
   },
-  "$id": "biomcp.sync/4",
+  "$id": "biomcp.sync/5",
   "$schema": "https://json-schema.org/draft/2020-12/schema",
   "additionalProperties": false,
   "description": "One versioned command response; schema identity comes only from its body type.",
@@ -768,7 +775,7 @@
       "description": "Answer when available."
     },
     "schema": {
-      "const": "biomcp.sync/4",
+      "const": "biomcp.sync/5",
       "type": "string"
     },
     "sources": {

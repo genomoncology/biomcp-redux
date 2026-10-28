@@ -1,5 +1,12 @@
 {
   "$defs": {
+    "BundleSize": {
+      "description": "Why physical bytes cannot be attributed to one local bundle.",
+      "enum": [
+        "shared_storage"
+      ],
+      "type": "string"
+    },
     "CacheProblem": {
       "description": "A local cache failure that leaves the provider outcome intact.",
       "enum": [
@@ -196,8 +203,15 @@
             "$ref": "#/$defs/SourceHealth"
           },
           "type": "array"
+        },
+        "store": {
+          "$ref": "#/$defs/StoreSize",
+          "description": "File lengths measured locally without attributing shared pages to bundles."
         }
       },
+      "required": [
+        "store"
+      ],
       "type": "object"
     },
     "LocalBundleState": {
@@ -550,6 +564,17 @@
           ],
           "description": "Last validated local bundle, independent of publisher reachability."
         },
+        "bundle_size": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/BundleSize"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "description": "Per-bundle physical size is unavailable in shared storage."
+        },
         "components": {
           "description": "Independently licensed carried components, without separate network probes.",
           "items": {
@@ -880,6 +905,43 @@
         "configure"
       ],
       "type": "string"
+    },
+    "StoreSize": {
+      "additionalProperties": false,
+      "description": "Measured lengths of owned files, including unused database pages and present sidecars.",
+      "properties": {
+        "active_bytes": {
+          "description": "Active database plus its present WAL and SHM files, counted once each.",
+          "format": "uint64",
+          "minimum": 0,
+          "type": "integer"
+        },
+        "partial_download_bytes": {
+          "description": "Incomplete download files belonging to active or retained databases.",
+          "format": "uint64",
+          "minimum": 0,
+          "type": "integer"
+        },
+        "retained_bytes": {
+          "description": "Retained database generations plus their present WAL and SHM files.",
+          "format": "uint64",
+          "minimum": 0,
+          "type": "integer"
+        },
+        "total_bytes": {
+          "description": "All measured owned files, including retained generations and partial downloads.",
+          "format": "uint64",
+          "minimum": 0,
+          "type": "integer"
+        }
+      },
+      "required": [
+        "total_bytes",
+        "active_bytes",
+        "retained_bytes",
+        "partial_download_bytes"
+      ],
+      "type": "object"
     },
     "Text": {
       "description": "Nonempty text with surrounding Unicode whitespace removed.",

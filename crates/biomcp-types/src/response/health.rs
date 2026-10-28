@@ -15,6 +15,8 @@ pub struct Health {
     /// Every implemented adapter, in declaration order.
     #[serde(default, skip_serializing_if = "<[_]>::is_empty")]
     pub sources: Box<[SourceHealth]>,
+    /// File lengths measured locally without attributing shared pages to bundles.
+    pub store: crate::StoreSize,
 }
 impl super::ResponseBody for Health {
     const SCHEMA: &'static str = "biomcp.health/3";
@@ -28,6 +30,9 @@ pub struct SourceHealth {
     /// Last validated local bundle, independent of publisher reachability.
     #[serde(default, skip_serializing_if = "Option::is_none")]
     pub bundle: Option<LocalBundleState>,
+    /// Per-bundle physical size is unavailable in shared storage.
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub bundle_size: Option<crate::BundleSize>,
     /// Independently licensed carried components, without separate network probes.
     #[serde(default, skip_serializing_if = "<[ _ ]>::is_empty")]
     pub components: Box<[ComponentHealth]>,

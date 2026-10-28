@@ -49,6 +49,7 @@ pub fn sync(fetch: &Fetch) -> Result<SyncResult, RequestError> {
         duplicate_identities: None,
         rows: validity.rows + dosage.rows,
         bytes: validity.bytes + dosage.bytes,
+        downloaded_bytes: validity.downloaded_bytes + dosage.downloaded_bytes,
     })
 }
 /// Read gene–disease validity without depending on the dosage summary.

@@ -676,6 +676,12 @@
       "additionalProperties": false,
       "description": "Two independently validated metadata catalogs; no catalog body in stdout.",
       "properties": {
+        "downloaded_bytes": {
+          "description": "Source body bytes received in this synchronization; excludes replay.",
+          "format": "uint64",
+          "minimum": 0,
+          "type": "integer"
+        },
         "get": {
           "$ref": "#/$defs/WikiPathwaysCatalogReceipt",
           "description": "Exact-get metadata catalog receipt."
@@ -686,13 +692,14 @@
         }
       },
       "required": [
+        "downloaded_bytes",
         "search",
         "get"
       ],
       "type": "object"
     }
   },
-  "$id": "biomcp.wikipathways-sync/1",
+  "$id": "biomcp.wikipathways-sync/2",
   "$schema": "https://json-schema.org/draft/2020-12/schema",
   "additionalProperties": false,
   "description": "One versioned command response; schema identity comes only from its body type.",
@@ -749,7 +756,7 @@
       "description": "Answer when available."
     },
     "schema": {
-      "const": "biomcp.wikipathways-sync/1",
+      "const": "biomcp.wikipathways-sync/2",
       "type": "string"
     },
     "sources": {

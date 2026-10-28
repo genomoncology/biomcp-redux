@@ -148,6 +148,8 @@ pub struct BundleInfo {
     pub name: &'static str,
     /// Complete raw body bytes.
     pub bytes: u64,
+    /// Source body bytes received during this synchronization, excluding reused or replayed bytes.
+    pub downloaded_bytes: u64,
     /// Checked decoded row count.
     pub rows: u64,
     /// Whether stored freshness has expired.

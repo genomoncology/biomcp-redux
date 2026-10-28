@@ -55,6 +55,7 @@ pub fn sync(fetch: &Fetch) -> Result<SyncResult, RequestError> {
         last_modified: None,
         rows: info.rows,
         bytes: info.bytes,
+        downloaded_bytes: info.downloaded_bytes,
         duplicate_identities: Some(counts.values().filter(|&&n| n > 1).count() as u64),
     })
 }
