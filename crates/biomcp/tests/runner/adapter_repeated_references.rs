@@ -8,34 +8,7 @@ pub(super) fn check() -> Result<(), String> {
         ("url", "members.source_url"),
         ("schemaClass", "members.schema_class"),
     ] {
-        let stub = Stub::for_sources(
-            &["reactome.org"],
-            |_| "application/json",
-            move |request| {
-                let mut reference = json!({
-                    "stId":"UniProt:P31749", "identifier":"P31749",
-                    "displayName":"AKT1", "schemaClass":"ReferenceGeneProduct",
-                    "url":"https://www.uniprot.org/uniprotkb/P31749"
-                });
-                let first = reference.clone();
-                reference[native] = json!("");
-                Ok(if request.contains("/database/version") {
-                json!(97)
-            } else if request.contains("/participants/") {
-                json!([
-                    {"peDbId":1,"displayName":"First context","schemaClass":"EntityWithAccessionedSequence",
-                     "refEntities":[first]},
-                    {"peDbId":2,"displayName":"Second context","schemaClass":"EntityWithAccessionedSequence",
-                     "refEntities":[reference]}
-                ])
-            } else {
-                json!({"stId":"R-HSA-5673001", "displayName":"Synthetic pathway",
-                       "speciesName":"Homo sapiens", "schemaClass":"Pathway",
-                       "stIdVersion":"R-HSA-5673001.1"})
-            }
-            .to_string())
-            },
-        )?;
+        let stub = reference_stub(native)?;
         let env = super::super::super::variant::source_environment(&stub)?;
         let value = invoke(
             &env,
@@ -57,7 +30,9 @@ pub(super) fn check() -> Result<(), String> {
                     .is_some_and(|f| f.starts_with("members."))
             })
             .collect();
-        if rejected.len() != 1 || rejected[0].get("field") != Some(&json!(field)) {
+        if rejected.len() != 1
+            || rejected.first().and_then(|p| p.get("field")) != Some(&json!(field))
+        {
             return Err(format!(
                 "repeated {native} lost its single disclosure: {value}"
             ));
@@ -96,4 +71,35 @@ pub(super) fn check() -> Result<(), String> {
         stub.finish()?;
     }
     Ok(())
+}
+
+fn reference_stub(native: &'static str) -> Result<Stub, String> {
+    Stub::for_sources(
+        &["reactome.org"],
+        |_| "application/json",
+        move |request| {
+            let mut reference = json!({
+                "stId":"UniProt:P31749", "identifier":"P31749",
+                "displayName":"AKT1", "schemaClass":"ReferenceGeneProduct",
+                "url":"https://www.uniprot.org/uniprotkb/P31749"
+            });
+            let first = reference.clone();
+            *reference.get_mut(native).ok_or("missing reference field")? = json!("");
+            Ok(if request.contains("/database/version") {
+                json!(97)
+            } else if request.contains("/participants/") {
+                json!([
+                    {"peDbId":1,"displayName":"First context","schemaClass":"EntityWithAccessionedSequence",
+                     "refEntities":[first]},
+                    {"peDbId":2,"displayName":"Second context","schemaClass":"EntityWithAccessionedSequence",
+                     "refEntities":[reference]}
+                ])
+            } else {
+                json!({"stId":"R-HSA-5673001", "displayName":"Synthetic pathway",
+                       "speciesName":"Homo sapiens", "schemaClass":"Pathway",
+                       "stIdVersion":"R-HSA-5673001.1"})
+            }
+            .to_string())
+        },
+    )
 }
