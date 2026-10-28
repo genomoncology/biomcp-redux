@@ -1013,8 +1013,8 @@ Reactome classifies its mapping checks at their owning boundary:
 | `reactome/relations.rs` reference metadata | Migrated | Validate every occurrence before grouping; retain first-occurrence output and report later invalid metadata. |
 | `reactome/relations.rs` event ID and species | Identity refusal | Reject the event without inferring an identity or changing its species. |
 | `reactome/relations.rs` event version, name and class | Migrated | Omit rejected metadata with its named problem and retain the event identity. |
-| `reactome/raw.rs` search counters, exact empty response and database release | Identity refusal | Require the native protocol envelope and positive source release. |
-| Optional omitted metadata, checked not-found replies and provenance conversion from checked IDs | Legitimate absence | Do not manufacture a value or a missing-field problem. Generated event URLs and numeric release text derive from validated identities. |
+| `reactome/raw.rs` search counters, exact empty response and database release | Source protocol refusal | Require the native protocol envelope and positive source release. A release request failure marks the source failure and retains an accepted pathway card. |
+| Optional omitted metadata, checked not-found replies and provenance conversion from checked IDs | Legitimate absence | Do not manufacture a value or a missing-field problem. Generated event URLs derive from validated pathway IDs. Numeric release text derives from the checked source release. |
 
 Shared helpers live once in `biomcp-adapters/src/`:
 
