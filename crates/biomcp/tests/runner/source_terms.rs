@@ -110,7 +110,7 @@ fn envelopes() -> Result<(), String> {
         serde_json::from_str(include_str!("../../../biomcp-types/schemas/source.json"))
             .map_err(|e| e.to_string())?;
     for name in schema
-        .get("enum")
+        .get("x-extensible-enum")
         .and_then(Value::as_array)
         .ok_or("missing source enum")?
     {

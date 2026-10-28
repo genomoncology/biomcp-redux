@@ -13,7 +13,6 @@
       "description": "A physical companion-table row; the two table layouts cannot acquire each other’s cells.",
       "oneOf": [
         {
-          "additionalProperties": false,
           "description": "One complete native individual table row.",
           "properties": {
             "cells": {
@@ -58,7 +57,6 @@
           "type": "object"
         },
         {
-          "additionalProperties": false,
           "description": "One complete native group table row.",
           "properties": {
             "cells": {
@@ -105,8 +103,7 @@
       ]
     },
     "CompanionGroupCells": {
-      "additionalProperties": false,
-      "description": "Exact native CompanionGroupCells headers; any extra or changed header is refused.",
+      "description": "Known native group-table cells keyed by their exact source headers.",
       "properties": {
         "Device Indication for a Specific Group of Oncology Therapeutic Products and Trade Name (Generic) – NDA/BLA": {
           "$ref": "#/$defs/DiagnosticCell",
@@ -134,8 +131,7 @@
       "type": "object"
     },
     "CompanionIndividualCells": {
-      "additionalProperties": false,
-      "description": "Exact native CompanionIndividualCells headers; any extra or changed header is refused.",
+      "description": "Known native individual-table cells keyed by their exact source headers.",
       "properties": {
         "Biomarker(s)": {
           "$ref": "#/$defs/DiagnosticCell",
@@ -173,7 +169,6 @@
       "type": "object"
     },
     "DiagnosticCell": {
-      "additionalProperties": false,
       "description": "Whole physical source-table cell and its own links.",
       "properties": {
         "links": {
@@ -194,7 +189,6 @@
       "type": "object"
     },
     "DiagnosticCellLink": {
-      "additionalProperties": false,
       "description": "Source link without a name-based identity inference.",
       "properties": {
         "href": {
@@ -216,7 +210,6 @@
       "type": "object"
     },
     "DiagnosticCompanion": {
-      "additionalProperties": false,
       "description": "Whole distinct physical companion-table rows with cell-owned identifiers.",
       "properties": {
         "count_unit": {
@@ -252,7 +245,6 @@
     "DiagnosticCountUnit": {
       "description": "Meaning of the envelope's total for a source-owned diagnostic page.",
       "enum": [
-        "recall_records",
         "product_identities",
         "test_identities",
         "native_relation_rows",
@@ -266,7 +258,6 @@
       "type": "string"
     },
     "DiagnosticDrugApplication": {
-      "additionalProperties": false,
       "description": "A typed drug application established by its own complete source cell and link.",
       "properties": {
         "id": {
@@ -286,8 +277,7 @@
       "type": "object"
     },
     "DiagnosticSearch": {
-      "additionalProperties": false,
-      "description": "Search five source records by default. FDA device recalls cover every medical device; totals count recall records, without harm inference.",
+      "description": "Search one diagnostic source. A listing is not authorization; a companion row is not a treatment recommendation.",
       "properties": {
         "biomarker": {
           "anyOf": [
@@ -366,28 +356,6 @@
           ],
           "description": "Exact source GeneID, exclusive with gene symbol."
         },
-        "initiated_from": {
-          "anyOf": [
-            {
-              "$ref": "#/$defs/PartialDate"
-            },
-            {
-              "type": "null"
-            }
-          ],
-          "description": "Inclusive initiation date, YYYY-MM-DD; FDA device recalls only."
-        },
-        "initiated_to": {
-          "anyOf": [
-            {
-              "$ref": "#/$defs/PartialDate"
-            },
-            {
-              "type": "null"
-            }
-          ],
-          "description": "Inclusive initiation date, YYYY-MM-DD; FDA device recalls only."
-        },
         "limit": {
           "default": 5,
           "description": "Five results by default; at most fifty source rows or product headers.",
@@ -405,7 +373,7 @@
               "type": "null"
             }
           ],
-          "description": "WHO manufacturer words or native FDA recalling_firm phrase."
+          "description": "Literal whole-word phrase in WHO's Manufacturer name cell."
         },
         "marker": {
           "anyOf": [
@@ -425,20 +393,9 @@
           "minimum": 0,
           "type": "integer"
         },
-        "product_code": {
-          "anyOf": [
-            {
-              "$ref": "#/$defs/Text"
-            },
-            {
-              "type": "null"
-            }
-          ],
-          "description": "Exact native FDA device recall product code."
-        },
         "source": {
           "$ref": "#/$defs/DiagnosticSearchSource",
-          "description": "Explicit native GTR, WHO IVD, FDA companion or medical device recall discovery."
+          "description": "Explicit native GTR, WHO IVD or FDA companion discovery."
         },
         "type": {
           "anyOf": [
@@ -462,8 +419,7 @@
       "enum": [
         "gtr",
         "fda-cdx",
-        "who-ivd",
-        "fda-device-recall"
+        "who-ivd"
       ],
       "type": "string"
     },
@@ -492,7 +448,6 @@
       "type": "string"
     },
     "PageInfo": {
-      "additionalProperties": false,
       "description": "Search counts after filtering and deduplication.",
       "properties": {
         "offset": {
@@ -539,13 +494,7 @@
       ],
       "type": "object"
     },
-    "PartialDate": {
-      "description": "A Gregorian date preserving year, month or day precision.",
-      "pattern": "^[0-9]{4}(-[0-9]{2}(-[0-9]{2})?)?$",
-      "type": "string"
-    },
     "PoolInfo": {
-      "additionalProperties": false,
       "description": "Fixed lifetime and size of a stored search snapshot.",
       "properties": {
         "created": {
@@ -580,7 +529,6 @@
       "type": "object"
     },
     "Problem": {
-      "additionalProperties": false,
       "description": "A field that could not be accepted from a source record.",
       "properties": {
         "code": {
@@ -616,41 +564,20 @@
     },
     "ProblemCode": {
       "description": "A stable code for a rejected field value.",
-      "enum": [
-        "value.unknown",
-        "collection.incomplete",
-        "identity.conflict"
-      ],
       "type": "string",
       "x-enum-descriptions": [
         " The field value was not recognized.",
         " Native collection exceeds the admitted complete source page.",
         " A source repeats one exact identity with incompatible records."
+      ],
+      "x-extensible-enum": [
+        "value.unknown",
+        "collection.incomplete",
+        "identity.conflict"
       ]
     },
     "Reason": {
       "description": "Why a source could not supply data.",
-      "enum": [
-        "not_found",
-        "not_open",
-        "not_pdf",
-        "unsupported",
-        "too_large",
-        "rate_limited",
-        "local_quota",
-        "unavailable",
-        "tls",
-        "proxy",
-        "rejected",
-        "bad_reply",
-        "deadline_exceeded",
-        "offline",
-        "no_key",
-        "disabled",
-        "replay_miss",
-        "syncing",
-        "no_join_id"
-      ],
       "type": "string",
       "x-enum-descriptions": [
         " The requested record was not found.",
@@ -672,84 +599,31 @@
         " No recording matched the request.",
         " The source data was being synchronized.",
         " Identity lacks the identifier required to join this source."
+      ],
+      "x-extensible-enum": [
+        "not_found",
+        "not_open",
+        "not_pdf",
+        "unsupported",
+        "too_large",
+        "rate_limited",
+        "local_quota",
+        "unavailable",
+        "tls",
+        "proxy",
+        "rejected",
+        "bad_reply",
+        "deadline_exceeded",
+        "offline",
+        "no_key",
+        "disabled",
+        "replay_miss",
+        "syncing",
+        "no_join_id"
       ]
     },
     "Source": {
       "description": "A source of BioMCP data, identified by its canonical short name.",
-      "enum": [
-        "hgnc",
-        "mygene",
-        "reactome",
-        "wikipathways",
-        "hpa",
-        "uniprot",
-        "interpro",
-        "complex-portal",
-        "gnomad",
-        "clinvar",
-        "erepo",
-        "gwas",
-        "clingen",
-        "gencc",
-        "pubmed",
-        "europepmc",
-        "litvar",
-        "litsense",
-        "semantic-scholar",
-        "orcid",
-        "pmc-oa",
-        "icite",
-        "pubtator",
-        "ctgov",
-        "nci",
-        "civic",
-        "hotspots",
-        "alphagenome",
-        "oncokb",
-        "myvariant",
-        "car",
-        "mutalyzer",
-        "variantvalidator",
-        "mychem",
-        "chembl",
-        "opentargets",
-        "openfda-label",
-        "drugsfda",
-        "ema",
-        "who-pq",
-        "ddinter",
-        "drugbank-open",
-        "drugcentral",
-        "gtopdb",
-        "unii",
-        "ndc",
-        "openfda-xref",
-        "ols",
-        "mydisease",
-        "monarch",
-        "seer",
-        "mondo",
-        "doid",
-        "ncit",
-        "hpo",
-        "orphanet",
-        "omim",
-        "faers",
-        "vaers",
-        "maude",
-        "meddra",
-        "gmdn",
-        "gtr",
-        "who-ivd",
-        "fda-cdx",
-        "fda-pma",
-        "fda-510k",
-        "fda-device-recall",
-        "cpic",
-        "clinpgx",
-        "cbioportal",
-        "cellosaurus"
-      ],
       "type": "string",
       "x-enum-descriptions": [
         " HGNC.",
@@ -819,18 +693,89 @@
         " FDA companion diagnostic device tables.",
         " openFDA premarket approval submissions.",
         " FDA native 510(k) clearance records.",
-        " openFDA medical device product recall records.",
         " Clinical Pharmacogenetics Implementation Consortium.",
         " ClinPGx pharmacogenomics annotations.",
         " Public cBioPortal with study-specific reuse terms.",
         " Cellosaurus cell line identity."
+      ],
+      "x-extensible-enum": [
+        "hgnc",
+        "mygene",
+        "reactome",
+        "wikipathways",
+        "hpa",
+        "uniprot",
+        "interpro",
+        "complex-portal",
+        "gnomad",
+        "clinvar",
+        "erepo",
+        "gwas",
+        "clingen",
+        "gencc",
+        "pubmed",
+        "europepmc",
+        "litvar",
+        "litsense",
+        "semantic-scholar",
+        "orcid",
+        "pmc-oa",
+        "icite",
+        "pubtator",
+        "ctgov",
+        "nci",
+        "civic",
+        "hotspots",
+        "alphagenome",
+        "oncokb",
+        "myvariant",
+        "car",
+        "mutalyzer",
+        "variantvalidator",
+        "mychem",
+        "chembl",
+        "opentargets",
+        "openfda-label",
+        "drugsfda",
+        "ema",
+        "who-pq",
+        "ddinter",
+        "drugbank-open",
+        "drugcentral",
+        "gtopdb",
+        "unii",
+        "ndc",
+        "openfda-xref",
+        "ols",
+        "mydisease",
+        "monarch",
+        "seer",
+        "mondo",
+        "doid",
+        "ncit",
+        "hpo",
+        "orphanet",
+        "omim",
+        "faers",
+        "vaers",
+        "maude",
+        "meddra",
+        "gmdn",
+        "gtr",
+        "who-ivd",
+        "fda-cdx",
+        "fda-pma",
+        "fda-510k",
+        "cpic",
+        "clinpgx",
+        "cbioportal",
+        "cellosaurus"
       ]
     },
     "SourceNotice": {
       "description": "A source notice or request recovery step.",
       "oneOf": [
         {
-          "additionalProperties": false,
           "description": "Local request limits and source-specific recovery guidance.",
           "properties": {
             "kind": {
@@ -858,7 +803,6 @@
           "type": "object"
         },
         {
-          "additionalProperties": false,
           "description": "Registered conditions lack the literal words requested in a condition search.",
           "properties": {
             "kind": {
@@ -877,7 +821,6 @@
           "type": "object"
         },
         {
-          "additionalProperties": false,
           "description": "A checked provider answer survived a local cache failure.",
           "properties": {
             "kind": {
@@ -896,7 +839,6 @@
           "type": "object"
         },
         {
-          "additionalProperties": false,
           "description": "The source still has graph pages after the bounded fetch window.",
           "properties": {
             "fallback": {
@@ -915,7 +857,6 @@
           "type": "object"
         },
         {
-          "additionalProperties": false,
           "description": "An empty LitVar lookup can be repeated with a caller-supplied rsID.",
           "properties": {
             "kind": {
@@ -934,7 +875,6 @@
           "type": "object"
         },
         {
-          "additionalProperties": false,
           "description": "PubMed supplied a named ESearch warning without changing its phrases.",
           "properties": {
             "kind": {
@@ -960,7 +900,6 @@
           "type": "object"
         },
         {
-          "additionalProperties": false,
           "description": "PubMed did not index these words.",
           "properties": {
             "kind": {
@@ -983,7 +922,6 @@
       ]
     },
     "SourceOutcome": {
-      "additionalProperties": false,
       "description": "One source's outcome, without provider text.",
       "properties": {
         "count": {
@@ -1086,7 +1024,6 @@
       "type": "string"
     },
     "Step": {
-      "additionalProperties": false,
       "description": "A command argument list spelled from a typed action.",
       "properties": {
         "args": {
@@ -1140,8 +1077,7 @@
   },
   "$id": "biomcp.diagnostic-companion/1",
   "$schema": "https://json-schema.org/draft/2020-12/schema",
-  "additionalProperties": false,
-  "description": "One versioned command response; schema identity comes only from its body type.",
+  "description": "One versioned command response; schema identity comes only from its body type.\nJSON readers ignore unknown fields and unknown growable enum values within a major.",
   "properties": {
     "local_error": {
       "anyOf": [

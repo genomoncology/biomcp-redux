@@ -2,7 +2,6 @@ use crate::{Source, SourceRecord, Text, Variant, VariantGet};
 use serde::{Deserialize, Serialize};
 /// A compact identity card, including every provider candidate and explicit rejection.
 #[derive(Clone, Debug, PartialEq, Serialize, Deserialize)]
-#[serde(deny_unknown_fields)]
 #[cfg_attr(feature = "schema", derive(schemars::JsonSchema))]
 pub struct VariantCard {
     /// Identity outcome, without selecting the first candidate.
@@ -23,7 +22,6 @@ impl super::ResponseBody for VariantCard {
 
 /// Consumer identity header with an exact source selection and compact annotation entity.
 #[derive(Clone, Debug, PartialEq, Serialize, Deserialize)]
-#[serde(deny_unknown_fields)]
 #[cfg_attr(feature = "schema", derive(schemars::JsonSchema))]
 pub struct VariantHeader {
     /// Source-qualified variant entity.
@@ -68,7 +66,6 @@ biodata::wire_enum! {
 
 /// Source-specific sections, absent unless explicitly selected.
 #[derive(Clone, Debug, PartialEq, Serialize, Deserialize, Default)]
-#[serde(deny_unknown_fields)]
 #[cfg_attr(feature = "schema", derive(schemars::JsonSchema))]
 pub struct VariantSections {
     /// Native prediction scores.
@@ -109,7 +106,6 @@ pub struct VariantSections {
 
 /// One native MyVariant candidate page; its total and offset are in the shared envelope.
 #[derive(Clone, Debug, PartialEq, Serialize, Deserialize)]
-#[serde(deny_unknown_fields)]
 #[cfg_attr(feature = "schema", derive(schemars::JsonSchema))]
 pub struct VariantPage {
     /// Independent publisher terms for the declared dbNSFP gene/protein selector.
@@ -135,7 +131,6 @@ impl super::ResponseBody for VariantPage {
 
 /// A source-paired transcript annotation, without inferred transcript equivalence.
 #[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
-#[serde(deny_unknown_fields)]
 #[cfg_attr(feature = "schema", derive(schemars::JsonSchema))]
 pub struct VariantTranscript {
     /// Provider carrying this annotation.

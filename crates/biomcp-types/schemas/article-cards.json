@@ -1,7 +1,6 @@
 {
   "$defs": {
     "AbstractPart": {
-      "additionalProperties": false,
       "description": "One source-labelled abstract paragraph.",
       "properties": {
         "label": {
@@ -26,7 +25,6 @@
       "type": "object"
     },
     "AnnotatedEntity": {
-      "additionalProperties": false,
       "description": "One normalized entity with its mention count.",
       "properties": {
         "count": {
@@ -97,22 +95,21 @@
     },
     "AnnotationKind": {
       "description": "Normalized annotation category in deterministic tie order.",
-      "enum": [
-        "gene",
-        "variant",
-        "disease",
-        "chemical"
-      ],
       "type": "string",
       "x-enum-descriptions": [
         " Gene mention.",
         " Genetic variant mention.",
         " Disease mention.",
         " Chemical mention."
+      ],
+      "x-extensible-enum": [
+        "gene",
+        "variant",
+        "disease",
+        "chemical"
       ]
     },
     "Article": {
-      "additionalProperties": false,
       "anyOf": [
         {
           "required": [
@@ -222,7 +219,6 @@
       "type": "object"
     },
     "ArticleCardItem": {
-      "additionalProperties": false,
       "description": "Answer to one input; shared DOIs may expand to several consecutive items.",
       "properties": {
         "answer": {
@@ -270,7 +266,6 @@
       "type": "object"
     },
     "ArticleCards": {
-      "additionalProperties": false,
       "description": "Cards in caller order.",
       "properties": {
         "items": {
@@ -284,7 +279,6 @@
       "type": "object"
     },
     "ArticleGet": {
-      "additionalProperties": false,
       "description": "Get one to twenty article inputs in caller order.",
       "properties": {
         "input": {
@@ -317,7 +311,6 @@
       "type": "string"
     },
     "ArticleMatch": {
-      "additionalProperties": false,
       "description": "Identity evidence for an article card.",
       "properties": {
         "kind": {
@@ -332,25 +325,24 @@
     },
     "ArticleMatchKind": {
       "description": "Identifier used to resolve this article.",
-      "enum": [
-        "pmid",
-        "pmcid",
-        "doi",
-        "europepmc_id"
-      ],
       "type": "string",
       "x-enum-descriptions": [
         " PubMed identifier.",
         " PMC identifier.",
         " Digital object identifier.",
         " Europe PMC preprint identifier."
+      ],
+      "x-extensible-enum": [
+        "pmid",
+        "pmcid",
+        "doi",
+        "europepmc_id"
       ]
     },
     "ArticleResolution": {
       "description": "Result of resolving an article selector.",
       "oneOf": [
         {
-          "additionalProperties": false,
           "description": "A record whose own identity agrees with the input.",
           "properties": {
             "card": {
@@ -381,7 +373,6 @@
           "type": "object"
         },
         {
-          "additionalProperties": false,
           "description": "The source confirmed no matching record.",
           "properties": {
             "resolution": {
@@ -398,15 +389,6 @@
     },
     "ArticleSection": {
       "description": "A landed article section.",
-      "enum": [
-        "fulltext",
-        "supplements",
-        "annotations",
-        "tldr",
-        "citations",
-        "indexing",
-        "pdf"
-      ],
       "type": "string",
       "x-enum-descriptions": [
         " Licensed PMC body outline.",
@@ -416,20 +398,19 @@
         " Citation counts from NIH iCite.",
         " MeSH, keywords and author indexing from the citation.",
         " Publisher PDF link without downloading."
+      ],
+      "x-extensible-enum": [
+        "fulltext",
+        "supplements",
+        "annotations",
+        "tldr",
+        "citations",
+        "indexing",
+        "pdf"
       ]
     },
     "ArticleSectionWord": {
       "description": "Article section request including all landed sections.",
-      "enum": [
-        "annotations",
-        "fulltext",
-        "supplements",
-        "tldr",
-        "citations",
-        "indexing",
-        "pdf",
-        "all"
-      ],
       "type": "string",
       "x-enum-descriptions": [
         " Normalized text-mined entities from PubTator3.",
@@ -440,10 +421,19 @@
         " MeSH, keywords and author indexing from the citation.",
         " Publisher PDF link without downloading.",
         " Every landed article section."
+      ],
+      "x-extensible-enum": [
+        "annotations",
+        "fulltext",
+        "supplements",
+        "tldr",
+        "citations",
+        "indexing",
+        "pdf",
+        "all"
       ]
     },
     "ArticleSections": {
-      "additionalProperties": false,
       "description": "Landed article sections with independent source states.",
       "properties": {
         "annotations": {
@@ -536,7 +526,6 @@
       "type": "string"
     },
     "Capped": {
-      "additionalProperties": false,
       "description": "A bounded list with the total before its cap was applied.",
       "properties": {
         "items": {
@@ -559,7 +548,6 @@
       "type": "object"
     },
     "Capped2": {
-      "additionalProperties": false,
       "description": "A bounded list with the total before its cap was applied.",
       "properties": {
         "items": {
@@ -582,7 +570,6 @@
       "type": "object"
     },
     "Citations": {
-      "additionalProperties": false,
       "description": "Independently reported iCite counts; absent lists are never confirmed zeros.",
       "properties": {
         "cited_by": {
@@ -627,7 +614,6 @@
       "type": "object"
     },
     "Correction": {
-      "additionalProperties": false,
       "description": "One correction relationship supplied by PubMed.",
       "properties": {
         "kind": {
@@ -651,28 +637,28 @@
     },
     "CorrectionKind": {
       "description": "Source correction relationship kind.",
-      "enum": [
-        "retraction",
-        "erratum",
-        "expression_of_concern"
-      ],
       "type": "string",
       "x-enum-descriptions": [
         " Retraction relationship.",
         " Erratum relationship.",
         " Expression of concern relationship."
+      ],
+      "x-extensible-enum": [
+        "retraction",
+        "erratum",
+        "expression_of_concern"
       ]
     },
     "CorrectionRelation": {
       "description": "Direction of a source correction relationship.",
-      "enum": [
-        "notice",
-        "original"
-      ],
       "type": "string",
       "x-enum-descriptions": [
         " The related record is the notice.",
         " The related record is the original."
+      ],
+      "x-extensible-enum": [
+        "notice",
+        "original"
       ]
     },
     "Doi": {
@@ -686,7 +672,6 @@
       "type": "string"
     },
     "FigureCaption": {
-      "additionalProperties": false,
       "description": "Figure text in document order.",
       "properties": {
         "caption": {
@@ -706,14 +691,6 @@
     },
     "FileKind": {
       "description": "Supplement format from an explicit JATS MIME declaration, with suffix fallback.",
-      "enum": [
-        "xlsx",
-        "csv",
-        "tsv",
-        "txt",
-        "pdf",
-        "other"
-      ],
       "type": "string",
       "x-enum-descriptions": [
         " Excel workbook.",
@@ -722,6 +699,14 @@
         " Plain text lines.",
         " PDF download offered without parsing.",
         " Other source format."
+      ],
+      "x-extensible-enum": [
+        "xlsx",
+        "csv",
+        "tsv",
+        "txt",
+        "pdf",
+        "other"
       ]
     },
     "FiniteNumber": {
@@ -730,7 +715,6 @@
       "type": "number"
     },
     "FullText": {
-      "additionalProperties": false,
       "description": "Bucket license and body outline; processing version is not publication chronology.",
       "properties": {
         "figures": {
@@ -768,7 +752,6 @@
       "type": "object"
     },
     "Indexing": {
-      "additionalProperties": false,
       "description": "Index terms and author identities supplied by this article's EFetch citation.",
       "properties": {
         "affiliations": {
@@ -804,18 +787,6 @@
     },
     "License": {
       "description": "License reported by the bucket metadata record.",
-      "enum": [
-        "cc_by",
-        "cc_by_nc",
-        "cc_by_sa",
-        "cc_by_nc_sa",
-        "cc_by_nd",
-        "cc_by_nc_nd",
-        "cc0",
-        "public_domain",
-        "tdm",
-        "other"
-      ],
       "type": "string",
       "x-enum-descriptions": [
         " Creative Commons Attribution.",
@@ -828,6 +799,18 @@
         " Public domain.",
         " Text and data mining manuscript terms.",
         " The bucket reports another license."
+      ],
+      "x-extensible-enum": [
+        "cc_by",
+        "cc_by_nc",
+        "cc_by_sa",
+        "cc_by_nc_sa",
+        "cc_by_nd",
+        "cc_by_nc_nd",
+        "cc0",
+        "public_domain",
+        "tdm",
+        "other"
       ]
     },
     "Markdown": {
@@ -837,7 +820,6 @@
       "type": "string"
     },
     "MeshHeading": {
-      "additionalProperties": false,
       "description": "A MeSH descriptor and its qualifiers retain their independent major-topic flags.",
       "properties": {
         "descriptor": {
@@ -863,7 +845,6 @@
       "type": "object"
     },
     "MeshQualifier": {
-      "additionalProperties": false,
       "description": "A qualifier attached to a MeSH descriptor.",
       "properties": {
         "major": {
@@ -888,13 +869,6 @@
     },
     "OpenAccessStatus": {
       "description": "Open-access status supplied by the paper-link provider.",
-      "enum": [
-        "gold",
-        "hybrid",
-        "bronze",
-        "green",
-        "closed"
-      ],
       "type": "string",
       "x-enum-descriptions": [
         " Publisher open access.",
@@ -902,10 +876,16 @@
         " Free publisher copy without an open license claim.",
         " Repository copy.",
         " No open copy."
+      ],
+      "x-extensible-enum": [
+        "gold",
+        "hybrid",
+        "bronze",
+        "green",
+        "closed"
       ]
     },
     "PageInfo": {
-      "additionalProperties": false,
       "description": "Search counts after filtering and deduplication.",
       "properties": {
         "offset": {
@@ -958,7 +938,6 @@
       "type": "string"
     },
     "PdfLink": {
-      "additionalProperties": false,
       "description": "Source-reported PDF link. Reading this section never downloads the file.",
       "properties": {
         "license": {
@@ -993,7 +972,6 @@
       "type": "string"
     },
     "PoolInfo": {
-      "additionalProperties": false,
       "description": "Fixed lifetime and size of a stored search snapshot.",
       "properties": {
         "created": {
@@ -1028,7 +1006,6 @@
       "type": "object"
     },
     "Problem": {
-      "additionalProperties": false,
       "description": "A field that could not be accepted from a source record.",
       "properties": {
         "code": {
@@ -1064,43 +1041,20 @@
     },
     "ProblemCode": {
       "description": "A stable code for a rejected field value.",
-      "enum": [
-        "value.unknown",
-        "collection.incomplete",
-        "identity.conflict"
-      ],
       "type": "string",
       "x-enum-descriptions": [
         " The field value was not recognized.",
         " Native collection exceeds the admitted complete source page.",
         " A source repeats one exact identity with incompatible records."
+      ],
+      "x-extensible-enum": [
+        "value.unknown",
+        "collection.incomplete",
+        "identity.conflict"
       ]
     },
     "PublicationType": {
       "description": "Clinically meaningful PubMed publication types.",
-      "enum": [
-        "randomized_controlled_trial",
-        "clinical_trial",
-        "clinical_trial_phase_1",
-        "clinical_trial_phase_2",
-        "clinical_trial_phase_3",
-        "clinical_trial_phase_4",
-        "meta_analysis",
-        "systematic_review",
-        "review",
-        "practice_guideline",
-        "guideline",
-        "case_report",
-        "observational_study",
-        "multicenter_study",
-        "letter",
-        "comment",
-        "editorial",
-        "preprint",
-        "retracted_publication",
-        "retraction_notice",
-        "erratum"
-      ],
       "type": "string",
       "x-enum-descriptions": [
         " Randomized controlled trial.",
@@ -1124,31 +1078,33 @@
         " Retracted publication.",
         " Retraction notice.",
         " Erratum."
+      ],
+      "x-extensible-enum": [
+        "randomized_controlled_trial",
+        "clinical_trial",
+        "clinical_trial_phase_1",
+        "clinical_trial_phase_2",
+        "clinical_trial_phase_3",
+        "clinical_trial_phase_4",
+        "meta_analysis",
+        "systematic_review",
+        "review",
+        "practice_guideline",
+        "guideline",
+        "case_report",
+        "observational_study",
+        "multicenter_study",
+        "letter",
+        "comment",
+        "editorial",
+        "preprint",
+        "retracted_publication",
+        "retraction_notice",
+        "erratum"
       ]
     },
     "Reason": {
       "description": "Why a source could not supply data.",
-      "enum": [
-        "not_found",
-        "not_open",
-        "not_pdf",
-        "unsupported",
-        "too_large",
-        "rate_limited",
-        "local_quota",
-        "unavailable",
-        "tls",
-        "proxy",
-        "rejected",
-        "bad_reply",
-        "deadline_exceeded",
-        "offline",
-        "no_key",
-        "disabled",
-        "replay_miss",
-        "syncing",
-        "no_join_id"
-      ],
       "type": "string",
       "x-enum-descriptions": [
         " The requested record was not found.",
@@ -1170,13 +1126,33 @@
         " No recording matched the request.",
         " The source data was being synchronized.",
         " Identity lacks the identifier required to join this source."
+      ],
+      "x-extensible-enum": [
+        "not_found",
+        "not_open",
+        "not_pdf",
+        "unsupported",
+        "too_large",
+        "rate_limited",
+        "local_quota",
+        "unavailable",
+        "tls",
+        "proxy",
+        "rejected",
+        "bad_reply",
+        "deadline_exceeded",
+        "offline",
+        "no_key",
+        "disabled",
+        "replay_miss",
+        "syncing",
+        "no_join_id"
       ]
     },
     "Section": {
       "description": "A requested section has exactly one state.",
       "oneOf": [
         {
-          "additionalProperties": false,
           "description": "The source returned data.",
           "properties": {
             "data": {
@@ -1200,7 +1176,6 @@
           "type": "object"
         },
         {
-          "additionalProperties": false,
           "description": "The source answered with no data.",
           "properties": {
             "record": {
@@ -1230,7 +1205,6 @@
           "type": "object"
         },
         {
-          "additionalProperties": false,
           "description": "A requested source failed.",
           "properties": {
             "reason": {
@@ -1254,7 +1228,6 @@
           "type": "object"
         },
         {
-          "additionalProperties": false,
           "description": "User settings prevented the source request.",
           "properties": {
             "reason": {
@@ -1278,7 +1251,6 @@
           "type": "object"
         },
         {
-          "additionalProperties": false,
           "description": "Entity facts rule this section out.",
           "properties": {
             "state": {
@@ -1297,7 +1269,6 @@
       "description": "A requested section has exactly one state.",
       "oneOf": [
         {
-          "additionalProperties": false,
           "description": "The source returned data.",
           "properties": {
             "data": {
@@ -1321,7 +1292,6 @@
           "type": "object"
         },
         {
-          "additionalProperties": false,
           "description": "The source answered with no data.",
           "properties": {
             "record": {
@@ -1351,7 +1321,6 @@
           "type": "object"
         },
         {
-          "additionalProperties": false,
           "description": "A requested source failed.",
           "properties": {
             "reason": {
@@ -1375,7 +1344,6 @@
           "type": "object"
         },
         {
-          "additionalProperties": false,
           "description": "User settings prevented the source request.",
           "properties": {
             "reason": {
@@ -1399,7 +1367,6 @@
           "type": "object"
         },
         {
-          "additionalProperties": false,
           "description": "Entity facts rule this section out.",
           "properties": {
             "state": {
@@ -1418,7 +1385,6 @@
       "description": "A requested section has exactly one state.",
       "oneOf": [
         {
-          "additionalProperties": false,
           "description": "The source returned data.",
           "properties": {
             "data": {
@@ -1442,7 +1408,6 @@
           "type": "object"
         },
         {
-          "additionalProperties": false,
           "description": "The source answered with no data.",
           "properties": {
             "record": {
@@ -1472,7 +1437,6 @@
           "type": "object"
         },
         {
-          "additionalProperties": false,
           "description": "A requested source failed.",
           "properties": {
             "reason": {
@@ -1496,7 +1460,6 @@
           "type": "object"
         },
         {
-          "additionalProperties": false,
           "description": "User settings prevented the source request.",
           "properties": {
             "reason": {
@@ -1520,7 +1483,6 @@
           "type": "object"
         },
         {
-          "additionalProperties": false,
           "description": "Entity facts rule this section out.",
           "properties": {
             "state": {
@@ -1539,7 +1501,6 @@
       "description": "A requested section has exactly one state.",
       "oneOf": [
         {
-          "additionalProperties": false,
           "description": "The source returned data.",
           "properties": {
             "data": {
@@ -1563,7 +1524,6 @@
           "type": "object"
         },
         {
-          "additionalProperties": false,
           "description": "The source answered with no data.",
           "properties": {
             "record": {
@@ -1593,7 +1553,6 @@
           "type": "object"
         },
         {
-          "additionalProperties": false,
           "description": "A requested source failed.",
           "properties": {
             "reason": {
@@ -1617,7 +1576,6 @@
           "type": "object"
         },
         {
-          "additionalProperties": false,
           "description": "User settings prevented the source request.",
           "properties": {
             "reason": {
@@ -1641,7 +1599,6 @@
           "type": "object"
         },
         {
-          "additionalProperties": false,
           "description": "Entity facts rule this section out.",
           "properties": {
             "state": {
@@ -1660,7 +1617,6 @@
       "description": "A requested section has exactly one state.",
       "oneOf": [
         {
-          "additionalProperties": false,
           "description": "The source returned data.",
           "properties": {
             "data": {
@@ -1684,7 +1640,6 @@
           "type": "object"
         },
         {
-          "additionalProperties": false,
           "description": "The source answered with no data.",
           "properties": {
             "record": {
@@ -1714,7 +1669,6 @@
           "type": "object"
         },
         {
-          "additionalProperties": false,
           "description": "A requested source failed.",
           "properties": {
             "reason": {
@@ -1738,7 +1692,6 @@
           "type": "object"
         },
         {
-          "additionalProperties": false,
           "description": "User settings prevented the source request.",
           "properties": {
             "reason": {
@@ -1762,7 +1715,6 @@
           "type": "object"
         },
         {
-          "additionalProperties": false,
           "description": "Entity facts rule this section out.",
           "properties": {
             "state": {
@@ -1781,7 +1733,6 @@
       "description": "A requested section has exactly one state.",
       "oneOf": [
         {
-          "additionalProperties": false,
           "description": "The source returned data.",
           "properties": {
             "data": {
@@ -1805,7 +1756,6 @@
           "type": "object"
         },
         {
-          "additionalProperties": false,
           "description": "The source answered with no data.",
           "properties": {
             "record": {
@@ -1835,7 +1785,6 @@
           "type": "object"
         },
         {
-          "additionalProperties": false,
           "description": "A requested source failed.",
           "properties": {
             "reason": {
@@ -1859,7 +1808,6 @@
           "type": "object"
         },
         {
-          "additionalProperties": false,
           "description": "User settings prevented the source request.",
           "properties": {
             "reason": {
@@ -1883,7 +1831,6 @@
           "type": "object"
         },
         {
-          "additionalProperties": false,
           "description": "Entity facts rule this section out.",
           "properties": {
             "state": {
@@ -1902,7 +1849,6 @@
       "description": "A requested section has exactly one state.",
       "oneOf": [
         {
-          "additionalProperties": false,
           "description": "The source returned data.",
           "properties": {
             "data": {
@@ -1926,7 +1872,6 @@
           "type": "object"
         },
         {
-          "additionalProperties": false,
           "description": "The source answered with no data.",
           "properties": {
             "record": {
@@ -1956,7 +1901,6 @@
           "type": "object"
         },
         {
-          "additionalProperties": false,
           "description": "A requested source failed.",
           "properties": {
             "reason": {
@@ -1980,7 +1924,6 @@
           "type": "object"
         },
         {
-          "additionalProperties": false,
           "description": "User settings prevented the source request.",
           "properties": {
             "reason": {
@@ -2004,7 +1947,6 @@
           "type": "object"
         },
         {
-          "additionalProperties": false,
           "description": "Entity facts rule this section out.",
           "properties": {
             "state": {
@@ -2021,80 +1963,6 @@
     },
     "Source": {
       "description": "A source of BioMCP data, identified by its canonical short name.",
-      "enum": [
-        "hgnc",
-        "mygene",
-        "reactome",
-        "wikipathways",
-        "hpa",
-        "uniprot",
-        "interpro",
-        "complex-portal",
-        "gnomad",
-        "clinvar",
-        "erepo",
-        "gwas",
-        "clingen",
-        "gencc",
-        "pubmed",
-        "europepmc",
-        "litvar",
-        "litsense",
-        "semantic-scholar",
-        "orcid",
-        "pmc-oa",
-        "icite",
-        "pubtator",
-        "ctgov",
-        "nci",
-        "civic",
-        "hotspots",
-        "alphagenome",
-        "oncokb",
-        "myvariant",
-        "car",
-        "mutalyzer",
-        "variantvalidator",
-        "mychem",
-        "chembl",
-        "opentargets",
-        "openfda-label",
-        "drugsfda",
-        "ema",
-        "who-pq",
-        "ddinter",
-        "drugbank-open",
-        "drugcentral",
-        "gtopdb",
-        "unii",
-        "ndc",
-        "openfda-xref",
-        "ols",
-        "mydisease",
-        "monarch",
-        "seer",
-        "mondo",
-        "doid",
-        "ncit",
-        "hpo",
-        "orphanet",
-        "omim",
-        "faers",
-        "vaers",
-        "maude",
-        "meddra",
-        "gmdn",
-        "gtr",
-        "who-ivd",
-        "fda-cdx",
-        "fda-pma",
-        "fda-510k",
-        "fda-device-recall",
-        "cpic",
-        "clinpgx",
-        "cbioportal",
-        "cellosaurus"
-      ],
       "type": "string",
       "x-enum-descriptions": [
         " HGNC.",
@@ -2164,18 +2032,89 @@
         " FDA companion diagnostic device tables.",
         " openFDA premarket approval submissions.",
         " FDA native 510(k) clearance records.",
-        " openFDA medical device product recall records.",
         " Clinical Pharmacogenetics Implementation Consortium.",
         " ClinPGx pharmacogenomics annotations.",
         " Public cBioPortal with study-specific reuse terms.",
         " Cellosaurus cell line identity."
+      ],
+      "x-extensible-enum": [
+        "hgnc",
+        "mygene",
+        "reactome",
+        "wikipathways",
+        "hpa",
+        "uniprot",
+        "interpro",
+        "complex-portal",
+        "gnomad",
+        "clinvar",
+        "erepo",
+        "gwas",
+        "clingen",
+        "gencc",
+        "pubmed",
+        "europepmc",
+        "litvar",
+        "litsense",
+        "semantic-scholar",
+        "orcid",
+        "pmc-oa",
+        "icite",
+        "pubtator",
+        "ctgov",
+        "nci",
+        "civic",
+        "hotspots",
+        "alphagenome",
+        "oncokb",
+        "myvariant",
+        "car",
+        "mutalyzer",
+        "variantvalidator",
+        "mychem",
+        "chembl",
+        "opentargets",
+        "openfda-label",
+        "drugsfda",
+        "ema",
+        "who-pq",
+        "ddinter",
+        "drugbank-open",
+        "drugcentral",
+        "gtopdb",
+        "unii",
+        "ndc",
+        "openfda-xref",
+        "ols",
+        "mydisease",
+        "monarch",
+        "seer",
+        "mondo",
+        "doid",
+        "ncit",
+        "hpo",
+        "orphanet",
+        "omim",
+        "faers",
+        "vaers",
+        "maude",
+        "meddra",
+        "gmdn",
+        "gtr",
+        "who-ivd",
+        "fda-cdx",
+        "fda-pma",
+        "fda-510k",
+        "cpic",
+        "clinpgx",
+        "cbioportal",
+        "cellosaurus"
       ]
     },
     "SourceNotice": {
       "description": "A source notice or request recovery step.",
       "oneOf": [
         {
-          "additionalProperties": false,
           "description": "Local request limits and source-specific recovery guidance.",
           "properties": {
             "kind": {
@@ -2203,7 +2142,6 @@
           "type": "object"
         },
         {
-          "additionalProperties": false,
           "description": "Registered conditions lack the literal words requested in a condition search.",
           "properties": {
             "kind": {
@@ -2222,7 +2160,6 @@
           "type": "object"
         },
         {
-          "additionalProperties": false,
           "description": "A checked provider answer survived a local cache failure.",
           "properties": {
             "kind": {
@@ -2241,7 +2178,6 @@
           "type": "object"
         },
         {
-          "additionalProperties": false,
           "description": "The source still has graph pages after the bounded fetch window.",
           "properties": {
             "fallback": {
@@ -2260,7 +2196,6 @@
           "type": "object"
         },
         {
-          "additionalProperties": false,
           "description": "An empty LitVar lookup can be repeated with a caller-supplied rsID.",
           "properties": {
             "kind": {
@@ -2279,7 +2214,6 @@
           "type": "object"
         },
         {
-          "additionalProperties": false,
           "description": "PubMed supplied a named ESearch warning without changing its phrases.",
           "properties": {
             "kind": {
@@ -2305,7 +2239,6 @@
           "type": "object"
         },
         {
-          "additionalProperties": false,
           "description": "PubMed did not index these words.",
           "properties": {
             "kind": {
@@ -2328,7 +2261,6 @@
       ]
     },
     "SourceOutcome": {
-      "additionalProperties": false,
       "description": "One source's outcome, without provider text.",
       "properties": {
         "count": {
@@ -2410,7 +2342,6 @@
       "type": "object"
     },
     "SourceRecord": {
-      "additionalProperties": false,
       "description": "The source's own entry for an entity.",
       "properties": {
         "id": {
@@ -2457,7 +2388,6 @@
       "type": "string"
     },
     "Step": {
-      "additionalProperties": false,
       "description": "A command argument list spelled from a typed action.",
       "properties": {
         "args": {
@@ -2494,7 +2424,6 @@
       "type": "string"
     },
     "SupplementFile": {
-      "additionalProperties": false,
       "description": "A JATS supplement confirmed by the same processing record.",
       "properties": {
         "caption": {
@@ -2535,7 +2464,6 @@
       "type": "object"
     },
     "Supplements": {
-      "additionalProperties": false,
       "description": "Available supplements with their owning article license.",
       "properties": {
         "files": {
@@ -2561,7 +2489,6 @@
       "type": "string"
     },
     "TextPart": {
-      "additionalProperties": false,
       "description": "One independently readable bounded part.",
       "properties": {
         "kind": {
@@ -2595,18 +2522,17 @@
     },
     "TextPartKind": {
       "description": "Body part kind.",
-      "enum": [
-        "section",
-        "table"
-      ],
       "type": "string",
       "x-enum-descriptions": [
         " Top-level body section.",
         " Table, including caption and rows."
+      ],
+      "x-extensible-enum": [
+        "section",
+        "table"
       ]
     },
     "Tldr": {
-      "additionalProperties": false,
       "description": "Machine-written source summary with independently reported counts.",
       "properties": {
         "cited_by": {
@@ -2660,8 +2586,7 @@
   },
   "$id": "biomcp.article-cards/4",
   "$schema": "https://json-schema.org/draft/2020-12/schema",
-  "additionalProperties": false,
-  "description": "One versioned command response; schema identity comes only from its body type.",
+  "description": "One versioned command response; schema identity comes only from its body type.\nJSON readers ignore unknown fields and unknown growable enum values within a major.",
   "properties": {
     "local_error": {
       "anyOf": [

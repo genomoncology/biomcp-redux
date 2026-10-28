@@ -70,6 +70,10 @@ def check(path):
         print(f"Schema baseline: {metadata.get('version')} "
               f"({metadata.get('status')}, {metadata.get('source_commit')})", flush=True)
         environment = dict(os.environ, BIOMCP_SCHEMA_BASELINE=folder)
+        reviews = path.with_name("schema-reviews.json")
+        environment.pop("BIOMCP_SCHEMA_REVIEWS", None)
+        if reviews.exists():
+            environment["BIOMCP_SCHEMA_REVIEWS"] = str(reviews.resolve())
         # Run both the release comparison and the default generation/drift check.
         environment.pop("UPDATE_SCHEMAS", None)
         subprocess.run([

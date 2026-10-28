@@ -2,7 +2,6 @@ use crate::{Attribution, InterProId, Text, UncertainSpan0, UniProtIsoform};
 use serde::{Deserialize, Serialize};
 /// One native integrated InterPro match; not every entry type is a domain.
 #[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
-#[serde(deny_unknown_fields)]
 #[cfg_attr(feature = "schema", derive(schemars::JsonSchema))]
 pub struct ProteinDomainMatch {
     /// Integrated entry accession, distinct from member signatures.
@@ -32,7 +31,6 @@ pub struct ProteinDomainMatch {
 }
 /// One native InterPro location group retaining all discontinuous fragments.
 #[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
-#[serde(deny_unknown_fields)]
 #[cfg_attr(feature = "schema", derive(schemars::JsonSchema))]
 pub struct ProteinDomainLocation {
     /// All native fragments; never reduced to a min/max hull.
@@ -41,7 +39,6 @@ pub struct ProteinDomainLocation {
 }
 /// One native match fragment after coordinate conversion.
 #[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
-#[serde(deny_unknown_fields)]
 #[cfg_attr(feature = "schema", derive(schemars::JsonSchema))]
 pub struct ProteinDomainFragment {
     /// Converted interbase span with uncertainty retained.
@@ -52,7 +49,6 @@ pub struct ProteinDomainFragment {
 }
 /// A member database signature, not an integrated IPR entry.
 #[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
-#[serde(deny_unknown_fields)]
 #[cfg_attr(feature = "schema", derive(schemars::JsonSchema))]
 pub struct ProteinMemberSignature {
     /// Native member database name.

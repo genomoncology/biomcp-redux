@@ -97,7 +97,7 @@ pub fn get(leg: &Leg<'_>, q: &PhenotypeGet) -> Result<Record, RequestError> {
                 description: node.description,
                 deprecated: node.deprecated,
                 monarch_descendant_count: node.has_descendant_count,
-                association_counts: node.association_counts,
+                association_counts: node.association_counts.map(|v| v.0),
             },
             sections: sections.into(),
             components: super::components()?,
@@ -137,7 +137,8 @@ fn sections(node: &raw::Node) -> Vec<PhenotypeSection> {
     ] {
         if node
             .association_counts
-            .as_deref()
+            .as_ref()
+            .map(|v| v.0.as_ref())
             .unwrap_or_default()
             .iter()
             .any(|count| count.key.to_string() == key)

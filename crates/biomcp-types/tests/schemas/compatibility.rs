@@ -1,3 +1,4 @@
+use super::policy::{ContractKind, Reviews};
 use serde_json::Value;
 use std::collections::{BTreeMap, BTreeSet};
 
@@ -9,6 +10,8 @@ const STRING_FORMATS: &[&str] = &["date", "date-time", "uri", "uri-reference"];
 struct Shape {
     types: BTreeSet<String>,
     values: Option<BTreeSet<String>>,
+    open_enum: bool,
+    enum_assertion: bool,
     required: BTreeSet<String>,
     selectors: Option<Vec<BTreeSet<String>>>,
     minimum_length: u64,
@@ -28,11 +31,25 @@ struct Shape {
 }
 
 pub(super) fn check(old: &Value, new: &Value) -> Check<()> {
+    check_reviewed(old, new, ContractKind::Query, &Reviews::default())
+}
+
+pub(super) fn check_reviewed(
+    old: &Value,
+    new: &Value,
+    kind: ContractKind,
+    reviews: &Reviews,
+) -> Check<()> {
     let old_shapes = shapes(old)?;
     let new_shapes = shapes(new)?;
     let (old_name, old_major) = identity(old)?;
     let (new_name, new_major) = identity(new)?;
-    if old_name != new_name || new_major < old_major {
+    if new_major < old_major
+        || old_name != new_name
+            && !(new_major > old_major
+                && matches!(kind, ContractKind::Reply)
+                && reviews.successor(old, new))
+    {
         return Err("schema identity changed or major version decreased".into());
     }
     if new_major > old_major {
@@ -52,6 +69,14 @@ pub(super) fn check(old: &Value, new: &Value) -> Check<()> {
                 .as_ref()
                 .is_some_and(|format| new.string_format.as_ref() != Some(format))
             || old.pattern != new.pattern
+                && !(matches!(kind, ContractKind::Reply)
+                    && reviews.pattern(
+                        old_name,
+                        old_major,
+                        &path,
+                        old.pattern.as_deref(),
+                        new.pattern.as_deref(),
+                    ))
             || new
                 .minimum
                 .is_some_and(|bound| old.minimum.is_none_or(|old| bound > old))
@@ -64,8 +89,12 @@ pub(super) fn check(old: &Value, new: &Value) -> Check<()> {
                         .any(|old| !new.iter().any(|new| new.is_subset(old)))
                 })
             })
+            || old.open_enum && !new.open_enum
             || old.types != new.types
-            || !new.required.is_subset(&old.required)
+            || match kind {
+                ContractKind::Query => !new.required.is_subset(&old.required),
+                ContractKind::Reply => !old.required.is_subset(&new.required),
+            }
             || new.minimum_length > old.minimum_length
             || new.minimum_items > old.minimum_items
             || new.unique_items && !old.unique_items
@@ -242,7 +271,12 @@ fn collect(node: &Value, path: &str, shapes: &mut BTreeMap<String, Shape>) -> Ch
         shape.maximum = Some(bound(node, maximum)?);
     }
     collect_format(node, shape)?;
-    if let Some(values) = node.get("enum") {
+    shape.open_enum |= node.get("x-extensible-enum").is_some();
+    shape.enum_assertion |= node.get("enum").is_some() || node.get("const").is_some();
+    if shape.open_enum && shape.enum_assertion {
+        return Err(format!("closed assertion on extensible enum at {path}"));
+    }
+    if let Some(values) = node.get("enum").or_else(|| node.get("x-extensible-enum")) {
         shape.values = Some(
             values
                 .as_array()
@@ -485,6 +519,7 @@ fn validate_keywords(object: &serde_json::Map<String, Value>, path: &str) -> Che
             "maxItems",
             "uniqueItems",
             "x-enum-descriptions",
+            "x-extensible-enum",
             "x-positional",
             "x-trailing-section",
             "x-comma-separated",
@@ -496,7 +531,7 @@ fn validate_keywords(object: &serde_json::Map<String, Value>, path: &str) -> Che
             return Err(format!("unsupported keyword {key} at {path}"));
         }
     }
-    validate_annotations(object)?;
+    super::annotations::validate(object)?;
     // These generated forms carry annotations beside a reference or union,
     // never assertions. Assertions would intersect, while Shape only records
     // one constraint at each path; refuse them instead of merging incorrectly.
@@ -517,6 +552,7 @@ fn validate_keywords(object: &serde_json::Map<String, Value>, path: &str) -> Che
                         "title",
                         "description",
                         "x-enum-descriptions",
+                        "x-extensible-enum",
                         "x-positional",
                         "x-trailing-section",
                         "x-comma-separated",
@@ -531,33 +567,6 @@ fn validate_keywords(object: &serde_json::Map<String, Value>, path: &str) -> Che
                 "unsupported assertion sibling of {composition} at {path}"
             ));
         }
-    }
-    Ok(())
-}
-
-fn validate_annotations(object: &serde_json::Map<String, Value>) -> Check<()> {
-    validate_cli_flags(object.get("x-cli-flags"))?;
-    if object.get("x-reply-query-titles").is_some_and(|value| {
-        !value.as_array().is_some_and(|titles| {
-            !titles.is_empty()
-                && titles
-                    .iter()
-                    .all(|title| title.as_str().is_some_and(|title| !title.is_empty()))
-        })
-    }) {
-        return Err("invalid reply query title annotation".into());
-    }
-    if object
-        .get("x-trailing-section")
-        .is_some_and(|value| value != &Value::Bool(true))
-    {
-        return Err("unsupported trailing-section annotation".into());
-    }
-    if object
-        .get("x-comma-separated")
-        .is_some_and(|v| v != &Value::Bool(true))
-    {
-        return Err("unsupported comma-separated annotation".into());
     }
     Ok(())
 }
@@ -581,20 +590,4 @@ fn bound(node: &Value, value: &Value) -> Check<Bound> {
         .filter(|value| value.is_finite())
         .map(Bound::Decimal)
         .ok_or_else(|| "unsupported decimal bound".into())
-}
-
-fn validate_cli_flags(flags: Option<&Value>) -> Check<()> {
-    if let Some(flags) = flags {
-        let flags = flags.as_object().ok_or("unsupported CLI flag annotation")?;
-        if flags.is_empty()
-            || flags.iter().any(|(name, value)| {
-                !name.as_bytes().first().is_some_and(u8::is_ascii_lowercase)
-                    || !name.bytes().all(|b| b.is_ascii_lowercase() || b == b'-')
-                    || value.as_str().is_none_or(str::is_empty)
-            })
-        {
-            return Err("unsupported CLI flag annotation".into());
-        }
-    }
-    Ok(())
 }

@@ -1,5 +1,5 @@
 //! Compare generated contracts with an independently recorded release baseline.
-use super::{compatibility, registry};
+use super::{compatibility, policy::read_reviews, registry};
 use serde_json::Value;
 use std::{collections::BTreeMap, fs, path::Path};
 
@@ -13,15 +13,16 @@ pub(super) fn generated_schemas_preserve_release_contracts() -> Check<()> {
     let Some(baseline) = std::env::var_os("BIOMCP_SCHEMA_BASELINE") else {
         return Ok(());
     };
+    let reviews = read_reviews()?;
     let mut old = read_baseline(Path::new(&baseline))?;
     for contract in registry() {
         let mut new = (contract.generate)();
         new.as_object_mut()
             .ok_or("generated schema is not an object")?
             .insert("$id".into(), contract.id.into());
-        compatibility::check(&new, &new)?;
+        compatibility::check_reviewed(&new, &new, contract.kind, &reviews)?;
         if let Some(previous) = old.remove(contract.name) {
-            compatibility::check(&previous, &new)
+            compatibility::check_reviewed(&previous, &new, contract.kind, &reviews)
                 .map_err(|error| format!("{}: {error}", contract.name))?;
         }
     }

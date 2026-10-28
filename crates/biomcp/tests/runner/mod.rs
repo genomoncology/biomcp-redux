@@ -123,6 +123,7 @@ mod replay;
 mod research;
 mod response_cases;
 mod schema;
+mod schema_evolution;
 mod schema_proof;
 mod scholar;
 mod semantic_tables;

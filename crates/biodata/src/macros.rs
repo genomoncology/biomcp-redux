@@ -77,7 +77,7 @@ macro_rules! canonical_enum {
  schemars(!try_from,
  !into,
  with = "str",
- extend("enum" = [$($text),
+ extend("x-enum-open" = true, "enum" = [$($text),
 +],
  "x-enum-descriptions" = [$(concat!($($variant_doc),
 *)),

@@ -7,7 +7,6 @@ use serde::{Deserialize, Serialize};
 
 /// Compact native laboratory context without authorization interpretation.
 #[derive(Clone, Debug, PartialEq, Serialize, Deserialize)]
-#[serde(deny_unknown_fields)]
 #[cfg_attr(feature = "schema", derive(schemars::JsonSchema))]
 pub struct DiagnosticLaboratory {
     /// Native laboratory identifier.
@@ -24,7 +23,6 @@ pub struct DiagnosticLaboratory {
 }
 /// Small resolved GTR candidate; broad gene and condition arrays stay off the header.
 #[derive(Clone, Debug, PartialEq, Serialize, Deserialize)]
-#[serde(deny_unknown_fields)]
 #[cfg_attr(feature = "schema", derive(schemars::JsonSchema))]
 pub struct GtrHeader {
     /// Complete source accession and version.
@@ -40,11 +38,7 @@ pub struct GtrHeader {
 }
 /// A conflict is visible once without a selected name or card.
 #[derive(Clone, Debug, PartialEq, Serialize, Deserialize)]
-#[serde(
-    tag = "identity_status",
-    rename_all = "snake_case",
-    deny_unknown_fields
-)]
+#[serde(tag = "identity_status", rename_all = "snake_case")]
 #[cfg_attr(feature = "schema", derive(schemars::JsonSchema))]
 pub enum DiagnosticCandidate {
     /// One native product recall record; repeated event numbers remain separate records.
@@ -88,7 +82,6 @@ pub enum DiagnosticCandidate {
 }
 /// Native flags retain distinct source meanings and exact source codes.
 #[derive(Clone, Debug, PartialEq, Serialize, Deserialize)]
-#[serde(deny_unknown_fields)]
 #[cfg_attr(feature = "schema", derive(schemars::JsonSchema))]
 pub struct GtrNativeStatus {
     /// Current version flag, not current clinical availability.
@@ -108,8 +101,8 @@ pub struct GtrNativeStatus {
 }
 /// Exact GTR card retains native context but never embeds its broad relation lists.
 #[derive(Clone, Debug, PartialEq, Serialize, Deserialize)]
-#[serde(deny_unknown_fields)]
 #[cfg_attr(feature = "schema", derive(schemars::JsonSchema))]
+#[cfg_attr(feature = "schema", schemars(inline))]
 pub struct GtrCard {
     /// Source identity header.
     pub header: GtrHeader,
@@ -141,7 +134,7 @@ pub struct GtrCard {
 }
 /// Exactly one source-owned diagnostic card; conflicts have no card variant.
 #[derive(Clone, Debug, PartialEq, Serialize, Deserialize)]
-#[serde(tag = "kind", rename_all = "snake_case", deny_unknown_fields)]
+#[serde(tag = "kind", rename_all = "snake_case")]
 #[cfg_attr(feature = "schema", derive(schemars::JsonSchema))]
 pub enum DiagnosticCard {
     /// Exact native medical device recall with an optional exact enforcement classification.
@@ -161,7 +154,6 @@ impl ResponseBody for DiagnosticCard {
 }
 /// One bounded regulatory fragment from the exact selected native submission.
 #[derive(Clone, Debug, PartialEq, Serialize, Deserialize)]
-#[serde(deny_unknown_fields)]
 #[cfg_attr(feature = "schema", derive(schemars::JsonSchema))]
 pub struct DiagnosticRegulatoryFragment {
     /// Exact selected native record and its dated regulatory metadata.
@@ -202,7 +194,6 @@ macro_rules! page {
     ($name:ident, $row:ty, $query:ty, $schema:literal, $doc:literal) => {
         #[doc = $doc]
         #[derive(Clone, Debug, PartialEq, Serialize, Deserialize)]
-        #[serde(deny_unknown_fields)]
         #[cfg_attr(feature = "schema", derive(schemars::JsonSchema))]
         pub struct $name {
             /// Complete source-owned rows in native order; envelope totals count native rows.
@@ -272,7 +263,6 @@ page!(
 );
 /// Compact exact PMA row identity; its native empty base cell is explicit.
 #[derive(Clone, Debug, PartialEq, Serialize, Deserialize)]
-#[serde(deny_unknown_fields)]
 #[cfg_attr(feature = "schema", derive(schemars::JsonSchema))]
 pub struct DiagnosticPmaHeader {
     /// Native application.
@@ -298,8 +288,8 @@ pub struct DiagnosticPmaHeader {
 }
 /// Selected PMA card; statement text stays behind its bounded regulatory page.
 #[derive(Clone, Debug, PartialEq, Serialize, Deserialize)]
-#[serde(deny_unknown_fields)]
 #[cfg_attr(feature = "schema", derive(schemars::JsonSchema))]
+#[cfg_attr(feature = "schema", schemars(inline))]
 pub struct DiagnosticPmaCard {
     /// Exact selected source header.
     pub header: DiagnosticPmaHeader,
@@ -309,7 +299,6 @@ pub struct DiagnosticPmaCard {
 }
 /// Dated metadata belonging only to the selected submission.
 #[derive(Clone, Debug, PartialEq, Serialize, Deserialize)]
-#[serde(deny_unknown_fields)]
 #[cfg_attr(feature = "schema", derive(schemars::JsonSchema))]
 pub struct DiagnosticPmaRegulatory {
     /// Native date_received when supplied, including empty.
@@ -337,8 +326,8 @@ pub struct DiagnosticPmaRegulatory {
 
 /// Native 510(k) fields without harmonized or inferred clinical content.
 #[derive(Clone, Debug, PartialEq, Serialize, Deserialize)]
-#[serde(deny_unknown_fields)]
 #[cfg_attr(feature = "schema", derive(schemars::JsonSchema))]
+#[cfg_attr(feature = "schema", schemars(inline))]
 pub struct DiagnosticClearance {
     /// Exact native K number.
     pub k_number: biodata::DiagnosticDeviceId,

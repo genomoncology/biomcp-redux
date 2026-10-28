@@ -3,7 +3,6 @@ use biodata::{AuthorizationEvent, PartialDate, Text};
 use serde::{Deserialize, Serialize};
 /// One explicit native product within the selected FDA application.
 #[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
-#[serde(deny_unknown_fields)]
 #[cfg_attr(feature = "schema", derive(schemars::JsonSchema))]
 pub struct DrugFdaProduct {
     /// Exact source product number, scoped by the response application.
@@ -31,7 +30,6 @@ pub struct DrugFdaProduct {
 }
 /// An unchanged native ingredient and strength, without local normalization.
 #[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
-#[serde(deny_unknown_fields)]
 #[cfg_attr(feature = "schema", derive(schemars::JsonSchema))]
 pub struct DrugFdaIngredient {
     /// Native ingredient name.
@@ -43,7 +41,6 @@ pub struct DrugFdaIngredient {
 }
 /// One application-owned submission with common event facts and native FDA context.
 #[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
-#[serde(deny_unknown_fields)]
 #[cfg_attr(feature = "schema", derive(schemars::JsonSchema))]
 pub struct DrugFdaSubmission {
     /// Historical native status, type and status date; no product applicability is implied.
@@ -68,7 +65,6 @@ pub struct DrugFdaSubmission {
 }
 /// A source-stated submission property, without interpretation.
 #[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
-#[serde(deny_unknown_fields)]
 #[cfg_attr(feature = "schema", derive(schemars::JsonSchema))]
 pub struct DrugFdaProperty {
     /// Original property code.
@@ -76,7 +72,6 @@ pub struct DrugFdaProperty {
 }
 /// A native application document link; the command does not download it.
 #[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
-#[serde(deny_unknown_fields)]
 #[cfg_attr(feature = "schema", derive(schemars::JsonSchema))]
 pub struct DrugFdaDocument {
     /// Source document identifier.
@@ -91,7 +86,6 @@ pub struct DrugFdaDocument {
 }
 /// One candidate application and its independent source-listed products.
 #[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
-#[serde(deny_unknown_fields)]
 #[cfg_attr(feature = "schema", derive(schemars::JsonSchema))]
 pub struct DrugFdaCandidate {
     /// Exact application identifier, shared with the retained application identity.
@@ -108,7 +102,6 @@ pub struct DrugFdaCandidate {
 }
 /// A source-owned application page preserving complete product context and source order.
 #[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
-#[serde(deny_unknown_fields)]
 #[cfg_attr(feature = "schema", derive(schemars::JsonSchema))]
 pub struct DrugFdaPage {
     /// Native applications and products; a phrase match never establishes equivalence.

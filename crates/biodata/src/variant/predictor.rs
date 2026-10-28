@@ -3,7 +3,6 @@ use crate::{Attribution, FiniteNumber, Text, VariantRef};
 use serde::{Deserialize, Serialize};
 /// One unmodified source score, never a locally blended assessment.
 #[derive(Clone, Debug, PartialEq, Serialize, Deserialize)]
-#[serde(deny_unknown_fields)]
 #[cfg_attr(feature = "schema", derive(schemars::JsonSchema))]
 pub struct PredictorScore {
     /// Exact source-qualified subject.

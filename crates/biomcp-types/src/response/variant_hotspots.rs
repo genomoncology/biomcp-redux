@@ -3,7 +3,6 @@ use serde::{Deserialize, Serialize};
 
 /// Source residue recurrence counts without allele-frequency or clinical interpretation.
 #[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
-#[serde(deny_unknown_fields)]
 #[cfg_attr(feature = "schema", derive(schemars::JsonSchema))]
 pub struct VariantHotspots {
     /// Source rows remain candidates when no transcript/consequence join exists.
@@ -21,7 +20,6 @@ pub struct VariantHotspots {
 
 /// Counts for one source transcript and residue label.
 #[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
-#[serde(deny_unknown_fields)]
 #[cfg_attr(feature = "schema", derive(schemars::JsonSchema))]
 pub struct HotspotRecord {
     /// Whether transcript and consequence were linked by the identity source.
@@ -42,7 +40,6 @@ pub struct HotspotRecord {
 
 /// One source amino-acid alternate count.
 #[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
-#[serde(deny_unknown_fields)]
 #[cfg_attr(feature = "schema", derive(schemars::JsonSchema))]
 pub struct HotspotAlternate {
     /// Source alternate amino-acid spelling.
