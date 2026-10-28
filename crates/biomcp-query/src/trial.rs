@@ -79,14 +79,7 @@ pub(crate) fn search(cx: &Ctx<'_>, query: &TrialSearch) -> Outcome {
     };
     if let Ok(page) = result {
         if page.condition_word_mismatch {
-            source.notices.push(biomcp_types::SourceNotice::ConditionWordMismatch {
-                message: "Some returned trials do not contain all searched words in their registered conditions. ClinicalTrials.gov condition search also covers titles, keywords and indexed terms and may expand synonyms.".into(),
-            });
-            if query.condition().is_some() && !query.exact_condition() {
-                outcome.next.push((StepKind::Disambiguate, Action::Run {
-                    request: Request::SearchTrial(query.with_exact_condition()), fresh: cx.fresh,
-                }));
-            }
+            condition::word_notice(query, cx.fresh, &mut source, &mut outcome);
         }
         source.count = page.total;
         source.fetched = Some(page.items.len() as u32);

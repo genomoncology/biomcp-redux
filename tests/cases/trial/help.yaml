@@ -25,6 +25,7 @@
           "--count-only",
           "--criteria",
           "--distance",
+          "--exact-condition",
           "--facility",
           "--gene",
           "--has-results",
@@ -47,9 +48,9 @@
           "--updated-until",
           "--variant"
         ],
-        "/result/commands/0/arguments/26/description": "Literal variant text for registry discovery only; no eligibility judgment.",
-        "/result/commands/0/arguments/7/description": "Resolve one checked gene for registry text discovery only; no eligibility judgment.",
-        "/result/commands/0/arguments/4/description": "Search literal registry eligibility text for discovery only; no eligibility judgment."
+        "/result/commands/0/arguments/4/description": "Search literal registry eligibility text for discovery only; no eligibility judgment.",
+        "/result/commands/0/arguments/27/description": "Literal variant text for registry discovery only; no eligibility judgment.",
+        "/result/commands/0/arguments/8/description": "Resolve one checked gene for registry text discovery only; no eligibility judgment."
       },
       "max_bytes": 5163
     },

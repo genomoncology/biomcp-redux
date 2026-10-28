@@ -112,7 +112,7 @@ pub(super) fn exact_boundary() -> Result<(), String> {
     let query: biomcp_types::TrialSearch = serde_json::from_value(json!({
         "condition":"Snyder-Robinson syndrome", "criteria":"retained eligibility", "phase":"2", "next_page":"opaque"
     })).map_err(|e| e.to_string())?;
-    let exact = query.with_exact_condition();
+    let exact = query.exact_condition_search().ok_or("missing exact alternative")?;
     if exact.next_page().is_some() || !exact.exact_condition() || exact.criteria() != query.criteria() || exact.phase() != query.phase() {
         return Err("exact condition changed filters or retained cursor".into());
     }
