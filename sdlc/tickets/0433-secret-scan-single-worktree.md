@@ -1,6 +1,7 @@
 # 0433 — Scan only this checkout's history
 
-Status: OPEN.
+Status: COMPLETE.
+Landed: 7e347189493e744853912dd4cb046c1c581619c6
 
 Milestone: 5
 

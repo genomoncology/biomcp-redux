@@ -243,7 +243,7 @@ fn timestamp() -> Check {
             },
             json!({"/result/source_updated/value":native,
                 "/result/source_updated/timezone":timezone,
-                "/query/condition":"melanoma","/query/limit":10}),
+                "/query/condition":["melanoma"],"/query/limit":10}),
             0,
         )?;
         if output["result"].get("request").is_some()

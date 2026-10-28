@@ -91,13 +91,14 @@ def inputs(mode, target, env):
         raise ValueError("secret history scan requires a complete checkout")
     # Enumerate actual reachable blobs, not patches: merge-only additions, binary
     # attributes and default diff suppression must not hide historical content.
-    objects = git(target, env, "rev-list", "--objects", "--all", "HEAD").splitlines()
+    # Keep named refs and this HEAD without importing detached sibling jobs.
+    objects = git(target, env, "rev-list", "--objects", "--single-worktree", "--all", "HEAD").splitlines()
     names = {}
     for row in objects:
         oid, _, name = row.partition(b" ")
         if len(oid) == 40:
             names.setdefault(oid, name.decode("utf-8", errors="replace"))
-    ids = git(target, env, "rev-list", "--objects", "--all", "HEAD", "--no-object-names")
+    ids = git(target, env, "rev-list", "--objects", "--single-worktree", "--all", "HEAD", "--no-object-names")
     types = subprocess.check_output(["git", "--no-replace-objects", "-C", str(target), "cat-file", "--batch-check"],
                                     input=ids, env=env, stderr=subprocess.DEVNULL)
     with subprocess.Popen(["git", "--no-replace-objects", "-C", str(target), "cat-file", "--batch"],
@@ -255,7 +256,7 @@ def history_ignores(target, env, mapping, staging):
         if not keys:
             continue
         if reachable is None:
-            reachable = set(git(target, env, "rev-list", "--all", "HEAD").decode().splitlines())
+            reachable = set(git(target, env, "rev-list", "--objects", "--single-worktree", "--all", "HEAD").decode().splitlines())
         if row["commit"] not in reachable or git(target, env, "rev-parse", row["commit"] + ":" + row["file"]).decode().strip() != row["blob"]:
             raise ValueError("history exception does not match its reachable commit")
         for key in keys:

@@ -1,16 +1,18 @@
-# 0431 — Close the test suite's integrity gaps
+# 0431 — Make the runner the single record of tests
 
 Status: OPEN.
 
 Milestone: 5
 
+Depends on: 0430
+
 ## Outcome
 
-Every native trial and YAML case maps to a listed feature by its first name segment, and the YAML `feature` field is removed or checked. `make docs-generate` writes docs only and never rewrites case expectations. One trial proves the default config and cache paths with XDG unset. The two never-running tests are deleted or wired into the rehearsal. Expected values come from literals, not product tables. The `covers` promise in architecture 10.2 is built or removed, as are the ignored `harvest` and `verified` fields. Parity, live, capture and measurement tooling moves out of the routine target and coverage. Size budgets live in YAML only. Transport failures are proved once each, with one provider error-shape case per adapter.
+The `cases` target holds only behavior cases and trials, each named by a listed feature. Proof, measurement and generation tools move to a test target that `cargo test` and coverage never run. Output budgets live only in YAML. Docs generation never edits a case. Trials that call library code in the harness process run the binary instead, or go.
 
-- Why: the pre-1.0 code quality review `sdlc/records/2026-10-28-code-quality-review.md`.
-- Starts from: `scripts/check_docs.py`, `crates/biomcp/tests/runner`, `crates/biomcp/src/grammar/reference.rs`, `tests/cases`, the budget files and architecture 10.
-- Rules: no lost behavior coverage; each removed case names the case that still proves its behavior.
-- Proof: planted unmapped trials, a drifted help case and a missing default path each fail.
-- Changes: the files above.
-- Defers: nothing.
+- Why: `cases.rs` mixes behavior tests with parity, live-check, measure, native-proof and generator modes. Feature mapping lives in YAML fields and in `features.md` globs that drift. 13 JSON budget files duplicate YAML limits. `make docs-generate` rewrites cases.
+- Starts from: `crates/biomcp/tests/cases.rs`, `crates/biomcp/tests/runner/`, the 51 runner files that import library crates, the 25 test files with `#[path]` includes, `scripts/check_docs.py`, `sdlc/features.md`, the JSON budget files under `tests/`, `Makefile`, `release/smoke.py`, and the in-process trial list from 0429.
+- Rules: a new `crates/biomcp/tests/tools.rs` with `test = false` and `harness = false` takes parity, parity inventory, live check, measures, native proofs and generators, and shares `runner/launch.rs`. `release/smoke.py` calls moved modes from it. A Rust trial's name starts with `<feature>/`. `sdlc/features.md` keeps one `name: sentence` line per feature. The runner fails at discovery on an unlisted feature or a feature with no test. `covers` is built as architecture 10.2 says, or it goes with that paragraph.
+- Proof: planted fixtures in `crates/biomcp/tests/ratchets/proof.rs` show that a case naming an unlisted feature, a listed feature with no test, and a trial named without a feature each fail discovery; a planted tool mode in `cases.rs` fails a ratchet; running docs generation in a temporary copy and finding a changed file under `tests/` fails a trial; the reply diff is empty.
+- Changes: the files above and `crates/biomcp/Cargo.toml`.
+- Defers: case content (0456).
