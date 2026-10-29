@@ -15,21 +15,30 @@ pub(super) fn timestamp_admission() -> Result<(), String> {
                 "GRCh37",
             ],
             |_, record| {
-                if record["url"]
-                    .as_str()
+                if record
+                    .get("url")
+                    .and_then(Value::as_str)
                     .is_some_and(|url| url.ends_with("/metadata"))
                 {
-                    let body = &mut record["exchanges"][0]["body"]["value"];
+                    let Some(body) = record.pointer_mut("/exchanges/0/body/value") else {
+                        return;
+                    };
                     if mode == "empty" {
-                        body["src"] = json!({});
+                        if let Some(source) = body.get_mut("src") {
+                            *source = json!({});
+                        }
                     } else {
                         let timestamp = if mode == "local" {
                             "2020-05-08T17:33:59.756164"
                         } else {
                             "2024-02-30T10:00:00"
                         };
-                        body["build_date"] = json!(timestamp);
-                        body["src"]["dbnsfp"]["upload_date"] = json!({"synthetic_part":timestamp});
+                        if let Some(date) = body.get_mut("build_date") {
+                            *date = json!(timestamp);
+                        }
+                        if let Some(date) = body.pointer_mut("/src/dbnsfp/upload_date") {
+                            *date = json!({"synthetic_part":timestamp});
+                        }
                     }
                 }
             },
@@ -50,11 +59,12 @@ pub(super) fn timestamp_admission() -> Result<(), String> {
                 ));
             }
         } else {
-            let fields: Vec<_> = value["problems"]
-                .as_array()
+            let fields: Vec<_> = value
+                .get("problems")
+                .and_then(Value::as_array)
                 .into_iter()
                 .flatten()
-                .filter_map(|problem| problem["field"].as_str())
+                .filter_map(|problem| problem.get("field").and_then(Value::as_str))
                 .collect();
             let field = if mode == "empty" {
                 "src.dbnsfp"

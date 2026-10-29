@@ -7,7 +7,9 @@ pub(super) fn optional_date() -> Check {
         |_| "application/json",
         |_| {
             let mut reply = super::body(5, 0);
-            reply["meta"]["last_updated"] = json!("2024-02-30");
+            *reply
+                .pointer_mut("/meta/last_updated")
+                .ok_or("missing date fixture")? = json!("2024-02-30");
             Ok(reply.to_string())
         },
     )?;
