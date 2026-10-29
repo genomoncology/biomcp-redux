@@ -3,9 +3,9 @@ use super::{Check, case, tsv};
 use serde_json::json;
 
 pub(super) fn check() -> Check {
+    metadata()?;
     vocabulary()?;
     optional()?;
-    metadata()?;
     locations()?;
     required()?;
     withdrawn()?;
@@ -97,6 +97,7 @@ fn metadata() -> Check {
         json!({"/result/items/0/answer/gene/hgnc_id": "HGNC:1097"}),
         0,
     )?;
+    eprintln!("GREEN retained HGNC:1097 invocation before metadata mutation");
     for (field, value) in [("name", " "), ("locus_group", "new group")] {
         let answer = checked_case(
             "gene/main",
