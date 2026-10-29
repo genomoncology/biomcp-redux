@@ -23,11 +23,11 @@ pub fn search(cx: &Ctx<'_>, query: &DiseaseSearch) -> Outcome {
     if let Ok(page) = reply {
         let returned = page.rows.len() as u32;
         out.page = Some(page_info(query.offset(), returned, page.total));
-        if returned > 0 && u64::from(query.offset()) + u64::from(returned) < page.total {
+        if page.received > 0 && u64::from(query.offset()) + u64::from(page.received) < page.total {
             out.next.push((
                 StepKind::Page,
                 run(Request::SearchDisease(
-                    query.at_offset(query.offset().saturating_add(returned)),
+                    query.at_offset(query.offset().saturating_add(page.received)),
                 )),
             ));
         }
@@ -82,7 +82,7 @@ pub fn get(cx: &Ctx<'_>, query: &DiseaseGet) -> Outcome {
             out.next.push((
                 StepKind::Page,
                 run(Request::GetDisease(query.at_section_offset(
-                    query.section_offset().saturating_add(returned),
+                    query.section_offset().saturating_add(page.received),
                 ))),
             ));
         }

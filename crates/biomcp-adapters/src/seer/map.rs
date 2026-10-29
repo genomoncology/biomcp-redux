@@ -107,7 +107,7 @@ fn observed(
 pub(super) fn rows(
     document: raw::Document,
     query: &Selection,
-) -> Result<(Vec<DiseaseStatistic>, Vec<Problem>), BadReply> {
+) -> Result<(Vec<Option<DiseaseStatistic>>, Vec<Problem>), BadReply> {
     let requested = requested(query)?;
     let mut problems = vec![
         problem(Source::Seer, None, "dataset_membership"),
@@ -150,12 +150,24 @@ pub(super) fn rows(
                     upper_ci: None,
                     count: None,
                 });
-            let year = cell(&document.info.fields, &row, "year")
-                .map(|c| {
-                    u32::try_from(c.as_ref().ok_or(BadReply)?.integer()?).map_err(|_| BadReply)
-                })
-                .transpose()?;
-            rows.push(DiseaseStatistic {
+            let year = if document.info.fields.iter().any(|v| v == "year") {
+                let year = fields.required("year", cell(&document.info.fields, &row, "year"));
+                let year = fields.optional(
+                    "year",
+                    year.map(|v| {
+                        u32::try_from(v.as_ref().ok_or(BadReply)?.integer()?).map_err(|_| BadReply)
+                    }),
+                );
+                if year.is_none() {
+                    rows.push(None);
+                    problems.extend(fields.list);
+                    continue;
+                }
+                year
+            } else {
+                None
+            };
+            rows.push(Some(DiseaseStatistic {
                 requested_site: query.site.clone(),
                 requested_selectors: requested.clone(),
                 returned_selectors: returned.clone().into(),
@@ -169,7 +181,7 @@ pub(super) fn rows(
                 )?,
                 modeled,
                 attribution: attribution(&key)?,
-            });
+            }));
             problems.extend(fields.list);
         }
     }
