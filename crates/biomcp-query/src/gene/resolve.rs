@@ -142,7 +142,7 @@ fn resolved(candidates: Vec<(Gene, Match)>) -> GeneResolution {
     values.sort_by_key(|(gene, matched)| {
         (
             kind_rank(matched.kind),
-            gene.locus_group != LocusGroup::ProteinCoding,
+            gene.locus_group != Some(LocusGroup::ProteinCoding),
             gene.hgnc_id,
         )
     });
