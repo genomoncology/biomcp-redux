@@ -120,6 +120,14 @@ const ALLOWED: &[(&str, &str)] = &[
         "Exercise checked values and schema contracts through the public library API.",
     ),
     (
+        "crates/biomcp-types/tests/schemas/compatibility_recursive_cases.rs",
+        "Exercise recursive public schema graphs and their compatibility constraints.",
+    ),
+    (
+        "crates/biomcp-types/tests/schemas/temporal.rs",
+        "Exercise native timestamp schema spelling and temporal property consistency.",
+    ),
+    (
         "crates/biomcp-types/tests/schemas/drug.rs",
         "Exercise public drug header and card disclosure boundaries through their serialized values and schemas.",
     ),

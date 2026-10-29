@@ -89,7 +89,7 @@ pub struct NciTrialCards {
     pub attribution: Box<str>,
 }
 impl super::ResponseBody for NciTrialCards {
-    const SCHEMA: &'static str = "biomcp.nci-trial-cards/5";
+    const SCHEMA: &'static str = "biomcp.nci-trial-cards/6";
     type Query = TrialGet;
 }
 /// An exact NCI card and its source state.

@@ -1,6 +1,7 @@
 # 0460 — Parse every public CIViC and ClinVar record into 1.0 values
 
-Status: OPEN.
+Status: COMPLETE.
+Landed: 23b7519fdd9b91d641d02be1cc24f171916e8b92
 
 Milestone: 5
 

@@ -135,8 +135,10 @@ fn check(fault: &'static str) -> Result<(), String> {
         ]
     };
     let args = words.into_iter().map(str::to_owned).collect::<Vec<_>>();
-    let bad = invoke(&env, args.clone(), 4)?;
-    if bad.get("result").is_some()
+    let bad = invoke(&env, args.clone(), if civic { 0 } else { 4 })?;
+    if civic {
+        civic_refusal(&bad, fault)?;
+    } else if bad.get("result").is_some()
         || bad.pointer("/sources/0/reason") != Some(&json!("bad-reply"))
         || bad
             .get("next")
@@ -144,9 +146,10 @@ fn check(fault: &'static str) -> Result<(), String> {
     {
         return Err(format!("unsafe identity became a product pick: {bad}"));
     }
-    if bad.pointer("/problems/0/source")
-        != Some(&json!(if civic { "civic" } else { "openfda-label" }))
-        || bad.pointer("/problems/0/field") != Some(&json!("record"))
+    if !civic
+        && (bad.pointer("/problems/0/source")
+            != Some(&json!(if civic { "civic" } else { "openfda-label" }))
+            || bad.pointer("/problems/0/field") != Some(&json!("record")))
     {
         return Err(format!("unsafe identity has no record problem: {bad}"));
     }
@@ -155,10 +158,21 @@ fn check(fault: &'static str) -> Result<(), String> {
     {
         return Err("unsafe identity cached, or checked identity failed to cache".into());
     }
-    let full = serde_json::to_vec(&bad).map_err(|e| e.to_string())?.len();
-    let comparable = super::source_terms::size(&bad, "")?;
-    let (full_bound, comparable_bound): (usize, usize) =
-        if civic { (334, 250) } else { (399, 288) };
+    refusal_size(&bad, &good, fault, civic)
+}
+fn refusal_size(bad: &Value, good: &Value, fault: &str, civic: bool) -> Result<(), String> {
+    let full = serde_json::to_vec(bad).map_err(|e| e.to_string())?.len();
+    let comparable = super::source_terms::size(bad, "")?;
+    // A partial CIViC reply retains checked sibling records. Bound it against
+    // the complete positive control rather than the former whole-reply refusal.
+    let (full_bound, comparable_bound): (usize, usize) = if civic {
+        (
+            serde_json::to_vec(good).map_err(|e| e.to_string())?.len(),
+            super::source_terms::size(good, "")?,
+        )
+    } else {
+        (399, 288)
+    };
     if full > (full_bound * 115).div_ceil(100)
         || comparable > (comparable_bound * 115).div_ceil(100)
     {
@@ -201,4 +215,45 @@ fn label() -> Value {
         "id":"492dbdb2-077e-4064-bff3-372d6af0a7a2","set_id":"492dbdb2-077e-4064-bff3-372d6af0a7a2",
         "version":"1","effective_time":"20261024","openfda":{"brand_name":["Synthetic brand"],
         "spl_set_id":["492dbdb2-077e-4064-bff3-372d6af0a7a2"]}}]})
+}
+
+fn civic_refusal(value: &Value, fault: &str) -> Result<(), String> {
+    if value.get("status") != Some(&json!("partial")) {
+        return Err("CIViC identity refusal lost partial status".into());
+    }
+    if fault == "wrong-therapy" {
+        if value.get("result").is_some()
+            || value.get("next").is_some()
+            || value.get("problems")
+                != Some(&json!([
+                    {"source":"civic","record":"84","field":"id","code":"value.unknown"}
+                ]))
+        {
+            return Err(format!("wrong bound therapy became usable: {value}"));
+        }
+    } else {
+        if value.pointer("/result/identity/id") != Some(&json!("5"))
+            || value.pointer("/result/civic/data/evidence/page/returned") != Some(&json!(0))
+            || value
+                .pointer("/result/civic/data/evidence/records")
+                .is_some()
+            || value.pointer("/result/civic/data/assertions/records/0/claim/record/id")
+                != Some(&json!("AID85"))
+        {
+            return Err(format!(
+                "missing therapy join leaked or lost checked sibling: {value}"
+            ));
+        }
+        if value.get("problems")
+            != Some(&json!([
+                {"source":"civic","record":"EID259","field":"statement","code":"value.unknown"},
+                {"source":"civic","record":"EID259","field":"therapies.id","code":"value.unknown"}
+            ]))
+        {
+            return Err(format!(
+                "therapy-join problem lost its named record/field: {value}"
+            ));
+        }
+    }
+    Ok(())
 }

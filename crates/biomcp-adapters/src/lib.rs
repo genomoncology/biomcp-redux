@@ -1,6 +1,7 @@
 //! Checked source replies mapped into shared human gene values.
 /// Restricted AlphaGenome prediction service.
 pub mod alphagenome;
+mod bundle_mapping;
 pub mod hgnc;
 mod mapped;
 pub mod mygene;

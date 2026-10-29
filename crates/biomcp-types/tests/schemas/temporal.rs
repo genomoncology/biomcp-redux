@@ -1,4 +1,6 @@
 //! Temporal field meanings stay consistent across every registered schema.
+use super::generate;
+use biomcp_types::SourceDateTimeValue;
 use serde_json::{Value, json};
 use std::collections::{BTreeMap, BTreeSet};
 
@@ -91,5 +93,33 @@ pub(super) fn temporal_property_check_rejects_conflicting_definition_types() -> 
         result => Err(format!(
             "planted temporal type conflict was not identified: {result:?}"
         )),
+    }
+}
+
+#[test]
+fn native_timestamp_string_schema_keeps_local_and_offset_profiles() {
+    let schema = generate::<SourceDateTimeValue>();
+    assert_eq!(schema["type"], "string");
+    assert!(schema.get("anyOf").is_none());
+    let validator = jsonschema::validator_for(&schema).unwrap();
+    for (text, lexical, runtime) in [
+        ("2024-05-03T10:00:00.000100+02:00", true, true),
+        ("2020-05-08T17:33:59.756164", true, true),
+        ("2020-05-08T17:33:59.756164Z", true, true),
+        ("2024-02-30T10:00:00", true, false),
+        ("2024-05-03T24:00:00", false, false),
+        ("2024-05-03T10:00:00+24:00", false, false),
+        ("2024-05-03T10:00:00.", false, false),
+    ] {
+        assert_eq!(
+            validator.is_valid(&serde_json::json!(text)),
+            lexical,
+            "{text}"
+        );
+        assert_eq!(
+            text.parse::<SourceDateTimeValue>().is_ok(),
+            runtime,
+            "{text}"
+        );
     }
 }

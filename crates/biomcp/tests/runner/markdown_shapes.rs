@@ -229,6 +229,14 @@ pub(super) fn check_environment(
         .command(env!("CARGO_BIN_EXE_biomcp"), &command)
         .output()
         .map_err(|e| e.to_string())?;
+    if output.status != json_output.status || !output.stderr.is_empty() {
+        return Err(format!(
+            "Markdown status {:?}, JSON status {:?}: {}",
+            output.status,
+            json_output.status,
+            String::from_utf8_lossy(&output.stderr)
+        ));
+    }
     let text = String::from_utf8(output.stdout).map_err(|e| e.to_string())?;
     for required in shape.required {
         if !text.contains(required) {
@@ -252,9 +260,6 @@ pub(super) fn check_environment(
             text.len(),
             shape.max_bytes
         ));
-    }
-    if output.status != json_output.status || !output.stderr.is_empty() {
-        return Err("Markdown changed command status or emitted diagnostics".into());
     }
     check_tool(shape, env, globals, &value, json_output.status.success())?;
     command.extend(["--format".into(), "json".into()]);
