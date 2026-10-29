@@ -102,7 +102,7 @@ def clinvar_cases(capture, output):
             value["exchanges"][0]["body"]["value"] = xml.replace(needle,
                 '<Classification DateLastEvaluated="not-a-date">')
         replay = output / "replies" / "clinvar" / name
-        write_json(replay / "clinvar" / capture.name, value)
+        write_json(replay / "clinvar" / "b0dc08f8b2e327a3cc14eea0aff96c83994e24add7db09654e86e8c3f801b4ae.json", value)
         path = "/result/assertions/0/statement/attribution"
         expect = {path + "/record": "SCV000965609"}
         if name == "positive":
@@ -125,7 +125,7 @@ def clinvar_cases(capture, output):
         if name == "identity-bad":
             value["exchanges"][0]["body"]["value"] = xml.replace(identity, 'Accession="BAD"')
         replay = output / "replies" / "clinvar" / name
-        write_json(replay / "clinvar" / capture.name, value)
+        write_json(replay / "clinvar" / "b0dc08f8b2e327a3cc14eea0aff96c83994e24add7db09654e86e8c3f801b4ae.json", value)
         expect = {"/result/assertions/*/statement/attribution/record": {
             "includes_all_of": ["SCV005094146", "RCV000824811", "VCV000666267"],
         }}
