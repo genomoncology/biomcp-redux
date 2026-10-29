@@ -16,6 +16,8 @@ mod ownership;
 mod policy;
 #[path = "schemas/release.rs"]
 mod release;
+#[path = "schemas/temporal.rs"]
+mod temporal;
 #[path = "schemas/values.rs"]
 mod values;
 
