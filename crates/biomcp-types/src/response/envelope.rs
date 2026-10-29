@@ -23,7 +23,7 @@ pub trait ResponseBody: Serialize {
 pub struct Envelope<T: ResponseBody> {
     #[cfg_attr(feature = "schema", schemars(extend("const" = T::SCHEMA)))]
     #[serde(deserialize_with = "read_schema::<_, T>")]
-    schema: &'static str,
+    schema: String,
     /// Overall outcome.
     pub status: Status,
     /// Bounded local cache failure, independent of provider outcomes.
@@ -51,7 +51,7 @@ impl<T: ResponseBody> Envelope<T> {
     /// Construct a response with its body's schema identity.
     pub fn new(status: Status, query: T::Query, result: Option<T>) -> Self {
         Self {
-            schema: T::SCHEMA,
+            schema: T::SCHEMA.to_owned(),
             status,
             local_error: None,
             query,
@@ -66,7 +66,7 @@ impl<T: ResponseBody> Envelope<T> {
 
 fn read_schema<'de, D: Deserializer<'de>, T: ResponseBody>(
     deserializer: D,
-) -> Result<&'static str, D::Error> {
+) -> Result<String, D::Error> {
     let schema = String::deserialize(deserializer)?;
     if schema != T::SCHEMA {
         return Err(serde::de::Error::custom(format!(
@@ -74,5 +74,5 @@ fn read_schema<'de, D: Deserializer<'de>, T: ResponseBody>(
             T::SCHEMA
         )));
     }
-    Ok(T::SCHEMA)
+    Ok(schema)
 }
