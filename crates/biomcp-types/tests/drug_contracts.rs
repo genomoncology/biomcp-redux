@@ -548,3 +548,36 @@ fn chembl_name_selector_is_explicit_and_source_scoped() {
         .is_err()
     );
 }
+
+#[test]
+#[cfg(feature = "schema")]
+fn drug_recall_name_omission_and_present_values_match_the_schema() {
+    let schema = schemars::schema_for!(DrugSearch).to_value();
+    let validator = jsonschema::draft202012::new(&schema).expect("drug search schema");
+    for (query, valid) in [
+        (
+            json!({"source":"fda-drug-recall","firm":"Synthetic maker"}),
+            true,
+        ),
+        (
+            json!({"source":"fda-drug-recall","query":"Synthetic name"}),
+            true,
+        ),
+        (json!({"source":"fda-drug-recall","query":null}), false),
+    ] {
+        assert_eq!(validator.is_valid(&query), valid, "{query}");
+        assert_eq!(
+            serde_json::from_value::<DrugSearch>(query.clone()).is_ok(),
+            valid,
+            "{query}"
+        );
+    }
+    for source in biomcp_types::DrugSource::ALL {
+        if source != biomcp_types::DrugSource::FdaDrugRecall {
+            assert!(
+                serde_json::from_value::<DrugSearch>(json!({"source":source})).is_err(),
+                "{source}"
+            );
+        }
+    }
+}

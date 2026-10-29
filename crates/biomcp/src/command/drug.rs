@@ -5,6 +5,11 @@ use std::io;
 
 pub(super) fn encode(meta: ResponseMeta, request: Request, body: QueryBody) -> io::Result<Outcome> {
     match (request, body) {
+        (Request::SearchDrug(query), QueryBody::DrugRecallPage(body)) => {
+            let body = (meta.status != Status::Failed).then_some(body);
+            meta.encode(query, body)
+        }
+        (Request::GetDrug(query), QueryBody::DrugRecallCard(body)) => meta.encode(query, body),
         (Request::SearchDrug(query), QueryBody::DrugWhoPage(body)) => {
             let body = (meta.status != Status::Failed).then_some(body);
             meta.encode(query, body)

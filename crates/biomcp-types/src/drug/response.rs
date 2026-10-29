@@ -207,7 +207,7 @@ pub struct DrugInteractions {
     pub interactions: Section<DrugRecords<DrugInteractionClaim>>,
 }
 impl ResponseBody for DrugPage {
-    const SCHEMA: &'static str = "biomcp.drug-page/3";
+    const SCHEMA: &'static str = "biomcp.drug-page/4";
     type Query = DrugSearch;
 }
 impl ResponseBody for DrugCard {

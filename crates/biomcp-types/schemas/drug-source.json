@@ -6,6 +6,7 @@
   "type": "string",
   "x-extensible-enum": [
     "who-pq",
+    "fda-drug-recall",
     "mychem",
     "chembl",
     "opentargets",

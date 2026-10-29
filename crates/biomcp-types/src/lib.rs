@@ -158,9 +158,10 @@ pub use drug::{
     DrugCivicProfile, DrugCivicStreams, DrugFdaCandidate, DrugFdaDocument, DrugFdaIngredient,
     DrugFdaPage, DrugFdaProduct, DrugFdaProperty, DrugFdaSubmission, DrugGet, DrugHeader,
     DrugIndications, DrugInteractions, DrugLabel, DrugLabelFragment, DrugLabelText, DrugNameMatch,
-    DrugNameSelector, DrugOncokbLookup, DrugOncokbMissing, DrugPage, DrugRecords, DrugRegulatory,
-    DrugSearch, DrugSection, DrugSource, DrugTargets, DrugWhoCard, DrugWhoGet, DrugWhoPage,
-    DrugWhoRow, DrugXrefs,
+    DrugNameSelector, DrugOncokbLookup, DrugOncokbMissing, DrugPage, DrugRecallCard,
+    DrugRecallClassification, DrugRecallCountUnit, DrugRecallHeader, DrugRecallPage, DrugRecords,
+    DrugRegulatory, DrugSearch, DrugSection, DrugSource, DrugTargets, DrugWhoCard, DrugWhoGet,
+    DrugWhoPage, DrugWhoRow, DrugXrefs,
 };
 
 pub use query::{CheckedQuery, QueryInvalid};

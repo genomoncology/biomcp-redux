@@ -81,11 +81,14 @@ pub(super) fn search(cx: &Ctx<'_>, query: &DrugSearch) -> Outcome {
     out
 }
 fn search_page(leg: &Leg<'_>, query: &DrugSearch) -> Result<DrugPage, RequestError> {
+    let name = query
+        .query()
+        .ok_or(biomcp_fetch::InputError::Serialization)?;
     let source = query.source().source();
     let (items, total) = if query.source() == DrugSource::Chembl {
         let (page, _) = chembl::search(
             leg,
-            query.query().as_str(),
+            name.as_str(),
             query.name_selector(),
             query.limit(),
             query.offset(),
@@ -100,7 +103,7 @@ fn search_page(leg: &Leg<'_>, query: &DrugSearch) -> Result<DrugPage, RequestErr
     } else {
         let (page, _) = opentargets::search(
             leg,
-            query.query().as_str(),
+            name.as_str(),
             query.offset() / query.limit(),
             query.limit(),
         )?;
