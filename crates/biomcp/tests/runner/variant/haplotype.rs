@@ -3,7 +3,7 @@ use super::super::network_stub::Stub;
 use crate::runner::transcript::trial;
 use libtest_mimic::Trial;
 use serde_json::{Value, json};
-const XML: &str = include_str!("../../../../../../tests/fixtures/clinvar/haplotype-441268.xml");
+const XML: &str = include_str!("../../../../../tests/fixtures/clinvar/haplotype-441268.xml");
 pub(super) fn trials() -> Vec<Trial> {
     vec![trial(
         "variant/clinvar-haplotype-preserves-native-members",
