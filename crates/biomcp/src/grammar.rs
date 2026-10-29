@@ -167,7 +167,7 @@ fn scan_command_words(args: &[OsString], tolerate_unknown: bool) -> impl Iterato
     words.filter_map(|arg| arg.to_str())
 }
 
-pub(crate) fn root() -> Result<Command, ()> {
+pub(crate) fn root() -> Result<Command, crate::grammar::ParseInvalid> {
     let mut root = global_arguments();
     for (index, &(verb, _, _)) in QUERIES.iter().enumerate() {
         if QUERIES
@@ -179,8 +179,10 @@ pub(crate) fn root() -> Result<Command, ()> {
         }
         let mut command = Command::new(verb).subcommand_required(true);
         for &(_, entity, id) in QUERIES.iter().filter(|(v, _, _)| *v == verb) {
-            let schema: Value =
-                serde_json::from_str(crate::schema::find(id).ok_or(())?).map_err(|_| ())?;
+            let schema: Value = serde_json::from_str(
+                crate::schema::find(id).ok_or_else(crate::grammar::ParseInvalid::default)?,
+            )
+            .map_err(|_| crate::grammar::ParseInvalid::default())?;
             command = command.subcommand(command_for(entity, &schema)?);
         }
         root = root.subcommand(command);
@@ -226,20 +228,17 @@ pub(crate) fn root() -> Result<Command, ()> {
 pub(crate) struct ParseInvalid {
     pub(crate) argument: Option<String>,
 }
-impl From<()> for ParseInvalid {
-    fn from(_: ()) -> Self {
-        Self::default()
-    }
-}
 pub(crate) fn parse(args: &[OsString]) -> Result<Parsed, ParseInvalid> {
     let mut root = root()?;
     root.build();
     let args = entry::arguments(args, &root);
     let matches = root
         .try_get_matches_from(std::iter::once(OsString::from("biomcp")).chain(args))
-        .map_err(|_| ())?;
+        .map_err(|_| crate::grammar::ParseInvalid::default())?;
     let globals = globals(&matches)?;
-    let (verb, matches) = matches.subcommand().ok_or(())?;
+    let (verb, matches) = matches
+        .subcommand()
+        .ok_or_else(crate::grammar::ParseInvalid::default)?;
     if verb == "serve" {
         return Ok(local::serve(matches, globals));
     }
@@ -287,7 +286,9 @@ pub(crate) fn parse(args: &[OsString]) -> Result<Parsed, ParseInvalid> {
             },
         }
     } else {
-        let (entity, matches) = matches.subcommand().ok_or(())?;
+        let (entity, matches) = matches
+            .subcommand()
+            .ok_or_else(crate::grammar::ParseInvalid::default)?;
         let request = request(verb, entity, matches).map_err(|cause| ParseInvalid {
             argument: validation::argument_names(verb, entity, matches, &cause),
         })?;
@@ -334,7 +335,7 @@ fn explicit_format(matches: &clap::ArgMatches) -> Option<Format> {
         })
 }
 
-fn globals(matches: &clap::ArgMatches) -> Result<Globals, ()> {
+fn globals(matches: &clap::ArgMatches) -> Result<Globals, crate::grammar::ParseInvalid> {
     let globals = Globals {
         config: matches.get_one::<PathBuf>("config").cloned(),
         disable_sources: matches
@@ -355,13 +356,16 @@ fn globals(matches: &clap::ArgMatches) -> Result<Globals, ()> {
     Ok(globals)
 }
 
-fn properties(schema: &Value) -> Result<&Map<String, Value>, ()> {
+fn properties(schema: &Value) -> Result<&Map<String, Value>, crate::grammar::ParseInvalid> {
     schema
         .get("properties")
         .and_then(Value::as_object)
-        .ok_or(())
+        .ok_or_else(crate::grammar::ParseInvalid::default)
 }
-fn arguments(matches: &clap::ArgMatches, schema: &Value) -> Result<Value, ()> {
+fn arguments(
+    matches: &clap::ArgMatches,
+    schema: &Value,
+) -> Result<Value, crate::grammar::ParseInvalid> {
     let mut result = Map::new();
     for (name, property) in properties(schema)? {
         if let Some(flags) = property.get("x-cli-flags").and_then(Value::as_object) {
@@ -385,9 +389,17 @@ fn arguments(matches: &clap::ArgMatches, schema: &Value) -> Result<Value, ()> {
         let value = if property_type(property) == Some("array") {
             Value::Array(values.into_iter().map(Value::String).collect())
         } else {
-            let value = values.into_iter().next().ok_or(())?;
+            let value = values
+                .into_iter()
+                .next()
+                .ok_or_else(crate::grammar::ParseInvalid::default)?;
             if property_type(property) == Some("integer") {
-                Value::Number(value.parse::<u64>().map_err(|_| ())?.into())
+                Value::Number(
+                    value
+                        .parse::<u64>()
+                        .map_err(|_| crate::grammar::ParseInvalid::default())?
+                        .into(),
+                )
             } else {
                 Value::String(value)
             }
@@ -399,9 +411,9 @@ fn arguments(matches: &clap::ArgMatches, schema: &Value) -> Result<Value, ()> {
 }
 
 impl Globals {
-    pub(crate) fn inherit(&mut self, process: &Self) -> Result<(), ()> {
+    pub(crate) fn inherit(&mut self, process: &Self) -> Result<(), crate::grammar::ParseInvalid> {
         if self.config.is_some() {
-            return Err(());
+            return Err(crate::grammar::ParseInvalid::default());
         }
         self.config = process.config.clone();
         self.disable_sources.extend(process.disable_sources.clone());
@@ -416,37 +428,46 @@ impl Globals {
         self.offline |= process.offline;
         self.check()
     }
-    fn check(&self) -> Result<(), ()> {
-        biomcp_adapters::registry::disabled(&self.disable_sources).map_err(|_| ())?;
+    fn check(&self) -> Result<(), crate::grammar::ParseInvalid> {
+        biomcp_adapters::registry::disabled(&self.disable_sources)
+            .map_err(|_| crate::grammar::ParseInvalid::default())?;
         if usize::from(self.replay.is_some())
             + usize::from(self.record.is_some())
             + usize::from(self.offline)
             > 1
             || self.case_cache.is_some() && self.replay.is_none() && !self.offline
         {
-            Err(())
+            Err(crate::grammar::ParseInvalid::default())
         } else {
             Ok(())
         }
     }
 }
 
-fn split_sections(result: &mut Map<String, Value>, schema: &Value) -> Result<(), ()> {
+fn split_sections(
+    result: &mut Map<String, Value>,
+    schema: &Value,
+) -> Result<(), crate::grammar::ParseInvalid> {
     for (name, property) in properties(schema)? {
         if property.get("x-trailing-section") != Some(&Value::Bool(true))
             || result.contains_key(name)
         {
             continue;
         }
-        let item = property.get("items").ok_or(())?;
+        let item = property
+            .get("items")
+            .ok_or_else(crate::grammar::ParseInvalid::default)?;
         let item = item
             .get("$ref")
             .and_then(Value::as_str)
             .and_then(|s| schema.pointer(s.trim_start_matches('#')))
             .unwrap_or(item);
-        let words = item.get("enum").and_then(Value::as_array).ok_or(())?;
+        let words = item
+            .get("enum")
+            .and_then(Value::as_array)
+            .ok_or_else(crate::grammar::ParseInvalid::default)?;
         let Some(input) = result.get_mut("input").and_then(Value::as_array_mut) else {
-            return Err(());
+            return Err(crate::grammar::ParseInvalid::default());
         };
         let mut split = input.len();
         while split > 1 && input.get(split - 1).is_some_and(|v| words.contains(v)) {
@@ -532,13 +553,20 @@ fn request(
     }
 }
 
-fn request_arguments(verb: &str, entity: &str, matches: &clap::ArgMatches) -> Result<Value, ()> {
+fn request_arguments(
+    verb: &str,
+    entity: &str,
+    matches: &clap::ArgMatches,
+) -> Result<Value, crate::grammar::ParseInvalid> {
     let id = QUERIES
         .iter()
         .find(|(v, e, _)| *v == verb && *e == entity)
         .map(|(_, _, id)| *id)
-        .ok_or(())?;
-    let schema: Value = serde_json::from_str(crate::schema::find(id).ok_or(())?).map_err(|_| ())?;
+        .ok_or_else(crate::grammar::ParseInvalid::default)?;
+    let schema: Value = serde_json::from_str(
+        crate::schema::find(id).ok_or_else(crate::grammar::ParseInvalid::default)?,
+    )
+    .map_err(|_| crate::grammar::ParseInvalid::default())?;
     let mut value = arguments(matches, &schema)?;
     if verb == "search"
         && matches!(entity, "cell-line" | "author")
@@ -546,7 +574,7 @@ fn request_arguments(verb: &str, entity: &str, matches: &clap::ArgMatches) -> Re
     {
         value
             .as_object_mut()
-            .ok_or(())?
+            .ok_or_else(crate::grammar::ParseInvalid::default)?
             .insert("query".into(), query.clone().into());
     }
     Ok(value)

@@ -48,11 +48,6 @@ impl From<ConfigError> for StartupError {
         Self::Configuration(error)
     }
 }
-impl From<()> for StartupError {
-    fn from((): ()) -> Self {
-        Self::Local
-    }
-}
 impl From<biomcp_fetch::CacheError> for StartupError {
     fn from(error: biomcp_fetch::CacheError) -> Self {
         Self::Cache(error)
@@ -102,7 +97,7 @@ fn fetch_using(
         && replay_cache.is_none()
         && let Some(parent) = cache.as_ref().and_then(|path| path.parent())
     {
-        create_cache_directory(parent).map_err(|_| ())?;
+        create_cache_directory(parent).map_err(|_| StartupError::Local)?;
     }
     let secrets = secrets_from(file.as_ref());
     let network = network(file.as_ref())?;
@@ -117,7 +112,7 @@ fn fetch_using(
             .as_ref()
             .map(|path| biomcp_fetch::Observations::create(path).map(std::sync::Arc::new))
             .transpose()
-            .map_err(|_| ())?,
+            .map_err(|_| StartupError::Local)?,
         cache_owners: vec![biomcp_query::store::OWNER],
         secrets,
         network,
@@ -135,7 +130,7 @@ fn fetch_using(
     .map_err(|error| match error {
         biomcp_fetch::FetchError::Cache(error) => error.into(),
         biomcp_fetch::FetchError::Proxy => ConfigError::field("proxy").into(),
-        _ => ().into(),
+        _ => StartupError::Local,
     })
 }
 

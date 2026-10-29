@@ -102,11 +102,11 @@ pub struct OrcidWorkGroup {
     pub assertions: Box<[OrcidWorkAssertion]>,
 }
 impl std::str::FromStr for OrcidPublicVisibility {
-    type Err = super::AuthorIdInvalid;
+    type Err = crate::Error;
     fn from_str(value: &str) -> Result<Self, Self::Err> {
         match value {
             "public" | "PUBLIC" => Ok(Self::Public),
-            _ => Err(super::AuthorIdInvalid::Syntax),
+            _ => Err(crate::Error::AuthorIdSyntax),
         }
     }
 }

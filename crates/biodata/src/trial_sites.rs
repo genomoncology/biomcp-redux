@@ -120,12 +120,12 @@ struct Coordinates {
     longitude: FiniteNumber,
 }
 impl TryFrom<Coordinates> for TrialCoordinates {
-    type Error = &'static str;
+    type Error = crate::Error;
     fn try_from(v: Coordinates) -> Result<Self, Self::Error> {
         if !(-90.0..=90.0).contains(&f64::from(v.latitude))
             || !(-180.0..=180.0).contains(&f64::from(v.longitude))
         {
-            return Err("trial.coordinates_invalid");
+            return Err(crate::Error::TrialCoordinatesInvalid);
         }
         Ok(Self {
             latitude: v.latitude,
@@ -136,7 +136,7 @@ impl TryFrom<Coordinates> for TrialCoordinates {
 
 impl TrialCoordinates {
     /// Validate source latitude and longitude before admitting a registry record.
-    pub fn new(latitude: FiniteNumber, longitude: FiniteNumber) -> Result<Self, &'static str> {
+    pub fn new(latitude: FiniteNumber, longitude: FiniteNumber) -> Result<Self, crate::Error> {
         Self::try_from(Coordinates {
             latitude,
             longitude,

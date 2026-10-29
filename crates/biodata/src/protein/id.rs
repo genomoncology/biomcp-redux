@@ -1,5 +1,4 @@
-use crate::{Error, UniProtAcc};
-use std::{fmt, str::FromStr};
+use crate::UniProtAcc;
 fn isoform(value: &str) -> bool {
     let (base, suffix) = value
         .split_once('-')
@@ -25,61 +24,29 @@ fn residues(value: &str) -> bool {
             .bytes()
             .all(|b| b"ACDEFGHIKLMNPQRSTVWYUOX".contains(&b))
 }
-macro_rules! checked {
-    ($name:ident, $error:ident, $check:ident, $pattern:literal, $doc:literal) => {
-        #[doc = $doc]
-        #[derive(Clone, Debug, PartialEq, Eq, Hash)]
-        pub struct $name(Box<str>);
-        impl $name {
-            /// Check the entire source spelling without adding information.
-            pub fn new(value: &str) -> Result<Self, Error> {
-                if $check(value) {
-                    Ok(Self(value.into()))
-                } else {
-                    Err(Error::$error)
-                }
-            }
-            /// Borrow the stated source spelling.
-            pub fn as_str(&self) -> &str {
-                &self.0
-            }
-        }
-        impl FromStr for $name {
-            type Err = Error;
-            fn from_str(v: &str) -> Result<Self, Error> {
-                Self::new(v)
-            }
-        }
-        impl fmt::Display for $name {
-            fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
-                f.write_str(self.as_str())
-            }
-        }
-        crate::text_value!($name, stringify!($name), $pattern, $doc);
-    };
-}
-checked!(
+
+crate::checked_id!(
     UniProtIsoform,
     UniProtIsoformInvalid,
     isoform,
     "^([OPQ][0-9][A-Z0-9]{3}[0-9]|[A-NR-Z][0-9]([A-Z][A-Z0-9]{2}[0-9]){1,2})(-[1-9][0-9]*)?$",
     "A stated UniProt accession with an optional positive isoform number; never imputes -1."
 );
-checked!(
+crate::checked_id!(
     AminoAcids,
     ProteinResidueInvalid,
     residues,
     "^[ACDEFGHIKLMNPQRSTVWYUOX]+$",
     "Nonempty uppercase standard residues plus U, O and X."
 );
-checked!(
+crate::checked_id!(
     InterProId,
     InterProIdInvalid,
     interpro,
     "^IPR[0-9]{6}$",
     "An integrated InterPro entry accession, distinct from a member signature."
 );
-checked!(
+crate::checked_id!(
     ComplexPortalId,
     ComplexPortalIdInvalid,
     complex,

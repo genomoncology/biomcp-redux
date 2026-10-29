@@ -53,11 +53,29 @@ macro_rules! wire_enum {
     };
 
     ($(#[$doc:meta])* $name:ident { $($(#[$vdoc:meta])* $variant:ident => $literal:literal),+ $(,)? }) => {
-        #[derive(Clone, Copy, Debug, PartialEq, Eq, serde::Serialize, serde::Deserialize)]
+        #[derive(Clone, Copy, Debug, PartialEq, Eq, serde::Serialize)]
         #[cfg_attr(feature = "schema", derive(schemars::JsonSchema))]
         $(#[$doc])*
         #[cfg_attr(feature = "schema", schemars(with = "str", extend("enum" = [$($literal),+])))]
         pub enum $name { $($(#[$vdoc])* #[serde(rename = $literal)] $variant,)+ }
+        impl<'de> serde::Deserialize<'de> for $name {
+            fn deserialize<D: serde::Deserializer<'de>>(deserializer: D) -> Result<Self, D::Error> {
+                struct Visitor;
+                impl serde::de::Visitor<'_> for Visitor {
+                    type Value = $name;
+                    fn expecting(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+                        f.write_str(concat!("a declared ", stringify!($name), " value"))
+                    }
+                    fn visit_str<E: serde::de::Error>(self, value: &str) -> Result<$name, E> {
+                        match value {
+                            $($literal => Ok($name::$variant),)+
+                            _ => Err(E::custom($crate::Error::WireEnumUnknown)),
+                        }
+                    }
+                }
+                deserializer.deserialize_str(Visitor)
+            }
+        }
         impl $name {
             /// Canonical wire spelling from the enum declaration.
             pub const fn as_str(self) -> &'static str { match self { $(Self::$variant => $literal,)+ } }
@@ -82,7 +100,7 @@ macro_rules! canonical_enum {
  "x-enum-descriptions" = [$(concat!($($variant_doc),
 *)),
 +])))]
-        #[non_exhaustive]
+
         #[serde(try_from = "String", into = "&'static str")]
         pub enum $name {
             $($(#[doc = $variant_doc])* $variant),+
@@ -162,4 +180,40 @@ macro_rules! native_enum {
             }
         }
     }
+}
+
+/// Define a checked identifier whose source spelling is its identity.
+#[macro_export]
+macro_rules! checked_id {
+    ($name:ident, $error:ident, $check:expr, $pattern:expr, $doc:expr) => {
+        #[doc = $doc]
+        #[derive(Clone, Debug, PartialEq, Eq, Hash, PartialOrd, Ord)]
+        pub struct $name(Box<str>);
+        impl $name {
+            /// Check the complete spelling without normalization.
+            pub fn new(value: &str) -> Result<Self, $crate::Error> {
+                if ($check)(value) {
+                    Ok(Self(value.into()))
+                } else {
+                    Err($crate::Error::$error)
+                }
+            }
+            /// Borrow the unchanged source identifier.
+            pub fn as_str(&self) -> &str {
+                &self.0
+            }
+        }
+        impl std::str::FromStr for $name {
+            type Err = $crate::Error;
+            fn from_str(value: &str) -> Result<Self, Self::Err> {
+                Self::new(value)
+            }
+        }
+        impl std::fmt::Display for $name {
+            fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+                f.write_str(self.as_str())
+            }
+        }
+        $crate::text_value!($name, stringify!($name), $pattern, $doc);
+    };
 }

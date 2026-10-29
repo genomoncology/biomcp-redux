@@ -3,11 +3,11 @@ macro_rules! errors {
     ($( $(#[$doc:meta])* $variant:ident => $code:literal ),+ $(,)?) => {
         /// A rejected value, without retaining the input text.
         #[derive(Clone, Copy, Debug, PartialEq, Eq)]
-        #[non_exhaustive]
+
         pub enum Error { $( $(#[$doc])* $variant, )+ }
         impl Error {
             /// Return the stable machine-readable code.
-            pub fn code(self) -> &'static str {
+            pub const fn code(self) -> &'static str {
                 match self { $(Self::$variant => $code,)+ }
             }
         }
@@ -15,6 +15,37 @@ macro_rules! errors {
 }
 
 errors! {
+    /// An article needs at least one checked identity.
+    ArticleIdentityRequired => "article identity required",
+    /// The checked value was rejected.
+    GwasValueInvalid => "gwas.value.invalid",
+    /// The checked value was rejected.
+    ReportIdInvalid => "report.id.invalid",
+    /// The checked value was rejected.
+    CellLineIdInvalid => "cell_line.id.invalid",
+    /// The checked value was rejected.
+    ReactomeIdInvalid => "id.reactome.invalid",
+    /// The checked value was rejected.
+    HpIdInvalid => "invalid_hp_id",
+    /// The checked value was rejected.
+    AuthorIdSyntax => "author.id.syntax",
+    /// The checked value was rejected.
+    AuthorIdChecksum => "author.id.checksum",
+    /// The checked value was rejected.
+    WikiPathwaysIdInvalid => "id.wikipathways.invalid",
+    /// The checked value was rejected.
+    PathwayIdInvalid => "id.pathway.invalid",
+    /// The checked value was rejected.
+    TrialCoordinatesInvalid => "trial.coordinates_invalid",
+    /// The checked value was rejected.
+    LicenseUnknown => "license.unknown",
+    /// The checked value was rejected.
+    ArticleMatchKindUnknown => "article.match_kind.unknown",
+    /// The checked value was rejected.
+    ProteinBoundAbsent => "protein.bound.absent",
+    /// The checked value was rejected.
+    WireEnumUnknown => "enum.value.unknown",
+
     /// A source-native study identity or timestamp failed its grammar.
     StudyValueInvalid => "study.value.invalid",
     /// Invalid amino-acid residue text.

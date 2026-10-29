@@ -47,7 +47,7 @@ text_value!(
 );
 biodata::canonical_enum! {
     /// Identifier used to resolve this article.
-    ArticleMatchKind, SourceUnknown {
+    ArticleMatchKind, ArticleMatchKindUnknown {
         /// PubMed identifier.
         Pmid => "pmid",
         /// PMC identifier.

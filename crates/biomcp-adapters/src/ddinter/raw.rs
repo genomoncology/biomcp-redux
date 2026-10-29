@@ -21,11 +21,11 @@ struct Fields {
     level: Text,
 }
 impl TryFrom<Fields> for NativeRow {
-    type Error = &'static str;
+    type Error = biomcp_fetch::BadReply;
     fn try_from(fields: Fields) -> Result<Self, Self::Error> {
         for id in [&fields.id_a, &fields.id_b] {
             if !valid_id(id.as_str()) {
-                return Err("expected a published DDInter identifier");
+                return Err(biomcp_fetch::BadReply);
             }
         }
         Ok(Self(fields))

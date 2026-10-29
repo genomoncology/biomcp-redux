@@ -29,7 +29,7 @@ pub fn get(cx: &Ctx<'_>, query: &AdverseEventGet) -> Outcome {
                     out.body = body;
                     navigation(&bound, total, returned, &mut out);
                 }
-                Err(()) => too_large(query, &mut out),
+                Err(biomcp_types::QueryInvalid::default()) => too_large(query, &mut out),
             }
         }
         Ok(None) => {}
@@ -78,8 +78,8 @@ fn navigation(query: &AdverseEventGet, total: u64, returned: u32, out: &mut Outc
         }
     }
 }
-fn text(value: &str) -> Result<Text, ()> {
-    Text::new(value).map_err(|_| ())
+fn text(value: &str) -> Result<Text, biomcp_types::QueryInvalid> {
+    Text::new(value).map_err(|_| biomcp_types::QueryInvalid::default())
 }
 
 fn too_large(query: &AdverseEventGet, out: &mut Outcome) {

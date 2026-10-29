@@ -93,7 +93,7 @@ pub struct Attribution {
 }
 crate::wire_enum! {
     /// Domain of a source claim.
-    #[non_exhaustive]
+
     #[cfg_attr(feature = "schema", schemars(extend("x-enum-open" = true)))]
     Proposition {
         /// Published pathogenicity value.
@@ -114,7 +114,7 @@ crate::wire_enum! {
 }
 crate::wire_enum! {
     /// Assessment direction stated by the source.
-    #[non_exhaustive]
+
     #[cfg_attr(feature = "schema", schemars(extend("x-enum-open" = true)))]
     Direction {
         /// Published supports value.
@@ -127,7 +127,7 @@ crate::wire_enum! {
 }
 crate::wire_enum! {
     /// VA-Spec 1.1 proposition relationships in native snake_case.
-    #[non_exhaustive]
+
     #[cfg_attr(feature = "schema", schemars(extend("x-enum-open" = true)))]
     Predicate {
         /// Published is_causal_for value.

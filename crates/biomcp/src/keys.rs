@@ -41,17 +41,21 @@ pub(crate) fn grammar() -> clap::Command {
                 .arg(source()),
         )
 }
-pub(crate) fn parse(matches: &clap::ArgMatches) -> Result<Command, ()> {
-    let (verb, matches) = matches.subcommand().ok_or(())?;
+pub(crate) fn parse(matches: &clap::ArgMatches) -> Result<Command, crate::grammar::ParseInvalid> {
+    let (verb, matches) = matches
+        .subcommand()
+        .ok_or_else(crate::grammar::ParseInvalid::default)?;
     if verb == "list" {
         return Ok(Command::List);
     }
-    let source = matches.get_one::<String>("source").ok_or(())?;
+    let source = matches
+        .get_one::<String>("source")
+        .ok_or_else(crate::grammar::ParseInvalid::default)?;
     let name = SecretName::ALL
         .iter()
         .copied()
         .find(|n| n.source() == source)
-        .ok_or(())?;
+        .ok_or_else(crate::grammar::ParseInvalid::default)?;
     Ok(if verb == "set" {
         Command::Set(name, matches.get_flag("replace"))
     } else {

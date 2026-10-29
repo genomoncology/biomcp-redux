@@ -2,7 +2,10 @@
 use super::{gwas, properties, property_type};
 use clap::{Arg, ArgAction, Command, builder::TypedValueParser};
 use serde_json::Value;
-pub(super) fn command_for(name: &'static str, schema: &Value) -> Result<Command, ()> {
+pub(super) fn command_for(
+    name: &'static str,
+    schema: &Value,
+) -> Result<Command, crate::grammar::ParseInvalid> {
     let mut command = Command::new(name)
         .about(
             schema
@@ -64,7 +67,11 @@ pub(super) fn command_for(name: &'static str, schema: &Value) -> Result<Command,
     }
     aliases(name, schema, command)
 }
-fn aliases(name: &str, schema: &Value, mut command: Command) -> Result<Command, ()> {
+fn aliases(
+    name: &str,
+    schema: &Value,
+    mut command: Command,
+) -> Result<Command, crate::grammar::ParseInvalid> {
     if matches!(name, "cell-line" | "author") && properties(schema)?.contains_key("query") {
         command = command
             .mut_arg("query", |arg| {

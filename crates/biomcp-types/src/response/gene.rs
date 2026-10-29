@@ -15,7 +15,7 @@ pub use clingen::{ClinGenGene, ClinGenValidity};
 pub use constraint::Constraint;
 pub use expression::{CancerPtpm, GeneExpression, RnaAbundance, TissueNtpm};
 pub use oncokb::{Oncokb, OncokbCard, OncokbGeneType, OncokbTranscript};
-pub use pathways::{Capped, PathwayRef, ReactomeId, ReactomeIdInvalid};
+pub use pathways::{Capped, PathwayRef, ReactomeId};
 pub use protein::Protein;
 use serde::{Deserialize, Serialize};
 /// Answer to one requested input.

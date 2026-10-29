@@ -66,7 +66,7 @@ pub use gene::{Constraint, GeneSections, Protein};
 
 pub use gene::{
     CancerPtpm, Capped, CivicGene, ClinGenGene, ClinGenValidity, GenccGene, GenccSubmission,
-    GeneExpression, PathwayRef, ReactomeId, ReactomeIdInvalid, RnaAbundance, TissueNtpm,
+    GeneExpression, PathwayRef, ReactomeId, RnaAbundance, TissueNtpm,
 };
 
 mod article_sections;

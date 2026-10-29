@@ -3,7 +3,7 @@ use serde::{Deserialize, Serialize};
 #[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
 #[serde(tag = "system", content = "code")]
 #[cfg_attr(feature = "schema", derive(schemars::JsonSchema))]
-#[non_exhaustive]
+
 pub enum Coding {
     /// OncoKB oncogenicity vocabulary.
     #[serde(rename = "oncokb_oncogenicity")]

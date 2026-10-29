@@ -100,35 +100,27 @@ text_value!(
     "Source spelling of a gene symbol, with ASCII case-insensitive identity."
 );
 
-macro_rules! accession {
-    ($(#[doc = $doc:literal])* $name:ident, $error:ident, $schema:literal, $pattern:literal, $check:expr) => {
-        $(#[doc = $doc])*
-        #[derive(Clone, Debug, PartialEq, Eq, Hash, PartialOrd, Ord)]
-        pub struct $name(Box<str>);
-        impl $name {
-            /// Check the full canonical accession.
-            pub fn new(value: &str) -> Result<Self, Error> { if ($check)(value) { Ok(Self(value.into())) } else { Err(Error::$error) } }
-            /// Borrow the full canonical accession.
-            pub fn as_str(&self) -> &str { &self.0 }
-        }
-        impl FromStr for $name { type Err = Error; fn from_str(value: &str) -> Result<Self, Error> { Self::new(value) } }
-        impl fmt::Display for $name { fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result { f.write_str(self.as_str()) } }
-        text_value!($name, $schema, $pattern, concat!($($doc),*));
-    };
-}
-// Keep literal schema names for text_value's diagnostic concat.
-accession! {
-    /// A six-digit OMIM identifier, preserving all six digits.
-    OmimId, OmimIdInvalid, "OmimId", "^[0-9]{6}$", |value: &str| value.len() == 6 && value.bytes().all(|ch| ch.is_ascii_digit())
-}
-accession! {
-    /// A whole UniProt base accession, without an isoform suffix.
-    UniProtAcc, UniProtAccInvalid, "UniProtAcc", "^([OPQ][0-9][A-Z0-9]{3}[0-9]|[A-NR-Z][0-9]([A-Z][A-Z0-9]{2}[0-9]){1,2})$", uniprot
-}
-accession! {
-    /// A single nuclear cytogenetic band, without a range or location descriptor.
-    Cytoband, CytobandInvalid, "Cytoband", "^([1-9]|1[0-9]|2[0-2]|X|Y)[pq][1-9][0-9](\\.[0-9]+)?$", cytoband
-}
+crate::checked_id!(
+    OmimId,
+    OmimIdInvalid,
+    |value: &str| value.len() == 6 && value.bytes().all(|ch| ch.is_ascii_digit()),
+    "^[0-9]{6}$",
+    "A six-digit OMIM identifier, preserving all six digits."
+);
+crate::checked_id!(
+    UniProtAcc,
+    UniProtAccInvalid,
+    uniprot,
+    "^([OPQ][0-9][A-Z0-9]{3}[0-9]|[A-NR-Z][0-9]([A-Z][A-Z0-9]{2}[0-9]){1,2})$",
+    "A whole UniProt base accession, without an isoform suffix."
+);
+crate::checked_id!(
+    Cytoband,
+    CytobandInvalid,
+    cytoband,
+    "^([1-9]|1[0-9]|2[0-2]|X|Y)[pq][1-9][0-9](\\.[0-9]+)?$",
+    "A single nuclear cytogenetic band, without a range or location descriptor."
+);
 fn uniprot(value: &str) -> bool {
     let bytes = value.as_bytes();
     let Some((&first, rest)) = bytes.split_first() else {

@@ -23,10 +23,10 @@ macro_rules! article {
             $( $(#[$attribute])* $field: $ty, )*
         }
         impl<A> TryFrom<ArticleFields<A>> for Article<A> {
-            type Error = &'static str;
+            type Error = biodata::Error;
             fn try_from(value: ArticleFields<A>) -> Result<Self, Self::Error> {
                 if value.pmid.is_none() && value.pmcid.is_none() && value.doi.is_none() && value.europepmc_id.is_none() {
-                    return Err("article identity required");
+                    return Err(biodata::Error::ArticleIdentityRequired);
                 }
                 Ok(Self { $( $field: value.$field, )* })
             }

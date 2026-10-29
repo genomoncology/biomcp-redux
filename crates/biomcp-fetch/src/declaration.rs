@@ -120,7 +120,7 @@ pub struct Credential {
 
 /// Configuration names of supported secrets.
 #[derive(Clone, Copy, Debug, PartialEq, Eq, PartialOrd, Ord)]
-#[non_exhaustive]
+
 pub enum SecretName {
     /// openFDA API key.
     OpenfdaApiKey,

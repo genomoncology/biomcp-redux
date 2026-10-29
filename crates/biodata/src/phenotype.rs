@@ -11,17 +11,8 @@ crate::text_value!(
     "^HP:[0-9]{7}$",
     "Exact Human Phenotype Ontology identifier with seven decimal digits."
 );
-/// Invalid published HP identifier spelling.
-#[derive(Clone, Copy, Debug, PartialEq, Eq)]
-pub struct HpIdInvalid;
-impl fmt::Display for HpIdInvalid {
-    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
-        f.write_str("invalid_hp_id")
-    }
-}
-impl std::error::Error for HpIdInvalid {}
 impl FromStr for HpId {
-    type Err = HpIdInvalid;
+    type Err = crate::Error;
     fn from_str(value: &str) -> Result<Self, Self::Err> {
         if value.len() == 10
             && value
@@ -30,7 +21,7 @@ impl FromStr for HpId {
         {
             Ok(Self(value.into()))
         } else {
-            Err(HpIdInvalid)
+            Err(crate::Error::HpIdInvalid)
         }
     }
 }
