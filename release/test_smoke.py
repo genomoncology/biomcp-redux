@@ -116,9 +116,6 @@ else:
             provenance = Path("sdlc/planning/slices/gene.md")
             (fixtures / "support" / provenance).parent.mkdir(parents=True)
             shutil.copy2(provenance, fixtures / "support" / provenance)
-            for path in fixtures.rglob("*"):
-                if path.is_file():
-                    path.chmod(0o444)
             parent = root / "job-tmp"
             parent.mkdir()
             sentinel = parent / "keep"

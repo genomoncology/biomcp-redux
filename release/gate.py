@@ -114,9 +114,6 @@ def installed(args):
         provenance = Path("sdlc/planning/slices/gene.md")
         (fixtures / "support" / provenance).parent.mkdir(parents=True, exist_ok=True)
         shutil.copy2(source / provenance, fixtures / "support" / provenance)
-        for path in fixtures.rglob("*"):
-            if path.is_file():
-                path.chmod(0o444)
         shutil.copy2(Path(cargo("release", tests=True)["executable"]), executable)
         shutil.copytree(source / "release", root / "tools/release", dirs_exist_ok=True, ignore=shutil.ignore_patterns("__pycache__"))
         shutil.copy2(source / "LICENSE", root / "tools/LICENSE")
