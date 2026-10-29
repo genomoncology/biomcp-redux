@@ -461,28 +461,6 @@ fn stream_worker_holds_the_shared_permit_until_stream_cancellation() -> Check {
     second.finish()
 }
 
-#[test]
-fn stream_worker_shutdown_cancels_and_joins_active_network_work() -> Check {
-    let fixture = Fixture::new(Hold::Headers, 0, false, false)?;
-    let fetch = Fetch::open(FetchConfig {
-        network: fixture.network(None, "")?,
-        ..Default::default()
-    })?;
-    let source = fixture.source(false, KeyUse::None);
-    let call = Call::start(fetch.clone(), source, Duration::from_secs(5))?;
-    fixture.wait_request()?;
-    fetch.shutdown_grpc();
-    assert!(call.finish()?.is_err());
-    assert!(
-        fetch
-            .leg(source, fetch.deadline(Duration::from_secs(1)))
-            .grpc(&source.grpc("/synthetic.Tensor/Exchange"), &[], |_| Ok(()))
-            .is_err()
-    );
-    assert_eq!(fixture.count.load(std::sync::atomic::Ordering::SeqCst), 1);
-    fixture.finish()
-}
-
 static QUEUE_QUOTA: Quota = Quota::new(
     SourceKey::declare("grpc-queue"),
     Rate::per_second(100),

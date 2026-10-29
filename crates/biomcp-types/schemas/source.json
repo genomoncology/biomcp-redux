@@ -1,5 +1,5 @@
 {
-  "$id": "biodata.source/1",
+  "$id": "biomcp.source/1",
   "$schema": "https://json-schema.org/draft/2020-12/schema",
   "description": "A source of BioMCP data, identified by its canonical short name.",
   "title": "Source",

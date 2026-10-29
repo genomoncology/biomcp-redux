@@ -8,18 +8,18 @@ steps:
     expect:
       '':
         equals:
-          schema: biomcp.error/1
+          schema: biomcp.error/2
           status: usage
           error:
             code: usage.schema
             message: use biomcp schema to list known artifact IDs
-  - run: [schema, biodata.source/1, extra]
+  - run: [schema, biomcp.source/1, extra]
     exit: 2
     max_bytes: 160
     expect:
       '':
         equals:
-          schema: biomcp.error/1
+          schema: biomcp.error/2
           status: usage
           error:
             code: usage.schema

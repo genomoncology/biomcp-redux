@@ -1,5 +1,8 @@
 //! Feature cell-line-sections: callers retrieve whole native rows independently.
-use super::*;
+use super::{
+    Environment, Stub, Value, Write, budget, ceiling, fixture, invoke, json, parity, path,
+    recorded_stub, setup,
+};
 mod controls;
 pub(super) mod expected;
 pub(super) fn run(measure: bool) -> Result<(), String> {

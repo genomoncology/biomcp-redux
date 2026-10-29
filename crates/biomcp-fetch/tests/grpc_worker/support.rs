@@ -1,5 +1,9 @@
 //! Own an event-driven local TLS HTTP/2 peer with synthetic protobuf messages.
 use biomcp_fetch::{Certificates, KeyUse, Network, SourceSpec, Terms};
+#[expect(
+    clippy::disallowed_types,
+    reason = "Count sockets only across this fixture and its joined worker"
+)]
 use std::{
     net::TcpListener,
     sync::{
@@ -26,7 +30,7 @@ pub(super) enum Hold {
     NoAlpn,
 }
 #[derive(Debug)]
-#[allow(
+#[expect(
     dead_code,
     reason = "Consumers read different events from this shared transport and CLI fixture"
 )]
@@ -39,6 +43,10 @@ pub(super) enum Seen {
     Message,
     Trailers,
 }
+#[expect(
+    clippy::disallowed_types,
+    reason = "Count sockets only across this fixture and its joined worker"
+)]
 pub(super) struct Fixture {
     pub(super) address: std::net::SocketAddr,
     pub(super) certificate: String,
@@ -73,6 +81,10 @@ impl Fixture {
     ) -> Check<Self> {
         Self::with_http(hold, status, proxy, proxy_tls, messages, None, 200)
     }
+    #[expect(
+        clippy::disallowed_types,
+        reason = "Count sockets only across this fixture and its joined worker"
+    )]
     pub(super) fn with_http(
         hold: Hold,
         status: u8,
@@ -198,13 +210,6 @@ impl Fixture {
     pub(super) fn wait_message(&self) -> Check {
         loop {
             if matches!(self.received()?, Seen::Message) {
-                return Ok(());
-            }
-        }
-    }
-    pub(super) fn wait_request(&self) -> Check {
-        loop {
-            if matches!(self.received()?, Seen::Request(_, _)) {
                 return Ok(());
             }
         }

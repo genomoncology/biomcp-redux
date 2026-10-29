@@ -1,4 +1,4 @@
-use super::*;
+use super::{Leg, RequestError, Source, fetch};
 
 use biomcp_types::{
     NormalizationField, NormalizationMessage, NormalizationResult, VariantResolution,

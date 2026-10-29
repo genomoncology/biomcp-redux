@@ -1,5 +1,7 @@
 //! Ordinary execution proves checked cache admission and policy before replay parity.
-use super::*;
+use super::{
+    Stub, Value, Write, budget, expected, fixture, invoke, json, parity, path, recorded_stub, setup,
+};
 pub(super) fn run(measure: bool) -> Result<(), String> {
     for fault in ["xref", "provenance"] {
         admission(fault, measure)?;

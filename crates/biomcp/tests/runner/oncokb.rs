@@ -121,8 +121,7 @@ fn wire() -> Result<(), String> {
     let request = &keyed.first().ok_or("missing annotation request")?.1;
     if !request.starts_with(
         "GET \
-        /api/v1/annotate/mutations/byHGVSg?hgvsg=7%3Ag.140753336A%3ET&referenceGenome=GRCh38&tumorType=Synth\
-        etic%20tumor HTTP/1.1",
+        /api/v1/annotate/mutations/byHGVSg?hgvsg=7%3Ag.140753336A%3ET&referenceGenome=GRCh38&tumorType=Synthetic%20tumor HTTP/1.1",
     ) || !request.lines().any(|l| l.eq_ignore_ascii_case(&format!("authorization: Bearer {KEY}")))
     {
         return Err(format!(

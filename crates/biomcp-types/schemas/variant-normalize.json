@@ -23,7 +23,7 @@
       "type": "string"
     }
   },
-  "$id": "biodata.variant-normalize/4",
+  "$id": "biomcp.variant-normalize/4",
   "$schema": "https://json-schema.org/draft/2020-12/schema",
   "additionalProperties": false,
   "description": "Send unchanged reference-qualified notation to explicitly named services.",

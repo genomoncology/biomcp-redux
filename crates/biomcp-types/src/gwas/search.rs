@@ -228,6 +228,10 @@ impl GwasSearch {
 mod threshold {
     use biodata::ScientificPValue;
     use serde::{Deserialize, Deserializer, Serializer, ser::Error as _};
+    #[expect(
+        clippy::ref_option,
+        reason = "Serde serialize_with passes a reference to the entire optional field"
+    )]
     pub(super) fn serialize<S: Serializer>(
         value: &Option<ScientificPValue>,
         serializer: S,

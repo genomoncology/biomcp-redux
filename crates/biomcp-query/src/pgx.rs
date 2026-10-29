@@ -6,7 +6,11 @@ use crate::{Ctx, Outcome, status};
 pub(crate) use annotations::annotation;
 use biomcp_adapters::cpic;
 use biomcp_fetch::{Leg, RequestError};
-use biomcp_types::*;
+use biomcp_types::{
+    PgxCard, PgxDiplotype, PgxGet, PgxGuidelines, PgxHeader, PgxPage, PgxPageInfo,
+    PgxRecommendations, PgxSearch, PgxSection, PgxSource, PgxTotalKind, Problem, ProblemCode,
+    QueryBody, Reason, Request, Source, SourceOutcome, SourceState, Status,
+};
 /// Discover one independent native CPIC pair page.
 pub fn search(cx: &Ctx<'_>, query: &PgxSearch) -> Outcome {
     let command = cx.fetch.command_deadline(cx.budget);

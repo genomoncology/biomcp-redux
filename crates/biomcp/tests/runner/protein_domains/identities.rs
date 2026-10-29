@@ -1,6 +1,6 @@
 //! Feature protein-domains-complexes: synthetic returned identities are dropped before caching.
 use super::super::mcp;
-use super::*;
+use super::{Stub, Trial, Value, call, json, setup};
 use crate::runner::transcript::trial as transcript_trial;
 pub(super) fn trials() -> Vec<Trial> {
     ["accession", "isoform", "ipr", "cpx"]

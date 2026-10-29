@@ -15,23 +15,54 @@ where
     T: Copy + Debug + Eq + FromStr<Err = Error> + ToString + Serialize + DeserializeOwned,
 {
     for &(value, name) in rows {
-        assert_eq!(value.to_string(), name);
-        assert_eq!(name.parse::<T>()?, value);
+        assert_eq!(
+            value.to_string(),
+            name,
+            "Closed vocabularies must preserve canonical names and reject other forms"
+        );
+        assert_eq!(
+            name.parse::<T>()?,
+            value,
+            "Closed vocabularies must preserve canonical names and reject other forms"
+        );
         let json = serde_json::to_string(&value)?;
-        assert_eq!(json, format!("\"{name}\""));
-        assert_eq!(serde_json::from_str::<T>(&json)?, value);
+        assert_eq!(
+            json,
+            format!("\"{name}\""),
+            "Closed vocabularies must preserve canonical names and reject other forms"
+        );
+        assert_eq!(
+            serde_json::from_str::<T>(&json)?,
+            value,
+            "Closed vocabularies must preserve canonical names and reject other forms"
+        );
     }
     for input in ["", " ", "distinctive-rejected-input", "HGNC", " hgnc "] {
         let parsed = input.parse::<T>().err().ok_or("accepted an unknown name")?;
-        assert_eq!(parsed, error);
-        assert!(!parsed.to_string().contains("distinctive-rejected-input"));
-        assert!(!format!("{parsed:?}").contains("distinctive-rejected-input"));
+        assert_eq!(
+            parsed, error,
+            "Closed vocabularies must preserve canonical names and reject other forms"
+        );
+        assert!(
+            !parsed.to_string().contains("distinctive-rejected-input"),
+            "Closed vocabularies must preserve canonical names and reject other forms"
+        );
+        assert!(
+            !format!("{parsed:?}").contains("distinctive-rejected-input"),
+            "Closed vocabularies must preserve canonical names and reject other forms"
+        );
         let json = serde_json::to_string(input)?;
         let decoded = serde_json::from_str::<T>(&json)
             .err()
             .ok_or("decoded an unknown name")?;
-        assert!(decoded.to_string().contains(error.code()));
-        assert!(!decoded.to_string().contains("distinctive-rejected-input"));
+        assert!(
+            decoded.to_string().contains(error.code()),
+            "Closed vocabularies must preserve canonical names and reject other forms"
+        );
+        assert!(
+            !decoded.to_string().contains("distinctive-rejected-input"),
+            "Closed vocabularies must preserve canonical names and reject other forms"
+        );
     }
     Ok(())
 }
@@ -186,8 +217,11 @@ fn population_strata_enforce_counts_and_frequencies() -> Check {
             Some(PopulationSex::Xy),
             Some(Text::new("synthetic-subset")?),
         )?
-        .with_counts(Some(2), Some(4), Some(0), Some(0))?
-        .with_frequencies(Some(0.5.try_into()?), Some(0.25.try_into()?))?;
+        .with_counts(Some(2), Some(4), Some(0), Some(0))?;
+    let mut reported = serde_json::to_value(&value)?;
+    reported["allele_frequency"] = json!(0.5);
+    reported["faf95"] = json!(0.25);
+    let value: PopulationFrequency = serde_json::from_value(reported)?;
     let serialized = serde_json::to_value(&value)?;
     assert_eq!(serialized.get("hemizygote_count"), Some(&json!(0)));
     assert_eq!(serialized.get("allele_frequency"), Some(&json!(0.5)));

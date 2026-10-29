@@ -952,7 +952,7 @@
       ]
     }
   },
-  "$id": "biodata.request/28",
+  "$id": "biomcp.request/28",
   "$schema": "https://json-schema.org/draft/2020-12/schema",
   "description": "One checked query. Housekeeping actions are separate.",
   "oneOf": [

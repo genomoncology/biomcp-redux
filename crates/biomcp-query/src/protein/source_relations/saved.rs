@@ -1,4 +1,7 @@
-use super::*;
+use super::{
+    Action, CacheError, Outcome, QueryBody, Request, RequestError, Selection, Source, SourceError,
+    StepKind, Store, complex_portal, interpro,
+};
 use biomcp_types::{ProteinComplexMembers, ProteinComplexes, ProteinDomains};
 pub(super) enum Saved {
     Domains(

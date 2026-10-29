@@ -1,6 +1,7 @@
 # 0444 — Move BioMCP-owned types out of the biodata schema namespace
 
-Status: OPEN.
+Status: COMPLETE.
+Landed: 29b68fadcd62f0e8343a78bfa887f0c04d037c3d
 
 Milestone: 5
 

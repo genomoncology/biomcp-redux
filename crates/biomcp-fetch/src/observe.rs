@@ -1,9 +1,9 @@
 //! Opt-in bounded wire summaries with credential-free request URLs.
-#![expect(
-    clippy::disallowed_types,
-    reason = "Serialize bounded summaries across source workers"
-)]
 use serde::{Deserialize, Serialize};
+#[expect(
+    clippy::disallowed_types,
+    reason = "Share bounded transport state across the request owners named by this module"
+)]
 use std::{collections::BTreeMap, fs::File, io::Write, path::Path, sync::Mutex};
 /// Maximum attempts retained per command.
 pub const MAX_OBSERVATIONS: usize = 1024;
@@ -141,8 +141,16 @@ pub struct Observation {
 }
 /// Explicitly created command-owned sink.
 #[derive(Debug)]
+#[expect(
+    clippy::disallowed_types,
+    reason = "Serialize bounded opt-in summaries across source workers"
+)]
 pub struct Observations(Mutex<(File, usize, usize)>);
 impl Observations {
+    #[expect(
+        clippy::disallowed_types,
+        reason = "Serialize bounded opt-in summaries across source workers"
+    )]
     /// Create exclusively; never overwrite an earlier report.
     pub fn create(path: &Path) -> std::io::Result<Self> {
         Ok(Self(Mutex::new((

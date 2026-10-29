@@ -47,8 +47,7 @@ fn exact() -> Result<(), String> {
         |request| {
             if !request.starts_with(
             "GET \
-                /v3/api/association?object=HP%3A0001250&subject_category=biolink%3AGene&subject_taxon=NCBITaxon%3A96\
-                06&direct=true&limit=1&offset=0 ",
+                /v3/api/association?object=HP%3A0001250&subject_category=biolink%3AGene&subject_taxon=NCBITaxon%3A9606&direct=true&limit=1&offset=0 ",
         ) {
             return Err(format!("wrong direct request: {request}"));
         }

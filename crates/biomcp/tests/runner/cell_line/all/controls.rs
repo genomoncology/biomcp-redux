@@ -1,5 +1,8 @@
 //! Synthetic composites preserve failure, empty, skip and identity boundaries.
-use super::*;
+use super::{
+    Environment, MEASURE, Stub, Trial, Value, fs, invoke, json, parity, path, reply, setup, stub,
+    surface,
+};
 use crate::runner::transcript::trial as transcript_trial;
 pub(super) fn trials() -> Vec<Trial> {
     let mut trials = vec![transcript_trial(
