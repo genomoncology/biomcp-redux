@@ -116,6 +116,10 @@ const ALLOWED: &[(&str, &str)] = &[
         "Exercise checked values and schema contracts through the public library API.",
     ),
     (
+        "crates/biomcp-types/tests/schemas/drug.rs",
+        "Exercise public drug header and card disclosure boundaries through their serialized values and schemas.",
+    ),
+    (
         "crates/biomcp-types/tests/schemas/values.rs",
         "Exercise checked values and schema contracts through the public library API.",
     ),
