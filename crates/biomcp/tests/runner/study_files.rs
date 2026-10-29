@@ -335,12 +335,15 @@ fn unknown_acquisition() -> Check {
             )?;
             let words = ["get", "study", "synthetic_0", section].map(str::to_owned);
             let mcp = crate::runner::mcp::call_with_globals(
-                &env, &words, false, &env.globals(Some(&replay), false),
+                &env,
+                &words,
+                false,
+                &env.globals(Some(&replay), false),
             )?;
             if value != mcp {
                 return Err("unknown acquisition differs between CLI and MCP".into());
             }
-            if value.pointer("/result/items").is_none()
+            if value.pointer("/result/page").is_none()
                 || value.pointer("/result/acquired").is_some()
             {
                 return Err(format!("unknown acquisition was invented: {value}"));
