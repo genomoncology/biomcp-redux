@@ -2,10 +2,10 @@
 use libtest_mimic::Trial;
 use serde_json::{Value, json};
 pub(super) fn trials() -> Vec<Trial> {
-    vec![super::super::transcript::trial(
+    vec![crate::runner::transcript::trial(
         "gene-sections/gencc-invalid-date-keeps-submission",
         || gencc().map_err(|error| error.to_string().into()),
-    ), super::super::transcript::trial(
+    ), crate::runner::transcript::trial(
         "variant/hotspots-invalid-values-keep-candidates",
         || hotspots().map_err(Into::into),
     )]
@@ -15,11 +15,11 @@ fn hotspots() -> Result<(), String> {
         ("transcriptId", json!(42), "transcript"),
         ("tumorCount", json!(-1), "tumor_count"),
     ] {
-        let stub = super::super::network_stub::Stub::for_sources(
+        let stub = crate::runner::network_stub::Stub::for_sources(
             &["myvariant.info", "www.cancerhotspots.org"],
             |_| "application/json",
             move |request| {
-                let mut body: Value = serde_json::from_str(&super::super::variant_hotspots::body(request)?)
+                let mut body: Value = serde_json::from_str(&crate::runner::variant_hotspots::body(request)?)
                     .map_err(|e| e.to_string())?;
                 if request.starts_with("GET /api/hotspots/") {
                     body[0][field] = invalid.clone();
@@ -27,9 +27,9 @@ fn hotspots() -> Result<(), String> {
                 Ok(body.to_string())
             },
         )?;
-        let env = super::super::variant::source_environment(&stub)?;
+        let env = crate::runner::variant::source_environment(&stub)?;
         let args = ["get", "variant", "chr7:g.140753336A>T", "--build", "GRCh38", "hotspots"];
-        let value = super::super::configuration::invoke(&env, args.map(str::to_owned).to_vec(), 0)?;
+        let value = crate::runner::configuration::invoke(&env, args.map(str::to_owned).to_vec(), 0)?;
         let record = value.pointer("/result/candidates/0/sections/hotspots/data/records/0").ok_or("lost hotspot row")?;
         if record.get("residue") != Some(&json!("V600")) || record.get(absent).is_some() {
             return Err(format!("bad {field} rejected its hotspot record: {value}"));
@@ -42,7 +42,7 @@ fn hotspots() -> Result<(), String> {
     Ok(())
 }
 fn gencc() -> Result<(), Box<dyn std::error::Error>> {
-    let value = super::super::response_cases::checked_steps(
+    let value = crate::runner::response_cases::checked_steps(
         "gene/gencc",
         |source, recording| {
             if source != "gencc" {

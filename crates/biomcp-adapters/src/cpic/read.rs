@@ -1,5 +1,6 @@
 //! Complete native CPIC rows with provider counts checked before cache admission.
 use super::SPEC;
+use crate::{mapped::Problems, pgx_sources::Native, raw::Field};
 use biodata::{
     PgxDiplotypeResult, PgxDrugRecommendation, PgxGeneIdentity, PgxGuidelineReference, PgxPair,
     PgxRecommendation,
@@ -14,39 +15,51 @@ pub struct Page<T> {
     pub items: Vec<T>,
     /// Native exact collection size.
     pub total: u64,
+    /// Rejected native fields and records.
+    pub problems: Vec<biomcp_types::Problem>,
 }
 #[derive(Deserialize)]
 #[serde(transparent, bound(deserialize = "T: Deserialize<'de>"))]
-struct Rows<T>(#[serde(deserialize_with = "crate::strict_input::deserialize")] Vec<T>);
+struct Rows<T>(Vec<Field<T>>);
 impl<T: serde::de::DeserializeOwned> Reply for Rows<T> {
     fn check(&self) -> Result<(), BadReply> {
         Ok(())
     }
 }
-fn read<T: serde::de::DeserializeOwned>(
+fn read<T: serde::de::DeserializeOwned + Native>(
     leg: &Leg<'_>,
     path: &'static str,
     args: &[(&str, Arg<'_>)],
     offset: u32,
     limit: u32,
-    check: impl Fn(&[T], biomcp_fetch::ContentRange) -> bool,
-) -> Result<Page<T>, RequestError> {
+    check: impl Fn(&[T::Value], biomcp_fetch::ContentRange) -> bool,
+) -> Result<Page<T::Value>, RequestError> {
     let endpoint = SPEC.get(path).fresh(Freshness::Days(1));
     let (rows, metadata) =
         leg.json_counted::<Rows<T>>(&endpoint, args, |rows, range, status| {
             range.check(offset, limit, rows.0.len(), status)?;
-            if !check(&rows.0, range) {
-                return Err(BadReply);
-            }
             Ok(())
         })?;
-    Ok(Page {
-        items: rows.0,
-        total: metadata
-            .content_range
-            .ok_or(biomcp_fetch::InputError::Serialization)?
-            .total,
-    })
+    let range = metadata.content_range.ok_or(biomcp_fetch::InputError::Serialization)?;
+    let mut problems = Problems { source: biomcp_types::Source::Cpic, record: None, list: Vec::new() };
+    let mut items = Vec::new();
+    for row in rows.0 {
+        problems.record = None;
+        if let Some(raw) = problems.field("record", Some(row)) {
+            problems.record = raw.record();
+            if let Some(mapped) = raw.map(&mut problems) {
+                if check(std::slice::from_ref(&mapped), range) {
+                    items.push(mapped);
+                } else {
+                    problems.required::<()>("record", None);
+                }
+            }
+        }
+    }
+    if !check(&items, range) {
+        return Err(biomcp_fetch::SourceError { source: biomcp_types::Source::Cpic, reason: biomcp_types::Reason::BadReply, status: None, retry_after: None }.into());
+    }
+    Ok(Page { items, total: range.total, problems: problems.list })
 }
 /// Search exact gene pairs, preserving native level namespaces and row order.
 pub fn search(leg: &Leg<'_>, query: &PgxSearch) -> Result<Page<PgxPair>, RequestError> {
@@ -62,7 +75,7 @@ pub fn search(leg: &Leg<'_>, query: &PgxSearch) -> Result<Page<PgxPair>, Request
     if let Some(level) = &level {
         args.push(("cpiclevel", Arg::Text(level)));
     }
-    read(
+    read::<super::raw::PgxPair>(
         leg,
         "/pair_view",
         &args,
@@ -73,7 +86,7 @@ pub fn search(leg: &Leg<'_>, query: &PgxSearch) -> Result<Page<PgxPair>, Request
                 &r.genesymbol == query.gene()
                     && query
                         .cpic_level()
-                        .is_none_or(|v| r.cpiclevel.as_ref() == v.as_str())
+                        .is_none_or(|v| r.cpiclevel.as_deref() == Some(v.as_str()))
             }) && ordered(rows.iter().map(|r| r.pairid))
         },
     )
@@ -81,7 +94,7 @@ pub fn search(leg: &Leg<'_>, query: &PgxSearch) -> Result<Page<PgxPair>, Request
 /// Select only the seven reviewed native identity fields.
 pub fn card(leg: &Leg<'_>, query: &PgxGet) -> Result<Page<PgxGeneIdentity>, RequestError> {
     let gene = format!("eq.{}", query.gene());
-    read(
+    read::<super::raw::PgxGeneIdentity>(
         leg,
         super::GENE_PATH,
         &[
@@ -95,9 +108,8 @@ pub fn card(leg: &Leg<'_>, query: &PgxGet) -> Result<Page<PgxGeneIdentity>, Requ
         ],
         0,
         5,
-        |rows: &[PgxGeneIdentity], range| {
+        |rows: &[PgxGeneIdentity], _range| {
             rows.len() <= 1
-                && range.total == rows.len() as u64
                 && rows.iter().all(|r| &r.symbol == query.gene())
         },
     )
@@ -108,7 +120,7 @@ pub fn recommendations(
     query: &PgxGet,
 ) -> Result<Page<PgxRecommendation>, RequestError> {
     let key = format!("lookupkey->>{}", query.gene());
-    read(
+    read::<super::raw::PgxRecommendation>(
         leg,
         "/recommendation_view",
         &[
@@ -139,7 +151,7 @@ pub fn drug_recommendations(
         .ok_or(biomcp_fetch::InputError::Serialization)?;
     let drug = format!("eq.{id}");
     let key = format!("lookupkey->>{}", query.gene());
-    read(
+    read::<super::raw::PgxDrugRecommendation>(
         leg,
         "/recommendation",
         &[
@@ -173,7 +185,7 @@ pub fn guidelines(
         .replace('\\', "\\\\")
         .replace('"', "\\\"");
     let genes = format!("cs.[{{\"symbol\":\"{symbol}\"}}]");
-    read(
+    read::<super::raw::PgxGuidelineReference>(
         leg,
         "/guideline_summary_view",
         &[
@@ -197,7 +209,7 @@ pub fn diplotype(leg: &Leg<'_>, query: &PgxGet) -> Result<Page<PgxDiplotypeResul
         .ok_or(biomcp_fetch::InputError::Serialization)?;
     let gene = format!("eq.{}", query.gene());
     let value = format!("eq.{expression}");
-    read(
+    read::<super::raw::PgxDiplotypeResult>(
         leg,
         "/diplotype",
         &[
@@ -209,9 +221,8 @@ pub fn diplotype(leg: &Leg<'_>, query: &PgxGet) -> Result<Page<PgxDiplotypeResul
         ],
         query.section_offset(),
         query.section_limit(),
-        |rows: &[PgxDiplotypeResult], range| {
-            range.total == rows.len() as u64
-                && rows.iter().all(|r| {
+        |rows: &[PgxDiplotypeResult], _range| {
+            rows.iter().all(|r| {
                     &r.genesymbol == query.gene() && r.diplotype.as_ref() == expression.to_string()
                 })
         },

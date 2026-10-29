@@ -137,16 +137,16 @@ pub(crate) fn annotation(cx: &Ctx<'_>, q: &PgxAnnotationGet) -> Outcome {
     let command = cx.fetch.command_deadline(cx.budget);
     let deadline = command.deadline();
     let leg = cx.fetch.leg(&clinpgx::SPEC, deadline).fresh(cx.fresh);
-    let reply = clinpgx::annotation(&leg, q).map(|annotation| {
-        QueryBody::PgxAnnotation(Some(PgxAnnotation {
-            header: PgxAnnotationIdentity {
-                source: PgxSource::Clinpgx,
-                id: q.id().clone(),
-            },
+    let mut problems = Vec::new();
+    let reply = clinpgx::annotation(&leg, q).map(|mapped| {
+        problems = mapped.problems;
+        QueryBody::PgxAnnotation(mapped.value.map(|annotation| PgxAnnotation {
+            header: PgxAnnotationIdentity { source: PgxSource::Clinpgx, id: q.id().clone() },
             annotation,
         }))
     });
     let mut out = finish(leg, reply, QueryBody::PgxAnnotation(None), Source::ClinPgx);
+    crate::status::append(&mut out.problems, problems);
     out.next = next::steps(&Request::GetPgxAnnotation(q.clone()), &out);
     command.finish(deadline.remaining());
     out

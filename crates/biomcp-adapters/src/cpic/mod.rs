@@ -17,6 +17,7 @@ pub static SPEC: SourceSpec = SourceSpec {
     key: KeyUse::None,
     deadline: Duration::from_secs(15),
 };
+mod raw;
 mod read;
 pub use read::{Page, card, diplotype, drug_recommendations, guidelines, recommendations, search};
 

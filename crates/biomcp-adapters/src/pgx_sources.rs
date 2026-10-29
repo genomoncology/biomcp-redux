@@ -7,3 +7,52 @@ pub(crate) const TERMS: Terms = Terms {
     url: "https://www.clinpgx.org/page/dataUsagePolicy",
     usage: Use::Noncommercial,
 };
+
+/// The two native PGx publishers share field mapping, not admission policy.
+pub(crate) trait Native {
+    type Value;
+    fn record(&self) -> Option<biodata::Text>;
+    fn map(self, problems: &mut crate::mapped::Problems) -> Option<Self::Value>;
+}
+
+macro_rules! pgx_row {
+    ($name:ident => $out:path, record $record:ident {
+        identity { $($(#[$ia:meta])* $id:ident : $it:ty => $ip:literal,)* }
+        values { $($(#[$va:meta])* $value:ident : $vt:ty => $vp:literal,)* }
+        nested { $($(#[$na:meta])* $nested:ident : $nt:ty => $np:literal,)* }
+        lists { $($(#[$la:meta])* $list:ident : $lt:ty => $lp:literal,)* }
+        nested_lists { $($(#[$ma:meta])* $members:ident : $mt:ty => $mp:literal,)* }
+        optional_lists { $($(#[$oa:meta])* $optional:ident : $ot:ty => $op:literal,)* }
+    }) => {
+        #[derive(serde::Deserialize)]
+        pub(super) struct $name {
+            $($(#[$ia])* $id: Option<crate::raw::Field<$it>>,)*
+            $($(#[$va])* $value: Option<crate::raw::Field<$vt>>,)*
+            $($(#[$na])* $nested: Option<crate::raw::Field<$nt>>,)*
+            $($(#[$la])* $list: Option<crate::raw::Field<Vec<crate::raw::Field<$lt>>>>,)*
+            $($(#[$ma])* $members: Option<crate::raw::Field<Vec<crate::raw::Field<$mt>>>>,)*
+            $($(#[$oa])* $optional: Option<crate::raw::Field<Vec<crate::raw::Field<$ot>>>>,)*
+        }
+        impl crate::pgx_sources::Native for $name {
+            type Value = $out;
+            fn record(&self) -> Option<biodata::Text> {
+                self.$record.as_ref().and_then(crate::raw::Field::as_ref)
+                    .and_then(crate::mapped::record)
+            }
+            fn map(self, problems: &mut crate::mapped::Problems) -> Option<Self::Value> {
+                $(let $id = problems.required_field($ip, self.$id)?;)*
+                Some($out {
+                    $($id,)*
+                    $($value: problems.field($vp, self.$value),)*
+                    $($nested: problems.field($np, self.$nested).and_then(|row| row.map(problems)),)*
+                    $($list: problems.fields($lp, self.$list),)*
+                    $($members: problems.fields($mp, self.$members).into_vec().into_iter()
+                        .filter_map(|row| row.map(problems)).collect(),)*
+                    $($optional: problems.field($op, self.$optional).map(|values| values.into_iter()
+                        .filter_map(|value| problems.field($op, Some(value))).collect()),)*
+                })
+            }
+        }
+    };
+}
+pub(crate) use pgx_row;
