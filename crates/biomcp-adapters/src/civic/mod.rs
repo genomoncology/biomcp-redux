@@ -5,8 +5,6 @@ mod drug;
 mod drug_get;
 mod drug_map;
 mod drug_raw;
-#[cfg(test)]
-mod native_profile_test;
 mod raw;
 mod variant;
 mod variant_claims;

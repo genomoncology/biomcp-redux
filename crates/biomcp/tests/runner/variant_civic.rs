@@ -4,6 +4,8 @@ use crate::runner::transcript::trial as transcript_trial;
 use libtest_mimic::Trial;
 use serde_json::{Value, json};
 use std::fs;
+#[path = "civic_native_profile.rs"]
+mod native_profile;
 #[path = "civic_values.rs"]
 mod values;
 #[path = "civic_vocabulary.rs"]
@@ -11,6 +13,9 @@ mod vocabulary;
 
 pub(super) fn trials() -> Vec<Trial> {
     vec![
+        transcript_trial("drug-civic/native-boolean-profile-context", || {
+            native_profile::context().map_err(Into::into)
+        }),
         transcript_trial(
             "variant/civic-invalid-values-keep-identified-claims",
             || values::claims().map_err(Into::into),
