@@ -15,14 +15,15 @@ fn arguments() -> Vec<String> {
 }
 fn boundaries() -> Check {
     let entry = json!({"nci_thesaurus_concept_id":"C96022", "eligibility_criterion":"exclusion", "inclusion_indicator":"TRIAL"});
-    for (biomarkers, field, criterion) in [
-        (Value::Null, "biomarkers.nci_thesaurus_concept_id", None),
-        (json!(false), "biomarkers", None),
-        (json!([false, entry.clone()]), "biomarkers", Some("exclusion")),
-        (json!([{"nci_thesaurus_concept_id":17}]), "biomarkers.nci_thesaurus_concept_id", None),
-        (json!([{"nci_thesaurus_concept_id":"C96022", "eligibility_criterion":17}]), "biomarkers.eligibility_criterion", None),
-        (json!([{"nci_thesaurus_concept_id":"C96022", "eligibility_criterion":"inclusion", "inclusion_indicator":17}]), "biomarkers.inclusion_indicator", Some("inclusion")),
-        (json!([entry, {"nci_thesaurus_concept_id":"C1", "eligibility_criterion":"inclusion", "inclusion_indicator":"TREE"}]), "biomarkers.eligibility_criterion", Some("exclusion")),
+    for (biomarkers, field, criterion, indicator) in [
+        (Value::Null, "biomarkers.nci_thesaurus_concept_id", None, None),
+        (json!(false), "biomarkers", None, None),
+        (json!([false, entry.clone()]), "biomarkers", Some("exclusion"), Some("TRIAL")),
+        (json!([{"nci_thesaurus_concept_id":17}]), "biomarkers.nci_thesaurus_concept_id", None, None),
+        (json!([{"nci_thesaurus_concept_id":"C96022", "eligibility_criterion":17}]), "biomarkers.eligibility_criterion", None, None),
+        (json!([{"nci_thesaurus_concept_id":"C96022", "eligibility_criterion":"inclusion", "inclusion_indicator":17}]), "biomarkers.inclusion_indicator", Some("inclusion"), None),
+        (json!([entry, {"nci_thesaurus_concept_id":"C1", "eligibility_criterion":"inclusion", "inclusion_indicator":"TREE"}]), "biomarkers.eligibility_criterion", Some("exclusion"), Some("TRIAL")),
+        (json!([{"nci_thesaurus_concept_id":"C96022", "eligibility_criterion":" inclusion ", "inclusion_indicator":" TREE "}]), "biomarkers.eligibility_criterion", Some(" inclusion "), Some(" TREE ")),
     ] {
         let env = Environment::new().map_err(|e| e.to_string())?;
         let replay = env.root().join("synthetic-reply");
@@ -43,6 +44,9 @@ fn boundaries() -> Check {
         }
         if answer.pointer("/result/items/0/matched_biomarkers/0/eligibility_criterion").and_then(Value::as_str) != criterion {
             return Err("matched code acquired another entry's criterion".into());
+        }
+        if answer.pointer("/result/items/0/matched_biomarkers/0/inclusion_indicator").and_then(Value::as_str) != indicator {
+            return Err("matched code lost its native inclusion indicator".into());
         }
     }
     Ok(())
