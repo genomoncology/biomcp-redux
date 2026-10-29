@@ -31,13 +31,7 @@ pub fn records(row: &Annotation) -> Mapped<Vec<Record>> {
             }
         }
         .map(Coding::OncokbOncogenicity);
-        if let Some(label) = crate::mapped::field_text(
-            &mut out.problems,
-            Source::Oncokb,
-            None,
-            "oncogenic",
-            Some(crate::raw::Field::Value(label.clone())),
-        ) {
+        if let Some(label) = support::text(label, "oncogenic", &mut out.problems) {
             classification(
                 &mut out.value,
                 row,
@@ -58,13 +52,9 @@ pub fn records(row: &Annotation) -> Mapped<Vec<Record>> {
                 .as_ref()
                 .map(|c| pmids(values(c.pmids.as_deref()), &mut out.problems))
                 .unwrap_or_default();
-            if let Some(label) = crate::mapped::field_text(
-                &mut out.problems,
-                Source::Oncokb,
-                None,
-                "mutationEffect.knownEffect",
-                Some(crate::raw::Field::Value(label.clone())),
-            ) {
+            if let Some(label) =
+                support::text(label, "mutationEffect.knownEffect", &mut out.problems)
+            {
                 classification(
                     &mut out.value,
                     row,
