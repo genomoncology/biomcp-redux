@@ -1,8 +1,5 @@
 //! Native quoted TSV has required empty cells and an independent decoded bound.
-use super::{
-    Row,
-    parse::{Parsed, ParsedRows},
-};
+use super::{Row, parse::ParsedRows};
 use crate::BadReply;
 use std::{collections::BTreeSet, io::Read};
 const MAX_DECODED_BYTES: u64 = 256 * 1024 * 1024;
@@ -34,30 +31,26 @@ pub(super) fn rows<R: Row>(body: &[u8], gzip: bool, limit: u64) -> Result<Parsed
     if names.is_empty() || names.iter().any(str::is_empty) || unique.len() != names.len() {
         return Err(BadReply);
     }
-    reader
-        .records()
-        .enumerate()
-        .map(|(index, record)| {
-            let record = record.map_err(|_| BadReply)?;
-            let object: serde_json::Map<_, _> = names
-                .iter()
-                .zip(record.iter())
-                .map(|(key, value)| (key.to_owned(), value.into()))
-                .collect();
-            let value = serde_json::Value::Object(object);
-            let decoded: R = serde_json::from_value(value.clone()).map_err(|_| BadReply)?;
-            decoded.check_bundle(0)?;
-            Ok(Parsed {
-                number: index as u64 + 2,
-                row: value.to_string(),
-                keys: decoded.keys(),
-            })
-        })
-        .collect::<Result<Vec<_>, BadReply>>()
-        .map(|rows| ParsedRows {
-            rows,
-            rejections: Vec::new(),
-        })
+    let mut parsed = ParsedRows::default();
+    for (index, record) in reader.records().enumerate() {
+        let Ok(record) = record else {
+            parsed.reject(index + 2, "wrong number of columns");
+            continue;
+        };
+        let object: serde_json::Map<_, _> = names
+            .iter()
+            .zip(record.iter())
+            .map(|(key, value)| (key.to_owned(), value.into()))
+            .collect();
+        let value = serde_json::Value::Object(object);
+        let Ok(decoded) = serde_json::from_value::<R>(value.clone()) else {
+            parsed.reject(index + 2, "cannot decode row");
+            continue;
+        };
+        decoded.check_bundle(0)?;
+        parsed.accept(value.to_string(), decoded.keys(), index + 2);
+    }
+    Ok(parsed)
 }
 
 // The publisher may use literal quotes inside unquoted fields. A quoted field,

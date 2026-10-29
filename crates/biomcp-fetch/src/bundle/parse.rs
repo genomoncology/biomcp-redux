@@ -24,7 +24,9 @@ impl ParsedRows {
             self.reject(row, "cannot decode row");
             return;
         };
-        let keys = decoded.keys();
+        self.accept(value.to_string(), decoded.keys(), row);
+    }
+    pub(super) fn accept(&mut self, value: String, keys: Keys, row: usize) {
         if !keys.exact.iter().any(|(_, key)| !key.trim().is_empty())
             && !keys.words.iter().any(|key| !key.trim().is_empty())
         {
@@ -33,7 +35,7 @@ impl ParsedRows {
         }
         self.rows.push(Parsed {
             number: row as u64,
-            row: value.to_string(),
+            row: value,
             keys,
         });
     }
@@ -108,8 +110,7 @@ pub(super) fn rows<R: Row>(body: &[u8], format: RowFormat) -> Result<ParsedRows,
                 match serde_json::from_str::<R>(&row) {
                     Ok(decoded) => {
                         decoded.check_bundle(0)?;
-                        let value = serde_json::from_str(&row).map_err(|_| BadReply)?;
-                        parsed.admit::<R>(value, index + 2);
+                        parsed.accept(row, decoded.keys(), index + 2);
                     }
                     Err(_) => parsed.reject(index + 2, "cannot decode row"),
                 }
@@ -234,32 +235,32 @@ fn json<R: Row>(body: &[u8], field: &str, metadata: &str) -> Result<ParsedRows, 
         .filter(|rows| !rows.is_empty())
         .ok_or(BadReply)?;
     let mut ids = BTreeSet::new();
-    values
-        .iter()
-        .enumerate()
-        .map(|(index, value)| {
-            let mut object = value.as_object().ok_or(BadReply)?.clone();
-            if object.insert("_bundle_meta".into(), meta.clone()).is_some() {
+    let mut parsed = ParsedRows::default();
+    for (index, value) in values.iter().enumerate() {
+        let Some(object) = value.as_object() else {
+            parsed.reject(index + 1, "cannot decode row");
+            continue;
+        };
+        let mut object = object.clone();
+        if object.insert("_bundle_meta".into(), meta.clone()).is_some() {
+            return Err(BadReply);
+        }
+        let value = serde_json::Value::Object(object);
+        let Ok(decoded) = serde_json::from_value::<R>(value.clone()) else {
+            parsed.reject(index + 1, "cannot decode row");
+            continue;
+        };
+        decoded.check_bundle(values.len())?;
+        let keys = decoded.keys();
+        for (kind, id) in &keys.exact {
+            if matches!(kind, super::KeyKind::Id) && !ids.insert(id.to_ascii_lowercase()) {
                 return Err(BadReply);
             }
-            let value = serde_json::Value::Object(object);
-            let decoded: R = serde_json::from_value(value.clone()).map_err(|_| BadReply)?;
-            decoded.check_bundle(values.len())?;
-            let keys = decoded.keys();
-            for (kind, id) in &keys.exact {
-                if matches!(kind, super::KeyKind::Id) && !ids.insert(id.to_ascii_lowercase()) {
-                    return Err(BadReply);
-                }
-            }
-            Ok(Parsed {
-                number: index as u64 + 1,
-                row: value.to_string(),
-                keys,
-            })
-        })
-        .collect::<Result<Vec<_>, BadReply>>()
-        .map(|rows| ParsedRows {
-            rows,
-            rejections: Vec::new(),
-        })
+        }
+        parsed.accept(value.to_string(), keys, index + 1);
+    }
+    if parsed.is_empty() {
+        return Err(BadReply);
+    }
+    Ok(parsed)
 }

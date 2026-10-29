@@ -3,8 +3,8 @@ mod map;
 mod raw;
 use biodata::DrugId;
 use biomcp_fetch::{
-    Bundle, BundleInfo, Fetch, Find, Freshness, KeyKind, KeyUse, Leg, RequestError, RowFormat,
-    SourceSpec, Terms,
+    Bundle, Fetch, Find, Freshness, KeyKind, KeyUse, Leg, RequestError, RowFormat, SourceSpec,
+    Terms,
 };
 use biomcp_types::Source;
 use biomcp_types::{DrugCard, DrugHeader, DrugRecords, DrugRegulatory, Section};
