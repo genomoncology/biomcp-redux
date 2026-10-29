@@ -57,15 +57,16 @@ fn variant_consumer_reads_coding_representations_statements_and_frequencies() ->
         Some(notation)
     );
     assert!(statement.subject.id().is_none());
-    let frequency = PopulationFrequency::new(
-        subject,
-        Build::GRCh38,
-        Text::new("synthetic")?,
-        Text::new("v1")?,
-        attribution,
-    )
-    .with_counts(Some(1), Some(100), None, None)?
-    .with_frequencies(Some(0.01.try_into()?), None)?;
+    let frequency: PopulationFrequency = serde_json::from_value(json!({
+        "subject": subject,
+        "build": Build::GRCh38,
+        "dataset": "synthetic",
+        "dataset_version": "v1",
+        "attribution": attribution,
+        "allele_count": 1,
+        "allele_number": 100,
+        "allele_frequency": 0.01,
+    }))?;
     assert_eq!(
         frequency.subject().hgvs().map(HgvsText::as_str),
         Some(notation)
