@@ -128,8 +128,9 @@ fn card() -> Result<(), String> {
             }
             let mut row = row();
             if bad {
-                row["report_date"] = json!("20240230");
-                row["code_info"] = json!(["wrong shape"]);
+                let fields = row.as_object_mut().ok_or("synthetic recall is not an object")?;
+                fields.insert("report_date".into(), json!("20240230"));
+                fields.insert("code_info".into(), json!(["wrong shape"]));
             }
             Ok(envelope(row, 0, 1))
         })?;
@@ -152,10 +153,10 @@ fn card() -> Result<(), String> {
         if bad
             && (cli.pointer("/result/header/reported").is_some()
                 || cli.pointer("/result/code_info").is_some()
-                || !cli
+                || cli
                     .get("problems")
                     .and_then(Value::as_array)
-                    .is_some_and(|p| p.len() == 2))
+                    .is_none_or(|p| p.len() != 2))
         {
             return Err(format!("bad recall field lacked a problem: {cli}"));
         }
