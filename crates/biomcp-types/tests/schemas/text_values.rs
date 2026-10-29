@@ -31,12 +31,12 @@ fn text_admissions<T: JsonSchema + std::str::FromStr>(examples: &[&str]) {
     }
 }
 
+macro_rules! cases {
+    ($($ty:ty => [$($text:expr),* $(,)?]),* $(,)?) => {$(
+        text_admissions::<$ty>(&[$($text),*]);
+    )*};
+}
 pub(super) fn text_value_patterns_match_parser_admissions() {
-    macro_rules! cases {
-        ($($ty:ty => [$($text:expr),* $(,)?]),* $(,)?) => {$(
-            text_admissions::<$ty>(&[$($text),*]);
-        )*};
-    }
     cases! {
         biodata::Text => ["safe", "safe\n", "safe\r", "safe\u{0085}", "safe\u{202e}"],
         HgncId => ["HGNC:1", "HGNC:0", "HGNC:4294967295", "HGNC:4294967296"],
