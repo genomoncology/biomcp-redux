@@ -404,3 +404,88 @@ fn new_optional_drop_requires_its_own_classification() -> Check {
     }
     Ok(())
 }
+
+#[test]
+fn adapter_drop_forms_and_file_rules_require_pending_identity() -> Check {
+    let root = tempfile::tempdir()?;
+    let directory = root.path().join("crates/biomcp-adapters/src/example");
+    fs::create_dir_all(&directory)?;
+    let path = directory.join("details.rs");
+    for source in [
+        "fn value() { let native = input.parse().ok(); }",
+        "fn value() { if let Ok(native) = input.parse() { use_value(native); } }",
+        "fn value() { let Ok(native) = input.parse() else { return; }; }",
+        "fn value() { input.filter_map(|v| v.parse().ok()); }",
+        "fn value() { input.parse::<u64>().unwrap_or_default(); }",
+        "fn value() { let parsed = input.parse::<u64>(); parsed.unwrap_or_default(); }",
+        "#[serde(default)] struct Raw;",
+        "#[serde(deny_unknown_fields)] struct Raw;",
+    ] {
+        fs::write(&path, source)?;
+        let failure = super::source::check(root.path())
+            .expect_err("planted adapter violation passed")
+            .to_string();
+        assert!(failure.contains("example/details.rs"), "{failure}");
+    }
+    fs::write(&path, "// line\n".repeat(301))?;
+    assert!(
+        super::source::check(root.path())
+            .expect_err("301-line adapter passed")
+            .to_string()
+            .contains("file line limit")
+    );
+    fs::write(&path, "// line\n".repeat(300))?;
+    super::source::check(root.path())?;
+    fs::write(
+        &path,
+        "fn value() { /* .ok() */ let note = \"if let Ok(v) .ok()\"; }",
+    )?;
+    super::source::check(root.path())
+}
+
+#[test]
+fn inventory_allows_shrinking_and_reclassification_but_refuses_new_identities() -> Check {
+    use super::source::adapter_values::validate;
+    let original = include_str!("adapter_value_audit.json");
+    let mut current: serde_json::Value = serde_json::from_str(original)?;
+    let sites = current["sites"]
+        .as_array_mut()
+        .ok_or("missing audit sites")?;
+    sites.retain(|entry| entry["maximum"].as_u64().is_some_and(|n| n > 1));
+    for entry in sites.iter_mut() {
+        entry["maximum"] = 1.into();
+        entry["class"] = "migrated".into();
+    }
+    validate(&current.to_string())?;
+    current["sites"][0]["site"] = "new pending identity".into();
+    assert!(
+        validate(&current.to_string()).is_err(),
+        "same-count replacement passed"
+    );
+    let mut current: serde_json::Value = serde_json::from_str(original)?;
+    let maximum = current["sites"][0]["maximum"]
+        .as_u64()
+        .ok_or("missing count")?;
+    current["sites"][0]["maximum"] = (maximum + 1).into();
+    assert!(
+        validate(&current.to_string()).is_err(),
+        "increased ceiling passed"
+    );
+    let mut current: serde_json::Value = serde_json::from_str(original)?;
+    current["sites"][0]["owner"] = "other_adapter".into();
+    assert!(
+        validate(&current.to_string()).is_err(),
+        "wrong adapter owner passed"
+    );
+    let mut current: serde_json::Value = serde_json::from_str(original)?;
+    let duplicate = current["sites"][0].clone();
+    current["sites"]
+        .as_array_mut()
+        .ok_or("missing audit sites")?
+        .push(duplicate);
+    assert!(
+        validate(&current.to_string()).is_err(),
+        "duplicate pending entry passed"
+    );
+    Ok(())
+}

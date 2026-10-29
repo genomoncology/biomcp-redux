@@ -9,7 +9,7 @@ use std::{
     path::Path,
 };
 #[derive(Deserialize)]
-struct Audit {
+pub(crate) struct Audit {
     sites: Vec<Site>,
 }
 #[derive(Deserialize)]
@@ -22,8 +22,7 @@ struct Site {
     reason: String,
 }
 pub(super) fn check(root: &Path) -> Check {
-    let audit = audit()?;
-    validate(&audit)?;
+    let audit = validate(include_str!("adapter_value_audit.json"))?;
     for (relative, site, count) in sites(root)? {
         if !audit
             .sites
@@ -40,7 +39,8 @@ pub(super) fn check(root: &Path) -> Check {
     }
     Ok(())
 }
-fn validate(audit: &Audit) -> Check {
+pub(crate) fn validate(text: &str) -> Result<Audit, Box<dyn std::error::Error>> {
+    let audit: Audit = serde_json::from_str(text)?;
     let mut seen = BTreeSet::new();
     for entry in &audit.sites {
         let adapter = entry
@@ -65,7 +65,7 @@ fn validate(audit: &Audit) -> Check {
             .into());
         }
     }
-    Ok(())
+    Ok(audit)
 }
 fn initial_entry(entry: &Site) -> bool {
     let identity = format!("{}\n{}", entry.path, entry.site);
@@ -436,76 +436,3 @@ e9055a7763a15a6954091a3a5fe8e585eb9631df707d8be133085e1f4464bcda 1
 24e0be044b88799c647fb8ca2f4fb1cc71e3bcfd6d32c7e3ba380cd6c4cd2aa7 1
 819b118a5ba1501ba338e0fe0b9b9733af2489dc2af3aaa69b605b2ea8e6ee12 1
 ";
-
-#[test]
-fn adapter_drop_forms_and_file_rules_require_pending_identity() -> Check {
-    let root = tempfile::tempdir()?;
-    let directory = root.path().join("crates/biomcp-adapters/src/example");
-    fs::create_dir_all(&directory)?;
-    let path = directory.join("details.rs");
-    for source in [
-        "fn value() { let native = input.parse().ok(); }",
-        "fn value() { if let Ok(native) = input.parse() { use_value(native); } }",
-        "fn value() { let Ok(native) = input.parse() else { return; }; }",
-        "fn value() { input.filter_map(|v| v.parse().ok()); }",
-        "fn value() { input.parse::<u64>().unwrap_or_default(); }",
-        "fn value() { let parsed = input.parse::<u64>(); parsed.unwrap_or_default(); }",
-        "#[serde(default)] struct Raw;",
-        "#[serde(deny_unknown_fields)] struct Raw;",
-    ] {
-        fs::write(&path, source)?;
-        let failure = check(root.path())
-            .expect_err("planted adapter violation passed")
-            .to_string();
-        assert!(failure.contains("example/details.rs"), "{failure}");
-    }
-    fs::write(&path, "// line\n".repeat(301))?;
-    assert!(
-        check(root.path())
-            .expect_err("301-line adapter passed")
-            .to_string()
-            .contains("file line limit")
-    );
-    fs::write(&path, "// line\n".repeat(300))?;
-    check(root.path())?;
-    fs::write(
-        &path,
-        "fn value() { /* .ok() */ let note = \"if let Ok(v) .ok()\"; }",
-    )?;
-    check(root.path())
-}
-
-#[test]
-fn inventory_allows_shrinking_and_reclassification_but_refuses_new_identities() -> Check {
-    let mut current = audit()?;
-    current.sites.retain(|entry| entry.maximum > 1);
-    for entry in &mut current.sites {
-        entry.maximum = 1;
-        entry.class = "migrated".into();
-    }
-    validate(&current)?;
-    current.sites[0].site.push_str(" new pending");
-    assert!(
-        validate(&current).is_err(),
-        "replacement at same count passed"
-    );
-    let mut current = audit()?;
-    current.sites[0].maximum += 1;
-    assert!(validate(&current).is_err(), "increased ceiling passed");
-    let mut current = audit()?;
-    current.sites[0].owner = "other_adapter".into();
-    assert!(validate(&current).is_err(), "wrong adapter owner passed");
-    let mut current = audit()?;
-    let duplicate = current.sites.remove(0);
-    let copy: Site = serde_json::from_value(serde_json::json!({
-        "path": duplicate.path, "site": duplicate.site, "maximum": duplicate.maximum,
-        "class": duplicate.class, "owner": duplicate.owner, "reason": duplicate.reason
-    }))?;
-    current.sites.push(copy);
-    current.sites.push(duplicate);
-    assert!(
-        validate(&current).is_err(),
-        "duplicate pending entry passed"
-    );
-    Ok(())
-}
