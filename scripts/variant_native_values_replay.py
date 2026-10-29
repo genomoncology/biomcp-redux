@@ -85,8 +85,40 @@ def source_cases(capture, output, source):
         })
 
 
+def clinvar_cases(capture, output):
+    raw = capture.read_bytes()
+    if hashlib.sha256(raw).hexdigest() != "f806ec35a3d4e12667835fa80b205fe9ad7f1e45a7c9cc1e56a0d0d162df0054":
+        raise ValueError("retained ClinVar recording hash differs")
+    recording = json.loads(raw)
+    xml = recording["exchanges"][0]["body"]["value"]
+    needle = '<Classification DateLastEvaluated="2019-05-21">'
+    if xml.count(needle) != 1:
+        raise ValueError("ClinVar native date target missing or ambiguous")
+    args = ["variant", "assertions", "clinvar:666267", "--source", "clinvar",
+            "--assertion", "SCV000965609", "--version", "1"]
+    for name in ["positive", "bad"]:
+        value = copy.deepcopy(recording)
+        if name == "bad":
+            value["exchanges"][0]["body"]["value"] = xml.replace(needle,
+                '<Classification DateLastEvaluated="not-a-date">')
+        replay = output / "replies" / "clinvar" / name
+        write_json(replay / "clinvar" / capture.name, value)
+        path = "/result/assertions/0/statement/attribution"
+        expect = {path + "/record": "SCV000965609"}
+        if name == "positive":
+            expect[path + "/evaluated"] = "2019-05-21"
+        else:
+            expect[path] = {"omits": ["evaluated"]}
+            expect["/problems/*/field"] = ["evaluated"]
+        write_json(output / "cases" / ("clinvar-" + name + ".yaml"), {
+            "feature": "variant-assertions", "live_check": "retained public capture",
+            "story": "A native SCV retains its identity when its optional date is invalid",
+            "replay": str(replay), "steps": [{"run": args, "expect": expect}],
+        })
+
+
 def main():
-    capture, output = map(lambda value: Path(value).resolve(), sys.argv[1:])
+    capture, output = map(lambda value: Path(value).resolve(), sys.argv[1:3])
     if output.exists():
         raise ValueError("output directory must be new")
     for parent in (output, *output.parents):
@@ -94,7 +126,9 @@ def main():
             raise ValueError("captured native replies must stay outside Git")
     for source in BODIES:
         source_cases(capture, output, source)
-    print("Prepared two original controls and two one-value mutations")
+    if len(sys.argv) == 4:
+        clinvar_cases(Path(sys.argv[3]).resolve(), output)
+    print("Prepared source-bound original controls and one-value mutations")
 
 
 if __name__ == "__main__":
