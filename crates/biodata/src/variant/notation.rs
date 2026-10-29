@@ -3,7 +3,7 @@ use crate::{Accession, Error, Text, text_value};
 use serde::{Deserialize, Serialize};
 use std::{fmt, str::FromStr};
 /// Reference-qualified notation with its original text, without a molecular parse.
-#[derive(Clone, Debug, PartialEq, Eq)]
+#[derive(Clone, Debug, PartialEq, Eq, Hash)]
 pub struct HgvsText(Box<str>);
 impl HgvsText {
     /// Borrow the unchanged published description.
@@ -104,14 +104,14 @@ fn positionless(body: &str) -> bool {
 // https://hgvs-nomenclature.org/stable/background/refseq/#recommended-reference-sequences-types-are
 fn protein_reference(accession: Accession) -> bool {
     matches!(
-        accession,
-        Accession::RefSeq {
+        accession.0,
+        crate::variant::AccessionKind::RefSeq {
             prefix: crate::RefSeqPrefix::Np | crate::RefSeqPrefix::Xp,
             ..
-        } | Accession::Ensembl {
+        } | crate::variant::AccessionKind::Ensembl {
             feature: crate::EnsemblFeature::Protein,
             ..
-        } | Accession::Lrg {
+        } | crate::variant::AccessionKind::Lrg {
             part: Some(crate::LrgPart::Protein(_)),
             ..
         }
@@ -186,12 +186,12 @@ crate::canonical_enum! {
     }
 }
 /// Source expression checked for its reference and syntax only, without a full parser or normalization.
-#[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
+#[derive(Clone, Debug, PartialEq, Eq, Hash, Serialize, Deserialize)]
 #[serde(try_from = "Fields")]
 #[cfg_attr(feature = "schema", derive(schemars::JsonSchema))]
 #[cfg_attr(feature = "schema", schemars(with = "Fields"))]
 pub struct Expression(Fields);
-#[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
+#[derive(Clone, Debug, PartialEq, Eq, Hash, Serialize, Deserialize)]
 #[cfg_attr(feature = "schema", derive(schemars::JsonSchema))]
 struct Fields {
     syntax: ExpressionSyntax,
@@ -259,6 +259,10 @@ impl Expression {
     /// Declared notation syntax.
     pub fn syntax(&self) -> ExpressionSyntax {
         self.0.syntax
+    }
+    /// Source-declared syntax version.
+    pub fn syntax_version(&self) -> Option<&Text> {
+        self.0.syntax_version.as_ref()
     }
     /// Construct from reference-qualified HGVS without interpreting its edit.
     pub fn hgvs(value: Text) -> Result<Self, Error> {

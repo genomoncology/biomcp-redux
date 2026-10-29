@@ -58,7 +58,7 @@ macro_rules! wire_enum {
     };
 
     ($(#[$doc:meta])* $name:ident { $($(#[$vdoc:meta])* $variant:ident => $literal:literal),+ $(,)? }) => {
-        #[derive(Clone, Copy, Debug, PartialEq, Eq, serde::Serialize, serde::Deserialize)]
+        #[derive(Clone, Copy, Debug, PartialEq, Eq, Hash, serde::Serialize, serde::Deserialize)]
         #[cfg_attr(feature = "schema", derive(schemars::JsonSchema))]
         $(#[$doc])*
         #[cfg_attr(feature = "schema", schemars(with = "str", extend("enum" = [$($literal),+])))]
@@ -66,6 +66,20 @@ macro_rules! wire_enum {
         impl $name {
             /// Canonical wire spelling from the enum declaration.
             pub const fn as_str(self) -> &'static str { match self { $(Self::$variant => $literal,)+ } }
+        }
+        impl std::str::FromStr for $name {
+            type Err = $crate::Error;
+            fn from_str(value: &str) -> Result<Self, Self::Err> {
+                match value {
+                    $($literal => Ok(Self::$variant),)+
+                    _ => Err($crate::Error::WireEnumUnknown),
+                }
+            }
+        }
+        impl std::fmt::Display for $name {
+            fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+                f.write_str(self.as_str())
+            }
         }
     }
 }

@@ -2,6 +2,12 @@
 /// Canonical ClinicalTrials.gov identifier.
 #[derive(Clone, Copy, Debug, PartialEq, Eq, PartialOrd, Ord, Hash)]
 pub struct NctId(u32);
+impl NctId {
+    /// Return the canonical registry identifier text.
+    pub fn text(&self) -> String {
+        self.to_string()
+    }
+}
 impl std::str::FromStr for NctId {
     type Err = crate::Error;
     fn from_str(value: &str) -> Result<Self, Self::Err> {

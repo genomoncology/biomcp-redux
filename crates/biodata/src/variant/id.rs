@@ -1,5 +1,10 @@
 use crate::{Error, text_value};
-use std::{fmt, num::NonZeroU64, str::FromStr};
+use std::{
+    fmt,
+    hash::{Hash, Hasher},
+    num::NonZeroU64,
+    str::FromStr,
+};
 macro_rules! numeric_id {
     ($(#[doc = $doc:literal])* $name:ident, $error:ident, $prefix:literal, $padding:literal) => {
         $(#[doc = $doc])*
@@ -46,8 +51,21 @@ numeric_id!(/// An allele identifier inside a ClinVar record, not a variant iden
 macro_rules! accession_id {
     ($(#[doc = $doc:literal])* $name:ident, $error:ident, $prefix:literal) => {
         $(#[doc = $doc])*
-        #[derive(Clone, Debug, PartialEq, Eq, Hash)]
+        #[derive(Clone, Debug)]
         pub struct $name(Box<str>);
+        impl $name {
+            /// Borrow the complete source accession, including its optional version.
+            pub fn as_str(&self) -> &str { &self.0 }
+            /// Borrow the record identity without its optional version.
+            pub fn accession(&self) -> &str { self.0.split_once('.').map_or(&self.0, |(id, _)| id) }
+        }
+        impl PartialEq for $name {
+            fn eq(&self, other: &Self) -> bool { self.accession() == other.accession() }
+        }
+        impl Eq for $name {}
+        impl Hash for $name {
+            fn hash<H: Hasher>(&self, state: &mut H) { self.accession().hash(state); }
+        }
         impl FromStr for $name {
             type Err = Error;
             fn from_str(text: &str) -> Result<Self, Error> {
@@ -128,7 +146,7 @@ text_value!(
     "A source-supplied VRS allele identifier; construction never computes a digest."
 );
 /// Published variant-level identifiers, with each identifier's level retained.
-#[derive(Clone, Debug, PartialEq, Eq)]
+#[derive(Clone, Debug, PartialEq, Eq, Hash)]
 #[non_exhaustive]
 pub enum VariantId {
     /// dbSNP site, possibly containing multiple alternate alleles.
