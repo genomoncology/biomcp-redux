@@ -5,7 +5,7 @@ use biomcp_types::SourceOutcome;
 use sha2::{Digest, Sha256};
 pub(super) struct Snapshot {
     pub(super) detail: Detail,
-    pub(super) fetched: u64,
+    pub(super) fetched: Option<u64>,
     pub(super) version: Option<Text>,
     pub(super) sources: Vec<SourceOutcome>,
 }

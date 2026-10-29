@@ -4,6 +4,12 @@ use std::fmt;
 /// A rejected decoded reply; carries no provider text.
 #[derive(Clone, Copy, Debug)]
 pub struct BadReply;
+impl fmt::Display for BadReply {
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+        f.write_str("fetch.bad_reply")
+    }
+}
+impl std::error::Error for BadReply {}
 
 /// A typed source failure containing no request or provider text.
 #[derive(Clone, Copy, Debug, PartialEq, Eq)]
@@ -173,6 +179,8 @@ impl From<RecordError> for RequestError {
 /// Input failures retain no caller text or serializer diagnostics.
 #[derive(Clone, Copy, Debug, PartialEq, Eq)]
 pub enum InputError {
+    /// A configured credential is not valid UTF-8.
+    CredentialEncoding,
     /// The request origin is absent from its source declaration.
     Host,
     /// A runtime endpoint path is not canonical or attempts to supply URL parts.
@@ -187,6 +195,7 @@ pub enum InputError {
 impl fmt::Display for InputError {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
         f.write_str(match self {
+            Self::CredentialEncoding => "fetch.input_credential_encoding",
             Self::Host => "fetch.input_host",
             Self::Path => "fetch.input_path",
             Self::Method => "fetch.input_method",

@@ -5,7 +5,7 @@ use serde_json::Value;
 pub(super) fn command_for(
     name: &'static str,
     schema: &Value,
-) -> Result<Command, crate::grammar::ParseInvalid> {
+) -> Result<Command, super::ParseInvalid> {
     let mut command = Command::new(name)
         .about(
             schema
@@ -71,7 +71,7 @@ fn aliases(
     name: &str,
     schema: &Value,
     mut command: Command,
-) -> Result<Command, crate::grammar::ParseInvalid> {
+) -> Result<Command, super::ParseInvalid> {
     if matches!(name, "cell-line" | "author") && properties(schema)?.contains_key("query") {
         command = command
             .mut_arg("query", |arg| {

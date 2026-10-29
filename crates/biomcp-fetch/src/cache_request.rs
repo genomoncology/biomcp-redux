@@ -11,7 +11,7 @@ enum Checked<T> {
     Positive(
         T,
         bool,
-        i64,
+        Option<i64>,
         Option<crate::ContentRange>,
         Option<crate::Pagination>,
     ),
@@ -79,7 +79,7 @@ impl Leg<'_> {
     ) -> Result<
         (
             T,
-            i64,
+            Option<i64>,
             Option<crate::ContentRange>,
             Option<crate::Pagination>,
         ),
@@ -167,7 +167,7 @@ impl Leg<'_> {
     ) -> Result<
         (
             T,
-            i64,
+            Option<i64>,
             Option<crate::ContentRange>,
             Option<crate::Pagination>,
         ),
@@ -175,7 +175,16 @@ impl Leg<'_> {
     > {
         let (reply, status, body, fetched, range, pagination) = decoded;
         let mut entry = Entry::new(status, body, seconds, codec.name());
-        entry.fetched_at = fetched;
+        // A recording without acquisition time cannot establish cache freshness.
+        let Some(acquired) = fetched else {
+            return Ok((
+                reply,
+                None,
+                range.as_deref().and_then(crate::ContentRange::parse),
+                pagination,
+            ));
+        };
+        entry.fetched_at = acquired;
         entry.content_range = range;
         entry.pagination = pagination;
         if (200..300).contains(&status) && codec.cacheable(&reply) {
@@ -208,7 +217,7 @@ impl Leg<'_> {
     ) -> Result<
         (
             T,
-            i64,
+            Option<i64>,
             Option<crate::ContentRange>,
             Option<crate::Pagination>,
         ),
@@ -316,7 +325,7 @@ impl Leg<'_> {
         Ok(Some(Checked::Positive(
             reply,
             fresh,
-            entry.fetched_at,
+            Some(entry.fetched_at),
             entry
                 .content_range
                 .as_deref()

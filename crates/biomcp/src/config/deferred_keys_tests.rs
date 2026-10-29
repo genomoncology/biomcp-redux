@@ -11,7 +11,7 @@ fn execute(words: &[&str], allowed: Option<SecretName>) -> usize {
             "forbidden key read"
         );
         send.send(()).unwrap();
-        Some(PathBuf::from("synthetic-settings-key"))
+        Ok(Some(PathBuf::from("synthetic-settings-key")))
     });
     assert!(!format!("{secrets:?}").contains("API_KEY"));
     let directory = tempfile::tempdir().unwrap();
@@ -201,7 +201,7 @@ fn saved_query_pages_never_resolve_credentials() {
             "/page/pool/id",
         ),
     ] {
-        let secrets = secrets_using(None, |_| Some(PathBuf::from("synthetic-settings-key")));
+        let secrets = secrets_using(None, |_| Ok(Some(PathBuf::from("synthetic-settings-key"))));
         let fetch = Fetch::open(FetchConfig {
             mode: Mode::Replay {
                 dir: PathBuf::from(env!("CARGO_MANIFEST_DIR"))
@@ -304,7 +304,7 @@ fn alphagenome_resolves_only_its_own_key_at_source_admission() {
     let secrets = secrets_using(None, move |name| {
         assert_eq!(name, "ALPHAGENOME_API_KEY");
         sent.send(()).unwrap();
-        Some(PathBuf::from("synthetic-alphagenome-key"))
+        Ok(Some(PathBuf::from("synthetic-alphagenome-key")))
     });
     let fetch = Fetch::open(FetchConfig {
         mode: Mode::Offline,

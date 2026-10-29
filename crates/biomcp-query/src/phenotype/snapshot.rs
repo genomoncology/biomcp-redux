@@ -112,7 +112,10 @@ fn acquire(
     out: &mut Outcome,
 ) -> Result<Saved, RequestError> {
     let fetched = |metadata: biomcp_fetch::ReplyMetadata| {
-        u64::try_from(metadata.fetched).ok().filter(|n| *n > 0)
+        metadata
+            .fetched
+            .and_then(|value| u64::try_from(value).ok())
+            .filter(|n| *n > 0)
     };
     let reply = match q.source() {
         PhenotypeSource::Hpo => {

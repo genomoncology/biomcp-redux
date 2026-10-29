@@ -38,7 +38,10 @@ pub(super) fn get(cx: &Ctx<'_>, q: &PhenotypeGet) -> Outcome {
             q,
             page.items,
             page.components,
-            u64::try_from(page.metadata.fetched).ok().filter(|v| *v > 0),
+            page.metadata
+                .fetched
+                .and_then(|value| u64::try_from(value).ok())
+                .filter(|v| *v > 0),
         );
         out.status = overall(&out, page.total == 0);
     }

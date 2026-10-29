@@ -76,6 +76,5 @@ pub fn display_name(source: Source) -> &'static str {
         Source::Cpic => "CPIC",
         Source::ClinPgx => "ClinPGx",
         Source::Cbioportal => "cBioPortal",
-        _ => source.into(),
     }
 }

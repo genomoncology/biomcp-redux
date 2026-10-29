@@ -192,8 +192,8 @@ struct Recording {
 pub(crate) struct Exchange {
     #[serde(default, skip_serializing_if = "Option::is_none")]
     pub(crate) rpc: Option<rpc::Rpc>,
-    #[serde(default)]
-    pub(crate) fetched: i64,
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub(crate) fetched: Option<i64>,
     pub(crate) status: u16,
     pub(crate) content_type: String,
     #[serde(default, skip_serializing_if = "Option::is_none")]

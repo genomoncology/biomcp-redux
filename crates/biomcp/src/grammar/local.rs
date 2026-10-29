@@ -50,7 +50,7 @@ fn help_tree(command: &Command) -> Command {
 
 pub(super) fn help_source(
     matches: &clap::ArgMatches,
-) -> Result<biomcp_types::Source, crate::grammar::ParseInvalid> {
+) -> Result<biomcp_types::Source, super::ParseInvalid> {
     matches
         .subcommand()
         .filter(|(name, _)| *name == "key")
@@ -64,7 +64,7 @@ pub(super) fn help_source(
                 s.parse()
             }
         })
-        .map_err(|_| crate::grammar::ParseInvalid::default())
+        .map_err(|_| super::ParseInvalid::default())
 }
 
 pub(crate) fn housekeeping_commands() -> [Command; 3] {

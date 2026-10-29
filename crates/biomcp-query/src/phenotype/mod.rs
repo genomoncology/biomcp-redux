@@ -60,7 +60,11 @@ pub fn search(cx: &Ctx<'_>, q: &PhenotypeSearch) -> Outcome {
         out.body = QueryBody::PhenotypePage(PhenotypePage {
             items: page.items.into(),
             components: monarch::components().unwrap_or_default(),
-            fetched: u64::try_from(page.metadata.fetched).ok().filter(|v| *v > 0),
+            fetched: page
+                .metadata
+                .fetched
+                .and_then(|value| u64::try_from(value).ok())
+                .filter(|v| *v > 0),
         });
         out.status = overall(&out, page.total == 0);
     }

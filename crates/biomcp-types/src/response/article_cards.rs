@@ -12,7 +12,8 @@ pub enum ArticleResolution {
         /// Identity evidence.
         r#match: ArticleMatch,
         /// Original fetch time in Unix seconds.
-        fetched: u64,
+        #[serde(default, skip_serializing_if = "Option::is_none")]
+        fetched: Option<u64>,
     },
     /// The source confirmed no matching record.
     NotFound,

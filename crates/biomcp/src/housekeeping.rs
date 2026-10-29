@@ -50,8 +50,12 @@ fn version(verbose: bool, globals: &crate::grammar::Globals) -> String {
             "Commit: {}\nTarget: {}\nSchemas: {versions}\nConfig: {}\nCache: {}\n",
             env!("BIOMCP_BUILD_COMMIT"),
             env!("BIOMCP_BUILD_TARGET"),
-            display_path(crate::config::config_path(globals.config.as_ref())),
-            display_path(crate::config::cache_path()),
+            display_path(
+                crate::config::config_path(globals.config.as_ref())
+                    .ok()
+                    .flatten()
+            ),
+            display_path(crate::config::cache_path().ok().flatten()),
         ));
     }
     text

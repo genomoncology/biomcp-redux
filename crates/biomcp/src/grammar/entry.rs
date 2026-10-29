@@ -181,7 +181,7 @@ fn distance(input: &str, known: &str) -> usize {
 pub(super) fn help_path(
     verb: &str,
     matches: &clap::ArgMatches,
-) -> Result<Option<Vec<String>>, crate::grammar::ParseInvalid> {
+) -> Result<Option<Vec<String>>, super::ParseInvalid> {
     Ok(if verb == "help" {
         match matches.subcommand() {
             Some(("key", matches)) if matches.get_one::<String>("source").is_some() => None,

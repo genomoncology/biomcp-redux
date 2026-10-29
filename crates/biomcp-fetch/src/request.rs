@@ -9,13 +9,13 @@ pub(crate) type Decoded<T> = (
     T,
     u16,
     Vec<u8>,
-    i64,
+    Option<i64>,
     Option<String>,
     Option<crate::Pagination>,
 );
 #[derive(serde::Serialize)]
 struct Wire {
-    fetched: i64,
+    fetched: Option<i64>,
     status: u16,
     content_type: String,
     content_range: Option<String>,
@@ -226,6 +226,12 @@ impl Leg<'_> {
     pub(crate) fn check_source(&self) -> Result<(), RequestError> {
         if self.fetch.disabled(self.spec.source) {
             return Err(self.failure(Reason::Disabled, None).into());
+        }
+        if let crate::KeyUse::Required(credential) | crate::KeyUse::Optional(credential) =
+            self.spec.key
+            && self.fetch.secrets.invalid(credential.secret)
+        {
+            return Err(InputError::CredentialEncoding.into());
         }
         if self.no_key {
             return Err(self.failure(Reason::NoKey, None).into());
@@ -450,7 +456,7 @@ impl Leg<'_> {
             .get("retry-after")
             .and_then(|v| v.to_str().ok())
             .and_then(|v| crate::retry::retry_after(v, std::time::SystemTime::now()));
-        let fetched = crate::cache::now();
+        let fetched = Some(crate::cache::now());
         let recording = matches!(self.fetch.mode, crate::Mode::Record { .. });
         let body = if prepared.method == Method::Head {
             Vec::new()

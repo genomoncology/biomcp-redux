@@ -110,8 +110,10 @@ pub fn get(cx: &Ctx<'_>, query: &DiseaseGet) -> Outcome {
     command.finish(deadline.remaining());
     out
 }
-fn fetched(value: i64) -> Option<u64> {
-    u64::try_from(value).ok().filter(|v| *v > 0)
+fn fetched(value: Option<i64>) -> Option<u64> {
+    value
+        .and_then(|value| u64::try_from(value).ok())
+        .filter(|v| *v > 0)
 }
 fn empty(body: QueryBody) -> Outcome {
     Outcome {

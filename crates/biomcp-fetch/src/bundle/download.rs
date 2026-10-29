@@ -302,7 +302,7 @@ impl Leg<'_> {
         if matches!(self.fetch.mode, Mode::Record { .. }) {
             let exchange = Exchange {
                 rpc: None,
-                fetched: crate::cache::now(),
+                fetched: Some(crate::cache::now()),
                 status: 200,
                 content_type: b.format.media().into(),
                 content_range: None,

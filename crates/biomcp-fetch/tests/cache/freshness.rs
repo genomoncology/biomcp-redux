@@ -257,7 +257,7 @@ fn mixed_cached_and_live_replies_keep_their_own_fetch_times() {
         report
             .replies
             .iter()
-            .filter(|r| r.fetched == 1234567890)
+            .filter(|r| r.fetched == Some(1234567890))
             .count(),
         1
     );
@@ -265,7 +265,7 @@ fn mixed_cached_and_live_replies_keep_their_own_fetch_times() {
         report
             .replies
             .iter()
-            .filter(|r| r.fetched > 1234567890)
+            .filter(|r| r.fetched > Some(1234567890))
             .count(),
         1
     );
@@ -277,7 +277,7 @@ fn mixed_cached_and_live_replies_keep_their_own_fetch_times() {
     let leg = offline.leg(spec, offline.deadline(Duration::from_secs(10)));
     leg.json::<Answer>(&endpoint, &[("id", Arg::Num(1))])
         .unwrap();
-    assert_eq!(leg.finish().replies[0].fetched, 1234567890);
+    assert_eq!(leg.finish().replies[0].fetched, Some(1234567890));
 }
 
 #[test]
