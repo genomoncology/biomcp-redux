@@ -149,7 +149,7 @@ struct Fields {
     )]
     #[cfg_attr(feature = "schema", schemars(with = "u32"))]
     age: Option<u32>,
-    /// Facility phrase; ClinicalTrials.gov tries the exact phrase, then its broader location search only after zero matches. NCI matches exact organization names case-insensitively. A listed site is not necessarily enrolling. Cannot combine with radius.
+    /// Facility phrase; ClinicalTrials.gov broadens after zero exact matches. NCI matches exact names. Cannot combine with radius.
     #[serde(
         default,
         deserialize_with = "super::gene::present",
@@ -185,7 +185,7 @@ struct Fields {
     )]
     #[cfg_attr(feature = "schema", schemars(with = "Text"))]
     distance: Option<Text>,
-    /// Lead sponsor phrase; ClinicalTrials.gov tries the exact phrase, then its broader sponsor search only after zero matches. Use --sponsor-type for the funding category.
+    /// Sponsor name; ClinicalTrials.gov broadens after zero exact matches. Use --sponsor-type for the funding category.
     #[serde(
         default,
         deserialize_with = "super::gene::present",
