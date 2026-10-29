@@ -8,6 +8,25 @@
       "run": [
         "get",
         "variant",
+        "rs113488022"
+      ],
+      "mcp": [
+        "get",
+        "variant",
+        "rs113488022"
+      ],
+      "expect": {
+        "/query/build": "GRCh37",
+        "/query/build_defaulted": true,
+        "/result/candidates": {
+          "count": 3
+        }
+      }
+    },
+    {
+      "run": [
+        "get",
+        "variant",
         "rs113488022",
         "predict",
         "conservation",

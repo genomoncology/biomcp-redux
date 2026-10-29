@@ -1,6 +1,7 @@
 # 0449 — Show when get variant chose the build
 
-Status: OPEN.
+Status: COMPLETE.
+Landed: 036a31950d2f8c5d849d1e0adc59b67cb7c19110
 
 Milestone: 5
 

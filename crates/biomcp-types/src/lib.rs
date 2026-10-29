@@ -121,7 +121,9 @@ pub use response::{
 };
 pub use response::{TrialConditionResolution, TrialPage};
 pub use response::{TrialDocumentResult, TrialDocumentSaved};
-pub use response::{VariantCard, VariantHeader, VariantResolution, VariantTranscript};
+pub use response::{
+    VariantCard, VariantGetQuery, VariantHeader, VariantResolution, VariantTranscript,
+};
 pub use source::{Reason, Source, Use};
 
 pub use query::{OrganizationSearch, OrganizationSource};

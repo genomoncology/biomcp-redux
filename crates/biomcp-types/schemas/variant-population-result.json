@@ -5511,7 +5511,10 @@
       "required": [
         "input"
       ],
-      "type": "object"
+      "type": "object",
+      "x-reply-query-titles": [
+        "VariantGetQuery"
+      ]
     },
     "Reply_VariantGwas": {
       "description": "One page of exact rsID catalog associations.",

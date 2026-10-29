@@ -89,6 +89,8 @@ pub use article::{
 mod recurrence;
 pub use recurrence::{RecurrenceGranularity, RecurrenceStudy, RecurrenceTerms, VariantRecurrence};
 mod variant;
+mod variant_query;
+pub use variant_query::VariantGetQuery;
 mod variant_normalize;
 pub use variant::{
     VariantCard, VariantHeader, VariantPage, VariantResolution, VariantSections, VariantTranscript,

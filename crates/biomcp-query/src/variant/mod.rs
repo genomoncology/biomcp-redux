@@ -323,16 +323,7 @@ fn myvariant_identity(
     } else {
         input.to_owned()
     };
-    let build = query.build().unwrap_or_else(|| {
-        if query
-            .sections()
-            .contains(&biomcp_types::VariantSection::AlphaGenome)
-        {
-            biodata::Build::GRCh38
-        } else {
-            biodata::Build::GRCh37
-        }
-    });
+    let build = query.myvariant_build();
     let found = if population {
         myvariant::population_lookup(leg, &term, build)?
     } else {

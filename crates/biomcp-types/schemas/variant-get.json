@@ -183,5 +183,8 @@
     "input"
   ],
   "title": "VariantGet",
-  "type": "object"
+  "type": "object",
+  "x-reply-query-titles": [
+    "VariantGetQuery"
+  ]
 }

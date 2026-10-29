@@ -7,7 +7,10 @@ use serde::{Deserialize, Serialize};
 #[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
 #[serde(try_from = "Fields")]
 #[cfg_attr(feature = "schema", derive(schemars::JsonSchema))]
-#[cfg_attr(feature = "schema", schemars(with = "Fields"))]
+#[cfg_attr(
+    feature = "schema",
+    schemars(with = "Fields", extend("x-reply-query-titles" = ["VariantGetQuery"]))
+)]
 pub struct VariantGet(Fields);
 #[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
 #[serde(deny_unknown_fields)]
@@ -260,6 +263,21 @@ impl VariantGet {
     /// Explicit resolver service.
     pub fn resolver(&self) -> VariantResolver {
         self.0.resolver
+    }
+    /// Assembly selected for a MyVariant identity request.
+    pub fn myvariant_build(&self) -> Build {
+        self.build().unwrap_or_else(|| {
+            if self.sections().contains(&VariantSection::AlphaGenome) {
+                Build::GRCh38
+            } else {
+                Build::GRCh37
+            }
+        })
+    }
+    /// Echo the assembly selected for a MyVariant identity request.
+    pub fn with_myvariant_build(mut self) -> Self {
+        self.0.build = Some(self.myvariant_build());
+        self
     }
     /// Caller assembly; never a default.
     pub fn build(&self) -> Option<Build> {
