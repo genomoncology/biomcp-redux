@@ -33,7 +33,7 @@ fn run() -> Result<(), String> {
     )?)
     .map_err(|e| e.to_string())?;
     let hash: String = Sha256::digest(
-        &crate::runner::launch::fixture_text("fixtures/drug/civic/next-context.body")?.as_bytes(),
+        crate::runner::launch::fixture_text("fixtures/drug/civic/next-context.body")?.as_bytes(),
     )
     .iter()
     .map(|b| format!("{b:02x}"))

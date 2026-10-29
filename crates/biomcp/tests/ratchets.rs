@@ -37,6 +37,10 @@ fn rust_files(path: &Path) -> Result<Vec<std::path::PathBuf>, std::io::Error> {
 }
 
 #[test]
+#[expect(
+    clippy::disallowed_methods,
+    reason = "The repository contract test owns its Cargo working directory boundary"
+)]
 fn repository_obeys_structural_contract() -> Check {
     check(std::env::current_dir()?.join("../..").as_path())
 }

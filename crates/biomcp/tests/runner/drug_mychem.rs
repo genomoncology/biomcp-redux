@@ -237,9 +237,7 @@ fn component_policy() -> Check {
         if request.contains("%2Cchembl.") || request.contains("fields=chembl.") {
             return Err("disabled component entered request fields".into());
         }
-        Ok(crate::runner::launch::fixture_text(
-            "fixtures/drug/mychem/007.json",
-        )?)
+        crate::runner::launch::fixture_text("fixtures/drug/mychem/007.json")
     })?;
     let cert = env.root().join("ca.pem");
     stub.retain(&env);
@@ -296,9 +294,7 @@ fn xrefs_walk() -> Check {
         if !request.starts_with("GET /v1/chem/KTUFNOKKBVMGRW-UHFFFAOYSA-N?") {
             return Err("unexpected link request".into());
         }
-        Ok(crate::runner::launch::fixture_text(
-            "fixtures/drug/mychem/007.json",
-        )?)
+        crate::runner::launch::fixture_text("fixtures/drug/mychem/007.json")
     })?;
     let cert = env.root().join("ca.pem");
     stub.retain(&env);
