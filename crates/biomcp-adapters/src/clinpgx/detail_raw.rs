@@ -50,7 +50,7 @@ pgx_row! { PgxAnnotationDetail => biodata::PgxAnnotationDetail, record accession
         #[serde(rename = "overrideLevel")] override_level: bool => "overrideLevel",
         pediatric: bool => "pediatric",
         #[serde(rename = "relatedChemicalsLogic")] related_chemicals_logic: Box<str> => "relatedChemicalsLogic",
-        score: crate::FiniteNumber => "score",
+        score: biodata::FiniteNumber => "score",
         #[serde(rename = "scoreDetails")] score_details: Box<str> => "scoreDetails",
         #[serde(rename = "overrideLevelDescription")] override_level_description: Box<str> => "overrideLevelDescription",
     }

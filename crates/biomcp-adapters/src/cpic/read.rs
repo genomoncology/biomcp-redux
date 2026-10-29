@@ -52,10 +52,11 @@ fn read<T: serde::de::DeserializeOwned + Native>(
         problems.record = None;
         if let Some(raw) = problems.field("record", Some(row)) {
             problems.record = raw.record();
+            let before = problems.list.len();
             if let Some(mapped) = raw.map(&mut problems) {
                 if check(std::slice::from_ref(&mapped), range) {
                     items.push(mapped);
-                } else {
+                } else if problems.list.len() == before {
                     problems.required::<()>("record", None);
                 }
             }

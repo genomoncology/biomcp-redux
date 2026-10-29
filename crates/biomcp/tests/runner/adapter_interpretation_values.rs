@@ -8,7 +8,30 @@ pub(super) fn trials() -> Vec<Trial> {
     ), crate::runner::transcript::trial(
         "variant/hotspots-invalid-values-keep-candidates",
         || hotspots().map_err(Into::into),
+    ), crate::runner::transcript::trial(
+        "cpic-pgx/invalid-cross-reference-keeps-gene",
+        || cpic().map_err(|error| error.to_string().into()),
     )]
+}
+fn cpic() -> Result<(), Box<dyn std::error::Error>> {
+    crate::runner::response_cases::checked_case(
+        "pgx/cpic-synthetic",
+        &["get", "pgx", "--gene", "DPYD", "--source", "cpic"],
+        |source, recording| {
+            if source == "cpic" && recording["url"].as_str().is_some_and(|url| url.contains("/gene?")) {
+                recording["exchanges"][0]["body"]["value"][0]["hgncid"] = json!("invalid");
+            }
+        },
+        json!({
+            "/result/identity/symbol":"DPYD",
+            "/result/identity":{"omits":["hgncid"]},
+            "/problems":{"count":1},
+            "/problems/0/field":"hgncid",
+            "/problems/0/record":"DPYD"
+        }),
+        0,
+    )?;
+    Ok(())
 }
 fn hotspots() -> Result<(), String> {
     for (field, invalid, absent) in [

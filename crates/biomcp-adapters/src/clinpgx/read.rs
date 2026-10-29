@@ -46,9 +46,10 @@ fn collection<T: serde::de::DeserializeOwned + NativeRow>(
         cx.record = None;
         if let Some(raw) = cx.field("record", Some(row)) {
             cx.record = raw.record();
+            let before = cx.list.len();
             if let Some(row) = raw.map(&mut cx) {
                 if check(&row) { value.push(row); }
-                else { cx.required::<()>("record", None); }
+                else if cx.list.len() == before { cx.required::<()>("record", None); }
             }
         }
     }

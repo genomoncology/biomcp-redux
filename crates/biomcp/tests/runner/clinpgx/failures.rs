@@ -11,12 +11,13 @@ pub(super) fn trials() -> Vec<Trial> {
         "broken",
         "status",
         "wrong-accession",
+        "bad-score",
         "wrong-gene",
         "unknown-field",
         "unknown-nested-field",
     ] {
         out.push(transcript_trial(
-            format!("clinpgx-annotations/reject-{name}"),
+            format!("clinpgx-annotations/source-{name}"),
             move || failure(name).map_err(Into::into),
         ));
     }
@@ -35,7 +36,7 @@ pub(super) fn trials() -> Vec<Trial> {
     out
 }
 fn failure(name: &'static str) -> Check {
-    let shape = if name == "wrong-accession" {
+    let shape = if matches!(name, "wrong-accession" | "bad-score") {
         "annotation"
     } else {
         "clinical"
@@ -45,6 +46,9 @@ fn failure(name: &'static str) -> Check {
         *body
             .pointer_mut("/data/accessionId")
             .ok_or("synthetic identity")? = json!("PA999999");
+    }
+    if name == "bad-score" {
+        body["data"]["score"] = json!("invalid");
     }
     if name == "wrong-gene" {
         *body
@@ -85,6 +89,29 @@ fn failure(name: &'static str) -> Check {
     let record = env.root().join("record");
     let mut command = vec!["--record".into(), record.to_string_lossy().into()];
     command.extend(args(shape));
+    if matches!(name, "wrong-accession" | "wrong-gene" | "unknown-field" | "unknown-nested-field" | "bad-score") {
+        let value = invoke(&env, command.clone(), 0)?;
+        if value.pointer("/sources/0/state") != Some(&json!("ok")) {
+            return Err(format!("one native identity or field rejected the reply: {value}"));
+        }
+        if matches!(name, "wrong-accession" | "wrong-gene")
+            && value.pointer("/problems/0/field") != Some(&json!("record")) {
+            return Err(format!("identity drop lacks its problem: {value}"));
+        }
+        if name == "bad-score" && (value.pointer("/result/annotation/score").is_some()
+            || value.pointer("/problems/0/field") != Some(&json!("score"))
+            || value.pointer("/result/annotation/accessionId") != Some(&json!("PA100001"))) {
+            return Err(format!("bad score discarded annotation or lacked disclosure: {value}"));
+        }
+        command[0] = "--replay".into();
+        let fresh = Environment::new().map_err(|e| e.to_string())?;
+        let replay = both(&fresh, command, 0)?;
+        if replay.get("problems") != value.get("problems") || replay.get("result") != value.get("result") {
+            return Err("native field mapping changed on replay".into());
+        }
+        stub.finish()?;
+        return Ok(());
+    }
     let value = invoke(&env, command.clone(), 4)?;
     if value.get("result").is_some_and(|v| !v.is_null())
         || value.pointer("/sources/0/state") != Some(&json!("failed"))
