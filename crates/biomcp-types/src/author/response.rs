@@ -63,7 +63,7 @@ biodata::wire_enum! {
     /// Scope of one received ORCID collection.
     OrcidWorksScope {
         /// ORCID sends the whole public works list in one bounded reply; pages are local.
-        WholePublicWorksReply => "whole_public_works_reply"
+        WholePublicWorksReply => "whole-public-works-reply"
     }
 }
 /// Locally paged groups from one complete public ORCID works reply.
@@ -81,22 +81,22 @@ pub struct OrcidWorks {
     pub observed_groups: u64,
 }
 impl ResponseBody for AuthorPage {
-    const SCHEMA: &'static str = "biomcp.author-page/3";
+    const SCHEMA: &'static str = "biomcp.author-page/4";
     type Query = AuthorSearch;
 }
 impl ResponseBody for AuthorCards {
-    const SCHEMA: &'static str = "biomcp.author-card/4";
+    const SCHEMA: &'static str = "biomcp.author-card/5";
     type Query = AuthorGet;
 }
 impl ResponseBody for AuthorPapers {
-    const SCHEMA: &'static str = "biomcp.author-papers/1";
+    const SCHEMA: &'static str = "biomcp.author-papers/2";
     type Query = AuthorPapersQuery;
 }
 impl ResponseBody for AuthorPaperDetails {
-    const SCHEMA: &'static str = "biomcp.author-paper-details/1";
+    const SCHEMA: &'static str = "biomcp.author-paper-details/2";
     type Query = AuthorPapersQuery;
 }
 impl ResponseBody for OrcidWorks {
-    const SCHEMA: &'static str = "biomcp.orcid-works/3";
+    const SCHEMA: &'static str = "biomcp.orcid-works/4";
     type Query = AuthorPapersQuery;
 }

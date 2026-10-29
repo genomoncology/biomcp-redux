@@ -12,7 +12,7 @@
       ],
       "expect": {
         "/status": "failed",
-        "/sources/0/reason": "deadline_exceeded",
+        "/sources/0/reason": "deadline-exceeded",
         "/next/0/kind": "fresh"
       },
       "exit": 4,

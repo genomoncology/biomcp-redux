@@ -16,7 +16,7 @@ pub struct VariantCard {
     pub rejection: Option<Text>,
 }
 impl super::ResponseBody for VariantCard {
-    const SCHEMA: &'static str = "biomcp.variant-card/10";
+    const SCHEMA: &'static str = "biomcp.variant-card/11";
     type Query = VariantGet;
 }
 
@@ -125,7 +125,7 @@ pub struct VariantPage {
     pub items: Box<[VariantHeader]>,
 }
 impl super::ResponseBody for VariantPage {
-    const SCHEMA: &'static str = "biomcp.variant-page/11";
+    const SCHEMA: &'static str = "biomcp.variant-page/12";
     type Query = crate::VariantSearch;
 }
 

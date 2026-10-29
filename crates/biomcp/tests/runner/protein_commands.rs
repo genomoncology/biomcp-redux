@@ -128,7 +128,7 @@ fn links() -> Result<(), Box<dyn std::error::Error>> {
                     *next = serde_json::json!(text.replace(before, after));
                 }
             },
-            serde_json::json!({"/status":"failed", "/sources/0/reason":"bad_reply"}),
+            serde_json::json!({"/status":"failed", "/sources/0/reason":"bad-reply"}),
             4,
         )?;
         super::protein_budgets::check(
@@ -289,7 +289,7 @@ fn continuation_count() -> Result<(), Box<dyn std::error::Error>> {
                 }
             }
         },
-        serde_json::json!({"/status":"partial", "/sources/0/reason":"bad_reply",
+        serde_json::json!({"/status":"partial", "/sources/0/reason":"bad-reply",
             "/page/returned":5, "/page/total":7}),
         0,
     )?;

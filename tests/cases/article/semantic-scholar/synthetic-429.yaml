@@ -15,7 +15,7 @@
       "expect": {
         "/status": "partial",
         "/sources/1/source": "semantic-scholar",
-        "/sources/1/reason": "rate_limited",
+        "/sources/1/reason": "rate-limited",
         "/result/items/*/pmid": {
           "includes": "27959700"
         }
@@ -33,7 +33,7 @@
       "max_bytes": 1953,
       "expect": {
         "/status": "partial",
-        "/sources/1/reason": "rate_limited",
+        "/sources/1/reason": "rate-limited",
         "/next/*/kind": {
           "includes": "key"
         }

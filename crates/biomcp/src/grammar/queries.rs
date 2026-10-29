@@ -57,7 +57,7 @@ pub(crate) fn query_schema(request: &Request) -> &'static str {
         Request::ArticleText(_) => "biomcp.article-text/2",
         Request::ArticleCitations(_) | Request::ArticleReferences(_) => "biomcp.article-edges/2",
         Request::GetArticle(_) => "biomcp.article-get/2",
-        Request::SearchArticle(_) => "biomcp.article-search/1",
+        Request::SearchArticle(_) => "biomcp.article-search/2",
         Request::GetGene(_) => "biomcp.gene-get/1",
         Request::SearchGene(_) => "biomcp.gene-search/1",
     }
@@ -111,7 +111,7 @@ pub(crate) const QUERIES: &[(&str, &str, &str)] = &[
     ("get", "drug", "biomcp.drug-get-command/1"),
     ("get", "gene", "biomcp.gene-get/1"),
     ("search", "gene", "biomcp.gene-search/1"),
-    ("search", "article", "biomcp.article-search/1"),
+    ("search", "article", "biomcp.article-search/2"),
     ("get", "article", "biomcp.article-get/2"),
     ("article", "supplement", "biomcp.article-supplement/1"),
     ("article", "pdf", "biomcp.article-pdf/1"),

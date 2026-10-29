@@ -21,7 +21,7 @@
         "Synthetic maker"
       ],
       "expect": {
-        "/result/count_unit": "recall_records",
+        "/result/count_unit": "recall-records",
         "/result/items/0/header/recall_number": "Z-0001-2024"
       },
       "max_bytes": 817,

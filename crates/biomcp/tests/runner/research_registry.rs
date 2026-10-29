@@ -46,7 +46,7 @@ pub(super) fn check() -> Result<(), String> {
             if matches!(
                 row.pointer("/properties/identity_status/const")
                     .and_then(Value::as_str),
-                Some("missing_card" | "conflict")
+                Some("missing-card" | "conflict")
             ) {
                 continue;
             }
@@ -222,7 +222,7 @@ fn sources(root: &Value, row: &Value, name: &str) -> Vec<Source> {
     if row
         .pointer("/properties/identity_status/const")
         .and_then(Value::as_str)
-        == Some("who_ivd")
+        == Some("who-ivd")
     {
         return vec![Source::WhoIvd];
     }
@@ -244,7 +244,7 @@ fn sources(root: &Value, row: &Value, name: &str) -> Vec<Source> {
             .pointer("/properties/kind/const")
             .and_then(Value::as_str)
         {
-            Some("who_ivd_product") => Some(Source::WhoIvd),
+            Some("who-ivd-product") => Some(Source::WhoIvd),
             Some("clearance") => Some(Source::Fda510k),
             _ => None,
         },

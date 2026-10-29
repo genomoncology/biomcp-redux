@@ -25,7 +25,7 @@ fn rejected(value: &serde_json::Value) -> Check {
     if field(value, "status") != "failed"
         || value.get("result").is_some()
         || value.pointer("/sources/0/state") != Some(&json!("failed"))
-        || value.pointer("/sources/0/reason") != Some(&json!("bad_reply"))
+        || value.pointer("/sources/0/reason") != Some(&json!("bad-reply"))
     {
         return Err("invalid reply became healthy source absence".into());
     }

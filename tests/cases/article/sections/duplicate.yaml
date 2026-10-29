@@ -12,7 +12,7 @@
         "annotations"
       ],
       "expect": {
-        "/result/items/0/sections/annotations/reason": "bad_reply",
+        "/result/items/0/sections/annotations/reason": "bad-reply",
         "/status": "partial"
       }
     }

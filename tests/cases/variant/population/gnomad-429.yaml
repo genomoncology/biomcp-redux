@@ -22,7 +22,7 @@
       "expect": {
         "/status": "failed",
         "/result/population/state": "unavailable",
-        "/result/population/reason": "rate_limited"
+        "/result/population/reason": "rate-limited"
       },
       "max_bytes": 434
     },

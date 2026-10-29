@@ -17,7 +17,7 @@ pub struct TrialCards {
     pub attribution: Box<str>,
 }
 impl super::ResponseBody for TrialCards {
-    const SCHEMA: &'static str = "biomcp.trial-cards/5";
+    const SCHEMA: &'static str = "biomcp.trial-cards/6";
     type Query = crate::TrialGet;
 }
 /// Result for one exact requested NCT identity.
@@ -110,7 +110,7 @@ pub struct TrialRecords<T> {
 }
 /// Source arm rows followed by source intervention rows, each in its native order.
 #[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
-#[serde(tag = "record", content = "data", rename_all = "snake_case")]
+#[serde(tag = "record", content = "data", rename_all = "kebab-case")]
 #[cfg_attr(feature = "schema", derive(schemars::JsonSchema))]
 pub enum TrialArmRecord {
     /// Original arm with its intervention names.
@@ -121,7 +121,7 @@ pub enum TrialArmRecord {
 
 /// Distinct registry-wide contact collections; site contacts stay on locations.
 #[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
-#[serde(tag = "record", content = "data", rename_all = "snake_case")]
+#[serde(tag = "record", content = "data", rename_all = "kebab-case")]
 #[cfg_attr(feature = "schema", derive(schemars::JsonSchema))]
 pub enum TrialContactRecord {
     /// A central contact for this trial.

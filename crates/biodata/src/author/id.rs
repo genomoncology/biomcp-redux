@@ -85,7 +85,7 @@ crate::text_value!(
     "^[0-9]{4}-[0-9]{4}-[0-9]{4}-[0-9]{3}[0-9X]$",
     "A checksummed ORCID iD, identifying only the requested ORCID record."
 );
-/// One provider record; this enum establishes no relationship between its variants.
+/// One provider record; Semantic Scholar serializes as semantic-scholar:ID and accepts semanticscholar:ID as input. This enum establishes no relationship between its variants.
 #[derive(Clone, Debug, PartialEq, Eq, Hash)]
 pub enum AuthorId {
     /// One Semantic Scholar record.
@@ -117,7 +117,7 @@ crate::text_value!(
     AuthorId,
     "AuthorId",
     "^((semantic-scholar|semanticscholar):[1-9][0-9]*|orcid:[0-9]{4}-[0-9]{4}-[0-9]{4}-[0-9]{3}[0-9X])$",
-    "One provider record; this enum establishes no relationship between its variants."
+    "One provider record; Semantic Scholar serializes as semantic-scholar:ID and accepts semanticscholar:ID as input. This enum establishes no relationship between its variants."
 );
 
 /// A checked native ORCID client application identifier.

@@ -306,7 +306,7 @@ fn all_consumer_envelopes_validate_with_independent_source_or_observed_totals()
         envelope::<PgxAnnotations>(
             json!({"gene":"TPMT","source":"clinpgx","section":"annotations","kind":kind}),
             json!(
-                {"annotationkind":kind,"header":{"gene":"TPMT","source":"clinpgx"},"items":items,"page":{"offset":0,"returned":1,"total":1,
+                {"annotation_kind":kind,"header":{"gene":"TPMT","source":"clinpgx"},"items":items,"page":{"offset":0,"returned":1,"total":1,
                 "total_kind":"observed"}}
             ),
         )?;

@@ -14,7 +14,7 @@ pub struct SourceRecord {
 /// A requested section has exactly one state.
 #[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
 #[cfg_attr(feature = "schema", derive(schemars::JsonSchema))]
-#[serde(tag = "state", rename_all = "snake_case")]
+#[serde(tag = "state", rename_all = "kebab-case")]
 pub enum Section<T> {
     /// The source returned data.
     Data {

@@ -11,6 +11,8 @@ mod proof;
 mod reasons;
 #[path = "ratchets/source.rs"]
 mod source;
+#[path = "ratchets/spellings.rs"]
+mod spellings;
 
 use std::{fs, path::Path};
 
@@ -19,6 +21,7 @@ type Check = Result<(), Box<dyn std::error::Error>>;
 fn check(root: &Path) -> Check {
     dependencies::check(root)?;
     reasons::check(root)?;
+    spellings::check(root)?;
     source::check(root)
 }
 

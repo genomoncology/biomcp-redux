@@ -15,7 +15,7 @@
       "expect": {
         "/status": "failed",
         "/sources/0/source": "pubmed",
-        "/sources/0/reason": "rate_limited",
+        "/sources/0/reason": "rate-limited",
         "/next/0/kind": "fresh"
       }
     },

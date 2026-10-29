@@ -2,7 +2,7 @@ use crate::{Article, ArticleGet, ArticleInput, ArticleMatchKind, Capped, ItemSta
 use serde::{Deserialize, Serialize};
 /// Result of resolving an article selector.
 #[derive(Clone, Debug, PartialEq, Serialize, Deserialize)]
-#[serde(tag = "resolution", rename_all = "snake_case")]
+#[serde(tag = "resolution", rename_all = "kebab-case")]
 #[cfg_attr(feature = "schema", derive(schemars::JsonSchema))]
 pub enum ArticleResolution {
     /// A record whose own identity agrees with the input.
@@ -51,6 +51,6 @@ pub struct ArticleCards {
     pub items: Box<[ArticleCardItem]>,
 }
 impl super::ResponseBody for ArticleCards {
-    const SCHEMA: &'static str = "biomcp.article-cards/4";
+    const SCHEMA: &'static str = "biomcp.article-cards/5";
     type Query = ArticleGet;
 }

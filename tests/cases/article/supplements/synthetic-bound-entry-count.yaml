@@ -14,7 +14,7 @@
       "expect": {
         "/status": "failed",
         "/sources/1/state": "failed",
-        "/result/content/reason": "too_large"
+        "/result/content/reason": "too-large"
       }
     }
   ]

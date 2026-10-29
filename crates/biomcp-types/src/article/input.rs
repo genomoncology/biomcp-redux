@@ -55,7 +55,7 @@ biodata::canonical_enum! {
         /// Digital object identifier.
         Doi => "doi",
         /// Europe PMC preprint identifier.
-        EuropePmcId => "europepmc_id",
+        EuropePmcId => "europepmc-id",
     }
 }
 impl ArticleInput {

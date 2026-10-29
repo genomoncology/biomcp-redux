@@ -30,7 +30,7 @@ fn fixed_shapes() -> Result<(), String> {
         (
             json!({"article_key":"/row","field":"item"}),
             json!({"row":{"pmid":"", "semantic_scholar_id":"abc", "title":""}}),
-            json!({"key":{"namespace":"semantic_scholar","id":"abc"}}),
+            json!({"key":{"namespace":"semantic-scholar","id":"abc"}}),
         ),
         (
             json!({"released_source":"/source"}),

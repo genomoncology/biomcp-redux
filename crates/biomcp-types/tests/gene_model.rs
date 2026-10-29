@@ -111,13 +111,13 @@ fn gene_resolutions_preserve_every_candidate_and_withdrawn_identity() -> Check {
     }
     assert_eq!(
         serde_json::to_value(GeneResolution::NotFound {})?,
-        json!({"resolution":"not_found"})
+        json!({"resolution":"not-found"})
     );
     let extended: GeneResolution =
-        serde_json::from_value(json!({"resolution":"not_found","gene":{}}))?;
+        serde_json::from_value(json!({"resolution":"not-found","gene":{}}))?;
     assert_eq!(
         serde_json::to_value(extended)?,
-        json!({"resolution":"not_found"})
+        json!({"resolution":"not-found"})
     );
     assert!(serde_json::from_value::<Gene>(json!({})).is_err());
     round_trip(&header()?)?;

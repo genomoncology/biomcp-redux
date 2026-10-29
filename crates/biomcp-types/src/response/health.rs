@@ -18,7 +18,7 @@ pub struct Health {
     pub store: crate::StoreSize,
 }
 impl super::ResponseBody for Health {
-    const SCHEMA: &'static str = "biomcp.health/3";
+    const SCHEMA: &'static str = "biomcp.health/4";
     type Query = ();
 }
 /// One bounded source probe, without credentials or provider error text.
@@ -136,7 +136,7 @@ biodata::wire_enum! {
     /// Nonfatal local configuration conditions.
     ConfigurationNoticeCode {
         /// The entry did not describe a supported host, address or range.
-        UnparseableEntry => "unparseable_entry",
+        UnparseableEntry => "unparseable-entry",
     }
 }
 

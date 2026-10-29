@@ -12,7 +12,7 @@
         "clean"
       ],
       "expect": {
-        "/schema": "biomcp.store-clean/1",
+        "/schema": "biomcp.store-clean/2",
         "/status": "complete",
         "/result/replies": 0,
         "/result/pools": 0,

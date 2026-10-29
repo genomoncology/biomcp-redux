@@ -39,7 +39,7 @@
           ]
         },
         "/result/source_updated/value": "2026-10-23T09:00:04",
-        "/result/source_updated/timezone": "source_gave_none",
+        "/result/source_updated/timezone": "source-gave-none",
         "/result/items/0/status": "TEMPORARILY_NOT_AVAILABLE",
         "/result/items/1/status": null,
         "/result/items/2/status": null,
@@ -95,7 +95,7 @@
           ]
         },
         "/result/source_updated/value": "2026-10-23T09:00:04",
-        "/result/source_updated/timezone": "source_gave_none",
+        "/result/source_updated/timezone": "source-gave-none",
         "/result/items/0/status": "TEMPORARILY_NOT_AVAILABLE",
         "/result/items/1/status": null,
         "/result/items/2/status": null,

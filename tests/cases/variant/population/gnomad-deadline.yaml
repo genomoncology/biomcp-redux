@@ -22,7 +22,7 @@
       "expect": {
         "/status": "failed",
         "/result/population/state": "unavailable",
-        "/result/population/reason": "deadline_exceeded"
+        "/result/population/reason": "deadline-exceeded"
       },
       "max_bytes": 446
     },

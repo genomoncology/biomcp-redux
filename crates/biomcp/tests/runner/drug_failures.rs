@@ -232,9 +232,9 @@ fn assert_failed(source: &Source, fault: &str, value: &Value) -> Check {
         .ok_or("missing failed source")?;
     let reason = match fault {
         "503" => "unavailable",
-        "429" => "rate_limited",
-        "timeout" => "deadline_exceeded",
-        _ => "bad_reply",
+        "429" => "rate-limited",
+        "timeout" => "deadline-exceeded",
+        _ => "bad-reply",
     };
     if !matches!(value["status"].as_str(), Some("failed" | "partial"))
         || outcome["state"] != "failed"

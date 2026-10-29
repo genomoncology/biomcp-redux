@@ -211,7 +211,7 @@ fn identity() -> Check {
             return Err("NCI identity mismatch or absence fabricated a card".into());
         }
         if !absent {
-            if output.pointer("/sources/0/reason") != Some(&json!("bad_reply")) {
+            if output.pointer("/sources/0/reason") != Some(&json!("bad-reply")) {
                 return Err("NCI wrong-identity reply was not rejected".into());
             }
             let mut args = ["get", "trial", "NCT05136196", "--source", "nci"]

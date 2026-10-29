@@ -205,8 +205,8 @@ fn discovery() -> Result<(), String> {
             .map(Vec::as_slice)
             .unwrap_or_default();
         for (entity, reply) in [
-            ("drug", "biomcp.drug-who-card/1"),
-            ("pgx", "biomcp.pgx-annotation/1"),
+            ("drug", "biomcp.drug-who-card/2"),
+            ("pgx", "biomcp.pgx-annotation/2"),
         ] {
             if command["command"] == json!(["get", entity])
                 && !schemas.iter().any(|id| id.as_str() == Some(reply))
@@ -269,7 +269,7 @@ fn parent_replies(commands: &[Value]) -> Result<(), String> {
     let replies = parent["reply_schemas"]
         .as_array()
         .ok_or("missing parent reply schemas")?;
-    for id in ["biomcp.drug-who-card/1", "biomcp.pgx-annotation/1"] {
+    for id in ["biomcp.drug-who-card/2", "biomcp.pgx-annotation/2"] {
         if !replies.iter().any(|reply| reply.as_str() == Some(id)) {
             return Err(format!("missing child reply {id} for get parent"));
         }

@@ -12,7 +12,7 @@ macro_rules! article {
                 {"required":["pmid"]},
                 {"required":["pmcid"]},
                 {"required":["doi"]},
-                {"required":["europepmc_id"]}
+                {"required":["europepmc-id"]}
             ])))]
         pub struct Article<A = Box<[Text]>> {
             $( $(#[$attribute])* pub $field: $ty, )*
@@ -115,7 +115,7 @@ biodata::canonical_enum! {
         /// Erratum relationship.
         Erratum => "erratum",
         /// Expression of concern relationship.
-        ExpressionOfConcern => "expression_of_concern",
+        ExpressionOfConcern => "expression-of-concern",
     }
 }
 biodata::canonical_enum! {

@@ -448,7 +448,7 @@ fn source_predictor_contract_keeps_zero_and_native_labels() {
     assert_eq!(serde_json::to_value(score).expect("serialize"), source);
     assert!(serde_json::from_value::<PredictorScore>(json!({"score":null})).is_err());
     let empty: VariantConservation = serde_json::from_value(
-        json!({"subject_qualification":"adapter_derived_reference","scores":[],"components":[]}),
+        json!({"subject_qualification":"adapter-derived-reference","scores":[],"components":[]}),
     )
     .expect("an absent record field has no fabricated score");
     assert!(empty.scores.is_empty());

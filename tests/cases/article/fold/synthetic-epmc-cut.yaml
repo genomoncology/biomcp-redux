@@ -21,7 +21,7 @@
         "/status": "partial",
         "/sources/1/source": "europepmc",
         "/sources/1/state": "failed",
-        "/sources/1/reason": "bad_reply",
+        "/sources/1/reason": "bad-reply",
         "/result/items/*/pmid": {
           "equals": [
             "1111",

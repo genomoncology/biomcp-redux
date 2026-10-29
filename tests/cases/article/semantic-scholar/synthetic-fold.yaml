@@ -27,7 +27,7 @@
         "/result/items/0/found_by": {
           "equals": {
             "pubmed": 1,
-            "semantic-scholar": 1
+            "semantic_scholar": 1
           }
         },
         "/result/items/1/key": {
@@ -39,7 +39,7 @@
         "/result/items/1/found_by": {
           "equals": {
             "pubmed": 2,
-            "semantic-scholar": 2
+            "semantic_scholar": 2
           }
         },
         "/result/items/2/key": {

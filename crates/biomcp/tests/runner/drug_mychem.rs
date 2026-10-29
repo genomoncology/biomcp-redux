@@ -226,7 +226,7 @@ fn wrong_identity() -> Check {
         .to_vec();
     let value = invoke(&env, args.clone(), 4)?;
     if value.get("status") != Some(&json!("failed"))
-        || value.pointer("/sources/0/reason") != Some(&json!("bad_reply"))
+        || value.pointer("/sources/0/reason") != Some(&json!("bad-reply"))
         || value.get("result").is_some_and(|v| !v.is_null())
     {
         return Err(format!("wrong identity admitted: {value}"));

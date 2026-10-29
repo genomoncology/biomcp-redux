@@ -15,7 +15,7 @@
         "--until",
         "2024-03",
         "--type",
-        "case_report"
+        "case-report"
       ],
       "expect": {
         "/status": "complete",
@@ -54,7 +54,7 @@
         "search",
         "article",
         "--type",
-        "systematic_review"
+        "systematic-review"
       ],
       "expect": {
         "/status": "complete",
@@ -67,7 +67,7 @@
         "search",
         "article",
         "--type",
-        "meta_analysis"
+        "meta-analysis"
       ],
       "expect": {
         "/status": "complete",

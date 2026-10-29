@@ -21,6 +21,6 @@ pub struct TrialDocumentResult {
     pub file: Section<TrialDocumentSaved>,
 }
 impl super::ResponseBody for TrialDocumentResult {
-    const SCHEMA: &'static str = "biomcp.trial-document/3";
+    const SCHEMA: &'static str = "biomcp.trial-document/4";
     type Query = crate::TrialDocumentGet;
 }

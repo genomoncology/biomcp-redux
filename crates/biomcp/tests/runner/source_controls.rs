@@ -182,7 +182,7 @@ fn source_health() -> Check {
         .and_then(Value::as_array)
         .and_then(|r| r.iter().find(|v| v.get("source") == Some(&json!("oncokb"))))
         .ok_or("OncoKB absent")?;
-    if oncokb.get("reason") != Some(&json!("no_key"))
+    if oncokb.get("reason") != Some(&json!("no-key"))
         || oncokb.get("state") != Some(&json!("skipped"))
     {
         return Err("missing key did not skip health".into());

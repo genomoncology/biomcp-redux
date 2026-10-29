@@ -15,9 +15,9 @@ biodata::wire_enum! {
     /// Availability of timezone information in a native timestamp.
     SourceTimestampTimezone {
         /// The value retains the timezone supplied by the source.
-        InValue => "in_value",
+        InValue => "in-value",
         /// The source supplied no timezone; none has been inferred.
-        SourceGaveNone => "source_gave_none",
+        SourceGaveNone => "source-gave-none",
     }
 }
 

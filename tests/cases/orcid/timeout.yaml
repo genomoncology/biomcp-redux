@@ -20,7 +20,7 @@
       "expect": {
         "/status": "failed",
         "/sources/0/source": "orcid",
-        "/sources/0/reason": "deadline_exceeded",
+        "/sources/0/reason": "deadline-exceeded",
         "/sources/0/state": "failed",
         "/sources/0/terms": "ORCID Public API Terms of Service"
       },

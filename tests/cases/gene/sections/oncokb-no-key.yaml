@@ -20,12 +20,12 @@
       "expect": {
         "/status": "complete",
         "/result/items/0/sections/oncokb/state": "skipped",
-        "/result/items/0/sections/oncokb/reason": "no_key",
+        "/result/items/0/sections/oncokb/reason": "no-key",
         "/sources": {
           "includes": {
             "source": "oncokb",
             "state": "skipped",
-            "reason": "no_key",
+            "reason": "no-key",
             "use": "restricted",
             "terms": "OncoKB license",
             "terms_url": "https://faq.oncokb.org/licensing"

@@ -12,7 +12,7 @@
       ],
       "expect": {
         "/status": "failed",
-        "/sources/0/reason": "bad_reply",
+        "/sources/0/reason": "bad-reply",
         "/next/0/kind": "fresh"
       },
       "exit": 4,

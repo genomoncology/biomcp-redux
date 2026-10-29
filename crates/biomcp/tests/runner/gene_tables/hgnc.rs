@@ -104,7 +104,7 @@ fn required() -> Check {
                     tsv(record, "BRAF", &[(field, value)]);
                 }
             },
-            json!({"/result/items/0/answer/resolution": "not_found",
+            json!({"/result/items/0/answer/resolution": "not-found",
             "/problems/*/field": {"includes": field}}),
             1,
         )?;
@@ -142,7 +142,7 @@ fn withdrawn() -> Check {
                     tsv(record, "A2MR", &[(field, value)]);
                 }
             },
-            json!({"/result/items/0/answer/resolution": "not_found",
+            json!({"/result/items/0/answer/resolution": "not-found",
             "/problems/*/field": {"includes": match field { "STATUS" => "hgnc_status", "HGNC_ID" => "hgnc_id", _ => "symbol" }}}),
             1,
         )?;

@@ -13,7 +13,7 @@
       "exit": 4,
       "expect": {
         "/status": "failed",
-        "/result/content/reason": "too_large"
+        "/result/content/reason": "too-large"
       }
     },
     {

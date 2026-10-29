@@ -22,7 +22,7 @@
         "/status": "partial",
         "/sources/1/source": "europepmc",
         "/sources/1/state": "failed",
-        "/sources/1/reason": "rate_limited",
+        "/sources/1/reason": "rate-limited",
         "/result/items/*/pmid": {
           "equals": [
             "1111",

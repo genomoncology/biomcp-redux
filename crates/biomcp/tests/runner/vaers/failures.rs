@@ -15,10 +15,10 @@ pub(super) fn run() -> Check {
     }
     for (fault, reason) in [
         ("403", "rejected"),
-        ("429", "rate_limited"),
+        ("429", "rate-limited"),
         ("500", "unavailable"),
-        ("timeout", "deadline_exceeded"),
-        ("broken", "bad_reply"),
+        ("timeout", "deadline-exceeded"),
+        ("broken", "bad-reply"),
     ] {
         let dir = env.root().join(fault);
         crate::runner::adverse_event_failures::mutate(&original, &dir, fault)?;

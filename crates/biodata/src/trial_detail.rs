@@ -40,7 +40,7 @@ pub struct TrialCard {
 }
 /// Source age limit; absence is explicit and never a fabricated number.
 #[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
-#[serde(tag = "state", rename_all = "snake_case")]
+#[serde(tag = "state", rename_all = "kebab-case")]
 #[cfg_attr(feature = "schema", derive(schemars::JsonSchema))]
 pub enum TrialAgeBound {
     /// Registry supplied no limit.

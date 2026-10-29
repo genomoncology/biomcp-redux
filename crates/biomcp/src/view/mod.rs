@@ -30,17 +30,17 @@ pub(crate) fn markdown(value: &Value) -> io::Result<Vec<u8>> {
             .into_iter()
             .flatten()
         {
-            if notice.get("kind").and_then(Value::as_str) == Some("litvar_rsid_hint") {
+            if notice.get("kind").and_then(Value::as_str) == Some("litvar-rsid-hint") {
                 out.push_str(&scalar(&notice["message"]));
                 out.push_str("\n\n");
             }
-            if notice.get("kind").and_then(Value::as_str) == Some("pubmed_warning") {
+            if notice.get("kind").and_then(Value::as_str) == Some("pubmed-warning") {
                 out.push_str("**PubMed warning ");
                 out.push_str(&scalar(&notice["name"]));
                 out.push_str(":** ");
                 out.push_str(&scalar(&notice["phrases"]));
                 out.push_str("\n\n");
-            } else if notice.get("kind").and_then(Value::as_str) == Some("not_found_words") {
+            } else if notice.get("kind").and_then(Value::as_str) == Some("not-found-words") {
                 out.push_str("**PubMed dropped supplied words:** ");
                 out.push_str(&scalar(&notice["words"]));
                 out.push_str("\n\n");
@@ -175,8 +175,8 @@ fn nonfinite(value: &Value) -> Option<&'static str> {
     let object = value.as_object().filter(|object| object.len() == 1)?;
     match object.get("kind")?.as_str()? {
         "nan" => Some("NaN"),
-        "positive_infinity" => Some("+Inf"),
-        "negative_infinity" => Some("-Inf"),
+        "positive-infinity" => Some("+Inf"),
+        "negative-infinity" => Some("-Inf"),
         _ => None,
     }
 }

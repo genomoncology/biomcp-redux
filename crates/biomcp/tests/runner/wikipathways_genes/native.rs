@@ -84,7 +84,7 @@ fn walk(env: &Environment, mut value: Value, count: usize, id: &str, expected: &
     };
     loop {
         if value.pointer("/result/page/total") != Some(&json!(count))
-            || value.pointer("/result/page/total_kind") != Some(&json!("data_nodes"))
+            || value.pointer("/result/page/total_kind") != Some(&json!("data-nodes"))
             || value.pointer("/result/header/revision") != Some(&json!(revision))
             || value.pointer("/result/physical_entities") != Some(&json!(data_nodes))
         {
