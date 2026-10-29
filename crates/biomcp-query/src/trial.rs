@@ -2,6 +2,7 @@
 mod condition;
 pub mod document;
 pub(crate) mod get;
+mod names;
 mod nci;
 use crate::{Action, Ctx, Outcome, status};
 
@@ -37,7 +38,7 @@ pub(crate) fn search(cx: &Ctx<'_>, query: &TrialSearch) -> Outcome {
     {
         params.insert("query.cond".into(), format!("({condition})"));
     }
-    let result = ctgov::search(&leg, &params, conditions, query.country());
+    let (result, name_notice) = names::search(&leg, query, &params, conditions);
     let rejected = matches!(
         &result,
         Err(biomcp_fetch::RequestError::Source(error)) if error.status == Some(400)
@@ -54,6 +55,7 @@ pub(crate) fn search(cx: &Ctx<'_>, query: &TrialSearch) -> Outcome {
         .or_else(|| result.as_ref().ok().and_then(|page| page.count_error));
     deadline = deadline.after_stage(started.saturating_sub(leg.remaining()));
     let mut source = status::source(Source::ClinicalTrialsGov, leg.finish(), error);
+    source.notices.extend(name_notice);
     outcome.status = if result.is_err() {
         Status::Failed
     } else if version.is_err()
