@@ -14,7 +14,7 @@ pub(super) fn chembl(
 ) -> Result<(), RequestError> {
     let source = Source::Chembl;
     let (row, metadata) = chembl::molecule(leg, query.input())?;
-    let header = identity::chembl_header(&row).map_err(|_| failure(source))?;
+    let header = identity::chembl_header(&row, &mut out.problems).map_err(|_| failure(source))?;
     let drug = identity::neutral(&header).map_err(|_| failure(source))?;
     let limit = query.section_limit().unwrap_or(10);
     let offset = query.section_offset().unwrap_or(0);
@@ -23,11 +23,13 @@ pub(super) fn chembl(
             let (page, meta) = chembl::mechanisms(leg, query.input(), limit, offset)?;
             let records =
                 chembl::map_targets(&drug, page.mechanisms).map_err(|_| failure(source))?;
+            out.problems.extend(page.problems);
+            out.problems.extend(records.problems);
             targets(
                 out,
                 query,
                 header,
-                records,
+                records.value,
                 page.page_meta.total_count,
                 meta.fetched,
                 fresh,
@@ -37,11 +39,13 @@ pub(super) fn chembl(
             let (page, meta) = chembl::indications(leg, query.input(), limit, offset)?;
             let records = chembl::map_indications(&drug, page.drug_indications)
                 .map_err(|_| failure(source))?;
+            out.problems.extend(page.problems);
+            out.problems.extend(records.problems);
             indications(
                 out,
                 query,
                 header,
-                records,
+                records.value,
                 page.page_meta.total_count,
                 meta.fetched,
                 fresh,
@@ -224,7 +228,8 @@ fn chembl_card(
     let source = Source::Chembl;
     let limit = query.section_limit().unwrap_or(10);
     let offset = query.section_offset().unwrap_or(0);
-    let mut card = identity::chembl_card(row, fetched).map_err(|_| failure(source))?;
+    let mut card =
+        identity::chembl_card(row, fetched, &mut out.problems).map_err(|_| failure(source))?;
     let has_xrefs = !card.cross_references.is_empty();
     let xrefs = std::mem::take(&mut card.cross_references);
     if query.sections() == [DrugSection::Xrefs] {
