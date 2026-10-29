@@ -82,51 +82,97 @@ impl TryFrom<Fields> for PopulationFrequency {
 }
 impl PopulationFrequency {
     /// Source-reported subject.
-    pub fn subject(&self) -> &VariantRef { &self.0.subject }
+    pub fn subject(&self) -> &VariantRef {
+        &self.0.subject
+    }
     /// Source-reported build.
-    pub fn build(&self) -> Build { self.0.build }
+    pub fn build(&self) -> Build {
+        self.0.build
+    }
     /// Source-reported dataset.
-    pub fn dataset(&self) -> &Text { &self.0.dataset }
+    pub fn dataset(&self) -> &Text {
+        &self.0.dataset
+    }
     /// Source-reported dataset version.
-    pub fn dataset_version(&self) -> &Text { &self.0.dataset_version }
+    pub fn dataset_version(&self) -> &Text {
+        &self.0.dataset_version
+    }
     /// Source-reported data type.
-    pub fn data_type(&self) -> Option<PopulationDataType> { self.0.data_type }
+    pub fn data_type(&self) -> Option<PopulationDataType> {
+        self.0.data_type
+    }
     /// Source-reported ancestry group.
-    pub fn ancestry_group(&self) -> Option<&Text> { self.0.ancestry_group.as_ref() }
+    pub fn ancestry_group(&self) -> Option<&Text> {
+        self.0.ancestry_group.as_ref()
+    }
     /// Source-reported sex.
-    pub fn sex(&self) -> Option<PopulationSex> { self.0.sex }
+    pub fn sex(&self) -> Option<PopulationSex> {
+        self.0.sex
+    }
     /// Source-reported subset.
-    pub fn subset(&self) -> Option<&Text> { self.0.subset.as_ref() }
+    pub fn subset(&self) -> Option<&Text> {
+        self.0.subset.as_ref()
+    }
     /// Source-reported allele count.
-    pub fn allele_count(&self) -> Option<u64> { self.0.allele_count }
+    pub fn allele_count(&self) -> Option<u64> {
+        self.0.allele_count
+    }
     /// Source-reported allele number.
-    pub fn allele_number(&self) -> Option<u64> { self.0.allele_number }
+    pub fn allele_number(&self) -> Option<u64> {
+        self.0.allele_number
+    }
     /// Source-reported allele frequency.
-    pub fn allele_frequency(&self) -> Option<Fraction> { self.0.allele_frequency }
+    pub fn allele_frequency(&self) -> Option<Fraction> {
+        self.0.allele_frequency
+    }
     /// Source-reported homozygote count.
-    pub fn homozygote_count(&self) -> Option<u64> { self.0.homozygote_count }
+    pub fn homozygote_count(&self) -> Option<u64> {
+        self.0.homozygote_count
+    }
     /// Source-reported hemizygote count.
-    pub fn hemizygote_count(&self) -> Option<u64> { self.0.hemizygote_count }
+    pub fn hemizygote_count(&self) -> Option<u64> {
+        self.0.hemizygote_count
+    }
     /// Source-reported faf95.
-    pub fn faf95(&self) -> Option<Fraction> { self.0.faf95 }
+    pub fn faf95(&self) -> Option<Fraction> {
+        self.0.faf95
+    }
     /// Source-reported filters.
-    pub fn filters(&self) -> &[Text] { &self.0.filters }
+    pub fn filters(&self) -> &[Text] {
+        &self.0.filters
+    }
     /// Source-reported genotype filter.
-    pub fn genotype_filter(&self) -> Option<GenotypeFilter> { self.0.genotype_filter }
+    pub fn genotype_filter(&self) -> Option<GenotypeFilter> {
+        self.0.genotype_filter
+    }
     /// Source-reported grpmax group.
-    pub fn grpmax_group(&self) -> Option<&Text> { self.0.grpmax_group.as_ref() }
+    pub fn grpmax_group(&self) -> Option<&Text> {
+        self.0.grpmax_group.as_ref()
+    }
     /// Source-reported heterozygote count.
-    pub fn heterozygote_count(&self) -> Option<u64> { self.0.heterozygote_count }
+    pub fn heterozygote_count(&self) -> Option<u64> {
+        self.0.heterozygote_count
+    }
     /// Source-reported homoplasmic count.
-    pub fn homoplasmic_count(&self) -> Option<u64> { self.0.homoplasmic_count }
+    pub fn homoplasmic_count(&self) -> Option<u64> {
+        self.0.homoplasmic_count
+    }
     /// Source-reported heteroplasmic count.
-    pub fn heteroplasmic_count(&self) -> Option<u64> { self.0.heteroplasmic_count }
+    pub fn heteroplasmic_count(&self) -> Option<u64> {
+        self.0.heteroplasmic_count
+    }
     /// Source-reported homoplasmic frequency.
-    pub fn homoplasmic_frequency(&self) -> Option<Fraction> { self.0.homoplasmic_frequency }
+    pub fn homoplasmic_frequency(&self) -> Option<Fraction> {
+        self.0.homoplasmic_frequency
+    }
     /// Source-reported heteroplasmic frequency.
-    pub fn heteroplasmic_frequency(&self) -> Option<Fraction> { self.0.heteroplasmic_frequency }
+    pub fn heteroplasmic_frequency(&self) -> Option<Fraction> {
+        self.0.heteroplasmic_frequency
+    }
     /// Source-reported attribution.
-    pub fn attribution(&self) -> &Attribution { &self.0.attribution }
+    pub fn attribution(&self) -> &Attribution {
+        &self.0.attribution
+    }
     /// Preserve one dataset identity without inventing observations.
     pub fn new(
         subject: VariantRef,

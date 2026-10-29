@@ -12,26 +12,63 @@ fn variant_consumer_reads_coding_representations_statements_and_frequencies() ->
         ids: vec!["VCV000013961.3".parse()?].into(),
         representations: vec![Representation {
             source: Text::new("synthetic")?,
-            expression: Expression::new(ExpressionSyntax::HgvsC, Text::new(notation)?, Some(Text::new("21.1")?))?,
+            expression: Expression::new(
+                ExpressionSyntax::HgvsC,
+                Text::new(notation)?,
+                Some(Text::new("21.1")?),
+            )?,
             build: None,
             allele: None,
-        }].into(),
+        }]
+        .into(),
         genes: vec![GeneRef::try_from(GeneSymbol::new("EGFR")?)?].into(),
     };
-    let coding = variant.representations.iter().find(|v| v.expression.syntax() == ExpressionSyntax::HgvsC).expect("coding representation");
+    let coding = variant
+        .representations
+        .iter()
+        .find(|v| v.expression.syntax() == ExpressionSyntax::HgvsC)
+        .expect("coding representation");
     assert_eq!(coding.expression.value().as_str(), notation);
-    assert_eq!(coding.expression.syntax_version().map(Text::as_str), Some("21.1"));
+    assert_eq!(
+        coding.expression.syntax_version().map(Text::as_str),
+        Some("21.1")
+    );
     let subject = VariantRef::allele_hgvs(notation.parse()?);
-    let attribution = Attribution {source: Text::new("synthetic")?, record: None, version: None, release: None, submitter: None, url: None, evaluated: None};
-    let statement = Statement::new(subject.clone(), "pathogenicity".parse()?, Term {label: Text::new("source label")?, coding: None}, attribution.clone());
+    let attribution = Attribution {
+        source: Text::new("synthetic")?,
+        record: None,
+        version: None,
+        release: None,
+        submitter: None,
+        url: None,
+        evaluated: None,
+    };
+    let statement = Statement::new(
+        subject.clone(),
+        "pathogenicity".parse()?,
+        Term {
+            label: Text::new("source label")?,
+            coding: None,
+        },
+        attribution.clone(),
+    );
     for claim in [statement] {
         assert_eq!(claim.subject.hgvs().map(HgvsText::as_str), Some(notation));
         assert!(claim.subject.id().is_none());
     }
-    let frequency = PopulationFrequency::new(subject, Build::GRCh38, Text::new("synthetic")?, Text::new("v1")?, attribution)
-        .with_counts(Some(1), Some(100), None, None)?
-        .with_frequencies(Some(0.01.try_into()?), None)?;
-    assert_eq!(frequency.subject().hgvs().map(HgvsText::as_str), Some(notation));
+    let frequency = PopulationFrequency::new(
+        subject,
+        Build::GRCh38,
+        Text::new("synthetic")?,
+        Text::new("v1")?,
+        attribution,
+    )
+    .with_counts(Some(1), Some(100), None, None)?
+    .with_frequencies(Some(0.01.try_into()?), None)?;
+    assert_eq!(
+        frequency.subject().hgvs().map(HgvsText::as_str),
+        Some(notation)
+    );
     assert_eq!(frequency.dataset().as_str(), "synthetic");
     assert_eq!(frequency.dataset_version().as_str(), "v1");
     assert_eq!(frequency.build(), Build::GRCh38);
@@ -45,7 +82,10 @@ fn variant_consumer_reads_coding_representations_statements_and_frequencies() ->
     Ok(())
 }
 
-fn hashable<T: Eq + Hash + Debug + FromStr>(text: &str) where T::Err: Debug {
+fn hashable<T: Eq + Hash + Debug + FromStr>(text: &str)
+where
+    T::Err: Debug,
+{
     let mut ids = HashSet::new();
     assert!(ids.insert(text.parse::<T>().expect("typed identifier")));
     assert!(ids.contains(&text.parse::<T>().expect("typed identifier")));
@@ -83,20 +123,28 @@ fn identifiers_and_notation_support_hash_collections_and_borrowed_text() -> Chec
     assert_eq!("10.1/Example".parse::<Doi>()?.as_str(), "10.1/Example");
     for text in ["NCT00000001", "NCT99999999"] {
         let id: NctId = text.parse()?;
-        assert_eq!(id.as_str(), text);
+        assert_eq!(id.text(), text);
         assert_eq!(id.to_string(), text);
         assert_eq!(serde_json::to_value(id)?, json!(text));
     }
     assert_eq!("MONDO:0000001".parse::<Curie>()?.as_str(), "MONDO:0000001");
     assert!("unknown".parse::<TrialStatus>().is_err());
-    assert_eq!("RECRUITING".parse::<TrialStatus>()?.to_string(), "RECRUITING");
+    assert_eq!(
+        "RECRUITING".parse::<TrialStatus>()?.to_string(),
+        "RECRUITING"
+    );
     let mut expressions = HashSet::new();
     expressions.insert(Expression::hgvs(Text::new("NM_005228.5:c.2573T>G")?)?);
     assert_eq!(expressions.len(), 1);
     Ok(())
 }
 
-fn same_identity<T: Eq + Hash + Debug + FromStr + ToString + serde::Serialize>(prefix: &str) -> Check where T::Err: std::error::Error + 'static {
+fn same_identity<T: Eq + Hash + Debug + FromStr + ToString + serde::Serialize>(
+    prefix: &str,
+) -> Check
+where
+    T::Err: std::error::Error + 'static,
+{
     let base = format!("{prefix}000013961");
     let mut ids = HashSet::new();
     for suffix in ["", ".3", ".4"] {
@@ -116,6 +164,9 @@ fn clinvar_accessions_compare_by_record_identity_and_preserve_source_versions() 
     same_identity::<VcvId>("VCV")?;
     same_identity::<RcvId>("RCV")?;
     same_identity::<ScvId>("SCV")?;
-    assert_eq!("VCV000013961.3".parse::<VcvId>()?.as_str(), "VCV000013961.3");
+    assert_eq!(
+        "VCV000013961.3".parse::<VcvId>()?.as_str(),
+        "VCV000013961.3"
+    );
     Ok(())
 }

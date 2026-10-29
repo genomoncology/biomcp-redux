@@ -1,5 +1,10 @@
 use crate::{Error, text_value};
-use std::{fmt, hash::{Hash, Hasher}, num::NonZeroU64, str::FromStr};
+use std::{
+    fmt,
+    hash::{Hash, Hasher},
+    num::NonZeroU64,
+    str::FromStr,
+};
 macro_rules! numeric_id {
     ($(#[doc = $doc:literal])* $name:ident, $error:ident, $prefix:literal, $pattern:literal, $padding:literal) => {
         $(#[doc = $doc])*

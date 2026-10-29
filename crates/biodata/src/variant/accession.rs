@@ -8,6 +8,12 @@ use winnow::{
     error::{ContextError, ErrMode},
 };
 /// A reference sequence accession: RefSeq or Ensembl with its version, or LRG.
+/// Values enter through the checked parser; callers cannot construct unchecked fields.
+/// ```compile_fail
+/// let invalid = biodata::Accession::RefSeq {
+///     prefix: biodata::RefSeqPrefix::Nm, number: 5228, version: 0,
+/// };
+/// ```
 #[derive(Clone, Copy, Debug, PartialEq, Eq, Hash)]
 pub struct Accession(pub(crate) AccessionKind);
 

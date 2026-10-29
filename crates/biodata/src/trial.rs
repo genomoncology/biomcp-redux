@@ -1,10 +1,12 @@
 //! Registry identities and source-native trial values.
 /// Canonical ClinicalTrials.gov identifier.
 #[derive(Clone, Copy, Debug, PartialEq, Eq, PartialOrd, Ord, Hash)]
-pub struct NctId([u8; 11]);
+pub struct NctId(u32);
 impl NctId {
-    /// Borrow the canonical registry identifier.
-    pub fn as_str(&self) -> &str { std::str::from_utf8(&self.0).expect("validated ASCII NCT identifier") }
+    /// Return the canonical registry identifier text.
+    pub fn text(&self) -> String {
+        self.to_string()
+    }
 }
 impl std::str::FromStr for NctId {
     type Err = crate::Error;
@@ -15,17 +17,16 @@ impl std::str::FromStr for NctId {
         if digits.len() != 8 || !digits.bytes().all(|c| c.is_ascii_digit()) {
             return Err(crate::Error::TrialIdInvalid);
         }
-        if digits == "00000000" {
+        let number = digits.parse().map_err(|_| crate::Error::TrialIdInvalid)?;
+        if number == 0 {
             return Err(crate::Error::TrialIdInvalid);
         }
-        let mut text = [0; 11];
-        text.copy_from_slice(value.as_bytes());
-        Ok(Self(text))
+        Ok(Self(number))
     }
 }
 impl std::fmt::Display for NctId {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
-        f.write_str(self.as_str())
+        write!(f, "NCT{:08}", self.0)
     }
 }
 crate::text_value!(

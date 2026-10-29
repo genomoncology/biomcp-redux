@@ -68,7 +68,9 @@ text_value!(
 pub struct Doi(Box<str>);
 impl Doi {
     /// Borrow the unchanged source DOI spelling.
-    pub fn as_str(&self) -> &str { &self.0 }
+    pub fn as_str(&self) -> &str {
+        &self.0
+    }
 }
 impl FromStr for Doi {
     type Err = Error;
