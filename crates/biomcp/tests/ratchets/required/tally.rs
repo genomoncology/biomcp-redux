@@ -79,6 +79,9 @@ impl Inventory {
     }
     pub(super) fn step(&mut self, step: &Step) {
         // Only explicit CLI argv count. MCP-only and dynamic follow/walk expansions do not.
+        if step.follow.is_some() {
+            return;
+        }
         if !step.expect.is_empty() {
             if let Some(call) = &step.mcp_call {
                 self.increment(BTreeSet::from([format!("tool {}", call.name)]));

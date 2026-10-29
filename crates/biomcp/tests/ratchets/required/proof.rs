@@ -168,10 +168,24 @@ fn cli_commands_never_impersonate_named_mcp_tools() -> Check {
     Ok(())
 }
 
+fn dynamic_follow_never_counts_overridden_argv() -> Check {
+    let mut inventory = Inventory::new(&help(), &[json!({"name":"biomcp"})])?;
+    let dynamic: Step = serde_json::from_value(json!({"follow":"page",
+        "run":["get","trial","NCT1","eligibility","--limit","1"],
+        "mcp":["help"], "expect":{"/result/id":"NCT1"}}))?;
+    inventory.step(&dynamic);
+    assert!(
+        inventory.calls.values().all(|count| *count == 0),
+        "follow replaces static argv and clears MCP in the executor"
+    );
+    Ok(())
+}
+
 pub(super) fn check() -> Check {
     three_hand_counts_match_and_an_identity_never_counts_as_a_section()?;
     a_new_option_without_a_case_fails()?;
     removing_the_only_section_call_fails()?;
     option_values_cannot_impersonate_options_or_sections()?;
-    cli_commands_never_impersonate_named_mcp_tools()
+    cli_commands_never_impersonate_named_mcp_tools()?;
+    dynamic_follow_never_counts_overridden_argv()
 }
