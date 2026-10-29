@@ -69,19 +69,7 @@ fn name_parameters(
             p.insert(name.into(), alternatives(values));
         }
     }
-    if let Some(value) = query.registry_page_token() {
-        p.insert("pageToken".into(), value.into());
-    }
-    if broader_names {
-        for (name, value) in [
-            ("query.spons", query.sponsor()),
-            ("query.locn", query.facility()),
-        ] {
-            if let Some(value) = value {
-                p.insert(name.into(), value.to_string());
-            }
-        }
-    }
+    filters::name_parameters(query, broader_names, &mut p);
     let mut text = Vec::new();
     if let Some(value) = query.query() {
         text.push(value.as_str().to_owned());

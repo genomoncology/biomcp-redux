@@ -99,6 +99,26 @@ pub(super) fn advanced(query: &TrialSearch, broader_names: bool) -> String {
     }
     advanced.join(" AND ")
 }
+
+pub(super) fn name_parameters(
+    query: &TrialSearch,
+    broader_names: bool,
+    params: &mut BTreeMap<String, String>,
+) {
+    if let Some(value) = query.registry_page_token() {
+        params.insert("pageToken".into(), value.into());
+    }
+    if broader_names {
+        for (name, value) in [
+            ("query.spons", query.sponsor()),
+            ("query.locn", query.facility()),
+        ] {
+            if let Some(value) = value {
+                params.insert(name.into(), value.to_string());
+            }
+        }
+    }
+}
 fn quote(value: &str) -> String {
     format!("\"{}\"", value.replace('\\', "\\\\").replace('"', "\\\""))
 }
