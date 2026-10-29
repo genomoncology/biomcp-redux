@@ -4,8 +4,12 @@ Build the test bridge with cargo build -p biomcp-types --example public_dump_val
 Pass a JSON manifest with sources: [{kind, path, release, url, rights, sha256}].
 Paths resolve against the manifest directory and dumps must remain outside Git.
 Kinds: civic_variants, civic_profiles, civic_evidence, clinvar_summary,
-clingen_summary, clinvar_gks. The last accepts the keyed GKS/GKM JSON bundle.
+clingen_summary, clingen_evidence, clinvar_gks. ClinGen evidence accepts one
+original public interpretation response per file; GKS accepts the keyed bundle.
 Only CC0-1.0 and public-domain inputs are accepted. Pin the compressed file hash.
+This tool checks mapped source fields. It does not establish adapter parity or
+compare product gene counts. Profile member IDs are checked separately without
+inferring allele identities or reconstructing their source logical expression.
 Exit 0 means complete with no refusals or mapping gaps; 1 means findings or a
 bounded partial run; 2 means an input, transport or tool failure.
 """
@@ -41,7 +45,7 @@ def pinned_sources(manifest):
         required = {"kind", "path", "release", "url", "rights", "sha256"}
         if not required <= source.keys() or any(not source[key] for key in required):
             raise ValueError("manifest_missing_pin")
-        if source["kind"] not in {*REQUIRED, "clinvar_gks"}:
+        if source["kind"] not in {*REQUIRED, "clinvar_gks", "clingen_evidence"}:
             raise ValueError("manifest_unknown_source_kind")
         if source["rights"] not in {"CC0-1.0", "public-domain"}:
             raise ValueError("manifest_unapproved_rights")
@@ -149,6 +153,11 @@ def run(args):
             output.write("\n")
     report["gene_counts_omitted"] = max(0, len(report["gene_counts"]) - GENE_LIMIT)
     report["gene_counts"] = dict(list(report["gene_counts"].items())[:GENE_LIMIT])
+    reasons = report["refusal_reasons"]
+    report["refusal_reasons_omitted"] = max(0, len(reasons) - EXAMPLE_LIMIT)
+    report["refusal_reasons"] = dict(list(reasons.items())[:EXAMPLE_LIMIT])
+    report["refusals"] = [{**refusal, "value": str(refusal["value"])[:512],
+                           "reason": refusal["reason"][:512]} for refusal in report["refusals"]]
     print(json.dumps(report, indent=2, sort_keys=True))
     failures = sweep.reasons or sweep.unmapped or any(row["records_without_values"] for row in sweep.sources)
     return int(bool(failures) or not sweep.complete)

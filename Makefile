@@ -13,7 +13,7 @@ TEST_THREADS = $(if $(strip $(RUST_TEST_THREADS)),-- --test-threads $(RUST_TEST_
 
 .PHONY: landing-gate plain-cli-build fmt lint ratchets test audit coverage unreached
 
-landing-gate: workflow-lint plain-cli-build fmt lint docs-check tensor-proto-check coverage audit secrets
+landing-gate: workflow-lint plain-cli-build fmt lint public-dump-check docs-check tensor-proto-check coverage audit secrets
 
 plain-cli-build:
 	cargo build --locked -p biomcp --bin biomcp --timings
@@ -30,6 +30,11 @@ ratchets:
 
 test:
 	cargo test --workspace --locked $(TEST_THREADS)
+
+.PHONY: public-dump-check
+public-dump-check:
+	cargo build --locked -p biomcp-types --example public_dump_values
+	PUBLIC_DUMP_VALUES="$(if $(CARGO_TARGET_DIR),$(CARGO_TARGET_DIR),target)/debug/examples/public_dump_values" python3 scripts/test_public_dump_sweep.py
 
 audit:
 	cargo deny --locked check licenses advisories bans sources

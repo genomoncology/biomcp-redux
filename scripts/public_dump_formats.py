@@ -1,5 +1,6 @@
 """Map public publisher fields to the existing BioData values, without inference."""
 import csv
+import json
 import re
 
 from public_dump_json import bundle_records
@@ -165,6 +166,17 @@ def nested_values(record):
 
 
 def records(handle, kind):
+    if kind == "clingen_evidence":
+        record = json.load(handle)
+        if not isinstance(record, dict) or not isinstance(record.get("evidenceLine"), list):
+            raise ValueError("clingen_missing_evidence_tree")
+        values = list(nested_values(record))
+        condition = record.get("condition", {})
+        if condition.get("label"):
+            values.append(concept("disease", condition["label"], condition.get("id")))
+        values.extend(criterion_citations(record))
+        yield record.get("uuid", "interpretation"), values, [], None
+        return
     if kind != "clinvar_gks":
         yield from table_records(handle, kind)
         return
@@ -173,4 +185,23 @@ def records(handle, kind):
         primary = identity_value(identity)
         if primary and record.get("id") != identity:
             values.insert(0, primary)
+        if section in {"condition", "therapy"} and record.get("name"):
+            values.append(concept("disease" if section == "condition" else "drug", record["name"]))
         yield f"{section}/{identity}", values, [], None if section in SECTIONS else section
+
+
+def criterion_citations(node, criterion=False):
+    """Only explicit PubMed references within source criterion assessments."""
+    if isinstance(node, dict):
+        criterion = criterion or node.get("type") == "CriterionAssessment"
+        for value in node.values():
+            yield from criterion_citations(value, criterion)
+    elif isinstance(node, list):
+        for value in node:
+            yield from criterion_citations(value, criterion)
+    elif criterion and isinstance(node, str):
+        for match in re.finditer(r"(?:pubmed\.ncbi\.nlm\.nih\.gov/|/pubmed/)([0-9]+)", node):
+            yield item("citation", match[1])
+        for match in re.finditer(r"\bPMIDs?\s*:?\s*([0-9]+(?:\s*[,;]\s*[0-9]+)*)", node, re.I):
+            for pmid in re.findall(r"[0-9]+", match[1]):
+                yield item("citation", pmid)

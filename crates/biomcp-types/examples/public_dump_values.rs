@@ -1,8 +1,8 @@
 //! Offline test-tool bridge. Each input line contains a batch of source values.
 use biodata::{
-    Accession, CaId, ClinVarAlleleId, ClinVarVariationId, Concept, Curie, Doi, DrugId,
-    GeneSymbol, HgvsText, MondoId, NcbiGeneId, NcitId, Pmid, RcvId, RsId, ScvId, Text,
-    VariantId, VariantRef, VcvId,
+    Accession, CaId, ClinVarAlleleId, ClinVarVariationId, Concept, Curie, Doi, DrugId, GeneSymbol,
+    HgvsText, MondoId, NcbiGeneId, NcitId, Pmid, RcvId, RsId, ScvId, Text, VariantId, VariantRef,
+    VcvId,
 };
 use serde::{Deserialize, Serialize};
 use serde_json::Value;
@@ -59,7 +59,12 @@ fn parse(input: Input) -> Output {
         Ok(parsed) => (Some(parsed), None),
         Err(reason) => (None, Some(reason)),
     };
-    Output { kind: input.kind, value: input.value, parsed, reason }
+    Output {
+        kind: input.kind,
+        value: input.value,
+        parsed,
+        reason,
+    }
 }
 
 fn main() -> Result<(), Box<dyn std::error::Error>> {

@@ -80,6 +80,15 @@ class Sweep(unittest.TestCase):
         self.assertFalse(report["complete"])
         self.assertEqual(report["gene_counts"], {"BRAF": 1})
 
+    def test_clingen_evidence_keeps_disease_and_only_explicit_criterion_citations(self):
+        record = {"uuid": "synthetic", "condition": {"id": "MONDO:0004992", "label": "cancer"},
+                  "outside": "PMID: 999", "evidenceLine": [
+                      {"type": "CriterionAssessment", "text": "PMIDs: 123, 456"}]}
+        result, report = self.run_sweep("clingen_evidence", json.dumps(record))
+        self.assertEqual(result.returncode, 0, result.stderr)
+        self.assertEqual(report["types"]["disease"]["parsed"], 1)
+        self.assertEqual(report["types"]["citation"]["parsed"], 2)
+
 
 if __name__ == "__main__":
     unittest.main()
