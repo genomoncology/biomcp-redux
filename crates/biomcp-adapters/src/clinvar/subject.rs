@@ -59,9 +59,12 @@ fn variation_id(
     field: &str,
     problems: &mut Problems,
 ) -> Result<Option<ClinVarVariationId>, BadReply> {
-    let id = element
-        .attr("VariationID")?
-        .and_then(|value| format!("clinvar:{value}").parse().ok());
+    let id = problems.optional(
+        field,
+        element
+            .attr("VariationID")?
+            .map(|value| format!("clinvar:{value}").parse()),
+    );
     Ok(problems.required(field, id))
 }
 
@@ -71,6 +74,6 @@ fn checked_attr<T: std::str::FromStr>(
     field: &str,
     problems: &mut Problems,
 ) -> Result<Option<T>, BadReply> {
-    let value = element.attr(name)?.and_then(|value| value.parse().ok());
+    let value = problems.optional(field, element.attr(name)?.map(|value| value.parse()));
     Ok(problems.required(field, value))
 }
