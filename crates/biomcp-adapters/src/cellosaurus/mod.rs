@@ -207,7 +207,9 @@ fn fetch_card(
                     );
                 }
                 if complete {
-                    sections::card(row)
+                    let mapped = sections::card(row)?;
+                    problems.extend(mapped.problems);
+                    Ok(mapped.value)
                 } else {
                     map::card(row)
                 }

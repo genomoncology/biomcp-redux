@@ -17,57 +17,89 @@ pub fn complete(
 ) -> Result<Card, RequestError> {
     super::fetch_card(leg, accession, source, true)
 }
-pub(super) fn xref(row: raw::Xref) -> CellLineXref {
+pub(super) fn xref(
+    row: raw::Xref,
+    field: &str,
+    problems: &mut crate::mapped::Problems,
+) -> CellLineXref {
     CellLineXref {
         database: row.database,
         accession: row.accession,
-        label: row.label.map(Into::into),
-        url: row.url,
-        category: row.category,
-        iri: row.iri,
-        discontinued: row.discontinued,
+        label: problems
+            .field(&format!("{field}.label"), row.label)
+            .map(Into::into),
+        url: problems.field(&format!("{field}.url"), row.url),
+        category: problems.field(&format!("{field}.category"), row.category),
+        iri: problems.field(&format!("{field}.iri"), row.iri),
+        discontinued: problems.field(&format!("{field}.discontinued"), row.discontinued),
     }
 }
-fn variation(row: raw::Variation) -> CellLineVariation {
-    let (genes, references): (Vec<_>, Vec<_>) = row
-        .xref_list
-        .unwrap_or_default()
+fn variation(row: raw::Variation, problems: &mut crate::mapped::Problems) -> CellLineVariation {
+    let field = "sequence-variation-list";
+    let (genes, references): (Vec<_>, Vec<_>) = problems
+        .fields("sequence-variation-list.xref-list", row.xref_list)
         .into_vec()
         .into_iter()
-        .map(xref)
+        .map(|r| xref(r, "sequence-variation-list.xref-list", problems))
         .partition(|r| r.database.as_str() == "HGNC");
     CellLineVariation {
-        variation_type: row.variation_type,
-        mutation_type: row.mutation_type,
-        description: row.mutation_description.map(Into::into),
-        note: row.variation_note.map(Into::into),
-        zygosity: row.zygosity_type,
+        variation_type: problems
+            .required_field(&format!("{field}.variation-type"), row.variation_type),
+        mutation_type: problems.field(&format!("{field}.mutation-type"), row.mutation_type),
+        description: problems
+            .field(
+                &format!("{field}.mutation-description"),
+                row.mutation_description,
+            )
+            .map(Into::into),
+        note: problems
+            .field(&format!("{field}.variation-note"), row.variation_note)
+            .map(Into::into),
+        zygosity: problems.field(&format!("{field}.zygosity-type"), row.zygosity_type),
         genes: genes
             .into_iter()
             .map(|reference| CellLineGene {
-                hgnc: reference.accession.as_str().parse().ok(),
+                hgnc: problems.optional(
+                    "sequence-variation-list.xref-list.accession",
+                    Some(reference.accession.as_str().parse()),
+                ),
                 reference,
             })
             .collect(),
         references: references.into(),
-        provenance: row
-            .source_list
-            .unwrap_or_default()
+        provenance: problems
+            .fields("sequence-variation-list.source-list", row.source_list)
             .into_vec()
             .into_iter()
             .map(|r| CellLineProvenance {
-                reference: r.reference.map(|r| CellLineReference {
-                    resource_internal_ref: r.resource_internal_ref,
-                }),
-                institution: r.institution.map(Into::into),
-                value: r.value.map(Into::into),
-                xref: r.xref.map(xref),
+                reference: problems
+                    .field("sequence-variation-list.source-list.reference", r.reference)
+                    .map(|r| CellLineReference {
+                        resource_internal_ref: r.resource_internal_ref,
+                    }),
+                institution: problems
+                    .field(
+                        "sequence-variation-list.source-list.institution",
+                        r.institution,
+                    )
+                    .map(Into::into),
+                value: problems
+                    .field("sequence-variation-list.source-list.value", r.value)
+                    .map(Into::into),
+                xref: problems
+                    .field("sequence-variation-list.source-list.xref", r.xref)
+                    .map(|r| xref(r, "sequence-variation-list.source-list.xref", problems)),
             })
             .collect(),
     }
 }
-pub(super) fn card(mut row: raw::Record) -> Result<CellLineCard, RequestError> {
+pub(super) fn card(mut row: raw::Record) -> Result<crate::Mapped<CellLineCard>, RequestError> {
     let accession = row.accession().map_err(super::bad)?.clone();
+    let mut problems = crate::mapped::Problems {
+        source: Source::Cellosaurus,
+        record: crate::mapped::record(&accession),
+        list: Vec::new(),
+    };
     let names = row
         .name_list
         .iter()
@@ -85,7 +117,7 @@ pub(super) fn card(mut row: raw::Record) -> Result<CellLineCard, RequestError> {
         .unwrap_or_default()
         .into_vec()
         .into_iter()
-        .map(xref)
+        .map(|r| xref(r, "xref-list", &mut problems))
         .collect();
     let variants = row
         .sequence_variation_list
@@ -93,7 +125,7 @@ pub(super) fn card(mut row: raw::Record) -> Result<CellLineCard, RequestError> {
         .unwrap_or_default()
         .into_vec()
         .into_iter()
-        .map(variation)
+        .map(|r| variation(r, &mut problems))
         .collect();
     let mut card = super::map::card(row)?;
     let data = |data| Section::Data {
@@ -139,5 +171,8 @@ pub(super) fn card(mut row: raw::Record) -> Result<CellLineCard, RequestError> {
             fetched: None,
         },
     });
-    Ok(card)
+    Ok(crate::Mapped {
+        value: card,
+        problems: problems.list,
+    })
 }

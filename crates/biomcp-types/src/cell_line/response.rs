@@ -257,7 +257,7 @@ impl ResponseBody for CellLineXrefs {
     type Query = CellLineGet;
 }
 impl ResponseBody for CellLineVariants {
-    const SCHEMA: &'static str = "biomcp.cell-line-variants/4";
+    const SCHEMA: &'static str = "biomcp.cell-line-variants/5";
     type Query = CellLineGet;
 }
 impl ResponseBody for CellLineChembl {

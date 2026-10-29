@@ -25,7 +25,7 @@ pub(super) struct Record {
     pub problems: Vec<biomcp_types::Problem>,
     pub accession_list: Vec<crate::raw::Field<Accession>>,
     pub name_list: Vec<Name>,
-    pub category: Option<Text>,
+    pub category: Option<crate::raw::Field<Text>>,
     pub species_list: Option<crate::strict_input::Input<Box<[CellLineXref]>>>,
     pub disease_list: Option<crate::strict_input::Input<Box<[CellLineXref]>>>,
     pub age: Option<Text>,
@@ -42,29 +42,29 @@ pub(super) struct Record {
 pub(super) struct Xref {
     pub database: Text,
     pub accession: Text,
-    pub label: Option<NativeText>,
-    pub url: Option<Text>,
-    pub category: Option<Text>,
-    pub iri: Option<Text>,
-    pub discontinued: Option<Text>,
+    pub label: Option<crate::raw::Field<NativeText>>,
+    pub url: Option<crate::raw::Field<Text>>,
+    pub category: Option<crate::raw::Field<Text>>,
+    pub iri: Option<crate::raw::Field<Text>>,
+    pub discontinued: Option<crate::raw::Field<Text>>,
 }
 #[derive(Debug, Deserialize)]
 #[serde(rename_all = "kebab-case")]
 pub(super) struct Variation {
-    pub variation_type: Text,
-    pub mutation_type: Option<Text>,
-    pub mutation_description: Option<NativeText>,
-    pub variation_note: Option<NativeText>,
-    pub zygosity_type: Option<Text>,
-    pub xref_list: Option<Box<[Xref]>>,
-    pub source_list: Option<Box<[Provenance]>>,
+    pub variation_type: Option<crate::raw::Field<Text>>,
+    pub mutation_type: Option<crate::raw::Field<Text>>,
+    pub mutation_description: Option<crate::raw::Field<NativeText>>,
+    pub variation_note: Option<crate::raw::Field<NativeText>>,
+    pub zygosity_type: Option<crate::raw::Field<Text>>,
+    pub xref_list: Option<crate::raw::Field<Vec<crate::raw::Field<Xref>>>>,
+    pub source_list: Option<crate::raw::Field<Vec<crate::raw::Field<Provenance>>>>,
 }
 #[derive(Debug, Deserialize)]
 pub(super) struct Provenance {
-    pub reference: Option<Reference>,
-    pub institution: Option<NativeText>,
-    pub value: Option<NativeText>,
-    pub xref: Option<Xref>,
+    pub reference: Option<crate::raw::Field<Reference>>,
+    pub institution: Option<crate::raw::Field<NativeText>>,
+    pub value: Option<crate::raw::Field<NativeText>>,
+    pub xref: Option<crate::raw::Field<Xref>>,
 }
 #[derive(Debug, Deserialize)]
 pub(super) struct Reference {

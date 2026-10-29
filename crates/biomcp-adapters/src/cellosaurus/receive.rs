@@ -1,6 +1,6 @@
 //! Admit native metadata independently from primary accessions.
 use super::raw::{Accession, Comment, Name, Variation, Xref};
-use biodata::{CellLineXref, PartialDate, Text};
+use biodata::{PartialDate, Text};
 use serde::Deserialize;
 #[derive(Debug, Deserialize)]
 #[serde(rename_all = "kebab-case")]
@@ -8,8 +8,8 @@ pub(super) struct ReceivedRecord {
     pub accession_list: Vec<crate::raw::Field<Accession>>,
     pub name_list: Option<crate::raw::Field<Vec<crate::raw::Field<Name>>>>,
     pub category: Option<crate::raw::Field<Text>>,
-    pub species_list: Option<crate::raw::Field<Vec<crate::raw::Field<CellLineXref>>>>,
-    pub disease_list: Option<crate::raw::Field<Vec<crate::raw::Field<CellLineXref>>>>,
+    pub species_list: Option<crate::raw::Field<Vec<crate::raw::Field<Xref>>>>,
+    pub disease_list: Option<crate::raw::Field<Vec<crate::raw::Field<Xref>>>>,
     pub age: Option<crate::raw::Field<Text>>,
     pub sex: Option<crate::raw::Field<biodata::CellLineSex>>,
     pub created: Option<crate::raw::Field<PartialDate>>,
@@ -35,12 +35,26 @@ impl From<ReceivedRecord> for super::raw::Record {
             accession_list: row.accession_list,
             name_list: problems.fields("name-list", row.name_list).into_vec(),
             category: problems.required_field("category", row.category),
-            species_list: row
-                .species_list
-                .map(|v| crate::strict_input::Input(problems.fields("species-list", Some(v)))),
-            disease_list: row
-                .disease_list
-                .map(|v| crate::strict_input::Input(problems.fields("disease-list", Some(v)))),
+            species_list: row.species_list.map(|v| {
+                crate::strict_input::Input(
+                    problems
+                        .fields("species-list", Some(v))
+                        .into_vec()
+                        .into_iter()
+                        .map(|r| super::sections::xref(r, "species-list", &mut problems))
+                        .collect(),
+                )
+            }),
+            disease_list: row.disease_list.map(|v| {
+                crate::strict_input::Input(
+                    problems
+                        .fields("disease-list", Some(v))
+                        .into_vec()
+                        .into_iter()
+                        .map(|r| super::sections::xref(r, "disease-list", &mut problems))
+                        .collect(),
+                )
+            }),
             age: problems.field("age", row.age),
             sex: problems.field("sex", row.sex),
             created: problems.field("created", row.created),
