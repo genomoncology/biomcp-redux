@@ -51,7 +51,7 @@ pub struct Search {
     /// Selected source rsID or variant name.
     pub term: Text,
     /// Whole source publication count.
-    pub count: u64,
+    pub count: Option<u64>,
     /// Native publication sequence capped at the pool limit.
     pub ids: Vec<Pmid>,
     /// Rejected native fields and publication identities.
@@ -80,8 +80,8 @@ pub fn select(
             Candidates::eligible,
         )?
         .mapped();
-    let mut matching = candidates.value.iter().filter(|row| {
-        if rsid {
+    let mut matching = candidates.value.iter().filter_map(|row| {
+        let matches = if rsid {
             row.rsid
                 .as_ref()
                 .is_some_and(|rsid| rsid.as_str().eq_ignore_ascii_case(variant))
@@ -92,11 +92,18 @@ pub fn select(
                     .any(|g| g.as_str().eq_ignore_ascii_case(gene))
             }) && row
                 .name
-                .as_str()
-                .eq_ignore_ascii_case(&format!("p.{change}"))
+                .as_ref()
+                .is_some_and(|name| name.as_str().eq_ignore_ascii_case(&format!("p.{change}")))
+        };
+        if !matches {
+            return None;
         }
+        row.rsid
+            .as_ref()
+            .or(row.name.as_ref())
+            .map(|term| (row, term))
     });
-    let Some(selected) = matching.next().filter(|_| matching.next().is_none()) else {
+    let Some((selected, term)) = matching.next().filter(|_| matching.next().is_none()) else {
         return Ok(crate::Mapped {
             value: Selection::Candidates(
                 candidates
@@ -112,7 +119,7 @@ pub fn select(
     Ok(crate::Mapped {
         value: Selection::Exact(Variant {
             id: selected.id.clone(),
-            term: selected.rsid.as_ref().unwrap_or(&selected.name).clone(),
+            term: term.clone(),
         }),
         problems: candidates.problems,
     })
@@ -133,6 +140,15 @@ pub fn publications(leg: &Leg<'_>, selected: Variant) -> Result<Search, RequestE
         record: crate::mapped::record(&selected.id),
         list: Vec::new(),
     };
+    let count = problems
+        .field("pmids_count", reply.pmids_count)
+        .and_then(|count| {
+            if count < reply.pmids.len() as u64 {
+                problems.required("pmids_count", None)
+            } else {
+                Some(count)
+            }
+        });
     let ids = reply
         .pmids
         .into_iter()
@@ -144,7 +160,7 @@ pub fn publications(leg: &Leg<'_>, selected: Variant) -> Result<Search, RequestE
         .collect();
     Ok(Search {
         term: selected.term,
-        count: reply.pmids_count,
+        count,
         ids,
         problems: problems.list,
     })
@@ -153,8 +169,8 @@ struct Candidate {
     id: String,
     rsid: Option<Text>,
     gene: Vec<Text>,
-    name: biodata::Text,
-    pmids_count: u64,
+    name: Option<biodata::Text>,
+    pmids_count: Option<u64>,
 }
 impl Candidate {
     fn public(self) -> LitVarCandidate {

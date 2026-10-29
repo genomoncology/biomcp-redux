@@ -29,6 +29,9 @@ const RSID: &[&str] = &[
 ];
 pub(super) fn trials() -> Vec<Trial> {
     vec![
+        transcript_trial("article/litvar/independent-name-and-counts", || {
+            optional_values().map_err(|e| e.to_string().into())
+        }),
         transcript_trial("article/litvar/response-boundaries", || {
             boundaries().map_err(|e| e.to_string().into())
         }),
@@ -97,8 +100,8 @@ fn boundaries() -> Check {
         ),
         (
             "bad-rsid",
-            json!({"/status":"absent","/result/candidates":{"count":1},"/problems/*/field":["identity"]}),
-            1,
+            json!({"/status":"complete","/sources/1/term":"p.G12C","/problems/*/field":["rsid"]}),
+            0,
         ),
         (
             "zero-pmid",
@@ -342,5 +345,47 @@ fn markdown_recovery() -> Check {
         text.contains("If you have an rsID, look it up in LitVar"),
         "Empty results must keep recovery steps"
     );
+    Ok(())
+}
+
+fn optional_values() -> Check {
+    checked_case(
+        "article/litvar/kras-g12c",
+        KRAS,
+        |source, record| {
+            if source == "litvar" && !publications(record) {
+                record["exchanges"][0]["body"]["value"][1]["name"] = json!(42);
+            }
+        },
+        json!({"/result/candidates":{"count":2},"/result/candidates/1":{"omits":["name"]},
+            "/result/candidates/1/rsid":"rs121913530","/problems/*/field":["name"]}),
+        1,
+    )?;
+    for (publication, invalid) in [
+        (false, json!("bad")),
+        (true, json!("bad")),
+        (true, json!(1)),
+    ] {
+        let output = checked_case(
+            "article/litvar/kras-g12c",
+            KRAS,
+            |source, record| {
+                if source != "litvar" || publications(record) != publication {
+                    return;
+                }
+                let value = &mut record["exchanges"][0]["body"]["value"];
+                if publication {
+                    value["pmids_count"] = invalid.clone();
+                } else {
+                    value[1]["pmids_count"] = invalid.clone();
+                }
+            },
+            json!({"/result/items":{"count":10},"/problems/*/field":["pmids_count"]}),
+            0,
+        )?;
+        if publication && output.pointer("/sources/1/count").is_some() {
+            return Err("refused publication count was inferred or retained".into());
+        }
+    }
     Ok(())
 }

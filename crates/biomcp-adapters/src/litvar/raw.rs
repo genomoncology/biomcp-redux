@@ -11,19 +11,14 @@ pub(super) struct Candidates(Vec<Field<Candidate>>);
 struct Candidate {
     #[serde(rename = "_id", alias = "id")]
     id: String,
-    rsid: Option<Text>,
+    rsid: Option<Field<Text>>,
     gene: Option<Field<Vec<Field<Text>>>>,
-    #[serde(deserialize_with = "crate::native_text::deserialize")]
-    name: Text,
-    pmids_count: u64,
+    name: Option<Field<crate::native_text::NativeText>>,
+    pmids_count: Option<Field<u64>>,
 }
 impl Candidate {
     fn admitted(&self) -> bool {
         PathSegment::new(&self.id).is_ok()
-            && self
-                .rsid
-                .as_ref()
-                .is_none_or(|id| super::is_rsid(id.as_str()))
     }
 }
 impl Candidates {
@@ -51,10 +46,19 @@ impl Candidates {
             }
             value.push(super::Candidate {
                 id: row.id,
-                rsid: row.rsid,
+                rsid: problems.field("rsid", row.rsid).and_then(|value| {
+                    problems.optional(
+                        "rsid",
+                        Some(if super::is_rsid(value.as_str()) {
+                            Ok(value)
+                        } else {
+                            Err(BadReply)
+                        }),
+                    )
+                }),
                 gene: problems.fields("gene", row.gene).into_vec(),
-                name: row.name,
-                pmids_count: row.pmids_count,
+                name: problems.source_field("name", row.name),
+                pmids_count: problems.field("pmids_count", row.pmids_count),
             });
         }
         Mapped {
@@ -74,7 +78,7 @@ impl Reply for Candidates {
 #[derive(Deserialize)]
 pub(super) struct Publications {
     pub(super) pmids: Vec<Field<u32>>,
-    pub(super) pmids_count: u64,
+    pub(super) pmids_count: Option<Field<u64>>,
 }
 impl Publications {
     pub(super) fn eligible(&self) -> bool {
@@ -95,9 +99,6 @@ impl Reply for Publications {
         )
     }
     fn check(&self) -> Result<(), BadReply> {
-        if self.pmids.len() as u64 > self.pmids_count {
-            return Err(BadReply);
-        }
         Ok(())
     }
 }

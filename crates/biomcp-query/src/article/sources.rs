@@ -296,11 +296,7 @@ fn prepare_litvar<'a>(
                 super::empty_litvar::recover(query, out);
             }
             for candidate in &candidates {
-                for variant in candidate
-                    .rsid
-                    .iter()
-                    .chain(std::iter::once(&candidate.name))
-                {
+                for variant in candidate.rsid.iter().chain(candidate.name.iter()) {
                     if query.variant() == Some(variant) {
                         continue;
                     }
@@ -344,7 +340,7 @@ fn litvar_search((leg, selected): PreparedLitvar<'_>) -> ResultLeg {
         }) => {
             problems = rejected;
             outcome.term = Some(term);
-            outcome.count = Some(count);
+            outcome.count = count;
             outcome.fetched = Some(ids.len() as u32);
             ids.into_iter()
                 .map(|id| ArticleItem {
