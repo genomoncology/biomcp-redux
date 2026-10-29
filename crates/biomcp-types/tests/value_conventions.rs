@@ -1,5 +1,5 @@
 //! Public boundary tables for identifiers, partial dates and coordinate bounds.
-use biodata::{HgncId, PartialDate, Position1, Span0};
+use biodata::{CodingChange, HgncId, PartialDate, Position1, Span0};
 use serde::{Serialize, de::DeserializeOwned};
 use serde_json::json;
 use std::{fmt::Debug, str::FromStr};
@@ -164,4 +164,75 @@ fn coordinates_enforce_integer_bounds_and_half_open_span_order() {
     ] {
         assert!(serde_json::from_value::<Span0>(value).is_err());
     }
+}
+
+#[test]
+fn coding_changes_preserve_checked_search_text_without_a_reference()
+-> Result<(), Box<dyn std::error::Error>> {
+    for text in [
+        "c.333G>T",
+        "c.780-4C>G",
+        "c.678-14_678-3del",
+        "c.1dup",
+        "c.1_2dup",
+        "c.1_2insAC",
+        "c.1delinsAC",
+        "c.1_2delinsN",
+        "c.-2_-1del",
+        "c.*1_*2del",
+        "c.-1_1insG",
+        "c.1+1_1+2insA",
+        "c.1-2_1-1insA",
+        "c.1-1_1insA",
+        "c.1_1+1insA",
+        "c.999999999999999999999999999999G>T",
+    ] {
+        let value: CodingChange = text.parse()?;
+        assert_eq!(value.as_str(), text);
+        assert_eq!(value.to_string(), text);
+        assert_eq!(serde_json::to_value(&value)?, json!(text));
+        assert_eq!(serde_json::from_value::<CodingChange>(json!(text))?, value);
+        assert!(std::collections::HashSet::from([value]).contains(&text.parse()?));
+    }
+    for text in [
+        "c.333garbage",
+        "c.0A>T",
+        "c.01A>T",
+        "c.1+0A>T",
+        "c.1-0A>T",
+        "c.1A>A",
+        "c.1AA>T",
+        "c.1A>TT",
+        "c.1_2A>T",
+        "c.2_1del",
+        "c.-1_-2del",
+        "c.1_1del",
+        "c.1insA",
+        "c.1_3insA",
+        "c.1_2ins",
+        "c.1delins",
+        "c.1delA",
+        "c.1inv",
+        "c.[1A>T;2G>C]",
+        "c.(1A>T)",
+        "c.?A>T",
+        "c.1a>t",
+        "c.1A>U",
+        "g.1A>T",
+        "p.Val1Gly",
+        "NM_000314.8:c.333G>T",
+        "c.1A>T\n",
+        "c.1A>T\"[VRNM] OR PTEN[GENE]",
+    ] {
+        assert_eq!(
+            text.parse::<CodingChange>(),
+            Err(biodata::Error::CodingChangeInvalid),
+            "{text}"
+        );
+        assert!(
+            serde_json::from_value::<CodingChange>(json!(text)).is_err(),
+            "{text}"
+        );
+    }
+    Ok(())
 }
