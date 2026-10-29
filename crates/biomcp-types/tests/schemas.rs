@@ -18,6 +18,14 @@ mod policy;
 mod release;
 #[path = "schemas/temporal.rs"]
 mod temporal;
+#[test]
+fn temporal_properties_have_one_type_across_registered_schemas() -> Result<(), String> {
+    temporal::temporal_properties_have_one_type_across_registered_schemas()
+}
+#[test]
+fn temporal_property_check_rejects_conflicting_definition_types() {
+    temporal::temporal_property_check_rejects_conflicting_definition_types();
+}
 #[path = "schemas/values.rs"]
 mod values;
 

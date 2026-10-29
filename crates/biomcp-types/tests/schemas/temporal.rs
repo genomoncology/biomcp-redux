@@ -57,8 +57,7 @@ fn check(types: &Types) -> Result<(), String> {
     Ok(())
 }
 
-#[test]
-fn temporal_properties_have_one_type_across_registered_schemas() -> Result<(), String> {
+pub(super) fn temporal_properties_have_one_type_across_registered_schemas() -> Result<(), String> {
     let mut types = Types::new();
     for contract in super::registry() {
         collect(&(contract.generate)(), &mut types);
@@ -81,8 +80,7 @@ fn temporal_properties_have_one_type_across_registered_schemas() -> Result<(), S
     Ok(())
 }
 
-#[test]
-fn temporal_property_check_rejects_conflicting_definition_types() {
+pub(super) fn temporal_property_check_rejects_conflicting_definition_types() {
     let mut types = Types::new();
     collect(
         &json!({"properties":{"source_updated":{"$ref":"#/$defs/Reply_SourceUpdated"}},
