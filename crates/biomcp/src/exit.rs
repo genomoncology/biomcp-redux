@@ -66,7 +66,7 @@ pub(crate) fn reference() -> String {
         .and_then(|s| serde_json::from_str::<serde_json::Value>(s).ok())
     {
         let codes = schema
-            .pointer("/$defs/ErrorCode/enum")
+            .pointer("/$defs/Reply_ErrorCode/enum")
             .and_then(serde_json::Value::as_array)
             .into_iter()
             .flatten()

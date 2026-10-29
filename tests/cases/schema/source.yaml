@@ -28,4 +28,4 @@ steps:
         includes: {type: 'null'}
         count: 2
       /properties/record/anyOf/0:
-        equals: {$ref: '#/$defs/Text'}
+        equals: {$ref: '#/$defs/Reply_Text'}
