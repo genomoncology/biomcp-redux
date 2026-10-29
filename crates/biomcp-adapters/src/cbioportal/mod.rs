@@ -25,6 +25,8 @@ pub static SPEC: SourceSpec = SourceSpec {
 /// Checked metadata for the exact caller-selected cohort.
 #[derive(Debug)]
 pub struct Cohort {
+    /// Rejected native descriptive fields.
+    pub problems: Vec<biomcp_types::Problem>,
     /// Source title, description and citation without access-group license inference.
     pub study: RecurrenceStudy,
     /// Selected list size, without assuming gene assay eligibility.
@@ -59,15 +61,29 @@ pub fn cohort(leg: &Leg<'_>, query: &VariantRecurrenceQuery) -> Result<Cohort, R
             Err(BadReply)
         }
     })?;
+    let mut problems = crate::mapped::Problems {
+        source: Source::Cbioportal,
+        record: Some(study.study_id.clone()),
+        list: Vec::new(),
+    };
+    let name = problems.required_field("name", study.name).map(Into::into);
+    let description = problems
+        .field("description", study.description)
+        .map(Into::into);
+    let citation = problems.field("citation", study.citation).map(Into::into);
     let (selected_sample_count, count_error) = match sample_count(leg, query) {
-        Ok(count) => (count, None),
+        Ok(count) => {
+            problems.list.extend(count.problems);
+            (count.value, None)
+        }
         Err(error) => (None, Some(error)),
     };
     Ok(Cohort {
+        problems: problems.list,
         study: RecurrenceStudy {
-            name: study.name,
-            description: study.description.map(Into::into),
-            citation: study.citation.map(Into::into),
+            name,
+            description,
+            citation,
         },
         selected_sample_count,
         count_error,
@@ -78,7 +94,7 @@ pub fn mutations(
     leg: &Leg<'_>,
     query: &VariantRecurrenceQuery,
     gene: NcbiGeneId,
-) -> Result<Vec<Mutation>, RequestError> {
+) -> Result<crate::Mapped<(Vec<Mutation>, u32)>, RequestError> {
     let endpoint = SPEC
         .get("/molecular-profiles")
         .with_segments(&[
@@ -95,18 +111,38 @@ pub fn mutations(
     ];
     let (rows, _) = leg.json_received_checked::<raw::Mutations>(&endpoint, &params, |rows| {
         if rows.0.len() <= query.limit() as usize
-            && rows.0.iter().all(|v| {
-                v.study_id == *query.study()
-                    && v.molecular_profile_id == *query.profile()
-                    && v.entrez_gene_id == gene.get()
-            })
+            && rows
+                .0
+                .iter()
+                .filter_map(crate::raw::Field::as_ref)
+                .all(|v| {
+                    v.study_id == *query.study()
+                        && v.molecular_profile_id == *query.profile()
+                        && v.entrez_gene_id == gene.get()
+                })
         {
             Ok(())
         } else {
             Err(BadReply)
         }
     })?;
-    Ok(rows.0)
+    let received = rows.0.len() as u32;
+    let mut problems = crate::mapped::Problems {
+        source: Source::Cbioportal,
+        record: Some(query.study().clone()),
+        list: Vec::new(),
+    };
+    let mut values = Vec::new();
+    for row in rows.0 {
+        if let Some(mut row) = problems.field("sampleId", Some(row)) {
+            problems.list.append(&mut row.problems);
+            values.push(row);
+        }
+    }
+    Ok(crate::Mapped {
+        value: (values, received),
+        problems: problems.list,
+    })
 }
 
 // This bounds metadata discovery, never mutation-cohort traversal.
@@ -115,7 +151,7 @@ const LIST_PAGES: u64 = 3;
 fn sample_count(
     leg: &Leg<'_>,
     query: &VariantRecurrenceQuery,
-) -> Result<Option<u64>, RequestError> {
+) -> Result<crate::Mapped<Option<u64>>, RequestError> {
     let endpoint = SPEC
         .get("/studies")
         .with_segments(&[
@@ -141,14 +177,24 @@ fn sample_count(
                     Err(BadReply)
                 }
             })?;
+        let count = lists.0.len();
         if let Some(list) = lists
             .0
-            .iter()
+            .into_iter()
             .find(|l| l.sample_list_id == *query.sample_set())
         {
-            return Ok(list.sample_count);
+            let mut problems = crate::mapped::Problems {
+                source: Source::Cbioportal,
+                record: Some(list.sample_list_id),
+                list: Vec::new(),
+            };
+            let value = problems.field("sampleCount", list.sample_count);
+            return Ok(crate::Mapped {
+                value,
+                problems: problems.list,
+            });
         }
-        if lists.0.len() < LIST_PAGE_SIZE as usize {
+        if count < LIST_PAGE_SIZE as usize {
             break;
         }
     }
