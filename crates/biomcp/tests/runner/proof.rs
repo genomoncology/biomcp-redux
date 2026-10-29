@@ -71,7 +71,7 @@ fn invoke(root: &Path, args: &[&str]) -> Result<std::process::Output, String> {
         "never".into(),
     ];
     arguments.extend(args.iter().map(|value| {
-        if value.ends_with(".yaml") { format!("schema-discovery/{value}") } else { (*value).to_owned() }
+        if args.contains(&"--exact") && value.ends_with(".yaml") { format!("schema-discovery/{value}") } else { (*value).to_owned() }
     }));
     Environment::new()
         .map_err(|error| error.to_string())?
