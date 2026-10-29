@@ -17,7 +17,7 @@ pub struct TrialCards {
     pub attribution: Box<str>,
 }
 impl super::ResponseBody for TrialCards {
-    const SCHEMA: &'static str = "biomcp.trial-cards/5";
+    const SCHEMA: &'static str = "biomcp.trial-cards/6";
     type Query = crate::TrialGet;
 }
 /// Result for one exact requested NCT identity.

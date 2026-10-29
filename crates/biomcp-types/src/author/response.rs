@@ -89,14 +89,14 @@ impl ResponseBody for AuthorCards {
     type Query = AuthorGet;
 }
 impl ResponseBody for AuthorPapers {
-    const SCHEMA: &'static str = "biomcp.author-papers/1";
+    const SCHEMA: &'static str = "biomcp.author-papers/2";
     type Query = AuthorPapersQuery;
 }
 impl ResponseBody for AuthorPaperDetails {
-    const SCHEMA: &'static str = "biomcp.author-paper-details/1";
+    const SCHEMA: &'static str = "biomcp.author-paper-details/2";
     type Query = AuthorPapersQuery;
 }
 impl ResponseBody for OrcidWorks {
-    const SCHEMA: &'static str = "biomcp.orcid-works/3";
+    const SCHEMA: &'static str = "biomcp.orcid-works/4";
     type Query = AuthorPapersQuery;
 }

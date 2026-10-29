@@ -186,7 +186,7 @@ fn value_schemas_describe_canonical_text_and_coordinate_bounds() {
     );
     // These constraints require runtime checks beyond JSON Schema's vocabulary.
     let overflow = json!("HGNC:4294967296");
-    assert!(id.is_valid(&overflow));
+    assert!(!id.is_valid(&overflow));
     assert!(serde_json::from_value::<HgncId>(overflow).is_err());
     assert!(date.is_valid(&json!("2023-02-29")));
     assert!(serde_json::from_value::<PartialDate>(json!("2023-02-29")).is_err());
@@ -422,7 +422,7 @@ fn every_generated_schema_describes_its_root() {
 #[test]
 fn generated_metadata_preserves_partial_dates_and_describes_error_codes() {
     let date = generate::<PartialDate>();
-    assert_eq!(date["pattern"], r"^[0-9]{4}(-[0-9]{2}(-[0-9]{2})?)?$");
+    assert_eq!(date["pattern"], PartialDate::pattern());
     assert!(date.get("format").is_none());
     let full_dates = generate::<biomcp_types::AdverseEventSearch>();
     for field in ["received_from", "received_to"] {
@@ -549,4 +549,20 @@ fn generated_links_expose_uri_metadata() {
             assert!(seen, "missing generated link {owner}.{field}");
         }
     }
+}
+
+#[path = "text_values.rs"]
+mod text_values;
+#[test]
+fn text_value_patterns_match_parser_admissions() {
+    text_values::text_value_patterns_match_parser_admissions();
+}
+#[test]
+fn text_value_schema_supersets_name_their_runtime_rules() {
+    text_values::text_value_schema_supersets_name_their_runtime_rules();
+}
+#[test]
+fn protein_query_schema_matches_public_search_admissions() -> Result<(), Box<dyn std::error::Error>>
+{
+    text_values::protein_query_schema_matches_public_search_admissions()
 }

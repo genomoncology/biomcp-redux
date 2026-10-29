@@ -237,7 +237,7 @@ impl FromStr for Accession {
 text_value!(
     Accession,
     "Accession",
-    r"^((N[CGMPRTW]|X[MPR])_([0-9]{6}|[0-9]{9})\.[1-9][0-9]*|ENS[GTP][0-9]{11}\.[1-9][0-9]*|LRG_[0-9]+([tp][0-9]+)?)$",
+    format!("^{}$", accession_pattern(true)),
     "A reference sequence accession: RefSeq or Ensembl with its version, or LRG."
 );
 
@@ -272,6 +272,20 @@ impl fmt::Display for AccessionBase {
 text_value!(
     AccessionBase,
     "AccessionBase",
-    r"^((N[CGMPRTW]|X[MPR])_([0-9]{6}|[0-9]{9})|ENS[GTP][0-9]{11}|LRG_[0-9]+([tp][0-9]+)?)$",
+    format!("^{}$", accession_pattern(false)),
     "An accession whose source states no version; never used for an allele location."
 );
+
+#[cfg(feature = "schema")]
+fn accession_pattern(versioned: bool) -> String {
+    let version = if versioned {
+        format!(r"\.{}", crate::schema_pattern::decimal(u16::MAX.into()))
+    } else {
+        String::new()
+    };
+    let number = crate::schema_pattern::source_decimal(u32::MAX.into());
+    let part = crate::schema_pattern::source_decimal(u16::MAX.into());
+    format!(
+        r"(?:(?:N[CGMPRTW]|X[MPR])_(?:[0-9]{{6}}|(?!000)[0-9]{{9}}){version}|ENS[GTP][0-9]{{11}}{version}|LRG_{number}(?:[tp]{part})?)"
+    )
+}

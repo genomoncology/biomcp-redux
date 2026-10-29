@@ -1,6 +1,7 @@
 # 0440 — Make every schema pattern match its parser
 
-Status: OPEN.
+Status: COMPLETE.
+Landed: adc6e56c9b905c8e4d1ffcdb0d77430e0de30914
 
 Milestone: 5
 
