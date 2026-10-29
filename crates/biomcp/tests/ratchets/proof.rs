@@ -418,6 +418,8 @@ fn adapter_drop_forms_and_file_rules_require_pending_identity() -> Check {
         "fn value() { input.filter_map(|v| v.parse().ok()); }",
         "fn value() { input.parse::<u64>().unwrap_or_default(); }",
         "fn value() { let parsed = input.parse::<u64>(); parsed.unwrap_or_default(); }",
+        "fn value() { serde_json::from_value::<u64>(input).unwrap_or_default(); }",
+        "fn value() { serde_json::from_reader::<_, u64>(input).unwrap_or_default(); }",
         "#[serde(default)] struct Raw;",
         "#[serde(deny_unknown_fields)] struct Raw;",
     ] {
