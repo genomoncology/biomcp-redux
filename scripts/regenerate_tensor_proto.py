@@ -34,9 +34,9 @@ def split_generated(text):
         raise ValueError("unrecognized generated Rust tail")
     parts, group = [], ""
     for item in items:
-        if len(item.splitlines()) > 500:
+        if len(item.splitlines()) > 298:
             raise ValueError("generated item exceeds file ceiling")
-        if len((group + item).splitlines()) > 500:
+        if len((group + item).splitlines()) > 298:
             parts.append(group)
             group = ""
         group += item
