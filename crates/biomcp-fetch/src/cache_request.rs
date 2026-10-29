@@ -6,6 +6,13 @@ use crate::{
 };
 use biomcp_types::Reason;
 
+type CachedReply<T> = (
+    T,
+    Option<i64>,
+    Option<crate::ContentRange>,
+    Option<crate::Pagination>,
+);
+
 const NEGATIVE_SECONDS: u64 = 600;
 enum Checked<T> {
     Positive(
@@ -76,15 +83,7 @@ impl Leg<'_> {
         prepared: &crate::prepared::Prepared,
         codec: &Decoder<T>,
         live: impl FnOnce() -> Result<crate::request::Decoded<T>, RequestError>,
-    ) -> Result<
-        (
-            T,
-            Option<i64>,
-            Option<crate::ContentRange>,
-            Option<crate::Pagination>,
-        ),
-        RequestError,
-    > {
+    ) -> Result<CachedReply<T>, RequestError> {
         let (url, key) = (prepared.url.as_str(), &prepared.identity);
         if self.budget().expired() {
             return Err(self.failure(Reason::DeadlineExceeded, None).into());
@@ -164,15 +163,7 @@ impl Leg<'_> {
         codec: &Decoder<T>,
         seconds: u64,
         decoded: crate::request::Decoded<T>,
-    ) -> Result<
-        (
-            T,
-            Option<i64>,
-            Option<crate::ContentRange>,
-            Option<crate::Pagination>,
-        ),
-        RequestError,
-    > {
+    ) -> Result<CachedReply<T>, RequestError> {
         let (reply, status, body, fetched, range, pagination) = decoded;
         let mut entry = Entry::new(status, body, seconds, codec.name());
         // A recording without acquisition time cannot establish cache freshness.
@@ -214,15 +205,7 @@ impl Leg<'_> {
         endpoint: &Endpoint,
         prepared: &crate::prepared::Prepared,
         codec: &Decoder<T>,
-    ) -> Result<
-        (
-            T,
-            Option<i64>,
-            Option<crate::ContentRange>,
-            Option<crate::Pagination>,
-        ),
-        RequestError,
-    > {
+    ) -> Result<CachedReply<T>, RequestError> {
         if let Some(cache) = self
             .fetch
             .cache
