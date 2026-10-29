@@ -238,7 +238,7 @@ pub(super) fn lifecycle() -> Check {
     }
     let schema = super::schema::ARTIFACTS
         .iter()
-        .find(|(id, _)| *id == "biomcp.http-health/1")
+        .find(|(id, _)| *id == "biomcp.http-health/2")
         .ok_or("HTTP health schema missing")?
         .1;
     let schema: Value = serde_json::from_str(schema).map_err(|e| e.to_string())?;

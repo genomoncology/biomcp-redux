@@ -19,7 +19,7 @@ pub(super) fn create<'a>(
         .leg(&semantic_scholar::SPEC, *deadline)
         .fresh(cx.fresh);
     let started = leg.remaining();
-    let result = collect(&leg, &input, references);
+    let result = collect(&leg, &input, references, &mut out.problems);
     *deadline = super::consume(*deadline, started, leg.remaining());
     let error = result.as_ref().err().copied();
     let mut source = status::source(Source::SemanticScholar, leg.finish(), error);
@@ -90,6 +90,7 @@ fn collect(
     leg: &biomcp_fetch::Leg<'_>,
     input: &biomcp_types::ArticleInput,
     references: bool,
+    problems: &mut Vec<biomcp_types::Problem>,
 ) -> Result<Window, RequestError> {
     let mut offset = None;
     let mut items = Vec::new();
@@ -110,7 +111,7 @@ fn collect(
                     .and_then(|paper| paper.external_ids.as_ref())
                     .and_then(|ids| ids.doi.clone()),
             );
-            let item = edge.item(references).map_err(|_| bad_reply())?;
+            let item = edge.item(references, problems).map_err(|_| bad_reply())?;
             items.push(item);
         }
         match reply.next {

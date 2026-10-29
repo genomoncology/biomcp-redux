@@ -72,7 +72,9 @@ pub use trial_sites::{
 
 mod trial_publications;
 
-pub use trial_publications::{TrialDocument, TrialReference};
+pub use trial_publications::{TrialDocument, TrialReference, TrialReferenceKind};
+mod trial_upload_time;
+pub use trial_upload_time::TrialUploadTime;
 
 pub use variant::{
     AcmgAmp2015Code, AmpAscoCap2017LevelCode, AmpAscoCap2017TierCode, Attribution,

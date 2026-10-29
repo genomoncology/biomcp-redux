@@ -38,7 +38,7 @@ impl Product {
                 .iter()
                 .map(|i| DrugFdaIngredient {
                     name: i.name.clone(),
-                    strength: i.strength.clone(),
+                    strength: i.strength.clone().map(Into::into),
                 })
                 .collect(),
             dosage_form: self.dosage_form.clone(),
@@ -85,7 +85,10 @@ impl Submission {
             submission_number: self.submission_number.clone(),
             review_priority: self.review_priority.clone(),
             submission_class_code: self.submission_class_code.clone(),
-            submission_class_code_description: self.submission_class_code_description.clone(),
+            submission_class_code_description: self
+                .submission_class_code_description
+                .clone()
+                .map(Into::into),
             submission_property_type: self.submission_property_type.as_ref().map(|p| {
                 p.iter()
                     .map(|p| DrugFdaProperty {

@@ -26,6 +26,7 @@ impl TryFrom<Fields> for TrialSearch {
                 return Err(QueryInvalid::new(&["condition_id", "source"]));
             }
         }
+        validate_source_filters(&f)?;
         validate_biomarker(&f)?;
         validate_alternatives(&f)?;
         validate_exact_condition(&f)?;
@@ -136,6 +137,16 @@ fn validate_biomarker(f: &Fields) -> Result<(), QueryInvalid> {
     }
     if f.biomarker_use.is_some() && f.biomarker_code.is_none() {
         return Err(QueryInvalid::new(&["biomarker_code", "biomarker_use"]));
+    }
+    Ok(())
+}
+
+fn validate_source_filters(f: &Fields) -> Result<(), QueryInvalid> {
+    if f.status.as_ref().is_some_and(|v| !v.valid_for(f.source)) {
+        return Err(QueryInvalid::new(&["status", "source"]));
+    }
+    if f.phase.as_ref().is_some_and(|v| !v.valid_for(f.source)) {
+        return Err(QueryInvalid::new(&["phase", "source"]));
     }
     Ok(())
 }

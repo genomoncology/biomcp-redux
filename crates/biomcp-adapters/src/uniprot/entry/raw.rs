@@ -58,6 +58,7 @@ pub(in crate::uniprot) struct Name {
 }
 #[derive(Debug, Deserialize)]
 pub(in crate::uniprot) struct Value {
+    #[serde(deserialize_with = "crate::native_text::deserialize")]
     pub value: Text,
 }
 #[derive(Debug, Deserialize)]

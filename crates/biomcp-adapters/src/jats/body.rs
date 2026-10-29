@@ -53,7 +53,7 @@ pub(super) fn section(node: Element<'_>, ancestors: &[Text]) -> Result<Vec<Group
     let mut path = ancestors.to_vec();
     let title = node.value(&["title"])?;
     if let Some(title) = &title {
-        path.push(Text::new(title).map_err(|_| BadReply)?);
+        path.push(Text::from_source(title).map_err(|_| BadReply)?);
     }
     let mut group = Group::section(path.clone());
     if let Some(title) = node.child("title")? {

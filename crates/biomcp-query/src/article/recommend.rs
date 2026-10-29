@@ -118,7 +118,7 @@ fn create<'a>(
     let mut items: Vec<_> = reply
         .recommended_papers
         .into_iter()
-        .map(semantic_scholar::Paper::item)
+        .map(|paper| paper.item(&mut out.problems))
         .collect();
     if items.len() > query.limit() as usize {
         return Err(biomcp_fetch::SourceError {

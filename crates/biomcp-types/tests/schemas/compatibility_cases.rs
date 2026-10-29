@@ -501,3 +501,33 @@ fn extensible_annotations_cannot_hide_enum_or_const_assertions_through_reference
         .is_ok()
     );
 }
+
+#[test]
+fn compatibility_checks_string_length_caps() {
+    let uncapped = json!({"$id":"biodata.example/1", "type":"string"});
+    let mut capped = uncapped.clone();
+    capped["maxLength"] = json!(100);
+    assert!(
+        check(&uncapped, &capped).is_err(),
+        "a new cap narrows admission"
+    );
+    for (limit, expected) in [(99, false), (100, true), (101, true)] {
+        let mut new = capped.clone();
+        new["maxLength"] = json!(limit);
+        assert_eq!(check(&capped, &new).is_ok(), expected, "maxLength {limit}");
+    }
+    assert!(
+        check(&capped, &uncapped).is_ok(),
+        "removing a cap widens admission"
+    );
+    capped["$id"] = json!("biodata.example/2");
+    assert!(
+        check(&uncapped, &capped).is_ok(),
+        "a new major permits narrowing"
+    );
+    capped["maxLength"] = json!(-1);
+    assert!(
+        check(&uncapped, &capped).is_err(),
+        "negative caps are malformed"
+    );
+}

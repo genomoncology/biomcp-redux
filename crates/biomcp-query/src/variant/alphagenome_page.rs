@@ -1,8 +1,6 @@
 //! Page every native tensor independently in publisher row-major order.
-use biomcp_fetch::{
-    BadReply, RequestError,
-    grpc::alphagenome::{ScoreGroup, ScoreReply, ScoreRequest},
-};
+use biomcp_adapters::alphagenome::{ScoreGroup, ScoreReply, ScoreRequest};
+use biomcp_fetch::{BadReply, RequestError};
 use biomcp_types::{
     AlphaGenomeDataType, AlphaGenomeScorer, AlphaGenomeScorerPage, AlphaGenomeValue, PageInfo,
     Reason, Source, VariantAlphaGenome, VariantGet, VariantSection,

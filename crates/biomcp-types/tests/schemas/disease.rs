@@ -10,7 +10,7 @@ pub(super) fn registry() -> Vec<Contract> {
         DiseaseStatistic => ("disease-statistic", "biodata.disease-statistic/3"),
         DiseaseOntology => ("disease-ontology", "biomcp.disease-ontology/1"),
         DiseaseSearch => ("disease-search", "biomcp.disease-search/1", query),
-        DiseaseGet => ("disease-get", "biomcp.disease-get/2", query),
+        DiseaseGet => ("disease-get", "biomcp.disease-get/3", query),
     }
 }
 

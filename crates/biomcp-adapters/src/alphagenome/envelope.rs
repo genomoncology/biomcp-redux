@@ -1,7 +1,7 @@
 //! Validate complete DNASE reference and alternate envelopes before publication.
-use super::super::{Limits, StreamDecoder, Tensor, TensorStream, proto};
+use super::{Limits, StreamDecoder, Tensor, TensorStream, proto};
 use super::{envelope_budget::EnvelopeBudget, wire};
-use crate::BadReply;
+use biomcp_fetch::BadReply;
 use prost::Message;
 
 /// Bounded envelope validator. Raw messages remain in the transport recording.
@@ -97,12 +97,8 @@ impl Envelope {
     fn complete(&mut self, tensor: Tensor) -> Result<(), BadReply> {
         let (allele, metadata) = self.active.take().ok_or(BadReply)?;
         if tensor.bytes().is_empty()
-            || tensor
-                .shape()
-                .last()
-                .copied()
-                .and_then(|v| usize::try_from(v).ok())
-                != Some(metadata)
+            || usize::try_from(*tensor.shape().last().ok_or(BadReply)?).map_err(|_| BadReply)?
+                != metadata
         {
             return Err(BadReply);
         }

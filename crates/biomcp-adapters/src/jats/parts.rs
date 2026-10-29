@@ -94,7 +94,7 @@ fn push(out: &mut Vec<Part>, source: &Group, rows: Vec<Row>, bytes: usize) -> Re
     out.push(Part {
         meta: TextPart {
             number: u32::try_from(out.len() + 1).map_err(|_| BadReply)?,
-            title: Text::new(&source.title).map_err(|_| BadReply)?,
+            title: Text::from_source(&source.title).map_err(|_| BadReply)?,
             kind: source.kind,
             tokens: u32::try_from((bytes + 2).div_ceil(4)).map_err(|_| BadReply)?,
         },

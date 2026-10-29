@@ -23,7 +23,7 @@ pub struct PapersPage {
 impl Reply for PapersPage {
     fn check(&self) -> Result<(), BadReply> {
         for row in &self.data {
-            row.clone().detail()?;
+            row.clone().detail(&mut Vec::new())?;
         }
         if self.data.len() > 25
             || self.next.is_some_and(|n| n <= self.offset)

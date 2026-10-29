@@ -1,12 +1,12 @@
 //! Admit complete scorer groups by request ordinal without inventing native scorer labels.
-use super::super::{Limits, StreamDecoder, TensorStream, proto};
+use super::{Limits, StreamDecoder, TensorStream, proto};
 use super::{
     envelope_budget::EnvelopeBudget,
     score_metadata,
     score_reply::{Metadata, ScoreGroup, ScoreReply},
     wire,
 };
-use crate::BadReply;
+use biomcp_fetch::BadReply;
 use prost::Message;
 pub(super) const OBSERVED_GENE_ROWS: usize = 13;
 /// Measured scoring ceilings; the same limits bind transport and complete decoder admission.

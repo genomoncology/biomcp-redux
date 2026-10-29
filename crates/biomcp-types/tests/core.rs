@@ -121,11 +121,10 @@ fn problem_codes_round_trip_and_reject_unknown_codes() -> Check {
 fn text_construction_and_json_share_trimming_and_validation() {
     for (input, expected) in [
         ("summary", Some("summary")),
-        (" \n summary \t", Some("summary")),
+        ("  summary  ", Some("summary")),
         ("\u{2003}HER-2/neu α\u{2003}", Some("HER-2/neu α")),
-        ("a \n b", Some("a \n b")),
         ("", None),
-        (" \n\t\u{2003}", None),
+        (" \u{2003}", None),
     ] {
         let direct = Text::new(input);
         let parsed = input.parse::<Text>();
@@ -154,6 +153,50 @@ fn text_construction_and_json_share_trimming_and_validation() {
         assert!(error.source().is_none());
     }
     standard_error(&Error::TextEmpty);
+}
+
+#[test]
+fn text_refuses_controls_and_bounds_constructor_length() {
+    for ch in (0..=0x1f)
+        .chain(0x7f..=0x9f)
+        .chain([
+            0x061c, 0x200e, 0x200f, 0x202a, 0x202b, 0x202c, 0x202d, 0x202e, 0x2066, 0x2067, 0x2068,
+            0x2069,
+        ])
+        .filter_map(char::from_u32)
+    {
+        for input in [
+            format!("before{ch}after"),
+            format!("{ch}after"),
+            format!("before{ch}"),
+        ] {
+            assert!(Text::new(&input).is_err(), "{ch:?}");
+            assert!(
+                serde_json::from_value::<Text>(json!(input)).is_err(),
+                "{ch:?}"
+            );
+            assert!(Text::from_source(&input).is_ok(), "{ch:?}");
+        }
+    }
+    assert!(Text::new(&"α".repeat(1_048_576)).is_ok());
+    assert!(Text::new(&"a".repeat(1_048_577)).is_err());
+    #[cfg(feature = "schema")]
+    {
+        let schema = serde_json::to_value(schemars::schema_for!(Text)).unwrap();
+        let validator = jsonschema::validator_for(&schema).unwrap();
+        for at_cap in ["a".repeat(Text::MAX_CHARS), "α".repeat(Text::MAX_CHARS)] {
+            assert!(
+                validator.is_valid(&json!(at_cap)),
+                "Valid text at the constructor cap must satisfy its schema"
+            );
+        }
+        for control in ["safe\n", "safe\r", "safe\u{0085}", "safe\u{202e}"] {
+            assert!(
+                !validator.is_valid(&json!(control)),
+                "Schema must reject controls at the end: {control:?}"
+            );
+        }
+    }
 }
 
 #[test]
@@ -379,4 +422,34 @@ fn unrelated_value_failures_have_distinct_codes() {
         biodata::Bound::new(None, None).unwrap_err().to_string(),
         "coord.span.order"
     );
+}
+
+#[test]
+fn trial_publication_values_follow_native_registry_grammar() {
+    use biodata::{TrialReferenceKind, TrialUploadTime};
+    for native in ["BACKGROUND", "RESULT", "DERIVED"] {
+        let value: TrialReferenceKind = serde_json::from_value(json!(native)).unwrap();
+        assert_eq!(serde_json::to_value(value).unwrap(), json!(native));
+    }
+    assert!(serde_json::from_value::<TrialReferenceKind>(json!("OTHER")).is_err());
+    for native in ["2024-02-29T23:59", "2023-04-17T19:05"] {
+        let value: TrialUploadTime = native.parse().unwrap();
+        assert_eq!(value.as_str(), native);
+        assert_eq!(serde_json::to_value(value).unwrap(), json!(native));
+    }
+    for bad in [
+        "2023-02-29T12:30",
+        "2024-01-01T24:00",
+        "2024-01-01T12:60",
+        "2024-01-01",
+        "2024-01-01T12:00Z",
+        "2024-01-01T12:00:00",
+        "0000-01-01T00:00",
+    ] {
+        assert!(bad.parse::<TrialUploadTime>().is_err(), "{bad}");
+        assert!(serde_json::from_value::<TrialUploadTime>(json!(bad)).is_err());
+    }
+    let source = Text::from_source("before\u{202e}after").unwrap();
+    assert_eq!(source.as_str(), r"before\u{202e}after");
+    assert_eq!(Text::new(source.as_str()).unwrap(), source);
 }

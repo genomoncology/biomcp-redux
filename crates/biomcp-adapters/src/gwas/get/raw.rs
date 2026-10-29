@@ -1,3 +1,4 @@
+use crate::native_text::NativeText;
 use biodata::Text;
 use biomcp_fetch::{BadReply, Reply};
 use biomcp_types::{GwasAncestry, GwasCountry, GwasLocus, GwasReportedGene};
@@ -38,20 +39,22 @@ pub(super) struct Ancestry {
 }
 #[derive(Debug, Deserialize)]
 struct Group {
-    ancestral_group: Text,
+    #[serde(deserialize_with = "crate::native_text::deserialize")]
+    ancestral_group: biodata::Text,
 }
 #[derive(Debug, Deserialize)]
 struct Country {
-    country_name: Text,
-    major_area: Option<Text>,
-    region: Option<Text>,
+    #[serde(deserialize_with = "crate::native_text::deserialize")]
+    country_name: biodata::Text,
+    major_area: Option<NativeText>,
+    region: Option<NativeText>,
 }
 impl Country {
     fn row(self) -> GwasCountry {
         GwasCountry {
             country: self.country_name,
-            major_area: self.major_area,
-            region: self.region,
+            major_area: self.major_area.map(Into::into),
+            region: self.region.map(Into::into),
         }
     }
 }
@@ -95,7 +98,7 @@ pub(super) struct LocusRows {
 }
 #[derive(Debug, Deserialize)]
 pub(super) struct Locus {
-    description: Option<Text>,
+    description: Option<NativeText>,
     strongest_risk_alleles: Vec<Allele>,
     author_reported_genes: Vec<Gene>,
     #[serde(rename = "_links")]
@@ -107,14 +110,14 @@ struct Allele {
 }
 #[derive(Debug, Deserialize)]
 struct Gene {
-    gene_name: Option<Text>,
+    gene_name: Option<NativeText>,
     ensembl_gene_ids: Vec<Text>,
     entrez_gene_ids: Vec<Text>,
 }
 impl Locus {
     pub(super) fn row(self) -> GwasLocus {
         GwasLocus {
-            description: self.description,
+            description: self.description.map(Into::into),
             strongest_risk_alleles: self
                 .strongest_risk_alleles
                 .into_iter()
@@ -124,7 +127,7 @@ impl Locus {
                 .author_reported_genes
                 .into_iter()
                 .map(|g| GwasReportedGene {
-                    name: g.gene_name,
+                    name: g.gene_name.map(Into::into),
                     ensembl_ids: g.ensembl_gene_ids.into(),
                     entrez_ids: g.entrez_gene_ids.into(),
                 })

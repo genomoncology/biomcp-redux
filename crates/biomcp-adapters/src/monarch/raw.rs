@@ -1,3 +1,4 @@
+use crate::native_text::NativeText;
 use biodata::{Curie, FiniteNumber, Text};
 use biomcp_fetch::{BadReply, Reply};
 use serde::Deserialize;
@@ -24,10 +25,12 @@ pub(super) struct Row {
     pub id: Text,
     pub subject: Curie,
     pub subject_taxon: Option<Curie>,
-    pub subject_label: Text,
+    #[serde(deserialize_with = "crate::native_text::deserialize")]
+    pub subject_label: biodata::Text,
     pub predicate: Curie,
     pub object: Curie,
-    pub object_label: Text,
+    #[serde(deserialize_with = "crate::native_text::deserialize")]
+    pub object_label: biodata::Text,
     pub original_subject: Option<Curie>,
     pub original_object: Option<Curie>,
     pub primary_knowledge_source: Option<Curie>,
@@ -46,17 +49,17 @@ pub(super) struct Row {
     pub evidence_count: Option<u64>,
     pub qualifiers: Option<Box<[Curie]>>,
     pub frequency_qualifier: Option<Curie>,
-    pub frequency_qualifier_label: Option<Text>,
+    pub frequency_qualifier_label: Option<NativeText>,
     pub onset_qualifier: Option<Curie>,
-    pub onset_qualifier_label: Option<Text>,
+    pub onset_qualifier_label: Option<NativeText>,
     pub sex_qualifier: Option<Curie>,
-    pub sex_qualifier_label: Option<Text>,
+    pub sex_qualifier_label: Option<NativeText>,
     pub disease_context_qualifier: Option<Curie>,
-    pub disease_context_qualifier_label: Option<Text>,
+    pub disease_context_qualifier_label: Option<NativeText>,
     pub species_context_qualifier: Option<Curie>,
-    pub species_context_qualifier_label: Option<Text>,
+    pub species_context_qualifier_label: Option<NativeText>,
     pub stage_qualifier: Option<Curie>,
-    pub stage_qualifier_label: Option<Text>,
+    pub stage_qualifier_label: Option<NativeText>,
     pub negated: Option<bool>,
     pub has_count: Option<u64>,
     pub has_total: Option<u64>,
@@ -72,6 +75,6 @@ pub(super) struct Link {
 #[derive(Debug, Deserialize)]
 pub(super) struct Reference {
     pub id: Curie,
-    pub label: Option<Text>,
+    pub label: Option<NativeText>,
     pub url: Option<Text>,
 }

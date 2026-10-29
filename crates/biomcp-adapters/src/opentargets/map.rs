@@ -2,7 +2,7 @@
 use super::{Indication, Mechanism};
 use biodata::{
     Attribution, DrugDiseaseReference, DrugIdentity, DrugIndicationClaim, DrugNativeTarget,
-    DrugStage, DrugTargetRelation, Error, GeneRef,
+    DrugStage, DrugTargetRelation, Error, GeneRef, Text,
 };
 /// Preserve every native target member and both its supplied symbol and full name.
 pub fn targets(
@@ -24,7 +24,7 @@ pub fn targets(
             let native = DrugNativeTarget {
                 source: "opentargets".parse()?,
                 id: target.id.parse()?,
-                label: Some(target.approved_name.parse()?),
+                label: Some(Text::from_source(&target.approved_name)?),
                 url: None,
             };
             mapped.push(DrugTargetRelation::new(
@@ -32,7 +32,7 @@ pub fn targets(
                 Some(gene),
                 Some(native),
                 row.action_type.as_deref().unwrap_or("mechanism").parse()?,
-                Some(row.mechanism_of_action.parse()?),
+                Some(Text::from_source(&row.mechanism_of_action)?),
                 Box::default(),
                 attribution(drug)?,
             )?);
@@ -56,11 +56,11 @@ pub fn indications(
                     .unwrap_or("opentargets")
                     .parse()?,
                 id: row.disease.id.parse()?,
-                label: Some(row.disease.name.parse()?),
+                label: Some(Text::from_source(&row.disease.name)?),
             };
             Ok(DrugIndicationClaim {
                 drug: drug.clone(),
-                indication: row.disease.name.parse()?,
+                indication: Text::from_source(&row.disease.name)?,
                 disease_references: Box::new([disease]),
                 stage: Some(DrugStage {
                     field: "maxClinicalStage".into(),

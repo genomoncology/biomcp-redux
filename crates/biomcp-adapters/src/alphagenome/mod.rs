@@ -1,4 +1,27 @@
-//! Declare AlphaGenome's restricted, user-keyed prediction service.
+//! Encode AlphaGenome requests and admit complete bounded provider replies.
+mod envelope;
+mod envelope_budget;
+mod preflight;
+mod proto;
+mod request;
+mod request_variant;
+mod score;
+mod score_envelope;
+mod score_metadata;
+mod score_reply;
+mod tensor;
+mod wire;
+use biomcp_fetch::grpc::{CodecError, Limits, StreamDecoder};
+pub use envelope::Envelope;
+pub use request::{DnaseRequest, SCHEMA};
+pub use score::{SCORE_SCHEMA, ScoreRequest};
+pub use score_envelope::{SCORE_LIMITS, ScoreEnvelope};
+pub use score_reply::{ScoreGroup, ScoreReply};
+pub use tensor::{DataType, Tensor, TensorStream};
+
+mod execute;
+pub use execute::score;
+
 use biomcp_fetch::{Credential, KeyPlace, KeyUse, SecretName, SourceSpec};
 /// Publisher policy shared by capture and the future variant section.
 pub static SPEC: SourceSpec = SourceSpec {
@@ -20,17 +43,11 @@ pub static SPEC: SourceSpec = SourceSpec {
 };
 /// One documented prediction method, with complete-stream admission and no cache.
 pub const PREDICT_VARIANT: biomcp_fetch::grpc::GrpcEndpoint = SPEC
-    .grpc(biomcp_fetch::grpc::alphagenome::PREDICT_VARIANT)
-    .checked(
-        biomcp_fetch::grpc::alphagenome::SCHEMA,
-        biomcp_fetch::Freshness::Never,
-    );
+    .grpc(request::PREDICT_VARIANT)
+    .checked(SCHEMA, biomcp_fetch::Freshness::Never);
 
 /// Ruled legacy scorer method, admitted only after complete checked terminal success.
 pub const SCORE_VARIANT: biomcp_fetch::grpc::GrpcEndpoint = SPEC
-    .grpc(biomcp_fetch::grpc::alphagenome::SCORE_VARIANT)
-    .bounded(biomcp_fetch::grpc::alphagenome::SCORE_LIMITS)
-    .checked(
-        biomcp_fetch::grpc::alphagenome::SCORE_SCHEMA,
-        biomcp_fetch::Freshness::Never,
-    );
+    .grpc(score::SCORE_VARIANT)
+    .bounded(SCORE_LIMITS)
+    .checked(SCORE_SCHEMA, biomcp_fetch::Freshness::Never);

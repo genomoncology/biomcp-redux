@@ -1,5 +1,5 @@
 //! Exact native FAERS fields; unrelated publisher fields are ignored at this edge.
-use biodata::{ReportId, Text};
+use biodata::ReportId;
 use biomcp_fetch::{BadReply, Reply};
 use serde::Deserialize;
 #[derive(Debug, Deserialize)]
@@ -80,7 +80,8 @@ pub(super) struct Patient {
 }
 #[derive(Debug, Deserialize)]
 pub(super) struct Reaction {
-    pub reactionmeddrapt: Text,
+    #[serde(deserialize_with = "crate::native_text::deserialize")]
+    pub reactionmeddrapt: biodata::Text,
     pub reactionmeddraversionpt: Option<Box<str>>,
     pub reactionoutcome: Option<Box<str>>,
 }

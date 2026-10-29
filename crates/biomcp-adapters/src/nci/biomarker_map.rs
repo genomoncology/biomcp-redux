@@ -20,7 +20,14 @@ pub(super) fn page(raw: Page) -> Mapped<Vec<BiomarkerCard>> {
                     r#type: row.r#type,
                     count: row.count,
                 },
-                synonyms: p.optional("synonyms", row.synonyms.map(|v| v.value().ok_or(()))),
+                synonyms: p.optional(
+                    "synonyms",
+                    row.synonyms.map(|v| {
+                        v.value()
+                            .map(|values| values.into_vec().into_iter().map(Into::into).collect())
+                            .ok_or(())
+                    }),
+                ),
                 parent_ids: p.optional("parent_ids", row.parent_ids.map(|v| v.value().ok_or(()))),
                 ancestor_ids: p.optional(
                     "ancestor_ids",

@@ -28,7 +28,10 @@ fn gene(row: raw::Gene, f: &mut Fields) -> Option<Gene> {
         "symbol",
         GeneSymbol::new(raw::cell(row.symbol.as_deref())).ok(),
     );
-    let name = f.required("name", Text::new(raw::cell(row.name.as_deref())).ok());
+    let name = f.required(
+        "name",
+        Text::from_source(raw::cell(row.name.as_deref())).ok(),
+    );
     let locus_group = f.required(
         "locus_group",
         fields::group(raw::cell(row.locus_group.as_deref())),

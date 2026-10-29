@@ -102,7 +102,7 @@ pub fn catalog(leg: &Leg<'_>, limit: u32, offset: u32) -> Result<Page<DiseaseSit
         .filter_map(|site| {
             let code = site.value.to_string().parse().ok()?;
             Some(DiseaseSite {
-                label: labels.get(&site.value.to_string())?.clone(),
+                label: labels.get(&site.value.to_string())?.clone().into(),
                 code,
                 active: site.active,
             })
