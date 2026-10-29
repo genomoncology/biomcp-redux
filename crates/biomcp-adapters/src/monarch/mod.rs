@@ -89,7 +89,7 @@ pub fn associations(leg: &Leg<'_>, query: &DiseaseGet) -> Result<Page, RequestEr
                     (&row.subject, &row.subject_closure)
                 };
                 endpoint.as_ref() != Some(&id)
-                    && !closure.as_deref().unwrap_or_default().contains(&id)
+                    && closure.as_ref().is_none_or(|values| !values.contains(&id))
             }) {
                 return Err(BadReply);
             }

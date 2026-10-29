@@ -37,8 +37,7 @@ pub(super) fn chembl(
                 query,
                 header,
                 records.value,
-                page.page_meta.total_count,
-                Some(page.received),
+                (page.page_meta.total_count, Some(page.received)),
                 meta.fetched,
                 fresh,
             );
@@ -55,8 +54,7 @@ pub(super) fn chembl(
                 query,
                 header,
                 records.value,
-                page.page_meta.total_count,
-                Some(page.received),
+                (page.page_meta.total_count, Some(page.received)),
                 meta.fetched,
                 fresh,
             );
@@ -102,8 +100,7 @@ pub(super) fn opentargets(
                 query,
                 header,
                 records,
-                total,
-                None,
+                (total, None),
                 meta.fetched,
                 fresh,
             );
@@ -125,8 +122,7 @@ pub(super) fn opentargets(
                 query,
                 header,
                 records,
-                total,
-                None,
+                (total, None),
                 meta.fetched,
                 fresh,
             );
@@ -226,12 +222,11 @@ fn targets(
     query: &DrugGet,
     identity: DrugHeader,
     records: Box<[biodata::DrugTargetRelation]>,
-    total: u64,
-    received: Option<u32>,
+    counts: (u64, Option<u32>),
     fetched: Option<i64>,
     fresh: bool,
 ) {
-    let targets = page(out, query, records, total, received, fetched, fresh);
+    let targets = page(out, query, records, counts.0, counts.1, fetched, fresh);
     out.body = QueryBody::DrugTargets(Some(DrugTargets { identity, targets }));
 }
 fn indications(
@@ -239,12 +234,11 @@ fn indications(
     query: &DrugGet,
     identity: DrugHeader,
     records: Box<[biodata::DrugIndicationClaim]>,
-    total: u64,
-    received: Option<u32>,
+    counts: (u64, Option<u32>),
     fetched: Option<i64>,
     fresh: bool,
 ) {
-    let indications = page(out, query, records, total, received, fetched, fresh);
+    let indications = page(out, query, records, counts.0, counts.1, fetched, fresh);
     out.body = QueryBody::DrugIndications(Some(DrugIndications {
         identity,
         indications,
