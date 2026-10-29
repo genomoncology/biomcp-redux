@@ -75,21 +75,27 @@ pub struct StudyResourceCount {
     /// Native resource ID.
     pub resource_id: StudyResourceId,
     /// Native resource display name.
-    pub display_name: Box<str>,
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub display_name: Option<Box<str>>,
     /// Native resource description.
-    pub description: Box<str>,
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub description: Option<Box<str>>,
     /// Extensible native resource type, not a derived count unit.
-    pub resource_type: Text,
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub resource_type: Option<Text>,
     /// Native priority string, without numeric reinterpretation.
-    pub priority: Text,
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub priority: Option<Text>,
     /// Native access/display setting, not a reuse license.
     pub open_by_default: bool,
     /// Exact resource study scope.
     pub cancer_study_identifier: StudyId,
     /// Native count within this resource only.
-    pub sample_count: u64,
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub sample_count: Option<u64>,
     /// Native patient count within this resource only.
-    pub patient_count: u64,
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub patient_count: Option<u64>,
 }
 mod sections;
 pub use sections::*;

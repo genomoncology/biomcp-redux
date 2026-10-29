@@ -1,5 +1,6 @@
 //! Complete checked catalog replacement; reads never synchronize.
 mod raw;
+mod resource;
 use super::SPEC;
 use biomcp_fetch::{
     Bundle, BundleInfo, Fetch, Find, Freshness, KeyKind, Leg, RequestError, RowFormat,

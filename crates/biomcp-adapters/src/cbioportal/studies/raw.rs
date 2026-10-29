@@ -44,7 +44,7 @@ pub(super) struct ReceivedCatalogRow {
     cna_sample_count: Option<crate::raw::Field<u64>>,
     structural_variant_count: Option<crate::raw::Field<u64>>,
     treatment_count: Option<crate::raw::Field<u64>>,
-    resource_counts: Option<crate::raw::Field<Vec<crate::raw::Field<StudyResourceCount>>>>,
+    resource_counts: Option<crate::raw::Field<Vec<crate::raw::Field<super::resource::Resource>>>>,
     import_date: Option<crate::raw::Field<StudyImportTime>>,
     groups: Box<str>,
     read_permission: bool,
@@ -55,7 +55,7 @@ impl From<ReceivedCatalogRow> for CatalogRow {
         let mut problems = crate::mapped::Problems {
             source: biomcp_types::Source::Cbioportal,
             record: crate::mapped::record(&row.study_id),
-            list: row.problems.unwrap_or_default(),
+            list: row.problems.map_or_else(Vec::new, |v| v),
         };
         Self {
             study_id: row.study_id,
@@ -72,7 +72,12 @@ impl From<ReceivedCatalogRow> for CatalogRow {
             structural_variant_count: problems
                 .required_field("structuralVariantCount", row.structural_variant_count),
             treatment_count: problems.required_field("treatmentCount", row.treatment_count),
-            resource_counts: problems.fields("resourceCounts", row.resource_counts),
+            resource_counts: problems
+                .fields("resourceCounts", row.resource_counts)
+                .into_vec()
+                .into_iter()
+                .map(|r| r.mapped(&mut problems))
+                .collect(),
             import_date: problems.required_field("importDate", row.import_date),
             groups: row.groups,
             read_permission: row.read_permission,
