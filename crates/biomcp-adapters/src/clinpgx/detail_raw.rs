@@ -1,6 +1,6 @@
 //! Native fields retain source spellings and independent error boundaries.
 use crate::pgx_sources::pgx_row;
-use biodata::*;
+use biodata::ClinPgxAccession;
 use super::annotation_raw::{PgxEvidenceTerm, PgxLocation, PgxObjectReference};
 pgx_row! { PgxAllelePhenotype => biodata::PgxAllelePhenotype, record id {
     identity {

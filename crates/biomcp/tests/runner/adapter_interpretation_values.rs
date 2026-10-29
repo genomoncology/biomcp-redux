@@ -11,7 +11,34 @@ pub(super) fn trials() -> Vec<Trial> {
     ), crate::runner::transcript::trial(
         "cpic-pgx/invalid-cross-reference-keeps-gene",
         || cpic().map_err(|error| error.to_string().into()),
+    ), crate::runner::transcript::trial(
+        "gene-sections/gencc-invalid-join-is-scoped-to-native-symbol",
+        || gencc_identity().map_err(|error| error.to_string().into()),
     )]
+}
+fn gencc_identity() -> Result<(), Box<dyn std::error::Error>> {
+    crate::runner::response_cases::checked_steps(
+        "gene/gencc",
+        |source, recording| {
+            if source == "gencc" {
+                let body = recording.pointer_mut("/exchanges/1/body/value").unwrap();
+                *body = json!(body.as_str().unwrap().replacen(
+                    "SGC-113621,1,HGNC:8109,ODC1", "SGC-113621,1,invalid,ODC1", 1));
+            }
+        },
+        json!([
+            {"run":["sync","gencc"],"exit":0,"expect":{"/result/rows":3}},
+            {"run":["get","gene","ODC1","gencc","--disable-sources","oncokb"],"exit":0,
+             "expect":{
+                "/result/items/0/sections/gencc/data/submissions":{"count":2},
+                "/problems":{"count":1},"/problems/0/field":"gene_curie",
+                "/problems/0/record":"SGC-113621"
+             }},
+            {"run":["get","gene","MIR21","gencc","--disable-sources","oncokb"],"exit":0,
+             "expect":{"/result/items/0/sections/gencc/state":"empty","":{"omits":["problems"]}}}
+        ]),
+    )?;
+    Ok(())
 }
 fn cpic() -> Result<(), Box<dyn std::error::Error>> {
     crate::runner::response_cases::checked_case(

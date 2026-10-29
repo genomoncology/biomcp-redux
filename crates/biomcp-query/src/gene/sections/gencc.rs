@@ -12,8 +12,8 @@ pub(super) fn run(cx: &Ctx<'_>, deadline: Deadline<'_>, genes: &[(HgncId, Gene)]
     let mut local = None;
     let values = genes
         .iter()
-        .map(|(id, _)| {
-            let section = match gencc::gene(&leg, *id) {
+        .map(|(id, gene)| {
+            let section = match gencc::gene(&leg, *id, &gene.symbol) {
                 Ok(mapped) => {
                     status::append(&mut problems, mapped.problems);
                     match mapped.value {
