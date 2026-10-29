@@ -1309,7 +1309,7 @@ Options:
           Opaque registry continuation; keep filters unchanged.
 
       --phase <phase>
-          Registry phase: 1, 2, 3, 4, early-1, not-applicable, 1/2 or 2/3.
+          Exact source phase. ClinicalTrials.gov: 1, 2, 3, 4, early-1, not-applicable, 1/2, 2/3. NCI: NA, 0, I, I_II, II, II_III, III, IV.
 
       --sex <sex>
           Registry sex facet.
@@ -1324,7 +1324,7 @@ Options:
           Registry sponsor funding facet.
 
       --status <status>
-          Exact registry overall status.
+          Exact source status. NCI: Active, Administratively Complete, Approved, Closed to Accrual, Closed to Accrual and Intervention, Complete, INACTIVE, Enrolling by Invitation, Temporarily Closed to Accrual, Temporarily Closed to Accrual and Intervention, Withdrawn. ClinicalTrials.gov uses registry labels.
 
       --study-type <study_type>
           Exact registry study type.
@@ -1361,13 +1361,13 @@ Search ClinicalTrials.gov or keyed NCI with source counts. NCI --facility matche
 - `--limit`: Headers per page; NCI applies its own lower publisher limit.
 - `--lon`: Radius center longitude in degrees.
 - `--next-page`: Opaque registry continuation; keep filters unchanged.
-- `--phase`: Registry phase: 1, 2, 3, 4, early-1, not-applicable, 1/2 or 2/3.
+- `--phase`: Exact source phase. ClinicalTrials.gov: 1, 2, 3, 4, early-1, not-applicable, 1/2, 2/3. NCI: NA, 0, I, I_II, II, II_III, III, IV.
 - `query`: General registry discovery text.
 - `--sex`: Registry sex facet.
 - `--source`: Explicit source; defaults to ClinicalTrials.gov and never falls back.
 - `--sponsor`: Exact lead sponsor field.
 - `--sponsor-type`: Registry sponsor funding facet.
-- `--status`: Exact registry overall status.
+- `--status`: Exact source status. NCI: Active, Administratively Complete, Approved, Closed to Accrual, Closed to Accrual and Intervention, Complete, INACTIVE, Enrolling by Invitation, Temporarily Closed to Accrual, Temporarily Closed to Accrual and Intervention, Withdrawn. ClinicalTrials.gov uses registry labels.
 - `--study-type`: Exact registry study type.
 - `--updated-since`: First included registry update date.
 - `--updated-until`: Last included registry update date.

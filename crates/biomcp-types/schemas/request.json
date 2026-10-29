@@ -654,20 +654,6 @@
         " ClinPGx annotation records."
       ]
     },
-    "PhaseFilter": {
-      "description": "Explicit source phase selection, including the registry's combined phases.",
-      "enum": [
-        "early-1",
-        "1",
-        "2",
-        "3",
-        "4",
-        "not-applicable",
-        "1/2",
-        "2/3"
-      ],
-      "type": "string"
-    },
     "PhenotypeSection": {
       "description": "A named source term section.",
       "enum": [
@@ -817,6 +803,27 @@
       "minLength": 1,
       "type": "string"
     },
+    "TrialPhaseFilter": {
+      "enum": [
+        "early-1",
+        "1",
+        "2",
+        "3",
+        "4",
+        "not-applicable",
+        "1/2",
+        "2/3",
+        "NA",
+        "0",
+        "I",
+        "I_II",
+        "II",
+        "II_III",
+        "III",
+        "IV"
+      ],
+      "type": "string"
+    },
     "TrialSection": {
       "description": "Available source protocol sections.",
       "enum": [
@@ -862,8 +869,7 @@
       ],
       "type": "string"
     },
-    "TrialStatus": {
-      "description": "Publisher Status enum for OverallStatus from\n<https://clinicaltrials.gov/api/v2/studies/enums>.",
+    "TrialStatusFilter": {
       "enum": [
         "ACTIVE_NOT_RECRUITING",
         "COMPLETED",
@@ -878,7 +884,18 @@
         "TEMPORARILY_NOT_AVAILABLE",
         "APPROVED_FOR_MARKETING",
         "WITHHELD",
-        "UNKNOWN"
+        "UNKNOWN",
+        "Active",
+        "Administratively Complete",
+        "Approved",
+        "Closed to Accrual",
+        "Closed to Accrual and Intervention",
+        "Complete",
+        "INACTIVE",
+        "Enrolling by Invitation",
+        "Temporarily Closed to Accrual",
+        "Temporarily Closed to Accrual and Intervention",
+        "Withdrawn"
       ],
       "type": "string"
     },
@@ -3949,8 +3966,8 @@
           "description": "Opaque registry continuation; keep filters unchanged."
         },
         "phase": {
-          "$ref": "#/$defs/PhaseFilter",
-          "description": "Registry phase: 1, 2, 3, 4, early-1, not-applicable, 1/2 or 2/3."
+          "$ref": "#/$defs/TrialPhaseFilter",
+          "description": "Exact source phase. ClinicalTrials.gov: 1, 2, 3, 4, early-1, not-applicable, 1/2, 2/3. NCI: NA, 0, I, I_II, II, II_III, III, IV."
         },
         "query": {
           "$ref": "#/$defs/Text",
@@ -3974,8 +3991,8 @@
           "description": "Registry sponsor funding facet."
         },
         "status": {
-          "$ref": "#/$defs/TrialStatus",
-          "description": "Exact registry overall status."
+          "$ref": "#/$defs/TrialStatusFilter",
+          "description": "Exact source status. NCI: Active, Administratively Complete, Approved, Closed to Accrual, Closed to Accrual and Intervention, Complete, INACTIVE, Enrolling by Invitation, Temporarily Closed to Accrual, Temporarily Closed to Accrual and Intervention, Withdrawn. ClinicalTrials.gov uses registry labels."
         },
         "study_type": {
           "$ref": "#/$defs/StudyType",
