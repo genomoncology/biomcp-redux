@@ -164,7 +164,7 @@ fn both(env: &Environment, args: Vec<String>, exit: i32) -> Result<Value, String
     let start = args.iter().position(|s| s == "search").unwrap_or(0);
     let (globals, command) = args.split_at(start);
     let mcp = super::mcp::call_with_globals(env, command, exit >= 2, globals)?;
-    if cli != mcp {
+    if !super::reply_comparison::same_reply(&cli, &mcp)? {
         return Err("CLI/MCP report search differs".into());
     }
     measure(&cli, &args)?;
@@ -269,7 +269,7 @@ fn navigation() -> Check {
     words.extend(["--limit".into(), "7".into()]);
     let value = both(&env, words.clone(), 0)?;
     words.extend(["--source".into(), "faers".into()]);
-    if invoke(&env, words, 0)? != value {
+    if !super::reply_comparison::same_reply(&invoke(&env, words, 0)?, &value)? {
         return Err("default FAERS differs from explicit source".into());
     }
     let next = value

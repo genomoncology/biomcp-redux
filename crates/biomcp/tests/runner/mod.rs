@@ -125,6 +125,7 @@ mod recurrence;
 mod recurrence_errors;
 mod recurrence_metadata;
 mod replay;
+mod reply_comparison;
 mod research;
 mod response_cases;
 mod schema;
@@ -246,6 +247,7 @@ pub(super) fn discover(root: &Path) -> Result<Vec<Trial>, String> {
             }))
         })
         .collect::<Result<Vec<_>, String>>()?;
+    trials.push(reply_comparison::trial());
     trials.extend(schema_proof::trials(registry));
     trials.extend(parity::trials());
     trials.push(parity_shape_proof::trial());
