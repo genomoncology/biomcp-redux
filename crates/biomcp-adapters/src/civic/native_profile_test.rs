@@ -72,7 +72,10 @@ fn malformed_profile_expression_keeps_native_identity() -> Result<(), Box<dyn st
     assert_eq!(profile.record.id.as_str(), "6153");
     assert!(subject.is_none());
     assert_eq!(cx.list.len(), 1);
-    assert_eq!(cx.list[0].field.as_ref(), "rawName");
+    assert_eq!(
+        cx.list.first().map(|problem| problem.field.as_ref()),
+        Some("rawName")
+    );
     Ok(())
 }
 fn native() -> Result<Value, Box<dyn std::error::Error>> {

@@ -52,7 +52,7 @@ pub(super) fn run(cx: &Ctx<'_>, deadline: Deadline<'_>, genes: &[(HgncId, Gene)]
             Ok(version) => {
                 let partial_version = !version.problems.is_empty();
                 status::append(&mut problems, version.problems);
-                apply_version(&mut values, &version.value, partial_version);
+                apply_version(&mut values, version.value.as_ref(), partial_version);
             }
             Err(failure) => {
                 error = Some(failure);
@@ -143,15 +143,15 @@ fn mapped_value(
 
 fn apply_version(
     values: &mut [(HgncId, SectionValue)],
-    version: &Option<biodata::Text>,
+    version: Option<&biodata::Text>,
     partial_version: bool,
 ) {
     for (_, value) in values {
         if let SectionValue::Oncokb(section, Some(card), partial) = value {
-            card.version = version.clone();
+            card.version = version.cloned();
             *partial |= partial_version;
             if let Section::Data { data, .. } = section {
-                data.version = version.clone();
+                data.version = version.cloned();
             }
         }
     }
