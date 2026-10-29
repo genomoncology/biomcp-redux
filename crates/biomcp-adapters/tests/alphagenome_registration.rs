@@ -22,7 +22,7 @@ fn restricted_source_requires_its_own_key_before_any_provider_request()
         mode: biomcp_fetch::Mode::Offline,
         ..Default::default()
     })?;
-    let request = biomcp_fetch::grpc::alphagenome::DnaseRequest::human_lung_all_folds(
+    let request = biomcp_adapters::alphagenome::DnaseRequest::human_lung_all_folds(
         biodata::Build::GRCh38,
         "chr7",
         140745143..140761527,

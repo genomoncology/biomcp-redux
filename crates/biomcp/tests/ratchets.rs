@@ -17,6 +17,8 @@ mod reasons;
 mod source;
 #[path = "ratchets/spellings.rs"]
 mod spellings;
+#[path = "ratchets/transport_sources.rs"]
+mod transport_sources;
 
 use std::{fs, path::Path};
 
