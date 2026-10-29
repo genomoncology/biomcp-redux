@@ -41,5 +41,5 @@
       ]
     }
   ],
-  "local_reply_contract": "Positive replies retain native identity and primary product fields. Empty name-index and harmonized-set responses are explicit request stubs. The native set_id stub reuses the same captured native identity. The longer-brand, incidental-warning and mismatched-application controls are synthetic."
+  "local_reply_contract": "All recording envelopes are local request stubs. Positive bodies retain native identity and primary product fields from the originals below. The quoted free-text and native set_id stubs reuse the CAVHANZA body. Name-index and harmonized-set absences are synthetic. The longer-brand, incidental-warning and mismatched-application controls are synthetic."
 }
