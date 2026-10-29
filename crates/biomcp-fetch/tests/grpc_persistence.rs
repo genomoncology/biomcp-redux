@@ -42,7 +42,7 @@ impl StreamDecoder for Decoder {
         Ok(())
     }
     fn finish(self) -> Result<Vec<u8>, BadReply> {
-        if self.next != messages().len() {
+        if self.next != messages().len() || self.limits.expanded_bytes < 4 {
             return Err(BadReply);
         }
         Ok(vec![1, 2, 3, 4])
