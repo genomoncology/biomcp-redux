@@ -486,20 +486,19 @@ fn ages() -> Check {
 fn legacy_age_snapshot() -> Check {
     use sha2::{Digest, Sha256};
     let (env, _stub) = setup("valid")?;
-    let cache = env.root().join("case-cache");
-    let globals = vec![
-        "--case-cache".to_owned(),
-        cache.to_string_lossy().into_owned(),
-    ];
+    let recording = env.root().join("recording");
+    let mut record = args(None);
+    record.extend(["--record".into(), recording.to_string_lossy().into_owned()]);
+    invoke(&env, record, 0)?;
     let mut initial = args(None);
-    initial.extend(globals.clone());
+    initial.extend(env.globals(Some(&recording), false));
     let card = invoke(&env, initial, 0)?;
     let snapshot = card
         .pointer("/result/snapshot")
         .and_then(Value::as_str)
         .ok_or("snapshot")?;
     let db = rusqlite::Connection::open_with_flags(
-        cache.join("replay.sqlite"),
+        env.root().join("case-cache/replay.sqlite"),
         rusqlite::OpenFlags::SQLITE_OPEN_READ_WRITE,
     )
     .map_err(|e| e.to_string())?;
@@ -515,7 +514,7 @@ fn legacy_age_snapshot() -> Check {
     }
     let mut command = args(Some("drugs"));
     command.extend(["--snapshot".into(), snapshot.into()]);
-    command.extend(globals);
+    command.extend(env.globals(None, true));
     let output = invoke(&env, command, 3)?;
     if output.pointer("/next/0/kind") != Some(&json!("restart")) {
         return Err(format!(
