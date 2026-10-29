@@ -1,3 +1,4 @@
+use crate::runner::tools_api::budget;
 //! Native positives remain outside Git; actual record/replay exercises both public callers.
 use super::{Stub, invoke, setup};
 use serde_json::{Value, json};
@@ -46,12 +47,7 @@ pub(in crate::runner) fn run(root: &Path) -> Result<(), String> {
         fs::write(output.join(format!("{name}.json")), &full).map_err(|e| e.to_string())?;
         copy(&directory, &output.join(name))?;
         let comparable = crate::runner::source_terms::size(&value, "")?;
-        let ceiling: usize = match name {
-            "ctgov-primary" => 6777,
-            "nci-unique" => 3027,
-            "nci-alias-ambiguous" => 2318,
-            _ => 996,
-        };
+        let ceiling = budget(&format!("trial-condition/{name}"))?;
         let step = json!({"run":words,"mcp":words,"exit":exit,"is_error":exit != 0,"expect":expect,"max_bytes":ceiling,"max_tokens":ceiling.div_ceil(4)});
         let case = json!(
             {"feature":"trial-search","story":"Exact captured concept determines only the literal source filter","replay":output.join(name),

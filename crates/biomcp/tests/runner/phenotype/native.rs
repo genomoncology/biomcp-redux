@@ -362,29 +362,6 @@ fn native_ceiling(body: &str) -> Result<usize, String> {
     if let Some((id, source)) = card {
         return super::section_native::ceiling(&format!("card-{id}-{source}"));
     }
-    Ok(match body {
-        "02-P01-monarch-search.raw" => 1690,
-        "03-P02-monarch-search.raw" => 2286,
-        "04-P03-monarch-search.raw" => 1086,
-        "05-P04-monarch-search.raw" => 1077,
-        "06-P05-monarch-search.raw" => 2289,
-        "07-P06-monarch-search.raw" => 1686,
-        "08-P07-monarch-search.raw" => 2251,
-        "09-P08-monarch-search.raw" => 2383,
-        "10-P09-monarch-search.raw" => 742,
-        "11-P10-monarch-search.raw" => 2276,
-        "12-P11-monarch-search.raw" => 2368,
-        "13-P12-monarch-search.raw" => 1357,
-        "14-P13-monarch-search.raw" => 1073,
-        "15-P14-monarch-search.raw" => 2317,
-        "16-P15-monarch-search.raw" => 1386,
-        "17-P16-monarch-search.raw" => 2249,
-        "35-P24-monarch-empty.raw" => 732,
-        "36-P24-hpo-absent.raw" => 203,
-        "37-P02-middle.raw" => 2248,
-        "38-P16-middle.raw" => 2207,
-        "39-P02-terminal.raw" => 1040,
-        _ => return Err("unmeasured native phenotype case".into()),
-    })
+    crate::runner::tools_api::budget(&format!("phenotype/{body}"))
 }
 }

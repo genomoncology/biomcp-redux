@@ -1,3 +1,4 @@
+use crate::runner::tools_api::budget;
 //! Native bodies stay in the external evidence store and replay through transport recordings.
 use super::{Environment, Path, Stub, Value, fs, invoke, json};
 use std::{collections::BTreeMap, io::Write};
@@ -71,8 +72,9 @@ fn measure(root: &Path, recordings: &Path, output: &Path, input: &Value) -> Resu
     let args = words(&input["args"])?;
     let name = input["name"].as_str().ok_or("case name")?;
     let path = root.join(format!("{name}.yaml"));
+    let fallback = budget("gwas-get/unmeasured")?;
     let mut step =
-        json!({"run":args,"mcp":args,"expect":input["expect"],"max_bytes":20000,"max_tokens":5000});
+        json!({"run":args,"mcp":args,"expect":input["expect"],"max_bytes":fallback,"max_tokens":fallback.div_ceil(4)});
     let budgets: Value = serde_saphyr::from_str(&crate::runner::launch::fixture_text(
         "gwas-get-budgets.yaml",
     )?)

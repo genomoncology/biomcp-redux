@@ -52,6 +52,11 @@ else:
             self.assertEqual(completed["tools"], ["biomcp"])
             self.assertEqual(completed["trials"], 2)
             self.assertEqual(completed["timeout_seconds"], completed["elapsed_seconds"] * 1.15)
+            tool.unlink()
+            missing = subprocess.run([sys.executable, "-O", "-c", script, str(binary), str(runner), str(root), "1"],
+                                     capture_output=True, text=True, timeout=30)
+            self.assertNotEqual(missing.returncode, 0)
+            self.assertIn("tool-runner", missing.stderr)
 
 
     def test_broken_installed_commands_fail_under_optimization(self):
