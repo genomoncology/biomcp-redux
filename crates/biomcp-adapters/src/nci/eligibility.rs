@@ -6,8 +6,7 @@ use serde::Deserialize;
 #[derive(Debug, Deserialize)]
 pub(super) struct Eligibility {
     structured: Option<Structured>,
-    #[serde(default)]
-    unstructured: Box<[biomcp_types::NciCriterion]>,
+    unstructured: Option<Box<[biomcp_types::NciCriterion]>>,
 }
 #[derive(Debug, Deserialize)]
 struct Structured {
@@ -26,7 +25,7 @@ impl Eligibility {
     pub(super) fn map(self, p: &mut Problems) -> NciEligibility {
         NciEligibility {
             structured: self.structured.map(|s| s.map(p)),
-            unstructured: self.unstructured,
+            unstructured: self.unstructured.unwrap_or_default(),
         }
     }
 }
