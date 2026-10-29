@@ -79,6 +79,12 @@ errors! {
     NumberNonFinite => "number.value.non_finite",
     /// A subject reference lacks its source identity or notation.
     VariantRefInvalid => "variant.reference.invalid",
+    /// A profile expression has invalid syntax or relations.
+    ProfileExpressionInvalid => "variant.profile.expression_invalid",
+    /// A profile expression references an absent native member.
+    ProfileMemberMissing => "variant.profile.member_missing",
+    /// A profile repeats a native member identifier.
+    ProfileMemberDuplicate => "variant.profile.member_duplicate",
     /// A concept identifier lacks a checked prefix or local part.
     CurieInvalid => "concept.curie.invalid",
     /// The shared grammar refused the value.
