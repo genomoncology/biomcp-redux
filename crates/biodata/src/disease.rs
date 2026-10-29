@@ -157,16 +157,16 @@ pub struct DiseaseStatistic {
 pub struct StatisticEstimate {
     /// Native estimate.
     #[serde(default, skip_serializing_if = "Option::is_none")]
-    pub value: Option<FiniteNumber>,
+    pub value: Option<crate::WithUnit<FiniteNumber>>,
     /// Native standard error.
     #[serde(default, skip_serializing_if = "Option::is_none")]
-    pub standard_error: Option<FiniteNumber>,
+    pub standard_error: Option<crate::WithUnit<FiniteNumber>>,
     /// Native lower confidence bound.
     #[serde(default, skip_serializing_if = "Option::is_none")]
-    pub lower_ci: Option<FiniteNumber>,
+    pub lower_ci: Option<crate::WithUnit<FiniteNumber>>,
     /// Native upper confidence bound.
     #[serde(default, skip_serializing_if = "Option::is_none")]
-    pub upper_ci: Option<FiniteNumber>,
+    pub upper_ci: Option<crate::WithUnit<FiniteNumber>>,
     /// Native count; no inferred denominator.
     #[serde(default, skip_serializing_if = "Option::is_none")]
     pub count: Option<u64>,

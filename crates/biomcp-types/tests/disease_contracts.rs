@@ -96,7 +96,7 @@ fn association_keeps_parent_request_and_native_child_without_becoming_statement(
 fn native_statistics_keep_requested_and_returned_dimensions_and_missing_observations() {
     let value = json!(
         {"requested_site":"55","requested_selectors":[{"name":"dataset","code":"4"}],"returned_selectors":[{"name":"site","code":"55"},
-        {"name":"year_range","code":"31"}],"year":2022,"measure":"rel_rate","modeled":{"value":93.690345},
+        {"name":"year_range","code":"31"}],"year":2022,"measure":"rel_rate","modeled":{"value":{"value":93.690345}},
         "attribution":{"source":"synthetic"}}
     );
     let result = roundtrip::<biodata::DiseaseStatistic>(value.clone()).unwrap();

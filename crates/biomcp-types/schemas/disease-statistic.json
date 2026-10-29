@@ -105,7 +105,7 @@
         "lower_ci": {
           "anyOf": [
             {
-              "$ref": "#/$defs/Reply_FiniteNumber"
+              "$ref": "#/$defs/Reply_WithUnit_FiniteNumber_Text"
             },
             {
               "type": "null"
@@ -116,7 +116,7 @@
         "standard_error": {
           "anyOf": [
             {
-              "$ref": "#/$defs/Reply_FiniteNumber"
+              "$ref": "#/$defs/Reply_WithUnit_FiniteNumber_Text"
             },
             {
               "type": "null"
@@ -127,7 +127,7 @@
         "upper_ci": {
           "anyOf": [
             {
-              "$ref": "#/$defs/Reply_FiniteNumber"
+              "$ref": "#/$defs/Reply_WithUnit_FiniteNumber_Text"
             },
             {
               "type": "null"
@@ -138,7 +138,7 @@
         "value": {
           "anyOf": [
             {
-              "$ref": "#/$defs/Reply_FiniteNumber"
+              "$ref": "#/$defs/Reply_WithUnit_FiniteNumber_Text"
             },
             {
               "type": "null"
@@ -184,9 +184,33 @@
       "minLength": 1,
       "pattern": "^(?![\\s\\S]*[\\x00-\\x1f\\x7f-\\x9f\\u061c\\u200e\\u200f\\u202a-\\u202e\\u2066-\\u2069])",
       "type": "string"
+    },
+    "Reply_WithUnit_FiniteNumber_Text": {
+      "description": "A source number with its explicitly stated unit; missing units stay absent.",
+      "properties": {
+        "unit": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/Reply_Text"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "description": "Publisher unit or code, without conversion or inference."
+        },
+        "value": {
+          "$ref": "#/$defs/Reply_FiniteNumber",
+          "description": "Unchanged numeric source value."
+        }
+      },
+      "required": [
+        "value"
+      ],
+      "type": "object"
     }
   },
-  "$id": "biodata.disease-statistic/3",
+  "$id": "biodata.disease-statistic/4",
   "$schema": "https://json-schema.org/draft/2020-12/schema",
   "description": "One native statistics row with requested and returned dimensions.",
   "properties": {

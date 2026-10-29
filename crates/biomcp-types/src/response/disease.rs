@@ -182,7 +182,7 @@ page!(
     DiseaseIncidence,
     DiseaseStatistic,
     DiseaseGet,
-    "biomcp.disease-incidence/5",
+    "biomcp.disease-incidence/6",
     "Native incidence rows preserving requested and returned dimensions.",
     [
         /// Original response retrieval time in Unix seconds, distinct from dataset publication.
@@ -194,7 +194,7 @@ page!(
     DiseaseSurvival,
     DiseaseStatistic,
     DiseaseGet,
-    "biomcp.disease-survival/5",
+    "biomcp.disease-survival/6",
     "Native annual survival rows with separate observed and modeled values.",
     [
         /// Original response retrieval time in Unix seconds, distinct from dataset publication.

@@ -194,7 +194,8 @@ fn incidence() -> Result<(), String> {
         &directory,
         json!(
             [ {"run":words,"mcp":words,"expect":{"/query/sex":"1","/query/race":"1","/query/age_range":"1","/page/total":2,
-            "/result/items/0/measure":"rate","/result/items/0/observed/count":100,"/result/items/0/returned_selectors/3/code":"104",
+            "/result/items/0/measure":"rate","/result/items/0/observed/value/unit":"per 100,000 people","/result/items/0/observed/count":100,
+            "/result/items/0/returned_selectors/3/code":"104",
             "/next/0/kind":"page"},"max_bytes":1889},{"run":["get","disease","47","incidence","--source","seer","--dataset","4","--period","5",
             "--section-offset","2"],"offline":true,"expect":{"/page/returned":0,"/page/total":2,"/next/0/args":["search","disease","--source",
             "seer"]},"max_bytes":862} ]
@@ -246,9 +247,10 @@ fn survival() -> Result<(), String> {
     let last = replay(
         &directory,
         json!(
-            [ {"run":words,"mcp":words,"expect":{"/result/items/0/year":2018,"/result/items/0/observed/value":90.0,
-            "/result/items/0/modeled/value":90.5,"/result/items/0/returned_selectors/5/code":"31"},"max_bytes":2024},{"run":next,"mcp":next,
-            "offline":true,"expect":{"/result/items/0/year":2022,"/result/items/0/modeled/value":93.5,"/page/offset":1,"/page/total":2},
+            [ {"run":words,"mcp":words,"expect":{"/result/items/0/observed/value/unit":"%",
+            "/result/items/0/year":2018,"/result/items/0/observed/value/value":90.0,
+            "/result/items/0/modeled/value/value":90.5,"/result/items/0/returned_selectors/5/code":"31"},"max_bytes":2024},{"run":next,"mcp":next,
+            "offline":true,"expect":{"/result/items/0/year":2022,"/result/items/0/modeled/value/value":93.5,"/page/offset":1,"/page/total":2},
             "max_bytes":1694} ]
         ),
     )?;

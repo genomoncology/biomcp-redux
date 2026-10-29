@@ -71,8 +71,8 @@ strings!(Reporter {
 });
 #[derive(Debug, Deserialize)]
 pub(super) struct Patient {
-    pub patientonsetage: Option<Box<str>>,
-    pub patientonsetageunit: Option<Box<str>>,
+    pub patientonsetage: Option<crate::raw::Field<String>>,
+    pub patientonsetageunit: Option<crate::raw::Field<biodata::FaersAgeUnit>>,
     pub patientsex: Option<Box<str>>,
     pub patientweight: Option<Box<str>>,
     pub drug: Vec<Drug>,

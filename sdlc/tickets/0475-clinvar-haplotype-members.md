@@ -4,6 +4,8 @@ Status: OPEN.
 
 Milestone: 5
 
+Depends on: 0468, 0473
+
 ## Outcome
 
 A ClinVar variation of type Haplotype comes back as one record that names its kind, its VCV accession and version, its grouping and each member allele's ClinVar identity. It is never flattened into a single allele. VCV000441268 version 5 is the witness. It is an APOE haplotype on one chromosome with SimpleAllele members 17864 and 242765.

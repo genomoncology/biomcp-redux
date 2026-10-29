@@ -13,7 +13,7 @@ use crate::{GeneGet, GeneHeader, GeneInput, GeneResolution, GeneSearch};
 pub use civic::CivicGene;
 pub use clingen::{ClinGenGene, ClinGenValidity};
 pub use constraint::Constraint;
-pub use expression::{CancerPtpm, GeneExpression, RnaAbundance, TissueNtpm};
+pub use expression::{CancerPtpm, GeneExpression, RnaAbundance, RnaUnit, TissueNtpm};
 pub use oncokb::{Oncokb, OncokbCard, OncokbGeneType, OncokbTranscript};
 pub use pathways::{Capped, PathwayRef, ReactomeId};
 pub use protein::Protein;
