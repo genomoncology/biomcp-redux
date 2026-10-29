@@ -4,7 +4,6 @@ use std::collections::{BTreeMap, BTreeSet};
 
 type Check<T> = Result<T, String>;
 const STRING_FORMATS: &[&str] = &["date", "date-time", "uri", "uri-reference"];
-
 #[derive(Debug, Default, Clone)]
 struct Shape {
     redirect: Option<(String, String)>,
@@ -65,57 +64,11 @@ pub(super) fn check_reviewed(
         if !assumed.insert((path.clone(), new_path.clone())) {
             continue;
         }
-        let old = &old_shapes[&path];
-        let new = &new_shapes[&new_path];
-        if old.map_patterns != new.map_patterns
-            || old.impossible != new.impossible
-            || new.map_values && !old.map_values
-            || new.map_keys && !old.map_keys
-            || old.markdown && !new.markdown
-            || old.string_format.is_some() && old.string_format != new.string_format
-            || old.pattern != new.pattern
-                && !(matches!(kind, ContractKind::Reply)
-                    && reviews.pattern(
-                        old_name,
-                        old_major,
-                        &path,
-                        old.pattern.as_deref(),
-                        new.pattern.as_deref(),
-                    ))
-            || new
-                .minimum
-                .is_some_and(|bound| old.minimum.is_none_or(|old| bound > old))
-            || new
-                .maximum
-                .is_some_and(|bound| old.maximum.is_none_or(|old| bound < old))
-            || new.selectors.as_ref().is_some_and(|new| {
-                old.selectors.as_ref().is_none_or(|old| {
-                    old.iter()
-                        .any(|old| !new.iter().any(|new| new.is_subset(old)))
-                })
-            })
-            || old.open_enum && !new.open_enum
-            || old.types != new.types
-            || match kind {
-                ContractKind::Query => !new.required.is_subset(&old.required),
-                ContractKind::Reply => !old.required.is_subset(&new.required),
-            }
-            || new
-                .maximum_length
-                .is_some_and(|bound| old.maximum_length.is_none_or(|old| bound < old))
-            || new.minimum_length > old.minimum_length
-            || new.minimum_items > old.minimum_items
-            || new.unique_items && !old.unique_items
-            || new
-                .maximum_items
-                .is_some_and(|bound| old.maximum_items.is_none_or(|old| bound < old))
-            || (!old.closed && new.closed)
-            || match (&old.values, &new.values) {
-                (Some(old), Some(new)) => !old.is_subset(new),
-                (None, Some(_)) => true,
-                _ => false,
-            }
-        {
+        let old = old_shapes.get(&path).ok_or("missing old structural path")?;
+        let new = new_shapes
+            .get(&new_path)
+            .ok_or("missing new structural path")?;
+        if !compatible(old, new, kind, reviews, (old_name, old_major, &path)) {
             return Err(format!("incompatible contract at {path}"));
         }
         for (edge, child) in &old.children {
@@ -127,6 +80,60 @@ pub(super) fn check_reviewed(
         }
     }
     Ok(())
+}
+fn compatible(
+    old: &Shape,
+    new: &Shape,
+    kind: ContractKind,
+    reviews: &Reviews,
+    identity: (&str, u64, &str),
+) -> bool {
+    let (old_name, old_major, path) = identity;
+    !(old.map_patterns != new.map_patterns
+        || old.impossible != new.impossible
+        || new.map_values && !old.map_values
+        || new.map_keys && !old.map_keys
+        || old.markdown && !new.markdown
+        || old.string_format.is_some() && old.string_format != new.string_format
+        || old.pattern != new.pattern
+            && !(matches!(kind, ContractKind::Reply)
+                && reviews.pattern(
+                    old_name,
+                    old_major,
+                    path,
+                    old.pattern.as_deref(),
+                    new.pattern.as_deref(),
+                ))
+        || new
+            .minimum
+            .is_some_and(|n| old.minimum.is_none_or(|o| n > o))
+        || lowered(old.maximum, new.maximum)
+        || new.selectors.as_ref().is_some_and(|new| {
+            old.selectors.as_ref().is_none_or(|old| {
+                old.iter()
+                    .any(|old| !new.iter().any(|new| new.is_subset(old)))
+            })
+        })
+        || old.open_enum && !new.open_enum
+        || old.types != new.types
+        || match kind {
+            ContractKind::Query => !new.required.is_subset(&old.required),
+            ContractKind::Reply => !old.required.is_subset(&new.required),
+        }
+        || lowered(old.maximum_length, new.maximum_length)
+        || new.minimum_length > old.minimum_length
+        || new.minimum_items > old.minimum_items
+        || new.unique_items && !old.unique_items
+        || lowered(old.maximum_items, new.maximum_items)
+        || (!old.closed && new.closed)
+        || match (&old.values, &new.values) {
+            (Some(old), Some(new)) => !old.is_subset(new),
+            (None, Some(_)) => true,
+            _ => false,
+        })
+}
+fn lowered<T: PartialOrd>(old: Option<T>, new: Option<T>) -> bool {
+    new.is_some_and(|n| old.is_none_or(|o| n < o))
 }
 fn identity(schema: &Value) -> Check<(&str, u64)> {
     let id = schema["$id"].as_str().ok_or("missing schema $id")?;
@@ -142,7 +149,11 @@ fn shapes(root: &Value) -> Check<BTreeMap<String, Shape>> {
         .collect();
     for (path, (target, reference), nodes) in redirects {
         // Replay the whole path, including nullable branches before the backedge.
-        let mut shape = shapes[&target].referents[&reference].clone();
+        let mut shape = shapes
+            .get(&target)
+            .and_then(|s| s.referents.get(&reference))
+            .ok_or("missing recursive target")?
+            .clone();
         shape.redirect = None;
         shapes.insert(path.clone(), shape);
         for node in nodes {
@@ -151,7 +162,6 @@ fn shapes(root: &Value) -> Check<BTreeMap<String, Shape>> {
     }
     Ok(shapes)
 }
-
 fn visit(
     root: &Value,
     node: &Value,
@@ -200,8 +210,8 @@ fn visit(
             .ok_or_else(|| format!("unresolved {reference}"))?;
         visit(root, target, path, shapes, refs)?;
         refs.remove(reference);
-        let target = shapes[path].clone();
-        let shape = shapes.get_mut(path).unwrap();
+        let shape = shapes.get_mut(path).ok_or("missing reference target")?;
+        let target = shape.clone();
         shape.referents.insert(reference.into(), target);
         for node in prior.nodes {
             collect(&node, path, shapes)?;
@@ -228,7 +238,6 @@ fn visit(
     collect(node, path, shapes)?;
     visit_children(root, node, path, shapes, refs)
 }
-
 fn visit_children(
     root: &Value,
     node: &Value,
@@ -265,7 +274,6 @@ fn visit_children(
     }
     Ok(())
 }
-
 fn descend(
     root: &Value,
     node: &Value,
@@ -282,7 +290,6 @@ fn descend(
         .insert(edge.into(), child.clone());
     visit(root, node, &child, shapes, refs)
 }
-
 fn collect(node: &Value, path: &str, shapes: &mut BTreeMap<String, Shape>) -> Check<()> {
     let shape = shapes.entry(path.into()).or_default();
     shape.nodes.push(node.clone());
@@ -299,10 +306,9 @@ fn collect(node: &Value, path: &str, shapes: &mut BTreeMap<String, Shape>) -> Ch
             .unwrap_or_else(|| vec![kind.clone()]);
         for kind in kinds {
             let kind = kind.as_str().ok_or("invalid type")?;
-            if ![
-                "string", "object", "null", "integer", "array", "boolean", "number",
-            ]
-            .contains(&kind)
+            if !"string object null integer array boolean number"
+                .split_whitespace()
+                .any(|t| t == kind)
             {
                 return Err(format!("unsupported type {kind} at {path}"));
             }
@@ -348,9 +354,8 @@ fn collect(node: &Value, path: &str, shapes: &mut BTreeMap<String, Shape>) -> Ch
     }
     if let Some(required) = node.get("required") {
         for name in required.as_array().ok_or("invalid required")? {
-            shape
-                .required
-                .insert(name.as_str().ok_or("invalid required name")?.into());
+            let name = name.as_str().ok_or("invalid required name")?;
+            shape.required.insert(name.into());
         }
     }
     if let Some(bound) = node.get("minItems") {
@@ -404,7 +409,6 @@ fn collect_map(node: &Value, shape: &mut Shape) -> Check<()> {
     }
     Ok(())
 }
-
 // The only object-level union permits at least one named selector.
 pub(super) fn selectors(node: &Value) -> Check<Option<Vec<BTreeSet<String>>>> {
     if node["type"] != "object" || node.get("anyOf").is_none() {
@@ -440,7 +444,6 @@ pub(super) fn selectors(node: &Value) -> Check<Option<Vec<BTreeSet<String>>>> {
     }
     Ok(Some(result))
 }
-
 // Nullable generated references and strings remain distinct from tagged unions.
 fn optional_branches(branches: &Value) -> Check<&[Value]> {
     let branches = branches.as_array().ok_or("invalid anyOf")?;
@@ -462,7 +465,6 @@ fn optional_branches(branches: &Value) -> Check<&[Value]> {
     }
     Ok(branches)
 }
-
 // The scalar representation permits exactly two disjoint JSON types. Keep
 // their paths separate so constraints in one branch cannot hide the other.
 fn scalar_branches<'a>(root: &Value, branches: &'a Value) -> Check<Vec<(String, &'a Value)>> {
@@ -493,7 +495,6 @@ fn scalar_branches<'a>(root: &Value, branches: &'a Value) -> Check<Vec<(String, 
     }
     Ok(result)
 }
-
 // These unions are internally tagged objects. Branch identity includes both
 // discriminator field and value, so another branch cannot hide a removal.
 fn tagged_branches(branches: &Value) -> Check<Vec<(String, &Value)>> {
