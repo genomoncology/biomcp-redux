@@ -4,6 +4,8 @@ use std::{fs, path::Path};
 
 // These declarations describe BioMCP choices rather than publisher vocabularies.
 const OWNED: &[&str] = &[
+    "Source", "Use", "SourceState", "ProblemCode", "ArticleSource",
+    "PgxSource", "PgxSection", "PgxAnnotationKind", "PgxTotalKind",
     "Reason",
     "PublicationType",
     "SubjectQualification",
