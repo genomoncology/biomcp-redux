@@ -310,8 +310,11 @@ fn clingen_expectation(mode: &str) -> Value {
         }
         "dosage only" => json!({
             "/result/items/0/sections/clingen/data/haploinsufficiency": "Sufficient Evidence for Haploinsufficiency"}),
+        "duplicate" => {
+            json!({"/result/items/0/sections/clingen/state": "data", "/problems/*/field": ["HGNC ID"]})
+        }
         _ => {
-            json!({"/result/items/0/sections/clingen/state": "data", "/sources/2/reason": "bad-reply"})
+            json!({"/result/items/0/sections/clingen/state": "data", "/problems/*/field": ["CLASSIFICATION"]})
         }
     }
 }

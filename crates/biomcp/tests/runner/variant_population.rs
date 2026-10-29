@@ -193,7 +193,9 @@ fn population_mismatch() -> Result<(), String> {
     let env = environment(&stub)?;
     for _ in 0..2 {
         let value = execute(&env, &["variant", "population", "CA123643", "--detail"])?;
-        if value.pointer("/result/population/reason") != Some(&json!("bad-reply"))
+        if value.pointer("/result/population/state") != Some(&json!("empty"))
+            || value.pointer("/problems/0/field") != Some(&json!("variant_id"))
+            || value.pointer("/status") != Some(&json!("partial"))
             || value.pointer("/result/population/data").is_some()
         {
             return Err(format!("wrong source allele leaked observations: {value}"));

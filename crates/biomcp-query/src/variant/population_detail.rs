@@ -43,6 +43,7 @@ pub(crate) fn get(cx: &Ctx<'_>, query: &VariantPopulationQuery) -> Outcome {
         Section::Data { .. } => Status::Partial,
         _ if read.candidates.len() > 1 && read.problems.is_empty() => Status::Complete,
         _ if read.candidates.len() > 1 => Status::Partial,
+        Section::Empty { .. } if !read.problems.is_empty() => Status::Partial,
         Section::Empty { .. } => Status::Absent,
         _ => Status::Failed,
     };
