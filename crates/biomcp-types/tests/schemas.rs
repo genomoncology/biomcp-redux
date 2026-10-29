@@ -340,7 +340,6 @@ fn trial_contracts() -> Vec<Contract> {
     }
 }
 
-
 #[test]
 #[expect(
     clippy::disallowed_methods,
