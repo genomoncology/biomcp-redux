@@ -49,5 +49,10 @@ workspace = true
 name = "cases"
 harness = false
 
+[[test]]
+name = "tools"
+test = false
+harness = false
+
 [target.'cfg(unix)'.dev-dependencies]
 nix = { version = "=0.31.3", default-features = false, features = ["signal", "process"] }
