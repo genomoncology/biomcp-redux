@@ -61,7 +61,7 @@ pub fn read(
     leg: &Leg<'_>,
     id: Pmcid,
     pmid: Option<Pmid>,
-) -> Result<Option<Document>, RequestError> {
+) -> Result<crate::Mapped<Option<Document>>, RequestError> {
     let prefix = format!("{id}.");
     let listing = leg.xml::<raw::Listing>(
         &LIST,
@@ -76,7 +76,10 @@ pub fn read(
         .filter_map(|e| location::version(&e.key, id))
         .max()
     else {
-        return Ok(None);
+        return Ok(crate::Mapped {
+            value: None,
+            problems: Vec::new(),
+        });
     };
     let directory = format!("{id}.{version}/");
     let path = format!("/{directory}{id}.{version}.json");
@@ -84,6 +87,21 @@ pub fn read(
     if record.pmcid != id || pmid.is_some_and(|expected| record.pmid != Some(expected.get())) {
         return Err(bad(BadReply));
     }
+    let mut problems = crate::mapped::Problems {
+        source: Source::PmcOa,
+        record: crate::mapped::record(id),
+        list: Vec::new(),
+    };
+    let license_code = problems
+        .required_field("license", record.license_code)
+        .filter(|v| !v.trim().is_empty());
+    let license_code = problems.required("license", license_code);
+    let Some(license_code) = license_code else {
+        return Ok(crate::Mapped {
+            value: None,
+            problems: problems.list,
+        });
+    };
     let loc = location::Location::checked(&record.xml_url, &directory).map_err(bad)?;
     if !loc.path.ends_with(".xml") {
         return Err(bad(BadReply));
@@ -108,24 +126,22 @@ pub fn read(
     if body.pmcid.is_some_and(|found| found != id) {
         return Err(bad(BadReply));
     }
-    let mut problems = crate::mapped::Problems {
-        source: Source::PmcOa,
-        record: crate::mapped::record(id),
-        list: Vec::new(),
-    };
     let urls = problems.fields("media_urls", record.media_urls);
     let supplements = supplement::select(&body.supplements, &urls, &directory, &mut problems)?;
     problems.list.extend(body.problems.clone());
     let manuscript = problems.field("manuscript", record.is_manuscript);
-    Ok(Some(Document {
-        url,
-        supplements,
-        license: license(&record.license_code),
-        version: Some(version),
-        manuscript,
-        problems: problems.list,
-        body,
-    }))
+    Ok(crate::Mapped {
+        value: Some(Document {
+            url,
+            supplements,
+            license: license(&license_code),
+            version: Some(version),
+            manuscript,
+            problems: problems.list.clone(),
+            body,
+        }),
+        problems: Vec::new(),
+    })
 }
 pub(crate) fn license(value: &str) -> License {
     match value.to_ascii_uppercase().replace('-', " ").as_str() {

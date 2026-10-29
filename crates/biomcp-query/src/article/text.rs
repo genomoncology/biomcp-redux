@@ -125,7 +125,10 @@ fn execute<'a>(
         ArticleInput::Pmid(id) => Some(*id),
         _ => None,
     };
-    let result = pmc_oa::read(&leg, id, pmid);
+    let result = pmc_oa::read(&leg, id, pmid).map(|mapped| {
+        out.problems.extend(mapped.problems);
+        mapped.value
+    });
     *deadline = deadline.after_stage(started.saturating_sub(leg.remaining()));
     let source = status::source(Source::PmcOa, leg.finish(), result.as_ref().err().copied());
     if source.state == biomcp_types::SourceState::Stale {

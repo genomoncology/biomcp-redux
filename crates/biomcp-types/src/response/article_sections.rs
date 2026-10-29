@@ -20,7 +20,8 @@ pub struct AnnotatedEntity {
     /// Source concept type.
     pub kind: AnnotationKind,
     /// Source normalized name.
-    pub name: Text,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub name: Option<Text>,
     /// Number of annotation mentions.
     pub count: u64,
     /// Gene identity, including a variant's associated gene.

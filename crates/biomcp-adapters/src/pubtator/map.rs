@@ -11,11 +11,45 @@ const LIMIT: usize = 20;
 pub(super) fn document(id: Pmid, document: Option<&Document>) -> Mapped<Section<Annotations>> {
     let mut problems = Vec::new();
     let mut entities: Vec<(String, AnnotatedEntity)> = Vec::new();
-    for annotation in document
-        .into_iter()
-        .flat_map(|d| &d.passages)
-        .flat_map(|p| p.annotations.iter().flatten())
-    {
+    let mut annotations = Vec::new();
+    if let Some(document) = document {
+        if let Some(passages) = &document.passages {
+            if let Some(passages) = passages.as_ref() {
+                for passage in passages {
+                    let Some(passage) = passage.as_ref() else {
+                        push_problem(&mut problems, Source::PubTator, record_text(id), "passages");
+                        continue;
+                    };
+                    if let Some(items) = &passage.annotations {
+                        if let Some(items) = items.as_ref() {
+                            for item in items {
+                                if let Some(item) = item.as_ref() {
+                                    annotations.push(item);
+                                } else {
+                                    push_problem(
+                                        &mut problems,
+                                        Source::PubTator,
+                                        record_text(id),
+                                        "annotations",
+                                    );
+                                }
+                            }
+                        } else {
+                            push_problem(
+                                &mut problems,
+                                Source::PubTator,
+                                record_text(id),
+                                "annotations",
+                            );
+                        }
+                    }
+                }
+            } else {
+                push_problem(&mut problems, Source::PubTator, record_text(id), "passages");
+            }
+        }
+    }
+    for annotation in annotations {
         let Some((key, entity)) = entity(id, annotation, &mut problems) else {
             continue;
         };
@@ -32,7 +66,12 @@ pub(super) fn document(id: Pmid, document: Option<&Document>) -> Mapped<Section<
         b.count
             .cmp(&a.count)
             .then_with(|| order(a.kind).cmp(&order(b.kind)))
-            .then_with(|| a.name.as_str().cmp(b.name.as_str()))
+            .then_with(|| {
+                a.name
+                    .as_ref()
+                    .map(Text::as_str)
+                    .cmp(&b.name.as_ref().map(Text::as_str))
+            })
             .then_with(|| ka.cmp(kb))
     });
     let total = u64::try_from(entities.len()).unwrap_or(u64::MAX);
@@ -102,7 +141,7 @@ fn entity(
     };
     let identifier = optional(id, "identifier", raw.identifier.as_ref(), problems);
     let text = optional(id, "text", annotation.text.as_ref(), problems);
-    let name = optional(id, "name", raw.name.as_ref(), problems).or(text)?;
+    let name = optional(id, "name", raw.name.as_ref(), problems).or(text);
     let mut value = AnnotatedEntity {
         kind,
         name,
@@ -140,6 +179,13 @@ fn entity(
         AnnotationKind::Gene => value.entrez_id.map(|id| id.to_string()),
         _ => identifier.map(|s| s.to_string()),
     };
+    if checked_identifier.is_none()
+        && value.name.is_none()
+        && value.hgvs.is_none()
+        && value.rsid.is_none()
+    {
+        return None;
+    }
     let key = checked_identifier
         .map(|id| format!("id:{id}"))
         .unwrap_or_else(|| {
@@ -149,7 +195,7 @@ fn entity(
                     value.entrez_id, value.hgvs, value.rsid
                 )
             } else {
-                format!("name:{}", value.name)
+                format!("name:{}", value.name.as_ref().map_or("", Text::as_str))
             }
         });
     Some((key, value))

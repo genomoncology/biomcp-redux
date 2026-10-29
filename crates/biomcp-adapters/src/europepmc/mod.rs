@@ -6,7 +6,7 @@ use crate::{
     quotas,
     raw::Field,
 };
-use biodata::{Doi, EuropePmcId, PartialDate, Pmcid, Pmid, Text};
+use biodata::{Doi, EuropePmcId, PartialDate, Pmcid, Pmid};
 
 use biomcp_fetch::{
     Arg, BadReply, Endpoint, Freshness, KeyUse, Leg, Reply, RequestError, SourceSpec,
@@ -115,14 +115,14 @@ impl Row {
             record: record(&self.id),
             list: Vec::new(),
         };
-        let local = p.required("id", self.local_id().ok());
+        let local = p.optional("id", Some(self.local_id()));
         let Some(local) = local else {
             problems.extend(p.list);
             return None;
         };
         let pmid = p.field("pmid", self.pmid).or_else(|| {
             (self.source == "MED")
-                .then(|| self.id.parse().ok())
+                .then(|| p.optional("pmid", Some(self.id.parse())))
                 .flatten()
         });
         let pmcid = p.field("pmcid", self.pmcid);
@@ -155,7 +155,7 @@ impl Row {
                 first_author: authors
                     .as_ref()
                     .and_then(|s| s.as_str().split(',').next())
-                    .and_then(|s| Text::new(s.trim()).ok()),
+                    .and_then(|s| p.checked_text("first_author", Some(s.trim()))),
                 first_author_id: None,
                 author_count: authors
                     .as_ref()

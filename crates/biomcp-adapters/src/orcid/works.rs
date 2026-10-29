@@ -74,7 +74,7 @@ struct Assertion {
     journal_title: Option<Field<Wrapped>>,
     url: Option<Field<Url>>,
     external_ids: Option<Field<Identifiers>>,
-    source: Origin,
+    source: Option<Field<Origin>>,
     display_index: Option<Field<Text>>,
 }
 #[derive(Deserialize)]
@@ -185,7 +185,7 @@ impl Assertion {
             external_ids: optional(problems, "external_ids", self.external_ids)
                 .map(|v| v.convert(problems))
                 .unwrap_or_default(),
-            source: self.source.convert(problems),
+            source: optional(problems, "source", self.source).map(|v| v.convert(problems)),
             visibility: OrcidPublicVisibility::Public,
             display_index: optional(problems, "display_index", self.display_index),
         }

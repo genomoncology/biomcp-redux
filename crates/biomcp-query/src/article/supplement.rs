@@ -86,7 +86,9 @@ fn execute<'a>(
         _ => None,
     };
     let result = (|| {
-        let Some(document) = pmc_oa::read(&leg, id, pmid)? else {
+        let mapped = pmc_oa::read(&leg, id, pmid)?;
+        out.problems.extend(mapped.problems);
+        let Some(document) = mapped.value else {
             return Ok(Section::Unavailable {
                 source: Source::PmcOa,
                 reason: Reason::NotOpen,
