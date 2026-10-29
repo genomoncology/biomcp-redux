@@ -16,9 +16,10 @@ pub(super) fn uniprot() -> Check {
         "gene/protein",
         &args,
         |source, record| {
-            if source == "uniprot" {
-                *record.pointer_mut("/exchanges/0/body/value/results/0/proteinDescription/recommendedName/fullName/value")
-                .unwrap() = json!(42);
+            if source == "uniprot"
+                && let Some(field) = record.pointer_mut("/exchanges/0/body/value/results/0/proteinDescription/recommendedName/fullName/value")
+            {
+                *field = json!(42);
             }
         },
         json!({identity: "P42771", "/problems": {"count": 1},
@@ -49,13 +50,13 @@ pub(super) fn reactome() -> Check {
         &args,
         |source, record| {
             if source == "reactome"
-                && record["url"]
-                    .as_str()
+                && record
+                    .get("url")
+                    .and_then(serde_json::Value::as_str)
                     .is_some_and(|u| u.ends_with("/data/query/R-HSA-5673001"))
+                && let Some(field) = record.pointer_mut("/exchanges/0/body/value/displayName")
             {
-                *record
-                    .pointer_mut("/exchanges/0/body/value/displayName")
-                    .unwrap() = json!(42);
+                *field = json!(42);
             }
         },
         json!({identity: "R-HSA-5673001", "/problems": {"count": 1},
@@ -75,13 +76,13 @@ pub(super) fn native_summation() -> Check {
         &["get", "pathway", "R-HSA-5673001", "summary"],
         |source, record| {
             if source == "reactome"
-                && record["url"]
-                    .as_str()
+                && record
+                    .get("url")
+                    .and_then(serde_json::Value::as_str)
                     .is_some_and(|u| u.ends_with("/data/query/R-HSA-5673001"))
+                && let Some(field) = record.pointer_mut("/exchanges/0/body/value/summation/0/text")
             {
-                *record
-                    .pointer_mut("/exchanges/0/body/value/summation/0/text")
-                    .unwrap() = json!(text);
+                *field = json!(text);
             }
         },
         json!({"/result/pathway/id/id": "R-HSA-5673001"}),

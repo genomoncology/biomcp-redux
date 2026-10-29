@@ -50,7 +50,9 @@ pub(super) fn check() -> Check {
         .iter_mut()
         .find(|r| r.get("id") == Some(&json!(id)))
         .ok_or("native pathway row")?;
-    row["name"] = json!({"bad":true});
+    row.as_object_mut()
+        .ok_or("native pathway object")?
+        .insert("name".into(), json!({"bad":true}));
     let changed = Environment::new().map_err(|e| e.to_string())?;
     let replay = seed(&changed, search, get, 200)?;
     let mut args = changed.globals(Some(&replay), false);
@@ -75,11 +77,13 @@ pub(super) fn check() -> Check {
 }
 
 fn preserve_metadata(get: &mut Value, id: &str) -> Check {
-    let row = get["pathwayInfo"]
-        .as_array_mut()
+    let row = get
+        .get_mut("pathwayInfo")
+        .and_then(Value::as_array_mut)
         .and_then(|rows| rows.iter_mut().find(|r| r.get("id") == Some(&json!(id))))
         .ok_or("native pathway row")?;
-    row["description"] = json!(" \nNative description\t ");
-    row["citedIn"] = json!("");
+    let fields = row.as_object_mut().ok_or("native pathway object")?;
+    fields.insert("description".into(), json!(" \nNative description\t "));
+    fields.insert("citedIn".into(), json!(""));
     Ok(())
 }

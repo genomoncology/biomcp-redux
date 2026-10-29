@@ -335,7 +335,9 @@ fn refused_nodes(replay: &std::path::Path, path: &std::path::Path, original: &Va
         ("padded-id-collision", 11, vec!["n1", " n0 "]),
     ] {
         let mut recording = original.clone();
-        recording["exchanges"][0]["body"]["value"] = json!(failed_body(mode));
+        *recording
+            .pointer_mut("/exchanges/0/body/value")
+            .ok_or("recorded body")? = json!(failed_body(mode));
         fs::write(path, recording.to_string()).map_err(|e| e.to_string())?;
         let env = Environment::new().map_err(|e| e.to_string())?;
         let mut sync = vec!["sync".into(), "wikipathways".into()];
@@ -352,18 +354,24 @@ fn refused_nodes(replay: &std::path::Path, path: &std::path::Path, original: &Va
             ];
             args.extend(env.globals(Some(replay), offline));
             let answer = invoke(&env, args, 0)?;
-            let rows = answer["result"]["items"]
-                .as_array()
+            let rows = answer
+                .pointer("/result/items")
+                .and_then(Value::as_array)
                 .ok_or("retained members")?;
             if answer.pointer("/result/page/total") != Some(&json!(total))
                 || rows.iter().any(|row| {
-                    row["node_id"]
-                        .as_str()
+                    row.get("node_id")
+                        .and_then(Value::as_str)
                         .is_some_and(|id| omitted.contains(&id))
                 })
-                || !answer["problems"]
-                    .as_array()
-                    .is_some_and(|problems| problems.iter().any(|p| p["field"] == "genes.node_id"))
+                || !answer
+                    .get("problems")
+                    .and_then(Value::as_array)
+                    .is_some_and(|problems| {
+                        problems
+                            .iter()
+                            .any(|p| p.get("field") == Some(&json!("genes.node_id")))
+                    })
             {
                 return Err(format!(
                     "{mode}: invalid node identity was kept or its valid siblings were lost"

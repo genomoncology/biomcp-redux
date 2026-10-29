@@ -201,7 +201,11 @@ pub(super) fn sequence() -> Result<(), String> {
 pub(super) fn feature_id() -> Result<(), String> {
     let stub = Stub::for_source("rest.uniprot.org", "application/json", |_| {
         let mut value = entry();
-        value["features"][0]["featureId"] = json!("");
+        value
+            .pointer_mut("/features/0")
+            .and_then(Value::as_object_mut)
+            .ok_or("feature row")?
+            .insert("featureId".into(), json!(""));
         Ok(value.to_string())
     })?;
     let env = setup(&stub)?;
@@ -209,7 +213,11 @@ pub(super) fn feature_id() -> Result<(), String> {
     if answer.pointer("/result/items/0/feature/protein") != Some(&json!("P00533"))
         || answer.pointer("/result/items/0/feature/id").is_some()
         || answer.pointer("/problems/0/field") != Some(&json!("features.featureId"))
-        || answer["problems"].as_array().map(Vec::len) != Some(1)
+        || answer
+            .get("problems")
+            .and_then(Value::as_array)
+            .map(Vec::len)
+            != Some(1)
     {
         return Err("bad feature ID lost the coordinate identity or its field problem".into());
     }

@@ -72,18 +72,23 @@ pub(super) fn stages() -> Check {
         .map_err(|e| e.to_string())?;
     let original: Value = serde_json::from_str(&text).map_err(|e| e.to_string())?;
     let stages = [json!(""), json!(" \nPHASE_1\t "), json!({"bad":true})];
-    let mut replies = stages.clone().into_iter().map(move |stage| {
-        let mut body = original.clone();
-        body["data"]["drug"]["indications"]["rows"][0]["maxClinicalStage"] = stage;
-        body.to_string()
-    });
+    let mut replies = stages
+        .clone()
+        .into_iter()
+        .map(move |stage| -> Result<String, String> {
+            let mut body = original.clone();
+            *body
+                .pointer_mut("/data/drug/indications/rows/0/maxClinicalStage")
+                .ok_or("native stage field")? = stage;
+            Ok(body.to_string())
+        });
     let stub = Stub::for_source(
         "api.platform.opentargets.org",
         "application/json",
         move |_| {
             replies
                 .next()
-                .ok_or_else(|| "unexpected stage request".into())
+                .ok_or_else(|| "unexpected stage request".to_owned())?
         },
     )?;
     let env = setup(&stub)?;
@@ -109,7 +114,11 @@ pub(super) fn stages() -> Check {
             }
         } else if value.is_some()
             || answer.pointer("/problems/0/field") != Some(&json!("maxClinicalStage"))
-            || answer["problems"].as_array().map(Vec::len) != Some(1)
+            || answer
+                .get("problems")
+                .and_then(Value::as_array)
+                .map(Vec::len)
+                != Some(1)
         {
             return Err("malformed native stage was not disclosed independently".into());
         }

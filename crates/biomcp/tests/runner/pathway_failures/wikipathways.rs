@@ -232,16 +232,7 @@ fn rejected_identity() -> Check {
         0,
     )?;
     for id in ["WP999", "bad-id"] {
-        for (search, route) in [(true, "findPathwaysByText"), (false, "getPathwayInfo")] {
-            let mut catalog = fixtures::catalog(search);
-            let mut invalid = catalog["pathwayInfo"][0].clone();
-            invalid["id"] = json!(id);
-            catalog["pathwayInfo"]
-                .as_array_mut()
-                .ok_or("catalog rows")?
-                .push(invalid);
-            fixtures::replace_source(&root, "wikipathways", route, &catalog.to_string(), 200, 0)?;
-        }
+        replace_bad_row(&root, id)?;
         call(
             "pathway_failures/wikipathways/rejected_identity/1",
             &env,
@@ -255,9 +246,17 @@ fn rejected_identity() -> Check {
         );
         let found = super::super::configuration::invoke(&env, args, 0)?;
         if found.pointer("/result/items/0/id/id") != Some(&json!("WP382"))
-            || found["result"]["items"].as_array().map(Vec::len) != Some(1)
+            || found
+                .pointer("/result/items")
+                .and_then(Value::as_array)
+                .map(Vec::len)
+                != Some(1)
             || found.pointer("/problems/0/field") != Some(&json!("identity"))
-            || found["problems"].as_array().map(Vec::len) != Some(1)
+            || found
+                .get("problems")
+                .and_then(Value::as_array)
+                .map(Vec::len)
+                != Some(1)
         {
             return Err("bad catalog row lost its identity problem or valid sibling".into());
         }
@@ -281,6 +280,24 @@ fn rejected_identity() -> Check {
         if absent.get("result").is_some_and(|v| !v.is_null()) {
             return Err("rejected identity entered get catalog".into());
         }
+    }
+    Ok(())
+}
+
+fn replace_bad_row(root: &std::path::Path, id: &str) -> Check {
+    for (search, route) in [(true, "findPathwaysByText"), (false, "getPathwayInfo")] {
+        let mut catalog = fixtures::catalog(search);
+        let mut invalid = catalog
+            .pointer("/pathwayInfo/0")
+            .ok_or("catalog row")?
+            .clone();
+        *invalid.get_mut("id").ok_or("catalog identity")? = json!(id);
+        catalog
+            .get_mut("pathwayInfo")
+            .and_then(Value::as_array_mut)
+            .ok_or("catalog rows")?
+            .push(invalid);
+        fixtures::replace_source(root, "wikipathways", route, &catalog.to_string(), 200, 0)?;
     }
     Ok(())
 }

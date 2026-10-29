@@ -1,4 +1,4 @@
-//! Feature pathway-reactome: discovery drops unusable names and keeps sibling identities.
+//! Feature pathway-reactome: discovery omits unusable names and keeps every admitted identity.
 use super::{Stub, invoke};
 use serde_json::{Value, json};
 
@@ -30,12 +30,14 @@ pub(super) fn check() -> Result<(), String> {
                 vec!["search", "pathway", "synthetic", "--source", "reactome"]
             };
             let value = invoke(&env, args.into_iter().map(str::to_owned).collect(), 0)?;
-            if value.pointer("/result/items/0/id/id") != Some(&json!("R-HSA-5673002"))
+            if value.pointer("/result/items/0/id/id") != Some(&json!("R-HSA-5673001"))
+                || value.pointer("/result/items/0/name").is_some()
+                || value.pointer("/result/items/1/id/id") != Some(&json!("R-HSA-5673002"))
                 || value
                     .pointer("/result/items")
                     .and_then(Value::as_array)
                     .map(Vec::len)
-                    != Some(1)
+                    != Some(2)
                 || !value
                     .get("problems")
                     .and_then(Value::as_array)
