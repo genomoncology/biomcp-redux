@@ -29,6 +29,29 @@
       "run": [
         "search",
         "trial",
+        "--id",
+        "NCT05273554",
+        "--sponsor",
+        "synthetic broader refusal"
+      ],
+      "exit": 4,
+      "expect": {
+        "/status": "failed",
+        "/sources/0/notices/0/kind": "request-guidance",
+        "/sources/0/notices/0/message": "ClinicalTrials.gov exact phrase request {\"countTotal\": \"true\", \"fields\": \"NCTId,BriefTitle,OverallStatus,Phase,Condition,InterventionName,LastUpdatePostDate,HasResults\", \"filter.advanced\": \"AREA[NCTId]NCT05273554 AND AREA[LeadSponsorName]\\\"synthetic broader refusal\\\"\", \"pageSize\": \"10\"} returned zero trials. BioMCP tried the registry's broader name request {\"countTotal\": \"true\", \"fields\": \"NCTId,BriefTitle,OverallStatus,Phase,Condition,InterventionName,LastUpdatePostDate,HasResults\", \"filter.advanced\": \"AREA[NCTId]NCT05273554\", \"pageSize\": \"10\", \"query.spons\": \"synthetic broader refusal\"} once.",
+        "/sources/0": {
+          "omits": [
+            "count",
+            "fetched"
+          ]
+        }
+      },
+      "max_bytes": 4000
+    },
+    {
+      "run": [
+        "search",
+        "trial",
         "--sponsor",
         "MD Anderson",
         "--next-page",
