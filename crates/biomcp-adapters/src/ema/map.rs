@@ -2,6 +2,13 @@ use super::raw;
 use biodata::{Attribution, AuthorizationDate, AuthorizationEvent, DrugIdentityLevel, Text};
 use biomcp_types::{DrugCard, DrugHeader, DrugSection, DrugSource};
 pub(super) fn header(row: &raw::Medicine, problems: &mut crate::mapped::Problems) -> DrugHeader {
+    problems.required(
+        "_bundle_meta.timestamp",
+        row.meta
+            .timestamp
+            .as_ref()
+            .and_then(crate::raw::Field::as_ref),
+    );
     DrugHeader {
         matched_name: None,
         id: row.id.clone(),
