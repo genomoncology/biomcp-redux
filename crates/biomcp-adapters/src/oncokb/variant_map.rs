@@ -98,20 +98,15 @@ fn implications(row: &Annotation, out: &mut Mapped<Vec<Record>>) {
             .unwrap_or_default()
             .iter()
             .filter_map(|d| {
-                crate::mapped::field_text(
-                    &mut out.problems,
-                    Source::Oncokb,
-                    None,
-                    "treatments.drugs.drugName",
-                    Some(crate::raw::Field::Value(d.drug_name.clone())),
+                support::text(&d.drug_name, "treatments.drugs.drugName", &mut out.problems).map(
+                    |label| Concept {
+                        id: d
+                            .ncit_code
+                            .as_ref()
+                            .and_then(|s| format!("NCIT:{s}").parse().ok()),
+                        label,
+                    },
                 )
-                .map(|label| Concept {
-                    id: d
-                        .ncit_code
-                        .as_ref()
-                        .and_then(|s| format!("NCIT:{s}").parse().ok()),
-                    label,
-                })
             })
             .collect();
         out.value.push(Record::Implication {
