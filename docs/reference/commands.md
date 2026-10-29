@@ -92,7 +92,7 @@ Search source records by entity and checked filters.
 Usage: biomcp search [OPTIONS] <COMMAND>
 
 Commands:
-  biomarker      Find NCI biomarker concepts by name or synonym. The public tier returns codes, name, type, trial count, synonyms, parent_ids, ancestor_ids and eligibility_criterion. These concepts differ from diagnostic --biomarker filters and literal trial --variant text. Native criteria do not establish patient eligibility.
+  biomarker      Find NCI biomarker concepts by name or synonym. The public tier returns codes, name, type, trial count, synonyms, parent_ids, ancestor_ids and eligibility_criterion. These concepts differ from diagnostic --biomarker filters and literal trial --variant text. Use search trial --source nci --biomarker-code CODE for trials that list an exact concept. Native criteria do not establish patient eligibility.
   author         Literal author name query and native window; positional text maps to query.
   organization   Find NCI organizations. Names are not unique; trial counts cover every status, including closed trials. No organization ID or get is available.
   cell-line      One literal cell line search, with native order and no total claim.
@@ -139,7 +139,7 @@ Search source records by entity and checked filters.
 ## biomcp search biomarker
 
 ```text
-Find NCI biomarker concepts by name or synonym. The public tier returns codes, name, type, trial count, synonyms, parent_ids, ancestor_ids and eligibility_criterion. These concepts differ from diagnostic --biomarker filters and literal trial --variant text. Native criteria do not establish patient eligibility.
+Find NCI biomarker concepts by name or synonym. The public tier returns codes, name, type, trial count, synonyms, parent_ids, ancestor_ids and eligibility_criterion. These concepts differ from diagnostic --biomarker filters and literal trial --variant text. Use search trial --source nci --biomarker-code CODE for trials that list an exact concept. Native criteria do not establish patient eligibility.
 
 Usage: biomcp search biomarker [OPTIONS] --source <source>
 
@@ -179,7 +179,7 @@ Options:
 
 ```
 
-Find NCI biomarker concepts by name or synonym. The public tier returns codes, name, type, trial count, synonyms, parent_ids, ancestor_ids and eligibility_criterion. These concepts differ from diagnostic --biomarker filters and exact trial --variant text. Source criteria do not establish patient eligibility.
+Find NCI biomarker concepts by name or synonym. The public tier returns codes, name, type, trial count, synonyms, parent_ids, ancestor_ids and eligibility_criterion. These concepts differ from diagnostic --biomarker filters and exact trial --variant text. Use search trial --source nci --biomarker-code CODE for trials that list an exact concept. Source criteria do not establish patient eligibility.
 
 - `--limit`: Maximum headers per local page.
 - `--name`: Source partial name or synonym search.
@@ -1218,17 +1218,23 @@ Options:
           [default: json]
           [possible values: json, md]
 
-      --condition <condition>...
-          Condition alternatives joined with OR; NCI requires NCIt codes.
+      --biomarker-code <biomarker_code>
+          Exact NCIt biomarker concept listed by NCI in trial criteria; NCI source only. This listing does not establish biomarker positivity or patient eligibility.
 
       --disable-sources <disable-sources>
           Exclude source names or source terms groups.
 
-      --condition-id <condition_id>
-          Exact MONDO or DOID CURIE resolved by MyDisease; NCI also accepts explicit NCIT:C codes.
+      --biomarker-use <biomarker_use>
+          Filter by NCI's native inclusion or exclusion criterion. Check each result's biomarker entry and reported problems.
 
       --config <config>
           Read configuration from this file.
+
+      --condition <condition>...
+          Condition alternatives joined with OR; NCI requires NCIt codes.
+
+      --condition-id <condition_id>
+          Exact MONDO or DOID CURIE resolved by MyDisease; NCI also accepts explicit NCIT:C codes.
 
       --count-only
           Source total only; no returned study rows.
@@ -1239,17 +1245,17 @@ Options:
       --distance <distance>
           Source distance with explicit mi or km units.
 
-      --exact-condition
-          Ask ClinicalTrials.gov to restrict matching to the registered condition phrase; its support is partial.
-
-      --facility <facility>
-          Exact facility name; NCI matches organization names case-insensitively. A listed site is not necessarily enrolling. Cannot combine with radius.
-
       --offline
           Read local data without source requests.
 
+      --exact-condition
+          Ask ClinicalTrials.gov to restrict matching to the registered condition phrase; its support is partial.
+
       --fresh
           Request fresh source data instead of cached replies.
+
+      --facility <facility>
+          Exact facility name; NCI matches organization names case-insensitively. A listed site is not necessarily enrolling. Cannot combine with radius.
 
       --gene <gene>
           Resolve one checked gene for registry text discovery only; no eligibility judgment.
@@ -1313,6 +1319,8 @@ Options:
 Search ClinicalTrials.gov or keyed NCI with source counts. NCI --facility matches exact organization names; a listed site is not necessarily enrolling.
 
 - `--age`: Age in years; unstated source bounds count as no limit.
+- `--biomarker-code`: Exact NCIt biomarker concept listed by NCI in trial criteria; NCI source only. This listing does not establish biomarker positivity or patient eligibility.
+- `--biomarker-use`: Filter by NCI's source inclusion or exclusion criterion. Check each result's biomarker entry and reported problems.
 - `--condition`: Condition alternatives joined with OR; NCI requires NCIt codes.
 - `--condition-id`: Exact MONDO or DOID CURIE resolved by MyDisease; NCI also accepts explicit NCIT:C codes.
 - `--count-only`: Source total only; no returned study rows.

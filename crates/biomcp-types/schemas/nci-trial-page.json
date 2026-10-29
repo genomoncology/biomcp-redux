@@ -221,6 +221,14 @@
       "pattern": "\\S",
       "type": "string"
     },
+    "NciBiomarkerUse": {
+      "description": "NCI's native biomarker eligibility criterion, without clinical interpretation.",
+      "enum": [
+        "inclusion",
+        "exclusion"
+      ],
+      "type": "string"
+    },
     "NciDiseaseRef": {
       "description": "Compact source disease reference; the diseases section retains every coding field.",
       "properties": {
@@ -349,6 +357,13 @@
           "$ref": "#/$defs/TrialRecords",
           "description": "Publisher-provided disease concepts in source order."
         },
+        "matched_biomarkers": {
+          "description": "Entries with the exact searched biomarker code, preserving source order and native fields.",
+          "items": {
+            "$ref": "#/$defs/NciTrialBiomarker"
+          },
+          "type": "array"
+        },
         "matched_site": {
           "anyOf": [
             {
@@ -395,6 +410,33 @@
         "brief_title",
         "current_trial_status",
         "diseases"
+      ],
+      "type": "object"
+    },
+    "NciTrialBiomarker": {
+      "description": "One listed NCI biomarker entry; native values do not establish patient eligibility.",
+      "properties": {
+        "eligibility_criterion": {
+          "description": "Native criterion, without rewriting or a positivity inference.",
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "inclusion_indicator": {
+          "description": "Native inclusion indicator, without interpretation.",
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "nci_thesaurus_concept_id": {
+          "$ref": "#/$defs/NcitId",
+          "description": "Exact source NCIt concept identity."
+        }
+      },
+      "required": [
+        "nci_thesaurus_concept_id"
       ],
       "type": "object"
     },
@@ -1305,6 +1347,14 @@
           "format": "uint32",
           "minimum": 0,
           "type": "integer"
+        },
+        "biomarker_code": {
+          "$ref": "#/$defs/NcitId",
+          "description": "Exact NCIt biomarker concept listed by NCI in trial criteria; NCI source only. This listing does not establish biomarker positivity or patient eligibility."
+        },
+        "biomarker_use": {
+          "$ref": "#/$defs/NciBiomarkerUse",
+          "description": "Filter by NCI's native inclusion or exclusion criterion. Check each result's biomarker entry and reported problems."
         },
         "condition": {
           "description": "Condition alternatives joined with OR; NCI requires NCIt codes.",

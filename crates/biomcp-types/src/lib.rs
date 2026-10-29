@@ -38,9 +38,9 @@ pub use query::{
     MyVariantQuery, VariantRegion, VariantSearch, VariantSearchField, VariantSearchSource,
     protein_query_forms,
 };
+pub use query::{NciBiomarkerUse, TrialFilter, TrialSearch, TrialSource};
 pub use query::{NormalizationSource, VariantGet, VariantNormalize, VariantResolver};
 pub use query::{RecurrenceSource, VariantRecurrenceQuery};
-pub use query::{NciBiomarkerUse, TrialFilter, TrialSearch, TrialSource};
 pub use query::{TrialGet, TrialSection};
 pub use query::{VariantInput, VariantNamespace};
 pub use response::TrialParameter;
@@ -99,7 +99,8 @@ pub use response::{
     NciEligibilityStructured, NciIntervention, NciOutcome, NciTextPage, NciTrialSections,
 };
 pub use response::{
-    NciDisease, NciDiseaseRef, NciMatchedSite, NciTrial, NciTrialCards, NciTrialItem, NciTrialPage, NciTrialBiomarker,
+    NciDisease, NciDiseaseRef, NciMatchedSite, NciTrial, NciTrialBiomarker, NciTrialCards,
+    NciTrialItem, NciTrialPage,
 };
 pub use response::{
     NormalizationField, NormalizationMessage, NormalizationResult, VariantNormalization,
