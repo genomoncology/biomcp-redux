@@ -107,7 +107,7 @@ fn card(
                 biomcp_adapters::registry::records::RecordKind::AdverseEvent,
                 query.id().as_str(),
             )
-            .ok_or_else(|| biomcp_types::QueryInvalid::default())?,
+            .ok_or_else(biomcp_types::QueryInvalid::default)?,
         )?,
         available_sections: vec![AdverseEventSection::Devices, AdverseEventSection::Narrative]
             .into(),
