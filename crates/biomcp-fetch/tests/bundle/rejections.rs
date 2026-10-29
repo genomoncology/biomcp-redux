@@ -99,7 +99,13 @@ fn opening_older_bundle_metadata_keeps_rows_without_rejections() {
     drop(fetch);
     let database = rusqlite::Connection::open(&path).unwrap();
     database
-        .execute_batch("DROP TABLE bundle_rejection")
+        .execute_batch("DROP TABLE bundle_rejection;
+            UPDATE meta SET version=4 WHERE owner='biomcp-fetch';
+            INSERT INTO reply(key,source,url,status,content_type,body,fetched_at,fresh_until)
+                VALUES(x'01','test','https://example.test/retained',200,'application/octet-stream',x'00ff',12,34);
+            CREATE TABLE foreign_data(value TEXT);
+            INSERT INTO foreign_data VALUES('retained foreign bytes');
+            INSERT INTO meta VALUES('foreign-owner',99);")
         .unwrap();
     drop(database);
     let reopened = cached(&path);
@@ -109,4 +115,48 @@ fn opening_older_bundle_metadata_keeps_rows_without_rejections() {
         .unwrap();
     assert_eq!(rows.len(), 1);
     assert!(metadata.rejections.is_empty());
+    let database = rusqlite::Connection::open(&path).unwrap();
+    assert_eq!(
+        database
+            .query_row(
+                "SELECT body,fetched_at,fresh_until FROM reply WHERE key=x'01'",
+                [],
+                |row| {
+                    Ok((
+                        row.get::<_, Vec<u8>>(0)?,
+                        row.get::<_, i64>(1)?,
+                        row.get::<_, i64>(2)?,
+                    ))
+                }
+            )
+            .unwrap(),
+        (vec![0, 255], 12, 34)
+    );
+    assert_eq!(
+        database
+            .query_row("SELECT value FROM foreign_data", [], |row| row
+                .get::<_, String>(0))
+            .unwrap(),
+        "retained foreign bytes"
+    );
+    assert_eq!(
+        database
+            .query_row(
+                "SELECT version FROM meta WHERE owner='foreign-owner'",
+                [],
+                |row| row.get::<_, u32>(0)
+            )
+            .unwrap(),
+        99
+    );
+    assert_eq!(
+        database
+            .query_row(
+                "SELECT version FROM meta WHERE owner='biomcp-fetch'",
+                [],
+                |row| row.get::<_, u32>(0)
+            )
+            .unwrap(),
+        biomcp_fetch::VERSION
+    );
 }

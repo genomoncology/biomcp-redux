@@ -98,7 +98,7 @@ fn version_error(error: rusqlite::Error) -> CacheError {
 const TRANSPORT_OWNER: SchemaOwner = SchemaOwner {
     name: OWNER,
     version: VERSION,
-    migratable_versions: &[1, 2, 3],
+    migratable_versions: &[1, 2, 3, 4],
     tables: &[
         "reply",
         "reply_fresh",

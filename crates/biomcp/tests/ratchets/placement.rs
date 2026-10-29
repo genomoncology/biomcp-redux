@@ -212,6 +212,10 @@ const ALLOWED: &[(&str, &str)] = &[
         "Exercise complete native TSV replacement sets and decoded bounds through the public transport API.",
     ),
     (
+        "crates/biomcp-fetch/tests/bundle/rejections.rs",
+        "Exercise rejected source rows, persisted revalidation and old-store migration through the public transport API.",
+    ),
+    (
         "crates/biomcp-fetch/tests/bundle/rows.rs",
         "Exercise transport ownership, local server behavior and cache/record failures through its public API.",
     ),
