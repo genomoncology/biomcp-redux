@@ -10,7 +10,7 @@ PGx uses `annotation_kind`, not `annotationkind`. Semantic Scholar has one spell
 
 - Why: the BioData review of BioMCP 1.0's data model (2026-10-28), ask 12. Ian ruled that incomplete or incorrect 1.0 data model types are fixed before the tag, because after it the release gate freezes every pattern, type set and schema ID.
 - Starts from: `crates/biomcp-types/src/pgx/response.rs:118`, `ArticleKey`, `Source`, `AuthorId` and `Reason`.
-- Rules: the case style follows the existing `Source` kebab-case unless the schema ID convention says otherwise.
+- Rules: the case style follows the existing `Source` kebab-case unless the schema ID convention says otherwise. Namespaced error codes such as `usage.mcp_unavailable`, `usage.pool_mismatch`, `usage.unsupported_filter` and `wire_enum.unknown` keep their dotted snake_case convention and do not change here; 0426 owns their contract, and the lint exempts the error-code type rather than a list of names (m13890).
 - Proof: a lint over serde tag names and BioMCP-owned enum values.
 - Changes: the named types, schemas, cases and the baseline.
 - Defers: nothing.
