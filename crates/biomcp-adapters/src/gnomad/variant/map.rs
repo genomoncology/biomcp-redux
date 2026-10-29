@@ -102,7 +102,8 @@ fn cohorts(
                     .field(&format!("{name}.derivedFrom"), value.derived_from)
                     .map(|value| Derivation {
                         version: problems
-                            .field(&format!("{name}.derivedFrom.version"), value.version),
+                            .field(&format!("{name}.derivedFrom.version"), value.version)
+                            .map(|value| value.as_str().to_owned()),
                     });
                 Some(CohortFrequency {
                     derived_from,

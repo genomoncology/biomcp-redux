@@ -13,7 +13,7 @@ pub(super) fn frequency(
     subject: Option<&VariantRef>,
     problems: &mut Vec<Problem>,
 ) -> Option<PopulationFrequency> {
-    if subset.ac.is_none() || subset.an.is_none() {
+    if subset.ac.is_none() || subset.an.is_none() || rejected_release(name, problems) {
         return None;
     }
     if va.is_some_and(|rows| {
@@ -106,4 +106,12 @@ fn checked<'a>(
         .ok_or_else(|| Box::<str>::from("dataset_version"))?;
     let subject = subject.ok_or_else(|| Box::<str>::from("subject"))?;
     Ok((version, subject))
+}
+
+// A rejected release value already names the cause; do not add dependent absence.
+fn rejected_release(name: &str, problems: &[Problem]) -> bool {
+    let prefix = format!("va.{name}.derivedFrom");
+    problems.iter().any(|problem| {
+        problem.field.as_ref() == prefix || problem.field.as_ref() == format!("{prefix}.version")
+    })
 }

@@ -39,6 +39,10 @@ pub(super) fn trials() -> Vec<Trial> {
             gwas_zero().map_err(Into::into)
         }),
     ];
+    trials.push(transcript_trial(
+        "variant/population-release-value-is-independent",
+        || release_value().map_err(Into::into),
+    ));
     trials.extend(ids::trials());
     trials.extend(get::trials());
     trials
@@ -511,4 +515,50 @@ fn unknown_group_body(request: &str) -> Result<String, String> {
             .ok_or("missing second synthetic group")? = json!("nfe_swe_XX");
     }
     Ok(body.to_string())
+}
+
+fn release_value() -> Result<(), String> {
+    for version in [json!(42), json!(" ")] {
+        let stub = Stub::for_sources(
+            &["reg.genome.network", "gnomad.broadinstitute.org"],
+            |_| "application/json",
+            move |request| {
+                let mut body: Value =
+                    serde_json::from_str(&population_body(request)?).map_err(|e| e.to_string())?;
+                if request.starts_with("POST /api ") {
+                    *body
+                        .pointer_mut("/data/variant")
+                        .ok_or("missing native variant")?
+                        .as_object_mut()
+                        .ok_or("variant is not object")?
+                        .entry("va")
+                        .or_insert(Value::Null) = json!({"exome":[{
+                        "cohort":{"id":"ALL"}, "focusAlleleCount":2,
+                        "locusAlleleCount":1460618, "derivedFrom":{"version":version}
+                    }]});
+                }
+                Ok(body.to_string())
+            },
+        )?;
+        let env = environment(&stub)?;
+        let value = execute(&env, &["variant", "population", "CA123643", "--detail"])?;
+        let problems = value
+            .get("problems")
+            .and_then(Value::as_array)
+            .ok_or("missing problems")?;
+        if problems.len() != 1
+            || problems.first().and_then(|p| p.get("field"))
+                != Some(&json!("va.exome.derivedFrom.version"))
+            || value.pointer("/result/population/data/exome/ac") != Some(&json!(2))
+            || value
+                .pointer("/result/population/data/exome/frequency")
+                .is_some()
+        {
+            return Err(format!(
+                "release value lost native counts or repeated its problem: {value}"
+            ));
+        }
+        stub.finish()?;
+    }
+    Ok(())
 }

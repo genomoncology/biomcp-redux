@@ -57,7 +57,7 @@ pub(super) struct CohortFrequency {
 #[derive(Debug, Deserialize)]
 pub(super) struct Derivation {
     /// Nullable source release, never backfilled.
-    pub(super) version: Option<Field<String>>,
+    pub(super) version: Option<Field<Text>>,
 }
 /// Source cohort identity, including the documented ALL total.
 #[derive(Debug, Deserialize)]
