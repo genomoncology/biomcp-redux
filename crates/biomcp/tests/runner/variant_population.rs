@@ -13,6 +13,9 @@ pub(super) fn trials() -> Vec<Trial> {
         transcript_trial("variant/population-source-given-grch38-snv", || {
             population().map_err(Into::into)
         }),
+        transcript_trial("variant/population-independent-native-values", || {
+            population_values().map_err(Into::into)
+        }),
         transcript_trial(
             "variant/population-mismatched-id-never-enters-cache",
             || population_mismatch().map_err(Into::into),
@@ -184,6 +187,72 @@ fn execute(env: &Environment, args: &[&str]) -> Result<Value, String> {
         .map_err(|e| e.to_string())?;
     serde_json::from_slice(&out.stdout).map_err(|e| e.to_string())
 }
+fn population_values() -> Result<(), String> {
+    for mode in 0..6 {
+        let stub = Stub::for_sources(
+            &["reg.genome.network", "gnomad.broadinstitute.org"],
+            |_| "application/json",
+            move |request| {
+                let body = population_body(request)?;
+                if !request.starts_with("POST /api ") {
+                    return Ok(body);
+                }
+                let mut body: Value = serde_json::from_str(&body).map_err(|e| e.to_string())?;
+                let row = &mut body["data"]["variant"]["exome"];
+                match mode {
+                    0 => row["ac"] = json!("bad"),
+                    1 => row["an"] = json!("bad"),
+                    2 => row["filters"] = json!(42),
+                    3 => row["filters"] = json!(["source filter", 42]),
+                    4 => row["ac"] = json!(2_000_000),
+                    _ => row["filters"] = Value::Null,
+                }
+                Ok(body.to_string())
+            },
+        )?;
+        let env = environment(&stub)?;
+        let value = execute(&env, &["variant", "population", "CA123643", "--detail"])?;
+        let row = value
+            .pointer("/result/population/data/exome")
+            .ok_or_else(|| format!("native row lost: {value}"))?;
+        let field = match mode {
+            0 => "ac",
+            1 => "an",
+            4 => "counts",
+            _ => "filters",
+        };
+        let count = value
+            .get("problems")
+            .and_then(Value::as_array)
+            .into_iter()
+            .flatten()
+            .filter(|problem| problem["field"] == format!("exome.{field}"))
+            .count();
+        if count != usize::from(mode != 5) {
+            return Err(format!(
+                "native field problem changed for mode {mode}: {value}"
+            ));
+        }
+        match mode {
+            0..=2 | 5 if row.get(field).is_some() => {
+                return Err(format!("bad or absent field retained: {value}"));
+            }
+            3 if row["filters"] != json!(["source filter"]) => {
+                return Err(format!("valid filter lost: {value}"));
+            }
+            4 if row["ac"] != json!(2_000_000)
+                || row["an"] != json!(1460618)
+                || row.get("frequency").is_some() =>
+            {
+                return Err(format!("native count pair repaired or projected: {value}"));
+            }
+            _ => (),
+        }
+        stub.finish()?;
+    }
+    Ok(())
+}
+
 fn population_mismatch() -> Result<(), String> {
     let stub = Stub::for_sources(
         &["reg.genome.network", "gnomad.broadinstitute.org"],
