@@ -57,14 +57,7 @@ enum Fields {
     /// Native ClinVar haplotype and its complete source member identities.
     Haplotype(ClinvarHaplotype),
     /// Native source variant with optional source-stated forms.
-    Source {
-        record: Curie,
-        feature: Text,
-        #[serde(default, skip_serializing_if = "Option::is_none")]
-        feature_record: Option<Curie>,
-        #[serde(default, skip_serializing_if = "<[ _ ]>::is_empty")]
-        forms: Box<[VariantRef]>,
-    },
+    Source(SourceRef),
     /// Compound source profile, without inferred allele identity or phase.
     Profile {
         /// Native profile ID.
@@ -73,6 +66,7 @@ enum Fields {
         label: Text,
         /// Source member references in their native order.
         #[serde(default, skip_serializing_if = "<[ _ ]>::is_empty")]
+        #[cfg_attr(feature = "schema", schemars(with = "Box<[MemberRef]>"))]
         members: Box<[VariantRef]>,
         /// Exact source expression and checked member relations.
         #[serde(default, skip_serializing_if = "Option::is_none")]
@@ -102,7 +96,7 @@ impl TryFrom<Fields> for VariantRef {
             {
                 Err(crate::Error::VariantRefInvalid)
             }
-            Fields::Source { forms, .. }
+            Fields::Source(SourceRef { forms, .. })
                 if forms
                     .iter()
                     .any(|form| !matches!(form.0, Fields::Allele(_) | Fields::Protein(_))) =>
@@ -188,21 +182,21 @@ impl VariantRef {
     /// Borrow a native source variant identifier.
     pub fn source_record(&self) -> Option<&Curie> {
         match &self.0 {
-            Fields::Source { record, .. } => Some(record),
+            Fields::Source(SourceRef { record, .. }) => Some(record),
             _ => None,
         }
     }
     /// Borrow exact source feature text without interpreting its biology.
     pub fn feature(&self) -> Option<&Text> {
         match &self.0 {
-            Fields::Source { feature, .. } => Some(feature),
+            Fields::Source(SourceRef { feature, .. }) => Some(feature),
             _ => None,
         }
     }
     /// Read optional source-stated allele or protein forms.
     pub fn forms(&self) -> impl Iterator<Item = &Self> {
         let forms = match &self.0 {
-            Fields::Source { forms, .. } => forms.as_ref(),
+            Fields::Source(SourceRef { forms, .. }) => forms.as_ref(),
             _ => &[],
         };
         forms.iter()
@@ -225,18 +219,18 @@ impl VariantRef {
         feature_record: Option<Curie>,
         forms: Box<[Self]>,
     ) -> Result<Self, crate::Error> {
-        Fields::Source {
+        Fields::Source(SourceRef {
             record,
             feature,
             feature_record,
             forms,
-        }
+        })
         .try_into()
     }
     /// Borrow the source-native feature identifier without gene inference.
     pub fn feature_record(&self) -> Option<&Curie> {
         match &self.0 {
-            Fields::Source { feature_record, .. } => feature_record.as_ref(),
+            Fields::Source(SourceRef { feature_record, .. }) => feature_record.as_ref(),
             _ => None,
         }
     }
@@ -335,4 +329,39 @@ struct ProteinRef {
     /// Source protein label.
     #[serde(default, skip_serializing_if = "Option::is_none")]
     label: Option<Text>,
+}
+
+#[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
+#[cfg_attr(feature = "schema", derive(schemars::JsonSchema))]
+#[cfg_attr(feature = "schema", schemars(inline))]
+struct SourceRef {
+    record: Curie,
+    feature: Text,
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    feature_record: Option<Curie>,
+    #[serde(default, skip_serializing_if = "<[_]>::is_empty")]
+    #[cfg_attr(feature = "schema", schemars(with = "Box<[LeafRef]>"))]
+    forms: Box<[VariantRef]>,
+}
+
+#[cfg(feature = "schema")]
+#[derive(schemars::JsonSchema)]
+#[serde(tag = "level", rename_all = "snake_case")]
+#[expect(dead_code, reason = "Schema view of admitted source-stated forms")]
+enum LeafRef {
+    Allele(AlleleRef),
+    Protein(ProteinRef),
+}
+
+#[cfg(feature = "schema")]
+#[derive(schemars::JsonSchema)]
+#[serde(tag = "level", rename_all = "snake_case")]
+#[expect(
+    dead_code,
+    reason = "Schema view of admitted profile member references"
+)]
+enum MemberRef {
+    Allele(AlleleRef),
+    Protein(ProteinRef),
+    Source(SourceRef),
 }

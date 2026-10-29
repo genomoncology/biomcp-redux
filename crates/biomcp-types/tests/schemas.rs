@@ -502,3 +502,38 @@ fn population_frequencies_share_one_bounded_fraction() {
     assert_eq!(schema["$defs"]["Fraction"]["minimum"], 0.0);
     assert_eq!(schema["$defs"]["Fraction"]["maximum"], 1.0);
 }
+
+#[test]
+fn source_forms_and_profile_members_match_admitted_subject_levels()
+-> Result<(), Box<dyn std::error::Error>> {
+    let validator = jsonschema::draft202012::new(&generate::<VariantRef>())?;
+    let allele = serde_json::json!({"level":"allele", "id":"VCV000013961.3"});
+    let protein = serde_json::json!({"level":"protein", "gene":{"label":"EGFR"}, "label":"source label"});
+    let source = |forms| {
+        serde_json::json!({
+            "level":"source", "record":"civic:1", "feature":"native feature", "forms":forms
+        })
+    };
+    let profile = |members| {
+        serde_json::json!({
+            "level":"profile", "record":"1", "label":"native profile", "members":members
+        })
+    };
+    for (value, valid) in [
+        (source(vec![allele.clone()]), true),
+        (source(vec![protein.clone()]), true),
+        (profile(vec![allele.clone(), protein, source(vec![])]), true),
+        (source(vec![source(vec![])]), false),
+        (source(vec![profile(vec![])]), false),
+        (profile(vec![profile(vec![])]), false),
+        (profile(vec![source(vec![source(vec![allele])])]), false),
+    ] {
+        assert_eq!(validator.is_valid(&value), valid, "schema: {value}");
+        assert_eq!(
+            serde_json::from_value::<VariantRef>(value.clone()).is_ok(),
+            valid,
+            "admission: {value}"
+        );
+    }
+    Ok(())
+}
