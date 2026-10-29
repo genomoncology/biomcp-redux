@@ -69,7 +69,7 @@ fn civic() -> Check {
 }
 
 fn constraint() -> Check {
-    for mode in 0..16 {
+    for mode in (0..10).chain(11..16) {
         graphql(
             "gnomad",
             |body| {
@@ -94,7 +94,6 @@ fn constraint() -> Check {
                             .unwrap()
                             .remove("gnomad_constraint");
                     }
-                    10 => value["data"]["g0"]["gnomad_constraint"]["pli"] = json!("NaN"),
                     11 => {
                         value["data"]["g0"]["mane_select_transcript"]["ensembl_id"] = json!("bad")
                     }

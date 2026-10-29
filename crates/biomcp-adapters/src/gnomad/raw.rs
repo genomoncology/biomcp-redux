@@ -109,11 +109,11 @@ impl Gene {
 }
 #[derive(Debug, Deserialize)]
 pub(super) struct Constraint {
-    pub pli: FiniteNumber,
-    pub oe_lof: FiniteNumber,
-    pub oe_lof_upper: FiniteNumber,
-    pub mis_z: FiniteNumber,
-    pub syn_z: FiniteNumber,
+    pub pli: Option<Field<FiniteNumber>>,
+    pub oe_lof: Option<Field<FiniteNumber>>,
+    pub oe_lof_upper: Option<Field<FiniteNumber>>,
+    pub mis_z: Option<Field<FiniteNumber>>,
+    pub syn_z: Option<Field<FiniteNumber>>,
     pub flags: Option<Field<Vec<Field<String>>>>,
 }
 
