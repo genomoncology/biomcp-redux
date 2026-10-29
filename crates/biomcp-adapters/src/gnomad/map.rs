@@ -28,7 +28,7 @@ pub(super) fn constraints(
         .collect()
 }
 fn constraint(
-    gene: Option<raw::Gene>,
+    gene: Option<crate::raw::Field<raw::Gene>>,
     id: &EnsemblGeneId,
 ) -> Result<Mapped<Option<Constraint>>, BadReply> {
     let mut problems = Problems {
@@ -38,12 +38,20 @@ fn constraint(
     };
     let version = crate::mapped::text("v4")?;
     let value = gene.and_then(|gene| {
+        let gene = problems.required_field("gene_id", Some(gene))?;
         if gene.gene_id != id.base() {
             problems.required::<()>("gene_id", None);
             return None;
         }
-        let transcript = gene.transcript()?;
-        let raw = gene.gnomad_constraint?;
+        let transcript = match gene.transcript() {
+            Ok(value) => value,
+            Err(field) if gene.gnomad_constraint.is_some() => {
+                problems.required::<()>(field, None);
+                return None;
+            }
+            Err(_) => return None,
+        };
+        let raw = problems.field("gnomad_constraint", gene.gnomad_constraint)?;
         let flags = problems
             .fields("flags", raw.flags)
             .iter()

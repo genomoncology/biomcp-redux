@@ -115,7 +115,17 @@ fn constraint() -> Check {
                     }
                 }
             },
-            json!({"/result/items/0/sections/constraint/state": "unavailable", "/sources/2/reason": "bad-reply"}),
+            match mode {
+                3 => {
+                    json!({"/result/items/0/sections/constraint/state": "empty", "/problems/*/field": ["gene_id"]})
+                }
+                11..=14 => {
+                    json!({"/result/items/0/sections/constraint/state": "empty", "/problems/*/field": ["mane_select_transcript.ensembl_id"]})
+                }
+                _ => {
+                    json!({"/result/items/0/sections/constraint/state": "unavailable", "/sources/2/reason": "bad-reply"})
+                }
+            },
         )?;
     }
     mappings()
