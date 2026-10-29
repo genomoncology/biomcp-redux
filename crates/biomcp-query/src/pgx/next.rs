@@ -18,6 +18,9 @@ fn section(q: &PgxGet, s: PgxSection) -> Option<Request> {
     q.with_section(s, PgxSource::Cpic).ok().map(Request::GetPgx)
 }
 pub(super) fn steps(request: &Request, out: &Outcome) -> Vec<(StepKind, Action)> {
+    steps_with(request, out, None)
+}
+pub(super) fn steps_with(request: &Request, out: &Outcome, native_consumed: Option<u32>) -> Vec<(StepKind, Action)> {
     let mut next = vec![];
     let association = matches!(
         &out.body,
@@ -37,8 +40,9 @@ pub(super) fn steps(request: &Request, out: &Outcome) -> Vec<(StepKind, Action)>
     }
     match (request, &out.body) {
         (Request::SearchPgx(q), QueryBody::PgxPage(body)) => {
-            let offset = body.page.offset.saturating_add(body.page.returned);
-            if body.page.returned > 0 && u64::from(offset) < body.page.total {
+            let consumed = native_consumed.unwrap_or(body.page.returned);
+            let offset = body.page.offset.saturating_add(consumed);
+            if consumed > 0 && u64::from(offset) < body.page.total {
                 next.push((StepKind::Page, run(Request::SearchPgx(q.at_offset(offset)))));
             }
             if let Some(card) = gene_query(q.gene()) {
@@ -57,7 +61,7 @@ pub(super) fn steps(request: &Request, out: &Outcome) -> Vec<(StepKind, Action)>
             QueryBody::PgxRecommendations(
                 PgxRecommendations::View { page, .. } | PgxRecommendations::Table { page, .. },
             ),
-        ) => page_step(q, page, &mut next),
+        ) => page_step(q, page, &mut next, native_consumed),
         (Request::GetPgx(q), QueryBody::PgxGuidelines(body)) => {
             let mut seen = std::collections::BTreeSet::new();
             for gene in body.items.iter().flat_map(|r| r.genes.iter()) {
@@ -68,7 +72,7 @@ pub(super) fn steps(request: &Request, out: &Outcome) -> Vec<(StepKind, Action)>
                     next.push((StepKind::Pivot, run(Request::GetGene(query))));
                 }
             }
-            page_step(q, &body.page, &mut next);
+            page_step(q, &body.page, &mut next, native_consumed);
         }
         (Request::GetPgx(q), QueryBody::PgxDiplotype(_)) => {
             if let Some(card) = gene_query(q.gene())
@@ -93,9 +97,10 @@ pub(super) fn steps(request: &Request, out: &Outcome) -> Vec<(StepKind, Action)>
     }
     next
 }
-fn page_step(q: &PgxGet, p: &PgxPageInfo, next: &mut Vec<(StepKind, Action)>) {
-    let offset = p.offset.saturating_add(p.returned);
-    if p.returned > 0
+fn page_step(q: &PgxGet, p: &PgxPageInfo, next: &mut Vec<(StepKind, Action)>, consumed: Option<u32>) {
+    let consumed = consumed.unwrap_or(p.returned);
+    let offset = p.offset.saturating_add(consumed);
+    if consumed > 0
         && u64::from(offset) < p.total
         && let Ok(query) = q.at_section_offset(offset)
     {
@@ -120,10 +125,10 @@ fn annotation_steps(q: &PgxGet, body: &PgxAnnotations, next: &mut Vec<(StepKind,
                     ));
                 }
             }
-            page_step(q, page, next);
+            page_step(q, page, next, None);
         }
         PgxAnnotations::Guideline { page, .. } | PgxAnnotations::Label { page, .. } => {
-            page_step(q, page, next)
+            page_step(q, page, next, None)
         }
     }
 }
