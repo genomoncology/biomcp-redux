@@ -448,3 +448,33 @@ fn expression_depth_and_size_limits_match_on_construction_and_roundtrip() -> Che
     }
     Ok(())
 }
+
+#[test]
+fn profile_refuses_nested_native_haplotypes() -> Check {
+    let compound = VariantRef::clinvar_haplotype(biodata::ClinvarHaplotype::new(
+        "clinvar:441268".parse()?,
+        "VCV000441268".parse()?,
+        Text::new("5")?,
+        Text::new("1")?,
+        vec![biodata::ClinvarHaplotypeMember {
+            id: "clinvar:17864".parse()?,
+            allele_id: "32903".parse()?,
+        }]
+        .into(),
+    )?)?;
+    assert_eq!(
+        VariantRef::profile(
+            Text::new("profile")?,
+            Text::new("native profile")?,
+            vec![compound.clone()].into()
+        ),
+        Err(Error::VariantRefInvalid)
+    );
+    assert!(
+        serde_json::from_value::<VariantRef>(json!({
+            "level":"profile", "record":"profile", "label":"native profile", "members":[compound]
+        }))
+        .is_err()
+    );
+    Ok(())
+}

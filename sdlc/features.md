@@ -186,4 +186,6 @@ organization-nci: Find source-native NCI organizations with bounded snapshots an
 
 biomarker-nci: Find NCI biomarker concepts by name or synonym and retrieve native concept rows by NCIt code. Cases: `tests/cases/biomarker/*.yaml`, `crates/biomcp/tests/runner/nci/biomarker.rs`.
 drug-recall: Search published FDA drug recall records by name, firm, classification, status, reason and initiation dates; page and fetch exact native recall numbers with source field problems. Cases: `crates/biomcp/tests/runner/drug_recall.rs`.
-variant-profile-reference: Preserve native variant members and exact source Boolean expressions without deriving allele identity or phase. Contracts: `biomcp-types/profile_reference`.
+variant-profile-reference: Preserve native variant members and exact source Boolean expressions without deriving allele identity or phase. Contracts: `biomcp-types/rust_api`.
+
+variant-clinvar-haplotype: Preserve native ClinVar haplotype kind, version, chromosome grouping and ordered member identities. Cases: `crates/biomcp/tests/runner/variant/haplotype.rs`.

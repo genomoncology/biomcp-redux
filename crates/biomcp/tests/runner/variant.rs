@@ -6,6 +6,7 @@ use serde_json::{Value, json};
 use std::fs;
 mod build_echo;
 mod components;
+mod haplotype;
 mod identifiers;
 mod labels;
 mod roundtrip;
@@ -52,6 +53,7 @@ pub(super) fn trials() -> Vec<Trial> {
         }),
     ];
     trials.extend(roundtrip::trials());
+    trials.extend(haplotype::trials());
     trials.extend(identifiers::trials());
     trials.extend(super::variant_assertion_wire::trials());
     trials.extend(super::variant_assertions::trials());

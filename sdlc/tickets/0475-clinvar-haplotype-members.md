@@ -1,6 +1,7 @@
 # 0475 — Keep ClinVar haplotypes as one record with their member alleles
 
-Status: OPEN.
+Status: COMPLETE.
+Landed: 71168479719ef3cc7a7d37f5083412e458fe3d20
 
 Milestone: 5
 
