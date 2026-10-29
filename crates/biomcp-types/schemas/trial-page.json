@@ -1,12 +1,12 @@
 {
   "$defs": {
-    "Attribution": {
+    "Reply_Attribution": {
       "description": "Provenance for one source record.",
       "properties": {
         "evaluated": {
           "anyOf": [
             {
-              "$ref": "#/$defs/PartialDate"
+              "$ref": "#/$defs/Reply_PartialDate"
             },
             {
               "type": "null"
@@ -17,7 +17,7 @@
         "record": {
           "anyOf": [
             {
-              "$ref": "#/$defs/Text"
+              "$ref": "#/$defs/Reply_Text"
             },
             {
               "type": "null"
@@ -28,7 +28,7 @@
         "release": {
           "anyOf": [
             {
-              "$ref": "#/$defs/Text"
+              "$ref": "#/$defs/Reply_Text"
             },
             {
               "type": "null"
@@ -37,13 +37,13 @@
           "description": "Dataset release."
         },
         "source": {
-          "$ref": "#/$defs/Text",
+          "$ref": "#/$defs/Reply_Text",
           "description": "Source responsible for the claim."
         },
         "submitter": {
           "anyOf": [
             {
-              "$ref": "#/$defs/Text"
+              "$ref": "#/$defs/Reply_Text"
             },
             {
               "type": "null"
@@ -54,7 +54,7 @@
         "url": {
           "anyOf": [
             {
-              "$ref": "#/$defs/Text"
+              "$ref": "#/$defs/Reply_Text"
             },
             {
               "type": "null"
@@ -66,7 +66,7 @@
         "version": {
           "anyOf": [
             {
-              "$ref": "#/$defs/Text"
+              "$ref": "#/$defs/Reply_Text"
             },
             {
               "type": "null"
@@ -80,7 +80,7 @@
       ],
       "type": "object"
     },
-    "Build": {
+    "Reply_Build": {
       "description": "The assembly stated by the source; no default is inferred.",
       "type": "string",
       "x-enum-descriptions": [
@@ -92,7 +92,7 @@
         "GRCh38"
       ]
     },
-    "CacheProblem": {
+    "Reply_CacheProblem": {
       "description": "A local cache failure that leaves the provider outcome intact.",
       "enum": [
         "busy",
@@ -101,13 +101,13 @@
       ],
       "type": "string"
     },
-    "Capped": {
+    "Reply_Capped_Text": {
       "description": "A bounded list with the total before its cap was applied.",
       "properties": {
         "items": {
           "description": "References in stable source order.",
           "items": {
-            "$ref": "#/$defs/Text"
+            "$ref": "#/$defs/Reply_Text"
           },
           "type": "array"
         },
@@ -123,20 +123,20 @@
       ],
       "type": "object"
     },
-    "Chromosome": {
+    "Reply_Chromosome": {
       "description": "A primary chromosome in the caller's reference build.",
       "pattern": "^([1-9]|1[0-9]|2[0-2]|X|Y|MT)$",
       "type": "string"
     },
-    "ComponentLabel": {
+    "Reply_ComponentLabel": {
       "description": "Terms attached to a named carried component on a consumer response.",
       "properties": {
         "component": {
-          "$ref": "#/$defs/Text",
+          "$ref": "#/$defs/Reply_Text",
           "description": "Native component name."
         },
         "terms": {
-          "$ref": "#/$defs/ComponentTerms",
+          "$ref": "#/$defs/Reply_ComponentTerms",
           "description": "Canonical publisher terms."
         }
       },
@@ -146,20 +146,20 @@
       ],
       "type": "object"
     },
-    "ComponentTerms": {
+    "Reply_ComponentTerms": {
       "description": "Terms attached to one independently licensed source component.",
       "properties": {
         "name": {
-          "$ref": "#/$defs/Text",
+          "$ref": "#/$defs/Reply_Text",
           "description": "Publisher terms name."
         },
         "url": {
-          "$ref": "#/$defs/Text",
+          "$ref": "#/$defs/Reply_Text",
           "description": "Publisher terms page.",
           "format": "uri"
         },
         "usage": {
-          "$ref": "#/$defs/Use",
+          "$ref": "#/$defs/Reply_Use",
           "description": "Publisher use category."
         }
       },
@@ -170,18 +170,18 @@
       ],
       "type": "object"
     },
-    "Curie": {
+    "Reply_Curie": {
       "description": "Checked prefix:local ontology identifier.",
       "pattern": "^[A-Za-z0-9_.-]+:[^\\s\\x00-\\x1f\\x7f-\\x9f]+$",
       "type": "string"
     },
-    "DiseaseConcept": {
+    "Reply_DiseaseConcept": {
       "description": "A disease identity whose optional display label never determines record admission.",
       "properties": {
         "id": {
           "anyOf": [
             {
-              "$ref": "#/$defs/Curie"
+              "$ref": "#/$defs/Reply_Curie"
             },
             {
               "type": "null"
@@ -190,23 +190,23 @@
           "description": "Source-stated exact identifier."
         },
         "label": {
-          "$ref": "#/$defs/Text",
+          "$ref": "#/$defs/Reply_Text",
           "description": "Native display label when supplied and valid."
         }
       },
       "type": "object"
     },
-    "DiseaseEndpoint": {
+    "Reply_DiseaseEndpoint": {
       "description": "One native endpoint with an identifier and an optional source label.",
       "properties": {
         "id": {
-          "$ref": "#/$defs/Curie",
+          "$ref": "#/$defs/Reply_Curie",
           "description": "Exact source identifier."
         },
         "label": {
           "anyOf": [
             {
-              "$ref": "#/$defs/Text"
+              "$ref": "#/$defs/Reply_Text"
             },
             {
               "type": "null"
@@ -220,11 +220,11 @@
       ],
       "type": "object"
     },
-    "DiseaseRelation": {
+    "Reply_DiseaseRelation": {
       "description": "A publisher relation with distinct endpoints and predicate.",
       "properties": {
         "attribution": {
-          "$ref": "#/$defs/Attribution",
+          "$ref": "#/$defs/Reply_Attribution",
           "description": "Publisher record and version."
         },
         "description": {
@@ -235,15 +235,15 @@
           ]
         },
         "object": {
-          "$ref": "#/$defs/DiseaseEndpoint",
+          "$ref": "#/$defs/Reply_DiseaseEndpoint",
           "description": "Native object."
         },
         "predicate": {
-          "$ref": "#/$defs/Curie",
+          "$ref": "#/$defs/Reply_Curie",
           "description": "Publisher predicate, without equivalence promotion."
         },
         "subject": {
-          "$ref": "#/$defs/DiseaseEndpoint",
+          "$ref": "#/$defs/Reply_DiseaseEndpoint",
           "description": "Native subject."
         }
       },
@@ -255,25 +255,25 @@
       ],
       "type": "object"
     },
-    "EnsemblGeneId": {
+    "Reply_EnsemblGeneId": {
       "description": " A human Ensembl gene stable identifier with a separately retained version.",
       "pattern": "^ENSG[0-9]{11}(\\.[1-9][0-9]*)?$",
       "type": "string"
     },
-    "Gene": {
+    "Reply_Gene": {
       "description": "Human gene identity and whole source annotations, independent of response cards.",
       "properties": {
         "aliases": {
           "description": "All stated HGNC aliases.",
           "items": {
-            "$ref": "#/$defs/Text"
+            "$ref": "#/$defs/Reply_Text"
           },
           "type": "array"
         },
         "ensembl_id": {
           "anyOf": [
             {
-              "$ref": "#/$defs/EnsemblGeneId"
+              "$ref": "#/$defs/Reply_EnsemblGeneId"
             },
             {
               "type": "null"
@@ -284,7 +284,7 @@
         "entrez_id": {
           "anyOf": [
             {
-              "$ref": "#/$defs/NcbiGeneId"
+              "$ref": "#/$defs/Reply_NcbiGeneId"
             },
             {
               "type": "null"
@@ -293,13 +293,13 @@
           "description": "NCBI Gene identifier, if stated."
         },
         "hgnc_id": {
-          "$ref": "#/$defs/HgncId",
+          "$ref": "#/$defs/Reply_HgncId",
           "description": "HGNC identifier."
         },
         "location": {
           "anyOf": [
             {
-              "$ref": "#/$defs/GeneLocation"
+              "$ref": "#/$defs/Reply_GeneLocation"
             },
             {
               "type": "null"
@@ -308,13 +308,13 @@
           "description": "Source-stated location, including unparsed publisher text."
         },
         "locus_group": {
-          "$ref": "#/$defs/LocusGroup",
+          "$ref": "#/$defs/Reply_LocusGroup",
           "description": "HGNC locus group."
         },
         "locus_type": {
           "anyOf": [
             {
-              "$ref": "#/$defs/LocusType"
+              "$ref": "#/$defs/Reply_LocusType"
             },
             {
               "type": "null"
@@ -325,43 +325,43 @@
         "mane": {
           "description": "Versioned MANE Select transcript pair, if stated.",
           "items": {
-            "$ref": "#/$defs/Mane"
+            "$ref": "#/$defs/Reply_Mane"
           },
           "type": "array"
         },
         "name": {
-          "$ref": "#/$defs/Text",
+          "$ref": "#/$defs/Reply_Text",
           "description": "Gene name."
         },
         "omim": {
           "description": "All stated OMIM identifiers.",
           "items": {
-            "$ref": "#/$defs/OmimId"
+            "$ref": "#/$defs/Reply_OmimId"
           },
           "type": "array"
         },
         "previous_symbols": {
           "description": "All stated previous symbols.",
           "items": {
-            "$ref": "#/$defs/GeneSymbol"
+            "$ref": "#/$defs/Reply_GeneSymbol"
           },
           "type": "array"
         },
         "spans": {
           "description": "Source intervals with explicit assembly and counting rule.",
           "items": {
-            "$ref": "#/$defs/GenomicInterval"
+            "$ref": "#/$defs/Reply_GenomicInterval"
           },
           "type": "array"
         },
         "status": {
-          "$ref": "#/$defs/GeneStatus",
+          "$ref": "#/$defs/Reply_GeneStatus",
           "description": "HGNC record status."
         },
         "summary": {
           "anyOf": [
             {
-              "$ref": "#/$defs/Summary"
+              "$ref": "#/$defs/Reply_Summary"
             },
             {
               "type": "null"
@@ -370,13 +370,13 @@
           "description": "Whole attributed summary, if stated."
         },
         "symbol": {
-          "$ref": "#/$defs/GeneSymbol",
+          "$ref": "#/$defs/Reply_GeneSymbol",
           "description": "Source-preserved symbol."
         },
         "uniprot": {
           "description": "All stated UniProt base accessions.",
           "items": {
-            "$ref": "#/$defs/UniProtAcc"
+            "$ref": "#/$defs/Reply_UniProtAcc"
           },
           "type": "array"
         }
@@ -390,17 +390,17 @@
       ],
       "type": "object"
     },
-    "GeneHeader": {
+    "Reply_GeneHeader": {
       "description": "Enough gene identity to choose a search result.",
       "properties": {
         "hgnc_id": {
-          "$ref": "#/$defs/HgncId",
+          "$ref": "#/$defs/Reply_HgncId",
           "description": "HGNC identifier."
         },
         "location": {
           "anyOf": [
             {
-              "$ref": "#/$defs/GeneLocation"
+              "$ref": "#/$defs/Reply_GeneLocation"
             },
             {
               "type": "null"
@@ -409,13 +409,13 @@
           "description": "Source-stated location, including unparsed publisher text."
         },
         "locus_group": {
-          "$ref": "#/$defs/LocusGroup",
+          "$ref": "#/$defs/Reply_LocusGroup",
           "description": "HGNC locus group."
         },
         "match": {
           "anyOf": [
             {
-              "$ref": "#/$defs/Match"
+              "$ref": "#/$defs/Reply_Match"
             },
             {
               "type": "null"
@@ -424,15 +424,15 @@
           "description": "Match information when this header answers an input."
         },
         "name": {
-          "$ref": "#/$defs/Text",
+          "$ref": "#/$defs/Reply_Text",
           "description": "Gene name."
         },
         "status": {
-          "$ref": "#/$defs/GeneStatus",
+          "$ref": "#/$defs/Reply_GeneStatus",
           "description": "HGNC record status."
         },
         "symbol": {
-          "$ref": "#/$defs/GeneSymbol",
+          "$ref": "#/$defs/Reply_GeneSymbol",
           "description": "Source-preserved symbol."
         }
       },
@@ -445,27 +445,27 @@
       ],
       "type": "object"
     },
-    "GeneInput": {
+    "Reply_GeneInput": {
       "description": "An input classified before source resolution; aliases remain free text.",
       "pattern": "\\S",
       "type": "string"
     },
-    "GeneLocation": {
+    "Reply_GeneLocation": {
       "description": "HGNC location text with a parsed interpretation when its syntax is known.",
       "type": "string"
     },
-    "GeneResolution": {
+    "Reply_GeneResolution": {
       "description": "Resolution outcomes preserve ambiguity and withdrawn identity.",
       "oneOf": [
         {
           "description": "One resolved identity and its source match.",
           "properties": {
             "gene": {
-              "$ref": "#/$defs/Gene",
+              "$ref": "#/$defs/Reply_Gene",
               "description": "The whole gene entity."
             },
             "match": {
-              "$ref": "#/$defs/Match",
+              "$ref": "#/$defs/Reply_Match",
               "description": "How the source matched the input."
             },
             "resolution": {
@@ -486,7 +486,7 @@
             "candidates": {
               "description": "Ordered candidates supplied by the resolver.",
               "items": {
-                "$ref": "#/$defs/GeneHeader"
+                "$ref": "#/$defs/Reply_GeneHeader"
               },
               "type": "array"
             },
@@ -504,17 +504,17 @@
           "description": "The original withdrawn identity and stated successors.",
           "properties": {
             "hgnc_id": {
-              "$ref": "#/$defs/HgncId",
+              "$ref": "#/$defs/Reply_HgncId",
               "description": "Original HGNC identifier."
             },
             "hgnc_status": {
-              "$ref": "#/$defs/HgncStatus",
+              "$ref": "#/$defs/Reply_HgncStatus",
               "description": "Stated HGNC withdrawn-file status."
             },
             "merged_into": {
               "description": "All stated merge destinations.",
               "items": {
-                "$ref": "#/$defs/HgncId"
+                "$ref": "#/$defs/Reply_HgncId"
               },
               "type": "array"
             },
@@ -523,7 +523,7 @@
               "type": "string"
             },
             "symbol": {
-              "$ref": "#/$defs/GeneSymbol",
+              "$ref": "#/$defs/Reply_GeneSymbol",
               "description": "Original symbol."
             }
           },
@@ -550,7 +550,7 @@
         }
       ]
     },
-    "GeneStatus": {
+    "Reply_GeneStatus": {
       "description": "HGNC approval status.",
       "type": "string",
       "x-enum-descriptions": [
@@ -562,18 +562,18 @@
         "withdrawn"
       ]
     },
-    "GeneSymbol": {
+    "Reply_GeneSymbol": {
       "description": "Source spelling of a gene symbol, with ASCII case-insensitive identity.",
       "pattern": "^[A-Za-z][A-Za-z0-9._/@-]{0,254}$",
       "type": "string"
     },
-    "GenomicInterval": {
+    "Reply_GenomicInterval": {
       "description": "An assembly-qualified zero-based half-open source interval.",
       "properties": {
         "build": {
           "anyOf": [
             {
-              "$ref": "#/$defs/Build"
+              "$ref": "#/$defs/Reply_Build"
             },
             {
               "type": "null"
@@ -582,17 +582,17 @@
           "description": "Source-stated assembly, omitted when absent."
         },
         "chromosome": {
-          "$ref": "#/$defs/Chromosome",
+          "$ref": "#/$defs/Reply_Chromosome",
           "description": "Canonical primary chromosome."
         },
         "span": {
-          "$ref": "#/$defs/Span0",
+          "$ref": "#/$defs/Reply_Span0",
           "description": "Checked zero-based half-open bounds; an empty span remains valid."
         },
         "strand": {
           "anyOf": [
             {
-              "$ref": "#/$defs/Strand"
+              "$ref": "#/$defs/Reply_Strand"
             },
             {
               "type": "null"
@@ -607,12 +607,12 @@
       ],
       "type": "object"
     },
-    "HgncId": {
+    "Reply_HgncId": {
       "description": "An HGNC identifier with canonical namespace and positive numeric value.",
       "pattern": "^HGNC:[1-9][0-9]*$",
       "type": "string"
     },
-    "HgncStatus": {
+    "Reply_HgncStatus": {
       "description": "HGNC's stated withdrawn-file status.",
       "type": "string",
       "x-enum-descriptions": [
@@ -624,7 +624,7 @@
         "merged_split"
       ]
     },
-    "LocusGroup": {
+    "Reply_LocusGroup": {
       "description": "HGNC locus group, separate from a missing source value.",
       "type": "string",
       "x-enum-descriptions": [
@@ -642,7 +642,7 @@
         "other"
       ]
     },
-    "LocusType": {
+    "Reply_LocusType": {
       "description": "HGNC locus type; Unknown is a source-stated value, distinct from absence.",
       "type": "string",
       "x-enum-descriptions": [
@@ -700,7 +700,7 @@
         "virus_integration_site"
       ]
     },
-    "Mane": {
+    "Reply_Mane": {
       "description": "A source-stated MANE pair with versioned sequence accessions.",
       "properties": {
         "ensembl": {
@@ -714,7 +714,7 @@
           "type": "string"
         },
         "status": {
-          "$ref": "#/$defs/ManeStatus",
+          "$ref": "#/$defs/Reply_ManeStatus",
           "description": "Source-stated transcript status."
         }
       },
@@ -725,7 +725,7 @@
       ],
       "type": "object"
     },
-    "ManeStatus": {
+    "Reply_ManeStatus": {
       "description": "The source-stated MANE transcript status.",
       "type": "string",
       "x-enum-descriptions": [
@@ -737,15 +737,15 @@
         "plus_clinical"
       ]
     },
-    "Match": {
+    "Reply_Match": {
       "description": "A source-stated match, preserving the text that matched.",
       "properties": {
         "kind": {
-          "$ref": "#/$defs/MatchKind",
+          "$ref": "#/$defs/Reply_MatchKind",
           "description": "The match category."
         },
         "text": {
-          "$ref": "#/$defs/Text",
+          "$ref": "#/$defs/Reply_Text",
           "description": "The source text that matched the input."
         }
       },
@@ -755,7 +755,7 @@
       ],
       "type": "object"
     },
-    "MatchKind": {
+    "Reply_MatchKind": {
       "description": "How a source matched a gene input.",
       "type": "string",
       "x-enum-descriptions": [
@@ -779,22 +779,22 @@
         "band"
       ]
     },
-    "NcbiGeneId": {
+    "Reply_NcbiGeneId": {
       "description": "A positive NCBI Gene identifier in canonical decimal text.",
       "pattern": "^[1-9][0-9]*$",
       "type": "string"
     },
-    "NctId": {
+    "Reply_NctId": {
       "description": "Canonical ClinicalTrials.gov identifier.",
       "pattern": "^NCT(?!00000000)[0-9]{8}$",
       "type": "string"
     },
-    "OmimId": {
+    "Reply_OmimId": {
       "description": " A six-digit OMIM identifier, preserving all six digits.",
       "pattern": "^[0-9]{6}$",
       "type": "string"
     },
-    "PageInfo": {
+    "Reply_PageInfo": {
       "description": "Search counts after filtering and deduplication.",
       "properties": {
         "offset": {
@@ -806,7 +806,7 @@
         "pool": {
           "anyOf": [
             {
-              "$ref": "#/$defs/PoolInfo"
+              "$ref": "#/$defs/Reply_PoolInfo"
             },
             {
               "type": "null"
@@ -841,12 +841,12 @@
       ],
       "type": "object"
     },
-    "PartialDate": {
+    "Reply_PartialDate": {
       "description": "A Gregorian date preserving year, month or day precision.",
       "pattern": "^[0-9]{4}(-[0-9]{2}(-[0-9]{2})?)?$",
       "type": "string"
     },
-    "PhaseFilter": {
+    "Reply_PhaseFilter": {
       "description": "Explicit source phase selection, including the registry's combined phases.",
       "enum": [
         "early-1",
@@ -860,7 +860,7 @@
       ],
       "type": "string"
     },
-    "PoolInfo": {
+    "Reply_PoolInfo": {
       "description": "Fixed lifetime and size of a stored search snapshot.",
       "properties": {
         "created": {
@@ -876,7 +876,7 @@
           "type": "integer"
         },
         "id": {
-          "$ref": "#/$defs/Text",
+          "$ref": "#/$defs/Reply_Text",
           "description": "Opaque snapshot identifier."
         },
         "size": {
@@ -894,11 +894,11 @@
       ],
       "type": "object"
     },
-    "Problem": {
+    "Reply_Problem": {
       "description": "A field that could not be accepted from a source record.",
       "properties": {
         "code": {
-          "$ref": "#/$defs/ProblemCode",
+          "$ref": "#/$defs/Reply_ProblemCode",
           "description": "Why the field value was not accepted."
         },
         "field": {
@@ -908,7 +908,7 @@
         "record": {
           "anyOf": [
             {
-              "$ref": "#/$defs/Text"
+              "$ref": "#/$defs/Reply_Text"
             },
             {
               "type": "null"
@@ -917,7 +917,7 @@
           "description": "The record's canonical identifier, when known."
         },
         "source": {
-          "$ref": "#/$defs/Source",
+          "$ref": "#/$defs/Reply_Source",
           "description": "The source that supplied the record."
         }
       },
@@ -928,7 +928,7 @@
       ],
       "type": "object"
     },
-    "ProblemCode": {
+    "Reply_ProblemCode": {
       "description": "A stable code for a rejected field value.",
       "type": "string",
       "x-enum-descriptions": [
@@ -942,7 +942,7 @@
         "identity.conflict"
       ]
     },
-    "Reason": {
+    "Reply_Reason": {
       "description": "Why a source could not supply data.",
       "type": "string",
       "x-enum-descriptions": [
@@ -988,7 +988,7 @@
         "no_join_id"
       ]
     },
-    "Source": {
+    "Reply_Source": {
       "description": "A source of BioMCP data, identified by its canonical short name.",
       "type": "string",
       "x-enum-descriptions": [
@@ -1140,7 +1140,7 @@
         "cellosaurus"
       ]
     },
-    "SourceNotice": {
+    "Reply_SourceNotice": {
       "description": "A source notice or request recovery step.",
       "oneOf": [
         {
@@ -1196,7 +1196,7 @@
               "type": "string"
             },
             "reason": {
-              "$ref": "#/$defs/CacheProblem",
+              "$ref": "#/$defs/Reply_CacheProblem",
               "description": "Bounded local failure without paths or database diagnostics."
             }
           },
@@ -1210,7 +1210,7 @@
           "description": "The source still has graph pages after the bounded fetch window.",
           "properties": {
             "fallback": {
-              "$ref": "#/$defs/Text",
+              "$ref": "#/$defs/Reply_Text",
               "description": "Default-source command offering another graph view."
             },
             "kind": {
@@ -1277,7 +1277,7 @@
             "words": {
               "description": "Whole source words.",
               "items": {
-                "$ref": "#/$defs/Text"
+                "$ref": "#/$defs/Reply_Text"
               },
               "type": "array"
             }
@@ -1289,7 +1289,7 @@
         }
       ]
     },
-    "SourceOutcome": {
+    "Reply_SourceOutcome": {
       "description": "One source's outcome, without provider text.",
       "properties": {
         "count": {
@@ -1313,14 +1313,14 @@
         "notices": {
           "description": "Source notices and request recovery guidance.",
           "items": {
-            "$ref": "#/$defs/SourceNotice"
+            "$ref": "#/$defs/Reply_SourceNotice"
           },
           "type": "array"
         },
         "reason": {
           "anyOf": [
             {
-              "$ref": "#/$defs/Reason"
+              "$ref": "#/$defs/Reply_Reason"
             },
             {
               "type": "null"
@@ -1329,17 +1329,17 @@
           "description": "Failure or stale-fallback reason."
         },
         "source": {
-          "$ref": "#/$defs/Source",
+          "$ref": "#/$defs/Reply_Source",
           "description": "Asked source."
         },
         "state": {
-          "$ref": "#/$defs/SourceState",
+          "$ref": "#/$defs/Reply_SourceState",
           "description": "Retained state."
         },
         "term": {
           "anyOf": [
             {
-              "$ref": "#/$defs/Text"
+              "$ref": "#/$defs/Reply_Text"
             },
             {
               "type": "null"
@@ -1357,7 +1357,7 @@
           "type": "string"
         },
         "use": {
-          "$ref": "#/$defs/Use",
+          "$ref": "#/$defs/Reply_Use",
           "description": "Reviewed source use category; publisher terms remain authoritative."
         }
       },
@@ -1370,7 +1370,7 @@
       ],
       "type": "object"
     },
-    "SourceState": {
+    "Reply_SourceState": {
       "description": "State of a source actually asked by the command.",
       "enum": [
         "ok",
@@ -1381,15 +1381,15 @@
       ],
       "type": "string"
     },
-    "SourceTimestamp": {
+    "Reply_SourceTimestamp": {
       "description": "Native source timestamp and the availability of its timezone.",
       "properties": {
         "timezone": {
-          "$ref": "#/$defs/SourceTimestampTimezone",
+          "$ref": "#/$defs/Reply_SourceTimestampTimezone",
           "description": "Whether the native timestamp includes a timezone."
         },
         "value": {
-          "$ref": "#/$defs/Text",
+          "$ref": "#/$defs/Reply_Text",
           "description": "Exact source-supplied timestamp."
         }
       },
@@ -1399,7 +1399,7 @@
       ],
       "type": "object"
     },
-    "SourceTimestampTimezone": {
+    "Reply_SourceTimestampTimezone": {
       "description": "Availability of timezone information in a native timestamp.",
       "enum": [
         "in_value",
@@ -1407,7 +1407,7 @@
       ],
       "type": "string"
     },
-    "Span0": {
+    "Reply_Span0": {
       "description": "A zero-based half-open span with ordered bounds; empty spans are valid.",
       "properties": {
         "end": {
@@ -1429,7 +1429,7 @@
       ],
       "type": "object"
     },
-    "SponsorType": {
+    "Reply_SponsorType": {
       "description": "Registry funding category facet.",
       "enum": [
         "nih",
@@ -1439,7 +1439,7 @@
       ],
       "type": "string"
     },
-    "Status": {
+    "Reply_Status": {
       "description": "Overall command outcome.",
       "enum": [
         "complete",
@@ -1449,7 +1449,7 @@
       ],
       "type": "string"
     },
-    "Step": {
+    "Reply_Step": {
       "description": "A command argument list spelled from a typed action.",
       "properties": {
         "args": {
@@ -1460,7 +1460,7 @@
           "type": "array"
         },
         "kind": {
-          "$ref": "#/$defs/StepKind",
+          "$ref": "#/$defs/Reply_StepKind",
           "description": "Purpose of the action."
         }
       },
@@ -1469,7 +1469,7 @@
       ],
       "type": "object"
     },
-    "StepKind": {
+    "Reply_StepKind": {
       "description": "Purpose of an available next command.",
       "enum": [
         "restart",
@@ -1485,7 +1485,7 @@
       ],
       "type": "string"
     },
-    "Strand": {
+    "Reply_Strand": {
       "description": "Source-stated forward or reverse strand.",
       "type": "string",
       "x-enum-descriptions": [
@@ -1497,7 +1497,7 @@
         "-"
       ]
     },
-    "StudyType": {
+    "Reply_StudyType": {
       "description": "Source-native registry value.",
       "enum": [
         "INTERVENTIONAL",
@@ -1506,13 +1506,13 @@
       ],
       "type": "string"
     },
-    "Summary": {
+    "Reply_Summary": {
       "description": "A whole source-provided summary with attribution and stated date precision.",
       "properties": {
         "dated": {
           "anyOf": [
             {
-              "$ref": "#/$defs/PartialDate"
+              "$ref": "#/$defs/Reply_PartialDate"
             },
             {
               "type": "null"
@@ -1521,11 +1521,11 @@
           "description": "Date stated by the source, if any."
         },
         "source": {
-          "$ref": "#/$defs/SummarySource",
+          "$ref": "#/$defs/Reply_SummarySource",
           "description": "The summary's attribution, independent of the fetching provider."
         },
         "text": {
-          "$ref": "#/$defs/Text",
+          "$ref": "#/$defs/Reply_Text",
           "description": "Entire summary text."
         }
       },
@@ -1535,7 +1535,7 @@
       ],
       "type": "object"
     },
-    "SummarySource": {
+    "Reply_SummarySource": {
       "description": "The attribution on a source-provided summary, independent of fetch providers.",
       "type": "string",
       "x-enum-descriptions": [
@@ -1545,18 +1545,18 @@
         "refseq"
       ]
     },
-    "Text": {
+    "Reply_Text": {
       "description": "Nonempty text with surrounding Unicode whitespace removed.",
       "minLength": 1,
       "type": "string"
     },
-    "TrialConditionResolution": {
+    "Reply_TrialConditionResolution": {
       "description": "Exact condition identity used for one trial request, without eligibility inference.",
       "properties": {
         "alias": {
           "anyOf": [
             {
-              "$ref": "#/$defs/DiseaseRelation"
+              "$ref": "#/$defs/Reply_DiseaseRelation"
             },
             {
               "type": "null"
@@ -1567,7 +1567,7 @@
         "attribution": {
           "anyOf": [
             {
-              "$ref": "#/$defs/Attribution"
+              "$ref": "#/$defs/Reply_Attribution"
             },
             {
               "type": "null"
@@ -1578,14 +1578,14 @@
         "components": {
           "description": "Admitted resolver components and their own terms.",
           "items": {
-            "$ref": "#/$defs/ComponentLabel"
+            "$ref": "#/$defs/Reply_ComponentLabel"
           },
           "type": "array"
         },
         "concept": {
           "anyOf": [
             {
-              "$ref": "#/$defs/DiseaseConcept"
+              "$ref": "#/$defs/Reply_DiseaseConcept"
             },
             {
               "type": "null"
@@ -1594,20 +1594,20 @@
           "description": "Returned concept with its unchanged native primary label."
         },
         "input": {
-          "$ref": "#/$defs/Curie",
+          "$ref": "#/$defs/Reply_Curie",
           "description": "Caller-selected CURIE, never a source-name search."
         },
         "ncit_candidates": {
           "description": "Native NCIt mapping rows; duplicate targets keep their independent provenance.",
           "items": {
-            "$ref": "#/$defs/DiseaseRelation"
+            "$ref": "#/$defs/Reply_DiseaseRelation"
           },
           "type": "array"
         },
         "resolver": {
           "anyOf": [
             {
-              "$ref": "#/$defs/Source"
+              "$ref": "#/$defs/Reply_Source"
             },
             {
               "type": "null"
@@ -1618,7 +1618,7 @@
         "selected_ncit": {
           "anyOf": [
             {
-              "$ref": "#/$defs/Curie"
+              "$ref": "#/$defs/Reply_Curie"
             },
             {
               "type": "null"
@@ -1632,32 +1632,32 @@
       ],
       "type": "object"
     },
-    "TrialHeader": {
+    "Reply_TrialHeader": {
       "description": "Small source-attributed trial discovery record.",
       "properties": {
         "conditions": {
-          "$ref": "#/$defs/Capped",
+          "$ref": "#/$defs/Reply_Capped_Text",
           "description": "Source condition names."
         },
         "interventions": {
-          "$ref": "#/$defs/Capped",
+          "$ref": "#/$defs/Reply_Capped_Text",
           "description": "Source intervention names."
         },
         "nct_id": {
-          "$ref": "#/$defs/NctId",
+          "$ref": "#/$defs/Reply_NctId",
           "description": "Exact registry identity."
         },
         "phases": {
           "description": "Source phases; absent phases remain absent.",
           "items": {
-            "$ref": "#/$defs/TrialPhase"
+            "$ref": "#/$defs/Reply_TrialPhase"
           },
           "type": "array"
         },
         "status": {
           "anyOf": [
             {
-              "$ref": "#/$defs/TrialStatus"
+              "$ref": "#/$defs/Reply_TrialStatus"
             },
             {
               "type": "null"
@@ -1668,7 +1668,7 @@
         "title": {
           "anyOf": [
             {
-              "$ref": "#/$defs/Text"
+              "$ref": "#/$defs/Reply_Text"
             },
             {
               "type": "null"
@@ -1679,7 +1679,7 @@
         "updated": {
           "anyOf": [
             {
-              "$ref": "#/$defs/PartialDate"
+              "$ref": "#/$defs/Reply_PartialDate"
             },
             {
               "type": "null"
@@ -1688,7 +1688,7 @@
           "description": "Last posted registry update, absent when missing or rejected."
         },
         "url": {
-          "$ref": "#/$defs/Text",
+          "$ref": "#/$defs/Reply_Text",
           "description": "Publisher's canonical record URL.",
           "format": "uri"
         }
@@ -1701,7 +1701,7 @@
       ],
       "type": "object"
     },
-    "TrialPage": {
+    "Reply_TrialPage": {
       "description": "Registry page preserving source order and source processing time.",
       "properties": {
         "attribution": {
@@ -1711,7 +1711,7 @@
         "condition_resolution": {
           "anyOf": [
             {
-              "$ref": "#/$defs/TrialConditionResolution"
+              "$ref": "#/$defs/Reply_TrialConditionResolution"
             },
             {
               "type": "null"
@@ -1722,7 +1722,7 @@
         "gene_resolution": {
           "anyOf": [
             {
-              "$ref": "#/$defs/GeneResolution"
+              "$ref": "#/$defs/Reply_GeneResolution"
             },
             {
               "type": "null"
@@ -1733,14 +1733,14 @@
         "items": {
           "description": "Native study headers in registry order.",
           "items": {
-            "$ref": "#/$defs/TrialHeader"
+            "$ref": "#/$defs/Reply_TrialHeader"
           },
           "type": "array"
         },
         "source_updated": {
           "anyOf": [
             {
-              "$ref": "#/$defs/SourceTimestamp"
+              "$ref": "#/$defs/Reply_SourceTimestamp"
             },
             {
               "type": "null"
@@ -1754,7 +1754,7 @@
       ],
       "type": "object"
     },
-    "TrialPhase": {
+    "Reply_TrialPhase": {
       "description": "Source-native registry value.",
       "enum": [
         "EARLY_PHASE1",
@@ -1766,7 +1766,7 @@
       ],
       "type": "string"
     },
-    "TrialSearch": {
+    "Reply_TrialSearch": {
       "description": "Search one provider with bounded pages and source-native counts; default ClinicalTrials.gov, explicit keyed NCI, never a fallback.",
       "properties": {
         "age": {
@@ -1778,13 +1778,13 @@
         "condition": {
           "description": "Condition alternatives joined with OR; NCI requires NCIt codes.",
           "items": {
-            "$ref": "#/$defs/Text"
+            "$ref": "#/$defs/Reply_Text"
           },
           "maxItems": 5,
           "type": "array"
         },
         "condition_id": {
-          "$ref": "#/$defs/Curie",
+          "$ref": "#/$defs/Reply_Curie",
           "description": "Exact MONDO or DOID CURIE resolved by MyDisease; NCI also accepts explicit NCIT:C codes."
         },
         "count_only": {
@@ -1792,11 +1792,11 @@
           "type": "boolean"
         },
         "criteria": {
-          "$ref": "#/$defs/Text",
+          "$ref": "#/$defs/Reply_Text",
           "description": "Search literal registry eligibility text for discovery only; no eligibility judgment."
         },
         "distance": {
-          "$ref": "#/$defs/Text",
+          "$ref": "#/$defs/Reply_Text",
           "description": "Source distance with explicit mi or km units."
         },
         "exact_condition": {
@@ -1804,11 +1804,11 @@
           "type": "boolean"
         },
         "facility": {
-          "$ref": "#/$defs/Text",
+          "$ref": "#/$defs/Reply_Text",
           "description": "Exact registry facility field; cannot combine with radius."
         },
         "gene": {
-          "$ref": "#/$defs/GeneInput",
+          "$ref": "#/$defs/Reply_GeneInput",
           "description": "Resolve one checked gene for registry text discovery only; no eligibility judgment."
         },
         "has_results": {
@@ -1816,13 +1816,13 @@
           "type": "boolean"
         },
         "id": {
-          "$ref": "#/$defs/NctId",
+          "$ref": "#/$defs/Reply_NctId",
           "description": "Exact NCT identity in a conjunction with other filters."
         },
         "intervention": {
           "description": "Intervention alternatives joined with OR; supported by ClinicalTrials.gov.",
           "items": {
-            "$ref": "#/$defs/Text"
+            "$ref": "#/$defs/Reply_Text"
           },
           "maxItems": 5,
           "type": "array"
@@ -1830,13 +1830,13 @@
         "keyword": {
           "description": "Repeat for ClinicalTrials.gov general text alternatives joined with OR; different filters combine with AND. NCI accepts one keyword.",
           "items": {
-            "$ref": "#/$defs/Text"
+            "$ref": "#/$defs/Reply_Text"
           },
           "maxItems": 5,
           "type": "array"
         },
         "lat": {
-          "$ref": "#/$defs/Text",
+          "$ref": "#/$defs/Reply_Text",
           "description": "Radius center latitude in degrees."
         },
         "limit": {
@@ -1848,62 +1848,62 @@
           "type": "integer"
         },
         "lon": {
-          "$ref": "#/$defs/Text",
+          "$ref": "#/$defs/Reply_Text",
           "description": "Radius center longitude in degrees."
         },
         "next_page": {
-          "$ref": "#/$defs/Text",
+          "$ref": "#/$defs/Reply_Text",
           "description": "Opaque registry continuation; keep filters unchanged."
         },
         "phase": {
-          "$ref": "#/$defs/PhaseFilter",
+          "$ref": "#/$defs/Reply_PhaseFilter",
           "description": "Registry phase: 1, 2, 3, 4, early-1, not-applicable, 1/2 or 2/3."
         },
         "query": {
-          "$ref": "#/$defs/Text",
+          "$ref": "#/$defs/Reply_Text",
           "description": "General registry discovery text.",
           "x-positional": 0
         },
         "sex": {
-          "$ref": "#/$defs/TrialSex",
+          "$ref": "#/$defs/Reply_TrialSex",
           "description": "Registry sex facet."
         },
         "source": {
-          "$ref": "#/$defs/TrialSource",
+          "$ref": "#/$defs/Reply_TrialSource",
           "description": "Explicit provider; defaults to ClinicalTrials.gov and never falls back."
         },
         "sponsor": {
-          "$ref": "#/$defs/Text",
+          "$ref": "#/$defs/Reply_Text",
           "description": "Exact lead sponsor field."
         },
         "sponsor_type": {
-          "$ref": "#/$defs/SponsorType",
+          "$ref": "#/$defs/Reply_SponsorType",
           "description": "Registry sponsor funding facet."
         },
         "status": {
-          "$ref": "#/$defs/TrialStatus",
+          "$ref": "#/$defs/Reply_TrialStatus",
           "description": "Exact registry overall status."
         },
         "study_type": {
-          "$ref": "#/$defs/StudyType",
+          "$ref": "#/$defs/Reply_StudyType",
           "description": "Exact registry study type."
         },
         "updated_since": {
-          "$ref": "#/$defs/PartialDate",
+          "$ref": "#/$defs/Reply_PartialDate",
           "description": "First included registry update date."
         },
         "updated_until": {
-          "$ref": "#/$defs/PartialDate",
+          "$ref": "#/$defs/Reply_PartialDate",
           "description": "Last included registry update date."
         },
         "variant": {
-          "$ref": "#/$defs/Text",
+          "$ref": "#/$defs/Reply_Text",
           "description": "Literal variant text for registry discovery only; no eligibility judgment."
         }
       },
       "type": "object"
     },
-    "TrialSex": {
+    "Reply_TrialSex": {
       "description": "Source-native registry value.",
       "enum": [
         "ALL",
@@ -1912,7 +1912,7 @@
       ],
       "type": "string"
     },
-    "TrialSource": {
+    "Reply_TrialSource": {
       "description": "Independent trial providers; results are never folded or used as fallbacks.",
       "enum": [
         "ctgov",
@@ -1920,7 +1920,7 @@
       ],
       "type": "string"
     },
-    "TrialStatus": {
+    "Reply_TrialStatus": {
       "description": "Publisher Status enum for OverallStatus from\n<https://clinicaltrials.gov/api/v2/studies/enums>.",
       "enum": [
         "ACTIVE_NOT_RECRUITING",
@@ -1940,12 +1940,12 @@
       ],
       "type": "string"
     },
-    "UniProtAcc": {
+    "Reply_UniProtAcc": {
       "description": " A whole UniProt base accession, without an isoform suffix.",
       "pattern": "^([OPQ][0-9][A-Z0-9]{3}[0-9]|[A-NR-Z][0-9]([A-Z][A-Z0-9]{2}[0-9]){1,2})$",
       "type": "string"
     },
-    "Use": {
+    "Reply_Use": {
       "description": "Reviewed source-use category, without inferring rights in individual records.",
       "enum": [
         "open",
@@ -1963,7 +1963,7 @@
     "local_error": {
       "anyOf": [
         {
-          "$ref": "#/$defs/CacheProblem"
+          "$ref": "#/$defs/Reply_CacheProblem"
         },
         {
           "type": "null"
@@ -1974,14 +1974,14 @@
     "next": {
       "description": "Available next commands.",
       "items": {
-        "$ref": "#/$defs/Step"
+        "$ref": "#/$defs/Reply_Step"
       },
       "type": "array"
     },
     "page": {
       "anyOf": [
         {
-          "$ref": "#/$defs/PageInfo"
+          "$ref": "#/$defs/Reply_PageInfo"
         },
         {
           "type": "null"
@@ -1992,18 +1992,18 @@
     "problems": {
       "description": "Rejected source fields.",
       "items": {
-        "$ref": "#/$defs/Problem"
+        "$ref": "#/$defs/Reply_Problem"
       },
       "type": "array"
     },
     "query": {
-      "$ref": "#/$defs/TrialSearch",
+      "$ref": "#/$defs/Reply_TrialSearch",
       "description": "Parsed query."
     },
     "result": {
       "anyOf": [
         {
-          "$ref": "#/$defs/TrialPage"
+          "$ref": "#/$defs/Reply_TrialPage"
         },
         {
           "type": "null"
@@ -2018,12 +2018,12 @@
     "sources": {
       "description": "Sources actually asked.",
       "items": {
-        "$ref": "#/$defs/SourceOutcome"
+        "$ref": "#/$defs/Reply_SourceOutcome"
       },
       "type": "array"
     },
     "status": {
-      "$ref": "#/$defs/Status",
+      "$ref": "#/$defs/Reply_Status",
       "description": "Overall outcome."
     }
   },

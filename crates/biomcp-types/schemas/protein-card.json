@@ -1,6 +1,6 @@
 {
   "$defs": {
-    "AcmgAmp2015Code": {
+    "Reply_AcmgAmp2015Code": {
       "description": "Checked AcmgAmp2015 codes.",
       "enum": [
         "pathogenic",
@@ -11,12 +11,12 @@
       ],
       "type": "string"
     },
-    "AminoAcids": {
+    "Reply_AminoAcids": {
       "description": "Nonempty uppercase standard residues plus U, O and X.",
       "pattern": "^[ACDEFGHIKLMNPQRSTVWYUOX]+$",
       "type": "string"
     },
-    "AmpAscoCap2017LevelCode": {
+    "Reply_AmpAscoCap2017LevelCode": {
       "description": "Checked AmpAscoCap2017Level codes.",
       "enum": [
         "level_a",
@@ -26,7 +26,7 @@
       ],
       "type": "string"
     },
-    "AmpAscoCap2017TierCode": {
+    "Reply_AmpAscoCap2017TierCode": {
       "description": "Checked AmpAscoCap2017Tier codes.",
       "enum": [
         "tier_i",
@@ -36,13 +36,13 @@
       ],
       "type": "string"
     },
-    "Attribution": {
+    "Reply_Attribution": {
       "description": "Provenance for one source record.",
       "properties": {
         "evaluated": {
           "anyOf": [
             {
-              "$ref": "#/$defs/PartialDate"
+              "$ref": "#/$defs/Reply_PartialDate"
             },
             {
               "type": "null"
@@ -53,7 +53,7 @@
         "record": {
           "anyOf": [
             {
-              "$ref": "#/$defs/Text"
+              "$ref": "#/$defs/Reply_Text"
             },
             {
               "type": "null"
@@ -64,7 +64,7 @@
         "release": {
           "anyOf": [
             {
-              "$ref": "#/$defs/Text"
+              "$ref": "#/$defs/Reply_Text"
             },
             {
               "type": "null"
@@ -73,13 +73,13 @@
           "description": "Dataset release."
         },
         "source": {
-          "$ref": "#/$defs/Text",
+          "$ref": "#/$defs/Reply_Text",
           "description": "Source responsible for the claim."
         },
         "submitter": {
           "anyOf": [
             {
-              "$ref": "#/$defs/Text"
+              "$ref": "#/$defs/Reply_Text"
             },
             {
               "type": "null"
@@ -90,7 +90,7 @@
         "url": {
           "anyOf": [
             {
-              "$ref": "#/$defs/Text"
+              "$ref": "#/$defs/Reply_Text"
             },
             {
               "type": "null"
@@ -102,7 +102,7 @@
         "version": {
           "anyOf": [
             {
-              "$ref": "#/$defs/Text"
+              "$ref": "#/$defs/Reply_Text"
             },
             {
               "type": "null"
@@ -116,7 +116,7 @@
       ],
       "type": "object"
     },
-    "Bound": {
+    "Reply_Bound": {
       "anyOf": [
         {
           "required": [
@@ -150,7 +150,7 @@
       },
       "type": "object"
     },
-    "CacheProblem": {
+    "Reply_CacheProblem": {
       "description": "A local cache failure that leaves the provider outcome intact.",
       "enum": [
         "busy",
@@ -159,7 +159,7 @@
       ],
       "type": "string"
     },
-    "CivicEvidenceLevelCode": {
+    "Reply_CivicEvidenceLevelCode": {
       "description": "Source-defined CIViC evidence levels.",
       "enum": [
         "a",
@@ -170,7 +170,7 @@
       ],
       "type": "string"
     },
-    "ClingenCgcVicc2022Code": {
+    "Reply_ClingenCgcVicc2022Code": {
       "description": "Checked ClingenCgcVicc2022 codes.",
       "enum": [
         "oncogenic",
@@ -181,7 +181,7 @@
       ],
       "type": "string"
     },
-    "ClingenLowPenetrance2024Code": {
+    "Reply_ClingenLowPenetrance2024Code": {
       "description": "Checked ClingenLowPenetrance2024 codes.",
       "enum": [
         "pathogenic_low_penetrance",
@@ -192,14 +192,14 @@
       ],
       "type": "string"
     },
-    "Coding": {
+    "Reply_Coding": {
       "description": "A code in one explicitly named source framework.",
       "oneOf": [
         {
           "description": "OncoKB oncogenicity vocabulary.",
           "properties": {
             "code": {
-              "$ref": "#/$defs/OncokbOncogenicityCode"
+              "$ref": "#/$defs/Reply_OncokbOncogenicityCode"
             },
             "system": {
               "const": "oncokb_oncogenicity",
@@ -216,7 +216,7 @@
           "description": "OncoKB evidence levels.",
           "properties": {
             "code": {
-              "$ref": "#/$defs/OncokbLevelCode"
+              "$ref": "#/$defs/Reply_OncokbLevelCode"
             },
             "system": {
               "const": "oncokb_level",
@@ -233,7 +233,7 @@
           "description": "CIViC evidence level.",
           "properties": {
             "code": {
-              "$ref": "#/$defs/CivicEvidenceLevelCode"
+              "$ref": "#/$defs/Reply_CivicEvidenceLevelCode"
             },
             "system": {
               "const": "civic_evidence_level",
@@ -250,7 +250,7 @@
           "description": "acmg_amp_2015 vocabulary.",
           "properties": {
             "code": {
-              "$ref": "#/$defs/AcmgAmp2015Code"
+              "$ref": "#/$defs/Reply_AcmgAmp2015Code"
             },
             "system": {
               "const": "acmg_amp_2015",
@@ -267,7 +267,7 @@
           "description": "clingen_low_penetrance_2024 vocabulary.",
           "properties": {
             "code": {
-              "$ref": "#/$defs/ClingenLowPenetrance2024Code"
+              "$ref": "#/$defs/Reply_ClingenLowPenetrance2024Code"
             },
             "system": {
               "const": "clingen_low_penetrance_2024",
@@ -284,7 +284,7 @@
           "description": "amp_asco_cap_2017_tier vocabulary.",
           "properties": {
             "code": {
-              "$ref": "#/$defs/AmpAscoCap2017TierCode"
+              "$ref": "#/$defs/Reply_AmpAscoCap2017TierCode"
             },
             "system": {
               "const": "amp_asco_cap_2017_tier",
@@ -301,7 +301,7 @@
           "description": "amp_asco_cap_2017_level vocabulary.",
           "properties": {
             "code": {
-              "$ref": "#/$defs/AmpAscoCap2017LevelCode"
+              "$ref": "#/$defs/Reply_AmpAscoCap2017LevelCode"
             },
             "system": {
               "const": "amp_asco_cap_2017_level",
@@ -318,7 +318,7 @@
           "description": "clingen_cgc_vicc_2022 vocabulary.",
           "properties": {
             "code": {
-              "$ref": "#/$defs/ClingenCgcVicc2022Code"
+              "$ref": "#/$defs/Reply_ClingenCgcVicc2022Code"
             },
             "system": {
               "const": "clingen_cgc_vicc_2022",
@@ -333,22 +333,22 @@
         }
       ]
     },
-    "ComplexPortalId": {
+    "Reply_ComplexPortalId": {
       "description": "An exact Complex Portal accession.",
       "pattern": "^CPX-[1-9][0-9]*$",
       "type": "string"
     },
-    "Curie": {
+    "Reply_Curie": {
       "description": "Checked prefix:local ontology identifier.",
       "pattern": "^[A-Za-z0-9_.-]+:[^\\s\\x00-\\x1f\\x7f-\\x9f]+$",
       "type": "string"
     },
-    "InterProId": {
+    "Reply_InterProId": {
       "description": "An integrated InterPro entry accession, distinct from a member signature.",
       "pattern": "^IPR[0-9]{6}$",
       "type": "string"
     },
-    "OncokbLevelCode": {
+    "Reply_OncokbLevelCode": {
       "description": "Source-defined OncoKB vocabulary.",
       "enum": [
         "level_1",
@@ -367,7 +367,7 @@
       ],
       "type": "string"
     },
-    "OncokbOncogenicityCode": {
+    "Reply_OncokbOncogenicityCode": {
       "description": "Source-defined OncoKB vocabulary.",
       "enum": [
         "oncogenic",
@@ -379,7 +379,7 @@
       ],
       "type": "string"
     },
-    "PageInfo": {
+    "Reply_PageInfo": {
       "description": "Search counts after filtering and deduplication.",
       "properties": {
         "offset": {
@@ -391,7 +391,7 @@
         "pool": {
           "anyOf": [
             {
-              "$ref": "#/$defs/PoolInfo"
+              "$ref": "#/$defs/Reply_PoolInfo"
             },
             {
               "type": "null"
@@ -426,12 +426,12 @@
       ],
       "type": "object"
     },
-    "PartialDate": {
+    "Reply_PartialDate": {
       "description": "A Gregorian date preserving year, month or day precision.",
       "pattern": "^[0-9]{4}(-[0-9]{2}(-[0-9]{2})?)?$",
       "type": "string"
     },
-    "PoolInfo": {
+    "Reply_PoolInfo": {
       "description": "Fixed lifetime and size of a stored search snapshot.",
       "properties": {
         "created": {
@@ -447,7 +447,7 @@
           "type": "integer"
         },
         "id": {
-          "$ref": "#/$defs/Text",
+          "$ref": "#/$defs/Reply_Text",
           "description": "Opaque snapshot identifier."
         },
         "size": {
@@ -465,11 +465,11 @@
       ],
       "type": "object"
     },
-    "Problem": {
+    "Reply_Problem": {
       "description": "A field that could not be accepted from a source record.",
       "properties": {
         "code": {
-          "$ref": "#/$defs/ProblemCode",
+          "$ref": "#/$defs/Reply_ProblemCode",
           "description": "Why the field value was not accepted."
         },
         "field": {
@@ -479,7 +479,7 @@
         "record": {
           "anyOf": [
             {
-              "$ref": "#/$defs/Text"
+              "$ref": "#/$defs/Reply_Text"
             },
             {
               "type": "null"
@@ -488,7 +488,7 @@
           "description": "The record's canonical identifier, when known."
         },
         "source": {
-          "$ref": "#/$defs/Source",
+          "$ref": "#/$defs/Reply_Source",
           "description": "The source that supplied the record."
         }
       },
@@ -499,7 +499,7 @@
       ],
       "type": "object"
     },
-    "ProblemCode": {
+    "Reply_ProblemCode": {
       "description": "A stable code for a rejected field value.",
       "type": "string",
       "x-enum-descriptions": [
@@ -513,46 +513,7 @@
         "identity.conflict"
       ]
     },
-    "Protein": {
-      "description": "A reviewed human protein listed by the authoritative gene record.",
-      "properties": {
-        "accession": {
-          "$ref": "#/$defs/UniProtIsoform",
-          "description": "Checked primary accession."
-        },
-        "function": {
-          "description": "Whole source function paragraphs, omitted when absent.",
-          "items": {
-            "$ref": "#/$defs/Text"
-          },
-          "type": "array"
-        },
-        "length": {
-          "description": "Sequence length in amino acids.",
-          "format": "uint32",
-          "minimum": 0,
-          "type": "integer"
-        },
-        "name": {
-          "$ref": "#/$defs/Text",
-          "description": "Recommended protein name."
-        },
-        "subcellular_locations": {
-          "description": "Source subcellular location names.",
-          "items": {
-            "$ref": "#/$defs/Text"
-          },
-          "type": "array"
-        }
-      },
-      "required": [
-        "accession",
-        "name",
-        "length"
-      ],
-      "type": "object"
-    },
-    "ProteinAudit": {
+    "Reply_ProteinAudit": {
       "description": "Native source audit metadata, independent from local retrieval metadata.",
       "properties": {
         "entry_version": {
@@ -567,7 +528,7 @@
         "first_public": {
           "anyOf": [
             {
-              "$ref": "#/$defs/PartialDate"
+              "$ref": "#/$defs/Reply_PartialDate"
             },
             {
               "type": "null"
@@ -578,7 +539,7 @@
         "last_annotation_update": {
           "anyOf": [
             {
-              "$ref": "#/$defs/PartialDate"
+              "$ref": "#/$defs/Reply_PartialDate"
             },
             {
               "type": "null"
@@ -589,7 +550,7 @@
         "last_sequence_update": {
           "anyOf": [
             {
-              "$ref": "#/$defs/PartialDate"
+              "$ref": "#/$defs/Reply_PartialDate"
             },
             {
               "type": "null"
@@ -600,7 +561,7 @@
         "release": {
           "anyOf": [
             {
-              "$ref": "#/$defs/Text"
+              "$ref": "#/$defs/Reply_Text"
             },
             {
               "type": "null"
@@ -620,26 +581,26 @@
       },
       "type": "object"
     },
-    "ProteinCard": {
+    "Reply_ProteinCard": {
       "description": "Answers to requested inputs; ambiguous gene inputs retain all candidates.",
       "properties": {
         "items": {
           "description": "One result per input in caller order.",
           "items": {
-            "$ref": "#/$defs/ProteinCardItem"
+            "$ref": "#/$defs/Reply_ProteinCardItem"
           },
           "type": "array"
         }
       },
       "type": "object"
     },
-    "ProteinCardItem": {
+    "Reply_ProteinCardItem": {
       "description": "One requested identity and its source outcome, without first-hit selection.",
       "properties": {
         "audit": {
           "anyOf": [
             {
-              "$ref": "#/$defs/ProteinAudit"
+              "$ref": "#/$defs/Reply_ProteinAudit"
             },
             {
               "type": "null"
@@ -650,14 +611,14 @@
         "candidates": {
           "description": "Competing exact source identities when a gene does not resolve uniquely.",
           "items": {
-            "$ref": "#/$defs/ProteinHeader"
+            "$ref": "#/$defs/Reply_ProteinHeader"
           },
           "type": "array"
         },
         "header": {
           "anyOf": [
             {
-              "$ref": "#/$defs/ProteinHeader"
+              "$ref": "#/$defs/Reply_ProteinHeader"
             },
             {
               "type": "null"
@@ -666,20 +627,20 @@
           "description": "Exact resolved native header; absent for ambiguity or failure."
         },
         "input": {
-          "$ref": "#/$defs/ProteinInput",
+          "$ref": "#/$defs/Reply_ProteinInput",
           "description": "Original caller identity."
         },
         "more": {
           "description": "Supported sections not requested.",
           "items": {
-            "$ref": "#/$defs/ProteinSection"
+            "$ref": "#/$defs/Reply_ProteinSection"
           },
           "type": "array"
         },
         "sections": {
           "anyOf": [
             {
-              "$ref": "#/$defs/ProteinSections"
+              "$ref": "#/$defs/Reply_ProteinSections"
             },
             {
               "type": "null"
@@ -688,7 +649,7 @@
           "description": "Requested bounded sections only."
         },
         "status": {
-          "$ref": "#/$defs/Status",
+          "$ref": "#/$defs/Reply_Status",
           "description": "Outcome of this input."
         }
       },
@@ -698,21 +659,21 @@
       ],
       "type": "object"
     },
-    "ProteinComplexHeader": {
+    "Reply_ProteinComplexHeader": {
       "description": "Exact source complex header admitted by a native participant identity.",
       "properties": {
         "id": {
-          "$ref": "#/$defs/ComplexPortalId",
+          "$ref": "#/$defs/Reply_ComplexPortalId",
           "description": "Native complex accession."
         },
         "matched_participant": {
-          "$ref": "#/$defs/Text",
+          "$ref": "#/$defs/Reply_Text",
           "description": "Exact native participant identifier supporting admission."
         },
         "name": {
           "anyOf": [
             {
-              "$ref": "#/$defs/Text"
+              "$ref": "#/$defs/Reply_Text"
             },
             {
               "type": "null"
@@ -740,7 +701,7 @@
           "type": "integer"
         },
         "url": {
-          "$ref": "#/$defs/Text",
+          "$ref": "#/$defs/Reply_Text",
           "description": "Native complex record URL.",
           "format": "uri"
         }
@@ -754,13 +715,13 @@
       ],
       "type": "object"
     },
-    "ProteinComplexes": {
+    "Reply_ProteinComplexes": {
       "description": "Whole native rows with the independent unfiltered source count.",
       "properties": {
         "items": {
           "description": "Bounded retained rows in source order.",
           "items": {
-            "$ref": "#/$defs/ProteinComplexHeader"
+            "$ref": "#/$defs/Reply_ProteinComplexHeader"
           },
           "type": "array"
         },
@@ -776,20 +737,20 @@
       ],
       "type": "object"
     },
-    "ProteinCoordinateConvention": {
+    "Reply_ProteinCoordinateConvention": {
       "description": "Coordinate convention on the native feature before conversion.",
       "enum": [
         "one_based_inclusive"
       ],
       "type": "string"
     },
-    "ProteinDomainFragment": {
+    "Reply_ProteinDomainFragment": {
       "description": "One native match fragment after coordinate conversion.",
       "properties": {
         "dc_status": {
           "anyOf": [
             {
-              "$ref": "#/$defs/Text"
+              "$ref": "#/$defs/Reply_Text"
             },
             {
               "type": "null"
@@ -798,7 +759,7 @@
           "description": "Literal discontinuity status supplied by InterPro."
         },
         "span": {
-          "$ref": "#/$defs/UncertainSpan0",
+          "$ref": "#/$defs/Reply_UncertainSpan0",
           "description": "Converted interbase span with uncertainty retained."
         }
       },
@@ -807,30 +768,30 @@
       ],
       "type": "object"
     },
-    "ProteinDomainLocation": {
+    "Reply_ProteinDomainLocation": {
       "description": "One native InterPro location group retaining all discontinuous fragments.",
       "properties": {
         "fragments": {
           "description": "All native fragments; never reduced to a min/max hull.",
           "items": {
-            "$ref": "#/$defs/ProteinDomainFragment"
+            "$ref": "#/$defs/Reply_ProteinDomainFragment"
           },
           "type": "array"
         }
       },
       "type": "object"
     },
-    "ProteinDomainMatch": {
+    "Reply_ProteinDomainMatch": {
       "description": "One native integrated InterPro match; not every entry type is a domain.",
       "properties": {
         "attribution": {
-          "$ref": "#/$defs/Attribution",
+          "$ref": "#/$defs/Reply_Attribution",
           "description": "Source record and release facts."
         },
         "entry_type": {
           "anyOf": [
             {
-              "$ref": "#/$defs/Text"
+              "$ref": "#/$defs/Reply_Text"
             },
             {
               "type": "null"
@@ -839,27 +800,27 @@
           "description": "Literal source entry type, including family, site and repeat."
         },
         "id": {
-          "$ref": "#/$defs/InterProId",
+          "$ref": "#/$defs/Reply_InterProId",
           "description": "Integrated entry accession, distinct from member signatures."
         },
         "locations": {
           "description": "Every native location group in source order.",
           "items": {
-            "$ref": "#/$defs/ProteinDomainLocation"
+            "$ref": "#/$defs/Reply_ProteinDomainLocation"
           },
           "type": "array"
         },
         "member_signatures": {
           "description": "Source member signatures remain distinct from integrated entries.",
           "items": {
-            "$ref": "#/$defs/ProteinMemberSignature"
+            "$ref": "#/$defs/Reply_ProteinMemberSignature"
           },
           "type": "array"
         },
         "name": {
           "anyOf": [
             {
-              "$ref": "#/$defs/Text"
+              "$ref": "#/$defs/Reply_Text"
             },
             {
               "type": "null"
@@ -868,7 +829,7 @@
           "description": "Native integrated name."
         },
         "protein": {
-          "$ref": "#/$defs/UniProtIsoform",
+          "$ref": "#/$defs/Reply_UniProtIsoform",
           "description": "Exact native protein identity."
         },
         "protein_length": {
@@ -897,13 +858,13 @@
       ],
       "type": "object"
     },
-    "ProteinDomains": {
+    "Reply_ProteinDomains": {
       "description": "Whole native rows with the independent unfiltered source count.",
       "properties": {
         "items": {
           "description": "Bounded retained rows in source order.",
           "items": {
-            "$ref": "#/$defs/ProteinDomainMatch"
+            "$ref": "#/$defs/Reply_ProteinDomainMatch"
           },
           "type": "array"
         },
@@ -919,19 +880,19 @@
       ],
       "type": "object"
     },
-    "ProteinFeature": {
+    "Reply_ProteinFeature": {
       "description": "UniProt feature with source attribution and coordinate provenance.",
       "properties": {
         "attribution": {
-          "$ref": "#/$defs/Attribution",
+          "$ref": "#/$defs/Reply_Attribution",
           "description": "Source record and release facts."
         },
         "feature": {
-          "$ref": "#/$defs/UniProtFeature",
+          "$ref": "#/$defs/Reply_UniProtFeature",
           "description": "Shared feature, including native label and residues."
         },
         "source_coordinates": {
-          "$ref": "#/$defs/ProteinCoordinateConvention",
+          "$ref": "#/$defs/Reply_ProteinCoordinateConvention",
           "description": "Convention before mathematical conversion."
         }
       },
@@ -942,33 +903,33 @@
       ],
       "type": "object"
     },
-    "ProteinFeatures": {
+    "Reply_ProteinFeatures": {
       "description": "Native UniProt feature rows, preserving exact labels and uncertain bounds.",
       "properties": {
         "items": {
           "description": "Whole native rows in source order; totals apply only to this collection.",
           "items": {
-            "$ref": "#/$defs/ProteinFeature"
+            "$ref": "#/$defs/Reply_ProteinFeature"
           },
           "type": "array"
         }
       },
       "type": "object"
     },
-    "ProteinFunction": {
+    "Reply_ProteinFunction": {
       "description": "One whole source function paragraph and its own evidence.",
       "properties": {
         "evidence": {
           "description": "All evidence references supplied for this text.",
           "items": {
-            "$ref": "#/$defs/Text"
+            "$ref": "#/$defs/Reply_Text"
           },
           "type": "array"
         },
         "molecule": {
           "anyOf": [
             {
-              "$ref": "#/$defs/Text"
+              "$ref": "#/$defs/Reply_Text"
             },
             {
               "type": "null"
@@ -977,7 +938,7 @@
           "description": "Native molecule qualifier; never attributed to another isoform."
         },
         "text": {
-          "$ref": "#/$defs/Text",
+          "$ref": "#/$defs/Reply_Text",
           "description": "Whole native source text, without clinical interpretation."
         }
       },
@@ -986,26 +947,26 @@
       ],
       "type": "object"
     },
-    "ProteinFunctionResult": {
+    "Reply_ProteinFunctionResult": {
       "description": "Whole source function paragraphs and their own evidence.",
       "properties": {
         "items": {
           "description": "Native paragraphs in source order, without inferred interpretation.",
           "items": {
-            "$ref": "#/$defs/ProteinFunction"
+            "$ref": "#/$defs/Reply_ProteinFunction"
           },
           "type": "array"
         }
       },
       "type": "object"
     },
-    "ProteinGet": {
+    "Reply_ProteinGet": {
       "description": "Read source protein cards; a symbol returns candidates without choosing a protein.\nSections disclose native facts with independent row bounds; function keeps all paragraphs.\nNo variant effect, structure, interaction or clinical meaning is inferred. No bioinformatics tool runs.",
       "properties": {
         "input": {
           "description": "Source accessions or gene symbols, preserving caller order.",
           "items": {
-            "$ref": "#/$defs/ProteinInput"
+            "$ref": "#/$defs/Reply_ProteinInput"
           },
           "maxItems": 20,
           "minItems": 1,
@@ -1015,7 +976,7 @@
         "section": {
           "description": "Select native sections or all bounded first pages; function keeps one whole text record.",
           "items": {
-            "$ref": "#/$defs/ProteinSection"
+            "$ref": "#/$defs/Reply_ProteinSection"
           },
           "type": "array",
           "x-trailing-section": true
@@ -1034,29 +995,29 @@
       ],
       "type": "object"
     },
-    "ProteinHeader": {
+    "Reply_ProteinHeader": {
       "description": "Native entry metadata wrapping the same Protein identity used by the gene slice.",
       "properties": {
         "entry_id": {
-          "$ref": "#/$defs/Text",
+          "$ref": "#/$defs/Reply_Text",
           "description": "Native source entry name."
         },
         "gene_ids": {
           "description": "Only identifiers explicitly supplied by the source.",
           "items": {
-            "$ref": "#/$defs/Curie"
+            "$ref": "#/$defs/Reply_Curie"
           },
           "type": "array"
         },
         "gene_names": {
           "description": "Display names only; never identifier joins.",
           "items": {
-            "$ref": "#/$defs/Text"
+            "$ref": "#/$defs/Reply_Text"
           },
           "type": "array"
         },
         "protein": {
-          "$ref": "#/$defs/Protein",
+          "$ref": "#/$defs/Reply_Protein_UniProtIsoform",
           "description": "Shared gene/protein identity fields; never independently restated."
         },
         "reviewed": {
@@ -1070,7 +1031,7 @@
           "type": "integer"
         },
         "url": {
-          "$ref": "#/$defs/Text",
+          "$ref": "#/$defs/Reply_Text",
           "description": "Source entry URL.",
           "format": "uri"
         }
@@ -1084,44 +1045,44 @@
       ],
       "type": "object"
     },
-    "ProteinInput": {
+    "Reply_ProteinInput": {
       "description": "Exact source accession or a checked display gene symbol needing later resolution.\nThe schema describes the string surface; deserialization checks either identity grammar.",
       "minLength": 1,
       "type": "string"
     },
-    "ProteinIsoform": {
+    "Reply_ProteinIsoform": {
       "description": "One source alternative-product row; all stated identifiers stay together.",
       "properties": {
         "direct_sequence": {
-          "$ref": "#/$defs/ProteinSequenceAvailability",
+          "$ref": "#/$defs/Reply_ProteinSequenceAvailability",
           "description": "Explicit direct-sequence retrieval state, independent of descriptive status."
         },
         "ids": {
           "description": "All source-stated isoform identifiers, including External base identities.",
           "items": {
-            "$ref": "#/$defs/UniProtIsoform"
+            "$ref": "#/$defs/Reply_UniProtIsoform"
           },
           "type": "array"
         },
         "name": {
-          "$ref": "#/$defs/Text",
+          "$ref": "#/$defs/Reply_Text",
           "description": "Source isoform name."
         },
         "sequence_ids": {
           "description": "Source VSP sequence identifiers.",
           "items": {
-            "$ref": "#/$defs/Text"
+            "$ref": "#/$defs/Reply_Text"
           },
           "type": "array"
         },
         "sequence_status": {
-          "$ref": "#/$defs/ProteinIsoformStatus",
+          "$ref": "#/$defs/Reply_ProteinIsoformStatus",
           "description": "Native sequence status; no sequence is inferred from it."
         },
         "synonyms": {
           "description": "Every source synonym.",
           "items": {
-            "$ref": "#/$defs/Text"
+            "$ref": "#/$defs/Reply_Text"
           },
           "type": "array"
         }
@@ -1133,7 +1094,7 @@
       ],
       "type": "object"
     },
-    "ProteinIsoformStatus": {
+    "Reply_ProteinIsoformStatus": {
       "description": "Native UniProt alternative-product sequence status.",
       "enum": [
         "Displayed",
@@ -1142,34 +1103,34 @@
       ],
       "type": "string"
     },
-    "ProteinIsoforms": {
+    "Reply_ProteinIsoforms": {
       "description": "Alternative products with every stated identifier and explicit direct sequence state.",
       "properties": {
         "items": {
           "description": "Whole native rows in source order; totals apply only to this collection.",
           "items": {
-            "$ref": "#/$defs/ProteinIsoform"
+            "$ref": "#/$defs/Reply_ProteinIsoform"
           },
           "type": "array"
         }
       },
       "type": "object"
     },
-    "ProteinMemberSignature": {
+    "Reply_ProteinMemberSignature": {
       "description": "A member database signature, not an integrated IPR entry.",
       "properties": {
         "accession": {
-          "$ref": "#/$defs/Text",
+          "$ref": "#/$defs/Reply_Text",
           "description": "Native signature accession."
         },
         "database": {
-          "$ref": "#/$defs/Text",
+          "$ref": "#/$defs/Reply_Text",
           "description": "Native member database name."
         },
         "name": {
           "anyOf": [
             {
-              "$ref": "#/$defs/Text"
+              "$ref": "#/$defs/Reply_Text"
             },
             {
               "type": "null"
@@ -1184,7 +1145,7 @@
       ],
       "type": "object"
     },
-    "ProteinSection": {
+    "Reply_ProteinSection": {
       "description": "Named protein sections; all expands to bounded first pages.",
       "enum": [
         "features",
@@ -1208,13 +1169,13 @@
         " Bounded first page of every named section."
       ]
     },
-    "ProteinSections": {
+    "Reply_ProteinSections": {
       "description": "Independent source section states; all discloses bounded first pages only.",
       "properties": {
         "complexes": {
           "anyOf": [
             {
-              "$ref": "#/$defs/Section4"
+              "$ref": "#/$defs/Reply_Section_ProteinComplexes"
             },
             {
               "type": "null"
@@ -1225,7 +1186,7 @@
         "domains": {
           "anyOf": [
             {
-              "$ref": "#/$defs/Section2"
+              "$ref": "#/$defs/Reply_Section_ProteinDomains"
             },
             {
               "type": "null"
@@ -1236,7 +1197,7 @@
         "features": {
           "anyOf": [
             {
-              "$ref": "#/$defs/Section"
+              "$ref": "#/$defs/Reply_Section_ProteinFeatures"
             },
             {
               "type": "null"
@@ -1247,7 +1208,7 @@
         "function": {
           "anyOf": [
             {
-              "$ref": "#/$defs/Section6"
+              "$ref": "#/$defs/Reply_Section_ProteinFunctionResult"
             },
             {
               "type": "null"
@@ -1258,7 +1219,7 @@
         "isoforms": {
           "anyOf": [
             {
-              "$ref": "#/$defs/Section3"
+              "$ref": "#/$defs/Reply_Section_ProteinIsoforms"
             },
             {
               "type": "null"
@@ -1269,7 +1230,7 @@
         "sequence": {
           "anyOf": [
             {
-              "$ref": "#/$defs/Section7"
+              "$ref": "#/$defs/Reply_Section_ProteinSequenceResult"
             },
             {
               "type": "null"
@@ -1280,7 +1241,7 @@
         "structures": {
           "anyOf": [
             {
-              "$ref": "#/$defs/Section5"
+              "$ref": "#/$defs/Reply_Section_ProteinStructures"
             },
             {
               "type": "null"
@@ -1291,21 +1252,21 @@
       },
       "type": "object"
     },
-    "ProteinSequence": {
+    "Reply_ProteinSequence": {
       "description": "A directly returned sequence with exact returned identity and audit facts.",
       "properties": {
         "accession": {
-          "$ref": "#/$defs/UniProtIsoform",
+          "$ref": "#/$defs/Reply_UniProtIsoform",
           "description": "Exact returned accession; never replaced by the requested base entry."
         },
         "audit": {
-          "$ref": "#/$defs/ProteinAudit",
+          "$ref": "#/$defs/Reply_ProteinAudit",
           "description": "Native audit facts for this record."
         },
         "crc64": {
           "anyOf": [
             {
-              "$ref": "#/$defs/Text"
+              "$ref": "#/$defs/Reply_Text"
             },
             {
               "type": "null"
@@ -1322,7 +1283,7 @@
         "md5": {
           "anyOf": [
             {
-              "$ref": "#/$defs/Text"
+              "$ref": "#/$defs/Reply_Text"
             },
             {
               "type": "null"
@@ -1331,7 +1292,7 @@
           "description": "Native checksum when supplied."
         },
         "sequence": {
-          "$ref": "#/$defs/AminoAcids",
+          "$ref": "#/$defs/Reply_AminoAcids",
           "description": "Source residues, never constructed from another entry."
         }
       },
@@ -1343,7 +1304,7 @@
       ],
       "type": "object"
     },
-    "ProteinSequenceAvailability": {
+    "Reply_ProteinSequenceAvailability": {
       "description": "Direct sequence availability is a retrieval fact, never constructed from another entry.",
       "enum": [
         "available",
@@ -1352,11 +1313,11 @@
       ],
       "type": "string"
     },
-    "ProteinSequenceResult": {
+    "Reply_ProteinSequenceResult": {
       "description": "One directly returned source sequence, with exact identity and audit metadata.",
       "properties": {
         "sequence": {
-          "$ref": "#/$defs/ProteinSequence",
+          "$ref": "#/$defs/Reply_ProteinSequence",
           "description": "Native sequence record; never constructed from another entry."
         }
       },
@@ -1365,15 +1326,15 @@
       ],
       "type": "object"
     },
-    "ProteinStructureProperty": {
+    "Reply_ProteinStructureProperty": {
       "description": "A native cross-reference property pair.",
       "properties": {
         "key": {
-          "$ref": "#/$defs/Text",
+          "$ref": "#/$defs/Reply_Text",
           "description": "Native property key."
         },
         "value": {
-          "$ref": "#/$defs/Text",
+          "$ref": "#/$defs/Reply_Text",
           "description": "Native property value, without interpreting residue coverage."
         }
       },
@@ -1383,26 +1344,26 @@
       ],
       "type": "object"
     },
-    "ProteinStructureRef": {
+    "Reply_ProteinStructureRef": {
       "description": "A source structure cross-reference link; no residue coverage claim.",
       "properties": {
         "database": {
-          "$ref": "#/$defs/Text",
+          "$ref": "#/$defs/Reply_Text",
           "description": "Native cross-reference database."
         },
         "id": {
-          "$ref": "#/$defs/Text",
+          "$ref": "#/$defs/Reply_Text",
           "description": "Native cross-reference identifier."
         },
         "properties": {
           "description": "All native property pairs, including method, resolution and chains.",
           "items": {
-            "$ref": "#/$defs/ProteinStructureProperty"
+            "$ref": "#/$defs/Reply_ProteinStructureProperty"
           },
           "type": "array"
         },
         "url": {
-          "$ref": "#/$defs/Text",
+          "$ref": "#/$defs/Reply_Text",
           "description": "Publisher link; no structure file is retrieved.",
           "format": "uri"
         }
@@ -1414,20 +1375,59 @@
       ],
       "type": "object"
     },
-    "ProteinStructures": {
+    "Reply_ProteinStructures": {
       "description": "Source structure links and native properties; no residue coverage claim.",
       "properties": {
         "items": {
           "description": "Whole native rows in source order; totals apply only to this collection.",
           "items": {
-            "$ref": "#/$defs/ProteinStructureRef"
+            "$ref": "#/$defs/Reply_ProteinStructureRef"
           },
           "type": "array"
         }
       },
       "type": "object"
     },
-    "Reason": {
+    "Reply_Protein_UniProtIsoform": {
+      "description": "A reviewed human protein listed by the authoritative gene record.",
+      "properties": {
+        "accession": {
+          "$ref": "#/$defs/Reply_UniProtIsoform",
+          "description": "Checked primary accession."
+        },
+        "function": {
+          "description": "Whole source function paragraphs, omitted when absent.",
+          "items": {
+            "$ref": "#/$defs/Reply_Text"
+          },
+          "type": "array"
+        },
+        "length": {
+          "description": "Sequence length in amino acids.",
+          "format": "uint32",
+          "minimum": 0,
+          "type": "integer"
+        },
+        "name": {
+          "$ref": "#/$defs/Reply_Text",
+          "description": "Recommended protein name."
+        },
+        "subcellular_locations": {
+          "description": "Source subcellular location names.",
+          "items": {
+            "$ref": "#/$defs/Reply_Text"
+          },
+          "type": "array"
+        }
+      },
+      "required": [
+        "accession",
+        "name",
+        "length"
+      ],
+      "type": "object"
+    },
+    "Reply_Reason": {
       "description": "Why a source could not supply data.",
       "type": "string",
       "x-enum-descriptions": [
@@ -1473,18 +1473,18 @@
         "no_join_id"
       ]
     },
-    "Section": {
+    "Reply_Section_ProteinComplexes": {
       "description": "A requested section has exactly one state.",
       "oneOf": [
         {
           "description": "The source returned data.",
           "properties": {
             "data": {
-              "$ref": "#/$defs/ProteinFeatures",
+              "$ref": "#/$defs/Reply_ProteinComplexes",
               "description": "Whole section data."
             },
             "source": {
-              "$ref": "#/$defs/Source",
+              "$ref": "#/$defs/Reply_Source",
               "description": "Source identity."
             },
             "state": {
@@ -1505,7 +1505,7 @@
             "record": {
               "anyOf": [
                 {
-                  "$ref": "#/$defs/SourceRecord"
+                  "$ref": "#/$defs/Reply_SourceRecord"
                 },
                 {
                   "type": "null"
@@ -1514,7 +1514,7 @@
               "description": "Native entry, if any."
             },
             "source": {
-              "$ref": "#/$defs/Source",
+              "$ref": "#/$defs/Reply_Source",
               "description": "Source identity."
             },
             "state": {
@@ -1532,11 +1532,11 @@
           "description": "A requested source failed.",
           "properties": {
             "reason": {
-              "$ref": "#/$defs/Reason",
+              "$ref": "#/$defs/Reply_Reason",
               "description": "Typed reason."
             },
             "source": {
-              "$ref": "#/$defs/Source",
+              "$ref": "#/$defs/Reply_Source",
               "description": "Source identity."
             },
             "state": {
@@ -1555,11 +1555,11 @@
           "description": "User settings prevented the source request.",
           "properties": {
             "reason": {
-              "$ref": "#/$defs/Reason",
+              "$ref": "#/$defs/Reply_Reason",
               "description": "Typed reason."
             },
             "source": {
-              "$ref": "#/$defs/Source",
+              "$ref": "#/$defs/Reply_Source",
               "description": "Source identity."
             },
             "state": {
@@ -1589,18 +1589,18 @@
         }
       ]
     },
-    "Section2": {
+    "Reply_Section_ProteinDomains": {
       "description": "A requested section has exactly one state.",
       "oneOf": [
         {
           "description": "The source returned data.",
           "properties": {
             "data": {
-              "$ref": "#/$defs/ProteinDomains",
+              "$ref": "#/$defs/Reply_ProteinDomains",
               "description": "Whole section data."
             },
             "source": {
-              "$ref": "#/$defs/Source",
+              "$ref": "#/$defs/Reply_Source",
               "description": "Source identity."
             },
             "state": {
@@ -1621,7 +1621,7 @@
             "record": {
               "anyOf": [
                 {
-                  "$ref": "#/$defs/SourceRecord"
+                  "$ref": "#/$defs/Reply_SourceRecord"
                 },
                 {
                   "type": "null"
@@ -1630,7 +1630,7 @@
               "description": "Native entry, if any."
             },
             "source": {
-              "$ref": "#/$defs/Source",
+              "$ref": "#/$defs/Reply_Source",
               "description": "Source identity."
             },
             "state": {
@@ -1648,11 +1648,11 @@
           "description": "A requested source failed.",
           "properties": {
             "reason": {
-              "$ref": "#/$defs/Reason",
+              "$ref": "#/$defs/Reply_Reason",
               "description": "Typed reason."
             },
             "source": {
-              "$ref": "#/$defs/Source",
+              "$ref": "#/$defs/Reply_Source",
               "description": "Source identity."
             },
             "state": {
@@ -1671,11 +1671,11 @@
           "description": "User settings prevented the source request.",
           "properties": {
             "reason": {
-              "$ref": "#/$defs/Reason",
+              "$ref": "#/$defs/Reply_Reason",
               "description": "Typed reason."
             },
             "source": {
-              "$ref": "#/$defs/Source",
+              "$ref": "#/$defs/Reply_Source",
               "description": "Source identity."
             },
             "state": {
@@ -1705,18 +1705,18 @@
         }
       ]
     },
-    "Section3": {
+    "Reply_Section_ProteinFeatures": {
       "description": "A requested section has exactly one state.",
       "oneOf": [
         {
           "description": "The source returned data.",
           "properties": {
             "data": {
-              "$ref": "#/$defs/ProteinIsoforms",
+              "$ref": "#/$defs/Reply_ProteinFeatures",
               "description": "Whole section data."
             },
             "source": {
-              "$ref": "#/$defs/Source",
+              "$ref": "#/$defs/Reply_Source",
               "description": "Source identity."
             },
             "state": {
@@ -1737,7 +1737,7 @@
             "record": {
               "anyOf": [
                 {
-                  "$ref": "#/$defs/SourceRecord"
+                  "$ref": "#/$defs/Reply_SourceRecord"
                 },
                 {
                   "type": "null"
@@ -1746,7 +1746,7 @@
               "description": "Native entry, if any."
             },
             "source": {
-              "$ref": "#/$defs/Source",
+              "$ref": "#/$defs/Reply_Source",
               "description": "Source identity."
             },
             "state": {
@@ -1764,11 +1764,11 @@
           "description": "A requested source failed.",
           "properties": {
             "reason": {
-              "$ref": "#/$defs/Reason",
+              "$ref": "#/$defs/Reply_Reason",
               "description": "Typed reason."
             },
             "source": {
-              "$ref": "#/$defs/Source",
+              "$ref": "#/$defs/Reply_Source",
               "description": "Source identity."
             },
             "state": {
@@ -1787,11 +1787,11 @@
           "description": "User settings prevented the source request.",
           "properties": {
             "reason": {
-              "$ref": "#/$defs/Reason",
+              "$ref": "#/$defs/Reply_Reason",
               "description": "Typed reason."
             },
             "source": {
-              "$ref": "#/$defs/Source",
+              "$ref": "#/$defs/Reply_Source",
               "description": "Source identity."
             },
             "state": {
@@ -1821,18 +1821,18 @@
         }
       ]
     },
-    "Section4": {
+    "Reply_Section_ProteinFunctionResult": {
       "description": "A requested section has exactly one state.",
       "oneOf": [
         {
           "description": "The source returned data.",
           "properties": {
             "data": {
-              "$ref": "#/$defs/ProteinComplexes",
+              "$ref": "#/$defs/Reply_ProteinFunctionResult",
               "description": "Whole section data."
             },
             "source": {
-              "$ref": "#/$defs/Source",
+              "$ref": "#/$defs/Reply_Source",
               "description": "Source identity."
             },
             "state": {
@@ -1853,7 +1853,7 @@
             "record": {
               "anyOf": [
                 {
-                  "$ref": "#/$defs/SourceRecord"
+                  "$ref": "#/$defs/Reply_SourceRecord"
                 },
                 {
                   "type": "null"
@@ -1862,7 +1862,7 @@
               "description": "Native entry, if any."
             },
             "source": {
-              "$ref": "#/$defs/Source",
+              "$ref": "#/$defs/Reply_Source",
               "description": "Source identity."
             },
             "state": {
@@ -1880,11 +1880,11 @@
           "description": "A requested source failed.",
           "properties": {
             "reason": {
-              "$ref": "#/$defs/Reason",
+              "$ref": "#/$defs/Reply_Reason",
               "description": "Typed reason."
             },
             "source": {
-              "$ref": "#/$defs/Source",
+              "$ref": "#/$defs/Reply_Source",
               "description": "Source identity."
             },
             "state": {
@@ -1903,11 +1903,11 @@
           "description": "User settings prevented the source request.",
           "properties": {
             "reason": {
-              "$ref": "#/$defs/Reason",
+              "$ref": "#/$defs/Reply_Reason",
               "description": "Typed reason."
             },
             "source": {
-              "$ref": "#/$defs/Source",
+              "$ref": "#/$defs/Reply_Source",
               "description": "Source identity."
             },
             "state": {
@@ -1937,18 +1937,18 @@
         }
       ]
     },
-    "Section5": {
+    "Reply_Section_ProteinIsoforms": {
       "description": "A requested section has exactly one state.",
       "oneOf": [
         {
           "description": "The source returned data.",
           "properties": {
             "data": {
-              "$ref": "#/$defs/ProteinStructures",
+              "$ref": "#/$defs/Reply_ProteinIsoforms",
               "description": "Whole section data."
             },
             "source": {
-              "$ref": "#/$defs/Source",
+              "$ref": "#/$defs/Reply_Source",
               "description": "Source identity."
             },
             "state": {
@@ -1969,7 +1969,7 @@
             "record": {
               "anyOf": [
                 {
-                  "$ref": "#/$defs/SourceRecord"
+                  "$ref": "#/$defs/Reply_SourceRecord"
                 },
                 {
                   "type": "null"
@@ -1978,7 +1978,7 @@
               "description": "Native entry, if any."
             },
             "source": {
-              "$ref": "#/$defs/Source",
+              "$ref": "#/$defs/Reply_Source",
               "description": "Source identity."
             },
             "state": {
@@ -1996,11 +1996,11 @@
           "description": "A requested source failed.",
           "properties": {
             "reason": {
-              "$ref": "#/$defs/Reason",
+              "$ref": "#/$defs/Reply_Reason",
               "description": "Typed reason."
             },
             "source": {
-              "$ref": "#/$defs/Source",
+              "$ref": "#/$defs/Reply_Source",
               "description": "Source identity."
             },
             "state": {
@@ -2019,11 +2019,11 @@
           "description": "User settings prevented the source request.",
           "properties": {
             "reason": {
-              "$ref": "#/$defs/Reason",
+              "$ref": "#/$defs/Reply_Reason",
               "description": "Typed reason."
             },
             "source": {
-              "$ref": "#/$defs/Source",
+              "$ref": "#/$defs/Reply_Source",
               "description": "Source identity."
             },
             "state": {
@@ -2053,18 +2053,18 @@
         }
       ]
     },
-    "Section6": {
+    "Reply_Section_ProteinSequenceResult": {
       "description": "A requested section has exactly one state.",
       "oneOf": [
         {
           "description": "The source returned data.",
           "properties": {
             "data": {
-              "$ref": "#/$defs/ProteinFunctionResult",
+              "$ref": "#/$defs/Reply_ProteinSequenceResult",
               "description": "Whole section data."
             },
             "source": {
-              "$ref": "#/$defs/Source",
+              "$ref": "#/$defs/Reply_Source",
               "description": "Source identity."
             },
             "state": {
@@ -2085,7 +2085,7 @@
             "record": {
               "anyOf": [
                 {
-                  "$ref": "#/$defs/SourceRecord"
+                  "$ref": "#/$defs/Reply_SourceRecord"
                 },
                 {
                   "type": "null"
@@ -2094,7 +2094,7 @@
               "description": "Native entry, if any."
             },
             "source": {
-              "$ref": "#/$defs/Source",
+              "$ref": "#/$defs/Reply_Source",
               "description": "Source identity."
             },
             "state": {
@@ -2112,11 +2112,11 @@
           "description": "A requested source failed.",
           "properties": {
             "reason": {
-              "$ref": "#/$defs/Reason",
+              "$ref": "#/$defs/Reply_Reason",
               "description": "Typed reason."
             },
             "source": {
-              "$ref": "#/$defs/Source",
+              "$ref": "#/$defs/Reply_Source",
               "description": "Source identity."
             },
             "state": {
@@ -2135,11 +2135,11 @@
           "description": "User settings prevented the source request.",
           "properties": {
             "reason": {
-              "$ref": "#/$defs/Reason",
+              "$ref": "#/$defs/Reply_Reason",
               "description": "Typed reason."
             },
             "source": {
-              "$ref": "#/$defs/Source",
+              "$ref": "#/$defs/Reply_Source",
               "description": "Source identity."
             },
             "state": {
@@ -2169,18 +2169,18 @@
         }
       ]
     },
-    "Section7": {
+    "Reply_Section_ProteinStructures": {
       "description": "A requested section has exactly one state.",
       "oneOf": [
         {
           "description": "The source returned data.",
           "properties": {
             "data": {
-              "$ref": "#/$defs/ProteinSequenceResult",
+              "$ref": "#/$defs/Reply_ProteinStructures",
               "description": "Whole section data."
             },
             "source": {
-              "$ref": "#/$defs/Source",
+              "$ref": "#/$defs/Reply_Source",
               "description": "Source identity."
             },
             "state": {
@@ -2201,7 +2201,7 @@
             "record": {
               "anyOf": [
                 {
-                  "$ref": "#/$defs/SourceRecord"
+                  "$ref": "#/$defs/Reply_SourceRecord"
                 },
                 {
                   "type": "null"
@@ -2210,7 +2210,7 @@
               "description": "Native entry, if any."
             },
             "source": {
-              "$ref": "#/$defs/Source",
+              "$ref": "#/$defs/Reply_Source",
               "description": "Source identity."
             },
             "state": {
@@ -2228,11 +2228,11 @@
           "description": "A requested source failed.",
           "properties": {
             "reason": {
-              "$ref": "#/$defs/Reason",
+              "$ref": "#/$defs/Reply_Reason",
               "description": "Typed reason."
             },
             "source": {
-              "$ref": "#/$defs/Source",
+              "$ref": "#/$defs/Reply_Source",
               "description": "Source identity."
             },
             "state": {
@@ -2251,11 +2251,11 @@
           "description": "User settings prevented the source request.",
           "properties": {
             "reason": {
-              "$ref": "#/$defs/Reason",
+              "$ref": "#/$defs/Reply_Reason",
               "description": "Typed reason."
             },
             "source": {
-              "$ref": "#/$defs/Source",
+              "$ref": "#/$defs/Reply_Source",
               "description": "Source identity."
             },
             "state": {
@@ -2285,7 +2285,7 @@
         }
       ]
     },
-    "Source": {
+    "Reply_Source": {
       "description": "A source of BioMCP data, identified by its canonical short name.",
       "type": "string",
       "x-enum-descriptions": [
@@ -2437,7 +2437,7 @@
         "cellosaurus"
       ]
     },
-    "SourceNotice": {
+    "Reply_SourceNotice": {
       "description": "A source notice or request recovery step.",
       "oneOf": [
         {
@@ -2493,7 +2493,7 @@
               "type": "string"
             },
             "reason": {
-              "$ref": "#/$defs/CacheProblem",
+              "$ref": "#/$defs/Reply_CacheProblem",
               "description": "Bounded local failure without paths or database diagnostics."
             }
           },
@@ -2507,7 +2507,7 @@
           "description": "The source still has graph pages after the bounded fetch window.",
           "properties": {
             "fallback": {
-              "$ref": "#/$defs/Text",
+              "$ref": "#/$defs/Reply_Text",
               "description": "Default-source command offering another graph view."
             },
             "kind": {
@@ -2574,7 +2574,7 @@
             "words": {
               "description": "Whole source words.",
               "items": {
-                "$ref": "#/$defs/Text"
+                "$ref": "#/$defs/Reply_Text"
               },
               "type": "array"
             }
@@ -2586,7 +2586,7 @@
         }
       ]
     },
-    "SourceOutcome": {
+    "Reply_SourceOutcome": {
       "description": "One source's outcome, without provider text.",
       "properties": {
         "count": {
@@ -2610,14 +2610,14 @@
         "notices": {
           "description": "Source notices and request recovery guidance.",
           "items": {
-            "$ref": "#/$defs/SourceNotice"
+            "$ref": "#/$defs/Reply_SourceNotice"
           },
           "type": "array"
         },
         "reason": {
           "anyOf": [
             {
-              "$ref": "#/$defs/Reason"
+              "$ref": "#/$defs/Reply_Reason"
             },
             {
               "type": "null"
@@ -2626,17 +2626,17 @@
           "description": "Failure or stale-fallback reason."
         },
         "source": {
-          "$ref": "#/$defs/Source",
+          "$ref": "#/$defs/Reply_Source",
           "description": "Asked source."
         },
         "state": {
-          "$ref": "#/$defs/SourceState",
+          "$ref": "#/$defs/Reply_SourceState",
           "description": "Retained state."
         },
         "term": {
           "anyOf": [
             {
-              "$ref": "#/$defs/Text"
+              "$ref": "#/$defs/Reply_Text"
             },
             {
               "type": "null"
@@ -2654,7 +2654,7 @@
           "type": "string"
         },
         "use": {
-          "$ref": "#/$defs/Use",
+          "$ref": "#/$defs/Reply_Use",
           "description": "Reviewed source use category; publisher terms remain authoritative."
         }
       },
@@ -2667,17 +2667,17 @@
       ],
       "type": "object"
     },
-    "SourceRecord": {
+    "Reply_SourceRecord": {
       "description": "The source's own entry for an entity.",
       "properties": {
         "id": {
-          "$ref": "#/$defs/Text",
+          "$ref": "#/$defs/Reply_Text",
           "description": "Native source identifier."
         },
         "url": {
           "anyOf": [
             {
-              "$ref": "#/$defs/Text"
+              "$ref": "#/$defs/Reply_Text"
             },
             {
               "type": "null"
@@ -2692,7 +2692,7 @@
       ],
       "type": "object"
     },
-    "SourceState": {
+    "Reply_SourceState": {
       "description": "State of a source actually asked by the command.",
       "enum": [
         "ok",
@@ -2703,7 +2703,7 @@
       ],
       "type": "string"
     },
-    "Status": {
+    "Reply_Status": {
       "description": "Overall command outcome.",
       "enum": [
         "complete",
@@ -2713,7 +2713,7 @@
       ],
       "type": "string"
     },
-    "Step": {
+    "Reply_Step": {
       "description": "A command argument list spelled from a typed action.",
       "properties": {
         "args": {
@@ -2724,7 +2724,7 @@
           "type": "array"
         },
         "kind": {
-          "$ref": "#/$defs/StepKind",
+          "$ref": "#/$defs/Reply_StepKind",
           "description": "Purpose of the action."
         }
       },
@@ -2733,7 +2733,7 @@
       ],
       "type": "object"
     },
-    "StepKind": {
+    "Reply_StepKind": {
       "description": "Purpose of an available next command.",
       "enum": [
         "restart",
@@ -2749,13 +2749,13 @@
       ],
       "type": "string"
     },
-    "Term": {
+    "Reply_Term": {
       "description": "A source label with optional explicitly supported coding.",
       "properties": {
         "coding": {
           "anyOf": [
             {
-              "$ref": "#/$defs/Coding"
+              "$ref": "#/$defs/Reply_Coding"
             },
             {
               "type": "null"
@@ -2764,7 +2764,7 @@
           "description": "Documented framework coding."
         },
         "label": {
-          "$ref": "#/$defs/Text",
+          "$ref": "#/$defs/Reply_Text",
           "description": "Original label."
         }
       },
@@ -2773,19 +2773,19 @@
       ],
       "type": "object"
     },
-    "Text": {
+    "Reply_Text": {
       "description": "Nonempty text with surrounding Unicode whitespace removed.",
       "minLength": 1,
       "type": "string"
     },
-    "UncertainSpan0": {
+    "Reply_UncertainSpan0": {
       "description": "Zero-based interbase span retaining uncertain boundary ranges.",
       "properties": {
         "end": {
-          "$ref": "#/$defs/Bound"
+          "$ref": "#/$defs/Reply_Bound"
         },
         "start": {
-          "$ref": "#/$defs/Bound"
+          "$ref": "#/$defs/Reply_Bound"
         }
       },
       "required": [
@@ -2794,20 +2794,20 @@
       ],
       "type": "object"
     },
-    "UniProtFeature": {
+    "Reply_UniProtFeature": {
       "description": "Shared native feature contract without source label remapping.",
       "properties": {
         "alternative": {
           "description": "Every stated alternative, without translation.",
           "items": {
-            "$ref": "#/$defs/AminoAcids"
+            "$ref": "#/$defs/Reply_AminoAcids"
           },
           "type": "array"
         },
         "description": {
           "anyOf": [
             {
-              "$ref": "#/$defs/Text"
+              "$ref": "#/$defs/Reply_Text"
             },
             {
               "type": "null"
@@ -2818,14 +2818,14 @@
         "evidence": {
           "description": "All original source evidence references.",
           "items": {
-            "$ref": "#/$defs/Text"
+            "$ref": "#/$defs/Reply_Text"
           },
           "type": "array"
         },
         "id": {
           "anyOf": [
             {
-              "$ref": "#/$defs/Text"
+              "$ref": "#/$defs/Reply_Text"
             },
             {
               "type": "null"
@@ -2834,13 +2834,13 @@
           "description": "Native feature identifier."
         },
         "kind": {
-          "$ref": "#/$defs/Term",
+          "$ref": "#/$defs/Reply_Term",
           "description": "Source feature label; coding only for documented exact feature types."
         },
         "original": {
           "anyOf": [
             {
-              "$ref": "#/$defs/AminoAcids"
+              "$ref": "#/$defs/Reply_AminoAcids"
             },
             {
               "type": "null"
@@ -2849,11 +2849,11 @@
           "description": "Source original residues, when supplied."
         },
         "protein": {
-          "$ref": "#/$defs/UniProtIsoform",
+          "$ref": "#/$defs/Reply_UniProtIsoform",
           "description": "Exact source sequence identity."
         },
         "span": {
-          "$ref": "#/$defs/UncertainSpan0",
+          "$ref": "#/$defs/Reply_UncertainSpan0",
           "description": "Zero-based interbase coordinates retaining uncertain ranges."
         }
       },
@@ -2864,12 +2864,12 @@
       ],
       "type": "object"
     },
-    "UniProtIsoform": {
+    "Reply_UniProtIsoform": {
       "description": "A stated UniProt accession with an optional positive isoform number; never imputes -1.",
       "pattern": "^([OPQ][0-9][A-Z0-9]{3}[0-9]|[A-NR-Z][0-9]([A-Z][A-Z0-9]{2}[0-9]){1,2})(-[1-9][0-9]*)?$",
       "type": "string"
     },
-    "Use": {
+    "Reply_Use": {
       "description": "Reviewed source-use category, without inferring rights in individual records.",
       "enum": [
         "open",
@@ -2887,7 +2887,7 @@
     "local_error": {
       "anyOf": [
         {
-          "$ref": "#/$defs/CacheProblem"
+          "$ref": "#/$defs/Reply_CacheProblem"
         },
         {
           "type": "null"
@@ -2898,14 +2898,14 @@
     "next": {
       "description": "Available next commands.",
       "items": {
-        "$ref": "#/$defs/Step"
+        "$ref": "#/$defs/Reply_Step"
       },
       "type": "array"
     },
     "page": {
       "anyOf": [
         {
-          "$ref": "#/$defs/PageInfo"
+          "$ref": "#/$defs/Reply_PageInfo"
         },
         {
           "type": "null"
@@ -2916,18 +2916,18 @@
     "problems": {
       "description": "Rejected source fields.",
       "items": {
-        "$ref": "#/$defs/Problem"
+        "$ref": "#/$defs/Reply_Problem"
       },
       "type": "array"
     },
     "query": {
-      "$ref": "#/$defs/ProteinGet",
+      "$ref": "#/$defs/Reply_ProteinGet",
       "description": "Parsed query."
     },
     "result": {
       "anyOf": [
         {
-          "$ref": "#/$defs/ProteinCard"
+          "$ref": "#/$defs/Reply_ProteinCard"
         },
         {
           "type": "null"
@@ -2942,12 +2942,12 @@
     "sources": {
       "description": "Sources actually asked.",
       "items": {
-        "$ref": "#/$defs/SourceOutcome"
+        "$ref": "#/$defs/Reply_SourceOutcome"
       },
       "type": "array"
     },
     "status": {
-      "$ref": "#/$defs/Status",
+      "$ref": "#/$defs/Reply_Status",
       "description": "Overall outcome."
     }
   },

@@ -1,24 +1,24 @@
 {
   "$defs": {
-    "Accession": {
+    "Reply_Accession": {
       "description": "A reference sequence accession: RefSeq or Ensembl with its version, or LRG.",
       "pattern": "^((N[CGMPRTW]|X[MPR])_([0-9]{6}|[0-9]{9})\\.[1-9][0-9]*|ENS[GTP][0-9]{11}\\.[1-9][0-9]*|LRG_[0-9]+([tp][0-9]+)?)$",
       "type": "string"
     },
-    "Sequence": {
+    "Reply_Sequence": {
       "description": "A literal IUPAC DNA sequence; empty sequences express insertions or deletions.",
       "pattern": "^[ACGTNRYSWKMBDHV]*$",
       "type": "string"
     },
-    "SequenceLocation": {
+    "Reply_SequenceLocation": {
       "description": "An interbase interval on one versioned sequence accession.",
       "properties": {
         "sequence": {
-          "$ref": "#/$defs/Accession",
+          "$ref": "#/$defs/Reply_Accession",
           "description": "Versioned source sequence, without an inferred genome build."
         },
         "span": {
-          "$ref": "#/$defs/Span0",
+          "$ref": "#/$defs/Reply_Span0",
           "description": "Zero-based half-open bounds."
         }
       },
@@ -28,7 +28,7 @@
       ],
       "type": "object"
     },
-    "Span0": {
+    "Reply_Span0": {
       "description": "A zero-based half-open span with ordered bounds; empty spans are valid.",
       "properties": {
         "end": {
@@ -56,13 +56,13 @@
   "description": "Source-stated interbase replacement; equality never claims normalized equivalence.",
   "properties": {
     "alternate": {
-      "$ref": "#/$defs/Sequence"
+      "$ref": "#/$defs/Reply_Sequence"
     },
     "location": {
-      "$ref": "#/$defs/SequenceLocation"
+      "$ref": "#/$defs/Reply_SequenceLocation"
     },
     "reference": {
-      "$ref": "#/$defs/Sequence"
+      "$ref": "#/$defs/Reply_Sequence"
     }
   },
   "required": [

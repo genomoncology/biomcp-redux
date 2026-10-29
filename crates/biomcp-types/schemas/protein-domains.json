@@ -1,12 +1,12 @@
 {
   "$defs": {
-    "Attribution": {
+    "Reply_Attribution": {
       "description": "Provenance for one source record.",
       "properties": {
         "evaluated": {
           "anyOf": [
             {
-              "$ref": "#/$defs/PartialDate"
+              "$ref": "#/$defs/Reply_PartialDate"
             },
             {
               "type": "null"
@@ -17,7 +17,7 @@
         "record": {
           "anyOf": [
             {
-              "$ref": "#/$defs/Text"
+              "$ref": "#/$defs/Reply_Text"
             },
             {
               "type": "null"
@@ -28,7 +28,7 @@
         "release": {
           "anyOf": [
             {
-              "$ref": "#/$defs/Text"
+              "$ref": "#/$defs/Reply_Text"
             },
             {
               "type": "null"
@@ -37,13 +37,13 @@
           "description": "Dataset release."
         },
         "source": {
-          "$ref": "#/$defs/Text",
+          "$ref": "#/$defs/Reply_Text",
           "description": "Source responsible for the claim."
         },
         "submitter": {
           "anyOf": [
             {
-              "$ref": "#/$defs/Text"
+              "$ref": "#/$defs/Reply_Text"
             },
             {
               "type": "null"
@@ -54,7 +54,7 @@
         "url": {
           "anyOf": [
             {
-              "$ref": "#/$defs/Text"
+              "$ref": "#/$defs/Reply_Text"
             },
             {
               "type": "null"
@@ -66,7 +66,7 @@
         "version": {
           "anyOf": [
             {
-              "$ref": "#/$defs/Text"
+              "$ref": "#/$defs/Reply_Text"
             },
             {
               "type": "null"
@@ -80,7 +80,7 @@
       ],
       "type": "object"
     },
-    "Bound": {
+    "Reply_Bound": {
       "anyOf": [
         {
           "required": [
@@ -114,7 +114,7 @@
       },
       "type": "object"
     },
-    "CacheProblem": {
+    "Reply_CacheProblem": {
       "description": "A local cache failure that leaves the provider outcome intact.",
       "enum": [
         "busy",
@@ -123,12 +123,12 @@
       ],
       "type": "string"
     },
-    "InterProId": {
+    "Reply_InterProId": {
       "description": "An integrated InterPro entry accession, distinct from a member signature.",
       "pattern": "^IPR[0-9]{6}$",
       "type": "string"
     },
-    "PageInfo": {
+    "Reply_PageInfo": {
       "description": "Search counts after filtering and deduplication.",
       "properties": {
         "offset": {
@@ -140,7 +140,7 @@
         "pool": {
           "anyOf": [
             {
-              "$ref": "#/$defs/PoolInfo"
+              "$ref": "#/$defs/Reply_PoolInfo"
             },
             {
               "type": "null"
@@ -175,12 +175,12 @@
       ],
       "type": "object"
     },
-    "PartialDate": {
+    "Reply_PartialDate": {
       "description": "A Gregorian date preserving year, month or day precision.",
       "pattern": "^[0-9]{4}(-[0-9]{2}(-[0-9]{2})?)?$",
       "type": "string"
     },
-    "PoolInfo": {
+    "Reply_PoolInfo": {
       "description": "Fixed lifetime and size of a stored search snapshot.",
       "properties": {
         "created": {
@@ -196,7 +196,7 @@
           "type": "integer"
         },
         "id": {
-          "$ref": "#/$defs/Text",
+          "$ref": "#/$defs/Reply_Text",
           "description": "Opaque snapshot identifier."
         },
         "size": {
@@ -214,11 +214,11 @@
       ],
       "type": "object"
     },
-    "Problem": {
+    "Reply_Problem": {
       "description": "A field that could not be accepted from a source record.",
       "properties": {
         "code": {
-          "$ref": "#/$defs/ProblemCode",
+          "$ref": "#/$defs/Reply_ProblemCode",
           "description": "Why the field value was not accepted."
         },
         "field": {
@@ -228,7 +228,7 @@
         "record": {
           "anyOf": [
             {
-              "$ref": "#/$defs/Text"
+              "$ref": "#/$defs/Reply_Text"
             },
             {
               "type": "null"
@@ -237,7 +237,7 @@
           "description": "The record's canonical identifier, when known."
         },
         "source": {
-          "$ref": "#/$defs/Source",
+          "$ref": "#/$defs/Reply_Source",
           "description": "The source that supplied the record."
         }
       },
@@ -248,7 +248,7 @@
       ],
       "type": "object"
     },
-    "ProblemCode": {
+    "Reply_ProblemCode": {
       "description": "A stable code for a rejected field value.",
       "type": "string",
       "x-enum-descriptions": [
@@ -262,13 +262,13 @@
         "identity.conflict"
       ]
     },
-    "ProteinDomainFragment": {
+    "Reply_ProteinDomainFragment": {
       "description": "One native match fragment after coordinate conversion.",
       "properties": {
         "dc_status": {
           "anyOf": [
             {
-              "$ref": "#/$defs/Text"
+              "$ref": "#/$defs/Reply_Text"
             },
             {
               "type": "null"
@@ -277,7 +277,7 @@
           "description": "Literal discontinuity status supplied by InterPro."
         },
         "span": {
-          "$ref": "#/$defs/UncertainSpan0",
+          "$ref": "#/$defs/Reply_UncertainSpan0",
           "description": "Converted interbase span with uncertainty retained."
         }
       },
@@ -286,30 +286,30 @@
       ],
       "type": "object"
     },
-    "ProteinDomainLocation": {
+    "Reply_ProteinDomainLocation": {
       "description": "One native InterPro location group retaining all discontinuous fragments.",
       "properties": {
         "fragments": {
           "description": "All native fragments; never reduced to a min/max hull.",
           "items": {
-            "$ref": "#/$defs/ProteinDomainFragment"
+            "$ref": "#/$defs/Reply_ProteinDomainFragment"
           },
           "type": "array"
         }
       },
       "type": "object"
     },
-    "ProteinDomainMatch": {
+    "Reply_ProteinDomainMatch": {
       "description": "One native integrated InterPro match; not every entry type is a domain.",
       "properties": {
         "attribution": {
-          "$ref": "#/$defs/Attribution",
+          "$ref": "#/$defs/Reply_Attribution",
           "description": "Source record and release facts."
         },
         "entry_type": {
           "anyOf": [
             {
-              "$ref": "#/$defs/Text"
+              "$ref": "#/$defs/Reply_Text"
             },
             {
               "type": "null"
@@ -318,27 +318,27 @@
           "description": "Literal source entry type, including family, site and repeat."
         },
         "id": {
-          "$ref": "#/$defs/InterProId",
+          "$ref": "#/$defs/Reply_InterProId",
           "description": "Integrated entry accession, distinct from member signatures."
         },
         "locations": {
           "description": "Every native location group in source order.",
           "items": {
-            "$ref": "#/$defs/ProteinDomainLocation"
+            "$ref": "#/$defs/Reply_ProteinDomainLocation"
           },
           "type": "array"
         },
         "member_signatures": {
           "description": "Source member signatures remain distinct from integrated entries.",
           "items": {
-            "$ref": "#/$defs/ProteinMemberSignature"
+            "$ref": "#/$defs/Reply_ProteinMemberSignature"
           },
           "type": "array"
         },
         "name": {
           "anyOf": [
             {
-              "$ref": "#/$defs/Text"
+              "$ref": "#/$defs/Reply_Text"
             },
             {
               "type": "null"
@@ -347,7 +347,7 @@
           "description": "Native integrated name."
         },
         "protein": {
-          "$ref": "#/$defs/UniProtIsoform",
+          "$ref": "#/$defs/Reply_UniProtIsoform",
           "description": "Exact native protein identity."
         },
         "protein_length": {
@@ -376,13 +376,13 @@
       ],
       "type": "object"
     },
-    "ProteinDomains": {
+    "Reply_ProteinDomains": {
       "description": "Whole native rows with the independent unfiltered source count.",
       "properties": {
         "items": {
           "description": "Bounded retained rows in source order.",
           "items": {
-            "$ref": "#/$defs/ProteinDomainMatch"
+            "$ref": "#/$defs/Reply_ProteinDomainMatch"
           },
           "type": "array"
         },
@@ -398,11 +398,11 @@
       ],
       "type": "object"
     },
-    "ProteinDomainsQuery": {
+    "Reply_ProteinDomainsQuery": {
       "description": "Page five native InterPro matches with original types and fragments. No structure or clinical meaning is inferred; no bioinformatics tool runs.",
       "properties": {
         "accession": {
-          "$ref": "#/$defs/UniProtIsoform",
+          "$ref": "#/$defs/Reply_UniProtIsoform",
           "description": "Exact source protein sequence identity.",
           "x-positional": 0
         },
@@ -422,11 +422,11 @@
           "type": "integer"
         },
         "pool": {
-          "$ref": "#/$defs/Text",
+          "$ref": "#/$defs/Reply_Text",
           "description": "Retained collection identity."
         },
         "type": {
-          "$ref": "#/$defs/Text",
+          "$ref": "#/$defs/Reply_Text",
           "description": "Exact native InterPro type, not a normalized domain label."
         }
       },
@@ -435,21 +435,21 @@
       ],
       "type": "object"
     },
-    "ProteinMemberSignature": {
+    "Reply_ProteinMemberSignature": {
       "description": "A member database signature, not an integrated IPR entry.",
       "properties": {
         "accession": {
-          "$ref": "#/$defs/Text",
+          "$ref": "#/$defs/Reply_Text",
           "description": "Native signature accession."
         },
         "database": {
-          "$ref": "#/$defs/Text",
+          "$ref": "#/$defs/Reply_Text",
           "description": "Native member database name."
         },
         "name": {
           "anyOf": [
             {
-              "$ref": "#/$defs/Text"
+              "$ref": "#/$defs/Reply_Text"
             },
             {
               "type": "null"
@@ -464,7 +464,7 @@
       ],
       "type": "object"
     },
-    "Reason": {
+    "Reply_Reason": {
       "description": "Why a source could not supply data.",
       "type": "string",
       "x-enum-descriptions": [
@@ -510,7 +510,7 @@
         "no_join_id"
       ]
     },
-    "Source": {
+    "Reply_Source": {
       "description": "A source of BioMCP data, identified by its canonical short name.",
       "type": "string",
       "x-enum-descriptions": [
@@ -662,7 +662,7 @@
         "cellosaurus"
       ]
     },
-    "SourceNotice": {
+    "Reply_SourceNotice": {
       "description": "A source notice or request recovery step.",
       "oneOf": [
         {
@@ -718,7 +718,7 @@
               "type": "string"
             },
             "reason": {
-              "$ref": "#/$defs/CacheProblem",
+              "$ref": "#/$defs/Reply_CacheProblem",
               "description": "Bounded local failure without paths or database diagnostics."
             }
           },
@@ -732,7 +732,7 @@
           "description": "The source still has graph pages after the bounded fetch window.",
           "properties": {
             "fallback": {
-              "$ref": "#/$defs/Text",
+              "$ref": "#/$defs/Reply_Text",
               "description": "Default-source command offering another graph view."
             },
             "kind": {
@@ -799,7 +799,7 @@
             "words": {
               "description": "Whole source words.",
               "items": {
-                "$ref": "#/$defs/Text"
+                "$ref": "#/$defs/Reply_Text"
               },
               "type": "array"
             }
@@ -811,7 +811,7 @@
         }
       ]
     },
-    "SourceOutcome": {
+    "Reply_SourceOutcome": {
       "description": "One source's outcome, without provider text.",
       "properties": {
         "count": {
@@ -835,14 +835,14 @@
         "notices": {
           "description": "Source notices and request recovery guidance.",
           "items": {
-            "$ref": "#/$defs/SourceNotice"
+            "$ref": "#/$defs/Reply_SourceNotice"
           },
           "type": "array"
         },
         "reason": {
           "anyOf": [
             {
-              "$ref": "#/$defs/Reason"
+              "$ref": "#/$defs/Reply_Reason"
             },
             {
               "type": "null"
@@ -851,17 +851,17 @@
           "description": "Failure or stale-fallback reason."
         },
         "source": {
-          "$ref": "#/$defs/Source",
+          "$ref": "#/$defs/Reply_Source",
           "description": "Asked source."
         },
         "state": {
-          "$ref": "#/$defs/SourceState",
+          "$ref": "#/$defs/Reply_SourceState",
           "description": "Retained state."
         },
         "term": {
           "anyOf": [
             {
-              "$ref": "#/$defs/Text"
+              "$ref": "#/$defs/Reply_Text"
             },
             {
               "type": "null"
@@ -879,7 +879,7 @@
           "type": "string"
         },
         "use": {
-          "$ref": "#/$defs/Use",
+          "$ref": "#/$defs/Reply_Use",
           "description": "Reviewed source use category; publisher terms remain authoritative."
         }
       },
@@ -892,7 +892,7 @@
       ],
       "type": "object"
     },
-    "SourceState": {
+    "Reply_SourceState": {
       "description": "State of a source actually asked by the command.",
       "enum": [
         "ok",
@@ -903,7 +903,7 @@
       ],
       "type": "string"
     },
-    "Status": {
+    "Reply_Status": {
       "description": "Overall command outcome.",
       "enum": [
         "complete",
@@ -913,7 +913,7 @@
       ],
       "type": "string"
     },
-    "Step": {
+    "Reply_Step": {
       "description": "A command argument list spelled from a typed action.",
       "properties": {
         "args": {
@@ -924,7 +924,7 @@
           "type": "array"
         },
         "kind": {
-          "$ref": "#/$defs/StepKind",
+          "$ref": "#/$defs/Reply_StepKind",
           "description": "Purpose of the action."
         }
       },
@@ -933,7 +933,7 @@
       ],
       "type": "object"
     },
-    "StepKind": {
+    "Reply_StepKind": {
       "description": "Purpose of an available next command.",
       "enum": [
         "restart",
@@ -949,19 +949,19 @@
       ],
       "type": "string"
     },
-    "Text": {
+    "Reply_Text": {
       "description": "Nonempty text with surrounding Unicode whitespace removed.",
       "minLength": 1,
       "type": "string"
     },
-    "UncertainSpan0": {
+    "Reply_UncertainSpan0": {
       "description": "Zero-based interbase span retaining uncertain boundary ranges.",
       "properties": {
         "end": {
-          "$ref": "#/$defs/Bound"
+          "$ref": "#/$defs/Reply_Bound"
         },
         "start": {
-          "$ref": "#/$defs/Bound"
+          "$ref": "#/$defs/Reply_Bound"
         }
       },
       "required": [
@@ -970,12 +970,12 @@
       ],
       "type": "object"
     },
-    "UniProtIsoform": {
+    "Reply_UniProtIsoform": {
       "description": "A stated UniProt accession with an optional positive isoform number; never imputes -1.",
       "pattern": "^([OPQ][0-9][A-Z0-9]{3}[0-9]|[A-NR-Z][0-9]([A-Z][A-Z0-9]{2}[0-9]){1,2})(-[1-9][0-9]*)?$",
       "type": "string"
     },
-    "Use": {
+    "Reply_Use": {
       "description": "Reviewed source-use category, without inferring rights in individual records.",
       "enum": [
         "open",
@@ -993,7 +993,7 @@
     "local_error": {
       "anyOf": [
         {
-          "$ref": "#/$defs/CacheProblem"
+          "$ref": "#/$defs/Reply_CacheProblem"
         },
         {
           "type": "null"
@@ -1004,14 +1004,14 @@
     "next": {
       "description": "Available next commands.",
       "items": {
-        "$ref": "#/$defs/Step"
+        "$ref": "#/$defs/Reply_Step"
       },
       "type": "array"
     },
     "page": {
       "anyOf": [
         {
-          "$ref": "#/$defs/PageInfo"
+          "$ref": "#/$defs/Reply_PageInfo"
         },
         {
           "type": "null"
@@ -1022,18 +1022,18 @@
     "problems": {
       "description": "Rejected source fields.",
       "items": {
-        "$ref": "#/$defs/Problem"
+        "$ref": "#/$defs/Reply_Problem"
       },
       "type": "array"
     },
     "query": {
-      "$ref": "#/$defs/ProteinDomainsQuery",
+      "$ref": "#/$defs/Reply_ProteinDomainsQuery",
       "description": "Parsed query."
     },
     "result": {
       "anyOf": [
         {
-          "$ref": "#/$defs/ProteinDomains"
+          "$ref": "#/$defs/Reply_ProteinDomains"
         },
         {
           "type": "null"
@@ -1048,12 +1048,12 @@
     "sources": {
       "description": "Sources actually asked.",
       "items": {
-        "$ref": "#/$defs/SourceOutcome"
+        "$ref": "#/$defs/Reply_SourceOutcome"
       },
       "type": "array"
     },
     "status": {
-      "$ref": "#/$defs/Status",
+      "$ref": "#/$defs/Reply_Status",
       "description": "Overall outcome."
     }
   },

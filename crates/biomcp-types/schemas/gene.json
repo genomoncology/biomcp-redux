@@ -1,6 +1,6 @@
 {
   "$defs": {
-    "Build": {
+    "Reply_Build": {
       "description": "The assembly stated by the source; no default is inferred.",
       "type": "string",
       "x-enum-descriptions": [
@@ -12,21 +12,21 @@
         "GRCh38"
       ]
     },
-    "Chromosome": {
+    "Reply_Chromosome": {
       "description": "A primary chromosome in the caller's reference build.",
       "pattern": "^([1-9]|1[0-9]|2[0-2]|X|Y|MT)$",
       "type": "string"
     },
-    "EnsemblGeneId": {
+    "Reply_EnsemblGeneId": {
       "description": " A human Ensembl gene stable identifier with a separately retained version.",
       "pattern": "^ENSG[0-9]{11}(\\.[1-9][0-9]*)?$",
       "type": "string"
     },
-    "GeneLocation": {
+    "Reply_GeneLocation": {
       "description": "HGNC location text with a parsed interpretation when its syntax is known.",
       "type": "string"
     },
-    "GeneStatus": {
+    "Reply_GeneStatus": {
       "description": "HGNC approval status.",
       "type": "string",
       "x-enum-descriptions": [
@@ -38,18 +38,18 @@
         "withdrawn"
       ]
     },
-    "GeneSymbol": {
+    "Reply_GeneSymbol": {
       "description": "Source spelling of a gene symbol, with ASCII case-insensitive identity.",
       "pattern": "^[A-Za-z][A-Za-z0-9._/@-]{0,254}$",
       "type": "string"
     },
-    "GenomicInterval": {
+    "Reply_GenomicInterval": {
       "description": "An assembly-qualified zero-based half-open source interval.",
       "properties": {
         "build": {
           "anyOf": [
             {
-              "$ref": "#/$defs/Build"
+              "$ref": "#/$defs/Reply_Build"
             },
             {
               "type": "null"
@@ -58,17 +58,17 @@
           "description": "Source-stated assembly, omitted when absent."
         },
         "chromosome": {
-          "$ref": "#/$defs/Chromosome",
+          "$ref": "#/$defs/Reply_Chromosome",
           "description": "Canonical primary chromosome."
         },
         "span": {
-          "$ref": "#/$defs/Span0",
+          "$ref": "#/$defs/Reply_Span0",
           "description": "Checked zero-based half-open bounds; an empty span remains valid."
         },
         "strand": {
           "anyOf": [
             {
-              "$ref": "#/$defs/Strand"
+              "$ref": "#/$defs/Reply_Strand"
             },
             {
               "type": "null"
@@ -83,12 +83,12 @@
       ],
       "type": "object"
     },
-    "HgncId": {
+    "Reply_HgncId": {
       "description": "An HGNC identifier with canonical namespace and positive numeric value.",
       "pattern": "^HGNC:[1-9][0-9]*$",
       "type": "string"
     },
-    "LocusGroup": {
+    "Reply_LocusGroup": {
       "description": "HGNC locus group, separate from a missing source value.",
       "type": "string",
       "x-enum-descriptions": [
@@ -106,7 +106,7 @@
         "other"
       ]
     },
-    "LocusType": {
+    "Reply_LocusType": {
       "description": "HGNC locus type; Unknown is a source-stated value, distinct from absence.",
       "type": "string",
       "x-enum-descriptions": [
@@ -164,7 +164,7 @@
         "virus_integration_site"
       ]
     },
-    "Mane": {
+    "Reply_Mane": {
       "description": "A source-stated MANE pair with versioned sequence accessions.",
       "properties": {
         "ensembl": {
@@ -178,7 +178,7 @@
           "type": "string"
         },
         "status": {
-          "$ref": "#/$defs/ManeStatus",
+          "$ref": "#/$defs/Reply_ManeStatus",
           "description": "Source-stated transcript status."
         }
       },
@@ -189,7 +189,7 @@
       ],
       "type": "object"
     },
-    "ManeStatus": {
+    "Reply_ManeStatus": {
       "description": "The source-stated MANE transcript status.",
       "type": "string",
       "x-enum-descriptions": [
@@ -201,22 +201,22 @@
         "plus_clinical"
       ]
     },
-    "NcbiGeneId": {
+    "Reply_NcbiGeneId": {
       "description": "A positive NCBI Gene identifier in canonical decimal text.",
       "pattern": "^[1-9][0-9]*$",
       "type": "string"
     },
-    "OmimId": {
+    "Reply_OmimId": {
       "description": " A six-digit OMIM identifier, preserving all six digits.",
       "pattern": "^[0-9]{6}$",
       "type": "string"
     },
-    "PartialDate": {
+    "Reply_PartialDate": {
       "description": "A Gregorian date preserving year, month or day precision.",
       "pattern": "^[0-9]{4}(-[0-9]{2}(-[0-9]{2})?)?$",
       "type": "string"
     },
-    "Span0": {
+    "Reply_Span0": {
       "description": "A zero-based half-open span with ordered bounds; empty spans are valid.",
       "properties": {
         "end": {
@@ -238,7 +238,7 @@
       ],
       "type": "object"
     },
-    "Strand": {
+    "Reply_Strand": {
       "description": "Source-stated forward or reverse strand.",
       "type": "string",
       "x-enum-descriptions": [
@@ -250,13 +250,13 @@
         "-"
       ]
     },
-    "Summary": {
+    "Reply_Summary": {
       "description": "A whole source-provided summary with attribution and stated date precision.",
       "properties": {
         "dated": {
           "anyOf": [
             {
-              "$ref": "#/$defs/PartialDate"
+              "$ref": "#/$defs/Reply_PartialDate"
             },
             {
               "type": "null"
@@ -265,11 +265,11 @@
           "description": "Date stated by the source, if any."
         },
         "source": {
-          "$ref": "#/$defs/SummarySource",
+          "$ref": "#/$defs/Reply_SummarySource",
           "description": "The summary's attribution, independent of the fetching provider."
         },
         "text": {
-          "$ref": "#/$defs/Text",
+          "$ref": "#/$defs/Reply_Text",
           "description": "Entire summary text."
         }
       },
@@ -279,7 +279,7 @@
       ],
       "type": "object"
     },
-    "SummarySource": {
+    "Reply_SummarySource": {
       "description": "The attribution on a source-provided summary, independent of fetch providers.",
       "type": "string",
       "x-enum-descriptions": [
@@ -289,12 +289,12 @@
         "refseq"
       ]
     },
-    "Text": {
+    "Reply_Text": {
       "description": "Nonempty text with surrounding Unicode whitespace removed.",
       "minLength": 1,
       "type": "string"
     },
-    "UniProtAcc": {
+    "Reply_UniProtAcc": {
       "description": " A whole UniProt base accession, without an isoform suffix.",
       "pattern": "^([OPQ][0-9][A-Z0-9]{3}[0-9]|[A-NR-Z][0-9]([A-Z][A-Z0-9]{2}[0-9]){1,2})$",
       "type": "string"
@@ -307,14 +307,14 @@
     "aliases": {
       "description": "All stated HGNC aliases.",
       "items": {
-        "$ref": "#/$defs/Text"
+        "$ref": "#/$defs/Reply_Text"
       },
       "type": "array"
     },
     "ensembl_id": {
       "anyOf": [
         {
-          "$ref": "#/$defs/EnsemblGeneId"
+          "$ref": "#/$defs/Reply_EnsemblGeneId"
         },
         {
           "type": "null"
@@ -325,7 +325,7 @@
     "entrez_id": {
       "anyOf": [
         {
-          "$ref": "#/$defs/NcbiGeneId"
+          "$ref": "#/$defs/Reply_NcbiGeneId"
         },
         {
           "type": "null"
@@ -334,13 +334,13 @@
       "description": "NCBI Gene identifier, if stated."
     },
     "hgnc_id": {
-      "$ref": "#/$defs/HgncId",
+      "$ref": "#/$defs/Reply_HgncId",
       "description": "HGNC identifier."
     },
     "location": {
       "anyOf": [
         {
-          "$ref": "#/$defs/GeneLocation"
+          "$ref": "#/$defs/Reply_GeneLocation"
         },
         {
           "type": "null"
@@ -349,13 +349,13 @@
       "description": "Source-stated location, including unparsed publisher text."
     },
     "locus_group": {
-      "$ref": "#/$defs/LocusGroup",
+      "$ref": "#/$defs/Reply_LocusGroup",
       "description": "HGNC locus group."
     },
     "locus_type": {
       "anyOf": [
         {
-          "$ref": "#/$defs/LocusType"
+          "$ref": "#/$defs/Reply_LocusType"
         },
         {
           "type": "null"
@@ -366,43 +366,43 @@
     "mane": {
       "description": "Versioned MANE Select transcript pair, if stated.",
       "items": {
-        "$ref": "#/$defs/Mane"
+        "$ref": "#/$defs/Reply_Mane"
       },
       "type": "array"
     },
     "name": {
-      "$ref": "#/$defs/Text",
+      "$ref": "#/$defs/Reply_Text",
       "description": "Gene name."
     },
     "omim": {
       "description": "All stated OMIM identifiers.",
       "items": {
-        "$ref": "#/$defs/OmimId"
+        "$ref": "#/$defs/Reply_OmimId"
       },
       "type": "array"
     },
     "previous_symbols": {
       "description": "All stated previous symbols.",
       "items": {
-        "$ref": "#/$defs/GeneSymbol"
+        "$ref": "#/$defs/Reply_GeneSymbol"
       },
       "type": "array"
     },
     "spans": {
       "description": "Source intervals with explicit assembly and counting rule.",
       "items": {
-        "$ref": "#/$defs/GenomicInterval"
+        "$ref": "#/$defs/Reply_GenomicInterval"
       },
       "type": "array"
     },
     "status": {
-      "$ref": "#/$defs/GeneStatus",
+      "$ref": "#/$defs/Reply_GeneStatus",
       "description": "HGNC record status."
     },
     "summary": {
       "anyOf": [
         {
-          "$ref": "#/$defs/Summary"
+          "$ref": "#/$defs/Reply_Summary"
         },
         {
           "type": "null"
@@ -411,13 +411,13 @@
       "description": "Whole attributed summary, if stated."
     },
     "symbol": {
-      "$ref": "#/$defs/GeneSymbol",
+      "$ref": "#/$defs/Reply_GeneSymbol",
       "description": "Source-preserved symbol."
     },
     "uniprot": {
       "description": "All stated UniProt base accessions.",
       "items": {
-        "$ref": "#/$defs/UniProtAcc"
+        "$ref": "#/$defs/Reply_UniProtAcc"
       },
       "type": "array"
     }

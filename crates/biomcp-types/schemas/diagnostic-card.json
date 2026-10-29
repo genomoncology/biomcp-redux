@@ -1,6 +1,6 @@
 {
   "$defs": {
-    "CacheProblem": {
+    "Reply_CacheProblem": {
       "description": "A local cache failure that leaves the provider outcome intact.",
       "enum": [
         "busy",
@@ -9,13 +9,13 @@
       ],
       "type": "string"
     },
-    "DeviceRecallHeader": {
+    "Reply_DeviceRecallHeader": {
       "description": "Native medical device product recall header, independent of event grouping.",
       "properties": {
         "event_number": {
           "anyOf": [
             {
-              "$ref": "#/$defs/Text"
+              "$ref": "#/$defs/Reply_Text"
             },
             {
               "type": "null"
@@ -26,7 +26,7 @@
         "firm": {
           "anyOf": [
             {
-              "$ref": "#/$defs/Text"
+              "$ref": "#/$defs/Reply_Text"
             },
             {
               "type": "null"
@@ -37,7 +37,7 @@
         "initiated": {
           "anyOf": [
             {
-              "$ref": "#/$defs/PartialDate"
+              "$ref": "#/$defs/Reply_PartialDate"
             },
             {
               "type": "null"
@@ -48,7 +48,7 @@
         "product_code": {
           "anyOf": [
             {
-              "$ref": "#/$defs/Text"
+              "$ref": "#/$defs/Reply_Text"
             },
             {
               "type": "null"
@@ -57,13 +57,13 @@
           "description": "Native device category code."
         },
         "recall_number": {
-          "$ref": "#/$defs/DeviceRecallNumber",
+          "$ref": "#/$defs/Reply_DeviceRecallNumber",
           "description": "Exact native product_res_number."
         },
         "status": {
           "anyOf": [
             {
-              "$ref": "#/$defs/Text"
+              "$ref": "#/$defs/Reply_Text"
             },
             {
               "type": "null"
@@ -77,12 +77,12 @@
       ],
       "type": "object"
     },
-    "DeviceRecallNumber": {
+    "Reply_DeviceRecallNumber": {
       "description": "Native FDA product recall number, independent of its event number.",
       "pattern": "^Z-[0-9]{4}-[0-9]{4}$",
       "type": "string"
     },
-    "DiagnosticCard": {
+    "Reply_DiagnosticCard": {
       "description": "Exactly one source-owned diagnostic card; conflicts have no card variant.",
       "oneOf": [
         {
@@ -91,7 +91,7 @@
             "classification": {
               "anyOf": [
                 {
-                  "$ref": "#/$defs/Text"
+                  "$ref": "#/$defs/Reply_Text"
                 },
                 {
                   "type": "null"
@@ -102,7 +102,7 @@
             "distribution_pattern": {
               "anyOf": [
                 {
-                  "$ref": "#/$defs/Text"
+                  "$ref": "#/$defs/Reply_Text"
                 },
                 {
                   "type": "null"
@@ -111,13 +111,13 @@
               "description": "Native distribution_pattern."
             },
             "header": {
-              "$ref": "#/$defs/DeviceRecallHeader",
+              "$ref": "#/$defs/Reply_DeviceRecallHeader",
               "description": "Native recall identity and dates."
             },
             "k_numbers": {
               "description": "Top-level native 510(k) submission entries; harmonized openfda fields never enter this list.",
               "items": {
-                "$ref": "#/$defs/Text"
+                "$ref": "#/$defs/Reply_Text"
               },
               "type": [
                 "array",
@@ -131,7 +131,7 @@
             "pma_numbers": {
               "description": "Top-level native PMA submission entries; no code-level identifiers enter this list.",
               "items": {
-                "$ref": "#/$defs/Text"
+                "$ref": "#/$defs/Reply_Text"
               },
               "type": [
                 "array",
@@ -141,7 +141,7 @@
             "product_description": {
               "anyOf": [
                 {
-                  "$ref": "#/$defs/Text"
+                  "$ref": "#/$defs/Reply_Text"
                 },
                 {
                   "type": "null"
@@ -152,7 +152,7 @@
             "reason": {
               "anyOf": [
                 {
-                  "$ref": "#/$defs/Text"
+                  "$ref": "#/$defs/Reply_Text"
                 },
                 {
                   "type": "null"
@@ -163,7 +163,7 @@
             "root_cause": {
               "anyOf": [
                 {
-                  "$ref": "#/$defs/Text"
+                  "$ref": "#/$defs/Reply_Text"
                 },
                 {
                   "type": "null"
@@ -186,7 +186,7 @@
               "type": "string"
             },
             "header": {
-              "$ref": "#/$defs/GtrHeader",
+              "$ref": "#/$defs/Reply_GtrHeader",
               "description": "Source identity header."
             },
             "kind": {
@@ -198,7 +198,7 @@
               "type": "string"
             },
             "last_touch_date": {
-              "$ref": "#/$defs/Text",
+              "$ref": "#/$defs/Reply_Text",
               "description": "Native revision date; not a local retrieval date."
             },
             "manufacturer_test_name": {
@@ -206,13 +206,13 @@
               "type": "string"
             },
             "native_status": {
-              "$ref": "#/$defs/GtrNativeStatus",
+              "$ref": "#/$defs/Reply_GtrNativeStatus",
               "description": "Separate native flags."
             },
             "sections": {
               "description": "Source-supported named pages.",
               "items": {
-                "$ref": "#/$defs/DiagnosticSection"
+                "$ref": "#/$defs/Reply_DiagnosticSection"
               },
               "type": "array"
             },
@@ -225,7 +225,7 @@
               "type": "string"
             },
             "test_create_date": {
-              "$ref": "#/$defs/Text",
+              "$ref": "#/$defs/Reply_Text",
               "description": "Source creation date."
             },
             "test_deletion_date": {
@@ -262,7 +262,7 @@
           "description": "All native rows under one WHO Product ID.",
           "properties": {
             "id": {
-              "$ref": "#/$defs/WhoProductId",
+              "$ref": "#/$defs/Reply_WhoProductId",
               "description": "Native product listing identity."
             },
             "kind": {
@@ -272,7 +272,7 @@
             "native_rows": {
               "description": "All original rows belonging to this exact product, without clipping.",
               "items": {
-                "$ref": "#/$defs/WhoIvdRow"
+                "$ref": "#/$defs/Reply_WhoIvdRow"
               },
               "type": "array"
             }
@@ -287,7 +287,7 @@
           "description": "Exact native FDA base or supplement, never an application-wide inferred claim.",
           "properties": {
             "header": {
-              "$ref": "#/$defs/DiagnosticPmaHeader",
+              "$ref": "#/$defs/Reply_DiagnosticPmaHeader",
               "description": "Exact selected source header."
             },
             "kind": {
@@ -297,7 +297,7 @@
             "sections": {
               "description": "Source-supported pages for this exact base or supplement.",
               "items": {
-                "$ref": "#/$defs/DiagnosticSection"
+                "$ref": "#/$defs/Reply_DiagnosticSection"
               },
               "type": "array"
             }
@@ -354,7 +354,7 @@
               ]
             },
             "k_number": {
-              "$ref": "#/$defs/DiagnosticDeviceId",
+              "$ref": "#/$defs/Reply_DiagnosticDeviceId",
               "description": "Exact native K number."
             },
             "kind": {
@@ -377,18 +377,18 @@
         }
       ]
     },
-    "DiagnosticDeviceId": {
+    "Reply_DiagnosticDeviceId": {
       "description": "Source device identifier; DEN and H identifiers imply no executable get.",
       "pattern": "^(P[0-9]{6}(/S(00[1-9]|0[1-9][0-9]|[1-9][0-9]{2}))?|K[0-9]{6}|DEN[0-9]{6}|H[0-9]{6})$",
       "type": "string"
     },
-    "DiagnosticGet": {
+    "Reply_DiagnosticGet": {
       "description": "Get one exact source record or supported section. A listing is not authorization; a companion row is not a treatment recommendation.",
       "properties": {
         "bundle_revision": {
           "anyOf": [
             {
-              "$ref": "#/$defs/Text"
+              "$ref": "#/$defs/Reply_Text"
             },
             {
               "type": "null"
@@ -397,14 +397,14 @@
           "description": "Immutable stored bundle revision retained by a continuation."
         },
         "id": {
-          "$ref": "#/$defs/Text",
+          "$ref": "#/$defs/Reply_Text",
           "description": "Exact native identity, including version for GTR.",
           "x-positional": 0
         },
         "section": {
           "anyOf": [
             {
-              "$ref": "#/$defs/DiagnosticSection"
+              "$ref": "#/$defs/Reply_DiagnosticSection"
             },
             {
               "type": "null"
@@ -428,13 +428,13 @@
           "type": "integer"
         },
         "source": {
-          "$ref": "#/$defs/DiagnosticGetSource",
+          "$ref": "#/$defs/Reply_DiagnosticGetSource",
           "description": "Explicit source: GTR accession/version, WHO Product ID, PMA P number,\n510(k) K number or device recall Z-NNNN-YYYY."
         },
         "supplement": {
           "anyOf": [
             {
-              "$ref": "#/$defs/PmaSupplement"
+              "$ref": "#/$defs/Reply_PmaSupplement"
             },
             {
               "type": "null"
@@ -449,7 +449,7 @@
       ],
       "type": "object"
     },
-    "DiagnosticGetSource": {
+    "Reply_DiagnosticGetSource": {
       "description": "One explicit exact diagnostic record source.",
       "enum": [
         "gtr",
@@ -460,13 +460,13 @@
       ],
       "type": "string"
     },
-    "DiagnosticLaboratory": {
+    "Reply_DiagnosticLaboratory": {
       "description": "Compact native laboratory context without authorization interpretation.",
       "properties": {
         "country": {
           "anyOf": [
             {
-              "$ref": "#/$defs/Text"
+              "$ref": "#/$defs/Reply_Text"
             },
             {
               "type": "null"
@@ -475,13 +475,13 @@
           "description": "Native country."
         },
         "id": {
-          "$ref": "#/$defs/Text",
+          "$ref": "#/$defs/Reply_Text",
           "description": "Native laboratory identifier."
         },
         "institution": {
           "anyOf": [
             {
-              "$ref": "#/$defs/Text"
+              "$ref": "#/$defs/Reply_Text"
             },
             {
               "type": "null"
@@ -492,7 +492,7 @@
         "name": {
           "anyOf": [
             {
-              "$ref": "#/$defs/Text"
+              "$ref": "#/$defs/Reply_Text"
             },
             {
               "type": "null"
@@ -506,7 +506,7 @@
       ],
       "type": "object"
     },
-    "DiagnosticPmaHeader": {
+    "Reply_DiagnosticPmaHeader": {
       "description": "Compact exact PMA row identity; its native empty base cell is explicit.",
       "properties": {
         "applicant": {
@@ -531,13 +531,13 @@
           ]
         },
         "pma_number": {
-          "$ref": "#/$defs/PmaNumber",
+          "$ref": "#/$defs/Reply_PmaNumber",
           "description": "Native application."
         },
         "supplement_number": {
           "anyOf": [
             {
-              "$ref": "#/$defs/PmaSupplementCell"
+              "$ref": "#/$defs/Reply_PmaSupplementCell"
             },
             {
               "type": "null"
@@ -553,7 +553,7 @@
           ]
         },
         "url": {
-          "$ref": "#/$defs/Text",
+          "$ref": "#/$defs/Reply_Text",
           "description": "Exact source record URL.",
           "format": "uri"
         }
@@ -564,7 +564,7 @@
       ],
       "type": "object"
     },
-    "DiagnosticSection": {
+    "Reply_DiagnosticSection": {
       "description": "Source-supported diagnostic sections; no all section.",
       "enum": [
         "genes",
@@ -582,21 +582,21 @@
         "PMA base application supplement headers; five per page."
       ]
     },
-    "GtrHeader": {
+    "Reply_GtrHeader": {
       "description": "Small resolved GTR candidate; broad gene and condition arrays stay off the header.",
       "properties": {
         "id": {
-          "$ref": "#/$defs/GtrTestId",
+          "$ref": "#/$defs/Reply_GtrTestId",
           "description": "Complete source accession and version."
         },
         "laboratory": {
-          "$ref": "#/$defs/DiagnosticLaboratory",
+          "$ref": "#/$defs/Reply_DiagnosticLaboratory",
           "description": "Native laboratory context."
         },
         "name": {
           "anyOf": [
             {
-              "$ref": "#/$defs/Text"
+              "$ref": "#/$defs/Reply_Text"
             },
             {
               "type": "null"
@@ -605,7 +605,7 @@
           "description": "Native test name, absent when the cell is empty."
         },
         "url": {
-          "$ref": "#/$defs/Text",
+          "$ref": "#/$defs/Reply_Text",
           "description": "Source record URL.",
           "format": "uri"
         }
@@ -617,7 +617,7 @@
       ],
       "type": "object"
     },
-    "GtrNativeStatus": {
+    "Reply_GtrNativeStatus": {
       "description": "Native flags retain distinct source meanings and exact source codes.",
       "properties": {
         "lab_currStat": {
@@ -650,12 +650,12 @@
       ],
       "type": "object"
     },
-    "GtrTestId": {
+    "Reply_GtrTestId": {
       "description": "Complete native GTR accession and positive version.",
       "pattern": "^GTR[0-9]{9}\\.[1-9][0-9]*$",
       "type": "string"
     },
-    "PageInfo": {
+    "Reply_PageInfo": {
       "description": "Search counts after filtering and deduplication.",
       "properties": {
         "offset": {
@@ -667,7 +667,7 @@
         "pool": {
           "anyOf": [
             {
-              "$ref": "#/$defs/PoolInfo"
+              "$ref": "#/$defs/Reply_PoolInfo"
             },
             {
               "type": "null"
@@ -702,27 +702,27 @@
       ],
       "type": "object"
     },
-    "PartialDate": {
+    "Reply_PartialDate": {
       "description": "A Gregorian date preserving year, month or day precision.",
       "pattern": "^[0-9]{4}(-[0-9]{2}(-[0-9]{2})?)?$",
       "type": "string"
     },
-    "PmaNumber": {
+    "Reply_PmaNumber": {
       "description": "Native FDA PMA base application number.",
       "pattern": "^P[0-9]{6}$",
       "type": "string"
     },
-    "PmaSupplement": {
+    "Reply_PmaSupplement": {
       "description": "Explicit native PMA supplement selector; no invented base alias.",
       "pattern": "^S(00[1-9]|0[1-9][0-9]|[1-9][0-9]{2})$",
       "type": "string"
     },
-    "PmaSupplementCell": {
+    "Reply_PmaSupplementCell": {
       "description": "Native PMA supplement cell; empty denotes base and never becomes S000.",
       "pattern": "^($|S(00[1-9]|0[1-9][0-9]|[1-9][0-9]{2}))$",
       "type": "string"
     },
-    "PoolInfo": {
+    "Reply_PoolInfo": {
       "description": "Fixed lifetime and size of a stored search snapshot.",
       "properties": {
         "created": {
@@ -738,7 +738,7 @@
           "type": "integer"
         },
         "id": {
-          "$ref": "#/$defs/Text",
+          "$ref": "#/$defs/Reply_Text",
           "description": "Opaque snapshot identifier."
         },
         "size": {
@@ -756,11 +756,11 @@
       ],
       "type": "object"
     },
-    "Problem": {
+    "Reply_Problem": {
       "description": "A field that could not be accepted from a source record.",
       "properties": {
         "code": {
-          "$ref": "#/$defs/ProblemCode",
+          "$ref": "#/$defs/Reply_ProblemCode",
           "description": "Why the field value was not accepted."
         },
         "field": {
@@ -770,7 +770,7 @@
         "record": {
           "anyOf": [
             {
-              "$ref": "#/$defs/Text"
+              "$ref": "#/$defs/Reply_Text"
             },
             {
               "type": "null"
@@ -779,7 +779,7 @@
           "description": "The record's canonical identifier, when known."
         },
         "source": {
-          "$ref": "#/$defs/Source",
+          "$ref": "#/$defs/Reply_Source",
           "description": "The source that supplied the record."
         }
       },
@@ -790,7 +790,7 @@
       ],
       "type": "object"
     },
-    "ProblemCode": {
+    "Reply_ProblemCode": {
       "description": "A stable code for a rejected field value.",
       "type": "string",
       "x-enum-descriptions": [
@@ -804,7 +804,7 @@
         "identity.conflict"
       ]
     },
-    "Reason": {
+    "Reply_Reason": {
       "description": "Why a source could not supply data.",
       "type": "string",
       "x-enum-descriptions": [
@@ -850,7 +850,7 @@
         "no_join_id"
       ]
     },
-    "Source": {
+    "Reply_Source": {
       "description": "A source of BioMCP data, identified by its canonical short name.",
       "type": "string",
       "x-enum-descriptions": [
@@ -1002,7 +1002,7 @@
         "cellosaurus"
       ]
     },
-    "SourceNotice": {
+    "Reply_SourceNotice": {
       "description": "A source notice or request recovery step.",
       "oneOf": [
         {
@@ -1058,7 +1058,7 @@
               "type": "string"
             },
             "reason": {
-              "$ref": "#/$defs/CacheProblem",
+              "$ref": "#/$defs/Reply_CacheProblem",
               "description": "Bounded local failure without paths or database diagnostics."
             }
           },
@@ -1072,7 +1072,7 @@
           "description": "The source still has graph pages after the bounded fetch window.",
           "properties": {
             "fallback": {
-              "$ref": "#/$defs/Text",
+              "$ref": "#/$defs/Reply_Text",
               "description": "Default-source command offering another graph view."
             },
             "kind": {
@@ -1139,7 +1139,7 @@
             "words": {
               "description": "Whole source words.",
               "items": {
-                "$ref": "#/$defs/Text"
+                "$ref": "#/$defs/Reply_Text"
               },
               "type": "array"
             }
@@ -1151,7 +1151,7 @@
         }
       ]
     },
-    "SourceOutcome": {
+    "Reply_SourceOutcome": {
       "description": "One source's outcome, without provider text.",
       "properties": {
         "count": {
@@ -1175,14 +1175,14 @@
         "notices": {
           "description": "Source notices and request recovery guidance.",
           "items": {
-            "$ref": "#/$defs/SourceNotice"
+            "$ref": "#/$defs/Reply_SourceNotice"
           },
           "type": "array"
         },
         "reason": {
           "anyOf": [
             {
-              "$ref": "#/$defs/Reason"
+              "$ref": "#/$defs/Reply_Reason"
             },
             {
               "type": "null"
@@ -1191,17 +1191,17 @@
           "description": "Failure or stale-fallback reason."
         },
         "source": {
-          "$ref": "#/$defs/Source",
+          "$ref": "#/$defs/Reply_Source",
           "description": "Asked source."
         },
         "state": {
-          "$ref": "#/$defs/SourceState",
+          "$ref": "#/$defs/Reply_SourceState",
           "description": "Retained state."
         },
         "term": {
           "anyOf": [
             {
-              "$ref": "#/$defs/Text"
+              "$ref": "#/$defs/Reply_Text"
             },
             {
               "type": "null"
@@ -1219,7 +1219,7 @@
           "type": "string"
         },
         "use": {
-          "$ref": "#/$defs/Use",
+          "$ref": "#/$defs/Reply_Use",
           "description": "Reviewed source use category; publisher terms remain authoritative."
         }
       },
@@ -1232,7 +1232,7 @@
       ],
       "type": "object"
     },
-    "SourceState": {
+    "Reply_SourceState": {
       "description": "State of a source actually asked by the command.",
       "enum": [
         "ok",
@@ -1243,7 +1243,7 @@
       ],
       "type": "string"
     },
-    "Status": {
+    "Reply_Status": {
       "description": "Overall command outcome.",
       "enum": [
         "complete",
@@ -1253,7 +1253,7 @@
       ],
       "type": "string"
     },
-    "Step": {
+    "Reply_Step": {
       "description": "A command argument list spelled from a typed action.",
       "properties": {
         "args": {
@@ -1264,7 +1264,7 @@
           "type": "array"
         },
         "kind": {
-          "$ref": "#/$defs/StepKind",
+          "$ref": "#/$defs/Reply_StepKind",
           "description": "Purpose of the action."
         }
       },
@@ -1273,7 +1273,7 @@
       ],
       "type": "object"
     },
-    "StepKind": {
+    "Reply_StepKind": {
       "description": "Purpose of an available next command.",
       "enum": [
         "restart",
@@ -1289,12 +1289,12 @@
       ],
       "type": "string"
     },
-    "Text": {
+    "Reply_Text": {
       "description": "Nonempty text with surrounding Unicode whitespace removed.",
       "minLength": 1,
       "type": "string"
     },
-    "Use": {
+    "Reply_Use": {
       "description": "Reviewed source-use category, without inferring rights in individual records.",
       "enum": [
         "open",
@@ -1304,7 +1304,7 @@
       ],
       "type": "string"
     },
-    "WhoIvdRow": {
+    "Reply_WhoIvdRow": {
       "description": "One original WHO CSV row; each repeated field retains its own row scope.",
       "properties": {
         "assay_format": {
@@ -1347,7 +1347,7 @@
       ],
       "type": "object"
     },
-    "WhoProductId": {
+    "Reply_WhoProductId": {
       "description": "WHO product listing identity, independent of product codes.",
       "pattern": "^[0-9]{4,5}-([0-9]{3}|[0-9]{5})-[0-9]{2}$",
       "type": "string"
@@ -1360,7 +1360,7 @@
     "local_error": {
       "anyOf": [
         {
-          "$ref": "#/$defs/CacheProblem"
+          "$ref": "#/$defs/Reply_CacheProblem"
         },
         {
           "type": "null"
@@ -1371,14 +1371,14 @@
     "next": {
       "description": "Available next commands.",
       "items": {
-        "$ref": "#/$defs/Step"
+        "$ref": "#/$defs/Reply_Step"
       },
       "type": "array"
     },
     "page": {
       "anyOf": [
         {
-          "$ref": "#/$defs/PageInfo"
+          "$ref": "#/$defs/Reply_PageInfo"
         },
         {
           "type": "null"
@@ -1389,18 +1389,18 @@
     "problems": {
       "description": "Rejected source fields.",
       "items": {
-        "$ref": "#/$defs/Problem"
+        "$ref": "#/$defs/Reply_Problem"
       },
       "type": "array"
     },
     "query": {
-      "$ref": "#/$defs/DiagnosticGet",
+      "$ref": "#/$defs/Reply_DiagnosticGet",
       "description": "Parsed query."
     },
     "result": {
       "anyOf": [
         {
-          "$ref": "#/$defs/DiagnosticCard"
+          "$ref": "#/$defs/Reply_DiagnosticCard"
         },
         {
           "type": "null"
@@ -1415,12 +1415,12 @@
     "sources": {
       "description": "Sources actually asked.",
       "items": {
-        "$ref": "#/$defs/SourceOutcome"
+        "$ref": "#/$defs/Reply_SourceOutcome"
       },
       "type": "array"
     },
     "status": {
-      "$ref": "#/$defs/Status",
+      "$ref": "#/$defs/Reply_Status",
       "description": "Overall outcome."
     }
   },

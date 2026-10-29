@@ -1,31 +1,31 @@
 {
   "$defs": {
-    "Doi": {
+    "Reply_Doi": {
       "description": "DOI preserving source spelling with ASCII-insensitive equality.",
       "pattern": "^10\\.[0-9]+/[^\\s\\x00-\\x1f\\x7f]+$",
       "type": "string"
     },
-    "EuropePmcId": {
+    "Reply_EuropePmcId": {
       "description": "Europe PMC source prefix followed by its positive numeric local identifier.",
       "pattern": "^[A-Z]{1,8}[0-9]*[1-9][0-9]*$",
       "type": "string"
     },
-    "PartialDate": {
+    "Reply_PartialDate": {
       "description": "A Gregorian date preserving year, month or day precision.",
       "pattern": "^[0-9]{4}(-[0-9]{2}(-[0-9]{2})?)?$",
       "type": "string"
     },
-    "Pmcid": {
+    "Reply_Pmcid": {
       "description": "Canonical PMC identifier, with an explicit namespace.",
       "pattern": "^PMC[1-9][0-9]*$",
       "type": "string"
     },
-    "Pmid": {
+    "Reply_Pmid": {
       "description": "Positive PubMed identifier.",
       "pattern": "^[1-9][0-9]*$",
       "type": "string"
     },
-    "PublicationType": {
+    "Reply_PublicationType": {
       "description": "Clinically meaningful PubMed publication types.",
       "type": "string",
       "x-enum-descriptions": [
@@ -75,12 +75,12 @@
         "erratum"
       ]
     },
-    "SemanticScholarAuthorId": {
+    "Reply_SemanticScholarAuthorId": {
       "description": "A checked source-local Semantic Scholar author identifier, never a person identity.",
       "pattern": "^[1-9][0-9]*$",
       "type": "string"
     },
-    "Text": {
+    "Reply_Text": {
       "description": "Nonempty text with surrounding Unicode whitespace removed.",
       "minLength": 1,
       "type": "string"
@@ -99,7 +99,7 @@
     "date": {
       "anyOf": [
         {
-          "$ref": "#/$defs/PartialDate"
+          "$ref": "#/$defs/Reply_PartialDate"
         },
         {
           "type": "null"
@@ -110,7 +110,7 @@
     "doi": {
       "anyOf": [
         {
-          "$ref": "#/$defs/Doi"
+          "$ref": "#/$defs/Reply_Doi"
         },
         {
           "type": "null"
@@ -121,7 +121,7 @@
     "electronic_date": {
       "anyOf": [
         {
-          "$ref": "#/$defs/PartialDate"
+          "$ref": "#/$defs/Reply_PartialDate"
         },
         {
           "type": "null"
@@ -132,7 +132,7 @@
     "europepmc_id": {
       "anyOf": [
         {
-          "$ref": "#/$defs/EuropePmcId"
+          "$ref": "#/$defs/Reply_EuropePmcId"
         },
         {
           "type": "null"
@@ -143,7 +143,7 @@
     "first_author": {
       "anyOf": [
         {
-          "$ref": "#/$defs/Text"
+          "$ref": "#/$defs/Reply_Text"
         },
         {
           "type": "null"
@@ -154,7 +154,7 @@
     "first_author_id": {
       "anyOf": [
         {
-          "$ref": "#/$defs/SemanticScholarAuthorId"
+          "$ref": "#/$defs/Reply_SemanticScholarAuthorId"
         },
         {
           "type": "null"
@@ -165,7 +165,7 @@
     "journal": {
       "anyOf": [
         {
-          "$ref": "#/$defs/Text"
+          "$ref": "#/$defs/Reply_Text"
         },
         {
           "type": "null"
@@ -176,7 +176,7 @@
     "pmcid": {
       "anyOf": [
         {
-          "$ref": "#/$defs/Pmcid"
+          "$ref": "#/$defs/Reply_Pmcid"
         },
         {
           "type": "null"
@@ -185,17 +185,17 @@
       "description": "Checked PMC identity, when supplied."
     },
     "pmid": {
-      "$ref": "#/$defs/Pmid",
+      "$ref": "#/$defs/Reply_Pmid",
       "description": "Checked PubMed identity."
     },
     "title": {
-      "$ref": "#/$defs/Text",
+      "$ref": "#/$defs/Reply_Text",
       "description": "Whole source title."
     },
     "types": {
       "description": "Clinical publication types.",
       "items": {
-        "$ref": "#/$defs/PublicationType"
+        "$ref": "#/$defs/Reply_PublicationType"
       },
       "type": "array"
     },

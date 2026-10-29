@@ -1,12 +1,12 @@
 {
   "$defs": {
-    "AbstractPart": {
+    "Reply_AbstractPart": {
       "description": "One source-labelled abstract paragraph.",
       "properties": {
         "label": {
           "anyOf": [
             {
-              "$ref": "#/$defs/Text"
+              "$ref": "#/$defs/Reply_Text"
             },
             {
               "type": "null"
@@ -15,7 +15,7 @@
           "description": "Source label, when supplied."
         },
         "text": {
-          "$ref": "#/$defs/Markdown",
+          "$ref": "#/$defs/Reply_Markdown",
           "description": "Whole paragraph text."
         }
       },
@@ -24,7 +24,7 @@
       ],
       "type": "object"
     },
-    "AnnotatedEntity": {
+    "Reply_AnnotatedEntity": {
       "description": "One normalized entity with its mention count.",
       "properties": {
         "count": {
@@ -36,7 +36,7 @@
         "entrez_id": {
           "anyOf": [
             {
-              "$ref": "#/$defs/NcbiGeneId"
+              "$ref": "#/$defs/Reply_NcbiGeneId"
             },
             {
               "type": "null"
@@ -47,7 +47,7 @@
         "hgvs": {
           "anyOf": [
             {
-              "$ref": "#/$defs/Text"
+              "$ref": "#/$defs/Reply_Text"
             },
             {
               "type": "null"
@@ -56,13 +56,13 @@
           "description": "Source HGVS expression for a variant."
         },
         "kind": {
-          "$ref": "#/$defs/AnnotationKind",
+          "$ref": "#/$defs/Reply_AnnotationKind",
           "description": "Source concept type."
         },
         "mesh": {
           "anyOf": [
             {
-              "$ref": "#/$defs/Text"
+              "$ref": "#/$defs/Reply_Text"
             },
             {
               "type": "null"
@@ -71,13 +71,13 @@
           "description": "Source MeSH identity for a disease or chemical."
         },
         "name": {
-          "$ref": "#/$defs/Text",
+          "$ref": "#/$defs/Reply_Text",
           "description": "Source normalized name."
         },
         "rsid": {
           "anyOf": [
             {
-              "$ref": "#/$defs/Text"
+              "$ref": "#/$defs/Reply_Text"
             },
             {
               "type": "null"
@@ -93,7 +93,7 @@
       ],
       "type": "object"
     },
-    "AnnotationKind": {
+    "Reply_AnnotationKind": {
       "description": "Normalized annotation category in deterministic tie order.",
       "type": "string",
       "x-enum-descriptions": [
@@ -109,7 +109,7 @@
         "chemical"
       ]
     },
-    "Article": {
+    "Reply_Article": {
       "anyOf": [
         {
           "required": [
@@ -137,25 +137,25 @@
         "abstract_parts": {
           "description": "Whole abstract, preserving labels and source order.",
           "items": {
-            "$ref": "#/$defs/AbstractPart"
+            "$ref": "#/$defs/Reply_AbstractPart"
           },
           "type": "array"
         },
         "authors": {
-          "$ref": "#/$defs/Capped",
+          "$ref": "#/$defs/Reply_Capped_Text",
           "description": "Authors in source order."
         },
         "corrections": {
           "description": "Related correction notices or originals.",
           "items": {
-            "$ref": "#/$defs/Correction"
+            "$ref": "#/$defs/Reply_Correction"
           },
           "type": "array"
         },
         "date": {
           "anyOf": [
             {
-              "$ref": "#/$defs/PartialDate"
+              "$ref": "#/$defs/Reply_PartialDate"
             },
             {
               "type": "null"
@@ -164,13 +164,13 @@
           "description": "Publication date at source precision."
         },
         "doi": {
-          "$ref": "#/$defs/Doi",
+          "$ref": "#/$defs/Reply_Doi",
           "description": "DOI assigned to this article."
         },
         "electronic_date": {
           "anyOf": [
             {
-              "$ref": "#/$defs/PartialDate"
+              "$ref": "#/$defs/Reply_PartialDate"
             },
             {
               "type": "null"
@@ -179,13 +179,13 @@
           "description": "Electronic publication date when different from the publication date."
         },
         "europepmc_id": {
-          "$ref": "#/$defs/EuropePmcId",
+          "$ref": "#/$defs/Reply_EuropePmcId",
           "description": "Europe PMC identity when this card comes from its core record."
         },
         "journal": {
           "anyOf": [
             {
-              "$ref": "#/$defs/Text"
+              "$ref": "#/$defs/Reply_Text"
             },
             {
               "type": "null"
@@ -194,21 +194,21 @@
           "description": "Journal name."
         },
         "pmcid": {
-          "$ref": "#/$defs/Pmcid",
+          "$ref": "#/$defs/Reply_Pmcid",
           "description": "PMC identity assigned to this article."
         },
         "pmid": {
-          "$ref": "#/$defs/Pmid",
+          "$ref": "#/$defs/Reply_Pmid",
           "description": "PubMed identity."
         },
         "title": {
-          "$ref": "#/$defs/Text",
+          "$ref": "#/$defs/Reply_Text",
           "description": "Whole title with inline text preserved."
         },
         "types": {
           "description": "Every clinically meaningful source publication type.",
           "items": {
-            "$ref": "#/$defs/PublicationType"
+            "$ref": "#/$defs/Reply_PublicationType"
           },
           "type": "array"
         }
@@ -218,13 +218,13 @@
       ],
       "type": "object"
     },
-    "ArticleCardItem": {
+    "Reply_ArticleCardItem": {
       "description": "Answer to one input; shared DOIs may expand to several consecutive items.",
       "properties": {
         "answer": {
           "anyOf": [
             {
-              "$ref": "#/$defs/ArticleResolution"
+              "$ref": "#/$defs/Reply_ArticleResolution"
             },
             {
               "type": "null"
@@ -233,20 +233,20 @@
           "description": "Absent only when a provider failed."
         },
         "input": {
-          "$ref": "#/$defs/ArticleInput",
+          "$ref": "#/$defs/Reply_ArticleInput",
           "description": "Original selector."
         },
         "more": {
           "description": "Applicable sections omitted by this request.",
           "items": {
-            "$ref": "#/$defs/ArticleSection"
+            "$ref": "#/$defs/Reply_ArticleSection"
           },
           "type": "array"
         },
         "sections": {
           "anyOf": [
             {
-              "$ref": "#/$defs/ArticleSections"
+              "$ref": "#/$defs/Reply_ArticleSections"
             },
             {
               "type": "null"
@@ -255,7 +255,7 @@
           "description": "Requested section states for a resolved card."
         },
         "status": {
-          "$ref": "#/$defs/Status",
+          "$ref": "#/$defs/Reply_Status",
           "description": "This card's outcome."
         }
       },
@@ -265,26 +265,26 @@
       ],
       "type": "object"
     },
-    "ArticleCards": {
+    "Reply_ArticleCards": {
       "description": "Cards in caller order.",
       "properties": {
         "items": {
           "description": "Per-input answers.",
           "items": {
-            "$ref": "#/$defs/ArticleCardItem"
+            "$ref": "#/$defs/Reply_ArticleCardItem"
           },
           "type": "array"
         }
       },
       "type": "object"
     },
-    "ArticleGet": {
+    "Reply_ArticleGet": {
       "description": "Get one to twenty article inputs in caller order.",
       "properties": {
         "input": {
           "description": "PubMed, PMC or DOI identifiers in input order.",
           "items": {
-            "$ref": "#/$defs/ArticleInput"
+            "$ref": "#/$defs/Reply_ArticleInput"
           },
           "maxItems": 20,
           "minItems": 1,
@@ -294,7 +294,7 @@
         "section": {
           "description": "Requested section words; trailing words and --section share this field.",
           "items": {
-            "$ref": "#/$defs/ArticleSectionWord"
+            "$ref": "#/$defs/Reply_ArticleSectionWord"
           },
           "type": "array",
           "x-trailing-section": true
@@ -305,16 +305,16 @@
       ],
       "type": "object"
     },
-    "ArticleInput": {
+    "Reply_ArticleInput": {
       "description": "A validated canonical ArticleInput string.",
       "pattern": "^(?:[1-9][0-9]*|PMC[1-9][0-9]*|PPR[0-9]*[1-9][0-9]*|(?:https?://doi\\.org/)?10\\.[0-9]+/[^\\s\\x00-\\x1f\\x7f]+)$",
       "type": "string"
     },
-    "ArticleMatch": {
+    "Reply_ArticleMatch": {
       "description": "Identity evidence for an article card.",
       "properties": {
         "kind": {
-          "$ref": "#/$defs/ArticleMatchKind",
+          "$ref": "#/$defs/Reply_ArticleMatchKind",
           "description": "Namespace used to resolve the card."
         }
       },
@@ -323,7 +323,7 @@
       ],
       "type": "object"
     },
-    "ArticleMatchKind": {
+    "Reply_ArticleMatchKind": {
       "description": "Identifier used to resolve this article.",
       "type": "string",
       "x-enum-descriptions": [
@@ -339,14 +339,14 @@
         "europepmc_id"
       ]
     },
-    "ArticleResolution": {
+    "Reply_ArticleResolution": {
       "description": "Result of resolving an article selector.",
       "oneOf": [
         {
           "description": "A record whose own identity agrees with the input.",
           "properties": {
             "card": {
-              "$ref": "#/$defs/Article",
+              "$ref": "#/$defs/Reply_Article",
               "description": "Source card with capped authors."
             },
             "fetched": {
@@ -356,7 +356,7 @@
               "type": "integer"
             },
             "match": {
-              "$ref": "#/$defs/ArticleMatch",
+              "$ref": "#/$defs/Reply_ArticleMatch",
               "description": "Identity evidence."
             },
             "resolution": {
@@ -387,7 +387,7 @@
         }
       ]
     },
-    "ArticleSection": {
+    "Reply_ArticleSection": {
       "description": "A landed article section.",
       "type": "string",
       "x-enum-descriptions": [
@@ -409,7 +409,7 @@
         "pdf"
       ]
     },
-    "ArticleSectionWord": {
+    "Reply_ArticleSectionWord": {
       "description": "Article section request including all landed sections.",
       "type": "string",
       "x-enum-descriptions": [
@@ -433,13 +433,13 @@
         "all"
       ]
     },
-    "ArticleSections": {
+    "Reply_ArticleSections": {
       "description": "Landed article sections with independent source states.",
       "properties": {
         "annotations": {
           "anyOf": [
             {
-              "$ref": "#/$defs/Section7"
+              "$ref": "#/$defs/Reply_Section_Capped_AnnotatedEntity"
             },
             {
               "type": "null"
@@ -450,7 +450,7 @@
         "citations": {
           "anyOf": [
             {
-              "$ref": "#/$defs/Section6"
+              "$ref": "#/$defs/Reply_Section_Citations"
             },
             {
               "type": "null"
@@ -461,7 +461,7 @@
         "fulltext": {
           "anyOf": [
             {
-              "$ref": "#/$defs/Section4"
+              "$ref": "#/$defs/Reply_Section_FullText"
             },
             {
               "type": "null"
@@ -472,7 +472,7 @@
         "indexing": {
           "anyOf": [
             {
-              "$ref": "#/$defs/Section2"
+              "$ref": "#/$defs/Reply_Section_Indexing"
             },
             {
               "type": "null"
@@ -483,7 +483,7 @@
         "pdf": {
           "anyOf": [
             {
-              "$ref": "#/$defs/Section"
+              "$ref": "#/$defs/Reply_Section_PdfLink"
             },
             {
               "type": "null"
@@ -494,7 +494,7 @@
         "supplements": {
           "anyOf": [
             {
-              "$ref": "#/$defs/Section3"
+              "$ref": "#/$defs/Reply_Section_Supplements"
             },
             {
               "type": "null"
@@ -505,7 +505,7 @@
         "tldr": {
           "anyOf": [
             {
-              "$ref": "#/$defs/Section5"
+              "$ref": "#/$defs/Reply_Section_Tldr"
             },
             {
               "type": "null"
@@ -516,7 +516,7 @@
       },
       "type": "object"
     },
-    "CacheProblem": {
+    "Reply_CacheProblem": {
       "description": "A local cache failure that leaves the provider outcome intact.",
       "enum": [
         "busy",
@@ -525,13 +525,13 @@
       ],
       "type": "string"
     },
-    "Capped": {
+    "Reply_Capped_AnnotatedEntity": {
       "description": "A bounded list with the total before its cap was applied.",
       "properties": {
         "items": {
           "description": "References in stable source order.",
           "items": {
-            "$ref": "#/$defs/Text"
+            "$ref": "#/$defs/Reply_AnnotatedEntity"
           },
           "type": "array"
         },
@@ -547,13 +547,13 @@
       ],
       "type": "object"
     },
-    "Capped2": {
+    "Reply_Capped_Text": {
       "description": "A bounded list with the total before its cap was applied.",
       "properties": {
         "items": {
           "description": "References in stable source order.",
           "items": {
-            "$ref": "#/$defs/AnnotatedEntity"
+            "$ref": "#/$defs/Reply_Text"
           },
           "type": "array"
         },
@@ -569,7 +569,7 @@
       ],
       "type": "object"
     },
-    "Citations": {
+    "Reply_Citations": {
       "description": "Independently reported iCite counts; absent lists are never confirmed zeros.",
       "properties": {
         "cited_by": {
@@ -593,7 +593,7 @@
         "rcr": {
           "anyOf": [
             {
-              "$ref": "#/$defs/FiniteNumber"
+              "$ref": "#/$defs/Reply_FiniteNumber"
             },
             {
               "type": "null"
@@ -613,19 +613,19 @@
       },
       "type": "object"
     },
-    "Correction": {
+    "Reply_Correction": {
       "description": "One correction relationship supplied by PubMed.",
       "properties": {
         "kind": {
-          "$ref": "#/$defs/CorrectionKind",
+          "$ref": "#/$defs/Reply_CorrectionKind",
           "description": "Correction category."
         },
         "pmid": {
-          "$ref": "#/$defs/Pmid",
+          "$ref": "#/$defs/Reply_Pmid",
           "description": "Related PMID, when supplied."
         },
         "relation": {
-          "$ref": "#/$defs/CorrectionRelation",
+          "$ref": "#/$defs/Reply_CorrectionRelation",
           "description": "Whether the related record is a notice or original."
         }
       },
@@ -635,7 +635,7 @@
       ],
       "type": "object"
     },
-    "CorrectionKind": {
+    "Reply_CorrectionKind": {
       "description": "Source correction relationship kind.",
       "type": "string",
       "x-enum-descriptions": [
@@ -649,7 +649,7 @@
         "expression_of_concern"
       ]
     },
-    "CorrectionRelation": {
+    "Reply_CorrectionRelation": {
       "description": "Direction of a source correction relationship.",
       "type": "string",
       "x-enum-descriptions": [
@@ -661,25 +661,25 @@
         "original"
       ]
     },
-    "Doi": {
+    "Reply_Doi": {
       "description": "DOI preserving source spelling with ASCII-insensitive equality.",
       "pattern": "^10\\.[0-9]+/[^\\s\\x00-\\x1f\\x7f]+$",
       "type": "string"
     },
-    "EuropePmcId": {
+    "Reply_EuropePmcId": {
       "description": "Europe PMC source prefix followed by its positive numeric local identifier.",
       "pattern": "^[A-Z]{1,8}[0-9]*[1-9][0-9]*$",
       "type": "string"
     },
-    "FigureCaption": {
+    "Reply_FigureCaption": {
       "description": "Figure text in document order.",
       "properties": {
         "caption": {
-          "$ref": "#/$defs/Markdown",
+          "$ref": "#/$defs/Reply_Markdown",
           "description": "Source caption."
         },
         "label": {
-          "$ref": "#/$defs/Text",
+          "$ref": "#/$defs/Reply_Text",
           "description": "Source label."
         }
       },
@@ -689,7 +689,7 @@
       ],
       "type": "object"
     },
-    "FileKind": {
+    "Reply_FileKind": {
       "description": "Supplement format from an explicit JATS MIME declaration, with suffix fallback.",
       "type": "string",
       "x-enum-descriptions": [
@@ -709,23 +709,23 @@
         "other"
       ]
     },
-    "FiniteNumber": {
+    "Reply_FiniteNumber": {
       "description": "A finite decimal that JSON can represent without losing its value to null.",
       "format": "double",
       "type": "number"
     },
-    "FullText": {
+    "Reply_FullText": {
       "description": "Bucket license and body outline; processing version is not publication chronology.",
       "properties": {
         "figures": {
           "description": "Source figure captions in document order.",
           "items": {
-            "$ref": "#/$defs/FigureCaption"
+            "$ref": "#/$defs/Reply_FigureCaption"
           },
           "type": "array"
         },
         "license": {
-          "$ref": "#/$defs/License",
+          "$ref": "#/$defs/Reply_License",
           "description": "Selected bucket license."
         },
         "manuscript": {
@@ -735,7 +735,7 @@
         "parts": {
           "description": "Bounded body parts in reading order.",
           "items": {
-            "$ref": "#/$defs/TextPart"
+            "$ref": "#/$defs/Reply_TextPart"
           },
           "type": "array"
         },
@@ -751,31 +751,31 @@
       ],
       "type": "object"
     },
-    "Indexing": {
+    "Reply_Indexing": {
       "description": "Index terms and author identities supplied by this article's EFetch citation.",
       "properties": {
         "affiliations": {
-          "$ref": "#/$defs/Capped",
+          "$ref": "#/$defs/Reply_Capped_Text",
           "description": "First ten author affiliations and the complete count."
         },
         "keywords": {
           "description": "Author keywords in source order.",
           "items": {
-            "$ref": "#/$defs/Text"
+            "$ref": "#/$defs/Reply_Text"
           },
           "type": "array"
         },
         "mesh": {
           "description": "MeSH headings in source order.",
           "items": {
-            "$ref": "#/$defs/MeshHeading"
+            "$ref": "#/$defs/Reply_MeshHeading"
           },
           "type": "array"
         },
         "orcids": {
           "description": "Author ORCID identifiers, as supplied by the source.",
           "items": {
-            "$ref": "#/$defs/Text"
+            "$ref": "#/$defs/Reply_Text"
           },
           "type": "array"
         }
@@ -785,7 +785,7 @@
       ],
       "type": "object"
     },
-    "License": {
+    "Reply_License": {
       "description": "License reported by the bucket metadata record.",
       "type": "string",
       "x-enum-descriptions": [
@@ -813,17 +813,17 @@
         "other"
       ]
     },
-    "Markdown": {
+    "Reply_Markdown": {
       "description": "Nonempty text with surrounding Unicode whitespace removed.",
       "format": "markdown",
       "minLength": 1,
       "type": "string"
     },
-    "MeshHeading": {
+    "Reply_MeshHeading": {
       "description": "A MeSH descriptor and its qualifiers retain their independent major-topic flags.",
       "properties": {
         "descriptor": {
-          "$ref": "#/$defs/Text",
+          "$ref": "#/$defs/Reply_Text",
           "description": "Source descriptor."
         },
         "major": {
@@ -833,7 +833,7 @@
         "qualifiers": {
           "description": "Source qualifiers.",
           "items": {
-            "$ref": "#/$defs/MeshQualifier"
+            "$ref": "#/$defs/Reply_MeshQualifier"
           },
           "type": "array"
         }
@@ -844,7 +844,7 @@
       ],
       "type": "object"
     },
-    "MeshQualifier": {
+    "Reply_MeshQualifier": {
       "description": "A qualifier attached to a MeSH descriptor.",
       "properties": {
         "major": {
@@ -852,7 +852,7 @@
           "type": "boolean"
         },
         "name": {
-          "$ref": "#/$defs/Text",
+          "$ref": "#/$defs/Reply_Text",
           "description": "Source qualifier."
         }
       },
@@ -862,12 +862,12 @@
       ],
       "type": "object"
     },
-    "NcbiGeneId": {
+    "Reply_NcbiGeneId": {
       "description": "A positive NCBI Gene identifier in canonical decimal text.",
       "pattern": "^[1-9][0-9]*$",
       "type": "string"
     },
-    "OpenAccessStatus": {
+    "Reply_OpenAccessStatus": {
       "description": "Open-access status supplied by the paper-link provider.",
       "type": "string",
       "x-enum-descriptions": [
@@ -885,7 +885,7 @@
         "closed"
       ]
     },
-    "PageInfo": {
+    "Reply_PageInfo": {
       "description": "Search counts after filtering and deduplication.",
       "properties": {
         "offset": {
@@ -897,7 +897,7 @@
         "pool": {
           "anyOf": [
             {
-              "$ref": "#/$defs/PoolInfo"
+              "$ref": "#/$defs/Reply_PoolInfo"
             },
             {
               "type": "null"
@@ -932,24 +932,24 @@
       ],
       "type": "object"
     },
-    "PartialDate": {
+    "Reply_PartialDate": {
       "description": "A Gregorian date preserving year, month or day precision.",
       "pattern": "^[0-9]{4}(-[0-9]{2}(-[0-9]{2})?)?$",
       "type": "string"
     },
-    "PdfLink": {
+    "Reply_PdfLink": {
       "description": "Source-reported PDF link. Reading this section never downloads the file.",
       "properties": {
         "license": {
-          "$ref": "#/$defs/License",
+          "$ref": "#/$defs/Reply_License",
           "description": "Normalized license; other grants no reuse rights."
         },
         "status": {
-          "$ref": "#/$defs/OpenAccessStatus",
+          "$ref": "#/$defs/Reply_OpenAccessStatus",
           "description": "Source access status."
         },
         "url": {
-          "$ref": "#/$defs/Text",
+          "$ref": "#/$defs/Reply_Text",
           "description": "Source publisher URL.",
           "format": "uri"
         }
@@ -961,17 +961,17 @@
       ],
       "type": "object"
     },
-    "Pmcid": {
+    "Reply_Pmcid": {
       "description": "Canonical PMC identifier, with an explicit namespace.",
       "pattern": "^PMC[1-9][0-9]*$",
       "type": "string"
     },
-    "Pmid": {
+    "Reply_Pmid": {
       "description": "Positive PubMed identifier.",
       "pattern": "^[1-9][0-9]*$",
       "type": "string"
     },
-    "PoolInfo": {
+    "Reply_PoolInfo": {
       "description": "Fixed lifetime and size of a stored search snapshot.",
       "properties": {
         "created": {
@@ -987,7 +987,7 @@
           "type": "integer"
         },
         "id": {
-          "$ref": "#/$defs/Text",
+          "$ref": "#/$defs/Reply_Text",
           "description": "Opaque snapshot identifier."
         },
         "size": {
@@ -1005,11 +1005,11 @@
       ],
       "type": "object"
     },
-    "Problem": {
+    "Reply_Problem": {
       "description": "A field that could not be accepted from a source record.",
       "properties": {
         "code": {
-          "$ref": "#/$defs/ProblemCode",
+          "$ref": "#/$defs/Reply_ProblemCode",
           "description": "Why the field value was not accepted."
         },
         "field": {
@@ -1019,7 +1019,7 @@
         "record": {
           "anyOf": [
             {
-              "$ref": "#/$defs/Text"
+              "$ref": "#/$defs/Reply_Text"
             },
             {
               "type": "null"
@@ -1028,7 +1028,7 @@
           "description": "The record's canonical identifier, when known."
         },
         "source": {
-          "$ref": "#/$defs/Source",
+          "$ref": "#/$defs/Reply_Source",
           "description": "The source that supplied the record."
         }
       },
@@ -1039,7 +1039,7 @@
       ],
       "type": "object"
     },
-    "ProblemCode": {
+    "Reply_ProblemCode": {
       "description": "A stable code for a rejected field value.",
       "type": "string",
       "x-enum-descriptions": [
@@ -1053,7 +1053,7 @@
         "identity.conflict"
       ]
     },
-    "PublicationType": {
+    "Reply_PublicationType": {
       "description": "Clinically meaningful PubMed publication types.",
       "type": "string",
       "x-enum-descriptions": [
@@ -1103,7 +1103,7 @@
         "erratum"
       ]
     },
-    "Reason": {
+    "Reply_Reason": {
       "description": "Why a source could not supply data.",
       "type": "string",
       "x-enum-descriptions": [
@@ -1149,18 +1149,18 @@
         "no_join_id"
       ]
     },
-    "Section": {
+    "Reply_Section_Capped_AnnotatedEntity": {
       "description": "A requested section has exactly one state.",
       "oneOf": [
         {
           "description": "The source returned data.",
           "properties": {
             "data": {
-              "$ref": "#/$defs/PdfLink",
+              "$ref": "#/$defs/Reply_Capped_AnnotatedEntity",
               "description": "Whole section data."
             },
             "source": {
-              "$ref": "#/$defs/Source",
+              "$ref": "#/$defs/Reply_Source",
               "description": "Source identity."
             },
             "state": {
@@ -1181,7 +1181,7 @@
             "record": {
               "anyOf": [
                 {
-                  "$ref": "#/$defs/SourceRecord"
+                  "$ref": "#/$defs/Reply_SourceRecord"
                 },
                 {
                   "type": "null"
@@ -1190,7 +1190,7 @@
               "description": "Native entry, if any."
             },
             "source": {
-              "$ref": "#/$defs/Source",
+              "$ref": "#/$defs/Reply_Source",
               "description": "Source identity."
             },
             "state": {
@@ -1208,11 +1208,11 @@
           "description": "A requested source failed.",
           "properties": {
             "reason": {
-              "$ref": "#/$defs/Reason",
+              "$ref": "#/$defs/Reply_Reason",
               "description": "Typed reason."
             },
             "source": {
-              "$ref": "#/$defs/Source",
+              "$ref": "#/$defs/Reply_Source",
               "description": "Source identity."
             },
             "state": {
@@ -1231,11 +1231,11 @@
           "description": "User settings prevented the source request.",
           "properties": {
             "reason": {
-              "$ref": "#/$defs/Reason",
+              "$ref": "#/$defs/Reply_Reason",
               "description": "Typed reason."
             },
             "source": {
-              "$ref": "#/$defs/Source",
+              "$ref": "#/$defs/Reply_Source",
               "description": "Source identity."
             },
             "state": {
@@ -1265,18 +1265,18 @@
         }
       ]
     },
-    "Section2": {
+    "Reply_Section_Citations": {
       "description": "A requested section has exactly one state.",
       "oneOf": [
         {
           "description": "The source returned data.",
           "properties": {
             "data": {
-              "$ref": "#/$defs/Indexing",
+              "$ref": "#/$defs/Reply_Citations",
               "description": "Whole section data."
             },
             "source": {
-              "$ref": "#/$defs/Source",
+              "$ref": "#/$defs/Reply_Source",
               "description": "Source identity."
             },
             "state": {
@@ -1297,7 +1297,7 @@
             "record": {
               "anyOf": [
                 {
-                  "$ref": "#/$defs/SourceRecord"
+                  "$ref": "#/$defs/Reply_SourceRecord"
                 },
                 {
                   "type": "null"
@@ -1306,7 +1306,7 @@
               "description": "Native entry, if any."
             },
             "source": {
-              "$ref": "#/$defs/Source",
+              "$ref": "#/$defs/Reply_Source",
               "description": "Source identity."
             },
             "state": {
@@ -1324,11 +1324,11 @@
           "description": "A requested source failed.",
           "properties": {
             "reason": {
-              "$ref": "#/$defs/Reason",
+              "$ref": "#/$defs/Reply_Reason",
               "description": "Typed reason."
             },
             "source": {
-              "$ref": "#/$defs/Source",
+              "$ref": "#/$defs/Reply_Source",
               "description": "Source identity."
             },
             "state": {
@@ -1347,11 +1347,11 @@
           "description": "User settings prevented the source request.",
           "properties": {
             "reason": {
-              "$ref": "#/$defs/Reason",
+              "$ref": "#/$defs/Reply_Reason",
               "description": "Typed reason."
             },
             "source": {
-              "$ref": "#/$defs/Source",
+              "$ref": "#/$defs/Reply_Source",
               "description": "Source identity."
             },
             "state": {
@@ -1381,18 +1381,18 @@
         }
       ]
     },
-    "Section3": {
+    "Reply_Section_FullText": {
       "description": "A requested section has exactly one state.",
       "oneOf": [
         {
           "description": "The source returned data.",
           "properties": {
             "data": {
-              "$ref": "#/$defs/Supplements",
+              "$ref": "#/$defs/Reply_FullText",
               "description": "Whole section data."
             },
             "source": {
-              "$ref": "#/$defs/Source",
+              "$ref": "#/$defs/Reply_Source",
               "description": "Source identity."
             },
             "state": {
@@ -1413,7 +1413,7 @@
             "record": {
               "anyOf": [
                 {
-                  "$ref": "#/$defs/SourceRecord"
+                  "$ref": "#/$defs/Reply_SourceRecord"
                 },
                 {
                   "type": "null"
@@ -1422,7 +1422,7 @@
               "description": "Native entry, if any."
             },
             "source": {
-              "$ref": "#/$defs/Source",
+              "$ref": "#/$defs/Reply_Source",
               "description": "Source identity."
             },
             "state": {
@@ -1440,11 +1440,11 @@
           "description": "A requested source failed.",
           "properties": {
             "reason": {
-              "$ref": "#/$defs/Reason",
+              "$ref": "#/$defs/Reply_Reason",
               "description": "Typed reason."
             },
             "source": {
-              "$ref": "#/$defs/Source",
+              "$ref": "#/$defs/Reply_Source",
               "description": "Source identity."
             },
             "state": {
@@ -1463,11 +1463,11 @@
           "description": "User settings prevented the source request.",
           "properties": {
             "reason": {
-              "$ref": "#/$defs/Reason",
+              "$ref": "#/$defs/Reply_Reason",
               "description": "Typed reason."
             },
             "source": {
-              "$ref": "#/$defs/Source",
+              "$ref": "#/$defs/Reply_Source",
               "description": "Source identity."
             },
             "state": {
@@ -1497,18 +1497,18 @@
         }
       ]
     },
-    "Section4": {
+    "Reply_Section_Indexing": {
       "description": "A requested section has exactly one state.",
       "oneOf": [
         {
           "description": "The source returned data.",
           "properties": {
             "data": {
-              "$ref": "#/$defs/FullText",
+              "$ref": "#/$defs/Reply_Indexing",
               "description": "Whole section data."
             },
             "source": {
-              "$ref": "#/$defs/Source",
+              "$ref": "#/$defs/Reply_Source",
               "description": "Source identity."
             },
             "state": {
@@ -1529,7 +1529,7 @@
             "record": {
               "anyOf": [
                 {
-                  "$ref": "#/$defs/SourceRecord"
+                  "$ref": "#/$defs/Reply_SourceRecord"
                 },
                 {
                   "type": "null"
@@ -1538,7 +1538,7 @@
               "description": "Native entry, if any."
             },
             "source": {
-              "$ref": "#/$defs/Source",
+              "$ref": "#/$defs/Reply_Source",
               "description": "Source identity."
             },
             "state": {
@@ -1556,11 +1556,11 @@
           "description": "A requested source failed.",
           "properties": {
             "reason": {
-              "$ref": "#/$defs/Reason",
+              "$ref": "#/$defs/Reply_Reason",
               "description": "Typed reason."
             },
             "source": {
-              "$ref": "#/$defs/Source",
+              "$ref": "#/$defs/Reply_Source",
               "description": "Source identity."
             },
             "state": {
@@ -1579,11 +1579,11 @@
           "description": "User settings prevented the source request.",
           "properties": {
             "reason": {
-              "$ref": "#/$defs/Reason",
+              "$ref": "#/$defs/Reply_Reason",
               "description": "Typed reason."
             },
             "source": {
-              "$ref": "#/$defs/Source",
+              "$ref": "#/$defs/Reply_Source",
               "description": "Source identity."
             },
             "state": {
@@ -1613,18 +1613,18 @@
         }
       ]
     },
-    "Section5": {
+    "Reply_Section_PdfLink": {
       "description": "A requested section has exactly one state.",
       "oneOf": [
         {
           "description": "The source returned data.",
           "properties": {
             "data": {
-              "$ref": "#/$defs/Tldr",
+              "$ref": "#/$defs/Reply_PdfLink",
               "description": "Whole section data."
             },
             "source": {
-              "$ref": "#/$defs/Source",
+              "$ref": "#/$defs/Reply_Source",
               "description": "Source identity."
             },
             "state": {
@@ -1645,7 +1645,7 @@
             "record": {
               "anyOf": [
                 {
-                  "$ref": "#/$defs/SourceRecord"
+                  "$ref": "#/$defs/Reply_SourceRecord"
                 },
                 {
                   "type": "null"
@@ -1654,7 +1654,7 @@
               "description": "Native entry, if any."
             },
             "source": {
-              "$ref": "#/$defs/Source",
+              "$ref": "#/$defs/Reply_Source",
               "description": "Source identity."
             },
             "state": {
@@ -1672,11 +1672,11 @@
           "description": "A requested source failed.",
           "properties": {
             "reason": {
-              "$ref": "#/$defs/Reason",
+              "$ref": "#/$defs/Reply_Reason",
               "description": "Typed reason."
             },
             "source": {
-              "$ref": "#/$defs/Source",
+              "$ref": "#/$defs/Reply_Source",
               "description": "Source identity."
             },
             "state": {
@@ -1695,11 +1695,11 @@
           "description": "User settings prevented the source request.",
           "properties": {
             "reason": {
-              "$ref": "#/$defs/Reason",
+              "$ref": "#/$defs/Reply_Reason",
               "description": "Typed reason."
             },
             "source": {
-              "$ref": "#/$defs/Source",
+              "$ref": "#/$defs/Reply_Source",
               "description": "Source identity."
             },
             "state": {
@@ -1729,18 +1729,18 @@
         }
       ]
     },
-    "Section6": {
+    "Reply_Section_Supplements": {
       "description": "A requested section has exactly one state.",
       "oneOf": [
         {
           "description": "The source returned data.",
           "properties": {
             "data": {
-              "$ref": "#/$defs/Citations",
+              "$ref": "#/$defs/Reply_Supplements",
               "description": "Whole section data."
             },
             "source": {
-              "$ref": "#/$defs/Source",
+              "$ref": "#/$defs/Reply_Source",
               "description": "Source identity."
             },
             "state": {
@@ -1761,7 +1761,7 @@
             "record": {
               "anyOf": [
                 {
-                  "$ref": "#/$defs/SourceRecord"
+                  "$ref": "#/$defs/Reply_SourceRecord"
                 },
                 {
                   "type": "null"
@@ -1770,7 +1770,7 @@
               "description": "Native entry, if any."
             },
             "source": {
-              "$ref": "#/$defs/Source",
+              "$ref": "#/$defs/Reply_Source",
               "description": "Source identity."
             },
             "state": {
@@ -1788,11 +1788,11 @@
           "description": "A requested source failed.",
           "properties": {
             "reason": {
-              "$ref": "#/$defs/Reason",
+              "$ref": "#/$defs/Reply_Reason",
               "description": "Typed reason."
             },
             "source": {
-              "$ref": "#/$defs/Source",
+              "$ref": "#/$defs/Reply_Source",
               "description": "Source identity."
             },
             "state": {
@@ -1811,11 +1811,11 @@
           "description": "User settings prevented the source request.",
           "properties": {
             "reason": {
-              "$ref": "#/$defs/Reason",
+              "$ref": "#/$defs/Reply_Reason",
               "description": "Typed reason."
             },
             "source": {
-              "$ref": "#/$defs/Source",
+              "$ref": "#/$defs/Reply_Source",
               "description": "Source identity."
             },
             "state": {
@@ -1845,18 +1845,18 @@
         }
       ]
     },
-    "Section7": {
+    "Reply_Section_Tldr": {
       "description": "A requested section has exactly one state.",
       "oneOf": [
         {
           "description": "The source returned data.",
           "properties": {
             "data": {
-              "$ref": "#/$defs/Capped2",
+              "$ref": "#/$defs/Reply_Tldr",
               "description": "Whole section data."
             },
             "source": {
-              "$ref": "#/$defs/Source",
+              "$ref": "#/$defs/Reply_Source",
               "description": "Source identity."
             },
             "state": {
@@ -1877,7 +1877,7 @@
             "record": {
               "anyOf": [
                 {
-                  "$ref": "#/$defs/SourceRecord"
+                  "$ref": "#/$defs/Reply_SourceRecord"
                 },
                 {
                   "type": "null"
@@ -1886,7 +1886,7 @@
               "description": "Native entry, if any."
             },
             "source": {
-              "$ref": "#/$defs/Source",
+              "$ref": "#/$defs/Reply_Source",
               "description": "Source identity."
             },
             "state": {
@@ -1904,11 +1904,11 @@
           "description": "A requested source failed.",
           "properties": {
             "reason": {
-              "$ref": "#/$defs/Reason",
+              "$ref": "#/$defs/Reply_Reason",
               "description": "Typed reason."
             },
             "source": {
-              "$ref": "#/$defs/Source",
+              "$ref": "#/$defs/Reply_Source",
               "description": "Source identity."
             },
             "state": {
@@ -1927,11 +1927,11 @@
           "description": "User settings prevented the source request.",
           "properties": {
             "reason": {
-              "$ref": "#/$defs/Reason",
+              "$ref": "#/$defs/Reply_Reason",
               "description": "Typed reason."
             },
             "source": {
-              "$ref": "#/$defs/Source",
+              "$ref": "#/$defs/Reply_Source",
               "description": "Source identity."
             },
             "state": {
@@ -1961,7 +1961,7 @@
         }
       ]
     },
-    "Source": {
+    "Reply_Source": {
       "description": "A source of BioMCP data, identified by its canonical short name.",
       "type": "string",
       "x-enum-descriptions": [
@@ -2113,7 +2113,7 @@
         "cellosaurus"
       ]
     },
-    "SourceNotice": {
+    "Reply_SourceNotice": {
       "description": "A source notice or request recovery step.",
       "oneOf": [
         {
@@ -2169,7 +2169,7 @@
               "type": "string"
             },
             "reason": {
-              "$ref": "#/$defs/CacheProblem",
+              "$ref": "#/$defs/Reply_CacheProblem",
               "description": "Bounded local failure without paths or database diagnostics."
             }
           },
@@ -2183,7 +2183,7 @@
           "description": "The source still has graph pages after the bounded fetch window.",
           "properties": {
             "fallback": {
-              "$ref": "#/$defs/Text",
+              "$ref": "#/$defs/Reply_Text",
               "description": "Default-source command offering another graph view."
             },
             "kind": {
@@ -2250,7 +2250,7 @@
             "words": {
               "description": "Whole source words.",
               "items": {
-                "$ref": "#/$defs/Text"
+                "$ref": "#/$defs/Reply_Text"
               },
               "type": "array"
             }
@@ -2262,7 +2262,7 @@
         }
       ]
     },
-    "SourceOutcome": {
+    "Reply_SourceOutcome": {
       "description": "One source's outcome, without provider text.",
       "properties": {
         "count": {
@@ -2286,14 +2286,14 @@
         "notices": {
           "description": "Source notices and request recovery guidance.",
           "items": {
-            "$ref": "#/$defs/SourceNotice"
+            "$ref": "#/$defs/Reply_SourceNotice"
           },
           "type": "array"
         },
         "reason": {
           "anyOf": [
             {
-              "$ref": "#/$defs/Reason"
+              "$ref": "#/$defs/Reply_Reason"
             },
             {
               "type": "null"
@@ -2302,17 +2302,17 @@
           "description": "Failure or stale-fallback reason."
         },
         "source": {
-          "$ref": "#/$defs/Source",
+          "$ref": "#/$defs/Reply_Source",
           "description": "Asked source."
         },
         "state": {
-          "$ref": "#/$defs/SourceState",
+          "$ref": "#/$defs/Reply_SourceState",
           "description": "Retained state."
         },
         "term": {
           "anyOf": [
             {
-              "$ref": "#/$defs/Text"
+              "$ref": "#/$defs/Reply_Text"
             },
             {
               "type": "null"
@@ -2330,7 +2330,7 @@
           "type": "string"
         },
         "use": {
-          "$ref": "#/$defs/Use",
+          "$ref": "#/$defs/Reply_Use",
           "description": "Reviewed source use category; publisher terms remain authoritative."
         }
       },
@@ -2343,17 +2343,17 @@
       ],
       "type": "object"
     },
-    "SourceRecord": {
+    "Reply_SourceRecord": {
       "description": "The source's own entry for an entity.",
       "properties": {
         "id": {
-          "$ref": "#/$defs/Text",
+          "$ref": "#/$defs/Reply_Text",
           "description": "Native source identifier."
         },
         "url": {
           "anyOf": [
             {
-              "$ref": "#/$defs/Text"
+              "$ref": "#/$defs/Reply_Text"
             },
             {
               "type": "null"
@@ -2368,7 +2368,7 @@
       ],
       "type": "object"
     },
-    "SourceState": {
+    "Reply_SourceState": {
       "description": "State of a source actually asked by the command.",
       "enum": [
         "ok",
@@ -2379,7 +2379,7 @@
       ],
       "type": "string"
     },
-    "Status": {
+    "Reply_Status": {
       "description": "Overall command outcome.",
       "enum": [
         "complete",
@@ -2389,7 +2389,7 @@
       ],
       "type": "string"
     },
-    "Step": {
+    "Reply_Step": {
       "description": "A command argument list spelled from a typed action.",
       "properties": {
         "args": {
@@ -2400,7 +2400,7 @@
           "type": "array"
         },
         "kind": {
-          "$ref": "#/$defs/StepKind",
+          "$ref": "#/$defs/Reply_StepKind",
           "description": "Purpose of the action."
         }
       },
@@ -2409,7 +2409,7 @@
       ],
       "type": "object"
     },
-    "StepKind": {
+    "Reply_StepKind": {
       "description": "Purpose of an available next command.",
       "enum": [
         "restart",
@@ -2425,13 +2425,13 @@
       ],
       "type": "string"
     },
-    "SupplementFile": {
+    "Reply_SupplementFile": {
       "description": "A JATS supplement confirmed by the same processing record.",
       "properties": {
         "caption": {
           "anyOf": [
             {
-              "$ref": "#/$defs/Markdown"
+              "$ref": "#/$defs/Reply_Markdown"
             },
             {
               "type": "null"
@@ -2440,13 +2440,13 @@
           "description": "JATS caption when present."
         },
         "kind": {
-          "$ref": "#/$defs/FileKind",
+          "$ref": "#/$defs/Reply_FileKind",
           "description": "Checked format."
         },
         "label": {
           "anyOf": [
             {
-              "$ref": "#/$defs/Text"
+              "$ref": "#/$defs/Reply_Text"
             },
             {
               "type": "null"
@@ -2455,7 +2455,7 @@
           "description": "JATS label when present."
         },
         "name": {
-          "$ref": "#/$defs/Text",
+          "$ref": "#/$defs/Reply_Text",
           "description": "Exact source filename."
         }
       },
@@ -2465,18 +2465,18 @@
       ],
       "type": "object"
     },
-    "Supplements": {
+    "Reply_Supplements": {
       "description": "Available supplements with their owning article license.",
       "properties": {
         "files": {
           "description": "Exact JATS/record intersection.",
           "items": {
-            "$ref": "#/$defs/SupplementFile"
+            "$ref": "#/$defs/Reply_SupplementFile"
           },
           "type": "array"
         },
         "license": {
-          "$ref": "#/$defs/License",
+          "$ref": "#/$defs/Reply_License",
           "description": "Article license from the record."
         }
       },
@@ -2485,16 +2485,16 @@
       ],
       "type": "object"
     },
-    "Text": {
+    "Reply_Text": {
       "description": "Nonempty text with surrounding Unicode whitespace removed.",
       "minLength": 1,
       "type": "string"
     },
-    "TextPart": {
+    "Reply_TextPart": {
       "description": "One independently readable bounded part.",
       "properties": {
         "kind": {
-          "$ref": "#/$defs/TextPartKind",
+          "$ref": "#/$defs/Reply_TextPartKind",
           "description": "Source structure kind."
         },
         "number": {
@@ -2504,7 +2504,7 @@
           "type": "integer"
         },
         "title": {
-          "$ref": "#/$defs/Text",
+          "$ref": "#/$defs/Reply_Text",
           "description": "Source section title or table label."
         },
         "tokens": {
@@ -2522,7 +2522,7 @@
       ],
       "type": "object"
     },
-    "TextPartKind": {
+    "Reply_TextPartKind": {
       "description": "Body part kind.",
       "type": "string",
       "x-enum-descriptions": [
@@ -2534,7 +2534,7 @@
         "table"
       ]
     },
-    "Tldr": {
+    "Reply_Tldr": {
       "description": "Machine-written source summary with independently reported counts.",
       "properties": {
         "cited_by": {
@@ -2560,11 +2560,11 @@
           "type": "boolean"
         },
         "model": {
-          "$ref": "#/$defs/Text",
+          "$ref": "#/$defs/Reply_Text",
           "description": "Source model version."
         },
         "text": {
-          "$ref": "#/$defs/Text",
+          "$ref": "#/$defs/Reply_Text",
           "description": "Complete one-sentence source summary."
         }
       },
@@ -2575,7 +2575,7 @@
       ],
       "type": "object"
     },
-    "Use": {
+    "Reply_Use": {
       "description": "Reviewed source-use category, without inferring rights in individual records.",
       "enum": [
         "open",
@@ -2593,7 +2593,7 @@
     "local_error": {
       "anyOf": [
         {
-          "$ref": "#/$defs/CacheProblem"
+          "$ref": "#/$defs/Reply_CacheProblem"
         },
         {
           "type": "null"
@@ -2604,14 +2604,14 @@
     "next": {
       "description": "Available next commands.",
       "items": {
-        "$ref": "#/$defs/Step"
+        "$ref": "#/$defs/Reply_Step"
       },
       "type": "array"
     },
     "page": {
       "anyOf": [
         {
-          "$ref": "#/$defs/PageInfo"
+          "$ref": "#/$defs/Reply_PageInfo"
         },
         {
           "type": "null"
@@ -2622,18 +2622,18 @@
     "problems": {
       "description": "Rejected source fields.",
       "items": {
-        "$ref": "#/$defs/Problem"
+        "$ref": "#/$defs/Reply_Problem"
       },
       "type": "array"
     },
     "query": {
-      "$ref": "#/$defs/ArticleGet",
+      "$ref": "#/$defs/Reply_ArticleGet",
       "description": "Parsed query."
     },
     "result": {
       "anyOf": [
         {
-          "$ref": "#/$defs/ArticleCards"
+          "$ref": "#/$defs/Reply_ArticleCards"
         },
         {
           "type": "null"
@@ -2648,12 +2648,12 @@
     "sources": {
       "description": "Sources actually asked.",
       "items": {
-        "$ref": "#/$defs/SourceOutcome"
+        "$ref": "#/$defs/Reply_SourceOutcome"
       },
       "type": "array"
     },
     "status": {
-      "$ref": "#/$defs/Status",
+      "$ref": "#/$defs/Reply_Status",
       "description": "Overall outcome."
     }
   },

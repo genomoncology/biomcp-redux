@@ -1,6 +1,6 @@
 {
   "$defs": {
-    "CacheProblem": {
+    "Reply_CacheProblem": {
       "description": "A local cache failure that leaves the provider outcome intact.",
       "enum": [
         "busy",
@@ -9,12 +9,12 @@
       ],
       "type": "string"
     },
-    "Curie": {
+    "Reply_Curie": {
       "description": "Checked prefix:local ontology identifier.",
       "pattern": "^[A-Za-z0-9_.-]+:[^\\s\\x00-\\x1f\\x7f-\\x9f]+$",
       "type": "string"
     },
-    "DiagnosticCountUnit": {
+    "Reply_DiagnosticCountUnit": {
       "description": "Meaning of the envelope's total for a source-owned diagnostic page.",
       "enum": [
         "recall_records",
@@ -25,13 +25,13 @@
       ],
       "type": "string"
     },
-    "DiagnosticGenes": {
+    "Reply_DiagnosticGenes": {
       "description": "Native GTR gene relation rows without variant-coverage inference.",
       "properties": {
         "count_unit": {
           "anyOf": [
             {
-              "$ref": "#/$defs/DiagnosticCountUnit"
+              "$ref": "#/$defs/Reply_DiagnosticCountUnit"
             },
             {
               "type": "null"
@@ -51,20 +51,20 @@
         "items": {
           "description": "Complete source-owned rows in native order; envelope totals count native rows.",
           "items": {
-            "$ref": "#/$defs/GtrGeneRelation"
+            "$ref": "#/$defs/Reply_GtrGeneRelation"
           },
           "type": "array"
         }
       },
       "type": "object"
     },
-    "DiagnosticGet": {
+    "Reply_DiagnosticGet": {
       "description": "Get one exact source record or supported section. A listing is not authorization; a companion row is not a treatment recommendation.",
       "properties": {
         "bundle_revision": {
           "anyOf": [
             {
-              "$ref": "#/$defs/Text"
+              "$ref": "#/$defs/Reply_Text"
             },
             {
               "type": "null"
@@ -73,14 +73,14 @@
           "description": "Immutable stored bundle revision retained by a continuation."
         },
         "id": {
-          "$ref": "#/$defs/Text",
+          "$ref": "#/$defs/Reply_Text",
           "description": "Exact native identity, including version for GTR.",
           "x-positional": 0
         },
         "section": {
           "anyOf": [
             {
-              "$ref": "#/$defs/DiagnosticSection"
+              "$ref": "#/$defs/Reply_DiagnosticSection"
             },
             {
               "type": "null"
@@ -104,13 +104,13 @@
           "type": "integer"
         },
         "source": {
-          "$ref": "#/$defs/DiagnosticGetSource",
+          "$ref": "#/$defs/Reply_DiagnosticGetSource",
           "description": "Explicit source: GTR accession/version, WHO Product ID, PMA P number,\n510(k) K number or device recall Z-NNNN-YYYY."
         },
         "supplement": {
           "anyOf": [
             {
-              "$ref": "#/$defs/PmaSupplement"
+              "$ref": "#/$defs/Reply_PmaSupplement"
             },
             {
               "type": "null"
@@ -125,7 +125,7 @@
       ],
       "type": "object"
     },
-    "DiagnosticGetSource": {
+    "Reply_DiagnosticGetSource": {
       "description": "One explicit exact diagnostic record source.",
       "enum": [
         "gtr",
@@ -136,7 +136,7 @@
       ],
       "type": "string"
     },
-    "DiagnosticSection": {
+    "Reply_DiagnosticSection": {
       "description": "Source-supported diagnostic sections; no all section.",
       "enum": [
         "genes",
@@ -154,18 +154,18 @@
         "PMA base application supplement headers; five per page."
       ]
     },
-    "EnsemblGeneId": {
+    "Reply_EnsemblGeneId": {
       "description": " A human Ensembl gene stable identifier with a separately retained version.",
       "pattern": "^ENSG[0-9]{11}(\\.[1-9][0-9]*)?$",
       "type": "string"
     },
-    "GeneRef": {
+    "Reply_GeneRef": {
       "description": "A source-stated gene reference; its label never implies an identifier.",
       "properties": {
         "ensembl_gene_id": {
           "anyOf": [
             {
-              "$ref": "#/$defs/EnsemblGeneId"
+              "$ref": "#/$defs/Reply_EnsemblGeneId"
             },
             {
               "type": "null"
@@ -175,7 +175,7 @@
         "hgnc_id": {
           "anyOf": [
             {
-              "$ref": "#/$defs/HgncId"
+              "$ref": "#/$defs/Reply_HgncId"
             },
             {
               "type": "null"
@@ -183,12 +183,12 @@
           ]
         },
         "label": {
-          "$ref": "#/$defs/Text"
+          "$ref": "#/$defs/Reply_Text"
         },
         "ncbi_gene_id": {
           "anyOf": [
             {
-              "$ref": "#/$defs/NcbiGeneId"
+              "$ref": "#/$defs/Reply_NcbiGeneId"
             },
             {
               "type": "null"
@@ -201,11 +201,11 @@
       ],
       "type": "object"
     },
-    "GtrGeneRelation": {
+    "Reply_GtrGeneRelation": {
       "description": "Native gene relation; its numeric ID comes only from the gene row.",
       "properties": {
         "gene": {
-          "$ref": "#/$defs/GeneRef",
+          "$ref": "#/$defs/Reply_GeneRef",
           "description": "Shared source-given GeneID and gene_symbol; absent GeneID stays absent."
         },
         "mim_number": {
@@ -220,7 +220,7 @@
           ]
         },
         "native_medgen": {
-          "$ref": "#/$defs/Curie",
+          "$ref": "#/$defs/Reply_Curie",
           "description": "Independent native MedGen identity from GTR_identifier."
         },
         "object_name": {
@@ -228,11 +228,11 @@
           "type": "string"
         },
         "test_id": {
-          "$ref": "#/$defs/GtrTestId",
+          "$ref": "#/$defs/Reply_GtrTestId",
           "description": "Complete owning test accession/version."
         },
         "test_type": {
-          "$ref": "#/$defs/GtrTestType",
+          "$ref": "#/$defs/Reply_GtrTestType",
           "description": "Native source test type."
         }
       },
@@ -246,12 +246,12 @@
       ],
       "type": "object"
     },
-    "GtrTestId": {
+    "Reply_GtrTestId": {
       "description": "Complete native GTR accession and positive version.",
       "pattern": "^GTR[0-9]{9}\\.[1-9][0-9]*$",
       "type": "string"
     },
-    "GtrTestType": {
+    "Reply_GtrTestType": {
       "description": "Native GTR relation test category, not an offering or authorization judgment.",
       "enum": [
         "Clinical",
@@ -260,17 +260,17 @@
       ],
       "type": "string"
     },
-    "HgncId": {
+    "Reply_HgncId": {
       "description": "An HGNC identifier with canonical namespace and positive numeric value.",
       "pattern": "^HGNC:[1-9][0-9]*$",
       "type": "string"
     },
-    "NcbiGeneId": {
+    "Reply_NcbiGeneId": {
       "description": "A positive NCBI Gene identifier in canonical decimal text.",
       "pattern": "^[1-9][0-9]*$",
       "type": "string"
     },
-    "PageInfo": {
+    "Reply_PageInfo": {
       "description": "Search counts after filtering and deduplication.",
       "properties": {
         "offset": {
@@ -282,7 +282,7 @@
         "pool": {
           "anyOf": [
             {
-              "$ref": "#/$defs/PoolInfo"
+              "$ref": "#/$defs/Reply_PoolInfo"
             },
             {
               "type": "null"
@@ -317,12 +317,12 @@
       ],
       "type": "object"
     },
-    "PmaSupplement": {
+    "Reply_PmaSupplement": {
       "description": "Explicit native PMA supplement selector; no invented base alias.",
       "pattern": "^S(00[1-9]|0[1-9][0-9]|[1-9][0-9]{2})$",
       "type": "string"
     },
-    "PoolInfo": {
+    "Reply_PoolInfo": {
       "description": "Fixed lifetime and size of a stored search snapshot.",
       "properties": {
         "created": {
@@ -338,7 +338,7 @@
           "type": "integer"
         },
         "id": {
-          "$ref": "#/$defs/Text",
+          "$ref": "#/$defs/Reply_Text",
           "description": "Opaque snapshot identifier."
         },
         "size": {
@@ -356,11 +356,11 @@
       ],
       "type": "object"
     },
-    "Problem": {
+    "Reply_Problem": {
       "description": "A field that could not be accepted from a source record.",
       "properties": {
         "code": {
-          "$ref": "#/$defs/ProblemCode",
+          "$ref": "#/$defs/Reply_ProblemCode",
           "description": "Why the field value was not accepted."
         },
         "field": {
@@ -370,7 +370,7 @@
         "record": {
           "anyOf": [
             {
-              "$ref": "#/$defs/Text"
+              "$ref": "#/$defs/Reply_Text"
             },
             {
               "type": "null"
@@ -379,7 +379,7 @@
           "description": "The record's canonical identifier, when known."
         },
         "source": {
-          "$ref": "#/$defs/Source",
+          "$ref": "#/$defs/Reply_Source",
           "description": "The source that supplied the record."
         }
       },
@@ -390,7 +390,7 @@
       ],
       "type": "object"
     },
-    "ProblemCode": {
+    "Reply_ProblemCode": {
       "description": "A stable code for a rejected field value.",
       "type": "string",
       "x-enum-descriptions": [
@@ -404,7 +404,7 @@
         "identity.conflict"
       ]
     },
-    "Reason": {
+    "Reply_Reason": {
       "description": "Why a source could not supply data.",
       "type": "string",
       "x-enum-descriptions": [
@@ -450,7 +450,7 @@
         "no_join_id"
       ]
     },
-    "Source": {
+    "Reply_Source": {
       "description": "A source of BioMCP data, identified by its canonical short name.",
       "type": "string",
       "x-enum-descriptions": [
@@ -602,7 +602,7 @@
         "cellosaurus"
       ]
     },
-    "SourceNotice": {
+    "Reply_SourceNotice": {
       "description": "A source notice or request recovery step.",
       "oneOf": [
         {
@@ -658,7 +658,7 @@
               "type": "string"
             },
             "reason": {
-              "$ref": "#/$defs/CacheProblem",
+              "$ref": "#/$defs/Reply_CacheProblem",
               "description": "Bounded local failure without paths or database diagnostics."
             }
           },
@@ -672,7 +672,7 @@
           "description": "The source still has graph pages after the bounded fetch window.",
           "properties": {
             "fallback": {
-              "$ref": "#/$defs/Text",
+              "$ref": "#/$defs/Reply_Text",
               "description": "Default-source command offering another graph view."
             },
             "kind": {
@@ -739,7 +739,7 @@
             "words": {
               "description": "Whole source words.",
               "items": {
-                "$ref": "#/$defs/Text"
+                "$ref": "#/$defs/Reply_Text"
               },
               "type": "array"
             }
@@ -751,7 +751,7 @@
         }
       ]
     },
-    "SourceOutcome": {
+    "Reply_SourceOutcome": {
       "description": "One source's outcome, without provider text.",
       "properties": {
         "count": {
@@ -775,14 +775,14 @@
         "notices": {
           "description": "Source notices and request recovery guidance.",
           "items": {
-            "$ref": "#/$defs/SourceNotice"
+            "$ref": "#/$defs/Reply_SourceNotice"
           },
           "type": "array"
         },
         "reason": {
           "anyOf": [
             {
-              "$ref": "#/$defs/Reason"
+              "$ref": "#/$defs/Reply_Reason"
             },
             {
               "type": "null"
@@ -791,17 +791,17 @@
           "description": "Failure or stale-fallback reason."
         },
         "source": {
-          "$ref": "#/$defs/Source",
+          "$ref": "#/$defs/Reply_Source",
           "description": "Asked source."
         },
         "state": {
-          "$ref": "#/$defs/SourceState",
+          "$ref": "#/$defs/Reply_SourceState",
           "description": "Retained state."
         },
         "term": {
           "anyOf": [
             {
-              "$ref": "#/$defs/Text"
+              "$ref": "#/$defs/Reply_Text"
             },
             {
               "type": "null"
@@ -819,7 +819,7 @@
           "type": "string"
         },
         "use": {
-          "$ref": "#/$defs/Use",
+          "$ref": "#/$defs/Reply_Use",
           "description": "Reviewed source use category; publisher terms remain authoritative."
         }
       },
@@ -832,7 +832,7 @@
       ],
       "type": "object"
     },
-    "SourceState": {
+    "Reply_SourceState": {
       "description": "State of a source actually asked by the command.",
       "enum": [
         "ok",
@@ -843,7 +843,7 @@
       ],
       "type": "string"
     },
-    "Status": {
+    "Reply_Status": {
       "description": "Overall command outcome.",
       "enum": [
         "complete",
@@ -853,7 +853,7 @@
       ],
       "type": "string"
     },
-    "Step": {
+    "Reply_Step": {
       "description": "A command argument list spelled from a typed action.",
       "properties": {
         "args": {
@@ -864,7 +864,7 @@
           "type": "array"
         },
         "kind": {
-          "$ref": "#/$defs/StepKind",
+          "$ref": "#/$defs/Reply_StepKind",
           "description": "Purpose of the action."
         }
       },
@@ -873,7 +873,7 @@
       ],
       "type": "object"
     },
-    "StepKind": {
+    "Reply_StepKind": {
       "description": "Purpose of an available next command.",
       "enum": [
         "restart",
@@ -889,12 +889,12 @@
       ],
       "type": "string"
     },
-    "Text": {
+    "Reply_Text": {
       "description": "Nonempty text with surrounding Unicode whitespace removed.",
       "minLength": 1,
       "type": "string"
     },
-    "Use": {
+    "Reply_Use": {
       "description": "Reviewed source-use category, without inferring rights in individual records.",
       "enum": [
         "open",
@@ -912,7 +912,7 @@
     "local_error": {
       "anyOf": [
         {
-          "$ref": "#/$defs/CacheProblem"
+          "$ref": "#/$defs/Reply_CacheProblem"
         },
         {
           "type": "null"
@@ -923,14 +923,14 @@
     "next": {
       "description": "Available next commands.",
       "items": {
-        "$ref": "#/$defs/Step"
+        "$ref": "#/$defs/Reply_Step"
       },
       "type": "array"
     },
     "page": {
       "anyOf": [
         {
-          "$ref": "#/$defs/PageInfo"
+          "$ref": "#/$defs/Reply_PageInfo"
         },
         {
           "type": "null"
@@ -941,18 +941,18 @@
     "problems": {
       "description": "Rejected source fields.",
       "items": {
-        "$ref": "#/$defs/Problem"
+        "$ref": "#/$defs/Reply_Problem"
       },
       "type": "array"
     },
     "query": {
-      "$ref": "#/$defs/DiagnosticGet",
+      "$ref": "#/$defs/Reply_DiagnosticGet",
       "description": "Parsed query."
     },
     "result": {
       "anyOf": [
         {
-          "$ref": "#/$defs/DiagnosticGenes"
+          "$ref": "#/$defs/Reply_DiagnosticGenes"
         },
         {
           "type": "null"
@@ -967,12 +967,12 @@
     "sources": {
       "description": "Sources actually asked.",
       "items": {
-        "$ref": "#/$defs/SourceOutcome"
+        "$ref": "#/$defs/Reply_SourceOutcome"
       },
       "type": "array"
     },
     "status": {
-      "$ref": "#/$defs/Status",
+      "$ref": "#/$defs/Reply_Status",
       "description": "Overall outcome."
     }
   },

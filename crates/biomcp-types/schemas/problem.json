@@ -1,6 +1,6 @@
 {
   "$defs": {
-    "ProblemCode": {
+    "Reply_ProblemCode": {
       "description": "A stable code for a rejected field value.",
       "type": "string",
       "x-enum-descriptions": [
@@ -14,7 +14,7 @@
         "identity.conflict"
       ]
     },
-    "Source": {
+    "Reply_Source": {
       "description": "A source of BioMCP data, identified by its canonical short name.",
       "type": "string",
       "x-enum-descriptions": [
@@ -166,7 +166,7 @@
         "cellosaurus"
       ]
     },
-    "Text": {
+    "Reply_Text": {
       "description": "Nonempty text with surrounding Unicode whitespace removed.",
       "minLength": 1,
       "type": "string"
@@ -177,7 +177,7 @@
   "description": "A field that could not be accepted from a source record.",
   "properties": {
     "code": {
-      "$ref": "#/$defs/ProblemCode",
+      "$ref": "#/$defs/Reply_ProblemCode",
       "description": "Why the field value was not accepted."
     },
     "field": {
@@ -187,7 +187,7 @@
     "record": {
       "anyOf": [
         {
-          "$ref": "#/$defs/Text"
+          "$ref": "#/$defs/Reply_Text"
         },
         {
           "type": "null"
@@ -196,7 +196,7 @@
       "description": "The record's canonical identifier, when known."
     },
     "source": {
-      "$ref": "#/$defs/Source",
+      "$ref": "#/$defs/Reply_Source",
       "description": "The source that supplied the record."
     }
   },

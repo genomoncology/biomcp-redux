@@ -1,6 +1,6 @@
 {
   "$defs": {
-    "Build": {
+    "Reply_Build": {
       "description": "The assembly stated by the source; no default is inferred.",
       "type": "string",
       "x-enum-descriptions": [
@@ -12,7 +12,7 @@
         "GRCh38"
       ]
     },
-    "CacheProblem": {
+    "Reply_CacheProblem": {
       "description": "A local cache failure that leaves the provider outcome intact.",
       "enum": [
         "busy",
@@ -21,15 +21,15 @@
       ],
       "type": "string"
     },
-    "NormalizationField": {
+    "Reply_NormalizationField": {
       "description": "A provider field name and its unchanged text.",
       "properties": {
         "field": {
-          "$ref": "#/$defs/SourceText",
+          "$ref": "#/$defs/Reply_SourceText",
           "description": "Native field path or assembly label."
         },
         "value": {
-          "$ref": "#/$defs/SourceText",
+          "$ref": "#/$defs/Reply_SourceText",
           "description": "Unchanged source text."
         }
       },
@@ -39,17 +39,17 @@
       ],
       "type": "object"
     },
-    "NormalizationMessage": {
+    "Reply_NormalizationMessage": {
       "description": "Provider warning, error or informational message.",
       "properties": {
         "category": {
-          "$ref": "#/$defs/SourceText",
+          "$ref": "#/$defs/Reply_SourceText",
           "description": "Native message category."
         },
         "code": {
           "anyOf": [
             {
-              "$ref": "#/$defs/SourceText"
+              "$ref": "#/$defs/Reply_SourceText"
             },
             {
               "type": "null"
@@ -58,7 +58,7 @@
           "description": "Native code when supplied."
         },
         "text": {
-          "$ref": "#/$defs/SourceText",
+          "$ref": "#/$defs/Reply_SourceText",
           "description": "Unchanged message body, including whitespace."
         }
       },
@@ -68,13 +68,13 @@
       ],
       "type": "object"
     },
-    "NormalizationResult": {
+    "Reply_NormalizationResult": {
       "description": "One provider's own descriptions, messages and version metadata.",
       "properties": {
         "corrected": {
           "anyOf": [
             {
-              "$ref": "#/$defs/SourceText"
+              "$ref": "#/$defs/Reply_SourceText"
             },
             {
               "type": "null"
@@ -85,21 +85,21 @@
         "mappings": {
           "description": "Mapping rows in native service order, labeled by their provider field.",
           "items": {
-            "$ref": "#/$defs/NormalizationField"
+            "$ref": "#/$defs/Reply_NormalizationField"
           },
           "type": "array"
         },
         "messages": {
           "description": "Provider messages with original codes, text and category.",
           "items": {
-            "$ref": "#/$defs/NormalizationMessage"
+            "$ref": "#/$defs/Reply_NormalizationMessage"
           },
           "type": "array"
         },
         "normalized": {
           "anyOf": [
             {
-              "$ref": "#/$defs/SourceText"
+              "$ref": "#/$defs/Reply_SourceText"
             },
             {
               "type": "null"
@@ -108,11 +108,11 @@
           "description": "Source normalized description, without local edits."
         },
         "outcome": {
-          "$ref": "#/$defs/VariantResolution",
+          "$ref": "#/$defs/Reply_VariantResolution",
           "description": "Provider outcome; warning rejection remains distinct from transport failure."
         },
         "source": {
-          "$ref": "#/$defs/Source",
+          "$ref": "#/$defs/Reply_Source",
           "description": "Responsible service."
         },
         "total_mappings": {
@@ -131,7 +131,7 @@
         "version": {
           "description": "Version fields exactly as returned; absent when the service states none.",
           "items": {
-            "$ref": "#/$defs/NormalizationField"
+            "$ref": "#/$defs/Reply_NormalizationField"
           },
           "type": "array"
         }
@@ -143,7 +143,7 @@
       ],
       "type": "object"
     },
-    "NormalizationSource": {
+    "Reply_NormalizationSource": {
       "description": "Explicit normalization service selection.",
       "enum": [
         "car",
@@ -153,7 +153,7 @@
       ],
       "type": "string"
     },
-    "PageInfo": {
+    "Reply_PageInfo": {
       "description": "Search counts after filtering and deduplication.",
       "properties": {
         "offset": {
@@ -165,7 +165,7 @@
         "pool": {
           "anyOf": [
             {
-              "$ref": "#/$defs/PoolInfo"
+              "$ref": "#/$defs/Reply_PoolInfo"
             },
             {
               "type": "null"
@@ -200,7 +200,7 @@
       ],
       "type": "object"
     },
-    "PoolInfo": {
+    "Reply_PoolInfo": {
       "description": "Fixed lifetime and size of a stored search snapshot.",
       "properties": {
         "created": {
@@ -216,7 +216,7 @@
           "type": "integer"
         },
         "id": {
-          "$ref": "#/$defs/Text",
+          "$ref": "#/$defs/Reply_Text",
           "description": "Opaque snapshot identifier."
         },
         "size": {
@@ -234,11 +234,11 @@
       ],
       "type": "object"
     },
-    "Problem": {
+    "Reply_Problem": {
       "description": "A field that could not be accepted from a source record.",
       "properties": {
         "code": {
-          "$ref": "#/$defs/ProblemCode",
+          "$ref": "#/$defs/Reply_ProblemCode",
           "description": "Why the field value was not accepted."
         },
         "field": {
@@ -248,7 +248,7 @@
         "record": {
           "anyOf": [
             {
-              "$ref": "#/$defs/Text"
+              "$ref": "#/$defs/Reply_Text"
             },
             {
               "type": "null"
@@ -257,7 +257,7 @@
           "description": "The record's canonical identifier, when known."
         },
         "source": {
-          "$ref": "#/$defs/Source",
+          "$ref": "#/$defs/Reply_Source",
           "description": "The source that supplied the record."
         }
       },
@@ -268,7 +268,7 @@
       ],
       "type": "object"
     },
-    "ProblemCode": {
+    "Reply_ProblemCode": {
       "description": "A stable code for a rejected field value.",
       "type": "string",
       "x-enum-descriptions": [
@@ -282,7 +282,7 @@
         "identity.conflict"
       ]
     },
-    "Reason": {
+    "Reply_Reason": {
       "description": "Why a source could not supply data.",
       "type": "string",
       "x-enum-descriptions": [
@@ -328,7 +328,7 @@
         "no_join_id"
       ]
     },
-    "Source": {
+    "Reply_Source": {
       "description": "A source of BioMCP data, identified by its canonical short name.",
       "type": "string",
       "x-enum-descriptions": [
@@ -480,7 +480,7 @@
         "cellosaurus"
       ]
     },
-    "SourceNotice": {
+    "Reply_SourceNotice": {
       "description": "A source notice or request recovery step.",
       "oneOf": [
         {
@@ -536,7 +536,7 @@
               "type": "string"
             },
             "reason": {
-              "$ref": "#/$defs/CacheProblem",
+              "$ref": "#/$defs/Reply_CacheProblem",
               "description": "Bounded local failure without paths or database diagnostics."
             }
           },
@@ -550,7 +550,7 @@
           "description": "The source still has graph pages after the bounded fetch window.",
           "properties": {
             "fallback": {
-              "$ref": "#/$defs/Text",
+              "$ref": "#/$defs/Reply_Text",
               "description": "Default-source command offering another graph view."
             },
             "kind": {
@@ -617,7 +617,7 @@
             "words": {
               "description": "Whole source words.",
               "items": {
-                "$ref": "#/$defs/Text"
+                "$ref": "#/$defs/Reply_Text"
               },
               "type": "array"
             }
@@ -629,7 +629,7 @@
         }
       ]
     },
-    "SourceOutcome": {
+    "Reply_SourceOutcome": {
       "description": "One source's outcome, without provider text.",
       "properties": {
         "count": {
@@ -653,14 +653,14 @@
         "notices": {
           "description": "Source notices and request recovery guidance.",
           "items": {
-            "$ref": "#/$defs/SourceNotice"
+            "$ref": "#/$defs/Reply_SourceNotice"
           },
           "type": "array"
         },
         "reason": {
           "anyOf": [
             {
-              "$ref": "#/$defs/Reason"
+              "$ref": "#/$defs/Reply_Reason"
             },
             {
               "type": "null"
@@ -669,17 +669,17 @@
           "description": "Failure or stale-fallback reason."
         },
         "source": {
-          "$ref": "#/$defs/Source",
+          "$ref": "#/$defs/Reply_Source",
           "description": "Asked source."
         },
         "state": {
-          "$ref": "#/$defs/SourceState",
+          "$ref": "#/$defs/Reply_SourceState",
           "description": "Retained state."
         },
         "term": {
           "anyOf": [
             {
-              "$ref": "#/$defs/Text"
+              "$ref": "#/$defs/Reply_Text"
             },
             {
               "type": "null"
@@ -697,7 +697,7 @@
           "type": "string"
         },
         "use": {
-          "$ref": "#/$defs/Use",
+          "$ref": "#/$defs/Reply_Use",
           "description": "Reviewed source use category; publisher terms remain authoritative."
         }
       },
@@ -710,7 +710,7 @@
       ],
       "type": "object"
     },
-    "SourceState": {
+    "Reply_SourceState": {
       "description": "State of a source actually asked by the command.",
       "enum": [
         "ok",
@@ -721,11 +721,11 @@
       ],
       "type": "string"
     },
-    "SourceText": {
+    "Reply_SourceText": {
       "description": "Unchanged free source text, including empty values and surrounding whitespace.",
       "type": "string"
     },
-    "Status": {
+    "Reply_Status": {
       "description": "Overall command outcome.",
       "enum": [
         "complete",
@@ -735,7 +735,7 @@
       ],
       "type": "string"
     },
-    "Step": {
+    "Reply_Step": {
       "description": "A command argument list spelled from a typed action.",
       "properties": {
         "args": {
@@ -746,7 +746,7 @@
           "type": "array"
         },
         "kind": {
-          "$ref": "#/$defs/StepKind",
+          "$ref": "#/$defs/Reply_StepKind",
           "description": "Purpose of the action."
         }
       },
@@ -755,7 +755,7 @@
       ],
       "type": "object"
     },
-    "StepKind": {
+    "Reply_StepKind": {
       "description": "Purpose of an available next command.",
       "enum": [
         "restart",
@@ -771,12 +771,12 @@
       ],
       "type": "string"
     },
-    "Text": {
+    "Reply_Text": {
       "description": "Nonempty text with surrounding Unicode whitespace removed.",
       "minLength": 1,
       "type": "string"
     },
-    "Use": {
+    "Reply_Use": {
       "description": "Reviewed source-use category, without inferring rights in individual records.",
       "enum": [
         "open",
@@ -786,26 +786,26 @@
       ],
       "type": "string"
     },
-    "VariantNormalization": {
+    "Reply_VariantNormalization": {
       "description": "Independent service results without local correction or transcript selection.",
       "properties": {
         "results": {
           "description": "Service results in declared order.",
           "items": {
-            "$ref": "#/$defs/NormalizationResult"
+            "$ref": "#/$defs/Reply_NormalizationResult"
           },
           "type": "array"
         }
       },
       "type": "object"
     },
-    "VariantNormalize": {
+    "Reply_VariantNormalize": {
       "description": "Send unchanged reference-qualified notation to explicitly named services.",
       "properties": {
         "build": {
           "anyOf": [
             {
-              "$ref": "#/$defs/Build"
+              "$ref": "#/$defs/Reply_Build"
             },
             {
               "type": "null"
@@ -834,7 +834,7 @@
           "type": "integer"
         },
         "source": {
-          "$ref": "#/$defs/NormalizationSource",
+          "$ref": "#/$defs/Reply_NormalizationSource",
           "description": "Explicit service; all preserves independent results without consensus."
         }
       },
@@ -844,7 +844,7 @@
       ],
       "type": "object"
     },
-    "VariantResolution": {
+    "Reply_VariantResolution": {
       "description": "Identity resolution preserves candidates and source validation outcomes.",
       "enum": [
         "unresolved",
@@ -864,7 +864,7 @@
     "local_error": {
       "anyOf": [
         {
-          "$ref": "#/$defs/CacheProblem"
+          "$ref": "#/$defs/Reply_CacheProblem"
         },
         {
           "type": "null"
@@ -875,14 +875,14 @@
     "next": {
       "description": "Available next commands.",
       "items": {
-        "$ref": "#/$defs/Step"
+        "$ref": "#/$defs/Reply_Step"
       },
       "type": "array"
     },
     "page": {
       "anyOf": [
         {
-          "$ref": "#/$defs/PageInfo"
+          "$ref": "#/$defs/Reply_PageInfo"
         },
         {
           "type": "null"
@@ -893,18 +893,18 @@
     "problems": {
       "description": "Rejected source fields.",
       "items": {
-        "$ref": "#/$defs/Problem"
+        "$ref": "#/$defs/Reply_Problem"
       },
       "type": "array"
     },
     "query": {
-      "$ref": "#/$defs/VariantNormalize",
+      "$ref": "#/$defs/Reply_VariantNormalize",
       "description": "Parsed query."
     },
     "result": {
       "anyOf": [
         {
-          "$ref": "#/$defs/VariantNormalization"
+          "$ref": "#/$defs/Reply_VariantNormalization"
         },
         {
           "type": "null"
@@ -919,12 +919,12 @@
     "sources": {
       "description": "Sources actually asked.",
       "items": {
-        "$ref": "#/$defs/SourceOutcome"
+        "$ref": "#/$defs/Reply_SourceOutcome"
       },
       "type": "array"
     },
     "status": {
-      "$ref": "#/$defs/Status",
+      "$ref": "#/$defs/Reply_Status",
       "description": "Overall outcome."
     }
   },

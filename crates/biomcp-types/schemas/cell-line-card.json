@@ -1,6 +1,6 @@
 {
   "$defs": {
-    "CacheProblem": {
+    "Reply_CacheProblem": {
       "description": "A local cache failure that leaves the provider outcome intact.",
       "enum": [
         "busy",
@@ -9,13 +9,13 @@
       ],
       "type": "string"
     },
-    "Capped": {
+    "Reply_Capped_CellLineChemblRecord": {
       "description": "A bounded list with the total before its cap was applied.",
       "properties": {
         "items": {
           "description": "References in stable source order.",
           "items": {
-            "$ref": "#/$defs/CellLineXref"
+            "$ref": "#/$defs/Reply_CellLineChemblRecord"
           },
           "type": "array"
         },
@@ -31,13 +31,13 @@
       ],
       "type": "object"
     },
-    "Capped2": {
+    "Reply_Capped_CellLineName": {
       "description": "A bounded list with the total before its cap was applied.",
       "properties": {
         "items": {
           "description": "References in stable source order.",
           "items": {
-            "$ref": "#/$defs/CellLineWarning"
+            "$ref": "#/$defs/Reply_CellLineName"
           },
           "type": "array"
         },
@@ -53,13 +53,13 @@
       ],
       "type": "object"
     },
-    "Capped3": {
+    "Reply_Capped_CellLineVariation": {
       "description": "A bounded list with the total before its cap was applied.",
       "properties": {
         "items": {
           "description": "References in stable source order.",
           "items": {
-            "$ref": "#/$defs/CellLineName"
+            "$ref": "#/$defs/Reply_CellLineVariation"
           },
           "type": "array"
         },
@@ -75,13 +75,13 @@
       ],
       "type": "object"
     },
-    "Capped4": {
+    "Reply_Capped_CellLineWarning": {
       "description": "A bounded list with the total before its cap was applied.",
       "properties": {
         "items": {
           "description": "References in stable source order.",
           "items": {
-            "$ref": "#/$defs/CellLineVariation"
+            "$ref": "#/$defs/Reply_CellLineWarning"
           },
           "type": "array"
         },
@@ -97,13 +97,13 @@
       ],
       "type": "object"
     },
-    "Capped5": {
+    "Reply_Capped_CellLineXref": {
       "description": "A bounded list with the total before its cap was applied.",
       "properties": {
         "items": {
           "description": "References in stable source order.",
           "items": {
-            "$ref": "#/$defs/CellLineChemblRecord"
+            "$ref": "#/$defs/Reply_CellLineXref"
           },
           "type": "array"
         },
@@ -119,13 +119,13 @@
       ],
       "type": "object"
     },
-    "CellLineCard": {
+    "Reply_CellLineCard": {
       "description": "One requested cell identity with explicit ambiguity and requested section states.",
       "properties": {
         "age": {
           "anyOf": [
             {
-              "$ref": "#/$defs/Text"
+              "$ref": "#/$defs/Reply_Text"
             },
             {
               "type": "null"
@@ -136,14 +136,14 @@
         "candidates": {
           "description": "Candidate identities without first-hit selection.",
           "items": {
-            "$ref": "#/$defs/CellLineHeader"
+            "$ref": "#/$defs/Reply_CellLineHeader"
           },
           "type": "array"
         },
         "dates": {
           "anyOf": [
             {
-              "$ref": "#/$defs/CellLineEntryDates"
+              "$ref": "#/$defs/Reply_CellLineEntryDates"
             },
             {
               "type": "null"
@@ -163,7 +163,7 @@
         "header": {
           "anyOf": [
             {
-              "$ref": "#/$defs/CellLineHeader"
+              "$ref": "#/$defs/Reply_CellLineHeader"
             },
             {
               "type": "null"
@@ -172,20 +172,20 @@
           "description": "Selected verified identity only."
         },
         "input": {
-          "$ref": "#/$defs/CellLineInput",
+          "$ref": "#/$defs/Reply_CellLineInput",
           "description": "Exact original caller identity."
         },
         "more": {
           "description": "Supported disclosures not requested.",
           "items": {
-            "$ref": "#/$defs/CellLineSection"
+            "$ref": "#/$defs/Reply_CellLineSection"
           },
           "type": "array"
         },
         "release": {
           "anyOf": [
             {
-              "$ref": "#/$defs/CellLineRelease"
+              "$ref": "#/$defs/Reply_CellLineRelease"
             },
             {
               "type": "null"
@@ -194,13 +194,13 @@
           "description": "Independently fetched publisher release."
         },
         "sections": {
-          "$ref": "#/$defs/CellLineSections",
+          "$ref": "#/$defs/Reply_CellLineSections",
           "description": "Only explicitly requested sections carry a state."
         },
         "sex": {
           "anyOf": [
             {
-              "$ref": "#/$defs/CellLineSex"
+              "$ref": "#/$defs/Reply_CellLineSex"
             },
             {
               "type": "null"
@@ -209,13 +209,13 @@
           "description": "Native sex label when supplied."
         },
         "status": {
-          "$ref": "#/$defs/Status",
+          "$ref": "#/$defs/Reply_Status",
           "description": "Resolved, absent, ambiguous or failed input outcome."
         },
         "url": {
           "anyOf": [
             {
-              "$ref": "#/$defs/Text"
+              "$ref": "#/$defs/Reply_Text"
             },
             {
               "type": "null"
@@ -227,7 +227,7 @@
         "warnings": {
           "anyOf": [
             {
-              "$ref": "#/$defs/Capped2"
+              "$ref": "#/$defs/Reply_Capped_CellLineWarning"
             },
             {
               "type": "null"
@@ -243,11 +243,11 @@
       ],
       "type": "object"
     },
-    "CellLineChembl": {
+    "Reply_CellLineChembl": {
       "description": "Exact accession-linked metadata with its own native collection total.",
       "properties": {
         "accession": {
-          "$ref": "#/$defs/CellosaurusAccession",
+          "$ref": "#/$defs/Reply_CellosaurusAccession",
           "description": "Requested exact accession."
         },
         "fetched": {
@@ -260,7 +260,7 @@
           ]
         },
         "items": {
-          "$ref": "#/$defs/Capped5",
+          "$ref": "#/$defs/Reply_Capped_CellLineChemblRecord",
           "description": "Every selected whole metadata row and the native total."
         },
         "offset": {
@@ -272,7 +272,7 @@
         "release": {
           "anyOf": [
             {
-              "$ref": "#/$defs/CellLineRelease"
+              "$ref": "#/$defs/Reply_CellLineRelease"
             },
             {
               "type": "null"
@@ -288,7 +288,7 @@
       ],
       "type": "object"
     },
-    "CellLineChemblRecord": {
+    "Reply_CellLineChemblRecord": {
       "description": "One exact accession-linked ChEMBL cell identity; no assay request is implied.",
       "properties": {
         "cell_id": {
@@ -298,13 +298,13 @@
           "type": "integer"
         },
         "cellosaurus_id": {
-          "$ref": "#/$defs/CellosaurusAccession",
+          "$ref": "#/$defs/Reply_CellosaurusAccession",
           "description": "Native exact accession; adapter verifies the join."
         },
         "clo": {
           "anyOf": [
             {
-              "$ref": "#/$defs/Text"
+              "$ref": "#/$defs/Reply_Text"
             },
             {
               "type": "null"
@@ -315,7 +315,7 @@
         "description": {
           "anyOf": [
             {
-              "$ref": "#/$defs/Text"
+              "$ref": "#/$defs/Reply_Text"
             },
             {
               "type": "null"
@@ -326,7 +326,7 @@
         "efo": {
           "anyOf": [
             {
-              "$ref": "#/$defs/Text"
+              "$ref": "#/$defs/Reply_Text"
             },
             {
               "type": "null"
@@ -335,13 +335,13 @@
           "description": "Native EFO identifier; omission is source absence."
         },
         "id": {
-          "$ref": "#/$defs/ChemblCellId",
+          "$ref": "#/$defs/Reply_ChemblCellId",
           "description": "Native cell ChEMBL ID, never a compound or target."
         },
         "name": {
           "anyOf": [
             {
-              "$ref": "#/$defs/Text"
+              "$ref": "#/$defs/Reply_Text"
             },
             {
               "type": "null"
@@ -352,7 +352,7 @@
         "organism": {
           "anyOf": [
             {
-              "$ref": "#/$defs/Text"
+              "$ref": "#/$defs/Reply_Text"
             },
             {
               "type": "null"
@@ -372,7 +372,7 @@
         "tissue": {
           "anyOf": [
             {
-              "$ref": "#/$defs/Text"
+              "$ref": "#/$defs/Reply_Text"
             },
             {
               "type": "null"
@@ -388,13 +388,13 @@
       ],
       "type": "object"
     },
-    "CellLineEntryDates": {
+    "Reply_CellLineEntryDates": {
       "description": "Entry dates and entry version are independent of dataset release and retrieval time.",
       "properties": {
         "created": {
           "anyOf": [
             {
-              "$ref": "#/$defs/PartialDate"
+              "$ref": "#/$defs/Reply_PartialDate"
             },
             {
               "type": "null"
@@ -405,7 +405,7 @@
         "updated": {
           "anyOf": [
             {
-              "$ref": "#/$defs/PartialDate"
+              "$ref": "#/$defs/Reply_PartialDate"
             },
             {
               "type": "null"
@@ -425,13 +425,13 @@
       },
       "type": "object"
     },
-    "CellLineGene": {
+    "Reply_CellLineGene": {
       "description": "A native variation gene member with only a source-supplied HGNC identity.",
       "properties": {
         "hgnc": {
           "anyOf": [
             {
-              "$ref": "#/$defs/HgncId"
+              "$ref": "#/$defs/Reply_HgncId"
             },
             {
               "type": "null"
@@ -440,7 +440,7 @@
           "description": "Present only if this source member explicitly carries the HGNC identifier."
         },
         "reference": {
-          "$ref": "#/$defs/CellLineXref",
+          "$ref": "#/$defs/Reply_CellLineXref",
           "description": "Complete original source gene cross-reference."
         }
       },
@@ -449,16 +449,16 @@
       ],
       "type": "object"
     },
-    "CellLineGet": {
+    "Reply_CellLineGet": {
       "description": "One exact identity and an optional bounded named section.",
       "properties": {
         "id": {
-          "$ref": "#/$defs/CellLineInput",
+          "$ref": "#/$defs/Reply_CellLineInput",
           "description": "One exact primary accession or qualified source ID.",
           "x-positional": 0
         },
         "section": {
-          "$ref": "#/$defs/CellLineSection",
+          "$ref": "#/$defs/Reply_CellLineSection",
           "description": "Omit for the default card; all returns bounded first pages without an assay count.",
           "x-positional": 1
         },
@@ -482,27 +482,27 @@
       ],
       "type": "object"
     },
-    "CellLineHeader": {
+    "Reply_CellLineHeader": {
       "description": "Compact source identity with independently capped species and diseases.",
       "properties": {
         "accession": {
-          "$ref": "#/$defs/CellosaurusAccession",
+          "$ref": "#/$defs/Reply_CellosaurusAccession",
           "description": "Exact primary accession."
         },
         "category": {
-          "$ref": "#/$defs/Text",
+          "$ref": "#/$defs/Reply_Text",
           "description": "Native category."
         },
         "diseases": {
-          "$ref": "#/$defs/Capped",
+          "$ref": "#/$defs/Reply_Capped_CellLineXref",
           "description": "Up to three complete disease references and their independent total."
         },
         "name": {
-          "$ref": "#/$defs/Text",
+          "$ref": "#/$defs/Reply_Text",
           "description": "Recommended display name."
         },
         "species": {
-          "$ref": "#/$defs/Capped",
+          "$ref": "#/$defs/Reply_Capped_CellLineXref",
           "description": "Up to three complete species references and their native total."
         }
       },
@@ -515,15 +515,15 @@
       ],
       "type": "object"
     },
-    "CellLineIdentityPage": {
+    "Reply_CellLineIdentityPage": {
       "description": "Species, diseases and warnings page independently; each total belongs to its own collection.",
       "properties": {
         "accession": {
-          "$ref": "#/$defs/CellosaurusAccession",
+          "$ref": "#/$defs/Reply_CellosaurusAccession",
           "description": "Selected exact primary accession."
         },
         "diseases": {
-          "$ref": "#/$defs/Capped",
+          "$ref": "#/$defs/Reply_Capped_CellLineXref",
           "description": "Whole disease rows and their independent source total."
         },
         "fetched": {
@@ -544,7 +544,7 @@
         "release": {
           "anyOf": [
             {
-              "$ref": "#/$defs/CellLineRelease"
+              "$ref": "#/$defs/Reply_CellLineRelease"
             },
             {
               "type": "null"
@@ -553,11 +553,11 @@
           "description": "Independently fetched publisher release."
         },
         "species": {
-          "$ref": "#/$defs/Capped",
+          "$ref": "#/$defs/Reply_Capped_CellLineXref",
           "description": "Whole species rows and their source total."
         },
         "warnings": {
-          "$ref": "#/$defs/Capped2",
+          "$ref": "#/$defs/Reply_Capped_CellLineWarning",
           "description": "Whole scoped warning rows and their independent source total."
         }
       },
@@ -570,20 +570,20 @@
       ],
       "type": "object"
     },
-    "CellLineInput": {
+    "Reply_CellLineInput": {
       "description": "An exact accession or a database-qualified source identity; never a name lookup.",
       "pattern": "^(CVCL_[A-Z0-9]{4}|[A-Za-z0-9_.-]+:[^\\s\\x00-\\x1f\\x7f-\\x9f]+)$",
       "type": "string"
     },
-    "CellLineName": {
+    "Reply_CellLineName": {
       "description": "One native display name entry, never an identity key.",
       "properties": {
         "kind": {
-          "$ref": "#/$defs/Text",
+          "$ref": "#/$defs/Reply_Text",
           "description": "Native name type, preserving identifier and synonym labels."
         },
         "value": {
-          "$ref": "#/$defs/Text",
+          "$ref": "#/$defs/Reply_Text",
           "description": "Native name spelling and punctuation."
         }
       },
@@ -593,11 +593,11 @@
       ],
       "type": "object"
     },
-    "CellLineNames": {
+    "Reply_CellLineNames": {
       "description": "Native display names with collection-local totals and offset.",
       "properties": {
         "accession": {
-          "$ref": "#/$defs/CellosaurusAccession",
+          "$ref": "#/$defs/Reply_CellosaurusAccession",
           "description": "Selected exact primary accession."
         },
         "fetched": {
@@ -610,7 +610,7 @@
           ]
         },
         "items": {
-          "$ref": "#/$defs/Capped3",
+          "$ref": "#/$defs/Reply_Capped_CellLineName",
           "description": "Whole source rows and the total in this collection only."
         },
         "offset": {
@@ -622,7 +622,7 @@
         "release": {
           "anyOf": [
             {
-              "$ref": "#/$defs/CellLineRelease"
+              "$ref": "#/$defs/Reply_CellLineRelease"
             },
             {
               "type": "null"
@@ -638,13 +638,13 @@
       ],
       "type": "object"
     },
-    "CellLineProvenance": {
+    "Reply_CellLineProvenance": {
       "description": "One complete native source row; reference, institution and database provenance stay independent.",
       "properties": {
         "institution": {
           "anyOf": [
             {
-              "$ref": "#/$defs/Text"
+              "$ref": "#/$defs/Reply_Text"
             },
             {
               "type": "null"
@@ -655,7 +655,7 @@
         "reference": {
           "anyOf": [
             {
-              "$ref": "#/$defs/CellLineReference"
+              "$ref": "#/$defs/Reply_CellLineReference"
             },
             {
               "type": "null"
@@ -666,7 +666,7 @@
         "value": {
           "anyOf": [
             {
-              "$ref": "#/$defs/Text"
+              "$ref": "#/$defs/Reply_Text"
             },
             {
               "type": "null"
@@ -677,7 +677,7 @@
         "xref": {
           "anyOf": [
             {
-              "$ref": "#/$defs/CellLineXref"
+              "$ref": "#/$defs/Reply_CellLineXref"
             },
             {
               "type": "null"
@@ -688,11 +688,11 @@
       },
       "type": "object"
     },
-    "CellLineReference": {
+    "Reply_CellLineReference": {
       "description": "One native internal publication reference, without requiring PubMed.",
       "properties": {
         "resource_internal_ref": {
-          "$ref": "#/$defs/Text",
+          "$ref": "#/$defs/Reply_Text",
           "description": "Complete native resource reference, for example PubMed=9305600."
         }
       },
@@ -701,15 +701,15 @@
       ],
       "type": "object"
     },
-    "CellLineRelease": {
+    "Reply_CellLineRelease": {
       "description": "Publisher release identity, fetched independently from record data.",
       "properties": {
         "updated": {
-          "$ref": "#/$defs/PartialDate",
+          "$ref": "#/$defs/Reply_PartialDate",
           "description": "Native release update date."
         },
         "version": {
-          "$ref": "#/$defs/Text",
+          "$ref": "#/$defs/Reply_Text",
           "description": "Native release version."
         }
       },
@@ -719,7 +719,7 @@
       ],
       "type": "object"
     },
-    "CellLineSection": {
+    "Reply_CellLineSection": {
       "description": "Named disclosure sections; all requests each bounded first page without an assay count.",
       "enum": [
         "names",
@@ -739,13 +739,13 @@
         " Bounded first page of every named section."
       ]
     },
-    "CellLineSections": {
+    "Reply_CellLineSections": {
       "description": "Requested sections carry explicit states; absent members were not requested.",
       "properties": {
         "chembl": {
           "anyOf": [
             {
-              "$ref": "#/$defs/Section5"
+              "$ref": "#/$defs/Reply_Section_CellLineChembl"
             },
             {
               "type": "null"
@@ -756,7 +756,7 @@
         "identity": {
           "anyOf": [
             {
-              "$ref": "#/$defs/Section2"
+              "$ref": "#/$defs/Reply_Section_CellLineIdentityPage"
             },
             {
               "type": "null"
@@ -767,7 +767,7 @@
         "names": {
           "anyOf": [
             {
-              "$ref": "#/$defs/Section"
+              "$ref": "#/$defs/Reply_Section_CellLineNames"
             },
             {
               "type": "null"
@@ -778,7 +778,7 @@
         "variants": {
           "anyOf": [
             {
-              "$ref": "#/$defs/Section4"
+              "$ref": "#/$defs/Reply_Section_CellLineVariants"
             },
             {
               "type": "null"
@@ -789,7 +789,7 @@
         "xrefs": {
           "anyOf": [
             {
-              "$ref": "#/$defs/Section3"
+              "$ref": "#/$defs/Reply_Section_CellLineXrefs"
             },
             {
               "type": "null"
@@ -800,15 +800,15 @@
       },
       "type": "object"
     },
-    "CellLineSex": {
+    "Reply_CellLineSex": {
       "description": "Native publisher vocabulary; new values are retained unchanged. Known values: Female; Male; Mixed sex; Sex ambiguous; Sex unspecified; ",
       "type": "string"
     },
-    "CellLineVariants": {
+    "Reply_CellLineVariants": {
       "description": "Whole native variation rows with collection-local totals and offset.",
       "properties": {
         "accession": {
-          "$ref": "#/$defs/CellosaurusAccession",
+          "$ref": "#/$defs/Reply_CellosaurusAccession",
           "description": "Selected exact primary accession."
         },
         "fetched": {
@@ -821,7 +821,7 @@
           ]
         },
         "items": {
-          "$ref": "#/$defs/Capped4",
+          "$ref": "#/$defs/Reply_Capped_CellLineVariation",
           "description": "Whole source rows and the total in this collection only."
         },
         "offset": {
@@ -833,7 +833,7 @@
         "release": {
           "anyOf": [
             {
-              "$ref": "#/$defs/CellLineRelease"
+              "$ref": "#/$defs/Reply_CellLineRelease"
             },
             {
               "type": "null"
@@ -849,13 +849,13 @@
       ],
       "type": "object"
     },
-    "CellLineVariation": {
+    "Reply_CellLineVariation": {
       "description": "One complete native variation row; descriptions do not become normalized alleles.",
       "properties": {
         "description": {
           "anyOf": [
             {
-              "$ref": "#/$defs/Text"
+              "$ref": "#/$defs/Reply_Text"
             },
             {
               "type": "null"
@@ -866,14 +866,14 @@
         "genes": {
           "description": "Every native gene member, including both fusion members.",
           "items": {
-            "$ref": "#/$defs/CellLineGene"
+            "$ref": "#/$defs/Reply_CellLineGene"
           },
           "type": "array"
         },
         "mutation_type": {
           "anyOf": [
             {
-              "$ref": "#/$defs/Text"
+              "$ref": "#/$defs/Reply_Text"
             },
             {
               "type": "null"
@@ -884,7 +884,7 @@
         "note": {
           "anyOf": [
             {
-              "$ref": "#/$defs/Text"
+              "$ref": "#/$defs/Reply_Text"
             },
             {
               "type": "null"
@@ -895,25 +895,25 @@
         "provenance": {
           "description": "Every native provenance row in source order; no PMID is required.",
           "items": {
-            "$ref": "#/$defs/CellLineProvenance"
+            "$ref": "#/$defs/Reply_CellLineProvenance"
           },
           "type": "array"
         },
         "references": {
           "description": "Every other variation cross-reference in native order.",
           "items": {
-            "$ref": "#/$defs/CellLineXref"
+            "$ref": "#/$defs/Reply_CellLineXref"
           },
           "type": "array"
         },
         "variation_type": {
-          "$ref": "#/$defs/Text",
+          "$ref": "#/$defs/Reply_Text",
           "description": "Native open variation label."
         },
         "zygosity": {
           "anyOf": [
             {
-              "$ref": "#/$defs/Text"
+              "$ref": "#/$defs/Reply_Text"
             },
             {
               "type": "null"
@@ -927,15 +927,15 @@
       ],
       "type": "object"
     },
-    "CellLineWarning": {
+    "Reply_CellLineWarning": {
       "description": "Complete source warning with its native scope; no stock classifier is derived.",
       "properties": {
         "scope": {
-          "$ref": "#/$defs/Text",
+          "$ref": "#/$defs/Reply_Text",
           "description": "Native warning category, such as Problematic cell line."
         },
         "text": {
-          "$ref": "#/$defs/Text",
+          "$ref": "#/$defs/Reply_Text",
           "description": "Complete source text including historical and stock qualifications."
         }
       },
@@ -945,17 +945,17 @@
       ],
       "type": "object"
     },
-    "CellLineXref": {
+    "Reply_CellLineXref": {
       "description": "One complete native cross-reference; database and accession form the source identity.",
       "properties": {
         "accession": {
-          "$ref": "#/$defs/Text",
+          "$ref": "#/$defs/Reply_Text",
           "description": "Native accession, including any internal prefix."
         },
         "category": {
           "anyOf": [
             {
-              "$ref": "#/$defs/Text"
+              "$ref": "#/$defs/Reply_Text"
             },
             {
               "type": "null"
@@ -964,13 +964,13 @@
           "description": "Native source category when supplied."
         },
         "database": {
-          "$ref": "#/$defs/Text",
+          "$ref": "#/$defs/Reply_Text",
           "description": "Native database name; no fixed vocabulary."
         },
         "discontinued": {
           "anyOf": [
             {
-              "$ref": "#/$defs/Text"
+              "$ref": "#/$defs/Reply_Text"
             },
             {
               "type": "null"
@@ -981,7 +981,7 @@
         "iri": {
           "anyOf": [
             {
-              "$ref": "#/$defs/Text"
+              "$ref": "#/$defs/Reply_Text"
             },
             {
               "type": "null"
@@ -992,7 +992,7 @@
         "label": {
           "anyOf": [
             {
-              "$ref": "#/$defs/Text"
+              "$ref": "#/$defs/Reply_Text"
             },
             {
               "type": "null"
@@ -1003,7 +1003,7 @@
         "url": {
           "anyOf": [
             {
-              "$ref": "#/$defs/Text"
+              "$ref": "#/$defs/Reply_Text"
             },
             {
               "type": "null"
@@ -1019,11 +1019,11 @@
       ],
       "type": "object"
     },
-    "CellLineXrefs": {
+    "Reply_CellLineXrefs": {
       "description": "Native source cross-references with collection-local totals and offset.",
       "properties": {
         "accession": {
-          "$ref": "#/$defs/CellosaurusAccession",
+          "$ref": "#/$defs/Reply_CellosaurusAccession",
           "description": "Selected exact primary accession."
         },
         "fetched": {
@@ -1036,7 +1036,7 @@
           ]
         },
         "items": {
-          "$ref": "#/$defs/Capped",
+          "$ref": "#/$defs/Reply_Capped_CellLineXref",
           "description": "Whole source rows and the total in this collection only."
         },
         "offset": {
@@ -1048,7 +1048,7 @@
         "release": {
           "anyOf": [
             {
-              "$ref": "#/$defs/CellLineRelease"
+              "$ref": "#/$defs/Reply_CellLineRelease"
             },
             {
               "type": "null"
@@ -1064,22 +1064,22 @@
       ],
       "type": "object"
     },
-    "CellosaurusAccession": {
+    "Reply_CellosaurusAccession": {
       "description": "A checked Cellosaurus accession; primary identity is verified by the adapter.",
       "pattern": "^CVCL_[A-Z0-9]{4}$",
       "type": "string"
     },
-    "ChemblCellId": {
+    "Reply_ChemblCellId": {
       "description": "A ChEMBL source-local cell ID, never a compound or target identity.",
       "pattern": "^CHEMBL[0-9]+$",
       "type": "string"
     },
-    "HgncId": {
+    "Reply_HgncId": {
       "description": "An HGNC identifier with canonical namespace and positive numeric value.",
       "pattern": "^HGNC:[1-9][0-9]*$",
       "type": "string"
     },
-    "PageInfo": {
+    "Reply_PageInfo": {
       "description": "Search counts after filtering and deduplication.",
       "properties": {
         "offset": {
@@ -1091,7 +1091,7 @@
         "pool": {
           "anyOf": [
             {
-              "$ref": "#/$defs/PoolInfo"
+              "$ref": "#/$defs/Reply_PoolInfo"
             },
             {
               "type": "null"
@@ -1126,12 +1126,12 @@
       ],
       "type": "object"
     },
-    "PartialDate": {
+    "Reply_PartialDate": {
       "description": "A Gregorian date preserving year, month or day precision.",
       "pattern": "^[0-9]{4}(-[0-9]{2}(-[0-9]{2})?)?$",
       "type": "string"
     },
-    "PoolInfo": {
+    "Reply_PoolInfo": {
       "description": "Fixed lifetime and size of a stored search snapshot.",
       "properties": {
         "created": {
@@ -1147,7 +1147,7 @@
           "type": "integer"
         },
         "id": {
-          "$ref": "#/$defs/Text",
+          "$ref": "#/$defs/Reply_Text",
           "description": "Opaque snapshot identifier."
         },
         "size": {
@@ -1165,11 +1165,11 @@
       ],
       "type": "object"
     },
-    "Problem": {
+    "Reply_Problem": {
       "description": "A field that could not be accepted from a source record.",
       "properties": {
         "code": {
-          "$ref": "#/$defs/ProblemCode",
+          "$ref": "#/$defs/Reply_ProblemCode",
           "description": "Why the field value was not accepted."
         },
         "field": {
@@ -1179,7 +1179,7 @@
         "record": {
           "anyOf": [
             {
-              "$ref": "#/$defs/Text"
+              "$ref": "#/$defs/Reply_Text"
             },
             {
               "type": "null"
@@ -1188,7 +1188,7 @@
           "description": "The record's canonical identifier, when known."
         },
         "source": {
-          "$ref": "#/$defs/Source",
+          "$ref": "#/$defs/Reply_Source",
           "description": "The source that supplied the record."
         }
       },
@@ -1199,7 +1199,7 @@
       ],
       "type": "object"
     },
-    "ProblemCode": {
+    "Reply_ProblemCode": {
       "description": "A stable code for a rejected field value.",
       "type": "string",
       "x-enum-descriptions": [
@@ -1213,7 +1213,7 @@
         "identity.conflict"
       ]
     },
-    "Reason": {
+    "Reply_Reason": {
       "description": "Why a source could not supply data.",
       "type": "string",
       "x-enum-descriptions": [
@@ -1259,18 +1259,18 @@
         "no_join_id"
       ]
     },
-    "Section": {
+    "Reply_Section_CellLineChembl": {
       "description": "A requested section has exactly one state.",
       "oneOf": [
         {
           "description": "The source returned data.",
           "properties": {
             "data": {
-              "$ref": "#/$defs/CellLineNames",
+              "$ref": "#/$defs/Reply_CellLineChembl",
               "description": "Whole section data."
             },
             "source": {
-              "$ref": "#/$defs/Source",
+              "$ref": "#/$defs/Reply_Source",
               "description": "Source identity."
             },
             "state": {
@@ -1291,7 +1291,7 @@
             "record": {
               "anyOf": [
                 {
-                  "$ref": "#/$defs/SourceRecord"
+                  "$ref": "#/$defs/Reply_SourceRecord"
                 },
                 {
                   "type": "null"
@@ -1300,7 +1300,7 @@
               "description": "Native entry, if any."
             },
             "source": {
-              "$ref": "#/$defs/Source",
+              "$ref": "#/$defs/Reply_Source",
               "description": "Source identity."
             },
             "state": {
@@ -1318,11 +1318,11 @@
           "description": "A requested source failed.",
           "properties": {
             "reason": {
-              "$ref": "#/$defs/Reason",
+              "$ref": "#/$defs/Reply_Reason",
               "description": "Typed reason."
             },
             "source": {
-              "$ref": "#/$defs/Source",
+              "$ref": "#/$defs/Reply_Source",
               "description": "Source identity."
             },
             "state": {
@@ -1341,11 +1341,11 @@
           "description": "User settings prevented the source request.",
           "properties": {
             "reason": {
-              "$ref": "#/$defs/Reason",
+              "$ref": "#/$defs/Reply_Reason",
               "description": "Typed reason."
             },
             "source": {
-              "$ref": "#/$defs/Source",
+              "$ref": "#/$defs/Reply_Source",
               "description": "Source identity."
             },
             "state": {
@@ -1375,18 +1375,18 @@
         }
       ]
     },
-    "Section2": {
+    "Reply_Section_CellLineIdentityPage": {
       "description": "A requested section has exactly one state.",
       "oneOf": [
         {
           "description": "The source returned data.",
           "properties": {
             "data": {
-              "$ref": "#/$defs/CellLineIdentityPage",
+              "$ref": "#/$defs/Reply_CellLineIdentityPage",
               "description": "Whole section data."
             },
             "source": {
-              "$ref": "#/$defs/Source",
+              "$ref": "#/$defs/Reply_Source",
               "description": "Source identity."
             },
             "state": {
@@ -1407,7 +1407,7 @@
             "record": {
               "anyOf": [
                 {
-                  "$ref": "#/$defs/SourceRecord"
+                  "$ref": "#/$defs/Reply_SourceRecord"
                 },
                 {
                   "type": "null"
@@ -1416,7 +1416,7 @@
               "description": "Native entry, if any."
             },
             "source": {
-              "$ref": "#/$defs/Source",
+              "$ref": "#/$defs/Reply_Source",
               "description": "Source identity."
             },
             "state": {
@@ -1434,11 +1434,11 @@
           "description": "A requested source failed.",
           "properties": {
             "reason": {
-              "$ref": "#/$defs/Reason",
+              "$ref": "#/$defs/Reply_Reason",
               "description": "Typed reason."
             },
             "source": {
-              "$ref": "#/$defs/Source",
+              "$ref": "#/$defs/Reply_Source",
               "description": "Source identity."
             },
             "state": {
@@ -1457,11 +1457,11 @@
           "description": "User settings prevented the source request.",
           "properties": {
             "reason": {
-              "$ref": "#/$defs/Reason",
+              "$ref": "#/$defs/Reply_Reason",
               "description": "Typed reason."
             },
             "source": {
-              "$ref": "#/$defs/Source",
+              "$ref": "#/$defs/Reply_Source",
               "description": "Source identity."
             },
             "state": {
@@ -1491,18 +1491,18 @@
         }
       ]
     },
-    "Section3": {
+    "Reply_Section_CellLineNames": {
       "description": "A requested section has exactly one state.",
       "oneOf": [
         {
           "description": "The source returned data.",
           "properties": {
             "data": {
-              "$ref": "#/$defs/CellLineXrefs",
+              "$ref": "#/$defs/Reply_CellLineNames",
               "description": "Whole section data."
             },
             "source": {
-              "$ref": "#/$defs/Source",
+              "$ref": "#/$defs/Reply_Source",
               "description": "Source identity."
             },
             "state": {
@@ -1523,7 +1523,7 @@
             "record": {
               "anyOf": [
                 {
-                  "$ref": "#/$defs/SourceRecord"
+                  "$ref": "#/$defs/Reply_SourceRecord"
                 },
                 {
                   "type": "null"
@@ -1532,7 +1532,7 @@
               "description": "Native entry, if any."
             },
             "source": {
-              "$ref": "#/$defs/Source",
+              "$ref": "#/$defs/Reply_Source",
               "description": "Source identity."
             },
             "state": {
@@ -1550,11 +1550,11 @@
           "description": "A requested source failed.",
           "properties": {
             "reason": {
-              "$ref": "#/$defs/Reason",
+              "$ref": "#/$defs/Reply_Reason",
               "description": "Typed reason."
             },
             "source": {
-              "$ref": "#/$defs/Source",
+              "$ref": "#/$defs/Reply_Source",
               "description": "Source identity."
             },
             "state": {
@@ -1573,11 +1573,11 @@
           "description": "User settings prevented the source request.",
           "properties": {
             "reason": {
-              "$ref": "#/$defs/Reason",
+              "$ref": "#/$defs/Reply_Reason",
               "description": "Typed reason."
             },
             "source": {
-              "$ref": "#/$defs/Source",
+              "$ref": "#/$defs/Reply_Source",
               "description": "Source identity."
             },
             "state": {
@@ -1607,18 +1607,18 @@
         }
       ]
     },
-    "Section4": {
+    "Reply_Section_CellLineVariants": {
       "description": "A requested section has exactly one state.",
       "oneOf": [
         {
           "description": "The source returned data.",
           "properties": {
             "data": {
-              "$ref": "#/$defs/CellLineVariants",
+              "$ref": "#/$defs/Reply_CellLineVariants",
               "description": "Whole section data."
             },
             "source": {
-              "$ref": "#/$defs/Source",
+              "$ref": "#/$defs/Reply_Source",
               "description": "Source identity."
             },
             "state": {
@@ -1639,7 +1639,7 @@
             "record": {
               "anyOf": [
                 {
-                  "$ref": "#/$defs/SourceRecord"
+                  "$ref": "#/$defs/Reply_SourceRecord"
                 },
                 {
                   "type": "null"
@@ -1648,7 +1648,7 @@
               "description": "Native entry, if any."
             },
             "source": {
-              "$ref": "#/$defs/Source",
+              "$ref": "#/$defs/Reply_Source",
               "description": "Source identity."
             },
             "state": {
@@ -1666,11 +1666,11 @@
           "description": "A requested source failed.",
           "properties": {
             "reason": {
-              "$ref": "#/$defs/Reason",
+              "$ref": "#/$defs/Reply_Reason",
               "description": "Typed reason."
             },
             "source": {
-              "$ref": "#/$defs/Source",
+              "$ref": "#/$defs/Reply_Source",
               "description": "Source identity."
             },
             "state": {
@@ -1689,11 +1689,11 @@
           "description": "User settings prevented the source request.",
           "properties": {
             "reason": {
-              "$ref": "#/$defs/Reason",
+              "$ref": "#/$defs/Reply_Reason",
               "description": "Typed reason."
             },
             "source": {
-              "$ref": "#/$defs/Source",
+              "$ref": "#/$defs/Reply_Source",
               "description": "Source identity."
             },
             "state": {
@@ -1723,18 +1723,18 @@
         }
       ]
     },
-    "Section5": {
+    "Reply_Section_CellLineXrefs": {
       "description": "A requested section has exactly one state.",
       "oneOf": [
         {
           "description": "The source returned data.",
           "properties": {
             "data": {
-              "$ref": "#/$defs/CellLineChembl",
+              "$ref": "#/$defs/Reply_CellLineXrefs",
               "description": "Whole section data."
             },
             "source": {
-              "$ref": "#/$defs/Source",
+              "$ref": "#/$defs/Reply_Source",
               "description": "Source identity."
             },
             "state": {
@@ -1755,7 +1755,7 @@
             "record": {
               "anyOf": [
                 {
-                  "$ref": "#/$defs/SourceRecord"
+                  "$ref": "#/$defs/Reply_SourceRecord"
                 },
                 {
                   "type": "null"
@@ -1764,7 +1764,7 @@
               "description": "Native entry, if any."
             },
             "source": {
-              "$ref": "#/$defs/Source",
+              "$ref": "#/$defs/Reply_Source",
               "description": "Source identity."
             },
             "state": {
@@ -1782,11 +1782,11 @@
           "description": "A requested source failed.",
           "properties": {
             "reason": {
-              "$ref": "#/$defs/Reason",
+              "$ref": "#/$defs/Reply_Reason",
               "description": "Typed reason."
             },
             "source": {
-              "$ref": "#/$defs/Source",
+              "$ref": "#/$defs/Reply_Source",
               "description": "Source identity."
             },
             "state": {
@@ -1805,11 +1805,11 @@
           "description": "User settings prevented the source request.",
           "properties": {
             "reason": {
-              "$ref": "#/$defs/Reason",
+              "$ref": "#/$defs/Reply_Reason",
               "description": "Typed reason."
             },
             "source": {
-              "$ref": "#/$defs/Source",
+              "$ref": "#/$defs/Reply_Source",
               "description": "Source identity."
             },
             "state": {
@@ -1839,7 +1839,7 @@
         }
       ]
     },
-    "Source": {
+    "Reply_Source": {
       "description": "A source of BioMCP data, identified by its canonical short name.",
       "type": "string",
       "x-enum-descriptions": [
@@ -1991,7 +1991,7 @@
         "cellosaurus"
       ]
     },
-    "SourceNotice": {
+    "Reply_SourceNotice": {
       "description": "A source notice or request recovery step.",
       "oneOf": [
         {
@@ -2047,7 +2047,7 @@
               "type": "string"
             },
             "reason": {
-              "$ref": "#/$defs/CacheProblem",
+              "$ref": "#/$defs/Reply_CacheProblem",
               "description": "Bounded local failure without paths or database diagnostics."
             }
           },
@@ -2061,7 +2061,7 @@
           "description": "The source still has graph pages after the bounded fetch window.",
           "properties": {
             "fallback": {
-              "$ref": "#/$defs/Text",
+              "$ref": "#/$defs/Reply_Text",
               "description": "Default-source command offering another graph view."
             },
             "kind": {
@@ -2128,7 +2128,7 @@
             "words": {
               "description": "Whole source words.",
               "items": {
-                "$ref": "#/$defs/Text"
+                "$ref": "#/$defs/Reply_Text"
               },
               "type": "array"
             }
@@ -2140,7 +2140,7 @@
         }
       ]
     },
-    "SourceOutcome": {
+    "Reply_SourceOutcome": {
       "description": "One source's outcome, without provider text.",
       "properties": {
         "count": {
@@ -2164,14 +2164,14 @@
         "notices": {
           "description": "Source notices and request recovery guidance.",
           "items": {
-            "$ref": "#/$defs/SourceNotice"
+            "$ref": "#/$defs/Reply_SourceNotice"
           },
           "type": "array"
         },
         "reason": {
           "anyOf": [
             {
-              "$ref": "#/$defs/Reason"
+              "$ref": "#/$defs/Reply_Reason"
             },
             {
               "type": "null"
@@ -2180,17 +2180,17 @@
           "description": "Failure or stale-fallback reason."
         },
         "source": {
-          "$ref": "#/$defs/Source",
+          "$ref": "#/$defs/Reply_Source",
           "description": "Asked source."
         },
         "state": {
-          "$ref": "#/$defs/SourceState",
+          "$ref": "#/$defs/Reply_SourceState",
           "description": "Retained state."
         },
         "term": {
           "anyOf": [
             {
-              "$ref": "#/$defs/Text"
+              "$ref": "#/$defs/Reply_Text"
             },
             {
               "type": "null"
@@ -2208,7 +2208,7 @@
           "type": "string"
         },
         "use": {
-          "$ref": "#/$defs/Use",
+          "$ref": "#/$defs/Reply_Use",
           "description": "Reviewed source use category; publisher terms remain authoritative."
         }
       },
@@ -2221,17 +2221,17 @@
       ],
       "type": "object"
     },
-    "SourceRecord": {
+    "Reply_SourceRecord": {
       "description": "The source's own entry for an entity.",
       "properties": {
         "id": {
-          "$ref": "#/$defs/Text",
+          "$ref": "#/$defs/Reply_Text",
           "description": "Native source identifier."
         },
         "url": {
           "anyOf": [
             {
-              "$ref": "#/$defs/Text"
+              "$ref": "#/$defs/Reply_Text"
             },
             {
               "type": "null"
@@ -2246,7 +2246,7 @@
       ],
       "type": "object"
     },
-    "SourceState": {
+    "Reply_SourceState": {
       "description": "State of a source actually asked by the command.",
       "enum": [
         "ok",
@@ -2257,7 +2257,7 @@
       ],
       "type": "string"
     },
-    "Status": {
+    "Reply_Status": {
       "description": "Overall command outcome.",
       "enum": [
         "complete",
@@ -2267,7 +2267,7 @@
       ],
       "type": "string"
     },
-    "Step": {
+    "Reply_Step": {
       "description": "A command argument list spelled from a typed action.",
       "properties": {
         "args": {
@@ -2278,7 +2278,7 @@
           "type": "array"
         },
         "kind": {
-          "$ref": "#/$defs/StepKind",
+          "$ref": "#/$defs/Reply_StepKind",
           "description": "Purpose of the action."
         }
       },
@@ -2287,7 +2287,7 @@
       ],
       "type": "object"
     },
-    "StepKind": {
+    "Reply_StepKind": {
       "description": "Purpose of an available next command.",
       "enum": [
         "restart",
@@ -2303,12 +2303,12 @@
       ],
       "type": "string"
     },
-    "Text": {
+    "Reply_Text": {
       "description": "Nonempty text with surrounding Unicode whitespace removed.",
       "minLength": 1,
       "type": "string"
     },
-    "Use": {
+    "Reply_Use": {
       "description": "Reviewed source-use category, without inferring rights in individual records.",
       "enum": [
         "open",
@@ -2326,7 +2326,7 @@
     "local_error": {
       "anyOf": [
         {
-          "$ref": "#/$defs/CacheProblem"
+          "$ref": "#/$defs/Reply_CacheProblem"
         },
         {
           "type": "null"
@@ -2337,14 +2337,14 @@
     "next": {
       "description": "Available next commands.",
       "items": {
-        "$ref": "#/$defs/Step"
+        "$ref": "#/$defs/Reply_Step"
       },
       "type": "array"
     },
     "page": {
       "anyOf": [
         {
-          "$ref": "#/$defs/PageInfo"
+          "$ref": "#/$defs/Reply_PageInfo"
         },
         {
           "type": "null"
@@ -2355,18 +2355,18 @@
     "problems": {
       "description": "Rejected source fields.",
       "items": {
-        "$ref": "#/$defs/Problem"
+        "$ref": "#/$defs/Reply_Problem"
       },
       "type": "array"
     },
     "query": {
-      "$ref": "#/$defs/CellLineGet",
+      "$ref": "#/$defs/Reply_CellLineGet",
       "description": "Parsed query."
     },
     "result": {
       "anyOf": [
         {
-          "$ref": "#/$defs/CellLineCard"
+          "$ref": "#/$defs/Reply_CellLineCard"
         },
         {
           "type": "null"
@@ -2381,12 +2381,12 @@
     "sources": {
       "description": "Sources actually asked.",
       "items": {
-        "$ref": "#/$defs/SourceOutcome"
+        "$ref": "#/$defs/Reply_SourceOutcome"
       },
       "type": "array"
     },
     "status": {
-      "$ref": "#/$defs/Status",
+      "$ref": "#/$defs/Reply_Status",
       "description": "Overall outcome."
     }
   },
