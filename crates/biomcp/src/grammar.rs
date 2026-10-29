@@ -209,7 +209,10 @@ pub(crate) fn root() -> Result<Command, ParseInvalid> {
         Command::new("schema")
             .about("List every schema identity and description with biomcp schema, or print one schema artifact with biomcp schema <id>.")
             .after_help(format!(
-                "JSON reply readers ignore unknown fields and unknown growable enum values within a major. Query schemas remain closed.\n\nExample: biomcp schema\nExample: biomcp schema {}",
+                concat!(
+                    "JSON reply readers ignore unknown fields and unknown growable enum values within a major. ",
+                    "Query schemas remain closed.\n\nExample: biomcp schema\nExample: biomcp schema {}"
+                ),
                 Help::SCHEMA
             ))
             .arg(
