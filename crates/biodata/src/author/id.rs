@@ -40,7 +40,7 @@ crate::text_value!(
     "^[1-9][0-9]*$",
     "A checked source-local Semantic Scholar author identifier, never a person identity."
 );
-/// A checksummed ORCID iD, identifying only the requested ORCID record.
+/// A checksummed ORCID iD, identifying only the requested ORCID record. The parser additionally validates the ISO 7064 checksum.
 #[derive(Clone, Debug, PartialEq, Eq, Hash)]
 pub struct OrcidId(Box<str>);
 impl FromStr for OrcidId {
@@ -83,9 +83,9 @@ crate::text_value!(
     OrcidId,
     "OrcidId",
     "^[0-9]{4}-[0-9]{4}-[0-9]{4}-[0-9]{3}[0-9X]$",
-    "A checksummed ORCID iD, identifying only the requested ORCID record."
+    "A checksummed ORCID iD, identifying only the requested ORCID record. The parser additionally validates the ISO 7064 checksum."
 );
-/// One provider record. Semantic Scholar emits semantic-scholar:ID and accepts semanticscholar:ID. Variants imply no relationship.
+/// One provider record. Semantic Scholar emits semantic-scholar:ID, accepts semanticscholar:ID. ORCID checksums are validated; variants imply no relationship.
 #[derive(Clone, Debug, PartialEq, Eq, Hash)]
 pub enum AuthorId {
     /// One Semantic Scholar record.
@@ -117,10 +117,10 @@ crate::text_value!(
     AuthorId,
     "AuthorId",
     "^((semantic-scholar|semanticscholar):[1-9][0-9]*|orcid:[0-9]{4}-[0-9]{4}-[0-9]{4}-[0-9]{3}[0-9X])$",
-    "One provider record. Semantic Scholar emits semantic-scholar:ID and accepts semanticscholar:ID. Variants imply no relationship."
+    "One provider record. Semantic Scholar emits semantic-scholar:ID, accepts semanticscholar:ID. ORCID checksums are validated; variants imply no relationship."
 );
 
-/// A checked native ORCID client application identifier.
+/// A checked native ORCID client application identifier. The parser additionally validates ORCID checksums for legacy numeric identifiers.
 #[derive(Clone, Debug, PartialEq, Eq, Hash)]
 pub struct OrcidClientId(Box<str>);
 impl FromStr for OrcidClientId {
@@ -148,5 +148,5 @@ crate::text_value!(
     OrcidClientId,
     "OrcidClientId",
     "^(APP-[A-Z0-9]{16}|[0-9]{4}-[0-9]{4}-[0-9]{4}-[0-9]{3}[0-9X])$",
-    "A checked native ORCID client application identifier."
+    "A checked native ORCID client application identifier. The parser additionally validates ORCID checksums for legacy numeric identifiers."
 );

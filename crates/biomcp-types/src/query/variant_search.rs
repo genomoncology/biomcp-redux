@@ -58,7 +58,12 @@ impl fmt::Display for VariantRegion {
 text_value!(
     VariantRegion,
     "VariantRegion",
-    r"^chr([1-9]|1[0-9]|2[0-2]|X|Y|MT):[1-9][0-9]*-[1-9][0-9]*$"
+    format!(
+        "^chr([1-9]|1[0-9]|2[0-2]|X|Y|MT):{}-{}$",
+        biodata::schema_pattern::decimal(u32::MAX.into()),
+        biodata::schema_pattern::decimal(u32::MAX.into())
+    ),
+    "Primary-chromosome region. The parser additionally requires the end to be at least the start."
 );
 
 /// Explicit MyVariant query text, preserving surrounding whitespace and source syntax.
@@ -79,7 +84,16 @@ impl fmt::Display for MyVariantQuery {
         f.write_str(&self.0)
     }
 }
-text_value!(MyVariantQuery, "MyVariantQuery", r"\S");
+text_value!(
+    MyVariantQuery,
+    "MyVariantQuery",
+    {
+        let maximum = crate::VariantInput::MAX_BYTES * 2 + "_id:\"\"".len();
+        let whitespace = biodata::schema_pattern::WHITESPACE;
+        format!(r"^(?![{whitespace}]*$)[^\x00-\x1f\x7f-\x9f]{{1,{maximum}}}$")
+    },
+    "Explicit MyVariant query text. The schema limits Unicode character count; the parser additionally limits UTF-8 byte count to the same maximum."
+);
 /// Discover source candidates using one declared selector, without interpreting free text.
 #[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
 #[serde(try_from = "Fields")]

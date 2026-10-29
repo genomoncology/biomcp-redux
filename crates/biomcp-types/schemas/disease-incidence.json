@@ -1,12 +1,12 @@
 {
   "$defs": {
-    "Attribution": {
+    "Reply_Attribution": {
       "description": "Provenance for one source record.",
       "properties": {
         "evaluated": {
           "anyOf": [
             {
-              "$ref": "#/$defs/PartialDate"
+              "$ref": "#/$defs/Reply_PartialDate"
             },
             {
               "type": "null"
@@ -17,7 +17,7 @@
         "record": {
           "anyOf": [
             {
-              "$ref": "#/$defs/Text"
+              "$ref": "#/$defs/Reply_Text"
             },
             {
               "type": "null"
@@ -28,7 +28,7 @@
         "release": {
           "anyOf": [
             {
-              "$ref": "#/$defs/Text"
+              "$ref": "#/$defs/Reply_Text"
             },
             {
               "type": "null"
@@ -37,13 +37,13 @@
           "description": "Dataset release."
         },
         "source": {
-          "$ref": "#/$defs/Text",
+          "$ref": "#/$defs/Reply_Text",
           "description": "Source responsible for the claim."
         },
         "submitter": {
           "anyOf": [
             {
-              "$ref": "#/$defs/Text"
+              "$ref": "#/$defs/Reply_Text"
             },
             {
               "type": "null"
@@ -54,7 +54,7 @@
         "url": {
           "anyOf": [
             {
-              "$ref": "#/$defs/Text"
+              "$ref": "#/$defs/Reply_Text"
             },
             {
               "type": "null"
@@ -66,7 +66,7 @@
         "version": {
           "anyOf": [
             {
-              "$ref": "#/$defs/Text"
+              "$ref": "#/$defs/Reply_Text"
             },
             {
               "type": "null"
@@ -80,7 +80,7 @@
       ],
       "type": "object"
     },
-    "CacheProblem": {
+    "Reply_CacheProblem": {
       "description": "A local cache failure that leaves the provider outcome intact.",
       "enum": [
         "busy",
@@ -89,15 +89,15 @@
       ],
       "type": "string"
     },
-    "ComponentLabel": {
+    "Reply_ComponentLabel": {
       "description": "Terms attached to a named carried component on a consumer response.",
       "properties": {
         "component": {
-          "$ref": "#/$defs/Text",
+          "$ref": "#/$defs/Reply_Text",
           "description": "Native component name."
         },
         "terms": {
-          "$ref": "#/$defs/ComponentTerms",
+          "$ref": "#/$defs/Reply_ComponentTerms",
           "description": "Canonical publisher terms."
         }
       },
@@ -107,20 +107,20 @@
       ],
       "type": "object"
     },
-    "ComponentTerms": {
+    "Reply_ComponentTerms": {
       "description": "Terms attached to one independently licensed source component.",
       "properties": {
         "name": {
-          "$ref": "#/$defs/Text",
+          "$ref": "#/$defs/Reply_Text",
           "description": "Publisher terms name."
         },
         "url": {
-          "$ref": "#/$defs/Text",
+          "$ref": "#/$defs/Reply_Text",
           "description": "Publisher terms page.",
           "format": "uri"
         },
         "usage": {
-          "$ref": "#/$defs/Use",
+          "$ref": "#/$defs/Reply_Use",
           "description": "Publisher use category."
         }
       },
@@ -131,13 +131,13 @@
       ],
       "type": "object"
     },
-    "DiseaseGet": {
+    "Reply_DiseaseGet": {
       "description": "Exact concept or native SEER site with independently paged section.",
       "properties": {
         "age_range": {
           "anyOf": [
             {
-              "$ref": "#/$defs/Text"
+              "$ref": "#/$defs/Reply_Text"
             },
             {
               "type": "null"
@@ -148,7 +148,7 @@
         "dataset": {
           "anyOf": [
             {
-              "$ref": "#/$defs/Text"
+              "$ref": "#/$defs/Reply_Text"
             },
             {
               "type": "null"
@@ -157,14 +157,14 @@
           "description": "Requested native dataset selector, not proof of returned membership."
         },
         "id": {
-          "$ref": "#/$defs/Text",
+          "$ref": "#/$defs/Reply_Text",
           "description": "Exact ontology CURIE or an explicit SEER catalog site ID.",
           "x-positional": 0
         },
         "interval": {
           "anyOf": [
             {
-              "$ref": "#/$defs/Text"
+              "$ref": "#/$defs/Reply_Text"
             },
             {
               "type": "null"
@@ -173,14 +173,14 @@
           "description": "Survival-only interval code."
         },
         "ontology": {
-          "$ref": "#/$defs/DiseaseOntology",
+          "$ref": "#/$defs/Reply_DiseaseOntology",
           "default": "mondo",
           "description": "One OLS ontology."
         },
         "period": {
           "anyOf": [
             {
-              "$ref": "#/$defs/Text"
+              "$ref": "#/$defs/Reply_Text"
             },
             {
               "type": "null"
@@ -191,7 +191,7 @@
         "race": {
           "anyOf": [
             {
-              "$ref": "#/$defs/Text"
+              "$ref": "#/$defs/Reply_Text"
             },
             {
               "type": "null"
@@ -202,7 +202,7 @@
         "section": {
           "anyOf": [
             {
-              "$ref": "#/$defs/DiseaseSection"
+              "$ref": "#/$defs/Reply_DiseaseSection"
             },
             {
               "type": "null"
@@ -228,7 +228,7 @@
         "sex": {
           "anyOf": [
             {
-              "$ref": "#/$defs/Text"
+              "$ref": "#/$defs/Reply_Text"
             },
             {
               "type": "null"
@@ -237,7 +237,7 @@
           "description": "Native sex code."
         },
         "source": {
-          "$ref": "#/$defs/DiseaseSource",
+          "$ref": "#/$defs/Reply_DiseaseSource",
           "default": "mydisease",
           "description": "Default MyDisease; no automatic fallback."
         }
@@ -247,13 +247,13 @@
       ],
       "type": "object"
     },
-    "DiseaseIncidence": {
+    "Reply_DiseaseIncidence": {
       "description": "Native incidence rows preserving requested and returned dimensions.",
       "properties": {
         "components": {
           "description": "Applicable component use terms, independent of row provenance.",
           "items": {
-            "$ref": "#/$defs/ComponentLabel"
+            "$ref": "#/$defs/Reply_ComponentLabel"
           },
           "type": "array"
         },
@@ -269,14 +269,14 @@
         "items": {
           "description": "Native source rows; totals in the envelope count rows, not distinct entities.",
           "items": {
-            "$ref": "#/$defs/DiseaseStatistic"
+            "$ref": "#/$defs/Reply_DiseaseStatistic"
           },
           "type": "array"
         }
       },
       "type": "object"
     },
-    "DiseaseOntology": {
+    "Reply_DiseaseOntology": {
       "description": "One explicit OLS ontology.",
       "enum": [
         "mondo",
@@ -285,7 +285,7 @@
       ],
       "type": "string"
     },
-    "DiseaseSection": {
+    "Reply_DiseaseSection": {
       "description": "One named disease page.",
       "enum": [
         "synonyms",
@@ -307,7 +307,7 @@
         " Annual survival rows."
       ]
     },
-    "DiseaseSource": {
+    "Reply_DiseaseSource": {
       "description": "An explicit disease source without fallback.",
       "enum": [
         "ols",
@@ -317,21 +317,21 @@
       ],
       "type": "string"
     },
-    "DiseaseStatistic": {
+    "Reply_DiseaseStatistic": {
       "description": "One native statistics row with requested and returned dimensions.",
       "properties": {
         "attribution": {
-          "$ref": "#/$defs/Attribution",
+          "$ref": "#/$defs/Reply_Attribution",
           "description": "Publisher record and dataset version when supplied."
         },
         "measure": {
-          "$ref": "#/$defs/Text",
+          "$ref": "#/$defs/Reply_Text",
           "description": "Native measure name."
         },
         "modeled": {
           "anyOf": [
             {
-              "$ref": "#/$defs/StatisticEstimate"
+              "$ref": "#/$defs/Reply_StatisticEstimate"
             },
             {
               "type": "null"
@@ -342,7 +342,7 @@
         "observed": {
           "anyOf": [
             {
-              "$ref": "#/$defs/StatisticEstimate"
+              "$ref": "#/$defs/Reply_StatisticEstimate"
             },
             {
               "type": "null"
@@ -353,18 +353,18 @@
         "requested_selectors": {
           "description": "Settings sent to the publisher.",
           "items": {
-            "$ref": "#/$defs/StatisticSelector"
+            "$ref": "#/$defs/Reply_StatisticSelector"
           },
           "type": "array"
         },
         "requested_site": {
-          "$ref": "#/$defs/Text",
+          "$ref": "#/$defs/Reply_Text",
           "description": "Explicit selected native site ID."
         },
         "returned_selectors": {
           "description": "Settings actually returned, never filled from request.",
           "items": {
-            "$ref": "#/$defs/StatisticSelector"
+            "$ref": "#/$defs/Reply_StatisticSelector"
           },
           "type": "array"
         },
@@ -385,12 +385,12 @@
       ],
       "type": "object"
     },
-    "FiniteNumber": {
+    "Reply_FiniteNumber": {
       "description": "A finite decimal that JSON can represent without losing its value to null.",
       "format": "double",
       "type": "number"
     },
-    "PageInfo": {
+    "Reply_PageInfo": {
       "description": "Search counts after filtering and deduplication.",
       "properties": {
         "offset": {
@@ -402,7 +402,7 @@
         "pool": {
           "anyOf": [
             {
-              "$ref": "#/$defs/PoolInfo"
+              "$ref": "#/$defs/Reply_PoolInfo"
             },
             {
               "type": "null"
@@ -437,12 +437,12 @@
       ],
       "type": "object"
     },
-    "PartialDate": {
-      "description": "A Gregorian date preserving year, month or day precision.",
-      "pattern": "^[0-9]{4}(-[0-9]{2}(-[0-9]{2})?)?$",
+    "Reply_PartialDate": {
+      "description": "A Gregorian date preserving year, month or day precision. The parser additionally validates the calendar day, including leap years.",
+      "pattern": "^(?!0000)[0-9]{4}(-(0[1-9]|1[0-2])(-(0[1-9]|[12][0-9]|3[01]))?)?$",
       "type": "string"
     },
-    "PoolInfo": {
+    "Reply_PoolInfo": {
       "description": "Fixed lifetime and size of a stored search snapshot.",
       "properties": {
         "created": {
@@ -458,7 +458,7 @@
           "type": "integer"
         },
         "id": {
-          "$ref": "#/$defs/Text",
+          "$ref": "#/$defs/Reply_Text",
           "description": "Opaque snapshot identifier."
         },
         "size": {
@@ -476,11 +476,11 @@
       ],
       "type": "object"
     },
-    "Problem": {
+    "Reply_Problem": {
       "description": "A field that could not be accepted from a source record.",
       "properties": {
         "code": {
-          "$ref": "#/$defs/ProblemCode",
+          "$ref": "#/$defs/Reply_ProblemCode",
           "description": "Why the field value was not accepted."
         },
         "field": {
@@ -490,7 +490,7 @@
         "record": {
           "anyOf": [
             {
-              "$ref": "#/$defs/Text"
+              "$ref": "#/$defs/Reply_Text"
             },
             {
               "type": "null"
@@ -499,7 +499,7 @@
           "description": "The record's canonical identifier, when known."
         },
         "source": {
-          "$ref": "#/$defs/Source",
+          "$ref": "#/$defs/Reply_Source",
           "description": "The source that supplied the record."
         }
       },
@@ -510,7 +510,7 @@
       ],
       "type": "object"
     },
-    "ProblemCode": {
+    "Reply_ProblemCode": {
       "description": "A stable code for a rejected field value.",
       "type": "string",
       "x-enum-descriptions": [
@@ -524,7 +524,7 @@
         "identity.conflict"
       ]
     },
-    "Reason": {
+    "Reply_Reason": {
       "description": "Why a source could not supply data.",
       "type": "string",
       "x-enum-descriptions": [
@@ -549,28 +549,28 @@
         " Identity lacks the identifier required to join this source."
       ],
       "x-extensible-enum": [
-        "not-found",
-        "not-open",
-        "not-pdf",
+        "not_found",
+        "not_open",
+        "not_pdf",
         "unsupported",
-        "too-large",
-        "rate-limited",
-        "local-quota",
+        "too_large",
+        "rate_limited",
+        "local_quota",
         "unavailable",
         "tls",
         "proxy",
         "rejected",
-        "bad-reply",
-        "deadline-exceeded",
+        "bad_reply",
+        "deadline_exceeded",
         "offline",
-        "no-key",
+        "no_key",
         "disabled",
-        "replay-miss",
+        "replay_miss",
         "syncing",
-        "no-join-id"
+        "no_join_id"
       ]
     },
-    "Source": {
+    "Reply_Source": {
       "description": "A source of BioMCP data, identified by its canonical short name.",
       "type": "string",
       "x-enum-descriptions": [
@@ -642,6 +642,7 @@
         " openFDA premarket approval submissions.",
         " FDA native 510(k) clearance records.",
         " openFDA medical device product recall records.",
+        " FDA drug enforcement recall records.",
         " Clinical Pharmacogenetics Implementation Consortium.",
         " ClinPGx pharmacogenomics annotations.",
         " Public cBioPortal with study-specific reuse terms.",
@@ -716,20 +717,21 @@
         "fda-pma",
         "fda-510k",
         "fda-device-recall",
+        "fda-drug-recall",
         "cpic",
         "clinpgx",
         "cbioportal",
         "cellosaurus"
       ]
     },
-    "SourceNotice": {
+    "Reply_SourceNotice": {
       "description": "A source notice or request recovery step.",
       "oneOf": [
         {
           "description": "Local request limits and source-specific recovery guidance.",
           "properties": {
             "kind": {
-              "const": "request-guidance",
+              "const": "request_guidance",
               "type": "string"
             },
             "message": {
@@ -756,7 +758,7 @@
           "description": "Registered conditions lack the literal words requested in a condition search.",
           "properties": {
             "kind": {
-              "const": "condition-word-mismatch",
+              "const": "condition_word_mismatch",
               "type": "string"
             },
             "message": {
@@ -774,11 +776,11 @@
           "description": "A checked provider answer survived a local cache failure.",
           "properties": {
             "kind": {
-              "const": "cache-problem",
+              "const": "cache_problem",
               "type": "string"
             },
             "reason": {
-              "$ref": "#/$defs/CacheProblem",
+              "$ref": "#/$defs/Reply_CacheProblem",
               "description": "Bounded local failure without paths or database diagnostics."
             }
           },
@@ -792,11 +794,11 @@
           "description": "The source still has graph pages after the bounded fetch window.",
           "properties": {
             "fallback": {
-              "$ref": "#/$defs/Text",
+              "$ref": "#/$defs/Reply_Text",
               "description": "Default-source command offering another graph view."
             },
             "kind": {
-              "const": "graph-truncated",
+              "const": "graph_truncated",
               "type": "string"
             }
           },
@@ -810,7 +812,7 @@
           "description": "An empty LitVar lookup can be repeated with a caller-supplied rsID.",
           "properties": {
             "kind": {
-              "const": "litvar-rsid-hint",
+              "const": "litvar_rsid_hint",
               "type": "string"
             },
             "message": {
@@ -828,7 +830,7 @@
           "description": "PubMed supplied a named ESearch warning without changing its phrases.",
           "properties": {
             "kind": {
-              "const": "pubmed-warning",
+              "const": "pubmed_warning",
               "type": "string"
             },
             "name": {
@@ -853,13 +855,13 @@
           "description": "PubMed did not index these words.",
           "properties": {
             "kind": {
-              "const": "not-found-words",
+              "const": "not_found_words",
               "type": "string"
             },
             "words": {
               "description": "Whole source words.",
               "items": {
-                "$ref": "#/$defs/Text"
+                "$ref": "#/$defs/Reply_Text"
               },
               "type": "array"
             }
@@ -871,7 +873,7 @@
         }
       ]
     },
-    "SourceOutcome": {
+    "Reply_SourceOutcome": {
       "description": "One source's outcome, without provider text.",
       "properties": {
         "count": {
@@ -895,14 +897,14 @@
         "notices": {
           "description": "Source notices and request recovery guidance.",
           "items": {
-            "$ref": "#/$defs/SourceNotice"
+            "$ref": "#/$defs/Reply_SourceNotice"
           },
           "type": "array"
         },
         "reason": {
           "anyOf": [
             {
-              "$ref": "#/$defs/Reason"
+              "$ref": "#/$defs/Reply_Reason"
             },
             {
               "type": "null"
@@ -911,17 +913,17 @@
           "description": "Failure or stale-fallback reason."
         },
         "source": {
-          "$ref": "#/$defs/Source",
+          "$ref": "#/$defs/Reply_Source",
           "description": "Asked source."
         },
         "state": {
-          "$ref": "#/$defs/SourceState",
+          "$ref": "#/$defs/Reply_SourceState",
           "description": "Retained state."
         },
         "term": {
           "anyOf": [
             {
-              "$ref": "#/$defs/Text"
+              "$ref": "#/$defs/Reply_Text"
             },
             {
               "type": "null"
@@ -939,7 +941,7 @@
           "type": "string"
         },
         "use": {
-          "$ref": "#/$defs/Use",
+          "$ref": "#/$defs/Reply_Use",
           "description": "Reviewed source use category; publisher terms remain authoritative."
         }
       },
@@ -952,7 +954,7 @@
       ],
       "type": "object"
     },
-    "SourceState": {
+    "Reply_SourceState": {
       "description": "State of a source actually asked by the command.",
       "enum": [
         "ok",
@@ -963,7 +965,7 @@
       ],
       "type": "string"
     },
-    "StatisticEstimate": {
+    "Reply_StatisticEstimate": {
       "description": "Source estimate and uncertainty without computed quantities.",
       "properties": {
         "count": {
@@ -978,7 +980,7 @@
         "lower_ci": {
           "anyOf": [
             {
-              "$ref": "#/$defs/FiniteNumber"
+              "$ref": "#/$defs/Reply_FiniteNumber"
             },
             {
               "type": "null"
@@ -989,7 +991,7 @@
         "standard_error": {
           "anyOf": [
             {
-              "$ref": "#/$defs/FiniteNumber"
+              "$ref": "#/$defs/Reply_FiniteNumber"
             },
             {
               "type": "null"
@@ -1000,7 +1002,7 @@
         "upper_ci": {
           "anyOf": [
             {
-              "$ref": "#/$defs/FiniteNumber"
+              "$ref": "#/$defs/Reply_FiniteNumber"
             },
             {
               "type": "null"
@@ -1011,7 +1013,7 @@
         "value": {
           "anyOf": [
             {
-              "$ref": "#/$defs/FiniteNumber"
+              "$ref": "#/$defs/Reply_FiniteNumber"
             },
             {
               "type": "null"
@@ -1022,17 +1024,17 @@
       },
       "type": "object"
     },
-    "StatisticSelector": {
+    "Reply_StatisticSelector": {
       "description": "One source-native selector without a local interpretation.",
       "properties": {
         "code": {
-          "$ref": "#/$defs/Text",
+          "$ref": "#/$defs/Reply_Text",
           "description": "Source selector code."
         },
         "label": {
           "anyOf": [
             {
-              "$ref": "#/$defs/Text"
+              "$ref": "#/$defs/Reply_Text"
             },
             {
               "type": "null"
@@ -1041,7 +1043,7 @@
           "description": "Publisher label when supplied."
         },
         "name": {
-          "$ref": "#/$defs/Text",
+          "$ref": "#/$defs/Reply_Text",
           "description": "Source field name."
         }
       },
@@ -1051,7 +1053,7 @@
       ],
       "type": "object"
     },
-    "Status": {
+    "Reply_Status": {
       "description": "Overall command outcome.",
       "enum": [
         "complete",
@@ -1061,7 +1063,7 @@
       ],
       "type": "string"
     },
-    "Step": {
+    "Reply_Step": {
       "description": "A command argument list spelled from a typed action.",
       "properties": {
         "args": {
@@ -1072,7 +1074,7 @@
           "type": "array"
         },
         "kind": {
-          "$ref": "#/$defs/StepKind",
+          "$ref": "#/$defs/Reply_StepKind",
           "description": "Purpose of the action."
         }
       },
@@ -1081,7 +1083,7 @@
       ],
       "type": "object"
     },
-    "StepKind": {
+    "Reply_StepKind": {
       "description": "Purpose of an available next command.",
       "enum": [
         "restart",
@@ -1097,12 +1099,12 @@
       ],
       "type": "string"
     },
-    "Text": {
+    "Reply_Text": {
       "description": "Nonempty text with surrounding Unicode whitespace removed.",
       "minLength": 1,
       "type": "string"
     },
-    "Use": {
+    "Reply_Use": {
       "description": "Reviewed source-use category, without inferring rights in individual records.",
       "enum": [
         "open",
@@ -1120,7 +1122,7 @@
     "local_error": {
       "anyOf": [
         {
-          "$ref": "#/$defs/CacheProblem"
+          "$ref": "#/$defs/Reply_CacheProblem"
         },
         {
           "type": "null"
@@ -1131,14 +1133,14 @@
     "next": {
       "description": "Available next commands.",
       "items": {
-        "$ref": "#/$defs/Step"
+        "$ref": "#/$defs/Reply_Step"
       },
       "type": "array"
     },
     "page": {
       "anyOf": [
         {
-          "$ref": "#/$defs/PageInfo"
+          "$ref": "#/$defs/Reply_PageInfo"
         },
         {
           "type": "null"
@@ -1149,18 +1151,18 @@
     "problems": {
       "description": "Rejected source fields.",
       "items": {
-        "$ref": "#/$defs/Problem"
+        "$ref": "#/$defs/Reply_Problem"
       },
       "type": "array"
     },
     "query": {
-      "$ref": "#/$defs/DiseaseGet",
+      "$ref": "#/$defs/Reply_DiseaseGet",
       "description": "Parsed query."
     },
     "result": {
       "anyOf": [
         {
-          "$ref": "#/$defs/DiseaseIncidence"
+          "$ref": "#/$defs/Reply_DiseaseIncidence"
         },
         {
           "type": "null"
@@ -1175,12 +1177,12 @@
     "sources": {
       "description": "Sources actually asked.",
       "items": {
-        "$ref": "#/$defs/SourceOutcome"
+        "$ref": "#/$defs/Reply_SourceOutcome"
       },
       "type": "array"
     },
     "status": {
-      "$ref": "#/$defs/Status",
+      "$ref": "#/$defs/Reply_Status",
       "description": "Overall outcome."
     }
   },

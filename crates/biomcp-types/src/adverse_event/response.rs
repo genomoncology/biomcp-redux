@@ -62,7 +62,7 @@ pub struct AdverseEventPage {
     pub components: Box<[ComponentLabel]>,
 }
 impl ResponseBody for AdverseEventPage {
-    const SCHEMA: &'static str = "biomcp.adverse-event-page/4";
+    const SCHEMA: &'static str = "biomcp.adverse-event-page/5";
     type Query = AdverseEventSearch;
 }
 /// FAERS card with native report-level facts and independent collection lengths.
@@ -175,6 +175,7 @@ impl ResponseBody for AdverseEventMaudeCard {
 #[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
 #[serde(bound(deserialize = "T: Deserialize<'de>"))]
 #[cfg_attr(feature = "schema", derive(schemars::JsonSchema))]
+#[cfg_attr(feature = "schema", schemars(rename = "AdverseEventRecords_{T}"))]
 pub struct AdverseEventRecords<T> {
     /// Source ordered whole rows.
     #[serde(default, skip_serializing_if = "<[_]>::is_empty")]
@@ -216,7 +217,7 @@ section!(
     AdverseEventReactions,
     AdverseEventReaction,
     reactions,
-    "biomcp.adverse-event-reactions/2"
+    "biomcp.adverse-event-reactions/3"
 );
 section!(
     AdverseEventDevices,

@@ -64,7 +64,11 @@ pub(crate) fn run(
 ) -> io::Result<crate::command::Outcome> {
     match run_inner(command, globals) {
         Ok(value) => crate::command::encode(
-            biomcp_types::Envelope::new(biomcp_types::Status::Complete, (), Some(value)),
+            biomcp_types::Envelope::new(
+                biomcp_types::Status::Complete,
+                biomcp_types::EmptyQuery {},
+                Some(value),
+            ),
             crate::exit::Status::Success,
         ),
         Err(Failure::Usage) => crate::command::encode(

@@ -262,7 +262,7 @@ fn expectations(body: &Value) -> Result<serde_json::Map<String, Value>, String> 
             term.pointer("/is_obsolete").unwrap_or(&Value::Null).clone(),
         );
         if term.pointer("/is_obsolete").unwrap_or(&Value::Null) == true {
-            expected.insert("/result/replaced_by".into(), Value::Null);
+            expected.insert("/result".into(), json!({"omits":["replaced_by"]}));
             expected.insert(
                 "/result/consider".into(),
                 json!(["MONDO:0800444", "MONDO:0800445"]),

@@ -13,7 +13,7 @@ fn split_version(value: &str) -> Option<(&str, Option<NonZeroU32>)> {
     }
 }
 macro_rules! versioned {
-    ($(#[doc = $doc:literal])* $name:ident, $error:ident, $schema:literal, $pattern:literal, $check:expr) => {
+    ($(#[doc = $doc:literal])* $name:ident, $error:ident, $schema:literal, $pattern:expr, $check:expr) => {
         $(#[doc = $doc])*
         #[derive(Clone, Debug, PartialEq, Eq, Hash, PartialOrd, Ord)]
         pub struct $name { base: Box<str>, version: Option<NonZeroU32> }
@@ -47,5 +47,6 @@ fn ensembl(value: &str, prefix: &str) -> bool {
 }
 versioned! {
     /// A human Ensembl gene stable identifier with a separately retained version.
-    EnsemblGeneId, EnsemblGeneIdInvalid, "EnsemblGeneId", "^ENSG[0-9]{11}(\\.[1-9][0-9]*)?$", |value| ensembl(value, "ENSG")
+    EnsemblGeneId, EnsemblGeneIdInvalid, "EnsemblGeneId",
+    format!(r"^ENSG[0-9]{{11}}(\.{})?$", crate::schema_pattern::decimal(u32::MAX.into())), |value| ensembl(value, "ENSG")
 }

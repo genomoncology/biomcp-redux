@@ -18,8 +18,8 @@ pub struct Health {
     pub store: crate::StoreSize,
 }
 impl super::ResponseBody for Health {
-    const SCHEMA: &'static str = "biomcp.health/4";
-    type Query = ();
+    const SCHEMA: &'static str = "biomcp.health/5";
+    type Query = super::EmptyQuery;
 }
 /// One bounded source probe, without credentials or provider error text.
 #[derive(Clone, Debug, Serialize, Deserialize)]

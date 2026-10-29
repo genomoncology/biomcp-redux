@@ -68,7 +68,7 @@
     },
     "ArticleInput": {
       "description": "A validated canonical ArticleInput string.",
-      "pattern": "^(?:[1-9][0-9]*|PMC[1-9][0-9]*|PPR[0-9]*[1-9][0-9]*|(?:https?://doi\\.org/)?10\\.[0-9]+/[^\\s\\x00-\\x1f\\x7f]+)$",
+      "pattern": "(^(?:4294967295|[1-9][0-9]{0,8}|[1-3][0-9]{9}|4[0-1][0-9]{8}|42[0-8][0-9]{7}|429[0-3][0-9]{6}|4294[0-8][0-9]{5}|42949[0-5][0-9]{4}|429496[0-6][0-9]{3}|4294967[0-1][0-9]{2}|42949672[0-8][0-9]{1}|429496729[0-4][0-9]{0})$|^PMC(?:4294967295|[1-9][0-9]{0,8}|[1-3][0-9]{9}|4[0-1][0-9]{8}|42[0-8][0-9]{7}|429[0-3][0-9]{6}|4294[0-8][0-9]{5}|42949[0-5][0-9]{4}|429496[0-6][0-9]{3}|4294967[0-1][0-9]{2}|42949672[0-8][0-9]{1}|429496729[0-4][0-9]{0})$|(?=PPR)^(?=.{1,64}$)[A-Z]{1,8}[0-9]*[1-9][0-9]*$|^(?:https?://doi\\.org/)?10\\.[0-9]+/[^\\x09-\\x0d\\x20\\x85\\xa0\\u1680\\u2000-\\u200a\\u2028\\u2029\\u202f\\u205f\\u3000\\x00-\\x1f\\x7f-\\x9f]+$)",
       "type": "string"
     },
     "ArticleSectionWord": {
@@ -122,10 +122,10 @@
         "trial",
         "randomized",
         "review",
-        "systematic-review",
-        "meta-analysis",
+        "systematic_review",
+        "meta_analysis",
         "guideline",
-        "case-report"
+        "case_report"
       ],
       "type": "string"
     },
@@ -138,7 +138,7 @@
       "type": "string"
     },
     "AuthorId": {
-      "description": "One provider record. Semantic Scholar emits semantic-scholar:ID and accepts semanticscholar:ID. Variants imply no relationship.",
+      "description": "One provider record; this enum establishes no relationship between its variants. The parser additionally validates ORCID checksums.",
       "pattern": "^((semantic-scholar|semanticscholar):[1-9][0-9]*|orcid:[0-9]{4}-[0-9]{4}-[0-9]{4}-[0-9]{3}[0-9X])$",
       "type": "string"
     },
@@ -234,7 +234,7 @@
     },
     "Curie": {
       "description": "Checked prefix:local ontology identifier.",
-      "pattern": "^[A-Za-z0-9_.-]+:[^\\s\\x00-\\x1f\\x7f-\\x9f]+$",
+      "pattern": "^[A-Za-z0-9_.-]+:[^\\x09-\\x0d\\x20\\x85\\xa0\\u1680\\u2000-\\u200a\\u2028\\u2029\\u202f\\u205f\\u3000\\x00-\\x1f\\x7f-\\x9f]+$",
       "type": "string"
     },
     "Cytoband": {
@@ -351,6 +351,20 @@
         " Match an explicit native synonym exactly, ignoring case."
       ]
     },
+    "DrugRecallClassification": {
+      "description": "FDA's native recall classification, with no local ranking.",
+      "enum": [
+        "Class I",
+        "Class II",
+        "Class III"
+      ],
+      "type": "string",
+      "x-enum-descriptions": [
+        " Native Class I.",
+        " Native Class II.",
+        " Native Class III."
+      ]
+    },
     "DrugSection": {
       "description": "Explicit drug disclosures; identity cards never expand into these sections.",
       "enum": [
@@ -379,6 +393,7 @@
       "description": "A supported drug data source.",
       "enum": [
         "who-pq",
+        "fda-drug-recall",
         "mychem",
         "chembl",
         "opentargets",
@@ -405,7 +420,7 @@
     },
     "GeneInput": {
       "description": "An input classified before source resolution; aliases remain free text.",
-      "pattern": "\\S",
+      "pattern": "^[\\x09-\\x0d\\x20\\x85\\xa0\\u1680\\u2000-\\u200a\\u2028\\u2029\\u202f\\u205f\\u3000]*(?:HGNC:(?:4294967295|[1-9][0-9]{0,8}|[1-3][0-9]{9}|4[0-1][0-9]{8}|42[0-8][0-9]{7}|429[0-3][0-9]{6}|4294[0-8][0-9]{5}|42949[0-5][0-9]{4}|429496[0-6][0-9]{3}|4294967[0-1][0-9]{2}|42949672[0-8][0-9]{1}|429496729[0-4][0-9]{0})|ENSG[0-9]{11}(\\.(?:4294967295|[1-9][0-9]{0,8}|[1-3][0-9]{9}|4[0-1][0-9]{8}|42[0-8][0-9]{7}|429[0-3][0-9]{6}|4294[0-8][0-9]{5}|42949[0-5][0-9]{4}|429496[0-6][0-9]{3}|4294967[0-1][0-9]{2}|42949672[0-8][0-9]{1}|429496729[0-4][0-9]{0}))?|(?:4294967295|[1-9][0-9]{0,8}|[1-3][0-9]{9}|4[0-1][0-9]{8}|42[0-8][0-9]{7}|429[0-3][0-9]{6}|4294[0-8][0-9]{5}|42949[0-5][0-9]{4}|429496[0-6][0-9]{3}|4294967[0-1][0-9]{2}|42949672[0-8][0-9]{1}|429496729[0-4][0-9]{0})|(?!(?:[Hh][Gg][Nn][Cc]:|[Ee][Nn][Ss][Gg]))(?![0-9]+[\\x09-\\x0d\\x20\\x85\\xa0\\u1680\\u2000-\\u200a\\u2028\\u2029\\u202f\\u205f\\u3000]*$)[^\\x09-\\x0d\\x20\\x85\\xa0\\u1680\\u2000-\\u200a\\u2028\\u2029\\u202f\\u205f\\u3000](?:[\\s\\S]*[^\\x09-\\x0d\\x20\\x85\\xa0\\u1680\\u2000-\\u200a\\u2028\\u2029\\u202f\\u205f\\u3000])?)[\\x09-\\x0d\\x20\\x85\\xa0\\u1680\\u2000-\\u200a\\u2028\\u2029\\u202f\\u205f\\u3000]*$",
       "type": "string"
     },
     "GeneSectionWord": {
@@ -450,7 +465,7 @@
     },
     "GwasAssociationId": {
       "description": "A positive Catalog association ID qualified by resource kind.",
-      "pattern": "^association:[1-9][0-9]*$",
+      "pattern": "^association:(?:18446744073709551615|[1-9][0-9]{0,18}|1[0-7][0-9]{18}|18[0-3][0-9]{17}|184[0-3][0-9]{16}|1844[0-5][0-9]{15}|18446[0-6][0-9]{14}|184467[0-3][0-9]{13}|1844674[0-3][0-9]{12}|184467440[0-6][0-9]{10}|1844674407[0-2][0-9]{9}|18446744073[0-6][0-9]{8}|1844674407370[0-8][0-9]{6}|18446744073709[0-4][0-9]{5}|184467440737095[0-4][0-9]{4}|1844674407370955[0-0][0-9]{3}|18446744073709551[0-5][0-9]{2}|184467440737095516[0-0][0-9]{1}|1844674407370955161[0-4][0-9]{0})$",
       "type": "string"
     },
     "GwasAssociationSection": {
@@ -475,7 +490,7 @@
     },
     "GwasStudyId": {
       "description": "Exact Catalog study accession; case and leading zeros survive.",
-      "pattern": "^GCST[0-9]{6,}$",
+      "pattern": "^GCST(?=[0-9]{6,}$)[0-9]*[1-9][0-9]*$",
       "type": "string"
     },
     "GwasStudySection": {
@@ -519,13 +534,13 @@
       ]
     },
     "MyVariantQuery": {
-      "description": "A validated canonical MyVariantQuery string.",
-      "pattern": "\\S",
+      "description": "Explicit MyVariant query text. The schema limits Unicode character count; the parser additionally limits UTF-8 byte count to the same maximum.",
+      "pattern": "^(?![\\x09-\\x0d\\x20\\x85\\xa0\\u1680\\u2000-\\u200a\\u2028\\u2029\\u202f\\u205f\\u3000]*$)[^\\x00-\\x1f\\x7f-\\x9f]{1,4102}$",
       "type": "string"
     },
     "NcbiGeneId": {
       "description": "A positive NCBI Gene identifier in canonical decimal text.",
-      "pattern": "^[1-9][0-9]*$",
+      "pattern": "^(?:4294967295|[1-9][0-9]{0,8}|[1-3][0-9]{9}|4[0-1][0-9]{8}|42[0-8][0-9]{7}|429[0-3][0-9]{6}|4294[0-8][0-9]{5}|42949[0-5][0-9]{4}|429496[0-6][0-9]{3}|4294967[0-1][0-9]{2}|42949672[0-8][0-9]{1}|429496729[0-4][0-9]{0})$",
       "type": "string"
     },
     "NcitId": {
@@ -556,8 +571,8 @@
       "type": "string"
     },
     "PartialDate": {
-      "description": "A Gregorian date preserving year, month or day precision.",
-      "pattern": "^[0-9]{4}(-[0-9]{2}(-[0-9]{2})?)?$",
+      "description": "A Gregorian date preserving year, month or day precision. The parser additionally validates the calendar day, including leap years.",
+      "pattern": "^(?!0000)[0-9]{4}(-(0[1-9]|1[0-2])(-(0[1-9]|[12][0-9]|3[01]))?)?$",
       "type": "string"
     },
     "PathwaySection": {
@@ -600,7 +615,7 @@
     },
     "PgxDiplotypeExpression": {
       "description": "Unchanged declared source diplotype expression; no allele sorting, phase or score calculation.",
-      "pattern": "\\S",
+      "pattern": "[^\\x09-\\x0d\\x20\\x85\\xa0\\u1680\\u2000-\\u200a\\u2028\\u2029\\u202f\\u205f\\u3000]",
       "type": "string"
     },
     "PgxSection": {
@@ -682,7 +697,7 @@
     },
     "Pmid": {
       "description": "Positive PubMed identifier.",
-      "pattern": "^[1-9][0-9]*$",
+      "pattern": "^(?:4294967295|[1-9][0-9]{0,8}|[1-3][0-9]{9}|4[0-1][0-9]{8}|42[0-8][0-9]{7}|429[0-3][0-9]{6}|4294[0-8][0-9]{5}|42949[0-5][0-9]{4}|429496[0-6][0-9]{3}|4294967[0-1][0-9]{2}|42949672[0-8][0-9]{1}|429496729[0-4][0-9]{0})$",
       "type": "string"
     },
     "ProteinInput": {
@@ -692,7 +707,7 @@
     },
     "ProteinQuery": {
       "description": "A validated canonical ProteinQuery string.",
-      "pattern": "^(p\\.)?(A|Ala|R|Arg|N|Asn|D|Asp|C|Cys|E|Glu|Q|Gln|G|Gly|H|His|I|Ile|L|Leu|K|Lys|M|Met|F|Phe|P|Pro|S|Ser|T|Thr|W|Trp|Y|Tyr|V|Val|U|Sec|O|Pyl|\\*|Ter)[1-9][0-9]*(A|Ala|R|Arg|N|Asn|D|Asp|C|Cys|E|Glu|Q|Gln|G|Gly|H|His|I|Ile|L|Leu|K|Lys|M|Met|F|Phe|P|Pro|S|Ser|T|Thr|W|Trp|Y|Tyr|V|Val|U|Sec|O|Pyl|\\*|Ter)$",
+      "pattern": "^(p\\.)?(A|Ala|R|Arg|N|Asn|D|Asp|C|Cys|E|Glu|Q|Gln|G|Gly|H|His|I|Ile|L|Leu|K|Lys|M|Met|F|Phe|P|Pro|S|Ser|T|Thr|W|Trp|Y|Tyr|V|Val|U|Sec|O|Pyl|\\*|Ter)(?:4294967295|[1-9][0-9]{0,8}|[1-3][0-9]{9}|4[0-1][0-9]{8}|42[0-8][0-9]{7}|429[0-3][0-9]{6}|4294[0-8][0-9]{5}|42949[0-5][0-9]{4}|429496[0-6][0-9]{3}|4294967[0-1][0-9]{2}|42949672[0-8][0-9]{1}|429496729[0-4][0-9]{0})(A|Ala|R|Arg|N|Asn|D|Asp|C|Cys|E|Glu|Q|Gln|G|Gly|H|His|I|Ile|L|Leu|K|Lys|M|Met|F|Phe|P|Pro|S|Ser|T|Thr|W|Trp|Y|Tyr|V|Val|U|Sec|O|Pyl|\\*|Ter)$",
       "type": "string"
     },
     "ProteinSection": {
@@ -741,12 +756,12 @@
     },
     "RsId": {
       "description": " A dbSNP site identifier, never an allele join key.",
-      "pattern": "^rs[1-9][0-9]*$",
+      "pattern": "^rs(?:18446744073709551615|[1-9][0-9]{0,18}|1[0-7][0-9]{18}|18[0-3][0-9]{17}|184[0-3][0-9]{16}|1844[0-5][0-9]{15}|18446[0-6][0-9]{14}|184467[0-3][0-9]{13}|1844674[0-3][0-9]{12}|184467440[0-6][0-9]{10}|1844674407[0-2][0-9]{9}|18446744073[0-6][0-9]{8}|1844674407370[0-8][0-9]{6}|18446744073709[0-4][0-9]{5}|184467440737095[0-4][0-9]{4}|1844674407370955[0-0][0-9]{3}|18446744073709551[0-5][0-9]{2}|184467440737095516[0-0][0-9]{1}|1844674407370955161[0-4][0-9]{0})$",
       "type": "string"
     },
     "SheetRows": {
-      "description": "A validated canonical SheetRows string.",
-      "pattern": "^[1-9][0-9]*-[1-9][0-9]*$",
+      "description": "Inclusive original one-based row range. The parser additionally requires the end to be at least the start and fewer than 200 rows after it.",
+      "pattern": "^(?:4294967295|[1-9][0-9]{0,8}|[1-3][0-9]{9}|4[0-1][0-9]{8}|42[0-8][0-9]{7}|429[0-3][0-9]{6}|4294[0-8][0-9]{5}|42949[0-5][0-9]{4}|429496[0-6][0-9]{3}|4294967[0-1][0-9]{2}|42949672[0-8][0-9]{1}|429496729[0-4][0-9]{0})-(?:4294967295|[1-9][0-9]{0,8}|[1-3][0-9]{9}|4[0-1][0-9]{8}|42[0-8][0-9]{7}|429[0-3][0-9]{6}|4294[0-8][0-9]{5}|42949[0-5][0-9]{4}|429496[0-6][0-9]{3}|4294967[0-1][0-9]{2}|42949672[0-8][0-9]{1}|429496729[0-4][0-9]{0})$",
       "type": "string"
     },
     "SponsorType": {
@@ -880,12 +895,12 @@
     },
     "VariantInput": {
       "description": "A validated canonical VariantInput string.",
-      "pattern": "(^(rs[1-9][0-9]*|CA[0-9]{6,}|PA[1-9][0-9]*|VCV[0-9]{9}(\\.[1-9][0-9]*)?|clinvar:[1-9][0-9]*|COS[VMN][1-9][0-9]*|ga4gh:VA\\.[A-Za-z0-9_-]{32})$|^(?!(?:[^:(]*\\()?([NX]P_([0-9]{6}|[0-9]{9})\\.[1-9][0-9]*|ENSP[0-9]{11}\\.[1-9][0-9]*|LRG_[0-9]+p[0-9]+)(?:\\([^:]*\\)|\\))?:[gcnrmo]\\.)((N[CGMPRTW]|X[MPR])_([0-9]{6}|[0-9]{9})\\.[0-9]+|ENS[GTP][0-9]{11}\\.[0-9]+|LRG_[0-9]+([tp][0-9]+)?)(\\(([A-Za-z][A-Za-z0-9._/@-]*|[A-Za-z0-9_.]+)\\))?:([gcnrpmo]\\.[\\x21-\\x7e]*[0-9][\\x21-\\x7e]*|[pr]\\.(\\?|\\(\\?\\)|=|\\(=\\))|r\\.(spl\\??|\\(spl\\?\\)))$|^[1-9][0-9]*$|^chr([1-9][0-9]*|X|Y|M|MT):g\\.[\\x21-\\x7e]*[0-9][\\x21-\\x7e]*$)",
+      "pattern": "^(?=[\\x21-\\x7e]{1,2048}$)((^rs(?:18446744073709551615|[1-9][0-9]{0,18}|1[0-7][0-9]{18}|18[0-3][0-9]{17}|184[0-3][0-9]{16}|1844[0-5][0-9]{15}|18446[0-6][0-9]{14}|184467[0-3][0-9]{13}|1844674[0-3][0-9]{12}|184467440[0-6][0-9]{10}|1844674407[0-2][0-9]{9}|18446744073[0-6][0-9]{8}|1844674407370[0-8][0-9]{6}|18446744073709[0-4][0-9]{5}|184467440737095[0-4][0-9]{4}|1844674407370955[0-0][0-9]{3}|18446744073709551[0-5][0-9]{2}|184467440737095516[0-0][0-9]{1}|1844674407370955161[0-4][0-9]{0})$|^CA(?=[0-9]{6,}(?:[^0-9]|$))(?:(?=[0-9]{6}(?:[^0-9]|$))0*(?:18446744073709551615|[1-9][0-9]{0,18}|1[0-7][0-9]{18}|18[0-3][0-9]{17}|184[0-3][0-9]{16}|1844[0-5][0-9]{15}|18446[0-6][0-9]{14}|184467[0-3][0-9]{13}|1844674[0-3][0-9]{12}|184467440[0-6][0-9]{10}|1844674407[0-2][0-9]{9}|18446744073[0-6][0-9]{8}|1844674407370[0-8][0-9]{6}|18446744073709[0-4][0-9]{5}|184467440737095[0-4][0-9]{4}|1844674407370955[0-0][0-9]{3}|18446744073709551[0-5][0-9]{2}|184467440737095516[0-0][0-9]{1}|1844674407370955161[0-4][0-9]{0})|(?:18446744073709551615|[1-9][0-9]{0,18}|1[0-7][0-9]{18}|18[0-3][0-9]{17}|184[0-3][0-9]{16}|1844[0-5][0-9]{15}|18446[0-6][0-9]{14}|184467[0-3][0-9]{13}|1844674[0-3][0-9]{12}|184467440[0-6][0-9]{10}|1844674407[0-2][0-9]{9}|18446744073[0-6][0-9]{8}|1844674407370[0-8][0-9]{6}|18446744073709[0-4][0-9]{5}|184467440737095[0-4][0-9]{4}|1844674407370955[0-0][0-9]{3}|18446744073709551[0-5][0-9]{2}|184467440737095516[0-0][0-9]{1}|1844674407370955161[0-4][0-9]{0}))$|^PA(?:18446744073709551615|[1-9][0-9]{0,18}|1[0-7][0-9]{18}|18[0-3][0-9]{17}|184[0-3][0-9]{16}|1844[0-5][0-9]{15}|18446[0-6][0-9]{14}|184467[0-3][0-9]{13}|1844674[0-3][0-9]{12}|184467440[0-6][0-9]{10}|1844674407[0-2][0-9]{9}|18446744073[0-6][0-9]{8}|1844674407370[0-8][0-9]{6}|18446744073709[0-4][0-9]{5}|184467440737095[0-4][0-9]{4}|1844674407370955[0-0][0-9]{3}|18446744073709551[0-5][0-9]{2}|184467440737095516[0-0][0-9]{1}|1844674407370955161[0-4][0-9]{0})$|^VCV(?!000000000)[0-9]{9}(\\.[1-9][0-9]*)?$|^clinvar:(?:18446744073709551615|[1-9][0-9]{0,18}|1[0-7][0-9]{18}|18[0-3][0-9]{17}|184[0-3][0-9]{16}|1844[0-5][0-9]{15}|18446[0-6][0-9]{14}|184467[0-3][0-9]{13}|1844674[0-3][0-9]{12}|184467440[0-6][0-9]{10}|1844674407[0-2][0-9]{9}|18446744073[0-6][0-9]{8}|1844674407370[0-8][0-9]{6}|18446744073709[0-4][0-9]{5}|184467440737095[0-4][0-9]{4}|1844674407370955[0-0][0-9]{3}|18446744073709551[0-5][0-9]{2}|184467440737095516[0-0][0-9]{1}|1844674407370955161[0-4][0-9]{0})$|^COS[VMN][1-9][0-9]*$|^ga4gh:VA\\.[A-Za-z0-9_-]{32}$)|^(?!(?:[NX]P_[0-9]{6}\\.(?:65535|[1-9][0-9]{0,3}|[1-5][0-9]{4}|6[0-4][0-9]{3}|65[0-4][0-9]{2}|655[0-2][0-9]{1}|6553[0-4][0-9]{0})|[NX]P_(?!000)[0-9]{9}\\.(?:65535|[1-9][0-9]{0,3}|[1-5][0-9]{4}|6[0-4][0-9]{3}|65[0-4][0-9]{2}|655[0-2][0-9]{1}|6553[0-4][0-9]{0})|ENSP[0-9]{11}\\.(?:65535|[1-9][0-9]{0,3}|[1-5][0-9]{4}|6[0-4][0-9]{3}|65[0-4][0-9]{2}|655[0-2][0-9]{1}|6553[0-4][0-9]{0})|LRG_0*(?:0|(?:4294967295|[1-9][0-9]{0,8}|[1-3][0-9]{9}|4[0-1][0-9]{8}|42[0-8][0-9]{7}|429[0-3][0-9]{6}|4294[0-8][0-9]{5}|42949[0-5][0-9]{4}|429496[0-6][0-9]{3}|4294967[0-1][0-9]{2}|42949672[0-8][0-9]{1}|429496729[0-4][0-9]{0}))p0*(?:0|(?:65535|[1-9][0-9]{0,3}|[1-5][0-9]{4}|6[0-4][0-9]{3}|65[0-4][0-9]{2}|655[0-2][0-9]{1}|6553[0-4][0-9]{0})))(?:\\([^)]*\\))?:[gcnrmo]\\.)(?![^:()]+\\((?:[NX]P_[0-9]{6}\\.(?:65535|[1-9][0-9]{0,3}|[1-5][0-9]{4}|6[0-4][0-9]{3}|65[0-4][0-9]{2}|655[0-2][0-9]{1}|6553[0-4][0-9]{0})|[NX]P_(?!000)[0-9]{9}\\.(?:65535|[1-9][0-9]{0,3}|[1-5][0-9]{4}|6[0-4][0-9]{3}|65[0-4][0-9]{2}|655[0-2][0-9]{1}|6553[0-4][0-9]{0})|ENSP[0-9]{11}\\.(?:65535|[1-9][0-9]{0,3}|[1-5][0-9]{4}|6[0-4][0-9]{3}|65[0-4][0-9]{2}|655[0-2][0-9]{1}|6553[0-4][0-9]{0})|LRG_0*(?:0|(?:4294967295|[1-9][0-9]{0,8}|[1-3][0-9]{9}|4[0-1][0-9]{8}|42[0-8][0-9]{7}|429[0-3][0-9]{6}|4294[0-8][0-9]{5}|42949[0-5][0-9]{4}|429496[0-6][0-9]{3}|4294967[0-1][0-9]{2}|42949672[0-8][0-9]{1}|429496729[0-4][0-9]{0}))p0*(?:0|(?:65535|[1-9][0-9]{0,3}|[1-5][0-9]{4}|6[0-4][0-9]{3}|65[0-4][0-9]{2}|655[0-2][0-9]{1}|6553[0-4][0-9]{0})))\\):[gcnrmo]\\.)(?:(?:N[CGMPRTW]|X[MPR])_(?:[0-9]{6}|(?!000)[0-9]{9})\\.(?:65535|[1-9][0-9]{0,3}|[1-5][0-9]{4}|6[0-4][0-9]{3}|65[0-4][0-9]{2}|655[0-2][0-9]{1}|6553[0-4][0-9]{0})|ENS[GTP][0-9]{11}\\.(?:65535|[1-9][0-9]{0,3}|[1-5][0-9]{4}|6[0-4][0-9]{3}|65[0-4][0-9]{2}|655[0-2][0-9]{1}|6553[0-4][0-9]{0})|LRG_0*(?:0|(?:4294967295|[1-9][0-9]{0,8}|[1-3][0-9]{9}|4[0-1][0-9]{8}|42[0-8][0-9]{7}|429[0-3][0-9]{6}|4294[0-8][0-9]{5}|42949[0-5][0-9]{4}|429496[0-6][0-9]{3}|4294967[0-1][0-9]{2}|42949672[0-8][0-9]{1}|429496729[0-4][0-9]{0}))(?:[tp]0*(?:0|(?:65535|[1-9][0-9]{0,3}|[1-5][0-9]{4}|6[0-4][0-9]{3}|65[0-4][0-9]{2}|655[0-2][0-9]{1}|6553[0-4][0-9]{0})))?)(?:\\((?:(?:(?:N[CGMPRTW]|X[MPR])_(?:[0-9]{6}|(?!000)[0-9]{9})\\.(?:65535|[1-9][0-9]{0,3}|[1-5][0-9]{4}|6[0-4][0-9]{3}|65[0-4][0-9]{2}|655[0-2][0-9]{1}|6553[0-4][0-9]{0})|ENS[GTP][0-9]{11}\\.(?:65535|[1-9][0-9]{0,3}|[1-5][0-9]{4}|6[0-4][0-9]{3}|65[0-4][0-9]{2}|655[0-2][0-9]{1}|6553[0-4][0-9]{0})|LRG_0*(?:0|(?:4294967295|[1-9][0-9]{0,8}|[1-3][0-9]{9}|4[0-1][0-9]{8}|42[0-8][0-9]{7}|429[0-3][0-9]{6}|4294[0-8][0-9]{5}|42949[0-5][0-9]{4}|429496[0-6][0-9]{3}|4294967[0-1][0-9]{2}|42949672[0-8][0-9]{1}|429496729[0-4][0-9]{0}))(?:[tp]0*(?:0|(?:65535|[1-9][0-9]{0,3}|[1-5][0-9]{4}|6[0-4][0-9]{3}|65[0-4][0-9]{2}|655[0-2][0-9]{1}|6553[0-4][0-9]{0})))?)|[A-Za-z][A-Za-z0-9._/@-]{0,254})\\))?:(?:[gcnrpmo]\\.[\\x21-\\x7e]*[0-9][\\x21-\\x7e]*|[pr]\\.(?:\\?|\\(\\?\\)|=|\\(=\\))|r\\.(?:spl\\??|\\(spl\\?\\)))$|^(?:18446744073709551615|[1-9][0-9]{0,18}|1[0-7][0-9]{18}|18[0-3][0-9]{17}|184[0-3][0-9]{16}|1844[0-5][0-9]{15}|18446[0-6][0-9]{14}|184467[0-3][0-9]{13}|1844674[0-3][0-9]{12}|184467440[0-6][0-9]{10}|1844674407[0-2][0-9]{9}|18446744073[0-6][0-9]{8}|1844674407370[0-8][0-9]{6}|18446744073709[0-4][0-9]{5}|184467440737095[0-4][0-9]{4}|1844674407370955[0-0][0-9]{3}|18446744073709551[0-5][0-9]{2}|184467440737095516[0-0][0-9]{1}|1844674407370955161[0-4][0-9]{0})$|^chr([1-9]|1[0-9]|2[0-2]|X|Y|M|MT):g\\.[\\x21-\\x7e]*[0-9][\\x21-\\x7e]*$)",
       "type": "string"
     },
     "VariantRegion": {
-      "description": "A validated canonical VariantRegion string.",
-      "pattern": "^chr([1-9]|1[0-9]|2[0-2]|X|Y|MT):[1-9][0-9]*-[1-9][0-9]*$",
+      "description": "Primary-chromosome region. The parser additionally requires the end to be at least the start.",
+      "pattern": "^chr([1-9]|1[0-9]|2[0-2]|X|Y|MT):(?:4294967295|[1-9][0-9]{0,8}|[1-3][0-9]{9}|4[0-1][0-9]{8}|42[0-8][0-9]{7}|429[0-3][0-9]{6}|4294[0-8][0-9]{5}|42949[0-5][0-9]{4}|429496[0-6][0-9]{3}|4294967[0-1][0-9]{2}|42949672[0-8][0-9]{1}|429496729[0-4][0-9]{0})-(?:4294967295|[1-9][0-9]{0,8}|[1-3][0-9]{9}|4[0-1][0-9]{8}|42[0-8][0-9]{7}|429[0-3][0-9]{6}|4294[0-8][0-9]{5}|42949[0-5][0-9]{4}|429496[0-6][0-9]{3}|4294967[0-1][0-9]{2}|42949672[0-8][0-9]{1}|429496729[0-4][0-9]{0})$",
       "type": "string"
     },
     "VariantResolver": {
@@ -953,7 +968,7 @@
       "description": "Find native NCI biomarker concepts.",
       "properties": {
         "command": {
-          "const": "search-biomarker",
+          "const": "search_biomarker",
           "type": "string"
         },
         "limit": {
@@ -1002,7 +1017,7 @@
       "description": "Search native NCI biomarker rows by exact NCIt code.",
       "properties": {
         "command": {
-          "const": "get-biomarker",
+          "const": "get_biomarker",
           "type": "string"
         },
         "id": {
@@ -1031,7 +1046,7 @@
           "description": "Native organization city."
         },
         "command": {
-          "const": "search-organization",
+          "const": "search_organization",
           "type": "string"
         },
         "country": {
@@ -1108,7 +1123,7 @@
       "description": "Discover native author candidates without identity reconciliation.",
       "properties": {
         "command": {
-          "const": "search-author",
+          "const": "search_author",
           "type": "string"
         },
         "limit": {
@@ -1153,7 +1168,7 @@
       "description": "Page one exact provider record’s native papers.",
       "properties": {
         "command": {
-          "const": "author-papers",
+          "const": "author_papers",
           "type": "string"
         },
         "full": {
@@ -1201,7 +1216,7 @@
       "description": "Read exact provider author cards in input order.",
       "properties": {
         "command": {
-          "const": "get-author",
+          "const": "get_author",
           "type": "string"
         },
         "ids": {
@@ -1226,7 +1241,7 @@
       "description": "Read the native assay total for one exact ChEMBL cell.",
       "properties": {
         "command": {
-          "const": "cell-line-assay-count",
+          "const": "cell_line_assay_count",
           "type": "string"
         },
         "id": {
@@ -1246,7 +1261,7 @@
       "description": "Discover unchanged literal Cellosaurus candidates.",
       "properties": {
         "command": {
-          "const": "search-cell-line",
+          "const": "search_cell_line",
           "type": "string"
         },
         "limit": {
@@ -1281,7 +1296,7 @@
       "description": "Read an exact accession or verified qualified source identity.",
       "properties": {
         "command": {
-          "const": "get-cell-line",
+          "const": "get_cell_line",
           "type": "string"
         },
         "id": {
@@ -1320,7 +1335,7 @@
       "description": "Search one native GWAS Catalog association page.",
       "properties": {
         "command": {
-          "const": "search-gwas",
+          "const": "search_gwas",
           "type": "string"
         },
         "extended_geneset": {
@@ -1396,7 +1411,7 @@
       "description": "Read one exact association and its native loci.",
       "properties": {
         "command": {
-          "const": "get-gwas-association",
+          "const": "get_gwas_association",
           "type": "string"
         },
         "id": {
@@ -1445,7 +1460,7 @@
       "description": "Read one exact study and its native relations.",
       "properties": {
         "command": {
-          "const": "get-gwas-study",
+          "const": "get_gwas_study",
           "type": "string"
         },
         "id": {
@@ -1499,7 +1514,7 @@
           "x-positional": 0
         },
         "command": {
-          "const": "protein-domains",
+          "const": "protein_domains",
           "type": "string"
         },
         "limit": {
@@ -1542,7 +1557,7 @@
           "x-positional": 0
         },
         "command": {
-          "const": "protein-complexes",
+          "const": "protein_complexes",
           "type": "string"
         },
         "limit": {
@@ -1581,7 +1596,7 @@
           "x-positional": 0
         },
         "command": {
-          "const": "protein-complex-members",
+          "const": "protein_complex_members",
           "type": "string"
         },
         "complex": {
@@ -1625,7 +1640,7 @@
           "x-positional": 0
         },
         "command": {
-          "const": "protein-features",
+          "const": "protein_features",
           "type": "string"
         },
         "limit": {
@@ -1675,7 +1690,7 @@
           "x-positional": 0
         },
         "command": {
-          "const": "protein-isoforms",
+          "const": "protein_isoforms",
           "type": "string"
         },
         "limit": {
@@ -1714,7 +1729,7 @@
           "x-positional": 0
         },
         "command": {
-          "const": "protein-structures",
+          "const": "protein_structures",
           "type": "string"
         },
         "limit": {
@@ -1748,7 +1763,7 @@
       "description": "Read one exact source sequence without alias repair.",
       "properties": {
         "command": {
-          "const": "protein-sequence",
+          "const": "protein_sequence",
           "type": "string"
         },
         "isoform": {
@@ -1780,7 +1795,7 @@
       "description": "Discover reviewed human UniProt candidates without selecting one.",
       "properties": {
         "command": {
-          "const": "search-protein",
+          "const": "search_protein",
           "type": "string"
         },
         "gene": {
@@ -1827,7 +1842,7 @@
       "description": "Read exact protein cards or all HGNC-listed protein candidates.",
       "properties": {
         "command": {
-          "const": "get-protein",
+          "const": "get_protein",
           "type": "string"
         },
         "input": {
@@ -1868,7 +1883,7 @@
       "description": "Discover literal HP term candidates in publisher order.",
       "properties": {
         "command": {
-          "const": "search-phenotype",
+          "const": "search_phenotype",
           "type": "string"
         },
         "limit": {
@@ -1909,7 +1924,7 @@
       "description": "Read one independent exact HPO or Monarch term card.",
       "properties": {
         "command": {
-          "const": "get-phenotype",
+          "const": "get_phenotype",
           "type": "string"
         },
         "id": {
@@ -1956,7 +1971,7 @@
       "description": "Discover source-native human pathway headers.",
       "properties": {
         "command": {
-          "const": "search-pathway",
+          "const": "search_pathway",
           "type": "string"
         },
         "fresh": {
@@ -2019,7 +2034,7 @@
       "description": "Read an exact human pathway card or summary.",
       "properties": {
         "command": {
-          "const": "get-pathway",
+          "const": "get_pathway",
           "type": "string"
         },
         "fresh": {
@@ -2068,7 +2083,7 @@
       "description": "Page retained exact source membership references.",
       "properties": {
         "command": {
-          "const": "pathway-genes",
+          "const": "pathway_genes",
           "type": "string"
         },
         "details": {
@@ -2113,7 +2128,7 @@
       "description": "Page retained source-contained event references.",
       "properties": {
         "command": {
-          "const": "pathway-events",
+          "const": "pathway_events",
           "type": "string"
         },
         "id": {
@@ -2169,7 +2184,7 @@
           "description": "Exact cBioPortal cancer-type code; no OncoTree conversion."
         },
         "command": {
-          "const": "search-study",
+          "const": "search_study",
           "type": "string"
         },
         "limit": {
@@ -2214,7 +2229,7 @@
       "description": "Read exact study metadata.",
       "properties": {
         "command": {
-          "const": "get-study",
+          "const": "get_study",
           "type": "string"
         },
         "id": {
@@ -2261,7 +2276,7 @@
       "description": "Discover source-native CPIC gene pairs.",
       "properties": {
         "command": {
-          "const": "search-pgx",
+          "const": "search_pgx",
           "type": "string"
         },
         "cpic_level": {
@@ -2314,7 +2329,7 @@
       "description": "Read an explicit CPIC gene card or source section.",
       "properties": {
         "command": {
-          "const": "get-pgx",
+          "const": "get_pgx",
           "type": "string"
         },
         "diplotype": {
@@ -2408,7 +2423,7 @@
       "description": "Read one exact ClinPGx clinical annotation accession.",
       "properties": {
         "command": {
-          "const": "get-pgx-annotation",
+          "const": "get_pgx_annotation",
           "type": "string"
         },
         "id": {
@@ -2454,7 +2469,7 @@
           "description": "Immutable stored bundle revision retained by a continuation."
         },
         "command": {
-          "const": "search-diagnostic",
+          "const": "search_diagnostic",
           "type": "string"
         },
         "condition_id": {
@@ -2620,7 +2635,7 @@
           "description": "Immutable stored bundle revision retained by a continuation."
         },
         "command": {
-          "const": "get-diagnostic",
+          "const": "get_diagnostic",
           "type": "string"
         },
         "id": {
@@ -2682,7 +2697,7 @@
       "description": "Search source-native adverse event reports.",
       "properties": {
         "command": {
-          "const": "search-adverse-event",
+          "const": "search_adverse_event",
           "type": "string"
         },
         "limit": {
@@ -2819,7 +2834,7 @@
       "description": "Read one exact source report, without source probing.",
       "properties": {
         "command": {
-          "const": "get-adverse-event",
+          "const": "get_adverse_event",
           "type": "string"
         },
         "drug_index": {
@@ -2895,7 +2910,7 @@
       "description": "Discover one source-native disease candidate page.",
       "properties": {
         "command": {
-          "const": "search-disease",
+          "const": "search_disease",
           "type": "string"
         },
         "limit": {
@@ -2954,7 +2969,7 @@
           "description": "Native age-range code."
         },
         "command": {
-          "const": "get-disease",
+          "const": "get_disease",
           "type": "string"
         },
         "dataset": {
@@ -3064,9 +3079,53 @@
       "additionalProperties": false,
       "description": "Discover literal native drug candidates.",
       "properties": {
+        "classification": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/DrugRecallClassification"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "description": "Native FDA classification; drug recalls only."
+        },
         "command": {
-          "const": "search-drug",
+          "const": "search_drug",
           "type": "string"
+        },
+        "firm": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/Text"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "description": "Literal published recalling firm phrase; drug recalls only."
+        },
+        "initiated_from": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/PartialDate"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "description": "Inclusive initiation day, YYYY-MM-DD; drug recalls only."
+        },
+        "initiated_to": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/PartialDate"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "description": "Inclusive initiation day, YYYY-MM-DD; drug recalls only."
         },
         "limit": {
           "default": 10,
@@ -3089,18 +3148,39 @@
         },
         "query": {
           "$ref": "#/$defs/Text",
-          "description": "Literal source name selector, unchanged by the consumer.",
+          "description": "Literal name phrase; optional for FDA drug recalls. Harmonized recall names match but never become display names.",
           "x-positional": 0
+        },
+        "reason": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/Text"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "description": "Phrase in the published recall reason; drug recalls only."
         },
         "source": {
           "$ref": "#/$defs/DrugSource",
           "default": "mychem",
           "description": "Exactly one source; default MyChem never fans out."
+        },
+        "status": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/Text"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "description": "Literal native recall status; drug recalls only."
         }
       },
       "required": [
-        "command",
-        "query"
+        "command"
       ],
       "type": "object"
     },
@@ -3141,7 +3221,7 @@
           ]
         },
         "command": {
-          "const": "get-drug",
+          "const": "get_drug",
           "type": "string"
         },
         "input": {
@@ -3215,7 +3295,7 @@
       "description": "Read native WHO prequalification rows by exact reference.",
       "properties": {
         "command": {
-          "const": "get-who-medicine",
+          "const": "get_who_medicine",
           "type": "string"
         },
         "input": {
@@ -3251,7 +3331,7 @@
           "description": "Native assertion accession or document ID."
         },
         "command": {
-          "const": "variant-assertions",
+          "const": "variant_assertions",
           "type": "string"
         },
         "input": {
@@ -3312,7 +3392,7 @@
           "description": "Explicit source assembly when required by identity input."
         },
         "command": {
-          "const": "variant-population",
+          "const": "variant_population",
           "type": "string"
         },
         "detail": {
@@ -3356,7 +3436,7 @@
       "description": "Observe an exact allele in an explicitly selected cohort.",
       "properties": {
         "command": {
-          "const": "variant-recurrence",
+          "const": "variant_recurrence",
           "type": "string"
         },
         "gene": {
@@ -3427,12 +3507,12 @@
           "description": "Caller assembly; required when VariantValidator is selected."
         },
         "command": {
-          "const": "variant-normalize",
+          "const": "variant_normalize",
           "type": "string"
         },
         "hgvs": {
           "description": "Reference-qualified HGVS, or chromosome genomic HGVS with an explicit build for CAR.\nChecked for reference and syntax only; no full HGVS parser.",
-          "pattern": "(^(?!(?:[^:(]*\\()?([NX]P_([0-9]{6}|[0-9]{9})\\.[1-9][0-9]*|ENSP[0-9]{11}\\.[1-9][0-9]*|LRG_[0-9]+p[0-9]+)(?:\\([^:]*\\)|\\))?:[gcnrmo]\\.)((N[CGMPRTW]|X[MPR])_([0-9]{6}|[0-9]{9})\\.[0-9]+|ENS[GTP][0-9]{11}\\.[0-9]+|LRG_[0-9]+([tp][0-9]+)?)(\\(([A-Za-z][A-Za-z0-9._/@-]*|[A-Za-z0-9_.]+)\\))?:([gcnrpmo]\\.[\\x21-\\x7e]*[0-9][\\x21-\\x7e]*|[pr]\\.(\\?|\\(\\?\\)|=|\\(=\\))|r\\.(spl\\??|\\(spl\\?\\)))$|^chr([1-9][0-9]*|X|Y|M|MT):g\\.[\\x21-\\x7e]*[0-9][\\x21-\\x7e]*$)",
+          "pattern": "(^(?!(?:[NX]P_[0-9]{6}\\.(?:65535|[1-9][0-9]{0,3}|[1-5][0-9]{4}|6[0-4][0-9]{3}|65[0-4][0-9]{2}|655[0-2][0-9]{1}|6553[0-4][0-9]{0})|[NX]P_(?!000)[0-9]{9}\\.(?:65535|[1-9][0-9]{0,3}|[1-5][0-9]{4}|6[0-4][0-9]{3}|65[0-4][0-9]{2}|655[0-2][0-9]{1}|6553[0-4][0-9]{0})|ENSP[0-9]{11}\\.(?:65535|[1-9][0-9]{0,3}|[1-5][0-9]{4}|6[0-4][0-9]{3}|65[0-4][0-9]{2}|655[0-2][0-9]{1}|6553[0-4][0-9]{0})|LRG_0*(?:0|(?:4294967295|[1-9][0-9]{0,8}|[1-3][0-9]{9}|4[0-1][0-9]{8}|42[0-8][0-9]{7}|429[0-3][0-9]{6}|4294[0-8][0-9]{5}|42949[0-5][0-9]{4}|429496[0-6][0-9]{3}|4294967[0-1][0-9]{2}|42949672[0-8][0-9]{1}|429496729[0-4][0-9]{0}))p0*(?:0|(?:65535|[1-9][0-9]{0,3}|[1-5][0-9]{4}|6[0-4][0-9]{3}|65[0-4][0-9]{2}|655[0-2][0-9]{1}|6553[0-4][0-9]{0})))(?:\\([^)]*\\))?:[gcnrmo]\\.)(?![^:()]+\\((?:[NX]P_[0-9]{6}\\.(?:65535|[1-9][0-9]{0,3}|[1-5][0-9]{4}|6[0-4][0-9]{3}|65[0-4][0-9]{2}|655[0-2][0-9]{1}|6553[0-4][0-9]{0})|[NX]P_(?!000)[0-9]{9}\\.(?:65535|[1-9][0-9]{0,3}|[1-5][0-9]{4}|6[0-4][0-9]{3}|65[0-4][0-9]{2}|655[0-2][0-9]{1}|6553[0-4][0-9]{0})|ENSP[0-9]{11}\\.(?:65535|[1-9][0-9]{0,3}|[1-5][0-9]{4}|6[0-4][0-9]{3}|65[0-4][0-9]{2}|655[0-2][0-9]{1}|6553[0-4][0-9]{0})|LRG_0*(?:0|(?:4294967295|[1-9][0-9]{0,8}|[1-3][0-9]{9}|4[0-1][0-9]{8}|42[0-8][0-9]{7}|429[0-3][0-9]{6}|4294[0-8][0-9]{5}|42949[0-5][0-9]{4}|429496[0-6][0-9]{3}|4294967[0-1][0-9]{2}|42949672[0-8][0-9]{1}|429496729[0-4][0-9]{0}))p0*(?:0|(?:65535|[1-9][0-9]{0,3}|[1-5][0-9]{4}|6[0-4][0-9]{3}|65[0-4][0-9]{2}|655[0-2][0-9]{1}|6553[0-4][0-9]{0})))\\):[gcnrmo]\\.)(?:(?:N[CGMPRTW]|X[MPR])_(?:[0-9]{6}|(?!000)[0-9]{9})\\.(?:65535|[1-9][0-9]{0,3}|[1-5][0-9]{4}|6[0-4][0-9]{3}|65[0-4][0-9]{2}|655[0-2][0-9]{1}|6553[0-4][0-9]{0})|ENS[GTP][0-9]{11}\\.(?:65535|[1-9][0-9]{0,3}|[1-5][0-9]{4}|6[0-4][0-9]{3}|65[0-4][0-9]{2}|655[0-2][0-9]{1}|6553[0-4][0-9]{0})|LRG_0*(?:0|(?:4294967295|[1-9][0-9]{0,8}|[1-3][0-9]{9}|4[0-1][0-9]{8}|42[0-8][0-9]{7}|429[0-3][0-9]{6}|4294[0-8][0-9]{5}|42949[0-5][0-9]{4}|429496[0-6][0-9]{3}|4294967[0-1][0-9]{2}|42949672[0-8][0-9]{1}|429496729[0-4][0-9]{0}))(?:[tp]0*(?:0|(?:65535|[1-9][0-9]{0,3}|[1-5][0-9]{4}|6[0-4][0-9]{3}|65[0-4][0-9]{2}|655[0-2][0-9]{1}|6553[0-4][0-9]{0})))?)(?:\\((?:(?:(?:N[CGMPRTW]|X[MPR])_(?:[0-9]{6}|(?!000)[0-9]{9})\\.(?:65535|[1-9][0-9]{0,3}|[1-5][0-9]{4}|6[0-4][0-9]{3}|65[0-4][0-9]{2}|655[0-2][0-9]{1}|6553[0-4][0-9]{0})|ENS[GTP][0-9]{11}\\.(?:65535|[1-9][0-9]{0,3}|[1-5][0-9]{4}|6[0-4][0-9]{3}|65[0-4][0-9]{2}|655[0-2][0-9]{1}|6553[0-4][0-9]{0})|LRG_0*(?:0|(?:4294967295|[1-9][0-9]{0,8}|[1-3][0-9]{9}|4[0-1][0-9]{8}|42[0-8][0-9]{7}|429[0-3][0-9]{6}|4294[0-8][0-9]{5}|42949[0-5][0-9]{4}|429496[0-6][0-9]{3}|4294967[0-1][0-9]{2}|42949672[0-8][0-9]{1}|429496729[0-4][0-9]{0}))(?:[tp]0*(?:0|(?:65535|[1-9][0-9]{0,3}|[1-5][0-9]{4}|6[0-4][0-9]{3}|65[0-4][0-9]{2}|655[0-2][0-9]{1}|6553[0-4][0-9]{0})))?)|[A-Za-z][A-Za-z0-9._/@-]{0,254})\\))?:(?:[gcnrpmo]\\.[\\x21-\\x7e]*[0-9][\\x21-\\x7e]*|[pr]\\.(?:\\?|\\(\\?\\)|=|\\(=\\))|r\\.(?:spl\\??|\\(spl\\?\\)))$|^chr([1-9]|1[0-9]|2[0-2]|X|Y|M|MT):g\\.[\\x21-\\x7e]*[0-9][\\x21-\\x7e]*$)",
           "type": "string"
         },
         "limit": {
@@ -3510,7 +3590,7 @@
           ]
         },
         "command": {
-          "const": "get-variant",
+          "const": "get_variant",
           "type": "string"
         },
         "input": {
@@ -3607,7 +3687,7 @@
           "description": "Optional caller assembly sent to MyVariant; regions require it explicitly."
         },
         "command": {
-          "const": "search-variant",
+          "const": "search_variant",
           "type": "string"
         },
         "condition": {
@@ -3669,7 +3749,7 @@
       "description": "Save an exact registry document to an explicit destination.",
       "properties": {
         "command": {
-          "const": "trial-document",
+          "const": "trial_document",
           "type": "string"
         },
         "file": {
@@ -3704,7 +3784,7 @@
       "description": "Retrieve exact trial cards and source protocol sections.",
       "properties": {
         "command": {
-          "const": "get-trial",
+          "const": "get_trial",
           "type": "string"
         },
         "input": {
@@ -3766,7 +3846,7 @@
           "type": "integer"
         },
         "command": {
-          "const": "search-trial",
+          "const": "search_trial",
           "type": "string"
         },
         "condition": {
@@ -3905,7 +3985,7 @@
       "description": "Save a publisher PDF to an explicit destination.",
       "properties": {
         "command": {
-          "const": "article-pdf",
+          "const": "article_pdf",
           "type": "string"
         },
         "input": {
@@ -3944,7 +4024,7 @@
           "x-positional": 0
         },
         "command": {
-          "const": "article-evidence",
+          "const": "article_evidence",
           "type": "string"
         },
         "fulltext": {
@@ -3982,7 +4062,7 @@
       "description": "Source-native paper recommendations.",
       "properties": {
         "command": {
-          "const": "article-recommend",
+          "const": "article_recommend",
           "type": "string"
         },
         "limit": {
@@ -4034,7 +4114,7 @@
       "description": "Read a licensed supplementary file.",
       "properties": {
         "command": {
-          "const": "article-supplement",
+          "const": "article_supplement",
           "type": "string"
         },
         "file": {
@@ -4113,7 +4193,7 @@
       "description": "Read licensed PMC body text.",
       "properties": {
         "command": {
-          "const": "article-text",
+          "const": "article_text",
           "type": "string"
         },
         "find": {
@@ -4162,7 +4242,7 @@
       "description": "Papers citing one PMID.",
       "properties": {
         "command": {
-          "const": "article-citations",
+          "const": "article_citations",
           "type": "string"
         },
         "limit": {
@@ -4206,7 +4286,7 @@
       "description": "Papers referenced by one PMID.",
       "properties": {
         "command": {
-          "const": "article-references",
+          "const": "article_references",
           "type": "string"
         },
         "limit": {
@@ -4250,7 +4330,7 @@
       "description": "Retrieve PubMed article cards.",
       "properties": {
         "command": {
-          "const": "get-article",
+          "const": "get_article",
           "type": "string"
         },
         "input": {
@@ -4339,7 +4419,7 @@
           "description": "Author words sent to PubMed's author field."
         },
         "command": {
-          "const": "search-article",
+          "const": "search_article",
           "type": "string"
         },
         "disease": {
@@ -4442,7 +4522,7 @@
       "description": "Get gene identities and annotations.",
       "properties": {
         "command": {
-          "const": "get-gene",
+          "const": "get_gene",
           "type": "string"
         },
         "input": {
@@ -4491,7 +4571,7 @@
           "description": "A cytoband prefix."
         },
         "command": {
-          "const": "search-gene",
+          "const": "search_gene",
           "type": "string"
         },
         "limit": {

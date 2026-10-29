@@ -15,10 +15,10 @@ pub(super) fn check(tools: &[Value], reply: &Value) -> Result<(), String> {
         let validator = jsonschema::validator_for(schema).map_err(|error| error.to_string())?;
         for invalid in [
             json!({"unrelated":true}),
-            json!({"$id":"biomcp.health/4", "$schema":"unsupported"}),
+            json!({"$id":"biomcp.health/5", "$schema":"unsupported"}),
             json!({"schema":"unknown/1", "status":"complete", "query":null, "result":{}}),
             json!({"schema":"unknown/1", "status":"usage", "error":{}}),
-            json!({"schema":"biomcp.health/4", "status":"complete", "query":null, "result":[]}),
+            json!({"schema":"biomcp.health/5", "status":"complete", "query":null, "result":[]}),
         ] {
             if validator.is_valid(&invalid) {
                 return Err(
@@ -60,7 +60,7 @@ pub(super) fn check(tools: &[Value], reply: &Value) -> Result<(), String> {
     let complete = super::super::research::call(
         &env,
         "biomcp",
-        json!({"args":["schema", "biomcp.health/4"]}),
+        json!({"args":["schema", "biomcp.health/5"]}),
         &[],
     )?;
     local_references(&complete, &complete)?;

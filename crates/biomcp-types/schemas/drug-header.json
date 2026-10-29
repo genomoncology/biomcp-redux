@@ -1,11 +1,11 @@
 {
   "$defs": {
-    "DrugId": {
+    "Reply_DrugId": {
       "description": "A published native drug record identifier, without a consumer source prefix.",
       "pattern": "^(?:[A-Z][A-Z0-9_.-]*:)?[A-Za-z0-9][A-Za-z0-9_.-]*(/[A-Za-z0-9_.-]+)*$",
       "type": "string"
     },
-    "DrugIdentityLevel": {
+    "Reply_DrugIdentityLevel": {
       "description": "Identity level established by the source endpoint or record type, never inferred from ID shape.",
       "type": "string",
       "x-enum-descriptions": [
@@ -39,7 +39,7 @@
         "unknown"
       ]
     },
-    "DrugNameMatch": {
+    "Reply_DrugNameMatch": {
       "description": "Complete native name fields matching the requested label name.",
       "type": "string",
       "x-enum-descriptions": [
@@ -53,11 +53,12 @@
         "both"
       ]
     },
-    "DrugSource": {
+    "Reply_DrugSource": {
       "description": "A supported drug data source.",
       "type": "string",
       "x-extensible-enum": [
         "who-pq",
+        "fda-drug-recall",
         "mychem",
         "chembl",
         "opentargets",
@@ -68,7 +69,7 @@
         "ddinter"
       ]
     },
-    "Text": {
+    "Reply_Text": {
       "description": "Nonempty text with surrounding Unicode whitespace removed.",
       "minLength": 1,
       "type": "string"
@@ -79,17 +80,17 @@
   "description": "One source candidate, without authorization, targets, label text or interactions.",
   "properties": {
     "id": {
-      "$ref": "#/$defs/DrugId",
+      "$ref": "#/$defs/Reply_DrugId",
       "description": "Published native identifier."
     },
     "identity_level": {
-      "$ref": "#/$defs/DrugIdentityLevel",
+      "$ref": "#/$defs/Reply_DrugIdentityLevel",
       "description": "Level established only by the endpoint or record type."
     },
     "matched_name": {
       "anyOf": [
         {
-          "$ref": "#/$defs/DrugNameMatch"
+          "$ref": "#/$defs/Reply_DrugNameMatch"
         },
         {
           "type": "null"
@@ -98,17 +99,17 @@
       "description": "Complete native name fields matching the search input; omitted outside label searches."
     },
     "name": {
-      "$ref": "#/$defs/Text",
+      "$ref": "#/$defs/Reply_Text",
       "description": "Original source display name."
     },
     "source": {
-      "$ref": "#/$defs/DrugSource",
+      "$ref": "#/$defs/Reply_DrugSource",
       "description": "The single source responsible for this header."
     },
     "type": {
       "anyOf": [
         {
-          "$ref": "#/$defs/Text"
+          "$ref": "#/$defs/Reply_Text"
         },
         {
           "type": "null"
@@ -119,7 +120,7 @@
     "url": {
       "anyOf": [
         {
-          "$ref": "#/$defs/Text"
+          "$ref": "#/$defs/Reply_Text"
         },
         {
           "type": "null"
@@ -131,7 +132,7 @@
     "version": {
       "anyOf": [
         {
-          "$ref": "#/$defs/Text"
+          "$ref": "#/$defs/Reply_Text"
         },
         {
           "type": "null"

@@ -1,6 +1,6 @@
 {
   "$defs": {
-    "CacheProblem": {
+    "Reply_CacheProblem": {
       "description": "A local cache failure that leaves the provider outcome intact.",
       "enum": [
         "busy",
@@ -9,12 +9,12 @@
       ],
       "type": "string"
     },
-    "FiniteNumber": {
+    "Reply_FiniteNumber": {
       "description": "A finite decimal that JSON can represent without losing its value to null.",
       "format": "double",
       "type": "number"
     },
-    "NciArm": {
+    "Reply_NciArm": {
       "description": "Source arm header; interventions follow as indexed records.",
       "properties": {
         "description": {
@@ -34,7 +34,7 @@
         "type": {
           "anyOf": [
             {
-              "$ref": "#/$defs/Text"
+              "$ref": "#/$defs/Reply_Text"
             },
             {
               "type": "null"
@@ -45,7 +45,7 @@
       },
       "type": "object"
     },
-    "NciArmRecord": {
+    "Reply_NciArmRecord": {
       "description": "A record position preserves every arm/intervention relationship without invented identity.",
       "oneOf": [
         {
@@ -58,7 +58,7 @@
               "type": "integer"
             },
             "data": {
-              "$ref": "#/$defs/NciArm",
+              "$ref": "#/$defs/Reply_NciArm",
               "description": "Source arm header."
             },
             "record": {
@@ -83,7 +83,7 @@
               "type": "integer"
             },
             "data": {
-              "$ref": "#/$defs/NciIntervention",
+              "$ref": "#/$defs/Reply_NciIntervention",
               "description": "Source intervention fields."
             },
             "index": {
@@ -107,7 +107,7 @@
         }
       ]
     },
-    "NciCriterion": {
+    "Reply_NciCriterion": {
       "description": "One intact source criterion; the publisher supplies its classification.",
       "properties": {
         "description": {
@@ -136,13 +136,13 @@
       ],
       "type": "object"
     },
-    "NciDisease": {
+    "Reply_NciDisease": {
       "description": "One NCI disease concept; names never substitute for an NCIt identity.",
       "properties": {
         "inclusion_indicator": {
           "anyOf": [
             {
-              "$ref": "#/$defs/Text"
+              "$ref": "#/$defs/Reply_Text"
             },
             {
               "type": "null"
@@ -158,31 +158,31 @@
           ]
         },
         "name": {
-          "$ref": "#/$defs/Text",
+          "$ref": "#/$defs/Reply_Text",
           "description": "Source concept name."
         },
         "nci_thesaurus_concept_id": {
-          "$ref": "#/$defs/NcitId",
+          "$ref": "#/$defs/Reply_NcitId",
           "description": "Publisher NCIt identity."
         },
         "parents": {
           "description": "Original immediate ancestors.",
           "items": {
-            "$ref": "#/$defs/Text"
+            "$ref": "#/$defs/Reply_Text"
           },
           "type": "array"
         },
         "synonyms": {
           "description": "Original alternative labels.",
           "items": {
-            "$ref": "#/$defs/Text"
+            "$ref": "#/$defs/Reply_Text"
           },
           "type": "array"
         },
         "type": {
           "description": "Original concept categories.",
           "items": {
-            "$ref": "#/$defs/Text"
+            "$ref": "#/$defs/Reply_Text"
           },
           "type": "array"
         }
@@ -193,15 +193,15 @@
       ],
       "type": "object"
     },
-    "NciDiseaseRef": {
+    "Reply_NciDiseaseRef": {
       "description": "Compact source disease reference; the diseases section retains every coding field.",
       "properties": {
         "name": {
-          "$ref": "#/$defs/Text",
+          "$ref": "#/$defs/Reply_Text",
           "description": "Native source name."
         },
         "nci_thesaurus_concept_id": {
-          "$ref": "#/$defs/NcitId",
+          "$ref": "#/$defs/Reply_NcitId",
           "description": "Source NCIt identity."
         }
       },
@@ -211,13 +211,13 @@
       ],
       "type": "object"
     },
-    "NciEligibilityPage": {
+    "Reply_NciEligibilityPage": {
       "description": "Native eligibility fields and whole unclassified criteria.",
       "properties": {
         "structured": {
           "anyOf": [
             {
-              "$ref": "#/$defs/NciEligibilityStructured"
+              "$ref": "#/$defs/Reply_NciEligibilityStructured"
             },
             {
               "type": "null"
@@ -226,7 +226,7 @@
           "description": "Source structured bounds and sex, without interpretation."
         },
         "unstructured": {
-          "$ref": "#/$defs/TrialRecords2",
+          "$ref": "#/$defs/Reply_TrialRecords_NciCriterion",
           "description": "Whole source criteria in original order."
         }
       },
@@ -235,7 +235,7 @@
       ],
       "type": "object"
     },
-    "NciEligibilityStructured": {
+    "Reply_NciEligibilityStructured": {
       "description": "Native NCI structured fields; sentinel ages remain native values.",
       "properties": {
         "accepts_healthy_volunteers": {
@@ -248,7 +248,7 @@
         "max_age": {
           "anyOf": [
             {
-              "$ref": "#/$defs/Text"
+              "$ref": "#/$defs/Reply_Text"
             },
             {
               "type": "null"
@@ -259,7 +259,7 @@
         "max_age_in_years": {
           "anyOf": [
             {
-              "$ref": "#/$defs/FiniteNumber"
+              "$ref": "#/$defs/Reply_FiniteNumber"
             },
             {
               "type": "null"
@@ -270,7 +270,7 @@
         "max_age_number": {
           "anyOf": [
             {
-              "$ref": "#/$defs/FiniteNumber"
+              "$ref": "#/$defs/Reply_FiniteNumber"
             },
             {
               "type": "null"
@@ -281,7 +281,7 @@
         "max_age_unit": {
           "anyOf": [
             {
-              "$ref": "#/$defs/Text"
+              "$ref": "#/$defs/Reply_Text"
             },
             {
               "type": "null"
@@ -292,7 +292,7 @@
         "min_age": {
           "anyOf": [
             {
-              "$ref": "#/$defs/Text"
+              "$ref": "#/$defs/Reply_Text"
             },
             {
               "type": "null"
@@ -303,7 +303,7 @@
         "min_age_in_years": {
           "anyOf": [
             {
-              "$ref": "#/$defs/FiniteNumber"
+              "$ref": "#/$defs/Reply_FiniteNumber"
             },
             {
               "type": "null"
@@ -314,7 +314,7 @@
         "min_age_number": {
           "anyOf": [
             {
-              "$ref": "#/$defs/FiniteNumber"
+              "$ref": "#/$defs/Reply_FiniteNumber"
             },
             {
               "type": "null"
@@ -325,7 +325,7 @@
         "min_age_unit": {
           "anyOf": [
             {
-              "$ref": "#/$defs/Text"
+              "$ref": "#/$defs/Reply_Text"
             },
             {
               "type": "null"
@@ -336,7 +336,7 @@
         "sex": {
           "anyOf": [
             {
-              "$ref": "#/$defs/Text"
+              "$ref": "#/$defs/Reply_Text"
             },
             {
               "type": "null"
@@ -347,13 +347,13 @@
       },
       "type": "object"
     },
-    "NciIntervention": {
+    "Reply_NciIntervention": {
       "description": "One original NCI intervention attached to its source arm.",
       "properties": {
         "category": {
           "anyOf": [
             {
-              "$ref": "#/$defs/Text"
+              "$ref": "#/$defs/Reply_Text"
             },
             {
               "type": "null"
@@ -371,7 +371,7 @@
         "inclusion_indicator": {
           "anyOf": [
             {
-              "$ref": "#/$defs/Text"
+              "$ref": "#/$defs/Reply_Text"
             },
             {
               "type": "null"
@@ -380,31 +380,31 @@
           "description": "Native inclusion indicator field."
         },
         "name": {
-          "$ref": "#/$defs/Text",
+          "$ref": "#/$defs/Reply_Text",
           "description": "Native name field."
         },
         "nci_thesaurus_concept_id": {
-          "$ref": "#/$defs/NcitId",
+          "$ref": "#/$defs/Reply_NcitId",
           "description": "Native nci thesaurus concept id field."
         },
         "parents": {
           "description": "Native parents field.",
           "items": {
-            "$ref": "#/$defs/Text"
+            "$ref": "#/$defs/Reply_Text"
           },
           "type": "array"
         },
         "synonyms": {
           "description": "Native synonyms field.",
           "items": {
-            "$ref": "#/$defs/Text"
+            "$ref": "#/$defs/Reply_Text"
           },
           "type": "array"
         },
         "type": {
           "anyOf": [
             {
-              "$ref": "#/$defs/Text"
+              "$ref": "#/$defs/Reply_Text"
             },
             {
               "type": "null"
@@ -419,13 +419,13 @@
       ],
       "type": "object"
     },
-    "NciMatchedSite": {
+    "Reply_NciMatchedSite": {
       "description": "Compact source site observation; its presence does not establish enrollment.",
       "properties": {
         "org_city": {
           "anyOf": [
             {
-              "$ref": "#/$defs/Text"
+              "$ref": "#/$defs/Reply_Text"
             },
             {
               "type": "null"
@@ -434,13 +434,13 @@
           "description": "Native city, when provided."
         },
         "org_name": {
-          "$ref": "#/$defs/Text",
+          "$ref": "#/$defs/Reply_Text",
           "description": "Published organization name."
         },
         "org_state_or_province": {
           "anyOf": [
             {
-              "$ref": "#/$defs/Text"
+              "$ref": "#/$defs/Reply_Text"
             },
             {
               "type": "null"
@@ -451,7 +451,7 @@
         "recruitment_status": {
           "anyOf": [
             {
-              "$ref": "#/$defs/Text"
+              "$ref": "#/$defs/Reply_Text"
             },
             {
               "type": "null"
@@ -465,7 +465,7 @@
       ],
       "type": "object"
     },
-    "NciOutcome": {
+    "Reply_NciOutcome": {
       "description": "One complete NCI outcome with its original vocabulary.",
       "properties": {
         "description": {
@@ -499,13 +499,13 @@
       },
       "type": "object"
     },
-    "NciTextPage": {
+    "Reply_NciTextPage": {
       "description": "Exact source text fragment with an honest original character count.",
       "properties": {
         "continuation": {
           "anyOf": [
             {
-              "$ref": "#/$defs/TrialGet"
+              "$ref": "#/$defs/Reply_TrialGet"
             },
             {
               "type": "null"
@@ -537,13 +537,13 @@
       ],
       "type": "object"
     },
-    "NciTrial": {
+    "Reply_NciTrial": {
       "description": "NCI trial card without registry status or phase coercion.",
       "properties": {
         "brief_summary": {
           "anyOf": [
             {
-              "$ref": "#/$defs/NciTextPage"
+              "$ref": "#/$defs/Reply_NciTextPage"
             },
             {
               "type": "null"
@@ -552,21 +552,21 @@
           "description": "Native short summary, only on exact retrieval."
         },
         "brief_title": {
-          "$ref": "#/$defs/Text",
+          "$ref": "#/$defs/Reply_Text",
           "description": "Native title."
         },
         "current_trial_status": {
-          "$ref": "#/$defs/Text",
+          "$ref": "#/$defs/Reply_Text",
           "description": "Native status, without a registry translation."
         },
         "diseases": {
-          "$ref": "#/$defs/TrialRecords",
+          "$ref": "#/$defs/Reply_TrialRecords_NciDiseaseRef",
           "description": "Publisher-provided disease concepts in source order."
         },
         "matched_site": {
           "anyOf": [
             {
-              "$ref": "#/$defs/NciMatchedSite"
+              "$ref": "#/$defs/Reply_NciMatchedSite"
             },
             {
               "type": "null"
@@ -584,17 +584,17 @@
           ]
         },
         "nci_id": {
-          "$ref": "#/$defs/Text",
+          "$ref": "#/$defs/Reply_Text",
           "description": "Publisher NCI identifier."
         },
         "nct_id": {
-          "$ref": "#/$defs/NctId",
+          "$ref": "#/$defs/Reply_NctId",
           "description": "Registry cross-reference supplied by NCI."
         },
         "phase": {
           "anyOf": [
             {
-              "$ref": "#/$defs/NciTrialPhase"
+              "$ref": "#/$defs/Reply_NciTrialPhase"
             },
             {
               "type": "null"
@@ -612,7 +612,7 @@
       ],
       "type": "object"
     },
-    "NciTrialCards": {
+    "Reply_NciTrialCards": {
       "description": "Independent exact NCI answers in caller order.",
       "properties": {
         "attribution": {
@@ -622,7 +622,7 @@
         "items": {
           "description": "One independent answer per requested identity.",
           "items": {
-            "$ref": "#/$defs/NciTrialItem"
+            "$ref": "#/$defs/Reply_NciTrialItem"
           },
           "type": "array"
         }
@@ -632,13 +632,13 @@
       ],
       "type": "object"
     },
-    "NciTrialItem": {
+    "Reply_NciTrialItem": {
       "description": "An exact NCI card and its source state.",
       "properties": {
         "card": {
           "anyOf": [
             {
-              "$ref": "#/$defs/NciTrial"
+              "$ref": "#/$defs/Reply_NciTrial"
             },
             {
               "type": "null"
@@ -656,20 +656,20 @@
           ]
         },
         "input": {
-          "$ref": "#/$defs/NctId",
+          "$ref": "#/$defs/Reply_NctId",
           "description": "Exact caller identity."
         },
         "more": {
           "description": "Proven sections omitted from this request.",
           "items": {
-            "$ref": "#/$defs/TrialSection"
+            "$ref": "#/$defs/Reply_TrialSection"
           },
           "type": "array"
         },
         "sections": {
           "anyOf": [
             {
-              "$ref": "#/$defs/NciTrialSections"
+              "$ref": "#/$defs/Reply_NciTrialSections"
             },
             {
               "type": "null"
@@ -678,13 +678,13 @@
           "description": "Explicitly requested, source-native sections."
         },
         "status": {
-          "$ref": "#/$defs/Status",
+          "$ref": "#/$defs/Reply_Status",
           "description": "Independent retrieval state."
         },
         "unsupported_sections": {
           "description": "Requested sections without proven public-tier support.",
           "items": {
-            "$ref": "#/$defs/TrialSection"
+            "$ref": "#/$defs/Reply_TrialSection"
           },
           "type": "array"
         }
@@ -695,17 +695,17 @@
       ],
       "type": "object"
     },
-    "NciTrialPhase": {
+    "Reply_NciTrialPhase": {
       "description": "Native publisher vocabulary; new values are retained unchanged. Known values: NA; 0; I; I_II; II; II_III; III; IV; ",
       "type": "string"
     },
-    "NciTrialSections": {
+    "Reply_NciTrialSections": {
       "description": "Independently paged native collections from one immutable source record.",
       "properties": {
         "arms": {
           "anyOf": [
             {
-              "$ref": "#/$defs/Section4"
+              "$ref": "#/$defs/Reply_Section_TrialRecords_NciArmRecord"
             },
             {
               "type": "null"
@@ -716,7 +716,7 @@
         "diseases": {
           "anyOf": [
             {
-              "$ref": "#/$defs/Section5"
+              "$ref": "#/$defs/Reply_Section_TrialRecords_NciDisease"
             },
             {
               "type": "null"
@@ -727,7 +727,7 @@
         "eligibility": {
           "anyOf": [
             {
-              "$ref": "#/$defs/Section2"
+              "$ref": "#/$defs/Reply_Section_NciEligibilityPage"
             },
             {
               "type": "null"
@@ -738,7 +738,7 @@
         "outcomes": {
           "anyOf": [
             {
-              "$ref": "#/$defs/Section3"
+              "$ref": "#/$defs/Reply_Section_TrialRecords_NciOutcome"
             },
             {
               "type": "null"
@@ -749,7 +749,7 @@
         "summary": {
           "anyOf": [
             {
-              "$ref": "#/$defs/Section"
+              "$ref": "#/$defs/Reply_Section_NciTextPage"
             },
             {
               "type": "null"
@@ -760,17 +760,17 @@
       },
       "type": "object"
     },
-    "NcitId": {
+    "Reply_NcitId": {
       "description": "A native NCI Thesaurus concept code.",
       "pattern": "^C[0-9]+$",
       "type": "string"
     },
-    "NctId": {
+    "Reply_NctId": {
       "description": "Canonical ClinicalTrials.gov identifier.",
       "pattern": "^NCT(?!00000000)[0-9]{8}$",
       "type": "string"
     },
-    "PageInfo": {
+    "Reply_PageInfo": {
       "description": "Search counts after filtering and deduplication.",
       "properties": {
         "offset": {
@@ -782,7 +782,7 @@
         "pool": {
           "anyOf": [
             {
-              "$ref": "#/$defs/PoolInfo"
+              "$ref": "#/$defs/Reply_PoolInfo"
             },
             {
               "type": "null"
@@ -817,7 +817,7 @@
       ],
       "type": "object"
     },
-    "PoolInfo": {
+    "Reply_PoolInfo": {
       "description": "Fixed lifetime and size of a stored search snapshot.",
       "properties": {
         "created": {
@@ -833,7 +833,7 @@
           "type": "integer"
         },
         "id": {
-          "$ref": "#/$defs/Text",
+          "$ref": "#/$defs/Reply_Text",
           "description": "Opaque snapshot identifier."
         },
         "size": {
@@ -851,11 +851,11 @@
       ],
       "type": "object"
     },
-    "Problem": {
+    "Reply_Problem": {
       "description": "A field that could not be accepted from a source record.",
       "properties": {
         "code": {
-          "$ref": "#/$defs/ProblemCode",
+          "$ref": "#/$defs/Reply_ProblemCode",
           "description": "Why the field value was not accepted."
         },
         "field": {
@@ -865,7 +865,7 @@
         "record": {
           "anyOf": [
             {
-              "$ref": "#/$defs/Text"
+              "$ref": "#/$defs/Reply_Text"
             },
             {
               "type": "null"
@@ -874,7 +874,7 @@
           "description": "The record's canonical identifier, when known."
         },
         "source": {
-          "$ref": "#/$defs/Source",
+          "$ref": "#/$defs/Reply_Source",
           "description": "The source that supplied the record."
         }
       },
@@ -885,7 +885,7 @@
       ],
       "type": "object"
     },
-    "ProblemCode": {
+    "Reply_ProblemCode": {
       "description": "A stable code for a rejected field value.",
       "type": "string",
       "x-enum-descriptions": [
@@ -899,7 +899,7 @@
         "identity.conflict"
       ]
     },
-    "Reason": {
+    "Reply_Reason": {
       "description": "Why a source could not supply data.",
       "type": "string",
       "x-enum-descriptions": [
@@ -924,39 +924,39 @@
         " Identity lacks the identifier required to join this source."
       ],
       "x-extensible-enum": [
-        "not-found",
-        "not-open",
-        "not-pdf",
+        "not_found",
+        "not_open",
+        "not_pdf",
         "unsupported",
-        "too-large",
-        "rate-limited",
-        "local-quota",
+        "too_large",
+        "rate_limited",
+        "local_quota",
         "unavailable",
         "tls",
         "proxy",
         "rejected",
-        "bad-reply",
-        "deadline-exceeded",
+        "bad_reply",
+        "deadline_exceeded",
         "offline",
-        "no-key",
+        "no_key",
         "disabled",
-        "replay-miss",
+        "replay_miss",
         "syncing",
-        "no-join-id"
+        "no_join_id"
       ]
     },
-    "Section": {
+    "Reply_Section_NciEligibilityPage": {
       "description": "A requested section has exactly one state.",
       "oneOf": [
         {
           "description": "The source returned data.",
           "properties": {
             "data": {
-              "$ref": "#/$defs/NciTextPage",
+              "$ref": "#/$defs/Reply_NciEligibilityPage",
               "description": "Whole section data."
             },
             "source": {
-              "$ref": "#/$defs/Source",
+              "$ref": "#/$defs/Reply_Source",
               "description": "Source identity."
             },
             "state": {
@@ -977,7 +977,7 @@
             "record": {
               "anyOf": [
                 {
-                  "$ref": "#/$defs/SourceRecord"
+                  "$ref": "#/$defs/Reply_SourceRecord"
                 },
                 {
                   "type": "null"
@@ -986,7 +986,7 @@
               "description": "Native entry, if any."
             },
             "source": {
-              "$ref": "#/$defs/Source",
+              "$ref": "#/$defs/Reply_Source",
               "description": "Source identity."
             },
             "state": {
@@ -1004,11 +1004,11 @@
           "description": "A requested source failed.",
           "properties": {
             "reason": {
-              "$ref": "#/$defs/Reason",
+              "$ref": "#/$defs/Reply_Reason",
               "description": "Typed reason."
             },
             "source": {
-              "$ref": "#/$defs/Source",
+              "$ref": "#/$defs/Reply_Source",
               "description": "Source identity."
             },
             "state": {
@@ -1027,11 +1027,11 @@
           "description": "User settings prevented the source request.",
           "properties": {
             "reason": {
-              "$ref": "#/$defs/Reason",
+              "$ref": "#/$defs/Reply_Reason",
               "description": "Typed reason."
             },
             "source": {
-              "$ref": "#/$defs/Source",
+              "$ref": "#/$defs/Reply_Source",
               "description": "Source identity."
             },
             "state": {
@@ -1050,7 +1050,7 @@
           "description": "Entity facts rule this section out.",
           "properties": {
             "state": {
-              "const": "not-applicable",
+              "const": "not_applicable",
               "type": "string"
             }
           },
@@ -1061,18 +1061,18 @@
         }
       ]
     },
-    "Section2": {
+    "Reply_Section_NciTextPage": {
       "description": "A requested section has exactly one state.",
       "oneOf": [
         {
           "description": "The source returned data.",
           "properties": {
             "data": {
-              "$ref": "#/$defs/NciEligibilityPage",
+              "$ref": "#/$defs/Reply_NciTextPage",
               "description": "Whole section data."
             },
             "source": {
-              "$ref": "#/$defs/Source",
+              "$ref": "#/$defs/Reply_Source",
               "description": "Source identity."
             },
             "state": {
@@ -1093,7 +1093,7 @@
             "record": {
               "anyOf": [
                 {
-                  "$ref": "#/$defs/SourceRecord"
+                  "$ref": "#/$defs/Reply_SourceRecord"
                 },
                 {
                   "type": "null"
@@ -1102,7 +1102,7 @@
               "description": "Native entry, if any."
             },
             "source": {
-              "$ref": "#/$defs/Source",
+              "$ref": "#/$defs/Reply_Source",
               "description": "Source identity."
             },
             "state": {
@@ -1120,11 +1120,11 @@
           "description": "A requested source failed.",
           "properties": {
             "reason": {
-              "$ref": "#/$defs/Reason",
+              "$ref": "#/$defs/Reply_Reason",
               "description": "Typed reason."
             },
             "source": {
-              "$ref": "#/$defs/Source",
+              "$ref": "#/$defs/Reply_Source",
               "description": "Source identity."
             },
             "state": {
@@ -1143,11 +1143,11 @@
           "description": "User settings prevented the source request.",
           "properties": {
             "reason": {
-              "$ref": "#/$defs/Reason",
+              "$ref": "#/$defs/Reply_Reason",
               "description": "Typed reason."
             },
             "source": {
-              "$ref": "#/$defs/Source",
+              "$ref": "#/$defs/Reply_Source",
               "description": "Source identity."
             },
             "state": {
@@ -1166,7 +1166,7 @@
           "description": "Entity facts rule this section out.",
           "properties": {
             "state": {
-              "const": "not-applicable",
+              "const": "not_applicable",
               "type": "string"
             }
           },
@@ -1177,18 +1177,18 @@
         }
       ]
     },
-    "Section3": {
+    "Reply_Section_TrialRecords_NciArmRecord": {
       "description": "A requested section has exactly one state.",
       "oneOf": [
         {
           "description": "The source returned data.",
           "properties": {
             "data": {
-              "$ref": "#/$defs/TrialRecords3",
+              "$ref": "#/$defs/Reply_TrialRecords_NciArmRecord",
               "description": "Whole section data."
             },
             "source": {
-              "$ref": "#/$defs/Source",
+              "$ref": "#/$defs/Reply_Source",
               "description": "Source identity."
             },
             "state": {
@@ -1209,7 +1209,7 @@
             "record": {
               "anyOf": [
                 {
-                  "$ref": "#/$defs/SourceRecord"
+                  "$ref": "#/$defs/Reply_SourceRecord"
                 },
                 {
                   "type": "null"
@@ -1218,7 +1218,7 @@
               "description": "Native entry, if any."
             },
             "source": {
-              "$ref": "#/$defs/Source",
+              "$ref": "#/$defs/Reply_Source",
               "description": "Source identity."
             },
             "state": {
@@ -1236,11 +1236,11 @@
           "description": "A requested source failed.",
           "properties": {
             "reason": {
-              "$ref": "#/$defs/Reason",
+              "$ref": "#/$defs/Reply_Reason",
               "description": "Typed reason."
             },
             "source": {
-              "$ref": "#/$defs/Source",
+              "$ref": "#/$defs/Reply_Source",
               "description": "Source identity."
             },
             "state": {
@@ -1259,11 +1259,11 @@
           "description": "User settings prevented the source request.",
           "properties": {
             "reason": {
-              "$ref": "#/$defs/Reason",
+              "$ref": "#/$defs/Reply_Reason",
               "description": "Typed reason."
             },
             "source": {
-              "$ref": "#/$defs/Source",
+              "$ref": "#/$defs/Reply_Source",
               "description": "Source identity."
             },
             "state": {
@@ -1282,7 +1282,7 @@
           "description": "Entity facts rule this section out.",
           "properties": {
             "state": {
-              "const": "not-applicable",
+              "const": "not_applicable",
               "type": "string"
             }
           },
@@ -1293,18 +1293,18 @@
         }
       ]
     },
-    "Section4": {
+    "Reply_Section_TrialRecords_NciDisease": {
       "description": "A requested section has exactly one state.",
       "oneOf": [
         {
           "description": "The source returned data.",
           "properties": {
             "data": {
-              "$ref": "#/$defs/TrialRecords4",
+              "$ref": "#/$defs/Reply_TrialRecords_NciDisease",
               "description": "Whole section data."
             },
             "source": {
-              "$ref": "#/$defs/Source",
+              "$ref": "#/$defs/Reply_Source",
               "description": "Source identity."
             },
             "state": {
@@ -1325,7 +1325,7 @@
             "record": {
               "anyOf": [
                 {
-                  "$ref": "#/$defs/SourceRecord"
+                  "$ref": "#/$defs/Reply_SourceRecord"
                 },
                 {
                   "type": "null"
@@ -1334,7 +1334,7 @@
               "description": "Native entry, if any."
             },
             "source": {
-              "$ref": "#/$defs/Source",
+              "$ref": "#/$defs/Reply_Source",
               "description": "Source identity."
             },
             "state": {
@@ -1352,11 +1352,11 @@
           "description": "A requested source failed.",
           "properties": {
             "reason": {
-              "$ref": "#/$defs/Reason",
+              "$ref": "#/$defs/Reply_Reason",
               "description": "Typed reason."
             },
             "source": {
-              "$ref": "#/$defs/Source",
+              "$ref": "#/$defs/Reply_Source",
               "description": "Source identity."
             },
             "state": {
@@ -1375,11 +1375,11 @@
           "description": "User settings prevented the source request.",
           "properties": {
             "reason": {
-              "$ref": "#/$defs/Reason",
+              "$ref": "#/$defs/Reply_Reason",
               "description": "Typed reason."
             },
             "source": {
-              "$ref": "#/$defs/Source",
+              "$ref": "#/$defs/Reply_Source",
               "description": "Source identity."
             },
             "state": {
@@ -1398,7 +1398,7 @@
           "description": "Entity facts rule this section out.",
           "properties": {
             "state": {
-              "const": "not-applicable",
+              "const": "not_applicable",
               "type": "string"
             }
           },
@@ -1409,18 +1409,18 @@
         }
       ]
     },
-    "Section5": {
+    "Reply_Section_TrialRecords_NciOutcome": {
       "description": "A requested section has exactly one state.",
       "oneOf": [
         {
           "description": "The source returned data.",
           "properties": {
             "data": {
-              "$ref": "#/$defs/TrialRecords5",
+              "$ref": "#/$defs/Reply_TrialRecords_NciOutcome",
               "description": "Whole section data."
             },
             "source": {
-              "$ref": "#/$defs/Source",
+              "$ref": "#/$defs/Reply_Source",
               "description": "Source identity."
             },
             "state": {
@@ -1441,7 +1441,7 @@
             "record": {
               "anyOf": [
                 {
-                  "$ref": "#/$defs/SourceRecord"
+                  "$ref": "#/$defs/Reply_SourceRecord"
                 },
                 {
                   "type": "null"
@@ -1450,7 +1450,7 @@
               "description": "Native entry, if any."
             },
             "source": {
-              "$ref": "#/$defs/Source",
+              "$ref": "#/$defs/Reply_Source",
               "description": "Source identity."
             },
             "state": {
@@ -1468,11 +1468,11 @@
           "description": "A requested source failed.",
           "properties": {
             "reason": {
-              "$ref": "#/$defs/Reason",
+              "$ref": "#/$defs/Reply_Reason",
               "description": "Typed reason."
             },
             "source": {
-              "$ref": "#/$defs/Source",
+              "$ref": "#/$defs/Reply_Source",
               "description": "Source identity."
             },
             "state": {
@@ -1491,11 +1491,11 @@
           "description": "User settings prevented the source request.",
           "properties": {
             "reason": {
-              "$ref": "#/$defs/Reason",
+              "$ref": "#/$defs/Reply_Reason",
               "description": "Typed reason."
             },
             "source": {
-              "$ref": "#/$defs/Source",
+              "$ref": "#/$defs/Reply_Source",
               "description": "Source identity."
             },
             "state": {
@@ -1514,7 +1514,7 @@
           "description": "Entity facts rule this section out.",
           "properties": {
             "state": {
-              "const": "not-applicable",
+              "const": "not_applicable",
               "type": "string"
             }
           },
@@ -1525,7 +1525,7 @@
         }
       ]
     },
-    "Source": {
+    "Reply_Source": {
       "description": "A source of BioMCP data, identified by its canonical short name.",
       "type": "string",
       "x-enum-descriptions": [
@@ -1597,6 +1597,7 @@
         " openFDA premarket approval submissions.",
         " FDA native 510(k) clearance records.",
         " openFDA medical device product recall records.",
+        " FDA drug enforcement recall records.",
         " Clinical Pharmacogenetics Implementation Consortium.",
         " ClinPGx pharmacogenomics annotations.",
         " Public cBioPortal with study-specific reuse terms.",
@@ -1671,20 +1672,21 @@
         "fda-pma",
         "fda-510k",
         "fda-device-recall",
+        "fda-drug-recall",
         "cpic",
         "clinpgx",
         "cbioportal",
         "cellosaurus"
       ]
     },
-    "SourceNotice": {
+    "Reply_SourceNotice": {
       "description": "A source notice or request recovery step.",
       "oneOf": [
         {
           "description": "Local request limits and source-specific recovery guidance.",
           "properties": {
             "kind": {
-              "const": "request-guidance",
+              "const": "request_guidance",
               "type": "string"
             },
             "message": {
@@ -1711,7 +1713,7 @@
           "description": "Registered conditions lack the literal words requested in a condition search.",
           "properties": {
             "kind": {
-              "const": "condition-word-mismatch",
+              "const": "condition_word_mismatch",
               "type": "string"
             },
             "message": {
@@ -1729,11 +1731,11 @@
           "description": "A checked provider answer survived a local cache failure.",
           "properties": {
             "kind": {
-              "const": "cache-problem",
+              "const": "cache_problem",
               "type": "string"
             },
             "reason": {
-              "$ref": "#/$defs/CacheProblem",
+              "$ref": "#/$defs/Reply_CacheProblem",
               "description": "Bounded local failure without paths or database diagnostics."
             }
           },
@@ -1747,11 +1749,11 @@
           "description": "The source still has graph pages after the bounded fetch window.",
           "properties": {
             "fallback": {
-              "$ref": "#/$defs/Text",
+              "$ref": "#/$defs/Reply_Text",
               "description": "Default-source command offering another graph view."
             },
             "kind": {
-              "const": "graph-truncated",
+              "const": "graph_truncated",
               "type": "string"
             }
           },
@@ -1765,7 +1767,7 @@
           "description": "An empty LitVar lookup can be repeated with a caller-supplied rsID.",
           "properties": {
             "kind": {
-              "const": "litvar-rsid-hint",
+              "const": "litvar_rsid_hint",
               "type": "string"
             },
             "message": {
@@ -1783,7 +1785,7 @@
           "description": "PubMed supplied a named ESearch warning without changing its phrases.",
           "properties": {
             "kind": {
-              "const": "pubmed-warning",
+              "const": "pubmed_warning",
               "type": "string"
             },
             "name": {
@@ -1808,13 +1810,13 @@
           "description": "PubMed did not index these words.",
           "properties": {
             "kind": {
-              "const": "not-found-words",
+              "const": "not_found_words",
               "type": "string"
             },
             "words": {
               "description": "Whole source words.",
               "items": {
-                "$ref": "#/$defs/Text"
+                "$ref": "#/$defs/Reply_Text"
               },
               "type": "array"
             }
@@ -1826,7 +1828,7 @@
         }
       ]
     },
-    "SourceOutcome": {
+    "Reply_SourceOutcome": {
       "description": "One source's outcome, without provider text.",
       "properties": {
         "count": {
@@ -1850,14 +1852,14 @@
         "notices": {
           "description": "Source notices and request recovery guidance.",
           "items": {
-            "$ref": "#/$defs/SourceNotice"
+            "$ref": "#/$defs/Reply_SourceNotice"
           },
           "type": "array"
         },
         "reason": {
           "anyOf": [
             {
-              "$ref": "#/$defs/Reason"
+              "$ref": "#/$defs/Reply_Reason"
             },
             {
               "type": "null"
@@ -1866,17 +1868,17 @@
           "description": "Failure or stale-fallback reason."
         },
         "source": {
-          "$ref": "#/$defs/Source",
+          "$ref": "#/$defs/Reply_Source",
           "description": "Asked source."
         },
         "state": {
-          "$ref": "#/$defs/SourceState",
+          "$ref": "#/$defs/Reply_SourceState",
           "description": "Retained state."
         },
         "term": {
           "anyOf": [
             {
-              "$ref": "#/$defs/Text"
+              "$ref": "#/$defs/Reply_Text"
             },
             {
               "type": "null"
@@ -1894,7 +1896,7 @@
           "type": "string"
         },
         "use": {
-          "$ref": "#/$defs/Use",
+          "$ref": "#/$defs/Reply_Use",
           "description": "Reviewed source use category; publisher terms remain authoritative."
         }
       },
@@ -1907,17 +1909,17 @@
       ],
       "type": "object"
     },
-    "SourceRecord": {
+    "Reply_SourceRecord": {
       "description": "The source's own entry for an entity.",
       "properties": {
         "id": {
-          "$ref": "#/$defs/Text",
+          "$ref": "#/$defs/Reply_Text",
           "description": "Native source identifier."
         },
         "url": {
           "anyOf": [
             {
-              "$ref": "#/$defs/Text"
+              "$ref": "#/$defs/Reply_Text"
             },
             {
               "type": "null"
@@ -1932,7 +1934,7 @@
       ],
       "type": "object"
     },
-    "SourceState": {
+    "Reply_SourceState": {
       "description": "State of a source actually asked by the command.",
       "enum": [
         "ok",
@@ -1943,7 +1945,7 @@
       ],
       "type": "string"
     },
-    "Status": {
+    "Reply_Status": {
       "description": "Overall command outcome.",
       "enum": [
         "complete",
@@ -1953,7 +1955,7 @@
       ],
       "type": "string"
     },
-    "Step": {
+    "Reply_Step": {
       "description": "A command argument list spelled from a typed action.",
       "properties": {
         "args": {
@@ -1964,7 +1966,7 @@
           "type": "array"
         },
         "kind": {
-          "$ref": "#/$defs/StepKind",
+          "$ref": "#/$defs/Reply_StepKind",
           "description": "Purpose of the action."
         }
       },
@@ -1973,7 +1975,7 @@
       ],
       "type": "object"
     },
-    "StepKind": {
+    "Reply_StepKind": {
       "description": "Purpose of an available next command.",
       "enum": [
         "restart",
@@ -1989,18 +1991,18 @@
       ],
       "type": "string"
     },
-    "Text": {
+    "Reply_Text": {
       "description": "Nonempty text with surrounding Unicode whitespace removed.",
       "minLength": 1,
       "type": "string"
     },
-    "TrialGet": {
+    "Reply_TrialGet": {
       "description": "Retrieve exact trial cards in input order; request bounded intact source sections with independent continuations.",
       "properties": {
         "input": {
           "description": "One to twenty exact NCT identifiers, in caller order.",
           "items": {
-            "$ref": "#/$defs/NctId"
+            "$ref": "#/$defs/Reply_NctId"
           },
           "maxItems": 20,
           "minItems": 1,
@@ -2023,19 +2025,19 @@
           "type": "integer"
         },
         "pool": {
-          "$ref": "#/$defs/Text",
+          "$ref": "#/$defs/Reply_Text",
           "description": "Checked stored source record, supplied by a continuation."
         },
         "section": {
           "description": "Optional intact source sections. Default cards only; diseases and summary require NCI. NCI locations, contacts, references and documents are unsupported.",
           "items": {
-            "$ref": "#/$defs/TrialSection"
+            "$ref": "#/$defs/Reply_TrialSection"
           },
           "type": "array",
           "x-trailing-section": true
         },
         "source": {
-          "$ref": "#/$defs/TrialSource",
+          "$ref": "#/$defs/Reply_TrialSource",
           "description": "Explicit provider; defaults to ClinicalTrials.gov and never falls back."
         }
       },
@@ -2044,13 +2046,13 @@
       ],
       "type": "object"
     },
-    "TrialRecords": {
+    "Reply_TrialRecords_NciArmRecord": {
       "description": "Whole-record page retaining collection order.",
       "properties": {
         "continuation": {
           "anyOf": [
             {
-              "$ref": "#/$defs/TrialGet"
+              "$ref": "#/$defs/Reply_TrialGet"
             },
             {
               "type": "null"
@@ -2061,7 +2063,7 @@
         "items": {
           "description": "Complete records in source order.",
           "items": {
-            "$ref": "#/$defs/NciDiseaseRef"
+            "$ref": "#/$defs/Reply_NciArmRecord"
           },
           "type": "array"
         },
@@ -2084,13 +2086,13 @@
       ],
       "type": "object"
     },
-    "TrialRecords2": {
+    "Reply_TrialRecords_NciCriterion": {
       "description": "Whole-record page retaining collection order.",
       "properties": {
         "continuation": {
           "anyOf": [
             {
-              "$ref": "#/$defs/TrialGet"
+              "$ref": "#/$defs/Reply_TrialGet"
             },
             {
               "type": "null"
@@ -2101,7 +2103,7 @@
         "items": {
           "description": "Complete records in source order.",
           "items": {
-            "$ref": "#/$defs/NciCriterion"
+            "$ref": "#/$defs/Reply_NciCriterion"
           },
           "type": "array"
         },
@@ -2124,13 +2126,13 @@
       ],
       "type": "object"
     },
-    "TrialRecords3": {
+    "Reply_TrialRecords_NciDisease": {
       "description": "Whole-record page retaining collection order.",
       "properties": {
         "continuation": {
           "anyOf": [
             {
-              "$ref": "#/$defs/TrialGet"
+              "$ref": "#/$defs/Reply_TrialGet"
             },
             {
               "type": "null"
@@ -2141,7 +2143,7 @@
         "items": {
           "description": "Complete records in source order.",
           "items": {
-            "$ref": "#/$defs/NciOutcome"
+            "$ref": "#/$defs/Reply_NciDisease"
           },
           "type": "array"
         },
@@ -2164,13 +2166,13 @@
       ],
       "type": "object"
     },
-    "TrialRecords4": {
+    "Reply_TrialRecords_NciDiseaseRef": {
       "description": "Whole-record page retaining collection order.",
       "properties": {
         "continuation": {
           "anyOf": [
             {
-              "$ref": "#/$defs/TrialGet"
+              "$ref": "#/$defs/Reply_TrialGet"
             },
             {
               "type": "null"
@@ -2181,7 +2183,7 @@
         "items": {
           "description": "Complete records in source order.",
           "items": {
-            "$ref": "#/$defs/NciArmRecord"
+            "$ref": "#/$defs/Reply_NciDiseaseRef"
           },
           "type": "array"
         },
@@ -2204,13 +2206,13 @@
       ],
       "type": "object"
     },
-    "TrialRecords5": {
+    "Reply_TrialRecords_NciOutcome": {
       "description": "Whole-record page retaining collection order.",
       "properties": {
         "continuation": {
           "anyOf": [
             {
-              "$ref": "#/$defs/TrialGet"
+              "$ref": "#/$defs/Reply_TrialGet"
             },
             {
               "type": "null"
@@ -2221,7 +2223,7 @@
         "items": {
           "description": "Complete records in source order.",
           "items": {
-            "$ref": "#/$defs/NciDisease"
+            "$ref": "#/$defs/Reply_NciOutcome"
           },
           "type": "array"
         },
@@ -2244,7 +2246,7 @@
       ],
       "type": "object"
     },
-    "TrialSection": {
+    "Reply_TrialSection": {
       "description": "Available source protocol sections.",
       "enum": [
         "eligibility",
@@ -2272,7 +2274,7 @@
         " Complete NCI summary, paged by original character offsets."
       ]
     },
-    "TrialSource": {
+    "Reply_TrialSource": {
       "description": "Independent trial providers; results are never folded or used as fallbacks.",
       "enum": [
         "ctgov",
@@ -2280,7 +2282,7 @@
       ],
       "type": "string"
     },
-    "Use": {
+    "Reply_Use": {
       "description": "Reviewed source-use category, without inferring rights in individual records.",
       "enum": [
         "open",
@@ -2291,14 +2293,14 @@
       "type": "string"
     }
   },
-  "$id": "biomcp.nci-trial-cards/4",
+  "$id": "biomcp.nci-trial-cards/3",
   "$schema": "https://json-schema.org/draft/2020-12/schema",
   "description": "One versioned command response; schema identity comes only from its body type.\nJSON readers ignore unknown fields and unknown growable enum values within a major.",
   "properties": {
     "local_error": {
       "anyOf": [
         {
-          "$ref": "#/$defs/CacheProblem"
+          "$ref": "#/$defs/Reply_CacheProblem"
         },
         {
           "type": "null"
@@ -2309,14 +2311,14 @@
     "next": {
       "description": "Available next commands.",
       "items": {
-        "$ref": "#/$defs/Step"
+        "$ref": "#/$defs/Reply_Step"
       },
       "type": "array"
     },
     "page": {
       "anyOf": [
         {
-          "$ref": "#/$defs/PageInfo"
+          "$ref": "#/$defs/Reply_PageInfo"
         },
         {
           "type": "null"
@@ -2327,18 +2329,18 @@
     "problems": {
       "description": "Rejected source fields.",
       "items": {
-        "$ref": "#/$defs/Problem"
+        "$ref": "#/$defs/Reply_Problem"
       },
       "type": "array"
     },
     "query": {
-      "$ref": "#/$defs/TrialGet",
+      "$ref": "#/$defs/Reply_TrialGet",
       "description": "Parsed query."
     },
     "result": {
       "anyOf": [
         {
-          "$ref": "#/$defs/NciTrialCards"
+          "$ref": "#/$defs/Reply_NciTrialCards"
         },
         {
           "type": "null"
@@ -2347,18 +2349,18 @@
       "description": "Answer when available."
     },
     "schema": {
-      "const": "biomcp.nci-trial-cards/4",
+      "const": "biomcp.nci-trial-cards/3",
       "type": "string"
     },
     "sources": {
       "description": "Sources actually asked.",
       "items": {
-        "$ref": "#/$defs/SourceOutcome"
+        "$ref": "#/$defs/Reply_SourceOutcome"
       },
       "type": "array"
     },
     "status": {
-      "$ref": "#/$defs/Status",
+      "$ref": "#/$defs/Reply_Status",
       "description": "Overall outcome."
     }
   },

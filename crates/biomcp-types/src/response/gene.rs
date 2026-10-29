@@ -56,11 +56,11 @@ pub struct GenePage {
     pub items: Box<[GeneHeader]>,
 }
 impl ResponseBody for GeneCards {
-    const SCHEMA: &'static str = "biomcp.gene-cards/8";
+    const SCHEMA: &'static str = "biomcp.gene-cards/9";
     type Query = GeneGet;
 }
 impl ResponseBody for GenePage {
-    const SCHEMA: &'static str = "biomcp.gene-page/5";
+    const SCHEMA: &'static str = "biomcp.gene-page/6";
     type Query = GeneSearch;
 }
 /// Typed dispatch result before the interface constructs an envelope.
@@ -240,6 +240,10 @@ pub enum QueryBody {
     DrugApprovals(Option<crate::DrugApprovals>),
     /// Source-native FDA application and product candidate page.
     DrugFdaPage(crate::DrugFdaPage),
+    /// FDA native drug recall records.
+    DrugRecallPage(crate::DrugRecallPage),
+    /// Exact native drug recall.
+    DrugRecallCard(Option<crate::DrugRecallCard>),
     /// Source-local native drug interaction partners.
     DrugInteractions(Option<crate::DrugInteractions>),
 

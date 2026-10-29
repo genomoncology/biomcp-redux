@@ -94,6 +94,6 @@ impl fmt::Display for PgxDiplotypeExpression {
 crate::text_value!(
     PgxDiplotypeExpression,
     "PgxDiplotypeExpression",
-    r"\S",
+    format!("[^{}]", crate::schema_pattern::WHITESPACE),
     "Unchanged declared source diplotype expression; no allele sorting, phase or score calculation."
 );

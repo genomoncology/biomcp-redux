@@ -115,6 +115,8 @@ fn walk(env: &Environment, raw: &Value, section: &str, globals: &[String]) -> Ch
         let mut expected = expected(raw, section)?;
         for row in &mut expected {
             super::assertions::omit_empty_lists(row);
+            let optional = optional_fields(section, row);
+            super::assertions::omit_null_fields(row, optional);
         }
         if rows != expected {
             return Err(format!(
@@ -127,6 +129,17 @@ fn walk(env: &Environment, raw: &Value, section: &str, globals: &[String]) -> Ch
     }
     Ok(())
 }
+fn optional_fields(section: &str, row: &Value) -> &'static [&'static str] {
+    match section {
+        "eligibility" => &["inclusion_indicator", "display_order"],
+        "outcomes" => &["name", "description", "timeframe", "type_code"],
+        "diseases" => &["inclusion_indicator", "is_lead_disease"],
+        "arms" if row.get("record") == Some(&json!("arm")) => &["name", "description", "type"],
+        "arms" => &["description", "type", "category", "inclusion_indicator"],
+        _ => &[],
+    }
+}
+
 fn snapshot_policy(env: &Environment, args: &[String]) -> Check {
     let mut disabled = args.to_vec();
     disabled.extend(["--disable-sources".into(), "nci".into()]);

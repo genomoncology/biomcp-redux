@@ -15,6 +15,7 @@ pub struct SourceRecord {
 #[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
 #[cfg_attr(feature = "schema", derive(schemars::JsonSchema))]
 #[serde(tag = "state", rename_all = "kebab-case")]
+#[cfg_attr(feature = "schema", schemars(rename = "Section_{T}"))]
 pub enum Section<T> {
     /// The source returned data.
     Data {

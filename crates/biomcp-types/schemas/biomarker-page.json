@@ -1,12 +1,12 @@
 {
   "$defs": {
-    "BiomarkerHeader": {
+    "Reply_BiomarkerHeader": {
       "description": "One native biomarker header. Codes identify concepts, not unique result rows.",
       "properties": {
         "codes": {
           "description": "Published NCIt codes, in source order.",
           "items": {
-            "$ref": "#/$defs/NcitId"
+            "$ref": "#/$defs/Reply_NcitId"
           },
           "type": "array"
         },
@@ -17,13 +17,13 @@
           "type": "integer"
         },
         "name": {
-          "$ref": "#/$defs/Text",
+          "$ref": "#/$defs/Reply_Text",
           "description": "Native biomarker concept name."
         },
         "type": {
           "description": "Native type values; an empty source list is omitted.",
           "items": {
-            "$ref": "#/$defs/Text"
+            "$ref": "#/$defs/Reply_Text"
           },
           "type": "array"
         }
@@ -35,20 +35,20 @@
       ],
       "type": "object"
     },
-    "BiomarkerPage": {
+    "Reply_BiomarkerPage": {
       "description": "Local page of a complete bounded source observation.",
       "properties": {
         "items": {
           "description": "Native biomarker headers in source order.",
           "items": {
-            "$ref": "#/$defs/BiomarkerHeader"
+            "$ref": "#/$defs/Reply_BiomarkerHeader"
           },
           "type": "array"
         }
       },
       "type": "object"
     },
-    "BiomarkerSearch": {
+    "Reply_BiomarkerSearch": {
       "description": "Find NCI biomarker concepts by name or synonym. The public tier returns codes, name, type, trial count, synonyms, parent_ids, ancestor_ids and eligibility_criterion. These concepts differ from diagnostic --biomarker filters and literal trial --variant text. Native criteria do not establish patient eligibility.",
       "properties": {
         "limit": {
@@ -60,7 +60,7 @@
           "type": "integer"
         },
         "name": {
-          "$ref": "#/$defs/Text",
+          "$ref": "#/$defs/Reply_Text",
           "description": "Native partial name or synonym search."
         },
         "offset": {
@@ -73,7 +73,7 @@
         "pool": {
           "anyOf": [
             {
-              "$ref": "#/$defs/Text"
+              "$ref": "#/$defs/Reply_Text"
             },
             {
               "type": "null"
@@ -82,7 +82,7 @@
           "description": "Snapshot identity retained by continuation commands."
         },
         "source": {
-          "$ref": "#/$defs/BiomarkerSource",
+          "$ref": "#/$defs/Reply_BiomarkerSource",
           "description": "Explicit keyed NCI source."
         }
       },
@@ -91,14 +91,14 @@
       ],
       "type": "object"
     },
-    "BiomarkerSource": {
+    "Reply_BiomarkerSource": {
       "description": "Biomarker concept publisher.",
       "enum": [
         "nci"
       ],
       "type": "string"
     },
-    "CacheProblem": {
+    "Reply_CacheProblem": {
       "description": "A local cache failure that leaves the provider outcome intact.",
       "enum": [
         "busy",
@@ -107,12 +107,12 @@
       ],
       "type": "string"
     },
-    "NcitId": {
+    "Reply_NcitId": {
       "description": "A native NCI Thesaurus concept code.",
       "pattern": "^C[0-9]+$",
       "type": "string"
     },
-    "PageInfo": {
+    "Reply_PageInfo": {
       "description": "Search counts after filtering and deduplication.",
       "properties": {
         "offset": {
@@ -124,7 +124,7 @@
         "pool": {
           "anyOf": [
             {
-              "$ref": "#/$defs/PoolInfo"
+              "$ref": "#/$defs/Reply_PoolInfo"
             },
             {
               "type": "null"
@@ -159,7 +159,7 @@
       ],
       "type": "object"
     },
-    "PoolInfo": {
+    "Reply_PoolInfo": {
       "description": "Fixed lifetime and size of a stored search snapshot.",
       "properties": {
         "created": {
@@ -175,7 +175,7 @@
           "type": "integer"
         },
         "id": {
-          "$ref": "#/$defs/Text",
+          "$ref": "#/$defs/Reply_Text",
           "description": "Opaque snapshot identifier."
         },
         "size": {
@@ -193,11 +193,11 @@
       ],
       "type": "object"
     },
-    "Problem": {
+    "Reply_Problem": {
       "description": "A field that could not be accepted from a source record.",
       "properties": {
         "code": {
-          "$ref": "#/$defs/ProblemCode",
+          "$ref": "#/$defs/Reply_ProblemCode",
           "description": "Why the field value was not accepted."
         },
         "field": {
@@ -207,7 +207,7 @@
         "record": {
           "anyOf": [
             {
-              "$ref": "#/$defs/Text"
+              "$ref": "#/$defs/Reply_Text"
             },
             {
               "type": "null"
@@ -216,7 +216,7 @@
           "description": "The record's canonical identifier, when known."
         },
         "source": {
-          "$ref": "#/$defs/Source",
+          "$ref": "#/$defs/Reply_Source",
           "description": "The source that supplied the record."
         }
       },
@@ -227,7 +227,7 @@
       ],
       "type": "object"
     },
-    "ProblemCode": {
+    "Reply_ProblemCode": {
       "description": "A stable code for a rejected field value.",
       "type": "string",
       "x-enum-descriptions": [
@@ -241,7 +241,7 @@
         "identity.conflict"
       ]
     },
-    "Reason": {
+    "Reply_Reason": {
       "description": "Why a source could not supply data.",
       "type": "string",
       "x-enum-descriptions": [
@@ -266,28 +266,28 @@
         " Identity lacks the identifier required to join this source."
       ],
       "x-extensible-enum": [
-        "not-found",
-        "not-open",
-        "not-pdf",
+        "not_found",
+        "not_open",
+        "not_pdf",
         "unsupported",
-        "too-large",
-        "rate-limited",
-        "local-quota",
+        "too_large",
+        "rate_limited",
+        "local_quota",
         "unavailable",
         "tls",
         "proxy",
         "rejected",
-        "bad-reply",
-        "deadline-exceeded",
+        "bad_reply",
+        "deadline_exceeded",
         "offline",
-        "no-key",
+        "no_key",
         "disabled",
-        "replay-miss",
+        "replay_miss",
         "syncing",
-        "no-join-id"
+        "no_join_id"
       ]
     },
-    "Source": {
+    "Reply_Source": {
       "description": "A source of BioMCP data, identified by its canonical short name.",
       "type": "string",
       "x-enum-descriptions": [
@@ -359,6 +359,7 @@
         " openFDA premarket approval submissions.",
         " FDA native 510(k) clearance records.",
         " openFDA medical device product recall records.",
+        " FDA drug enforcement recall records.",
         " Clinical Pharmacogenetics Implementation Consortium.",
         " ClinPGx pharmacogenomics annotations.",
         " Public cBioPortal with study-specific reuse terms.",
@@ -433,20 +434,21 @@
         "fda-pma",
         "fda-510k",
         "fda-device-recall",
+        "fda-drug-recall",
         "cpic",
         "clinpgx",
         "cbioportal",
         "cellosaurus"
       ]
     },
-    "SourceNotice": {
+    "Reply_SourceNotice": {
       "description": "A source notice or request recovery step.",
       "oneOf": [
         {
           "description": "Local request limits and source-specific recovery guidance.",
           "properties": {
             "kind": {
-              "const": "request-guidance",
+              "const": "request_guidance",
               "type": "string"
             },
             "message": {
@@ -473,7 +475,7 @@
           "description": "Registered conditions lack the literal words requested in a condition search.",
           "properties": {
             "kind": {
-              "const": "condition-word-mismatch",
+              "const": "condition_word_mismatch",
               "type": "string"
             },
             "message": {
@@ -491,11 +493,11 @@
           "description": "A checked provider answer survived a local cache failure.",
           "properties": {
             "kind": {
-              "const": "cache-problem",
+              "const": "cache_problem",
               "type": "string"
             },
             "reason": {
-              "$ref": "#/$defs/CacheProblem",
+              "$ref": "#/$defs/Reply_CacheProblem",
               "description": "Bounded local failure without paths or database diagnostics."
             }
           },
@@ -509,11 +511,11 @@
           "description": "The source still has graph pages after the bounded fetch window.",
           "properties": {
             "fallback": {
-              "$ref": "#/$defs/Text",
+              "$ref": "#/$defs/Reply_Text",
               "description": "Default-source command offering another graph view."
             },
             "kind": {
-              "const": "graph-truncated",
+              "const": "graph_truncated",
               "type": "string"
             }
           },
@@ -527,7 +529,7 @@
           "description": "An empty LitVar lookup can be repeated with a caller-supplied rsID.",
           "properties": {
             "kind": {
-              "const": "litvar-rsid-hint",
+              "const": "litvar_rsid_hint",
               "type": "string"
             },
             "message": {
@@ -545,7 +547,7 @@
           "description": "PubMed supplied a named ESearch warning without changing its phrases.",
           "properties": {
             "kind": {
-              "const": "pubmed-warning",
+              "const": "pubmed_warning",
               "type": "string"
             },
             "name": {
@@ -570,13 +572,13 @@
           "description": "PubMed did not index these words.",
           "properties": {
             "kind": {
-              "const": "not-found-words",
+              "const": "not_found_words",
               "type": "string"
             },
             "words": {
               "description": "Whole source words.",
               "items": {
-                "$ref": "#/$defs/Text"
+                "$ref": "#/$defs/Reply_Text"
               },
               "type": "array"
             }
@@ -588,7 +590,7 @@
         }
       ]
     },
-    "SourceOutcome": {
+    "Reply_SourceOutcome": {
       "description": "One source's outcome, without provider text.",
       "properties": {
         "count": {
@@ -612,14 +614,14 @@
         "notices": {
           "description": "Source notices and request recovery guidance.",
           "items": {
-            "$ref": "#/$defs/SourceNotice"
+            "$ref": "#/$defs/Reply_SourceNotice"
           },
           "type": "array"
         },
         "reason": {
           "anyOf": [
             {
-              "$ref": "#/$defs/Reason"
+              "$ref": "#/$defs/Reply_Reason"
             },
             {
               "type": "null"
@@ -628,17 +630,17 @@
           "description": "Failure or stale-fallback reason."
         },
         "source": {
-          "$ref": "#/$defs/Source",
+          "$ref": "#/$defs/Reply_Source",
           "description": "Asked source."
         },
         "state": {
-          "$ref": "#/$defs/SourceState",
+          "$ref": "#/$defs/Reply_SourceState",
           "description": "Retained state."
         },
         "term": {
           "anyOf": [
             {
-              "$ref": "#/$defs/Text"
+              "$ref": "#/$defs/Reply_Text"
             },
             {
               "type": "null"
@@ -656,7 +658,7 @@
           "type": "string"
         },
         "use": {
-          "$ref": "#/$defs/Use",
+          "$ref": "#/$defs/Reply_Use",
           "description": "Reviewed source use category; publisher terms remain authoritative."
         }
       },
@@ -669,7 +671,7 @@
       ],
       "type": "object"
     },
-    "SourceState": {
+    "Reply_SourceState": {
       "description": "State of a source actually asked by the command.",
       "enum": [
         "ok",
@@ -680,7 +682,7 @@
       ],
       "type": "string"
     },
-    "Status": {
+    "Reply_Status": {
       "description": "Overall command outcome.",
       "enum": [
         "complete",
@@ -690,7 +692,7 @@
       ],
       "type": "string"
     },
-    "Step": {
+    "Reply_Step": {
       "description": "A command argument list spelled from a typed action.",
       "properties": {
         "args": {
@@ -701,7 +703,7 @@
           "type": "array"
         },
         "kind": {
-          "$ref": "#/$defs/StepKind",
+          "$ref": "#/$defs/Reply_StepKind",
           "description": "Purpose of the action."
         }
       },
@@ -710,7 +712,7 @@
       ],
       "type": "object"
     },
-    "StepKind": {
+    "Reply_StepKind": {
       "description": "Purpose of an available next command.",
       "enum": [
         "restart",
@@ -726,12 +728,12 @@
       ],
       "type": "string"
     },
-    "Text": {
+    "Reply_Text": {
       "description": "Nonempty text with surrounding Unicode whitespace removed.",
       "minLength": 1,
       "type": "string"
     },
-    "Use": {
+    "Reply_Use": {
       "description": "Reviewed source-use category, without inferring rights in individual records.",
       "enum": [
         "open",
@@ -742,14 +744,14 @@
       "type": "string"
     }
   },
-  "$id": "biomcp.biomarker-page/2",
+  "$id": "biomcp.biomarker-page/1",
   "$schema": "https://json-schema.org/draft/2020-12/schema",
   "description": "One versioned command response; schema identity comes only from its body type.\nJSON readers ignore unknown fields and unknown growable enum values within a major.",
   "properties": {
     "local_error": {
       "anyOf": [
         {
-          "$ref": "#/$defs/CacheProblem"
+          "$ref": "#/$defs/Reply_CacheProblem"
         },
         {
           "type": "null"
@@ -760,14 +762,14 @@
     "next": {
       "description": "Available next commands.",
       "items": {
-        "$ref": "#/$defs/Step"
+        "$ref": "#/$defs/Reply_Step"
       },
       "type": "array"
     },
     "page": {
       "anyOf": [
         {
-          "$ref": "#/$defs/PageInfo"
+          "$ref": "#/$defs/Reply_PageInfo"
         },
         {
           "type": "null"
@@ -778,18 +780,18 @@
     "problems": {
       "description": "Rejected source fields.",
       "items": {
-        "$ref": "#/$defs/Problem"
+        "$ref": "#/$defs/Reply_Problem"
       },
       "type": "array"
     },
     "query": {
-      "$ref": "#/$defs/BiomarkerSearch",
+      "$ref": "#/$defs/Reply_BiomarkerSearch",
       "description": "Parsed query."
     },
     "result": {
       "anyOf": [
         {
-          "$ref": "#/$defs/BiomarkerPage"
+          "$ref": "#/$defs/Reply_BiomarkerPage"
         },
         {
           "type": "null"
@@ -798,18 +800,18 @@
       "description": "Answer when available."
     },
     "schema": {
-      "const": "biomcp.biomarker-page/2",
+      "const": "biomcp.biomarker-page/1",
       "type": "string"
     },
     "sources": {
       "description": "Sources actually asked.",
       "items": {
-        "$ref": "#/$defs/SourceOutcome"
+        "$ref": "#/$defs/Reply_SourceOutcome"
       },
       "type": "array"
     },
     "status": {
-      "$ref": "#/$defs/Status",
+      "$ref": "#/$defs/Reply_Status",
       "description": "Overall outcome."
     }
   },

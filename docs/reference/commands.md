@@ -106,7 +106,7 @@ Commands:
   diagnostic     Search five source records by default. FDA device recalls cover every medical device; totals count recall records, without harm inference.
   adverse-event  Search five report headers by default. MAUDE accepts device text or a manufacturer, product-code or problem filter. One report may list several devices; filters may match different devices. VAERS accepts MMR, COVID19, COVID-19 vaccine or one exact qualified native influenza code, matched without case; use influenza to list codes and labels. Tables remain separate and are never summed. One report may list several vaccines. VAERS returns five reported symptom rows by default; seriousness and age select independent tables. Counts are reports, not people. Reports do not show that a vaccine caused an event and cannot measure risk or compare vaccine safety.
   disease        Literal discovery text or an explicit SEER catalog page.
-  drug           Literal single-source candidate discovery, without an implicit identity selection.
+  drug           Search one drug source. FDA drug recalls accept a name or native firm, classification, status, reason and initiation dates; counts are recall records. Other sources require a name.
   gene           Search genes by text, cytoband, or their intersection.
   article        Checked search selectors and pool cursor.
   trial          Search ClinicalTrials.gov or keyed NCI with native counts. NCI --facility matches exact organization names; a listed site is not necessarily enrolling.
@@ -968,54 +968,78 @@ Exact discovery text or an explicit SEER catalog page.
 ## biomcp search drug
 
 ```text
-Literal single-source candidate discovery, without an implicit identity selection.
+Search one drug source. FDA drug recalls accept a name or native firm, classification, status, reason and initiation dates; counts are recall records. Other sources require a name.
 
-Usage: biomcp search drug [OPTIONS] <query>
+Usage: biomcp search drug [OPTIONS] [query]
 
 Arguments:
-  <query>
-          Literal source name selector, unchanged by the consumer.
+  [query]
+          Literal name phrase; optional for FDA drug recalls. Harmonized recall names match but never become display names.
 
 Options:
+      --classification <classification>
+          Native FDA classification; drug recalls only.
+
       --format <format>
           Choose JSON or Markdown output; configuration can change the default.
           
           [default: json]
           [possible values: json, md]
 
-      --limit <limit>
-          Native candidate rows per page.
-
       --disable-sources <disable-sources>
           Exclude source names or source terms groups.
 
-      --name-selector <name_selector>
-          Explicit ChEMBL native name selector; omitted means preferred name.
+      --firm <firm>
+          Literal published recalling firm phrase; drug recalls only.
 
       --config <config>
           Read configuration from this file.
 
+      --initiated-from <initiated_from>
+          Inclusive initiation day, YYYY-MM-DD; drug recalls only.
+
+      --initiated-to <initiated_to>
+          Inclusive initiation day, YYYY-MM-DD; drug recalls only.
+
+      --limit <limit>
+          Native candidate rows per page.
+
+      --name-selector <name_selector>
+          Explicit ChEMBL native name selector; omitted means preferred name.
+
       --offset <offset>
           Native rows to skip.
-
-      --source <source>
-          Exactly one source; default MyChem never fans out.
 
       --offline
           Read local data without source requests.
 
+      --reason <reason>
+          Phrase in the published recall reason; drug recalls only.
+
       --fresh
           Request fresh source data instead of cached replies.
 
+      --source <source>
+          Exactly one source; default MyChem never fans out.
+
+      --status <status>
+          Literal native recall status; drug recalls only.
+
 ```
 
-Exact single-source candidate discovery, without an implicit identity selection.
+Search one drug source. FDA drug recalls accept a name or source firm, classification, status, reason and initiation dates; counts are recall records. Other sources require a name.
 
+- `--classification`: Source FDA classification; drug recalls only.
+- `--firm`: Exact published recalling firm phrase; drug recalls only.
+- `--initiated-from`: Inclusive initiation day, YYYY-MM-DD; drug recalls only.
+- `--initiated-to`: Inclusive initiation day, YYYY-MM-DD; drug recalls only.
 - `--limit`: Source candidate rows per page.
 - `--name-selector`: Explicit ChEMBL source name selector; omitted means preferred name.
 - `--offset`: Source rows to skip.
-- `query`: Exact source name selector, unchanged by the consumer.
+- `query`: Exact name phrase; optional for FDA drug recalls. Harmonized recall names match but never become display names.
+- `--reason`: Phrase in the published recall reason; drug recalls only.
 - `--source`: Exactly one source; default MyChem never fans out.
+- `--status`: Exact source recall status; drug recalls only.
 
 ## biomcp search gene
 
@@ -4649,7 +4673,7 @@ Options:
 JSON reply readers ignore unknown fields and unknown growable enum values within a major. Query schemas remain closed.
 
 Example: biomcp schema
-Example: biomcp schema biomcp.help/3
+Example: biomcp schema biomcp.help/4
 
 ```
 

@@ -15,6 +15,7 @@ Implemented operators:
 | Operator | Expected value | Meaning |
 | --- | --- | --- |
 | `equals` | Any JSON value | Exact equality, including objects |
+| `omits` | Nonempty array of field names | The selected object lacks every named field, including null values |
 | `includes` | Any JSON value | An array contains an equal member |
 | `count` | Nonnegative integer | Exact array length |
 | `rank_of` | Nonempty object of string members to positive integers | First one-based position of each exact string member |

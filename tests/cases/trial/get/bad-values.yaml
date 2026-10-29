@@ -14,9 +14,6 @@
         "/status": "partial",
         "/result/items/0/status": "partial",
         "/result/items/0/card/nct_id": "NCT03511664",
-        "/result/items/0/card/status": null,
-        "/result/items/0/card/updated": null,
-        "/result/items/0/card/study_type": null,
         "/result/items/0/card/phases": {
           "equals": [
             "PHASE3"
@@ -29,6 +26,13 @@
             "phases",
             "studyType",
             "sex"
+          ]
+        },
+        "/result/items/0/card": {
+          "omits": [
+            "status",
+            "updated",
+            "study_type"
           ]
         }
       },
@@ -44,9 +48,6 @@
         "/status": "partial",
         "/result/items/0/status": "partial",
         "/result/items/0/card/nct_id": "NCT03511664",
-        "/result/items/0/card/status": null,
-        "/result/items/0/card/updated": null,
-        "/result/items/0/card/study_type": null,
         "/result/items/0/card/phases": {
           "equals": [
             "PHASE3"
@@ -59,6 +60,13 @@
             "phases",
             "studyType",
             "sex"
+          ]
+        },
+        "/result/items/0/card": {
+          "omits": [
+            "status",
+            "updated",
+            "study_type"
           ]
         }
       },

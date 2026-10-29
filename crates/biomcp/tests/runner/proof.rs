@@ -393,6 +393,19 @@ fn boundaries() -> Check {
         }
     }
     let rows = [
+        ("{}", "{'': {omits: [missing]}}", None),
+        (
+            "{\"x\":null}",
+            "{'': {omits: [x]}}",
+            Some("unexpected field x"),
+        ),
+        (
+            "{\"x\":1}",
+            "{'': {omits: [x]}}",
+            Some("unexpected field x"),
+        ),
+        ("[]", "{'': {omits: [x]}}", Some("requires an object")),
+        ("{}", "{'/missing': {omits: [x]}}", Some("<missing>")),
         ("null", "{'': null}", None),
         ("null", "{'/missing': null}", Some("<missing>")),
         ("null", "{'/*': []}", Some("wildcard requires an array")),

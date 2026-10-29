@@ -1,12 +1,12 @@
 {
   "$defs": {
-    "Attribution": {
+    "Reply_Attribution": {
       "description": "Provenance for one source record.",
       "properties": {
         "evaluated": {
           "anyOf": [
             {
-              "$ref": "#/$defs/PartialDate"
+              "$ref": "#/$defs/Reply_PartialDate"
             },
             {
               "type": "null"
@@ -17,7 +17,7 @@
         "record": {
           "anyOf": [
             {
-              "$ref": "#/$defs/Text"
+              "$ref": "#/$defs/Reply_Text"
             },
             {
               "type": "null"
@@ -28,7 +28,7 @@
         "release": {
           "anyOf": [
             {
-              "$ref": "#/$defs/Text"
+              "$ref": "#/$defs/Reply_Text"
             },
             {
               "type": "null"
@@ -37,13 +37,13 @@
           "description": "Dataset release."
         },
         "source": {
-          "$ref": "#/$defs/Text",
+          "$ref": "#/$defs/Reply_Text",
           "description": "Source responsible for the claim."
         },
         "submitter": {
           "anyOf": [
             {
-              "$ref": "#/$defs/Text"
+              "$ref": "#/$defs/Reply_Text"
             },
             {
               "type": "null"
@@ -54,7 +54,7 @@
         "url": {
           "anyOf": [
             {
-              "$ref": "#/$defs/Text"
+              "$ref": "#/$defs/Reply_Text"
             },
             {
               "type": "null"
@@ -66,7 +66,7 @@
         "version": {
           "anyOf": [
             {
-              "$ref": "#/$defs/Text"
+              "$ref": "#/$defs/Reply_Text"
             },
             {
               "type": "null"
@@ -80,7 +80,7 @@
       ],
       "type": "object"
     },
-    "CacheProblem": {
+    "Reply_CacheProblem": {
       "description": "A local cache failure that leaves the provider outcome intact.",
       "enum": [
         "busy",
@@ -89,7 +89,7 @@
       ],
       "type": "string"
     },
-    "CivicClaimKind": {
+    "Reply_CivicClaimKind": {
       "description": "CIViC native claim collection.",
       "enum": [
         "evidence",
@@ -97,17 +97,17 @@
       ],
       "type": "string"
     },
-    "DrugDiseaseReference": {
+    "Reply_DrugDiseaseReference": {
       "description": "One native disease identifier and its own source label.",
       "properties": {
         "id": {
-          "$ref": "#/$defs/Text",
+          "$ref": "#/$defs/Reply_Text",
           "description": "Exact identifier spelling, without CURIE conversion."
         },
         "label": {
           "anyOf": [
             {
-              "$ref": "#/$defs/Text"
+              "$ref": "#/$defs/Reply_Text"
             },
             {
               "type": "null"
@@ -116,7 +116,7 @@
           "description": "Label attached to this identifier by the source."
         },
         "namespace": {
-          "$ref": "#/$defs/Text",
+          "$ref": "#/$defs/Reply_Text",
           "description": "Source namespace spelling, such as EFO or MeSH."
         }
       },
@@ -126,13 +126,13 @@
       ],
       "type": "object"
     },
-    "DrugGet": {
+    "Reply_DrugGet": {
       "description": "Exact native ID retrieval with an explicitly selected source.",
       "properties": {
         "civic_cursor": {
           "anyOf": [
             {
-              "$ref": "#/$defs/Text"
+              "$ref": "#/$defs/Reply_Text"
             },
             {
               "type": "null"
@@ -143,7 +143,7 @@
         "civic_kind": {
           "anyOf": [
             {
-              "$ref": "#/$defs/CivicClaimKind"
+              "$ref": "#/$defs/Reply_CivicClaimKind"
             },
             {
               "type": "null"
@@ -162,14 +162,14 @@
           ]
         },
         "input": {
-          "$ref": "#/$defs/DrugId",
+          "$ref": "#/$defs/Reply_DrugId",
           "description": "Published source-native identifier, never SOURCE:ID or a selected name.",
           "x-positional": 0
         },
         "label_section": {
           "anyOf": [
             {
-              "$ref": "#/$defs/Text"
+              "$ref": "#/$defs/Reply_Text"
             },
             {
               "type": "null"
@@ -180,7 +180,7 @@
         "product_number": {
           "anyOf": [
             {
-              "$ref": "#/$defs/Text"
+              "$ref": "#/$defs/Reply_Text"
             },
             {
               "type": "null"
@@ -191,7 +191,7 @@
         "section": {
           "description": "Explicit named disclosures; empty means identity only.",
           "items": {
-            "$ref": "#/$defs/DrugSection"
+            "$ref": "#/$defs/Reply_DrugSection"
           },
           "type": "array",
           "x-positional": 1
@@ -216,7 +216,7 @@
           ]
         },
         "source": {
-          "$ref": "#/$defs/DrugSource",
+          "$ref": "#/$defs/Reply_DrugSource",
           "description": "Required source; there is no default exact-ID resolver."
         }
       },
@@ -226,21 +226,21 @@
       ],
       "type": "object"
     },
-    "DrugHeader": {
+    "Reply_DrugHeader": {
       "description": "One source candidate, without authorization, targets, label text or interactions.",
       "properties": {
         "id": {
-          "$ref": "#/$defs/DrugId",
+          "$ref": "#/$defs/Reply_DrugId",
           "description": "Published native identifier."
         },
         "identity_level": {
-          "$ref": "#/$defs/DrugIdentityLevel",
+          "$ref": "#/$defs/Reply_DrugIdentityLevel",
           "description": "Level established only by the endpoint or record type."
         },
         "matched_name": {
           "anyOf": [
             {
-              "$ref": "#/$defs/DrugNameMatch"
+              "$ref": "#/$defs/Reply_DrugNameMatch"
             },
             {
               "type": "null"
@@ -249,17 +249,17 @@
           "description": "Complete native name fields matching the search input; omitted outside label searches."
         },
         "name": {
-          "$ref": "#/$defs/Text",
+          "$ref": "#/$defs/Reply_Text",
           "description": "Original source display name."
         },
         "source": {
-          "$ref": "#/$defs/DrugSource",
+          "$ref": "#/$defs/Reply_DrugSource",
           "description": "The single source responsible for this header."
         },
         "type": {
           "anyOf": [
             {
-              "$ref": "#/$defs/Text"
+              "$ref": "#/$defs/Reply_Text"
             },
             {
               "type": "null"
@@ -270,7 +270,7 @@
         "url": {
           "anyOf": [
             {
-              "$ref": "#/$defs/Text"
+              "$ref": "#/$defs/Reply_Text"
             },
             {
               "type": "null"
@@ -282,7 +282,7 @@
         "version": {
           "anyOf": [
             {
-              "$ref": "#/$defs/Text"
+              "$ref": "#/$defs/Reply_Text"
             },
             {
               "type": "null"
@@ -298,34 +298,34 @@
       ],
       "type": "object"
     },
-    "DrugId": {
+    "Reply_DrugId": {
       "description": "A published native drug record identifier, without a consumer source prefix.",
       "pattern": "^(?:[A-Z][A-Z0-9_.-]*:)?[A-Za-z0-9][A-Za-z0-9_.-]*(/[A-Za-z0-9_.-]+)*$",
       "type": "string"
     },
-    "DrugIdentity": {
+    "Reply_DrugIdentity": {
       "description": "One source record identity, without any equivalence or authorization claim.",
       "properties": {
         "id": {
-          "$ref": "#/$defs/DrugId",
+          "$ref": "#/$defs/Reply_DrugId",
           "description": "Published native record identifier."
         },
         "identity_level": {
-          "$ref": "#/$defs/DrugIdentityLevel",
+          "$ref": "#/$defs/Reply_DrugIdentityLevel",
           "description": "Level established by the endpoint or record type; unknown stays unknown."
         },
         "name": {
-          "$ref": "#/$defs/Text",
+          "$ref": "#/$defs/Reply_Text",
           "description": "Original source name."
         },
         "source": {
-          "$ref": "#/$defs/Text",
+          "$ref": "#/$defs/Reply_Text",
           "description": "Source responsible for this identity."
         },
         "type": {
           "anyOf": [
             {
-              "$ref": "#/$defs/Text"
+              "$ref": "#/$defs/Reply_Text"
             },
             {
               "type": "null"
@@ -336,7 +336,7 @@
         "url": {
           "anyOf": [
             {
-              "$ref": "#/$defs/Text"
+              "$ref": "#/$defs/Reply_Text"
             },
             {
               "type": "null"
@@ -353,7 +353,7 @@
       ],
       "type": "object"
     },
-    "DrugIdentityLevel": {
+    "Reply_DrugIdentityLevel": {
       "description": "Identity level established by the source endpoint or record type, never inferred from ID shape.",
       "type": "string",
       "x-enum-descriptions": [
@@ -387,39 +387,39 @@
         "unknown"
       ]
     },
-    "DrugIndicationClaim": {
+    "Reply_DrugIndicationClaim": {
       "description": "A source indication retaining its full population and combination wording.",
       "properties": {
         "attribution": {
-          "$ref": "#/$defs/Attribution",
+          "$ref": "#/$defs/Reply_Attribution",
           "description": "Native claim provenance."
         },
         "combination": {
           "description": "Complete source-stated combination members, without local joins.",
           "items": {
-            "$ref": "#/$defs/DrugIdentity"
+            "$ref": "#/$defs/Reply_DrugIdentity"
           },
           "type": "array"
         },
         "disease_references": {
           "description": "Independently labeled native disease identifiers, without cross-source normalization.",
           "items": {
-            "$ref": "#/$defs/DrugDiseaseReference"
+            "$ref": "#/$defs/Reply_DrugDiseaseReference"
           },
           "type": "array"
         },
         "drug": {
-          "$ref": "#/$defs/DrugIdentity",
+          "$ref": "#/$defs/Reply_DrugIdentity",
           "description": "Source drug identity."
         },
         "indication": {
-          "$ref": "#/$defs/Text",
+          "$ref": "#/$defs/Reply_Text",
           "description": "Complete native indication wording."
         },
         "population": {
           "anyOf": [
             {
-              "$ref": "#/$defs/Text"
+              "$ref": "#/$defs/Reply_Text"
             },
             {
               "type": "null"
@@ -430,14 +430,14 @@
         "references": {
           "description": "Source-native supporting references.",
           "items": {
-            "$ref": "#/$defs/DrugNativeReference"
+            "$ref": "#/$defs/Reply_DrugNativeReference"
           },
           "type": "array"
         },
         "stage": {
           "anyOf": [
             {
-              "$ref": "#/$defs/DrugStage"
+              "$ref": "#/$defs/Reply_DrugStage"
             },
             {
               "type": "null"
@@ -453,15 +453,15 @@
       ],
       "type": "object"
     },
-    "DrugIndications": {
+    "Reply_DrugIndications": {
       "description": "Source-native indication wording, populations and combinations.",
       "properties": {
         "identity": {
-          "$ref": "#/$defs/DrugHeader",
+          "$ref": "#/$defs/Reply_DrugHeader",
           "description": "Selected native identity, checked independently of section facts."
         },
         "indications": {
-          "$ref": "#/$defs/Section",
+          "$ref": "#/$defs/Reply_Section_DrugRecords_DrugIndicationClaim",
           "description": "Existing typed section state, preserving empty, unavailable and skipped outcomes."
         }
       },
@@ -471,7 +471,7 @@
       ],
       "type": "object"
     },
-    "DrugNameMatch": {
+    "Reply_DrugNameMatch": {
       "description": "Complete native name fields matching the requested label name.",
       "type": "string",
       "x-enum-descriptions": [
@@ -485,13 +485,13 @@
         "both"
       ]
     },
-    "DrugNativeReference": {
+    "Reply_DrugNativeReference": {
       "description": "Typed source reference shared by mechanism and indication records.",
       "properties": {
         "ref_id": {
           "anyOf": [
             {
-              "$ref": "#/$defs/Text"
+              "$ref": "#/$defs/Reply_Text"
             },
             {
               "type": "null"
@@ -500,13 +500,13 @@
           "description": "Source reference identifier, when supplied."
         },
         "ref_type": {
-          "$ref": "#/$defs/Text",
+          "$ref": "#/$defs/Reply_Text",
           "description": "Native reference type."
         },
         "ref_url": {
           "anyOf": [
             {
-              "$ref": "#/$defs/Text"
+              "$ref": "#/$defs/Reply_Text"
             },
             {
               "type": "null"
@@ -521,7 +521,7 @@
       ],
       "type": "object"
     },
-    "DrugRecords": {
+    "Reply_DrugRecords_DrugIndicationClaim": {
       "description": "One bounded native row page, without fabricating an unknown total.",
       "properties": {
         "offset": {
@@ -533,14 +533,14 @@
         "records": {
           "description": "Native source rows in order.",
           "items": {
-            "$ref": "#/$defs/DrugIndicationClaim"
+            "$ref": "#/$defs/Reply_DrugIndicationClaim"
           },
           "type": "array"
         },
         "retrieved": {
           "anyOf": [
             {
-              "$ref": "#/$defs/PartialDate"
+              "$ref": "#/$defs/Reply_PartialDate"
             },
             {
               "type": "null"
@@ -567,7 +567,7 @@
         "version": {
           "anyOf": [
             {
-              "$ref": "#/$defs/Text"
+              "$ref": "#/$defs/Reply_Text"
             },
             {
               "type": "null"
@@ -581,7 +581,7 @@
       ],
       "type": "object"
     },
-    "DrugSection": {
+    "Reply_DrugSection": {
       "description": "Explicit drug disclosures; identity cards never expand into these sections.",
       "type": "string",
       "x-enum-descriptions": [
@@ -605,11 +605,12 @@
         "interactions"
       ]
     },
-    "DrugSource": {
+    "Reply_DrugSource": {
       "description": "A supported drug data source.",
       "type": "string",
       "x-extensible-enum": [
         "who-pq",
+        "fda-drug-recall",
         "mychem",
         "chembl",
         "opentargets",
@@ -620,7 +621,7 @@
         "ddinter"
       ]
     },
-    "DrugStage": {
+    "Reply_DrugStage": {
       "description": "One source development-stage field and its unchanged value.",
       "properties": {
         "field": {
@@ -638,7 +639,7 @@
       ],
       "type": "object"
     },
-    "PageInfo": {
+    "Reply_PageInfo": {
       "description": "Search counts after filtering and deduplication.",
       "properties": {
         "offset": {
@@ -650,7 +651,7 @@
         "pool": {
           "anyOf": [
             {
-              "$ref": "#/$defs/PoolInfo"
+              "$ref": "#/$defs/Reply_PoolInfo"
             },
             {
               "type": "null"
@@ -685,12 +686,12 @@
       ],
       "type": "object"
     },
-    "PartialDate": {
-      "description": "A Gregorian date preserving year, month or day precision.",
-      "pattern": "^[0-9]{4}(-[0-9]{2}(-[0-9]{2})?)?$",
+    "Reply_PartialDate": {
+      "description": "A Gregorian date preserving year, month or day precision. The parser additionally validates the calendar day, including leap years.",
+      "pattern": "^(?!0000)[0-9]{4}(-(0[1-9]|1[0-2])(-(0[1-9]|[12][0-9]|3[01]))?)?$",
       "type": "string"
     },
-    "PoolInfo": {
+    "Reply_PoolInfo": {
       "description": "Fixed lifetime and size of a stored search snapshot.",
       "properties": {
         "created": {
@@ -706,7 +707,7 @@
           "type": "integer"
         },
         "id": {
-          "$ref": "#/$defs/Text",
+          "$ref": "#/$defs/Reply_Text",
           "description": "Opaque snapshot identifier."
         },
         "size": {
@@ -724,11 +725,11 @@
       ],
       "type": "object"
     },
-    "Problem": {
+    "Reply_Problem": {
       "description": "A field that could not be accepted from a source record.",
       "properties": {
         "code": {
-          "$ref": "#/$defs/ProblemCode",
+          "$ref": "#/$defs/Reply_ProblemCode",
           "description": "Why the field value was not accepted."
         },
         "field": {
@@ -738,7 +739,7 @@
         "record": {
           "anyOf": [
             {
-              "$ref": "#/$defs/Text"
+              "$ref": "#/$defs/Reply_Text"
             },
             {
               "type": "null"
@@ -747,7 +748,7 @@
           "description": "The record's canonical identifier, when known."
         },
         "source": {
-          "$ref": "#/$defs/Source",
+          "$ref": "#/$defs/Reply_Source",
           "description": "The source that supplied the record."
         }
       },
@@ -758,7 +759,7 @@
       ],
       "type": "object"
     },
-    "ProblemCode": {
+    "Reply_ProblemCode": {
       "description": "A stable code for a rejected field value.",
       "type": "string",
       "x-enum-descriptions": [
@@ -772,7 +773,7 @@
         "identity.conflict"
       ]
     },
-    "Reason": {
+    "Reply_Reason": {
       "description": "Why a source could not supply data.",
       "type": "string",
       "x-enum-descriptions": [
@@ -797,39 +798,39 @@
         " Identity lacks the identifier required to join this source."
       ],
       "x-extensible-enum": [
-        "not-found",
-        "not-open",
-        "not-pdf",
+        "not_found",
+        "not_open",
+        "not_pdf",
         "unsupported",
-        "too-large",
-        "rate-limited",
-        "local-quota",
+        "too_large",
+        "rate_limited",
+        "local_quota",
         "unavailable",
         "tls",
         "proxy",
         "rejected",
-        "bad-reply",
-        "deadline-exceeded",
+        "bad_reply",
+        "deadline_exceeded",
         "offline",
-        "no-key",
+        "no_key",
         "disabled",
-        "replay-miss",
+        "replay_miss",
         "syncing",
-        "no-join-id"
+        "no_join_id"
       ]
     },
-    "Section": {
+    "Reply_Section_DrugRecords_DrugIndicationClaim": {
       "description": "A requested section has exactly one state.",
       "oneOf": [
         {
           "description": "The source returned data.",
           "properties": {
             "data": {
-              "$ref": "#/$defs/DrugRecords",
+              "$ref": "#/$defs/Reply_DrugRecords_DrugIndicationClaim",
               "description": "Whole section data."
             },
             "source": {
-              "$ref": "#/$defs/Source",
+              "$ref": "#/$defs/Reply_Source",
               "description": "Source identity."
             },
             "state": {
@@ -850,7 +851,7 @@
             "record": {
               "anyOf": [
                 {
-                  "$ref": "#/$defs/SourceRecord"
+                  "$ref": "#/$defs/Reply_SourceRecord"
                 },
                 {
                   "type": "null"
@@ -859,7 +860,7 @@
               "description": "Native entry, if any."
             },
             "source": {
-              "$ref": "#/$defs/Source",
+              "$ref": "#/$defs/Reply_Source",
               "description": "Source identity."
             },
             "state": {
@@ -877,11 +878,11 @@
           "description": "A requested source failed.",
           "properties": {
             "reason": {
-              "$ref": "#/$defs/Reason",
+              "$ref": "#/$defs/Reply_Reason",
               "description": "Typed reason."
             },
             "source": {
-              "$ref": "#/$defs/Source",
+              "$ref": "#/$defs/Reply_Source",
               "description": "Source identity."
             },
             "state": {
@@ -900,11 +901,11 @@
           "description": "User settings prevented the source request.",
           "properties": {
             "reason": {
-              "$ref": "#/$defs/Reason",
+              "$ref": "#/$defs/Reply_Reason",
               "description": "Typed reason."
             },
             "source": {
-              "$ref": "#/$defs/Source",
+              "$ref": "#/$defs/Reply_Source",
               "description": "Source identity."
             },
             "state": {
@@ -923,7 +924,7 @@
           "description": "Entity facts rule this section out.",
           "properties": {
             "state": {
-              "const": "not-applicable",
+              "const": "not_applicable",
               "type": "string"
             }
           },
@@ -934,7 +935,7 @@
         }
       ]
     },
-    "Source": {
+    "Reply_Source": {
       "description": "A source of BioMCP data, identified by its canonical short name.",
       "type": "string",
       "x-enum-descriptions": [
@@ -1006,6 +1007,7 @@
         " openFDA premarket approval submissions.",
         " FDA native 510(k) clearance records.",
         " openFDA medical device product recall records.",
+        " FDA drug enforcement recall records.",
         " Clinical Pharmacogenetics Implementation Consortium.",
         " ClinPGx pharmacogenomics annotations.",
         " Public cBioPortal with study-specific reuse terms.",
@@ -1080,20 +1082,21 @@
         "fda-pma",
         "fda-510k",
         "fda-device-recall",
+        "fda-drug-recall",
         "cpic",
         "clinpgx",
         "cbioportal",
         "cellosaurus"
       ]
     },
-    "SourceNotice": {
+    "Reply_SourceNotice": {
       "description": "A source notice or request recovery step.",
       "oneOf": [
         {
           "description": "Local request limits and source-specific recovery guidance.",
           "properties": {
             "kind": {
-              "const": "request-guidance",
+              "const": "request_guidance",
               "type": "string"
             },
             "message": {
@@ -1120,7 +1123,7 @@
           "description": "Registered conditions lack the literal words requested in a condition search.",
           "properties": {
             "kind": {
-              "const": "condition-word-mismatch",
+              "const": "condition_word_mismatch",
               "type": "string"
             },
             "message": {
@@ -1138,11 +1141,11 @@
           "description": "A checked provider answer survived a local cache failure.",
           "properties": {
             "kind": {
-              "const": "cache-problem",
+              "const": "cache_problem",
               "type": "string"
             },
             "reason": {
-              "$ref": "#/$defs/CacheProblem",
+              "$ref": "#/$defs/Reply_CacheProblem",
               "description": "Bounded local failure without paths or database diagnostics."
             }
           },
@@ -1156,11 +1159,11 @@
           "description": "The source still has graph pages after the bounded fetch window.",
           "properties": {
             "fallback": {
-              "$ref": "#/$defs/Text",
+              "$ref": "#/$defs/Reply_Text",
               "description": "Default-source command offering another graph view."
             },
             "kind": {
-              "const": "graph-truncated",
+              "const": "graph_truncated",
               "type": "string"
             }
           },
@@ -1174,7 +1177,7 @@
           "description": "An empty LitVar lookup can be repeated with a caller-supplied rsID.",
           "properties": {
             "kind": {
-              "const": "litvar-rsid-hint",
+              "const": "litvar_rsid_hint",
               "type": "string"
             },
             "message": {
@@ -1192,7 +1195,7 @@
           "description": "PubMed supplied a named ESearch warning without changing its phrases.",
           "properties": {
             "kind": {
-              "const": "pubmed-warning",
+              "const": "pubmed_warning",
               "type": "string"
             },
             "name": {
@@ -1217,13 +1220,13 @@
           "description": "PubMed did not index these words.",
           "properties": {
             "kind": {
-              "const": "not-found-words",
+              "const": "not_found_words",
               "type": "string"
             },
             "words": {
               "description": "Whole source words.",
               "items": {
-                "$ref": "#/$defs/Text"
+                "$ref": "#/$defs/Reply_Text"
               },
               "type": "array"
             }
@@ -1235,7 +1238,7 @@
         }
       ]
     },
-    "SourceOutcome": {
+    "Reply_SourceOutcome": {
       "description": "One source's outcome, without provider text.",
       "properties": {
         "count": {
@@ -1259,14 +1262,14 @@
         "notices": {
           "description": "Source notices and request recovery guidance.",
           "items": {
-            "$ref": "#/$defs/SourceNotice"
+            "$ref": "#/$defs/Reply_SourceNotice"
           },
           "type": "array"
         },
         "reason": {
           "anyOf": [
             {
-              "$ref": "#/$defs/Reason"
+              "$ref": "#/$defs/Reply_Reason"
             },
             {
               "type": "null"
@@ -1275,17 +1278,17 @@
           "description": "Failure or stale-fallback reason."
         },
         "source": {
-          "$ref": "#/$defs/Source",
+          "$ref": "#/$defs/Reply_Source",
           "description": "Asked source."
         },
         "state": {
-          "$ref": "#/$defs/SourceState",
+          "$ref": "#/$defs/Reply_SourceState",
           "description": "Retained state."
         },
         "term": {
           "anyOf": [
             {
-              "$ref": "#/$defs/Text"
+              "$ref": "#/$defs/Reply_Text"
             },
             {
               "type": "null"
@@ -1303,7 +1306,7 @@
           "type": "string"
         },
         "use": {
-          "$ref": "#/$defs/Use",
+          "$ref": "#/$defs/Reply_Use",
           "description": "Reviewed source use category; publisher terms remain authoritative."
         }
       },
@@ -1316,17 +1319,17 @@
       ],
       "type": "object"
     },
-    "SourceRecord": {
+    "Reply_SourceRecord": {
       "description": "The source's own entry for an entity.",
       "properties": {
         "id": {
-          "$ref": "#/$defs/Text",
+          "$ref": "#/$defs/Reply_Text",
           "description": "Native source identifier."
         },
         "url": {
           "anyOf": [
             {
-              "$ref": "#/$defs/Text"
+              "$ref": "#/$defs/Reply_Text"
             },
             {
               "type": "null"
@@ -1341,7 +1344,7 @@
       ],
       "type": "object"
     },
-    "SourceState": {
+    "Reply_SourceState": {
       "description": "State of a source actually asked by the command.",
       "enum": [
         "ok",
@@ -1352,7 +1355,7 @@
       ],
       "type": "string"
     },
-    "Status": {
+    "Reply_Status": {
       "description": "Overall command outcome.",
       "enum": [
         "complete",
@@ -1362,7 +1365,7 @@
       ],
       "type": "string"
     },
-    "Step": {
+    "Reply_Step": {
       "description": "A command argument list spelled from a typed action.",
       "properties": {
         "args": {
@@ -1373,7 +1376,7 @@
           "type": "array"
         },
         "kind": {
-          "$ref": "#/$defs/StepKind",
+          "$ref": "#/$defs/Reply_StepKind",
           "description": "Purpose of the action."
         }
       },
@@ -1382,7 +1385,7 @@
       ],
       "type": "object"
     },
-    "StepKind": {
+    "Reply_StepKind": {
       "description": "Purpose of an available next command.",
       "enum": [
         "restart",
@@ -1398,12 +1401,12 @@
       ],
       "type": "string"
     },
-    "Text": {
+    "Reply_Text": {
       "description": "Nonempty text with surrounding Unicode whitespace removed.",
       "minLength": 1,
       "type": "string"
     },
-    "Use": {
+    "Reply_Use": {
       "description": "Reviewed source-use category, without inferring rights in individual records.",
       "enum": [
         "open",
@@ -1421,7 +1424,7 @@
     "local_error": {
       "anyOf": [
         {
-          "$ref": "#/$defs/CacheProblem"
+          "$ref": "#/$defs/Reply_CacheProblem"
         },
         {
           "type": "null"
@@ -1432,14 +1435,14 @@
     "next": {
       "description": "Available next commands.",
       "items": {
-        "$ref": "#/$defs/Step"
+        "$ref": "#/$defs/Reply_Step"
       },
       "type": "array"
     },
     "page": {
       "anyOf": [
         {
-          "$ref": "#/$defs/PageInfo"
+          "$ref": "#/$defs/Reply_PageInfo"
         },
         {
           "type": "null"
@@ -1450,18 +1453,18 @@
     "problems": {
       "description": "Rejected source fields.",
       "items": {
-        "$ref": "#/$defs/Problem"
+        "$ref": "#/$defs/Reply_Problem"
       },
       "type": "array"
     },
     "query": {
-      "$ref": "#/$defs/DrugGet",
+      "$ref": "#/$defs/Reply_DrugGet",
       "description": "Parsed query."
     },
     "result": {
       "anyOf": [
         {
-          "$ref": "#/$defs/DrugIndications"
+          "$ref": "#/$defs/Reply_DrugIndications"
         },
         {
           "type": "null"
@@ -1476,12 +1479,12 @@
     "sources": {
       "description": "Sources actually asked.",
       "items": {
-        "$ref": "#/$defs/SourceOutcome"
+        "$ref": "#/$defs/Reply_SourceOutcome"
       },
       "type": "array"
     },
     "status": {
-      "$ref": "#/$defs/Status",
+      "$ref": "#/$defs/Reply_Status",
       "description": "Overall outcome."
     }
   },

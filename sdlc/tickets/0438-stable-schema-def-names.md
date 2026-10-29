@@ -1,6 +1,7 @@
 # 0438 — Give schema definitions stable names
 
-Status: OPEN.
+Status: COMPLETE.
+Landed: bbf1c3ad59ad1ff7da211b12c15215a14f7d38d5
 
 Milestone: 5
 

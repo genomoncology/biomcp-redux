@@ -1,6 +1,6 @@
 {
   "$defs": {
-    "ManeStatus": {
+    "Reply_ManeStatus": {
       "description": "The source-stated MANE transcript status.",
       "type": "string",
       "x-enum-descriptions": [
@@ -28,7 +28,7 @@
       "type": "string"
     },
     "status": {
-      "$ref": "#/$defs/ManeStatus",
+      "$ref": "#/$defs/Reply_ManeStatus",
       "description": "Source-stated transcript status."
     }
   },

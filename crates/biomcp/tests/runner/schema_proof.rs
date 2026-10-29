@@ -60,6 +60,46 @@ fn results(registry: &Registry) -> Result<(), String> {
     if diagnostic.chars().count() > 240 {
         return Err("unbounded schema identity diagnostic".into());
     }
+    nulls()?;
+    Ok(())
+}
+
+fn nulls() -> Result<(), String> {
+    use biomcp_types::{DiseaseGenes, ResponseBody};
+    let association = DiseaseGenes::SCHEMA;
+    let unrelated = "fixture.nulls/1";
+    let registry = Registry::new(
+        [association, unrelated]
+            .into_iter()
+            .map(|id| (id.into(), json!({"$id":id})))
+            .collect(),
+    )?;
+    let explicit = json!({"schema":association, "result":{"items":[
+        {"association":{"aggregator_knowledge_source":null}}
+    ]}});
+    registry.validate(&explicit, &[], true)?;
+    let mut other_schema = explicit;
+    *other_schema.get_mut("schema").ok_or("missing schema")? = json!(unrelated);
+    let rows = [
+        other_schema,
+        json!({"schema":association, "aggregator_knowledge_source":null}),
+        json!({"schema":association, "result":{"items":[null]}}),
+        json!({"schema":association, "result":{"items":[{"association":{
+            "subject_taxon":null
+        }}]}}),
+        json!({"schema":association, "result":{"items":[{"association":{
+            "aggregator_knowledge_source":[null]
+        }}]}}),
+        json!({"schema":association, "result/items/0/association/aggregator_knowledge_source":null}),
+    ];
+    for value in rows {
+        if !registry
+            .validate(&value, &[], true)
+            .is_err_and(|error| error.starts_with("product reply contains null at "))
+        {
+            return Err("runner admitted null outside the explicit association value".into());
+        }
+    }
     Ok(())
 }
 
@@ -206,7 +246,7 @@ fn discovery() -> Result<(), String> {
             .unwrap_or_default();
         for (entity, reply) in [
             ("drug", "biomcp.drug-who-card/2"),
-            ("pgx", "biomcp.pgx-annotation/2"),
+            ("pgx", "biomcp.pgx-annotation/3"),
         ] {
             if command["command"] == json!(["get", entity])
                 && !schemas.iter().any(|id| id.as_str() == Some(reply))
@@ -269,7 +309,7 @@ fn parent_replies(commands: &[Value]) -> Result<(), String> {
     let replies = parent["reply_schemas"]
         .as_array()
         .ok_or("missing parent reply schemas")?;
-    for id in ["biomcp.drug-who-card/2", "biomcp.pgx-annotation/2"] {
+    for id in ["biomcp.drug-who-card/2", "biomcp.pgx-annotation/3"] {
         if !replies.iter().any(|reply| reply.as_str() == Some(id)) {
             return Err(format!("missing child reply {id} for get parent"));
         }

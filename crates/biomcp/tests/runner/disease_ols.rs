@@ -231,7 +231,7 @@ fn exact() -> Result<(), String> {
         ],
     )?;
     let mut steps = vec![json!(
-        {"run":words,"mcp":words,"expect":{"/result/requested_id":"MONDO:0007607","/result/replaced_by":null,
+        {"run":words,"mcp":words,"expect":{"/result/requested_id":"MONDO:0007607","/result":{"omits":["replaced_by"]},
         "/result/consider":["MONDO:0800444","MONDO:0800445"],"/result/obsolete":true,"/result/sections":["synonyms","xrefs"]},
         "max_bytes":1086}
     )];

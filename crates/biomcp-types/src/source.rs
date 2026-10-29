@@ -139,6 +139,8 @@ canonical_enum! {
         Fda510k => "fda-510k",
         /// openFDA medical device product recall records.
         FdaDeviceRecall => "fda-device-recall",
+        /// FDA drug enforcement recall records.
+        FdaDrugRecall => "fda-drug-recall",
         /// Clinical Pharmacogenetics Implementation Consortium.
         Cpic => "cpic",
         /// ClinPGx pharmacogenomics annotations.

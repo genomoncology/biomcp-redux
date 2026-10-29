@@ -64,7 +64,7 @@ fn references(node: &Value, root: &Value, names: &mut BTreeSet<String>) {
         Value::Object(fields) => {
             if let Some(reference) = fields.get("$ref").and_then(Value::as_str)
                 && let Some(name) = reference.strip_prefix("#/$defs/")
-                && names.insert(name.into())
+                && names.insert(name.strip_prefix("Reply_").unwrap_or(name).into())
                 && let Some(target) = root.pointer(reference.trim_start_matches('#'))
             {
                 references(target, root, names);

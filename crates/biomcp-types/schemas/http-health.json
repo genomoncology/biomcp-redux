@@ -1,6 +1,6 @@
 {
   "$defs": {
-    "Text": {
+    "Reply_Text": {
       "description": "Nonempty text with surrounding Unicode whitespace removed.",
       "minLength": 1,
       "type": "string"
@@ -15,7 +15,7 @@
       "type": "boolean"
     },
     "version": {
-      "$ref": "#/$defs/Text",
+      "$ref": "#/$defs/Reply_Text",
       "description": "Executable version."
     }
   },

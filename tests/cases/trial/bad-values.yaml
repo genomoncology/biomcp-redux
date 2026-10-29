@@ -41,9 +41,6 @@
         "/result/source_updated/value": "2026-10-23T09:00:04",
         "/result/source_updated/timezone": "source-gave-none",
         "/result/items/0/status": "TEMPORARILY_NOT_AVAILABLE",
-        "/result/items/1/status": null,
-        "/result/items/2/status": null,
-        "/result/items/3/updated": null,
         "/result/items/4/phases": {
           "equals": [
             "PHASE3"
@@ -55,6 +52,21 @@
             "overallStatus",
             "lastUpdatePostDateStruct.date",
             "phases"
+          ]
+        },
+        "/result/items/1": {
+          "omits": [
+            "status"
+          ]
+        },
+        "/result/items/2": {
+          "omits": [
+            "status"
+          ]
+        },
+        "/result/items/3": {
+          "omits": [
+            "updated"
           ]
         }
       },
@@ -97,9 +109,6 @@
         "/result/source_updated/value": "2026-10-23T09:00:04",
         "/result/source_updated/timezone": "source-gave-none",
         "/result/items/0/status": "TEMPORARILY_NOT_AVAILABLE",
-        "/result/items/1/status": null,
-        "/result/items/2/status": null,
-        "/result/items/3/updated": null,
         "/result/items/4/phases": {
           "equals": [
             "PHASE3"
@@ -111,6 +120,21 @@
             "overallStatus",
             "lastUpdatePostDateStruct.date",
             "phases"
+          ]
+        },
+        "/result/items/1": {
+          "omits": [
+            "status"
+          ]
+        },
+        "/result/items/2": {
+          "omits": [
+            "status"
+          ]
+        },
+        "/result/items/3": {
+          "omits": [
+            "updated"
           ]
         }
       },

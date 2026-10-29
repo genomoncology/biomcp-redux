@@ -1,28 +1,28 @@
 {
   "$defs": {
-    "Curie": {
+    "Reply_Curie": {
       "description": "Checked prefix:local ontology identifier.",
-      "pattern": "^[A-Za-z0-9_.-]+:[^\\s\\x00-\\x1f\\x7f-\\x9f]+$",
+      "pattern": "^[A-Za-z0-9_.-]+:[^\\x09-\\x0d\\x20\\x85\\xa0\\u1680\\u2000-\\u200a\\u2028\\u2029\\u202f\\u205f\\u3000\\x00-\\x1f\\x7f-\\x9f]+$",
       "type": "string"
     },
-    "Text": {
+    "Reply_Text": {
       "description": "Nonempty text with surrounding Unicode whitespace removed.",
       "minLength": 1,
       "type": "string"
     }
   },
-  "$id": "biodata.disease-endpoint/1",
+  "$id": "biodata.disease-endpoint/2",
   "$schema": "https://json-schema.org/draft/2020-12/schema",
   "description": "One native endpoint with an identifier and an optional source label.",
   "properties": {
     "id": {
-      "$ref": "#/$defs/Curie",
+      "$ref": "#/$defs/Reply_Curie",
       "description": "Exact source identifier."
     },
     "label": {
       "anyOf": [
         {
-          "$ref": "#/$defs/Text"
+          "$ref": "#/$defs/Reply_Text"
         },
         {
           "type": "null"

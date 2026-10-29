@@ -14,8 +14,8 @@ pub struct StoreClean {
     pub files: u64,
 }
 impl super::ResponseBody for StoreClean {
-    const SCHEMA: &'static str = "biomcp.store-clean/2";
-    type Query = ();
+    const SCHEMA: &'static str = "biomcp.store-clean/3";
+    type Query = super::EmptyQuery;
 }
 
 /// Measured lengths of owned files, including unused database pages and present sidecars.

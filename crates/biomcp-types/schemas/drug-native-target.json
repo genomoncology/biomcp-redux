@@ -1,6 +1,6 @@
 {
   "$defs": {
-    "Text": {
+    "Reply_Text": {
       "description": "Nonempty text with surrounding Unicode whitespace removed.",
       "minLength": 1,
       "type": "string"
@@ -11,13 +11,13 @@
   "description": "One source-native target identity, without inventing a gene label.",
   "properties": {
     "id": {
-      "$ref": "#/$defs/Text",
+      "$ref": "#/$defs/Reply_Text",
       "description": "Exact published target identifier."
     },
     "label": {
       "anyOf": [
         {
-          "$ref": "#/$defs/Text"
+          "$ref": "#/$defs/Reply_Text"
         },
         {
           "type": "null"
@@ -26,13 +26,13 @@
       "description": "Native target label, only when supplied."
     },
     "source": {
-      "$ref": "#/$defs/Text",
+      "$ref": "#/$defs/Reply_Text",
       "description": "Source responsible for the native identifier."
     },
     "url": {
       "anyOf": [
         {
-          "$ref": "#/$defs/Text"
+          "$ref": "#/$defs/Reply_Text"
         },
         {
           "type": "null"

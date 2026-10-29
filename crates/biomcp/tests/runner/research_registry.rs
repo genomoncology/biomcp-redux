@@ -82,6 +82,7 @@ fn reference_name(value: &Value) -> Option<&str> {
         .get("$ref")
         .and_then(Value::as_str)
         .and_then(|s| s.rsplit('/').next())
+        .map(|name| name.strip_prefix("Reply_").unwrap_or(name))
         .or_else(|| {
             value
                 .get("anyOf")?
@@ -240,6 +241,7 @@ fn sources(root: &Value, row: &Value, name: &str) -> Vec<Source> {
         "CellLinePage" | "CellLineCard" => Some(Source::Cellosaurus),
         "GwasPage" | "GwasAssociationCard" => Some(Source::Gwas),
         "DrugWhoPage" | "DrugWhoCard" => Some(Source::WhoPq),
+        "DrugRecallPage" | "DrugRecallCard" => Some(Source::FdaDrugRecall),
         _ => match row
             .pointer("/properties/kind/const")
             .and_then(Value::as_str)
@@ -310,7 +312,7 @@ fn declared_fallback(root: &Value, row: &Value, id: &str, name: &str) -> bool {
 fn reject_broken_identity(root: &Value, id: &str, name: &str) -> Result<(), String> {
     let mut broken = root.clone();
     if let Some(properties) = broken
-        .pointer_mut("/$defs/PathwayId/oneOf/1/properties")
+        .pointer_mut("/$defs/Reply_PathwayId/oneOf/1/properties")
         .and_then(Value::as_object_mut)
     {
         properties.remove("id");

@@ -55,6 +55,7 @@ pub struct DiseaseCard {
     pub consider: Option<Box<[Curie]>>,
     /// Publisher explicit replacement identifiers; null preserves no native replacement.
     #[serde(default)]
+    #[serde(skip_serializing_if = "Option::is_none")]
     pub replaced_by: Option<Box<[Curie]>>,
     /// Publisher record and version.
     pub attribution: Attribution,
@@ -66,7 +67,7 @@ pub struct DiseaseCard {
     pub components: Box<[ComponentLabel]>,
 }
 impl ResponseBody for DiseaseCard {
-    const SCHEMA: &'static str = "biomcp.disease-card/4";
+    const SCHEMA: &'static str = "biomcp.disease-card/5";
     type Query = DiseaseGet;
 }
 /// One publisher catalog site, independent of ontology identities.
@@ -117,35 +118,35 @@ page!(
     DiseasePage,
     DiseaseHeader,
     DiseaseSearch,
-    "biomcp.disease-page/3",
+    "biomcp.disease-page/4",
     "One source-ordered disease candidate page."
 );
 page!(
     DiseaseSynonyms,
     DiseaseSynonym,
     DiseaseGet,
-    "biomcp.disease-synonyms/3",
+    "biomcp.disease-synonyms/4",
     "One publisher synonym page with scope and language."
 );
 page!(
     DiseaseXrefs,
     DiseaseRelation,
     DiseaseGet,
-    "biomcp.disease-xrefs/3",
+    "biomcp.disease-xrefs/4",
     "Native cross-reference predicates without equivalence promotion."
 );
 page!(
     DiseaseHierarchy,
     DiseaseRelation,
     DiseaseGet,
-    "biomcp.disease-hierarchy/3",
+    "biomcp.disease-hierarchy/4",
     "Native parent relations with both endpoints."
 );
 page!(
     DiseaseGenes,
     DiseaseAssociationItem,
     DiseaseGet,
-    "biomcp.disease-genes/6",
+    "biomcp.disease-genes/7",
     "Native association rows, not a unique-gene count.",
     [
         /// Original response retrieval Unix seconds, independent of local delivery.
@@ -157,7 +158,7 @@ page!(
     DiseasePhenotypes,
     DiseaseAssociationItem,
     DiseaseGet,
-    "biomcp.disease-phenotypes/6",
+    "biomcp.disease-phenotypes/7",
     "Native phenotype association rows without diagnostic inference.",
     [
         /// Original response retrieval Unix seconds, independent of local delivery.
@@ -181,7 +182,7 @@ page!(
     DiseaseIncidence,
     DiseaseStatistic,
     DiseaseGet,
-    "biomcp.disease-incidence/4",
+    "biomcp.disease-incidence/5",
     "Native incidence rows preserving requested and returned dimensions.",
     [
         /// Original response retrieval time in Unix seconds, distinct from dataset publication.
@@ -193,7 +194,7 @@ page!(
     DiseaseSurvival,
     DiseaseStatistic,
     DiseaseGet,
-    "biomcp.disease-survival/4",
+    "biomcp.disease-survival/5",
     "Native annual survival rows with separate observed and modeled values.",
     [
         /// Original response retrieval time in Unix seconds, distinct from dataset publication.

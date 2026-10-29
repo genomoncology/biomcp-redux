@@ -137,7 +137,7 @@ fn blank_text() -> Check {
         json!([{"run":["get","trial","NCT03511664","locations"],"expect":{
         "/status":"partial","/result/items/0/card/nct_id":"NCT03511664",
         "/result/items/0/card/conditions":{"equals":["  valid condition  ","second condition"]},
-        "/result/items/0/sections/locations/data/items/0/facility":null,
+        "/result/items/0/sections/locations/data/items/0":{"omits":["facility"]},
         "/result/items/0/sections/locations/data/items/0/city":"Scottsdale"}}]),
     )?;
     problem(&out, "facility")?;
@@ -157,7 +157,7 @@ fn rejected_age() -> Check {
             },
             json!([{"run":["get","trial","NCT03511664","eligibility"],"expect":{
             "/status":"partial",
-            "/result/items/0/sections/eligibility/data/minimum_age":null,
+            "/result/items/0/sections/eligibility/data":{"omits":["minimum_age"]},
             "/result/items/0/sections/eligibility/data/maximum_age/state":"no-limit"}}]),
         )?;
         problem(&out, "minimumAge")?;

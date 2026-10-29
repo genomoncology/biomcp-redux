@@ -1,6 +1,6 @@
 {
   "$defs": {
-    "ExpressionSyntax": {
+    "Reply_ExpressionSyntax": {
       "description": "Published syntax label for a source-preserved expression.",
       "type": "string",
       "x-enum-descriptions": [
@@ -30,7 +30,7 @@
         "iscn"
       ]
     },
-    "Text": {
+    "Reply_Text": {
       "description": "Nonempty text with surrounding Unicode whitespace removed.",
       "minLength": 1,
       "type": "string"
@@ -41,12 +41,12 @@
   "description": "Source expression checked for its reference and syntax only, without a full parser or normalization.",
   "properties": {
     "syntax": {
-      "$ref": "#/$defs/ExpressionSyntax"
+      "$ref": "#/$defs/Reply_ExpressionSyntax"
     },
     "syntax_version": {
       "anyOf": [
         {
-          "$ref": "#/$defs/Text"
+          "$ref": "#/$defs/Reply_Text"
         },
         {
           "type": "null"
@@ -54,7 +54,7 @@
       ]
     },
     "value": {
-      "$ref": "#/$defs/Text"
+      "$ref": "#/$defs/Reply_Text"
     }
   },
   "required": [

@@ -186,6 +186,17 @@ fn expected_records(raw: &Value, section: &str) -> Vec<Value> {
     }
     for row in &mut rows {
         super::assertions::omit_empty_lists(row);
+        super::assertions::omit_null_fields(
+            row,
+            &[
+                "measure",
+                "description",
+                "time_frame",
+                "label",
+                "kind",
+                "name",
+            ],
+        );
     }
     rows
 }
@@ -395,7 +406,7 @@ fn optional_source() -> Check {
         },
         json!([{"run":["get","trial","NCT02296125","all"],"expect":{
             "/status":"complete",
-            "/result/items/0/card/start":null,"/result/items/0/card/brief_summary":null,"/result/items/0/card/sponsor":null,
+            "/result/items/0/card":{"omits":["start","brief_summary","sponsor"]},
             "/result/items/0/sections/eligibility/state":"empty","/result/items/0/sections/outcomes/state":"empty","/result/items/0/sections/arms/state":"empty"
         }}]),
     )?;

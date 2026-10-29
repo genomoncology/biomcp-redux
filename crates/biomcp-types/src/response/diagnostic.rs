@@ -149,7 +149,7 @@ pub enum DiagnosticCard {
     Clearance(DiagnosticClearance),
 }
 impl ResponseBody for DiagnosticCard {
-    const SCHEMA: &'static str = "biomcp.diagnostic-card/2";
+    const SCHEMA: &'static str = "biomcp.diagnostic-card/3";
     type Query = DiagnosticGet;
 }
 /// One bounded regulatory fragment from the exact selected native submission.
@@ -216,21 +216,21 @@ page!(
     DiagnosticPage,
     DiagnosticCandidate,
     DiagnosticSearch,
-    "biomcp.diagnostic-page/3",
+    "biomcp.diagnostic-page/4",
     "Source-ordered GTR test candidates or WHO product headers."
 );
 page!(
     DiagnosticGenes,
     GtrGeneRelation,
     DiagnosticGet,
-    "biomcp.diagnostic-genes/3",
+    "biomcp.diagnostic-genes/4",
     "Native GTR gene relation rows without variant-coverage inference."
 );
 page!(
     DiagnosticConditions,
     GtrConditionRelation,
     DiagnosticGet,
-    "biomcp.diagnostic-conditions/3",
+    "biomcp.diagnostic-conditions/4",
     "Native GTR condition rows without ontology or clinical conversion."
 );
 page!(
@@ -258,7 +258,7 @@ page!(
     DiagnosticCompanion,
     CompanionDiagnosticRelation,
     DiagnosticSearch,
-    "biomcp.diagnostic-companion/2",
+    "biomcp.diagnostic-companion/3",
     "Whole distinct physical companion-table rows with cell-owned identifiers."
 );
 /// Compact exact PMA row identity; its native empty base cell is explicit.

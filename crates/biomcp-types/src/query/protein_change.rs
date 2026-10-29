@@ -113,7 +113,10 @@ text_value!(ProteinQuery, "ProteinQuery", {
         .flat_map(|(one, three)| [regex_escape(one), (*three).to_owned()])
         .collect::<Vec<_>>()
         .join("|");
-    format!("^(p\\.)?({residues})[1-9][0-9]*({residues})$")
+    format!(
+        "^(p\\.)?({residues}){}({residues})$",
+        biodata::schema_pattern::decimal(u32::MAX.into())
+    )
 });
 #[cfg(feature = "schema")]
 fn regex_escape(value: &str) -> String {

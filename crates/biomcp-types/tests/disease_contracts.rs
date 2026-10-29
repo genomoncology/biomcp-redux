@@ -63,7 +63,9 @@ fn card_omits_unrecognized_associations_statistics_and_related_entities() {
         {"requested_id":"MONDO:0007254","returned_id":"MONDO:0007254","concept":{"id":"MONDO:0007254","label":"breast cancer"},
         "attribution":{"source":"synthetic"},"replaced_by":null}
     );
-    roundtrip::<DiseaseCard>(card.clone()).unwrap();
+    let mut expected = card.clone();
+    expected.as_object_mut().unwrap().remove("replaced_by");
+    assert_eq!(roundtrip::<DiseaseCard>(card.clone()).unwrap(), expected);
     for field in [
         "genes",
         "phenotypes",
@@ -74,7 +76,7 @@ fn card_omits_unrecognized_associations_statistics_and_related_entities() {
     ] {
         let mut invalid = card.clone();
         invalid[field] = json!([]);
-        assert_eq!(roundtrip::<DiseaseCard>(invalid).unwrap(), card);
+        assert_eq!(roundtrip::<DiseaseCard>(invalid).unwrap(), expected);
     }
 }
 
@@ -223,7 +225,9 @@ fn native_alias_proof_keeps_unlabeled_endpoints_and_raw_description() {
         {"requested_id":"DOID:3910","returned_id":"MONDO:0005061","alias":relation,"concept":{"id":"MONDO:0005061","label":"synthetic"},
         "replaced_by":null,"attribution":{"source":"synthetic"},}
     );
-    assert_eq!(roundtrip::<DiseaseCard>(card.clone()).unwrap(), card);
+    let mut expected = card.clone();
+    expected.as_object_mut().unwrap().remove("replaced_by");
+    assert_eq!(roundtrip::<DiseaseCard>(card).unwrap(), expected);
 }
 
 #[test]

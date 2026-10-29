@@ -1,6 +1,6 @@
 {
   "$defs": {
-    "Text": {
+    "Reply_Text": {
       "description": "Nonempty text with surrounding Unicode whitespace removed.",
       "minLength": 1,
       "type": "string"
@@ -35,7 +35,7 @@
       "type": "string"
     },
     "reference": {
-      "$ref": "#/$defs/Text",
+      "$ref": "#/$defs/Reply_Text",
       "description": "Exact native WHO Reference Number, including spaces and punctuation."
     },
     "therapeutic_area": {

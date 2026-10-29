@@ -1,6 +1,6 @@
 {
   "$defs": {
-    "AcmgAmp2015Code": {
+    "Reply_AcmgAmp2015Code": {
       "description": "Checked AcmgAmp2015 codes.",
       "enum": [
         "pathogenic",
@@ -11,7 +11,7 @@
       ],
       "type": "string"
     },
-    "AmpAscoCap2017LevelCode": {
+    "Reply_AmpAscoCap2017LevelCode": {
       "description": "Checked AmpAscoCap2017Level codes.",
       "enum": [
         "level_a",
@@ -21,7 +21,7 @@
       ],
       "type": "string"
     },
-    "AmpAscoCap2017TierCode": {
+    "Reply_AmpAscoCap2017TierCode": {
       "description": "Checked AmpAscoCap2017Tier codes.",
       "enum": [
         "tier_i",
@@ -31,17 +31,17 @@
       ],
       "type": "string"
     },
-    "AssertionAssessment": {
+    "Reply_AssertionAssessment": {
       "description": "Source assessment labels and identifiers remain independent.",
       "properties": {
         "criterion": {
-          "$ref": "#/$defs/Text",
+          "$ref": "#/$defs/Reply_Text",
           "description": "Native criterion code."
         },
         "criterion_id": {
           "anyOf": [
             {
-              "$ref": "#/$defs/Text"
+              "$ref": "#/$defs/Reply_Text"
             },
             {
               "type": "null"
@@ -52,7 +52,7 @@
         "criterion_iri": {
           "anyOf": [
             {
-              "$ref": "#/$defs/Text"
+              "$ref": "#/$defs/Reply_Text"
             },
             {
               "type": "null"
@@ -63,7 +63,7 @@
         "default_strength": {
           "anyOf": [
             {
-              "$ref": "#/$defs/Text"
+              "$ref": "#/$defs/Reply_Text"
             },
             {
               "type": "null"
@@ -74,7 +74,7 @@
         "default_strength_id": {
           "anyOf": [
             {
-              "$ref": "#/$defs/Text"
+              "$ref": "#/$defs/Reply_Text"
             },
             {
               "type": "null"
@@ -85,7 +85,7 @@
         "default_strength_iri": {
           "anyOf": [
             {
-              "$ref": "#/$defs/Text"
+              "$ref": "#/$defs/Reply_Text"
             },
             {
               "type": "null"
@@ -94,7 +94,7 @@
           "description": "Native default-strength IRI."
         },
         "outcome": {
-          "$ref": "#/$defs/Text",
+          "$ref": "#/$defs/Reply_Text",
           "description": "Source outcome label."
         },
         "outcome_conflict": {
@@ -104,7 +104,7 @@
         "outcome_id": {
           "anyOf": [
             {
-              "$ref": "#/$defs/Text"
+              "$ref": "#/$defs/Reply_Text"
             },
             {
               "type": "null"
@@ -115,7 +115,7 @@
         "outcome_iri": {
           "anyOf": [
             {
-              "$ref": "#/$defs/Text"
+              "$ref": "#/$defs/Reply_Text"
             },
             {
               "type": "null"
@@ -130,13 +130,13 @@
       ],
       "type": "object"
     },
-    "AssertionCondition": {
+    "Reply_AssertionCondition": {
       "description": "A native condition with independently optional identifier and label.",
       "properties": {
         "accession": {
           "anyOf": [
             {
-              "$ref": "#/$defs/Text"
+              "$ref": "#/$defs/Reply_Text"
             },
             {
               "type": "null"
@@ -147,7 +147,7 @@
         "database": {
           "anyOf": [
             {
-              "$ref": "#/$defs/Text"
+              "$ref": "#/$defs/Reply_Text"
             },
             {
               "type": "null"
@@ -158,7 +158,7 @@
         "id": {
           "anyOf": [
             {
-              "$ref": "#/$defs/Curie"
+              "$ref": "#/$defs/Reply_Curie"
             },
             {
               "type": "null"
@@ -169,7 +169,7 @@
         "label": {
           "anyOf": [
             {
-              "$ref": "#/$defs/Text"
+              "$ref": "#/$defs/Reply_Text"
             },
             {
               "type": "null"
@@ -180,20 +180,20 @@
       },
       "type": "object"
     },
-    "AssertionConditionRelationship": {
+    "Reply_AssertionConditionRelationship": {
       "description": "A source trait relationship without assigning a clinical interpretation.",
       "properties": {
         "related_conditions": {
           "description": "Conditions named by the related source trait.",
           "items": {
-            "$ref": "#/$defs/AssertionCondition"
+            "$ref": "#/$defs/Reply_AssertionCondition"
           },
           "type": "array"
         },
         "relationship_type": {
           "anyOf": [
             {
-              "$ref": "#/$defs/Text"
+              "$ref": "#/$defs/Reply_Text"
             },
             {
               "type": "null"
@@ -204,20 +204,20 @@
         "source_conditions": {
           "description": "Conditions on the source trait that owns this relationship.",
           "items": {
-            "$ref": "#/$defs/AssertionCondition"
+            "$ref": "#/$defs/Reply_AssertionCondition"
           },
           "type": "array"
         }
       },
       "type": "object"
     },
-    "AssertionDetail": {
+    "Reply_AssertionDetail": {
       "description": "Source details that do not fit the compact shared statement.",
       "properties": {
         "approved": {
           "anyOf": [
             {
-              "$ref": "#/$defs/PartialDate"
+              "$ref": "#/$defs/Reply_PartialDate"
             },
             {
               "type": "null"
@@ -228,35 +228,35 @@
         "citations": {
           "description": "Source citations, including assertion-method citations.",
           "items": {
-            "$ref": "#/$defs/Pmid"
+            "$ref": "#/$defs/Reply_Pmid"
           },
           "type": "array"
         },
         "comments": {
           "description": "Native classification comments, without extracting clinical claims.",
           "items": {
-            "$ref": "#/$defs/Text"
+            "$ref": "#/$defs/Reply_Text"
           },
           "type": "array"
         },
         "condition_relationships": {
           "description": "Native trait relationships, kept separate from assertion conditions.",
           "items": {
-            "$ref": "#/$defs/AssertionConditionRelationship"
+            "$ref": "#/$defs/Reply_AssertionConditionRelationship"
           },
           "type": "array"
         },
         "conditions": {
           "description": "All source conditions; ID-only conditions stay ID-only.",
           "items": {
-            "$ref": "#/$defs/AssertionCondition"
+            "$ref": "#/$defs/Reply_AssertionCondition"
           },
           "type": "array"
         },
         "document": {
           "anyOf": [
             {
-              "$ref": "#/$defs/AssertionDocument"
+              "$ref": "#/$defs/Reply_AssertionDocument"
             },
             {
               "type": "null"
@@ -267,7 +267,7 @@
         "impact_assertion_type": {
           "anyOf": [
             {
-              "$ref": "#/$defs/Text"
+              "$ref": "#/$defs/Reply_Text"
             },
             {
               "type": "null"
@@ -278,7 +278,7 @@
         "impact_clinical_significance": {
           "anyOf": [
             {
-              "$ref": "#/$defs/Text"
+              "$ref": "#/$defs/Reply_Text"
             },
             {
               "type": "null"
@@ -289,7 +289,7 @@
         "impact_therapies": {
           "anyOf": [
             {
-              "$ref": "#/$defs/Text"
+              "$ref": "#/$defs/Reply_Text"
             },
             {
               "type": "null"
@@ -300,21 +300,21 @@
         "methods": {
           "description": "Assertion method labels, not inferred from clinical testing.",
           "items": {
-            "$ref": "#/$defs/Text"
+            "$ref": "#/$defs/Reply_Text"
           },
           "type": "array"
         },
         "origins": {
           "description": "Source origin labels without reducing multiple observations.",
           "items": {
-            "$ref": "#/$defs/Text"
+            "$ref": "#/$defs/Reply_Text"
           },
           "type": "array"
         },
         "published": {
           "anyOf": [
             {
-              "$ref": "#/$defs/PartialDate"
+              "$ref": "#/$defs/Reply_PartialDate"
             },
             {
               "type": "null"
@@ -325,7 +325,7 @@
         "summary": {
           "anyOf": [
             {
-              "$ref": "#/$defs/Text"
+              "$ref": "#/$defs/Reply_Text"
             },
             {
               "type": "null"
@@ -336,42 +336,42 @@
         "unmet_criteria": {
           "description": "Criteria explicitly marked unmet.",
           "items": {
-            "$ref": "#/$defs/Text"
+            "$ref": "#/$defs/Reply_Text"
           },
           "type": "array"
         },
         "versions": {
           "description": "Native document versions offered by the source.",
           "items": {
-            "$ref": "#/$defs/Text"
+            "$ref": "#/$defs/Reply_Text"
           },
           "type": "array"
         }
       },
       "type": "object"
     },
-    "AssertionDocument": {
+    "Reply_AssertionDocument": {
       "description": "Native SEPIO facts kept separate from common interpretation fields.",
       "properties": {
         "assessments": {
           "description": "Assessments directly supporting the interpretation.",
           "items": {
-            "$ref": "#/$defs/AssertionAssessment"
+            "$ref": "#/$defs/Reply_AssertionAssessment"
           },
           "type": "array"
         },
         "document_type": {
-          "$ref": "#/$defs/Text",
+          "$ref": "#/$defs/Reply_Text",
           "description": "Native interpretation type."
         },
         "native_id": {
-          "$ref": "#/$defs/Text",
+          "$ref": "#/$defs/Reply_Text",
           "description": "Native interpretation identifier, separate from the summary PCER identifier."
         },
         "outcome_id": {
           "anyOf": [
             {
-              "$ref": "#/$defs/Text"
+              "$ref": "#/$defs/Reply_Text"
             },
             {
               "type": "null"
@@ -382,7 +382,7 @@
         "outcome_iri": {
           "anyOf": [
             {
-              "$ref": "#/$defs/Text"
+              "$ref": "#/$defs/Reply_Text"
             },
             {
               "type": "null"
@@ -391,7 +391,7 @@
           "description": "Native outcome IRI."
         },
         "uuid": {
-          "$ref": "#/$defs/Text",
+          "$ref": "#/$defs/Reply_Text",
           "description": "Source UUID checked against the selected summary link."
         }
       },
@@ -402,7 +402,7 @@
       ],
       "type": "object"
     },
-    "AssertionDomain": {
+    "Reply_AssertionDomain": {
       "description": "Source classification domains remain separate.",
       "enum": [
         "germline",
@@ -411,7 +411,7 @@
       ],
       "type": "string"
     },
-    "AssertionKind": {
+    "Reply_AssertionKind": {
       "description": "Native record scope.",
       "enum": [
         "vcv",
@@ -421,7 +421,7 @@
       ],
       "type": "string"
     },
-    "AssertionSource": {
+    "Reply_AssertionSource": {
       "description": "Native assertion provider.",
       "enum": [
         "clinvar",
@@ -429,13 +429,13 @@
       ],
       "type": "string"
     },
-    "Attribution": {
+    "Reply_Attribution": {
       "description": "Provenance for one source record.",
       "properties": {
         "evaluated": {
           "anyOf": [
             {
-              "$ref": "#/$defs/PartialDate"
+              "$ref": "#/$defs/Reply_PartialDate"
             },
             {
               "type": "null"
@@ -446,7 +446,7 @@
         "record": {
           "anyOf": [
             {
-              "$ref": "#/$defs/Text"
+              "$ref": "#/$defs/Reply_Text"
             },
             {
               "type": "null"
@@ -457,7 +457,7 @@
         "release": {
           "anyOf": [
             {
-              "$ref": "#/$defs/Text"
+              "$ref": "#/$defs/Reply_Text"
             },
             {
               "type": "null"
@@ -466,13 +466,13 @@
           "description": "Dataset release."
         },
         "source": {
-          "$ref": "#/$defs/Text",
+          "$ref": "#/$defs/Reply_Text",
           "description": "Source responsible for the claim."
         },
         "submitter": {
           "anyOf": [
             {
-              "$ref": "#/$defs/Text"
+              "$ref": "#/$defs/Reply_Text"
             },
             {
               "type": "null"
@@ -483,7 +483,7 @@
         "url": {
           "anyOf": [
             {
-              "$ref": "#/$defs/Text"
+              "$ref": "#/$defs/Reply_Text"
             },
             {
               "type": "null"
@@ -495,7 +495,7 @@
         "version": {
           "anyOf": [
             {
-              "$ref": "#/$defs/Text"
+              "$ref": "#/$defs/Reply_Text"
             },
             {
               "type": "null"
@@ -509,7 +509,7 @@
       ],
       "type": "object"
     },
-    "CacheProblem": {
+    "Reply_CacheProblem": {
       "description": "A local cache failure that leaves the provider outcome intact.",
       "enum": [
         "busy",
@@ -518,7 +518,7 @@
       ],
       "type": "string"
     },
-    "CivicEvidenceLevelCode": {
+    "Reply_CivicEvidenceLevelCode": {
       "description": "Source-defined CIViC evidence levels.",
       "enum": [
         "a",
@@ -529,7 +529,7 @@
       ],
       "type": "string"
     },
-    "ClingenCgcVicc2022Code": {
+    "Reply_ClingenCgcVicc2022Code": {
       "description": "Checked ClingenCgcVicc2022 codes.",
       "enum": [
         "oncogenic",
@@ -540,7 +540,7 @@
       ],
       "type": "string"
     },
-    "ClingenLowPenetrance2024Code": {
+    "Reply_ClingenLowPenetrance2024Code": {
       "description": "Checked ClingenLowPenetrance2024 codes.",
       "enum": [
         "pathogenic_low_penetrance",
@@ -551,14 +551,14 @@
       ],
       "type": "string"
     },
-    "Coding": {
+    "Reply_Coding": {
       "description": "A code in one explicitly named source framework.",
       "oneOf": [
         {
           "description": "OncoKB oncogenicity vocabulary.",
           "properties": {
             "code": {
-              "$ref": "#/$defs/OncokbOncogenicityCode"
+              "$ref": "#/$defs/Reply_OncokbOncogenicityCode"
             },
             "system": {
               "const": "oncokb_oncogenicity",
@@ -575,7 +575,7 @@
           "description": "OncoKB evidence levels.",
           "properties": {
             "code": {
-              "$ref": "#/$defs/OncokbLevelCode"
+              "$ref": "#/$defs/Reply_OncokbLevelCode"
             },
             "system": {
               "const": "oncokb_level",
@@ -592,7 +592,7 @@
           "description": "CIViC evidence level.",
           "properties": {
             "code": {
-              "$ref": "#/$defs/CivicEvidenceLevelCode"
+              "$ref": "#/$defs/Reply_CivicEvidenceLevelCode"
             },
             "system": {
               "const": "civic_evidence_level",
@@ -609,7 +609,7 @@
           "description": "acmg_amp_2015 vocabulary.",
           "properties": {
             "code": {
-              "$ref": "#/$defs/AcmgAmp2015Code"
+              "$ref": "#/$defs/Reply_AcmgAmp2015Code"
             },
             "system": {
               "const": "acmg_amp_2015",
@@ -626,7 +626,7 @@
           "description": "clingen_low_penetrance_2024 vocabulary.",
           "properties": {
             "code": {
-              "$ref": "#/$defs/ClingenLowPenetrance2024Code"
+              "$ref": "#/$defs/Reply_ClingenLowPenetrance2024Code"
             },
             "system": {
               "const": "clingen_low_penetrance_2024",
@@ -643,7 +643,7 @@
           "description": "amp_asco_cap_2017_tier vocabulary.",
           "properties": {
             "code": {
-              "$ref": "#/$defs/AmpAscoCap2017TierCode"
+              "$ref": "#/$defs/Reply_AmpAscoCap2017TierCode"
             },
             "system": {
               "const": "amp_asco_cap_2017_tier",
@@ -660,7 +660,7 @@
           "description": "amp_asco_cap_2017_level vocabulary.",
           "properties": {
             "code": {
-              "$ref": "#/$defs/AmpAscoCap2017LevelCode"
+              "$ref": "#/$defs/Reply_AmpAscoCap2017LevelCode"
             },
             "system": {
               "const": "amp_asco_cap_2017_level",
@@ -677,7 +677,7 @@
           "description": "clingen_cgc_vicc_2022 vocabulary.",
           "properties": {
             "code": {
-              "$ref": "#/$defs/ClingenCgcVicc2022Code"
+              "$ref": "#/$defs/Reply_ClingenCgcVicc2022Code"
             },
             "system": {
               "const": "clingen_cgc_vicc_2022",
@@ -692,13 +692,13 @@
         }
       ]
     },
-    "Concept": {
+    "Reply_Concept": {
       "description": "One source concept with its optional ontology identifier.",
       "properties": {
         "id": {
           "anyOf": [
             {
-              "$ref": "#/$defs/Curie"
+              "$ref": "#/$defs/Reply_Curie"
             },
             {
               "type": "null"
@@ -707,7 +707,7 @@
           "description": "Source-stated concept identifier."
         },
         "label": {
-          "$ref": "#/$defs/Text",
+          "$ref": "#/$defs/Reply_Text",
           "description": "Original concept label."
         }
       },
@@ -716,12 +716,12 @@
       ],
       "type": "object"
     },
-    "Curie": {
+    "Reply_Curie": {
       "description": "Checked prefix:local ontology identifier.",
-      "pattern": "^[A-Za-z0-9_.-]+:[^\\s\\x00-\\x1f\\x7f-\\x9f]+$",
+      "pattern": "^[A-Za-z0-9_.-]+:[^\\x09-\\x0d\\x20\\x85\\xa0\\u1680\\u2000-\\u200a\\u2028\\u2029\\u202f\\u205f\\u3000\\x00-\\x1f\\x7f-\\x9f]+$",
       "type": "string"
     },
-    "Direction": {
+    "Reply_Direction": {
       "description": "Assessment direction stated by the source.",
       "type": "string",
       "x-extensible-enum": [
@@ -730,18 +730,18 @@
         "neutral"
       ]
     },
-    "EnsemblGeneId": {
+    "Reply_EnsemblGeneId": {
       "description": " A human Ensembl gene stable identifier with a separately retained version.",
-      "pattern": "^ENSG[0-9]{11}(\\.[1-9][0-9]*)?$",
+      "pattern": "^ENSG[0-9]{11}(\\.(?:4294967295|[1-9][0-9]{0,8}|[1-3][0-9]{9}|4[0-1][0-9]{8}|42[0-8][0-9]{7}|429[0-3][0-9]{6}|4294[0-8][0-9]{5}|42949[0-5][0-9]{4}|429496[0-6][0-9]{3}|4294967[0-1][0-9]{2}|42949672[0-8][0-9]{1}|429496729[0-4][0-9]{0}))?$",
       "type": "string"
     },
-    "GeneRef": {
+    "Reply_GeneRef": {
       "description": "A source-stated gene reference; its label never implies an identifier.",
       "properties": {
         "ensembl_gene_id": {
           "anyOf": [
             {
-              "$ref": "#/$defs/EnsemblGeneId"
+              "$ref": "#/$defs/Reply_EnsemblGeneId"
             },
             {
               "type": "null"
@@ -751,7 +751,7 @@
         "hgnc_id": {
           "anyOf": [
             {
-              "$ref": "#/$defs/HgncId"
+              "$ref": "#/$defs/Reply_HgncId"
             },
             {
               "type": "null"
@@ -759,12 +759,12 @@
           ]
         },
         "label": {
-          "$ref": "#/$defs/Text"
+          "$ref": "#/$defs/Reply_Text"
         },
         "ncbi_gene_id": {
           "anyOf": [
             {
-              "$ref": "#/$defs/NcbiGeneId"
+              "$ref": "#/$defs/Reply_NcbiGeneId"
             },
             {
               "type": "null"
@@ -777,24 +777,24 @@
       ],
       "type": "object"
     },
-    "HgncId": {
+    "Reply_HgncId": {
       "description": "An HGNC identifier with canonical namespace and positive numeric value.",
-      "pattern": "^HGNC:[1-9][0-9]*$",
+      "pattern": "^HGNC:(?:4294967295|[1-9][0-9]{0,8}|[1-3][0-9]{9}|4[0-1][0-9]{8}|42[0-8][0-9]{7}|429[0-3][0-9]{6}|4294[0-8][0-9]{5}|42949[0-5][0-9]{4}|429496[0-6][0-9]{3}|4294967[0-1][0-9]{2}|42949672[0-8][0-9]{1}|429496729[0-4][0-9]{0})$",
       "type": "string"
     },
-    "HgvsText": {
+    "Reply_HgvsText": {
       "description": "Reference-qualified notation with its original text, without a molecular parse.",
-      "pattern": "^(?!(?:[^:(]*\\()?([NX]P_([0-9]{6}|[0-9]{9})\\.[1-9][0-9]*|ENSP[0-9]{11}\\.[1-9][0-9]*|LRG_[0-9]+p[0-9]+)(?:\\([^:]*\\)|\\))?:[gcnrmo]\\.)((N[CGMPRTW]|X[MPR])_([0-9]{6}|[0-9]{9})\\.[0-9]+|ENS[GTP][0-9]{11}\\.[0-9]+|LRG_[0-9]+([tp][0-9]+)?)(\\(([A-Za-z][A-Za-z0-9._/@-]*|[A-Za-z0-9_.]+)\\))?:([gcnrpmo]\\.[\\x21-\\x7e]*[0-9][\\x21-\\x7e]*|[pr]\\.(\\?|\\(\\?\\)|=|\\(=\\))|r\\.(spl\\??|\\(spl\\?\\)))$",
+      "pattern": "^(?!(?:[NX]P_[0-9]{6}\\.(?:65535|[1-9][0-9]{0,3}|[1-5][0-9]{4}|6[0-4][0-9]{3}|65[0-4][0-9]{2}|655[0-2][0-9]{1}|6553[0-4][0-9]{0})|[NX]P_(?!000)[0-9]{9}\\.(?:65535|[1-9][0-9]{0,3}|[1-5][0-9]{4}|6[0-4][0-9]{3}|65[0-4][0-9]{2}|655[0-2][0-9]{1}|6553[0-4][0-9]{0})|ENSP[0-9]{11}\\.(?:65535|[1-9][0-9]{0,3}|[1-5][0-9]{4}|6[0-4][0-9]{3}|65[0-4][0-9]{2}|655[0-2][0-9]{1}|6553[0-4][0-9]{0})|LRG_0*(?:0|(?:4294967295|[1-9][0-9]{0,8}|[1-3][0-9]{9}|4[0-1][0-9]{8}|42[0-8][0-9]{7}|429[0-3][0-9]{6}|4294[0-8][0-9]{5}|42949[0-5][0-9]{4}|429496[0-6][0-9]{3}|4294967[0-1][0-9]{2}|42949672[0-8][0-9]{1}|429496729[0-4][0-9]{0}))p0*(?:0|(?:65535|[1-9][0-9]{0,3}|[1-5][0-9]{4}|6[0-4][0-9]{3}|65[0-4][0-9]{2}|655[0-2][0-9]{1}|6553[0-4][0-9]{0})))(?:\\([^)]*\\))?:[gcnrmo]\\.)(?![^:()]+\\((?:[NX]P_[0-9]{6}\\.(?:65535|[1-9][0-9]{0,3}|[1-5][0-9]{4}|6[0-4][0-9]{3}|65[0-4][0-9]{2}|655[0-2][0-9]{1}|6553[0-4][0-9]{0})|[NX]P_(?!000)[0-9]{9}\\.(?:65535|[1-9][0-9]{0,3}|[1-5][0-9]{4}|6[0-4][0-9]{3}|65[0-4][0-9]{2}|655[0-2][0-9]{1}|6553[0-4][0-9]{0})|ENSP[0-9]{11}\\.(?:65535|[1-9][0-9]{0,3}|[1-5][0-9]{4}|6[0-4][0-9]{3}|65[0-4][0-9]{2}|655[0-2][0-9]{1}|6553[0-4][0-9]{0})|LRG_0*(?:0|(?:4294967295|[1-9][0-9]{0,8}|[1-3][0-9]{9}|4[0-1][0-9]{8}|42[0-8][0-9]{7}|429[0-3][0-9]{6}|4294[0-8][0-9]{5}|42949[0-5][0-9]{4}|429496[0-6][0-9]{3}|4294967[0-1][0-9]{2}|42949672[0-8][0-9]{1}|429496729[0-4][0-9]{0}))p0*(?:0|(?:65535|[1-9][0-9]{0,3}|[1-5][0-9]{4}|6[0-4][0-9]{3}|65[0-4][0-9]{2}|655[0-2][0-9]{1}|6553[0-4][0-9]{0})))\\):[gcnrmo]\\.)(?:(?:N[CGMPRTW]|X[MPR])_(?:[0-9]{6}|(?!000)[0-9]{9})\\.(?:65535|[1-9][0-9]{0,3}|[1-5][0-9]{4}|6[0-4][0-9]{3}|65[0-4][0-9]{2}|655[0-2][0-9]{1}|6553[0-4][0-9]{0})|ENS[GTP][0-9]{11}\\.(?:65535|[1-9][0-9]{0,3}|[1-5][0-9]{4}|6[0-4][0-9]{3}|65[0-4][0-9]{2}|655[0-2][0-9]{1}|6553[0-4][0-9]{0})|LRG_0*(?:0|(?:4294967295|[1-9][0-9]{0,8}|[1-3][0-9]{9}|4[0-1][0-9]{8}|42[0-8][0-9]{7}|429[0-3][0-9]{6}|4294[0-8][0-9]{5}|42949[0-5][0-9]{4}|429496[0-6][0-9]{3}|4294967[0-1][0-9]{2}|42949672[0-8][0-9]{1}|429496729[0-4][0-9]{0}))(?:[tp]0*(?:0|(?:65535|[1-9][0-9]{0,3}|[1-5][0-9]{4}|6[0-4][0-9]{3}|65[0-4][0-9]{2}|655[0-2][0-9]{1}|6553[0-4][0-9]{0})))?)(?:\\((?:(?:(?:N[CGMPRTW]|X[MPR])_(?:[0-9]{6}|(?!000)[0-9]{9})\\.(?:65535|[1-9][0-9]{0,3}|[1-5][0-9]{4}|6[0-4][0-9]{3}|65[0-4][0-9]{2}|655[0-2][0-9]{1}|6553[0-4][0-9]{0})|ENS[GTP][0-9]{11}\\.(?:65535|[1-9][0-9]{0,3}|[1-5][0-9]{4}|6[0-4][0-9]{3}|65[0-4][0-9]{2}|655[0-2][0-9]{1}|6553[0-4][0-9]{0})|LRG_0*(?:0|(?:4294967295|[1-9][0-9]{0,8}|[1-3][0-9]{9}|4[0-1][0-9]{8}|42[0-8][0-9]{7}|429[0-3][0-9]{6}|4294[0-8][0-9]{5}|42949[0-5][0-9]{4}|429496[0-6][0-9]{3}|4294967[0-1][0-9]{2}|42949672[0-8][0-9]{1}|429496729[0-4][0-9]{0}))(?:[tp]0*(?:0|(?:65535|[1-9][0-9]{0,3}|[1-5][0-9]{4}|6[0-4][0-9]{3}|65[0-4][0-9]{2}|655[0-2][0-9]{1}|6553[0-4][0-9]{0})))?)|[A-Za-z][A-Za-z0-9._/@-]{0,254})\\))?:(?:[gcnrpmo]\\.[\\x21-\\x7e]*[0-9][\\x21-\\x7e]*|[pr]\\.(?:\\?|\\(\\?\\)|=|\\(=\\))|r\\.(?:spl\\??|\\(spl\\?\\)))$",
       "type": "string"
     },
-    "LeafRef": {
+    "Reply_LeafRef": {
       "oneOf": [
         {
           "properties": {
             "hgvs": {
               "anyOf": [
                 {
-                  "$ref": "#/$defs/HgvsText"
+                  "$ref": "#/$defs/Reply_HgvsText"
                 },
                 {
                   "type": "null"
@@ -805,7 +805,7 @@
             "id": {
               "anyOf": [
                 {
-                  "$ref": "#/$defs/VariantId"
+                  "$ref": "#/$defs/Reply_VariantId"
                 },
                 {
                   "type": "null"
@@ -826,13 +826,13 @@
         {
           "properties": {
             "gene": {
-              "$ref": "#/$defs/GeneRef",
+              "$ref": "#/$defs/Reply_GeneRef",
               "description": "Source gene."
             },
             "hgvs": {
               "anyOf": [
                 {
-                  "$ref": "#/$defs/HgvsText"
+                  "$ref": "#/$defs/Reply_HgvsText"
                 },
                 {
                   "type": "null"
@@ -843,7 +843,7 @@
             "label": {
               "anyOf": [
                 {
-                  "$ref": "#/$defs/Text"
+                  "$ref": "#/$defs/Reply_Text"
                 },
                 {
                   "type": "null"
@@ -864,12 +864,12 @@
         }
       ]
     },
-    "NcbiGeneId": {
+    "Reply_NcbiGeneId": {
       "description": "A positive NCBI Gene identifier in canonical decimal text.",
-      "pattern": "^[1-9][0-9]*$",
+      "pattern": "^(?:4294967295|[1-9][0-9]{0,8}|[1-3][0-9]{9}|4[0-1][0-9]{8}|42[0-8][0-9]{7}|429[0-3][0-9]{6}|4294[0-8][0-9]{5}|42949[0-5][0-9]{4}|429496[0-6][0-9]{3}|4294967[0-1][0-9]{2}|42949672[0-8][0-9]{1}|429496729[0-4][0-9]{0})$",
       "type": "string"
     },
-    "OncokbLevelCode": {
+    "Reply_OncokbLevelCode": {
       "description": "Source-defined OncoKB vocabulary.",
       "enum": [
         "level_1",
@@ -888,7 +888,7 @@
       ],
       "type": "string"
     },
-    "OncokbOncogenicityCode": {
+    "Reply_OncokbOncogenicityCode": {
       "description": "Source-defined OncoKB vocabulary.",
       "enum": [
         "oncogenic",
@@ -900,7 +900,7 @@
       ],
       "type": "string"
     },
-    "PageInfo": {
+    "Reply_PageInfo": {
       "description": "Search counts after filtering and deduplication.",
       "properties": {
         "offset": {
@@ -912,7 +912,7 @@
         "pool": {
           "anyOf": [
             {
-              "$ref": "#/$defs/PoolInfo"
+              "$ref": "#/$defs/Reply_PoolInfo"
             },
             {
               "type": "null"
@@ -947,17 +947,17 @@
       ],
       "type": "object"
     },
-    "PartialDate": {
-      "description": "A Gregorian date preserving year, month or day precision.",
-      "pattern": "^[0-9]{4}(-[0-9]{2}(-[0-9]{2})?)?$",
+    "Reply_PartialDate": {
+      "description": "A Gregorian date preserving year, month or day precision. The parser additionally validates the calendar day, including leap years.",
+      "pattern": "^(?!0000)[0-9]{4}(-(0[1-9]|1[0-2])(-(0[1-9]|[12][0-9]|3[01]))?)?$",
       "type": "string"
     },
-    "Pmid": {
+    "Reply_Pmid": {
       "description": "Positive PubMed identifier.",
-      "pattern": "^[1-9][0-9]*$",
+      "pattern": "^(?:4294967295|[1-9][0-9]{0,8}|[1-3][0-9]{9}|4[0-1][0-9]{8}|42[0-8][0-9]{7}|429[0-3][0-9]{6}|4294[0-8][0-9]{5}|42949[0-5][0-9]{4}|429496[0-6][0-9]{3}|4294967[0-1][0-9]{2}|42949672[0-8][0-9]{1}|429496729[0-4][0-9]{0})$",
       "type": "string"
     },
-    "PoolInfo": {
+    "Reply_PoolInfo": {
       "description": "Fixed lifetime and size of a stored search snapshot.",
       "properties": {
         "created": {
@@ -973,7 +973,7 @@
           "type": "integer"
         },
         "id": {
-          "$ref": "#/$defs/Text",
+          "$ref": "#/$defs/Reply_Text",
           "description": "Opaque snapshot identifier."
         },
         "size": {
@@ -991,7 +991,7 @@
       ],
       "type": "object"
     },
-    "Predicate": {
+    "Reply_Predicate": {
       "description": "VA-Spec 1.1 proposition relationships in native snake_case.",
       "type": "string",
       "x-extensible-enum": [
@@ -1007,11 +1007,11 @@
         "impacts_function_of"
       ]
     },
-    "Problem": {
+    "Reply_Problem": {
       "description": "A field that could not be accepted from a source record.",
       "properties": {
         "code": {
-          "$ref": "#/$defs/ProblemCode",
+          "$ref": "#/$defs/Reply_ProblemCode",
           "description": "Why the field value was not accepted."
         },
         "field": {
@@ -1021,7 +1021,7 @@
         "record": {
           "anyOf": [
             {
-              "$ref": "#/$defs/Text"
+              "$ref": "#/$defs/Reply_Text"
             },
             {
               "type": "null"
@@ -1030,7 +1030,7 @@
           "description": "The record's canonical identifier, when known."
         },
         "source": {
-          "$ref": "#/$defs/Source",
+          "$ref": "#/$defs/Reply_Source",
           "description": "The source that supplied the record."
         }
       },
@@ -1041,7 +1041,7 @@
       ],
       "type": "object"
     },
-    "ProblemCode": {
+    "Reply_ProblemCode": {
       "description": "A stable code for a rejected field value.",
       "type": "string",
       "x-enum-descriptions": [
@@ -1055,7 +1055,7 @@
         "identity.conflict"
       ]
     },
-    "Proposition": {
+    "Reply_Proposition": {
       "description": "Domain of a source claim.",
       "type": "string",
       "x-extensible-enum": [
@@ -1068,7 +1068,7 @@
         "functional_impact"
       ]
     },
-    "Reason": {
+    "Reply_Reason": {
       "description": "Why a source could not supply data.",
       "type": "string",
       "x-enum-descriptions": [
@@ -1093,28 +1093,28 @@
         " Identity lacks the identifier required to join this source."
       ],
       "x-extensible-enum": [
-        "not-found",
-        "not-open",
-        "not-pdf",
+        "not_found",
+        "not_open",
+        "not_pdf",
         "unsupported",
-        "too-large",
-        "rate-limited",
-        "local-quota",
+        "too_large",
+        "rate_limited",
+        "local_quota",
         "unavailable",
         "tls",
         "proxy",
         "rejected",
-        "bad-reply",
-        "deadline-exceeded",
+        "bad_reply",
+        "deadline_exceeded",
         "offline",
-        "no-key",
+        "no_key",
         "disabled",
-        "replay-miss",
+        "replay_miss",
         "syncing",
-        "no-join-id"
+        "no_join_id"
       ]
     },
-    "Source": {
+    "Reply_Source": {
       "description": "A source of BioMCP data, identified by its canonical short name.",
       "type": "string",
       "x-enum-descriptions": [
@@ -1186,6 +1186,7 @@
         " openFDA premarket approval submissions.",
         " FDA native 510(k) clearance records.",
         " openFDA medical device product recall records.",
+        " FDA drug enforcement recall records.",
         " Clinical Pharmacogenetics Implementation Consortium.",
         " ClinPGx pharmacogenomics annotations.",
         " Public cBioPortal with study-specific reuse terms.",
@@ -1260,20 +1261,21 @@
         "fda-pma",
         "fda-510k",
         "fda-device-recall",
+        "fda-drug-recall",
         "cpic",
         "clinpgx",
         "cbioportal",
         "cellosaurus"
       ]
     },
-    "SourceNotice": {
+    "Reply_SourceNotice": {
       "description": "A source notice or request recovery step.",
       "oneOf": [
         {
           "description": "Local request limits and source-specific recovery guidance.",
           "properties": {
             "kind": {
-              "const": "request-guidance",
+              "const": "request_guidance",
               "type": "string"
             },
             "message": {
@@ -1300,7 +1302,7 @@
           "description": "Registered conditions lack the literal words requested in a condition search.",
           "properties": {
             "kind": {
-              "const": "condition-word-mismatch",
+              "const": "condition_word_mismatch",
               "type": "string"
             },
             "message": {
@@ -1318,11 +1320,11 @@
           "description": "A checked provider answer survived a local cache failure.",
           "properties": {
             "kind": {
-              "const": "cache-problem",
+              "const": "cache_problem",
               "type": "string"
             },
             "reason": {
-              "$ref": "#/$defs/CacheProblem",
+              "$ref": "#/$defs/Reply_CacheProblem",
               "description": "Bounded local failure without paths or database diagnostics."
             }
           },
@@ -1336,11 +1338,11 @@
           "description": "The source still has graph pages after the bounded fetch window.",
           "properties": {
             "fallback": {
-              "$ref": "#/$defs/Text",
+              "$ref": "#/$defs/Reply_Text",
               "description": "Default-source command offering another graph view."
             },
             "kind": {
-              "const": "graph-truncated",
+              "const": "graph_truncated",
               "type": "string"
             }
           },
@@ -1354,7 +1356,7 @@
           "description": "An empty LitVar lookup can be repeated with a caller-supplied rsID.",
           "properties": {
             "kind": {
-              "const": "litvar-rsid-hint",
+              "const": "litvar_rsid_hint",
               "type": "string"
             },
             "message": {
@@ -1372,7 +1374,7 @@
           "description": "PubMed supplied a named ESearch warning without changing its phrases.",
           "properties": {
             "kind": {
-              "const": "pubmed-warning",
+              "const": "pubmed_warning",
               "type": "string"
             },
             "name": {
@@ -1397,13 +1399,13 @@
           "description": "PubMed did not index these words.",
           "properties": {
             "kind": {
-              "const": "not-found-words",
+              "const": "not_found_words",
               "type": "string"
             },
             "words": {
               "description": "Whole source words.",
               "items": {
-                "$ref": "#/$defs/Text"
+                "$ref": "#/$defs/Reply_Text"
               },
               "type": "array"
             }
@@ -1415,7 +1417,7 @@
         }
       ]
     },
-    "SourceOutcome": {
+    "Reply_SourceOutcome": {
       "description": "One source's outcome, without provider text.",
       "properties": {
         "count": {
@@ -1439,14 +1441,14 @@
         "notices": {
           "description": "Source notices and request recovery guidance.",
           "items": {
-            "$ref": "#/$defs/SourceNotice"
+            "$ref": "#/$defs/Reply_SourceNotice"
           },
           "type": "array"
         },
         "reason": {
           "anyOf": [
             {
-              "$ref": "#/$defs/Reason"
+              "$ref": "#/$defs/Reply_Reason"
             },
             {
               "type": "null"
@@ -1455,17 +1457,17 @@
           "description": "Failure or stale-fallback reason."
         },
         "source": {
-          "$ref": "#/$defs/Source",
+          "$ref": "#/$defs/Reply_Source",
           "description": "Asked source."
         },
         "state": {
-          "$ref": "#/$defs/SourceState",
+          "$ref": "#/$defs/Reply_SourceState",
           "description": "Retained state."
         },
         "term": {
           "anyOf": [
             {
-              "$ref": "#/$defs/Text"
+              "$ref": "#/$defs/Reply_Text"
             },
             {
               "type": "null"
@@ -1483,7 +1485,7 @@
           "type": "string"
         },
         "use": {
-          "$ref": "#/$defs/Use",
+          "$ref": "#/$defs/Reply_Use",
           "description": "Reviewed source use category; publisher terms remain authoritative."
         }
       },
@@ -1496,7 +1498,7 @@
       ],
       "type": "object"
     },
-    "SourceState": {
+    "Reply_SourceState": {
       "description": "State of a source actually asked by the command.",
       "enum": [
         "ok",
@@ -1507,13 +1509,13 @@
       ],
       "type": "string"
     },
-    "Statement": {
+    "Reply_Statement": {
       "description": "One source claim, kept in its own framework and context.",
       "properties": {
         "allele_origin": {
           "anyOf": [
             {
-              "$ref": "#/$defs/Term"
+              "$ref": "#/$defs/Reply_Term"
             },
             {
               "type": "null"
@@ -1522,24 +1524,24 @@
           "description": "Source-stated origin."
         },
         "attribution": {
-          "$ref": "#/$defs/Attribution",
+          "$ref": "#/$defs/Reply_Attribution",
           "description": "One source record and its provenance."
         },
         "citations": {
           "description": "Source publications.",
           "items": {
-            "$ref": "#/$defs/Pmid"
+            "$ref": "#/$defs/Reply_Pmid"
           },
           "type": "array"
         },
         "classification": {
-          "$ref": "#/$defs/Term",
+          "$ref": "#/$defs/Reply_Term",
           "description": "Whole source classification label."
         },
         "condition": {
           "anyOf": [
             {
-              "$ref": "#/$defs/Concept"
+              "$ref": "#/$defs/Reply_Concept"
             },
             {
               "type": "null"
@@ -1550,14 +1552,14 @@
         "criteria": {
           "description": "Source criterion labels in source order.",
           "items": {
-            "$ref": "#/$defs/Text"
+            "$ref": "#/$defs/Reply_Text"
           },
           "type": "array"
         },
         "direction": {
           "anyOf": [
             {
-              "$ref": "#/$defs/Direction"
+              "$ref": "#/$defs/Reply_Direction"
             },
             {
               "type": "null"
@@ -1568,7 +1570,7 @@
         "gene_context": {
           "anyOf": [
             {
-              "$ref": "#/$defs/GeneRef"
+              "$ref": "#/$defs/Reply_GeneRef"
             },
             {
               "type": "null"
@@ -1579,7 +1581,7 @@
         "predicate": {
           "anyOf": [
             {
-              "$ref": "#/$defs/Predicate"
+              "$ref": "#/$defs/Reply_Predicate"
             },
             {
               "type": "null"
@@ -1588,13 +1590,13 @@
           "description": "Source-stated relationship."
         },
         "proposition": {
-          "$ref": "#/$defs/Proposition",
+          "$ref": "#/$defs/Reply_Proposition",
           "description": "Claim domain."
         },
         "strength": {
           "anyOf": [
             {
-              "$ref": "#/$defs/Term"
+              "$ref": "#/$defs/Reply_Term"
             },
             {
               "type": "null"
@@ -1603,13 +1605,13 @@
           "description": "Source evidence level or review status."
         },
         "subject": {
-          "$ref": "#/$defs/VariantRef",
+          "$ref": "#/$defs/Reply_VariantRef",
           "description": "Source-owned subject reference."
         },
         "therapies": {
           "description": "Source therapies in their native order.",
           "items": {
-            "$ref": "#/$defs/Concept"
+            "$ref": "#/$defs/Reply_Concept"
           },
           "type": "array"
         }
@@ -1622,7 +1624,7 @@
       ],
       "type": "object"
     },
-    "Status": {
+    "Reply_Status": {
       "description": "Overall command outcome.",
       "enum": [
         "complete",
@@ -1632,7 +1634,7 @@
       ],
       "type": "string"
     },
-    "Step": {
+    "Reply_Step": {
       "description": "A command argument list spelled from a typed action.",
       "properties": {
         "args": {
@@ -1643,7 +1645,7 @@
           "type": "array"
         },
         "kind": {
-          "$ref": "#/$defs/StepKind",
+          "$ref": "#/$defs/Reply_StepKind",
           "description": "Purpose of the action."
         }
       },
@@ -1652,7 +1654,7 @@
       ],
       "type": "object"
     },
-    "StepKind": {
+    "Reply_StepKind": {
       "description": "Purpose of an available next command.",
       "enum": [
         "restart",
@@ -1668,13 +1670,13 @@
       ],
       "type": "string"
     },
-    "Term": {
+    "Reply_Term": {
       "description": "A source label with optional explicitly supported coding.",
       "properties": {
         "coding": {
           "anyOf": [
             {
-              "$ref": "#/$defs/Coding"
+              "$ref": "#/$defs/Reply_Coding"
             },
             {
               "type": "null"
@@ -1683,7 +1685,7 @@
           "description": "Documented framework coding."
         },
         "label": {
-          "$ref": "#/$defs/Text",
+          "$ref": "#/$defs/Reply_Text",
           "description": "Original label."
         }
       },
@@ -1692,33 +1694,33 @@
       ],
       "type": "object"
     },
-    "Text": {
+    "Reply_Text": {
       "description": "Nonempty text with surrounding Unicode whitespace removed.",
       "minLength": 1,
       "type": "string"
     },
-    "UnmappedAssertion": {
+    "Reply_UnmappedAssertion": {
       "description": "Source classification retained when its category has no approved shared proposition.",
       "properties": {
         "attribution": {
-          "$ref": "#/$defs/Attribution",
+          "$ref": "#/$defs/Reply_Attribution",
           "description": "Original record provenance."
         },
         "classification": {
-          "$ref": "#/$defs/Text",
+          "$ref": "#/$defs/Reply_Text",
           "description": "Unchanged source label."
         },
         "conditions": {
           "description": "Native conditions, including identifiers without supplied labels.",
           "items": {
-            "$ref": "#/$defs/AssertionCondition"
+            "$ref": "#/$defs/Reply_AssertionCondition"
           },
           "type": "array"
         },
         "review_status": {
           "anyOf": [
             {
-              "$ref": "#/$defs/Text"
+              "$ref": "#/$defs/Reply_Text"
             },
             {
               "type": "null"
@@ -1733,7 +1735,7 @@
       ],
       "type": "object"
     },
-    "Use": {
+    "Reply_Use": {
       "description": "Reviewed source-use category, without inferring rights in individual records.",
       "enum": [
         "open",
@@ -1743,13 +1745,13 @@
       ],
       "type": "string"
     },
-    "VariantAssertion": {
+    "Reply_VariantAssertion": {
       "description": "A native record/domain pair, never a vote or merged classification.",
       "properties": {
         "detail": {
           "anyOf": [
             {
-              "$ref": "#/$defs/AssertionDetail"
+              "$ref": "#/$defs/Reply_AssertionDetail"
             },
             {
               "type": "null"
@@ -1758,17 +1760,17 @@
           "description": "Original source detail, returned only for an explicitly selected record."
         },
         "domain": {
-          "$ref": "#/$defs/AssertionDomain",
+          "$ref": "#/$defs/Reply_AssertionDomain",
           "description": "Source classification domain."
         },
         "kind": {
-          "$ref": "#/$defs/AssertionKind",
+          "$ref": "#/$defs/Reply_AssertionKind",
           "description": "Aggregate/submission/document context."
         },
         "statement": {
           "anyOf": [
             {
-              "$ref": "#/$defs/Statement"
+              "$ref": "#/$defs/Reply_Statement"
             },
             {
               "type": "null"
@@ -1783,7 +1785,7 @@
         "unmapped": {
           "anyOf": [
             {
-              "$ref": "#/$defs/UnmappedAssertion"
+              "$ref": "#/$defs/Reply_UnmappedAssertion"
             },
             {
               "type": "null"
@@ -1798,20 +1800,20 @@
       ],
       "type": "object"
     },
-    "VariantAssertions": {
+    "Reply_VariantAssertions": {
       "description": "One source-ordered page, with native record and classification boundaries intact.",
       "properties": {
         "assertions": {
           "description": "Source assertion rows in native order.",
           "items": {
-            "$ref": "#/$defs/VariantAssertion"
+            "$ref": "#/$defs/Reply_VariantAssertion"
           },
           "type": "array"
         },
         "next": {
           "anyOf": [
             {
-              "$ref": "#/$defs/VariantAssertionsGet"
+              "$ref": "#/$defs/Reply_VariantAssertionsGet"
             },
             {
               "type": "null"
@@ -1820,7 +1822,7 @@
           "description": "Typed continuation preserving source and selectors."
         },
         "page": {
-          "$ref": "#/$defs/PageInfo",
+          "$ref": "#/$defs/Reply_PageInfo",
           "description": "Page bounds over native rows."
         }
       },
@@ -1829,13 +1831,13 @@
       ],
       "type": "object"
     },
-    "VariantAssertionsGet": {
+    "Reply_VariantAssertionsGet": {
       "description": "Page assertions from one explicitly selected evidence source.",
       "properties": {
         "assertion": {
           "anyOf": [
             {
-              "$ref": "#/$defs/Text"
+              "$ref": "#/$defs/Reply_Text"
             },
             {
               "type": "null"
@@ -1844,7 +1846,7 @@
           "description": "Native assertion accession or document ID."
         },
         "input": {
-          "$ref": "#/$defs/VariantInput",
+          "$ref": "#/$defs/Reply_VariantInput",
           "description": "Checked Variation ID for ClinVar, or CAid for ERepo.",
           "x-positional": 0
         },
@@ -1863,13 +1865,13 @@
           "type": "integer"
         },
         "source": {
-          "$ref": "#/$defs/AssertionSource",
+          "$ref": "#/$defs/Reply_AssertionSource",
           "description": "One native source; no fallback or text search."
         },
         "version": {
           "anyOf": [
             {
-              "$ref": "#/$defs/Text"
+              "$ref": "#/$defs/Reply_Text"
             },
             {
               "type": "null"
@@ -1884,17 +1886,17 @@
       ],
       "type": "object"
     },
-    "VariantId": {
+    "Reply_VariantId": {
       "description": "Published variant-level identifiers, with each identifier's level retained.",
-      "pattern": "^(rs[1-9][0-9]*|CA[0-9]{6,}|PA[1-9][0-9]*|VCV[0-9]{9}(\\.[1-9][0-9]*)?|clinvar:[1-9][0-9]*|COS[VMN][1-9][0-9]*|ga4gh:VA\\.[A-Za-z0-9_-]{32})$",
+      "pattern": "(^rs(?:18446744073709551615|[1-9][0-9]{0,18}|1[0-7][0-9]{18}|18[0-3][0-9]{17}|184[0-3][0-9]{16}|1844[0-5][0-9]{15}|18446[0-6][0-9]{14}|184467[0-3][0-9]{13}|1844674[0-3][0-9]{12}|184467440[0-6][0-9]{10}|1844674407[0-2][0-9]{9}|18446744073[0-6][0-9]{8}|1844674407370[0-8][0-9]{6}|18446744073709[0-4][0-9]{5}|184467440737095[0-4][0-9]{4}|1844674407370955[0-0][0-9]{3}|18446744073709551[0-5][0-9]{2}|184467440737095516[0-0][0-9]{1}|1844674407370955161[0-4][0-9]{0})$|^CA(?=[0-9]{6,}(?:[^0-9]|$))(?:(?=[0-9]{6}(?:[^0-9]|$))0*(?:18446744073709551615|[1-9][0-9]{0,18}|1[0-7][0-9]{18}|18[0-3][0-9]{17}|184[0-3][0-9]{16}|1844[0-5][0-9]{15}|18446[0-6][0-9]{14}|184467[0-3][0-9]{13}|1844674[0-3][0-9]{12}|184467440[0-6][0-9]{10}|1844674407[0-2][0-9]{9}|18446744073[0-6][0-9]{8}|1844674407370[0-8][0-9]{6}|18446744073709[0-4][0-9]{5}|184467440737095[0-4][0-9]{4}|1844674407370955[0-0][0-9]{3}|18446744073709551[0-5][0-9]{2}|184467440737095516[0-0][0-9]{1}|1844674407370955161[0-4][0-9]{0})|(?:18446744073709551615|[1-9][0-9]{0,18}|1[0-7][0-9]{18}|18[0-3][0-9]{17}|184[0-3][0-9]{16}|1844[0-5][0-9]{15}|18446[0-6][0-9]{14}|184467[0-3][0-9]{13}|1844674[0-3][0-9]{12}|184467440[0-6][0-9]{10}|1844674407[0-2][0-9]{9}|18446744073[0-6][0-9]{8}|1844674407370[0-8][0-9]{6}|18446744073709[0-4][0-9]{5}|184467440737095[0-4][0-9]{4}|1844674407370955[0-0][0-9]{3}|18446744073709551[0-5][0-9]{2}|184467440737095516[0-0][0-9]{1}|1844674407370955161[0-4][0-9]{0}))$|^PA(?:18446744073709551615|[1-9][0-9]{0,18}|1[0-7][0-9]{18}|18[0-3][0-9]{17}|184[0-3][0-9]{16}|1844[0-5][0-9]{15}|18446[0-6][0-9]{14}|184467[0-3][0-9]{13}|1844674[0-3][0-9]{12}|184467440[0-6][0-9]{10}|1844674407[0-2][0-9]{9}|18446744073[0-6][0-9]{8}|1844674407370[0-8][0-9]{6}|18446744073709[0-4][0-9]{5}|184467440737095[0-4][0-9]{4}|1844674407370955[0-0][0-9]{3}|18446744073709551[0-5][0-9]{2}|184467440737095516[0-0][0-9]{1}|1844674407370955161[0-4][0-9]{0})$|^VCV(?!000000000)[0-9]{9}(\\.[1-9][0-9]*)?$|^clinvar:(?:18446744073709551615|[1-9][0-9]{0,18}|1[0-7][0-9]{18}|18[0-3][0-9]{17}|184[0-3][0-9]{16}|1844[0-5][0-9]{15}|18446[0-6][0-9]{14}|184467[0-3][0-9]{13}|1844674[0-3][0-9]{12}|184467440[0-6][0-9]{10}|1844674407[0-2][0-9]{9}|18446744073[0-6][0-9]{8}|1844674407370[0-8][0-9]{6}|18446744073709[0-4][0-9]{5}|184467440737095[0-4][0-9]{4}|1844674407370955[0-0][0-9]{3}|18446744073709551[0-5][0-9]{2}|184467440737095516[0-0][0-9]{1}|1844674407370955161[0-4][0-9]{0})$|^COS[VMN][1-9][0-9]*$|^ga4gh:VA\\.[A-Za-z0-9_-]{32}$)",
       "type": "string"
     },
-    "VariantInput": {
+    "Reply_VariantInput": {
       "description": "A validated canonical VariantInput string.",
-      "pattern": "(^(rs[1-9][0-9]*|CA[0-9]{6,}|PA[1-9][0-9]*|VCV[0-9]{9}(\\.[1-9][0-9]*)?|clinvar:[1-9][0-9]*|COS[VMN][1-9][0-9]*|ga4gh:VA\\.[A-Za-z0-9_-]{32})$|^(?!(?:[^:(]*\\()?([NX]P_([0-9]{6}|[0-9]{9})\\.[1-9][0-9]*|ENSP[0-9]{11}\\.[1-9][0-9]*|LRG_[0-9]+p[0-9]+)(?:\\([^:]*\\)|\\))?:[gcnrmo]\\.)((N[CGMPRTW]|X[MPR])_([0-9]{6}|[0-9]{9})\\.[0-9]+|ENS[GTP][0-9]{11}\\.[0-9]+|LRG_[0-9]+([tp][0-9]+)?)(\\(([A-Za-z][A-Za-z0-9._/@-]*|[A-Za-z0-9_.]+)\\))?:([gcnrpmo]\\.[\\x21-\\x7e]*[0-9][\\x21-\\x7e]*|[pr]\\.(\\?|\\(\\?\\)|=|\\(=\\))|r\\.(spl\\??|\\(spl\\?\\)))$|^[1-9][0-9]*$|^chr([1-9][0-9]*|X|Y|M|MT):g\\.[\\x21-\\x7e]*[0-9][\\x21-\\x7e]*$)",
+      "pattern": "^(?=[\\x21-\\x7e]{1,2048}$)((^rs(?:18446744073709551615|[1-9][0-9]{0,18}|1[0-7][0-9]{18}|18[0-3][0-9]{17}|184[0-3][0-9]{16}|1844[0-5][0-9]{15}|18446[0-6][0-9]{14}|184467[0-3][0-9]{13}|1844674[0-3][0-9]{12}|184467440[0-6][0-9]{10}|1844674407[0-2][0-9]{9}|18446744073[0-6][0-9]{8}|1844674407370[0-8][0-9]{6}|18446744073709[0-4][0-9]{5}|184467440737095[0-4][0-9]{4}|1844674407370955[0-0][0-9]{3}|18446744073709551[0-5][0-9]{2}|184467440737095516[0-0][0-9]{1}|1844674407370955161[0-4][0-9]{0})$|^CA(?=[0-9]{6,}(?:[^0-9]|$))(?:(?=[0-9]{6}(?:[^0-9]|$))0*(?:18446744073709551615|[1-9][0-9]{0,18}|1[0-7][0-9]{18}|18[0-3][0-9]{17}|184[0-3][0-9]{16}|1844[0-5][0-9]{15}|18446[0-6][0-9]{14}|184467[0-3][0-9]{13}|1844674[0-3][0-9]{12}|184467440[0-6][0-9]{10}|1844674407[0-2][0-9]{9}|18446744073[0-6][0-9]{8}|1844674407370[0-8][0-9]{6}|18446744073709[0-4][0-9]{5}|184467440737095[0-4][0-9]{4}|1844674407370955[0-0][0-9]{3}|18446744073709551[0-5][0-9]{2}|184467440737095516[0-0][0-9]{1}|1844674407370955161[0-4][0-9]{0})|(?:18446744073709551615|[1-9][0-9]{0,18}|1[0-7][0-9]{18}|18[0-3][0-9]{17}|184[0-3][0-9]{16}|1844[0-5][0-9]{15}|18446[0-6][0-9]{14}|184467[0-3][0-9]{13}|1844674[0-3][0-9]{12}|184467440[0-6][0-9]{10}|1844674407[0-2][0-9]{9}|18446744073[0-6][0-9]{8}|1844674407370[0-8][0-9]{6}|18446744073709[0-4][0-9]{5}|184467440737095[0-4][0-9]{4}|1844674407370955[0-0][0-9]{3}|18446744073709551[0-5][0-9]{2}|184467440737095516[0-0][0-9]{1}|1844674407370955161[0-4][0-9]{0}))$|^PA(?:18446744073709551615|[1-9][0-9]{0,18}|1[0-7][0-9]{18}|18[0-3][0-9]{17}|184[0-3][0-9]{16}|1844[0-5][0-9]{15}|18446[0-6][0-9]{14}|184467[0-3][0-9]{13}|1844674[0-3][0-9]{12}|184467440[0-6][0-9]{10}|1844674407[0-2][0-9]{9}|18446744073[0-6][0-9]{8}|1844674407370[0-8][0-9]{6}|18446744073709[0-4][0-9]{5}|184467440737095[0-4][0-9]{4}|1844674407370955[0-0][0-9]{3}|18446744073709551[0-5][0-9]{2}|184467440737095516[0-0][0-9]{1}|1844674407370955161[0-4][0-9]{0})$|^VCV(?!000000000)[0-9]{9}(\\.[1-9][0-9]*)?$|^clinvar:(?:18446744073709551615|[1-9][0-9]{0,18}|1[0-7][0-9]{18}|18[0-3][0-9]{17}|184[0-3][0-9]{16}|1844[0-5][0-9]{15}|18446[0-6][0-9]{14}|184467[0-3][0-9]{13}|1844674[0-3][0-9]{12}|184467440[0-6][0-9]{10}|1844674407[0-2][0-9]{9}|18446744073[0-6][0-9]{8}|1844674407370[0-8][0-9]{6}|18446744073709[0-4][0-9]{5}|184467440737095[0-4][0-9]{4}|1844674407370955[0-0][0-9]{3}|18446744073709551[0-5][0-9]{2}|184467440737095516[0-0][0-9]{1}|1844674407370955161[0-4][0-9]{0})$|^COS[VMN][1-9][0-9]*$|^ga4gh:VA\\.[A-Za-z0-9_-]{32}$)|^(?!(?:[NX]P_[0-9]{6}\\.(?:65535|[1-9][0-9]{0,3}|[1-5][0-9]{4}|6[0-4][0-9]{3}|65[0-4][0-9]{2}|655[0-2][0-9]{1}|6553[0-4][0-9]{0})|[NX]P_(?!000)[0-9]{9}\\.(?:65535|[1-9][0-9]{0,3}|[1-5][0-9]{4}|6[0-4][0-9]{3}|65[0-4][0-9]{2}|655[0-2][0-9]{1}|6553[0-4][0-9]{0})|ENSP[0-9]{11}\\.(?:65535|[1-9][0-9]{0,3}|[1-5][0-9]{4}|6[0-4][0-9]{3}|65[0-4][0-9]{2}|655[0-2][0-9]{1}|6553[0-4][0-9]{0})|LRG_0*(?:0|(?:4294967295|[1-9][0-9]{0,8}|[1-3][0-9]{9}|4[0-1][0-9]{8}|42[0-8][0-9]{7}|429[0-3][0-9]{6}|4294[0-8][0-9]{5}|42949[0-5][0-9]{4}|429496[0-6][0-9]{3}|4294967[0-1][0-9]{2}|42949672[0-8][0-9]{1}|429496729[0-4][0-9]{0}))p0*(?:0|(?:65535|[1-9][0-9]{0,3}|[1-5][0-9]{4}|6[0-4][0-9]{3}|65[0-4][0-9]{2}|655[0-2][0-9]{1}|6553[0-4][0-9]{0})))(?:\\([^)]*\\))?:[gcnrmo]\\.)(?![^:()]+\\((?:[NX]P_[0-9]{6}\\.(?:65535|[1-9][0-9]{0,3}|[1-5][0-9]{4}|6[0-4][0-9]{3}|65[0-4][0-9]{2}|655[0-2][0-9]{1}|6553[0-4][0-9]{0})|[NX]P_(?!000)[0-9]{9}\\.(?:65535|[1-9][0-9]{0,3}|[1-5][0-9]{4}|6[0-4][0-9]{3}|65[0-4][0-9]{2}|655[0-2][0-9]{1}|6553[0-4][0-9]{0})|ENSP[0-9]{11}\\.(?:65535|[1-9][0-9]{0,3}|[1-5][0-9]{4}|6[0-4][0-9]{3}|65[0-4][0-9]{2}|655[0-2][0-9]{1}|6553[0-4][0-9]{0})|LRG_0*(?:0|(?:4294967295|[1-9][0-9]{0,8}|[1-3][0-9]{9}|4[0-1][0-9]{8}|42[0-8][0-9]{7}|429[0-3][0-9]{6}|4294[0-8][0-9]{5}|42949[0-5][0-9]{4}|429496[0-6][0-9]{3}|4294967[0-1][0-9]{2}|42949672[0-8][0-9]{1}|429496729[0-4][0-9]{0}))p0*(?:0|(?:65535|[1-9][0-9]{0,3}|[1-5][0-9]{4}|6[0-4][0-9]{3}|65[0-4][0-9]{2}|655[0-2][0-9]{1}|6553[0-4][0-9]{0})))\\):[gcnrmo]\\.)(?:(?:N[CGMPRTW]|X[MPR])_(?:[0-9]{6}|(?!000)[0-9]{9})\\.(?:65535|[1-9][0-9]{0,3}|[1-5][0-9]{4}|6[0-4][0-9]{3}|65[0-4][0-9]{2}|655[0-2][0-9]{1}|6553[0-4][0-9]{0})|ENS[GTP][0-9]{11}\\.(?:65535|[1-9][0-9]{0,3}|[1-5][0-9]{4}|6[0-4][0-9]{3}|65[0-4][0-9]{2}|655[0-2][0-9]{1}|6553[0-4][0-9]{0})|LRG_0*(?:0|(?:4294967295|[1-9][0-9]{0,8}|[1-3][0-9]{9}|4[0-1][0-9]{8}|42[0-8][0-9]{7}|429[0-3][0-9]{6}|4294[0-8][0-9]{5}|42949[0-5][0-9]{4}|429496[0-6][0-9]{3}|4294967[0-1][0-9]{2}|42949672[0-8][0-9]{1}|429496729[0-4][0-9]{0}))(?:[tp]0*(?:0|(?:65535|[1-9][0-9]{0,3}|[1-5][0-9]{4}|6[0-4][0-9]{3}|65[0-4][0-9]{2}|655[0-2][0-9]{1}|6553[0-4][0-9]{0})))?)(?:\\((?:(?:(?:N[CGMPRTW]|X[MPR])_(?:[0-9]{6}|(?!000)[0-9]{9})\\.(?:65535|[1-9][0-9]{0,3}|[1-5][0-9]{4}|6[0-4][0-9]{3}|65[0-4][0-9]{2}|655[0-2][0-9]{1}|6553[0-4][0-9]{0})|ENS[GTP][0-9]{11}\\.(?:65535|[1-9][0-9]{0,3}|[1-5][0-9]{4}|6[0-4][0-9]{3}|65[0-4][0-9]{2}|655[0-2][0-9]{1}|6553[0-4][0-9]{0})|LRG_0*(?:0|(?:4294967295|[1-9][0-9]{0,8}|[1-3][0-9]{9}|4[0-1][0-9]{8}|42[0-8][0-9]{7}|429[0-3][0-9]{6}|4294[0-8][0-9]{5}|42949[0-5][0-9]{4}|429496[0-6][0-9]{3}|4294967[0-1][0-9]{2}|42949672[0-8][0-9]{1}|429496729[0-4][0-9]{0}))(?:[tp]0*(?:0|(?:65535|[1-9][0-9]{0,3}|[1-5][0-9]{4}|6[0-4][0-9]{3}|65[0-4][0-9]{2}|655[0-2][0-9]{1}|6553[0-4][0-9]{0})))?)|[A-Za-z][A-Za-z0-9._/@-]{0,254})\\))?:(?:[gcnrpmo]\\.[\\x21-\\x7e]*[0-9][\\x21-\\x7e]*|[pr]\\.(?:\\?|\\(\\?\\)|=|\\(=\\))|r\\.(?:spl\\??|\\(spl\\?\\)))$|^(?:18446744073709551615|[1-9][0-9]{0,18}|1[0-7][0-9]{18}|18[0-3][0-9]{17}|184[0-3][0-9]{16}|1844[0-5][0-9]{15}|18446[0-6][0-9]{14}|184467[0-3][0-9]{13}|1844674[0-3][0-9]{12}|184467440[0-6][0-9]{10}|1844674407[0-2][0-9]{9}|18446744073[0-6][0-9]{8}|1844674407370[0-8][0-9]{6}|18446744073709[0-4][0-9]{5}|184467440737095[0-4][0-9]{4}|1844674407370955[0-0][0-9]{3}|18446744073709551[0-5][0-9]{2}|184467440737095516[0-0][0-9]{1}|1844674407370955161[0-4][0-9]{0})$|^chr([1-9]|1[0-9]|2[0-2]|X|Y|M|MT):g\\.[\\x21-\\x7e]*[0-9][\\x21-\\x7e]*$)",
       "type": "string"
     },
-    "VariantRef": {
+    "Reply_VariantRef": {
       "description": "Checked source subject reference; at least one source identity or label is required.",
       "oneOf": [
         {
@@ -1903,7 +1905,7 @@
             "hgvs": {
               "anyOf": [
                 {
-                  "$ref": "#/$defs/HgvsText"
+                  "$ref": "#/$defs/Reply_HgvsText"
                 },
                 {
                   "type": "null"
@@ -1914,7 +1916,7 @@
             "id": {
               "anyOf": [
                 {
-                  "$ref": "#/$defs/VariantId"
+                  "$ref": "#/$defs/Reply_VariantId"
                 },
                 {
                   "type": "null"
@@ -1936,13 +1938,13 @@
           "description": "Protein-level assertion, without genomic conversion.",
           "properties": {
             "gene": {
-              "$ref": "#/$defs/GeneRef",
+              "$ref": "#/$defs/Reply_GeneRef",
               "description": "Source gene."
             },
             "hgvs": {
               "anyOf": [
                 {
-                  "$ref": "#/$defs/HgvsText"
+                  "$ref": "#/$defs/Reply_HgvsText"
                 },
                 {
                   "type": "null"
@@ -1953,7 +1955,7 @@
             "label": {
               "anyOf": [
                 {
-                  "$ref": "#/$defs/Text"
+                  "$ref": "#/$defs/Reply_Text"
                 },
                 {
                   "type": "null"
@@ -1976,7 +1978,7 @@
           "description": "Compound source profile, without an inferred allele.",
           "properties": {
             "label": {
-              "$ref": "#/$defs/Text",
+              "$ref": "#/$defs/Reply_Text",
               "description": "Complete source label."
             },
             "level": {
@@ -1986,12 +1988,12 @@
             "members": {
               "description": "Source member references in their native order.",
               "items": {
-                "$ref": "#/$defs/LeafRef"
+                "$ref": "#/$defs/Reply_LeafRef"
               },
               "type": "array"
             },
             "record": {
-              "$ref": "#/$defs/Text",
+              "$ref": "#/$defs/Reply_Text",
               "description": "Native profile ID."
             }
           },
@@ -2012,7 +2014,7 @@
     "local_error": {
       "anyOf": [
         {
-          "$ref": "#/$defs/CacheProblem"
+          "$ref": "#/$defs/Reply_CacheProblem"
         },
         {
           "type": "null"
@@ -2023,14 +2025,14 @@
     "next": {
       "description": "Available next commands.",
       "items": {
-        "$ref": "#/$defs/Step"
+        "$ref": "#/$defs/Reply_Step"
       },
       "type": "array"
     },
     "page": {
       "anyOf": [
         {
-          "$ref": "#/$defs/PageInfo"
+          "$ref": "#/$defs/Reply_PageInfo"
         },
         {
           "type": "null"
@@ -2041,18 +2043,18 @@
     "problems": {
       "description": "Rejected source fields.",
       "items": {
-        "$ref": "#/$defs/Problem"
+        "$ref": "#/$defs/Reply_Problem"
       },
       "type": "array"
     },
     "query": {
-      "$ref": "#/$defs/VariantAssertionsGet",
+      "$ref": "#/$defs/Reply_VariantAssertionsGet",
       "description": "Parsed query."
     },
     "result": {
       "anyOf": [
         {
-          "$ref": "#/$defs/VariantAssertions"
+          "$ref": "#/$defs/Reply_VariantAssertions"
         },
         {
           "type": "null"
@@ -2067,12 +2069,12 @@
     "sources": {
       "description": "Sources actually asked.",
       "items": {
-        "$ref": "#/$defs/SourceOutcome"
+        "$ref": "#/$defs/Reply_SourceOutcome"
       },
       "type": "array"
     },
     "status": {
-      "$ref": "#/$defs/Status",
+      "$ref": "#/$defs/Reply_Status",
       "description": "Overall outcome."
     }
   },
