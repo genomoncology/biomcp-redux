@@ -15,6 +15,7 @@ struct Shape {
     required: BTreeSet<String>,
     selectors: Option<Vec<BTreeSet<String>>>,
     minimum_length: u64,
+    maximum_length: Option<u64>,
     minimum_items: u64,
     unique_items: bool,
     maximum_items: Option<u64>,
@@ -95,6 +96,9 @@ pub(super) fn check_reviewed(
                 ContractKind::Query => !new.required.is_subset(&old.required),
                 ContractKind::Reply => !old.required.is_subset(&new.required),
             }
+            || new
+                .maximum_length
+                .is_some_and(|bound| old.maximum_length.is_none_or(|old| bound < old))
             || new.minimum_length > old.minimum_length
             || new.minimum_items > old.minimum_items
             || new.unique_items && !old.unique_items
@@ -269,6 +273,9 @@ fn collect(node: &Value, path: &str, shapes: &mut BTreeMap<String, Shape>) -> Ch
     }
     if let Some(maximum) = node.get("maximum") {
         shape.maximum = Some(bound(node, maximum)?);
+    }
+    if let Some(maximum) = node.get("maxLength") {
+        shape.maximum_length = Some(maximum.as_u64().ok_or("invalid maxLength")?);
     }
     collect_format(node, shape)?;
     shape.open_enum |= node.get("x-extensible-enum").is_some();
@@ -510,6 +517,7 @@ fn validate_keywords(object: &serde_json::Map<String, Value>, path: &str) -> Che
             "const",
             "items",
             "minLength",
+            "maxLength",
             "pattern",
             "minimum",
             "maximum",
