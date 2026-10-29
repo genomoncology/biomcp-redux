@@ -362,6 +362,6 @@ fn native_ceiling(body: &str) -> Result<usize, String> {
     if let Some((id, source)) = card {
         return super::section_native::ceiling(&format!("card-{id}-{source}"));
     }
-    crate::runner::tools_api::budget(&format!("phenotype/{body}"))
+    crate::runner::launch::native_budget(&format!("phenotype/{body}"))
 }
 }

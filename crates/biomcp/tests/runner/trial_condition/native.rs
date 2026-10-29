@@ -1,6 +1,6 @@
 //! Native positives remain outside Git; actual record/replay exercises both public callers.
 use super::{Stub, invoke, setup};
-use crate::runner::tools_api::budget;
+use crate::runner::launch::native_budget as budget;
 use serde_json::{Value, json};
 use sha2::{Digest, Sha256};
 use std::{collections::BTreeMap, fs, path::Path};

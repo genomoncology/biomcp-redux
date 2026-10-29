@@ -169,3 +169,14 @@ pub(super) fn support() -> std::path::PathBuf {
 pub(super) fn feature_list() -> &'static str {
     include_str!("../../../../sdlc/features.md")
 }
+
+/// Native command ceilings travel with the copied fixtures for both test targets.
+pub(super) fn native_budget(key: &str) -> Result<usize, String> {
+    let limits: std::collections::BTreeMap<String, usize> =
+        serde_saphyr::from_str(&fixture_text("native-budgets.yaml")?)
+            .map_err(|error| error.to_string())?;
+    limits
+        .get(key)
+        .copied()
+        .ok_or_else(|| format!("unmeasured native proof: {key}"))
+}

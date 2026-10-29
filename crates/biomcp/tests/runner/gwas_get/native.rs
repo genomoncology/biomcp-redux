@@ -1,6 +1,6 @@
 //! Native bodies stay in the external evidence store and replay through transport recordings.
 use super::{Environment, Path, Stub, Value, fs, invoke, json};
-use crate::runner::tools_api::budget;
+use crate::runner::launch::native_budget as budget;
 use std::{collections::BTreeMap, io::Write};
 pub(super) fn run() -> Result<(), String> {
     let root = super::super::launch::fixtures().join("gwas-get-native");
