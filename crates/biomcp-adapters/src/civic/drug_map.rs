@@ -25,6 +25,9 @@ fn context(raw: Option<Field<raw::Profile>>, cx: &mut Problems) -> Option<(DrugC
     Some((DrugCivicProfile {record, label, raw_name, compound, members: members.into()}, subject))
 }
 fn build(context: Option<(DrugCivicProfile, Option<VariantRef>)>, mapped: variant_claims::MappedClaim, interaction: Option<biodata::Text>, query: &DrugGet, cx: &mut Problems) -> Option<DrugCivicClaim> {
+    if mapped.claim.status.as_ref().is_some_and(|status| !status.is_unknown() && !matches!(status, biomcp_types::CivicStatus::Accepted)) {
+        cx.required::<()>("status", None); return None;
+    }
     let requested = query.input().to_string();
     if !mapped.therapies.iter().any(|t| t.id.to_string() == requested) {
         cx.required::<()>("therapies.id", None); return None;
@@ -37,16 +40,16 @@ fn build(context: Option<(DrugCivicProfile, Option<VariantRef>)>, mapped: varian
 pub(super) fn evidence(raw: raw::Evidence, query: &DrugGet, cx: &mut Problems) -> Option<DrugCivicClaim> {
     let before = cx.list.len();
     let context = context(raw.molecular_profile, cx);
-    let interaction = cx.field("therapyInteractionType", raw.therapy_interaction_type);
     let context_bad = before != cx.list.len();
     let mapped = variant_claims::evidence(raw.claim, context.as_ref().and_then(|v| v.1.as_ref()), context_bad, cx)?;
+    let interaction = mapped.claim.therapy_interaction_type.clone();
     build(context, mapped, interaction, query, cx)
 }
 pub(super) fn assertion(raw: raw::Assertion, query: &DrugGet, cx: &mut Problems) -> Option<DrugCivicClaim> {
     let before = cx.list.len();
     let context = context(raw.molecular_profile, cx);
-    let interaction = cx.field("therapyInteractionType", raw.therapy_interaction_type);
     let context_bad = before != cx.list.len();
     let mapped = variant_claims::assertion(raw.claim, context.as_ref().and_then(|v| v.1.as_ref()), context_bad, cx)?;
+    let interaction = mapped.claim.therapy_interaction_type.clone();
     build(context, mapped, interaction, query, cx)
 }

@@ -1,4 +1,5 @@
 //! Checked CIViC gene-level curation joined to HGNC Entrez identities.
+mod claim_content;
 mod claim_vocab;
 mod drug;
 mod drug_get;

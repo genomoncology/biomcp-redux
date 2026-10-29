@@ -1,8 +1,8 @@
 //! Native claim identity survives malformed optional clinical content.
-use super::{claim_vocab as vocab, variant_map, variant_raw as raw};
+use super::{claim_vocab as vocab, claim_content::{term, condition, therapies, citations, evidence_level, native}, variant_map, variant_raw as raw};
 use crate::mapped::Problems;
-use biodata::{Attribution, Concept, Direction, Statement, Term, Text, VariantRef};
-use biomcp_types::{CivicCondition, CivicKind, CivicNativeClaim, CivicSignificance, CivicStatement, CivicStatus, CivicTherapy, DrugHeader, DrugSource, Source, SourceRecord};
+use biodata::{Concept, Direction, Statement, Term, Text, VariantRef};
+use biomcp_types::{CivicKind, CivicNativeClaim, CivicSignificance, CivicStatement, CivicStatus, CivicTherapy, DrugHeader, SourceRecord};
 
 pub(super) struct MappedClaim {
     pub claim: CivicStatement,
@@ -18,6 +18,8 @@ struct Claim {
     therapies: Box<[DrugHeader]>,
     assertion: bool,
     context_bad: bool,
+    amp_level: Option<Text>,
+    interaction: Option<Text>,
 }
 pub(super) fn evidence(raw: raw::Evidence, subject: Option<&VariantRef>, context_bad: bool, cx: &mut Problems) -> Option<MappedClaim> {
     let id = variant_map::identity(raw.id, "id", cx)?;
@@ -29,11 +31,12 @@ pub(super) fn evidence(raw: raw::Evidence, subject: Option<&VariantRef>, context
     let direction = cx.field("evidenceDirection", raw.evidence_direction);
     let condition = condition(raw.disease, cx);
     let therapies = therapies(raw.therapies, cx);
+    let interaction = interaction(raw.therapy_interaction_type, &therapies.0, cx);
     let context_bad = context_bad || before != cx.list.len();
     let strength = cx.field("evidenceLevel", raw.evidence_level).map(|label| evidence_level(label, cx));
     let citations = citations(raw.source, cx);
     let native = native(significance.as_ref().and_then(|v| term(v.as_str(), cx)), strength, condition, &therapies.0, None, citations);
-    build(Claim {id, kind, status, significance, direction, native, therapies: therapies.1, assertion: false, context_bad}, subject, cx)
+    build(Claim {id, kind, status, significance, direction, native, therapies: therapies.1, assertion: false, context_bad, amp_level: None, interaction}, subject, cx)
 }
 pub(super) fn assertion(raw: raw::Assertion, subject: Option<&VariantRef>, context_bad: bool, cx: &mut Problems) -> Option<MappedClaim> {
     let id = variant_map::identity(raw.id, "id", cx)?;
@@ -45,56 +48,24 @@ pub(super) fn assertion(raw: raw::Assertion, subject: Option<&VariantRef>, conte
     let direction = cx.field("assertionDirection", raw.assertion_direction);
     let condition = condition(raw.disease, cx);
     let therapies = therapies(raw.therapies, cx);
+    let interaction = interaction(raw.therapy_interaction_type, &therapies.0, cx);
     let origin = cx.field("variantOrigin", raw.variant_origin).map(|label| Term {label, codings: Box::default()});
     let amp = cx.field("ampLevel", raw.amp_level);
-    let (classification, strength) = if let Some(label) = amp {
-        match vocab::amp(Some(&label)) {
+    let (classification, strength) = if let Some(label) = amp.as_ref().filter(|label| label.as_str() != "NA") {
+        match vocab::amp(Some(label)) {
             Some(value) => (Some(value.0), value.1),
-            None => {cx.required::<()>("ampLevel", None); (Some(Term {label, codings: Box::default()}), None)}
+            None => {cx.required::<()>("ampLevel", None); (Some(Term {label: label.clone(), codings: Box::default()}), None)}
         }
     } else { (significance.as_ref().and_then(|v| term(v.as_str(), cx)), None) };
     let native = native(classification, strength, condition, &therapies.0, origin, Box::default());
-    build(Claim {id, kind, status, significance, direction, native, therapies: therapies.1, assertion: true, context_bad: context_bad || before != cx.list.len()}, subject, cx)
+    build(Claim {id, kind, status, significance, direction, native, therapies: therapies.1, assertion: true, context_bad: context_bad || before != cx.list.len(), amp_level: amp, interaction}, subject, cx)
 }
-fn term(value: &str, cx: &mut Problems) -> Option<Term> {
-    cx.text("significance", Some(value)).map(|label| Term {label, codings: Box::default()})
-}
-fn condition(raw: Option<crate::raw::Field<raw::Disease>>, cx: &mut Problems) -> Option<CivicCondition> {
-    let raw = cx.field("disease", raw)?;
-    let label = cx.source_field("disease.name", raw.name);
-    let id = cx.field("disease.doid", raw.doid).and_then(|id| cx.optional("disease.doid", Some(format!("DOID:{id}").parse())));
-    Some(CivicCondition {id, label})
-}
-fn therapies(raw: Option<crate::raw::Field<Vec<crate::raw::Field<raw::Therapy>>>>, cx: &mut Problems) -> (Box<[CivicTherapy]>, Box<[DrugHeader]>) {
-    let mut native = Vec::new();
-    let mut headers = Vec::new();
-    for row in cx.fields("therapies", raw).into_vec() {
-        let id = cx.field("therapies.id", row.id).and_then(|id| cx.optional("therapies.id", Some(if raw::id(id) { Ok(id) } else { Err(()) })));
-        let label = cx.source_field("therapies.name", row.name);
-        if let Some(id) = id {
-            if let Some(id) = cx.optional("therapies.id", Some(id.to_string().parse())) {
-                headers.push(DrugHeader {id, source: DrugSource::Civic, name: label.clone(), identity_level: biodata::DrugIdentityLevel::Unknown, matched_name: None, r#type: None, version: None, url: None});
-            }
-        }
-        native.push(CivicTherapy {id, label});
-    }
-    (native.into(), headers.into())
-}
-fn citations(raw: Option<crate::raw::Field<raw::Citation>>, cx: &mut Problems) -> Box<[biodata::Pmid]> {
-    let Some(raw) = cx.field("source", raw) else { return Box::default(); };
-    let kind = cx.field("source.sourceType", raw.source_type);
-    let id = cx.field("source.citationId", raw.citation_id);
-    if kind.as_ref().is_some_and(|kind| kind.as_str() == "PUBMED") {
-        cx.optional("source.citationId", id.map(|id| id.as_str().parse())).into_iter().collect()
-    } else { Box::default() }
-}
-fn evidence_level(label: Text, cx: &mut Problems) -> Term {
-    use biodata::CivicEvidenceLevelCode as L;
-    let code = match label.as_str() {"A" => Some(L::A), "B" => Some(L::B), "C" => Some(L::C), "D" => Some(L::D), "E" => Some(L::E), _ => {cx.required::<()>("evidenceLevel", None); None}};
-    Term {label, codings: code.map(biodata::Coding::CivicEvidenceLevel).into_iter().collect()}
-}
-fn native(classification: Option<Term>, strength: Option<Term>, condition: Option<CivicCondition>, therapies: &[CivicTherapy], allele_origin: Option<Term>, citations: Box<[biodata::Pmid]>) -> CivicNativeClaim {
-    CivicNativeClaim {classification, strength, condition, therapies: therapies.into(), allele_origin, citations, attribution: Attribution {source: Source::Civic.text(), record: None, version: None, release: None, submitter: None, evaluated: None, url: None}}
+fn interaction(raw: Option<crate::raw::Field<Text>>, therapies: &[CivicTherapy], cx: &mut Problems) -> Option<Text> {
+    let value = cx.field("therapyInteractionType", raw);
+    if therapies.len() > 1 {
+        if value.as_ref().is_none_or(|v| !matches!(v.as_str(), "COMBINATION" | "SEQUENTIAL" | "SUBSTITUTES")) {cx.required::<()>("therapyInteractionType", None);}
+    } else if value.is_some() {cx.required::<()>("therapyInteractionType", None);}
+    value
 }
 fn build(mut row: Claim, subject: Option<&VariantRef>, cx: &mut Problems) -> Option<MappedClaim> {
     let id = cx.optional("id", Some(Text::new(&format!("{}{}", if row.assertion {"AID"} else {"EID"}, row.id))))?;
@@ -106,9 +77,13 @@ fn build(mut row: Claim, subject: Option<&VariantRef>, cx: &mut Problems) -> Opt
         if unknown {cx.required::<()>(field, None); row.context_bad = true;}
     }
     let direction = match row.direction.as_ref().map(Text::as_str) {Some("SUPPORTS") => Some(Direction::Supports), Some("DOES_NOT_SUPPORT") => Some(Direction::Disputes), Some(_) => {cx.required::<()>(if row.assertion {"assertionDirection"} else {"evidenceDirection"}, None); None}, None => None};
-    let statement = (!row.context_bad).then_some(subject).flatten().zip(row.kind.as_ref().and_then(|kind| vocab::proposition(kind.as_str()))).zip(row.native.classification.clone()).filter(|_| direction.is_some() && row.significance.is_some()).map(|((subject, proposition), classification)| Statement {
+    let statement = common(&row, subject, direction);
+    if statement.is_none() && !row.context_bad && row.native.therapies.len() < 2 {cx.required::<()>("statement", None);}
+    Some(MappedClaim {claim: CivicStatement {statement_unmapped: statement.is_none(), native: statement.is_none().then_some(row.native), statement, record: SourceRecord {id, url: Some(url)}, kind: row.kind, status: row.status, direction: row.direction, significance: row.significance, amp_level: row.amp_level, therapy_interaction_type: row.interaction}, therapies: row.therapies})
+}
+
+fn common(row: &Claim, subject: Option<&VariantRef>, direction: Option<Direction>) -> Option<Statement> {
+     (!row.context_bad && row.native.therapies.len() < 2).then_some(subject).flatten().zip(row.kind.as_ref().and_then(|kind| vocab::proposition(kind.as_str()))).zip(row.native.classification.clone()).filter(|_| direction.is_some() && row.significance.is_some()).map(|((subject, proposition), classification)| Statement {
         subject: subject.clone(), proposition, predicate: row.kind.as_ref().zip(row.significance.as_ref()).and_then(|(kind, significance)| vocab::predicate(kind.as_str(), significance.as_str())), direction, classification, strength: row.native.strength.clone(), condition: row.native.condition.as_ref().and_then(|c| c.label.clone().map(|label| Concept {id: c.id.clone(), label})), therapies: row.native.therapies.iter().filter_map(|t| t.label.clone().map(|label| Concept {id: None, label})).collect(), allele_origin: row.native.allele_origin.clone(), gene_context: None, criteria: Box::default(), citations: row.native.citations.clone(), attribution: row.native.attribution.clone()
-    });
-    if statement.is_none() && !row.context_bad {cx.required::<()>("statement", None);}
-    Some(MappedClaim {claim: CivicStatement {statement_unmapped: statement.is_none(), native: statement.is_none().then_some(row.native), statement, record: SourceRecord {id, url: Some(url)}, kind: row.kind, status: row.status, direction: row.direction, significance: row.significance}, therapies: row.therapies})
+    })
 }

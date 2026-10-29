@@ -179,11 +179,11 @@ fn check_claims(value: &Value) -> Result<(), String> {
         ("/statements/0/statement/direction", json!("disputes")),
         ("/statements/0/direction", json!("DOES_NOT_SUPPORT")),
         (
-            "/statements/2/statement/classification/codings/0/code",
+            "/statements/2/native/classification/codings/0/code",
             json!("tier_i"),
         ),
         (
-            "/statements/2/statement/strength/codings/0/code",
+            "/statements/2/native/strength/codings/0/code",
             json!("level_a"),
         ),
         ("/evidence_page/next/civic_profile", json!(120)),
@@ -242,7 +242,7 @@ pub(super) fn civic_body(request: &str) -> Result<String, String> {
     let assertions = json!(
         {"totalCount":2,"nodes":[{"id":7,"status":"ACCEPTED","assertionType":"PREDICTIVE","assertionDirection":"SUPPORTS",
         "significance":"SENSITIVITYRESPONSE","ampLevel":"TIER_I_LEVEL_A","disease":{"name":"melanoma","doid":"1909"},
-        "therapies":[{"name":"dabrafenib"},{"name":"trametinib"}],"variantOrigin":"SOMATIC"}],"pageInfo":{"hasNextPage":true,
+        "therapies":[{"name":"dabrafenib"},{"name":"trametinib"}],"therapyInteractionType":"COMBINATION","variantOrigin":"SOMATIC"}],"pageInfo":{"hasNextPage":true,
         "endCursor":"synthetic-a1"}}
     );
     let mut reply = json!(

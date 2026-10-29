@@ -113,6 +113,12 @@ pub struct CivicStatement {
     /// Original significance, including when the classification holds an AMP tier.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub significance: Option<super::CivicSignificance>,
+    /// Exact nullable native AMP value, including Not Applicable.
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub amp_level: Option<Text>,
+    /// Native relationship between therapies; the common statement cannot express it.
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub therapy_interaction_type: Option<Text>,
 }
 
 /// Source facts retained without inventing a common-model subject or proposition.

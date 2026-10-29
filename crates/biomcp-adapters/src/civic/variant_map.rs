@@ -34,17 +34,7 @@ fn map(raw: raw::Profile, query: &VariantGet, allele: &str, cx: &mut Problems) -
     let raw_name = cx.field("rawName", raw.raw_name);
     let native_count = raw.variants.as_ref().and_then(Field::as_ref).map(Vec::len);
     let native_members = cx.fields("variants", raw.variants);
-    let parent = cx.record.clone();
-    let mut members = Vec::new();
-    let mut exact = false;
-    for value in native_members.into_vec() {
-        cx.record = parent.clone();
-        if let Some((member, caid)) = member(value, cx) {
-            exact |= caid.as_ref().is_some_and(|id| id.as_str() == allele);
-            members.push(member);
-        }
-    }
-    cx.record = parent;
+    let (members, exact) = checked_members(native_members, allele, cx);
     let context_bad = cx.list.len() != start;
     let complete = native_count == Some(members.len()) && !context_bad;
     let link = cx.field("link", raw.link);
@@ -68,6 +58,20 @@ fn map(raw: raw::Profile, query: &VariantGet, allele: &str, cx: &mut Problems) -
         if !context_bad { cx.required::<()>("molecular_profile.membership", None); }
     }
     Ok(Some(CivicProfile { record, label, raw_name, compound, membership: if exact { CivicMembership::Exact } else { CivicMembership::Candidate }, members: members.into(), evidence_count: raw.evidence_items.total_count, assertion_count: raw.assertions.total_count, statements: statements.into(), evidence_page, assertion_page }))
+}
+fn checked_members(raw: Box<[raw::Member]>, allele: &str, cx: &mut Problems) -> (Vec<CivicMember>, bool) {
+    let parent = cx.record.clone();
+    let mut members = Vec::new();
+    let mut exact = false;
+    for value in raw.into_vec() {
+        cx.record = parent.clone();
+        if let Some((member, caid)) = member(value, cx) {
+            exact |= caid.as_ref().is_some_and(|id| id.as_str() == allele);
+            members.push(member);
+        }
+    }
+    cx.record = parent;
+    (members, exact)
 }
 fn claim_page<T>(raw: &raw::Connection<T>, query: &VariantGet, profile: u64, kind: CivicClaimKind, exact: bool) -> Result<CivicClaimPage, RequestError> {
     let next = if exact && (raw.page_info.has_next_page || raw.nodes.is_empty() && raw.total_count > 0) {

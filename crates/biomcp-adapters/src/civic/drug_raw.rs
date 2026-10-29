@@ -32,7 +32,6 @@ pub(super) struct Evidence {
     #[serde(flatten)]
     pub claim: raw::Evidence,
     pub molecular_profile: Option<Field<Profile>>,
-    pub therapy_interaction_type: Option<Field<Text>>,
 }
 #[derive(Deserialize)]
 #[serde(rename_all = "camelCase")]
@@ -40,7 +39,6 @@ pub(super) struct Assertion {
     #[serde(flatten)]
     pub claim: raw::Assertion,
     pub molecular_profile: Option<Field<Profile>>,
-    pub therapy_interaction_type: Option<Field<Text>>,
 }
 impl Reply for ReplyBody {
     fn check(&self) -> Result<(), BadReply> {

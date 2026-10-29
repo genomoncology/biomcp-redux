@@ -64,6 +64,7 @@ pub(super) struct Evidence {
     pub significance: Option<Field<biodata::SourceText>>,
     pub disease: Option<Field<Disease>>,
     pub therapies: Option<Field<Vec<Field<Therapy>>>>,
+    pub therapy_interaction_type: Option<Field<Text>>,
     pub source: Option<Field<Citation>>,
 }
 #[derive(Deserialize)]
@@ -77,6 +78,7 @@ pub(super) struct Assertion {
     pub amp_level: Option<Field<Text>>,
     pub disease: Option<Field<Disease>>,
     pub therapies: Option<Field<Vec<Field<Therapy>>>>,
+    pub therapy_interaction_type: Option<Field<Text>>,
     pub variant_origin: Option<Field<Text>>,
 }
 #[derive(Deserialize)]
