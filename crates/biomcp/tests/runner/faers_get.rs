@@ -5,10 +5,14 @@ use libtest_mimic::Trial;
 use serde_json::{Value, json};
 type Check = Result<(), String>;
 pub(super) fn trials() -> Vec<Trial> {
-    let mut trials = vec![transcript_trial(
-        "adverse-event-get/synthetic-sections-and-snapshot",
-        || sections().map_err(Into::into),
-    )];
+    let mut trials = vec![
+        transcript_trial("adverse-event-get/age-unit-boundaries", || {
+            ages().map_err(Into::into)
+        }),
+        transcript_trial("adverse-event-get/synthetic-sections-and-snapshot", || {
+            sections().map_err(Into::into)
+        }),
+    ];
     trials.push(transcript_trial(
         "adverse-event-get/synthetic-complete-array-walks",
         || walks().map_err(Into::into),
@@ -52,6 +56,22 @@ fn native() -> Value {
 }
 fn setup(mode: &str) -> Result<(Environment, Stub), String> {
     let mut body = native();
+    if let Some(unit) = mode.strip_prefix("age-unit-") {
+        let patient = body
+            .pointer_mut("/results/0/patient")
+            .and_then(Value::as_object_mut)
+            .ok_or("patient")?;
+        if unit == "absent" {
+            patient.remove("patientonsetageunit");
+        } else {
+            patient.insert("patientonsetageunit".into(), json!(unit));
+        }
+    }
+    if mode == "age-invalid" {
+        *body
+            .pointer_mut("/results/0/patient/patientonsetage")
+            .ok_or("age")? = json!("NaN");
+    }
     if mode == "missing-patient" {
         body.pointer_mut("/results/0")
             .and_then(Value::as_object_mut)
@@ -436,6 +456,34 @@ fn budget(value: &Value, full: usize, comparable: usize) -> Check {
         return Err(format!(
             "FAERS output exceeds measured +15% ceiling: {full}/{comparable} > {caps:?}"
         ));
+    }
+    Ok(())
+}
+
+fn ages() -> Check {
+    for code in [
+        "800", "801", "802", "803", "804", "805", "absent", "999", "",
+    ] {
+        let (env, _stub) = setup(&format!("age-unit-{code}"))?;
+        let output = both(&env, args(None), 0)?;
+        let expected = match code {
+            "absent" => Some(json!({"value":42.5})),
+            "999" | "" => None,
+            _ => Some(json!({"value":42.5,"unit":code})),
+        };
+        if output.pointer("/result/patient/age") != expected.as_ref() {
+            return Err(format!("FAERS age changed its stated unit: {output}"));
+        }
+        if expected.is_none() && output["problems"].as_array().is_none_or(Vec::is_empty) {
+            return Err("malformed FAERS unit lost its problem".into());
+        }
+    }
+    let (env, _stub) = setup("age-invalid")?;
+    let output = both(&env, args(None), 0)?;
+    if output.pointer("/result/patient/age").is_some()
+        || output["problems"].as_array().is_none_or(Vec::is_empty)
+    {
+        return Err("nonfinite FAERS age escaped field rejection".into());
     }
     Ok(())
 }

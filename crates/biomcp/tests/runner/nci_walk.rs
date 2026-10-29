@@ -96,30 +96,7 @@ fn walk(env: &Environment, raw: &Value, section: &str, globals: &[String]) -> Ch
                     .cloned(),
             );
             if section == "eligibility" {
-                let mut expected = raw["eligibility"]["structured"].clone();
-                let fields = expected.as_object_mut().ok_or("structured fields")?;
-                for bound in ["min", "max"] {
-                    let value = fields
-                        .remove(&format!("{bound}_age_number"))
-                        .ok_or("age number")?;
-                    let unit = fields
-                        .remove(&format!("{bound}_age_unit"))
-                        .ok_or("age unit")?;
-                    fields.insert(
-                        format!("{bound}_age_number"),
-                        json!({"value":value,"unit":unit}),
-                    );
-                    let years = fields
-                        .remove(&format!("{bound}_age_in_years"))
-                        .ok_or("age years")?;
-                    fields.insert(
-                        format!("{bound}_age_in_years"),
-                        json!({"value":years,"unit":"Years"}),
-                    );
-                }
-                if data["structured"] != expected {
-                    return Err("native numeric age lost its explicit source unit".into());
-                }
+                check_ages(data, raw)?;
             }
         }
         match super::action(&output, "page") {
@@ -318,6 +295,34 @@ fn ages() -> Check {
         if expected.is_none() && output["problems"].as_array().is_none_or(Vec::is_empty) {
             return Err("malformed stated age or unit lost its field problem".into());
         }
+    }
+    Ok(())
+}
+
+fn check_ages(data: &Value, raw: &Value) -> Check {
+    let mut expected = raw["eligibility"]["structured"].clone();
+    let fields = expected.as_object_mut().ok_or("structured fields")?;
+    for bound in ["min", "max"] {
+        let value = fields
+            .remove(&format!("{bound}_age_number"))
+            .ok_or("age number")?;
+        let unit = fields
+            .remove(&format!("{bound}_age_unit"))
+            .ok_or("age unit")?;
+        fields.insert(
+            format!("{bound}_age_number"),
+            json!({"value":value,"unit":unit}),
+        );
+        let years = fields
+            .remove(&format!("{bound}_age_in_years"))
+            .ok_or("age years")?;
+        fields.insert(
+            format!("{bound}_age_in_years"),
+            json!({"value":years,"unit":"Years"}),
+        );
+    }
+    if data["structured"] != expected {
+        return Err("native numeric age lost its explicit source unit".into());
     }
     Ok(())
 }

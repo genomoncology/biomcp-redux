@@ -103,7 +103,7 @@ pub struct Detail {
     /// Original disease concepts, without deduplication or inferred ranking.
     pub diseases: Box<[NciDisease]>,
     /// Original criteria and native structured fields.
-    pub eligibility: Option<eligibility::Eligibility>,
+    pub eligibility: Option<biomcp_types::NciEligibility>,
     /// Original outcomes in source order.
     pub outcomes: Box<[biomcp_types::NciOutcome]>,
     /// Original arm and intervention records with preserved relationships.
