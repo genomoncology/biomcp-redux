@@ -1,4 +1,5 @@
-use crate::native_text::NativeText;
+use crate::{native_text::NativeText, raw::Field};
+use biodata::Text;
 use biomcp_types::Problem;
 
 /// A source value with rejected fields retained as problems.
@@ -210,4 +211,43 @@ pub(crate) fn record(value: impl std::fmt::Display) -> Option<biodata::Text> {
 /// Admit source prose while keeping the strict identity helper separate.
 pub(crate) fn source_text(value: &str) -> Result<biodata::Text, biomcp_fetch::BadReply> {
     biodata::Text::from_source(value).map_err(|_| biomcp_fetch::BadReply)
+}
+
+pub(crate) fn optional_text(
+    raw: Option<Field<String>>,
+    field: &str,
+    cx: &mut Problems,
+) -> Option<Text> {
+    field_text(&mut cx.list, cx.source, cx.record.clone(), field, raw)
+}
+pub(crate) fn optional_prose(
+    raw: Option<Field<String>>,
+    field: &str,
+    cx: &mut Problems,
+) -> Option<Text> {
+    cx.field(field, raw)
+        .filter(|value| !value.is_empty())
+        .and_then(|value| cx.text(field, Some(&value)))
+}
+pub(crate) fn optional_texts(
+    raw: Option<Field<Vec<Field<String>>>>,
+    field: &str,
+    cx: &mut Problems,
+) -> Box<[Text]> {
+    cx.fields(field, raw)
+        .into_vec()
+        .into_iter()
+        .filter_map(|value| cx.text(field, Some(&value)))
+        .collect()
+}
+pub(crate) fn optional_pmids(
+    raw: Option<Field<Vec<Field<String>>>>,
+    field: &str,
+    cx: &mut Problems,
+) -> Box<[biodata::Pmid]> {
+    cx.fields(field, raw)
+        .into_vec()
+        .into_iter()
+        .filter_map(|value| cx.optional(field, Some(value.parse())))
+        .collect()
 }

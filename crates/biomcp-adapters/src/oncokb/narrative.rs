@@ -13,7 +13,7 @@ pub(super) fn annotation(
         ("diagnosticSummary", row.diagnostic_summary.take()),
         ("prognosticSummary", row.prognostic_summary.take()),
     ] {
-        let text = super::variant_map_support::prose(value, field, cx);
+        let text = crate::mapped::optional_prose(value, field, cx);
         push(out, field, text.as_ref().map(biodata::Text::as_str));
     }
 }

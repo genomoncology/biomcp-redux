@@ -1,7 +1,6 @@
 //! Checked request identity survives malformed optional annotation content.
 #[path = "variant_labels.rs"]
 mod labels;
-use super::variant_map_support as support;
 use super::{variant::Annotation, variant_groups as groups};
 use crate::{Mapped, mapped::Problems};
 use biodata::{Text, VariantRef};
@@ -22,7 +21,7 @@ pub fn records(mut row: Annotation, tumor_type: Text) -> Mapped<VariantOncokb> {
     let subject = gene
         .zip(alteration.clone())
         .map(|(gene, alteration)| VariantRef::protein(gene, alteration));
-    let release = support::text(row.data_version.take(), "dataVersion", &mut cx);
+    let release = crate::mapped::optional_text(row.data_version.take(), "dataVersion", &mut cx);
     let mut records = labels::records(
         row.oncogenic.take(),
         row.mutation_effect.take(),
@@ -51,7 +50,7 @@ pub fn records(mut row: Annotation, tumor_type: Text) -> Mapped<VariantOncokb> {
             hugo_symbol,
             alteration,
             data_version: release,
-            last_update: support::text(row.last_update, "lastUpdate", &mut cx),
+            last_update: crate::mapped::optional_text(row.last_update, "lastUpdate", &mut cx),
             variant_exist: cx.field("variantExist", row.variant_exist),
             gene_exist: cx.field("geneExist", row.gene_exist),
             vus: cx.field("vus", row.vus),

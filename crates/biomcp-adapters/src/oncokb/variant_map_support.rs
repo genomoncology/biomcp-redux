@@ -1,40 +1,12 @@
 //! Each native optional value crosses the existing named-field boundary.
 use super::variant as raw;
-use crate::{mapped::Problems, raw::Field};
+use crate::{
+    mapped::{Problems, optional_prose as prose, optional_text as text},
+    raw::Field,
+};
 use biodata::{Coding, OncokbLevelCode as L, Term, Text};
 use biomcp_types::{OncokbCitation, OncokbConcept};
 
-pub(super) fn text(raw: Option<Field<String>>, field: &str, cx: &mut Problems) -> Option<Text> {
-    cx.field(field, raw)
-        .and_then(|value| cx.text(field, Some(&value)))
-}
-pub(super) fn prose(raw: Option<Field<String>>, field: &str, cx: &mut Problems) -> Option<Text> {
-    cx.field(field, raw)
-        .filter(|value| !value.is_empty())
-        .and_then(|value| cx.text(field, Some(&value)))
-}
-pub(super) fn texts(
-    raw: Option<Field<Vec<Field<String>>>>,
-    field: &str,
-    cx: &mut Problems,
-) -> Box<[Text]> {
-    cx.fields(field, raw)
-        .into_vec()
-        .into_iter()
-        .filter_map(|value| cx.text(field, Some(&value)))
-        .collect()
-}
-pub(super) fn pmids(
-    raw: Option<Field<Vec<Field<String>>>>,
-    field: &str,
-    cx: &mut Problems,
-) -> Box<[biodata::Pmid]> {
-    cx.fields(field, raw)
-        .into_vec()
-        .into_iter()
-        .filter_map(|value| cx.optional(field, Some(value.parse())))
-        .collect()
-}
 pub(super) fn tumor(
     raw: Option<Field<raw::TumorType>>,
     field: &str,

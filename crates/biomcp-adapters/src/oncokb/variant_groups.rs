@@ -22,7 +22,8 @@ pub(super) fn treatments(
                 cx,
             );
             let drugs = map::drugs(raw.drugs, &format!("{field}.drugs"), cx);
-            let alterations = map::texts(raw.alterations, &format!("{field}.alterations"), cx);
+            let alterations =
+                crate::mapped::optional_texts(raw.alterations, &format!("{field}.alterations"), cx);
             let excluded = format!("{field}.levelExcludedCancerTypes");
             let excluded_tumor_types = cx
                 .fields(&excluded, raw.level_excluded_cancer_types)
@@ -39,22 +40,29 @@ pub(super) fn treatments(
                 alterations,
                 statement_unmapped: true,
                 statement: None,
-                citations: map::pmids(raw.pmids, &format!("{field}.pmids"), cx),
+                citations: crate::mapped::optional_pmids(raw.pmids, &format!("{field}.pmids"), cx),
                 abstracts: map::abstracts(raw.abstracts, &format!("{field}.abstracts"), cx),
-                description: map::prose(raw.description, &format!("{field}.description"), cx)
-                    .map(|v| v.as_str().into()),
+                description: crate::mapped::optional_prose(
+                    raw.description,
+                    &format!("{field}.description"),
+                    cx,
+                )
+                .map(|v| v.as_str().into()),
                 excluded_tumor_types,
-                approved_indications: map::texts(
+                approved_indications: crate::mapped::optional_texts(
                     raw.approved_indications,
                     &format!("{field}.approvedIndications"),
                     cx,
                 ),
-                fda_level: map::text(raw.fda_level, &format!("{field}.fdaLevel"), cx).map(
-                    |label| Term {
-                        label,
-                        codings: Box::default(),
-                    },
-                ),
+                fda_level: crate::mapped::optional_text(
+                    raw.fda_level,
+                    &format!("{field}.fdaLevel"),
+                    cx,
+                )
+                .map(|label| Term {
+                    label,
+                    codings: Box::default(),
+                }),
             })
         })
         .collect()
@@ -82,13 +90,21 @@ pub(super) fn implications(
                 ),
                 tumor_type: map::tumor(raw.tumor_type, &format!("{field}.tumorType"), cx),
                 drugs: Box::default(),
-                alterations: map::texts(raw.alterations, &format!("{field}.alterations"), cx),
+                alterations: crate::mapped::optional_texts(
+                    raw.alterations,
+                    &format!("{field}.alterations"),
+                    cx,
+                ),
                 statement_unmapped: true,
                 statement: None,
-                citations: map::pmids(raw.pmids, &format!("{field}.pmids"), cx),
+                citations: crate::mapped::optional_pmids(raw.pmids, &format!("{field}.pmids"), cx),
                 abstracts: map::abstracts(raw.abstracts, &format!("{field}.abstracts"), cx),
-                description: map::prose(raw.description, &format!("{field}.description"), cx)
-                    .map(|v| v.as_str().into()),
+                description: crate::mapped::optional_prose(
+                    raw.description,
+                    &format!("{field}.description"),
+                    cx,
+                )
+                .map(|v| v.as_str().into()),
                 excluded_tumor_types: Box::default(),
                 approved_indications: Box::default(),
                 fda_level: None,

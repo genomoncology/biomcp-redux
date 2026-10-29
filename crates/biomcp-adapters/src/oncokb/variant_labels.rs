@@ -16,7 +16,7 @@ pub(super) fn records(
     cx: &mut Problems,
 ) -> Vec<Record> {
     let mut out = Vec::new();
-    if let Some(label) = map::text(oncogenic, "oncogenic", cx) {
+    if let Some(label) = crate::mapped::optional_text(oncogenic, "oncogenic", cx) {
         let code = match label.as_str() {
             "Oncogenic" => Some(O::Oncogenic),
             "Likely Oncogenic" => Some(O::LikelyOncogenic),
@@ -56,7 +56,7 @@ fn mutation(
     let citations = cx.field("mutationEffect.citations", effect.citations);
     let (pmids, abstracts) = if let Some(citations) = citations {
         (
-            map::pmids(citations.pmids, "mutationEffect.citations.pmids", cx),
+            crate::mapped::optional_pmids(citations.pmids, "mutationEffect.citations.pmids", cx),
             map::abstracts(
                 citations.abstracts,
                 "mutationEffect.citations.abstracts",
@@ -66,7 +66,9 @@ fn mutation(
     } else {
         (Box::default(), Box::default())
     };
-    if let Some(label) = map::text(effect.known_effect, "mutationEffect.knownEffect", cx) {
+    if let Some(label) =
+        crate::mapped::optional_text(effect.known_effect, "mutationEffect.knownEffect", cx)
+    {
         out.push(classification(
             subject,
             release,
@@ -89,7 +91,8 @@ fn mutation(
                 link: row.link,
             }),
     );
-    let description = map::prose(effect.description, "mutationEffect.description", cx);
+    let description =
+        crate::mapped::optional_prose(effect.description, "mutationEffect.description", cx);
     crate::oncokb::narrative::push(
         out,
         "mutationEffect.description",
