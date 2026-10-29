@@ -33,7 +33,7 @@ Six crates. Each exists because a rule needs a crate boundary to enforce it.
 | `biodata` | Neutral entity values, identifiers, coordinates, notation and closed vocabularies. JSON Schemas. | `serde`, `winnow`; `schemars` behind the `schema` feature | Any workspace crate, any I/O crate, `serde_json` outside tests |
 | `biomcp-types` | BioMCP queries, requests, source identities and response disclosure; generated contract schemas | `biodata`, `serde`; `schemars` behind the `schema` feature | Any I/O crate, transport, adapters or services |
 | `biomcp-fetch` | The transport: HTTP, quotas, deadlines, retry, body limits, decoding, reply checks, the reply cache, offline, record and replay, bundle sync and bundle rows | `biodata`, `biomcp-types`, `ureq`, `rusqlite`, `serde`, `serde_json`, `quick-xml`, `sha2`, `url`, `rustls`, `rustls-platform-verifier`, `httpdate`, `tempfile`, `csv`, `flate2`, `thiserror`, `prost`, `zstd` | `biomcp-adapters`, `biomcp-query`, `clap` |
-| `biomcp-adapters` | One module per source: a source description, endpoints, raw reply types with their checks and mapping into biodata | `biodata`, `biomcp-types`, `biomcp-fetch`, `serde`, `quick-xml`, `calamine`, `csv`, `zip`, `thiserror` | `ureq`, `rusqlite`, `serde_json`, `biomcp-query`, `clap` |
+| `biomcp-adapters` | One module per source: a source description, endpoints, raw reply types with their checks and mapping into biodata | `biodata`, `biomcp-types`, `biomcp-fetch`, `serde`, `quick-xml`, `calamine`, `csv`, `zip`, `thiserror`, `prost` | `ureq`, `rusqlite`, `serde_json`, `biomcp-query`, `clap` |
 | `biomcp-query` | The services and the store: resolve, fan out, merge, rank, pool, page, sections and next steps | `biodata`, `biomcp-types`, `biomcp-fetch`, `biomcp-adapters`, `rusqlite`, `serde`, `serde_json`, `sha2`, `thiserror` | `ureq`, `clap` |
 | `biomcp` | The binary: CLI grammar, MCP server, config file, Markdown view, the runner's test target, later the web mode | every crate above, `clap`, `serde`, `serde_json`, `httparse`, `base64`, `ctrlc`, `rpassword`, `tempfile`, `sha2`, `shlex` | `ureq`, `rusqlite` |
 
@@ -2024,6 +2024,7 @@ Every ratchet starts at its 1.0 target, because the code starts empty. `make lan
 | Rule | Target | Mechanism |
 | --- | --- | --- |
 | Dependency direction between crates | the table in 2.1 | Cargo manifests, and the ratchet test's allowed list per crate |
+| Canonical source spellings in transport | none outside `secret.rs`, `cache_hgnc.rs`, `bundle/transfer.rs` and `cache/schema.rs` | the transport source ratchet rejects exact source words |
 | One crate names the HTTP client | `biomcp-fetch` only | the ratchet test's allowed lists |
 | SQL owners | `biomcp-fetch`, and `biomcp-query/src/store/` | allowed lists and the ratchet test's path check |
 | No I/O in `biodata` and adapters | none | per-crate `clippy.toml` `disallowed_methods` and `disallowed_types` |
