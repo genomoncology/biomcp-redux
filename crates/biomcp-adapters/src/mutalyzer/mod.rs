@@ -1,5 +1,5 @@
 //! Explicit Mutalyzer GET resolution; no inferred transcript or local correction.
-use crate::quotas;
+use crate::{quotas, raw::Field};
 use biodata::{Representation, Text, Variant};
 
 use biomcp_fetch::{BadReply, Endpoint, KeyUse, Leg, PathSegment, Reply, RequestError, SourceSpec};
@@ -36,16 +36,16 @@ pub enum Resolution {
 }
 #[derive(Deserialize)]
 struct Normalized {
-    #[serde(default)]
     custom: Option<Box<Normalized>>,
-    corrected_description: Option<String>,
-    protein: Option<Description>,
-    rna: Option<Description>,
-    equivalent_descriptions: Option<std::collections::BTreeMap<String, Vec<Description>>>,
-    back_translated_descriptions: Option<Vec<String>>,
-    infos: Option<Vec<Message>>,
-    warnings: Option<Vec<Message>>,
-    version: Option<String>,
+    corrected_description: Option<Field<biodata::SourceText>>,
+    protein: Option<Field<Description>>,
+    rna: Option<Field<Description>>,
+    equivalent_descriptions:
+        Option<Field<std::collections::BTreeMap<String, Field<Vec<Field<Description>>>>>>,
+    back_translated_descriptions: Option<Field<Vec<Field<biodata::SourceText>>>>,
+    infos: Option<Field<Vec<Field<Message>>>>,
+    warnings: Option<Field<Vec<Field<Message>>>>,
+    version: Option<Field<biodata::SourceText>>,
     input_description: Option<String>,
     normalized_description: Option<String>,
     errors: Option<Vec<Message>>,
@@ -53,11 +53,11 @@ struct Normalized {
 #[derive(Deserialize)]
 struct Message {
     code: Text,
-    details: Option<String>,
+    details: Option<Field<biodata::SourceText>>,
 }
 #[derive(Deserialize)]
 struct Description {
-    description: String,
+    description: Field<biodata::SourceText>,
 }
 impl Normalized {
     fn payload(&self) -> &Self {

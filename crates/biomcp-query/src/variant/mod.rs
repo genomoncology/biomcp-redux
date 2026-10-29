@@ -163,6 +163,7 @@ pub(crate) fn resolve(
                         retry_after: None,
                     })?,
                 )?;
+                problems.extend(result.problems);
                 Ok((
                     result.candidates,
                     if result.rejected {
