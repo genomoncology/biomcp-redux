@@ -1,7 +1,7 @@
 {
   "feature": "trial-search",
-  "live_check": "synthetic",
-  "story": "Country names are checked before any source access and preserve exact publisher spelling.",
+  "live_check": "bounded public ClinicalTrials.gov country capture; retained bodies for request-mapping stubs",
+  "story": "Country filters reach the source and echo exact labels; one recorded US trial lists a US site. OR, NCI mapping and refusal boundaries share this case.",
   "steps": [
     {
       "run": [
@@ -23,6 +23,171 @@
         "/error/code": "usage.arguments",
         "/error/option": "--country"
       }
+    },
+    {
+      "run": [
+        "search",
+        "trial",
+        "--id",
+        "NCT03734029",
+        "--limit",
+        "1",
+        "--country",
+        "United States"
+      ],
+      "mcp": [
+        "search",
+        "trial",
+        "--id",
+        "NCT03734029",
+        "--limit",
+        "1",
+        "--country",
+        "United States"
+      ],
+      "expect": {
+        "/status": "complete",
+        "/page/total": 1,
+        "/query/country": [
+          "United States"
+        ],
+        "/result/items/*/nct_id": {
+          "equals": [
+            "NCT03734029"
+          ]
+        }
+      }
+    },
+    {
+      "run": [
+        "get",
+        "trial",
+        "NCT03734029",
+        "locations",
+        "--section-limit",
+        "1"
+      ],
+      "mcp": [
+        "get",
+        "trial",
+        "NCT03734029",
+        "locations",
+        "--section-limit",
+        "1"
+      ],
+      "expect": {
+        "/status": "complete",
+        "/result/items/0/input": "NCT03734029",
+        "/result/items/0/sections/locations/data/items/0/country": "United States"
+      }
+    },
+    {
+      "run": [
+        "search",
+        "trial",
+        "--id",
+        "NCT03734029",
+        "--limit",
+        "1",
+        "--country",
+        "United States",
+        "--country",
+        "Canada"
+      ],
+      "mcp": [
+        "search",
+        "trial",
+        "--id",
+        "NCT03734029",
+        "--limit",
+        "1",
+        "--country",
+        "United States",
+        "--country",
+        "Canada"
+      ],
+      "expect": {
+        "/status": "complete",
+        "/query/country": [
+          "United States",
+          "Canada"
+        ],
+        "/result/items/*/nct_id": {
+          "equals": [
+            "NCT03734029"
+          ]
+        }
+      }
+    },
+    {
+      "run": [
+        "search",
+        "trial",
+        "--source",
+        "nci",
+        "--country",
+        "United States",
+        "--country",
+        "Canada",
+        "--limit",
+        "1"
+      ],
+      "mcp": [
+        "search",
+        "trial",
+        "--source",
+        "nci",
+        "--country",
+        "United States",
+        "--country",
+        "Canada",
+        "--limit",
+        "1"
+      ],
+      "expect": {
+        "/status": "complete",
+        "/query/country": [
+          "United States",
+          "Canada"
+        ],
+        "/result/request/2/name": "sites.org_country",
+        "/result/request/2/value": "United States",
+        "/result/request/3/name": "sites.org_country",
+        "/result/request/3/value": "Canada"
+      }
+    },
+    {
+      "run": [
+        "search",
+        "trial",
+        "--id",
+        "NCT03734029",
+        "--limit",
+        "1",
+        "--country",
+        "Afghanistan"
+      ],
+      "mcp": [
+        "search",
+        "trial",
+        "--id",
+        "NCT03734029",
+        "--limit",
+        "1",
+        "--country",
+        "Afghanistan"
+      ],
+      "expect": {
+        "/status": "unavailable",
+        "/sources/0/reason": "bad_reply"
+      },
+      "exit": 1
     }
-  ]
+  ],
+  "replay": "trial/country",
+  "config": {
+    "keys": {
+      "nci_api_key": "synthetic-nci-replay"
+    }
+  }
 }
