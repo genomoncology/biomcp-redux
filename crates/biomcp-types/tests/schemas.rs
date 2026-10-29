@@ -23,8 +23,8 @@ fn temporal_properties_have_one_type_across_registered_schemas() -> Result<(), S
     temporal::temporal_properties_have_one_type_across_registered_schemas()
 }
 #[test]
-fn temporal_property_check_rejects_conflicting_definition_types() {
-    temporal::temporal_property_check_rejects_conflicting_definition_types();
+fn temporal_property_check_rejects_conflicting_definition_types() -> Result<(), String> {
+    temporal::temporal_property_check_rejects_conflicting_definition_types()
 }
 #[path = "schemas/values.rs"]
 mod values;

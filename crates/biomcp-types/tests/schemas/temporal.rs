@@ -63,29 +63,33 @@ pub(super) fn temporal_properties_have_one_type_across_registered_schemas() -> R
         collect(&(contract.generate)(), &mut types);
     }
     check(&types)?;
-    for name in ["updated", "retrieved"] {
-        assert_eq!(
-            types.get(name),
-            Some(&BTreeSet::from(["PartialDate".into()]))
-        );
+    for (name, expected) in [
+        ("updated", "PartialDate"),
+        ("retrieved", "PartialDate"),
+        ("source_updated", "SourceUpdated"),
+        ("fetched", "integer:\"uint64\""),
+    ] {
+        if types.get(name) != Some(&BTreeSet::from([expected.into()])) {
+            return Err(format!(
+                "temporal property {name} must use {expected}, got {:?}",
+                types.get(name)
+            ));
+        }
     }
-    assert_eq!(
-        types.get("source_updated"),
-        Some(&BTreeSet::from(["SourceUpdated".into()]))
-    );
-    assert_eq!(
-        types.get("fetched"),
-        Some(&BTreeSet::from(["integer:\"uint64\"".into()]))
-    );
     Ok(())
 }
 
-pub(super) fn temporal_property_check_rejects_conflicting_definition_types() {
+pub(super) fn temporal_property_check_rejects_conflicting_definition_types() -> Result<(), String> {
     let mut types = Types::new();
     collect(
         &json!({"properties":{"source_updated":{"$ref":"#/$defs/Reply_SourceUpdated"}},
         "$defs":{"Other":{"properties":{"source_updated":{"$ref":"#/$defs/Reply_Text"}}}}}),
         &mut types,
     );
-    assert!(check(&types).unwrap_err().contains("source_updated"));
+    match check(&types) {
+        Err(error) if error.contains("source_updated") => Ok(()),
+        result => Err(format!(
+            "planted temporal type conflict was not identified: {result:?}"
+        )),
+    }
 }
