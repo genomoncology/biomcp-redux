@@ -1,5 +1,6 @@
 """Check article fixture reuse licenses; --list prints every covered capture."""
 import argparse
+import hashlib
 import json
 from pathlib import Path
 import re
@@ -34,6 +35,7 @@ def recorded_licenses(value):
 def inventory(root):
     directory = root / "tests/replies/article"
     origins = json.loads((directory / "licenses.json").read_text())
+    synthetic_pdfs = origins.pop("synthetic_pdf_sha256")
     for identity, origin in origins.items():
         if origin["license"] not in ALLOWED:
             raise ValueError(f"{identity}: disallowed article fixture license: {origin['license']}")
@@ -62,13 +64,22 @@ def inventory(root):
                 raise ValueError(f"{relative}: disallowed article fixture license: {license_code}")
         identity = re.search(r"(?:PMC|PPR)[0-9]+", url)
         origin = origins.get(identity[0]) if identity else None
-        generated = any(part.startswith("synthetic") for part in path.parts) or publisher
+        # Only the retained generated PDF stub may bypass article licensing.
+        # Resolve sidecars by recorder naming, never by the body's supplied path.
+        generated_publisher = publisher and all(
+            hashlib.sha256(path.with_name(f"{path.stem}-{index}.bin").read_bytes()).hexdigest()
+            in synthetic_pdfs
+            if exchange["body"]["kind"] == "sidecar"
+            else "BioMCP synthetic" in str(exchange["body"].get("value", ""))
+            for index, exchange in enumerate(record["exchanges"])
+        )
+        generated = any(part.startswith("synthetic") for part in path.parts) or generated_publisher
         # Empty listings and failed requests contain no article text or attachment.
         article = any(
             exchange["body"]["kind"] == "sidecar" or "<article" in str(exchange["body"].get("value", ""))
             for exchange in record["exchanges"]
         )
-        if article and not origin and not generated:
+        if article and not origin and not generated_publisher:
             raise ValueError(f"{relative}: article capture has no recorded reuse license")
         label = origin["license"] if origin else "no article bytes"
         if generated:

@@ -47,6 +47,16 @@ def main():
             assert "article capture has no recorded reuse license" in result.stderr, result.stderr
             print("RED unlicensed PDF: " + result.stderr.strip(), flush=True)
             path.write_bytes(original)
+        path = destination / "fulltext/synthetic-unlicensed/pmc-oa/planted.json"
+        path.parent.mkdir(parents=True)
+        path.write_text(json.dumps({
+            "source": "pmc-oa", "url": "https://example.org/PMC999999/article.xml",
+            "exchanges": [{"body": {"kind": "text", "value": "<article>unlicensed</article>"}}],
+        }))
+        result = check(root)
+        assert result.returncode != 0, result.stdout
+        assert "article capture has no recorded reuse license" in result.stderr, result.stderr
+        print("RED unlicensed synthetic case: " + result.stderr.strip(), flush=True)
 
 
 if __name__ == "__main__":
