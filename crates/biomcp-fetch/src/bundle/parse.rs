@@ -109,9 +109,9 @@ pub(super) fn rows<R: Row>(body: &[u8], format: RowFormat) -> Result<ParsedRows,
                     Ok(decoded) => {
                         decoded.check_bundle(0)?;
                         let value = serde_json::from_str(&row).map_err(|_| BadReply)?;
-                        parsed.admit::<R>(value, index + 1);
+                        parsed.admit::<R>(value, index + 2);
                     }
-                    Err(_) => parsed.reject(index + 1, "cannot decode row"),
+                    Err(_) => parsed.reject(index + 2, "cannot decode row"),
                 }
             }
             Ok(parsed)
