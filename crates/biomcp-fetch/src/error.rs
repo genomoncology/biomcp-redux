@@ -34,7 +34,6 @@ impl std::error::Error for SourceError {}
 
 /// Invalid explicit transport configuration, without retaining supplied text.
 #[derive(Clone, Copy, Debug)]
-
 pub enum FetchError {
     /// Streaming allocation limits must describe finite supported resources.
     StreamingLimits,

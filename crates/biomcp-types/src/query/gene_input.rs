@@ -4,7 +4,6 @@ use std::{fmt, str::FromStr};
 
 /// An input classified before source resolution; aliases remain free text.
 #[derive(Clone, Debug, PartialEq, Eq)]
-
 pub enum GeneInput {
     /// An explicitly namespaced HGNC identifier.
     HgncId(HgncId),

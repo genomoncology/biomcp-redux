@@ -129,7 +129,6 @@ text_value!(
 );
 /// Published variant-level identifiers, with each identifier's level retained.
 #[derive(Clone, Debug, PartialEq, Eq)]
-
 pub enum VariantId {
     /// dbSNP site, possibly containing multiple alternate alleles.
     Rs(RsId),

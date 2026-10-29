@@ -36,7 +36,6 @@ pub struct GeneHeader {
 #[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
 #[serde(tag = "resolution", rename_all = "snake_case")]
 #[cfg_attr(feature = "schema", derive(schemars::JsonSchema))]
-
 pub enum GeneResolution {
     /// One resolved identity and its source match.
     Resolved {

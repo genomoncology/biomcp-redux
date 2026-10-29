@@ -3,7 +3,6 @@ macro_rules! errors {
     ($( $(#[$doc:meta])* $variant:ident => $code:literal ),+ $(,)?) => {
         /// A rejected value, without retaining the input text.
         #[derive(Clone, Copy, Debug, PartialEq, Eq)]
-
         pub enum Error { $( $(#[$doc])* $variant, )+ }
         impl Error {
             /// Return the stable machine-readable code.
