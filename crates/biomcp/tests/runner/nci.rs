@@ -11,6 +11,7 @@ use std::{fs, path::Path};
 mod biomarker;
 mod facility;
 mod organization;
+mod trial_biomarker;
 type Check = Result<(), String>;
 const KEY: &str = "synthetic-nci-stored-key";
 pub(super) fn trials() -> Vec<Trial> {
@@ -20,6 +21,7 @@ pub(super) fn trials() -> Vec<Trial> {
     trials.extend(organization::trials());
     trials.extend(facility::trials());
     trials.extend(biomarker::trials());
+    trials.extend(trial_biomarker::trials());
     trials
 }
 fn reply(request: &str) -> Result<String, String> {
