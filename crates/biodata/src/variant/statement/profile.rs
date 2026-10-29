@@ -107,9 +107,6 @@ impl ProfileExpression {
         if referenced.iter().any(|record| !declared.contains(record)) {
             return Err(Error::ProfileMemberMissing);
         }
-        if declared != referenced {
-            return Err(Error::ProfileExpressionInvalid);
-        }
         Ok(())
     }
 }

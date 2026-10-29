@@ -2,25 +2,24 @@
 use biodata::{Error, ProfileExpression, ProfileNode, Text, VariantRef};
 use serde_json::json;
 type Check = Result<(), Box<dyn std::error::Error>>;
-fn member(id: u32, feature: &str) -> VariantRef {
+fn member(id: u32, feature: &str) -> Result<VariantRef, Error> {
     VariantRef::source(
-        format!("civic:{id}").parse().unwrap(),
-        Text::new(feature).unwrap(),
+        format!("civic:{id}").parse()?,
+        Text::new(feature)?,
         Box::default(),
     )
-    .unwrap()
 }
 fn profile(source: &str, members: Vec<VariantRef>) -> Result<VariantRef, Error> {
     VariantRef::profile_expression(
-        Text::new("1").unwrap(),
-        Text::new(source).unwrap(),
+        Text::new("1")?,
+        Text::new(source)?,
         members.into(),
-        ProfileExpression::civic(Text::new(source).unwrap())?,
+        ProfileExpression::civic(Text::new(source)?)?,
     )
 }
 #[test]
 fn native_fusion_profile_does_not_require_an_allele() -> Check {
-    let value = profile("#VID1", vec![member(1, "BCR::ABL1")])?;
+    let value = profile("#VID1", vec![member(1, "BCR::ABL1")?])?;
     let json = serde_json::to_value(&value)?;
     assert_eq!(
         json["members"][0],
@@ -34,7 +33,10 @@ fn native_fusion_profile_does_not_require_an_allele() -> Check {
 #[test]
 fn boolean_tree_retains_grouping_negation_and_exact_source_text() -> Check {
     let source = "#VID1 AND ( #VID2 OR NOT #VID3 )";
-    let value = profile(source, vec![member(1, "A"), member(2, "B"), member(3, "C")])?;
+    let value = profile(
+        source,
+        vec![member(1, "A")?, member(2, "B")?, member(3, "C")?],
+    )?;
     let expression = value.expression().unwrap();
     assert_eq!(expression.source().as_str(), source);
     let ProfileNode::And { operands } = expression.tree() else {
@@ -48,13 +50,13 @@ fn boolean_tree_retains_grouping_negation_and_exact_source_text() -> Check {
     Ok(())
 }
 #[test]
-fn profile_refuses_missing_members_and_invalid_relations() {
+fn profile_refuses_missing_members_and_invalid_relations() -> Check {
     assert_eq!(
-        profile("#VID1 AND #VID2", vec![member(1, "A")]),
+        profile("#VID1 AND #VID2", vec![member(1, "A")?]),
         Err(Error::ProfileMemberMissing)
     );
     assert_eq!(
-        profile("#VID1", vec![member(1, "A"), member(1, "A")]),
+        profile("#VID1", vec![member(1, "A")?, member(1, "A")?]),
         Err(Error::ProfileMemberDuplicate)
     );
     for source in [
@@ -67,10 +69,11 @@ fn profile_refuses_missing_members_and_invalid_relations() {
         "#VID1 tail",
     ] {
         assert!(
-            ProfileExpression::civic(Text::new(source).unwrap()).is_err(),
+            ProfileExpression::civic(Text::new(source)?).is_err(),
             "{source}"
         );
     }
+    Ok(())
 }
 #[test]
 fn display_parser_matches_complete_source_labels_before_boolean_syntax() -> Check {
@@ -132,4 +135,26 @@ fn source_member_preserves_only_source_stated_leaf_forms() -> Check {
 fn wire_expression_cannot_contradict_its_machine_source() {
     let value = json!({"source":"#VID1", "tree":{"operator":"member","record":"civic:2"}});
     assert!(serde_json::from_value::<ProfileExpression>(value).is_err());
+}
+
+#[test]
+fn profile_keeps_additional_source_members_and_native_feature_identity() -> Check {
+    let source = VariantRef::source_with_feature(
+        "civic:1".parse()?,
+        Text::new("exact feature")?,
+        Some("civic:42".parse()?),
+        Box::default(),
+    )?;
+    let value = profile("#VID1", vec![source, member(2, "other feature")?])?;
+    let members = value.members().collect::<Vec<_>>();
+    assert_eq!(members.len(), 2);
+    assert_eq!(
+        members[0].feature_record().map(|record| record.as_str()),
+        Some("civic:42")
+    );
+    assert_eq!(
+        serde_json::to_value(value)?["members"][0]["feature_record"],
+        "civic:42"
+    );
+    Ok(())
 }

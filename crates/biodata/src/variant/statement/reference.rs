@@ -58,6 +58,8 @@ enum Fields {
     Source {
         record: Curie,
         feature: Text,
+        #[serde(default, skip_serializing_if = "Option::is_none")]
+        feature_record: Option<Curie>,
         #[serde(default, skip_serializing_if = "<[ _ ]>::is_empty")]
         forms: Box<[VariantRef]>,
     },
@@ -197,12 +199,29 @@ impl VariantRef {
     }
     /// Preserve source-stated allele and protein forms without deriving either.
     pub fn source(record: Curie, feature: Text, forms: Box<[Self]>) -> Result<Self, crate::Error> {
+        Self::source_with_feature(record, feature, None, forms)
+    }
+    /// Preserve a source feature identifier when the source supplies one.
+    pub fn source_with_feature(
+        record: Curie,
+        feature: Text,
+        feature_record: Option<Curie>,
+        forms: Box<[Self]>,
+    ) -> Result<Self, crate::Error> {
         Fields::Source {
             record,
             feature,
+            feature_record,
             forms,
         }
         .try_into()
+    }
+    /// Borrow the source-native feature identifier without gene inference.
+    pub fn feature_record(&self) -> Option<&Curie> {
+        match &self.0 {
+            Fields::Source { feature_record, .. } => feature_record.as_ref(),
+            _ => None,
+        }
     }
     /// Preserve source profile relations and validate every referenced member.
     pub fn profile_expression(
