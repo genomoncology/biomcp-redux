@@ -1,8 +1,4 @@
 //! Own the lazy runtime, its bounded admission queue and its joined shutdown.
-#![expect(
-    clippy::disallowed_types,
-    reason = "Serialize lazy runtime initialization and join its sole worker thread"
-)]
 use super::{
     Limits,
     control::{CallGuard, CallState, Stop},
@@ -10,6 +6,10 @@ use super::{
 };
 use crate::{LocalDeadline, Network, Secret};
 use biomcp_types::Reason;
+#[expect(
+    clippy::disallowed_types,
+    reason = "Share bounded transport state across the request owners named by this module"
+)]
 use std::{
     sync::{Arc, Mutex, mpsc},
     thread,
@@ -33,6 +33,10 @@ struct Running {
     sender: tokio::sync::mpsc::Sender<Command>,
     thread: thread::JoinHandle<()>,
 }
+#[expect(
+    clippy::disallowed_types,
+    reason = "Serialize lazy runtime initialization and join its sole worker thread"
+)]
 pub(crate) struct Worker {
     running: Mutex<Option<Running>>,
     stop: Arc<Stop>,
@@ -40,6 +44,10 @@ pub(crate) struct Worker {
     pub(super) limits: Limits,
 }
 impl Worker {
+    #[expect(
+        clippy::disallowed_types,
+        reason = "Serialize lazy runtime initialization and join its sole worker thread"
+    )]
     pub(crate) fn new(network: Network, limits: Limits) -> Result<Self, crate::FetchError> {
         limits
             .check()

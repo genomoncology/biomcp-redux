@@ -1,5 +1,7 @@
 //! Source failures use synthetic HTTP and recorded deadlines, never live faults.
-use super::*;
+use super::{
+    Check, Environment, Stub, Trial, Value, args, both, environment, invoke, json, native,
+};
 use crate::runner::transcript::trial as transcript_trial;
 pub(super) fn trials() -> Vec<Trial> {
     let mut out = vec![];

@@ -1,10 +1,10 @@
 //! Bounded, credential-free captures and atomically consumed replay sequences.
-#![expect(
-    clippy::disallowed_types,
-    reason = "Serialize capture publication and reserve replay cursors across scoped callers"
-)]
 use crate::{CacheError, Mode, RecordError, cache::Cache};
 use serde::{Deserialize, Serialize};
+#[expect(
+    clippy::disallowed_types,
+    reason = "Share bounded transport state across the request owners named by this module"
+)]
 use std::{
     collections::BTreeMap,
     fs,
@@ -81,10 +81,6 @@ impl ReplayCache {
             cache,
             _directory: Some(directory),
         })))
-    }
-    /// Exclusively create a marked case directory with a fixed cache filename.
-    pub fn create_case(path: &Path) -> Result<Self, CacheError> {
-        Self::create_case_with_owners(path, &[])
     }
     /// Create a marked case with all schema owners checked before mutation.
     pub fn create_case_with_owners(
@@ -276,6 +272,10 @@ impl Exchange {
 }
 
 #[derive(Debug)]
+#[expect(
+    clippy::disallowed_types,
+    reason = "Reserve replay cursors and publish captures across scoped callers"
+)]
 pub(crate) enum Recordings {
     None,
     Capture(Capture),
@@ -285,6 +285,10 @@ pub(crate) enum Recordings {
     },
 }
 #[derive(Debug)]
+#[expect(
+    clippy::disallowed_types,
+    reason = "Reserve replay cursors and publish captures across scoped callers"
+)]
 pub(crate) struct Capture {
     dir: PathBuf,
     sequences: Mutex<BTreeMap<(biomcp_types::Source, [u8; 32]), Recording>>,
@@ -301,6 +305,10 @@ impl Drop for Capture {
     }
 }
 impl Recordings {
+    #[expect(
+        clippy::disallowed_types,
+        reason = "Reserve replay cursors and publish captures across scoped callers"
+    )]
     pub(crate) fn open(mode: &Mode) -> Result<Self, RecordError> {
         match mode {
             Mode::Record { dir } => {

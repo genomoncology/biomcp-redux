@@ -1,5 +1,5 @@
 //! Malformed requests cross the real CLI with no admitted provider requests.
-use super::*;
+use super::{Value, gwas_budgets, wire};
 pub(super) fn run() -> Result<(), String> {
     let stub = super::super::network_stub::Stub::for_source(
         "www.ebi.ac.uk",

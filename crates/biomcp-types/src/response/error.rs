@@ -46,7 +46,7 @@ singleton! {
 }
 
 singleton! {
-    ErrorSchema { V1 => "biomcp.error/1" }
+    ErrorSchema { V2 => "biomcp.error/2" }
 }
 
 singleton! {
@@ -54,7 +54,7 @@ singleton! {
     pub ErrorMessage { BiomarkerTooBroad => "biomarker search is too broad; narrow --name or get one exact NCIt code",
         OrganizationTooBroad => "organization search is too broad; narrow --name, --city, --state, --country, \
         --postal-code, --family or --lat/--lon/--distance",
- GwasThreshold => "--p-value is not yet supported; threshold filtering is deferred",
+
  GwasPositiveThreshold => "--p-value threshold must be a positive probability in scientific notation",
  SourceSelector => "choose one of the source selector values",
  UnsupportedFilter => "a selected source does not support the requested filters",
@@ -82,7 +82,7 @@ singleton! {
         AdverseFrom => "renamed; use: --received-from",
         AdverseTo => "renamed; use: --received-to",
         // Preserve the published error/1 literal; active guidance uses AdverseSeriousChoices.
-        AdverseSerious => "only --serious death and --serious hospitalization are supported",
+
         AdverseSeriousChoices => "--serious accepts any, death, hospitalization, lifethreatening, disabling, congenital-anomaly or other",
         AdverseFilter => "this adverse-event filter is not supported",
         AdverseFaers => "renamed; use: --source faers",
@@ -90,8 +90,8 @@ singleton! {
         AdverseRecalls => "recalls are outside this entity",
         AdverseDeviceRecalls => "use: search diagnostic --source fda-device-recall; covers every medical device",
         AdverseSource => "choose --source faers or --source maude",
-        VaersVaccine => "supported vaccines are MMR and COVID-19 vaccine; use MMR or COVID19",
-        VaersInfluenza => "Influenza VAERS summaries are not available yet; supported vaccines are MMR and COVID-19.",
+
+
         VaersVaccineChoices => "supported vaccines are MMR and COVID19, or one exact native influenza code; use search \
             adverse-event influenza --source vaers to list influenza codes and labels",
         VaersInfluenzaCodes => "Choose one exact native influenza vaccine code; tables remain separate and are never summed. One \
@@ -102,8 +102,8 @@ singleton! {
         AdverseOutcomes => "use the card seriousness flags and the reactions section",
         AdverseConcomitant => "renamed; use: drugs",
         AdverseSection => "choose a named adverse-event section",
-        DiagnosticSource => "choose --source gtr or fda-cdx for search; choose --source gtr, who-ivd, fda-pma or fda-510k for exact get",
-        DiagnosticWho => "WHO discovery, type and marker search are deferred; use: get diagnostic PRODUCT-ID --source who-ivd",
+
+
         DiagnosticSearchSources => "choose --source gtr, who-ivd or fda-cdx for search; choose --source gtr, who-ivd, fda-pma or fda-510k for exact get",
         DiagnosticRecallSources => "choose --source gtr, who-ivd, fda-cdx or fda-device-recall for search; \
             choose --source gtr, who-ivd, fda-pma, fda-510k or fda-device-recall for exact get",
@@ -191,10 +191,10 @@ singleton! {
         CellLineExpression => "gene cell-lines is deferred until an exact HPA cell identity join exists",
         DrugCellLines => "drug cell-lines is retired: cell-line screening is outside the cancer-care drug slice.",
         CvxUnavailable => "Vaccine identity lookup and sync are unavailable; search vaccine report summaries with `search adverse-event --source vaers`.",
-        CvxSync => "cvx sync is retired: the cancer-care drug slice has no vaccine alias bridge.",
+
         EmaSync => "renamed; use: biomcp sync ema",
         DdinterSync => "renamed; use: biomcp sync ddinter",
-        WhoSync => "who sync is retired: WHO prequalification is outside this question bank.",
+
         WhoPqSync => "renamed; use: biomcp sync who-pq",
         DrugQuery => "renamed; use: search drug <TEXT> --source <SOURCE>",
         DrugMechanism => "--mechanism is retired: semantic mechanism expansion is not supported; select a drug identity and read targets.",
@@ -214,7 +214,7 @@ singleton! {
         TrialDocument => "use: trial document <NCT> <FILE> --save PATH; first list get trial <NCT> documents",
         Gene => "use: get gene <gene>", Pathways => "use: get gene <gene> pathways",
         Trials => "use: search trial --gene <gene>", Articles => "use: search article --gene <gene>",
-        Drugs => "use: search drug --target <gene>", CellLines => "moved to the cell line entity",
+        Drugs => "use: search drug --target <gene>",
         Variant => "moved to the variant entity", LocusGroup => "use: --locus-group",
         AuthorHelp => "use: help author; help search author; help get author",
         AuthorDeferred => "topic ranking, coauthors and cross-provider merging are not supported; use: search author TEXT or search article",
@@ -255,7 +255,7 @@ singleton! {
         Band => "use: --band", Dropped => "dropped in 1.0", Expression => "use: expression",
         Drug => "moved to the drug entity",
  Diagnostic => "moved to the diagnostic entity",
- Deferred => "deferred",
+
  PoolExpired => "pool expired; restart the search",
  PoolMismatch => "pool selectors do not match this search"
     }
@@ -341,7 +341,7 @@ impl ErrorEnvelope {
         Self {
             local_error: None,
             next: Vec::new(),
-            schema: ErrorSchema::V1,
+            schema: ErrorSchema::V2,
             status: ErrorStatus::Usage,
             error: ErrorDetail {
                 url: None,
@@ -368,7 +368,7 @@ impl ErrorEnvelope {
         Self {
             local_error: None,
             next: Vec::new(),
-            schema: ErrorSchema::V1,
+            schema: ErrorSchema::V2,
             status: ErrorStatus::Usage,
             error: ErrorDetail {
                 url: None,
@@ -393,7 +393,7 @@ impl ErrorEnvelope {
         Self {
             local_error: None,
             next: Vec::new(),
-            schema: ErrorSchema::V1,
+            schema: ErrorSchema::V2,
             status: ErrorStatus::Usage,
             error: ErrorDetail {
                 url: None,
@@ -456,7 +456,7 @@ impl ErrorEnvelope {
         Self {
             local_error: None,
             next: Vec::new(),
-            schema: ErrorSchema::V1,
+            schema: ErrorSchema::V2,
             status: ErrorStatus::Local,
             error: ErrorDetail {
                 url: None,
@@ -475,7 +475,7 @@ impl ErrorEnvelope {
     /// Report an unavailable or mismatched pool with its typed restart.
     pub fn pool(mismatch: bool, next: super::Step) -> Self {
         Self {
-            schema: ErrorSchema::V1,
+            schema: ErrorSchema::V2,
             status: if mismatch {
                 ErrorStatus::Usage
             } else {
@@ -508,7 +508,7 @@ impl ErrorEnvelope {
     /// Refuse citation enrichment above its checked PMID window.
     pub fn too_many_pmids(count: u64) -> Self {
         Self {
-            schema: ErrorSchema::V1,
+            schema: ErrorSchema::V2,
             status: ErrorStatus::Usage,
             error: ErrorDetail {
                 url: None,

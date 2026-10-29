@@ -8,7 +8,8 @@ type Check = Result<(), Box<dyn std::error::Error>>;
 fn round_trip<T: Serialize + DeserializeOwned + PartialEq + Debug>(value: &T) -> Check {
     assert_eq!(
         serde_json::from_value::<T>(serde_json::to_value(value)?)?,
-        *value
+        *value,
+        "Gene values must preserve their checked serialization contract"
     );
     Ok(())
 }

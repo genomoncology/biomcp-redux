@@ -1,5 +1,5 @@
 //! Retained restricted source replies are opt-in external fixtures, never Git data.
-use super::*;
+use super::{Path, Value, fs, json};
 use std::io::Write;
 pub(super) fn run(directory: &Path) -> Result<(), String> {
     let registry = super::super::schema::Registry::embedded()?;

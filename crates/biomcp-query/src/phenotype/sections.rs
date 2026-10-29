@@ -1,6 +1,9 @@
 use super::{overall, run, snapshot::Rows};
 use crate::Outcome;
-use biomcp_types::*;
+use biomcp_types::{
+    PageInfo, PhenotypeGet, PhenotypeHierarchy, PhenotypeSection, PhenotypeSynonyms,
+    PhenotypeXrefs, QueryBody, Request, Status, StepKind,
+};
 pub(super) fn empty(q: &PhenotypeGet) -> QueryBody {
     match q.section() {
         Some(PhenotypeSection::Synonyms) => QueryBody::PhenotypeSynonyms(None),

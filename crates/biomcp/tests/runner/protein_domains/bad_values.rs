@@ -1,5 +1,5 @@
 //! Feature protein-domains-complexes: bad optional facts retain source identities.
-use super::*;
+use super::{Stub, Trial, Value, call, json, setup};
 use crate::runner::transcript::trial as transcript_trial;
 pub(super) fn trials() -> Vec<Trial> {
     vec![

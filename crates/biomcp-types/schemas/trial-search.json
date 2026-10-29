@@ -96,7 +96,7 @@
       "type": "string"
     }
   },
-  "$id": "biodata.trial-search/3",
+  "$id": "biomcp.trial-search/3",
   "$schema": "https://json-schema.org/draft/2020-12/schema",
   "additionalProperties": false,
   "description": "Search ClinicalTrials.gov or keyed NCI with native counts. NCI --facility matches exact organization names; a listed site is not necessarily enrolling.",

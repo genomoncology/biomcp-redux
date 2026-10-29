@@ -1,4 +1,4 @@
-use super::*;
+use super::{Environment, Stub, Value, call, json, setup};
 pub(super) fn run() -> Result<(), String> {
     let stub = Stub::for_sources(
         &["www.ebi.ac.uk", "rest.uniprot.org"],

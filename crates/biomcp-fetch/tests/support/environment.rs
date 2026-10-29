@@ -3,10 +3,6 @@
     clippy::disallowed_methods,
     reason = "The shared test launcher owns child environment and executable selection"
 )]
-#![allow(
-    clippy::disallowed_types,
-    reason = "This shared child launcher uses Command in crates with different type bans"
-)]
 use std::{fs, io, path::Path, process::Command};
 pub(crate) const ENV_PATHS: &[(&str, &str)] = &[
     ("HOME", "home"),

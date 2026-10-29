@@ -65,7 +65,7 @@ fn order(kind: AnnotationKind) -> u8 {
 fn optional(
     id: Pmid,
     field: &str,
-    raw: &Option<Field<String>>,
+    raw: Option<&Field<String>>,
     problems: &mut Vec<Problem>,
 ) -> Option<Text> {
     match raw {
@@ -96,8 +96,8 @@ fn entity(
         "Chemical" => AnnotationKind::Chemical,
         _ => return None,
     };
-    let identifier = optional(id, "identifier", &raw.identifier, problems);
-    let name = optional(id, "name", &raw.name, problems)
+    let identifier = optional(id, "identifier", raw.identifier.as_ref(), problems);
+    let name = optional(id, "name", raw.name.as_ref(), problems)
         .or_else(|| annotation.text.as_ref().and_then(|s| Text::new(s).ok()))?;
     let mut value = AnnotatedEntity {
         kind,
@@ -116,8 +116,8 @@ fn entity(
             }
         }
         AnnotationKind::Variant => {
-            value.hgvs = optional(id, "hgvs", &raw.hgvs, problems);
-            value.rsid = optional(id, "rsid", &raw.rsid, problems);
+            value.hgvs = optional(id, "hgvs", raw.hgvs.as_ref(), problems);
+            value.rsid = optional(id, "rsid", raw.rsid.as_ref(), problems);
             if value.hgvs.is_none() && value.rsid.is_none() {
                 push_problem(problems, Source::PubTator, record_text(id), "variant");
                 return None;

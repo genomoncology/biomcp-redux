@@ -1,5 +1,5 @@
 //! Feature author-search: a disabled source cannot restore either retained author snapshot.
-use super::*;
+use super::{Environment, fs, json};
 pub(super) fn check() -> Result<(), String> {
     for name in ["search", "papers"] {
         let root = super::super::launch::fixtures();

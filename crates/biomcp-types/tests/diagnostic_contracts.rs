@@ -423,7 +423,11 @@ where
     let schema = serde_json::to_value(schemars::schema_for!(Envelope<T>)).unwrap();
     let validator = jsonschema::draft202012::new(&schema).unwrap();
     assert!(validator.is_valid(&value), "{value}");
-    assert_eq!(value.get("schema").and_then(Value::as_str), Some(T::SCHEMA));
+    assert_eq!(
+        value.get("schema").and_then(Value::as_str),
+        Some(T::SCHEMA),
+        "Diagnostic replies must retain their versioned envelope contract"
+    );
 }
 
 #[cfg(feature = "schema")]

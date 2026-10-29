@@ -1,4 +1,4 @@
-use super::*;
+use super::{Environment, Path, Value, fs};
 pub(super) fn check(name: &str) -> Result<(), String> {
     let path = Path::new(env!("CARGO_MANIFEST_DIR"))
         .join(format!("../../tests/native/author-controls/{name}.yaml"));

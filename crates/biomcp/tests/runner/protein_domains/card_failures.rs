@@ -1,6 +1,6 @@
 //! Feature protein-domains-complexes: synthetic identity and optional failures remain explicit.
 use super::super::mcp;
-use super::*;
+use super::{Environment, Stub, Trial, Value, call, fs, invoke, json, setup};
 use crate::runner::transcript::trial as transcript_trial;
 pub(super) fn trials() -> Vec<Trial> {
     let mut trials = Vec::new();

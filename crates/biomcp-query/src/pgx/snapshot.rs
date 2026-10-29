@@ -2,7 +2,10 @@
 use crate::{Action, Ctx, Outcome, status, store::Store};
 use biomcp_adapters::clinpgx;
 use biomcp_fetch::{CacheError, Deadline, RequestError, SourceError};
-use biomcp_types::*;
+use biomcp_types::{
+    PgxAnnotationKind, PgxAnnotations, PgxGet, QueryBody, Reason, Request, Source, SourceOutcome,
+    SourceState, Status, StepKind,
+};
 use sha2::{Digest, Sha256};
 type Saved = (PgxAnnotations, Vec<SourceOutcome>);
 fn key(q: &PgxGet) -> Vec<u8> {

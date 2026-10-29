@@ -1,6 +1,5 @@
 //! Per-command SQLite owner for fixed search snapshots.
 #![expect(
-    clippy::disallowed_types,
     clippy::disallowed_methods,
     reason = "Keep wall time and SQLite state inside the reviewed store boundary"
 )]
@@ -13,6 +12,10 @@ mod pool;
 use biomcp_fetch::{CacheAccess, CacheError, Deadline, SchemaOwner};
 pub(crate) use pool::{Pool, StoredItem};
 use rusqlite::{Connection, OptionalExtension, params};
+#[expect(
+    clippy::disallowed_types,
+    reason = "Bound command-owned SQLite work with its wall clock and stable snapshot timestamp"
+)]
 use std::time::{Instant, SystemTime, UNIX_EPOCH};
 /// Query schema version migrated independently of the cache filename.
 pub const VERSION: u32 = 5;
@@ -35,6 +38,10 @@ pub const OWNER: SchemaOwner = SchemaOwner {
 };
 /// One command's owned connection, retaining the replay directory capability.
 #[derive(Debug)]
+#[expect(
+    clippy::disallowed_types,
+    reason = "Bound command-owned SQLite work with its wall clock and stable snapshot timestamp"
+)]
 pub(crate) struct Store<'a> {
     connection: Connection,
     deadline: Deadline<'a>,
@@ -42,6 +49,10 @@ pub(crate) struct Store<'a> {
     _access: CacheAccess,
 }
 impl<'a> Store<'a> {
+    #[expect(
+        clippy::disallowed_types,
+        reason = "Bound command-owned SQLite work with its wall clock and stable snapshot timestamp"
+    )]
     pub(crate) fn open(access: CacheAccess, deadline: Deadline<'a>) -> Result<Self, CacheError> {
         if deadline.expired() {
             return Err(CacheError::Busy);
@@ -126,10 +137,18 @@ impl<'a> Store<'a> {
     pub(crate) fn set_deadline(&mut self, deadline: Deadline<'a>) {
         self.deadline = deadline;
     }
+    #[expect(
+        clippy::disallowed_types,
+        reason = "Bound command-owned SQLite work with its wall clock and stable snapshot timestamp"
+    )]
     pub(crate) fn deadline(&self) -> Deadline<'a> {
         self.deadline
             .child(self.wall_end.saturating_duration_since(Instant::now()))
     }
+    #[expect(
+        clippy::disallowed_types,
+        reason = "Bound command-owned SQLite work with its wall clock and stable snapshot timestamp"
+    )]
     pub(crate) fn now() -> i64 {
         SystemTime::now()
             .duration_since(UNIX_EPOCH)

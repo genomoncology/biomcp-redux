@@ -58,7 +58,8 @@ fn boundaries() -> Check {
             .as_array()
             .unwrap()
             .iter()
-            .all(|item| item.get("found_by").is_none())
+            .all(|item| item.get("found_by").is_none()),
+        "LitVar requests must stay inside the supported selector boundary"
     );
     let prefixed = [
         "search",
@@ -141,9 +142,19 @@ fn health() -> Check {
         .iter()
         .find(|row| row["source"] == "litvar")
         .ok_or("LitVar missing from source health")?;
-    assert_eq!(row["state"], "ok");
-    assert_eq!(row["use"], "open");
-    assert_eq!(row["terms_url"], biomcp_adapters::litvar::SPEC.terms.url);
+    assert_eq!(
+        row["state"], "ok",
+        "LitVar health must report source policy without fetching articles"
+    );
+    assert_eq!(
+        row["use"], "open",
+        "LitVar health must report source policy without fetching articles"
+    );
+    assert_eq!(
+        row["terms_url"],
+        biomcp_adapters::litvar::SPEC.terms.url,
+        "LitVar health must report source policy without fetching articles"
+    );
     Ok(())
 }
 fn failures() -> Check {
@@ -266,7 +277,11 @@ fn empty_recovery() -> Check {
         } else {
             vec!["europepmc", "pubmed"]
         };
-        assert_eq!(steps.len(), expected.len() + 1);
+        assert_eq!(
+            steps.len(),
+            expected.len() + 1,
+            "Empty results must keep recovery steps"
+        );
         for (step, source) in steps.iter().zip(expected) {
             let mut args = vec!["search", "article", "--gene", "KRAS", "--variant", "G12C"];
             if source != "pubmed" {
@@ -275,7 +290,11 @@ fn empty_recovery() -> Check {
             if disabled {
                 args.splice(0..0, ["--disable-sources", "europepmc"]);
             }
-            assert_eq!(step["args"], json!(args));
+            assert_eq!(
+                step["args"],
+                json!(args),
+                "Empty results must keep recovery steps"
+            );
         }
         let mut broader = vec!["search", "article", "--gene", "KRAS"];
         if disabled {
@@ -283,17 +302,23 @@ fn empty_recovery() -> Check {
         }
         assert_eq!(
             steps.last().ok_or("missing broader gene search")?["args"],
-            json!(broader)
+            json!(broader),
+            "Empty results must keep recovery steps"
         );
         assert_eq!(
-            output["sources"][1]["notices"][0]["kind"],
-            "litvar_rsid_hint"
+            output["sources"][1]["notices"][0]["kind"], "litvar_rsid_hint",
+            "Empty results must keep recovery steps"
         );
         assert_eq!(
             output["sources"][1]["notices"][0]["message"],
-            "If you have an rsID, look it up in LitVar with --variant RSID --source litvar."
+            "If you have an rsID, look it up in LitVar with --variant RSID --source litvar.",
+            "Empty results must keep recovery steps"
         );
     }
+    markdown_recovery()
+}
+
+fn markdown_recovery() -> Check {
     let directory = tempfile::tempdir()?;
     super::response_cases::copy_capture(
         "article/litvar/kras-g12c",
@@ -307,8 +332,15 @@ fn empty_recovery() -> Check {
     let output = environment
         .command(env!("CARGO_BIN_EXE_biomcp"), &args)
         .output()?;
-    assert_eq!(output.status.code(), Some(1));
+    assert_eq!(
+        output.status.code(),
+        Some(1),
+        "Empty results must keep recovery steps"
+    );
     let text = String::from_utf8(output.stdout)?;
-    assert!(text.contains("If you have an rsID, look it up in LitVar"));
+    assert!(
+        text.contains("If you have an rsID, look it up in LitVar"),
+        "Empty results must keep recovery steps"
+    );
     Ok(())
 }

@@ -58,7 +58,7 @@
       "type": "string"
     }
   },
-  "$id": "biodata.article-search/1",
+  "$id": "biomcp.article-search/1",
   "$schema": "https://json-schema.org/draft/2020-12/schema",
   "additionalProperties": false,
   "anyOf": [

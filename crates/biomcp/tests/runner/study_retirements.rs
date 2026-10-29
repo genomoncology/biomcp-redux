@@ -126,7 +126,7 @@ fn guidance(value: &Value, message: &str) -> Check {
         return Err(format!("wrong fixed study guidance: {value}"));
     }
     // Exact fixed responses have no varying payload; fifteen percent allows wire overhead.
-    let expected = json!({"schema":"biomcp.error/1","status":"usage","error":{"code":"usage.retired","message":message}});
+    let expected = json!({"schema":"biomcp.error/2","status":"usage","error":{"code":"usage.retired","message":message}});
     let baseline = serde_json::to_vec(&expected)
         .map_err(|e| e.to_string())?
         .len();

@@ -1,6 +1,7 @@
 # 0466 — Run the structure ratchets before the coverage suites
 
-Status: OPEN.
+Status: COMPLETE.
+Landed: f34c178bf223233b3ad55c5bcd1b2c75a6aa6c1d
 
 Milestone: 5
 

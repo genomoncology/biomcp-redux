@@ -1,6 +1,9 @@
 //! Complete native CPIC rows with provider counts checked before cache admission.
 use super::SPEC;
-use biodata::*;
+use biodata::{
+    PgxDiplotypeResult, PgxDrugRecommendation, PgxGeneIdentity, PgxGuidelineReference, PgxPair,
+    PgxRecommendation,
+};
 use biomcp_fetch::{Arg, BadReply, Freshness, Leg, Reply, RequestError};
 use biomcp_types::{PgxGet, PgxSearch};
 use serde::Deserialize;

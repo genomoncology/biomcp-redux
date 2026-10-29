@@ -1,6 +1,6 @@
 //! Feature author-search: forbidden routes never reach provider or source-cache boundaries.
 use super::super::configuration::invoke;
-use super::*;
+use super::{Environment, Value, Write, fs, json, mcp};
 pub(super) fn check() -> Result<(), String> {
     let env = Environment::new().map_err(|e| e.to_string())?;
     let listener = std::net::TcpListener::bind("127.0.0.1:0").map_err(|e| e.to_string())?;

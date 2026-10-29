@@ -3,7 +3,7 @@ use biomcp_fetch::grpc::{Limits, StreamDecoder, alphagenome::DnaseRequest};
 #[path = "alphagenome/routing.rs"]
 mod routing;
 #[path = "grpc_worker/support.rs"]
-#[allow(
+#[expect(
     dead_code,
     reason = "Reuse the local TLS fixture without provider traffic"
 )]

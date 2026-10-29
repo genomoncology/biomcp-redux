@@ -27,7 +27,7 @@
       "type": "string"
     }
   },
-  "$id": "biodata.variant-population/3",
+  "$id": "biomcp.variant-population/3",
   "$schema": "https://json-schema.org/draft/2020-12/schema",
   "additionalProperties": false,
   "description": "Read a bounded ancestry-detail page from the exact source-given GRCh38 allele.",

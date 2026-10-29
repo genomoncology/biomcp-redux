@@ -22,11 +22,11 @@ def main():
                                                     '/usr/share/doc/biomcp/' + name])
         require(contents == (Path(proof) / name).read_bytes(), 'container ' + name + ' differs from candidate')
     checks.append('license-notices')
-    for args, key in [(["schema", "biodata.problem/1"], "$id"), (["help"], "commands")]:
+    for args, key in [(["schema", "biomcp.problem/1"], "$id"), (["help"], "commands")]:
         result = subprocess.run(common + [image] + args, capture_output=True, text=True, check=True)
         value = json.loads(result.stdout)
         require(not result.stderr, "container command wrote stderr")
-        require(value["result"][key] if key == "commands" else value[key] == "biodata.problem/1", "container command contract differs")
+        require(value["result"][key] if key == "commands" else value[key] == "biomcp.problem/1", "container command contract differs")
         checks.append("help" if key == "commands" else "schemas")
     with tempfile.TemporaryDirectory() as root:
         mcp_probe(common + ["-i", image, "serve"], os.environ.copy(), Path(root), version)
