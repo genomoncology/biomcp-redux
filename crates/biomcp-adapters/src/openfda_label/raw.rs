@@ -15,6 +15,8 @@ pub struct Record {
     /// Native YYYYMMDD revision date.
     pub effective_time: String,
     pub(super) openfda: Names,
+    pub(super) spl_product_data_elements: Option<Vec<String>>,
+    pub(super) package_label_principal_display_panel: Option<Vec<String>>,
     boxed_warning: Option<Vec<String>>,
     dosage_and_administration: Option<Vec<String>>,
     drug_interactions: Option<Vec<String>>,

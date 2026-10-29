@@ -83,9 +83,19 @@ pub fn get(leg: &Leg<'_>, set: &DrugId) -> Result<Page, RequestError> {
     if !biomcp_types::DrugSource::OpenfdaLabel.accepts(set) {
         return Err(bad());
     }
-    page(
+    let found = page(
         leg,
         &format!("openfda.spl_set_id:{}", literal(&set.to_string())),
+        1,
+        0,
+        Some(set),
+    )?;
+    if !found.records.is_empty() {
+        return Ok(found);
+    }
+    page(
+        leg,
+        &format!("set_id:{}", literal(&set.to_string())),
         1,
         0,
         Some(set),

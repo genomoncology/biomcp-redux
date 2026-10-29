@@ -34,6 +34,29 @@
       "max_bytes": 1600
     },
     {
+      "follow": "disambiguate",
+      "expect": {
+        "/status": "complete",
+        "/result/header/id": "98b197ea-bca4-427e-8737-97f70a3262bc",
+        "/result/header": {
+          "omits": [
+            "name"
+          ]
+        },
+        "/result": {
+          "omits": [
+            "alternate_names"
+          ]
+        },
+        "": {
+          "omits": [
+            "problems"
+          ]
+        }
+      },
+      "max_bytes": 1500
+    },
+    {
       "run": [
         "search",
         "drug",
@@ -78,6 +101,86 @@
         "/result/items/0/name": "Sarclisa Escena"
       },
       "max_bytes": 1600
+    },
+    {
+      "run": [
+        "search",
+        "drug",
+        "CAVHANZA EXTRA",
+        "--source",
+        "openfda-label",
+        "--limit",
+        "1"
+      ],
+      "exit": 1,
+      "expect": {
+        "/status": "absent",
+        "/result": {
+          "omits": [
+            "items"
+          ]
+        },
+        "/sources/0/term": "\"CAVHANZA EXTRA\"",
+        "": {
+          "omits": [
+            "problems"
+          ]
+        }
+      },
+      "max_bytes": 1500
+    },
+    {
+      "run": [
+        "search",
+        "drug",
+        "REFERENCE BRAND",
+        "--source",
+        "openfda-label",
+        "--limit",
+        "1"
+      ],
+      "exit": 1,
+      "expect": {
+        "/status": "absent",
+        "/result": {
+          "omits": [
+            "items"
+          ]
+        },
+        "/sources/0/term": "\"REFERENCE BRAND\"",
+        "": {
+          "omits": [
+            "problems"
+          ]
+        }
+      },
+      "max_bytes": 1500
+    },
+    {
+      "run": [
+        "search",
+        "drug",
+        "NDA000001",
+        "--source",
+        "openfda-label",
+        "--limit",
+        "1"
+      ],
+      "exit": 1,
+      "expect": {
+        "/status": "absent",
+        "/result": {
+          "omits": [
+            "items"
+          ]
+        },
+        "": {
+          "omits": [
+            "problems"
+          ]
+        }
+      },
+      "max_bytes": 1000
     }
   ]
 }
