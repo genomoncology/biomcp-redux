@@ -182,8 +182,8 @@ fn punctuation_only_word_keys_are_rejected_without_losing_indexed_siblings() {
     }
 }
 
-fn reopen_and_import<R: Row>(
-    bundle: &Bundle<R>,
+fn reopen_and_import(
+    bundle: &Bundle<Keyed>,
     path: &std::path::Path,
     server: &support::Server,
     expected: &[biomcp_fetch::BundleRejection],
