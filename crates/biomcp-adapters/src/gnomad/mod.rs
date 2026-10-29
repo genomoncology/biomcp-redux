@@ -72,7 +72,16 @@ pub fn constraints(
         variables,
     };
     macro_rules! fetch {
-        ($($n:literal),+) => { match ids.len() { $( $n => leg.post_json_checked_cache::<_, raw::Genes<$n>>(&GENES, &body, |raw| raw.eligible(&ids)).map(|raw| raw.data), )+ _ => return Err(bad()) } };
+        ($($n:literal),+) => {
+            match ids.len() {
+                $(
+                    $n => leg.post_json_checked_cache::<_, raw::Genes<$n>>(
+                        &GENES, &body, |raw| raw.eligible(&ids),
+                    ).map(|raw| raw.data),
+                )+
+                _ => return Err(bad()),
+            }
+        };
     }
     let raw = fetch!(
         1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20
