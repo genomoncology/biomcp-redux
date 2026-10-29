@@ -1,7 +1,11 @@
 //! Europe PMC's bounded metadata-only search window.
 use crate::native_text::NativeText;
 mod core;
-use crate::quotas;
+use crate::{
+    mapped::{Problems, record},
+    quotas,
+    raw::Field,
+};
 use biodata::{Doi, EuropePmcId, PartialDate, Pmcid, Pmid, Text};
 
 use biomcp_fetch::{
@@ -35,6 +39,8 @@ pub struct Search {
     pub count: u64,
     /// The actual fetched rows, including duplicates in their original positions.
     pub items: Vec<ArticleItem>,
+    /// Rejected source metadata retained beside the page.
+    pub problems: Vec<biomcp_types::Problem>,
 }
 /// Fetch one metadata page in the requested provider order.
 pub fn search(leg: &Leg<'_>, term: &str, sort: ArticleSort) -> Result<Search, RequestError> {
@@ -48,14 +54,17 @@ pub fn search(leg: &Leg<'_>, term: &str, sort: ArticleSort) -> Result<Search, Re
         args.push(("sort", Arg::Text("FIRST_PDATE_D desc")));
     }
     let raw = leg.json::<Raw>(&SEARCH, &args)?;
+    let mut problems = Vec::new();
+    let items = raw
+        .result_list
+        .result
+        .into_iter()
+        .filter_map(|row| row.item(&mut problems))
+        .collect();
     Ok(Search {
         count: raw.hit_count,
-        items: raw
-            .result_list
-            .result
-            .into_iter()
-            .map(Row::item)
-            .collect::<Result<_, _>>()?,
+        items,
+        problems,
     })
 }
 #[derive(Deserialize)]
@@ -73,23 +82,18 @@ struct Rows {
 struct Row {
     id: String,
     source: String,
-    pmid: Option<Pmid>,
-    pmcid: Option<Pmcid>,
-    doi: Option<Doi>,
-    title: Option<NativeText>,
-    journal_title: Option<NativeText>,
-    first_publication_date: Option<PartialDate>,
-    author_string: Option<NativeText>,
+    pmid: Option<Field<Pmid>>,
+    pmcid: Option<Field<Pmcid>>,
+    doi: Option<Field<Doi>>,
+    title: Option<Field<NativeText>>,
+    journal_title: Option<Field<NativeText>>,
+    first_publication_date: Option<Field<PartialDate>>,
+    author_string: Option<Field<NativeText>>,
 }
 impl Reply for Raw {
     fn check(&self) -> Result<(), BadReply> {
         if self.result_list.result.len() > 100
             || self.result_list.result.len() as u64 > self.hit_count
-            || self
-                .result_list
-                .result
-                .iter()
-                .any(|r| r.local_id().is_err())
         {
             return Err(BadReply);
         }
@@ -105,55 +109,63 @@ impl Row {
         };
         id.parse()
     }
-    fn item(self) -> Result<ArticleItem, RequestError> {
-        let pmid = self.pmid.or_else(|| {
+    fn item(self, problems: &mut Vec<biomcp_types::Problem>) -> Option<ArticleItem> {
+        let mut p = Problems {
+            source: Source::EuropePmc,
+            record: record(&self.id),
+            list: Vec::new(),
+        };
+        let local = p.required("id", self.local_id().ok());
+        let Some(local) = local else {
+            problems.extend(p.list);
+            return None;
+        };
+        let pmid = p.field("pmid", self.pmid).or_else(|| {
             (self.source == "MED")
                 .then(|| self.id.parse().ok())
                 .flatten()
         });
-        // Reply validation checked the fallback before this owned mapping.
-        let local = self.local_id().map_err(|_| biomcp_fetch::SourceError {
-            source: Source::EuropePmc,
-            reason: biomcp_types::Reason::BadReply,
-            status: Some(200),
-            retry_after: None,
-        })?;
+        let pmcid = p.field("pmcid", self.pmcid);
+        let doi = p.field("doi", self.doi);
         let key = if let Some(id) = pmid {
             ArticleKey::Pubmed(id)
-        } else if let Some(id) = self.pmcid {
+        } else if let Some(id) = pmcid {
             ArticleKey::Pmc(id)
-        } else if let Some(id) = self.doi.clone() {
+        } else if let Some(id) = doi.clone() {
             ArticleKey::Doi(id)
         } else {
             ArticleKey::Europepmc(local.clone())
         };
+        let title = p.source_field("title", self.title);
+        let journal = p.source_field("journal", self.journal_title);
+        let date = p.field("date", self.first_publication_date);
+        let authors = p.source_field("authors", self.author_string);
         let header = if pmid.is_none() {
-            self.title.map(|title| ArticleHeader {
+            title.map(|title| ArticleHeader {
                 pmid: None,
                 europepmc_id: Some(local),
-                doi: self.doi,
-                pmcid: self.pmcid,
-                title: Some(title.into()),
-                journal: self.journal_title.map(Into::into),
-                date: self.first_publication_date,
+                doi,
+                pmcid,
+                title: Some(title),
+                journal,
+                date,
                 electronic_date: None,
                 types: Box::default(),
                 types_unknown: true,
-                first_author: self
-                    .author_string
+                first_author: authors
                     .as_ref()
                     .and_then(|s| s.as_str().split(',').next())
                     .and_then(|s| Text::new(s.trim()).ok()),
                 first_author_id: None,
-                author_count: self
-                    .author_string
+                author_count: authors
                     .as_ref()
                     .map_or(0, |s| s.as_str().split(',').count() as u32),
             })
         } else {
             None
         };
-        Ok(ArticleItem {
+        problems.extend(p.list);
+        Some(ArticleItem {
             key: Some(key),
             pmid,
             header,

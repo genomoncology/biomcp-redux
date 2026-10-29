@@ -22,9 +22,10 @@ pub(super) fn cards<'a>(cx: &Ctx<'a>, deadline: &mut Deadline<'a>, out: &mut Out
         used = true;
         match europepmc::core(&leg, id) {
             Ok((card, metadata)) => {
+                out.problems.extend(card.problems);
                 item.status = Status::Complete;
                 item.answer = Some(ArticleResolution::Resolved {
-                    card: card.card(),
+                    card: card.value.card(),
                     r#match: ArticleMatch {
                         kind: item.input.kind(),
                     },
