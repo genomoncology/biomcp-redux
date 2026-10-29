@@ -75,9 +75,12 @@ pub(super) fn fulltext<'a>(cx: &Ctx<'a>, deadline: &mut Deadline<'a>, out: &mut 
             continue;
         };
         used = true;
-        sections.fulltext = Some(match europepmc::read(&leg, id) {
-            Ok(document) => {
-                out.problems.extend(document.problems.clone());
+        let result = europepmc::read(&leg, id).map(|mapped| {
+            out.problems.extend(mapped.problems);
+            mapped.value
+        });
+        sections.fulltext = Some(match result {
+            Ok(Some(document)) => {
                 if !document.body.parts.is_empty() {
                     super::sections::fulltext::next_input(
                         ArticleInput::EuropePmc(id.clone()),
@@ -90,6 +93,7 @@ pub(super) fn fulltext<'a>(cx: &Ctx<'a>, deadline: &mut Deadline<'a>, out: &mut 
                     data: super::sections::fulltext::outline(&document),
                 }
             }
+            Ok(None) => Section::unavailable(Source::EuropePmc, biomcp_types::Reason::NotOpen),
             Err(e) => {
                 error.get_or_insert(e);
                 out.local = out.local.or(status::local(e));

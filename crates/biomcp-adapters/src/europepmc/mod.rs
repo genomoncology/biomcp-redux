@@ -59,7 +59,14 @@ pub fn search(leg: &Leg<'_>, term: &str, sort: ArticleSort) -> Result<Search, Re
         .result_list
         .result
         .into_iter()
-        .filter_map(|row| row.item(&mut problems))
+        .filter_map(|row| {
+            if let Some(row) = row.value() {
+                row.item(&mut problems)
+            } else {
+                crate::mapped::push_problem(&mut problems, Source::EuropePmc, None, "id");
+                None
+            }
+        })
         .collect();
     Ok(Search {
         count: raw.hit_count,
@@ -75,7 +82,7 @@ struct Raw {
 }
 #[derive(Deserialize)]
 struct Rows {
-    result: Vec<Row>,
+    result: Vec<Field<Row>>,
 }
 #[derive(Deserialize)]
 #[serde(rename_all = "camelCase")]

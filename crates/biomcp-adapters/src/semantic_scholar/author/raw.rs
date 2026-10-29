@@ -12,6 +12,7 @@ use biomcp_fetch::{BadReply, Reply};
 use serde::{Deserialize, Serialize};
 /// Native source page, with no inferred next offset or result total.
 #[derive(Debug, Deserialize, Serialize)]
+#[serde(from = "RawPage")]
 pub struct Page {
     /// Native start offset.
     pub offset: u32,
@@ -21,6 +22,41 @@ pub struct Page {
     pub total: Option<u64>,
     /// Native candidate order.
     pub data: Vec<Record>,
+    /// Rejected independently identified records.
+    pub problems: Vec<biomcp_types::Problem>,
+    #[serde(skip)]
+    pub(super) received: usize,
+}
+#[derive(Deserialize)]
+struct RawPage {
+    offset: u32,
+    next: Option<u32>,
+    total: Option<u64>,
+    data: Vec<Field<Record>>,
+    problems: Option<Vec<biomcp_types::Problem>>,
+}
+impl From<RawPage> for Page {
+    fn from(raw: RawPage) -> Self {
+        let received = raw.data.len();
+        let mut p = Problems {
+            source: biomcp_types::Source::SemanticScholar,
+            record: None,
+            list: raw.problems.unwrap_or_default(),
+        };
+        let data = raw
+            .data
+            .into_iter()
+            .filter_map(|r| p.required("author_id", r.value()))
+            .collect();
+        Self {
+            offset: raw.offset,
+            next: raw.next,
+            total: raw.total,
+            data,
+            problems: p.list,
+            received,
+        }
+    }
 }
 /// Native author metadata; omitted optional fields remain absent.
 #[derive(Debug, Deserialize, Serialize)]
@@ -111,9 +147,9 @@ impl Reply for Record {
 }
 impl Reply for Page {
     fn check(&self) -> Result<(), BadReply> {
-        if self.data.len() > 25
+        if self.received > 25
             || self.next.is_some_and(|n| n <= self.offset)
-            || self.total.is_some_and(|t| self.data.len() as u64 > t)
+            || self.total.is_some_and(|t| self.received as u64 > t)
         {
             Err(BadReply)
         } else {

@@ -98,6 +98,7 @@ fn collect(
     let mut count = 0;
     for _ in 0..5 {
         let reply = semantic_scholar::edges(leg, input, references, offset)?;
+        problems.extend(reply.problems);
         count += reply.data.len() as u64;
         for edge in reply.data {
             let paper = if references {

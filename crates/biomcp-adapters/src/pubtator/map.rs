@@ -11,45 +11,7 @@ const LIMIT: usize = 20;
 pub(super) fn document(id: Pmid, document: Option<&Document>) -> Mapped<Section<Annotations>> {
     let mut problems = Vec::new();
     let mut entities: Vec<(String, AnnotatedEntity)> = Vec::new();
-    let mut annotations = Vec::new();
-    if let Some(document) = document {
-        if let Some(passages) = &document.passages {
-            if let Some(passages) = passages.as_ref() {
-                for passage in passages {
-                    let Some(passage) = passage.as_ref() else {
-                        push_problem(&mut problems, Source::PubTator, record_text(id), "passages");
-                        continue;
-                    };
-                    if let Some(items) = &passage.annotations {
-                        if let Some(items) = items.as_ref() {
-                            for item in items {
-                                if let Some(item) = item.as_ref() {
-                                    annotations.push(item);
-                                } else {
-                                    push_problem(
-                                        &mut problems,
-                                        Source::PubTator,
-                                        record_text(id),
-                                        "annotations",
-                                    );
-                                }
-                            }
-                        } else {
-                            push_problem(
-                                &mut problems,
-                                Source::PubTator,
-                                record_text(id),
-                                "annotations",
-                            );
-                        }
-                    }
-                }
-            } else {
-                push_problem(&mut problems, Source::PubTator, record_text(id), "passages");
-            }
-        }
-    }
-    for annotation in annotations {
+    for annotation in annotation_rows(id, document, &mut problems) {
         let Some((key, entity)) = entity(id, annotation, &mut problems) else {
             continue;
         };
@@ -199,4 +161,43 @@ fn entity(
             }
         });
     Some((key, value))
+}
+
+fn annotation_rows<'a>(
+    id: Pmid,
+    document: Option<&'a Document>,
+    problems: &mut Vec<Problem>,
+) -> Vec<&'a Annotation> {
+    let mut annotations = Vec::new();
+    if let Some(passages) = document.and_then(|d| d.passages.as_ref()) {
+        if let Some(passages) = passages.as_ref() {
+            for passage in passages {
+                let Some(passage) = passage.as_ref() else {
+                    push_problem(problems, Source::PubTator, record_text(id), "passages");
+                    continue;
+                };
+                if let Some(items) = &passage.annotations {
+                    if let Some(items) = items.as_ref() {
+                        for item in items {
+                            if let Some(item) = item.as_ref() {
+                                annotations.push(item);
+                            } else {
+                                push_problem(
+                                    problems,
+                                    Source::PubTator,
+                                    record_text(id),
+                                    "annotations",
+                                );
+                            }
+                        }
+                    } else {
+                        push_problem(problems, Source::PubTator, record_text(id), "annotations");
+                    }
+                }
+            }
+        } else {
+            push_problem(problems, Source::PubTator, record_text(id), "passages");
+        }
+    }
+    annotations
 }

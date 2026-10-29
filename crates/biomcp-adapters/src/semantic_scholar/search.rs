@@ -12,11 +12,41 @@ use serde::Deserialize;
 const SEARCH: Endpoint = super::SPEC.get("/paper/search").fresh(Freshness::Days(1));
 /// A native search window, before duplicate suppression or DOI resolution.
 #[derive(Debug, Deserialize)]
+#[serde(from = "RawSearch")]
 pub struct Search {
     /// Whole source-reported result count.
     pub total: u64,
     /// Native result order.
     pub data: Vec<Paper>,
+    /// Rejected paper identities without invented fallback IDs.
+    pub problems: Vec<biomcp_types::Problem>,
+    received: usize,
+}
+#[derive(Deserialize)]
+struct RawSearch {
+    total: u64,
+    data: Vec<Field<Paper>>,
+}
+impl From<RawSearch> for Search {
+    fn from(raw: RawSearch) -> Self {
+        let received = raw.data.len();
+        let mut p = Problems {
+            source: biomcp_types::Source::SemanticScholar,
+            record: None,
+            list: Vec::new(),
+        };
+        let data = raw
+            .data
+            .into_iter()
+            .filter_map(|v| p.required("paper_id", v.value()))
+            .collect();
+        Self {
+            total: raw.total,
+            data,
+            problems: p.list,
+            received,
+        }
+    }
 }
 /// Common paper metadata shared by search and graph expansion.
 #[derive(Debug, Deserialize)]
@@ -129,7 +159,7 @@ pub struct Author {
 }
 impl Reply for Search {
     fn check(&self) -> Result<(), BadReply> {
-        if self.data.len() > 100 || self.data.len() as u64 > self.total {
+        if self.received > 100 || self.received as u64 > self.total {
             return Err(BadReply);
         }
         Ok(())

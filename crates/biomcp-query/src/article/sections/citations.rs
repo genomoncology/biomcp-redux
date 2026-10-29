@@ -7,6 +7,7 @@ use biomcp_types::{
 };
 pub(super) fn run<'a>(cx: &Ctx<'a>, deadline: &mut Deadline<'a>, ids: &[Pmid], out: &mut Outcome) {
     let result = order::fetch(cx, deadline, ids);
+    status::append(&mut out.problems, result.problems.clone());
     let QueryBody::ArticleCards(cards) = &mut out.body else {
         return;
     };

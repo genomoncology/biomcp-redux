@@ -41,6 +41,10 @@ pub fn search(leg: &Leg<'_>, term: &str) -> Result<Mapped<Vec<ArticleItem>>, Req
         list: Vec::new(),
     };
     for (index, sentence) in reply.0.into_iter().enumerate() {
+        problems.record = None;
+        let Some(sentence) = problems.required("pmid", sentence.value()) else {
+            continue;
+        };
         if items.iter().any(|item| item.pmid == Some(sentence.pmid.0)) {
             continue;
         }
@@ -65,7 +69,7 @@ pub fn search(leg: &Leg<'_>, term: &str) -> Result<Mapped<Vec<ArticleItem>>, Req
     })
 }
 #[derive(Deserialize)]
-struct Sentences(Vec<Sentence>);
+struct Sentences(Vec<Field<Sentence>>);
 #[derive(Deserialize)]
 struct Sentence {
     pmid: crate::raw::NumericPmid,

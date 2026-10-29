@@ -152,25 +152,35 @@ pub fn core(
     ))
 }
 /// Read JATS with the license owned by its core record, rather than inferring license XML.
-pub fn read(leg: &Leg<'_>, id: &EuropePmcId) -> Result<pmc_oa::Document, RequestError> {
+pub fn read(
+    leg: &Leg<'_>,
+    id: &EuropePmcId,
+) -> Result<Mapped<Option<pmc_oa::Document>>, RequestError> {
     let (raw, _) = record(leg, id)?;
+    let mut p = Problems {
+        source: biomcp_types::Source::EuropePmc,
+        record: provenance(id),
+        list: Vec::new(),
+    };
+    let malformed_license = matches!(raw.license, Some(Field::Invalid(_)));
+    let license = p.field("license", raw.license);
+    if malformed_license {
+        return Ok(Mapped {
+            value: None,
+            problems: p.list,
+        });
+    }
     let endpoint = FULLTEXT
         .clone()
         .with_path(format!("/{id}/fullTextXML"))
         .map_err(bad)?;
     let mut body = leg.xml::<jats::Body>(&endpoint, &[])?;
     if body.title.is_none() {
-        body.title = raw.title.and_then(Field::value).map(Into::into);
+        body.title = p.source_field("title", raw.title);
     }
-    Ok(pmc_oa::Document {
+    let value = pmc_oa::Document {
         url: Text::new(&format!("{}/{id}/fullTextXML", SPEC.base)).map_err(bad)?,
-        license: pmc_oa::license(
-            raw.license
-                .as_ref()
-                .and_then(Field::as_ref)
-                .map(String::as_str)
-                .unwrap_or(""),
-        ),
+        license: pmc_oa::license(license.as_deref().unwrap_or("")),
         version: None,
         manuscript: None,
         supplements: Default::default(),
@@ -185,6 +195,11 @@ pub fn read(leg: &Leg<'_>, id: &EuropePmcId) -> Result<pmc_oa::Document, Request
             })
             .collect(),
         body,
+    };
+    p.list.extend(value.problems.clone());
+    Ok(Mapped {
+        value: Some(value),
+        problems: p.list,
     })
 }
 

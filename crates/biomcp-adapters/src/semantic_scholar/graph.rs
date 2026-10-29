@@ -87,6 +87,8 @@ pub struct Edges {
     pub next: Option<u32>,
     /// Native citation order.
     pub data: Vec<Edge>,
+    /// Rejected independent edge identities.
+    pub problems: Vec<biomcp_types::Problem>,
 }
 /// Source edge metadata with missing fields preserved independently.
 #[derive(Debug, Deserialize)]
@@ -152,7 +154,7 @@ impl From<RawEdge> for Edge {
 struct RawEdges {
     next: Option<u32>,
     #[serde(deserialize_with = "edge_data")]
-    data: Option<Vec<Edge>>,
+    data: Option<Vec<Field<Edge>>>,
 }
 impl Reply for RawEdges {
     fn check(&self) -> Result<(), BadReply> {
@@ -160,6 +162,7 @@ impl Reply for RawEdges {
             data.len() > 1000
                 || data
                     .iter()
+                    .filter_map(Field::as_ref)
                     .any(|e| e.citing_paper.is_some() == e.cited_paper.is_some())
         }) {
             return Err(BadReply);
@@ -167,8 +170,10 @@ impl Reply for RawEdges {
         Ok(())
     }
 }
-fn edge_data<'de, D: serde::Deserializer<'de>>(decoder: D) -> Result<Option<Vec<Edge>>, D::Error> {
-    Option::<Vec<Edge>>::deserialize(decoder)
+fn edge_data<'de, D: serde::Deserializer<'de>>(
+    decoder: D,
+) -> Result<Option<Vec<Field<Edge>>>, D::Error> {
+    Option::<Vec<Field<Edge>>>::deserialize(decoder)
 }
 impl Edge {
     /// Keep the selected direction's paper and first whole context.
@@ -234,8 +239,18 @@ pub fn edges(
         status: Some(200),
         retry_after: None,
     })?;
+    let mut p = Problems {
+        source: biomcp_types::Source::SemanticScholar,
+        record: None,
+        list: Vec::new(),
+    };
+    let data = data
+        .into_iter()
+        .filter_map(|v| p.required("paper_id", v.value()))
+        .collect();
     Ok(Edges {
         next: raw.next,
         data,
+        problems: p.list,
     })
 }

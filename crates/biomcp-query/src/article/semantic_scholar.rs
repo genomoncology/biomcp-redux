@@ -37,6 +37,7 @@ pub(super) fn search<'a>(
     let mut problems = Vec::new();
     let items = match result {
         Ok(reply) => {
+            problems.extend(reply.problems);
             outcome.count = Some(reply.total);
             outcome.fetched = Some(reply.data.len() as u32);
             dois = reply

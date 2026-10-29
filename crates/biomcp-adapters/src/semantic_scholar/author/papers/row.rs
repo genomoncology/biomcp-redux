@@ -96,29 +96,24 @@ impl From<Input> for Paper {
     }
 }
 impl Raw {
-    fn checked(self) -> Paper {
-        let mut p = Problems {
-            source: biomcp_types::Source::SemanticScholar,
-            record: record(&self.paper_id),
-            list: Vec::new(),
-        };
+    fn header(&mut self, p: &mut Problems) -> AuthorPaperHeader {
         let venue = p
-            .field("venue", self.venue)
+            .field("venue", self.venue.take())
             .filter(|v| !v.is_empty())
             .and_then(|v| p.text("venue", Some(&v)));
         let mut header = AuthorPaperHeader {
-            paper_id: self.paper_id,
+            paper_id: self.paper_id.clone(),
             pmid: None,
             pmcid: None,
             doi: None,
             external_ids: Box::default(),
-            title: p.source_field("title", self.title),
-            year: p.field("year", self.year),
+            title: p.source_field("title", self.title.take()),
+            year: p.field("year", self.year.take()),
             venue,
         };
         let mut external = Vec::new();
         for (namespace, value) in p
-            .field("external_ids", self.external_ids)
+            .field("external_ids", self.external_ids.take())
             .into_iter()
             .flatten()
         {
@@ -147,6 +142,16 @@ impl Raw {
             }
         }
         header.external_ids = external.into();
+        header
+    }
+
+    fn checked(mut self) -> Paper {
+        let mut p = Problems {
+            source: biomcp_types::Source::SemanticScholar,
+            record: record(&self.paper_id),
+            list: Vec::new(),
+        };
+        let header = self.header(&mut p);
         let fields_of_study = p
             .field("fields_of_study", self.fields_of_study)
             .map(|rows| {

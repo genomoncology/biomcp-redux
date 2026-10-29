@@ -338,8 +338,15 @@ fn preprint<'a>(
         out.status = Status::Partial;
     }
     out.sources.push(source);
-    let document = result?;
-    out.problems.extend(document.problems.clone());
+    let mapped = result?;
+    out.problems.extend(mapped.problems);
+    let Some(document) = mapped.value else {
+        out.body = QueryBody::ArticleText(ArticleTextResult {
+            pmcid: None,
+            content: Section::unavailable(Source::EuropePmc, Reason::NotOpen),
+        });
+        return Ok(());
+    };
     let Some(content) = select(
         query,
         selection,
