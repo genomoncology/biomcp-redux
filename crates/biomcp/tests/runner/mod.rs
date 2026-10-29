@@ -59,6 +59,7 @@ mod faers_get;
 mod faers_search;
 mod format_selection;
 mod gene_tables;
+mod literature_values;
 mod health_bundles;
 mod held_proxy;
 mod help_entry;
@@ -339,6 +340,7 @@ pub(super) fn protocol_trials() -> Vec<Trial> {
     trials.extend(live_proof::trials());
     trials.extend(live_follow_proof::trials());
     trials.extend(gene_tables::trials());
+    trials.extend(literature_values::trials());
     trials.extend(litvar_tables::trials());
     trials.extend(named_search::trials());
     trials.extend(protein_commands::trials());
