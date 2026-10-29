@@ -87,3 +87,26 @@ fn rejected_rows_preserve_siblings_and_survive_revalidation_and_reuse() {
         }
     }
 }
+
+#[test]
+fn opening_older_bundle_metadata_keeps_rows_without_rejections() {
+    let server = support::Server::new();
+    let bundle = declared(&server);
+    let directory = tempfile::tempdir().unwrap();
+    let path = directory.path().join("cache.sqlite");
+    let fetch = cached(&path);
+    sync_reply(&fetch, &bundle, &server, 200, "", TSV).unwrap();
+    drop(fetch);
+    let database = rusqlite::Connection::open(&path).unwrap();
+    database
+        .execute_batch("DROP TABLE bundle_rejection")
+        .unwrap();
+    drop(database);
+    let reopened = cached(&path);
+    let leg = reopened.leg(bundle.spec, reopened.deadline(Duration::from_secs(2)));
+    let (rows, metadata) = leg
+        .stored_rows(&bundle, Find::Exact(KeyKind::Symbol, "BRAF"))
+        .unwrap();
+    assert_eq!(rows.len(), 1);
+    assert!(metadata.rejections.is_empty());
+}

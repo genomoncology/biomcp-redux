@@ -3,6 +3,12 @@ use super::Check;
 use serde_json::json;
 
 pub(super) fn check() -> Check {
+    let problems = json!([
+        {"source": "hgnc", "field": "hgnc row 173: no usable query key", "code": "value.unknown"},
+        {"source": "hgnc", "field": "hgnc row 174: wrong number of columns", "code": "value.unknown"},
+        {"source": "hgnc", "field": "hgnc-withdrawn row 7: no usable query key", "code": "value.unknown"},
+        {"source": "hgnc", "field": "hgnc-withdrawn row 8: wrong number of columns", "code": "value.unknown"}
+    ]);
     checked_steps(
         "gene/main",
         |source, record| {
@@ -28,13 +34,10 @@ pub(super) fn check() -> Check {
         },
         json!([
             {"run": ["sync", "hgnc"], "expect": {
-                "/result/rows": 176, "/problems": {"count": 4},
-                "/problems/*/field": {"includes": "hgnc row 173: no usable query key"},
-                "/problems/*/code": {"includes": "value.unknown"}
+                "/result/rows": 176, "/problems": problems.clone()
             }},
             {"run": ["sync", "hgnc"], "expect": {
-                "/result/rows": 176, "/problems": {"count": 4},
-                "/problems/*/field": {"includes": "hgnc row 174: wrong number of columns"}
+                "/result/rows": 176, "/problems": problems
             }},
             {"run": ["get", "gene", "BRAF"], "expect": {
                 "/result/items/0/answer/gene/hgnc_id": "HGNC:1097"
