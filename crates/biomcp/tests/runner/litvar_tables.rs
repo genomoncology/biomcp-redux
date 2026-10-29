@@ -92,18 +92,18 @@ fn boundaries() -> Check {
         ),
         (
             "bad-id",
-            json!({"/status":"failed","/sources/1/reason":"bad-reply"}),
-            4,
+            json!({"/status":"absent","/result/candidates":{"count":1},"/problems/*/field":["identity"]}),
+            1,
         ),
         (
             "bad-rsid",
-            json!({"/status":"failed","/sources/1/reason":"bad-reply"}),
-            4,
+            json!({"/status":"absent","/result/candidates":{"count":1},"/problems/*/field":["identity"]}),
+            1,
         ),
         (
             "zero-pmid",
-            json!({"/status":"failed","/sources/1/reason":"bad-reply"}),
-            4,
+            json!({"/page/total":8914,"/result/items":{"count":10},"/problems/*/field":{"includes":"pmids"}}),
+            0,
         ),
         (
             "cap",
@@ -248,7 +248,7 @@ fn boundary_edit(source: &str, record: &mut Value, kind: &str) {
                 _ => {}
             }
         } else if kind == "zero-pmid" {
-            body["pmids"][0] = json!(0);
+            *body["pmids"].as_array_mut().unwrap().last_mut().unwrap() = json!(0);
         } else if kind == "cap" {
             let ids = body["pmids"].as_array_mut().unwrap();
             ids.extend((1..=12000 - ids.len()).map(|id| json!(50_000_000 + id)));

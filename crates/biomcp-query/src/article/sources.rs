@@ -279,7 +279,11 @@ fn prepare_litvar<'a>(
     }
     let leg = cx.fetch.leg(&litvar::SPEC, *deadline).fresh(cx.fresh);
     let start = leg.remaining();
-    let result = litvar::select(&leg, gene, query.variant().map_or("", Text::as_str));
+    let result =
+        litvar::select(&leg, gene, query.variant().map_or("", Text::as_str)).map(|mapped| {
+            out.problems.extend(mapped.problems);
+            mapped.value
+        });
     *deadline = super::consume(*deadline, start, leg.remaining());
     match result {
         Ok(litvar::Selection::Exact(selected)) => Some((leg, Ok(selected))),
@@ -330,8 +334,15 @@ fn litvar_search((leg, selected): PreparedLitvar<'_>) -> ResultLeg {
     let error = result.as_ref().err().copied();
     let mut outcome = status::source(Source::LitVar, leg.finish(), error);
     outcome.term = term;
+    let mut problems = Vec::new();
     let items = match result {
-        Ok(litvar::Search { term, count, ids }) => {
+        Ok(litvar::Search {
+            term,
+            count,
+            ids,
+            problems: rejected,
+        }) => {
+            problems = rejected;
             outcome.term = Some(term);
             outcome.count = Some(count);
             outcome.fetched = Some(ids.len() as u32);
@@ -352,7 +363,7 @@ fn litvar_search((leg, selected): PreparedLitvar<'_>) -> ResultLeg {
         Err(_) => Vec::new(),
     };
     ResultLeg {
-        problems: Vec::new(),
+        problems,
         source: ArticleSource::Litvar,
         outcome,
         items,

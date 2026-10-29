@@ -2,11 +2,10 @@
 use crate::quotas;
 use biodata::{Pmid, Text};
 
-use biomcp_fetch::{
-    Arg, BadReply, Endpoint, Freshness, KeyUse, Leg, PathSegment, Reply, RequestError, SourceSpec,
-};
+use biomcp_fetch::{Arg, Endpoint, Freshness, KeyUse, Leg, PathSegment, RequestError, SourceSpec};
 use biomcp_types::{LitVarCandidate, Source};
-use serde::Deserialize;
+mod raw;
+use raw::{Candidates, Publications};
 use std::time::Duration;
 /// Public NCBI LitVar2 policy, independent of E-utilities credentials.
 pub static SPEC: SourceSpec = SourceSpec {
@@ -55,9 +54,15 @@ pub struct Search {
     pub count: u64,
     /// Native publication sequence capped at the pool limit.
     pub ids: Vec<Pmid>,
+    /// Rejected native fields and publication identities.
+    pub problems: Vec<biomcp_types::Problem>,
 }
 /// Select by exact case-insensitive gene/change or rsID, never by hit position.
-pub fn select(leg: &Leg<'_>, gene: Option<&str>, variant: &str) -> Result<Selection, RequestError> {
+pub fn select(
+    leg: &Leg<'_>,
+    gene: Option<&str>,
+    variant: &str,
+) -> Result<crate::Mapped<Selection>, RequestError> {
     let rsid = is_rsid(variant);
     let change = variant
         .get(..2)
@@ -68,8 +73,14 @@ pub fn select(leg: &Leg<'_>, gene: Option<&str>, variant: &str) -> Result<Select
     } else {
         format!("{} {change}", gene.unwrap_or_default())
     };
-    let candidates = leg.json::<Candidates>(&AUTOCOMPLETE, &[("query", Arg::Text(&term))])?;
-    let mut matching = candidates.0.iter().filter(|row| {
+    let candidates = leg
+        .json_checked_cache::<Candidates>(
+            &AUTOCOMPLETE,
+            &[("query", Arg::Text(&term))],
+            Candidates::eligible,
+        )?
+        .mapped();
+    let mut matching = candidates.value.iter().filter(|row| {
         if rsid {
             row.rsid
                 .as_ref()
@@ -86,19 +97,25 @@ pub fn select(leg: &Leg<'_>, gene: Option<&str>, variant: &str) -> Result<Select
         }
     });
     let Some(selected) = matching.next().filter(|_| matching.next().is_none()) else {
-        return Ok(Selection::Candidates(
-            candidates
-                .0
-                .into_iter()
-                .take(5)
-                .map(Candidate::public)
-                .collect(),
-        ));
+        return Ok(crate::Mapped {
+            value: Selection::Candidates(
+                candidates
+                    .value
+                    .into_iter()
+                    .take(5)
+                    .map(Candidate::public)
+                    .collect(),
+            ),
+            problems: candidates.problems,
+        });
     };
-    Ok(Selection::Exact(Variant {
-        id: selected.id.clone(),
-        term: selected.rsid.as_ref().unwrap_or(&selected.name).clone(),
-    }))
+    Ok(crate::Mapped {
+        value: Selection::Exact(Variant {
+            id: selected.id.clone(),
+            term: selected.rsid.as_ref().unwrap_or(&selected.name).clone(),
+        }),
+        problems: candidates.problems,
+    })
 }
 /// Fetch publications only after exact source identity selection.
 pub fn publications(leg: &Leg<'_>, selected: Variant) -> Result<Search, RequestError> {
@@ -106,23 +123,33 @@ pub fn publications(leg: &Leg<'_>, selected: Variant) -> Result<Search, RequestE
         .into_iter()
         .map(PathSegment::new)
         .collect::<Result<Vec<_>, _>>()?;
-    let reply = leg.json::<Publications>(&PUBLICATIONS.clone().with_segments(&segments), &[])?;
+    let reply = leg.json_checked_cache::<Publications>(
+        &PUBLICATIONS.clone().with_segments(&segments),
+        &[],
+        Publications::eligible,
+    )?;
+    let mut problems = crate::mapped::Problems {
+        source: Source::LitVar,
+        record: crate::mapped::record(&selected.id),
+        list: Vec::new(),
+    };
+    let ids = reply
+        .pmids
+        .into_iter()
+        .take(9_999)
+        .filter_map(|raw| {
+            let id = problems.field("pmids", Some(raw))?;
+            problems.optional("pmids", Some(Pmid::new(id)))
+        })
+        .collect();
     Ok(Search {
         term: selected.term,
         count: reply.pmids_count,
-        ids: reply
-            .pmids
-            .into_iter()
-            .take(9_999)
-            .filter_map(|id| Pmid::new(id).ok())
-            .collect(),
+        ids,
+        problems: problems.list,
     })
 }
-#[derive(Deserialize)]
-struct Candidates(Vec<Candidate>);
-#[derive(Deserialize)]
 struct Candidate {
-    #[serde(rename = "_id", alias = "id")]
     id: String,
     rsid: Option<Text>,
     gene: Vec<Text>,
@@ -139,39 +166,6 @@ impl Candidate {
         }
     }
 }
-impl Reply for Candidates {
-    fn check(&self) -> Result<(), BadReply> {
-        if self.0.len() > 10_000
-            || self.0.iter().any(|c| {
-                PathSegment::new(&c.id).is_err()
-                    || c.rsid.as_ref().is_some_and(|rsid| !is_rsid(rsid.as_str()))
-            })
-        {
-            return Err(BadReply);
-        }
-        Ok(())
-    }
-}
-#[derive(Deserialize)]
-struct Publications {
-    pmids: Vec<u32>,
-    pmids_count: u64,
-}
-impl Reply for Publications {
-    fn discovery(&self) -> Option<biomcp_fetch::Identities> {
-        biomcp_fetch::Identities::bounded(
-            "pmid",
-            self.pmids.iter().map(ToString::to_string).collect(),
-        )
-    }
-    fn check(&self) -> Result<(), BadReply> {
-        if self.pmids.len() as u64 > self.pmids_count || self.pmids.contains(&0) {
-            return Err(BadReply);
-        }
-        Ok(())
-    }
-}
-
 /// Recognize the exact rsID spelling accepted by variant lookup.
 pub fn is_rsid(value: &str) -> bool {
     value
