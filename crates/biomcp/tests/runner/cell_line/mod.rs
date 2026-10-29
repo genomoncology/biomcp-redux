@@ -166,7 +166,7 @@ fn canonical(target: &str) -> (String, Vec<&str>) {
 }
 fn recorded_stub() -> Result<Stub, String> {
     let requests: std::collections::BTreeMap<String, Value> =
-        serde_saphyr::from_str(&fixture("requests.json")?).map_err(|e| e.to_string())?;
+        serde_json::from_str(&fixture("requests.json")?).map_err(|e| e.to_string())?;
     let mut replies = Vec::new();
     let mut statuses = std::collections::BTreeMap::new();
     for row in requests.values() {
