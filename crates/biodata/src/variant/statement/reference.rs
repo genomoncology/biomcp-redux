@@ -112,7 +112,7 @@ impl TryFrom<Fields> for VariantRef {
             Fields::Profile { members, .. }
                 if members
                     .iter()
-                    .any(|m| matches!(m.0, Fields::Profile { .. })) =>
+                    .any(|m| matches!(m.0, Fields::Profile { .. } | Fields::Haplotype(_))) =>
             {
                 Err(crate::Error::VariantRefInvalid)
             }

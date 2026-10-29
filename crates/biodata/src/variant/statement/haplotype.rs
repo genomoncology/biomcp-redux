@@ -13,7 +13,7 @@ pub struct ClinvarHaplotypeMember {
 
 #[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
 #[cfg_attr(feature = "schema", derive(schemars::JsonSchema))]
-enum Kind {
+enum ClinvarHaplotypeKind {
     Haplotype,
 }
 
@@ -21,7 +21,7 @@ enum Kind {
 #[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
 #[cfg_attr(feature = "schema", derive(schemars::JsonSchema))]
 pub struct ClinvarHaplotype {
-    kind: Kind,
+    kind: ClinvarHaplotypeKind,
     /// Native ClinVar variation identity.
     pub id: ClinVarVariationId,
     /// Native unversioned VCV accession.
@@ -43,7 +43,7 @@ impl ClinvarHaplotype {
         members: Box<[ClinvarHaplotypeMember]>,
     ) -> Result<Self, Error> {
         let value = Self {
-            kind: Kind::Haplotype,
+            kind: ClinvarHaplotypeKind::Haplotype,
             id,
             accession,
             version,
