@@ -48,6 +48,9 @@ def source_cases(capture, output, source):
     if len(seeds) != 1:
         raise ValueError("source recording identity must be unique")
     seed = json.loads(seeds[0].read_text())
+    receipt = json.loads((capture / filename.replace(".body", ".receipt.json")).read_text())
+    if seed["method"] != "GET" or seed["source"] != source or seed["url"] != receipt["url"] or receipt["status"] != 200:
+        raise ValueError("capture and replay request identities differ: " + source)
     args = ["variant", "normalize", "--source", source, "--hgvs", INPUT]
     if source == "variantvalidator":
         args += ["--build", "GRCh38"]
