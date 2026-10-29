@@ -19,7 +19,7 @@
       "type": "string"
     }
   },
-  "$id": "biodata.article-edges/2",
+  "$id": "biomcp.article-edges/2",
   "$schema": "https://json-schema.org/draft/2020-12/schema",
   "additionalProperties": false,
   "description": "Page the citing or referenced PubMed papers of one checked PMID.",

@@ -71,8 +71,8 @@ fn raw_artifacts(registry: &Registry) -> Result<(), String> {
             .ok_or("missing artifact")?;
         serde_json::from_str(text).map_err(|error| error.to_string())
     };
-    let source = artifact("biodata.source/1")?;
-    let args = vec!["schema".into(), "biodata.source/1".into()];
+    let source = artifact("biomcp.source/1")?;
+    let args = vec!["schema".into(), "biomcp.source/1".into()];
     registry.validate(&source, &args, true)?;
     rejects(registry, &source, &args, false)?;
     rejects(registry, &source, &["unknown".into()], true)?;
@@ -181,7 +181,7 @@ fn discovery() -> Result<(), String> {
         .iter()
         .map(|row| {
             let id = row["id"].as_str().ok_or("missing schema ID")?;
-            if id.starts_with("biomcp.") && id.contains('_')
+            if (id.starts_with("biomcp.") || id.starts_with("biodata.")) && id.contains('_')
                 || row["description"].as_str().is_none_or(str::is_empty)
             {
                 return Err("schema ID or description is invalid");

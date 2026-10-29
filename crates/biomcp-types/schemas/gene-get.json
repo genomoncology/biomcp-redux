@@ -32,7 +32,7 @@
       ]
     }
   },
-  "$id": "biodata.gene-get/1",
+  "$id": "biomcp.gene-get/1",
   "$schema": "https://json-schema.org/draft/2020-12/schema",
   "additionalProperties": false,
   "description": "Get one to twenty human gene inputs in their original order.",

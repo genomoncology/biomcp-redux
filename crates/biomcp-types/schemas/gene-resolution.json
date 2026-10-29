@@ -539,7 +539,7 @@
       "type": "string"
     }
   },
-  "$id": "biodata.gene-resolution/4",
+  "$id": "biomcp.gene-resolution/4",
   "$schema": "https://json-schema.org/draft/2020-12/schema",
   "description": "Resolution outcomes preserve ambiguity and withdrawn identity.",
   "oneOf": [

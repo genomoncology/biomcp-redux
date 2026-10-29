@@ -51,7 +51,7 @@ fn put(root: &Path, relative: &str, step: &str) -> Check {
     fs::write(
         path,
         format!(
-            "story: Runner contract probe\nsteps:\n  - run: [schema, biodata.source/1]\n{step}\n"
+            "story: Runner contract probe\nsteps:\n  - run: [schema, biomcp.source/1]\n{step}\n"
         ),
     )
     .map_err(|error| error.to_string())
@@ -328,7 +328,7 @@ fn output_failure() -> Check {
         .map_err(|error| error.to_string())?
         .command(
             env!("CARGO_BIN_EXE_biomcp"),
-            &["schema".into(), "biodata.source/1".into()],
+            &["schema".into(), "biomcp.source/1".into()],
         )
         .stdout(writer)
         .output()

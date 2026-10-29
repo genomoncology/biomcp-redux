@@ -120,6 +120,14 @@ const ALLOWED: &[(&str, &str)] = &[
         "Exercise public drug header and card disclosure boundaries through their serialized values and schemas.",
     ),
     (
+        "crates/biomcp-types/tests/schemas/registry.rs",
+        "Register public value and research query schema contracts for schema drift checks.",
+    ),
+    (
+        "crates/biomcp-types/tests/schemas/ownership.rs",
+        "Check published schema namespaces against the crate that defines each Rust type.",
+    ),
+    (
         "crates/biomcp-types/tests/schemas/values.rs",
         "Exercise checked values and schema contracts through the public library API.",
     ),

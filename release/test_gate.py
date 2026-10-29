@@ -37,7 +37,7 @@ if args[0] in ('version', 'health'):
     else:
         sys.exit('unexpected CLI arguments')
 elif args[0] == 'schema':
-    print('{"$id":"biodata.problem/1"}')
+    print('{"$id":"biomcp.problem/1"}')
 elif args[0] == 'help':
     print('{"result":{"commands":["get"]}}')
 elif args == ['serve']:

@@ -10,6 +10,8 @@ mod compatibility_cases;
 mod drug;
 #[path = "schemas/generation.rs"]
 mod generation;
+#[path = "schemas/ownership.rs"]
+mod ownership;
 #[path = "schemas/policy.rs"]
 mod policy;
 #[path = "schemas/release.rs"]
@@ -27,6 +29,7 @@ struct Contract {
     kind: crate::policy::ContractKind,
     name: &'static str,
     id: &'static str,
+    rust_type: &'static str,
     generate: fn() -> Value,
 }
 
@@ -45,7 +48,13 @@ fn generate<T: JsonSchema>() -> Value {
 
 macro_rules! contracts {
         ($($ty:ty => ($name:literal, $id:expr $(, $kind:ident)?)),+ $(,)?) => {
-            vec![$(Contract { kind: contracts!(@kind $($kind)?), name: $name, id: $id, generate: contracts!(@generate $ty $(, $kind)?) }),+]
+            vec![$(Contract {
+                kind: contracts!(@kind $($kind)?),
+                name: $name,
+                id: $id,
+                rust_type: std::any::type_name::<$ty>(),
+                generate: contracts!(@generate $ty $(, $kind)?),
+            }),+]
         };
         (@generate $ty:ty, query) => { crate::generation::query::<$ty> };
         (@generate $ty:ty) => { crate::generation::reply::<$ty> };
@@ -56,64 +65,29 @@ macro_rules! contracts {
 #[path = "schemas/disease.rs"]
 mod disease;
 
-fn common_registry() -> Vec<Contract> {
-    contracts! {
-        Accession => ("accession", "biodata.accession/2"),
-        DeviceRecallNumber => ("device-recall-number", "biodata.device-recall-number/1"),
-        Chromosome => ("chromosome", "biodata.chromosome/1"),
-        Base => ("base", "biodata.base/1"),
-        Sequence => ("sequence", "biodata.sequence/1"),
-        SequenceLocation => ("sequence-location", "biodata.sequence-location/2"),
-        Allele => ("allele", "biodata.allele/2"),
-        HgvsText => ("hgvs-text", "biodata.hgvs-text/3"),
-        Expression => ("expression", "biodata.expression/2"),
-        ExpressionSyntax => ("expression-syntax", "biodata.expression-syntax/1"),
-        Representation => ("representation", "biodata.representation/3"),
-        VariantId => ("variant-id", "biodata.variant-id/2"),
-        Variant => ("variant", "biodata.variant/5"),
-        RsId => ("rs-id", "biodata.rs-id/1"),
-        CaId => ("ca-id", "biodata.ca-id/1"),
-        PaId => ("pa-id", "biodata.pa-id/1"),
-        VcvId => ("vcv-id", "biodata.vcv-id/1"),
-        RcvId => ("rcv-id", "biodata.rcv-id/1"),
-        ScvId => ("scv-id", "biodata.scv-id/1"),
-        ClinVarVariationId => ("clinvar-variation-id", "biodata.clinvar-variation-id/1"),
-        ClinVarAlleleId => ("clinvar-allele-id", "biodata.clinvar-allele-id/1"),
-        CosmicId => ("cosmic-id", "biodata.cosmic-id/1"),
-        MondoId => ("mondo-id", "biodata.mondo-id/1"),
-        NcitId => ("ncit-id", "biodata.ncit-id/1"),
-        VrsId => ("vrs-id", "biodata.vrs-id/1"),
-        Contig => ("contig", "biodata.contig/1"),
-
-    }
-}
-
-fn research_registry() -> Vec<Contract> {
-    contracts! {
-        ResearchSearch<ResearchEnvelope> => ("research-search", ResearchSearch::<ResearchEnvelope>::SCHEMA),
-        ResearchFetch<ResearchEnvelope> => ("research-fetch", ResearchFetch::<ResearchEnvelope>::SCHEMA),
-    }
-}
+#[path = "schemas/registry.rs"]
+mod registry;
+use registry::{common_registry, research_registry};
 
 fn article_registry() -> Vec<Contract> {
     contracts! {
-        ArticleEvidence => ("article-evidence", "biodata.article-evidence/1", query),
-        ArticleRecommend => ("article-recommend", "biodata.article-recommend/1", query),
+        ArticleEvidence => ("article-evidence", "biomcp.article-evidence/1", query),
+        ArticleRecommend => ("article-recommend", "biomcp.article-recommend/1", query),
         Envelope<ArticleEvidenceResult> => ("article-evidence-result", "biomcp.article-evidence/2"),
         Envelope<ArticleRecommendations> => ("article-recommendations", "biomcp.article-recommendations/4"),
-        ArticlePdf => ("article-pdf", "biodata.article-pdf/1", query),
+        ArticlePdf => ("article-pdf", "biomcp.article-pdf/1", query),
         Envelope<ArticlePdfResult> => ("article-pdf-result", "biomcp.article-pdf/2"),
-        ArticleSupplement => ("article-supplement", "biodata.article-supplement/1", query),
+        ArticleSupplement => ("article-supplement", "biomcp.article-supplement/1", query),
         Envelope<ArticleSupplementResult> => ("article-supplement-result", "biomcp.article-supplement/3"),
-        ArticleText => ("article-text", "biodata.article-text/2", query),
+        ArticleText => ("article-text", "biomcp.article-text/2", query),
         Envelope<ArticleTextResult> => ("article-text-result", "biomcp.article-text/3"),
-        ArticleEdges => ("article-edges", "biodata.article-edges/2", query),
+        ArticleEdges => ("article-edges", "biomcp.article-edges/2", query),
         Envelope<ArticleEdgePage> => ("article-edge-page", "biomcp.article-edges/5"),
-        ArticleGet => ("article-get", "biodata.article-get/2", query),
-        Article => ("article", "biodata.article/2"),
+        ArticleGet => ("article-get", "biomcp.article-get/2", query),
+        Article => ("article", "biomcp.article/2"),
         Envelope<ArticleCards> => ("article-cards", "biomcp.article-cards/4"),
-        ArticleSearch => ("article-search", "biodata.article-search/1", query),
-        ArticleHeader => ("article-header", "biodata.article_header/3"),
+        ArticleSearch => ("article-search", "biomcp.article-search/1", query),
+        ArticleHeader => ("article-header", "biomcp.article-header/3"),
         Envelope<ArticlePage> => ("article-page", "biomcp.article-page/4"),
         EuropePmcId => ("europepmc-id", "biodata.europepmc-id/1"),
         Pmid => ("pmid", "biodata.pmid/1"),
@@ -140,7 +114,7 @@ fn nci_discovery_contracts() -> Vec<Contract> {
 
 fn registry() -> Vec<Contract> {
     let mut contracts = contracts! {
-        TrialDocumentGet => ("trial-document", "biodata.trial-document/1", query),
+        TrialDocumentGet => ("trial-document", "biomcp.trial-document/1", query),
         Envelope<TrialDocumentResult> => ("trial-document-result", "biomcp.trial-document/3"),
         HttpHealth => ("http-health", "biomcp.http-health/1"),
         Envelope<Health> => ("health", "biomcp.health/3"),
@@ -150,9 +124,9 @@ fn registry() -> Vec<Contract> {
         Envelope<KeyHelp> => ("key", "biomcp.key/2"),
         Envelope<RegisteredKeys> => ("registered-keys", "biomcp.registered-keys/2"),
         ErrorEnvelope => ("error", "biomcp.error/2"),
-        GeneGet => ("gene-get", "biodata.gene-get/1", query),
-        GeneSearch => ("gene-search", "biodata.gene-search/1", query),
-        Request => ("request", "biodata.request/28", query),
+        GeneGet => ("gene-get", "biomcp.gene-get/1", query),
+        GeneSearch => ("gene-search", "biomcp.gene-search/1", query),
+        Request => ("request", "biomcp.request/28", query),
         Envelope<GeneCards> => ("gene-cards", "biomcp.gene-cards/7"),
         Envelope<GenePage> => ("gene-page", "biomcp.gene-page/4"),
         Envelope<StoreClean> => ("store-clean", "biomcp.store-clean/1"),
@@ -162,14 +136,14 @@ fn registry() -> Vec<Contract> {
         Position1 => ("position1", "biodata.position1/1"),
         Span0 => ("span0", "biodata.span0/1"),
         Text => ("text", "biodata.text/1"),
-        Source => ("source", "biodata.source/1"),
-        Reason => ("reason", "biodata.reason/1"),
-        ProblemCode => ("problem-code", "biodata.problem-code/1"),
-        Problem => ("problem", "biodata.problem/1"),
-        GeneInput => ("gene-input", "biodata.gene-input/1", query),
+        Source => ("source", "biomcp.source/1"),
+        Reason => ("reason", "biomcp.reason/1"),
+        ProblemCode => ("problem-code", "biomcp.problem-code/1"),
+        Problem => ("problem", "biomcp.problem/1"),
+        GeneInput => ("gene-input", "biomcp.gene-input/1", query),
         Gene => ("gene", "biodata.gene/4"),
         GeneHeader => ("gene-header", "biomcp.gene-header/3"),
-        GeneResolution => ("gene-resolution", "biodata.gene-resolution/4"),
+        GeneResolution => ("gene-resolution", "biomcp.gene-resolution/4"),
         NcbiGeneId => ("ncbi-gene-id", "biodata.ncbi-gene-id/1"),
         EnsemblGeneId => ("ensembl-gene-id", "biodata.ensembl-gene-id/1"),
         GeneSymbol => ("gene-symbol", "biodata.gene-symbol/2"),
@@ -184,7 +158,7 @@ fn registry() -> Vec<Contract> {
         LocusGroup => ("locus-group", "biodata.locus-group/1"),
         LocusType => ("locus-type", "biodata.locus-type/1"),
         MatchKind => ("match-kind", "biodata.match-kind/1"),
-        Match => ("gene-match", "biodata.gene-match/1"),
+        Match => ("gene-match", "biomcp.gene-match/1"),
         Mane => ("mane", "biodata.mane/1"),
         Summary => ("gene-summary", "biodata.gene-summary/1"),
         SummarySource => ("summary-source", "biodata.summary-source/1"),
@@ -260,19 +234,19 @@ fn adverse_event_contracts() -> Vec<Contract> {
 
 fn variant_contracts() -> Vec<Contract> {
     contracts! {
-        VariantAssertionsGet => ("variant-assertions", "biodata.variant-assertions/2", query),
+        VariantAssertionsGet => ("variant-assertions", "biomcp.variant-assertions/2", query),
         Envelope<VariantAssertions> => ("variant-assertions-result", "biomcp.variant-assertions/4"),
         PopulationFrequency => ("population-frequency", "biodata.population-frequency/5"),
-        VariantPopulationQuery => ("variant-population", "biodata.variant-population/3", query),
+        VariantPopulationQuery => ("variant-population", "biomcp.variant-population/3", query),
         Envelope<VariantPopulationResult> => ("variant-population-result", "biomcp.variant-population/8"),
         Statement => ("statement", "biodata.statement/4"),
-        VariantRecurrenceQuery => ("variant-recurrence-query", "biodata.variant-recurrence-query/3", query),
+        VariantRecurrenceQuery => ("variant-recurrence-query", "biomcp.variant-recurrence-query/3", query),
         Envelope<VariantRecurrence> => ("variant-recurrence", "biomcp.variant-recurrence/6"),
-        VariantNormalize => ("variant-normalize", "biodata.variant-normalize/4", query),
+        VariantNormalize => ("variant-normalize", "biomcp.variant-normalize/4", query),
         Envelope<VariantNormalization> => ("variant-normalization", "biomcp.variant-normalization/5"),
-        VariantSearch => ("variant-search", "biodata.variant-search/2", query),
+        VariantSearch => ("variant-search", "biomcp.variant-search/2", query),
         Envelope<VariantPage> => ("variant-page", "biomcp.variant-page/11"),
-        VariantGet => ("variant-get", "biodata.variant-get/3", query),
+        VariantGet => ("variant-get", "biomcp.variant-get/3", query),
         Envelope<VariantCard> => ("variant-card", "biomcp.variant-card/10"),
     }
 }
@@ -337,15 +311,15 @@ fn diagnostic_contracts() -> Vec<Contract> {
 
 fn trial_contracts() -> Vec<Contract> {
     contracts! {
-        TrialGet => ("trial-get", "biodata.trial-get/1", query),
+        TrialGet => ("trial-get", "biomcp.trial-get/1", query),
         Envelope<NciTrialCards> => ("nci-trial-cards", "biomcp.nci-trial-cards/3"),
         Envelope<NciTrialPage> => ("nci-trial-page", "biomcp.nci-trial-page/5"),
         Envelope<TrialCards> => ("trial-cards", "biomcp.trial-cards/5"),
         TrialConditionResolution => ("trial-condition-resolution", "biomcp.trial-condition-resolution/2"),
-        TrialSearch => ("trial-search", "biodata.trial-search/3", query),
+        TrialSearch => ("trial-search", "biomcp.trial-search/3", query),
         Envelope<TrialPage> => ("trial-page", "biomcp.trial-page/10"),
         NctId => ("nct-id", "biodata.nct-id/1"),
-        TrialHeader => ("trial-header", "biodata.trial_header/2"),
+        TrialHeader => ("trial-header", "biomcp.trial-header/2"),
     }
 }
 

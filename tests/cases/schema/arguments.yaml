@@ -13,7 +13,7 @@ steps:
           error:
             code: usage.schema
             message: use biomcp schema to list known artifact IDs
-  - run: [schema, biodata.source/1, extra]
+  - run: [schema, biomcp.source/1, extra]
     exit: 2
     max_bytes: 160
     expect:
