@@ -33,6 +33,8 @@ pub enum Resolution {
     Found(VariantHeader),
     /// Source validation codes reject the supplied input.
     Rejected(Vec<Text>),
+    /// Native identity refused without rejecting a well-formed service reply.
+    Refused(Vec<biomcp_types::Problem>),
 }
 type Descriptions = Field<Vec<Field<Description>>>;
 #[derive(Deserialize)]
@@ -46,8 +48,8 @@ struct Normalized {
     infos: Option<Field<Vec<Field<Message>>>>,
     warnings: Option<Field<Vec<Field<Message>>>>,
     version: Option<Field<biodata::SourceText>>,
-    input_description: Option<String>,
-    normalized_description: Option<String>,
+    input_description: Option<Field<Text>>,
+    normalized_description: Option<Field<Text>>,
     errors: Option<Vec<Message>>,
 }
 #[derive(Deserialize)]
@@ -65,6 +67,29 @@ impl Normalized {
     }
     fn errors(&self) -> &[Message] {
         self.payload().errors.as_deref().unwrap_or(&[])
+    }
+    fn identity(&self, input: &str) -> Result<Option<Text>, &'static str> {
+        let raw = self.payload();
+        if raw.input_description.is_some() || raw.errors().is_empty() {
+            let given = raw
+                .input_description
+                .as_ref()
+                .and_then(Field::as_ref)
+                .ok_or("input_description")?;
+            if given.as_str() != input {
+                return Err("input_description");
+            }
+        }
+        if !raw.errors().is_empty() {
+            return Ok(None);
+        }
+        let normalized = raw
+            .normalized_description
+            .as_ref()
+            .and_then(Field::as_ref)
+            .ok_or("normalized_description")?;
+        biodata::Expression::hgvs(normalized.clone()).map_err(|_| "normalized_description")?;
+        Ok(Some(normalized.clone()))
     }
 }
 impl Reply for Normalized {
@@ -85,37 +110,15 @@ impl Reply for Normalized {
         {
             return Err(BadReply);
         }
-        if !self.errors().is_empty()
-            || self.input_description.is_some() && self.normalized_description.is_some()
-        {
-            Ok(())
-        } else {
-            Err(BadReply)
-        }
+        Ok(())
     }
 }
 /// Route only the explicitly selected service, preserving the supplied description.
 fn fetch(leg: &Leg<'_>, input: &str) -> Result<Normalized, RequestError> {
     let endpoint = NORMALIZE.clone().with_segments(&[PathSegment::new(input)?]);
-    let mut raw = leg.json_checked_admission::<Normalized>(
-        &endpoint,
-        &[],
-        |reply| {
-            if (!reply.errors().is_empty()
-                && reply
-                    .payload()
-                    .input_description
-                    .as_ref()
-                    .is_none_or(|description| description.as_str() == input))
-                || reply.payload().input_description.as_deref() == Some(input)
-            {
-                Ok(())
-            } else {
-                Err(BadReply)
-            }
-        },
-        |reply| reply.errors().is_empty(),
-    )?;
+    let mut raw = leg.json_checked_cache::<Normalized>(&endpoint, &[], |reply| {
+        reply.errors().is_empty() && reply.identity(input).is_ok()
+    })?;
     Ok(if let Some(custom) = raw.custom.take() {
         *custom
     } else {
@@ -125,12 +128,24 @@ fn fetch(leg: &Leg<'_>, input: &str) -> Result<Normalized, RequestError> {
 /// Route only the explicitly selected service, preserving the supplied description.
 pub fn resolve(leg: &Leg<'_>, input: &str) -> Result<Resolution, RequestError> {
     let raw = fetch(leg, input)?;
+    let identity = match raw.identity(input) {
+        Ok(value) => value,
+        Err(field) => {
+            let mut problems = crate::mapped::Problems {
+                source: Source::Mutalyzer,
+                record: crate::mapped::record(input),
+                list: Vec::new(),
+            };
+            problems.required::<()>(field, None);
+            return Ok(Resolution::Refused(problems.list));
+        }
+    };
     if !raw.errors().is_empty() {
         return Ok(Resolution::Rejected(
             raw.errors.into_iter().flatten().map(|e| e.code).collect(),
         ));
     }
-    let notation = Text::new(&raw.normalized_description.ok_or_else(bad)?).map_err(|_| bad())?;
+    let notation = identity.ok_or_else(bad)?;
     let expression = biodata::Expression::hgvs(notation.clone()).map_err(|_| bad())?;
     Ok(Resolution::Found(VariantHeader {
         identity: Variant {

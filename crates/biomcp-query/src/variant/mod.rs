@@ -148,6 +148,10 @@ pub(crate) fn resolve(
             biomcp_types::VariantResolver::Car => car(allele_registry::hgvs(leg, input)?, problems),
             biomcp_types::VariantResolver::Mutalyzer => match mutalyzer::resolve(leg, input)? {
                 mutalyzer::Resolution::Found(row) => Ok((vec![row], None)),
+                mutalyzer::Resolution::Refused(fields) => {
+                    problems.extend(fields);
+                    Ok((Vec::new(), None))
+                }
                 mutalyzer::Resolution::Rejected(codes) => {
                     Ok((Vec::new(), codes.into_iter().next()))
                 }

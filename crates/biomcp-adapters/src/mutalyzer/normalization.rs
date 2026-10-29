@@ -13,12 +13,22 @@ pub fn normalize(leg: &Leg<'_>, input: &str) -> Result<Mapped<NormalizationResul
         list: Vec::new(),
     };
     let mut result = NormalizationResult::unavailable(Source::Mutalyzer);
+    let normalized = match raw.identity(input) {
+        Ok(value) => value,
+        Err(field) => {
+            problems.required::<()>(field, None);
+            return Ok(Mapped {
+                value: result,
+                problems: problems.list,
+            });
+        }
+    };
     result.outcome = if raw.errors().is_empty() {
         VariantResolution::Resolved
     } else {
         VariantResolution::Rejected
     };
-    result.normalized = raw.normalized_description.map(Into::into);
+    result.normalized = normalized.map(|value| value.as_str().into());
     result.corrected = problems.field("corrected_description", raw.corrected_description);
     let mut mappings = Vec::new();
     for (field, raw) in [
