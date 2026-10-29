@@ -80,6 +80,7 @@ fn reference_name(value: &Value) -> Option<&str> {
         .get("$ref")
         .and_then(Value::as_str)
         .and_then(|s| s.rsplit('/').next())
+        .map(|name| name.strip_prefix("Reply_").unwrap_or(name))
         .or_else(|| {
             value
                 .get("anyOf")?
