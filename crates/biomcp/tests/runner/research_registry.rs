@@ -308,7 +308,7 @@ fn declared_fallback(root: &Value, row: &Value, id: &str, name: &str) -> bool {
 fn reject_broken_identity(root: &Value, id: &str, name: &str) -> Result<(), String> {
     let mut broken = root.clone();
     if let Some(properties) = broken
-        .pointer_mut("/$defs/PathwayId/oneOf/1/properties")
+        .pointer_mut("/$defs/Reply_PathwayId/oneOf/1/properties")
         .and_then(Value::as_object_mut)
     {
         properties.remove("id");

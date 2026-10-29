@@ -74,6 +74,12 @@ pub(super) fn checked_in_schema_definition_names_have_one_body() -> Check<()> {
             .into_iter()
             .flatten()
         {
+            assert_eq!(
+                name.starts_with("Reply_"),
+                matches!(contract.kind, super::policy::ContractKind::Reply),
+                "definition {name} has the wrong namespace in {}",
+                contract.name
+            );
             if let Some((previous, owner)) = definitions.get(name) {
                 assert_eq!(
                     previous, body,

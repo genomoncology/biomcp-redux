@@ -356,7 +356,7 @@ fn curie_runtime_and_published_schema_accept_the_same_checked_ids()
 -> Result<(), Box<dyn std::error::Error>> {
     let schema: Value = serde_json::from_str(include_str!("../../schemas/statement.json"))?;
     let curie = schema
-        .pointer("/$defs/Curie")
+        .pointer("/$defs/Reply_Curie")
         .ok_or("published Curie definition missing")?;
     let validator = jsonschema::draft202012::new(curie)?;
     for (value, accepted) in [
@@ -511,7 +511,11 @@ fn generated_links_expose_uri_metadata() {
                 } else {
                     schema
                         .get("$defs")
-                        .and_then(|definitions| definitions.get(*owner))
+                        .and_then(|definitions| {
+                            definitions
+                                .get(*owner)
+                                .or_else(|| definitions.get(&format!("Reply_{owner}")))
+                        })
                 };
                 if let Some(node) = node {
                     for branch in std::iter::once(node).chain(
