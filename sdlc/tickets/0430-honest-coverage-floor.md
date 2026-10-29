@@ -1,6 +1,7 @@
 # 0430 — Count only product-binary coverage toward the floor
 
-Status: OPEN.
+Status: COMPLETE.
+Landed: 1dd4c6aaea42a47f961596a01673d7102678bf11
 
 Milestone: 5
 
