@@ -3,6 +3,10 @@
     clippy::unwrap_used,
     reason = "Fixture setup must fail on invalid checked inputs"
 )]
+#[expect(
+    clippy::disallowed_methods,
+    reason = "The shared recording fixture owner copies and edits only test-owned files"
+)]
 #[path = "../../biomcp-fetch/tests/support/recordings.rs"]
 mod recording_support;
 use biomcp_fetch::{Fetch, FetchConfig, Mode};

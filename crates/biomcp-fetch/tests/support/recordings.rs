@@ -1,8 +1,4 @@
 //! Copy isolated recordings and opt positive exchanges into synthetic cache setup.
-#![expect(
-    clippy::disallowed_methods,
-    reason = "The shared recording fixture owner copies and edits only test-owned files"
-)]
 use serde_json::{Value, json};
 use std::{fs, path::Path};
 type Check = Result<(), Box<dyn std::error::Error>>;
