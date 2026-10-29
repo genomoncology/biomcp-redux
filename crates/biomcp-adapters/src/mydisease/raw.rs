@@ -11,23 +11,20 @@ pub(super) struct Document {
     pub id: Curie,
     #[serde(rename = "_version")]
     pub version: Option<crate::raw::Field<u64>>,
-    pub mondo: Option<Component>,
-    pub disease_ontology: Option<Component>,
+    pub mondo: Option<Field<Component>>,
+    pub disease_ontology: Option<Field<Component>>,
 }
 impl Reply for Document {
     fn check(&self) -> Result<(), BadReply> {
-        if self.mondo.as_ref().is_some_and(|c| c.id != self.id)
-            || self
-                .disease_ontology
-                .as_ref()
-                .is_some_and(|c| !c.id.to_string().starts_with("DOID:"))
-        {
-            return Err(BadReply);
-        }
-        let mondo = self.mondo.as_ref().is_some_and(|c| c.id == self.id);
+        let mondo = self
+            .mondo
+            .as_ref()
+            .and_then(Field::as_ref)
+            .is_some_and(|c| c.id == self.id);
         let doid = self
             .disease_ontology
             .as_ref()
+            .and_then(Field::as_ref)
             .is_some_and(|c| c.id == self.id);
         if mondo || doid { Ok(()) } else { Err(BadReply) }
     }
@@ -37,12 +34,12 @@ impl Document {
         let mondo = fields
             .split(',')
             .any(|f| f == "mondo")
-            .then_some(self.mondo.as_ref())
+            .then_some(self.mondo.as_ref().and_then(Field::as_ref))
             .flatten();
         let doid = fields
             .split(',')
             .any(|f| f == "disease_ontology")
-            .then_some(self.disease_ontology.as_ref())
+            .then_some(self.disease_ontology.as_ref().and_then(Field::as_ref))
             .flatten();
         let primary =
             mondo.is_some_and(|c| c.id == self.id) || doid.is_some_and(|c| c.id == self.id);

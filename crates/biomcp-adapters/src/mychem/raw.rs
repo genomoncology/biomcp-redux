@@ -4,13 +4,10 @@ use serde::Deserialize;
 #[derive(Debug, Deserialize)]
 pub(super) struct Page {
     pub total: u64,
-    pub hits: Vec<Hit>,
+    pub hits: Vec<crate::raw::Field<Hit>>,
 }
 impl Reply for Page {
     fn check(&self) -> Result<(), BadReply> {
-        for hit in &self.hits {
-            hit.check()?;
-        }
         if self.hits.len() as u64 > self.total {
             return Err(BadReply);
         }

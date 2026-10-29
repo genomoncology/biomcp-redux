@@ -75,15 +75,22 @@ pub(super) fn page(page: Page, leg: &Leg<'_>) -> Result<crate::Mapped<DrugPage>,
         record: None,
         list: Vec::new(),
     };
-    let items = page
-        .hits
-        .into_iter()
-        .map(|hit| {
-            problems.record = crate::mapped::record(&hit.id);
-            let (id, _, rows) = components(hit, leg, &mut problems);
-            header(&id, &rows)
-        })
-        .collect::<Result<Vec<_>, _>>()?;
+    let mut items = Vec::new();
+    for hit in page.hits {
+        problems.record = None;
+        let Some(hit) = problems.field("_id", Some(hit)) else {
+            continue;
+        };
+        problems.record = crate::mapped::record(&hit.id);
+        if problems
+            .optional("_id", Some(hit.id.parse::<biodata::DrugId>()))
+            .is_none()
+        {
+            continue;
+        }
+        let (id, _, rows) = components(hit, leg, &mut problems);
+        items.push(header(&id, &rows)?);
+    }
     Ok(crate::Mapped {
         value: DrugPage {
             items: items.into(),
