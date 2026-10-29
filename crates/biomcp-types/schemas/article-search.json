@@ -27,10 +27,10 @@
         "trial",
         "randomized",
         "review",
-        "systematic_review",
-        "meta_analysis",
+        "systematic-review",
+        "meta-analysis",
         "guideline",
-        "case_report"
+        "case-report"
       ],
       "type": "string"
     },
@@ -58,7 +58,7 @@
       "type": "string"
     }
   },
-  "$id": "biomcp.article-search/1",
+  "$id": "biomcp.article-search/2",
   "$schema": "https://json-schema.org/draft/2020-12/schema",
   "additionalProperties": false,
   "anyOf": [

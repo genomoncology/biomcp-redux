@@ -57,7 +57,7 @@
       "x-extensible-enum": [
         "retraction",
         "erratum",
-        "expression_of_concern"
+        "expression-of-concern"
       ]
     },
     "CorrectionRelation": {
@@ -130,26 +130,26 @@
         " Erratum."
       ],
       "x-extensible-enum": [
-        "randomized_controlled_trial",
-        "clinical_trial",
-        "clinical_trial_phase_1",
-        "clinical_trial_phase_2",
-        "clinical_trial_phase_3",
-        "clinical_trial_phase_4",
-        "meta_analysis",
-        "systematic_review",
+        "randomized-controlled-trial",
+        "clinical-trial",
+        "clinical-trial-phase-1",
+        "clinical-trial-phase-2",
+        "clinical-trial-phase-3",
+        "clinical-trial-phase-4",
+        "meta-analysis",
+        "systematic-review",
         "review",
-        "practice_guideline",
+        "practice-guideline",
         "guideline",
-        "case_report",
-        "observational_study",
-        "multicenter_study",
+        "case-report",
+        "observational-study",
+        "multicenter-study",
         "letter",
         "comment",
         "editorial",
         "preprint",
-        "retracted_publication",
-        "retraction_notice",
+        "retracted-publication",
+        "retraction-notice",
         "erratum"
       ]
     },
@@ -159,7 +159,7 @@
       "type": "string"
     }
   },
-  "$id": "biomcp.article/2",
+  "$id": "biomcp.article/3",
   "$schema": "https://json-schema.org/draft/2020-12/schema",
   "anyOf": [
     {

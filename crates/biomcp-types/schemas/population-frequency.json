@@ -386,7 +386,7 @@
       ]
     }
   },
-  "$id": "biodata.population-frequency/5",
+  "$id": "biodata.population-frequency/6",
   "$schema": "https://json-schema.org/draft/2020-12/schema",
   "description": "One checked stratum of one source dataset release.",
   "properties": {

@@ -70,7 +70,7 @@
     "AuthorCountScope": {
       "description": "Scope of source-reported bibliographic counts.",
       "enum": [
-        "provider_record"
+        "provider-record"
       ],
       "type": "string"
     },
@@ -172,7 +172,7 @@
       "type": "object"
     },
     "AuthorId": {
-      "description": "One provider record; this enum establishes no relationship between its variants.",
+      "description": "One provider record; Semantic Scholar serializes as semantic-scholar:ID and accepts semanticscholar:ID as input. This enum establishes no relationship between its variants.",
       "pattern": "^((semantic-scholar|semanticscholar):[1-9][0-9]*|orcid:[0-9]{4}-[0-9]{4}-[0-9]{4}-[0-9]{3}[0-9X])$",
       "type": "string"
     },
@@ -339,25 +339,25 @@
         " Identity lacks the identifier required to join this source."
       ],
       "x-extensible-enum": [
-        "not_found",
-        "not_open",
-        "not_pdf",
+        "not-found",
+        "not-open",
+        "not-pdf",
         "unsupported",
-        "too_large",
-        "rate_limited",
-        "local_quota",
+        "too-large",
+        "rate-limited",
+        "local-quota",
         "unavailable",
         "tls",
         "proxy",
         "rejected",
-        "bad_reply",
-        "deadline_exceeded",
+        "bad-reply",
+        "deadline-exceeded",
         "offline",
-        "no_key",
+        "no-key",
         "disabled",
-        "replay_miss",
+        "replay-miss",
         "syncing",
-        "no_join_id"
+        "no-join-id"
       ]
     },
     "Source": {
@@ -519,7 +519,7 @@
           "description": "Local request limits and source-specific recovery guidance.",
           "properties": {
             "kind": {
-              "const": "request_guidance",
+              "const": "request-guidance",
               "type": "string"
             },
             "message": {
@@ -546,7 +546,7 @@
           "description": "Registered conditions lack the literal words requested in a condition search.",
           "properties": {
             "kind": {
-              "const": "condition_word_mismatch",
+              "const": "condition-word-mismatch",
               "type": "string"
             },
             "message": {
@@ -564,7 +564,7 @@
           "description": "A checked provider answer survived a local cache failure.",
           "properties": {
             "kind": {
-              "const": "cache_problem",
+              "const": "cache-problem",
               "type": "string"
             },
             "reason": {
@@ -586,7 +586,7 @@
               "description": "Default-source command offering another graph view."
             },
             "kind": {
-              "const": "graph_truncated",
+              "const": "graph-truncated",
               "type": "string"
             }
           },
@@ -600,7 +600,7 @@
           "description": "An empty LitVar lookup can be repeated with a caller-supplied rsID.",
           "properties": {
             "kind": {
-              "const": "litvar_rsid_hint",
+              "const": "litvar-rsid-hint",
               "type": "string"
             },
             "message": {
@@ -618,7 +618,7 @@
           "description": "PubMed supplied a named ESearch warning without changing its phrases.",
           "properties": {
             "kind": {
-              "const": "pubmed_warning",
+              "const": "pubmed-warning",
               "type": "string"
             },
             "name": {
@@ -643,7 +643,7 @@
           "description": "PubMed did not index these words.",
           "properties": {
             "kind": {
-              "const": "not_found_words",
+              "const": "not-found-words",
               "type": "string"
             },
             "words": {
@@ -815,7 +815,7 @@
       "type": "string"
     }
   },
-  "$id": "biomcp.author-card/4",
+  "$id": "biomcp.author-card/5",
   "$schema": "https://json-schema.org/draft/2020-12/schema",
   "description": "One versioned command response; schema identity comes only from its body type.\nJSON readers ignore unknown fields and unknown growable enum values within a major.",
   "properties": {
@@ -871,7 +871,7 @@
       "description": "Answer when available."
     },
     "schema": {
-      "const": "biomcp.author-card/4",
+      "const": "biomcp.author-card/5",
       "type": "string"
     },
     "sources": {

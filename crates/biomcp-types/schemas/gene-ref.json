@@ -21,7 +21,7 @@
       "type": "string"
     }
   },
-  "$id": "biodata.gene-ref/1",
+  "$id": "biodata.gene-ref/2",
   "$schema": "https://json-schema.org/draft/2020-12/schema",
   "description": "A source-stated gene reference; its label never implies an identifier.",
   "properties": {

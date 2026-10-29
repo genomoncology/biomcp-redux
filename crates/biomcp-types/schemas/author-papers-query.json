@@ -1,7 +1,7 @@
 {
   "$defs": {
     "AuthorId": {
-      "description": "One provider record; this enum establishes no relationship between its variants.",
+      "description": "One provider record; Semantic Scholar serializes as semantic-scholar:ID and accepts semanticscholar:ID as input. This enum establishes no relationship between its variants.",
       "pattern": "^((semantic-scholar|semanticscholar):[1-9][0-9]*|orcid:[0-9]{4}-[0-9]{4}-[0-9]{4}-[0-9]{3}[0-9X])$",
       "type": "string"
     },

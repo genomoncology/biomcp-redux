@@ -336,7 +336,7 @@
         "pmid",
         "pmcid",
         "doi",
-        "europepmc_id"
+        "europepmc-id"
       ]
     },
     "ArticleResolution": {
@@ -376,7 +376,7 @@
           "description": "The source confirmed no matching record.",
           "properties": {
             "resolution": {
-              "const": "not_found",
+              "const": "not-found",
               "type": "string"
             }
           },
@@ -646,7 +646,7 @@
       "x-extensible-enum": [
         "retraction",
         "erratum",
-        "expression_of_concern"
+        "expression-of-concern"
       ]
     },
     "CorrectionRelation": {
@@ -1080,26 +1080,26 @@
         " Erratum."
       ],
       "x-extensible-enum": [
-        "randomized_controlled_trial",
-        "clinical_trial",
-        "clinical_trial_phase_1",
-        "clinical_trial_phase_2",
-        "clinical_trial_phase_3",
-        "clinical_trial_phase_4",
-        "meta_analysis",
-        "systematic_review",
+        "randomized-controlled-trial",
+        "clinical-trial",
+        "clinical-trial-phase-1",
+        "clinical-trial-phase-2",
+        "clinical-trial-phase-3",
+        "clinical-trial-phase-4",
+        "meta-analysis",
+        "systematic-review",
         "review",
-        "practice_guideline",
+        "practice-guideline",
         "guideline",
-        "case_report",
-        "observational_study",
-        "multicenter_study",
+        "case-report",
+        "observational-study",
+        "multicenter-study",
         "letter",
         "comment",
         "editorial",
         "preprint",
-        "retracted_publication",
-        "retraction_notice",
+        "retracted-publication",
+        "retraction-notice",
         "erratum"
       ]
     },
@@ -1128,25 +1128,25 @@
         " Identity lacks the identifier required to join this source."
       ],
       "x-extensible-enum": [
-        "not_found",
-        "not_open",
-        "not_pdf",
+        "not-found",
+        "not-open",
+        "not-pdf",
         "unsupported",
-        "too_large",
-        "rate_limited",
-        "local_quota",
+        "too-large",
+        "rate-limited",
+        "local-quota",
         "unavailable",
         "tls",
         "proxy",
         "rejected",
-        "bad_reply",
-        "deadline_exceeded",
+        "bad-reply",
+        "deadline-exceeded",
         "offline",
-        "no_key",
+        "no-key",
         "disabled",
-        "replay_miss",
+        "replay-miss",
         "syncing",
-        "no_join_id"
+        "no-join-id"
       ]
     },
     "Section": {
@@ -1254,7 +1254,7 @@
           "description": "Entity facts rule this section out.",
           "properties": {
             "state": {
-              "const": "not_applicable",
+              "const": "not-applicable",
               "type": "string"
             }
           },
@@ -1370,7 +1370,7 @@
           "description": "Entity facts rule this section out.",
           "properties": {
             "state": {
-              "const": "not_applicable",
+              "const": "not-applicable",
               "type": "string"
             }
           },
@@ -1486,7 +1486,7 @@
           "description": "Entity facts rule this section out.",
           "properties": {
             "state": {
-              "const": "not_applicable",
+              "const": "not-applicable",
               "type": "string"
             }
           },
@@ -1602,7 +1602,7 @@
           "description": "Entity facts rule this section out.",
           "properties": {
             "state": {
-              "const": "not_applicable",
+              "const": "not-applicable",
               "type": "string"
             }
           },
@@ -1718,7 +1718,7 @@
           "description": "Entity facts rule this section out.",
           "properties": {
             "state": {
-              "const": "not_applicable",
+              "const": "not-applicable",
               "type": "string"
             }
           },
@@ -1834,7 +1834,7 @@
           "description": "Entity facts rule this section out.",
           "properties": {
             "state": {
-              "const": "not_applicable",
+              "const": "not-applicable",
               "type": "string"
             }
           },
@@ -1950,7 +1950,7 @@
           "description": "Entity facts rule this section out.",
           "properties": {
             "state": {
-              "const": "not_applicable",
+              "const": "not-applicable",
               "type": "string"
             }
           },
@@ -2120,7 +2120,7 @@
           "description": "Local request limits and source-specific recovery guidance.",
           "properties": {
             "kind": {
-              "const": "request_guidance",
+              "const": "request-guidance",
               "type": "string"
             },
             "message": {
@@ -2147,7 +2147,7 @@
           "description": "Registered conditions lack the literal words requested in a condition search.",
           "properties": {
             "kind": {
-              "const": "condition_word_mismatch",
+              "const": "condition-word-mismatch",
               "type": "string"
             },
             "message": {
@@ -2165,7 +2165,7 @@
           "description": "A checked provider answer survived a local cache failure.",
           "properties": {
             "kind": {
-              "const": "cache_problem",
+              "const": "cache-problem",
               "type": "string"
             },
             "reason": {
@@ -2187,7 +2187,7 @@
               "description": "Default-source command offering another graph view."
             },
             "kind": {
-              "const": "graph_truncated",
+              "const": "graph-truncated",
               "type": "string"
             }
           },
@@ -2201,7 +2201,7 @@
           "description": "An empty LitVar lookup can be repeated with a caller-supplied rsID.",
           "properties": {
             "kind": {
-              "const": "litvar_rsid_hint",
+              "const": "litvar-rsid-hint",
               "type": "string"
             },
             "message": {
@@ -2219,7 +2219,7 @@
           "description": "PubMed supplied a named ESearch warning without changing its phrases.",
           "properties": {
             "kind": {
-              "const": "pubmed_warning",
+              "const": "pubmed-warning",
               "type": "string"
             },
             "name": {
@@ -2244,7 +2244,7 @@
           "description": "PubMed did not index these words.",
           "properties": {
             "kind": {
-              "const": "not_found_words",
+              "const": "not-found-words",
               "type": "string"
             },
             "words": {
@@ -2586,7 +2586,7 @@
       "type": "string"
     }
   },
-  "$id": "biomcp.article-cards/4",
+  "$id": "biomcp.article-cards/5",
   "$schema": "https://json-schema.org/draft/2020-12/schema",
   "description": "One versioned command response; schema identity comes only from its body type.\nJSON readers ignore unknown fields and unknown growable enum values within a major.",
   "properties": {
@@ -2642,7 +2642,7 @@
       "description": "Answer when available."
     },
     "schema": {
-      "const": "biomcp.article-cards/4",
+      "const": "biomcp.article-cards/5",
       "type": "string"
     },
     "sources": {
