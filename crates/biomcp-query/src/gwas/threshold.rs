@@ -155,7 +155,11 @@ fn read(
     if !saved.done && saved.rows.len() < needed {
         let result = gwas::search(&leg, &q.at_offset(saved.received));
         let error = result.as_ref().err().copied();
-        let incoming = status::source(Source::Gwas, leg.finish(), error);
+        let mut incoming = status::source(Source::Gwas, leg.finish(), error);
+        if let Ok(page) = &result {
+            incoming.fetched = Some(page.received);
+            incoming.count = Some(page.total);
+        }
         out.sources = vec![incoming.clone()];
         let page = result?;
         append(q, &mut saved, page)?;

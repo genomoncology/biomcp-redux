@@ -229,16 +229,17 @@ fn associations(
     let items: Box<[_]> = rows
         .rows
         .into_iter()
-        .skip((window.offset() % window.limit()) as usize)
         .map(|row| map::association(row, &mut out.problems))
         .collect();
     let returned = items.len() as u32;
     let continuation = (rows.received > 0
-        && u64::from(window.offset()) + u64::from(rows.received) < rows.total)
+        && u64::from(window.offset() - window.offset() % window.limit())
+            + u64::from(rows.received)
+            < rows.total)
         .then(|| {
-            GwasPageQuery::Get(
-                q.with_page(window.at_offset(window.offset().saturating_add(rows.received))),
-            )
+            GwasPageQuery::Get(q.with_page(window.at_offset(
+                (window.offset() - window.offset() % window.limit()).saturating_add(rows.received),
+            )))
         });
     out.page = Some(PageInfo {
         offset: window.offset(),

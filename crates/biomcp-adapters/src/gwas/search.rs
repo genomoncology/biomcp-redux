@@ -16,7 +16,7 @@ pub fn search(leg: &Leg<'_>, q: &GwasSearch) -> Result<Page, RequestError> {
         leg.json_received_checked::<raw::Response>(&ASSOCIATIONS, &params, |r| {
             admission(r, q, &values)
         })?;
-    Ok(super::page(response))
+    Ok(super::page(response, (q.offset() % q.limit()) as usize))
 }
 
 fn selectors(q: &GwasSearch) -> BTreeMap<String, String> {

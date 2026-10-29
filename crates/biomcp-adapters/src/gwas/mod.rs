@@ -44,6 +44,7 @@ pub fn associations(
     rs: &VariantId,
     page: u32,
     size: u32,
+    skip: u32,
 ) -> Result<Page, RequestError> {
     let id = rs.to_string();
     let expected = format!(
@@ -65,9 +66,9 @@ pub fn associations(
             }
         },
     )?;
-    Ok(page(response))
+    Ok(page(response, skip as usize))
 }
-fn page(response: raw::Response) -> Page {
+fn page(response: raw::Response, skip: usize) -> Page {
     let received_rows = response
         .embedded
         .map(|e| e.associations)
@@ -79,7 +80,7 @@ fn page(response: raw::Response) -> Page {
         list: Vec::new(),
     };
     let mut rows = Vec::new();
-    for row in received_rows {
+    for row in received_rows.into_iter().skip(skip) {
         if let Some(mut row) = problems.field("association_id", Some(row)) {
             if row.association_id == 0 {
                 problems.required::<()>("association_id", None);

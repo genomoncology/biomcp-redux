@@ -33,9 +33,13 @@ pub(super) fn section(
     let size = query.section_limit();
     let offset = query.section_offset();
     // A catalog page cannot start between provider page boundaries.
-    let result = gwas::associations(&leg, &id, offset / size, size);
+    let result = gwas::associations(&leg, &id, offset / size, size, offset % size);
     let error = result.as_ref().err().copied();
-    let source = status::source(Source::Gwas, leg.finish(), error);
+    let mut source = status::source(Source::Gwas, leg.finish(), error);
+    if let Ok(page) = &result {
+        source.fetched = Some(page.received);
+        source.count = Some(page.total);
+    }
     let mut problems = Vec::new();
     let value = match result {
         Ok(page) if page.total == 0 => Section::Empty {
@@ -48,13 +52,15 @@ pub(super) fn section(
         },
         Ok(page) => {
             problems.extend(page.problems);
-            let rows = page
-                .rows
-                .into_iter()
-                .skip((offset % size) as usize)
-                .collect::<Vec<_>>();
+            let rows = page.rows.into_iter().collect::<Vec<_>>();
             let returned = rows.len() as u32;
-            let continuation = continuation(query, &id, offset, page.received, page.total);
+            let continuation = continuation(
+                query,
+                &id,
+                offset - offset % size,
+                page.received,
+                page.total,
+            );
             Section::Data {
                 source: Source::Gwas,
                 data: VariantGwas {
