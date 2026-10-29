@@ -55,11 +55,12 @@ impl From<ReceivedCatalogRow> for CatalogRow {
         let mut problems = crate::mapped::Problems {
             source: biomcp_types::Source::Cbioportal,
             record: crate::mapped::record(&row.study_id),
-            list: match row.problems {
-                Some(problems) => problems,
-                None => Vec::new(),
-            },
+            list: Vec::new(),
         };
+        // Source admission clears this field; only stored catalog rows restore diagnostics.
+        if let Some(stored) = row.problems {
+            problems.list = stored;
+        }
         Self {
             study_id: row.study_id,
             name: problems.required_field("name", row.name).map(Into::into),

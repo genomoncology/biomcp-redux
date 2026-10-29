@@ -116,7 +116,7 @@ fn section_page(
             let records = studies::profiles(leg, q.id())?;
             out.problems.extend(records.problems);
             let rejected = records.rejected;
-            let (items, page, received) = page(records.rows, q);
+            let (items, page, received) = page(records.rows.into_iter(), q);
             let data = StudyProfiles {
                 study_id: q.id().clone(),
                 items,
@@ -138,7 +138,7 @@ fn section_page(
             let records = studies::sample_lists(leg, q.id())?;
             out.problems.extend(records.problems);
             let rejected = records.rejected;
-            let (items, page, received) = page(records.rows, q);
+            let (items, page, received) = page(records.rows.into_iter(), q);
             let data = StudySampleLists {
                 study_id: q.id().clone(),
                 items,
@@ -160,10 +160,12 @@ fn section_page(
     }
     Ok(())
 }
-fn page<T>(rows: Vec<Option<T>>, q: &StudyGet) -> (Box<[T]>, PageInfo, u32) {
+fn page<T>(
+    rows: impl ExactSizeIterator<Item = Option<T>>,
+    q: &StudyGet,
+) -> (Box<[T]>, PageInfo, u32) {
     let total = rows.len() as u64;
     let window: Vec<_> = rows
-        .into_iter()
         .skip(q.section_offset() as usize)
         .take(q.section_limit() as usize)
         .collect();
