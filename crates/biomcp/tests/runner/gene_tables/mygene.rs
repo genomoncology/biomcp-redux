@@ -33,15 +33,37 @@ fn checked(
 }
 
 pub(super) fn check() -> Check {
+    strand()?;
     positions()?;
     multicontig()?;
     identities()?;
     summaries()
 }
 
+fn strand() -> Check {
+    run(
+        |_| {},
+        json!({"/result/items/0/answer/gene/hgnc_id": "HGNC:1097",
+        "/result/items/0/answer/gene/spans": {"count": 2}}),
+    )?;
+    eprintln!("GREEN retained MyGene interval before strand mutation");
+    let answer = checked(
+        |body| body[0]["genomic_pos"]["strand"] = json!(0),
+        json!({"/result/items/0/answer/gene/hgnc_id": "HGNC:1097",
+            "/result/items/0/answer/gene/spans": {"count": 2},
+            "/problems": {"count": 1}, "/problems/*/field": ["genomic_pos.strand"]}),
+    )?;
+    if answer
+        .pointer("/result/items/0/answer/gene/spans/0/strand")
+        .is_some()
+    {
+        return Err("bad MyGene strand survived in the retained interval".into());
+    }
+    Ok(())
+}
+
 fn positions() -> Check {
     for position in [
-        json!({"chr":"7","start":10,"end":20,"strand":0}),
         json!({"chr":"7","start":0,"end":20}),
         json!({"chr":"7","start":20,"end":10}),
         json!({"chr":"7","start":10,"end":20,"strand":"bad"}),
