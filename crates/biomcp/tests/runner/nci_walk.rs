@@ -92,8 +92,31 @@ fn walk(env: &Environment, raw: &Value, section: &str, globals: &[String]) -> Ch
                     .iter()
                     .cloned(),
             );
-            if section == "eligibility" && data["structured"] != raw["eligibility"]["structured"] {
-                return Err("native age/sex fields changed".into());
+            if section == "eligibility" {
+                let mut expected = raw["eligibility"]["structured"].clone();
+                let fields = expected.as_object_mut().ok_or("structured fields")?;
+                for bound in ["min", "max"] {
+                    let value = fields
+                        .remove(&format!("{bound}_age_number"))
+                        .ok_or("age number")?;
+                    let unit = fields
+                        .remove(&format!("{bound}_age_unit"))
+                        .ok_or("age unit")?;
+                    fields.insert(
+                        format!("{bound}_age_number"),
+                        json!({"value":value,"unit":unit}),
+                    );
+                    let years = fields
+                        .remove(&format!("{bound}_age_in_years"))
+                        .ok_or("age years")?;
+                    fields.insert(
+                        format!("{bound}_age_in_years"),
+                        json!({"value":years,"unit":"Years"}),
+                    );
+                }
+                if data["structured"] != expected {
+                    return Err("native numeric age lost its explicit source unit".into());
+                }
             }
         }
         match super::action(&output, "page") {
