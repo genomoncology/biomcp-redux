@@ -4,8 +4,15 @@
 // Retrieved 2026-10-29. Original SHA-256: 3f567bd9d90c544328ef322921c3484fa9cb30d5ab9f7875923f87021acc00db.
 const NAMES: &str = include_str!("countries.txt");
 
-pub(super) fn valid(value: &str) -> bool {
-    NAMES.lines().any(|name| name == value)
+pub(super) fn validate(values: &[Box<str>]) -> Result<(), crate::QueryInvalid> {
+    if values.len() > super::MAX_ALTERNATIVES
+        || values
+            .iter()
+            .any(|value| !NAMES.lines().any(|name| name == value.as_ref()))
+    {
+        return Err(crate::QueryInvalid::new(&["country"]));
+    }
+    Ok(())
 }
 
 #[cfg(feature = "schema")]
