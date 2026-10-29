@@ -710,7 +710,9 @@
     },
     "ProteinInput": {
       "description": "Exact source accession or a checked display gene symbol needing later resolution.\nThe schema describes the string surface; deserialization checks either identity grammar.",
+      "maxLength": 1048576,
       "minLength": 1,
+      "pattern": "^(?![\\s\\S]*[\\x00-\\x1f\\x7f-\\x9f\\u061c\\u200e\\u200f\\u202a-\\u202e\\u2066-\\u2069])",
       "type": "string"
     },
     "ProteinQuery": {
@@ -813,8 +815,10 @@
       "type": "string"
     },
     "Text": {
-      "description": "Nonempty text with surrounding Unicode whitespace removed.",
+      "description": "Bounded nonempty text with surrounding Unicode whitespace removed.",
+      "maxLength": 1048576,
       "minLength": 1,
+      "pattern": "^(?![\\s\\S]*[\\x00-\\x1f\\x7f-\\x9f\\u061c\\u200e\\u200f\\u202a-\\u202e\\u2066-\\u2069])",
       "type": "string"
     },
     "TrialSection": {
@@ -967,7 +971,7 @@
       ]
     }
   },
-  "$id": "biomcp.request/29",
+  "$id": "biomcp.request/30",
   "$schema": "https://json-schema.org/draft/2020-12/schema",
   "description": "One checked query. Housekeeping actions are separate.",
   "oneOf": [

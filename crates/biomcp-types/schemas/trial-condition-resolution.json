@@ -367,8 +367,10 @@
       ]
     },
     "Reply_Text": {
-      "description": "Nonempty text with surrounding Unicode whitespace removed.",
+      "description": "Bounded nonempty text with surrounding Unicode whitespace removed.",
+      "maxLength": 1048576,
       "minLength": 1,
+      "pattern": "^(?![\\s\\S]*[\\x00-\\x1f\\x7f-\\x9f\\u061c\\u200e\\u200f\\u202a-\\u202e\\u2066-\\u2069])",
       "type": "string"
     },
     "Reply_Use": {
@@ -382,7 +384,7 @@
       "type": "string"
     }
   },
-  "$id": "biomcp.trial-condition-resolution/3",
+  "$id": "biomcp.trial-condition-resolution/4",
   "$schema": "https://json-schema.org/draft/2020-12/schema",
   "description": "Exact condition identity used for one trial request, without eligibility inference.",
   "properties": {

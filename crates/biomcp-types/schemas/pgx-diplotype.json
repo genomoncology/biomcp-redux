@@ -897,8 +897,10 @@
       "type": "string"
     },
     "Reply_Text": {
-      "description": "Nonempty text with surrounding Unicode whitespace removed.",
+      "description": "Bounded nonempty text with surrounding Unicode whitespace removed.",
+      "maxLength": 1048576,
       "minLength": 1,
+      "pattern": "^(?![\\s\\S]*[\\x00-\\x1f\\x7f-\\x9f\\u061c\\u200e\\u200f\\u202a-\\u202e\\u2066-\\u2069])",
       "type": "string"
     },
     "Reply_Use": {
@@ -912,7 +914,7 @@
       "type": "string"
     }
   },
-  "$id": "biomcp.pgx-diplotype/2",
+  "$id": "biomcp.pgx-diplotype/3",
   "$schema": "https://json-schema.org/draft/2020-12/schema",
   "description": "One versioned command response; schema identity comes only from its body type.\nJSON readers ignore unknown fields and unknown growable enum values within a major.",
   "properties": {
@@ -968,7 +970,7 @@
       "description": "Answer when available."
     },
     "schema": {
-      "const": "biomcp.pgx-diplotype/2",
+      "const": "biomcp.pgx-diplotype/3",
       "type": "string"
     },
     "sources": {

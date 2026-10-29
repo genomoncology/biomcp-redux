@@ -81,12 +81,14 @@
       "type": "string"
     },
     "Reply_Text": {
-      "description": "Nonempty text with surrounding Unicode whitespace removed.",
+      "description": "Bounded nonempty text with surrounding Unicode whitespace removed.",
+      "maxLength": 1048576,
       "minLength": 1,
+      "pattern": "^(?![\\s\\S]*[\\x00-\\x1f\\x7f-\\x9f\\u061c\\u200e\\u200f\\u202a-\\u202e\\u2066-\\u2069])",
       "type": "string"
     }
   },
-  "$id": "biomcp.article-header/4",
+  "$id": "biomcp.article-header/5",
   "$schema": "https://json-schema.org/draft/2020-12/schema",
   "description": "Citation metadata from PubMed or Europe PMC.",
   "properties": {
