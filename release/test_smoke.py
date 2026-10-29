@@ -175,7 +175,10 @@ finally:
                                      os.environ["BIOMCP_INSTALLED_VERSION"]], capture_output=True, text=True)
             self.assertNotEqual(result.returncode, 0)
             self.assertIn("installed-schema.yaml", result.stdout + result.stderr)
-            self.assertIn('changed.source/1', result.stdout + result.stderr)
+            diagnostic = "Installed schema identity; step 1: schema validation: raw artifact differs from requested biodata.source/1"
+            self.assertIn(diagnostic, result.stdout + result.stderr)
+            print(json.dumps({"planted_schema_id": "changed.source/1", "rehearsal_rejected": True,
+                              "case": "installed-schema.yaml", "diagnostic": diagnostic}), flush=True)
 
 
 if __name__ == "__main__":
