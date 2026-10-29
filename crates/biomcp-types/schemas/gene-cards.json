@@ -172,47 +172,19 @@
       "description": "One published ClinGen gene–disease validity record.",
       "properties": {
         "classification": {
-          "anyOf": [
-            {
-              "$ref": "#/$defs/Reply_Text"
-            },
-            {
-              "type": "null"
-            }
-          ],
+          "$ref": "#/$defs/Reply_Text",
           "description": "Source classification without inference."
         },
         "classification_date": {
-          "anyOf": [
-            {
-              "$ref": "#/$defs/Reply_Text"
-            },
-            {
-              "type": "null"
-            }
-          ],
+          "$ref": "#/$defs/Reply_Text",
           "description": "Source classification date, preserving its original spelling."
         },
         "disease": {
-          "anyOf": [
-            {
-              "$ref": "#/$defs/Reply_Text"
-            },
-            {
-              "type": "null"
-            }
-          ],
+          "$ref": "#/$defs/Reply_Text",
           "description": "Source disease label."
         },
         "expert_panel": {
-          "anyOf": [
-            {
-              "$ref": "#/$defs/Reply_Text"
-            },
-            {
-              "type": "null"
-            }
-          ],
+          "$ref": "#/$defs/Reply_Text",
           "description": "Source expert panel."
         },
         "mode_of_inheritance": {
@@ -224,21 +196,19 @@
           "description": "Source MONDO identifier."
         },
         "report_url": {
-          "anyOf": [
-            {
-              "$ref": "#/$defs/Reply_Text"
-            },
-            {
-              "type": "null"
-            }
-          ],
+          "$ref": "#/$defs/Reply_Text",
           "description": "Source report URL.",
           "format": "uri"
         }
       },
       "required": [
+        "disease",
         "mondo_id",
-        "mode_of_inheritance"
+        "mode_of_inheritance",
+        "classification",
+        "classification_date",
+        "expert_panel",
+        "report_url"
       ],
       "type": "object"
     },
@@ -253,58 +223,23 @@
           "type": "array"
         },
         "loeuf": {
-          "anyOf": [
-            {
-              "$ref": "#/$defs/Reply_FiniteNumber"
-            },
-            {
-              "type": "null"
-            }
-          ],
+          "$ref": "#/$defs/Reply_FiniteNumber",
           "description": "Upper confidence bound of the observed-to-expected loss-of-function ratio."
         },
         "mis_z": {
-          "anyOf": [
-            {
-              "$ref": "#/$defs/Reply_FiniteNumber"
-            },
-            {
-              "type": "null"
-            }
-          ],
+          "$ref": "#/$defs/Reply_FiniteNumber",
           "description": "Missense Z score."
         },
         "oe_lof": {
-          "anyOf": [
-            {
-              "$ref": "#/$defs/Reply_FiniteNumber"
-            },
-            {
-              "type": "null"
-            }
-          ],
+          "$ref": "#/$defs/Reply_FiniteNumber",
           "description": "Observed-to-expected loss-of-function ratio."
         },
         "pli": {
-          "anyOf": [
-            {
-              "$ref": "#/$defs/Reply_FiniteNumber"
-            },
-            {
-              "type": "null"
-            }
-          ],
+          "$ref": "#/$defs/Reply_FiniteNumber",
           "description": "Probability of loss-of-function intolerance."
         },
         "syn_z": {
-          "anyOf": [
-            {
-              "$ref": "#/$defs/Reply_FiniteNumber"
-            },
-            {
-              "type": "null"
-            }
-          ],
+          "$ref": "#/$defs/Reply_FiniteNumber",
           "description": "Synonymous Z score."
         },
         "transcript": {
@@ -317,6 +252,11 @@
         }
       },
       "required": [
+        "pli",
+        "loeuf",
+        "oe_lof",
+        "mis_z",
+        "syn_z",
         "transcript",
         "version"
       ],
@@ -3173,7 +3113,7 @@
       "type": "string"
     }
   },
-  "$id": "biomcp.gene-cards/10",
+  "$id": "biomcp.gene-cards/9",
   "$schema": "https://json-schema.org/draft/2020-12/schema",
   "description": "One versioned command response; schema identity comes only from its body type.\nJSON readers ignore unknown fields and unknown growable enum values within a major.",
   "properties": {
@@ -3229,7 +3169,7 @@
       "description": "Answer when available."
     },
     "schema": {
-      "const": "biomcp.gene-cards/10",
+      "const": "biomcp.gene-cards/9",
       "type": "string"
     },
     "sources": {
