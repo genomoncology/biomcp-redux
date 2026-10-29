@@ -41,12 +41,23 @@ fn audit(tokens: &[String]) -> Result<(), String> {
         if window[0] == "rename_all" && window[2] == "\"snake_case\"" {
             return Err("owned enum values require kebab-case".into());
         }
-        if window[0] == "tag" && window[2] == "\"annotationkind\"" {
-            return Err("PGx tag requires annotation_kind".into());
+        if window[0] == "tag" && window[1] == "=" && window[2].starts_with('"') {
+            let tag = window[2].trim_matches('"');
+            if tag == "annotationkind"
+                || !tag.bytes().all(|c| c.is_ascii_lowercase() || c.is_ascii_digit() || c == b'_')
+            {
+                return Err("serde tags require snake_case names, including annotation_kind".into());
+            }
         }
     }
     for (index, token) in tokens.iter().enumerate() {
         if !OWNED.contains(&token.as_str()) {
+            continue;
+        }
+        let declaration = tokens.get(index + 1).is_some_and(|token| token == "{")
+            || tokens.get(index + 1).is_some_and(|token| token == ",")
+                && tokens.get(index + 3).is_some_and(|token| token == "{");
+        if !declaration {
             continue;
         }
         let Some(start) = tokens[index..].iter().position(|token| token == "{") else {
