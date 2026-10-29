@@ -542,18 +542,18 @@ fn compatibility_checks_recursive_edges_and_constraints() {
     let old = recursive("Node");
     assert!(check(&old, &old).is_ok());
     assert!(check(&old, &recursive("Renamed")).is_ok());
-    for reverse in [false, true] {
-        let mut nullable = old.clone();
-        let mut branches = vec![json!({"$ref":"#/$defs/Node"}), json!({"type":"null"})];
-        if reverse {
-            branches.reverse();
+    let mut root_nullable = old.clone();
+    root_nullable.as_object_mut().unwrap().remove("$ref");
+    root_nullable["anyOf"] = json!([{"$ref":"#/$defs/Node"},{"type":"null"}]);
+    for base in [&old, &root_nullable] {
+        for reverse in [false, true] {
+            let mut nullable = base.clone();
+            let mut branches = vec![json!({"$ref":"#/$defs/Node"}), json!({"type":"null"})];
+            branches.rotate_left(usize::from(reverse));
+            nullable["$defs"]["Node"]["properties"]["next"] = json!({"anyOf":branches});
+            assert!(check(&nullable, &nullable).is_ok());
+            assert!(check(&nullable, base).is_err());
         }
-        nullable["$defs"]["Node"]["properties"]["next"] = json!({"anyOf":branches});
-        assert!(check(&nullable, &nullable).is_ok());
-        assert!(
-            check(&nullable, &old).is_err(),
-            "recursive null branch must survive"
-        );
     }
     let mut mutual = old.clone();
     mutual["$defs"]["Node"]["properties"]["next"]["$ref"] = json!("#/$defs/Other");
@@ -562,20 +562,18 @@ fn compatibility_checks_recursive_edges_and_constraints() {
     assert!(check(&mutual, &old).is_ok());
     for mutation in ["narrow", "missing", "redirect", "unresolved", "external"] {
         let mut new = mutual.clone();
+        let properties = &mut new["$defs"]["Other"]["properties"];
         match mutation {
-            "narrow" => new["$defs"]["Other"]["properties"]["value"]["minLength"] = json!(2),
+            "narrow" => properties["value"]["minLength"] = json!(2),
             "missing" => {
-                new["$defs"]["Other"]["properties"]
-                    .as_object_mut()
-                    .unwrap()
-                    .remove("next");
+                properties.as_object_mut().unwrap().remove("next");
             }
             "redirect" => {
-                new["$defs"]["Other"]["properties"]["next"]["$ref"] = json!("#/$defs/Leaf");
+                properties["next"]["$ref"] = json!("#/$defs/Leaf");
                 new["$defs"]["Leaf"] = json!({"type":"object"});
             }
             bad => {
-                new["$defs"]["Other"]["properties"]["next"]["$ref"] = json!(if bad == "external" {
+                properties["next"]["$ref"] = json!(if bad == "external" {
                     "other.json#/$defs/Node"
                 } else {
                     "#/$defs/Missing"

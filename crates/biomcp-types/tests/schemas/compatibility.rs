@@ -7,7 +7,8 @@ const STRING_FORMATS: &[&str] = &["date", "date-time", "uri", "uri-reference"];
 
 #[derive(Debug, Default, Clone)]
 struct Shape {
-    redirect: Option<String>,
+    redirect: Option<(String, String)>,
+    referents: BTreeMap<String, Shape>,
     nodes: Vec<Value>,
     children: BTreeMap<String, String>,
     types: BTreeSet<String>,
@@ -139,9 +140,9 @@ fn shapes(root: &Value) -> Check<BTreeMap<String, Shape>> {
         .iter()
         .filter_map(|(path, s)| Some((path.clone(), s.redirect.clone()?, s.nodes.clone())))
         .collect();
-    for (path, target, nodes) in redirects {
+    for (path, (target, reference), nodes) in redirects {
         // Replay the whole path, including nullable branches before the backedge.
-        let mut shape = shapes[&target].clone();
+        let mut shape = shapes[&target].referents[&reference].clone();
         shape.redirect = None;
         shapes.insert(path.clone(), shape);
         for node in nodes {
@@ -188,19 +189,23 @@ fn visit(
             if target == path {
                 return Err(format!("nonproductive reference {reference}"));
             }
-            shapes.entry(path.into()).or_default().redirect = Some(target.clone());
+            shapes.entry(path.into()).or_default().redirect =
+                Some((target.clone(), reference.into()));
             return collect(node, path, shapes);
         }
+        let prior = shapes.remove(path).unwrap_or_default();
         refs.insert(reference.into(), path.into());
-        visit(
-            root,
-            root.pointer(pointer)
-                .ok_or_else(|| format!("unresolved {reference}"))?,
-            path,
-            shapes,
-            refs,
-        )?;
+        let target = root
+            .pointer(pointer)
+            .ok_or_else(|| format!("unresolved {reference}"))?;
+        visit(root, target, path, shapes, refs)?;
         refs.remove(reference);
+        let target = shapes[path].clone();
+        let shape = shapes.get_mut(path).unwrap();
+        shape.referents.insert(reference.into(), target);
+        for node in prior.nodes {
+            collect(&node, path, shapes)?;
+        }
     }
     if let Some(branches) = node.get("anyOf")
         && selectors(node)?.is_none()
@@ -234,14 +239,8 @@ fn visit_children(
     if let Some(patterns) = node.get("patternProperties") {
         for (pattern, child) in patterns.as_object().ok_or("invalid patternProperties")? {
             let key = pattern.replace('~', "~0").replace('/', "~1");
-            descend(
-                root,
-                child,
-                path,
-                &format!("{{pattern={key}}}"),
-                shapes,
-                refs,
-            )?;
+            let edge = format!("{{pattern={key}}}");
+            descend(root, child, path, &edge, shapes, refs)?;
         }
     }
     for (field, suffix) in [
