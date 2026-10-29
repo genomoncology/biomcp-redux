@@ -22,7 +22,8 @@
       "expect": {
         "/error/code": "usage.arguments",
         "/error/option": "--country"
-      }
+      },
+      "max_bytes": 5000
     },
     {
       "run": [
@@ -56,7 +57,8 @@
             "NCT03734029"
           ]
         }
-      }
+      },
+      "max_bytes": 5000
     },
     {
       "run": [
@@ -79,7 +81,8 @@
         "/status": "complete",
         "/result/items/0/input": "NCT03734029",
         "/result/items/0/sections/locations/data/items/0/country": "United States"
-      }
+      },
+      "max_bytes": 5000
     },
     {
       "run": [
@@ -117,7 +120,8 @@
             "NCT03734029"
           ]
         }
-      }
+      },
+      "max_bytes": 5000
     },
     {
       "run": [
@@ -154,7 +158,8 @@
         "/result/request/2/value": "United States",
         "/result/request/3/name": "sites.org_country",
         "/result/request/3/value": "Canada"
-      }
+      },
+      "max_bytes": 5000
     },
     {
       "run": [
@@ -179,9 +184,56 @@
       ],
       "expect": {
         "/status": "unavailable",
-        "/sources/0/reason": "bad_reply"
+        "/sources/0/reason": "bad-reply"
       },
-      "exit": 1
+      "exit": 1,
+      "max_bytes": 5000
+    },
+    {
+      "run": [
+        "search",
+        "trial",
+        "--country",
+        "Bonaire, Saint Eustatius and Saba "
+      ],
+      "mcp": [
+        "search",
+        "trial",
+        "--country",
+        "Bonaire, Saint Eustatius and Saba "
+      ],
+      "offline": true,
+      "exit": 1,
+      "expect": {
+        "/status": "unavailable",
+        "/query/country": [
+          "Bonaire, Saint Eustatius and Saba "
+        ],
+        "/sources/0/reason": "offline"
+      },
+      "max_bytes": 5000
+    },
+    {
+      "run": [
+        "search",
+        "trial",
+        "--country",
+        "Bonaire, Saint Eustatius and Saba"
+      ],
+      "mcp": [
+        "search",
+        "trial",
+        "--country",
+        "Bonaire, Saint Eustatius and Saba"
+      ],
+      "offline": true,
+      "exit": 2,
+      "is_error": true,
+      "expect": {
+        "/error/code": "usage.arguments",
+        "/error/option": "--country"
+      },
+      "max_bytes": 5000
     }
   ],
   "replay": "trial/country",
