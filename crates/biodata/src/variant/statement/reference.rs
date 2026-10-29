@@ -1,4 +1,4 @@
-use crate::{GeneRef, HgvsText, Text, VariantId};
+use crate::{GeneRef, HgvsText, ProfileExpression, Text, VariantId};
 use serde::{Deserialize, Serialize};
 use std::{fmt, str::FromStr};
 /// Checked prefix:local ontology identifier.
@@ -54,7 +54,16 @@ enum Fields {
     Allele(AlleleRef),
     /// Protein-level assertion, without genomic conversion.
     Protein(ProteinRef),
-    /// Compound source profile, without an inferred allele.
+    /// Native source variant with optional source-stated forms.
+    Source {
+        record: Curie,
+        feature: Text,
+        #[serde(default, skip_serializing_if = "Option::is_none")]
+        feature_record: Option<Curie>,
+        #[serde(default, skip_serializing_if = "<[ _ ]>::is_empty")]
+        forms: Box<[VariantRef]>,
+    },
+    /// Compound source profile, without inferred allele identity or phase.
     Profile {
         /// Native profile ID.
         record: Text,
@@ -62,7 +71,10 @@ enum Fields {
         label: Text,
         /// Source member references in their native order.
         #[serde(default, skip_serializing_if = "<[ _ ]>::is_empty")]
-        members: Box<[LeafRef]>,
+        members: Box<[VariantRef]>,
+        /// Exact source expression and checked member relations.
+        #[serde(default, skip_serializing_if = "Option::is_none")]
+        expression: Option<ProfileExpression>,
     },
 }
 
@@ -84,8 +96,27 @@ impl TryFrom<Fields> for VariantRef {
             {
                 Err(crate::Error::VariantRefInvalid)
             }
-            Fields::Profile { members, .. } if members.iter().any(|m| !m.valid()) => {
+            Fields::Source { forms, .. }
+                if forms
+                    .iter()
+                    .any(|form| !matches!(form.0, Fields::Allele(_) | Fields::Protein(_))) =>
+            {
                 Err(crate::Error::VariantRefInvalid)
+            }
+            Fields::Profile { members, .. }
+                if members
+                    .iter()
+                    .any(|m| matches!(m.0, Fields::Profile { .. })) =>
+            {
+                Err(crate::Error::VariantRefInvalid)
+            }
+            Fields::Profile {
+                members,
+                expression: Some(expression),
+                ..
+            } => {
+                expression.check(members)?;
+                Ok(Self(fields))
             }
             _ => Ok(Self(fields)),
         }
@@ -135,12 +166,77 @@ impl VariantRef {
             Fields::Profile { members, .. } => members.as_ref(),
             _ => &[],
         };
-        members.iter().map(|member| {
-            Self(match member {
-                LeafRef::Allele(v) => Fields::Allele(v.clone()),
-                LeafRef::Protein(v) => Fields::Protein(v.clone()),
-            })
-        })
+        members.iter().cloned()
+    }
+    /// Borrow a native source variant identifier.
+    pub fn source_record(&self) -> Option<&Curie> {
+        match &self.0 {
+            Fields::Source { record, .. } => Some(record),
+            _ => None,
+        }
+    }
+    /// Borrow exact source feature text without interpreting its biology.
+    pub fn feature(&self) -> Option<&Text> {
+        match &self.0 {
+            Fields::Source { feature, .. } => Some(feature),
+            _ => None,
+        }
+    }
+    /// Read optional source-stated allele or protein forms.
+    pub fn forms(&self) -> impl Iterator<Item = &Self> {
+        let forms = match &self.0 {
+            Fields::Source { forms, .. } => forms.as_ref(),
+            _ => &[],
+        };
+        forms.iter()
+    }
+    /// Borrow the source expression and its parsed tree.
+    pub fn expression(&self) -> Option<&ProfileExpression> {
+        match &self.0 {
+            Fields::Profile { expression, .. } => expression.as_ref(),
+            _ => None,
+        }
+    }
+    /// Preserve source-stated allele and protein forms without deriving either.
+    pub fn source(record: Curie, feature: Text, forms: Box<[Self]>) -> Result<Self, crate::Error> {
+        Self::source_with_feature(record, feature, None, forms)
+    }
+    /// Preserve a source feature identifier when the source supplies one.
+    pub fn source_with_feature(
+        record: Curie,
+        feature: Text,
+        feature_record: Option<Curie>,
+        forms: Box<[Self]>,
+    ) -> Result<Self, crate::Error> {
+        Fields::Source {
+            record,
+            feature,
+            feature_record,
+            forms,
+        }
+        .try_into()
+    }
+    /// Borrow the source-native feature identifier without gene inference.
+    pub fn feature_record(&self) -> Option<&Curie> {
+        match &self.0 {
+            Fields::Source { feature_record, .. } => feature_record.as_ref(),
+            _ => None,
+        }
+    }
+    /// Preserve source profile relations and validate every referenced member.
+    pub fn profile_expression(
+        record: Text,
+        label: Text,
+        members: Box<[Self]>,
+        expression: ProfileExpression,
+    ) -> Result<Self, crate::Error> {
+        Fields::Profile {
+            record,
+            label,
+            members,
+            expression: Some(expression),
+        }
+        .try_into()
     }
 
     pub(crate) fn allele_accession(&self) -> Option<crate::Accession> {
@@ -184,19 +280,11 @@ impl VariantRef {
     }
     /// Preserve a compound profile and its native member references.
     pub fn profile(record: Text, label: Text, members: Box<[Self]>) -> Result<Self, crate::Error> {
-        let members = members
-            .into_vec()
-            .into_iter()
-            .map(|member| match member.0 {
-                Fields::Allele(value) => Ok(LeafRef::Allele(value)),
-                Fields::Protein(value) => Ok(LeafRef::Protein(value)),
-                Fields::Profile { .. } => Err(crate::Error::VariantRefInvalid),
-            })
-            .collect::<Result<Box<[_]>, _>>()?;
         Fields::Profile {
             record,
             label,
             members,
+            expression: None,
         }
         .try_into()
     }
@@ -230,19 +318,4 @@ struct ProteinRef {
     /// Source protein label.
     #[serde(default, skip_serializing_if = "Option::is_none")]
     label: Option<Text>,
-}
-#[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
-#[serde(tag = "level", rename_all = "snake_case")]
-#[cfg_attr(feature = "schema", derive(schemars::JsonSchema))]
-enum LeafRef {
-    Allele(AlleleRef),
-    Protein(ProteinRef),
-}
-impl LeafRef {
-    fn valid(&self) -> bool {
-        match self {
-            Self::Allele(value) => value.id.is_some() || value.hgvs.is_some(),
-            Self::Protein(value) => value.hgvs.is_some() || value.label.is_some(),
-        }
-    }
 }
