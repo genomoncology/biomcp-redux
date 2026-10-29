@@ -71,7 +71,11 @@ fn native(
             if name == source
                 && let Some(value) = record.pointer_mut(pointer)
             {
-                *value = json!({"bad": true});
+                *value = if source == "orcid" {
+                    json!(42)
+                } else {
+                    json!({"bad": true})
+                };
                 edited += 1;
             }
         },
