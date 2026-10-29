@@ -166,10 +166,13 @@ impl Row for CatalogRow {
             context.check()?;
             let received: Result<ReceivedCatalogRow, _> =
                 biomcp_fetch::decode_bundle_document(source_row.get().as_bytes());
-            let Ok(mut received) = received else {
-                // Preserve a malformed native identity for the shared row decoder and its source position.
-                result.push(source_row.get().to_owned());
-                continue;
+            let mut received = match received {
+                Ok(row) => row,
+                Err(_) => {
+                    // Preserve malformed identity bytes for the shared decoder and its source position.
+                    result.push(source_row.get().to_owned());
+                    continue;
+                }
             };
             received.problems = None;
             let row = Self::from(received);

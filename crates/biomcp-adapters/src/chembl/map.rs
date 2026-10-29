@@ -27,6 +27,13 @@ pub fn targets(
                 label: None,
                 url: None,
             });
+        if problems
+            .required("target_chembl_id", target.as_ref())
+            .is_none()
+        {
+            rejected.extend(problems.list);
+            continue;
+        }
         let relation = match r.action_type.as_deref() {
             Some(value) => problems.checked_text("action_type", Some(value)),
             None if !problems
