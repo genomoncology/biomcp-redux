@@ -74,8 +74,7 @@ pub struct Trial {
     diseases: Vec<NciDisease>,
     biomarkers: Option<crate::raw::Field<Vec<crate::raw::Field<trial_biomarker::Biomarker>>>>,
     sites: Option<crate::raw::Field<Vec<crate::raw::Field<sites::Site>>>>,
-    #[serde(default, deserialize_with = "crate::strict_input::deserialize")]
-    eligibility: Option<eligibility::Eligibility>,
+    eligibility: Option<crate::strict_input::Input<eligibility::Eligibility>>,
     #[serde(default)]
     arms: Vec<Arm>,
     #[serde(default)]
@@ -185,7 +184,7 @@ impl Trial {
             record: crate::mapped::record(self.nct_id),
             list: Vec::new(),
         };
-        let eligibility = self.eligibility.map(|e| e.map(&mut problems));
+        let eligibility = self.eligibility.map(|e| e.0.map(&mut problems));
         Detail {
             problems: problems.list,
             card,
