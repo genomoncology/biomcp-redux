@@ -49,9 +49,9 @@ pub struct AdverseEventPage {
     /// The publisher last_updated date, separate from retrieval.
     #[serde(default, skip_serializing_if = "Option::is_none")]
     pub source_updated: Option<biodata::PartialDate>,
-    /// Original retrieval date belonging to this reply, absent for undated legacy recordings.
+    /// Original retrieval time in Unix seconds, absent for undated legacy recordings.
     #[serde(default, skip_serializing_if = "Option::is_none")]
-    pub fetched: Option<biodata::PartialDate>,
+    pub fetched: Option<u64>,
     /// Native ordered report candidates.
     #[serde(default, skip_serializing_if = "<[_]>::is_empty")]
     pub items: Box<[AdverseEventHeader]>,

@@ -274,6 +274,10 @@ fn navigation() -> Check {
         .ok_or("missing next")?;
     if next.len() != 8
         || value.pointer("/result/source_updated") != Some(&json!("2024-09-01"))
+        || value
+            .pointer("/result/fetched")
+            .and_then(Value::as_u64)
+            .is_none()
         || value.pointer("/result/items/0/first_received") != Some(&json!("20240102"))
     {
         return Err(format!(

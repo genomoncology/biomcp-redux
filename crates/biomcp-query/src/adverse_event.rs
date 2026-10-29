@@ -80,7 +80,10 @@ pub fn search(cx: &Ctx<'_>, query: &AdverseEventSearch) -> Outcome {
             body.items = page.items.into();
             body.components = page.components;
             body.source_updated = page.updated;
-            body.fetched = biomcp_adapters::received_date(page.metadata.fetched);
+            body.fetched = page
+                .metadata
+                .fetched
+                .and_then(|value| u64::try_from(value).ok());
         }
     }
     command.finish(deadline.remaining());
