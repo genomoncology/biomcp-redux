@@ -43,7 +43,7 @@ pub(super) fn run(cx: &Ctx<'_>, deadline: Deadline<'_>, genes: &[(HgncId, Gene)]
                 problems.push(Problem {
                     source: Source::Hgnc,
                     record: Text::new(&id.to_string()).ok(),
-                    field: "entrez-id".into(),
+                    field: "entrez_id".into(),
                     code: ProblemCode::ValueUnknown,
                 });
                 Section::unavailable(Source::Civic, Reason::NoJoinId)

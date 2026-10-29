@@ -168,7 +168,7 @@ fn join() -> Check {
             let header = lines.next().unwrap();
             let column = header
                 .split('\t')
-                .position(|name| name == "entrez-id")
+                .position(|name| name == "entrez_id")
                 .unwrap();
             let rows = lines
                 .map(|line| {

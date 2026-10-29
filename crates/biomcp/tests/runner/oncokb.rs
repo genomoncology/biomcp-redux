@@ -186,7 +186,7 @@ fn content(data: &Value) -> Result<(), String> {
         .ok_or("native implication missing")?;
     if group.get("statement_unmapped") != Some(&json!(true))
         || group.get("alterations") != Some(&json!(["V600E", "V600K"]))
-        || group.get("tumor-type").is_some()
+        || group.get("tumor_type").is_some()
         || group.get("statement").is_some()
     {
         return Err("grouped implication got invented subject/context".into());
@@ -401,7 +401,7 @@ fn walk(env: &Environment, baseline: &Value) -> Result<(), String> {
             offset += 1;
             if next.get("section_offset") != Some(&json!(offset))
                 || next.get("build") != Some(&json!("GRCh38"))
-                || next.get("tumor-type") != Some(&json!("Synthetic tumor"))
+                || next.get("tumor_type") != Some(&json!("Synthetic tumor"))
                 || next.get("section") != Some(&json!(["oncokb"]))
                 || next.get("input") != Some(&json!(INPUT))
                 || rows.len() >= expected.len()

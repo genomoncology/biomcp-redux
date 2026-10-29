@@ -107,7 +107,7 @@ fn join(
             [Problem {
                 source: Source::MyGene,
                 record: Text::new(&id.to_string()).ok(),
-                field: "hgnc-id".into(),
+                field: "hgnc_id".into(),
                 code: ProblemCode::ValueUnknown,
             }],
         );

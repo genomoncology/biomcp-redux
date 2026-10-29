@@ -102,8 +102,8 @@ fn gene_resolutions_preserve_every_candidate_and_withdrawn_identity() -> Check {
     for field in [
         "locus_type",
         "location",
-        "entrez-id",
-        "ensembl-id",
+        "entrez_id",
+        "ensembl_id",
         "mane",
         "summary",
     ] {
