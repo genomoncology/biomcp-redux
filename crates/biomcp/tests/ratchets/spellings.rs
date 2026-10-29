@@ -58,7 +58,9 @@ fn audit(tokens: &[String]) -> Result<(), String> {
         }
     }
     for (index, token) in tokens.iter().enumerate() {
-        if !OWNED.contains(&token.as_str()) {
+        let macro_position = tokens.get(index.wrapping_sub(1))
+            .is_some_and(|previous| ["]", "{", "described"].contains(&previous.as_str()));
+        if !macro_position || !OWNED.contains(&token.as_str()) {
             continue;
         }
         let tail = tokens.get(index + 1..).unwrap_or_default();
@@ -108,4 +110,11 @@ fn audit_rejects_owned_underscores_and_old_tags_but_allows_native_values() {
         ))
         .is_ok()
     );
+}
+
+#[test]
+fn enum_return_types_are_not_macro_declarations() {
+    assert!(audit(&super::source::tokens(
+        "fn kind() -> ArticleMatchKind { match self { X => ArticleMatchKind::Doi } }"
+    )).is_ok());
 }
