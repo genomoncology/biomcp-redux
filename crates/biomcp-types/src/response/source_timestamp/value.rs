@@ -18,7 +18,7 @@ impl FromStr for SourceTimestampValue {
     fn from_str(value: &str) -> Result<Self, Self::Err> {
         let invalid = || biodata::Error::DateInvalid;
         let bytes = value.as_bytes();
-        if !value.is_ascii() || bytes.len() < 20 || !matches!(bytes[10], b'T' | b't') {
+        if !value.is_ascii() || bytes.len() < 20 || !matches!(bytes.get(10), Some(b'T' | b't')) {
             return Err(invalid());
         }
         let date = value[..10].parse::<biodata::PartialDate>()?;
@@ -26,13 +26,13 @@ impl FromStr for SourceTimestampValue {
             Some(b'Z' | b'z') => (&value[11..value.len() - 1], 0),
             _ => {
                 let start = value.len() - 6;
-                let sign = match bytes[start] {
-                    b'+' => 1,
-                    b'-' => -1,
+                let sign = match bytes.get(start) {
+                    Some(b'+') => 1,
+                    Some(b'-') => -1,
                     _ => return Err(invalid()),
                 };
                 let zone = &value[start + 1..];
-                if zone.as_bytes()[2] != b':' {
+                if zone.as_bytes().get(2) != Some(&b':') {
                     return Err(invalid());
                 }
                 let hours = pair(&zone[..2], 23)?;
@@ -44,8 +44,8 @@ impl FromStr for SourceTimestampValue {
             .split_once('.')
             .map_or((clock, None), |(c, f)| (c, Some(f)));
         if clock.len() != 8
-            || clock.as_bytes()[2] != b':'
-            || clock.as_bytes()[5] != b':'
+            || clock.as_bytes().get(2) != Some(&b':')
+            || clock.as_bytes().get(5) != Some(&b':')
             || fraction.is_some_and(|f| f.is_empty() || !f.bytes().all(|b| b.is_ascii_digit()))
         {
             return Err(invalid());
