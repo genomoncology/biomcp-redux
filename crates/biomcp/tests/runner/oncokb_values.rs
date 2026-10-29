@@ -98,31 +98,7 @@ fn prose_values() -> Result<(), String> {
         "prognosticSummary",
     ];
     for text in [json!(" \nNative prose\t\u{0000}Ω "), json!(""), json!(42)] {
-        let mut body: Value = serde_json::from_str(&reply("")?).map_err(|e| e.to_string())?;
-        let root = body.as_object_mut().ok_or("annotation object")?;
-        for field in fields {
-            root.insert(field.into(), text.clone());
-        }
-        root.insert(
-            "diagnosticImplications".into(),
-            json!([{"description":text}]),
-        );
-        root.insert(
-            "prognosticImplications".into(),
-            json!([{"description":text}]),
-        );
-        body.pointer_mut("/mutationEffect")
-            .and_then(Value::as_object_mut)
-            .ok_or("effect object")?
-            .insert("description".into(), text.clone());
-        body.pointer_mut("/mutationEffect/citations")
-            .and_then(Value::as_object_mut)
-            .ok_or("citations object")?
-            .insert("abstracts".into(), json!([{"abstractContent":text}]));
-        body.pointer_mut("/treatments/0")
-            .and_then(Value::as_object_mut)
-            .ok_or("treatment object")?
-            .insert("description".into(), text.clone());
+        let body = prose_body(&text, &fields)?;
         let value = check(Some(("", body)))?;
         let rows = value
             .pointer(&format!("{SECTION}/data/records"))
@@ -186,6 +162,27 @@ fn prose_values() -> Result<(), String> {
         }
     }
     Ok(())
+}
+fn prose_body(text: &Value, fields: &[&str]) -> Result<Value, String> {
+    let mut body: Value = serde_json::from_str(&reply("")?).map_err(|e| e.to_string())?;
+    let root = body.as_object_mut().ok_or("annotation object")?;
+    for field in fields {
+        root.insert((*field).into(), text.clone());
+    }
+    for field in ["diagnosticImplications", "prognosticImplications"] {
+        root.insert(field.into(), json!([{"description":text}]));
+    }
+    for path in ["/mutationEffect", "/treatments/0"] {
+        body.pointer_mut(path)
+            .and_then(Value::as_object_mut)
+            .ok_or("effect or treatment object")?
+            .insert("description".into(), text.clone());
+    }
+    body.pointer_mut("/mutationEffect/citations")
+        .and_then(Value::as_object_mut)
+        .ok_or("citations object")?
+        .insert("abstracts".into(), json!([{"abstractContent":text}]));
+    Ok(body)
 }
 fn group(value: &Value) -> Result<&Value, String> {
     value
