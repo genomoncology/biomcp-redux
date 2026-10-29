@@ -89,13 +89,17 @@ pub(super) struct Group {
 }
 impl Reply for Response {
     fn check(&self) -> Result<(), BadReply> {
-        // Successful GraphQL replies may omit errors; not-found has one exact native error.
-        let errors = self.errors.as_deref().unwrap_or(&[]);
+        // The not-found response has one exact native error; successful replies may omit errors.
         if self.data.variant.is_none() {
-            if !matches!(errors, [error] if error.message == "Variant not found") {
+            if !matches!(self.errors.as_deref(), Some([error]) if error.message == "Variant not found")
+            {
                 return Err(BadReply);
             }
-        } else if !errors.is_empty() {
+        } else if self
+            .errors
+            .as_ref()
+            .is_some_and(|errors| !errors.is_empty())
+        {
             return Err(BadReply);
         }
         Ok(())
