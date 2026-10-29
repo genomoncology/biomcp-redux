@@ -88,39 +88,3 @@ pub(super) fn display_codes(declaration: &str, text: &str) -> Check {
     }
     Ok(())
 }
-
-#[test]
-fn planted_error_signature_and_exit_literals_are_rejected() -> Check {
-    signatures(
-        "fn valid() -> Result<(), Failure> { Ok(()) } ExitCode::from(Status::Local.code())",
-    )?;
-    for planted in [
-        "fn bad() -> Result<Vec<u8>, ()> {}",
-        "impl From<()> for Failure {}",
-        "ExitCode::from(5)",
-    ] {
-        assert!(
-            signatures(planted).is_err(),
-            "planted violation must fail: {planted}"
-        );
-    }
-    Ok(())
-}
-
-#[test]
-fn planted_undeclared_display_code_is_rejected() -> Check {
-    let declaration = "Known => \"known.error\"";
-    display_codes(
-        declaration,
-        "impl Display for Known { f.write_str(\"known.error\") }",
-    )?;
-    assert!(
-        display_codes(
-            declaration,
-            "impl Display for Stray { f.write_str(\"stray.error\") }"
-        )
-        .is_err(),
-        "an undeclared display code must fail"
-    );
-    Ok(())
-}

@@ -404,3 +404,39 @@ fn new_optional_drop_requires_its_own_classification() -> Check {
     }
     Ok(())
 }
+
+#[test]
+fn planted_error_signature_and_exit_literals_are_rejected() -> Check {
+    super::errors::signatures(
+        "fn valid() -> Result<(), Failure> { Ok(()) } ExitCode::from(Status::Local.code())",
+    )?;
+    for planted in [
+        "fn bad() -> Result<Vec<u8>, ()> {}",
+        "impl From<()> for Failure {}",
+        "ExitCode::from(5)",
+    ] {
+        assert!(
+            super::errors::signatures(planted).is_err(),
+            "planted violation must fail: {planted}"
+        );
+    }
+    Ok(())
+}
+
+#[test]
+fn planted_undeclared_display_code_is_rejected() -> Check {
+    let declaration = "Known => \"known.error\"";
+    super::errors::display_codes(
+        declaration,
+        "impl Display for Known { f.write_str(\"known.error\") }",
+    )?;
+    assert!(
+        super::errors::display_codes(
+            declaration,
+            "impl Display for Stray { f.write_str(\"stray.error\") }"
+        )
+        .is_err(),
+        "an undeclared display code must fail"
+    );
+    Ok(())
+}
