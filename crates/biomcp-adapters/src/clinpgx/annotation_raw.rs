@@ -1,5 +1,5 @@
 //! Native fields retain source spellings and independent error boundaries.
-use crate::pgx_sources::{Native, pgx_row};
+use crate::pgx_sources::pgx_row;
 use biodata::*;
 pgx_row! { PgxObjectReference => biodata::PgxObjectReference, record id {
     identity {

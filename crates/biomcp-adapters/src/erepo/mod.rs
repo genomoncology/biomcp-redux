@@ -67,7 +67,10 @@ fn records(leg: &Leg<'_>, caid: &str) -> Result<Mapped<Vec<raw::Record>>, Reques
             ("pgSize", Arg::Num(3)),
             ("pg", Arg::Num(page)),
         ];
-        let (reply, _) = leg.json_received_checked::<raw::ReplyBody>(&FETCH, &params, |_| Ok(()))?;
+        let (reply, _) = leg.json_received_checked_cache::<raw::ReplyBody>(&FETCH, &params, |reply| {
+            reply.data.as_ref().is_some_and(|rows| !rows.is_empty() && rows.iter()
+                .all(|row| row.as_ref().is_some_and(|row| row.matches(caid))))
+        })?;
         let data = reply.data.unwrap_or_default();
         let complete = data.len() < 3;
         for raw in data {

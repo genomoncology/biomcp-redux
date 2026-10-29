@@ -54,6 +54,10 @@ pub(super) struct Record {
     pub versions: Option<Field<Vec<Field<Text>>>>,
 }
 impl Record {
+    pub(super) fn matches(&self, caid: &str) -> bool {
+        self.ca_id == caid && self.ca_id.parse::<biodata::VariantId>().is_ok()
+            && !self.id.trim().is_empty() && !self.version.trim().is_empty()
+    }
     pub(super) fn map(self, caid: &str, cx: &mut Problems) -> Option<VariantAssertion> {
         cx.record = cx.text("PCERDocID", Some(&self.id));
         let id = cx.required("PCERDocID", cx.record.clone())?;

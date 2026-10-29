@@ -7,11 +7,11 @@ use std::fs;
 pub(super) fn trials() -> Vec<Trial> {
     vec![
         transcript_trial(
-            "variant/assertions-erepo-invalid-document-never-caches",
+            "variant/assertions-erepo-invalid-criterion-keeps-document",
             || history(2).map_err(Into::into),
         ),
         transcript_trial(
-            "variant/assertions-erepo-invalid-fields-never-cache",
+            "variant/assertions-erepo-invalid-fields-keep-valid-siblings",
             || invalid_fields().map_err(Into::into),
         ),
         transcript_trial(
@@ -161,9 +161,9 @@ fn wrong_identity() -> Result<(), String> {
     let env = environment(&stub)?;
     for _ in 0..2 {
         let value = call(&env, &[])?;
-        if value.pointer("/result/candidates/0/sections/erepo/reason") != Some(&json!("bad-reply"))
-        {
-            return Err(format!("wrongCAidattached: {value}"));
+        if value.pointer("/result/candidates/0/sections/erepo/state") != Some(&json!("empty"))
+            || value.pointer("/problems/0/field") != Some(&json!("caId")) {
+            return Err(format!("wrong CAid attached without row disclosure: {value}"));
         }
     }
     if stub.finish()?.len() != 2 {
@@ -193,25 +193,26 @@ fn invalid_fields() -> Result<(), String> {
         )?;
         let env = environment(&stub)?;
         let bad = call(&env, &[])?;
-        if bad.pointer("/sources/0/reason") != Some(&json!("bad-reply")) {
-            return Err(format!("invalid {field} accepted: {bad}"));
+        if bad.pointer("/problems/0/field") != Some(&json!(field)) {
+            return Err(format!("invalid {field} lacks its problem: {bad}"));
         }
         let recovered = call(&env, &[])?;
-        if recovered.pointer(
-            "/result/candidates/0/sections/erepo/data/assertions/0/statement/attribution/version",
-        ) != Some(&json!("1.1.0"))
-            || stub.finish()?.len() != 2
-        {
-            return Err(format!(
-                "invalid {field} persisted instead of recovering: {recovered}"
-            ));
+        if field == "approvedDate" {
+            if bad.pointer("/result/candidates/0/sections/erepo/data/assertions/0/statement/attribution/version") != Some(&json!("1.1.0"))
+                || recovered.pointer("/problems/0/field") != Some(&json!(field))
+                || stub.finish()?.len() != 1 {
+                return Err(format!("optional date rejected the source document: {bad}; warm={recovered}"));
+            }
+        } else if recovered.pointer("/result/candidates/0/sections/erepo/data/assertions/0/statement/attribution/version") != Some(&json!("1.1.0"))
+            || stub.finish()?.len() != 2 {
+            return Err(format!("bad document identity persisted: {recovered}"));
         }
     }
     Ok(())
 }
 
 fn history(mode: u8) -> Result<(), String> {
-    let wrong = mode != 0;
+    let wrong = mode == 1;
     let stub = history_stub(mode)?;
     let env = environment(&stub)?;
     let args = [
@@ -234,7 +235,8 @@ fn history(mode: u8) -> Result<(), String> {
         let value: Value = serde_json::from_slice(&output.stdout)
             .map_err(|e| format!("{e}: {}", String::from_utf8_lossy(&output.stdout)))?;
         if wrong {
-            if value.pointer("/sources/0/reason") != Some(&json!("bad-reply")) {
+            if value.pointer("/result/assertions/0").is_some()
+                || value.pointer("/problems/0/field") != Some(&json!("document")) {
                 return Err(format!(
                     "wrong historical version accepted: {value}; wire={:?}",
                     stub.finish()
@@ -247,6 +249,10 @@ fn history(mode: u8) -> Result<(), String> {
                     stub.finish()
                 ));
             };
+            if mode == 2 && (row.pointer("/detail/document/assessments/0/criterion").is_some()
+                || value.pointer("/problems/0/field") != Some(&json!("criterion.label"))) {
+                return Err(format!("bad criterion rejected the source document: {value}"));
+            }
             if row.pointer("/statement/attribution/version") != Some(&json!("1.0.0"))
                 || row.pointer("/statement/condition/label")
                     != Some(&json!("Synthetic historical condition"))
