@@ -274,21 +274,30 @@ fn biomarker_replies_ignore_future_fields_while_queries_stay_closed() -> Check {
     let page: biomcp_types::BiomarkerPage = serde_json::from_value(json!({
         "items":[header.clone()], "future_page":true
     }))?;
-    assert_eq!(page.items.len(), 1, "future fields must retain the native header");
+    assert_eq!(
+        page.items.len(),
+        1,
+        "future fields must retain the native header"
+    );
     let result: biomcp_types::BiomarkerResult = serde_json::from_value(json!({
         "card":{"header":header, "future_card":true}, "future_result":true
     }))?;
-    assert!(result.card.is_some(), "future fields must retain the native card");
+    assert!(
+        result.card.is_some(),
+        "future fields must retain the native card"
+    );
     assert!(
         serde_json::from_value::<biomcp_types::BiomarkerSearch>(json!({
             "source":"nci", "name":"PD-L1", "future_query":true
-        })).is_err(),
+        }))
+        .is_err(),
         "unknown search inputs must remain rejected"
     );
     assert!(
         serde_json::from_value::<biomcp_types::BiomarkerGet>(json!({
             "id":"C96022", "future_query":true
-        })).is_err(),
+        }))
+        .is_err(),
         "unknown get inputs must remain rejected"
     );
     Ok(())

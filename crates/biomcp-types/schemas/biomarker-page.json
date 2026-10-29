@@ -1,7 +1,6 @@
 {
   "$defs": {
     "BiomarkerHeader": {
-      "additionalProperties": false,
       "description": "One native biomarker header. Codes identify concepts, not unique result rows.",
       "properties": {
         "codes": {
@@ -37,7 +36,6 @@
       "type": "object"
     },
     "BiomarkerPage": {
-      "additionalProperties": false,
       "description": "Local page of a complete bounded source observation.",
       "properties": {
         "items": {
@@ -51,7 +49,6 @@
       "type": "object"
     },
     "BiomarkerSearch": {
-      "additionalProperties": false,
       "description": "Find NCI biomarker concepts by name or synonym. The public tier returns codes, name, type, trial count, synonyms, parent_ids, ancestor_ids and eligibility_criterion. These concepts differ from diagnostic --biomarker filters and literal trial --variant text. Native criteria do not establish patient eligibility.",
       "properties": {
         "limit": {
@@ -116,7 +113,6 @@
       "type": "string"
     },
     "PageInfo": {
-      "additionalProperties": false,
       "description": "Search counts after filtering and deduplication.",
       "properties": {
         "offset": {
@@ -164,7 +160,6 @@
       "type": "object"
     },
     "PoolInfo": {
-      "additionalProperties": false,
       "description": "Fixed lifetime and size of a stored search snapshot.",
       "properties": {
         "created": {
@@ -199,7 +194,6 @@
       "type": "object"
     },
     "Problem": {
-      "additionalProperties": false,
       "description": "A field that could not be accepted from a source record.",
       "properties": {
         "code": {
@@ -235,41 +229,20 @@
     },
     "ProblemCode": {
       "description": "A stable code for a rejected field value.",
-      "enum": [
-        "value.unknown",
-        "collection.incomplete",
-        "identity.conflict"
-      ],
       "type": "string",
       "x-enum-descriptions": [
         " The field value was not recognized.",
         " Native collection exceeds the admitted complete source page.",
         " A source repeats one exact identity with incompatible records."
+      ],
+      "x-extensible-enum": [
+        "value.unknown",
+        "collection.incomplete",
+        "identity.conflict"
       ]
     },
     "Reason": {
       "description": "Why a source could not supply data.",
-      "enum": [
-        "not_found",
-        "not_open",
-        "not_pdf",
-        "unsupported",
-        "too_large",
-        "rate_limited",
-        "local_quota",
-        "unavailable",
-        "tls",
-        "proxy",
-        "rejected",
-        "bad_reply",
-        "deadline_exceeded",
-        "offline",
-        "no_key",
-        "disabled",
-        "replay_miss",
-        "syncing",
-        "no_join_id"
-      ],
       "type": "string",
       "x-enum-descriptions": [
         " The requested record was not found.",
@@ -291,83 +264,31 @@
         " No recording matched the request.",
         " The source data was being synchronized.",
         " Identity lacks the identifier required to join this source."
+      ],
+      "x-extensible-enum": [
+        "not_found",
+        "not_open",
+        "not_pdf",
+        "unsupported",
+        "too_large",
+        "rate_limited",
+        "local_quota",
+        "unavailable",
+        "tls",
+        "proxy",
+        "rejected",
+        "bad_reply",
+        "deadline_exceeded",
+        "offline",
+        "no_key",
+        "disabled",
+        "replay_miss",
+        "syncing",
+        "no_join_id"
       ]
     },
     "Source": {
       "description": "A source of BioMCP data, identified by its canonical short name.",
-      "enum": [
-        "hgnc",
-        "mygene",
-        "reactome",
-        "wikipathways",
-        "hpa",
-        "uniprot",
-        "interpro",
-        "complex-portal",
-        "gnomad",
-        "clinvar",
-        "erepo",
-        "gwas",
-        "clingen",
-        "gencc",
-        "pubmed",
-        "europepmc",
-        "litvar",
-        "litsense",
-        "semantic-scholar",
-        "orcid",
-        "pmc-oa",
-        "icite",
-        "pubtator",
-        "ctgov",
-        "nci",
-        "civic",
-        "hotspots",
-        "alphagenome",
-        "oncokb",
-        "myvariant",
-        "car",
-        "mutalyzer",
-        "variantvalidator",
-        "mychem",
-        "chembl",
-        "opentargets",
-        "openfda-label",
-        "drugsfda",
-        "ema",
-        "who-pq",
-        "ddinter",
-        "drugbank-open",
-        "drugcentral",
-        "gtopdb",
-        "unii",
-        "ndc",
-        "openfda-xref",
-        "ols",
-        "mydisease",
-        "monarch",
-        "seer",
-        "mondo",
-        "doid",
-        "ncit",
-        "hpo",
-        "orphanet",
-        "omim",
-        "faers",
-        "vaers",
-        "maude",
-        "meddra",
-        "gmdn",
-        "gtr",
-        "who-ivd",
-        "fda-cdx",
-        "fda-pma",
-        "fda-510k",
-        "cpic",
-        "clinpgx",
-        "cbioportal",
-        "cellosaurus"
-      ],
       "type": "string",
       "x-enum-descriptions": [
         " HGNC.",
@@ -437,17 +358,91 @@
         " FDA companion diagnostic device tables.",
         " openFDA premarket approval submissions.",
         " FDA native 510(k) clearance records.",
+        " openFDA medical device product recall records.",
         " Clinical Pharmacogenetics Implementation Consortium.",
         " ClinPGx pharmacogenomics annotations.",
         " Public cBioPortal with study-specific reuse terms.",
         " Cellosaurus cell line identity."
+      ],
+      "x-extensible-enum": [
+        "hgnc",
+        "mygene",
+        "reactome",
+        "wikipathways",
+        "hpa",
+        "uniprot",
+        "interpro",
+        "complex-portal",
+        "gnomad",
+        "clinvar",
+        "erepo",
+        "gwas",
+        "clingen",
+        "gencc",
+        "pubmed",
+        "europepmc",
+        "litvar",
+        "litsense",
+        "semantic-scholar",
+        "orcid",
+        "pmc-oa",
+        "icite",
+        "pubtator",
+        "ctgov",
+        "nci",
+        "civic",
+        "hotspots",
+        "alphagenome",
+        "oncokb",
+        "myvariant",
+        "car",
+        "mutalyzer",
+        "variantvalidator",
+        "mychem",
+        "chembl",
+        "opentargets",
+        "openfda-label",
+        "drugsfda",
+        "ema",
+        "who-pq",
+        "ddinter",
+        "drugbank-open",
+        "drugcentral",
+        "gtopdb",
+        "unii",
+        "ndc",
+        "openfda-xref",
+        "ols",
+        "mydisease",
+        "monarch",
+        "seer",
+        "mondo",
+        "doid",
+        "ncit",
+        "hpo",
+        "orphanet",
+        "omim",
+        "faers",
+        "vaers",
+        "maude",
+        "meddra",
+        "gmdn",
+        "gtr",
+        "who-ivd",
+        "fda-cdx",
+        "fda-pma",
+        "fda-510k",
+        "fda-device-recall",
+        "cpic",
+        "clinpgx",
+        "cbioportal",
+        "cellosaurus"
       ]
     },
     "SourceNotice": {
       "description": "A source notice or request recovery step.",
       "oneOf": [
         {
-          "additionalProperties": false,
           "description": "Local request limits and source-specific recovery guidance.",
           "properties": {
             "kind": {
@@ -475,7 +470,6 @@
           "type": "object"
         },
         {
-          "additionalProperties": false,
           "description": "Registered conditions lack the literal words requested in a condition search.",
           "properties": {
             "kind": {
@@ -494,7 +488,6 @@
           "type": "object"
         },
         {
-          "additionalProperties": false,
           "description": "A checked provider answer survived a local cache failure.",
           "properties": {
             "kind": {
@@ -513,7 +506,6 @@
           "type": "object"
         },
         {
-          "additionalProperties": false,
           "description": "The source still has graph pages after the bounded fetch window.",
           "properties": {
             "fallback": {
@@ -532,7 +524,6 @@
           "type": "object"
         },
         {
-          "additionalProperties": false,
           "description": "An empty LitVar lookup can be repeated with a caller-supplied rsID.",
           "properties": {
             "kind": {
@@ -551,7 +542,6 @@
           "type": "object"
         },
         {
-          "additionalProperties": false,
           "description": "PubMed supplied a named ESearch warning without changing its phrases.",
           "properties": {
             "kind": {
@@ -577,7 +567,6 @@
           "type": "object"
         },
         {
-          "additionalProperties": false,
           "description": "PubMed did not index these words.",
           "properties": {
             "kind": {
@@ -600,7 +589,6 @@
       ]
     },
     "SourceOutcome": {
-      "additionalProperties": false,
       "description": "One source's outcome, without provider text.",
       "properties": {
         "count": {
@@ -703,7 +691,6 @@
       "type": "string"
     },
     "Step": {
-      "additionalProperties": false,
       "description": "A command argument list spelled from a typed action.",
       "properties": {
         "args": {
@@ -757,8 +744,7 @@
   },
   "$id": "biomcp.biomarker-page/1",
   "$schema": "https://json-schema.org/draft/2020-12/schema",
-  "additionalProperties": false,
-  "description": "One versioned command response; schema identity comes only from its body type.",
+  "description": "One versioned command response; schema identity comes only from its body type.\nJSON readers ignore unknown fields and unknown growable enum values within a major.",
   "properties": {
     "local_error": {
       "anyOf": [
