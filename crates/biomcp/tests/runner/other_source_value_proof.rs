@@ -4,6 +4,8 @@ use serde::Deserialize;
 use serde_json::{Value, json};
 use std::{fs, path::Path};
 type Check<T = ()> = Result<T, String>;
+#[path = "other_source_value_proof/retained.rs"]
+mod retained;
 #[derive(Clone, Deserialize)]
 struct Route {
     file: String,
@@ -11,6 +13,10 @@ struct Route {
 }
 #[derive(Deserialize)]
 struct NativeCase {
+    #[serde(skip)]
+    host: &'static str,
+    #[serde(skip)]
+    root: &'static str,
     args: Vec<String>,
     requests: Vec<Route>,
 }
@@ -39,6 +45,20 @@ pub(super) fn run(directory: &Path) -> Check {
             field: "action_type",
             absent: "/result/targets/data/records/0/relation",
             present: "/result/targets/data/records/0/native_target/id",
+        },
+        Mutation {
+            file: "008.json",
+            pointer: "/_version",
+            field: "_version",
+            absent: "/result/version",
+            present: "/result/header/id",
+        },
+        Mutation {
+            file: "portable-cellosaurus-cell-CVCL_0004.json",
+            pointer: "/Cellosaurus/cell-line-list/0/sex",
+            field: "sex",
+            absent: "/result/sex",
+            present: "/result/header/accession",
         },
         Mutation {
             file: "014.json",
@@ -101,8 +121,13 @@ pub(super) fn run(directory: &Path) -> Check {
     }
 }
 fn native_case(file: &str) -> Check<NativeCase> {
+    if let Some(case) = retained::case(file)? {
+        return Ok(case);
+    }
     if file == "010.json" {
         return Ok(NativeCase {
+            host: "www.ebi.ac.uk",
+            root: "fixtures/drug/native",
             args: ["get", "drug", "CHEMBL941", "--source", "chembl"]
                 .into_iter()
                 .map(str::to_owned)
@@ -118,10 +143,12 @@ fn native_case(file: &str) -> Check<NativeCase> {
     let mut selected = cases
         .into_iter()
         .filter(|case| case.requests.iter().any(|route| route.file == file));
-    let case = selected.next().ok_or("missing retained native case")?;
+    let mut case = selected.next().ok_or("missing retained native case")?;
     if selected.next().is_some() {
         return Err("ambiguous retained native case".into());
     }
+    case.host = "www.ebi.ac.uk";
+    case.root = "fixtures/drug/native";
     Ok(case)
 }
 fn acquire(
@@ -129,7 +156,7 @@ fn acquire(
     mutation: Option<(&Mutation, Value)>,
     registry: &Registry,
 ) -> Check<Value> {
-    let root = super::launch::fixtures().join("fixtures/drug/native");
+    let root = super::launch::fixtures().join(case.root);
     let mut routes = Vec::new();
     let mut changed = 0;
     for route in &case.requests {
@@ -154,17 +181,21 @@ fn acquire(
         return Err("native mutation count differs from one".into());
     }
     let expected_requests = routes.len();
-    let stub = Stub::for_source("www.ebi.ac.uk", "application/json", move |request| {
-        let line = request
-            .lines()
-            .next()
-            .ok_or("missing native request line")?;
-        routes
-            .iter()
-            .find(|(expected, _)| expected == line)
-            .map(|(_, body)| body.clone())
-            .ok_or_else(|| format!("undeclared native request: {line}"))
-    })?;
+    let stub = Stub::for_sources(
+        &[case.host],
+        |_| "application/json",
+        move |request| {
+            let line = request
+                .lines()
+                .next()
+                .ok_or("missing native request line")?;
+            routes
+                .iter()
+                .find(|(expected, _)| expected == line)
+                .map(|(_, body)| body.clone())
+                .ok_or_else(|| format!("undeclared native request: {line}"))
+        },
+    )?;
     let env = super::variant::source_environment(&stub)?;
     let mut args = case.args.clone();
     args.push("--fresh".into());
