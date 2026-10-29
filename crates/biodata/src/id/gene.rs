@@ -105,21 +105,21 @@ crate::checked_id!(
     OmimIdInvalid,
     |value: &str| value.len() == 6 && value.bytes().all(|ch| ch.is_ascii_digit()),
     "^[0-9]{6}$",
-    "A six-digit OMIM identifier, preserving all six digits."
+    " A six-digit OMIM identifier, preserving all six digits."
 );
 crate::checked_id!(
     UniProtAcc,
     UniProtAccInvalid,
     uniprot,
     "^([OPQ][0-9][A-Z0-9]{3}[0-9]|[A-NR-Z][0-9]([A-Z][A-Z0-9]{2}[0-9]){1,2})$",
-    "A whole UniProt base accession, without an isoform suffix."
+    " A whole UniProt base accession, without an isoform suffix."
 );
 crate::checked_id!(
     Cytoband,
     CytobandInvalid,
     cytoband,
     "^([1-9]|1[0-9]|2[0-2]|X|Y)[pq][1-9][0-9](\\.[0-9]+)?$",
-    "A single nuclear cytogenetic band, without a range or location descriptor."
+    " A single nuclear cytogenetic band, without a range or location descriptor."
 );
 fn uniprot(value: &str) -> bool {
     let bytes = value.as_bytes();
