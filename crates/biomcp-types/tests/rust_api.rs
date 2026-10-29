@@ -84,6 +84,41 @@ fn variant_consumer_reads_coding_representations_statements_and_frequencies() ->
     Ok(())
 }
 
+#[test]
+fn consumers_read_each_subject_level_without_json() -> Check {
+    let gene = GeneRef::try_from(GeneSymbol::new("EGFR")?)?;
+    let allele = VariantRef::allele("VCV000013961.3".parse()?);
+    let protein = VariantRef::protein_hgvs(
+        gene.clone(),
+        "NP_005219.2:p.?".parse()?,
+        Some(Text::new("source label")?),
+    );
+    let profile = VariantRef::profile(
+        Text::new("profile:1")?,
+        Text::new("source profile")?,
+        vec![allele, protein].into(),
+    )?;
+    assert_eq!(profile.record().map(Text::as_str), Some("profile:1"));
+    assert_eq!(profile.label().map(Text::as_str), Some("source profile"));
+    let members: Vec<_> = profile.members().collect();
+    assert_eq!(
+        members
+            .first()
+            .and_then(VariantRef::id)
+            .map(ToString::to_string),
+        Some("VCV000013961.3".into())
+    );
+    let protein = members.get(1).expect("protein member");
+    assert_eq!(protein.gene(), Some(&gene));
+    assert_eq!(
+        protein.hgvs().map(HgvsText::as_str),
+        Some("NP_005219.2:p.?")
+    );
+    assert_eq!(protein.label().map(Text::as_str), Some("source label"));
+    assert!(protein.members().next().is_none());
+    Ok(())
+}
+
 fn hashable<T: Eq + Hash + Debug + FromStr>(text: &str)
 where
     T::Err: Debug,
