@@ -76,31 +76,6 @@ fn profile_refuses_missing_members_and_invalid_relations() -> Check {
     Ok(())
 }
 #[test]
-fn display_parser_matches_complete_source_labels_before_boolean_syntax() -> Check {
-    let labels = vec![
-        ("civic:1".parse()?, Text::new("BCR::ABL1 Fusion")?),
-        ("civic:2".parse()?, Text::new("EGFR p.(L858R)")?),
-    ];
-    let expression = ProfileExpression::civic_display(
-        Text::new("BCR::ABL1 Fusion AND NOT EGFR p.(L858R)")?,
-        &labels,
-    )?;
-    assert!(matches!(expression.tree(), ProfileNode::And { .. }));
-    assert_eq!(
-        ProfileExpression::civic_display(Text::new("missing label")?, &labels),
-        Err(Error::ProfileMemberMissing)
-    );
-    let ambiguous = vec![
-        ("civic:1".parse()?, Text::new("A")?),
-        ("civic:2".parse()?, Text::new("A")?),
-    ];
-    assert_eq!(
-        ProfileExpression::civic_display(Text::new("A")?, &ambiguous),
-        Err(Error::ProfileExpressionInvalid)
-    );
-    Ok(())
-}
-#[test]
 fn single_variant_json_keeps_its_existing_form() -> Check {
     let value = VariantRef::allele("VCV000013961.3".parse()?);
     assert_eq!(
@@ -156,5 +131,53 @@ fn profile_keeps_additional_source_members_and_native_feature_identity() -> Chec
         serde_json::to_value(value)?["members"][0]["feature_record"],
         "civic:42"
     );
+    Ok(())
+}
+
+#[test]
+fn wire_expression_requires_authoritative_machine_source() {
+    for source in ["unrelated label", "A AND B", "VID1", "civic:1"] {
+        let value = json!({"source":source,"tree":{"operator":"member","record":"civic:1"}});
+        assert!(
+            serde_json::from_value::<ProfileExpression>(value).is_err(),
+            "{source}"
+        );
+    }
+}
+
+#[test]
+fn expression_depth_and_size_limits_match_on_construction_and_roundtrip() -> Check {
+    for (depth, tail, valid) in [
+        (64, "#VID1", true),
+        (63, "NOT #VID1", true),
+        (64, "NOT #VID1", false),
+        (65, "#VID1", false),
+    ] {
+        let source = format!(
+            "{}{}{}",
+            "#VID1 AND (".repeat(depth),
+            tail,
+            ")".repeat(depth)
+        );
+        let expression = ProfileExpression::civic(Text::new(&source)?);
+        assert_eq!(expression.is_ok(), valid, "depth={depth}, tail={tail}");
+        if let Ok(expression) = expression {
+            assert_eq!(
+                serde_json::from_value::<ProfileExpression>(serde_json::to_value(&expression)?)?,
+                expression
+            );
+        }
+    }
+    for (members, valid) in [(4096, true), (4097, false)] {
+        let source = vec!["#VID1"; members].join(" AND ");
+        let expression = ProfileExpression::civic(Text::new(&source)?);
+        assert_eq!(expression.is_ok(), valid, "members={members}");
+        if let Ok(expression) = expression {
+            assert_eq!(
+                serde_json::from_value::<ProfileExpression>(serde_json::to_value(&expression)?)?,
+                expression
+            );
+        }
+    }
     Ok(())
 }
