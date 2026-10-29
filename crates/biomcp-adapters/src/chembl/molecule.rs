@@ -63,34 +63,7 @@ pub fn card(row: Molecule, fetched: Option<i64>) -> Result<crate::Mapped<DrugCar
             names.push(name);
         }
     }
-    let mut references = Vec::new();
-    for r in row.cross_references {
-        for issue in r.problems {
-            crate::mapped::push_problem(
-                &mut problems.list,
-                problems.source,
-                problems.record.clone(),
-                &format!("cross_references.{}", issue.field),
-            );
-        }
-        let id = problems.optional("cross_references.xref_id", Some(r.xref_id.parse()));
-        let source = problems.checked_text("cross_references.xref_src", Some(&r.xref_src));
-        let name = problems.text("cross_references.xref_name", r.xref_name.as_deref());
-        if let (Some(id), Some(source)) = (id, source) {
-            references.push(DrugIdentityRelation {
-                identity: DrugIdentity {
-                    id,
-                    source,
-                    name,
-                    identity_level: DrugIdentityLevel::Unknown,
-                    r#type: None,
-                    url: None,
-                },
-                relation: Text::new("cross_references")?,
-                attribution: attribution.clone(),
-            });
-        }
-    }
+    let references = cross_references(row.cross_references, &attribution, &mut problems)?;
     let mut parents = Vec::new();
     if let Some(parent) = row.molecule_hierarchy
         && let Some(id) = problems.optional(
@@ -132,4 +105,40 @@ pub fn card(row: Molecule, fetched: Option<i64>) -> Result<crate::Mapped<DrugCar
         value,
         problems: problems.list,
     })
+}
+
+fn cross_references(
+    rows: Vec<super::raw::CrossReference>,
+    attribution: &Attribution,
+    problems: &mut Problems,
+) -> Result<Vec<DrugIdentityRelation>, Error> {
+    let mut references = Vec::new();
+    for r in rows {
+        for issue in r.problems {
+            crate::mapped::push_problem(
+                &mut problems.list,
+                problems.source,
+                problems.record.clone(),
+                &format!("cross_references.{}", issue.field),
+            );
+        }
+        let id = problems.optional("cross_references.xref_id", Some(r.xref_id.parse()));
+        let source = problems.checked_text("cross_references.xref_src", Some(&r.xref_src));
+        let name = problems.text("cross_references.xref_name", r.xref_name.as_deref());
+        if let (Some(id), Some(source)) = (id, source) {
+            references.push(DrugIdentityRelation {
+                identity: DrugIdentity {
+                    id,
+                    source,
+                    name,
+                    identity_level: DrugIdentityLevel::Unknown,
+                    r#type: None,
+                    url: None,
+                },
+                relation: Text::new("cross_references")?,
+                attribution: attribution.clone(),
+            });
+        }
+    }
+    Ok(references)
 }

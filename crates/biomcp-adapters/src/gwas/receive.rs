@@ -90,59 +90,63 @@ impl From<ReceivedAssociation> for super::raw::Association {
             pubmed_id: problems.field("pubmed_id", row.pubmed_id),
             problems: Vec::new(),
         };
-        if value.exact_p_value().is_none()
-            && (value.p_value_mantissa.is_some() || value.p_value_exponent.is_some())
-        {
-            if !problems
-                .list
-                .iter()
-                .any(|p| matches!(p.field.as_ref(), "pvalue_mantissa" | "pvalue_exponent"))
-            {
-                let field = if value.p_value_mantissa.is_none_or(|n| !(1..=9).contains(&n)) {
-                    "pvalue_mantissa"
-                } else {
-                    "pvalue_exponent"
-                };
-                problems.required::<()>(field, None);
-            }
-            value.p_value_mantissa = None;
-            value.p_value_exponent = None;
-        }
-        for trait_row in &mut value.efo_traits {
-            for issue in trait_row.problems.drain(..) {
-                crate::mapped::push_problem(
-                    &mut problems.list,
-                    problems.source,
-                    problems.record.clone(),
-                    &format!("efo_traits.{}", issue.field),
-                );
-            }
-        }
-        for allele in &mut value.snp_allele {
-            for issue in allele.problems.drain(..) {
-                crate::mapped::push_problem(
-                    &mut problems.list,
-                    problems.source,
-                    problems.record.clone(),
-                    &format!("snp_allele.{}", issue.field),
-                );
-            }
-        }
-        value.efo_traits.retain(|v| {
-            let valid = v.efo_id.as_str().parse::<biodata::GwasTraitId>().is_ok();
-            if !valid {
-                problems.required::<()>("efo_traits.efo_id", None);
-            }
-            valid
-        });
-        value.snp_allele.retain(|v| {
-            let valid = v.rs_id.as_str().parse::<biodata::RsId>().is_ok();
-            if !valid {
-                problems.required::<()>("snp_allele.rs_id", None);
-            }
-            valid
-        });
+        check_metadata(&mut value, &mut problems);
         value.problems = problems.list;
         value
     }
+}
+
+fn check_metadata(value: &mut super::raw::Association, problems: &mut crate::mapped::Problems) {
+    if value.exact_p_value().is_none()
+        && (value.p_value_mantissa.is_some() || value.p_value_exponent.is_some())
+    {
+        if !problems
+            .list
+            .iter()
+            .any(|p| matches!(p.field.as_ref(), "pvalue_mantissa" | "pvalue_exponent"))
+        {
+            let field = if value.p_value_mantissa.is_none_or(|n| !(1..=9).contains(&n)) {
+                "pvalue_mantissa"
+            } else {
+                "pvalue_exponent"
+            };
+            problems.required::<()>(field, None);
+        }
+        value.p_value_mantissa = None;
+        value.p_value_exponent = None;
+    }
+    for trait_row in &mut value.efo_traits {
+        for issue in trait_row.problems.drain(..) {
+            crate::mapped::push_problem(
+                &mut problems.list,
+                problems.source,
+                problems.record.clone(),
+                &format!("efo_traits.{}", issue.field),
+            );
+        }
+    }
+    for allele in &mut value.snp_allele {
+        for issue in allele.problems.drain(..) {
+            crate::mapped::push_problem(
+                &mut problems.list,
+                problems.source,
+                problems.record.clone(),
+                &format!("snp_allele.{}", issue.field),
+            );
+        }
+    }
+    value.efo_traits.retain(|v| {
+        let valid = v.efo_id.as_str().parse::<biodata::GwasTraitId>().is_ok();
+        if !valid {
+            problems.required::<()>("efo_traits.efo_id", None);
+        }
+        valid
+    });
+    value.snp_allele.retain(|v| {
+        let valid = v.rs_id.as_str().parse::<biodata::RsId>().is_ok();
+        if !valid {
+            problems.required::<()>("snp_allele.rs_id", None);
+        }
+        valid
+    });
 }

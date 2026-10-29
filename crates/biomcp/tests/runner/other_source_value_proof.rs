@@ -31,43 +31,7 @@ struct Mutation {
 pub(super) fn run(directory: &Path) -> Check {
     fs::create_dir_all(directory).map_err(|e| e.to_string())?;
     let registry = Registry::embedded()?;
-    let mutations = [
-        Mutation {
-            file: "010.json",
-            pointer: "/pref_name",
-            field: "pref_name",
-            absent: "/result/header/name",
-            present: "/result/header/id",
-        },
-        Mutation {
-            file: "015.json",
-            pointer: "/mechanisms/0/action_type",
-            field: "action_type",
-            absent: "/result/targets/data/records/0/relation",
-            present: "/result/targets/data/records/0/native_target/id",
-        },
-        Mutation {
-            file: "008.json",
-            pointer: "/_version",
-            field: "_version",
-            absent: "/result/version",
-            present: "/result/header/id",
-        },
-        Mutation {
-            file: "portable-cellosaurus-cell-CVCL_0004.json",
-            pointer: "/Cellosaurus/cell-line-list/0/sex",
-            field: "sex",
-            absent: "/result/sex",
-            present: "/result/header/accession",
-        },
-        Mutation {
-            file: "014.json",
-            pointer: "/drug_indications/0/max_phase_for_ind",
-            field: "max_phase_for_ind",
-            absent: "/result/indications/data/records/0/stage",
-            present: "/result/indications/data/records/0/drug/id",
-        },
-    ];
+    let mutations = mutations();
     let mut failures = Vec::new();
     for mutation in &mutations {
         // A failed positive control is setup failure, never a regression proof.
@@ -280,4 +244,44 @@ fn binding_witness(directory: &Path, registry: &Registry) -> Check {
         return Err("contradictory native request scope was admitted".into());
     }
     Ok(())
+}
+
+fn mutations() -> [Mutation; 5] {
+    [
+        Mutation {
+            file: "010.json",
+            pointer: "/pref_name",
+            field: "pref_name",
+            absent: "/result/header/name",
+            present: "/result/header/id",
+        },
+        Mutation {
+            file: "015.json",
+            pointer: "/mechanisms/0/action_type",
+            field: "action_type",
+            absent: "/result/targets/data/records/0/relation",
+            present: "/result/targets/data/records/0/native_target/id",
+        },
+        Mutation {
+            file: "008.json",
+            pointer: "/_version",
+            field: "_version",
+            absent: "/result/version",
+            present: "/result/header/id",
+        },
+        Mutation {
+            file: "portable-cellosaurus-cell-CVCL_0004.json",
+            pointer: "/Cellosaurus/cell-line-list/0/sex",
+            field: "sex",
+            absent: "/result/sex",
+            present: "/result/header/accession",
+        },
+        Mutation {
+            file: "014.json",
+            pointer: "/drug_indications/0/max_phase_for_ind",
+            field: "max_phase_for_ind",
+            absent: "/result/indications/data/records/0/stage",
+            present: "/result/indications/data/records/0/drug/id",
+        },
+    ]
 }

@@ -100,14 +100,7 @@ pub(super) fn card(mut row: raw::Record) -> Result<crate::Mapped<CellLineCard>, 
         record: crate::mapped::record(&accession),
         list: Vec::new(),
     };
-    let names = row
-        .name_list
-        .iter()
-        .map(|r| CellLineName {
-            kind: r.kind.clone(),
-            value: r.value.clone(),
-        })
-        .collect();
+    let names = names(&row.name_list);
     let species = row.species_list.clone().unwrap_or_default().0.into_vec();
     let diseases = row.disease_list.clone().unwrap_or_default().0.into_vec();
     let warnings = super::map::warnings(row.comment_list.as_deref().unwrap_or_default());
@@ -175,4 +168,13 @@ pub(super) fn card(mut row: raw::Record) -> Result<crate::Mapped<CellLineCard>, 
         value: card,
         problems: problems.list,
     })
+}
+
+fn names(rows: &[raw::Name]) -> Vec<CellLineName> {
+    rows.iter()
+        .map(|r| CellLineName {
+            kind: r.kind.clone(),
+            value: r.value.clone(),
+        })
+        .collect()
 }

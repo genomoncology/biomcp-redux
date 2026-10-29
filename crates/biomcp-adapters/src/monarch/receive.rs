@@ -51,11 +51,7 @@ pub(super) struct ReceivedRow {
 }
 impl From<ReceivedRow> for super::raw::Row {
     fn from(row: ReceivedRow) -> Self {
-        let mut problems = crate::mapped::Problems {
-            source: biomcp_types::Source::Monarch,
-            record: row.id.as_ref().and_then(crate::raw::Field::as_ref).cloned(),
-            list: Vec::new(),
-        };
+        let mut problems = fields(&row);
         let aggregators = row
             .aggregators
             .0
@@ -135,5 +131,13 @@ impl From<ReceivedRow> for super::raw::Row {
                 .map(|v| problems.fields("object_closure", Some(v))),
             problems: problems.list,
         }
+    }
+}
+
+fn fields(row: &ReceivedRow) -> crate::mapped::Problems {
+    crate::mapped::Problems {
+        source: biomcp_types::Source::Monarch,
+        record: row.id.as_ref().and_then(crate::raw::Field::as_ref).cloned(),
+        list: Vec::new(),
     }
 }
