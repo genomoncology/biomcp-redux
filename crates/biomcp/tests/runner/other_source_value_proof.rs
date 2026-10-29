@@ -114,6 +114,21 @@ pub(super) fn run(directory: &Path) -> Check {
             failures.push(format!("stage-{name}: {error}"));
         }
     }
+    let large = "x".repeat(biodata::Text::MAX_CHARS + 1);
+    let large_result = acquire(&case, Some((stage, json!(large))), &registry).and_then(|value| {
+        if value
+            .pointer("/result/indications/data/records/0/stage/value")
+            .and_then(Value::as_str)
+            != Some(large.as_str())
+        {
+            return Err("large native stage bytes changed".into());
+        }
+        save(directory, "stage-large", &value)
+    });
+    if let Err(error) = large_result {
+        failures.push(format!("stage-large: {error}"));
+    }
+    save(directory, "failures", &json!(failures))?;
     if failures.is_empty() {
         Ok(())
     } else {
