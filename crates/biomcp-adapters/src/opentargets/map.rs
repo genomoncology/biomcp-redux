@@ -167,12 +167,7 @@ pub fn indications(
             "disease.name",
             row.disease.name,
         );
-        let stage = p
-            .field("maxClinicalStage", row.max_clinical_stage)
-            .and_then(|value| {
-                p.checked_text("maxClinicalStage", Some(&value))
-                    .map(|_| value)
-            });
+        let stage = p.field("maxClinicalStage", row.max_clinical_stage);
         let disease = DrugDiseaseReference {
             namespace: row
                 .disease

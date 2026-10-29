@@ -67,3 +67,28 @@ pub(super) fn reactome() -> Check {
     }
     Ok(())
 }
+
+pub(super) fn native_summation() -> Check {
+    let text = format!(" \n{}\t ", "x".repeat(biodata::Text::MAX_CHARS + 1));
+    let answer = checked_case(
+        "pathway/native",
+        &["get", "pathway", "R-HSA-5673001", "summary"],
+        |source, record| {
+            if source == "reactome"
+                && record["url"]
+                    .as_str()
+                    .is_some_and(|u| u.ends_with("/data/query/R-HSA-5673001"))
+            {
+                *record
+                    .pointer_mut("/exchanges/0/body/value/summation/0/text")
+                    .unwrap() = json!(text);
+            }
+        },
+        json!({"/result/pathway/id/id": "R-HSA-5673001"}),
+        0,
+    )?;
+    if answer.pointer("/result/pathway/summations/0/text") != Some(&json!(text)) {
+        return Err("native summation text changed or gained typed-text limits".into());
+    }
+    Ok(())
+}

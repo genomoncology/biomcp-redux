@@ -32,6 +32,10 @@ pub(super) fn trials() -> Vec<Trial> {
             "pathway-reactome/reactome-metadata-regression",
             metadata::reactome,
         ),
+        (
+            "pathway-reactome/native-summation-keeps-source-text",
+            metadata::native_summation,
+        ),
     ]
     .into_iter()
     .map(|(name, check)| transcript_trial(name, move || check().map_err(|e| e.to_string().into())))

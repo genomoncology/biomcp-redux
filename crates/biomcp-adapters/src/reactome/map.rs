@@ -96,12 +96,10 @@ pub(super) fn card(row: raw::Card, summary: bool, problems: &mut Problems) -> Op
                         let text = problems
                             .field("summations.text", row.text)
                             .and_then(|value| {
-                                problems
-                                    .optional(
-                                        "summations.text",
-                                        Some(crate::mapped::source_text(&value)),
-                                    )
-                                    .map(|_| value.into())
+                                problems.required(
+                                    "summations.text",
+                                    (!value.trim().is_empty()).then(|| value.into()),
+                                )
                             });
                         Some(PathwaySummation {
                             db_id: row.db_id,

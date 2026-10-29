@@ -29,6 +29,10 @@ pub(super) fn trials() -> Vec<Trial> {
         "drug-native/opentargets-optional-name-keeps-identity",
         || optional_values::check().map_err(Into::into),
     )))
+    .chain(std::iter::once(transcript_trial(
+        "drug-native/opentargets-native-stage-preserved",
+        || optional_values::stages().map_err(Into::into),
+    )))
     .collect()
 }
 fn check(source: &'static str, file: &str, pointer: &str, host: &'static str) -> Check {
