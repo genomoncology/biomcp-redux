@@ -10,6 +10,19 @@
       "pattern": "\\S",
       "type": "string"
     },
+    "NciBiomarkerUse": {
+      "description": "NCI's native biomarker eligibility criterion, without clinical interpretation.",
+      "enum": [
+        "inclusion",
+        "exclusion"
+      ],
+      "type": "string"
+    },
+    "NcitId": {
+      "description": "A native NCI Thesaurus concept code.",
+      "pattern": "^C[0-9]+$",
+      "type": "string"
+    },
     "NctId": {
       "description": "Canonical ClinicalTrials.gov identifier.",
       "pattern": "^NCT(?!00000000)[0-9]{8}$",
@@ -106,6 +119,14 @@
       "format": "uint32",
       "minimum": 0,
       "type": "integer"
+    },
+    "biomarker_code": {
+      "$ref": "#/$defs/NcitId",
+      "description": "Exact NCIt biomarker concept listed by NCI in trial criteria; NCI source only. This listing does not establish biomarker positivity or patient eligibility."
+    },
+    "biomarker_use": {
+      "$ref": "#/$defs/NciBiomarkerUse",
+      "description": "Filter by NCI's native inclusion or exclusion criterion. Check each result's biomarker entry and reported problems."
     },
     "condition": {
       "description": "Condition alternatives joined with OR; NCI requires NCIt codes.",

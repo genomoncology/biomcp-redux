@@ -25,7 +25,7 @@ impl super::Trial {
         }
         if entries.is_empty() { p.required::<Text>("biomarkers.nci_thesaurus_concept_id", None); }
         if let Some(criterion) = criterion {
-            let expected = criterion.to_string();
+            let expected = criterion.as_str().to_owned();
             if !entries.iter().any(|entry| entry.eligibility_criterion.as_ref().is_some_and(|v| v.as_ref() == expected)) {
                 p.required::<Text>("biomarkers.eligibility_criterion", None);
             }

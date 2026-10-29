@@ -217,7 +217,7 @@ pub fn parameters(query: &TrialSearch) -> Vec<(String, String)> {
     if let Some(criterion) = query.biomarker_use() {
         params.push((
             "biomarkers.eligibility_criterion".into(),
-            criterion.to_string(),
+            criterion.as_str().to_owned(),
         ));
     }
     for field in [
