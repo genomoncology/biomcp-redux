@@ -56,22 +56,7 @@ fn native() -> Value {
 }
 fn setup(mode: &str) -> Result<(Environment, Stub), String> {
     let mut body = native();
-    if let Some(unit) = mode.strip_prefix("age-unit-") {
-        let patient = body
-            .pointer_mut("/results/0/patient")
-            .and_then(Value::as_object_mut)
-            .ok_or("patient")?;
-        if unit == "absent" {
-            patient.remove("patientonsetageunit");
-        } else {
-            patient.insert("patientonsetageunit".into(), json!(unit));
-        }
-    }
-    if mode == "age-invalid" {
-        *body
-            .pointer_mut("/results/0/patient/patientonsetage")
-            .ok_or("age")? = json!("NaN");
-    }
+    age_input(&mut body, mode)?;
     if mode == "missing-patient" {
         body.pointer_mut("/results/0")
             .and_then(Value::as_object_mut)
@@ -475,14 +460,22 @@ fn ages() -> Check {
         if output.pointer("/result/patient/age") != expected.as_ref() {
             return Err(format!("FAERS age changed its stated unit: {output}"));
         }
-        if expected.is_none() && output["problems"].as_array().is_none_or(Vec::is_empty) {
+        if expected.is_none()
+            && output
+                .get("problems")
+                .and_then(Value::as_array)
+                .is_none_or(Vec::is_empty)
+        {
             return Err("malformed FAERS unit lost its problem".into());
         }
     }
     let (env, _stub) = setup("age-invalid")?;
     let output = both(&env, args(None), 0)?;
     if output.pointer("/result/patient/age").is_some()
-        || output["problems"].as_array().is_none_or(Vec::is_empty)
+        || output
+            .get("problems")
+            .and_then(Value::as_array)
+            .is_none_or(Vec::is_empty)
     {
         return Err("nonfinite FAERS age escaped field rejection".into());
     }
@@ -499,14 +492,7 @@ fn legacy_age_snapshot() -> Check {
         .ok_or("snapshot")?;
     let db = rusqlite::Connection::open(env.root().join("case-cache/replay.sqlite"))
         .map_err(|e| e.to_string())?;
-    let key = Sha256::digest(
-        b"biomcp.faers_snapshot/1\0"
-            .iter()
-            .copied()
-            .chain(b"100".iter().copied())
-            .collect::<Vec<_>>(),
-    )
-    .to_vec();
+    let key = Sha256::digest(b"biomcp.faers_snapshot/1\0100").to_vec();
     db.execute(
         "UPDATE trial_snapshot SET request_key=?1,payload='obsolete age strings'",
         [key],
@@ -519,6 +505,26 @@ fn legacy_age_snapshot() -> Check {
         return Err(format!(
             "old FAERS age snapshot did not restart safely: {output}"
         ));
+    }
+    Ok(())
+}
+
+fn age_input(body: &mut Value, mode: &str) -> Check {
+    if let Some(unit) = mode.strip_prefix("age-unit-") {
+        let patient = body
+            .pointer_mut("/results/0/patient")
+            .and_then(Value::as_object_mut)
+            .ok_or("patient")?;
+        if unit == "absent" {
+            patient.remove("patientonsetageunit");
+        } else {
+            patient.insert("patientonsetageunit".into(), json!(unit));
+        }
+    }
+    if mode == "age-invalid" {
+        *body
+            .pointer_mut("/results/0/patient/patientonsetage")
+            .ok_or("age")? = json!("NaN");
     }
     Ok(())
 }

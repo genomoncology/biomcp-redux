@@ -264,9 +264,9 @@ fn ages() -> Check {
         (
             json!(18),
             Some(json!("Years")),
-            Some(json!({"value":18,"unit":"Years"})),
+            Some(json!({"value":18.0,"unit":"Years"})),
         ),
-        (json!(18), None, Some(json!({"value":18}))),
+        (json!(18), None, Some(json!({"value":18.0}))),
         (json!(18), Some(json!("")), None),
         (json!(18), Some(json!({})), None),
         (json!("bad"), Some(json!("Years")), None),
