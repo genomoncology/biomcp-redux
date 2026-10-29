@@ -31,7 +31,7 @@ def native_id(value):
 
 
 def tsv_id(value):
-    return isinstance(value, str) and value.isascii() and value.isdigit() and str(int(value)) == value and int(value) > 0
+    return isinstance(value, str) and value.isascii() and value.isdigit() and not value.startswith("0")
 
 
 class ProfileCompanions:
@@ -71,8 +71,10 @@ class ProfileCompanions:
             reason = "profile_companion_source_hash_mismatch"
         self.provenance.append(dict(entry))
         body = json.loads(path.read_text())
-        nodes = body.get("data", {}).get("molecularProfiles", {}).get("nodes")
-        if body.get("errors") or not isinstance(nodes, list):
+        data = body.get("data") if isinstance(body, dict) else None
+        profiles = data.get("molecularProfiles") if isinstance(data, dict) else None
+        nodes = profiles.get("nodes") if isinstance(profiles, dict) else None
+        if not isinstance(nodes, list) or body.get("errors"):
             self.invalid = "profile_companion_response_invalid"
             return
         for node in nodes:

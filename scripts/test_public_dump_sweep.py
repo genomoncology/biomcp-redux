@@ -191,6 +191,10 @@ class Sweep(unittest.TestCase):
                                         variant_content=variants, capture_overrides={"retrieved": "unknown"})
         self.assertEqual(result.returncode, 1, result.stderr)
         self.assertEqual(report["profile_refusals"][0]["reason"], "profile_companion_provenance_invalid")
+        result, report = self.run_sweep("civic_profiles", profiles, profile_capture={"data": None, "errors": [{"message": "Synthetic error"}]},
+                                        variant_content=variants)
+        self.assertEqual(result.returncode, 1, result.stderr)
+        self.assertEqual(report["profile_refusals"][0]["reason"], "profile_companion_response_invalid")
         result, report = self.run_sweep("civic_profiles", profiles, profile_capture=capture,
                                         variant_content=variants, capture_overrides={"sha256": "0" * 64})
         self.assertEqual(result.returncode, 2)
