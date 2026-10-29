@@ -66,7 +66,7 @@ enum Fields {
         label: Text,
         /// Source member references in their native order.
         #[serde(default, skip_serializing_if = "<[ _ ]>::is_empty")]
-        #[cfg_attr(feature = "schema", schemars(with = "Box<[MemberRef]>"))]
+        #[cfg_attr(feature = "schema", schemars(schema_with = "member_refs_schema"))]
         members: Box<[VariantRef]>,
         /// Exact source expression and checked member relations.
         #[serde(default, skip_serializing_if = "Option::is_none")]
@@ -340,28 +340,41 @@ struct SourceRef {
     #[serde(default, skip_serializing_if = "Option::is_none")]
     feature_record: Option<Curie>,
     #[serde(default, skip_serializing_if = "<[_]>::is_empty")]
-    #[cfg_attr(feature = "schema", schemars(with = "Box<[LeafRef]>"))]
+    #[cfg_attr(feature = "schema", schemars(schema_with = "source_forms_schema"))]
     forms: Box<[VariantRef]>,
 }
 
+// Reuse the canonical payload schemas while restricting each array's admitted levels.
 #[cfg(feature = "schema")]
-#[derive(schemars::JsonSchema)]
-#[serde(tag = "level", rename_all = "snake_case")]
-#[expect(dead_code, reason = "Schema view of admitted source-stated forms")]
-enum LeafRef {
-    Allele(AlleleRef),
-    Protein(ProteinRef),
+fn tagged_reference<T: schemars::JsonSchema>(
+    generator: &mut schemars::SchemaGenerator,
+    level: &str,
+) -> schemars::Schema {
+    schemars::json_schema!({
+        "allOf": [
+            generator.subschema_for::<T>(),
+            {"type":"object", "properties":{"level":{"const":level}}, "required":["level"]}
+        ]
+    })
 }
 
 #[cfg(feature = "schema")]
-#[derive(schemars::JsonSchema)]
-#[serde(tag = "level", rename_all = "snake_case")]
-#[expect(
-    dead_code,
-    reason = "Schema view of admitted profile member references"
-)]
-enum MemberRef {
-    Allele(AlleleRef),
-    Protein(ProteinRef),
-    Source(SourceRef),
+fn leaf_refs_schema(generator: &mut schemars::SchemaGenerator) -> schemars::Schema {
+    schemars::json_schema!({"oneOf":[
+        tagged_reference::<AlleleRef>(generator, "allele"),
+        tagged_reference::<ProteinRef>(generator, "protein")
+    ]})
+}
+
+#[cfg(feature = "schema")]
+fn source_forms_schema(generator: &mut schemars::SchemaGenerator) -> schemars::Schema {
+    schemars::json_schema!({"type":"array", "items":leaf_refs_schema(generator)})
+}
+
+#[cfg(feature = "schema")]
+fn member_refs_schema(generator: &mut schemars::SchemaGenerator) -> schemars::Schema {
+    schemars::json_schema!({"type":"array", "items":{"oneOf":[
+        leaf_refs_schema(generator),
+        tagged_reference::<SourceRef>(generator, "source")
+    ]}})
 }
