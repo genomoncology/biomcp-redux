@@ -6,8 +6,8 @@ use serde::Deserialize;
 #[derive(Debug, Deserialize)]
 pub(super) struct Biomarker {
     nci_thesaurus_concept_id: Option<Field<NcitId>>,
-    eligibility_criterion: Option<Field<Text>>,
-    inclusion_indicator: Option<Field<Text>>,
+    eligibility_criterion: Option<Field<Box<str>>>,
+    inclusion_indicator: Option<Field<Box<str>>>,
 }
 impl super::Trial {
     /// Keep native trial positions even when the requested use does not bind this code.
@@ -19,14 +19,14 @@ impl super::Trial {
             if &id != code { continue; }
             entries.push(NciTrialBiomarker {
                 nci_thesaurus_concept_id: id,
-                eligibility_criterion: p.required_field("biomarkers.eligibility_criterion", row.eligibility_criterion),
-                inclusion_indicator: p.required_field("biomarkers.inclusion_indicator", row.inclusion_indicator),
+                eligibility_criterion: p.required_native_text("biomarkers.eligibility_criterion", row.eligibility_criterion),
+                inclusion_indicator: p.required_native_text("biomarkers.inclusion_indicator", row.inclusion_indicator),
             });
         }
         if entries.is_empty() { p.required::<Text>("biomarkers.nci_thesaurus_concept_id", None); }
         if let Some(criterion) = criterion {
             let expected = criterion.to_string();
-            if !entries.iter().any(|entry| entry.eligibility_criterion.as_ref().is_some_and(|v| v.as_str() == expected)) {
+            if !entries.iter().any(|entry| entry.eligibility_criterion.as_ref().is_some_and(|v| v.as_ref() == expected)) {
                 p.required::<Text>("biomarkers.eligibility_criterion", None);
             }
         }

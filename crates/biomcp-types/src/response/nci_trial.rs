@@ -149,8 +149,8 @@ pub struct NciTrialBiomarker {
     pub nci_thesaurus_concept_id: biodata::NcitId,
     /// Native criterion, without rewriting or a positivity inference.
     #[serde(default, skip_serializing_if = "Option::is_none")]
-    pub eligibility_criterion: Option<Text>,
+    pub eligibility_criterion: Option<Box<str>>,
     /// Native inclusion indicator, without interpretation.
     #[serde(default, skip_serializing_if = "Option::is_none")]
-    pub inclusion_indicator: Option<Text>,
+    pub inclusion_indicator: Option<Box<str>>,
 }
