@@ -4,6 +4,8 @@ use crate::runner::transcript::trial as transcript_trial;
 use libtest_mimic::Trial;
 use serde_json::{Value, json};
 type Check = Result<(), Box<dyn std::error::Error>>;
+mod cache;
+mod identity;
 
 #[expect(
     clippy::disallowed_methods,
@@ -21,6 +23,7 @@ pub(super) fn trials() -> Vec<Trial> {
         ("jats-section-title", section_title),
         ("semantic-context-native-strings", context_strings),
         ("icite", icite),
+        ("independent-identities", identity::check),
     ]
     .into_iter()
     .map(|(name, run)| {
@@ -30,6 +33,21 @@ pub(super) fn trials() -> Vec<Trial> {
     })
     .collect();
     if let Some(capture) = std::env::var_os("BIOMCP_ORCID_NATIVE_CAPTURE") {
+        let identity_capture = capture.to_string_lossy().into_owned();
+        trials.push(transcript_trial(
+            "literature-values/orcid-independent-identity",
+            move || {
+                identity::append_bad(
+                    &identity_capture,
+                    &["author", "papers", "orcid:0000-0002-7433-2740"],
+                    "orcid",
+                    "/exchanges/0/body/value/group/0/work-summary",
+                    "/put-code",
+                    "put_code",
+                )
+                .map_err(|e| e.to_string().into())
+            },
+        ));
         let capture = capture.to_string_lossy().into_owned();
         trials.push(transcript_trial(
             "literature-values/orcid-native-source",
@@ -44,6 +62,14 @@ pub(super) fn trials() -> Vec<Trial> {
                     "/result/groups/0/assertions/0/source",
                 )
                 .map_err(|e| e.to_string().into())
+            },
+        ));
+    }
+    if let Some(previous) = std::env::var_os("BIOMCP_PREVIOUS_EXECUTABLE") {
+        trials.push(transcript_trial(
+            "literature-values/previous-author-snapshots",
+            move || {
+                cache::check(&std::path::PathBuf::from(&previous)).map_err(|e| e.to_string().into())
             },
         ));
     }
