@@ -104,7 +104,10 @@ struct Fields {
     )]
     #[cfg_attr(feature = "schema", schemars(with = "Text"))]
     criteria: Option<Text>,
-    /// Exact source status. NCI: Active, Administratively Complete, Approved, Closed to Accrual, Closed to Accrual and Intervention, Complete, INACTIVE, Enrolling by Invitation, Temporarily Closed to Accrual, Temporarily Closed to Accrual and Intervention, Withdrawn. ClinicalTrials.gov uses registry labels.
+    #[doc = "Exact source status. NCI: Active, Administratively Complete, Approved, Closed to Accrual, \
+        Closed to Accrual and Intervention, Complete, INACTIVE, Enrolling by Invitation, \
+        Temporarily Closed to Accrual, Temporarily Closed to Accrual and Intervention, Withdrawn. \
+        ClinicalTrials.gov uses registry labels."]
     #[serde(
         default,
         deserialize_with = "super::gene::present",
@@ -303,14 +306,14 @@ impl TrialSearch {
     pub fn criteria(&self) -> Option<&Text> {
         self.0.criteria.as_ref()
     }
-    /// Exact source status. NCI: Active, Administratively Complete, Approved, Closed to Accrual, Closed to Accrual and Intervention, Complete, INACTIVE, Enrolling by Invitation, Temporarily Closed to Accrual, Temporarily Closed to Accrual and Intervention, Withdrawn. ClinicalTrials.gov uses registry labels.
+    /// Exact ClinicalTrials.gov status; NCI filters use nci_status().
     pub fn status(&self) -> Option<&TrialStatus> {
         match self.0.status.as_ref()? {
             TrialStatusFilter::Registry(value) => Some(value),
             TrialStatusFilter::Nci(_) => None,
         }
     }
-    /// Exact source phase. ClinicalTrials.gov: 1, 2, 3, 4, early-1, not-applicable, 1/2, 2/3. NCI: NA, 0, I, I_II, II, II_III, III, IV.
+    /// Exact ClinicalTrials.gov phase; NCI filters use nci_phase().
     pub fn phase(&self) -> Option<&PhaseFilter> {
         match self.0.phase.as_ref()? {
             TrialPhaseFilter::Registry(value) => Some(value),
