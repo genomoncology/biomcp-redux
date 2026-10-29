@@ -23,3 +23,9 @@ The release rehearsal copies all of `tests/` outside the checkout and runs the c
 Reports include the YAML case count, total trial count and elapsed time. The first complete installed run measures the suite timeout; later installation channels use that measurement plus 15 percent. The platform job bounds the first measurement. Fixture path checks reject direct manifest-directory reads outside the launcher.
 
 The cases target still contains in-process schema registry and assertion boundary tables, parity validation, synthetic adapter projection and budget calculations. These execute during both routine and installed runs, but their library calls do not test the installed executable. Their removal or replacement belongs to the in-process trial cleanup. Repository ratchets remain a separate target.
+
+## Measure command coverage
+
+`make coverage` runs `cases` against an instrumented product binary. The launcher gives every child a `bin-%m-%p.profraw` profile name. The script merges only those profiles and reports only the actual binary object through LLVM tools. The denominator contains linked product source lines and excludes generated protobuf code. Harness execution and in-process library contracts never count. `make library-tests` validates those libraries separately in the routine gate.
+
+The PM sets `coverage.floor` from the first binary-only measurement and owns subsequent increases. `make unreached` displays line execution counts from the last complete collection. Raw child and harness profiles remain in the coverage target directory for diagnosis until the next collection.

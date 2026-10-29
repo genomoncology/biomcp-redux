@@ -72,6 +72,18 @@ impl Environment {
         let mut command =
             child_environment::command(&executable(program.as_ref()), self.root.path(), args);
         let nested = std::env::current_exe().is_ok_and(|runner| runner == program.as_ref());
+        if let Some(profile) = std::env::var_os("LLVM_PROFILE_FILE")
+            && let Some(directory) = Path::new(&profile).parent()
+        {
+            // A nested test runner remains harness execution. Its own product
+            // children pass through this boundary and receive binary profiles.
+            let pattern = if nested {
+                "harness-%m-%p.profraw"
+            } else {
+                "bin-%m-%p.profraw"
+            };
+            command.env("LLVM_PROFILE_FILE", directory.join(pattern));
+        }
         if nested {
             // Nested runner proofs must retain the selection, never falling
             // back to Cargo's binary merely because a helper cleared its env.

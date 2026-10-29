@@ -1,6 +1,7 @@
 # 0476 — Keep only openly licensed article text in public fixtures
 
-Status: OPEN.
+Status: COMPLETE.
+Landed: 6be90cda35b1b9d97e37db8df3eb71052a5f173e
 
 Milestone: 5
 

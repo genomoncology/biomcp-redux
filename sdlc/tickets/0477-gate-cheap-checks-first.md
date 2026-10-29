@@ -1,6 +1,7 @@
 # 0477 — Run the dependency and secret checks before coverage in the landing gate
 
-Status: OPEN.
+Status: COMPLETE.
+Landed: 2eb027687d13ea7dd91aaa939ac5ca0d3ebb71f3
 
 Milestone: 5
 

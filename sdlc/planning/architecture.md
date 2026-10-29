@@ -1927,9 +1927,9 @@ The source ratchet permits `dead_code` only in the private `crates/biomcp-adapte
 
 ### 10.3 Coverage
 
-`make coverage` runs the case suite under `cargo llvm-cov`. The runner spawns the binary as a subprocess, so the target uses `cargo llvm-cov show-env` to build an instrumented binary and sets a profile file pattern per process. Every spawned binary then writes its own profile, and the cases report merges them. The counted collection also runs only the reviewed public type-contract targets explicitly named with feature ownership and any required Cargo features in `sdlc/features.md`. These tests deserialize literal caller inputs through exported types and assert published validation and wire facts without hooks. The command-only figure prints separately for historical comparison. Unlisted contracts and library unit tests run in a separate excluded profile collection and never raise the floor figure. A target needs review before its feature entry can count; the historical permitted-test inventory below grants no counting authority. Both reports use the same product-source denominator; test targets, internal test modules, generated output and build scripts are excluded.
+`make coverage` instruments the `cases` target and the product binary through `cargo llvm-cov show-env`. The launcher sets `LLVM_PROFILE_FILE` to `bin-%m-%p.profraw` in the collection directory for every child. The script merges only `bin-` profiles with `llvm-profdata merge` and reports with `llvm-cov report --object` on the actual binary. Cargo's report command cannot select one object. The denominator contains source lines mapped into that binary from product crates. Harness code, test modules, in-process library calls, dependencies and generated protobuf code count toward neither side. Library functions absent from the binary have no mapping and fall outside the denominator. Public contracts and library tests run separately through `make library-tests` and never supply counted profiles.
 
-The landing gate fails when line coverage falls more than 0.2 points below the floor in `coverage.floor`. The tolerance absorbs counting noise between runs. Only the lander raises the floor, after a landing whose coverage exceeds it. `make unreached` lists the lines no case runs, for the reviewer. Each listed line is either deleted or given a case.
+The landing gate fails when line coverage falls more than 0.2 points below `coverage.floor`. Only the PM sets and raises the floor, starting from the first binary-only measurement. `make unreached` shows counted product source with line execution counts for review.
 
 ### 10.4 Where unit tests are allowed
 
@@ -2114,7 +2114,7 @@ The PM ruled on this design's earlier open questions on 2026-10-23. This file ap
 5. **Several inputs per get.** `get` takes up to twenty inputs and returns items in input order, each with its own status. Sections are a closed enum per entity, with `--section` on collision.
 6. **Statuses and exit codes.** Distinct statuses and codes for absent, usage, expired, failed and local errors. Ambiguous and withdrawn inputs and zero-hit searches are answers that exit 0. A capped pool is complete with `truncated` and `total`. `main` returns `ExitCode`.
 7. **Bundles.** Explicit `biomcp sync` uses a lock, a separate budget and resumable downloads, and never runs offline. Stored-bundle reads never synchronize. The older `Leg::rows` path retains bounded automatic synchronization as described in section 4.11.
-8. **Coverage floor.** In the gate with a 0.2-point tolerance. Only the lander raises it. The subprocess binary is instrumented.
+8. **Coverage floor.** In the gate with a 0.2-point tolerance. Only the PM raises it. The subprocess binary is instrumented.
 9. **Wiki tables.** Entity, alias and link tables are deferred to the wiki's own design, and their DDL is gone from this file.
 
 Ian ruled on 2026-10-24, and this file applies each ruling:
