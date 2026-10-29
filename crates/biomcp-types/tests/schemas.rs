@@ -508,7 +508,8 @@ fn source_forms_and_profile_members_match_admitted_subject_levels()
 -> Result<(), Box<dyn std::error::Error>> {
     let validator = jsonschema::draft202012::new(&generate::<VariantRef>())?;
     let allele = serde_json::json!({"level":"allele", "id":"VCV000013961.3"});
-    let protein = serde_json::json!({"level":"protein", "gene":{"label":"EGFR"}, "label":"source label"});
+    let protein =
+        serde_json::json!({"level":"protein", "gene":{"label":"EGFR"}, "label":"source label"});
     let source = |forms| {
         serde_json::json!({
             "level":"source", "record":"civic:1", "feature":"native feature", "forms":forms
