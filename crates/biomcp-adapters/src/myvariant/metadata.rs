@@ -21,14 +21,7 @@ pub(super) fn components(
         list: Vec::new(),
     };
     let build = problems.field("build_version", raw.build_version);
-    let built = problems
-        .field("build_date", raw.build_date)
-        .and_then(|value| {
-            problems.optional(
-                "build_date",
-                Some(value.as_str().parse::<SourceDateTimeValue>()),
-            )
-        });
+    let built = problems.field("build_date", raw.build_date);
     let mut value = Vec::new();
     for declaration in selected {
         let name = Text::new(declaration.name).map_err(|_| super::leg_bad())?;
@@ -64,13 +57,7 @@ fn uploads(
 ) -> (Option<SourceDateTimeValue>, Box<[ComponentUpload]>) {
     match raw {
         None => (None, Box::default()),
-        Some(Uploads::One(value)) => (
-            problems.optional(
-                &format!("{prefix}.upload_date"),
-                Some(value.as_str().parse()),
-            ),
-            Box::default(),
-        ),
+        Some(Uploads::One(value)) => (Some(value), Box::default()),
         Some(Uploads::Many(values)) => {
             let values = values
                 .into_iter()
@@ -80,7 +67,7 @@ fn uploads(
                     let date = problems.field(&field, Some(raw))?;
                     Some(ComponentUpload {
                         name,
-                        date: problems.optional(&field, Some(date.as_str().parse()))?,
+                        date: date.into(),
                     })
                 })
                 .collect();
@@ -91,7 +78,7 @@ fn uploads(
 #[derive(Deserialize)]
 struct Metadata {
     build_version: Option<Field<Text>>,
-    build_date: Option<Field<Text>>,
+    build_date: Option<Field<SourceDateTimeValue>>,
     src: BTreeMap<String, Field<Component>>,
 }
 #[derive(Deserialize)]
@@ -104,8 +91,8 @@ struct Component {
 #[derive(Deserialize)]
 #[serde(untagged)]
 enum Uploads {
-    One(Text),
-    Many(BTreeMap<String, Field<Text>>),
+    One(SourceDateTimeValue),
+    Many(BTreeMap<String, Field<SourceDateTimeValue>>),
 }
 impl Reply for Metadata {
     fn check(&self) -> Result<(), BadReply> {

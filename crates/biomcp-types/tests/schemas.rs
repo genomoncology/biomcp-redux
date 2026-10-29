@@ -41,8 +41,16 @@ fn native_timestamp_string_schema_keeps_local_and_offset_profiles() {
         ("2024-05-03T10:00:00+24:00", false, false),
         ("2024-05-03T10:00:00.", false, false),
     ] {
-        assert_eq!(validator.is_valid(&serde_json::json!(text)), lexical, "{text}");
-        assert_eq!(text.parse::<SourceDateTimeValue>().is_ok(), runtime, "{text}");
+        assert_eq!(
+            validator.is_valid(&serde_json::json!(text)),
+            lexical,
+            "{text}"
+        );
+        assert_eq!(
+            text.parse::<SourceDateTimeValue>().is_ok(),
+            runtime,
+            "{text}"
+        );
     }
 }
 #[path = "schemas/values.rs"]

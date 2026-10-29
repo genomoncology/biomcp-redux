@@ -49,11 +49,15 @@ pub struct SourceDateTime {
 impl FromStr for SourceDateTime {
     type Err = biodata::Error;
     fn from_str(value: &str) -> Result<Self, Self::Err> {
-        let value = value.parse()?;
+        value.parse::<SourceDateTimeValue>().map(Self::from)
+    }
+}
+impl From<SourceDateTimeValue> for SourceDateTime {
+    fn from(value: SourceDateTimeValue) -> Self {
         let timezone = match &value {
             SourceDateTimeValue::Timestamp(_) => SourceTimestampTimezone::InValue,
             SourceDateTimeValue::Local(_) => SourceTimestampTimezone::SourceGaveNone,
         };
-        Ok(Self { value, timezone })
+        Self { value, timezone }
     }
 }

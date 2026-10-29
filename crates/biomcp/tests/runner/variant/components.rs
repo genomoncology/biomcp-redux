@@ -3,7 +3,7 @@ use super::{Stub, Value, component_body, json, source_environment};
 
 pub(super) fn timestamp_admission() -> Result<(), String> {
     let prefix = "/result/candidates/0/sections/conservation/data/components/0";
-    for mode in ["local", "invalid", "empty"] {
+    for mode in ["local", "offset", "invalid", "whitespace", "empty"] {
         let value = super::super::response_cases::checked_case(
             "variant/synthetic-components",
             &[
@@ -19,13 +19,15 @@ pub(super) fn timestamp_admission() -> Result<(), String> {
             0,
         )
         .map_err(|error| error.to_string())?;
-        if mode == "local" {
-            if value.pointer(&format!("{prefix}/aggregator_built"))
-                != Some(&json!("2020-05-08T17:33:59.756164"))
+        if mode == "local" || mode == "offset" {
+            let (text, timezone) = if mode == "local" {
+                ("2020-05-08T17:33:59.756164", "source-gave-none")
+            } else {
+                ("2020-05-08t17:33:59.756164-04:30", "in-value")
+            };
+            if value.pointer(&format!("{prefix}/aggregator_built")) != Some(&json!(text))
                 || value.pointer(&format!("{prefix}/uploads/0/date"))
-                    != Some(
-                        &json!({"value":"2020-05-08T17:33:59.756164","timezone":"source-gave-none"}),
-                    )
+                    != Some(&json!({"value":text,"timezone":timezone}))
             {
                 return Err(format!(
                     "local timestamp precision or timezone changed: {value}"
@@ -74,6 +76,10 @@ fn timestamp_body(mode: &str, record: &mut Value) {
         } else {
             let timestamp = if mode == "local" {
                 "2020-05-08T17:33:59.756164"
+            } else if mode == "offset" {
+                "2020-05-08t17:33:59.756164-04:30"
+            } else if mode == "whitespace" {
+                " 2020-05-08T17:33:59.756164 "
             } else {
                 "2024-02-30T10:00:00"
             };
