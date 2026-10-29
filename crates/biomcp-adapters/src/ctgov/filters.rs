@@ -1,5 +1,26 @@
 //! Native registry advanced expressions.
 use biomcp_types::TrialSearch;
+use std::collections::BTreeMap;
+
+pub(super) fn base_parameters(query: &TrialSearch) -> BTreeMap<String, String> {
+    let mut fields = "NCTId,BriefTitle,OverallStatus,Phase,Condition,InterventionName,LastUpdatePostDate,HasResults".to_owned();
+    if !query.country().is_empty() {
+        fields.push_str(",LocationCountry");
+    }
+    BTreeMap::from([
+        ("countTotal".into(), "true".into()),
+        (
+            "pageSize".into(),
+            if query.count_only() {
+                "1".into()
+            } else {
+                query.limit().to_string()
+            },
+        ),
+        ("fields".into(), fields),
+    ])
+}
+
 pub(super) fn advanced(query: &TrialSearch) -> String {
     let mut advanced = Vec::new();
     if query.exact_condition() {

@@ -49,19 +49,7 @@ pub struct SearchPage {
 }
 /// Exact parameters; resolved gene text is explicit and attributed to HGNC by the caller.
 pub fn parameters(query: &TrialSearch, gene: Option<&str>) -> BTreeMap<String, String> {
-    let mut p = BTreeMap::from([
-        ("countTotal".into(), "true".into()),
-        ("pageSize".into(), if query.count_only() { "1".into() } else { query.limit().to_string() }),
-        (
-            "fields".into(),
-            "NCTId,BriefTitle,OverallStatus,Phase,Condition,InterventionName,LastUpdatePostDate,HasResults".into(),
-        ),
-    ]);
-    if !query.country().is_empty() {
-        if let Some(fields) = p.get_mut("fields") {
-            fields.push_str(",LocationCountry");
-        }
-    }
+    let mut p = filters::base_parameters(query);
     for (name, values) in [
         ("query.cond", query.condition()),
         ("query.intr", query.intervention()),
