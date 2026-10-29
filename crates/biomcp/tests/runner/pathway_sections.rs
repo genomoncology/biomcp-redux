@@ -328,8 +328,11 @@ fn migration() -> Check {
             |r| Ok((r.get(0)?, r.get(1)?)),
         )
         .map_err(|e| e.to_string())?;
-    if version != 4 || preserved != "preserve" {
-        return Err("migration changed a foreign owner or version".into());
+    if version != biomcp_fetch::VERSION {
+        return Err("migration did not update the transport owner version".into());
+    }
+    if preserved != "preserve" {
+        return Err("migration changed a foreign owner's data".into());
     }
     Ok(())
 }
