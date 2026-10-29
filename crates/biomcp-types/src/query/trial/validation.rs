@@ -26,6 +26,12 @@ impl TryFrom<Fields> for TrialSearch {
                 return Err(QueryInvalid::new(&["condition_id", "source"]));
             }
         }
+        if (f.biomarker_code.is_some() || f.biomarker_use.is_some()) && f.source != TrialSource::Nci {
+            return Err(QueryInvalid::new(&["biomarker_code", "biomarker_use", "source"]));
+        }
+        if f.biomarker_use.is_some() && f.biomarker_code.is_none() {
+            return Err(QueryInvalid::new(&["biomarker_code", "biomarker_use"]));
+        }
         validate_alternatives(&f)?;
         validate_exact_condition(&f)?;
         if !(1..=100).contains(&f.limit) {

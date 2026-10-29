@@ -109,7 +109,7 @@ pub use trial_get::{
 
 mod nci_trial;
 pub use nci_trial::{
-    NciDisease, NciDiseaseRef, NciMatchedSite, NciTrial, NciTrialCards, NciTrialItem, NciTrialPage,
+    NciDisease, NciDiseaseRef, NciMatchedSite, NciTrial, NciTrialCards, NciTrialItem, NciTrialPage, NciTrialBiomarker,
 };
 
 mod nci_detail;

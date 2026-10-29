@@ -6,6 +6,7 @@ pub mod organization;
 mod organization_map;
 mod organization_raw;
 mod sites;
+mod trial_biomarker;
 use biodata::{NctId, Text};
 
 use biomcp_fetch::{
@@ -70,6 +71,7 @@ pub struct Trial {
     #[serde(default)]
     #[serde(deserialize_with = "crate::strict_input::deserialize")]
     diseases: Vec<NciDisease>,
+    biomarkers: Option<crate::raw::Field<Vec<crate::raw::Field<trial_biomarker::Biomarker>>>>,
     sites: Option<crate::raw::Field<Vec<crate::raw::Field<sites::Site>>>>,
     #[serde(default, deserialize_with = "crate::strict_input::deserialize")]
     eligibility: Option<biomcp_types::NciEligibility>,
@@ -121,6 +123,7 @@ impl Trial {
             brief_title: self.brief_title.clone(),
             current_trial_status: self.current_trial_status.clone(),
             phase: self.phase.clone(),
+            matched_biomarkers: Box::default(),
             matched_site: None,
             matching_sites: None,
             brief_summary: if summary {
@@ -205,6 +208,12 @@ pub fn parameters(query: &TrialSearch) -> Vec<(String, String)> {
     if let Some(name) = query.facility() {
         params.push(("sites.org_name".into(), name.as_str().into()));
     }
+    if let Some(code) = query.biomarker_code() {
+        params.push(("biomarkers.nci_thesaurus_concept_id".into(), code.to_string()));
+    }
+    if let Some(criterion) = query.biomarker_use() {
+        params.push(("biomarkers.eligibility_criterion".into(), criterion.to_string()));
+    }
     for field in [
         "nci_id",
         "nct_id",
@@ -214,6 +223,9 @@ pub fn parameters(query: &TrialSearch) -> Vec<(String, String)> {
         "diseases",
     ] {
         params.push(("include".into(), field.into()));
+    }
+    if query.biomarker_code().is_some() {
+        params.push(("include".into(), "biomarkers".into()));
     }
     if query.facility().is_some() {
         params.push(("include".into(), "sites".into()));

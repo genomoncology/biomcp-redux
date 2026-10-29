@@ -49,6 +49,15 @@ pub fn get(cx: &Ctx<'_>, q: &BiomarkerGet) -> Outcome {
         } else {
             Status::Complete
         };
+        for row in &rows {
+            for id in &row.header.codes {
+                let step = (StepKind::Pivot, Action::Run {
+                    request: biomcp_types::Request::SearchTrial(biomcp_types::TrialSearch::for_nci_biomarker(id.clone())),
+                    fresh: false,
+                });
+                out.next.push(step);
+            }
+        }
         out.problems = reply.problems;
         out.body = QueryBody::BiomarkerResult(BiomarkerResult {
             card: if total == 1 { rows.pop() } else { None },

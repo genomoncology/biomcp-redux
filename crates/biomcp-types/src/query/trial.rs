@@ -1,4 +1,6 @@
 mod condition;
+mod biomarker;
+pub use biomarker::NciBiomarkerUse;
 use crate::{GeneInput, NctId, PartialDate, StudyType, Text, TrialSex, TrialStatus};
 use serde::{Deserialize, Serialize};
 const MAX_ALTERNATIVES: usize = 5;
@@ -75,6 +77,14 @@ struct Fields {
     )]
     #[cfg_attr(feature = "schema", schemars(with = "Text"))]
     variant: Option<Text>,
+    /// Exact NCIt biomarker concept listed by NCI in trial criteria; NCI source only. This listing does not establish biomarker positivity or patient eligibility.
+    #[serde(default, deserialize_with = "super::gene::present", skip_serializing_if = "Option::is_none")]
+    #[cfg_attr(feature = "schema", schemars(with = "biodata::NcitId"))]
+    biomarker_code: Option<biodata::NcitId>,
+    /// Filter by NCI's native inclusion or exclusion criterion. Check each result's biomarker entry and reported problems.
+    #[serde(default, deserialize_with = "super::gene::present", skip_serializing_if = "Option::is_none")]
+    #[cfg_attr(feature = "schema", schemars(with = "NciBiomarkerUse"))]
+    biomarker_use: Option<NciBiomarkerUse>,
     /// Search literal registry eligibility text for discovery only; no eligibility judgment.
     #[serde(
         default,
@@ -219,6 +229,23 @@ fn default_limit() -> u32 {
 }
 crate::query::validation::checked_query!(TrialSearch, Fields);
 impl TrialSearch {
+    /// Search trials that list the exact NCI biomarker concept.
+    pub fn for_nci_biomarker(code: biodata::NcitId) -> Self {
+        Self(Box::new(Fields {
+            source: TrialSource::Nci,
+            biomarker_code: Some(code),
+            limit: default_limit(),
+            ..Fields::default()
+        }))
+    }
+    /// Exact source concept, without descendant expansion.
+    pub fn biomarker_code(&self) -> Option<&biodata::NcitId> {
+        self.0.biomarker_code.as_ref()
+    }
+    /// Native source criterion requested by the caller.
+    pub fn biomarker_use(&self) -> Option<NciBiomarkerUse> {
+        self.0.biomarker_use
+    }
     /// Search NCI trials at the exact published organization name.
     pub fn for_nci_facility(name: Text) -> Self {
         Self(Box::new(Fields {

@@ -12,7 +12,7 @@ pub(super) struct Site {
 }
 impl super::Trial {
     /// Compact facility search card and problems for malformed or unequal source sites.
-    pub fn facility_card(self, name: &Text) -> Mapped<NciTrial> {
+    pub fn facility_card(&mut self, name: &Text) -> Mapped<NciTrial> {
         let mut card = self.card(false);
         let mut p = Problems {
             source: Source::Nci,
@@ -21,7 +21,7 @@ impl super::Trial {
         };
         let expected = name.as_str().to_lowercase();
         let mut count = 0;
-        for row in p.fields("sites", self.sites) {
+        for row in p.fields("sites", self.sites.take()) {
             let Some(org_name) = p.required_field("sites.org_name", row.org_name) else {
                 continue;
             };

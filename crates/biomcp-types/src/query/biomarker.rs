@@ -15,7 +15,7 @@ fn limit() -> u32 {
 }
 #[doc = "Find NCI biomarker concepts by name or synonym. The public tier returns codes, name, type, trial count, synonyms, \
     parent_ids, ancestor_ids and eligibility_criterion. These concepts differ from diagnostic --biomarker filters and \
-    literal trial --variant text. Native criteria do not establish patient eligibility."]
+    literal trial --variant text. Use search trial --source nci --biomarker-code CODE for trials that list an exact concept. Native criteria do not establish patient eligibility."]
 #[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
 #[serde(try_from = "SearchFields")]
 #[cfg_attr(feature = "schema", derive(schemars::JsonSchema))]

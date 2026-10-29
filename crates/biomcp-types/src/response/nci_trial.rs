@@ -21,6 +21,9 @@ pub struct NciTrial {
     /// Number of sites with that name, without deduplication; present only for facility searches.
     #[serde(default, skip_serializing_if = "Option::is_none")]
     pub matching_sites: Option<u32>,
+    /// Entries with the exact searched biomarker code, preserving source order and native fields.
+    #[serde(default, skip_serializing_if = "<[_]>::is_empty")]
+    pub matched_biomarkers: Box<[NciTrialBiomarker]>,
     /// Native short summary, only on exact retrieval.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub brief_summary: Option<crate::NciTextPage>,
@@ -136,4 +139,18 @@ pub struct NciMatchedSite {
     /// Native recruitment status, without translation or enrollment inference.
     #[serde(default, skip_serializing_if = "Option::is_none")]
     pub recruitment_status: Option<Text>,
+}
+
+/// One listed NCI biomarker entry; native values do not establish patient eligibility.
+#[derive(Clone, Debug, PartialEq, Serialize, Deserialize)]
+#[cfg_attr(feature = "schema", derive(schemars::JsonSchema))]
+pub struct NciTrialBiomarker {
+    /// Exact source NCIt concept identity.
+    pub nci_thesaurus_concept_id: biodata::NcitId,
+    /// Native criterion, without rewriting or a positivity inference.
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub eligibility_criterion: Option<Text>,
+    /// Native inclusion indicator, without interpretation.
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub inclusion_indicator: Option<Text>,
 }
