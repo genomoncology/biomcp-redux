@@ -1,5 +1,7 @@
 //! Preserve native processing timestamps without inventing a missing timezone.
 use serde::{Deserialize, Serialize};
+mod value;
+pub use value::SourceTimestampValue;
 
 /// Native source timestamp and the availability of its timezone.
 #[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]

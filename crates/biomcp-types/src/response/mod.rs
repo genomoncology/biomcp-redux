@@ -47,7 +47,7 @@ mod page;
 mod section;
 mod source;
 mod source_timestamp;
-pub use source_timestamp::{SourceTimestamp, SourceTimestampTimezone};
+pub use source_timestamp::{SourceTimestamp, SourceTimestampTimezone, SourceTimestampValue};
 mod status;
 mod store;
 pub use store::{BundleSize, StoreClean, StoreSize};

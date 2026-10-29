@@ -5,6 +5,53 @@ use biomcp_types::{
 };
 use serde_json::json;
 #[test]
+fn source_timestamp_values_check_rfc3339_without_changing_offset_or_precision() {
+    use biomcp_types::SourceTimestampValue;
+    for native in [
+        "2024-05-03T10:00:00+02:00",
+        "2024-05-03T10:00:00.000100-04:30",
+        "2024-02-29t00:00:00.123456789012z",
+        "2024-05-03T10:00:00-00:00",
+        "1990-12-31T23:59:60Z",
+        "1990-12-31T15:59:60-08:00",
+        "1991-01-01T00:59:60+01:00",
+    ] {
+        let checked: SourceTimestampValue = native.parse().unwrap();
+        assert_eq!(checked.as_str(), native);
+        let wire = json!(native);
+        assert_eq!(serde_json::to_value(&checked).unwrap(), wire);
+        assert_eq!(
+            serde_json::from_value::<SourceTimestampValue>(wire).unwrap(),
+            checked
+        );
+    }
+    for native in [
+        "2024",
+        "2024-05-03",
+        "2024-05-03T10:00:00",
+        "2023-02-29T10:00:00Z",
+        "2024-04-31T10:00:00Z",
+        "2024-05-03T24:00:00Z",
+        "2024-05-03T10:60:00Z",
+        "2024-05-03T10:00:61Z",
+        "2024-05-03T10:00:60Z",
+        "2024-05-03T10:00:00.Z",
+        "2024-05-03T10:00:00+24:00",
+        "2024-05-03T10:00:00+02:60",
+        "2024-05-03T10:00:00+0200",
+        "2024-05-03T10:00:00Z\n",
+        "2024-05-03T10:00:00.1.2Z",
+        "2024-05-03T10:00:00＋02:00",
+        "0000-01-01T00:00:00Z",
+    ] {
+        assert!(native.parse::<SourceTimestampValue>().is_err(), "{native}");
+        assert!(
+            serde_json::from_value::<SourceTimestampValue>(json!(native)).is_err(),
+            "{native}"
+        );
+    }
+}
+#[test]
 fn every_section_state_round_trips_without_conflating_data_and_failure() {
     let states = [
         Section::Data {
