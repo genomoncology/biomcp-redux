@@ -281,7 +281,9 @@ fn venue() -> Check {
                     .and_then(Value::as_array_mut)
                 {
                     for row in rows {
-                        row["venue"] = json!(text);
+                        if let Some(row) = row.as_object_mut() {
+                            row.insert("venue".into(), json!(text));
+                        }
                     }
                 }
             },
