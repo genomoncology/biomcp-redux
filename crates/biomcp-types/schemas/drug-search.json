@@ -12,10 +12,25 @@
         " Match an explicit native synonym exactly, ignoring case."
       ]
     },
+    "DrugRecallClassification": {
+      "description": "FDA's native recall classification, with no local ranking.",
+      "enum": [
+        "Class I",
+        "Class II",
+        "Class III"
+      ],
+      "type": "string",
+      "x-enum-descriptions": [
+        " Native Class I.",
+        " Native Class II.",
+        " Native Class III."
+      ]
+    },
     "DrugSource": {
       "description": "A supported drug data source.",
       "enum": [
         "who-pq",
+        "fda-drug-recall",
         "mychem",
         "chembl",
         "opentargets",
@@ -27,6 +42,11 @@
       ],
       "type": "string"
     },
+    "PartialDate": {
+      "description": "A Gregorian date preserving year, month or day precision.",
+      "pattern": "^[0-9]{4}(-[0-9]{2}(-[0-9]{2})?)?$",
+      "type": "string"
+    },
     "Text": {
       "description": "Nonempty text with surrounding Unicode whitespace removed.",
       "minLength": 1,
@@ -36,8 +56,52 @@
   "$id": "biomcp.drug-search/2",
   "$schema": "https://json-schema.org/draft/2020-12/schema",
   "additionalProperties": false,
-  "description": "Literal single-source candidate discovery, without an implicit identity selection.",
+  "description": "Search one drug source. FDA drug recalls accept a name or native firm, classification, status, reason and initiation dates; counts are recall records. Other sources require a name.",
   "properties": {
+    "classification": {
+      "anyOf": [
+        {
+          "$ref": "#/$defs/DrugRecallClassification"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "description": "Native FDA classification; drug recalls only."
+    },
+    "firm": {
+      "anyOf": [
+        {
+          "$ref": "#/$defs/Text"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "description": "Literal published recalling firm phrase; drug recalls only."
+    },
+    "initiated_from": {
+      "anyOf": [
+        {
+          "$ref": "#/$defs/PartialDate"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "description": "Inclusive initiation day, YYYY-MM-DD; drug recalls only."
+    },
+    "initiated_to": {
+      "anyOf": [
+        {
+          "$ref": "#/$defs/PartialDate"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "description": "Inclusive initiation day, YYYY-MM-DD; drug recalls only."
+    },
     "limit": {
       "default": 10,
       "description": "Native candidate rows per page.",
@@ -59,18 +123,37 @@
     },
     "query": {
       "$ref": "#/$defs/Text",
-      "description": "Literal source name selector, unchanged by the consumer.",
+      "description": "Literal name phrase; optional for FDA drug recalls. Harmonized recall names match but never become display names.",
       "x-positional": 0
+    },
+    "reason": {
+      "anyOf": [
+        {
+          "$ref": "#/$defs/Text"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "description": "Phrase in the published recall reason; drug recalls only."
     },
     "source": {
       "$ref": "#/$defs/DrugSource",
       "default": "mychem",
       "description": "Exactly one source; default MyChem never fans out."
+    },
+    "status": {
+      "anyOf": [
+        {
+          "$ref": "#/$defs/Text"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "description": "Literal native recall status; drug recalls only."
     }
   },
-  "required": [
-    "query"
-  ],
   "title": "DrugSearch",
   "type": "object"
 }

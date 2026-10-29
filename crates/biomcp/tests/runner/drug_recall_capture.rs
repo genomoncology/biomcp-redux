@@ -115,4 +115,3 @@ fn input(root: &Path, n: usize) -> Result<(String, Value, String), String> {
     let request_line = format!("GET {} HTTP/1.1", path.replace('+', "%20"));
     Ok((body, expected, request_line))
 }
-

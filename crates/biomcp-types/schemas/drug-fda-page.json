@@ -298,9 +298,67 @@
         "synonym"
       ]
     },
+    "DrugRecallClassification": {
+      "description": "FDA's native recall classification, with no local ranking.",
+      "type": "string",
+      "x-enum-descriptions": [
+        " Native Class I.",
+        " Native Class II.",
+        " Native Class III."
+      ],
+      "x-extensible-enum": [
+        "Class I",
+        "Class II",
+        "Class III"
+      ]
+    },
     "DrugSearch": {
-      "description": "Literal single-source candidate discovery, without an implicit identity selection.",
+      "description": "Search one drug source. FDA drug recalls accept a name or native firm, classification, status, reason and initiation dates; counts are recall records. Other sources require a name.",
       "properties": {
+        "classification": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/DrugRecallClassification"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "description": "Native FDA classification; drug recalls only."
+        },
+        "firm": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/Text"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "description": "Literal published recalling firm phrase; drug recalls only."
+        },
+        "initiated_from": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/PartialDate"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "description": "Inclusive initiation day, YYYY-MM-DD; drug recalls only."
+        },
+        "initiated_to": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/PartialDate"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "description": "Inclusive initiation day, YYYY-MM-DD; drug recalls only."
+        },
         "limit": {
           "default": 10,
           "description": "Native candidate rows per page.",
@@ -322,18 +380,37 @@
         },
         "query": {
           "$ref": "#/$defs/Text",
-          "description": "Literal source name selector, unchanged by the consumer.",
+          "description": "Literal name phrase; optional for FDA drug recalls. Harmonized recall names match but never become display names.",
           "x-positional": 0
+        },
+        "reason": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/Text"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "description": "Phrase in the published recall reason; drug recalls only."
         },
         "source": {
           "$ref": "#/$defs/DrugSource",
           "default": "mychem",
           "description": "Exactly one source; default MyChem never fans out."
+        },
+        "status": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/Text"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "description": "Literal native recall status; drug recalls only."
         }
       },
-      "required": [
-        "query"
-      ],
       "type": "object"
     },
     "DrugSource": {
@@ -341,6 +418,7 @@
       "type": "string",
       "x-extensible-enum": [
         "who-pq",
+        "fda-drug-recall",
         "mychem",
         "chembl",
         "opentargets",
@@ -603,6 +681,7 @@
         " openFDA premarket approval submissions.",
         " FDA native 510(k) clearance records.",
         " openFDA medical device product recall records.",
+        " FDA drug enforcement recall records.",
         " Clinical Pharmacogenetics Implementation Consortium.",
         " ClinPGx pharmacogenomics annotations.",
         " Public cBioPortal with study-specific reuse terms.",
@@ -677,6 +756,7 @@
         "fda-pma",
         "fda-510k",
         "fda-device-recall",
+        "fda-drug-recall",
         "cpic",
         "clinpgx",
         "cbioportal",
@@ -986,7 +1066,7 @@
       "type": "string"
     }
   },
-  "$id": "biomcp.drug-fda-page/2",
+  "$id": "biomcp.drug-fda-page/3",
   "$schema": "https://json-schema.org/draft/2020-12/schema",
   "description": "One versioned command response; schema identity comes only from its body type.\nJSON readers ignore unknown fields and unknown growable enum values within a major.",
   "properties": {
@@ -1042,7 +1122,7 @@
       "description": "Answer when available."
     },
     "schema": {
-      "const": "biomcp.drug-fda-page/2",
+      "const": "biomcp.drug-fda-page/3",
       "type": "string"
     },
     "sources": {
