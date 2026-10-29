@@ -109,7 +109,7 @@ fn single_variant_json_keeps_its_existing_form() -> Check {
 
 #[test]
 fn source_member_preserves_only_source_stated_leaf_forms() -> Check {
-    let allele = VariantRef::allele("CA123".parse()?);
+    let allele = VariantRef::allele("VCV000013961.3".parse()?);
     let source = VariantRef::source(
         "civic:1".parse()?,
         Text::new("feature")?,
