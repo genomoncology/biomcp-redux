@@ -104,8 +104,8 @@ pub(super) fn check(root: &Path) -> Check {
                 .replace('\\', "/");
             if relative != "crates/biomcp/tests/runner/launch.rs"
                 && tokens(&text)
-                    .windows(4)
-                    .any(|v| v == ["env", "!", "(", "\"CARGO_MANIFEST_DIR\""])
+                    .iter()
+                    .any(|token| token == "\"CARGO_MANIFEST_DIR\"")
             {
                 return fail(&relative, "test fixture paths belong in runner/launch.rs");
             }
