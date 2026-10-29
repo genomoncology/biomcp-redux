@@ -1,4 +1,5 @@
-use super::{SPEC, raw::CatalogRow};
+use super::{SPEC, catalog_row::CatalogRow};
+use crate::Mapped;
 use biodata::{Pathway, PathwayId, PathwaySpecies, WikiPathwaysId};
 use biomcp_fetch::{
     BundleInfo, BundlePart, BundleSet, Fetch, Find, Freshness, KeyKind, Leg, RequestError,
@@ -62,67 +63,82 @@ pub fn sync(fetch: &Fetch) -> Result<WikiPathwaysSync, RequestError> {
     })
 }
 /// Search only native titles in original catalog order, with exact source species admission.
-pub fn search(leg: &Leg<'_>, text: &str) -> Result<(Vec<PathwayHeader>, BundleInfo), RequestError> {
+pub fn search(
+    leg: &Leg<'_>,
+    text: &str,
+) -> Result<(Mapped<Vec<PathwayHeader>>, BundleInfo), RequestError> {
     let (rows, info) = leg.stored_set_rows(&CATALOGS, Find::Exact(KeyKind::Band, "catalog"))?;
     let needle = text.to_lowercase();
-    let items = rows
-        .into_iter()
-        .filter(|r| {
-            r.part.as_ref() == "search"
-                && r.value.native.species.as_ref() == "Homo sapiens"
-                && r.value
-                    .native
+    let mut mapped = Mapped {
+        value: Vec::new(),
+        problems: Vec::new(),
+    };
+    for row in rows.into_iter().filter(|r| r.part.as_ref() == "search") {
+        mapped
+            .problems
+            .extend(row.value.problems.into_iter().flatten());
+        let Some(row) = row.value.native else {
+            continue;
+        };
+        if row.species.as_ref() == "Homo sapiens"
+            && (needle.is_empty()
+                || row
                     .name
-                    .as_str()
-                    .to_lowercase()
-                    .contains(&needle)
-        })
-        .map(|r| {
-            let row = r.value.native;
-            PathwayHeader {
+                    .as_ref()
+                    .is_some_and(|n| n.as_str().to_lowercase().contains(&needle)))
+        {
+            mapped.value.push(PathwayHeader {
                 id: PathwayId::Wikipathways(row.id),
-                name: Some(row.name),
+                name: row.name,
                 species: PathwaySpecies::Human,
                 version: None,
-                revision: Some(row.revision),
-            }
-        })
-        .collect();
-    Ok((items, info))
+                revision: row.revision,
+            });
+        }
+    }
+    Ok((mapped, info))
 }
 /// Read an exact native human identity from the stored get catalog without source requests.
 pub fn card(
     leg: &Leg<'_>,
     id: &WikiPathwaysId,
     summary: bool,
-) -> Result<Option<PathwayCard>, RequestError> {
+) -> Result<Mapped<Option<PathwayCard>>, RequestError> {
     let (rows, _) = leg.stored_set_rows(&CATALOGS, Find::Exact(KeyKind::Id, &id.to_string()))?;
-    let row = rows.into_iter().find(|r| {
-        r.part.as_ref() == "get"
-            && r.value.native.id == *id
-            && r.value.native.species.as_ref() == "Homo sapiens"
-    });
-    Ok(row.map(|r| {
-        let row = r.value.native;
-        PathwayCard {
+    let mut mapped = Mapped {
+        value: None,
+        problems: Vec::new(),
+    };
+    for row in rows.into_iter().filter(|r| r.part.as_ref() == "get") {
+        mapped
+            .problems
+            .extend(row.value.problems.into_iter().flatten());
+        let Some(row) = row.value.native else {
+            continue;
+        };
+        if row.id != *id || row.species.as_ref() != "Homo sapiens" {
+            continue;
+        }
+        mapped.value = Some(PathwayCard {
             pathway: Pathway {
                 id: PathwayId::Wikipathways(row.id),
-                name: Some(row.name),
+                name: row.name,
                 species: PathwaySpecies::Human,
-                description: summary.then_some(row.description),
+                description: summary.then_some(row.description).flatten(),
                 summations: None,
                 references: None,
-                cited_in: Some(row.cited_in),
+                cited_in: row.cited_in,
                 version: None,
-                revision: Some(row.revision),
+                revision: row.revision,
             },
             release: None,
             description_truncated: summary.then_some(true),
             sections: vec![PathwaySection::Summary, PathwaySection::Genes].into(),
             genes: None,
             events: None,
-        }
-    }))
+        });
+    }
+    Ok(mapped)
 }
 
 /// Inspect this source's validated local catalog without reading rows or synchronizing.

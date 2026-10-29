@@ -5,7 +5,6 @@ use quick_xml::{
     events::{BytesStart, Event},
 };
 use serde::Deserialize;
-use std::collections::BTreeSet;
 
 pub(super) const MAX_BYTES: u64 = 8 * 1024 * 1024;
 const MAX_NODES: usize = 100_000;
@@ -16,7 +15,7 @@ const NAMESPACE: &str = "http://pathvisio.org/GPML/2013a";
 pub(super) struct Document {
     pub version: String,
     pub organism: String,
-    pub name: String,
+    pub name: Option<String>,
     pub nodes: Vec<Node>,
 }
 #[derive(Debug, Deserialize)]
@@ -60,7 +59,7 @@ impl Document {
         Ok(Self {
             version: required(tag, "Version")?,
             organism: required(tag, "Organism")?,
-            name: required(tag, "Name")?,
+            name: attribute(tag, "Name")?,
             nodes: Vec::new(),
         })
     }
@@ -80,28 +79,8 @@ impl Document {
 }
 impl Reply for Document {
     fn check(&self) -> Result<(), BadReply> {
-        biodata::Text::from_source(&self.name).map_err(|_| BadReply)?;
         if self.nodes.len() > MAX_NODES {
             return Err(BadReply);
-        }
-        let mut ids = BTreeSet::new();
-        for node in &self.nodes {
-            if let Some(id) = &node.id {
-                let checked = biodata::Text::new(id).map_err(|_| BadReply)?;
-                if checked.as_str() != id || !ids.insert(id) {
-                    return Err(BadReply);
-                }
-            }
-            if node.kind.as_deref() == Some("GeneProduct") {
-                let value = node.value.as_deref().ok_or(BadReply)?;
-                let checked = biodata::Text::new(value).map_err(|_| BadReply)?;
-                if checked.as_str() != value {
-                    return Err(BadReply);
-                }
-                if let Some(label) = &node.label {
-                    biodata::Text::from_source(label).map_err(|_| BadReply)?;
-                }
-            }
         }
         Ok(())
     }
