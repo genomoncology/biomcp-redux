@@ -41,7 +41,7 @@ pub struct DrugSearch(SearchFields);
 struct SearchFields {
     /// Literal name phrase; optional for FDA drug recalls. Harmonized recall names match but never become display names.
     #[cfg_attr(feature = "schema", schemars(extend("x-positional" = 0)))]
-    #[serde(default, skip_serializing_if = "Option::is_none")]
+    #[serde(default, deserialize_with = "present_query", skip_serializing_if = "Option::is_none")]
     #[cfg_attr(feature = "schema", schemars(with = "Text"))]
     query: Option<Text>,
     /// Literal published recalling firm phrase; drug recalls only.
@@ -316,6 +316,10 @@ impl DrugSource {
             }
         }
     }
+}
+
+fn present_query<'de, D: serde::Deserializer<'de>>(d: D) -> Result<Option<Text>, D::Error> {
+    Text::deserialize(d).map(Some)
 }
 
 fn selected_name<'de, D: serde::Deserializer<'de>>(
