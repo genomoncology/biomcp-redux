@@ -5320,15 +5320,36 @@
       "description": "Metadata for a component carried by an aggregator.",
       "properties": {
         "aggregator_build": {
-          "$ref": "#/$defs/Reply_Text",
+          "anyOf": [
+            {
+              "$ref": "#/$defs/Reply_Text"
+            },
+            {
+              "type": "null"
+            }
+          ],
           "description": "Aggregator build version."
         },
         "aggregator_built": {
-          "$ref": "#/$defs/Reply_Text",
+          "anyOf": [
+            {
+              "$ref": "#/$defs/Reply_Text"
+            },
+            {
+              "type": "null"
+            }
+          ],
           "description": "Aggregator build timestamp, distinct from a component release."
         },
         "license": {
-          "$ref": "#/$defs/Reply_Text",
+          "anyOf": [
+            {
+              "$ref": "#/$defs/Reply_Text"
+            },
+            {
+              "type": "null"
+            }
+          ],
           "description": "Component license URL, without any inferred grant.",
           "format": "uri"
         },
@@ -5383,10 +5404,7 @@
       },
       "required": [
         "terms",
-        "name",
-        "license",
-        "aggregator_build",
-        "aggregator_built"
+        "name"
       ],
       "type": "object"
     },
@@ -6331,7 +6349,7 @@
       "type": "object"
     }
   },
-  "$id": "biomcp.variant-population/10",
+  "$id": "biomcp.variant-population/11",
   "$schema": "https://json-schema.org/draft/2020-12/schema",
   "description": "One versioned command response; schema identity comes only from its body type.\nJSON readers ignore unknown fields and unknown growable enum values within a major.",
   "properties": {
@@ -6387,7 +6405,7 @@
       "description": "Answer when available."
     },
     "schema": {
-      "const": "biomcp.variant-population/10",
+      "const": "biomcp.variant-population/11",
       "type": "string"
     },
     "sources": {
