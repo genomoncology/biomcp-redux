@@ -6,6 +6,8 @@ use std::{fs, path::Path};
 type Check<T = ()> = Result<T, String>;
 #[path = "other_source_value_proof/bindings.rs"]
 mod bindings;
+#[path = "other_source_value_proof/paging.rs"]
+mod paging;
 #[path = "other_source_value_proof/retained.rs"]
 mod retained;
 #[derive(Clone, Deserialize)]
@@ -85,6 +87,9 @@ pub(super) fn run(directory: &Path) -> Check {
     }
     if let Err(error) = bindings::cell(directory, &registry) {
         failures.push(format!("cell-request-scope: {error}"));
+    }
+    if let Err(error) = paging::seer(directory, &registry) {
+        failures.push(format!("seer-native-window: {error}"));
     }
     let large = "x".repeat(biodata::Text::MAX_CHARS + 1);
     let large_result = acquire(&case, Some((stage, json!(large))), &registry).and_then(|value| {

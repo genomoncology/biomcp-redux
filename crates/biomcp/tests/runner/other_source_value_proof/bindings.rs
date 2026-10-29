@@ -29,7 +29,7 @@ pub(super) fn mechanism(directory: &Path, registry: &Registry) -> Check {
 }
 
 pub(super) fn cell(directory: &Path, registry: &Registry) -> Check {
-    let case = NativeCase {
+    let mut case = NativeCase {
         host: "www.ebi.ac.uk",
         root: "fixtures/cell-line/chembl",
         args: ["get", "cell-line", "CVCL_2119", "chembl"]
@@ -50,6 +50,7 @@ pub(super) fn cell(directory: &Path, registry: &Registry) -> Check {
     *row.get_mut("cell_chembl_id")
         .ok_or("native cell identity")? = json!({"bad_shape":true});
     *row.get_mut("cellosaurus_id").ok_or("native cell binding")? = json!("CVCL_0004");
+    case.requests.retain(|route| route.file == "CVCL_2119.json");
     let mutation = Mutation {
         file: "CVCL_2119.json",
         pointer: "/cell_lines/0",
