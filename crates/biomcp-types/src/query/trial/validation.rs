@@ -127,12 +127,11 @@ fn validate_alternatives(f: &Fields) -> Result<(), QueryInvalid> {
 }
 
 fn validate_biomarker(f: &Fields) -> Result<(), QueryInvalid> {
-    if (f.biomarker_code.is_some() || f.biomarker_use.is_some()) && f.source != TrialSource::Nci
-    {
+    if (f.biomarker_code.is_some() || f.biomarker_use.is_some()) && f.source != TrialSource::Nci {
         return Err(QueryInvalid::new(&[
-        "biomarker_code",
-        "biomarker_use",
-        "source",
+            "biomarker_code",
+            "biomarker_use",
+            "source",
         ]));
     }
     if f.biomarker_use.is_some() && f.biomarker_code.is_none() {

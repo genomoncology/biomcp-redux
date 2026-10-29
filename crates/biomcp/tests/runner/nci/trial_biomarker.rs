@@ -29,7 +29,12 @@ fn arguments() -> Vec<String> {
     .map(str::to_owned)
     .to_vec()
 }
-type Boundary = (Value, &'static str, Option<&'static str>, Option<&'static str>);
+type Boundary = (
+    Value,
+    &'static str,
+    Option<&'static str>,
+    Option<&'static str>,
+);
 fn boundary_cases() -> [Boundary; 8] {
     let entry = json!({"nci_thesaurus_concept_id":"C96022", "eligibility_criterion":"exclusion", "inclusion_indicator":"TRIAL"});
     [
