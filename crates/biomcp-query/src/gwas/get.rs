@@ -142,6 +142,7 @@ fn resource(q: &GwasGet, leg: &Leg<'_>, out: &mut Outcome) -> Result<(), Request
             id, section: None, ..
         } => {
             let study = gwas::get::study(leg, id)?;
+            out.problems.extend(study.problems);
             for section in [GwasStudySection::Associations, GwasStudySection::Ancestries] {
                 let q = GwasGet::Study {
                     id: id.clone(),
@@ -150,7 +151,7 @@ fn resource(q: &GwasGet, leg: &Leg<'_>, out: &mut Outcome) -> Result<(), Request
                 };
                 out.next.push((StepKind::Section, action(q, false)));
             }
-            out.body = QueryBody::GwasStudy(Some(study));
+            out.body = QueryBody::GwasStudy(Some(study.value));
         }
         GwasGet::Study {
             id,

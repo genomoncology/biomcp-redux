@@ -41,7 +41,7 @@ impl Reply for Association {
     }
 }
 /// Read one exact study with unchanged source sample descriptions.
-pub fn study(leg: &Leg<'_>, id: &GwasStudyId) -> Result<GwasStudy, RequestError> {
+pub fn study(leg: &Leg<'_>, id: &GwasStudyId) -> Result<crate::Mapped<GwasStudy>, RequestError> {
     let endpoint = SPEC
         .get("")
         .with_path(format!("/studies/{id}"))?
