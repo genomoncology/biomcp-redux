@@ -169,6 +169,10 @@
       ],
       "type": "object"
     },
+    "EmptyQuery": {
+      "description": "Explicit empty query for commands without selectors.",
+      "type": "object"
+    },
     "Health": {
       "description": "Source reachability and publisher terms, independent of local HTTP service health.",
       "properties": {
@@ -977,7 +981,7 @@
       "type": "string"
     }
   },
-  "$id": "biomcp.health/3",
+  "$id": "biomcp.health/4",
   "$schema": "https://json-schema.org/draft/2020-12/schema",
   "description": "One versioned command response; schema identity comes only from its body type.\nJSON readers ignore unknown fields and unknown growable enum values within a major.",
   "properties": {
@@ -1018,8 +1022,8 @@
       "type": "array"
     },
     "query": {
-      "description": "Parsed query.",
-      "type": "null"
+      "$ref": "#/$defs/EmptyQuery",
+      "description": "Parsed query."
     },
     "result": {
       "anyOf": [
@@ -1033,7 +1037,7 @@
       "description": "Answer when available."
     },
     "schema": {
-      "const": "biomcp.health/3",
+      "const": "biomcp.health/4",
       "type": "string"
     },
     "sources": {

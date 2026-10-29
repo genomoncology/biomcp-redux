@@ -9,6 +9,10 @@
       ],
       "type": "string"
     },
+    "EmptyQuery": {
+      "description": "Explicit empty query for commands without selectors.",
+      "type": "object"
+    },
     "PageInfo": {
       "description": "Search counts after filtering and deduplication.",
       "properties": {
@@ -682,7 +686,7 @@
       "type": "string"
     }
   },
-  "$id": "biomcp.store-clean/1",
+  "$id": "biomcp.store-clean/2",
   "$schema": "https://json-schema.org/draft/2020-12/schema",
   "description": "One versioned command response; schema identity comes only from its body type.\nJSON readers ignore unknown fields and unknown growable enum values within a major.",
   "properties": {
@@ -723,8 +727,8 @@
       "type": "array"
     },
     "query": {
-      "description": "Parsed query.",
-      "type": "null"
+      "$ref": "#/$defs/EmptyQuery",
+      "description": "Parsed query."
     },
     "result": {
       "anyOf": [
@@ -738,7 +742,7 @@
       "description": "Answer when available."
     },
     "schema": {
-      "const": "biomcp.store-clean/1",
+      "const": "biomcp.store-clean/2",
       "type": "string"
     },
     "sources": {

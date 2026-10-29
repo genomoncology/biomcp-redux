@@ -9,6 +9,10 @@
       ],
       "type": "string"
     },
+    "EmptyQuery": {
+      "description": "Explicit empty query for commands without selectors.",
+      "type": "object"
+    },
     "KeyState": {
       "description": "Where the command will obtain a credential; never its value.",
       "enum": [
@@ -689,7 +693,7 @@
       "type": "string"
     }
   },
-  "$id": "biomcp.registered-keys/2",
+  "$id": "biomcp.registered-keys/3",
   "$schema": "https://json-schema.org/draft/2020-12/schema",
   "description": "One versioned command response; schema identity comes only from its body type.\nJSON readers ignore unknown fields and unknown growable enum values within a major.",
   "properties": {
@@ -730,8 +734,8 @@
       "type": "array"
     },
     "query": {
-      "description": "Parsed query.",
-      "type": "null"
+      "$ref": "#/$defs/EmptyQuery",
+      "description": "Parsed query."
     },
     "result": {
       "anyOf": [
@@ -745,7 +749,7 @@
       "description": "Answer when available."
     },
     "schema": {
-      "const": "biomcp.registered-keys/2",
+      "const": "biomcp.registered-keys/3",
       "type": "string"
     },
     "sources": {
