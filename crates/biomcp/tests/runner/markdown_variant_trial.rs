@@ -115,7 +115,8 @@ const SHAPES: &[(&str, Shape)] = &[
                 "**state:** data",
                 "VCV000013961",
             ],
-            max_bytes: 1691,
+            // j21004: 2,413 comparable bytes with review and origin codings, plus 15%.
+            max_bytes: 2775,
         },
     ),
     (
