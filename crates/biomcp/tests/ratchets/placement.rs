@@ -180,15 +180,19 @@ const ALLOWED: &[(&str, &str)] = &[
         "Cover inline XML markup and decoder limits with many tiny inputs.",
     ),
     (
-        "crates/biomcp-fetch/tests/alphagenome.rs",
+        "crates/biomcp-adapters/tests/alphagenome.rs",
         "Exercise the selected request encoding and complete bounded envelopes through the public protocol API.",
+    ),
+    (
+        "crates/biomcp-fetch/tests/alphagenome.rs",
+        "Exercise required-key routing through a synthetic stream.",
     ),
     (
         "crates/biomcp-fetch/tests/alphagenome/routing.rs",
         "Exercise required-key admission and placeholder credential routing through a local TLS stream.",
     ),
     (
-        "crates/biomcp-fetch/tests/score_variant.rs",
+        "crates/biomcp-adapters/tests/score_variant.rs",
         "Exercise the ruled scoring request and complete scorer admission through the public protocol API.",
     ),
     (
@@ -272,7 +276,7 @@ const ALLOWED: &[(&str, &str)] = &[
         "Exercise transport ownership, local server behavior and cache/record failures through its public API.",
     ),
     (
-        "crates/biomcp-fetch/tests/tensors.rs",
+        "crates/biomcp-adapters/tests/tensors.rs",
         "Exercise bounded tensor decoding with synthetic protobuf payloads through its public API.",
     ),
     (

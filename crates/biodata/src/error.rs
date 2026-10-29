@@ -199,6 +199,12 @@ errors! {
     PositionZero => "coord.position.zero",
     /// A span ended before its start.
     SpanOrder => "coord.span.order",
+    /// Text contained unsafe terminal or bidi controls.
+    TextControl => "text.control",
+    /// Text exceeded its constructor character cap.
+    TextTooLong => "text.too_long",
+    /// A native document upload timestamp failed its grammar.
+    TrialUploadTimeInvalid => "trial.upload_time.invalid",
     /// Text contained no non-whitespace characters.
     TextEmpty => "text.empty",
     /// A source name was not recognized.

@@ -122,7 +122,7 @@ fn publication_types(value: Option<Field<Vec<Field<String>>>>, context: &mut Pro
         .into_iter()
         .filter_map(|v| {
             let s = context.required("types", v.value())?;
-            context.text("types", Some(&s))
+            context.checked_text("types", Some(&s))
         })
         .filter_map(|s| publication_type(s.as_str()))
         .collect()

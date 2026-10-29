@@ -59,7 +59,7 @@ pub(super) fn members(
                     "participants.name",
                     r.name,
                 ),
-                stoichiometry: crate::mapped::field_text(
+                stoichiometry: crate::mapped::field_code_text(
                     &mut problems.list,
                     problems.source,
                     problems.record.clone(),

@@ -1,4 +1,5 @@
 //! Native FDA application scope; submission rows never acquire a product number.
+use crate::native_text::NativeText;
 use biodata::{DrugId, PartialDate, Text};
 use biomcp_fetch::{BadReply, Reply};
 use serde::Deserialize;
@@ -8,7 +9,8 @@ pub struct Application {
     /// Native application identifier.
     pub application_number: DrugId,
     /// Original sponsor wording.
-    pub sponsor_name: Text,
+    #[serde(deserialize_with = "crate::native_text::deserialize")]
+    pub sponsor_name: biodata::Text,
     /// Native products in publisher order.
     pub products: Vec<Product>,
     /// Application-owned submission history in publisher order.
@@ -28,7 +30,8 @@ pub struct Product {
     /// Exact native product selector.
     pub product_number: Text,
     /// Native product name.
-    pub brand_name: Text,
+    #[serde(deserialize_with = "crate::native_text::deserialize")]
+    pub brand_name: biodata::Text,
     /// Source-listed ingredients and strengths.
     pub active_ingredients: Vec<Ingredient>,
     /// Original formulation wording.
@@ -48,9 +51,10 @@ pub struct Product {
 #[derive(Debug, Deserialize)]
 pub struct Ingredient {
     /// Native ingredient name, without normalization.
-    pub name: Text,
+    #[serde(deserialize_with = "crate::native_text::deserialize")]
+    pub name: biodata::Text,
     /// Full native strength wording.
-    pub strength: Option<Text>,
+    pub strength: Option<NativeText>,
 }
 /// An application submission; the publisher supplies no product applicability.
 #[derive(Debug, Deserialize)]
@@ -68,7 +72,7 @@ pub struct Submission {
     /// Original submission class code.
     pub submission_class_code: Option<Text>,
     /// Original class description.
-    pub submission_class_code_description: Option<Text>,
+    pub submission_class_code_description: Option<NativeText>,
     /// Native property collection.
     pub submission_property_type: Option<Vec<Property>>,
     /// Native documents with their independent date roles.

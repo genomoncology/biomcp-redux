@@ -1,3 +1,4 @@
+use crate::native_text::NativeText;
 use biodata::{
     AuthorByline, AuthorPaperAccess, AuthorPaperDetail, AuthorPaperExternalId, AuthorPaperHeader,
     PartialDate, SemanticScholarId, Text,
@@ -10,18 +11,19 @@ use std::collections::BTreeMap;
 pub struct Paper {
     paper_id: SemanticScholarId,
     external_ids: Option<BTreeMap<String, Option<NativeId>>>,
-    title: Text,
+    #[serde(deserialize_with = "crate::native_text::deserialize")]
+    title: biodata::Text,
     year: Option<u32>,
     venue: Option<String>,
     #[serde(rename = "abstract")]
-    abstract_text: Option<Text>,
+    abstract_text: Option<NativeText>,
     publication_date: Option<PartialDate>,
     reference_count: Option<u64>,
     citation_count: Option<u64>,
     influential_citation_count: Option<u64>,
     is_open_access: Option<bool>,
     open_access_pdf: Option<Access>,
-    fields_of_study: Option<Box<[Text]>>,
+    fields_of_study: Option<Box<[NativeText]>>,
     publication_types: Option<Box<[Text]>>,
     authors: Option<Box<[Byline]>>,
 }
@@ -43,14 +45,15 @@ impl std::fmt::Display for NativeId {
 struct Byline {
     #[serde(rename = "authorId")]
     id: Option<biodata::SemanticScholarAuthorId>,
-    name: Text,
+    #[serde(deserialize_with = "crate::native_text::deserialize")]
+    name: biodata::Text,
 }
 #[derive(Clone, Debug, Deserialize, Serialize)]
 struct Access {
     url: Option<String>,
     status: Option<Text>,
     license: Option<Text>,
-    disclaimer: Option<Text>,
+    disclaimer: Option<NativeText>,
 }
 impl Access {
     fn checked(self) -> AuthorPaperAccess {
@@ -58,13 +61,17 @@ impl Access {
             url: self.url.and_then(|s| Text::new(&s).ok()),
             status: self.status,
             license: self.license,
-            disclaimer: self.disclaimer,
+            disclaimer: self.disclaimer.map(Into::into),
         }
     }
 }
 impl Paper {
     /// Convert exactly the source identifiers and metadata, with no title matching.
-    pub fn detail(self) -> Result<AuthorPaperDetail, biomcp_fetch::BadReply> {
+    pub fn detail(
+        self,
+        problems: &mut Vec<biomcp_types::Problem>,
+    ) -> Result<AuthorPaperDetail, biomcp_fetch::BadReply> {
+        let record = crate::mapped::record(&self.paper_id);
         let mut header = AuthorPaperHeader {
             paper_id: self.paper_id,
             pmid: None,
@@ -73,7 +80,15 @@ impl Paper {
             external_ids: Box::default(),
             title: self.title,
             year: self.year,
-            venue: self.venue.and_then(|v| Text::new(&v).ok()),
+            venue: crate::mapped::field_text(
+                problems,
+                biomcp_types::Source::SemanticScholar,
+                record,
+                "venue",
+                self.venue
+                    .filter(|v| !v.is_empty())
+                    .map(crate::raw::Field::Value),
+            ),
         };
         let mut external = Vec::new();
         for (namespace, value) in self.external_ids.into_iter().flatten() {
@@ -102,14 +117,16 @@ impl Paper {
         header.external_ids = external.into();
         Ok(AuthorPaperDetail {
             header,
-            abstract_text: self.abstract_text,
+            abstract_text: self.abstract_text.map(Into::into),
             publication_date: self.publication_date,
             reference_count: self.reference_count,
             citation_count: self.citation_count,
             influential_citation_count: self.influential_citation_count,
             is_open_access: self.is_open_access,
             open_access_pdf: self.open_access_pdf.map(Access::checked),
-            fields_of_study: self.fields_of_study,
+            fields_of_study: self
+                .fields_of_study
+                .map(|values| values.into_vec().into_iter().map(Into::into).collect()),
             publication_types: self.publication_types,
             authors: self.authors.map(|rows| {
                 rows.into_iter()

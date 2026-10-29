@@ -33,7 +33,7 @@ Six crates. Each exists because a rule needs a crate boundary to enforce it.
 | `biodata` | Neutral entity values, identifiers, coordinates, notation and closed vocabularies. JSON Schemas. | `serde`, `winnow`; `schemars` behind the `schema` feature | Any workspace crate, any I/O crate, `serde_json` outside tests |
 | `biomcp-types` | BioMCP queries, requests, source identities and response disclosure; generated contract schemas | `biodata`, `serde`; `schemars` behind the `schema` feature | Any I/O crate, transport, adapters or services |
 | `biomcp-fetch` | The transport: HTTP, quotas, deadlines, retry, body limits, decoding, reply checks, the reply cache, offline, record and replay, bundle sync and bundle rows | `biodata`, `biomcp-types`, `ureq`, `rusqlite`, `serde`, `serde_json`, `quick-xml`, `sha2`, `url`, `rustls`, `rustls-platform-verifier`, `httpdate`, `tempfile`, `csv`, `flate2`, `thiserror`, `prost`, `zstd` | `biomcp-adapters`, `biomcp-query`, `clap` |
-| `biomcp-adapters` | One module per source: a source description, endpoints, raw reply types with their checks and mapping into biodata | `biodata`, `biomcp-types`, `biomcp-fetch`, `serde`, `quick-xml`, `calamine`, `csv`, `zip`, `thiserror` | `ureq`, `rusqlite`, `serde_json`, `biomcp-query`, `clap` |
+| `biomcp-adapters` | One module per source: a source description, endpoints, raw reply types with their checks and mapping into biodata | `biodata`, `biomcp-types`, `biomcp-fetch`, `serde`, `quick-xml`, `calamine`, `csv`, `zip`, `thiserror`, `prost` | `ureq`, `rusqlite`, `serde_json`, `biomcp-query`, `clap` |
 | `biomcp-query` | The services and the store: resolve, fan out, merge, rank, pool, page, sections and next steps | `biodata`, `biomcp-types`, `biomcp-fetch`, `biomcp-adapters`, `rusqlite`, `serde`, `serde_json`, `sha2`, `thiserror` | `ureq`, `clap` |
 | `biomcp` | The binary: CLI grammar, MCP server, config file, Markdown view, the runner's test target, later the web mode | every crate above, `clap`, `serde`, `serde_json`, `httparse`, `base64`, `ctrlc`, `rpassword`, `tempfile`, `sha2`, `shlex` | `ureq`, `rusqlite` |
 
@@ -1923,7 +1923,7 @@ The runner's YAML reader is a test dependency. The original `serde_yaml` is arch
 - **Parity.** Every step with both `run` and `mcp` compares the two envelopes.
 - **Quota.** The eight-parallel-call case in section 4.5.
 
-The source ratchet permits `dead_code` only in the private `crates/biomcp-fetch/src/grpc/proto.rs` generated-message wrapper. That file contains only the checked closure include. Its pinned regeneration check must reproduce every committed generated file. The ordinary file size limits remain in force. Product code and unused imports receive no exception.
+The source ratchet permits `dead_code` only in the private `crates/biomcp-adapters/src/alphagenome/proto.rs` generated-message wrapper. That file contains only the checked closure include. Its pinned regeneration check must reproduce every committed generated file. The ordinary file size limits remain in force. Product code and unused imports receive no exception.
 
 ### 10.3 Coverage
 
@@ -1980,9 +1980,10 @@ The ratchet owns the authoritative file and reason list below and checks this ta
 | `crates/biomcp-fetch/src/grpc/dns_tests.rs` | Prove a stalled platform lookup cannot outlive its caller budget or begin a stream, without changing the host resolver configuration. |
 | `crates/biomcp-fetch/src/retry_tests.rs` | Cover Retry-After forms and backoff boundaries without one recording per table row. |
 | `crates/biomcp-fetch/src/xml_tests.rs` | Cover inline XML markup and decoder limits with many tiny inputs. |
-| `crates/biomcp-fetch/tests/alphagenome.rs` | Exercise the selected request encoding and complete bounded envelopes through the public protocol API. |
+| `crates/biomcp-adapters/tests/alphagenome.rs` | Exercise the selected request encoding and complete bounded envelopes through the public protocol API. |
+| `crates/biomcp-fetch/tests/alphagenome.rs` | Exercise required-key routing through a synthetic stream. |
 | `crates/biomcp-fetch/tests/alphagenome/routing.rs` | Exercise required-key admission and placeholder credential routing through a local TLS stream. |
-| `crates/biomcp-fetch/tests/score_variant.rs` | Exercise the ruled scoring request and complete scorer admission through the public protocol API. |
+| `crates/biomcp-adapters/tests/score_variant.rs` | Exercise the ruled scoring request and complete scorer admission through the public protocol API. |
 | `crates/biomcp-fetch/tests/batch.rs` | Exercise transport ownership, local server behavior and cache/record failures through its public API. |
 | `crates/biomcp-fetch/tests/bundle.rs` | Exercise transport ownership, local server behavior and cache/record failures through its public API. |
 | `crates/biomcp-fetch/tests/bundle/download.rs` | Exercise transport ownership, local server behavior and cache/record failures through its public API. |
@@ -2003,7 +2004,7 @@ The ratchet owns the authoritative file and reason list below and checks this ta
 | `crates/biomcp-fetch/tests/record.rs` | Exercise transport ownership, local server behavior and cache/record failures through its public API. |
 | `crates/biomcp-fetch/tests/retries.rs` | Exercise transport ownership, local server behavior and cache/record failures through its public API. |
 | `crates/biomcp-fetch/tests/support/cache_process.rs` | Exercise transport ownership, local server behavior and cache/record failures through its public API. |
-| `crates/biomcp-fetch/tests/tensors.rs` | Exercise bounded tensor decoding with synthetic protobuf payloads through its public API. |
+| `crates/biomcp-adapters/tests/tensors.rs` | Exercise bounded tensor decoding with synthetic protobuf payloads through its public API. |
 | `crates/biomcp-fetch/tests/transport.rs` | Exercise transport ownership, local server behavior and cache/record failures through its public API. |
 | `crates/biomcp-fetch/tests/transport/network.rs` | Exercise transport ownership, local server behavior and cache/record failures through its public API. |
 | `crates/biomcp-fetch/tests/transport/credentials.rs` | Exercise transport ownership, local server behavior and cache/record failures through its public API. |
@@ -2023,6 +2024,7 @@ Every ratchet starts at its 1.0 target, because the code starts empty. `make lan
 | Rule | Target | Mechanism |
 | --- | --- | --- |
 | Dependency direction between crates | the table in 2.1 | Cargo manifests, and the ratchet test's allowed list per crate |
+| Canonical source spellings in transport | none outside `secret.rs`, `cache_hgnc.rs`, `bundle/transfer.rs` and `cache/schema.rs` | the transport source ratchet rejects exact source words |
 | One crate names the HTTP client | `biomcp-fetch` only | the ratchet test's allowed lists |
 | SQL owners | `biomcp-fetch`, and `biomcp-query/src/store/` | allowed lists and the ratchet test's path check |
 | No I/O in `biodata` and adapters | none | per-crate `clippy.toml` `disallowed_methods` and `disallowed_types` |
@@ -2173,3 +2175,9 @@ NCI CTS v2 documents `/biomarkers` in its [OpenAPI document](https://clinicaltri
 The public tier returned every documented biomarker field: name, codes, type, count, synonyms, parent_ids, ancestor_ids and eligibility_criterion. Codes, type, synonyms, parents, ancestors and criteria are lists. BioMCP retains their source order and does not derive a single row identity from a code list. Headers preserve typed NCIt codes and native type and count; exact code retrieval preserves all optional card lists. Several rows for one code return candidates without selecting a card. Empty source lists follow the shared omission convention. Missing optional fields remain absent, and malformed optional fields produce problems without discarding valid headers. Native type and criterion values remain publisher text without classification or patient eligibility inference.
 
 Biomarker discovery uses the same complete-observation storage owner as organization discovery. Search saves one checked unsized observation before local paging. Snapshot selectors exclude offset and page size. `biomcp_adapters::nci::biomarker::MAX_BYTES` owns the byte bound; overflow returns `usage.too_broad`, while malformed collections and native bucket errors remain source failures. Exact-code identity checks run before cache admission and on replay or cache reads. NCI publishes no biomarker row URL in these replies. Research search retains uncitable native headers in metadata, and the main MCP tool returns the full envelope. The keyed capture archive on physical Yellow has SHA-256 `0de9be7bdc2cd7bd0170ca1ec747aea54684b8bf9666160a4b6d438ce5fd9fa4`; the keyless documentation archive has SHA-256 `f0d7043abfb2e1d38df294b6ee4736264acc838471d31eb543404003fd5c38c6`.
+
+### NCI phase and status filters
+
+NCI trial filters send `phase` and `current_trial_status` without translation. The publisher [OpenAPI](https://clinicaltrialsapi.cancer.gov/api/v2/docs), checked on 2026-10-29, owns status labels in `components.parameters.current_trial_status.examples`; its blank example is not a filter. The publisher [glossary data](https://api.strap.trials.nci.nih.gov/api/v2/glossary) owns the complete phase list under Study Design > Design > Phase. The status glossary groups several labels in single entries, while OpenAPI lists each exact accepted label separately. Help lists these native values alongside registry conventions. Checked queries reject unknown values and reject the other source vocabulary before source access. NCI response phases retain future publisher values; filter phases accept only the published set from the shared declaration.
+
+A bounded keyed capture on physical Yellow returned one trial for phase alone, status alone and their conjunction, with positive native totals. The captured `study_phase` and `current_status` counterfactuals returned zero trials. Each replay case requires a native trial row and the exact canonical request identity. Raw bodies and publisher documents remain outside Git in archive SHA-256 `fca7d6fec663dede28064ccc787fabfa3c3bf666d18b9d4ddb065ae54797e6da`. Native biomarker criterion and inclusion indicator fields remain unchanged.

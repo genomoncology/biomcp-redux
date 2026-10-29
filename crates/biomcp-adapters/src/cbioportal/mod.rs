@@ -59,15 +59,18 @@ pub fn cohort(leg: &Leg<'_>, query: &VariantRecurrenceQuery) -> Result<Cohort, R
             Err(BadReply)
         }
     })?;
-    let count = sample_count(leg, query);
+    let (selected_sample_count, count_error) = match sample_count(leg, query) {
+        Ok(count) => (count, None),
+        Err(error) => (None, Some(error)),
+    };
     Ok(Cohort {
         study: RecurrenceStudy {
             name: study.name,
-            description: study.description,
-            citation: study.citation,
+            description: study.description.map(Into::into),
+            citation: study.citation.map(Into::into),
         },
-        selected_sample_count: count.as_ref().ok().copied().flatten(),
-        count_error: count.err(),
+        selected_sample_count,
+        count_error,
     })
 }
 /// One native gene page. Wrong study, profile or gene cannot enter the cache.

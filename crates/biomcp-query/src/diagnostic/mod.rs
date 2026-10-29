@@ -40,7 +40,8 @@ fn finish_bundle(
         .push(status::source(source, leg.finish(), error));
     if error.is_some() {
         out.status = Status::Failed;
-    } else if out.sources.iter().any(|s| s.state == SourceState::Stale)
+    } else if (!out.problems.is_empty()
+        || out.sources.iter().any(|s| s.state == SourceState::Stale))
         && out.status == Status::Complete
     {
         out.status = Status::Partial;
@@ -78,7 +79,10 @@ pub fn search(cx: &Ctx<'_>, q: &DiagnosticSearch) -> Outcome {
     let result = if who {
         biomcp_adapters::who_ivd::search(&leg, q).map(|p| (p.items, p.total, p.info))
     } else {
-        gtr::search(&leg, q).map(|p| (p.items, p.total, p.info))
+        gtr::search(&leg, q).map(|p| {
+            status::append(&mut out.problems, p.problems);
+            (p.items, p.total, p.info)
+        })
     };
     let error = result.as_ref().err().copied();
     if let Ok((items, total, info)) = result {

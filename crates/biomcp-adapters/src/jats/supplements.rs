@@ -43,7 +43,7 @@ pub(super) fn read(xml: &str) -> Result<Vec<Supplement>, BadReply> {
 fn label(item: crate::xml_element::Element<'_>) -> Result<Option<Text>, BadReply> {
     item.value(&["label"])?
         .filter(|v| !v.trim().is_empty())
-        .map(|v| Text::new(&v).map_err(|_| BadReply))
+        .map(|v| Text::from_source(&v).map_err(|_| BadReply))
         .transpose()
 }
 fn caption(item: crate::xml_element::Element<'_>) -> Result<Option<Markdown>, BadReply> {

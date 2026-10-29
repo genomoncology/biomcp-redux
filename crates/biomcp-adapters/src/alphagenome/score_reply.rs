@@ -1,6 +1,6 @@
 //! Retain complete scoring tensors for bounded native-value paging.
-use super::super::{Tensor, proto};
-use crate::BadReply;
+use super::{Tensor, proto};
+use biomcp_fetch::BadReply;
 use biomcp_types::{AlphaGenomeGene, AlphaGenomeTrack, AlphaGenomeVariant};
 /// One native group; its ordinal alone associates it with the requested scorer.
 #[derive(Debug)]
@@ -23,11 +23,11 @@ impl ScoreGroup {
                         .is_ok_and(|value| value > super::score_envelope::headroom(2))
             })
             || shape.get(2).is_none_or(|value| *value < 1)
-            || shape.last().copied().and_then(|v| usize::try_from(v).ok())
-                != Some(metadata.tracks.len())
+            || usize::try_from(*shape.last().ok_or(BadReply)?).map_err(|_| BadReply)?
+                != metadata.tracks.len()
             || (!metadata.genes.is_empty()
-                && shape.get(1).copied().and_then(|v| usize::try_from(v).ok())
-                    != Some(metadata.genes.len()))
+                && usize::try_from(*shape.get(1).ok_or(BadReply)?).map_err(|_| BadReply)?
+                    != metadata.genes.len())
             || (metadata.genes.is_empty() && shape.get(1) != Some(&1))
         {
             return Err(BadReply);

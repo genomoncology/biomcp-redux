@@ -1,3 +1,4 @@
+use crate::native_text::NativeText;
 use biodata::{GwasStudyId, Pmid, Text};
 use biomcp_fetch::{BadReply, Reply};
 use biomcp_types::{GwasStudy, GwasTrait};
@@ -6,16 +7,17 @@ use serde::Deserialize;
 pub(super) struct Study {
     pub accession_id: GwasStudyId,
     pubmed_id: Option<u64>,
-    disease_trait: Text,
+    #[serde(deserialize_with = "crate::native_text::deserialize")]
+    disease_trait: biodata::Text,
     efo_traits: Vec<super::super::raw::Trait>,
-    initial_sample_size: Option<Text>,
-    replication_sample_size: Option<Text>,
-    discovery_ancestry: Vec<Text>,
-    replication_ancestry: Vec<Text>,
+    initial_sample_size: Option<NativeText>,
+    replication_sample_size: Option<NativeText>,
+    discovery_ancestry: Vec<NativeText>,
+    replication_ancestry: Vec<NativeText>,
     genotyping_technologies: Vec<Text>,
     snp_count: Option<u64>,
-    platforms: Option<Text>,
-    array_manufacturer: Option<Vec<Text>>,
+    platforms: Option<NativeText>,
+    array_manufacturer: Option<Vec<NativeText>>,
     gxe: Option<bool>,
     gxg: Option<bool>,
     imputed: Option<bool>,
@@ -50,14 +52,24 @@ impl Study {
                     label: t.efo_trait,
                 })
                 .collect(),
-            initial_sample_description: self.initial_sample_size,
-            replication_sample_description: self.replication_sample_size,
-            discovery_ancestries: self.discovery_ancestry.into(),
-            replication_ancestries: self.replication_ancestry.into(),
+            initial_sample_description: self.initial_sample_size.map(Into::into),
+            replication_sample_description: self.replication_sample_size.map(Into::into),
+            discovery_ancestries: self
+                .discovery_ancestry
+                .into_iter()
+                .map(Into::into)
+                .collect(),
+            replication_ancestries: self
+                .replication_ancestry
+                .into_iter()
+                .map(Into::into)
+                .collect(),
             genotyping_technologies: self.genotyping_technologies.into(),
             snp_count: self.snp_count,
-            platforms: self.platforms,
-            array_manufacturers: self.array_manufacturer.map(Into::into),
+            platforms: self.platforms.map(Into::into),
+            array_manufacturers: self
+                .array_manufacturer
+                .map(|values| values.into_iter().map(Into::into).collect()),
             gxe: self.gxe,
             gxg: self.gxg,
             imputed: self.imputed,

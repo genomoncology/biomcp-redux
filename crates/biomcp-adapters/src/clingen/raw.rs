@@ -1,3 +1,4 @@
+use crate::native_text::NativeText;
 use biodata::{HgncId, Text};
 
 use biomcp_fetch::{KeyKind, Keys, RequestError, Row};
@@ -8,29 +9,29 @@ pub(super) struct Validity {
     #[serde(rename = "GENE ID (HGNC)")]
     id: HgncId,
     #[serde(rename = "DISEASE LABEL")]
-    disease: Option<Text>,
+    disease: Option<NativeText>,
     #[serde(rename = "DISEASE ID (MONDO)")]
     mondo_id: Option<biodata::MondoId>,
     #[serde(rename = "MOI")]
-    mode_of_inheritance: Option<Text>,
+    mode_of_inheritance: Option<NativeText>,
     #[serde(rename = "CLASSIFICATION")]
     classification: Option<Text>,
     #[serde(rename = "CLASSIFICATION DATE")]
     classification_date: Option<Text>,
     #[serde(rename = "GCEP")]
-    expert_panel: Option<Text>,
+    expert_panel: Option<NativeText>,
     #[serde(rename = "ONLINE REPORT")]
     report_url: Option<Text>,
 }
 impl Validity {
     pub(super) fn checked(self) -> Result<ClinGenValidity, RequestError> {
         Ok(ClinGenValidity {
-            disease: self.disease.ok_or_else(super::bad)?,
+            disease: self.disease.ok_or_else(super::bad)?.into(),
             mondo_id: self.mondo_id.ok_or_else(super::bad)?,
-            mode_of_inheritance: self.mode_of_inheritance.ok_or_else(super::bad)?,
+            mode_of_inheritance: self.mode_of_inheritance.ok_or_else(super::bad)?.into(),
             classification: self.classification.ok_or_else(super::bad)?,
             classification_date: self.classification_date.ok_or_else(super::bad)?,
-            expert_panel: self.expert_panel.ok_or_else(super::bad)?,
+            expert_panel: self.expert_panel.ok_or_else(super::bad)?.into(),
             report_url: self.report_url.ok_or_else(super::bad)?,
         })
     }

@@ -1,5 +1,6 @@
 //! Feature alphagenome-score-protocol: preserve the ruled request and admit complete scorer streams.
-use biomcp_fetch::grpc::{Limits, StreamDecoder, alphagenome::ScoreRequest};
+use biomcp_adapters::alphagenome::ScoreRequest;
+use biomcp_fetch::grpc::{Limits, StreamDecoder};
 type Check = Result<(), Box<dyn std::error::Error + Send + Sync>>;
 fn request(position: i64) -> Result<ScoreRequest, biomcp_fetch::InputError> {
     ScoreRequest::human_legacy(
@@ -109,10 +110,6 @@ fn canonical_request_preserves_legacy_interval_scorers_and_provider_default_chec
     .concat();
     assert_eq!(request(140753336)?.bytes(), expected);
     assert_eq!(request(140753336)?.build(), biodata::Build::GRCh38);
-    assert_eq!(
-        biomcp_fetch::grpc::alphagenome::SCORE_VARIANT,
-        "/google.gdm.gdmscience.alphagenome.v1main.DnaModelService/ScoreVariant"
-    );
     assert!(request(0).is_err());
     assert!(
         ScoreRequest::human_legacy(biodata::Build::GRCh38, "MT".parse()?, 100, "A", "T").is_err()

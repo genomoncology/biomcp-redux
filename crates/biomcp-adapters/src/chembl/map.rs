@@ -29,7 +29,7 @@ pub fn targets(
                 r.action_type
                     .unwrap_or_else(|| "mechanism".into())
                     .parse()?,
-                Some(r.mechanism_of_action.parse()?),
+                Some(Text::from_source(&r.mechanism_of_action)?),
                 references(r.mechanism_refs)?,
                 attribution(Some(r.mec_id.to_string()))?,
             )
@@ -52,17 +52,15 @@ pub fn indications(
                     diseases.push(DrugDiseaseReference {
                         namespace: namespace.parse()?,
                         id: id.parse()?,
-                        label: label.map(|s| s.parse()).transpose()?,
+                        label: label.map(|s| Text::from_source(&s)).transpose()?,
                     });
                 }
             }
             Ok(DrugIndicationClaim {
                 drug: drug.clone(),
-                indication: r
-                    .efo_term
-                    .or(r.mesh_heading)
-                    .ok_or(Error::TextEmpty)?
-                    .parse()?,
+                indication: Text::from_source(
+                    &r.efo_term.or(r.mesh_heading).ok_or(Error::TextEmpty)?,
+                )?,
                 disease_references: diseases.into(),
                 stage: r.max_phase_for_ind.map(|value| DrugStage {
                     field: "max_phase_for_ind".into(),

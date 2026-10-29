@@ -59,7 +59,7 @@ pub fn search(leg: &Leg<'_>, query: &DiseaseSearch) -> Result<SearchPage, Reques
             attribution: map::attribution(&hit.obo_id, iri, ontology)?,
             concept: biomcp_types::DiseaseConcept {
                 id: Some(hit.obo_id),
-                label,
+                label: label.map(Into::into),
             },
             ontology,
             obsolete: hit.is_obsolete,
