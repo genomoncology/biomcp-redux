@@ -85,6 +85,8 @@ def main():
         assert list((root / 'profiles').glob('harness-*.profraw'))
         report = invoke(root, env, 'report')
         assert report.returncode == 0, report.stdout + report.stderr
+        unreached = invoke(root, env, 'unreached')
+        assert unreached.returncode == 0, unreached.stdout + unreached.stderr
         below = invoke(root, env, 'report', PROOF_COVERAGE='59.7')
         assert below.returncode != 0 and 'below floor' in below.stderr, below
         rejected = invoke(root, env, PROOF_REJECT_RATCHETS='1')
