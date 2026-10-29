@@ -94,7 +94,7 @@ fn check(
         .iter()
         .find(|r| r.get("source").and_then(Value::as_str) == Some(source))
         .ok_or("missing source")?;
-    if row.get("reason").and_then(Value::as_str) != Some("deadline_exceeded")
+    if row.get("reason").and_then(Value::as_str) != Some("deadline-exceeded")
         || row.get("state").and_then(Value::as_str) != Some("failed")
     {
         return Err(format!("synthetic latency lost source reason: {row}"));

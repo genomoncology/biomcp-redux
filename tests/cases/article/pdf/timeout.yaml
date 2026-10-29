@@ -16,7 +16,7 @@
       "is_error": true,
       "expect": {
         "/result/file/state": "unavailable",
-        "/result/file/reason": "deadline_exceeded"
+        "/result/file/reason": "deadline-exceeded"
       }
     }
   ]

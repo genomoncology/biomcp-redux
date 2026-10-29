@@ -52,7 +52,7 @@ fn rejected(value: &Value) -> Check {
     super::budget(super::measure(value)?, (386, 275))?;
     if value.get("status") != Some(&json!("failed"))
         || value.get("result").is_some()
-        || value.pointer("/sources/0/reason") != Some(&json!("bad_reply"))
+        || value.pointer("/sources/0/reason") != Some(&json!("bad-reply"))
     {
         return Err(format!("bad native reply became source absence: {value}"));
     }

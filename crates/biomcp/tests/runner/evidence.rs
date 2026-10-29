@@ -54,14 +54,14 @@ fn citing_doi() -> Result<(), Box<dyn std::error::Error>> {
         let state = output.pointer("/result/fulltext/state");
         let valid = match mode {
             "joined" => output.pointer("/result/fulltext/data/paragraphs/total") == Some(&json!(7)),
-            "no-pmc" => state == Some(&json!("not_applicable")),
+            "no-pmc" => state == Some(&json!("not-applicable")),
             "disabled" => {
                 state == Some(&json!("skipped"))
                     && output.pointer("/result/fulltext/reason") == Some(&json!("disabled"))
             }
             _ => {
                 state == Some(&json!("unavailable"))
-                    && output.pointer("/result/fulltext/reason") == Some(&json!("no_join_id"))
+                    && output.pointer("/result/fulltext/reason") == Some(&json!("no-join-id"))
             }
         };
         if !valid {
@@ -417,7 +417,7 @@ fn independence() -> Result<(), Box<dyn std::error::Error>> {
     for (mode, expect) in [
         (
             "empty",
-            json!({"/status":"complete","/result/semantic_scholar/data/notice":"not_in_references"}),
+            json!({"/status":"complete","/result/semantic_scholar/data/notice":"not-in-references"}),
         ),
         (
             "graph-failure",
@@ -435,7 +435,7 @@ fn independence() -> Result<(), Box<dyn std::error::Error>> {
             json!({"/status":"partial",
 "/result/semantic_scholar/data/contexts/total":6,
 "/result/fulltext/state":"unavailable",
-"/result/fulltext/reason":"deadline_exceeded"}),
+"/result/fulltext/reason":"deadline-exceeded"}),
         ),
     ] {
         let command = if mode == "empty" {

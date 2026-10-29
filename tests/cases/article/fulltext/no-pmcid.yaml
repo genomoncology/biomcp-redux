@@ -12,7 +12,7 @@
         "fulltext"
       ],
       "expect": {
-        "/result/items/0/sections/fulltext/state": "not_applicable"
+        "/result/items/0/sections/fulltext/state": "not-applicable"
       }
     },
     {
@@ -25,7 +25,7 @@
       ],
       "expect": {
         "/status": "partial",
-        "/result/content/state": "not_applicable",
+        "/result/content/state": "not-applicable",
         "/sources/*/source": [
           "pubmed"
         ],

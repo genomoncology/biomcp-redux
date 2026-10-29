@@ -13,7 +13,7 @@
       "expect": {
         "/status": "failed",
         "/result/items/0/status": "failed",
-        "/sources/0/reason": "bad_reply",
+        "/sources/0/reason": "bad-reply",
         "/next/*/kind": {
           "includes": "fresh"
         }

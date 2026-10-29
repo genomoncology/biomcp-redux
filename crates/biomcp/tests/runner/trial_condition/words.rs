@@ -61,13 +61,13 @@ pub(super) fn mismatch() -> Result<(), String> {
         &env,
         &recording,
         &words,
-        json!({"/result/items":{"count":6},"/sources/0/notices/0/kind":"condition_word_mismatch"}),
+        json!({"/result/items":{"count":6},"/sources/0/notices/0/kind":"condition-word-mismatch"}),
     )?;
     Ok(())
 }
 
 fn check(value: &Value) -> Result<(), String> {
-    if value.pointer("/sources/0/notices/0/kind") != Some(&json!("condition_word_mismatch")) {
+    if value.pointer("/sources/0/notices/0/kind") != Some(&json!("condition-word-mismatch")) {
         return Err(format!("missing factual condition-word notice: {value}"));
     }
     let expected = [

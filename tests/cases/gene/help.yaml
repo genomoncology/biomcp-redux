@@ -21,7 +21,7 @@
             ]
           ]
         },
-        "/schema": "biomcp.help/3"
+        "/schema": "biomcp.help/4"
       },
       "run": [
         "help"
@@ -135,7 +135,7 @@
         "/sources/1/source": "mygene",
         "/sources/2": {
           "equals": {
-            "reason": "no_key",
+            "reason": "no-key",
             "source": "oncokb",
             "state": "skipped",
             "terms": "OncoKB license",
@@ -187,7 +187,7 @@
         "/sources/1/source": "mygene",
         "/sources/2": {
           "equals": {
-            "reason": "no_key",
+            "reason": "no-key",
             "source": "oncokb",
             "state": "skipped",
             "terms": "OncoKB license",
@@ -236,7 +236,7 @@
     {
       "expect": {
         "/result/environment": "ONCOKB_TOKEN",
-        "/schema": "biomcp.key/3"
+        "/schema": "biomcp.key/4"
       },
       "mcp": [
         "help",

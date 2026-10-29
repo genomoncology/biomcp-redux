@@ -249,7 +249,7 @@ fn rejected_identity() -> Check {
             &["sync", "wikipathways"],
             4,
         )?;
-        if rejected.pointer("/sources/0/reason") != Some(&json!("bad_reply"))
+        if rejected.pointer("/sources/0/reason") != Some(&json!("bad-reply"))
             || !rejected
                 .get("problems")
                 .and_then(Value::as_array)

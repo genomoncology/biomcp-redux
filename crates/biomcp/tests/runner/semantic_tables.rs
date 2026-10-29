@@ -21,7 +21,7 @@ fn fields() -> Check {
         (
             None,
             None,
-            json!({"/result/items/0/key/namespace":"semantic_scholar"}),
+            json!({"/result/items/0/key/namespace":"semantic-scholar"}),
         ),
         (
             Some(json!([])),
@@ -73,14 +73,14 @@ fn fields() -> Check {
 }
 fn failures() -> Check {
     for (value, reason) in [
-        (json!({"data":[],"next":0}), "bad_reply"),
+        (json!({"data":[],"next":0}), "bad-reply"),
         (
             json!({"data":[{"citedPaper":{"paperId":"bad","externalIds":{}}}]}),
-            "bad_reply",
+            "bad-reply",
         ),
         (
             json!({"data":[{"citingPaper":{"paperId":"0123456789abcdef0123456789abcdef01234567","externalIds":{}}}]}),
-            "bad_reply",
+            "bad-reply",
         ),
         (json!({"data":null}), "unavailable"),
     ] {

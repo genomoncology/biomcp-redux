@@ -16,7 +16,7 @@
         "/result/items/0/answer/gene/hgnc_id": "HGNC:2039",
         "/result/items/0/answer/gene/summary/source": "refseq",
         "/result/items/0/sections/expression/state": "unavailable",
-        "/result/items/0/sections/expression/reason": "deadline_exceeded",
+        "/result/items/0/sections/expression/reason": "deadline-exceeded",
         "/sources/*/source": {
           "includes": "mygene"
         },

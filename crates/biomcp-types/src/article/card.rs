@@ -115,7 +115,7 @@ biodata::canonical_enum! {
         /// Erratum relationship.
         Erratum => "erratum",
         /// Expression of concern relationship.
-        ExpressionOfConcern => "expression_of_concern",
+        ExpressionOfConcern => "expression-of-concern",
     }
 }
 biodata::canonical_enum! {

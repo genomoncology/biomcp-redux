@@ -12,7 +12,7 @@
       ],
       "expect": {
         "/result/items/0/answer/card/types": {
-          "includes": "clinical_trial_phase_2"
+          "includes": "clinical-trial-phase-2"
         },
         "/result/items/0/answer/card/authors/total": 19,
         "/result/items/0/answer/card/authors/items": {

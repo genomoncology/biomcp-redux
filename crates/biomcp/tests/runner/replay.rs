@@ -139,6 +139,6 @@ fn replay_miss(reply: &Value) -> bool {
         .is_some_and(|sources| {
             sources
                 .iter()
-                .any(|source| source.get("reason") == Some(&json!("replay_miss")))
+                .any(|source| source.get("reason") == Some(&json!("replay-miss")))
         })
 }

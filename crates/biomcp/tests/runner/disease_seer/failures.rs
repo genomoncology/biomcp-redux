@@ -101,9 +101,9 @@ fn invalid_forms(env: &Environment) -> Result<(), String> {
 }
 pub(super) fn run() -> Result<(), String> {
     for (status, body, reason) in [
-        (429, "{}", "rate_limited"),
+        (429, "{}", "rate-limited"),
         (500, "{}", "unavailable"),
-        (200, "broken JSON", "bad_reply"),
+        (200, "broken JSON", "bad-reply"),
     ] {
         let stub = Stub::for_source_status(
             "seer.cancer.gov",
@@ -171,7 +171,7 @@ fn malformed_statistics() -> Result<(), String> {
         let expect = if kind == "mismatch" {
             json!({"/result/items/0/returned_selectors/5/code":"9","/problems/5/field":"returned_selectors.year_range"})
         } else {
-            json!({"/status":"failed","/sources/0/reason":"bad_reply","/sources/0/source":"seer"})
+            json!({"/status":"failed","/sources/0/reason":"bad-reply","/sources/0/source":"seer"})
         };
         if let Err(error) = replay(
             &directory,
@@ -213,7 +213,7 @@ fn timeout() -> Result<(), String> {
     replay(
         &directory,
         json!(
-            [{"run":words,"mcp":words,"exit":4,"is_error":true,"expect":{"/sources/0/reason":"deadline_exceeded","/sources/0/source":"seer"},
+            [{"run":words,"mcp":words,"exit":4,"is_error":true,"expect":{"/sources/0/reason":"deadline-exceeded","/sources/0/source":"seer"},
             "max_bytes":203}]
         ),
     )?;
@@ -292,7 +292,7 @@ pub(super) fn wrong_site() -> Result<(), String> {
         }
         if value.pointer("/status") != Some(&json!("failed"))
             || value.pointer("/sources/0/state") != Some(&json!("failed"))
-            || value.pointer("/sources/0/reason") != Some(&json!("bad_reply"))
+            || value.pointer("/sources/0/reason") != Some(&json!("bad-reply"))
             || value.pointer("/problems/0/field") != Some(&json!("record"))
             || value.get("result").is_some()
         {
@@ -361,7 +361,7 @@ pub(super) fn stale_rejection() -> Result<(), String> {
     let stale = invoke(&env, &words, 0)?;
     if stale.pointer("/status") != Some(&json!("partial"))
         || stale.pointer("/sources/0/state") != Some(&json!("stale"))
-        || stale.pointer("/sources/0/reason") != Some(&json!("bad_reply"))
+        || stale.pointer("/sources/0/reason") != Some(&json!("bad-reply"))
         || !stale
             .get("problems")
             .and_then(Value::as_array)

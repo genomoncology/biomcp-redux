@@ -43,7 +43,7 @@ pub struct VariantOncokb {
 
 /// A native annotation row; no level or classification is inferred from other fields.
 #[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
-#[serde(tag = "kind", rename_all = "snake_case")]
+#[serde(tag = "kind", rename_all = "kebab-case")]
 #[cfg_attr(feature = "schema", derive(schemars::JsonSchema))]
 pub enum OncokbVariantRecord {
     /// A complete source statement with its original label.

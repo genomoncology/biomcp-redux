@@ -13,7 +13,7 @@
       "expect": {
         "/status": "failed",
         "/result/items/0/status": "failed",
-        "/sources/0/reason": "deadline_exceeded",
+        "/sources/0/reason": "deadline-exceeded",
         "/next/*/kind": {
           "includes": "fresh"
         }

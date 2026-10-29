@@ -166,7 +166,7 @@ fn bundle_identity() -> Check {
         "failures/bundle_identity/3",
     )?;
     failed(&value)?;
-    if value.pointer("/sources/0/reason") != Some(&json!("bad_reply"))
+    if value.pointer("/sources/0/reason") != Some(&json!("bad-reply"))
         || value
             .get("problems")
             .and_then(Value::as_array)

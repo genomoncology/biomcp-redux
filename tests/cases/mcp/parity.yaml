@@ -11,7 +11,7 @@ steps:
     mcp: []
     is_error: false
     expect:
-      /schema: biomcp.help/3
+      /schema: biomcp.help/4
       /status: complete
   - mcp: [serve]
     is_error: true

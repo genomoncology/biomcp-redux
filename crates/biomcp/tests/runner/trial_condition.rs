@@ -54,12 +54,12 @@ fn failures() -> Result<(), String> {
         (
             "wrong-id",
             annotation("MONDO:0000001", &["C3224"]),
-            Some("bad_reply"),
+            Some("bad-reply"),
         ),
         (
             "resolver-error",
             json!({"error":"synthetic resolver failure"}),
-            Some("bad_reply"),
+            Some("bad-reply"),
         ),
     ] {
         let response = body.to_string();

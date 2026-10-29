@@ -13,7 +13,7 @@
       ],
       "expect": {
         "/status": "failed",
-        "/sources/0/reason": "no_key"
+        "/sources/0/reason": "no-key"
       },
       "exit": 4,
       "max_bytes": 2000

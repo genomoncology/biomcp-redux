@@ -286,7 +286,7 @@ fn source_summation_multiplicity_and_pathway_citations_stay_independent() {
 fn all_card_retains_each_requested_relation_state_without_inventing_rows() {
     let card = json!(
         {"pathway":{"id":{"source":"reactome","id":"R-HSA-5673001"},"name":"RAF/MAP kinase cascade","species":"Homo sapiens"},
-        "sections":["summary","genes","events","all"],"genes":{"state":"empty","source":"reactome"},"events":{"state":"not_applicable"}}
+        "sections":["summary","genes","events","all"],"genes":{"state":"empty","source":"reactome"},"events":{"state":"not-applicable"}}
     );
     assert_eq!(
         roundtrip::<biomcp_types::PathwayCard>(card.clone()).expect("public round-trip"),

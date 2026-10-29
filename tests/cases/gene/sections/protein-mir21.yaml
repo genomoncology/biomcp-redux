@@ -15,12 +15,12 @@
       "expect": {
         "/status": "complete",
         "/result/items/0/answer/gene/locus_group": "non_coding_rna",
-        "/result/items/0/sections/constraint/state": "not_applicable",
+        "/result/items/0/sections/constraint/state": "not-applicable",
         "/sources/*/source": {
           "includes": "mygene",
           "excludes": "uniprot"
         },
-        "/result/items/0/sections/protein/state": "not_applicable"
+        "/result/items/0/sections/protein/state": "not-applicable"
       },
       "max_bytes": 3100,
       "mcp": [

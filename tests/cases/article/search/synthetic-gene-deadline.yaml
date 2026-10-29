@@ -18,7 +18,7 @@
         "/status": "failed",
         "/sources/0/state": "ok",
         "/sources/1/source": "pubmed",
-        "/sources/1/reason": "deadline_exceeded"
+        "/sources/1/reason": "deadline-exceeded"
       }
     }
   ]

@@ -89,16 +89,16 @@ fn source_names_round_trip_and_reject_unknown_names() -> Check {
 fn reason_names_round_trip_and_reject_unknown_names() -> Check {
     canonical_names(
         &[
-            (Reason::NotFound, "not_found"),
-            (Reason::RateLimited, "rate_limited"),
+            (Reason::NotFound, "not-found"),
+            (Reason::RateLimited, "rate-limited"),
             (Reason::Unavailable, "unavailable"),
             (Reason::Rejected, "rejected"),
-            (Reason::BadReply, "bad_reply"),
-            (Reason::DeadlineExceeded, "deadline_exceeded"),
+            (Reason::BadReply, "bad-reply"),
+            (Reason::DeadlineExceeded, "deadline-exceeded"),
             (Reason::Offline, "offline"),
-            (Reason::NoKey, "no_key"),
+            (Reason::NoKey, "no-key"),
             (Reason::Disabled, "disabled"),
-            (Reason::ReplayMiss, "replay_miss"),
+            (Reason::ReplayMiss, "replay-miss"),
             (Reason::Syncing, "syncing"),
         ],
         Error::ReasonUnknown,

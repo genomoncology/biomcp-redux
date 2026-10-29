@@ -22,7 +22,7 @@ pub(super) fn run() -> Result<(), String> {
     let refused = replies
         .iter()
         .filter_map(|r| r.pointer("/result/structuredContent"))
-        .find(|r| r.pointer("/sources/0/reason") == Some(&json!("local_quota")))
+        .find(|r| r.pointer("/sources/0/reason") == Some(&json!("local-quota")))
         .ok_or_else(|| format!("missing immediate quota refusal: {replies:?}"))?;
     let notice = refused
         .pointer("/sources/0/notices/0")
@@ -32,7 +32,7 @@ pub(super) fn run() -> Result<(), String> {
         .and_then(Value::as_u64)
         .ok_or("seconds left")?;
     if refused.get("status").and_then(Value::as_str) != Some("failed")
-        || notice.get("kind").and_then(Value::as_str) != Some("request_guidance")
+        || notice.get("kind").and_then(Value::as_str) != Some("request-guidance")
         || seconds == 0
         || seconds > 120
         || !notice

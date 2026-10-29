@@ -16,7 +16,7 @@
         "/result/items/0/answer/gene/hgnc_id": "HGNC:3430",
         "/result/items/0/answer/gene/summary/source": "refseq",
         "/result/items/0/sections/civic/state": "unavailable",
-        "/result/items/0/sections/civic/reason": "rate_limited",
+        "/result/items/0/sections/civic/reason": "rate-limited",
         "/sources/*/source": {
           "includes": "civic",
           "excludes": "gnomad"

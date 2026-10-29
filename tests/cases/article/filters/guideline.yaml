@@ -20,7 +20,7 @@
         "/result/items/*/header/types": {
           "equals": [
             [
-              "practice_guideline"
+              "practice-guideline"
             ]
           ]
         }

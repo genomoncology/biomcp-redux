@@ -71,16 +71,16 @@ fn faults(route: &str, args: &[&str]) -> Check {
     let template = Environment::new().map_err(|e| e.to_string())?;
     let root = fixtures::seed(&template)?;
     for (label, status, body, delay, reason) in [
-        ("429", 429, "{}", 0, "rate_limited"),
+        ("429", 429, "{}", 0, "rate-limited"),
         ("500", 500, "{}", 0, "unavailable"),
-        ("timeout", 200, "{}", 9000, "deadline_exceeded"),
-        ("invalid JSON", 200, "{", 0, "bad_reply"),
+        ("timeout", 200, "{}", 9000, "deadline-exceeded"),
+        ("invalid JSON", 200, "{", 0, "bad-reply"),
         (
             "HTML success",
             200,
             "<html>source failed</html>",
             0,
-            "bad_reply",
+            "bad-reply",
         ),
     ] {
         let env = Environment::new().map_err(|e| e.to_string())?;

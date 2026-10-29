@@ -85,7 +85,7 @@ crate::text_value!(
     "^[0-9]{4}-[0-9]{4}-[0-9]{4}-[0-9]{3}[0-9X]$",
     "A checksummed ORCID iD, identifying only the requested ORCID record. The parser additionally validates the ISO 7064 checksum."
 );
-/// One provider record; this enum establishes no relationship between its variants. The parser additionally validates ORCID checksums.
+/// One provider record. Semantic Scholar emits semantic-scholar:ID, accepts semanticscholar:ID. ORCID checksums are checked. Variants imply no relationship.
 #[derive(Clone, Debug, PartialEq, Eq, Hash)]
 pub enum AuthorId {
     /// One Semantic Scholar record.
@@ -117,7 +117,7 @@ crate::text_value!(
     AuthorId,
     "AuthorId",
     "^((semantic-scholar|semanticscholar):[1-9][0-9]*|orcid:[0-9]{4}-[0-9]{4}-[0-9]{4}-[0-9]{3}[0-9X])$",
-    "One provider record; this enum establishes no relationship between its variants. The parser additionally validates ORCID checksums."
+    "One provider record. Semantic Scholar emits semantic-scholar:ID, accepts semanticscholar:ID. ORCID checksums are checked. Variants imply no relationship."
 );
 
 /// A checked native ORCID client application identifier. The parser additionally validates ORCID checksums for legacy numeric identifiers.

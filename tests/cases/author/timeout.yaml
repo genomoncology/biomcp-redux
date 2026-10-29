@@ -22,7 +22,7 @@
         "/status": "failed",
         "/sources/0/source": "semantic-scholar",
         "/sources/0/use": "noncommercial",
-        "/sources/0/reason": "deadline_exceeded",
+        "/sources/0/reason": "deadline-exceeded",
         "/result/items/0/status": "failed",
         "/sources/0/state": "failed",
         "/sources/0/terms": "Semantic Scholar API License Agreement"

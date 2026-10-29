@@ -19,7 +19,7 @@
       ],
       "expect": {
         "/status": "complete",
-        "/result/items/0/sections/indexing/state": "not_applicable",
+        "/result/items/0/sections/indexing/state": "not-applicable",
         "/result/items/0/more": {
           "excludes": "indexing"
         },
@@ -46,7 +46,7 @@
       ],
       "expect": {
         "/status": "complete",
-        "/result/items/0/sections/indexing/state": "not_applicable",
+        "/result/items/0/sections/indexing/state": "not-applicable",
         "/result/items/1/sections/indexing/state": "data",
         "/result/items/1/sections/indexing/data/affiliations/total": 7
       },

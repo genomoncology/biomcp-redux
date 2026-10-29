@@ -12,7 +12,7 @@
       ],
       "expect": {
         "/status": "complete",
-        "/result/content/state": "not_applicable"
+        "/result/content/state": "not-applicable"
       }
     }
   ]

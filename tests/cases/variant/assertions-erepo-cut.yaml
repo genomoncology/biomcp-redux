@@ -26,7 +26,7 @@
         "/result/resolution": "unresolved",
         "/sources/0/source": "erepo",
         "/sources/0/state": "failed",
-        "/sources/0/reason": "bad_reply",
+        "/sources/0/reason": "bad-reply",
         "/result/candidates/0/identity": {
           "equals": {}
         }

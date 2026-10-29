@@ -92,17 +92,17 @@ fn boundaries() -> Check {
         ),
         (
             "bad-id",
-            json!({"/status":"failed","/sources/1/reason":"bad_reply"}),
+            json!({"/status":"failed","/sources/1/reason":"bad-reply"}),
             4,
         ),
         (
             "bad-rsid",
-            json!({"/status":"failed","/sources/1/reason":"bad_reply"}),
+            json!({"/status":"failed","/sources/1/reason":"bad-reply"}),
             4,
         ),
         (
             "zero-pmid",
-            json!({"/status":"failed","/sources/1/reason":"bad_reply"}),
+            json!({"/status":"failed","/sources/1/reason":"bad-reply"}),
             4,
         ),
         (
@@ -159,11 +159,11 @@ fn health() -> Check {
 }
 fn failures() -> Check {
     for (kind, reason) in [
-        ("429", "rate_limited"),
+        ("429", "rate-limited"),
         ("500", "unavailable"),
-        ("cut", "bad_reply"),
-        ("error", "bad_reply"),
-        ("deadline", "deadline_exceeded"),
+        ("cut", "bad-reply"),
+        ("error", "bad-reply"),
+        ("deadline", "deadline-exceeded"),
     ] {
         let combined = [
             "search",
@@ -306,7 +306,7 @@ fn empty_recovery() -> Check {
             "Empty results must keep recovery steps"
         );
         assert_eq!(
-            output["sources"][1]["notices"][0]["kind"], "litvar_rsid_hint",
+            output["sources"][1]["notices"][0]["kind"], "litvar-rsid-hint",
             "Empty results must keep recovery steps"
         );
         assert_eq!(

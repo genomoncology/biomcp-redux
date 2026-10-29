@@ -19,28 +19,28 @@
         "/result/items/*/header/types": {
           "equals": [
             [
-              "clinical_trial"
+              "clinical-trial"
             ],
             [
-              "clinical_trial_phase_2"
+              "clinical-trial-phase-2"
             ],
             [
-              "clinical_trial_phase_1",
-              "multicenter_study"
+              "clinical-trial-phase-1",
+              "multicenter-study"
             ],
             [
-              "clinical_trial_phase_1"
+              "clinical-trial-phase-1"
             ],
             [
-              "clinical_trial_phase_1",
-              "multicenter_study"
+              "clinical-trial-phase-1",
+              "multicenter-study"
             ],
             [
-              "clinical_trial_phase_2"
+              "clinical-trial-phase-2"
             ],
             [
-              "clinical_trial_phase_1",
-              "multicenter_study"
+              "clinical-trial-phase-1",
+              "multicenter-study"
             ]
           ]
         }

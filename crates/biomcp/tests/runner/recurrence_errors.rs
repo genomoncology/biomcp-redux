@@ -92,7 +92,7 @@ fn mismatch() -> Result<(), String> {
     let (env, stub) = peer(mismatch_reply)?;
     for _ in 0..2 {
         let value = call(&env, &args(), 4)?;
-        if value.pointer("/sources/2/reason") != Some(&json!("bad_reply"))
+        if value.pointer("/sources/2/reason") != Some(&json!("bad-reply"))
             || value.pointer("/result/observed_sample_count").is_some()
         {
             return Err(format!("wrong cohort was accepted: {value}"));

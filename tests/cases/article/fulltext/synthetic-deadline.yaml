@@ -16,7 +16,7 @@
         "/result/items/0/answer/resolution": "resolved",
         "/result/items/0/answer/card/pmid": "28944238",
         "/result/items/0/sections/fulltext/state": "unavailable",
-        "/result/items/0/sections/fulltext/reason": "deadline_exceeded"
+        "/result/items/0/sections/fulltext/reason": "deadline-exceeded"
       }
     },
     {
@@ -45,7 +45,7 @@
       "expect": {
         "/status": "failed",
         "/result/content/state": "unavailable",
-        "/result/content/reason": "deadline_exceeded",
+        "/result/content/reason": "deadline-exceeded",
         "/next/0/kind": "fresh"
       }
     }

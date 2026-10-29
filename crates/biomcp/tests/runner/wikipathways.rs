@@ -179,7 +179,7 @@ fn replacement(env: &Environment, replay: &Path, pool: &[&str]) -> Check {
             4,
         )
         .map_err(|e| format!("catalog fault {label}: {e}"))?;
-        if failed.pointer("/sources/0/reason") != Some(&json!("bad_reply"))
+        if failed.pointer("/sources/0/reason") != Some(&json!("bad-reply"))
             || failed.get("local_error").is_some()
         {
             return Err(format!("validation classification: {failed}"));
@@ -386,7 +386,7 @@ fn partial_download(env: &Environment, replay: &Path) -> Check {
         &["sync", "wikipathways"],
         4,
     )?;
-    if failed.pointer("/sources/0/reason") != Some(&json!("bad_reply"))
+    if failed.pointer("/sources/0/reason") != Some(&json!("bad-reply"))
         || failed.get("local_error").is_some()
     {
         return Err(format!("partial download: {failed}"));

@@ -30,11 +30,11 @@ biodata::wire_enum! {
     /// Explicit successful empty outcomes, never inferred from a source failure.
     EvidenceNotice {
         /// Terminal graph scan found no matching reference.
-        NotInReferences => "not_in_references",
+        NotInReferences => "not-in-references",
         /// The matching reference reports no contexts.
-        NoContexts => "no_contexts",
+        NoContexts => "no-contexts",
         /// The source reports no recommendations.
-        NoRecommendations => "no_recommendations",
+        NoRecommendations => "no-recommendations",
     }
 }
 /// Source edge metadata and a bounded advancing context page.
@@ -78,7 +78,7 @@ pub struct ArticleEvidenceResult {
     pub fulltext: Option<Section<CitationParagraphs>>,
 }
 impl super::super::ResponseBody for ArticleEvidenceResult {
-    const SCHEMA: &'static str = "biomcp.article-evidence/3";
+    const SCHEMA: &'static str = "biomcp.article-evidence/4";
     type Query = crate::ArticleEvidence;
 }
 /// Source-native recommendation page.
@@ -95,6 +95,6 @@ pub struct ArticleRecommendations {
     pub notice: Option<EvidenceNotice>,
 }
 impl super::super::ResponseBody for ArticleRecommendations {
-    const SCHEMA: &'static str = "biomcp.article-recommendations/5";
+    const SCHEMA: &'static str = "biomcp.article-recommendations/6";
     type Query = crate::ArticleRecommend;
 }

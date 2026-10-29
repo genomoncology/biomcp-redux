@@ -112,7 +112,7 @@ fn timeout() -> Result<(), String> {
     replay(
         &directory,
         json!(
-            [{"run":WORDS,"mcp":WORDS,"exit":4,"is_error":true,"expect":{"/sources/0/reason":"deadline_exceeded",
+            [{"run":WORDS,"mcp":WORDS,"exit":4,"is_error":true,"expect":{"/sources/0/reason":"deadline-exceeded",
             "/sources/0/terms":"Monarch source-specific licensing"},"max_bytes":273}]
         ),
     )?;
