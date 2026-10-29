@@ -143,16 +143,6 @@ impl PopulationFrequency {
         self.0.hemizygote_count = hemizygote_count;
         self.0.try_into()
     }
-    /// Preserve only source-reported frequencies in the closed interval zero to one.
-    pub fn with_frequencies(
-        mut self,
-        allele_frequency: Option<Fraction>,
-        faf95: Option<Fraction>,
-    ) -> Result<Self, crate::Error> {
-        self.0.allele_frequency = allele_frequency;
-        self.0.faf95 = faf95;
-        self.0.try_into()
-    }
     /// Preserve every source filter in native order.
     pub fn with_filters(mut self, filters: Box<[Text]>) -> Self {
         self.0.filters = filters;

@@ -1,7 +1,7 @@
 //! Feature protein-domains-complexes: P24 offers retrieval without analysis execution.
 use super::super::CLI_HELP_BYTES;
 use super::super::mcp;
-use super::*;
+use super::{Environment, Value, invoke, json};
 // Reviewed compact discovery budget: j18325 measured the RPC; retain the approved fifteen percent margin.
 const MCP_TOOLS_BYTES: usize = (13_703_usize * 115).div_ceil(100);
 pub(super) fn run() -> Result<(), String> {

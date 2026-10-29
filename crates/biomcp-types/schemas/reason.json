@@ -1,5 +1,5 @@
 {
-  "$id": "biodata.reason/1",
+  "$id": "biomcp.reason/1",
   "$schema": "https://json-schema.org/draft/2020-12/schema",
   "description": "Why a source could not supply data.",
   "title": "Reason",

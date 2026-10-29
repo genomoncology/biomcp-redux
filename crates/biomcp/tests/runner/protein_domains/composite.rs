@@ -1,6 +1,6 @@
 //! Feature protein-domains-complexes: all keeps independent first-page bounds.
 use super::super::mcp;
-use super::*;
+use super::{Environment, Stub, Value, call, json, setup};
 // Synthetic P00533 and P38398 all measured in j15002, with fifteen percent headroom.
 const CLI_ALL_BYTES: usize = (2826_usize * 115).div_ceil(100);
 const MCP_ALL_BYTES: usize = (2825_usize * 115).div_ceil(100);

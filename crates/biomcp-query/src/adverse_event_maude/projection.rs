@@ -1,4 +1,4 @@
-use super::*;
+use super::{AdverseEventGet, AdverseEventSection, QueryBody, Source, Text, rows, text};
 use biomcp_types::{
     AdverseEventDevices, AdverseEventMaudeCard, AdverseEventNarrative, AdverseEventRecords,
 };

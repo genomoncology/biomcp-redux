@@ -70,10 +70,6 @@ impl DrugTargetRelation {
     pub fn target(&self) -> Option<&GeneRef> {
         self.0.target.as_ref()
     }
-    /// Native target identity, only when supplied.
-    pub fn native_target(&self) -> Option<&DrugNativeTarget> {
-        self.0.native_target.as_ref()
-    }
     /// Original source relationship label.
     pub fn relation(&self) -> &Text {
         &self.0.relation

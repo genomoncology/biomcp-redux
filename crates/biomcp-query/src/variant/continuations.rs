@@ -20,19 +20,21 @@ pub(super) fn collect(candidates: &[VariantHeader], next: &mut Vec<(StepKind, Ac
                 );
             }
         }
-        if let Some(query) = data(&sections.gwas).and_then(|gwas| gwas.continuation.as_ref()) {
+        if let Some(query) =
+            data(sections.gwas.as_ref()).and_then(|gwas| gwas.continuation.as_ref())
+        {
             push(next, StepKind::Page, Request::GetVariant(query.clone()));
         }
         for query in [
-            data(&sections.civic).and_then(|d| d.next.as_ref()),
-            data(&sections.hotspots).and_then(|d| d.next.as_ref()),
+            data(sections.civic.as_ref()).and_then(|d| d.next.as_ref()),
+            data(sections.hotspots.as_ref()).and_then(|d| d.next.as_ref()),
         ]
         .into_iter()
         .flatten()
         {
             push(next, StepKind::Page, Request::GetVariant(query.clone()));
         }
-        if let Some(civic) = data(&sections.civic) {
+        if let Some(civic) = data(sections.civic.as_ref()) {
             for profile in &civic.profiles {
                 for query in [&profile.evidence_page.next, &profile.assertion_page.next]
                     .into_iter()
@@ -42,7 +44,7 @@ pub(super) fn collect(candidates: &[VariantHeader], next: &mut Vec<(StepKind, Ac
                 }
             }
         }
-        if let Some(alphagenome) = data(&sections.alphagenome) {
+        if let Some(alphagenome) = data(sections.alphagenome.as_ref()) {
             for query in alphagenome
                 .scorers
                 .iter()
@@ -53,8 +55,8 @@ pub(super) fn collect(candidates: &[VariantHeader], next: &mut Vec<(StepKind, Ac
         }
     }
 }
-fn data<T>(section: &Option<Section<T>>) -> Option<&T> {
-    match section.as_ref()? {
+fn data<T>(section: Option<&Section<T>>) -> Option<&T> {
+    match section? {
         Section::Data { data, .. } => Some(data),
         _ => None,
     }

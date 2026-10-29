@@ -90,7 +90,6 @@
       "enum": [
         "biomarker search is too broad; narrow --name or get one exact NCIt code",
         "organization search is too broad; narrow --name, --city, --state, --country, --postal-code, --family or --lat/--lon/--distance",
-        "--p-value is not yet supported; threshold filtering is deferred",
         "--p-value threshold must be a positive probability in scientific notation",
         "choose one of the source selector values",
         "a selected source does not support the requested filters",
@@ -108,7 +107,6 @@
         "--outcome is retired; use --serious death or --serious hospitalization for report flags and reactions for native outcomes; the old hospitalization and disability mappings were wrong",
         "renamed; use: --received-from",
         "renamed; use: --received-to",
-        "only --serious death and --serious hospitalization are supported",
         "--serious accepts any, death, hospitalization, lifethreatening, disabling, congenital-anomaly or other",
         "this adverse-event filter is not supported",
         "renamed; use: --source faers",
@@ -116,8 +114,6 @@
         "recalls are outside this entity",
         "use: search diagnostic --source fda-device-recall; covers every medical device",
         "choose --source faers or --source maude",
-        "supported vaccines are MMR and COVID-19 vaccine; use MMR or COVID19",
-        "Influenza VAERS summaries are not available yet; supported vaccines are MMR and COVID-19.",
         "supported vaccines are MMR and COVID19, or one exact native influenza code; use search adverse-event influenza --source vaers to list influenza codes and labels",
         "Choose one exact native influenza vaccine code; tables remain separate and are never summed. One report may list several vaccines.",
         "VAERS does not support FAERS filters; use search adverse-event TEXT --source faers for drug reports",
@@ -126,8 +122,6 @@
         "use the card seriousness flags and the reactions section",
         "renamed; use: drugs",
         "choose a named adverse-event section",
-        "choose --source gtr or fda-cdx for search; choose --source gtr, who-ivd, fda-pma or fda-510k for exact get",
-        "WHO discovery, type and marker search are deferred; use: get diagnostic PRODUCT-ID --source who-ivd",
         "choose --source gtr, who-ivd or fda-cdx for search; choose --source gtr, who-ivd, fda-pma or fda-510k for exact get",
         "choose --source gtr, who-ivd, fda-cdx or fda-device-recall for search; choose --source gtr, who-ivd, fda-pma, fda-510k or fda-device-recall for exact get",
         "use: --type",
@@ -211,10 +205,8 @@
         "gene cell-lines is deferred until an exact HPA cell identity join exists",
         "drug cell-lines is retired: cell-line screening is outside the cancer-care drug slice.",
         "Vaccine identity lookup and sync are unavailable; search vaccine report summaries with `search adverse-event --source vaers`.",
-        "cvx sync is retired: the cancer-care drug slice has no vaccine alias bridge.",
         "renamed; use: biomcp sync ema",
         "renamed; use: biomcp sync ddinter",
-        "who sync is retired: WHO prequalification is outside this question bank.",
         "renamed; use: biomcp sync who-pq",
         "renamed; use: search drug <TEXT> --source <SOURCE>",
         "--mechanism is retired: semantic mechanism expansion is not supported; select a drug identity and read targets.",
@@ -236,7 +228,6 @@
         "use: search trial --gene <gene>",
         "use: search article --gene <gene>",
         "use: search drug --target <gene>",
-        "moved to the cell line entity",
         "moved to the variant entity",
         "use: --locus-group",
         "use: help author; help search author; help get author",
@@ -286,7 +277,6 @@
         "use: expression",
         "moved to the drug entity",
         "moved to the diagnostic entity",
-        "deferred",
         "pool expired; restart the search",
         "pool selectors do not match this search"
       ],
@@ -294,7 +284,7 @@
     },
     "ErrorSchema": {
       "enum": [
-        "biomcp.error/1"
+        "biomcp.error/2"
       ],
       "type": "string"
     },
@@ -501,7 +491,7 @@
       "type": "string"
     }
   },
-  "$id": "biomcp.error/1",
+  "$id": "biomcp.error/2",
   "$schema": "https://json-schema.org/draft/2020-12/schema",
   "description": "A versioned error response that never contains caller input.",
   "properties": {

@@ -71,7 +71,7 @@
       "exit": 2,
       "is_error": true,
       "expect": {
-        "/schema": "biomcp.error/1"
+        "/schema": "biomcp.error/2"
       }
     },
     {
@@ -92,7 +92,7 @@
       "exit": 2,
       "is_error": true,
       "expect": {
-        "/schema": "biomcp.error/1"
+        "/schema": "biomcp.error/2"
       }
     }
   ]

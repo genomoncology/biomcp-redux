@@ -1,6 +1,7 @@
 # 0434 — Align lint settings and guard against dead code
 
-Status: OPEN.
+Status: COMPLETE.
+Landed: 092b993f93213fc61dcb1b31c3baad26536604e1
 
 Milestone: 5
 

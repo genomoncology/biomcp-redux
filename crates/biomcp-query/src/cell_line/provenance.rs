@@ -1,4 +1,4 @@
-use super::*;
+use super::{Ctx, Outcome, QueryBody, Source, Status, cellosaurus, status};
 /// Release metadata is an independent cacheable read, with its own failure state.
 pub(super) fn attach(cx: &Ctx<'_>, deadline: biomcp_fetch::Deadline<'_>, out: &mut Outcome) {
     let leg = cx.fetch.leg(&cellosaurus::SPEC, deadline).fresh(cx.fresh);

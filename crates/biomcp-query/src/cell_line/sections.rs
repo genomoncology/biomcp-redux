@@ -1,6 +1,9 @@
 //! Each requested collection retains whole source rows and its independent total.
-use super::*;
-use biomcp_types::*;
+use super::{Outcome, run};
+use biomcp_types::{
+    ArticleGet, ArticleInput, Capped, CellLineCard, CellLineGet, CellLineSection, CellLineVariants,
+    GeneGet, GeneInput, PageInfo, Request, Section, StepKind,
+};
 fn page<T>(rows: &mut Capped<T>, query: &CellLineGet, default: u32) {
     rows.items = std::mem::take(&mut rows.items)
         .into_vec()

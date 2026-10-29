@@ -1,6 +1,10 @@
 //! Prove that another process reads the ordinary shared checked reply cache.
 use super::*;
 #[path = "../support/environment.rs"]
+#[expect(
+    clippy::disallowed_types,
+    reason = "This fixture owns the isolated child process launcher"
+)]
 mod child_environment;
 #[test]
 #[expect(

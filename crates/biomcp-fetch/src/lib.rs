@@ -1,4 +1,6 @@
 //! Checked blocking source requests with explicit configuration and deadlines.
+#[cfg(test)]
+extern crate self as biomcp_fetch;
 
 mod cancellation;
 pub mod grpc;

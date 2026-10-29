@@ -85,8 +85,8 @@ elif '/usr/bin/sha256sum' in args:
     print(hashlib.sha256(b'candidate').hexdigest(), '/usr/local/bin/biomcp')
 elif '/bin/cat' in args:
     sys.stdout.buffer.write(pathlib.Path('container', pathlib.Path(args[-1]).name).read_bytes())
-elif args[-2:] == ['schema', 'biodata.problem/1']:
-    print('{"$id":"biodata.problem/1"}')
+elif args[-2:] == ['schema', 'biomcp.problem/1']:
+    print('{"$id":"biomcp.problem/1"}')
 elif args[-1] == 'help':
     print('{"result":{"commands":["get"]}}')
 elif args[-1] == 'serve':
@@ -173,7 +173,7 @@ class LinuxContainers(unittest.TestCase):
                 self.assertEqual(normalize(labeled), normalize(plain))
         self.assertEqual([row[-1] for row in baseline[3:13]],
                          ['/usr/local/bin/biomcp', '/usr/share/doc/biomcp/LICENSE',
-                          '/usr/share/doc/biomcp/THIRD-PARTY-NOTICES.txt', 'biodata.problem/1', 'help', 'serve',
+                          '/usr/share/doc/biomcp/THIRD-PARTY-NOTICES.txt', 'biomcp.problem/1', 'help', 'serve',
                           '1', '--installed-process-proof', '--installed-http-proof', '--installed-alphagenome-proof'])
 
 

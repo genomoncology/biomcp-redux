@@ -247,7 +247,8 @@ where
     assert!(validator.is_valid(&value), "{value}");
     assert_eq!(
         value.get("schema").and_then(serde_json::Value::as_str),
-        Some(T::SCHEMA)
+        Some(T::SCHEMA),
+        "PGx replies must retain their versioned envelope contract"
     );
     Ok(())
 }

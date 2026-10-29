@@ -1,4 +1,4 @@
-use super::{SPEC, map, relation_raw as raw};
+use super::{SPEC, map::metadata, relation_raw as raw};
 use crate::Mapped;
 use crate::mapped::problem;
 use crate::mapped::record as record_text;
@@ -44,18 +44,22 @@ pub fn members(leg: &Leg<'_>, id: &ReactomeId) -> Result<Mapped<Members>, Reques
         for reference in row.ref_entities {
             value.reference_occurrences += 1;
             let (namespace, identifier) = reference.st_id.split_once(':').ok_or_else(bad_reply)?;
-            let name = map::metadata(
+            let name = metadata(
                 &mut problems,
                 "members.name",
-                &reference.display_name,
+                reference.display_name.as_ref(),
                 false,
             );
-            let source_url =
-                map::metadata(&mut problems, "members.source_url", &reference.url, false);
-            let schema_class = map::metadata(
+            let source_url = metadata(
+                &mut problems,
+                "members.source_url",
+                reference.url.as_ref(),
+                false,
+            );
+            let schema_class = metadata(
                 &mut problems,
                 "members.schema_class",
-                &reference.schema_class,
+                reference.schema_class.as_ref(),
                 true,
             );
             let Some(participant) = &participant else {
@@ -105,11 +109,16 @@ fn participant(
     row: &raw::Participant,
     problems: &mut crate::mapped::Problems,
 ) -> Option<PathwayParticipant> {
-    let name = map::metadata(problems, "participants.name", &row.display_name, true);
-    let schema_class = map::metadata(
+    let name = metadata(
+        problems,
+        "participants.name",
+        row.display_name.as_ref(),
+        true,
+    );
+    let schema_class = metadata(
         problems,
         "participants.schema_class",
-        &row.schema_class,
+        row.schema_class.as_ref(),
         true,
     );
     name.zip(schema_class)
@@ -184,17 +193,17 @@ pub fn events(
                         })
                         .transpose()?,
                     id: native_id,
-                    version: map::metadata(
+                    version: metadata(
                         &mut problems,
                         "events.version",
-                        &v.st_id_version,
+                        v.st_id_version.as_ref(),
                         false,
                     ),
-                    name: map::metadata(&mut problems, "events.name", &v.display_name, false),
-                    schema_class: map::metadata(
+                    name: metadata(&mut problems, "events.name", v.display_name.as_ref(), false),
+                    schema_class: metadata(
                         &mut problems,
                         "events.schema_class",
-                        &v.schema_class,
+                        v.schema_class.as_ref(),
                         false,
                     ),
                 });
