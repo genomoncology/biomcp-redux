@@ -75,11 +75,11 @@ macro_rules! page {
         }
     };
 }
-page!(StudyProfiles, StudyProfile, "biomcp.study-profiles/2");
+page!(StudyProfiles, StudyProfile, "biomcp.study-profiles/3");
 page!(
     StudySampleLists,
     StudySampleList,
-    "biomcp.study-sample-lists/2"
+    "biomcp.study-sample-lists/3"
 );
 /// One native repository directory page; blob sizes do not describe data content.
 #[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]

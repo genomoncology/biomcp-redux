@@ -114,6 +114,7 @@ fn section_page(
     match q.section() {
         Some(StudySection::Profiles) => {
             let records = studies::profiles(leg, q.id())?;
+            out.problems.extend(records.problems);
             let rejected = records.rejected;
             let (items, page) = page(records.rows, q);
             let data = StudyProfiles {
@@ -135,6 +136,7 @@ fn section_page(
         }
         Some(StudySection::SampleLists) => {
             let records = studies::sample_lists(leg, q.id())?;
+            out.problems.extend(records.problems);
             let rejected = records.rejected;
             let (items, page) = page(records.rows, q);
             let data = StudySampleLists {
