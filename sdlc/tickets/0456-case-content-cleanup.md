@@ -1,18 +1,18 @@
-# 0456 — Clean case content
+# 0456 — Cut the cases to one best call per required item
 
 Status: OPEN.
 
 Milestone: 5
 
-Depends on: 0431
+Depends on: 0483
 
 ## Outcome
 
-Each case asserts its feature's promise once. Repeated transport-failure cases collapse to one table per failure kind. Cases that copy their expectations from product tables compare against literals. Tests that never run are run or deleted. The review record names no case, so the lane builds a bounded inventory first and puts it in the commit message. The inventory covers cases whose expected values come from product code, failure cases repeated across sources with the same assertion, and tests that no runner registers.
+`tests/cases/` holds about 400 command-line calls, one best call for each item on 0483's list, and 0483's pending list is empty. Duplicate cases are gone, the gaps have calls, and the routine suite runs in about a minute without coverage instrumentation.
 
-- Why: the code quality review found tests that restate code, repeat one failure for many sources, or never run.
-- Starts from: `tests/cases/` and `crates/biomcp/tests/runner/`.
-- Rules: delete a case only when another case fails on the same break, and name that case in the commit. Every kept case keeps its feature. No new assertion style.
-- Proof: for each deleted case, a planted break of its behavior fails the named covering case; each test the inventory finds unregistered fails discovery when planted back unregistered; the outside-in coverage figure from 0430 does not drop.
-- Changes: `tests/cases/` and runner trial files from the inventory.
-- Defers: nothing.
+- Why: Ian's ruling in `decisions/2026-10-29-one-small-outside-in-suite.md`. Of 680 case files with 1,756 steps, about 251 steps are needed. About 110 new calls fill the gaps: 49 refusals, about 47 option and section calls, 10 commands, 2 MCP tools and 1 global option. About 40 more add per-source failure checks for trials, variants, drug labels and articles.
+- Starts from: 0483's per-item counts, `tests/cases/`, `tests/replies/`, and the runner trials that already launch the binary for a gap item, which can be ported to YAML.
+- Rules: for each item, keep the call that checks answer values, uses real recorded replies, is live-checkable and tells a clinical story, in that order. Merge cases for one command into one file with several steps where that reads better. Synthetic replies are only for failures that cannot be triggered on purpose. MCP runs once per MCP tool and where MCP output differs, not as a repeat of every step. Delete unused recordings with their cases. Expected values are literals, never copied from product tables. Coverage drops as the duplicate cases go. After the cut, the PM sets the coverage floor from the new figure.
+- Proof: 0483's check passes with an empty pending list. The case count and runtime are reported from a plain run. For a sample of ten deleted cases, a planted break of the deleted case's behavior fails a kept case. The reply diff is empty.
+- Changes: `tests/cases/`, `tests/replies/`, 0483's pending list and `coverage.floor`.
+- Defers: runner trials (0484), the nightly selection (0485).
