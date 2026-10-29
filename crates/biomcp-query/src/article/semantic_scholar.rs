@@ -34,6 +34,7 @@ pub(super) fn search<'a>(
     let mut outcome = status::source(Source::SemanticScholar, leg.finish(), error);
     outcome.term = Text::new(&term).ok();
     let mut dois = Vec::new();
+    let mut problems = Vec::new();
     let items = match result {
         Ok(reply) => {
             outcome.count = Some(reply.total);
@@ -46,13 +47,13 @@ pub(super) fn search<'a>(
             reply
                 .data
                 .into_iter()
-                .map(semantic_scholar::Paper::item)
+                .map(|paper| paper.item(&mut problems))
                 .collect()
         }
         Err(_) => Vec::new(),
     };
     super::sources::ResultLeg {
-        problems: Vec::new(),
+        problems,
         source: ArticleSource::SemanticScholar,
         outcome,
         items,

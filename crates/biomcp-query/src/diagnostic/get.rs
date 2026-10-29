@@ -1,5 +1,5 @@
 use super::{empty, finish, next, unsupported};
-use crate::{Ctx, Outcome};
+use crate::{Ctx, Outcome, status};
 use biodata::GtrTestRelation;
 use biomcp_adapters::gtr;
 use biomcp_types::{
@@ -55,6 +55,7 @@ pub fn get(cx: &Ctx<'_>, q: &DiagnosticGet) -> Outcome {
     out
 }
 fn selected(out: &mut Outcome, q: &DiagnosticGet, record: gtr::Record, fresh: bool) {
+    status::append(&mut out.problems, record.problems);
     out.status = if record.card.is_some() || q.section().is_some() && !record.relations.is_empty() {
         Status::Complete
     } else {

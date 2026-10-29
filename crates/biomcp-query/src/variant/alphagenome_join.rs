@@ -2,7 +2,8 @@
 use crate::{Ctx, status};
 use biodata::{Build, Chromosome, ExpressionSyntax};
 use biomcp_adapters::allele_registry;
-use biomcp_fetch::{Deadline, RequestError, grpc::alphagenome::ScoreRequest};
+use biomcp_adapters::alphagenome::ScoreRequest;
+use biomcp_fetch::{Deadline, RequestError};
 use biomcp_types::{Problem, Source, SourceOutcome, VariantHeader};
 
 #[derive(Debug)]

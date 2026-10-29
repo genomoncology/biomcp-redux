@@ -40,7 +40,14 @@ pub(super) fn mapped(row: raw::Record) -> Mapped<DeviceRecallCard> {
     if initiated == Some(None) {
         push_problem(&mut problems, SOURCE, id.clone(), "event_date_initiated");
     }
-    let mut text = |field, value| field_text(&mut problems, SOURCE, id.clone(), field, value);
+    let mut text = |field, value| {
+        let admit = if matches!(field, "res_event_number" | "product_code" | "recall_status") {
+            crate::mapped::field_code_text
+        } else {
+            field_text
+        };
+        admit(&mut problems, SOURCE, id.clone(), field, value)
+    };
     let header = DeviceRecallHeader {
         recall_number: row.product_res_number,
         event_number: text("res_event_number", row.res_event_number),
@@ -71,7 +78,7 @@ pub(super) fn mapped(row: raw::Record) -> Mapped<DeviceRecallCard> {
 }
 pub(super) fn classification(row: raw::Enforcement) -> Mapped<Option<Text>> {
     let mut problems = Vec::new();
-    let value = field_text(
+    let value = crate::mapped::field_code_text(
         &mut problems,
         SOURCE,
         record(row.recall_number),

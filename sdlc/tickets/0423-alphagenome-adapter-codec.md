@@ -1,6 +1,7 @@
 # 0423 — Move the AlphaGenome codec into its adapter
 
-Status: OPEN.
+Status: COMPLETE.
+Landed: 6748934a48dc262030b1e0ed293a125ff61cfc8a
 
 Milestone: 5
 

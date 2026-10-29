@@ -42,6 +42,7 @@ impl Record {
                             .first()
                     })
                     .cloned()
+                    .map(Into::into)
                     .ok_or_else(bad)?,
             ),
             identity_level: DrugIdentityLevel::SplSet,
@@ -78,6 +79,7 @@ impl Record {
             .flatten()
             .chain(self.openfda.generic_name.iter().flatten())
             .cloned()
+            .map(Into::into)
             .collect();
         Ok(DrugCard {
             header: self.header()?,

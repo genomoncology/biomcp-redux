@@ -69,9 +69,7 @@
       "exit": 2,
       "is_error": true,
       "expect": {
-        "/error/code": "usage.unsupported_filter",
-        "/error/source": "nci",
-        "/error/option": "--status"
+        "/error/code": "usage.arguments"
       },
       "offline": true
     },
@@ -129,6 +127,126 @@
         "/error/code": "usage.unsupported_filter",
         "/error/source": "nci",
         "/error/option": "--keyword"
+      }
+    },
+    {
+      "run": [
+        "search",
+        "trial",
+        "--source",
+        "nci",
+        "--phase",
+        "2"
+      ],
+      "mcp": [
+        "search",
+        "trial",
+        "--source",
+        "nci",
+        "--phase",
+        "2"
+      ],
+      "exit": 2,
+      "is_error": true,
+      "offline": false,
+      "expect": {
+        "/error/code": "usage.arguments"
+      }
+    },
+    {
+      "run": [
+        "search",
+        "trial",
+        "--source",
+        "nci",
+        "--phase",
+        "V"
+      ],
+      "mcp": [
+        "search",
+        "trial",
+        "--source",
+        "nci",
+        "--phase",
+        "V"
+      ],
+      "exit": 2,
+      "is_error": true,
+      "offline": false,
+      "expect": {
+        "/error/code": "usage.arguments"
+      }
+    },
+    {
+      "run": [
+        "search",
+        "trial",
+        "--source",
+        "nci",
+        "--status",
+        "open"
+      ],
+      "mcp": [
+        "search",
+        "trial",
+        "--source",
+        "nci",
+        "--status",
+        "open"
+      ],
+      "exit": 2,
+      "is_error": true,
+      "offline": false,
+      "expect": {
+        "/error/code": "usage.arguments"
+      }
+    },
+    {
+      "run": [
+        "search",
+        "trial",
+        "--source",
+        "ctgov",
+        "--phase",
+        "II"
+      ],
+      "mcp": [
+        "search",
+        "trial",
+        "--source",
+        "ctgov",
+        "--phase",
+        "II"
+      ],
+      "exit": 2,
+      "is_error": true,
+      "offline": false,
+      "expect": {
+        "/error/code": "usage.arguments"
+      }
+    },
+    {
+      "run": [
+        "search",
+        "trial",
+        "--source",
+        "ctgov",
+        "--status",
+        "Active"
+      ],
+      "mcp": [
+        "search",
+        "trial",
+        "--source",
+        "ctgov",
+        "--status",
+        "Active"
+      ],
+      "exit": 2,
+      "is_error": true,
+      "offline": false,
+      "expect": {
+        "/error/code": "usage.arguments"
       }
     }
   ]

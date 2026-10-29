@@ -43,7 +43,7 @@ variant-identity: A caller resolves published variant identifiers, keeps every s
 trial-search: Search the registry with repeated condition, intervention and keyword alternatives joined with OR, explicit native filters and exact MyDisease condition resolution, exact totals, opaque pages, factual condition-word mismatch notices, explicit registered-condition phrase restrictions and caller-controlled wider alternatives for short searches. Cases: `tests/cases/trial/*.yaml`, `crates/biomcp/tests/runner/trial_bad_values.rs`, `crates/biomcp/tests/runner/trial_tables.rs`, `crates/biomcp/tests/runner/trial_wider.rs`, `crates/biomcp/tests/runner/trial_condition.rs`, `crates/biomcp/tests/runner/trial_condition/alternatives.rs`.
 trial-get: Retrieve exact registry cards and recover intact eligibility, outcome and arm records through bounded continuations. Cases: `tests/cases/trial/get/*.yaml`, `crates/biomcp/tests/runner/trial_get.rs`, `crates/biomcp/tests/runner/trial_bad_values.rs`.
 
-trial-nci: Explicit NCI trial search and exact retrieval require the user key and preserve native fields without registry fallback; exact facility search returns one matched site and its match count; exact biomarker code search retains native criterion and inclusion_indicator entries and reports same-entry mismatches. Cases: `tests/cases/trial/nci-*.yaml`, `crates/biomcp/tests/runner/nci.rs`, `crates/biomcp/tests/runner/nci/facility.rs`, `crates/biomcp/tests/runner/nci/trial_biomarker.rs`, `crates/biomcp/tests/runner/nci_walk.rs`, `crates/biomcp/tests/runner/trial_condition/alternatives.rs`.
+trial-nci: Explicit NCI phase and status filters use publisher vocabularies; trial search and exact retrieval require the user key and preserve native fields without registry fallback; exact facility search returns one matched site and its match count; exact biomarker code search retains native criterion and inclusion_indicator entries and reports same-entry mismatches. Cases: `tests/cases/trial/nci-*.yaml`, `crates/biomcp/tests/runner/nci.rs`, `crates/biomcp/tests/runner/nci/facility.rs`, `crates/biomcp/tests/runner/nci/trial_biomarker.rs`, `crates/biomcp/tests/runner/nci_walk.rs`, `crates/biomcp/tests/runner/trial_condition/alternatives.rs`.
 trial-publications: Retrieve native registry references and document manifests and save a listed document to an explicit caller path. Cases: `tests/cases/trial/references.yaml`, `tests/cases/trial/documents.yaml`, `crates/biomcp/tests/runner/trial_documents.rs`.
 trial-sites: Page original registry sites and their attached contacts, and retrieve requested-trial central contacts and officials. Cases: `tests/cases/trial/sites/*.yaml`, `crates/biomcp/tests/runner/trial_sites.rs`.
 
@@ -181,16 +181,16 @@ store-coexistence: Allowed bundle reads import only names missing from the curre
 
 agent-skill: Agents read case-backed guidance and install managed guidance only inside an explicit directory. Cases: `crates/biomcp/tests/runner/skill.rs`.
 
-stream-tensors: Decode serialized provider tensor payloads within explicit wire and expansion bounds. Contracts: `biomcp-fetch/tensors`.
+stream-tensors: Decode serialized provider tensor payloads within explicit wire and expansion bounds. Contracts: `biomcp-adapters/tensors`.
 
 stream-worker: Blocking source legs make one bounded streaming RPC over their checked TLS and proxy route within the shared quota and absolute deadline. Contracts: `biomcp-fetch/grpc_worker`.
 stream-persistence: Complete checked RPC streams enter the ordinary cache and replay from bounded recordings without connections. Contracts: `biomcp-fetch/grpc_persistence`.
 
-alphagenome-protocol: Encode the reviewed human DNASE request and admit only complete bounded reference and alternate envelopes. Contracts: `biomcp-fetch/alphagenome`.
+alphagenome-protocol: Encode the reviewed human DNASE request and admit only complete bounded reference and alternate envelopes. Contracts: `biomcp-adapters/alphagenome`.
 
 alphagenome-registration: Discover the restricted AlphaGenome service and require its own user key before source admission. Contracts: `biomcp-adapters/alphagenome_registration`.
 
-alphagenome-score-protocol: Encode the ruled human scoring request and admit exactly the requested complete scorer groups by request position. Contracts: `biomcp-fetch/score_variant`.
+alphagenome-score-protocol: Encode the ruled human scoring request and admit exactly the requested complete scorer groups by request position. Contracts: `biomcp-adapters/score_variant`.
 
 variant-alphagenome: Read independently paged native scoring groups for one source-resolved GRCh38 variant with the caller's required key. Cases: `crates/biomcp/tests/runner/alphagenome.rs`, `crates/biomcp/tests/runner/alphagenome_tls.rs`, `crates/biomcp/tests/runner/alphagenome_capture.rs`.
 

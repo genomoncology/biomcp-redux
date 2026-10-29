@@ -1,5 +1,6 @@
 //! Synthetic protobuf fixtures prove the bounded tensor codec through its public surface.
-use biomcp_fetch::grpc::{CodecError, Limits, TensorStream};
+use biomcp_adapters::alphagenome::TensorStream;
+use biomcp_fetch::grpc::{CodecError, Limits};
 
 fn chunk(data: &[u8], compression: u8) -> Vec<u8> {
     let mut bytes = vec![10];
@@ -97,7 +98,7 @@ fn stream_tensors_refuses_wire_and_shape_limits_before_decode() {
 #[test]
 fn stream_tensors_caps_zstd_output_and_window() {
     // feature: stream-tensors
-    let compressed = zstd::stream::encode_all(&[0u8; 1024][..], 1).unwrap();
+    let compressed = vec![40, 181, 47, 253, 0, 72, 3, 32, 0, 0];
     let mut stream = TensorStream::new(Limits::default()).unwrap();
     stream.descriptor(&[10, 1, 1, 16, 2, 32, 1]).unwrap();
     assert_eq!(
@@ -105,7 +106,7 @@ fn stream_tensors_caps_zstd_output_and_window() {
         CodecError::BadReply
     );
     let data = 7f32.to_le_bytes();
-    let compressed = zstd::stream::encode_all(&data[..], 1).unwrap();
+    let compressed = vec![40, 181, 47, 253, 0, 72, 33, 0, 0, 0, 0, 224, 64];
     let mut stream = TensorStream::new(Limits::default()).unwrap();
     stream.descriptor(&[10, 1, 1, 16, 2, 32, 1]).unwrap();
     assert_eq!(

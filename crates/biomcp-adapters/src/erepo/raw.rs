@@ -85,7 +85,7 @@ impl Record {
             record: Some(crate::mapped::text(&self.id).map_err(|_| super::bad())?),
             version: Some(crate::mapped::text(&self.version).map_err(|_| super::bad())?),
             release: None,
-            submitter: self.ep.as_deref().map(|v| crate::mapped::text(v).map_err(|_| super::bad())).transpose()?,
+            submitter: self.ep.as_deref().map(|v| crate::mapped::source_text(v).map_err(|_| super::bad())).transpose()?,
             evaluated: None,
             url: self
                 .uuid
@@ -106,7 +106,7 @@ impl Record {
                     .mondo
                     .map(|v| v.parse().map_err(|_| super::bad()))
                     .transpose()?,
-                label: Some(crate::mapped::text(&label).map_err(|_| super::bad())?),
+                label: Some(crate::mapped::source_text(&label).map_err(|_| super::bad())?),
             }],
             None => vec![],
         };
@@ -115,9 +115,9 @@ impl Record {
             summary: self
                 .summary
                 .as_deref()
-                .map(|v| crate::mapped::text(v).map_err(|_| super::bad()))
+                .map(|v| crate::mapped::source_text(v).map_err(|_| super::bad()))
                 .transpose()?,
-            unmet_criteria: strings(self.unmet.unwrap_or_default())?,
+            unmet_criteria: strings(self.unmet.unwrap_or_default(), true)?,
             published: self
                 .published
                 .map(|s| s.parse().map_err(|_| super::bad()))
@@ -126,20 +126,20 @@ impl Record {
                 .approved
                 .map(|s| s.parse().map_err(|_| super::bad()))
                 .transpose()?,
-            versions: strings(self.versions.unwrap_or_default())?,
+            versions: strings(self.versions.unwrap_or_default(), false)?,
             ..Default::default()
         };
         let mut row = crate::assertion::row(
             AssertionKind::Erepo,
             AssertionDomain::Germline,
-            crate::mapped::text(&self.classification).map_err(|_| super::bad())?,
+            crate::mapped::source_text(&self.classification).map_err(|_| super::bad())?,
             attribution,
             subject,
             detail,
             None,
         );
         if let Some(statement) = &mut row.statement {
-            statement.criteria = strings(self.criteria.unwrap_or_default())?;
+            statement.criteria = strings(self.criteria.unwrap_or_default(), false)?;
             statement.gene_context = self
                 .gene
                 .map(|s| {
@@ -157,9 +157,14 @@ impl Record {
     }
 }
 
-fn strings(values: Vec<String>) -> Result<Box<[Text]>, RequestError> {
+fn strings(values: Vec<String>, prose: bool) -> Result<Box<[Text]>, RequestError> {
+    let admit = if prose {
+        crate::mapped::source_text
+    } else {
+        crate::mapped::text
+    };
     values
         .iter()
-        .map(|s| crate::mapped::text(s).map_err(|_| super::bad()))
+        .map(|s| admit(s).map_err(|_| super::bad()))
         .collect()
 }

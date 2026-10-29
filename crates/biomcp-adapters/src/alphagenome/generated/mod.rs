@@ -3,3 +3,5 @@
 include!("part000.rs");
 include!("part001.rs");
 include!("part002.rs");
+include!("part003.rs");
+include!("part004.rs");

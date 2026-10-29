@@ -35,7 +35,10 @@ pub use variant_normalize::{NormalizationSource, VariantNormalize};
 mod variant_input;
 pub use variant_input::{VariantInput, VariantNamespace};
 mod trial;
-pub use trial::{NciBiomarkerUse, PhaseFilter, SponsorType, TrialFilter, TrialSearch, TrialSource};
+pub use trial::{
+    NciBiomarkerUse, NciStatusFilter, PhaseFilter, SponsorType, TrialFilter, TrialPhaseFilter,
+    TrialSearch, TrialSource, TrialStatusFilter,
+};
 
 mod trial_get;
 pub use trial_get::{TrialGet, TrialSection};

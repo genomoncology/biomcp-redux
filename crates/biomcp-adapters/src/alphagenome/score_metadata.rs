@@ -1,6 +1,6 @@
 //! Map native scoring metadata without interpreting biological meaning.
-use super::super::proto;
-use crate::BadReply;
+use super::proto;
+use biomcp_fetch::BadReply;
 use biomcp_types::{
     AlphaGenomeBiosample, AlphaGenomeGene, AlphaGenomeOntology, AlphaGenomeTrack,
     AlphaGenomeVariant,

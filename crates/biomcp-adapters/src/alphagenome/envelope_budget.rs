@@ -1,6 +1,6 @@
 //! Account for complete protobuf envelopes before any nested provider allocation.
-use super::super::Limits;
-use crate::BadReply;
+use super::Limits;
+use biomcp_fetch::BadReply;
 #[derive(Debug)]
 pub(super) struct EnvelopeBudget {
     limits: Limits,

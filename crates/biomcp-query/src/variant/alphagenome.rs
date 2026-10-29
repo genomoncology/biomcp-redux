@@ -2,7 +2,8 @@
 use crate::{Ctx, status};
 use biodata::{Build, Chromosome};
 use biomcp_adapters::alphagenome;
-use biomcp_fetch::{Deadline, SecretName, grpc::alphagenome::ScoreRequest};
+use biomcp_adapters::alphagenome::ScoreRequest;
+use biomcp_fetch::{Deadline, SecretName};
 use biomcp_types::{
     Reason, Section, Source, SourceOutcome, SourceState, VariantAlphaGenome, VariantGet,
     VariantHeader,
@@ -45,16 +46,13 @@ pub(super) fn section(
         sources.extend(joined.sources);
         return (section, sources, joined.problems, joined.local);
     };
-    if request.bytes().len() > biomcp_fetch::grpc::alphagenome::SCORE_LIMITS.request_bytes {
+    if request.bytes().len() > biomcp_adapters::alphagenome::SCORE_LIMITS.request_bytes {
         let (section, mut sources, _, _) = refused(Reason::TooLarge, SourceState::Failed);
         sources.extend(joined.sources);
         return (section, sources, joined.problems, joined.local);
     }
     let leg = cx.fetch.leg(&alphagenome::SPEC, deadline).fresh(cx.fresh);
-    let reply = leg
-        .grpc_checked(&alphagenome::SCORE_VARIANT, request.bytes(), |limits| {
-            request.decoder(limits)
-        })
+    let reply = alphagenome::score(&leg, &request)
         .and_then(|reply| super::alphagenome_page::page(query, &request, reply));
     let error = reply.as_ref().err().copied();
     let source = status::source(Source::AlphaGenome, leg.finish(), error);

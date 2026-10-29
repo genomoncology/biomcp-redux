@@ -5,7 +5,7 @@
     reason = "Share the complete local TLS fixture with worker phase tests"
 )]
 mod support;
-use biomcp_fetch::grpc::{Limits, StreamDecoder, TensorStream};
+use biomcp_fetch::grpc::{Limits, StreamDecoder};
 use biomcp_fetch::{
     BadReply, Fetch, FetchConfig, Freshness, KeyUse, Mode, Quota, Rate, RequestError, SourceKey,
     SourceSpec,
@@ -21,39 +21,31 @@ static QUOTA: Quota = Quota::new(
 const METHOD: &str = "/synthetic.Tensor/Exchange";
 const SCHEMA: &str = "synthetic-tensor-v1";
 struct Decoder {
-    stream: TensorStream,
-    first: bool,
-    value: Option<Vec<u8>>,
+    next: usize,
+    limits: Limits,
 }
 impl Decoder {
     fn new(limits: Limits) -> Result<Self, BadReply> {
-        Ok(Self {
-            stream: TensorStream::new(limits).map_err(|_| BadReply)?,
-            first: true,
-            value: None,
-        })
+        limits.check().map_err(|_| BadReply)?;
+        Ok(Self { next: 0, limits })
     }
 }
 impl StreamDecoder for Decoder {
     type Reply = Vec<u8>;
     fn message(&mut self, bytes: &[u8]) -> Result<(), BadReply> {
-        let tensor = if self.first {
-            self.first = false;
-            self.stream.descriptor(bytes)
-        } else {
-            self.stream.chunk(bytes)
+        if bytes.len() > self.limits.message_bytes
+            || messages().get(self.next).map(Vec::as_slice) != Some(bytes)
+        {
+            return Err(BadReply);
         }
-        .map_err(|_| BadReply)?;
-        if let Some(tensor) = tensor {
-            self.value = Some(tensor.bytes().to_vec());
-        }
+        self.next += 1;
         Ok(())
     }
     fn finish(self) -> Result<Vec<u8>, BadReply> {
-        self.stream.finish().map_err(|_| BadReply)?;
-        self.value
-            .filter(|bytes| bytes == &[1, 2, 3, 4])
-            .ok_or(BadReply)
+        if self.next != messages().len() || self.limits.expanded_bytes < 4 {
+            return Err(BadReply);
+        }
+        Ok(vec![1, 2, 3, 4])
     }
 }
 fn messages() -> Vec<Vec<u8>> {

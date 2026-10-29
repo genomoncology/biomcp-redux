@@ -1,5 +1,6 @@
 //! Checked Europe PMC core records and their JATS document boundary.
 use super::SPEC;
+use crate::native_text::NativeText;
 use crate::{jats, pmc_oa};
 use biodata::{Doi, EuropePmcId, PartialDate, Pmid, Text};
 
@@ -19,7 +20,8 @@ struct Record {
     source: String,
     pmid: Option<Pmid>,
     doi: Option<Doi>,
-    title: Text,
+    #[serde(deserialize_with = "crate::native_text::deserialize")]
+    title: biodata::Text,
     first_publication_date: Option<PartialDate>,
     author_list: Authors,
     abstract_text: Option<String>,
@@ -34,7 +36,8 @@ struct Authors {
 #[derive(Deserialize)]
 #[serde(rename_all = "camelCase")]
 struct Author {
-    full_name: Text,
+    #[serde(deserialize_with = "crate::native_text::deserialize")]
+    full_name: biodata::Text,
 }
 #[derive(Deserialize)]
 #[serde(rename_all = "camelCase")]
@@ -43,7 +46,7 @@ struct Types {
 }
 #[derive(Deserialize)]
 struct Publisher {
-    publisher: Option<Text>,
+    publisher: Option<NativeText>,
 }
 impl Reply for Raw {
     fn check(&self) -> Result<(), BadReply> {
@@ -105,7 +108,10 @@ pub fn core(leg: &Leg<'_>, id: &EuropePmcId) -> Result<(Article, ReplyMetadata),
             doi: raw.doi,
             pmcid: None,
             title: Some(raw.title),
-            journal: raw.book_or_report_details.and_then(|p| p.publisher),
+            journal: raw
+                .book_or_report_details
+                .and_then(|p| p.publisher)
+                .map(Into::into),
             date: raw.first_publication_date,
             electronic_date: None,
             types: raw

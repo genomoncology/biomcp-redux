@@ -57,7 +57,8 @@ pub(super) fn parse(
             }
             for identifier in author.children("Identifier")? {
                 if identifier.attr("Source")?.as_deref() == Some("ORCID") {
-                    let Some(id) = problems.text("orcids", Some(&identifier.text()?)) else {
+                    let Some(id) = problems.checked_text("orcids", Some(&identifier.text()?))
+                    else {
                         continue;
                     };
                     if !orcids.contains(&id) {

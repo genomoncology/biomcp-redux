@@ -39,3 +39,88 @@ pub(super) fn rejects(path: &str, content: &str, rule: &str) -> Check {
     );
     Ok(())
 }
+
+pub(super) fn check_inventory_mutations() -> Check {
+    use super::source::adapter_values::validate;
+    let original = include_str!("adapter_value_audit.json");
+    let mut current: serde_json::Value = serde_json::from_str(original)?;
+    let sites = audit_sites(&mut current)?;
+    sites.retain(|entry| {
+        entry
+            .get("maximum")
+            .and_then(serde_json::Value::as_u64)
+            .is_some_and(|n| n > 1)
+    });
+    for entry in sites.iter_mut() {
+        let entry = entry.as_object_mut().ok_or("invalid audit site")?;
+        entry.insert("maximum".into(), 1.into());
+        entry.insert("class".into(), "migrated".into());
+    }
+    validate(&current.to_string())?;
+    validate("{\"sites\":[]}")?;
+    let planted = serde_json::json!({"sites": [{
+        "path": "crates/biomcp-adapters/src/example/details.rs",
+        "site": "new pending identity",
+        "maximum": 1,
+        "class": "pending_audit",
+        "owner": "example",
+        "reason": "Planted new entry"
+    }]});
+    assert!(
+        validate(&planted.to_string()).is_err(),
+        "new entry in empty inventory passed"
+    );
+    let mut current: serde_json::Value = serde_json::from_str(original)?;
+    if audit_sites(&mut current)?.is_empty() {
+        return Ok(());
+    }
+    audit_site(&mut current)?.insert("site".into(), "new pending identity".into());
+    assert!(
+        validate(&current.to_string()).is_err(),
+        "same-count replacement passed"
+    );
+    let mut current: serde_json::Value = serde_json::from_str(original)?;
+    let maximum = audit_site(&mut current)?
+        .get("maximum")
+        .and_then(serde_json::Value::as_u64)
+        .ok_or("missing count")?;
+    audit_site(&mut current)?.insert("maximum".into(), (maximum + 1).into());
+    assert!(
+        validate(&current.to_string()).is_err(),
+        "increased ceiling passed"
+    );
+    let mut current: serde_json::Value = serde_json::from_str(original)?;
+    audit_site(&mut current)?.insert("owner".into(), "other_adapter".into());
+    assert!(
+        validate(&current.to_string()).is_err(),
+        "wrong adapter owner passed"
+    );
+    let mut current: serde_json::Value = serde_json::from_str(original)?;
+    let duplicate = audit_sites(&mut current)?
+        .first()
+        .ok_or("missing audit site")?
+        .clone();
+    audit_sites(&mut current)?.push(duplicate);
+    assert!(
+        validate(&current.to_string()).is_err(),
+        "duplicate pending entry passed"
+    );
+    Ok(())
+}
+
+fn audit_sites(
+    value: &mut serde_json::Value,
+) -> Result<&mut Vec<serde_json::Value>, Box<dyn std::error::Error>> {
+    value
+        .get_mut("sites")
+        .and_then(serde_json::Value::as_array_mut)
+        .ok_or_else(|| "missing audit sites".into())
+}
+fn audit_site(
+    value: &mut serde_json::Value,
+) -> Result<&mut serde_json::Map<String, serde_json::Value>, Box<dyn std::error::Error>> {
+    audit_sites(value)?
+        .first_mut()
+        .and_then(serde_json::Value::as_object_mut)
+        .ok_or_else(|| "missing audit site".into())
+}

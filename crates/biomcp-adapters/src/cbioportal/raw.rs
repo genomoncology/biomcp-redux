@@ -1,3 +1,4 @@
+use crate::native_text::NativeText;
 use biodata::Text;
 use biomcp_fetch::{BadReply, Reply};
 use serde::Deserialize;
@@ -5,9 +6,10 @@ use serde::Deserialize;
 #[serde(rename_all = "camelCase")]
 pub(super) struct Study {
     pub study_id: Text,
-    pub name: Text,
-    pub description: Option<Text>,
-    pub citation: Option<Text>,
+    #[serde(deserialize_with = "crate::native_text::deserialize")]
+    pub name: biodata::Text,
+    pub description: Option<NativeText>,
+    pub citation: Option<NativeText>,
 }
 #[derive(Deserialize)]
 #[serde(rename_all = "camelCase")]

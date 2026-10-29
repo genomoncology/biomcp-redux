@@ -805,8 +805,10 @@
       "type": "string"
     },
     "Reply_Text": {
-      "description": "Nonempty text with surrounding Unicode whitespace removed.",
+      "description": "Bounded nonempty text with surrounding Unicode whitespace removed.",
+      "maxLength": 1048576,
       "minLength": 1,
+      "pattern": "^(?![\\s\\S]*[\\x00-\\x1f\\x7f-\\x9f\\u061c\\u200e\\u200f\\u202a-\\u202e\\u2066-\\u2069])",
       "type": "string"
     },
     "Reply_TrialDocument": {
@@ -876,11 +878,15 @@
           ]
         },
         "uploaded": {
-          "description": "Original upload timestamp, without guessing a timezone.",
-          "type": [
-            "string",
-            "null"
-          ]
+          "anyOf": [
+            {
+              "$ref": "#/$defs/Reply_TrialUploadTime"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "description": "Original upload timestamp, without guessing a timezone."
         },
         "url": {
           "$ref": "#/$defs/Reply_Text",
@@ -966,6 +972,11 @@
         "document"
       ],
       "type": "object"
+    },
+    "Reply_TrialUploadTime": {
+      "description": "Native ClinicalTrials.gov DateTimeMinutes without timezone. The parser additionally validates the calendar day, including leap years.",
+      "pattern": "^(?!0000)[0-9]{4}-(0[1-9]|1[0-2])-(0[1-9]|[12][0-9]|3[01])T([01][0-9]|2[0-3]):[0-5][0-9](?![\\s\\S])",
+      "type": "string"
     },
     "Reply_Use": {
       "description": "Reviewed source-use category, without inferring rights in individual records.",

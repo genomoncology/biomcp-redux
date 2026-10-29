@@ -16,7 +16,8 @@ struct Catalog {
 pub(super) struct Native {
     pub id: WikiPathwaysId,
     url: Text,
-    pub name: Text,
+    #[serde(deserialize_with = "crate::native_text::deserialize")]
+    pub name: biodata::Text,
     pub species: Box<str>,
     pub revision: Text,
     authors: Box<str>,

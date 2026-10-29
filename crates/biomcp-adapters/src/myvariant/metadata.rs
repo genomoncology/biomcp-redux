@@ -1,4 +1,5 @@
 //! Keep independently reported component provenance when one native value is invalid.
+use crate::native_text::NativeText;
 use crate::{Mapped, mapped::Problems, raw::Field};
 use biodata::Text;
 use biomcp_fetch::{BadReply, Endpoint, Freshness, Leg, Reply, RequestError};
@@ -41,7 +42,7 @@ pub(super) fn components(
             aggregator_built: built.clone(),
             uploaded,
             uploads,
-            note: problems.field(&format!("{prefix}.note"), component.note),
+            note: problems.source_field(&format!("{prefix}.note"), component.note),
         });
     }
     Ok(Mapped {
@@ -85,7 +86,7 @@ struct Component {
     version: Option<Field<Text>>,
     license_url: Option<Field<Text>>,
     upload_date: Option<Field<Uploads>>,
-    note: Option<Field<Text>>,
+    note: Option<Field<NativeText>>,
 }
 #[derive(Deserialize)]
 #[serde(untagged)]

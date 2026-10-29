@@ -43,7 +43,7 @@ impl Row for Native {
     }
     fn check_bundle(&self, _rows: usize) -> Result<(), biomcp_fetch::BadReply> {
         match self {
-            Self::Version(v) => super::map::card(v)
+            Self::Version(v) => super::map::card(v, &mut Vec::new())
                 .map(|_| ())
                 .map_err(|_| biomcp_fetch::BadReply),
             Self::Relation(v) => super::map::relation(v)

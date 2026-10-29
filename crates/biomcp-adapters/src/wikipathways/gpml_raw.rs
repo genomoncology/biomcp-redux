@@ -80,7 +80,7 @@ impl Document {
 }
 impl Reply for Document {
     fn check(&self) -> Result<(), BadReply> {
-        biodata::Text::new(&self.name).map_err(|_| BadReply)?;
+        biodata::Text::from_source(&self.name).map_err(|_| BadReply)?;
         if self.nodes.len() > MAX_NODES {
             return Err(BadReply);
         }
@@ -99,7 +99,7 @@ impl Reply for Document {
                     return Err(BadReply);
                 }
                 if let Some(label) = &node.label {
-                    biodata::Text::new(label).map_err(|_| BadReply)?;
+                    biodata::Text::from_source(label).map_err(|_| BadReply)?;
                 }
             }
         }

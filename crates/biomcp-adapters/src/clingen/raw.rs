@@ -1,6 +1,7 @@
 //! Admit native gene–disease–MOI identities before optional curation fields.
 //! Publisher SOP v11 pp. 10–11: https://clinicalgenome.org/site/assets/files/9851/gene-disease_validity_standard_operating_procedures-_version_11_docx.pdf
 //! Export field names: https://search.clinicalgenome.org/kb/gene-validity/download
+use crate::native_text::NativeText;
 use biodata::{GeneSymbol, HgncId, Text};
 
 use crate::{mapped::Problems, raw::Field};
@@ -14,7 +15,7 @@ pub(super) struct Validity {
     #[serde(rename = "GENE SYMBOL")]
     symbol: Option<Field<GeneSymbol>>,
     #[serde(rename = "DISEASE LABEL")]
-    disease: Option<Field<Text>>,
+    disease: Option<Field<NativeText>>,
     #[serde(rename = "DISEASE ID (MONDO)")]
     mondo_id: Option<Field<biodata::MondoId>>,
     #[serde(rename = "MOI")]
@@ -24,7 +25,7 @@ pub(super) struct Validity {
     #[serde(rename = "CLASSIFICATION DATE")]
     classification_date: Option<Field<Text>>,
     #[serde(rename = "GCEP")]
-    expert_panel: Option<Field<Text>>,
+    expert_panel: Option<Field<NativeText>>,
     #[serde(rename = "ONLINE REPORT")]
     report_url: Option<Field<Text>>,
 }
@@ -36,10 +37,10 @@ impl Validity {
         Some(ClinGenValidity {
             mondo_id: problems.required_field("DISEASE ID (MONDO)", self.mondo_id)?,
             mode_of_inheritance: problems.required_field("MOI", self.mode_of_inheritance)?,
-            disease: problems.field("DISEASE LABEL", self.disease),
+            disease: problems.source_field("DISEASE LABEL", self.disease),
             classification: problems.field("CLASSIFICATION", self.classification),
             classification_date: problems.field("CLASSIFICATION DATE", self.classification_date),
-            expert_panel: problems.field("GCEP", self.expert_panel),
+            expert_panel: problems.source_field("GCEP", self.expert_panel),
             report_url: problems.url("ONLINE REPORT", self.report_url),
         })
     }
