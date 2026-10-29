@@ -1,7 +1,9 @@
 mod biomarker;
 mod condition;
+mod filters;
 use crate::{GeneInput, NctId, PartialDate, StudyType, Text, TrialSex, TrialStatus};
 pub use biomarker::NciBiomarkerUse;
+pub use filters::{NciStatusFilter, TrialPhaseFilter, TrialStatusFilter};
 use serde::{Deserialize, Serialize};
 const MAX_ALTERNATIVES: usize = 5;
 biodata::wire_enum! {
@@ -102,22 +104,25 @@ struct Fields {
     )]
     #[cfg_attr(feature = "schema", schemars(with = "Text"))]
     criteria: Option<Text>,
-    /// Exact registry overall status.
+    #[doc = "Exact source status. NCI: Active, Administratively Complete, Approved, Closed to Accrual, \
+        Closed to Accrual and Intervention, Complete, INACTIVE, Enrolling by Invitation, \
+        Temporarily Closed to Accrual, Temporarily Closed to Accrual and Intervention, Withdrawn. \
+        ClinicalTrials.gov uses registry labels."]
     #[serde(
         default,
         deserialize_with = "super::gene::present",
         skip_serializing_if = "Option::is_none"
     )]
-    #[cfg_attr(feature = "schema", schemars(with = "TrialStatus"))]
-    status: Option<TrialStatus>,
-    /// Registry phase: 1, 2, 3, 4, early-1, not-applicable, 1/2 or 2/3.
+    #[cfg_attr(feature = "schema", schemars(with = "TrialStatusFilter"))]
+    status: Option<TrialStatusFilter>,
+    /// Exact source phase. ClinicalTrials.gov: 1, 2, 3, 4, early-1, not-applicable, 1/2, 2/3. NCI: NA, 0, I, I_II, II, II_III, III, IV.
     #[serde(
         default,
         deserialize_with = "super::gene::present",
         skip_serializing_if = "Option::is_none"
     )]
-    #[cfg_attr(feature = "schema", schemars(with = "PhaseFilter"))]
-    phase: Option<PhaseFilter>,
+    #[cfg_attr(feature = "schema", schemars(with = "TrialPhaseFilter"))]
+    phase: Option<TrialPhaseFilter>,
     /// Exact registry study type.
     #[serde(
         default,
@@ -301,13 +306,33 @@ impl TrialSearch {
     pub fn criteria(&self) -> Option<&Text> {
         self.0.criteria.as_ref()
     }
-    /// Exact registry overall status.
+    /// Exact ClinicalTrials.gov status; NCI filters use nci_status().
     pub fn status(&self) -> Option<&TrialStatus> {
-        self.0.status.as_ref()
+        match self.0.status.as_ref()? {
+            TrialStatusFilter::Registry(value) => Some(value),
+            TrialStatusFilter::Nci(_) => None,
+        }
     }
-    /// Registry phase: 1, 2, 3, 4, early-1, not-applicable, 1/2 or 2/3.
+    /// Exact ClinicalTrials.gov phase; NCI filters use nci_phase().
     pub fn phase(&self) -> Option<&PhaseFilter> {
-        self.0.phase.as_ref()
+        match self.0.phase.as_ref()? {
+            TrialPhaseFilter::Registry(value) => Some(value),
+            TrialPhaseFilter::Nci(_) => None,
+        }
+    }
+    /// Exact NCI status selected by the caller.
+    pub fn nci_status(&self) -> Option<NciStatusFilter> {
+        match self.0.status.as_ref()? {
+            TrialStatusFilter::Nci(value) => Some(*value),
+            TrialStatusFilter::Registry(_) => None,
+        }
+    }
+    /// Exact NCI phase selected by the caller.
+    pub fn nci_phase(&self) -> Option<crate::NciPhaseFilter> {
+        match self.0.phase.as_ref()? {
+            TrialPhaseFilter::Nci(value) => Some(*value),
+            TrialPhaseFilter::Registry(_) => None,
+        }
     }
     /// Exact registry study type.
     pub fn study_type(&self) -> Option<&StudyType> {
@@ -449,7 +474,7 @@ biodata::wire_enum! {
         /// ClinicalTrials.gov registry.
         #[default]
         Ctgov => "ctgov",
-        /// NCI requires the user key; accepts NCIt condition or explicit keyword, not registry filters.
+        /// NCI requires the user key; accepts NCIt condition, keyword and native phase/status filters.
         Nci => "nci",
     }
 }
@@ -527,8 +552,6 @@ impl TrialSearch {
             (self.variant().is_some(), F::Variant),
             (self.criteria().is_some(), F::Criteria),
             (!self.intervention().is_empty(), F::Intervention),
-            (self.status().is_some(), F::Status),
-            (self.phase().is_some(), F::Phase),
             (self.study_type().is_some(), F::StudyType),
             (self.sex().is_some(), F::Sex),
             (self.age().is_some(), F::Age),

@@ -859,20 +859,6 @@
       "pattern": "^(?!0000)[0-9]{4}(-(0[1-9]|1[0-2])(-(0[1-9]|[12][0-9]|3[01]))?)?$",
       "type": "string"
     },
-    "Reply_PhaseFilter": {
-      "description": "Explicit source phase selection, including the registry's combined phases.",
-      "enum": [
-        "early-1",
-        "1",
-        "2",
-        "3",
-        "4",
-        "not-applicable",
-        "1/2",
-        "2/3"
-      ],
-      "type": "string"
-    },
     "Reply_PoolInfo": {
       "description": "Fixed lifetime and size of a stored search snapshot.",
       "properties": {
@@ -1783,6 +1769,27 @@
       ],
       "type": "string"
     },
+    "Reply_TrialPhaseFilter": {
+      "enum": [
+        "early-1",
+        "1",
+        "2",
+        "3",
+        "4",
+        "not-applicable",
+        "1/2",
+        "2/3",
+        "NA",
+        "0",
+        "I",
+        "I_II",
+        "II",
+        "II_III",
+        "III",
+        "IV"
+      ],
+      "type": "string"
+    },
     "Reply_TrialSearch": {
       "description": "Search ClinicalTrials.gov or keyed NCI with native counts. NCI --facility matches exact organization names; a listed site is not necessarily enrolling.",
       "properties": {
@@ -1881,8 +1888,8 @@
           "description": "Opaque registry continuation; keep filters unchanged."
         },
         "phase": {
-          "$ref": "#/$defs/Reply_PhaseFilter",
-          "description": "Registry phase: 1, 2, 3, 4, early-1, not-applicable, 1/2 or 2/3."
+          "$ref": "#/$defs/Reply_TrialPhaseFilter",
+          "description": "Exact source phase. ClinicalTrials.gov: 1, 2, 3, 4, early-1, not-applicable, 1/2, 2/3. NCI: NA, 0, I, I_II, II, II_III, III, IV."
         },
         "query": {
           "$ref": "#/$defs/Reply_Text",
@@ -1906,8 +1913,8 @@
           "description": "Registry sponsor funding facet."
         },
         "status": {
-          "$ref": "#/$defs/Reply_TrialStatus",
-          "description": "Exact registry overall status."
+          "$ref": "#/$defs/Reply_TrialStatusFilter",
+          "description": "Exact source status. NCI: Active, Administratively Complete, Approved, Closed to Accrual, Closed to Accrual and Intervention, Complete, INACTIVE, Enrolling by Invitation, Temporarily Closed to Accrual, Temporarily Closed to Accrual and Intervention, Withdrawn. ClinicalTrials.gov uses registry labels."
         },
         "study_type": {
           "$ref": "#/$defs/Reply_StudyType",
@@ -1962,6 +1969,36 @@
         "APPROVED_FOR_MARKETING",
         "WITHHELD",
         "UNKNOWN"
+      ],
+      "type": "string"
+    },
+    "Reply_TrialStatusFilter": {
+      "enum": [
+        "ACTIVE_NOT_RECRUITING",
+        "COMPLETED",
+        "ENROLLING_BY_INVITATION",
+        "NOT_YET_RECRUITING",
+        "RECRUITING",
+        "SUSPENDED",
+        "TERMINATED",
+        "WITHDRAWN",
+        "AVAILABLE",
+        "NO_LONGER_AVAILABLE",
+        "TEMPORARILY_NOT_AVAILABLE",
+        "APPROVED_FOR_MARKETING",
+        "WITHHELD",
+        "UNKNOWN",
+        "Active",
+        "Administratively Complete",
+        "Approved",
+        "Closed to Accrual",
+        "Closed to Accrual and Intervention",
+        "Complete",
+        "INACTIVE",
+        "Enrolling by Invitation",
+        "Temporarily Closed to Accrual",
+        "Temporarily Closed to Accrual and Intervention",
+        "Withdrawn"
       ],
       "type": "string"
     },

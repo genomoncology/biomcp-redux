@@ -189,3 +189,5 @@ A direct dbSNP adapter is dropped from 1.0. rsIDs remain available through MyVar
 | `get biomarker C96022` | Search the exact NCIt code and return its native card or every candidate when several rows match. The public tier returns synonyms, parent and ancestor codes, and native eligibility criteria. |
 
 These concept commands differ from diagnostic `--biomarker` filters and literal trial `--variant` searches. Native criteria do not establish patient eligibility.
+
+NCI trial `--phase` and `--status` now accept exact publisher labels. Run `help search trial` for the NCI value lists. ClinicalTrials.gov phase and status values remain source-specific; values from the other source refuse before any request.
