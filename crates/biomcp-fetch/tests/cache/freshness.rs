@@ -486,6 +486,38 @@ fn negative_admission_and_json_absence_removal_keep_the_source_answer() {
         assert!(report.failures.is_empty());
         assert!(!report.stale);
     }
+    legacy_json_absence_removes_a_positive();
+}
+
+fn legacy_json_absence_removes_a_positive() {
+    use sha2::{Digest, Sha256};
+    let directory = tempfile::tempdir().unwrap();
+    let path = directory.path().join("cache.sqlite");
+    let server = Server::new();
+    let spec = spec(&server, KeyUse::None);
+    let endpoint = spec.get("/answer").fresh(Freshness::Hours(1));
+    let fetch = Fetch::open(config(&path)).unwrap();
+    exchange(&server, 200, r#"{"answer":true}"#, || get(&fetch, spec, &endpoint, &[])).unwrap();
+    drop(fetch);
+    let url = format!("{}/answer", spec.base);
+    let key = Sha256::digest(format!("GET\0{url}").as_bytes())
+        .iter().map(|byte| format!("{byte:02x}")).collect::<String>();
+    let records = directory.path().join("pubmed");
+    std::fs::create_dir(&records).unwrap();
+    let recording = serde_json::json!({"source":"pubmed","method":"GET","url":url,
+        "exchanges":[{"status":404,"content_type":"application/json","delay_ms":0,
+        "retry_after_ms":null,"body":{"kind":"json","value":{"absent":true}}}]});
+    std::fs::write(records.join(format!("{key}.json")), recording.to_string()).unwrap();
+    let replay = Fetch::open(FetchConfig {
+        mode: Mode::Replay { dir: directory.path().into() }, ..config(&path)
+    }).unwrap();
+    let leg = replay.leg(spec, replay.deadline(Duration::from_secs(10))).fresh(true);
+    let (absence, metadata) = leg.json_received::<Absence>(&endpoint.clone().json_absence(), &[]).unwrap();
+    assert!(absence.absent);
+    assert_eq!(metadata.fetched, None);
+    let offline = Fetch::open(FetchConfig { mode: Mode::Offline, ..config(&path) }).unwrap();
+    assert!(get(&offline, spec, &endpoint, &[]).is_err(),
+        "missing-time JSON absence must evict the prior positive cache entry");
 }
 
 #[test]
