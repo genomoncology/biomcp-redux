@@ -194,7 +194,6 @@
           ]
         },
         "replaced_by": {
-          "default": null,
           "description": "Publisher explicit replacement identifiers; null preserves no native replacement.",
           "items": {
             "$ref": "#/$defs/Curie"
