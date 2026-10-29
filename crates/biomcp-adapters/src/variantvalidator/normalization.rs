@@ -1,5 +1,8 @@
 //! Preserve optional native forms without dropping the normalization record.
-use super::{Build, Leg, RequestError, Source, fetch, raw::Locus};
+use super::{
+    Build, Leg, RequestError, Source, fetch,
+    raw::{Locus, RawVariant},
+};
 use crate::{Mapped, mapped::Problems, raw::Field};
 use biodata::SourceText;
 use biomcp_types::{
@@ -38,62 +41,7 @@ pub fn normalize(
     let mut mappings = Vec::new();
     let mut messages = Vec::new();
     for (key, row) in raw.records(input, &mut problems) {
-        problems.record = crate::mapped::record(&key);
-        for text in problems.fields(
-            &format!("{key}.validation_warnings"),
-            row.validation_warnings,
-        ) {
-            messages.push(NormalizationMessage {
-                category: "validation_warnings".into(),
-                code: None,
-                text,
-            });
-        }
-        for (field, value) in [
-            (
-                "hgvs_transcript_variant",
-                Some(Field::Value(row.hgvs_transcript_variant.into())),
-            ),
-            (
-                "hgvs_lrg_transcript_variant",
-                row.hgvs_lrg_transcript_variant,
-            ),
-            ("hgvs_lrg_variant", row.hgvs_lrg_variant),
-            ("hgvs_refseqgene_variant", row.hgvs_refseqgene_variant),
-        ] {
-            mapping(
-                &format!("{key}.{field}"),
-                value,
-                &mut mappings,
-                &mut problems,
-            );
-        }
-        let prefix = format!("{key}.hgvs_predicted_protein_consequence");
-        if let Some(values) = problems.field(&prefix, row.hgvs_predicted_protein_consequence) {
-            for (field, value) in values {
-                mapping(
-                    &format!("{prefix}.{field}"),
-                    Some(value),
-                    &mut mappings,
-                    &mut problems,
-                );
-            }
-        }
-        loci(
-            &format!("{key}.primary_assembly_loci"),
-            row.primary_assembly_loci,
-            &mut mappings,
-            &mut problems,
-        );
-        let field = format!("{key}.alt_genomic_loci");
-        for rows in problems.fields(&field, row.alt_genomic_loci) {
-            loci(
-                &field,
-                Some(Field::Value(rows)),
-                &mut mappings,
-                &mut problems,
-            );
-        }
+        add_record(&key, row, &mut mappings, &mut messages, &mut problems);
     }
     result.total_mappings = mappings.len() as u32;
     result.mappings = mappings.into();
@@ -103,6 +51,61 @@ pub fn normalize(
         problems: problems.list,
     })
 }
+fn add_record(
+    key: &str,
+    row: RawVariant,
+    mappings: &mut Vec<NormalizationField>,
+    messages: &mut Vec<NormalizationMessage>,
+    problems: &mut Problems,
+) {
+    problems.record = crate::mapped::record(key);
+    for text in problems.fields(
+        &format!("{key}.validation_warnings"),
+        row.validation_warnings,
+    ) {
+        messages.push(NormalizationMessage {
+            category: "validation_warnings".into(),
+            code: None,
+            text,
+        });
+    }
+    for (field, value) in [
+        (
+            "hgvs_transcript_variant",
+            Some(Field::Value(row.hgvs_transcript_variant.into())),
+        ),
+        (
+            "hgvs_lrg_transcript_variant",
+            row.hgvs_lrg_transcript_variant,
+        ),
+        ("hgvs_lrg_variant", row.hgvs_lrg_variant),
+        ("hgvs_refseqgene_variant", row.hgvs_refseqgene_variant),
+    ] {
+        mapping(&format!("{key}.{field}"), value, mappings, problems);
+    }
+    let prefix = format!("{key}.hgvs_predicted_protein_consequence");
+    if let Some(values) = problems.field(&prefix, row.hgvs_predicted_protein_consequence) {
+        for (field, value) in values {
+            mapping(
+                &format!("{prefix}.{field}"),
+                Some(value),
+                mappings,
+                problems,
+            );
+        }
+    }
+    loci(
+        &format!("{key}.primary_assembly_loci"),
+        row.primary_assembly_loci,
+        mappings,
+        problems,
+    );
+    let field = format!("{key}.alt_genomic_loci");
+    for rows in problems.fields(&field, row.alt_genomic_loci) {
+        loci(&field, Some(Field::Value(rows)), mappings, problems);
+    }
+}
+
 fn mapping(
     field: &str,
     raw: Option<Field<SourceText>>,
