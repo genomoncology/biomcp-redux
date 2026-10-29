@@ -1,6 +1,7 @@
 # 0467 — Extend the adapter value audit and file rules to every adapter
 
-Status: OPEN.
+Status: COMPLETE.
+Landed: da5f584d63e0eeeff985951525e1647f96ebb23b
 
 Milestone: 5
 
