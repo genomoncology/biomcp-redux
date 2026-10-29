@@ -4,6 +4,7 @@ import json
 import re
 
 from public_dump_json import bundle_records
+from public_dump_compare import VARIANT_PREFIXES, strings
 
 
 def item(kind, value):
@@ -47,7 +48,7 @@ def civic(kind, row):
             values.append(item(citation_type, row["citation_id"]))
         for field in ("evidence_statement", "citation"):
             if row.get(field):
-                values.append(item("text", row[field]))
+                values.append(item("source_text", row[field]))
     return values
 
 
@@ -118,7 +119,13 @@ def table_records(handle, kind):
         else:
             values = clingen(row)
         genes = parts(row.get("gene", "")) if kind == "civic_variants" else []
-        yield index, values, genes, None
+        context = None
+        if kind == "clinvar_summary":
+            identity = "clinvar:" + row["VariationID"]
+            ids = [value["value"] for value in values
+                   if isinstance(value["value"], str) and value["value"].startswith(VARIANT_PREFIXES)]
+            context = ("variation/" + identity, ids, [])
+        yield index, values, genes, None, context
 
 
 SECTIONS = {
@@ -175,7 +182,7 @@ def records(handle, kind):
         if condition.get("label"):
             values.append(concept("disease", condition["label"], condition.get("id")))
         values.extend(criterion_citations(record))
-        yield record.get("uuid", "interpretation"), values, [], None
+        yield record.get("uuid", "interpretation"), values, [], None, None
         return
     if kind != "clinvar_gks":
         yield from table_records(handle, kind)
@@ -187,7 +194,11 @@ def records(handle, kind):
             values.insert(0, primary)
         if section in {"condition", "therapy"} and record.get("name"):
             values.append(concept("disease" if section == "condition" else "drug", record["name"]))
-        yield f"{section}/{identity}", values, [], None if section in SECTIONS else section
+        scalars = list(strings(record))
+        ids = [value for value in [identity, *scalars] if value.startswith(VARIANT_PREFIXES)]
+        edges = [value[2:] for value in scalars if value.startswith("#/")]
+        context = (f"{section}/{identity}", ids, edges)
+        yield f"{section}/{identity}", values, [], None if section in SECTIONS else section, context
 
 
 def criterion_citations(node, criterion=False):

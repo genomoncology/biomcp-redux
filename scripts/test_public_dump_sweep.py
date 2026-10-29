@@ -16,7 +16,7 @@ BRIDGE = os.environ.get("PUBLIC_DUMP_VALUES")
 
 @unittest.skipUnless(BRIDGE, "build public_dump_values and set PUBLIC_DUMP_VALUES")
 class Sweep(unittest.TestCase):
-    def run_sweep(self, kind, content, *, digest=None, limit=None):
+    def run_sweep(self, kind, content, *, digest=None, limit=None, observed=None):
         with tempfile.TemporaryDirectory() as temporary:
             folder = Path(temporary)
             data = gzip.compress(content.encode(), mtime=0)
@@ -29,6 +29,11 @@ class Sweep(unittest.TestCase):
             (folder / "manifest.json").write_text(json.dumps(manifest))
             command = [sys.executable, str(TOOL), str(folder / "manifest.json"),
                        "--values", BRIDGE]
+            if observed is None:
+                command += ["--values-only"]
+            else:
+                (folder / "observed.jsonl").write_text("\n".join(json.dumps(row) for row in observed))
+                command += ["--observed", str(folder / "observed.jsonl")]
             if limit is not None:
                 command += ["--max-records", str(limit)]
             result = subprocess.run(command, text=True, capture_output=True, check=False)
@@ -88,6 +93,56 @@ class Sweep(unittest.TestCase):
         self.assertEqual(result.returncode, 0, result.stderr)
         self.assertEqual(report["types"]["disease"]["parsed"], 1)
         self.assertEqual(report["types"]["citation"]["parsed"], 2)
+
+    def test_civic_evidence_checks_disease_therapy_citation_and_free_text(self):
+        text = ("evidence_id\tmolecular_profile_id\tsource_type\tcitation_id\tdisease\tdoid\ttherapies\tevidence_statement\n"
+                "1\t9\tPubMed\t123\tcancer\t162\tdrug one,drug two\t  original source text  \n")
+        result, report = self.run_sweep("civic_evidence", text)
+        self.assertEqual(result.returncode, 0, result.stderr)
+        for kind, count in (("disease", 1), ("drug", 2), ("citation", 1), ("source_text", 1)):
+            self.assertEqual(report["types"][kind]["parsed"], count, kind)
+
+    def test_clingen_summary_checks_reference_qualified_notations_and_ids(self):
+        text = ("HGNC Gene Symbol\tDisease\tMondo Id\tHGVS Expressions\tAllele Registry Id\tClinVar Variation Id\n"
+                "BRAF\tcancer\tMONDO:0004992\tNM_004333.6:c.1799T>A\tCA123456\t13961\n")
+        result, report = self.run_sweep("clingen_summary", text)
+        self.assertEqual(result.returncode, 0, result.stderr)
+        for kind in ("gene", "disease", "hgvs", "ca", "clinvar_variation"):
+            self.assertEqual(report["types"][kind]["parsed"], 1, kind)
+
+    def observation(self, source, result, record=None, release="synthetic-edge-sample"):
+        return {"source": source, "release": release, "revision": "synthetic-product-reply",
+                "retrieved": "2026-10-29", "record": record, "reply": {"result": result}}
+
+    def test_compares_saved_gene_reply_and_reports_missing_and_wrong_counts(self):
+        text = "variant_id\tvariant\tgene\thgvs_descriptions\n1\tV600E\tBRAF\t\n2\tG12D\tKRAS\t\n"
+        reply = {"items": [{"answer": {"gene": {"symbol": "BRAF"}},
+                             "sections": {"civic": {"data": {"variant_count": 9}}}}]}
+        result, report = self.run_sweep("civic_variants", text, observed=[self.observation("civic", reply)])
+        self.assertEqual(result.returncode, 1, result.stderr)
+        self.assertEqual(report["comparisons"]["failures"],
+                         {"civic_gene_count_mismatch": 1, "civic_gene_unobserved": 1})
+
+    def test_compares_clinvar_ids_through_source_graph_and_rejects_changed_spelling(self):
+        allele = "ga4gh:VA." + "a" * 32
+        bundle = {"variation": {"clinvar:12": {"members": ["#/allele/" + allele]}},
+                  "allele": {allele: {"name": "source allele"}}}
+        reply = {"candidates": [{"identity": {"ids": ["clinvar:12", allele]}}]}
+        observation = self.observation("clinvar", reply, "clinvar:12")
+        result, report = self.run_sweep("clinvar_gks", json.dumps(bundle), observed=[observation])
+        self.assertEqual(result.returncode, 0, result.stderr)
+        self.assertEqual(report["comparisons"]["checked"]["clinvar_ids"], 2)
+        reply["candidates"][0]["identity"]["ids"][0] = "clinvar:012"
+        result, report = self.run_sweep("clinvar_gks", json.dumps(bundle), observed=[observation])
+        self.assertEqual(result.returncode, 1, result.stderr)
+        self.assertEqual(report["comparisons"]["failures"], {"clinvar_identifier_spelling_mismatch": 1})
+
+    def test_source_date_drift_never_counts_as_equality(self):
+        text = "variant_id\tvariant\tgene\thgvs_descriptions\n1\tV600E\tBRAF\t\n"
+        observed = [self.observation("civic", {"items": []}, release="different-source-date")]
+        result, report = self.run_sweep("civic_variants", text, observed=observed)
+        self.assertEqual(result.returncode, 1, result.stderr)
+        self.assertEqual(report["comparisons"]["failures"]["source_release_mismatch"], 1)
 
 
 if __name__ == "__main__":

@@ -1,8 +1,8 @@
 //! Offline test-tool bridge. Each input line contains a batch of source values.
 use biodata::{
     Accession, CaId, ClinVarAlleleId, ClinVarVariationId, Concept, Curie, Doi, DrugId, GeneSymbol,
-    HgvsText, MondoId, NcbiGeneId, NcitId, Pmid, RcvId, RsId, ScvId, Text, VariantId, VariantRef,
-    VcvId,
+    HgvsText, MondoId, NcbiGeneId, NcitId, Pmid, RcvId, RsId, ScvId, SourceText, Text, VariantId,
+    VariantRef, VcvId,
 };
 use serde::{Deserialize, Serialize};
 use serde_json::Value;
@@ -53,6 +53,7 @@ fn parse(input: Input) -> Output {
         "mondo" => checked::<MondoId>(value),
         "ncit" => checked::<NcitId>(value),
         "text" => checked::<Text>(value),
+        "source_text" => checked::<SourceText>(value),
         _ => Err("unsupported_value_type".into()),
     };
     let (parsed, reason) = match result {
@@ -67,6 +68,10 @@ fn parse(input: Input) -> Output {
     }
 }
 
+#[expect(
+    clippy::disallowed_methods,
+    reason = "Standard streams are the offline test-tool boundary"
+)]
 fn main() -> Result<(), Box<dyn std::error::Error>> {
     let mut output = io::BufWriter::new(io::stdout().lock());
     for line in io::stdin().lock().lines() {

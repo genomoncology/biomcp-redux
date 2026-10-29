@@ -7,9 +7,12 @@ Kinds: civic_variants, civic_profiles, civic_evidence, clinvar_summary,
 clingen_summary, clingen_evidence, clinvar_gks. ClinGen evidence accepts one
 original public interpretation response per file; GKS accepts the keyed bundle.
 Only CC0-1.0 and public-domain inputs are accepted. Pin the compressed file hash.
-This tool checks mapped source fields. It does not establish adapter parity or
-compare product gene counts. Profile member IDs are checked separately without
+This tool checks mapped source fields. Profile member IDs are checked separately without
 inferring allele identities or reconstructing their source logical expression.
+Use --observed with saved CLI envelopes as JSONL: {source, release, revision,
+retrieved, record, reply}. Source is civic or clinvar; ClinVar record is its
+clinvar: Variation ID. Release must exactly match the source manifest. Civic
+replies must cover every source gene. --values-only explicitly omits comparison.
 Exit 0 means complete with no refusals or mapping gaps; 1 means findings or a
 bounded partial run; 2 means an input, transport or tool failure.
 """
@@ -23,6 +26,7 @@ import subprocess
 import sys
 
 from public_dump_formats import REQUIRED, records
+from public_dump_compare import Comparison
 
 EXAMPLE_LIMIT = 10
 GENE_LIMIT = 20
@@ -34,6 +38,9 @@ def arguments():
     parser.add_argument("--values", type=Path, required=True, help="built public_dump_values bridge")
     parser.add_argument("--max-records", type=int, help="bound records per file; marks report incomplete")
     parser.add_argument("--output", type=Path, help="save full gene counts; stdout is bounded")
+    mode = parser.add_mutually_exclusive_group(required=True)
+    mode.add_argument("--observed", type=Path, help="saved real CLI replies with source/release identity")
+    mode.add_argument("--values-only", action="store_true", help="parse values without claiming reply equality")
     return parser.parse_args()
 
 
@@ -72,6 +79,7 @@ class Sweep:
         self.sources = []
         self.spelling_mismatches = 0
         self.complete = True
+        self.comparison = Comparison()
 
     def parse(self, values, source, identity):
         self.bridge.stdin.write(json.dumps(values) + "\n")
@@ -105,7 +113,7 @@ class Sweep:
         count = refused = empty = 0
         opener = gzip.open if path.suffix == ".gz" else open
         with opener(path, "rt", encoding="utf-8", newline="") as handle:
-            for identity, values, genes, unmapped in records(handle, source["kind"]):
+            for identity, values, genes, unmapped, context in records(handle, source["kind"]):
                 if maximum is not None and count >= maximum:
                     self.complete = False
                     break
@@ -113,6 +121,7 @@ class Sweep:
                 refused += self.parse(values, source["kind"], identity)
                 empty += not values
                 self.genes.update(genes)
+                self.comparison.add(context, source["kind"], source["release"])
                 if unmapped:
                     self.unmapped[unmapped] += 1
         self.sources.append({**source, "records": count, "parsed_records": count - refused - empty,
@@ -147,6 +156,10 @@ def run(args):
             bridge.wait()
             raise
     report = sweep.report()
+    try:
+        report["comparisons"] = sweep.comparison.compare(args.observed, sweep.genes) if args.observed else None
+    finally:
+        sweep.comparison.close()
     if args.output:
         with args.output.open("x", encoding="utf-8") as output:
             json.dump(report, output, indent=2, sort_keys=True)
@@ -159,7 +172,8 @@ def run(args):
     report["refusals"] = [{**refusal, "value": str(refusal["value"])[:512],
                            "reason": refusal["reason"][:512]} for refusal in report["refusals"]]
     print(json.dumps(report, indent=2, sort_keys=True))
-    failures = sweep.reasons or sweep.unmapped or any(row["records_without_values"] for row in sweep.sources)
+    comparisons_failed = report["comparisons"] and report["comparisons"]["failures"]
+    failures = sweep.reasons or sweep.unmapped or comparisons_failed or any(row["records_without_values"] for row in sweep.sources)
     return int(bool(failures) or not sweep.complete)
 
 
