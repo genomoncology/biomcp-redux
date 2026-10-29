@@ -518,6 +518,19 @@ fn legacy_json_absence_removes_a_positive() {
     let offline = Fetch::open(FetchConfig { mode: Mode::Offline, ..config(&path) }).unwrap();
     assert!(get(&offline, spec, &endpoint, &[]).is_err(),
         "missing-time JSON absence must evict the prior positive cache entry");
+    let unknown_positive = serde_json::json!({"source":"pubmed","method":"GET","url":url,
+        "exchanges":[{"status":200,"content_type":"application/json","delay_ms":0,
+        "retry_after_ms":null,"body":{"kind":"json","value":{"answer":true}}}]});
+    std::fs::write(records.join(format!("{key}.json")), unknown_positive.to_string()).unwrap();
+    let replay = Fetch::open(FetchConfig {
+        mode: Mode::Replay { dir: directory.path().into() }, ..config(&path)
+    }).unwrap();
+    let leg = replay.leg(spec, replay.deadline(Duration::from_secs(10)));
+    let (answer, metadata) = leg.json_received::<Answer>(&endpoint, &[]).unwrap();
+    assert!(answer.answer);
+    assert_eq!(metadata.fetched, None);
+    assert!(get(&offline, spec, &endpoint, &[]).is_err(),
+        "unknown positive acquisition must not establish cache freshness");
 }
 
 #[test]
