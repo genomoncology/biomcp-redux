@@ -153,32 +153,33 @@ impl Row for CatalogRow {
         if body.len() > 1024 * 1024 {
             return Err(BadReply);
         }
-        // Publisher documents cannot supply stored mapping diagnostics.
-        let received: Vec<ReceivedCatalogRow> = biomcp_fetch::decode_bundle_document(body)?;
-        let rows: Vec<Self> = received
-            .into_iter()
-            .map(|mut row| {
-                row.problems = None;
-                row.into()
-            })
-            .collect();
-        if rows.is_empty() {
+        let source_rows: Vec<Box<serde_json::value::RawValue>> =
+            biomcp_fetch::decode_bundle_document(body)?;
+        if source_rows.is_empty() {
             return Err(BadReply);
         }
         let mut ids = BTreeSet::new();
-        rows.iter()
-            .map(|r| {
-                if !ids.insert(r.study_id.as_str())
-                    || r.resource_counts
-                        .iter()
-                        .any(|v| v.cancer_study_identifier != r.study_id)
-                {
-                    return Err(BadReply);
-                }
-                r.header()?;
-                encode_bundle_row(r)
-            })
-            .collect()
+        let mut result = Vec::new();
+        for source_row in source_rows {
+            let context: super::context::Context =
+                biomcp_fetch::decode_bundle_document(source_row.get().as_bytes())?;
+            context.check()?;
+            let received: Result<ReceivedCatalogRow, _> =
+                biomcp_fetch::decode_bundle_document(source_row.get().as_bytes());
+            let Ok(mut received) = received else {
+                // Preserve a malformed native identity for the shared row decoder and its source position.
+                result.push(source_row.get().to_owned());
+                continue;
+            };
+            received.problems = None;
+            let row = Self::from(received);
+            if !ids.insert(row.study_id.clone()) {
+                return Err(BadReply);
+            }
+            row.header()?;
+            result.push(encode_bundle_row(&row)?);
+        }
+        Ok(result)
     }
     fn keys(&self) -> Keys {
         Keys {

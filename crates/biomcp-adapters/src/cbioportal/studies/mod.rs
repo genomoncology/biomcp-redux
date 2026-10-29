@@ -1,4 +1,5 @@
 //! Complete checked catalog replacement; reads never synchronize.
+mod context;
 mod raw;
 mod resource;
 use super::SPEC;
