@@ -353,10 +353,7 @@
               "description": "Original fetch time in Unix seconds.",
               "format": "uint64",
               "minimum": 0,
-              "type": [
-                "integer",
-                "null"
-              ]
+              "type": "integer"
             },
             "match": {
               "$ref": "#/$defs/Reply_ArticleMatch",
@@ -370,7 +367,8 @@
           "required": [
             "resolution",
             "card",
-            "match"
+            "match",
+            "fetched"
           ],
           "type": "object"
         },
@@ -2590,7 +2588,7 @@
       "type": "string"
     }
   },
-  "$id": "biomcp.article-cards/6",
+  "$id": "biomcp.article-cards/5",
   "$schema": "https://json-schema.org/draft/2020-12/schema",
   "description": "One versioned command response; schema identity comes only from its body type.\nJSON readers ignore unknown fields and unknown growable enum values within a major.",
   "properties": {

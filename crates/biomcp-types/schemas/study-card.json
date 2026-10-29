@@ -1220,10 +1220,7 @@
           "description": "Directory acquisition wall time in Unix seconds.",
           "format": "uint64",
           "minimum": 0,
-          "type": [
-            "integer",
-            "null"
-          ]
+          "type": "integer"
         },
         "items": {
           "description": "Source-ordered repository file references.",
@@ -1255,7 +1252,8 @@
       },
       "required": [
         "study_id",
-        "page"
+        "page",
+        "acquired"
       ],
       "type": "object"
     },
@@ -1433,10 +1431,7 @@
           "description": "Live collection acquisition wall time in Unix seconds, distinct from catalog acquisition.",
           "format": "uint64",
           "minimum": 0,
-          "type": [
-            "integer",
-            "null"
-          ]
+          "type": "integer"
         },
         "items": {
           "description": "Complete ordered metadata records, never member sample IDs.",
@@ -1456,7 +1451,8 @@
       },
       "required": [
         "study_id",
-        "page"
+        "page",
+        "acquired"
       ],
       "type": "object"
     },
@@ -1576,10 +1572,7 @@
           "description": "Live collection acquisition wall time in Unix seconds, distinct from catalog acquisition.",
           "format": "uint64",
           "minimum": 0,
-          "type": [
-            "integer",
-            "null"
-          ]
+          "type": "integer"
         },
         "items": {
           "description": "Complete ordered metadata records, never member sample IDs.",
@@ -1599,7 +1592,8 @@
       },
       "required": [
         "study_id",
-        "page"
+        "page",
+        "acquired"
       ],
       "type": "object"
     },
@@ -1655,7 +1649,7 @@
       "type": "string"
     }
   },
-  "$id": "biomcp.study-card/4",
+  "$id": "biomcp.study-card/3",
   "$schema": "https://json-schema.org/draft/2020-12/schema",
   "description": "One versioned command response; schema identity comes only from its body type.\nJSON readers ignore unknown fields and unknown growable enum values within a major.",
   "properties": {
