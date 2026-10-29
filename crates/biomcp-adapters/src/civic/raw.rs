@@ -1,5 +1,5 @@
 use crate::raw::Field;
-use biodata::{NcbiGeneId, Text};
+
 
 use biomcp_fetch::{BadReply, Reply};
 use serde::{
@@ -50,39 +50,20 @@ impl<const N: usize> Reply for Genes<N> {
                 return Err(BadReply);
             }
         }
-        for (_, gene) in &self.data.0 {
-            if let Some(gene) = gene {
-                if gene.id == 0 || !gene.link.starts_with("/features/") {
-                    return Err(BadReply);
-                }
-                Text::new(&gene.link).map_err(|_| BadReply)?;
-            }
-        }
         Ok(())
     }
 }
 #[derive(Debug, Deserialize)]
 pub(super) struct Gene {
-    pub id: u64,
+    pub id: Option<Field<u64>>,
     #[serde(rename = "entrezId")]
-    #[serde(deserialize_with = "entrez")]
-    pub entrez_id: NcbiGeneId,
-    #[serde(deserialize_with = "nullable")]
+    pub entrez_id: Option<Field<u32>>,
     pub description: Option<Field<String>>,
-    pub link: String,
-    pub variants: Variants,
+    pub link: Option<Field<String>>,
+    pub variants: Option<Field<Variants>>,
 }
 #[derive(Debug, Deserialize)]
 pub(super) struct Variants {
     #[serde(rename = "totalCount")]
-    pub total_count: u64,
-}
-fn nullable<'de, T: Deserialize<'de>, D: serde::Deserializer<'de>>(
-    d: D,
-) -> Result<Option<T>, D::Error> {
-    Option::<T>::deserialize(d)
-}
-
-fn entrez<'de, D: serde::Deserializer<'de>>(d: D) -> Result<NcbiGeneId, D::Error> {
-    NcbiGeneId::new(u32::deserialize(d)?).map_err(serde::de::Error::custom)
+    pub total_count: Option<Field<u64>>,
 }
