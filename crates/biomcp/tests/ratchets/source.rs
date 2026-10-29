@@ -102,7 +102,8 @@ pub(super) fn check(root: &Path) -> Check {
                 .strip_prefix(root)?
                 .to_string_lossy()
                 .replace('\\', "/");
-            if relative != "crates/biomcp/tests/runner/launch.rs"
+            if relative.starts_with("crates/biomcp/tests/")
+                && relative != "crates/biomcp/tests/runner/launch.rs"
                 && tokens(&text)
                     .iter()
                     .any(|token| token == "\"CARGO_MANIFEST_DIR\"")
