@@ -2,7 +2,7 @@ use super as runner;
 use libtest_mimic::{Arguments, Trial};
 use std::{path::PathBuf, process::ExitCode};
 
-pub(super) fn main(args: Vec<String>) -> ExitCode {
+pub(crate) fn main(args: Vec<String>) -> ExitCode {
     match trials(args) {
         Ok((arguments, trials)) => {
             // libtest-mimic 0.8.2 exposes its own exact/skip/ignored selector.

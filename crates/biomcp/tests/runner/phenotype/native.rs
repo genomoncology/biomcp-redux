@@ -1,5 +1,5 @@
 //! Explicit proof reuses unchanged archived publisher bodies outside Git.
-use super::{Stub, raw_invoke, setup};
+tool_only! { use super::{Stub, raw_invoke, setup}; }
 use serde_json::{Value, json};
 use sha2::{Digest, Sha256};
 use std::{fs, path::Path};

@@ -1,13 +1,15 @@
-use super::launch::{ENV_PATHS, Environment};
-use crate::runner::transcript::trial as transcript_trial;
-use libtest_mimic::Trial;
-use std::{env, fs, path::Path};
+use super::launch::Environment;
+tool_only! { use super::launch::ENV_PATHS; }
+tool_only! { use crate::runner::transcript::trial as transcript_trial; }
+tool_only! { use libtest_mimic::Trial; }
+use std::{fs, path::Path};
+tool_only! { use std::env; }
 
-#[path = "fixture_evidence_proof.rs"]
-mod fixture_evidence_proof;
+tool_only! { #[path = "fixture_evidence_proof.rs"] mod fixture_evidence_proof; }
 
 type Check = Result<(), String>;
 
+tool_only! {
 pub(crate) fn trials() -> Vec<Trial> {
     let mut trials = vec![
         transcript_trial("article-semantic-sections/checked-edge-boundaries", || {
@@ -42,7 +44,9 @@ pub(crate) fn trials() -> Vec<Trial> {
     trials.extend(fixture_evidence_proof::trials());
     trials
 }
+}
 
+tool_only! {
 fn put(root: &Path, relative: &str, step: &str) -> Check {
     let path = root.join(relative);
     if let Some(parent) = path.parent() {
@@ -56,7 +60,9 @@ fn put(root: &Path, relative: &str, step: &str) -> Check {
     )
     .map_err(|error| error.to_string())
 }
+}
 
+tool_only! {
 fn invoke(root: &Path, args: &[&str]) -> Result<std::process::Output, String> {
     let mut arguments = vec![
         "--cases".to_owned(),
@@ -76,7 +82,9 @@ fn invoke(root: &Path, args: &[&str]) -> Result<std::process::Output, String> {
         .output()
         .map_err(|error| error.to_string())
 }
+}
 
+tool_only! {
 fn negatives() -> Check {
     let directory = tempfile::tempdir().map_err(|error| error.to_string())?;
     fs::write(directory.path().join("missing-floor.json"), "[\"missing\"]")
@@ -145,7 +153,9 @@ fn negatives() -> Check {
     }
     Ok(())
 }
+}
 
+tool_only! {
 fn selection() -> Check {
     empty_selection()?;
     #[cfg(unix)]
@@ -203,7 +213,9 @@ fn selection() -> Check {
     }
     Ok(())
 }
+}
 
+tool_only! {
 fn empty_selection() -> Check {
     let directory = tempfile::tempdir().map_err(|error| error.to_string())?;
     // Discovery rejects empty directories before applying any name filter.
@@ -246,8 +258,10 @@ fn empty_selection() -> Check {
     }
     Ok(())
 }
+}
 
 #[cfg(unix)]
+tool_only! {
 fn literal_backslash_names() -> Check {
     let directory = tempfile::tempdir().map_err(|error| error.to_string())?;
     for name in ["left/same.yaml", "left\\same.yaml"] {
@@ -264,7 +278,9 @@ fn literal_backslash_names() -> Check {
     }
     Ok(())
 }
+}
 
+tool_only! {
 fn isolation() -> Check {
     let before: Vec<_> = env::vars_os().collect();
     let first = Environment::new().map_err(|error| error.to_string())?;
@@ -328,8 +344,10 @@ fn isolation() -> Check {
     }
     Ok(())
 }
+}
 
 #[cfg(unix)]
+tool_only! {
 fn output_failure() -> Check {
     // An unconnected datagram rejects writes with a non-BrokenPipe error.
     // Unlike a read-only file, Rust stdout does not silently treat it as closed.
@@ -353,9 +371,11 @@ fn output_failure() -> Check {
     }
     Ok(())
 }
+}
 
 // This probe belongs only to the test executable. It observes the same child
 // launch boundary as case steps without adding any command to the product.
+tool_only! {
 pub(crate) fn environment_probe() -> std::process::ExitCode {
     let mut values: serde_json::Map<_, _> = ENV_PATHS
         .iter()
@@ -386,9 +406,11 @@ pub(crate) fn environment_probe() -> std::process::ExitCode {
         Err(_) => std::process::ExitCode::FAILURE,
     }
 }
+}
 
 // Schemas have no null-valued fields or empty arrays, so these traversal states
 // need one direct boundary table. All other assertion proof uses schema commands.
+tool_only! {
 fn boundaries() -> Check {
     for expect in [
         "{'/items/*': []}",
@@ -462,6 +484,7 @@ fn boundaries() -> Check {
         }
     }
     Ok(())
+}
 }
 
 // Native proofs own these directories outside Environment's temporary root.

@@ -173,7 +173,7 @@ fn cache_admission() -> Result<(), Box<dyn std::error::Error>> {
     Ok(())
 }
 
-/// Measure the ordinary CLI and MCP responses against the accepted external replay.
+// Measure the ordinary CLI and MCP responses against the accepted external replay.
 tool_only! {
 pub(super) fn native(root: &std::path::Path) -> Result<(), String> {
     let env = Environment::new().map_err(|e| e.to_string())?;

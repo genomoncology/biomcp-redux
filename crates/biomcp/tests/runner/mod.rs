@@ -114,7 +114,7 @@ mod phenotype;
 mod pmc_tables;
 mod pool_tables;
 mod process;
-tool_only! { pub(super) mod proof; }
+pub(super) mod proof;
 mod protein_budgets;
 mod protein_commands;
 mod protein_domains;
@@ -131,7 +131,7 @@ mod research;
 mod response_cases;
 mod schema;
 tool_only! { mod schema_evolution; }
-tool_only! { mod schema_proof; }
+mod schema_proof;
 mod scholar;
 tool_only! { mod semantic_tables; }
 mod skill;
