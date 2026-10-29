@@ -76,9 +76,9 @@ pub use trial_publications::{TrialDocument, TrialReference};
 
 pub use variant::{
     AcmgAmp2015Code, AmpAscoCap2017LevelCode, AmpAscoCap2017TierCode, Attribution,
-    CivicEvidenceLevelCode, ClinvarReviewStatusCode, ClinvarAlleleOriginCode, ClingenCgcVicc2022Code, ClingenLowPenetrance2024Code, Coding, Concept,
-    Curie, Direction, OncokbLevelCode, OncokbOncogenicityCode, Predicate, Proposition, Statement,
-    Term, VariantRef,
+    CivicEvidenceLevelCode, ClingenCgcVicc2022Code, ClingenLowPenetrance2024Code,
+    ClinvarAlleleOriginCode, ClinvarReviewStatusCode, Coding, Concept, Curie, Direction,
+    OncokbLevelCode, OncokbOncogenicityCode, Predicate, Proposition, Statement, Term, VariantRef,
 };
 
 pub use variant::{GenotypeFilter, PopulationDataType, PopulationFrequency, PopulationSex};

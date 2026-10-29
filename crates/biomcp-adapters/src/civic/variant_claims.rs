@@ -54,7 +54,10 @@ pub(super) fn evidence(
             direction: &raw.evidence_direction,
             level: Some(Term {
                 label: raw.evidence_level.clone(),
-                codings: code.map(biodata::Coding::CivicEvidenceLevel).into_iter().collect(),
+                codings: code
+                    .map(biodata::Coding::CivicEvidenceLevel)
+                    .into_iter()
+                    .collect(),
             }),
             classification: classification(&raw.significance),
             disease: raw.disease.as_ref(),

@@ -34,7 +34,10 @@ pub fn records(row: &Annotation) -> Mapped<Vec<Record>> {
                 &mut out.value,
                 row,
                 "oncogenic",
-                Term { label, codings: coding.into_iter().collect() },
+                Term {
+                    label,
+                    codings: coding.into_iter().collect(),
+                },
                 Proposition::Oncogenicity,
                 Vec::new(),
             );

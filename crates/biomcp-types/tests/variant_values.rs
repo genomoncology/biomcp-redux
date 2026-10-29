@@ -378,9 +378,7 @@ fn public_civic_tier_and_level_remain_separate() -> Check {
     );
     assert_eq!(
         statement.strength.as_ref().map(|s| s.codings.as_ref()),
-        Some([Coding::AmpAscoCap2017Level(
-            AmpAscoCap2017LevelCode::LevelA
-        )].as_slice())
+        Some([Coding::AmpAscoCap2017Level(AmpAscoCap2017LevelCode::LevelA)].as_slice())
     );
     assert!(statement.attribution.version.is_none());
     assert!(statement.attribution.evaluated.is_none());
@@ -543,18 +541,32 @@ fn term_retains_multiple_source_codings_and_concept_refuses_system_uris() -> Che
     }
     let term: biodata::Term = serde_json::from_value(value.clone())?;
     assert_eq!(serde_json::to_value(term)?, value);
-    for id in ["https://example.org/concept", "http://example.org/concept", "urn:oid:1.2.3"] {
-        assert!(serde_json::from_value::<biodata::Concept>(json!({"id":id,"label":"source label"})).is_err());
+    for id in [
+        "https://example.org/concept",
+        "http://example.org/concept",
+        "urn:oid:1.2.3",
+    ] {
+        assert!(
+            serde_json::from_value::<biodata::Concept>(json!({"id":id,"label":"source label"}))
+                .is_err()
+        );
     }
     Ok(())
 }
 
 #[test]
 fn clinvar_codings_use_exact_publisher_labels() -> Check {
-    let review = ClinvarReviewStatusCode::from_source_label("criteria provided, single submitter").ok_or("review label")?;
+    let review = ClinvarReviewStatusCode::from_source_label("criteria provided, single submitter")
+        .ok_or("review label")?;
     let origin = ClinvarAlleleOriginCode::from_source_label("de novo").ok_or("origin label")?;
-    assert_eq!(serde_json::to_value(Coding::ClinvarReviewStatus(review))?, json!({"system":"clinvar_review_status","code":"criteria_provided_single_submitter"}));
-    assert_eq!(serde_json::to_value(Coding::ClinvarAlleleOrigin(origin))?, json!({"system":"clinvar_allele_origin","code":"de_novo"}));
+    assert_eq!(
+        serde_json::to_value(Coding::ClinvarReviewStatus(review))?,
+        json!({"system":"clinvar_review_status","code":"criteria_provided_single_submitter"})
+    );
+    assert_eq!(
+        serde_json::to_value(Coding::ClinvarAlleleOrigin(origin))?,
+        json!({"system":"clinvar_allele_origin","code":"de_novo"})
+    );
     assert!(ClinvarReviewStatusCode::from_source_label("future review label").is_none());
     assert!(ClinvarAlleleOriginCode::from_source_label("future origin label").is_none());
     Ok(())

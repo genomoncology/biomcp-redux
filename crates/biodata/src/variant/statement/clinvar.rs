@@ -30,13 +30,19 @@ impl ClinvarReviewStatusCode {
         match label {
             "practice guideline" => Some(Self::PracticeGuideline),
             "reviewed by expert panel" => Some(Self::ExpertPanel),
-            "criteria provided, multiple submitters, no conflicts" => Some(Self::CriteriaMultipleSubmittersNoConflicts),
-            "criteria provided, conflicting classifications" => Some(Self::CriteriaConflictingClassifications),
+            "criteria provided, multiple submitters, no conflicts" => {
+                Some(Self::CriteriaMultipleSubmittersNoConflicts)
+            }
+            "criteria provided, conflicting classifications" => {
+                Some(Self::CriteriaConflictingClassifications)
+            }
             "criteria provided, multiple submitters" => Some(Self::CriteriaMultipleSubmitters),
             "criteria provided, single submitter" => Some(Self::CriteriaSingleSubmitter),
             "no assertion criteria provided" => Some(Self::NoAssertionCriteria),
             "no classification provided" => Some(Self::NoClassification),
-            "no classification for the individual variant" => Some(Self::NoClassificationForIndividualVariant),
+            "no classification for the individual variant" => {
+                Some(Self::NoClassificationForIndividualVariant)
+            }
             _ => None,
         }
     }

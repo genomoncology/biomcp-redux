@@ -175,7 +175,9 @@ fn content(data: &Value) -> Result<(), String> {
         .find(|r| r.pointer("/statement/proposition") == Some(&json!("functional_impact")))
         .ok_or("effect missing")?;
     if effect.pointer("/statement/direction").is_some()
-        || effect.pointer("/statement/classification/codings").is_some()
+        || effect
+            .pointer("/statement/classification/codings")
+            .is_some()
         || effect.pointer("/statement/citations") != Some(&json!(["17611497"]))
     {
         return Err("functional Neutral gained direction/coding or lost citations".into());

@@ -34,7 +34,9 @@ fn assertions_wire() -> Result<(), String> {
         || value.pointer("/result/assertions/0/statement/classification/codings/0/code")
             != Some(&json!("pathogenic"))
         || value.pointer("/result/assertions/0/statement/strength/codings/0")
-            != Some(&json!({"system":"clinvar_review_status","code":"criteria_provided_single_submitter"}))
+            != Some(
+                &json!({"system":"clinvar_review_status","code":"criteria_provided_single_submitter"}),
+            )
         || value.pointer("/result/assertions/0/statement/allele_origin/codings/0")
             != Some(&json!({"system":"clinvar_allele_origin","code":"unknown"}))
     {

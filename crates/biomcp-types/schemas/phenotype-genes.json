@@ -157,7 +157,7 @@
     },
     "Reply_Curie": {
       "description": "Checked prefix:local ontology identifier.",
-      "pattern": "^[A-Za-z0-9_.-]+:[^\\x09-\\x0d\\x20\\x85\\xa0\\u1680\\u2000-\\u200a\\u2028\\u2029\\u202f\\u205f\\u3000\\x00-\\x1f\\x7f-\\x9f]+$",
+      "pattern": "^[A-Za-z0-9_.-]+:[^:/\\x09-\\x0d\\x20\\x85\\xa0\\u1680\\u2000-\\u200a\\u2028\\u2029\\u202f\\u205f\\u3000\\x00-\\x1f\\x7f-\\x9f][^:\\x09-\\x0d\\x20\\x85\\xa0\\u1680\\u2000-\\u200a\\u2028\\u2029\\u202f\\u205f\\u3000\\x00-\\x1f\\x7f-\\x9f]*$",
       "type": "string"
     },
     "Reply_DiseaseAssociation": {
@@ -1235,7 +1235,7 @@
       "type": "string"
     }
   },
-  "$id": "biomcp.phenotype-genes/4",
+  "$id": "biomcp.phenotype-genes/5",
   "$schema": "https://json-schema.org/draft/2020-12/schema",
   "description": "One versioned command response; schema identity comes only from its body type.\nJSON readers ignore unknown fields and unknown growable enum values within a major.",
   "properties": {
@@ -1291,7 +1291,7 @@
       "description": "Answer when available."
     },
     "schema": {
-      "const": "biomcp.phenotype-genes/4",
+      "const": "biomcp.phenotype-genes/5",
       "type": "string"
     },
     "sources": {

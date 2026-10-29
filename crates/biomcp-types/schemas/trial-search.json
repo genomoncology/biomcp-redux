@@ -2,7 +2,7 @@
   "$defs": {
     "Curie": {
       "description": "Checked prefix:local ontology identifier.",
-      "pattern": "^[A-Za-z0-9_.-]+:[^\\x09-\\x0d\\x20\\x85\\xa0\\u1680\\u2000-\\u200a\\u2028\\u2029\\u202f\\u205f\\u3000\\x00-\\x1f\\x7f-\\x9f]+$",
+      "pattern": "^[A-Za-z0-9_.-]+:[^:/\\x09-\\x0d\\x20\\x85\\xa0\\u1680\\u2000-\\u200a\\u2028\\u2029\\u202f\\u205f\\u3000\\x00-\\x1f\\x7f-\\x9f][^:\\x09-\\x0d\\x20\\x85\\xa0\\u1680\\u2000-\\u200a\\u2028\\u2029\\u202f\\u205f\\u3000\\x00-\\x1f\\x7f-\\x9f]*$",
       "type": "string"
     },
     "GeneInput": {
@@ -96,7 +96,7 @@
       "type": "string"
     }
   },
-  "$id": "biomcp.trial-search/4",
+  "$id": "biomcp.trial-search/5",
   "$schema": "https://json-schema.org/draft/2020-12/schema",
   "additionalProperties": false,
   "description": "Search ClinicalTrials.gov or keyed NCI with native counts. NCI --facility matches exact organization names; a listed site is not necessarily enrolling.",

@@ -9,9 +9,11 @@ impl Curie {
         let (prefix, local) = value.split_once(':')?;
         (!prefix.is_empty()
             && !local.is_empty()
-            && prefix.bytes().all(|b| b.is_ascii_alphanumeric() || matches!(b, b'_' | b'-' | b'.'))
+            && prefix
+                .bytes()
+                .all(|b| b.is_ascii_alphanumeric() || matches!(b, b'_' | b'-' | b'.'))
             && !value.chars().any(|c| c.is_whitespace() || c.is_control()))
-            .then_some((prefix, local))
+        .then_some((prefix, local))
     }
 }
 impl FromStr for Curie {

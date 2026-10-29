@@ -192,9 +192,74 @@
       ],
       "type": "string"
     },
+    "Reply_ClinvarAlleleOriginCode": {
+      "description": "Checked ClinVar allele origin codes.",
+      "enum": [
+        "germline",
+        "somatic",
+        "de_novo",
+        "inherited",
+        "maternal",
+        "paternal",
+        "biparental",
+        "uniparental",
+        "not_provided",
+        "unknown"
+      ],
+      "type": "string"
+    },
+    "Reply_ClinvarReviewStatusCode": {
+      "description": "Checked ClinVar review status codes.",
+      "enum": [
+        "practice_guideline",
+        "expert_panel",
+        "criteria_provided_multiple_submitters_no_conflicts",
+        "criteria_provided_conflicting_classifications",
+        "criteria_provided_multiple_submitters",
+        "criteria_provided_single_submitter",
+        "no_assertion_criteria_provided",
+        "no_classification_provided",
+        "no_classification_for_the_individual_variant"
+      ],
+      "type": "string"
+    },
     "Reply_Coding": {
       "description": "A code in one explicitly named source framework.",
       "oneOf": [
+        {
+          "description": "ClinVar publisher review status.",
+          "properties": {
+            "code": {
+              "$ref": "#/$defs/Reply_ClinvarReviewStatusCode"
+            },
+            "system": {
+              "const": "clinvar_review_status",
+              "type": "string"
+            }
+          },
+          "required": [
+            "system",
+            "code"
+          ],
+          "type": "object"
+        },
+        {
+          "description": "ClinVar publisher allele origin.",
+          "properties": {
+            "code": {
+              "$ref": "#/$defs/Reply_ClinvarAlleleOriginCode"
+            },
+            "system": {
+              "const": "clinvar_allele_origin",
+              "type": "string"
+            }
+          },
+          "required": [
+            "system",
+            "code"
+          ],
+          "type": "object"
+        },
         {
           "description": "OncoKB oncogenicity vocabulary.",
           "properties": {
@@ -1073,18 +1138,14 @@
       "type": "string"
     },
     "Reply_Term": {
-      "description": "A source label with optional explicitly supported coding.",
+      "description": "A source label with explicitly supported codings in source order.",
       "properties": {
-        "coding": {
-          "anyOf": [
-            {
-              "$ref": "#/$defs/Reply_Coding"
-            },
-            {
-              "type": "null"
-            }
-          ],
-          "description": "Documented framework coding."
+        "codings": {
+          "description": "Documented framework codings.",
+          "items": {
+            "$ref": "#/$defs/Reply_Coding"
+          },
+          "type": "array"
         },
         "label": {
           "$ref": "#/$defs/Reply_Text",
@@ -1203,7 +1264,7 @@
       "type": "string"
     }
   },
-  "$id": "biomcp.protein-features/2",
+  "$id": "biomcp.protein-features/3",
   "$schema": "https://json-schema.org/draft/2020-12/schema",
   "description": "One versioned command response; schema identity comes only from its body type.\nJSON readers ignore unknown fields and unknown growable enum values within a major.",
   "properties": {
@@ -1259,7 +1320,7 @@
       "description": "Answer when available."
     },
     "schema": {
-      "const": "biomcp.protein-features/2",
+      "const": "biomcp.protein-features/3",
       "type": "string"
     },
     "sources": {

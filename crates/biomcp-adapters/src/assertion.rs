@@ -25,11 +25,24 @@ pub(crate) fn row(
     if let Some(proposition) = proposition {
         let coding = acmg(&label, row.detail.as_ref());
         let clinvar = attribution.source.as_str() == "clinvar";
-        let mut statement =
-            Statement::new(subject, proposition, Term { label, codings: coding.into_iter().collect() }, attribution);
+        let mut statement = Statement::new(
+            subject,
+            proposition,
+            Term {
+                label,
+                codings: coding.into_iter().collect(),
+            },
+            attribution,
+        );
         statement.strength = review.map(|label| {
-            let coding = clinvar.then(|| biodata::ClinvarReviewStatusCode::from_source_label(label.as_str())).flatten().map(Coding::ClinvarReviewStatus);
-            Term { label, codings: coding.into_iter().collect() }
+            let coding = clinvar
+                .then(|| biodata::ClinvarReviewStatusCode::from_source_label(label.as_str()))
+                .flatten()
+                .map(Coding::ClinvarReviewStatus);
+            Term {
+                label,
+                codings: coding.into_iter().collect(),
+            }
         });
         if let Some(detail) = &row.detail {
             if detail.conditions.len() == 1 {
@@ -37,8 +50,16 @@ pub(crate) fn row(
             }
             if detail.origins.len() == 1 {
                 statement.allele_origin = detail.origins.first().cloned().map(|label| {
-                    let coding = clinvar.then(|| biodata::ClinvarAlleleOriginCode::from_source_label(label.as_str())).flatten().map(Coding::ClinvarAlleleOrigin);
-                    Term { label, codings: coding.into_iter().collect() }
+                    let coding = clinvar
+                        .then(|| {
+                            biodata::ClinvarAlleleOriginCode::from_source_label(label.as_str())
+                        })
+                        .flatten()
+                        .map(Coding::ClinvarAlleleOrigin);
+                    Term {
+                        label,
+                        codings: coding.into_iter().collect(),
+                    }
                 });
             }
             statement.citations = detail.citations.clone();
