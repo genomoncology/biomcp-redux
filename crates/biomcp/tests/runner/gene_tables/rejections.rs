@@ -4,10 +4,10 @@ use serde_json::json;
 
 pub(super) fn check() -> Check {
     let problems = json!([
-        {"source": "hgnc", "field": "hgnc row 173: no usable query key", "code": "value.unknown"},
-        {"source": "hgnc", "field": "hgnc row 174: wrong number of columns", "code": "value.unknown"},
-        {"source": "hgnc", "field": "hgnc-withdrawn row 7: no usable query key", "code": "value.unknown"},
-        {"source": "hgnc", "field": "hgnc-withdrawn row 8: wrong number of columns", "code": "value.unknown"}
+        {"source": "hgnc", "field": "hgnc.rows.173.no_usable_query_key", "code": "value.unknown"},
+        {"source": "hgnc", "field": "hgnc.rows.174.column_count", "code": "value.unknown"},
+        {"source": "hgnc", "field": "hgnc-withdrawn.rows.7.no_usable_query_key", "code": "value.unknown"},
+        {"source": "hgnc", "field": "hgnc-withdrawn.rows.8.column_count", "code": "value.unknown"}
     ]);
     checked_steps(
         "gene/main",

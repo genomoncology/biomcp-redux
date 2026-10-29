@@ -220,10 +220,25 @@ pub(crate) fn bundle_problems(
     info.rejections
         .iter()
         .map(|rejection| {
+            let (part, reason) = rejection
+                .reason
+                .rsplit_once(": ")
+                .map_or((None, rejection.reason.as_str()), |(part, reason)| {
+                    (Some(part), reason)
+                });
+            let reason = match reason {
+                "no usable query key" => "no_usable_query_key",
+                "wrong number of columns" => "column_count",
+                _ => "decode",
+            };
+            let location = match part {
+                Some(part) => format!("{}.{part}", info.name),
+                None => info.name.to_owned(),
+            };
             problem(
                 source,
                 None,
-                &format!("{} row {}: {}", info.name, rejection.row, rejection.reason),
+                &format!("{location}.rows.{}.{reason}", rejection.row),
             )
         })
         .collect()
