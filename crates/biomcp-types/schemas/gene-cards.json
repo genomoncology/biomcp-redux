@@ -172,19 +172,47 @@
       "description": "One published ClinGen gene–disease validity record.",
       "properties": {
         "classification": {
-          "$ref": "#/$defs/Reply_Text",
+          "anyOf": [
+            {
+              "$ref": "#/$defs/Reply_Text"
+            },
+            {
+              "type": "null"
+            }
+          ],
           "description": "Source classification without inference."
         },
         "classification_date": {
-          "$ref": "#/$defs/Reply_Text",
+          "anyOf": [
+            {
+              "$ref": "#/$defs/Reply_Text"
+            },
+            {
+              "type": "null"
+            }
+          ],
           "description": "Source classification date, preserving its original spelling."
         },
         "disease": {
-          "$ref": "#/$defs/Reply_Text",
+          "anyOf": [
+            {
+              "$ref": "#/$defs/Reply_Text"
+            },
+            {
+              "type": "null"
+            }
+          ],
           "description": "Source disease label."
         },
         "expert_panel": {
-          "$ref": "#/$defs/Reply_Text",
+          "anyOf": [
+            {
+              "$ref": "#/$defs/Reply_Text"
+            },
+            {
+              "type": "null"
+            }
+          ],
           "description": "Source expert panel."
         },
         "mode_of_inheritance": {
@@ -196,19 +224,21 @@
           "description": "Source MONDO identifier."
         },
         "report_url": {
-          "$ref": "#/$defs/Reply_Text",
+          "anyOf": [
+            {
+              "$ref": "#/$defs/Reply_Text"
+            },
+            {
+              "type": "null"
+            }
+          ],
           "description": "Source report URL.",
           "format": "uri"
         }
       },
       "required": [
-        "disease",
         "mondo_id",
-        "mode_of_inheritance",
-        "classification",
-        "classification_date",
-        "expert_panel",
-        "report_url"
+        "mode_of_inheritance"
       ],
       "type": "object"
     },
@@ -223,23 +253,58 @@
           "type": "array"
         },
         "loeuf": {
-          "$ref": "#/$defs/Reply_FiniteNumber",
+          "anyOf": [
+            {
+              "$ref": "#/$defs/Reply_FiniteNumber"
+            },
+            {
+              "type": "null"
+            }
+          ],
           "description": "Upper confidence bound of the observed-to-expected loss-of-function ratio."
         },
         "mis_z": {
-          "$ref": "#/$defs/Reply_FiniteNumber",
+          "anyOf": [
+            {
+              "$ref": "#/$defs/Reply_FiniteNumber"
+            },
+            {
+              "type": "null"
+            }
+          ],
           "description": "Missense Z score."
         },
         "oe_lof": {
-          "$ref": "#/$defs/Reply_FiniteNumber",
+          "anyOf": [
+            {
+              "$ref": "#/$defs/Reply_FiniteNumber"
+            },
+            {
+              "type": "null"
+            }
+          ],
           "description": "Observed-to-expected loss-of-function ratio."
         },
         "pli": {
-          "$ref": "#/$defs/Reply_FiniteNumber",
+          "anyOf": [
+            {
+              "$ref": "#/$defs/Reply_FiniteNumber"
+            },
+            {
+              "type": "null"
+            }
+          ],
           "description": "Probability of loss-of-function intolerance."
         },
         "syn_z": {
-          "$ref": "#/$defs/Reply_FiniteNumber",
+          "anyOf": [
+            {
+              "$ref": "#/$defs/Reply_FiniteNumber"
+            },
+            {
+              "type": "null"
+            }
+          ],
           "description": "Synonymous Z score."
         },
         "transcript": {
@@ -252,11 +317,6 @@
         }
       },
       "required": [
-        "pli",
-        "loeuf",
-        "oe_lof",
-        "mis_z",
-        "syn_z",
         "transcript",
         "version"
       ],

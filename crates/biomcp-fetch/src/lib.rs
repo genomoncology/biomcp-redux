@@ -23,6 +23,7 @@ mod containment;
 mod deadline;
 mod declaration;
 mod destination;
+pub use destination::check_annotation_url;
 mod hosts;
 pub use hosts::Destinations;
 mod error;

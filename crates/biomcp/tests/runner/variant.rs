@@ -566,7 +566,7 @@ fn malformed_score() -> Result<(), String> {
             "GRCh37",
         ],
     )?;
-    if value.pointer("/result/candidates/0/sections/predict/reason") != Some(&json!("bad-reply"))
+    if value.pointer("/result/candidates/0/sections/predict/state") != Some(&json!("data"))
         || value.pointer("/problems/0/field") != Some(&json!("cadd.phred"))
         || requests.len() != 2
     {

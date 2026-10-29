@@ -7,6 +7,10 @@ use std::fs;
 
 pub(super) fn trials() -> Vec<Trial> {
     vec![
+        transcript_trial(
+            "variant-normalization/identity-refusal-stays-uncached",
+            || refused_identity().map_err(Into::into),
+        ),
         transcript_trial("variant-normalization/keeps-every-transcript", || {
             transcripts().map_err(Into::into)
         }),
@@ -261,4 +265,59 @@ fn transcripts_body(_: &str) -> Result<String, String> {
         \"submitted_variant\":\"NM_004333.4:c.1799T>A\",\"hgvs_transcript_variant\":\"NM_004333.4:c.1A>T\"}}"
             .into(),
     )
+}
+
+fn refused_identity() -> Result<(), String> {
+    for (field, mutation) in [
+        ("input_description", json!("NM_004333.4:c.1798T>A")),
+        ("input_description", json!(42)),
+        ("normalized_description", json!("invalid")),
+        ("normalized_description", json!(42)),
+    ] {
+        let stub = Stub::for_source("mutalyzer.nl", "application/json", move |request| {
+            let mut value: Value =
+                serde_json::from_str(&normalized(request)?).map_err(|e| e.to_string())?;
+            *value
+                .get_mut(field)
+                .ok_or("missing native identity control")? = mutation.clone();
+            Ok(value.to_string())
+        })?;
+        let env = environment(&stub)?;
+        let args = [
+            "variant",
+            "normalize",
+            "--source",
+            "mutalyzer",
+            "--hgvs",
+            "NM_004333.4:c.1799T>A",
+        ];
+        for _ in 0..2 {
+            let value = run(&env, &args)?;
+            let problems = value
+                .get("problems")
+                .and_then(Value::as_array)
+                .ok_or("missing field problem")?;
+            if problems.len() != 1
+                || problems.first().and_then(|p| p.get("field")) != Some(&json!(field))
+                || value.pointer("/result/results/0/outcome") != Some(&json!("unavailable"))
+                || value.pointer("/result/results/0/normalized").is_some()
+                || value.pointer("/sources/0/state") != Some(&json!("ok"))
+            {
+                return Err(format!(
+                    "bad normalization identity admitted data or failed source: {value}"
+                ));
+            }
+        }
+        let mut offline = args.to_vec();
+        offline.push("--offline");
+        let value = run(&env, &offline)?;
+        if value.pointer("/sources/0/reason") != Some(&json!("offline"))
+            || stub.finish()?.len() != 2
+        {
+            return Err(format!(
+                "refused normalization identity entered cache: {value}"
+            ));
+        }
+    }
+    Ok(())
 }

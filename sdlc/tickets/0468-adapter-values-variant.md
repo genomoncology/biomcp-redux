@@ -1,6 +1,7 @@
 # 0468 — Apply the bad-value rule in the variant annotation adapters
 
-Status: OPEN.
+Status: COMPLETE.
+Landed: 3d60fd908c9c0fc4cc334fe43865b12bfa284711
 
 Milestone: 5
 

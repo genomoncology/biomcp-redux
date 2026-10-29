@@ -13,6 +13,17 @@ pub(super) fn frequency(
     subject: Option<&VariantRef>,
     problems: &mut Vec<Problem>,
 ) -> Option<PopulationFrequency> {
+    if subset.ac.is_none() || subset.an.is_none() || rejected_release(name, problems) {
+        return None;
+    }
+    if va.is_some_and(|rows| {
+        rows.iter().any(|row| {
+            row.cohort.id.as_str() == "ALL"
+                && (row.focus_allele_count.is_none() || row.locus_allele_count.is_none())
+        })
+    }) {
+        return None;
+    }
     let result = checked(subset, va, name, subject);
     let (version, subject) = match result {
         Ok(value) => value,
@@ -30,7 +41,7 @@ pub(super) fn frequency(
         }
     };
     let dataset = Source::Gnomad.text();
-    PopulationFrequency::new(
+    let frequency = PopulationFrequency::new(
         subject.clone(),
         Build::GRCh38,
         dataset,
@@ -46,9 +57,28 @@ pub(super) fn frequency(
         },
     )
     .with_stratum(Some(data_type), None, None, None)
-    .and_then(|frequency| frequency.with_counts(Some(subset.ac), Some(subset.an), None, None))
-    .ok()
-    .map(|f| f.with_filters(subset.filters.clone().into()))
+    .and_then(|frequency| frequency.with_counts(subset.ac, subset.an, None, None));
+    match frequency {
+        Ok(frequency) => Some(match &subset.filters {
+            Some(filters) => frequency.with_filters(filters.clone().into()),
+            None => frequency,
+        }),
+        Err(_) => {
+            let field = format!("{name}.counts");
+            if !problems
+                .iter()
+                .any(|problem| problem.field.as_ref() == field)
+            {
+                problems.push(Problem {
+                    source: Source::Gnomad,
+                    record: Some(raw.variant_id.clone()),
+                    field: field.into(),
+                    code: ProblemCode::ValueUnknown,
+                });
+            }
+            None
+        }
+    }
 }
 
 fn checked<'a>(
@@ -76,4 +106,12 @@ fn checked<'a>(
         .ok_or_else(|| Box::<str>::from("dataset_version"))?;
     let subject = subject.ok_or_else(|| Box::<str>::from("subject"))?;
     Ok((version, subject))
+}
+
+// A rejected release value already names the cause; do not add dependent absence.
+fn rejected_release(name: &str, problems: &[Problem]) -> bool {
+    let prefix = format!("va.{name}.derivedFrom");
+    problems.iter().any(|problem| {
+        problem.field.as_ref() == prefix || problem.field.as_ref() == format!("{prefix}.version")
+    })
 }

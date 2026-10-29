@@ -11,8 +11,22 @@ pub(crate) fn get(cx: &Ctx<'_>, query: &VariantAssertionsGet) -> Outcome {
     let deadline = command.deadline();
     let (section, sources, problems, local) = read(cx, query, deadline);
     let (status, body) = match section {
-        Section::Data { data, .. } => (Status::Complete, data),
-        Section::Empty { .. } => (Status::Absent, empty(query)),
+        Section::Data { data, .. } => (
+            if problems.is_empty() {
+                Status::Complete
+            } else {
+                Status::Partial
+            },
+            data,
+        ),
+        Section::Empty { .. } => (
+            if problems.is_empty() {
+                Status::Absent
+            } else {
+                Status::Partial
+            },
+            empty(query),
+        ),
         _ => (Status::Failed, empty(query)),
     };
     let next = body

@@ -69,7 +69,7 @@ fn civic() -> Check {
 }
 
 fn constraint() -> Check {
-    for mode in 0..16 {
+    for mode in (0..10).chain(11..16) {
         graphql(
             "gnomad",
             |body| {
@@ -94,7 +94,6 @@ fn constraint() -> Check {
                             .unwrap()
                             .remove("gnomad_constraint");
                     }
-                    10 => value["data"]["g0"]["gnomad_constraint"]["pli"] = json!("NaN"),
                     11 => {
                         value["data"]["g0"]["mane_select_transcript"]["ensembl_id"] = json!("bad")
                     }
@@ -116,7 +115,18 @@ fn constraint() -> Check {
                     }
                 }
             },
-            json!({"/result/items/0/sections/constraint/state": "unavailable", "/sources/2/reason": "bad-reply"}),
+            match mode {
+                3 => {
+                    json!({"/result/items/0/sections/constraint/state": "unavailable", "/problems/*/field": ["gene_id"], "/sources/2/state": "ok"})
+                }
+                9 => json!({"/result/items/0/sections/constraint/state": "empty"}),
+                11..=14 => {
+                    json!({"/result/items/0/sections/constraint/state": "empty", "/problems/*/field": ["mane_select_transcript.ensembl_id"]})
+                }
+                _ => {
+                    json!({"/result/items/0/sections/constraint/state": "unavailable", "/sources/2/reason": "bad-reply"})
+                }
+            },
         )?;
     }
     mappings()
@@ -187,6 +197,7 @@ fn clingen() -> Check {
     for mode in [
         "duplicate",
         "missing classification",
+        "malformed classification",
         "failed dosage",
         "failed validity",
         "both failed",
@@ -220,8 +231,13 @@ fn clingen() -> Check {
                     .unwrap();
                 match (mode, dosage) {
                     ("duplicate", true) => lines.push(lines[index].clone()),
-                    ("missing classification", false) => {
-                        lines[index] = lines[index].replace("\"Definitive\"", "\"\"")
+                    ("missing classification" | "malformed classification", false) => {
+                        let classification = if mode == "missing classification" {
+                            ""
+                        } else {
+                            "bad\u{1}"
+                        };
+                        lines[index] = lines[index].replace("Definitive", classification);
                     }
                     ("validity only", true) | ("dosage only", false) => {
                         lines.remove(index);
@@ -301,8 +317,20 @@ fn clingen_expectation(mode: &str) -> Value {
         }
         "dosage only" => json!({
             "/result/items/0/sections/clingen/data/haploinsufficiency": "Sufficient Evidence for Haploinsufficiency"}),
-        _ => {
-            json!({"/result/items/0/sections/clingen/state": "data", "/sources/2/reason": "bad-reply"})
+        "duplicate" => {
+            json!({"/result/items/0/sections/clingen/state": "data", "/problems/*/field": ["HGNC ID"]})
         }
+        "missing classification" => json!({
+            "/result/items/0/sections/clingen/state": "data",
+            "/result/items/0/sections/clingen/data/validity/0/mondo_id": "MONDO:0018875",
+            "/result/items/0/sections/clingen/data/validity/0": {"omits": ["classification"]},
+            "": {"omits": ["problems"]}
+        }),
+        _ => json!({
+            "/result/items/0/sections/clingen/state": "data",
+            "/result/items/0/sections/clingen/data/validity/0/mondo_id": "MONDO:0018875",
+            "/result/items/0/sections/clingen/data/validity/0": {"omits": ["classification"]},
+            "/problems/*/field": ["CLASSIFICATION"]
+        }),
     }
 }

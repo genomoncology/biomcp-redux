@@ -70,7 +70,7 @@ pub struct ArticlePage {
     pub candidates: Vec<LitVarCandidate>,
 }
 impl super::ResponseBody for ArticlePage {
-    const SCHEMA: &'static str = "biomcp.article-page/6";
+    const SCHEMA: &'static str = "biomcp.article-page/7";
     type Query = ArticleSearch;
 }
 
@@ -113,10 +113,12 @@ pub struct LitVarCandidate {
     /// Source gene symbols.
     #[serde(default, skip_serializing_if = "Vec::is_empty")]
     pub gene: Vec<crate::Text>,
-    /// Source variant name.
-    pub name: crate::Text,
-    /// Number of associated publications reported by LitVar2.
-    pub count: u64,
+    /// Source variant name, when independently admitted.
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub name: Option<crate::Text>,
+    /// Number of associated publications reported by LitVar2, without inferred totals.
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub count: Option<u64>,
 }
 
 mod evidence;

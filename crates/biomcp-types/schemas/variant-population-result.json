@@ -51,12 +51,18 @@
           ]
         },
         "type": {
-          "$ref": "#/$defs/Reply_AlphaGenomeBiosampleType",
+          "anyOf": [
+            {
+              "$ref": "#/$defs/Reply_AlphaGenomeBiosampleType"
+            },
+            {
+              "type": "null"
+            }
+          ],
           "description": "Publisher sample category."
         }
       },
       "required": [
-        "type",
         "name"
       ],
       "type": "object"
@@ -1919,13 +1925,19 @@
           "description": "Native allele count, including reported zero.",
           "format": "uint64",
           "minimum": 0,
-          "type": "integer"
+          "type": [
+            "integer",
+            "null"
+          ]
         },
         "an": {
           "description": "Native allele denominator.",
           "format": "uint64",
           "minimum": 0,
-          "type": "integer"
+          "type": [
+            "integer",
+            "null"
+          ]
         },
         "ancestry_group": {
           "anyOf": [
@@ -1947,7 +1959,10 @@
           "items": {
             "$ref": "#/$defs/Reply_Text"
           },
-          "type": "array"
+          "type": [
+            "array",
+            "null"
+          ]
         },
         "frequency": {
           "anyOf": [
@@ -1984,9 +1999,7 @@
         }
       },
       "required": [
-        "data_type",
-        "ac",
-        "an"
+        "data_type"
       ],
       "type": "object"
     },
@@ -5322,15 +5335,36 @@
       "description": "Metadata for a component carried by an aggregator.",
       "properties": {
         "aggregator_build": {
-          "$ref": "#/$defs/Reply_Text",
+          "anyOf": [
+            {
+              "$ref": "#/$defs/Reply_Text"
+            },
+            {
+              "type": "null"
+            }
+          ],
           "description": "Aggregator build version."
         },
         "aggregator_built": {
-          "$ref": "#/$defs/Reply_Text",
+          "anyOf": [
+            {
+              "$ref": "#/$defs/Reply_Text"
+            },
+            {
+              "type": "null"
+            }
+          ],
           "description": "Aggregator build timestamp, distinct from a component release."
         },
         "license": {
-          "$ref": "#/$defs/Reply_Text",
+          "anyOf": [
+            {
+              "$ref": "#/$defs/Reply_Text"
+            },
+            {
+              "type": "null"
+            }
+          ],
           "description": "Component license URL, without any inferred grant.",
           "format": "uri"
         },
@@ -5385,10 +5419,7 @@
       },
       "required": [
         "terms",
-        "name",
-        "license",
-        "aggregator_build",
-        "aggregator_built"
+        "name"
       ],
       "type": "object"
     },
@@ -6333,7 +6364,7 @@
       "type": "object"
     }
   },
-  "$id": "biomcp.variant-population/10",
+  "$id": "biomcp.variant-population/11",
   "$schema": "https://json-schema.org/draft/2020-12/schema",
   "description": "One versioned command response; schema identity comes only from its body type.\nJSON readers ignore unknown fields and unknown growable enum values within a major.",
   "properties": {
@@ -6389,7 +6420,7 @@
       "description": "Answer when available."
     },
     "schema": {
-      "const": "biomcp.variant-population/10",
+      "const": "biomcp.variant-population/11",
       "type": "string"
     },
     "sources": {

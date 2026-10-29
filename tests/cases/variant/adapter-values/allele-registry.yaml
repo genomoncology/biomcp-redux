@@ -1,0 +1,26 @@
+{
+  "feature": "variant-identity",
+  "live_check": "synthetic",
+  "story": "One malformed native allele-registry value preserves its record and names the omitted field.",
+  "replay": "variant/adapter-values/allele-registry",
+  "steps": [
+    {
+      "run": [
+        "get",
+        "variant",
+        "CA123643"
+      ],
+      "expect": {
+        "/result/candidates/0/identity/representations/0": {
+          "omits": [
+            "build"
+          ]
+        },
+        "/problems/*/field": [
+          "representations.build"
+        ],
+        "/result/candidates/0/record/id": "CA123643"
+      }
+    }
+  ]
+}

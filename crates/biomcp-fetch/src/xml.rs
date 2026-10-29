@@ -445,3 +445,15 @@ impl crate::Leg<'_> {
         self.parameters(ep, params, Decoder::checked_xml(&check))
     }
 }
+
+impl crate::Leg<'_> {
+    /// Preserve XML metadata while withholding refused record identities from raw cache.
+    pub fn xml_received_checked_cache<T: XmlReply>(
+        &self,
+        ep: &crate::Endpoint,
+        params: &[(&str, crate::Arg<'_>)],
+        cache_if: impl Fn(&T) -> bool,
+    ) -> Result<(T, crate::ReplyMetadata), crate::RequestError> {
+        self.parameters(ep, params, Decoder::xml().cache_if(&cache_if))
+    }
+}
