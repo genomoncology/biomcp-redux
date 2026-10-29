@@ -21,11 +21,7 @@ pub(super) fn check(root: &Path) -> Check {
         }
         let text = fs::read_to_string(&path)?;
         for word in text.split(|c: char| !c.is_ascii_alphanumeric() && c != '_' && c != '-') {
-            if word
-                .to_ascii_lowercase()
-                .parse::<biomcp_types::Source>()
-                .is_ok()
-            {
+            if word.parse::<biomcp_types::Source>().is_ok() {
                 return Err(format!(
                     "crates/biomcp-fetch/src/{relative}: transport names source {word}"
                 )
