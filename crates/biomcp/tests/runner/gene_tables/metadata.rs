@@ -19,7 +19,7 @@ pub(super) fn uniprot() -> Check {
         |source, record| {
             if source == "uniprot" {
                 *record.pointer_mut("/exchanges/0/body/value/results/0/proteinDescription/recommendedName/fullName/value")
-                .expect("retained protein name") = json!(42);
+                .unwrap() = json!(42);
             }
         },
         json!({identity: "P42771", "/problems": {"count": 1},
@@ -57,7 +57,7 @@ pub(super) fn reactome() -> Check {
             {
                 *record
                     .pointer_mut("/exchanges/0/body/value/displayName")
-                    .expect("retained pathway displayName") = json!(42);
+                    .unwrap() = json!(42);
             }
         },
         json!({identity: "R-HSA-5673001", "/problems": {"count": 1},
