@@ -5,7 +5,7 @@ use serde_json::{Value, json};
 use std::path::Path;
 pub(super) fn mechanism(directory: &Path, registry: &Registry) -> Check {
     let case = native_case("015.json")?;
-    let text = super::launch::fixture_text("fixtures/drug/native/015.json")?;
+    let text = launch::fixture_text("fixtures/drug/native/015.json")?;
     let mut body: Value = serde_json::from_str(&text).map_err(|e| e.to_string())?;
     let row = body
         .pointer_mut("/mechanisms/0")

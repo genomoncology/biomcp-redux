@@ -91,6 +91,9 @@ pub(super) fn run(directory: &Path) -> Check {
     if let Err(error) = paging::seer(directory, &registry) {
         failures.push(format!("seer-native-window: {error}"));
     }
+    if let Err(error) = paging::study(directory, &registry) {
+        failures.push(format!("study-native-window: {error}"));
+    }
     let large = "x".repeat(biodata::Text::MAX_CHARS + 1);
     let large_result = acquire(&case, Some((stage, json!(large))), &registry).and_then(|value| {
         if value
