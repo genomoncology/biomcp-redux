@@ -1,3 +1,4 @@
+use crate::native_text::NativeText;
 use biomcp_types::Problem;
 
 /// A source value with rejected fields retained as problems.
@@ -64,6 +65,21 @@ impl Problems {
     ) -> Option<T> {
         self.optional(field, value.map(|v| v.value().ok_or(())))
     }
+    pub(crate) fn source_field(
+        &mut self,
+        field: &str,
+        value: Option<crate::raw::Field<NativeText>>,
+    ) -> Option<biodata::Text> {
+        self.field(field, value).map(Into::into)
+    }
+    pub(crate) fn required_source_field(
+        &mut self,
+        field: &str,
+        value: Option<crate::raw::Field<NativeText>>,
+    ) -> Option<biodata::Text> {
+        let value = self.source_field(field, value);
+        self.required(field, value)
+    }
     pub(crate) fn required_field<T>(
         &mut self,
         field: &str,
@@ -83,14 +99,15 @@ impl Problems {
             .filter_map(|v| self.field(field, Some(v)))
             .collect()
     }
-    /// Validate native text through the shared boundary without changing its source bytes.
+    /// Admit native text through the source boundary with visible control escapes.
     pub(crate) fn native_text(
         &mut self,
         field: &str,
         value: Option<crate::raw::Field<Box<str>>>,
     ) -> Option<Box<str>> {
         let value = self.field(field, value)?;
-        self.text(field, Some(&value)).map(|_| value)
+        self.text(field, Some(&value))
+            .map(|text| text.as_str().into())
     }
     pub(crate) fn required_native_text(
         &mut self,
@@ -136,4 +153,9 @@ pub(crate) fn field_text(
 /// Preserve a typed source identity as neutral problem provenance.
 pub(crate) fn record(value: impl std::fmt::Display) -> Option<biodata::Text> {
     text(&value.to_string()).ok()
+}
+
+/// Admit source prose while keeping the strict identity helper separate.
+pub(crate) fn source_text(value: &str) -> Result<biodata::Text, biomcp_fetch::BadReply> {
+    biodata::Text::from_source(value).map_err(|_| biomcp_fetch::BadReply)
 }

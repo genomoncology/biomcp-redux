@@ -1,4 +1,5 @@
 //! Component provenance from the aggregator, without a blanket component license.
+use crate::native_text::NativeText;
 use crate::raw::Field;
 use biodata::Text;
 use biomcp_fetch::{BadReply, Endpoint, Freshness, Leg, Reply, RequestError};
@@ -49,7 +50,7 @@ pub(super) fn components(
                 aggregator_built: raw.build_date.clone(),
                 uploaded,
                 uploads: uploads.into(),
-                note: component.note.clone(),
+                note: component.note.clone().map(Into::into),
             })
         })
         .collect()
@@ -65,7 +66,7 @@ struct Component {
     version: Option<Text>,
     license_url: Text,
     upload_date: Option<Uploads>,
-    note: Option<Text>,
+    note: Option<NativeText>,
 }
 #[derive(Deserialize)]
 #[serde(untagged)]

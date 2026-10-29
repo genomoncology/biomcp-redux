@@ -258,7 +258,7 @@ fn amp(label: Option<&Text>) -> Option<(Term, Option<Term>)> {
 }
 
 fn classification(label: &biodata::SourceText) -> Option<Term> {
-    Text::new(label.as_str()).ok().map(|label| Term {
+    Text::from_source(label.as_str()).ok().map(|label| Term {
         label,
         coding: None,
     })

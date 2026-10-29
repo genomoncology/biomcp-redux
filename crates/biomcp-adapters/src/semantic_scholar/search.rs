@@ -1,3 +1,4 @@
+use crate::native_text::NativeText;
 use biodata::{Doi, PartialDate, Pmcid, Pmid, SemanticScholarId, Text};
 
 use biomcp_fetch::{Arg, BadReply, Endpoint, Freshness, Leg, Reply, RequestError};
@@ -22,7 +23,7 @@ pub struct Paper {
     /// Identifiers explicitly reported by the source.
     pub external_ids: Option<ExternalIds>,
     /// Whole title when supplied.
-    pub title: Option<Text>,
+    pub title: Option<NativeText>,
     /// Source venue.
     pub venue: Option<String>,
     /// Publication year when full date is absent.
@@ -80,7 +81,8 @@ pub struct Author {
     #[serde(rename = "authorId")]
     pub id: Option<biodata::SemanticScholarAuthorId>,
     /// Source display name.
-    pub name: Text,
+    #[serde(deserialize_with = "crate::native_text::deserialize")]
+    pub name: biodata::Text,
 }
 impl Reply for Search {
     fn check(&self) -> Result<(), BadReply> {
@@ -134,8 +136,8 @@ impl Paper {
             pmcid,
             doi,
             europepmc_id: None,
-            title: Some(title),
-            journal: self.venue.and_then(|s| Text::new(&s).ok()),
+            title: Some(title.into()),
+            journal: self.venue.and_then(|s| Text::from_source(&s).ok()),
             electronic_date: None,
             date: self
                 .publication_date

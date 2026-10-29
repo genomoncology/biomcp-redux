@@ -1,4 +1,5 @@
 //! Complete native biomarker observations reject cut collections and source errors.
+use crate::native_text::NativeText;
 use crate::raw::Field;
 use biodata::{NcitId, Text};
 use biomcp_fetch::{BadReply, Reply};
@@ -22,12 +23,13 @@ impl Reply for Page {
 }
 #[derive(Debug, Deserialize)]
 pub(super) struct Biomarker {
-    pub name: Text,
+    #[serde(deserialize_with = "crate::native_text::deserialize")]
+    pub name: biodata::Text,
     pub codes: Box<[NcitId]>,
     pub r#type: Box<[Text]>,
     pub count: u64,
     pub parent_ids: Option<Field<Box<[NcitId]>>>,
     pub ancestor_ids: Option<Field<Box<[NcitId]>>>,
-    pub synonyms: Option<Field<Box<[Text]>>>,
-    pub eligibility_criterion: Option<Field<Box<[Text]>>>,
+    pub synonyms: Option<Field<Box<[NativeText]>>>,
+    pub eligibility_criterion: Option<Field<Box<[NativeText]>>>,
 }

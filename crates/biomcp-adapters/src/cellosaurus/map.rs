@@ -79,7 +79,7 @@ pub(super) fn warnings(rows: &[raw::Comment]) -> Vec<CellLineWarning> {
         .filter(|r| matches!(r.category.as_str(), "Problematic cell line" | "Caution"))
         .map(|r| CellLineWarning {
             scope: r.category.clone(),
-            text: r.value.clone(),
+            text: r.value.clone().map(Into::into),
         })
         .collect()
 }

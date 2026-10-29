@@ -134,7 +134,7 @@ fn map(gene: &raw::Gene, problems: &mut Vec<Problem>) -> Section<CivicGene> {
         };
     };
     let description = match &gene.description {
-        Some(Field::Value(text)) => Text::new(text).ok(),
+        Some(Field::Value(text)) => Text::from_source(text).ok(),
         Some(Field::Invalid(_)) => {
             problems.push(Problem {
                 source: Source::Civic,

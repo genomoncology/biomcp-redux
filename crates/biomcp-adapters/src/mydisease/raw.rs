@@ -1,3 +1,4 @@
+use crate::native_text::NativeText;
 use crate::raw::{Field, OneOrMany};
 use biodata::{Curie, Text};
 use biomcp_fetch::{BadReply, Reply};
@@ -68,11 +69,11 @@ pub(super) struct Component {
     #[serde(alias = "mondo", alias = "doid")]
     pub id: Curie,
     #[serde(alias = "name")]
-    pub label: Option<Field<Text>>,
+    pub label: Option<Field<NativeText>>,
     #[serde(alias = "def")]
-    pub definition: Option<Field<Text>>,
+    pub definition: Option<Field<NativeText>>,
     #[serde(alias = "synonyms")]
-    pub synonym: Option<Field<BTreeMap<String, OneOrMany<Field<Text>>>>>,
+    pub synonym: Option<Field<BTreeMap<String, OneOrMany<Field<NativeText>>>>>,
     pub xrefs: Option<Field<BTreeMap<String, OneOrMany<Field<String>>>>>,
     pub parents: Option<Field<Box<[Field<Curie>]>>>,
     pub is_obsolete: Option<bool>,

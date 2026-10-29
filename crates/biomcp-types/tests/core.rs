@@ -121,10 +121,10 @@ fn problem_codes_round_trip_and_reject_unknown_codes() -> Check {
 fn text_construction_and_json_share_trimming_and_validation() {
     for (input, expected) in [
         ("summary", Some("summary")),
-        (" \n summary \t", Some("summary")),
+        ("  summary  ", Some("summary")),
         ("\u{2003}HER-2/neu α\u{2003}", Some("HER-2/neu α")),
         ("", None),
-        (" \n\t\u{2003}", None),
+        (" \u{2003}", None),
     ] {
         let direct = Text::new(input);
         let parsed = input.parse::<Text>();
@@ -165,7 +165,18 @@ fn text_refuses_controls_and_bounds_constructor_length() {
         ])
         .filter_map(char::from_u32)
     {
-        assert!(Text::new(&format!("before{ch}after")).is_err(), "{ch:?}");
+        for input in [
+            format!("before{ch}after"),
+            format!("{ch}after"),
+            format!("before{ch}"),
+        ] {
+            assert!(Text::new(&input).is_err(), "{ch:?}");
+            assert!(
+                serde_json::from_value::<Text>(json!(input)).is_err(),
+                "{ch:?}"
+            );
+            assert!(Text::from_source(&input).is_ok(), "{ch:?}");
+        }
     }
     assert!(Text::new(&"α".repeat(1_048_576)).is_ok());
     assert!(Text::new(&"a".repeat(1_048_577)).is_err());

@@ -189,5 +189,71 @@ fn controls() -> Check {
         !String::from_utf8(out.stdout)?.contains('\u{202e}'),
         "JSON source fields must not contain active bidi controls"
     );
+    organization_controls()?;
+    native_box_controls()
+}
+
+fn organization_controls() -> Check {
+    let env = Environment::new()?;
+    env.config(&json!({"keys":{"nci_api_key":"synthetic-nci-stored-key"}}))?;
+    let replay = env.root().join("organizations");
+    super::response_cases::copy_capture("organization/native", &replay, |_, record| {
+        if let Some(first) = record
+            .pointer_mut("/exchanges/0/body/value/data/0")
+            .and_then(Value::as_object_mut)
+        {
+            first.insert("name".into(), json!("before\u{202e}after"));
+            first.insert("org_city".into(), json!("before\u{009b}after"));
+        }
+    })?;
+    let mut args = env.globals(Some(&replay), false);
+    args.extend(
+        [
+            "search",
+            "organization",
+            "--source",
+            "nci",
+            "--name",
+            "Dana-Farber",
+            "--limit",
+            "2",
+        ]
+        .map(str::to_owned),
+    );
+    let out = env.command(env!("CARGO_BIN_EXE_biomcp"), &args).output()?;
+    assert!(
+        out.status.success(),
+        "Native human text must retain the source observation: {}",
+        String::from_utf8_lossy(&out.stdout)
+    );
+    let value: Value = serde_json::from_slice(&out.stdout)?;
+    assert_eq!(
+        value.pointer("/result/items/0/name"),
+        Some(&json!(r"before\u{202e}after")),
+        "Required native names must escape controls before admission"
+    );
+    assert_eq!(
+        value.pointer("/result/items/0/org_city"),
+        Some(&json!(r"before\u{009b}after")),
+        "Optional native human text must use the same source admission"
+    );
     Ok(())
+}
+fn native_box_controls() -> Check {
+    super::response_cases::case(
+        "trial/get/NCT03511664",
+        &["get", "trial", "NCT03511664", "references"],
+        |_, record| {
+            if let Some(reference) = record
+                .pointer_mut(
+                    "/exchanges/0/body/value/protocolSection/referencesModule/references/0",
+                )
+                .and_then(Value::as_object_mut)
+            {
+                reference.insert("citation".into(), json!("before\u{202e}after"));
+            }
+        },
+        json!({"/result/items/0/sections/references/data/items/0/citation":r"before\u{202e}after"}),
+        0,
+    )
 }

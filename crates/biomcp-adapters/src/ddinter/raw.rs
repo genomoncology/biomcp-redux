@@ -12,11 +12,13 @@ struct Fields {
     #[serde(rename = "DDInterID_A")]
     id_a: Text,
     #[serde(rename = "Drug_A")]
-    name_a: Text,
+    #[serde(deserialize_with = "crate::native_text::deserialize")]
+    name_a: biodata::Text,
     #[serde(rename = "DDInterID_B")]
     id_b: Text,
     #[serde(rename = "Drug_B")]
-    name_b: Text,
+    #[serde(deserialize_with = "crate::native_text::deserialize")]
+    name_b: biodata::Text,
     #[serde(rename = "Level")]
     level: Text,
 }

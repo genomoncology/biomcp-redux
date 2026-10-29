@@ -80,7 +80,8 @@ pub(super) struct Patient {
 }
 #[derive(Debug, Deserialize)]
 pub(super) struct Reaction {
-    pub reactionmeddrapt: Text,
+    #[serde(deserialize_with = "crate::native_text::deserialize")]
+    pub reactionmeddrapt: biodata::Text,
     pub reactionmeddraversionpt: Option<Box<str>>,
     pub reactionoutcome: Option<Box<str>>,
 }

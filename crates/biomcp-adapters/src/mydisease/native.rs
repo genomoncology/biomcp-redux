@@ -73,7 +73,7 @@ pub(super) fn component(name: &'static str, raw: super::raw::Component) -> Compo
             "{root}.{}",
             if name == "doid" { "def" } else { "definition" }
         ),
-        raw.definition.map(|v| v.value().ok_or(())),
+        raw.definition.map(|v| v.value().map(Into::into).ok_or(())),
     );
     let synonyms = values(
         raw.synonym,
@@ -100,7 +100,7 @@ pub(super) fn component(name: &'static str, raw: super::raw::Component) -> Compo
         id: raw.id,
         label: problems.optional(
             &format!("{root}.{}", if name == "doid" { "name" } else { "label" }),
-            raw.label.map(|v| v.value().ok_or(())),
+            raw.label.map(|v| v.value().map(Into::into).ok_or(())),
         ),
         definition,
         synonyms,
@@ -130,7 +130,10 @@ fn ids(
 fn values(
     fields: Option<
         crate::raw::Field<
-            std::collections::BTreeMap<String, crate::raw::OneOrMany<crate::raw::Field<Text>>>,
+            std::collections::BTreeMap<
+                String,
+                crate::raw::OneOrMany<crate::raw::Field<crate::native_text::NativeText>>,
+            >,
         >,
     >,
     root: &str,
@@ -147,7 +150,7 @@ fn values(
             {
                 result.push(Value {
                     field: field.clone(),
-                    value,
+                    value: value.into(),
                 });
             }
         }
@@ -175,7 +178,7 @@ fn references(
             {
                 result.push(Reference {
                     field: field.clone(),
-                    value,
+                    value: value.into(),
                 });
             }
         }

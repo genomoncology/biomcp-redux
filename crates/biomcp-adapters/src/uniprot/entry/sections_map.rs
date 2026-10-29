@@ -15,7 +15,7 @@ pub(super) fn evidence(rows: Vec<raw::Evidence>) -> Box<[Text]> {
             if let Some(id) = e.id {
                 text.push_str(&format!("|{id}"));
             }
-            Text::new(&text).ok()
+            Text::from_source(&text).ok()
         })
         .collect()
 }
@@ -67,7 +67,7 @@ pub(super) fn features(
                         label: r.kind,
                         coding: None,
                     },
-                    description: r.description.and_then(|v| Text::new(&v).ok()),
+                    description: r.description.and_then(|v| Text::from_source(&v).ok()),
                     id: r.feature_id.and_then(|v| Text::new(&v).ok()),
                     original: alternative
                         .as_ref()

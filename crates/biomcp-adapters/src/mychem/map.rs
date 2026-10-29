@@ -52,7 +52,7 @@ fn header(id: &str, rows: &[(&str, Component)]) -> Result<DrugHeader, BadReply> 
         name: rows
             .iter()
             .find_map(|(_, c)| name(c))
-            .map(text)
+            .map(crate::mapped::source_text)
             .transpose()?,
         identity_level: DrugIdentityLevel::Unknown,
         r#type: rows
@@ -127,7 +127,7 @@ pub(super) fn card(
     }
     let mut names = Vec::new();
     for alias in aliases {
-        let alias = text(&alias)?;
+        let alias = crate::mapped::source_text(&alias)?;
         if !names.contains(&alias) {
             names.push(alias);
         }

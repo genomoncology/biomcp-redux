@@ -27,23 +27,29 @@ impl Text {
     /// Trim whitespace and reject empty, oversized or unsafe control text.
     /// C0, DEL, C1 and Unicode bidi controls must use visible source escapes.
     pub fn new(value: &str) -> Result<Self, Error> {
-        let value = value.trim();
-        if value.is_empty() {
+        let trimmed = value.trim();
+        if trimmed.is_empty() {
             Err(Error::TextEmpty)
         } else if value.chars().any(unsafe_control) {
             Err(Error::TextControl)
-        } else if value.chars().count() > Self::MAX_CHARS {
+        } else if trimmed.chars().count() > Self::MAX_CHARS {
             Err(Error::TextTooLong)
         } else {
-            Ok(Self(value.into()))
+            Ok(Self(trimmed.into()))
         }
     }
 
     /// Admit source text without dropping a record for unsafe controls.
     /// Controls become literal `\\u{xxxx}` escapes before constructor checks.
     pub fn from_source(value: &str) -> Result<Self, Error> {
+        if value.trim().is_empty() {
+            return Err(Error::TextEmpty);
+        }
         let mut escaped = String::new();
-        for ch in value.trim().chars() {
+        for ch in value
+            .trim_matches(|ch: char| ch.is_whitespace() && !unsafe_control(ch))
+            .chars()
+        {
             if unsafe_control(ch) {
                 use std::fmt::Write;
                 write!(&mut escaped, "\\u{{{:04x}}}", u32::from(ch))
@@ -86,7 +92,7 @@ impl fmt::Display for Text {
     }
 }
 
-fn unsafe_control(ch: char) -> bool {
+pub(crate) fn unsafe_control(ch: char) -> bool {
     ch.is_control()
         || matches!(ch, '\u{061c}' | '\u{200e}' | '\u{200f}' | '\u{202a}'..='\u{202e}' | '\u{2066}'..='\u{2069}')
 }

@@ -53,6 +53,7 @@ pub(in crate::uniprot) struct Comment {
 }
 #[derive(Debug, Deserialize)]
 pub(in crate::uniprot) struct Paragraph {
+    #[serde(deserialize_with = "crate::native_text::deserialize")]
     pub value: Text,
     pub evidences: Option<Vec<Evidence>>,
 }

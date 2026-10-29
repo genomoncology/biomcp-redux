@@ -1,3 +1,4 @@
+use crate::native_text::NativeText;
 use biodata::{DrugId, Text};
 use biomcp_fetch::{BadReply, Reply};
 use serde::Deserialize;
@@ -22,8 +23,8 @@ pub struct Record {
 }
 #[derive(Debug, Deserialize)]
 pub(super) struct Names {
-    pub brand_name: Option<Vec<Text>>,
-    pub generic_name: Option<Vec<Text>>,
+    pub brand_name: Option<Vec<NativeText>>,
+    pub generic_name: Option<Vec<NativeText>>,
     pub spl_set_id: Option<Vec<DrugId>>,
 }
 impl Record {

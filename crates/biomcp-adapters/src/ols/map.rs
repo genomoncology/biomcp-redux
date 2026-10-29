@@ -56,7 +56,7 @@ pub(super) fn record(term: raw::Term, ontology: DiseaseOntology) -> Result<Recor
     let label = problems.optional(
         "label",
         term.label.as_ref().map(|v| match v {
-            Field::Value(v) => Ok(v.clone()),
+            Field::Value(v) => Ok(v.clone().into()),
             Field::Invalid(_) => Err(()),
         }),
     );
@@ -117,7 +117,10 @@ pub(super) fn record(term: raw::Term, ontology: DiseaseOntology) -> Result<Recor
         problems: problems.list,
     })
 }
-fn definition(values: Option<&Field<Vec<Field<Text>>>>, problems: &mut Problems) -> Option<Text> {
+fn definition(
+    values: Option<&Field<Vec<Field<crate::native_text::NativeText>>>>,
+    problems: &mut Problems,
+) -> Option<Text> {
     let descriptions: Vec<_> = array(values, "description", problems)
         .iter()
         .filter_map(|value| match value {
@@ -215,7 +218,7 @@ fn synonyms(term: &raw::Term, attribution: &Attribution) -> Mapped<Vec<DiseaseSy
         );
         if let Some(name) = name {
             value.push(DiseaseSynonym {
-                value: name.clone(),
+                value: name.clone().into(),
                 scope: native_scopes
                     .iter()
                     .find(|(n, _)| *n == name)
@@ -277,7 +280,7 @@ fn xrefs(term: &raw::Term, attribution: &Attribution) -> Mapped<Vec<DiseaseRelat
             subject: DiseaseEndpoint {
                 id: term.obo_id.clone(),
                 label: match &term.label {
-                    Some(Field::Value(v)) => Some(v.clone()),
+                    Some(Field::Value(v)) => Some(v.clone().into()),
                     _ => None,
                 },
             },

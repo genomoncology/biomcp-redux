@@ -102,7 +102,7 @@ impl Mapper<'_> {
         values
             .into_iter()
             .filter_map(|(name, value)| {
-                if let Ok(tissue) = Text::new(&name)
+                if let Ok(tissue) = Text::from_source(&name)
                     && let Field::Value(value) = value
                     && let Ok(number) = value.parse::<f64>()
                     && number >= 0.0

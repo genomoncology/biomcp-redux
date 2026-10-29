@@ -23,7 +23,8 @@ pub(super) struct Name {
 }
 #[derive(Deserialize)]
 pub(super) struct Wrapped {
-    pub value: Text,
+    #[serde(deserialize_with = "crate::native_text::deserialize")]
+    pub value: biodata::Text,
 }
 impl Person {
     pub(super) fn card(self, id: &OrcidId) -> Result<Mapped<Option<AuthorCard>>, BadReply> {

@@ -87,6 +87,21 @@ fn markdown_preserves_layout_and_rejects_empty_values() -> Result<(), Box<dyn st
     assert_eq!(serde_json::from_str::<biodata::Markdown>(&json)?, value);
     assert!(biodata::Markdown::new(" \n").is_err());
     assert!(serde_json::from_str::<biodata::Markdown>("\" \"").is_err());
+    let source = " \t# Heading\r\nbefore\u{202e}after ";
+    let escaped = biodata::Markdown::new(source)?;
+    assert_eq!(escaped.as_str(), " \t# Heading\r\nbefore\\u{202e}after ");
+    let at_cap = format!("{}x", " ".repeat(Text::MAX_CHARS - 1));
+    assert!(biodata::Markdown::new(&at_cap).is_ok());
+    assert!(biodata::Markdown::new(&format!(" {at_cap}")).is_err());
+    #[cfg(feature = "schema")]
+    {
+        let schema = serde_json::to_value(schemars::schema_for!(biodata::Markdown))?;
+        let validator = jsonschema::validator_for(&schema)?;
+        assert!(validator.is_valid(&json!(escaped)));
+        assert!(validator.is_valid(&json!(at_cap)));
+        assert!(!validator.is_valid(&json!(format!(" {at_cap}"))));
+        assert!(!validator.is_valid(&json!(source)));
+    }
     Ok(())
 }
 

@@ -1,4 +1,5 @@
 //! Complete native organization observations reject missing totals or cut collections.
+use crate::native_text::NativeText;
 use crate::raw::Field;
 use biodata::Text;
 use biomcp_fetch::{BadReply, Reply};
@@ -19,18 +20,19 @@ impl Reply for Page {
 }
 #[derive(Debug, Deserialize)]
 pub(super) struct Organization {
-    pub name: Text,
+    #[serde(deserialize_with = "crate::native_text::deserialize")]
+    pub name: biodata::Text,
     pub count: u64,
-    pub org_city: Option<Field<Text>>,
-    pub org_state_or_province: Option<Field<Text>>,
-    pub org_country: Option<Field<Text>>,
-    pub org_address_line_1: Option<Field<Text>>,
-    pub org_address_line_2: Option<Field<Text>>,
+    pub org_city: Option<Field<NativeText>>,
+    pub org_state_or_province: Option<Field<NativeText>>,
+    pub org_country: Option<Field<NativeText>>,
+    pub org_address_line_1: Option<Field<NativeText>>,
+    pub org_address_line_2: Option<Field<NativeText>>,
     pub org_postal_code: Option<Field<Text>>,
-    pub org_family: Option<Field<Text>>,
+    pub org_family: Option<Field<NativeText>>,
     pub org_email: Option<Field<Text>>,
     pub org_fax: Option<Field<Text>>,
-    pub contact_name: Option<Field<Text>>,
+    pub contact_name: Option<Field<NativeText>>,
     pub contact_phone: Option<Field<Text>>,
     pub contact_email: Option<Field<Text>>,
     pub org_coordinates:
