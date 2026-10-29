@@ -148,6 +148,13 @@ fn expected_records(raw: &Value, section: &str) -> Vec<Value> {
     }
     for row in &mut rows {
         super::assertions::omit_empty_lists(row);
+        super::assertions::omit_null_fields(
+            row,
+            &[
+                "facility", "city", "state", "zip", "country", "status", "coordinates", "name", "role",
+                "phone", "phone_ext", "email", "affiliation",
+            ],
+        );
     }
     rows
 }
@@ -210,12 +217,12 @@ fn coordinates() -> Check {
             json!([
                 {"run":["get","trial","NCT03734029","locations"],"expect":{
                     "/status":"partial","/result/items/0/card/nct_id":"NCT03734029",
-                    "/result/items/0/sections/locations/data/items/0/coordinates":null,
+                    "/result/items/0/sections/locations/data/items/0":{"omits":["coordinates"]},
                     "/result/items/0/sections/locations/data/items/0/facility":"Ironwood Cancer & Research Centers - Chandler II",
                     "/result/items/0/sections/locations/data/items/1/facility":"Banner MD Anderson Cancer Center",
                     "/problems/0/field":"geoPoint"}},
                 {"run":["get","trial","NCT03734029","locations"],"offline":true,"expect":{
-                    "/status":"partial","/result/items/0/sections/locations/data/items/0/coordinates":null,
+                    "/status":"partial","/result/items/0/sections/locations/data/items/0":{"omits":["coordinates"]},
                     "/problems/0/field":"geoPoint"}}
             ]),
         )?;

@@ -73,7 +73,10 @@ impl View<'_> {
             return;
         };
         for (name, value) in fields {
-            if name == "schema" || (name == "query" && value.is_null()) {
+            if name == "schema"
+                || (name == "query"
+                    && (value.is_null() || value.as_object().is_some_and(serde_json::Map::is_empty)))
+            {
                 continue;
             }
             let node = property(schema, name, self.root).unwrap_or(&Value::Null);

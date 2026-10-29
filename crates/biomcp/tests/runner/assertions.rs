@@ -4,6 +4,7 @@ use serde_json::Value;
 #[derive(Debug)]
 pub(super) enum Assertion<'a> {
     Equals(&'a Value),
+    Omits(&'a Value),
     Unique,
     Nonincreasing,
     IncludesAllOf(&'a Value),
@@ -42,6 +43,13 @@ pub(super) fn prepare(step: &Step) -> Result<Expectations<'_>, String> {
                     }
                     "unique" if expected == &Value::Bool(true) => {
                         assertions.push(Assertion::Unique)
+                    }
+                    "omits" => {
+                        let names = array(pointer, operator, expected)?;
+                        if names.is_empty() || names.iter().any(|name| name.as_str().is_none()) {
+                            return Err(format!("{pointer}: omits requires nonempty field names"));
+                        }
+                        assertions.push(Assertion::Omits(expected));
                     }
                     "includes" => assertions.push(Assertion::Includes(expected)),
                     "excludes" => assertions.push(Assertion::Excludes(expected)),
@@ -211,10 +219,39 @@ pub(super) fn omit_empty_lists(value: &mut Value) {
     }
 }
 
+/// Apply optional-field omission to expected native record projections only.
+/// Array values are retained, including explicit null array members.
+pub(super) fn omit_null_fields(value: &mut Value, optional: &[&str]) {
+    match value {
+        Value::Object(fields) => {
+            fields.retain(|name, child| !optional.contains(&name.as_str()) || !child.is_null());
+            for child in fields.values_mut() {
+                omit_null_fields(child, optional);
+            }
+        }
+        Value::Array(items) => {
+            for item in items {
+                omit_null_fields(item, optional);
+            }
+        }
+        _ => {}
+    }
+}
+
 impl Assertion<'_> {
     pub(super) fn check(&self, pointer: &str, actual: &Value) -> Result<(), String> {
         match self {
             Self::Equals(expected) => equal(pointer, expected, actual),
+            Self::Omits(expected) => {
+                let fields = actual.as_object().ok_or("omits requires an object")?;
+                for name in array(pointer, "omits", expected)? {
+                    let name = name.as_str().ok_or("omits requires field names")?;
+                    if fields.contains_key(name) {
+                        return Err(format!("{pointer} omits: unexpected field {name}"));
+                    }
+                }
+                Ok(())
+            }
             Self::Nonincreasing => nonincreasing(pointer, actual),
             Self::Unique => {
                 let values = array(pointer, "unique", actual)?;
