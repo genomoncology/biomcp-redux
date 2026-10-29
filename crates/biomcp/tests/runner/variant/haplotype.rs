@@ -33,7 +33,14 @@ fn check() -> Result<(), String> {
         .output()
         .map_err(|e| e.to_string())?;
     let value: Value = serde_json::from_slice(&output.stdout).map_err(|e| e.to_string())?;
-    let expected = json!({"level":"haplotype","kind":"Haplotype","id":"clinvar:441268","accession":"VCV000441268","version":"5","number_of_chromosomes":"1","members":[{"id":"clinvar:17864","allele_id":"32903"},{"id":"clinvar:242765","allele_id":"32909"}]});
+    let expected = json!({
+        "level":"haplotype", "kind":"Haplotype", "id":"clinvar:441268",
+        "accession":"VCV000441268", "version":"5", "number_of_chromosomes":"1",
+        "members":[
+            {"id":"clinvar:17864", "allele_id":"32903"},
+            {"id":"clinvar:242765", "allele_id":"32909"}
+        ]
+    });
     let assertions = value
         .pointer("/result/assertions")
         .and_then(Value::as_array)
