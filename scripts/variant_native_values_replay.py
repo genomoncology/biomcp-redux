@@ -232,6 +232,10 @@ def alphagenome_cases(archive, output):
     if target is None:
         raise ValueError("present finite AlphaGenome nonzero_mean target missing")
     index, start, end, mean, label = target
+    genes = [(start, end) for tag, wire, start, end in fields(*metadata) if (tag, wire) == (3, 2)]
+    if not genes:
+        raise ValueError("native gene identity control missing")
+    gene_id = data[slice(*child(fields(*genes[0]), 1))].decode("utf-8")
     mutation = data[:start] + struct.pack("<f", float("nan")) + data[end:]
     if mutation[:start] + data[start:end] + mutation[end:] != data or len(mutation) != len(data):
         raise ValueError("AlphaGenome mutation changed another native value")
@@ -250,7 +254,7 @@ def alphagenome_cases(archive, output):
             destination.write_bytes(mutation if kind == "bad" and filename == name else raw)
         write_json(replay / "car" / seed.name, resolver)
         expect = {"/result/candidates/0/record/id": "CA123643", path + "/tensor_index": [0, 0, index],
-                  path + "/track/name": label}
+                  path + "/track/name": label, path + "/gene/gene_id": gene_id}
         if kind == "positive":
             expect[path + "/track/nonzero_mean"] = mean
         else:
