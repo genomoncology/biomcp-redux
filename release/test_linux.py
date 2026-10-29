@@ -89,6 +89,8 @@ elif args[-2:] == ['schema', 'biodata.problem/1']:
     print('{"$id":"biodata.problem/1"}')
 elif args[-1] == 'help':
     print('{"result":{"commands":["get"]}}')
+elif '--entrypoint' in args and args[args.index('--entrypoint') + 1] == '/proof/case-runner':
+    print('test result: ok. 2 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out')
 elif args[-1] == 'serve':
     for frame in sys.stdin:
         value = json.loads(frame)
@@ -131,7 +133,8 @@ class LinuxContainers(unittest.TestCase):
                           if line.startswith('{') and json.loads(line).get('artifact') == 'docker']
             self.assertEqual(len(containers), 1, result.stdout)
             self.assertEqual(containers[0]['result'], 'pass')
-            self.assertIn('alphagenome-local-tls', containers[0]['checks'])
+            self.assertIn('all-cases-and-trials', containers[0]['checks'])
+            self.assertEqual(containers[0]['trials'], 2)
             self.assertFalse((root / 'injected').exists())
             self.assertEqual((root / 'dist/biomcp-container-amd64.tar').read_bytes(),
                              b'container archive')
@@ -151,9 +154,9 @@ class LinuxContainers(unittest.TestCase):
                  '--user=0:0', '--env=HOME=/root']
         baseline = self.run_release([])
         supplied = self.run_release(extra)
-        self.assertEqual(len(baseline), 15)
+        self.assertEqual(len(baseline), 12)
         self.assertEqual(len(supplied), len(baseline))
-        self.assertEqual(sum(row[0] == 'run' for row in baseline), 12)
+        self.assertEqual(sum(row[0] == 'run' for row in baseline), 9)
         pins = json.loads((ROOT / 'release/toolchain.json').read_text())
         build, = [row for row in baseline if row[0] == 'build']
         self.assertIn('runtime_image=' + pins['images']['runtime'], build)

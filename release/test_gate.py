@@ -121,8 +121,11 @@ class InstalledCli(unittest.TestCase):
                         self.assertEqual(row['platform'], record['platform'])
                         self.assertEqual(row['result'], 'pass')
                         self.assertTrue(any(call['args'] == row['command'] and call['binary'] != str(binary) for call in executed))
-                self.assertTrue(all('mcp-http' in row['checks'] for row in rows if row.get('result') == 'pass' and 'checks' in row))
-                self.assertTrue(all('alphagenome-local-tls' in row['checks'] for row in rows if row.get('result') == 'pass' and 'checks' in row))
+                suites = [row for row in rows if row.get('result') == 'pass' and 'checks' in row]
+                self.assertTrue(suites)
+                self.assertTrue(all('all-cases-and-trials' in row['checks'] for row in suites))
+                self.assertTrue(all(row['trials'] == 2 for row in suites))
+
 
 
 if __name__ == '__main__':
