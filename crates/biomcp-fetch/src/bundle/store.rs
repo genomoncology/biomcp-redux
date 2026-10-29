@@ -268,7 +268,7 @@ fn selected_rows(c: &Connection, name: &str, find: Find<'_>) -> Result<Vec<Strin
         Find::Words(v) => {
             let words: Vec<_> = v
                 .split_whitespace()
-                .filter(|w| w.chars().any(char::is_alphanumeric))
+                .filter(|w| super::query_word(w))
                 .map(|w| format!("\"{}\"", w.replace('"', "\"\"")))
                 .collect();
             if words.is_empty() {

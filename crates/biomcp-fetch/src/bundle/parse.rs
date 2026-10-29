@@ -28,7 +28,7 @@ impl ParsedRows {
     }
     pub(super) fn accept(&mut self, value: String, keys: Keys, row: usize) {
         if !keys.exact.iter().any(|(_, key)| !key.trim().is_empty())
-            && !keys.words.iter().any(|key| !key.trim().is_empty())
+            && !keys.words.iter().any(|key| super::query_word(key))
         {
             self.reject(row, "no usable query key");
             return;

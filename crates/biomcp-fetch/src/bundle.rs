@@ -208,3 +208,7 @@ pub struct BundleRejection {
     /// Fixed reason without provider row contents.
     pub reason: String,
 }
+
+fn query_word(word: &str) -> bool {
+    word.chars().any(char::is_alphanumeric)
+}
