@@ -31,7 +31,13 @@ pub(super) fn read(owner: &Path, name: &str, limit: u64) -> Result<Vec<u8>, Reco
             .ok_or(RecordError::Io(std::io::ErrorKind::InvalidInput))?,
         name,
     )?;
-    let meta = fs::symlink_metadata(&path).map_err(|_| RecordError::Missing)?;
+    let meta = fs::symlink_metadata(&path).map_err(|error| {
+        if error.kind() == std::io::ErrorKind::NotFound {
+            RecordError::Missing
+        } else {
+            error.into()
+        }
+    })?;
     if !meta.is_file() || meta.file_type().is_symlink() {
         return Err(RecordError::Malformed);
     }

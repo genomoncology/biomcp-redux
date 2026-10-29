@@ -14,7 +14,7 @@ pub(super) fn signatures(text: &str) -> Check {
         {
             return Err("exit literals require Status::code()".into());
         }
-        if word == "From" && tail.get(1..5).is_some_and(|v| v == ["<", "(", ")", ">"]) {
+        if word == "From" && tail.get(1).is_some_and(|v| v == "<") && unit_argument(&tail[2..]) {
             return Err("unit error conversions are forbidden".into());
         }
         if word == "Result" && tail.get(1).is_some_and(|v| v == "<") {
@@ -28,9 +28,7 @@ pub(super) fn signatures(text: &str) -> Check {
                             break;
                         }
                     }
-                    "," if depth == 1
-                        && tail.get(i + 1..i + 4).is_some_and(|v| v == ["(", ")", ">"]) =>
-                    {
+                    "," if depth == 1 && unit_argument(&tail[i + 1..]) => {
                         return Err("unit Result errors are forbidden".into());
                     }
                     _ => {}
@@ -39,6 +37,11 @@ pub(super) fn signatures(text: &str) -> Check {
         }
     }
     Ok(())
+}
+
+fn unit_argument(words: &[String]) -> bool {
+    words.get(..3).is_some_and(|v| v == ["(", ")", ">"])
+        || words.get(..4).is_some_and(|v| v == ["(", ")", ",", ">"])
 }
 
 pub(super) fn display_codes(declaration: &str, text: &str) -> Check {

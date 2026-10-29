@@ -414,6 +414,7 @@ fn planted_error_signature_and_exit_literals_are_rejected() -> Check {
         "fn bad() -> Result<Vec<u8>, ()> {}",
         "fn bad() -> Result<Vec<u8>, (),> {}",
         "impl From<()> for Failure {}",
+        "impl From<(),> for Failure {}",
         "ExitCode::from(5)",
     ] {
         assert!(
