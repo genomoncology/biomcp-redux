@@ -528,3 +528,17 @@ fn card_ids_requested_and_statement_subjects_share_published_text()
     }
     Ok(())
 }
+
+#[test]
+fn term_retains_multiple_source_codings_and_concept_refuses_system_uris() -> Check {
+    let value = json!({"label":"Pathogenic", "codings":[
+        {"system":"acmg_amp_2015", "code":"pathogenic"},
+        {"system":"clingen_cgc_vicc_2022", "code":"oncogenic"}
+    ]});
+    let term: biodata::Term = serde_json::from_value(value.clone())?;
+    assert_eq!(serde_json::to_value(term)?, value);
+    for id in ["https://example.org/concept", "http://example.org/concept", "urn:oid:1.2.3"] {
+        assert!(serde_json::from_value::<biodata::Concept>(json!({"id":id,"label":"source label"})).is_err());
+    }
+    Ok(())
+}
