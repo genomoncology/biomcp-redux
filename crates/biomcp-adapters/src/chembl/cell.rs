@@ -178,8 +178,8 @@ pub fn assay_count(leg: &Leg<'_>, id: &ChemblCellId) -> Result<(u64, ReplyMetada
 }
 #[derive(Debug, Deserialize)]
 struct Release {
-    chembl_db_version: biodata::Text,
-    chembl_release_date: biodata::PartialDate,
+    chembl_db_version: Option<crate::raw::Field<biodata::Text>>,
+    chembl_release_date: Option<crate::raw::Field<biodata::PartialDate>>,
 }
 impl Reply for Release {
     fn check(&self) -> Result<(), BadReply> {
@@ -187,10 +187,19 @@ impl Reply for Release {
     }
 }
 /// Read publisher release independently from data retrieval time.
-pub fn release(leg: &Leg<'_>) -> Result<CellLineRelease, RequestError> {
+pub fn release(leg: &Leg<'_>) -> Result<crate::Mapped<CellLineRelease>, RequestError> {
     let r: Release = leg.json(&STATUS, &[])?;
-    Ok(CellLineRelease {
-        version: r.chembl_db_version,
-        updated: r.chembl_release_date,
+    let mut problems = crate::mapped::Problems {
+        source: biomcp_types::Source::Chembl,
+        record: None,
+        list: Vec::new(),
+    };
+    let value = CellLineRelease {
+        version: problems.required_field("chembl_db_version", r.chembl_db_version),
+        updated: problems.required_field("chembl_release_date", r.chembl_release_date),
+    };
+    Ok(crate::Mapped {
+        value,
+        problems: problems.list,
     })
 }

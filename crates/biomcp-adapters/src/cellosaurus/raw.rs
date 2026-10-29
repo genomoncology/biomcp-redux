@@ -145,10 +145,16 @@ pub(super) struct ReleaseData {
 }
 #[derive(Debug, Deserialize)]
 pub(super) struct ReleaseHeader {
-    pub release: biomcp_types::CellLineRelease,
+    pub release: Release,
 }
 impl Reply for ReleaseReply {
     fn check(&self) -> Result<(), BadReply> {
         Ok(())
     }
+}
+
+#[derive(Debug, Deserialize)]
+pub(super) struct Release {
+    pub version: Option<crate::raw::Field<biodata::Text>>,
+    pub updated: Option<crate::raw::Field<biodata::PartialDate>>,
 }

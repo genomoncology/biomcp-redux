@@ -18,9 +18,16 @@ pub(super) fn attach(cx: &Ctx<'_>, deadline: biomcp_fetch::Deadline<'_>, out: &m
             code: biomcp_types::ProblemCode::ValueUnknown,
         });
     }
+    let release = release.ok().map(|mapped| {
+        out.problems.extend(mapped.problems);
+        mapped.value
+    });
+    if !out.problems.is_empty() && out.status == Status::Complete {
+        out.status = Status::Partial;
+    }
     match &mut out.body {
-        QueryBody::CellLinePage(page) => page.release = release.ok(),
-        QueryBody::CellLineCard(card) => card.release = release.ok(),
+        QueryBody::CellLinePage(page) => page.release = release.clone(),
+        QueryBody::CellLineCard(card) => card.release = release.clone(),
         _ => {}
     }
     if out

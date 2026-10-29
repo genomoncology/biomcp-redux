@@ -133,9 +133,16 @@ fn attach(cx: &Ctx<'_>, deadline: biomcp_fetch::Deadline<'_>, out: &mut Outcome)
         out.local = error.and_then(status::local);
         out.problems.push(problem("release"));
     }
+    let release = release.ok().map(|mapped| {
+        out.problems.extend(mapped.problems);
+        mapped.value
+    });
+    if !out.problems.is_empty() && out.status == Status::Complete {
+        out.status = Status::Partial;
+    }
     match &mut out.body {
-        QueryBody::CellLineChembl(body) => body.release = release.ok(),
-        QueryBody::CellLineAssayCount(body) => body.release = release.ok(),
+        QueryBody::CellLineChembl(body) => body.release = release.clone(),
+        QueryBody::CellLineAssayCount(body) => body.release = release.clone(),
         _ => {}
     }
     if out
