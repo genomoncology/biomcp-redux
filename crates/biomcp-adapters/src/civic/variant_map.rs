@@ -90,12 +90,13 @@ fn map(
     let native_count = raw.variants.as_ref().and_then(Field::as_ref).map(Vec::len);
     let native_members = cx.fields("variants", raw.variants);
     let (members, exact) = checked_members(native_members, allele, cx);
-    let context_bad = cx.list.len() != start;
+    let mut context_bad = cx.list.len() != start;
     let complete = native_count == Some(members.len()) && !context_bad;
     let link = cx.field("link", raw.link);
     let Some(record) = record(id, link.as_ref(), cx) else {
         return Ok(None);
     };
+    let before_subject = cx.list.len();
     let subject = subject(
         &record,
         label.as_ref(),
@@ -105,6 +106,8 @@ fn map(
         complete,
         cx,
     );
+    context_bad |= cx.list.len() != before_subject;
+    let membership = membership(exact, context_bad, &record, cx);
     let mut evidence_page = claim_page(
         &raw.evidence_items,
         query,
@@ -132,11 +135,6 @@ fn map(
         statements = claims;
         evidence_page.returned = evidence_returned;
         assertion_page.returned = statements.len() as u32 - evidence_returned;
-    } else {
-        cx.record = Some(record.id.clone());
-        if !context_bad {
-            cx.required::<()>("molecular_profile.membership", None);
-        }
     }
     Ok(Some(CivicProfile {
         record,
@@ -144,11 +142,7 @@ fn map(
         raw_name,
         subject,
         compound,
-        membership: if exact {
-            CivicMembership::Exact
-        } else {
-            CivicMembership::Candidate
-        },
+        membership,
         members: members.into(),
         evidence_count: raw.evidence_items.total_count,
         assertion_count: raw.assertions.total_count,
@@ -156,6 +150,21 @@ fn map(
         evidence_page,
         assertion_page,
     }))
+}
+fn membership(
+    exact: bool,
+    context_bad: bool,
+    record: &SourceRecord,
+    cx: &mut Problems,
+) -> CivicMembership {
+    if exact {
+        return CivicMembership::Exact;
+    }
+    cx.record = Some(record.id.clone());
+    if !context_bad {
+        cx.required::<()>("molecular_profile.membership", None);
+    }
+    CivicMembership::Candidate
 }
 fn claims(
     evidence: Vec<raw::Evidence>,
