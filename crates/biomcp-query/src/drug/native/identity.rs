@@ -1,5 +1,5 @@
 use biodata::{Attribution, DrugIdentity, DrugIdentityLevel, DrugIdentityRelation, Error};
-use biomcp_adapters::{chembl, opentargets};
+use biomcp_adapters::chembl;
 use biomcp_types::{DrugCard, DrugHeader, DrugSection, DrugSource};
 pub(super) fn chembl_header(row: &chembl::Molecule) -> Result<DrugHeader, Error> {
     Ok(DrugHeader {
@@ -17,25 +17,6 @@ pub(super) fn chembl_header(row: &chembl::Molecule) -> Result<DrugHeader, Error>
             )
             .parse()?,
         ),
-    })
-}
-pub(super) fn ot_header(row: opentargets::Hit) -> Result<DrugHeader, Error> {
-    Ok(DrugHeader {
-        matched_name: None,
-        id: row.id.parse()?,
-        source: DrugSource::Opentargets,
-        name: Some(row.name.parse()?),
-        version: None,
-        identity_level: DrugIdentityLevel::Unknown,
-        r#type: Some(row.entity.parse()?),
-        url: Some(format!("https://platform.opentargets.org/drug/{}", row.id).parse()?),
-    })
-}
-pub(super) fn ot_identity(row: &opentargets::Drug) -> Result<DrugHeader, Error> {
-    ot_header(opentargets::Hit {
-        id: row.id.clone(),
-        name: row.name.clone(),
-        entity: "drug".into(),
     })
 }
 pub(super) fn neutral(header: &DrugHeader) -> Result<DrugIdentity, Error> {

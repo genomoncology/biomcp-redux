@@ -34,7 +34,7 @@ pub(super) fn search(cx: &Ctx<'_>, query: &DrugSearch) -> Outcome {
     let command = cx.fetch.command_deadline(cx.budget);
     let deadline = command.deadline();
     let leg = cx.fetch.leg(spec(query.source()), deadline).fresh(cx.fresh);
-    let result = search_page(&leg, query);
+    let result = search_page(&leg, query, &mut out.problems);
     let error = result.as_ref().err().copied();
     if let Ok(page) = result {
         let returned = page.items.len() as u32;
@@ -80,7 +80,11 @@ pub(super) fn search(cx: &Ctx<'_>, query: &DrugSearch) -> Outcome {
     command.finish(deadline.remaining());
     out
 }
-fn search_page(leg: &Leg<'_>, query: &DrugSearch) -> Result<DrugPage, RequestError> {
+fn search_page(
+    leg: &Leg<'_>,
+    query: &DrugSearch,
+    problems: &mut Vec<biomcp_types::Problem>,
+) -> Result<DrugPage, RequestError> {
     let name = query
         .query()
         .ok_or(biomcp_fetch::InputError::Serialization)?;
@@ -107,14 +111,9 @@ fn search_page(leg: &Leg<'_>, query: &DrugSearch) -> Result<DrugPage, RequestErr
             query.offset() / query.limit(),
             query.limit(),
         )?;
-        (
-            page.hits
-                .into_iter()
-                .skip((query.offset() % query.limit()) as usize)
-                .map(identity::ot_header)
-                .collect::<Result<Vec<_>, _>>(),
-            page.total,
-        )
+        let mapped = opentargets::search_headers(page, (query.offset() % query.limit()) as usize);
+        problems.extend(mapped.problems);
+        return Ok(mapped.value);
     };
     Ok(DrugPage {
         items: items.map_err(|_| failure(source))?.into(),

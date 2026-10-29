@@ -1,78 +1,207 @@
-//! Native source stages and complete mechanism members, without regulator inference.
-use super::{Indication, Mechanism};
+//! Map native source metadata with field-local disclosure.
+use super::raw::{Drug, Hit, Indication, Mechanism, Rows, Search};
+use crate::{
+    Mapped,
+    mapped::{Problems, field_text},
+    raw::Field,
+};
 use biodata::{
     Attribution, DrugDiseaseReference, DrugIdentity, DrugIndicationClaim, DrugNativeTarget,
-    DrugStage, DrugTargetRelation, Error, GeneRef, Text,
+    DrugStage, DrugTargetRelation, Error, GeneRef,
 };
-/// Preserve every native target member and both its supplied symbol and full name.
+use biomcp_types::{DrugHeader, DrugSource, Source};
+
+fn problems(id: &str) -> Problems {
+    Problems {
+        source: Source::Opentargets,
+        record: crate::mapped::record(id),
+        list: Vec::new(),
+    }
+}
+fn native_header(
+    id: &str,
+    name: Option<Field<String>>,
+    p: &mut Problems,
+) -> Result<DrugHeader, Error> {
+    Ok(DrugHeader {
+        matched_name: None,
+        id: id.parse()?,
+        source: DrugSource::Opentargets,
+        name: field_text(&mut p.list, p.source, p.record.clone(), "name", name),
+        version: None,
+        identity_level: biodata::DrugIdentityLevel::Unknown,
+        r#type: Some("drug".parse()?),
+        url: Some(format!("https://platform.opentargets.org/drug/{id}").parse()?),
+    })
+}
+/// Preserve the source drug identity independently of its optional name.
+pub fn header(row: &Drug) -> Result<Mapped<DrugHeader>, Error> {
+    let mut p = problems(&row.id);
+    let name = row.name.as_ref().map(|f| match f.as_ref() {
+        Some(s) => Field::Value(s.clone()),
+        None => Field::Invalid(serde::de::IgnoredAny),
+    });
+    let value = native_header(&row.id, name, &mut p)?;
+    Ok(Mapped {
+        value,
+        problems: p.list,
+    })
+}
+/// Refuse malformed candidate identities while preserving their native page total.
+pub fn search_headers(raw: Search, skip: usize) -> Mapped<biomcp_types::DrugPage> {
+    let mut p = problems("");
+    let mut items = Vec::new();
+    for row in raw.hits.into_iter().skip(skip) {
+        p.record = None;
+        let Some(Hit { id, name, entity }) = p.required_field("identity", Some(row)) else {
+            continue;
+        };
+        p.record = crate::mapped::record(&id);
+        if entity != "drug" || !id.starts_with("CHEMBL") {
+            p.required::<()>("identity", None);
+            continue;
+        }
+        match native_header(&id, name, &mut p) {
+            Ok(row) => items.push(row),
+            Err(_) => {
+                p.required::<()>("identity", None);
+            }
+        }
+    }
+    Mapped {
+        value: biomcp_types::DrugPage {
+            items: items.into(),
+            total: Some(raw.total),
+        },
+        problems: p.list,
+    }
+}
+/// Preserve each admitted native target while omitting rejected mechanism metadata.
 pub fn targets(
     drug: &DrugIdentity,
-    rows: Vec<Mechanism>,
-) -> Result<Box<[DrugTargetRelation]>, Error> {
-    let mut mapped = Vec::new();
-    for row in rows {
-        if row.targets.is_empty() {
-            return Err(Error::DrugTargetAbsent);
-        }
-        for target in row.targets {
-            let gene = GeneRef::new(
-                target.approved_symbol.parse()?,
-                None,
-                None,
-                Some(target.id.parse()?),
-            )?;
+    rows: Rows<Mechanism>,
+) -> Result<Mapped<Box<[DrugTargetRelation]>>, Error> {
+    let mut p = problems(&drug.id.to_string());
+    let mut values = Vec::new();
+    for row in rows.rows {
+        let Some(row) = p.required_field("mechanismsOfAction", Some(row)) else {
+            continue;
+        };
+        let mechanism = field_text(
+            &mut p.list,
+            p.source,
+            p.record.clone(),
+            "mechanismOfAction",
+            row.mechanism_of_action,
+        );
+        // Existing source mapping policy uses a generic relation only when actionType is absent.
+        let relation = match row.action_type {
+            None => Some("mechanism".parse()?),
+            value => field_text(&mut p.list, p.source, p.record.clone(), "actionType", value),
+        };
+        for target in p.fields("targets", row.targets) {
+            let Some(id) = p.optional(
+                "targets.id",
+                Some(target.id.parse::<biodata::EnsemblGeneId>()),
+            ) else {
+                continue;
+            };
+            let label = field_text(
+                &mut p.list,
+                p.source,
+                p.record.clone(),
+                "targets.approvedName",
+                target.approved_name,
+            );
+            let symbol = crate::mapped::field_code_text(
+                &mut p.list,
+                p.source,
+                p.record.clone(),
+                "targets.approvedSymbol",
+                target.approved_symbol,
+            );
+            let gene = symbol
+                .map(|label| GeneRef::new(label, None, None, Some(id.clone())))
+                .transpose()?;
             let native = DrugNativeTarget {
                 source: "opentargets".parse()?,
                 id: target.id.parse()?,
-                label: Some(Text::from_source(&target.approved_name)?),
+                label,
                 url: None,
             };
-            mapped.push(DrugTargetRelation::new(
+            values.push(DrugTargetRelation::new(
                 drug.clone(),
-                Some(gene),
+                gene,
                 Some(native),
-                row.action_type.as_deref().unwrap_or("mechanism").parse()?,
-                Some(Text::from_source(&row.mechanism_of_action)?),
+                relation.clone(),
+                mechanism.clone(),
                 Box::default(),
                 attribution(drug)?,
             )?);
         }
     }
-    Ok(mapped.into())
+    Ok(Mapped {
+        value: values.into(),
+        problems: p.list,
+    })
 }
-/// Retain the exact source disease ID, its label and the unchanged stage field/value.
+/// Preserve disease identities independently of optional indication labels and stages.
 pub fn indications(
     drug: &DrugIdentity,
-    rows: Vec<Indication>,
-) -> Result<Box<[DrugIndicationClaim]>, Error> {
-    rows.into_iter()
-        .map(|row| {
-            let disease = DrugDiseaseReference {
-                namespace: row
-                    .disease
-                    .id
-                    .split('_')
-                    .next()
-                    .unwrap_or("opentargets")
-                    .parse()?,
-                id: row.disease.id.parse()?,
-                label: Some(Text::from_source(&row.disease.name)?),
-            };
-            Ok(DrugIndicationClaim {
-                drug: drug.clone(),
-                indication: Text::from_source(&row.disease.name)?,
-                disease_references: Box::new([disease]),
-                stage: Some(DrugStage {
-                    field: "maxClinicalStage".into(),
-                    value: row.max_clinical_stage.into(),
-                }),
-                references: Box::default(),
-                population: None,
-                combination: Box::default(),
-                attribution: attribution(drug)?,
-            })
-        })
-        .collect()
+    rows: Rows<Indication>,
+) -> Result<Mapped<Box<[DrugIndicationClaim]>>, Error> {
+    let mut p = problems(&drug.id.to_string());
+    let mut values = Vec::new();
+    for row in rows.rows {
+        let Some(row) = p.required_field("indications", Some(row)) else {
+            continue;
+        };
+        let Some(id) = p.optional("disease.id", Some(row.disease.id.parse::<biodata::Text>()))
+        else {
+            continue;
+        };
+        let label = field_text(
+            &mut p.list,
+            p.source,
+            p.record.clone(),
+            "disease.name",
+            row.disease.name,
+        );
+        let stage = p
+            .field("maxClinicalStage", row.max_clinical_stage)
+            .and_then(|value| {
+                p.checked_text("maxClinicalStage", Some(&value))
+                    .map(|_| value)
+            });
+        let disease = DrugDiseaseReference {
+            namespace: row
+                .disease
+                .id
+                .split('_')
+                .next()
+                .unwrap_or("opentargets")
+                .parse()?,
+            id,
+            label: label.clone(),
+        };
+        values.push(DrugIndicationClaim {
+            drug: drug.clone(),
+            indication: label,
+            disease_references: Box::new([disease]),
+            stage: stage.map(|value| DrugStage {
+                field: "maxClinicalStage".into(),
+                value: value.into(),
+            }),
+            references: Box::default(),
+            population: None,
+            combination: Box::default(),
+            attribution: attribution(drug)?,
+        });
+    }
+    Ok(Mapped {
+        value: values.into(),
+        problems: p.list,
+    })
 }
 fn attribution(drug: &DrugIdentity) -> Result<Attribution, Error> {
     Ok(Attribution {
