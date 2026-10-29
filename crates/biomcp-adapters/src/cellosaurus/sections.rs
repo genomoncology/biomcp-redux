@@ -21,7 +21,7 @@ pub(super) fn xref(row: raw::Xref) -> CellLineXref {
     CellLineXref {
         database: row.database,
         accession: row.accession,
-        label: row.label,
+        label: row.label.map(Into::into),
         url: row.url,
         category: row.category,
         iri: row.iri,
@@ -39,8 +39,8 @@ fn variation(row: raw::Variation) -> CellLineVariation {
     CellLineVariation {
         variation_type: row.variation_type,
         mutation_type: row.mutation_type,
-        description: row.mutation_description,
-        note: row.variation_note,
+        description: row.mutation_description.map(Into::into),
+        note: row.variation_note.map(Into::into),
         zygosity: row.zygosity_type,
         genes: genes
             .into_iter()
@@ -59,8 +59,8 @@ fn variation(row: raw::Variation) -> CellLineVariation {
                 reference: r.reference.map(|r| CellLineReference {
                     resource_internal_ref: r.resource_internal_ref,
                 }),
-                institution: r.institution,
-                value: r.value,
+                institution: r.institution.map(Into::into),
+                value: r.value.map(Into::into),
                 xref: r.xref.map(xref),
             })
             .collect(),

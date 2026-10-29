@@ -132,7 +132,9 @@ impl Document {
                 .id
                 .map(|v| v.parse().map_err(|_| super::bad()))
                 .transpose()?,
-            label: Some(text(&self.condition.label)?),
+            label: Some(
+                crate::mapped::source_text(&self.condition.label).map_err(|_| super::bad())?,
+            ),
         };
         let mut assessments = Vec::new();
         for line in self.lines.unwrap_or_default() {
@@ -157,7 +159,7 @@ impl Document {
         Ok(crate::assertion::row(
             AssertionKind::Erepo,
             AssertionDomain::Germline,
-            text(&self.outcome.label)?,
+            crate::mapped::source_text(&self.outcome.label).map_err(|_| super::bad())?,
             attribution,
             VariantRef::allele(caid.parse().map_err(|_| super::bad())?),
             detail,
@@ -171,13 +173,13 @@ impl Assessment {
         let criterion = self.criterion.ok_or_else(super::bad)?;
         let outcome = self.outcome.ok_or_else(super::bad)?;
         Ok(AssertionAssessment {
-            criterion: text(&criterion.label)?,
+            criterion: crate::mapped::source_text(&criterion.label).map_err(|_| super::bad())?,
             criterion_id: criterion.id.as_deref().map(text).transpose()?,
             criterion_iri: criterion.iri.as_deref().map(text).transpose()?,
             default_strength: criterion
                 .strength
                 .as_ref()
-                .map(|s| text(&s.label))
+                .map(|s| crate::mapped::source_text(&s.label).map_err(|_| super::bad()))
                 .transpose()?,
             default_strength_id: criterion
                 .strength
@@ -192,7 +194,7 @@ impl Assessment {
                 .map(text)
                 .transpose()?,
             outcome_conflict: outcome_conflict(&outcome),
-            outcome: text(&outcome.label)?,
+            outcome: crate::mapped::source_text(&outcome.label).map_err(|_| super::bad())?,
             outcome_id: outcome.id.as_deref().map(text).transpose()?,
             outcome_iri: outcome.iri.as_deref().map(text).transpose()?,
         })

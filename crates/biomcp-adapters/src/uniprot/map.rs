@@ -38,7 +38,8 @@ pub(super) fn proteins(raw: raw::Proteins, ids: &[UniProtAcc]) -> Mapped<Vec<Pro
             );
             continue;
         }
-        let Ok(name) = Text::new(&raw.protein_description.recommended_name.full_name.value) else {
+        let Ok(name) = Text::from_source(&raw.protein_description.recommended_name.full_name.value)
+        else {
             push_problem(
                 &mut problems,
                 Source::UniProt,

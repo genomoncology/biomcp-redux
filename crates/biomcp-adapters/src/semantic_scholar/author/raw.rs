@@ -1,3 +1,4 @@
+use crate::native_text::NativeText;
 use biodata::{
     AuthorCard, AuthorCountScope, AuthorCounts, AuthorHeader, AuthorId, SemanticScholarAuthorId,
     Text,
@@ -22,8 +23,9 @@ pub struct Page {
 pub struct Record {
     /// Exact provider record identity.
     pub author_id: SemanticScholarAuthorId,
-    name: Text,
-    affiliations: Option<Box<[Text]>>,
+    #[serde(deserialize_with = "crate::native_text::deserialize")]
+    name: biodata::Text,
+    affiliations: Option<Box<[NativeText]>>,
     paper_count: Option<u64>,
     citation_count: Option<u64>,
     h_index: Option<u32>,
@@ -43,7 +45,9 @@ impl Record {
         AuthorHeader {
             id: AuthorId::SemanticScholar(self.author_id),
             name: Some(self.name),
-            affiliations: self.affiliations,
+            affiliations: self
+                .affiliations
+                .map(|values| values.into_vec().into_iter().map(Into::into).collect()),
             counts,
         }
     }

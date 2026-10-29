@@ -86,13 +86,18 @@ struct Title {
 }
 #[derive(Deserialize)]
 struct TranslatedTitle {
-    content: Text,
+    #[serde(deserialize_with = "crate::native_text::deserialize")]
+    content: biodata::Text,
 }
 #[derive(Deserialize)]
 struct Date {
-    year: Wrapped,
-    month: Option<Wrapped>,
-    day: Option<Wrapped>,
+    year: DatePart,
+    month: Option<DatePart>,
+    day: Option<DatePart>,
+}
+#[derive(Deserialize)]
+struct DatePart {
+    value: Text,
 }
 impl Date {
     fn convert(&self) -> Result<PartialDate, BadReply> {

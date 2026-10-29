@@ -141,3 +141,5 @@ mod openfda_key;
 pub mod fda_device_recall;
 /// Native FDA drug enforcement records.
 pub mod fda_drug_recall;
+
+mod native_text;

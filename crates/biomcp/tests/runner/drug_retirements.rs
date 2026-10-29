@@ -33,7 +33,7 @@ fn check() -> Result<(), String> {
             return Err(format!("{words}: CLI/MCP migration differs"));
         }
         let bytes = serde_json::to_vec(&value).map_err(|e| e.to_string())?.len();
-        let measured = serde_json::to_vec(&json!({"schema":"biomcp.error/2","status":"usage", "error":{"code":"usage.retired","message":message}}))
+        let measured = serde_json::to_vec(&json!({"schema":"biomcp.error/3","status":"usage", "error":{"code":"usage.retired","message":message}}))
             .map_err(|e| e.to_string())?
             .len();
         if bytes > measured * 115 / 100 {

@@ -64,7 +64,8 @@ impl Reply for Page {
 pub struct Trial {
     nci_id: Text,
     nct_id: NctId,
-    brief_title: Text,
+    #[serde(deserialize_with = "crate::native_text::deserialize")]
+    brief_title: biodata::Text,
     current_trial_status: Text,
     phase: Option<biomcp_types::NciTrialPhase>,
     brief_summary: Option<Box<str>>,

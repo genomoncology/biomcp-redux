@@ -1,4 +1,5 @@
 //! Europe PMC's bounded metadata-only search window.
+use crate::native_text::NativeText;
 mod core;
 use crate::quotas;
 use biodata::{Doi, EuropePmcId, PartialDate, Pmcid, Pmid, Text};
@@ -75,10 +76,10 @@ struct Row {
     pmid: Option<Pmid>,
     pmcid: Option<Pmcid>,
     doi: Option<Doi>,
-    title: Option<Text>,
-    journal_title: Option<Text>,
+    title: Option<NativeText>,
+    journal_title: Option<NativeText>,
     first_publication_date: Option<PartialDate>,
-    author_string: Option<Text>,
+    author_string: Option<NativeText>,
 }
 impl Reply for Raw {
     fn check(&self) -> Result<(), BadReply> {
@@ -132,8 +133,8 @@ impl Row {
                 europepmc_id: Some(local),
                 doi: self.doi,
                 pmcid: self.pmcid,
-                title: Some(title),
-                journal: self.journal_title,
+                title: Some(title.into()),
+                journal: self.journal_title.map(Into::into),
                 date: self.first_publication_date,
                 electronic_date: None,
                 types: Box::default(),
@@ -142,7 +143,7 @@ impl Row {
                     .author_string
                     .as_ref()
                     .and_then(|s| s.as_str().split(',').next())
-                    .and_then(|s| Text::new(s.trim()).ok()),
+                    .and_then(|s| Text::from_source(s.trim()).ok()),
                 first_author_id: None,
                 author_count: self
                     .author_string

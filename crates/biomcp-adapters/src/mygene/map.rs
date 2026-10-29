@@ -19,7 +19,7 @@ pub(super) fn summary(value: String) -> Option<Summary> {
     });
     let (body, dated) = parsed.map_or((value.as_str(), None), |(body, date)| (body, Some(date)));
     Some(Summary {
-        text: Text::new(body).ok()?,
+        text: Text::from_source(body).ok()?,
         source: SummarySource::RefSeq,
         dated,
     })

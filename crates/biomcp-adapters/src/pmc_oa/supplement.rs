@@ -59,7 +59,7 @@ pub(super) fn select(
             );
             out.push(Supplement {
                 file: SupplementFile {
-                    name: Text::new(name).map_err(super::bad)?,
+                    name: Text::from_source(name).map_err(super::bad)?,
                     kind,
                     label: item.label.clone(),
                     caption: item.caption.clone(),

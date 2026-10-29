@@ -9,7 +9,7 @@ use biodata::{
 use biomcp_fetch::RequestError;
 use biomcp_types::{DiagnosticLaboratory, DiagnosticSection, GtrCard, GtrHeader, GtrNativeStatus};
 fn optional(value: &str) -> Option<Text> {
-    Text::new(value).ok()
+    Text::from_source(value).ok()
 }
 pub(super) fn header(v: &GtrTestVersion) -> Result<GtrHeader, RequestError> {
     // The publisher's web route uses the numeric test base; the typed ID keeps
@@ -67,7 +67,7 @@ pub(super) fn card(v: &GtrTestVersion) -> Result<GtrCard, RequestError> {
 }
 pub(super) fn relation(r: &Relation) -> Result<GtrTestRelation, RequestError> {
     let medgen = format!("MedGen:{}", r.medgen).parse().map_err(|_| bad())?;
-    let text = Text::new(&r.object_name).map_err(|_| bad())?;
+    let text = Text::from_source(&r.object_name).map_err(|_| bad())?;
     Ok(if r.object == Object::Gene {
         let gene_id = r.object_id.parse::<biodata::NcbiGeneId>().ok();
         GtrTestRelation::Gene(GtrGeneRelation {

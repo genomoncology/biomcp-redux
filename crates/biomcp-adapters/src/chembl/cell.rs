@@ -1,5 +1,6 @@
 //! Exact source-local cell metadata and assay counts.
 use super::SPEC;
+use crate::native_text::NativeText;
 use biodata::{CellosaurusAccession, ChemblCellId};
 use biomcp_fetch::{Arg, BadReply, Freshness, Leg, Reply, ReplyMetadata, RequestError};
 use biomcp_types::{CellLineChemblRecord, CellLineRelease};
@@ -46,11 +47,11 @@ struct Cell {
     cell_chembl_id: ChemblCellId,
     cell_id: u64,
     cellosaurus_id: CellosaurusAccession,
-    cell_name: Option<biodata::Text>,
-    cell_description: Option<biodata::Text>,
-    cell_source_organism: Option<biodata::Text>,
+    cell_name: Option<NativeText>,
+    cell_description: Option<NativeText>,
+    cell_source_organism: Option<NativeText>,
     cell_source_tax_id: Option<u32>,
-    cell_source_tissue: Option<biodata::Text>,
+    cell_source_tissue: Option<NativeText>,
     clo_id: Option<biodata::Text>,
     efo_id: Option<biodata::Text>,
 }
@@ -73,11 +74,11 @@ impl From<Cell> for CellLineChemblRecord {
             id: r.cell_chembl_id,
             cell_id: r.cell_id,
             cellosaurus_id: r.cellosaurus_id,
-            name: r.cell_name,
-            description: r.cell_description,
-            organism: r.cell_source_organism,
+            name: r.cell_name.map(Into::into),
+            description: r.cell_description.map(Into::into),
+            organism: r.cell_source_organism.map(Into::into),
             taxon: r.cell_source_tax_id,
-            tissue: r.cell_source_tissue,
+            tissue: r.cell_source_tissue.map(Into::into),
             clo: r.clo_id,
             efo: r.efo_id,
         }

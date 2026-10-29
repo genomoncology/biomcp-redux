@@ -27,7 +27,14 @@ pub(super) fn metadata(
     }
     problems.required(
         field,
-        native_text(value).and_then(|v| crate::mapped::text(v).ok()),
+        native_text(value).and_then(|v| {
+            let admit = if matches!(field, "name" | "references.title" | "summations.text") {
+                crate::mapped::source_text
+            } else {
+                crate::mapped::text
+            };
+            admit(v).ok()
+        }),
     )
 }
 fn identity(id: &str, species: &str, class: &str) -> Option<PathwayId> {
@@ -46,7 +53,10 @@ pub(super) fn hit(row: &raw::Hit, problems: &mut Problems) -> Option<PathwayHead
         name.replace("<span class=\"highlighting\" >", "")
             .replace("</span>", "")
     });
-    let name = problems.required("name", name.and_then(|v| crate::mapped::text(&v).ok()))?;
+    let name = problems.required(
+        "name",
+        name.and_then(|v| crate::mapped::source_text(&v).ok()),
+    )?;
     Some(PathwayHeader {
         id,
         name,
