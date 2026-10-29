@@ -327,6 +327,7 @@ fn groups(reply: &Value) -> Result<(), String> {
 }
 fn field_admission() -> Result<(), String> {
     for (mode, field, omitted) in [
+        ("variant", "variant", ""),
         ("track", "tracks.0.name", ""),
         ("gene", "genes.0.gene_id", ""),
         ("endedness", "tracks.0.endedness", "track/endedness"),
@@ -383,7 +384,7 @@ fn field_admission() -> Result<(), String> {
             ));
         }
         let next = invoke(&env, &page_args(&reply)?, 0)?;
-        let expected_returned = if mode == "gene" { 0 } else { 1 };
+        let expected_returned = usize::from(!matches!(mode, "gene" | "variant"));
         if next.pointer(&format!("{scorer}/page/offset")) != Some(&json!(1))
             || next.pointer(&format!("{scorer}/page/returned")) != Some(&json!(expected_returned))
             || next.pointer(&format!("{SECTION}/data/scorers/1/rows/0/gene/gene_id"))
@@ -443,7 +444,14 @@ fn changed_messages(mode: &str) -> Vec<Vec<u8>> {
         .enumerate()
         .flat_map(|(ordinal, shape)| {
             let tensor = [field(1, &shape), number(2, 2), number(4, 1)].concat();
-            let mut metadata = field(1, &variant());
+            let mut metadata = field(
+                1,
+                &variant(if mode == "variant" && ordinal == 0 {
+                    140753337
+                } else {
+                    140753336
+                }),
+            );
             for track in 0..shape[2] {
                 metadata.extend(field(
                     2,
@@ -550,7 +558,7 @@ fn expected_request() -> Vec<u8> {
             ]
             .concat(),
         ),
-        field(2, &variant()),
+        field(2, &variant(140753336)),
         number(3, 9606),
         field(4, &field(2, &number(1, 4))),
         field(4, &field(3, &number(2, 7))),
@@ -561,10 +569,10 @@ fn expected_request() -> Vec<u8> {
     ]
     .concat()
 }
-fn variant() -> Vec<u8> {
+fn variant(position: u64) -> Vec<u8> {
     [
         field(1, b"chr7"),
-        number(2, 140753336),
+        number(2, position),
         field(3, b"A"),
         field(4, b"T"),
     ]

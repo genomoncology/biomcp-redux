@@ -103,6 +103,7 @@ impl ScoreEnvelope {
     }
     fn metadata(&self, bytes: &[u8]) -> Result<Metadata, BadReply> {
         let mut variant = false;
+        let mut identity = true;
         let mut tracks = 0usize;
         let mut genes = 0usize;
         let mut metadata = Metadata::default();
@@ -122,7 +123,9 @@ impl ScoreEnvelope {
             match tag {
                 1 if !variant => {
                     if proto::Variant::decode(value).map_err(|_| BadReply)? != self.variant {
-                        return Err(BadReply);
+                        problems
+                            .required::<()>(&format!("scorers.{}.variant", self.complete), None);
+                        identity = false;
                     }
                     variant = true;
                 }
@@ -154,6 +157,9 @@ impl ScoreEnvelope {
         })?;
         if !variant {
             return Err(BadReply);
+        }
+        if !identity {
+            metadata.tracks.iter_mut().for_each(|track| *track = None);
         }
         metadata.problems = problems.list;
         Ok(metadata)
