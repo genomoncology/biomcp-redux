@@ -15,6 +15,12 @@ pub struct NciTrial {
     pub current_trial_status: Text,
     /// Native phase.
     pub phase: Option<super::NciTrialPhase>,
+    /// First site with an exact case-insensitive organization name, in source order.
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub matched_site: Option<NciMatchedSite>,
+    /// Number of sites with that name, without deduplication; present only for facility searches.
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub matching_sites: Option<u32>,
     /// Native short summary, only on exact retrieval.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub brief_summary: Option<crate::NciTextPage>,
@@ -113,4 +119,21 @@ pub struct NciDiseaseRef {
     pub name: Text,
     /// Source NCIt identity.
     pub nci_thesaurus_concept_id: biodata::NcitId,
+}
+
+/// Compact source site observation; its presence does not establish enrollment.
+#[derive(Clone, Debug, PartialEq, Serialize, Deserialize)]
+#[cfg_attr(feature = "schema", derive(schemars::JsonSchema))]
+pub struct NciMatchedSite {
+    /// Published organization name.
+    pub org_name: Text,
+    /// Native city, when provided.
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub org_city: Option<Text>,
+    /// Native state or province, when provided.
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub org_state_or_province: Option<Text>,
+    /// Native recruitment status, without translation or enrollment inference.
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub recruitment_status: Option<Text>,
 }

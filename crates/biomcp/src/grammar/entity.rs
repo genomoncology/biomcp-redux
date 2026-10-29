@@ -6,6 +6,8 @@ pub(super) fn request(
     value: Value,
 ) -> Result<Request, biomcp_types::QueryInvalid> {
     match (verb, entity) {
+        ("search", "biomarker") => super::validation::decode(value).map(Request::SearchBiomarker),
+        ("get", "biomarker") => super::validation::decode(value).map(Request::GetBiomarker),
         ("author", "papers") => super::validation::decode(value).map(Request::AuthorPapers),
         ("cell-line", "assay-count") => {
             super::validation::decode(value).map(Request::CellLineAssayCount)

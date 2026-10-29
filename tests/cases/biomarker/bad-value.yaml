@@ -1,0 +1,32 @@
+{
+  "feature": "biomarker-nci",
+  "live_check": "synthetic",
+  "story": "A malformed optional code list retains the native row and reports its field problem.",
+  "replay": "biomarker/synthetic-bad-value",
+  "config": {
+    "keys": {
+      "nci_api_key": "synthetic-nci-replay"
+    }
+  },
+  "verified": "Synthetic boundary response; not an additional source observation.",
+  "steps": [
+    {
+      "run": [
+        "get",
+        "biomarker",
+        "C96022"
+      ],
+      "expect": {
+        "/status": "partial",
+        "/result/card/header/count": 326,
+        "/problems/0/field": "parent_ids"
+      },
+      "max_bytes": 5000,
+      "mcp": [
+        "get",
+        "biomarker",
+        "C96022"
+      ]
+    }
+  ]
+}

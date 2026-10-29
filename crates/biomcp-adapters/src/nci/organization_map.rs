@@ -14,6 +14,7 @@ pub(super) fn page(raw: Page) -> Mapped<Vec<Organization>> {
                 list: Vec::new(),
             };
             let value = Organization {
+                next: None,
                 name: row.name,
                 count: row.count,
                 org_city: p.optional("org_city", row.org_city.map(|v| v.value().ok_or(()))),

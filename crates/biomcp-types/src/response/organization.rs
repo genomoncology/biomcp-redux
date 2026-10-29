@@ -7,6 +7,9 @@ use serde::{Deserialize, Serialize};
 pub struct Organization {
     /// Exact publisher organization name, never a unique identifier.
     pub name: Text,
+    /// Search trials at this exact organization name; names may identify several locations.
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub next: Option<crate::Step>,
     /// NCI trial count across all statuses, including closed trials.
     pub count: u64,
     /// Native city.
