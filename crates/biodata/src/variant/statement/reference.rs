@@ -95,13 +95,24 @@ impl TryFrom<Fields> for VariantRef {
                 Err(crate::Error::VariantRefInvalid)
             }
             Fields::Source { forms, .. }
-                if forms.iter().any(|form| !matches!(form.0, Fields::Allele(_) | Fields::Protein(_))) => {
+                if forms
+                    .iter()
+                    .any(|form| !matches!(form.0, Fields::Allele(_) | Fields::Protein(_))) =>
+            {
                 Err(crate::Error::VariantRefInvalid)
             }
-            Fields::Profile { members, .. } if members.iter().any(|m| matches!(m.0, Fields::Profile { .. })) => {
+            Fields::Profile { members, .. }
+                if members
+                    .iter()
+                    .any(|m| matches!(m.0, Fields::Profile { .. })) =>
+            {
                 Err(crate::Error::VariantRefInvalid)
             }
-            Fields::Profile { members, expression: Some(expression), .. } => {
+            Fields::Profile {
+                members,
+                expression: Some(expression),
+                ..
+            } => {
                 expression.check(members)?;
                 Ok(Self(fields))
             }
@@ -157,23 +168,48 @@ impl VariantRef {
     }
     /// Borrow a native source variant identifier.
     pub fn source_record(&self) -> Option<&Curie> {
-        match &self.0 { Fields::Source { record, .. } => Some(record), _ => None }
+        match &self.0 {
+            Fields::Source { record, .. } => Some(record),
+            _ => None,
+        }
     }
     /// Borrow exact source feature text without interpreting its biology.
     pub fn feature(&self) -> Option<&Text> {
-        match &self.0 { Fields::Source { feature, .. } => Some(feature), _ => None }
+        match &self.0 {
+            Fields::Source { feature, .. } => Some(feature),
+            _ => None,
+        }
     }
     /// Borrow the source expression and its parsed tree.
     pub fn expression(&self) -> Option<&ProfileExpression> {
-        match &self.0 { Fields::Profile { expression, .. } => expression.as_ref(), _ => None }
+        match &self.0 {
+            Fields::Profile { expression, .. } => expression.as_ref(),
+            _ => None,
+        }
     }
     /// Preserve source-stated allele and protein forms without deriving either.
     pub fn source(record: Curie, feature: Text, forms: Box<[Self]>) -> Result<Self, crate::Error> {
-        Fields::Source { record, feature, forms }.try_into()
+        Fields::Source {
+            record,
+            feature,
+            forms,
+        }
+        .try_into()
     }
     /// Preserve source profile relations and validate every referenced member.
-    pub fn profile_expression(record: Text, label: Text, members: Box<[Self]>, expression: ProfileExpression) -> Result<Self, crate::Error> {
-        Fields::Profile { record, label, members, expression: Some(expression) }.try_into()
+    pub fn profile_expression(
+        record: Text,
+        label: Text,
+        members: Box<[Self]>,
+        expression: ProfileExpression,
+    ) -> Result<Self, crate::Error> {
+        Fields::Profile {
+            record,
+            label,
+            members,
+            expression: Some(expression),
+        }
+        .try_into()
     }
 
     pub(crate) fn allele_accession(&self) -> Option<crate::Accession> {
@@ -217,9 +253,6 @@ impl VariantRef {
     }
     /// Preserve a compound profile and its native member references.
     pub fn profile(record: Text, label: Text, members: Box<[Self]>) -> Result<Self, crate::Error> {
-        Fields::Profile { .. } => Err(crate::Error::VariantRefInvalid),
-            })
-            .collect::<Result<Box<[_]>, _>>()?;
         Fields::Profile {
             record,
             label,
