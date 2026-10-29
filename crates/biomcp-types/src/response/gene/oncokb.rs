@@ -21,7 +21,7 @@ biodata::canonical_enum! {
 pub struct OncokbCard {
     /// Exact native classification, including an unpublished future literal.
     #[serde(default, skip_serializing_if = "Option::is_none")]
-    pub gene_type: Option<Text>,
+    pub gene_type: Option<biodata::SourceText>,
     /// Coding for the five published source literals only.
     #[serde(default, skip_serializing_if = "Option::is_none")]
     pub gene_type_code: Option<OncokbGeneType>,

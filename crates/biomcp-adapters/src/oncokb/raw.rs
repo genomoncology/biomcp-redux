@@ -111,10 +111,11 @@ impl Gene {
 fn gene_type(
     raw: Option<Field<String>>,
     cx: &mut Problems,
-) -> (Option<Text>, Option<OncokbGeneType>) {
-    let gene_type = cx
-        .field("geneType", raw)
-        .and_then(|value| cx.checked_text("geneType", Some(&value)));
+) -> (Option<biodata::SourceText>, Option<OncokbGeneType>) {
+    let gene_type = cx.field("geneType", raw).and_then(|value| {
+        cx.checked_text("geneType", Some(&value))
+            .map(|_| biodata::SourceText::from(value))
+    });
     let gene_type_code = gene_type.as_ref().and_then(|label| match label.as_str() {
         "ONCOGENE_AND_TSG" => Some(OncokbGeneType::OncogeneAndTsg),
         "ONCOGENE" => Some(OncokbGeneType::Oncogene),
