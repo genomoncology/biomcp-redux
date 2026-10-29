@@ -28,7 +28,7 @@ pub(super) fn member(raw: raw::Member, cx: &mut Problems) -> Option<(CivicMember
     let caid = cx.field("alleleRegistryId", raw.allele_registry_id);
     let complete = cx.list.len() == before;
     let subject = if complete {
-        member_subject(label.as_ref(), feature.as_ref(), &hgvs_descriptions)
+        member_subject(label.as_ref(), feature.as_ref(), &hgvs_descriptions, cx)
     } else {
         None
     };
@@ -49,15 +49,10 @@ fn member_subject(
     label: Option<&Text>,
     feature: Option<&Text>,
     forms: &[Text],
+    cx: &mut Problems,
 ) -> Option<VariantRef> {
     let label = label?;
-    // Fusion and other native features remain literal when the common gene model cannot express them.
-    let Ok(symbol) = feature?.as_str().parse::<GeneSymbol>() else {
-        return None;
-    };
-    let Ok(gene) = biodata::GeneRef::try_from(symbol) else {
-        return None;
-    };
+    // Source-only features without protein notation retain their native representation.
     let proteins: Vec<_> = forms
         .iter()
         .filter(|form| {
@@ -65,8 +60,19 @@ fn member_subject(
                 .split_once(':')
                 .is_some_and(|(_, body)| body.starts_with("p."))
         })
-        .flat_map(|form| form.as_str().parse::<HgvsText>())
         .collect();
+    if proteins.is_empty() {
+        return None;
+    }
+    let proteins = proteins
+        .into_iter()
+        .map(|form| cx.optional("hgvsDescriptions", Some(form.as_str().parse::<HgvsText>())))
+        .collect::<Option<Vec<_>>>()?;
+    let symbol = cx.optional(
+        "feature.name",
+        Some(feature?.as_str().parse::<GeneSymbol>()),
+    )?;
+    let gene = cx.optional("feature.name", Some(biodata::GeneRef::try_from(symbol)))?;
     match proteins.as_slice() {
         [] => None,
         [protein] => Some(VariantRef::protein_hgvs(

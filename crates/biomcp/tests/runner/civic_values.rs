@@ -52,6 +52,30 @@ pub(super) fn claims() -> Result<(), String> {
             }),
         )?;
     }
+    for (path, invalid, field) in [
+        (
+            "variants/0/feature/name",
+            json!("invalid feature!"),
+            "feature.name",
+        ),
+        (
+            "variants/0/hgvsDescriptions",
+            json!(["broken:p.Val600Glu"]),
+            "hgvsDescriptions",
+        ),
+    ] {
+        check(
+            Some((path, invalid)),
+            json!({
+                "/result/candidates/0/sections/civic/data/profiles/0/record/id":"120",
+                "/result/candidates/0/sections/civic/data/profiles/0/members/0/record/id":"12",
+                "/result/candidates/0/sections/civic/data/profiles/0/members/0":{"omits":["subject"]},
+                "/result/candidates/0/sections/civic/data/profiles/0/statements/0/record/id":"EID1409",
+                "/result/candidates/0/sections/civic/data/profiles/0/statements/0":{"omits":["statement"]},
+                "/problems":{"count":1},"/problems/0/field":field
+            }),
+        )?;
+    }
     check(
         Some(("evidenceItems/nodes/0/id", json!(0))),
         json!({
