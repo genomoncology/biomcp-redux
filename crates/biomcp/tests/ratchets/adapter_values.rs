@@ -30,10 +30,12 @@ pub(super) fn check(root: &Path) -> Check {
             .iter()
             .any(|entry| entry.path == relative && entry.site == site && count <= entry.maximum)
         {
-            return Err(format!(
-                "{relative}: classify new optional-value drop or file rule: {site}"
-            )
-            .into());
+            let rule = if site.starts_with("adapter serde refusal:") {
+                "raw serde default or deny_unknown_fields forbidden"
+            } else {
+                "classify new optional-value drop or file rule"
+            };
+            return Err(format!("{relative}: {rule}: {site}").into());
         }
     }
     Ok(())
