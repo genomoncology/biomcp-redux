@@ -16,7 +16,8 @@ BRIDGE = os.environ.get("PUBLIC_DUMP_VALUES")
 
 @unittest.skipUnless(BRIDGE, "build public_dump_values and set PUBLIC_DUMP_VALUES")
 class Sweep(unittest.TestCase):
-    def run_sweep(self, kind, content, *, digest=None, limit=None, observed=None, explanations=None, full=False):
+    def run_sweep(self, kind, content, *, digest=None, limit=None, observed=None, explanations=None, full=False,
+                  profile_capture=None, variant_content=None, capture_overrides=None):
         with tempfile.TemporaryDirectory() as temporary:
             folder = Path(temporary)
             data = gzip.compress(content.encode(), mtime=0)
@@ -27,6 +28,20 @@ class Sweep(unittest.TestCase):
                 "rights": "CC0-1.0", "sha256": digest or hashlib.sha256(data).hexdigest(),
                 "refusal_explanations": explanations or [],
             }]}
+            if variant_content is not None:
+                variant_data = gzip.compress(variant_content.encode(), mtime=0)
+                (folder / "variants.gz").write_bytes(variant_data)
+                manifest["sources"].append({**manifest["sources"][0], "kind": "civic_variants",
+                                            "path": "variants.gz", "sha256": hashlib.sha256(variant_data).hexdigest()})
+            if profile_capture is not None:
+                captured = json.dumps(profile_capture).encode()
+                (folder / "profiles.json").write_bytes(captured)
+                manifest["profile_companions"] = [{
+                    "path": "profiles.json", "sha256": hashlib.sha256(captured).hexdigest(),
+                    "url": "https://example.invalid/synthetic-native-profile",
+                    "retrieved": "2026-10-29", "source_sha256": sorted(source["sha256"] for source in manifest["sources"]),
+                    **(capture_overrides or {}),
+                }]
             (folder / "manifest.json").write_text(json.dumps(manifest))
             command = [sys.executable, str(TOOL), str(folder / "manifest.json"),
                        "--values", BRIDGE]
@@ -82,7 +97,51 @@ class Sweep(unittest.TestCase):
         self.assertEqual(result.returncode, 1, result.stderr)
         self.assertEqual(report["types"]["profile"]["parsed"], 0)
         self.assertEqual(report["types"]["profile"]["unexplained"], 1)
-        self.assertIn("native_member_references", report["refusals"][0]["reason"])
+        self.assertEqual(report["refusals"][0]["record"], "civic:1")
+        self.assertEqual(report["refusals"][0]["reason"], "profile_companion_missing")
+
+    def profile_inputs(self):
+        label = "BRAF V600E AND NOT KRAS G12D"
+        profiles = "molecular_profile_id\tname\tvariant_ids\n9\t" + label + "\t12,13\n"
+        variants = ("variant_id\tvariant\tgene\thgvs_descriptions\tfeature_id\tfeature_name\n"
+                    "12\tV600E\tBRAF\t\t5\tBRAF\n13\tG12D\tKRAS\t\t30\tKRAS\n")
+        node = {"id": 9, "name": label, "rawName": "#VID12 AND NOT #VID13", "isComplex": True,
+                "variants": [{"id": 12, "name": "V600E", "feature": {"id": 5, "name": "BRAF"}},
+                             {"id": 13, "name": "G12D", "feature": {"id": 30, "name": "KRAS"}}]}
+        return profiles, variants, {"data": {"molecularProfiles": {"nodes": [node]}}}
+
+    def test_monthly_profile_uses_bound_native_expression_and_members(self):
+        profiles, variants, capture = self.profile_inputs()
+        result, report = self.run_sweep("civic_profiles", profiles, variant_content=variants, profile_capture=capture)
+        self.assertEqual(result.returncode, 0, result.stderr + str(report))
+        self.assertEqual(report["types"]["profile"]["parsed"], 1)
+        provenance = report["profile_companion_provenance"][0]
+        self.assertEqual(provenance["retrieved"], "2026-10-29")
+        self.assertEqual(provenance["source_sha256"], sorted(source["sha256"] for source in report["sources"]))
+
+    def test_profile_companion_ambiguity_and_member_mismatch_are_reported_by_id(self):
+        profiles, variants, capture = self.profile_inputs()
+        nodes = capture["data"]["molecularProfiles"]["nodes"]
+        nodes.append(nodes[0].copy())
+        result, report = self.run_sweep("civic_profiles", profiles, variant_content=variants, profile_capture=capture)
+        self.assertEqual(result.returncode, 1, result.stderr)
+        self.assertEqual(report["profile_refusals"], [{"profile_id": "civic:9", "reason": "profile_companion_ambiguous"}])
+        nodes.pop()
+        nodes[0]["variants"].pop()
+        result, report = self.run_sweep("civic_profiles", profiles, variant_content=variants, profile_capture=capture)
+        self.assertEqual(result.returncode, 1, result.stderr)
+        self.assertEqual(report["profile_refusals"], [{"profile_id": "civic:9", "reason": "profile_member_ids_mismatch"}])
+
+    def test_profile_companion_requires_exact_provenance_and_feature_identity(self):
+        profiles, variants, capture = self.profile_inputs()
+        result, report = self.run_sweep("civic_profiles", profiles, variant_content=variants, profile_capture=capture,
+                                        capture_overrides={"source_sha256": ["0" * 64]})
+        self.assertEqual(result.returncode, 1, result.stderr)
+        self.assertEqual(report["profile_refusals"][0]["reason"], "profile_companion_source_hash_mismatch")
+        capture["data"]["molecularProfiles"]["nodes"][0]["variants"][0]["feature"]["name"] = "OTHER"
+        result, report = self.run_sweep("civic_profiles", profiles, variant_content=variants, profile_capture=capture)
+        self.assertEqual(result.returncode, 1, result.stderr)
+        self.assertEqual(report["profile_refusals"][0]["reason"], "profile_member_feature_mismatch")
 
     def test_observation_revision_and_source_hash_must_match_manifest(self):
         text = "variant_id\tvariant\tgene\thgvs_descriptions\n1\tV600E\tBRAF\t\n"
