@@ -124,8 +124,14 @@ where
     T::Err: std::error::Error + 'static,
 {
     let mut ids = HashSet::new();
-    assert!(ids.insert(text.parse::<T>()?));
-    assert!(ids.contains(&text.parse::<T>()?));
+    assert!(
+        ids.insert(text.parse::<T>()?),
+        "first {text} enters the collection"
+    );
+    assert!(
+        ids.contains(&text.parse::<T>()?),
+        "parsed {text} has consistent equality and hashing"
+    );
     Ok(())
 }
 
@@ -162,7 +168,7 @@ fn identifiers_and_notation_support_hash_collections_and_borrowed_text() -> Chec
     for text in ["NCT00000001", "NCT99999999"] {
         let id: NctId = text.parse()?;
         assert_eq!(id.text(), text);
-        assert_eq!(id.to_string(), text);
+        assert_eq!(id.to_string(), text, "display retains the source version");
         assert_eq!(serde_json::to_value(id)?, json!(text));
     }
     assert_eq!("MONDO:0000001".parse::<Curie>()?.as_str(), "MONDO:0000001");
@@ -188,12 +194,23 @@ where
     for suffix in ["", ".3", ".4"] {
         let text = format!("{base}{suffix}");
         let id: T = text.parse()?;
-        assert_eq!(id.to_string(), text);
-        assert_eq!(serde_json::to_value(&id)?, json!(text));
+        assert_eq!(id.to_string(), text, "display retains the source version");
+        assert_eq!(
+            serde_json::to_value(&id)?,
+            json!(text),
+            "serialization retains the source version"
+        );
         ids.insert(id);
     }
-    assert_eq!(ids.len(), 1);
-    assert!(!ids.contains(&format!("{prefix}000013962").parse::<T>()?));
+    assert_eq!(
+        ids.len(),
+        1,
+        "all versions identify the same {prefix} record"
+    );
+    assert!(
+        !ids.contains(&format!("{prefix}000013962").parse::<T>()?),
+        "different {prefix} records retain distinct identities"
+    );
     Ok(())
 }
 
