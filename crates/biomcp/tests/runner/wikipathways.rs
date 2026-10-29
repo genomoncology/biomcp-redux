@@ -10,11 +10,15 @@ use std::{
 };
 mod concurrent;
 mod native;
+mod optional_metadata;
 type Check = Result<(), String>;
 const SEARCH: &str = "https://www.wikipathways.org/json/findPathwaysByText.json";
 const GET: &str = "https://www.wikipathways.org/json/getPathwayInfo.json";
 pub(super) fn trials() -> Vec<Trial> {
     vec![
+        transcript_trial("wikipathways/optional-name-keeps-native-identity", || {
+            optional_metadata::check().map_err(Into::into)
+        }),
         transcript_trial(
             "wikipathways/exact-source-species-before-text-normalization",
             || exact_species().map_err(Into::into),
