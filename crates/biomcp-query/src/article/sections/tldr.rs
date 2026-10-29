@@ -27,7 +27,7 @@ pub(super) fn run<'a>(cx: &Ctx<'a>, deadline: &mut Deadline<'a>, out: &mut Outco
             continue;
         };
         let section = match semantic_scholar::summary(&leg, &input) {
-            Ok(reply) => reply.section(),
+            Ok(reply) => reply.section(&mut out.problems),
             Err(e) => {
                 error.get_or_insert(e);
                 out.local = out.local.or(status::local(e));

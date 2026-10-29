@@ -1,4 +1,9 @@
 //! Bounded paper sections and native citation graph windows.
+use crate::{
+    mapped::{Problems, record},
+    native_text::NativeText,
+    raw::Field,
+};
 use biodata::Text;
 use biomcp_fetch::{Arg, BadReply, Endpoint, Freshness, Leg, PathSegment, Reply, RequestError};
 use biomcp_types::ArticleInput;
@@ -10,22 +15,19 @@ const PAPER: Endpoint = super::SPEC.get("/paper").fresh(Freshness::Days(1));
 #[serde(rename_all = "camelCase")]
 pub struct PaperSummary {
     /// Null means the source has no summary.
-    #[serde(deserialize_with = "summary_field")]
-    pub tldr: Option<Summary>,
+    tldr: Option<Field<Summary>>,
     /// Independently reported citation count.
-    pub citation_count: Option<u64>,
+    citation_count: Option<Field<u64>>,
     /// Independently reported influential citation count.
-    pub influential_citation_count: Option<u64>,
+    influential_citation_count: Option<Field<u64>>,
 }
 /// Source summary and model identifier.
 #[derive(Debug, Deserialize)]
-pub struct Summary {
+struct Summary {
     /// Complete source summary.
-    #[serde(deserialize_with = "crate::native_text::deserialize")]
-    pub text: biodata::Text,
+    text: Option<Field<NativeText>>,
     /// Source model version.
-    #[serde(deserialize_with = "crate::native_text::deserialize")]
-    pub model: biodata::Text,
+    model: Option<Field<NativeText>>,
 }
 impl Reply for PaperSummary {
     fn check(&self) -> Result<(), BadReply> {
@@ -34,8 +36,15 @@ impl Reply for PaperSummary {
 }
 impl PaperSummary {
     /// Preserve missing counts independently from an available summary.
-    pub fn section(self) -> biomcp_types::Section<Tldr> {
-        self.tldr.map_or(
+    pub fn section(self, problems: &mut Vec<biomcp_types::Problem>) -> biomcp_types::Section<Tldr> {
+        let mut p = Problems {
+            source: biomcp_types::Source::SemanticScholar,
+            record: None,
+            list: Vec::new(),
+        };
+        let cited_by = p.field("cited_by", self.citation_count);
+        let influential_cited_by = p.field("influential_cited_by", self.influential_citation_count);
+        let value = p.field("tldr", self.tldr).map_or(
             biomcp_types::Section::Empty {
                 source: biomcp_types::Source::SemanticScholar,
                 record: None,
@@ -43,14 +52,16 @@ impl PaperSummary {
             |summary| biomcp_types::Section::Data {
                 source: biomcp_types::Source::SemanticScholar,
                 data: Tldr {
-                    text: summary.text,
-                    model: summary.model,
+                    text: p.source_field("tldr.text", summary.text),
+                    model: p.source_field("tldr.model", summary.model),
                     machine_written: true,
-                    cited_by: self.citation_count,
-                    influential_cited_by: self.influential_citation_count,
+                    cited_by,
+                    influential_cited_by,
                 },
             },
-        )
+        );
+        problems.extend(p.list);
+        value
     }
 }
 /// Bind a checked article identity to the shared graph source without accepting a free URL.
@@ -79,7 +90,7 @@ pub struct Edges {
 }
 /// Source edge metadata with missing fields preserved independently.
 #[derive(Debug, Deserialize)]
-#[serde(rename_all = "camelCase")]
+#[serde(from = "RawEdge")]
 pub struct Edge {
     /// Present in a citation reply.
     pub citing_paper: Option<super::Paper>,
@@ -91,6 +102,51 @@ pub struct Edge {
     pub is_influential: Option<bool>,
     /// Missing is distinct from a reported empty list.
     pub contexts: Option<Vec<String>>,
+    /// Rejected edge metadata retained with its paper.
+    pub problems: Vec<biomcp_types::Problem>,
+}
+#[derive(Debug, Deserialize)]
+#[serde(rename_all = "camelCase")]
+struct RawEdge {
+    citing_paper: Option<super::Paper>,
+    cited_paper: Option<super::Paper>,
+    intents: Option<Field<Vec<Field<biomcp_types::CitationIntent>>>>,
+    is_influential: Option<Field<bool>>,
+    contexts: Option<Field<Vec<Field<String>>>>,
+}
+impl From<RawEdge> for Edge {
+    fn from(raw: RawEdge) -> Self {
+        let paper = raw.citing_paper.as_ref().or(raw.cited_paper.as_ref());
+        let mut p = Problems {
+            source: biomcp_types::Source::SemanticScholar,
+            record: paper.and_then(|r| r.paper_id.as_ref()).and_then(record),
+            list: Vec::new(),
+        };
+        let intents = p.field("intents", raw.intents).map(|values| {
+            values
+                .into_iter()
+                .filter_map(|v| p.field("intents", Some(v)))
+                .collect()
+        });
+        let is_influential = p.field("influential", raw.is_influential);
+        let contexts = p.field("contexts", raw.contexts).map(|values| {
+            values
+                .into_iter()
+                .filter_map(|v| {
+                    let v = p.field("contexts", Some(v))?;
+                    p.text("contexts", Some(&v)).map(|v| v.to_string())
+                })
+                .collect()
+        });
+        Self {
+            citing_paper: raw.citing_paper,
+            cited_paper: raw.cited_paper,
+            intents,
+            is_influential,
+            contexts,
+            problems: p.list,
+        }
+    }
 }
 #[derive(Debug, Deserialize)]
 struct RawEdges {
@@ -105,11 +161,6 @@ impl Reply for RawEdges {
                 || data
                     .iter()
                     .any(|e| e.citing_paper.is_some() == e.cited_paper.is_some())
-                || data.iter().any(|edge| {
-                    edge.contexts
-                        .as_ref()
-                        .is_some_and(|contexts| contexts.iter().any(|text| text.trim().is_empty()))
-                })
         }) {
             return Err(BadReply);
         }
@@ -126,6 +177,7 @@ impl Edge {
         references: bool,
         problems: &mut Vec<biomcp_types::Problem>,
     ) -> Result<biomcp_types::ArticleEdgeItem, BadReply> {
+        problems.extend(self.problems);
         let mut item = if references {
             self.cited_paper
         } else {
@@ -186,10 +238,4 @@ pub fn edges(
         next: raw.next,
         data,
     })
-}
-
-fn summary_field<'de, D: serde::Deserializer<'de>>(
-    decoder: D,
-) -> Result<Option<Summary>, D::Error> {
-    Option::<Summary>::deserialize(decoder)
 }

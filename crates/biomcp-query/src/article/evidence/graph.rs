@@ -102,6 +102,7 @@ pub(super) fn read<'a>(
         match semantic_scholar::edges(&leg, query.citing(), true, snapshot.cursor) {
             Ok(reply) => {
                 for edge in reply.data {
+                    out.problems.extend(edge.problems.clone());
                     let matches = edge
                         .cited_paper
                         .as_ref()

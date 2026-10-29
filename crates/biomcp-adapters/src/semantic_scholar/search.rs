@@ -1,4 +1,8 @@
 use crate::native_text::NativeText;
+use crate::{
+    mapped::{Problems, record},
+    raw::Field,
+};
 use biodata::{Doi, PartialDate, Pmcid, Pmid, SemanticScholarId};
 
 use biomcp_fetch::{Arg, BadReply, Endpoint, Freshness, Leg, Reply, RequestError};
@@ -16,7 +20,7 @@ pub struct Search {
 }
 /// Common paper metadata shared by search and graph expansion.
 #[derive(Debug, Deserialize)]
-#[serde(rename_all = "camelCase")]
+#[serde(from = "RawPaper")]
 pub struct Paper {
     /// Stable source identity, never a title-derived fallback.
     pub paper_id: Option<SemanticScholarId>,
@@ -32,6 +36,7 @@ pub struct Paper {
     pub publication_date: Option<PartialDate>,
     /// Authors in source order.
     pub authors: Option<Vec<Author>>,
+    problems: Vec<biomcp_types::Problem>,
 }
 /// External identities, preserving absence independently of paper identity.
 #[derive(Debug)]
@@ -43,46 +48,84 @@ pub struct ExternalIds {
     /// DOI spelling reported by the source.
     pub doi: Option<Doi>,
 }
-impl<'de> Deserialize<'de> for ExternalIds {
-    fn deserialize<D: serde::Deserializer<'de>>(deserializer: D) -> Result<Self, D::Error> {
-        #[derive(Deserialize)]
-        struct Raw {
-            #[serde(rename = "PubMed")]
-            pubmed: Option<Pmid>,
-            #[serde(rename = "PubMedCentral")]
-            pmc: Option<String>,
-            #[serde(rename = "DOI")]
-            doi: Option<Doi>,
-        }
-        let raw = Raw::deserialize(deserializer)?;
-        let pmc = raw
-            .pmc
-            .map(|value| {
-                if value.starts_with("PMC") {
-                    value
+#[derive(Debug, Deserialize)]
+#[serde(rename_all = "camelCase")]
+struct RawPaper {
+    paper_id: Option<SemanticScholarId>,
+    external_ids: Option<Field<RawIds>>,
+    title: Option<Field<NativeText>>,
+    venue: Option<Field<String>>,
+    year: Option<Field<u16>>,
+    publication_date: Option<Field<PartialDate>>,
+    authors: Option<Field<Vec<Field<RawAuthor>>>>,
+}
+#[derive(Debug, Deserialize)]
+struct RawIds {
+    #[serde(rename = "PubMed")]
+    pubmed: Option<Field<Pmid>>,
+    #[serde(rename = "PubMedCentral")]
+    pmc: Option<Field<String>>,
+    #[serde(rename = "DOI")]
+    doi: Option<Field<Doi>>,
+}
+#[derive(Debug, Deserialize)]
+struct RawAuthor {
+    #[serde(rename = "authorId")]
+    id: Option<Field<biodata::SemanticScholarAuthorId>>,
+    name: Option<Field<NativeText>>,
+}
+impl From<RawPaper> for Paper {
+    fn from(raw: RawPaper) -> Self {
+        let mut p = Problems {
+            source: biomcp_types::Source::SemanticScholar,
+            record: raw.paper_id.as_ref().and_then(record),
+            list: Vec::new(),
+        };
+        let external_ids = p.field("external_ids", raw.external_ids).map(|ids| {
+            let pmc = p.field("pmcid", ids.pmc).and_then(|id| {
+                let id = if id.starts_with("PMC") {
+                    id
                 } else {
-                    format!("PMC{value}")
-                }
-            })
-            .map(|value| value.parse())
-            .transpose()
-            .map_err(serde::de::Error::custom)?;
-        Ok(Self {
-            pubmed: raw.pubmed,
-            pmc,
-            doi: raw.doi,
-        })
+                    format!("PMC{id}")
+                };
+                p.optional("pmcid", Some(id.parse()))
+            });
+            ExternalIds {
+                pubmed: p.field("pmid", ids.pubmed),
+                pmc,
+                doi: p.field("doi", ids.doi),
+            }
+        });
+        let authors = p.field("authors", raw.authors).map(|rows| {
+            rows.into_iter()
+                .filter_map(|r| {
+                    let r = p.field("authors", Some(r))?;
+                    Some(Author {
+                        id: p.field("authors.id", r.id),
+                        name: p.source_field("authors.name", r.name),
+                    })
+                })
+                .collect()
+        });
+        Self {
+            paper_id: raw.paper_id,
+            external_ids,
+            title: p.field("title", raw.title),
+            venue: p.field("venue", raw.venue),
+            year: p.field("year", raw.year),
+            publication_date: p.field("date", raw.publication_date),
+            authors,
+            problems: p.list,
+        }
     }
 }
 /// One source author.
-#[derive(Debug, Deserialize)]
+#[derive(Debug)]
 pub struct Author {
     /// Exact native author identity when this reply supplies one.
-    #[serde(rename = "authorId")]
     pub id: Option<biodata::SemanticScholarAuthorId>,
     /// Source display name.
-    #[serde(deserialize_with = "crate::native_text::deserialize")]
-    pub name: biodata::Text,
+    pub name: Option<biodata::Text>,
 }
 impl Reply for Search {
     fn check(&self) -> Result<(), BadReply> {
@@ -118,7 +161,18 @@ pub fn search(
 impl Paper {
     /// Map identifiers and source metadata without joining another provider.
     pub fn item(self, problems: &mut Vec<biomcp_types::Problem>) -> ArticleItem {
+        problems.extend(self.problems);
         let record = self.paper_id.as_ref().and_then(crate::mapped::record);
+        let mut p = Problems {
+            source: biomcp_types::Source::SemanticScholar,
+            record: record.clone(),
+            list: Vec::new(),
+        };
+        let date = self.publication_date.or_else(|| {
+            self.year
+                .and_then(|v| p.optional("date", Some(v.to_string().parse())))
+        });
+        problems.extend(p.list);
         let ids = self.external_ids;
         let pmid = ids.as_ref().and_then(|v| v.pubmed);
         let pmcid = ids.as_ref().and_then(|v| v.pmc);
@@ -148,16 +202,14 @@ impl Paper {
                     .map(crate::raw::Field::Value),
             ),
             electronic_date: None,
-            date: self
-                .publication_date
-                .or_else(|| self.year.and_then(|v| v.to_string().parse().ok())),
+            date,
             types: Box::default(),
             types_unknown: true,
             first_author: self
                 .authors
                 .as_ref()
                 .and_then(|a| a.first())
-                .map(|a| a.name.clone()),
+                .and_then(|a| a.name.clone()),
             first_author_id: self
                 .authors
                 .as_ref()
