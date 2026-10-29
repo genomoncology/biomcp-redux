@@ -35,7 +35,7 @@ pub fn get(cx: &Ctx<'_>, q: &BiomarkerGet) -> Outcome {
         let total = rows.len();
         if let Some(source) = out.sources.first_mut() {
             source.count = Some(total as u64);
-            source.fetched = Some(total as u32);
+            source.retrieved_count = Some(total as u32);
         }
         out.status = if !reply.problems.is_empty()
             || out

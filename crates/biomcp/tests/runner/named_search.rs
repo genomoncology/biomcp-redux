@@ -78,7 +78,7 @@ fn paging() -> Check {
             "article/pubtator/pubtator-words",
             &args,
             |_, _| {},
-            json!({"/sources/0/fetched":100}),
+            json!({"/sources/0/retrieved_count":100}),
             0,
         )?;
         let ids: Vec<_> = first["result"]["items"]
@@ -113,7 +113,7 @@ fn paging() -> Check {
                     _ => {}
                 }
             },
-            json!({"/sources/0/fetched":10,"/page/total":10,"/page/truncated":true,"/result/items":{"count":10}}),
+            json!({"/sources/0/retrieved_count":10,"/page/total":10,"/page/truncated":true,"/result/items":{"count":10}}),
             0,
         )?;
         assert_eq!(
@@ -366,7 +366,7 @@ fn native_duplicates() -> Check {
                 body["results"][1] = body["results"][0].clone();
             }
         },
-        json!({"/status":"partial","/page/total":99,"/sources/0/fetched":100,"/result/items/0/found_by/pubtator":1,"/result/items/1/found_by/pubtator":3}),
+        json!({"/status":"partial","/page/total":99,"/sources/0/retrieved_count":100,"/result/items/0/found_by/pubtator":1,"/result/items/1/found_by/pubtator":3}),
         0,
     )?;
     Ok(())

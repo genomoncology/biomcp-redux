@@ -26,9 +26,9 @@
         "/page/total": 249,
         "/page/truncated": true,
         "/sources/0/count": 192,
-        "/sources/0/fetched": 192,
+        "/sources/0/retrieved_count": 192,
         "/sources/1/count": 1204,
-        "/sources/1/fetched": 100,
+        "/sources/1/retrieved_count": 100,
         "/result/items/*/key": [
           {
             "id": "33377972",

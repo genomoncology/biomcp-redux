@@ -335,7 +335,7 @@ pub fn outcome(
         reason,
         term: None,
         count: None,
-        fetched: None,
+        retrieved_count: None,
         notices: Vec::new(),
     }
 }

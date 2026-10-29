@@ -38,7 +38,7 @@ pub(super) fn search<'a>(
     let items = match result {
         Ok(reply) => {
             outcome.count = Some(reply.total);
-            outcome.fetched = Some(reply.data.len() as u32);
+            outcome.retrieved_count = Some(reply.data.len() as u32);
             dois = reply
                 .data
                 .iter()

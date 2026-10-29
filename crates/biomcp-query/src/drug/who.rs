@@ -40,7 +40,7 @@ pub(super) fn search(cx: &Ctx<'_>, query: &DrugSearch) -> Outcome {
         });
         for source in &mut out.sources {
             source.count = Some(total);
-            source.fetched = Some(returned);
+            source.retrieved_count = Some(returned);
         }
         for row in &items {
             out.next.push((

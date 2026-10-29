@@ -73,7 +73,7 @@ pub(crate) fn search(cx: &Ctx<'_>, query: &TrialSearch) -> Outcome {
             condition::word_notice(query, cx.fresh, &mut source, &mut outcome);
         }
         source.count = page.total;
-        source.fetched = Some(page.items.len() as u32);
+        source.retrieved_count = Some(page.items.len() as u32);
         apply_page(query, cx.fresh, gene.as_deref(), &mut outcome, page);
     }
     if let QueryBody::TrialPage(body) = &mut outcome.body {

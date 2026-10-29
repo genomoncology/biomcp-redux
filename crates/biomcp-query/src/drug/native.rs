@@ -156,7 +156,7 @@ fn finish(out: &mut Outcome, leg: Leg<'_>, source: Source, error: Option<Request
     let mut outcome = status::source(source, leg.finish(), error);
     if let Some(page) = &out.page {
         outcome.count = Some(page.total);
-        outcome.fetched = Some(page.returned);
+        outcome.retrieved_count = Some(page.returned);
     }
     if outcome.state == biomcp_types::SourceState::Stale && out.status == Status::Complete {
         out.status = Status::Partial;
