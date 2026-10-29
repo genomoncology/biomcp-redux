@@ -76,6 +76,27 @@ fn rejected_rows_preserve_siblings_and_survive_revalidation_and_reuse() {
         if matches!(format, RowFormat::Tsv) {
             drop(fetch);
             let reopened = cached(&path);
+            assert_eq!(
+                reopened
+                    .leg(bundle.spec, reopened.deadline(Duration::from_secs(2)))
+                    .stored_rows(&bundle, Find::Exact(KeyKind::Symbol, "GOOD"))
+                    .unwrap()
+                    .1
+                    .rejections,
+                info.rejections
+            );
+            drop(reopened);
+            let reopened = Fetch::open(FetchConfig {
+                cache: Some(dir.path().join("next.sqlite")),
+                cache_predecessors: vec![path.clone()],
+                ..Default::default()
+            })
+            .unwrap();
+            let (_, imported) = reopened
+                .leg(bundle.spec, reopened.deadline(Duration::from_secs(2)))
+                .stored_rows(&bundle, Find::Exact(KeyKind::Symbol, "GOOD"))
+                .unwrap();
+            assert_eq!(imported.rejections, info.rejections);
             let revalidated = std::thread::scope(|scope| {
                 let call = scope.spawn(|| reopened.sync(&bundle));
                 server.next().respond(304, "", "");
@@ -159,4 +180,60 @@ fn opening_older_bundle_metadata_keeps_rows_without_rejections() {
             .unwrap(),
         biomcp_fetch::VERSION
     );
+}
+
+#[test]
+fn punctuation_only_word_keys_are_rejected_without_losing_indexed_siblings() {
+    #[derive(Debug, Deserialize)]
+    struct Word {
+        name: String,
+    }
+    impl Row for Word {
+        fn keys(&self) -> Keys {
+            Keys {
+                exact: Vec::new(),
+                words: vec![self.name.clone().into()],
+            }
+        }
+    }
+    for format in [
+        RowFormat::Tsv,
+        RowFormat::Csv { banner_lines: 0 },
+        RowFormat::NativeTsv {
+            gzip: false,
+            max_decoded_bytes: 1024,
+        },
+        RowFormat::NativeCsv { max_bytes: 1024 },
+    ] {
+        let server = support::Server::<()>::new();
+        let bundle = Bundle::<Word> {
+            spec: server.spec(&QUOTA, KeyUse::None),
+            name: "words",
+            path: "/words",
+            format,
+            fresh: Freshness::Days(1),
+            row: PhantomData,
+        };
+        let dir = tempfile::tempdir().unwrap();
+        let fetch = cached(&dir.path().join("cache.sqlite"));
+        let info = std::thread::scope(|scope| {
+            let call = scope.spawn(|| fetch.sync(&bundle));
+            server
+                .next()
+                .respond(200, "", "name\nvalid sibling\n--- !!!\n");
+            call.join().unwrap().unwrap()
+        });
+        assert_eq!(info.rows, 1);
+        assert_eq!(
+            info.rejections,
+            vec![biomcp_fetch::BundleRejection {
+                row: 3,
+                reason: "no usable query key".into()
+            }]
+        );
+        let leg = fetch.leg(bundle.spec, fetch.deadline(Duration::from_secs(2)));
+        let (rows, _) = leg.stored_rows(&bundle, Find::Words("sibling")).unwrap();
+        assert_eq!(rows.len(), 1);
+        assert_eq!(rows[0].name, "valid sibling");
+    }
 }

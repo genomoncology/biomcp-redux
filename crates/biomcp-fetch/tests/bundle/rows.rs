@@ -114,6 +114,8 @@ fn revalidation_swaps_all_indexes_and_bad_rows_keep_old_rows() {
         "\tband\nA\tB\n",
         "symbol\tband\tname\nBAD\tx\t\"broken\n",
         "symbol\tband\tname\nBAD\tx\tin\"ner\n",
+        "symbol\tband\tname\nBAD\t\"broken\nLAST\t9p\tvalid\n",
+        "symbol\tband\tname\nBAD\tx\t\"closed\"suffix\textra\nLAST\t9p\tvalid\n",
     ] {
         assert!(sync_reply(&f, &b, &server, 200, "ETag: \"bad\"\r\n", bad).is_err());
         assert_eq!(
