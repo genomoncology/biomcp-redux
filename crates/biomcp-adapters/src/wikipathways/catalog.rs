@@ -81,7 +81,7 @@ pub fn search(leg: &Leg<'_>, text: &str) -> Result<(Vec<PathwayHeader>, BundleIn
             let row = r.value.native;
             PathwayHeader {
                 id: PathwayId::Wikipathways(row.id),
-                name: row.name,
+                name: Some(row.name),
                 species: PathwaySpecies::Human,
                 version: None,
                 revision: Some(row.revision),
@@ -107,7 +107,7 @@ pub fn card(
         PathwayCard {
             pathway: Pathway {
                 id: PathwayId::Wikipathways(row.id),
-                name: row.name,
+                name: Some(row.name),
                 species: PathwaySpecies::Human,
                 description: summary.then_some(row.description),
                 summations: None,

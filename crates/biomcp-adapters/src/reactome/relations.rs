@@ -62,9 +62,6 @@ pub fn members(leg: &Leg<'_>, id: &ReactomeId) -> Result<Mapped<Members>, Reques
                 reference.schema_class.as_ref(),
                 true,
             );
-            let Some(participant) = &participant else {
-                continue;
-            };
             if let Some(existing) = value.items.iter_mut().find(|m| {
                 m.reference.namespace.as_deref() == Some(namespace)
                     && m.reference.value.as_str() == identifier
@@ -108,25 +105,24 @@ pub fn members(leg: &Leg<'_>, id: &ReactomeId) -> Result<Mapped<Members>, Reques
 fn participant(
     row: &raw::Participant,
     problems: &mut crate::mapped::Problems,
-) -> Option<PathwayParticipant> {
+) -> PathwayParticipant {
     let name = metadata(
         problems,
         "participants.name",
         row.display_name.as_ref(),
-        true,
+        false,
     );
     let schema_class = metadata(
         problems,
         "participants.schema_class",
         row.schema_class.as_ref(),
-        true,
+        false,
     );
-    name.zip(schema_class)
-        .map(|(name, schema_class)| PathwayParticipant {
-            db_id: row.pe_db_id,
-            name,
-            schema_class,
-        })
+    PathwayParticipant {
+        db_id: row.pe_db_id,
+        name,
+        schema_class,
+    }
 }
 
 /// Read contained events while retaining every unresolved native integer reference.

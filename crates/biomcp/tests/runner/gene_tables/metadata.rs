@@ -12,7 +12,6 @@ pub(super) fn uniprot() -> Check {
         json!({identity: "P42771"}),
         0,
     )?;
-    eprintln!("GREEN retained UniProt P42771 before protein name mutation");
     let answer = checked_case(
         "gene/protein",
         &args,
@@ -45,7 +44,6 @@ pub(super) fn reactome() -> Check {
         json!({identity: "R-HSA-5673001"}),
         0,
     )?;
-    eprintln!("GREEN retained Reactome identity before displayName mutation");
     let answer = checked_case(
         "pathway/native",
         &args,

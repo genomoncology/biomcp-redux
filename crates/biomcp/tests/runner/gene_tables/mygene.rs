@@ -46,7 +46,6 @@ fn strand() -> Check {
         json!({"/result/items/0/answer/gene/hgnc_id": "HGNC:1097",
         "/result/items/0/answer/gene/spans": {"count": 2}}),
     )?;
-    eprintln!("GREEN retained MyGene interval before strand mutation");
     for invalid in [json!(0), json!("bad")] {
         let answer = checked(
             |body| body[0]["genomic_pos"]["strand"] = invalid.clone(),

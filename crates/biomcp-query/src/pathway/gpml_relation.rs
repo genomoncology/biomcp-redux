@@ -43,7 +43,7 @@ pub(super) fn fetch(
             genes: Some(PathwayGenes {
                 header: PathwayHeader {
                     id: q.id.clone(),
-                    name: rows.name,
+                    name: Some(rows.name),
                     species: PathwaySpecies::Human,
                     version: None,
                     revision: Some(rows.version),

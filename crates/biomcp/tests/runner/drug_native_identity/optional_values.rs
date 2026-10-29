@@ -43,7 +43,6 @@ pub(super) fn check() -> Check {
     if control.pointer("/result/header/id") != Some(&json!("CHEMBL941")) {
         return Err("positive Open Targets identity missing".into());
     }
-    eprintln!("GREEN retained Open Targets identity before name mutation");
     let answer = invoke(&env, args.clone(), 0)?;
     registry.validate(&answer, &args, true)?;
     if answer.pointer("/result/header/id") != Some(&json!("CHEMBL941"))

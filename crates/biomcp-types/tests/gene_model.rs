@@ -98,13 +98,6 @@ fn gene_resolutions_preserve_every_candidate_and_withdrawn_identity() -> Check {
     ] {
         round_trip(&resolution)?;
     }
-    let mut missing_metadata = gene()?;
-    missing_metadata.name = None;
-    missing_metadata.locus_group = None;
-    round_trip(&missing_metadata)?;
-    let missing_metadata = serde_json::to_value(missing_metadata)?;
-    assert!(missing_metadata.get("name").is_none());
-    assert!(missing_metadata.get("locus_group").is_none());
     let absent = serde_json::to_value(gene()?)?;
     for field in [
         "locus_type",
@@ -128,6 +121,17 @@ fn gene_resolutions_preserve_every_candidate_and_withdrawn_identity() -> Check {
     );
     assert!(serde_json::from_value::<Gene>(json!({})).is_err());
     round_trip(&header()?)?;
+    Ok(())
+}
+#[test]
+fn gene_metadata_can_be_absent_without_losing_identity() -> Check {
+    let mut missing_metadata = gene()?;
+    missing_metadata.name = None;
+    missing_metadata.locus_group = None;
+    round_trip(&missing_metadata)?;
+    let missing_metadata = serde_json::to_value(missing_metadata)?;
+    assert!(missing_metadata.get("name").is_none());
+    assert!(missing_metadata.get("locus_group").is_none());
     Ok(())
 }
 #[test]
