@@ -1,4 +1,6 @@
 //! Source-selected drug contracts; adapters and command dispatch live elsewhere.
+mod recall;
+pub use recall::{DrugRecallCard, DrugRecallCountUnit, DrugRecallHeader, DrugRecallPage, DrugRecallClassification};
 mod civic;
 mod fda;
 pub use civic::{

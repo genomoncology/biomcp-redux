@@ -12,17 +12,18 @@ pub(super) fn search(cx: &Ctx<'_>, query: &DrugSearch) -> Outcome {
         items: Box::default(),
         total: None,
     }));
+    let Some(name) = query.query() else { return super::unsupported(query.source(), out); };
     let command = cx.fetch.command_deadline(cx.budget);
     let deadline = command.deadline();
     let leg = cx.fetch.leg(&source::SPEC, deadline).fresh(cx.fresh);
     let result =
-        source::search(&leg, query.query(), query.limit(), query.offset()).and_then(|page| {
+        source::search(&leg, name, query.limit(), query.offset()).and_then(|page| {
             Ok((
                 page.records
                     .iter()
                     .map(|r| {
                         let mut header = r.header()?;
-                        header.matched_name = r.name_match(query.query());
+                        header.matched_name = r.name_match(name);
                         Ok(header)
                     })
                     .collect::<Result<Vec<_>, RequestError>>()?,

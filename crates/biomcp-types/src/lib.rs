@@ -147,6 +147,7 @@ mod drug;
 pub use drug::{
     DrugApprovals, DrugCard, DrugCivic, DrugCivicClaim, DrugCivicMember, DrugCivicPage,
     DrugCivicProfile, DrugCivicStreams, DrugFdaCandidate, DrugFdaDocument, DrugFdaIngredient,
+    DrugRecallCard, DrugRecallCountUnit, DrugRecallHeader, DrugRecallPage, DrugRecallClassification,
     DrugFdaPage, DrugFdaProduct, DrugFdaProperty, DrugFdaSubmission, DrugGet, DrugHeader,
     DrugIndications, DrugInteractions, DrugLabel, DrugLabelFragment, DrugLabelText, DrugNameMatch,
     DrugNameSelector, DrugOncokbLookup, DrugOncokbMissing, DrugPage, DrugRecords, DrugRegulatory,

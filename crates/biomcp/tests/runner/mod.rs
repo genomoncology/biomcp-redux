@@ -41,6 +41,8 @@ mod drug_civic_fixtures;
 mod drug_ddinter;
 mod drug_ema;
 mod drug_failures;
+mod drug_recall;
+mod drug_recall_capture;
 mod drug_fda;
 mod drug_identity;
 mod drug_label;

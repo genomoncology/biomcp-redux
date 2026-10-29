@@ -600,3 +600,12 @@ The retained whole export supplied 658 rows and ten trastuzumab matches. Ninetee
 | Missing local bundle | 404 | 405 | 244 |
 
 The external native cases enforce each measured reply plus fifteen percent. Routine synthetic cases keep their own measured ceilings. The current comparable projection removes only the existing verified publisher-terms fields; it does not substitute for a 0.9 measurement or a clinical comparison.
+
+
+## FDA drug enforcement recalls
+
+The `fda-drug-recall` source searches `drug/enforcement.json` and fetches the native `D-NNNN-YYYY` recall number. Name phrases match `product_description`, `openfda.brand_name` or `openfda.generic_name`. Reply product wording comes only from top-level `product_description`; harmonized names never become display names. Firm, classification, status and reason phrases map to `recalling_firm`, `classification`, `status` and `reason_for_recall`. Inclusive `initiated-from` and `initiated-to` days map to `recall_initiation_date` in YYYYMMDD form. Native order uses that field descending. Totals count recall records, without event deduplication or any patient count.
+
+Headers preserve native `recall_number`, `classification`, `status`, `recalling_firm`, `product_description`, `recall_initiation_date` and `report_date`. Cards add `reason_for_recall`, `distribution_pattern`, `code_info` and `voluntary_mandated`. Missing fields stay absent; malformed optional values produce source problems. Exact get checks the returned recall number before cache admission.
+
+Source references: [FDA enforcement fields](https://open.fda.gov/apis/drug/enforcement/searchable-fields/), [FDA enforcement overview](https://open.fda.gov/apis/drug/enforcement/), and [FDA field reference](https://open.fda.gov/fields/drugenforcement.yaml). Reviewed source history uses the former `enforcement_search_plan` and `build_enforcement_query` paths for the endpoint, initiation sort and native classification; the new name selector uses the approved phrase semantics. Bounded public captures preserve raw replies, headers, source plans and hashes outside Git. `BIOMCP_DRUG_RECALL_CAPTURE_ROOT` adds retained capture replay through CLI and MCP.

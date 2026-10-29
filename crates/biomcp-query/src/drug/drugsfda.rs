@@ -13,10 +13,11 @@ pub(super) fn search(cx: &Ctx<'_>, query: &DrugSearch) -> Outcome {
         total: 0,
         source_updated: None,
     }));
+    let Some(name) = query.query() else { return super::unsupported(query.source(), out); };
     let command = cx.fetch.command_deadline(cx.budget);
     let deadline = command.deadline();
     let leg = cx.fetch.leg(&source::SPEC, deadline).fresh(cx.fresh);
-    let result = source::search(&leg, query.query(), query.limit(), query.offset());
+    let result = source::search(&leg, name, query.limit(), query.offset());
     let error = result.as_ref().err().copied();
     out.local = error.and_then(status::local);
     out.sources

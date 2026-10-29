@@ -11,10 +11,11 @@ pub(super) fn search(cx: &Ctx<'_>, query: &DrugSearch) -> Outcome {
         items: Box::default(),
         total: None,
     }));
+    let Some(name) = query.query() else { return super::unsupported(query.source(), out); };
     let command = cx.fetch.command_deadline(cx.budget);
     let deadline = command.deadline();
     let leg = cx.fetch.leg(&ddinter::SPEC, deadline).fresh(cx.fresh);
-    let result = ddinter::search(&leg, query.query().as_str());
+    let result = ddinter::search(&leg, name.as_str());
     let error = result.as_ref().err().copied();
     out.local = error.and_then(status::local);
     out.sources

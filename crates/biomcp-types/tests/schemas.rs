@@ -57,6 +57,7 @@ mod disease;
 fn common_registry() -> Vec<Contract> {
     contracts! {
         Accession => ("accession", "biodata.accession/2"),
+        DrugRecallNumber => ("drug-recall-number", "biodata.drug-recall-number/1"),
         DeviceRecallNumber => ("device-recall-number", "biodata.device-recall-number/1"),
         Chromosome => ("chromosome", "biodata.chromosome/1"),
         Base => ("base", "biodata.base/1"),
@@ -295,6 +296,9 @@ fn drug_contracts() -> Vec<Contract> {
         DrugSection => ("drug-section", "biomcp.drug-section/1"),
         DrugHeader => ("drug-header", "biomcp.drug-header/2"),
         Envelope<DrugPage> => ("drug-page", "biomcp.drug-page/3"),
+        Envelope<DrugRecallPage> => ("drug-recall-page", "biomcp.drug-recall-page/1"),
+        Envelope<DrugRecallCard> => ("drug-recall-card", "biomcp.drug-recall-card/1"),
+        DrugRecallHeader => ("drug-recall-header", "biomcp.drug-recall-header/1"),
         Envelope<DrugFdaPage> => ("drug-fda-page", "biomcp.drug-fda-page/2"),
         Envelope<DrugXrefs> => ("drug-xrefs", "biomcp.drug-xrefs/1"),
         Envelope<DrugCard> => ("drug-card", "biomcp.drug-card/2"),

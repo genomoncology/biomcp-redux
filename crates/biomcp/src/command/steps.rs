@@ -227,6 +227,8 @@ fn bounded_navigation(body: &biomcp_types::QueryBody) -> Navigation<'_> {
         | Body::DiseasePhenotypes(_)
         | Body::DrugPage(_)
         | Body::DrugWhoPage(_)
+        | Body::DrugRecallCard(_)
+        | Body::DrugRecallPage(_)
         | Body::DrugFdaPage(_)
         | Body::DrugCivic(_)
         | Body::VariantPage(_) => Navigation::Selectable,

@@ -202,3 +202,5 @@ local-file-persistence: Create private Unix cache files and update symlinked cre
 diagnostic-device-recall: Search native device recall records, inspect exact recall numbers and follow product codes to MAUDE without inferring harm. Cases: `crates/biomcp/tests/runner/diagnostic_recall.rs`, `crates/biomcp/tests/runner/diagnostic_recall_selectors.rs`, `crates/biomcp/tests/runner/diagnostic_recall_boundaries.rs`, `tests/cases/diagnostic/recall.yaml`.
 
 organization-nci: Find source-native NCI organizations with bounded snapshots and local paging. Cases: `tests/cases/organization/*.yaml`, `crates/biomcp/tests/runner/nci/organization.rs`.
+
+drug-recall: Search published FDA drug recall records by name, firm, classification, status, reason and initiation dates; page and fetch exact native recall numbers with source field problems. Cases: `crates/biomcp/tests/runner/drug_recall.rs`.

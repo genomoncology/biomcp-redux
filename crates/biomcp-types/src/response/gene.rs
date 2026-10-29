@@ -234,6 +234,10 @@ pub enum QueryBody {
     DrugApprovals(Option<crate::DrugApprovals>),
     /// Source-native FDA application and product candidate page.
     DrugFdaPage(crate::DrugFdaPage),
+    /// FDA native drug recall records.
+    DrugRecallPage(crate::DrugRecallPage),
+    /// Exact native drug recall.
+    DrugRecallCard(Option<crate::DrugRecallCard>),
     /// Source-local native drug interaction partners.
     DrugInteractions(Option<crate::DrugInteractions>),
 
