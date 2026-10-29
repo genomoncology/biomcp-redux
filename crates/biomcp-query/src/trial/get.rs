@@ -162,7 +162,9 @@ fn finish(items: Vec<TrialCardItem>, source_updated: Option<biodata::Text>, out:
     out.status = status::status(items.iter().map(|i| i.status));
     out.body = QueryBody::TrialCards(TrialCards {
         items: items.into(),
-        source_updated: source_updated.map(Into::into),
+        source_updated: source_updated
+            .map(biomcp_types::SourceTimestamp::from)
+            .map(Into::into),
         attribution: "ClinicalTrials.gov; registry protocol text, no eligibility assessment".into(),
     });
 }

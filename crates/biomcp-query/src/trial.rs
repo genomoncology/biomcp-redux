@@ -77,7 +77,10 @@ pub(crate) fn search(cx: &Ctx<'_>, query: &TrialSearch) -> Outcome {
         apply_page(query, cx.fresh, gene.as_deref(), &mut outcome, page);
     }
     if let QueryBody::TrialPage(body) = &mut outcome.body {
-        body.source_updated = version.ok().map(Into::into);
+        body.source_updated = version
+            .ok()
+            .map(biomcp_types::SourceTimestamp::from)
+            .map(Into::into);
     }
     if rejected {
         outcome.body = QueryBody::TextPositionError;

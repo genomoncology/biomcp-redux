@@ -185,7 +185,7 @@ pub struct DrugApprovals {
     pub products: Box<[super::DrugFdaProduct]>,
     /// Native FDA dataset last_updated date, independent of submission dates and retrieval.
     #[serde(default, skip_serializing_if = "Option::is_none")]
-    pub source_updated: Option<PartialDate>,
+    pub source_updated: Option<crate::SourceUpdated>,
     /// Existing typed section state, preserving empty, unavailable and skipped outcomes.
     pub approvals: Section<DrugRecords<super::DrugFdaSubmission>>,
 }

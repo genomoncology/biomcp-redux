@@ -42,7 +42,7 @@ pub(super) fn search(cx: &Ctx<'_>, query: &DrugSearch) -> Outcome {
                 .map(source::Application::candidate)
                 .collect(),
             total: page.total,
-            source_updated: page.updated,
+            source_updated: page.updated.map(Into::into),
         });
     }
     command.finish(deadline.remaining());

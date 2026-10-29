@@ -81,7 +81,7 @@ pub fn search(cx: &Ctx<'_>, query: &AdverseEventSearch) -> Outcome {
         if let QueryBody::AdverseEventPage(body) = &mut out.body {
             body.items = page.items.into();
             body.components = page.components;
-            body.source_updated = page.updated;
+            body.source_updated = page.updated.map(Into::into);
             body.fetched = page
                 .metadata
                 .fetched

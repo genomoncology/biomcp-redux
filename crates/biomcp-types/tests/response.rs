@@ -5,6 +5,18 @@ use biomcp_types::{
 };
 use serde_json::json;
 #[test]
+fn source_updates_keep_dates_and_timestamp_precision_distinct() {
+    for wire in [
+        json!("2024"),
+        json!("2024-05"),
+        json!("2024-05-03"),
+        json!({"value":"2024-05-03T10:00:00.000100+02:00","timezone":"in-value"}),
+    ] {
+        let value: biomcp_types::SourceUpdated = serde_json::from_value(wire.clone()).unwrap();
+        assert_eq!(serde_json::to_value(value).unwrap(), wire);
+    }
+}
+#[test]
 fn source_timestamp_values_check_rfc3339_without_changing_offset_or_precision() {
     use biomcp_types::SourceTimestampValue;
     for native in [

@@ -48,7 +48,7 @@ pub struct AdverseEventPage {
     pub source_query: Box<str>,
     /// The publisher last_updated date, separate from retrieval.
     #[serde(default, skip_serializing_if = "Option::is_none")]
-    pub source_updated: Option<biodata::PartialDate>,
+    pub source_updated: Option<crate::SourceUpdated>,
     /// Original retrieval time in Unix seconds, absent for undated legacy recordings.
     #[serde(default, skip_serializing_if = "Option::is_none")]
     pub fetched: Option<u64>,

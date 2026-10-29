@@ -12,7 +12,7 @@ pub struct TrialCards {
     pub items: Box<[TrialCardItem]>,
     /// Registry processing timestamp, distinct from each study's update and fetch times.
     #[serde(skip_serializing_if = "Option::is_none")]
-    pub source_updated: Option<super::SourceTimestamp>,
+    pub source_updated: Option<crate::SourceUpdated>,
     /// Publisher attribution and scope.
     pub attribution: Box<str>,
 }
