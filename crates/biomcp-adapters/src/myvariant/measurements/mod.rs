@@ -2,7 +2,7 @@
 mod map;
 mod raw;
 use biodata::Build;
-use biomcp_fetch::{Arg, BadReply, Leg, PathSegment, RequestError};
+use biomcp_fetch::{Arg, Leg, PathSegment, RequestError};
 use biomcp_types::VariantPredictors;
 /// Read the proven prediction or conservation component projection for one exact parent.
 pub fn get(
@@ -34,7 +34,7 @@ pub fn get(
     let endpoint = super::VARIANT
         .clone()
         .with_segments(&[PathSegment::new(id)?]);
-    let (record, _) = leg.json_received_checked::<raw::Record>(
+    let record = leg.json_checked_cache::<raw::Record>(
         &endpoint,
         &[
             ("fields", Arg::Text(&fields)),
@@ -48,14 +48,14 @@ pub fn get(
             ),
         ],
         |record| {
-            if record.id.as_str() == id {
-                Ok(())
-            } else {
-                Err(BadReply)
-            }
+            record
+                .id
+                .as_ref()
+                .and_then(crate::raw::Field::as_ref)
+                .is_some_and(|given| given.as_str() == id)
         },
     )?;
-    let mut mapped = map::project(record, build, conservation, cadd, dbnsfp)?;
+    let mut mapped = map::project(record, id, build, conservation, cadd, dbnsfp)?;
     let selected = [
         (cadd, super::components::CADD),
         (dbnsfp, super::components::DBNSFP),

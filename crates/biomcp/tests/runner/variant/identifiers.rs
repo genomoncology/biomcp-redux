@@ -6,6 +6,9 @@ use serde_json::{Value, json};
 
 pub(super) fn trials() -> Vec<Trial> {
     vec![
+        transcript_trial("variant/component-record-identities-are-refused", || {
+            refused_components().map_err(Into::into)
+        }),
         transcript_trial("variant/printed-identifiers-roundtrip", || {
             check().map_err(Into::into)
         }),
@@ -159,6 +162,77 @@ fn refused() -> Result<(), String> {
             return Err(format!(
                 "bad direct identity entered the reply cache: {value}"
             ));
+        }
+    }
+    Ok(())
+}
+
+fn refused_components() -> Result<(), String> {
+    for section in ["predict", "conservation", "cosmic"] {
+        for mutation in [json!(42), json!("chr7:g.140453136A>G")] {
+            let stub = Stub::for_source("myvariant.info", "application/json", move |request| {
+                let mut body: Value = serde_json::from_str(&super::component_body(request)?)
+                    .map_err(|e| e.to_string())?;
+                if request.contains("cadd.phred")
+                    || request.contains("dbnsfp.gerp")
+                    || request.contains("fields=_id%2Ccosmic")
+                {
+                    *body
+                        .get_mut("_id")
+                        .ok_or("missing parent identity control")? = mutation.clone();
+                }
+                Ok(body.to_string())
+            })?;
+            let env = super::source_environment(&stub)?;
+            let args = strings(&[
+                "get",
+                "variant",
+                "chr7:g.140453136A>T",
+                section,
+                "--build",
+                "GRCh37",
+            ]);
+            for _ in 0..2 {
+                let output = env
+                    .command(env!("CARGO_BIN_EXE_biomcp"), &args)
+                    .output()
+                    .map_err(|e| e.to_string())?;
+                let value: Value =
+                    serde_json::from_slice(&output.stdout).map_err(|e| e.to_string())?;
+                let problems = value
+                    .get("problems")
+                    .and_then(Value::as_array)
+                    .ok_or("missing _id problem")?;
+                if problems.len() != 1
+                    || problems.first().and_then(|p| p.get("field")) != Some(&json!("_id"))
+                    || value.pointer(&format!("/result/candidates/0/sections/{section}/state"))
+                        != Some(&json!("empty"))
+                    || value
+                        .get("sources")
+                        .and_then(Value::as_array)
+                        .is_none_or(|sources| {
+                            sources
+                                .iter()
+                                .any(|source| source.get("state") != Some(&json!("ok")))
+                        })
+                {
+                    return Err(format!(
+                        "bad {section} identity admitted records or failed source: {value}"
+                    ));
+                }
+            }
+            let mut offline = args;
+            offline.push("--offline".into());
+            let output = env
+                .command(env!("CARGO_BIN_EXE_biomcp"), &offline)
+                .output()
+                .map_err(|e| e.to_string())?;
+            let value: Value = serde_json::from_slice(&output.stdout).map_err(|e| e.to_string())?;
+            if value.pointer("/sources/1/reason") != Some(&json!("offline"))
+                || stub.finish()?.len() != 3
+            {
+                return Err(format!("bad {section} parent entered cache: {value}"));
+            }
         }
     }
     Ok(())

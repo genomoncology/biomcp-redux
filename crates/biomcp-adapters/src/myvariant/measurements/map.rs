@@ -18,13 +18,17 @@ struct Output {
 }
 pub(super) fn project(
     record: Record,
+    expected: &str,
     build: Build,
     conservation: bool,
     cadd: bool,
     dbnsfp: bool,
 ) -> Result<Mapped<VariantPredictors>, RequestError> {
-    let subject = record
-        .id
+    let id = match record.id.and_then(Field::value) {
+        Some(id) if id.as_str() == expected => id,
+        _ => return Ok(unqualified(crate::mapped::record(expected), "_id")),
+    };
+    let subject = id
         .as_str()
         .split_once(':')
         .and_then(|(chromosome, suffix)| {
@@ -36,16 +40,16 @@ pub(super) fn project(
             qualified.parse().ok().map(VariantRef::allele_hgvs)
         });
     let Some(subject) = subject else {
-        return Ok(unqualified(record.id));
+        return Ok(unqualified(Some(id), "subject_qualification"));
     };
     let mut out = Output {
-        id: record.id.clone(),
+        id: id.clone(),
         subject,
         scores: Vec::new(),
         context: Vec::new(),
         problems: Problems {
             source: Source::MyVariant,
-            record: Some(record.id),
+            record: Some(id),
             list: Vec::new(),
         },
     };
@@ -226,7 +230,7 @@ impl Output {
     }
 }
 
-fn unqualified(id: Text) -> Mapped<VariantPredictors> {
+fn unqualified(id: Option<Text>, field: &str) -> Mapped<VariantPredictors> {
     Mapped {
         value: VariantPredictors {
             subject_qualification: biomcp_types::SubjectQualification::AdapterDerivedReference,
@@ -236,8 +240,8 @@ fn unqualified(id: Text) -> Mapped<VariantPredictors> {
         },
         problems: vec![Problem {
             source: Source::MyVariant,
-            record: Some(id),
-            field: "subject_qualification".into(),
+            record: id,
+            field: field.into(),
             code: ProblemCode::ValueUnknown,
         }],
     }

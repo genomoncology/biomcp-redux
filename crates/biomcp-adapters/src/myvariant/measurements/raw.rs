@@ -8,22 +8,13 @@ pub(super) type Texts = Option<Field<OneOrMany<Field<Text>>>>;
 #[derive(Deserialize)]
 pub(super) struct Record {
     #[serde(rename = "_id")]
-    pub id: Text,
+    pub id: Option<Field<Text>>,
     pub cadd: Option<Field<Cadd>>,
     pub dbnsfp: Option<Field<Dbnsfp>>,
 }
 impl Reply for Record {
     fn check(&self) -> Result<(), BadReply> {
-        if self
-            .id
-            .as_str()
-            .parse::<biomcp_types::VariantInput>()
-            .is_ok()
-        {
-            Ok(())
-        } else {
-            Err(BadReply)
-        }
+        Ok(())
     }
 }
 #[derive(Deserialize)]
