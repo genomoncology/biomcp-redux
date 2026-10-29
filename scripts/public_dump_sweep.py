@@ -8,8 +8,15 @@ clingen_summary, clingen_evidence, clinvar_gks. ClinGen evidence accepts one
 original public interpretation response per file; GKS accepts the keyed bundle.
 The clinvar_gks_record kind accepts one original publisher example record.
 Only CC0-1.0 and public-domain inputs are accepted. Pin the compressed file hash.
-This tool checks mapped source fields. Native CIViC profile members cannot be
-represented by VariantRef and remain named, unexplained mapping refusals.
+This tool checks mapped source fields. Monthly CIViC profiles require a native
+rawName companion: profile_companions [{path,sha256,url,retrieved,source_sha256}].
+Each original GraphQL body contains data.molecularProfiles.nodes with id, name,
+rawName and variants [{id,name,feature:{id,name}}]. source_sha256 must be the
+sorted exact hashes of all target profile and variant TSVs. API retrieval remains
+separate from the monthly release. Members and feature identities must match
+those TSVs exactly. Only Rust parses rawName; display names are never grammar.
+Missing/ambiguous companions and inconsistent members fail by profile ID and
+cannot be waived. --output retains every profile refusal; stdout is bounded.
 Use --observed with saved CLI envelopes as JSONL: {source, release, revision,
 retrieved, source_sha256, record, reply}. The manifest must name product_revision.
 The observation revision and sorted source_sha256 list must match these inputs. Source is civic or clinvar; ClinVar record is its
@@ -33,7 +40,6 @@ bounded partial run; 2 means an input, transport or tool failure.
 import argparse
 from collections import Counter, defaultdict
 import gzip
-import hashlib
 import json
 from pathlib import Path
 import subprocess
@@ -41,6 +47,7 @@ import sys
 
 from public_dump_formats import REQUIRED, records
 from public_dump_compare import Comparison
+from public_dump_profiles import ProfileCompanions, pinned_file
 
 EXAMPLE_LIMIT = 10
 GENE_LIMIT = 20
@@ -72,21 +79,14 @@ def pinned_sources(manifest):
             raise ValueError("manifest_unknown_source_kind")
         if source["rights"] not in {"CC0-1.0", "public-domain"}:
             raise ValueError("manifest_unapproved_rights")
-        path = (manifest.parent / source["path"]).resolve()
-        if any((parent / ".git").exists() for parent in path.parents):
-            raise ValueError("dump_must_be_outside_git")
-        digest = hashlib.sha256()
-        with path.open("rb") as handle:
-            for chunk in iter(lambda: handle.read(1024 * 1024), b""):
-                digest.update(chunk)
-        if digest.hexdigest() != source["sha256"]:
-            raise ValueError(f"checksum_mismatch: {path}")
-        yield source, path
+        yield source, pinned_file(manifest, source)
 
 
 class Sweep:
-    def __init__(self, bridge):
+    def __init__(self, bridge, profiles):
         self.bridge = bridge
+        self.profiles = profiles
+        self.profile_refusals = []
         self.types = defaultdict(Counter)
         self.reasons = Counter()
         self.refusals = []
@@ -124,12 +124,14 @@ class Sweep:
             self.types[kind]["refused" if reason else "parsed"] += 1
             if reason:
                 refused = True
+                if kind == "profile":
+                    self.profile_refusals.append({"profile_id": identity, "reason": reason})
                 self.reasons[f"{kind}: {reason}"] += 1
                 rule = next((entry["source_rule"] for entry in source.get("refusal_explanations", [])
                              if entry.get("record") == identity and entry.get("type") == kind
                              and entry.get("value") == result["value"] and entry.get("reason") == reason
                              and entry.get("source_rule") and "mapping_reason" not in original
-                             and reason != "source_identifier_spelling_changed"), None)
+                             and reason != "source_identifier_spelling_changed" and kind != "profile"), None)
                 self.types[kind]["explained" if rule else "unexplained"] += 1
                 self.unexplained += not bool(rule)
                 if len(self.refusals) < EXAMPLE_LIMIT:
@@ -146,6 +148,8 @@ class Sweep:
                     self.complete = False
                     break
                 count += 1
+                if source["kind"] == "civic_profiles":
+                    values[0] = self.profiles.resolve(values[0], source["release"])
                 refused += self.parse(values, source, identity)
                 empty += not values
                 self.genes.update(genes)
@@ -158,6 +162,8 @@ class Sweep:
 
     def report(self):
         return {"complete": self.complete, "sources": self.sources,
+                "profile_refusals": self.profile_refusals,
+                "profile_companion_provenance": self.profiles.provenance,
                 "types": {kind: {key: counts[key] for key in ("parsed", "refused", "explained", "unexplained")}
                           for kind, counts in sorted(self.types.items())},
                 "refusal_reasons": dict(self.reasons), "refusals": self.refusals,
@@ -171,10 +177,11 @@ def run(args):
         raise ValueError("max_records_must_be_positive")
     # Validate every file before starting the bridge or reporting partial success.
     sources = list(pinned_sources(args.manifest.resolve()))
-    with subprocess.Popen([str(args.values.resolve())], stdin=subprocess.PIPE,
+    with ProfileCompanions(args.manifest.resolve(), sources, args.max_records) as profiles, \
+            subprocess.Popen([str(args.values.resolve())], stdin=subprocess.PIPE,
                           stdout=subprocess.PIPE, text=True) as bridge:
         try:
-            sweep = Sweep(bridge)
+            sweep = Sweep(bridge, profiles)
             for source, path in sources:
                 sweep.read(source, path, args.max_records)
             bridge.stdin.close()
@@ -207,6 +214,9 @@ def run(args):
                 if key.endswith("_ids"):
                     row[key + "_omitted"] = max(0, len(values) - GENE_LIMIT)
                     row[key] = values[:GENE_LIMIT]
+    for key in ("profile_refusals", "profile_companion_provenance"):
+        report[key + "_omitted"] = max(0, len(report[key]) - EXAMPLE_LIMIT)
+        report[key] = report[key][:EXAMPLE_LIMIT]
     report["sources_omitted"] = max(0, len(report["sources"]) - SOURCE_LIMIT)
     report["sources"] = report["sources"][:SOURCE_LIMIT]
     report["gene_counts_omitted"] = max(0, len(report["gene_counts"]) - GENE_LIMIT)

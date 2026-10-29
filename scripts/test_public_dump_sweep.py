@@ -143,6 +143,48 @@ class Sweep(unittest.TestCase):
         self.assertEqual(result.returncode, 1, result.stderr)
         self.assertEqual(report["profile_refusals"][0]["reason"], "profile_member_feature_mismatch")
 
+    def test_profile_label_raw_expression_and_member_failures_cannot_be_waived(self):
+        profiles, variants, capture = self.profile_inputs()
+        node = capture["data"]["molecularProfiles"]["nodes"][0]
+        for field, bad, expected in (("name", "different", "profile_display_name_mismatch"),
+                                     ("rawName", "", "profile_raw_name_missing"),
+                                     ("rawName", "#VID12 AND #VID99", None),
+                                     ("rawName", "BRAF V600E AND KRAS G12D", None)):
+            with self.subTest(field=field, value=bad):
+                original = node[field]
+                node[field] = bad
+                result, report = self.run_sweep("civic_profiles", profiles, variant_content=variants, profile_capture=capture)
+                self.assertEqual(result.returncode, 1, result.stderr)
+                refusal = report["refusals"][0]
+                self.assertEqual(refusal["record"], "civic:9")
+                if expected:
+                    self.assertEqual(refusal["reason"], expected)
+                explanation = {key: refusal[key] for key in ("record", "type", "value", "reason")}
+                explanation["source_rule"] = "Synthetic attempted waiver"
+                _, waived = self.run_sweep("civic_profiles", profiles, variant_content=variants,
+                                           profile_capture=capture, explanations=[explanation])
+                self.assertEqual(waived["types"]["profile"]["unexplained"], 1)
+                node[field] = original
+
+    def test_real_native_profile_6153_uses_authoritative_expression_without_monthly_claim(self):
+        folder = ROOT / "tests/fixtures/public-dump-sweep"
+        pin = json.loads((folder / "manifest.json").read_text())["native_capture"]
+        body = (folder / pin["path"]).read_bytes()
+        self.assertEqual(hashlib.sha256(body).hexdigest(), pin["sha256"])
+        node = next(node for node in json.loads(body)["data"]["molecularProfiles"]["nodes"] if node["id"] == 6153)
+        members = [{"level": "source", "record": "civic:" + str(member["id"]),
+                    "feature": member["feature"]["name"], "feature_record": "civic:" + str(member["feature"]["id"])}
+                   for member in node["variants"]]
+        value = {"record": "civic:6153", "label": node["name"], "raw_name": node["rawName"], "members": members}
+        result = subprocess.run([BRIDGE], input=json.dumps([{"kind": "profile", "value": value}]) + "\n",
+                                text=True, capture_output=True, check=False)
+        self.assertEqual(result.returncode, 0, result.stderr)
+        checked = json.loads(result.stdout)[0]
+        self.assertNotIn("reason", checked)
+        self.assertEqual(checked["parsed"]["label"], node["name"])
+        self.assertEqual(checked["parsed"]["expression"]["source"], node["rawName"])
+        self.assertEqual(checked["parsed"]["members"], members)
+
     def test_observation_revision_and_source_hash_must_match_manifest(self):
         text = "variant_id\tvariant\tgene\thgvs_descriptions\n1\tV600E\tBRAF\t\n"
         reply = {"items": [{"answer": {"gene": {"symbol": "BRAF"}},

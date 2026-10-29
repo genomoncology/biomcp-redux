@@ -37,6 +37,17 @@
       "sha256": "bbed53b5b2beec62acd2c648cfbb636a966018b67b13d2ef3279ed0d1a12e48f"
     }
   ],
-  "synthetic_format_cases": ["clinvar-edge.tsv"],
-  "civic_selection": "Header and first complete data row from bytes 0-16383 of each monthly TSV. Hashes identify the retained excerpts, not the complete dumps."
+  "synthetic_format_cases": [
+    "clinvar-edge.tsv"
+  ],
+  "civic_selection": "Header and first complete data row from bytes 0-16383 of each monthly TSV. Hashes identify the retained excerpts, not the complete dumps.",
+  "native_capture": {
+    "path": "native-profiles.json",
+    "url": "https://civicdb.org/api/graphql",
+    "retrieved": "2026-10-29T15:21:33.888679+00:00",
+    "sha256": "0b3ad5ceecc72a9799d7256f20c63cc3f7bae4dbdcd8ee03972c71da771caee9",
+    "rights": "CC0-1.0",
+    "query": "query ComplexProfileWitness { molecularProfiles(first:20, name:\"AND\", evidenceStatusFilter:ALL) { nodes { id name rawName isComplex variants { id name feature { id name } } } } }",
+    "selection": "Exact unchanged 5441-byte response. Native profile6153 is API code proof only; this body does not establish monthly release membership. Recovered from the preserved adapter fixture after the original evidence directory was deleted. Original HTTP metadata is not reconstructed."
+  }
 }

@@ -1,8 +1,8 @@
 //! Offline test-tool bridge. Each input line contains a batch of source values.
 use biodata::{
     Accession, CaId, ClinVarAlleleId, ClinVarVariationId, Concept, Curie, Doi, DrugId, Expression,
-    GeneSymbol, HgvsText, MondoId, NcbiGeneId, NcitId, NctId, Pmid, RcvId, RsId, ScvId, SourceText,
-    Text, VariantId, VariantRef, VcvId,
+    GeneSymbol, HgvsText, MondoId, NcbiGeneId, NcitId, NctId, Pmid, ProfileExpression, RcvId, RsId,
+    ScvId, SourceText, Text, VariantId, VariantRef, VcvId,
 };
 use serde::{Deserialize, Serialize};
 use serde_json::Value;
@@ -29,11 +29,27 @@ fn checked<T: serde::de::DeserializeOwned + Serialize>(value: &Value) -> Result<
     serde_json::to_value(parsed).map_err(|e| e.to_string())
 }
 
+#[derive(Deserialize)]
+struct ProfileInput {
+    record: Text,
+    label: Text,
+    members: Box<[VariantRef]>,
+    raw_name: Text,
+}
+
+fn profile(value: &Value) -> Result<Value, String> {
+    let input: ProfileInput = serde_json::from_value(value.clone()).map_err(|e| e.to_string())?;
+    let expression = ProfileExpression::civic(input.raw_name).map_err(|e| e.to_string())?;
+    let profile = VariantRef::profile_expression(input.record, input.label, input.members, expression)
+        .map_err(|e| e.to_string())?;
+    serde_json::to_value(profile).map_err(|e| e.to_string())
+}
+
 fn parse(input: Input) -> Output {
     let value = &input.value;
     let result = match input.kind.as_str() {
         "variant" => checked::<VariantId>(value),
-        "profile" => checked::<VariantRef>(value),
+        "profile" => profile(value),
         "disease" | "drug" => checked::<Concept>(value),
         "drug_id" => checked::<DrugId>(value),
         "hgvs" => checked::<HgvsText>(value),

@@ -46,7 +46,7 @@ def civic(kind, row):
     elif kind == "civic_profiles":
         values.append({**item("profile", {"record": "civic:" + row["molecular_profile_id"],
                                           "label": row["name"], "members": parts(row["variant_ids"])}),
-                       "mapping_reason": "profile_native_member_references_not_representable_by_VariantRef"})
+                       "mapping_reason": "profile_companion_missing"})
         values += [item("identifier", "civic:" + identity) for identity in parts(row["variant_ids"])]
         for field, prefix in (("evidence_item_ids", "civic.evidence:"), ("assertion_ids", "civic.assertion:")):
             values += [item("identifier", prefix + identity) for identity in parts(row.get(field, ""))]
@@ -152,7 +152,8 @@ def table_records(handle, kind):
             ids = [value["value"] for value in values
                    if isinstance(value["value"], str) and value["value"].startswith(VARIANT_PREFIXES)]
             context = ("variation/" + identity, ids, [])
-        yield index, values, genes, None, context
+        identity = "civic:" + row["molecular_profile_id"] if kind == "civic_profiles" else index
+        yield identity, values, genes, None, context
 
 
 SECTIONS = {
