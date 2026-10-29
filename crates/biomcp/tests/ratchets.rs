@@ -1,6 +1,8 @@
 //! Repository structure is part of the build contract.
 #[path = "ratchets/dependencies.rs"]
 mod dependencies;
+#[path = "ratchets/errors.rs"]
+mod errors;
 #[path = "ratchets/lints.rs"]
 mod lints;
 #[path = "ratchets/placement.rs"]

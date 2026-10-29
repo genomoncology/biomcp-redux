@@ -315,7 +315,7 @@ impl Recordings {
                 if let Err(error) = fs::create_dir(dir)
                     && error.kind() != std::io::ErrorKind::AlreadyExists
                 {
-                    return Err(RecordError::Io);
+                    return Err(error.into());
                 }
                 fs::OpenOptions::new()
                     .write(true)
@@ -325,15 +325,15 @@ impl Recordings {
                         if error.kind() == std::io::ErrorKind::AlreadyExists {
                             RecordError::Conflict
                         } else {
-                            RecordError::Io
+                            error.into()
                         }
                     })?;
                 let capture = Capture {
                     dir: dir.clone(),
                     sequences: Mutex::new(BTreeMap::new()),
                 };
-                for entry in fs::read_dir(dir).map_err(|_| RecordError::Io)? {
-                    if entry.map_err(|_| RecordError::Io)?.file_name() != LOCK {
+                for entry in fs::read_dir(dir).map_err(RecordError::from)? {
+                    if entry.map_err(RecordError::from)?.file_name() != LOCK {
                         return Err(RecordError::Conflict);
                     }
                 }
@@ -383,7 +383,9 @@ impl Recordings {
         let Self::Replay { dir, cursors } = self else {
             return Ok(None);
         };
-        let mut cursors = cursors.lock().map_err(|_| RecordError::Io)?;
+        let mut cursors = cursors
+            .lock()
+            .map_err(|_| RecordError::Io(std::io::ErrorKind::Other))?;
         let cursor = match cursors.entry((source, *key)) {
             std::collections::btree_map::Entry::Occupied(entry) => entry.into_mut(),
             std::collections::btree_map::Entry::Vacant(entry) => {
@@ -458,7 +460,10 @@ impl Recordings {
         if url.len() > MAX_METADATA_BYTES || !exchange.valid() {
             return Err(RecordError::Limit);
         }
-        let mut sequences = capture.sequences.lock().map_err(|_| RecordError::Io)?;
+        let mut sequences = capture
+            .sequences
+            .lock()
+            .map_err(|_| RecordError::Io(std::io::ErrorKind::Other))?;
         let recording = sequences
             .entry((source, *key))
             .or_insert_with(|| Recording {
@@ -503,13 +508,13 @@ fn read(
         if error.kind() == std::io::ErrorKind::NotFound {
             RecordError::Missing
         } else {
-            RecordError::Io
+            error.into()
         }
     })?;
     let mut bytes = Vec::new();
     file.take(limit + 1)
         .read_to_end(&mut bytes)
-        .map_err(|_| RecordError::Io)?;
+        .map_err(RecordError::from)?;
     if bytes.len() as u64 > limit {
         return Err(RecordError::Limit);
     }
@@ -532,12 +537,15 @@ fn publish(path: &Path, value: &Recording, limit: u64) -> Result<(), RecordError
     if bytes.len() as u64 > limit {
         return Err(RecordError::Limit);
     }
-    let parent = path.parent().ok_or(RecordError::Io)?;
-    fs::create_dir_all(parent).map_err(|_| RecordError::Io)?;
-    let mut file = tempfile::NamedTempFile::new_in(parent).map_err(|_| RecordError::Io)?;
-    file.write_all(&bytes).map_err(|_| RecordError::Io)?;
-    file.as_file().sync_all().map_err(|_| RecordError::Io)?;
-    file.persist(path).map_err(|_| RecordError::Io)?;
+    let parent = path
+        .parent()
+        .ok_or(RecordError::Io(std::io::ErrorKind::InvalidInput))?;
+    fs::create_dir_all(parent).map_err(RecordError::from)?;
+    let mut file = tempfile::NamedTempFile::new_in(parent).map_err(RecordError::from)?;
+    file.write_all(&bytes).map_err(RecordError::from)?;
+    file.as_file().sync_all().map_err(RecordError::from)?;
+    file.persist(path)
+        .map_err(|error| RecordError::from(error.error))?;
     Ok(())
 }
 pub(crate) fn millis(duration: Duration) -> Result<u64, RecordError> {

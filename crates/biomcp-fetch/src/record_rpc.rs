@@ -51,7 +51,10 @@ impl Recordings {
         {
             return Err(RecordError::Limit);
         }
-        let mut sequences = capture.sequences.lock().map_err(|_| RecordError::Io)?;
+        let mut sequences = capture
+            .sequences
+            .lock()
+            .map_err(|_| RecordError::Io(std::io::ErrorKind::Other))?;
         let recording = sequences
             .entry((source, *key))
             .or_insert_with(|| Recording {
@@ -129,9 +132,11 @@ fn publish_messages(owner: &Path, spool: &mut Spool) -> Result<Vec<Message>, Rec
     Ok(messages)
 }
 fn rollback(owner: &Path, messages: &[Message]) -> Result<(), RecordError> {
-    let parent = owner.parent().ok_or(RecordError::Io)?;
+    let parent = owner
+        .parent()
+        .ok_or(RecordError::Io(std::io::ErrorKind::InvalidInput))?;
     for message in messages {
-        fs::remove_file(parent.join(&message.sidecar)).map_err(|_| RecordError::Io)?;
+        fs::remove_file(parent.join(&message.sidecar)).map_err(RecordError::from)?;
     }
     Ok(())
 }

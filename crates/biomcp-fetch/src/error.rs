@@ -138,7 +138,7 @@ pub enum RecordError {
     /// The capture directory is nonempty or already owned.
     Conflict,
     /// Local recording I/O failed.
-    Io,
+    Io(std::io::ErrorKind),
     /// No file matches this source and request identity.
     Missing,
     /// Every exchange for this request was consumed.
@@ -154,7 +154,7 @@ impl fmt::Display for RecordError {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
         f.write_str(match self {
             Self::Conflict => "fetch.record_conflict",
-            Self::Io => "fetch.record_io",
+            Self::Io(_) => "fetch.record_io",
             Self::Missing => "fetch.record_missing",
             Self::Exhausted => "fetch.record_exhausted",
             Self::Malformed => "fetch.record_malformed",
@@ -199,5 +199,11 @@ impl std::error::Error for InputError {}
 impl From<InputError> for RequestError {
     fn from(error: InputError) -> Self {
         Self::Input(error)
+    }
+}
+
+impl From<std::io::Error> for RecordError {
+    fn from(error: std::io::Error) -> Self {
+        Self::Io(error.kind())
     }
 }
