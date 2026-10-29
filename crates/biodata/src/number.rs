@@ -6,12 +6,12 @@ use serde::{Deserialize, Serialize};
 #[cfg_attr(feature = "schema", schemars(with = "f64"))]
 pub struct FiniteNumber(f64);
 impl TryFrom<f64> for FiniteNumber {
-    type Error = FiniteNumberError;
+    type Error = crate::Error;
     fn try_from(value: f64) -> Result<Self, Self::Error> {
         if value.is_finite() {
             Ok(Self(value))
         } else {
-            Err(FiniteNumberError)
+            Err(crate::Error::NumberNonFinite)
         }
     }
 }
@@ -20,15 +20,6 @@ impl From<FiniteNumber> for f64 {
         value.0
     }
 }
-/// A non-finite decimal was refused.
-#[derive(Clone, Copy, Debug)]
-pub struct FiniteNumberError;
-impl std::fmt::Display for FiniteNumberError {
-    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
-        f.write_str(crate::Error::NumberNonFinite.code())
-    }
-}
-impl std::error::Error for FiniteNumberError {}
 
 /// A finite source fraction in the closed interval zero to one.
 #[derive(Clone, Copy, Debug, PartialEq, Serialize, Deserialize)]

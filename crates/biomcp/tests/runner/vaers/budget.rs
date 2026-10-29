@@ -13,9 +13,9 @@ pub(super) fn check(value: &Value) -> Check {
             (373, 261)
         } else {
             let measured = match value.pointer("/sources/0/reason").and_then(Value::as_str) {
-                Some("rate_limited") => 298,
+                Some("rate-limited") => 298,
                 Some("unavailable") => 297,
-                Some("deadline_exceeded") => 551,
+                Some("deadline-exceeded") => 551,
                 Some("rejected") => 294,
                 _ => 295,
             };

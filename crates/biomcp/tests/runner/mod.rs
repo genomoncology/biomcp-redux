@@ -185,6 +185,7 @@ struct Case {
     _covers: Vec<String>,
     story: String,
     replay: Option<String>,
+    cache_acquired: Option<i64>,
     config: Option<Value>,
     #[serde(rename = "harvest", default)]
     _harvest: Option<String>,
@@ -292,10 +293,7 @@ fn run_case(path: &Path, registry: &schema::Registry) -> Result<Value, String> {
             .config(config)
             .map_err(|error| error.to_string())?;
     }
-    let replay = case
-        .replay
-        .as_ref()
-        .map(|name| launch::fixtures().join("replies").join(name));
+    let replay = response_cases::replay(&environment, case.replay.as_deref(), case.cache_acquired)?;
     let mut previous = None;
     for (index, (step, expectations)) in case.steps.iter().zip(&expectations).enumerate() {
         transcript::case_step(index);

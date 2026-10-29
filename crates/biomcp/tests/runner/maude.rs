@@ -254,7 +254,7 @@ fn wrong_key() -> Check {
     )?;
     if value.get("result").is_some()
         || value.pointer("/problems/0/field") != Some(&json!("report"))
-        || value.pointer("/sources/0/reason") != Some(&json!("bad_reply"))
+        || value.pointer("/sources/0/reason") != Some(&json!("bad-reply"))
         || stub.finish()?.len() != 2
     {
         return Err("wrong report entered cache or result".into());
@@ -282,7 +282,7 @@ fn oversized() -> Check {
         4,
     )?;
     if value.get("result").is_some()
-        || !value.to_string().contains("too_large")
+        || !value.to_string().contains("too-large")
         || value.to_string().contains("XXXXX")
     {
         return Err(format!("oversized narrative was cut or returned: {value}"));

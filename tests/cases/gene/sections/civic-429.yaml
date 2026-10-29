@@ -3,6 +3,7 @@
   "feature": "gene-sections",
   "story": "A synthetic CIViC 429 reply preserves the independent card",
   "replay": "gene/civic/synthetic-429",
+  "cache_acquired": 42,
   "steps": [
     {
       "run": [
@@ -16,7 +17,7 @@
         "/result/items/0/answer/gene/hgnc_id": "HGNC:3430",
         "/result/items/0/answer/gene/summary/source": "refseq",
         "/result/items/0/sections/civic/state": "unavailable",
-        "/result/items/0/sections/civic/reason": "rate_limited",
+        "/result/items/0/sections/civic/reason": "rate-limited",
         "/sources/*/source": {
           "includes": "civic",
           "excludes": "gnomad"

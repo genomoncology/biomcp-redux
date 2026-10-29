@@ -19,7 +19,7 @@
       ],
       "expect": {
         "/result/items/0/sections/pdf/state": "unavailable",
-        "/result/items/0/sections/pdf/reason": "not_open"
+        "/result/items/0/sections/pdf/reason": "not-open"
       }
     },
     {
@@ -34,7 +34,7 @@
       "is_error": true,
       "expect": {
         "/result/file/state": "unavailable",
-        "/result/file/reason": "not_open"
+        "/result/file/reason": "not-open"
       }
     }
   ]

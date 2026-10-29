@@ -48,8 +48,8 @@ fn main() -> ExitCode {
                         .and_then(|outcome| output::bytes(&outcome.cli_bytes)),
                         exit::Status::Usage,
                     ),
-                    Err(mcp::http::StartError::Usage) => ExitCode::from(2),
-                    Err(mcp::http::StartError::Local) => ExitCode::from(5),
+                    Err(mcp::http::StartError::Usage) => ExitCode::from(exit::Status::Usage.code()),
+                    Err(mcp::http::StartError::Local) => ExitCode::from(exit::Status::Local.code()),
                 };
             }
             let fetch = config::fetch(&globals);

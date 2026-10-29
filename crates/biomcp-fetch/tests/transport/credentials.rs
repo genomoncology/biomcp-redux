@@ -101,7 +101,7 @@ fn deferred_credentials_resolve_once_after_source_admission()
         let mut config = FetchConfig::default();
         config.secrets.defer(SecretName::NcbiApiKey, move || {
             observed.fetch_add(1, Ordering::SeqCst);
-            Some(Secret::new("synthetic-deferred-key"))
+            Ok(Some(Secret::new("synthetic-deferred-key")))
         });
         if disabled {
             config.disabled_sources.insert(Source::PubMed);

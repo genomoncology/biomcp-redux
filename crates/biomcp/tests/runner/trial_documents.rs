@@ -219,7 +219,7 @@ fn failures() -> Check {
     let out = command(&env, &bad, &replace, 4)?;
     assert_eq!(
         out.pointer("/result/file/reason"),
-        Some(&json!("not_pdf")),
+        Some(&json!("not-pdf")),
         "Failed document saves must preserve existing caller files"
     );
     assert_eq!(
@@ -273,7 +273,7 @@ fn malformed_manifests(path: &Path) -> Check {
         if exit == 4 {
             assert_eq!(
                 out.pointer("/result/file/reason"),
-                Some(&json!("bad_reply")),
+                Some(&json!("bad-reply")),
                 "Malformed document manifests must never publish a file"
             );
             assert_eq!(

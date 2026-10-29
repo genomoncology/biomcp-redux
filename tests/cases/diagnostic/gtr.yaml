@@ -14,7 +14,7 @@
       ],
       "max_bytes": 198,
       "expect": {
-        "/schema": "biomcp.sync/5",
+        "/schema": "biomcp.sync/6",
         "/result/rows": 19,
         "/result/duplicate_identities": 1
       }
@@ -38,13 +38,13 @@
       ],
       "max_bytes": 4080,
       "expect": {
-        "/schema": "biomcp.diagnostic-page/3",
+        "/schema": "biomcp.diagnostic-page/4",
         "/page/total": 8,
         "/page/returned": 5,
         "/result/items/0/header/id": "GTR000006692.3",
         "/result/items/0/matched/kind": "gene",
         "/result/items/0/matched/relation/gene/ncbi_gene_id": "672",
-        "/result/count_unit": "test_identities"
+        "/result/count_unit": "test-identities"
       }
     },
     {
@@ -72,7 +72,7 @@
       "expect": {
         "/page/total": 8,
         "/result/items/1/identity_status": "conflict",
-        "/result/items/2/identity_status": "missing_card"
+        "/result/items/2/identity_status": "missing-card"
       }
     },
     {
@@ -142,7 +142,7 @@
       ],
       "max_bytes": 1543,
       "expect": {
-        "/result/kind": "gtr_test",
+        "/result/kind": "gtr-test",
         "/result/header/url": "https://www.ncbi.nlm.nih.gov/gtr/tests/classic/6692/",
         "/result/header/laboratory/name": "Synthetic \"quoted\" laboratory",
         "/result/clia_number": ""
@@ -169,7 +169,7 @@
       "expect": {
         "/page/total": 2,
         "/result/items/1/gene/ncbi_gene_id": "7157",
-        "/result/count_unit": "native_relation_rows",
+        "/result/count_unit": "native-relation-rows",
         "/result/distinct_id_total": 2
       }
     },
@@ -194,7 +194,7 @@
       "expect": {
         "/page/total": 1,
         "/result/items/0/snomed_ct_id": "",
-        "/result/count_unit": "native_relation_rows",
+        "/result/count_unit": "native-relation-rows",
         "/result/distinct_id_total": 1
       }
     },
@@ -224,7 +224,7 @@
         "/page/total": 4,
         "/result/items/0/list": "method_categories",
         "/result/items/1/index": 1,
-        "/result/count_unit": "native_method_entries"
+        "/result/count_unit": "native-method-entries"
       }
     },
     {
@@ -263,7 +263,7 @@
       ],
       "max_bytes": 198,
       "expect": {
-        "/schema": "biomcp.sync/5",
+        "/schema": "biomcp.sync/6",
         "/result/rows": 19,
         "/result/duplicate_identities": 1
       }

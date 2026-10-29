@@ -3,6 +3,12 @@
     clippy::unwrap_used,
     reason = "Fixture setup must fail on invalid checked inputs"
 )]
+#[expect(
+    clippy::disallowed_methods,
+    reason = "The shared recording fixture owner copies and edits only test-owned files"
+)]
+#[path = "../../biomcp-fetch/tests/support/recordings.rs"]
+mod recording_support;
 use biomcp_fetch::{Fetch, FetchConfig, Mode};
 use std::{path::PathBuf, time::Duration};
 fn replay(dir: PathBuf) -> Fetch {
@@ -21,11 +27,15 @@ fn stale_identity_and_annotation_sources_make_only_their_answers_partial() {
     let directory = tempfile::tempdir().unwrap();
     let case_path = directory.path().join("case");
     let cache = ReplayCache::create_case_with_owners(&case_path, &[]).unwrap();
+    let recordings = directory.path().join("recordings");
+    let original = PathBuf::from(env!("CARGO_MANIFEST_DIR")).join("../../tests/replies/gene/main");
+    recording_support::copy_capture(&original, &recordings, |_, record| {
+        recording_support::cache_acquisition(record, 42);
+    })
+    .unwrap();
     let query = Request::GetGene(GeneGet::new(vec!["BRAF".parse().unwrap()].into()).unwrap());
     let fetch = Fetch::open(FetchConfig {
-        mode: Mode::Replay {
-            dir: PathBuf::from(env!("CARGO_MANIFEST_DIR")).join("../../tests/replies/gene/main"),
-        },
+        mode: Mode::Replay { dir: recordings },
         replay_cache: Some(cache.clone()),
         ..Default::default()
     })

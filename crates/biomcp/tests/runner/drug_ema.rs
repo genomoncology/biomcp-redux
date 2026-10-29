@@ -64,7 +64,7 @@ fn malformed() -> Result<(), String> {
         )?;
         std::fs::write(&path, changed.to_string()).map_err(|e| e.to_string())?;
         let failed = call(&["sync", "ema"], 4)?;
-        if failed.pointer("/sources/0/reason").and_then(Value::as_str) != Some("bad_reply") {
+        if failed.pointer("/sources/0/reason").and_then(Value::as_str) != Some("bad-reply") {
             return Err(format!("{fault}: wrong source error: {failed}"));
         }
         if call(&get, 0)? != before {

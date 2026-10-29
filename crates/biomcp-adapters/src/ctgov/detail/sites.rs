@@ -111,7 +111,7 @@ struct RawPoint {
     lon: biodata::FiniteNumber,
 }
 impl TryFrom<RawPoint> for Point {
-    type Error = &'static str;
+    type Error = biodata::Error;
     fn try_from(v: RawPoint) -> Result<Self, Self::Error> {
         TrialCoordinates::new(v.lat, v.lon).map(Self)
     }

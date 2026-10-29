@@ -24,7 +24,7 @@
         "/page/total": 5,
         "/page/truncated": true,
         "/sources/0/fetched": 5,
-        "/sources/0/notices/0/kind": "graph_truncated",
+        "/sources/0/notices/0/kind": "graph-truncated",
         "/sources/0/notices/0/fallback": "article citations <PMID> --source icite",
         "/result/items/*/header/title": [
           "Synthetic source page1.",

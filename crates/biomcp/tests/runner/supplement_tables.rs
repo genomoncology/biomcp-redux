@@ -42,7 +42,7 @@ pub(super) fn ping_after_refusal() -> Result<(), String> {
         let reply = receive(&receiver)?;
         if reply.get("id") != Some(&json!(1))
             || reply.pointer("/result/structuredContent/result/content/reason")
-                != Some(&json!("too_large"))
+                != Some(&json!("too-large"))
         {
             return Err(format!("workbook was not bounded: {reply}"));
         }

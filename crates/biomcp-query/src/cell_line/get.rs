@@ -85,7 +85,10 @@ fn resolve(
                 return Err(biomcp_fetch::InputError::Path.into());
             }
             let page = cellosaurus::reverse(leg, id)?;
-            card.fetched = u64::try_from(page.metadata.fetched).ok();
+            card.fetched = page
+                .metadata
+                .fetched
+                .and_then(|value| u64::try_from(value).ok());
             if page.items.len() != 1 {
                 card.status = if page.items.is_empty() {
                     Status::Absent
@@ -112,7 +115,10 @@ fn resolve(
     };
     if let Some(mut selected) = reply.card {
         selected.input = query.id().clone();
-        selected.fetched = u64::try_from(reply.metadata.fetched).ok();
+        selected.fetched = reply
+            .metadata
+            .fetched
+            .and_then(|value| u64::try_from(value).ok());
         let overflow = selected
             .header
             .as_ref()
@@ -130,7 +136,10 @@ fn resolve(
         *card = selected;
     } else {
         card.status = Status::Absent;
-        card.fetched = u64::try_from(reply.metadata.fetched).ok();
+        card.fetched = reply
+            .metadata
+            .fetched
+            .and_then(|value| u64::try_from(value).ok());
     }
     Ok(())
 }

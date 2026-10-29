@@ -19,7 +19,7 @@
       "is_error": true,
       "expect": {
         "/status": "failed",
-        "/sources/0/reason": "bad_reply",
+        "/sources/0/reason": "bad-reply",
         "/problems/0/source": "orcid"
       },
       "full_output_bytes": true,

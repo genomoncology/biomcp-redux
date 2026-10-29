@@ -4,7 +4,7 @@ use clap::{Arg, Command};
 use std::io;
 pub(super) fn augment(commands: &mut Vec<HelpCommand>) -> io::Result<()> {
     let mut root =
-        crate::grammar::root().map_err(|()| io::Error::other("command grammar unavailable"))?;
+        crate::grammar::root().map_err(|_| io::Error::other("command grammar unavailable"))?;
     root.build();
     for entry in commands.iter_mut() {
         match entry.command.first().map(String::as_str) {

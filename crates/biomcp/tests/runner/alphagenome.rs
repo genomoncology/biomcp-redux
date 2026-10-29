@@ -30,7 +30,7 @@ fn keyless() -> Result<(), String> {
         let args = ["get", "variant", id, "alphagenome"].map(str::to_owned);
         let value = invoke(&env, &args, 0)?;
         if value.pointer(&format!("{SECTION}/state")) != Some(&json!("skipped"))
-            || value.pointer(&format!("{SECTION}/reason")) != Some(&json!("no_key"))
+            || value.pointer(&format!("{SECTION}/reason")) != Some(&json!("no-key"))
             || !value
                 .get("next")
                 .and_then(Value::as_array)

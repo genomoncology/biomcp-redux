@@ -111,7 +111,7 @@ pub(super) fn render(
         input: id,
         status: state,
         card: Some(s.detail.card),
-        fetched: Some(s.fetched),
+        fetched: s.fetched,
         sections: (!q.sections().is_empty()).then_some(sections),
         more,
         unsupported_sections: unsupported,

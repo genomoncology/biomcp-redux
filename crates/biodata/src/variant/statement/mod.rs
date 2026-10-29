@@ -1,6 +1,8 @@
 //! Source assertions without ranking, merging or clinical inference.
 use crate::{GeneRef, PartialDate, Pmid, Text};
 use serde::{Deserialize, Serialize};
+mod clinvar;
+pub use clinvar::{ClinvarAlleleOriginCode, ClinvarReviewStatusCode};
 mod coding;
 pub use coding::*;
 mod reference;
@@ -45,15 +47,15 @@ pub struct Statement {
     /// One source record and its provenance.
     pub attribution: Attribution,
 }
-/// A source label with optional explicitly supported coding.
+/// A source label with explicitly supported codings in source order.
 #[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
 #[cfg_attr(feature = "schema", derive(schemars::JsonSchema))]
 pub struct Term {
     /// Original label.
     pub label: Text,
-    /// Documented framework coding.
-    #[serde(default, skip_serializing_if = "Option::is_none")]
-    pub coding: Option<Coding>,
+    /// Documented framework codings.
+    #[serde(default, skip_serializing_if = "<[ _ ]>::is_empty")]
+    pub codings: Box<[Coding]>,
 }
 /// One source concept with its optional ontology identifier.
 #[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
@@ -93,7 +95,7 @@ pub struct Attribution {
 }
 crate::wire_enum! {
     /// Domain of a source claim.
-    #[non_exhaustive]
+
     #[cfg_attr(feature = "schema", schemars(extend("x-enum-open" = true)))]
     Proposition {
         /// Published pathogenicity value.
@@ -114,7 +116,7 @@ crate::wire_enum! {
 }
 crate::wire_enum! {
     /// Assessment direction stated by the source.
-    #[non_exhaustive]
+
     #[cfg_attr(feature = "schema", schemars(extend("x-enum-open" = true)))]
     Direction {
         /// Published supports value.
@@ -127,7 +129,7 @@ crate::wire_enum! {
 }
 crate::wire_enum! {
     /// VA-Spec 1.1 proposition relationships in native snake_case.
-    #[non_exhaustive]
+
     #[cfg_attr(feature = "schema", schemars(extend("x-enum-open" = true)))]
     Predicate {
         /// Published is_causal_for value.

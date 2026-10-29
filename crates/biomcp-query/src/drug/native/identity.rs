@@ -48,7 +48,7 @@ pub(super) fn neutral(header: &DrugHeader) -> Result<DrugIdentity, Error> {
         url: header.url.clone(),
     })
 }
-pub(super) fn card(header: DrugHeader, fetched: i64) -> DrugCard {
+pub(super) fn card(header: DrugHeader, fetched: Option<i64>) -> DrugCard {
     DrugCard {
         header,
         alternate_names: Box::default(),
@@ -63,7 +63,7 @@ pub(super) fn card(header: DrugHeader, fetched: i64) -> DrugCard {
         next: Box::default(),
     }
 }
-pub(super) fn chembl_card(row: chembl::Molecule, fetched: i64) -> Result<DrugCard, Error> {
+pub(super) fn chembl_card(row: chembl::Molecule, fetched: Option<i64>) -> Result<DrugCard, Error> {
     let mut card = card(chembl_header(&row)?, fetched);
     let mut names = Vec::new();
     for synonym in row.molecule_synonyms {

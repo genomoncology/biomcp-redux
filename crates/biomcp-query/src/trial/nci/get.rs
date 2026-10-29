@@ -10,7 +10,7 @@ use biomcp_types::{
 use sha2::{Digest, Sha256};
 pub(super) struct Snapshot {
     pub(super) detail: nci::Detail,
-    pub(super) fetched: u64,
+    pub(super) fetched: Option<u64>,
     pub(super) sources: Vec<SourceOutcome>,
 }
 fn key(id: biodata::NctId) -> Vec<u8> {
@@ -58,7 +58,7 @@ fn fetch(
             Ok((detail, meta)) => {
                 let snapshot = Snapshot {
                     detail,
-                    fetched: u64::try_from(meta.fetched).unwrap_or_default(),
+                    fetched: meta.fetched.and_then(|value| u64::try_from(value).ok()),
                     sources: vec![source.clone()],
                 };
                 let pool = if let Some(store) = store.as_mut() {

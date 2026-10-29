@@ -3,13 +3,13 @@
 #![recursion_limit = "256"]
 use biodata::{
     AccessionBase, Attribution, Build, Chromosome, Concept, Curie, Cytoband, Doi, EnsemblGeneId,
-    Error, EuropePmcId, Expression, ExpressionSyntax, FiniteNumber, FiniteNumberError, GeneSymbol,
-    HgncId, HgvsText, License, LocusGroup, Markdown, NcbiGeneId, NctId, PartialDate, Pmcid, Pmid,
-    PopulationDataType, PopulationFrequency, PopulationSex, PredictorScore, RcvId, RsId, ScvId,
-    SemanticScholarId, Statement, StudyType, Term, Text, TrialAgeBound, TrialArm, TrialCard,
-    TrialContact, TrialDocument, TrialIntervention, TrialLocation, TrialOfficial, TrialOutcome,
-    TrialPhase, TrialReference, TrialSex, TrialStatus, Variant, VariantId, VariantRef, VcvId,
-    canonical_enum, text_value,
+    Error, EuropePmcId, Expression, ExpressionSyntax, FiniteNumber, GeneSymbol, HgncId, HgvsText,
+    License, LocusGroup, Markdown, NcbiGeneId, NctId, PartialDate, Pmcid, Pmid, PopulationDataType,
+    PopulationFrequency, PopulationSex, PredictorScore, RcvId, RsId, ScvId, SemanticScholarId,
+    Statement, StudyType, Term, Text, TrialAgeBound, TrialArm, TrialCard, TrialContact,
+    TrialDocument, TrialIntervention, TrialLocation, TrialOfficial, TrialOutcome, TrialPhase,
+    TrialReference, TrialSex, TrialStatus, Variant, VariantId, VariantRef, VcvId, canonical_enum,
+    text_value,
 };
 
 mod research;
@@ -77,7 +77,7 @@ pub use response::{
 pub use response::{BundleSize, ComponentHealth, StoreSize};
 pub use response::{
     CancerPtpm, Capped, CivicGene, ClinGenGene, ClinGenValidity, GenccGene, GenccSubmission,
-    GeneExpression, PathwayRef, ReactomeId, ReactomeIdInvalid, RnaAbundance, RnaUnit, TissueNtpm,
+    GeneExpression, PathwayRef, ReactomeId, RnaAbundance, RnaUnit, TissueNtpm,
 };
 pub use response::{
     CivicClaimPage, CivicMember, CivicMembership, CivicNativeClaim, CivicProfile, CivicStatement,

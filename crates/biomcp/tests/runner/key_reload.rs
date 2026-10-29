@@ -185,7 +185,7 @@ fn check_source(http: bool, fallback: bool, nci: bool) -> Check {
         let args = query(index, nci, source);
         let refs = args.iter().map(String::as_str).collect::<Vec<_>>();
         let result = client.call(index, &refs)?;
-        if result.pointer("/sources/0/reason") == Some(&json!("no_key")) {
+        if result.pointer("/sources/0/reason") == Some(&json!("no-key")) {
             if selected.is_some() {
                 return Err("server failed to reload key".into());
             }

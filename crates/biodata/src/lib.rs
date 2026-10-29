@@ -76,15 +76,15 @@ pub use trial_publications::{TrialDocument, TrialReference};
 
 pub use variant::{
     AcmgAmp2015Code, AmpAscoCap2017LevelCode, AmpAscoCap2017TierCode, Attribution,
-    CivicEvidenceLevelCode, ClingenCgcVicc2022Code, ClingenLowPenetrance2024Code, Coding, Concept,
-    Curie, Direction, OncokbLevelCode, OncokbOncogenicityCode, Predicate, Proposition, Statement,
-    Term, VariantRef,
+    CivicEvidenceLevelCode, ClingenCgcVicc2022Code, ClingenLowPenetrance2024Code,
+    ClinvarAlleleOriginCode, ClinvarReviewStatusCode, Coding, Concept, Curie, Direction,
+    OncokbLevelCode, OncokbOncogenicityCode, Predicate, Proposition, Statement, Term, VariantRef,
 };
 
 pub use variant::{GenotypeFilter, PopulationDataType, PopulationFrequency, PopulationSex};
 
 mod number;
-pub use number::{FiniteNumber, FiniteNumberError, Fraction, WithUnit};
+pub use number::{FiniteNumber, Fraction, WithUnit};
 
 pub use variant::PredictorScore;
 
@@ -109,7 +109,6 @@ mod adverse_event;
 pub use adverse_event::{
     FaersAgeUnit, FaersDrug, FaersIdentifiers, FaersPatient, FaersReaction, FaersReport,
     FaersReporter, FaersSeriousness, MaudeDevice, MaudeNarrative, MaudeReport, ReportId,
-    ReportIdInvalid,
 };
 
 mod pgx;
@@ -118,14 +117,13 @@ mod diagnostic;
 pub use diagnostic::*;
 
 mod gwas;
-pub use gwas::{GwasAssociationId, GwasStudyId, GwasTraitId, GwasValueInvalid, ScientificPValue};
+pub use gwas::{GwasAssociationId, GwasStudyId, GwasTraitId, ScientificPValue};
 mod phenotype;
 pub use phenotype::*;
 mod pathway;
 pub use pathway::{
-    Pathway, PathwayEventRef, PathwayId, PathwayIdInvalid, PathwayLiteratureRef, PathwayMember,
-    PathwayParticipant, PathwayRef, PathwaySourceRef, PathwaySpecies, PathwaySummation, ReactomeId,
-    ReactomeIdInvalid, WikiPathwaysId,
+    Pathway, PathwayEventRef, PathwayId, PathwayLiteratureRef, PathwayMember, PathwayParticipant,
+    PathwayRef, PathwaySourceRef, PathwaySpecies, PathwaySummation, ReactomeId, WikiPathwaysId,
 };
 
 mod protein;

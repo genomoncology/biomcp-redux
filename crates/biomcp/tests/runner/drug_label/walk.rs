@@ -66,7 +66,7 @@ fn missing() -> Check {
     super::budget(&value, 608)?;
     if field(&value, "status") != "partial"
         || value.pointer("/result/label/state") != Some(&json!("unavailable"))
-        || value.pointer("/result/label/reason") != Some(&json!("not_found"))
+        || value.pointer("/result/label/reason") != Some(&json!("not-found"))
     {
         return Err("missing source field became an empty clinical answer".into());
     }

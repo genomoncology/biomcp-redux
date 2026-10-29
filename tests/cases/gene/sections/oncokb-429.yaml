@@ -3,6 +3,7 @@
   "feature": "gene-sections",
   "story": "Synthetic keyed OncoKB 429 preserves checked identity",
   "replay": "gene/oncokb-synthetic/429",
+  "cache_acquired": 42,
   "config": {
     "keys": {
       "oncokb_api_key": "synthetic-placeholder"
@@ -20,7 +21,7 @@
         "/result/items/0/answer/gene/symbol": "TP53",
         "/status": "partial",
         "/result/items/0/sections/oncokb/state": "unavailable",
-        "/result/items/0/sections/oncokb/reason": "rate_limited"
+        "/result/items/0/sections/oncokb/reason": "rate-limited"
       },
       "exit": 0,
       "max_bytes": 5000

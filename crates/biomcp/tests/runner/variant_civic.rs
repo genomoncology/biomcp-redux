@@ -179,11 +179,11 @@ fn check_claims(value: &Value) -> Result<(), String> {
         ("/statements/0/statement/direction", json!("disputes")),
         ("/statements/0/direction", json!("DOES_NOT_SUPPORT")),
         (
-            "/statements/2/statement/classification/coding/code",
+            "/statements/2/statement/classification/codings/0/code",
             json!("tier_i"),
         ),
         (
-            "/statements/2/statement/strength/coding/code",
+            "/statements/2/statement/strength/codings/0/code",
             json!("level_a"),
         ),
         ("/evidence_page/next/civic_profile", json!(120)),
@@ -489,7 +489,7 @@ fn stalled_cursor() -> Result<(), String> {
                 cursor,
             ],
         )?;
-        if value.pointer("/result/candidates/0/sections/civic/reason") != Some(&json!("bad_reply"))
+        if value.pointer("/result/candidates/0/sections/civic/reason") != Some(&json!("bad-reply"))
         {
             return Err(format!(
                 "nonprogressing native stream emitted evidence or a repeating action: {value}"

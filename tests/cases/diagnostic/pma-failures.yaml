@@ -25,7 +25,7 @@
         "/sources/0/source": "fda-pma",
         "/sources/0/use": "open",
         "/sources/0/terms": "openFDA terms and license; third-party exceptions",
-        "/sources/0/reason": "rate_limited"
+        "/sources/0/reason": "rate-limited"
       },
       "is_error": true
     },
@@ -77,7 +77,7 @@
         "/sources/0/source": "fda-pma",
         "/sources/0/use": "open",
         "/sources/0/terms": "openFDA terms and license; third-party exceptions",
-        "/sources/0/reason": "deadline_exceeded"
+        "/sources/0/reason": "deadline-exceeded"
       },
       "is_error": true
     },
@@ -103,7 +103,7 @@
         "/sources/0/source": "fda-pma",
         "/sources/0/use": "open",
         "/sources/0/terms": "openFDA terms and license; third-party exceptions",
-        "/sources/0/reason": "bad_reply"
+        "/sources/0/reason": "bad-reply"
       },
       "is_error": true
     }

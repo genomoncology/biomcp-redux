@@ -15,7 +15,7 @@
         "/status": "failed",
         "/sources/1/state": "failed",
         "/result/content/state": "unavailable",
-        "/result/content/reason": "bad_reply"
+        "/result/content/reason": "bad-reply"
       }
     },
     {

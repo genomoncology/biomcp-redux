@@ -26,14 +26,23 @@ pub(crate) fn arguments() -> Vec<OsString> {
     clippy::disallowed_methods,
     reason = "Only the settings boundary reads the process environment"
 )]
-fn variable(name: &str) -> Option<PathBuf> {
-    std::env::var_os(name)
-        .filter(|value| !value.is_empty())
-        .map(PathBuf::from)
+fn environment(name: &str) -> Result<Option<String>, ConfigError> {
+    match std::env::var(name) {
+        Ok(value) => Ok((!value.is_empty()).then_some(value)),
+        Err(std::env::VarError::NotPresent) => Ok(None),
+        Err(std::env::VarError::NotUnicode(_)) => Err(ConfigError::field(name)),
+    }
+}
+
+fn variable(name: &str) -> Result<Option<PathBuf>, ConfigError> {
+    environment(name).map(|value| value.map(PathBuf::from))
 }
 
 pub(crate) fn retired_study_directory() -> bool {
-    variable("BIOMCP_STUDY_DIR").is_some()
+    match variable("BIOMCP_STUDY_DIR") {
+        Ok(value) => value.is_some(),
+        Err(_) => true,
+    }
 }
 
 pub(crate) const BUDGET: Duration = Duration::from_secs(20);
@@ -48,18 +57,13 @@ impl From<ConfigError> for StartupError {
         Self::Configuration(error)
     }
 }
-impl From<()> for StartupError {
-    fn from((): ()) -> Self {
-        Self::Local
-    }
-}
 impl From<biomcp_fetch::CacheError> for StartupError {
     fn from(error: biomcp_fetch::CacheError) -> Self {
         Self::Cache(error)
     }
 }
 pub(crate) fn fetch(globals: &Globals) -> Result<Fetch, StartupError> {
-    let home = variable("HOME");
+    let home = variable("HOME")?;
     let file = read_file(globals.config.as_ref())?;
     fetch_using(globals, home, file)
 }
@@ -74,7 +78,7 @@ fn fetch_using(
     home: Option<PathBuf>,
     file: Option<ConfigFile>,
 ) -> Result<Fetch, StartupError> {
-    let cache = cache_path_using(home);
+    let cache = cache_path_using(home)?;
     let mode = if let Some(dir) = &globals.replay {
         Mode::Replay { dir: dir.clone() }
     } else if let Some(dir) = &globals.record {
@@ -102,7 +106,7 @@ fn fetch_using(
         && replay_cache.is_none()
         && let Some(parent) = cache.as_ref().and_then(|path| path.parent())
     {
-        create_cache_directory(parent).map_err(|_| ())?;
+        create_cache_directory(parent).map_err(|_| StartupError::Local)?;
     }
     let secrets = secrets_from(file.as_ref());
     let network = network(file.as_ref())?;
@@ -117,7 +121,7 @@ fn fetch_using(
             .as_ref()
             .map(|path| biomcp_fetch::Observations::create(path).map(std::sync::Arc::new))
             .transpose()
-            .map_err(|_| ())?,
+            .map_err(|_| StartupError::Local)?,
         cache_owners: vec![biomcp_query::store::OWNER],
         secrets,
         network,
@@ -135,7 +139,7 @@ fn fetch_using(
     .map_err(|error| match error {
         biomcp_fetch::FetchError::Cache(error) => error.into(),
         biomcp_fetch::FetchError::Proxy => ConfigError::field("proxy").into(),
-        _ => ().into(),
+        _ => StartupError::Local,
     })
 }
 
@@ -189,25 +193,19 @@ fn network(file: Option<&ConfigFile>) -> Result<biomcp_fetch::Network, ConfigErr
     let explicit = file.is_some_and(|file| file.proxy.is_some());
     let setting = |lower, upper| {
         if explicit {
-            (upper, None)
+            Ok((upper, None))
         } else {
             network_variable(lower, upper)
         }
     };
-    let (http_name, http) = setting("http_proxy", "HTTP_PROXY");
-    let (https_name, https) = setting("https_proxy", "HTTPS_PROXY");
-    let (bypass_name, bypass) = setting("no_proxy", "NO_PROXY");
-    let proxy = |value: Option<OsString>| {
-        value
-            .filter(|value| !value.is_empty())
-            .map(|value| Secret::new(value.to_string_lossy().into_owned()))
-    };
+    let (http_name, http) = setting("http_proxy", "HTTP_PROXY")?;
+    let (https_name, https) = setting("https_proxy", "HTTPS_PROXY")?;
+    let (bypass_name, bypass) = setting("no_proxy", "NO_PROXY")?;
+    let proxy = |value: Option<String>| value.filter(|value| !value.is_empty()).map(Secret::new);
     biomcp_fetch::Network::new(
         proxy(http),
         proxy(https),
-        &bypass
-            .map(|v| v.to_string_lossy().into_owned())
-            .unwrap_or_default(),
+        &bypass.unwrap_or_default(),
         roots,
     )
     .map_err(|error| {
@@ -223,28 +221,38 @@ fn network(file: Option<&ConfigFile>) -> Result<biomcp_fetch::Network, ConfigErr
     clippy::disallowed_methods,
     reason = "Only the settings boundary reads the process environment"
 )]
-fn network_variable(lower: &'static str, upper: &'static str) -> (&'static str, Option<OsString>) {
-    // Windows uses one case-insensitive name; retain the established diagnostic spelling.
-    if !cfg!(windows)
-        && let Some(value) = std::env::var_os(lower)
-    {
-        return (lower, Some(value));
+fn network_variable(
+    lower: &'static str,
+    upper: &'static str,
+) -> Result<(&'static str, Option<String>), ConfigError> {
+    // Presence, including an empty lower-case value, takes precedence on Unix.
+    if !cfg!(windows) {
+        match std::env::var(lower) {
+            Ok(value) => return Ok((lower, Some(value))),
+            Err(std::env::VarError::NotPresent) => {}
+            Err(std::env::VarError::NotUnicode(_)) => return Err(ConfigError::field(lower)),
+        }
     }
-    (upper, std::env::var_os(upper))
+    match std::env::var(upper) {
+        Ok(value) => Ok((upper, Some(value))),
+        Err(std::env::VarError::NotPresent) => Ok((upper, None)),
+        Err(std::env::VarError::NotUnicode(_)) => Err(ConfigError::field(upper)),
+    }
 }
 
 pub(crate) fn format(path: Option<&PathBuf>) -> Option<crate::grammar::Format> {
     read_file(path).ok().flatten().and_then(|file| file.format)
 }
 
-pub(crate) fn config_path(override_path: Option<&PathBuf>) -> Option<PathBuf> {
-    override_path.cloned().or_else(|| {
-        crate::paths::config(
-            variable("XDG_CONFIG_HOME"),
-            variable("HOME"),
-            variable("APPDATA"),
-        )
-    })
+pub(crate) fn config_path(override_path: Option<&PathBuf>) -> Result<Option<PathBuf>, ConfigError> {
+    if let Some(path) = override_path {
+        return Ok(Some(path.clone()));
+    }
+    Ok(crate::paths::config(
+        variable("XDG_CONFIG_HOME")?,
+        variable("HOME")?,
+        variable("APPDATA")?,
+    ))
 }
 pub(crate) fn secrets(globals: &Globals) -> Result<Secrets, ConfigError> {
     Ok(secrets_from(read_file(globals.config.as_ref())?.as_ref()))
@@ -254,7 +262,7 @@ fn secrets_from(file: Option<&ConfigFile>) -> Secrets {
 }
 fn secrets_using(
     keys: Option<std::collections::BTreeMap<String, String>>,
-    environment: impl Fn(&str) -> Option<PathBuf> + Send + Sync + 'static,
+    environment: impl Fn(&str) -> Result<Option<PathBuf>, ConfigError> + Send + Sync + 'static,
 ) -> Secrets {
     let mut secrets = Secrets::default();
     let keys = Arc::new(keys);
@@ -271,17 +279,28 @@ fn secrets_using(
 fn configured_secret(
     keys: Option<&std::collections::BTreeMap<String, String>>,
     name: SecretName,
-    environment: &impl Fn(&str) -> Option<PathBuf>,
-) -> Option<Secret> {
-    keys.and_then(|keys| keys.get(name.config()))
+    environment: &impl Fn(&str) -> Result<Option<PathBuf>, ConfigError>,
+) -> Result<Option<Secret>, biomcp_fetch::InputError> {
+    if let Some(value) = keys
+        .and_then(|keys| keys.get(name.config()))
         .filter(|v| !v.is_empty())
-        .cloned()
-        .or_else(|| environment(name.environment()).map(|v| v.to_string_lossy().into_owned()))
-        .map(Secret::new)
+    {
+        return Ok(Some(Secret::new(value.clone())));
+    }
+    environment(name.environment())
+        .map_err(|_| biomcp_fetch::InputError::CredentialEncoding)?
+        .map(|value| {
+            value
+                .into_os_string()
+                .into_string()
+                .map(Secret::new)
+                .map_err(|_| biomcp_fetch::InputError::CredentialEncoding)
+        })
+        .transpose()
 }
 
-pub(crate) fn has_environment_key(name: SecretName) -> bool {
-    variable(name.environment()).is_some()
+pub(crate) fn has_environment_key(name: SecretName) -> Result<bool, ConfigError> {
+    Ok(variable(name.environment())?.is_some())
 }
 
 /// Apply per-call policy as a union with the already configured transport policy.
@@ -295,11 +314,15 @@ pub(crate) fn restrict(fetch: Fetch, globals: &Globals) -> std::io::Result<Fetch
         )))
 }
 
-pub(crate) fn cache_path() -> Option<PathBuf> {
-    cache_path_using(variable("HOME"))
+pub(crate) fn cache_path() -> Result<Option<PathBuf>, ConfigError> {
+    cache_path_using(variable("HOME")?)
 }
-fn cache_path_using(home: Option<PathBuf>) -> Option<PathBuf> {
-    crate::paths::cache(variable("XDG_CACHE_HOME"), home, variable("LOCALAPPDATA"))
+fn cache_path_using(home: Option<PathBuf>) -> Result<Option<PathBuf>, ConfigError> {
+    Ok(crate::paths::cache(
+        variable("XDG_CACHE_HOME")?,
+        home,
+        variable("LOCALAPPDATA")?,
+    ))
 }
 #[expect(
     clippy::disallowed_methods,
@@ -307,7 +330,9 @@ fn cache_path_using(home: Option<PathBuf>) -> Option<PathBuf> {
 )]
 pub(crate) fn executable() -> std::io::Result<PathBuf> {
     let executable = std::env::current_exe()?;
-    let Some(path) = variable("PATH") else {
+    let Some(path) =
+        variable("PATH").map_err(|_| std::io::Error::from(std::io::ErrorKind::InvalidData))?
+    else {
         return Ok(executable);
     };
     let identity = executable.canonicalize()?;

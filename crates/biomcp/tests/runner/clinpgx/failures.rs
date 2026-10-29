@@ -162,7 +162,7 @@ fn timeout() -> Check {
     let mut replay = vec!["--replay".into(), record.to_string_lossy().into()];
     replay.extend(args("annotation"));
     let v = both(&fresh, replay, 4)?;
-    if v.pointer("/sources/0/reason") != Some(&json!("deadline_exceeded"))
+    if v.pointer("/sources/0/reason") != Some(&json!("deadline-exceeded"))
         || v.get("result").is_some_and(|v| !v.is_null())
     {
         return Err("timeout became negative fact".into());

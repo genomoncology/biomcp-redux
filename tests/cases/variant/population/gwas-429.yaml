@@ -22,7 +22,7 @@
       "expect": {
         "/status": "failed",
         "/result/candidates/0/sections/gwas/state": "unavailable",
-        "/result/candidates/0/sections/gwas/reason": "rate_limited"
+        "/result/candidates/0/sections/gwas/reason": "rate-limited"
       },
       "max_bytes": 565
     },

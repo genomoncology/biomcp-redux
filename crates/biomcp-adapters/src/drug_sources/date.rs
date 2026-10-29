@@ -1,6 +1,7 @@
 /// Convert only the transport's original retrieval epoch; never use the current clock.
-pub fn received_date(fetched: i64) -> Option<biodata::PartialDate> {
-    if fetched <= 0 {
+pub fn received_date(fetched: Option<i64>) -> Option<biodata::PartialDate> {
+    let fetched = fetched?;
+    if fetched < 0 {
         return None;
     }
     let mut days = fetched / 86_400;

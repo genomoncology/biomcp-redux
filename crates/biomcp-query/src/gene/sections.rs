@@ -59,7 +59,6 @@ pub(super) fn requested(query: &GeneGet) -> Vec<GeneSection> {
                 GeneSectionWord::Expression => *section == GeneSection::Expression,
                 GeneSectionWord::Pathways => *section == GeneSection::Pathways,
                 GeneSectionWord::Oncokb => *section == GeneSection::Oncokb,
-                _ => false,
             })
         })
         .collect()
@@ -74,7 +73,6 @@ fn applicable(section: GeneSection, gene: &Gene) -> bool {
         GeneSection::Expression => expression::applicable(gene),
         GeneSection::Pathways => pathways::applicable(gene),
         GeneSection::Oncokb => gene.entrez_id.is_some(),
-        _ => false,
     }
 }
 pub(super) fn prepare(query: &GeneGet, items: &mut [GeneItem]) -> Vec<(HgncId, Gene)> {

@@ -49,7 +49,7 @@ fn configured() -> Result<(), String> {
             ));
         }
         let value: Value = serde_json::from_slice(&output.stdout).map_err(|e| e.to_string())?;
-        if value.pointer("/sources/0/reason") != Some(&json!("rate_limited")) {
+        if value.pointer("/sources/0/reason") != Some(&json!("rate-limited")) {
             return Err("the optional key blocked the recorded source leg".into());
         }
         if let Some(baseline) = &baseline {

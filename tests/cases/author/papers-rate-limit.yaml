@@ -20,7 +20,7 @@
       "expect": {
         "/status": "failed",
         "/sources/0/source": "semantic-scholar",
-        "/sources/0/reason": "rate_limited",
+        "/sources/0/reason": "rate-limited",
         "/next/1/kind": "key",
         "/sources/0/use": "noncommercial"
       },

@@ -13,7 +13,7 @@
       "expect": {
         "/status": "partial",
         "/result/items/0/answer/card/pmid": "33123537",
-        "/result/items/0/sections/tldr/reason": "rate_limited",
+        "/result/items/0/sections/tldr/reason": "rate-limited",
         "/next/0/args": [
           "help",
           "key",

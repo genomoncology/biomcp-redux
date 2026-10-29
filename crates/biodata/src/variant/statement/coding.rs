@@ -1,10 +1,16 @@
+use super::{ClinvarAlleleOriginCode, ClinvarReviewStatusCode};
 use serde::{Deserialize, Serialize};
 /// A code in one explicitly named source framework.
 #[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
 #[serde(tag = "system", content = "code")]
 #[cfg_attr(feature = "schema", derive(schemars::JsonSchema))]
-#[non_exhaustive]
 pub enum Coding {
+    /// ClinVar publisher review status.
+    #[serde(rename = "clinvar_review_status")]
+    ClinvarReviewStatus(ClinvarReviewStatusCode),
+    /// ClinVar publisher allele origin.
+    #[serde(rename = "clinvar_allele_origin")]
+    ClinvarAlleleOrigin(ClinvarAlleleOriginCode),
     /// OncoKB oncogenicity vocabulary.
     #[serde(rename = "oncokb_oncogenicity")]
     OncokbOncogenicity(OncokbOncogenicityCode),

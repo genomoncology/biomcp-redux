@@ -144,7 +144,7 @@ pub struct NciIntervention {
 }
 /// A record position preserves every arm/intervention relationship without invented identity.
 #[derive(Clone, Debug, PartialEq, Serialize, Deserialize)]
-#[serde(tag = "record", rename_all = "snake_case")]
+#[serde(tag = "record", rename_all = "kebab-case")]
 #[cfg_attr(feature = "schema", derive(schemars::JsonSchema))]
 pub enum NciArmRecord {
     /// Original arm header, followed by its intervention rows.

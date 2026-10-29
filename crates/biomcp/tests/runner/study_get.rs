@@ -74,7 +74,7 @@ pub(super) fn recording_raw(
     } else {
         section
     };
-    crate::runner::configuration::invoke(
+    let acquired = crate::runner::configuration::invoke(
         &env,
         [
             "get",
@@ -96,6 +96,14 @@ pub(super) fn recording_raw(
         let mut value: Value =
             serde_json::from_slice(&fs::read(file.path()).map_err(|e| e.to_string())?)
                 .map_err(|e| e.to_string())?;
+        if value.pointer("/exchanges/0/fetched") != acquired.pointer("/result/acquired")
+            || acquired
+                .pointer("/result/acquired")
+                .and_then(Value::as_u64)
+                .is_none()
+        {
+            return Err("live study acquisition differs from its recording receipt".into());
+        }
         let exchange = json!(
             {"status":status,"fetched":42,"content_type":"application/json","delay_ms":delay,"retry_after_ms":null,"body":{"kind":"text",
             "value":body}}
@@ -163,7 +171,10 @@ fn pages() -> Check {
                 .pointer("/result/items")
                 .and_then(Value::as_array)
                 .ok_or_else(|| format!("missing section items: {value}"))?;
-            if value.pointer("/page/total") != Some(&json!(total)) || items.len() > 5 {
+            if value.pointer("/page/total") != Some(&json!(total))
+                || items.len() > 5
+                || value.pointer("/result/acquired") != Some(&json!(42))
+            {
                 return Err(format!("native page bounds: {value}"));
             }
             for row in items {
@@ -364,7 +375,7 @@ fn retained(directory: &Path) -> Check {
 }
 
 fn reject_members(directory: &Path, value: &Value) -> Check {
-    if value.get("schema") != Some(&json!("biomcp.study-sample-lists/1")) {
+    if value.get("schema") != Some(&json!("biomcp.study-sample-lists/2")) {
         return Ok(());
     }
     let id = value

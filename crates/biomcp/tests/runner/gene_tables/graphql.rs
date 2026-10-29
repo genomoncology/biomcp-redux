@@ -62,7 +62,7 @@ fn civic() -> Check {
                     }
                 }
             },
-            json!({"/result/items/0/sections/civic/state": "unavailable", "/sources/2/reason": "bad_reply"}),
+            json!({"/result/items/0/sections/civic/state": "unavailable", "/sources/2/reason": "bad-reply"}),
         )?;
     }
     Ok(())
@@ -116,7 +116,7 @@ fn constraint() -> Check {
                     }
                 }
             },
-            json!({"/result/items/0/sections/constraint/state": "unavailable", "/sources/2/reason": "bad_reply"}),
+            json!({"/result/items/0/sections/constraint/state": "unavailable", "/sources/2/reason": "bad-reply"}),
         )?;
     }
     mappings()
@@ -302,7 +302,7 @@ fn clingen_expectation(mode: &str) -> Value {
         "dosage only" => json!({
             "/result/items/0/sections/clingen/data/haploinsufficiency": "Sufficient Evidence for Haploinsufficiency"}),
         _ => {
-            json!({"/result/items/0/sections/clingen/state": "data", "/sources/2/reason": "bad_reply"})
+            json!({"/result/items/0/sections/clingen/state": "data", "/sources/2/reason": "bad-reply"})
         }
     }
 }

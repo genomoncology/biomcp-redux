@@ -5,13 +5,15 @@ use serde::{Deserialize, Serialize};
 pub struct ReactomeId(Box<str>);
 impl ReactomeId {
     /// Check the human namespace and canonical positive decimal identifier.
-    pub fn new(value: &str) -> Result<Self, ReactomeIdInvalid> {
-        let suffix = value.strip_prefix("R-HSA-").ok_or(ReactomeIdInvalid)?;
+    pub fn new(value: &str) -> Result<Self, crate::Error> {
+        let suffix = value
+            .strip_prefix("R-HSA-")
+            .ok_or(crate::Error::ReactomeIdInvalid)?;
         if suffix.is_empty()
             || suffix.starts_with('0')
             || !suffix.bytes().all(|ch| ch.is_ascii_digit())
         {
-            return Err(ReactomeIdInvalid);
+            return Err(crate::Error::ReactomeIdInvalid);
         }
         Ok(Self(value.into()))
     }
@@ -21,7 +23,7 @@ impl ReactomeId {
     }
 }
 impl std::str::FromStr for ReactomeId {
-    type Err = ReactomeIdInvalid;
+    type Err = crate::Error;
     fn from_str(value: &str) -> Result<Self, Self::Err> {
         Self::new(value)
     }
@@ -37,15 +39,6 @@ text_value!(
     "^R-HSA-[1-9][0-9]*$",
     "A checked human Reactome stable pathway identifier."
 );
-/// An identifier outside the canonical human Reactome namespace.
-#[derive(Clone, Copy, Debug)]
-pub struct ReactomeIdInvalid;
-impl std::fmt::Display for ReactomeIdInvalid {
-    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
-        f.write_str("id.reactome.invalid")
-    }
-}
-impl std::error::Error for ReactomeIdInvalid {}
 /// A pathway reference without membership or hierarchy data.
 #[derive(Clone, Debug, PartialEq, Serialize, Deserialize)]
 #[cfg_attr(feature = "schema", derive(schemars::JsonSchema))]
@@ -61,15 +54,15 @@ pub struct PathwayRef {
 pub struct WikiPathwaysId(Box<str>);
 impl WikiPathwaysId {
     /// Check the canonical positive WP number.
-    pub fn new(value: &str) -> Result<Self, PathwayIdInvalid> {
+    pub fn new(value: &str) -> Result<Self, crate::Error> {
         let suffix = value
             .strip_prefix("WP")
-            .ok_or(PathwayIdInvalid::WikiPathways)?;
+            .ok_or(crate::Error::WikiPathwaysIdInvalid)?;
         if suffix.is_empty()
             || suffix.starts_with('0')
             || !suffix.bytes().all(|b| b.is_ascii_digit())
         {
-            return Err(PathwayIdInvalid::WikiPathways);
+            return Err(crate::Error::WikiPathwaysIdInvalid);
         }
         Ok(Self(value.into()))
     }
@@ -79,7 +72,7 @@ impl WikiPathwaysId {
     }
 }
 impl std::str::FromStr for WikiPathwaysId {
-    type Err = PathwayIdInvalid;
+    type Err = crate::Error;
     fn from_str(v: &str) -> Result<Self, Self::Err> {
         Self::new(v)
     }
@@ -95,23 +88,6 @@ text_value!(
     "^WP[1-9][0-9]*$",
     "A checked WikiPathways identity without its revision."
 );
-/// Invalid pathway identity codes.
-#[derive(Clone, Copy, Debug)]
-pub enum PathwayIdInvalid {
-    /// Identity is not a canonical WikiPathways number.
-    WikiPathways,
-    /// Identity is not an admitted human pathway namespace.
-    Namespace,
-}
-impl std::fmt::Display for PathwayIdInvalid {
-    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
-        f.write_str(match self {
-            Self::WikiPathways => "id.wikipathways.invalid",
-            Self::Namespace => "id.pathway.invalid",
-        })
-    }
-}
-impl std::error::Error for PathwayIdInvalid {}
 /// Source-owned pathway identity; equal names never merge sources.
 #[derive(Clone, Debug, PartialEq, Eq, Hash, Serialize, Deserialize)]
 #[serde(tag = "source", content = "id", rename_all = "lowercase")]
@@ -123,12 +99,12 @@ pub enum PathwayId {
     Wikipathways(WikiPathwaysId),
 }
 impl std::str::FromStr for PathwayId {
-    type Err = PathwayIdInvalid;
+    type Err = crate::Error;
     fn from_str(v: &str) -> Result<Self, Self::Err> {
         if v.starts_with("R-HSA-") {
             v.parse()
                 .map(Self::Reactome)
-                .map_err(|_| PathwayIdInvalid::Namespace)
+                .map_err(|_| crate::Error::PathwayIdInvalid)
         } else {
             v.parse().map(Self::Wikipathways)
         }

@@ -57,9 +57,9 @@ fn run() -> Result<(), String> {
         } else {
             let reason = match status {
                 401 => "rejected",
-                429 => "rate_limited",
+                429 => "rate-limited",
                 500 => "unavailable",
-                _ => "bad_reply",
+                _ => "bad-reply",
             };
             if reply.pointer(&format!("{SECTION}/state")) != Some(&json!("unavailable"))
                 || reply.pointer(&format!("{SECTION}/reason")) != Some(&json!(reason))
@@ -106,7 +106,7 @@ fn successful(
         return Err("native continuation differs through MCP".into());
     }
     if later.pointer(&format!("{SECTION}/data/scorers/0/rows/0/value"))
-        != Some(&json!({"kind":"negative_infinity"}))
+        != Some(&json!({"kind":"negative-infinity"}))
     {
         return Err("native negative infinity was dropped or converted".into());
     }
@@ -208,7 +208,7 @@ fn routed(fixture: &support::Fixture, expected: usize) -> Result<(), String> {
 fn refusals() -> Result<(), String> {
     for (build, coordinates, mitochondrial, reason) in [
         ("GRCh37", true, false, "unsupported"),
-        ("GRCh38", false, false, "no_join_id"),
+        ("GRCh38", false, false, "no-join-id"),
         ("GRCh38", true, true, "unsupported"),
     ] {
         let expression = if mitochondrial {
@@ -287,7 +287,7 @@ fn groups(reply: &Value) -> Result<(), String> {
     if rows.first().and_then(|g| g.pointer("/rows/0/value")) != Some(&json!(0.25))
         || rows.first().and_then(|g| g.pointer("/rows/1/value")) != Some(&json!({"kind":"nan"}))
         || rows.first().and_then(|g| g.pointer("/rows/2/value"))
-            != Some(&json!({"kind":"positive_infinity"}))
+            != Some(&json!({"kind":"positive-infinity"}))
         || rows.first().and_then(|g| g.pointer("/rows/2/tensor_index")) != Some(&json!([0, 1, 0]))
         || rows
             .get(2)

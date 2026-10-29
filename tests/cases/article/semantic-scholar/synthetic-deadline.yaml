@@ -15,7 +15,7 @@
       "expect": {
         "/status": "partial",
         "/sources/1/source": "semantic-scholar",
-        "/sources/1/reason": "deadline_exceeded",
+        "/sources/1/reason": "deadline-exceeded",
         "/result/items/*/pmid": {
           "includes": "27959700"
         }
@@ -33,7 +33,7 @@
       "max_bytes": 1895,
       "expect": {
         "/status": "partial",
-        "/sources/1/reason": "deadline_exceeded"
+        "/sources/1/reason": "deadline-exceeded"
       }
     }
   ],

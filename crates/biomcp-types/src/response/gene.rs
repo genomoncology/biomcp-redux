@@ -15,7 +15,7 @@ pub use clingen::{ClinGenGene, ClinGenValidity};
 pub use constraint::Constraint;
 pub use expression::{CancerPtpm, GeneExpression, RnaAbundance, RnaUnit, TissueNtpm};
 pub use oncokb::{Oncokb, OncokbCard, OncokbGeneType, OncokbTranscript};
-pub use pathways::{Capped, PathwayRef, ReactomeId, ReactomeIdInvalid};
+pub use pathways::{Capped, PathwayRef, ReactomeId};
 pub use protein::Protein;
 use serde::{Deserialize, Serialize};
 /// Answer to one requested input.
@@ -60,7 +60,7 @@ impl ResponseBody for GeneCards {
     type Query = GeneGet;
 }
 impl ResponseBody for GenePage {
-    const SCHEMA: &'static str = "biomcp.gene-page/5";
+    const SCHEMA: &'static str = "biomcp.gene-page/6";
     type Query = GeneSearch;
 }
 /// Typed dispatch result before the interface constructs an envelope.
@@ -366,7 +366,7 @@ pub struct SyncResult {
     pub duplicate_identities: Option<u64>,
 }
 impl ResponseBody for SyncResult {
-    const SCHEMA: &'static str = "biomcp.sync/5";
+    const SCHEMA: &'static str = "biomcp.sync/6";
     type Query = SyncQuery;
 }
 

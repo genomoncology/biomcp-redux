@@ -3,6 +3,7 @@
   "feature": "gene-sections",
   "story": "A synthetic CIViC cut reply preserves the independent card",
   "replay": "gene/civic/synthetic-cut",
+  "cache_acquired": 42,
   "steps": [
     {
       "run": [
@@ -16,7 +17,7 @@
         "/result/items/0/answer/gene/hgnc_id": "HGNC:3430",
         "/result/items/0/answer/gene/summary/source": "refseq",
         "/result/items/0/sections/civic/state": "unavailable",
-        "/result/items/0/sections/civic/reason": "bad_reply",
+        "/result/items/0/sections/civic/reason": "bad-reply",
         "/sources/*/source": {
           "includes": "civic",
           "excludes": "gnomad"

@@ -1,4 +1,4 @@
-pub use biodata::{PathwayRef, ReactomeId, ReactomeIdInvalid};
+pub use biodata::{PathwayRef, ReactomeId};
 use serde::{Deserialize, Serialize};
 /// A bounded list with the total before its cap was applied.
 #[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]

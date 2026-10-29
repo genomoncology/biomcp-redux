@@ -52,10 +52,10 @@ pub struct GeneExpression {
 #[cfg_attr(feature = "schema", schemars(with = "f64", extend("minimum" = 0)))]
 pub struct RnaAbundance(FiniteNumber);
 impl TryFrom<f64> for RnaAbundance {
-    type Error = crate::FiniteNumberError;
+    type Error = biodata::Error;
     fn try_from(value: f64) -> Result<Self, Self::Error> {
         if value < 0.0 {
-            return Err(crate::FiniteNumberError);
+            return Err(biodata::Error::NumberNonFinite);
         }
         FiniteNumber::try_from(value).map(Self)
     }

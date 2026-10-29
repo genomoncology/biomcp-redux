@@ -19,7 +19,7 @@ pub struct PhenotypeTermCard {
     pub components: Box<[ComponentLabel]>,
 }
 impl ResponseBody for PhenotypeTermCard {
-    const SCHEMA: &'static str = "biomcp.phenotype-card/2";
+    const SCHEMA: &'static str = "biomcp.phenotype-card/3";
     type Query = PhenotypeGet;
 }
 macro_rules! page {
@@ -48,28 +48,28 @@ page!(
     PhenotypePage,
     PhenotypeHeader,
     PhenotypeSearch,
-    "biomcp.phenotype-search/2",
+    "biomcp.phenotype-search/3",
     "Native HP search header page, without local ranking."
 );
 page!(
     PhenotypeSynonyms,
     PhenotypeSynonym,
     PhenotypeGet,
-    "biomcp.phenotype-synonyms/2",
+    "biomcp.phenotype-synonyms/3",
     "Source synonym rows preserving publisher classes."
 );
 page!(
     PhenotypeXrefs,
     PhenotypeXref,
     PhenotypeGet,
-    "biomcp.phenotype-xrefs/2",
+    "biomcp.phenotype-xrefs/3",
     "Source reference rows without equivalence promotion."
 );
 page!(
     PhenotypeHierarchy,
     PhenotypeHierarchyLink,
     PhenotypeGet,
-    "biomcp.phenotype-hierarchy/2",
+    "biomcp.phenotype-hierarchy/3",
     "Direct source hierarchy links without graph traversal."
 );
 macro_rules! associations {
@@ -98,11 +98,11 @@ macro_rules! associations {
 }
 associations!(
     PhenotypeDiseases,
-    "biomcp.phenotype-diseases/4",
+    "biomcp.phenotype-diseases/5",
     "Direct source disease association rows without clinical inference."
 );
 associations!(
     PhenotypeGenes,
-    "biomcp.phenotype-genes/4",
+    "biomcp.phenotype-genes/5",
     "Direct source human gene association rows with native taxon."
 );

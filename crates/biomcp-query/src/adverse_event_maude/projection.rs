@@ -8,7 +8,7 @@ pub(super) fn project(
     query: &AdverseEventGet,
     report: biodata::MaudeReport,
     snapshot: Text,
-) -> Result<(QueryBody, u64, u32), ()> {
+) -> Result<(QueryBody, u64, u32), biomcp_types::QueryInvalid> {
     let header = header(&report);
     let row = report;
     let offset = query.section_offset() as usize;
@@ -39,7 +39,7 @@ pub(super) fn project(
                         Source::Maude,
                         Source::Gmdn,
                     )
-                    .map_err(|_| ())?,
+                    .map_err(|_| biomcp_types::QueryInvalid::default())?,
                 })),
                 total,
                 returned,
@@ -86,7 +86,7 @@ fn card(
     row: biodata::MaudeReport,
     header: biomcp_types::AdverseEventHeader,
     snapshot: Text,
-) -> Result<AdverseEventMaudeCard, ()> {
+) -> Result<AdverseEventMaudeCard, biomcp_types::QueryInvalid> {
     let card = AdverseEventMaudeCard {
         header,
         snapshot,
@@ -107,7 +107,7 @@ fn card(
                 biomcp_adapters::registry::records::RecordKind::AdverseEvent,
                 query.id().as_str(),
             )
-            .ok_or(())?,
+            .ok_or_else(biomcp_types::QueryInvalid::default)?,
         )?,
         available_sections: vec![AdverseEventSection::Devices, AdverseEventSection::Narrative]
             .into(),
@@ -118,15 +118,17 @@ fn card(
 
 fn narrative_page(
     rows: impl Iterator<Item = biomcp_types::AdverseEventNarrativeItem>,
-) -> Result<Box<[biomcp_types::AdverseEventNarrativeItem]>, ()> {
+) -> Result<Box<[biomcp_types::AdverseEventNarrativeItem]>, biomcp_types::QueryInvalid> {
     let mut records = Vec::new();
     let mut bytes = 2;
     for row in rows {
-        let additional =
-            serde_json::to_vec(&row).map_err(|_| ())?.len() + usize::from(!records.is_empty());
+        let additional = serde_json::to_vec(&row)
+            .map_err(|_| biomcp_types::QueryInvalid::default())?
+            .len()
+            + usize::from(!records.is_empty());
         if bytes + additional > NARRATIVE_PAGE_BYTES {
             if records.is_empty() {
-                return Err(());
+                return Err(biomcp_types::QueryInvalid::default());
             }
             break;
         }

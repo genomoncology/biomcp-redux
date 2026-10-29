@@ -232,7 +232,7 @@ fn zero_and_failed() -> Result<(), String> {
             "myvariant",
         ],
     )?;
-    if error.pointer("/sources/0/reason") != Some(&json!("bad_reply")) {
+    if error.pointer("/sources/0/reason") != Some(&json!("bad-reply")) {
         return Err(format!("provider error became valid zero: {error}"));
     }
     for _ in 0..2 {
@@ -248,7 +248,7 @@ fn zero_and_failed() -> Result<(), String> {
             ],
         )?;
         if bad.pointer("/status") != Some(&json!("failed"))
-            || bad.pointer("/sources/0/reason") != Some(&json!("bad_reply"))
+            || bad.pointer("/sources/0/reason") != Some(&json!("bad-reply"))
             || bad.get("page").is_some()
         {
             return Err(format!("malformed source page became a valid zero: {bad}"));

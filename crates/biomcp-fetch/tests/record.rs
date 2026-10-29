@@ -537,3 +537,49 @@ fn head_metadata_capture_never_reads_the_object_or_collides_with_get() {
         );
     }
 }
+
+#[test]
+fn legacy_recording_has_no_acquisition_time() {
+    let dir = tempfile::tempdir().unwrap();
+    let server = Server::new();
+    let spec = spec(&server);
+    let capture = fetch(Mode::Record {
+        dir: dir.path().to_owned(),
+    });
+    thread::scope(|scope| {
+        let worker = scope.spawn(|| get(&capture, spec));
+        server.next().ok();
+        worker.join().unwrap().unwrap();
+    });
+    drop(capture);
+    let path = file(dir.path());
+    let mut recording: serde_json::Value =
+        serde_json::from_slice(&std::fs::read(&path).unwrap()).unwrap();
+    recording["exchanges"][0]
+        .as_object_mut()
+        .unwrap()
+        .remove("fetched");
+    std::fs::write(path, serde_json::to_vec(&recording).unwrap()).unwrap();
+    let replay = fetch(Mode::Replay {
+        dir: dir.path().to_owned(),
+    });
+    let leg = replay.leg(spec, replay.deadline(Duration::from_secs(10)));
+    let (_, metadata) = leg
+        .json_received::<Answer>(&spec.get("/answer"), &[])
+        .unwrap();
+    assert_eq!(
+        metadata.fetched, None,
+        "legacy recordings cannot establish acquisition time"
+    );
+}
+
+#[test]
+fn recording_io_conversion_retains_kind_without_error_text() {
+    let error = RecordError::from(std::io::Error::new(
+        std::io::ErrorKind::PermissionDenied,
+        "synthetic-private-path",
+    ));
+    assert_eq!(error, RecordError::Io(std::io::ErrorKind::PermissionDenied));
+    assert_eq!(error.to_string(), "fetch.record_io");
+    assert!(!format!("{error:?}").contains("synthetic-private-path"));
+}

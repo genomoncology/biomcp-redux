@@ -3,6 +3,7 @@
   "feature": "gene-sections",
   "story": "A Reactome cut failure preserves identity and MyGene without caching the rejected section",
   "replay": "gene/pathways/synthetic-cut",
+  "cache_acquired": 42,
   "steps": [
     {
       "run": [
@@ -16,7 +17,7 @@
         "/result/items/0/answer/gene/hgnc_id": "HGNC:11998",
         "/result/items/0/answer/gene/summary/source": "refseq",
         "/result/items/0/sections/pathways/state": "unavailable",
-        "/result/items/0/sections/pathways/reason": "bad_reply",
+        "/result/items/0/sections/pathways/reason": "bad-reply",
         "/sources/*/source": {
           "includes": "mygene",
           "excludes": "gnomad"

@@ -195,7 +195,7 @@ fn measure(value: &Value, args: &[String]) -> Check {
     let caps = if value.get("error").is_some() {
         // j19028: typed argument names, 185 compact bytes plus 15 percent.
         (213, 213)
-    } else if value.pointer("/sources/0/reason") == Some(&json!("bad_reply")) {
+    } else if value.pointer("/sources/0/reason") == Some(&json!("bad-reply")) {
         // j12936: 316 full / 201 comparable bytes, plus 15 percent.
         (364, 232)
     } else if value.get("status") == Some(&json!("failed")) {

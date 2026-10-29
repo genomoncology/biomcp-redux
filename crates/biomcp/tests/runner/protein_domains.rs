@@ -145,7 +145,7 @@ fn admission(env: &Environment) -> Result<(), String> {
     for _ in 0..2 {
         let rejected = call(env, &["protein", "domains", "P15056"], 4)?;
         super::protein_budgets::check(&rejected, "synthetic-domains/wrong-anchor", "cli")?;
-        if rejected.pointer("/sources/0/reason") != Some(&json!("bad_reply"))
+        if rejected.pointer("/sources/0/reason") != Some(&json!("bad-reply"))
             || rejected.get("result").is_some()
         {
             return Err("a live response for another protein was admitted".into());

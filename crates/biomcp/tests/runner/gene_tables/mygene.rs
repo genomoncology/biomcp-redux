@@ -145,7 +145,7 @@ fn identities() -> Check {
                 1 => body[0]["query"] = json!(""),
                 _ => *body = json!({"error":"synthetic invalid input"}),
             },
-            json!({"/sources/1/reason": "bad_reply", "/result/items/0/status": "partial"}),
+            json!({"/sources/1/reason": "bad-reply", "/result/items/0/status": "partial"}),
         )?;
     }
     Ok(())

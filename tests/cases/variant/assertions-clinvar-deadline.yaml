@@ -26,7 +26,7 @@
         "/result/resolution": "unresolved",
         "/sources/0/source": "clinvar",
         "/sources/0/state": "failed",
-        "/sources/0/reason": "deadline_exceeded",
+        "/sources/0/reason": "deadline-exceeded",
         "/result/candidates/0/identity": {
           "equals": {}
         }

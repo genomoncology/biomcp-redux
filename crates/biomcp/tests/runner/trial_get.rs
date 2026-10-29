@@ -203,12 +203,12 @@ fn expected_records(raw: &Value, section: &str) -> Vec<Value> {
 fn failures() -> Check {
     let args = ["get", "trial", "NCT02296125"];
     for (kind, reason) in [
-        ("429", "rate_limited"),
+        ("429", "rate-limited"),
         ("500", "unavailable"),
-        ("cut", "bad_reply"),
-        ("error", "bad_reply"),
-        ("deadline", "deadline_exceeded"),
-        ("identity", "bad_reply"),
+        ("cut", "bad-reply"),
+        ("error", "bad-reply"),
+        ("deadline", "deadline-exceeded"),
+        ("identity", "bad-reply"),
     ] {
         checked_steps(
             "trial/get/NCT02296125",

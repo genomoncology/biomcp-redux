@@ -16,7 +16,7 @@
       "is_error": true,
       "expect": {
         "/result/file/state": "unavailable",
-        "/result/file/reason": "not_pdf"
+        "/result/file/reason": "not-pdf"
       }
     }
   ]

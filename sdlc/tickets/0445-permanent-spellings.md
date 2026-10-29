@@ -1,6 +1,7 @@
 # 0445 — Fix permanent spellings before the tag
 
-Status: OPEN.
+Status: COMPLETE.
+Landed: 2f198f3e747bdc5382c0a3c1ced3f338e80c8e21
 
 Milestone: 5
 

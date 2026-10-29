@@ -14,7 +14,7 @@
       "max_bytes": 700,
       "expect": {
         "/status": "failed",
-        "/sources/0/reason": "bad_reply"
+        "/sources/0/reason": "bad-reply"
       }
     }
   ]

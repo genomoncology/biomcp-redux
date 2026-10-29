@@ -20,7 +20,7 @@ pub(super) fn run() -> Check {
             &["search", "pathway", "Synthetic"],
             4,
         )?;
-        failed(&value, "bad_reply")?;
+        failed(&value, "bad-reply")?;
         uncached(&env, "/search/query")?;
     }
     fixtures::replace(&root, "/search/query", &empty.to_string(), 404, 0)?;

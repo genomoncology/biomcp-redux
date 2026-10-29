@@ -376,7 +376,11 @@ fn curie_runtime_and_published_schema_accept_the_same_checked_ids()
     for (value, accepted) in [
         ("DepMap:ACH-000362", true),
         ("HGNC:3765", true),
-        ("HGNC:HGNC:7132", true),
+        ("https://example.org/concept", false),
+        ("http://example.org/concept", false),
+        ("urn:oid:1.2.3", false),
+        ("prefix:/local", false),
+        ("HGNC:HGNC:7132", false),
         ("prefix_1.-:α/β", true),
         ("DepMap:ACH\u{007f}1", false),
         ("DepMap:ACH\u{0080}1", false),

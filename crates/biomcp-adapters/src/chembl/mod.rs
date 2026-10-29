@@ -40,14 +40,6 @@ pub fn search(
     let key = match selector {
         NameSelector::Preferred => "pref_name__iexact",
         NameSelector::Synonym => "molecule_synonyms__molecule_synonym__iexact",
-        _ => {
-            return Err(RequestError::Source(biomcp_fetch::SourceError {
-                source: Source::Chembl,
-                reason: biomcp_types::Reason::BadReply,
-                status: None,
-                retry_after: None,
-            }));
-        }
     };
     leg.json_received_checked(
         &MOLECULES,

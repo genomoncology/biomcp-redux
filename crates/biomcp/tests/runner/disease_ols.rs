@@ -332,9 +332,9 @@ fn failures() -> Result<(), String> {
         stub.finish()?;
         let expected = if absent { "absent" } else { "failed" };
         let reason = match status {
-            429 => Some("rate_limited"),
+            429 => Some("rate-limited"),
             500 => Some("unavailable"),
-            _ if !absent => Some("bad_reply"),
+            _ if !absent => Some("bad-reply"),
             _ => None,
         };
         let mut expect = json!({"/status":expected,"/sources/0/source":"ols","/sources/0/terms":"EMBL-EBI Terms of Use; ontology-specific rights"});
@@ -380,7 +380,7 @@ fn timeout() -> Result<(), String> {
         &directory,
         json!(
             [{"run":words,"mcp":words,"exit":4,"is_error":true,"expect":{"/status":"failed","/sources/0/source":"ols",
-            "/sources/0/state":"failed","/sources/0/reason":"deadline_exceeded"},"max_bytes":244}]
+            "/sources/0/state":"failed","/sources/0/reason":"deadline-exceeded"},"max_bytes":244}]
         ),
     )?;
     Ok(())

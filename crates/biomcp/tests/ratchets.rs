@@ -1,16 +1,22 @@
 //! Repository structure is part of the build contract.
 #[path = "ratchets/dependencies.rs"]
 mod dependencies;
+#[path = "ratchets/errors.rs"]
+mod errors;
 #[path = "ratchets/lints.rs"]
 mod lints;
 #[path = "ratchets/placement.rs"]
 mod placement;
 #[path = "ratchets/proof.rs"]
 mod proof;
+#[path = "ratchets/proof_support.rs"]
+mod proof_support;
 #[path = "ratchets/reasons.rs"]
 mod reasons;
 #[path = "ratchets/source.rs"]
 mod source;
+#[path = "ratchets/spellings.rs"]
+mod spellings;
 
 use std::{fs, path::Path};
 
@@ -19,6 +25,7 @@ type Check = Result<(), Box<dyn std::error::Error>>;
 fn check(root: &Path) -> Check {
     dependencies::check(root)?;
     reasons::check(root)?;
+    spellings::check(root)?;
     source::check(root)
 }
 

@@ -174,6 +174,7 @@ fn configuration() -> Result<(), String> {
     offline_bypass()?;
     named_fields()?;
     named_environment()?;
+    invalid_utf8_environment()?;
     duplicate_field_cause()?;
     named_server_and_key_causes()?;
     skipped_bypass()?;
@@ -306,8 +307,8 @@ fn skipped_bypass() -> Result<(), String> {
     let value = health(rules)?;
     if value.pointer("/result/configuration")
         != Some(&json!({"notices":[
-        {"variable":"NO_PROXY", "entry":2, "code":"unparseable_entry"},
-        {"variable":"NO_PROXY", "entry":4, "code":"unparseable_entry"}], "omitted_entries":0}))
+        {"variable":"NO_PROXY", "entry":2, "code":"unparseable-entry"},
+        {"variable":"NO_PROXY", "entry":4, "code":"unparseable-entry"}], "omitted_entries":0}))
         || value.to_string().contains("synthetic-private")
     {
         return Err(format!("missing bounded notice: {value}"));
@@ -384,5 +385,50 @@ fn duplicate_field_cause() -> Result<(), String> {
     {
         return Err("duplicate field lost its safe cause".into());
     }
+    Ok(())
+}
+
+#[cfg(unix)]
+fn invalid_utf8_environment() -> Result<(), String> {
+    use std::{ffi::OsString, os::unix::ffi::OsStringExt};
+    for (name, args) in [
+        ("HOME", vec!["health", "--offline"]),
+        ("HTTPS_PROXY", vec!["health", "--offline"]),
+        (
+            "NCBI_API_KEY",
+            vec![
+                "search",
+                "article",
+                "EGFR",
+                "--source",
+                "pubmed",
+                "--offline",
+            ],
+        ),
+        ("NCBI_API_KEY", vec!["key", "list"]),
+    ] {
+        let env = Environment::new().map_err(|e| e.to_string())?;
+        let invalid = OsString::from_vec(b"synthetic-private-\xff-key".to_vec());
+        let output = env
+            .command(
+                env!("CARGO_BIN_EXE_biomcp"),
+                &args.into_iter().map(Into::into).collect::<Vec<_>>(),
+            )
+            .env(name, invalid)
+            .output()
+            .map_err(|e| e.to_string())?;
+        if output.status.success()
+            || output.stdout.windows(17).any(|v| v == b"synthetic-private")
+            || output.stderr.windows(17).any(|v| v == b"synthetic-private")
+        {
+            return Err(format!(
+                "invalid UTF-8 environment was accepted or printed: {name}"
+            ));
+        }
+    }
+    Ok(())
+}
+#[cfg(not(unix))]
+fn invalid_utf8_environment() -> Result<(), String> {
     Ok(())
 }

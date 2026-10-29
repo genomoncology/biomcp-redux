@@ -12,7 +12,7 @@
       ],
       "expect": {
         "/result/items/0/answer/card/types": {
-          "includes": "retracted_publication"
+          "includes": "retracted-publication"
         },
         "/result/items/0/answer/card/doi": "10.1371/journal.pone.0261341",
         "/result/items/0/answer/card/corrections/0/kind": "retraction",

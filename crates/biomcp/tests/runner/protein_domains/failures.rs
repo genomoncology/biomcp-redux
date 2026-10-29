@@ -25,11 +25,11 @@ pub(super) fn run() -> Result<(), String> {
         )?;
         stub.finish()?;
         for (kind, reason) in [
-            ("429", "rate_limited"),
+            ("429", "rate-limited"),
             ("500", "unavailable"),
-            ("timeout", "deadline_exceeded"),
-            ("broken", "bad_reply"),
-            ("error", "bad_reply"),
+            ("timeout", "deadline-exceeded"),
+            ("broken", "bad-reply"),
+            ("error", "bad-reply"),
         ] {
             let env = Environment::new().map_err(|e| e.to_string())?;
             let replay = env.root().join("recordings");

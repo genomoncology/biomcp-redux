@@ -117,7 +117,7 @@ fn validate(mode: &str, v: &Value) -> Result<(), String> {
     }
     if mode == "wrong-status"
         && (v.get("status") != Some(&json!("failed"))
-            || v.pointer("/sources/0/reason") != Some(&json!("bad_reply")))
+            || v.pointer("/sources/0/reason") != Some(&json!("bad-reply")))
     {
         return Err(format!("HTTP 200 error became absence: {v}"));
     }

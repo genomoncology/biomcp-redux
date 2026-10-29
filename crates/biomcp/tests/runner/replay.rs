@@ -46,8 +46,14 @@ fn missing() -> Result<(), String> {
 }
 fn repeated() -> Result<(), String> {
     let env = Environment::new().map_err(|e| e.to_string())?;
+    let records = env.root().join("known-recordings");
+    super::response_cases::cache_capture(
+        "gene/main",
+        &records,
+        super::response_cases::CACHE_ACQUIRED,
+    )?;
     let mut args = vec!["serve".into()];
-    args.extend(env.globals(Some(&super::configuration::root()), false));
+    args.extend(env.globals(Some(&records), false));
     let mut child = env
         .command(env!("CARGO_BIN_EXE_biomcp"), &args)
         .stdin(Stdio::piped())
@@ -139,6 +145,6 @@ fn replay_miss(reply: &Value) -> bool {
         .is_some_and(|sources| {
             sources
                 .iter()
-                .any(|source| source.get("reason") == Some(&json!("replay_miss")))
+                .any(|source| source.get("reason") == Some(&json!("replay-miss")))
         })
 }

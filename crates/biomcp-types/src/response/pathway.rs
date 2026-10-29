@@ -26,8 +26,8 @@ biodata::wire_enum! {
     PathwayTotalKind {
         #[doc = "Native source-reported total before exact page admission."] Source => "source",
         #[doc = "Number of observed members in the retained relation."] Observed => "observed",
-        #[doc = "Distinct namespaced references, preserving isoform identifiers."] DistinctReferences => "distinct_references",
-        #[doc = "Native GeneProduct data nodes, including repeated references."] DataNodes => "data_nodes"
+        #[doc = "Distinct namespaced references, preserving isoform identifiers."] DistinctReferences => "distinct-references",
+        #[doc = "Native GeneProduct data nodes, including repeated references."] DataNodes => "data-nodes"
     }
 }
 /// Native page position and explicit count provenance; a short admitted page can continue.
@@ -60,7 +60,7 @@ pub struct PathwayPage {
     pub page: PathwayPageInfo,
 }
 impl ResponseBody for PathwayPage {
-    const SCHEMA: &'static str = "biomcp.pathway-page/4";
+    const SCHEMA: &'static str = "biomcp.pathway-page/5";
     type Query = PathwaySearch;
 }
 /// One checked source pathway with supported disclosures and whole native text.
@@ -86,7 +86,7 @@ pub struct PathwayCard {
     pub events: Option<crate::Section<PathwayEvents>>,
 }
 impl ResponseBody for PathwayCard {
-    const SCHEMA: &'static str = "biomcp.pathway-card/6";
+    const SCHEMA: &'static str = "biomcp.pathway-card/7";
     type Query = PathwayGet;
 }
 macro_rules! relation_page {
@@ -126,14 +126,14 @@ pub struct PathwayGenes {
     pub physical_entities: u64,
 }
 impl ResponseBody for PathwayGenes {
-    const SCHEMA: &'static str = "biomcp.pathway-genes/5";
+    const SCHEMA: &'static str = "biomcp.pathway-genes/6";
     type Query = PathwayGenesQuery;
 }
 relation_page!(
     PathwayEvents,
     PathwayEventRef,
     PathwayEventsQuery,
-    "biomcp.pathway-events/2"
+    "biomcp.pathway-events/3"
 );
 /// Receipt for one independently validated WikiPathways metadata catalog.
 #[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
@@ -163,6 +163,6 @@ pub struct WikiPathwaysSync {
 }
 
 impl ResponseBody for WikiPathwaysSync {
-    const SCHEMA: &'static str = "biomcp.wikipathways-sync/2";
+    const SCHEMA: &'static str = "biomcp.wikipathways-sync/3";
     type Query = crate::SyncQuery;
 }
