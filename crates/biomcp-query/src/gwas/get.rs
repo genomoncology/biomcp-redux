@@ -129,6 +129,7 @@ fn resource(q: &GwasGet, leg: &Leg<'_>, out: &mut Outcome) -> Result<(), Request
             ..
         } => {
             let rows = gwas::get::loci(leg, *id)?;
+            out.problems.extend(rows.problems);
             rejected(out, rows.rejected);
             let (items, continuation) = page(q, &rows.items, out);
             next::loci(&items, out);
