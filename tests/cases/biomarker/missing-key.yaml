@@ -1,0 +1,22 @@
+{
+  "feature": "biomarker-nci",
+  "story": "NCI biomarker concept discovery reports the missing source key without claiming absence.",
+  "steps": [
+    {
+      "run": [
+        "search",
+        "biomarker",
+        "--source",
+        "nci",
+        "--name",
+        "PD-L1"
+      ],
+      "expect": {
+        "/status": "failed",
+        "/sources/0/reason": "no_key"
+      },
+      "exit": 4,
+      "max_bytes": 2000
+    }
+  ]
+}

@@ -160,6 +160,13 @@
       ],
       "type": "string"
     },
+    "BiomarkerSource": {
+      "description": "Biomarker concept publisher.",
+      "enum": [
+        "nci"
+      ],
+      "type": "string"
+    },
     "Build": {
       "description": "The assembly stated by the source; no default is inferred.",
       "enum": [
@@ -519,6 +526,11 @@
     "NcbiGeneId": {
       "description": "A positive NCBI Gene identifier in canonical decimal text.",
       "pattern": "^[1-9][0-9]*$",
+      "type": "string"
+    },
+    "NcitId": {
+      "description": "A native NCI Thesaurus concept code.",
+      "pattern": "^C[0-9]+$",
       "type": "string"
     },
     "NctId": {
@@ -936,6 +948,80 @@
   "$schema": "https://json-schema.org/draft/2020-12/schema",
   "description": "One checked query. Housekeeping actions are separate.",
   "oneOf": [
+    {
+      "additionalProperties": false,
+      "description": "Find native NCI biomarker concepts.",
+      "properties": {
+        "command": {
+          "const": "search_biomarker",
+          "type": "string"
+        },
+        "limit": {
+          "default": 5,
+          "description": "Maximum headers per local page.",
+          "format": "uint32",
+          "maximum": 50,
+          "minimum": 1,
+          "type": "integer"
+        },
+        "name": {
+          "$ref": "#/$defs/Text",
+          "description": "Native partial name or synonym search."
+        },
+        "offset": {
+          "default": 0,
+          "description": "Offset within the complete retained observation.",
+          "format": "uint32",
+          "minimum": 0,
+          "type": "integer"
+        },
+        "pool": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/Text"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "description": "Snapshot identity retained by continuation commands."
+        },
+        "source": {
+          "$ref": "#/$defs/BiomarkerSource",
+          "description": "Explicit keyed NCI source."
+        }
+      },
+      "required": [
+        "command",
+        "source"
+      ],
+      "type": "object"
+    },
+    {
+      "additionalProperties": false,
+      "description": "Search native NCI biomarker rows by exact NCIt code.",
+      "properties": {
+        "command": {
+          "const": "get_biomarker",
+          "type": "string"
+        },
+        "id": {
+          "$ref": "#/$defs/NcitId",
+          "description": "Exact NCIt code, such as C96022.",
+          "x-positional": 0
+        },
+        "source": {
+          "$ref": "#/$defs/BiomarkerSource",
+          "default": "nci",
+          "description": "NCI is the biomarker concept source."
+        }
+      },
+      "required": [
+        "command",
+        "id"
+      ],
+      "type": "object"
+    },
     {
       "additionalProperties": false,
       "description": "Find NCI organization names without assigning an identity.",

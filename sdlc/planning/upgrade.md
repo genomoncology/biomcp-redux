@@ -180,3 +180,12 @@ Every source and component starts on with publisher terms. Commercial users shou
 A direct dbSNP adapter is dropped from 1.0. rsIDs remain available through MyVariant and the ClinGen Allele Registry with their intermediary provenance.
 
 `search trial --source nci --facility "Dana-Farber Cancer Institute"` filters by exact organization name, case-insensitively. A listed site is not necessarily enrolling. The header carries one matched site and the number of matching sites. Facility and radius filters cannot combine.
+
+## NCI biomarker terminology
+
+| Command | Behavior |
+| --- | --- |
+| `search biomarker --source nci --name PD-L1` | Search NCI concept names and synonyms with the user's key. Headers retain typed code lists, native type lists and NCI trial counts. Returned page commands retain one bounded observation. |
+| `get biomarker C96022` | Search the exact NCIt code and return its native card or every candidate when several rows match. The public tier returns synonyms, parent and ancestor codes, and native eligibility criteria. |
+
+These concept commands differ from diagnostic `--biomarker` filters and literal trial `--variant` searches. Native criteria do not establish patient eligibility.

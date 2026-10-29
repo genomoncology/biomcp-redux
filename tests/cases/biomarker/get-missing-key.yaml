@@ -1,0 +1,19 @@
+{
+  "feature": "biomarker-nci",
+  "story": "Exact NCIt concept retrieval reports a missing key.",
+  "steps": [
+    {
+      "run": [
+        "get",
+        "biomarker",
+        "C96022"
+      ],
+      "expect": {
+        "/status": "failed",
+        "/sources/0/reason": "no_key"
+      },
+      "exit": 4,
+      "max_bytes": 2000
+    }
+  ]
+}

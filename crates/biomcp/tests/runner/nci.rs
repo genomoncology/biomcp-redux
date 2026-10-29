@@ -8,6 +8,7 @@ use crate::runner::transcript::trial as transcript_trial;
 use libtest_mimic::Trial;
 use serde_json::{Value, json};
 use std::{fs, path::Path};
+mod biomarker;
 mod facility;
 mod organization;
 type Check = Result<(), String>;
@@ -18,6 +19,7 @@ pub(super) fn trials() -> Vec<Trial> {
     })];
     trials.extend(organization::trials());
     trials.extend(facility::trials());
+    trials.extend(biomarker::trials());
     trials
 }
 fn reply(request: &str) -> Result<String, String> {

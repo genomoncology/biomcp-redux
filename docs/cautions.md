@@ -148,6 +148,12 @@ The count covers trials of every status, including closed trials. It does not co
 
 NCI trial facility searches use `sites.org_name` for an exact case-insensitive organization name. Each organization row offers this search as its next command. Each trial header shows the first locally equal site in publisher order and the number of equal sites. Site name, city, state and recruitment status retain source values. A listed site is not necessarily enrolling. If no returned site equals the requested name, the trial keeps its position and reports a `sites.org_name` problem. NCI facility searches refuse radius filters because NCI does not document that these filters bind one site.
 
+## NCI biomarker concepts
+
+`search biomarker --source nci --name PD-L1` searches NCI's native concept names and synonyms. `get biomarker C96022` searches by an exact NCIt code. Both require the user's NCI key. The public tier returns codes, name, type, trial count, synonyms, parent and ancestor codes, and native `eligibility_criterion` values. A code can return several native rows; BioMCP then returns candidates without choosing one. Counts cover NCI trials across statuses.
+
+These commands return terminology. `search diagnostic --biomarker` filters diagnostic tests, and `search trial --variant` searches literal variant text. Native inclusion and exclusion values remain source assertions and do not establish patient eligibility. Search pages retain one bounded observation. A broad request can return narrowing guidance; a source failure never establishes zero concepts.
+
 ## Medical device recalls
 
 `search diagnostic --source fda-device-recall` covers every medical device. It searches the native recalling firm phrase, exact product code and inclusive initiation dates. The [FDA field mapping](https://github.com/FDA/openfda/blob/master/schemas/device_recall_mapping.json) defines `product_code` as a keyword field and `product_res_number.exact` as the exact recall identity. Totals count product recall records, including separate records under one event number. A count makes no claim about harm.

@@ -175,3 +175,6 @@ pub use device_recall::{DeviceRecallCard, DeviceRecallHeader};
 
 mod organization;
 pub use organization::{Organization, OrganizationCoordinates, OrganizationPage};
+
+mod biomarker;
+pub use biomarker::{BiomarkerCard, BiomarkerHeader, BiomarkerPage, BiomarkerResult};

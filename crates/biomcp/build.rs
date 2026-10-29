@@ -42,6 +42,8 @@ fn main() -> Result<(), Box<dyn Error>> {
 }
 
 const EXAMPLE_CASES: &[(&str, usize)] = &[
+    ("biomarker/synonym.yaml", 0),
+    ("biomarker/code.yaml", 0),
     ("organization/name.yaml", 0),
     ("organization/city-state.yaml", 0),
     ("gene/hgnc-sync.yaml", 0),

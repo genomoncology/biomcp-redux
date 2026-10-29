@@ -475,7 +475,7 @@ fn request(
         (
             "search" | "get",
             "pgx" | "adverse-event" | "disease" | "drug" | "diagnostic" | "pathway" | "phenotype"
-            | "protein" | "study" | "cell-line" | "author" | "organization",
+            | "protein" | "study" | "cell-line" | "author" | "organization" | "biomarker",
         ) => entity::request(verb, entity, value),
         ("variant", "assertions") => {
             validation::decode::<VariantAssertionsGet>(value).map(Request::VariantAssertions)
