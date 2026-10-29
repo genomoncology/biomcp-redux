@@ -15,6 +15,9 @@ mod date;
 mod error;
 mod id;
 mod macros;
+#[cfg(feature = "schema")]
+#[doc(hidden)]
+pub mod schema_pattern;
 
 pub use coord::{Position1, Span0};
 pub use date::PartialDate;

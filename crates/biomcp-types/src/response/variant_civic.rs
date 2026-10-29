@@ -18,7 +18,7 @@ pub struct VariantCivic {
 /// One source molecular profile, preserving compound expressions.
 #[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
 #[cfg_attr(feature = "schema", derive(schemars::JsonSchema))]
-#[cfg_attr(feature = "schema", schemars(rename = "CivicProfile"))]
+#[cfg_attr(feature = "schema", schemars(rename = "CivicProfile_{Continuation}"))]
 pub struct CivicProfile<Continuation = VariantGet> {
     /// Native profile identity and link.
     pub record: SourceRecord,
@@ -65,7 +65,7 @@ pub struct CivicMember {
 /// Native stream bounds; evidence and assertions have separate cursors.
 #[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
 #[cfg_attr(feature = "schema", derive(schemars::JsonSchema))]
-#[cfg_attr(feature = "schema", schemars(rename = "CivicClaimPage"))]
+#[cfg_attr(feature = "schema", schemars(rename = "CivicClaimPage_{Continuation}"))]
 pub struct CivicClaimPage<Continuation = VariantGet> {
     /// Number of native rows displayed in this stream.
     pub returned: u32,

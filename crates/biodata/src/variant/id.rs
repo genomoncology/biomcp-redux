@@ -1,7 +1,7 @@
 use crate::{Error, text_value};
 use std::{fmt, num::NonZeroU64, str::FromStr};
 macro_rules! numeric_id {
-    ($(#[doc = $doc:literal])* $name:ident, $error:ident, $prefix:literal, $pattern:literal, $padding:literal) => {
+    ($(#[doc = $doc:literal])* $name:ident, $error:ident, $prefix:literal, $padding:literal) => {
         $(#[doc = $doc])*
         #[derive(Clone, Copy, Debug, PartialEq, Eq, Hash)]
         pub struct $name(NonZeroU64);
@@ -27,22 +27,22 @@ macro_rules! numeric_id {
                 write!(f, "{}{:0width$}", $prefix, self.get(), width = $padding)
             }
         }
-        text_value!($name, stringify!($name), $pattern, concat!($($doc),*));
+        text_value!($name, stringify!($name), format!("^{}{}$", $prefix, crate::schema_pattern::padded_decimal(u64::MAX, $padding)), concat!($($doc),*));
     };
 }
 // Each level has its own checked value, even where the grammar is the same.
 numeric_id!(/// A dbSNP site identifier, never an allele join key.
-    RsId, RsIdInvalid, "rs", "^rs[1-9][0-9]*$", 0);
+    RsId, RsIdInvalid, "rs", 0);
 numeric_id!(/// A ClinGen canonical nucleotide allele identifier.
-    CaId, CaIdInvalid, "CA", "^CA[0-9]{6,}$", 6);
+    CaId, CaIdInvalid, "CA", 6);
 // Registry API documents separate CA nucleotide and PA protein namespaces:
 // https://reg.genome.network/doc/AlleleRegistry_1.01.xx_api_v1.pdf
 numeric_id!(/// A ClinGen canonical protein allele identifier.
-    PaId, PaIdInvalid, "PA", "^PA[1-9][0-9]*$", 0);
+    PaId, PaIdInvalid, "PA", 0);
 numeric_id!(/// A ClinVar variation record, which may represent a compound.
-    ClinVarVariationId, ClinVarVariationIdInvalid, "clinvar:", "^clinvar:[1-9][0-9]*$", 0);
+    ClinVarVariationId, ClinVarVariationIdInvalid, "clinvar:", 0);
 numeric_id!(/// An allele identifier inside a ClinVar record, not a variant identifier.
-    ClinVarAlleleId, ClinVarAlleleIdInvalid, "", "^[1-9][0-9]*$", 0);
+    ClinVarAlleleId, ClinVarAlleleIdInvalid, "", 0);
 macro_rules! accession_id {
     ($(#[doc = $doc:literal])* $name:ident, $error:ident, $prefix:literal) => {
         $(#[doc = $doc])*
@@ -62,7 +62,7 @@ macro_rules! accession_id {
         impl fmt::Display for $name {
             fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result { f.write_str(&self.0) }
         }
-        text_value!($name, stringify!($name), concat!("^", $prefix, "[0-9]{9}(\\.[1-9][0-9]*)?$"), concat!($($doc),*));
+        text_value!($name, stringify!($name), concat!("^", $prefix, "(?!000000000)[0-9]{9}(\\.[1-9][0-9]*)?$"), concat!($($doc),*));
     };
 }
 accession_id!(/// A ClinVar variation accession, possibly a haplotype or compound.
@@ -185,15 +185,18 @@ impl fmt::Display for VariantId {
         }
     }
 }
-#[cfg(feature = "schema")]
-impl VariantId {
-    /// Canonical wire pattern shared by consumer input schemas.
-    pub const PATTERN: &'static str = "^(rs[1-9][0-9]*|CA[0-9]{6,}|PA[1-9][0-9]*|VCV[0-9]{9}(\\.[1-9][0-9]*)?|\
-        clinvar:[1-9][0-9]*|COS[VMN][1-9][0-9]*|ga4gh:VA\\.[A-Za-z0-9_-]{32})$";
-}
 text_value!(
     VariantId,
     "VariantId",
-    Self::PATTERN,
+    format!(
+        "({}|{}|{}|{}|{}|{}|{})",
+        RsId::pattern(),
+        CaId::pattern(),
+        PaId::pattern(),
+        VcvId::pattern(),
+        ClinVarVariationId::pattern(),
+        CosmicId::pattern(),
+        VrsId::pattern()
+    ),
     "Published variant-level identifiers, with each identifier's level retained."
 );

@@ -5,6 +5,8 @@ use serde::{Deserialize, Serialize};
 pub enum DrugSource {
     /// WHO finished pharmaceutical product prequalification.
     WhoPq,
+    /// FDA native drug recall records.
+    FdaDrugRecall,
     /// MyChem candidate identity.
     Mychem,
     /// ChEMBL native records.
@@ -24,8 +26,9 @@ pub enum DrugSource {
 }
 impl DrugSource {
     /// Every retained drug source; registry bindings use these canonical values.
-    pub const ALL: [Self; 9] = [
+    pub const ALL: [Self; 10] = [
         Self::WhoPq,
+        Self::FdaDrugRecall,
         Self::Mychem,
         Self::Chembl,
         Self::Opentargets,
@@ -42,6 +45,7 @@ impl DrugSource {
     /// Shared transport identity, also owning the canonical source spelling.
     pub const fn source(self) -> crate::Source {
         match self {
+            Self::FdaDrugRecall => crate::Source::FdaDrugRecall,
             Self::WhoPq => crate::Source::WhoPq,
             Self::Mychem => crate::Source::Mychem,
             Self::Chembl => crate::Source::Chembl,

@@ -90,8 +90,8 @@ pub use response::{
 };
 pub use response::{Constraint, GeneSections, Protein};
 pub use response::{
-    Envelope, GeneCards, GeneItem, GenePage, ItemStatus, PageInfo, QueryBody, ResponseBody,
-    Section, SourceOutcome, SourceRecord, SourceState, Status, Step, StepKind,
+    EmptyQuery, Envelope, GeneCards, GeneItem, GenePage, ItemStatus, PageInfo, QueryBody,
+    ResponseBody, Section, SourceOutcome, SourceRecord, SourceState, Status, Step, StepKind,
 };
 pub use response::{ErrorCode, ErrorEnvelope, ErrorMessage, ErrorStatus, Problem, ProblemCode};
 pub use response::{
@@ -158,9 +158,10 @@ pub use drug::{
     DrugCivicProfile, DrugCivicStreams, DrugFdaCandidate, DrugFdaDocument, DrugFdaIngredient,
     DrugFdaPage, DrugFdaProduct, DrugFdaProperty, DrugFdaSubmission, DrugGet, DrugHeader,
     DrugIndications, DrugInteractions, DrugLabel, DrugLabelFragment, DrugLabelText, DrugNameMatch,
-    DrugNameSelector, DrugOncokbLookup, DrugOncokbMissing, DrugPage, DrugRecords, DrugRegulatory,
-    DrugSearch, DrugSection, DrugSource, DrugTargets, DrugWhoCard, DrugWhoGet, DrugWhoPage,
-    DrugWhoRow, DrugXrefs,
+    DrugNameSelector, DrugOncokbLookup, DrugOncokbMissing, DrugPage, DrugRecallCard,
+    DrugRecallClassification, DrugRecallCountUnit, DrugRecallHeader, DrugRecallPage, DrugRecords,
+    DrugRegulatory, DrugSearch, DrugSection, DrugSource, DrugTargets, DrugWhoCard, DrugWhoGet,
+    DrugWhoPage, DrugWhoRow, DrugXrefs,
 };
 
 pub use query::{CheckedQuery, QueryInvalid};

@@ -1,6 +1,6 @@
 {
   "$defs": {
-    "MatchKind": {
+    "Reply_MatchKind": {
       "description": "How a source matched a gene input.",
       "type": "string",
       "x-enum-descriptions": [
@@ -24,7 +24,7 @@
         "band"
       ]
     },
-    "Text": {
+    "Reply_Text": {
       "description": "Nonempty text with surrounding Unicode whitespace removed.",
       "minLength": 1,
       "type": "string"
@@ -35,11 +35,11 @@
   "description": "A source-stated match, preserving the text that matched.",
   "properties": {
     "kind": {
-      "$ref": "#/$defs/MatchKind",
+      "$ref": "#/$defs/Reply_MatchKind",
       "description": "The match category."
     },
     "text": {
-      "$ref": "#/$defs/Text",
+      "$ref": "#/$defs/Reply_Text",
       "description": "The source text that matched the input."
     }
   },

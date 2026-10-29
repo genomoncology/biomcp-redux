@@ -70,7 +70,7 @@ pub struct ArticlePage {
     pub candidates: Vec<LitVarCandidate>,
 }
 impl super::ResponseBody for ArticlePage {
-    const SCHEMA: &'static str = "biomcp.article-page/4";
+    const SCHEMA: &'static str = "biomcp.article-page/5";
     type Query = ArticleSearch;
 }
 
@@ -83,7 +83,7 @@ pub struct ArticleEdgePage {
     pub items: Box<[ArticleEdgeItem]>,
 }
 impl super::ResponseBody for ArticleEdgePage {
-    const SCHEMA: &'static str = "biomcp.article-edges/5";
+    const SCHEMA: &'static str = "biomcp.article-edges/6";
     type Query = crate::ArticleEdges;
 }
 

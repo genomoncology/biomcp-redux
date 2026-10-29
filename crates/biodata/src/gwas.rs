@@ -30,7 +30,7 @@ impl fmt::Display for GwasStudyId {
 text_value!(
     GwasStudyId,
     "GwasStudyId",
-    "^GCST[0-9]{6,}$",
+    "^GCST(?=[0-9]{6,}$)[0-9]*[1-9][0-9]*$",
     "Exact Catalog study accession; case and leading zeros survive."
 );
 
@@ -66,7 +66,7 @@ impl fmt::Display for GwasAssociationId {
 text_value!(
     GwasAssociationId,
     "GwasAssociationId",
-    "^association:[1-9][0-9]*$",
+    format!("^association:{}$", crate::schema_pattern::decimal(u64::MAX)),
     "A positive Catalog association ID qualified by resource kind."
 );
 

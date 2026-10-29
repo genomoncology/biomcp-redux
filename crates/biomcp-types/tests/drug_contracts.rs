@@ -466,9 +466,9 @@ fn interaction_keeps_both_bundle_origins_and_refuses_duplicate_attribution() {
 fn changed_native_record_responses_publish_version_three_and_checked_target_schema() {
     use biodata::DrugTargetRelation;
     use biomcp_types::{DrugIndications, DrugInteractions, DrugTargets, ResponseBody};
-    assert_eq!(DrugTargets::SCHEMA, "biomcp.drug-targets/3");
-    assert_eq!(DrugIndications::SCHEMA, "biomcp.drug-indications/3");
-    assert_eq!(DrugInteractions::SCHEMA, "biomcp.drug-interactions/3");
+    assert_eq!(DrugTargets::SCHEMA, "biomcp.drug-targets/4");
+    assert_eq!(DrugIndications::SCHEMA, "biomcp.drug-indications/4");
+    assert_eq!(DrugInteractions::SCHEMA, "biomcp.drug-interactions/4");
     let validator =
         jsonschema::draft202012::new(&schemars::schema_for!(DrugTargetRelation).to_value())
             .expect("target schema");
@@ -547,4 +547,37 @@ fn chembl_name_selector_is_explicit_and_source_scoped() {
         )
         .is_err()
     );
+}
+
+#[test]
+#[cfg(feature = "schema")]
+fn drug_recall_name_omission_and_present_values_match_the_schema() {
+    let schema = schemars::schema_for!(DrugSearch).to_value();
+    let validator = jsonschema::draft202012::new(&schema).expect("drug search schema");
+    for (query, valid) in [
+        (
+            json!({"source":"fda-drug-recall","firm":"Synthetic maker"}),
+            true,
+        ),
+        (
+            json!({"source":"fda-drug-recall","query":"Synthetic name"}),
+            true,
+        ),
+        (json!({"source":"fda-drug-recall","query":null}), false),
+    ] {
+        assert_eq!(validator.is_valid(&query), valid, "{query}");
+        assert_eq!(
+            serde_json::from_value::<DrugSearch>(query.clone()).is_ok(),
+            valid,
+            "{query}"
+        );
+    }
+    for source in biomcp_types::DrugSource::ALL {
+        if source != biomcp_types::DrugSource::FdaDrugRecall {
+            assert!(
+                serde_json::from_value::<DrugSearch>(json!({"source":source})).is_err(),
+                "{source}"
+            );
+        }
+    }
 }

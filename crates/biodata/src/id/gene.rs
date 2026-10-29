@@ -38,7 +38,7 @@ impl fmt::Display for NcbiGeneId {
 text_value!(
     NcbiGeneId,
     "NcbiGeneId",
-    "^[1-9][0-9]*$",
+    format!("^{}$", crate::schema_pattern::decimal(u32::MAX.into())),
     "A positive NCBI Gene identifier in canonical decimal text."
 );
 

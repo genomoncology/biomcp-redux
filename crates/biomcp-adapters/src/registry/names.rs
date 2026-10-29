@@ -42,6 +42,7 @@ pub fn display_name(source: Source) -> &'static str {
         Source::Chembl => "ChEMBL",
         Source::Opentargets => "Open Targets",
         Source::OpenfdaLabel => "openFDA drug label",
+        Source::FdaDrugRecall => "FDA drug recall",
         Source::Drugsfda => "Drugs@FDA",
         Source::Ema => "European Medicines Agency",
         Source::WhoPq => "WHO prequalified medicine",

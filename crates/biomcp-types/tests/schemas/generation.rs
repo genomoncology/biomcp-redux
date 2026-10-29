@@ -20,6 +20,17 @@ fn prepare(node: &mut Value, kind: ContractKind) {
         Value::Object(object) => {
             let growable = object.remove("x-enum-open") == Some(Value::Bool(true));
             if matches!(kind, ContractKind::Reply) {
+                if let Some(Value::Object(definitions)) = object.get_mut("$defs") {
+                    *definitions = std::mem::take(definitions)
+                        .into_iter()
+                        .map(|(name, body)| (format!("Reply_{name}"), body))
+                        .collect();
+                }
+                if let Some(Value::String(reference)) = object.get_mut("$ref")
+                    && let Some(name) = reference.strip_prefix("#/$defs/")
+                {
+                    *reference = format!("#/$defs/Reply_{name}");
+                }
                 if object.get("additionalProperties") == Some(&Value::Bool(false)) {
                     object.remove("additionalProperties");
                 }

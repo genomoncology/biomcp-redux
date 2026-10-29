@@ -204,3 +204,4 @@ diagnostic-device-recall: Search native device recall records, inspect exact rec
 organization-nci: Find source-native NCI organizations with bounded snapshots and local paging. Cases: `tests/cases/organization/*.yaml`, `crates/biomcp/tests/runner/nci/organization.rs`.
 
 biomarker-nci: Find NCI biomarker concepts by name or synonym and retrieve native concept rows by NCIt code. Cases: `tests/cases/biomarker/*.yaml`, `crates/biomcp/tests/runner/nci/biomarker.rs`.
+drug-recall: Search published FDA drug recall records by name, firm, classification, status, reason and initiation dates; page and fetch exact native recall numbers with source field problems. Cases: `crates/biomcp/tests/runner/drug_recall.rs`.

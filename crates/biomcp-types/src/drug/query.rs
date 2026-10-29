@@ -29,7 +29,8 @@ fn default_source() -> DrugSource {
 fn default_limit() -> u32 {
     10
 }
-/// Literal single-source candidate discovery, without an implicit identity selection.
+#[doc = " Search one drug source. FDA drug recalls accept a name or native firm, classification, \
+    status, reason and initiation dates; counts are recall records. Other sources require a name."]
 #[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
 #[serde(try_from = "SearchFields")]
 #[cfg_attr(feature = "schema", derive(schemars::JsonSchema))]
@@ -39,9 +40,34 @@ pub struct DrugSearch(SearchFields);
 #[serde(deny_unknown_fields)]
 #[cfg_attr(feature = "schema", derive(schemars::JsonSchema))]
 struct SearchFields {
-    /// Literal source name selector, unchanged by the consumer.
+    /// Literal name phrase; optional for FDA drug recalls. Harmonized recall names match but never become display names.
     #[cfg_attr(feature = "schema", schemars(extend("x-positional" = 0)))]
-    query: Text,
+    #[serde(
+        default,
+        deserialize_with = "present_query",
+        skip_serializing_if = "Option::is_none"
+    )]
+    #[cfg_attr(feature = "schema", schemars(with = "Text"))]
+    query: Option<Text>,
+    /// Literal published recalling firm phrase; drug recalls only.
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    firm: Option<Text>,
+    /// Native FDA classification; drug recalls only.
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    classification: Option<super::DrugRecallClassification>,
+    /// Literal native recall status; drug recalls only.
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    status: Option<Text>,
+    /// Phrase in the published recall reason; drug recalls only.
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    reason: Option<Text>,
+    /// Inclusive initiation day, YYYY-MM-DD; drug recalls only.
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    initiated_from: Option<biodata::PartialDate>,
+    /// Inclusive initiation day, YYYY-MM-DD; drug recalls only.
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    initiated_to: Option<biodata::PartialDate>,
+
     /// Exactly one source; default MyChem never fans out.
     #[serde(default = "default_source")]
     source: DrugSource,
@@ -71,6 +97,18 @@ impl TryFrom<SearchFields> for DrugSearch {
         if fields.name_selector.is_some() && fields.source != DrugSource::Chembl {
             return Err(QueryInvalid::new(&["name_selector", "source"]));
         }
+        super::recall::validate_search(
+            fields.source,
+            fields.query.is_some(),
+            fields.firm.is_some()
+                || fields.classification.is_some()
+                || fields.status.is_some()
+                || fields.reason.is_some()
+                || fields.initiated_from.is_some()
+                || fields.initiated_to.is_some(),
+            fields.initiated_from,
+            fields.initiated_to,
+        )?;
         Ok(Self(fields))
     }
 }
@@ -146,6 +184,9 @@ impl TryFrom<GetFields> for DrugGet {
         }
         if fields.product_number.is_some() && !fields.section.contains(&DrugSection::Approvals) {
             return Err(QueryInvalid::new(&["product_number", "section"]));
+        }
+        if fields.source == DrugSource::FdaDrugRecall && !fields.section.is_empty() {
+            return Err(QueryInvalid::new(&["source", "section"]));
         }
         if !fields.source.accepts(&fields.input) {
             return Err(QueryInvalid::new(&["source", "input"]));
@@ -253,6 +294,7 @@ impl DrugSource {
         }
         let digits = |s: &str| !s.is_empty() && s.bytes().all(|b| b.is_ascii_digit());
         match self {
+            Self::FdaDrugRecall => id.parse::<biodata::DrugRecallNumber>().is_ok(),
             Self::WhoPq => false,
             Self::Mychem => true,
             Self::Chembl | Self::Opentargets => id.strip_prefix("CHEMBL").is_some_and(digits),
@@ -281,6 +323,10 @@ impl DrugSource {
     }
 }
 
+fn present_query<'de, D: serde::Deserializer<'de>>(d: D) -> Result<Option<Text>, D::Error> {
+    Text::deserialize(d).map(Some)
+}
+
 fn selected_name<'de, D: serde::Deserializer<'de>>(
     d: D,
 ) -> Result<Option<super::DrugNameSelector>, D::Error> {
@@ -288,9 +334,34 @@ fn selected_name<'de, D: serde::Deserializer<'de>>(
 }
 impl DrugSearch {
     /// Literal source query, without rewriting.
-    pub fn query(&self) -> &Text {
-        &self.0.query
+    pub fn query(&self) -> Option<&Text> {
+        self.0.query.as_ref()
     }
+    /// Selected native recall filter.
+    pub fn firm(&self) -> Option<&Text> {
+        self.0.firm.as_ref()
+    }
+    /// Selected native recall filter.
+    pub fn classification(&self) -> Option<super::DrugRecallClassification> {
+        self.0.classification
+    }
+    /// Selected native recall filter.
+    pub fn status(&self) -> Option<&Text> {
+        self.0.status.as_ref()
+    }
+    /// Selected native recall filter.
+    pub fn reason(&self) -> Option<&Text> {
+        self.0.reason.as_ref()
+    }
+    /// Selected native recall filter.
+    pub fn initiated_from(&self) -> Option<biodata::PartialDate> {
+        self.0.initiated_from
+    }
+    /// Selected native recall filter.
+    pub fn initiated_to(&self) -> Option<biodata::PartialDate> {
+        self.0.initiated_to
+    }
+
     /// Single selected native source.
     pub fn source(&self) -> DrugSource {
         self.0.source

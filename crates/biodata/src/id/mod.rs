@@ -42,7 +42,11 @@ impl fmt::Display for HgncId {
 text_value!(
     HgncId,
     "HgncId",
-    format!("^{}[1-9][0-9]*$", Self::PREFIX),
+    format!(
+        "^{}{}$",
+        Self::PREFIX,
+        crate::schema_pattern::decimal(u32::MAX.into())
+    ),
     "An HGNC identifier with canonical namespace and positive numeric value."
 );
 

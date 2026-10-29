@@ -49,6 +49,8 @@ mod drug_mychem;
 mod drug_native;
 mod drug_native_identity;
 mod drug_next;
+mod drug_recall;
+mod drug_recall_capture;
 mod drug_registry;
 mod drug_retirements;
 mod drug_who;

@@ -30,12 +30,17 @@ macro_rules! text_value {
         }
 
         #[cfg(feature = "schema")]
+        impl $ty {
+            /// Schema pattern for the parser's accepted spelling.
+            pub fn pattern() -> String { ($pattern).into() }
+        }
+        #[cfg(feature = "schema")]
         impl schemars::JsonSchema for $ty {
             fn schema_name() -> std::borrow::Cow<'static, str> {
                 $schema_name.into()
             }
             fn json_schema(_: &mut schemars::SchemaGenerator) -> schemars::Schema {
-                schemars::json_schema!({"description":$description, "type":"string", "pattern":$pattern})
+                schemars::json_schema!({"description":$description, "type":"string", "pattern":Self::pattern()})
             }
         }
     };

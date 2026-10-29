@@ -63,6 +63,7 @@ pub const SOURCES: &[&SourceSpec] = &[
     &crate::opentargets::SPEC,
     &crate::openfda_label::SPEC,
     &crate::drugsfda::SPEC,
+    &crate::fda_drug_recall::SPEC,
     &crate::ema::SPEC,
     &crate::ddinter::SPEC,
     &crate::ols::SPEC,
@@ -212,6 +213,7 @@ fn get_probe(source: Source) -> Option<(&'static str, ProbeParams)> {
         return Some(probe);
     }
     Some(match source {
+        Source::FdaDrugRecall => ("/drug/enforcement.json", vec![("limit", Arg::Num(1))]),
         Source::FdaDeviceRecall => ("/device/recall.json", vec![("limit", Arg::Num(1))]),
         Source::Gtr => (crate::gtr::HEALTH_PATH, vec![]),
         Source::WhoIvd => (crate::who_ivd::HEALTH_PATH, vec![]),

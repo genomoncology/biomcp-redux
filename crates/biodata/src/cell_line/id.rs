@@ -13,7 +13,10 @@ crate::checked_id!(
     CellLineSourceId,
     CellLineIdInvalid,
     |v: &str| v.parse::<Curie>().is_ok(),
-    "^[A-Za-z0-9_.-]+:[^\\s\\x00-\\x1f\\x7f-\\x9f]+$",
+    format!(
+        r"^[A-Za-z0-9_.-]+:[^{}\x00-\x1f\x7f-\x9f]+$",
+        crate::schema_pattern::WHITESPACE
+    ),
     "An exact database-qualified source ID, preserving the database and native accession independently."
 );
 impl CellLineSourceId {

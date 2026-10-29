@@ -1,6 +1,6 @@
 {
   "$defs": {
-    "CacheProblem": {
+    "Reply_CacheProblem": {
       "description": "A local cache failure that leaves the provider outcome intact.",
       "enum": [
         "busy",
@@ -9,7 +9,7 @@
       ],
       "type": "string"
     },
-    "PageInfo": {
+    "Reply_PageInfo": {
       "description": "Search counts after filtering and deduplication.",
       "properties": {
         "offset": {
@@ -21,7 +21,7 @@
         "pool": {
           "anyOf": [
             {
-              "$ref": "#/$defs/PoolInfo"
+              "$ref": "#/$defs/Reply_PoolInfo"
             },
             {
               "type": "null"
@@ -56,7 +56,7 @@
       ],
       "type": "object"
     },
-    "PoolInfo": {
+    "Reply_PoolInfo": {
       "description": "Fixed lifetime and size of a stored search snapshot.",
       "properties": {
         "created": {
@@ -72,7 +72,7 @@
           "type": "integer"
         },
         "id": {
-          "$ref": "#/$defs/Text",
+          "$ref": "#/$defs/Reply_Text",
           "description": "Opaque snapshot identifier."
         },
         "size": {
@@ -90,11 +90,11 @@
       ],
       "type": "object"
     },
-    "Problem": {
+    "Reply_Problem": {
       "description": "A field that could not be accepted from a source record.",
       "properties": {
         "code": {
-          "$ref": "#/$defs/ProblemCode",
+          "$ref": "#/$defs/Reply_ProblemCode",
           "description": "Why the field value was not accepted."
         },
         "field": {
@@ -104,7 +104,7 @@
         "record": {
           "anyOf": [
             {
-              "$ref": "#/$defs/Text"
+              "$ref": "#/$defs/Reply_Text"
             },
             {
               "type": "null"
@@ -113,7 +113,7 @@
           "description": "The record's canonical identifier, when known."
         },
         "source": {
-          "$ref": "#/$defs/Source",
+          "$ref": "#/$defs/Reply_Source",
           "description": "The source that supplied the record."
         }
       },
@@ -124,7 +124,7 @@
       ],
       "type": "object"
     },
-    "ProblemCode": {
+    "Reply_ProblemCode": {
       "description": "A stable code for a rejected field value.",
       "type": "string",
       "x-enum-descriptions": [
@@ -138,39 +138,39 @@
         "identity.conflict"
       ]
     },
-    "ProteinIsoform": {
+    "Reply_ProteinIsoform": {
       "description": "One source alternative-product row; all stated identifiers stay together.",
       "properties": {
         "direct_sequence": {
-          "$ref": "#/$defs/ProteinSequenceAvailability",
+          "$ref": "#/$defs/Reply_ProteinSequenceAvailability",
           "description": "Explicit direct-sequence retrieval state, independent of descriptive status."
         },
         "ids": {
           "description": "All source-stated isoform identifiers, including External base identities.",
           "items": {
-            "$ref": "#/$defs/UniProtIsoform"
+            "$ref": "#/$defs/Reply_UniProtIsoform"
           },
           "type": "array"
         },
         "name": {
-          "$ref": "#/$defs/Text",
+          "$ref": "#/$defs/Reply_Text",
           "description": "Source isoform name."
         },
         "sequence_ids": {
           "description": "Source VSP sequence identifiers.",
           "items": {
-            "$ref": "#/$defs/Text"
+            "$ref": "#/$defs/Reply_Text"
           },
           "type": "array"
         },
         "sequence_status": {
-          "$ref": "#/$defs/ProteinIsoformStatus",
+          "$ref": "#/$defs/Reply_ProteinIsoformStatus",
           "description": "Native sequence status; no sequence is inferred from it."
         },
         "synonyms": {
           "description": "Every source synonym.",
           "items": {
-            "$ref": "#/$defs/Text"
+            "$ref": "#/$defs/Reply_Text"
           },
           "type": "array"
         }
@@ -182,7 +182,7 @@
       ],
       "type": "object"
     },
-    "ProteinIsoformStatus": {
+    "Reply_ProteinIsoformStatus": {
       "description": "Native UniProt alternative-product sequence status.",
       "enum": [
         "Displayed",
@@ -191,24 +191,24 @@
       ],
       "type": "string"
     },
-    "ProteinIsoforms": {
+    "Reply_ProteinIsoforms": {
       "description": "Alternative products with every stated identifier and explicit direct sequence state.",
       "properties": {
         "items": {
           "description": "Whole native rows in source order; totals apply only to this collection.",
           "items": {
-            "$ref": "#/$defs/ProteinIsoform"
+            "$ref": "#/$defs/Reply_ProteinIsoform"
           },
           "type": "array"
         }
       },
       "type": "object"
     },
-    "ProteinRelationQuery": {
+    "Reply_ProteinRelationQuery": {
       "description": "Page five source isoforms, exact-participant complexes or PDB links. Source identities stay separate. No structure, interaction or clinical meaning is inferred; no bioinformatics tool runs.",
       "properties": {
         "accession": {
-          "$ref": "#/$defs/UniProtIsoform",
+          "$ref": "#/$defs/Reply_UniProtIsoform",
           "description": "Exact source protein sequence identity.",
           "x-positional": 0
         },
@@ -228,7 +228,7 @@
           "type": "integer"
         },
         "pool": {
-          "$ref": "#/$defs/Text",
+          "$ref": "#/$defs/Reply_Text",
           "description": "Retained collection identity."
         }
       },
@@ -237,7 +237,7 @@
       ],
       "type": "object"
     },
-    "ProteinSequenceAvailability": {
+    "Reply_ProteinSequenceAvailability": {
       "description": "Direct sequence availability is a retrieval fact, never constructed from another entry.",
       "enum": [
         "available",
@@ -246,7 +246,7 @@
       ],
       "type": "string"
     },
-    "Reason": {
+    "Reply_Reason": {
       "description": "Why a source could not supply data.",
       "type": "string",
       "x-enum-descriptions": [
@@ -292,7 +292,7 @@
         "no_join_id"
       ]
     },
-    "Source": {
+    "Reply_Source": {
       "description": "A source of BioMCP data, identified by its canonical short name.",
       "type": "string",
       "x-enum-descriptions": [
@@ -364,6 +364,7 @@
         " openFDA premarket approval submissions.",
         " FDA native 510(k) clearance records.",
         " openFDA medical device product recall records.",
+        " FDA drug enforcement recall records.",
         " Clinical Pharmacogenetics Implementation Consortium.",
         " ClinPGx pharmacogenomics annotations.",
         " Public cBioPortal with study-specific reuse terms.",
@@ -438,13 +439,14 @@
         "fda-pma",
         "fda-510k",
         "fda-device-recall",
+        "fda-drug-recall",
         "cpic",
         "clinpgx",
         "cbioportal",
         "cellosaurus"
       ]
     },
-    "SourceNotice": {
+    "Reply_SourceNotice": {
       "description": "A source notice or request recovery step.",
       "oneOf": [
         {
@@ -500,7 +502,7 @@
               "type": "string"
             },
             "reason": {
-              "$ref": "#/$defs/CacheProblem",
+              "$ref": "#/$defs/Reply_CacheProblem",
               "description": "Bounded local failure without paths or database diagnostics."
             }
           },
@@ -514,7 +516,7 @@
           "description": "The source still has graph pages after the bounded fetch window.",
           "properties": {
             "fallback": {
-              "$ref": "#/$defs/Text",
+              "$ref": "#/$defs/Reply_Text",
               "description": "Default-source command offering another graph view."
             },
             "kind": {
@@ -581,7 +583,7 @@
             "words": {
               "description": "Whole source words.",
               "items": {
-                "$ref": "#/$defs/Text"
+                "$ref": "#/$defs/Reply_Text"
               },
               "type": "array"
             }
@@ -593,7 +595,7 @@
         }
       ]
     },
-    "SourceOutcome": {
+    "Reply_SourceOutcome": {
       "description": "One source's outcome, without provider text.",
       "properties": {
         "count": {
@@ -617,14 +619,14 @@
         "notices": {
           "description": "Source notices and request recovery guidance.",
           "items": {
-            "$ref": "#/$defs/SourceNotice"
+            "$ref": "#/$defs/Reply_SourceNotice"
           },
           "type": "array"
         },
         "reason": {
           "anyOf": [
             {
-              "$ref": "#/$defs/Reason"
+              "$ref": "#/$defs/Reply_Reason"
             },
             {
               "type": "null"
@@ -633,17 +635,17 @@
           "description": "Failure or stale-fallback reason."
         },
         "source": {
-          "$ref": "#/$defs/Source",
+          "$ref": "#/$defs/Reply_Source",
           "description": "Asked source."
         },
         "state": {
-          "$ref": "#/$defs/SourceState",
+          "$ref": "#/$defs/Reply_SourceState",
           "description": "Retained state."
         },
         "term": {
           "anyOf": [
             {
-              "$ref": "#/$defs/Text"
+              "$ref": "#/$defs/Reply_Text"
             },
             {
               "type": "null"
@@ -661,7 +663,7 @@
           "type": "string"
         },
         "use": {
-          "$ref": "#/$defs/Use",
+          "$ref": "#/$defs/Reply_Use",
           "description": "Reviewed source use category; publisher terms remain authoritative."
         }
       },
@@ -674,7 +676,7 @@
       ],
       "type": "object"
     },
-    "SourceState": {
+    "Reply_SourceState": {
       "description": "State of a source actually asked by the command.",
       "enum": [
         "ok",
@@ -685,7 +687,7 @@
       ],
       "type": "string"
     },
-    "Status": {
+    "Reply_Status": {
       "description": "Overall command outcome.",
       "enum": [
         "complete",
@@ -695,7 +697,7 @@
       ],
       "type": "string"
     },
-    "Step": {
+    "Reply_Step": {
       "description": "A command argument list spelled from a typed action.",
       "properties": {
         "args": {
@@ -706,7 +708,7 @@
           "type": "array"
         },
         "kind": {
-          "$ref": "#/$defs/StepKind",
+          "$ref": "#/$defs/Reply_StepKind",
           "description": "Purpose of the action."
         }
       },
@@ -715,7 +717,7 @@
       ],
       "type": "object"
     },
-    "StepKind": {
+    "Reply_StepKind": {
       "description": "Purpose of an available next command.",
       "enum": [
         "restart",
@@ -731,17 +733,17 @@
       ],
       "type": "string"
     },
-    "Text": {
+    "Reply_Text": {
       "description": "Nonempty text with surrounding Unicode whitespace removed.",
       "minLength": 1,
       "type": "string"
     },
-    "UniProtIsoform": {
+    "Reply_UniProtIsoform": {
       "description": "A stated UniProt accession with an optional positive isoform number; never imputes -1.",
       "pattern": "^([OPQ][0-9][A-Z0-9]{3}[0-9]|[A-NR-Z][0-9]([A-Z][A-Z0-9]{2}[0-9]){1,2})(-[1-9][0-9]*)?$",
       "type": "string"
     },
-    "Use": {
+    "Reply_Use": {
       "description": "Reviewed source-use category, without inferring rights in individual records.",
       "enum": [
         "open",
@@ -759,7 +761,7 @@
     "local_error": {
       "anyOf": [
         {
-          "$ref": "#/$defs/CacheProblem"
+          "$ref": "#/$defs/Reply_CacheProblem"
         },
         {
           "type": "null"
@@ -770,14 +772,14 @@
     "next": {
       "description": "Available next commands.",
       "items": {
-        "$ref": "#/$defs/Step"
+        "$ref": "#/$defs/Reply_Step"
       },
       "type": "array"
     },
     "page": {
       "anyOf": [
         {
-          "$ref": "#/$defs/PageInfo"
+          "$ref": "#/$defs/Reply_PageInfo"
         },
         {
           "type": "null"
@@ -788,18 +790,18 @@
     "problems": {
       "description": "Rejected source fields.",
       "items": {
-        "$ref": "#/$defs/Problem"
+        "$ref": "#/$defs/Reply_Problem"
       },
       "type": "array"
     },
     "query": {
-      "$ref": "#/$defs/ProteinRelationQuery",
+      "$ref": "#/$defs/Reply_ProteinRelationQuery",
       "description": "Parsed query."
     },
     "result": {
       "anyOf": [
         {
-          "$ref": "#/$defs/ProteinIsoforms"
+          "$ref": "#/$defs/Reply_ProteinIsoforms"
         },
         {
           "type": "null"
@@ -814,12 +816,12 @@
     "sources": {
       "description": "Sources actually asked.",
       "items": {
-        "$ref": "#/$defs/SourceOutcome"
+        "$ref": "#/$defs/Reply_SourceOutcome"
       },
       "type": "array"
     },
     "status": {
-      "$ref": "#/$defs/Status",
+      "$ref": "#/$defs/Reply_Status",
       "description": "Overall outcome."
     }
   },
