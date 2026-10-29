@@ -278,17 +278,15 @@ fn configured_secret(
         return Ok(Some(Secret::new(value.clone())));
     }
     environment(name.environment())
+        .map_err(|_| biomcp_fetch::InputError::CredentialEncoding)?
         .map(|value| {
-            value.map(|value| {
-                Secret::new(
-                    value
-                        .into_os_string()
-                        .into_string()
-                        .expect("validated UTF-8"),
-                )
-            })
+            value
+                .into_os_string()
+                .into_string()
+                .map(Secret::new)
+                .map_err(|_| biomcp_fetch::InputError::CredentialEncoding)
         })
-        .map_err(|_| biomcp_fetch::InputError::CredentialEncoding)
+        .transpose()
 }
 
 pub(crate) fn has_environment_key(name: SecretName) -> Result<bool, ConfigError> {

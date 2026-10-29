@@ -72,6 +72,7 @@ pub(super) fn display_codes(declaration: &str, text: &str) -> Check {
                 token
                     if token.starts_with('"')
                         && token.contains(['.', '_'])
+                        && token.chars().any(|c| c.is_ascii_lowercase())
                         && token
                             .trim_matches('"')
                             .chars()

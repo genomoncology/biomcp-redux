@@ -85,7 +85,7 @@ fn article_registry() -> Vec<Contract> {
         Envelope<ArticleEdgePage> => ("article-edge-page", "biomcp.article-edges/5"),
         ArticleGet => ("article-get", "biomcp.article-get/2", query),
         Article => ("article", "biomcp.article/2"),
-        Envelope<ArticleCards> => ("article-cards", "biomcp.article-cards/4"),
+        Envelope<ArticleCards> => ("article-cards", "biomcp.article-cards/5"),
         ArticleSearch => ("article-search", "biomcp.article-search/1", query),
         ArticleHeader => ("article-header", "biomcp.article-header/3"),
         Envelope<ArticlePage> => ("article-page", "biomcp.article-page/4"),
