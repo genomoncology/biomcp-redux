@@ -190,8 +190,8 @@ fn study_registry() -> Vec<Contract> {
 fn adverse_event_contracts() -> Vec<Contract> {
     contracts! {
         PgxSearch => ("pgx-search", "biomcp.pgx-search/2", query),
-        PgxGet => ("pgx-get", "biomcp.pgx-get/2", query),
-        PgxGetCommand => ("pgx-get-command", "biomcp.pgx-get-command/2", query),
+        PgxGet => ("pgx-get", "biomcp.pgx-get/3", query),
+        PgxGetCommand => ("pgx-get-command", "biomcp.pgx-get-command/3", query),
         PgxAnnotationGet => ("pgx-annotation-get", "biomcp.pgx-annotation-get/2", query),
         AdverseEventSearch => ("adverse-event-search", "biomcp.adverse-event-search/3", query),
         AdverseEventGet => ("adverse-event-get", "biomcp.adverse-event-get/1", query),
@@ -203,7 +203,7 @@ fn variant_contracts() -> Vec<Contract> {
         VariantAssertionsGet => ("variant-assertions", "biomcp.variant-assertions/3", query),
         PopulationFrequency => ("population-frequency", "biodata.population-frequency/6"),
         VariantPopulationQuery => ("variant-population", "biomcp.variant-population/4", query),
-        Statement => ("statement", "biodata.statement/5"),
+        Statement => ("statement", "biodata.statement/6"),
         VariantRecurrenceQuery => ("variant-recurrence-query", "biomcp.variant-recurrence-query/4", query),
         VariantNormalize => ("variant-normalize", "biomcp.variant-normalize/5", query),
         VariantSearch => ("variant-search", "biomcp.variant-search/3", query),
@@ -252,8 +252,8 @@ fn diagnostic_contracts() -> Vec<Contract> {
 fn trial_contracts() -> Vec<Contract> {
     contracts! {
         TrialGet => ("trial-get", "biomcp.trial-get/1", query),
-        TrialConditionResolution => ("trial-condition-resolution", "biomcp.trial-condition-resolution/3"),
-        TrialSearch => ("trial-search", "biomcp.trial-search/4", query),
+        TrialConditionResolution => ("trial-condition-resolution", "biomcp.trial-condition-resolution/4"),
+        TrialSearch => ("trial-search", "biomcp.trial-search/5", query),
         NctId => ("nct-id", "biodata.nct-id/1"),
         TrialHeader => ("trial-header", "biomcp.trial-header/3"),
     }

@@ -336,8 +336,8 @@ fn public_civic_tier_and_level_remain_separate() -> Check {
         .ok_or("missing public CIViC fixture")?;
     let value = json!({
         "subject":row["subject"], "proposition":"therapeutic_response", "predicate":"predicts_sensitivity_to",
-        "classification":{"label":row["classification"],"coding":{"system":"amp_asco_cap_2017_tier","code":"tier_i"}},
-        "strength":{"label":row["classification"],"coding":{"system":"amp_asco_cap_2017_level","code":"level_a"}},
+        "classification":{"label":row["classification"],"codings":[{"system":"amp_asco_cap_2017_tier","code":"tier_i"}]},
+        "strength":{"label":row["classification"],"codings":[{"system":"amp_asco_cap_2017_level","code":"level_a"}]},
         "condition":{"label":row["condition"]},
         "therapies":row["therapies"].as_array().ok_or("therapies")?.iter().map(|label|json!({"label":label})).collect::<Vec<_>>(),
         "attribution":{"source":"civic","record":row["record"]}
@@ -345,14 +345,12 @@ fn public_civic_tier_and_level_remain_separate() -> Check {
     let statement: Statement = serde_json::from_value(value)?;
     assert_eq!(statement.attribution.source, Source::Civic.text());
     assert_eq!(
-        statement.classification.coding,
-        Some(Coding::AmpAscoCap2017Tier(AmpAscoCap2017TierCode::TierI))
+        statement.classification.codings.as_ref(),
+        &[Coding::AmpAscoCap2017Tier(AmpAscoCap2017TierCode::TierI)]
     );
     assert_eq!(
-        statement.strength.as_ref().and_then(|s| s.coding.as_ref()),
-        Some(&Coding::AmpAscoCap2017Level(
-            AmpAscoCap2017LevelCode::LevelA
-        ))
+        statement.strength.as_ref().map(|s| s.codings.as_ref()),
+        Some([Coding::AmpAscoCap2017Level(AmpAscoCap2017LevelCode::LevelA)].as_slice())
     );
     assert!(statement.attribution.version.is_none());
     assert!(statement.attribution.evaluated.is_none());
@@ -391,8 +389,8 @@ fn shared_clinvar_and_clingen_fixture_rows_become_statements() -> Check {
             "attribution":{"source":if clinvar {"clinvar"} else {"erepo"},"record":row["record"],"submitter":row["submitter"]} }
         );
         if clinvar {
-            statement["classification"]["coding"] =
-                json!({"system":"acmg_amp_2015","code":"pathogenic"});
+            statement["classification"]["codings"] =
+                json!([{"system":"acmg_amp_2015","code":"pathogenic"}]);
             statement["attribution"]["evaluated"] = row["evaluated"].clone();
             statement["allele_origin"] = json!({"label":row["allele_origin"]});
             statement["strength"] = json!({"label":row["review_status"]});
@@ -498,5 +496,50 @@ fn card_ids_requested_and_statement_subjects_share_published_text()
         assert_eq!(serde_json::to_value(card)?, golden);
         assert_eq!(VariantInput::new(id)?.as_str(), id);
     }
+    Ok(())
+}
+
+#[test]
+fn term_retains_multiple_source_codings_and_concept_refuses_system_uris() -> Check {
+    let value = json!({"label":"Pathogenic", "codings":[
+        {"system":"acmg_amp_2015", "code":"pathogenic"},
+        {"system":"clingen_cgc_vicc_2022", "code":"oncogenic"}
+    ]});
+    #[cfg(feature = "schema")]
+    {
+        let schema = schemars::schema_for!(biodata::Term);
+        let validator = jsonschema::draft202012::new(schema.as_value())?;
+        assert!(validator.is_valid(&value));
+    }
+    let term: biodata::Term = serde_json::from_value(value.clone())?;
+    assert_eq!(serde_json::to_value(term)?, value);
+    for id in [
+        "https://example.org/concept",
+        "http://example.org/concept",
+        "urn:oid:1.2.3",
+    ] {
+        assert!(
+            serde_json::from_value::<biodata::Concept>(json!({"id":id,"label":"source label"}))
+                .is_err()
+        );
+    }
+    Ok(())
+}
+
+#[test]
+fn clinvar_codings_use_exact_publisher_labels() -> Check {
+    let review = ClinvarReviewStatusCode::from_source_label("criteria provided, single submitter")
+        .ok_or("review label")?;
+    let origin = ClinvarAlleleOriginCode::from_source_label("de novo").ok_or("origin label")?;
+    assert_eq!(
+        serde_json::to_value(Coding::ClinvarReviewStatus(review))?,
+        json!({"system":"clinvar_review_status","code":"criteria_provided_single_submitter"})
+    );
+    assert_eq!(
+        serde_json::to_value(Coding::ClinvarAlleleOrigin(origin))?,
+        json!({"system":"clinvar_allele_origin","code":"de_novo"})
+    );
+    assert!(ClinvarReviewStatusCode::from_source_label("future review label").is_none());
+    assert!(ClinvarAlleleOriginCode::from_source_label("future origin label").is_none());
     Ok(())
 }

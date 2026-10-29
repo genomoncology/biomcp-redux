@@ -165,7 +165,7 @@ fn content(data: &Value) -> Result<(), String> {
         .ok_or("oncogenicity missing")?;
     if oncogenic.pointer("/statement/subject")
         != Some(&json!({"level":"protein","gene":{"label":"BRAF"},"label":"V600E"}))
-        || oncogenic.pointer("/statement/classification/coding/system")
+        || oncogenic.pointer("/statement/classification/codings/0/system")
             != Some(&json!("oncokb_oncogenicity"))
     {
         return Err("source protein subject or own framework changed".into());
@@ -175,7 +175,9 @@ fn content(data: &Value) -> Result<(), String> {
         .find(|r| r.pointer("/statement/proposition") == Some(&json!("functional_impact")))
         .ok_or("effect missing")?;
     if effect.pointer("/statement/direction").is_some()
-        || effect.pointer("/statement/classification/coding").is_some()
+        || effect
+            .pointer("/statement/classification/codings")
+            .is_some()
         || effect.pointer("/statement/citations") != Some(&json!(["17611497"]))
     {
         return Err("functional Neutral gained direction/coding or lost citations".into());

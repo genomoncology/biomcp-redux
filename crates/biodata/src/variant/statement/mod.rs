@@ -1,6 +1,8 @@
 //! Source assertions without ranking, merging or clinical inference.
 use crate::{GeneRef, PartialDate, Pmid, Text};
 use serde::{Deserialize, Serialize};
+mod clinvar;
+pub use clinvar::{ClinvarAlleleOriginCode, ClinvarReviewStatusCode};
 mod coding;
 pub use coding::*;
 mod reference;
@@ -45,15 +47,15 @@ pub struct Statement {
     /// One source record and its provenance.
     pub attribution: Attribution,
 }
-/// A source label with optional explicitly supported coding.
+/// A source label with explicitly supported codings in source order.
 #[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
 #[cfg_attr(feature = "schema", derive(schemars::JsonSchema))]
 pub struct Term {
     /// Original label.
     pub label: Text,
-    /// Documented framework coding.
-    #[serde(default, skip_serializing_if = "Option::is_none")]
-    pub coding: Option<Coding>,
+    /// Documented framework codings.
+    #[serde(default, skip_serializing_if = "<[ _ ]>::is_empty")]
+    pub codings: Box<[Coding]>,
 }
 /// One source concept with its optional ontology identifier.
 #[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
