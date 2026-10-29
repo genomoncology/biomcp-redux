@@ -119,8 +119,9 @@ fn drug_recall(value: &str) -> bool {
         .and_then(|v| v.split_once('-'))
         .is_some_and(|(number, year)| digits(number, 4) && digits(year, 4))
 }
-id!(
+crate::checked_id!(
     DrugRecallNumber,
+    DiagnosticIdInvalid,
     drug_recall,
     "^D-[0-9]{4}-[0-9]{4}$",
     "Native FDA drug recall number, independent of its event number."
