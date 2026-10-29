@@ -110,12 +110,7 @@ fn service(
     let leg = cx.fetch.leg(spec, deadline).fresh(cx.fresh);
     let result = match spec.source {
         biomcp_types::Source::AlleleRegistry => {
-            allele_registry::normalize(&leg, query.hgvs(), query.build()).map(|value| {
-                biomcp_adapters::Mapped {
-                    value,
-                    problems: Vec::new(),
-                }
-            })
+            allele_registry::normalize(&leg, query.hgvs(), query.build())
         }
         biomcp_types::Source::Mutalyzer => mutalyzer::normalize(&leg, query.hgvs()),
         _ => query

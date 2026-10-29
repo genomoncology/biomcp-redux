@@ -129,7 +129,7 @@ fn genomic(g: Genomic, record: &Text, out: &mut Vec<Representation>, problems: &
                 "representations.chromosome",
             ));
         }
-        let allele = if agrees && g.coordinates.len() == 1 {
+        let allele = if g.coordinates.len() == 1 {
             g.coordinates.first().and_then(|c| {
                 Allele::new(
                     SequenceLocation {
@@ -155,7 +155,7 @@ fn genomic(g: Genomic, record: &Text, out: &mut Vec<Representation>, problems: &
             source: Source::AlleleRegistry.text(),
             expression,
             build,
-            allele,
+            allele: allele.filter(|_| agrees),
         });
     }
 }
