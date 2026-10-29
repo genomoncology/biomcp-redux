@@ -14,7 +14,10 @@ pub(super) fn signatures(text: &str) -> Check {
         {
             return Err("exit literals require Status::code()".into());
         }
-        if word == "From" && tail.get(1).is_some_and(|v| v == "<") && tail.get(2..).is_some_and(unit_argument) {
+        if word == "From"
+            && tail.get(1).is_some_and(|v| v == "<")
+            && tail.get(2..).is_some_and(unit_argument)
+        {
             return Err("unit error conversions are forbidden".into());
         }
         if word == "Result" && tail.get(1).is_some_and(|v| v == "<") {
@@ -48,7 +51,9 @@ pub(super) fn display_codes(declaration: &str, text: &str) -> Check {
     let declaration = tokens(declaration);
     let mut codes = BTreeSet::new();
     for window in declaration.windows(3) {
-        let [equal, arrow, code] = window else { continue };
+        let [equal, arrow, code] = window else {
+            continue;
+        };
         if equal == "=" && arrow == ">" && code.starts_with('"') && !codes.insert(code.as_str()) {
             return Err(format!("duplicate biodata error code: {code}").into());
         }
@@ -62,7 +67,12 @@ pub(super) fn display_codes(declaration: &str, text: &str) -> Check {
         let Some(open) = tail.iter().position(|v| v == "{") else {
             continue;
         };
-        if !tail.get(..open).unwrap_or_default().iter().any(|v| v == "Display") {
+        if !tail
+            .get(..open)
+            .unwrap_or_default()
+            .iter()
+            .any(|v| v == "Display")
+        {
             continue;
         }
         let mut depth = 0;
