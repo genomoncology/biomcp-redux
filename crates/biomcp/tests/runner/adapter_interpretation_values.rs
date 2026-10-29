@@ -1,4 +1,5 @@
 //! Feature gene-sections: malformed native metadata preserves source submission identity.
+#[path = "adapter_interpretation_values/civic_gene.rs"]
 mod civic_gene;
 use libtest_mimic::Trial;
 use serde_json::{Value, json};
