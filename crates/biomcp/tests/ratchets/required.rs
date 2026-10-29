@@ -3,11 +3,15 @@
 mod case_data;
 #[path = "../../../biomcp-fetch/tests/support/environment.rs"]
 mod environment;
+#[path = "required/pending.rs"]
+mod pending;
+#[path = "required/proof.rs"]
+mod proof;
 #[path = "required/tally.rs"]
 mod tally;
 use super::Check;
 use serde_json::{Value, json};
-use std::{collections::BTreeSet, fs, io::Write, path::Path, process::Stdio};
+use std::{fs, io::Write, path::Path, process::Stdio};
 
 fn metadata() -> Result<(Value, Vec<Value>), Box<dyn std::error::Error>> {
     let home = environment::new()?;
@@ -78,7 +82,7 @@ fn required_surface_has_asserted_calls() -> Check {
         }
     }
     let pending = fs::read_to_string(root.join("crates/biomcp/tests/ratchets/required.pending"))?;
-    let pending: BTreeSet<_> = pending.lines().map(str::to_owned).collect();
+    let pending = pending::read(&pending, pending::INITIAL_ADMISSIONS)?;
     let mut output = std::io::stdout().lock();
     for (item, count) in &counts.calls {
         writeln!(output, "required {count:5} {item}")?;

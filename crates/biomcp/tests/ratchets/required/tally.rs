@@ -89,7 +89,12 @@ impl Inventory {
         if let Some(command) = self.command(&tokens) {
             let path_words = words(&command["command"]);
             let path = path_words.join(" ");
-            hits.insert(format!("command {path}"));
+            for parent in &self.commands {
+                let words = words(&parent["command"]);
+                if !words.is_empty() && path_words.starts_with(&words) {
+                    hits.insert(format!("command {}", words.join(" ")));
+                }
+            }
             if step
                 .expect
                 .get("/error/code")

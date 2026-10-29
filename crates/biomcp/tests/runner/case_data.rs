@@ -3,7 +3,7 @@ use serde::Deserialize;
 use serde_json::Value;
 use std::{collections::BTreeMap, fs, path::Path};
 
-// Maintained serde YAML parser; only deserialization is needed. Its typed parser
+// The shared typed YAML parser
 // rejects unknown fields so a misspelled assertion cannot silently pass.
 // https://docs.rs/serde-saphyr/latest/serde_saphyr/#using-serializer-or-deserializer-specifically
 #[derive(Debug, Deserialize, serde::Serialize)]
