@@ -308,7 +308,14 @@
           "description": "Source-stated location, including unparsed publisher text."
         },
         "locus_group": {
-          "$ref": "#/$defs/Reply_LocusGroup",
+          "anyOf": [
+            {
+              "$ref": "#/$defs/Reply_LocusGroup"
+            },
+            {
+              "type": "null"
+            }
+          ],
           "description": "HGNC locus group."
         },
         "locus_type": {
@@ -330,7 +337,14 @@
           "type": "array"
         },
         "name": {
-          "$ref": "#/$defs/Reply_Text",
+          "anyOf": [
+            {
+              "$ref": "#/$defs/Reply_Text"
+            },
+            {
+              "type": "null"
+            }
+          ],
           "description": "Gene name."
         },
         "omim": {
@@ -384,9 +398,7 @@
       "required": [
         "hgnc_id",
         "symbol",
-        "status",
-        "locus_group",
-        "name"
+        "status"
       ],
       "type": "object"
     },
@@ -409,7 +421,14 @@
           "description": "Source-stated location, including unparsed publisher text."
         },
         "locus_group": {
-          "$ref": "#/$defs/Reply_LocusGroup",
+          "anyOf": [
+            {
+              "$ref": "#/$defs/Reply_LocusGroup"
+            },
+            {
+              "type": "null"
+            }
+          ],
           "description": "HGNC locus group."
         },
         "match": {
@@ -424,7 +443,14 @@
           "description": "Match information when this header answers an input."
         },
         "name": {
-          "$ref": "#/$defs/Reply_Text",
+          "anyOf": [
+            {
+              "$ref": "#/$defs/Reply_Text"
+            },
+            {
+              "type": "null"
+            }
+          ],
           "description": "Gene name."
         },
         "status": {
@@ -439,9 +465,7 @@
       "required": [
         "hgnc_id",
         "symbol",
-        "locus_group",
-        "status",
-        "name"
+        "status"
       ],
       "type": "object"
     },
@@ -2018,7 +2042,7 @@
       "type": "string"
     }
   },
-  "$id": "biomcp.trial-page/12",
+  "$id": "biomcp.trial-page/13",
   "$schema": "https://json-schema.org/draft/2020-12/schema",
   "description": "One versioned command response; schema identity comes only from its body type.\nJSON readers ignore unknown fields and unknown growable enum values within a major.",
   "properties": {
@@ -2074,7 +2098,7 @@
       "description": "Answer when available."
     },
     "schema": {
-      "const": "biomcp.trial-page/12",
+      "const": "biomcp.trial-page/13",
       "type": "string"
     },
     "sources": {
