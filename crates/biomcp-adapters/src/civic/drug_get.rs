@@ -88,8 +88,7 @@ fn matches(
     after: Option<&Text>,
     count: u32,
 ) -> bool {
-    let id = query.input().to_string().parse::<u64>().ok();
-    data.therapy.as_ref().is_some_and(|t| Some(t.id) == id)
+    data.therapy.as_ref().is_some_and(|t| t.id.to_string() == query.input().to_string())
         && (kind == Some(CivicClaimKind::Assertions)
             || data.evidence_items.as_ref().is_some_and(|rows| {
                 rows.nodes.len() <= count as usize

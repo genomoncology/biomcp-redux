@@ -3,26 +3,30 @@ use crate::{mapped::Problems, raw::Field};
 use biodata::VariantRef;
 use biomcp_types::{DrugCivicClaim, DrugCivicMember, DrugCivicProfile, DrugGet};
 
-fn context(raw: Option<Field<raw::Profile>>, cx: &mut Problems) -> Option<(DrugCivicProfile, Option<VariantRef>)> {
+pub(super) fn context(raw: Option<Field<raw::Profile>>, cx: &mut Problems) -> Option<(DrugCivicProfile, Option<VariantRef>)> {
     let raw = cx.field("molecularProfile", raw)?;
     let id = variant_map::identity(raw.id, "molecularProfile.id", cx)?;
     let link = cx.field("molecularProfile.link", raw.link);
     let record = variant_map::record(id, link.as_ref(), cx)?;
+    cx.record = Some(record.id.clone());
+    let before = cx.list.len();
     let label = cx.source_field("molecularProfile.name", raw.name);
     let raw_name = cx.field("rawName", raw.raw_name);
     let compound = cx.field("isComplex", raw.is_complex);
-    let before = cx.list.len();
     let count = raw.variants.as_ref().and_then(Field::as_ref).map(Vec::len);
     let mut members = Vec::new();
+    let parent = cx.record.clone();
     for row in cx.fields("variants", raw.variants).into_vec() {
+        cx.record = parent.clone();
         let reference_build = cx.field("coordinates", row.coordinates).and_then(|c| cx.field("referenceBuild", c.reference_build));
         if let Some((member, _)) = variant_map::member(row.variant, cx) {
             members.push(DrugCivicMember {member, reference_build});
         }
     }
+    cx.record = parent;
     let complete = before == cx.list.len() && count == Some(members.len());
     let subject = variant_map::subject(&record, label.as_ref(), raw_name.as_ref(), compound, members.iter().map(|m| &m.member).collect(), complete, cx);
-    Some((DrugCivicProfile {record, label, raw_name, compound, members: members.into()}, subject))
+    Some((DrugCivicProfile {record, label, raw_name, subject: subject.clone(), compound, members: members.into()}, subject))
 }
 fn build(context: Option<(DrugCivicProfile, Option<VariantRef>)>, mapped: variant_claims::MappedClaim, interaction: Option<biodata::Text>, query: &DrugGet, cx: &mut Problems) -> Option<DrugCivicClaim> {
     if mapped.claim.status.as_ref().is_some_and(|status| !status.is_unknown() && !matches!(status, biomcp_types::CivicStatus::Accepted)) {

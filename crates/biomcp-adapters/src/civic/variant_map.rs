@@ -45,11 +45,13 @@ fn map(raw: raw::Profile, query: &VariantGet, allele: &str, cx: &mut Problems) -
     let mut statements = Vec::<CivicStatement>::new();
     if exact {
         for row in raw.evidence_items.nodes {
+            cx.record = Some(record.id.clone());
             if let Some(row) = variant_claims::evidence(row, subject.as_ref(), context_bad, cx) { statements.push(row.claim); }
         }
         evidence_page.returned = statements.len() as u32;
         let before = statements.len();
         for row in raw.assertions.nodes {
+            cx.record = Some(record.id.clone());
             if let Some(row) = variant_claims::assertion(row, subject.as_ref(), context_bad, cx) { statements.push(row.claim); }
         }
         assertion_page.returned = (statements.len() - before) as u32;
@@ -57,7 +59,7 @@ fn map(raw: raw::Profile, query: &VariantGet, allele: &str, cx: &mut Problems) -
         cx.record = Some(record.id.clone());
         if !context_bad { cx.required::<()>("molecular_profile.membership", None); }
     }
-    Ok(Some(CivicProfile { record, label, raw_name, compound, membership: if exact { CivicMembership::Exact } else { CivicMembership::Candidate }, members: members.into(), evidence_count: raw.evidence_items.total_count, assertion_count: raw.assertions.total_count, statements: statements.into(), evidence_page, assertion_page }))
+    Ok(Some(CivicProfile { record, label, raw_name, subject, compound, membership: if exact { CivicMembership::Exact } else { CivicMembership::Candidate }, members: members.into(), evidence_count: raw.evidence_items.total_count, assertion_count: raw.assertions.total_count, statements: statements.into(), evidence_page, assertion_page }))
 }
 fn checked_members(raw: Box<[raw::Member]>, allele: &str, cx: &mut Problems) -> (Vec<CivicMember>, bool) {
     let parent = cx.record.clone();

@@ -58,6 +58,9 @@ pub struct DrugCivicProfile {
     /// Exact source expression with native variant references.
     #[serde(default, skip_serializing_if = "Option::is_none")]
     pub raw_name: Option<Text>,
+    /// Checked source profile subject, independent of an allele join or a clinical claim.
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub subject: Option<crate::VariantRef>,
     /// Source complex-profile flag.
     #[serde(default, skip_serializing_if = "Option::is_none")]
     pub compound: Option<bool>,

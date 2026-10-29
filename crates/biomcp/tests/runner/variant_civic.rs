@@ -6,9 +6,13 @@ use serde_json::{Value, json};
 use std::fs;
 #[path = "civic_vocabulary.rs"]
 mod vocabulary;
+#[path = "civic_values.rs"]
+mod values;
 
 pub(super) fn trials() -> Vec<Trial> {
     vec![
+        transcript_trial("variant/civic-invalid-values-keep-identified-claims", || values::claims().map_err(Into::into)),
+        transcript_trial("variant/civic-amp-na-and-therapy-group-stay-native", || values::amp_and_group().map_err(Into::into)),
         transcript_trial("drug-civic/unknown-status-keeps-native-claims", || {
             vocabulary::drug_status().map_err(Into::into)
         }),
