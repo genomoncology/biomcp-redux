@@ -1,0 +1,13 @@
+{
+  "url": "https://api.fda.gov/drug/label.json",
+  "sha256": "6fb10b2f42601ea8847c801c3c6aef4c1ab6ea526bd873462f33a5c05ecefc5d",
+  "retained_fields": [
+    "id",
+    "set_id",
+    "version",
+    "effective_time",
+    "openfda",
+    "spl_product_data_elements",
+    "package_label_principal_display_panel"
+  ]
+}
