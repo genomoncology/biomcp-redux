@@ -118,10 +118,14 @@ pub fn normalize(
         for row in raw.genomic.into_iter().flatten() {
             for value in row.hgvs {
                 mappings.push(biomcp_types::NormalizationField {
-                    field: row.assembly.as_ref().map_or_else(
-                        || "genomicAlleles.hgvs".into(),
-                        |b| format!("genomicAlleles.{}.hgvs", b.as_str()).into(),
-                    ),
+                    field: row
+                        .assembly
+                        .as_ref()
+                        .and_then(crate::raw::Field::as_ref)
+                        .map_or_else(
+                            || "genomicAlleles.hgvs".into(),
+                            |b| format!("genomicAlleles.{}.hgvs", b.as_str()).into(),
+                        ),
                     value: value.to_string().into(),
                 });
             }

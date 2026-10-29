@@ -86,17 +86,18 @@ pub(super) fn allele(raw: RawAllele) -> Result<Resolution, biomcp_fetch::BadRepl
     Ok(Resolution::Found(Box::new(Mapped { value, problems })))
 }
 fn genomic(g: Genomic, record: &Text, out: &mut Vec<Representation>, problems: &mut Vec<Problem>) {
-    let build = g
-        .assembly
-        .as_ref()
-        .and_then(|a| a.as_str().parse::<Build>().ok());
-    if g.assembly.is_some() && build.is_none() {
-        problems.push(problem(
-            Source::AlleleRegistry,
-            Some(record.clone()),
-            "representations.build",
-        ));
-    }
+    let mut fields = crate::mapped::Problems {
+        source: Source::AlleleRegistry,
+        record: Some(record.clone()),
+        list: Vec::new(),
+    };
+    let assembly = fields.field("representations.build", g.assembly);
+    let build = fields.optional(
+        "representations.build",
+        assembly.map(|a| a.as_str().parse::<Build>()),
+    );
+    let chromosome = fields.field("representations.chromosome", g.chromosome);
+    problems.extend(fields.list);
     for notation in g.hgvs {
         let expression = match Expression::hgvs(notation.clone()) {
             Ok(v) => v,
@@ -113,10 +114,10 @@ fn genomic(g: Genomic, record: &Text, out: &mut Vec<Representation>, problems: &
             .as_str()
             .parse::<biodata::HgvsText>()
             .and_then(|h| h.accession());
-        let agrees = g.chromosome.as_ref().is_none_or(|given| {
+        let agrees = chromosome.as_ref().is_none_or(|given| {
             build
                 .zip(sequence.as_ref().ok())
-                .is_some_and(|(build, accession)| {
+                .is_none_or(|(build, accession)| {
                     biodata::Chromosome::from_accession(*accession, build)
                         .is_ok_and(|chromosome| chromosome.name() == given.as_str())
                 })

@@ -35,9 +35,9 @@ pub(super) struct Clinvar {
 }
 #[derive(Deserialize)]
 pub(super) struct Genomic {
-    pub chromosome: Option<Text>,
+    pub chromosome: Option<crate::raw::Field<Text>>,
     #[serde(rename = "referenceGenome")]
-    pub assembly: Option<Text>,
+    pub assembly: Option<crate::raw::Field<Text>>,
     pub hgvs: Vec<Text>,
     pub coordinates: Vec<Coordinate>,
 }
