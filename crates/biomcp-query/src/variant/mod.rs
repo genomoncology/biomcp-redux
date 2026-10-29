@@ -186,6 +186,10 @@ fn car(
             (vec![row.value], None)
         }
         allele_registry::Resolution::Rejected(code) => (Vec::new(), Some(code)),
+        allele_registry::Resolution::Refused(fields) => {
+            problems.extend(fields);
+            (Vec::new(), None)
+        }
     })
 }
 fn join_id(row: &VariantHeader) -> Option<String> {

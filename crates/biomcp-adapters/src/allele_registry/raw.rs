@@ -8,7 +8,7 @@ use serde::Deserialize;
 #[derive(Deserialize)]
 pub(super) struct Allele {
     #[serde(rename = "@id")]
-    pub id: Option<Text>,
+    pub id: Option<Field<Text>>,
     #[serde(rename = "errorType")]
     pub error_type: Option<Text>,
     #[serde(rename = "description")]
@@ -77,14 +77,7 @@ impl Reply for Allele {
             };
         }
 
-        let key = self
-            .id
-            .as_ref()
-            .and_then(|v| v.as_str().strip_prefix("http://reg.genome.network/allele/"));
-        if !key.is_some_and(|k| {
-            k.parse::<biomcp_types::VariantInput>()
-                .is_ok_and(|v| v.namespace().ok() == Some(biomcp_types::VariantNamespace::Ca))
-        }) || self
+        if self
             .genomic
             .as_ref()
             .and_then(Field::as_ref)
@@ -116,4 +109,24 @@ pub(super) struct ManeForms {
 #[derive(Deserialize)]
 pub(super) struct Hgvs {
     pub hgvs: Field<Text>,
+}
+
+impl Allele {
+    pub(super) fn identity(
+        &self,
+        expected: Option<&str>,
+    ) -> Result<(Text, Text, biodata::VariantId), BadReply> {
+        let url = self.id.as_ref().and_then(Field::as_ref).ok_or(BadReply)?;
+        let key = url
+            .as_str()
+            .strip_prefix("http://reg.genome.network/allele/")
+            .ok_or(BadReply)?;
+        let id = key.parse::<biodata::VariantId>().map_err(|_| BadReply)?;
+        if !matches!(id, biodata::VariantId::Ca(_))
+            || expected.is_some_and(|expected| expected != key)
+        {
+            return Err(BadReply);
+        }
+        Ok((url.clone(), Text::new(key).map_err(|_| BadReply)?, id))
+    }
 }

@@ -5,10 +5,14 @@ use libtest_mimic::Trial;
 use serde_json::{Value, json};
 
 pub(super) fn trials() -> Vec<Trial> {
-    vec![transcript_trial(
-        "variant/printed-identifiers-roundtrip",
-        || check().map_err(Into::into),
-    )]
+    vec![
+        transcript_trial("variant/printed-identifiers-roundtrip", || {
+            check().map_err(Into::into)
+        }),
+        transcript_trial("variant/direct-record-identities-are-refused", || {
+            refused().map_err(Into::into)
+        }),
+    ]
 }
 fn check() -> Result<(), String> {
     let stub = Stub::for_source("myvariant.info", "application/json", body)?;
@@ -83,5 +87,79 @@ fn subjects() -> Result<(), String> {
         }
     }
     stub.finish()?;
+    Ok(())
+}
+
+fn refused() -> Result<(), String> {
+    for (host, input, field, bad) in [
+        (
+            "reg.genome.network",
+            "CA123643",
+            "@id",
+            json!("http://reg.genome.network/allele/CA999"),
+        ),
+        ("reg.genome.network", "CA123643", "@id", json!(42)),
+        (
+            "myvariant.info",
+            "chr7:g.140753336A>T",
+            "identity",
+            json!("chr7:g.140753336A>G"),
+        ),
+        (
+            "myvariant.info",
+            "chr7:g.140753336A>T",
+            "identity",
+            json!(42),
+        ),
+    ] {
+        let stub = Stub::for_source(host, "application/json", move |_| {
+            Ok(if host == "reg.genome.network" {
+                json!({"@id":bad})
+            } else {
+                json!({"_id":bad})
+            }
+            .to_string())
+        })?;
+        let env = super::source_environment(&stub)?;
+        let args = if host == "reg.genome.network" {
+            strings(&["get", "variant", input])
+        } else {
+            strings(&["get", "variant", input, "--build", "GRCh38"])
+        };
+        for _ in 0..2 {
+            let output = env
+                .command(env!("CARGO_BIN_EXE_biomcp"), &args)
+                .output()
+                .map_err(|e| e.to_string())?;
+            let value: Value = serde_json::from_slice(&output.stdout).map_err(|e| e.to_string())?;
+            let problems = value
+                .get("problems")
+                .and_then(Value::as_array)
+                .ok_or("missing identity problem")?;
+            if problems.len() != 1
+                || problems.first().and_then(|p| p.get("field")) != Some(&json!(field))
+                || value.pointer("/result/candidates").is_some()
+                || value.pointer("/sources/0/state") != Some(&json!("ok"))
+            {
+                return Err(format!(
+                    "bad direct identity was admitted or failed the source: {value}"
+                ));
+            }
+        }
+        let mut offline = args;
+        offline.push("--offline".into());
+        let output = env
+            .command(env!("CARGO_BIN_EXE_biomcp"), &offline)
+            .output()
+            .map_err(|e| e.to_string())?;
+        let value: Value = serde_json::from_slice(&output.stdout).map_err(|e| e.to_string())?;
+        if value.pointer("/sources/0/reason") != Some(&json!("offline"))
+            || stub.finish()?.len() != 2
+        {
+            return Err(format!(
+                "bad direct identity entered the reply cache: {value}"
+            ));
+        }
+    }
     Ok(())
 }

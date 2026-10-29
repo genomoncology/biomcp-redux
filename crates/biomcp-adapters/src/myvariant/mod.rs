@@ -138,27 +138,20 @@ fn annotation(
     };
     let endpoint = VARIANT.clone().with_segments(&[PathSegment::new(id)?]);
     let fields = projection(leg, population);
-    let (hit, _) = leg.json_received_checked::<raw::Hit>(
+    let annotation = leg.json_checked_cache::<raw::Annotation>(
         &endpoint,
         &[
             ("fields", Arg::Text(&fields)),
             ("assembly", Arg::Text(assembly)),
         ],
-        |hit| {
-            if hit.matches(id) {
-                Ok(())
-            } else {
-                Err(biomcp_fetch::BadReply)
-            }
+        |annotation| {
+            annotation
+                .hit
+                .as_ref()
+                .is_some_and(|hit| biomcp_fetch::Reply::check(hit).is_ok() && hit.matches(id))
         },
     )?;
-    Ok(mapped(
-        leg,
-        vec![crate::raw::Field::Value(hit)],
-        id,
-        build,
-        population,
-    ))
+    Ok(mapped(leg, vec![annotation.hit], id, build, population))
 }
 
 /// Filter independently disabled carried components before creating a request identity.

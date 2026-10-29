@@ -7,6 +7,16 @@ pub(super) struct Page {
     pub hits: Vec<Field<Hit>>,
 }
 #[derive(Deserialize)]
+pub(super) struct Annotation {
+    #[serde(flatten)]
+    pub hit: Field<Hit>,
+}
+impl Reply for Annotation {
+    fn check(&self) -> Result<(), BadReply> {
+        Ok(())
+    }
+}
+#[derive(Deserialize)]
 pub(super) struct Hit {
     #[serde(rename = "_id")]
     pub id: biodata::Text,

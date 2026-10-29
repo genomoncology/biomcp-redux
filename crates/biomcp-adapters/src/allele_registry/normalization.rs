@@ -5,7 +5,7 @@ pub(super) fn map(raw: raw::Allele) -> crate::Mapped<biomcp_types::Normalization
     let mut result = biomcp_types::NormalizationResult::unavailable(Source::AlleleRegistry);
     let mut problems = crate::mapped::Problems {
         source: Source::AlleleRegistry,
-        record: raw.id.as_ref().and_then(crate::mapped::record),
+        record: None,
         list: Vec::new(),
     };
     if let Some(code) = &raw.error_type {
@@ -31,7 +31,8 @@ pub(super) fn map(raw: raw::Allele) -> crate::Mapped<biomcp_types::Normalization
             });
         }
         result.messages = messages.into();
-    } else {
+    } else if let Some((_, record, _)) = problems.optional("@id", Some(raw.identity(None))) {
+        problems.record = Some(record);
         result.outcome = biomcp_types::VariantResolution::Resolved;
         let mappings = mappings(raw, &mut problems);
         result.total_mappings = mappings.len() as u32;
@@ -48,7 +49,7 @@ fn mappings(
     problems: &mut crate::mapped::Problems,
 ) -> Vec<biomcp_types::NormalizationField> {
     let mut mappings = Vec::new();
-    if let Some(value) = raw.id {
+    if let Some(value) = raw.id.and_then(crate::raw::Field::value) {
         mappings.push(biomcp_types::NormalizationField {
             field: "@id".into(),
             value: value.to_string().into(),

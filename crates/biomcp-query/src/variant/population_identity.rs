@@ -90,6 +90,7 @@ fn canonical(cx: &Ctx<'_>, deadline: Deadline<'_>, found: &mut Identity) {
             row.identity.representations = representations.into();
         }
         Ok(allele_registry::Resolution::Rejected(_)) => found.reason = Some(Reason::Rejected),
+        Ok(allele_registry::Resolution::Refused(problems)) => found.problems.extend(problems),
         Err(_) => (),
     }
 }

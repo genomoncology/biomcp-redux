@@ -4,30 +4,22 @@ use super::{
 };
 use crate::Mapped;
 use crate::mapped::problem;
-use biodata::{
-    Allele, Build, Expression, Representation, SequenceLocation, Span0, Text, Variant, VariantId,
-};
+use biodata::{Allele, Build, Expression, Representation, SequenceLocation, Span0, Text, Variant};
 
 use biomcp_types::{Problem, Source, SourceRecord, VariantHeader};
-pub(super) fn allele(raw: RawAllele) -> Result<Resolution, biomcp_fetch::BadReply> {
-    if let Some(error) = raw.error_type {
-        return Ok(Resolution::Rejected(error));
+pub(super) fn allele(raw: RawAllele, expected: Option<&str>) -> Resolution {
+    if let Some(error) = &raw.error_type {
+        return Resolution::Rejected(error.clone());
     }
-    let url = raw.id.ok_or(biomcp_fetch::BadReply)?;
-    let key = url
-        .as_str()
-        .rsplit('/')
-        .next()
-        .ok_or(biomcp_fetch::BadReply)?;
-    let id = key
-        .parse::<VariantId>()
-        .map_err(|_| biomcp_fetch::BadReply)?;
-    let record = Text::new(key).map_err(|_| biomcp_fetch::BadReply)?;
     let mut fields = crate::mapped::Problems {
         source: Source::AlleleRegistry,
-        record: Some(record.clone()),
+        record: expected.and_then(crate::mapped::record),
         list: Vec::new(),
     };
+    let Some((url, record, id)) = fields.optional("@id", Some(raw.identity(expected))) else {
+        return Resolution::Refused(fields.list);
+    };
+    fields.record = Some(record.clone());
     let mut ids = vec![id];
     ids.extend(super::annotations::ids(raw.external, &mut fields));
     let mut problems = Vec::new();
@@ -54,7 +46,7 @@ pub(super) fn allele(raw: RawAllele) -> Result<Resolution, biomcp_fetch::BadRepl
         sections: None,
         component_terms: Box::default(),
     };
-    Ok(Resolution::Found(Box::new(Mapped { value, problems })))
+    Resolution::Found(Box::new(Mapped { value, problems }))
 }
 fn genomic(g: Genomic, record: &Text, out: &mut Vec<Representation>, problems: &mut Vec<Problem>) {
     let mut fields = crate::mapped::Problems {
