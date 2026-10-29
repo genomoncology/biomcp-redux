@@ -102,7 +102,14 @@ impl Mapper<'_> {
         values
             .into_iter()
             .filter_map(|(name, value)| {
-                if let Ok(tissue) = Text::from_source(&name)
+                let tissue = crate::mapped::field_text(
+                    &mut self.problems,
+                    Source::Hpa,
+                    record_text(self.id.base()),
+                    field,
+                    Some(Field::Value(name)),
+                );
+                if let Some(tissue) = tissue
                     && let Field::Value(value) = value
                     && let Ok(number) = value.parse::<f64>()
                     && number >= 0.0
