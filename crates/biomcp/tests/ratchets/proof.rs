@@ -412,7 +412,10 @@ fn audit_rejects_owned_underscores_and_old_tags_but_allows_native_values() {
         "#[serde(rename_all = \"snake_case\")] enum Owned {}",
         "wire_enum! { Reason { NoKey => \"no_key\" } }",
     ] {
-        assert!(super::spellings::audit(&super::source::tokens(text)).is_err(), "{text}");
+        assert!(
+            super::spellings::audit(&super::source::tokens(text)).is_err(),
+            "{text}"
+        );
     }
     assert!(
         super::spellings::audit(&super::source::tokens(
@@ -424,9 +427,12 @@ fn audit_rejects_owned_underscores_and_old_tags_but_allows_native_values() {
 
 #[test]
 fn enum_return_types_are_not_macro_declarations() {
-    assert!(super::spellings::audit(&super::source::tokens(
-        "fn kind() -> ArticleMatchKind { match self { X => ArticleMatchKind::Doi } }"
-    )).is_ok());
+    assert!(
+        super::spellings::audit(&super::source::tokens(
+            "fn kind() -> ArticleMatchKind { match self { X => ArticleMatchKind::Doi } }"
+        ))
+        .is_ok()
+    );
 }
 
 #[test]

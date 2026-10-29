@@ -62,7 +62,8 @@ pub(super) fn audit(tokens: &[String]) -> Result<(), String> {
         if token == "ErrorCode" {
             continue;
         }
-        let macro_position = tokens.get(index.wrapping_sub(1))
+        let macro_position = tokens
+            .get(index.wrapping_sub(1))
             .is_some_and(|previous| ["]", "{", "described"].contains(&previous.as_str()));
         if !macro_position || !OWNED.contains(&token.as_str()) {
             continue;
