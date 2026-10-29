@@ -18,6 +18,11 @@ pub(super) fn check() -> Check {
     } else {
         (catalog(true, false), catalog(false, false), "WP1")
     };
+    let expected_cited_in = get["pathwayInfo"]
+        .as_array()
+        .and_then(|rows| rows.iter().find(|r| r.get("id") == Some(&json!(id))))
+        .and_then(|row| row.get("citedIn"))
+        .cloned();
     let registry = Registry::embedded()?;
     let positive = Environment::new().map_err(|e| e.to_string())?;
     let replay = seed(&positive, search.clone(), get.clone(), 200)?;
@@ -30,6 +35,9 @@ pub(super) fn check() -> Check {
     registry.validate(&control, &["get".into(), "pathway".into(), id.into()], true)?;
     if control.pointer("/result/pathway/id/id") != Some(&json!(id)) {
         return Err("positive WikiPathways identity missing".into());
+    }
+    if control.pointer("/result/pathway/cited_in") != expected_cited_in.as_ref() {
+        return Err("valid native citation metadata changed".into());
     }
     let rows = get
         .get_mut("pathwayInfo")

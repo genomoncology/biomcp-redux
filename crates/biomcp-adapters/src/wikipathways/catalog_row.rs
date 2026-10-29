@@ -29,11 +29,11 @@ fn mapped(row: WireNative, p: &mut Problems) -> Option<Native> {
         species: row.species,
         name: p.source_field("name", row.name),
         revision: p.source_field("revision", row.revision),
-        authors: p.native_text("authors", row.authors),
-        description: p.native_text("description", row.description),
-        cited_in: p.native_text("citedIn", row.cited_in),
-        datanodes: p.native_text("datanodes", row.datanodes),
-        annotations: p.native_text("annotations", row.annotations),
+        authors: p.field("authors", row.authors),
+        description: p.field("description", row.description),
+        cited_in: p.field("citedIn", row.cited_in),
+        datanodes: p.field("datanodes", row.datanodes),
+        annotations: p.field("annotations", row.annotations),
     })
 }
 impl Row for CatalogRow {
