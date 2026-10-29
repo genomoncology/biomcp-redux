@@ -138,18 +138,34 @@ fn profile_keeps_additional_source_members_and_native_feature_identity() -> Chec
 fn wire_expression_requires_authoritative_machine_source() {
     for source in ["unrelated label", "A AND B", "VID1", "civic:1"] {
         let value = json!({"source":source,"tree":{"operator":"member","record":"civic:1"}});
-        assert!(serde_json::from_value::<ProfileExpression>(value).is_err(), "{source}");
+        assert!(
+            serde_json::from_value::<ProfileExpression>(value).is_err(),
+            "{source}"
+        );
     }
 }
 
 #[test]
 fn expression_depth_and_size_limits_match_on_construction_and_roundtrip() -> Check {
-    for (depth, tail, valid) in [(64, "#VID1", true), (63, "NOT #VID1", true), (64, "NOT #VID1", false), (65, "#VID1", false)] {
-        let source = format!("{}{}{}", "#VID1 AND (".repeat(depth), tail, ")".repeat(depth));
+    for (depth, tail, valid) in [
+        (64, "#VID1", true),
+        (63, "NOT #VID1", true),
+        (64, "NOT #VID1", false),
+        (65, "#VID1", false),
+    ] {
+        let source = format!(
+            "{}{}{}",
+            "#VID1 AND (".repeat(depth),
+            tail,
+            ")".repeat(depth)
+        );
         let expression = ProfileExpression::civic(Text::new(&source)?);
         assert_eq!(expression.is_ok(), valid, "depth={depth}, tail={tail}");
         if let Ok(expression) = expression {
-            assert_eq!(serde_json::from_value::<ProfileExpression>(serde_json::to_value(&expression)?)?, expression);
+            assert_eq!(
+                serde_json::from_value::<ProfileExpression>(serde_json::to_value(&expression)?)?,
+                expression
+            );
         }
     }
     for (members, valid) in [(4096, true), (4097, false)] {
@@ -157,7 +173,10 @@ fn expression_depth_and_size_limits_match_on_construction_and_roundtrip() -> Che
         let expression = ProfileExpression::civic(Text::new(&source)?);
         assert_eq!(expression.is_ok(), valid, "members={members}");
         if let Ok(expression) = expression {
-            assert_eq!(serde_json::from_value::<ProfileExpression>(serde_json::to_value(&expression)?)?, expression);
+            assert_eq!(
+                serde_json::from_value::<ProfileExpression>(serde_json::to_value(&expression)?)?,
+                expression
+            );
         }
     }
     Ok(())

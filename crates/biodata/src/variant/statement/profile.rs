@@ -1,5 +1,4 @@
 //! CIViC source grammar: https://github.com/griffithlab/civic-v2/blob/main/client/src/app/core/utilities/molecular-profile-parser.ts
-//! Source display formatter: https://github.com/griffithlab/civic-v2/blob/main/server/app/tsv_formatters/molecular_profile_tsv_formatter.rb
 use crate::{Curie, Error, Text, VariantRef};
 use serde::{Deserialize, Serialize};
 use std::collections::BTreeSet;
@@ -49,11 +48,8 @@ struct ExpressionFields {
 impl TryFrom<ExpressionFields> for ProfileExpression {
     type Error = Error;
     fn try_from(value: ExpressionFields) -> Result<Self, Error> {
-        value.tree.records(0, &mut BTreeSet::new())?;
-        // Machine expressions are self-identifying; reject a contradictory wire tree.
-        if value.source.as_str().contains("#VID")
-            && Self::civic(value.source.clone())?.tree != value.tree
-        {
+        // Every wire tree must agree with its authoritative machine expression.
+        if Self::civic(value.source.clone())?.tree != value.tree {
             return Err(Error::ProfileExpressionInvalid);
         }
         Ok(Self {
@@ -65,23 +61,15 @@ impl TryFrom<ExpressionFields> for ProfileExpression {
 impl ProfileExpression {
     /// Parse CIViC rawName, whose leaves are #VID identifiers.
     pub fn civic(source: Text) -> Result<Self, Error> {
-        Self::parse(source, &[])
-    }
-    /// Parse CIViC display text using exact source Feature-Variant labels.
-    /// Ambiguous labels are refused; the member list never supplies relations.
-    pub fn civic_display(source: Text, labels: &[(Curie, Text)]) -> Result<Self, Error> {
-        Self::parse(source, labels)
-    }
-    fn parse(source: Text, labels: &[(Curie, Text)]) -> Result<Self, Error> {
         let mut parser = Parser {
             rest: source.as_str().trim(),
-            labels,
             count: 0,
         };
         let tree = parser.section(0)?;
         if !parser.rest.is_empty() {
             return Err(Error::ProfileExpressionInvalid);
         }
+        tree.records(0, &mut BTreeSet::new())?;
         Ok(Self { source, tree })
     }
     /// Borrow the exact source expression.
@@ -139,7 +127,6 @@ impl ProfileNode {
 }
 struct Parser<'a> {
     rest: &'a str,
-    labels: &'a [(Curie, Text)],
     count: usize,
 }
 impl Parser<'_> {
@@ -181,10 +168,6 @@ impl Parser<'_> {
         if self.count > 4096 {
             return Err(Error::ProfileExpressionInvalid);
         }
-        // Match entire known labels before treating their parentheses or words as syntax.
-        if let Some(record) = self.display_member()? {
-            return Ok(ProfileNode::Member { record });
-        }
         if self.take("(") {
             let node = self.section(depth + 1)?;
             if !self.take(")") {
@@ -193,28 +176,21 @@ impl Parser<'_> {
             return Ok(node);
         }
         let negated = self.take("NOT");
-        let record = if let Some(record) = self.display_member()? {
-            record
-        } else {
-            if !self.labels.is_empty() {
-                return Err(Error::ProfileMemberMissing);
-            }
-            let rest = self
-                .rest
-                .strip_prefix("#VID")
-                .ok_or(Error::ProfileExpressionInvalid)?;
-            let end = rest.bytes().take_while(u8::is_ascii_digit).count();
-            let digits = rest.get(..end).ok_or(Error::ProfileExpressionInvalid)?;
-            let remaining = rest.get(end..).ok_or(Error::ProfileExpressionInvalid)?;
-            let id = digits
-                .parse::<u32>()
-                .map_err(|_| Error::ProfileExpressionInvalid)?;
-            if id == 0 || digits.starts_with('0') || !boundary(remaining) {
-                return Err(Error::ProfileExpressionInvalid);
-            }
-            self.rest = remaining.trim_start();
-            format!("civic:{id}").parse()?
-        };
+        let rest = self
+            .rest
+            .strip_prefix("#VID")
+            .ok_or(Error::ProfileExpressionInvalid)?;
+        let end = rest.bytes().take_while(u8::is_ascii_digit).count();
+        let digits = rest.get(..end).ok_or(Error::ProfileExpressionInvalid)?;
+        let remaining = rest.get(end..).ok_or(Error::ProfileExpressionInvalid)?;
+        let id = digits
+            .parse::<u32>()
+            .map_err(|_| Error::ProfileExpressionInvalid)?;
+        if id == 0 || digits.starts_with('0') || !boundary(remaining) {
+            return Err(Error::ProfileExpressionInvalid);
+        }
+        self.rest = remaining.trim_start();
+        let record = format!("civic:{id}").parse()?;
         let node = ProfileNode::Member { record };
         Ok(if negated {
             ProfileNode::Not {
@@ -223,25 +199,6 @@ impl Parser<'_> {
         } else {
             node
         })
-    }
-    fn display_member(&mut self) -> Result<Option<Curie>, Error> {
-        let mut found = None;
-        for (record, label) in self.labels {
-            if let Some(rest) = self.rest.strip_prefix(label.as_str())
-                && boundary(rest)
-            {
-                if found.is_some() {
-                    return Err(Error::ProfileExpressionInvalid);
-                }
-                found = Some((record.clone(), rest));
-            }
-        }
-        if let Some((record, rest)) = found {
-            self.rest = rest.trim_start();
-            Ok(Some(record))
-        } else {
-            Ok(None)
-        }
     }
     fn take(&mut self, token: &str) -> bool {
         if let Some(rest) = self.rest.strip_prefix(token)
