@@ -17,7 +17,7 @@
         "/result/items/0/sections/eligibility/data/total_characters": 6439,
         "/result/items/0/sections/eligibility/data/offset": 0,
         "/result/items/0/sections/eligibility/data/criteria": {
-          "equals_file": "../facts/eligibility-first.json"
+          "equals_file": "eligibility-first.json"
         },
         "/result/items/0/sections/eligibility/data/continuation/offset": 5704,
         "/next/0/kind": "page"
@@ -36,7 +36,7 @@
         "/result/items/0/sections/eligibility/data/total_characters": 6439,
         "/result/items/0/sections/eligibility/data/offset": 5704,
         "/result/items/0/sections/eligibility/data/criteria": {
-          "equals_file": "../facts/eligibility-continuation.json"
+          "equals_file": "eligibility-continuation.json"
         },
         "/result/items/0/sections/eligibility/data": {
           "omits": [
