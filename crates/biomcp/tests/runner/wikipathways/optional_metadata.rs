@@ -18,11 +18,7 @@ pub(super) fn check() -> Check {
     } else {
         (catalog(true, false), catalog(false, false), "WP1")
     };
-    let expected_cited_in = get["pathwayInfo"]
-        .as_array()
-        .and_then(|rows| rows.iter().find(|r| r.get("id") == Some(&json!(id))))
-        .and_then(|row| row.get("citedIn"))
-        .cloned();
+    preserve_metadata(&mut get, id)?;
     let registry = Registry::embedded()?;
     let positive = Environment::new().map_err(|e| e.to_string())?;
     let replay = seed(&positive, search.clone(), get.clone(), 200)?;
@@ -30,13 +26,16 @@ pub(super) fn check() -> Check {
     globals.extend(["sync".into(), "wikipathways".into()]);
     invoke(&positive, globals, 0).map_err(|e| format!("positive native catalog sync: {e}"))?;
     let mut args = positive.globals(Some(&replay), false);
-    args.extend(["get".into(), "pathway".into(), id.into()]);
+    args.extend(["get".into(), "pathway".into(), id.into(), "summary".into()]);
     let control = invoke(&positive, args, 0)?;
     registry.validate(&control, &["get".into(), "pathway".into(), id.into()], true)?;
     if control.pointer("/result/pathway/id/id") != Some(&json!(id)) {
         return Err("positive WikiPathways identity missing".into());
     }
-    if control.pointer("/result/pathway/cited_in") != expected_cited_in.as_ref() {
+    if control.pointer("/result/pathway/cited_in") != Some(&json!(""))
+        || control.pointer("/result/pathway/description")
+            != Some(&json!(" \nNative description\t "))
+    {
         return Err("valid native citation metadata changed".into());
     }
     let rows = get
@@ -68,5 +67,15 @@ pub(super) fn check() -> Check {
     {
         return Err("bad native name lost WikiPathways identity or field disclosure".into());
     }
+    Ok(())
+}
+
+fn preserve_metadata(get: &mut Value, id: &str) -> Check {
+    let row = get["pathwayInfo"]
+        .as_array_mut()
+        .and_then(|rows| rows.iter_mut().find(|r| r.get("id") == Some(&json!(id))))
+        .ok_or("native pathway row")?;
+    row["description"] = json!(" \nNative description\t ");
+    row["citedIn"] = json!("");
     Ok(())
 }
