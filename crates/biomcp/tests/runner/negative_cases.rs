@@ -110,7 +110,7 @@ fn article_cases() -> Vec<(&'static str, &'static str, &'static str)> {
         ),
         (
             "unique-duplicate",
-            "  - run: [schema, biomcp.gene-resolution/6]\n    expect: {'/oneOf/*/properties/resolution/type': {unique: true}}",
+            "  - run: [schema, biomcp.gene-resolution/7]\n    expect: {'/oneOf/*/properties/resolution/type': {unique: true}}",
             "unique: duplicate member",
         ),
         (

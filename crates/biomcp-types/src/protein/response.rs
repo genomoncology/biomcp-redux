@@ -28,7 +28,7 @@ page!(
     ProteinPage,
     ProteinHeader,
     ProteinSearch,
-    "biomcp.protein-page/3",
+    "biomcp.protein-page/4",
     "Source-ordered human reviewed protein headers."
 );
 page!(
@@ -56,7 +56,7 @@ page!(
     ProteinIsoforms,
     ProteinIsoform,
     ProteinRelationQuery,
-    "biomcp.protein-isoforms/2",
+    "biomcp.protein-isoforms/3",
     "Alternative products with every stated identifier and explicit direct sequence state."
 );
 /// Whole native rows with the independent unfiltered source count.
@@ -84,7 +84,7 @@ page!(
     ProteinStructures,
     ProteinStructureRef,
     ProteinRelationQuery,
-    "biomcp.protein-structures/2",
+    "biomcp.protein-structures/3",
     "Source structure links and native properties; no residue coverage claim."
 );
 /// Answers to requested inputs; ambiguous gene inputs retain all candidates.
@@ -96,7 +96,7 @@ pub struct ProteinCard {
     pub items: Box<[ProteinCardItem]>,
 }
 impl ResponseBody for ProteinCard {
-    const SCHEMA: &'static str = "biomcp.protein-card/6";
+    const SCHEMA: &'static str = "biomcp.protein-card/7";
     type Query = ProteinGet;
 }
 /// One requested identity and its source outcome, without first-hit selection.

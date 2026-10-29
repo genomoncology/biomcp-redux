@@ -26,9 +26,11 @@ pub fn targets(
                 drug.clone(),
                 None,
                 target,
-                r.action_type
-                    .unwrap_or_else(|| "mechanism".into())
-                    .parse()?,
+                Some(
+                    r.action_type
+                        .unwrap_or_else(|| "mechanism".into())
+                        .parse()?,
+                ),
                 Some(Text::from_source(&r.mechanism_of_action)?),
                 references(r.mechanism_refs)?,
                 attribution(Some(r.mec_id.to_string()))?,
@@ -58,9 +60,9 @@ pub fn indications(
             }
             Ok(DrugIndicationClaim {
                 drug: drug.clone(),
-                indication: Text::from_source(
+                indication: Some(Text::from_source(
                     &r.efo_term.or(r.mesh_heading).ok_or(Error::TextEmpty)?,
-                )?,
+                )?),
                 disease_references: diseases.into(),
                 stage: r.max_phase_for_ind.map(|value| DrugStage {
                     field: "max_phase_for_ind".into(),

@@ -212,6 +212,7 @@ fn failures() -> Check {
         .ok_or("GPML recording")?;
     let original: Value = serde_json::from_slice(&fs::read(&path).map_err(|e| e.to_string())?)
         .map_err(|e| e.to_string())?;
+    refused_nodes(&replay, &path, &original)?;
     for mode in [
         "wrong-wp",
         "wrong-species",
@@ -220,8 +221,6 @@ fn failures() -> Check {
         "broken",
         "entity",
         "namespace",
-        "duplicate",
-        "padded-id-collision",
         "node-bound",
         "oversized",
         "429",
@@ -325,6 +324,66 @@ fn single_attempt() -> Check {
             return Err(format!(
                 "GPML status {status} retried: {count} total requests"
             ));
+        }
+    }
+    Ok(())
+}
+
+fn refused_nodes(replay: &std::path::Path, path: &std::path::Path, original: &Value) -> Check {
+    for (mode, total, omitted) in [
+        ("duplicate", 10, vec!["n0", "n1"]),
+        ("padded-id-collision", 11, vec!["n1", " n0 "]),
+    ] {
+        let mut recording = original.clone();
+        *recording
+            .pointer_mut("/exchanges/0/body/value")
+            .ok_or("recorded body")? = json!(failed_body(mode));
+        fs::write(path, recording.to_string()).map_err(|e| e.to_string())?;
+        let env = Environment::new().map_err(|e| e.to_string())?;
+        let mut sync = vec!["sync".into(), "wikipathways".into()];
+        sync.extend(env.globals(Some(replay), false));
+        invoke(&env, sync, 0)?;
+        let mut prior = None;
+        for offline in [false, true] {
+            let mut args = vec![
+                "pathway".into(),
+                "genes".into(),
+                "WP382".into(),
+                "--limit".into(),
+                "50".into(),
+            ];
+            args.extend(env.globals(Some(replay), offline));
+            let answer = invoke(&env, args, 0)?;
+            let rows = answer
+                .pointer("/result/items")
+                .and_then(Value::as_array)
+                .ok_or("retained members")?;
+            if answer.pointer("/result/page/total") != Some(&json!(total))
+                || rows.iter().any(|row| {
+                    row.get("node_id")
+                        .and_then(Value::as_str)
+                        .is_some_and(|id| omitted.contains(&id))
+                })
+                || !answer
+                    .get("problems")
+                    .and_then(Value::as_array)
+                    .is_some_and(|problems| {
+                        problems
+                            .iter()
+                            .any(|p| p.get("field") == Some(&json!("genes.node_id")))
+                    })
+            {
+                return Err(format!(
+                    "{mode}: invalid node identity was kept or its valid siblings were lost"
+                ));
+            }
+            if let Some(prior) = &prior {
+                if answer.get("result") != Some(prior) {
+                    return Err("offline identity refusal changed retained membership".into());
+                }
+            } else {
+                prior = answer.get("result").cloned();
+            }
         }
     }
     Ok(())

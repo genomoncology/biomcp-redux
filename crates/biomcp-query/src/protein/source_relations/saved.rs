@@ -157,8 +157,11 @@ impl Saved {
                 }))
             }
             Self::Complexes(c) => {
-                out.problems
-                    .extend(c.items.iter().flat_map(|c| c.problems.clone()));
+                out.problems.extend(
+                    c.items
+                        .iter()
+                        .flat_map(|c| c.problems.clone().into_iter().flatten()),
+                );
                 let items: Vec<_> = c
                     .items
                     .into_iter()
@@ -172,7 +175,7 @@ impl Saved {
                 }));
             }
             Self::Members(Some(c)) => {
-                out.problems.extend(c.problems);
+                out.problems.extend(c.problems.into_iter().flatten());
                 let items: Vec<_> = c.members.into_iter().skip(offset).take(limit).collect();
                 for member in &items {
                     if let Some(id) = &member.protein {

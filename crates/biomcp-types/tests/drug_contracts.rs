@@ -277,7 +277,10 @@ fn native_target_identity_does_not_require_an_invented_gene() {
     let parsed: DrugTargetRelation =
         serde_json::from_value(value.clone()).expect("native target without gene");
     assert!(parsed.target().is_none());
-    assert_eq!(parsed.relation().as_str(), "native action");
+    assert_eq!(
+        parsed.relation().expect("native relation").as_str(),
+        "native action"
+    );
     assert_eq!(
         parsed.mechanism().expect("native mechanism").as_str(),
         "source mechanism wording"
@@ -298,7 +301,7 @@ fn native_target_identity_does_not_require_an_invented_gene() {
         parsed.drug().clone(),
         None,
         Some(native),
-        parsed.relation().clone(),
+        parsed.relation().cloned(),
         parsed.mechanism().cloned(),
         parsed.references().into(),
         parsed.attribution().clone(),
@@ -310,7 +313,7 @@ fn native_target_identity_does_not_require_an_invented_gene() {
             parsed.drug().clone(),
             None,
             None,
-            parsed.relation().clone(),
+            parsed.relation().cloned(),
             None,
             Box::default(),
             parsed.attribution().clone()
@@ -323,7 +326,7 @@ fn native_target_identity_does_not_require_an_invented_gene() {
         parsed.drug().clone(),
         Some(gene.clone()),
         None,
-        parsed.relation().clone(),
+        parsed.relation().cloned(),
         None,
         Box::default(),
         parsed.attribution().clone(),
@@ -466,8 +469,8 @@ fn interaction_keeps_both_bundle_origins_and_refuses_duplicate_attribution() {
 fn changed_native_record_responses_publish_version_three_and_checked_target_schema() {
     use biodata::DrugTargetRelation;
     use biomcp_types::{DrugIndications, DrugInteractions, DrugTargets, ResponseBody};
-    assert_eq!(DrugTargets::SCHEMA, "biomcp.drug-targets/5");
-    assert_eq!(DrugIndications::SCHEMA, "biomcp.drug-indications/5");
+    assert_eq!(DrugTargets::SCHEMA, "biomcp.drug-targets/6");
+    assert_eq!(DrugIndications::SCHEMA, "biomcp.drug-indications/6");
     assert_eq!(DrugInteractions::SCHEMA, "biomcp.drug-interactions/5");
     let validator =
         jsonschema::draft202012::new(&schemars::schema_for!(DrugTargetRelation).to_value())

@@ -852,83 +852,6 @@
       "pattern": "^(?!(?:[NX]P_[0-9]{6}\\.(?:65535|[1-9][0-9]{0,3}|[1-5][0-9]{4}|6[0-4][0-9]{3}|65[0-4][0-9]{2}|655[0-2][0-9]{1}|6553[0-4][0-9]{0})|[NX]P_(?!000)[0-9]{9}\\.(?:65535|[1-9][0-9]{0,3}|[1-5][0-9]{4}|6[0-4][0-9]{3}|65[0-4][0-9]{2}|655[0-2][0-9]{1}|6553[0-4][0-9]{0})|ENSP[0-9]{11}\\.(?:65535|[1-9][0-9]{0,3}|[1-5][0-9]{4}|6[0-4][0-9]{3}|65[0-4][0-9]{2}|655[0-2][0-9]{1}|6553[0-4][0-9]{0})|LRG_0*(?:0|(?:4294967295|[1-9][0-9]{0,8}|[1-3][0-9]{9}|4[0-1][0-9]{8}|42[0-8][0-9]{7}|429[0-3][0-9]{6}|4294[0-8][0-9]{5}|42949[0-5][0-9]{4}|429496[0-6][0-9]{3}|4294967[0-1][0-9]{2}|42949672[0-8][0-9]{1}|429496729[0-4][0-9]{0}))p0*(?:0|(?:65535|[1-9][0-9]{0,3}|[1-5][0-9]{4}|6[0-4][0-9]{3}|65[0-4][0-9]{2}|655[0-2][0-9]{1}|6553[0-4][0-9]{0})))(?:\\([^)]*\\))?:[gcnrmo]\\.)(?![^:()]+\\((?:[NX]P_[0-9]{6}\\.(?:65535|[1-9][0-9]{0,3}|[1-5][0-9]{4}|6[0-4][0-9]{3}|65[0-4][0-9]{2}|655[0-2][0-9]{1}|6553[0-4][0-9]{0})|[NX]P_(?!000)[0-9]{9}\\.(?:65535|[1-9][0-9]{0,3}|[1-5][0-9]{4}|6[0-4][0-9]{3}|65[0-4][0-9]{2}|655[0-2][0-9]{1}|6553[0-4][0-9]{0})|ENSP[0-9]{11}\\.(?:65535|[1-9][0-9]{0,3}|[1-5][0-9]{4}|6[0-4][0-9]{3}|65[0-4][0-9]{2}|655[0-2][0-9]{1}|6553[0-4][0-9]{0})|LRG_0*(?:0|(?:4294967295|[1-9][0-9]{0,8}|[1-3][0-9]{9}|4[0-1][0-9]{8}|42[0-8][0-9]{7}|429[0-3][0-9]{6}|4294[0-8][0-9]{5}|42949[0-5][0-9]{4}|429496[0-6][0-9]{3}|4294967[0-1][0-9]{2}|42949672[0-8][0-9]{1}|429496729[0-4][0-9]{0}))p0*(?:0|(?:65535|[1-9][0-9]{0,3}|[1-5][0-9]{4}|6[0-4][0-9]{3}|65[0-4][0-9]{2}|655[0-2][0-9]{1}|6553[0-4][0-9]{0})))\\):[gcnrmo]\\.)(?:(?:N[CGMPRTW]|X[MPR])_(?:[0-9]{6}|(?!000)[0-9]{9})\\.(?:65535|[1-9][0-9]{0,3}|[1-5][0-9]{4}|6[0-4][0-9]{3}|65[0-4][0-9]{2}|655[0-2][0-9]{1}|6553[0-4][0-9]{0})|ENS[GTP][0-9]{11}\\.(?:65535|[1-9][0-9]{0,3}|[1-5][0-9]{4}|6[0-4][0-9]{3}|65[0-4][0-9]{2}|655[0-2][0-9]{1}|6553[0-4][0-9]{0})|LRG_0*(?:0|(?:4294967295|[1-9][0-9]{0,8}|[1-3][0-9]{9}|4[0-1][0-9]{8}|42[0-8][0-9]{7}|429[0-3][0-9]{6}|4294[0-8][0-9]{5}|42949[0-5][0-9]{4}|429496[0-6][0-9]{3}|4294967[0-1][0-9]{2}|42949672[0-8][0-9]{1}|429496729[0-4][0-9]{0}))(?:[tp]0*(?:0|(?:65535|[1-9][0-9]{0,3}|[1-5][0-9]{4}|6[0-4][0-9]{3}|65[0-4][0-9]{2}|655[0-2][0-9]{1}|6553[0-4][0-9]{0})))?)(?:\\((?:(?:(?:N[CGMPRTW]|X[MPR])_(?:[0-9]{6}|(?!000)[0-9]{9})\\.(?:65535|[1-9][0-9]{0,3}|[1-5][0-9]{4}|6[0-4][0-9]{3}|65[0-4][0-9]{2}|655[0-2][0-9]{1}|6553[0-4][0-9]{0})|ENS[GTP][0-9]{11}\\.(?:65535|[1-9][0-9]{0,3}|[1-5][0-9]{4}|6[0-4][0-9]{3}|65[0-4][0-9]{2}|655[0-2][0-9]{1}|6553[0-4][0-9]{0})|LRG_0*(?:0|(?:4294967295|[1-9][0-9]{0,8}|[1-3][0-9]{9}|4[0-1][0-9]{8}|42[0-8][0-9]{7}|429[0-3][0-9]{6}|4294[0-8][0-9]{5}|42949[0-5][0-9]{4}|429496[0-6][0-9]{3}|4294967[0-1][0-9]{2}|42949672[0-8][0-9]{1}|429496729[0-4][0-9]{0}))(?:[tp]0*(?:0|(?:65535|[1-9][0-9]{0,3}|[1-5][0-9]{4}|6[0-4][0-9]{3}|65[0-4][0-9]{2}|655[0-2][0-9]{1}|6553[0-4][0-9]{0})))?)|[A-Za-z][A-Za-z0-9._/@-]{0,254})\\))?:(?:[gcnrpmo]\\.[\\x21-\\x7e]*[0-9][\\x21-\\x7e]*|[pr]\\.(?:\\?|\\(\\?\\)|=|\\(=\\))|r\\.(?:spl\\??|\\(spl\\?\\)))$",
       "type": "string"
     },
-    "Reply_LeafRef": {
-      "oneOf": [
-        {
-          "properties": {
-            "hgvs": {
-              "anyOf": [
-                {
-                  "$ref": "#/$defs/Reply_HgvsText"
-                },
-                {
-                  "type": "null"
-                }
-              ],
-              "description": "Source-qualified HGVS."
-            },
-            "id": {
-              "anyOf": [
-                {
-                  "$ref": "#/$defs/Reply_VariantId"
-                },
-                {
-                  "type": "null"
-                }
-              ],
-              "description": "Source identifier."
-            },
-            "level": {
-              "const": "allele",
-              "type": "string"
-            }
-          },
-          "required": [
-            "level"
-          ],
-          "type": "object"
-        },
-        {
-          "properties": {
-            "gene": {
-              "$ref": "#/$defs/Reply_GeneRef",
-              "description": "Source gene."
-            },
-            "hgvs": {
-              "anyOf": [
-                {
-                  "$ref": "#/$defs/Reply_HgvsText"
-                },
-                {
-                  "type": "null"
-                }
-              ],
-              "description": "Source protein HGVS."
-            },
-            "label": {
-              "anyOf": [
-                {
-                  "$ref": "#/$defs/Reply_Text"
-                },
-                {
-                  "type": "null"
-                }
-              ],
-              "description": "Source protein label."
-            },
-            "level": {
-              "const": "protein",
-              "type": "string"
-            }
-          },
-          "required": [
-            "level",
-            "gene"
-          ],
-          "type": "object"
-        }
-      ]
-    },
     "Reply_NcbiGeneId": {
       "description": "A positive NCBI Gene identifier in canonical decimal text.",
       "pattern": "^(?:4294967295|[1-9][0-9]{0,8}|[1-3][0-9]{9}|4[0-1][0-9]{8}|42[0-8][0-9]{7}|429[0-3][0-9]{6}|4294[0-8][0-9]{5}|42949[0-5][0-9]{4}|429496[0-6][0-9]{3}|4294967[0-1][0-9]{2}|42949672[0-8][0-9]{1}|429496729[0-4][0-9]{0})$",
@@ -1118,6 +1041,105 @@
         "value.unknown",
         "collection.incomplete",
         "identity.conflict"
+      ]
+    },
+    "Reply_ProfileExpression": {
+      "description": "Exact source text together with its parsed Boolean tree.",
+      "properties": {
+        "source": {
+          "$ref": "#/$defs/Reply_Text"
+        },
+        "tree": {
+          "$ref": "#/$defs/Reply_ProfileNode"
+        }
+      },
+      "required": [
+        "source",
+        "tree"
+      ],
+      "type": "object"
+    },
+    "Reply_ProfileNode": {
+      "description": "Source-stated Boolean relations. No node implies same-allele phase.",
+      "oneOf": [
+        {
+          "description": "One source-native variant reference.",
+          "properties": {
+            "operator": {
+              "const": "member",
+              "type": "string"
+            },
+            "record": {
+              "$ref": "#/$defs/Reply_Curie",
+              "description": "Source-native variant identifier."
+            }
+          },
+          "required": [
+            "operator",
+            "record"
+          ],
+          "type": "object"
+        },
+        {
+          "description": "Every operand is required by the source expression.",
+          "properties": {
+            "operands": {
+              "description": "Source operands in expression order.",
+              "items": {
+                "$ref": "#/$defs/Reply_ProfileNode"
+              },
+              "type": "array"
+            },
+            "operator": {
+              "const": "and",
+              "type": "string"
+            }
+          },
+          "required": [
+            "operator",
+            "operands"
+          ],
+          "type": "object"
+        },
+        {
+          "description": "Alternatives in the source expression.",
+          "properties": {
+            "operands": {
+              "description": "Source alternatives in expression order.",
+              "items": {
+                "$ref": "#/$defs/Reply_ProfileNode"
+              },
+              "type": "array"
+            },
+            "operator": {
+              "const": "or",
+              "type": "string"
+            }
+          },
+          "required": [
+            "operator",
+            "operands"
+          ],
+          "type": "object"
+        },
+        {
+          "description": "Source negation of one member.",
+          "properties": {
+            "operand": {
+              "$ref": "#/$defs/Reply_ProfileNode",
+              "description": "Negated source member."
+            },
+            "operator": {
+              "const": "not",
+              "type": "string"
+            }
+          },
+          "required": [
+            "operator",
+            "operand"
+          ],
+          "type": "object"
+        }
       ]
     },
     "Reply_Proposition": {
@@ -2038,8 +2060,130 @@
           "type": "object"
         },
         {
-          "description": "Compound source profile, without an inferred allele.",
+          "description": "Native source variant with optional source-stated forms.",
           "properties": {
+            "feature": {
+              "$ref": "#/$defs/Reply_Text"
+            },
+            "feature_record": {
+              "anyOf": [
+                {
+                  "$ref": "#/$defs/Reply_Curie"
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            },
+            "forms": {
+              "items": {
+                "oneOf": [
+                  {
+                    "properties": {
+                      "hgvs": {
+                        "anyOf": [
+                          {
+                            "$ref": "#/$defs/Reply_HgvsText"
+                          },
+                          {
+                            "type": "null"
+                          }
+                        ],
+                        "description": "Source-qualified HGVS."
+                      },
+                      "id": {
+                        "anyOf": [
+                          {
+                            "$ref": "#/$defs/Reply_VariantId"
+                          },
+                          {
+                            "type": "null"
+                          }
+                        ],
+                        "description": "Source identifier."
+                      },
+                      "level": {
+                        "const": "allele",
+                        "type": "string"
+                      }
+                    },
+                    "required": [
+                      "level"
+                    ],
+                    "type": "object"
+                  },
+                  {
+                    "properties": {
+                      "gene": {
+                        "$ref": "#/$defs/Reply_GeneRef",
+                        "description": "Source gene."
+                      },
+                      "hgvs": {
+                        "anyOf": [
+                          {
+                            "$ref": "#/$defs/Reply_HgvsText"
+                          },
+                          {
+                            "type": "null"
+                          }
+                        ],
+                        "description": "Source protein HGVS."
+                      },
+                      "label": {
+                        "anyOf": [
+                          {
+                            "$ref": "#/$defs/Reply_Text"
+                          },
+                          {
+                            "type": "null"
+                          }
+                        ],
+                        "description": "Source protein label."
+                      },
+                      "level": {
+                        "const": "protein",
+                        "type": "string"
+                      }
+                    },
+                    "required": [
+                      "level",
+                      "gene"
+                    ],
+                    "type": "object"
+                  }
+                ]
+              },
+              "type": "array"
+            },
+            "level": {
+              "const": "source",
+              "type": "string"
+            },
+            "record": {
+              "$ref": "#/$defs/Reply_Curie"
+            }
+          },
+          "required": [
+            "level",
+            "record",
+            "feature"
+          ],
+          "type": "object"
+        },
+        {
+          "description": "Compound source profile, without inferred allele identity or phase.",
+          "properties": {
+            "expression": {
+              "anyOf": [
+                {
+                  "$ref": "#/$defs/Reply_ProfileExpression"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "description": "Exact source expression and checked member relations."
+            },
             "label": {
               "$ref": "#/$defs/Reply_Text",
               "description": "Complete source label."
@@ -2051,7 +2195,191 @@
             "members": {
               "description": "Source member references in their native order.",
               "items": {
-                "$ref": "#/$defs/Reply_LeafRef"
+                "oneOf": [
+                  {
+                    "properties": {
+                      "hgvs": {
+                        "anyOf": [
+                          {
+                            "$ref": "#/$defs/Reply_HgvsText"
+                          },
+                          {
+                            "type": "null"
+                          }
+                        ],
+                        "description": "Source-qualified HGVS."
+                      },
+                      "id": {
+                        "anyOf": [
+                          {
+                            "$ref": "#/$defs/Reply_VariantId"
+                          },
+                          {
+                            "type": "null"
+                          }
+                        ],
+                        "description": "Source identifier."
+                      },
+                      "level": {
+                        "const": "allele",
+                        "type": "string"
+                      }
+                    },
+                    "required": [
+                      "level"
+                    ],
+                    "type": "object"
+                  },
+                  {
+                    "properties": {
+                      "gene": {
+                        "$ref": "#/$defs/Reply_GeneRef",
+                        "description": "Source gene."
+                      },
+                      "hgvs": {
+                        "anyOf": [
+                          {
+                            "$ref": "#/$defs/Reply_HgvsText"
+                          },
+                          {
+                            "type": "null"
+                          }
+                        ],
+                        "description": "Source protein HGVS."
+                      },
+                      "label": {
+                        "anyOf": [
+                          {
+                            "$ref": "#/$defs/Reply_Text"
+                          },
+                          {
+                            "type": "null"
+                          }
+                        ],
+                        "description": "Source protein label."
+                      },
+                      "level": {
+                        "const": "protein",
+                        "type": "string"
+                      }
+                    },
+                    "required": [
+                      "level",
+                      "gene"
+                    ],
+                    "type": "object"
+                  },
+                  {
+                    "properties": {
+                      "feature": {
+                        "$ref": "#/$defs/Reply_Text"
+                      },
+                      "feature_record": {
+                        "anyOf": [
+                          {
+                            "$ref": "#/$defs/Reply_Curie"
+                          },
+                          {
+                            "type": "null"
+                          }
+                        ]
+                      },
+                      "forms": {
+                        "items": {
+                          "oneOf": [
+                            {
+                              "properties": {
+                                "hgvs": {
+                                  "anyOf": [
+                                    {
+                                      "$ref": "#/$defs/Reply_HgvsText"
+                                    },
+                                    {
+                                      "type": "null"
+                                    }
+                                  ],
+                                  "description": "Source-qualified HGVS."
+                                },
+                                "id": {
+                                  "anyOf": [
+                                    {
+                                      "$ref": "#/$defs/Reply_VariantId"
+                                    },
+                                    {
+                                      "type": "null"
+                                    }
+                                  ],
+                                  "description": "Source identifier."
+                                },
+                                "level": {
+                                  "const": "allele",
+                                  "type": "string"
+                                }
+                              },
+                              "required": [
+                                "level"
+                              ],
+                              "type": "object"
+                            },
+                            {
+                              "properties": {
+                                "gene": {
+                                  "$ref": "#/$defs/Reply_GeneRef",
+                                  "description": "Source gene."
+                                },
+                                "hgvs": {
+                                  "anyOf": [
+                                    {
+                                      "$ref": "#/$defs/Reply_HgvsText"
+                                    },
+                                    {
+                                      "type": "null"
+                                    }
+                                  ],
+                                  "description": "Source protein HGVS."
+                                },
+                                "label": {
+                                  "anyOf": [
+                                    {
+                                      "$ref": "#/$defs/Reply_Text"
+                                    },
+                                    {
+                                      "type": "null"
+                                    }
+                                  ],
+                                  "description": "Source protein label."
+                                },
+                                "level": {
+                                  "const": "protein",
+                                  "type": "string"
+                                }
+                              },
+                              "required": [
+                                "level",
+                                "gene"
+                              ],
+                              "type": "object"
+                            }
+                          ]
+                        },
+                        "type": "array"
+                      },
+                      "level": {
+                        "const": "source",
+                        "type": "string"
+                      },
+                      "record": {
+                        "$ref": "#/$defs/Reply_Curie"
+                      }
+                    },
+                    "required": [
+                      "level",
+                      "record",
+                      "feature"
+                    ],
+                    "type": "object"
+                  }
+                ]
               },
               "type": "array"
             },

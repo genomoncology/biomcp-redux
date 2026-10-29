@@ -161,9 +161,10 @@ fn initial(cx: &Ctx<'_>, q: &PathwaySearch, deadline: Deadline<'_>, out: &mut Ou
                 .push(status::source(Source::WikiPathways, leg.finish(), error));
             let state = match reply {
                 Ok((rows, info)) => {
-                    let total = rows.len() as u64;
+                    let total = rows.value.len() as u64;
+                    saved.4.extend(rows.problems);
                     (
-                        rows,
+                        rows.value,
                         None,
                         total,
                         info.content_revision.and_then(|s| s.parse().ok()),

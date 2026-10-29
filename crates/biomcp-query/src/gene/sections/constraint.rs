@@ -7,7 +7,7 @@ use biomcp_fetch::Deadline;
 use biomcp_types::{Reason, Section, Source};
 
 pub(super) fn applicable(gene: &Gene) -> bool {
-    gene.locus_group == LocusGroup::ProteinCoding && gene.ensembl_id.is_some()
+    gene.locus_group == Some(LocusGroup::ProteinCoding) && gene.ensembl_id.is_some()
 }
 pub(super) fn run(cx: &Ctx<'_>, deadline: Deadline<'_>, genes: &[(HgncId, Gene)]) -> SectionResult {
     let ids: Vec<_> = genes

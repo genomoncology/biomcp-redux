@@ -63,14 +63,18 @@ pub(super) fn opentargets(
         return Ok(());
     };
     let source = Source::Opentargets;
-    let header = identity::ot_identity(&row).map_err(|_| failure(source))?;
+    let header = opentargets::header(&row).map_err(|_| failure(source))?;
+    out.problems.extend(header.problems);
+    let header = header.value;
     let drug = identity::neutral(&header).map_err(|_| failure(source))?;
     let limit = query.section_limit().unwrap_or(10) as usize;
     let offset = query.section_offset().unwrap_or(0) as usize;
     match query.sections() {
         [DrugSection::Targets] => {
-            let rows = opentargets::map_targets(&drug, row.mechanisms_of_action.rows)
+            let rows = opentargets::map_targets(&drug, row.mechanisms_of_action)
                 .map_err(|_| failure(source))?;
+            out.problems.extend(rows.problems);
+            let rows = rows.value;
             let total = rows.len() as u64;
             let records = rows
                 .into_vec()
@@ -81,8 +85,10 @@ pub(super) fn opentargets(
             targets(out, query, header, records, total, meta.fetched, fresh);
         }
         [DrugSection::Indications] => {
-            let rows = opentargets::map_indications(&drug, row.indications.rows)
+            let rows = opentargets::map_indications(&drug, row.indications)
                 .map_err(|_| failure(source))?;
+            out.problems.extend(rows.problems);
+            let rows = rows.value;
             let total = rows.len() as u64;
             let records = rows
                 .into_vec()

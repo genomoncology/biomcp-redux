@@ -83,7 +83,14 @@
           "description": "Checked source-owned identity."
         },
         "name": {
-          "$ref": "#/$defs/Reply_Text",
+          "anyOf": [
+            {
+              "$ref": "#/$defs/Reply_Text"
+            },
+            {
+              "type": "null"
+            }
+          ],
           "description": "Whole native pathway name."
         },
         "references": {
@@ -135,7 +142,6 @@
       },
       "required": [
         "id",
-        "name",
         "species"
       ],
       "type": "object"
@@ -416,7 +422,14 @@
           "description": "Checked source-owned identity."
         },
         "name": {
-          "$ref": "#/$defs/Reply_Text",
+          "anyOf": [
+            {
+              "$ref": "#/$defs/Reply_Text"
+            },
+            {
+              "type": "null"
+            }
+          ],
           "description": "Whole native name."
         },
         "revision": {
@@ -448,7 +461,6 @@
       },
       "required": [
         "id",
-        "name",
         "species"
       ],
       "type": "object"
@@ -691,18 +703,30 @@
           "type": "integer"
         },
         "name": {
-          "$ref": "#/$defs/Reply_Text",
+          "anyOf": [
+            {
+              "$ref": "#/$defs/Reply_Text"
+            },
+            {
+              "type": "null"
+            }
+          ],
           "description": "Whole physical entity label, including source-stated modification context."
         },
         "schema_class": {
-          "$ref": "#/$defs/Reply_Text",
+          "anyOf": [
+            {
+              "$ref": "#/$defs/Reply_Text"
+            },
+            {
+              "type": "null"
+            }
+          ],
           "description": "Native physical entity schema class, separate from reference schema class."
         }
       },
       "required": [
-        "db_id",
-        "name",
-        "schema_class"
+        "db_id"
       ],
       "type": "object"
     },
@@ -760,12 +784,14 @@
         },
         "text": {
           "description": "Complete native text; no sentence clipping or reference reassignment.",
-          "type": "string"
+          "type": [
+            "string",
+            "null"
+          ]
         }
       },
       "required": [
-        "db_id",
-        "text"
+        "db_id"
       ],
       "type": "object"
     },
@@ -1638,7 +1664,7 @@
       "type": "string"
     }
   },
-  "$id": "biomcp.pathway-card/7",
+  "$id": "biomcp.pathway-card/8",
   "$schema": "https://json-schema.org/draft/2020-12/schema",
   "description": "One versioned command response; schema identity comes only from its body type.\nJSON readers ignore unknown fields and unknown growable enum values within a major.",
   "properties": {
@@ -1694,7 +1720,7 @@
       "description": "Answer when available."
     },
     "schema": {
-      "const": "biomcp.pathway-card/7",
+      "const": "biomcp.pathway-card/8",
       "type": "string"
     },
     "sources": {

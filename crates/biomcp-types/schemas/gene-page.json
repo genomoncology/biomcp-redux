@@ -33,7 +33,14 @@
           "description": "Source-stated location, including unparsed publisher text."
         },
         "locus_group": {
-          "$ref": "#/$defs/Reply_LocusGroup",
+          "anyOf": [
+            {
+              "$ref": "#/$defs/Reply_LocusGroup"
+            },
+            {
+              "type": "null"
+            }
+          ],
           "description": "HGNC locus group."
         },
         "match": {
@@ -48,7 +55,14 @@
           "description": "Match information when this header answers an input."
         },
         "name": {
-          "$ref": "#/$defs/Reply_Text",
+          "anyOf": [
+            {
+              "$ref": "#/$defs/Reply_Text"
+            },
+            {
+              "type": "null"
+            }
+          ],
           "description": "Gene name."
         },
         "status": {
@@ -63,9 +77,7 @@
       "required": [
         "hgnc_id",
         "symbol",
-        "locus_group",
-        "status",
-        "name"
+        "status"
       ],
       "type": "object"
     },
@@ -848,7 +860,7 @@
       "type": "string"
     }
   },
-  "$id": "biomcp.gene-page/6",
+  "$id": "biomcp.gene-page/7",
   "$schema": "https://json-schema.org/draft/2020-12/schema",
   "description": "One versioned command response; schema identity comes only from its body type.\nJSON readers ignore unknown fields and unknown growable enum values within a major.",
   "properties": {
@@ -904,7 +916,7 @@
       "description": "Answer when available."
     },
     "schema": {
-      "const": "biomcp.gene-page/6",
+      "const": "biomcp.gene-page/7",
       "type": "string"
     },
     "sources": {

@@ -39,7 +39,8 @@ pub struct DrugIndicationClaim {
     /// Source drug identity.
     pub drug: DrugIdentity,
     /// Complete native indication wording.
-    pub indication: Text,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub indication: Option<Text>,
     /// Independently labeled native disease identifiers, without cross-source normalization.
     #[serde(default, skip_serializing_if = "<[ _ ]>::is_empty")]
     pub disease_references: Box<[DrugDiseaseReference]>,

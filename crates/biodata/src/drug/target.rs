@@ -31,7 +31,8 @@ struct Fields {
     #[cfg_attr(feature = "schema", schemars(with = "DrugNativeTarget"))]
     native_target: Option<DrugNativeTarget>,
     /// Native relationship label.
-    relation: Text,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    relation: Option<Text>,
     /// Native mechanism wording, only when supplied.
     #[serde(default, skip_serializing_if = "Option::is_none")]
     mechanism: Option<Text>,
@@ -47,7 +48,7 @@ impl DrugTargetRelation {
         drug: DrugIdentity,
         target: Option<GeneRef>,
         native_target: Option<DrugNativeTarget>,
-        relation: Text,
+        relation: Option<Text>,
         mechanism: Option<Text>,
         references: Box<[DrugNativeReference]>,
         attribution: Attribution,
@@ -71,8 +72,8 @@ impl DrugTargetRelation {
         self.0.target.as_ref()
     }
     /// Original source relationship label.
-    pub fn relation(&self) -> &Text {
-        &self.0.relation
+    pub fn relation(&self) -> Option<&Text> {
+        self.0.relation.as_ref()
     }
     /// Native mechanism wording, only when supplied.
     pub fn mechanism(&self) -> Option<&Text> {

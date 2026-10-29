@@ -152,6 +152,10 @@ const ALLOWED: &[(&str, &str)] = &[
         "Exercise literal indexed lookup inputs outside command validation and empty/oversized batches or chunks beyond command limits.",
     ),
     (
+        "crates/biomcp-adapters/tests/protein_storage.rs",
+        "Read legacy serialized adapter values through the public storage type without a source request.",
+    ),
+    (
         "crates/biomcp-adapters/tests/pmc_body.rs",
         "Reconstruct complete source rows and retain JATS reference IDs and links omitted from command JSON.",
     ),

@@ -6,6 +6,7 @@
 )]
 mod graphql;
 mod hgnc;
+mod metadata;
 mod mygene;
 
 use super::response_cases::case;
@@ -23,6 +24,18 @@ pub(super) fn trials() -> Vec<Trial> {
         ),
         ("gene-commands/mygene-boundaries", mygene::check),
         ("gene-sections/graphql-boundaries", graphql::check),
+        (
+            "gene-sections/uniprot-metadata-regression",
+            metadata::uniprot,
+        ),
+        (
+            "pathway-reactome/reactome-metadata-regression",
+            metadata::reactome,
+        ),
+        (
+            "pathway-reactome/native-summation-keeps-source-text",
+            metadata::native_summation,
+        ),
     ]
     .into_iter()
     .map(|(name, check)| transcript_trial(name, move || check().map_err(|e| e.to_string().into())))
