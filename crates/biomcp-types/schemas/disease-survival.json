@@ -1139,7 +1139,7 @@
       "type": "object"
     }
   },
-  "$id": "biomcp.disease-survival/5",
+  "$id": "biomcp.disease-survival/6",
   "$schema": "https://json-schema.org/draft/2020-12/schema",
   "description": "One versioned command response; schema identity comes only from its body type.\nJSON readers ignore unknown fields and unknown growable enum values within a major.",
   "properties": {
@@ -1195,7 +1195,7 @@
       "description": "Answer when available."
     },
     "schema": {
-      "const": "biomcp.disease-survival/5",
+      "const": "biomcp.disease-survival/6",
       "type": "string"
     },
     "sources": {
