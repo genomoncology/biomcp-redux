@@ -61,6 +61,9 @@ pub(super) fn cached(args: &[&str], case: &Path, recording: Option<&Path>) -> Ve
 }
 pub(super) fn trials() -> Vec<Trial> {
     vec![
+        transcript_trial("article/unknown-acquisition-is-omitted", || {
+            super::article_save_reply::unknown_acquisition().map_err(Into::into)
+        }),
         transcript_trial("gene/version-one-default-cache-remains-readable", || {
             default_cache_migration().map_err(Into::into)
         }),
