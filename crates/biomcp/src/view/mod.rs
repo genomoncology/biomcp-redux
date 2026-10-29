@@ -75,7 +75,8 @@ impl View<'_> {
         for (name, value) in fields {
             if name == "schema"
                 || (name == "query"
-                    && (value.is_null() || value.as_object().is_some_and(serde_json::Map::is_empty)))
+                    && (value.is_null()
+                        || value.as_object().is_some_and(serde_json::Map::is_empty)))
             {
                 continue;
             }

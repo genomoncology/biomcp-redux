@@ -308,7 +308,14 @@ fn verify_body(name: &str, cold: &Value, original: &Value, total: usize) -> Chec
     super::assertions::omit_empty_lists(&mut expected);
     super::assertions::omit_null_fields(
         &mut expected,
-        &["guidelinename", "guidelineurl", "clinpgxlevel", "pgxtesting", "pmids", "comments"],
+        &[
+            "guidelinename",
+            "guidelineurl",
+            "clinpgxlevel",
+            "pgxtesting",
+            "pmids",
+            "comments",
+        ],
     );
     if output_rows != expected {
         return Err(format!("native context changed: {output_rows}"));

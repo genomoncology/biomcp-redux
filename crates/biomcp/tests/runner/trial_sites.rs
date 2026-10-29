@@ -151,8 +151,19 @@ fn expected_records(raw: &Value, section: &str) -> Vec<Value> {
         super::assertions::omit_null_fields(
             row,
             &[
-                "facility", "city", "state", "zip", "country", "status", "coordinates", "name", "role",
-                "phone", "phone_ext", "email", "affiliation",
+                "facility",
+                "city",
+                "state",
+                "zip",
+                "country",
+                "status",
+                "coordinates",
+                "name",
+                "role",
+                "phone",
+                "phone_ext",
+                "email",
+                "affiliation",
             ],
         );
     }

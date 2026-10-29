@@ -188,7 +188,14 @@ fn expected_records(raw: &Value, section: &str) -> Vec<Value> {
         super::assertions::omit_empty_lists(row);
         super::assertions::omit_null_fields(
             row,
-            &["measure", "description", "time_frame", "label", "kind", "name"],
+            &[
+                "measure",
+                "description",
+                "time_frame",
+                "label",
+                "kind",
+                "name",
+            ],
         );
     }
     rows

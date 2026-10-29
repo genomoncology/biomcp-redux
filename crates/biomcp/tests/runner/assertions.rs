@@ -238,20 +238,22 @@ pub(super) fn omit_null_fields(value: &mut Value, optional: &[&str]) {
     }
 }
 
+fn omits(pointer: &str, expected: &Value, actual: &Value) -> Result<(), String> {
+    let fields = actual.as_object().ok_or("omits requires an object")?;
+    for name in array(pointer, "omits", expected)? {
+        let name = name.as_str().ok_or("omits requires field names")?;
+        if fields.contains_key(name) {
+            return Err(format!("{pointer} omits: unexpected field {name}"));
+        }
+    }
+    Ok(())
+}
+
 impl Assertion<'_> {
     pub(super) fn check(&self, pointer: &str, actual: &Value) -> Result<(), String> {
         match self {
             Self::Equals(expected) => equal(pointer, expected, actual),
-            Self::Omits(expected) => {
-                let fields = actual.as_object().ok_or("omits requires an object")?;
-                for name in array(pointer, "omits", expected)? {
-                    let name = name.as_str().ok_or("omits requires field names")?;
-                    if fields.contains_key(name) {
-                        return Err(format!("{pointer} omits: unexpected field {name}"));
-                    }
-                }
-                Ok(())
-            }
+            Self::Omits(expected) => omits(pointer, expected, actual),
             Self::Nonincreasing => nonincreasing(pointer, actual),
             Self::Unique => {
                 let values = array(pointer, "unique", actual)?;
