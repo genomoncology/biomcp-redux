@@ -43,7 +43,15 @@ pub(super) struct Assertion {
     pub therapy_interaction_type: Option<Field<Text>>,
 }
 impl Reply for ReplyBody {
-    #[derive(Deserialize)]
+    fn check(&self) -> Result<(), BadReply> {
+        if self.errors.as_ref().is_some_and(|rows| !rows.is_empty()) { return Err(BadReply); }
+        if let Some(therapy) = &self.data.therapy { therapy.check()?; }
+        if let Some(rows) = &self.data.evidence_items { rows.check()?; }
+        if let Some(rows) = &self.data.assertions { rows.check()?; }
+        Ok(())
+    }
+}
+#[derive(Deserialize)]
 pub(super) struct Member {
     #[serde(flatten)]
     pub variant: raw::Member,

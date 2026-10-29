@@ -32,7 +32,7 @@ pub(super) fn evidence(raw: raw::Evidence, subject: Option<&VariantRef>, context
     let context_bad = context_bad || before != cx.list.len();
     let strength = cx.field("evidenceLevel", raw.evidence_level).map(|label| evidence_level(label, cx));
     let citations = citations(raw.source, cx);
-    let native = native(significance.as_ref().and_then(|v| term(v.as_str())), strength, condition, &therapies.0, None, citations);
+    let native = native(significance.as_ref().and_then(|v| term(v.as_str(), cx)), strength, condition, &therapies.0, None, citations);
     build(Claim {id, kind, status, significance, direction, native, therapies: therapies.1, assertion: false, context_bad}, subject, cx)
 }
 pub(super) fn assertion(raw: raw::Assertion, subject: Option<&VariantRef>, context_bad: bool, cx: &mut Problems) -> Option<MappedClaim> {
@@ -52,12 +52,12 @@ pub(super) fn assertion(raw: raw::Assertion, subject: Option<&VariantRef>, conte
             Some(value) => (Some(value.0), value.1),
             None => {cx.required::<()>("ampLevel", None); (Some(Term {label, codings: Box::default()}), None)}
         }
-    } else { (significance.as_ref().and_then(|v| term(v.as_str())), None) };
+    } else { (significance.as_ref().and_then(|v| term(v.as_str(), cx)), None) };
     let native = native(classification, strength, condition, &therapies.0, origin, Box::default());
     build(Claim {id, kind, status, significance, direction, native, therapies: therapies.1, assertion: true, context_bad: context_bad || before != cx.list.len()}, subject, cx)
 }
-fn term(value: &str) -> Option<Term> {
-    Text::from_source(value).into_iter().next().map(|label| Term {label, codings: Box::default()})
+fn term(value: &str, cx: &mut Problems) -> Option<Term> {
+    cx.text("significance", Some(value)).map(|label| Term {label, codings: Box::default()})
 }
 fn condition(raw: Option<crate::raw::Field<raw::Disease>>, cx: &mut Problems) -> Option<CivicCondition> {
     let raw = cx.field("disease", raw)?;
