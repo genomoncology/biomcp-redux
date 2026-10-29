@@ -21,7 +21,7 @@ fn rejected_rows_preserve_siblings_and_survive_revalidation_and_reuse() {
         }
     }
     for format in [RowFormat::Tsv, RowFormat::Csv { banner_lines: 0 }] {
-        let server = support::Server::new();
+        let server = support::Server::<()>::new();
         let bundle = Bundle::<Keyed> {
             spec: server.spec(&QUOTA, KeyUse::None),
             name: "keyed",
