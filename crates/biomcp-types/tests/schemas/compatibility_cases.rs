@@ -542,6 +542,16 @@ fn compatibility_checks_recursive_edges_and_constraints() {
     let old = recursive("Node");
     assert!(check(&old, &old).is_ok());
     assert!(check(&old, &recursive("Renamed")).is_ok());
+    for reverse in [false, true] {
+        let mut nullable = old.clone();
+        let mut branches = vec![json!({"$ref":"#/$defs/Node"}), json!({"type":"null"})];
+        if reverse {
+            branches.reverse();
+        }
+        nullable["$defs"]["Node"]["properties"]["next"] = json!({"anyOf":branches});
+        assert!(check(&nullable, &nullable).is_ok());
+        assert!(check(&nullable, &old).is_err(), "recursive null branch must survive");
+    }
     let mut mutual = old.clone();
     mutual["$defs"]["Node"]["properties"]["next"]["$ref"] = json!("#/$defs/Other");
     mutual["$defs"]["Other"] = old["$defs"]["Node"].clone();
