@@ -15,7 +15,7 @@ pub(super) fn query<T: JsonSchema>() -> Value {
     schema
 }
 
-fn prepare(node: &mut Value, kind: ContractKind) {
+pub(super) fn prepare(node: &mut Value, kind: ContractKind) {
     match node {
         Value::Object(object) => {
             let growable = object.remove("x-enum-open") == Some(Value::Bool(true));

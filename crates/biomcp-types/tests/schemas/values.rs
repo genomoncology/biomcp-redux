@@ -394,7 +394,7 @@ fn curie_runtime_and_published_schema_accept_the_same_checked_ids()
 #[test]
 fn every_generated_schema_describes_its_root() {
     for contract in registry() {
-        let schema = (contract.generate)();
+        let schema = contract.schema();
         assert!(
             schema["description"]
                 .as_str()
@@ -500,7 +500,7 @@ fn generated_links_expose_uri_metadata() {
     // These are source-owned record links, not fields guessed from their spelling.
     let schemas: Vec<_> = registry()
         .into_iter()
-        .map(|contract| (contract.generate)())
+        .map(|contract| contract.schema())
         .collect();
     for (owner, fields) in LINKS {
         for (field, format) in *fields {
