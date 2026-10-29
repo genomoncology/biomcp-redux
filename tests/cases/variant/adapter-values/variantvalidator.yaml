@@ -1,0 +1,30 @@
+{
+  "feature": "variant-normalization",
+  "live_check": "synthetic",
+  "story": "One malformed native normalization field preserves the independent source result.",
+  "replay": "variant/adapter-values/variantvalidator",
+  "steps": [
+    {
+      "run": [
+        "variant",
+        "normalize",
+        "--source",
+        "variantvalidator",
+        "--hgvs",
+        "NM_004333.4:c.1799T>A",
+        "--build",
+        "GRCh38"
+      ],
+      "expect": {
+        "/result/results/0/outcome": "resolved",
+        "/problems/*/field": [
+          "z.hgvs_lrg_variant"
+        ],
+        "/result/results/0/mappings/*/field": {
+          "includes": "z.hgvs_transcript_variant",
+          "excludes": "z.hgvs_lrg_variant"
+        }
+      }
+    }
+  ]
+}
