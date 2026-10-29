@@ -32,7 +32,9 @@
       ],
       "expect": {
         "/page/returned": 1,
-        "/result/items/0/phase": "II"
+        "/result/items/0/phase": "II",
+        "/page/total": 7558,
+        "/result/items/0/nct_id": "NCT02523014"
       },
       "max_bytes": 6500
     },
@@ -59,7 +61,9 @@
       ],
       "expect": {
         "/page/returned": 1,
-        "/result/items/0/current_trial_status": "Active"
+        "/result/items/0/current_trial_status": "Active",
+        "/page/total": 6593,
+        "/result/items/0/nct_id": "NCT05879926"
       },
       "max_bytes": 6500
     },
@@ -91,7 +95,9 @@
       "expect": {
         "/page/returned": 1,
         "/result/items/0/phase": "II",
-        "/result/items/0/current_trial_status": "Active"
+        "/result/items/0/current_trial_status": "Active",
+        "/page/total": 1656,
+        "/result/items/0/nct_id": "NCT02523014"
       },
       "max_bytes": 6500
     }
