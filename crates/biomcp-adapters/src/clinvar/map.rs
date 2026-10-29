@@ -36,7 +36,7 @@ pub(super) fn aggregate(
             let evaluated = description
                 .attr("DateLastEvaluated")?
                 .or(group.attr("DateLastEvaluated")?);
-            let Some(attribution) = attribution(record, evaluated, None, problems)? else {
+            let Some(attribution) = attribution(record, evaluated, None, kind, problems)? else {
                 continue;
             };
             let review = problems.text("review_status", group.value(&["ReviewStatus"])?.as_deref());
@@ -80,6 +80,7 @@ pub(super) fn submission(
     subject: VariantRef,
     problems: &mut crate::mapped::Problems,
 ) -> Result<Vec<VariantAssertion>, BadReply> {
+    problems.record = None;
     let Some(accession) = record.child("ClinVarAccession")? else {
         problems.required::<()>("ClinVarAccession", None);
         return Ok(Vec::new());
@@ -91,6 +92,7 @@ pub(super) fn submission(
         accession,
         class.attr("DateLastEvaluated")?,
         accession.attr("SubmitterName")?,
+        AssertionKind::Scv,
         problems,
     )?
     else {
@@ -144,8 +146,10 @@ fn attribution(
     record: Element<'_>,
     evaluated: Option<String>,
     submitter: Option<String>,
+    kind: AssertionKind,
     problems: &mut crate::mapped::Problems,
 ) -> Result<Option<Attribution>, BadReply> {
+    problems.record = None;
     let Some(id) = record.attr("Accession")? else {
         problems.required::<()>("Accession", None);
         return Ok(None);
@@ -155,18 +159,13 @@ fn attribution(
     let full = version
         .as_ref()
         .map_or_else(|| id.clone(), |v| format!("{id}.{v}"));
-    if !(full.parse::<biodata::VcvId>().is_ok()
-        || full.parse::<biodata::RcvId>().is_ok()
-        || full.parse::<biodata::ScvId>().is_ok())
-    {
-        let field = if id.parse::<biodata::VcvId>().is_ok()
-            || id.parse::<biodata::RcvId>().is_ok()
-            || id.parse::<biodata::ScvId>().is_ok()
-        {
-            "Version"
-        } else {
-            "Accession"
-        };
+    let valid = |value: &str| match kind {
+        AssertionKind::Vcv => value.parse::<biodata::VcvId>().is_ok(),
+        AssertionKind::Rcv => value.parse::<biodata::RcvId>().is_ok(),
+        AssertionKind::Scv => value.parse::<biodata::ScvId>().is_ok(),
+    };
+    if !valid(&full) {
+        let field = if valid(&id) { "Version" } else { "Accession" };
         problems.required::<()>(field, None);
         return Ok(None);
     }
