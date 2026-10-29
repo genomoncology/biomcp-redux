@@ -96,5 +96,9 @@ biodata::text_value!(
         r"([01][0-9]|2[0-3]):[0-5][0-9]:([0-5][0-9]|60)(\.[0-9]+)?",
         r"([Zz]|[+-]([01][0-9]|2[0-3]):[0-5][0-9])(?![\s\S])"
     ),
-    "RFC 3339 source text preserving offset and precision. The parser additionally validates the calendar day and UTC month-end position of leap seconds. Years follow PartialDate's 0001–9999 range."
+    concat!(
+        "RFC 3339 source text preserving offset and precision. ",
+        "The parser additionally validates the calendar day and UTC month-end position of leap seconds. ",
+        "Years follow PartialDate's 0001–9999 range."
+    )
 );
