@@ -35,7 +35,9 @@ pub(super) fn trials() -> Vec<Trial> {
         transcript_trial("mcp-parity/cancel-preserves-another-active-call", || {
             super::held_proxy::isolated_cancel().map_err(Into::into)
         }),
-        transcript_trial("mcp-parity/bounded-framing", || framing().map_err(Into::into)),
+        transcript_trial("mcp-parity/bounded-framing", || {
+            framing().map_err(Into::into)
+        }),
         transcript_trial("mcp-parity/broken-output-with-open-input", || {
             broken_output().map_err(Into::into)
         }),

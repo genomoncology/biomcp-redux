@@ -5,17 +5,19 @@ use libtest_mimic::Trial;
 use serde_json::{Value, json};
 use std::{fs, path::Path};
 mod cases;
-mod native;
-pub(super) use native::run as native;
+tool_only! { mod native; }
+tool_only! { pub(super) use native::run as native; }
 pub(super) fn trials() -> Vec<Trial> {
     let mut tests = vec![transcript_trial(
         "disease-mydisease/exact-alias-and-independent-pages",
         || exact().map_err(Into::into),
     )];
+    tool_only! {
     tests.push(transcript_trial(
         "disease-mydisease/native-proof-retains-success-and-failure",
         || native::retention().map_err(Into::into),
     ));
+    }
     tests.extend(cases::trials());
     tests
 }

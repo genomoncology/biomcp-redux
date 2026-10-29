@@ -14,10 +14,13 @@ pub(super) fn trials() -> Vec<Trial> {
         transcript_trial("corporate-network/proxy-environment-failure", || {
             proxy().map_err(Into::into)
         }),
-        transcript_trial("corporate-network/bad-ca-is-local", || bad_ca().map_err(Into::into)),
-        transcript_trial("corporate-network/additive-ca-tls-and-proxy-isolation", || {
-            tls().map_err(Into::into)
+        transcript_trial("corporate-network/bad-ca-is-local", || {
+            bad_ca().map_err(Into::into)
         }),
+        transcript_trial(
+            "corporate-network/additive-ca-tls-and-proxy-isolation",
+            || tls().map_err(Into::into),
+        ),
     ]
 }
 fn proxy() -> Result<(), String> {

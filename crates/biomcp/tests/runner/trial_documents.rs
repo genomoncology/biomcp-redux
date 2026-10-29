@@ -15,21 +15,26 @@ use std::{fs, path::Path};
 type Check = Result<(), Box<dyn std::error::Error>>;
 pub(super) fn trials() -> Vec<Trial> {
     vec![
-        transcript_trial("trial-publications/documents/linked-reference-article", || {
-            reference().map_err(|e| e.to_string().into())
-        }),
-        transcript_trial("trial-publications/documents/explicit-save-and-receipt", || {
-            saves().map_err(|e| e.to_string().into())
-        }),
-        transcript_trial("trial-publications/documents/manifest-membership-and-failure", || {
-            failures().map_err(|e| e.to_string().into())
-        }),
-        transcript_trial("trial-publications/documents/http-refuses-before-download", || {
-            http().map_err(|e| e.to_string().into())
-        }),
-        transcript_trial("trial-publications/documents/all-section-continuations", || {
-            continuations().map_err(|e| e.to_string().into())
-        }),
+        transcript_trial(
+            "trial-publications/documents/linked-reference-article",
+            || reference().map_err(|e| e.to_string().into()),
+        ),
+        transcript_trial(
+            "trial-publications/documents/explicit-save-and-receipt",
+            || saves().map_err(|e| e.to_string().into()),
+        ),
+        transcript_trial(
+            "trial-publications/documents/manifest-membership-and-failure",
+            || failures().map_err(|e| e.to_string().into()),
+        ),
+        transcript_trial(
+            "trial-publications/documents/http-refuses-before-download",
+            || http().map_err(|e| e.to_string().into()),
+        ),
+        transcript_trial(
+            "trial-publications/documents/all-section-continuations",
+            || continuations().map_err(|e| e.to_string().into()),
+        ),
     ]
 }
 fn command(

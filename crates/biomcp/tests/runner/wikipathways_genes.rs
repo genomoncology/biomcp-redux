@@ -12,9 +12,10 @@ use super::configuration::invoke;
 
 pub(super) fn trials() -> Vec<Trial> {
     vec![
-        transcript_trial("pathway-wikipathways-genes/retained-output-ceilings", || {
-            native::saved().map_err(Into::into)
-        })
+        transcript_trial(
+            "pathway-wikipathways-genes/retained-output-ceilings",
+            || native::saved().map_err(Into::into),
+        )
         .with_ignored_flag(
             !super::launch::fixtures()
                 .join("wikipathways-genes-native/outputs.json")
@@ -36,9 +37,10 @@ pub(super) fn trials() -> Vec<Trial> {
             "pathway-wikipathways-genes/failed-bodies-never-enter-retained-membership",
             || failures().map_err(Into::into),
         ),
-        transcript_trial("pathway-wikipathways-genes/retained-native-measurements", || {
-            native::run().map_err(Into::into)
-        })
+        transcript_trial(
+            "pathway-wikipathways-genes/retained-native-measurements",
+            || native::run().map_err(Into::into),
+        )
         .with_ignored_flag(
             !super::launch::fixtures()
                 .join("wikipathways-genes-native")

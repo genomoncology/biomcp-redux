@@ -42,9 +42,10 @@ pub(super) fn trials() -> Vec<Trial> {
             "variant-assertions/assertions-erepo-source-zero-is-not-unknown-allele",
             || erepo_absence().map_err(Into::into),
         ),
-        transcript_trial("variant-assertions/assertions-erepo-route404-is-not-empty", || {
-            route_failure().map_err(Into::into)
-        }),
+        transcript_trial(
+            "variant-assertions/assertions-erepo-route404-is-not-empty",
+            || route_failure().map_err(Into::into),
+        ),
         transcript_trial(
             "variant-assertions/assertions-erepo-private-identity-never-caches",
             || wrong_identity().map_err(Into::into),

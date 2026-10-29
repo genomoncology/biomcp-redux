@@ -9,18 +9,20 @@ const INPUT: &str = "chr7:g.140753336A>T";
 const SECTION: &str = "/result/candidates/0/sections/oncokb";
 pub(super) fn trials() -> Vec<Trial> {
     vec![
-        transcript_trial("variant-oncokb/oncokb-environment-key-config-precedence", || {
-            environment_key().map_err(Into::into)
-        }),
+        transcript_trial(
+            "variant-oncokb/oncokb-environment-key-config-precedence",
+            || environment_key().map_err(Into::into),
+        ),
         transcript_trial("variant-oncokb/oncokb-key-policy-wire", || {
             wire().map_err(Into::into)
         }),
         transcript_trial("variant-oncokb/oncokb-server-key-reload", || {
             reload().map_err(Into::into)
         }),
-        transcript_trial("variant-oncokb/oncokb-reflected-key-never-leaves-wire", || {
-            echo().map_err(Into::into)
-        }),
+        transcript_trial(
+            "variant-oncokb/oncokb-reflected-key-never-leaves-wire",
+            || echo().map_err(Into::into),
+        ),
     ]
 }
 pub(super) fn args() -> Vec<String> {

@@ -131,6 +131,15 @@ pub(super) fn check(root: &Path) -> Check {
             {
                 return fail(&relative, "test fixture paths belong in runner/launch.rs");
             }
+            if relative == "crates/biomcp/tests/cases.rs"
+                && tokens(&text)
+                    .iter()
+                    .filter_map(|v| v.strip_prefix("\"--"))
+                    .filter_map(|v| v.strip_suffix('"'))
+                    .any(|flag| flag != "cases" && !flag.contains(char::is_whitespace))
+            {
+                return fail(&relative, "tool modes belong in tools.rs");
+            }
             width(&relative, &text)?;
             if text.lines().count() > FILE_LIMIT {
                 return fail(

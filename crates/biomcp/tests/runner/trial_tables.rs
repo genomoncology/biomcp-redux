@@ -13,18 +13,21 @@ pub(super) fn trials() -> Vec<Trial> {
         transcript_trial("trial-search/native-timestamp-and-query-echo", || {
             timestamp().map_err(Into::into)
         }),
-        transcript_trial("trial-search/missing-study-array-is-not-an-empty-page", || {
-            missing_studies().map_err(Into::into)
-        }),
-        transcript_trial("trial-search/gene-and-registry-share-command-budget", || {
-            sequential_budget(false).map_err(Into::into)
-        }),
+        transcript_trial(
+            "trial-search/missing-study-array-is-not-an-empty-page",
+            || missing_studies().map_err(Into::into),
+        ),
+        transcript_trial(
+            "trial-search/gene-and-registry-share-command-budget",
+            || sequential_budget(false).map_err(Into::into),
+        ),
         transcript_trial("trial-search/version-timeout-preserves-search-rows", || {
             sequential_budget(true).map_err(Into::into)
         }),
-        transcript_trial("trial-search/count-failure-preserves-continuation-rows", || {
-            count_failure().map_err(Into::into)
-        }),
+        transcript_trial(
+            "trial-search/count-failure-preserves-continuation-rows",
+            || count_failure().map_err(Into::into),
+        ),
         transcript_trial("trial-search/disabled-cache-and-source-usage", || {
             policy().map_err(Into::into)
         }),

@@ -1,8 +1,8 @@
 //! Owning synthetic protein case phases; CLI counts its trailing newline.
 use serde_json::Value;
 pub(super) fn check(value: &Value, case: &str, surface: &str) -> Result<(), String> {
-    let measurements: std::collections::BTreeMap<String, usize> = serde_json::from_str(
-        &crate::runner::launch::fixture_text("protein-synthetic-budgets.json")?,
+    let measurements: std::collections::BTreeMap<String, usize> = serde_saphyr::from_str(
+        &crate::runner::launch::fixture_text("protein-synthetic-budgets.yaml")?,
     )
     .map_err(|e| e.to_string())?;
     let key = format!("{case} [{surface}]");

@@ -6,12 +6,13 @@ mod article_save;
 mod article_save_reply;
 mod assertions;
 mod author;
+pub(super) mod case_main;
 mod execution;
 mod features;
 mod orcid;
-pub(super) mod parity;
-mod parity_inventory_proof;
-mod parity_shape_proof;
+tool_only! { pub(super) mod parity; }
+tool_only! { mod parity_inventory_proof; }
+tool_only! { mod parity_shape_proof; }
 use crate::runner::transcript::trial as transcript_trial;
 use execution::run_step;
 mod alphagenome;
@@ -74,8 +75,8 @@ mod key_reload;
 pub(super) mod launch;
 mod litvar_tables;
 pub(crate) mod live;
-mod live_follow_proof;
-mod live_proof;
+tool_only! { mod live_follow_proof; }
+tool_only! { mod live_proof; }
 mod local_files;
 mod markdown;
 mod markdown_shapes;
@@ -91,7 +92,7 @@ mod mcp_boundaries;
 mod named_search;
 mod nci;
 mod nci_walk;
-mod negative_cases;
+tool_only! { mod negative_cases; }
 mod network_stub;
 mod next_navigation;
 mod normalization;
@@ -113,7 +114,7 @@ mod phenotype;
 mod pmc_tables;
 mod pool_tables;
 mod process;
-pub(super) mod proof;
+tool_only! { pub(super) mod proof; }
 mod protein_budgets;
 mod protein_commands;
 mod protein_domains;
@@ -129,10 +130,10 @@ mod replay;
 mod research;
 mod response_cases;
 mod schema;
-mod schema_evolution;
-mod schema_proof;
+tool_only! { mod schema_evolution; }
+tool_only! { mod schema_proof; }
 mod scholar;
-mod semantic_tables;
+tool_only! { mod semantic_tables; }
 mod skill;
 mod source_controls;
 mod source_deadlines;
@@ -228,7 +229,7 @@ pub(super) fn discover(root: &Path) -> Result<Vec<Trial>, String> {
         return Err(format!("{}: no YAML cases", root.display()));
     }
     let registry = Arc::new(schema::Registry::embedded()?);
-    let mut trials = paths
+    let trials = paths
         .into_iter()
         .map(|path| {
             let name = path
@@ -246,10 +247,6 @@ pub(super) fn discover(root: &Path) -> Result<Vec<Trial>, String> {
             }))
         })
         .collect::<Result<Vec<_>, String>>()?;
-    trials.extend(schema_proof::trials(registry));
-    trials.extend(parity::trials());
-    trials.push(parity_shape_proof::trial());
-    trials.push(parity_inventory_proof::trial());
     Ok(trials)
 }
 
@@ -274,7 +271,11 @@ fn read_case(path: &Path) -> Result<Case, String> {
 }
 
 pub(super) fn validate_features(trials: &[Trial], complete: bool) -> Result<(), String> {
-    features::validate(launch::feature_list(), trials.iter().map(Trial::name), complete)
+    features::validate(
+        launch::feature_list(),
+        trials.iter().map(Trial::name),
+        complete,
+    )
 }
 
 fn run_case(path: &Path, registry: &schema::Registry) -> Result<Value, String> {
@@ -344,8 +345,6 @@ pub(super) fn protocol_trials() -> Vec<Trial> {
         "article-saves/explicit-original-files",
         || article_save::check().map_err(Into::into),
     ));
-    trials.extend(live_proof::trials());
-    trials.extend(live_follow_proof::trials());
     trials.extend(gene_tables::trials());
     trials.extend(litvar_tables::trials());
     trials.extend(named_search::trials());
@@ -543,22 +542,32 @@ mod variant_assertions;
 mod variant_condition_relationship;
 mod variant_discovery;
 
+tool_only! {
 pub(super) fn disease_native(path: &Path) -> Result<(), String> {
     disease_ols::native(path)
 }
+}
+tool_only! {
 pub(super) fn mydisease_native(path: &Path) -> Result<(), String> {
     disease_mydisease::native(path)
 }
+}
+tool_only! {
 pub(super) fn seer_native(path: &Path) -> Result<(), String> {
     disease_seer::native(path)
 }
+}
 
+tool_only! {
 pub(super) fn trial_condition_native(path: &Path) -> Result<(), String> {
     trial_condition::native(path)
 }
+}
 
+tool_only! {
 pub(super) fn monarch_native(path: &Path) -> Result<(), String> {
     disease_monarch::native(path)
+}
 }
 
 fn disease_trials() -> Vec<Trial> {
@@ -575,19 +584,39 @@ fn disease_trials() -> Vec<Trial> {
         .collect()
 }
 
+tool_only! {
 pub(crate) fn faers_search_examples(directory: &std::path::Path) -> Result<(), String> {
     faers_search::record_examples(directory)
+}
 }
 mod gwas_budgets;
 mod gwas_get;
 mod gwas_search;
+tool_only! {
 pub(super) fn phenotype_native(path: &Path) -> Result<(), String> {
     phenotype::native(path)
 }
+}
 
+tool_only! {
 pub(super) fn protein_native(path: &Path) -> Result<(), String> {
     protein_commands::native(path)
+}
 }
 mod wikipathways_genes;
 
 mod reply_readback;
+
+tool_only! {
+    pub(super) fn tool_trials() -> Result<Vec<Trial>, String> {
+        let registry = Arc::new(schema::Registry::embedded()?);
+        let mut trials = proof::trials();
+        trials.extend(schema_proof::trials(registry));
+        trials.extend(parity::trials());
+        trials.push(parity_shape_proof::trial());
+        trials.push(parity_inventory_proof::trial());
+        trials.extend(live_proof::trials());
+        trials.extend(live_follow_proof::trials());
+        Ok(trials)
+    }
+}

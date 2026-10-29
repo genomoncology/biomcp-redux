@@ -45,9 +45,10 @@ pub(super) fn trials() -> Vec<Trial> {
                 })
             })
             .collect(),
-        Err(error) => vec![transcript_trial("drug-native-sources/fixture-plan", move || {
-            Err(error.clone().into())
-        })],
+        Err(error) => vec![transcript_trial(
+            "drug-native-sources/fixture-plan",
+            move || Err(error.clone().into()),
+        )],
     };
     if let Some(root) = std::env::var_os("BIOMCP_CHEMBL_DEFAULT_RECORDING") {
         trials.push(transcript_trial(

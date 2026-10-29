@@ -18,9 +18,10 @@ pub(super) fn trials() -> Vec<Trial> {
             "trial-sites/sites/whole-source-location-and-contact-walks",
             || walks().map_err(|e| e.to_string().into()),
         ),
-        transcript_trial("trial-sites/sites/contact-attachment-and-source-status", || {
-            attachments().map_err(|e| e.to_string().into())
-        }),
+        transcript_trial(
+            "trial-sites/sites/contact-attachment-and-source-status",
+            || attachments().map_err(|e| e.to_string().into()),
+        ),
         transcript_trial("trial-sites/sites/checked-geographic-coordinates", || {
             coordinates().map_err(|e| e.to_string().into())
         }),

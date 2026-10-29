@@ -5,9 +5,10 @@ use libtest_mimic::Trial;
 use serde_json::{Value, json};
 pub(super) fn trials() -> Vec<Trial> {
     vec![
-        transcript_trial("article-search/optional-scholar-key-is-outgoing-only", || {
-            configured().map_err(Into::into)
-        }),
+        transcript_trial(
+            "article-search/optional-scholar-key-is-outgoing-only",
+            || configured().map_err(Into::into),
+        ),
         transcript_trial(
             "article-search/scholar-key-crosses-only-the-outgoing-header",
             || outgoing().map_err(Into::into),

@@ -6,9 +6,10 @@ use serde_json::{Value, json};
 use std::fs;
 pub(super) fn trials() -> Vec<Trial> {
     vec![
-        transcript_trial("variant-identity/card-discovers-clinvar-without-request", || {
-            card().map_err(Into::into)
-        }),
+        transcript_trial(
+            "variant-identity/card-discovers-clinvar-without-request",
+            || card().map_err(Into::into),
+        ),
         transcript_trial(
             "variant-identity/clinvar-default-page-retains-total-and-continuation",
             || page().map_err(Into::into),

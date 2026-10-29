@@ -19,9 +19,10 @@ pub(super) fn trials() -> Vec<Trial> {
         transcript_trial("article-named-search/named-search/paging-and-join", || {
             paging().map_err(|e| e.to_string().into())
         }),
-        transcript_trial("article-named-search/named-search/sentences-and-policies", || {
-            sentences().map_err(|e| e.to_string().into())
-        }),
+        transcript_trial(
+            "article-named-search/named-search/sentences-and-policies",
+            || sentences().map_err(|e| e.to_string().into()),
+        ),
     ]
 }
 fn failures() -> Check {

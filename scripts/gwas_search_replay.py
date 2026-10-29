@@ -61,7 +61,7 @@ def case(root, name, url, body, expected_ids=None):
     if expected_ids is not None:
         expect['/result/items/*/id' if rows else '/result/items'] = expected_ids
     record(root, url, body)
-    budgets = json.loads((Path(__file__).resolve().parent.parent / 'tests/gwas-search-budgets.json').read_text())
+    budgets = json.loads((Path(__file__).resolve().parent.parent / 'tests/gwas-search-budgets.yaml').read_text())
     _, comparable = budgets[name]
     cap = ((comparable + 1) * 115 + 99) // 100
     step = {'run': args, 'mcp': args, 'expect': expect, 'max_bytes': cap, 'max_tokens': (cap + 3) // 4}

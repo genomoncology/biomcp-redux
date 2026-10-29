@@ -1,5 +1,5 @@
 //! Render documentation from the parser, schema help and harvested case steps.
-use biomcp_types::{Help, ResponseBody};
+
 use clap::Command;
 use std::{collections::BTreeSet, fmt::Write, fs, path::PathBuf};
 
@@ -125,11 +125,31 @@ fn reference_matches_grammar() -> Check {
 #[test]
 #[ignore = "explicit documentation generation"]
 fn write_reference() -> Check {
+    generate(&root())
+}
+
+fn generate(destination: &std::path::Path) -> Check {
     for (name, text) in documents()? {
-        let path = root().join(name);
+        let path = destination.join(name);
         fs::create_dir_all(path.parent().ok_or("documentation directory missing")?)?;
         fs::write(path, text)?;
     }
     Ok(())
 }
 
+#[test]
+fn documentation_generation_preserves_case_bytes() -> Check {
+    let copy = tempfile::tempdir()?;
+    let cases = copy.path().join("tests/cases");
+    fs::create_dir_all(&cases)?;
+    let path = cases.join("help.yaml");
+    let original = r#"{"story":"Retained help assertion","steps":[{"run":["help"],"expect":{"/result/description":"Retained assertion"}}]}"#;
+    fs::write(&path, original)?;
+    generate(copy.path())?;
+    assert_eq!(
+        fs::read_to_string(path)?,
+        original,
+        "docs generation changed a case"
+    );
+    Ok(())
+}

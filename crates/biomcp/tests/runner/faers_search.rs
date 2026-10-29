@@ -4,11 +4,13 @@ use crate::runner::transcript::trial as transcript_trial;
 use libtest_mimic::Trial;
 use serde_json::{Value, json};
 type Check = Result<(), String>;
-mod examples;
+tool_only! { mod examples; }
 mod policy;
 mod status;
+tool_only! {
 pub(super) fn record_examples(directory: &std::path::Path) -> Check {
     examples::record(directory)
+}
 }
 pub(super) fn trials() -> Vec<Trial> {
     let mut cases = vec![transcript_trial(

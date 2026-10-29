@@ -11,8 +11,8 @@ pub(super) fn run(directory: &Path) -> Result<(), String> {
     if paths.len() != 22 {
         return Err("expected the 22 declared native request cases".into());
     }
-    let budgets: std::collections::BTreeMap<String, [usize; 2]> = serde_json::from_str(
-        &crate::runner::launch::fixture_text("gwas-search-budgets.json")?,
+    let budgets: std::collections::BTreeMap<String, [usize; 2]> = serde_saphyr::from_str(
+        &crate::runner::launch::fixture_text("gwas-search-budgets.yaml")?,
     )
     .map_err(|e| e.to_string())?;
     let outputs = directory

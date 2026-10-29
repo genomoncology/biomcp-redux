@@ -3,6 +3,7 @@ use super::{Stub, raw_invoke, setup};
 use serde_json::{Value, json};
 use sha2::{Digest, Sha256};
 use std::{fs, path::Path};
+tool_only! {
 pub(in crate::runner) fn run(root: &Path) -> Result<(), String> {
     let plan: Vec<Value> =
         serde_json::from_slice(&fs::read(root.join("plan.json")).map_err(|e| e.to_string())?)
@@ -13,6 +14,7 @@ pub(in crate::runner) fn run(root: &Path) -> Result<(), String> {
         prove(root, &output, index, row)?;
     }
     Ok(())
+}
 }
 fn text<'a>(row: &'a Value, key: &str) -> Result<&'a str, String> {
     row.get(key)
@@ -37,6 +39,7 @@ pub(super) fn archived_body(root: &Path, row: &Value) -> Result<(Value, String),
     Ok((native, body))
 }
 
+tool_only! {
 fn prove(root: &Path, output: &Path, index: usize, row: &Value) -> Result<(), String> {
     let (native, body) = archived_body(root, row)?;
     let target = text(row, "target")?.to_string();
@@ -111,6 +114,8 @@ fn prove(root: &Path, output: &Path, index: usize, row: &Value) -> Result<(), St
     }
     Ok(())
 }
+}
+tool_only! {
 fn verify(row: &Value, native: &Value, result: &Value) -> Result<(), String> {
     if row.get("status") == Some(&json!(404)) {
         if result.get("status") != Some(&json!("absent")) {
@@ -187,6 +192,8 @@ fn verify(row: &Value, native: &Value, result: &Value) -> Result<(), String> {
     }
     Ok(())
 }
+}
+tool_only! {
 fn counts(native: &Value, card: &Value) -> Result<(), String> {
     let Some(raw) = native
         .get("association_counts")
@@ -217,6 +224,7 @@ fn counts(native: &Value, card: &Value) -> Result<(), String> {
         }
     }
     Ok(())
+}
 }
 pub(super) fn mcp(
     directory: &Path,
@@ -272,6 +280,7 @@ pub(super) fn restore_date(directory: &Path, fetched: u64) -> Result<(), String>
     Ok(())
 }
 
+tool_only! {
 fn sections(native: &Value, result: &Value, hpo: bool) -> Result<(), String> {
     let present = |field: &str| native.get(field).is_some_and(|v| !v.is_null());
     let mut expected = Vec::new();
@@ -336,8 +345,10 @@ fn sections(native: &Value, result: &Value, hpo: bool) -> Result<(), String> {
     }
     Ok(())
 }
+}
 
 // Fixed j14607/j14614 comparable CLI/MCP measurements plus fifteen percent.
+tool_only! {
 fn native_ceiling(body: &str) -> Result<usize, String> {
     let card = match body {
         "00-hpo-term.raw" => Some(("HP_0001250", "hpo")),
@@ -375,4 +386,5 @@ fn native_ceiling(body: &str) -> Result<usize, String> {
         "39-P02-terminal.raw" => 1040,
         _ => return Err("unmeasured native phenotype case".into()),
     })
+}
 }

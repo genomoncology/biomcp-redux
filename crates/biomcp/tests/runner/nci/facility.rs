@@ -3,9 +3,10 @@ use super::super::{launch::Environment, nci::invoke, response_cases::copy_captur
 use libtest_mimic::Trial;
 use serde_json::{Value, json};
 pub(super) fn trials() -> Vec<Trial> {
-    vec![Trial::test("trial-nci/nci-facility-site-boundaries", || {
-        boundaries().map_err(Into::into)
-    })]
+    vec![Trial::test(
+        "trial-nci/nci-facility-site-boundaries",
+        || boundaries().map_err(Into::into),
+    )]
 }
 fn boundaries() -> Result<(), String> {
     let matching = json!({"org_name":"Dana-Farber Cancer Institute","org_city":"Boston"});

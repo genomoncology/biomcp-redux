@@ -51,7 +51,7 @@ fn put(root: &Path, relative: &str, step: &str) -> Check {
     fs::write(
         path,
         format!(
-            "story: Runner contract probe\nsteps:\n  - run: [schema, biomcp.source/1]\n{step}\n"
+            "feature: schema-discovery\nstory: Runner contract probe\nsteps:\n  - run: [schema, biomcp.source/1]\n{step}\n"
         ),
     )
     .map_err(|error| error.to_string())
@@ -64,7 +64,9 @@ fn invoke(root: &Path, args: &[&str]) -> Result<std::process::Output, String> {
         "--color".into(),
         "never".into(),
     ];
-    arguments.extend(args.iter().map(|value| (*value).to_owned()));
+    arguments.extend(args.iter().map(|value| {
+        if value.ends_with(".yaml") { format!("schema-discovery/{value}") } else { (*value).to_owned() }
+    }));
     Environment::new()
         .map_err(|error| error.to_string())?
         .command(
@@ -131,7 +133,7 @@ fn negatives() -> Check {
                 .split_whitespace()
                 .collect::<Vec<_>>()
                 .join(" ")
-                .contains(&format!("test {filename} ... FAILED"))
+                .contains(&format!("test schema-discovery/{filename} ... FAILED"))
             || !stdout.contains(diagnostic)
             || !stdout.contains("1 failed")
         {

@@ -3,6 +3,9 @@
     clippy::disallowed_methods,
     reason = "The test entry point reads arguments and locates its own executable"
 )]
+macro_rules! tool_only {
+    ($($tokens:tt)*) => { $($tokens)* };
+}
 mod runner;
 
 use std::{env, path::PathBuf, process::ExitCode};
@@ -42,7 +45,25 @@ fn main() -> ExitCode {
     if env::args().nth(1).as_deref() == Some("--runner-environment-probe") {
         return runner::proof::environment_probe();
     }
-    ExitCode::FAILURE
+    match env::args().nth(1).as_deref() {
+        Some("--proofs") => {
+            let arguments = std::iter::once("tools".to_owned()).chain(env::args().skip(2));
+            match runner::tool_trials() {
+                Ok(trials) => {
+                    libtest_mimic::run(&libtest_mimic::Arguments::from_iter(arguments), trials)
+                        .exit_code()
+                }
+                Err(error) => {
+                    use std::io::Write;
+                    let _ = writeln!(std::io::stderr(), "tools: {error}");
+                    ExitCode::FAILURE
+                }
+            }
+        }
+        Some("--cases") => runner::case_main::main(env::args().collect()),
+        Some("--discover") => runner::case_main::main(vec!["tools".into(), "--list".into()]),
+        _ => ExitCode::FAILURE,
+    }
 }
 
 fn native_proof() -> Option<ExitCode> {
@@ -98,4 +119,3 @@ fn native_proof() -> Option<ExitCode> {
         },
     )
 }
-

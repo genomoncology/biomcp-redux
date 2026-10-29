@@ -174,6 +174,7 @@ fn cache_admission() -> Result<(), Box<dyn std::error::Error>> {
 }
 
 /// Measure the ordinary CLI and MCP responses against the accepted external replay.
+tool_only! {
 pub(super) fn native(root: &std::path::Path) -> Result<(), String> {
     let env = Environment::new().map_err(|e| e.to_string())?;
     let globals = env.globals(Some(&root.join("replay")), false);
@@ -196,6 +197,8 @@ pub(super) fn native(root: &std::path::Path) -> Result<(), String> {
     }
     Ok(())
 }
+}
+tool_only! {
 fn measure_native(env: &Environment, globals: &[String], args: &[String]) -> Result<Value, String> {
     use std::io::Write;
     let mut command = globals.to_vec();
@@ -242,6 +245,7 @@ fn measure_native(env: &Environment, globals: &[String], args: &[String]) -> Res
         return Err(format!("protein Markdown failed for {args:?}"));
     }
     Ok(cli)
+}
 }
 
 fn continuation_lifetime() -> Check {

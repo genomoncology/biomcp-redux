@@ -11,15 +11,17 @@ use serde_json::{Value, json};
 use std::fs;
 pub(super) fn trials() -> Vec<Trial> {
     vec![
-        transcript_trial("article-evidence/evidence/independent-source-outcomes", || {
-            independence().map_err(|e| e.to_string().into())
-        }),
+        transcript_trial(
+            "article-evidence/evidence/independent-source-outcomes",
+            || independence().map_err(|e| e.to_string().into()),
+        ),
         transcript_trial("article-evidence/evidence/fifth-page-continuation", || {
             cursor().map_err(Into::into)
         }),
-        transcript_trial("article-evidence/evidence/overflow-and-reference-identity", || {
-            overflow().map_err(|e| e.to_string().into())
-        }),
+        transcript_trial(
+            "article-evidence/evidence/overflow-and-reference-identity",
+            || overflow().map_err(|e| e.to_string().into()),
+        ),
         transcript_trial(
             "article-evidence/evidence/resolver-policy-before-stored-text",
             || resolver_policy().map_err(|e| e.to_string().into()),

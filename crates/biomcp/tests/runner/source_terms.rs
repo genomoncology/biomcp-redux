@@ -18,9 +18,10 @@ pub(super) fn trials() -> Vec<Trial> {
             "schema-discovery/markdown-terms-subtraction-keeps-payload-ceilings",
             || markdown_subtraction().map_err(Into::into),
         ),
-        transcript_trial("schema-discovery/terms-subtraction-keeps-payload-ceilings", || {
-            subtraction().map_err(Into::into)
-        }),
+        transcript_trial(
+            "schema-discovery/terms-subtraction-keeps-payload-ceilings",
+            || subtraction().map_err(Into::into),
+        ),
     ]
 }
 

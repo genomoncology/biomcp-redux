@@ -9,9 +9,10 @@ use serde_json::{Value, json};
 
 pub(super) fn trials() -> Vec<Trial> {
     vec![
-        transcript_trial("pathway-wikipathways/held-store-lock-names-local-failure", || {
-            locked(false).map_err(Into::into)
-        }),
+        transcript_trial(
+            "pathway-wikipathways/held-store-lock-names-local-failure",
+            || locked(false).map_err(Into::into),
+        ),
         transcript_trial("diagnostic-cdx/held-store-lock-names-local-failure", || {
             locked(true).map_err(Into::into)
         }),

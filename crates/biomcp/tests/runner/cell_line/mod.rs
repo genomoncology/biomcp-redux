@@ -3,7 +3,7 @@ use crate::runner::transcript::trial as transcript_trial;
 use std::io::Write;
 mod all;
 mod chembl;
-mod examples;
+tool_only! { mod examples; }
 mod faults;
 mod help;
 mod native;
@@ -127,8 +127,8 @@ fn compared(
     Ok(value)
 }
 fn ceiling(phase: &str, surface: &str) -> Result<usize, String> {
-    let measured: std::collections::BTreeMap<String, usize> = serde_json::from_str(
-        &crate::runner::launch::fixture_text("cell-line-command-budgets.json")?,
+    let measured: std::collections::BTreeMap<String, usize> = serde_saphyr::from_str(
+        &crate::runner::launch::fixture_text("cell-line-command-budgets.yaml")?,
     )
     .map_err(|e| e.to_string())?;
     measured
@@ -166,7 +166,7 @@ fn canonical(target: &str) -> (String, Vec<&str>) {
 }
 fn recorded_stub() -> Result<Stub, String> {
     let requests: std::collections::BTreeMap<String, Value> =
-        serde_json::from_str(&fixture("requests.json")?).map_err(|e| e.to_string())?;
+        serde_saphyr::from_str(&fixture("requests.json")?).map_err(|e| e.to_string())?;
     let mut replies = Vec::new();
     let mut statuses = std::collections::BTreeMap::new();
     for row in requests.values() {
@@ -219,11 +219,13 @@ fn path(value: &Value, path: &str, mut expected: Value) -> Result<(), String> {
     Ok(())
 }
 
+tool_only! {
 pub(crate) fn measure() -> Result<(), String> {
     native::run(true)?;
     faults::run(true)?;
     help::run(true)?;
     research::run(true)
+}
 }
 
 fn markdown(
@@ -294,33 +296,47 @@ fn markdown(
     Ok(())
 }
 
+tool_only! {
 pub(crate) fn generate_examples(directory: &std::path::Path) -> Result<(), String> {
     examples::generate(directory)
 }
+}
 
+tool_only! {
 pub(crate) fn measure_remaining() -> Result<(), String> {
     native::remaining()?;
     faults::run(true)?;
     help::run(true)?;
     research::run(true)
 }
+}
 
+tool_only! {
 pub(crate) fn measure_canonical() -> Result<(), String> {
     native::canonical(true)
 }
+}
 
+tool_only! {
 pub(crate) fn measure_sections() -> Result<(), String> {
     sections::run(true)
 }
+}
 
+tool_only! {
 pub(crate) fn generate_xrefs(directory: &std::path::Path) -> Result<(), String> {
     examples::generate_xrefs(directory)
 }
+}
 
+tool_only! {
 pub(crate) fn measure_section_release() -> Result<(), String> {
     sections::measure_release()
 }
+}
 
+tool_only! {
 pub(crate) fn measure_help() -> Result<(), String> {
     help::run(true)
+}
 }

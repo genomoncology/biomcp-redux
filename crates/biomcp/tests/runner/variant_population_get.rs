@@ -13,12 +13,14 @@ pub(super) fn trials() -> Vec<Trial> {
         transcript_trial("variant-population/population-get-grch38-hgvs", || {
             sourced(true).map_err(Into::into)
         }),
-        transcript_trial("variant-population/population-get-ambiguous-no-selection", || {
-            ambiguous().map_err(Into::into)
-        }),
-        transcript_trial("variant-population/population-get-missing-identity-recovery", || {
-            recovery().map_err(Into::into)
-        }),
+        transcript_trial(
+            "variant-population/population-get-ambiguous-no-selection",
+            || ambiguous().map_err(Into::into),
+        ),
+        transcript_trial(
+            "variant-population/population-get-missing-identity-recovery",
+            || recovery().map_err(Into::into),
+        ),
     ]
 }
 

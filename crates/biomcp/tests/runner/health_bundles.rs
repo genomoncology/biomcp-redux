@@ -40,15 +40,18 @@ const BUNDLES: &[(&str, &[&str])] = &[
 ];
 pub(super) fn trials() -> Vec<Trial> {
     vec![
-        transcript_trial("source-controls/health-publisher-probes-record-and-replay", || {
-            reachable().map_err(Into::into)
-        }),
-        transcript_trial("source-controls/health-local-bundles-ignore-abandoned-sync", || {
-            local().map_err(Into::into)
-        }),
-        transcript_trial("source-controls/health-publisher-failure-is-one-request", || {
-            failure().map_err(Into::into)
-        }),
+        transcript_trial(
+            "source-controls/health-publisher-probes-record-and-replay",
+            || reachable().map_err(Into::into),
+        ),
+        transcript_trial(
+            "source-controls/health-local-bundles-ignore-abandoned-sync",
+            || local().map_err(Into::into),
+        ),
+        transcript_trial(
+            "source-controls/health-publisher-failure-is-one-request",
+            || failure().map_err(Into::into),
+        ),
     ]
     .into_iter()
     .chain(store_sizes::trials())

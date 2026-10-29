@@ -31,15 +31,18 @@ pub(super) fn trials() -> Vec<Trial> {
             "pathway-reactome/invalid-optional-fields-keep-records",
             || reactome().map_err(Into::into),
         ),
-        transcript_trial("variant-identity/invalid-clinvar-condition-id-is-disclosed", || {
-            clinvar_condition_id().map_err(Into::into)
-        }),
-        transcript_trial("variant-identity/invalid-rcv-condition-names-own-record", || {
-            clinvar_rcv().map_err(Into::into)
-        }),
-        transcript_trial("variant-identity/empty-clinvar-text-keeps-assertion", || {
-            clinvar().map_err(Into::into)
-        }),
+        transcript_trial(
+            "variant-identity/invalid-clinvar-condition-id-is-disclosed",
+            || clinvar_condition_id().map_err(Into::into),
+        ),
+        transcript_trial(
+            "variant-identity/invalid-rcv-condition-names-own-record",
+            || clinvar_rcv().map_err(Into::into),
+        ),
+        transcript_trial(
+            "variant-identity/empty-clinvar-text-keeps-assertion",
+            || clinvar().map_err(Into::into),
+        ),
         transcript_trial("drug-ema/empty-text-keeps-medicine", || {
             ema().map_err(|e| e.to_string().into())
         }),

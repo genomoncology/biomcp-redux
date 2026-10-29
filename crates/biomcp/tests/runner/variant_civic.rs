@@ -16,18 +16,20 @@ pub(super) fn trials() -> Vec<Trial> {
             "variant-civic/civic-unknown-stream-vocabulary-keeps-claims",
             || vocabulary::stream_context().map_err(Into::into),
         ),
-        transcript_trial("variant-civic/civic-unknown-vocabulary-keeps-claims", || {
-            vocabulary::unknown().map_err(Into::into)
-        }),
+        transcript_trial(
+            "variant-civic/civic-unknown-vocabulary-keeps-claims",
+            || vocabulary::unknown().map_err(Into::into),
+        ),
         transcript_trial("variant-civic/civic-exact-profile-membership", || {
             exact().map_err(Into::into)
         }),
         transcript_trial("variant-civic/civic-unjoined-profile-is-not-cached", || {
             unjoined().map_err(Into::into)
         }),
-        transcript_trial("variant-civic/civic-poisoned-warm-cache-is-rechecked", || {
-            poisoned().map_err(Into::into)
-        }),
+        transcript_trial(
+            "variant-civic/civic-poisoned-warm-cache-is-rechecked",
+            || poisoned().map_err(Into::into),
+        ),
         transcript_trial(
             "variant-civic/civic-graphql-errors-retain-valid-uncached-facts",
             || graphql_errors().map_err(Into::into),

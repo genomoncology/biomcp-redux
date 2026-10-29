@@ -23,9 +23,10 @@ pub(super) fn trials() -> Vec<Trial> {
         transcript_trial("key-registration/reflected-wire-never-persists", || {
             wire().map_err(Into::into)
         }),
-        transcript_trial("key-registration/contaminated-replay-and-cache-refused", || {
-            stored().map_err(Into::into)
-        }),
+        transcript_trial(
+            "key-registration/contaminated-replay-and-cache-refused",
+            || stored().map_err(Into::into),
+        ),
     ]
 }
 fn reply(request: &str) -> Result<String, String> {
