@@ -32,6 +32,10 @@ const OWNED: &[&str] = &[
     "AlphaGenomeScorer",
     "MatchKind",
     "AuthorCountScope",
+    "DrugIdentityLevel",
+    "ProteinCoordinateConvention",
+    "ProteinSequenceAvailability",
+    "DrugRecallCountUnit",
 ];
 
 pub(super) fn check(root: &Path) -> Check {

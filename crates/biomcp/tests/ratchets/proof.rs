@@ -446,3 +446,18 @@ fn namespaced_error_codes_are_exempt_by_type() {
         }
     }
 }
+
+#[test]
+fn locally_assigned_drug_and_protein_values_require_kebab_case() {
+    for name in [
+        "DrugIdentityLevel",
+        "ProteinCoordinateConvention",
+        "ProteinSequenceAvailability",
+        "DrugRecallCountUnit",
+    ] {
+        let source = format!("wire_enum! {{ {name} {{ Value => \"local_value\" }} }}");
+        assert!(super::spellings::audit(&super::source::tokens(&source)).is_err());
+        let canonical = source.replace("local_value", "local-value");
+        assert!(super::spellings::audit(&super::source::tokens(&canonical)).is_ok());
+    }
+}
