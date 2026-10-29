@@ -2,7 +2,7 @@
 use serde_json::Value;
 pub(super) fn check(value: &Value, case: &str, surface: &str) -> Result<(), String> {
     let measurements: std::collections::BTreeMap<String, usize> = serde_json::from_str(
-        include_str!("../../../../tests/protein-synthetic-budgets.json"),
+        &crate::runner::launch::fixture_text("protein-synthetic-budgets.json")?,
     )
     .map_err(|e| e.to_string())?;
     let key = format!("{case} [{surface}]");

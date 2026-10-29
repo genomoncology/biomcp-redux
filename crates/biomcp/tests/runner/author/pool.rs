@@ -1,7 +1,7 @@
-use super::{Environment, Path, Value, fs};
+use super::{Environment, Value, fs};
 pub(super) fn check(name: &str) -> Result<(), String> {
-    let path = Path::new(env!("CARGO_MANIFEST_DIR"))
-        .join(format!("../../tests/native/author-controls/{name}.yaml"));
+    let path =
+        crate::runner::launch::fixtures().join(format!("native/author-controls/{name}.yaml"));
     let case: super::super::Case =
         serde_json::from_slice(&fs::read(path).map_err(|e| e.to_string())?)
             .map_err(|e| e.to_string())?;

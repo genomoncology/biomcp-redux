@@ -97,6 +97,11 @@ fn setup(env: &Environment) -> Result<std::path::PathBuf, String> {
         )
         .map_err(|e| e.to_string())?;
     }
+    let provenance = std::path::Path::new("sdlc/planning/slices/gene.md");
+    let copied = fixtures.join("support").join(provenance);
+    fs::create_dir_all(copied.parent().ok_or("provenance parent missing")?)
+        .map_err(|e| e.to_string())?;
+    fs::copy(super::launch::support().join(provenance), copied).map_err(|e| e.to_string())?;
     Ok(fixtures)
 }
 

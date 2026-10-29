@@ -563,6 +563,13 @@
           "$ref": "#/$defs/Reply_TrialRecords_NciDiseaseRef",
           "description": "Publisher-provided disease concepts in source order."
         },
+        "matched_biomarkers": {
+          "description": "Entries with the exact searched biomarker code, preserving source order and native fields.",
+          "items": {
+            "$ref": "#/$defs/Reply_NciTrialBiomarker"
+          },
+          "type": "array"
+        },
         "matched_site": {
           "anyOf": [
             {
@@ -609,6 +616,33 @@
         "brief_title",
         "current_trial_status",
         "diseases"
+      ],
+      "type": "object"
+    },
+    "Reply_NciTrialBiomarker": {
+      "description": "One listed NCI biomarker entry; native values do not establish patient eligibility.",
+      "properties": {
+        "eligibility_criterion": {
+          "description": "Native criterion, without rewriting or a positivity inference.",
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "inclusion_indicator": {
+          "description": "Native inclusion indicator, without interpretation.",
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "nci_thesaurus_concept_id": {
+          "$ref": "#/$defs/Reply_NcitId",
+          "description": "Exact source NCIt concept identity."
+        }
+      },
+      "required": [
+        "nci_thesaurus_concept_id"
       ],
       "type": "object"
     },

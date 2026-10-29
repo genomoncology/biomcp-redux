@@ -219,10 +219,9 @@ fn single() -> Result<(), String> {
 }
 pub(super) fn source_ca(request: &str) -> Result<String, String> {
     if request.starts_with("GET /v1/query?") {
-        let hit: Value = serde_json::from_str(include_str!(concat!(
-            env!("CARGO_MANIFEST_DIR"),
-            "/../../tests/replies/variant-population/source-ca-identity.json"
-        )))
+        let hit: Value = serde_json::from_str(&crate::runner::launch::fixture_text(
+            "replies/variant-population/source-ca-identity.json",
+        )?)
         .map_err(|e| e.to_string())?;
         Ok(json!({"total":1,"hits":[hit]}).to_string())
     } else {

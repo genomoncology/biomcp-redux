@@ -18,17 +18,6 @@ fn main() -> ExitCode {
     if let Some(code) = native_proof() {
         return code;
     }
-    let installed = match env::args().nth(1).as_deref() {
-        Some("--installed-http-proof") => Some(runner::installed_http_trials()),
-        Some("--installed-alphagenome-proof") => Some(runner::installed_alphagenome_trials()),
-        _ => None,
-    };
-    if let Some(trials) = installed {
-        if env::args().len() != 2 {
-            return ExitCode::FAILURE;
-        }
-        return libtest_mimic::run(&Arguments::from_iter(env::args().take(1)), trials).exit_code();
-    }
     if env::args().nth(1).as_deref() == Some("--live-check") {
         let mode = env::args().nth(2);
         let list = mode.as_deref() == Some("--list");
@@ -53,16 +42,6 @@ fn main() -> ExitCode {
     }
     if env::args().nth(1).as_deref() == Some("--runner-environment-probe") {
         return runner::proof::environment_probe();
-    }
-    if env::args().nth(1).as_deref() == Some("--installed-process-proof") {
-        return match runner::installed_process_proof() {
-            Ok(()) => ExitCode::SUCCESS,
-            Err(error) => {
-                use std::io::Write;
-                let _ = writeln!(std::io::stderr(), "installed process proof: {error}");
-                ExitCode::FAILURE
-            }
-        };
     }
     match trials() {
         Ok((arguments, trials)) => {
@@ -158,13 +137,9 @@ fn trials() -> Result<(Arguments, Vec<Trial>), String> {
             cargo_args.push(argument);
         }
     }
-    let default = directory.is_none();
-    let directory = directory
-        .unwrap_or_else(|| PathBuf::from(env!("CARGO_MANIFEST_DIR")).join("../../tests/cases"));
-    let mut trials = runner::discover(&directory, default)?;
-    if default {
-        trials.extend(runner::proof::trials());
-        trials.extend(runner::protocol_trials());
-    }
+    let directory = directory.unwrap_or_else(|| runner::launch::fixtures().join("cases"));
+    let mut trials = runner::discover(&directory)?;
+    trials.extend(runner::proof::trials());
+    trials.extend(runner::protocol_trials());
     Ok((Arguments::from_iter(cargo_args), trials))
 }

@@ -37,12 +37,10 @@ pub(super) fn invoke(
     }
     let cli_bytes = serde_json::to_vec(&cli).map_err(|e| e.to_string())?.len() + 1;
     let mcp_bytes = serde_json::to_vec(&value).map_err(|e| e.to_string())?.len();
-    let measured: std::collections::BTreeMap<String, [usize; 2]> =
-        serde_json::from_str(include_str!(concat!(
-            env!("CARGO_MANIFEST_DIR"),
-            "/../../tests/gwas-synthetic-budgets.json"
-        )))
-        .map_err(|e| e.to_string())?;
+    let measured: std::collections::BTreeMap<String, [usize; 2]> = serde_json::from_str(
+        &crate::runner::launch::fixture_text("gwas-synthetic-budgets.json")?,
+    )
+    .map_err(|e| e.to_string())?;
     let [cli_limit, mcp_limit] = measured
         .get(phase)
         .ok_or_else(|| format!("GWAS phase lacks measurement: {phase}"))?;

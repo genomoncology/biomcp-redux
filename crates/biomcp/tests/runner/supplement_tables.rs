@@ -10,8 +10,8 @@ use std::{
 };
 pub(super) fn ping_after_refusal() -> Result<(), String> {
     let env = Environment::new().map_err(|e| e.to_string())?;
-    let recording = std::path::Path::new(env!("CARGO_MANIFEST_DIR"))
-        .join("../../tests/replies/article/supplements/synthetic-huge-count");
+    let recording =
+        crate::runner::launch::fixtures().join("replies/article/supplements/synthetic-huge-count");
     let mut args = vec!["serve".into()];
     args.extend(env.globals(Some(&recording), false));
     let mut child = env

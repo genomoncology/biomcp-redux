@@ -39,21 +39,11 @@ pub(super) fn trials() -> Vec<Trial> {
     ));
     trials
 }
-const REPLIES: [&str; 9] = [
-    include_str!("../../../../tests/fixtures/drug/mychem/001.json"),
-    include_str!("../../../../tests/fixtures/drug/mychem/002.json"),
-    include_str!("../../../../tests/fixtures/drug/mychem/003.json"),
-    include_str!("../../../../tests/fixtures/drug/mychem/004.json"),
-    include_str!("../../../../tests/fixtures/drug/mychem/005.json"),
-    include_str!("../../../../tests/fixtures/drug/mychem/006.json"),
-    include_str!("../../../../tests/fixtures/drug/mychem/007.json"),
-    include_str!("../../../../tests/fixtures/drug/mychem/008.json"),
-    include_str!("../../../../tests/fixtures/drug/mychem/009.json"),
-];
+
 fn check(n: usize) -> Check {
-    let plan: Vec<Value> = serde_json::from_str(include_str!(
-        "../../../../tests/fixtures/drug/mychem/plan.json"
-    ))
+    let plan: Vec<Value> = serde_json::from_str(&crate::runner::launch::fixture_text(
+        "fixtures/drug/mychem/plan.json",
+    )?)
     .map_err(|e| e.to_string())?;
     let selected = plan.get(n).ok_or("plan index")?.clone();
     let expected = selected
@@ -61,7 +51,8 @@ fn check(n: usize) -> Check {
         .and_then(Value::as_str)
         .ok_or("request")?
         .replace('+', "%20");
-    let body = REPLIES.get(n).ok_or("fixture index")?.to_string();
+    let body =
+        crate::runner::launch::fixture_text(&format!("fixtures/drug/mychem/{:03}.json", n + 1))?;
     let stub = Stub::for_source_status(
         "mychem.info",
         "application/json",
@@ -246,7 +237,7 @@ fn component_policy() -> Check {
         if request.contains("%2Cchembl.") || request.contains("fields=chembl.") {
             return Err("disabled component entered request fields".into());
         }
-        Ok(REPLIES.get(6).ok_or("fixture")?.to_string())
+        crate::runner::launch::fixture_text("fixtures/drug/mychem/007.json")
     })?;
     let cert = env.root().join("ca.pem");
     stub.retain(&env);
@@ -303,7 +294,7 @@ fn xrefs_walk() -> Check {
         if !request.starts_with("GET /v1/chem/KTUFNOKKBVMGRW-UHFFFAOYSA-N?") {
             return Err("unexpected link request".into());
         }
-        Ok(REPLIES.get(6).ok_or("fixture")?.to_string())
+        crate::runner::launch::fixture_text("fixtures/drug/mychem/007.json")
     })?;
     let cert = env.root().join("ca.pem");
     stub.retain(&env);

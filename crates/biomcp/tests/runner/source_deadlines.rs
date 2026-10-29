@@ -4,7 +4,7 @@ use crate::runner::transcript::trial as transcript_trial;
 use libtest_mimic::Trial;
 mod quota;
 use serde_json::Value;
-use std::{fs, io::Write, path::Path};
+use std::{fs, io::Write};
 pub(super) fn trials() -> Vec<Trial> {
     [
         (
@@ -49,7 +49,6 @@ fn check(
     help: &[&str],
     expected: &str,
 ) -> Result<(), String> {
-    let root = Path::new(env!("CARGO_MANIFEST_DIR")).join("../..");
     let env = Environment::new().map_err(|e| e.to_string())?;
     let evidence = tempfile::Builder::new()
         .prefix(&format!("synthetic-{source}-deadline-"))
@@ -58,7 +57,7 @@ fn check(
         .keep();
     let recording = evidence.join("recording");
     super::adverse_event_failures::mutate(
-        &root.join("tests/replies").join(fixture),
+        &super::launch::fixtures().join("replies").join(fixture),
         &recording,
         "timeout",
     )?;

@@ -16,9 +16,9 @@ pub(super) fn trials() -> Vec<Trial> {
     ]
 }
 fn malformed() -> Result<(), String> {
-    let capture: Value = serde_json::from_str(include_str!(
-        "../../../../tests/replies/drug/ema-synthetic/ema/1854254ba57f4597bd03970bf3664f62fac42eda059bf0022aaf32367297a317.json"
-    ))
+    let capture: Value = serde_json::from_str(&crate::runner::launch::fixture_text(
+        "replies/drug/ema-synthetic/ema/1854254ba57f4597bd03970bf3664f62fac42eda059bf0022aaf32367297a317.json",
+    )?)
     .map_err(|e| e.to_string())?;
     let body: Value = serde_json::from_str(
         capture

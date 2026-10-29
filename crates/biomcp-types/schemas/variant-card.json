@@ -5547,7 +5547,130 @@
       "required": [
         "input"
       ],
-      "type": "object"
+      "type": "object",
+      "x-reply-query-titles": [
+        "VariantGetQuery"
+      ]
+    },
+    "Reply_VariantGetQuery": {
+      "description": "Variant request with any assembly default that changed the source request.",
+      "properties": {
+        "build": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/Reply_Build"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "description": "Required for chromosome notation; no assembly is guessed."
+        },
+        "build_defaulted": {
+          "description": "True when BioMCP selected the echoed assembly for MyVariant.",
+          "type": [
+            "boolean",
+            "null"
+          ]
+        },
+        "civic_cursor": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/Reply_Text"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "description": "Native CIViC cursor, retained unchanged."
+        },
+        "civic_kind": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/Reply_CivicClaimKind"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "description": "Native CIViC claim collection within the selected profile."
+        },
+        "civic_profile": {
+          "description": "Selected CIViC molecular profile for native claim paging.",
+          "format": "uint64",
+          "maximum": 2147483647,
+          "minimum": 1,
+          "type": [
+            "integer",
+            "null"
+          ]
+        },
+        "input": {
+          "$ref": "#/$defs/Reply_VariantInput",
+          "description": "Published rsID, CAid, ClinVar Variation ID or reference-qualified HGVS.",
+          "x-positional": 0
+        },
+        "limit": {
+          "default": 10,
+          "description": "Candidate rows per page; more remain reachable through typed next commands.",
+          "format": "uint32",
+          "maximum": 50,
+          "minimum": 1,
+          "type": "integer"
+        },
+        "offset": {
+          "default": 0,
+          "description": "Candidate rows to skip in source order.",
+          "format": "uint32",
+          "minimum": 0,
+          "type": "integer"
+        },
+        "resolver": {
+          "$ref": "#/$defs/Reply_VariantResolver",
+          "default": "car",
+          "description": "Resolver for reference-qualified notation; never repairs the input locally."
+        },
+        "section": {
+          "description": "Named source sections; omitted by default. Each calls its own source. all keeps bounded pages and source skips; it never enables a missing key.",
+          "items": {
+            "$ref": "#/$defs/Reply_VariantSection"
+          },
+          "type": "array",
+          "x-positional": 1
+        },
+        "section_limit": {
+          "description": "Rows per named source section page; omitted uses the native source default.",
+          "format": "uint32",
+          "maximum": 50,
+          "minimum": 1,
+          "type": "integer"
+        },
+        "section_offset": {
+          "default": 0,
+          "description": "Source rows to skip independently of identity candidate paging.",
+          "format": "uint32",
+          "minimum": 0,
+          "type": "integer"
+        },
+        "tumor_type": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/Reply_Text"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "description": "Explicit tumor context for keyed OncoKB annotation."
+        }
+      },
+      "required": [
+        "input"
+      ],
+      "type": "object",
+      "x-reply-query-titles": [
+        "VariantGetQuery"
+      ]
     },
     "Reply_VariantGwas": {
       "description": "One page of exact rsID catalog associations.",
@@ -6280,7 +6403,7 @@
       "type": "array"
     },
     "query": {
-      "$ref": "#/$defs/Reply_VariantGet",
+      "$ref": "#/$defs/Reply_VariantGetQuery",
       "description": "Parsed query."
     },
     "result": {
