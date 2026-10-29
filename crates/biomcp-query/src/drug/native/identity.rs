@@ -1,6 +1,6 @@
 use biodata::{DrugIdentity, Error};
 use biomcp_adapters::chembl;
-use biomcp_types::{DrugCard, DrugHeader, DrugSection, DrugSource};
+use biomcp_types::{DrugCard, DrugHeader, DrugSection};
 pub(super) fn chembl_header(
     row: &chembl::Molecule,
     problems: &mut Vec<biomcp_types::Problem>,

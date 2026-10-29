@@ -78,10 +78,10 @@ impl SampleList {
 }
 #[derive(Deserialize)]
 #[serde(transparent)]
-struct Profiles(Vec<Field<Profile>>);
+struct Profiles(Vec<super::super::scope::Row<Profile, super::super::scope::Study>>);
 #[derive(Deserialize)]
 #[serde(transparent)]
-struct SampleLists(Vec<Field<SampleList>>);
+struct SampleLists(Vec<super::super::scope::Row<SampleList, super::super::scope::Study>>);
 impl Reply for Profiles {
     fn check(&self) -> Result<(), BadReply> {
         Ok(())
@@ -104,11 +104,7 @@ pub fn profiles(leg: &Leg<'_>, id: &StudyId) -> Result<Records<StudyProfile>, Re
     let (reply, metadata) = leg.json_received_checked_cache::<Profiles>(
         &endpoint(id, "molecular-profiles")?,
         &[("projection", Arg::Text("DETAILED"))],
-        |r| {
-            r.0.iter()
-                .filter_map(Field::as_ref)
-                .all(|v| v.study_id == *id)
-        },
+        |r| r.0.iter().all(|v| v.scope.study_id == *id),
     )?;
     let mut problems = Problems {
         source: biomcp_types::Source::Cbioportal,
@@ -121,7 +117,7 @@ pub fn profiles(leg: &Leg<'_>, id: &StudyId) -> Result<Records<StudyProfile>, Re
         .into_iter()
         .filter_map(|v| {
             problems.record = None;
-            let row = problems.field("profiles", Some(v))?;
+            let row = problems.field("profiles", Some(v.value))?;
             (row.study_id == *id).then(|| row.mapped(&mut problems))
         })
         .collect();
@@ -141,11 +137,7 @@ pub fn sample_lists(leg: &Leg<'_>, id: &StudyId) -> Result<Records<StudySampleLi
     let (reply, metadata) = leg.json_received_checked_cache::<SampleLists>(
         &endpoint(id, "sample-lists")?,
         &[("projection", Arg::Text("DETAILED"))],
-        |r| {
-            r.0.iter()
-                .filter_map(Field::as_ref)
-                .all(|v| v.study_id == *id)
-        },
+        |r| r.0.iter().all(|v| v.scope.study_id == *id),
     )?;
     let mut problems = Problems {
         source: biomcp_types::Source::Cbioportal,
@@ -158,7 +150,7 @@ pub fn sample_lists(leg: &Leg<'_>, id: &StudyId) -> Result<Records<StudySampleLi
         .into_iter()
         .filter_map(|v| {
             problems.record = None;
-            let row = problems.field("sample_lists", Some(v))?;
+            let row = problems.field("sample_lists", Some(v.value))?;
             (row.study_id == *id).then(|| row.mapped(&mut problems))
         })
         .collect();

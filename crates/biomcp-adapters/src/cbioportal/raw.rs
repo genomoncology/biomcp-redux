@@ -102,7 +102,7 @@ macro_rules! reply {
 }
 #[derive(Deserialize)]
 #[serde(transparent)]
-pub(super) struct Mutations(pub Vec<crate::raw::Field<Mutation>>);
+pub(super) struct Mutations(pub Vec<super::scope::Row<Mutation, super::scope::Mutation>>);
 #[derive(Deserialize)]
 #[serde(transparent)]
 pub(super) struct SampleLists(pub Vec<SampleList>);

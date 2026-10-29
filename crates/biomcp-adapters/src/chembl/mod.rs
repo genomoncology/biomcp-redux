@@ -89,7 +89,7 @@ pub fn mechanisms(
         ],
         |r: &Mechanisms| {
             page(&r.page_meta, r.received as usize, limit, offset)?;
-            if r.mechanisms.iter().all(|row| row.molecule_chembl_id == id) {
+            if r.molecules.iter().all(|molecule| molecule == &id) {
                 Ok(())
             } else {
                 Err(BadReply)
@@ -114,10 +114,7 @@ pub fn indications(
         ],
         |r: &Indications| {
             page(&r.page_meta, r.received as usize, limit, offset)?;
-            if r.drug_indications
-                .iter()
-                .all(|row| row.molecule_chembl_id == id)
-            {
+            if r.molecules.iter().all(|molecule| molecule == &id) {
                 Ok(())
             } else {
                 Err(BadReply)
@@ -139,6 +136,7 @@ fn page(meta: &PageMeta, count: usize, limit: u32, offset: u32) -> Result<(), Ba
 }
 mod map;
 mod molecule;
+mod scope;
 pub use map::{indications as map_indications, targets as map_targets};
 pub use molecule::{card as molecule_card, header as molecule_header};
 

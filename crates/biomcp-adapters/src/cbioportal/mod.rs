@@ -1,5 +1,6 @@
 //! Bounded explicit-cohort mutation observations and stored public study metadata.
 mod raw;
+mod scope;
 use biodata::NcbiGeneId;
 use biomcp_fetch::{Arg, BadReply, Freshness, KeyUse, Leg, PathSegment, RequestError, SourceSpec};
 use biomcp_types::{RecurrenceStudy, Source, VariantRecurrenceQuery};
@@ -111,15 +112,11 @@ pub fn mutations(
     ];
     let (rows, _) = leg.json_received_checked::<raw::Mutations>(&endpoint, &params, |rows| {
         if rows.0.len() <= query.limit() as usize
-            && rows
-                .0
-                .iter()
-                .filter_map(crate::raw::Field::as_ref)
-                .all(|v| {
-                    v.study_id == *query.study()
-                        && v.molecular_profile_id == *query.profile()
-                        && v.entrez_gene_id == gene.get()
-                })
+            && rows.0.iter().all(|v| {
+                v.scope.study_id == *query.study()
+                    && v.scope.molecular_profile_id == *query.profile()
+                    && v.scope.entrez_gene_id == gene.get()
+            })
         {
             Ok(())
         } else {
@@ -134,7 +131,7 @@ pub fn mutations(
     };
     let mut values = Vec::new();
     for row in rows.0 {
-        if let Some(mut row) = problems.field("sampleId", Some(row)) {
+        if let Some(mut row) = problems.field("sampleId", Some(row.value)) {
             problems.list.append(&mut row.problems);
             values.push(row);
         }

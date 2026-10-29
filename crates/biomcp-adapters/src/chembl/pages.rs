@@ -59,6 +59,7 @@ impl Reply for Molecules {
 #[derive(Debug, Deserialize)]
 #[serde(from = "ReceivedMechanisms")]
 pub struct Mechanisms {
+    pub(super) molecules: Vec<String>,
     /// Accepted native rows.
     pub mechanisms: Vec<Mechanism>,
     /// Native page metadata.
@@ -70,7 +71,7 @@ pub struct Mechanisms {
 }
 #[derive(Deserialize)]
 struct ReceivedMechanisms {
-    mechanisms: Vec<crate::raw::Field<Mechanism>>,
+    mechanisms: Vec<super::scope::Row<Mechanism>>,
     page_meta: PageMeta,
 }
 impl From<ReceivedMechanisms> for Mechanisms {
@@ -82,9 +83,11 @@ impl From<ReceivedMechanisms> for Mechanisms {
             list: Vec::new(),
         };
         let mut rows = Vec::new();
+        let mut molecules = Vec::new();
         for row in page.mechanisms {
+            molecules.push(row.molecule);
             problems.record = None;
-            if let Some(row) = problems.field("mec_id", Some(row)) {
+            if let Some(row) = problems.field("mec_id", Some(row.value)) {
                 if row.mec_id > 0 {
                     rows.push(row);
                 } else {
@@ -94,6 +97,7 @@ impl From<ReceivedMechanisms> for Mechanisms {
             }
         }
         Self {
+            molecules,
             mechanisms: rows,
             page_meta: page.page_meta,
             received,
@@ -110,6 +114,7 @@ impl Reply for Mechanisms {
 #[derive(Debug, Deserialize)]
 #[serde(from = "ReceivedIndications")]
 pub struct Indications {
+    pub(super) molecules: Vec<String>,
     /// Accepted native rows.
     pub drug_indications: Vec<Indication>,
     /// Native page metadata.
@@ -121,7 +126,7 @@ pub struct Indications {
 }
 #[derive(Deserialize)]
 struct ReceivedIndications {
-    drug_indications: Vec<crate::raw::Field<Indication>>,
+    drug_indications: Vec<super::scope::Row<Indication>>,
     page_meta: PageMeta,
 }
 impl From<ReceivedIndications> for Indications {
@@ -133,9 +138,11 @@ impl From<ReceivedIndications> for Indications {
             list: Vec::new(),
         };
         let mut rows = Vec::new();
+        let mut molecules = Vec::new();
         for row in page.drug_indications {
+            molecules.push(row.molecule);
             problems.record = None;
-            if let Some(row) = problems.field("drugind_id", Some(row)) {
+            if let Some(row) = problems.field("drugind_id", Some(row.value)) {
                 if row.drugind_id > 0 {
                     rows.push(row);
                 } else {
@@ -145,6 +152,7 @@ impl From<ReceivedIndications> for Indications {
             }
         }
         Self {
+            molecules,
             drug_indications: rows,
             page_meta: page.page_meta,
             received,
