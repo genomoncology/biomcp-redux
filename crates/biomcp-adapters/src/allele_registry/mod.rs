@@ -1,5 +1,7 @@
 //! Read-only ClinGen Allele Registry resolution, without local allele repair.
+mod annotations;
 mod map;
+mod normalization;
 mod raw;
 use crate::quotas;
 use biodata::Text;
@@ -88,69 +90,9 @@ pub fn normalize(
     input: &str,
     build: Option<biodata::Build>,
 ) -> Result<crate::Mapped<biomcp_types::NormalizationResult>, RequestError> {
-    let mut result = biomcp_types::NormalizationResult::unavailable(Source::AlleleRegistry);
     let qualified = qualify(input, build)?;
     let raw = read(leg, &qualified, false)?;
-    let mut problems = crate::mapped::Problems {
-        source: Source::AlleleRegistry,
-        record: raw.id.as_ref().and_then(crate::mapped::record),
-        list: Vec::new(),
-    };
-    if let Some(code) = raw.error_type {
-        result.outcome = biomcp_types::VariantResolution::Rejected;
-        let mut messages = vec![biomcp_types::NormalizationMessage {
-            category: "description".into(),
-            code: Some(code.to_string().into()),
-            text: raw.error_description.unwrap_or_default().into(),
-        }];
-        if let Some(text) = raw.message {
-            messages.push(biomcp_types::NormalizationMessage {
-                category: "message".into(),
-                code: None,
-                text: text.into(),
-            });
-        }
-        result.messages = messages.into();
-    } else {
-        result.outcome = biomcp_types::VariantResolution::Resolved;
-        let mut mappings = Vec::new();
-        if let Some(value) = raw.id {
-            mappings.push(biomcp_types::NormalizationField {
-                field: "@id".into(),
-                value: value.to_string().into(),
-            });
-        }
-        for row in raw.genomic.into_iter().flatten() {
-            let assembly = problems.field("genomicAlleles.referenceGenome", row.assembly);
-            for value in row.hgvs {
-                mappings.push(biomcp_types::NormalizationField {
-                    field: assembly.as_ref().map_or_else(
-                        || "genomicAlleles.hgvs".into(),
-                        |b| format!("genomicAlleles.{}.hgvs", b.as_str()).into(),
-                    ),
-                    value: value.to_string().into(),
-                });
-            }
-        }
-        for row in raw.transcripts.into_iter().flatten() {
-            if let Some(mane) = row.mane {
-                for forms in [mane.nucleotide, mane.protein].into_iter().flatten() {
-                    for hgvs in [forms.ensembl, forms.refseq].into_iter().flatten() {
-                        mappings.push(biomcp_types::NormalizationField {
-                            field: "transcriptAlleles.MANE.hgvs".into(),
-                            value: hgvs.hgvs.to_string().into(),
-                        });
-                    }
-                }
-            }
-        }
-        result.total_mappings = mappings.len() as u32;
-        result.mappings = mappings.into();
-    }
-    Ok(crate::Mapped {
-        value: result,
-        problems: problems.list,
-    })
+    Ok(normalization::map(raw))
 }
 
 // CAR GET accepts reference-qualified HGVS. Bind only the explicit chromosome alias

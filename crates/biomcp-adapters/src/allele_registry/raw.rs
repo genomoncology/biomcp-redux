@@ -1,3 +1,4 @@
+use crate::raw::Field;
 use biodata::Text;
 use biomcp_fetch::{BadReply, Reply};
 use serde::Deserialize;
@@ -11,18 +12,18 @@ pub(super) struct Allele {
     pub error_description: Option<String>,
     pub message: Option<String>,
     #[serde(rename = "genomicAlleles")]
-    pub genomic: Option<Vec<Genomic>>,
+    pub genomic: Option<Field<Vec<Field<Genomic>>>>,
     #[serde(rename = "transcriptAlleles")]
-    pub transcripts: Option<Vec<Transcript>>,
+    pub transcripts: Option<Field<Vec<Field<Transcript>>>>,
     #[serde(rename = "externalRecords")]
-    pub external: Option<External>,
+    pub external: Option<Field<External>>,
 }
 #[derive(Deserialize)]
 pub(super) struct External {
     #[serde(rename = "dbSNP")]
-    pub rs: Option<Vec<Rs>>,
+    pub rs: Option<Field<Vec<Field<Rs>>>>,
     #[serde(rename = "ClinVarVariations")]
-    pub clinvar: Option<Vec<Clinvar>>,
+    pub clinvar: Option<Field<Vec<Field<Clinvar>>>>,
 }
 #[derive(Deserialize)]
 pub(super) struct Rs {
@@ -38,8 +39,8 @@ pub(super) struct Genomic {
     pub chromosome: Option<crate::raw::Field<Text>>,
     #[serde(rename = "referenceGenome")]
     pub assembly: Option<crate::raw::Field<Text>>,
-    pub hgvs: Vec<Text>,
-    pub coordinates: Vec<Coordinate>,
+    pub hgvs: Option<Field<Vec<Field<Text>>>>,
+    pub coordinates: Option<Field<Vec<Coordinate>>>,
 }
 #[derive(Deserialize)]
 pub(super) struct Coordinate {
@@ -72,7 +73,7 @@ impl Reply for Allele {
                 Err(BadReply)
             };
         }
-        let genomic = self.genomic.as_deref().ok_or(BadReply)?;
+
         let key = self
             .id
             .as_ref()
@@ -80,16 +81,12 @@ impl Reply for Allele {
         if !key.is_some_and(|k| {
             k.parse::<biomcp_types::VariantInput>()
                 .is_ok_and(|v| v.namespace().ok() == Some(biomcp_types::VariantNamespace::Ca))
-        }) || genomic.is_empty()
-            || genomic.len() > 1000
+        }) || self
+            .genomic
+            .as_ref()
+            .and_then(Field::as_ref)
+            .is_some_and(|rows| rows.len() > 1000)
         {
-            return Err(BadReply);
-        }
-        if genomic.iter().any(|g| {
-            g.hgvs.is_empty()
-                || g.coordinates.is_empty()
-                || g.coordinates.iter().any(|c| c.start > c.end)
-        }) {
             return Err(BadReply);
         }
         Ok(())
@@ -99,21 +96,21 @@ impl Reply for Allele {
 #[derive(Deserialize)]
 pub(super) struct Transcript {
     #[serde(rename = "MANE")]
-    pub mane: Option<Mane>,
+    pub mane: Option<Field<Mane>>,
 }
 #[derive(Deserialize)]
 pub(super) struct Mane {
-    pub nucleotide: Option<ManeForms>,
-    pub protein: Option<ManeForms>,
+    pub nucleotide: Option<Field<ManeForms>>,
+    pub protein: Option<Field<ManeForms>>,
 }
 #[derive(Deserialize)]
 pub(super) struct ManeForms {
     #[serde(rename = "Ensembl")]
-    pub ensembl: Option<Hgvs>,
+    pub ensembl: Option<Field<Hgvs>>,
     #[serde(rename = "RefSeq")]
-    pub refseq: Option<Hgvs>,
+    pub refseq: Option<Field<Hgvs>>,
 }
 #[derive(Deserialize)]
 pub(super) struct Hgvs {
-    pub hgvs: Text,
+    pub hgvs: Field<Text>,
 }

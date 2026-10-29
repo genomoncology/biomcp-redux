@@ -23,49 +23,20 @@ pub(super) fn allele(raw: RawAllele) -> Result<Resolution, biomcp_fetch::BadRepl
         .parse::<VariantId>()
         .map_err(|_| biomcp_fetch::BadReply)?;
     let record = Text::new(key).map_err(|_| biomcp_fetch::BadReply)?;
+    let mut fields = crate::mapped::Problems {
+        source: Source::AlleleRegistry,
+        record: Some(record.clone()),
+        list: Vec::new(),
+    };
     let mut ids = vec![id];
-    if let Some(external) = raw.external {
-        for rs in external.rs.into_iter().flatten() {
-            if rs.rs > 0 {
-                ids.push(VariantId::Rs(
-                    biodata::RsId::new(rs.rs).map_err(|_| biomcp_fetch::BadReply)?,
-                ));
-            }
-        }
-        for cv in external.clinvar.into_iter().flatten() {
-            if cv.id > 0 {
-                ids.push(VariantId::ClinVarVariation(
-                    biodata::ClinVarVariationId::new(cv.id).map_err(|_| biomcp_fetch::BadReply)?,
-                ));
-            }
-        }
-    }
+    ids.extend(super::annotations::ids(raw.external, &mut fields));
     let mut problems = Vec::new();
     let mut representations = Vec::new();
-    for g in raw.genomic.into_iter().flatten() {
+    for g in fields.fields("genomicAlleles", raw.genomic) {
         genomic(g, &record, &mut representations, &mut problems);
     }
-    for t in raw.transcripts.into_iter().flatten() {
-        if let Some(m) = t.mane {
-            for forms in [m.nucleotide, m.protein].into_iter().flatten() {
-                for form in [forms.ensembl, forms.refseq].into_iter().flatten() {
-                    match Expression::hgvs(form.hgvs) {
-                        Ok(expression) => representations.push(Representation {
-                            source: Source::AlleleRegistry.text(),
-                            expression,
-                            build: None,
-                            allele: None,
-                        }),
-                        Err(_) => problems.push(problem(
-                            Source::AlleleRegistry,
-                            Some(record.clone()),
-                            "representations.expression",
-                        )),
-                    }
-                }
-            }
-        }
-    }
+    representations.extend(super::annotations::forms(raw.transcripts, &mut fields));
+    problems.extend(fields.list);
     let value = VariantHeader {
         requested: None,
         identity: Variant {
@@ -97,8 +68,10 @@ fn genomic(g: Genomic, record: &Text, out: &mut Vec<Representation>, problems: &
         assembly.map(|a| a.as_str().parse::<Build>()),
     );
     let chromosome = fields.field("representations.chromosome", g.chromosome);
+    let notations = fields.fields("genomicAlleles.hgvs", g.hgvs);
+    let coordinates = fields.field("genomicAlleles.coordinates", g.coordinates);
     problems.extend(fields.list);
-    for notation in g.hgvs {
+    for notation in notations {
         let expression = match Expression::hgvs(notation.clone()) {
             Ok(v) => v,
             Err(_) => {
@@ -129,8 +102,10 @@ fn genomic(g: Genomic, record: &Text, out: &mut Vec<Representation>, problems: &
                 "representations.chromosome",
             ));
         }
-        let allele = if g.coordinates.len() == 1 {
-            g.coordinates.first().and_then(|c| {
+        let allele = if let Some(coordinates) = &coordinates
+            && coordinates.len() == 1
+        {
+            coordinates.first().and_then(|c| {
                 Allele::new(
                     SequenceLocation {
                         sequence: sequence.ok()?,
@@ -144,7 +119,7 @@ fn genomic(g: Genomic, record: &Text, out: &mut Vec<Representation>, problems: &
         } else {
             None
         };
-        if allele.is_none() {
+        if allele.is_none() && coordinates.is_some() {
             problems.push(problem(
                 Source::AlleleRegistry,
                 Some(record.clone()),
