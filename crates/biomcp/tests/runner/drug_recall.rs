@@ -215,7 +215,7 @@ fn invalid() -> Result<(), String> {
     ] {
         let args: Vec<String> = args.into_iter().map(str::to_owned).collect();
         let cli = invoke(&env, args.clone(), 2)?;
-        let tool = mcp::call_with_globals(&env, &args, false, &[])?;
+        let tool = mcp::call_with_globals(&env, &args, true, &[])?;
         if cli != tool {
             return Err(format!("recall refusal differs: {cli} / {tool}"));
         }
