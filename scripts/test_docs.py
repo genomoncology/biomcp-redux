@@ -133,20 +133,6 @@ def main():
         features = root / "sdlc/features.md"
         original_features = features.read_text()
         features.write_text(
-            original_features.replace("/drug_contracts`", "/missing_contract`")
-        )
-        result = check(root)
-        assert result.returncode != 0 and "target does not exist" in result.stderr, (
-            result
-        )
-        features.write_text(
-            original_features.replace("features: `schema`", "features: `missing`")
-        )
-        result = check(root)
-        assert result.returncode != 0 and "feature does not exist" in result.stderr, (
-            result
-        )
-        features.write_text(
             original_features
             + "\nmissing: A caller sees a result. Cases: `tests/cases/missing/*.yaml`.\n"
         )

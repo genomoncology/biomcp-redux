@@ -62,13 +62,11 @@ variant-oncokb: Retrieve only user-keyed OncoKB annotations with explicit assemb
 
 variant-help: Variant help gives executable examples and explicit migration steps without clinical interpretation. Cases: `tests/cases/variant/help*.yaml`, `tests/cases/variant/retired.yaml`.
 
-drug-types: A public API caller validates published drug identifiers, selected-source requests, neutral records and source-preserving continuations before command adapters exist. Contracts: `biomcp-types/drug_contracts` (features: `schema`).
 
 drug-native-sources: Retrieve native ChEMBL and Open Targets drug candidates, identities, mechanisms and indications without inferring authorization. Cases: `crates/biomcp/tests/runner/drug_native.rs`, `crates/biomcp/tests/runner/drug_native_identity.rs`, `tests/cases/drug/native-policy.yaml`.
 drug-ema: Explicitly synchronize EMA medicines and read separate native candidates, exact identity cards and source-scoped regulatory dates without implicit synchronization. Cases: `tests/cases/drug/ema*.yaml`, `crates/biomcp/tests/runner/drug_ema.rs`, `crates/biomcp/tests/runner/drug_ema/navigation.rs`.
 drug-civic: Search literal CIViC therapy candidates and retrieve independent native evidence and assertion pages with their complete profile context. Cases: `crates/biomcp/tests/runner/drug_civic.rs`.
 drug-mychem: Search literal MyChem candidate pages and retrieve exact native document identities with attributed cross-references. Cases: `tests/cases/drug/disabled.yaml`, `crates/biomcp/tests/runner/drug_mychem.rs`, `crates/biomcp/tests/runner/next_navigation.rs`.
-disease-types: A public API caller validates disease identifiers, source-selected requests, native association provenance and statistics without hidden enrichment before command adapters exist. Contracts: `biomcp-types/disease_contracts` (features: `schema`).
 
 drug-label: Find complete brand or generic names with an explicit match basis and read exact SPL identities and native label fields with complete bounded text continuation, preserving revision, original text and source outcomes. Cases: `crates/biomcp/tests/runner/drug_label.rs`.
 drug-approvals: Read source-native application candidates, independent product status and application submission history with explicit product selection. Cases: `crates/biomcp/tests/runner/drug_fda.rs`, `crates/biomcp/tests/runner/drug_fda/errors.rs`, `crates/biomcp/tests/runner/drug_fda/capture.rs`.
@@ -87,10 +85,7 @@ drug-identity: Drug sources reject mismatched, conflicting and absent identity j
 
 drug-help: Discover source-scoped drug sections, selectors and explicit bundle synchronization through generated help and executable case examples. Cases: `tests/cases/drug/help.yaml`.
 
-adverse-event-types: A public API caller validates source-specific report requests and preserves independent native arrays, code strings and bounded consumer schemas before adapters exist. Contracts: `biomcp-types/adverse_event_contracts` (features: `schema`).
 
-pgx-types: A public API caller preserves source-native PGx context and validates explicit source and section requests before adapters exist. Contracts: `biomcp-types/pgx_contracts` (features: `schema`).
-diagnostic-types: A public API caller validates source-owned diagnostic identities, neutral records and standalone consumer schemas before adapters exist. Contracts: `biomcp-types/diagnostic_contracts` (features: `schema`).
 
 diagnostic-gtr: Explicitly synchronize the complete GTR pair and read exact native test candidates, cards and relation pages without implicit synchronization or clinical inference. Cases: `crates/biomcp/tests/runner/diagnostic_gtr.rs`, `crates/biomcp/tests/runner/diagnostic_gtr/mechanics.rs`, `tests/cases/diagnostic/gtr.yaml`.
 adverse-event-search: Search literal FAERS report mentions with typed phrase, seriousness and receipt selectors, native report pages and exact next requests. Cases: `tests/cases/adverse-event/help.yaml`, `tests/cases/adverse-event/examples.yaml`, `tests/cases/adverse-event/search-policy.yaml`, `tests/cases/adverse-event/serious-any.yaml`, `tests/cases/adverse-event/serious-flags.yaml`, `crates/biomcp/tests/runner/faers_search.rs`.
@@ -120,14 +115,9 @@ diagnostic-who-search: Search stored WHO product headers by literal marker and m
 
 mcp-research: Search citable source headers and fetch the same CLI record through research compatibility tools. Cases: `crates/biomcp/tests/runner/research.rs`.
 
-study-types: A public API caller preserves exact study identities, source-scoped count metadata and independent acquisition times through bounded standalone study contracts. Contracts: `biomcp-types/study_contracts` (features: `schema`).
 store-clean: Publishing removes bounded expired pools and snapshots; ordinary reply writes prune expired replies; explicit cleanup removes expired state and obsolete owned database files with their sidecars while preserving supported generations, bundle tables in obsolete files, fresh state and foreign tables. Cases: `crates/biomcp/tests/runner/store_clean.rs`, `crates/biomcp/tests/runner/store_coexistence.rs`, `tests/cases/store/clean.yaml`.
-gwas-types: A public API caller validates Catalog identities, exact scientific probabilities, native association context and standalone source-scoped consumer contracts before adapters exist. Contracts: `biomcp-types/gwas_contracts` (features: `schema`).
 
 study-catalog: Explicit catalog sync preserves checked metadata atomically; literal stored study searches retain selectors and source order. Cases: `crates/biomcp/tests/runner/study_catalog.rs`, `tests/cases/study/*.yaml`.
-phenotype-types: A public API caller preserves native phenotype fields and validates HP identities and source section pairs before adapters exist. Contracts: `biomcp-types/phenotype_contracts` (features: `schema`).
-pathway-types: A public API caller validates source-owned pathway identities and selectors, preserves native references and distinguishes source totals from observed relation counts before adapters exist. Contracts: `biomcp-types/pathway_contracts` (features: `schema`).
-protein-types: Neutral protein identities, source records and checked standalone requests preserve source scope before adapters exist. Contracts: `biomcp-types/protein_contracts` (features: `schema`).
 
 study-get: Exact stored study cards expose bounded independent profile and sample-list metadata without participant identifiers. Cases: `crates/biomcp/tests/runner/study_get.rs`.
 gwas-search: Search source-native association selectors in native p-value order, with exact positive thresholds and retained page walks that state a qualifying total only at the end. Cases: `tests/cases/gwas/examples.yaml`, `tests/cases/gwas/help.yaml`, `crates/biomcp/tests/runner/gwas_search.rs`.
@@ -158,7 +148,6 @@ pathway-help: Discover every pathway source, selector, section and paging option
 
 protein-docs-accounting: Discover every protein command, native section and selector through generated help and parsed CLI/MCP examples. Cases: `tests/cases/protein/help.yaml`, `tests/cases/protein/examples.yaml`.
 
-cell-line-types: A public API caller validates exact cell identities and standalone requests while preserving native variation members, provenance and independently scoped collections before I/O. Contracts: `biomcp-types/cell_line_contracts` (features: `schema`).
 
 cell-line-identity: A caller searches literal Cellosaurus headers and retrieves exact accession or verified source-qualified cell identities. Cases: `tests/cases/cell-line/*.yaml`, `crates/biomcp/tests/runner/cell_line/*.rs`.
 
@@ -166,7 +155,6 @@ cell-line-chembl: A caller reads exact accession-linked ChEMBL metadata and requ
 
 cell-line-sections: A caller pages complete native Cellosaurus names, identities, cross-references and variation rows without inference. Cases: `crates/biomcp/tests/runner/cell_line/sections.rs`.
 
-author-types: A public API caller checks source-qualified author records and native paper and work-group contracts without inferring person identity. Contracts: `biomcp-types/author_contracts` (features: `schema`).
 
 cell-line-all: A caller receives every bounded first section page with independent source failures, skips and provenance, while deferred routes return fixed guidance before provider requests. Cases: `crates/biomcp/tests/runner/cell_line/all.rs`, `crates/biomcp/tests/runner/cell_line/all/*.rs`.
 
@@ -181,21 +169,14 @@ store-coexistence: Allowed bundle reads import only names missing from the curre
 
 agent-skill: Agents read case-backed guidance and install managed guidance only inside an explicit directory. Cases: `crates/biomcp/tests/runner/skill.rs`.
 
-stream-tensors: Decode serialized provider tensor payloads within explicit wire and expansion bounds. Contracts: `biomcp-fetch/tensors`.
 
-stream-worker: Blocking source legs make one bounded streaming RPC over their checked TLS and proxy route within the shared quota and absolute deadline. Contracts: `biomcp-fetch/grpc_worker`.
-stream-persistence: Complete checked RPC streams enter the ordinary cache and replay from bounded recordings without connections. Contracts: `biomcp-fetch/grpc_persistence`.
 
-alphagenome-protocol: Encode the reviewed human DNASE request and admit only complete bounded reference and alternate envelopes. Contracts: `biomcp-fetch/alphagenome`.
 
-alphagenome-registration: Discover the restricted AlphaGenome service and require its own user key before source admission. Contracts: `biomcp-adapters/alphagenome_registration`.
 
-alphagenome-score-protocol: Encode the ruled human scoring request and admit exactly the requested complete scorer groups by request position. Contracts: `biomcp-fetch/score_variant`.
 
 variant-alphagenome: Read independently paged native scoring groups for one source-resolved GRCh38 variant with the caller's required key. Cases: `crates/biomcp/tests/runner/alphagenome.rs`, `crates/biomcp/tests/runner/alphagenome_tls.rs`, `crates/biomcp/tests/runner/alphagenome_capture.rs`.
 
 query-validation: A caller sees argument names for typed input failures, conflicting fields and invalid ranges without rejected values. Cases: `tests/cases/grammar/semantic-arguments.yaml`.
-outbound-hosts: Refuse undeclared source request origins before cache, replay or network admission. Contracts: `biomcp-fetch/paths`.
 
 local-file-persistence: Create private Unix cache files and update symlinked credential configuration targets while retaining field order. Cases: `crates/biomcp/tests/runner/local_files.rs`.
 
