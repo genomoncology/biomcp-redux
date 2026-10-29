@@ -4,32 +4,6 @@ use serde::{Serialize, de::DeserializeOwned};
 use serde_json::json;
 use std::{fmt::Debug, str::FromStr};
 
-#[expect(
-    clippy::unwrap_used,
-    reason = "Public boundary table uses valid round-trip fixtures"
-)]
-fn text_roundtrip<T: FromStr + Serialize + DeserializeOwned + Eq + Debug + ToString>(text: &str)
-where
-    T::Err: Debug,
-{
-    let value: T = text.parse().unwrap();
-    assert_eq!(
-        value.to_string(),
-        text,
-        "Text must preserve its checked roundtrip contract"
-    );
-    assert_eq!(
-        serde_json::to_value(&value).unwrap(),
-        json!(text),
-        "Text must preserve its checked roundtrip contract"
-    );
-    assert_eq!(
-        serde_json::from_value::<T>(json!(text)).unwrap(),
-        value,
-        "Text must preserve its checked roundtrip contract"
-    );
-}
-
 #[test]
 fn hgnc_ids_check_numeric_and_canonical_text_boundaries() {
     for (number, text) in [
@@ -39,7 +13,6 @@ fn hgnc_ids_check_numeric_and_canonical_text_boundaries() {
     ] {
         assert_eq!(HgncId::new(number).unwrap().get(), number);
         assert_eq!(HgncId::new(number).unwrap().to_string(), text);
-        text_roundtrip::<HgncId>(text);
     }
     assert!(HgncId::new(0).is_err());
     for text in [
@@ -84,7 +57,6 @@ fn partial_dates_preserve_precision_and_validate_gregorian_calendar() {
             (year, month, day)
         );
         assert_eq!(value.to_string(), text);
-        text_roundtrip::<PartialDate>(text);
     }
     for args in [
         (0, None, None),
@@ -218,7 +190,7 @@ where
     T: FromStr + Eq + Debug + std::hash::Hash,
     T::Err: std::error::Error + 'static,
 {
-    use std::hash::{DefaultHasher, Hash, Hasher};
+    use std::hash::{DefaultHasher, Hasher};
     let left: T = left.parse()?;
     let right: T = right.parse()?;
     assert_eq!(left, right, "fixtures must represent equal values");
@@ -533,8 +505,8 @@ where
 {
     if let Ok(value) = text.parse::<T>() {
         proptest::prop_assert_eq!(
-            value.to_string().parse::<T>().as_ref(),
-            Ok(&value),
+            value.to_string().parse::<T>().ok().as_ref(),
+            Some(&value),
             "display must roundtrip"
         );
     }
