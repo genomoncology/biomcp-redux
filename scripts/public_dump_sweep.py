@@ -191,7 +191,7 @@ def run(args):
                 for (identity,) in profiles.unmatched():
                     sweep.parse([{"kind": "profile", "value": "civic:" + identity,
                                   "mapping_reason": "profile_companion_not_in_monthly_input"}],
-                                {}, "civic:" + identity)
+                                {"kind": "civic_profiles"}, "civic:" + identity)
             bridge.stdin.close()
             if bridge.wait() != 0:
                 raise ValueError("value_bridge_failed")
