@@ -238,6 +238,7 @@ fn sources(root: &Value, row: &Value, name: &str) -> Vec<Source> {
         "CellLinePage" | "CellLineCard" => Some(Source::Cellosaurus),
         "GwasPage" | "GwasAssociationCard" => Some(Source::Gwas),
         "DrugWhoPage" | "DrugWhoCard" => Some(Source::WhoPq),
+        "DrugRecallPage" | "DrugRecallCard" => Some(Source::FdaDrugRecall),
         _ => match row
             .pointer("/properties/kind/const")
             .and_then(Value::as_str)
