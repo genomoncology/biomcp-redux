@@ -40,8 +40,9 @@ struct ProfileInput {
 fn profile(value: &Value) -> Result<Value, String> {
     let input: ProfileInput = serde_json::from_value(value.clone()).map_err(|e| e.to_string())?;
     let expression = ProfileExpression::civic(input.raw_name).map_err(|e| e.to_string())?;
-    let profile = VariantRef::profile_expression(input.record, input.label, input.members, expression)
-        .map_err(|e| e.to_string())?;
+    let profile =
+        VariantRef::profile_expression(input.record, input.label, input.members, expression)
+            .map_err(|e| e.to_string())?;
     serde_json::to_value(profile).map_err(|e| e.to_string())
 }
 
