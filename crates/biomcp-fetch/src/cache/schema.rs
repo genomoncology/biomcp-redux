@@ -109,6 +109,7 @@ const TRANSPORT_OWNER: SchemaOwner = SchemaOwner {
         "bundle_key_find",
         "bundle_words",
         "bundle_content",
+        "bundle_rejection",
     ],
 };
 pub(crate) fn check_current_owners(

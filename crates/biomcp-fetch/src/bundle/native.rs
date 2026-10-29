@@ -1,10 +1,13 @@
 //! Native quoted TSV has required empty cells and an independent decoded bound.
-use super::{Row, parse::Parsed};
+use super::{
+    Row,
+    parse::{Parsed, ParsedRows},
+};
 use crate::BadReply;
 use std::{collections::BTreeSet, io::Read};
 const MAX_DECODED_BYTES: u64 = 256 * 1024 * 1024;
 
-pub(super) fn rows<R: Row>(body: &[u8], gzip: bool, limit: u64) -> Result<Vec<Parsed>, BadReply> {
+pub(super) fn rows<R: Row>(body: &[u8], gzip: bool, limit: u64) -> Result<ParsedRows, BadReply> {
     if limit == 0 || limit > MAX_DECODED_BYTES {
         return Err(BadReply);
     }
@@ -33,7 +36,8 @@ pub(super) fn rows<R: Row>(body: &[u8], gzip: bool, limit: u64) -> Result<Vec<Pa
     }
     reader
         .records()
-        .map(|record| {
+        .enumerate()
+        .map(|(index, record)| {
             let record = record.map_err(|_| BadReply)?;
             let object: serde_json::Map<_, _> = names
                 .iter()
@@ -44,11 +48,16 @@ pub(super) fn rows<R: Row>(body: &[u8], gzip: bool, limit: u64) -> Result<Vec<Pa
             let decoded: R = serde_json::from_value(value.clone()).map_err(|_| BadReply)?;
             decoded.check_bundle(0)?;
             Ok(Parsed {
+                number: index as u64 + 2,
                 row: value.to_string(),
                 keys: decoded.keys(),
             })
         })
-        .collect()
+        .collect::<Result<Vec<_>, BadReply>>()
+        .map(|rows| ParsedRows {
+            rows,
+            rejections: Vec::new(),
+        })
 }
 
 // The publisher may use literal quotes inside unquoted fields. A quoted field,

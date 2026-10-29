@@ -6,10 +6,11 @@ use crate::{
 use rusqlite::{Connection, OptionalExtension, params};
 const PART_PREFIX: &str = ".tmp";
 const PART_RANDOM: usize = 6;
-const METADATA: &str = "SELECT b.bytes,b.rows,b.fresh_until,b.etag,b.modified,c.revision,c.retrieved_at FROM bundle b LEFT \
+const METADATA: &str = "SELECT b.bytes,b.rows,b.fresh_until,b.etag,b.modified,c.revision,c.retrieved_at,COALESCE((SELECT rejections FROM bundle_rejection WHERE name=b.name),'[]') FROM bundle b LEFT \
     JOIN bundle_content c ON c.name=b.name WHERE b.name=?1";
 #[derive(Clone, Debug)]
 pub(super) struct Meta {
+    pub rejections: Vec<super::BundleRejection>,
     pub bytes: u64,
     pub rows: u64,
     pub fresh_until: i64,
@@ -67,6 +68,8 @@ pub(crate) fn initialize(c: &Connection) -> Result<(), CacheError> {
     CREATE TABLE IF NOT EXISTS bundle_key(bundle TEXT NOT NULL,kind INTEGER NOT NULL,key TEXT NOT NULL,n INTEGER NOT NULL);
     CREATE INDEX IF NOT EXISTS bundle_key_find ON bundle_key(bundle,kind,key,n);
     CREATE VIRTUAL TABLE IF NOT EXISTS bundle_words USING fts5(bundle UNINDEXED,n UNINDEXED,words);
+    CREATE TABLE IF NOT EXISTS bundle_rejection(name TEXT PRIMARY KEY,rejections TEXT NOT NULL);
+    CREATE TRIGGER IF NOT EXISTS bundle_rejection_delete BEFORE DELETE ON bundle BEGIN DELETE FROM bundle_rejection WHERE name=OLD.name; END;
     CREATE TABLE IF NOT EXISTS bundle_content(name TEXT PRIMARY KEY,revision TEXT NOT NULL,retrieved_at INTEGER NOT NULL);
     CREATE TRIGGER IF NOT EXISTS bundle_content_insert BEFORE INSERT ON bundle BEGIN DELETE FROM \
         bundle_content WHERE name=NEW.name; END;
@@ -89,6 +92,7 @@ pub(super) fn kind(k: KeyKind) -> u8 {
 }
 pub(super) fn info<R: Row>(b: &Bundle<R>, m: &Meta) -> BundleInfo {
     BundleInfo {
+        rejections: m.rejections.clone(),
         etag: m.etag.as_deref().map(Into::into),
         last_modified: m.modified.as_deref().map(Into::into),
         name: b.name,
@@ -295,6 +299,13 @@ fn selected_rows(c: &Connection, name: &str, find: Find<'_>) -> Result<Vec<Strin
 
 fn metadata(row: &rusqlite::Row<'_>) -> rusqlite::Result<Meta> {
     Ok(Meta {
+        rejections: serde_json::from_str(&row.get::<_, String>(7)?).map_err(|error| {
+            rusqlite::Error::FromSqlConversionFailure(
+                7,
+                rusqlite::types::Type::Text,
+                Box::new(error),
+            )
+        })?,
         bytes: u64::from(row.get::<_, u32>(0)?),
         rows: u64::from(row.get::<_, u32>(1)?),
         fresh_until: row.get(2)?,

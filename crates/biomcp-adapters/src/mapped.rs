@@ -211,3 +211,20 @@ pub(crate) fn record(value: impl std::fmt::Display) -> Option<biodata::Text> {
 pub(crate) fn source_text(value: &str) -> Result<biodata::Text, biomcp_fetch::BadReply> {
     biodata::Text::from_source(value).map_err(|_| biomcp_fetch::BadReply)
 }
+
+/// Convert redacted bundle row rejections to the existing problem channel.
+pub(crate) fn bundle_problems(
+    source: biomcp_types::Source,
+    info: &biomcp_fetch::BundleInfo,
+) -> Vec<Problem> {
+    info.rejections
+        .iter()
+        .map(|rejection| {
+            problem(
+                source,
+                None,
+                &format!("{} row {}: {}", info.name, rejection.row, rejection.reason),
+            )
+        })
+        .collect()
+}

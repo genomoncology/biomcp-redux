@@ -5,12 +5,15 @@ use std::io;
 pub(super) fn run(fetch: &biomcp_fetch::Fetch, bundle: Bundle) -> io::Result<Outcome> {
     match acquire(fetch, bundle) {
         Some(result) => finish(bundle, result),
-        None => finish(bundle, biomcp_adapters::wikipathways::sync(fetch)),
+        None => finish(
+            bundle,
+            biomcp_adapters::wikipathways::sync(fetch).map(mapped),
+        ),
     }
 }
 fn finish<T: biomcp_types::ResponseBody<Query = biomcp_types::SyncQuery>>(
     bundle: Bundle,
-    result: Result<T, biomcp_fetch::RequestError>,
+    result: Result<biomcp_adapters::Mapped<T>, biomcp_fetch::RequestError>,
 ) -> io::Result<Outcome> {
     let source = bundle_source(bundle);
     let status = if result.is_ok() {
@@ -27,7 +30,13 @@ fn finish<T: biomcp_types::ResponseBody<Query = biomcp_types::SyncQuery>>(
         _ => None,
     });
     let local_error = super::local::kind(result.as_ref().err().copied());
-    let mut envelope = Envelope::<T>::new(status, biomcp_types::SyncQuery { source }, result.ok());
+    let mut problems = Vec::new();
+    let value = result.ok().map(|mapped| {
+        problems = mapped.problems;
+        mapped.value
+    });
+    let mut envelope = Envelope::<T>::new(status, biomcp_types::SyncQuery { source }, value);
+    envelope.problems = problems;
     envelope.local_error = local_error;
     envelope.sources.push(biomcp_adapters::registry::outcome(
         source,
@@ -66,16 +75,27 @@ fn finish<T: biomcp_types::ResponseBody<Query = biomcp_types::SyncQuery>>(
 fn acquire(
     fetch: &biomcp_fetch::Fetch,
     bundle: Bundle,
-) -> Option<Result<biomcp_types::SyncResult, biomcp_fetch::RequestError>> {
-    Some(match bundle {
-        Bundle::WikiPathways => return None,
-        Bundle::CbioportalStudies => biomcp_adapters::cbioportal::sync_studies(fetch),
-        Bundle::FdaCdx => biomcp_adapters::fda_cdx::sync(fetch),
-        Bundle::Gtr => biomcp_adapters::gtr::sync(fetch),
-        Bundle::WhoIvd => biomcp_adapters::who_ivd::sync(fetch),
-        Bundle::WhoPq => biomcp_adapters::who_pq::sync(fetch),
-        Bundle::Ddinter => {
-            biomcp_adapters::ddinter::sync(fetch).map(|info| biomcp_types::SyncResult {
+) -> Option<Result<biomcp_adapters::Mapped<biomcp_types::SyncResult>, biomcp_fetch::RequestError>> {
+    Some(
+        match bundle {
+            Bundle::WikiPathways => return None,
+            Bundle::CbioportalStudies => biomcp_adapters::cbioportal::sync_studies(fetch),
+            Bundle::FdaCdx => biomcp_adapters::fda_cdx::sync(fetch),
+            Bundle::Gtr => biomcp_adapters::gtr::sync(fetch),
+            Bundle::WhoIvd => biomcp_adapters::who_ivd::sync(fetch),
+            Bundle::WhoPq => biomcp_adapters::who_pq::sync(fetch),
+            Bundle::Ddinter => {
+                biomcp_adapters::ddinter::sync(fetch).map(|info| biomcp_types::SyncResult {
+                    snapshot: None,
+                    etag: None,
+                    last_modified: None,
+                    duplicate_identities: None,
+                    rows: info.rows,
+                    bytes: info.bytes,
+                    downloaded_bytes: info.downloaded_bytes,
+                })
+            }
+            Bundle::Ema => biomcp_adapters::ema::sync(fetch).map(|info| biomcp_types::SyncResult {
                 snapshot: None,
                 etag: None,
                 last_modified: None,
@@ -83,36 +103,17 @@ fn acquire(
                 rows: info.rows,
                 bytes: info.bytes,
                 downloaded_bytes: info.downloaded_bytes,
-            })
+            }),
+            Bundle::ClinGen => return Some(biomcp_adapters::clingen::sync(fetch)),
+            Bundle::Hgnc => return Some(biomcp_adapters::hgnc::sync_all(fetch)),
+            Bundle::Gencc => biomcp_adapters::gencc::sync(fetch),
         }
-        Bundle::Ema => biomcp_adapters::ema::sync(fetch).map(|info| biomcp_types::SyncResult {
-            snapshot: None,
-            etag: None,
-            last_modified: None,
-            duplicate_identities: None,
-            rows: info.rows,
-            bytes: info.bytes,
-            downloaded_bytes: info.downloaded_bytes,
-        }),
-        Bundle::ClinGen => biomcp_adapters::clingen::sync(fetch),
-        Bundle::Gencc => biomcp_adapters::gencc::sync(fetch),
-        Bundle::Hgnc => {
-            biomcp_adapters::hgnc::sync(fetch, biomcp_adapters::hgnc::HgncBundle::Complete)
-                .and_then(|complete| {
-                    let withdrawn = biomcp_adapters::hgnc::sync(
-                        fetch,
-                        biomcp_adapters::hgnc::HgncBundle::Withdrawn,
-                    )?;
-                    Ok(biomcp_types::SyncResult {
-                        snapshot: None,
-                        etag: None,
-                        last_modified: None,
-                        duplicate_identities: None,
-                        rows: complete.rows + withdrawn.rows,
-                        bytes: complete.bytes + withdrawn.bytes,
-                        downloaded_bytes: complete.downloaded_bytes + withdrawn.downloaded_bytes,
-                    })
-                })
-        }
-    })
+        .map(mapped),
+    )
+}
+fn mapped<T>(value: T) -> biomcp_adapters::Mapped<T> {
+    biomcp_adapters::Mapped {
+        value,
+        problems: Vec::new(),
+    }
 }

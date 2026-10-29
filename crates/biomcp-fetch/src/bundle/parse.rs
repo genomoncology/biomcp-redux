@@ -1,11 +1,49 @@
-use super::{Keys, Row, RowFormat};
+use super::{BundleRejection, Keys, Row, RowFormat};
 use crate::BadReply;
 use std::collections::BTreeSet;
+#[derive(Default)]
+pub(super) struct ParsedRows {
+    pub rows: Vec<Parsed>,
+    pub rejections: Vec<BundleRejection>,
+}
+impl std::ops::Deref for ParsedRows {
+    type Target = [Parsed];
+    fn deref(&self) -> &Self::Target {
+        &self.rows
+    }
+}
+impl ParsedRows {
+    pub fn reject(&mut self, row: usize, reason: &str) {
+        self.rejections.push(BundleRejection {
+            row: row as u64,
+            reason: reason.into(),
+        });
+    }
+    pub fn admit<R: Row>(&mut self, value: serde_json::Value, row: usize) {
+        let Ok(decoded) = serde_json::from_value::<R>(value.clone()) else {
+            self.reject(row, "cannot decode row");
+            return;
+        };
+        let keys = decoded.keys();
+        if !keys.exact.iter().any(|(_, key)| !key.trim().is_empty())
+            && !keys.words.iter().any(|key| !key.trim().is_empty())
+        {
+            self.reject(row, "no usable query key");
+            return;
+        }
+        self.rows.push(Parsed {
+            number: row as u64,
+            row: value.to_string(),
+            keys,
+        });
+    }
+}
 pub(super) struct Parsed {
+    pub number: u64,
     pub row: String,
     pub keys: Keys,
 }
-pub(super) fn tsv<R: Row>(body: &[u8]) -> Result<Vec<Parsed>, BadReply> {
+pub(super) fn tsv<R: Row>(body: &[u8]) -> Result<ParsedRows, BadReply> {
     let text = std::str::from_utf8(body).map_err(|_| BadReply)?;
     let mut lines = text.lines();
     let header = lines.next().ok_or(BadReply)?;
@@ -18,11 +56,12 @@ pub(super) fn tsv<R: Row>(body: &[u8]) -> Result<Vec<Parsed>, BadReply> {
     {
         return Err(BadReply);
     }
-    let mut rows = Vec::new();
-    for line in lines {
+    let mut rows = ParsedRows::default();
+    for (index, line) in lines.enumerate() {
         let values: Vec<_> = line.split('\t').collect();
         if values.len() != names.len() {
-            return Err(BadReply);
+            rows.reject(index + 2, "wrong number of columns");
+            continue;
         }
         let mut object = serde_json::Map::new();
         for (name, value) in names.iter().zip(values) {
@@ -43,11 +82,7 @@ pub(super) fn tsv<R: Row>(body: &[u8]) -> Result<Vec<Parsed>, BadReply> {
             }
         }
         let value = serde_json::Value::Object(object);
-        let decoded: R = serde_json::from_value(value.clone()).map_err(|_| BadReply)?;
-        rows.push(Parsed {
-            row: value.to_string(),
-            keys: decoded.keys(),
-        });
+        rows.admit::<R>(value, index + 2);
     }
     Ok(rows)
 }
@@ -56,28 +91,34 @@ pub(super) fn part_rows<R: Row>(
     body: &[u8],
     format: RowFormat,
     part: &str,
-) -> Result<Vec<Parsed>, BadReply> {
+) -> Result<ParsedRows, BadReply> {
     let rows = rows::<R>(body, format)?;
-    for row in &rows {
+    for row in rows.iter() {
         let decoded: R = serde_json::from_str(&row.row).map_err(|_| BadReply)?;
         decoded.check_part(part)?;
     }
     Ok(rows)
 }
 
-pub(super) fn rows<R: Row>(body: &[u8], format: RowFormat) -> Result<Vec<Parsed>, BadReply> {
+pub(super) fn rows<R: Row>(body: &[u8], format: RowFormat) -> Result<ParsedRows, BadReply> {
     match format {
         RowFormat::Document { .. } => R::decode_document(body)?
             .into_iter()
-            .map(|row| {
+            .enumerate()
+            .map(|(index, row)| {
                 let decoded: R = serde_json::from_str(&row).map_err(|_| BadReply)?;
                 decoded.check_bundle(0)?;
                 Ok(Parsed {
+                    number: index as u64 + 1,
                     row,
                     keys: decoded.keys(),
                 })
             })
-            .collect(),
+            .collect::<Result<Vec<_>, BadReply>>()
+            .map(|rows| ParsedRows {
+                rows,
+                rejections: Vec::new(),
+            }),
         RowFormat::Json { rows, metadata } => json::<R>(body, rows, metadata),
         RowFormat::NativeTsv {
             gzip,
@@ -96,7 +137,7 @@ pub(super) fn rows<R: Row>(body: &[u8], format: RowFormat) -> Result<Vec<Parsed>
         }
     }
 }
-fn csv<R: Row>(body: &[u8], banner_lines: usize, native: bool) -> Result<Vec<Parsed>, BadReply> {
+fn csv<R: Row>(body: &[u8], banner_lines: usize, native: bool) -> Result<ParsedRows, BadReply> {
     let mut text = std::str::from_utf8(body).map_err(|_| BadReply)?;
     for _ in 0..banner_lines {
         text = text.split_once('\n').ok_or(BadReply)?.1;
@@ -107,8 +148,8 @@ fn csv<R: Row>(body: &[u8], banner_lines: usize, native: bool) -> Result<Vec<Par
     if names.iter().any(String::is_empty) || unique.len() != names.len() {
         return Err(BadReply);
     }
-    let mut rows = Vec::new();
-    for values in records {
+    let mut rows = ParsedRows::default();
+    for (index, values) in records.enumerate() {
         if banner_lines > 0
             && values
                 .iter()
@@ -117,7 +158,8 @@ fn csv<R: Row>(body: &[u8], banner_lines: usize, native: bool) -> Result<Vec<Par
             continue;
         }
         if values.len() != names.len() {
-            return Err(BadReply);
+            rows.reject(index + banner_lines + 2, "wrong number of columns");
+            continue;
         }
         let object: serde_json::Map<_, _> = names
             .iter()
@@ -126,11 +168,7 @@ fn csv<R: Row>(body: &[u8], banner_lines: usize, native: bool) -> Result<Vec<Par
             .map(|(k, v)| (k.clone(), serde_json::Value::String(v)))
             .collect();
         let value = serde_json::Value::Object(object);
-        let decoded: R = serde_json::from_value(value.clone()).map_err(|_| BadReply)?;
-        rows.push(Parsed {
-            row: value.to_string(),
-            keys: decoded.keys(),
-        });
+        rows.admit::<R>(value, index + banner_lines + 2);
     }
     Ok(rows)
 }
@@ -187,7 +225,7 @@ fn records(text: &str) -> Result<Vec<Vec<String>>, BadReply> {
     Ok(rows)
 }
 
-fn json<R: Row>(body: &[u8], field: &str, metadata: &str) -> Result<Vec<Parsed>, BadReply> {
+fn json<R: Row>(body: &[u8], field: &str, metadata: &str) -> Result<ParsedRows, BadReply> {
     let document: serde_json::Value = serde_json::from_slice(body).map_err(|_| BadReply)?;
     let meta = document
         .get(metadata)
@@ -201,7 +239,8 @@ fn json<R: Row>(body: &[u8], field: &str, metadata: &str) -> Result<Vec<Parsed>,
     let mut ids = BTreeSet::new();
     values
         .iter()
-        .map(|value| {
+        .enumerate()
+        .map(|(index, value)| {
             let mut object = value.as_object().ok_or(BadReply)?.clone();
             if object.insert("_bundle_meta".into(), meta.clone()).is_some() {
                 return Err(BadReply);
@@ -216,9 +255,14 @@ fn json<R: Row>(body: &[u8], field: &str, metadata: &str) -> Result<Vec<Parsed>,
                 }
             }
             Ok(Parsed {
+                number: index as u64 + 1,
                 row: value.to_string(),
                 keys,
             })
         })
-        .collect()
+        .collect::<Result<Vec<_>, BadReply>>()
+        .map(|rows| ParsedRows {
+            rows,
+            rejections: Vec::new(),
+        })
 }
