@@ -25,17 +25,13 @@ pub(super) fn metadata(
     if value.is_none() && !required {
         return None;
     }
-    problems.required(
-        field,
-        native_text(value).and_then(|v| {
-            let admit = if matches!(field, "name" | "references.title" | "summations.text") {
-                crate::mapped::source_text
-            } else {
-                crate::mapped::text
-            };
-            admit(v).ok()
-        }),
-    )
+    let admit = if matches!(field, "name" | "references.title" | "summations.text") {
+        crate::mapped::source_text
+    } else {
+        crate::mapped::text
+    };
+    let value = problems.optional(field, native_text(value).map(admit));
+    problems.required(field, value)
 }
 fn identity(id: &str, species: &str, class: &str) -> Option<PathwayId> {
     if species != "Homo sapiens" || !matches!(class, "Pathway" | "TopLevelPathway") {
@@ -53,10 +49,8 @@ pub(super) fn hit(row: &raw::Hit, problems: &mut Problems) -> Option<PathwayHead
         name.replace("<span class=\"highlighting\" >", "")
             .replace("</span>", "")
     });
-    let name = problems.required(
-        "name",
-        name.and_then(|v| crate::mapped::source_text(&v).ok()),
-    )?;
+    let name = problems.optional("name", name.as_deref().map(crate::mapped::source_text));
+    let name = problems.required("name", name)?;
     Some(PathwayHeader {
         id,
         name,

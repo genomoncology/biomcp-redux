@@ -193,11 +193,13 @@ fn checked_field_text(
     value: Option<crate::raw::Field<String>>,
     admit: impl Fn(&str) -> Result<biodata::Text, biodata::Error>,
 ) -> Option<biodata::Text> {
-    let value = value?.value().and_then(|s| admit(&s).ok());
-    if value.is_none() {
-        push_problem(problems, source, record, field);
+    match value?.value().map(|s| admit(&s)) {
+        Some(Ok(value)) => Some(value),
+        _ => {
+            push_problem(problems, source, record, field);
+            None
+        }
     }
-    value
 }
 
 /// Preserve a typed source identity as neutral problem provenance.
