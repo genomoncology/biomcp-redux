@@ -54,10 +54,17 @@ fn subset(
         .into_vec()
         .into_iter()
         .filter(|group| populations.contains(group.id.as_str()))
-        .map(|group| Group {
-            ac: problems.field(&format!("{name}.populations.{}.ac", group.id), group.ac),
-            an: problems.field(&format!("{name}.populations.{}.an", group.id), group.an),
-            id: group.id,
+        .map(|group| {
+            let ac = problems.field(&format!("{name}.populations.{}.ac", group.id), group.ac);
+            let an = problems.field(&format!("{name}.populations.{}.an", group.id), group.an);
+            if ac.zip(an).is_some_and(|(ac, an)| ac > an) {
+                problems.required::<()>(&format!("{name}.populations.{}.counts", group.id), None);
+            }
+            Group {
+                ac,
+                an,
+                id: group.id,
+            }
         })
         .collect();
     let field = format!("{name}.filters");
@@ -67,9 +74,14 @@ fn subset(
             .filter_map(|value| problems.field(&field, Some(value)))
             .collect()
     });
+    let ac = problems.field(&format!("{name}.ac"), value.ac);
+    let an = problems.field(&format!("{name}.an"), value.an);
+    if ac.zip(an).is_some_and(|(ac, an)| ac > an) {
+        problems.required::<()>(&format!("{name}.counts"), None);
+    }
     Some(Subset {
-        ac: problems.field(&format!("{name}.ac"), value.ac),
-        an: problems.field(&format!("{name}.an"), value.an),
+        ac,
+        an,
         filters,
         populations,
     })

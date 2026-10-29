@@ -64,12 +64,18 @@ pub(super) fn frequency(
             None => frequency,
         }),
         Err(_) => {
-            problems.push(Problem {
-                source: Source::Gnomad,
-                record: Some(raw.variant_id.clone()),
-                field: format!("{name}.counts").into(),
-                code: ProblemCode::ValueUnknown,
-            });
+            let field = format!("{name}.counts");
+            if !problems
+                .iter()
+                .any(|problem| problem.field.as_ref() == field)
+            {
+                problems.push(Problem {
+                    source: Source::Gnomad,
+                    record: Some(raw.variant_id.clone()),
+                    field: field.into(),
+                    code: ProblemCode::ValueUnknown,
+                });
+            }
             None
         }
     }
