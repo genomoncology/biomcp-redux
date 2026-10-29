@@ -135,7 +135,9 @@ fn check_result(value: &Value, section: &str, field: &str) -> Result<(), String>
     if section == "genes"
         && (value.pointer("/result/physical_entities") != Some(&json!(2))
             || value.pointer("/result/reference_occurrences") != Some(&json!(2))
-            || value.pointer("/result/items/0/physical_context_count") != Some(&json!(2)))
+            || value.pointer("/result/items/0/physical_context_count") != Some(&json!(2))
+            || value.pointer("/result/items/0/participants/0/db_id") != Some(&json!(7))
+            || value.pointer("/result/items/0/participants/1/db_id") != Some(&json!(9)))
     {
         return Err(format!(
             "bad {field} changed native counts or invented context: {value}"

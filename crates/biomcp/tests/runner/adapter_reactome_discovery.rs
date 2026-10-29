@@ -74,6 +74,12 @@ fn pathway_mapping() -> Result<(), Box<dyn std::error::Error>> {
                     .any(|p| p.get("field") == Some(&json!("pathways.name")))
             })
             || value
+                .pointer("/result/items/0/sections/pathways/data/items/0/name")
+                .is_some()
+            || value
+                .pointer("/result/items/0/sections/pathways/data/items/0/id")
+                .is_none()
+            || value
                 .pointer("/result/items/0/sections/pathways/data/items")
                 .and_then(Value::as_array)
                 .is_none_or(Vec::is_empty)
