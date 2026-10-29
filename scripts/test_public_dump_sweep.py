@@ -68,7 +68,8 @@ class Sweep(unittest.TestCase):
         result, report = self.run_sweep("clinvar_gks", json.dumps(bundle))
         self.assertEqual(result.returncode, 1, result.stderr)
         self.assertEqual(report["sources"][0]["records"], 3)
-        self.assertEqual(report["types"]["variant"]["parsed"], 2)
+        self.assertEqual(report["types"]["variant"]["parsed"], 1)
+        self.assertEqual(report["types"]["clinvar_variation"]["parsed"], 1)
         self.assertEqual(report["types"]["hgvs"]["parsed"], 1)
         self.assertEqual(report["unmapped_sections"], {"futureSection": 1})
 
