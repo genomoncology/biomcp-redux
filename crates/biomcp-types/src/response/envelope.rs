@@ -13,7 +13,7 @@ pub trait ResponseBody: Serialize {
 #[derive(Clone, Debug, Serialize, Deserialize)]
 #[serde(bound(
     serialize = "T: ResponseBody",
-    deserialize = "T: ResponseBody + Deserialize<'de>, T::Query: Deserialize<'de>"
+    deserialize = "T: ResponseBody + serde::de::DeserializeOwned, T::Query: serde::de::DeserializeOwned"
 ))]
 #[cfg_attr(feature = "schema", derive(schemars::JsonSchema))]
 #[cfg_attr(
@@ -22,7 +22,7 @@ pub trait ResponseBody: Serialize {
 )]
 pub struct Envelope<T: ResponseBody> {
     #[cfg_attr(feature = "schema", schemars(extend("const" = T::SCHEMA)))]
-    #[serde(deserialize_with = "read_schema::<D, T>")]
+    #[serde(deserialize_with = "read_schema::<_, T>")]
     schema: &'static str,
     /// Overall outcome.
     pub status: Status,
