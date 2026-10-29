@@ -9,7 +9,7 @@ use std::{fmt::Debug, str::FromStr};
 // No schema-pattern or unknown-enum policy checks belong to this sweep.
 type Check = Result<(), Box<dyn std::error::Error>>;
 
-fn value_contract<T>(valid: &[&str], invalid: &[&str]) -> Check
+fn plain_value_contract<T>(valid: &[&str], invalid: &[&str]) -> Check
 where
     T: FromStr + Serialize + DeserializeOwned + Eq + Debug + ToString,
     T::Err: std::error::Error + 'static,
@@ -114,8 +114,8 @@ fn reference_and_variant_text_preserve_identity() -> Check {
     value_contract::<biodata::AccessionBase>(&["NM_004333"], &["NM_004333.6"])?;
     value_contract::<biodata::Chromosome>(&["1", "X", "MT"], &["23"])?;
     constructor_contract(biodata::Contig::new, &["chr7", "NC_000007.14"], &["chr 7"])?;
-    value_contract::<biodata::Base>(&["A", "N"], &["a"])?;
-    value_contract::<biodata::Sequence>(&["ACGTN"], &["ACGT!"])?;
+    plain_value_contract::<biodata::Base>(&["A", "N"], &["a"])?;
+    plain_value_contract::<biodata::Sequence>(&["ACGTN"], &["ACGT!"])?;
     value_contract::<biodata::HgvsText>(
         &["NM_004333.6:c.1799T>A", "NP_004324.2:p.Val600Glu"],
         &["NM_004333.6:c."],
@@ -255,7 +255,7 @@ fn author_and_record_vocabularies_preserve_identity() -> Check {
         &["orcid:0000-0002-1825-0098"],
     )?;
     value_contract::<biodata::OrcidClientId>(&["APP-0123456789ABCDEF"], &["APP-0123456789ABCDE"])?;
-    value_contract::<biodata::OrcidPublicVisibility>(&["public", "PUBLIC"], &["private"])?;
+    plain_value_contract::<biodata::OrcidPublicVisibility>(&["public", "PUBLIC"], &["private"])?;
     value_contract::<biodata::License>(&["cc_by"], &["cc_by!"])?;
     value_contract::<biodata::TrialOutcomeKind>(&["primary"], &["primary!"])?;
     value_contract::<biodata::TrialDateKind>(&["ACTUAL"], &["ACTUAL!"])?;
@@ -337,6 +337,8 @@ fn equal_identity_uses_equal_hashes() -> Check {
     equal_hash::<biodata::GeneSymbol>("BRAF", "bRaF")?;
     equal_hash::<biodata::Doi>("10.1000/ABC", "10.1000/abc")?;
     equal_hash::<biodata::ScientificPValue>("1.50e-8", "1.5e-8")?;
+    equal_hash::<biodata::ScientificPValue>("1.000e0", "1e0")?;
+    equal_hash::<biodata::AuthorId>("semanticscholar:1", "semantic-scholar:1")?;
     equal_hash::<biodata::VcvId>("VCV000000001.1", "VCV000000001.2")?;
     equal_hash::<biodata::RcvId>("RCV000000001.1", "RCV000000001.2")?;
     equal_hash::<biodata::ScvId>("SCV000000001.1", "SCV000000001.2")?;
@@ -438,7 +440,7 @@ fn constructor_contract<T>(
     invalid: &[&str],
 ) -> Check
 where
-    T: FromStr + Serialize + DeserializeOwned + Eq + Debug + ToString,
+    T: FromStr + Serialize + DeserializeOwned + Eq + Debug + ToString + std::hash::Hash,
     T::Err: std::error::Error + 'static,
 {
     value_contract::<T>(valid, invalid)?;
@@ -448,6 +450,19 @@ where
             text.parse::<T>().ok(),
             "construction and parsing must check the same input: {text:?}"
         );
+    }
+    Ok(())
+}
+
+fn value_contract<T>(valid: &[&str], invalid: &[&str]) -> Check
+where
+    T: FromStr + Serialize + DeserializeOwned + Eq + Debug + ToString + std::hash::Hash,
+    T::Err: std::error::Error + 'static,
+{
+    plain_value_contract::<T>(valid, invalid)?;
+    for text in valid {
+        let canonical = text.parse::<T>()?.to_string();
+        equal_hash::<T>(text, &canonical)?;
     }
     Ok(())
 }
