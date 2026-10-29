@@ -66,7 +66,9 @@ fn discover(
     fallback
         .records
         .retain(|record| record.name_match(name).is_some());
-    if !fallback.records.is_empty() {
+    // Keep continuation within the word selector when it has native candidates,
+    // including pages whose candidates all fail the complete-name check.
+    if fallback.total > 0 {
         return Ok(fallback);
     }
     let selector = literal(name.as_str());

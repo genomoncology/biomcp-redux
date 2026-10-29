@@ -178,7 +178,9 @@ fn absent() -> Check {
         "application/json",
         |request| {
             let selector = request.lines().next().ok_or("request")?;
-            if !["openfda.brand_name.exact", "openfda.brand_name"].iter().any(|field| {
+            let free_text = selector
+                == "GET /drug/label.json?search=%22Tagrisso%22&limit=1&sort=effective_time%3Adesc HTTP/1.1";
+            if !free_text && !["openfda.brand_name.exact", "openfda.brand_name"].iter().any(|field| {
                 let generic = field.replace("brand_name", "generic_name");
                 let names = format!("{field}%3A%22Tagrisso%22%20OR%20{generic}%3A%22Tagrisso%22");
                 selector == format!(
@@ -205,14 +207,19 @@ fn absent() -> Check {
     .map(str::to_owned)
     .collect();
     let value = both(&env, args, 1)?;
-    budget(&value, 262)?;
+    budget(&value, 418)?;
     if field(&value, "status") != "absent"
         || value.pointer("/result/total") != Some(&json!(0))
         || value.pointer("/sources/0/state") != Some(&json!("ok"))
+        || value.pointer("/sources/0/term") != Some(&json!("\"Tagrisso\""))
+        || value.pointer("/sources/0/notices/0/message")
+            != Some(&json!(
+                "Exact and word name searches found no matching product; searched label free text."
+            ))
     {
         return Err("native NOT_FOUND became a failed source or a clinical answer".into());
     }
-    if stub.finish()?.len() != 4 {
+    if stub.finish()?.len() != 6 {
         return Err("native absence fallback count changed".into());
     }
     Ok(())
