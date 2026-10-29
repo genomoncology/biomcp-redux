@@ -13,7 +13,7 @@ pub(super) fn context() -> Result<(), String> {
                     .map_err(|e| e.to_string())?;
             let mut profile = native()?;
             if malformed {
-                profile["rawName"] = json!(42);
+                *profile.get_mut("rawName").ok_or("native rawName missing")? = json!(42);
             }
             *body
                 .pointer_mut("/data/evidenceItems/nodes/0/molecularProfile")
@@ -81,7 +81,7 @@ fn native() -> Result<Value, String> {
         .and_then(Value::as_array)
         .ok_or("native nodes missing")?
         .iter()
-        .find(|row| row["id"] == json!(6153))
+        .find(|row| row.get("id") == Some(&json!(6153)))
         .cloned()
         .ok_or_else(|| "native profile missing".into())
 }
