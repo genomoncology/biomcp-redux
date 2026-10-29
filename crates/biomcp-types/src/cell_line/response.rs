@@ -12,9 +12,11 @@ pub struct CellLineHeader {
     /// Exact primary accession.
     pub accession: CellosaurusAccession,
     /// Recommended display name.
-    pub name: Text,
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub name: Option<Text>,
     /// Native category.
-    pub category: Text,
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub category: Option<Text>,
     /// Up to three complete species references and their native total.
     pub species: Capped<CellLineXref>,
     /// Up to three complete disease references and their independent total.
@@ -235,11 +237,11 @@ pub struct CellLineAssayCount {
     pub assay_count: u64,
 }
 impl ResponseBody for CellLinePage {
-    const SCHEMA: &'static str = "biomcp.cell-line-page/4";
+    const SCHEMA: &'static str = "biomcp.cell-line-page/5";
     type Query = CellLineSearch;
 }
 impl ResponseBody for CellLineCard {
-    const SCHEMA: &'static str = "biomcp.cell-line-card/5";
+    const SCHEMA: &'static str = "biomcp.cell-line-card/6";
     type Query = CellLineGet;
 }
 impl ResponseBody for CellLineNames {

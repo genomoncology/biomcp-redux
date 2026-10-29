@@ -20,11 +20,12 @@ pub(super) struct Data {
     pub rows: Vec<Record>,
 }
 #[derive(Debug, Deserialize)]
-#[serde(rename_all = "kebab-case")]
+#[serde(from = "super::receive::ReceivedRecord")]
 pub(super) struct Record {
-    pub accession_list: Vec<Accession>,
+    pub problems: Vec<biomcp_types::Problem>,
+    pub accession_list: Vec<crate::raw::Field<Accession>>,
     pub name_list: Vec<Name>,
-    pub category: Text,
+    pub category: Option<Text>,
     pub species_list: Option<crate::strict_input::Input<Box<[CellLineXref]>>>,
     pub disease_list: Option<crate::strict_input::Input<Box<[CellLineXref]>>>,
     pub age: Option<Text>,
@@ -94,6 +95,7 @@ impl Record {
         let mut rows = self
             .accession_list
             .iter()
+            .filter_map(crate::raw::Field::as_ref)
             .filter(|a| a.kind.as_str() == "primary");
         let first = rows.next().ok_or(BadReply)?;
         if rows.next().is_some() {
@@ -101,35 +103,22 @@ impl Record {
         }
         Ok(&first.value)
     }
-    pub(super) fn name(&self) -> Result<&Text, BadReply> {
+    pub(super) fn name(&self) -> Option<&Text> {
         let mut rows = self
             .name_list
             .iter()
             .filter(|a| a.kind.as_str() == "identifier");
-        let first = rows.next().ok_or(BadReply)?;
+        let first = rows.next()?;
         if rows.next().is_some() {
-            return Err(BadReply);
+            return None;
         }
-        Ok(&first.value)
+        Some(&first.value)
     }
 }
 impl Reply for Response {
     fn check(&self) -> Result<(), BadReply> {
         match self {
-            Self::Records { data } => {
-                for row in &data.rows {
-                    row.accession()?;
-                    row.name()?;
-                    if row
-                        .entry_version
-                        .as_ref()
-                        .is_some_and(|v| v.as_str().parse::<std::num::NonZeroU32>().is_err())
-                    {
-                        return Err(BadReply);
-                    }
-                }
-                Ok(())
-            }
+            Self::Records { .. } => Ok(()),
             Self::Missing { code: 404, message }
                 if message.starts_with("Item not found, ac: CVCL_") =>
             {
