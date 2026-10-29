@@ -36,19 +36,23 @@ def git(*args):
     return subprocess.check_output(['git', *args], text=True).strip()
 
 
-def execute(command, deadline, log):
+def execute(command, deadline, log, extra_env=None):
     """Stop the whole native child group and retain its partial output at the cap."""
     remaining = deadline - time.time()
     if remaining <= 0:
         return None
     with log.open('w') as stream:
         env = dict(os.environ, CARGO_BUILD_JOBS='2', RUST_TEST_THREADS='2')
+        env.update(extra_env or {})
         child = subprocess.Popen(command, stdout=stream, stderr=subprocess.STDOUT,
                                  start_new_session=True, env=env)
         try:
             return child.wait(timeout=remaining)
         except subprocess.TimeoutExpired:
-            os.killpg(child.pid, signal.SIGTERM)
+            try:
+                os.killpg(child.pid, signal.SIGTERM)
+            except ProcessLookupError:
+                pass
             try:
                 child.wait(timeout=2)
             except subprocess.TimeoutExpired:
@@ -67,26 +71,33 @@ def native_args():
             '--cargo-arg=--locked', '--cargo-arg=--test=cases']
 
 
-def tool_version():
+def tool_version(deadline, log, extra_env=None):
     expected = 'cargo-mutants ' + manifest()['cargo-mutants']
-    if subprocess.check_output(['cargo', 'mutants', '--version'], text=True).strip() != expected:
+    code = execute(['cargo', 'mutants', '--version'], deadline, log, extra_env)
+    if code != 0 or log.read_text().strip() != expected:
         raise ValueError('Install the pinned cargo-mutants before planning')
 
 
 def install(args):
-    args.output.mkdir(parents=True, exist_ok=True)
+    args.output.mkdir(parents=True, exist_ok=False)
+    args.output = args.output.resolve()
+    prefix = args.output / 'tool'
+    env = dict(CARGO_HOME=str(args.output / 'cargo-home'),
+               PATH=str(prefix / 'bin') + os.pathsep + os.environ['PATH'])
     version = manifest()['cargo-mutants']
-    code = execute(['cargo', 'install', 'cargo-mutants', '--locked', '--version', version],
-                   args.started + CAP_SECONDS, args.output / 'install.log')
+    code = execute(['cargo', 'install', 'cargo-mutants', '--locked', '--version', version,
+                    '--root', str(prefix)],
+                   args.started + CAP_SECONDS, args.output / 'install.log', env)
     if code != 0:
         raise ValueError('cargo-mutants installation failed or reached the cap')
-    tool_version()
+    tool_version(args.started + CAP_SECONDS, args.output / 'version.log', env)
 
 
 def plan(args):
     if git('status', '--porcelain', '--untracked-files=no'):
         raise ValueError('Mutation plans require a clean tracked source tree')
-    tool_version()
+    args.output.mkdir(parents=True, exist_ok=False)
+    tool_version(args.started + CAP_SECONDS, args.output / 'version.log')
     candidate = git('rev-parse', 'HEAD')
     previous = git('rev-parse', '--verify', args.previous + '^{commit}')
     tracked = git('ls-files', 'crates').splitlines()
@@ -97,7 +108,6 @@ def plan(args):
         files.extend(p for p in product if fnmatch.fnmatchcase(p, pattern) and p not in files)
     if not files:
         raise ValueError('Mutation scope has no product files')
-    args.output.mkdir(parents=True, exist_ok=False)
     command = native_args() + [arg for p in files for arg in ('--file', p)]
     code = execute(command + ['--list', '--json'], args.started + CAP_SECONDS,
                    args.output / 'inventory.json')
@@ -130,13 +140,14 @@ def shard(args):
     if (git('rev-parse', 'HEAD') != value['candidate']
             or git('status', '--porcelain', '--untracked-files=no')):
         raise ValueError('Shard source differs from the mutation plan')
-    tool_version()
+    output = args.plan.parent / ('shard-' + str(args.index))
+    output.mkdir(exist_ok=False)
+    if time.time() < value['deadline']:
+        tool_version(value['deadline'], output / 'version.log')
     if value['tool'] != manifest()['cargo-mutants']:
         raise ValueError('Shard tool differs from the mutation plan')
     if not 0 <= args.index < value['shards']:
         raise ValueError('Shard index is outside the plan')
-    output = args.plan.parent / ('shard-' + str(args.index))
-    output.mkdir(exist_ok=False)
     # Rust regex does not accept every Python re.escape escape; escape its metacharacters only.
     escaped = [re.sub(r'([\\.^$|?*+()\[\]{}])', r'\\\1', name) for name in value['selected']]
     command = native_args() + ['--re', '^(' + '|'.join(escaped) + ')$',

@@ -17,6 +17,8 @@ with open('cargo-calls.jsonl', 'a') as stream:
                                 tests=os.environ.get('RUST_TEST_THREADS'),
                                 cargo_home=os.environ.get('CARGO_HOME'))) + '\n')
 if '--version' in args:
+    if os.environ.get('FAKE_MODE') == 'version-hang':
+        time.sleep(60)
     print('cargo-mutants ' + os.environ.get('FAKE_VERSION', '27.1.0'))
     sys.exit(0)
 if args[0] == 'install':
@@ -185,6 +187,24 @@ class MutationCommands(unittest.TestCase):
         self.assertEqual(len(report['unrun']), 20)
         command = json.loads((self.output / 'shard-0/command.json').read_text())
         self.assertIsNone(command['exit'])
+
+    def test_version_check_obeys_the_shared_deadline(self):
+        self.env['FAKE_MODE'] = 'version-hang'
+        self.call('plan', '--previous', self.previous, '--output', self.output,
+                  '--started', time.time() - 90 * 60 + 2, '--measure', ok=False)
+        self.assertFalse(self.plan.exists())
+        calls = [json.loads(line) for line in (self.root / 'cargo-calls.jsonl').read_text().splitlines()]
+        self.assertEqual(len(calls), 1)
+
+    def test_expired_shard_lists_every_mutant_as_unrun(self):
+        self.prepare('--measure')
+        value = json.loads(self.plan.read_text())
+        value['deadline'] = time.time() - 1
+        self.plan.write_text(json.dumps(value))
+        self.call('shard', '--plan', self.plan, '--index', 0)
+        self.call('collect', '--plan', self.plan)
+        self.assertEqual(len(self.report()['unrun']), 24)
+        self.assertEqual(self.report()['completed'], 0)
 
     def test_candidate_scope_reserves_setup_and_baseline_cost(self):
         value = self.prepare('--cost-seconds', 100, '--baseline-seconds', 4000,
