@@ -137,7 +137,11 @@ fn published_variant_identifiers_round_trip_without_text_inference() -> Check {
         #[cfg(feature = "schema")]
         assert_eq!(validator.is_valid(&json!(text)), valid, "schema: {text}");
         assert_eq!(text.parse::<HgvsText>().is_ok(), valid, "{text}");
-        assert_eq!(Expression::hgvs(Text::new(text)?).is_ok(), valid, "{text}");
+        assert_eq!(
+            Text::new(text).and_then(Expression::hgvs).is_ok(),
+            valid,
+            "{text}"
+        );
     }
     Ok(())
 }
