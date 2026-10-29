@@ -141,4 +141,4 @@ pub use map::{indications as map_indications, targets as map_targets};
 pub use molecule::{card as molecule_card, header as molecule_header};
 
 mod cell;
-pub use cell::{assay_count, cells, release};
+pub use cell::{CellPage, assay_count, cells, release};

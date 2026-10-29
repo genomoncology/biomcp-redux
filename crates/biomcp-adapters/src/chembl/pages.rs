@@ -1,5 +1,5 @@
 //! Preserve native page counts before refusing row identities.
-use super::raw::*;
+use super::raw::{Indication, Mechanism, Molecule, PageMeta};
 use biomcp_fetch::{BadReply, Reply};
 use serde::Deserialize;
 /// Native source page with independent row diagnostics.
@@ -85,13 +85,13 @@ impl From<ReceivedMechanisms> for Mechanisms {
         let mut rows = Vec::new();
         let mut molecules = Vec::new();
         for row in page.mechanisms {
-            molecules.push(row.molecule);
+            molecules.push(row.scope.molecule_chembl_id);
             problems.record = None;
             if let Some(row) = problems.field("mec_id", Some(row.value)) {
                 if row.mec_id > 0 {
                     rows.push(row);
                 } else {
-                    problems.record = crate::mapped::record(&row.mec_id);
+                    problems.record = crate::mapped::record(row.mec_id);
                     problems.required::<()>("mec_id", None);
                 }
             }
@@ -140,13 +140,13 @@ impl From<ReceivedIndications> for Indications {
         let mut rows = Vec::new();
         let mut molecules = Vec::new();
         for row in page.drug_indications {
-            molecules.push(row.molecule);
+            molecules.push(row.scope.molecule_chembl_id);
             problems.record = None;
             if let Some(row) = problems.field("drugind_id", Some(row.value)) {
                 if row.drugind_id > 0 {
                     rows.push(row);
                 } else {
-                    problems.record = crate::mapped::record(&row.drugind_id);
+                    problems.record = crate::mapped::record(row.drugind_id);
                     problems.required::<()>("drugind_id", None);
                 }
             }

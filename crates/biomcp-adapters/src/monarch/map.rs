@@ -121,16 +121,15 @@ fn reference(
     field: &str,
     problems: &mut crate::mapped::Problems,
 ) -> DiseaseAssociationReference {
-    let (label, url) = link
-        .map(|link| {
-            (
-                problems
-                    .field(&format!("{field}.label"), link.label)
-                    .map(Into::into),
-                problems.field(&format!("{field}.url"), link.url),
-            )
-        })
-        .unwrap_or_default();
+    let (label, url) = match link {
+        Some(link) => (
+            problems
+                .field(&format!("{field}.label"), link.label)
+                .map(Into::into),
+            problems.field(&format!("{field}.url"), link.url),
+        ),
+        None => (None, None),
+    };
     DiseaseAssociationReference { id, label, url }
 }
 

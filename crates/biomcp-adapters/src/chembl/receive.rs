@@ -1,5 +1,5 @@
 //! Admit ChEMBL metadata without discarding the owning native record.
-use super::raw::*;
+use super::raw::{CrossReference, Hierarchy, Indication, Mechanism, Molecule, Reference, Synonym};
 use serde::Deserialize;
 #[derive(Debug, Deserialize)]
 pub(super) struct ReceivedMolecule {

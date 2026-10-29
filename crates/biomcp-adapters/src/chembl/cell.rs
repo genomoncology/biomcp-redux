@@ -39,8 +39,12 @@ impl PageMeta {
 }
 #[derive(Debug, Deserialize)]
 struct Cells {
-    cell_lines: Vec<crate::raw::Field<Cell>>,
+    cell_lines: Vec<super::scope::Row<Cell, CellScope>>,
     page_meta: PageMeta,
+}
+#[derive(Debug, Deserialize)]
+struct CellScope {
+    cellosaurus_id: CellosaurusAccession,
 }
 #[derive(Debug, Deserialize)]
 struct Cell {
@@ -89,13 +93,15 @@ impl Cell {
         }
     }
 }
+/// Checked cell records, native total, retrieval metadata and native window size.
+pub type CellPage = (Vec<CellLineChemblRecord>, u64, ReplyMetadata, u32);
 /// Read one native cell metadata page and check every exact accession before cache admission.
 pub fn cells(
     leg: &Leg<'_>,
     id: &CellosaurusAccession,
     limit: u32,
     offset: u32,
-) -> Result<crate::Mapped<(Vec<CellLineChemblRecord>, u64, ReplyMetadata, u32)>, RequestError> {
+) -> Result<crate::Mapped<CellPage>, RequestError> {
     let text = id.to_string();
     let (reply, metadata) = leg.json_received_checked(
         &CELLS,
@@ -106,11 +112,7 @@ pub fn cells(
         ],
         |r: &Cells| {
             r.page_meta.check(r.cell_lines.len(), limit, offset)?;
-            if r.cell_lines
-                .iter()
-                .filter_map(crate::raw::Field::as_ref)
-                .all(|r| &r.cellosaurus_id == id)
-            {
+            if r.cell_lines.iter().all(|r| &r.scope.cellosaurus_id == id) {
                 Ok(())
             } else {
                 Err(BadReply)
@@ -125,7 +127,7 @@ pub fn cells(
     };
     let mut values = Vec::new();
     for row in reply.cell_lines {
-        if let Some(row) = problems.field("cell_chembl_id", Some(row)) {
+        if let Some(row) = problems.field("cell_chembl_id", Some(row.value)) {
             if row.cell_id == 0 {
                 problems.record = crate::mapped::record(&row.cell_chembl_id);
                 problems.required::<()>("cell_id", None);

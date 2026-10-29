@@ -4,6 +4,8 @@ use serde::Deserialize;
 use serde_json::{Value, json};
 use std::{fs, path::Path};
 type Check<T = ()> = Result<T, String>;
+#[path = "other_source_value_proof/bindings.rs"]
+mod bindings;
 #[path = "other_source_value_proof/retained.rs"]
 mod retained;
 #[derive(Clone, Deserialize)]
@@ -78,8 +80,11 @@ pub(super) fn run(directory: &Path) -> Check {
             failures.push(format!("stage-{name}: {error}"));
         }
     }
-    if let Err(error) = binding_witness(directory, &registry) {
+    if let Err(error) = bindings::mechanism(directory, &registry) {
         failures.push(format!("request-scope: {error}"));
+    }
+    if let Err(error) = bindings::cell(directory, &registry) {
+        failures.push(format!("cell-request-scope: {error}"));
     }
     let large = "x".repeat(biodata::Text::MAX_CHARS + 1);
     let large_result = acquire(&case, Some((stage, json!(large))), &registry).and_then(|value| {
@@ -219,31 +224,6 @@ fn save(directory: &Path, name: &str, value: &Value) -> Check {
         serde_json::to_vec_pretty(value).map_err(|e| e.to_string())?,
     )
     .map_err(|e| e.to_string())
-}
-
-fn binding_witness(directory: &Path, registry: &Registry) -> Check {
-    let case = native_case("015.json")?;
-    let text = super::launch::fixture_text("fixtures/drug/native/015.json")?;
-    let mut body: Value = serde_json::from_str(&text).map_err(|e| e.to_string())?;
-    let row = body
-        .pointer_mut("/mechanisms/0")
-        .ok_or("native mechanism")?;
-    *row.get_mut("mec_id").ok_or("native mechanism identity")? = json!({"bad_shape":true});
-    *row.get_mut("molecule_chembl_id")
-        .ok_or("native molecule binding")? = json!("CHEMBL941");
-    let mutation = Mutation {
-        file: "015.json",
-        pointer: "/mechanisms/0",
-        field: "request-scope",
-        absent: "",
-        present: "",
-    };
-    let value = acquire_at_exit(&case, Some((&mutation, row.clone())), registry, 2)?;
-    save(directory, "contradictory-scope-and-bad-identity", &value)?;
-    if value.pointer("/sources/0/reason") != Some(&json!("bad_reply")) {
-        return Err("contradictory native request scope was admitted".into());
-    }
-    Ok(())
 }
 
 fn mutations() -> [Mutation; 5] {
