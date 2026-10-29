@@ -74,7 +74,7 @@ impl Record {
             && !self.id.trim().is_empty()
             && !self.version.trim().is_empty()
     }
-    pub(super) fn map(self, caid: &str, cx: &mut Problems) -> Option<VariantAssertion> {
+    pub(super) fn map(mut self, caid: &str, cx: &mut Problems) -> Option<VariantAssertion> {
         cx.record = cx.text("PCERDocID", Some(&self.id));
         let id = cx.required("PCERDocID", cx.record.clone())?;
         let version = cx.text("docVersion", Some(&self.version))?;
@@ -83,7 +83,7 @@ impl Record {
             cx.required::<()>("caId", None);
             return None;
         }
-        let uuid = cx.field("uuid", self.uuid);
+        let uuid = cx.field("uuid", self.uuid.take());
         let url = uuid.as_deref().and_then(|uuid| {
             cx.text(
                 "uuid",
@@ -98,25 +98,20 @@ impl Record {
             record: Some(id),
             version: Some(version),
             release: None,
-            submitter: cx.source_field("ep", self.ep),
+            submitter: cx.source_field("ep", self.ep.take()),
             evaluated: None,
             url,
         };
-        let condition = AssertionCondition {
-            database: None,
-            accession: None,
-            id: cx.field("mondoId", self.mondo),
-            label: cx.source_field("condition", self.condition),
-        };
-        let conditions = if condition.id.is_some() || condition.label.is_some() {
-            vec![condition]
-        } else {
-            vec![]
-        };
+        let conditions = self.conditions(cx);
         let detail = AssertionDetail {
-            conditions: conditions.into(),
+            conditions,
             summary: cx.source_field("summaryDesc", self.summary),
-            unmet_criteria: cx.fields("unMetCodes", self.unmet).into_vec().into_iter().map(Into::into).collect(),
+            unmet_criteria: cx
+                .fields("unMetCodes", self.unmet)
+                .into_vec()
+                .into_iter()
+                .map(Into::into)
+                .collect(),
             published: cx.field("publishedDate", self.published),
             approved: cx.field("approvedDate", self.approved),
             versions: cx.fields("versionsList", self.versions),
@@ -153,4 +148,18 @@ impl Record {
         }
         Some(row)
     }
+    fn conditions(&mut self, cx: &mut Problems) -> Box<[AssertionCondition]> {
+        let condition = AssertionCondition {
+            database: None,
+            accession: None,
+            id: cx.field("mondoId", self.mondo.take()),
+            label: cx.source_field("condition", self.condition.take()),
+        };
+        if condition.id.is_some() || condition.label.is_some() {
+            vec![condition].into()
+        } else {
+            Box::default()
+        }
+    }
+
 }
