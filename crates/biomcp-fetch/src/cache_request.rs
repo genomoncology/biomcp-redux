@@ -166,6 +166,9 @@ impl Leg<'_> {
     ) -> Result<CachedReply<T>, RequestError> {
         let (reply, status, body, fetched, range, pagination) = decoded;
         let mut entry = Entry::new(status, body, seconds, codec.name());
+        if codec.json_absence && status == 404 {
+            self.cache_result(cache.remove(&prepared.identity, self.budget()));
+        }
         // A recording without acquisition time cannot establish cache freshness.
         let Some(acquired) = fetched else {
             return Ok((
@@ -186,8 +189,6 @@ impl Leg<'_> {
                 &entry,
                 self.budget(),
             ));
-        } else if codec.json_absence && status == 404 {
-            self.cache_result(cache.remove(&prepared.identity, self.budget()));
         }
         Ok((
             reply,
