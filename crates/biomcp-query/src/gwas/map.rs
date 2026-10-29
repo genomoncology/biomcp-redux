@@ -66,7 +66,15 @@ fn optional_text(
     record: Option<biodata::Text>,
     problems: &mut Vec<biomcp_types::Problem>,
 ) -> Option<biodata::Text> {
-    match biodata::Text::from_source(&value?) {
+    let value = value?;
+    let parsed = if field == "pubmed_id" {
+        value
+            .parse::<biodata::Pmid>()
+            .and_then(|_| biodata::Text::new(&value))
+    } else {
+        biodata::Text::from_source(&value)
+    };
+    match parsed {
         Ok(value) => Some(value),
         Err(_) => {
             let problem = biomcp_types::Problem {

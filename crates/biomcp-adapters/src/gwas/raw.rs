@@ -41,7 +41,7 @@ pub struct Association {
     /// Stable association record identity.
     pub association_id: u64,
     /// Catalog study accession.
-    pub accession_id: Text,
+    pub accession_id: Option<Text>,
     /// Source-reported traits.
     pub reported_trait: Vec<NativeText>,
     /// Source mapped ontology terms.

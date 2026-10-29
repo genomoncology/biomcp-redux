@@ -9,7 +9,7 @@ pub(super) struct ReceivedAssociation {
     /// Stable association record identity.
     pub association_id: u64,
     /// Catalog study accession.
-    pub accession_id: Text,
+    pub accession_id: Option<crate::raw::Field<Text>>,
     /// Source-reported traits.
     pub reported_trait: Option<crate::raw::Field<Vec<crate::raw::Field<NativeText>>>>,
     /// Source mapped ontology terms.
@@ -56,7 +56,16 @@ impl From<ReceivedAssociation> for super::raw::Association {
         };
         let mut value = Self {
             association_id: row.association_id,
-            accession_id: row.accession_id,
+            accession_id: problems
+                .field("accession_id", row.accession_id)
+                .and_then(|v| {
+                    problems
+                        .optional(
+                            "accession_id",
+                            Some(v.as_str().parse::<biodata::GwasStudyId>()),
+                        )
+                        .map(|_| v)
+                }),
             reported_trait: problems
                 .fields("reported_trait", row.reported_trait)
                 .into_vec(),
@@ -84,7 +93,18 @@ impl From<ReceivedAssociation> for super::raw::Association {
         if value.exact_p_value().is_none()
             && (value.p_value_mantissa.is_some() || value.p_value_exponent.is_some())
         {
-            problems.required::<()>("pvalue_mantissa/pvalue_exponent", None);
+            if !problems
+                .list
+                .iter()
+                .any(|p| matches!(p.field.as_ref(), "pvalue_mantissa" | "pvalue_exponent"))
+            {
+                let field = if value.p_value_mantissa.is_none_or(|n| !(1..=9).contains(&n)) {
+                    "pvalue_mantissa"
+                } else {
+                    "pvalue_exponent"
+                };
+                problems.required::<()>(field, None);
+            }
             value.p_value_mantissa = None;
             value.p_value_exponent = None;
         }
@@ -108,6 +128,20 @@ impl From<ReceivedAssociation> for super::raw::Association {
                 );
             }
         }
+        value.efo_traits.retain(|v| {
+            let valid = v.efo_id.as_str().parse::<biodata::GwasTraitId>().is_ok();
+            if !valid {
+                problems.required::<()>("efo_traits.efo_id", None);
+            }
+            valid
+        });
+        value.snp_allele.retain(|v| {
+            let valid = v.rs_id.as_str().parse::<biodata::RsId>().is_ok();
+            if !valid {
+                problems.required::<()>("snp_allele.rs_id", None);
+            }
+            valid
+        });
         value.problems = problems.list;
         value
     }

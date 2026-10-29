@@ -214,11 +214,14 @@ fn append(q: &GwasSearch, saved: &mut Saved, page: gwas::Page) -> Result<(), Req
             let problem = biomcp_types::Problem {
                 source: Source::Gwas,
                 record: row.association_id.to_string().parse().ok(),
-                field: "pvalue_mantissa/pvalue_exponent".into(),
+                field: "pvalue_mantissa".into(),
                 code: biomcp_types::ProblemCode::ValueUnknown,
             };
             saved.problems.extend(row.problems);
-            if !saved.problems.contains(&problem) {
+            if !saved.problems.iter().any(|p| {
+                p.record == problem.record
+                    && matches!(p.field.as_ref(), "pvalue_mantissa" | "pvalue_exponent")
+            }) {
                 saved.problems.push(problem);
             }
             continue;

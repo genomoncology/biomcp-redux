@@ -65,7 +65,8 @@ pub struct GwasAssociation {
     /// Native association identity.
     pub id: u64,
     /// Study accession.
-    pub study: Text,
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub study: Option<Text>,
     /// Source reported traits.
     #[serde(default, skip_serializing_if = "<[_]>::is_empty")]
     pub traits: Box<[Text]>,

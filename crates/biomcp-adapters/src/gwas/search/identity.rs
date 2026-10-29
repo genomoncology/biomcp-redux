@@ -39,10 +39,13 @@ fn decode(text: &str) -> Option<String> {
     String::from_utf8(decoded).ok()
 }
 pub(super) fn row(row: &Association, q: &GwasSearch) -> bool {
-    if q.study()
-        .is_some_and(|id| row.accession_id.as_str() != id.to_string())
-        || q.pubmed()
-            .is_some_and(|id| row.pubmed_id.as_deref() != Some(id.to_string().as_str()))
+    if q.study().is_some_and(|id| {
+        row.accession_id
+            .as_ref()
+            .is_none_or(|v| v.as_str() != id.to_string())
+    }) || q
+        .pubmed()
+        .is_some_and(|id| row.pubmed_id.as_deref() != Some(id.to_string().as_str()))
         || q.variant().is_some_and(|id| {
             !row.snp_allele
                 .iter()

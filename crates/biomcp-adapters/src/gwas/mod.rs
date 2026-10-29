@@ -85,17 +85,6 @@ fn page(response: raw::Response) -> Page {
                 problems.required::<()>("association_id", None);
                 continue;
             }
-            if row
-                .accession_id
-                .as_str()
-                .parse::<biodata::GwasStudyId>()
-                .is_err()
-            {
-                problems.record = crate::mapped::record(row.association_id);
-                problems.required::<()>("accession_id", None);
-                problems.record = None;
-                continue;
-            }
             problems.list.append(&mut row.problems);
             rows.push(row);
         }

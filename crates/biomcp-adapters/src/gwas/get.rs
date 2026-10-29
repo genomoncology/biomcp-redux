@@ -32,10 +32,7 @@ pub fn association(leg: &Leg<'_>, id: GwasAssociationId) -> Result<Association, 
 }
 impl Reply for Association {
     fn check(&self) -> Result<(), BadReply> {
-        if self.association_id == 0
-            || self.accession_id.as_str().parse::<GwasStudyId>().is_err()
-            || self.snp_allele.is_empty()
-        {
+        if self.association_id == 0 {
             Err(BadReply)
         } else {
             Ok(())
