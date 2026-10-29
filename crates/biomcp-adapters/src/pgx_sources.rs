@@ -41,7 +41,9 @@ macro_rules! pgx_row {
             }
             fn map(self, problems: &mut crate::mapped::Problems) -> Option<Self::Value> {
                 $(let $id = problems.required_field($ip, self.$id)?;)*
-                Some($out {
+                problems.text(stringify!($record), Some(&$record.to_string()))?;
+                use $out as Output;
+                Some(Output {
                     $($id,)*
                     $($value: problems.field($vp, self.$value),)*
                     $($nested: problems.field($np, self.$nested).and_then(|row| row.map(problems)),)*

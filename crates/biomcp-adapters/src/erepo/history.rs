@@ -1,59 +1,25 @@
-//! Selected SEPIO documents supply their own facts; summary rows supply routing only.
-use biodata::{Attribution, VariantRef};
-
+//! Selected SEPIO documents supply their own facts; summaries supply routing only.
+use biodata::{Attribution, Text, VariantRef};
 use biomcp_fetch::{BadReply, Freshness, Leg, PathSegment, Reply, RequestError};
-use biomcp_types::{
-    AssertionAssessment, AssertionCondition, AssertionDetail, AssertionDocument, AssertionDomain,
-    AssertionKind, Source, VariantAssertion,
-};
+use biomcp_types::{AssertionAssessment, AssertionCondition, AssertionDetail, AssertionDocument, AssertionDomain, AssertionKind, Source, VariantAssertion};
+use crate::{Mapped, mapped::Problems, raw::Field};
 use serde::Deserialize;
-const DOCUMENT: biomcp_fetch::Endpoint = super::SPEC
-    .get("/evrepo/api/summary/classification")
-    .fresh(Freshness::Days(1));
-pub(super) fn fetch(
-    leg: &Leg<'_>,
-    caid: &str,
-    record: &str,
-    uuid: &str,
-    version: &str,
-) -> Result<VariantAssertion, RequestError> {
-    let path = [uuid, "doc", "sepio", "version", version]
-        .into_iter()
-        .map(PathSegment::new)
-        .collect::<Result<Vec<_>, _>>()
-        .map_err(RequestError::Input)?;
+const DOCUMENT: biomcp_fetch::Endpoint = super::SPEC.get("/evrepo/api/summary/classification").fresh(Freshness::Days(1));
+pub(super) fn fetch(leg: &Leg<'_>, caid: &str, record: &str, uuid: &str, version: &str) -> Result<Mapped<Option<VariantAssertion>>, RequestError> {
+    let path = [uuid, "doc", "sepio", "version", version].into_iter().map(PathSegment::new)
+        .collect::<Result<Vec<_>, _>>().map_err(RequestError::Input)?;
     let endpoint = DOCUMENT.clone().with_segments(&path);
-    let (reply, _) = leg.json_received_checked::<DocumentReply>(&endpoint, &[], |r| {
-        let data = &r.data;
-        if data.uuid == uuid
-            && data.metadata.version == version
-            && data.variant.id == format!("CAR:{caid}")
-            && data.clone().map(caid, record, version).is_ok()
-        {
-            Ok(())
-        } else {
-            Err(BadReply)
-        }
+    let reply: DocumentReply = leg.json_checked_admission(&endpoint, &[], |_| Ok(()), |reply: &DocumentReply| {
+        reply.data.as_ref().is_some_and(|data| data.matches(caid, uuid, version))
     })?;
-    reply.data.map(caid, record, version)
+    let mut cx = Problems { source: Source::Erepo, record: Some(crate::mapped::text(record).map_err(|_| super::bad())?), list: Vec::new() };
+    let value = cx.field("document", Some(reply.data)).and_then(|document| document.map(caid, record, uuid, version, &mut cx));
+    Ok(Mapped { value, problems: cx.list })
 }
-#[derive(Clone, Deserialize)]
-struct DocumentReply {
-    data: Document,
-}
-impl Reply for DocumentReply {
-    fn check(&self) -> Result<(), BadReply> {
-        if self.data.kind == "VariantPathogenicityInterpretation"
-            && !self.data.id.is_empty()
-            && !self.data.outcome.label.is_empty()
-        {
-            Ok(())
-        } else {
-            Err(BadReply)
-        }
-    }
-}
-#[derive(Clone, Deserialize)]
+#[derive(Deserialize)]
+struct DocumentReply { data: Field<Document> }
+impl Reply for DocumentReply { fn check(&self) -> Result<(), BadReply> { Ok(()) } }
+#[derive(Deserialize)]
 struct Document {
     uuid: String,
     id: String,
@@ -61,155 +27,107 @@ struct Document {
     kind: String,
     metadata: Metadata,
     variant: Identifier,
-    condition: Label,
+    condition: Option<Field<Label>>,
     #[serde(rename = "statementOutcome")]
-    outcome: Label,
+    outcome: Option<Field<Label>>,
     #[serde(rename = "evidenceLine")]
-    lines: Option<Vec<Line>>,
+    lines: Option<Field<Vec<Field<Line>>>>,
 }
-#[derive(Clone, Deserialize)]
-struct Metadata {
-    version: String,
-}
-#[derive(Clone, Deserialize)]
-struct Identifier {
-    id: String,
-}
-#[derive(Clone, Deserialize)]
+#[derive(Deserialize)]
+struct Metadata { version: String }
+#[derive(Deserialize)]
+struct Identifier { id: String }
+#[derive(Deserialize)]
 struct Label {
-    label: String,
-    id: Option<String>,
+    label: Option<Field<Text>>,
+    id: Option<Field<Text>>,
     #[serde(rename = "@id")]
-    iri: Option<String>,
+    iri: Option<Field<Text>>,
 }
-#[derive(Clone, Deserialize)]
+#[derive(Deserialize)]
 struct Line {
     #[serde(rename = "evidenceItem")]
-    items: Option<Vec<Assessment>>,
+    items: Option<Field<Vec<Field<Assessment>>>>,
 }
-#[derive(Clone, Deserialize)]
+#[derive(Deserialize)]
 struct Assessment {
     #[serde(rename = "type")]
     kind: String,
-    criterion: Option<Criterion>,
+    criterion: Option<Field<Criterion>>,
     #[serde(rename = "statementOutcome")]
-    outcome: Option<Label>,
+    outcome: Option<Field<Label>>,
 }
-#[derive(Clone, Deserialize)]
+#[derive(Deserialize)]
 struct Criterion {
-    label: String,
-    id: Option<String>,
+    label: Option<Field<Text>>,
+    id: Option<Field<Text>>,
     #[serde(rename = "@id")]
-    iri: Option<String>,
+    iri: Option<Field<Text>>,
     #[serde(rename = "defaultStrength")]
-    strength: Option<Label>,
+    strength: Option<Field<Label>>,
 }
 impl Document {
-    fn map(
-        self,
-        caid: &str,
-        record: &str,
-        version: &str,
-    ) -> Result<VariantAssertion, RequestError> {
-        let text = |value: &str| crate::mapped::text(value).map_err(|_| super::bad());
+    fn matches(&self, caid: &str, uuid: &str, version: &str) -> bool {
+        self.uuid == uuid && self.metadata.version == version && self.variant.id == format!("CAR:{caid}")
+            && self.kind == "VariantPathogenicityInterpretation" && !self.id.trim().is_empty()
+    }
+    fn map(self, caid: &str, record: &str, uuid: &str, version: &str, cx: &mut Problems) -> Option<VariantAssertion> {
+        if !self.matches(caid, uuid, version) { cx.required::<()>("document", None); return None; }
         let attribution = Attribution {
-            source: Source::Erepo.text(),
-            record: Some(text(record)?),
-            version: Some(text(version)?),
-            release: None,
-            submitter: None,
-            evaluated: None,
-            url: Some(text(&format!(
-                "https://erepo.clinicalgenome.org/evrepo/ui/classification/{}?version={version}",
-                self.uuid
-            ))?),
+            source: Source::Erepo.text(), record: cx.text("PCERDocID", Some(record)), version: cx.text("docVersion", Some(version)),
+            release: None, submitter: None, evaluated: None,
+            url: cx.text("uuid", Some(&format!("https://erepo.clinicalgenome.org/evrepo/ui/classification/{}?version={version}", self.uuid))),
         };
-        let condition = AssertionCondition {
-            database: None,
-            accession: None,
-            id: self
-                .condition
-                .id
-                .map(|v| v.parse().map_err(|_| super::bad()))
-                .transpose()?,
-            label: Some(text(&self.condition.label)?),
-        };
+        let conditions = cx.field("condition", self.condition).map(|condition| AssertionCondition {
+            database: None, accession: None,
+            id: cx.field("condition.id", condition.id).and_then(|id| cx.optional("condition.id", Some(id.as_str().parse()))),
+            label: cx.field("condition.label", condition.label),
+        }).into_iter().collect();
         let mut assessments = Vec::new();
-        for line in self.lines.unwrap_or_default() {
-            for item in line.items.unwrap_or_default() {
-                if item.kind == "CriterionAssessment" {
-                    assessments.push(item.map()?);
-                }
+        for line in cx.fields("evidenceLine", self.lines).into_vec() {
+            for item in cx.fields("evidenceItem", line.items).into_vec() {
+                if item.kind == "CriterionAssessment" { assessments.push(item.map(cx)); }
             }
         }
-        let detail = AssertionDetail {
-            conditions: vec![condition].into(),
-            document: Some(AssertionDocument {
-                uuid: text(&self.uuid)?,
-                native_id: text(&self.id)?,
-                document_type: text(&self.kind)?,
-                outcome_id: self.outcome.id.as_deref().map(text).transpose()?,
-                outcome_iri: self.outcome.iri.as_deref().map(text).transpose()?,
-                assessments: assessments.into(),
-            }),
-            ..Default::default()
+        let outcome = cx.field("statementOutcome", self.outcome);
+        let (label, outcome_id, outcome_iri) = match outcome {
+            Some(outcome) => (cx.field("statementOutcome.label", outcome.label), cx.field("statementOutcome.id", outcome.id), cx.field("statementOutcome.@id", outcome.iri)),
+            None => (None, None, None),
         };
-        Ok(crate::assertion::row(
-            AssertionKind::Erepo,
-            AssertionDomain::Germline,
-            text(&self.outcome.label)?,
-            attribution,
-            VariantRef::allele(caid.parse().map_err(|_| super::bad())?),
-            detail,
-            None,
-        ))
+        let detail = AssertionDetail {
+            conditions,
+            document: Some(AssertionDocument {
+                uuid: cx.text("uuid", Some(&self.uuid))?, native_id: cx.text("id", Some(&self.id))?,
+                document_type: cx.text("type", Some(&self.kind))?, outcome_id, outcome_iri, assessments: assessments.into(),
+            }), ..Default::default()
+        };
+        Some(match label {
+            Some(label) => crate::assertion::row(AssertionKind::Erepo, AssertionDomain::Germline, label, attribution,
+                VariantRef::allele(cx.optional("caId", Some(caid.parse()))?), detail, None),
+            None => crate::assertion::missing(AssertionKind::Erepo, AssertionDomain::Germline, attribution, detail),
+        })
     }
 }
 impl Assessment {
-    fn map(self) -> Result<AssertionAssessment, RequestError> {
-        let text = |value: &str| crate::mapped::text(value).map_err(|_| super::bad());
-        let criterion = self.criterion.ok_or_else(super::bad)?;
-        let outcome = self.outcome.ok_or_else(super::bad)?;
-        Ok(AssertionAssessment {
-            criterion: text(&criterion.label)?,
-            criterion_id: criterion.id.as_deref().map(text).transpose()?,
-            criterion_iri: criterion.iri.as_deref().map(text).transpose()?,
-            default_strength: criterion
-                .strength
-                .as_ref()
-                .map(|s| text(&s.label))
-                .transpose()?,
-            default_strength_id: criterion
-                .strength
-                .as_ref()
-                .and_then(|s| s.id.as_deref())
-                .map(text)
-                .transpose()?,
-            default_strength_iri: criterion
-                .strength
-                .as_ref()
-                .and_then(|s| s.iri.as_deref())
-                .map(text)
-                .transpose()?,
-            outcome_conflict: outcome_conflict(&outcome),
-            outcome: text(&outcome.label)?,
-            outcome_id: outcome.id.as_deref().map(text).transpose()?,
-            outcome_iri: outcome.iri.as_deref().map(text).transpose()?,
-        })
+    fn map(self, cx: &mut Problems) -> AssertionAssessment {
+        let criterion = cx.field("criterion", self.criterion);
+        let (criterion, criterion_id, criterion_iri, strength) = match criterion {
+            Some(criterion) => (cx.field("criterion.label", criterion.label), cx.field("criterion.id", criterion.id),
+                cx.field("criterion.@id", criterion.iri), cx.field("criterion.defaultStrength", criterion.strength)),
+            None => (None, None, None, None),
+        };
+        let (default_strength, default_strength_id, default_strength_iri) = match strength {
+            Some(strength) => (cx.field("defaultStrength.label", strength.label), cx.field("defaultStrength.id", strength.id), cx.field("defaultStrength.@id", strength.iri)),
+            None => (None, None, None),
+        };
+        let outcome = cx.field("statementOutcome", self.outcome);
+        let (outcome, outcome_id, outcome_iri) = match outcome {
+            Some(outcome) => (cx.field("statementOutcome.label", outcome.label), cx.field("statementOutcome.id", outcome.id), cx.field("statementOutcome.@id", outcome.iri)),
+            None => (None, None, None),
+        };
+        let outcome_conflict = [outcome_id.as_ref(), outcome_iri.as_ref()].into_iter().flatten()
+            .any(|id| matches!((id.as_str(), outcome.as_ref().map(Text::as_str)), ("SEPIO:0000224", Some("Met")) | ("SEPIO:0000223", Some("Not Met"))));
+        AssertionAssessment { criterion, criterion_id, criterion_iri, default_strength, default_strength_id, default_strength_iri,
+            outcome, outcome_id, outcome_iri, outcome_conflict }
     }
-}
-
-// ClinGen's documented CriterionAssessment outcomes are 0000223 Met and 0000224 Not Met.
-// Preserve contrary source values without silently repairing them.
-// https://dataexchange.clinicalgenome.org/interpretation/entities/CriterionAssessment.html
-fn outcome_conflict(outcome: &Label) -> bool {
-    [outcome.id.as_deref(), outcome.iri.as_deref()]
-        .into_iter()
-        .flatten()
-        .any(|id| {
-            matches!(
-                (id, outcome.label.as_str()),
-                ("SEPIO:0000224", "Met") | ("SEPIO:0000223", "Not Met")
-            )
-        })
 }
