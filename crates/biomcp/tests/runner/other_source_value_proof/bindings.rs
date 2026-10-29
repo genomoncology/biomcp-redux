@@ -33,10 +33,22 @@ pub(super) fn cell(directory: &Path, registry: &Registry) -> Check {
         host: "www.ebi.ac.uk",
         root: "fixtures/cell-line/chembl",
         args: ["get", "cell-line", "CVCL_2119", "chembl"]
-            .into_iter().map(str::to_owned).collect(),
+            .into_iter()
+            .map(str::to_owned)
+            .collect(),
         requests: vec![
-            Route { file: "CVCL_2119.json".into(), request: "GET /chembl/api/data/cell_line.json?cellosaurus_id=CVCL_2119&limit=5&offset=0 HTTP/1.1".into() },
-            Route { file: "status.json".into(), request: "GET /chembl/api/data/status.json HTTP/1.1".into() },
+            Route {
+                file: "CVCL_2119.json".into(),
+                request: concat!(
+                    "GET /chembl/api/data/cell_line.json?cellosaurus_id=CVCL_2119",
+                    "&limit=5&offset=0 HTTP/1.1"
+                )
+                .into(),
+            },
+            Route {
+                file: "status.json".into(),
+                request: "GET /chembl/api/data/status.json HTTP/1.1".into(),
+            },
         ],
     };
     let positive = super::acquire(&case, None, registry)?;

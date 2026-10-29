@@ -111,7 +111,12 @@ pub(super) fn study(directory: &Path, registry: &Registry) -> Check {
         ("profiles", "molecularProfileId"),
         ("sample-lists", "sampleListId"),
     ] {
-        let mut row = json!({"studyId":"synthetic_0", "molecularAlterationType":"MRNA_EXPRESSION", "datatype":"CONTINUOUS", "name":"Synthetic profile", "description":"Native profile description", "patientLevel":false, "showProfileInAnalysisTab":true, "category":"all_cases_in_study", "sampleCount":1});
+        let mut row = json!({
+            "studyId":"synthetic_0", "molecularAlterationType":"MRNA_EXPRESSION",
+            "datatype":"CONTINUOUS", "name":"Synthetic profile",
+            "description":"Native profile description", "patientLevel":false,
+            "showProfileInAnalysisTab":true, "category":"all_cases_in_study", "sampleCount":1
+        });
         row[identity] = json!("native_1");
         let mut bad = row.clone();
         bad[identity] = json!({"bad_shape":true});
