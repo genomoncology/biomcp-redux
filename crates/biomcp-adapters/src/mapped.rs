@@ -112,7 +112,7 @@ impl Problems {
             .collect()
     }
     pub(crate) fn text(&mut self, field: &str, value: Option<&str>) -> Option<biodata::Text> {
-        self.optional(field, value.map(text))
+        self.optional(field, value.map(biodata::Text::from_source))
     }
 }
 
@@ -124,7 +124,7 @@ pub(crate) fn field_text(
     field: &str,
     value: Option<crate::raw::Field<String>>,
 ) -> Option<biodata::Text> {
-    let value = value?.value().and_then(|s| text(&s).ok());
+    let value = value?.value().and_then(|s| biodata::Text::from_source(&s).ok());
     if value.is_none() {
         push_problem(problems, source, record, field);
     }

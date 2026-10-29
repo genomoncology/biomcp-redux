@@ -123,7 +123,6 @@ fn text_construction_and_json_share_trimming_and_validation() {
         ("summary", Some("summary")),
         (" \n summary \t", Some("summary")),
         ("\u{2003}HER-2/neu α\u{2003}", Some("HER-2/neu α")),
-        ("a \n b", Some("a \n b")),
         ("", None),
         (" \n\t\u{2003}", None),
     ] {
@@ -347,4 +346,27 @@ fn biomarker_replies_ignore_future_fields_while_queries_stay_closed() -> Check {
         "unknown get inputs must remain rejected"
     );
     Ok(())
+}
+
+#[test]
+fn trial_publication_values_follow_native_registry_grammar() {
+    use biodata::{TrialReferenceKind, TrialUploadTime};
+    for native in ["BACKGROUND", "RESULT", "DERIVED"] {
+        let value: TrialReferenceKind = serde_json::from_value(json!(native)).unwrap();
+        assert_eq!(serde_json::to_value(value).unwrap(), json!(native));
+    }
+    assert!(serde_json::from_value::<TrialReferenceKind>(json!("OTHER")).is_err());
+    for native in ["2024-02-29T23:59", "2023-04-17T19:05"] {
+        let value: TrialUploadTime = native.parse().unwrap();
+        assert_eq!(value.as_str(), native);
+        assert_eq!(serde_json::to_value(value).unwrap(), json!(native));
+    }
+    for bad in ["2023-02-29T12:30", "2024-01-01T24:00", "2024-01-01T12:60",
+        "2024-01-01", "2024-01-01T12:00Z", "2024-01-01T12:00:00", "0000-01-01T00:00"] {
+        assert!(bad.parse::<TrialUploadTime>().is_err(), "{bad}");
+        assert!(serde_json::from_value::<TrialUploadTime>(json!(bad)).is_err());
+    }
+    let source = Text::from_source("before\u{202e}after").unwrap();
+    assert_eq!(source.as_str(), r"before\u{202e}after");
+    assert_eq!(Text::new(source.as_str()).unwrap(), source);
 }

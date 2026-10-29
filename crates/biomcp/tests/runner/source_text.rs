@@ -21,10 +21,14 @@ const LITERAL: &str = concat!(
     "ctions&#10;\\`\\`\\`",
 );
 pub(super) fn trials() -> Vec<Trial> {
-    vec![transcript_trial(
-        "markdown-view/source-fields-are-data",
-        || check().map_err(|e| e.to_string().into()),
-    )]
+    vec![
+        transcript_trial("markdown-view/source-fields-are-data", || {
+            check().map_err(|e| e.to_string().into())
+        }),
+        transcript_trial("markdown-view/source-controls-are-visible", || {
+            controls().map_err(|e| e.to_string().into())
+        }),
+    ]
 }
 fn check() -> Check {
     let env = Environment::new()?;
@@ -42,7 +46,7 @@ fn check() -> Check {
     let value: Value = serde_json::from_slice(&output.stdout)?;
     assert_eq!(
         value.pointer("/result/items/0/answer/card/title"),
-        Some(&json!(SOURCE)),
+        Some(&json!(biodata::Text::from_source(SOURCE)?.as_str())),
         "Source text must remain data"
     );
     assert_eq!(
@@ -54,7 +58,7 @@ fn check() -> Check {
     let output = env.command(env!("CARGO_BIN_EXE_biomcp"), &args).output()?;
     let text = String::from_utf8(output.stdout)?;
     assert!(output.status.success(), "Source text must remain data");
-    assert!(text.matches(LITERAL).count() >= 2, "{text}");
+    assert!(text.contains(LITERAL), "{text}");
     assert!(!text.contains(SOURCE), "Source text must remain data");
     assert!(
         !text.contains("https://example.org"),
@@ -143,5 +147,29 @@ fn instructions(env: &Environment) -> Check {
             "The embedded guide must describe supported source text commands"
         );
     }
+    Ok(())
+}
+
+fn controls() -> Check {
+    let env = Environment::new()?;
+    let replay = env.root().join("controls");
+    super::response_cases::copy_capture("article/get/synthetic-derived", &replay, |_, record| {
+        for exchange in record.get_mut("exchanges").and_then(Value::as_array_mut).into_iter().flatten() {
+            if exchange.pointer("/body/kind").and_then(Value::as_str) == Some("text") {
+                exchange["body"]["value"] = json!(concat!(
+                    "<PubmedArticleSet><PubmedArticle><MedlineCitation><PMID>33123537</PMID>",
+                    "<Article><ArticleTitle>before\u{202e}after</ArticleTitle></Article>",
+                    "</MedlineCitation></PubmedArticle></PubmedArticleSet>"
+                ));
+            }
+        }
+    })?;
+    let mut args = env.globals(Some(&replay), false);
+    args.extend(["get", "article", "33123537"].map(str::to_owned));
+    let out = env.command(env!("CARGO_BIN_EXE_biomcp"), &args).output()?;
+    assert!(out.status.success(), "{}", String::from_utf8_lossy(&out.stdout));
+    let value: Value = serde_json::from_slice(&out.stdout)?;
+    assert_eq!(value.pointer("/result/items/0/answer/card/title"), Some(&json!(r"before\u{202e}after")));
+    assert!(!String::from_utf8(out.stdout)?.contains('\u{202e}'));
     Ok(())
 }

@@ -1,5 +1,5 @@
 use biodata::License;
-use biodata::{NctId, PartialDate, Pmid, Text, TrialDocument, TrialReference};
+use biodata::{NctId, PartialDate, Pmid, Text, TrialDocument, TrialReference, TrialReferenceKind, TrialUploadTime};
 
 use crate::{mapped::Problems, raw::Field};
 use serde::Deserialize;
@@ -11,14 +11,14 @@ pub(super) struct References {
 pub(super) struct Reference {
     pmid: Option<Field<Pmid>>,
     #[serde(rename = "type")]
-    kind: Option<Field<Box<str>>>,
+    kind: Option<Field<TrialReferenceKind>>,
     citation: Option<Field<Box<str>>>,
 }
 impl Reference {
     pub(super) fn mapped(self, problems: &mut Problems) -> TrialReference {
         TrialReference {
             pmid: problems.field("references.pmid", self.pmid),
-            kind: problems.required_native_text("references.kind", self.kind),
+            kind: problems.field("references.kind", self.kind),
             citation: problems.required_native_text("references.citation", self.citation),
         }
     }
@@ -40,7 +40,7 @@ struct Document {
     type_abbrev: Option<Field<Box<str>>>,
     label: Option<Field<Box<str>>>,
     date: Option<Field<PartialDate>>,
-    upload_date: Option<Field<Box<str>>>,
+    upload_date: Option<Field<TrialUploadTime>>,
     size: Option<Field<u64>>,
     has_protocol: Option<Field<bool>>,
     has_sap: Option<Field<bool>>,
@@ -94,7 +94,7 @@ impl Document {
             kind: problems.required_native_text("largeDocs.typeAbbrev", self.type_abbrev),
             label: problems.native_text("largeDocs.label", self.label),
             date: problems.field("largeDocs.date", self.date),
-            uploaded: problems.native_text("largeDocs.uploadDate", self.upload_date),
+            uploaded: problems.field("largeDocs.uploadDate", self.upload_date),
             size: problems.field("largeDocs.size", self.size),
             has_protocol: problems.field("largeDocs.hasProtocol", self.has_protocol),
             has_sap: problems.field("largeDocs.hasSap", self.has_sap),
