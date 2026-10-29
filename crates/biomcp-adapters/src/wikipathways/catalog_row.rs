@@ -49,9 +49,9 @@ impl Row for CatalogRow {
         let (mut ids, mut duplicates) = (BTreeSet::new(), BTreeSet::new());
         for row in &catalog.rows {
             if let Some(row) = row.as_ref()
-                && !ids.insert(row.id.clone())
+                && !ids.insert(row.id.to_string())
             {
-                duplicates.insert(row.id.clone());
+                duplicates.insert(row.id.to_string());
             }
         }
         let sha256 = bundle_sha256(body);
@@ -82,7 +82,7 @@ impl Row for CatalogRow {
                 let search = row.as_ref().map(|r| r.datanodes.is_some());
                 p.record = row.as_ref().and_then(|r| record(&r.id));
                 let native = row.and_then(|row| {
-                    if duplicates.contains(&row.id) {
+                    if duplicates.contains(&row.id.to_string()) {
                         p.required("identity", None)
                     } else {
                         mapped(row, &mut p)
