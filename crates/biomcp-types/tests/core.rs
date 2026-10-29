@@ -157,6 +157,18 @@ fn text_construction_and_json_share_trimming_and_validation() {
 }
 
 #[test]
+fn text_refuses_controls_and_bounds_constructor_length() {
+    for ch in (0..=0x1f).chain(0x7f..=0x9f).chain([
+        0x061c, 0x200e, 0x200f, 0x202a, 0x202b, 0x202c, 0x202d, 0x202e,
+        0x2066, 0x2067, 0x2068, 0x2069,
+    ]).filter_map(char::from_u32) {
+        assert!(Text::new(&format!("before{ch}after")).is_err(), "{ch:?}");
+    }
+    assert!(Text::new(&"α".repeat(1_048_576)).is_ok());
+    assert!(Text::new(&"a".repeat(1_048_577)).is_err());
+}
+
+#[test]
 fn problems_round_trip_with_optional_record_and_ignore_unknown_fields() {
     for record in [None, Some(Text::new("record-123").unwrap())] {
         let problem = Problem {
