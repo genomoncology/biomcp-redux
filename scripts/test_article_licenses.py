@@ -37,6 +37,16 @@ def main():
         result = check(root)
         assert result.returncode == 0, result.stderr
         print("GREEN restored: " + result.stdout.strip(), flush=True)
+        # A publisher URL or a case name cannot certify generated PDF bytes.
+        for case in ("synthetic", "timeout"):
+            path = next((destination / "pdf" / case).rglob("*.bin"))
+            original = path.read_bytes()
+            path.write_bytes(b"%PDF-1.4\nUnlicensed publisher article bytes\n%%EOF")
+            result = check(root)
+            assert result.returncode != 0, result.stdout
+            assert "article capture has no recorded reuse license" in result.stderr, result.stderr
+            print("RED unlicensed PDF: " + result.stderr.strip(), flush=True)
+            path.write_bytes(original)
 
 
 if __name__ == "__main__":
