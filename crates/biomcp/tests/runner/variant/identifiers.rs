@@ -61,6 +61,11 @@ fn subjects() -> Result<(), String> {
     })?;
     let env = super::source_environment(&stub)?;
     let card = invoke(&env, strings(&["get", "variant", "CA000434", "erepo"]), 0)?;
+    if card.pointer("/query/build").is_some() || card.pointer("/query/build_defaulted").is_some() {
+        return Err(format!(
+            "direct source read gained an unused assembly default: {card}"
+        ));
+    }
     let rows = card
         .pointer("/result/candidates/0/sections/erepo/data/assertions")
         .and_then(Value::as_array)

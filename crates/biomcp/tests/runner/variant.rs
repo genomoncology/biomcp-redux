@@ -121,6 +121,13 @@ fn myvariant() -> Result<(), String> {
     {
         return Err(format!("source assembly lost: {output}"));
     }
+    if output.pointer("/query/build") != Some(&json!("GRCh38"))
+        || output.pointer("/query/build_defaulted").is_some()
+    {
+        return Err(format!(
+            "explicit assembly was changed or marked as default: {output}"
+        ));
+    }
     Ok(())
 }
 type Requests = Vec<(String, String)>;
