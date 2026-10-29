@@ -1,3 +1,6 @@
+//! Canonical CA identity is independent of nested representations and references.
+//! Allele Registry v0.08.07 pp. 5–7: https://calculator.clinicalgenome.org/redmine/attachments/download/264/AlleleRegistry_0.8.7_api.pdf
+//! Every coordinate tuple belongs to one complete definition; never retain a subset as a simpler allele.
 use crate::raw::Field;
 use biodata::Text;
 use biomcp_fetch::{BadReply, Reply};
@@ -9,8 +12,8 @@ pub(super) struct Allele {
     #[serde(rename = "errorType")]
     pub error_type: Option<Text>,
     #[serde(rename = "description")]
-    pub error_description: Option<String>,
-    pub message: Option<String>,
+    pub error_description: Option<Field<biodata::SourceText>>,
+    pub message: Option<Field<biodata::SourceText>>,
     #[serde(rename = "genomicAlleles")]
     pub genomic: Option<Field<Vec<Field<Genomic>>>>,
     #[serde(rename = "transcriptAlleles")]
