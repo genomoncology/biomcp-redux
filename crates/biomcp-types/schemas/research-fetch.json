@@ -1,20 +1,20 @@
 {
   "$defs": {
-    "Markdown": {
+    "Reply_Markdown": {
       "description": "Nonempty text with surrounding Unicode whitespace removed.",
       "format": "markdown",
       "minLength": 1,
       "type": "string"
     },
-    "ResearchEnvelope": {
+    "Reply_ResearchEnvelope": {
       "description": "Forward-compatible envelope metadata; entity fields use their CLI schemas.",
       "properties": {
         "schema": {
-          "$ref": "#/$defs/Text",
+          "$ref": "#/$defs/Reply_Text",
           "description": "Original CLI schema identity; its schema describes all entity fields."
         },
         "status": {
-          "$ref": "#/$defs/Status",
+          "$ref": "#/$defs/Reply_Status",
           "description": "Original command outcome."
         }
       },
@@ -24,11 +24,11 @@
       ],
       "type": "object"
     },
-    "SourceText": {
+    "Reply_SourceText": {
       "description": "Unchanged free source text, including empty values and surrounding whitespace.",
       "type": "string"
     },
-    "Status": {
+    "Reply_Status": {
       "description": "Overall command outcome.",
       "enum": [
         "complete",
@@ -38,7 +38,7 @@
       ],
       "type": "string"
     },
-    "Text": {
+    "Reply_Text": {
       "description": "Nonempty text with surrounding Unicode whitespace removed.",
       "minLength": 1,
       "type": "string"
@@ -49,23 +49,23 @@
   "description": "Research fetch response using the existing CLI Markdown view.",
   "properties": {
     "id": {
-      "$ref": "#/$defs/SourceText",
+      "$ref": "#/$defs/Reply_SourceText",
       "description": "Unchanged caller identifier."
     },
     "metadata": {
-      "$ref": "#/$defs/ResearchEnvelope",
+      "$ref": "#/$defs/Reply_ResearchEnvelope",
       "description": "Complete original CLI envelope."
     },
     "text": {
-      "$ref": "#/$defs/Markdown",
+      "$ref": "#/$defs/Reply_Markdown",
       "description": "Complete Markdown view of the bounded CLI record."
     },
     "title": {
-      "$ref": "#/$defs/Text",
+      "$ref": "#/$defs/Reply_Text",
       "description": "Original source title, or exact identifier."
     },
     "url": {
-      "$ref": "#/$defs/Text",
+      "$ref": "#/$defs/Reply_Text",
       "description": "Nonempty canonical source URL.",
       "format": "uri"
     }

@@ -1,4 +1,4 @@
-//! Compare generated contracts with an independently recorded release baseline.
+//! Check shared schema definitions and independently recorded release contracts.
 use super::{compatibility, policy::read_reviews, registry};
 use serde_json::Value;
 use std::{collections::BTreeMap, fs, path::Path};
@@ -56,4 +56,40 @@ fn read_baseline(root: &Path) -> Check<BTreeMap<String, Value>> {
         return Err("empty schema baseline".into());
     }
     Ok(schemas)
+}
+
+#[expect(
+    clippy::disallowed_methods,
+    reason = "Schema definition contract tests own file I/O outside the pure library"
+)]
+pub(super) fn checked_in_schema_definition_names_have_one_body() -> Check<()> {
+    let root = Path::new(env!("CARGO_MANIFEST_DIR")).join("schemas");
+    let mut definitions = BTreeMap::new();
+    for contract in registry() {
+        let path = root.join(format!("{}.json", contract.name));
+        let schema: Value = serde_json::from_str(&fs::read_to_string(&path)?)?;
+        for (name, body) in schema
+            .get("$defs")
+            .and_then(Value::as_object)
+            .into_iter()
+            .flatten()
+        {
+            assert_eq!(
+                name.starts_with("Reply_"),
+                matches!(contract.kind, super::policy::ContractKind::Reply),
+                "definition {name} has the wrong namespace in {}",
+                contract.name
+            );
+            if let Some((previous, owner)) = definitions.get(name) {
+                assert_eq!(
+                    previous, body,
+                    "definition {name} differs between {owner} and {}",
+                    contract.name
+                );
+            } else {
+                definitions.insert(name.clone(), (body.clone(), contract.name));
+            }
+        }
+    }
+    Ok(())
 }

@@ -6,6 +6,7 @@ use serde::{Deserialize, Serialize};
 /// A reviewed human protein listed by the authoritative gene record.
 #[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
 #[cfg_attr(feature = "schema", derive(schemars::JsonSchema))]
+#[cfg_attr(feature = "schema", schemars(rename = "Protein_{A}"))]
 pub struct Protein<A = UniProtAcc> {
     /// Checked primary accession.
     pub accession: A,

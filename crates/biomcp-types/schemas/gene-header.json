@@ -1,10 +1,10 @@
 {
   "$defs": {
-    "GeneLocation": {
+    "Reply_GeneLocation": {
       "description": "HGNC location text with a parsed interpretation when its syntax is known.",
       "type": "string"
     },
-    "GeneStatus": {
+    "Reply_GeneStatus": {
       "description": "HGNC approval status.",
       "type": "string",
       "x-enum-descriptions": [
@@ -16,17 +16,17 @@
         "withdrawn"
       ]
     },
-    "GeneSymbol": {
+    "Reply_GeneSymbol": {
       "description": "Source spelling of a gene symbol, with ASCII case-insensitive identity.",
       "pattern": "^[A-Za-z][A-Za-z0-9._/@-]{0,254}$",
       "type": "string"
     },
-    "HgncId": {
+    "Reply_HgncId": {
       "description": "An HGNC identifier with canonical namespace and positive numeric value.",
       "pattern": "^HGNC:[1-9][0-9]*$",
       "type": "string"
     },
-    "LocusGroup": {
+    "Reply_LocusGroup": {
       "description": "HGNC locus group, separate from a missing source value.",
       "type": "string",
       "x-enum-descriptions": [
@@ -44,15 +44,15 @@
         "other"
       ]
     },
-    "Match": {
+    "Reply_Match": {
       "description": "A source-stated match, preserving the text that matched.",
       "properties": {
         "kind": {
-          "$ref": "#/$defs/MatchKind",
+          "$ref": "#/$defs/Reply_MatchKind",
           "description": "The match category."
         },
         "text": {
-          "$ref": "#/$defs/Text",
+          "$ref": "#/$defs/Reply_Text",
           "description": "The source text that matched the input."
         }
       },
@@ -62,7 +62,7 @@
       ],
       "type": "object"
     },
-    "MatchKind": {
+    "Reply_MatchKind": {
       "description": "How a source matched a gene input.",
       "type": "string",
       "x-enum-descriptions": [
@@ -86,7 +86,7 @@
         "band"
       ]
     },
-    "Text": {
+    "Reply_Text": {
       "description": "Nonempty text with surrounding Unicode whitespace removed.",
       "minLength": 1,
       "type": "string"
@@ -97,13 +97,13 @@
   "description": "Enough gene identity to choose a search result.",
   "properties": {
     "hgnc_id": {
-      "$ref": "#/$defs/HgncId",
+      "$ref": "#/$defs/Reply_HgncId",
       "description": "HGNC identifier."
     },
     "location": {
       "anyOf": [
         {
-          "$ref": "#/$defs/GeneLocation"
+          "$ref": "#/$defs/Reply_GeneLocation"
         },
         {
           "type": "null"
@@ -112,13 +112,13 @@
       "description": "Source-stated location, including unparsed publisher text."
     },
     "locus_group": {
-      "$ref": "#/$defs/LocusGroup",
+      "$ref": "#/$defs/Reply_LocusGroup",
       "description": "HGNC locus group."
     },
     "match": {
       "anyOf": [
         {
-          "$ref": "#/$defs/Match"
+          "$ref": "#/$defs/Reply_Match"
         },
         {
           "type": "null"
@@ -127,15 +127,15 @@
       "description": "Match information when this header answers an input."
     },
     "name": {
-      "$ref": "#/$defs/Text",
+      "$ref": "#/$defs/Reply_Text",
       "description": "Gene name."
     },
     "status": {
-      "$ref": "#/$defs/GeneStatus",
+      "$ref": "#/$defs/Reply_GeneStatus",
       "description": "HGNC record status."
     },
     "symbol": {
-      "$ref": "#/$defs/GeneSymbol",
+      "$ref": "#/$defs/Reply_GeneSymbol",
       "description": "Source-preserved symbol."
     }
   },

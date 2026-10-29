@@ -1,6 +1,6 @@
 {
   "$defs": {
-    "CacheProblem": {
+    "Reply_CacheProblem": {
       "description": "A local cache failure that leaves the provider outcome intact.",
       "enum": [
         "busy",
@@ -9,13 +9,13 @@
       ],
       "type": "string"
     },
-    "Organization": {
+    "Reply_Organization": {
       "description": "One NCI organization search row. Names are not unique; counts cover trials of every status.",
       "properties": {
         "contact_email": {
           "anyOf": [
             {
-              "$ref": "#/$defs/Text"
+              "$ref": "#/$defs/Reply_Text"
             },
             {
               "type": "null"
@@ -26,7 +26,7 @@
         "contact_name": {
           "anyOf": [
             {
-              "$ref": "#/$defs/Text"
+              "$ref": "#/$defs/Reply_Text"
             },
             {
               "type": "null"
@@ -37,7 +37,7 @@
         "contact_phone": {
           "anyOf": [
             {
-              "$ref": "#/$defs/Text"
+              "$ref": "#/$defs/Reply_Text"
             },
             {
               "type": "null"
@@ -52,13 +52,13 @@
           "type": "integer"
         },
         "name": {
-          "$ref": "#/$defs/Text",
+          "$ref": "#/$defs/Reply_Text",
           "description": "Exact publisher organization name, never a unique identifier."
         },
         "next": {
           "anyOf": [
             {
-              "$ref": "#/$defs/Step"
+              "$ref": "#/$defs/Reply_Step"
             },
             {
               "type": "null"
@@ -69,7 +69,7 @@
         "org_address_line_1": {
           "anyOf": [
             {
-              "$ref": "#/$defs/Text"
+              "$ref": "#/$defs/Reply_Text"
             },
             {
               "type": "null"
@@ -80,7 +80,7 @@
         "org_address_line_2": {
           "anyOf": [
             {
-              "$ref": "#/$defs/Text"
+              "$ref": "#/$defs/Reply_Text"
             },
             {
               "type": "null"
@@ -91,7 +91,7 @@
         "org_city": {
           "anyOf": [
             {
-              "$ref": "#/$defs/Text"
+              "$ref": "#/$defs/Reply_Text"
             },
             {
               "type": "null"
@@ -102,7 +102,7 @@
         "org_coordinates": {
           "anyOf": [
             {
-              "$ref": "#/$defs/OrganizationCoordinates"
+              "$ref": "#/$defs/Reply_OrganizationCoordinates"
             },
             {
               "type": "null"
@@ -113,7 +113,7 @@
         "org_country": {
           "anyOf": [
             {
-              "$ref": "#/$defs/Text"
+              "$ref": "#/$defs/Reply_Text"
             },
             {
               "type": "null"
@@ -124,7 +124,7 @@
         "org_email": {
           "anyOf": [
             {
-              "$ref": "#/$defs/Text"
+              "$ref": "#/$defs/Reply_Text"
             },
             {
               "type": "null"
@@ -135,7 +135,7 @@
         "org_family": {
           "anyOf": [
             {
-              "$ref": "#/$defs/Text"
+              "$ref": "#/$defs/Reply_Text"
             },
             {
               "type": "null"
@@ -146,7 +146,7 @@
         "org_fax": {
           "anyOf": [
             {
-              "$ref": "#/$defs/Text"
+              "$ref": "#/$defs/Reply_Text"
             },
             {
               "type": "null"
@@ -157,7 +157,7 @@
         "org_postal_code": {
           "anyOf": [
             {
-              "$ref": "#/$defs/Text"
+              "$ref": "#/$defs/Reply_Text"
             },
             {
               "type": "null"
@@ -168,7 +168,7 @@
         "org_state_or_province": {
           "anyOf": [
             {
-              "$ref": "#/$defs/Text"
+              "$ref": "#/$defs/Reply_Text"
             },
             {
               "type": "null"
@@ -190,7 +190,7 @@
       ],
       "type": "object"
     },
-    "OrganizationCoordinates": {
+    "Reply_OrganizationCoordinates": {
       "description": "Geographic point published by NCI, in degrees.",
       "properties": {
         "lat": {
@@ -210,40 +210,40 @@
       ],
       "type": "object"
     },
-    "OrganizationPage": {
+    "Reply_OrganizationPage": {
       "description": "Local page of a complete bounded source observation.",
       "properties": {
         "items": {
           "description": "Published organizations in source order, with optional source details.",
           "items": {
-            "$ref": "#/$defs/Organization"
+            "$ref": "#/$defs/Reply_Organization"
           },
           "type": "array"
         }
       },
       "type": "object"
     },
-    "OrganizationSearch": {
+    "Reply_OrganizationSearch": {
       "description": "Find NCI organizations. Names are not unique; trial counts cover every status, including closed trials. No organization ID or get is available.",
       "properties": {
         "city": {
-          "$ref": "#/$defs/Text",
+          "$ref": "#/$defs/Reply_Text",
           "description": "Native organization city."
         },
         "country": {
-          "$ref": "#/$defs/Text",
+          "$ref": "#/$defs/Reply_Text",
           "description": "Native organization country."
         },
         "distance": {
-          "$ref": "#/$defs/Text",
+          "$ref": "#/$defs/Reply_Text",
           "description": "Positive radius with explicit mi or km units."
         },
         "family": {
-          "$ref": "#/$defs/Text",
+          "$ref": "#/$defs/Reply_Text",
           "description": "Native organization family."
         },
         "lat": {
-          "$ref": "#/$defs/Text",
+          "$ref": "#/$defs/Reply_Text",
           "description": "Radius center latitude in degrees; requires lon and distance."
         },
         "limit": {
@@ -255,11 +255,11 @@
           "type": "integer"
         },
         "lon": {
-          "$ref": "#/$defs/Text",
+          "$ref": "#/$defs/Reply_Text",
           "description": "Radius center longitude in degrees; requires lat and distance."
         },
         "name": {
-          "$ref": "#/$defs/Text",
+          "$ref": "#/$defs/Reply_Text",
           "description": "NCI partial organization name; names are not unique."
         },
         "offset": {
@@ -272,7 +272,7 @@
         "pool": {
           "anyOf": [
             {
-              "$ref": "#/$defs/Text"
+              "$ref": "#/$defs/Reply_Text"
             },
             {
               "type": "null"
@@ -281,15 +281,15 @@
           "description": "Snapshot identity retained by continuation commands."
         },
         "postal_code": {
-          "$ref": "#/$defs/Text",
+          "$ref": "#/$defs/Reply_Text",
           "description": "Native postal code."
         },
         "source": {
-          "$ref": "#/$defs/OrganizationSource",
+          "$ref": "#/$defs/Reply_OrganizationSource",
           "description": "Explicit keyed NCI source."
         },
         "state": {
-          "$ref": "#/$defs/Text",
+          "$ref": "#/$defs/Reply_Text",
           "description": "Native state or province."
         }
       },
@@ -298,14 +298,14 @@
       ],
       "type": "object"
     },
-    "OrganizationSource": {
+    "Reply_OrganizationSource": {
       "description": "Organization discovery source.",
       "enum": [
         "nci"
       ],
       "type": "string"
     },
-    "PageInfo": {
+    "Reply_PageInfo": {
       "description": "Search counts after filtering and deduplication.",
       "properties": {
         "offset": {
@@ -317,7 +317,7 @@
         "pool": {
           "anyOf": [
             {
-              "$ref": "#/$defs/PoolInfo"
+              "$ref": "#/$defs/Reply_PoolInfo"
             },
             {
               "type": "null"
@@ -352,7 +352,7 @@
       ],
       "type": "object"
     },
-    "PoolInfo": {
+    "Reply_PoolInfo": {
       "description": "Fixed lifetime and size of a stored search snapshot.",
       "properties": {
         "created": {
@@ -368,7 +368,7 @@
           "type": "integer"
         },
         "id": {
-          "$ref": "#/$defs/Text",
+          "$ref": "#/$defs/Reply_Text",
           "description": "Opaque snapshot identifier."
         },
         "size": {
@@ -386,11 +386,11 @@
       ],
       "type": "object"
     },
-    "Problem": {
+    "Reply_Problem": {
       "description": "A field that could not be accepted from a source record.",
       "properties": {
         "code": {
-          "$ref": "#/$defs/ProblemCode",
+          "$ref": "#/$defs/Reply_ProblemCode",
           "description": "Why the field value was not accepted."
         },
         "field": {
@@ -400,7 +400,7 @@
         "record": {
           "anyOf": [
             {
-              "$ref": "#/$defs/Text"
+              "$ref": "#/$defs/Reply_Text"
             },
             {
               "type": "null"
@@ -409,7 +409,7 @@
           "description": "The record's canonical identifier, when known."
         },
         "source": {
-          "$ref": "#/$defs/Source",
+          "$ref": "#/$defs/Reply_Source",
           "description": "The source that supplied the record."
         }
       },
@@ -420,7 +420,7 @@
       ],
       "type": "object"
     },
-    "ProblemCode": {
+    "Reply_ProblemCode": {
       "description": "A stable code for a rejected field value.",
       "type": "string",
       "x-enum-descriptions": [
@@ -434,7 +434,7 @@
         "identity.conflict"
       ]
     },
-    "Reason": {
+    "Reply_Reason": {
       "description": "Why a source could not supply data.",
       "type": "string",
       "x-enum-descriptions": [
@@ -480,7 +480,7 @@
         "no_join_id"
       ]
     },
-    "Source": {
+    "Reply_Source": {
       "description": "A source of BioMCP data, identified by its canonical short name.",
       "type": "string",
       "x-enum-descriptions": [
@@ -634,7 +634,7 @@
         "cellosaurus"
       ]
     },
-    "SourceNotice": {
+    "Reply_SourceNotice": {
       "description": "A source notice or request recovery step.",
       "oneOf": [
         {
@@ -690,7 +690,7 @@
               "type": "string"
             },
             "reason": {
-              "$ref": "#/$defs/CacheProblem",
+              "$ref": "#/$defs/Reply_CacheProblem",
               "description": "Bounded local failure without paths or database diagnostics."
             }
           },
@@ -704,7 +704,7 @@
           "description": "The source still has graph pages after the bounded fetch window.",
           "properties": {
             "fallback": {
-              "$ref": "#/$defs/Text",
+              "$ref": "#/$defs/Reply_Text",
               "description": "Default-source command offering another graph view."
             },
             "kind": {
@@ -771,7 +771,7 @@
             "words": {
               "description": "Whole source words.",
               "items": {
-                "$ref": "#/$defs/Text"
+                "$ref": "#/$defs/Reply_Text"
               },
               "type": "array"
             }
@@ -783,7 +783,7 @@
         }
       ]
     },
-    "SourceOutcome": {
+    "Reply_SourceOutcome": {
       "description": "One source's outcome, without provider text.",
       "properties": {
         "count": {
@@ -807,14 +807,14 @@
         "notices": {
           "description": "Source notices and request recovery guidance.",
           "items": {
-            "$ref": "#/$defs/SourceNotice"
+            "$ref": "#/$defs/Reply_SourceNotice"
           },
           "type": "array"
         },
         "reason": {
           "anyOf": [
             {
-              "$ref": "#/$defs/Reason"
+              "$ref": "#/$defs/Reply_Reason"
             },
             {
               "type": "null"
@@ -823,17 +823,17 @@
           "description": "Failure or stale-fallback reason."
         },
         "source": {
-          "$ref": "#/$defs/Source",
+          "$ref": "#/$defs/Reply_Source",
           "description": "Asked source."
         },
         "state": {
-          "$ref": "#/$defs/SourceState",
+          "$ref": "#/$defs/Reply_SourceState",
           "description": "Retained state."
         },
         "term": {
           "anyOf": [
             {
-              "$ref": "#/$defs/Text"
+              "$ref": "#/$defs/Reply_Text"
             },
             {
               "type": "null"
@@ -851,7 +851,7 @@
           "type": "string"
         },
         "use": {
-          "$ref": "#/$defs/Use",
+          "$ref": "#/$defs/Reply_Use",
           "description": "Reviewed source use category; publisher terms remain authoritative."
         }
       },
@@ -864,7 +864,7 @@
       ],
       "type": "object"
     },
-    "SourceState": {
+    "Reply_SourceState": {
       "description": "State of a source actually asked by the command.",
       "enum": [
         "ok",
@@ -875,7 +875,7 @@
       ],
       "type": "string"
     },
-    "Status": {
+    "Reply_Status": {
       "description": "Overall command outcome.",
       "enum": [
         "complete",
@@ -885,7 +885,7 @@
       ],
       "type": "string"
     },
-    "Step": {
+    "Reply_Step": {
       "description": "A command argument list spelled from a typed action.",
       "properties": {
         "args": {
@@ -896,7 +896,7 @@
           "type": "array"
         },
         "kind": {
-          "$ref": "#/$defs/StepKind",
+          "$ref": "#/$defs/Reply_StepKind",
           "description": "Purpose of the action."
         }
       },
@@ -905,7 +905,7 @@
       ],
       "type": "object"
     },
-    "StepKind": {
+    "Reply_StepKind": {
       "description": "Purpose of an available next command.",
       "enum": [
         "restart",
@@ -921,12 +921,12 @@
       ],
       "type": "string"
     },
-    "Text": {
+    "Reply_Text": {
       "description": "Nonempty text with surrounding Unicode whitespace removed.",
       "minLength": 1,
       "type": "string"
     },
-    "Use": {
+    "Reply_Use": {
       "description": "Reviewed source-use category, without inferring rights in individual records.",
       "enum": [
         "open",
@@ -944,7 +944,7 @@
     "local_error": {
       "anyOf": [
         {
-          "$ref": "#/$defs/CacheProblem"
+          "$ref": "#/$defs/Reply_CacheProblem"
         },
         {
           "type": "null"
@@ -955,14 +955,14 @@
     "next": {
       "description": "Available next commands.",
       "items": {
-        "$ref": "#/$defs/Step"
+        "$ref": "#/$defs/Reply_Step"
       },
       "type": "array"
     },
     "page": {
       "anyOf": [
         {
-          "$ref": "#/$defs/PageInfo"
+          "$ref": "#/$defs/Reply_PageInfo"
         },
         {
           "type": "null"
@@ -973,18 +973,18 @@
     "problems": {
       "description": "Rejected source fields.",
       "items": {
-        "$ref": "#/$defs/Problem"
+        "$ref": "#/$defs/Reply_Problem"
       },
       "type": "array"
     },
     "query": {
-      "$ref": "#/$defs/OrganizationSearch",
+      "$ref": "#/$defs/Reply_OrganizationSearch",
       "description": "Parsed query."
     },
     "result": {
       "anyOf": [
         {
-          "$ref": "#/$defs/OrganizationPage"
+          "$ref": "#/$defs/Reply_OrganizationPage"
         },
         {
           "type": "null"
@@ -999,12 +999,12 @@
     "sources": {
       "description": "Sources actually asked.",
       "items": {
-        "$ref": "#/$defs/SourceOutcome"
+        "$ref": "#/$defs/Reply_SourceOutcome"
       },
       "type": "array"
     },
     "status": {
-      "$ref": "#/$defs/Status",
+      "$ref": "#/$defs/Reply_Status",
       "description": "Overall outcome."
     }
   },

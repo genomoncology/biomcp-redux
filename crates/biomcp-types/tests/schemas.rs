@@ -327,6 +327,11 @@ fn trial_contracts() -> Vec<Contract> {
 }
 
 #[test]
+fn checked_in_schema_definition_names_have_one_body() -> Result<(), Box<dyn std::error::Error>> {
+    release::checked_in_schema_definition_names_have_one_body()
+}
+
+#[test]
 #[expect(
     clippy::disallowed_methods,
     reason = "Schema contract tests own file and environment I/O outside the pure library"

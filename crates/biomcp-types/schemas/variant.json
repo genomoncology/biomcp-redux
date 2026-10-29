@@ -1,21 +1,21 @@
 {
   "$defs": {
-    "Accession": {
+    "Reply_Accession": {
       "description": "A reference sequence accession: RefSeq or Ensembl with its version, or LRG.",
       "pattern": "^((N[CGMPRTW]|X[MPR])_([0-9]{6}|[0-9]{9})\\.[1-9][0-9]*|ENS[GTP][0-9]{11}\\.[1-9][0-9]*|LRG_[0-9]+([tp][0-9]+)?)$",
       "type": "string"
     },
-    "Allele": {
+    "Reply_Allele": {
       "description": "Source-stated interbase replacement; equality never claims normalized equivalence.",
       "properties": {
         "alternate": {
-          "$ref": "#/$defs/Sequence"
+          "$ref": "#/$defs/Reply_Sequence"
         },
         "location": {
-          "$ref": "#/$defs/SequenceLocation"
+          "$ref": "#/$defs/Reply_SequenceLocation"
         },
         "reference": {
-          "$ref": "#/$defs/Sequence"
+          "$ref": "#/$defs/Reply_Sequence"
         }
       },
       "required": [
@@ -25,7 +25,7 @@
       ],
       "type": "object"
     },
-    "Build": {
+    "Reply_Build": {
       "description": "The assembly stated by the source; no default is inferred.",
       "type": "string",
       "x-enum-descriptions": [
@@ -37,21 +37,21 @@
         "GRCh38"
       ]
     },
-    "EnsemblGeneId": {
+    "Reply_EnsemblGeneId": {
       "description": " A human Ensembl gene stable identifier with a separately retained version.",
       "pattern": "^ENSG[0-9]{11}(\\.[1-9][0-9]*)?$",
       "type": "string"
     },
-    "Expression": {
+    "Reply_Expression": {
       "description": "Source expression checked for its reference and syntax only, without a full parser or normalization.",
       "properties": {
         "syntax": {
-          "$ref": "#/$defs/ExpressionSyntax"
+          "$ref": "#/$defs/Reply_ExpressionSyntax"
         },
         "syntax_version": {
           "anyOf": [
             {
-              "$ref": "#/$defs/Text"
+              "$ref": "#/$defs/Reply_Text"
             },
             {
               "type": "null"
@@ -59,7 +59,7 @@
           ]
         },
         "value": {
-          "$ref": "#/$defs/Text"
+          "$ref": "#/$defs/Reply_Text"
         }
       },
       "required": [
@@ -68,7 +68,7 @@
       ],
       "type": "object"
     },
-    "ExpressionSyntax": {
+    "Reply_ExpressionSyntax": {
       "description": "Published syntax label for a source-preserved expression.",
       "type": "string",
       "x-enum-descriptions": [
@@ -98,13 +98,13 @@
         "iscn"
       ]
     },
-    "GeneRef": {
+    "Reply_GeneRef": {
       "description": "A source-stated gene reference; its label never implies an identifier.",
       "properties": {
         "ensembl_gene_id": {
           "anyOf": [
             {
-              "$ref": "#/$defs/EnsemblGeneId"
+              "$ref": "#/$defs/Reply_EnsemblGeneId"
             },
             {
               "type": "null"
@@ -114,7 +114,7 @@
         "hgnc_id": {
           "anyOf": [
             {
-              "$ref": "#/$defs/HgncId"
+              "$ref": "#/$defs/Reply_HgncId"
             },
             {
               "type": "null"
@@ -122,12 +122,12 @@
           ]
         },
         "label": {
-          "$ref": "#/$defs/Text"
+          "$ref": "#/$defs/Reply_Text"
         },
         "ncbi_gene_id": {
           "anyOf": [
             {
-              "$ref": "#/$defs/NcbiGeneId"
+              "$ref": "#/$defs/Reply_NcbiGeneId"
             },
             {
               "type": "null"
@@ -140,23 +140,23 @@
       ],
       "type": "object"
     },
-    "HgncId": {
+    "Reply_HgncId": {
       "description": "An HGNC identifier with canonical namespace and positive numeric value.",
       "pattern": "^HGNC:[1-9][0-9]*$",
       "type": "string"
     },
-    "NcbiGeneId": {
+    "Reply_NcbiGeneId": {
       "description": "A positive NCBI Gene identifier in canonical decimal text.",
       "pattern": "^[1-9][0-9]*$",
       "type": "string"
     },
-    "Representation": {
+    "Reply_Representation": {
       "description": "One source's own expression, assembly and optional source-stated interbase allele.",
       "properties": {
         "allele": {
           "anyOf": [
             {
-              "$ref": "#/$defs/Allele"
+              "$ref": "#/$defs/Reply_Allele"
             },
             {
               "type": "null"
@@ -167,7 +167,7 @@
         "build": {
           "anyOf": [
             {
-              "$ref": "#/$defs/Build"
+              "$ref": "#/$defs/Reply_Build"
             },
             {
               "type": "null"
@@ -176,11 +176,11 @@
           "description": "Assembly stated by the source, omitted when absent."
         },
         "expression": {
-          "$ref": "#/$defs/Expression",
+          "$ref": "#/$defs/Reply_Expression",
           "description": "Published notation kept unchanged."
         },
         "source": {
-          "$ref": "#/$defs/Text",
+          "$ref": "#/$defs/Reply_Text",
           "description": "Source asserting this form."
         }
       },
@@ -190,20 +190,20 @@
       ],
       "type": "object"
     },
-    "Sequence": {
+    "Reply_Sequence": {
       "description": "A literal IUPAC DNA sequence; empty sequences express insertions or deletions.",
       "pattern": "^[ACGTNRYSWKMBDHV]*$",
       "type": "string"
     },
-    "SequenceLocation": {
+    "Reply_SequenceLocation": {
       "description": "An interbase interval on one versioned sequence accession.",
       "properties": {
         "sequence": {
-          "$ref": "#/$defs/Accession",
+          "$ref": "#/$defs/Reply_Accession",
           "description": "Versioned source sequence, without an inferred genome build."
         },
         "span": {
-          "$ref": "#/$defs/Span0",
+          "$ref": "#/$defs/Reply_Span0",
           "description": "Zero-based half-open bounds."
         }
       },
@@ -213,7 +213,7 @@
       ],
       "type": "object"
     },
-    "Span0": {
+    "Reply_Span0": {
       "description": "A zero-based half-open span with ordered bounds; empty spans are valid.",
       "properties": {
         "end": {
@@ -235,12 +235,12 @@
       ],
       "type": "object"
     },
-    "Text": {
+    "Reply_Text": {
       "description": "Nonempty text with surrounding Unicode whitespace removed.",
       "minLength": 1,
       "type": "string"
     },
-    "VariantId": {
+    "Reply_VariantId": {
       "description": "Published variant-level identifiers, with each identifier's level retained.",
       "pattern": "^(rs[1-9][0-9]*|CA[0-9]{6,}|PA[1-9][0-9]*|VCV[0-9]{9}(\\.[1-9][0-9]*)?|clinvar:[1-9][0-9]*|COS[VMN][1-9][0-9]*|ga4gh:VA\\.[A-Za-z0-9_-]{32})$",
       "type": "string"
@@ -253,21 +253,21 @@
     "genes": {
       "description": "Genes stated by the sources.",
       "items": {
-        "$ref": "#/$defs/GeneRef"
+        "$ref": "#/$defs/Reply_GeneRef"
       },
       "type": "array"
     },
     "ids": {
       "description": "All source identifiers, without inferred aliases.",
       "items": {
-        "$ref": "#/$defs/VariantId"
+        "$ref": "#/$defs/Reply_VariantId"
       },
       "type": "array"
     },
     "representations": {
       "description": "Every source-qualified representation.",
       "items": {
-        "$ref": "#/$defs/Representation"
+        "$ref": "#/$defs/Reply_Representation"
       },
       "type": "array"
     }

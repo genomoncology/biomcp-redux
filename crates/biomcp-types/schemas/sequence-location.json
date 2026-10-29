@@ -1,11 +1,11 @@
 {
   "$defs": {
-    "Accession": {
+    "Reply_Accession": {
       "description": "A reference sequence accession: RefSeq or Ensembl with its version, or LRG.",
       "pattern": "^((N[CGMPRTW]|X[MPR])_([0-9]{6}|[0-9]{9})\\.[1-9][0-9]*|ENS[GTP][0-9]{11}\\.[1-9][0-9]*|LRG_[0-9]+([tp][0-9]+)?)$",
       "type": "string"
     },
-    "Span0": {
+    "Reply_Span0": {
       "description": "A zero-based half-open span with ordered bounds; empty spans are valid.",
       "properties": {
         "end": {
@@ -33,11 +33,11 @@
   "description": "An interbase interval on one versioned sequence accession.",
   "properties": {
     "sequence": {
-      "$ref": "#/$defs/Accession",
+      "$ref": "#/$defs/Reply_Accession",
       "description": "Versioned source sequence, without an inferred genome build."
     },
     "span": {
-      "$ref": "#/$defs/Span0",
+      "$ref": "#/$defs/Reply_Span0",
       "description": "Zero-based half-open bounds."
     }
   },

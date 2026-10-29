@@ -96,6 +96,7 @@ pub struct TrialEligibilityPage {
 #[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
 #[serde(bound(deserialize = "T: Deserialize<'de>"))]
 #[cfg_attr(feature = "schema", derive(schemars::JsonSchema))]
+#[cfg_attr(feature = "schema", schemars(rename = "TrialRecords_{T}"))]
 pub struct TrialRecords<T> {
     /// Checked request for the next intact records, absent when complete.
     #[serde(default, skip_serializing_if = "Option::is_none")]

@@ -1,12 +1,12 @@
 {
   "$defs": {
-    "Attribution": {
+    "Reply_Attribution": {
       "description": "Provenance for one source record.",
       "properties": {
         "evaluated": {
           "anyOf": [
             {
-              "$ref": "#/$defs/PartialDate"
+              "$ref": "#/$defs/Reply_PartialDate"
             },
             {
               "type": "null"
@@ -17,7 +17,7 @@
         "record": {
           "anyOf": [
             {
-              "$ref": "#/$defs/Text"
+              "$ref": "#/$defs/Reply_Text"
             },
             {
               "type": "null"
@@ -28,7 +28,7 @@
         "release": {
           "anyOf": [
             {
-              "$ref": "#/$defs/Text"
+              "$ref": "#/$defs/Reply_Text"
             },
             {
               "type": "null"
@@ -37,13 +37,13 @@
           "description": "Dataset release."
         },
         "source": {
-          "$ref": "#/$defs/Text",
+          "$ref": "#/$defs/Reply_Text",
           "description": "Source responsible for the claim."
         },
         "submitter": {
           "anyOf": [
             {
-              "$ref": "#/$defs/Text"
+              "$ref": "#/$defs/Reply_Text"
             },
             {
               "type": "null"
@@ -54,7 +54,7 @@
         "url": {
           "anyOf": [
             {
-              "$ref": "#/$defs/Text"
+              "$ref": "#/$defs/Reply_Text"
             },
             {
               "type": "null"
@@ -66,7 +66,7 @@
         "version": {
           "anyOf": [
             {
-              "$ref": "#/$defs/Text"
+              "$ref": "#/$defs/Reply_Text"
             },
             {
               "type": "null"
@@ -80,15 +80,15 @@
       ],
       "type": "object"
     },
-    "ComponentLabel": {
+    "Reply_ComponentLabel": {
       "description": "Terms attached to a named carried component on a consumer response.",
       "properties": {
         "component": {
-          "$ref": "#/$defs/Text",
+          "$ref": "#/$defs/Reply_Text",
           "description": "Native component name."
         },
         "terms": {
-          "$ref": "#/$defs/ComponentTerms",
+          "$ref": "#/$defs/Reply_ComponentTerms",
           "description": "Canonical publisher terms."
         }
       },
@@ -98,20 +98,20 @@
       ],
       "type": "object"
     },
-    "ComponentTerms": {
+    "Reply_ComponentTerms": {
       "description": "Terms attached to one independently licensed source component.",
       "properties": {
         "name": {
-          "$ref": "#/$defs/Text",
+          "$ref": "#/$defs/Reply_Text",
           "description": "Publisher terms name."
         },
         "url": {
-          "$ref": "#/$defs/Text",
+          "$ref": "#/$defs/Reply_Text",
           "description": "Publisher terms page.",
           "format": "uri"
         },
         "usage": {
-          "$ref": "#/$defs/Use",
+          "$ref": "#/$defs/Reply_Use",
           "description": "Publisher use category."
         }
       },
@@ -122,18 +122,18 @@
       ],
       "type": "object"
     },
-    "Curie": {
+    "Reply_Curie": {
       "description": "Checked prefix:local ontology identifier.",
-      "pattern": "^[A-Za-z0-9_.-]+:[^\\s\\x00-\\x1f\\x7f-\\x9f]+$",
+      "pattern": "^[A-Za-z0-9_.-]+:[^\\x09-\\x0d\\x20\\x85\\xa0\\u1680\\u2000-\\u200a\\u2028\\u2029\\u202f\\u205f\\u3000\\x00-\\x1f\\x7f-\\x9f]+$",
       "type": "string"
     },
-    "DiseaseConcept": {
+    "Reply_DiseaseConcept": {
       "description": "A disease identity whose optional display label never determines record admission.",
       "properties": {
         "id": {
           "anyOf": [
             {
-              "$ref": "#/$defs/Curie"
+              "$ref": "#/$defs/Reply_Curie"
             },
             {
               "type": "null"
@@ -142,23 +142,23 @@
           "description": "Source-stated exact identifier."
         },
         "label": {
-          "$ref": "#/$defs/Text",
+          "$ref": "#/$defs/Reply_Text",
           "description": "Native display label when supplied and valid."
         }
       },
       "type": "object"
     },
-    "DiseaseEndpoint": {
+    "Reply_DiseaseEndpoint": {
       "description": "One native endpoint with an identifier and an optional source label.",
       "properties": {
         "id": {
-          "$ref": "#/$defs/Curie",
+          "$ref": "#/$defs/Reply_Curie",
           "description": "Exact source identifier."
         },
         "label": {
           "anyOf": [
             {
-              "$ref": "#/$defs/Text"
+              "$ref": "#/$defs/Reply_Text"
             },
             {
               "type": "null"
@@ -172,11 +172,11 @@
       ],
       "type": "object"
     },
-    "DiseaseRelation": {
+    "Reply_DiseaseRelation": {
       "description": "A publisher relation with distinct endpoints and predicate.",
       "properties": {
         "attribution": {
-          "$ref": "#/$defs/Attribution",
+          "$ref": "#/$defs/Reply_Attribution",
           "description": "Publisher record and version."
         },
         "description": {
@@ -187,15 +187,15 @@
           ]
         },
         "object": {
-          "$ref": "#/$defs/DiseaseEndpoint",
+          "$ref": "#/$defs/Reply_DiseaseEndpoint",
           "description": "Native object."
         },
         "predicate": {
-          "$ref": "#/$defs/Curie",
+          "$ref": "#/$defs/Reply_Curie",
           "description": "Publisher predicate, without equivalence promotion."
         },
         "subject": {
-          "$ref": "#/$defs/DiseaseEndpoint",
+          "$ref": "#/$defs/Reply_DiseaseEndpoint",
           "description": "Native subject."
         }
       },
@@ -207,12 +207,12 @@
       ],
       "type": "object"
     },
-    "PartialDate": {
-      "description": "A Gregorian date preserving year, month or day precision.",
-      "pattern": "^[0-9]{4}(-[0-9]{2}(-[0-9]{2})?)?$",
+    "Reply_PartialDate": {
+      "description": "A Gregorian date preserving year, month or day precision. The parser additionally validates the calendar day, including leap years.",
+      "pattern": "^(?!0000)[0-9]{4}(-(0[1-9]|1[0-2])(-(0[1-9]|[12][0-9]|3[01]))?)?$",
       "type": "string"
     },
-    "Source": {
+    "Reply_Source": {
       "description": "A source of BioMCP data, identified by its canonical short name.",
       "type": "string",
       "x-enum-descriptions": [
@@ -366,12 +366,12 @@
         "cellosaurus"
       ]
     },
-    "Text": {
+    "Reply_Text": {
       "description": "Nonempty text with surrounding Unicode whitespace removed.",
       "minLength": 1,
       "type": "string"
     },
-    "Use": {
+    "Reply_Use": {
       "description": "Reviewed source-use category, without inferring rights in individual records.",
       "enum": [
         "open",
@@ -382,14 +382,14 @@
       "type": "string"
     }
   },
-  "$id": "biomcp.trial-condition-resolution/2",
+  "$id": "biomcp.trial-condition-resolution/3",
   "$schema": "https://json-schema.org/draft/2020-12/schema",
   "description": "Exact condition identity used for one trial request, without eligibility inference.",
   "properties": {
     "alias": {
       "anyOf": [
         {
-          "$ref": "#/$defs/DiseaseRelation"
+          "$ref": "#/$defs/Reply_DiseaseRelation"
         },
         {
           "type": "null"
@@ -400,7 +400,7 @@
     "attribution": {
       "anyOf": [
         {
-          "$ref": "#/$defs/Attribution"
+          "$ref": "#/$defs/Reply_Attribution"
         },
         {
           "type": "null"
@@ -411,14 +411,14 @@
     "components": {
       "description": "Admitted resolver components and their own terms.",
       "items": {
-        "$ref": "#/$defs/ComponentLabel"
+        "$ref": "#/$defs/Reply_ComponentLabel"
       },
       "type": "array"
     },
     "concept": {
       "anyOf": [
         {
-          "$ref": "#/$defs/DiseaseConcept"
+          "$ref": "#/$defs/Reply_DiseaseConcept"
         },
         {
           "type": "null"
@@ -427,20 +427,20 @@
       "description": "Returned concept with its unchanged native primary label."
     },
     "input": {
-      "$ref": "#/$defs/Curie",
+      "$ref": "#/$defs/Reply_Curie",
       "description": "Caller-selected CURIE, never a source-name search."
     },
     "ncit_candidates": {
       "description": "Native NCIt mapping rows; duplicate targets keep their independent provenance.",
       "items": {
-        "$ref": "#/$defs/DiseaseRelation"
+        "$ref": "#/$defs/Reply_DiseaseRelation"
       },
       "type": "array"
     },
     "resolver": {
       "anyOf": [
         {
-          "$ref": "#/$defs/Source"
+          "$ref": "#/$defs/Reply_Source"
         },
         {
           "type": "null"
@@ -451,7 +451,7 @@
     "selected_ncit": {
       "anyOf": [
         {
-          "$ref": "#/$defs/Curie"
+          "$ref": "#/$defs/Reply_Curie"
         },
         {
           "type": "null"

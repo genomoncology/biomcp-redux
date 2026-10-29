@@ -1,11 +1,11 @@
 {
   "$defs": {
-    "DrugId": {
+    "Reply_DrugId": {
       "description": "A published native drug record identifier, without a consumer source prefix.",
       "pattern": "^(?:[A-Z][A-Z0-9_.-]*:)?[A-Za-z0-9][A-Za-z0-9_.-]*(/[A-Za-z0-9_.-]+)*$",
       "type": "string"
     },
-    "DrugIdentityLevel": {
+    "Reply_DrugIdentityLevel": {
       "description": "Identity level established by the source endpoint or record type, never inferred from ID shape.",
       "type": "string",
       "x-enum-descriptions": [
@@ -39,7 +39,7 @@
         "unknown"
       ]
     },
-    "Text": {
+    "Reply_Text": {
       "description": "Nonempty text with surrounding Unicode whitespace removed.",
       "minLength": 1,
       "type": "string"
@@ -50,25 +50,25 @@
   "description": "One source record identity, without any equivalence or authorization claim.",
   "properties": {
     "id": {
-      "$ref": "#/$defs/DrugId",
+      "$ref": "#/$defs/Reply_DrugId",
       "description": "Published native record identifier."
     },
     "identity_level": {
-      "$ref": "#/$defs/DrugIdentityLevel",
+      "$ref": "#/$defs/Reply_DrugIdentityLevel",
       "description": "Level established by the endpoint or record type; unknown stays unknown."
     },
     "name": {
-      "$ref": "#/$defs/Text",
+      "$ref": "#/$defs/Reply_Text",
       "description": "Original source name."
     },
     "source": {
-      "$ref": "#/$defs/Text",
+      "$ref": "#/$defs/Reply_Text",
       "description": "Source responsible for this identity."
     },
     "type": {
       "anyOf": [
         {
-          "$ref": "#/$defs/Text"
+          "$ref": "#/$defs/Reply_Text"
         },
         {
           "type": "null"
@@ -79,7 +79,7 @@
     "url": {
       "anyOf": [
         {
-          "$ref": "#/$defs/Text"
+          "$ref": "#/$defs/Reply_Text"
         },
         {
           "type": "null"
