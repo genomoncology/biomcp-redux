@@ -255,5 +255,34 @@ fn timestamp() -> Check {
             return Err("trial reply echoed provider parameters or unset false flags".into());
         }
     }
+    for malformed in [json!("2024-02-30T10:00:00"), json!(7)] {
+        let value = checked_case(
+            "trial/condition",
+            &["search", "trial", "--condition", "melanoma"],
+            |_, record| {
+                if let Some(value) = record.pointer_mut("/exchanges/0/body/value/dataTimestamp") {
+                    *value = malformed.clone();
+                }
+            },
+            json!({"/status":"partial"}),
+            0,
+        )?;
+        if value.pointer("/result/source_updated").is_some()
+            || value["result"]["items"]
+                .as_array()
+                .is_none_or(Vec::is_empty)
+            || !value["problems"]
+                .as_array()
+                .into_iter()
+                .flatten()
+                .any(|problem| {
+                    problem["field"] == "dataTimestamp" && problem["code"] == "value.unknown"
+                })
+        {
+            return Err(
+                "invalid optional registry processing metadata discarded study records".into(),
+            );
+        }
+    }
     Ok(())
 }
