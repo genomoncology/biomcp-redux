@@ -66,7 +66,7 @@ pub fn associations(
             }
         },
     )?;
-    Ok(page(response, skip as usize))
+    Ok(self::page(response, skip as usize))
 }
 fn page(response: raw::Response, skip: usize) -> Page {
     let received_rows = response

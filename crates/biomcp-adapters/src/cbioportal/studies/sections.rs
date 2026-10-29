@@ -119,9 +119,11 @@ pub fn profiles(leg: &Leg<'_>, id: &StudyId) -> Result<Records<StudyProfile>, Re
     let rows: Vec<_> = reply
         .0
         .into_iter()
-        .filter_map(|v| problems.field("profiles", Some(v)))
-        .filter(|v| v.study_id == *id)
-        .map(|v| v.mapped(&mut problems))
+        .filter_map(|v| {
+            problems.record = None;
+            let row = problems.field("profiles", Some(v))?;
+            (row.study_id == *id).then(|| row.mapped(&mut problems))
+        })
         .collect();
     Ok(Records {
         rejected: total - rows.len(),
@@ -154,9 +156,11 @@ pub fn sample_lists(leg: &Leg<'_>, id: &StudyId) -> Result<Records<StudySampleLi
     let rows: Vec<_> = reply
         .0
         .into_iter()
-        .filter_map(|v| problems.field("sample_lists", Some(v)))
-        .filter(|v| v.study_id == *id)
-        .map(|v| v.mapped(&mut problems))
+        .filter_map(|v| {
+            problems.record = None;
+            let row = problems.field("sample_lists", Some(v))?;
+            (row.study_id == *id).then(|| row.mapped(&mut problems))
+        })
         .collect();
     Ok(Records {
         rejected: total - rows.len(),

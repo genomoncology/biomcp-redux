@@ -25,7 +25,7 @@ pub(super) struct Record {
     pub problems: Vec<biomcp_types::Problem>,
     pub accession_list: Vec<crate::raw::Field<Accession>>,
     pub name_list: Vec<Name>,
-    pub category: Option<crate::raw::Field<Text>>,
+    pub category: Option<Text>,
     pub species_list: Option<crate::strict_input::Input<Box<[CellLineXref]>>>,
     pub disease_list: Option<crate::strict_input::Input<Box<[CellLineXref]>>>,
     pub age: Option<Text>,
