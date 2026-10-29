@@ -105,12 +105,12 @@ fn article_cases() -> Vec<(&'static str, &'static str, &'static str)> {
         ),
         (
             "nonincreasing-wrong-order",
-            "  - run: [schema, biodata.article-search/1]\n    expect: {'/properties/limit/maximum': {nonincreasing: true}}",
+            "  - run: [schema, biodata.article-search/2]\n    expect: {'/properties/limit/maximum': {nonincreasing: true}}",
             "nonincreasing: expected an array",
         ),
         (
             "unique-duplicate",
-            "  - run: [schema, biodata.gene-resolution/4]\n    expect: {'/oneOf/*/properties/resolution/type': {unique: true}}",
+            "  - run: [schema, biodata.gene-resolution/5]\n    expect: {'/oneOf/*/properties/resolution/type': {unique: true}}",
             "unique: duplicate member",
         ),
         (

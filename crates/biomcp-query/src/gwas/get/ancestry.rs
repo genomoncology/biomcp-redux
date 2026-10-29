@@ -16,7 +16,7 @@ pub(super) fn read(
     else {
         return Ok(());
     };
-    let key = Sha256::digest(format!("biomcp.gwas-ancestries/1\0{id}"));
+    let key = Sha256::digest(format!("biomcp.gwas-ancestries/2\0{id}"));
     let leg = cx.fetch.leg(&gwas::SPEC, deadline).fresh(cx.fresh);
     if cx.fetch.disabled(Source::Gwas) {
         let error = RequestError::Source(SourceError {

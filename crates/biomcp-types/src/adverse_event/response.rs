@@ -62,7 +62,7 @@ pub struct AdverseEventPage {
     pub components: Box<[ComponentLabel]>,
 }
 impl ResponseBody for AdverseEventPage {
-    const SCHEMA: &'static str = "biomcp.adverse-event-page/3";
+    const SCHEMA: &'static str = "biomcp.adverse-event-page/4";
     type Query = AdverseEventSearch;
 }
 /// FAERS card with native report-level facts and independent collection lengths.
@@ -216,7 +216,7 @@ section!(
     AdverseEventReactions,
     AdverseEventReaction,
     reactions,
-    "biomcp.adverse-event-reactions/1"
+    "biomcp.adverse-event-reactions/2"
 );
 section!(
     AdverseEventDevices,

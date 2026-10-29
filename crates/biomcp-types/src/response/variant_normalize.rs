@@ -9,7 +9,7 @@ pub struct VariantNormalization {
     pub results: Box<[NormalizationResult]>,
 }
 impl super::ResponseBody for VariantNormalization {
-    const SCHEMA: &'static str = "biomcp.variant-normalization/5";
+    const SCHEMA: &'static str = "biomcp.variant-normalization/6";
     type Query = VariantNormalize;
 }
 /// One provider's own descriptions, messages and version metadata.

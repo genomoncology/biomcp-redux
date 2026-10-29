@@ -19,7 +19,7 @@
         "myvariant"
       ],
       "expect": {
-        "/schema": "biomcp.variant-card/10",
+        "/schema": "biomcp.variant-card/11",
         "/result/resolution": "unavailable",
         "/sources/0/source": "myvariant",
         "/sources/0/reason": "disabled"
@@ -205,7 +205,7 @@
       "exit": 4,
       "is_error": true,
       "expect": {
-        "/schema": "biomcp.variant-card/10",
+        "/schema": "biomcp.variant-card/11",
         "/result/resolution": "unavailable",
         "/sources/0/source": "car",
         "/sources/0/reason": "disabled"
@@ -233,7 +233,7 @@
       "exit": 4,
       "is_error": true,
       "expect": {
-        "/schema": "biomcp.variant-card/10",
+        "/schema": "biomcp.variant-card/11",
         "/result/resolution": "unavailable",
         "/sources/0/source": "myvariant",
         "/sources/0/reason": "disabled"

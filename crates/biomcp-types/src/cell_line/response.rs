@@ -232,35 +232,35 @@ pub struct CellLineAssayCount {
     pub assay_count: u64,
 }
 impl ResponseBody for CellLinePage {
-    const SCHEMA: &'static str = "biomcp.cell-line-page/2";
+    const SCHEMA: &'static str = "biomcp.cell-line-page/3";
     type Query = CellLineSearch;
 }
 impl ResponseBody for CellLineCard {
-    const SCHEMA: &'static str = "biomcp.cell-line-card/3";
+    const SCHEMA: &'static str = "biomcp.cell-line-card/4";
     type Query = CellLineGet;
 }
 impl ResponseBody for CellLineNames {
-    const SCHEMA: &'static str = "biomcp.cell-line-names/1";
+    const SCHEMA: &'static str = "biomcp.cell-line-names/2";
     type Query = CellLineGet;
 }
 impl ResponseBody for CellLineIdentityPage {
-    const SCHEMA: &'static str = "biomcp.cell-line-identity/1";
+    const SCHEMA: &'static str = "biomcp.cell-line-identity/2";
     type Query = CellLineGet;
 }
 impl ResponseBody for CellLineXrefs {
-    const SCHEMA: &'static str = "biomcp.cell-line-xrefs/1";
+    const SCHEMA: &'static str = "biomcp.cell-line-xrefs/2";
     type Query = CellLineGet;
 }
 impl ResponseBody for CellLineVariants {
-    const SCHEMA: &'static str = "biomcp.cell-line-variants/2";
+    const SCHEMA: &'static str = "biomcp.cell-line-variants/3";
     type Query = CellLineGet;
 }
 impl ResponseBody for CellLineChembl {
-    const SCHEMA: &'static str = "biomcp.cell-line-chembl/2";
+    const SCHEMA: &'static str = "biomcp.cell-line-chembl/3";
     type Query = CellLineGet;
 }
 impl ResponseBody for CellLineAssayCount {
-    const SCHEMA: &'static str = "biomcp.cell-line-assay-count/2";
+    const SCHEMA: &'static str = "biomcp.cell-line-assay-count/3";
     type Query = CellLineAssayCountQuery;
 }
 

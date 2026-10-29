@@ -28,14 +28,14 @@ page!(
     ProteinPage,
     ProteinHeader,
     ProteinSearch,
-    "biomcp.protein-page/1",
+    "biomcp.protein-page/2",
     "Source-ordered human reviewed protein headers."
 );
 page!(
     ProteinFeatures,
     ProteinFeature,
     ProteinFeaturesQuery,
-    "biomcp.protein-features/1",
+    "biomcp.protein-features/2",
     "Native UniProt feature rows, preserving exact labels and uncertain bounds."
 );
 /// Whole native rows with the independent unfiltered source count.
@@ -49,7 +49,7 @@ pub struct ProteinDomains {
     pub native_total: u64,
 }
 impl ResponseBody for ProteinDomains {
-    const SCHEMA: &'static str = "biomcp.protein-domains/3";
+    const SCHEMA: &'static str = "biomcp.protein-domains/4";
     type Query = ProteinDomainsQuery;
 }
 page!(
@@ -77,7 +77,7 @@ page!(
     ProteinComplexMembers,
     ProteinComplexMember,
     ProteinComplexMembersQuery,
-    "biomcp.protein-complex-members/1",
+    "biomcp.protein-complex-members/2",
     "Native participants of one exact containing complex, including non-protein source facts."
 );
 page!(
@@ -96,7 +96,7 @@ pub struct ProteinCard {
     pub items: Box<[ProteinCardItem]>,
 }
 impl ResponseBody for ProteinCard {
-    const SCHEMA: &'static str = "biomcp.protein-card/4";
+    const SCHEMA: &'static str = "biomcp.protein-card/5";
     type Query = ProteinGet;
 }
 /// One requested identity and its source outcome, without first-hit selection.
@@ -157,7 +157,7 @@ pub struct ProteinSequenceResult {
     pub sequence: ProteinSequence,
 }
 impl ResponseBody for ProteinSequenceResult {
-    const SCHEMA: &'static str = "biomcp.protein-sequence/1";
+    const SCHEMA: &'static str = "biomcp.protein-sequence/2";
     type Query = ProteinSequenceQuery;
 }
 /// Whole source function paragraphs and their own evidence.
