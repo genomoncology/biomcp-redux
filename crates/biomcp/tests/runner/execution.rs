@@ -75,19 +75,7 @@ pub(super) fn run_step(
         }
     }
     if let Some(call) = &step.mcp_call {
-        let value = super::research::call_checked(
-            environment,
-            &call.name,
-            call.arguments.clone(),
-            &globals,
-            step.is_error,
-        )?;
-        assertions::check(
-            &serde_json::to_vec(&value).map_err(|e| e.to_string())?,
-            step,
-            expectations,
-        )?;
-        answer = Some(value);
+        answer = Some(named(call, step, environment, expectations, &globals)?);
     }
     answer.ok_or_else(|| "step requires run, mcp or mcp_call".into())
 }
@@ -105,4 +93,26 @@ fn parity(cli: &Value, result: &Value, args: &[String]) -> Result<(), String> {
         return Err(format!("CLI/MCP parity: unequal results at {diff}"));
     }
     Ok(())
+}
+
+fn named(
+    call: &super::case_data::McpCall,
+    step: &Step,
+    environment: &launch::Environment,
+    expectations: &assertions::Expectations<'_>,
+    globals: &[String],
+) -> Result<Value, String> {
+    let value = super::research::call_checked(
+        environment,
+        &call.name,
+        call.arguments.clone(),
+        globals,
+        step.is_error,
+    )?;
+    assertions::check(
+        &serde_json::to_vec(&value).map_err(|e| e.to_string())?,
+        step,
+        expectations,
+    )?;
+    Ok(value)
 }

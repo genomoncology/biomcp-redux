@@ -39,7 +39,7 @@ fn metadata() -> Result<(Value, Vec<Value>), Box<dyn std::error::Error>> {
     ];
     let (status, stdout, stderr) = process::exchange(child, &frames)?;
     for frame in process::messages(status, &stdout, &stderr)? {
-        if frame["id"] == 2 {
+        if frame.get("id") == Some(&json!(2)) {
             return Ok((
                 help,
                 frame
@@ -53,12 +53,11 @@ fn metadata() -> Result<(Value, Vec<Value>), Box<dyn std::error::Error>> {
     Err("MCP tool registry response missing".into())
 }
 
-#[test]
 #[expect(
     clippy::disallowed_methods,
     reason = "Repository ratchets own their working directory boundary"
 )]
-fn required_surface_has_asserted_calls() -> Check {
+pub(super) fn required_surface_has_asserted_calls() -> Check {
     let root = std::env::current_dir()?.join("../..");
     let (help, tools) = metadata()?;
     let mut counts = tally::Inventory::new(&help, &tools)?;
@@ -78,4 +77,9 @@ fn required_surface_has_asserted_calls() -> Check {
         writeln!(output, "required {count:5} {item}")?;
     }
     counts.check(&pending)
+}
+
+pub(super) fn controls() -> Check {
+    proof::check()?;
+    pending::admissions_retire_and_refuse_restoring_a_closed_gap()
 }

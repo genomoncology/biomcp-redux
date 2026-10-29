@@ -38,7 +38,6 @@ fn pending(inventory: &Inventory) -> BTreeSet<String> {
         .map(|(name, _)| name.clone())
         .collect()
 }
-#[test]
 fn three_hand_counts_match_and_an_identity_never_counts_as_a_section() -> Check {
     let inventory = covered()?;
     assert_eq!(inventory.calls["command get trial"], 3);
@@ -47,7 +46,6 @@ fn three_hand_counts_match_and_an_identity_never_counts_as_a_section() -> Check 
     assert_eq!(inventory.calls["global --format"], 1);
     inventory.check(&pending(&inventory))
 }
-#[test]
 fn a_new_option_without_a_case_fails() -> Check {
     let original = covered()?;
     let mut help = help();
@@ -72,7 +70,6 @@ fn a_new_option_without_a_case_fails() -> Check {
     assert!(failure.contains("option get trial --planted"), "{failure}");
     Ok(())
 }
-#[test]
 fn removing_the_only_section_call_fails() -> Check {
     let original = covered()?;
     let mut changed = Inventory::new(&help(), &[])?;
@@ -94,7 +91,6 @@ fn removing_the_only_section_call_fails() -> Check {
     );
     Ok(())
 }
-#[test]
 fn option_values_cannot_impersonate_options_or_sections() -> Check {
     let mut inventory = Inventory::new(&help(), &[])?;
     inventory.step(&step(&["get", "trial", "NCT1", "--limit", "eligibility"])?);
@@ -103,7 +99,6 @@ fn option_values_cannot_impersonate_options_or_sections() -> Check {
     assert_eq!(inventory.calls["option get trial --limit"], 1);
     Ok(())
 }
-#[test]
 fn cli_commands_never_impersonate_named_mcp_tools() -> Check {
     let tools = [
         json!({"name":"biomcp"}),
@@ -125,4 +120,12 @@ fn cli_commands_never_impersonate_named_mcp_tools() -> Check {
     assert_eq!(inventory.calls["tool biomcp"], 1);
     assert_eq!(inventory.calls["tool fetch"], 0);
     Ok(())
+}
+
+pub(super) fn check() -> Check {
+    three_hand_counts_match_and_an_identity_never_counts_as_a_section()?;
+    a_new_option_without_a_case_fails()?;
+    removing_the_only_section_call_fails()?;
+    option_values_cannot_impersonate_options_or_sections()?;
+    cli_commands_never_impersonate_named_mcp_tools()
 }

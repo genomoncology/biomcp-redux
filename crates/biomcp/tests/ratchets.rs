@@ -159,3 +159,13 @@ fn request_hosts(
     hosts.dedup();
     Ok(hosts)
 }
+
+#[test]
+fn required_surface_has_asserted_calls() -> Check {
+    required::required_surface_has_asserted_calls()
+}
+
+#[test]
+fn required_coverage_rejects_planted_gaps() -> Check {
+    required::controls()
+}

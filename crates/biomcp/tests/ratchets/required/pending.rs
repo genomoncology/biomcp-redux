@@ -28,8 +28,7 @@ fn hash(item: &str) -> String {
         .map(|byte| format!("{byte:02x}"))
         .collect()
 }
-#[test]
-fn admissions_retire_and_refuse_restoring_a_closed_gap() -> Check {
+pub(super) fn admissions_retire_and_refuse_restoring_a_closed_gap() -> Check {
     let admitted = hash("option search trial --old-gap");
     read("option search trial --old-gap\n", &admitted)?;
     assert!(

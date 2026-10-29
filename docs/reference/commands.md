@@ -236,12 +236,12 @@ Options:
 
 Exact author name query and source window; positional text maps to query. Author IDs identify source records, not resolved people. Counts cover that source record. Missing metadata is unavailable. Topic-wide author ranking and cross-source merging are unavailable. Semantic Scholar and ORCID are noncommercial; commercial users disable both with --disable-sources noncommercial or config disable_sources. Optional keys: biomcp key set semantic-scholar or S2_API_KEY; biomcp key set orcid or ORCID_ACCESS_TOKEN. IDs use semantic-scholar:ID (alias semanticscholar:ID) or orcid:ID. Search supports --source semantic-scholar (alias semanticscholar), --query/-q and --limit/-l
 
+- `--limit`: Bounded source page size.
 - `--offset`: Source offset.
 - `--pool`: Retained page identity.
-- `--source`: Source author source.
 - `query`: Exact query from the positional argument or --query.
+- `--source`: Source author source.
 - `--query`: Exact query from the positional argument or --query.
-- `--limit`: Bounded source page size.
 
 ## biomcp search organization
 
@@ -369,9 +369,9 @@ Options:
 
 One exact cell line search, with source order and no total claim. An assay count is not an activity or sensitivity count. No treatment response is inferred; no bioinformatics tool runs.
 
+- `--limit`: Source page size.
 - `--offset`: Source start offset.
 - `query`: Exact source query; positional spelling and --query use the same field.
-- `--limit`: Source page size.
 - `--query`: Exact source query; positional spelling and --query use the same field.
 
 ## biomcp search gwas
@@ -445,7 +445,9 @@ Options:
 Source associations in default p-value-ascending order. Reports no personal risk, causal variant or gene, or clinical interpretation of a statistic. BioMCP's local request deadline expired. GWAS Catalog response times can vary; retry later or use https://www.ebi.ac.uk/gwas/. Contact the GWAS Catalog helpdesk if this persists.
 
 - `--extended-geneset`: Source extended gene set; requires gene.
+- `--gene`: Exact source mapped gene; legacy positional query aliases this field.
 - `--include-child-traits`: Source child-trait expansion; requires trait_id.
+- `--limit`: Maximum association rows.
 - `--offset`: Source association offset.
 - `--p-value`: Inclusive positive probability in scientific notation. Requires the default p-value-ascending order; no sort option is available. The qualifying total stays unknown until the ordered walk reaches its end.
 - `--pool`: Retained threshold walk identity; requires a threshold.
@@ -455,8 +457,6 @@ Source associations in default p-value-ascending order. Reports no personal risk
 - `--trait`: Exact source efo_trait label; never searches reported_trait prose.
 - `--trait-id`: Exact source ontology identity.
 - `--variant`: Exact source rsID.
-- `--gene`: Exact source mapped gene; legacy positional query aliases this field.
-- `--limit`: Maximum association rows.
 
 ## biomcp search protein
 
@@ -559,10 +559,10 @@ Options:
 
 Search exact human HP term candidates through Monarch with bounded source pages. A term lookup answers terminology and does not establish a diagnosis.
 
+- `--limit`: Maximum source headers, default five.
 - `--offset`: Source source row offset.
 - `--source`: Monarch only; HPO search is unsupported.
 - `text`: Unchanged exact term search text.
-- `--limit`: Maximum source headers, default five.
 
 ## biomcp search pathway
 
@@ -618,12 +618,12 @@ Search Reactome (default) or WikiPathways human pathways. Membership names a sou
 
 - `--fresh`: Request a new retained observation.
 - `--gene`: Human gene input for exact resolution and UniProt mapping; Reactome only.
+- `--limit`: Five rows by default, one to fifty. Reactome rows equals this limit without refill.
 - `--offset`: Source Reactome Start row or retained WikiPathways catalog offset.
 - `--pool`: Retained snapshot identity for deterministic continuation.
 - `query`: Exact source query; exclusive with gene and top-level discovery.
 - `--source`: Sources in caller order; repeated sources take turns without title joins.
 - `--top-level`: Source human Reactome top-level discovery, exclusive with text and gene.
-- `--limit`: Five rows by default, one to fifty. Reactome rows equals this limit without refill.
 
 ## biomcp search study
 
@@ -1201,8 +1201,8 @@ Checked search selectors and pool cursor.
 - `--offset`: Number of pool items to skip.
 - `--open-access`: Require the source's source open-access filter; Semantic Scholar means a public PDF.
 - `--pool`: Stable snapshot from an earlier response.
-- `--exclude-retracted`: 
-- `--include-retracted`: 
+- `--exclude-retracted`: Include retracted papers by default, or exclude them using a source filter.
+- `--include-retracted`: Include retracted papers by default, or exclude them using a source filter.
 - `--since`: Inclusive lower publication-date bound at the stated precision; PubMed matches either electronic or print date.
 - `--sort`: rank (default): source order; several sources take turns; source search cost.
 date: source search cost; PubMed means date added and Europe PMC means newest first; other sources refuse it.
@@ -2683,10 +2683,10 @@ One exact source record's publication window. ORCID sends its whole public works
 
 - `--full`: Legacy alias for details; normalized on construction.
 - `id`: Exact qualified source record.
+- `--limit`: Bounded row count.
 - `--offset`: Source or retained collection offset.
 - `--pool`: Retained collection identity.
 - `section`: Detailed disclosure when requested.
-- `--limit`: Bounded row count.
 
 Detailed disclosure when requested.
 
@@ -3228,9 +3228,9 @@ Read Reactome exact references or WikiPathways GeneProduct data nodes. The detai
 
 - `details`: Include every physical entity context for these references; never clips source text.
 - `id`: Checked source-owned human pathway identity.
+- `--limit`: Five complete relation rows by default, at most fifty.
 - `--offset`: Offset within the retained selected relation.
 - `--pool`: Immutable relation snapshot.
-- `--limit`: Five complete relation rows by default, at most fifty.
 
 ## biomcp pathway events
 
@@ -3276,9 +3276,9 @@ Options:
 Read Reactome event objects and unresolved source integer references in source order. Membership names a source and release; it implies no therapy, response or actionability. No enrichment is calculated.
 
 - `id`: Checked source-owned human pathway identity.
+- `--limit`: Five complete relation rows by default, at most fifty.
 - `--offset`: Offset within the retained selected relation.
 - `--pool`: Immutable relation snapshot.
-- `--limit`: Five complete relation rows by default, at most fifty.
 
 ## biomcp article
 
@@ -7494,6 +7494,8 @@ Commands:
 
 Arguments:
   [source]
+          Credential source to describe.
+          
           [possible values: ncbi, semantic-scholar, orcid, oncokb, alphagenome, nci, openfda]
 
 Options:
@@ -7519,7 +7521,7 @@ Options:
 
 Register and manage source credentials without showing values.
 
-- `source`: 
+- `source`: Credential source to describe.
 
 ## biomcp help key list
 
@@ -7708,6 +7710,8 @@ Usage: biomcp help network [OPTIONS] [setting]
 
 Arguments:
   [setting]
+          Network setting to describe.
+          
           [possible values: ca_bundle, proxy]
 
 Options:
@@ -7733,7 +7737,7 @@ Options:
 
 Describe help network.
 
-- `setting`: 
+- `setting`: Network setting to describe.
 
 ## biomcp help sources
 

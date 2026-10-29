@@ -55,6 +55,10 @@ impl Process {
     }
 }
 
+#[expect(
+    clippy::disallowed_methods,
+    reason = "The shared subprocess watchdog drains both pipes concurrently"
+)]
 fn reader(mut input: impl Read + Send + 'static) -> thread::JoinHandle<io::Result<Vec<u8>>> {
     thread::spawn(move || {
         let mut bytes = Vec::new();

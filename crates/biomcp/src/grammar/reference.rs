@@ -77,7 +77,13 @@ fn command(
     printed.insert(path.iter().skip(1).copied().collect::<Vec<_>>().join(" "));
     writeln!(output, "## {}\n\n```text", path.join(" "))?;
     let mut printable = parser.clone().bin_name(path.join(" "));
-    writeln!(output, "{}\n```\n", printable.render_long_help())?;
+    let rendered = printable.render_long_help().to_string();
+    let rendered = rendered
+        .lines()
+        .map(str::trim_end)
+        .collect::<Vec<_>>()
+        .join("\n");
+    writeln!(output, "{rendered}\n\n```\n")?;
     if let Some(entry) = help.commands.iter().find(|entry| {
         entry
             .command
