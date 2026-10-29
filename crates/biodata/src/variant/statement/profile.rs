@@ -50,6 +50,12 @@ impl TryFrom<ExpressionFields> for ProfileExpression {
     type Error = Error;
     fn try_from(value: ExpressionFields) -> Result<Self, Error> {
         value.tree.records(0, &mut BTreeSet::new())?;
+        // Machine expressions are self-identifying; reject a contradictory wire tree.
+        if value.source.as_str().contains("#VID")
+            && Self::civic(value.source.clone())?.tree != value.tree
+        {
+            return Err(Error::ProfileExpressionInvalid);
+        }
         Ok(Self {
             source: value.source,
             tree: value.tree,

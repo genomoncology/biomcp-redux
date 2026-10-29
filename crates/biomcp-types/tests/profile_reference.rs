@@ -127,3 +127,9 @@ fn source_member_preserves_only_source_stated_leaf_forms() -> Check {
     );
     Ok(())
 }
+
+#[test]
+fn wire_expression_cannot_contradict_its_machine_source() {
+    let value = json!({"source":"#VID1", "tree":{"operator":"member","record":"civic:2"}});
+    assert!(serde_json::from_value::<ProfileExpression>(value).is_err());
+}
