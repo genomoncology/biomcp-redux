@@ -14,34 +14,7 @@ pub(super) fn timestamp_admission() -> Result<(), String> {
                 "--build",
                 "GRCh37",
             ],
-            |_, record| {
-                if record
-                    .get("url")
-                    .and_then(Value::as_str)
-                    .is_some_and(|url| url.ends_with("/metadata"))
-                {
-                    let Some(body) = record.pointer_mut("/exchanges/0/body/value") else {
-                        return;
-                    };
-                    if mode == "empty" {
-                        if let Some(source) = body.get_mut("src") {
-                            *source = json!({});
-                        }
-                    } else {
-                        let timestamp = if mode == "local" {
-                            "2020-05-08T17:33:59.756164"
-                        } else {
-                            "2024-02-30T10:00:00"
-                        };
-                        if let Some(date) = body.get_mut("build_date") {
-                            *date = json!(timestamp);
-                        }
-                        if let Some(date) = body.pointer_mut("/src/dbnsfp/upload_date") {
-                            *date = json!({"synthetic_part":timestamp});
-                        }
-                    }
-                }
-            },
+            |_, record| timestamp_body(mode, record),
             json!({"/result/candidates/0/sections/conservation/state":"data"}),
             0,
         )
@@ -83,6 +56,35 @@ pub(super) fn timestamp_admission() -> Result<(), String> {
         }
     }
     Ok(())
+}
+
+fn timestamp_body(mode: &str, record: &mut Value) {
+    if record
+        .get("url")
+        .and_then(Value::as_str)
+        .is_some_and(|url| url.ends_with("/metadata"))
+    {
+        let Some(body) = record.pointer_mut("/exchanges/0/body/value") else {
+            return;
+        };
+        if mode == "empty" {
+            if let Some(source) = body.get_mut("src") {
+                *source = json!({});
+            }
+        } else {
+            let timestamp = if mode == "local" {
+                "2020-05-08T17:33:59.756164"
+            } else {
+                "2024-02-30T10:00:00"
+            };
+            if let Some(date) = body.get_mut("build_date") {
+                *date = json!(timestamp);
+            }
+            if let Some(date) = body.pointer_mut("/src/dbnsfp/upload_date") {
+                *date = json!({"synthetic_part":timestamp});
+            }
+        }
+    }
 }
 
 pub(super) fn component_walk() -> Result<(), String> {

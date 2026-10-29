@@ -268,15 +268,18 @@ fn timestamp() -> Check {
             0,
         )?;
         if value.pointer("/result/source_updated").is_some()
-            || value["result"]["items"]
-                .as_array()
+            || value
+                .pointer("/result/items")
+                .and_then(Value::as_array)
                 .is_none_or(Vec::is_empty)
-            || !value["problems"]
-                .as_array()
+            || !value
+                .get("problems")
+                .and_then(Value::as_array)
                 .into_iter()
                 .flatten()
                 .any(|problem| {
-                    problem["field"] == "dataTimestamp" && problem["code"] == "value.unknown"
+                    problem.get("field") == Some(&json!("dataTimestamp"))
+                        && problem.get("code") == Some(&json!("value.unknown"))
                 })
         {
             return Err(
