@@ -99,7 +99,7 @@ pub use response::{
     NciEligibilityStructured, NciIntervention, NciOutcome, NciTextPage, NciTrialSections,
 };
 pub use response::{
-    NciDisease, NciDiseaseRef, NciTrial, NciTrialCards, NciTrialItem, NciTrialPage,
+    NciDisease, NciDiseaseRef, NciMatchedSite, NciTrial, NciTrialCards, NciTrialItem, NciTrialPage,
 };
 pub use response::{
     NormalizationField, NormalizationMessage, NormalizationResult, VariantNormalization,

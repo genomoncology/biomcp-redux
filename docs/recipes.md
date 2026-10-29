@@ -347,6 +347,7 @@ biomcp article recommendations 34096690 32955176 --negative 33433946 --limit 5
 
 ```sh
 biomcp search trial --condition melanoma
+biomcp search trial --source nci --facility 'Dana-Farber Cancer Institute' --limit 1
 biomcp search trial --condition melanoma --intervention pembrolizumab
 biomcp search trial --condition melanoma --condition 'lung cancer' --intervention pembrolizumab --intervention nivolumab --keyword survival --keyword 'quality of life' --limit 1
 ```
