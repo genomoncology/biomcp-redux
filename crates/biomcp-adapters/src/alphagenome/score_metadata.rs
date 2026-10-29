@@ -26,14 +26,11 @@ pub(super) fn gene(
     problems: &mut Problems,
 ) -> Option<AlphaGenomeGene> {
     let field = format!("{path}.gene_id");
-    let id = problems.optional(
+    problems.optional(
         &field,
         Some(value.gene_id.parse::<biodata::EnsemblGeneId>()),
     )?;
-    if id.base() != value.gene_id {
-        return problems.required(&field, None);
-    }
-    let gene_id = problems.optional(&field, Some(crate::mapped::text(id.base())))?;
+    let gene_id = problems.optional(&field, Some(crate::mapped::text(&value.gene_id)))?;
     Some(AlphaGenomeGene {
         gene_id,
         name: value.name,
