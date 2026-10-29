@@ -1,6 +1,5 @@
 use crate::raw::Field;
 
-
 use biomcp_fetch::{BadReply, Reply};
 use serde::{
     Deserialize,

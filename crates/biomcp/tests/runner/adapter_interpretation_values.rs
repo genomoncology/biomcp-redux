@@ -5,8 +5,13 @@ use libtest_mimic::Trial;
 use serde_json::{Value, json};
 pub(super) fn trials() -> Vec<Trial> {
     vec![
-        crate::runner::transcript::trial("gene-sections/civic-invalid-values-keep-gene", || civic_gene::values().map_err(|e| e.to_string().into())),
-        crate::runner::transcript::trial("gene-sections/civic-invalid-identities-drop-only-source-gene", || civic_gene::identities().map_err(|e| e.to_string().into())),
+        crate::runner::transcript::trial("gene-sections/civic-invalid-values-keep-gene", || {
+            civic_gene::values().map_err(|e| e.to_string().into())
+        }),
+        crate::runner::transcript::trial(
+            "gene-sections/civic-invalid-identities-drop-only-source-gene",
+            || civic_gene::identities().map_err(|e| e.to_string().into()),
+        ),
         crate::runner::transcript::trial(
             "gene-sections/gencc-invalid-date-keeps-submission",
             || gencc().map_err(|error| error.to_string().into()),

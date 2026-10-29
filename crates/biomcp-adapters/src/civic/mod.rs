@@ -91,29 +91,110 @@ pub fn genes(
         .collect())
 }
 fn mapped(raw: &raw::Aliases, index: usize, symbol: GeneSymbol, id: NcbiGeneId) -> GeneCivic {
-    let gene = raw.0.iter().find(|(name, _)| *name == format!("g{index}")).and_then(|(_, gene)| gene.as_ref());
-    let mut cx = crate::mapped::Problems { source: Source::Civic, record: None, list: Vec::new() };
-    let value = gene.and_then(|gene| map(gene, id, &mut cx)).unwrap_or(Section::Empty { source: Source::Civic, record: None });
-    GeneCivic { symbol, id, civic: Mapped { value, problems: cx.list } }
+    let gene = raw
+        .0
+        .iter()
+        .find(|(name, _)| *name == format!("g{index}"))
+        .and_then(|(_, gene)| gene.as_ref());
+    let mut cx = crate::mapped::Problems {
+        source: Source::Civic,
+        record: None,
+        list: Vec::new(),
+    };
+    let value = gene
+        .and_then(|gene| map(gene, id, &mut cx))
+        .unwrap_or(Section::Empty {
+            source: Source::Civic,
+            record: None,
+        });
+    GeneCivic {
+        symbol,
+        id,
+        civic: Mapped {
+            value,
+            problems: cx.list,
+        },
+    }
 }
-fn map(gene: &raw::Gene, requested: NcbiGeneId, cx: &mut crate::mapped::Problems) -> Option<Section<CivicGene>> {
-    let id = gene.id.as_ref().and_then(Field::as_ref).copied().filter(|id| *id > 0 && *id <= i32::MAX as u64);
+fn map(
+    gene: &raw::Gene,
+    requested: NcbiGeneId,
+    cx: &mut crate::mapped::Problems,
+) -> Option<Section<CivicGene>> {
+    let id = gene
+        .id
+        .as_ref()
+        .and_then(Field::as_ref)
+        .copied()
+        .filter(|id| *id > 0 && *id <= i32::MAX as u64);
     cx.record = id.and_then(crate::mapped::record);
     let id = cx.required("id", id)?;
-    let entrez = cx.optional("entrezId", gene.entrez_id.as_ref().map(|value| value.as_ref().copied().ok_or(()).and_then(|id| NcbiGeneId::new(id).map_err(|_| ()))));
+    let entrez = cx.optional(
+        "entrezId",
+        gene.entrez_id.as_ref().map(|value| {
+            value
+                .as_ref()
+                .copied()
+                .ok_or(())
+                .and_then(|id| NcbiGeneId::new(id).map_err(|_| ()))
+        }),
+    );
     let entrez = cx.required("entrezId", entrez)?;
-    if entrez != requested { cx.required::<()>("entrezId", None); return None; }
-    let url = cx.optional("link", gene.link.as_ref().map(|field| field.as_ref().ok_or(()).and_then(|link| {
-        if !link.starts_with("/features/") { return Err(()); }
-        Text::new(&format!("https://civicdb.org{link}")).map_err(|_| ())
-    })));
-    let description = cx.optional("description", gene.description.as_ref().map(|field| field.as_ref().ok_or(()).and_then(|text| Text::from_source(text).map_err(|_| ()))));
-    let variants = cx.optional("variants", gene.variants.as_ref().map(|field| field.as_ref().ok_or(())));
-    let variant_count = variants.and_then(|variants| cx.optional("variants.totalCount", variants.total_count.as_ref().map(|field| field.as_ref().copied().ok_or(()))));
+    if entrez != requested {
+        cx.required::<()>("entrezId", None);
+        return None;
+    }
+    let url = cx.optional(
+        "link",
+        gene.link.as_ref().map(|field| {
+            field.as_ref().ok_or(()).and_then(|link| {
+                if !link.starts_with("/features/") {
+                    return Err(());
+                }
+                Text::new(&format!("https://civicdb.org{link}")).map_err(|_| ())
+            })
+        }),
+    );
+    let description = cx.optional(
+        "description",
+        gene.description.as_ref().map(|field| {
+            field
+                .as_ref()
+                .ok_or(())
+                .and_then(|text| Text::from_source(text).map_err(|_| ()))
+        }),
+    );
+    let variants = cx.optional(
+        "variants",
+        gene.variants.as_ref().map(|field| field.as_ref().ok_or(())),
+    );
+    let variant_count = variants.and_then(|variants| {
+        cx.optional(
+            "variants.totalCount",
+            variants
+                .total_count
+                .as_ref()
+                .map(|field| field.as_ref().copied().ok_or(())),
+        )
+    });
     Some(if variant_count == Some(0) && description.is_none() {
-        Section::Empty { source: Source::Civic, record: Some(SourceRecord { id: cx.record.clone()?, url }) }
+        Section::Empty {
+            source: Source::Civic,
+            record: Some(SourceRecord {
+                id: cx.record.clone()?,
+                url,
+            }),
+        }
     } else {
-        Section::Data { source: Source::Civic, data: CivicGene { id, variant_count, url, description } }
+        Section::Data {
+            source: Source::Civic,
+            data: CivicGene {
+                id,
+                variant_count,
+                url,
+                description,
+            },
+        }
     })
 }
 fn bad() -> RequestError {
