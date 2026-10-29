@@ -27,6 +27,8 @@ const APPLICATION: Endpoint = SPEC.get("").fresh(Freshness::Days(1)).json_absenc
 /// One native application candidate page and its original retrieval metadata.
 #[derive(Debug)]
 pub struct Page {
+    /// Rejected optional source metadata.
+    pub problems: Vec<biomcp_types::Problem>,
     /// Native applications, without selecting a first product.
     pub records: Vec<Application>,
     /// Native application total, independent of product count.
@@ -96,13 +98,21 @@ fn page(
             }
             _ => Ok(()),
         })?;
+    let mut problems = crate::mapped::Problems {
+        source: biomcp_types::Source::Drugsfda,
+        record: None,
+        list: Vec::new(),
+    };
     let (records, total, updated) = match response {
-        raw::Response::Success { meta, results } => {
-            (results, meta.results.total, meta.last_updated)
-        }
+        raw::Response::Success { meta, results } => (
+            results,
+            meta.results.total,
+            problems.field("meta.last_updated", meta.last_updated),
+        ),
         raw::Response::Absent { .. } => (Vec::new(), 0, None),
     };
     Ok(Page {
+        problems: problems.list,
         records,
         total,
         metadata,

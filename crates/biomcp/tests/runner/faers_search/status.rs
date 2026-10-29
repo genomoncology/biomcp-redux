@@ -1,6 +1,30 @@
 //! Feature adverse-event-search: a native absence body requires its native HTTP status.
 use super::{Check, args, both, environment};
 use serde_json::json;
+pub(super) fn optional_date() -> Check {
+    let stub = super::Stub::for_sources(
+        &["api.fda.gov"],
+        |_| "application/json",
+        |_| {
+            let mut reply = super::body(5, 0);
+            reply["meta"]["last_updated"] = json!("2024-02-30");
+            Ok(reply.to_string())
+        },
+    )?;
+    let env = environment(&stub)?;
+    let value = both(&env, args(), 0)?;
+    if value.pointer("/result/items/0/id") != Some(&json!("100"))
+        || value.pointer("/result/source_updated").is_some()
+        || value.pointer("/problems/0/field") != Some(&json!("meta.last_updated"))
+        || value.pointer("/problems/0/code") != Some(&json!("value.unknown"))
+    {
+        return Err(format!(
+            "optional source date discarded usable reports: {value}"
+        ));
+    }
+    stub.finish()?;
+    Ok(())
+}
 pub(super) fn run() -> Check {
     let stub = super::Stub::for_source_status(
         "api.fda.gov",

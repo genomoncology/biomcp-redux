@@ -58,6 +58,7 @@ pub fn search(cx: &Ctx<'_>, query: &AdverseEventSearch) -> Outcome {
     if let Ok(page) = reply {
         let returned = page.items.len() as u32;
         navigation(query, &page, &mut out);
+        out.problems.extend(page.problems);
         out.page = Some(PageInfo {
             offset: query.offset(),
             returned,
@@ -67,10 +68,11 @@ pub fn search(cx: &Ctx<'_>, query: &AdverseEventSearch) -> Outcome {
         });
         out.status = if page.total == 0 {
             Status::Absent
-        } else if out
-            .sources
-            .iter()
-            .any(|s| s.state == biomcp_types::SourceState::Stale)
+        } else if !out.problems.is_empty()
+            || out
+                .sources
+                .iter()
+                .any(|s| s.state == biomcp_types::SourceState::Stale)
         {
             Status::Partial
         } else {

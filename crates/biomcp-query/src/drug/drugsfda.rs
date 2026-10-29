@@ -25,6 +25,7 @@ pub(super) fn search(cx: &Ctx<'_>, query: &DrugSearch) -> Outcome {
     out.sources
         .push(status::source(Source::Drugsfda, leg.finish(), error));
     if let Ok(page) = result {
+        out.problems.extend(page.problems);
         searched(
             query,
             cx.fresh,
@@ -70,6 +71,7 @@ pub(super) fn get(cx: &Ctx<'_>, query: &DrugGet) -> Outcome {
             source.count = Some(page.total);
             source.retrieved_count = Some(page.records.len() as u32);
         }
+        out.problems.extend(page.problems);
         out.status = if page.records.is_empty() {
             Status::Absent
         } else if out.sources.iter().any(|s| s.state == SourceState::Stale) {
