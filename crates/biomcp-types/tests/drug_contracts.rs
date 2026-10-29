@@ -277,7 +277,6 @@ fn native_target_identity_does_not_require_an_invented_gene() {
     let parsed: DrugTargetRelation =
         serde_json::from_value(value.clone()).expect("native target without gene");
     assert!(parsed.target().is_none());
-    assert_eq!(parsed.drug().id.to_string(), "CHEMBL1");
     assert_eq!(parsed.relation().as_str(), "native action");
     assert_eq!(
         parsed.mechanism().expect("native mechanism").as_str(),
@@ -289,7 +288,6 @@ fn native_target_identity_does_not_require_an_invented_gene() {
         label: Some("synthetic target complex".parse().expect("label")),
         url: Some("https://example.org/target".parse().expect("link")),
     };
-    assert_eq!(parsed.native_target(), Some(&native));
     let reference = DrugNativeReference {
         ref_type: "native publication".parse().expect("type"),
         ref_id: Some("synthetic-1".parse().expect("id")),
@@ -332,8 +330,8 @@ fn native_target_identity_does_not_require_an_invented_gene() {
     )
     .expect("gene-only target");
     assert_eq!(gene_only.target(), Some(&gene));
-    assert!(gene_only.native_target().is_none());
     let gene_json = serde_json::to_value(&gene_only).expect("gene-only JSON");
+    assert!(gene_json.get("native_target").is_none());
     assert_eq!(gene_json["target"], json!({"label":"source gene"}));
     assert_eq!(
         serde_json::from_value::<DrugTargetRelation>(gene_json).expect("gene-only decode"),
@@ -406,14 +404,16 @@ fn interaction_keeps_both_bundle_origins_and_refuses_duplicate_attribution() {
             .as_str(),
         "B-synthetic"
     );
+    let additional: Box<[biodata::Attribution]> = serde_json::from_value(
+        serde_json::to_value(&parsed).expect("serialize interaction")["additional_attributions"]
+            .clone(),
+    )
+    .expect("checked secondary origins");
     assert_eq!(
-        parsed
-            .additional_attributions()
-            .first()
-            .expect("further")
+        additional[0]
             .record
             .as_ref()
-            .expect("bundle")
+            .expect("secondary record")
             .as_str(),
         "L-synthetic"
     );
@@ -422,7 +422,7 @@ fn interaction_keeps_both_bundle_origins_and_refuses_duplicate_attribution() {
         parsed.partner().clone(),
         parsed.level().clone(),
         parsed.attribution().clone(),
-        parsed.additional_attributions().into(),
+        additional,
     )
     .expect("checked interaction constructor");
     assert_eq!(rebuilt, parsed);

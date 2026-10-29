@@ -8,7 +8,7 @@ steps:
     expect:
       '':
         equals:
-          schema: biomcp.error/1
+          schema: biomcp.error/2
           status: usage
           error:
             code: usage.schema
@@ -19,7 +19,7 @@ steps:
     expect:
       '':
         equals:
-          schema: biomcp.error/1
+          schema: biomcp.error/2
           status: usage
           error:
             code: usage.schema

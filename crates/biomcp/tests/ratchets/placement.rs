@@ -4,6 +4,14 @@ use std::{fs, path::Path};
 // One authoritative list; architecture 10.4 must reproduce each path and reason.
 const ALLOWED: &[(&str, &str)] = &[
     (
+        "crates/biomcp-fetch/src/hosts_tests.rs",
+        "Check credential-free exact publisher origins at the private admission boundary without a product inventory helper.",
+    ),
+    (
+        "crates/biomcp-fetch/tests/grpc_worker/shutdown.rs",
+        "Prove cancellation joins active network work at the private worker boundary without exporting shutdown control.",
+    ),
+    (
         "crates/biomcp/src/grammar/reference.rs",
         "Generate and compare documentation at the private parser boundary without adding a public command.",
     ),
@@ -106,6 +114,10 @@ const ALLOWED: &[(&str, &str)] = &[
     (
         "crates/biomcp-types/tests/schemas/compatibility_cases.rs",
         "Exercise checked values and schema contracts through the public library API.",
+    ),
+    (
+        "crates/biomcp-types/tests/schemas/drug.rs",
+        "Exercise public drug header and card disclosure boundaries through their serialized values and schemas.",
     ),
     (
         "crates/biomcp-types/tests/schemas/values.rs",
@@ -278,6 +290,10 @@ const ALLOWED: &[(&str, &str)] = &[
     (
         "crates/biomcp/tests/ratchets.rs",
         "Enforce repository structure and prove refusal of planted violations in isolated trees.",
+    ),
+    (
+        "crates/biomcp/tests/ratchets/lints.rs",
+        "Prove the shared Clippy settings reject planted scalar, banned-type and reason drift.",
     ),
     (
         "crates/biomcp/tests/ratchets/proof.rs",

@@ -1,4 +1,4 @@
-use super::annotation::*;
+use super::annotation::{PgxEvidenceTerm, PgxLocation, PgxObjectReference};
 use crate::ClinPgxAccession;
 use serde::{Deserialize, Serialize};
 /// Source-native PgxAllelePhenotype fields; no clinical interpretation.

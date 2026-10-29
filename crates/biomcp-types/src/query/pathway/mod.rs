@@ -37,7 +37,7 @@ fn reactome(id: &PathwayId) -> bool {
 }
 // CLI requests carry one checked native spelling; neutral records remain source-tagged.
 mod native_id {
-    use super::*;
+    use super::{Deserialize, PathwayId, Text};
     pub(super) fn serialize<S: serde::Serializer>(
         id: &PathwayId,
         serializer: S,

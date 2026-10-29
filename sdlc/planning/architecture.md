@@ -1690,10 +1690,10 @@ The values above are illustrative, and the names in them are omitted from some h
 
 ### 8.5 Errors and exit codes
 
-An error prints one envelope with schema `biomcp.error/1`:
+An error prints one envelope with schema `biomcp.error/2`:
 
 ```json
-{ "schema": "biomcp.error/1", "status": "usage", "error": { "code": "usage.retired", "message": "use: search trial --gene <gene>" } }
+{ "schema": "biomcp.error/2", "status": "usage", "error": { "code": "usage.retired", "message": "use: search trial --gene <gene>" } }
 ```
 
 `main` returns `std::process::ExitCode` explicitly. Nothing calls `std::process::exit`. One function in `exit.rs` maps the outcome:
@@ -1937,6 +1937,8 @@ The ratchet owns the authoritative file and reason list below and checks this ta
 
 | File | Reason |
 | --- | --- |
+| `crates/biomcp-fetch/src/hosts_tests.rs` | Check credential-free exact publisher origins at the private admission boundary without a product inventory helper. |
+| `crates/biomcp-fetch/tests/grpc_worker/shutdown.rs` | Prove cancellation joins active network work at the private worker boundary without exporting shutdown control. |
 | `crates/biomcp/src/grammar/reference.rs` | Generate and compare documentation at the private parser boundary without adding a public command. |
 | `crates/biomcp/src/mcp/worker_tests.rs` | Inject a panic at the private worker completion boundary because public requests cannot intentionally panic. |
 | `crates/biomcp/src/config/deferred_keys_tests.rs` | Observe forbidden credential environment reads at the private settings boundary while executing real commands. |
@@ -1962,6 +1964,7 @@ The ratchet owns the authoritative file and reason list below and checks this ta
 | `crates/biomcp-types/tests/schemas.rs` | Exercise checked values and schema contracts through the public library API. |
 | `crates/biomcp-types/tests/schemas/disease.rs` | Exercise standalone disease option metadata and synthetic envelope schema contracts before command registration. |
 | `crates/biomcp-types/tests/schemas/compatibility_cases.rs` | Exercise checked values and schema contracts through the public library API. |
+| `crates/biomcp-types/tests/schemas/drug.rs` | Exercise public drug header and card disclosure boundaries through their serialized values and schemas. |
 | `crates/biomcp-types/tests/schemas/values.rs` | Exercise checked values and schema contracts through the public library API. |
 | `crates/biomcp-types/tests/value_conventions.rs` | Exercise checked values and schema contracts through the public library API. |
 | `crates/biomcp-adapters/src/monarch/native_contracts.rs` | Exercise retained gene-keyed Monarch rows through the private mapper without adding a gene-keyed command. |
@@ -2005,6 +2008,7 @@ The ratchet owns the authoritative file and reason list below and checks this ta
 | `crates/biomcp-query/tests/article_search.rs` | Exercise concurrent pool publication/hydration, injected SQL corruption, external writers and API-only deadline boundaries. |
 | `crates/biomcp-query/tests/gene_resolution.rs` | Mutate isolated cache freshness and preserve a local bundle failure under an API-only short command deadline. |
 | `crates/biomcp/tests/ratchets.rs` | Enforce repository structure and prove refusal of planted violations in isolated trees. |
+| `crates/biomcp/tests/ratchets/lints.rs` | Prove the shared Clippy settings reject planted scalar, banned-type and reason drift. |
 | `crates/biomcp/tests/ratchets/proof.rs` | Enforce repository structure and prove refusal of planted violations in isolated trees. |
 
 Everything else goes through the runner.

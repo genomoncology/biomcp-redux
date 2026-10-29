@@ -11,8 +11,7 @@ fn documents() -> Result<Vec<(&'static str, String)>, Box<dyn std::error::Error>
     let help = crate::help::dispatch(&[])?;
     let mut reference = String::from(
         "# Command reference\n\nGenerated from the command grammar and schema help. \
-        Run `make docs-generate` to update.\n\n\
-        Options shown on the root command apply to its subcommands. \
+        Run `make docs-generate` to update.\n\nOptions shown on the root command apply to its subcommands. \
         Query sections and source rules follow each command.\n\n",
     );
     let mut printed = BTreeSet::new();
@@ -26,8 +25,7 @@ fn documents() -> Result<Vec<(&'static str, String)>, Box<dyn std::error::Error>
     let mut recipes = String::from(
         "# Worked commands\n\nGenerated from harvested case run steps through the shipped help examples. \
         The documentation check executes these commands against recordings through CLI and MCP. \
-        Live source replies can differ.\n\n\
-        Choose a command below, inspect its source outcomes and follow its returned next commands. \
+        Live source replies can differ.\n\nChoose a command below, inspect its source outcomes and follow its returned next commands. \
         Stored sources require the explicit synchronization shown by their command.\n\n",
     );
     for entry in help

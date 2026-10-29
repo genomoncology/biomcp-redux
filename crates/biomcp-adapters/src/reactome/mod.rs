@@ -70,8 +70,12 @@ pub fn pathways(
             problems.required::<()>("pathways", None);
             continue;
         }
-        if let Some(name) = map::metadata(&mut problems, "pathways.name", &row.display_name, true)
-            && let Some(id) = id
+        if let Some(name) = map::metadata(
+            &mut problems,
+            "pathways.name",
+            row.display_name.as_ref(),
+            true,
+        ) && let Some(id) = id
         {
             value.push(PathwayRef { id, name });
         }

@@ -1,6 +1,6 @@
 //! Feature protein-search: retired spellings give fixed guidance before any request.
 use super::super::mcp;
-use super::*;
+use super::{Environment, Stub, Trial, invoke, json, setup};
 use crate::runner::transcript::trial as transcript_trial;
 const CLI_SECTION_USAGE_BYTES: usize = 166;
 const MCP_SECTION_USAGE_BYTES: usize = 165;

@@ -105,7 +105,10 @@ fn check(words: &[&str], exit: i32, format: Option<&str>, config: Config) -> Che
             "expected Markdown for {args:?}: {}",
             String::from_utf8_lossy(&output.stdout)
         );
-        assert!(output.stdout.starts_with(b"#"));
+        assert!(
+            output.stdout.starts_with(b"#"),
+            "Output selection must preserve the command response contract"
+        );
     } else {
         assert!(value?.get("schema").is_some(), "expected JSON for {args:?}");
     }

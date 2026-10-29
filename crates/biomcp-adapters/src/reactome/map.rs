@@ -10,7 +10,7 @@ pub(super) fn fields(record: &str) -> Problems {
         list: Vec::new(),
     }
 }
-pub(super) fn native_text(value: &Option<Field<String>>) -> Option<&str> {
+pub(super) fn native_text(value: Option<&Field<String>>) -> Option<&str> {
     match value {
         Some(Field::Value(value)) => Some(value),
         _ => None,
@@ -19,7 +19,7 @@ pub(super) fn native_text(value: &Option<Field<String>>) -> Option<&str> {
 pub(super) fn metadata(
     problems: &mut Problems,
     field: &str,
-    value: &Option<Field<String>>,
+    value: Option<&Field<String>>,
     required: bool,
 ) -> Option<Text> {
     if value.is_none() && !required {
@@ -42,7 +42,7 @@ pub(super) fn hit(row: &raw::Hit, problems: &mut Problems) -> Option<PathwayHead
         return None;
     }
     // Reactome inserts only these highlight spans into the native display name.
-    let name = native_text(&row.name).map(|name| {
+    let name = native_text(row.name.as_ref()).map(|name| {
         name.replace("<span class=\"highlighting\" >", "")
             .replace("</span>", "")
     });
@@ -57,9 +57,9 @@ pub(super) fn hit(row: &raw::Hit, problems: &mut Problems) -> Option<PathwayHead
 }
 pub(super) fn header(row: &raw::Card, problems: &mut Problems) -> Option<PathwayHeader> {
     let id = identity(&row.st_id, &row.species_name, &row.schema_class)?;
-    let name = metadata(problems, "name", &row.display_name, true)?;
+    let name = metadata(problems, "name", row.display_name.as_ref(), true)?;
     let prefix = format!("{}.", row.st_id);
-    let version = native_text(&row.st_id_version).filter(|v| {
+    let version = native_text(row.st_id_version.as_ref()).filter(|v| {
         v.strip_prefix(&prefix)
             .is_some_and(|v| !v.is_empty() && v.bytes().all(|b| b.is_ascii_digit()))
     });
@@ -146,7 +146,7 @@ fn literature(row: raw::Literature, problems: &mut Problems) -> PathwayLiteratur
             row.pub_med_identifier
                 .map(|v| v.value().and_then(|v| biodata::Pmid::new(v).ok()).ok_or(())),
         ),
-        title: metadata(problems, "references.title", &row.title, false),
-        url: metadata(problems, "references.url", &row.url, false),
+        title: metadata(problems, "references.title", row.title.as_ref(), false),
+        url: metadata(problems, "references.url", row.url.as_ref(), false),
     }
 }

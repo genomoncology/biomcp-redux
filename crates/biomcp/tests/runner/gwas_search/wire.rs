@@ -1,4 +1,4 @@
-use super::*;
+use super::{Environment, Value, body, call, gwas_budgets, json, pairs, seed, url};
 pub(super) fn selectors() -> Result<(), String> {
     for (args, extra) in [
         (vec!["--variant", "rs2981582"], vec![("rs_id", "rs2981582")]),

@@ -19,7 +19,7 @@ pub(super) fn cases() -> Vec<(&'static str, &'static str, &'static str)> {
             "count: expected 0",
         ),
         ("mcp-is-error", "  - mcp: [schema, missing/1]", "MCP is_error mismatch"),
-        ("unequal-success", "    mcp: [schema, biomcp.error/1]", "CLI/MCP parity: unequal results"),
+        ("unequal-success", "    mcp: [schema, biomcp.error/2]", "CLI/MCP parity: unequal results"),
         ("no-command", "  - expect: {}", "step requires run or mcp"),
         ("unknown", "    expect: {'/type': {equal: string}}", "unknown assertion operator equal"),
         ("empty-operators", "    expect: {'/type': {}}", "assertion object requires an operator"),

@@ -126,7 +126,7 @@
       },
       {
         "case": "schema/errors.yaml",
-        "reason": "The case inspects the canonical error schema artifact and asserts /$id=biomcp.error/1 and /type=object. The released top-level command enum has no schema command or schema-inspection surface. Its runtime error JSON is an instance, not a schema artifact, and cannot answer either schema assertion.",
+        "reason": "The case inspects the canonical error schema artifact and asserts /$id=biomcp.error/2 and /type=object. The released top-level command enum has no schema command or schema-inspection surface. Its runtime error JSON is an instance, not a schema artifact, and cannot answer either schema assertion.",
         "release_source": "src/cli/commands.rs:12-255;src/render/json.rs:366-422"
       }
     ]

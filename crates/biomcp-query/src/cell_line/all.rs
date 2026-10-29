@@ -1,5 +1,5 @@
 //! Compose bounded first pages under the identity command's original deadline.
-use super::*;
+use super::{CellLineGet, Ctx, Outcome, QueryBody, Source, Status, StepKind, empty};
 use biomcp_types::{CellLineCard, CellLineSection, Reason, Section};
 pub(super) fn attach(cx: &Ctx<'_>, deadline: biomcp_fetch::Deadline<'_>, out: &mut Outcome) {
     let QueryBody::CellLineCard(card) = &out.body else {

@@ -1,10 +1,10 @@
 //! Provider declarations and shared FIFO admission.
-#![expect(
-    clippy::disallowed_types,
-    reason = "Transport quota state and FIFO waits are shared only within one Fetch"
-)]
 
 use crate::Deadline;
+#[expect(
+    clippy::disallowed_types,
+    reason = "Share bounded transport state across the request owners named by this module"
+)]
 use std::{
     cmp::Reverse,
     collections::{BTreeMap, BinaryHeap, VecDeque},
@@ -124,6 +124,10 @@ impl Quota {
 }
 
 #[derive(Debug, Default)]
+#[expect(
+    clippy::disallowed_types,
+    reason = "Share source quota counters and FIFO waits within one Fetch"
+)]
 pub(crate) struct Limiters(Mutex<BTreeMap<SourceKey, Arc<Limiter>>>);
 
 impl Limiters {
@@ -145,6 +149,10 @@ impl Limiters {
 }
 
 #[derive(Debug)]
+#[expect(
+    clippy::disallowed_types,
+    reason = "Share source quota counters and FIFO waits within one Fetch"
+)]
 struct Limiter {
     quota: &'static Quota,
     state: Mutex<State>,
@@ -202,6 +210,10 @@ impl State {
 }
 
 impl Limiter {
+    #[expect(
+        clippy::disallowed_types,
+        reason = "Share source quota counters and FIFO waits within one Fetch"
+    )]
     fn new(quota: &'static Quota) -> Self {
         Self {
             quota,

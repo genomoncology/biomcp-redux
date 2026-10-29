@@ -3,6 +3,7 @@ mod adverse_event_registry;
 mod adverse_event_retirements;
 mod article_recovery;
 mod article_save;
+mod article_save_reply;
 mod assertions;
 mod author;
 mod execution;

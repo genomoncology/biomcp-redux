@@ -30,7 +30,7 @@ pub(super) fn trials(registry: Arc<Registry>) -> Vec<Trial> {
 }
 
 fn results(registry: &Registry) -> Result<(), String> {
-    let good = json!({"schema":"biomcp.error/1", "status":"usage",
+    let good = json!({"schema":"biomcp.error/2", "status":"usage",
         "error":{"code":"usage.schema","message":"use biomcp schema to list known artifact IDs"}});
     let args = vec!["unknown".into()];
     registry.validate(&good, &args, false)?;
@@ -82,7 +82,7 @@ fn raw_artifacts(registry: &Registry) -> Result<(), String> {
         &["schema".into(), "missing/1".into()],
         true,
     )?;
-    rejects(registry, &artifact("biomcp.error/1")?, &args, true)?;
+    rejects(registry, &artifact("biomcp.error/2")?, &args, true)?;
     let mut changed = source.clone();
     changed
         .as_object_mut()

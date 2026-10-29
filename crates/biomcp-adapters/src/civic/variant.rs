@@ -93,8 +93,8 @@ fn request<'a>(query: &'a VariantGet, allele: &'a str, after: Option<&'a Text>) 
     };
     Query {
         query: format!(
-            "query($allele:String!,$after:String{ids_variable},$evidence_after:String,$assertion_after:String){{m\
-                olecularProfiles(alleleRegistryId:$allele{ids_argument},first:1,after:$after){{totalCount \
+            "query($allele:String!,$after:String{ids_variable},$evidence_after:String,\
+                    $assertion_after:String){{molecularProfiles(alleleRegistryId:$allele{ids_argument},first:1,after:$after){{totalCount \
                 pageInfo{{hasNextPage endCursor}} nodes{{id name link isComplex variants{{id name link \
                 feature{{name}} ... on GeneVariant{{alleleRegistryId hgvsDescriptions}}}} \
                 evidenceItems(first:{evidence},after:$evidence_after,includeRejected:false){{totalCount \

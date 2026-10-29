@@ -109,7 +109,11 @@ impl Drop for Worker {
 fn event(control: &mut TcpStream, expected: u8) {
     let mut received = [0];
     control.read_exact(&mut received).unwrap();
-    assert_eq!(received, [expected]);
+    assert_eq!(
+        received,
+        [expected],
+        "The cache process must publish its synchronization event"
+    );
 }
 
 #[test]

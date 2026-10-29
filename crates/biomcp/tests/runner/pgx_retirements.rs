@@ -42,7 +42,7 @@ fn check(words: &str, message: &str) -> Result<(), String> {
     if mcp::call_with_globals(&env, &args, true, &[])? != value {
         return Err(format!("{words}: CLI/MCP guidance differs"));
     }
-    let measured = serde_json::to_vec(&json!({"schema":"biomcp.error/1","status":"usage",
+    let measured = serde_json::to_vec(&json!({"schema":"biomcp.error/2","status":"usage",
         "error":{"code":"usage.retired","message":message}}))
     .map_err(|e| e.to_string())?
     .len();

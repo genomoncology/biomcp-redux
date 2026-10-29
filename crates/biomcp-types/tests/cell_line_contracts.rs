@@ -218,8 +218,15 @@ where
     let value = serde_json::to_value(envelope)?;
     let schema = serde_json::to_value(schemars::schema_for!(Envelope<T>))?;
     let validator = jsonschema::validator_for(&schema).map_err(|error| error.to_string())?;
-    assert!(validator.is_valid(&value));
-    assert_eq!(value.get("schema"), Some(&json!(T::SCHEMA)));
+    assert!(
+        validator.is_valid(&value),
+        "Cell line replies must preserve their versioned envelope"
+    );
+    assert_eq!(
+        value.get("schema"),
+        Some(&json!(T::SCHEMA)),
+        "Cell line replies must preserve their versioned envelope"
+    );
     Ok(())
 }
 #[cfg(feature = "schema")]

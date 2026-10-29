@@ -6,6 +6,8 @@ mod annotations;
 mod compatibility;
 #[path = "schemas/compatibility_cases.rs"]
 mod compatibility_cases;
+#[path = "schemas/drug.rs"]
+mod drug;
 #[path = "schemas/generation.rs"]
 mod generation;
 #[path = "schemas/policy.rs"]
@@ -147,7 +149,7 @@ fn registry() -> Vec<Contract> {
         Envelope<Help> => ("help", "biomcp.help/3"),
         Envelope<KeyHelp> => ("key", "biomcp.key/2"),
         Envelope<RegisteredKeys> => ("registered-keys", "biomcp.registered-keys/2"),
-        ErrorEnvelope => ("error", "biomcp.error/1"),
+        ErrorEnvelope => ("error", "biomcp.error/2"),
         GeneGet => ("gene-get", "biodata.gene-get/1", query),
         GeneSearch => ("gene-search", "biodata.gene-search/1", query),
         Request => ("request", "biodata.request/28", query),
@@ -439,24 +441,33 @@ fn flat_value(root: &Value, node: &Value) {
                 .expect("resolved reference"),
         );
     } else if let Some(branches) = node.get("anyOf").and_then(Value::as_array) {
-        assert_eq!(branches.len(), 2);
+        assert_eq!(
+            branches.len(),
+            2,
+            "Query schemas must stay inside the supported flat command grammar"
+        );
         assert_eq!(
             branches
                 .iter()
                 .filter(|branch| branch["type"] == "null")
                 .count(),
-            1
+            1,
+            "Query schemas must stay inside the supported flat command grammar"
         );
         for branch in branches.iter().filter(|branch| branch["type"] != "null") {
             flat_value(root, branch);
         }
     } else if node["type"] == "array" {
         let items = node.get("items").expect("array items");
-        assert_ne!(items["type"], "array");
+        assert_ne!(
+            items["type"], "array",
+            "Query schemas must stay inside the supported flat command grammar"
+        );
         flat_value(root, items);
     } else {
         assert!(
-            ["string", "integer", "boolean"].contains(&node["type"].as_str().expect("scalar type"))
+            ["string", "integer", "boolean"].contains(&node["type"].as_str().expect("scalar type")),
+            "Query schemas must stay inside the supported flat command grammar"
         );
     }
 }

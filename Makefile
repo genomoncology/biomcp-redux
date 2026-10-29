@@ -22,6 +22,7 @@ fmt:
 	cargo fmt --all -- --check
 
 lint:
+	cargo check --locked -p biodata -p biomcp-types --no-default-features
 	cargo clippy --workspace --all-targets --locked -- -D warnings
 
 ratchets:
@@ -107,4 +108,5 @@ release-cold:
 
 .PHONY: workflow-lint
 workflow-lint:
+	cargo check --locked -p biodata -p biomcp-types --no-default-features
 	actionlint
