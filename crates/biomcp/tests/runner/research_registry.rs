@@ -26,9 +26,11 @@ pub(super) fn check() -> Result<(), String> {
         // CellLineIdentityPage is section metadata, not a research search result.
         // NCI organizations have no unique ID, canonical record URL or get command;
         // organization/research-keeps-uncitable-rows proves their metadata disclosure.
+        // Biomarker codes select collections without a published row URL;
+        // biomarker/research-keeps-native-rows proves their metadata disclosure.
         if matches!(
             name,
-            "PgxPage" | "CellLineIdentityPage" | "OrganizationPage"
+            "PgxPage" | "CellLineIdentityPage" | "OrganizationPage" | "BiomarkerPage"
         ) {
             continue;
         }

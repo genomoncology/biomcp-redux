@@ -10,6 +10,18 @@ Choose a command below, inspect its source outcomes and follow its returned next
 biomcp help
 ```
 
+## biomcp search biomarker
+
+```sh
+biomcp search biomarker --source nci --name PD-L1
+```
+
+## biomcp get biomarker
+
+```sh
+biomcp get biomarker C96022
+```
+
 ## biomcp author papers
 
 ```sh
@@ -347,6 +359,7 @@ biomcp article recommendations 34096690 32955176 --negative 33433946 --limit 5
 
 ```sh
 biomcp search trial --condition melanoma
+biomcp search trial --source nci --facility 'Dana-Farber Cancer Institute' --limit 1
 biomcp search trial --condition melanoma --intervention pembrolizumab
 biomcp search trial --condition melanoma --condition 'lung cancer' --intervention pembrolizumab --intervention nivolumab --keyword survival --keyword 'quality of life' --limit 1
 ```
@@ -632,22 +645,22 @@ biomcp help network proxy
 biomcp help exit
 ```
 
-## biomcp author
-
-```sh
-biomcp author papers semantic-scholar:123
-```
-
 ## biomcp search
 
 ```sh
-biomcp search author 'Louis Williams'
+biomcp search biomarker --source nci --name PD-L1
 ```
 
 ## biomcp get
 
 ```sh
-biomcp get author semanticscholar:456 semantic-scholar:123 semantic-scholar:999
+biomcp get biomarker C96022
+```
+
+## biomcp author
+
+```sh
+biomcp author papers semantic-scholar:123
 ```
 
 ## biomcp cell-line

@@ -239,6 +239,52 @@
       ],
       "type": "object"
     },
+    "NciMatchedSite": {
+      "description": "Compact source site observation; its presence does not establish enrollment.",
+      "properties": {
+        "org_city": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/Text"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "description": "Native city, when provided."
+        },
+        "org_name": {
+          "$ref": "#/$defs/Text",
+          "description": "Published organization name."
+        },
+        "org_state_or_province": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/Text"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "description": "Native state or province, when provided."
+        },
+        "recruitment_status": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/Text"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "description": "Native recruitment status, without translation or enrollment inference."
+        }
+      },
+      "required": [
+        "org_name"
+      ],
+      "type": "object"
+    },
     "NciTextPage": {
       "description": "Exact source text fragment with an honest original character count.",
       "properties": {
@@ -302,6 +348,26 @@
         "diseases": {
           "$ref": "#/$defs/TrialRecords",
           "description": "Publisher-provided disease concepts in source order."
+        },
+        "matched_site": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/NciMatchedSite"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "description": "First site with an exact case-insensitive organization name, in source order."
+        },
+        "matching_sites": {
+          "description": "Number of sites with that name, without deduplication; present only for facility searches.",
+          "format": "uint32",
+          "minimum": 0,
+          "type": [
+            "integer",
+            "null"
+          ]
         },
         "nci_id": {
           "$ref": "#/$defs/Text",
@@ -1232,7 +1298,7 @@
       "type": "object"
     },
     "TrialSearch": {
-      "description": "Search one provider with bounded pages and source-native counts; default ClinicalTrials.gov, explicit keyed NCI, never a fallback.",
+      "description": "Search ClinicalTrials.gov or keyed NCI with native counts. NCI --facility matches exact organization names; a listed site is not necessarily enrolling.",
       "properties": {
         "age": {
           "description": "Age in years; unstated source bounds count as no limit.",
@@ -1270,7 +1336,7 @@
         },
         "facility": {
           "$ref": "#/$defs/Text",
-          "description": "Exact registry facility field; cannot combine with radius."
+          "description": "Exact facility name; NCI matches organization names case-insensitively. A listed site is not necessarily enrolling. Cannot combine with radius."
         },
         "gene": {
           "$ref": "#/$defs/GeneInput",

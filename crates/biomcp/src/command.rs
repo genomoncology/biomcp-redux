@@ -1,6 +1,7 @@
 //! Shared command interpretation and typed outcomes for CLI and MCP.
 mod adverse_event;
 mod author;
+mod biomarker;
 mod cell_line;
 mod diagnostic;
 mod disease;
@@ -240,6 +241,8 @@ fn response_body(meta: ResponseMeta, request: Request, body: QueryBody) -> io::R
         | Request::ProteinComplexMembers(_)
         | Request::ProteinStructures(_)
         | Request::ProteinSequence(_) => protein::encode(meta, request, body),
+        Request::SearchBiomarker(q) => biomarker::search(meta, q, body),
+        Request::GetBiomarker(q) => biomarker::get(meta, q, body),
         Request::SearchOrganization(q) => organization::encode(meta, q, body),
         Request::SearchPathway(_)
         | Request::GetPathway(_)

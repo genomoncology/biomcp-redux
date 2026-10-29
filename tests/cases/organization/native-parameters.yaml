@@ -64,10 +64,10 @@
         "/result/items/0/name": "Dana-Farber Cancer Institute",
         "/result/items/0/count": 3376,
         "/result/items/0": {
-          "max_bytes": 463
+          "max_bytes": 673
         }
       },
-      "max_bytes": 1216
+      "max_bytes": 1426
     }
   ]
 }

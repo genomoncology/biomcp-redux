@@ -42,22 +42,22 @@
         "/result/items/0/name": "Beth Israel Deaconess Medical Center",
         "/result/items/0/count": 955,
         "/result/items/0": {
-          "max_bytes": 523
+          "max_bytes": 733
         },
         "/result/items/1": {
-          "max_bytes": 523
+          "max_bytes": 733
         },
         "/result/items/2": {
-          "max_bytes": 523
+          "max_bytes": 733
         },
         "/result/items/3": {
-          "max_bytes": 523
+          "max_bytes": 733
         },
         "/result/items/4": {
-          "max_bytes": 523
+          "max_bytes": 733
         }
       },
-      "max_bytes": 3177
+      "max_bytes": 4227
     }
   ]
 }
