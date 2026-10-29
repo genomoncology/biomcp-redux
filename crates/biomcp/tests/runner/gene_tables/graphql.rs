@@ -117,7 +117,7 @@ fn constraint() -> Check {
             },
             match mode {
                 3 => {
-                    json!({"/result/items/0/sections/constraint/state": "empty", "/problems/*/field": ["gene_id"]})
+                    json!({"/result/items/0/sections/constraint/state": "unavailable", "/problems/*/field": ["gene_id"], "/sources/2/state": "ok"})
                 }
                 9 => json!({"/result/items/0/sections/constraint/state": "empty"}),
                 11..=14 => {

@@ -13,6 +13,7 @@ struct Candidate {
     id: String,
     rsid: Option<Text>,
     gene: Option<Field<Vec<Field<Text>>>>,
+    #[serde(deserialize_with = "crate::native_text::deserialize")]
     name: Text,
     pmids_count: u64,
 }

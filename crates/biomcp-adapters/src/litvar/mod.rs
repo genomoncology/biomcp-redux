@@ -153,7 +153,6 @@ struct Candidate {
     id: String,
     rsid: Option<Text>,
     gene: Vec<Text>,
-    #[serde(deserialize_with = "crate::native_text::deserialize")]
     name: biodata::Text,
     pmids_count: u64,
 }
