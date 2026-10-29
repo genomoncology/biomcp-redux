@@ -6,7 +6,13 @@ pub(super) fn check(name: &str) -> Result<(), String> {
         serde_json::from_slice(&fs::read(path).map_err(|e| e.to_string())?)
             .map_err(|e| e.to_string())?;
     let env = Environment::new().map_err(|e| e.to_string())?;
-    let replay = super::super::launch::fixtures().join("replies/author/synthetic");
+    let replay = if name == "stale" {
+        let target = env.root().join("known-recordings");
+        super::super::response_cases::cache_capture("author/synthetic", &target, super::super::response_cases::CACHE_ACQUIRED)?;
+        target
+    } else {
+        super::super::launch::fixtures().join("replies/author/synthetic")
+    };
     let registry = super::super::schema::Registry::embedded()?;
     let mut pool: Option<String> = None;
     let mut published = None;

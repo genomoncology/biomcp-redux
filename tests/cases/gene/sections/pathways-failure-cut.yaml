@@ -3,6 +3,7 @@
   "feature": "gene-sections",
   "story": "A Reactome cut failure preserves identity and MyGene without caching the rejected section",
   "replay": "gene/pathways/synthetic-cut",
+  "cache_acquired": 42,
   "steps": [
     {
       "run": [

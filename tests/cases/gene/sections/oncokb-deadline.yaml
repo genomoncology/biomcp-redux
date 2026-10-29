@@ -3,6 +3,7 @@
   "feature": "gene-sections",
   "story": "Synthetic keyed OncoKB deadline preserves checked identity",
   "replay": "gene/oncokb-synthetic/deadline",
+  "cache_acquired": 42,
   "config": {
     "keys": {
       "oncokb_api_key": "synthetic-placeholder"

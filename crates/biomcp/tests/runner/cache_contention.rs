@@ -1,7 +1,7 @@
 //! A checked provider reply survives a competing cache writer.
 use super::{
     configuration::{cached, invoke, root},
-    launch::{Environment, fixtures},
+    launch::Environment,
     mcp::request,
     publication::Peer,
 };
@@ -95,6 +95,7 @@ fn recordings(from: &std::path::Path, to: &std::path::Path) -> Result<(), String
             let mut value: Value =
                 serde_json::from_slice(&std::fs::read(&path).map_err(|e| e.to_string())?)
                     .map_err(|e| e.to_string())?;
+            super::response_cases::cache_acquisition(&mut value, super::response_cases::CACHE_ACQUIRED);
             if let Some(exchanges) = value.get_mut("exchanges").and_then(Value::as_array_mut) {
                 let copy = exchanges.clone();
                 exchanges.extend(copy);
@@ -112,11 +113,9 @@ fn recordings(from: &std::path::Path, to: &std::path::Path) -> Result<(), String
 fn checked_protein() -> Result<(), String> {
     let env = Environment::new().map_err(|e| e.to_string())?;
     let case = env.root().join("case");
-    let args = cached(
-        &["get", "protein", "P00533"],
-        &case,
-        Some(&fixtures().join("replies/protein/synthetic")),
-    );
+    let records = env.root().join("known-recordings");
+    super::response_cases::cache_capture("protein/synthetic", &records, super::response_cases::CACHE_ACQUIRED)?;
+    let args = cached(&["get", "protein", "P00533"], &case, Some(&records));
     let initial = invoke(&env, args.clone(), 0)?;
     let db = rusqlite::Connection::open(case.join("replay.sqlite")).map_err(|e| e.to_string())?;
     db.execute_batch("BEGIN IMMEDIATE")

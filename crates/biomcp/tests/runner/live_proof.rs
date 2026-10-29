@@ -308,15 +308,17 @@ fn comparison() -> Result<(), Box<dyn std::error::Error>> {
 }
 fn cache_reuse(
     env: &Environment,
-    original: &Path,
+    _original: &Path,
     after: &[Observation],
 ) -> Result<(), Box<dyn std::error::Error>> {
     // Reuse the actual warmed checked cache with networking refused.
+    let records = env.root().join("known-recordings");
+    response_cases::cache_capture("gene/main", &records, response_cases::CACHE_ACQUIRED)?;
     let cache = env.root().join("explicit-cache");
     let cache_arg = cache.to_str().ok_or("cache path")?;
     observe(
         env,
-        original,
+        &records,
         "warm",
         &["get", "gene", "KRAS", "--case-cache", cache_arg],
     )?;

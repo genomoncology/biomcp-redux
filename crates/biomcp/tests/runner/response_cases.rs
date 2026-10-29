@@ -86,3 +86,37 @@ pub(super) fn copy_capture(
     }
     Ok(())
 }
+
+/// Acquisition is synthetic cache setup, never a claim about a retained capture.
+pub(super) const CACHE_ACQUIRED: i64 = 42;
+
+pub(super) fn cache_acquisition(record: &mut Value, acquired: i64) {
+    if let Some(exchanges) = record.get_mut("exchanges").and_then(Value::as_array_mut) {
+        for exchange in exchanges {
+            if exchange.get("status").and_then(Value::as_u64).is_some_and(|v| (200..300).contains(&v))
+                && let Some(exchange) = exchange.as_object_mut()
+            {
+                exchange.entry("fetched").or_insert(json!(acquired));
+            }
+        }
+    }
+}
+
+pub(super) fn cache_capture(capture: &str, target: &Path, acquired: i64) -> Result<(), String> {
+    copy_capture(capture, target, |_, record| cache_acquisition(record, acquired))
+        .map_err(|e| e.to_string())
+}
+
+pub(super) fn replay(
+    env: &super::launch::Environment,
+    capture: Option<&str>,
+    acquired: Option<i64>,
+) -> Result<Option<std::path::PathBuf>, String> {
+    let Some(capture) = capture else { return Ok(None) };
+    let Some(acquired) = acquired else {
+        return Ok(Some(super::launch::fixtures().join("replies").join(capture)));
+    };
+    let target = env.root().join("cache-acquisition-recordings");
+    cache_capture(capture, &target, acquired)?;
+    Ok(Some(target))
+}

@@ -3,6 +3,7 @@
   "feature": "gene-sections",
   "story": "A gnomAD error-200 failure preserves identity and MyGene but never caches the rejected section",
   "replay": "gene/constraint/synthetic-error-200",
+  "cache_acquired": 42,
   "steps": [
     {
       "run": [

@@ -3,6 +3,7 @@
   "feature": "gene-sections",
   "story": "A HPA 429 failure preserves identity and MyGene but never caches the rejected section",
   "replay": "gene/expression/synthetic-429",
+  "cache_acquired": 42,
   "steps": [
     {
       "run": [

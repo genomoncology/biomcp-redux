@@ -125,9 +125,11 @@ fn seed(
         let mut recording: Value =
             serde_json::from_slice(&fs::read(entry.path()).map_err(|e| e.to_string())?)
                 .map_err(|e| e.to_string())?;
+        let acquired = recording.pointer("/exchanges/0/fetched").and_then(Value::as_i64).ok_or("recording acquisition")?;
         let exchange = json!({"status":status,"content_type":"application/json","delay_ms":delay,"retry_after_ms":null,"body":{"kind":"text","value":body}});
         *recording.get_mut("exchanges").ok_or("exchanges")? =
             json!([exchange.clone(), exchange.clone(), exchange]);
+        super::response_cases::cache_acquisition(&mut recording, acquired);
         fs::write(directory.join(entry.file_name()), recording.to_string())
             .map_err(|e| e.to_string())?;
     }

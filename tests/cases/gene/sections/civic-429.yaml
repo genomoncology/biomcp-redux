@@ -3,6 +3,7 @@
   "feature": "gene-sections",
   "story": "A synthetic CIViC 429 reply preserves the independent card",
   "replay": "gene/civic/synthetic-429",
+  "cache_acquired": 42,
   "steps": [
     {
       "run": [

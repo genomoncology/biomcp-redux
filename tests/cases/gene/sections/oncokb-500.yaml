@@ -3,6 +3,7 @@
   "feature": "gene-sections",
   "story": "Synthetic keyed OncoKB 500 preserves checked identity",
   "replay": "gene/oncokb-synthetic/500",
+  "cache_acquired": 42,
   "config": {
     "keys": {
       "oncokb_api_key": "synthetic-placeholder"
