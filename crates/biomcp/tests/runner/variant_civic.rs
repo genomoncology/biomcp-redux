@@ -245,7 +245,7 @@ pub(super) fn civic_body(request: &str) -> Result<String, String> {
     let evidence = json!(
         {"totalCount":2,"nodes":[{"id":1409,"status":"ACCEPTED","evidenceType":"PREDICTIVE","evidenceLevel":"A",
         "evidenceDirection":"DOES_NOT_SUPPORT","significance":"RESISTANCE","disease":{"name":"melanoma","doid":"1909"},
-        "therapies":[{"name":"dabrafenib"}],"source":{"citationId":"25741868","sourceType":"PUBMED"}}],"pageInfo":{"hasNextPage":true,
+        "therapies":[{"name":"dabrafenib"}],"therapyInteractionType":null,"source":{"citationId":"25741868","sourceType":"PUBMED"}}],"pageInfo":{"hasNextPage":true,
         "endCursor":"synthetic-e1"}}
     );
     let assertions = json!(

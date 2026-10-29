@@ -1,10 +1,18 @@
 //! Feature gene-sections: malformed native metadata preserves source submission identity.
 #[path = "adapter_interpretation_values/civic_gene.rs"]
 mod civic_gene;
+#[path = "adapter_interpretation_values/oncokb_gene.rs"]
+mod oncokb_gene;
 use libtest_mimic::Trial;
 use serde_json::{Value, json};
 pub(super) fn trials() -> Vec<Trial> {
     vec![
+        crate::runner::transcript::trial("gene-sections/oncokb-native-type-keeps-gene", || {
+            oncokb_gene::classifications().map_err(Into::into)
+        }),
+        crate::runner::transcript::trial("gene-sections/oncokb-invalid-version-keeps-gene", || {
+            oncokb_gene::version().map_err(Into::into)
+        }),
         crate::runner::transcript::trial("gene-sections/civic-invalid-values-keep-gene", || {
             civic_gene::values().map_err(|e| e.to_string().into())
         }),
