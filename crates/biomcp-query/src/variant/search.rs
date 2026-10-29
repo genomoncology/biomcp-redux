@@ -57,7 +57,7 @@ pub fn search(cx: &Ctx<'_>, query: &VariantSearch) -> Outcome {
             Status::Complete
         };
         let returned = reply.rows.value.len() as u32;
-        out.next = next(query, &reply.rows.value, returned, reply.total);
+        out.next = next(query, &reply.rows.value, reply.consumed, reply.total);
         out.page = Some(PageInfo {
             offset: query.offset(),
             returned,
@@ -120,7 +120,7 @@ fn policy_error() -> Outcome {
 fn next(
     query: &VariantSearch,
     rows: &[biomcp_types::VariantHeader],
-    returned: u32,
+    consumed: u32,
     total: u64,
 ) -> Vec<(StepKind, Action)> {
     let mut next = Vec::new();
@@ -141,8 +141,8 @@ fn next(
             ));
         }
     }
-    let offset = query.offset() + returned;
-    if u64::from(offset) < total && offset < VariantSearch::MAX_RESULTS && returned > 0 {
+    let offset = query.offset() + consumed;
+    if u64::from(offset) < total && offset < VariantSearch::MAX_RESULTS && consumed > 0 {
         next.push((
             StepKind::Page,
             Action::Run {

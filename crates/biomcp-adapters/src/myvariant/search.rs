@@ -12,6 +12,8 @@ const FIELDS: &str = "_id,dbsnp.rsid,dbsnp.gene.symbol,clinvar.variant_id,chrom,
 pub struct SearchPage {
     /// Total reported by MyVariant for this exact query.
     pub total: u64,
+    /// Native positions consumed, including refused records.
+    pub consumed: u32,
     /// Every candidate in native order, with source field problems kept separate.
     pub rows: Mapped<Vec<VariantHeader>>,
 }
@@ -80,6 +82,7 @@ pub fn search(leg: &Leg<'_>, query: &VariantSearch) -> Result<SearchPage, Reques
         value: Vec::new(),
         problems: Vec::new(),
     };
+    let consumed = page.hits.len() as u32;
     for raw in page.hits {
         let Some(hit) = raw.value() else {
             rows.problems.push(crate::mapped::problem(
@@ -110,6 +113,7 @@ pub fn search(leg: &Leg<'_>, query: &VariantSearch) -> Result<SearchPage, Reques
     }
     Ok(SearchPage {
         total: page.total,
+        consumed,
         rows,
     })
 }
