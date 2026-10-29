@@ -109,6 +109,22 @@ impl Problems {
         self.text(field, Some(&value))
             .map(|text| text.as_str().into())
     }
+    pub(crate) fn checked_native_text(
+        &mut self,
+        field: &str,
+        value: Option<crate::raw::Field<Box<str>>>,
+    ) -> Option<Box<str>> {
+        let value = self.field(field, value)?;
+        self.checked_text(field, Some(&value)).map(|_| value)
+    }
+    pub(crate) fn required_checked_native_text(
+        &mut self,
+        field: &str,
+        value: Option<crate::raw::Field<Box<str>>>,
+    ) -> Option<Box<str>> {
+        let value = self.checked_native_text(field, value);
+        self.required(field, value)
+    }
     pub(crate) fn required_native_text(
         &mut self,
         field: &str,
@@ -128,6 +144,13 @@ impl Problems {
             .filter_map(|value| self.native_text(field, Some(value)))
             .collect()
     }
+    pub(crate) fn checked_text(
+        &mut self,
+        field: &str,
+        value: Option<&str>,
+    ) -> Option<biodata::Text> {
+        self.optional(field, value.map(biodata::Text::new))
+    }
     pub(crate) fn text(&mut self, field: &str, value: Option<&str>) -> Option<biodata::Text> {
         self.optional(field, value.map(biodata::Text::from_source))
     }
@@ -141,9 +164,36 @@ pub(crate) fn field_text(
     field: &str,
     value: Option<crate::raw::Field<String>>,
 ) -> Option<biodata::Text> {
-    let value = value?
-        .value()
-        .and_then(|s| biodata::Text::from_source(&s).ok());
+    checked_field_text(
+        problems,
+        source,
+        record,
+        field,
+        value,
+        biodata::Text::from_source,
+    )
+}
+
+/// Preserve strict admission for native source codes and identities.
+pub(crate) fn field_code_text(
+    problems: &mut Vec<Problem>,
+    source: biomcp_types::Source,
+    record: Option<biodata::Text>,
+    field: &str,
+    value: Option<crate::raw::Field<String>>,
+) -> Option<biodata::Text> {
+    checked_field_text(problems, source, record, field, value, biodata::Text::new)
+}
+
+fn checked_field_text(
+    problems: &mut Vec<Problem>,
+    source: biomcp_types::Source,
+    record: Option<biodata::Text>,
+    field: &str,
+    value: Option<crate::raw::Field<String>>,
+    admit: fn(&str) -> Result<biodata::Text, biodata::Error>,
+) -> Option<biodata::Text> {
+    let value = value?.value().and_then(|s| admit(&s).ok());
     if value.is_none() {
         push_problem(problems, source, record, field);
     }

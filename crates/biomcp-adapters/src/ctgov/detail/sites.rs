@@ -76,9 +76,9 @@ impl Contact {
         TrialContact {
             name: problems.native_text("name", self.name),
             role: problems.field("role", self.role),
-            phone: problems.native_text("phone", self.phone),
-            phone_ext: problems.native_text("phoneExt", self.phone_ext),
-            email: problems.native_text("email", self.email),
+            phone: problems.checked_native_text("phone", self.phone),
+            phone_ext: problems.checked_native_text("phoneExt", self.phone_ext),
+            email: problems.checked_native_text("email", self.email),
         }
     }
 }
@@ -88,7 +88,7 @@ impl Location {
             facility: problems.native_text("facility", self.facility),
             city: problems.native_text("city", self.city),
             state: problems.native_text("state", self.state),
-            zip: problems.native_text("zip", self.zip),
+            zip: problems.checked_native_text("zip", self.zip),
             country: problems.native_text("country", self.country),
             status: problems.field("locations.status", self.status),
             coordinates: problems.field("geoPoint", self.geo_point).map(|v| v.0),

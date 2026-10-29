@@ -25,7 +25,7 @@ fn optional_string(
                 "synonyms",
                 "generic_name",
                 "brand_name",
-                "molecule_synonyms",
+                "molecule_synonym",
             ]
             .iter()
             .any(|name| field.ends_with(&format!(".{name}")));

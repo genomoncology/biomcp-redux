@@ -38,6 +38,7 @@ pub(super) fn text_value_patterns_match_parser_admissions() {
         )*};
     }
     cases! {
+        biodata::Text => ["safe", "safe\n", "safe\r", "safe\u{0085}", "safe\u{202e}"],
         HgncId => ["HGNC:1", "HGNC:0", "HGNC:4294967295", "HGNC:4294967296"],
         NcbiGeneId => ["1", "01", "4294967295", "4294967296"],
         Pmid => ["1", "0", "4294967295", "4294967296"],

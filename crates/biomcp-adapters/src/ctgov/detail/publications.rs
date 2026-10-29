@@ -72,7 +72,7 @@ impl Documents {
 }
 impl Document {
     fn mapped(self, id: NctId, problems: &mut Problems) -> Option<TrialDocument> {
-        let name = problems.required_native_text("largeDocs.filename", self.filename)?;
+        let name = problems.required_checked_native_text("largeDocs.filename", self.filename)?;
         let name = problems.optional(
             "largeDocs.filename",
             Some(if filename(&name) {
@@ -94,7 +94,7 @@ impl Document {
         Some(TrialDocument {
             filename: name,
             url,
-            kind: problems.required_native_text("largeDocs.typeAbbrev", self.type_abbrev),
+            kind: problems.required_checked_native_text("largeDocs.typeAbbrev", self.type_abbrev),
             label: problems.native_text("largeDocs.label", self.label),
             date: problems.field("largeDocs.date", self.date),
             uploaded: problems.field("largeDocs.uploadDate", self.upload_date),

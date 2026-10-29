@@ -37,7 +37,17 @@ pub(super) fn mapped(row: raw::Record) -> Mapped<DrugRecallCard> {
         &mut problems,
     );
     let reported = date(row.report_date, "report_date", id.clone(), &mut problems);
-    let mut text = |field, value| field_text(&mut problems, SOURCE, id.clone(), field, value);
+    let mut text = |field, value| {
+        let admit = if matches!(
+            field,
+            "classification" | "status" | "code_info" | "voluntary_mandated"
+        ) {
+            crate::mapped::field_code_text
+        } else {
+            field_text
+        };
+        admit(&mut problems, SOURCE, id.clone(), field, value)
+    };
     let header = DrugRecallHeader {
         recall_number: row.recall_number,
         classification: text("classification", row.classification),

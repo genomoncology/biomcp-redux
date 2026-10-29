@@ -1,6 +1,6 @@
 use crate::native_text::NativeText;
 use crate::raw::{Field, OneOrMany};
-use biodata::{Curie, Text};
+use biodata::Curie;
 use biomcp_fetch::{BadReply, Reply};
 use serde::Deserialize;
 use std::collections::BTreeMap;

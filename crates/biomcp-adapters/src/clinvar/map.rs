@@ -153,7 +153,7 @@ fn attribution(
     Ok(Attribution {
         source: Source::ClinVar.text(),
         record: Some(text(&id)?),
-        version: problems.text("version", version.as_deref()),
+        version: problems.checked_text("version", version.as_deref()),
         release: None,
         submitter: problems.text("submitter", submitter.as_deref()),
         evaluated: problems.optional("evaluated", evaluated.map(|s| s.parse())),

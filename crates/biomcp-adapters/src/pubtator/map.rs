@@ -68,8 +68,13 @@ fn optional(
     raw: Option<&Field<String>>,
     problems: &mut Vec<Problem>,
 ) -> Option<Text> {
+    let admit = if field == "name" {
+        Text::from_source
+    } else {
+        Text::new
+    };
     match raw {
-        Some(Field::Value(s)) if s != "-" && !s.is_empty() => match Text::from_source(s) {
+        Some(Field::Value(s)) if s != "-" && !s.is_empty() => match admit(s) {
             Ok(text) => Some(text),
             Err(_) => {
                 push_problem(problems, Source::PubTator, record_text(id), field);

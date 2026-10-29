@@ -1,5 +1,5 @@
 //! Exact native FAERS fields; unrelated publisher fields are ignored at this edge.
-use biodata::{ReportId, Text};
+use biodata::ReportId;
 use biomcp_fetch::{BadReply, Reply};
 use serde::Deserialize;
 #[derive(Debug, Deserialize)]
