@@ -49,7 +49,7 @@ pub struct StudyCard {
     pub files: Option<Section<StudyFiles>>,
 }
 impl ResponseBody for StudyCard {
-    const SCHEMA: &'static str = "biomcp.study-card/2";
+    const SCHEMA: &'static str = "biomcp.study-card/3";
     type Query = StudyGet;
 }
 macro_rules! page {

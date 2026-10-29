@@ -425,6 +425,10 @@ fn planted_error_signature_and_exit_literals_are_rejected() -> Check {
 
 #[test]
 fn planted_undeclared_display_code_is_rejected() -> Check {
+    assert!(
+        super::errors::display_codes("One => \"same.error\", Two => \"same.error\"", "").is_err(),
+        "duplicate declared codes must fail"
+    );
     let declaration = "Known => \"known.error\"";
     super::errors::display_codes(
         declaration,

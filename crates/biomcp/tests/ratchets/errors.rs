@@ -43,11 +43,15 @@ pub(super) fn signatures(text: &str) -> Check {
 
 pub(super) fn display_codes(declaration: &str, text: &str) -> Check {
     let declaration = tokens(declaration);
-    let codes: BTreeSet<_> = declaration
+    let mut codes = BTreeSet::new();
+    for code in declaration
         .windows(3)
         .filter(|v| v[0] == "=" && v[1] == ">")
-        .map(|v| v[2].as_str())
-        .collect();
+    {
+        if !codes.insert(code[2].as_str()) {
+            return Err(format!("duplicate biodata error code: {}", code[2]).into());
+        }
+    }
     let words = tokens(text);
     for (start, word) in words.iter().enumerate() {
         if word != "impl" {

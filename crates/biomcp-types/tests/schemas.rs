@@ -198,7 +198,7 @@ fn study_registry() -> Vec<Contract> {
         StudySearch => ("study-search", "biomcp.study-search/1", query),
         StudyGet => ("study-get", "biomcp.study-get/1", query),
         Envelope<StudyPage> => ("study-page", "biomcp.study-page/1"),
-        Envelope<StudyCard> => ("study-card", "biomcp.study-card/2"),
+        Envelope<StudyCard> => ("study-card", "biomcp.study-card/3"),
         Envelope<StudyProfiles> => ("study-profiles", "biomcp.study-profiles/2"),
         Envelope<StudySampleLists> => ("study-sample-lists", "biomcp.study-sample-lists/2"),
         Envelope<StudyFiles> => ("study-files", "biomcp.study-files/2"),
