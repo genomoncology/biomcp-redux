@@ -198,14 +198,7 @@
               "type": "string"
             },
             "last_touch_date": {
-              "anyOf": [
-                {
-                  "$ref": "#/$defs/Reply_Text"
-                },
-                {
-                  "type": "null"
-                }
-              ],
+              "$ref": "#/$defs/Reply_Text",
               "description": "Native revision date; not a local retrieval date."
             },
             "manufacturer_test_name": {
@@ -232,14 +225,7 @@
               "type": "string"
             },
             "test_create_date": {
-              "anyOf": [
-                {
-                  "$ref": "#/$defs/Reply_Text"
-                },
-                {
-                  "type": "null"
-                }
-              ],
+              "$ref": "#/$defs/Reply_Text",
               "description": "Source creation date."
             },
             "test_deletion_date": {
@@ -259,6 +245,8 @@
             "kind",
             "header",
             "native_status",
+            "last_touch_date",
+            "test_create_date",
             "test_deletion_date",
             "manufacturer_test_name",
             "test_development",
@@ -602,14 +590,7 @@
           "description": "Complete source accession and version."
         },
         "laboratory": {
-          "anyOf": [
-            {
-              "$ref": "#/$defs/Reply_DiagnosticLaboratory"
-            },
-            {
-              "type": "null"
-            }
-          ],
+          "$ref": "#/$defs/Reply_DiagnosticLaboratory",
           "description": "Native laboratory context."
         },
         "name": {
@@ -631,6 +612,7 @@
       },
       "required": [
         "id",
+        "laboratory",
         "url"
       ],
       "type": "object"
@@ -1375,7 +1357,7 @@
       "type": "string"
     }
   },
-  "$id": "biomcp.diagnostic-card/4",
+  "$id": "biomcp.diagnostic-card/3",
   "$schema": "https://json-schema.org/draft/2020-12/schema",
   "description": "One versioned command response; schema identity comes only from its body type.\nJSON readers ignore unknown fields and unknown growable enum values within a major.",
   "properties": {
@@ -1431,7 +1413,7 @@
       "description": "Answer when available."
     },
     "schema": {
-      "const": "biomcp.diagnostic-card/4",
+      "const": "biomcp.diagnostic-card/3",
       "type": "string"
     },
     "sources": {

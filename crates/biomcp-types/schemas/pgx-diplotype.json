@@ -110,31 +110,19 @@
       "properties": {
         "activityvalue1": {
           "description": "Native `activityvalue1`; literal source value.",
-          "type": [
-            "string",
-            "null"
-          ]
+          "type": "string"
         },
         "activityvalue2": {
           "description": "Native `activityvalue2`; literal source value.",
-          "type": [
-            "string",
-            "null"
-          ]
+          "type": "string"
         },
         "consultationtext": {
           "description": "Native `consultationtext`; literal source value.",
-          "type": [
-            "string",
-            "null"
-          ]
+          "type": "string"
         },
         "description": {
           "description": "Native `description`; literal source value.",
-          "type": [
-            "string",
-            "null"
-          ]
+          "type": "string"
         },
         "diplotype": {
           "description": "Native `diplotype`; literal source value.",
@@ -152,38 +140,23 @@
               "type": "object"
             }
           },
-          "type": [
-            "object",
-            "null"
-          ]
+          "type": "object"
         },
         "ehrpriority": {
           "description": "Native `ehrpriority`; literal source value.",
-          "type": [
-            "string",
-            "null"
-          ]
+          "type": "string"
         },
         "function1": {
           "description": "Native `function1`; literal source value.",
-          "type": [
-            "string",
-            "null"
-          ]
+          "type": "string"
         },
         "function2": {
           "description": "Native `function2`; literal source value.",
-          "type": [
-            "string",
-            "null"
-          ]
+          "type": "string"
         },
         "generesult": {
           "description": "Native `generesult`; literal source value.",
-          "type": [
-            "string",
-            "null"
-          ]
+          "type": "string"
         },
         "genesymbol": {
           "$ref": "#/$defs/Reply_GeneSymbol",
@@ -196,22 +169,27 @@
               "type": "string"
             }
           },
-          "type": [
-            "object",
-            "null"
-          ]
+          "type": "object"
         },
         "totalactivityscore": {
           "description": "Native `totalactivityscore`; literal source value.",
-          "type": [
-            "string",
-            "null"
-          ]
+          "type": "string"
         }
       },
       "required": [
         "genesymbol",
-        "diplotype"
+        "diplotype",
+        "function1",
+        "function2",
+        "activityvalue1",
+        "activityvalue2",
+        "totalactivityscore",
+        "description",
+        "diplotypekey",
+        "generesult",
+        "ehrpriority",
+        "consultationtext",
+        "lookupkey"
       ],
       "type": "object"
     },
@@ -936,7 +914,7 @@
       "type": "string"
     }
   },
-  "$id": "biomcp.pgx-diplotype/4",
+  "$id": "biomcp.pgx-diplotype/3",
   "$schema": "https://json-schema.org/draft/2020-12/schema",
   "description": "One versioned command response; schema identity comes only from its body type.\nJSON readers ignore unknown fields and unknown growable enum values within a major.",
   "properties": {
@@ -992,7 +970,7 @@
       "description": "Answer when available."
     },
     "schema": {
-      "const": "biomcp.pgx-diplotype/4",
+      "const": "biomcp.pgx-diplotype/3",
       "type": "string"
     },
     "sources": {

@@ -95,10 +95,7 @@
               "type": "string"
             }
           },
-          "type": [
-            "object",
-            "null"
-          ]
+          "type": "object"
         },
         "allelestatus": {
           "description": "Native `allelestatus`; literal source value.",
@@ -107,38 +104,23 @@
               "type": "string"
             }
           },
-          "type": [
-            "object",
-            "null"
-          ]
+          "type": "object"
         },
         "alternatedrugavailable": {
           "description": "Native `alternatedrugavailable`; literal source value.",
-          "type": [
-            "boolean",
-            "null"
-          ]
+          "type": "boolean"
         },
         "classification": {
           "description": "Native `classification`; literal source value.",
-          "type": [
-            "string",
-            "null"
-          ]
+          "type": "string"
         },
         "comments": {
           "description": "Native `comments`; literal source value.",
-          "type": [
-            "string",
-            "null"
-          ]
+          "type": "string"
         },
         "dosinginformation": {
           "description": "Native `dosinginformation`; literal source value.",
-          "type": [
-            "boolean",
-            "null"
-          ]
+          "type": "boolean"
         },
         "drugid": {
           "$ref": "#/$defs/Reply_Curie",
@@ -146,18 +128,12 @@
         },
         "drugrecommendation": {
           "description": "Native `drugrecommendation`; literal source value.",
-          "type": [
-            "string",
-            "null"
-          ]
+          "type": "string"
         },
         "guidelineid": {
           "description": "Native `guidelineid`; literal source value.",
           "format": "int64",
-          "type": [
-            "integer",
-            "null"
-          ]
+          "type": "integer"
         },
         "id": {
           "description": "Native `id`; literal source value.",
@@ -171,10 +147,7 @@
               "type": "string"
             }
           },
-          "type": [
-            "object",
-            "null"
-          ]
+          "type": "object"
         },
         "lookupkey": {
           "description": "Native `lookupkey`; literal source value.",
@@ -187,10 +160,7 @@
         },
         "otherprescribingguidance": {
           "description": "Native `otherprescribingguidance`; literal source value.",
-          "type": [
-            "boolean",
-            "null"
-          ]
+          "type": "boolean"
         },
         "phenotypes": {
           "description": "Native `phenotypes`; literal source value.",
@@ -199,31 +169,35 @@
               "type": "string"
             }
           },
-          "type": [
-            "object",
-            "null"
-          ]
+          "type": "object"
         },
         "population": {
           "description": "Native `population`; literal source value.",
-          "type": [
-            "string",
-            "null"
-          ]
+          "type": "string"
         },
         "version": {
           "description": "Native `version`; literal source value.",
           "format": "int64",
-          "type": [
-            "integer",
-            "null"
-          ]
+          "type": "integer"
         }
       },
       "required": [
         "id",
+        "guidelineid",
         "drugid",
-        "lookupkey"
+        "implications",
+        "drugrecommendation",
+        "classification",
+        "phenotypes",
+        "activityscore",
+        "allelestatus",
+        "lookupkey",
+        "population",
+        "comments",
+        "version",
+        "dosinginformation",
+        "alternatedrugavailable",
+        "otherprescribingguidance"
       ],
       "type": "object"
     },
@@ -377,17 +351,11 @@
               "type": "string"
             }
           },
-          "type": [
-            "object",
-            "null"
-          ]
+          "type": "object"
         },
         "classification": {
           "description": "Native `classification`; literal source value.",
-          "type": [
-            "string",
-            "null"
-          ]
+          "type": "string"
         },
         "comments": {
           "description": "Native `comments`; literal source value.",
@@ -398,32 +366,20 @@
         },
         "drugname": {
           "description": "Native `drugname`; literal source value.",
-          "type": [
-            "string",
-            "null"
-          ]
+          "type": "string"
         },
         "drugrecommendation": {
           "description": "Native `drugrecommendation`; literal source value.",
-          "type": [
-            "string",
-            "null"
-          ]
+          "type": "string"
         },
         "guidelinename": {
           "description": "Native `guidelinename`; literal source value.",
-          "type": [
-            "string",
-            "null"
-          ]
+          "type": "string"
         },
         "guidelineurl": {
           "description": "Native `guidelineurl`; literal source value.",
           "format": "uri",
-          "type": [
-            "string",
-            "null"
-          ]
+          "type": "string"
         },
         "implications": {
           "description": "Native `implications`; literal source value.",
@@ -432,10 +388,7 @@
               "type": "string"
             }
           },
-          "type": [
-            "object",
-            "null"
-          ]
+          "type": "object"
         },
         "lookupkey": {
           "description": "Native `lookupkey`; literal source value.",
@@ -453,17 +406,11 @@
               "type": "string"
             }
           },
-          "type": [
-            "object",
-            "null"
-          ]
+          "type": "object"
         },
         "population": {
           "description": "Native `population`; literal source value.",
-          "type": [
-            "string",
-            "null"
-          ]
+          "type": "string"
         },
         "recommendationid": {
           "description": "Native `recommendationid`; literal source value.",
@@ -473,7 +420,16 @@
       },
       "required": [
         "recommendationid",
-        "lookupkey"
+        "lookupkey",
+        "drugname",
+        "guidelinename",
+        "guidelineurl",
+        "implications",
+        "drugrecommendation",
+        "classification",
+        "phenotypes",
+        "activityscore",
+        "population"
       ],
       "type": "object"
     },
@@ -1169,7 +1125,7 @@
       "type": "string"
     }
   },
-  "$id": "biomcp.pgx-recommendations/4",
+  "$id": "biomcp.pgx-recommendations/3",
   "$schema": "https://json-schema.org/draft/2020-12/schema",
   "description": "One versioned command response; schema identity comes only from its body type.\nJSON readers ignore unknown fields and unknown growable enum values within a major.",
   "properties": {
@@ -1225,7 +1181,7 @@
       "description": "Answer when available."
     },
     "schema": {
-      "const": "biomcp.pgx-recommendations/4",
+      "const": "biomcp.pgx-recommendations/3",
       "type": "string"
     },
     "sources": {

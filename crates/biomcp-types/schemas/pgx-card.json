@@ -127,54 +127,23 @@
       "description": "Source-native PgxGeneIdentity fields; no clinical interpretation.",
       "properties": {
         "clinpgxid": {
-          "anyOf": [
-            {
-              "$ref": "#/$defs/Reply_ClinPgxAccession"
-            },
-            {
-              "type": "null"
-            }
-          ],
+          "$ref": "#/$defs/Reply_ClinPgxAccession",
           "description": "Native `clinpgxid`; literal source value."
         },
         "ensemblid": {
-          "anyOf": [
-            {
-              "$ref": "#/$defs/Reply_EnsemblGeneId"
-            },
-            {
-              "type": "null"
-            }
-          ],
+          "$ref": "#/$defs/Reply_EnsemblGeneId",
           "description": "Native `ensemblid`; literal source value."
         },
         "hgncid": {
-          "anyOf": [
-            {
-              "$ref": "#/$defs/Reply_HgncId"
-            },
-            {
-              "type": "null"
-            }
-          ],
+          "$ref": "#/$defs/Reply_HgncId",
           "description": "Native `hgncid`; literal source value."
         },
         "lookupmethod": {
           "description": "Native `lookupmethod`; literal source value.",
-          "type": [
-            "string",
-            "null"
-          ]
+          "type": "string"
         },
         "ncbiid": {
-          "anyOf": [
-            {
-              "$ref": "#/$defs/Reply_NcbiGeneId"
-            },
-            {
-              "type": "null"
-            }
-          ],
+          "$ref": "#/$defs/Reply_NcbiGeneId",
           "description": "Native `ncbiid`; literal source value."
         },
         "symbol": {
@@ -184,14 +153,17 @@
         "version": {
           "description": "Native `version`; literal source value.",
           "format": "int64",
-          "type": [
-            "integer",
-            "null"
-          ]
+          "type": "integer"
         }
       },
       "required": [
-        "symbol"
+        "symbol",
+        "hgncid",
+        "ncbiid",
+        "ensemblid",
+        "clinpgxid",
+        "lookupmethod",
+        "version"
       ],
       "type": "object"
     },
@@ -916,7 +888,7 @@
       "type": "string"
     }
   },
-  "$id": "biomcp.pgx-card/4",
+  "$id": "biomcp.pgx-card/3",
   "$schema": "https://json-schema.org/draft/2020-12/schema",
   "description": "One versioned command response; schema identity comes only from its body type.\nJSON readers ignore unknown fields and unknown growable enum values within a major.",
   "properties": {
@@ -972,7 +944,7 @@
       "description": "Answer when available."
     },
     "schema": {
-      "const": "biomcp.pgx-card/4",
+      "const": "biomcp.pgx-card/3",
       "type": "string"
     },
     "sources": {

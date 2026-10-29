@@ -183,13 +183,11 @@
         "url": {
           "description": "Native `url`; literal source value.",
           "format": "uri",
-          "type": [
-            "string",
-            "null"
-          ]
+          "type": "string"
         }
       },
       "required": [
+        "url",
         "symbol"
       ],
       "type": "object"
@@ -218,14 +216,12 @@
         "guideline_url": {
           "description": "Native `guideline_url`; literal source value.",
           "format": "uri",
-          "type": [
-            "string",
-            "null"
-          ]
+          "type": "string"
         }
       },
       "required": [
-        "guideline_name"
+        "guideline_name",
+        "guideline_url"
       ],
       "type": "object"
     },
@@ -933,7 +929,7 @@
       "type": "string"
     }
   },
-  "$id": "biomcp.pgx-guidelines/4",
+  "$id": "biomcp.pgx-guidelines/3",
   "$schema": "https://json-schema.org/draft/2020-12/schema",
   "description": "One versioned command response; schema identity comes only from its body type.\nJSON readers ignore unknown fields and unknown growable enum values within a major.",
   "properties": {
@@ -989,7 +985,7 @@
       "description": "Answer when available."
     },
     "schema": {
-      "const": "biomcp.pgx-guidelines/4",
+      "const": "biomcp.pgx-guidelines/3",
       "type": "string"
     },
     "sources": {
