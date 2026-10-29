@@ -224,13 +224,13 @@ impl Parser<'_> {
     fn display_member(&mut self) -> Result<Option<Curie>, Error> {
         let mut found = None;
         for (record, label) in self.labels {
-            if let Some(rest) = self.rest.strip_prefix(label.as_str()) {
-                if boundary(rest) {
-                    if found.is_some() {
-                        return Err(Error::ProfileExpressionInvalid);
-                    }
-                    found = Some((record.clone(), rest));
+            if let Some(rest) = self.rest.strip_prefix(label.as_str())
+                && boundary(rest)
+            {
+                if found.is_some() {
+                    return Err(Error::ProfileExpressionInvalid);
                 }
+                found = Some((record.clone(), rest));
             }
         }
         if let Some((record, rest)) = found {
@@ -241,11 +241,11 @@ impl Parser<'_> {
         }
     }
     fn take(&mut self, token: &str) -> bool {
-        if let Some(rest) = self.rest.strip_prefix(token) {
-            if token == "(" || token == ")" || boundary(rest) {
-                self.rest = rest.trim_start();
-                return true;
-            }
+        if let Some(rest) = self.rest.strip_prefix(token)
+            && (token == "(" || token == ")" || boundary(rest))
+        {
+            self.rest = rest.trim_start();
+            return true;
         }
         false
     }
