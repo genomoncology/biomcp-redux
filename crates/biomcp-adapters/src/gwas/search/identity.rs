@@ -1,5 +1,5 @@
 //! Pure reply admission before source cache publication.
-use crate::gwas::{SPEC, raw::Association};
+use crate::gwas::{SPEC, scope::Selectors};
 use biomcp_types::GwasSearch;
 use std::collections::BTreeMap;
 pub(super) fn self_link(url: &str, expected: &BTreeMap<String, String>) -> bool {
