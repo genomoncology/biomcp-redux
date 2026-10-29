@@ -81,7 +81,8 @@ fn native(name: &str) -> Result<Value, String> {
         "clinical" => json!([rows::clinical(1, "DPYD"), rows::clinical(2, "DPYD")]),
         "wide" | "default" => Value::Array((1..=6).map(|id| rows::clinical(id, "DPYD")).collect()),
         "empty" => json!([]),
-        _ => rows::references(),
+        "label" => rows::references("LabelAnnotation"),
+        _ => rows::references("GuidelineAnnotation"),
     };
     Ok(json!({"data":data,"status":"success"}))
 }

@@ -510,7 +510,14 @@
       "description": "Source assessment labels and identifiers remain independent.",
       "properties": {
         "criterion": {
-          "$ref": "#/$defs/Reply_Text",
+          "anyOf": [
+            {
+              "$ref": "#/$defs/Reply_Text"
+            },
+            {
+              "type": "null"
+            }
+          ],
           "description": "Native criterion code."
         },
         "criterion_id": {
@@ -569,7 +576,14 @@
           "description": "Native default-strength IRI."
         },
         "outcome": {
-          "$ref": "#/$defs/Reply_Text",
+          "anyOf": [
+            {
+              "$ref": "#/$defs/Reply_Text"
+            },
+            {
+              "type": "null"
+            }
+          ],
           "description": "Source outcome label."
         },
         "outcome_conflict": {
@@ -599,10 +613,6 @@
           "description": "Source outcome IRI."
         }
       },
-      "required": [
-        "criterion",
-        "outcome"
-      ],
       "type": "object"
     },
     "Reply_AssertionCondition": {
@@ -739,6 +749,17 @@
           ],
           "description": "Source document facts for an explicitly selected historical version."
         },
+        "gene_context": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/Reply_GeneRef"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "description": "Native gene context retained when the conclusion cannot map to a statement."
+        },
         "impact_assertion_type": {
           "anyOf": [
             {
@@ -771,6 +792,13 @@
             }
           ],
           "description": "Native therapy text, without splitting or assigning it to a predicate."
+        },
+        "met_criteria": {
+          "description": "Native met criteria retained when no common statement can carry them.",
+          "items": {
+            "$ref": "#/$defs/Reply_Text"
+          },
+          "type": "array"
         },
         "methods": {
           "description": "Assertion method labels, not inferred from clinical testing.",
@@ -2206,12 +2234,14 @@
           "description": "Source count, without deriving a frequency.",
           "format": "uint64",
           "minimum": 0,
-          "type": "integer"
+          "type": [
+            "integer",
+            "null"
+          ]
         }
       },
       "required": [
-        "amino_acid",
-        "count"
+        "amino_acid"
       ],
       "type": "object"
     },
@@ -2260,14 +2290,16 @@
           "description": "Tumors reported for this residue by the source.",
           "format": "uint64",
           "minimum": 0,
-          "type": "integer"
+          "type": [
+            "integer",
+            "null"
+          ]
         }
       },
       "required": [
         "membership",
         "gene",
-        "residue",
-        "tumor_count"
+        "residue"
       ],
       "type": "object"
     },
@@ -5037,15 +5069,22 @@
       "type": "string"
     },
     "Reply_UnmappedAssertion": {
-      "description": "Source classification retained when its category has no approved shared proposition.",
+      "description": "Source conclusion and provenance retained without a shared statement.",
       "properties": {
         "attribution": {
           "$ref": "#/$defs/Reply_Attribution",
           "description": "Original record provenance."
         },
         "classification": {
-          "$ref": "#/$defs/Reply_Text",
-          "description": "Unchanged source label."
+          "anyOf": [
+            {
+              "$ref": "#/$defs/Reply_Text"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "description": "Unchanged source label, when valid and supplied."
         },
         "conditions": {
           "description": "Native conditions, including identifiers without supplied labels.",
@@ -5067,7 +5106,6 @@
         }
       },
       "required": [
-        "classification",
         "attribution"
       ],
       "type": "object"
@@ -5178,7 +5216,7 @@
           "description": "Supported mapping into the common model."
         },
         "statement_unmapped": {
-          "description": "Native category has no approved common-model proposition.",
+          "description": "The native conclusion has no common-model statement.",
           "type": "boolean"
         },
         "unmapped": {
@@ -6423,7 +6461,7 @@
       "type": "object"
     }
   },
-  "$id": "biomcp.variant-card/12",
+  "$id": "biomcp.variant-card/13",
   "$schema": "https://json-schema.org/draft/2020-12/schema",
   "description": "One versioned command response; schema identity comes only from its body type.\nJSON readers ignore unknown fields and unknown growable enum values within a major.",
   "properties": {
@@ -6479,7 +6517,7 @@
       "description": "Answer when available."
     },
     "schema": {
-      "const": "biomcp.variant-card/12",
+      "const": "biomcp.variant-card/13",
       "type": "string"
     },
     "sources": {

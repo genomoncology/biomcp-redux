@@ -70,7 +70,8 @@ pub struct PgxAnnotationDetail {
     pub name: Option<Box<str>>,
     /// Native `objCls`; literal source value.
     #[serde(rename = "objCls")]
-    pub obj_cls: Box<str>,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub obj_cls: Option<Box<str>>,
     /// Native `overrideLevel`; literal source value.
     #[serde(rename = "overrideLevel")]
     #[serde(skip_serializing_if = "Option::is_none")]

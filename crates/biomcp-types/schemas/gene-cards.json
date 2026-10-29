@@ -292,19 +292,47 @@
       "description": "One source submission; no clinical validity is inferred.",
       "properties": {
         "classification": {
-          "$ref": "#/$defs/Reply_Text",
+          "anyOf": [
+            {
+              "$ref": "#/$defs/Reply_Text"
+            },
+            {
+              "type": "null"
+            }
+          ],
           "description": "Source classification title without inference."
         },
         "classification_id": {
-          "$ref": "#/$defs/Reply_Text",
+          "anyOf": [
+            {
+              "$ref": "#/$defs/Reply_Text"
+            },
+            {
+              "type": "null"
+            }
+          ],
           "description": "Source classification identifier."
         },
         "disease": {
-          "$ref": "#/$defs/Reply_Text",
+          "anyOf": [
+            {
+              "$ref": "#/$defs/Reply_Text"
+            },
+            {
+              "type": "null"
+            }
+          ],
           "description": "Source disease title."
         },
         "disease_id": {
-          "$ref": "#/$defs/Reply_Text",
+          "anyOf": [
+            {
+              "$ref": "#/$defs/Reply_Text"
+            },
+            {
+              "type": "null"
+            }
+          ],
           "description": "Source disease identifier."
         },
         "evaluated_date": {
@@ -323,11 +351,25 @@
           "description": "Source submission identifier."
         },
         "mode_of_inheritance": {
-          "$ref": "#/$defs/Reply_Text",
+          "anyOf": [
+            {
+              "$ref": "#/$defs/Reply_Text"
+            },
+            {
+              "type": "null"
+            }
+          ],
           "description": "Source inheritance title."
         },
         "mode_of_inheritance_id": {
-          "$ref": "#/$defs/Reply_Text",
+          "anyOf": [
+            {
+              "$ref": "#/$defs/Reply_Text"
+            },
+            {
+              "type": "null"
+            }
+          ],
           "description": "Source inheritance identifier."
         },
         "submitted_date": {
@@ -342,11 +384,25 @@
           "description": "Source submitted_run_date, preserving its spelling."
         },
         "submitter": {
-          "$ref": "#/$defs/Reply_Text",
+          "anyOf": [
+            {
+              "$ref": "#/$defs/Reply_Text"
+            },
+            {
+              "type": "null"
+            }
+          ],
           "description": "Source submitter title."
         },
         "submitter_id": {
-          "$ref": "#/$defs/Reply_Text",
+          "anyOf": [
+            {
+              "$ref": "#/$defs/Reply_Text"
+            },
+            {
+              "type": "null"
+            }
+          ],
           "description": "Source submitter identifier."
         },
         "version": {
@@ -356,15 +412,7 @@
       },
       "required": [
         "id",
-        "version",
-        "disease_id",
-        "disease",
-        "classification_id",
-        "classification",
-        "mode_of_inheritance_id",
-        "mode_of_inheritance",
-        "submitter_id",
-        "submitter"
+        "version"
       ],
       "type": "object"
     },
@@ -3111,7 +3159,7 @@
       "type": "string"
     }
   },
-  "$id": "biomcp.gene-cards/9",
+  "$id": "biomcp.gene-cards/10",
   "$schema": "https://json-schema.org/draft/2020-12/schema",
   "description": "One versioned command response; schema identity comes only from its body type.\nJSON readers ignore unknown fields and unknown growable enum values within a major.",
   "properties": {
@@ -3167,7 +3215,7 @@
       "description": "Answer when available."
     },
     "schema": {
-      "const": "biomcp.gene-cards/9",
+      "const": "biomcp.gene-cards/10",
       "type": "string"
     },
     "sources": {

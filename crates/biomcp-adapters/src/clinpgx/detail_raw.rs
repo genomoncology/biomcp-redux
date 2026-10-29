@@ -43,9 +43,9 @@ pgx_row! { PgxAnnotationDetail => biodata::PgxAnnotationDetail, record accession
     identity {
         id: i64 => "id",
         #[serde(rename = "accessionId")] accession_id: ClinPgxAccession => "accessionId",
-        #[serde(rename = "objCls")] obj_cls: Box<str> => "objCls",
     }
     values {
+        #[serde(rename = "objCls")] obj_cls: Box<str> => "objCls",
         name: Box<str> => "name",
         #[serde(rename = "overrideLevel")] override_level: bool => "overrideLevel",
         pediatric: bool => "pediatric",

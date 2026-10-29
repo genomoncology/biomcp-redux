@@ -27,7 +27,7 @@ fn collection<T: serde::de::DeserializeOwned + NativeRow>(
     q: &PgxGet,
     path: &'static str,
     key: &'static str,
-    check: impl Fn(&T::Value) -> bool,
+    check: impl Fn(&T::Value) -> Result<(), &'static str>,
 ) -> Result<Mapped<Vec<T::Value>>, RequestError> {
     let endpoint = SPEC
         .get(path)
@@ -52,10 +52,10 @@ fn collection<T: serde::de::DeserializeOwned + NativeRow>(
             cx.record = raw.record();
             let before = cx.list.len();
             if let Some(row) = raw.map(&mut cx) {
-                if check(&row) {
-                    value.push(row);
-                } else if cx.list.len() == before {
-                    cx.required::<()>("record", None);
+                match check(&row) {
+                    Ok(()) => value.push(row),
+                    Err(field) if cx.list.len() == before => { cx.required::<()>(field, None); },
+                    Err(_) => {},
                 }
             }
         }
@@ -77,12 +77,13 @@ pub fn clinical(
         super::CLINICAL_PATH,
         "location.genes.symbol",
         |row: &PgxAnnotationHeader| {
-            row.location.as_ref().is_some_and(|location| {
+            let matched = row.location.as_ref().is_some_and(|location| {
                 location
                     .genes
                     .iter()
                     .any(|gene| gene.symbol.as_deref() == Some(symbol.as_str()))
-            })
+            });
+            if matched { Ok(()) } else { Err("location.genes") }
         },
     )
 }
@@ -91,9 +92,9 @@ pub fn references(
     leg: &Leg<'_>,
     q: &PgxGet,
 ) -> Result<Mapped<Vec<PgxAnnotationReference>>, RequestError> {
-    let path = match q.kind() {
-        Some(PgxAnnotationKind::Guideline) => "/data/guidelineAnnotation",
-        Some(PgxAnnotationKind::Label) => "/data/labelAnnotation",
+    let (path, class) = match q.kind() {
+        Some(PgxAnnotationKind::Guideline) => ("/data/guidelineAnnotation", "GuidelineAnnotation"),
+        Some(PgxAnnotationKind::Label) => ("/data/labelAnnotation", "LabelAnnotation"),
         _ => return Err(biomcp_fetch::InputError::Serialization.into()),
     };
     collection::<super::annotation_raw::PgxAnnotationReference>(
@@ -101,7 +102,7 @@ pub fn references(
         q,
         path,
         "relatedGenes.symbol",
-        |_| true,
+        |row| if row.obj_cls.as_ref() == class { Ok(()) } else { Err("objCls") },
     )
 }
 /// Check exact returned accession on every read before cache admission.

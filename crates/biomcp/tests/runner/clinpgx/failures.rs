@@ -12,6 +12,8 @@ pub(super) fn trials() -> Vec<Trial> {
         "status",
         "wrong-accession",
         "bad-score",
+        "wrong-class",
+        "bad-detail-class",
         "wrong-gene",
         "unknown-field",
         "unknown-nested-field",
@@ -36,10 +38,10 @@ pub(super) fn trials() -> Vec<Trial> {
     out
 }
 fn failure(name: &'static str) -> Check {
-    let shape = if matches!(name, "wrong-accession" | "bad-score") {
-        "annotation"
-    } else {
-        "clinical"
+    let shape = match name {
+        "wrong-accession" | "bad-score" | "bad-detail-class" => "annotation",
+        "wrong-class" => "guideline",
+        _ => "clinical",
     };
     let stub = fixture(name, shape)?;
     let env = environment(&stub)?;
@@ -48,7 +50,7 @@ fn failure(name: &'static str) -> Check {
     command.extend(args(shape));
     if matches!(
         name,
-        "wrong-accession" | "wrong-gene" | "unknown-field" | "unknown-nested-field" | "bad-score"
+        "wrong-accession" | "wrong-gene" | "unknown-field" | "unknown-nested-field" | "bad-score" | "wrong-class" | "bad-detail-class"
     ) {
         return mapped(name, &env, stub, command);
     }
@@ -90,6 +92,12 @@ fn fixture(name: &'static str, shape: &str) -> Result<Stub, String> {
     }
     if name == "bad-score" {
         *body.pointer_mut("/data/score").ok_or("synthetic score")? = json!("invalid");
+    }
+    if name == "wrong-class" {
+        *body.pointer_mut("/data/0/objCls").ok_or("reference class")? = json!("LabelAnnotation");
+    }
+    if name == "bad-detail-class" {
+        *body.pointer_mut("/data/objCls").ok_or("detail class")? = json!(42);
     }
     if name == "wrong-gene" {
         *body
@@ -136,8 +144,9 @@ fn mapped(name: &str, env: &Environment, stub: Stub, mut command: Vec<String>) -
             "one native identity or field rejected the reply: {value}"
         ));
     }
+    let identity_field = if name == "wrong-gene" { "location.genes" } else { "record" };
     if matches!(name, "wrong-accession" | "wrong-gene")
-        && value.pointer("/problems/0/field") != Some(&json!("record"))
+        && value.pointer("/problems/0/field") != Some(&json!(identity_field))
     {
         return Err(format!("identity drop lacks its problem: {value}"));
     }
@@ -149,6 +158,15 @@ fn mapped(name: &str, env: &Environment, stub: Stub, mut command: Vec<String>) -
         return Err(format!(
             "bad score discarded annotation or lacked disclosure: {value}"
         ));
+    }
+    if name == "wrong-class" && (value.pointer("/result/items/0/id") != Some(&json!("PA100002"))
+        || value.pointer("/problems/0/field") != Some(&json!("objCls"))) {
+        return Err(format!("wrong reference class refused its sibling: {value}"));
+    }
+    if name == "bad-detail-class" && (value.pointer("/result/annotation/objCls").is_some()
+        || value.pointer("/result/annotation/accessionId") != Some(&json!("PA100001"))
+        || value.pointer("/problems/0/field") != Some(&json!("objCls"))) {
+        return Err(format!("optional detail class refused its record: {value}"));
     }
     *command.get_mut(0).ok_or("record switch")? = "--replay".into();
     let fresh = Environment::new().map_err(|e| e.to_string())?;
