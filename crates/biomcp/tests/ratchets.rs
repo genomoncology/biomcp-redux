@@ -11,6 +11,8 @@ mod proof;
 mod reasons;
 #[path = "ratchets/source.rs"]
 mod source;
+#[path = "ratchets/transport_sources.rs"]
+mod transport_sources;
 
 use std::{fs, path::Path};
 

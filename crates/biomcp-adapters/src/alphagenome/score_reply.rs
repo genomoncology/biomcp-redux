@@ -1,6 +1,6 @@
 //! Retain complete scoring tensors for bounded native-value paging.
-use super::super::{Tensor, proto};
-use crate::BadReply;
+use super::{Tensor, proto};
+use biomcp_fetch::BadReply;
 use biomcp_types::{AlphaGenomeGene, AlphaGenomeTrack, AlphaGenomeVariant};
 /// One native group; its ordinal alone associates it with the requested scorer.
 #[derive(Debug)]

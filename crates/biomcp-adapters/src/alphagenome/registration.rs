@@ -20,17 +20,11 @@ pub static SPEC: SourceSpec = SourceSpec {
 };
 /// One documented prediction method, with complete-stream admission and no cache.
 pub const PREDICT_VARIANT: biomcp_fetch::grpc::GrpcEndpoint = SPEC
-    .grpc(biomcp_fetch::grpc::alphagenome::PREDICT_VARIANT)
-    .checked(
-        biomcp_fetch::grpc::alphagenome::SCHEMA,
-        biomcp_fetch::Freshness::Never,
-    );
+    .grpc(super::request::PREDICT_VARIANT)
+    .checked(super::SCHEMA, biomcp_fetch::Freshness::Never);
 
 /// Ruled legacy scorer method, admitted only after complete checked terminal success.
 pub const SCORE_VARIANT: biomcp_fetch::grpc::GrpcEndpoint = SPEC
-    .grpc(biomcp_fetch::grpc::alphagenome::SCORE_VARIANT)
-    .bounded(biomcp_fetch::grpc::alphagenome::SCORE_LIMITS)
-    .checked(
-        biomcp_fetch::grpc::alphagenome::SCORE_SCHEMA,
-        biomcp_fetch::Freshness::Never,
-    );
+    .grpc(super::score::SCORE_VARIANT)
+    .bounded(super::SCORE_LIMITS)
+    .checked(super::SCORE_SCHEMA, biomcp_fetch::Freshness::Never);

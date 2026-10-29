@@ -1,7 +1,7 @@
 //! Encode the ruled ScoreVariant request without exposing provider protobuf types.
-use super::super::{Limits, proto};
+use super::{Limits, proto};
 use super::{ScoreEnvelope, request_variant};
-use crate::{BadReply, InputError};
+use biomcp_fetch::{BadReply, InputError};
 use prost::Message;
 
 /// Publisher scoring method, independent of the earlier prediction method.

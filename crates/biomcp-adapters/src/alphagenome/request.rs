@@ -1,19 +1,9 @@
 //! Encode the reviewed human DNASE request without exposing generated provider types.
-mod envelope;
-mod envelope_budget;
-mod request_variant;
-mod score;
-mod score_envelope;
-mod score_metadata;
-mod score_reply;
-pub use score_reply::{ScoreGroup, ScoreReply};
-mod wire;
+
 use super::{Limits, proto};
-use crate::{BadReply, InputError};
-pub use envelope::Envelope;
+use biomcp_fetch::{BadReply, InputError};
+
 use prost::Message;
-pub use score::{SCORE_SCHEMA, SCORE_VARIANT, ScoreRequest};
-pub use score_envelope::{SCORE_LIMITS, ScoreEnvelope};
 
 /// Pinned publisher RPC path; the API version is not a model release.
 pub const PREDICT_VARIANT: &str =
@@ -45,7 +35,8 @@ impl DnaseRequest {
             .end
             .checked_sub(interval.start)
             .ok_or(InputError::Path)?;
-        let variant = request_variant::checked(build, chromosome, position, reference, alternate)?;
+        let variant =
+            super::request_variant::checked(build, chromosome, position, reference, alternate)?;
         let reference_len = i64::try_from(reference.len()).map_err(|_| InputError::BodyLimit)?;
         let variant_end = position
             .checked_sub(1)
@@ -89,7 +80,7 @@ impl DnaseRequest {
         &self.bytes
     }
     /// Start an independent bounded validator for this request's response stream.
-    pub fn decoder(&self, limits: Limits) -> Result<Envelope, BadReply> {
-        Envelope::new(self.request.interval.as_ref().ok_or(BadReply)?, limits)
+    pub fn decoder(&self, limits: Limits) -> Result<super::Envelope, BadReply> {
+        super::Envelope::new(self.request.interval.as_ref().ok_or(BadReply)?, limits)
     }
 }

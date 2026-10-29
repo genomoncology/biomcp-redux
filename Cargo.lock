@@ -209,6 +209,7 @@ dependencies = [
  "biomcp-types",
  "calamine",
  "csv",
+ "prost",
  "quick-xml",
  "serde",
  "serde_ignored",

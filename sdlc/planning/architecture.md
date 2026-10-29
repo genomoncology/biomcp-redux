@@ -1923,7 +1923,7 @@ The runner's YAML reader is a test dependency. The original `serde_yaml` is arch
 - **Parity.** Every step with both `run` and `mcp` compares the two envelopes.
 - **Quota.** The eight-parallel-call case in section 4.5.
 
-The source ratchet permits `dead_code` only in the private `crates/biomcp-fetch/src/grpc/proto.rs` generated-message wrapper. That file contains only the checked closure include. Its pinned regeneration check must reproduce every committed generated file. The ordinary file size limits remain in force. Product code and unused imports receive no exception.
+The source ratchet permits `dead_code` only in the private `crates/biomcp-adapters/src/alphagenome/proto.rs` generated-message wrapper. That file contains only the checked closure include. Its pinned regeneration check must reproduce every committed generated file. The ordinary file size limits remain in force. Product code and unused imports receive no exception.
 
 ### 10.3 Coverage
 
@@ -1980,9 +1980,10 @@ The ratchet owns the authoritative file and reason list below and checks this ta
 | `crates/biomcp-fetch/src/grpc/dns_tests.rs` | Prove a stalled platform lookup cannot outlive its caller budget or begin a stream, without changing the host resolver configuration. |
 | `crates/biomcp-fetch/src/retry_tests.rs` | Cover Retry-After forms and backoff boundaries without one recording per table row. |
 | `crates/biomcp-fetch/src/xml_tests.rs` | Cover inline XML markup and decoder limits with many tiny inputs. |
-| `crates/biomcp-fetch/tests/alphagenome.rs` | Exercise the selected request encoding and complete bounded envelopes through the public protocol API. |
+| `crates/biomcp-adapters/tests/alphagenome.rs` | Exercise the selected request encoding and complete bounded envelopes through the public protocol API. |
+| `crates/biomcp-fetch/tests/alphagenome.rs` | Exercise required-key routing through a synthetic stream. |
 | `crates/biomcp-fetch/tests/alphagenome/routing.rs` | Exercise required-key admission and placeholder credential routing through a local TLS stream. |
-| `crates/biomcp-fetch/tests/score_variant.rs` | Exercise the ruled scoring request and complete scorer admission through the public protocol API. |
+| `crates/biomcp-adapters/tests/score_variant.rs` | Exercise the ruled scoring request and complete scorer admission through the public protocol API. |
 | `crates/biomcp-fetch/tests/batch.rs` | Exercise transport ownership, local server behavior and cache/record failures through its public API. |
 | `crates/biomcp-fetch/tests/bundle.rs` | Exercise transport ownership, local server behavior and cache/record failures through its public API. |
 | `crates/biomcp-fetch/tests/bundle/download.rs` | Exercise transport ownership, local server behavior and cache/record failures through its public API. |
@@ -2003,7 +2004,7 @@ The ratchet owns the authoritative file and reason list below and checks this ta
 | `crates/biomcp-fetch/tests/record.rs` | Exercise transport ownership, local server behavior and cache/record failures through its public API. |
 | `crates/biomcp-fetch/tests/retries.rs` | Exercise transport ownership, local server behavior and cache/record failures through its public API. |
 | `crates/biomcp-fetch/tests/support/cache_process.rs` | Exercise transport ownership, local server behavior and cache/record failures through its public API. |
-| `crates/biomcp-fetch/tests/tensors.rs` | Exercise bounded tensor decoding with synthetic protobuf payloads through its public API. |
+| `crates/biomcp-adapters/tests/tensors.rs` | Exercise bounded tensor decoding with synthetic protobuf payloads through its public API. |
 | `crates/biomcp-fetch/tests/transport.rs` | Exercise transport ownership, local server behavior and cache/record failures through its public API. |
 | `crates/biomcp-fetch/tests/transport/network.rs` | Exercise transport ownership, local server behavior and cache/record failures through its public API. |
 | `crates/biomcp-fetch/tests/transport/credentials.rs` | Exercise transport ownership, local server behavior and cache/record failures through its public API. |

@@ -1,5 +1,5 @@
 //! Validate shared human request identity before serializing either RPC.
-use super::super::proto;
+use super::proto;
 use crate::InputError;
 pub(super) fn checked(
     build: biodata::Build,

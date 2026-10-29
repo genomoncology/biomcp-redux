@@ -31,6 +31,16 @@ fn isolated_trees_reject_structural_violations() -> Check {
     check(valid.path())?;
     let cases = [
         (
+            "crates/biomcp-fetch/src/grpc/worker.rs",
+            "fn request() { let alphagenome = 1; consume(alphagenome); }",
+            "transport names source alphagenome",
+        ),
+        (
+            "crates/biomcp-query/Cargo.toml",
+            "[lints]\nworkspace=true\n[dependencies]\nprost='0.14'\n",
+            "forbidden dependencies dependency",
+        ),
+        (
             "crates/biodata/Cargo.toml",
             "[package]\nname='biodata'\n[lints]\nworkspace=true\n[dependencies]\nbiomcp-types={path='../biomcp-types'}\n",
             "forbidden dependencies dependency",
@@ -343,7 +353,7 @@ fn request_reason_mapping_cannot_be_copied() -> Check {
 #[test]
 fn generated_exception_cannot_hide_product_code() -> Check {
     let tree = tree()?;
-    let path = "crates/biomcp-fetch/src/grpc/proto.rs";
+    let path = "crates/biomcp-adapters/src/alphagenome/proto.rs";
     let wrapper = r#"#![expect(dead_code, reason="pinned generation")]
 include!("generated/mod.rs");
 "#;

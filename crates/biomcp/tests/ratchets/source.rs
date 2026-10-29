@@ -4,7 +4,7 @@ use super::{Check, dependencies, rust_files};
 use std::{collections::BTreeSet, fs, path::Path};
 
 // The sole dead-code exception contains only the private generated closure include.
-const GENERATED_PROTO: &str = "crates/biomcp-fetch/src/grpc/proto.rs";
+const GENERATED_PROTO: &str = "crates/biomcp-adapters/src/alphagenome/proto.rs";
 
 // New exceptions require a reviewed path and reason here.
 const EXCEPTIONS: &[(&str, &str)] = &[
@@ -108,6 +108,7 @@ const ADAPTER_LIMIT: usize = 300;
 pub(super) fn check(root: &Path) -> Check {
     super::placement::check(root)?;
     adapter_values::check(root)?;
+    super::transport_sources::check(root)?;
     let sqlite = dependencies::sqlite_aliases(root)?;
     let mut keys = BTreeSet::new();
     let crates = root.join("crates");
