@@ -304,7 +304,7 @@ fn article_accepts_each_identity_and_rejects_an_unidentified_record() {
     for (field, id) in [
         ("pmid", "33123537"),
         ("pmcid", "PMC7573235"),
-        ("europepmc_id", "PPR1064174"),
+        ("europepmc-id", "PPR1064174"),
         ("doi", "10.3389/fcell.2020.573599"),
     ] {
         let mut value = base.clone();
@@ -315,7 +315,7 @@ fn article_accepts_each_identity_and_rejects_an_unidentified_record() {
     }
     for value in [base.clone(), {
         let mut value = base;
-        for field in ["pmid", "pmcid", "doi", "europepmc_id"] {
+        for field in ["pmid", "pmcid", "doi", "europepmc-id"] {
             value[field] = Value::Null;
         }
         value

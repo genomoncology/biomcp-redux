@@ -4,11 +4,25 @@ use std::{fs, path::Path};
 
 // These declarations describe BioMCP choices rather than publisher vocabularies.
 const OWNED: &[&str] = &[
-    "Reason", "PublicationType", "SubjectQualification", "DrugOncokbMissing",
-    "AdverseEventReactionMatch", "ArticleMatchKind", "CorrectionKind", "DiagnosticCountUnit",
-    "SourceTimestampTimezone", "OrcidWorksScope", "BundleSize", "ConfigurationNoticeCode",
-    "RecurrenceGranularity", "AlphaGenomeNonfiniteKind", "EvidenceNotice", "PathwayTotalKind",
-    "AlphaGenomeScorer", "MatchKind", "AuthorCountScope",
+    "Reason",
+    "PublicationType",
+    "SubjectQualification",
+    "DrugOncokbMissing",
+    "AdverseEventReactionMatch",
+    "ArticleMatchKind",
+    "CorrectionKind",
+    "DiagnosticCountUnit",
+    "SourceTimestampTimezone",
+    "OrcidWorksScope",
+    "BundleSize",
+    "ConfigurationNoticeCode",
+    "RecurrenceGranularity",
+    "AlphaGenomeNonfiniteKind",
+    "EvidenceNotice",
+    "PathwayTotalKind",
+    "AlphaGenomeScorer",
+    "MatchKind",
+    "AuthorCountScope",
 ];
 
 pub(super) fn check(root: &Path) -> Check {
@@ -38,10 +52,16 @@ fn audit(tokens: &[String]) -> Result<(), String> {
         let Some(start) = tokens[index..].iter().position(|token| token == "{") else {
             continue;
         };
-        for value in tokens[index + start..].windows(3).take_while(|w| w[0] != "}") {
+        for value in tokens[index + start..]
+            .windows(3)
+            .take_while(|w| w[0] != "}")
+        {
             if value[0] == "=" && value[1] == ">" {
                 let literal = value[2].trim_matches('"');
-                if !literal.bytes().all(|c| c.is_ascii_lowercase() || c.is_ascii_digit() || c == b'-') {
+                if !literal
+                    .bytes()
+                    .all(|c| c.is_ascii_lowercase() || c.is_ascii_digit() || c == b'-')
+                {
                     return Err(format!("{token} requires kebab-case: {literal}"));
                 }
             }
@@ -59,7 +79,10 @@ fn audit_rejects_owned_underscores_and_old_tags_but_allows_native_values() {
     ] {
         assert!(audit(&super::source::tokens(text)).is_err(), "{text}");
     }
-    assert!(audit(&super::source::tokens(
-        "wire_enum! { Native { Value => \"source_native\" } }"
-    )).is_ok());
+    assert!(
+        audit(&super::source::tokens(
+            "wire_enum! { Native { Value => \"source_native\" } }"
+        ))
+        .is_ok()
+    );
 }

@@ -131,7 +131,7 @@ fn registry() -> Vec<Contract> {
         Envelope<GenePage> => ("gene-page", "biomcp.gene-page/5"),
         Envelope<StoreClean> => ("store-clean", "biomcp.store-clean/2"),
         Envelope<SyncResult> => ("sync", "biomcp.sync/6"),
-        HgncId => ("hgnc_id", "biodata.hgnc-id/1"),
+        HgncId => ("hgnc-id", "biodata.hgnc-id/1"),
         PartialDate => ("partial-date", "biodata.partial-date/1"),
         Position1 => ("position1", "biodata.position1/1"),
         Span0 => ("span0", "biodata.span0/1"),
