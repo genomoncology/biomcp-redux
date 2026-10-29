@@ -120,9 +120,11 @@ pub struct PhenotypeAssociationCount {
     /// Native category.
     pub category: Curie,
     /// Native scope label.
-    pub label: Box<str>,
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub label: Option<Box<str>>,
     /// Native closure-expanded count.
-    pub count: u64,
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub count: Option<u64>,
     /// Native direct count.
     #[serde(default, skip_serializing_if = "Option::is_none")]
     pub count_direct: Option<u64>,

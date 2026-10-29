@@ -44,7 +44,7 @@ pub(super) struct ReceivedCatalogRow {
     cna_sample_count: Option<crate::raw::Field<u64>>,
     structural_variant_count: Option<crate::raw::Field<u64>>,
     treatment_count: Option<crate::raw::Field<u64>>,
-    resource_counts: Option<crate::raw::Field<Vec<crate::raw::Field<super::resource::Resource>>>>,
+    resource_counts: Vec<super::resource::Resource>,
     import_date: Option<crate::raw::Field<StudyImportTime>>,
     groups: Box<str>,
     read_permission: bool,
@@ -72,11 +72,10 @@ impl From<ReceivedCatalogRow> for CatalogRow {
             structural_variant_count: problems
                 .required_field("structuralVariantCount", row.structural_variant_count),
             treatment_count: problems.required_field("treatmentCount", row.treatment_count),
-            resource_counts: problems
-                .fields("resourceCounts", row.resource_counts)
-                .into_vec()
+            resource_counts: row
+                .resource_counts
                 .into_iter()
-                .map(|r| r.mapped(&mut problems))
+                .filter_map(|r| r.mapped(&mut problems))
                 .collect(),
             import_date: problems.required_field("importDate", row.import_date),
             groups: row.groups,

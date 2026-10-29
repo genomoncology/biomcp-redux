@@ -36,8 +36,7 @@ pub(super) struct ReceivedNode {
     pub match_type: Option<crate::raw::Field<Box<str>>>,
     pub deprecated: Option<crate::raw::Field<bool>>,
     pub has_descendant_count: Option<crate::raw::Field<u64>>,
-    pub association_counts:
-        Option<crate::raw::Field<Vec<crate::raw::Field<PhenotypeAssociationCount>>>>,
+    pub association_counts: Option<crate::raw::Field<Vec<crate::raw::Field<super::counts::Count>>>>,
     pub synonym: Option<crate::raw::Field<Vec<crate::raw::Field<Box<str>>>>>,
     pub exact_synonym: Option<crate::raw::Field<Vec<crate::raw::Field<Box<str>>>>>,
     pub broad_synonym: Option<crate::raw::Field<Vec<crate::raw::Field<Box<str>>>>>,
@@ -69,7 +68,14 @@ impl From<ReceivedNode> for Node {
             deprecated: problems.field("deprecated", row.deprecated),
             has_descendant_count: problems.field("has_descendant_count", row.has_descendant_count),
             association_counts: row.association_counts.map(|v| {
-                crate::strict_input::Input(problems.fields("association_counts", Some(v)))
+                crate::strict_input::Input(
+                    problems
+                        .fields("association_counts", Some(v))
+                        .into_vec()
+                        .into_iter()
+                        .map(|v| v.mapped(&mut problems))
+                        .collect(),
+                )
             }),
             synonym: row.synonym.map(|v| problems.fields("synonym", Some(v))),
             exact_synonym: row

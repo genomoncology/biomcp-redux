@@ -3,7 +3,7 @@ use serde::Deserialize;
 #[derive(Debug, Deserialize)]
 #[serde(rename_all = "camelCase")]
 pub(super) struct Resource {
-    resource_id: biodata::StudyResourceId,
+    resource_id: Option<crate::raw::Field<biodata::StudyResourceId>>,
     display_name: Option<crate::raw::Field<Box<str>>>,
     description: Option<crate::raw::Field<Box<str>>>,
     resource_type: Option<crate::raw::Field<biodata::Text>>,
@@ -17,9 +17,10 @@ impl Resource {
     pub(super) fn mapped(
         self,
         problems: &mut crate::mapped::Problems,
-    ) -> biodata::StudyResourceCount {
-        biodata::StudyResourceCount {
-            resource_id: self.resource_id,
+    ) -> Option<biodata::StudyResourceCount> {
+        let resource_id = problems.required_field("resourceCounts.resourceId", self.resource_id)?;
+        Some(biodata::StudyResourceCount {
+            resource_id,
             display_name: problems.required_field("resourceCounts.displayName", self.display_name),
             description: problems.required_field("resourceCounts.description", self.description),
             resource_type: problems
@@ -30,6 +31,6 @@ impl Resource {
             sample_count: problems.required_field("resourceCounts.sampleCount", self.sample_count),
             patient_count: problems
                 .required_field("resourceCounts.patientCount", self.patient_count),
-        }
+        })
     }
 }

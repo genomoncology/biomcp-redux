@@ -75,7 +75,14 @@ pub(super) fn event(
             source: row.source.clone(),
             record: Some(row.record.clone()),
             version: item(row, problems, "revision_number"),
-            release: Some(row.meta.timestamp.clone()),
+            release: problems.required(
+                "_bundle_meta.timestamp",
+                row.meta
+                    .timestamp
+                    .as_ref()
+                    .and_then(crate::raw::Field::as_ref)
+                    .cloned(),
+            ),
             submitter: item(
                 row,
                 problems,

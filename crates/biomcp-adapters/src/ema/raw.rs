@@ -3,7 +3,7 @@ use serde::Deserialize;
 use std::collections::BTreeMap;
 #[derive(Debug, Deserialize)]
 pub(super) struct Meta {
-    pub timestamp: biodata::Text,
+    pub timestamp: Option<crate::raw::Field<biodata::Text>>,
     pub total_records: usize,
 }
 #[derive(Debug)]
