@@ -117,7 +117,8 @@ pub fn search(
 }
 impl Paper {
     /// Map identifiers and source metadata without joining another provider.
-    pub fn item(self) -> ArticleItem {
+    pub fn item(self, problems: &mut Vec<biomcp_types::Problem>) -> ArticleItem {
+        let record = self.paper_id.as_ref().and_then(crate::mapped::record);
         let ids = self.external_ids;
         let pmid = ids.as_ref().and_then(|v| v.pubmed);
         let pmcid = ids.as_ref().and_then(|v| v.pmc);
@@ -137,7 +138,9 @@ impl Paper {
             doi,
             europepmc_id: None,
             title: Some(title.into()),
-            journal: self.venue.and_then(|s| Text::from_source(&s).ok()),
+            journal: crate::mapped::field_text(problems, biomcp_types::Source::SemanticScholar,
+                record, "venue",
+                self.venue.filter(|v| !v.trim().is_empty()).map(crate::raw::Field::Value)),
             electronic_date: None,
             date: self
                 .publication_date

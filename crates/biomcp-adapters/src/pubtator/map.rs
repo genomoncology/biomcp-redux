@@ -105,7 +105,7 @@ fn entity(
         annotation
             .text
             .as_ref()
-            .and_then(|s| Text::from_source(s).ok())
+            .and_then(|s| crate::mapped::field_text(problems, Source::PubTator, record_text(id), "text", Some(Field::Value(s.clone()))))
     })?;
     let mut value = AnnotatedEntity {
         kind,

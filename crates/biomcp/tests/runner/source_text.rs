@@ -25,6 +25,9 @@ pub(super) fn trials() -> Vec<Trial> {
         transcript_trial("markdown-view/source-fields-are-data", || {
             check().map_err(|e| e.to_string().into())
         }),
+        transcript_trial("source-prose/invalid-venue-keeps-paper-and-reports-field", || {
+            venue().map_err(|e| e.to_string().into())
+        }),
         transcript_trial("markdown-view/source-controls-are-visible", || {
             controls().map_err(|e| e.to_string().into())
         }),
@@ -259,4 +262,25 @@ fn native_box_controls() -> Check {
         json!({"/result/items/0/sections/references/data/items/0/citation":r"before\u{202e}after"}),
         0,
     )
+}
+
+fn venue() -> Check {
+    for invalid in [false, true] {
+        let text = if invalid { "x".repeat(biodata::Text::MAX_CHARS + 1) } else { String::new() };
+        let output = super::response_cases::checked_case(
+            "author/papers", &["author", "papers", "semantic-scholar:123"],
+            |_, record| {
+                if let Some(rows) = record.pointer_mut("/exchanges/0/body/value/data").and_then(Value::as_array_mut) {
+                    for row in rows { row["venue"] = json!(text); }
+                }
+            },
+            json!({"/result/items/0/paper_id":"aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"}), 0,
+        )?;
+        assert!(output.pointer("/result/items/0/venue").is_none(), "{output}");
+        let disclosed = output.get("problems").and_then(Value::as_array).into_iter().flatten()
+            .any(|p| p.get("source") == Some(&json!("semantic-scholar")) && p.get("field") == Some(&json!("venue")));
+        assert_eq!(disclosed, invalid, "{output}");
+        assert_eq!(output.get("status"), Some(&json!(if invalid { "partial" } else { "complete" })), "{output}");
+    }
+    Ok(())
 }

@@ -9,6 +9,8 @@ use std::collections::{HashMap, HashSet};
 /// One bounded source page and its complete distinct-test count.
 #[derive(Debug)]
 pub struct Search {
+    /// Rejected optional source prose on retained candidates.
+    pub problems: Vec<biomcp_types::Problem>,
     /// Native test candidates in relation report order.
     pub items: Box<[DiagnosticCandidate]>,
     /// Distinct exact accession/version identities, including orphan relations and conflicts.
@@ -64,11 +66,12 @@ pub fn search(leg: &Leg<'_>, query: &DiagnosticSearch) -> Result<Search, Request
                 .push(v);
         }
     }
+    let mut problems = Vec::new();
     let items = page
         .iter()
-        .map(|r| candidate(r, by_id.get(&r.id).map(Vec::as_slice).unwrap_or_default()))
+        .map(|r| candidate(r, by_id.get(&r.id).map(Vec::as_slice).unwrap_or_default(), &mut problems))
         .collect::<Result<Box<[_]>, _>>()?;
-    Ok(Search { items, total, info })
+    Ok(Search { items, total, info, problems })
 }
 fn matches(r: &Relation, q: &DiagnosticSearch) -> bool {
     q.test_type().is_none_or(|v| r.test_type == v)
@@ -83,10 +86,11 @@ fn matches(r: &Relation, q: &DiagnosticSearch) -> bool {
 fn candidate(
     r: &Relation,
     versions: &[Box<biodata::GtrTestVersion>],
+    problems: &mut Vec<biomcp_types::Problem>,
 ) -> Result<DiagnosticCandidate, RequestError> {
     Ok(match versions {
         [v] if v.now_current.as_ref() == "1" => DiagnosticCandidate::Resolved {
-            header: map::header(v)?,
+            header: map::header(v, problems)?,
             matched: Some(map::relation(r)?),
         },
         [] | [_] => DiagnosticCandidate::MissingCard {

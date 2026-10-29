@@ -28,7 +28,7 @@ pub fn records(row: &Annotation) -> Mapped<Vec<Record>> {
             }
         }
         .map(Coding::OncokbOncogenicity);
-        if let Ok(label) = Text::from_source(label) {
+        if let Some(label) = crate::mapped::field_text(&mut out.problems, Source::Oncokb, None, "oncogenic", Some(crate::raw::Field::Value(label.clone()))) {
             classification(
                 &mut out.value,
                 row,
@@ -49,7 +49,7 @@ pub fn records(row: &Annotation) -> Mapped<Vec<Record>> {
                 .as_ref()
                 .map(|c| pmids(values(c.pmids.as_deref()), &mut out.problems))
                 .unwrap_or_default();
-            if let Ok(label) = Text::from_source(label) {
+            if let Some(label) = crate::mapped::field_text(&mut out.problems, Source::Oncokb, None, "mutationEffect.knownEffect", Some(crate::raw::Field::Value(label.clone()))) {
                 classification(
                     &mut out.value,
                     row,
@@ -93,7 +93,7 @@ fn implications(row: &Annotation, out: &mut Mapped<Vec<Record>>) {
             .unwrap_or_default()
             .iter()
             .filter_map(|d| {
-                Text::from_source(&d.drug_name).ok().map(|label| Concept {
+                crate::mapped::field_text(&mut out.problems, Source::Oncokb, None, "treatments.drugs.drugName", Some(crate::raw::Field::Value(d.drug_name.clone()))).map(|label| Concept {
                     id: d
                         .ncit_code
                         .as_ref()
@@ -107,7 +107,7 @@ fn implications(row: &Annotation, out: &mut Mapped<Vec<Record>>) {
             level: level(&r.level, &mut out.problems),
             tumor_type: r.level_associated_cancer_type.as_ref().and_then(concept),
             drugs,
-            alterations: texts(values(r.alterations.as_deref()), false),
+            alterations: texts(values(r.alterations.as_deref())),
             statement_unmapped: true,
             statement: None,
             citations: pmids(values(r.pmids.as_deref()), &mut out.problems).into(),
@@ -117,7 +117,7 @@ fn implications(row: &Annotation, out: &mut Mapped<Vec<Record>>) {
                 .iter()
                 .filter_map(concept)
                 .collect(),
-            approved_indications: texts(values(r.approved_indications.as_deref()), true),
+            approved_indications: prose_texts(values(r.approved_indications.as_deref()), &mut out.problems),
             fda_level: r
                 .fda_level
                 .as_deref()
@@ -144,7 +144,7 @@ fn implications(row: &Annotation, out: &mut Mapped<Vec<Record>>) {
                 level: level(&r.level_of_evidence, &mut out.problems),
                 tumor_type: r.tumor_type.as_ref().and_then(concept),
                 drugs: Box::default(),
-                alterations: texts(values(r.alterations.as_deref()), false),
+                alterations: texts(values(r.alterations.as_deref())),
                 statement_unmapped: true,
                 statement: None,
                 citations: pmids(values(r.pmids.as_deref()), &mut out.problems).into(),
@@ -211,9 +211,12 @@ fn subject(query: &Query) -> Option<VariantRef> {
         query.alteration.clone()?,
     ))
 }
-fn texts(values: &[String], prose: bool) -> Box<[Text]> {
-    let admit = if prose { Text::from_source } else { Text::new };
-    values.iter().filter_map(|s| admit(s).ok()).collect()
+fn texts(values: &[String]) -> Box<[Text]> {
+    values.iter().filter_map(|s| Text::new(s).ok()).collect()
+}
+fn prose_texts(values: &[String], problems: &mut Vec<Problem>) -> Box<[Text]> {
+    values.iter().filter_map(|s| crate::mapped::field_text(problems, Source::Oncokb, None,
+        "treatments.approvedIndications", Some(crate::raw::Field::Value(s.clone())))).collect()
 }
 
 fn concept(row: &TumorType) -> Option<Concept> {
