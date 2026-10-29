@@ -485,21 +485,36 @@ fn ages() -> Check {
 fn legacy_age_snapshot() -> Check {
     use sha2::{Digest, Sha256};
     let (env, _stub) = setup("valid")?;
-    let card = both(&env, args(None), 0)?;
+    let cache = env.root().join("case-cache");
+    let globals = vec![
+        "--case-cache".to_owned(),
+        cache.to_string_lossy().into_owned(),
+    ];
+    let mut initial = args(None);
+    initial.extend(globals.clone());
+    let card = invoke(&env, initial, 0)?;
     let snapshot = card
         .pointer("/result/snapshot")
         .and_then(Value::as_str)
         .ok_or("snapshot")?;
-    let db = rusqlite::Connection::open(env.root().join("case-cache/replay.sqlite"))
-        .map_err(|e| e.to_string())?;
-    let key = Sha256::digest(b"biomcp.faers_snapshot/1\0100").to_vec();
-    db.execute(
-        "UPDATE trial_snapshot SET request_key=?1,payload='obsolete age strings'",
-        [key],
+    let db = rusqlite::Connection::open_with_flags(
+        cache.join("replay.sqlite"),
+        rusqlite::OpenFlags::SQLITE_OPEN_READ_WRITE,
     )
     .map_err(|e| e.to_string())?;
+    let key = Sha256::digest(b"biomcp.faers_snapshot/1\x00100").to_vec();
+    let rows = db
+        .execute(
+            "UPDATE trial_snapshot SET request_key=?1,payload='obsolete age strings' WHERE id=?2",
+            rusqlite::params![key, snapshot],
+        )
+        .map_err(|e| e.to_string())?;
+    if rows != 1 {
+        return Err("expected exactly one FAERS source snapshot".into());
+    }
     let mut command = args(Some("drugs"));
     command.extend(["--snapshot".into(), snapshot.into()]);
+    command.extend(globals);
     let output = invoke(&env, command, 3)?;
     if output.pointer("/next/0/kind") != Some(&json!("restart")) {
         return Err(format!(

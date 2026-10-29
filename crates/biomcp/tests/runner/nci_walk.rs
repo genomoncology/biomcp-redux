@@ -336,14 +336,26 @@ fn legacy_age_snapshot() -> Check {
     command.extend(env.globals(Some(&dir), false));
     let output = invoke(&env, &command, 0)?;
     let next = super::action(&output, "page")?;
-    let db = rusqlite::Connection::open(env.root().join("case-cache/replay.sqlite"))
-        .map_err(|e| e.to_string())?;
-    let key = Sha256::digest(b"biomcp.nci_trial_snapshot/1\0NCT05136196").to_vec();
-    db.execute(
-        "UPDATE trial_snapshot SET request_key=?1,payload='obsolete age fields'",
-        [key],
+    let snapshot = next
+        .windows(2)
+        .find(|pair| pair.first().is_some_and(|v| v == "--pool"))
+        .and_then(|pair| pair.get(1))
+        .ok_or("NCI snapshot selector")?;
+    let db = rusqlite::Connection::open_with_flags(
+        env.root().join("case-cache/replay.sqlite"),
+        rusqlite::OpenFlags::SQLITE_OPEN_READ_WRITE,
     )
     .map_err(|e| e.to_string())?;
+    let key = Sha256::digest(b"biomcp.nci_trial_snapshot/1\0NCT05136196").to_vec();
+    let rows = db
+        .execute(
+            "UPDATE trial_snapshot SET request_key=?1,payload='obsolete age fields' WHERE id=?2",
+            rusqlite::params![key, snapshot],
+        )
+        .map_err(|e| e.to_string())?;
+    if rows != 1 {
+        return Err("expected exactly one NCI source snapshot".into());
+    }
     let mut command = next;
     command.extend(env.globals(None, true));
     let output = invoke(&env, &command, 3)?;

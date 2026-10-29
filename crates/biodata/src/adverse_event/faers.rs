@@ -23,7 +23,7 @@ pub struct FaersSeriousness {
     #[serde(default, skip_serializing_if = "Option::is_none")]
     pub other: Option<Box<str>>,
 }
-/// Optional native patient strings without numeric conversion.
+/// Native patient age and independently supplied sex and weight fields.
 #[derive(Clone, Debug, PartialEq, Serialize, Deserialize)]
 #[cfg_attr(feature = "schema", derive(schemars::JsonSchema))]
 pub struct FaersPatient {
