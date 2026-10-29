@@ -46,7 +46,7 @@ impl Validity {
 }
 impl Row for Validity {
     fn keys(&self) -> Keys {
-        keys(&self.id, &self.symbol)
+        keys(self.id.as_ref(), self.symbol.as_ref())
     }
 }
 #[derive(Debug, Deserialize)]
@@ -64,13 +64,13 @@ pub(super) struct Dosage {
 }
 impl Row for Dosage {
     fn keys(&self) -> Keys {
-        keys(&self.id, &self.symbol)
+        keys(self.id.as_ref(), self.symbol.as_ref())
     }
 }
-fn keys(id: &Option<Field<HgncId>>, symbol: &Option<Field<GeneSymbol>>) -> Keys {
-    let key = match id.as_ref().and_then(Field::as_ref) {
+fn keys(id: Option<&Field<HgncId>>, symbol: Option<&Field<GeneSymbol>>) -> Keys {
+    let key = match id.and_then(Field::as_ref) {
         Some(id) => Some(id.to_string()),
-        None => symbol.as_ref().and_then(Field::as_ref).map(rejected_key),
+        None => symbol.and_then(Field::as_ref).map(rejected_key),
     };
     Keys {
         exact: key
