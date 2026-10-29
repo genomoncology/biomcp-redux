@@ -30,7 +30,6 @@ pub struct Complex {
     /// Source participants, including non-proteins.
     pub members: Vec<ProteinComplexMember>,
     /// Rejected optional source fields retained with the complex.
-    #[serde(default, skip_serializing_if = "Vec::is_empty")]
     pub problems: Vec<biomcp_types::Problem>,
 }
 /// A complete admitted collection with an independent source search count.
