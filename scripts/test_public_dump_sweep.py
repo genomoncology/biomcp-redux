@@ -16,7 +16,7 @@ BRIDGE = os.environ.get("PUBLIC_DUMP_VALUES")
 
 @unittest.skipUnless(BRIDGE, "build public_dump_values and set PUBLIC_DUMP_VALUES")
 class Sweep(unittest.TestCase):
-    def run_sweep(self, kind, content, *, digest=None, limit=None, observed=None, explanations=None):
+    def run_sweep(self, kind, content, *, digest=None, limit=None, observed=None, explanations=None, full=False):
         with tempfile.TemporaryDirectory() as temporary:
             folder = Path(temporary)
             data = gzip.compress(content.encode(), mtime=0)
@@ -39,8 +39,13 @@ class Sweep(unittest.TestCase):
                 command += ["--observed", str(folder / "observed.jsonl")]
             if limit is not None:
                 command += ["--max-records", str(limit)]
+            if full:
+                command += ["--output", str(folder / "report.json")]
             result = subprocess.run(command, text=True, capture_output=True, check=False)
-            return result, json.loads(result.stdout) if result.stdout else None
+            report = json.loads(result.stdout) if result.stdout else None
+            if full and report:
+                report["full_report"] = json.loads((folder / "report.json").read_text())
+            return result, report
 
     def test_counts_each_row_and_preserves_compound_profile_refusal(self):
         text = ("molecular_profile_id\tname\tvariant_ids\n"
@@ -222,6 +227,32 @@ class Sweep(unittest.TestCase):
         result, report = self.run_sweep("civic_variants", text, observed=[observed])
         self.assertEqual(result.returncode, 1, result.stderr)
         self.assertEqual(report["comparisons"]["failures"], {"civic_connection_incomplete": 1})
+
+    def test_full_report_retains_every_unmatched_id_with_bounded_stdout(self):
+        text = "variant_id\tvariant\tgene\thgvs_descriptions\n"
+        text += "".join(f"{identity}\tV\tBRAF\t\n" for identity in range(1, 31))
+        observed = self.civic_observation("BRAF", 30, [(identity, 1, []) for identity in range(101, 131)])
+        result, report = self.run_sweep("civic_variants", text, observed=[observed], full=True)
+        self.assertEqual(result.returncode, 1, result.stderr)
+        row = report["comparisons"]["civic_gene_comparisons"][0]
+        self.assertEqual(row["tsv_only_accepted_ids_omitted"], 10)
+        full = report["full_report"]["comparisons"]["civic_gene_comparisons"][0]
+        self.assertEqual(set(full["tsv_only_accepted_ids"]), {f"civic:{identity}" for identity in range(1, 31)})
+        self.assertEqual(set(full["api_only_accepted_ids"]), {f"civic:{identity}" for identity in range(101, 131)})
+
+    def test_direct_gene_scope_excludes_fusion_partner_participation(self):
+        text = ("variant_id\tvariant\tgene\thgvs_descriptions\t5_prime_partner\t3_prime_partner\n"
+                "1\tFusion\t\t\tBCR\tABL1\n")
+        observed = self.civic_observation("BCR", 0, [])
+        result, report = self.run_sweep("civic_variants", text, observed=[observed])
+        self.assertEqual(result.returncode, 0, result.stderr)
+        self.assertEqual(report["gene_counts"], {})
+        self.assertEqual(report["types"]["gene"]["parsed"], 2)
+        observed = self.civic_observation("BCR", 1, [(1, 1, [])])
+        observed["gene_variants"][0]["variants"]["pages"][0]["nodes"][0]["feature"]["name"] = "BCR::ABL1"
+        result, report = self.run_sweep("civic_variants", text, observed=[observed])
+        self.assertEqual(result.returncode, 1, result.stderr)
+        self.assertEqual(report["comparisons"]["failures"], {"civic_variant_direct_gene_mismatch": 1})
 
     def test_compares_clinvar_ids_through_source_graph_and_rejects_changed_spelling(self):
         allele = "ga4gh:VA." + "a" * 32

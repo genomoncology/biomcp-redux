@@ -26,6 +26,8 @@ def number(value, *, positive=False):
 
 def connection(capture):
     """Validate every page and native identity before using a source connection."""
+    if not isinstance(capture, dict):
+        raise ScopeError("civic_connection_invalid")
     pages = capture.get("pages")
     if not isinstance(pages, list) or not pages:
         raise ScopeError("civic_connection_incomplete")

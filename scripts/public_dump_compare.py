@@ -134,6 +134,8 @@ class Comparison:
                 "failures": dict(self.counts), "examples": self.examples}
 
     def civic(self, result, genes, seen, captures):
+        if captures is not None and (not isinstance(captures, list) or any(not isinstance(row, dict) for row in captures)):
+            raise ValueError("civic_gene_variants_invalid")
         captured = {}
         for capture in captures or []:
             symbol = capture.get("symbol")
