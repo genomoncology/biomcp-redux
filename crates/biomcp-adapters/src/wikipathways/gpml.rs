@@ -90,7 +90,7 @@ pub fn members(leg: &Leg<'_>, id: &WikiPathwaysId) -> Result<Mapped<Members>, Re
                 .transpose()?,
             name: node
                 .label
-                .map(|s| s.parse().map_err(|_| invalid()))
+                .map(|s| Text::from_source(&s).map_err(|_| invalid()))
                 .transpose()?,
             source_url: None,
             gene: None,
@@ -103,7 +103,7 @@ pub fn members(leg: &Leg<'_>, id: &WikiPathwaysId) -> Result<Mapped<Members>, Re
         value: Members {
             items,
             version: document.version.parse().map_err(|_| invalid())?,
-            name: document.name.parse().map_err(|_| invalid())?,
+            name: Text::from_source(&document.name).map_err(|_| invalid())?,
             data_nodes,
         },
         problems,

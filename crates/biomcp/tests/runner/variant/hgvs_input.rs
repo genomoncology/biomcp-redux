@@ -33,7 +33,7 @@ pub(super) fn check() -> Result<(), String> {
     ] {
         let args = args.into_iter().map(str::to_owned).collect();
         let value = invoke(&environment, args, 2)?;
-        if value.get("schema") != Some(&json!("biomcp.error/2")) {
+        if value.get("schema") != Some(&json!("biomcp.error/3")) {
             return Err(format!(
                 "implausible HGVS did not return a usage error: {value}"
             ));

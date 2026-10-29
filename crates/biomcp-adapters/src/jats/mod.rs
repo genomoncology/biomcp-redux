@@ -72,8 +72,10 @@ impl XmlReply for Body {
                 continue;
             }
             figures.push(FigureCaption {
-                label: Text::new(&fig.value(&["label"])?.unwrap_or_else(|| "Figure".into()))
-                    .map_err(|_| BadReply)?,
+                label: Text::from_source(
+                    &fig.value(&["label"])?.unwrap_or_else(|| "Figure".into()),
+                )
+                .map_err(|_| BadReply)?,
                 caption: markdown(caption.0)?,
             });
         }
@@ -119,7 +121,7 @@ fn header(metadata: Option<Element<'_>>) -> Result<Header, BadReply> {
     };
     let title = metadata
         .value(&["title-group", "article-title"])?
-        .map(|s| Text::new(&s).map_err(|_| BadReply))
+        .map(|s| Text::from_source(&s).map_err(|_| BadReply))
         .transpose()?;
     let mut ids = Vec::new();
     for id in metadata.children("article-id")? {

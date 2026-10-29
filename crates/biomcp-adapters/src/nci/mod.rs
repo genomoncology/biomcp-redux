@@ -64,7 +64,8 @@ impl Reply for Page {
 pub struct Trial {
     nci_id: Text,
     nct_id: NctId,
-    brief_title: Text,
+    #[serde(deserialize_with = "crate::native_text::deserialize")]
+    brief_title: biodata::Text,
     current_trial_status: Text,
     phase: Option<biomcp_types::NciTrialPhase>,
     brief_summary: Option<Box<str>>,
@@ -219,6 +220,12 @@ pub fn parameters(query: &TrialSearch) -> Vec<(String, String)> {
             "biomarkers.eligibility_criterion".into(),
             criterion.as_str().to_owned(),
         ));
+    }
+    if let Some(phase) = query.nci_phase() {
+        params.push(("phase".into(), phase.as_str().into()));
+    }
+    if let Some(status) = query.nci_status() {
+        params.push(("current_trial_status".into(), status.as_str().into()));
     }
     for field in [
         "nci_id",

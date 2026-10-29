@@ -83,12 +83,12 @@ use registry::{common_registry, research_registry};
 
 fn article_registry() -> Vec<Contract> {
     contracts! {
-        ArticleEvidence => ("article-evidence", "biomcp.article-evidence/2", query),
-        ArticleRecommend => ("article-recommend", "biomcp.article-recommend/2", query),
-        ArticlePdf => ("article-pdf", "biomcp.article-pdf/2", query),
-        ArticleSupplement => ("article-supplement", "biomcp.article-supplement/2", query),
-        ArticleText => ("article-text", "biomcp.article-text/3", query),
-        ArticleEdges => ("article-edges", "biomcp.article-edges/3", query),
+        ArticleEvidence => ("article-evidence", "biomcp.article-evidence/3", query),
+        ArticleRecommend => ("article-recommend", "biomcp.article-recommend/3", query),
+        ArticlePdf => ("article-pdf", "biomcp.article-pdf/3", query),
+        ArticleSupplement => ("article-supplement", "biomcp.article-supplement/3", query),
+        ArticleText => ("article-text", "biomcp.article-text/4", query),
+        ArticleEdges => ("article-edges", "biomcp.article-edges/4", query),
         ArticleGet => ("article-get", "biomcp.article-get/3", query),
         Article => ("article", "biomcp.article/4"),
         ArticleSearch => ("article-search", "biomcp.article-search/3", query),
@@ -107,33 +107,33 @@ mod phenotype;
 
 fn nci_discovery_contracts() -> Vec<Contract> {
     contracts! {
-        BiomarkerSearch => ("biomarker-search", "biomcp.biomarker-search/1", query),
+        BiomarkerSearch => ("biomarker-search", "biomcp.biomarker-search/2", query),
         BiomarkerGet => ("biomarker-get", "biomcp.biomarker-get/1", query),
-        OrganizationSearch => ("organization-search", "biomcp.organization-search/1", query),
+        OrganizationSearch => ("organization-search", "biomcp.organization-search/2", query),
     }
 }
 
 fn registry() -> Vec<Contract> {
     let mut contracts = contracts! {
-        TrialDocumentGet => ("trial-document", "biomcp.trial-document/1", query),
-        HttpHealth => ("http-health", "biomcp.http-health/1"),
-        Markdown => ("markdown", "biodata.markdown/1"),
-        ErrorEnvelope => ("error", "biomcp.error/2"),
+        TrialDocumentGet => ("trial-document", "biomcp.trial-document/2", query),
+        HttpHealth => ("http-health", "biomcp.http-health/2"),
+        Markdown => ("markdown", "biodata.markdown/2"),
+        ErrorEnvelope => ("error", "biomcp.error/3"),
         GeneGet => ("gene-get", "biomcp.gene-get/2", query),
-        GeneSearch => ("gene-search", "biomcp.gene-search/1", query),
+        GeneSearch => ("gene-search", "biomcp.gene-search/2", query),
         Request => ("request", "biomcp.request/30", query),
         HgncId => ("hgnc-id", "biodata.hgnc-id/2"),
         PartialDate => ("partial-date", "biodata.partial-date/2"),
         Position1 => ("position1", "biodata.position1/1"),
         Span0 => ("span0", "biodata.span0/1"),
-        Text => ("text", "biodata.text/1"),
+        Text => ("text", "biodata.text/2"),
         Source => ("source", "biomcp.source/1"),
         Reason => ("reason", "biomcp.reason/2"),
         ProblemCode => ("problem-code", "biomcp.problem-code/1"),
-        Problem => ("problem", "biomcp.problem/1"),
+        Problem => ("problem", "biomcp.problem/2"),
         GeneInput => ("gene-input", "biomcp.gene-input/2", query),
-        Gene => ("gene", "biodata.gene/5"),
-        GeneHeader => ("gene-header", "biomcp.gene-header/4"),
+        Gene => ("gene", "biodata.gene/6"),
+        GeneHeader => ("gene-header", "biomcp.gene-header/5"),
         GeneResolution => ("gene-resolution", "biomcp.gene-resolution/6"),
         NcbiGeneId => ("ncbi-gene-id", "biodata.ncbi-gene-id/2"),
         EnsemblGeneId => ("ensembl-gene-id", "biodata.ensembl-gene-id/2"),
@@ -141,7 +141,7 @@ fn registry() -> Vec<Contract> {
         UniProtAcc => ("uniprot-acc", "biodata.uniprot-acc/1"),
         OmimId => ("omim-id", "biodata.omim-id/1"),
         AccessionBase => ("accession-base", "biodata.accession-base/2"),
-        GeneRef => ("gene-ref", "biodata.gene-ref/2"),
+        GeneRef => ("gene-ref", "biodata.gene-ref/3"),
         Cytoband => ("cytoband", "biodata.cytoband/1"),
         GeneLocation => ("gene-location", "biodata.gene-location/1"),
         GenomicInterval => ("genomic-interval", "biodata.genomic-interval/2"),
@@ -149,17 +149,17 @@ fn registry() -> Vec<Contract> {
         LocusGroup => ("locus-group", "biodata.locus-group/1"),
         LocusType => ("locus-type", "biodata.locus-type/1"),
         MatchKind => ("match-kind", "biodata.match-kind/1"),
-        Match => ("gene-match", "biomcp.gene-match/1"),
+        Match => ("gene-match", "biomcp.gene-match/2"),
         Mane => ("mane", "biodata.mane/1"),
-        Summary => ("gene-summary", "biodata.gene-summary/2"),
+        Summary => ("gene-summary", "biodata.gene-summary/3"),
         SummarySource => ("summary-source", "biodata.summary-source/1"),
         HgncStatus => ("hgnc-status", "biodata.hgnc-status/2"),
         Build => ("build", "biodata.build/2"),
         Strand => ("strand", "biodata.strand/1"),
     };
     contracts.extend(contracts! {
-        GwasGetCommand => ("gwas-get", "biomcp.gwas-get/1", query),
-        GwasSearchCommand => ("gwas-search", "biomcp.gwas-search/3", query),
+        GwasGetCommand => ("gwas-get", "biomcp.gwas-get/2", query),
+        GwasSearchCommand => ("gwas-search", "biomcp.gwas-search/4", query),
     });
     contracts.extend(nci_discovery_contracts());
     contracts.extend(diagnostic_contracts());
@@ -182,32 +182,32 @@ fn registry() -> Vec<Contract> {
 }
 fn study_registry() -> Vec<Contract> {
     contracts! {
-        StudySearch => ("study-search", "biomcp.study-search/1", query),
+        StudySearch => ("study-search", "biomcp.study-search/2", query),
         StudyGet => ("study-get", "biomcp.study-get/1", query),
     }
 }
 
 fn adverse_event_contracts() -> Vec<Contract> {
     contracts! {
-        PgxSearch => ("pgx-search", "biomcp.pgx-search/2", query),
+        PgxSearch => ("pgx-search", "biomcp.pgx-search/3", query),
         PgxGet => ("pgx-get", "biomcp.pgx-get/3", query),
         PgxGetCommand => ("pgx-get-command", "biomcp.pgx-get-command/3", query),
         PgxAnnotationGet => ("pgx-annotation-get", "biomcp.pgx-annotation-get/2", query),
-        AdverseEventSearch => ("adverse-event-search", "biomcp.adverse-event-search/3", query),
-        AdverseEventGet => ("adverse-event-get", "biomcp.adverse-event-get/1", query),
+        AdverseEventSearch => ("adverse-event-search", "biomcp.adverse-event-search/4", query),
+        AdverseEventGet => ("adverse-event-get", "biomcp.adverse-event-get/2", query),
     }
 }
 
 fn variant_contracts() -> Vec<Contract> {
     contracts! {
-        VariantAssertionsGet => ("variant-assertions", "biomcp.variant-assertions/3", query),
-        PopulationFrequency => ("population-frequency", "biodata.population-frequency/6"),
+        VariantAssertionsGet => ("variant-assertions", "biomcp.variant-assertions/4", query),
+        PopulationFrequency => ("population-frequency", "biodata.population-frequency/7"),
         VariantPopulationQuery => ("variant-population", "biomcp.variant-population/4", query),
         Statement => ("statement", "biodata.statement/6"),
-        VariantRecurrenceQuery => ("variant-recurrence-query", "biomcp.variant-recurrence-query/4", query),
+        VariantRecurrenceQuery => ("variant-recurrence-query", "biomcp.variant-recurrence-query/5", query),
         VariantNormalize => ("variant-normalize", "biomcp.variant-normalize/5", query),
-        VariantSearch => ("variant-search", "biomcp.variant-search/3", query),
-        VariantGet => ("variant-get", "biomcp.variant-get/4", query),
+        VariantSearch => ("variant-search", "biomcp.variant-search/4", query),
+        VariantGet => ("variant-get", "biomcp.variant-get/5", query),
     }
 }
 
@@ -215,47 +215,47 @@ fn drug_contracts() -> Vec<Contract> {
     contracts! {
         DrugId => ("drug-id", "biodata.drug-id/2"),
         DrugIdentityLevel => ("drug-identity-level", "biodata.drug-identity-level/1"),
-        DrugIdentity => ("drug-identity", "biodata.drug-identity/2"),
-        DrugIdentityRelation => ("drug-identity-relation", "biodata.drug-identity-relation/3"),
-        DrugProduct => ("drug-product", "biodata.drug-product/3"),
-        DrugLabelReference => ("drug-label-reference", "biodata.drug-label-reference/3"),
-        DrugLabelSection => ("drug-label-section", "biodata.drug-label-section/3"),
-        DrugNativeTarget => ("drug-native-target", "biodata.drug-native-target/1"),
-        DrugDiseaseReference => ("drug-disease-reference", "biodata.drug-disease-reference/1"),
+        DrugIdentity => ("drug-identity", "biodata.drug-identity/3"),
+        DrugIdentityRelation => ("drug-identity-relation", "biodata.drug-identity-relation/4"),
+        DrugProduct => ("drug-product", "biodata.drug-product/4"),
+        DrugLabelReference => ("drug-label-reference", "biodata.drug-label-reference/4"),
+        DrugLabelSection => ("drug-label-section", "biodata.drug-label-section/4"),
+        DrugNativeTarget => ("drug-native-target", "biodata.drug-native-target/2"),
+        DrugDiseaseReference => ("drug-disease-reference", "biodata.drug-disease-reference/2"),
         DrugStage => ("drug-stage", "biodata.drug-stage/1"),
-        DrugNativeReference => ("drug-native-reference", "biodata.drug-native-reference/1"),
-        DrugTargetRelation => ("drug-target-relation", "biodata.drug-target-relation/4"),
-        DrugIndicationClaim => ("drug-indication-claim", "biodata.drug-indication-claim/4"),
-        DrugInteractionClaim => ("drug-interaction-claim", "biodata.drug-interaction-claim/4"),
-        AuthorizationDate => ("authorization-date", "biodata.authorization-date/2"),
-        AuthorizationEvent => ("authorization-event", "biodata.authorization-event/3"),
+        DrugNativeReference => ("drug-native-reference", "biodata.drug-native-reference/2"),
+        DrugTargetRelation => ("drug-target-relation", "biodata.drug-target-relation/5"),
+        DrugIndicationClaim => ("drug-indication-claim", "biodata.drug-indication-claim/5"),
+        DrugInteractionClaim => ("drug-interaction-claim", "biodata.drug-interaction-claim/5"),
+        AuthorizationDate => ("authorization-date", "biodata.authorization-date/3"),
+        AuthorizationEvent => ("authorization-event", "biodata.authorization-event/4"),
         DrugNameSelector => ("drug-name-selector", "biomcp.drug-name-selector/1", query),
-        DrugSearch => ("drug-search", "biomcp.drug-search/2", query),
-        DrugGet => ("drug-get", "biomcp.drug-get/2", query),
-        DrugWhoGet => ("drug-who-get", "biomcp.drug-who-get/1", query),
-        DrugGetCommand => ("drug-get-command", "biomcp.drug-get-command/1", query),
-        DrugWhoRow => ("drug-who-row", "biomcp.drug-who-row/1"),
+        DrugSearch => ("drug-search", "biomcp.drug-search/3", query),
+        DrugGet => ("drug-get", "biomcp.drug-get/3", query),
+        DrugWhoGet => ("drug-who-get", "biomcp.drug-who-get/2", query),
+        DrugGetCommand => ("drug-get-command", "biomcp.drug-get-command/2", query),
+        DrugWhoRow => ("drug-who-row", "biomcp.drug-who-row/2"),
         DrugSource => ("drug-source", "biomcp.drug-source/1"),
         DrugSection => ("drug-section", "biomcp.drug-section/1"),
-        DrugHeader => ("drug-header", "biomcp.drug-header/2"),
-        DrugRecallHeader => ("drug-recall-header", "biomcp.drug-recall-header/1"),
+        DrugHeader => ("drug-header", "biomcp.drug-header/3"),
+        DrugRecallHeader => ("drug-recall-header", "biomcp.drug-recall-header/2"),
     }
 }
 
 fn diagnostic_contracts() -> Vec<Contract> {
     contracts! {
-        DiagnosticSearch => ("diagnostic-search", "biomcp.diagnostic-search/2", query),
-        DiagnosticGet => ("diagnostic-get", "biomcp.diagnostic-get/1", query),
+        DiagnosticSearch => ("diagnostic-search", "biomcp.diagnostic-search/3", query),
+        DiagnosticGet => ("diagnostic-get", "biomcp.diagnostic-get/2", query),
     }
 }
 
 fn trial_contracts() -> Vec<Contract> {
     contracts! {
-        TrialGet => ("trial-get", "biomcp.trial-get/1", query),
+        TrialGet => ("trial-get", "biomcp.trial-get/2", query),
         TrialConditionResolution => ("trial-condition-resolution", "biomcp.trial-condition-resolution/4"),
         TrialSearch => ("trial-search", "biomcp.trial-search/5", query),
         NctId => ("nct-id", "biodata.nct-id/1"),
-        TrialHeader => ("trial-header", "biomcp.trial-header/3"),
+        TrialHeader => ("trial-header", "biomcp.trial-header/4"),
     }
 }
 
@@ -389,22 +389,22 @@ fn flat_value(root: &Value, node: &Value) {
 
 fn pathway_contracts() -> Vec<Contract> {
     contracts! {
-        PathwaySearch => ("pathway-search", "biomcp.pathway-search/3", query),
-        PathwayGet => ("pathway-get", "biomcp.pathway-get/2", query),
-        PathwayGenesQuery => ("pathway-genes-query", "biomcp.pathway-genes-query/2", query),
-        PathwayEventsQuery => ("pathway-events-query", "biomcp.pathway-events-query/1", query),
+        PathwaySearch => ("pathway-search", "biomcp.pathway-search/4", query),
+        PathwayGet => ("pathway-get", "biomcp.pathway-get/3", query),
+        PathwayGenesQuery => ("pathway-genes-query", "biomcp.pathway-genes-query/3", query),
+        PathwayEventsQuery => ("pathway-events-query", "biomcp.pathway-events-query/2", query),
     }
 }
 
 fn protein_contracts() -> Vec<Contract> {
     contracts! {
-        ProteinFeaturesQuery => ("protein-features-query", "biomcp.protein-features-query/1", query),
-        ProteinRelationQuery => ("protein-relation-query", "biomcp.protein-relation-query/1", query),
-        ProteinDomainsQuery => ("protein-domains-query", "biomcp.protein-domains-query/1", query),
-        ProteinComplexMembersQuery => ("protein-complex-members-query", "biomcp.protein-complex-members-query/1", query),
+        ProteinFeaturesQuery => ("protein-features-query", "biomcp.protein-features-query/2", query),
+        ProteinRelationQuery => ("protein-relation-query", "biomcp.protein-relation-query/2", query),
+        ProteinDomainsQuery => ("protein-domains-query", "biomcp.protein-domains-query/2", query),
+        ProteinComplexMembersQuery => ("protein-complex-members-query", "biomcp.protein-complex-members-query/2", query),
         ProteinSequenceQuery => ("protein-sequence-query", "biomcp.protein-sequence-query/1", query),
-        ProteinSearch => ("protein-search", "biomcp.protein-search/1", query),
-        ProteinGet => ("protein-get", "biomcp.protein-get/1", query),
+        ProteinSearch => ("protein-search", "biomcp.protein-search/2", query),
+        ProteinGet => ("protein-get", "biomcp.protein-get/2", query),
     }
 }
 

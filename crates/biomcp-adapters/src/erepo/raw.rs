@@ -1,4 +1,5 @@
 //! Native summary documents preserve independently valid source fields.
+use crate::native_text::NativeText;
 use crate::{mapped::Problems, raw::Field};
 use biodata::{Attribution, Text, VariantRef};
 use biomcp_fetch::{BadReply, Reply};
@@ -46,19 +47,19 @@ pub(super) struct Record {
     pub id: String,
     #[serde(rename = "docVersion")]
     pub version: String,
-    classification: Option<Field<Text>>,
+    classification: Option<Field<NativeText>>,
     pub uuid: Option<Field<String>>,
-    condition: Option<Field<Text>>,
+    condition: Option<Field<NativeText>>,
     #[serde(rename = "mondoId")]
     mondo: Option<Field<biodata::Curie>>,
-    ep: Option<Field<Text>>,
+    ep: Option<Field<NativeText>>,
     gene: Option<Field<Text>>,
     #[serde(rename = "metCodes")]
     criteria: Option<Field<Vec<Field<Text>>>>,
     #[serde(rename = "unMetCodes")]
-    unmet: Option<Field<Vec<Field<Text>>>>,
+    unmet: Option<Field<Vec<Field<NativeText>>>>,
     #[serde(rename = "summaryDesc")]
-    summary: Option<Field<Text>>,
+    summary: Option<Field<NativeText>>,
     #[serde(rename = "approvedDate")]
     approved: Option<Field<biodata::PartialDate>>,
     #[serde(rename = "publishedDate")]
@@ -97,7 +98,7 @@ impl Record {
             record: Some(id),
             version: Some(version),
             release: None,
-            submitter: cx.field("ep", self.ep),
+            submitter: cx.source_field("ep", self.ep),
             evaluated: None,
             url,
         };
@@ -105,7 +106,7 @@ impl Record {
             database: None,
             accession: None,
             id: cx.field("mondoId", self.mondo),
-            label: cx.field("condition", self.condition),
+            label: cx.source_field("condition", self.condition),
         };
         let conditions = if condition.id.is_some() || condition.label.is_some() {
             vec![condition]
@@ -114,14 +115,14 @@ impl Record {
         };
         let detail = AssertionDetail {
             conditions: conditions.into(),
-            summary: cx.field("summaryDesc", self.summary),
-            unmet_criteria: cx.fields("unMetCodes", self.unmet),
+            summary: cx.source_field("summaryDesc", self.summary),
+            unmet_criteria: cx.fields("unMetCodes", self.unmet).into_vec().into_iter().map(Into::into).collect(),
             published: cx.field("publishedDate", self.published),
             approved: cx.field("approvedDate", self.approved),
             versions: cx.fields("versionsList", self.versions),
             ..Default::default()
         };
-        let classification = cx.field("classification", self.classification);
+        let classification = cx.source_field("classification", self.classification);
         let mut row = match classification {
             Some(label) => crate::assertion::row(
                 AssertionKind::Erepo,

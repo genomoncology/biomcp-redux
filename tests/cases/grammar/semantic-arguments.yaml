@@ -21,7 +21,7 @@
       "expect": {
         "": {
           "equals": {
-            "schema": "biomcp.error/2",
+            "schema": "biomcp.error/3",
             "status": "usage",
             "error": {
               "code": "usage.arguments",

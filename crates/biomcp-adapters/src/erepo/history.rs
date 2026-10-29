@@ -1,4 +1,5 @@
 //! Selected SEPIO documents supply their own facts; summaries supply routing only.
+use crate::native_text::NativeText;
 use crate::{Mapped, mapped::Problems, raw::Field};
 use biodata::{Attribution, Text, VariantRef};
 use biomcp_fetch::{BadReply, Freshness, Leg, PathSegment, Reply, RequestError};
@@ -80,7 +81,7 @@ struct Identifier {
 }
 #[derive(Deserialize)]
 struct Label {
-    label: Option<Field<Text>>,
+    label: Option<Field<NativeText>>,
     id: Option<Field<Text>>,
     #[serde(rename = "@id")]
     iri: Option<Field<Text>>,
@@ -100,7 +101,7 @@ struct Assessment {
 }
 #[derive(Deserialize)]
 struct Criterion {
-    label: Option<Field<Text>>,
+    label: Option<Field<NativeText>>,
     id: Option<Field<Text>>,
     #[serde(rename = "@id")]
     iri: Option<Field<Text>>,
@@ -142,7 +143,7 @@ impl Document {
                 id: cx
                     .field("condition.id", condition.id)
                     .and_then(|id| cx.optional("condition.id", Some(id.as_str().parse()))),
-                label: cx.field("condition.label", condition.label),
+                label: cx.source_field("condition.label", condition.label),
             })
             .into_iter()
             .collect();
@@ -157,7 +158,7 @@ impl Document {
         let outcome = cx.field("statementOutcome", self.outcome);
         let (label, outcome_id, outcome_iri) = match outcome {
             Some(outcome) => (
-                cx.field("statementOutcome.label", outcome.label),
+                cx.source_field("statementOutcome.label", outcome.label),
                 cx.field("statementOutcome.id", outcome.id),
                 cx.field("statementOutcome.@id", outcome.iri),
             ),
@@ -199,7 +200,7 @@ impl Assessment {
         let criterion = cx.field("criterion", self.criterion);
         let (criterion, criterion_id, criterion_iri, strength) = match criterion {
             Some(criterion) => (
-                cx.field("criterion.label", criterion.label),
+                cx.source_field("criterion.label", criterion.label),
                 cx.field("criterion.id", criterion.id),
                 cx.field("criterion.@id", criterion.iri),
                 cx.field("criterion.defaultStrength", criterion.strength),
@@ -208,7 +209,7 @@ impl Assessment {
         };
         let (default_strength, default_strength_id, default_strength_iri) = match strength {
             Some(strength) => (
-                cx.field("defaultStrength.label", strength.label),
+                cx.source_field("defaultStrength.label", strength.label),
                 cx.field("defaultStrength.id", strength.id),
                 cx.field("defaultStrength.@id", strength.iri),
             ),
@@ -217,7 +218,7 @@ impl Assessment {
         let outcome = cx.field("statementOutcome", self.outcome);
         let (outcome, outcome_id, outcome_iri) = match outcome {
             Some(outcome) => (
-                cx.field("statementOutcome.label", outcome.label),
+                cx.source_field("statementOutcome.label", outcome.label),
                 cx.field("statementOutcome.id", outcome.id),
                 cx.field("statementOutcome.@id", outcome.iri),
             ),

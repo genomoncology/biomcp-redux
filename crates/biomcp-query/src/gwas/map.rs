@@ -6,7 +6,7 @@ pub(crate) fn association(row: gwas::Association) -> GwasAssociation {
     GwasAssociation {
         id: row.association_id,
         study: row.accession_id,
-        traits: row.reported_trait.into(),
+        traits: row.reported_trait.into_iter().map(Into::into).collect(),
         ontology_traits: row
             .efo_traits
             .into_iter()
@@ -26,8 +26,20 @@ pub(crate) fn association(row: gwas::Association) -> GwasAssociation {
         p_value: row.p_value,
         exact_p_value,
         author: optional_text(row.author.clone()),
-        mapped_genes: row.mapped_gene.clone().unwrap_or_default().into(),
-        locations: row.locations.clone().unwrap_or_default().into(),
+        mapped_genes: row
+            .mapped_gene
+            .clone()
+            .unwrap_or_default()
+            .into_iter()
+            .map(Into::into)
+            .collect(),
+        locations: row
+            .locations
+            .clone()
+            .unwrap_or_default()
+            .into_iter()
+            .map(Into::into)
+            .collect(),
         ci_lower: row.ci_lower,
         ci_upper: row.ci_upper,
         beta: optional_text(row.beta),

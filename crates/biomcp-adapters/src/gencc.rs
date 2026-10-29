@@ -1,4 +1,5 @@
 //! GenCC submissions remain separate records keyed by HGNC identity.
+use crate::native_text::NativeText;
 use crate::{Mapped, mapped::Problems, quotas, raw::Field};
 use biodata::{GeneSymbol, HgncId, Text};
 use biomcp_fetch::{
@@ -89,13 +90,13 @@ struct Submission {
     sgc_id: Option<Field<Text>>,
     version_number: Option<Field<Text>>,
     disease_curie: Option<Field<Text>>,
-    disease_title: Option<Field<Text>>,
+    disease_title: Option<Field<NativeText>>,
     classification_curie: Option<Field<Text>>,
-    classification_title: Option<Field<Text>>,
+    classification_title: Option<Field<NativeText>>,
     moi_curie: Option<Field<Text>>,
-    moi_title: Option<Field<Text>>,
+    moi_title: Option<Field<NativeText>>,
     submitter_curie: Option<Field<Text>>,
-    submitter_title: Option<Field<Text>>,
+    submitter_title: Option<Field<NativeText>>,
     submitted_as_date: Option<String>,
     submitted_run_date: Option<String>,
 }
@@ -135,13 +136,13 @@ impl Submission {
                 id,
                 version,
                 disease_id: cx.field("disease_curie", self.disease_curie),
-                disease: cx.field("disease_title", self.disease_title),
+                disease: cx.source_field("disease_title", self.disease_title),
                 classification_id: cx.field("classification_curie", self.classification_curie),
-                classification: cx.field("classification_title", self.classification_title),
+                classification: cx.source_field("classification_title", self.classification_title),
                 mode_of_inheritance_id: cx.field("moi_curie", self.moi_curie),
-                mode_of_inheritance: cx.field("moi_title", self.moi_title),
+                mode_of_inheritance: cx.source_field("moi_title", self.moi_title),
                 submitter_id: cx.field("submitter_curie", self.submitter_curie),
-                submitter: cx.field("submitter_title", self.submitter_title),
+                submitter: cx.source_field("submitter_title", self.submitter_title),
                 evaluated_date: cx.text(
                     "submitted_as_date",
                     self.submitted_as_date.as_deref().filter(|v| !v.is_empty()),

@@ -1,4 +1,5 @@
-use biodata::{Doi, PartialDate, Pmcid, Pmid, SemanticScholarId, Text};
+use crate::native_text::NativeText;
+use biodata::{Doi, PartialDate, Pmcid, Pmid, SemanticScholarId};
 
 use biomcp_fetch::{Arg, BadReply, Endpoint, Freshness, Leg, Reply, RequestError};
 use biomcp_types::ArticleHeader;
@@ -22,7 +23,7 @@ pub struct Paper {
     /// Identifiers explicitly reported by the source.
     pub external_ids: Option<ExternalIds>,
     /// Whole title when supplied.
-    pub title: Option<Text>,
+    pub title: Option<NativeText>,
     /// Source venue.
     pub venue: Option<String>,
     /// Publication year when full date is absent.
@@ -80,7 +81,8 @@ pub struct Author {
     #[serde(rename = "authorId")]
     pub id: Option<biodata::SemanticScholarAuthorId>,
     /// Source display name.
-    pub name: Text,
+    #[serde(deserialize_with = "crate::native_text::deserialize")]
+    pub name: biodata::Text,
 }
 impl Reply for Search {
     fn check(&self) -> Result<(), BadReply> {
@@ -115,7 +117,8 @@ pub fn search(
 }
 impl Paper {
     /// Map identifiers and source metadata without joining another provider.
-    pub fn item(self) -> ArticleItem {
+    pub fn item(self, problems: &mut Vec<biomcp_types::Problem>) -> ArticleItem {
+        let record = self.paper_id.as_ref().and_then(crate::mapped::record);
         let ids = self.external_ids;
         let pmid = ids.as_ref().and_then(|v| v.pubmed);
         let pmcid = ids.as_ref().and_then(|v| v.pmc);
@@ -134,8 +137,16 @@ impl Paper {
             pmcid,
             doi,
             europepmc_id: None,
-            title: Some(title),
-            journal: self.venue.and_then(|s| Text::new(&s).ok()),
+            title: Some(title.into()),
+            journal: crate::mapped::field_text(
+                problems,
+                biomcp_types::Source::SemanticScholar,
+                record,
+                "venue",
+                self.venue
+                    .filter(|v| !v.is_empty())
+                    .map(crate::raw::Field::Value),
+            ),
             electronic_date: None,
             date: self
                 .publication_date

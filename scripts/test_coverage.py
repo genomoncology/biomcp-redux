@@ -32,7 +32,7 @@ elif args[0] == 'metadata':
     print(json.dumps({'packages':[{'name':'biomcp-types', 'targets':[
         {'name':'drug_contracts','kind':['test']},
         {'name':'unlisted_contract','kind':['test']}]},
-        {'name':'biomcp-fetch', 'targets':[{'name':'tensors','kind':['test']}]}]}))
+        {'name':'biomcp-adapters', 'targets':[{'name':'tensors','kind':['test']}]}]}))
 elif args[0] == 'test':
     with Path(os.environ['PROOF_CALLS']).open('a') as calls:
         calls.write(' '.join(args) + '\n')
