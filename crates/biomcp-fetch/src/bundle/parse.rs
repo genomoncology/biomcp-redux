@@ -13,13 +13,13 @@ impl std::ops::Deref for ParsedRows {
     }
 }
 impl ParsedRows {
-    pub fn reject(&mut self, row: usize, reason: &str) {
+    pub(super) fn reject(&mut self, row: usize, reason: &str) {
         self.rejections.push(BundleRejection {
             row: row as u64,
             reason: reason.into(),
         });
     }
-    pub fn admit<R: Row>(&mut self, value: serde_json::Value, row: usize) {
+    pub(super) fn admit<R: Row>(&mut self, value: serde_json::Value, row: usize) {
         let Ok(decoded) = serde_json::from_value::<R>(value.clone()) else {
             self.reject(row, "cannot decode row");
             return;
@@ -102,23 +102,20 @@ pub(super) fn part_rows<R: Row>(
 
 pub(super) fn rows<R: Row>(body: &[u8], format: RowFormat) -> Result<ParsedRows, BadReply> {
     match format {
-        RowFormat::Document { .. } => R::decode_document(body)?
-            .into_iter()
-            .enumerate()
-            .map(|(index, row)| {
-                let decoded: R = serde_json::from_str(&row).map_err(|_| BadReply)?;
-                decoded.check_bundle(0)?;
-                Ok(Parsed {
-                    number: index as u64 + 1,
-                    row,
-                    keys: decoded.keys(),
-                })
-            })
-            .collect::<Result<Vec<_>, BadReply>>()
-            .map(|rows| ParsedRows {
-                rows,
-                rejections: Vec::new(),
-            }),
+        RowFormat::Document { .. } => {
+            let mut parsed = ParsedRows::default();
+            for (index, row) in R::decode_document(body)?.into_iter().enumerate() {
+                match serde_json::from_str::<R>(&row) {
+                    Ok(decoded) => {
+                        decoded.check_bundle(0)?;
+                        let value = serde_json::from_str(&row).map_err(|_| BadReply)?;
+                        parsed.admit::<R>(value, index + 1);
+                    }
+                    Err(_) => parsed.reject(index + 1, "cannot decode row"),
+                }
+            }
+            Ok(parsed)
+        }
         RowFormat::Json { rows, metadata } => json::<R>(body, rows, metadata),
         RowFormat::NativeTsv {
             gzip,

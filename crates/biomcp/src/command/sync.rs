@@ -81,7 +81,7 @@ fn acquire(
             Bundle::WikiPathways => return None,
             Bundle::CbioportalStudies => biomcp_adapters::cbioportal::sync_studies(fetch),
             Bundle::FdaCdx => biomcp_adapters::fda_cdx::sync(fetch),
-            Bundle::Gtr => biomcp_adapters::gtr::sync(fetch),
+            Bundle::Gtr => return Some(biomcp_adapters::gtr::sync(fetch)),
             Bundle::WhoIvd => biomcp_adapters::who_ivd::sync(fetch),
             Bundle::WhoPq => biomcp_adapters::who_pq::sync(fetch),
             Bundle::Ddinter => {
@@ -106,7 +106,7 @@ fn acquire(
             }),
             Bundle::ClinGen => return Some(biomcp_adapters::clingen::sync(fetch)),
             Bundle::Hgnc => return Some(biomcp_adapters::hgnc::sync_all(fetch)),
-            Bundle::Gencc => biomcp_adapters::gencc::sync(fetch),
+            Bundle::Gencc => return Some(biomcp_adapters::gencc::sync(fetch)),
         }
         .map(mapped),
     )

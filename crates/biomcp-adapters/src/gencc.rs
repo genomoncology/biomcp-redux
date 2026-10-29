@@ -35,16 +35,20 @@ const SUBMISSIONS: Bundle<Submission> = Bundle {
     row: PhantomData,
 };
 /// Explicitly synchronize the source-owned submissions file.
-pub fn sync(fetch: &Fetch) -> Result<SyncResult, RequestError> {
+pub fn sync(fetch: &Fetch) -> Result<crate::Mapped<SyncResult>, RequestError> {
     let info = fetch.sync(&SUBMISSIONS)?;
-    Ok(SyncResult {
-        snapshot: None,
-        etag: info.etag,
-        last_modified: info.last_modified,
-        duplicate_identities: None,
-        rows: info.rows,
-        bytes: info.bytes,
-        downloaded_bytes: info.downloaded_bytes,
+    let problems = crate::mapped::bundle_problems(Source::Gencc, &info);
+    Ok(crate::Mapped {
+        problems,
+        value: SyncResult {
+            snapshot: None,
+            etag: info.etag,
+            last_modified: info.last_modified,
+            duplicate_identities: None,
+            rows: info.rows,
+            bytes: info.bytes,
+            downloaded_bytes: info.downloaded_bytes,
+        },
     })
 }
 /// Read each source submission for the checked HGNC identity.
