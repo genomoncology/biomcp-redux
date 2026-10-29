@@ -159,14 +159,69 @@ class Sweep(unittest.TestCase):
         return {"source": source, "release": release, "revision": "synthetic-product-reply",
                 "retrieved": "2026-10-29", "record": record, "reply": {"result": result}}
 
+    def connection(self, nodes):
+        return {"pages": [{"after": None, "totalCount": len(nodes), "nodes": nodes,
+                           "pageInfo": {"hasNextPage": False, "endCursor": None}}]}
+
+    def gene_variants(self, gene, variants):
+        nodes = []
+        for identity, evidence, statuses in variants:
+            assertions = [{"id": index + 1, "status": status} for index, status in enumerate(statuses)]
+            profile = {"id": identity, "evidenceCountsByStatus": {"acceptedCount": evidence},
+                       "assertions": self.connection(assertions)}
+            nodes.append({"id": identity, "__typename": "GeneVariant", "deprecated": False,
+                          "feature": {"id": 9, "name": gene}, "molecularProfiles": self.connection([profile])})
+        return {"symbol": gene, "feature": {"id": 9, "name": gene}, "variants": self.connection(nodes)}
+
+    def civic_observation(self, gene, total, variants):
+        result = {"items": [{"answer": {"gene": {"symbol": gene}},
+                             "sections": {"civic": {"data": {"id": 9, "variant_count": total}}}}]}
+        observation = self.observation("civic", result)
+        observation["gene_variants"] = [self.gene_variants(gene, variants)]
+        return observation
+
     def test_compares_saved_gene_reply_and_reports_missing_and_wrong_counts(self):
         text = "variant_id\tvariant\tgene\thgvs_descriptions\n1\tV600E\tBRAF\t\n2\tG12D\tKRAS\t\n"
-        reply = {"items": [{"answer": {"gene": {"symbol": "BRAF"}},
-                             "sections": {"civic": {"data": {"variant_count": 9}}}}]}
-        result, report = self.run_sweep("civic_variants", text, observed=[self.observation("civic", reply)])
+        observed = self.civic_observation("BRAF", 9, [(1, 1, [])])
+        result, report = self.run_sweep("civic_variants", text, observed=[observed])
         self.assertEqual(result.returncode, 1, result.stderr)
         self.assertEqual(report["comparisons"]["failures"],
-                         {"civic_gene_count_mismatch": 1, "civic_gene_unobserved": 1})
+                         {"civic_raw_total_mismatch": 1, "civic_gene_unobserved": 1})
+
+    def test_accepted_scope_uses_evidence_or_assertions_and_retains_raw_differences(self):
+        text = "variant_id\tvariant\tgene\thgvs_descriptions\n1\tV600E\tBRAF\t\n2\tV600K\tBRAF\t\n"
+        observed = self.civic_observation("BRAF", 4, [(1, 1, []), (2, 0, ["ACCEPTED"]),
+                                                        (3, 0, ["SUBMITTED"]), (4, 0, [])])
+        result, report = self.run_sweep("civic_variants", text, observed=[observed])
+        self.assertEqual(result.returncode, 0, result.stderr)
+        comparison = report["comparisons"]["civic_gene_comparisons"][0]
+        self.assertEqual((comparison["tsv_raw_total"], comparison["api_raw_total"], comparison["api_accepted_total"]), (2, 4, 2))
+        self.assertEqual(comparison["api_only_raw_ids"], ["civic:3", "civic:4"])
+        self.assertEqual(comparison["excluded_api_ids"], ["civic:3", "civic:4"])
+        self.assertEqual(comparison["api_only_accepted_ids"], [])
+
+    def test_equal_accepted_counts_do_not_hide_unmatched_variant_ids(self):
+        text = "variant_id\tvariant\tgene\thgvs_descriptions\n1\tV600E\tBRAF\t\n"
+        observed = self.civic_observation("BRAF", 1, [(2, 1, [])])
+        result, report = self.run_sweep("civic_variants", text, observed=[observed])
+        self.assertEqual(result.returncode, 1, result.stderr)
+        comparison = report["comparisons"]["civic_gene_comparisons"][0]
+        self.assertEqual(comparison["tsv_only_accepted_ids"], ["civic:1"])
+        self.assertEqual(comparison["api_only_accepted_ids"], ["civic:2"])
+        self.assertEqual(report["comparisons"]["failures"], {"civic_accepted_variant_ids_mismatch": 1})
+
+    def test_count_only_or_incomplete_gene_variants_capture_cannot_prove_scope(self):
+        text = "variant_id\tvariant\tgene\thgvs_descriptions\n1\tV600E\tBRAF\t\n"
+        observed = self.civic_observation("BRAF", 1, [(1, 1, [])])
+        observed.pop("gene_variants")
+        result, report = self.run_sweep("civic_variants", text, observed=[observed])
+        self.assertEqual(result.returncode, 1, result.stderr)
+        self.assertEqual(report["comparisons"]["failures"], {"civic_gene_variants_missing": 1})
+        observed = self.civic_observation("BRAF", 2, [(1, 1, [])])
+        observed["gene_variants"][0]["variants"]["pages"][0]["pageInfo"] = {"hasNextPage": True, "endCursor": "more"}
+        result, report = self.run_sweep("civic_variants", text, observed=[observed])
+        self.assertEqual(result.returncode, 1, result.stderr)
+        self.assertEqual(report["comparisons"]["failures"], {"civic_connection_incomplete": 1})
 
     def test_compares_clinvar_ids_through_source_graph_and_rejects_changed_spelling(self):
         allele = "ga4gh:VA." + "a" * 32
