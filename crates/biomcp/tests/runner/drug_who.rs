@@ -256,15 +256,15 @@ fn bounded(value: &Value) -> Check {
         .ok_or("status")?;
     // Compact synthetic maxima measured by j13484; every cap adds fifteen percent.
     let baseline: usize = match (schema, status) {
-        ("biomcp.drug-who-page/3", "complete") => 937,
-        ("biomcp.drug-who-page/3", "partial") => 1242,
-        ("biomcp.drug-who-page/3", "absent") => 433,
-        ("biomcp.drug-who-card/2", "complete") => 677,
-        ("biomcp.drug-who-card/2", "partial") => 729,
-        ("biomcp.drug-who-card/2", "absent") => 305,
-        ("biomcp.drug-who-card/2", "failed") => 330,
-        ("biomcp.sync/6", "complete") => 311,
-        ("biomcp.sync/6", "failed") => 302,
+        ("biomcp.drug-who-page/4", "complete") => 937,
+        ("biomcp.drug-who-page/4", "partial") => 1242,
+        ("biomcp.drug-who-page/4", "absent") => 433,
+        ("biomcp.drug-who-card/3", "complete") => 677,
+        ("biomcp.drug-who-card/3", "partial") => 729,
+        ("biomcp.drug-who-card/3", "absent") => 305,
+        ("biomcp.drug-who-card/3", "failed") => 330,
+        ("biomcp.sync/7", "complete") => 311,
+        ("biomcp.sync/7", "failed") => 302,
         _ => return Err(format!("unmeasured WHO output {schema}/{status}")),
     };
     let bytes = serde_json::to_vec(value).map_err(|e| e.to_string())?.len();

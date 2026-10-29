@@ -43,7 +43,7 @@ pub struct BiomarkerPage {
     pub items: Box<[BiomarkerHeader]>,
 }
 impl crate::ResponseBody for BiomarkerPage {
-    const SCHEMA: &'static str = "biomcp.biomarker-page/2";
+    const SCHEMA: &'static str = "biomcp.biomarker-page/3";
     type Query = crate::BiomarkerSearch;
 }
 /// Exact code result; multiple rows are candidates, never a selected card.
@@ -58,6 +58,6 @@ pub struct BiomarkerResult {
     pub candidates: Box<[BiomarkerCard]>,
 }
 impl crate::ResponseBody for BiomarkerResult {
-    const SCHEMA: &'static str = "biomcp.biomarker-result/2";
+    const SCHEMA: &'static str = "biomcp.biomarker-result/3";
     type Query = crate::BiomarkerGet;
 }

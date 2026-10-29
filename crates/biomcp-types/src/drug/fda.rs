@@ -114,6 +114,6 @@ pub struct DrugFdaPage {
     pub source_updated: Option<crate::SourceUpdated>,
 }
 impl crate::ResponseBody for DrugFdaPage {
-    const SCHEMA: &'static str = "biomcp.drug-fda-page/4";
+    const SCHEMA: &'static str = "biomcp.drug-fda-page/5";
     type Query = super::DrugSearch;
 }

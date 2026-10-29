@@ -21,7 +21,7 @@
             ]
           ]
         },
-        "/schema": "biomcp.help/4"
+        "/schema": "biomcp.help/5"
       },
       "run": [
         "help"
@@ -236,7 +236,7 @@
     {
       "expect": {
         "/result/environment": "ONCOKB_TOKEN",
-        "/schema": "biomcp.key/4"
+        "/schema": "biomcp.key/5"
       },
       "mcp": [
         "help",

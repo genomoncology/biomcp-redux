@@ -14,7 +14,7 @@ pub struct StoreClean {
     pub files: u64,
 }
 impl super::ResponseBody for StoreClean {
-    const SCHEMA: &'static str = "biomcp.store-clean/3";
+    const SCHEMA: &'static str = "biomcp.store-clean/4";
     type Query = super::EmptyQuery;
 }
 

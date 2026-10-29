@@ -66,18 +66,7 @@ pub fn search(cx: &Ctx<'_>, query: &AdverseEventSearch) -> Outcome {
             pool: None,
             truncated: None,
         });
-        out.status = if page.total == 0 {
-            Status::Absent
-        } else if !out.problems.is_empty()
-            || out
-                .sources
-                .iter()
-                .any(|s| s.state == biomcp_types::SourceState::Stale)
-        {
-            Status::Partial
-        } else {
-            Status::Complete
-        };
+        out.status = page_status(&out, page.total);
         if let QueryBody::AdverseEventPage(body) = &mut out.body {
             body.items = page.items.into();
             body.components = page.components;
@@ -90,6 +79,20 @@ pub fn search(cx: &Ctx<'_>, query: &AdverseEventSearch) -> Outcome {
     }
     command.finish(deadline.remaining());
     out
+}
+fn page_status(out: &Outcome, total: u64) -> Status {
+    if total == 0 {
+        Status::Absent
+    } else if !out.problems.is_empty()
+        || out
+            .sources
+            .iter()
+            .any(|s| s.state == biomcp_types::SourceState::Stale)
+    {
+        Status::Partial
+    } else {
+        Status::Complete
+    }
 }
 
 /// An unimplemented report get has no source effects until its owning slice lands.
