@@ -166,7 +166,9 @@ fn finish(out: &mut Outcome, leg: Leg<'_>, source: Source, error: Option<Request
         outcome.count = Some(page.total);
         outcome.fetched = Some(page.returned);
     }
-    if outcome.state == biomcp_types::SourceState::Stale && out.status == Status::Complete {
+    if (!out.problems.is_empty() || outcome.state == biomcp_types::SourceState::Stale)
+        && out.status == Status::Complete
+    {
         out.status = Status::Partial;
     }
     out.sources.push(outcome);

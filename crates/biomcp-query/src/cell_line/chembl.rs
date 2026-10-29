@@ -40,11 +40,13 @@ pub(super) fn get_at(
     out.sources
         .push(status::source(Source::Chembl, leg.finish(), error));
     out.local = error.and_then(status::local);
-    if let Ok((items, total, metadata)) = reply {
-        let end = u64::from(body.offset) + items.len() as u64;
+    if let Ok(reply) = reply {
+        out.problems.extend(reply.problems);
+        let (items, total, metadata, received) = reply.value;
+        let end = u64::from(body.offset) + u64::from(received);
         out.status = if total == 0 {
             Status::Absent
-        } else if end < total {
+        } else if !out.problems.is_empty() || end < total {
             Status::Partial
         } else {
             Status::Complete

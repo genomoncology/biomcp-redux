@@ -39,7 +39,7 @@ impl PageMeta {
 }
 #[derive(Debug, Deserialize)]
 struct Cells {
-    cell_lines: Vec<Cell>,
+    cell_lines: Vec<crate::raw::Field<Cell>>,
     page_meta: PageMeta,
 }
 #[derive(Debug, Deserialize)]
@@ -47,40 +47,45 @@ struct Cell {
     cell_chembl_id: ChemblCellId,
     cell_id: u64,
     cellosaurus_id: CellosaurusAccession,
-    cell_name: Option<NativeText>,
-    cell_description: Option<NativeText>,
-    cell_source_organism: Option<NativeText>,
-    cell_source_tax_id: Option<u32>,
-    cell_source_tissue: Option<NativeText>,
-    clo_id: Option<biodata::Text>,
-    efo_id: Option<biodata::Text>,
+    cell_name: Option<crate::raw::Field<NativeText>>,
+    cell_description: Option<crate::raw::Field<NativeText>>,
+    cell_source_organism: Option<crate::raw::Field<NativeText>>,
+    cell_source_tax_id: Option<crate::raw::Field<u32>>,
+    cell_source_tissue: Option<crate::raw::Field<NativeText>>,
+    clo_id: Option<crate::raw::Field<biodata::Text>>,
+    efo_id: Option<crate::raw::Field<biodata::Text>>,
 }
 impl Reply for Cells {
     fn check(&self) -> Result<(), BadReply> {
-        if self
-            .cell_lines
-            .iter()
-            .all(|r| r.cell_id > 0 && r.cell_source_tax_id != Some(0))
-        {
-            Ok(())
-        } else {
-            Err(BadReply)
-        }
+        Ok(())
     }
 }
-impl From<Cell> for CellLineChemblRecord {
-    fn from(r: Cell) -> Self {
-        Self {
+impl Cell {
+    fn mapped(self, problems: &mut crate::mapped::Problems) -> CellLineChemblRecord {
+        let r = self;
+        problems.record = crate::mapped::record(&r.cell_chembl_id);
+        let taxon = problems.field("cell_source_tax_id", r.cell_source_tax_id);
+        let taxon = problems.optional(
+            "cell_source_tax_id",
+            taxon.map(|n| std::num::NonZeroU32::new(n).map(|n| n.get()).ok_or(())),
+        );
+        CellLineChemblRecord {
             id: r.cell_chembl_id,
             cell_id: r.cell_id,
             cellosaurus_id: r.cellosaurus_id,
-            name: r.cell_name.map(Into::into),
-            description: r.cell_description.map(Into::into),
-            organism: r.cell_source_organism.map(Into::into),
-            taxon: r.cell_source_tax_id,
-            tissue: r.cell_source_tissue.map(Into::into),
-            clo: r.clo_id,
-            efo: r.efo_id,
+            name: problems.field("cell_name", r.cell_name).map(Into::into),
+            description: problems
+                .field("cell_description", r.cell_description)
+                .map(Into::into),
+            organism: problems
+                .field("cell_source_organism", r.cell_source_organism)
+                .map(Into::into),
+            taxon,
+            tissue: problems
+                .field("cell_source_tissue", r.cell_source_tissue)
+                .map(Into::into),
+            clo: problems.field("clo_id", r.clo_id),
+            efo: problems.field("efo_id", r.efo_id),
         }
     }
 }
@@ -90,7 +95,7 @@ pub fn cells(
     id: &CellosaurusAccession,
     limit: u32,
     offset: u32,
-) -> Result<(Vec<CellLineChemblRecord>, u64, ReplyMetadata), RequestError> {
+) -> Result<crate::Mapped<(Vec<CellLineChemblRecord>, u64, ReplyMetadata, u32)>, RequestError> {
     let text = id.to_string();
     let (reply, metadata) = leg.json_received_checked(
         &CELLS,
@@ -101,18 +106,38 @@ pub fn cells(
         ],
         |r: &Cells| {
             r.page_meta.check(r.cell_lines.len(), limit, offset)?;
-            if r.cell_lines.iter().all(|r| &r.cellosaurus_id == id) {
+            if r.cell_lines
+                .iter()
+                .filter_map(crate::raw::Field::as_ref)
+                .all(|r| &r.cellosaurus_id == id)
+            {
                 Ok(())
             } else {
                 Err(BadReply)
             }
         },
     )?;
-    Ok((
-        reply.cell_lines.into_iter().map(Into::into).collect(),
-        reply.page_meta.total_count,
-        metadata,
-    ))
+    let received = reply.cell_lines.len() as u32;
+    let mut problems = crate::mapped::Problems {
+        source: biomcp_types::Source::Chembl,
+        record: crate::mapped::record(id),
+        list: Vec::new(),
+    };
+    let mut values = Vec::new();
+    for row in reply.cell_lines {
+        if let Some(row) = problems.field("cell_chembl_id", Some(row)) {
+            if row.cell_id == 0 {
+                problems.record = crate::mapped::record(&row.cell_chembl_id);
+                problems.required::<()>("cell_id", None);
+            } else {
+                values.push(row.mapped(&mut problems));
+            }
+        }
+    }
+    Ok(crate::Mapped {
+        value: (values, reply.page_meta.total_count, metadata, received),
+        problems: problems.list,
+    })
 }
 #[derive(Debug, Deserialize)]
 struct Assays {
