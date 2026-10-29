@@ -2,12 +2,14 @@
 mod detail;
 mod map;
 mod raw;
+mod search;
 use crate::quotas;
 use biomcp_fetch::{
     Arg, BadReply, Credential, Endpoint, Freshness, KeyPlace, KeyUse, Leg, RequestError,
     SecretName, SourceSpec,
 };
 use biomcp_types::{Source, VariantAssertion};
+pub use search::{SearchPage, search};
 use std::time::Duration;
 /// ClinVar shares the existing NCBI quota and optional user key.
 pub static SPEC: SourceSpec = SourceSpec {

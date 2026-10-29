@@ -1,0 +1,23 @@
+{
+  "feature": "variant-search",
+  "live_check": "synthetic",
+  "story": "Malformed coding notation names the coding argument before any lookup",
+  "steps": [
+    {
+      "run": [
+        "search",
+        "variant",
+        "--gene",
+        "PTEN",
+        "--coding",
+        "c.333garbage"
+      ],
+      "exit": 2,
+      "is_error": true,
+      "expect": {
+        "/schema": "biomcp.error/3",
+        "/error/option": "--coding"
+      }
+    }
+  ]
+}
