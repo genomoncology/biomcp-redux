@@ -153,7 +153,7 @@ impl Row for CatalogRow {
         if body.len() > 1024 * 1024 {
             return Err(BadReply);
         }
-        let source_rows: Vec<Box<serde_json::value::RawValue>> =
+        let source_rows: Vec<Box<biomcp_fetch::RawValue>> =
             biomcp_fetch::decode_bundle_document(body)?;
         if source_rows.is_empty() {
             return Err(BadReply);
