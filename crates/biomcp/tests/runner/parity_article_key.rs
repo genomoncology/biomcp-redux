@@ -21,7 +21,7 @@ impl ArticleKey {
             ("pmid", "pmid"),
             ("pmcid", "pmc"),
             ("doi", "doi"),
-            ("semantic_scholar_id", "semantic_scholar"),
+            ("semantic_scholar_id", "semantic-scholar"),
         ] {
             if let Some(raw) = row.get(name) {
                 let id = raw

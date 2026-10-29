@@ -184,7 +184,7 @@ fn replacement(env: &Environment, replay: &Path, get: &[&str], before: &Value) -
             json!({"kind":"text", "value":text});
         fs::write(path, changed.to_string()).map_err(|e| e.to_string())?;
         let failed = pair(env, replay, &["sync", "who-pq"], 4)?;
-        if failed.pointer("/sources/0/reason") != Some(&json!("bad_reply"))
+        if failed.pointer("/sources/0/reason") != Some(&json!("bad-reply"))
             || pair(env, replay, get, 0)? != *before
         {
             return Err(format!(
@@ -256,15 +256,15 @@ fn bounded(value: &Value) -> Check {
         .ok_or("status")?;
     // Compact synthetic maxima measured by j13484; every cap adds fifteen percent.
     let baseline: usize = match (schema, status) {
-        ("biomcp.drug-who-page/2", "complete") => 937,
-        ("biomcp.drug-who-page/2", "partial") => 1242,
-        ("biomcp.drug-who-page/2", "absent") => 433,
-        ("biomcp.drug-who-card/1", "complete") => 677,
-        ("biomcp.drug-who-card/1", "partial") => 729,
-        ("biomcp.drug-who-card/1", "absent") => 305,
-        ("biomcp.drug-who-card/1", "failed") => 330,
-        ("biomcp.sync/5", "complete") => 311,
-        ("biomcp.sync/5", "failed") => 302,
+        ("biomcp.drug-who-page/3", "complete") => 937,
+        ("biomcp.drug-who-page/3", "partial") => 1242,
+        ("biomcp.drug-who-page/3", "absent") => 433,
+        ("biomcp.drug-who-card/2", "complete") => 677,
+        ("biomcp.drug-who-card/2", "partial") => 729,
+        ("biomcp.drug-who-card/2", "absent") => 305,
+        ("biomcp.drug-who-card/2", "failed") => 330,
+        ("biomcp.sync/6", "complete") => 311,
+        ("biomcp.sync/6", "failed") => 302,
         _ => return Err(format!("unmeasured WHO output {schema}/{status}")),
     };
     let bytes = serde_json::to_vec(value).map_err(|e| e.to_string())?.len();

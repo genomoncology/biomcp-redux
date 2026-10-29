@@ -6,12 +6,19 @@ use crate::{
 };
 use biomcp_types::Reason;
 
+type CachedReply<T> = (
+    T,
+    Option<i64>,
+    Option<crate::ContentRange>,
+    Option<crate::Pagination>,
+);
+
 const NEGATIVE_SECONDS: u64 = 600;
 enum Checked<T> {
     Positive(
         T,
         bool,
-        i64,
+        Option<i64>,
         Option<crate::ContentRange>,
         Option<crate::Pagination>,
     ),
@@ -76,15 +83,7 @@ impl Leg<'_> {
         prepared: &crate::prepared::Prepared,
         codec: &Decoder<T>,
         live: impl FnOnce() -> Result<crate::request::Decoded<T>, RequestError>,
-    ) -> Result<
-        (
-            T,
-            i64,
-            Option<crate::ContentRange>,
-            Option<crate::Pagination>,
-        ),
-        RequestError,
-    > {
+    ) -> Result<CachedReply<T>, RequestError> {
         let (url, key) = (prepared.url.as_str(), &prepared.identity);
         if self.budget().expired() {
             return Err(self.failure(Reason::DeadlineExceeded, None).into());
@@ -164,18 +163,22 @@ impl Leg<'_> {
         codec: &Decoder<T>,
         seconds: u64,
         decoded: crate::request::Decoded<T>,
-    ) -> Result<
-        (
-            T,
-            i64,
-            Option<crate::ContentRange>,
-            Option<crate::Pagination>,
-        ),
-        RequestError,
-    > {
+    ) -> Result<CachedReply<T>, RequestError> {
         let (reply, status, body, fetched, range, pagination) = decoded;
         let mut entry = Entry::new(status, body, seconds, codec.name());
-        entry.fetched_at = fetched;
+        if codec.json_absence && status == 404 {
+            self.cache_result(cache.remove(&prepared.identity, self.budget()));
+        }
+        // A recording without acquisition time cannot establish cache freshness.
+        let Some(acquired) = fetched else {
+            return Ok((
+                reply,
+                None,
+                range.as_deref().and_then(crate::ContentRange::parse),
+                pagination,
+            ));
+        };
+        entry.fetched_at = acquired;
         entry.content_range = range;
         entry.pagination = pagination;
         if (200..300).contains(&status) && codec.cacheable(&reply) {
@@ -186,8 +189,6 @@ impl Leg<'_> {
                 &entry,
                 self.budget(),
             ));
-        } else if codec.json_absence && status == 404 {
-            self.cache_result(cache.remove(&prepared.identity, self.budget()));
         }
         Ok((
             reply,
@@ -205,15 +206,7 @@ impl Leg<'_> {
         endpoint: &Endpoint,
         prepared: &crate::prepared::Prepared,
         codec: &Decoder<T>,
-    ) -> Result<
-        (
-            T,
-            i64,
-            Option<crate::ContentRange>,
-            Option<crate::Pagination>,
-        ),
-        RequestError,
-    > {
+    ) -> Result<CachedReply<T>, RequestError> {
         if let Some(cache) = self
             .fetch
             .cache
@@ -316,7 +309,7 @@ impl Leg<'_> {
         Ok(Some(Checked::Positive(
             reply,
             fresh,
-            entry.fetched_at,
+            Some(entry.fetched_at),
             entry
                 .content_range
                 .as_deref()

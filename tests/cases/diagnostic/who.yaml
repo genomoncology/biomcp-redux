@@ -14,7 +14,7 @@
       ],
       "max_bytes": 179,
       "expect": {
-        "/schema": "biomcp.sync/5",
+        "/schema": "biomcp.sync/6",
         "/result/rows": 10
       }
     },
@@ -35,7 +35,7 @@
       ],
       "max_bytes": 2739,
       "expect": {
-        "/result/kind": "who_ivd_product",
+        "/result/kind": "who-ivd-product",
         "/result/id": "0466-046-00",
         "/result/native_rows/0/product_name": "Synthetic \"quoted\" product",
         "/result/native_rows/1/product_code": "two\nlines",
@@ -111,7 +111,7 @@
       ],
       "max_bytes": 179,
       "expect": {
-        "/schema": "biomcp.sync/5",
+        "/schema": "biomcp.sync/6",
         "/result/rows": 10
       }
     }

@@ -145,7 +145,7 @@ fn route_failure() -> Result<(), String> {
     let env = environment(&stub)?;
     let value = call(&env, &[])?;
     if value.pointer("/result/candidates/0/sections/erepo/state") != Some(&json!("unavailable"))
-        || value.pointer("/result/candidates/0/sections/erepo/reason") != Some(&json!("bad_reply"))
+        || value.pointer("/result/candidates/0/sections/erepo/reason") != Some(&json!("bad-reply"))
     {
         return Err(format!("unprovedroute404becameempty: {value}"));
     }
@@ -161,7 +161,7 @@ fn wrong_identity() -> Result<(), String> {
     let env = environment(&stub)?;
     for _ in 0..2 {
         let value = call(&env, &[])?;
-        if value.pointer("/result/candidates/0/sections/erepo/reason") != Some(&json!("bad_reply"))
+        if value.pointer("/result/candidates/0/sections/erepo/reason") != Some(&json!("bad-reply"))
         {
             return Err(format!("wrongCAidattached: {value}"));
         }
@@ -193,7 +193,7 @@ fn invalid_fields() -> Result<(), String> {
         )?;
         let env = environment(&stub)?;
         let bad = call(&env, &[])?;
-        if bad.pointer("/sources/0/reason") != Some(&json!("bad_reply")) {
+        if bad.pointer("/sources/0/reason") != Some(&json!("bad-reply")) {
             return Err(format!("invalid {field} accepted: {bad}"));
         }
         let recovered = call(&env, &[])?;
@@ -234,7 +234,7 @@ fn history(mode: u8) -> Result<(), String> {
         let value: Value = serde_json::from_slice(&output.stdout)
             .map_err(|e| format!("{e}: {}", String::from_utf8_lossy(&output.stdout)))?;
         if wrong {
-            if value.pointer("/sources/0/reason") != Some(&json!("bad_reply")) {
+            if value.pointer("/sources/0/reason") != Some(&json!("bad-reply")) {
                 return Err(format!(
                     "wrong historical version accepted: {value}; wire={:?}",
                     stub.finish()
@@ -448,7 +448,7 @@ fn native_row(value: &Value, offset: u32) -> Result<Value, String> {
     if offset == 2
         && (row.pointer("/statement/classification/label") != Some(&json!("pathogenic"))
             || row.pointer("/statement/proposition") != Some(&json!("pathogenicity"))
-            || row.pointer("/statement/classification/coding").is_some())
+            || row.pointer("/statement/classification/codings").is_some())
     {
         return Err(format!(
             "native casing changed label or inferred framework: {value}"

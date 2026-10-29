@@ -61,7 +61,7 @@ fn run(mode: &'static str) -> Result<(), String> {
     let reason = if mode == "enforcement-error" {
         "rejected"
     } else {
-        "bad_reply"
+        "bad-reply"
     };
     if cli.pointer("/sources/0/reason") != Some(&json!(reason))
         || cli.pointer("/sources/0/state") != Some(&json!("failed"))

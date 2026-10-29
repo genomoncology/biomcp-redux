@@ -22,7 +22,7 @@
       "expect": {
         "/status": "failed",
         "/result/candidates/0/sections/gwas/state": "unavailable",
-        "/result/candidates/0/sections/gwas/reason": "deadline_exceeded"
+        "/result/candidates/0/sections/gwas/reason": "deadline-exceeded"
       },
       "max_bytes": 822
     },

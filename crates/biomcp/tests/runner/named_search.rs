@@ -30,11 +30,11 @@ fn failures() -> Check {
         ("pubtator", "article/pubtator/combined", WORDS, 8001),
     ] {
         for (kind, reason) in [
-            ("429", "rate_limited"),
+            ("429", "rate-limited"),
             ("500", "unavailable"),
-            ("cut", "bad_reply"),
-            ("error", "bad_reply"),
-            ("deadline", "deadline_exceeded"),
+            ("cut", "bad-reply"),
+            ("error", "bad-reply"),
+            ("deadline", "deadline-exceeded"),
         ] {
             let args = [
                 "search",
@@ -131,7 +131,7 @@ fn paging() -> Check {
                 if kind == "later-failure" {
                     "unavailable"
                 } else {
-                    "bad_reply"
+                    "bad-reply"
                 },
                 "Named searches must preserve snapshot paging and continuations"
             );
@@ -179,7 +179,7 @@ fn join() -> Check {
                 .collect::<Vec<_>>();
             *body = json!(format!("{header}\n{}\n", rows.join("\n")));
         },
-        json!({"/status":"failed","/sources/1/reason":"no_join_id"}),
+        json!({"/status":"failed","/sources/1/reason":"no-join-id"}),
         4,
     )?;
     Ok(())
@@ -313,7 +313,7 @@ fn invalid_sentences(args: &[&str]) -> Check {
                     _ => rows[0]["text"] = json!(""),
                 }
             },
-            json!({"/status":"failed","/sources/0/reason":"bad_reply"}),
+            json!({"/status":"failed","/sources/0/reason":"bad-reply"}),
             4,
         )?;
     }

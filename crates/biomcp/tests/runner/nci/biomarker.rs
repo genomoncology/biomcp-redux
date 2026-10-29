@@ -140,7 +140,7 @@ fn failures() -> Check {
             let reason = if kind == "bucket-500" {
                 "unavailable"
             } else {
-                "bad_reply"
+                "bad-reply"
             };
             if answer.pointer("/sources/0/reason") != Some(&json!(reason))
                 || answer.get("page").is_some()

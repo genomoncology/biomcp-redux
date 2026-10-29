@@ -162,7 +162,7 @@ biodata::wire_enum! {
     /// Provenance of the subject's accession qualification, without allele normalization.
     SubjectQualification {
         /// The adapter applied the approved chromosome/build accession table to an unchanged source description.
-        AdapterDerivedReference => "adapter_derived_reference",
+        AdapterDerivedReference => "adapter-derived-reference",
     }
 }
 

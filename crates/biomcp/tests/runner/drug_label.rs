@@ -259,7 +259,7 @@ fn headings() -> Check {
             .copied()
             .ok_or("heading budget")?;
         budget(&value, measured)?;
-        if field(&value, "schema") != "biomcp.drug-label/4"
+        if field(&value, "schema") != "biomcp.drug-label/5"
             || value.pointer("/result/label/data/text") != record.pointer(&format!("/{heading}/0"))
             || value.pointer("/result/label/data/retrieved").is_none()
         {

@@ -41,8 +41,8 @@ enum SecretValue {
 )]
 // A caller-supplied credential resolves once per Secrets owner, never globally.
 struct DeferredSecret {
-    resolved: std::sync::OnceLock<Option<Secret>>,
-    load: Box<dyn Fn() -> Option<Secret> + Send + Sync>,
+    resolved: std::sync::OnceLock<Result<Option<Secret>, crate::InputError>>,
+    load: Box<dyn Fn() -> Result<Option<Secret>, crate::InputError> + Send + Sync>,
 }
 impl fmt::Debug for DeferredSecret {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
@@ -57,6 +57,8 @@ impl SecretValue {
                 .resolved
                 .get_or_init(|| (secret.load)())
                 .as_ref()
+                .ok()
+                .and_then(Option::as_ref)
                 .map(Secret::value),
         }
         .filter(|v| !v.is_empty())
@@ -77,7 +79,7 @@ impl Secrets {
     pub fn defer(
         &mut self,
         name: SecretName,
-        load: impl Fn() -> Option<Secret> + Send + Sync + 'static,
+        load: impl Fn() -> Result<Option<Secret>, crate::InputError> + Send + Sync + 'static,
     ) {
         self.0.insert(
             name,
@@ -86,6 +88,14 @@ impl Secrets {
                 load: Box::new(load),
             }),
         );
+    }
+    pub(crate) fn invalid(&self, name: SecretName) -> bool {
+        self.0.get(&name).is_some_and(|value| match value {
+            SecretValue::Ready(_) => false,
+            SecretValue::Deferred(secret) => {
+                secret.resolved.get_or_init(|| (secret.load)()).is_err()
+            }
+        })
     }
     pub(crate) fn get(&self, name: SecretName) -> Option<&str> {
         self.0.get(&name).and_then(SecretValue::get)

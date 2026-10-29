@@ -59,7 +59,7 @@ fn firm() -> Result<(), String> {
     let tool = mcp::call_with_globals(&env, &args, false, &[])?;
     if cli != tool
         || cli.pointer("/result/items/0/header/recall_number") != Some(&json!("Z-0001-2024"))
-        || cli.pointer("/result/count_unit") != Some(&json!("recall_records"))
+        || cli.pointer("/result/count_unit") != Some(&json!("recall-records"))
         || cli.pointer("/page/total") != Some(&json!(1))
         || cli.to_string().contains("K999999")
         || cli.to_string().contains("P999999")
@@ -91,7 +91,7 @@ fn cards() -> Result<(), String> {
         let globals = ["--record".into(), recording.to_string_lossy().into_owned()];
         let card = invoke(&env, super::super::launch::arguments(&args, &globals), 0)?;
         for (field, value) in [
-            ("kind", json!("device_recall")),
+            ("kind", json!("device-recall")),
             ("reason", json!("Synthetic reason")),
             ("root_cause", json!("Synthetic cause")),
             ("product_description", json!("Synthetic description")),

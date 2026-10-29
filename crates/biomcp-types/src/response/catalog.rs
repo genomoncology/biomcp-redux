@@ -11,7 +11,7 @@ pub struct SchemaCatalog {
     pub schemas: Vec<SchemaEntry>,
 }
 impl super::ResponseBody for SchemaCatalog {
-    const SCHEMA: &'static str = "biomcp.schema-catalog/2";
+    const SCHEMA: &'static str = "biomcp.schema-catalog/3";
     type Query = super::EmptyQuery;
 }
 /// One schema identity with its own artifact documentation.

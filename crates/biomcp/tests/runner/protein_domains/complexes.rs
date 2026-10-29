@@ -114,7 +114,7 @@ fn rejected(env: &Environment) -> Result<(), String> {
         4,
     )?;
     super::super::protein_budgets::check(&mismatch, "synthetic-complex/wrong-complex", "cli")?;
-    if mismatch.pointer("/sources/0/reason") != Some(&json!("bad_reply")) {
+    if mismatch.pointer("/sources/0/reason") != Some(&json!("bad-reply")) {
         return Err("mismatched complex identity admitted".into());
     }
     call(

@@ -13,7 +13,7 @@
       "max_bytes": 1257,
       "max_tokens": 314,
       "expect": {
-        "/sources/0/notices/0/kind": "not_found_words",
+        "/sources/0/notices/0/kind": "not-found-words",
         "/next/0/args": [
           "search",
           "article",

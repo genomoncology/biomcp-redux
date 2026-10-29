@@ -80,7 +80,7 @@ fn identities() -> Check {
             "<p>Invented source.</p>",
             |record| record[field] = value.clone(),
             &["get", "article", "28944238", "fulltext"],
-            json!({"/result/items/0/sections/fulltext/reason": "bad_reply"}),
+            json!({"/result/items/0/sections/fulltext/reason": "bad-reply"}),
         )?;
     }
     for front in [
@@ -93,7 +93,7 @@ fn identities() -> Check {
             "<p>Invented source.</p>",
             |_| {},
             &["get", "article", "28944238", "fulltext"],
-            json!({"/result/items/0/sections/fulltext/reason": "bad_reply"}),
+            json!({"/result/items/0/sections/fulltext/reason": "bad-reply"}),
         )?;
     }
     Ok(())
@@ -127,7 +127,7 @@ fn markup() -> Check {
         "<p>&undefined;</p>",
         |_| {},
         &["get", "article", "28944238", "fulltext"],
-        json!({"/result/items/0/sections/fulltext/reason": "bad_reply"}),
+        json!({"/result/items/0/sections/fulltext/reason": "bad-reply"}),
     )?;
     let body = "<sec><title>Results</title><p><xref ref-type=\"table\" rid=\"T2 T1\">2, 1</xref></p><table-wrap \
         id=\"T1\"><label>Table 1</label></table-wrap><table-wrap id=\"T2\"><label>Table \

@@ -2,9 +2,7 @@ use crate::{HgncId, Text};
 use serde::{Deserialize, Serialize};
 use std::num::NonZeroU64;
 mod ids;
-pub use ids::{
-    PathwayId, PathwayIdInvalid, PathwayRef, ReactomeId, ReactomeIdInvalid, WikiPathwaysId,
-};
+pub use ids::{PathwayId, PathwayRef, ReactomeId, WikiPathwaysId};
 crate::wire_enum! {
     /// Source-stated human species; no species inference from a title.
     PathwaySpecies { #[doc = "Source states human species."] Human => "Homo sapiens" }

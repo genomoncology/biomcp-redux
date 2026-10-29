@@ -193,7 +193,7 @@ fn population_mismatch() -> Result<(), String> {
     let env = environment(&stub)?;
     for _ in 0..2 {
         let value = execute(&env, &["variant", "population", "CA123643", "--detail"])?;
-        if value.pointer("/result/population/reason") != Some(&json!("bad_reply"))
+        if value.pointer("/result/population/reason") != Some(&json!("bad-reply"))
             || value.pointer("/result/population/data").is_some()
         {
             return Err(format!("wrong source allele leaked observations: {value}"));
@@ -230,7 +230,7 @@ fn unjoinable() -> Result<(), String> {
     )?;
     let env = environment(&stub)?;
     let value = execute(&env, &["variant", "population", "CA123643", "--detail"])?;
-    if value.pointer("/result/population/reason") != Some(&json!("no_join_id"))
+    if value.pointer("/result/population/reason") != Some(&json!("no-join-id"))
         || value.pointer("/problems/0/field") != Some(&json!("GRCh38_allele"))
         || stub.finish()?.len() != 1
     {
@@ -373,7 +373,7 @@ fn chromosome_mismatch() -> Result<(), String> {
         .get("problems")
         .and_then(Value::as_array)
         .ok_or("missing problems")?;
-    if value.pointer("/result/population/reason") != Some(&json!("no_join_id"))
+    if value.pointer("/result/population/reason") != Some(&json!("no-join-id"))
         || !problems
             .iter()
             .any(|p| p.get("field") == Some(&json!("representations.chromosome")))

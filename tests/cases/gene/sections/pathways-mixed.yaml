@@ -3,6 +3,7 @@
   "feature": "gene-sections",
   "story": "Synthetic accession edits exercise mixed mapping outcomes",
   "replay": "gene/pathways/synthetic-mixed",
+  "cache_acquired": 42,
   "steps": [
     {
       "run": [

@@ -1,6 +1,7 @@
 # 0426 — Use typed errors everywhere
 
-Status: OPEN.
+Status: COMPLETE.
+Landed: 33ff671c8e67196ba4d753851968bfce74f8c2c6
 
 Milestone: 5
 

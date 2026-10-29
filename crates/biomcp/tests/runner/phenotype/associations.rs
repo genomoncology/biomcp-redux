@@ -394,7 +394,7 @@ fn timeout() -> Result<(), String> {
     let mut args = words.to_vec();
     args.extend(["--replay", directory.to_str().ok_or("record path")?]);
     let result = invoke("associations/timeout/invoke1", &env, &args, 4)?;
-    if result.pointer("/sources/0/reason") != Some(&json!("deadline_exceeded"))
+    if result.pointer("/sources/0/reason") != Some(&json!("deadline-exceeded"))
         || result.get("result").is_some()
         || result.pointer("/sources/0/terms") != Some(&json!("Monarch source-specific licensing"))
     {

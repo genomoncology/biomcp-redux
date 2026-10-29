@@ -4,6 +4,12 @@ use std::fmt;
 /// A rejected decoded reply; carries no provider text.
 #[derive(Clone, Copy, Debug)]
 pub struct BadReply;
+impl fmt::Display for BadReply {
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+        f.write_str("fetch.bad_reply")
+    }
+}
+impl std::error::Error for BadReply {}
 
 /// A typed source failure containing no request or provider text.
 #[derive(Clone, Copy, Debug, PartialEq, Eq)]
@@ -28,7 +34,6 @@ impl std::error::Error for SourceError {}
 
 /// Invalid explicit transport configuration, without retaining supplied text.
 #[derive(Clone, Copy, Debug)]
-#[non_exhaustive]
 pub enum FetchError {
     /// Streaming allocation limits must describe finite supported resources.
     StreamingLimits,
@@ -138,7 +143,7 @@ pub enum RecordError {
     /// The capture directory is nonempty or already owned.
     Conflict,
     /// Local recording I/O failed.
-    Io,
+    Io(std::io::ErrorKind),
     /// No file matches this source and request identity.
     Missing,
     /// Every exchange for this request was consumed.
@@ -154,7 +159,7 @@ impl fmt::Display for RecordError {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
         f.write_str(match self {
             Self::Conflict => "fetch.record_conflict",
-            Self::Io => "fetch.record_io",
+            Self::Io(_) => "fetch.record_io",
             Self::Missing => "fetch.record_missing",
             Self::Exhausted => "fetch.record_exhausted",
             Self::Malformed => "fetch.record_malformed",
@@ -173,6 +178,8 @@ impl From<RecordError> for RequestError {
 /// Input failures retain no caller text or serializer diagnostics.
 #[derive(Clone, Copy, Debug, PartialEq, Eq)]
 pub enum InputError {
+    /// A configured credential is not valid UTF-8.
+    CredentialEncoding,
     /// The request origin is absent from its source declaration.
     Host,
     /// A runtime endpoint path is not canonical or attempts to supply URL parts.
@@ -187,6 +194,7 @@ pub enum InputError {
 impl fmt::Display for InputError {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
         f.write_str(match self {
+            Self::CredentialEncoding => "fetch.input_credential_encoding",
             Self::Host => "fetch.input_host",
             Self::Path => "fetch.input_path",
             Self::Method => "fetch.input_method",
@@ -199,5 +207,11 @@ impl std::error::Error for InputError {}
 impl From<InputError> for RequestError {
     fn from(error: InputError) -> Self {
         Self::Input(error)
+    }
+}
+
+impl From<std::io::Error> for RecordError {
+    fn from(error: std::io::Error) -> Self {
+        Self::Io(error.kind())
     }
 }

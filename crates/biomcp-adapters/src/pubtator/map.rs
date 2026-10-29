@@ -58,7 +58,6 @@ fn order(kind: AnnotationKind) -> u8 {
         AnnotationKind::Variant => 1,
         AnnotationKind::Disease => 2,
         AnnotationKind::Chemical => 3,
-        _ => u8::MAX,
     }
 }
 
@@ -131,7 +130,6 @@ fn entity(
             }
         }
         AnnotationKind::Disease | AnnotationKind::Chemical => value.mesh = identifier.clone(),
-        _ => return None,
     }
     let checked_identifier = match kind {
         AnnotationKind::Gene => value.entrez_id.map(|id| id.to_string()),

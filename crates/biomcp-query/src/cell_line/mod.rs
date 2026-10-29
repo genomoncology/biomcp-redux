@@ -49,7 +49,10 @@ pub fn search(cx: &Ctx<'_>, query: &CellLineSearch) -> Outcome {
         out.body = QueryBody::CellLinePage(CellLinePage {
             items: page.items.into(),
             release: None,
-            fetched: u64::try_from(page.metadata.fetched).ok(),
+            fetched: page
+                .metadata
+                .fetched
+                .and_then(|value| u64::try_from(value).ok()),
         });
         provenance::attach(cx, deadline, &mut out);
     }

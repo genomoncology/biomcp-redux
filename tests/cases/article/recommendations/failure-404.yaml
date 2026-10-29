@@ -13,7 +13,7 @@
       "exit": 4,
       "expect": {
         "/status": "failed",
-        "/sources/0/reason": "not_found"
+        "/sources/0/reason": "not-found"
       }
     },
     {

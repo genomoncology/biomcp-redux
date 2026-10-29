@@ -149,7 +149,7 @@ fn policies(env: &Environment, get: &[&str], dir: &Path) -> Check {
         .map_err(|e| e.to_string())?;
     let out: Value = serde_json::from_slice(&output.stdout).map_err(|e| e.to_string())?;
     if output.status.code() != Some(4)
-        || out.pointer("/sources/0/reason") != Some(&json!("no_key"))
+        || out.pointer("/sources/0/reason") != Some(&json!("no-key"))
         || out.pointer("/result/items/0/card").is_some()
     {
         return Err("missing NCI key restored a recording".into());
@@ -167,12 +167,12 @@ fn failures(env: &Environment, search: &[&str], dir: &Path) -> Check {
         .map_err(|e| e.to_string())?;
     for (kind, reason) in [
         (401, "rejected"),
-        (429, "rate_limited"),
+        (429, "rate-limited"),
         (500, "unavailable"),
-        (0, "bad_reply"),
-        (1, "deadline_exceeded"),
-        (2, "bad_reply"),
-        (3, "bad_reply"),
+        (0, "bad-reply"),
+        (1, "deadline-exceeded"),
+        (2, "bad-reply"),
+        (3, "bad-reply"),
     ] {
         let target = env.root().join(format!("failure-{kind}"));
         fs::create_dir_all(target.join("nci")).map_err(|e| e.to_string())?;

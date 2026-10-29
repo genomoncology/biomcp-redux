@@ -20,7 +20,7 @@
       "expect": {
         "/status": "failed",
         "/sources/0/source": "semantic-scholar",
-        "/sources/0/reason": "bad_reply",
+        "/sources/0/reason": "bad-reply",
         "/sources/0/use": "noncommercial"
       },
       "max_bytes": 624,

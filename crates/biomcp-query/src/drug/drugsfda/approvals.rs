@@ -9,7 +9,7 @@ pub(super) fn select(
     cx: &Ctx<'_>,
     query: &DrugGet,
     row: &source::Application,
-    fetched: i64,
+    fetched: Option<i64>,
     updated: Option<biodata::PartialDate>,
     out: &mut Outcome,
 ) -> Result<(), RequestError> {

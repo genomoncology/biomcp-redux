@@ -57,7 +57,7 @@ fn check(source: &'static str, file: &str, pointer: &str, host: &'static str) ->
         .map(str::to_owned)
         .to_vec();
     let failed = invoke(&env, args.clone(), 4)?;
-    if failed.pointer("/sources/0/reason") != Some(&json!("bad_reply"))
+    if failed.pointer("/sources/0/reason") != Some(&json!("bad-reply"))
         || failed.get("result").is_some()
     {
         return Err("mismatched native identity was accepted".into());

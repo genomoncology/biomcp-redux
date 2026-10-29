@@ -11,7 +11,7 @@ pub(super) fn run() -> Check {
     let env = environment(&stub)?;
     let value = both(&env, args(), 4)?;
     if value.get("result").is_some()
-        || value.pointer("/sources/0/reason") != Some(&json!("bad_reply"))
+        || value.pointer("/sources/0/reason") != Some(&json!("bad-reply"))
     {
         return Err("HTTP 200 error body became report absence".into());
     }

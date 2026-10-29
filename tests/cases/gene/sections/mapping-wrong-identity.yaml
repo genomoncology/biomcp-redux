@@ -3,6 +3,7 @@
   "feature": "gene-sections",
   "story": "Source wrong-identity preserves the gene and reports rejected fields on replay and offline",
   "replay": "gene/constraint/synthetic-wrong-identity",
+  "cache_acquired": 42,
   "steps": [
     {
       "run": [
@@ -17,7 +18,7 @@
         "/result/items/0/answer/gene/summary/source": "refseq",
         "/problems/0/field": "gene_id",
         "/result/items/0/sections/constraint/state": "unavailable",
-        "/result/items/0/sections/constraint/reason": "bad_reply"
+        "/result/items/0/sections/constraint/reason": "bad-reply"
       },
       "max_bytes": 3600
     },
@@ -35,7 +36,7 @@
         "/result/items/0/answer/gene/summary/source": "refseq",
         "/problems/0/field": "gene_id",
         "/result/items/0/sections/constraint/state": "unavailable",
-        "/result/items/0/sections/constraint/reason": "bad_reply"
+        "/result/items/0/sections/constraint/reason": "bad-reply"
       },
       "max_bytes": 3600
     }

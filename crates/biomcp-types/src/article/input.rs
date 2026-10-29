@@ -53,7 +53,7 @@ text_value!(
 );
 biodata::canonical_enum! {
     /// Identifier used to resolve this article.
-    ArticleMatchKind, SourceUnknown {
+    ArticleMatchKind, ArticleMatchKindUnknown {
         /// PubMed identifier.
         Pmid => "pmid",
         /// PMC identifier.
@@ -61,7 +61,7 @@ biodata::canonical_enum! {
         /// Digital object identifier.
         Doi => "doi",
         /// Europe PMC preprint identifier.
-        EuropePmcId => "europepmc_id",
+        EuropePmcId => "europepmc-id",
     }
 }
 impl ArticleInput {

@@ -15,7 +15,7 @@
         "/status": "failed",
         "/sources/1/state": "failed",
         "/result/content/state": "unavailable",
-        "/result/content/reason": "rate_limited"
+        "/result/content/reason": "rate-limited"
       }
     },
     {

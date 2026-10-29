@@ -64,7 +64,6 @@ pub fn resolve(leg: &Leg<'_>, input: &GeneInput) -> Result<Mapped<GeneResolution
                 )?;
             }
         }
-        _ => {}
     }
     let value = if candidates.is_empty() {
         let withdrawn = hgnc::withdrawn(leg, input)?;

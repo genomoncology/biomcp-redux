@@ -19,7 +19,7 @@
           "constraint",
           "all"
         ],
-        "/result/items/0/answer/resolution": "not_found"
+        "/result/items/0/answer/resolution": "not-found"
       },
       "max_bytes": 3600,
       "mcp": [
@@ -90,8 +90,8 @@
           "constraint",
           "all"
         ],
-        "/result/items/1/answer/resolution": "not_found",
-        "/result/items/0/answer/resolution": "not_found"
+        "/result/items/1/answer/resolution": "not-found",
+        "/result/items/0/answer/resolution": "not-found"
       },
       "mcp": [
         "get",
@@ -123,7 +123,7 @@
         "/query/section": [
           "all"
         ],
-        "/result/items/0/answer/resolution": "not_found"
+        "/result/items/0/answer/resolution": "not-found"
       },
       "mcp": [
         "get",

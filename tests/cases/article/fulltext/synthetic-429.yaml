@@ -16,7 +16,7 @@
         "/result/items/0/answer/resolution": "resolved",
         "/result/items/0/answer/card/pmid": "28944238",
         "/result/items/0/sections/fulltext/state": "unavailable",
-        "/result/items/0/sections/fulltext/reason": "rate_limited"
+        "/result/items/0/sections/fulltext/reason": "rate-limited"
       }
     },
     {
@@ -45,7 +45,7 @@
       "expect": {
         "/status": "failed",
         "/result/content/state": "unavailable",
-        "/result/content/reason": "rate_limited",
+        "/result/content/reason": "rate-limited",
         "/next/0/kind": "fresh"
       }
     }

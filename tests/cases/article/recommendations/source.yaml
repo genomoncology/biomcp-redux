@@ -18,7 +18,7 @@
       "expect": {
         "/status": "complete",
         "/page/total": 0,
-        "/result/notice": "no_recommendations"
+        "/result/notice": "no-recommendations"
       },
       "max_bytes": 600
     },

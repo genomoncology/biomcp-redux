@@ -319,7 +319,7 @@ fn boundaries() -> Check {
             let result = command(&env, &replay, &save_args(&target), 4)?;
             assert_eq!(
                 result.pointer("/result/file/reason"),
-                Some(&json!("bad_reply")),
+                Some(&json!("bad-reply")),
                 "PDF admission must reject oversized or cut replies"
             );
         }

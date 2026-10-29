@@ -21,7 +21,7 @@
       "max_bytes": 1134,
       "expect": {
         "/status": "complete",
-        "/result/kind": "pma_submission",
+        "/result/kind": "pma-submission",
         "/result/header/supplement_number": "",
         "/result/sections": [
           "regulatory",

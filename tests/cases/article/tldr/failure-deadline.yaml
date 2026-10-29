@@ -13,7 +13,7 @@
       "expect": {
         "/status": "partial",
         "/result/items/0/answer/card/pmid": "33123537",
-        "/result/items/0/sections/tldr/reason": "deadline_exceeded"
+        "/result/items/0/sections/tldr/reason": "deadline-exceeded"
       },
       "exit": 0
     },

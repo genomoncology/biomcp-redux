@@ -51,7 +51,7 @@ pub(super) fn run() -> Check {
             != Some(&json!(if fault == "status" {
                 "rejected"
             } else {
-                "bad_reply"
+                "bad-reply"
             }))
         {
             return Err(format!(

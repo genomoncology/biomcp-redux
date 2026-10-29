@@ -82,7 +82,7 @@ fn wire() -> Result<(), String> {
     invoke(&env, &missing_tumor, 2)?;
     let skipped = invoke(&env, &args(), 0)?;
     if skipped.pointer(&format!("{SECTION}/state")) != Some(&json!("skipped"))
-        || skipped.pointer(&format!("{SECTION}/reason")) != Some(&json!("no_key"))
+        || skipped.pointer(&format!("{SECTION}/reason")) != Some(&json!("no-key"))
         || !skipped
             .get("next")
             .and_then(Value::as_array)
@@ -165,7 +165,7 @@ fn content(data: &Value) -> Result<(), String> {
         .ok_or("oncogenicity missing")?;
     if oncogenic.pointer("/statement/subject")
         != Some(&json!({"level":"protein","gene":{"label":"BRAF"},"label":"V600E"}))
-        || oncogenic.pointer("/statement/classification/coding/system")
+        || oncogenic.pointer("/statement/classification/codings/0/system")
             != Some(&json!("oncokb_oncogenicity"))
     {
         return Err("source protein subject or own framework changed".into());
@@ -175,7 +175,9 @@ fn content(data: &Value) -> Result<(), String> {
         .find(|r| r.pointer("/statement/proposition") == Some(&json!("functional_impact")))
         .ok_or("effect missing")?;
     if effect.pointer("/statement/direction").is_some()
-        || effect.pointer("/statement/classification/coding").is_some()
+        || effect
+            .pointer("/statement/classification/codings")
+            .is_some()
         || effect.pointer("/statement/citations") != Some(&json!(["17611497"]))
     {
         return Err("functional Neutral gained direction/coding or lost citations".into());
@@ -226,7 +228,7 @@ fn replay_proof(env: &Environment, dir: &Path) -> Result<(), String> {
     }
     env.config(&json!({})).map_err(|e| e.to_string())?;
     let missing = invoke(env, &replay_args(dir), 0)?;
-    if missing.pointer(&format!("{SECTION}/reason")) != Some(&json!("no_key")) {
+    if missing.pointer(&format!("{SECTION}/reason")) != Some(&json!("no-key")) {
         return Err("missing key restored annotation replay".into());
     }
     Ok(())
@@ -246,15 +248,15 @@ fn failures(env: &Environment, dir: &Path) -> Result<(), String> {
         .map_err(|e| e.to_string())?;
     for (kind, reason) in [
         (401, "rejected"),
-        (429, "rate_limited"),
+        (429, "rate-limited"),
         (500, "unavailable"),
-        (0, "bad_reply"),
-        (1, "deadline_exceeded"),
-        (2, "bad_reply"),
-        (3, "bad_reply"),
-        (4, "bad_reply"),
-        (5, "bad_reply"),
-        (6, "bad_reply"),
+        (0, "bad-reply"),
+        (1, "deadline-exceeded"),
+        (2, "bad-reply"),
+        (3, "bad-reply"),
+        (4, "bad-reply"),
+        (5, "bad-reply"),
+        (6, "bad-reply"),
     ] {
         let target = env.root().join(format!("failure-{kind}"));
         fs::create_dir_all(target.join("oncokb")).map_err(|e| e.to_string())?;

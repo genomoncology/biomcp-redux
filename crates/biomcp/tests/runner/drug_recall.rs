@@ -78,7 +78,7 @@ fn search() -> Result<(), String> {
         let tool = mcp::call_with_globals(&env, &command, false, &[])?;
         if cli != tool
             || cli.pointer("/result/items/0/recall_number") != Some(&json!("D-0001-2024"))
-            || cli.pointer("/result/count_unit") != Some(&json!("recall_records"))
+            || cli.pointer("/result/count_unit") != Some(&json!("recall-records"))
             || cli.pointer("/page/total") != Some(&json!(2))
             || cli.to_string().contains("Harmonized")
         {

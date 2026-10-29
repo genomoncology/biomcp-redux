@@ -89,16 +89,16 @@ fn source_names_round_trip_and_reject_unknown_names() -> Check {
 fn reason_names_round_trip_and_reject_unknown_names() -> Check {
     canonical_names(
         &[
-            (Reason::NotFound, "not_found"),
-            (Reason::RateLimited, "rate_limited"),
+            (Reason::NotFound, "not-found"),
+            (Reason::RateLimited, "rate-limited"),
             (Reason::Unavailable, "unavailable"),
             (Reason::Rejected, "rejected"),
-            (Reason::BadReply, "bad_reply"),
-            (Reason::DeadlineExceeded, "deadline_exceeded"),
+            (Reason::BadReply, "bad-reply"),
+            (Reason::DeadlineExceeded, "deadline-exceeded"),
             (Reason::Offline, "offline"),
-            (Reason::NoKey, "no_key"),
+            (Reason::NoKey, "no-key"),
             (Reason::Disabled, "disabled"),
-            (Reason::ReplayMiss, "replay_miss"),
+            (Reason::ReplayMiss, "replay-miss"),
             (Reason::Syncing, "syncing"),
         ],
         Error::ReasonUnknown,
@@ -335,4 +335,48 @@ fn biomarker_replies_ignore_future_fields_while_queries_stay_closed() -> Check {
         "unknown get inputs must remain rejected"
     );
     Ok(())
+}
+
+#[test]
+fn unknown_wire_enum_value_is_private() {
+    for input in [
+        json!("synthetic-private-enum-value"),
+        json!(987654321),
+        json!(-987654321),
+        json!(12345.6789),
+        json!(true),
+        json!(null),
+        json!(["synthetic-private-enum-value"]),
+        json!({"private": "synthetic-private-enum-value"}),
+    ] {
+        let error = serde_json::from_value::<biodata::TrialSiteStatus>(input)
+            .expect_err("unknown enum value must be refused");
+        assert_eq!(
+            error.to_string(),
+            "wire_enum.unknown",
+            "decode errors must omit input"
+        );
+    }
+}
+
+#[test]
+fn unrelated_value_failures_have_distinct_codes() {
+    assert_ne!(
+        "future-license"
+            .parse::<biodata::License>()
+            .unwrap_err()
+            .to_string(),
+        "source.unknown"
+    );
+    assert_ne!(
+        "future-match"
+            .parse::<biomcp_types::ArticleMatchKind>()
+            .unwrap_err()
+            .to_string(),
+        "source.unknown"
+    );
+    assert_ne!(
+        biodata::Bound::new(None, None).unwrap_err().to_string(),
+        "coord.span.order"
+    );
 }

@@ -55,7 +55,7 @@ fn missing_studies() -> Check {
                 }
             },
             json!([
-                {"run":args,"exit":4,"expect":{"/status":"failed","/sources/0/reason":"bad_reply"}},
+                {"run":args,"exit":4,"expect":{"/status":"failed","/sources/0/reason":"bad-reply"}},
                 {"run":args,"offline":true,"exit":4,"expect":{"/status":"failed","/sources/0/reason":"offline"}}
             ]),
         )?;
@@ -92,9 +92,9 @@ fn sequential_budget(version_timeout: bool) -> Check {
             });
         },
         if version_timeout {
-            json!({"/status":"partial","/result/items":{"count":10},"/page/total":354,"/sources/1/reason":"deadline_exceeded"})
+            json!({"/status":"partial","/result/items":{"count":10},"/page/total":354,"/sources/1/reason":"deadline-exceeded"})
         } else {
-            json!({"/status":"failed","/sources/0/state":"ok","/sources/1/reason":"deadline_exceeded"})
+            json!({"/status":"failed","/sources/0/state":"ok","/sources/1/reason":"deadline-exceeded"})
         },
         if version_timeout { 0 } else { 4 },
     )?;
@@ -103,11 +103,11 @@ fn sequential_budget(version_timeout: bool) -> Check {
 fn failures() -> Check {
     let args = ["search", "trial", "--condition", "melanoma"];
     for (kind, reason) in [
-        ("429", "rate_limited"),
+        ("429", "rate-limited"),
         ("500", "unavailable"),
-        ("cut", "bad_reply"),
-        ("error", "bad_reply"),
-        ("deadline", "deadline_exceeded"),
+        ("cut", "bad-reply"),
+        ("error", "bad-reply"),
+        ("deadline", "deadline-exceeded"),
     ] {
         let output = checked_steps(
             "trial/condition",
@@ -229,10 +229,10 @@ fn count_failure() -> Check {
 
 fn timestamp() -> Check {
     for (native, timezone) in [
-        ("2026-10-23T09:00:04", "source_gave_none"),
-        ("2026-10-23T09:00:04Z", "in_value"),
-        ("2026-10-23T09:00:04+03:00", "in_value"),
-        ("2026-10-23T09:00:04-04:00", "in_value"),
+        ("2026-10-23T09:00:04", "source-gave-none"),
+        ("2026-10-23T09:00:04Z", "in-value"),
+        ("2026-10-23T09:00:04+03:00", "in-value"),
+        ("2026-10-23T09:00:04-04:00", "in-value"),
     ] {
         let output = checked_case(
             "trial/condition",

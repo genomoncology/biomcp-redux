@@ -77,7 +77,7 @@ pub fn get(cx: &Ctx<'_>, query: &ArticleGet) -> Outcome {
     command.finish(deadline.remaining());
     out
 }
-pub(super) type Record = (pubmed::FetchedArticle, i64);
+pub(super) type Record = (pubmed::FetchedArticle, Option<i64>);
 type Failure = (Pmid, RequestError);
 fn fetch(leg: &Leg<'_>, ids: &[Pmid], cx: &Ctx<'_>) -> (Vec<Record>, Vec<Failure>) {
     let chunks: Vec<_> = ids.chunks(200).collect();
@@ -150,7 +150,7 @@ fn append(
                 Some(ArticleResolution::Resolved {
                     card: card.article.clone().card(),
                     r#match: ArticleMatch { kind: input.kind() },
-                    fetched: u64::try_from(*fetched).unwrap_or_default(),
+                    fetched: fetched.and_then(|value| u64::try_from(value).ok()),
                 }),
             ));
         }

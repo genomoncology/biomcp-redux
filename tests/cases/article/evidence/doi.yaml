@@ -20,7 +20,7 @@
       "expect": {
         "/status": "complete",
         "/result/semantic_scholar/data/contexts/total": 0,
-        "/result/semantic_scholar/data/notice": "no_contexts"
+        "/result/semantic_scholar/data/notice": "no-contexts"
       },
       "max_bytes": 1200
     }

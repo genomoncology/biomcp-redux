@@ -186,7 +186,7 @@ def throttled_output(command):
                  if request.get('status') == 429}
     return (before.get('status') in ('complete', 'partial')
             and after.get('status') in ('partial', 'failed') and bool(failed)
-            and all(source.get('reason') == 'rate_limited'
+            and all(source.get('reason') == 'rate-limited'
                     and source.get('source') in throttled for source in failed))
 
 

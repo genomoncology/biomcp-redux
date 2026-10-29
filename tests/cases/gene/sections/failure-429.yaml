@@ -3,6 +3,7 @@
   "feature": "gene-sections",
   "story": "A gnomAD 429 failure preserves identity and MyGene but never caches the rejected section",
   "replay": "gene/constraint/synthetic-429",
+  "cache_acquired": 42,
   "steps": [
     {
       "run": [
@@ -16,7 +17,7 @@
         "/result/items/0/answer/gene/hgnc_id": "HGNC:11998",
         "/result/items/0/answer/gene/summary/source": "refseq",
         "/result/items/0/sections/constraint/state": "unavailable",
-        "/result/items/0/sections/constraint/reason": "rate_limited",
+        "/result/items/0/sections/constraint/reason": "rate-limited",
         "/sources/*/source": {
           "includes": "mygene"
         },

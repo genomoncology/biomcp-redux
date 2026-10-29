@@ -1,6 +1,6 @@
 crate::canonical_enum! {
     /// License reported by the bucket metadata record.
-    License, SourceUnknown {
+    License, LicenseUnknown {
         /// Creative Commons Attribution.
         CcBy => "cc_by",
         /// Creative Commons Attribution NonCommercial.

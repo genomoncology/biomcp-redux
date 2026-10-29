@@ -64,7 +64,7 @@ fn stale() -> Result<(), String> {
     let stale = invoke(&env, args.clone(), 0)?;
     if stale.get("status") != Some(&json!("partial"))
         || stale.pointer("/sources/0/state") != Some(&json!("stale"))
-        || stale.pointer("/sources/0/reason") != Some(&json!("bad_reply"))
+        || stale.pointer("/sources/0/reason") != Some(&json!("bad-reply"))
         || stale.get("result") != original.get("result")
         || stale.pointer("/problems/0/field") != Some(&json!("record"))
         || stale.pointer("/problems/0/source") != Some(&json!("openfda-label"))
@@ -137,7 +137,7 @@ fn check(fault: &'static str) -> Result<(), String> {
     let args = words.into_iter().map(str::to_owned).collect::<Vec<_>>();
     let bad = invoke(&env, args.clone(), 4)?;
     if bad.get("result").is_some()
-        || bad.pointer("/sources/0/reason") != Some(&json!("bad_reply"))
+        || bad.pointer("/sources/0/reason") != Some(&json!("bad-reply"))
         || bad
             .get("next")
             .is_some_and(|v| v.as_array().is_none_or(|a| !a.is_empty()))

@@ -133,7 +133,7 @@
     },
     "Reply_Curie": {
       "description": "Checked prefix:local ontology identifier.",
-      "pattern": "^[A-Za-z0-9_.-]+:[^\\x09-\\x0d\\x20\\x85\\xa0\\u1680\\u2000-\\u200a\\u2028\\u2029\\u202f\\u205f\\u3000\\x00-\\x1f\\x7f-\\x9f]+$",
+      "pattern": "^[A-Za-z0-9_.-]+:[^:/\\x09-\\x0d\\x20\\x85\\xa0\\u1680\\u2000-\\u200a\\u2028\\u2029\\u202f\\u205f\\u3000\\x00-\\x1f\\x7f-\\x9f][^:\\x09-\\x0d\\x20\\x85\\xa0\\u1680\\u2000-\\u200a\\u2028\\u2029\\u202f\\u205f\\u3000\\x00-\\x1f\\x7f-\\x9f]*$",
       "type": "string"
     },
     "Reply_DiseaseConcept": {
@@ -665,25 +665,25 @@
         " Identity lacks the identifier required to join this source."
       ],
       "x-extensible-enum": [
-        "not_found",
-        "not_open",
-        "not_pdf",
+        "not-found",
+        "not-open",
+        "not-pdf",
         "unsupported",
-        "too_large",
-        "rate_limited",
-        "local_quota",
+        "too-large",
+        "rate-limited",
+        "local-quota",
         "unavailable",
         "tls",
         "proxy",
         "rejected",
-        "bad_reply",
-        "deadline_exceeded",
+        "bad-reply",
+        "deadline-exceeded",
         "offline",
-        "no_key",
+        "no-key",
         "disabled",
-        "replay_miss",
+        "replay-miss",
         "syncing",
-        "no_join_id"
+        "no-join-id"
       ]
     },
     "Reply_Source": {
@@ -847,7 +847,7 @@
           "description": "Local request limits and source-specific recovery guidance.",
           "properties": {
             "kind": {
-              "const": "request_guidance",
+              "const": "request-guidance",
               "type": "string"
             },
             "message": {
@@ -874,7 +874,7 @@
           "description": "Registered conditions lack the literal words requested in a condition search.",
           "properties": {
             "kind": {
-              "const": "condition_word_mismatch",
+              "const": "condition-word-mismatch",
               "type": "string"
             },
             "message": {
@@ -892,7 +892,7 @@
           "description": "A checked provider answer survived a local cache failure.",
           "properties": {
             "kind": {
-              "const": "cache_problem",
+              "const": "cache-problem",
               "type": "string"
             },
             "reason": {
@@ -914,7 +914,7 @@
               "description": "Default-source command offering another graph view."
             },
             "kind": {
-              "const": "graph_truncated",
+              "const": "graph-truncated",
               "type": "string"
             }
           },
@@ -928,7 +928,7 @@
           "description": "An empty LitVar lookup can be repeated with a caller-supplied rsID.",
           "properties": {
             "kind": {
-              "const": "litvar_rsid_hint",
+              "const": "litvar-rsid-hint",
               "type": "string"
             },
             "message": {
@@ -946,7 +946,7 @@
           "description": "PubMed supplied a named ESearch warning without changing its phrases.",
           "properties": {
             "kind": {
-              "const": "pubmed_warning",
+              "const": "pubmed-warning",
               "type": "string"
             },
             "name": {
@@ -971,7 +971,7 @@
           "description": "PubMed did not index these words.",
           "properties": {
             "kind": {
-              "const": "not_found_words",
+              "const": "not-found-words",
               "type": "string"
             },
             "words": {
@@ -1562,7 +1562,7 @@
       "type": "string"
     }
   },
-  "$id": "biomcp.nci-trial-page/6",
+  "$id": "biomcp.nci-trial-page/7",
   "$schema": "https://json-schema.org/draft/2020-12/schema",
   "description": "One versioned command response; schema identity comes only from its body type.\nJSON readers ignore unknown fields and unknown growable enum values within a major.",
   "properties": {
@@ -1618,7 +1618,7 @@
       "description": "Answer when available."
     },
     "schema": {
-      "const": "biomcp.nci-trial-page/6",
+      "const": "biomcp.nci-trial-page/7",
       "type": "string"
     },
     "sources": {

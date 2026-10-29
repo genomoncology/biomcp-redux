@@ -3,6 +3,7 @@
   "feature": "gene-sections",
   "story": "A UniProt deadline failure preserves identity and MyGene but never caches the rejected section",
   "replay": "gene/protein/synthetic-deadline",
+  "cache_acquired": 42,
   "steps": [
     {
       "run": [
@@ -16,7 +17,7 @@
         "/result/items/0/answer/gene/hgnc_id": "HGNC:1787",
         "/result/items/0/answer/gene/summary/source": "refseq",
         "/result/items/0/sections/protein/state": "unavailable",
-        "/result/items/0/sections/protein/reason": "deadline_exceeded",
+        "/result/items/0/sections/protein/reason": "deadline-exceeded",
         "/sources/*/source": {
           "includes": "mygene"
         },

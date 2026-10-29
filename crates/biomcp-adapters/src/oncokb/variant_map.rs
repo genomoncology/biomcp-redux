@@ -1,4 +1,5 @@
 //! Only the reviewed source label and subject mappings occur here.
+use super::narrative::push as narrative;
 use super::variant::{Annotation, Query, TumorType};
 use crate::Mapped;
 use crate::mapped::push_problem;
@@ -6,9 +7,7 @@ use biodata::{
     Attribution, Coding, Concept, OncokbLevelCode, OncokbOncogenicityCode, Proposition, Statement,
     Term, Text, VariantRef,
 };
-
 use biomcp_types::{OncokbVariantRecord as Record, Problem, Source};
-
 /// Project native fields without attaching grouped implications to the queried allele.
 pub fn records(row: &Annotation) -> Mapped<Vec<Record>> {
     let mut out = Mapped {
@@ -34,7 +33,10 @@ pub fn records(row: &Annotation) -> Mapped<Vec<Record>> {
                 &mut out.value,
                 row,
                 "oncogenic",
-                Term { label, coding },
+                Term {
+                    label,
+                    codings: coding.into_iter().collect(),
+                },
                 Proposition::Oncogenicity,
                 Vec::new(),
             );
@@ -54,7 +56,7 @@ pub fn records(row: &Annotation) -> Mapped<Vec<Record>> {
                     "mutationEffect.knownEffect",
                     Term {
                         label,
-                        coding: None,
+                        codings: Box::default(),
                     },
                     Proposition::FunctionalImpact,
                     citations,
@@ -79,15 +81,7 @@ pub fn records(row: &Annotation) -> Mapped<Vec<Record>> {
             effect.description.as_deref(),
         );
     }
-    for (field, value) in [
-        ("geneSummary", row.gene_summary.as_deref()),
-        ("variantSummary", row.variant_summary.as_deref()),
-        ("tumorTypeSummary", row.tumor_type_summary.as_deref()),
-        ("diagnosticSummary", row.diagnostic_summary.as_deref()),
-        ("prognosticSummary", row.prognostic_summary.as_deref()),
-    ] {
-        narrative(&mut out.value, field, value);
-    }
+    super::narrative::annotation(row, &mut out.value);
     implications(row, &mut out);
     out
 }
@@ -130,7 +124,7 @@ fn implications(row: &Annotation, out: &mut Mapped<Vec<Record>>) {
                 .and_then(|s| Text::new(s).ok())
                 .map(|label| Term {
                     label,
-                    coding: None,
+                    codings: Box::default(),
                 }),
         });
     }
@@ -264,25 +258,9 @@ fn level(value: &Text, problems: &mut Vec<Problem>) -> Term {
     };
     Term {
         label: value.clone(),
-        coding: code.map(Coding::OncokbLevel),
+        codings: code.map(Coding::OncokbLevel).into_iter().collect(),
     }
 }
-fn narrative(out: &mut Vec<Record>, field: &str, value: Option<&str>) {
-    let Some(value) = value else {
-        return;
-    };
-    let total = value.chars().count() as u32;
-    let chars = value.chars().collect::<Vec<_>>();
-    for (index, chunk) in chars.chunks(1000).enumerate() {
-        out.push(Record::Text {
-            field: field.into(),
-            offset: (index * 1000) as u32,
-            total,
-            text: chunk.iter().collect::<String>().into(),
-        });
-    }
-}
-
 fn abstracts(rows: &[super::variant::Abstract]) -> Box<[biomcp_types::OncokbCitation]> {
     rows.iter()
         .map(|row| biomcp_types::OncokbCitation {
