@@ -28,11 +28,14 @@ fn gene(row: raw::Gene, f: &mut Fields) -> Option<Gene> {
         "symbol",
         GeneSymbol::new(raw::cell(row.symbol.as_deref())).ok(),
     );
-    let name = row
-        .name
-        .as_deref()
-        .filter(|v| !v.is_empty())
-        .and_then(|name| f.required("name", Text::from_source(name).ok()));
+    let name = if raw::cell(row.name.as_deref()).is_empty() {
+        None
+    } else {
+        f.required(
+            "name",
+            Text::from_source(raw::cell(row.name.as_deref())).ok(),
+        )
+    };
     let locus_group = row
         .locus_group
         .as_deref()
