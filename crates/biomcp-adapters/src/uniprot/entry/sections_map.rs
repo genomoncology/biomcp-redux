@@ -65,7 +65,7 @@ pub(super) fn features(
                     span,
                     kind: Term {
                         label: r.kind,
-                        coding: None,
+                        codings: Box::default(),
                     },
                     description: r.description.and_then(|v| Text::new(&v).ok()),
                     id: r.feature_id.and_then(|v| Text::new(&v).ok()),

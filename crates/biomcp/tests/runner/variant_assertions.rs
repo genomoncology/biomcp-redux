@@ -448,7 +448,7 @@ fn native_row(value: &Value, offset: u32) -> Result<Value, String> {
     if offset == 2
         && (row.pointer("/statement/classification/label") != Some(&json!("pathogenic"))
             || row.pointer("/statement/proposition") != Some(&json!("pathogenicity"))
-            || row.pointer("/statement/classification/coding").is_some())
+            || row.pointer("/statement/classification/codings").is_some())
     {
         return Err(format!(
             "native casing changed label or inferred framework: {value}"

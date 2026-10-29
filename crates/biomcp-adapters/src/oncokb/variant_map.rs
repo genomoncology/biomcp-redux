@@ -16,25 +16,16 @@ pub fn records(row: &Annotation) -> Mapped<Vec<Record>> {
         problems: Vec::new(),
     };
     if let Some(label) = &row.oncogenic {
-        let coding = match label.as_str() {
-            "Oncogenic" => Some(OncokbOncogenicityCode::Oncogenic),
-            "Likely Oncogenic" => Some(OncokbOncogenicityCode::LikelyOncogenic),
-            "Likely Neutral" => Some(OncokbOncogenicityCode::LikelyNeutral),
-            "Inconclusive" => Some(OncokbOncogenicityCode::Inconclusive),
-            "Resistance" => Some(OncokbOncogenicityCode::Resistance),
-            "Unknown" => Some(OncokbOncogenicityCode::Unknown),
-            _ => {
-                push_problem(&mut out.problems, Source::Oncokb, None, "oncogenic");
-                None
-            }
-        }
-        .map(Coding::OncokbOncogenicity);
+        let coding = oncogenicity(label, &mut out.problems);
         if let Ok(label) = Text::new(label) {
             classification(
                 &mut out.value,
                 row,
                 "oncogenic",
-                Term { label, coding },
+                Term {
+                    label,
+                    codings: coding.into_iter().collect(),
+                },
                 Proposition::Oncogenicity,
                 Vec::new(),
             );
@@ -54,7 +45,7 @@ pub fn records(row: &Annotation) -> Mapped<Vec<Record>> {
                     "mutationEffect.knownEffect",
                     Term {
                         label,
-                        coding: None,
+                        codings: Box::default(),
                     },
                     Proposition::FunctionalImpact,
                     citations,
@@ -90,6 +81,21 @@ pub fn records(row: &Annotation) -> Mapped<Vec<Record>> {
     }
     implications(row, &mut out);
     out
+}
+fn oncogenicity(label: &str, problems: &mut Vec<Problem>) -> Option<Coding> {
+    let code = match label {
+        "Oncogenic" => Some(OncokbOncogenicityCode::Oncogenic),
+        "Likely Oncogenic" => Some(OncokbOncogenicityCode::LikelyOncogenic),
+        "Likely Neutral" => Some(OncokbOncogenicityCode::LikelyNeutral),
+        "Inconclusive" => Some(OncokbOncogenicityCode::Inconclusive),
+        "Resistance" => Some(OncokbOncogenicityCode::Resistance),
+        "Unknown" => Some(OncokbOncogenicityCode::Unknown),
+        _ => {
+            push_problem(problems, Source::Oncokb, None, "oncogenic");
+            None
+        }
+    };
+    code.map(Coding::OncokbOncogenicity)
 }
 fn implications(row: &Annotation, out: &mut Mapped<Vec<Record>>) {
     for r in values(row.treatments.as_deref()) {
@@ -130,7 +136,7 @@ fn implications(row: &Annotation, out: &mut Mapped<Vec<Record>>) {
                 .and_then(|s| Text::new(s).ok())
                 .map(|label| Term {
                     label,
-                    coding: None,
+                    codings: Box::default(),
                 }),
         });
     }
@@ -264,7 +270,7 @@ fn level(value: &Text, problems: &mut Vec<Problem>) -> Term {
     };
     Term {
         label: value.clone(),
-        coding: code.map(Coding::OncokbLevel),
+        codings: code.map(Coding::OncokbLevel).into_iter().collect(),
     }
 }
 fn narrative(out: &mut Vec<Record>, field: &str, value: Option<&str>) {
