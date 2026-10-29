@@ -2,8 +2,12 @@ use crate::{GeneRef, HgvsText, Text, VariantId};
 use serde::{Deserialize, Serialize};
 use std::{fmt, str::FromStr};
 /// Checked prefix:local ontology identifier.
-#[derive(Clone, Debug, PartialEq, Eq)]
+#[derive(Clone, Debug, PartialEq, Eq, Hash)]
 pub struct Curie(Box<str>);
+impl Curie {
+    /// Borrow the unchanged source identifier.
+    pub fn as_str(&self) -> &str { &self.0 }
+}
 impl FromStr for Curie {
     type Err = crate::Error;
     fn from_str(value: &str) -> Result<Self, Self::Err> {
@@ -78,6 +82,35 @@ impl TryFrom<Fields> for VariantRef {
     }
 }
 impl VariantRef {
+    /// Borrow the source allele identifier, when present.
+    pub fn id(&self) -> Option<&VariantId> {
+        match &self.0 { Fields::Allele(v) => v.id.as_ref(), _ => None }
+    }
+    /// Borrow the source allele or protein notation, when present.
+    pub fn hgvs(&self) -> Option<&HgvsText> {
+        match &self.0 { Fields::Allele(v) => v.hgvs.as_ref(), Fields::Protein(v) => v.hgvs.as_ref(), _ => None }
+    }
+    /// Borrow the protein reference's source gene context.
+    pub fn gene(&self) -> Option<&GeneRef> {
+        match &self.0 { Fields::Protein(v) => Some(&v.gene), _ => None }
+    }
+    /// Borrow the protein or profile label.
+    pub fn label(&self) -> Option<&Text> {
+        match &self.0 { Fields::Protein(v) => v.label.as_ref(), Fields::Profile {label, ..} => Some(label), _ => None }
+    }
+    /// Borrow the profile's native record identifier.
+    pub fn record(&self) -> Option<&Text> {
+        match &self.0 { Fields::Profile {record, ..} => Some(record), _ => None }
+    }
+    /// Read profile members in source order as owned references; other levels have none.
+    pub fn members(&self) -> impl Iterator<Item = Self> + '_ {
+        let members = match &self.0 { Fields::Profile {members, ..} => members.as_ref(), _ => &[] };
+        members.iter().map(|member| Self(match member {
+            LeafRef::Allele(v) => Fields::Allele(v.clone()),
+            LeafRef::Protein(v) => Fields::Protein(v.clone()),
+        }))
+    }
+
     pub(crate) fn allele_accession(&self) -> Option<crate::Accession> {
         match &self.0 {
             Fields::Allele(AlleleRef {

@@ -11,7 +11,7 @@ const VERSIONS: [[u16; 24]; 2] = [
     ],
 ];
 /// A primary chromosome in the caller's reference build.
-#[derive(Clone, Copy, Debug, PartialEq, Eq)]
+#[derive(Clone, Copy, Debug, PartialEq, Eq, Hash)]
 pub struct Chromosome(u8);
 impl Chromosome {
     /// Construct a primary chromosome from its numeric identifier (1–25).
@@ -36,11 +36,11 @@ impl Chromosome {
                     .unwrap_or(0),
             )
         };
-        Accession::RefSeq {
+        Accession(crate::variant::AccessionKind::RefSeq {
             prefix: RefSeqPrefix::Nc,
             number,
             version,
-        }
+        })
     }
     /// Chromosome name without the optional `chr` prefix.
     pub fn name(self) -> String {

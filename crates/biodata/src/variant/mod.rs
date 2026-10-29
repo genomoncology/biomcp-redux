@@ -24,3 +24,5 @@ pub use statement::*;
 
 mod population;
 pub use population::{GenotypeFilter, PopulationDataType, PopulationFrequency, PopulationSex};
+
+pub(crate) use accession::AccessionKind;

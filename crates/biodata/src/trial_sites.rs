@@ -135,6 +135,10 @@ impl TryFrom<Coordinates> for TrialCoordinates {
 }
 
 impl TrialCoordinates {
+    /// Source latitude in degrees.
+    pub fn latitude(&self) -> FiniteNumber { self.latitude }
+    /// Source longitude in degrees.
+    pub fn longitude(&self) -> FiniteNumber { self.longitude }
     /// Validate source latitude and longitude before admitting a registry record.
     pub fn new(latitude: FiniteNumber, longitude: FiniteNumber) -> Result<Self, &'static str> {
         Self::try_from(Coordinates {

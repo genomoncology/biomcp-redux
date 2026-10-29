@@ -8,8 +8,11 @@ use winnow::{
     error::{ContextError, ErrMode},
 };
 /// A reference sequence accession: RefSeq or Ensembl with its version, or LRG.
-#[derive(Clone, Copy, Debug, PartialEq, Eq)]
-pub enum Accession {
+#[derive(Clone, Copy, Debug, PartialEq, Eq, Hash)]
+pub struct Accession(pub(crate) AccessionKind);
+
+#[derive(Clone, Copy, Debug, PartialEq, Eq, Hash)]
+pub(crate) enum AccessionKind {
     /// A RefSeq accession such as `NC_000007.14`.
     RefSeq {
         /// The two letters and underscore.
@@ -74,7 +77,7 @@ crate::canonical_enum! {
 }}
 
 /// A transcript or protein of an LRG record.
-#[derive(Clone, Copy, Debug, PartialEq, Eq)]
+#[derive(Clone, Copy, Debug, PartialEq, Eq, Hash)]
 pub enum LrgPart {
     /// `t1`
     Transcript(u16),
@@ -90,21 +93,21 @@ fn accession(input: &mut &str) -> ModalResult<Accession> {
 fn refseq(input: &mut &str) -> ModalResult<Accession> {
     let prefix = RefSeqPrefix::parse(input)?;
     let (number, version) = cut_err((digits(refseq_width), version)).parse_next(input)?;
-    Ok(Accession::RefSeq {
+    Ok(Accession(AccessionKind::RefSeq {
         prefix,
         number,
         version,
-    })
+    }))
 }
 
 fn ensembl(input: &mut &str) -> ModalResult<Accession> {
     let feature = EnsemblFeature::parse(input)?;
     let (number, version) = cut_err((digits(|_| 11), version)).parse_next(input)?;
-    Ok(Accession::Ensembl {
+    Ok(Accession(AccessionKind::Ensembl {
         feature,
         number,
         version,
-    })
+    }))
 }
 
 fn lrg(input: &mut &str) -> ModalResult<Accession> {
@@ -114,7 +117,7 @@ fn lrg(input: &mut &str) -> ModalResult<Accession> {
         preceded('p', cut_err(decimal)).map(LrgPart::Protein),
     )))
     .parse_next(input)?;
-    Ok(Accession::Lrg { number, part })
+    Ok(Accession(AccessionKind::Lrg { number, part }))
 }
 
 fn version(input: &mut &str) -> ModalResult<u16> {
@@ -142,8 +145,8 @@ fn refseq_width(number: u32) -> usize {
 
 impl fmt::Display for Accession {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
-        match *self {
-            Self::RefSeq {
+        match self.0 {
+            AccessionKind::RefSeq {
                 prefix,
                 number,
                 version,
@@ -151,14 +154,14 @@ impl fmt::Display for Accession {
                 let width = refseq_width(number);
                 write!(f, "{prefix}{number:0width$}.{version}")
             }
-            Self::Ensembl {
+            AccessionKind::Ensembl {
                 feature,
                 number,
                 version,
             } => {
                 write!(f, "{feature}{number:011}.{version}")
             }
-            Self::Lrg { number, part } => {
+            AccessionKind::Lrg { number, part } => {
                 write!(f, "LRG_{number}")?;
                 match part {
                     Some(LrgPart::Transcript(n)) => write!(f, "t{n}"),
@@ -242,7 +245,7 @@ text_value!(
 );
 
 /// An accession whose source states no version; never used for an allele location.
-#[derive(Clone, Debug, PartialEq, Eq)]
+#[derive(Clone, Debug, PartialEq, Eq, Hash)]
 pub struct AccessionBase(Box<str>);
 impl AccessionBase {
     /// Borrow the canonical unversioned accession.
