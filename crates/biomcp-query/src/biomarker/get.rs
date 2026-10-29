@@ -51,10 +51,15 @@ pub fn get(cx: &Ctx<'_>, q: &BiomarkerGet) -> Outcome {
         };
         for row in &rows {
             for id in &row.header.codes {
-                let step = (StepKind::Pivot, Action::Run {
-                    request: biomcp_types::Request::SearchTrial(biomcp_types::TrialSearch::for_nci_biomarker(id.clone())),
-                    fresh: false,
-                });
+                let step = (
+                    StepKind::Pivot,
+                    Action::Run {
+                        request: biomcp_types::Request::SearchTrial(
+                            biomcp_types::TrialSearch::for_nci_biomarker(id.clone()),
+                        ),
+                        fresh: false,
+                    },
+                );
                 out.next.push(step);
             }
         }

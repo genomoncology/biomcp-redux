@@ -1,7 +1,7 @@
-mod condition;
 mod biomarker;
-pub use biomarker::NciBiomarkerUse;
+mod condition;
 use crate::{GeneInput, NctId, PartialDate, StudyType, Text, TrialSex, TrialStatus};
+pub use biomarker::NciBiomarkerUse;
 use serde::{Deserialize, Serialize};
 const MAX_ALTERNATIVES: usize = 5;
 biodata::wire_enum! {
@@ -78,11 +78,19 @@ struct Fields {
     #[cfg_attr(feature = "schema", schemars(with = "Text"))]
     variant: Option<Text>,
     /// Exact NCIt biomarker concept listed by NCI in trial criteria; NCI source only. This listing does not establish biomarker positivity or patient eligibility.
-    #[serde(default, deserialize_with = "super::gene::present", skip_serializing_if = "Option::is_none")]
+    #[serde(
+        default,
+        deserialize_with = "super::gene::present",
+        skip_serializing_if = "Option::is_none"
+    )]
     #[cfg_attr(feature = "schema", schemars(with = "biodata::NcitId"))]
     biomarker_code: Option<biodata::NcitId>,
     /// Filter by NCI's native inclusion or exclusion criterion. Check each result's biomarker entry and reported problems.
-    #[serde(default, deserialize_with = "super::gene::present", skip_serializing_if = "Option::is_none")]
+    #[serde(
+        default,
+        deserialize_with = "super::gene::present",
+        skip_serializing_if = "Option::is_none"
+    )]
     #[cfg_attr(feature = "schema", schemars(with = "NciBiomarkerUse"))]
     biomarker_use: Option<NciBiomarkerUse>,
     /// Search literal registry eligibility text for discovery only; no eligibility judgment.

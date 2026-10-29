@@ -115,10 +115,15 @@ fn page(
         .collect();
     for header in &items {
         for id in &header.codes {
-            out.next.push((StepKind::Pivot, Action::Run {
-                request: Request::SearchTrial(biomcp_types::TrialSearch::for_nci_biomarker(id.clone())),
-                fresh: false,
-            }));
+            out.next.push((
+                StepKind::Pivot,
+                Action::Run {
+                    request: Request::SearchTrial(biomcp_types::TrialSearch::for_nci_biomarker(
+                        id.clone(),
+                    )),
+                    fresh: false,
+                },
+            ));
             out.next.push((
                 StepKind::Disambiguate,
                 Action::Run {

@@ -209,10 +209,16 @@ pub fn parameters(query: &TrialSearch) -> Vec<(String, String)> {
         params.push(("sites.org_name".into(), name.as_str().into()));
     }
     if let Some(code) = query.biomarker_code() {
-        params.push(("biomarkers.nci_thesaurus_concept_id".into(), code.to_string()));
+        params.push((
+            "biomarkers.nci_thesaurus_concept_id".into(),
+            code.to_string(),
+        ));
     }
     if let Some(criterion) = query.biomarker_use() {
-        params.push(("biomarkers.eligibility_criterion".into(), criterion.to_string()));
+        params.push((
+            "biomarkers.eligibility_criterion".into(),
+            criterion.to_string(),
+        ));
     }
     for field in [
         "nci_id",
