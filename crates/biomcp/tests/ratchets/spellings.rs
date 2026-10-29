@@ -36,7 +36,7 @@ pub(super) fn check(root: &Path) -> Check {
     Ok(())
 }
 
-fn audit(tokens: &[String]) -> Result<(), String> {
+pub(super) fn audit(tokens: &[String]) -> Result<(), String> {
     for window in tokens.windows(3) {
         let [name, equal, value] = window else {
             continue;
@@ -58,6 +58,10 @@ fn audit(tokens: &[String]) -> Result<(), String> {
         }
     }
     for (index, token) in tokens.iter().enumerate() {
+        // Error identifiers keep the approved dotted snake_case convention.
+        if token == "ErrorCode" {
+            continue;
+        }
         let macro_position = tokens.get(index.wrapping_sub(1))
             .is_some_and(|previous| ["]", "{", "described"].contains(&previous.as_str()));
         if !macro_position || !OWNED.contains(&token.as_str()) {
@@ -93,28 +97,4 @@ fn audit(tokens: &[String]) -> Result<(), String> {
         }
     }
     Ok(())
-}
-
-#[test]
-fn audit_rejects_owned_underscores_and_old_tags_but_allows_native_values() {
-    for text in [
-        "#[serde(tag = \"annotationkind\")] enum Pgx {}",
-        "#[serde(rename_all = \"snake_case\")] enum Owned {}",
-        "wire_enum! { Reason { NoKey => \"no_key\" } }",
-    ] {
-        assert!(audit(&super::source::tokens(text)).is_err(), "{text}");
-    }
-    assert!(
-        audit(&super::source::tokens(
-            "wire_enum! { Native { Value => \"source_native\" } }"
-        ))
-        .is_ok()
-    );
-}
-
-#[test]
-fn enum_return_types_are_not_macro_declarations() {
-    assert!(audit(&super::source::tokens(
-        "fn kind() -> ArticleMatchKind { match self { X => ArticleMatchKind::Doi } }"
-    )).is_ok());
 }

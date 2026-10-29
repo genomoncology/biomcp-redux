@@ -404,3 +404,37 @@ fn new_optional_drop_requires_its_own_classification() -> Check {
     }
     Ok(())
 }
+
+#[test]
+fn audit_rejects_owned_underscores_and_old_tags_but_allows_native_values() {
+    for text in [
+        "#[serde(tag = \"annotationkind\")] enum Pgx {}",
+        "#[serde(rename_all = \"snake_case\")] enum Owned {}",
+        "wire_enum! { Reason { NoKey => \"no_key\" } }",
+    ] {
+        assert!(super::spellings::audit(&super::source::tokens(text)).is_err(), "{text}");
+    }
+    assert!(
+        super::spellings::audit(&super::source::tokens(
+            "wire_enum! { Native { Value => \"source_native\" } }"
+        ))
+        .is_ok()
+    );
+}
+
+#[test]
+fn enum_return_types_are_not_macro_declarations() {
+    assert!(super::spellings::audit(&super::source::tokens(
+        "fn kind() -> ArticleMatchKind { match self { X => ArticleMatchKind::Doi } }"
+    )).is_ok());
+}
+
+#[test]
+fn namespaced_error_codes_are_exempt_by_type() {
+    for literal in ["usage.future_name", "wire_enum.unknown"] {
+        let source = format!("wire_enum! {{ ErrorCode {{ New => {literal:?} }} }}");
+        assert!(super::spellings::audit(&super::source::tokens(&source)).is_ok());
+        let ordinary = source.replace("ErrorCode", "Reason");
+        assert!(super::spellings::audit(&super::source::tokens(&ordinary)).is_err());
+    }
+}
