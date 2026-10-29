@@ -250,13 +250,15 @@ pub(super) fn civic_body(request: &str) -> Result<String, String> {
     let evidence = json!(
         {"totalCount":2,"nodes":[{"id":1409,"status":"ACCEPTED","evidenceType":"PREDICTIVE","evidenceLevel":"A",
         "evidenceDirection":"DOES_NOT_SUPPORT","significance":"RESISTANCE","disease":{"name":"melanoma","doid":"1909"},
-        "therapies":[{"name":"dabrafenib"}],"therapyInteractionType":null,"source":{"citationId":"25741868","sourceType":"PUBMED"}}],"pageInfo":{"hasNextPage":true,
+        "therapies":[{"name":"dabrafenib"}],"therapyInteractionType":null,
+        "source":{"citationId":"25741868","sourceType":"PUBMED"}}],"pageInfo":{"hasNextPage":true,
         "endCursor":"synthetic-e1"}}
     );
     let assertions = json!(
         {"totalCount":2,"nodes":[{"id":7,"status":"ACCEPTED","assertionType":"PREDICTIVE","assertionDirection":"SUPPORTS",
         "significance":"SENSITIVITYRESPONSE","ampLevel":"TIER_I_LEVEL_A","disease":{"name":"melanoma","doid":"1909"},
-        "therapies":[{"name":"dabrafenib"},{"name":"trametinib"}],"therapyInteractionType":"COMBINATION","variantOrigin":"SOMATIC"}],"pageInfo":{"hasNextPage":true,
+        "therapies":[{"name":"dabrafenib"},{"name":"trametinib"}],"therapyInteractionType":"COMBINATION",
+        "variantOrigin":"SOMATIC"}],"pageInfo":{"hasNextPage":true,
         "endCursor":"synthetic-a1"}}
     );
     let mut reply = json!(
