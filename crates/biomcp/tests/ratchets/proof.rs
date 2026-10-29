@@ -448,13 +448,19 @@ fn namespaced_error_codes_are_exempt_by_type() {
 }
 
 #[test]
-fn crate_ownership_keeps_biodata_values_and_audits_biomcp_values() {
+fn crate_ownership_keeps_biodata_values_and_audits_biomcp_values() -> Check {
     for source in [
         "#[serde(rename_all = \"snake_case\")] enum Owned {}",
         "wire_enum! { DrugRecallCountUnit { Value => \"recall_records\" } }",
     ] {
-        let tokens = super::source::tokens(source);
-        assert!(super::spellings::audit(&tokens, false).is_ok());
-        assert!(super::spellings::audit(&tokens, true).is_err());
+        let tree = tree()?;
+        put(tree.path(), "crates/biodata/src/lib.rs", source)?;
+        check(tree.path())?;
+        rejects(
+            "crates/biomcp-types/src/lib.rs",
+            source,
+            "kebab-case",
+        )?;
     }
+    Ok(())
 }
