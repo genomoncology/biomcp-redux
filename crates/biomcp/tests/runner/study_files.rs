@@ -305,7 +305,7 @@ fn unknown_acquisition() -> Check {
         &replay,
         &["sync", "cbioportal-studies"],
         0,
-        "unknown/sync",
+        "files/pages/1",
     )?;
     for section in ["molecular-profiles", "sample-lists"] {
         super::study_get::recording_raw(&replay, section, "[]", 200, 0)?;
@@ -331,8 +331,15 @@ fn unknown_acquisition() -> Check {
                 &replay,
                 &["get", "study", "synthetic_0", section],
                 0,
-                "unknown/section",
+                "files/pages/3",
             )?;
+            let words = ["get", "study", "synthetic_0", section].map(str::to_owned);
+            let mcp = crate::runner::mcp::call_with_globals(
+                &env, &words, false, &env.globals(Some(&replay), false),
+            )?;
+            if value != mcp {
+                return Err("unknown acquisition differs between CLI and MCP".into());
+            }
             if value.pointer("/result/items").is_none()
                 || value.pointer("/result/acquired").is_some()
             {
