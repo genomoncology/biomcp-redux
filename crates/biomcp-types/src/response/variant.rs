@@ -17,7 +17,7 @@ pub struct VariantCard {
 }
 impl super::ResponseBody for VariantCard {
     const SCHEMA: &'static str = "biomcp.variant-card/10";
-    type Query = VariantGet;
+    type Query = super::VariantGetQuery;
 }
 
 /// Consumer identity header with an exact source selection and compact annotation entity.

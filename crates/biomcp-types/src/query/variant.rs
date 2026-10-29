@@ -261,6 +261,21 @@ impl VariantGet {
     pub fn resolver(&self) -> VariantResolver {
         self.0.resolver
     }
+    /// Assembly selected for a MyVariant identity request.
+    pub fn myvariant_build(&self) -> Build {
+        self.build().unwrap_or_else(|| {
+            if self.sections().contains(&VariantSection::AlphaGenome) {
+                Build::GRCh38
+            } else {
+                Build::GRCh37
+            }
+        })
+    }
+    /// Echo the assembly selected for a MyVariant identity request.
+    pub fn with_myvariant_build(mut self) -> Self {
+        self.0.build = Some(self.myvariant_build());
+        self
+    }
     /// Caller assembly; never a default.
     pub fn build(&self) -> Option<Build> {
         self.0.build
