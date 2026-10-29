@@ -117,7 +117,10 @@ fn native_records_keep_joint_context_source_text_and_literal_not_applicable()
         v
     }] {
         let mut expected = value.clone();
-        if expected.get("comments").is_some_and(serde_json::Value::is_null) {
+        if expected
+            .get("comments")
+            .is_some_and(serde_json::Value::is_null)
+        {
             expected.as_object_mut().ok_or("object")?.remove("comments");
         }
         assert_eq!(roundtrip::<PgxRecommendation>(value.clone())?, expected);
