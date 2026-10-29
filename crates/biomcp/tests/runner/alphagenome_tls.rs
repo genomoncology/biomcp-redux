@@ -25,6 +25,10 @@ pub(super) fn trials() -> Vec<Trial> {
         "variant/alphagenome-source-identity-refusals",
         || refusals().map_err(Into::into),
     ));
+    trials.push(transcript_trial(
+        "variant/alphagenome-field-admission-local-tls",
+        || field_admission().map_err(Into::into),
+    ));
     trials.extend(capture::trials());
     trials
 }
@@ -321,6 +325,78 @@ fn groups(reply: &Value) -> Result<(), String> {
     }
     Ok(())
 }
+fn field_admission() -> Result<(), String> {
+    for (mode, field, omitted) in [
+        ("track", "tracks.0.name", ""),
+        ("gene", "genes.0.gene_id", ""),
+        ("endedness", "tracks.0.endedness", "track/endedness"),
+        (
+            "ontology",
+            "tracks.0.ontology_term.ontology_type",
+            "track/ontology_term",
+        ),
+        (
+            "biosample",
+            "tracks.0.biosample.type",
+            "track/biosample/type",
+        ),
+        ("gene-strand", "genes.0.strand", "gene/strand"),
+    ] {
+        let fixture = fixture(changed_messages(mode), 200)?;
+        let env = environment(&fixture)?;
+        let args = [
+            "get",
+            "variant",
+            "CA123643",
+            "alphagenome",
+            "--section-limit",
+            "1",
+        ]
+        .map(str::to_owned);
+        let reply = invoke(&env, &args, 0)?;
+        let scorer = format!("{SECTION}/data/scorers/0");
+        let expected = format!("scorers.0.{field}");
+        let problems = reply
+            .get("problems")
+            .and_then(Value::as_array)
+            .ok_or("missing field problem")?;
+        if problems.len() != 1
+            || problems.first().and_then(|problem| problem.get("field")) != Some(&json!(expected))
+        {
+            return Err(format!(
+                "{mode} lost its single scoped field problem: {problems:?}"
+            ));
+        }
+        if omitted.is_empty() {
+            if reply.pointer(&format!("{scorer}/page/returned")) != Some(&json!(0))
+                || reply.pointer(&format!("{scorer}/rows")).is_some()
+            {
+                return Err(format!("{mode} admitted a scalar with invalid identity"));
+            }
+        } else if reply.pointer(&format!("{scorer}/rows/0/tensor_index")) != Some(&json!([0, 0, 0]))
+            || reply
+                .pointer(&format!("{scorer}/rows/0/{omitted}"))
+                .is_some()
+        {
+            return Err(format!(
+                "{mode} lost its scalar or retained the invalid field"
+            ));
+        }
+        let next = invoke(&env, &page_args(&reply)?, 0)?;
+        let expected_returned = if mode == "gene" { 0 } else { 1 };
+        if next.pointer(&format!("{scorer}/page/offset")) != Some(&json!(1))
+            || next.pointer(&format!("{scorer}/page/returned")) != Some(&json!(expected_returned))
+            || next.pointer(&format!("{SECTION}/data/scorers/1/rows/0/gene/gene_id"))
+                != Some(&json!("ENSG00000100000"))
+        {
+            return Err(format!(
+                "{mode} shifted native positions or refused a valid sibling"
+            ));
+        }
+        fixture.finish().map_err(|e| e.to_string())?;
+    }
+    Ok(())
+}
 fn fixture(messages: Vec<Vec<u8>>, status: u16) -> Result<support::Fixture, String> {
     let allele = json!({"@id":"http://reg.genome.network/allele/CA123643","genomicAlleles":[{
         "referenceGenome":"GRCh38","hgvs":["NC_000007.14:g.140753336A>T"],
@@ -359,6 +435,9 @@ fn environment(fixture: &support::Fixture) -> Result<Environment, String> {
     Ok(env)
 }
 fn messages() -> Vec<Vec<u8>> {
+    changed_messages("")
+}
+fn changed_messages(mode: &str) -> Vec<Vec<u8>> {
     [[2, 2, 2], [2, 1, 1], [1, 1, 2]]
         .into_iter()
         .enumerate()
@@ -366,11 +445,17 @@ fn messages() -> Vec<Vec<u8>> {
             let tensor = [field(1, &shape), number(2, 2), number(4, 1)].concat();
             let mut metadata = field(1, &variant());
             for track in 0..shape[2] {
-                metadata.extend(field(2, &track_metadata(track)));
+                metadata.extend(field(
+                    2,
+                    &track_metadata(track, if ordinal == 0 && track == 0 { mode } else { "" }),
+                ));
             }
             if ordinal < 2 {
                 for row in 0..shape[1] {
-                    metadata.extend(field(3, &gene_metadata(row)));
+                    metadata.extend(field(
+                        3,
+                        &gene_metadata(row, if ordinal == 0 && row == 0 { mode } else { "" }),
+                    ));
                 }
             }
             let descriptor = field(
@@ -392,17 +477,32 @@ fn messages() -> Vec<Vec<u8>> {
         })
         .collect()
 }
-fn track_metadata(track: u8) -> Vec<u8> {
+fn track_metadata(track: u8, mode: &str) -> Vec<u8> {
     let mut mean = vec![(14 << 3) | 5];
     mean.extend(1.25f32.to_le_bytes());
     [
-        field(1, format!("synthetic track {track}").as_bytes()),
+        field(
+            1,
+            if mode == "track" {
+                String::new()
+            } else {
+                format!("synthetic track {track}")
+            }
+            .as_bytes(),
+        ),
         number(2, 3),
-        field(3, &[number(1, 2), number(2, 2048)].concat()),
+        field(
+            3,
+            &[
+                number(1, if mode == "ontology" { 999 } else { 2 }),
+                number(2, 2048),
+            ]
+            .concat(),
+        ),
         field(
             4,
             &[
-                number(1, 4),
+                number(1, if mode == "biosample" { 999 } else { 4 }),
                 field(2, b"synthetic tissue"),
                 field(3, b"synthetic stage"),
             ]
@@ -413,19 +513,24 @@ fn track_metadata(track: u8) -> Vec<u8> {
         field(9, b"synthetic histone"),
         field(10, b"synthetic transcription factor"),
         field(11, b"synthetic data source"),
-        number(12, 2),
+        number(12, if mode == "endedness" { 999 } else { 2 }),
         number(13, 1),
         mean,
     ]
     .concat()
 }
-fn gene_metadata(row: u8) -> Vec<u8> {
+fn gene_metadata(row: u8, mode: &str) -> Vec<u8> {
     [
         field(
             1,
-            format!("ENSG{:011}", 100_000 + u64::from(row)).as_bytes(),
+            if mode == "gene" {
+                "invalid-gene".to_owned()
+            } else {
+                format!("ENSG{:011}", 100_000 + u64::from(row))
+            }
+            .as_bytes(),
         ),
-        number(2, 1),
+        number(2, if mode == "gene-strand" { 999 } else { 1 }),
         field(3, b"synthetic gene"),
         field(4, b"synthetic gene type"),
         number(5, 10),

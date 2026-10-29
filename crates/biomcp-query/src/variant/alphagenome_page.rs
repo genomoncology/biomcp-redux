@@ -113,7 +113,7 @@ fn value(
     let plane = index / tracks / genes;
     let row = index / tracks % genes;
     let track = index % tracks;
-    let Some(track) = group.tracks.get(track).ok_or(BadReply)?.clone() else {
+    let Some(track_metadata) = group.tracks.get(track).ok_or(BadReply)?.clone() else {
         return Ok(None);
     };
     let gene = if group.genes.is_empty() {
@@ -130,7 +130,7 @@ fn value(
             bytes.try_into().map_err(|_| BadReply)?,
         ))
         .map_err(|_| BadReply)?,
-        track,
+        track: track_metadata,
         gene,
     }))
 }
