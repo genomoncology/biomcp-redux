@@ -24,7 +24,11 @@ pub(super) fn help_command(root: &Command) -> Command {
     for command in root.get_subcommands() {
         let mut child = help_tree(command);
         if command.get_name() == "key" {
-            child = child.arg(Arg::new("source").value_parser(crate::keys::names()));
+            child = child.arg(
+                Arg::new("source")
+                    .help("Credential source to describe.")
+                    .value_parser(crate::keys::names()),
+            );
         }
         if command.get_name() == "sync" {
             child = child.subcommands(BUNDLE_HELP.iter().map(|&name| Command::new(name)));
@@ -33,7 +37,11 @@ pub(super) fn help_command(root: &Command) -> Command {
     }
     help.subcommand(Command::new("help"))
         .subcommand(
-            Command::new("network").arg(Arg::new("setting").value_parser(["ca_bundle", "proxy"])),
+            Command::new("network").arg(
+                Arg::new("setting")
+                    .help("Network setting to describe.")
+                    .value_parser(["ca_bundle", "proxy"]),
+            ),
         )
         .subcommand(Command::new("sources"))
         .subcommand(Command::new("config"))

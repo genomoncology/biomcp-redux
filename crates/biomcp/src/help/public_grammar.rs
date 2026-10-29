@@ -141,7 +141,9 @@ fn add(commands: &mut Vec<HelpCommand>, parser: &Command, path: Vec<String>, roo
         }
     }
     if let Some(entry) = commands.iter_mut().find(|entry| entry.command == path) {
-        entry.arguments = arguments;
+        if entry.arguments.is_empty() {
+            entry.arguments = arguments;
+        }
     } else {
         let mut reply_schemas = crate::schema::local_replies(&path);
         if !path.is_empty() {
