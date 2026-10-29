@@ -18,12 +18,14 @@ class Artifacts(unittest.TestCase):
     def test_selected_missing_executable_has_no_build_fallback(self):
         runner = os.environ["BIOMCP_CASE_RUNNER"]
         for args in [
-            ["--cases", "tests/cases/gene", "kras.yaml", "--exact"],
-            ["schema-discovery/rejects-bad-cases", "--exact"],
+            ["--cases", "tests/cases/gene", "gene-identity/kras.yaml", "--exact"],
+            ["mcp-research/research-search-fetch-parity", "--exact"],
         ]:
             result = subprocess.run([runner] + args, env={**os.environ, "BIOMCP_TEST_EXECUTABLE": "/does-not-exist/biomcp"}, capture_output=True, text=True)
             self.assertNotEqual(result.returncode, 0)
             self.assertIn("No such file", result.stdout)
+            self.assertIn("1 failed", result.stdout)
+            self.assertNotIn("selected no tests", result.stderr)
 
 
 if __name__ == "__main__":
