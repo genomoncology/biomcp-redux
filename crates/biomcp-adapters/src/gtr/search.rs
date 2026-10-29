@@ -69,9 +69,20 @@ pub fn search(leg: &Leg<'_>, query: &DiagnosticSearch) -> Result<Search, Request
     let mut problems = Vec::new();
     let items = page
         .iter()
-        .map(|r| candidate(r, by_id.get(&r.id).map(Vec::as_slice).unwrap_or_default(), &mut problems))
+        .map(|r| {
+            candidate(
+                r,
+                by_id.get(&r.id).map(Vec::as_slice).unwrap_or_default(),
+                &mut problems,
+            )
+        })
         .collect::<Result<Box<[_]>, _>>()?;
-    Ok(Search { items, total, info, problems })
+    Ok(Search {
+        items,
+        total,
+        info,
+        problems,
+    })
 }
 fn matches(r: &Relation, q: &DiagnosticSearch) -> bool {
     q.test_type().is_none_or(|v| r.test_type == v)

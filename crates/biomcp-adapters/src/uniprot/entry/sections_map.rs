@@ -5,7 +5,11 @@ use biodata::{
     UniProtFeature, UniProtIsoform,
 };
 use biomcp_types::{Problem, ProblemCode, Source};
-pub(super) fn evidence(rows: Vec<raw::Evidence>, id: &UniProtIsoform, problems: &mut Vec<Problem>) -> Box<[Text]> {
+pub(super) fn evidence(
+    rows: Vec<raw::Evidence>,
+    id: &UniProtIsoform,
+    problems: &mut Vec<Problem>,
+) -> Box<[Text]> {
     rows.into_iter()
         .filter_map(|e| {
             let mut text = e.evidence_code.to_string();
@@ -15,7 +19,13 @@ pub(super) fn evidence(rows: Vec<raw::Evidence>, id: &UniProtIsoform, problems: 
             if let Some(id) = e.id {
                 text.push_str(&format!("|{id}"));
             }
-            crate::mapped::field_text(problems, Source::UniProt, crate::mapped::record(id), "evidence", Some(crate::raw::Field::Value(text)))
+            crate::mapped::field_text(
+                problems,
+                Source::UniProt,
+                crate::mapped::record(id),
+                "evidence",
+                Some(crate::raw::Field::Value(text)),
+            )
         })
         .collect()
 }
@@ -67,7 +77,13 @@ pub(super) fn features(
                         label: r.kind,
                         codings: Box::default(),
                     },
-                    description: crate::mapped::field_text(problems, Source::UniProt, crate::mapped::record(id), "features.description", r.description.map(crate::raw::Field::Value)),
+                    description: crate::mapped::field_text(
+                        problems,
+                        Source::UniProt,
+                        crate::mapped::record(id),
+                        "features.description",
+                        r.description.map(crate::raw::Field::Value),
+                    ),
                     id: r.feature_id.and_then(|v| Text::new(&v).ok()),
                     original: alternative
                         .as_ref()
@@ -93,7 +109,11 @@ pub(super) fn features(
         })
         .collect()
 }
-pub(super) fn comments(rows: Vec<raw::Comment>, id: &UniProtIsoform, problems: &mut Vec<Problem>) -> (Vec<ProteinIsoform>, Vec<ProteinFunction>) {
+pub(super) fn comments(
+    rows: Vec<raw::Comment>,
+    id: &UniProtIsoform,
+    problems: &mut Vec<Problem>,
+) -> (Vec<ProteinIsoform>, Vec<ProteinFunction>) {
     let mut isoforms = Vec::new();
     let mut function = Vec::new();
     for row in rows {

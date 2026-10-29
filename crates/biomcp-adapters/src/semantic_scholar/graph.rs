@@ -121,7 +121,11 @@ fn edge_data<'de, D: serde::Deserializer<'de>>(decoder: D) -> Result<Option<Vec<
 }
 impl Edge {
     /// Keep the selected direction's paper and first whole context.
-    pub fn item(self, references: bool, problems: &mut Vec<biomcp_types::Problem>) -> Result<biomcp_types::ArticleEdgeItem, BadReply> {
+    pub fn item(
+        self,
+        references: bool,
+        problems: &mut Vec<biomcp_types::Problem>,
+    ) -> Result<biomcp_types::ArticleEdgeItem, BadReply> {
         let mut item = if references {
             self.cited_paper
         } else {

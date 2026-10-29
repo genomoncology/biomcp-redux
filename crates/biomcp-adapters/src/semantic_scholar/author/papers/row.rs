@@ -67,7 +67,10 @@ impl Access {
 }
 impl Paper {
     /// Convert exactly the source identifiers and metadata, with no title matching.
-    pub fn detail(self, problems: &mut Vec<biomcp_types::Problem>) -> Result<AuthorPaperDetail, biomcp_fetch::BadReply> {
+    pub fn detail(
+        self,
+        problems: &mut Vec<biomcp_types::Problem>,
+    ) -> Result<AuthorPaperDetail, biomcp_fetch::BadReply> {
         let record = crate::mapped::record(&self.paper_id);
         let mut header = AuthorPaperHeader {
             paper_id: self.paper_id,
@@ -77,7 +80,15 @@ impl Paper {
             external_ids: Box::default(),
             title: self.title,
             year: self.year,
-            venue: crate::mapped::field_text(problems, biomcp_types::Source::SemanticScholar, record, "venue", self.venue.filter(|v| !v.trim().is_empty()).map(crate::raw::Field::Value)),
+            venue: crate::mapped::field_text(
+                problems,
+                biomcp_types::Source::SemanticScholar,
+                record,
+                "venue",
+                self.venue
+                    .filter(|v| !v.trim().is_empty())
+                    .map(crate::raw::Field::Value),
+            ),
         };
         let mut external = Vec::new();
         for (namespace, value) in self.external_ids.into_iter().flatten() {

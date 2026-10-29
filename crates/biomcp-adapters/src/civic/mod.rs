@@ -135,7 +135,10 @@ fn map(gene: &raw::Gene, problems: &mut Vec<Problem>) -> Section<CivicGene> {
     };
     let description = match &gene.description {
         Some(Field::Value(text)) => crate::mapped::field_text(
-            problems, Source::Civic, crate::mapped::record(gene.id), "description",
+            problems,
+            Source::Civic,
+            crate::mapped::record(gene.id),
+            "description",
             Some(Field::Value(text.clone())),
         ),
         Some(Field::Invalid(_)) => {

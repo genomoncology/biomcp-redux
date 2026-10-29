@@ -23,7 +23,8 @@ pub(in crate::uniprot) fn entry(raw: raw::Entry, id: &UniProtIsoform) -> Mapped<
     let mut problems = Vec::new();
     let features =
         super::sections_map::features(raw.features.unwrap_or_default(), id, &audit, &mut problems);
-    let (isoforms, function) = super::sections_map::comments(raw.comments.unwrap_or_default(), id, &mut problems);
+    let (isoforms, function) =
+        super::sections_map::comments(raw.comments.unwrap_or_default(), id, &mut problems);
     let structures =
         super::sections_map::structures(raw.uni_prot_kb_cross_references.unwrap_or_default());
     let sequence = raw.sequence.value.map(|sequence| biodata::ProteinSequence {

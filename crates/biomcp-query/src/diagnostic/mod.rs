@@ -40,7 +40,8 @@ fn finish_bundle(
         .push(status::source(source, leg.finish(), error));
     if error.is_some() {
         out.status = Status::Failed;
-    } else if (!out.problems.is_empty() || out.sources.iter().any(|s| s.state == SourceState::Stale))
+    } else if (!out.problems.is_empty()
+        || out.sources.iter().any(|s| s.state == SourceState::Stale))
         && out.status == Status::Complete
     {
         out.status = Status::Partial;

@@ -149,23 +149,44 @@ pub(super) fn text_admission() -> Result<(), String> {
     call(&env, &replay, &["sync", "gtr"], 0)?;
     let args = ["get", "diagnostic", "GTR000006692.3", "--source", "gtr"];
     let empty = call(&env, &replay, &args, 0)?;
-    if empty.pointer("/result/header/laboratory/institution").is_some()
-        || empty.get("problems").and_then(Value::as_array).is_some_and(|p| !p.is_empty()) {
+    if empty
+        .pointer("/result/header/laboratory/institution")
+        .is_some()
+        || empty
+            .get("problems")
+            .and_then(Value::as_array)
+            .is_some_and(|p| !p.is_empty())
+    {
         return Err(format!("native empty cell produced a problem: {empty}"));
     }
     // Synthetic stored-row edit isolates view admission from whole-cell bundle retention.
-    let cache = rusqlite::Connection::open(env.root().join("case-cache/replay.sqlite")).map_err(|e| e.to_string())?;
+    let cache = rusqlite::Connection::open(env.root().join("case-cache/replay.sqlite"))
+        .map_err(|e| e.to_string())?;
     let changed = cache.execute(
         "UPDATE bundle_row SET row=json_set(row,'$.value.name_of_institution',?1) WHERE bundle='gtr' AND json_extract(row,'$.value.test_accession_ver')='GTR000006692.3'",
         ["x".repeat(biodata::Text::MAX_CHARS + 1)],
     ).map_err(|e| e.to_string())?;
-    if changed != 1 { return Err(format!("edited {changed} native rows")); }
+    if changed != 1 {
+        return Err(format!("edited {changed} native rows"));
+    }
     let invalid = call(&env, &replay, &args, 0)?;
     if invalid.pointer("/result/header/id") != Some(&json!("GTR000006692.3"))
-        || invalid.pointer("/result/header/laboratory/institution").is_some()
-        || !invalid.get("problems").and_then(Value::as_array).is_some_and(|p| p.iter().any(|p|
-            p.get("source") == Some(&json!("gtr")) && p.get("field") == Some(&json!("name_of_institution")))) {
-        return Err(format!("invalid prose lost its identity or disclosure: {invalid}"));
+        || invalid
+            .pointer("/result/header/laboratory/institution")
+            .is_some()
+        || !invalid
+            .get("problems")
+            .and_then(Value::as_array)
+            .is_some_and(|p| {
+                p.iter().any(|p| {
+                    p.get("source") == Some(&json!("gtr"))
+                        && p.get("field") == Some(&json!("name_of_institution"))
+                })
+            })
+    {
+        return Err(format!(
+            "invalid prose lost its identity or disclosure: {invalid}"
+        ));
     }
     Ok(())
 }

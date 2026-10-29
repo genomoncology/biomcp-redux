@@ -39,7 +39,10 @@ pub fn get(leg: &Leg<'_>, query: &DiagnosticGet) -> Result<Record, RequestError>
     };
     let mut problems = Vec::new();
     let card = if conflict.is_none() {
-        versions.first().map(|v| map::card(v, &mut problems)).transpose()?
+        versions
+            .first()
+            .map(|v| map::card(v, &mut problems))
+            .transpose()?
     } else {
         None
     };

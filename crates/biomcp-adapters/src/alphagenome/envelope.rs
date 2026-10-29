@@ -97,8 +97,7 @@ impl Envelope {
     fn complete(&mut self, tensor: Tensor) -> Result<(), BadReply> {
         let (allele, metadata) = self.active.take().ok_or(BadReply)?;
         if tensor.bytes().is_empty()
-            || usize::try_from(*tensor.shape().last().ok_or(BadReply)?)
-                .map_err(|_| BadReply)?
+            || usize::try_from(*tensor.shape().last().ok_or(BadReply)?).map_err(|_| BadReply)?
                 != metadata
         {
             return Err(BadReply);

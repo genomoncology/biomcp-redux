@@ -43,7 +43,9 @@ pub(super) fn proteins(raw: raw::Proteins, ids: &[UniProtAcc]) -> Mapped<Vec<Pro
             Source::UniProt,
             record_text(&id),
             "protein_name",
-            Some(Field::Value(raw.protein_description.recommended_name.full_name.value)),
+            Some(Field::Value(
+                raw.protein_description.recommended_name.full_name.value,
+            )),
         ) else {
             continue;
         };

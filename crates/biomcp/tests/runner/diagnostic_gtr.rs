@@ -8,9 +8,10 @@ use serde_json::json;
 
 pub(super) fn trials() -> Vec<Trial> {
     vec![
-        transcript_trial("diagnostic-gtr/optional-prose-refusal-and-native-empty", || {
-            native_value::text_admission().map_err(Into::into)
-        }),
+        transcript_trial(
+            "diagnostic-gtr/optional-prose-refusal-and-native-empty",
+            || native_value::text_admission().map_err(Into::into),
+        ),
         transcript_trial("diagnostic-gtr/native-gene-values-preserve-bundle", || {
             native_value::run().map_err(Into::into)
         }),

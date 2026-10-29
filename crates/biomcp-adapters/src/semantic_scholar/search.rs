@@ -138,9 +138,15 @@ impl Paper {
             doi,
             europepmc_id: None,
             title: Some(title.into()),
-            journal: crate::mapped::field_text(problems, biomcp_types::Source::SemanticScholar,
-                record, "venue",
-                self.venue.filter(|v| !v.trim().is_empty()).map(crate::raw::Field::Value)),
+            journal: crate::mapped::field_text(
+                problems,
+                biomcp_types::Source::SemanticScholar,
+                record,
+                "venue",
+                self.venue
+                    .filter(|v| !v.trim().is_empty())
+                    .map(crate::raw::Field::Value),
+            ),
             electronic_date: None,
             date: self
                 .publication_date

@@ -127,7 +127,9 @@ fn map_hit(hit: Hit, id: NcbiGeneId, problems: &mut Vec<Problem>) -> Option<Mapp
     if let Some(field) = hit.summary {
         match field.value().map(summary) {
             Some(Ok(summary)) => mapped.value.summary = Some(summary),
-            _ => mapped.problems.push(problem(Source::MyGene, record_text(id), "summary")),
+            _ => mapped
+                .problems
+                .push(problem(Source::MyGene, record_text(id), "summary")),
         }
     }
     let mut spans = Vec::new();

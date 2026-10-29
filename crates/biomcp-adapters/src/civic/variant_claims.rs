@@ -260,11 +260,19 @@ fn amp(label: Option<&Text>) -> Option<(Term, Option<Term>)> {
     ))
 }
 
-fn classification(label: &biodata::SourceText, id: u64, problems: &mut Vec<Problem>) -> Option<Term> {
+fn classification(
+    label: &biodata::SourceText,
+    id: u64,
+    problems: &mut Vec<Problem>,
+) -> Option<Term> {
     crate::mapped::field_text(
-        problems, Source::Civic, crate::mapped::record(id), "significance",
+        problems,
+        Source::Civic,
+        crate::mapped::record(id),
+        "significance",
         Some(crate::raw::Field::Value(label.as_str().to_owned())),
-    ).map(|label| Term {
+    )
+    .map(|label| Term {
         label,
         codings: Box::default(),
     })

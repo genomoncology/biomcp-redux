@@ -8,16 +8,28 @@ use biodata::{
 };
 use biomcp_fetch::RequestError;
 use biomcp_types::{DiagnosticLaboratory, DiagnosticSection, GtrCard, GtrHeader, GtrNativeStatus};
-fn optional(value: &str, field: &str, v: &GtrTestVersion, problems: &mut Vec<biomcp_types::Problem>) -> Option<Text> {
+fn optional(
+    value: &str,
+    field: &str,
+    v: &GtrTestVersion,
+    problems: &mut Vec<biomcp_types::Problem>,
+) -> Option<Text> {
     // The retained GTR report defines empty native cells as absent (diagnostic slice field review).
     if value.trim().is_empty() {
         return None;
     }
-    crate::mapped::field_text(problems, biomcp_types::Source::Gtr,
-        crate::mapped::record(&v.test_accession_ver), field,
-        Some(crate::raw::Field::Value(value.to_owned())))
+    crate::mapped::field_text(
+        problems,
+        biomcp_types::Source::Gtr,
+        crate::mapped::record(&v.test_accession_ver),
+        field,
+        Some(crate::raw::Field::Value(value.to_owned())),
+    )
 }
-pub(super) fn header(v: &GtrTestVersion, problems: &mut Vec<biomcp_types::Problem>) -> Result<GtrHeader, RequestError> {
+pub(super) fn header(
+    v: &GtrTestVersion,
+    problems: &mut Vec<biomcp_types::Problem>,
+) -> Result<GtrHeader, RequestError> {
     // The publisher's web route uses the numeric test base; the typed ID keeps
     // the complete accession/version independently of this current listing link.
     let base = v
@@ -43,7 +55,10 @@ pub(super) fn header(v: &GtrTestVersion, problems: &mut Vec<biomcp_types::Proble
         .map_err(|_| bad())?,
     })
 }
-pub(super) fn card(v: &GtrTestVersion, problems: &mut Vec<biomcp_types::Problem>) -> Result<GtrCard, RequestError> {
+pub(super) fn card(
+    v: &GtrTestVersion,
+    problems: &mut Vec<biomcp_types::Problem>,
+) -> Result<GtrCard, RequestError> {
     Ok(GtrCard {
         header: header(v, problems)?,
         native_status: GtrNativeStatus {
