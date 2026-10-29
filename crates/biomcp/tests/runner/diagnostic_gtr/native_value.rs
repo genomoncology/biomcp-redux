@@ -162,10 +162,13 @@ pub(super) fn text_admission() -> Result<(), String> {
     // Synthetic stored-row edit isolates view admission from whole-cell bundle retention.
     let cache = rusqlite::Connection::open(env.root().join("case-cache/replay.sqlite"))
         .map_err(|e| e.to_string())?;
-    let changed = cache.execute(
-        "UPDATE bundle_row SET row=json_set(row,'$.value.name_of_institution',?1) WHERE bundle='gtr' AND json_extract(row,'$.value.test_accession_ver')='GTR000006692.3'",
-        ["x".repeat(biodata::Text::MAX_CHARS + 1)],
-    ).map_err(|e| e.to_string())?;
+    let changed = cache
+        .execute(
+            "UPDATE bundle_row SET row=json_set(row,'$.value.name_of_institution',?1) \
+         WHERE bundle='gtr' AND json_extract(row,'$.value.test_accession_ver')='GTR000006692.3'",
+            ["x".repeat(biodata::Text::MAX_CHARS + 1)],
+        )
+        .map_err(|e| e.to_string())?;
     if changed != 1 {
         return Err(format!("edited {changed} native rows"));
     }
