@@ -19,7 +19,7 @@
       "type": "string"
     }
   },
-  "$id": "biomcp.pathway-search/4",
+  "$id": "biomcp.pathway-search/3",
   "$schema": "https://json-schema.org/draft/2020-12/schema",
   "additionalProperties": false,
   "description": "Search Reactome (default) or WikiPathways human pathways. Membership names a source and release; it implies no therapy, response or actionability. No enrichment is calculated.",

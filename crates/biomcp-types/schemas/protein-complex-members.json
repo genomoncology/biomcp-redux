@@ -785,7 +785,7 @@
       "type": "string"
     }
   },
-  "$id": "biomcp.protein-complex-members/3",
+  "$id": "biomcp.protein-complex-members/2",
   "$schema": "https://json-schema.org/draft/2020-12/schema",
   "description": "One versioned command response; schema identity comes only from its body type.\nJSON readers ignore unknown fields and unknown growable enum values within a major.",
   "properties": {
@@ -841,7 +841,7 @@
       "description": "Answer when available."
     },
     "schema": {
-      "const": "biomcp.protein-complex-members/3",
+      "const": "biomcp.protein-complex-members/2",
       "type": "string"
     },
     "sources": {

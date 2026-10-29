@@ -72,7 +72,7 @@
       ]
     }
   },
-  "$id": "biomcp.variant-get/5",
+  "$id": "biomcp.variant-get/4",
   "$schema": "https://json-schema.org/draft/2020-12/schema",
   "additionalProperties": false,
   "description": "Read an rsID, CAid, ClinVar Variation ID or reference-qualified HGVS; chromosome notation requires --build. Use search variant --gene BRAF --protein V600E for shorthand. Every candidate remains available; source assertions do not classify the variant for the caller.",

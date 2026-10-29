@@ -284,7 +284,7 @@
     },
     "Reply_ErrorSchema": {
       "enum": [
-        "biomcp.error/3"
+        "biomcp.error/2"
       ],
       "type": "string"
     },
@@ -493,7 +493,7 @@
       "type": "string"
     }
   },
-  "$id": "biomcp.error/3",
+  "$id": "biomcp.error/2",
   "$schema": "https://json-schema.org/draft/2020-12/schema",
   "description": "A versioned error response that never contains caller input.",
   "properties": {

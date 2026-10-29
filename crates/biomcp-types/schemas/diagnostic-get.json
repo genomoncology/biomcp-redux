@@ -40,7 +40,7 @@
       "type": "string"
     }
   },
-  "$id": "biomcp.diagnostic-get/2",
+  "$id": "biomcp.diagnostic-get/1",
   "$schema": "https://json-schema.org/draft/2020-12/schema",
   "additionalProperties": false,
   "description": "Get one exact source record or supported section. A listing is not authorization; a companion row is not a treatment recommendation.",

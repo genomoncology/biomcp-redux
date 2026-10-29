@@ -1463,7 +1463,7 @@
       "type": "string"
     }
   },
-  "$id": "biomcp.drug-targets/5",
+  "$id": "biomcp.drug-targets/4",
   "$schema": "https://json-schema.org/draft/2020-12/schema",
   "description": "One versioned command response; schema identity comes only from its body type.\nJSON readers ignore unknown fields and unknown growable enum values within a major.",
   "properties": {
@@ -1519,7 +1519,7 @@
       "description": "Answer when available."
     },
     "schema": {
-      "const": "biomcp.drug-targets/5",
+      "const": "biomcp.drug-targets/4",
       "type": "string"
     },
     "sources": {

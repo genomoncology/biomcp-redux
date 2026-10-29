@@ -872,7 +872,7 @@
       "type": "string"
     }
   },
-  "$id": "biomcp.gwas-loci/3",
+  "$id": "biomcp.gwas-loci/2",
   "$schema": "https://json-schema.org/draft/2020-12/schema",
   "description": "One versioned command response; schema identity comes only from its body type.\nJSON readers ignore unknown fields and unknown growable enum values within a major.",
   "properties": {
@@ -928,7 +928,7 @@
       "description": "Answer when available."
     },
     "schema": {
-      "const": "biomcp.gwas-loci/3",
+      "const": "biomcp.gwas-loci/2",
       "type": "string"
     },
     "sources": {

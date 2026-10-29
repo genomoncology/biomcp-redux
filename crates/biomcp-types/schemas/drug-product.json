@@ -203,7 +203,7 @@
       "type": "string"
     }
   },
-  "$id": "biodata.drug-product/4",
+  "$id": "biodata.drug-product/3",
   "$schema": "https://json-schema.org/draft/2020-12/schema",
   "description": "A native product record and its explicit formulation links.",
   "properties": {

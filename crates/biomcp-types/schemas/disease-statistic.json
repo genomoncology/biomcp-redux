@@ -184,7 +184,7 @@
       "type": "string"
     }
   },
-  "$id": "biodata.disease-statistic/3",
+  "$id": "biodata.disease-statistic/2",
   "$schema": "https://json-schema.org/draft/2020-12/schema",
   "description": "One native statistics row with requested and returned dimensions.",
   "properties": {

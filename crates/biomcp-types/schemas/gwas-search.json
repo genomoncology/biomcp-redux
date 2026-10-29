@@ -41,7 +41,7 @@
       "type": "string"
     }
   },
-  "$id": "biomcp.gwas-search/4",
+  "$id": "biomcp.gwas-search/3",
   "$schema": "https://json-schema.org/draft/2020-12/schema",
   "additionalProperties": false,
   "description": "Source associations in default p-value-ascending order. Reports no personal risk, causal variant or gene, or clinical interpretation of a statistic.",

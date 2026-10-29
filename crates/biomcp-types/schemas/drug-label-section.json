@@ -148,7 +148,7 @@
       "type": "string"
     }
   },
-  "$id": "biodata.drug-label-section/4",
+  "$id": "biodata.drug-label-section/3",
   "$schema": "https://json-schema.org/draft/2020-12/schema",
   "description": "Original label text under one exact native heading.",
   "properties": {

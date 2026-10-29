@@ -13,7 +13,7 @@
       "type": "string"
     }
   },
-  "$id": "biomcp.organization-search/2",
+  "$id": "biomcp.organization-search/1",
   "$schema": "https://json-schema.org/draft/2020-12/schema",
   "additionalProperties": false,
   "description": "Find NCI organizations. Names are not unique; trial counts cover every status, including closed trials. No organization ID or get is available.",

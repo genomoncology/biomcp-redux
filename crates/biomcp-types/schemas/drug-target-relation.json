@@ -314,7 +314,7 @@
       "type": "string"
     }
   },
-  "$id": "biodata.drug-target-relation/5",
+  "$id": "biodata.drug-target-relation/4",
   "$schema": "https://json-schema.org/draft/2020-12/schema",
   "anyOf": [
     {

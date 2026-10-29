@@ -14,7 +14,7 @@
       "type": "string"
     }
   },
-  "$id": "biomcp.author-search-query/3",
+  "$id": "biomcp.author-search-query/2",
   "$schema": "https://json-schema.org/draft/2020-12/schema",
   "additionalProperties": false,
   "description": "Literal author name query and native window; positional text maps to query.",

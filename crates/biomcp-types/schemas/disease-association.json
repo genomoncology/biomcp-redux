@@ -190,7 +190,7 @@
       "type": "string"
     }
   },
-  "$id": "biodata.disease-association/6",
+  "$id": "biodata.disease-association/5",
   "$schema": "https://json-schema.org/draft/2020-12/schema",
   "description": "A native source association without clinical interpretation.",
   "properties": {

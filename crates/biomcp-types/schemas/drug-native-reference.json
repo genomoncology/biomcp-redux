@@ -6,7 +6,7 @@
       "type": "string"
     }
   },
-  "$id": "biodata.drug-native-reference/2",
+  "$id": "biodata.drug-native-reference/1",
   "$schema": "https://json-schema.org/draft/2020-12/schema",
   "description": "Typed source reference shared by mechanism and indication records.",
   "properties": {

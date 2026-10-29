@@ -1201,7 +1201,7 @@
       "type": "string"
     }
   },
-  "$id": "biomcp.article-evidence/4",
+  "$id": "biomcp.article-evidence/3",
   "$schema": "https://json-schema.org/draft/2020-12/schema",
   "description": "One versioned command response; schema identity comes only from its body type.\nJSON readers ignore unknown fields and unknown growable enum values within a major.",
   "properties": {
@@ -1257,7 +1257,7 @@
       "description": "Answer when available."
     },
     "schema": {
-      "const": "biomcp.article-evidence/4",
+      "const": "biomcp.article-evidence/3",
       "type": "string"
     },
     "sources": {

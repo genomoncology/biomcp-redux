@@ -180,7 +180,7 @@
       "type": "string"
     }
   },
-  "$id": "biodata.drug-interaction-claim/5",
+  "$id": "biodata.drug-interaction-claim/4",
   "$schema": "https://json-schema.org/draft/2020-12/schema",
   "description": "One native interaction pair and level, without invented management advice.",
   "properties": {

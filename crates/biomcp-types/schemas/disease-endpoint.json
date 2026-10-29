@@ -11,7 +11,7 @@
       "type": "string"
     }
   },
-  "$id": "biodata.disease-endpoint/3",
+  "$id": "biodata.disease-endpoint/2",
   "$schema": "https://json-schema.org/draft/2020-12/schema",
   "description": "One native endpoint with an identifier and an optional source label.",
   "properties": {

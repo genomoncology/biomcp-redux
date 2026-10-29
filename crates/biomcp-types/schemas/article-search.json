@@ -58,7 +58,7 @@
       "type": "string"
     }
   },
-  "$id": "biomcp.article-search/3",
+  "$id": "biomcp.article-search/2",
   "$schema": "https://json-schema.org/draft/2020-12/schema",
   "additionalProperties": false,
   "anyOf": [

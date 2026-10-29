@@ -114,7 +114,7 @@
       "type": "string"
     }
   },
-  "$id": "biodata.authorization-event/4",
+  "$id": "biodata.authorization-event/3",
   "$schema": "https://json-schema.org/draft/2020-12/schema",
   "description": "A source-scoped regulator event; never an identity-card field.",
   "properties": {

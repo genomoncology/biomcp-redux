@@ -11,7 +11,7 @@
       "type": "string"
     }
   },
-  "$id": "biomcp.trial-document/2",
+  "$id": "biomcp.trial-document/1",
   "$schema": "https://json-schema.org/draft/2020-12/schema",
   "additionalProperties": false,
   "description": "Download one exact ClinicalTrials.gov manifest PDF to an explicit caller path; never read its text. CLI and stdio MCP support saves; HTTP refuses with the source URL.",

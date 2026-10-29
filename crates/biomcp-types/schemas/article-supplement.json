@@ -16,7 +16,7 @@
       "type": "string"
     }
   },
-  "$id": "biomcp.article-supplement/3",
+  "$id": "biomcp.article-supplement/2",
   "$schema": "https://json-schema.org/draft/2020-12/schema",
   "additionalProperties": false,
   "description": "Read a checked supplement file or page its original rows.",

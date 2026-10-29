@@ -3,7 +3,6 @@ use serde_json::Value;
 use std::collections::{BTreeMap, BTreeSet};
 
 type Check<T> = Result<T, String>;
-
 const STRING_FORMATS: &[&str] = &["date", "date-time", "uri", "uri-reference"];
 
 #[derive(Debug, Default)]

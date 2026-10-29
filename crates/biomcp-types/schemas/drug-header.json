@@ -75,7 +75,7 @@
       "type": "string"
     }
   },
-  "$id": "biomcp.drug-header/3",
+  "$id": "biomcp.drug-header/2",
   "$schema": "https://json-schema.org/draft/2020-12/schema",
   "description": "One source candidate, without authorization, targets, label text or interactions.",
   "properties": {

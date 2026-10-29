@@ -180,7 +180,7 @@
       "type": "string"
     }
   },
-  "$id": "biodata.drug-identity-relation/4",
+  "$id": "biodata.drug-identity-relation/3",
   "$schema": "https://json-schema.org/draft/2020-12/schema",
   "description": "One explicitly source-stated identifier, parent, product or formulation relation.",
   "properties": {

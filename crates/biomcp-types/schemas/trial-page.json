@@ -1958,7 +1958,7 @@
       "type": "string"
     }
   },
-  "$id": "biomcp.trial-page/12",
+  "$id": "biomcp.trial-page/11",
   "$schema": "https://json-schema.org/draft/2020-12/schema",
   "description": "One versioned command response; schema identity comes only from its body type.\nJSON readers ignore unknown fields and unknown growable enum values within a major.",
   "properties": {
@@ -2014,7 +2014,7 @@
       "description": "Answer when available."
     },
     "schema": {
-      "const": "biomcp.trial-page/12",
+      "const": "biomcp.trial-page/11",
       "type": "string"
     },
     "sources": {

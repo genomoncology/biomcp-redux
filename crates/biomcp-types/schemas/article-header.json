@@ -86,7 +86,7 @@
       "type": "string"
     }
   },
-  "$id": "biomcp.article-header/5",
+  "$id": "biomcp.article-header/4",
   "$schema": "https://json-schema.org/draft/2020-12/schema",
   "description": "Citation metadata from PubMed or Europe PMC.",
   "properties": {

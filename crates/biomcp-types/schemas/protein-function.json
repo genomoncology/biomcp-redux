@@ -749,7 +749,7 @@
       "type": "string"
     }
   },
-  "$id": "biomcp.protein-function/3",
+  "$id": "biomcp.protein-function/2",
   "$schema": "https://json-schema.org/draft/2020-12/schema",
   "description": "One versioned command response; schema identity comes only from its body type.\nJSON readers ignore unknown fields and unknown growable enum values within a major.",
   "properties": {
@@ -805,7 +805,7 @@
       "description": "Answer when available."
     },
     "schema": {
-      "const": "biomcp.protein-function/3",
+      "const": "biomcp.protein-function/2",
       "type": "string"
     },
     "sources": {
