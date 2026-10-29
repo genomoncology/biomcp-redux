@@ -161,5 +161,4 @@ impl Record {
             Box::default()
         }
     }
-
 }
