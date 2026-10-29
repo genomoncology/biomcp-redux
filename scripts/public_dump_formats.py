@@ -187,6 +187,8 @@ def nested_values(record):
             elif isinstance(value, str):
                 if key == "value" and syntax.startswith("hgvs"):
                     yield item("hgvs", value)
+                elif key == "value" and syntax:
+                    yield item("expression", {"syntax": syntax, "value": value})
                 elif key == "code" and coding:
                     continue
                 elif key in {"id", "primaryCode", "code", "accession", "identifier"}:
@@ -196,7 +198,7 @@ def nested_values(record):
                     elif value:
                         yield item("text", value)
                 elif key in {"name", "label", "title"}:
-                    yield item("text", value)
+                    yield item("gene" if record.get("conceptType") == "gene" else "text", value)
 
 
 def records(handle, kind):
@@ -211,10 +213,10 @@ def records(handle, kind):
         values.extend(criterion_citations(record))
         yield record.get("uuid", "interpretation"), values, [], None, None
         return
-    if kind != "clinvar_gks":
+    if kind not in {"clinvar_gks", "clinvar_gks_record"}:
         yield from table_records(handle, kind)
         return
-    for section, identity, record in bundle_records(handle):
+    for section, identity, record in gks_records(handle, kind):
         # Proposition IDs are composite native keys, not bare SCV/VCV accessions.
         if "proposition" in section.lower():
             record = {key: value for key, value in record.items() if key != "id"}
@@ -232,6 +234,14 @@ def records(handle, kind):
         edges = [value[2:] for value in scalars if value.startswith("#/")]
         context = (f"{section}/{identity}", ids, edges)
         yield f"{section}/{identity}", values, [], None if section in SECTIONS else section, context
+
+
+def gks_records(handle, kind):
+    if kind == "clinvar_gks_record":
+        record = json.load(handle)
+        yield "variation", record["id"], record
+    else:
+        yield from bundle_records(handle)
 
 
 def criterion_citations(node, criterion=False):

@@ -172,6 +172,17 @@ class Sweep(unittest.TestCase):
         self.assertEqual(report["types"]["native_identifier"]["parsed"], 2)
         self.assertEqual(report["types"]["rs"]["parsed"], 1)
 
+    def test_official_cc0_example_checks_all_published_hgvs_expressions(self):
+        folder = ROOT / "tests/fixtures/public-dump-sweep"
+        source = json.loads((folder / "manifest.json").read_text())["sources"][0]
+        data = (folder / source["path"]).read_bytes()
+        self.assertEqual(hashlib.sha256(data).hexdigest(), source["sha256"])
+        result, report = self.run_sweep("clinvar_gks_record", data.decode())
+        self.assertEqual(result.returncode, 0, result.stderr)
+        self.assertEqual(report["types"]["hgvs"]["parsed"], 18)
+        self.assertEqual(report["types"]["expression"]["parsed"], 4)
+        self.assertEqual(report["types"]["gene"]["parsed"], 1)
+
 
 if __name__ == "__main__":
     unittest.main()

@@ -1,8 +1,8 @@
 //! Offline test-tool bridge. Each input line contains a batch of source values.
 use biodata::{
-    Accession, CaId, ClinVarAlleleId, ClinVarVariationId, Concept, Curie, Doi, DrugId, GeneSymbol,
-    HgvsText, MondoId, NcbiGeneId, NcitId, Pmid, RcvId, RsId, ScvId, SourceText, Text, VariantId,
-    VariantRef, VcvId,
+    Accession, CaId, ClinVarAlleleId, ClinVarVariationId, Concept, Curie, Doi, DrugId, Expression,
+    GeneSymbol, HgvsText, MondoId, NcbiGeneId, NcitId, Pmid, RcvId, RsId, ScvId, SourceText, Text,
+    VariantId, VariantRef, VcvId,
 };
 use serde::{Deserialize, Serialize};
 use serde_json::Value;
@@ -37,6 +37,7 @@ fn parse(input: Input) -> Output {
         "disease" | "drug" => checked::<Concept>(value),
         "drug_id" => checked::<DrugId>(value),
         "hgvs" => checked::<HgvsText>(value),
+        "expression" => checked::<Expression>(value),
         "gene" => checked::<GeneSymbol>(value),
         "gene_id" => checked::<NcbiGeneId>(value),
         "citation" => checked::<Pmid>(value),

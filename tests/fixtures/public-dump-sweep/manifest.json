@@ -1,0 +1,14 @@
+{
+  "sources": [
+    {
+      "kind": "clinvar_gks_record",
+      "path": "official-gkm-12582.json",
+      "release": "example-f8abeee008c7a7146ad268855015dabdf29dacf6",
+      "url": "https://raw.githubusercontent.com/clingen-data-model/clinvar-gkm/f8abeee008c7a7146ad268855015dabdf29dacf6/examples/cat-vrs/clinvar%3A12582.jsonc",
+      "rights": "CC0-1.0",
+      "rights_url": "https://raw.githubusercontent.com/clingen-data-model/clinvar-gkm/f8abeee008c7a7146ad268855015dabdf29dacf6/LICENSE",
+      "sha256": "e666d015782295cac07f9e1bbd4fded7f56360de81e9e90557ffe2c06b282589"
+    }
+  ],
+  "synthetic_format_cases": ["clinvar-edge.tsv"]
+}

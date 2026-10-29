@@ -6,6 +6,7 @@ Paths resolve against the manifest directory and dumps must remain outside Git.
 Kinds: civic_variants, civic_profiles, civic_evidence, clinvar_summary,
 clingen_summary, clingen_evidence, clinvar_gks. ClinGen evidence accepts one
 original public interpretation response per file; GKS accepts the keyed bundle.
+The clinvar_gks_record kind accepts one original publisher example record.
 Only CC0-1.0 and public-domain inputs are accepted. Pin the compressed file hash.
 This tool checks mapped source fields. Profile member IDs are checked separately without
 inferring allele identities or reconstructing their source logical expression.
@@ -56,7 +57,7 @@ def pinned_sources(manifest):
         required = set(PIN_FIELDS)
         if not required <= source.keys() or any(not source[key] for key in required):
             raise ValueError("manifest_missing_pin")
-        if source["kind"] not in {*REQUIRED, "clinvar_gks", "clingen_evidence"}:
+        if source["kind"] not in {*REQUIRED, "clinvar_gks", "clinvar_gks_record", "clingen_evidence"}:
             raise ValueError("manifest_unknown_source_kind")
         if source["rights"] not in {"CC0-1.0", "public-domain"}:
             raise ValueError("manifest_unapproved_rights")
