@@ -38,11 +38,12 @@ pub(super) fn check(root: &Path) -> Check {
 
 fn audit(tokens: &[String]) -> Result<(), String> {
     for window in tokens.windows(3) {
-        if window[0] == "rename_all" && window[2] == "\"snake_case\"" {
+        let [name, equal, value] = window else { continue };
+        if name == "rename_all" && value == "\"snake_case\"" {
             return Err("owned enum values require kebab-case".into());
         }
-        if window[0] == "tag" && window[1] == "=" && window[2].starts_with('"') {
-            let tag = window[2].trim_matches('"');
+        if name == "tag" && equal == "=" && value.starts_with('"') {
+            let tag = value.trim_matches('"');
             if tag == "annotationkind"
                 || !tag.bytes().all(|c| c.is_ascii_lowercase() || c.is_ascii_digit() || c == b'_')
             {
@@ -54,25 +55,20 @@ fn audit(tokens: &[String]) -> Result<(), String> {
         if !OWNED.contains(&token.as_str()) {
             continue;
         }
-        let declaration = tokens.get(index + 1).is_some_and(|token| token == "{")
-            || tokens.get(index + 1).is_some_and(|token| token == ",")
-                && tokens.get(index + 3).is_some_and(|token| token == "{");
+        let tail = tokens.get(index + 1..).unwrap_or_default();
+        let declaration = matches!(tail, [brace, ..] if brace == "{")
+            || matches!(tail, [comma, _, brace, ..] if comma == "," && brace == "{");
         if !declaration {
             continue;
         }
-        let Some(start) = tokens[index..].iter().position(|token| token == "{") else {
-            continue;
-        };
-        for value in tokens[index + start..]
-            .windows(3)
-            .take_while(|w| w[0] != "}")
+        let Some(start) = tail.iter().position(|token| token == "{") else { continue };
+        for value in tail.get(start..).unwrap_or_default().windows(3)
+            .take_while(|w| w.first().is_none_or(|token| token != "}"))
         {
-            if value[0] == "=" && value[1] == ">" {
-                let literal = value[2].trim_matches('"');
-                if !literal
-                    .bytes()
-                    .all(|c| c.is_ascii_lowercase() || c.is_ascii_digit() || c == b'-')
-                {
+            let [equal, arrow, literal] = value else { continue };
+            if equal == "=" && arrow == ">" {
+                let literal = literal.trim_matches('"');
+                if !literal.bytes().all(|c| c.is_ascii_lowercase() || c.is_ascii_digit() || c == b'-') {
                     return Err(format!("{token} requires kebab-case: {literal}"));
                 }
             }
