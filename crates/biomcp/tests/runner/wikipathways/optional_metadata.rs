@@ -31,6 +31,7 @@ pub(super) fn check() -> Check {
     if control.pointer("/result/pathway/id/id") != Some(&json!(id)) {
         return Err("positive WikiPathways identity missing".into());
     }
+    eprintln!("GREEN recovered native WP382 identity before name mutation");
     let rows = get
         .get_mut("pathwayInfo")
         .and_then(Value::as_array_mut)
