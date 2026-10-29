@@ -6,7 +6,8 @@ use crate::{
 use rusqlite::{Connection, OptionalExtension, params};
 const PART_PREFIX: &str = ".tmp";
 const PART_RANDOM: usize = 6;
-const METADATA: &str = "SELECT b.bytes,b.rows,b.fresh_until,b.etag,b.modified,c.revision,c.retrieved_at,COALESCE((SELECT rejections FROM bundle_rejection WHERE name=b.name),'[]') FROM bundle b LEFT \
+const METADATA: &str = "SELECT b.bytes,b.rows,b.fresh_until,b.etag,b.modified,c.revision,c.retrieved_at,\
+    COALESCE((SELECT rejections FROM bundle_rejection WHERE name=b.name),'[]') FROM bundle b LEFT \
     JOIN bundle_content c ON c.name=b.name WHERE b.name=?1";
 #[derive(Clone, Debug)]
 pub(super) struct Meta {
