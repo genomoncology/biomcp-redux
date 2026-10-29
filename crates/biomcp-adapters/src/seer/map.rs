@@ -42,7 +42,11 @@ fn attribution(key: &str) -> Result<Attribution, BadReply> {
         ),
     })
 }
-fn cell<'a>(fields: &[String], row: &'a [Option<raw::Cell>], name: &str) -> Option<&'a raw::Cell> {
+fn cell<'a>(
+    fields: &[String],
+    row: &'a [Option<crate::raw::Field<raw::Cell>>],
+    name: &str,
+) -> Option<&'a crate::raw::Field<raw::Cell>> {
     fields
         .iter()
         .position(|f| f == name)
@@ -51,8 +55,9 @@ fn cell<'a>(fields: &[String], row: &'a [Option<raw::Cell>], name: &str) -> Opti
 }
 fn number(
     fields: &[String],
-    row: &[Option<raw::Cell>],
+    row: &[Option<crate::raw::Field<raw::Cell>>],
     name: &str,
+    problems: &mut crate::mapped::Problems,
 ) -> Result<Option<biodata::WithUnit<FiniteNumber>>, BadReply> {
     let unit = match name {
         "rate" | "rate_se" | "rate_lower_ci" | "rate_upper_ci" => "per 100,000 people",
@@ -60,28 +65,31 @@ fn number(
     }
     .parse()
     .map_err(|_| BadReply)?;
-    cell(fields, row, name)
-        .map(|cell| {
-            Ok(biodata::WithUnit {
-                value: cell.number()?,
+    Ok(problems.optional(
+        name,
+        cell(fields, row, name).map(|cell| {
+            Ok::<_, BadReply>(biodata::WithUnit {
+                value: cell.as_ref().ok_or(BadReply)?.number()?,
                 unit: Some(unit),
             })
-        })
-        .transpose()
+        }),
+    ))
 }
 fn observed(
     fields: &[String],
-    row: &[Option<raw::Cell>],
+    row: &[Option<crate::raw::Field<raw::Cell>>],
     measure: &str,
+    problems: &mut crate::mapped::Problems,
 ) -> Result<Option<StatisticEstimate>, BadReply> {
     let estimate = StatisticEstimate {
-        value: number(fields, row, measure)?,
-        standard_error: number(fields, row, &format!("{measure}_se"))?,
-        lower_ci: number(fields, row, &format!("{measure}_lower_ci"))?,
-        upper_ci: number(fields, row, &format!("{measure}_upper_ci"))?,
-        count: cell(fields, row, "count")
-            .map(raw::Cell::integer)
-            .transpose()?,
+        value: number(fields, row, measure, problems)?,
+        standard_error: number(fields, row, &format!("{measure}_se"), problems)?,
+        lower_ci: number(fields, row, &format!("{measure}_lower_ci"), problems)?,
+        upper_ci: number(fields, row, &format!("{measure}_upper_ci"), problems)?,
+        count: problems.optional(
+            "count",
+            cell(fields, row, "count").map(|v| v.as_ref().ok_or(BadReply)?.integer()),
+        ),
     };
     Ok(
         if estimate.value.is_none()
@@ -129,17 +137,23 @@ pub(super) fn rows(
         returned.push(selector("year_range", &series.year_range.to_string())?);
         mismatches(&requested, &returned, &mut problems);
         for row in series.data_series {
-            let modeled = number(&document.info.fields, &row, "modeled_rel_rate")?.map(|value| {
-                StatisticEstimate {
+            let mut fields = crate::mapped::Problems {
+                source: Source::Seer,
+                record: crate::mapped::record(&key),
+                list: Vec::new(),
+            };
+            let modeled = number(&document.info.fields, &row, "modeled_rel_rate", &mut fields)?
+                .map(|value| StatisticEstimate {
                     value: Some(value),
                     standard_error: None,
                     lower_ci: None,
                     upper_ci: None,
                     count: None,
-                }
-            });
+                });
             let year = cell(&document.info.fields, &row, "year")
-                .map(|c| u32::try_from(c.integer()?).map_err(|_| BadReply))
+                .map(|c| {
+                    u32::try_from(c.as_ref().ok_or(BadReply)?.integer()?).map_err(|_| BadReply)
+                })
                 .transpose()?;
             rows.push(DiseaseStatistic {
                 requested_site: query.site.clone(),
@@ -147,10 +161,16 @@ pub(super) fn rows(
                 returned_selectors: returned.clone().into(),
                 year,
                 measure: document.info.measure.parse().map_err(|_| BadReply)?,
-                observed: observed(&document.info.fields, &row, &document.info.measure)?,
+                observed: observed(
+                    &document.info.fields,
+                    &row,
+                    &document.info.measure,
+                    &mut fields,
+                )?,
                 modeled,
                 attribution: attribution(&key)?,
             });
+            problems.extend(fields.list);
         }
     }
     Ok((rows, problems))

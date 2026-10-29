@@ -56,7 +56,7 @@ pub(super) struct Info {
 }
 #[derive(Debug, Deserialize)]
 pub(super) struct Series {
-    pub data_series: Vec<Vec<Option<Cell>>>,
+    pub data_series: Vec<Vec<Option<crate::raw::Field<Cell>>>>,
     pub year_range: u32,
 }
 #[derive(Debug, Deserialize)]
@@ -136,14 +136,11 @@ impl Reply for Document {
                     if *field == "year" && value.is_none() {
                         return Err(BadReply);
                     }
-                    if let Some(value) = value {
-                        if *field == "year" {
-                            u32::try_from(value.integer()?).map_err(|_| BadReply)?;
-                        } else if *field == "count" {
-                            value.integer()?;
-                        } else {
-                            value.number()?;
-                        }
+                    if *field == "year"
+                        && let Some(value) = value
+                    {
+                        let value = value.as_ref().ok_or(BadReply)?;
+                        u32::try_from(value.integer()?).map_err(|_| BadReply)?;
                     }
                 }
             }

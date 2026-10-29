@@ -50,7 +50,7 @@ pub(super) fn event(
         .filter(|(key, _)| key.ends_with("_date"))
         .filter_map(|(key, _)| {
             Some(AuthorizationDate {
-                role: Text::new(key).ok()?,
+                role: problems.optional(key, Some(Text::new(key)))?,
                 date: problems.optional(
                     key,
                     row.field(key)
@@ -91,6 +91,6 @@ fn item(row: &raw::Medicine, problems: &mut crate::mapped::Problems, field: &str
     problems.optional(
         field,
         row.field(field)
-            .map(|value| value.and_then(crate::mapped::text)),
+            .map(|value| value.and_then(crate::mapped::source_text)),
     )
 }
