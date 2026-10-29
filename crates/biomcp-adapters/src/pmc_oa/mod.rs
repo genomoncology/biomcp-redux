@@ -44,6 +44,8 @@ pub struct Document {
     pub body: jats::Body,
     /// JATS supplements confirmed against the record media list.
     pub supplements: Vec<Supplement>,
+    /// Rejected metadata and JATS fields.
+    pub problems: Vec<biomcp_types::Problem>,
 }
 fn bad(_: impl std::fmt::Debug) -> RequestError {
     SourceError {
@@ -106,17 +108,22 @@ pub fn read(
     if body.pmcid.is_some_and(|found| found != id) {
         return Err(bad(BadReply));
     }
-    let supplements = supplement::select(
-        &body.supplements,
-        record.media_urls.as_deref().unwrap_or(&[]),
-        &directory,
-    )?;
+    let mut problems = crate::mapped::Problems {
+        source: Source::PmcOa,
+        record: crate::mapped::record(id),
+        list: Vec::new(),
+    };
+    let urls = problems.fields("media_urls", record.media_urls);
+    let supplements = supplement::select(&body.supplements, &urls, &directory, &mut problems)?;
+    problems.list.extend(body.problems.clone());
+    let manuscript = problems.field("manuscript", record.is_manuscript);
     Ok(Some(Document {
         url,
         supplements,
         license: license(&record.license_code),
         version: Some(version),
-        manuscript: Some(record.is_manuscript),
+        manuscript,
+        problems: problems.list,
         body,
     }))
 }

@@ -44,6 +44,9 @@ pub(super) fn run<'a>(
                 error.get_or_insert(e);
                 out.local = out.local.or(status::local(e));
             }
+            if let Ok(Some(doc)) = &result {
+                out.problems.extend(doc.problems.clone());
+            }
             loaded.push((identity, content(result)));
         }
         let Some((_, data)) = loaded.iter().find(|(found, _)| *found == identity) else {

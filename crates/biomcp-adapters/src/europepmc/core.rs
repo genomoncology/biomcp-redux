@@ -174,6 +174,16 @@ pub fn read(leg: &Leg<'_>, id: &EuropePmcId) -> Result<pmc_oa::Document, Request
         version: None,
         manuscript: None,
         supplements: Default::default(),
+        problems: body
+            .problems
+            .iter()
+            .cloned()
+            .map(|mut p| {
+                p.source = biomcp_types::Source::EuropePmc;
+                p.record = provenance(id);
+                p
+            })
+            .collect(),
         body,
     })
 }

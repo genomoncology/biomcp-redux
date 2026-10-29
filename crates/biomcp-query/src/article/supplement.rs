@@ -92,6 +92,7 @@ fn execute<'a>(
                 reason: Reason::NotOpen,
             });
         };
+        out.problems.extend(document.problems.clone());
         content(query, selection, &leg, &document, out, save)
     })();
     *deadline = deadline.after_stage(started.saturating_sub(leg.remaining()));

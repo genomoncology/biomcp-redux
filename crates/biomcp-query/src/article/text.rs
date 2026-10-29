@@ -135,6 +135,7 @@ fn execute<'a>(
     let content = match result? {
         None => Section::unavailable(Source::PmcOa, Reason::NotOpen),
         Some(document) => {
+            out.problems.extend(document.problems.clone());
             let Some(content) = select(
                 query,
                 selection,
@@ -335,6 +336,7 @@ fn preprint<'a>(
     }
     out.sources.push(source);
     let document = result?;
+    out.problems.extend(document.problems.clone());
     let Some(content) = select(
         query,
         selection,

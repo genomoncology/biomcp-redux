@@ -77,6 +77,7 @@ pub(super) fn fulltext<'a>(cx: &Ctx<'a>, deadline: &mut Deadline<'a>, out: &mut 
         used = true;
         sections.fulltext = Some(match europepmc::read(&leg, id) {
             Ok(document) => {
+                out.problems.extend(document.problems.clone());
                 if !document.body.parts.is_empty() {
                     super::sections::fulltext::next_input(
                         ArticleInput::EuropePmc(id.clone()),
