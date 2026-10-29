@@ -13,11 +13,14 @@ pub struct VariantComponent {
     pub version: Option<Text>,
     /// Component license URL, without any inferred grant.
     #[cfg_attr(feature = "schema", schemars(extend("format" = "uri")))]
-    pub license: Text,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub license: Option<Text>,
     /// Aggregator build version.
-    pub aggregator_build: Text,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub aggregator_build: Option<Text>,
     /// Aggregator build timestamp, distinct from a component release.
-    pub aggregator_built: Text,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub aggregator_built: Option<Text>,
     /// Component upload timestamp when the source states one.
     #[serde(default, skip_serializing_if = "Option::is_none")]
     pub uploaded: Option<Text>,

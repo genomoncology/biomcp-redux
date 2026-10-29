@@ -66,7 +66,9 @@ pub fn get(leg: &Leg<'_>, id: &str, build: Build) -> Result<Mapped<VariantCosmic
     let components = if records.is_empty() {
         Vec::new()
     } else {
-        vec![super::metadata::cosmic(leg)?]
+        let metadata = super::metadata::cosmic(leg)?;
+        problems.list.extend(metadata.problems);
+        metadata.value
     };
     Ok(Mapped {
         value: VariantCosmic {

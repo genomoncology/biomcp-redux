@@ -64,7 +64,9 @@ pub fn get(
     .filter_map(|(enabled, component)| enabled.then_some(component))
     .collect::<Vec<_>>();
     if !mapped.value.scores.is_empty() || !mapped.value.context.is_empty() {
-        mapped.value.components = super::metadata::components(leg, &selected)?.into();
+        let metadata = super::metadata::components(leg, &selected)?;
+        mapped.problems.extend(metadata.problems);
+        mapped.value.components = metadata.value.into();
     }
     for score in &mut mapped.value.scores {
         if let Some(component) = mapped.value.components.iter().find(|component| {
