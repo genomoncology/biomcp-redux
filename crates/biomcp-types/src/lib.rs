@@ -83,7 +83,7 @@ pub use response::{
     GeneExpression, PathwayRef, ReactomeId, RnaAbundance, TissueNtpm,
 };
 pub use response::{
-    CivicClaimPage, CivicMember, CivicMembership, CivicNativeClaim, CivicProfile, CivicStatement,
+    CivicClaimPage, CivicCondition, CivicMember, CivicMembership, CivicNativeClaim, CivicProfile, CivicStatement, CivicTherapy,
     HotspotAlternate, HotspotMembership, HotspotRecord, OncokbCitation, OncokbVariantRecord,
     VariantCivic, VariantHotspots, VariantOncokb, VariantSections,
 };
