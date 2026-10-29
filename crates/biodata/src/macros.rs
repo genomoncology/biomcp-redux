@@ -61,7 +61,7 @@ macro_rules! wire_enum {
         impl<'de> serde::Deserialize<'de> for $name {
             fn deserialize<D: serde::Deserializer<'de>>(deserializer: D) -> Result<Self, D::Error> {
                 struct Visitor;
-                impl serde::de::Visitor<'_> for Visitor {
+                impl<'input> serde::de::Visitor<'input> for Visitor {
                     type Value = $name;
                     fn expecting(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
                         f.write_str(concat!("a declared ", stringify!($name), " value"))
@@ -72,8 +72,41 @@ macro_rules! wire_enum {
                             _ => Err(E::custom($crate::Error::WireEnumUnknown)),
                         }
                     }
+                    fn visit_bool<E: serde::de::Error>(self, _: bool) -> Result<$name, E> {
+                        Err(E::custom($crate::Error::WireEnumUnknown))
+                    }
+                    fn visit_i64<E: serde::de::Error>(self, _: i64) -> Result<$name, E> {
+                        Err(E::custom($crate::Error::WireEnumUnknown))
+                    }
+                    fn visit_u64<E: serde::de::Error>(self, _: u64) -> Result<$name, E> {
+                        Err(E::custom($crate::Error::WireEnumUnknown))
+                    }
+                    fn visit_i128<E: serde::de::Error>(self, _: i128) -> Result<$name, E> {
+                        Err(E::custom($crate::Error::WireEnumUnknown))
+                    }
+                    fn visit_u128<E: serde::de::Error>(self, _: u128) -> Result<$name, E> {
+                        Err(E::custom($crate::Error::WireEnumUnknown))
+                    }
+                    fn visit_f64<E: serde::de::Error>(self, _: f64) -> Result<$name, E> {
+                        Err(E::custom($crate::Error::WireEnumUnknown))
+                    }
+                    fn visit_char<E: serde::de::Error>(self, _: char) -> Result<$name, E> {
+                        Err(E::custom($crate::Error::WireEnumUnknown))
+                    }
+                    fn visit_bytes<E: serde::de::Error>(self, _: &[u8]) -> Result<$name, E> {
+                        Err(E::custom($crate::Error::WireEnumUnknown))
+                    }
+                    fn visit_unit<E: serde::de::Error>(self) -> Result<$name, E> {
+                        Err(E::custom($crate::Error::WireEnumUnknown))
+                    }
+                    fn visit_seq<A: serde::de::SeqAccess<'input>>(self, _: A) -> Result<$name, A::Error> {
+                        Err(serde::de::Error::custom($crate::Error::WireEnumUnknown))
+                    }
+                    fn visit_map<A: serde::de::MapAccess<'input>>(self, _: A) -> Result<$name, A::Error> {
+                        Err(serde::de::Error::custom($crate::Error::WireEnumUnknown))
+                    }
                 }
-                deserializer.deserialize_str(Visitor)
+                deserializer.deserialize_any(Visitor)
             }
         }
         impl $name {

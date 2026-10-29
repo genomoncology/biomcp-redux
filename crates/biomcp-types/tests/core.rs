@@ -339,13 +339,24 @@ fn biomarker_replies_ignore_future_fields_while_queries_stay_closed() -> Check {
 
 #[test]
 fn unknown_wire_enum_value_is_private() {
-    let input = "synthetic-private-enum-value";
-    let error = serde_json::from_value::<biodata::TrialSiteStatus>(serde_json::json!(input))
-        .expect_err("unknown enum value must be refused");
-    assert!(
-        !error.to_string().contains(input),
-        "decode errors must omit input"
-    );
+    for input in [
+        json!("synthetic-private-enum-value"),
+        json!(987654321),
+        json!(-987654321),
+        json!(12345.6789),
+        json!(true),
+        json!(null),
+        json!(["synthetic-private-enum-value"]),
+        json!({"private": "synthetic-private-enum-value"}),
+    ] {
+        let error = serde_json::from_value::<biodata::TrialSiteStatus>(input)
+            .expect_err("unknown enum value must be refused");
+        assert_eq!(
+            error.to_string(),
+            "enum.value.unknown",
+            "decode errors must omit input"
+        );
+    }
 }
 
 #[test]
