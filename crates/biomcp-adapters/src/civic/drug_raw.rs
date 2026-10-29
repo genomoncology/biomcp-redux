@@ -2,6 +2,7 @@ use super::{drug::Therapy, variant_raw as raw};
 use crate::{native_text::NativeText, raw::Field};
 use biodata::Text;
 use biomcp_fetch::{BadReply, Reply};
+use biomcp_types::DrugGet;
 use serde::Deserialize;
 
 #[derive(Deserialize)]

@@ -6,6 +6,7 @@ mod raw;
 pub mod variant;
 mod variant_groups;
 pub mod variant_map;
+mod variant_map_support;
 use crate::{Mapped, quotas};
 use biodata::{GeneSymbol, NcbiGeneId, Text};
 

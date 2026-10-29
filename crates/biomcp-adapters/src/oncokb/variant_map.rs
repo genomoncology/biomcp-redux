@@ -1,8 +1,7 @@
 //! Checked request identity survives malformed optional annotation content.
 #[path = "variant_labels.rs"]
 mod labels;
-#[path = "variant_map_support.rs"]
-pub(super) mod support;
+use super::variant_map_support as support;
 use super::{variant::Annotation, variant_groups as groups};
 use crate::{Mapped, mapped::Problems};
 use biodata::{Text, VariantRef};

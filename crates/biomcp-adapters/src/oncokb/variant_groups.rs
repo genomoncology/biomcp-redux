@@ -1,5 +1,5 @@
 //! Native collection positions identify response groups without inventing publisher IDs.
-use super::{variant as raw, variant_map::support as map};
+use super::{variant as raw, variant_map_support as map};
 use crate::{mapped::Problems, raw::Field};
 use biodata::Term;
 use biomcp_types::OncokbVariantRecord as Record;
