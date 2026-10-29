@@ -45,6 +45,8 @@ Robustness and public-text fixes come first, because the parity run, the docs an
 
 - Close the code quality review's findings (`records/2026-10-28-code-quality-review.md`) by the reviewed design in `planning/restructure.md`. Order: the trial status fix 0417, the reply diff 0454 that proves each structure ticket changes nothing it does not name, pure dead code 0425, the installed-binary suite 0429, then 0423, 0434, 0430, 0431, 0456, the bad-value rule (0467, then the families 0468 to 0472, closed by 0418), 0426, 0457, status rules 0419 and typed next steps 0458, the layer move 0420, the command table 0421, 0427, the source declaration 0422, 0455, 0424, 0428 and finally the architecture rewrite 0432. Each ticket's Depends line holds the exact order.
 
+- Rebuild the test suite as one small outside-in suite (`decisions/2026-10-29-one-small-outside-in-suite.md`): the required-coverage check 0483 after 0431, then the case cut 0456, then the runner trial cut 0484 and the nightly selection 0485. Mutation testing 0457 runs on the cut suite.
+
 - Fix the BioData review's data model findings before the tag, because the release gate freezes every pattern, type set and schema ID: 0435 to 0453, with 0436 and 0437 first, and 0444 before 0421.
 
 ### 6. Rehearse and release
