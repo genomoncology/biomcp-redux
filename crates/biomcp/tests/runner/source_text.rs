@@ -58,7 +58,10 @@ fn check() -> Check {
     let output = env.command(env!("CARGO_BIN_EXE_biomcp"), &args).output()?;
     let text = String::from_utf8(output.stdout)?;
     assert!(output.status.success(), "Source text must remain data");
-    assert!(text.contains(LITERAL), "{text}");
+    assert!(
+        text.contains(&LITERAL.replace("&#10;", r"\\u{000a}")),
+        "{text}"
+    );
     assert!(!text.contains(SOURCE), "Source text must remain data");
     assert!(
         !text.contains("https://example.org"),
