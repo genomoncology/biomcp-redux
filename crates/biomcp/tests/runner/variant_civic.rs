@@ -347,11 +347,31 @@ fn unjoined() -> Result<(), String> {
             args.extend(["--civic-profile", "99", "--civic-kind", "evidence"]);
         }
         let value = run(&environment, &args)?;
-        let base = "/result/candidates/0/sections/civic/data/profiles/0";
-        if value.pointer(&format!("{base}/membership")) != Some(&json!("candidate"))
-            || value.pointer(&format!("{base}/statements")).is_some()
+        let base = "/result/candidates/0/sections/civic";
+        if value.pointer("/result/candidates/0/identity") != Some(&json!({})) {
+            return Err(format!(
+                "unjoined profile created an allele identity: {value}"
+            ));
+        }
+        if attempt == 2 {
+            if value.pointer(&format!("{base}/state")) != Some(&json!("empty"))
+                || value.pointer(&format!("{base}/data")).is_some()
+                || value.get("problems")
+                    != Some(&json!([{
+                        "source":"civic", "record":"120", "field":"id", "code":"value.unknown"
+                    }]))
+            {
+                return Err(format!(
+                    "wrong requested profile identity was retained: {value}"
+                ));
+            }
+        } else if value.pointer(&format!("{base}/data/profiles/0/membership"))
+            != Some(&json!("candidate"))
             || value
-                .pointer(&format!("{base}/evidence_page/next"))
+                .pointer(&format!("{base}/data/profiles/0/statements"))
+                .is_some()
+            || value
+                .pointer(&format!("{base}/data/profiles/0/evidence_page/next"))
                 .is_some()
         {
             return Err(format!(
