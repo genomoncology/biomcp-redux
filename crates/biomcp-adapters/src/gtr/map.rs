@@ -3,8 +3,8 @@ use super::{
     raw::{Object, Relation},
 };
 use biodata::{
-    GtrConditionReference, GtrConditionRelation, GtrGeneReference, GtrGeneRelation, GtrMethod, GtrMethodList,
-    GtrTestRelation, GtrTestVersion, Text,
+    GtrConditionReference, GtrConditionRelation, GtrGeneReference, GtrGeneRelation, GtrMethod,
+    GtrMethodList, GtrTestRelation, GtrTestVersion, Text,
 };
 use biomcp_fetch::RequestError;
 use biomcp_types::{DiagnosticLaboratory, DiagnosticSection, GtrCard, GtrHeader, GtrNativeStatus};
@@ -44,9 +44,13 @@ pub(super) fn header(
         id: v.test_accession_ver.clone(),
         name: optional(&v.lab_test_name, "lab_test_name", v, problems),
         laboratory: crate::mapped::field_code_text(
-            problems, biomcp_types::Source::Gtr, crate::mapped::record(&v.test_accession_ver),
-            "lab_id", (!v.lab_id.is_empty()).then(|| crate::raw::Field::Value(v.lab_id.to_string())),
-        ).map(|id| DiagnosticLaboratory {
+            problems,
+            biomcp_types::Source::Gtr,
+            crate::mapped::record(&v.test_accession_ver),
+            "lab_id",
+            (!v.lab_id.is_empty()).then(|| crate::raw::Field::Value(v.lab_id.to_string())),
+        )
+        .map(|id| DiagnosticLaboratory {
             id,
             name: optional(&v.name_of_laboratory, "name_of_laboratory", v, problems),
             institution: optional(&v.name_of_institution, "name_of_institution", v, problems),
@@ -91,12 +95,23 @@ pub(super) fn card(
 }
 pub(super) fn relation(r: &Relation, cx: &mut crate::mapped::Problems) -> Option<GtrTestRelation> {
     cx.record = crate::mapped::record(&r.id);
-    let test_type = cx.optional("test_type", r.test_type.as_ref().map(|value| value.as_ref().copied().ok_or(())));
-    let medgen = cx.optional("GTR_identifier", (!r.medgen.is_empty()).then(|| format!("MedGen:{}", r.medgen).parse()));
+    let test_type = cx.optional(
+        "test_type",
+        r.test_type
+            .as_ref()
+            .map(|value| value.as_ref().copied().ok_or(())),
+    );
+    let medgen = cx.optional(
+        "GTR_identifier",
+        (!r.medgen.is_empty()).then(|| format!("MedGen:{}", r.medgen).parse()),
+    );
     if r.object == Object::Gene {
         // A non-GeneID cell such as native -1 remains literal context, not a converted identifier.
         let gene_id = r.object_id.parse::<biodata::NcbiGeneId>().ok();
-        let label = cx.checked_text("gene_symbol", (!r.gene_symbol.is_empty()).then_some(&r.gene_symbol));
+        let label = cx.checked_text(
+            "gene_symbol",
+            (!r.gene_symbol.is_empty()).then_some(&r.gene_symbol),
+        );
         if gene_id.is_none() && label.is_none() {
             cx.required::<()>("gene_symbol", None);
             return None;
@@ -104,7 +119,10 @@ pub(super) fn relation(r: &Relation, cx: &mut crate::mapped::Problems) -> Option
         Some(GtrTestRelation::Gene(GtrGeneRelation {
             test_id: r.id.clone(),
             test_type,
-            gene: GtrGeneReference { label, ncbi_gene_id: gene_id },
+            gene: GtrGeneReference {
+                label,
+                ncbi_gene_id: gene_id,
+            },
             native_gene_or_snomed_ct_id: (!r.object_id.is_empty() && gene_id.is_none())
                 .then(|| r.object_id.clone()),
             native_medgen: medgen,
@@ -113,7 +131,10 @@ pub(super) fn relation(r: &Relation, cx: &mut crate::mapped::Problems) -> Option
         }))
     } else {
         let id = cx.required("GTR_identifier", medgen)?;
-        let label = cx.text("object_name", (!r.object_name.is_empty()).then_some(&r.object_name));
+        let label = cx.text(
+            "object_name",
+            (!r.object_name.is_empty()).then_some(&r.object_name),
+        );
         Some(GtrTestRelation::Condition(GtrConditionRelation {
             test_id: r.id.clone(),
             test_type,

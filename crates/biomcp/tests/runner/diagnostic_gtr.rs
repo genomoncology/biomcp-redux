@@ -9,9 +9,17 @@ use serde_json::json;
 
 pub(super) fn trials() -> Vec<Trial> {
     vec![
-        transcript_trial("diagnostic-gtr/invalid-accession-is-scoped-to-native-join", || values::identity().map_err(Into::into)),
-        transcript_trial("diagnostic-gtr/invalid-card-values-keep-version", || values::card_fields().map_err(Into::into)),
-        transcript_trial("diagnostic-gtr/invalid-relation-values-keep-identities", || values::relations().map_err(Into::into)),
+        transcript_trial(
+            "diagnostic-gtr/invalid-accession-is-scoped-to-native-join",
+            || values::identity().map_err(Into::into),
+        ),
+        transcript_trial("diagnostic-gtr/invalid-card-values-keep-version", || {
+            values::card_fields().map_err(Into::into)
+        }),
+        transcript_trial(
+            "diagnostic-gtr/invalid-relation-values-keep-identities",
+            || values::relations().map_err(Into::into),
+        ),
         transcript_trial(
             "diagnostic-gtr/optional-prose-refusal-and-native-empty",
             || native_value::text_admission().map_err(Into::into),

@@ -24,14 +24,20 @@ pub fn get(leg: &Leg<'_>, query: &DiagnosticGet) -> Result<Record, RequestError>
     super::revision(query.bundle_revision(), &info)?;
     let mut versions = Vec::new();
     let mut relations = Vec::new();
-    let mut cx = crate::mapped::Problems { source: biomcp_types::Source::Gtr, record: None, list: Vec::new() };
+    let mut cx = crate::mapped::Problems {
+        source: biomcp_types::Source::Gtr,
+        record: None,
+        list: Vec::new(),
+    };
     for row in rows {
         match row.value {
             Native::Version(v) => versions.push(v),
             Native::Refused(r) => r.disclose(&mut cx),
             Native::Relation(r) => {
-                if let Some(relation) = map::relation(&r, &mut cx) { relations.push(relation); }
-            },
+                if let Some(relation) = map::relation(&r, &mut cx) {
+                    relations.push(relation);
+                }
+            }
         }
     }
     let conflict = if versions.len() > 1 {
