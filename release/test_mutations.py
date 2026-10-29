@@ -118,6 +118,11 @@ class MutationCommands(unittest.TestCase):
     def report(self):
         return json.loads((self.output / 'mutation-report.json').read_text())
 
+    def test_calibration_requires_one_shard_of_twenty_mutants(self):
+        result = self.call('plan', '--previous', self.previous, '--output', self.output,
+                           '--started', time.time(), '--measure', '--shards', 2, ok=False)
+        self.assertIn('one shard', result.stderr)
+
     def test_install_uses_the_manifest_pin_in_the_owned_job(self):
         self.call('install', '--output', self.root / 'setup', '--started', time.time())
         calls = [json.loads(line) for line in (self.root / 'cargo-calls.jsonl').read_text().splitlines()]
@@ -155,7 +160,7 @@ class MutationCommands(unittest.TestCase):
         self.assertIn('omitted selected', ' '.join(self.report()['errors']))
 
     def test_failed_baseline_and_missing_shards_are_errors(self):
-        self.prepare('--measure', '--shards', 2)
+        self.prepare('--cost-seconds', 200, '--baseline-seconds', 600, '--shards', 2)
         self.env['FAKE_MODE'] = 'baseline-failure'
         self.call('shard', '--plan', self.plan, '--index', 0, ok=False)
         self.call('collect', '--plan', self.plan, ok=False)

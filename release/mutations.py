@@ -244,6 +244,8 @@ def main():
     for command in (run, gather):
         command.add_argument('--plan', type=Path, required=True)
     args = parser.parse_args()
+    if args.command == 'plan' and args.measure and args.shards != 1:
+        parser.error('initial calibration requires one shard')
     if args.command == 'plan' and (args.shards < 1 or not math.isfinite(args.baseline_seconds)
                                    or args.baseline_seconds < 0
                                    or not args.measure and args.baseline_seconds <= 0
