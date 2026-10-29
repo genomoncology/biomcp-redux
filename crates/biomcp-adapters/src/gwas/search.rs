@@ -64,16 +64,12 @@ fn admission(
         .as_ref()
         .map(|e| e.associations.as_slice())
         .unwrap_or_default();
-    if !rows
-        .iter()
-        .filter_map(crate::raw::Field::as_ref)
-        .all(|row| identity::row(row, q))
-    {
+    if !rows.iter().all(|row| identity::row(&row.selectors, q)) {
         return Err(BadReply);
     }
     // Exact parts govern order even when native doubles underflow.
     let mut previous = None;
-    for row in rows.iter().filter_map(crate::raw::Field::as_ref) {
+    for row in rows.iter().filter_map(|row| row.value.as_ref()) {
         if let Some(exact) = row.exact_p_value() {
             if previous.as_ref().is_some_and(|last| last > &exact) {
                 return Err(BadReply);

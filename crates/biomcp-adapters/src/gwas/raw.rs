@@ -13,7 +13,7 @@ pub(super) struct Response {
 }
 #[derive(Debug, Deserialize)]
 pub(super) struct Embedded {
-    pub associations: Vec<crate::raw::Field<Association>>,
+    pub associations: Vec<super::scope::Row>,
 }
 #[derive(Debug, Deserialize)]
 pub(super) struct Links {
@@ -174,7 +174,7 @@ impl Reply for Response {
         let mut ids = std::collections::BTreeSet::new();
         if rows
             .iter()
-            .filter_map(crate::raw::Field::as_ref)
+            .filter_map(|row| row.value.as_ref())
             .filter(|r| r.association_id > 0)
             .any(|r| !ids.insert(r.association_id))
         {
@@ -191,8 +191,7 @@ impl Response {
             && self.embedded.as_ref().is_none_or(|e| {
                 e.associations
                     .iter()
-                    .filter_map(crate::raw::Field::as_ref)
-                    .all(|a| a.snp_allele.iter().any(|s| s.rs_id.as_str() == id))
+                    .all(|a| a.selectors.alleles().any(|s| s.rs_id.as_str() == id))
             })
     }
 }

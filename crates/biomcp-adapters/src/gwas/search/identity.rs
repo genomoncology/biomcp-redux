@@ -38,31 +38,26 @@ fn decode(text: &str) -> Option<String> {
     }
     String::from_utf8(decoded).ok()
 }
-pub(super) fn row(row: &Association, q: &GwasSearch) -> bool {
+pub(super) fn row(row: &Selectors, q: &GwasSearch) -> bool {
     if q.study().is_some_and(|id| {
         row.accession_id
             .as_ref()
+            .and_then(crate::raw::Field::as_ref)
             .is_none_or(|v| v.as_str() != id.to_string())
+    }) || q.pubmed().is_some_and(|id| {
+        row.pubmed_id
+            .as_ref()
+            .and_then(crate::raw::Field::as_ref)
+            .map(String::as_str)
+            != Some(id.to_string().as_str())
     }) || q
-        .pubmed()
-        .is_some_and(|id| row.pubmed_id.as_deref() != Some(id.to_string().as_str()))
-        || q.variant().is_some_and(|id| {
-            !row.snp_allele
-                .iter()
-                .any(|a| a.rs_id.as_str() == id.to_string())
-        })
+        .variant()
+        .is_some_and(|id| !row.alleles().any(|a| a.rs_id.as_str() == id.to_string()))
         || q.trait_id().is_some_and(|id| {
-            !q.include_child_traits()
-                && !row
-                    .efo_traits
-                    .iter()
-                    .any(|t| t.efo_id.as_str() == id.to_string())
+            !q.include_child_traits() && !row.traits().any(|t| t.efo_id.as_str() == id.to_string())
         })
-        || q.trait_label().is_some_and(|label| {
-            !row.efo_traits
-                .iter()
-                .any(|t| t.efo_trait.as_ref() == Some(label))
-        })
+        || q.trait_label()
+            .is_some_and(|label| !row.traits().any(|t| t.efo_trait.as_ref() == Some(label)))
     {
         return false;
     }
