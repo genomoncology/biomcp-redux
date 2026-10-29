@@ -78,7 +78,7 @@ pub(super) fn walk() -> Result<(), String> {
             .and_then(Value::as_array)
             .map(Vec::len)
             != Some(3)
-            || first.pointer("/result/qualifying_total") != Some(&Value::Null)
+            || first.pointer("/result/qualifying_total").is_some()
             || first.pointer("/next/0/kind") != Some(&json!("page"))
         {
             return Err(format!(

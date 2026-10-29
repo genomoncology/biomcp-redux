@@ -60,6 +60,46 @@ fn results(registry: &Registry) -> Result<(), String> {
     if diagnostic.chars().count() > 240 {
         return Err("unbounded schema identity diagnostic".into());
     }
+    nulls()?;
+    Ok(())
+}
+
+fn nulls() -> Result<(), String> {
+    use biomcp_types::{DiseaseGenes, ResponseBody};
+    let association = DiseaseGenes::SCHEMA;
+    let unrelated = "fixture.nulls/1";
+    let registry = Registry::new(
+        [association, unrelated]
+            .into_iter()
+            .map(|id| (id.into(), json!({"$id":id})))
+            .collect(),
+    )?;
+    let explicit = json!({"schema":association, "result":{"items":[
+        {"association":{"aggregator_knowledge_source":null}}
+    ]}});
+    registry.validate(&explicit, &[], true)?;
+    let mut other_schema = explicit;
+    *other_schema.get_mut("schema").ok_or("missing schema")? = json!(unrelated);
+    let rows = [
+        other_schema,
+        json!({"schema":association, "aggregator_knowledge_source":null}),
+        json!({"schema":association, "result":{"items":[null]}}),
+        json!({"schema":association, "result":{"items":[{"association":{
+            "subject_taxon":null
+        }}]}}),
+        json!({"schema":association, "result":{"items":[{"association":{
+            "aggregator_knowledge_source":[null]
+        }}]}}),
+        json!({"schema":association, "result/items/0/association/aggregator_knowledge_source":null}),
+    ];
+    for value in rows {
+        if !registry
+            .validate(&value, &[], true)
+            .is_err_and(|error| error.starts_with("product reply contains null at "))
+        {
+            return Err("runner admitted null outside the explicit association value".into());
+        }
+    }
     Ok(())
 }
 

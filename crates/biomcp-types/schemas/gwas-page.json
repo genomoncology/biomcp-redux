@@ -341,7 +341,6 @@
           "description": "Native page scope and total."
         },
         "qualifying_total": {
-          "default": null,
           "description": "Complete qualifying count, unknown until the threshold walk reaches its end.",
           "format": "uint64",
           "minimum": 0,

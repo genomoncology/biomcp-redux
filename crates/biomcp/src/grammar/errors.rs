@@ -55,7 +55,7 @@ pub(crate) fn normalization_build(args: &[OsString]) -> Option<biomcp_types::Err
         return None;
     }
     let schema: serde_json::Value =
-        serde_json::from_str(crate::schema::find("biomcp.variant-normalize/4")?).ok()?;
+        serde_json::from_str(crate::schema::find("biomcp.variant-normalize/5")?).ok()?;
     let values = schema
         .pointer("/$defs/Build/enum")?
         .as_array()?

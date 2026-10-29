@@ -116,7 +116,14 @@ fn native_records_keep_joint_context_source_text_and_literal_not_applicable()
         v["comments"] = json!("  Synthetic comments.\n");
         v
     }] {
-        assert_eq!(roundtrip::<PgxRecommendation>(value.clone())?, value);
+        let mut expected = value.clone();
+        if expected
+            .get("comments")
+            .is_some_and(serde_json::Value::is_null)
+        {
+            expected.as_object_mut().ok_or("object")?.remove("comments");
+        }
+        assert_eq!(roundtrip::<PgxRecommendation>(value.clone())?, expected);
         assert!(serde_json::from_value::<Statement>(value).is_err());
     }
     let d = diplotype();
@@ -143,7 +150,11 @@ fn native_records_keep_joint_context_source_text_and_literal_not_applicable()
         "cpiclevel":"B/C","clinpgxlevel":"synthetic distinct level","pgxtesting":null,"pmids":null,"usedforrecommendation":"No",
         "provisional":false}
     );
-    assert_eq!(roundtrip::<PgxPair>(pair.clone())?, pair);
+    let mut expected = pair.clone();
+    for name in ["guidelinename", "guidelineurl", "pgxtesting", "pmids"] {
+        expected.as_object_mut().ok_or("object")?.remove(name);
+    }
+    assert_eq!(roundtrip::<PgxPair>(pair)?, expected);
     let guide = json!(
         {"guideline_name":"synthetic","guideline_url":"https://example.invalid/guide","drugs":["second","first","second"],
         "genes":[{"url":"https://example.invalid/gene","symbol":"TPMT"}]}

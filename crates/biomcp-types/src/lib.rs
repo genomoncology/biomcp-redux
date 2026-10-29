@@ -90,8 +90,8 @@ pub use response::{
 };
 pub use response::{Constraint, GeneSections, Protein};
 pub use response::{
-    Envelope, GeneCards, GeneItem, GenePage, ItemStatus, PageInfo, QueryBody, ResponseBody,
-    Section, SourceOutcome, SourceRecord, SourceState, Status, Step, StepKind,
+    EmptyQuery, Envelope, GeneCards, GeneItem, GenePage, ItemStatus, PageInfo, QueryBody,
+    ResponseBody, Section, SourceOutcome, SourceRecord, SourceState, Status, Step, StepKind,
 };
 pub use response::{ErrorCode, ErrorEnvelope, ErrorMessage, ErrorStatus, Problem, ProblemCode};
 pub use response::{

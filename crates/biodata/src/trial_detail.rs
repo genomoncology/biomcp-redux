@@ -8,13 +8,16 @@ pub struct TrialCard {
     /// Exact registry identity.
     pub nct_id: NctId,
     /// Source brief title, absent when missing or rejected.
+    #[serde(skip_serializing_if = "Option::is_none")]
     pub title: Option<Box<str>>,
     /// Source overall status, absent when missing or rejected.
+    #[serde(skip_serializing_if = "Option::is_none")]
     pub status: Option<TrialStatus>,
     /// Source phases without inferred defaults.
     #[serde(default, skip_serializing_if = "<[_]>::is_empty")]
     pub phases: Box<[TrialPhase]>,
     /// Native study type, absent when missing or rejected.
+    #[serde(skip_serializing_if = "Option::is_none")]
     pub study_type: Option<StudyType>,
     /// All registered condition names.
     #[serde(default, skip_serializing_if = "<[_]>::is_empty")]
@@ -23,16 +26,22 @@ pub struct TrialCard {
     #[serde(default, skip_serializing_if = "<[_]>::is_empty")]
     pub interventions: Box<[Box<str>]>,
     /// Lead sponsor as registered.
+    #[serde(skip_serializing_if = "Option::is_none")]
     pub sponsor: Option<Box<str>>,
     /// Source start date, when present.
+    #[serde(skip_serializing_if = "Option::is_none")]
     pub start: Option<TrialDate>,
     /// Source primary completion date, when present.
+    #[serde(skip_serializing_if = "Option::is_none")]
     pub primary_completion: Option<TrialDate>,
     /// Source completion date, when present.
+    #[serde(skip_serializing_if = "Option::is_none")]
     pub completion: Option<TrialDate>,
     /// Last posted registry update, absent when missing or rejected.
+    #[serde(skip_serializing_if = "Option::is_none")]
     pub updated: Option<TrialDate>,
     /// Whole brief summary, preserving whitespace.
+    #[serde(skip_serializing_if = "Option::is_none")]
     pub brief_summary: Option<Markdown>,
     /// Canonical publisher record URL.
     #[cfg_attr(feature = "schema", schemars(extend("format" = "uri")))]
@@ -56,14 +65,19 @@ pub enum TrialAgeBound {
 #[cfg_attr(feature = "schema", derive(schemars::JsonSchema))]
 pub struct TrialEligibility {
     /// Registry minimum age.
+    #[serde(skip_serializing_if = "Option::is_none")]
     pub minimum_age: Option<TrialAgeBound>,
     /// Registry maximum age.
+    #[serde(skip_serializing_if = "Option::is_none")]
     pub maximum_age: Option<TrialAgeBound>,
     /// Registry sex restriction.
+    #[serde(skip_serializing_if = "Option::is_none")]
     pub sex: Option<TrialSex>,
     /// Registry healthy volunteer flag.
+    #[serde(skip_serializing_if = "Option::is_none")]
     pub healthy_volunteers: Option<bool>,
     /// Original criteria text without heading interpretation.
+    #[serde(skip_serializing_if = "Option::is_none")]
     pub criteria: Option<Markdown>,
 }
 crate::wire_enum! {
@@ -84,10 +98,13 @@ pub struct TrialOutcome {
     /// Source collection.
     pub kind: TrialOutcomeKind,
     /// Original measure text.
+    #[serde(skip_serializing_if = "Option::is_none")]
     pub measure: Option<Box<str>>,
     /// Original description.
+    #[serde(skip_serializing_if = "Option::is_none")]
     pub description: Option<Markdown>,
     /// Original time frame.
+    #[serde(skip_serializing_if = "Option::is_none")]
     pub time_frame: Option<Box<str>>,
 }
 /// Registry arm with source intervention relationships.
@@ -95,10 +112,13 @@ pub struct TrialOutcome {
 #[cfg_attr(feature = "schema", derive(schemars::JsonSchema))]
 pub struct TrialArm {
     /// Exact arm label.
+    #[serde(skip_serializing_if = "Option::is_none")]
     pub label: Option<Box<str>>,
     /// Native arm type.
+    #[serde(skip_serializing_if = "Option::is_none")]
     pub kind: Option<TrialArmKind>,
     /// Original arm description.
+    #[serde(skip_serializing_if = "Option::is_none")]
     pub description: Option<Markdown>,
     /// Source intervention names, including their native prefixes.
     #[serde(default, skip_serializing_if = "<[_]>::is_empty")]
@@ -109,10 +129,13 @@ pub struct TrialArm {
 #[cfg_attr(feature = "schema", derive(schemars::JsonSchema))]
 pub struct TrialIntervention {
     /// Exact source name.
+    #[serde(skip_serializing_if = "Option::is_none")]
     pub name: Option<Box<str>>,
     /// Native intervention type.
+    #[serde(skip_serializing_if = "Option::is_none")]
     pub kind: Option<TrialInterventionKind>,
     /// Original description.
+    #[serde(skip_serializing_if = "Option::is_none")]
     pub description: Option<Markdown>,
     /// Source arm relationships.
     #[serde(default, skip_serializing_if = "<[_]>::is_empty")]
@@ -138,6 +161,7 @@ pub struct TrialDate {
     /// Checked source date at its original precision.
     pub date: PartialDate,
     /// Source qualifier, absent only if the registry omitted it.
+    #[serde(skip_serializing_if = "Option::is_none")]
     pub kind: Option<TrialDateKind>,
 }
 crate::wire_enum! {

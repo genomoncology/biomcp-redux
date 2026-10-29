@@ -133,7 +133,7 @@
     },
     "Reply_Curie": {
       "description": "Checked prefix:local ontology identifier.",
-      "pattern": "^[A-Za-z0-9_.-]+:[^\\s\\x00-\\x1f\\x7f-\\x9f]+$",
+      "pattern": "^[A-Za-z0-9_.-]+:[^\\x09-\\x0d\\x20\\x85\\xa0\\u1680\\u2000-\\u200a\\u2028\\u2029\\u202f\\u205f\\u3000\\x00-\\x1f\\x7f-\\x9f]+$",
       "type": "string"
     },
     "Reply_DiseaseCard": {
@@ -194,7 +194,6 @@
           ]
         },
         "replaced_by": {
-          "default": null,
           "description": "Publisher explicit replacement identifiers; null preserves no native replacement.",
           "items": {
             "$ref": "#/$defs/Reply_Curie"
@@ -513,8 +512,8 @@
       "type": "object"
     },
     "Reply_PartialDate": {
-      "description": "A Gregorian date preserving year, month or day precision.",
-      "pattern": "^[0-9]{4}(-[0-9]{2}(-[0-9]{2})?)?$",
+      "description": "A Gregorian date preserving year, month or day precision. The parser additionally validates the calendar day, including leap years.",
+      "pattern": "^(?!0000)[0-9]{4}(-(0[1-9]|1[0-2])(-(0[1-9]|[12][0-9]|3[01]))?)?$",
       "type": "string"
     },
     "Reply_PoolInfo": {
@@ -1102,7 +1101,7 @@
       "type": "string"
     }
   },
-  "$id": "biomcp.disease-card/3",
+  "$id": "biomcp.disease-card/4",
   "$schema": "https://json-schema.org/draft/2020-12/schema",
   "description": "One versioned command response; schema identity comes only from its body type.\nJSON readers ignore unknown fields and unknown growable enum values within a major.",
   "properties": {
@@ -1158,7 +1157,7 @@
       "description": "Answer when available."
     },
     "schema": {
-      "const": "biomcp.disease-card/3",
+      "const": "biomcp.disease-card/4",
       "type": "string"
     },
     "sources": {

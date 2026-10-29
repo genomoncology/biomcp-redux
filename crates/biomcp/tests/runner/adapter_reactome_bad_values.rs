@@ -121,7 +121,7 @@ fn check_result(value: &Value, section: &str, native: &str, field: &str) -> Resu
         "events.version" => Some("/result/items/0/version"),
         _ => None,
     };
-    if absent.is_some_and(|p| value.pointer(p).is_some_and(|v| !v.is_null())) {
+    if absent.is_some_and(|p| value.pointer(p).is_some()) {
         return Err(format!("bad {field} remained in reply: {value}"));
     }
     if field == "summations.text"

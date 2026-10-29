@@ -14,6 +14,7 @@ pub struct NciTrial {
     /// Native status, without a registry translation.
     pub current_trial_status: Text,
     /// Native phase.
+    #[serde(skip_serializing_if = "Option::is_none")]
     pub phase: Option<super::NciTrialPhase>,
     /// First site with an exact case-insensitive organization name, in source order.
     #[serde(default, skip_serializing_if = "Option::is_none")]
@@ -36,8 +37,10 @@ pub struct NciDisease {
     /// Publisher NCIt identity.
     pub nci_thesaurus_concept_id: biodata::NcitId,
     /// Publisher coding provenance, without local interpretation.
+    #[serde(skip_serializing_if = "Option::is_none")]
     pub inclusion_indicator: Option<Text>,
     /// Native lead-disease marker.
+    #[serde(skip_serializing_if = "Option::is_none")]
     pub is_lead_disease: Option<bool>,
     /// Original concept categories.
     #[serde(rename = "type", default)]

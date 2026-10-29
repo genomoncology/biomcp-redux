@@ -6,14 +6,19 @@ use serde::{Deserialize, Serialize};
 #[cfg_attr(feature = "schema", derive(schemars::JsonSchema))]
 pub struct NciTrialSections {
     /// Complete native summary with character continuations.
+    #[serde(skip_serializing_if = "Option::is_none")]
     pub summary: Option<Section<NciTextPage>>,
     /// Source criteria and structured eligibility.
+    #[serde(skip_serializing_if = "Option::is_none")]
     pub eligibility: Option<Section<NciEligibilityPage>>,
     /// Source outcomes without registry type coercion.
+    #[serde(skip_serializing_if = "Option::is_none")]
     pub outcomes: Option<Section<TrialRecords<NciOutcome>>>,
     /// Arm headers and their attached intervention records.
+    #[serde(skip_serializing_if = "Option::is_none")]
     pub arms: Option<Section<TrialRecords<NciArmRecord>>>,
     /// Every source disease concept in unchanged order.
+    #[serde(skip_serializing_if = "Option::is_none")]
     pub diseases: Option<Section<TrialRecords<crate::NciDisease>>>,
 }
 /// Native eligibility fields and whole unclassified criteria.
@@ -21,6 +26,7 @@ pub struct NciTrialSections {
 #[cfg_attr(feature = "schema", derive(schemars::JsonSchema))]
 pub struct NciEligibilityPage {
     /// Source structured bounds and sex, without interpretation.
+    #[serde(skip_serializing_if = "Option::is_none")]
     pub structured: Option<NciEligibilityStructured>,
     /// Whole source criteria in original order.
     pub unstructured: TrialRecords<NciCriterion>,
@@ -30,6 +36,7 @@ pub struct NciEligibilityPage {
 #[cfg_attr(feature = "schema", derive(schemars::JsonSchema))]
 pub struct NciEligibility {
     /// Source structured fields.
+    #[serde(skip_serializing_if = "Option::is_none")]
     pub structured: Option<NciEligibilityStructured>,
     /// Whole source criteria, with original metadata.
     #[serde(default, skip_serializing_if = "<[_]>::is_empty")]
@@ -42,8 +49,10 @@ pub struct NciCriterion {
     /// Original source text, preserving every character.
     pub description: Box<str>,
     /// Native source inclusion marker.
+    #[serde(skip_serializing_if = "Option::is_none")]
     pub inclusion_indicator: Option<bool>,
     /// Original publisher display order.
+    #[serde(skip_serializing_if = "Option::is_none")]
     pub display_order: Option<u32>,
 }
 /// Native NCI structured fields; sentinel ages remain native values.
@@ -51,24 +60,34 @@ pub struct NciCriterion {
 #[cfg_attr(feature = "schema", derive(schemars::JsonSchema))]
 pub struct NciEligibilityStructured {
     /// Native min age field.
+    #[serde(skip_serializing_if = "Option::is_none")]
     pub min_age: Option<Text>,
     /// Native max age field.
+    #[serde(skip_serializing_if = "Option::is_none")]
     pub max_age: Option<Text>,
     /// Native min age unit field.
+    #[serde(skip_serializing_if = "Option::is_none")]
     pub min_age_unit: Option<Text>,
     /// Native max age unit field.
+    #[serde(skip_serializing_if = "Option::is_none")]
     pub max_age_unit: Option<Text>,
     /// Native min age number field.
+    #[serde(skip_serializing_if = "Option::is_none")]
     pub min_age_number: Option<FiniteNumber>,
     /// Native max age number field.
+    #[serde(skip_serializing_if = "Option::is_none")]
     pub max_age_number: Option<FiniteNumber>,
     /// Native min age in years field.
+    #[serde(skip_serializing_if = "Option::is_none")]
     pub min_age_in_years: Option<FiniteNumber>,
     /// Native max age in years field.
+    #[serde(skip_serializing_if = "Option::is_none")]
     pub max_age_in_years: Option<FiniteNumber>,
     /// Native sex field.
+    #[serde(skip_serializing_if = "Option::is_none")]
     pub sex: Option<Text>,
     /// Native accepts healthy volunteers field.
+    #[serde(skip_serializing_if = "Option::is_none")]
     pub accepts_healthy_volunteers: Option<bool>,
 }
 /// One complete NCI outcome with its original vocabulary.
@@ -76,12 +95,16 @@ pub struct NciEligibilityStructured {
 #[cfg_attr(feature = "schema", derive(schemars::JsonSchema))]
 pub struct NciOutcome {
     /// Original publisher name field.
+    #[serde(skip_serializing_if = "Option::is_none")]
     pub name: Option<Box<str>>,
     /// Original publisher description field.
+    #[serde(skip_serializing_if = "Option::is_none")]
     pub description: Option<Box<str>>,
     /// Original publisher timeframe field.
+    #[serde(skip_serializing_if = "Option::is_none")]
     pub timeframe: Option<Box<str>>,
     /// Original publisher type_code field.
+    #[serde(skip_serializing_if = "Option::is_none")]
     pub type_code: Option<Box<str>>,
 }
 /// Source arm header; interventions follow as indexed records.
@@ -89,10 +112,13 @@ pub struct NciOutcome {
 #[cfg_attr(feature = "schema", derive(schemars::JsonSchema))]
 pub struct NciArm {
     /// Original arm name.
+    #[serde(skip_serializing_if = "Option::is_none")]
     pub name: Option<Box<str>>,
     /// Whole original description.
+    #[serde(skip_serializing_if = "Option::is_none")]
     pub description: Option<Box<str>>,
     /// Native arm type.
+    #[serde(skip_serializing_if = "Option::is_none")]
     pub r#type: Option<Text>,
 }
 /// One original NCI intervention attached to its source arm.
@@ -102,14 +128,18 @@ pub struct NciIntervention {
     /// Native name field.
     pub name: Text,
     /// Native description field.
+    #[serde(skip_serializing_if = "Option::is_none")]
     pub description: Option<Box<str>>,
     /// Native nci thesaurus concept id field.
     pub nci_thesaurus_concept_id: biodata::NcitId,
     /// Native r#type field.
+    #[serde(skip_serializing_if = "Option::is_none")]
     pub r#type: Option<Text>,
     /// Native category field.
+    #[serde(skip_serializing_if = "Option::is_none")]
     pub category: Option<Text>,
     /// Native inclusion indicator field.
+    #[serde(skip_serializing_if = "Option::is_none")]
     pub inclusion_indicator: Option<Text>,
     /// Native parents field.
     #[serde(default, skip_serializing_if = "<[_]>::is_empty")]
