@@ -30,7 +30,7 @@
       "description": "HPA cancer RNA abundance in protein-coding transcripts per million.",
       "properties": {
         "ptpm": {
-          "$ref": "#/$defs/Reply_RnaAbundance",
+          "$ref": "#/$defs/Reply_WithUnit",
           "description": "Finite nonnegative pTPM."
         },
         "tissue": {
@@ -1602,6 +1602,14 @@
       "minimum": 0,
       "type": "number"
     },
+    "Reply_RnaUnit": {
+      "description": "Publisher RNA abundance units.",
+      "enum": [
+        "nTPM",
+        "pTPM"
+      ],
+      "type": "string"
+    },
     "Reply_Section_Array_of_Protein_UniProtAcc": {
       "description": "A requested section has exactly one state.",
       "oneOf": [
@@ -3081,7 +3089,7 @@
       "description": "HPA tissue RNA abundance in normalized transcripts per million.",
       "properties": {
         "ntpm": {
-          "$ref": "#/$defs/Reply_RnaAbundance",
+          "$ref": "#/$defs/Reply_WithUnit",
           "description": "Finite nonnegative nTPM."
         },
         "tissue": {
@@ -3109,9 +3117,33 @@
         "restricted"
       ],
       "type": "string"
+    },
+    "Reply_WithUnit": {
+      "description": "A source number with its explicitly stated unit; missing units stay absent.",
+      "properties": {
+        "unit": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/Reply_RnaUnit"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "description": "Publisher unit or code, without conversion or inference."
+        },
+        "value": {
+          "$ref": "#/$defs/Reply_RnaAbundance",
+          "description": "Unchanged numeric source value."
+        }
+      },
+      "required": [
+        "value"
+      ],
+      "type": "object"
     }
   },
-  "$id": "biomcp.gene-cards/8",
+  "$id": "biomcp.gene-cards/9",
   "$schema": "https://json-schema.org/draft/2020-12/schema",
   "description": "One versioned command response; schema identity comes only from its body type.\nJSON readers ignore unknown fields and unknown growable enum values within a major.",
   "properties": {
@@ -3167,7 +3199,7 @@
       "description": "Answer when available."
     },
     "schema": {
-      "const": "biomcp.gene-cards/8",
+      "const": "biomcp.gene-cards/9",
       "type": "string"
     },
     "sources": {

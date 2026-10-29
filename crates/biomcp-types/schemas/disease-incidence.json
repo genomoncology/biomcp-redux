@@ -980,7 +980,7 @@
         "lower_ci": {
           "anyOf": [
             {
-              "$ref": "#/$defs/Reply_FiniteNumber"
+              "$ref": "#/$defs/Reply_WithUnit"
             },
             {
               "type": "null"
@@ -991,7 +991,7 @@
         "standard_error": {
           "anyOf": [
             {
-              "$ref": "#/$defs/Reply_FiniteNumber"
+              "$ref": "#/$defs/Reply_WithUnit"
             },
             {
               "type": "null"
@@ -1002,7 +1002,7 @@
         "upper_ci": {
           "anyOf": [
             {
-              "$ref": "#/$defs/Reply_FiniteNumber"
+              "$ref": "#/$defs/Reply_WithUnit"
             },
             {
               "type": "null"
@@ -1013,7 +1013,7 @@
         "value": {
           "anyOf": [
             {
-              "$ref": "#/$defs/Reply_FiniteNumber"
+              "$ref": "#/$defs/Reply_WithUnit"
             },
             {
               "type": "null"
@@ -1113,9 +1113,33 @@
         "restricted"
       ],
       "type": "string"
+    },
+    "Reply_WithUnit": {
+      "description": "A source number with its explicitly stated unit; missing units stay absent.",
+      "properties": {
+        "unit": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/Reply_Text"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "description": "Publisher unit or code, without conversion or inference."
+        },
+        "value": {
+          "$ref": "#/$defs/Reply_FiniteNumber",
+          "description": "Unchanged numeric source value."
+        }
+      },
+      "required": [
+        "value"
+      ],
+      "type": "object"
     }
   },
-  "$id": "biomcp.disease-incidence/4",
+  "$id": "biomcp.disease-incidence/5",
   "$schema": "https://json-schema.org/draft/2020-12/schema",
   "description": "One versioned command response; schema identity comes only from its body type.\nJSON readers ignore unknown fields and unknown growable enum values within a major.",
   "properties": {
@@ -1171,7 +1195,7 @@
       "description": "Answer when available."
     },
     "schema": {
-      "const": "biomcp.disease-incidence/4",
+      "const": "biomcp.disease-incidence/5",
       "type": "string"
     },
     "sources": {

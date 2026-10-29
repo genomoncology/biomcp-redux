@@ -337,22 +337,31 @@
       ],
       "type": "object"
     },
+    "Reply_FaersAgeUnit": {
+      "description": "Exact openFDA patientonsetageunit codes.",
+      "enum": [
+        "800",
+        "801",
+        "802",
+        "803",
+        "804",
+        "805"
+      ],
+      "type": "string"
+    },
     "Reply_FaersPatient": {
-      "description": "Optional native patient strings without numeric conversion.",
+      "description": "Native patient age and independently supplied sex and weight fields.",
       "properties": {
         "age": {
-          "description": "Native age string, including a present empty value.",
-          "type": [
-            "string",
-            "null"
-          ]
-        },
-        "age_unit": {
-          "description": "Native age_unit string, including a present empty value.",
-          "type": [
-            "string",
-            "null"
-          ]
+          "anyOf": [
+            {
+              "$ref": "#/$defs/Reply_WithUnit"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "description": "Native numeric age with the exact publisher unit code, when stated."
         },
         "sex": {
           "description": "Native sex string, including a present empty value.",
@@ -438,6 +447,11 @@
         }
       },
       "type": "object"
+    },
+    "Reply_FiniteNumber": {
+      "description": "A finite decimal that JSON can represent without losing its value to null.",
+      "format": "double",
+      "type": "number"
     },
     "Reply_PageInfo": {
       "description": "Search counts after filtering and deduplication.",
@@ -1074,9 +1088,33 @@
         "restricted"
       ],
       "type": "string"
+    },
+    "Reply_WithUnit": {
+      "description": "A source number with its explicitly stated unit; missing units stay absent.",
+      "properties": {
+        "unit": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/Reply_FaersAgeUnit"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "description": "Publisher unit or code, without conversion or inference."
+        },
+        "value": {
+          "$ref": "#/$defs/Reply_FiniteNumber",
+          "description": "Unchanged numeric source value."
+        }
+      },
+      "required": [
+        "value"
+      ],
+      "type": "object"
     }
   },
-  "$id": "biomcp.adverse-event-faers-card/1",
+  "$id": "biomcp.adverse-event-faers-card/2",
   "$schema": "https://json-schema.org/draft/2020-12/schema",
   "description": "One versioned command response; schema identity comes only from its body type.\nJSON readers ignore unknown fields and unknown growable enum values within a major.",
   "properties": {
@@ -1132,7 +1170,7 @@
       "description": "Answer when available."
     },
     "schema": {
-      "const": "biomcp.adverse-event-faers-card/1",
+      "const": "biomcp.adverse-event-faers-card/2",
       "type": "string"
     },
     "sources": {
