@@ -29,7 +29,8 @@ fn default_source() -> DrugSource {
 fn default_limit() -> u32 {
     10
 }
-/// Search one drug source. FDA drug recalls accept a name or native firm, classification, status, reason and initiation dates; counts are recall records. Other sources require a name.
+#[doc = " Search one drug source. FDA drug recalls accept a name or native firm, classification, \
+    status, reason and initiation dates; counts are recall records. Other sources require a name."]
 #[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
 #[serde(try_from = "SearchFields")]
 #[cfg_attr(feature = "schema", derive(schemars::JsonSchema))]
@@ -41,7 +42,11 @@ pub struct DrugSearch(SearchFields);
 struct SearchFields {
     /// Literal name phrase; optional for FDA drug recalls. Harmonized recall names match but never become display names.
     #[cfg_attr(feature = "schema", schemars(extend("x-positional" = 0)))]
-    #[serde(default, deserialize_with = "present_query", skip_serializing_if = "Option::is_none")]
+    #[serde(
+        default,
+        deserialize_with = "present_query",
+        skip_serializing_if = "Option::is_none"
+    )]
     #[cfg_attr(feature = "schema", schemars(with = "Text"))]
     query: Option<Text>,
     /// Literal published recalling firm phrase; drug recalls only.

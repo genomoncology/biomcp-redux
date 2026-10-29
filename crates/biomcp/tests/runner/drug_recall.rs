@@ -128,7 +128,9 @@ fn card() -> Result<(), String> {
             }
             let mut row = row();
             if bad {
-                let fields = row.as_object_mut().ok_or("synthetic recall is not an object")?;
+                let fields = row
+                    .as_object_mut()
+                    .ok_or("synthetic recall is not an object")?;
                 fields.insert("report_date".into(), json!("20240230"));
                 fields.insert("code_info".into(), json!(["wrong shape"]));
             }
