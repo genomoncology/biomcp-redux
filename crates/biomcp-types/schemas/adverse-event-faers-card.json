@@ -355,7 +355,7 @@
         "age": {
           "anyOf": [
             {
-              "$ref": "#/$defs/Reply_WithUnit"
+              "$ref": "#/$defs/Reply_WithUnit_FiniteNumber_FaersAgeUnit"
             },
             {
               "type": "null"
@@ -1089,7 +1089,7 @@
       ],
       "type": "string"
     },
-    "Reply_WithUnit": {
+    "Reply_WithUnit_FiniteNumber_FaersAgeUnit": {
       "description": "A source number with its explicitly stated unit; missing units stay absent.",
       "properties": {
         "unit": {

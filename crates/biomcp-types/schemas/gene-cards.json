@@ -30,7 +30,7 @@
       "description": "HPA cancer RNA abundance in protein-coding transcripts per million.",
       "properties": {
         "ptpm": {
-          "$ref": "#/$defs/Reply_WithUnit",
+          "$ref": "#/$defs/Reply_WithUnit_RnaAbundance_RnaUnit",
           "description": "Finite nonnegative pTPM."
         },
         "tissue": {
@@ -3089,7 +3089,7 @@
       "description": "HPA tissue RNA abundance in normalized transcripts per million.",
       "properties": {
         "ntpm": {
-          "$ref": "#/$defs/Reply_WithUnit",
+          "$ref": "#/$defs/Reply_WithUnit_RnaAbundance_RnaUnit",
           "description": "Finite nonnegative nTPM."
         },
         "tissue": {
@@ -3118,7 +3118,7 @@
       ],
       "type": "string"
     },
-    "Reply_WithUnit": {
+    "Reply_WithUnit_RnaAbundance_RnaUnit": {
       "description": "A source number with its explicitly stated unit; missing units stay absent.",
       "properties": {
         "unit": {

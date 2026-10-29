@@ -451,8 +451,9 @@ fn ages() -> Check {
     for code in [
         "800", "801", "802", "803", "804", "805", "absent", "999", "",
     ] {
-        let (env, _stub) = setup(&format!("age-unit-{code}"))?;
+        let (env, stub) = setup(&format!("age-unit-{code}"))?;
         let output = both(&env, args(None), 0)?;
+        stub.finish()?;
         let expected = match code {
             "absent" => Some(json!({"value":42.5})),
             "999" | "" => None,
@@ -470,8 +471,9 @@ fn ages() -> Check {
             return Err("malformed FAERS unit lost its problem".into());
         }
     }
-    let (env, _stub) = setup("age-invalid")?;
+    let (env, stub) = setup("age-invalid")?;
     let output = both(&env, args(None), 0)?;
+    stub.finish()?;
     if output.pointer("/result/patient/age").is_some()
         || output
             .get("problems")
@@ -485,11 +487,12 @@ fn ages() -> Check {
 
 fn legacy_age_snapshot() -> Check {
     use sha2::{Digest, Sha256};
-    let (env, _stub) = setup("valid")?;
+    let (env, stub) = setup("valid")?;
     let recording = env.root().join("recording");
     let mut record = args(None);
     record.extend(["--record".into(), recording.to_string_lossy().into_owned()]);
     invoke(&env, record, 0)?;
+    stub.finish()?;
     let mut initial = args(None);
     initial.extend(env.globals(Some(&recording), false));
     let card = invoke(&env, initial, 0)?;

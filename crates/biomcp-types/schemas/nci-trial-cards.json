@@ -259,7 +259,7 @@
         "max_age_in_years": {
           "anyOf": [
             {
-              "$ref": "#/$defs/Reply_WithUnit"
+              "$ref": "#/$defs/Reply_WithUnit_FiniteNumber_Text"
             },
             {
               "type": "null"
@@ -270,7 +270,7 @@
         "max_age_number": {
           "anyOf": [
             {
-              "$ref": "#/$defs/Reply_WithUnit"
+              "$ref": "#/$defs/Reply_WithUnit_FiniteNumber_Text"
             },
             {
               "type": "null"
@@ -292,7 +292,7 @@
         "min_age_in_years": {
           "anyOf": [
             {
-              "$ref": "#/$defs/Reply_WithUnit"
+              "$ref": "#/$defs/Reply_WithUnit_FiniteNumber_Text"
             },
             {
               "type": "null"
@@ -303,7 +303,7 @@
         "min_age_number": {
           "anyOf": [
             {
-              "$ref": "#/$defs/Reply_WithUnit"
+              "$ref": "#/$defs/Reply_WithUnit_FiniteNumber_Text"
             },
             {
               "type": "null"
@@ -2304,7 +2304,7 @@
       ],
       "type": "string"
     },
-    "Reply_WithUnit": {
+    "Reply_WithUnit_FiniteNumber_Text": {
       "description": "A source number with its explicitly stated unit; missing units stay absent.",
       "properties": {
         "unit": {
