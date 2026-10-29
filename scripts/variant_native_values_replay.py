@@ -117,6 +117,30 @@ def clinvar_cases(capture, output):
         })
 
 
+    identity = 'Accession="SCV000965609"'
+    if xml.count(identity) != 1 or 'Accession="SCV005094146"' not in xml:
+        raise ValueError("ClinVar assertion identity or valid sibling missing")
+    for name in ["identity-positive", "identity-bad"]:
+        value = copy.deepcopy(recording)
+        if name == "identity-bad":
+            value["exchanges"][0]["body"]["value"] = xml.replace(identity, 'Accession="BAD"')
+        replay = output / "replies" / "clinvar" / name
+        write_json(replay / "clinvar" / capture.name, value)
+        expect = {"/result/assertions/*/statement/attribution/record": {
+            "includes_all_of": ["SCV005094146", "RCV000824811", "VCV000666267"],
+        }}
+        if name == "identity-bad":
+            expect["/result/assertions/*/statement/attribution/record"]["excludes"] = "SCV000965609"
+            expect["/problems/*/field"] = ["Accession"]
+        else:
+            expect["/result/assertions/*/statement/attribution/record"]["includes"] = "SCV000965609"
+        write_json(output / "cases" / ("clinvar-" + name + ".yaml"), {
+            "feature": "variant-assertions", "live_check": "retained public capture",
+            "story": "One invalid native SCV identity leaves valid sibling assertions available",
+            "replay": str(replay), "steps": [{"run": args[:5], "expect": expect}],
+        })
+
+
 def main():
     capture, output = map(lambda value: Path(value).resolve(), sys.argv[1:3])
     if output.exists():
