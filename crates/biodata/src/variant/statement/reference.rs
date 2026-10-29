@@ -55,14 +55,7 @@ enum Fields {
     /// Protein-level assertion, without genomic conversion.
     Protein(ProteinRef),
     /// Native source variant with optional source-stated forms.
-    Source {
-        record: Curie,
-        feature: Text,
-        #[serde(default, skip_serializing_if = "Option::is_none")]
-        feature_record: Option<Curie>,
-        #[serde(default, skip_serializing_if = "<[ _ ]>::is_empty")]
-        forms: Box<[VariantRef]>,
-    },
+    Source(SourceRef),
     /// Compound source profile, without inferred allele identity or phase.
     Profile {
         /// Native profile ID.
@@ -71,6 +64,7 @@ enum Fields {
         label: Text,
         /// Source member references in their native order.
         #[serde(default, skip_serializing_if = "<[ _ ]>::is_empty")]
+        #[cfg_attr(feature = "schema", schemars(schema_with = "member_refs_schema"))]
         members: Box<[VariantRef]>,
         /// Exact source expression and checked member relations.
         #[serde(default, skip_serializing_if = "Option::is_none")]
@@ -96,7 +90,7 @@ impl TryFrom<Fields> for VariantRef {
             {
                 Err(crate::Error::VariantRefInvalid)
             }
-            Fields::Source { forms, .. }
+            Fields::Source(SourceRef { forms, .. })
                 if forms
                     .iter()
                     .any(|form| !matches!(form.0, Fields::Allele(_) | Fields::Protein(_))) =>
@@ -171,21 +165,21 @@ impl VariantRef {
     /// Borrow a native source variant identifier.
     pub fn source_record(&self) -> Option<&Curie> {
         match &self.0 {
-            Fields::Source { record, .. } => Some(record),
+            Fields::Source(SourceRef { record, .. }) => Some(record),
             _ => None,
         }
     }
     /// Borrow exact source feature text without interpreting its biology.
     pub fn feature(&self) -> Option<&Text> {
         match &self.0 {
-            Fields::Source { feature, .. } => Some(feature),
+            Fields::Source(SourceRef { feature, .. }) => Some(feature),
             _ => None,
         }
     }
     /// Read optional source-stated allele or protein forms.
     pub fn forms(&self) -> impl Iterator<Item = &Self> {
         let forms = match &self.0 {
-            Fields::Source { forms, .. } => forms.as_ref(),
+            Fields::Source(SourceRef { forms, .. }) => forms.as_ref(),
             _ => &[],
         };
         forms.iter()
@@ -208,18 +202,18 @@ impl VariantRef {
         feature_record: Option<Curie>,
         forms: Box<[Self]>,
     ) -> Result<Self, crate::Error> {
-        Fields::Source {
+        Fields::Source(SourceRef {
             record,
             feature,
             feature_record,
             forms,
-        }
+        })
         .try_into()
     }
     /// Borrow the source-native feature identifier without gene inference.
     pub fn feature_record(&self) -> Option<&Curie> {
         match &self.0 {
-            Fields::Source { feature_record, .. } => feature_record.as_ref(),
+            Fields::Source(SourceRef { feature_record, .. }) => feature_record.as_ref(),
             _ => None,
         }
     }
@@ -318,4 +312,51 @@ struct ProteinRef {
     /// Source protein label.
     #[serde(default, skip_serializing_if = "Option::is_none")]
     label: Option<Text>,
+}
+
+#[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
+#[cfg_attr(feature = "schema", derive(schemars::JsonSchema))]
+#[cfg_attr(feature = "schema", schemars(inline))]
+struct SourceRef {
+    record: Curie,
+    feature: Text,
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    feature_record: Option<Curie>,
+    #[serde(default, skip_serializing_if = "<[_]>::is_empty")]
+    #[cfg_attr(feature = "schema", schemars(schema_with = "source_forms_schema"))]
+    forms: Box<[VariantRef]>,
+}
+
+// Reuse the canonical payload schemas while restricting each array's admitted levels.
+#[cfg(feature = "schema")]
+fn tagged_reference<T: schemars::JsonSchema>(
+    generator: &mut schemars::SchemaGenerator,
+    level: &str,
+) -> schemars::Schema {
+    let mut schema =
+        schemars::_private::json_schema_for_internally_tagged_enum_newtype_variant::<T>(generator);
+    schemars::_private::apply_internal_enum_variant_tag(&mut schema, "level", level, false);
+    schema
+}
+
+#[cfg(feature = "schema")]
+fn leaf_refs_schema(generator: &mut schemars::SchemaGenerator) -> schemars::Schema {
+    schemars::json_schema!({"oneOf":[
+        tagged_reference::<AlleleRef>(generator, "allele"),
+        tagged_reference::<ProteinRef>(generator, "protein")
+    ]})
+}
+
+#[cfg(feature = "schema")]
+fn source_forms_schema(generator: &mut schemars::SchemaGenerator) -> schemars::Schema {
+    schemars::json_schema!({"type":"array", "items":leaf_refs_schema(generator)})
+}
+
+#[cfg(feature = "schema")]
+fn member_refs_schema(generator: &mut schemars::SchemaGenerator) -> schemars::Schema {
+    schemars::json_schema!({"type":"array", "items":{"oneOf":[
+        tagged_reference::<AlleleRef>(generator, "allele"),
+        tagged_reference::<ProteinRef>(generator, "protein"),
+        tagged_reference::<SourceRef>(generator, "source")
+    ]}})
 }
