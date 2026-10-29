@@ -288,6 +288,9 @@ fn continuations() -> Check {
     let replay = env.root().join("recordings");
     let original = format!(" \n{} Ω\n", "x  \n".repeat(3500));
     copy_capture("trial/get/NCT02296125", &replay, |_, record| {
+        if let Some(timestamp) = record.pointer_mut("/exchanges/0/body/value/dataTimestamp") {
+            *timestamp = json!("2024-02-30T10:00:00");
+        }
         if record["url"]
             .as_str()
             .is_some_and(|u| u.ends_with("NCT02296125"))
@@ -300,6 +303,7 @@ fn continuations() -> Check {
     let args = ["get", "trial", "NCT02296125", "eligibility"].map(str::to_owned);
     let globals = env.globals(Some(&replay), false);
     let first = command(&env, &args, &globals, 0)?;
+    processing_problem(&first)?;
     if first.pointer("/result/items/0/sections/eligibility/data/maximum_age/state")
         != Some(&json!("no_limit"))
     {
@@ -315,6 +319,7 @@ fn continuations() -> Check {
     let offline = env.globals(None, true);
     for _ in 0..10 {
         let out = command(&env, &next, &offline, 0)?;
+        processing_problem(&out)?;
         let data = &out["result"]["items"][0]["sections"]["eligibility"]["data"];
         if data["offset"] != json!(joined.chars().count()) {
             return Err("whitespace fragment offset changed".into());
@@ -335,6 +340,25 @@ fn continuations() -> Check {
         return Err("disabled source restored a stored protocol".into());
     }
     altered_pool(&env, &next, &offline)?;
+    Ok(())
+}
+fn processing_problem(value: &Value) -> Check {
+    let count = value
+        .get("problems")
+        .and_then(Value::as_array)
+        .into_iter()
+        .flatten()
+        .filter(|problem| {
+            problem.get("field") == Some(&json!("dataTimestamp"))
+                && problem.get("code") == Some(&json!("value.unknown"))
+        })
+        .count();
+    if count != 1 || value.pointer("/result/items/0/card/nct_id") != Some(&json!("NCT02296125")) {
+        return Err(
+            "processing timestamp problem or valid study did not survive paging exactly once"
+                .into(),
+        );
+    }
     Ok(())
 }
 fn altered_pool(env: &Environment, args: &[String], globals: &[String]) -> Check {
