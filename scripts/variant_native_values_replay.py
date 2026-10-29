@@ -7,6 +7,9 @@ mutations for the ordinary cases runner, plus unchanged source recording identit
 import copy
 import hashlib
 import json
+import math
+import struct
+import tarfile
 from pathlib import Path
 import sys
 
@@ -147,6 +150,126 @@ def clinvar_cases(capture, output):
         })
 
 
+def alphagenome_cases(archive, output):
+    expected = "f6b2b3d579d868ec6da0d0e7b71831ccf4f7388707f961ece8ff42d769b2df51"
+    if hashlib.sha256(archive.read_bytes()).hexdigest() != expected:
+        raise ValueError("retained AlphaGenome capture archive differs")
+    prefix = "recording/alphagenome/"
+    stem = "83049d02ed85aa57e6b5de3e7e81c326b7b9f34a93563e159dc40bc4776407e3"
+    with tarfile.open(archive) as captured:
+        manifest_bytes = captured.extractfile("./manifest.json").read()
+        if hashlib.sha256(manifest_bytes).hexdigest() != "f1c353a6fd6b3d600bba85d2ae139c45a849bbdc2055c512b33df9925945724b":
+            raise ValueError("AlphaGenome original manifest differs")
+        manifest = json.loads(manifest_bytes)
+        files = {name: captured.extractfile("./" + name).read() for name in manifest
+                 if name.startswith(prefix)}
+    for name, data in files.items():
+        if hashlib.sha256(data).hexdigest() != manifest[name]:
+            raise ValueError("AlphaGenome native sidecar differs: " + name)
+    recording = json.loads(files[prefix + stem + ".json"])
+    if (recording["method"], recording["source"], recording["post"]["request_body_sha256"]) != (
+            "POST", "alphagenome", "dae4da38865fa72f90cf6a5c90ba337315d92f2a686c61b174df2d9380faa8aa"):
+        raise ValueError("AlphaGenome captured request identity differs")
+    if len(recording["exchanges"][0]["rpc"]["messages"]) != 6 or recording["exchanges"][0]["rpc"]["terminal"] != 0:
+        raise ValueError("AlphaGenome complete native stream missing")
+    name = prefix + stem + "-grpc-0-0.bin"
+    data = files[name]
+
+    def number(position, stop):
+        value = 0
+        for shift in range(0, 70, 7):
+            if position >= stop:
+                raise ValueError("truncated original protobuf varint")
+            byte = data[position]
+            position += 1
+            value |= (byte & 127) << shift
+            if byte < 128:
+                return value, position
+        raise ValueError("oversized original protobuf varint")
+
+    def fields(start, stop):
+        result = []
+        while start < stop:
+            key, start = number(start, stop)
+            tag, wire = key >> 3, key & 7
+            if wire == 2:
+                size, start = number(start, stop)
+                end = start + size
+            elif wire in (1, 5):
+                end = start + (8 if wire == 1 else 4)
+            elif wire == 0:
+                _, end = number(start, stop)
+            else:
+                raise ValueError("unsupported original protobuf wire type")
+            if not tag or end > stop:
+                raise ValueError("invalid original protobuf field")
+            result.append((tag, wire, start, end))
+            start = end
+        return result
+
+    def child(values, tag, wire=2):
+        found = [(start, end) for key, kind, start, end in values if (key, kind) == (tag, wire)]
+        if len(found) != 1:
+            raise ValueError("native protobuf target missing or ambiguous")
+        return found[0]
+
+    descriptor = child(fields(0, len(data)), 1)
+    scored = child(fields(*descriptor), 1)
+    metadata = child(fields(*scored), 2)
+    tracks = [(start, end) for tag, wire, start, end in fields(*metadata) if (tag, wire) == (2, 2)]
+    target = None
+    for index, bounds in enumerate(tracks):
+        native = fields(*bounds)
+        means = [(start, end) for tag, wire, start, end in native if (tag, wire) == (14, 5)]
+        if len(means) == 1:
+            start, end = means[0]
+            mean = struct.unpack("<f", data[start:end])[0]
+            if math.isfinite(mean):
+                label = data[slice(*child(native, 1))].decode("utf-8")
+                if label:
+                    target = index, start, end, mean, label
+                    break
+    if target is None:
+        raise ValueError("present finite AlphaGenome nonzero_mean target missing")
+    index, start, end, mean, label = target
+    mutation = data[:start] + struct.pack("<f", float("nan")) + data[end:]
+    if mutation[:start] + data[start:end] + mutation[end:] != data or len(mutation) != len(data):
+        raise ValueError("AlphaGenome mutation changed another native value")
+    root = Path(__file__).resolve().parents[1]
+    seed = root / "tests/replies/variant-population/main/car/0166319161158cc3ea119c855cc84e61a90691e42236715f623817a2eab0e883.json"
+    resolver = json.loads(seed.read_text())
+    row = resolver["exchanges"][0]["body"]["value"]["genomicAlleles"][0]
+    if resolver["method"] != "GET" or row["hgvs"] != ["NC_000007.14:g.140753336A>T"]:
+        raise ValueError("controlled resolver identity differs from actual scorer request")
+    path = "/result/candidates/0/sections/alphagenome/data/scorers/0/rows/0"
+    for kind in ["positive", "bad"]:
+        replay = output / "replies/alphagenome" / kind
+        for filename, raw in files.items():
+            destination = replay / filename.removeprefix("recording/")
+            destination.parent.mkdir(parents=True, exist_ok=True)
+            destination.write_bytes(mutation if kind == "bad" and filename == name else raw)
+        write_json(replay / "car" / seed.name, resolver)
+        expect = {"/result/candidates/0/record/id": "CA123643", path + "/tensor_index": [0, 0, index],
+                  path + "/track/name": label}
+        if kind == "positive":
+            expect[path + "/track/nonzero_mean"] = mean
+        else:
+            expect[path + "/track"] = {"omits": ["nonzero_mean"]}
+            expect["/problems/*/field"] = [f"scorers.0.tracks.{index}.nonzero_mean"]
+        write_json(output / "cases" / ("alphagenome-" + kind + ".yaml"), {
+            "feature": "variant-alphagenome", "live_check": "retained0198 actual scorer with controlled resolver",
+            "story": "One present native optional metadata mean preserves its tensor scalar and track",
+            "config": {"keys": {"alphagenome_api_key": "fixture-alpha-native-value-key"}},
+            "replay": str(replay), "steps": [{"run": ["get", "variant", "CA123643", "alphagenome",
+            "--section-offset", str(index)], "expect": expect}],
+        })
+    write_json(output / "alphagenome-provenance.json", {"archive_sha256": expected,
+        "original_manifest_sha256": hashlib.sha256(manifest_bytes).hexdigest(),
+        "original_member_sha256": {key: manifest[key] for key in files},
+        "target": f"scorers.0.tracks.{index}.nonzero_mean", "target_byte_range": [start, end],
+        "original_mean": mean, "mutated_member_sha256": hashlib.sha256(mutation).hexdigest()})
+
+
 def main():
     capture, output = map(lambda value: Path(value).resolve(), sys.argv[1:3])
     if output.exists():
@@ -156,8 +279,10 @@ def main():
             raise ValueError("captured native replies must stay outside Git")
     for source in BODIES:
         source_cases(capture, output, source)
-    if len(sys.argv) == 4:
+    if len(sys.argv) >= 4:
         clinvar_cases(Path(sys.argv[3]).resolve(), output)
+    if len(sys.argv) == 5:
+        alphagenome_cases(Path(sys.argv[4]).resolve(), output)
     print("Prepared source-bound original controls and one-value mutations")
 
 
