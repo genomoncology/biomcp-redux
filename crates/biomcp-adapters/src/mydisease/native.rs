@@ -178,7 +178,7 @@ fn references(
             {
                 result.push(Reference {
                     field: field.clone(),
-                    value: value.into(),
+                    value,
                 });
             }
         }
