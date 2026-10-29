@@ -136,6 +136,10 @@ const ALLOWED: &[(&str, &str)] = &[
         "Exercise checked values and schema contracts through the public library API.",
     ),
     (
+        "crates/biomcp-types/tests/value_conventions/sweep.rs",
+        "Exercise public text value construction, parsing, JSON and hashing through the Rust consumer boundary.",
+    ),
+    (
         "crates/biomcp-types/tests/value_conventions.rs",
         "Exercise checked values and schema contracts through the public library API.",
     ),
