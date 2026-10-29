@@ -11,7 +11,9 @@
         "--gene",
         "PTEN",
         "--coding",
-        "c.333G>T"
+        "c.333G>T",
+        "--limit",
+        "50"
       ],
       "expect": {
         "/schema": "biomcp.variant-page/13",
@@ -28,5 +30,6 @@
         }
       }
     }
-  ]
+  ],
+  "verified": "2026-10-29; unchanged public ClinVar ESearch body, natively recorded through a local TLS peer from the preserved capture"
 }

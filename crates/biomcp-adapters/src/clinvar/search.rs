@@ -20,7 +20,8 @@ struct Search {
 }
 #[derive(Deserialize)]
 struct Page {
-    count: String,
+    #[serde(deserialize_with = "count")]
+    count: u64,
     retstart: String,
     idlist: Vec<Id>,
     #[serde(rename = "ERROR")]
@@ -29,19 +30,27 @@ struct Page {
 }
 #[derive(Deserialize)]
 #[serde(try_from = "String")]
-struct Id(ClinVarVariationId);
+struct Id {
+    identity: ClinVarVariationId,
+    text: biodata::Text,
+}
 impl TryFrom<String> for Id {
     type Error = biodata::Error;
     fn try_from(value: String) -> Result<Self, Self::Error> {
-        format!("clinvar:{value}").parse().map(Self)
+        let text = format!("clinvar:{value}");
+        Ok(Self {
+            identity: text.parse()?,
+            text: biodata::Text::new(&text)?,
+        })
     }
 }
 impl Reply for Search {
     fn check(&self) -> Result<(), BadReply> {
         let page = &self.esearchresult;
-        let total = page.count.parse::<u64>().map_err(|_| BadReply)?;
+        let total = page.count;
         let offset = page.retstart.parse::<u32>().map_err(|_| BadReply)?;
-        let ids: std::collections::BTreeSet<_> = page.idlist.iter().map(|id| id.0.get()).collect();
+        let ids: std::collections::BTreeSet<_> =
+            page.idlist.iter().map(|id| id.identity.get()).collect();
         if page.error.is_some()
             || page.errorlist.is_some()
             || page.idlist.len() > 50
@@ -58,7 +67,7 @@ impl Reply for Search {
             self.esearchresult
                 .idlist
                 .iter()
-                .map(|id| id.0.to_string())
+                .map(|id| id.identity.to_string())
                 .collect(),
         )
     }
@@ -66,17 +75,19 @@ impl Reply for Search {
 /// Search the supplied gene and coding notation without choosing a reference sequence.
 pub fn search(leg: &Leg<'_>, query: &VariantSearch) -> Result<SearchPage, RequestError> {
     let term = query.source_query();
-    let args = [
+    let mut args = vec![
         ("db", Arg::Text("clinvar")),
         ("term", Arg::Text(&term)),
         ("retmode", Arg::Text("json")),
         ("retmax", Arg::Num(u64::from(query.limit()))),
-        ("retstart", Arg::Num(u64::from(query.offset()))),
         ("tool", Arg::Text("biomcp")),
     ];
+    if query.offset() != 0 {
+        args.push(("retstart", Arg::Num(u64::from(query.offset()))));
+    }
     let (reply, _) = leg.json_received_checked::<Search>(&SEARCH, &args, |reply| {
         let page = &reply.esearchresult;
-        let total = page.count.parse::<u64>().map_err(|_| BadReply)?;
+        let total = page.count;
         if page.retstart != query.offset().to_string()
             || page.idlist.len() as u64
                 != total
@@ -92,14 +103,14 @@ pub fn search(leg: &Leg<'_>, query: &VariantSearch) -> Result<SearchPage, Reques
         .idlist
         .into_iter()
         .map(|id| {
-            let id = VariantId::ClinVarVariation(id.0);
+            let identity = VariantId::ClinVarVariation(id.identity);
             let record = SourceRecord {
-                id: crate::mapped::text(&id.to_string())?,
+                id: id.text,
                 url: None,
             };
-            Ok(VariantHeader {
+            VariantHeader {
                 identity: Variant {
-                    ids: Box::new([id]),
+                    ids: Box::new([identity]),
                     representations: Box::default(),
                     genes: Box::default(),
                 },
@@ -110,14 +121,20 @@ pub fn search(leg: &Leg<'_>, query: &VariantSearch) -> Result<SearchPage, Reques
                 myvariant: None,
                 sections: None,
                 component_terms: Box::default(),
-            })
+            }
         })
-        .collect::<Result<_, BadReply>>()?;
+        .collect();
     Ok(SearchPage {
-        total: page.count.parse().map_err(|_| BadReply)?,
+        total: page.count,
         rows: Mapped {
             value: rows,
             problems: Vec::new(),
         },
     })
+}
+
+fn count<'de, D: serde::Deserializer<'de>>(decoder: D) -> Result<u64, D::Error> {
+    String::deserialize(decoder)?
+        .parse()
+        .map_err(|_| serde::de::Error::custom("invalid count"))
 }
