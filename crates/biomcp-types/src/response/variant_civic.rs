@@ -25,6 +25,9 @@ pub struct CivicProfile<Continuation = VariantGet> {
     /// Whole source profile label, including its logical expression.
     #[serde(default, skip_serializing_if = "Option::is_none")]
     pub label: Option<Text>,
+    /// Exact source expression with native variant references.
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub raw_name: Option<Text>,
     /// Native complex-profile flag; a member match does not satisfy the whole profile.
     #[serde(default, skip_serializing_if = "Option::is_none")]
     pub compound: Option<bool>,
@@ -58,6 +61,9 @@ pub struct CivicMember {
     /// Native feature label, including fusion features.
     #[serde(default, skip_serializing_if = "Option::is_none")]
     pub feature: Option<Text>,
+    /// Native feature identifier, distinct from the variant identifier.
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub feature_record: Option<crate::Curie>,
     /// Every native notation, without selecting a transcript or repairing a spelling.
     #[serde(default, skip_serializing_if = "<[ _ ]>::is_empty")]
     pub hgvs_descriptions: Box<[Text]>,

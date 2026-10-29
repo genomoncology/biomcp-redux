@@ -31,6 +31,7 @@ fn map(raw: raw::Profile, query: &VariantGet, allele: &str, cx: &mut Problems) -
     let start = cx.list.len();
     let label = cx.source_field("name", raw.name);
     let compound = cx.field("isComplex", raw.is_complex);
+    let raw_name = cx.field("rawName", raw.raw_name);
     let native_count = raw.variants.as_ref().and_then(Field::as_ref).map(Vec::len);
     let native_members = cx.fields("variants", raw.variants);
     let parent = cx.record.clone();
@@ -48,7 +49,7 @@ fn map(raw: raw::Profile, query: &VariantGet, allele: &str, cx: &mut Problems) -
     let complete = native_count == Some(members.len()) && !context_bad;
     let link = cx.field("link", raw.link);
     let Some(record) = record(id, link.as_ref(), cx) else { return Ok(None); };
-    let subject = subject(&record, label.as_ref(), compound, members.iter().collect(), complete);
+    let subject = subject(&record, label.as_ref(), raw_name.as_ref(), compound, members.iter().collect(), complete, cx);
     let mut evidence_page = claim_page(&raw.evidence_items, query, id, CivicClaimKind::Evidence, exact)?;
     let mut assertion_page = claim_page(&raw.assertions, query, id, CivicClaimKind::Assertions, exact)?;
     let mut statements = Vec::<CivicStatement>::new();
@@ -66,7 +67,7 @@ fn map(raw: raw::Profile, query: &VariantGet, allele: &str, cx: &mut Problems) -
         cx.record = Some(record.id.clone());
         if !context_bad { cx.required::<()>("molecular_profile.membership", None); }
     }
-    Ok(Some(CivicProfile { record, label, compound, membership: if exact { CivicMembership::Exact } else { CivicMembership::Candidate }, members: members.into(), evidence_count: raw.evidence_items.total_count, assertion_count: raw.assertions.total_count, statements: statements.into(), evidence_page, assertion_page }))
+    Ok(Some(CivicProfile { record, label, raw_name, compound, membership: if exact { CivicMembership::Exact } else { CivicMembership::Candidate }, members: members.into(), evidence_count: raw.evidence_items.total_count, assertion_count: raw.assertions.total_count, statements: statements.into(), evidence_page, assertion_page }))
 }
 fn claim_page<T>(raw: &raw::Connection<T>, query: &VariantGet, profile: u64, kind: CivicClaimKind, exact: bool) -> Result<CivicClaimPage, RequestError> {
     let next = if exact && (raw.page_info.has_next_page || raw.nodes.is_empty() && raw.total_count > 0) {
@@ -79,13 +80,18 @@ pub(super) fn member(raw: raw::Member, cx: &mut Problems) -> Option<(CivicMember
     cx.record = crate::mapped::record(id);
     let before = cx.list.len();
     let label = cx.source_field("variants.name", raw.name);
-    let feature = cx.field("feature", raw.feature).and_then(|feature| cx.source_field("feature.name", feature.name));
+    let feature = cx.field("feature", raw.feature);
+    let (feature, feature_record) = if let Some(feature) = feature {
+        let name = cx.source_field("feature.name", feature.name);
+        let id = cx.field("feature.id", feature.id).and_then(|id| cx.optional("feature.id", Some(if raw::id(id) { format!("civic-feature:{id}").parse() } else { Err(biodata::Error::CurieInvalid) })));
+        (name, id)
+    } else { (None, None) };
     let hgvs_descriptions = cx.fields("hgvsDescriptions", raw.hgvs_descriptions);
     let caid = cx.field("alleleRegistryId", raw.allele_registry_id);
     let complete = cx.list.len() == before;
     let subject = if complete { member_subject(label.as_ref(), feature.as_ref(), &hgvs_descriptions) } else { None };
     let link = cx.field("variants.link", raw.link);
-    Some((CivicMember { record: record(id, link.as_ref(), cx)?, label, feature, hgvs_descriptions, subject }, caid))
+    Some((CivicMember { record: record(id, link.as_ref(), cx)?, label, feature, feature_record, hgvs_descriptions, subject }, caid))
 }
 fn member_subject(label: Option<&Text>, feature: Option<&Text>, forms: &[Text]) -> Option<VariantRef> {
     let label = label?;
@@ -100,12 +106,20 @@ fn member_subject(label: Option<&Text>, feature: Option<&Text>, forms: &[Text]) 
         _ => Some(VariantRef::protein(gene, label.clone())),
     }
 }
-pub(super) fn subject(record: &SourceRecord, label: Option<&Text>, compound: Option<bool>, members: Vec<&CivicMember>, complete: bool) -> Option<VariantRef> {
-    if !complete || members.iter().any(|member| member.subject.is_none()) { return None; }
-    let label = label?;
+pub(super) fn subject(record: &SourceRecord, label: Option<&Text>, raw_name: Option<&Text>, compound: Option<bool>, members: Vec<&CivicMember>, complete: bool, cx: &mut Problems) -> Option<VariantRef> {
+    if !complete { return None; }
     match (compound, members.as_slice()) {
         (Some(false), [member]) => member.subject.clone(),
-        (Some(true), [_, ..]) => VariantRef::profile(record.id.clone(), label.clone(), members.iter().filter_map(|m| m.subject.clone()).collect()).into_iter().next(),
+        (Some(true), [_, ..]) => {
+            let label = label?;
+            let native = members.iter().map(|member| {
+                let id = format!("civic:{}", member.record.id).parse().into_iter().next()?;
+                VariantRef::source_with_feature(id, member.feature.clone()?, member.feature_record.clone(), member.subject.clone().into_iter().collect()).into_iter().next()
+            }).collect::<Option<Vec<_>>>()?;
+            let expression = cx.required_field("rawName", raw_name.cloned().map(Field::Value))?;
+            let expression = cx.optional("rawName", Some(biodata::ProfileExpression::civic(expression)))?;
+            cx.optional("molecular_profile.expression", Some(VariantRef::profile_expression(record.id.clone(), label.clone(), native.into(), expression)))
+        }
         _ => None,
     }
 }

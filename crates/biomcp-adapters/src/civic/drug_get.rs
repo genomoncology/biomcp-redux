@@ -9,7 +9,7 @@ use biomcp_types::{
 };
 use serde::Serialize;
 
-const MEMBERS: &str = "molecularProfile{id name link isComplex variants{id name link feature{name} ... on \
+const MEMBERS: &str = "molecularProfile{id name rawName link isComplex variants{id name link feature{id name} ... on \
     GeneVariant{alleleRegistryId hgvsDescriptions coordinates{referenceBuild}}}}";
 const COMMON: &str =
     "id status significance disease{name doid} therapies{id name} therapyInteractionType";
@@ -89,34 +89,18 @@ fn matches(
     count: u32,
 ) -> bool {
     let id = query.input().to_string().parse::<u64>().ok();
-    let claim = |profile: &raw::Profile,
-                 status: &biomcp_types::CivicStatus,
-                 therapies: &[super::variant_raw::Therapy]| {
-        query.civic_profile().is_none_or(|id| id == profile.id)
-            && (matches!(status, biomcp_types::CivicStatus::Accepted) || status.is_unknown())
-            && therapies.iter().any(|t| t.id == id)
-            && therapies
-                .iter()
-                .all(|t| t.id.is_some_and(|id| id > 0 && id <= i32::MAX as u64))
-    };
     data.therapy.as_ref().is_some_and(|t| Some(t.id) == id)
         && (kind == Some(CivicClaimKind::Assertions)
             || data.evidence_items.as_ref().is_some_and(|rows| {
                 rows.nodes.len() <= count as usize
                     && rows.progresses(after)
-                    && rows
-                        .nodes
-                        .iter()
-                        .all(|r| claim(&r.molecular_profile, &r.claim.status, &r.claim.therapies))
+
             }))
         && (kind == Some(CivicClaimKind::Evidence)
             || data.assertions.as_ref().is_some_and(|rows| {
                 rows.nodes.len() <= count as usize
                     && rows.progresses(after)
-                    && rows
-                        .nodes
-                        .iter()
-                        .all(|r| claim(&r.molecular_profile, &r.claim.status, &r.claim.therapies))
+
             }))
 }
 fn seek<T>(
@@ -197,19 +181,20 @@ pub fn drug_civic(leg: &Leg<'_>, query: &DrugGet) -> Result<Mapped<DrugCivic>, R
         .therapy
         .ok_or_else(|| failure(Reason::NotFound))?
         .header()?;
-    let mut problems = Vec::new();
+    let mut cx = crate::mapped::Problems {source: Source::Civic, record: None, list: Vec::new()};
     let evidence = data
         .evidence_items
         .map(|rows| {
             let rows = seek(leg, query, CivicClaimKind::Evidence, rows, |d| {
                 d.evidence_items
             })?;
-            let page = page(&rows, query, CivicClaimKind::Evidence)?;
+            let mut page = page(&rows, query, CivicClaimKind::Evidence)?;
             let records = rows
                 .nodes
                 .into_iter()
-                .map(|r| drug_map::evidence(r, &mut problems))
-                .collect::<Result<Box<[_]>, _>>()?;
+                .filter_map(|r| {cx.record = None; drug_map::evidence(r, query, &mut cx)})
+                .collect::<Box<[_]>>();
+            page.returned = records.len() as u32;
             Ok::<_, RequestError>(DrugCivicPage { records, page })
         })
         .transpose()?;
@@ -219,12 +204,13 @@ pub fn drug_civic(leg: &Leg<'_>, query: &DrugGet) -> Result<Mapped<DrugCivic>, R
             let rows = seek(leg, query, CivicClaimKind::Assertions, rows, |d| {
                 d.assertions
             })?;
-            let page = page(&rows, query, CivicClaimKind::Assertions)?;
+            let mut page = page(&rows, query, CivicClaimKind::Assertions)?;
             let records = rows
                 .nodes
                 .into_iter()
-                .map(|r| drug_map::assertion(r, &mut problems))
-                .collect::<Result<Box<[_]>, _>>()?;
+                .filter_map(|r| {cx.record = None; drug_map::assertion(r, query, &mut cx)})
+                .collect::<Box<[_]>>();
+            page.returned = records.len() as u32;
             Ok::<_, RequestError>(DrugCivicPage { records, page })
         })
         .transpose()?;
@@ -239,6 +225,6 @@ pub fn drug_civic(leg: &Leg<'_>, query: &DrugGet) -> Result<Mapped<DrugCivic>, R
                 },
             },
         },
-        problems,
+        problems: cx.list,
     })
 }

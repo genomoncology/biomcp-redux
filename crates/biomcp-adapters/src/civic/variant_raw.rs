@@ -31,6 +31,7 @@ pub(super) struct Page {
 pub(super) struct Profile {
     pub id: Option<Field<u64>>,
     pub name: Option<Field<NativeText>>,
+    pub raw_name: Option<Field<Text>>,
     pub link: Option<Field<Text>>,
     pub is_complex: Option<Field<bool>>,
     pub variants: Option<Field<Vec<Field<Member>>>>,
@@ -49,6 +50,7 @@ pub(super) struct Member {
 }
 #[derive(Deserialize)]
 pub(super) struct Feature {
+    pub id: Option<Field<u64>>,
     pub name: Option<Field<NativeText>>,
 }
 #[derive(Deserialize)]
