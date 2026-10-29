@@ -40,10 +40,26 @@ fn pending(inventory: &Inventory) -> BTreeSet<String> {
 }
 fn three_hand_counts_match_and_an_identity_never_counts_as_a_section() -> Check {
     let inventory = covered()?;
-    assert_eq!(inventory.calls["command get trial"], 3);
-    assert_eq!(inventory.calls["option get trial --limit"], 2);
-    assert_eq!(inventory.calls["section get trial eligibility"], 1);
-    assert_eq!(inventory.calls["global --format"], 1);
+    assert_eq!(
+        inventory.calls.get("command get trial"),
+        Some(&3),
+        "wrong call count for command get trial"
+    );
+    assert_eq!(
+        inventory.calls.get("option get trial --limit"),
+        Some(&2),
+        "wrong call count for option get trial --limit"
+    );
+    assert_eq!(
+        inventory.calls.get("section get trial eligibility"),
+        Some(&1),
+        "wrong call count for section get trial eligibility"
+    );
+    assert_eq!(
+        inventory.calls.get("global --format"),
+        Some(&1),
+        "wrong call count for global --format"
+    );
     inventory.check(&pending(&inventory))
 }
 fn a_new_option_without_a_case_fails() -> Check {
@@ -65,7 +81,8 @@ fn a_new_option_without_a_case_fails() -> Check {
     ])?);
     let failure = changed
         .check(&pending(&original))
-        .expect_err("uncovered option passed")
+        .err()
+        .ok_or("uncovered option passed")?
         .to_string();
     assert!(failure.contains("option get trial --planted"), "{failure}");
     Ok(())
@@ -83,7 +100,8 @@ fn removing_the_only_section_call_fails() -> Check {
     ])?);
     let failure = changed
         .check(&pending(&original))
-        .expect_err("uncovered section passed")
+        .err()
+        .ok_or("uncovered section passed")?
         .to_string();
     assert!(
         failure.contains("section get trial eligibility"),
@@ -94,9 +112,17 @@ fn removing_the_only_section_call_fails() -> Check {
 fn option_values_cannot_impersonate_options_or_sections() -> Check {
     let mut inventory = Inventory::new(&help(), &[])?;
     inventory.step(&step(&["get", "trial", "NCT1", "--limit", "eligibility"])?);
-    assert_eq!(inventory.calls["section get trial eligibility"], 0);
+    assert_eq!(
+        inventory.calls.get("section get trial eligibility"),
+        Some(&0),
+        "wrong call count for section get trial eligibility"
+    );
     inventory.step(&step(&["--format=--limit", "get", "trial", "NCT1"])?);
-    assert_eq!(inventory.calls["option get trial --limit"], 1);
+    assert_eq!(
+        inventory.calls.get("option get trial --limit"),
+        Some(&1),
+        "wrong call count for option get trial --limit"
+    );
     Ok(())
 }
 fn cli_commands_never_impersonate_named_mcp_tools() -> Check {
@@ -107,18 +133,38 @@ fn cli_commands_never_impersonate_named_mcp_tools() -> Check {
     ];
     let mut inventory = Inventory::new(&help(), &tools)?;
     inventory.step(&step(&["search", "trial", "melanoma"])?);
-    assert_eq!(inventory.calls["tool search"], 0);
+    assert_eq!(
+        inventory.calls.get("tool search"),
+        Some(&0),
+        "wrong call count for tool search"
+    );
     let named: Step = serde_json::from_value(
         json!({"mcp_call":{"name":"search","arguments":{"query":"trial melanoma"}},"expect":{"/results":[]}}),
     )?;
     inventory.step(&named);
-    assert_eq!(inventory.calls["tool search"], 1);
-    assert_eq!(inventory.calls["tool biomcp"], 0);
+    assert_eq!(
+        inventory.calls.get("tool search"),
+        Some(&1),
+        "wrong call count for tool search"
+    );
+    assert_eq!(
+        inventory.calls.get("tool biomcp"),
+        Some(&0),
+        "wrong call count for tool biomcp"
+    );
     let legacy: Step =
         serde_json::from_value(json!({"mcp":["help"],"expect":{"/result/commands":[]}}))?;
     inventory.step(&legacy);
-    assert_eq!(inventory.calls["tool biomcp"], 1);
-    assert_eq!(inventory.calls["tool fetch"], 0);
+    assert_eq!(
+        inventory.calls.get("tool biomcp"),
+        Some(&1),
+        "wrong call count for tool biomcp"
+    );
+    assert_eq!(
+        inventory.calls.get("tool fetch"),
+        Some(&0),
+        "wrong call count for tool fetch"
+    );
     Ok(())
 }
 

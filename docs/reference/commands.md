@@ -35,7 +35,7 @@ Commands:
 Options:
       --format <format>
           Choose JSON or Markdown output; configuration can change the default.
-          
+
           [default: json]
           [possible values: json, md]
 
@@ -115,7 +115,7 @@ Commands:
 Options:
       --format <format>
           Choose JSON or Markdown output; configuration can change the default.
-          
+
           [default: json]
           [possible values: json, md]
 
@@ -146,7 +146,7 @@ Usage: biomcp search biomarker [OPTIONS] --source <source>
 Options:
       --format <format>
           Choose JSON or Markdown output; configuration can change the default.
-          
+
           [default: json]
           [possible values: json, md]
 
@@ -201,7 +201,7 @@ Arguments:
 Options:
       --format <format>
           Choose JSON or Markdown output; configuration can change the default.
-          
+
           [default: json]
           [possible values: json, md]
 
@@ -256,7 +256,7 @@ Options:
 
       --format <format>
           Choose JSON or Markdown output; configuration can change the default.
-          
+
           [default: json]
           [possible values: json, md]
 
@@ -340,7 +340,7 @@ Arguments:
 Options:
       --format <format>
           Choose JSON or Markdown output; configuration can change the default.
-          
+
           [default: json]
           [possible values: json, md]
 
@@ -391,7 +391,7 @@ Options:
 
       --format <format>
           Choose JSON or Markdown output; configuration can change the default.
-          
+
           [default: json]
           [possible values: json, md]
 
@@ -473,7 +473,7 @@ Arguments:
 Options:
       --format <format>
           Choose JSON or Markdown output; configuration can change the default.
-          
+
           [default: json]
           [possible values: json, md]
 
@@ -530,7 +530,7 @@ Arguments:
 Options:
       --format <format>
           Choose JSON or Markdown output; configuration can change the default.
-          
+
           [default: json]
           [possible values: json, md]
 
@@ -578,7 +578,7 @@ Arguments:
 Options:
       --format <format>
           Choose JSON or Markdown output; configuration can change the default.
-          
+
           [default: json]
           [possible values: json, md]
 
@@ -642,7 +642,7 @@ Options:
 
       --format <format>
           Choose JSON or Markdown output; configuration can change the default.
-          
+
           [default: json]
           [possible values: json, md]
 
@@ -690,7 +690,7 @@ Options:
 
       --format <format>
           Choose JSON or Markdown output; configuration can change the default.
-          
+
           [default: json]
           [possible values: json, md]
 
@@ -741,7 +741,7 @@ Options:
 
       --format <format>
           Choose JSON or Markdown output; configuration can change the default.
-          
+
           [default: json]
           [possible values: json, md]
 
@@ -840,7 +840,7 @@ Arguments:
 Options:
       --format <format>
           Choose JSON or Markdown output; configuration can change the default.
-          
+
           [default: json]
           [possible values: json, md]
 
@@ -927,7 +927,7 @@ Arguments:
 Options:
       --format <format>
           Choose JSON or Markdown output; configuration can change the default.
-          
+
           [default: json]
           [possible values: json, md]
 
@@ -982,7 +982,7 @@ Options:
 
       --format <format>
           Choose JSON or Markdown output; configuration can change the default.
-          
+
           [default: json]
           [possible values: json, md]
 
@@ -1058,7 +1058,7 @@ Options:
 
       --format <format>
           Choose JSON or Markdown output; configuration can change the default.
-          
+
           [default: json]
           [possible values: json, md]
 
@@ -1110,7 +1110,7 @@ Options:
 
       --format <format>
           Choose JSON or Markdown output; configuration can change the default.
-          
+
           [default: json]
           [possible values: json, md]
 
@@ -1154,10 +1154,10 @@ Options:
           Stable snapshot from an earlier response.
 
       --exclude-retracted
-          
+
 
       --include-retracted
-          
+
 
       --since <since>
           Inclusive lower publication-date bound at the stated precision; PubMed matches either electronic or print date.
@@ -1238,7 +1238,7 @@ Options:
 
       --format <format>
           Choose JSON or Markdown output; configuration can change the default.
-          
+
           [default: json]
           [possible values: json, md]
 
@@ -1386,7 +1386,7 @@ Options:
 
       --format <format>
           Choose JSON or Markdown output; configuration can change the default.
-          
+
           [default: json]
           [possible values: json, md]
 
@@ -1479,7 +1479,7 @@ Commands:
 Options:
       --format <format>
           Choose JSON or Markdown output; configuration can change the default.
-          
+
           [default: json]
           [possible values: json, md]
 
@@ -1514,7 +1514,7 @@ Arguments:
 Options:
       --format <format>
           Choose JSON or Markdown output; configuration can change the default.
-          
+
           [default: json]
           [possible values: json, md]
 
@@ -1554,7 +1554,7 @@ Arguments:
 Options:
       --format <format>
           Choose JSON or Markdown output; configuration can change the default.
-          
+
           [default: json]
           [possible values: json, md]
 
@@ -1593,7 +1593,7 @@ Arguments:
 Options:
       --format <format>
           Choose JSON or Markdown output; configuration can change the default.
-          
+
           [default: json]
           [possible values: json, md]
 
@@ -1650,7 +1650,7 @@ Arguments:
 Options:
       --format <format>
           Choose JSON or Markdown output; configuration can change the default.
-          
+
           [default: json]
           [possible values: json, md]
 
@@ -1707,7 +1707,7 @@ Arguments:
 Options:
       --format <format>
           Choose JSON or Markdown output; configuration can change the default.
-          
+
           [default: json]
           [possible values: json, md]
 
@@ -1767,7 +1767,7 @@ Arguments:
 Options:
       --format <format>
           Choose JSON or Markdown output; configuration can change the default.
-          
+
           [default: json]
           [possible values: json, md]
 
@@ -1831,7 +1831,7 @@ Arguments:
 Options:
       --format <format>
           Choose JSON or Markdown output; configuration can change the default.
-          
+
           [default: json]
           [possible values: json, md]
 
@@ -1891,7 +1891,7 @@ Arguments:
 Options:
       --format <format>
           Choose JSON or Markdown output; configuration can change the default.
-          
+
           [default: json]
           [possible values: json, md]
 
@@ -1946,7 +1946,7 @@ Options:
 
       --format <format>
           Choose JSON or Markdown output; configuration can change the default.
-          
+
           [default: json]
           [possible values: json, md]
 
@@ -2029,7 +2029,7 @@ Options:
 
       --format <format>
           Choose JSON or Markdown output; configuration can change the default.
-          
+
           [default: json]
           [possible values: json, md]
 
@@ -2101,7 +2101,7 @@ Options:
 
       --format <format>
           Choose JSON or Markdown output; configuration can change the default.
-          
+
           [default: json]
           [possible values: json, md]
 
@@ -2175,7 +2175,7 @@ Options:
 
       --format <format>
           Choose JSON or Markdown output; configuration can change the default.
-          
+
           [default: json]
           [possible values: json, md]
 
@@ -2265,7 +2265,7 @@ Options:
 
       --format <format>
           Choose JSON or Markdown output; configuration can change the default.
-          
+
           [default: json]
           [possible values: json, md]
 
@@ -2342,7 +2342,7 @@ Arguments:
 Options:
       --format <format>
           Choose JSON or Markdown output; configuration can change the default.
-          
+
           [default: json]
           [possible values: json, md]
 
@@ -2397,7 +2397,7 @@ Arguments:
 Options:
       --format <format>
           Choose JSON or Markdown output; configuration can change the default.
-          
+
           [default: json]
           [possible values: json, md]
 
@@ -2448,7 +2448,7 @@ Arguments:
 Options:
       --format <format>
           Choose JSON or Markdown output; configuration can change the default.
-          
+
           [default: json]
           [possible values: json, md]
 
@@ -2523,7 +2523,7 @@ Options:
 
       --format <format>
           Choose JSON or Markdown output; configuration can change the default.
-          
+
           [default: json]
           [possible values: json, md]
 
@@ -2611,7 +2611,7 @@ Commands:
 Options:
       --format <format>
           Choose JSON or Markdown output; configuration can change the default.
-          
+
           [default: json]
           [possible values: json, md]
 
@@ -2649,7 +2649,7 @@ Arguments:
 Options:
       --format <format>
           Choose JSON or Markdown output; configuration can change the default.
-          
+
           [default: json]
           [possible values: json, md]
 
@@ -2705,7 +2705,7 @@ Commands:
 Options:
       --format <format>
           Choose JSON or Markdown output; configuration can change the default.
-          
+
           [default: json]
           [possible values: json, md]
 
@@ -2740,7 +2740,7 @@ Arguments:
 Options:
       --format <format>
           Choose JSON or Markdown output; configuration can change the default.
-          
+
           [default: json]
           [possible values: json, md]
 
@@ -2782,7 +2782,7 @@ Commands:
 Options:
       --format <format>
           Choose JSON or Markdown output; configuration can change the default.
-          
+
           [default: json]
           [possible values: json, md]
 
@@ -2817,7 +2817,7 @@ Arguments:
 Options:
       --format <format>
           Choose JSON or Markdown output; configuration can change the default.
-          
+
           [default: json]
           [possible values: json, md]
 
@@ -2873,7 +2873,7 @@ Arguments:
 Options:
       --format <format>
           Choose JSON or Markdown output; configuration can change the default.
-          
+
           [default: json]
           [possible values: json, md]
 
@@ -2921,7 +2921,7 @@ Arguments:
 Options:
       --format <format>
           Choose JSON or Markdown output; configuration can change the default.
-          
+
           [default: json]
           [possible values: json, md]
 
@@ -2973,7 +2973,7 @@ Arguments:
 Options:
       --format <format>
           Choose JSON or Markdown output; configuration can change the default.
-          
+
           [default: json]
           [possible values: json, md]
 
@@ -3024,7 +3024,7 @@ Options:
 
       --format <format>
           Choose JSON or Markdown output; configuration can change the default.
-          
+
           [default: json]
           [possible values: json, md]
 
@@ -3073,7 +3073,7 @@ Arguments:
 Options:
       --format <format>
           Choose JSON or Markdown output; configuration can change the default.
-          
+
           [default: json]
           [possible values: json, md]
 
@@ -3122,7 +3122,7 @@ Arguments:
 Options:
       --format <format>
           Choose JSON or Markdown output; configuration can change the default.
-          
+
           [default: json]
           [possible values: json, md]
 
@@ -3159,7 +3159,7 @@ Commands:
 Options:
       --format <format>
           Choose JSON or Markdown output; configuration can change the default.
-          
+
           [default: json]
           [possible values: json, md]
 
@@ -3197,7 +3197,7 @@ Arguments:
 Options:
       --format <format>
           Choose JSON or Markdown output; configuration can change the default.
-          
+
           [default: json]
           [possible values: json, md]
 
@@ -3246,7 +3246,7 @@ Arguments:
 Options:
       --format <format>
           Choose JSON or Markdown output; configuration can change the default.
-          
+
           [default: json]
           [possible values: json, md]
 
@@ -3299,7 +3299,7 @@ Commands:
 Options:
       --format <format>
           Choose JSON or Markdown output; configuration can change the default.
-          
+
           [default: json]
           [possible values: json, md]
 
@@ -3340,7 +3340,7 @@ Options:
 
       --format <format>
           Choose JSON or Markdown output; configuration can change the default.
-          
+
           [default: json]
           [possible values: json, md]
 
@@ -3402,7 +3402,7 @@ Arguments:
 Options:
       --format <format>
           Choose JSON or Markdown output; configuration can change the default.
-          
+
           [default: json]
           [possible values: json, md]
 
@@ -3449,7 +3449,7 @@ Options:
 
       --format <format>
           Choose JSON or Markdown output; configuration can change the default.
-          
+
           [default: json]
           [possible values: json, md]
 
@@ -3506,7 +3506,7 @@ Arguments:
 Options:
       --format <format>
           Choose JSON or Markdown output; configuration can change the default.
-          
+
           [default: json]
           [possible values: json, md]
 
@@ -3558,7 +3558,7 @@ Arguments:
 Options:
       --format <format>
           Choose JSON or Markdown output; configuration can change the default.
-          
+
           [default: json]
           [possible values: json, md]
 
@@ -3613,7 +3613,7 @@ Arguments:
 Options:
       --format <format>
           Choose JSON or Markdown output; configuration can change the default.
-          
+
           [default: json]
           [possible values: json, md]
 
@@ -3666,7 +3666,7 @@ Arguments:
 Options:
       --format <format>
           Choose JSON or Markdown output; configuration can change the default.
-          
+
           [default: json]
           [possible values: json, md]
 
@@ -3717,7 +3717,7 @@ Commands:
 Options:
       --format <format>
           Choose JSON or Markdown output; configuration can change the default.
-          
+
           [default: json]
           [possible values: json, md]
 
@@ -3755,7 +3755,7 @@ Arguments:
 Options:
       --format <format>
           Choose JSON or Markdown output; configuration can change the default.
-          
+
           [default: json]
           [possible values: json, md]
 
@@ -3802,7 +3802,7 @@ Commands:
 Options:
       --format <format>
           Choose JSON or Markdown output; configuration can change the default.
-          
+
           [default: json]
           [possible values: json, md]
 
@@ -3840,7 +3840,7 @@ Options:
 
       --format <format>
           Choose JSON or Markdown output; configuration can change the default.
-          
+
           [default: json]
           [possible values: json, md]
 
@@ -3896,7 +3896,7 @@ Options:
 
       --format <format>
           Choose JSON or Markdown output; configuration can change the default.
-          
+
           [default: json]
           [possible values: json, md]
 
@@ -3949,7 +3949,7 @@ Arguments:
 Options:
       --format <format>
           Choose JSON or Markdown output; configuration can change the default.
-          
+
           [default: json]
           [possible values: json, md]
 
@@ -4012,7 +4012,7 @@ Options:
 
       --format <format>
           Choose JSON or Markdown output; configuration can change the default.
-          
+
           [default: json]
           [possible values: json, md]
 
@@ -4062,14 +4062,14 @@ Usage: biomcp sync [OPTIONS] [bundle]
 Arguments:
   [bundle]
           Local source bundle to synchronize.
-          
+
           [default: hgnc]
           [possible values: hgnc, clingen, gencc, wikipathways, cbioportal-studies, ema, ddinter, who-pq, gtr, who-ivd, fda-cdx]
 
 Options:
       --format <format>
           Choose JSON or Markdown output; configuration can change the default.
-          
+
           [default: json]
           [possible values: json, md]
 
@@ -4107,7 +4107,7 @@ Commands:
 Options:
       --format <format>
           Choose JSON or Markdown output; configuration can change the default.
-          
+
           [default: json]
           [possible values: json, md]
 
@@ -4140,7 +4140,7 @@ Usage: biomcp skill list [OPTIONS]
 Options:
       --format <format>
           Choose JSON or Markdown output; configuration can change the default.
-          
+
           [default: json]
           [possible values: json, md]
 
@@ -4173,7 +4173,7 @@ Usage: biomcp skill render [OPTIONS]
 Options:
       --format <format>
           Choose JSON or Markdown output; configuration can change the default.
-          
+
           [default: json]
           [possible values: json, md]
 
@@ -4210,7 +4210,7 @@ Arguments:
 Options:
       --format <format>
           Choose JSON or Markdown output; configuration can change the default.
-          
+
           [default: json]
           [possible values: json, md]
 
@@ -4251,7 +4251,7 @@ Options:
 
       --format <format>
           Choose JSON or Markdown output; configuration can change the default.
-          
+
           [default: json]
           [possible values: json, md]
 
@@ -4286,7 +4286,7 @@ Usage: biomcp version [OPTIONS]
 Options:
       --format <format>
           Choose JSON or Markdown output; configuration can change the default.
-          
+
           [default: json]
           [possible values: json, md]
 
@@ -4323,13 +4323,13 @@ Usage: biomcp mcp-config [OPTIONS]
 Options:
       --client <client>
           Choose a JSON client or the codex shell registration command; default mcp-servers.
-          
+
           [default: mcp-servers]
           [possible values: mcp-servers, servers, codex]
 
       --format <format>
           Choose JSON or Markdown output; configuration can change the default.
-          
+
           [default: json]
           [possible values: json, md]
 
@@ -4367,7 +4367,7 @@ Usage: biomcp health [OPTIONS]
 Options:
       --format <format>
           Choose JSON or Markdown output; configuration can change the default.
-          
+
           [default: json]
           [possible values: json, md]
 
@@ -4398,12 +4398,12 @@ Manage local cached replies and snapshots.
 Usage: biomcp store [OPTIONS] <COMMAND>
 
 Commands:
-  clean  
+  clean
 
 Options:
       --format <format>
           Choose JSON or Markdown output; configuration can change the default.
-          
+
           [default: json]
           [possible values: json, md]
 
@@ -4432,7 +4432,7 @@ Usage: biomcp store clean [OPTIONS]
 Options:
       --format <format>
           Choose JSON or Markdown output; configuration can change the default.
-          
+
           [default: json]
           [possible values: json, md]
 
@@ -4464,13 +4464,13 @@ Usage: biomcp key [OPTIONS] <COMMAND>
 
 Commands:
   list    List supported discovery topics.
-  set     
-  remove  
+  set
+  remove
 
 Options:
       --format <format>
           Choose JSON or Markdown output; configuration can change the default.
-          
+
           [default: json]
           [possible values: json, md]
 
@@ -4503,7 +4503,7 @@ Usage: biomcp key list [OPTIONS]
 Options:
       --format <format>
           Choose JSON or Markdown output; configuration can change the default.
-          
+
           [default: json]
           [possible values: json, md]
 
@@ -4534,13 +4534,13 @@ Usage: biomcp key set [OPTIONS] <source>
 Arguments:
   <source>
           Source credential name to register or remove.
-          
+
           [possible values: ncbi, semantic-scholar, orcid, oncokb, alphagenome, nci, openfda]
 
 Options:
       --format <format>
           Choose JSON or Markdown output; configuration can change the default.
-          
+
           [default: json]
           [possible values: json, md]
 
@@ -4576,13 +4576,13 @@ Usage: biomcp key remove [OPTIONS] <source>
 Arguments:
   <source>
           Source credential name to register or remove.
-          
+
           [possible values: ncbi, semantic-scholar, orcid, oncokb, alphagenome, nci, openfda]
 
 Options:
       --format <format>
           Choose JSON or Markdown output; configuration can change the default.
-          
+
           [default: json]
           [possible values: json, md]
 
@@ -4616,7 +4616,7 @@ Usage: biomcp serve [OPTIONS]
 Options:
       --format <format>
           Choose JSON or Markdown output; configuration can change the default.
-          
+
           [default: json]
           [possible values: json, md]
 
@@ -4662,7 +4662,7 @@ Arguments:
 Options:
       --format <format>
           Choose JSON or Markdown output; configuration can change the default.
-          
+
           [default: json]
           [possible values: json, md]
 
@@ -4707,25 +4707,25 @@ Commands:
   trial       Read trial groups and public documents.
   variant     Read source variant assertions, populations and recurrence.
   sync        Synchronize a local source bundle.
-  skill       
-  version     
-  mcp-config  
+  skill
+  version
+  mcp-config
   health      Report source terms and bounded reachability.
   store       Manage local cached replies and snapshots.
   key         Register and manage source credentials without showing values.
   serve       Serve MCP over standard input or HTTP.
-  schema      
+  schema
   help        Describe commands and their arguments.
-  network     
-  sources     
-  config      
+  network
+  sources
+  config
   exit        Explain process exit and error codes.
   relations   Map entities through sections and search filters.
 
 Options:
       --format <format>
           Choose JSON or Markdown output; configuration can change the default.
-          
+
           [default: json]
           [possible values: json, md]
 
@@ -4755,21 +4755,21 @@ Search source records by entity and checked filters.
 Usage: biomcp help search [OPTIONS] [COMMAND]
 
 Commands:
-  biomarker      
+  biomarker
   author         Read papers attributed to a source author record.
-  organization   
+  organization
   cell-line      Read source cell line assay counts.
-  gwas           
+  gwas
   protein        Read protein sequences, features and source relationships.
-  phenotype      
+  phenotype
   pathway        Read pathway genes and source events.
-  study          
-  pgx            
-  diagnostic     
-  adverse-event  
-  disease        
-  drug           
-  gene           
+  study
+  pgx
+  diagnostic
+  adverse-event
+  disease
+  drug
+  gene
   article        Read article text, references, citations and files.
   trial          Read trial groups and public documents.
   variant        Read source variant assertions, populations and recurrence.
@@ -4777,7 +4777,7 @@ Commands:
 Options:
       --format <format>
           Choose JSON or Markdown output; configuration can change the default.
-          
+
           [default: json]
           [possible values: json, md]
 
@@ -4806,7 +4806,7 @@ Usage: biomcp help search biomarker [OPTIONS]
 Options:
       --format <format>
           Choose JSON or Markdown output; configuration can change the default.
-          
+
           [default: json]
           [possible values: json, md]
 
@@ -4837,7 +4837,7 @@ Usage: biomcp help search author [OPTIONS]
 Options:
       --format <format>
           Choose JSON or Markdown output; configuration can change the default.
-          
+
           [default: json]
           [possible values: json, md]
 
@@ -4866,7 +4866,7 @@ Usage: biomcp help search organization [OPTIONS]
 Options:
       --format <format>
           Choose JSON or Markdown output; configuration can change the default.
-          
+
           [default: json]
           [possible values: json, md]
 
@@ -4897,7 +4897,7 @@ Usage: biomcp help search cell-line [OPTIONS]
 Options:
       --format <format>
           Choose JSON or Markdown output; configuration can change the default.
-          
+
           [default: json]
           [possible values: json, md]
 
@@ -4926,7 +4926,7 @@ Usage: biomcp help search gwas [OPTIONS]
 Options:
       --format <format>
           Choose JSON or Markdown output; configuration can change the default.
-          
+
           [default: json]
           [possible values: json, md]
 
@@ -4957,7 +4957,7 @@ Usage: biomcp help search protein [OPTIONS]
 Options:
       --format <format>
           Choose JSON or Markdown output; configuration can change the default.
-          
+
           [default: json]
           [possible values: json, md]
 
@@ -4986,7 +4986,7 @@ Usage: biomcp help search phenotype [OPTIONS]
 Options:
       --format <format>
           Choose JSON or Markdown output; configuration can change the default.
-          
+
           [default: json]
           [possible values: json, md]
 
@@ -5017,7 +5017,7 @@ Usage: biomcp help search pathway [OPTIONS]
 Options:
       --format <format>
           Choose JSON or Markdown output; configuration can change the default.
-          
+
           [default: json]
           [possible values: json, md]
 
@@ -5046,7 +5046,7 @@ Usage: biomcp help search study [OPTIONS]
 Options:
       --format <format>
           Choose JSON or Markdown output; configuration can change the default.
-          
+
           [default: json]
           [possible values: json, md]
 
@@ -5075,7 +5075,7 @@ Usage: biomcp help search pgx [OPTIONS]
 Options:
       --format <format>
           Choose JSON or Markdown output; configuration can change the default.
-          
+
           [default: json]
           [possible values: json, md]
 
@@ -5104,7 +5104,7 @@ Usage: biomcp help search diagnostic [OPTIONS]
 Options:
       --format <format>
           Choose JSON or Markdown output; configuration can change the default.
-          
+
           [default: json]
           [possible values: json, md]
 
@@ -5133,7 +5133,7 @@ Usage: biomcp help search adverse-event [OPTIONS]
 Options:
       --format <format>
           Choose JSON or Markdown output; configuration can change the default.
-          
+
           [default: json]
           [possible values: json, md]
 
@@ -5162,7 +5162,7 @@ Usage: biomcp help search disease [OPTIONS]
 Options:
       --format <format>
           Choose JSON or Markdown output; configuration can change the default.
-          
+
           [default: json]
           [possible values: json, md]
 
@@ -5191,7 +5191,7 @@ Usage: biomcp help search drug [OPTIONS]
 Options:
       --format <format>
           Choose JSON or Markdown output; configuration can change the default.
-          
+
           [default: json]
           [possible values: json, md]
 
@@ -5220,7 +5220,7 @@ Usage: biomcp help search gene [OPTIONS]
 Options:
       --format <format>
           Choose JSON or Markdown output; configuration can change the default.
-          
+
           [default: json]
           [possible values: json, md]
 
@@ -5251,7 +5251,7 @@ Usage: biomcp help search article [OPTIONS]
 Options:
       --format <format>
           Choose JSON or Markdown output; configuration can change the default.
-          
+
           [default: json]
           [possible values: json, md]
 
@@ -5282,7 +5282,7 @@ Usage: biomcp help search trial [OPTIONS]
 Options:
       --format <format>
           Choose JSON or Markdown output; configuration can change the default.
-          
+
           [default: json]
           [possible values: json, md]
 
@@ -5313,7 +5313,7 @@ Usage: biomcp help search variant [OPTIONS]
 Options:
       --format <format>
           Choose JSON or Markdown output; configuration can change the default.
-          
+
           [default: json]
           [possible values: json, md]
 
@@ -5342,20 +5342,20 @@ Retrieve one entity and its source sections.
 Usage: biomcp help get [OPTIONS] [COMMAND]
 
 Commands:
-  biomarker      
+  biomarker
   author         Read papers attributed to a source author record.
   cell-line      Read source cell line assay counts.
-  gwas           
+  gwas
   protein        Read protein sequences, features and source relationships.
-  phenotype      
+  phenotype
   pathway        Read pathway genes and source events.
-  study          
-  pgx            
-  diagnostic     
-  adverse-event  
-  disease        
-  drug           
-  gene           
+  study
+  pgx
+  diagnostic
+  adverse-event
+  disease
+  drug
+  gene
   article        Read article text, references, citations and files.
   trial          Read trial groups and public documents.
   variant        Read source variant assertions, populations and recurrence.
@@ -5363,7 +5363,7 @@ Commands:
 Options:
       --format <format>
           Choose JSON or Markdown output; configuration can change the default.
-          
+
           [default: json]
           [possible values: json, md]
 
@@ -5392,7 +5392,7 @@ Usage: biomcp help get biomarker [OPTIONS]
 Options:
       --format <format>
           Choose JSON or Markdown output; configuration can change the default.
-          
+
           [default: json]
           [possible values: json, md]
 
@@ -5423,7 +5423,7 @@ Usage: biomcp help get author [OPTIONS]
 Options:
       --format <format>
           Choose JSON or Markdown output; configuration can change the default.
-          
+
           [default: json]
           [possible values: json, md]
 
@@ -5454,7 +5454,7 @@ Usage: biomcp help get cell-line [OPTIONS]
 Options:
       --format <format>
           Choose JSON or Markdown output; configuration can change the default.
-          
+
           [default: json]
           [possible values: json, md]
 
@@ -5483,7 +5483,7 @@ Usage: biomcp help get gwas [OPTIONS]
 Options:
       --format <format>
           Choose JSON or Markdown output; configuration can change the default.
-          
+
           [default: json]
           [possible values: json, md]
 
@@ -5514,7 +5514,7 @@ Usage: biomcp help get protein [OPTIONS]
 Options:
       --format <format>
           Choose JSON or Markdown output; configuration can change the default.
-          
+
           [default: json]
           [possible values: json, md]
 
@@ -5543,7 +5543,7 @@ Usage: biomcp help get phenotype [OPTIONS]
 Options:
       --format <format>
           Choose JSON or Markdown output; configuration can change the default.
-          
+
           [default: json]
           [possible values: json, md]
 
@@ -5574,7 +5574,7 @@ Usage: biomcp help get pathway [OPTIONS]
 Options:
       --format <format>
           Choose JSON or Markdown output; configuration can change the default.
-          
+
           [default: json]
           [possible values: json, md]
 
@@ -5603,7 +5603,7 @@ Usage: biomcp help get study [OPTIONS]
 Options:
       --format <format>
           Choose JSON or Markdown output; configuration can change the default.
-          
+
           [default: json]
           [possible values: json, md]
 
@@ -5632,7 +5632,7 @@ Usage: biomcp help get pgx [OPTIONS]
 Options:
       --format <format>
           Choose JSON or Markdown output; configuration can change the default.
-          
+
           [default: json]
           [possible values: json, md]
 
@@ -5661,7 +5661,7 @@ Usage: biomcp help get diagnostic [OPTIONS]
 Options:
       --format <format>
           Choose JSON or Markdown output; configuration can change the default.
-          
+
           [default: json]
           [possible values: json, md]
 
@@ -5690,7 +5690,7 @@ Usage: biomcp help get adverse-event [OPTIONS]
 Options:
       --format <format>
           Choose JSON or Markdown output; configuration can change the default.
-          
+
           [default: json]
           [possible values: json, md]
 
@@ -5719,7 +5719,7 @@ Usage: biomcp help get disease [OPTIONS]
 Options:
       --format <format>
           Choose JSON or Markdown output; configuration can change the default.
-          
+
           [default: json]
           [possible values: json, md]
 
@@ -5748,7 +5748,7 @@ Usage: biomcp help get drug [OPTIONS]
 Options:
       --format <format>
           Choose JSON or Markdown output; configuration can change the default.
-          
+
           [default: json]
           [possible values: json, md]
 
@@ -5777,7 +5777,7 @@ Usage: biomcp help get gene [OPTIONS]
 Options:
       --format <format>
           Choose JSON or Markdown output; configuration can change the default.
-          
+
           [default: json]
           [possible values: json, md]
 
@@ -5808,7 +5808,7 @@ Usage: biomcp help get article [OPTIONS]
 Options:
       --format <format>
           Choose JSON or Markdown output; configuration can change the default.
-          
+
           [default: json]
           [possible values: json, md]
 
@@ -5839,7 +5839,7 @@ Usage: biomcp help get trial [OPTIONS]
 Options:
       --format <format>
           Choose JSON or Markdown output; configuration can change the default.
-          
+
           [default: json]
           [possible values: json, md]
 
@@ -5870,7 +5870,7 @@ Usage: biomcp help get variant [OPTIONS]
 Options:
       --format <format>
           Choose JSON or Markdown output; configuration can change the default.
-          
+
           [default: json]
           [possible values: json, md]
 
@@ -5899,12 +5899,12 @@ Read papers attributed to a source author record.
 Usage: biomcp help author [OPTIONS] [COMMAND]
 
 Commands:
-  papers  
+  papers
 
 Options:
       --format <format>
           Choose JSON or Markdown output; configuration can change the default.
-          
+
           [default: json]
           [possible values: json, md]
 
@@ -5933,7 +5933,7 @@ Usage: biomcp help author papers [OPTIONS]
 Options:
       --format <format>
           Choose JSON or Markdown output; configuration can change the default.
-          
+
           [default: json]
           [possible values: json, md]
 
@@ -5962,12 +5962,12 @@ Read source cell line assay counts.
 Usage: biomcp help cell-line [OPTIONS] [COMMAND]
 
 Commands:
-  assay-count  
+  assay-count
 
 Options:
       --format <format>
           Choose JSON or Markdown output; configuration can change the default.
-          
+
           [default: json]
           [possible values: json, md]
 
@@ -5996,7 +5996,7 @@ Usage: biomcp help cell-line assay-count [OPTIONS]
 Options:
       --format <format>
           Choose JSON or Markdown output; configuration can change the default.
-          
+
           [default: json]
           [possible values: json, md]
 
@@ -6025,18 +6025,18 @@ Read protein sequences, features and source relationships.
 Usage: biomcp help protein [OPTIONS] [COMMAND]
 
 Commands:
-  features         
-  isoforms         
-  domains          
-  complexes        
-  complex-members  
-  structures       
-  sequence         
+  features
+  isoforms
+  domains
+  complexes
+  complex-members
+  structures
+  sequence
 
 Options:
       --format <format>
           Choose JSON or Markdown output; configuration can change the default.
-          
+
           [default: json]
           [possible values: json, md]
 
@@ -6065,7 +6065,7 @@ Usage: biomcp help protein features [OPTIONS]
 Options:
       --format <format>
           Choose JSON or Markdown output; configuration can change the default.
-          
+
           [default: json]
           [possible values: json, md]
 
@@ -6094,7 +6094,7 @@ Usage: biomcp help protein isoforms [OPTIONS]
 Options:
       --format <format>
           Choose JSON or Markdown output; configuration can change the default.
-          
+
           [default: json]
           [possible values: json, md]
 
@@ -6123,7 +6123,7 @@ Usage: biomcp help protein domains [OPTIONS]
 Options:
       --format <format>
           Choose JSON or Markdown output; configuration can change the default.
-          
+
           [default: json]
           [possible values: json, md]
 
@@ -6152,7 +6152,7 @@ Usage: biomcp help protein complexes [OPTIONS]
 Options:
       --format <format>
           Choose JSON or Markdown output; configuration can change the default.
-          
+
           [default: json]
           [possible values: json, md]
 
@@ -6181,7 +6181,7 @@ Usage: biomcp help protein complex-members [OPTIONS]
 Options:
       --format <format>
           Choose JSON or Markdown output; configuration can change the default.
-          
+
           [default: json]
           [possible values: json, md]
 
@@ -6210,7 +6210,7 @@ Usage: biomcp help protein structures [OPTIONS]
 Options:
       --format <format>
           Choose JSON or Markdown output; configuration can change the default.
-          
+
           [default: json]
           [possible values: json, md]
 
@@ -6239,7 +6239,7 @@ Usage: biomcp help protein sequence [OPTIONS]
 Options:
       --format <format>
           Choose JSON or Markdown output; configuration can change the default.
-          
+
           [default: json]
           [possible values: json, md]
 
@@ -6268,13 +6268,13 @@ Read pathway genes and source events.
 Usage: biomcp help pathway [OPTIONS] [COMMAND]
 
 Commands:
-  genes   
-  events  
+  genes
+  events
 
 Options:
       --format <format>
           Choose JSON or Markdown output; configuration can change the default.
-          
+
           [default: json]
           [possible values: json, md]
 
@@ -6303,7 +6303,7 @@ Usage: biomcp help pathway genes [OPTIONS]
 Options:
       --format <format>
           Choose JSON or Markdown output; configuration can change the default.
-          
+
           [default: json]
           [possible values: json, md]
 
@@ -6332,7 +6332,7 @@ Usage: biomcp help pathway events [OPTIONS]
 Options:
       --format <format>
           Choose JSON or Markdown output; configuration can change the default.
-          
+
           [default: json]
           [possible values: json, md]
 
@@ -6361,18 +6361,18 @@ Read article text, references, citations and files.
 Usage: biomcp help article [OPTIONS] [COMMAND]
 
 Commands:
-  supplement         
-  pdf                
-  text               
-  citations          
-  references         
-  citation-evidence  
-  recommendations    
+  supplement
+  pdf
+  text
+  citations
+  references
+  citation-evidence
+  recommendations
 
 Options:
       --format <format>
           Choose JSON or Markdown output; configuration can change the default.
-          
+
           [default: json]
           [possible values: json, md]
 
@@ -6401,7 +6401,7 @@ Usage: biomcp help article supplement [OPTIONS]
 Options:
       --format <format>
           Choose JSON or Markdown output; configuration can change the default.
-          
+
           [default: json]
           [possible values: json, md]
 
@@ -6430,7 +6430,7 @@ Usage: biomcp help article pdf [OPTIONS]
 Options:
       --format <format>
           Choose JSON or Markdown output; configuration can change the default.
-          
+
           [default: json]
           [possible values: json, md]
 
@@ -6459,7 +6459,7 @@ Usage: biomcp help article text [OPTIONS]
 Options:
       --format <format>
           Choose JSON or Markdown output; configuration can change the default.
-          
+
           [default: json]
           [possible values: json, md]
 
@@ -6488,7 +6488,7 @@ Usage: biomcp help article citations [OPTIONS]
 Options:
       --format <format>
           Choose JSON or Markdown output; configuration can change the default.
-          
+
           [default: json]
           [possible values: json, md]
 
@@ -6517,7 +6517,7 @@ Usage: biomcp help article references [OPTIONS]
 Options:
       --format <format>
           Choose JSON or Markdown output; configuration can change the default.
-          
+
           [default: json]
           [possible values: json, md]
 
@@ -6546,7 +6546,7 @@ Usage: biomcp help article citation-evidence [OPTIONS]
 Options:
       --format <format>
           Choose JSON or Markdown output; configuration can change the default.
-          
+
           [default: json]
           [possible values: json, md]
 
@@ -6575,7 +6575,7 @@ Usage: biomcp help article recommendations [OPTIONS]
 Options:
       --format <format>
           Choose JSON or Markdown output; configuration can change the default.
-          
+
           [default: json]
           [possible values: json, md]
 
@@ -6604,12 +6604,12 @@ Read trial groups and public documents.
 Usage: biomcp help trial [OPTIONS] [COMMAND]
 
 Commands:
-  document  
+  document
 
 Options:
       --format <format>
           Choose JSON or Markdown output; configuration can change the default.
-          
+
           [default: json]
           [possible values: json, md]
 
@@ -6638,7 +6638,7 @@ Usage: biomcp help trial document [OPTIONS]
 Options:
       --format <format>
           Choose JSON or Markdown output; configuration can change the default.
-          
+
           [default: json]
           [possible values: json, md]
 
@@ -6667,15 +6667,15 @@ Read source variant assertions, populations and recurrence.
 Usage: biomcp help variant [OPTIONS] [COMMAND]
 
 Commands:
-  assertions  
-  population  
-  recurrence  
-  normalize   
+  assertions
+  population
+  recurrence
+  normalize
 
 Options:
       --format <format>
           Choose JSON or Markdown output; configuration can change the default.
-          
+
           [default: json]
           [possible values: json, md]
 
@@ -6704,7 +6704,7 @@ Usage: biomcp help variant assertions [OPTIONS]
 Options:
       --format <format>
           Choose JSON or Markdown output; configuration can change the default.
-          
+
           [default: json]
           [possible values: json, md]
 
@@ -6733,7 +6733,7 @@ Usage: biomcp help variant population [OPTIONS]
 Options:
       --format <format>
           Choose JSON or Markdown output; configuration can change the default.
-          
+
           [default: json]
           [possible values: json, md]
 
@@ -6762,7 +6762,7 @@ Usage: biomcp help variant recurrence [OPTIONS]
 Options:
       --format <format>
           Choose JSON or Markdown output; configuration can change the default.
-          
+
           [default: json]
           [possible values: json, md]
 
@@ -6791,7 +6791,7 @@ Usage: biomcp help variant normalize [OPTIONS]
 Options:
       --format <format>
           Choose JSON or Markdown output; configuration can change the default.
-          
+
           [default: json]
           [possible values: json, md]
 
@@ -6820,22 +6820,22 @@ Synchronize a local source bundle.
 Usage: biomcp help sync [OPTIONS] [COMMAND]
 
 Commands:
-  hgnc                
-  clingen             
-  gencc               
-  wikipathways        
-  cbioportal-studies  
-  ema                 
-  ddinter             
-  who-pq              
-  gtr                 
-  who-ivd             
-  fda-cdx             
+  hgnc
+  clingen
+  gencc
+  wikipathways
+  cbioportal-studies
+  ema
+  ddinter
+  who-pq
+  gtr
+  who-ivd
+  fda-cdx
 
 Options:
       --format <format>
           Choose JSON or Markdown output; configuration can change the default.
-          
+
           [default: json]
           [possible values: json, md]
 
@@ -6864,7 +6864,7 @@ Usage: biomcp help sync hgnc [OPTIONS]
 Options:
       --format <format>
           Choose JSON or Markdown output; configuration can change the default.
-          
+
           [default: json]
           [possible values: json, md]
 
@@ -6893,7 +6893,7 @@ Usage: biomcp help sync clingen [OPTIONS]
 Options:
       --format <format>
           Choose JSON or Markdown output; configuration can change the default.
-          
+
           [default: json]
           [possible values: json, md]
 
@@ -6922,7 +6922,7 @@ Usage: biomcp help sync gencc [OPTIONS]
 Options:
       --format <format>
           Choose JSON or Markdown output; configuration can change the default.
-          
+
           [default: json]
           [possible values: json, md]
 
@@ -6951,7 +6951,7 @@ Usage: biomcp help sync wikipathways [OPTIONS]
 Options:
       --format <format>
           Choose JSON or Markdown output; configuration can change the default.
-          
+
           [default: json]
           [possible values: json, md]
 
@@ -6980,7 +6980,7 @@ Usage: biomcp help sync cbioportal-studies [OPTIONS]
 Options:
       --format <format>
           Choose JSON or Markdown output; configuration can change the default.
-          
+
           [default: json]
           [possible values: json, md]
 
@@ -7009,7 +7009,7 @@ Usage: biomcp help sync ema [OPTIONS]
 Options:
       --format <format>
           Choose JSON or Markdown output; configuration can change the default.
-          
+
           [default: json]
           [possible values: json, md]
 
@@ -7038,7 +7038,7 @@ Usage: biomcp help sync ddinter [OPTIONS]
 Options:
       --format <format>
           Choose JSON or Markdown output; configuration can change the default.
-          
+
           [default: json]
           [possible values: json, md]
 
@@ -7067,7 +7067,7 @@ Usage: biomcp help sync who-pq [OPTIONS]
 Options:
       --format <format>
           Choose JSON or Markdown output; configuration can change the default.
-          
+
           [default: json]
           [possible values: json, md]
 
@@ -7096,7 +7096,7 @@ Usage: biomcp help sync gtr [OPTIONS]
 Options:
       --format <format>
           Choose JSON or Markdown output; configuration can change the default.
-          
+
           [default: json]
           [possible values: json, md]
 
@@ -7125,7 +7125,7 @@ Usage: biomcp help sync who-ivd [OPTIONS]
 Options:
       --format <format>
           Choose JSON or Markdown output; configuration can change the default.
-          
+
           [default: json]
           [possible values: json, md]
 
@@ -7154,7 +7154,7 @@ Usage: biomcp help sync fda-cdx [OPTIONS]
 Options:
       --format <format>
           Choose JSON or Markdown output; configuration can change the default.
-          
+
           [default: json]
           [possible values: json, md]
 
@@ -7182,14 +7182,14 @@ Usage: biomcp help skill [OPTIONS] [COMMAND]
 
 Commands:
   list     List supported discovery topics.
-  render   
-  status   
-  install  
+  render
+  status
+  install
 
 Options:
       --format <format>
           Choose JSON or Markdown output; configuration can change the default.
-          
+
           [default: json]
           [possible values: json, md]
 
@@ -7220,7 +7220,7 @@ Usage: biomcp help skill list [OPTIONS]
 Options:
       --format <format>
           Choose JSON or Markdown output; configuration can change the default.
-          
+
           [default: json]
           [possible values: json, md]
 
@@ -7249,7 +7249,7 @@ Usage: biomcp help skill render [OPTIONS]
 Options:
       --format <format>
           Choose JSON or Markdown output; configuration can change the default.
-          
+
           [default: json]
           [possible values: json, md]
 
@@ -7278,7 +7278,7 @@ Usage: biomcp help skill status [OPTIONS]
 Options:
       --format <format>
           Choose JSON or Markdown output; configuration can change the default.
-          
+
           [default: json]
           [possible values: json, md]
 
@@ -7307,7 +7307,7 @@ Usage: biomcp help skill install [OPTIONS]
 Options:
       --format <format>
           Choose JSON or Markdown output; configuration can change the default.
-          
+
           [default: json]
           [possible values: json, md]
 
@@ -7336,7 +7336,7 @@ Usage: biomcp help version [OPTIONS]
 Options:
       --format <format>
           Choose JSON or Markdown output; configuration can change the default.
-          
+
           [default: json]
           [possible values: json, md]
 
@@ -7365,7 +7365,7 @@ Usage: biomcp help mcp-config [OPTIONS]
 Options:
       --format <format>
           Choose JSON or Markdown output; configuration can change the default.
-          
+
           [default: json]
           [possible values: json, md]
 
@@ -7396,7 +7396,7 @@ Usage: biomcp help health [OPTIONS]
 Options:
       --format <format>
           Choose JSON or Markdown output; configuration can change the default.
-          
+
           [default: json]
           [possible values: json, md]
 
@@ -7425,12 +7425,12 @@ Manage local cached replies and snapshots.
 Usage: biomcp help store [OPTIONS] [COMMAND]
 
 Commands:
-  clean  
+  clean
 
 Options:
       --format <format>
           Choose JSON or Markdown output; configuration can change the default.
-          
+
           [default: json]
           [possible values: json, md]
 
@@ -7459,7 +7459,7 @@ Usage: biomcp help store clean [OPTIONS]
 Options:
       --format <format>
           Choose JSON or Markdown output; configuration can change the default.
-          
+
           [default: json]
           [possible values: json, md]
 
@@ -7489,19 +7489,19 @@ Usage: biomcp help key [OPTIONS] [source] [COMMAND]
 
 Commands:
   list    List supported discovery topics.
-  set     
-  remove  
+  set
+  remove
 
 Arguments:
   [source]
           Credential source to describe.
-          
+
           [possible values: ncbi, semantic-scholar, orcid, oncokb, alphagenome, nci, openfda]
 
 Options:
       --format <format>
           Choose JSON or Markdown output; configuration can change the default.
-          
+
           [default: json]
           [possible values: json, md]
 
@@ -7533,7 +7533,7 @@ Usage: biomcp help key list [OPTIONS]
 Options:
       --format <format>
           Choose JSON or Markdown output; configuration can change the default.
-          
+
           [default: json]
           [possible values: json, md]
 
@@ -7562,7 +7562,7 @@ Usage: biomcp help key set [OPTIONS]
 Options:
       --format <format>
           Choose JSON or Markdown output; configuration can change the default.
-          
+
           [default: json]
           [possible values: json, md]
 
@@ -7591,7 +7591,7 @@ Usage: biomcp help key remove [OPTIONS]
 Options:
       --format <format>
           Choose JSON or Markdown output; configuration can change the default.
-          
+
           [default: json]
           [possible values: json, md]
 
@@ -7622,7 +7622,7 @@ Usage: biomcp help serve [OPTIONS]
 Options:
       --format <format>
           Choose JSON or Markdown output; configuration can change the default.
-          
+
           [default: json]
           [possible values: json, md]
 
@@ -7651,7 +7651,7 @@ Usage: biomcp help schema [OPTIONS]
 Options:
       --format <format>
           Choose JSON or Markdown output; configuration can change the default.
-          
+
           [default: json]
           [possible values: json, md]
 
@@ -7682,7 +7682,7 @@ Usage: biomcp help help [OPTIONS]
 Options:
       --format <format>
           Choose JSON or Markdown output; configuration can change the default.
-          
+
           [default: json]
           [possible values: json, md]
 
@@ -7711,13 +7711,13 @@ Usage: biomcp help network [OPTIONS] [setting]
 Arguments:
   [setting]
           Network setting to describe.
-          
+
           [possible values: ca_bundle, proxy]
 
 Options:
       --format <format>
           Choose JSON or Markdown output; configuration can change the default.
-          
+
           [default: json]
           [possible values: json, md]
 
@@ -7747,7 +7747,7 @@ Usage: biomcp help sources [OPTIONS]
 Options:
       --format <format>
           Choose JSON or Markdown output; configuration can change the default.
-          
+
           [default: json]
           [possible values: json, md]
 
@@ -7776,7 +7776,7 @@ Usage: biomcp help config [OPTIONS]
 Options:
       --format <format>
           Choose JSON or Markdown output; configuration can change the default.
-          
+
           [default: json]
           [possible values: json, md]
 
@@ -7807,7 +7807,7 @@ Usage: biomcp help exit [OPTIONS]
 Options:
       --format <format>
           Choose JSON or Markdown output; configuration can change the default.
-          
+
           [default: json]
           [possible values: json, md]
 
@@ -7845,7 +7845,7 @@ Usage: biomcp help relations [OPTIONS]
 Options:
       --format <format>
           Choose JSON or Markdown output; configuration can change the default.
-          
+
           [default: json]
           [possible values: json, md]
 
