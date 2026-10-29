@@ -1,0 +1,28 @@
+{
+  "feature": "trial-search",
+  "live_check": "synthetic",
+  "story": "Country names are checked before any source access and preserve exact publisher spelling.",
+  "steps": [
+    {
+      "run": [
+        "search",
+        "trial",
+        "--country",
+        "Atlantis"
+      ],
+      "mcp": [
+        "search",
+        "trial",
+        "--country",
+        "Atlantis"
+      ],
+      "exit": 2,
+      "offline": true,
+      "is_error": true,
+      "expect": {
+        "/error/code": "usage.arguments",
+        "/error/arguments/0": "country"
+      }
+    }
+  ]
+}
