@@ -150,7 +150,7 @@ class Sweep(unittest.TestCase):
         self.assertEqual(result.returncode, 1, result.stderr)
         self.assertFalse(report["complete"])
         self.assertFalse(report["profile_companion_comparison_complete"])
-        self.assertNotIn("profile_companion_not_in_monthly_input", report["refusal_reasons"])
+        self.assertNotIn("civic:10", [row["profile_id"] for row in report["profile_refusals"]])
 
     def test_profile_companion_requires_exact_provenance_and_feature_identity(self):
         profiles, variants, capture = self.profile_inputs()
