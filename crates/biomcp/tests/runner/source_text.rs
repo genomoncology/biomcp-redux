@@ -266,12 +266,11 @@ fn native_box_controls() -> Check {
 }
 
 fn venue() -> Check {
-    for invalid in [false, true] {
-        let text = if invalid {
-            "x".repeat(biodata::Text::MAX_CHARS + 1)
-        } else {
-            String::new()
-        };
+    for (text, invalid) in [
+        (String::new(), false),
+        (" ".to_owned(), true),
+        ("x".repeat(biodata::Text::MAX_CHARS + 1), true),
+    ] {
         let output = super::response_cases::checked_case(
             "author/papers",
             &["author", "papers", "semantic-scholar:123"],

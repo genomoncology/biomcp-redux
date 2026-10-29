@@ -144,7 +144,7 @@ impl Paper {
                 record,
                 "venue",
                 self.venue
-                    .filter(|v| !v.trim().is_empty())
+                    .filter(|v| !v.is_empty())
                     .map(crate::raw::Field::Value),
             ),
             electronic_date: None,

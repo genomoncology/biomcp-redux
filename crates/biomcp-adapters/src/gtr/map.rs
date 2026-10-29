@@ -15,7 +15,7 @@ fn optional(
     problems: &mut Vec<biomcp_types::Problem>,
 ) -> Option<Text> {
     // The retained GTR report defines empty native cells as absent (diagnostic slice field review).
-    if value.trim().is_empty() {
+    if value.is_empty() {
         return None;
     }
     crate::mapped::field_text(
