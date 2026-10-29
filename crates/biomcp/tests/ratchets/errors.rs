@@ -5,7 +5,7 @@ use std::collections::BTreeSet;
 pub(super) fn signatures(text: &str) -> Check {
     let words = tokens(text);
     for (start, word) in words.iter().enumerate() {
-        let tail = &words[start..];
+        let tail = words.get(start..).unwrap_or_default();
         if word == "ExitCode"
             && tail.get(1..5).is_some_and(|v| v == [":", ":", "from", "("])
             && tail
@@ -14,7 +14,7 @@ pub(super) fn signatures(text: &str) -> Check {
         {
             return Err("exit literals require Status::code()".into());
         }
-        if word == "From" && tail.get(1).is_some_and(|v| v == "<") && unit_argument(&tail[2..]) {
+        if word == "From" && tail.get(1).is_some_and(|v| v == "<") && tail.get(2..).is_some_and(unit_argument) {
             return Err("unit error conversions are forbidden".into());
         }
         if word == "Result" && tail.get(1).is_some_and(|v| v == "<") {
@@ -28,7 +28,7 @@ pub(super) fn signatures(text: &str) -> Check {
                             break;
                         }
                     }
-                    "," if depth == 1 && unit_argument(&tail[i + 1..]) => {
+                    "," if depth == 1 && tail.get(i + 1..).is_some_and(unit_argument) => {
                         return Err("unit Result errors are forbidden".into());
                     }
                     _ => {}
@@ -47,12 +47,10 @@ fn unit_argument(words: &[String]) -> bool {
 pub(super) fn display_codes(declaration: &str, text: &str) -> Check {
     let declaration = tokens(declaration);
     let mut codes = BTreeSet::new();
-    for code in declaration
-        .windows(3)
-        .filter(|v| v[0] == "=" && v[1] == ">" && v[2].starts_with('"'))
-    {
-        if !codes.insert(code[2].as_str()) {
-            return Err(format!("duplicate biodata error code: {}", code[2]).into());
+    for window in declaration.windows(3) {
+        let [equal, arrow, code] = window else { continue };
+        if equal == "=" && arrow == ">" && code.starts_with('"') && !codes.insert(code.as_str()) {
+            return Err(format!("duplicate biodata error code: {code}").into());
         }
     }
     let words = tokens(text);
@@ -60,14 +58,15 @@ pub(super) fn display_codes(declaration: &str, text: &str) -> Check {
         if word != "impl" {
             continue;
         }
-        let Some(open) = words[start..].iter().position(|v| v == "{") else {
+        let tail = words.get(start..).unwrap_or_default();
+        let Some(open) = tail.iter().position(|v| v == "{") else {
             continue;
         };
-        if !words[start..start + open].iter().any(|v| v == "Display") {
+        if !tail.get(..open).unwrap_or_default().iter().any(|v| v == "Display") {
             continue;
         }
         let mut depth = 0;
-        for token in &words[start + open..] {
+        for token in tail.get(open..).unwrap_or_default() {
             match token.as_str() {
                 "{" => depth += 1,
                 "}" => {
@@ -83,11 +82,10 @@ pub(super) fn display_codes(declaration: &str, text: &str) -> Check {
                         && token
                             .trim_matches('"')
                             .chars()
-                            .all(|c| c.is_ascii_lowercase() || c == '.' || c == '_') =>
+                            .all(|c| c.is_ascii_lowercase() || c == '.' || c == '_')
+                        && !codes.contains(token) =>
                 {
-                    if !codes.contains(token) {
-                        return Err(format!("undeclared biodata display code: {token}").into());
-                    }
+                    return Err(format!("undeclared biodata display code: {token}").into());
                 }
                 _ => {}
             }

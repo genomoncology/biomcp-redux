@@ -317,7 +317,7 @@ fn unknown_acquisition() -> Check {
             let mut value: Value =
                 serde_json::from_slice(&fs::read(&path).map_err(|e| e.to_string())?)
                     .map_err(|e| e.to_string())?;
-            for exchange in value["exchanges"].as_array_mut().ok_or("exchanges")? {
+            for exchange in value.get_mut("exchanges").and_then(Value::as_array_mut).ok_or("exchanges")? {
                 exchange
                     .as_object_mut()
                     .ok_or("exchange")?
