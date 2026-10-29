@@ -37,7 +37,7 @@ pub(super) fn uniprot() -> Check {
 
 pub(super) fn reactome() -> Check {
     let args = ["get", "pathway", "R-HSA-5673001", "summary"];
-    let identity = "/result/pathway/id";
+    let identity = "/result/pathway/id/id";
     case(
         "pathway/native",
         &args,
