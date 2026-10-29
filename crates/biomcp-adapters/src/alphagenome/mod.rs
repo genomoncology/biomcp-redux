@@ -3,7 +3,6 @@ mod envelope;
 mod envelope_budget;
 mod preflight;
 mod proto;
-mod registration;
 mod request;
 mod request_variant;
 mod score;
@@ -14,7 +13,6 @@ mod tensor;
 mod wire;
 use biomcp_fetch::grpc::{CodecError, Limits, StreamDecoder};
 pub use envelope::Envelope;
-pub use registration::{PREDICT_VARIANT, SCORE_VARIANT, SPEC};
 pub use request::{DnaseRequest, SCHEMA};
 pub use score::{SCORE_SCHEMA, ScoreRequest};
 pub use score_envelope::{SCORE_LIMITS, ScoreEnvelope};
@@ -23,3 +21,33 @@ pub use tensor::{DataType, Tensor, TensorStream};
 
 mod execute;
 pub use execute::score;
+
+use biomcp_fetch::{Credential, KeyPlace, KeyUse, SecretName, SourceSpec};
+/// Publisher policy shared by capture and the future variant section.
+pub static SPEC: SourceSpec = SourceSpec {
+    destinations: biomcp_fetch::Destinations::Primary,
+    user_agent: None,
+    source: biomcp_types::Source::AlphaGenome,
+    terms: biomcp_fetch::Terms {
+        name: "AlphaGenome API terms",
+        url: "https://alphagenome.google/terms",
+        usage: biomcp_types::Use::Restricted,
+    },
+    base: "https://gdmscience.googleapis.com:443",
+    key: KeyUse::Required(Credential {
+        secret: SecretName::AlphaGenomeApiKey,
+        place: KeyPlace::Header("x-goog-api-key"),
+    }),
+    quota: &crate::quotas::ALPHAGENOME,
+    deadline: std::time::Duration::from_secs(120),
+};
+/// One documented prediction method, with complete-stream admission and no cache.
+pub const PREDICT_VARIANT: biomcp_fetch::grpc::GrpcEndpoint = SPEC
+    .grpc(request::PREDICT_VARIANT)
+    .checked(SCHEMA, biomcp_fetch::Freshness::Never);
+
+/// Ruled legacy scorer method, admitted only after complete checked terminal success.
+pub const SCORE_VARIANT: biomcp_fetch::grpc::GrpcEndpoint = SPEC
+    .grpc(score::SCORE_VARIANT)
+    .bounded(SCORE_LIMITS)
+    .checked(SCORE_SCHEMA, biomcp_fetch::Freshness::Never);
