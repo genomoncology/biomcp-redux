@@ -39,6 +39,9 @@ pub fn search(leg: &Leg<'_>, query: &DiagnosticSearch) -> Result<Search, Request
     let mut matched = Vec::new();
     let mut cx = crate::mapped::Problems { source: biomcp_types::Source::Gtr, record: None, list: Vec::new() };
     for row in rows {
+        if let Native::Refused(r) = &row.value
+            && r.matches(query)
+        { r.disclose(&mut cx); }
         if let Native::Relation(r) = row.value
             && let Some(relation) = map::relation(&r, &mut cx)
             && matches(&r, query)

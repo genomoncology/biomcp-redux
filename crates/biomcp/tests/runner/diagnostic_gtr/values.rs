@@ -31,6 +31,7 @@ pub(super) fn card_fields() -> Result<(), String> {
 
 pub(super) fn relations() -> Result<(), String> {
     for (object, column, field, section, pointer, count) in [
+        ("gene", 1, "test_type", "genes", "/result/items/0/test_type", 2),
         ("gene", 3, "GTR_identifier", "genes", "/result/items/0/native_medgen", 2),
         ("gene", 7, "gene_symbol", "genes", "/result/items/0/gene/label", 2),
         ("condition", 5, "object_name", "conditions", "/result/items/0/condition/label", 1),
@@ -69,6 +70,23 @@ fn mutate(replay: &std::path::Path, object: &str, column: usize) -> Result<(), S
         if !changed { return Err("native relation target not found".into()); }
         *body = json!(format!("{}\n", lines.join("\n")));
         fs::write(path, value.to_string()).map_err(|e| e.to_string())?;
+    }
+    Ok(())
+}
+
+pub(super) fn identity() -> Result<(), String> {
+    let env = Environment::new().map_err(|e| e.to_string())?;
+    let replay = seed(&env)?;
+    mutate(&replay, "gene", 0)?;
+    call(&env, &replay, &["sync", "gtr"], 0)?;
+    let value = call(&env, &replay, &["search", "diagnostic", "--source", "gtr", "--gene", "BRCA1"], 0)?;
+    if value.pointer("/page/total") != Some(&json!(7))
+        || value.pointer("/problems/0/field") != Some(&json!("#accession_version"))
+        || value.get("problems").and_then(Value::as_array).map(Vec::len) != Some(1)
+    { return Err(format!("bad accession rejected unrelated test identities: {value}")); }
+    let unrelated = call(&env, &replay, &["search", "diagnostic", "--source", "gtr", "--gene", "TP53"], 0)?;
+    if unrelated.pointer("/page/total") != Some(&json!(1)) || unrelated.get("problems").is_some() {
+        return Err(format!("bad native key escaped its actual gene scope: {unrelated}"));
     }
     Ok(())
 }

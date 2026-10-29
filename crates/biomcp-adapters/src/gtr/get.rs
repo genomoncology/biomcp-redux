@@ -28,6 +28,7 @@ pub fn get(leg: &Leg<'_>, query: &DiagnosticGet) -> Result<Record, RequestError>
     for row in rows {
         match row.value {
             Native::Version(v) => versions.push(v),
+            Native::Refused(r) => r.disclose(&mut cx),
             Native::Relation(r) => {
                 if let Some(relation) = map::relation(&r, &mut cx) { relations.push(relation); }
             },

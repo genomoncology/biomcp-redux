@@ -47,7 +47,9 @@ pub fn sync(fetch: &Fetch) -> Result<SyncResult, RequestError> {
     }
     let mut counts = BTreeMap::new();
     for row in rows {
-        *counts.entry(row.value.id().to_string()).or_insert(0_u32) += 1;
+        if let Some(id) = row.value.id() {
+            *counts.entry(id.to_string()).or_insert(0_u32) += 1;
+        }
     }
     Ok(SyncResult {
         snapshot: None,
