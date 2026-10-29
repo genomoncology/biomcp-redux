@@ -111,7 +111,7 @@ fn clingen_local_failure_survives_later_source_deadline() {
                 let body = record["exchanges"][0]["body"]["value"].as_str().unwrap();
                 let mut lines = body.lines();
                 let header = lines.next().unwrap();
-                if let Some(index) = header.split('\t').position(|v| v == "entrez_id") {
+                if let Some(index) = header.split('\t').position(|v| v == "entrez-id") {
                     let mut output = format!("{header}\n");
                     for line in lines {
                         let mut cells: Vec<_> = line.split('\t').collect();

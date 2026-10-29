@@ -5,7 +5,7 @@ crate::wire_enum! {
     /// Scope of source-reported bibliographic counts.
     AuthorCountScope {
         /// Only the requested provider record's indexed papers and citations.
-        ProviderRecord => "provider_record"
+        ProviderRecord => "provider-record"
     }
 }
 /// Counts describe only this provider record, never a global publication corpus.

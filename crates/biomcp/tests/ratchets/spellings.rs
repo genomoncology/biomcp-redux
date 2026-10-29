@@ -5,7 +5,7 @@ use std::{fs, path::Path};
 // These declarations describe BioMCP choices rather than publisher vocabularies.
 const OWNED: &[&str] = &[
     "Reason", "PublicationType", "SubjectQualification", "DrugOncokbMissing",
-    "AdverseEventMatchKind", "ArticleMatchKind", "CorrectionKind", "DiagnosticCountUnit",
+    "AdverseEventReactionMatch", "ArticleMatchKind", "CorrectionKind", "DiagnosticCountUnit",
     "SourceTimestampTimezone", "OrcidWorksScope", "BundleSize", "ConfigurationNoticeCode",
     "RecurrenceGranularity", "AlphaGenomeNonfiniteKind", "EvidenceNotice", "PathwayTotalKind",
     "AlphaGenomeScorer", "MatchKind", "AuthorCountScope",

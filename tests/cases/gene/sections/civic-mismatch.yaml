@@ -21,7 +21,7 @@
           "includes": "civic",
           "excludes": "gnomad"
         },
-        "/problems/0/field": "entrez_id"
+        "/problems/0/field": "entrez-id"
       },
       "max_bytes": 3200,
       "mcp": [

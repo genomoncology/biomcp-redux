@@ -14,7 +14,7 @@
         "/status": "partial",
         "/result/items/0/answer/gene/hgnc_id": "HGNC:1097",
         "/problems/0/source": "mygene",
-        "/problems/0/field": "hgnc_id",
+        "/problems/0/field": "hgnc-id",
         "/problems": {
           "count": 1
         }

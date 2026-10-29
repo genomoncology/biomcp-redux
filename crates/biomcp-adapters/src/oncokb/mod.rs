@@ -63,14 +63,14 @@ pub fn gene(
         if row.entrez_gene_id == id {
             accepted.push(row);
         } else {
-            push_problem(&mut problems, Source::Oncokb, record_text(id), "entrez_id");
+            push_problem(&mut problems, Source::Oncokb, record_text(id), "entrez-id");
         }
     }
     let value = if accepted.len() == 1 {
         accepted.pop().map(|row| row.mapped(&mut problems))
     } else {
         if accepted.len() > 1 {
-            push_problem(&mut problems, Source::Oncokb, record_text(id), "entrez_id");
+            push_problem(&mut problems, Source::Oncokb, record_text(id), "entrez-id");
         }
         None
     };

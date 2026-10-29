@@ -23,7 +23,7 @@ pub(super) fn genes(rows: Vec<raw::Gene>) -> Mapped<Vec<Gene>> {
     Mapped { value, problems }
 }
 fn gene(row: raw::Gene, f: &mut Fields) -> Option<Gene> {
-    let id = f.required("hgnc_id", f.id);
+    let id = f.required("hgnc-id", f.id);
     let symbol = f.required(
         "symbol",
         GeneSymbol::new(raw::cell(row.symbol.as_deref())).ok(),
@@ -65,8 +65,8 @@ fn gene(row: raw::Gene, f: &mut Fields) -> Option<Gene> {
         mane: mane_select.into_iter().collect(),
         location: (!raw::cell(row.location.as_deref()).is_empty())
             .then(|| raw::cell(row.location.as_deref()).into()),
-        entrez_id: f.optional("entrez_id", raw::cell(row.entrez_id.as_deref())),
-        ensembl_id: f.optional("ensembl_id", raw::cell(row.ensembl_gene_id.as_deref())),
+        entrez_id: f.optional("entrez-id", raw::cell(row.entrez_id.as_deref())),
+        ensembl_id: f.optional("ensembl-id", raw::cell(row.ensembl_gene_id.as_deref())),
         previous_symbols: f.list("previous_symbols", raw::cell(row.prev_symbol.as_deref())),
         aliases: f.list("aliases", raw::cell(row.alias_symbol.as_deref())),
         uniprot: f.list("uniprot", raw::cell(row.uniprot_ids.as_deref())),
@@ -84,7 +84,7 @@ pub(super) fn withdrawn(rows: Vec<raw::Withdrawn>) -> Mapped<Vec<Withdrawn>> {
                 id: raw::cell(row.hgnc_id.as_deref()).parse().ok(),
                 problems: Vec::new(),
             };
-            let id = f.required("hgnc_id", f.id);
+            let id = f.required("hgnc-id", f.id);
             let symbol = f.required(
                 "symbol",
                 GeneSymbol::new(raw::cell(row.symbol.as_deref())).ok(),

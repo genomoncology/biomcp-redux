@@ -29,17 +29,17 @@ canonical_enum! {
         /// Current symbol.
         Symbol => "symbol",
         /// Previous symbol.
-        PreviousSymbol => "previous_symbol",
+        PreviousSymbol => "previous-symbol",
         /// HGNC alias.
         Alias => "alias",
         /// NCBI-only alias.
-        NcbiAlias => "ncbi_alias",
+        NcbiAlias => "ncbi-alias",
         /// HGNC identifier.
-        HgncId => "hgnc_id",
+        HgncId => "hgnc-id",
         /// NCBI Gene identifier.
-        EntrezId => "entrez_id",
+        EntrezId => "entrez-id",
         /// Ensembl gene identifier.
-        EnsemblId => "ensembl_id",
+        EnsemblId => "ensembl-id",
         /// Cytogenetic band.
         Band => "band",
     }

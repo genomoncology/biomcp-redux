@@ -96,18 +96,18 @@ fn constraint() -> Check {
                     }
                     10 => value["data"]["g0"]["gnomad_constraint"]["pli"] = json!("NaN"),
                     11 => {
-                        value["data"]["g0"]["mane_select_transcript"]["ensembl_id"] = json!("bad")
+                        value["data"]["g0"]["mane_select_transcript"]["ensembl-id"] = json!("bad")
                     }
                     12 => {
-                        value["data"]["g0"]["mane_select_transcript"]["ensembl_id"] =
+                        value["data"]["g0"]["mane_select_transcript"]["ensembl-id"] =
                             json!("ENST00000269305.01")
                     }
                     13 => {
-                        value["data"]["g0"]["mane_select_transcript"]["ensembl_id"] =
+                        value["data"]["g0"]["mane_select_transcript"]["ensembl-id"] =
                             json!("ENST00000269305.bad")
                     }
                     14 => {
-                        value["data"]["g0"]["mane_select_transcript"]["ensembl_id"] =
+                        value["data"]["g0"]["mane_select_transcript"]["ensembl-id"] =
                             json!("NM_004333.4")
                     }
                     _ => {
@@ -126,7 +126,7 @@ fn mappings() -> Check {
     graphql(
         "gnomad",
         |body| {
-            body["value"]["data"]["g0"]["mane_select_transcript"]["ensembl_id"] =
+            body["value"]["data"]["g0"]["mane_select_transcript"]["ensembl-id"] =
                 json!("ENST00000311936.8");
             body["value"]["data"]["g0"]["gnomad_constraint"]["flags"] =
                 json!(["source flag", 17, ""]);

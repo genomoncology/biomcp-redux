@@ -16,7 +16,7 @@
         "/result/items/0/answer/gene/symbol": "AKAP2",
         "/result/items/0/sections/civic/state": "unavailable",
         "/result/items/0/sections/civic/reason": "no-join-id",
-        "/problems/0/field": "entrez_id",
+        "/problems/0/field": "entrez-id",
         "/sources/*/source": {
           "includes": "civic",
           "excludes": "mygene"

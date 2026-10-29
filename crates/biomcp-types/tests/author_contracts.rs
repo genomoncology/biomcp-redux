@@ -100,7 +100,7 @@ fn metadata_absence_and_repeated_byline_names_remain_source_local() {
     assert!(detail.get("fields_of_study").is_none());
     let absent = json!({"id":"semantic-scholar:123","name":"Synthetic name"});
     assert_eq!(roundtrip::<AuthorHeader>(absent.clone()).unwrap(), absent);
-    let empty = json!({"id":"semantic-scholar:123","name":"Synthetic name","counts":{"scope":"provider_record","paper_count":0}});
+    let empty = json!({"id":"semantic-scholar:123","name":"Synthetic name","counts":{"scope":"provider-record","paper_count":0}});
     assert_eq!(roundtrip::<AuthorHeader>(empty.clone()).unwrap(), empty);
 }
 fn assertion(code: u64, title: Option<&str>) -> Value {

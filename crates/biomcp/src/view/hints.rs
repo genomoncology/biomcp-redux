@@ -29,7 +29,7 @@ const HINTS: &[Hint] = &[
     Hint {
         schema: biomcp_types::GenePage::SCHEMA,
         title: "",
-        columns: &["symbol", "name", "hgnc_id", "location", "status"],
+        columns: &["symbol", "name", "hgnc-id", "location", "status"],
     },
     Hint {
         schema: biomcp_types::ArticlePage::SCHEMA,

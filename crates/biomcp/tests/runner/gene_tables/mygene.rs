@@ -133,7 +133,7 @@ fn identities() -> Check {
                     body[0]["HGNC"] = json!("not-an-id");
                 }
             },
-            json!({"/result/items/0/status": "partial", "/problems/*/field": {"includes": "hgnc_id"}}),
+            json!({"/result/items/0/status": "partial", "/problems/*/field": {"includes": "hgnc-id"}}),
         )?;
     }
     for mode in 0..3 {

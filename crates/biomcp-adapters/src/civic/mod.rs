@@ -106,7 +106,7 @@ fn mapped(raw: &raw::Aliases, index: usize, symbol: GeneSymbol, id: NcbiGeneId) 
             problems.push(Problem {
                 source: Source::Civic,
                 record: Text::new(&id.to_string()).ok(),
-                field: "entrez_id".into(),
+                field: "entrez-id".into(),
                 code: ProblemCode::ValueUnknown,
             });
             Section::Unavailable {

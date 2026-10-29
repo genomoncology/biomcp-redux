@@ -81,7 +81,7 @@
           "HGNC:15840"
         ],
         "/result/items/*/match/kind": [
-          "previous_symbol",
+          "previous-symbol",
           "alias"
         ],
         "/page/total": 2

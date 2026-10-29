@@ -101,7 +101,7 @@ fn map_hit(hit: Hit, id: NcbiGeneId, problems: &mut Vec<Problem>) -> Option<Mapp
         .and_then(Field::value)
         .and_then(|value| value.parse::<NcbiGeneId>().ok());
     if returned != Some(id) {
-        problems.push(problem(Source::MyGene, record_text(id), "entrez_id"));
+        problems.push(problem(Source::MyGene, record_text(id), "entrez-id"));
         return None;
     }
     let hgnc_present = hit.hgnc.is_some();
@@ -122,7 +122,7 @@ fn map_hit(hit: Hit, id: NcbiGeneId, problems: &mut Vec<Problem>) -> Option<Mapp
     if hgnc_present && hgnc.is_none() {
         mapped
             .problems
-            .push(problem(Source::MyGene, record_text(id), "hgnc_id"));
+            .push(problem(Source::MyGene, record_text(id), "hgnc-id"));
     }
     if let Some(field) = hit.summary {
         mapped.value.summary = field.value().and_then(summary);

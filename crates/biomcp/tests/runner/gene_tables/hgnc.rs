@@ -18,7 +18,7 @@ pub(super) fn check() -> Check {
             }
         },
         json!({"/result/items/*/hgnc_id": ["HGNC:7133", "HGNC:15840", "HGNC:43802"],
-        "/result/items/0/match/kind": "previous_symbol"}),
+        "/result/items/0/match/kind": "previous-symbol"}),
         0,
     )?;
     case(
@@ -26,7 +26,7 @@ pub(super) fn check() -> Check {
         &["get", "gene", "100874204"],
         |_, _| {},
         json!({"/result/items/0/answer/candidates/*/hgnc_id": ["HGNC:40244", "HGNC:55559"],
-            "/result/items/0/answer/candidates/*/match/kind": ["entrez_id", "entrez_id"]}),
+            "/result/items/0/answer/candidates/*/match/kind": ["entrez-id", "entrez-id"]}),
         0,
     )?;
     case(
@@ -48,8 +48,8 @@ pub(super) fn check() -> Check {
 fn optional() -> Check {
     for (field, value, problem) in [
         ("locus_type", "new provider locus", "locus_type"),
-        ("entrez_id", "0", "entrez_id"),
-        ("ensembl_gene_id", "bad", "ensembl_id"),
+        ("entrez-id", "0", "entrez-id"),
+        ("ensembl_gene_id", "bad", "ensembl-id"),
         ("uniprot_ids", "bad", "uniprot"),
         ("omim_id", "bad", "omim"),
         ("prev_symbol", "bad symbol", "previous_symbols"),
@@ -71,7 +71,7 @@ fn optional() -> Check {
             0,
         )?;
         let mapped = match field {
-            "ensembl_gene_id" => "ensembl_id",
+            "ensembl_gene_id" => "ensembl-id",
             "uniprot_ids" => "uniprot",
             "omim_id" => "omim",
             "prev_symbol" => "previous_symbols",
@@ -90,7 +90,7 @@ fn optional() -> Check {
 
 fn required() -> Check {
     for (field, value, input) in [
-        ("hgnc_id", "HGNC:0", "BRAF"),
+        ("hgnc-id", "HGNC:0", "BRAF"),
         ("symbol", "bad symbol", "HGNC:1097"),
         ("locus_group", "new group", "HGNC:1097"),
         ("status", "new status", "HGNC:1097"),
@@ -143,7 +143,7 @@ fn withdrawn() -> Check {
                 }
             },
             json!({"/result/items/0/answer/resolution": "not-found",
-            "/problems/*/field": {"includes": match field { "STATUS" => "hgnc_status", "HGNC_ID" => "hgnc_id", _ => "symbol" }}}),
+            "/problems/*/field": {"includes": match field { "STATUS" => "hgnc_status", "HGNC_ID" => "hgnc-id", _ => "symbol" }}}),
             1,
         )?;
     }
@@ -254,10 +254,10 @@ fn locations() -> Check {
                         "BRAF",
                         &[
                             ("symbol", symbol),
-                            ("hgnc_id", id),
+                            ("hgnc-id", id),
                             ("name", name),
                             ("location", location),
-                            ("entrez_id", ""),
+                            ("entrez-id", ""),
                             ("ensembl_gene_id", ""),
                             ("alias_symbol", ""),
                             ("prev_symbol", ""),

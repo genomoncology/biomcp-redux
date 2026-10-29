@@ -112,7 +112,7 @@ fn entity(
         AnnotationKind::Gene => {
             value.entrez_id = identifier.as_ref().and_then(|s| s.as_str().parse().ok());
             if identifier.is_some() && value.entrez_id.is_none() {
-                push_problem(problems, Source::PubTator, record_text(id), "entrez_id");
+                push_problem(problems, Source::PubTator, record_text(id), "entrez-id");
             }
         }
         AnnotationKind::Variant => {
