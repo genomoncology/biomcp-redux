@@ -1,3 +1,5 @@
+//! CIViC source grammar: https://github.com/griffithlab/civic-v2/blob/main/client/src/app/core/utilities/molecular-profile-parser.ts
+//! Source display formatter: https://github.com/griffithlab/civic-v2/blob/main/server/app/tsv_formatters/molecular_profile_tsv_formatter.rb
 use crate::{Curie, Error, Text, VariantRef};
 use serde::{Deserialize, Serialize};
 use std::collections::BTreeSet;
@@ -8,13 +10,25 @@ use std::collections::BTreeSet;
 #[cfg_attr(feature = "schema", derive(schemars::JsonSchema))]
 pub enum ProfileNode {
     /// One source-native variant reference.
-    Member { record: Curie },
+    Member {
+        /// Source-native variant identifier.
+        record: Curie,
+    },
     /// Every operand is required by the source expression.
-    And { operands: Box<[Self]> },
+    And {
+        /// Source operands in expression order.
+        operands: Box<[Self]>,
+    },
     /// Alternatives in the source expression.
-    Or { operands: Box<[Self]> },
+    Or {
+        /// Source alternatives in expression order.
+        operands: Box<[Self]>,
+    },
     /// Source negation of one member.
-    Not { operand: Box<Self> },
+    Not {
+        /// Negated source member.
+        operand: Box<Self>,
+    },
 }
 
 /// Exact source text together with its parsed Boolean tree.
@@ -187,14 +201,15 @@ impl Parser<'_> {
                 .strip_prefix("#VID")
                 .ok_or(Error::ProfileExpressionInvalid)?;
             let end = rest.bytes().take_while(u8::is_ascii_digit).count();
-            let digits = &rest[..end];
+            let digits = rest.get(..end).ok_or(Error::ProfileExpressionInvalid)?;
+            let remaining = rest.get(end..).ok_or(Error::ProfileExpressionInvalid)?;
             let id = digits
                 .parse::<u32>()
                 .map_err(|_| Error::ProfileExpressionInvalid)?;
-            if id == 0 || digits.starts_with('0') || !boundary(&rest[end..]) {
+            if id == 0 || digits.starts_with('0') || !boundary(remaining) {
                 return Err(Error::ProfileExpressionInvalid);
             }
-            self.rest = rest[end..].trim_start();
+            self.rest = remaining.trim_start();
             format!("civic:{id}").parse()?
         };
         let node = ProfileNode::Member { record };

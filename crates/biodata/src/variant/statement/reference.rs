@@ -180,6 +180,14 @@ impl VariantRef {
             _ => None,
         }
     }
+    /// Read optional source-stated allele or protein forms.
+    pub fn forms(&self) -> impl Iterator<Item = &Self> {
+        let forms = match &self.0 {
+            Fields::Source { forms, .. } => forms.as_ref(),
+            _ => &[],
+        };
+        forms.iter()
+    }
     /// Borrow the source expression and its parsed tree.
     pub fn expression(&self) -> Option<&ProfileExpression> {
         match &self.0 {
