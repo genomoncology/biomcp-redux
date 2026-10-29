@@ -306,7 +306,7 @@ fn request_reason_mapping_cannot_be_copied() -> Check {
 #[test]
 fn generated_exception_cannot_hide_product_code() -> Check {
     let tree = tree()?;
-    let path = "crates/biomcp-fetch/src/grpc/proto.rs";
+    let path = "crates/biomcp-adapters/src/alphagenome/proto.rs";
     let wrapper = r#"#![expect(dead_code, reason="pinned generation")]
 include!("generated/mod.rs");
 "#;
@@ -530,64 +530,19 @@ fn adapter_drop_forms_and_file_rules_require_pending_identity() -> Check {
 
 #[test]
 fn inventory_allows_shrinking_and_reclassification_but_refuses_new_identities() -> Check {
-    use super::source::adapter_values::validate;
-    let original = include_str!("adapter_value_audit.json");
-    let mut current: serde_json::Value = serde_json::from_str(original)?;
-    let sites = current["sites"]
-        .as_array_mut()
-        .ok_or("missing audit sites")?;
-    sites.retain(|entry| entry["maximum"].as_u64().is_some_and(|n| n > 1));
-    for entry in sites.iter_mut() {
-        entry["maximum"] = 1.into();
-        entry["class"] = "migrated".into();
-    }
-    validate(&current.to_string())?;
-    validate("{\"sites\":[]}")?;
-    let planted = serde_json::json!({"sites": [{
-        "path": "crates/biomcp-adapters/src/example/details.rs",
-        "site": "new pending identity",
-        "maximum": 1,
-        "class": "pending_audit",
-        "owner": "example",
-        "reason": "Planted new entry"
-    }]});
-    assert!(
-        validate(&planted.to_string()).is_err(),
-        "new entry in empty inventory passed"
-    );
-    let mut current: serde_json::Value = serde_json::from_str(original)?;
-    if current["sites"].as_array().is_some_and(Vec::is_empty) {
-        return Ok(());
-    }
-    current["sites"][0]["site"] = "new pending identity".into();
-    assert!(
-        validate(&current.to_string()).is_err(),
-        "same-count replacement passed"
-    );
-    let mut current: serde_json::Value = serde_json::from_str(original)?;
-    let maximum = current["sites"][0]["maximum"]
-        .as_u64()
-        .ok_or("missing count")?;
-    current["sites"][0]["maximum"] = (maximum + 1).into();
-    assert!(
-        validate(&current.to_string()).is_err(),
-        "increased ceiling passed"
-    );
-    let mut current: serde_json::Value = serde_json::from_str(original)?;
-    current["sites"][0]["owner"] = "other_adapter".into();
-    assert!(
-        validate(&current.to_string()).is_err(),
-        "wrong adapter owner passed"
-    );
-    let mut current: serde_json::Value = serde_json::from_str(original)?;
-    let duplicate = current["sites"][0].clone();
-    current["sites"]
-        .as_array_mut()
-        .ok_or("missing audit sites")?
-        .push(duplicate);
-    assert!(
-        validate(&current.to_string()).is_err(),
-        "duplicate pending entry passed"
-    );
-    Ok(())
+    super::proof_support::check_inventory_mutations()
+}
+
+#[test]
+fn provider_codecs_stay_outside_transport_and_query() -> Check {
+    rejects(
+        "crates/biomcp-fetch/src/grpc/worker.rs",
+        "fn request() { let alphagenome = 1; consume(alphagenome); }",
+        "transport names source alphagenome",
+    )?;
+    rejects(
+        "crates/biomcp-query/Cargo.toml",
+        "[lints]\nworkspace=true\n[dependencies]\nprost='0.14'\n",
+        "forbidden dependencies dependency",
+    )
 }

@@ -10,7 +10,8 @@ use std::collections::BTreeSet;
 #[serde(rename_all = "camelCase")]
 pub(super) struct CatalogRow {
     study_id: StudyId,
-    name: Text,
+    #[serde(deserialize_with = "crate::native_text::deserialize")]
+    name: biodata::Text,
     cancer_type_id: CbioportalCancerTypeId,
     description: Box<str>,
     all_sample_count: u64,

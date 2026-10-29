@@ -1,3 +1,4 @@
+use crate::native_text::NativeText;
 use biodata::{FiniteNumber, Text};
 
 use biomcp_fetch::{BadReply, Reply};
@@ -39,7 +40,7 @@ pub struct Association {
     /// Catalog study accession.
     pub accession_id: Text,
     /// Source-reported traits.
-    pub reported_trait: Vec<Text>,
+    pub reported_trait: Vec<NativeText>,
     /// Source mapped ontology terms.
     pub efo_traits: Vec<Trait>,
     /// Source effect alleles, never interpreted as a classification.
@@ -57,9 +58,9 @@ pub struct Association {
     pub author: Option<String>,
     /// Source gene mapping strings.
     #[serde(rename = "mapped_genes")]
-    pub mapped_gene: Option<Vec<Text>>,
+    pub mapped_gene: Option<Vec<NativeText>>,
     /// Native mapping locations.
-    pub locations: Option<Vec<Text>>,
+    pub locations: Option<Vec<NativeText>>,
     /// Source interval lower bound.
     pub ci_lower: Option<FiniteNumber>,
     /// Source interval upper bound.
@@ -81,7 +82,8 @@ pub struct Trait {
     /// Source ontology ID.
     pub efo_id: Text,
     /// Whole source label.
-    pub efo_trait: Text,
+    #[serde(deserialize_with = "crate::native_text::deserialize")]
+    pub efo_trait: biodata::Text,
 }
 /// Effect allele qualified by its exact source rsID.
 #[derive(Debug, Deserialize)]

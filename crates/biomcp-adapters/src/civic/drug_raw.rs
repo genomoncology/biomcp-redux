@@ -19,7 +19,8 @@ pub(super) struct Data {
 #[serde(rename_all = "camelCase")]
 pub(super) struct Profile {
     pub id: u64,
-    pub name: Text,
+    #[serde(deserialize_with = "crate::native_text::deserialize")]
+    pub name: biodata::Text,
     pub link: Text,
     pub is_complex: bool,
     pub variants: Vec<Member>,

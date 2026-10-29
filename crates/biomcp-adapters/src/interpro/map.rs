@@ -23,7 +23,7 @@ pub(super) fn rows(
             "name",
             entry.metadata.name,
         );
-        let entry_type = crate::mapped::field_text(
+        let entry_type = crate::mapped::field_code_text(
             &mut problems.list,
             problems.source,
             problems.record.clone(),
@@ -86,7 +86,9 @@ fn signatures(
         && let Some(databases) = problems.required("member_databases", field.value())
     {
         for (database, entries) in databases {
-            let Some(database) = problems.text("member_databases.database", Some(&database)) else {
+            let Some(database) =
+                problems.checked_text("member_databases.database", Some(&database))
+            else {
                 continue;
             };
             let Some(entries) = problems.required("member_databases.entries", entries.value())
@@ -94,7 +96,8 @@ fn signatures(
                 continue;
             };
             for (accession, name) in entries {
-                let Some(accession) = problems.text("member_databases.accession", Some(&accession))
+                let Some(accession) =
+                    problems.checked_text("member_databases.accession", Some(&accession))
                 else {
                     continue;
                 };
@@ -161,7 +164,7 @@ fn locations(
                     )?;
                     Some(ProteinDomainFragment {
                         span,
-                        dc_status: crate::mapped::field_text(
+                        dc_status: crate::mapped::field_code_text(
                             &mut problems.list,
                             problems.source,
                             problems.record.clone(),

@@ -108,13 +108,17 @@ struct Submission {
     sgc_id: Text,
     version_number: Text,
     disease_curie: Text,
-    disease_title: Text,
+    #[serde(deserialize_with = "crate::native_text::deserialize")]
+    disease_title: biodata::Text,
     classification_curie: Text,
-    classification_title: Text,
+    #[serde(deserialize_with = "crate::native_text::deserialize")]
+    classification_title: biodata::Text,
     moi_curie: Text,
-    moi_title: Text,
+    #[serde(deserialize_with = "crate::native_text::deserialize")]
+    moi_title: biodata::Text,
     submitter_curie: Text,
-    submitter_title: Text,
+    #[serde(deserialize_with = "crate::native_text::deserialize")]
+    submitter_title: biodata::Text,
     #[serde(deserialize_with = "optional_text")]
     submitted_as_date: Option<Text>,
     #[serde(deserialize_with = "optional_text")]

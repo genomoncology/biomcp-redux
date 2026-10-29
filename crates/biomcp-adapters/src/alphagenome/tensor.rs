@@ -1,7 +1,6 @@
 //! Consume a tensor descriptor followed by its exact declared chunk sequence.
 use super::{CodecError, Limits, preflight, proto};
 use prost::Message;
-use std::io::Read;
 
 /// Checked provider scalar storage type. Bytes retain the provider's little-endian layout.
 #[derive(Clone, Copy, Debug, PartialEq, Eq)]
@@ -116,9 +115,9 @@ impl TensorStream {
             .shape
             .iter()
             .try_fold(dtype.width(), |size, dimension| {
-                size.checked_mul(usize::try_from(*dimension).ok()?)
-            })
-            .ok_or(CodecError::BadReply)?;
+                let dimension = usize::try_from(*dimension).map_err(|_| CodecError::BadReply)?;
+                size.checked_mul(dimension).ok_or(CodecError::BadReply)
+            })?;
         self.expanded = self
             .expanded
             .checked_add(expected)
@@ -173,25 +172,9 @@ impl TensorStream {
         if chunk.compression_type == 0 {
             extend(active, &chunk.data)?;
         } else if chunk.compression_type == 1 {
-            let mut decoder = zstd::stream::read::Decoder::with_buffer(chunk.data.as_slice())
-                .map_err(|_| CodecError::BadReply)?
-                .single_frame();
-            decoder
-                .window_log_max(self.limits.zstd_window_log)
-                .map_err(|_| CodecError::BadReply)?;
-            let mut buffer = [0u8; 4096];
-            loop {
-                let count = decoder
-                    .read(&mut buffer)
-                    .map_err(|_| CodecError::BadReply)?;
-                if count == 0 {
-                    break;
-                }
-                extend(active, buffer.get(..count).ok_or(CodecError::BadReply)?)?;
-            }
-            if !decoder.finish().is_empty() {
-                return Err(CodecError::BadReply);
-            }
+            biomcp_fetch::grpc::decompress(&chunk.data, self.limits.zstd_window_log, |bytes| {
+                extend(active, bytes)
+            })?;
         } else {
             return Err(CodecError::BadReply);
         }

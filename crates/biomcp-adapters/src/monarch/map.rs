@@ -84,13 +84,16 @@ fn references(
             .map(|index| links.remove(index));
         references.push(DiseaseAssociationReference {
             id,
-            label: link.as_ref().and_then(|link| link.label.clone()),
+            label: link
+                .as_ref()
+                .and_then(|link| link.label.clone())
+                .map(Into::into),
             url: link.and_then(|link| link.url),
         });
     }
     references.extend(links.into_iter().map(|link| DiseaseAssociationReference {
         id: link.id,
-        label: link.label,
+        label: link.label.map(Into::into),
         url: link.url,
     }));
     references.into()
@@ -138,7 +141,7 @@ fn qualifiers(raw: &mut raw::Row) -> Result<Vec<DiseaseAssociationQualifier>, Re
         ),
     ] {
         if let Some(id) = id {
-            qualifiers.push(qualifier(field, id, label)?);
+            qualifiers.push(qualifier(field, id, label.map(Into::into))?);
         }
     }
     Ok(qualifiers)

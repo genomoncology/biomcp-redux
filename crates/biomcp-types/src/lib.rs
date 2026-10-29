@@ -47,7 +47,10 @@ pub use query::{
     MyVariantQuery, VariantRegion, VariantSearch, VariantSearchField, VariantSearchSource,
     protein_query_forms,
 };
-pub use query::{NciBiomarkerUse, TrialFilter, TrialSearch, TrialSource};
+pub use query::{
+    NciBiomarkerUse, NciStatusFilter, TrialFilter, TrialPhaseFilter, TrialSearch, TrialSource,
+    TrialStatusFilter,
+};
 pub use query::{NormalizationSource, VariantGet, VariantNormalize, VariantResolver};
 pub use query::{RecurrenceSource, VariantRecurrenceQuery};
 pub use query::{TrialGet, TrialSection};
@@ -239,7 +242,7 @@ pub use response::{AlphaGenomeNonfiniteKind, AlphaGenomeScalar};
 
 pub use response::{CivicKind, CivicSignificance, CivicStatus};
 
-pub use response::NciTrialPhase;
+pub use response::{NciPhaseFilter, NciTrialPhase};
 
 pub use response::{DeviceRecallCard, DeviceRecallHeader};
 

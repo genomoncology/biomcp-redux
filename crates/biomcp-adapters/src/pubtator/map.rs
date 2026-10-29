@@ -67,8 +67,13 @@ fn optional(
     raw: Option<&Field<String>>,
     problems: &mut Vec<Problem>,
 ) -> Option<Text> {
+    let admit = if field == "name" {
+        Text::from_source
+    } else {
+        Text::new
+    };
     match raw {
-        Some(Field::Value(s)) if s != "-" && !s.is_empty() => match Text::new(s) {
+        Some(Field::Value(s)) if s != "-" && !s.is_empty() => match admit(s) {
             Ok(text) => Some(text),
             Err(_) => {
                 push_problem(problems, Source::PubTator, record_text(id), field);
@@ -96,8 +101,17 @@ fn entity(
         _ => return None,
     };
     let identifier = optional(id, "identifier", raw.identifier.as_ref(), problems);
-    let name = optional(id, "name", raw.name.as_ref(), problems)
-        .or_else(|| annotation.text.as_ref().and_then(|s| Text::new(s).ok()))?;
+    let name = optional(id, "name", raw.name.as_ref(), problems).or_else(|| {
+        annotation.text.as_ref().and_then(|s| {
+            crate::mapped::field_text(
+                problems,
+                Source::PubTator,
+                record_text(id),
+                "text",
+                Some(Field::Value(s.clone())),
+            )
+        })
+    })?;
     let mut value = AnnotatedEntity {
         kind,
         name,

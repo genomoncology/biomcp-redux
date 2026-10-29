@@ -1,6 +1,6 @@
 //! Borrow protobuf fields before allocating provider messages.
-use super::super::preflight;
-use crate::BadReply;
+use super::preflight;
+use biomcp_fetch::BadReply;
 #[derive(Debug)]
 pub(super) enum Value<'a> {
     Number(u64),

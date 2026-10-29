@@ -58,7 +58,8 @@ struct Sentence {
     pmid: crate::raw::NumericPmid,
     #[serde(default)]
     section: Option<crate::raw::Field<Text>>,
-    text: Text,
+    #[serde(deserialize_with = "crate::native_text::deserialize")]
+    text: biodata::Text,
 }
 impl Reply for Sentences {
     fn check(&self) -> Result<(), BadReply> {

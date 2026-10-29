@@ -1,11 +1,11 @@
 //! Encode the ruled ScoreVariant request without exposing provider protobuf types.
-use super::super::{Limits, proto};
+use super::{Limits, proto};
 use super::{ScoreEnvelope, request_variant};
-use crate::{BadReply, InputError};
+use biomcp_fetch::{BadReply, InputError};
 use prost::Message;
 
 /// Publisher scoring method, independent of the earlier prediction method.
-pub const SCORE_VARIANT: &str =
+pub(super) const SCORE_VARIANT: &str =
     "/google.gdm.gdmscience.alphagenome.v1main.DnaModelService/ScoreVariant";
 /// Pinned scoring contract for complete-stream admission and persistent identities.
 pub const SCORE_SCHEMA: &str =

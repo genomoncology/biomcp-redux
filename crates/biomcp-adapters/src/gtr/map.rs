@@ -8,10 +8,28 @@ use biodata::{
 };
 use biomcp_fetch::RequestError;
 use biomcp_types::{DiagnosticLaboratory, DiagnosticSection, GtrCard, GtrHeader, GtrNativeStatus};
-fn optional(value: &str) -> Option<Text> {
-    Text::new(value).ok()
+fn optional(
+    value: &str,
+    field: &str,
+    v: &GtrTestVersion,
+    problems: &mut Vec<biomcp_types::Problem>,
+) -> Option<Text> {
+    // The retained GTR report defines empty native cells as absent (diagnostic slice field review).
+    if value.is_empty() {
+        return None;
+    }
+    crate::mapped::field_text(
+        problems,
+        biomcp_types::Source::Gtr,
+        crate::mapped::record(&v.test_accession_ver),
+        field,
+        Some(crate::raw::Field::Value(value.to_owned())),
+    )
 }
-pub(super) fn header(v: &GtrTestVersion) -> Result<GtrHeader, RequestError> {
+pub(super) fn header(
+    v: &GtrTestVersion,
+    problems: &mut Vec<biomcp_types::Problem>,
+) -> Result<GtrHeader, RequestError> {
     // The publisher's web route uses the numeric test base; the typed ID keeps
     // the complete accession/version independently of this current listing link.
     let base = v
@@ -24,12 +42,12 @@ pub(super) fn header(v: &GtrTestVersion) -> Result<GtrHeader, RequestError> {
     let base: u32 = base.parse().map_err(|_| bad())?;
     Ok(GtrHeader {
         id: v.test_accession_ver.clone(),
-        name: optional(&v.lab_test_name),
+        name: optional(&v.lab_test_name, "lab_test_name", v, problems),
         laboratory: DiagnosticLaboratory {
             id: Text::new(&v.lab_id).map_err(|_| bad())?,
-            name: optional(&v.name_of_laboratory),
-            institution: optional(&v.name_of_institution),
-            country: optional(&v.facility_country),
+            name: optional(&v.name_of_laboratory, "name_of_laboratory", v, problems),
+            institution: optional(&v.name_of_institution, "name_of_institution", v, problems),
+            country: optional(&v.facility_country, "facility_country", v, problems),
         },
         url: Text::new(&format!(
             "https://www.ncbi.nlm.nih.gov/gtr/tests/classic/{base}/"
@@ -37,9 +55,12 @@ pub(super) fn header(v: &GtrTestVersion) -> Result<GtrHeader, RequestError> {
         .map_err(|_| bad())?,
     })
 }
-pub(super) fn card(v: &GtrTestVersion) -> Result<GtrCard, RequestError> {
+pub(super) fn card(
+    v: &GtrTestVersion,
+    problems: &mut Vec<biomcp_types::Problem>,
+) -> Result<GtrCard, RequestError> {
     Ok(GtrCard {
-        header: header(v)?,
+        header: header(v, problems)?,
         native_status: GtrNativeStatus {
             now_current: v.now_current.clone(),
             test_current: v.test_current.clone(),
@@ -67,7 +88,7 @@ pub(super) fn card(v: &GtrTestVersion) -> Result<GtrCard, RequestError> {
 }
 pub(super) fn relation(r: &Relation) -> Result<GtrTestRelation, RequestError> {
     let medgen = format!("MedGen:{}", r.medgen).parse().map_err(|_| bad())?;
-    let text = Text::new(&r.object_name).map_err(|_| bad())?;
+    let text = Text::from_source(&r.object_name).map_err(|_| bad())?;
     Ok(if r.object == Object::Gene {
         let gene_id = r.object_id.parse::<biodata::NcbiGeneId>().ok();
         GtrTestRelation::Gene(GtrGeneRelation {

@@ -1,4 +1,3 @@
-use biodata::Text;
 use biomcp_fetch::{BadReply, Reply};
 use serde::{
     Deserialize, Deserializer,
@@ -15,7 +14,7 @@ pub(super) struct Catalog {
 }
 #[derive(Debug, Deserialize)]
 pub(super) struct Formats {
-    pub site: BTreeMap<String, Text>,
+    pub site: BTreeMap<String, crate::native_text::NativeText>,
 }
 #[derive(Debug, Deserialize)]
 pub(super) struct Site {

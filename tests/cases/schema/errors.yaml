@@ -2,7 +2,7 @@ live_check: local-only case
 feature: schema
 story: The error schema exposes its canonical artifact ID
 steps:
-  - run: [schema, biomcp.error/2]
+  - run: [schema, biomcp.error/3]
     expect:
-      '/$id': biomcp.error/2
+      '/$id': biomcp.error/3
       '/type': object

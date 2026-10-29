@@ -35,11 +35,11 @@ impl super::Trial {
             }
             entries.push(NciTrialBiomarker {
                 nci_thesaurus_concept_id: id,
-                eligibility_criterion: p.required_native_text(
+                eligibility_criterion: p.required_checked_native_text(
                     "biomarkers.eligibility_criterion",
                     row.eligibility_criterion,
                 ),
-                inclusion_indicator: p.required_native_text(
+                inclusion_indicator: p.required_checked_native_text(
                     "biomarkers.inclusion_indicator",
                     row.inclusion_indicator,
                 ),

@@ -1,4 +1,6 @@
 //! Only the reviewed source label and subject mappings occur here.
+#[path = "variant_map_support.rs"]
+mod support;
 use super::narrative::push as narrative;
 use super::variant::{Annotation, Query, TumorType};
 use crate::Mapped;
@@ -8,6 +10,7 @@ use biodata::{
     Term, Text, VariantRef,
 };
 use biomcp_types::{OncokbVariantRecord as Record, Problem, Source};
+use support::{abstracts, prose_texts};
 /// Project native fields without attaching grouped implications to the queried allele.
 pub fn records(row: &Annotation) -> Mapped<Vec<Record>> {
     let mut out = Mapped {
@@ -28,7 +31,7 @@ pub fn records(row: &Annotation) -> Mapped<Vec<Record>> {
             }
         }
         .map(Coding::OncokbOncogenicity);
-        if let Ok(label) = Text::new(label) {
+        if let Some(label) = support::label(label, "oncogenic", &mut out.problems) {
             classification(
                 &mut out.value,
                 row,
@@ -49,7 +52,9 @@ pub fn records(row: &Annotation) -> Mapped<Vec<Record>> {
                 .as_ref()
                 .map(|c| pmids(values(c.pmids.as_deref()), &mut out.problems))
                 .unwrap_or_default();
-            if let Ok(label) = Text::new(label) {
+            if let Some(label) =
+                support::label(label, "mutationEffect.knownEffect", &mut out.problems)
+            {
                 classification(
                     &mut out.value,
                     row,
@@ -87,21 +92,22 @@ pub fn records(row: &Annotation) -> Mapped<Vec<Record>> {
 }
 fn implications(row: &Annotation, out: &mut Mapped<Vec<Record>>) {
     for r in values(row.treatments.as_deref()) {
-        let drugs = r
-            .drugs
-            .as_deref()
-            .unwrap_or_default()
-            .iter()
-            .filter_map(|d| {
-                Text::new(&d.drug_name).ok().map(|label| Concept {
-                    id: d
-                        .ncit_code
-                        .as_ref()
-                        .and_then(|s| format!("NCIT:{s}").parse().ok()),
-                    label,
+        let drugs =
+            r.drugs
+                .as_deref()
+                .unwrap_or_default()
+                .iter()
+                .filter_map(|d| {
+                    support::label(&d.drug_name, "treatments.drugs.drugName", &mut out.problems)
+                        .map(|label| Concept {
+                            id: d
+                                .ncit_code
+                                .as_ref()
+                                .and_then(|s| format!("NCIT:{s}").parse().ok()),
+                            label,
+                        })
                 })
-            })
-            .collect();
+                .collect();
         out.value.push(Record::Implication {
             field: "treatments".into(),
             level: level(&r.level, &mut out.problems),
@@ -117,7 +123,10 @@ fn implications(row: &Annotation, out: &mut Mapped<Vec<Record>>) {
                 .iter()
                 .filter_map(concept)
                 .collect(),
-            approved_indications: texts(values(r.approved_indications.as_deref())),
+            approved_indications: prose_texts(
+                values(r.approved_indications.as_deref()),
+                &mut out.problems,
+            ),
             fda_level: r
                 .fda_level
                 .as_deref()
@@ -221,7 +230,7 @@ fn concept(row: &TumorType) -> Option<Concept> {
             .code
             .as_ref()
             .and_then(|s| format!("ONCOTREE:{s}").parse().ok()),
-        label: Text::new(row.name.as_deref().or(row.code.as_deref())?).ok()?,
+        label: Text::from_source(row.name.as_deref().or(row.code.as_deref())?).ok()?,
     })
 }
 fn pmids(values: &[String], problems: &mut Vec<Problem>) -> Vec<biodata::Pmid> {
@@ -260,14 +269,6 @@ fn level(value: &Text, problems: &mut Vec<Problem>) -> Term {
         label: value.clone(),
         codings: code.map(Coding::OncokbLevel).into_iter().collect(),
     }
-}
-fn abstracts(rows: &[super::variant::Abstract]) -> Box<[biomcp_types::OncokbCitation]> {
-    rows.iter()
-        .map(|row| biomcp_types::OncokbCitation {
-            text: row.abstract_content.as_deref().map(Into::into),
-            link: row.link.clone(),
-        })
-        .collect()
 }
 
 fn values<T>(rows: Option<&[T]>) -> &[T] {
