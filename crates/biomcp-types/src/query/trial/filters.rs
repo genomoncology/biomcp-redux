@@ -35,7 +35,6 @@ biodata::wire_enum! {
 /// Source-qualified status input with the source checked by TrialSearch.
 #[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
 #[serde(untagged)]
-#[cfg_attr(feature = "schema", derive(schemars::JsonSchema))]
 pub enum TrialStatusFilter {
     /// ClinicalTrials.gov vocabulary.
     Registry(TrialStatus),
@@ -54,7 +53,6 @@ impl TrialStatusFilter {
 /// Source-qualified phase input with the source checked by TrialSearch.
 #[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
 #[serde(untagged)]
-#[cfg_attr(feature = "schema", derive(schemars::JsonSchema))]
 pub enum TrialPhaseFilter {
     /// ClinicalTrials.gov vocabulary.
     Registry(PhaseFilter),
@@ -67,5 +65,34 @@ impl TrialPhaseFilter {
             (self, source),
             (Self::Registry(_), TrialSource::Ctgov) | (Self::Nci(_), TrialSource::Nci)
         )
+    }
+}
+
+#[cfg(feature = "schema")]
+fn filter_schema<A: schemars::JsonSchema, B: schemars::JsonSchema>() -> schemars::Schema {
+    let mut values = Vec::new();
+    for schema in [schemars::schema_for!(A), schemars::schema_for!(B)] {
+        if let Some(choices) = schema.get("enum").and_then(|value| value.as_array()) {
+            values.extend(choices.iter().cloned());
+        }
+    }
+    schemars::json_schema!({"type": "string", "enum": values})
+}
+#[cfg(feature = "schema")]
+impl schemars::JsonSchema for TrialStatusFilter {
+    fn schema_name() -> std::borrow::Cow<'static, str> {
+        "TrialStatusFilter".into()
+    }
+    fn json_schema(_: &mut schemars::SchemaGenerator) -> schemars::Schema {
+        filter_schema::<TrialStatus, NciStatusFilter>()
+    }
+}
+#[cfg(feature = "schema")]
+impl schemars::JsonSchema for TrialPhaseFilter {
+    fn schema_name() -> std::borrow::Cow<'static, str> {
+        "TrialPhaseFilter".into()
+    }
+    fn json_schema(_: &mut schemars::SchemaGenerator) -> schemars::Schema {
+        filter_schema::<PhaseFilter, NciPhaseFilter>()
     }
 }
