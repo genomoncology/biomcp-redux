@@ -39,6 +39,7 @@ pub struct ScoreEnvelope {
     active: Option<Metadata>,
     groups: Vec<ScoreGroup>,
     failed: bool,
+    problems: Vec<biomcp_types::Problem>,
 }
 impl ScoreEnvelope {
     pub(super) fn new(
@@ -57,6 +58,7 @@ impl ScoreEnvelope {
             active: None,
             groups: Vec::new(),
             failed: false,
+            problems: Vec::new(),
         })
     }
     fn read(&mut self, bytes: &[u8]) -> Result<(), BadReply> {
@@ -79,10 +81,9 @@ impl ScoreEnvelope {
             _ => return Err(BadReply),
         };
         if let Some(tensor) = tensor {
-            self.groups.push(ScoreGroup::checked(
-                tensor,
-                self.active.take().ok_or(BadReply)?,
-            )?);
+            let mut metadata = self.active.take().ok_or(BadReply)?;
+            self.problems.append(&mut metadata.problems);
+            self.groups.push(ScoreGroup::checked(tensor, metadata)?);
             self.complete += 1;
         }
         Ok(())
@@ -105,6 +106,17 @@ impl ScoreEnvelope {
         let mut tracks = 0usize;
         let mut genes = 0usize;
         let mut metadata = Metadata::default();
+        let mut problems = crate::mapped::Problems {
+            source: biomcp_types::Source::AlphaGenome,
+            record: crate::mapped::record(format!(
+                "{}:{}:{}>{}",
+                self.variant.chromosome,
+                self.variant.position,
+                self.variant.reference_bases,
+                self.variant.alternate_bases
+            )),
+            list: Vec::new(),
+        };
         wire::fields(bytes, |tag, value| {
             let value = value.bytes()?;
             match tag {
@@ -121,7 +133,9 @@ impl ScoreEnvelope {
                     }
                     metadata.tracks.push(score_metadata::track(
                         proto::TrackMetadata::decode(value).map_err(|_| BadReply)?,
-                    )?);
+                        &format!("scorers.{}.tracks.{}", self.complete, tracks - 1),
+                        &mut problems,
+                    ));
                 }
                 3 => {
                     genes = genes.checked_add(1).ok_or(BadReply)?;
@@ -130,7 +144,9 @@ impl ScoreEnvelope {
                     }
                     metadata.genes.push(score_metadata::gene(
                         proto::GeneScorerMetadata::decode(value).map_err(|_| BadReply)?,
-                    )?);
+                        &format!("scorers.{}.genes.{}", self.complete, genes - 1),
+                        &mut problems,
+                    ));
                 }
                 _ => return Err(BadReply),
             }
@@ -139,6 +155,7 @@ impl ScoreEnvelope {
         if !variant {
             return Err(BadReply);
         }
+        metadata.problems = problems.list;
         Ok(metadata)
     }
 }
@@ -162,6 +179,7 @@ impl StreamDecoder for ScoreEnvelope {
         Ok(ScoreReply {
             variant: score_metadata::variant(&self.variant)?,
             groups: self.groups,
+            problems: self.problems,
         })
     }
 }

@@ -1,5 +1,8 @@
-//! Map native scoring metadata without interpreting biological meaning.
+//! Map native score metadata independently of complete tensor protocol admission.
+//! NaN scores remain native content; optional nonzero_mean follows a finite metadata contract.
+//! https://raw.githubusercontent.com/google-deepmind/alphagenome/55943112b83439e0c2512110f1ae607d4b5b492a/src/alphagenome/models/v1/variant_scoring_utils.py
 use super::proto;
+use crate::mapped::Problems;
 use biomcp_fetch::BadReply;
 use biomcp_types::{
     AlphaGenomeBiosample, AlphaGenomeGene, AlphaGenomeOntology, AlphaGenomeTrack,
@@ -17,81 +20,118 @@ pub(super) fn variant(value: &proto::Variant) -> Result<AlphaGenomeVariant, BadR
         alternate_bases: value.alternate_bases.parse().map_err(|_| BadReply)?,
     })
 }
-pub(super) fn gene(value: proto::GeneScorerMetadata) -> Result<AlphaGenomeGene, BadReply> {
-    Ok(AlphaGenomeGene {
-        gene_id: value.gene_id.parse().map_err(|_| BadReply)?,
+pub(super) fn gene(
+    value: proto::GeneScorerMetadata,
+    path: &str,
+    problems: &mut Problems,
+) -> Option<AlphaGenomeGene> {
+    let field = format!("{path}.gene_id");
+    let id = problems.optional(
+        &field,
+        Some(value.gene_id.parse::<biodata::EnsemblGeneId>()),
+    )?;
+    if id.base() != value.gene_id {
+        return problems.required(&field, None);
+    }
+    let gene_id = problems.optional(&field, Some(crate::mapped::text(id.base())))?;
+    Some(AlphaGenomeGene {
+        gene_id,
         name: value.name,
-        strand: value
-            .strand
-            .map(|v| {
-                native(
-                    proto::Strand::try_from(v)
-                        .map_err(|_| BadReply)?
-                        .as_str_name(),
-                )
-            })
-            .transpose()?,
+        strand: problems.optional(
+            &format!("{path}.strand"),
+            value.strand.map(|value| {
+                proto::Strand::try_from(value)
+                    .map_err(|_| BadReply)
+                    .and_then(|value| native(value.as_str_name()))
+            }),
+        ),
         kind: value.r#type,
         junction_start: value.junction_start,
         junction_end: value.junction_end,
     })
 }
-pub(super) fn track(value: proto::TrackMetadata) -> Result<AlphaGenomeTrack, BadReply> {
-    if value.nonzero_mean.is_some_and(|v| !v.is_finite()) {
-        return Err(BadReply);
-    }
-    let ontology_term = value
-        .ontology_term
-        .map(|v| {
-            Ok(AlphaGenomeOntology {
-                ontology_type: native(
-                    proto::OntologyType::try_from(v.ontology_type)
-                        .map_err(|_| BadReply)?
-                        .as_str_name(),
-                )?,
-                id: v.id,
-            })
-        })
-        .transpose()?;
-    let biosample = value
-        .biosample
-        .map(|v| {
-            Ok(AlphaGenomeBiosample {
-                kind: native(
-                    proto::BiosampleType::try_from(v.r#type)
-                        .map_err(|_| BadReply)?
-                        .as_str_name(),
-                )?,
-                name: v.name,
-                stage: v.stage,
-            })
-        })
-        .transpose()?;
-    Ok(AlphaGenomeTrack {
-        name: value.name,
-        strand: native(
+pub(super) fn track(
+    value: proto::TrackMetadata,
+    path: &str,
+    problems: &mut Problems,
+) -> Option<AlphaGenomeTrack> {
+    problems.optional(
+        &format!("{path}.name"),
+        Some(crate::mapped::text(&value.name)),
+    )?;
+    let strand = problems.optional(
+        &format!("{path}.strand"),
+        Some(
             proto::Strand::try_from(value.strand)
-                .map_err(|_| BadReply)?
-                .as_str_name(),
-        )?,
-        ontology_term,
-        biosample,
+                .map_err(|_| BadReply)
+                .and_then(|value| native(value.as_str_name())),
+        ),
+    )?;
+    let nonzero_mean = problems.optional(
+        &format!("{path}.nonzero_mean"),
+        value.nonzero_mean.map(|value| {
+            if value.is_finite() {
+                Ok(f64::from(value))
+            } else {
+                Err(BadReply)
+            }
+        }),
+    );
+    Some(AlphaGenomeTrack {
+        name: value.name,
+        strand,
+        ontology_term: value
+            .ontology_term
+            .and_then(|value| ontology(value, path, problems)),
+        biosample: value
+            .biosample
+            .map(|value| biosample(value, path, problems)),
         assay: value.assay,
         histone_mark_code: value.histone_mark_code,
         transcription_factor_code: value.transcription_factor_code,
         gtex_tissue: value.gtex_tissue,
         data_source: value.data_source,
-        endedness: value
-            .endedness
-            .map(|v| {
-                native(
-                    proto::Endedness::try_from(v)
-                        .map_err(|_| BadReply)?
-                        .as_str_name(),
-                )
-            })
-            .transpose()?,
+        endedness: problems.optional(
+            &format!("{path}.endedness"),
+            value.endedness.map(|value| {
+                proto::Endedness::try_from(value)
+                    .map_err(|_| BadReply)
+                    .and_then(|value| native(value.as_str_name()))
+            }),
+        ),
         genetically_modified: value.genetically_modified,
-        nonzero_mean: value.nonzero_mean.map(f64::from),
+        nonzero_mean,
     })
+}
+fn ontology(
+    value: proto::OntologyTerm,
+    path: &str,
+    problems: &mut Problems,
+) -> Option<AlphaGenomeOntology> {
+    let ontology_type = problems.optional(
+        &format!("{path}.ontology_term.ontology_type"),
+        Some(
+            proto::OntologyType::try_from(value.ontology_type)
+                .map_err(|_| BadReply)
+                .and_then(|value| native(value.as_str_name())),
+        ),
+    )?;
+    Some(AlphaGenomeOntology {
+        ontology_type,
+        id: value.id,
+    })
+}
+fn biosample(value: proto::Biosample, path: &str, problems: &mut Problems) -> AlphaGenomeBiosample {
+    AlphaGenomeBiosample {
+        kind: problems.optional(
+            &format!("{path}.biosample.type"),
+            Some(
+                proto::BiosampleType::try_from(value.r#type)
+                    .map_err(|_| BadReply)
+                    .and_then(|value| native(value.as_str_name())),
+            ),
+        ),
+        name: value.name,
+        stage: value.stage,
+    }
 }

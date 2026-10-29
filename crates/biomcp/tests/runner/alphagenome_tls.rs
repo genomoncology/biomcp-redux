@@ -314,10 +314,8 @@ fn groups(reply: &Value) -> Result<(), String> {
             "endedness":"ENDEDNESS_PAIRED","genetically_modified":true,"nonzero_mean":1.25
         }))
         || native.get("gene")
-            != Some(
-                &json!({"gene_id":"synthetic-gene-0","name":"synthetic gene",
-        "strand":"STRAND_POSITIVE","type":"synthetic gene type","junction_start":10,"junction_end":20}),
-            )
+            != Some(&json!({"gene_id":"ENSG00000100000","name":"synthetic gene",
+        "strand":"STRAND_POSITIVE","type":"synthetic gene type","junction_start":10,"junction_end":20}))
     {
         return Err("native track or gene metadata fields changed".into());
     }
@@ -423,7 +421,10 @@ fn track_metadata(track: u8) -> Vec<u8> {
 }
 fn gene_metadata(row: u8) -> Vec<u8> {
     [
-        field(1, format!("synthetic-gene-{row}").as_bytes()),
+        field(
+            1,
+            format!("ENSG{:011}", 100_000 + u64::from(row)).as_bytes(),
+        ),
         number(2, 1),
         field(3, b"synthetic gene"),
         field(4, b"synthetic gene type"),

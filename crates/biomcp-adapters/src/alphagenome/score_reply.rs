@@ -8,9 +8,9 @@ pub struct ScoreGroup {
     /// Complete checked scalar storage, including every native plane.
     pub tensor: Tensor,
     /// Native track metadata in source order.
-    pub tracks: Box<[AlphaGenomeTrack]>,
+    pub tracks: Box<[Option<AlphaGenomeTrack>]>,
     /// Native gene metadata in source order, empty for a nongene aggregate.
-    pub genes: Box<[AlphaGenomeGene]>,
+    pub genes: Box<[Option<AlphaGenomeGene>]>,
 }
 impl ScoreGroup {
     pub(super) fn checked(tensor: Tensor, metadata: Metadata) -> Result<Self, BadReply> {
@@ -46,9 +46,12 @@ pub struct ScoreReply {
     pub variant: AlphaGenomeVariant,
     /// Complete native groups in their received order.
     pub groups: Vec<ScoreGroup>,
+    /// Rejected independent metadata and affected scalar identities.
+    pub problems: Vec<biomcp_types::Problem>,
 }
 #[derive(Debug, Default)]
 pub(super) struct Metadata {
-    pub(super) tracks: Vec<AlphaGenomeTrack>,
-    pub(super) genes: Vec<AlphaGenomeGene>,
+    pub(super) problems: Vec<biomcp_types::Problem>,
+    pub(super) tracks: Vec<Option<AlphaGenomeTrack>>,
+    pub(super) genes: Vec<Option<AlphaGenomeGene>>,
 }

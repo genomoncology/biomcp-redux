@@ -18,7 +18,8 @@ pub struct AlphaGenomeOntology {
 pub struct AlphaGenomeBiosample {
     /// Publisher sample category.
     #[serde(rename = "type")]
-    pub kind: AlphaGenomeBiosampleType,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub kind: Option<AlphaGenomeBiosampleType>,
     /// Publisher sample name.
     pub name: String,
     /// Publisher stage text, when supplied.
