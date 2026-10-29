@@ -33,9 +33,13 @@ elif args[0] == 'metadata':
         {'name':'drug_contracts','kind':['test']},
         {'name':'unlisted_contract','kind':['test']}]},
         {'name':'biomcp-fetch', 'targets':[{'name':'tensors','kind':['test']}]}]}))
-elif args[0] == 'test' and '--no-run' not in args:
+elif args[0] == 'test':
     with Path(os.environ['PROOF_CALLS']).open('a') as calls:
         calls.write(' '.join(args) + '\n')
+    if '--no-run' in args:
+        raise SystemExit(0)
+    if 'ratchets' in args and os.environ.get('PROOF_REJECT_RATCHETS'):
+        raise SystemExit(1)
     profile = os.environ['LLVM_PROFILE_FILE'].replace('%m','fake').replace('%p','1')
     Path(profile).write_text('profile')
     if 'library-' in profile:
@@ -79,8 +83,14 @@ def main():
         assert (root / "calls").read_text().count("--test drug_contracts") == 1
         assert "--test unlisted_contract" in (root / "calls").read_text()
         calls = (root / "calls").read_text().splitlines()
+        assert calls[0] == "test --workspace --locked --no-run", calls
+        ratchet_call = "test --locked -p biomcp --test ratchets"
+        assert calls[1] == ratchet_call and calls.count(ratchet_call) == 1, calls
+        assert "--test cases" in calls[2], calls
         cases_calls = [call for call in calls if "--test cases" in call]
-        assert len(cases_calls) == 1 and cases_calls[0].endswith("-- --test-threads 3"), cases_calls
+        assert len(cases_calls) == 1 and cases_calls[0].endswith(
+            "-- --test-threads 3"
+        ), cases_calls
         tensor_calls = [call for call in calls if "--test tensors" in call]
         assert len(tensor_calls) == 1 and "--features" not in tensor_calls[0], tensor_calls
         assert not list((root / "profiles").glob("library-*.profraw"))
@@ -89,7 +99,25 @@ def main():
         report = subprocess.run(["sh", "scripts/coverage.sh", "report"], cwd=root, env=env,
                                 capture_output=True, text=True, check=False)
         assert report.returncode == 0 and "100 5 95%" in report.stdout, report
-    print("Coverage counts listed caller contracts and excludes library and unlisted profiles")
+        shutil.rmtree(root / "profiles")
+        (root / "calls").unlink()
+        rejected = subprocess.run(
+            ["sh", "scripts/coverage.sh"],
+            cwd=root,
+            env=dict(env, PROOF_REJECT_RATCHETS="1"),
+            capture_output=True,
+            text=True,
+            check=False,
+        )
+        assert rejected.returncode != 0, rejected.stdout + rejected.stderr
+        assert (root / "calls").read_text().splitlines() == [
+            "test --workspace --locked --no-run",
+            ratchet_call,
+        ], (root / "calls").read_text()
+        assert not (root / "profiles/coverage-complete").exists()
+    print(
+        "Coverage checks structure before suites, counts caller contracts and excludes library profiles"
+    )
 
 
 if __name__ == "__main__":
