@@ -22,7 +22,7 @@ pub(super) fn aggregate(
     conditions: Vec<AssertionCondition>,
     problems: &mut crate::mapped::Problems,
 ) -> Result<Vec<VariantAssertion>, BadReply> {
-    problems.record = record.attr("Accession")?.as_deref().map(text).transpose()?;
+    problems.record = record.attr("Accession")?.and_then(crate::mapped::record);
     let mut rows = Vec::new();
     for (name, domain) in DOMAINS {
         let Some(group) = class.child(name)? else {
@@ -36,7 +36,9 @@ pub(super) fn aggregate(
             let evaluated = description
                 .attr("DateLastEvaluated")?
                 .or(group.attr("DateLastEvaluated")?);
-            let attribution = attribution(record, evaluated, None, problems)?;
+            let Some(attribution) = attribution(record, evaluated, None, problems)? else {
+                continue;
+            };
             let review = problems.text("review_status", group.value(&["ReviewStatus"])?.as_deref());
             let detail = AssertionDetail {
                 impact_therapies: problems.text(
@@ -78,16 +80,22 @@ pub(super) fn submission(
     subject: VariantRef,
     problems: &mut crate::mapped::Problems,
 ) -> Result<Vec<VariantAssertion>, BadReply> {
-    let accession = record.child("ClinVarAccession")?.ok_or(BadReply)?;
+    let Some(accession) = record.child("ClinVarAccession")? else {
+        problems.required::<()>("ClinVarAccession", None);
+        return Ok(Vec::new());
+    };
     let Some(class) = record.child("Classification")? else {
         return Ok(Vec::new());
     };
-    let attribution = attribution(
+    let Some(attribution) = attribution(
         accession,
         class.attr("DateLastEvaluated")?,
         accession.attr("SubmitterName")?,
         problems,
-    )?;
+    )?
+    else {
+        return Ok(Vec::new());
+    };
     let detail = super::detail::submission(record, problems)?;
     let review = problems.text("review_status", class.value(&["ReviewStatus"])?.as_deref());
     let mut rows = Vec::new();
@@ -137,8 +145,12 @@ fn attribution(
     evaluated: Option<String>,
     submitter: Option<String>,
     problems: &mut crate::mapped::Problems,
-) -> Result<Attribution, BadReply> {
-    let id = record.attr("Accession")?.ok_or(BadReply)?;
+) -> Result<Option<Attribution>, BadReply> {
+    let Some(id) = record.attr("Accession")? else {
+        problems.required::<()>("Accession", None);
+        return Ok(None);
+    };
+    problems.record = crate::mapped::record(&id);
     let version = record.attr("Version")?;
     let full = version
         .as_ref()
@@ -147,10 +159,18 @@ fn attribution(
         || full.parse::<biodata::RcvId>().is_ok()
         || full.parse::<biodata::ScvId>().is_ok())
     {
-        return Err(BadReply);
+        let field = if id.parse::<biodata::VcvId>().is_ok()
+            || id.parse::<biodata::RcvId>().is_ok()
+            || id.parse::<biodata::ScvId>().is_ok()
+        {
+            "Version"
+        } else {
+            "Accession"
+        };
+        problems.required::<()>(field, None);
+        return Ok(None);
     }
-    problems.record = Some(text(&id)?);
-    Ok(Attribution {
+    Ok(Some(Attribution {
         source: Source::ClinVar.text(),
         record: Some(text(&id)?),
         version: problems.text("version", version.as_deref()),
@@ -160,5 +180,5 @@ fn attribution(
         url: Some(text(&format!(
             "https://www.ncbi.nlm.nih.gov/clinvar/?term={full}"
         ))?),
-    })
+    }))
 }
