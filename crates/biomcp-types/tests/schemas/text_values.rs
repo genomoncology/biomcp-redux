@@ -144,6 +144,7 @@ pub(super) fn text_value_schema_supersets_name_their_runtime_rules() {
     runtime_rule::<OrcidClientId>("0000-0002-1825-0098", "checksum");
     runtime_rule::<PartialDate>("2023-02-29", "calendar");
     runtime_rule::<StudyImportTime>("2023-02-29 00:00:00", "calendar");
+    runtime_rule::<biodata::TrialUploadTime>("2023-02-29T00:00", "calendar");
     runtime_rule::<SheetRows>("2-1", "end");
     runtime_rule::<SheetRows>("1-201", "200");
     runtime_rule::<VariantRegion>("chr1:2-1", "end");

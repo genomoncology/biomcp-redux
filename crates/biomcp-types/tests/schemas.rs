@@ -404,7 +404,7 @@ fn protein_contracts() -> Vec<Contract> {
         ProteinComplexMembersQuery => ("protein-complex-members-query", "biomcp.protein-complex-members-query/2", query),
         ProteinSequenceQuery => ("protein-sequence-query", "biomcp.protein-sequence-query/1", query),
         ProteinSearch => ("protein-search", "biomcp.protein-search/2", query),
-        ProteinGet => ("protein-get", "biomcp.protein-get/1", query),
+        ProteinGet => ("protein-get", "biomcp.protein-get/2", query),
     }
 }
 
