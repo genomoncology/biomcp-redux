@@ -145,6 +145,8 @@ def table_records(handle, kind):
             values = clingen(row)
         genes = parts(row.get("gene", "")) if kind == "civic_variants" else []
         context = None
+        if kind == "civic_variants":
+            context = {"id": row["variant_id"], "genes": genes}
         if kind == "clinvar_summary":
             identity = "clinvar:" + row["VariationID"]
             ids = [value["value"] for value in values

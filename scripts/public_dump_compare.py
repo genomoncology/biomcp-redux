@@ -4,6 +4,7 @@ from datetime import date
 import hashlib
 import json
 import sqlite3
+from public_dump_civic_scope import CivicScope, ScopeError
 
 VARIANT_PREFIXES = ("clinvar:", "VCV", "CA", "PA", "rs", "COSV", "COSM", "COSN", "ga4gh:VA.")
 
@@ -49,10 +50,15 @@ class Comparison:
         self.counts = Counter()
         self.examples = []
         self.checked = Counter()
+        self.civic_scope = CivicScope(self.db)
+        self.civic_rows = []
 
     def add(self, context, kind, release):
         source = "civic" if kind.startswith("civic_") else "clinvar" if kind.startswith("clinvar_") else "clingen"
         self.releases.setdefault(source, set()).add(release)
+        if kind == "civic_variants" and context:
+            self.civic_scope.add(context)
+            return
         if context:
             node, values, edges = context
             self.db.executemany("INSERT OR IGNORE INTO ids VALUES (?,?)", ((node, value) for value in values))
@@ -109,13 +115,14 @@ class Comparison:
                 if not isinstance(reply, dict) or "result" not in reply:
                     raise ValueError("observation_not_cli_envelope")
                 if source == "civic":
-                    self.civic(reply["result"], genes, seen_genes)
+                    self.civic(reply["result"], genes, seen_genes, observation.get("gene_variants"))
                 elif source == "clinvar":
                     self.clinvar(reply["result"], observation["record"])
                 else:
                     raise ValueError("observation_unsupported_source")
         for gene in genes.keys() - seen_genes:
             self.refuse("civic_gene_unobserved", gene)
+            self.civic_rows.append(self.civic_scope.missing(gene, genes[gene]))
         if "clinvar" in self.releases and not self.checked["clinvar_ids"]:
             self.refuse("clinvar_ids_unobserved", "clinvar")
         return {"observed_sha256": digest.hexdigest(), "product_revision": revision,
@@ -123,20 +130,39 @@ class Comparison:
                                 "source_sha256": sorted(hashes[source]), "observations": count}
                                for (source, release, retrieved), count in provenance.items()],
                 "checked": dict(self.checked),
+                "civic_gene_comparisons": self.civic_rows,
                 "failures": dict(self.counts), "examples": self.examples}
 
-    def civic(self, result, genes, seen):
+    def civic(self, result, genes, seen, captures):
+        captured = {}
+        for capture in captures or []:
+            symbol = capture.get("symbol")
+            if symbol in captured:
+                self.refuse("civic_duplicate_gene_variants_capture", symbol)
+            captured[symbol] = capture
         for row in result.get("items", []):
             gene = row.get("answer", {}).get("gene", {}).get("symbol")
             section = row.get("sections", {}).get("civic", {})
             actual = section.get("data", {}).get("variant_count")
-            if gene not in genes or actual is None:
+            if not gene or actual is None:
                 self.refuse("civic_gene_or_count_missing", gene)
                 continue
             seen.add(gene)
-            self.checked["civic_genes"] += 1
-            if actual != genes[gene]:
-                self.refuse("civic_gene_count_mismatch", f"{gene}: dump={genes[gene]} reply={actual}")
+            capture = captured.pop(gene, None)
+            try:
+                if capture is None:
+                    raise ScopeError("civic_gene_variants_missing")
+                report, failures = self.civic_scope.compare(capture, gene, section["data"]["id"], actual, genes.get(gene, 0))
+                self.civic_rows.append(report)
+                self.checked["civic_genes"] += 1
+                for reason in failures:
+                    self.refuse(reason, gene)
+            except (KeyError, TypeError, ValueError) as error:
+                reason = str(error) if isinstance(error, ScopeError) else "civic_gene_variants_invalid"
+                self.refuse(reason, gene)
+                self.civic_rows.append(self.civic_scope.missing(gene, genes.get(gene, 0)))
+        for gene in captured:
+            self.refuse("civic_unbound_gene_variants_capture", gene)
 
     def clinvar(self, result, record):
         allowed = self.allowed(record)

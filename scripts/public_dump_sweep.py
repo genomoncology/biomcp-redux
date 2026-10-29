@@ -15,6 +15,13 @@ retrieved, source_sha256, record, reply}. The manifest must name product_revisio
 The observation revision and sorted source_sha256 list must match these inputs. Source is civic or clinvar; ClinVar record is its
 clinvar: Variation ID. Release must exactly match the source manifest. Civic
 replies must cover every source gene. --values-only explicitly omits comparison.
+For CIViC, each observation also requires gene_variants companions, with complete
+native variants and molecularProfiles pages, profile accepted evidence counts,
+and complete assertion status pages. public_dump_civic_scope documents the saved
+fields. The raw CLI count must match the captured GeneVariants total. Comparison
+uses only direct gene variants with accepted evidence or assertions. --output
+retains both raw totals and every raw/accepted unmatched ID; stdout reports each
+omitted list length explicitly.
 Each source may provide refusal_explanations entries with exact record, type,
 value, reason, and source_rule. The source_rule names the publisher's invalid-input
 rule and its URL. Unmatched refusals remain unexplained and fail the run.
@@ -46,7 +53,7 @@ def arguments():
     parser.add_argument("manifest", type=Path)
     parser.add_argument("--values", type=Path, required=True, help="built public_dump_values bridge")
     parser.add_argument("--max-records", type=int, help="bound records per file; marks report incomplete")
-    parser.add_argument("--output", type=Path, help="save full gene counts; stdout is bounded")
+    parser.add_argument("--output", type=Path, help="save full counts and every unmatched ID; stdout is bounded")
     mode = parser.add_mutually_exclusive_group(required=True)
     mode.add_argument("--observed", type=Path, help="saved real CLI replies with source/release identity")
     mode.add_argument("--values-only", action="store_true", help="parse values without claiming reply equality")
@@ -192,6 +199,14 @@ def run(args):
         provenance = report["comparisons"]["provenance"]
         report["comparisons"]["provenance_omitted"] = max(0, len(provenance) - EXAMPLE_LIMIT)
         report["comparisons"]["provenance"] = provenance[:EXAMPLE_LIMIT]
+        rows = report["comparisons"]["civic_gene_comparisons"]
+        report["comparisons"]["civic_gene_comparisons_omitted"] = max(0, len(rows) - GENE_LIMIT)
+        report["comparisons"]["civic_gene_comparisons"] = rows[:GENE_LIMIT]
+        for row in report["comparisons"]["civic_gene_comparisons"]:
+            for key, values in list(row.items()):
+                if key.endswith("_ids"):
+                    row[key + "_omitted"] = max(0, len(values) - GENE_LIMIT)
+                    row[key] = values[:GENE_LIMIT]
     report["sources_omitted"] = max(0, len(report["sources"]) - SOURCE_LIMIT)
     report["sources"] = report["sources"][:SOURCE_LIMIT]
     report["gene_counts_omitted"] = max(0, len(report["gene_counts"]) - GENE_LIMIT)
