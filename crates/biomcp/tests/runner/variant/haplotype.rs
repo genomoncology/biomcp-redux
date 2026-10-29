@@ -45,7 +45,9 @@ fn check() -> Result<(), String> {
         .pointer("/result/assertions")
         .and_then(Value::as_array)
         .ok_or_else(|| format!("missing haplotype assertions: {value}"))?;
-    if assertions.len() != 1 || assertions[0].pointer("/statement/subject") != Some(&expected) {
+    if !matches!(assertions.as_slice(), [assertion]
+        if assertion.pointer("/statement/subject") == Some(&expected))
+    {
         return Err(format!(
             "native haplotype grouping or members lost: {value}"
         ));
