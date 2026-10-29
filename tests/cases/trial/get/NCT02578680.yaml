@@ -49,7 +49,7 @@
         },
         "/result/items/0/sections/eligibility/data/maximum_age": {
           "equals": {
-            "state": "no-limit"
+            "state": "no_limit"
           }
         }
       },

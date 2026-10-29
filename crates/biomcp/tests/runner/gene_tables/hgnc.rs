@@ -18,7 +18,7 @@ pub(super) fn check() -> Check {
             }
         },
         json!({"/result/items/*/hgnc_id": ["HGNC:7133", "HGNC:15840", "HGNC:43802"],
-        "/result/items/0/match/kind": "previous-symbol"}),
+        "/result/items/0/match/kind": "previous_symbol"}),
         0,
     )?;
     case(
@@ -26,7 +26,7 @@ pub(super) fn check() -> Check {
         &["get", "gene", "100874204"],
         |_, _| {},
         json!({"/result/items/0/answer/candidates/*/hgnc_id": ["HGNC:40244", "HGNC:55559"],
-            "/result/items/0/answer/candidates/*/match/kind": ["entrez-id", "entrez-id"]}),
+            "/result/items/0/answer/candidates/*/match/kind": ["entrez_id", "entrez_id"]}),
         0,
     )?;
     case(

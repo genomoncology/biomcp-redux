@@ -276,8 +276,8 @@ fn native_test_rows_keep_empty_cells_and_all_five_status_flags() {
     assert_eq!(second["lab_currStat"], "72");
     assert_eq!(second["test_pubStat"], "3");
     let records = [
-        json!({"kind":"gtr-test-version","record":first}),
-        json!({"kind":"gtr-test-version","record":second}),
+        json!({"kind":"gtr_test_version","record":first}),
+        json!({"kind":"gtr_test_version","record":second}),
     ];
     assert_eq!(
         roundtrip::<Vec<DiagnosticRecord>>(json!(records)),

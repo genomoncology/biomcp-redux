@@ -15,7 +15,7 @@
         "/result/items/0/answer/resolution": "resolved",
         "/result/items/0/answer/gene/hgnc_id": "HGNC:7132",
         "/result/items/0/answer/gene/symbol": "KMT2A",
-        "/result/items/0/answer/match/kind": "previous-symbol",
+        "/result/items/0/answer/match/kind": "previous_symbol",
         "/sources/*/source": {
           "includes": "oncokb",
           "excludes": "gnomad"

@@ -77,12 +77,12 @@
       ],
       "x-extensible-enum": [
         "symbol",
-        "previous-symbol",
+        "previous_symbol",
         "alias",
-        "ncbi-alias",
-        "hgnc-id",
-        "entrez-id",
-        "ensembl-id",
+        "ncbi_alias",
+        "hgnc_id",
+        "entrez_id",
+        "ensembl_id",
         "band"
       ]
     },
@@ -92,7 +92,7 @@
       "type": "string"
     }
   },
-  "$id": "biomcp.gene-header/5",
+  "$id": "biomcp.gene-header/4",
   "$schema": "https://json-schema.org/draft/2020-12/schema",
   "description": "Enough gene identity to choose a search result.",
   "properties": {

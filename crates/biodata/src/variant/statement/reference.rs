@@ -36,7 +36,7 @@ crate::text_value!(
 );
 /// A source subject reference, never an embedded variant entity.
 #[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
-#[serde(tag = "level", rename_all = "kebab-case")]
+#[serde(tag = "level", rename_all = "snake_case")]
 #[cfg_attr(feature = "schema", derive(schemars::JsonSchema))]
 enum Fields {
     /// Exact allele identifier or reference-qualified notation.
@@ -170,7 +170,7 @@ struct ProteinRef {
     label: Option<Text>,
 }
 #[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
-#[serde(tag = "level", rename_all = "kebab-case")]
+#[serde(tag = "level", rename_all = "snake_case")]
 #[cfg_attr(feature = "schema", derive(schemars::JsonSchema))]
 enum LeafRef {
     Allele(AlleleRef),

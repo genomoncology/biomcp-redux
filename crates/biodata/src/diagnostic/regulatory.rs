@@ -131,7 +131,7 @@ pub struct DiagnosticDrugApplication {
 }
 /// A physical companion-table row; the two table layouts cannot acquire each other’s cells.
 #[derive(Clone, Debug, PartialEq, Serialize, Deserialize)]
-#[serde(tag = "kind", rename_all = "kebab-case")]
+#[serde(tag = "kind", rename_all = "snake_case")]
 #[cfg_attr(feature = "schema", derive(schemars::JsonSchema))]
 pub enum CompanionDiagnosticRelation {
     /// One complete native individual table row.

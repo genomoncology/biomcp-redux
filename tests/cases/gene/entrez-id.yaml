@@ -15,7 +15,7 @@
         "/result/items/0/answer/resolution": "resolved",
         "/result/items/0/answer/gene/hgnc_id": "HGNC:1097",
         "/result/items/0/answer/gene/symbol": "BRAF",
-        "/result/items/0/answer/match/kind": "entrez-id",
+        "/result/items/0/answer/match/kind": "entrez_id",
         "/sources/*/source": {
           "includes": "oncokb",
           "excludes": "gnomad"

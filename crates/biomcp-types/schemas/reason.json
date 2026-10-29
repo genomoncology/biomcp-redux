@@ -1,5 +1,5 @@
 {
-  "$id": "biomcp.reason/2",
+  "$id": "biomcp.reason/1",
   "$schema": "https://json-schema.org/draft/2020-12/schema",
   "description": "Why a source could not supply data.",
   "title": "Reason",
@@ -26,24 +26,24 @@
     " Identity lacks the identifier required to join this source."
   ],
   "x-extensible-enum": [
-    "not-found",
-    "not-open",
-    "not-pdf",
+    "not_found",
+    "not_open",
+    "not_pdf",
     "unsupported",
-    "too-large",
-    "rate-limited",
-    "local-quota",
+    "too_large",
+    "rate_limited",
+    "local_quota",
     "unavailable",
     "tls",
     "proxy",
     "rejected",
-    "bad-reply",
-    "deadline-exceeded",
+    "bad_reply",
+    "deadline_exceeded",
     "offline",
-    "no-key",
+    "no_key",
     "disabled",
-    "replay-miss",
+    "replay_miss",
     "syncing",
-    "no-join-id"
+    "no_join_id"
   ]
 }

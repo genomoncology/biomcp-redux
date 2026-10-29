@@ -34,7 +34,7 @@
           "absent"
         ],
         "/result/items/0/card/header/name": "Repeated name",
-        "/result/items/1/card/header/counts/scope": "provider-record",
+        "/result/items/1/card/header/counts/scope": "provider_record",
         "/result/items/1/card/header/counts/citation_count": 0,
         "/sources/0/state": "ok",
         "/next/0/kind": "pivot"

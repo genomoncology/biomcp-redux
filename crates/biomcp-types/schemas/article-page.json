@@ -309,7 +309,7 @@
               "$ref": "#/$defs/Reply_SemanticScholarId"
             },
             "namespace": {
-              "const": "semantic-scholar",
+              "const": "semantic_scholar",
               "type": "string"
             }
           },
@@ -543,10 +543,10 @@
         "trial",
         "randomized",
         "review",
-        "systematic-review",
-        "meta-analysis",
+        "systematic_review",
+        "meta_analysis",
         "guideline",
-        "case-report"
+        "case_report"
       ],
       "type": "string"
     },
@@ -812,26 +812,26 @@
         " Erratum."
       ],
       "x-extensible-enum": [
-        "randomized-controlled-trial",
-        "clinical-trial",
-        "clinical-trial-phase-1",
-        "clinical-trial-phase-2",
-        "clinical-trial-phase-3",
-        "clinical-trial-phase-4",
-        "meta-analysis",
-        "systematic-review",
+        "randomized_controlled_trial",
+        "clinical_trial",
+        "clinical_trial_phase_1",
+        "clinical_trial_phase_2",
+        "clinical_trial_phase_3",
+        "clinical_trial_phase_4",
+        "meta_analysis",
+        "systematic_review",
         "review",
-        "practice-guideline",
+        "practice_guideline",
         "guideline",
-        "case-report",
-        "observational-study",
-        "multicenter-study",
+        "case_report",
+        "observational_study",
+        "multicenter_study",
         "letter",
         "comment",
         "editorial",
         "preprint",
-        "retracted-publication",
-        "retraction-notice",
+        "retracted_publication",
+        "retraction_notice",
         "erratum"
       ]
     },
@@ -860,25 +860,25 @@
         " Identity lacks the identifier required to join this source."
       ],
       "x-extensible-enum": [
-        "not-found",
-        "not-open",
-        "not-pdf",
+        "not_found",
+        "not_open",
+        "not_pdf",
         "unsupported",
-        "too-large",
-        "rate-limited",
-        "local-quota",
+        "too_large",
+        "rate_limited",
+        "local_quota",
         "unavailable",
         "tls",
         "proxy",
         "rejected",
-        "bad-reply",
-        "deadline-exceeded",
+        "bad_reply",
+        "deadline_exceeded",
         "offline",
-        "no-key",
+        "no_key",
         "disabled",
-        "replay-miss",
+        "replay_miss",
         "syncing",
-        "no-join-id"
+        "no_join_id"
       ]
     },
     "Reply_RetractionFilter": {
@@ -1060,7 +1060,7 @@
           "description": "Local request limits and source-specific recovery guidance.",
           "properties": {
             "kind": {
-              "const": "request-guidance",
+              "const": "request_guidance",
               "type": "string"
             },
             "message": {
@@ -1087,7 +1087,7 @@
           "description": "Registered conditions lack the literal words requested in a condition search.",
           "properties": {
             "kind": {
-              "const": "condition-word-mismatch",
+              "const": "condition_word_mismatch",
               "type": "string"
             },
             "message": {
@@ -1105,7 +1105,7 @@
           "description": "A checked provider answer survived a local cache failure.",
           "properties": {
             "kind": {
-              "const": "cache-problem",
+              "const": "cache_problem",
               "type": "string"
             },
             "reason": {
@@ -1127,7 +1127,7 @@
               "description": "Default-source command offering another graph view."
             },
             "kind": {
-              "const": "graph-truncated",
+              "const": "graph_truncated",
               "type": "string"
             }
           },
@@ -1141,7 +1141,7 @@
           "description": "An empty LitVar lookup can be repeated with a caller-supplied rsID.",
           "properties": {
             "kind": {
-              "const": "litvar-rsid-hint",
+              "const": "litvar_rsid_hint",
               "type": "string"
             },
             "message": {
@@ -1159,7 +1159,7 @@
           "description": "PubMed supplied a named ESearch warning without changing its phrases.",
           "properties": {
             "kind": {
-              "const": "pubmed-warning",
+              "const": "pubmed_warning",
               "type": "string"
             },
             "name": {
@@ -1184,7 +1184,7 @@
           "description": "PubMed did not index these words.",
           "properties": {
             "kind": {
-              "const": "not-found-words",
+              "const": "not_found_words",
               "type": "string"
             },
             "words": {
@@ -1356,7 +1356,7 @@
       "type": "string"
     }
   },
-  "$id": "biomcp.article-page/6",
+  "$id": "biomcp.article-page/5",
   "$schema": "https://json-schema.org/draft/2020-12/schema",
   "description": "One versioned command response; schema identity comes only from its body type.\nJSON readers ignore unknown fields and unknown growable enum values within a major.",
   "properties": {
@@ -1412,7 +1412,7 @@
       "description": "Answer when available."
     },
     "schema": {
-      "const": "biomcp.article-page/6",
+      "const": "biomcp.article-page/5",
       "type": "string"
     },
     "sources": {

@@ -413,14 +413,14 @@ fn audit_rejects_owned_underscores_and_old_tags_but_allows_native_values() {
         "wire_enum! { Reason { NoKey => \"no_key\" } }",
     ] {
         assert!(
-            super::spellings::audit(&super::source::tokens(text)).is_err(),
+            super::spellings::audit(&super::source::tokens(text), true).is_err(),
             "{text}"
         );
     }
     assert!(
         super::spellings::audit(&super::source::tokens(
             "wire_enum! { Native { Value => \"source_native\" } }"
-        ))
+        ), true)
         .is_ok()
     );
 }
@@ -430,7 +430,7 @@ fn enum_return_types_are_not_macro_declarations() {
     assert!(
         super::spellings::audit(&super::source::tokens(
             "fn kind() -> ArticleMatchKind { match self { X => ArticleMatchKind::Doi } }"
-        ))
+        ), true)
         .is_ok()
     );
 }
@@ -440,24 +440,21 @@ fn namespaced_error_codes_are_exempt_by_type() {
     for name in ["ErrorCode", "ProblemCode"] {
         for literal in ["usage.future_name", "wire_enum.unknown"] {
             let source = format!("wire_enum! {{ {name} {{ New => {literal:?} }} }}");
-            assert!(super::spellings::audit(&super::source::tokens(&source)).is_ok());
+            assert!(super::spellings::audit(&super::source::tokens(&source), true).is_ok());
             let ordinary = source.replace(name, "Reason");
-            assert!(super::spellings::audit(&super::source::tokens(&ordinary)).is_err());
+            assert!(super::spellings::audit(&super::source::tokens(&ordinary), true).is_err());
         }
     }
 }
 
 #[test]
-fn locally_assigned_drug_and_protein_values_require_kebab_case() {
-    for name in [
-        "DrugIdentityLevel",
-        "ProteinCoordinateConvention",
-        "ProteinSequenceAvailability",
-        "DrugRecallCountUnit",
+fn crate_ownership_keeps_biodata_values_and_audits_biomcp_values() {
+    for source in [
+        "#[serde(rename_all = \"snake_case\")] enum Owned {}",
+        "wire_enum! { DrugRecallCountUnit { Value => \"recall_records\" } }",
     ] {
-        let source = format!("wire_enum! {{ {name} {{ Value => \"local_value\" }} }}");
-        assert!(super::spellings::audit(&super::source::tokens(&source)).is_err());
-        let canonical = source.replace("local_value", "local-value");
-        assert!(super::spellings::audit(&super::source::tokens(&canonical)).is_ok());
+        let tokens = super::source::tokens(source);
+        assert!(super::spellings::audit(&tokens, false).is_ok());
+        assert!(super::spellings::audit(&tokens, true).is_err());
     }
 }

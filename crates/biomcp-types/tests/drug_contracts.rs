@@ -93,16 +93,16 @@ fn closed_vocabularies_roundtrip_and_refuse_other_sections() {
     for name in [
         "ingredient",
         "salt",
-        "clinical-formulation",
-        "branded-product",
-        "spl-set",
-        "spl-version",
-        "ndc-package",
-        "fda-application",
-        "fda-product",
-        "ema-authorization",
-        "ema-application",
-        "orphan-designation",
+        "clinical_formulation",
+        "branded_product",
+        "spl_set",
+        "spl_version",
+        "ndc_package",
+        "fda_application",
+        "fda_product",
+        "ema_authorization",
+        "ema_application",
+        "orphan_designation",
         "unknown",
     ] {
         let value: DrugIdentityLevel = name.parse().expect("identity level");
@@ -247,7 +247,7 @@ fn civic_continuation_refuses_incomplete_or_cross_source_claim_selectors() {
 }
 #[test]
 fn label_candidate_versions_are_native_optional_identity_metadata() {
-    let mut value = json!({"id":"211ef2da-2868-4a77-8055-1cb2cd78e24b", "source":"openfda-label", "name":"Synthetic brand", "identity_level":"spl-set"});
+    let mut value = json!({"id":"211ef2da-2868-4a77-8055-1cb2cd78e24b", "source":"openfda-label", "name":"Synthetic brand", "identity_level":"spl_set"});
     let unversioned: biomcp_types::DrugHeader =
         serde_json::from_value(value.clone()).expect("unversioned");
     assert!(

@@ -158,7 +158,7 @@ fn rejected_age() -> Check {
             json!([{"run":["get","trial","NCT03511664","eligibility"],"expect":{
             "/status":"partial",
             "/result/items/0/sections/eligibility/data":{"omits":["minimum_age"]},
-            "/result/items/0/sections/eligibility/data/maximum_age/state":"no-limit"}}]),
+            "/result/items/0/sections/eligibility/data/maximum_age/state":"no_limit"}}]),
         )?;
         problem(&out, "minimumAge")?;
     }

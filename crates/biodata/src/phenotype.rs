@@ -67,7 +67,7 @@ pub struct PhenotypeHeader {
 }
 /// Native source card, with independent HPO and Monarch metadata.
 #[derive(Clone, Debug, PartialEq, Serialize, Deserialize)]
-#[serde(tag = "source", rename_all = "kebab-case")]
+#[serde(tag = "source", rename_all = "snake_case")]
 #[cfg_attr(feature = "schema", derive(schemars::JsonSchema))]
 pub enum PhenotypeCard {
     /// The direct HPO term answer.

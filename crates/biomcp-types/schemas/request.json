@@ -122,10 +122,10 @@
         "trial",
         "randomized",
         "review",
-        "systematic-review",
-        "meta-analysis",
+        "systematic_review",
+        "meta_analysis",
         "guideline",
-        "case-report"
+        "case_report"
       ],
       "type": "string"
     },
@@ -138,7 +138,7 @@
       "type": "string"
     },
     "AuthorId": {
-      "description": "One provider record. Semantic Scholar emits semantic-scholar:ID, accepts semanticscholar:ID. ORCID checksums are checked. Variants imply no relationship.",
+      "description": "One provider record; this enum establishes no relationship between its variants. The parser additionally validates ORCID checksums.",
       "pattern": "^((semantic-scholar|semanticscholar):[1-9][0-9]*|orcid:[0-9]{4}-[0-9]{4}-[0-9]{4}-[0-9]{3}[0-9X])$",
       "type": "string"
     },
@@ -959,7 +959,7 @@
       ]
     }
   },
-  "$id": "biomcp.request/30",
+  "$id": "biomcp.request/29",
   "$schema": "https://json-schema.org/draft/2020-12/schema",
   "description": "One checked query. Housekeeping actions are separate.",
   "oneOf": [
@@ -968,7 +968,7 @@
       "description": "Find native NCI biomarker concepts.",
       "properties": {
         "command": {
-          "const": "search-biomarker",
+          "const": "search_biomarker",
           "type": "string"
         },
         "limit": {
@@ -1017,7 +1017,7 @@
       "description": "Search native NCI biomarker rows by exact NCIt code.",
       "properties": {
         "command": {
-          "const": "get-biomarker",
+          "const": "get_biomarker",
           "type": "string"
         },
         "id": {
@@ -1046,7 +1046,7 @@
           "description": "Native organization city."
         },
         "command": {
-          "const": "search-organization",
+          "const": "search_organization",
           "type": "string"
         },
         "country": {
@@ -1123,7 +1123,7 @@
       "description": "Discover native author candidates without identity reconciliation.",
       "properties": {
         "command": {
-          "const": "search-author",
+          "const": "search_author",
           "type": "string"
         },
         "limit": {
@@ -1168,7 +1168,7 @@
       "description": "Page one exact provider record’s native papers.",
       "properties": {
         "command": {
-          "const": "author-papers",
+          "const": "author_papers",
           "type": "string"
         },
         "full": {
@@ -1216,7 +1216,7 @@
       "description": "Read exact provider author cards in input order.",
       "properties": {
         "command": {
-          "const": "get-author",
+          "const": "get_author",
           "type": "string"
         },
         "ids": {
@@ -1241,7 +1241,7 @@
       "description": "Read the native assay total for one exact ChEMBL cell.",
       "properties": {
         "command": {
-          "const": "cell-line-assay-count",
+          "const": "cell_line_assay_count",
           "type": "string"
         },
         "id": {
@@ -1261,7 +1261,7 @@
       "description": "Discover unchanged literal Cellosaurus candidates.",
       "properties": {
         "command": {
-          "const": "search-cell-line",
+          "const": "search_cell_line",
           "type": "string"
         },
         "limit": {
@@ -1296,7 +1296,7 @@
       "description": "Read an exact accession or verified qualified source identity.",
       "properties": {
         "command": {
-          "const": "get-cell-line",
+          "const": "get_cell_line",
           "type": "string"
         },
         "id": {
@@ -1335,7 +1335,7 @@
       "description": "Search one native GWAS Catalog association page.",
       "properties": {
         "command": {
-          "const": "search-gwas",
+          "const": "search_gwas",
           "type": "string"
         },
         "extended_geneset": {
@@ -1411,7 +1411,7 @@
       "description": "Read one exact association and its native loci.",
       "properties": {
         "command": {
-          "const": "get-gwas-association",
+          "const": "get_gwas_association",
           "type": "string"
         },
         "id": {
@@ -1460,7 +1460,7 @@
       "description": "Read one exact study and its native relations.",
       "properties": {
         "command": {
-          "const": "get-gwas-study",
+          "const": "get_gwas_study",
           "type": "string"
         },
         "id": {
@@ -1514,7 +1514,7 @@
           "x-positional": 0
         },
         "command": {
-          "const": "protein-domains",
+          "const": "protein_domains",
           "type": "string"
         },
         "limit": {
@@ -1557,7 +1557,7 @@
           "x-positional": 0
         },
         "command": {
-          "const": "protein-complexes",
+          "const": "protein_complexes",
           "type": "string"
         },
         "limit": {
@@ -1596,7 +1596,7 @@
           "x-positional": 0
         },
         "command": {
-          "const": "protein-complex-members",
+          "const": "protein_complex_members",
           "type": "string"
         },
         "complex": {
@@ -1640,7 +1640,7 @@
           "x-positional": 0
         },
         "command": {
-          "const": "protein-features",
+          "const": "protein_features",
           "type": "string"
         },
         "limit": {
@@ -1690,7 +1690,7 @@
           "x-positional": 0
         },
         "command": {
-          "const": "protein-isoforms",
+          "const": "protein_isoforms",
           "type": "string"
         },
         "limit": {
@@ -1729,7 +1729,7 @@
           "x-positional": 0
         },
         "command": {
-          "const": "protein-structures",
+          "const": "protein_structures",
           "type": "string"
         },
         "limit": {
@@ -1763,7 +1763,7 @@
       "description": "Read one exact source sequence without alias repair.",
       "properties": {
         "command": {
-          "const": "protein-sequence",
+          "const": "protein_sequence",
           "type": "string"
         },
         "isoform": {
@@ -1795,7 +1795,7 @@
       "description": "Discover reviewed human UniProt candidates without selecting one.",
       "properties": {
         "command": {
-          "const": "search-protein",
+          "const": "search_protein",
           "type": "string"
         },
         "gene": {
@@ -1842,7 +1842,7 @@
       "description": "Read exact protein cards or all HGNC-listed protein candidates.",
       "properties": {
         "command": {
-          "const": "get-protein",
+          "const": "get_protein",
           "type": "string"
         },
         "input": {
@@ -1883,7 +1883,7 @@
       "description": "Discover literal HP term candidates in publisher order.",
       "properties": {
         "command": {
-          "const": "search-phenotype",
+          "const": "search_phenotype",
           "type": "string"
         },
         "limit": {
@@ -1924,7 +1924,7 @@
       "description": "Read one independent exact HPO or Monarch term card.",
       "properties": {
         "command": {
-          "const": "get-phenotype",
+          "const": "get_phenotype",
           "type": "string"
         },
         "id": {
@@ -1971,7 +1971,7 @@
       "description": "Discover source-native human pathway headers.",
       "properties": {
         "command": {
-          "const": "search-pathway",
+          "const": "search_pathway",
           "type": "string"
         },
         "fresh": {
@@ -2034,7 +2034,7 @@
       "description": "Read an exact human pathway card or summary.",
       "properties": {
         "command": {
-          "const": "get-pathway",
+          "const": "get_pathway",
           "type": "string"
         },
         "fresh": {
@@ -2083,7 +2083,7 @@
       "description": "Page retained exact source membership references.",
       "properties": {
         "command": {
-          "const": "pathway-genes",
+          "const": "pathway_genes",
           "type": "string"
         },
         "details": {
@@ -2128,7 +2128,7 @@
       "description": "Page retained source-contained event references.",
       "properties": {
         "command": {
-          "const": "pathway-events",
+          "const": "pathway_events",
           "type": "string"
         },
         "id": {
@@ -2184,7 +2184,7 @@
           "description": "Exact cBioPortal cancer-type code; no OncoTree conversion."
         },
         "command": {
-          "const": "search-study",
+          "const": "search_study",
           "type": "string"
         },
         "limit": {
@@ -2229,7 +2229,7 @@
       "description": "Read exact study metadata.",
       "properties": {
         "command": {
-          "const": "get-study",
+          "const": "get_study",
           "type": "string"
         },
         "id": {
@@ -2276,7 +2276,7 @@
       "description": "Discover source-native CPIC gene pairs.",
       "properties": {
         "command": {
-          "const": "search-pgx",
+          "const": "search_pgx",
           "type": "string"
         },
         "cpic_level": {
@@ -2329,7 +2329,7 @@
       "description": "Read an explicit CPIC gene card or source section.",
       "properties": {
         "command": {
-          "const": "get-pgx",
+          "const": "get_pgx",
           "type": "string"
         },
         "diplotype": {
@@ -2423,7 +2423,7 @@
       "description": "Read one exact ClinPGx clinical annotation accession.",
       "properties": {
         "command": {
-          "const": "get-pgx-annotation",
+          "const": "get_pgx_annotation",
           "type": "string"
         },
         "id": {
@@ -2469,7 +2469,7 @@
           "description": "Immutable stored bundle revision retained by a continuation."
         },
         "command": {
-          "const": "search-diagnostic",
+          "const": "search_diagnostic",
           "type": "string"
         },
         "condition_id": {
@@ -2635,7 +2635,7 @@
           "description": "Immutable stored bundle revision retained by a continuation."
         },
         "command": {
-          "const": "get-diagnostic",
+          "const": "get_diagnostic",
           "type": "string"
         },
         "id": {
@@ -2697,7 +2697,7 @@
       "description": "Search source-native adverse event reports.",
       "properties": {
         "command": {
-          "const": "search-adverse-event",
+          "const": "search_adverse_event",
           "type": "string"
         },
         "limit": {
@@ -2834,7 +2834,7 @@
       "description": "Read one exact source report, without source probing.",
       "properties": {
         "command": {
-          "const": "get-adverse-event",
+          "const": "get_adverse_event",
           "type": "string"
         },
         "drug_index": {
@@ -2910,7 +2910,7 @@
       "description": "Discover one source-native disease candidate page.",
       "properties": {
         "command": {
-          "const": "search-disease",
+          "const": "search_disease",
           "type": "string"
         },
         "limit": {
@@ -2969,7 +2969,7 @@
           "description": "Native age-range code."
         },
         "command": {
-          "const": "get-disease",
+          "const": "get_disease",
           "type": "string"
         },
         "dataset": {
@@ -3091,7 +3091,7 @@
           "description": "Native FDA classification; drug recalls only."
         },
         "command": {
-          "const": "search-drug",
+          "const": "search_drug",
           "type": "string"
         },
         "firm": {
@@ -3221,7 +3221,7 @@
           ]
         },
         "command": {
-          "const": "get-drug",
+          "const": "get_drug",
           "type": "string"
         },
         "input": {
@@ -3295,7 +3295,7 @@
       "description": "Read native WHO prequalification rows by exact reference.",
       "properties": {
         "command": {
-          "const": "get-who-medicine",
+          "const": "get_who_medicine",
           "type": "string"
         },
         "input": {
@@ -3331,7 +3331,7 @@
           "description": "Native assertion accession or document ID."
         },
         "command": {
-          "const": "variant-assertions",
+          "const": "variant_assertions",
           "type": "string"
         },
         "input": {
@@ -3392,7 +3392,7 @@
           "description": "Explicit source assembly when required by identity input."
         },
         "command": {
-          "const": "variant-population",
+          "const": "variant_population",
           "type": "string"
         },
         "detail": {
@@ -3436,7 +3436,7 @@
       "description": "Observe an exact allele in an explicitly selected cohort.",
       "properties": {
         "command": {
-          "const": "variant-recurrence",
+          "const": "variant_recurrence",
           "type": "string"
         },
         "gene": {
@@ -3507,7 +3507,7 @@
           "description": "Caller assembly; required when VariantValidator is selected."
         },
         "command": {
-          "const": "variant-normalize",
+          "const": "variant_normalize",
           "type": "string"
         },
         "hgvs": {
@@ -3590,7 +3590,7 @@
           ]
         },
         "command": {
-          "const": "get-variant",
+          "const": "get_variant",
           "type": "string"
         },
         "input": {
@@ -3687,7 +3687,7 @@
           "description": "Optional caller assembly sent to MyVariant; regions require it explicitly."
         },
         "command": {
-          "const": "search-variant",
+          "const": "search_variant",
           "type": "string"
         },
         "condition": {
@@ -3749,7 +3749,7 @@
       "description": "Save an exact registry document to an explicit destination.",
       "properties": {
         "command": {
-          "const": "trial-document",
+          "const": "trial_document",
           "type": "string"
         },
         "file": {
@@ -3784,7 +3784,7 @@
       "description": "Retrieve exact trial cards and source protocol sections.",
       "properties": {
         "command": {
-          "const": "get-trial",
+          "const": "get_trial",
           "type": "string"
         },
         "input": {
@@ -3846,7 +3846,7 @@
           "type": "integer"
         },
         "command": {
-          "const": "search-trial",
+          "const": "search_trial",
           "type": "string"
         },
         "condition": {
@@ -3985,7 +3985,7 @@
       "description": "Save a publisher PDF to an explicit destination.",
       "properties": {
         "command": {
-          "const": "article-pdf",
+          "const": "article_pdf",
           "type": "string"
         },
         "input": {
@@ -4024,7 +4024,7 @@
           "x-positional": 0
         },
         "command": {
-          "const": "article-evidence",
+          "const": "article_evidence",
           "type": "string"
         },
         "fulltext": {
@@ -4062,7 +4062,7 @@
       "description": "Source-native paper recommendations.",
       "properties": {
         "command": {
-          "const": "article-recommend",
+          "const": "article_recommend",
           "type": "string"
         },
         "limit": {
@@ -4114,7 +4114,7 @@
       "description": "Read a licensed supplementary file.",
       "properties": {
         "command": {
-          "const": "article-supplement",
+          "const": "article_supplement",
           "type": "string"
         },
         "file": {
@@ -4193,7 +4193,7 @@
       "description": "Read licensed PMC body text.",
       "properties": {
         "command": {
-          "const": "article-text",
+          "const": "article_text",
           "type": "string"
         },
         "find": {
@@ -4242,7 +4242,7 @@
       "description": "Papers citing one PMID.",
       "properties": {
         "command": {
-          "const": "article-citations",
+          "const": "article_citations",
           "type": "string"
         },
         "limit": {
@@ -4286,7 +4286,7 @@
       "description": "Papers referenced by one PMID.",
       "properties": {
         "command": {
-          "const": "article-references",
+          "const": "article_references",
           "type": "string"
         },
         "limit": {
@@ -4330,7 +4330,7 @@
       "description": "Retrieve PubMed article cards.",
       "properties": {
         "command": {
-          "const": "get-article",
+          "const": "get_article",
           "type": "string"
         },
         "input": {
@@ -4419,7 +4419,7 @@
           "description": "Author words sent to PubMed's author field."
         },
         "command": {
-          "const": "search-article",
+          "const": "search_article",
           "type": "string"
         },
         "disease": {
@@ -4522,7 +4522,7 @@
       "description": "Get gene identities and annotations.",
       "properties": {
         "command": {
-          "const": "get-gene",
+          "const": "get_gene",
           "type": "string"
         },
         "input": {
@@ -4571,7 +4571,7 @@
           "description": "A cytoband prefix."
         },
         "command": {
-          "const": "search-gene",
+          "const": "search_gene",
           "type": "string"
         },
         "limit": {

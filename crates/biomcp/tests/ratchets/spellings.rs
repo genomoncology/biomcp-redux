@@ -1,4 +1,4 @@
-//! Audit owned wire vocabularies while leaving publisher values untouched.
+//! Audit BioMCP wire values while preserving BioData and publisher spellings.
 use super::{Check, rust_files};
 use std::{fs, path::Path};
 
@@ -30,11 +30,6 @@ const OWNED: &[&str] = &[
     "EvidenceNotice",
     "PathwayTotalKind",
     "AlphaGenomeScorer",
-    "MatchKind",
-    "AuthorCountScope",
-    "DrugIdentityLevel",
-    "ProteinCoordinateConvention",
-    "ProteinSequenceAvailability",
     "DrugRecallCountUnit",
 ];
 
@@ -42,19 +37,19 @@ pub(super) fn check(root: &Path) -> Check {
     for name in ["biodata", "biomcp-types"] {
         for path in rust_files(&root.join("crates").join(name).join("src"))? {
             let text = fs::read_to_string(&path)?;
-            audit(&super::source::tokens(&text))
+            audit(&super::source::tokens(&text), name == "biomcp-types")
                 .map_err(|error| format!("{}: {error}", path.display()))?;
         }
     }
     Ok(())
 }
 
-pub(super) fn audit(tokens: &[String]) -> Result<(), String> {
+pub(super) fn audit(tokens: &[String], biomcp_owned: bool) -> Result<(), String> {
     for window in tokens.windows(3) {
         let [name, equal, value] = window else {
             continue;
         };
-        if name == "rename_all" && value == "\"snake_case\"" {
+        if biomcp_owned && name == "rename_all" && value == "\"snake_case\"" {
             return Err("owned enum values require kebab-case".into());
         }
         if name == "tag" && equal == "=" && value.starts_with('"') {
@@ -69,6 +64,9 @@ pub(super) fn audit(tokens: &[String]) -> Result<(), String> {
                 );
             }
         }
+    }
+    if !biomcp_owned {
+        return Ok(());
     }
     for (index, token) in tokens.iter().enumerate() {
         // Error identifiers keep the approved dotted snake_case convention.

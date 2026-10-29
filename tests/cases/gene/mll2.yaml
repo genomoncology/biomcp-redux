@@ -18,7 +18,7 @@
           "HGNC:15840"
         ],
         "/result/items/0/answer/candidates/*/match/kind": [
-          "previous-symbol",
+          "previous_symbol",
           "alias"
         ],
         "/sources/*/source": {

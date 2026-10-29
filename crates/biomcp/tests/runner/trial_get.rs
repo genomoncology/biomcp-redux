@@ -301,7 +301,7 @@ fn continuations() -> Check {
     let globals = env.globals(Some(&replay), false);
     let first = command(&env, &args, &globals, 0)?;
     if first.pointer("/result/items/0/sections/eligibility/data/maximum_age/state")
-        != Some(&json!("no-limit"))
+        != Some(&json!("no_limit"))
     {
         return Err("missing maximum age invented a number".into());
     }
