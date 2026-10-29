@@ -99,7 +99,30 @@ fn option_values_cannot_impersonate_options_or_sections() -> Check {
     let mut inventory = Inventory::new(&help(), &[])?;
     inventory.step(&step(&["get", "trial", "NCT1", "--limit", "eligibility"])?);
     assert_eq!(inventory.calls["section get trial eligibility"], 0);
-    inventory.step(&step(&["--format", "--limit", "get", "trial", "NCT1"])?);
+    inventory.step(&step(&["--format=--limit", "get", "trial", "NCT1"])?);
     assert_eq!(inventory.calls["option get trial --limit"], 1);
+    Ok(())
+}
+#[test]
+fn cli_commands_never_impersonate_named_mcp_tools() -> Check {
+    let tools = [
+        json!({"name":"biomcp"}),
+        json!({"name":"search"}),
+        json!({"name":"fetch"}),
+    ];
+    let mut inventory = Inventory::new(&help(), &tools)?;
+    inventory.step(&step(&["search", "trial", "melanoma"])?);
+    assert_eq!(inventory.calls["tool search"], 0);
+    let named: Step = serde_json::from_value(
+        json!({"mcp_call":{"name":"search","arguments":{"query":"trial melanoma"}},"expect":{"/results":[]}}),
+    )?;
+    inventory.step(&named);
+    assert_eq!(inventory.calls["tool search"], 1);
+    assert_eq!(inventory.calls["tool biomcp"], 0);
+    let legacy: Step =
+        serde_json::from_value(json!({"mcp":["help"],"expect":{"/result/commands":[]}}))?;
+    inventory.step(&legacy);
+    assert_eq!(inventory.calls["tool biomcp"], 1);
+    assert_eq!(inventory.calls["tool fetch"], 0);
     Ok(())
 }

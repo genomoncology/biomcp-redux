@@ -84,5 +84,20 @@ pub(super) fn run_step(
             }
         }
     }
-    answer.ok_or_else(|| "step requires run or mcp".into())
+    if let Some(call) = &step.mcp_call {
+        let value = super::research::call_checked(
+            environment,
+            &call.name,
+            call.arguments.clone(),
+            &globals,
+            step.is_error,
+        )?;
+        assertions::check(
+            &serde_json::to_vec(&value).map_err(|e| e.to_string())?,
+            step,
+            expectations,
+        )?;
+        answer = Some(value);
+    }
+    answer.ok_or_else(|| "step requires run, mcp or mcp_call".into())
 }

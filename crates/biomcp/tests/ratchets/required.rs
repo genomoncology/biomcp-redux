@@ -5,6 +5,8 @@ mod case_data;
 mod environment;
 #[path = "required/pending.rs"]
 mod pending;
+#[path = "../runner/process.rs"]
+mod process;
 #[path = "required/proof.rs"]
 mod proof;
 #[path = "required/tally.rs"]
@@ -24,31 +26,19 @@ fn metadata() -> Result<(Value, Vec<Value>), Box<dyn std::error::Error>> {
         return Err("required coverage: shipped help failed".into());
     }
     let help: Value = serde_json::from_slice(&output.stdout)?;
-    let mut process = environment::command(binary, home.path(), &["serve".into()])
+    let child = environment::command(binary, home.path(), &["serve".into()])
         .stdin(Stdio::piped())
         .stdout(Stdio::piped())
+        .stderr(Stdio::piped())
         .spawn()?;
-    let mut input = process.stdin.take().ok_or("MCP stdin missing")?;
-    for frame in [
+    let frames = [
         json!({"jsonrpc":"2.0","id":1,"method":"initialize","params":{
             "protocolVersion":"2026-07-28","capabilities":{},"clientInfo":{"name":"required-coverage","version":"1"}}}),
         json!({"jsonrpc":"2.0","method":"notifications/initialized"}),
         json!({"jsonrpc":"2.0","id":2,"method":"tools/list","params":{}}),
-    ] {
-        serde_json::to_writer(&mut input, &frame)?;
-        input.write_all(b"\n")?;
-    }
-    drop(input);
-    let output = process.wait_with_output()?;
-    if !output.status.success() {
-        return Err("required coverage: MCP tool registry failed".into());
-    }
-    for line in output
-        .stdout
-        .split(|byte| *byte == b'\n')
-        .filter(|s| !s.is_empty())
-    {
-        let frame: Value = serde_json::from_slice(line)?;
+    ];
+    let (status, stdout, stderr) = process::exchange(child, &frames)?;
+    for frame in process::messages(status, &stdout, &stderr)? {
         if frame["id"] == 2 {
             return Ok((
                 help,

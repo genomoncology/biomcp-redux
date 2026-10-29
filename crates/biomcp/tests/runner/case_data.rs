@@ -32,6 +32,7 @@ pub(crate) struct Step {
     #[serde(default)]
     pub(crate) offline: bool,
     pub(crate) mcp: Option<Vec<String>>,
+    pub(crate) mcp_call: Option<McpCall>,
     #[serde(default)]
     pub(crate) is_error: bool,
     #[serde(default)]
@@ -42,6 +43,13 @@ pub(crate) struct Step {
     pub(crate) max_tokens: Option<usize>,
     #[serde(default)]
     pub(crate) expect: BTreeMap<String, Value>,
+}
+
+#[derive(Clone, Debug, Deserialize, serde::Serialize)]
+#[serde(deny_unknown_fields)]
+pub(crate) struct McpCall {
+    pub(crate) name: String,
+    pub(crate) arguments: Value,
 }
 
 #[derive(Clone, Debug, Deserialize, serde::Serialize)]

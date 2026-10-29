@@ -159,3 +159,49 @@ fn documentation_generation_preserves_case_bytes() -> Check {
     assert_eq!(fs::read(path)?, original, "docs generation changed a case");
     Ok(())
 }
+
+#[test]
+fn unscoped_help_uses_parser_nodes_and_scoped_topics_remain_available() -> Check {
+    let help = crate::help::dispatch(&[])?;
+    assert!(
+        help.commands
+            .iter()
+            .any(|entry| entry.command == ["help", "get", "trial"]),
+        "nested parser help command missing"
+    );
+    assert!(
+        !help
+            .commands
+            .iter()
+            .any(|entry| entry.command == ["sync", "hgnc"]),
+        "positional bundle became a command"
+    );
+    assert!(
+        !help
+            .commands
+            .iter()
+            .any(|entry| entry.command == ["help", "key", "ncbi"]),
+        "positional credential topic became a command"
+    );
+    let scoped = crate::help::dispatch(&["help".into(), "key".into(), "ncbi".into()])?;
+    assert!(
+        scoped
+            .commands
+            .iter()
+            .any(|entry| entry.command == ["help", "key", "ncbi"]),
+        "scoped credential topic missing"
+    );
+    let index = help
+        .commands
+        .iter()
+        .find(|entry| entry.command.is_empty())
+        .ok_or("root help missing")?;
+    assert!(
+        index
+            .arguments
+            .iter()
+            .any(|argument| argument.name == "--help" && argument.aliases == ["-h"]),
+        "grammar aliases missing"
+    );
+    Ok(())
+}

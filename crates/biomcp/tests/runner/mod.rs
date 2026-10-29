@@ -225,8 +225,20 @@ fn run_case(path: &Path, registry: &schema::Registry) -> Result<Value, String> {
         .iter()
         .enumerate()
         .map(|(index, step)| {
-            if step.run.is_none() && step.mcp.is_none() && step.follow.is_none() {
-                return Err("step requires run or mcp".into());
+            if step.mcp_call.is_some()
+                && (step.run.is_some()
+                    || step.mcp.is_some()
+                    || step.follow.is_some()
+                    || step.walk.is_some())
+            {
+                return Err("named MCP call requires its own step".into());
+            }
+            if step.run.is_none()
+                && step.mcp.is_none()
+                && step.mcp_call.is_none()
+                && step.follow.is_none()
+            {
+                return Err("step requires run, mcp or mcp_call".into());
             }
             assertions::prepare(step)
                 .map_err(|error| format!("{}; step {}: {error}", case.story, index + 1))

@@ -79,6 +79,13 @@ impl Inventory {
     }
     pub(super) fn step(&mut self, step: &Step) {
         // Only explicit CLI argv count. MCP-only and dynamic follow/walk expansions do not.
+        if !step.expect.is_empty() {
+            if let Some(call) = &step.mcp_call {
+                self.increment(BTreeSet::from([format!("tool {}", call.name)]));
+            } else if step.mcp.is_some() {
+                self.increment(BTreeSet::from(["tool biomcp".into()]));
+            }
+        }
         let Some(argv) = &step.run else {
             return;
         };
@@ -89,18 +96,18 @@ impl Inventory {
         if let Some(command) = self.command(&tokens) {
             let path_words = words(&command["command"]);
             let path = path_words.join(" ");
-            for parent in &self.commands {
-                let words = words(&parent["command"]);
-                if !words.is_empty() && path_words.starts_with(&words) {
-                    hits.insert(format!("command {}", words.join(" ")));
-                }
-            }
             if step
                 .expect
                 .get("/error/code")
                 .is_some_and(|v| v == "usage.arguments")
             {
                 hits.insert(format!("refusal {path}"));
+            }
+            for parent in &self.commands {
+                let words = words(&parent["command"]);
+                if !words.is_empty() && path_words.starts_with(&words) {
+                    hits.insert(format!("command {}", words.join(" ")));
+                }
             }
             for section in rows(command, "sections") {
                 let word = section["word"].as_str().unwrap_or_default();
@@ -110,9 +117,9 @@ impl Inventory {
             }
             self.failures(step, &path_words, &tokens, &mut hits);
         }
-        if step.mcp.is_some() {
-            hits.insert("tool biomcp".into());
-        }
+        self.increment(hits);
+    }
+    fn increment(&mut self, hits: BTreeSet<String>) {
         for item in hits {
             if let Some(count) = self.calls.get_mut(&item) {
                 *count += 1;
@@ -158,7 +165,19 @@ impl Inventory {
                         words(&scoped["command"]).join(" ")
                     ));
                 }
-                if !token.contains('=') && argument["value_type"] != "boolean" {
+                let next_flag = argv
+                    .get(index + 1)
+                    .map(|token| token.split('=').next().unwrap_or(token));
+                let next_is_flag = next_flag.is_some_and(|flag| {
+                    globals
+                        .into_iter()
+                        .chain(scoped)
+                        .flat_map(|c| rows(c, "arguments"))
+                        .any(|a| {
+                            a["name"] == flag || words(&a["aliases"]).iter().any(|a| a == flag)
+                        })
+                });
+                if !token.contains('=') && argument["value_type"] != "boolean" && !next_is_flag {
                     index += 1;
                 }
             } else {
