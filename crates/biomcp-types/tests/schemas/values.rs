@@ -509,13 +509,11 @@ fn generated_links_expose_uri_metadata() {
                 let node = if schema["title"] == *owner {
                     Some(schema)
                 } else {
-                    schema
-                        .get("$defs")
-                        .and_then(|definitions| {
-                            definitions
-                                .get(*owner)
-                                .or_else(|| definitions.get(&format!("Reply_{owner}")))
-                        })
+                    schema.get("$defs").and_then(|definitions| {
+                        definitions
+                            .get(*owner)
+                            .or_else(|| definitions.get(&format!("Reply_{owner}")))
+                    })
                 };
                 if let Some(node) = node {
                     for branch in std::iter::once(node).chain(
