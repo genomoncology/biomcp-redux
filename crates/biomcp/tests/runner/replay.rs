@@ -47,7 +47,11 @@ fn missing() -> Result<(), String> {
 fn repeated() -> Result<(), String> {
     let env = Environment::new().map_err(|e| e.to_string())?;
     let records = env.root().join("known-recordings");
-    super::response_cases::cache_capture("gene/main", &records, super::response_cases::CACHE_ACQUIRED)?;
+    super::response_cases::cache_capture(
+        "gene/main",
+        &records,
+        super::response_cases::CACHE_ACQUIRED,
+    )?;
     let mut args = vec!["serve".into()];
     args.extend(env.globals(Some(&records), false));
     let mut child = env

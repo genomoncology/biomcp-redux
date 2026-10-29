@@ -187,7 +187,11 @@ fn ownership() -> Check {
     fs::write(&file, b"prepopulated user cache sentinel").map_err(|e| e.to_string())?;
     let case = env.root().join("case");
     let records = env.root().join("known-recordings");
-    super::response_cases::cache_capture("gene/main", &records, super::response_cases::CACHE_ACQUIRED)?;
+    super::response_cases::cache_capture(
+        "gene/main",
+        &records,
+        super::response_cases::CACHE_ACQUIRED,
+    )?;
     let replay = invoke(
         &env,
         cached(&["get", "gene", "BRAF"], &case, Some(&records)),
@@ -527,7 +531,11 @@ pub(super) fn article_processes() -> Check {
     let env = Environment::new().map_err(|e| e.to_string())?;
     let case = env.root().join("case");
     let fixture = env.root().join("known-recordings");
-    super::response_cases::cache_capture("article/search/synthetic-small", &fixture, super::response_cases::CACHE_ACQUIRED)?;
+    super::response_cases::cache_capture(
+        "article/search/synthetic-small",
+        &fixture,
+        super::response_cases::CACHE_ACQUIRED,
+    )?;
     let base = ["search", "article", "AKT1 E17K", "--limit", "2"];
     let initial = invoke(&env, cached(&base, &case, Some(&fixture)), 0)?;
     let expected = initial.pointer("/result/items").ok_or("items missing")?;

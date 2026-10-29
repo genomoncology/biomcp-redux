@@ -8,7 +8,11 @@ pub(super) fn check(name: &str) -> Result<(), String> {
     let env = Environment::new().map_err(|e| e.to_string())?;
     let replay = if name == "stale" {
         let target = env.root().join("known-recordings");
-        super::super::response_cases::cache_capture("author/synthetic", &target, super::super::response_cases::CACHE_ACQUIRED)?;
+        super::super::response_cases::cache_capture(
+            "author/synthetic",
+            &target,
+            super::super::response_cases::CACHE_ACQUIRED,
+        )?;
         target
     } else {
         super::super::launch::fixtures().join("replies/author/synthetic")
