@@ -29,7 +29,7 @@ pub fn get(cx: &Ctx<'_>, query: &AdverseEventGet) -> Outcome {
                     out.body = body;
                     navigation(&bound, total, returned, &mut out);
                 }
-                Err(biomcp_types::QueryInvalid::default()) => too_large(query, &mut out),
+                Err(_) => too_large(query, &mut out),
             }
         }
         Ok(None) => {}

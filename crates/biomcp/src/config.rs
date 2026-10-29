@@ -39,7 +39,10 @@ fn variable(name: &str) -> Result<Option<PathBuf>, ConfigError> {
 }
 
 pub(crate) fn retired_study_directory() -> bool {
-    variable("BIOMCP_STUDY_DIR").is_ok_and(|value| value.is_some())
+    match variable("BIOMCP_STUDY_DIR") {
+        Ok(value) => value.is_some(),
+        Err(_) => true,
+    }
 }
 
 pub(crate) const BUDGET: Duration = Duration::from_secs(20);

@@ -76,7 +76,7 @@ impl Recordings {
             owner.with_file_name(format!("{stem}-grpc-{}.json", recording.exchanges.len()));
         rpc.messages = publish_messages(&binary_owner, spool)?;
         recording.exchanges.push(Exchange {
-            fetched: Some(crate::cache::now()),
+            fetched: crate::cache::timestamp(),
             status: 200,
             content_type: "application/grpc".into(),
             content_range: None,

@@ -456,7 +456,7 @@ impl Leg<'_> {
             .get("retry-after")
             .and_then(|v| v.to_str().ok())
             .and_then(|v| crate::retry::retry_after(v, std::time::SystemTime::now()));
-        let fetched = Some(crate::cache::now());
+        let fetched = crate::cache::timestamp();
         let recording = matches!(self.fetch.mode, crate::Mode::Record { .. });
         let body = if prepared.method == Method::Head {
             Vec::new()

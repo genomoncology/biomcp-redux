@@ -393,6 +393,7 @@ fn invalid_utf8_environment() -> Result<(), String> {
     use std::{ffi::OsString, os::unix::ffi::OsStringExt};
     for (name, args) in [
         ("HOME", vec!["health", "--offline"]),
+        ("HTTPS_PROXY", vec!["health", "--offline"]),
         (
             "NCBI_API_KEY",
             vec![
