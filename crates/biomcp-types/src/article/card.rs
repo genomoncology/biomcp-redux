@@ -12,7 +12,7 @@ macro_rules! article {
                 {"required":["pmid"]},
                 {"required":["pmcid"]},
                 {"required":["doi"]},
-                {"required":["europepmc-id"]}
+                {"required":["europepmc_id"]}
             ])))]
         pub struct Article<A = Box<[Text]>> {
             $( $(#[$attribute])* pub $field: $ty, )*
