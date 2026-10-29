@@ -4,7 +4,6 @@ import re
 import sys
 from pathlib import Path
 
-from contract_targets import targets
 from parity import LEDGER_END, LEDGER_START, UPGRADE_END, UPGRADE_START, rows, table, upgrade
 
 
@@ -34,15 +33,8 @@ def check(root):
         raise ValueError("no outside-in cases found")
     mapped = set()
     names = set()
-    contracts = {row[3] for row in targets(root)}
     for line in (root / "sdlc/features.md").read_text().splitlines():
         if not line or line.startswith("#"):
-            continue
-        if "Contracts:" in line:
-            name = line.split(":", 1)[0]
-            if name in names or name not in contracts:
-                raise ValueError(f"invalid or duplicate feature line: {line}")
-            names.add(name)
             continue
         match = re.fullmatch(r"([a-z][a-z0-9-]*): (.+[.!?]) Cases: (.+)\.", line)
         if not match or match[1] in names:
