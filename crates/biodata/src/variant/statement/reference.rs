@@ -1,4 +1,4 @@
-use crate::{GeneRef, HgvsText, ProfileExpression, Text, VariantId};
+use crate::{ClinvarHaplotype, GeneRef, HgvsText, ProfileExpression, Text, VariantId};
 use serde::{Deserialize, Serialize};
 use std::{fmt, str::FromStr};
 /// Checked prefix:local ontology identifier.
@@ -54,6 +54,8 @@ enum Fields {
     Allele(AlleleRef),
     /// Protein-level assertion, without genomic conversion.
     Protein(ProteinRef),
+    /// Native ClinVar haplotype and its complete source member identities.
+    Haplotype(ClinvarHaplotype),
     /// Native source variant with optional source-stated forms.
     Source {
         record: Curie,
@@ -88,6 +90,10 @@ impl TryFrom<Fields> for VariantRef {
     type Error = crate::Error;
     fn try_from(fields: Fields) -> Result<Self, Self::Error> {
         match &fields {
+            Fields::Haplotype(value) => {
+                value.check()?;
+                Ok(Self(fields))
+            }
             Fields::Allele(AlleleRef { id, hgvs }) if id.is_none() && hgvs.is_none() => {
                 Err(crate::Error::VariantRefInvalid)
             }
@@ -123,6 +129,17 @@ impl TryFrom<Fields> for VariantRef {
     }
 }
 impl VariantRef {
+    /// Preserve a native ClinVar haplotype without deriving an allele or phase.
+    pub fn clinvar_haplotype(value: ClinvarHaplotype) -> Result<Self, crate::Error> {
+        Fields::Haplotype(value).try_into()
+    }
+    /// Borrow native ClinVar haplotype grouping and ordered member identities.
+    pub fn haplotype(&self) -> Option<&ClinvarHaplotype> {
+        match &self.0 {
+            Fields::Haplotype(value) => Some(value),
+            _ => None,
+        }
+    }
     /// Borrow the source allele identifier, when present.
     pub fn id(&self) -> Option<&VariantId> {
         match &self.0 {

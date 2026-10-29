@@ -52,7 +52,11 @@ impl XmlReply for Records {
                     .map_err(|_| BadReply)
             })),
         );
-        let Some(subject) = subject.map(biodata::VariantRef::allele) else {
+        let subject = match subject {
+            Some(id) => super::subject::map(archive, classified, id, &mut problems)?,
+            None => None,
+        };
+        let Some(subject) = subject else {
             return Ok(Self {
                 id,
                 accession,
