@@ -346,11 +346,26 @@ fn legacy_age_snapshot() -> Check {
         rusqlite::OpenFlags::SQLITE_OPEN_READ_WRITE,
     )
     .map_err(|e| e.to_string())?;
-    let key = Sha256::digest(b"biomcp.nci_trial_snapshot/1\0NCT05136196").to_vec();
+    let payload: String = db
+        .query_row(
+            "SELECT payload FROM trial_snapshot WHERE id=?1",
+            [snapshot],
+            |row| row.get(0),
+        )
+        .map_err(|e| e.to_string())?;
+    // Main's /2 serialized the original naked source ages and no Detail.problems.
+    let mut legacy: Value = serde_json::from_str(&payload).map_err(|e| e.to_string())?;
+    legacy[0]
+        .as_object_mut()
+        .ok_or("NCI snapshot detail")?
+        .remove("problems");
+    legacy[0]["eligibility"]["structured"] = source()?["eligibility"]["structured"].clone();
+    let payload = serde_json::to_string(&legacy).map_err(|e| e.to_string())?;
+    let key = Sha256::digest(b"biomcp.nci_trial_snapshot/2\0NCT05136196").to_vec();
     let rows = db
         .execute(
-            "UPDATE trial_snapshot SET request_key=?1,payload='obsolete age fields' WHERE id=?2",
-            rusqlite::params![key, snapshot],
+            "UPDATE trial_snapshot SET request_key=?1,payload=?2 WHERE id=?3",
+            rusqlite::params![key, payload, snapshot],
         )
         .map_err(|e| e.to_string())?;
     if rows != 1 {
