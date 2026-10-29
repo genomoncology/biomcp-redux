@@ -90,21 +90,21 @@ impl Position<'_> {
                 other.offset,
             );
         }
-        if self.offset_sign == 0 && other.offset_sign == 0 {
-            return if self.region == other.region {
-                if self.region == 0 {
-                    increment(other.anchor) == self.anchor
-                } else {
-                    increment(self.anchor) == other.anchor
-                }
-            } else {
-                // -1 and 1 are adjacent; coding-to-* depends on the unavailable transcript.
-                self.region == 0 && other.region == 1 && self.anchor == "1" && other.anchor == "1"
-                    || self.region == 1 && other.region == 2
-            };
+        // Even an intron cannot make skipped transcript anchors adjacent.
+        // The final coding anchor is unknown, but the first downstream anchor is *1.
+        if self.offset_sign < 0 || other.offset_sign > 0 {
+            return false;
         }
-        // Adjacency across different intron anchors requires a reference sequence.
-        true
+        if self.region == other.region {
+            if self.region == 0 {
+                increment(other.anchor) == self.anchor
+            } else {
+                increment(self.anchor) == other.anchor
+            }
+        } else {
+            self.region == 0 && other.region == 1 && self.anchor == "1" && other.anchor == "1"
+                || self.region == 1 && other.region == 2 && other.anchor == "1"
+        }
     }
 }
 fn decimal_compare(left: &str, right: &str) -> std::cmp::Ordering {
