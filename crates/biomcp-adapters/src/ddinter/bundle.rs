@@ -40,8 +40,10 @@ const PAIRS: BundleSet<NativeRow> = BundleSet {
     row: PhantomData,
 };
 /// Synchronize the eight validated partitions as one atomic local replacement.
-pub fn sync(fetch: &Fetch) -> Result<BundleInfo, RequestError> {
-    fetch.sync_set(&PAIRS)
+pub fn sync(fetch: &Fetch) -> Result<crate::Mapped<biomcp_types::SyncResult>, RequestError> {
+    fetch
+        .sync_set(&PAIRS)
+        .map(|info| crate::mapped::bundle_sync(SPEC.source, info))
 }
 /// Discover literal native candidates from stored rows; never synchronize on a read.
 pub fn search(leg: &Leg<'_>, query: &str) -> Result<Vec<DrugHeader>, RequestError> {

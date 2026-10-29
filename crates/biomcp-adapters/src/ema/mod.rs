@@ -38,8 +38,10 @@ const MEDICINES: Bundle<raw::Medicine> = Bundle {
     row: PhantomData,
 };
 /// Explicit complete-file synchronization through the shared atomic bundle store.
-pub fn sync(fetch: &Fetch) -> Result<BundleInfo, RequestError> {
-    fetch.sync(&MEDICINES)
+pub fn sync(fetch: &Fetch) -> Result<crate::Mapped<biomcp_types::SyncResult>, RequestError> {
+    fetch
+        .sync(&MEDICINES)
+        .map(|info| crate::mapped::bundle_sync(SPEC.source, info))
 }
 /// Literal medicine-name candidates in native bundle order; never synchronize on reads.
 pub fn search(leg: &Leg<'_>, query: &str) -> Result<crate::Mapped<Vec<DrugHeader>>, RequestError> {

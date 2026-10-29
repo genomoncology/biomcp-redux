@@ -40,16 +40,10 @@ const SET: biomcp_fetch::BundleSet<raw::Native> = biomcp_fetch::BundleSet {
 /// Validate every native row before publishing one complete replacement snapshot.
 pub fn sync(
     fetch: &biomcp_fetch::Fetch,
-) -> Result<biomcp_types::SyncResult, biomcp_fetch::RequestError> {
-    fetch.sync_set(&SET).map(|info| biomcp_types::SyncResult {
-        snapshot: None,
-        etag: None,
-        last_modified: None,
-        rows: info.rows,
-        bytes: info.bytes,
-        downloaded_bytes: info.downloaded_bytes,
-        duplicate_identities: None,
-    })
+) -> Result<crate::Mapped<biomcp_types::SyncResult>, biomcp_fetch::RequestError> {
+    fetch
+        .sync_set(&SET)
+        .map(|info| crate::mapped::bundle_sync(SPEC.source, info))
 }
 
 /// Read all source-ordered rows for one exact known product without provider I/O.

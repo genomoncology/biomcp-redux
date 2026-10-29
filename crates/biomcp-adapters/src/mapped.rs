@@ -228,3 +228,22 @@ pub(crate) fn bundle_problems(
         })
         .collect()
 }
+
+/// Convert ordinary bundle synchronization metadata with its rejected rows.
+pub(crate) fn bundle_sync(
+    source: biomcp_types::Source,
+    info: biomcp_fetch::BundleInfo,
+) -> Mapped<biomcp_types::SyncResult> {
+    Mapped {
+        problems: bundle_problems(source, &info),
+        value: biomcp_types::SyncResult {
+            snapshot: None,
+            etag: None,
+            last_modified: None,
+            duplicate_identities: None,
+            rows: info.rows,
+            bytes: info.bytes,
+            downloaded_bytes: info.downloaded_bytes,
+        },
+    }
+}
