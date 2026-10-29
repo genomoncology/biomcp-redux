@@ -1,6 +1,7 @@
 # 0474 — Disclose rejected bundle rows instead of failing the whole sync
 
-Status: OPEN.
+Status: COMPLETE.
+Landed: a34d0d9fb1d98fbda417a7d4e62b4e895487f6b0
 
 Milestone: 5
 

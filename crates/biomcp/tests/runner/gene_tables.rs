@@ -7,6 +7,7 @@
 mod graphql;
 mod hgnc;
 mod mygene;
+mod rejections;
 
 use super::response_cases::case;
 use crate::runner::transcript::trial as transcript_trial;
@@ -23,6 +24,7 @@ pub(super) fn trials() -> Vec<Trial> {
         ),
         ("gene-commands/mygene-boundaries", mygene::check),
         ("gene-sections/graphql-boundaries", graphql::check),
+        ("gene-commands/bundle-rejections", rejections::check),
     ]
     .into_iter()
     .map(|(name, check)| transcript_trial(name, move || check().map_err(|e| e.to_string().into())))

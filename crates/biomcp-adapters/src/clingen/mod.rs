@@ -39,17 +39,22 @@ const DOSAGE: Bundle<raw::Dosage> = Bundle {
     row: PhantomData,
 };
 /// Synchronize both required files and sum their published metadata.
-pub fn sync(fetch: &Fetch) -> Result<SyncResult, RequestError> {
+pub fn sync(fetch: &Fetch) -> Result<crate::Mapped<SyncResult>, RequestError> {
     let validity = fetch.sync(&VALIDITY)?;
     let dosage = fetch.sync(&DOSAGE)?;
-    Ok(SyncResult {
-        snapshot: None,
-        etag: None,
-        last_modified: None,
-        duplicate_identities: None,
-        rows: validity.rows + dosage.rows,
-        bytes: validity.bytes + dosage.bytes,
-        downloaded_bytes: validity.downloaded_bytes + dosage.downloaded_bytes,
+    let mut problems = crate::mapped::bundle_problems(Source::ClinGen, &validity);
+    problems.extend(crate::mapped::bundle_problems(Source::ClinGen, &dosage));
+    Ok(crate::Mapped {
+        problems,
+        value: SyncResult {
+            snapshot: None,
+            etag: None,
+            last_modified: None,
+            duplicate_identities: None,
+            rows: validity.rows + dosage.rows,
+            bytes: validity.bytes + dosage.bytes,
+            downloaded_bytes: validity.downloaded_bytes + dosage.downloaded_bytes,
+        },
     })
 }
 /// Read gene–disease validity without depending on the dosage summary.

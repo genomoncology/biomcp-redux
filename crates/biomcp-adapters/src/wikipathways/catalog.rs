@@ -37,7 +37,7 @@ fn bad() -> RequestError {
     .into()
 }
 /// Download both metadata catalogs and publish their checked pair atomically.
-pub fn sync(fetch: &Fetch) -> Result<WikiPathwaysSync, RequestError> {
+pub fn sync(fetch: &Fetch) -> Result<crate::Mapped<WikiPathwaysSync>, RequestError> {
     let info = fetch.sync_set(&CATALOGS)?;
     let leg = fetch.leg(&SPEC, fetch.deadline(SPEC.deadline));
     let (rows, _) = leg.stored_set_rows(&CATALOGS, Find::Exact(KeyKind::Band, "catalog"))?;
@@ -55,10 +55,14 @@ pub fn sync(fetch: &Fetch) -> Result<WikiPathwaysSync, RequestError> {
         .value
         .receipt
         .clone();
-    Ok(WikiPathwaysSync {
-        search,
-        get,
-        downloaded_bytes: info.downloaded_bytes,
+    let problems = crate::mapped::bundle_problems(SPEC.source, &info);
+    Ok(crate::Mapped {
+        problems,
+        value: WikiPathwaysSync {
+            search,
+            get,
+            downloaded_bytes: info.downloaded_bytes,
+        },
     })
 }
 /// Search only native titles in original catalog order, with exact source species admission.

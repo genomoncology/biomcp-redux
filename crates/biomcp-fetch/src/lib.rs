@@ -41,7 +41,7 @@ pub mod xml;
 
 pub use batch::MAX_BATCH_WORKERS;
 pub use bundle::{
-    Bundle, BundleInfo, BundlePart, BundleSet, DocumentMedia, Find, KeyKind, Keys,
+    Bundle, BundleInfo, BundlePart, BundleRejection, BundleSet, DocumentMedia, Find, KeyKind, Keys,
     MAX_BUNDLE_BYTES, Row, RowFormat, SetRow, bundle_sha256, decode_bundle_document,
     encode_bundle_row,
 };

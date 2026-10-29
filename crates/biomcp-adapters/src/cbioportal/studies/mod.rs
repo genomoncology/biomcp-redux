@@ -26,16 +26,20 @@ fn bad() -> RequestError {
     .into()
 }
 /// Acquire one complete metadata catalog and publish only after all rows pass.
-pub fn sync(fetch: &Fetch) -> Result<SyncResult, RequestError> {
+pub fn sync(fetch: &Fetch) -> Result<crate::Mapped<SyncResult>, RequestError> {
     let info = fetch.sync(&CATALOG)?;
-    Ok(SyncResult {
-        snapshot: Some(snapshot(&info)?),
-        etag: info.etag,
-        last_modified: info.last_modified,
-        rows: info.rows,
-        bytes: info.bytes,
-        downloaded_bytes: info.downloaded_bytes,
-        duplicate_identities: None,
+    let problems = crate::mapped::bundle_problems(SPEC.source, &info);
+    Ok(crate::Mapped {
+        problems,
+        value: SyncResult {
+            snapshot: Some(snapshot(&info)?),
+            etag: info.etag,
+            last_modified: info.last_modified,
+            rows: info.rows,
+            bytes: info.bytes,
+            downloaded_bytes: info.downloaded_bytes,
+            duplicate_identities: None,
+        },
     })
 }
 /// Return literal matches in original catalog order from the accepted local copy.

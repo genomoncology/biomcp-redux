@@ -121,6 +121,7 @@ fn transport_table(name: &str) -> bool {
             | "bundle_row"
             | "bundle_key"
             | "bundle_content"
+            | "bundle_rejection"
             | "bundle_words"
             | "bundle_words_data"
             | "bundle_words_idx"
