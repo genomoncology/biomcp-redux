@@ -1,6 +1,80 @@
 //! Retained historical variant component pages.
 use super::{Stub, Value, component_body, json, source_environment};
 
+pub(super) fn timestamp_admission() -> Result<(), String> {
+    let prefix = "/result/candidates/0/sections/conservation/data/components/0";
+    for mode in ["local", "invalid", "empty"] {
+        let value = super::super::response_cases::checked_case(
+            "variant/synthetic-components",
+            &[
+                "get",
+                "variant",
+                "rs113488022",
+                "conservation",
+                "--build",
+                "GRCh37",
+            ],
+            |_, record| {
+                if record["url"]
+                    .as_str()
+                    .is_some_and(|url| url.ends_with("/metadata"))
+                {
+                    let body = &mut record["exchanges"][0]["body"]["value"];
+                    if mode == "empty" {
+                        body["src"] = json!({});
+                    } else {
+                        let timestamp = if mode == "local" {
+                            "2020-05-08T17:33:59.756164"
+                        } else {
+                            "2024-02-30T10:00:00"
+                        };
+                        body["build_date"] = json!(timestamp);
+                        body["src"]["dbnsfp"]["upload_date"] = json!({"synthetic_part":timestamp});
+                    }
+                }
+            },
+            json!({"/result/candidates/0/sections/conservation/state":"data"}),
+            0,
+        )
+        .map_err(|error| error.to_string())?;
+        if mode == "local" {
+            if value.pointer(&format!("{prefix}/aggregator_built"))
+                != Some(&json!("2020-05-08T17:33:59.756164"))
+                || value.pointer(&format!("{prefix}/uploads/0/date"))
+                    != Some(
+                        &json!({"value":"2020-05-08T17:33:59.756164","timezone":"source-gave-none"}),
+                    )
+            {
+                return Err(format!(
+                    "local timestamp precision or timezone changed: {value}"
+                ));
+            }
+        } else {
+            let fields: Vec<_> = value["problems"]
+                .as_array()
+                .into_iter()
+                .flatten()
+                .filter_map(|problem| problem["field"].as_str())
+                .collect();
+            let field = if mode == "empty" {
+                "src.dbnsfp"
+            } else {
+                "build_date"
+            };
+            if !fields.contains(&field)
+                || value
+                    .pointer(&format!("{prefix}/aggregator_built"))
+                    .is_some()
+            {
+                return Err(format!(
+                    "invalid or empty metadata discarded usable component data: {value}"
+                ));
+            }
+        }
+    }
+    Ok(())
+}
+
 pub(super) fn component_walk() -> Result<(), String> {
     let stub = Stub::for_source("myvariant.info", "application/json", component_page_body)?;
     let environment = source_environment(&stub)?;
