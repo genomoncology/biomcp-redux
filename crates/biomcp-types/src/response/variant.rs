@@ -1,4 +1,4 @@
-use crate::{Source, SourceRecord, Text, Variant, VariantGet};
+use crate::{Source, SourceRecord, Text, Variant};
 use serde::{Deserialize, Serialize};
 /// A compact identity card, including every provider candidate and explicit rejection.
 #[derive(Clone, Debug, PartialEq, Serialize, Deserialize)]
