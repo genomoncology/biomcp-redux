@@ -146,7 +146,7 @@ page!(
     DiseaseGenes,
     DiseaseAssociationItem,
     DiseaseGet,
-    "biomcp.disease-genes/7",
+    "biomcp.disease-genes/8",
     "Native association rows, not a unique-gene count.",
     [
         /// Original response retrieval Unix seconds, independent of local delivery.
@@ -158,7 +158,7 @@ page!(
     DiseasePhenotypes,
     DiseaseAssociationItem,
     DiseaseGet,
-    "biomcp.disease-phenotypes/7",
+    "biomcp.disease-phenotypes/8",
     "Native phenotype association rows without diagnostic inference.",
     [
         /// Original response retrieval Unix seconds, independent of local delivery.
