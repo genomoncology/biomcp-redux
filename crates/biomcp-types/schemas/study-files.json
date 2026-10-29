@@ -698,7 +698,10 @@
           "description": "Directory acquisition wall time in Unix seconds.",
           "format": "uint64",
           "minimum": 0,
-          "type": "integer"
+          "type": [
+            "integer",
+            "null"
+          ]
         },
         "items": {
           "description": "Source-ordered repository file references.",
@@ -730,8 +733,7 @@
       },
       "required": [
         "study_id",
-        "page",
-        "acquired"
+        "page"
       ],
       "type": "object"
     },
@@ -813,7 +815,7 @@
       "type": "string"
     }
   },
-  "$id": "biomcp.study-files/1",
+  "$id": "biomcp.study-files/2",
   "$schema": "https://json-schema.org/draft/2020-12/schema",
   "description": "One versioned command response; schema identity comes only from its body type.\nJSON readers ignore unknown fields and unknown growable enum values within a major.",
   "properties": {
@@ -869,7 +871,7 @@
       "description": "Answer when available."
     },
     "schema": {
-      "const": "biomcp.study-files/1",
+      "const": "biomcp.study-files/2",
       "type": "string"
     },
     "sources": {
