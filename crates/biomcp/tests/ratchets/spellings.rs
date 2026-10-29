@@ -68,7 +68,7 @@ pub(super) fn audit(tokens: &[String]) -> Result<(), String> {
     }
     for (index, token) in tokens.iter().enumerate() {
         // Error identifiers keep the approved dotted snake_case convention.
-        if token == "ErrorCode" {
+        if matches!(token.as_str(), "ErrorCode" | "ProblemCode") {
             continue;
         }
         let macro_position = tokens

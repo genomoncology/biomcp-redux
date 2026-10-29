@@ -437,10 +437,12 @@ fn enum_return_types_are_not_macro_declarations() {
 
 #[test]
 fn namespaced_error_codes_are_exempt_by_type() {
-    for literal in ["usage.future_name", "wire_enum.unknown"] {
-        let source = format!("wire_enum! {{ ErrorCode {{ New => {literal:?} }} }}");
-        assert!(super::spellings::audit(&super::source::tokens(&source)).is_ok());
-        let ordinary = source.replace("ErrorCode", "Reason");
-        assert!(super::spellings::audit(&super::source::tokens(&ordinary)).is_err());
+    for name in ["ErrorCode", "ProblemCode"] {
+        for literal in ["usage.future_name", "wire_enum.unknown"] {
+            let source = format!("wire_enum! {{ {name} {{ New => {literal:?} }} }}");
+            assert!(super::spellings::audit(&super::source::tokens(&source)).is_ok());
+            let ordinary = source.replace(name, "Reason");
+            assert!(super::spellings::audit(&super::source::tokens(&ordinary)).is_err());
+        }
     }
 }
