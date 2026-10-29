@@ -11,6 +11,15 @@
       "headers": {
         "Accept-Encoding": "identity"
       }
+    },
+    {
+      "id": "version",
+      "source": "ctgov",
+      "response_format": "bytes",
+      "url": "https://clinicaltrials.gov/api/v2/version",
+      "headers": {
+        "Accept-Encoding": "identity"
+      }
     }
   ]
 }
