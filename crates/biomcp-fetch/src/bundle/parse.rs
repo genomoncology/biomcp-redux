@@ -60,25 +60,16 @@ pub(super) fn tsv<R: Row>(body: &[u8]) -> Result<ParsedRows, BadReply> {
     }
     let mut rows = ParsedRows::default();
     for (index, line) in lines.enumerate() {
-        let values: Vec<_> = line.split('\t').collect();
+        let values = line
+            .split('\t')
+            .map(tsv_cell)
+            .collect::<Result<Vec<_>, _>>()?;
         if values.len() != names.len() {
             rows.reject(index + 2, "wrong number of columns");
             continue;
         }
         let mut object = serde_json::Map::new();
         for (name, value) in names.iter().zip(values) {
-            let value = if value.starts_with('"') || value.ends_with('"') {
-                value
-                    .strip_prefix('"')
-                    .and_then(|v| v.strip_suffix('"'))
-                    .filter(|v| !v.contains('"'))
-                    .ok_or(BadReply)?
-            } else {
-                if value.contains('"') {
-                    return Err(BadReply);
-                }
-                value
-            };
             if !value.is_empty() {
                 object.insert((*name).to_owned(), value.into());
             }
@@ -87,6 +78,20 @@ pub(super) fn tsv<R: Row>(body: &[u8]) -> Result<ParsedRows, BadReply> {
         rows.admit::<R>(value, index + 2);
     }
     Ok(rows)
+}
+
+fn tsv_cell(value: &str) -> Result<&str, BadReply> {
+    if value.starts_with('"') || value.ends_with('"') {
+        value
+            .strip_prefix('"')
+            .and_then(|v| v.strip_suffix('"'))
+            .filter(|v| !v.contains('"'))
+            .ok_or(BadReply)
+    } else if value.contains('"') {
+        Err(BadReply)
+    } else {
+        Ok(value)
+    }
 }
 
 pub(super) fn part_rows<R: Row>(

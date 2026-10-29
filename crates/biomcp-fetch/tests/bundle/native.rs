@@ -134,3 +134,45 @@ fn heterogeneous_native_parts_preserve_empty_quoted_cells_and_reject_decoded_ove
     }
     assert!(server.requests.try_recv().is_err());
 }
+
+#[test]
+fn rejected_native_rows_keep_part_locations_and_valid_siblings() {
+    let server = support::Server::new();
+    let set = native(&server, 1024);
+    let dir = tempfile::tempdir().unwrap();
+    let fetch = cached(&dir.path().join("cache.sqlite"));
+    let body = format!("{BODY}\t\t--- !!!\n{BODY}");
+    // The repeated header is a valid source row for this generic transport fixture.
+    let info = std::thread::scope(|scope| {
+        let call = scope.spawn(|| fetch.sync_set(&set));
+        reply(&server, &gzip(body.as_bytes()));
+        reply(&server, body.as_bytes());
+        call.join().unwrap().unwrap()
+    });
+    assert_eq!(info.rows, 6);
+    assert_eq!(
+        info.rejections,
+        ["compressed", "plain"].map(|part| {
+            biomcp_fetch::BundleRejection {
+                row: 3,
+                reason: format!("{part}: no usable query key"),
+            }
+        })
+    );
+    let leg = fetch.leg(set.spec, fetch.deadline(Duration::from_secs(2)));
+    let (rows, persisted) = leg
+        .stored_set_rows(&set, Find::Exact(KeyKind::Symbol, "BRAF"))
+        .unwrap();
+    assert_eq!(
+        rows.iter()
+            .map(|row| (row.part.as_ref(), row.row))
+            .collect::<Vec<_>>(),
+        [
+            ("compressed", 2),
+            ("compressed", 5),
+            ("plain", 2),
+            ("plain", 5)
+        ]
+    );
+    assert_eq!(persisted.rejections, info.rejections);
+}
