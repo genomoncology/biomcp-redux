@@ -1919,13 +1919,19 @@
           "description": "Native allele count, including reported zero.",
           "format": "uint64",
           "minimum": 0,
-          "type": "integer"
+          "type": [
+            "integer",
+            "null"
+          ]
         },
         "an": {
           "description": "Native allele denominator.",
           "format": "uint64",
           "minimum": 0,
-          "type": "integer"
+          "type": [
+            "integer",
+            "null"
+          ]
         },
         "ancestry_group": {
           "anyOf": [
@@ -1947,7 +1953,10 @@
           "items": {
             "$ref": "#/$defs/Reply_Text"
           },
-          "type": "array"
+          "type": [
+            "array",
+            "null"
+          ]
         },
         "frequency": {
           "anyOf": [
@@ -1984,9 +1993,7 @@
         }
       },
       "required": [
-        "data_type",
-        "ac",
-        "an"
+        "data_type"
       ],
       "type": "object"
     },
@@ -5330,15 +5337,36 @@
       "description": "Metadata for a component carried by an aggregator.",
       "properties": {
         "aggregator_build": {
-          "$ref": "#/$defs/Reply_Text",
+          "anyOf": [
+            {
+              "$ref": "#/$defs/Reply_Text"
+            },
+            {
+              "type": "null"
+            }
+          ],
           "description": "Aggregator build version."
         },
         "aggregator_built": {
-          "$ref": "#/$defs/Reply_Text",
+          "anyOf": [
+            {
+              "$ref": "#/$defs/Reply_Text"
+            },
+            {
+              "type": "null"
+            }
+          ],
           "description": "Aggregator build timestamp, distinct from a component release."
         },
         "license": {
-          "$ref": "#/$defs/Reply_Text",
+          "anyOf": [
+            {
+              "$ref": "#/$defs/Reply_Text"
+            },
+            {
+              "type": "null"
+            }
+          ],
           "description": "Component license URL, without any inferred grant.",
           "format": "uri"
         },
@@ -5393,10 +5421,7 @@
       },
       "required": [
         "terms",
-        "name",
-        "license",
-        "aggregator_build",
-        "aggregator_built"
+        "name"
       ],
       "type": "object"
     },
@@ -6415,7 +6440,7 @@
       "type": "object"
     }
   },
-  "$id": "biomcp.variant-page/13",
+  "$id": "biomcp.variant-page/14",
   "$schema": "https://json-schema.org/draft/2020-12/schema",
   "description": "One versioned command response; schema identity comes only from its body type.\nJSON readers ignore unknown fields and unknown growable enum values within a major.",
   "properties": {
@@ -6471,7 +6496,7 @@
       "description": "Answer when available."
     },
     "schema": {
-      "const": "biomcp.variant-page/13",
+      "const": "biomcp.variant-page/14",
       "type": "string"
     },
     "sources": {
