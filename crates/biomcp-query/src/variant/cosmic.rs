@@ -27,6 +27,11 @@ pub(super) fn section(
     let error = result.as_ref().err().copied();
     *deadline = deadline.after_stage(started.saturating_sub(leg.remaining()));
     let source = status::source(Source::MyVariant, leg.finish(), error);
+    let mut problems = Vec::new();
+    let result = result.map(|mapped| {
+        problems = mapped.problems;
+        mapped.value
+    });
     let section = match result {
         Ok(mut data) if !data.records.is_empty() => {
             data.total = data.records.len() as u64;
@@ -60,7 +65,7 @@ pub(super) fn section(
     (
         section,
         vec![source],
-        Vec::new(),
+        problems,
         error.and_then(status::local),
     )
 }
