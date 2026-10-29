@@ -5,13 +5,19 @@ use libtest_mimic::Trial;
 use serde_json::{Value, json};
 type Check = Result<(), Box<dyn std::error::Error>>;
 
+#[expect(
+    clippy::disallowed_methods,
+    reason = "Select an explicitly staged native capture and previous installed artifact"
+)]
 pub(super) fn trials() -> Vec<Trial> {
-    [
+    let mut trials: Vec<_> = [
         ("europepmc", preprint as fn() -> Check),
         ("litsense", litsense),
         ("pubtator", pubtator),
         ("pmc-oa", pmc),
         ("semantic-scholar", edges),
+        ("jats", jats),
+        ("icite", icite),
     ]
     .into_iter()
     .map(|(name, run)| {
@@ -19,7 +25,26 @@ pub(super) fn trials() -> Vec<Trial> {
             run().map_err(|e| e.to_string().into())
         })
     })
-    .collect()
+    .collect();
+    if let Some(capture) = std::env::var_os("BIOMCP_ORCID_NATIVE_CAPTURE") {
+        let capture = capture.to_string_lossy().into_owned();
+        trials.push(transcript_trial(
+            "literature-values/orcid-native-source",
+            move || {
+                native(
+                    &capture,
+                    &["author", "papers", "orcid:0000-0002-7433-2740"],
+                    "orcid",
+                    "/exchanges/0/body/value/group/0/work-summary/0/source",
+                    "source",
+                    json!({"/result/groups/0/assertions/0/put_code":9370420}),
+                    "/result/groups/0/assertions/0/source",
+                )
+                .map_err(|e| e.to_string().into())
+            },
+        ));
+    }
+    trials
 }
 
 fn native(
@@ -107,8 +132,8 @@ fn pubtator() -> Check {
         "pubtator",
         "/exchanges/0/body/value/PubTator3/0/passages/0/annotations/0/text",
         "text",
-        json!({"/result/items/0/answer/card/pmid":"33123537"}),
-        "/result/items/0/sections/annotations/data/unused",
+        json!({"/result/items/0/answer/card/pmid":"33123537", "/result/items/0/sections/annotations/data/items/*/name": {"includes":"AKT1"}}),
+        "/result/items/0/sections/annotations/data/items/0/text",
     )
 }
 fn pmc() -> Check {
@@ -137,5 +162,55 @@ fn edges() -> Check {
         "influential",
         json!({"/result/items/0/pmid":"32597970"}),
         "/result/items/0/influential",
+    )
+}
+
+fn jats() -> Check {
+    let capture = "article/fulltext/live-introduction";
+    let args = ["get", "article", "28944238", "fulltext"];
+    let expect = json!({"/result/items/0/sections/fulltext/data/parts/0/title":"Introduction"});
+    checked_case(capture, &args, |_, _| {}, expect.clone(), 0)?;
+    let mut edits = 0;
+    let value = checked_case(
+        capture,
+        &args,
+        |source, recording| {
+            if source != "pmc-oa" {
+                return;
+            }
+            if let Some(body) = recording.pointer_mut("/exchanges/0/body/value")
+                && let Some(xml) = body.as_str()
+                && let Some(start) = xml.find("<pub-id pub-id-type=\"doi\">")
+            {
+                let from = start + "<pub-id pub-id-type=\"doi\">".len();
+                if let Some(end) = xml[from..].find("</pub-id>") {
+                    let mut changed = xml.to_owned();
+                    changed.replace_range(from..from + end, "bad-doi");
+                    *body = changed.into();
+                    edits += 1;
+                }
+            }
+        },
+        expect,
+        0,
+    )?;
+    if edits != 1
+        || value["problems"]
+            .as_array()
+            .is_none_or(|ps| ps.iter().filter(|p| p["field"] == "references.doi").count() != 1)
+    {
+        return Err(format!("JATS reference edit lost document or problem: {value}").into());
+    }
+    Ok(())
+}
+fn icite() -> Check {
+    native(
+        "article/annotations/live",
+        &["get", "article", "33123537", "citations"],
+        "icite",
+        "/exchanges/0/body/value/data/0/rcr",
+        "rcr",
+        json!({"/result/items/0/answer/card/pmid":"33123537"}),
+        "/result/items/0/sections/citations/data/rcr",
     )
 }
