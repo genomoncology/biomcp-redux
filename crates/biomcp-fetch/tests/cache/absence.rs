@@ -78,8 +78,11 @@ pub(super) fn legacy_json_absence_removes_a_positive() {
 
 fn replay_case(directory: &Path, case: biomcp_fetch::ReplayCache) -> Fetch {
     Fetch::open(FetchConfig {
-        mode: Mode::Replay { dir: directory.into() },
+        mode: Mode::Replay {
+            dir: directory.into(),
+        },
         replay_cache: Some(case),
         ..Default::default()
-    }).unwrap()
+    })
+    .unwrap()
 }
