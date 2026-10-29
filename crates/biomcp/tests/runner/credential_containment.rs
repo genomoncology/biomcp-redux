@@ -119,7 +119,7 @@ fn invoke(env: &Environment, mut args: Vec<String>, bad: bool) -> Result<Value, 
     }
     let out: Value =
         serde_json::from_slice(&output.stdout).map_err(|_| "invalid containment output")?;
-    if bad && out.pointer("/sources/0/reason") != Some(&json!("bad_reply")) {
+    if bad && out.pointer("/sources/0/reason") != Some(&json!("bad-reply")) {
         return Err("contamination was not a sanitized bad_reply".into());
     }
     if !bad && out.pointer("/result/items").is_some() {

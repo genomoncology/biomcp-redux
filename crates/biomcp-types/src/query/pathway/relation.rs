@@ -2,7 +2,7 @@ use super::{PathwayId, QueryInvalid, Text, default_limit, native_id, reactome, v
 use serde::{Deserialize, Serialize};
 /// Explicit full physical-context disclosure; omission keeps membership compact.
 #[derive(Clone, Copy, Debug, PartialEq, Eq, Serialize, Deserialize)]
-#[serde(rename_all = "snake_case")]
+#[serde(rename_all = "kebab-case")]
 #[cfg_attr(feature = "schema", derive(schemars::JsonSchema))]
 enum Details {
     Details,

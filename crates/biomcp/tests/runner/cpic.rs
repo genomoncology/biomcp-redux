@@ -422,7 +422,7 @@ fn timeout() -> Check {
     let mut replay = vec!["--replay".into(), record.to_string_lossy().into()];
     replay.extend(args);
     let value = both(&replay_env, replay, 4)?;
-    if value.pointer("/sources/0/reason") != Some(&json!("deadline_exceeded"))
+    if value.pointer("/sources/0/reason") != Some(&json!("deadline-exceeded"))
         || value.get("result").is_some_and(|v| !v.is_null())
     {
         return Err(format!("timeout became success: {value}"));

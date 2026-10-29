@@ -27,7 +27,7 @@ fn run() -> Result<(), String> {
     for id in ["rs113488022", "CA123643"] {
         let args = args(id)?;
         let skipped = oncokb::invoke(&env, &args, 0)?;
-        if skipped.pointer(&format!("{SECTION}/reason")) != Some(&json!("no_key")) {
+        if skipped.pointer(&format!("{SECTION}/reason")) != Some(&json!("no-key")) {
             return Err("ID did not stop before resolution without a key".into());
         }
         let mcp = super::mcp::call_with_globals(&env, &args, false, &[])?;

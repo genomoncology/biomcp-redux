@@ -190,7 +190,7 @@ pub(super) fn failures() -> Result<(), String> {
             return Err(format!("later {fault} became a threshold answer: {second}"));
         }
         if ["duplicate", "order", "page"].contains(&fault)
-            && second.pointer("/sources/0/reason") != Some(&json!("bad_reply"))
+            && second.pointer("/sources/0/reason") != Some(&json!("bad-reply"))
         {
             return Err(format!("wrong {fault} reason: {second}"));
         }

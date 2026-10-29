@@ -24,7 +24,7 @@
       "offline": false,
       "expect": {
         "/sources/0/source": "nci",
-        "/sources/0/reason": "no_key"
+        "/sources/0/reason": "no-key"
       },
       "max_bytes": 900,
       "is_error": true

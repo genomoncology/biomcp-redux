@@ -96,7 +96,7 @@ def classification_case(change):
     if change in ('429-output', '429-schema', '429-other-error', '500-output'):
         witness[0]['baseline']['output'] = {'status': 'complete'}
         witness[0]['live']['output'] = {'status': 'failed', 'sources': [
-            {'source': 'pubmed', 'state': 'failed', 'reason': 'rate_limited'}]}
+            {'source': 'pubmed', 'state': 'failed', 'reason': 'rate-limited'}]}
         if change == '429-other-error':
             witness[0]['live']['output']['sources'].append(
                 {'source': 'icite', 'state': 'failed', 'reason': 'bad_reply'})

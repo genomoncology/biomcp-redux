@@ -14,7 +14,7 @@
       ],
       "expect": {
         "/status": "failed",
-        "/sources/1/reason": "rate_limited"
+        "/sources/1/reason": "rate-limited"
       },
       "exit": 4
     },
@@ -29,7 +29,7 @@
         "/status": "partial",
         "/result/items/0/answer/card/pmid": "33123537",
         "/result/items/0/sections/citations/state": "unavailable",
-        "/result/items/0/sections/citations/reason": "rate_limited"
+        "/result/items/0/sections/citations/reason": "rate-limited"
       }
     },
     {

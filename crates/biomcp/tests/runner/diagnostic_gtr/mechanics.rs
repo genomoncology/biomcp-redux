@@ -80,7 +80,7 @@ pub(super) fn replacement() -> Check {
         }
         let failed = call(&env, &replay, &["sync", "gtr"], 4)?;
         if fault == "wrong-version-member"
-            && failed.pointer("/sources/0/reason") != Some(&json!("bad_reply"))
+            && failed.pointer("/sources/0/reason") != Some(&json!("bad-reply"))
         {
             return Err(format!("wrong native member was not rejected: {failed}"));
         }

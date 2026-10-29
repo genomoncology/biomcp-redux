@@ -15,7 +15,7 @@
         "/status": "partial",
         "/result/items/0/answer/card/pmid": "33123537",
         "/result/items/0/sections/annotations/state": "unavailable",
-        "/result/items/0/sections/annotations/reason": "deadline_exceeded",
+        "/result/items/0/sections/annotations/reason": "deadline-exceeded",
         "/next/0/kind": "fresh"
       },
       "max_bytes": 3400

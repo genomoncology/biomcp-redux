@@ -103,7 +103,7 @@ fn check_reply(
                 .find(|r| r.get("source").and_then(Value::as_str) == Some("hgnc"))
         })
         .ok_or("missing HGNC")?;
-    if hgnc.get("bundle_size").and_then(Value::as_str) != Some("shared_storage")
+    if hgnc.get("bundle_size").and_then(Value::as_str) != Some("shared-storage")
         || hgnc.get("bundle").and_then(Value::as_str) != Some("missing")
     {
         return Err(format!(

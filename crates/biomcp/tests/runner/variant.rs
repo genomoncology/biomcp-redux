@@ -344,7 +344,7 @@ fn components() -> Result<(), String> {
     }
     if value.pointer(&format!(
         "{base}/conservation/data/components/0/uploads/0/date"
-    )) != Some(&json!({"value":"2020-01-01T00:00:00.123456Z", "timezone":"in_value"}))
+    )) != Some(&json!({"value":"2020-01-01T00:00:00.123456Z", "timezone":"in-value"}))
     {
         return Err(format!(
             "component upload timestamp lost its precision or timezone: {value}"
@@ -566,7 +566,7 @@ fn malformed_score() -> Result<(), String> {
             "GRCh37",
         ],
     )?;
-    if value.pointer("/result/candidates/0/sections/predict/reason") != Some(&json!("bad_reply"))
+    if value.pointer("/result/candidates/0/sections/predict/reason") != Some(&json!("bad-reply"))
         || value.pointer("/problems/0/field") != Some(&json!("cadd.phred"))
         || requests.len() != 2
     {

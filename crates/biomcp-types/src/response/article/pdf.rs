@@ -49,6 +49,6 @@ pub struct ArticlePdfResult {
     pub file: crate::Section<PdfSaved>,
 }
 impl super::super::ResponseBody for ArticlePdfResult {
-    const SCHEMA: &'static str = "biomcp.article-pdf/3";
+    const SCHEMA: &'static str = "biomcp.article-pdf/4";
     type Query = crate::ArticlePdf;
 }

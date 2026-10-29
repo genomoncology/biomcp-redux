@@ -12,7 +12,7 @@
       ],
       "expect": {
         "/status": "absent",
-        "/result/items/0/answer/resolution": "not_found",
+        "/result/items/0/answer/resolution": "not-found",
         "/sources/*/source": {
           "equals": [
             "hgnc"

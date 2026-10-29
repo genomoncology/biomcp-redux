@@ -82,7 +82,7 @@ biodata::wire_enum! {
         /// No single genomic description on that build, or a compound profile.
         Variant => "variant",
         /// No source claim tumor label.
-        TumorType => "tumor_type",
+        TumorType => "tumor-type",
     }
 }
 

@@ -30,7 +30,7 @@ pub(super) fn run() -> Check {
         let env = environment(&stub)?;
         for _ in 0..2 {
             let value = both(&env, words("MMR"), 4)?;
-            if value.pointer("/sources/0/reason") != Some(&json!("bad_reply"))
+            if value.pointer("/sources/0/reason") != Some(&json!("bad-reply"))
                 || value.get("result").is_some()
             {
                 return Err(format!("invalid native {fault} became an answer"));

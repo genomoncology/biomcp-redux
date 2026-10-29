@@ -489,7 +489,7 @@ fn stalled_cursor() -> Result<(), String> {
                 cursor,
             ],
         )?;
-        if value.pointer("/result/candidates/0/sections/civic/reason") != Some(&json!("bad_reply"))
+        if value.pointer("/result/candidates/0/sections/civic/reason") != Some(&json!("bad-reply"))
         {
             return Err(format!(
                 "nonprogressing native stream emitted evidence or a repeating action: {value}"

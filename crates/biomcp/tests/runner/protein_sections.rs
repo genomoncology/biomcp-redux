@@ -72,7 +72,7 @@ fn failures() -> Result<(), String> {
         ("rate-limit", "rate_limit"),
         ("server-error", "server"),
         ("timeout", "deadline"),
-        ("broken-body", "bad_reply"),
+        ("broken-body", "bad-reply"),
     ] {
         let replay = super::launch::fixtures()
             .join("replies/protein")

@@ -13,7 +13,7 @@
       ],
       "expect": {
         "/status": "failed",
-        "/sources/0/reason": "bad_reply"
+        "/sources/0/reason": "bad-reply"
       },
       "exit": 4
     },

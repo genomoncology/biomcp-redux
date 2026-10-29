@@ -360,7 +360,7 @@ fn report_context(observed: &[Observation]) -> Result<(), Box<dyn std::error::Er
     let evidence = live::command_report(
         3,
         &json!({"status": "found"}),
-        &json!({"status": "not_found"}),
+        &json!({"status": "not-found"}),
         observed,
         observed,
         &mut changes,
@@ -368,7 +368,7 @@ fn report_context(observed: &[Observation]) -> Result<(), Box<dyn std::error::Er
     );
     if evidence.get("ordinal") != Some(&json!(3))
         || evidence.get("before_status") != Some(&json!("found"))
-        || evidence.get("after_status") != Some(&json!("not_found"))
+        || evidence.get("after_status") != Some(&json!("not-found"))
         || evidence
             .pointer("/exchanges/items/0/role")
             .and_then(Value::as_str)

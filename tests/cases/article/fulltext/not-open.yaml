@@ -13,7 +13,7 @@
       ],
       "expect": {
         "/result/items/0/sections/fulltext/state": "unavailable",
-        "/result/items/0/sections/fulltext/reason": "not_open"
+        "/result/items/0/sections/fulltext/reason": "not-open"
       }
     },
     {
@@ -26,7 +26,7 @@
       ],
       "expect": {
         "/result/content/state": "unavailable",
-        "/result/content/reason": "not_open"
+        "/result/content/reason": "not-open"
       }
     }
   ]

@@ -375,7 +375,7 @@ fn timeout() -> Result<(), String> {
     args.extend(["--replay", directory.to_str().ok_or("record path")?]);
     let result = invoke("mod/timeout/invoke1", &env, &args, 4)?;
     if result.get("status") != Some(&json!("failed"))
-        || result.pointer("/sources/0/reason") != Some(&json!("deadline_exceeded"))
+        || result.pointer("/sources/0/reason") != Some(&json!("deadline-exceeded"))
         || result.pointer("/sources/0/terms") != Some(&json!("Monarch source-specific licensing"))
     {
         return Err("timeout lost source failure or terms".into());

@@ -124,7 +124,7 @@ pub(super) fn drug_status() -> Result<(), String> {
         configure(&env, &stub)?;
         let result = run(&env, &["get", "drug", "5", "civic", "--source", "civic"])?;
         if matches!(status, "SUBMITTED" | "REJECTED") {
-            if result.pointer("/sources/0/reason") != Some(&json!("bad_reply"))
+            if result.pointer("/sources/0/reason") != Some(&json!("bad-reply"))
                 || result.get("result").is_some()
             {
                 return Err(format!(

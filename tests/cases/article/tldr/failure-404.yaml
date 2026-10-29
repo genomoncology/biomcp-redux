@@ -13,7 +13,7 @@
       "expect": {
         "/status": "partial",
         "/result/items/0/answer/card/pmid": "33123537",
-        "/result/items/0/sections/tldr/reason": "not_found"
+        "/result/items/0/sections/tldr/reason": "not-found"
       },
       "exit": 0
     },
@@ -27,7 +27,7 @@
       "offline": true,
       "expect": {
         "/status": "partial",
-        "/result/items/0/sections/tldr/reason": "not_found"
+        "/result/items/0/sections/tldr/reason": "not-found"
       },
       "exit": 0
     }

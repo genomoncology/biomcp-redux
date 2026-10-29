@@ -6,9 +6,9 @@ biodata::wire_enum! {
         /// Native not-a-number value.
         Nan => "nan",
         /// Native positive infinity.
-        PositiveInfinity => "positive_infinity",
+        PositiveInfinity => "positive-infinity",
         /// Native negative infinity.
-        NegativeInfinity => "negative_infinity",
+        NegativeInfinity => "negative-infinity",
     }
 }
 /// One native scalar; finite values remain JSON numbers and nonfinite values stay explicit.

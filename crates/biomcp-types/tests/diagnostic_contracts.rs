@@ -437,7 +437,7 @@ fn all_eight_consumer_schemas_accept_their_source_owned_views() {
     let get = json!({"source":"gtr","id":"GTR000006692.3"});
     envelope::<DiagnosticPage>(search, json!({"items":[]}));
     let mut card = who();
-    card["kind"] = json!("who_ivd_product");
+    card["kind"] = json!("who-ivd-product");
     envelope::<DiagnosticCard>(json!({"source":"who-ivd","id":"0466-046-00"}), card);
     envelope::<DiagnosticGenes>(get.clone(), json!({"items":[gene()]}));
     envelope::<DiagnosticConditions>(get.clone(), json!({"items":[condition()]}));

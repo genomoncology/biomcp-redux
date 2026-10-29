@@ -13,7 +13,7 @@
       ],
       "expect": {
         "/status": "failed",
-        "/sources/0/reason": "not_found"
+        "/sources/0/reason": "not-found"
       },
       "exit": 4
     },
@@ -28,7 +28,7 @@
       "offline": true,
       "expect": {
         "/status": "failed",
-        "/sources/0/reason": "not_found"
+        "/sources/0/reason": "not-found"
       },
       "exit": 4
     }

@@ -116,11 +116,11 @@ biodata::wire_enum! {
     /// The scorer explicitly requested at this ordinal; not a native response label.
     AlphaGenomeScorer {
         /// Gene-mask log fold change requested on RNA_SEQ.
-        GeneMaskLfcRnaSeq => "gene_mask_lfc_rna_seq",
+        GeneMaskLfcRnaSeq => "gene-mask-lfc-rna-seq",
         /// Gene-mask splicing requested on SPLICE_SITES, with width absent.
-        GeneMaskSplicingSpliceSites => "gene_mask_splicing_splice_sites",
+        GeneMaskSplicingSpliceSites => "gene-mask-splicing-splice-sites",
         /// Center-mask DIFF_MEAN requested on DNASE, width 501.
-        CenterMaskDiffMeanDnase501 => "center_mask_diff_mean_dnase_501",
+        CenterMaskDiffMeanDnase501 => "center-mask-diff-mean-dnase-501",
     }
 }
 biodata::wire_enum! {

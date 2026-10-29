@@ -20,7 +20,7 @@
       "expect": {
         "/status": "partial",
         "/result/candidates/0/sections/gwas/state": "unavailable",
-        "/result/candidates/0/sections/gwas/reason": "no_join_id",
+        "/result/candidates/0/sections/gwas/reason": "no-join-id",
         "/problems/0/field": "rs_id",
         "/sources/*/source": {
           "includes": "car",

@@ -83,7 +83,7 @@ fn run(kind: &'static str) -> Result<(), String> {
 }
 fn rejected(value: &Value, kind: &str) -> Result<(), String> {
     if value.get("status") != Some(&json!("failed"))
-        || value.pointer("/sources/0/reason") != Some(&json!("bad_reply"))
+        || value.pointer("/sources/0/reason") != Some(&json!("bad-reply"))
         || value
             .get("problems")
             .and_then(Value::as_array)

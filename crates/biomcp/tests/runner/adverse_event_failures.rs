@@ -110,10 +110,10 @@ fn assert_failed(source: &str, fault: &str, value: &Value) -> Check {
         })
         .ok_or("source outcome")?;
     let reason = match fault {
-        "429" => "rate_limited",
+        "429" => "rate-limited",
         "500" => "unavailable",
-        "timeout" => "deadline_exceeded",
-        _ => "bad_reply",
+        "timeout" => "deadline-exceeded",
+        _ => "bad-reply",
     };
     if value.get("status") != Some(&json!("failed"))
         || value.get("result").is_some()

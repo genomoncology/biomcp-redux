@@ -22,7 +22,7 @@
       "expect": {
         "/status": "partial",
         "/page/total": 6,
-        "/result/items/0/key/namespace": "semantic_scholar",
+        "/result/items/0/key/namespace": "semantic-scholar",
         "/result/items/0/header/date": "2020",
         "/result/items/0/header/author_count": 0,
         "/result/items/1/header/date": "2021-03-04",
@@ -33,7 +33,7 @@
         "/result/items/3": {
           "equals": {
             "key": {
-              "namespace": "semantic_scholar",
+              "namespace": "semantic-scholar",
               "id": "4444444444444444444444444444444444444444"
             }
           }

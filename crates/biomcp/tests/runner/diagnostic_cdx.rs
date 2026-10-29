@@ -188,7 +188,7 @@ fn replacement() -> Check {
                 fs::write(path, value.to_string()).map_err(|e| e.to_string())?;
             }
             let failed = call(&env, &replay, &["sync", "fda-cdx"], 4)?;
-            if failed.pointer("/sources/0/reason") != Some(&json!("bad_reply")) {
+            if failed.pointer("/sources/0/reason") != Some(&json!("bad-reply")) {
                 return Err(format!("{header}/{fault} accepted: {failed}"));
             }
             if call(&env, &replay, &args, 0)? != before {
@@ -511,7 +511,7 @@ fn entities() -> Check {
     );
     fs::write(entry.path(), value.to_string()).map_err(|e| e.to_string())?;
     let failed = call(&env, &replay, &["sync", "fda-cdx"], 4)?;
-    if failed.pointer("/sources/0/reason") != Some(&json!("bad_reply"))
+    if failed.pointer("/sources/0/reason") != Some(&json!("bad-reply"))
         || call(&env, &replay, &args, 0)? != before
     {
         return Err(format!(

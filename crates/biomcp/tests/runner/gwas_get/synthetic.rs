@@ -22,7 +22,7 @@ pub(super) fn identity() -> Result<(), String> {
         let replay = seed(&env, &args, value.to_string(), 200, 0)?;
         let failed = call("gwas_get/synthetic/identity/1", &env, &replay, &args, 4)?;
         if failed.get("result").is_some()
-            || failed.pointer("/sources/0/reason") != Some(&json!("bad_reply"))
+            || failed.pointer("/sources/0/reason") != Some(&json!("bad-reply"))
             || failed
                 .get("problems")
                 .and_then(Value::as_array)

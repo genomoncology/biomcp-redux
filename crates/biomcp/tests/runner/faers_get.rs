@@ -250,7 +250,7 @@ fn identity(mode: &str) -> Check {
         }
     } else if mode != "bad-drug-index"
         && (value.get("result").is_some()
-            || value.pointer("/sources/0/reason") != Some(&json!("bad_reply")))
+            || value.pointer("/sources/0/reason") != Some(&json!("bad-reply")))
     {
         return Err(format!("identity admitted: {value}"));
     }

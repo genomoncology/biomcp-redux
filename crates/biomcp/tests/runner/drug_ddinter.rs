@@ -149,7 +149,7 @@ fn corrupted(
             .ok_or("missing synthetic body")? = format!("{header}{row}").into();
         fs::write(path, bad.to_string()).map_err(|e| e.to_string())?;
         let failed = call(env, replay, &["sync", "ddinter"], 4)?;
-        if failed.pointer("/sources/0/reason") != Some(&json!("bad_reply"))
+        if failed.pointer("/sources/0/reason") != Some(&json!("bad-reply"))
             || call(env, replay, args, 0)? != *before
         {
             return Err(format!(

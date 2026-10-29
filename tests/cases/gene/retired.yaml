@@ -509,7 +509,7 @@
         "/query/input": [
           "--go"
         ],
-        "/result/items/0/answer/resolution": "not_found"
+        "/result/items/0/answer/resolution": "not-found"
       },
       "exit": 1,
       "mcp": [
@@ -529,7 +529,7 @@
         "/query/input": [
           "go"
         ],
-        "/result/items/0/answer/resolution": "not_found"
+        "/result/items/0/answer/resolution": "not-found"
       },
       "exit": 1,
       "mcp": [
@@ -556,8 +556,8 @@
           "all"
         ],
         "/result/items/*/answer/resolution": [
-          "not_found",
-          "not_found"
+          "not-found",
+          "not-found"
         ]
       },
       "exit": 1,

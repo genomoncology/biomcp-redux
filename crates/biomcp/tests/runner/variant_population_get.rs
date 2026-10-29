@@ -127,7 +127,7 @@ fn recovery() -> Result<(), String> {
     let env = environment(&stub)?;
     let output = execute(&env, &["get", "variant", "rs113488022", "population"])?;
     if output.pointer("/result/candidates/0/sections/population/reason")
-        != Some(&json!("no_join_id"))
+        != Some(&json!("no-join-id"))
         || !output
             .get("problems")
             .and_then(Value::as_array)

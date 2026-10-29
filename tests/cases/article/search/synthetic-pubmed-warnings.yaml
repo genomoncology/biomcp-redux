@@ -20,7 +20,7 @@
           "--source",
           "pubmed"
         ],
-        "/sources/0/notices/2/kind": "pubmed_warning",
+        "/sources/0/notices/2/kind": "pubmed-warning",
         "/sources/0/notices/2/name": "quotedphrasesnotfound",
         "/sources/0/notices/2/phrases": [
           "\"ERCC2 Ala717Gly\""
@@ -89,7 +89,7 @@
           "--source",
           "pubmed"
         ],
-        "/sources/0/notices/2/kind": "pubmed_warning",
+        "/sources/0/notices/2/kind": "pubmed-warning",
         "/sources/0/notices/2/name": "quotedphrasesnotfound",
         "/sources/0/notices/2/phrases": [
           "\"GATA2 Thr176Pro\""
@@ -123,7 +123,7 @@
           "--source",
           "pubmed"
         ],
-        "/sources/0/notices/2/kind": "pubmed_warning",
+        "/sources/0/notices/2/kind": "pubmed-warning",
         "/sources/0/notices/2/name": "quotedphrasesnotfound",
         "/sources/0/notices/2/phrases": [
           "\"POT1 Gly404Val\""
@@ -157,7 +157,7 @@
           "--source",
           "pubmed"
         ],
-        "/sources/0/notices/2/kind": "pubmed_warning",
+        "/sources/0/notices/2/kind": "pubmed-warning",
         "/sources/0/notices/2/name": "quotedphrasesnotfound",
         "/sources/0/notices/2/phrases": [
           "\"GALC Thr109Ala\""
@@ -191,7 +191,7 @@
           "--source",
           "pubmed"
         ],
-        "/sources/0/notices/2/kind": "pubmed_warning",
+        "/sources/0/notices/2/kind": "pubmed-warning",
         "/sources/0/notices/2/name": "quotedphrasesnotfound",
         "/sources/0/notices/2/phrases": [
           "\"ACD Pro457=\""

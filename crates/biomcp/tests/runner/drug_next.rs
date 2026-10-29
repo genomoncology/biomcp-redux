@@ -164,7 +164,7 @@ fn verify(n: usize, value: &Value) -> Result<(), String> {
             1 | 2 | 7 => "variant",
             3 | 6 => "build",
             4 => "gene",
-            5 => "tumor_type",
+            5 => "tumor-type",
             _ => return Err("case".into()),
         };
         if !value
@@ -193,7 +193,7 @@ fn follow(env: &Environment, value: &Value, config: &mut Value) -> Result<(), St
         .map(|v| v.as_str().map(str::to_owned).ok_or("arg".into()))
         .collect::<Result<Vec<_>, String>>()?;
     let missing = invoke(env, args.clone(), 0)?;
-    if missing.pointer(&format!("{ROOT}/reason")) != Some(&json!("no_key")) {
+    if missing.pointer(&format!("{ROOT}/reason")) != Some(&json!("no-key")) {
         return Err("missing key did not stop".into());
     }
     let mcp_missing = super::mcp::call_with_globals(env, &args, false, &[])?;

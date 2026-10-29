@@ -46,7 +46,7 @@ pub(super) fn admission() -> Result<(), String> {
             &args,
             4,
         )?;
-        if failed.pointer("/sources/0/reason") != Some(&json!("bad_reply"))
+        if failed.pointer("/sources/0/reason") != Some(&json!("bad-reply"))
             || failed.get("result").is_some()
             || failed
                 .get("problems")

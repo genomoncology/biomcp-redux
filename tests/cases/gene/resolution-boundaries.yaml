@@ -20,7 +20,7 @@ steps:
   - run: [get, gene, "999999999", "ENSG99999999999"]
     exit: 1
     expect:
-      /result/items/*/answer/resolution: [not_found, not_found]
+      /result/items/*/answer/resolution: [not-found, not-found]
   - run: [get, gene, AK6, FALEC]
     offline: true
     expect:

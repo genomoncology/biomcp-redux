@@ -43,7 +43,7 @@
       ],
       "expect": {
         "/status": "partial",
-        "/result/gene_resolution/resolution": "not_found",
+        "/result/gene_resolution/resolution": "not-found",
         "/sources/*/source": {
           "equals": [
             "hgnc"

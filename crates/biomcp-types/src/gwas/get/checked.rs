@@ -4,7 +4,7 @@ use crate::{QueryInvalid, Text};
 use serde::{Deserialize, Deserializer};
 
 #[derive(Deserialize)]
-#[serde(rename_all = "snake_case")]
+#[serde(rename_all = "kebab-case")]
 enum Kind {
     Association,
     Study,

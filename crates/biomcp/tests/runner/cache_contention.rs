@@ -65,7 +65,7 @@ fn checked_gene() -> Result<(), String> {
         .find(|s| s.get("source") == Some(&json!("mygene")))
         .ok_or("mygene outcome missing")?;
     if mygene.get("state") != Some(&json!("ok"))
-        || mygene.pointer("/notices/0/kind") != Some(&json!("cache_problem"))
+        || mygene.pointer("/notices/0/kind") != Some(&json!("cache-problem"))
     {
         return Err(format!("checked source lost its cache problem: {answer}"));
     }
@@ -127,7 +127,7 @@ fn checked_protein() -> Result<(), String> {
     if answer.get("result") != initial.get("result")
         || answer.get("status") != Some(&json!("complete"))
         || answer.pointer("/sources/0/state") != Some(&json!("ok"))
-        || answer.pointer("/sources/0/notices/0/kind") != Some(&json!("cache_problem"))
+        || answer.pointer("/sources/0/notices/0/kind") != Some(&json!("cache-problem"))
         || answer.pointer("/sources/0/notices/0/reason") != Some(&json!("busy"))
     {
         return Err(format!(

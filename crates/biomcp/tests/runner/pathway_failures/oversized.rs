@@ -27,7 +27,7 @@ pub(super) fn run() -> Check {
             4,
         )
         .map_err(|e| format!("oversized {route}: {e}"))?;
-        failed(&value, "bad_reply").map_err(|e| format!("oversized {route}: {e}"))?;
+        failed(&value, "bad-reply").map_err(|e| format!("oversized {route}: {e}"))?;
         let requests = stub.finish()?;
         if !requests.iter().any(|(_, request)| request.contains(route)) {
             return Err(format!("oversized case never reached {route}"));

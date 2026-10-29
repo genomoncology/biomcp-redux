@@ -14,7 +14,7 @@ pub struct StoreClean {
     pub files: u64,
 }
 impl super::ResponseBody for StoreClean {
-    const SCHEMA: &'static str = "biomcp.store-clean/2";
+    const SCHEMA: &'static str = "biomcp.store-clean/3";
     type Query = super::EmptyQuery;
 }
 
@@ -35,6 +35,6 @@ biodata::wire_enum! {
     /// Why physical bytes cannot be attributed to one local bundle.
     BundleSize {
         /// Bundles share database pages, indexes and journal files with other stored state.
-        SharedStorage => "shared_storage",
+        SharedStorage => "shared-storage",
     }
 }

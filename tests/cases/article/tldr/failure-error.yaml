@@ -13,7 +13,7 @@
       "expect": {
         "/status": "partial",
         "/result/items/0/answer/card/pmid": "33123537",
-        "/result/items/0/sections/tldr/reason": "bad_reply"
+        "/result/items/0/sections/tldr/reason": "bad-reply"
       },
       "exit": 0
     },

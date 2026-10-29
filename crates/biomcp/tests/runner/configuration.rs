@@ -213,7 +213,7 @@ fn ownership() -> Check {
         cached(&["sync", "hgnc"], &sync_case, Some(&root())),
         0,
     )?;
-    if value.get("schema") != Some(&json!("biomcp.sync/5"))
+    if value.get("schema") != Some(&json!("biomcp.sync/6"))
         || value.pointer("/result/rows") != Some(&json!(176))
         || value.pointer("/query/source") != Some(&json!("hgnc"))
     {

@@ -14,7 +14,7 @@
         "/status": "partial",
         "/result/items/0/answer/gene/hgnc_id": "HGNC:1097",
         "/sources/1/state": "failed",
-        "/sources/1/reason": "rate_limited",
+        "/sources/1/reason": "rate-limited",
         "/next/0/kind": "fresh",
         "/next/0/args": [
           "get",

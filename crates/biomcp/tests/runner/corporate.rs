@@ -306,8 +306,8 @@ fn skipped_bypass() -> Result<(), String> {
     let value = health(rules)?;
     if value.pointer("/result/configuration")
         != Some(&json!({"notices":[
-        {"variable":"NO_PROXY", "entry":2, "code":"unparseable_entry"},
-        {"variable":"NO_PROXY", "entry":4, "code":"unparseable_entry"}], "omitted_entries":0}))
+        {"variable":"NO_PROXY", "entry":2, "code":"unparseable-entry"},
+        {"variable":"NO_PROXY", "entry":4, "code":"unparseable-entry"}], "omitted_entries":0}))
         || value.to_string().contains("synthetic-private")
     {
         return Err(format!("missing bounded notice: {value}"));

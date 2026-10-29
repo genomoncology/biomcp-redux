@@ -16,7 +16,7 @@
       ],
       "expect": {
         "/status": "complete",
-        "/result/items/0/answer/match/kind": "europepmc_id",
+        "/result/items/0/answer/match/kind": "europepmc-id",
         "/result/items/0/answer/card": {
           "equals_file": "card-facts.json"
         }

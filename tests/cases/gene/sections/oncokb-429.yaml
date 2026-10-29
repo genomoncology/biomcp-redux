@@ -20,7 +20,7 @@
         "/result/items/0/answer/gene/symbol": "TP53",
         "/status": "partial",
         "/result/items/0/sections/oncokb/state": "unavailable",
-        "/result/items/0/sections/oncokb/reason": "rate_limited"
+        "/result/items/0/sections/oncokb/reason": "rate-limited"
       },
       "exit": 0,
       "max_bytes": 5000
