@@ -1,5 +1,5 @@
 use crate::native_text::NativeText;
-use biodata::{Doi, PartialDate, Pmcid, Pmid, SemanticScholarId, Text};
+use biodata::{Doi, PartialDate, Pmcid, Pmid, SemanticScholarId};
 
 use biomcp_fetch::{Arg, BadReply, Endpoint, Freshness, Leg, Reply, RequestError};
 use biomcp_types::ArticleHeader;

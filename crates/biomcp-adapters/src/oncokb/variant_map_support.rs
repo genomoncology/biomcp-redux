@@ -25,4 +25,3 @@ pub(super) fn abstracts(rows: &[super::variant::Abstract]) -> Box<[biomcp_types:
         })
         .collect()
 }
-

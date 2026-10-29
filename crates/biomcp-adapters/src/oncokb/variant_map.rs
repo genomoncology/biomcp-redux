@@ -1,7 +1,6 @@
 //! Only the reviewed source label and subject mappings occur here.
 #[path = "variant_map_support.rs"]
 mod support;
-use support::{abstracts, prose_texts};
 use super::narrative::push as narrative;
 use super::variant::{Annotation, Query, TumorType};
 use crate::Mapped;
@@ -11,6 +10,7 @@ use biodata::{
     Term, Text, VariantRef,
 };
 use biomcp_types::{OncokbVariantRecord as Record, Problem, Source};
+use support::{abstracts, prose_texts};
 /// Project native fields without attaching grouped implications to the queried allele.
 pub fn records(row: &Annotation) -> Mapped<Vec<Record>> {
     let mut out = Mapped {
