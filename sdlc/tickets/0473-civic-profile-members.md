@@ -1,6 +1,7 @@
 # 0473 — Carry CIViC molecular profiles with source-native members and expressions
 
-Status: OPEN.
+Status: COMPLETE.
+Landed: f8699f19a556fa39b724f013ad3cfbe4bb1ccba0
 
 Milestone: 5
 

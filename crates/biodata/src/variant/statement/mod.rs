@@ -5,6 +5,8 @@ mod clinvar;
 pub use clinvar::{ClinvarAlleleOriginCode, ClinvarReviewStatusCode};
 mod coding;
 pub use coding::*;
+mod profile;
+pub use profile::{ProfileExpression, ProfileNode};
 mod reference;
 pub use reference::{Curie, VariantRef};
 /// One source claim, kept in its own framework and context.
