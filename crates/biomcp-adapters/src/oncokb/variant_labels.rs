@@ -1,6 +1,6 @@
 //! Only source-stated protein context can produce a common protein statement.
-use super::support as map;
 use crate::oncokb::variant::MutationEffect;
+use crate::oncokb::variant_map_support as map;
 use crate::{mapped::Problems, raw::Field};
 use biodata::{
     Attribution, Coding, OncokbOncogenicityCode as O, Proposition, Statement, Term, Text,
