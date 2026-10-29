@@ -1,6 +1,7 @@
 # 0447 — Let a term carry several codings and keep CURIEs apart from URIs
 
-Status: OPEN.
+Status: COMPLETE.
+Landed: e2300e6a95d8b7fb67be5d1fc196ec310104661e
 
 Milestone: 5
 
