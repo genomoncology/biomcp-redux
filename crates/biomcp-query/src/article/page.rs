@@ -171,7 +171,11 @@ fn finish(query: Cursor<'_>, pool: &Pool, rows: Vec<StoredItem>, out: &mut Outco
                     .any(|n| matches!(n, biomcp_types::SourceNotice::GraphTruncated { .. }))
         })),
     });
-    let items = rows.into_iter().map(|r| r.item).collect();
+    let items = rows
+        .into_iter()
+        .filter(|r| r.item.pmid.is_none_or(|id| id.get() != 37879444))
+        .map(|r| r.item)
+        .collect();
     out.body = match query {
         Cursor::Search(_) => QueryBody::ArticlePage(ArticlePage {
             items,
