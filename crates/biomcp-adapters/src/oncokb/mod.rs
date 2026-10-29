@@ -4,6 +4,7 @@ use crate::mapped::push_problem;
 use crate::mapped::record as record_text;
 mod raw;
 pub mod variant;
+mod variant_groups;
 pub mod variant_map;
 use crate::{Mapped, quotas};
 use biodata::{GeneSymbol, NcbiGeneId, Text};

@@ -138,7 +138,7 @@ mod variant_hotspots;
 pub use variant_hotspots::{HotspotAlternate, HotspotMembership, HotspotRecord, VariantHotspots};
 
 mod variant_oncokb;
-pub use variant_oncokb::{OncokbCitation, OncokbVariantRecord, VariantOncokb};
+pub use variant_oncokb::{OncokbCitation, OncokbConcept, OncokbVariantRecord, VariantOncokb};
 
 mod variant_population;
 pub use variant_population::{

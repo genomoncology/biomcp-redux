@@ -52,10 +52,10 @@ fn member_subject(
 ) -> Option<VariantRef> {
     let label = label?;
     // Fusion and other native features remain literal when the common gene model cannot express them.
-    let Some(Ok(symbol)) = feature.map(|feature| feature.as_str().parse::<GeneSymbol>()) else {
+    let Ok(symbol) = feature?.as_str().parse::<GeneSymbol>() else {
         return None;
     };
-    let Some(Ok(gene)) = Some(biodata::GeneRef::try_from(symbol)) else {
+    let Ok(gene) = biodata::GeneRef::try_from(symbol) else {
         return None;
     };
     let proteins: Vec<_> = forms
@@ -96,18 +96,19 @@ pub(super) fn subject(
             let native = members
                 .iter()
                 .map(|member| {
-                    let id = format!("civic:{}", member.record.id)
-                        .parse()
-                        .into_iter()
-                        .next()?;
-                    VariantRef::source_with_feature(
-                        id,
-                        member.feature.clone()?,
-                        member.feature_record.clone(),
-                        member.subject.clone().into_iter().collect(),
+                    let id = cx.optional(
+                        "variants.id",
+                        Some(format!("civic:{}", member.record.id).parse()),
+                    )?;
+                    cx.optional(
+                        "variants.subject",
+                        Some(VariantRef::source_with_feature(
+                            id,
+                            member.feature.clone()?,
+                            member.feature_record.clone(),
+                            member.subject.clone().into_iter().collect(),
+                        )),
                     )
-                    .into_iter()
-                    .next()
                 })
                 .collect::<Option<Vec<_>>>()?;
             let expression = cx.required_field("rawName", raw_name.cloned().map(Field::Value))?;

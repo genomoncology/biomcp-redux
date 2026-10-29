@@ -85,8 +85,8 @@ pub use response::{
 pub use response::{
     CivicClaimPage, CivicCondition, CivicMember, CivicMembership, CivicNativeClaim, CivicProfile,
     CivicStatement, CivicTherapy, HotspotAlternate, HotspotMembership, HotspotRecord,
-    OncokbCitation, OncokbVariantRecord, VariantCivic, VariantHotspots, VariantOncokb,
-    VariantSections,
+    OncokbCitation, OncokbConcept, OncokbVariantRecord, VariantCivic, VariantHotspots,
+    VariantOncokb, VariantSections,
 };
 pub use response::{
     ConfigurationHealth, ConfigurationNotice, ConfigurationNoticeCode, ConfigurationVariable,
