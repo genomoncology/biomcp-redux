@@ -46,7 +46,8 @@ pub(super) fn identities() -> Result<(), Box<dyn std::error::Error>> {
                 }
             },
             json!({
-                "/result/items/0/symbol":"ERBB2",
+                "/result/items/0/answer/gene/symbol":"ERBB2",
+                "/result/items/0/answer/gene/hgnc_id":"HGNC:3430",
                 "/result/items/0/sections/civic/state":"empty",
                 "/result/items/0/sections/civic":{"omits":["record","data"]},
                 "/problems":{"count":1},"/problems/0/field":field
