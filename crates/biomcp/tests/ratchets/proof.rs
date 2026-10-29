@@ -31,16 +31,6 @@ fn isolated_trees_reject_structural_violations() -> Check {
     check(valid.path())?;
     let cases = [
         (
-            "crates/biomcp-fetch/src/grpc/worker.rs",
-            "fn request() { let alphagenome = 1; consume(alphagenome); }",
-            "transport names source alphagenome",
-        ),
-        (
-            "crates/biomcp-query/Cargo.toml",
-            "[lints]\nworkspace=true\n[dependencies]\nprost='0.14'\n",
-            "forbidden dependencies dependency",
-        ),
-        (
             "crates/biodata/Cargo.toml",
             "[package]\nname='biodata'\n[lints]\nworkspace=true\n[dependencies]\nbiomcp-types={path='../biomcp-types'}\n",
             "forbidden dependencies dependency",
@@ -431,4 +421,18 @@ fn test_fixture_paths_have_one_owner() -> Check {
         )?;
     }
     Ok(())
+}
+
+#[test]
+fn provider_codecs_stay_outside_transport_and_query() -> Check {
+    rejects(
+        "crates/biomcp-fetch/src/grpc/worker.rs",
+        "fn request() { let alphagenome = 1; consume(alphagenome); }",
+        "transport names source alphagenome",
+    )?;
+    rejects(
+        "crates/biomcp-query/Cargo.toml",
+        "[lints]\nworkspace=true\n[dependencies]\nprost='0.14'\n",
+        "forbidden dependencies dependency",
+    )
 }
