@@ -66,9 +66,16 @@ fn selected(rows: &[super::PartRow], id: &str) -> Option<DrugHeader> {
         .map(identity::header)
 }
 /// Return only the exact selected native identity and available source section.
-pub fn card(leg: &Leg<'_>, id: &DrugId) -> Result<Option<DrugCard>, RequestError> {
+pub fn card(leg: &Leg<'_>, id: &DrugId) -> Result<crate::Mapped<Option<DrugCard>>, RequestError> {
     let (rows, info) = exact(leg, id)?;
-    Ok(selected(&rows, &id.to_string()).map(|header| DrugCard {
+    let problems = rows
+        .iter()
+        .flat_map(|row| {
+            row.value
+                .problems(crate::mapped::record(format!("{}:{}", row.part, row.row)))
+        })
+        .collect();
+    let value = selected(&rows, &id.to_string()).map(|header| DrugCard {
         header,
         alternate_names: Box::default(),
         cross_references: Box::default(),
@@ -83,7 +90,8 @@ pub fn card(leg: &Leg<'_>, id: &DrugId) -> Result<Option<DrugCard>, RequestError
         retrieved: crate::received_date(info.retrieved_at),
         available_sections: vec![DrugSection::Interactions].into(),
         next: Box::default(),
-    }))
+    });
+    Ok(crate::Mapped { value, problems })
 }
 /// Page exact native partners, preserving the source order and every duplicate origin.
 pub fn interactions(
