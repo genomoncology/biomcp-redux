@@ -42,7 +42,7 @@ impl ScoreGroup {
 /// Complete source reply, published only after successful terminal transport status.
 #[derive(Debug)]
 pub struct ScoreReply {
-    /// Exact source-echoed variant identity.
+    /// Requested variant identity matched by every admitted scalar group.
     pub variant: AlphaGenomeVariant,
     /// Complete native groups in their received order.
     pub groups: Vec<ScoreGroup>,
