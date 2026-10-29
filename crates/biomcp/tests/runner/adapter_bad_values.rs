@@ -12,6 +12,8 @@ mod reactome_discovery;
 mod mychem_ontology;
 #[path = "adapter_repeated_references.rs"]
 mod repeated_references;
+#[path = "adapter_interpretation_values.rs"]
+mod interpretation_values;
 
 pub(super) fn trials() -> Vec<Trial> {
     let mut trials = vec![
@@ -45,6 +47,7 @@ pub(super) fn trials() -> Vec<Trial> {
         }),
     ];
     trials.extend(mychem_ontology::trials());
+    trials.extend(interpretation_values::trials());
     trials
 }
 fn check(value: &Value, field: &str, absent: &str) -> Result<(), String> {
