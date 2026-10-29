@@ -1,6 +1,7 @@
 # 0478 — Compare recursive schemas in the compatibility check
 
-Status: OPEN.
+Status: COMPLETE.
+Landed: c558c080abe46bbee5bf1e0a46a46accfcaac601
 
 Milestone: 5
 
