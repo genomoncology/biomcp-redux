@@ -69,7 +69,7 @@ pub(super) fn measurements(
                 }
             } else if mapped.value.scores.is_empty()
                 && mapped.value.context.is_empty()
-                && problems.is_empty()
+                && (problems.is_empty() || problems.iter().any(|p| p.field.as_ref() == "_id"))
             {
                 Section::Empty {
                     source: Source::MyVariant,
