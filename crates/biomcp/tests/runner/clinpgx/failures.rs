@@ -11,12 +11,15 @@ pub(super) fn trials() -> Vec<Trial> {
         "broken",
         "status",
         "wrong-accession",
+        "bad-score",
+        "wrong-class",
+        "bad-detail-class",
         "wrong-gene",
         "unknown-field",
         "unknown-nested-field",
     ] {
         out.push(transcript_trial(
-            format!("clinpgx-annotations/reject-{name}"),
+            format!("clinpgx-annotations/source-{name}"),
             move || failure(name).map_err(Into::into),
         ));
     }
@@ -35,16 +38,74 @@ pub(super) fn trials() -> Vec<Trial> {
     out
 }
 fn failure(name: &'static str) -> Check {
-    let shape = if name == "wrong-accession" {
-        "annotation"
-    } else {
-        "clinical"
+    let shape = match name {
+        "wrong-accession" | "bad-score" | "bad-detail-class" => "annotation",
+        "wrong-class" => "guideline",
+        _ => "clinical",
     };
+    let stub = fixture(name, shape)?;
+    let env = environment(&stub)?;
+    let record = env.root().join("record");
+    let mut command = vec!["--record".into(), record.to_string_lossy().into()];
+    command.extend(args(shape));
+    if matches!(
+        name,
+        "wrong-accession"
+            | "wrong-gene"
+            | "unknown-field"
+            | "unknown-nested-field"
+            | "bad-score"
+            | "wrong-class"
+            | "bad-detail-class"
+    ) {
+        return mapped(name, &env, stub, command);
+    }
+    let value = invoke(&env, command.clone(), 4)?;
+    if value.get("result").is_some_and(|v| !v.is_null())
+        || value.pointer("/sources/0/state") != Some(&json!("failed"))
+        || value.pointer("/sources/0/terms").is_none()
+    {
+        return Err("source failure became a negative fact".into());
+    }
+    if matches!(name, "wrong-accession" | "wrong-gene")
+        && (value.pointer("/problems/0/source") != Some(&json!("clinpgx"))
+            || value.pointer("/problems/0/field") != Some(&json!("record")))
+    {
+        return Err(format!("identity drop omitted its problem: {value}"));
+    }
+    super::super::pgx_retirements::bounded(&format!("ClinPGx {name}"), &value)?;
+    *command.get_mut(0).ok_or("record switch")? = "--replay".into();
+    let fresh = Environment::new().map_err(|e| e.to_string())?;
+    let replay = both(&fresh, command, 4)?;
+    if replay.get("sources") != value.get("sources") {
+        return Err("recorded failure changed".into());
+    }
+    let mut offline = vec!["--offline".into()];
+    offline.extend(args(shape));
+    if both(&env, offline, 4)?.pointer("/sources/0/reason") != Some(&json!("offline")) {
+        return Err("rejected response entered cache".into());
+    }
+    stub.finish()?;
+    Ok(())
+}
+
+fn fixture(name: &'static str, shape: &str) -> Result<Stub, String> {
     let mut body = native(shape)?;
     if name == "wrong-accession" {
         *body
             .pointer_mut("/data/accessionId")
             .ok_or("synthetic identity")? = json!("PA999999");
+    }
+    if name == "bad-score" {
+        *body.pointer_mut("/data/score").ok_or("synthetic score")? = json!("invalid");
+    }
+    if name == "wrong-class" {
+        *body
+            .pointer_mut("/data/0/objCls")
+            .ok_or("reference class")? = json!("LabelAnnotation");
+    }
+    if name == "bad-detail-class" {
+        *body.pointer_mut("/data/objCls").ok_or("detail class")? = json!(42);
     }
     if name == "wrong-gene" {
         *body
@@ -81,34 +142,57 @@ fn failure(name: &'static str) -> Check {
             _ => 200,
         },
     )?;
-    let env = environment(&stub)?;
-    let record = env.root().join("record");
-    let mut command = vec!["--record".into(), record.to_string_lossy().into()];
-    command.extend(args(shape));
-    let value = invoke(&env, command.clone(), 4)?;
-    if value.get("result").is_some_and(|v| !v.is_null())
-        || value.pointer("/sources/0/state") != Some(&json!("failed"))
-        || value.pointer("/sources/0/terms").is_none()
-    {
-        return Err("source failure became a negative fact".into());
+    Ok(stub)
+}
+
+fn mapped(name: &str, env: &Environment, stub: Stub, mut command: Vec<String>) -> Check {
+    let value = invoke(env, command.clone(), 0)?;
+    if value.pointer("/sources/0/state") != Some(&json!("ok")) {
+        return Err(format!(
+            "one native identity or field rejected the reply: {value}"
+        ));
     }
+    let identity_field = if name == "wrong-gene" {
+        "location.genes"
+    } else {
+        "record"
+    };
     if matches!(name, "wrong-accession" | "wrong-gene")
-        && (value.pointer("/problems/0/source") != Some(&json!("clinpgx"))
-            || value.pointer("/problems/0/field") != Some(&json!("record")))
+        && value.pointer("/problems/0/field") != Some(&json!(identity_field))
     {
-        return Err(format!("identity drop omitted its problem: {value}"));
+        return Err(format!("identity drop lacks its problem: {value}"));
     }
-    super::super::pgx_retirements::bounded(&format!("ClinPGx {name}"), &value)?;
+    if name == "bad-score"
+        && (value.pointer("/result/annotation/score").is_some()
+            || value.pointer("/problems/0/field") != Some(&json!("score"))
+            || value.pointer("/result/annotation/accessionId") != Some(&json!("PA100001")))
+    {
+        return Err(format!(
+            "bad score discarded annotation or lacked disclosure: {value}"
+        ));
+    }
+    if name == "wrong-class"
+        && (value.pointer("/result/items/0/id") != Some(&json!("PA100002"))
+            || value.pointer("/problems/0/field") != Some(&json!("objCls")))
+    {
+        return Err(format!(
+            "wrong reference class refused its sibling: {value}"
+        ));
+    }
+    if name == "bad-detail-class"
+        && (value.pointer("/result/annotation/objCls").is_some()
+            || value.pointer("/result/annotation/accessionId") != Some(&json!("PA100001"))
+            || value.pointer("/problems/0/field") != Some(&json!("objCls")))
+    {
+        return Err(format!("optional detail class refused its record: {value}"));
+    }
     *command.get_mut(0).ok_or("record switch")? = "--replay".into();
     let fresh = Environment::new().map_err(|e| e.to_string())?;
-    let replay = both(&fresh, command, 4)?;
-    if replay.get("sources") != value.get("sources") {
-        return Err("recorded failure changed".into());
-    }
-    let mut offline = vec!["--offline".into()];
-    offline.extend(args(shape));
-    if both(&env, offline, 4)?.pointer("/sources/0/reason") != Some(&json!("offline")) {
-        return Err("rejected response entered cache".into());
+    let replay = both(&fresh, command, 0)?;
+    if replay.get("problems") != value.get("problems")
+        || replay.get("result") != value.get("result")
+    {
+        return Err("native field mapping changed on replay".into());
     }
     stub.finish()?;
     Ok(())

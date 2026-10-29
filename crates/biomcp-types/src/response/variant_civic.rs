@@ -23,9 +23,17 @@ pub struct CivicProfile<Continuation = VariantGet> {
     /// Native profile identity and link.
     pub record: SourceRecord,
     /// Whole source profile label, including its logical expression.
-    pub label: Text,
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub label: Option<Text>,
+    /// Exact source expression with native variant references.
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub raw_name: Option<Text>,
+    /// Checked source profile subject, independent of an allele join or a clinical claim.
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub subject: Option<crate::VariantRef>,
     /// Native complex-profile flag; a member match does not satisfy the whole profile.
-    pub compound: bool,
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub compound: Option<bool>,
     /// Whether a source member was joined to the requested exact identity.
     pub membership: CivicMembership,
     /// Every source member reference, without collapsing compound profiles.
@@ -51,9 +59,14 @@ pub struct CivicMember {
     /// Native variant identity and link.
     pub record: SourceRecord,
     /// Whole source variant label.
-    pub label: Text,
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub label: Option<Text>,
     /// Native feature label, including fusion features.
-    pub feature: Text,
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub feature: Option<Text>,
+    /// Native feature identifier, distinct from the variant identifier.
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub feature_record: Option<crate::Curie>,
     /// Every native notation, without selecting a transcript or repairing a spelling.
     #[serde(default, skip_serializing_if = "<[ _ ]>::is_empty")]
     pub hgvs_descriptions: Box<[Text]>,
@@ -92,15 +105,23 @@ pub struct CivicStatement {
     /// Native claim identity, retained even when no common proposition applies.
     pub record: SourceRecord,
     /// Source claim category, without a fallback proposition.
-    pub kind: super::CivicKind,
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub kind: Option<super::CivicKind>,
     /// Native curation state, without implying that every row is accepted.
-    pub status: super::CivicStatus,
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub status: Option<super::CivicStatus>,
     /// Original provider direction; disputes never implies the opposite effect.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub direction: Option<Text>,
     /// Original significance, including when the classification holds an AMP tier.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub significance: Option<super::CivicSignificance>,
+    /// Exact nullable native AMP value, including Not Applicable.
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub amp_level: Option<Text>,
+    /// Native relationship between therapies; the common statement cannot express it.
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub therapy_interaction_type: Option<Text>,
 }
 
 /// Source facts retained without inventing a common-model subject or proposition.
@@ -115,10 +136,10 @@ pub struct CivicNativeClaim {
     pub strength: Option<crate::Term>,
     /// Source disease context.
     #[serde(skip_serializing_if = "Option::is_none")]
-    pub condition: Option<crate::Concept>,
+    pub condition: Option<CivicCondition>,
     /// Native therapies in source order.
     #[serde(default, skip_serializing_if = "<[ _ ]>::is_empty")]
-    pub therapies: Box<[crate::Concept]>,
+    pub therapies: Box<[CivicTherapy]>,
     /// Native origin, when stated.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub allele_origin: Option<crate::Term>,
@@ -127,6 +148,29 @@ pub struct CivicNativeClaim {
     pub citations: Box<[crate::Pmid]>,
     /// Original source provenance.
     pub attribution: crate::Attribution,
+}
+
+/// Native disease fields remain independent when one value is malformed.
+#[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
+#[cfg_attr(feature = "schema", derive(schemars::JsonSchema))]
+pub struct CivicCondition {
+    /// Source DOID, without a disease-name conversion.
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub id: Option<biodata::Curie>,
+    /// Complete source disease name.
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub label: Option<Text>,
+}
+/// One native therapy member; a label does not imply a source identifier.
+#[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
+#[cfg_attr(feature = "schema", derive(schemars::JsonSchema))]
+pub struct CivicTherapy {
+    /// Native therapy identity when requested by this source route.
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub id: Option<u64>,
+    /// Complete source therapy name.
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub label: Option<Text>,
 }
 
 biodata::wire_enum! {

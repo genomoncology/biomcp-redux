@@ -31,7 +31,8 @@ pub struct GtrHeader {
     #[serde(default, skip_serializing_if = "Option::is_none")]
     pub name: Option<Text>,
     /// Native laboratory context.
-    pub laboratory: DiagnosticLaboratory,
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub laboratory: Option<DiagnosticLaboratory>,
     /// Source record URL.
     #[cfg_attr(feature = "schema", schemars(extend("format" = "uri")))]
     pub url: Text,
@@ -109,9 +110,11 @@ pub struct GtrCard {
     /// Separate native flags.
     pub native_status: GtrNativeStatus,
     /// Native revision date; not a local retrieval date.
-    pub last_touch_date: Text,
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub last_touch_date: Option<Text>,
     /// Source creation date.
-    pub test_create_date: Text,
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub test_create_date: Option<Text>,
     /// Native deletion cell, including empty.
     pub test_deletion_date: Box<str>,
     /// Native manufacturer test name, including empty.

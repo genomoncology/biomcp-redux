@@ -1,6 +1,7 @@
 # 0469 — Apply the bad-value rule in the clinical interpretation adapters
 
-Status: OPEN.
+Status: COMPLETE.
+Landed: 3bc574c4282e7a6b1edc56eaf1c9c3f5cfe02f0f
 
 Milestone: 5
 

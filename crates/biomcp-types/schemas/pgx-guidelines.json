@@ -183,11 +183,13 @@
         "url": {
           "description": "Native `url`; literal source value.",
           "format": "uri",
-          "type": "string"
+          "type": [
+            "string",
+            "null"
+          ]
         }
       },
       "required": [
-        "url",
         "symbol"
       ],
       "type": "object"
@@ -216,12 +218,14 @@
         "guideline_url": {
           "description": "Native `guideline_url`; literal source value.",
           "format": "uri",
-          "type": "string"
+          "type": [
+            "string",
+            "null"
+          ]
         }
       },
       "required": [
-        "guideline_name",
-        "guideline_url"
+        "guideline_name"
       ],
       "type": "object"
     },

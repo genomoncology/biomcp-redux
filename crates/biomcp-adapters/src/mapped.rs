@@ -1,4 +1,6 @@
-use crate::native_text::NativeText;
+pub(crate) use crate::bundle_mapping::{bundle_problems, bundle_sync};
+use crate::{native_text::NativeText, raw::Field};
+use biodata::Text;
 use biomcp_types::Problem;
 
 /// A source value with rejected fields retained as problems.
@@ -225,53 +227,32 @@ pub(crate) fn source_text(value: &str) -> Result<biodata::Text, biomcp_fetch::Ba
     biodata::Text::from_source(value).map_err(|_| biomcp_fetch::BadReply)
 }
 
-/// Convert redacted bundle row rejections to the existing problem channel.
-pub(crate) fn bundle_problems(
-    source: biomcp_types::Source,
-    info: &biomcp_fetch::BundleInfo,
-) -> Vec<Problem> {
-    info.rejections
-        .iter()
-        .map(|rejection| {
-            let (part, reason) = rejection
-                .reason
-                .rsplit_once(": ")
-                .map_or((None, rejection.reason.as_str()), |(part, reason)| {
-                    (Some(part), reason)
-                });
-            let reason = match reason {
-                "no usable query key" => "no_usable_query_key",
-                "wrong number of columns" => "column_count",
-                _ => "decode",
-            };
-            let location = match part {
-                Some(part) => format!("{}.{part}", info.name),
-                None => info.name.to_owned(),
-            };
-            problem(
-                source,
-                None,
-                &format!("{location}.rows.{}.{reason}", rejection.row),
-            )
-        })
+pub(crate) fn optional_text(
+    raw: Option<Field<String>>,
+    field: &str,
+    cx: &mut Problems,
+) -> Option<Text> {
+    field_text(&mut cx.list, cx.source, cx.record.clone(), field, raw)
+}
+pub(crate) fn optional_texts(
+    raw: Option<Field<Vec<Field<String>>>>,
+    field: &str,
+    cx: &mut Problems,
+) -> Box<[Text]> {
+    cx.fields(field, raw)
+        .into_vec()
+        .into_iter()
+        .filter_map(|value| cx.text(field, Some(&value)))
         .collect()
 }
-
-/// Convert ordinary bundle synchronization metadata with its rejected rows.
-pub(crate) fn bundle_sync(
-    source: biomcp_types::Source,
-    info: biomcp_fetch::BundleInfo,
-) -> Mapped<biomcp_types::SyncResult> {
-    Mapped {
-        problems: bundle_problems(source, &info),
-        value: biomcp_types::SyncResult {
-            snapshot: None,
-            etag: None,
-            last_modified: None,
-            duplicate_identities: None,
-            rows: info.rows,
-            bytes: info.bytes,
-            downloaded_bytes: info.downloaded_bytes,
-        },
-    }
+pub(crate) fn optional_pmids(
+    raw: Option<Field<Vec<Field<String>>>>,
+    field: &str,
+    cx: &mut Problems,
+) -> Box<[biodata::Pmid]> {
+    cx.fields(field, raw)
+        .into_vec()
+        .into_iter()
+        .filter_map(|value| cx.optional(field, Some(value.parse())))
+        .collect()
 }

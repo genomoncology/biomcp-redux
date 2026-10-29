@@ -67,7 +67,7 @@ pub(crate) fn row(
         row.statement = Some(statement);
     } else {
         row.unmapped = Some(UnmappedAssertion {
-            classification: label,
+            classification: Some(label),
             attribution,
             review_status: review,
             conditions: row
@@ -78,6 +78,27 @@ pub(crate) fn row(
         });
     }
     row
+}
+/// Retain native document provenance without fabricating a missing conclusion.
+pub(crate) fn missing(
+    kind: AssertionKind,
+    domain: AssertionDomain,
+    attribution: Attribution,
+    detail: AssertionDetail,
+) -> VariantAssertion {
+    VariantAssertion {
+        kind,
+        domain,
+        statement_unmapped: true,
+        statement: None,
+        unmapped: Some(UnmappedAssertion {
+            classification: None,
+            attribution,
+            review_status: None,
+            conditions: detail.conditions.clone(),
+        }),
+        detail: Some(detail),
+    }
 }
 // Native category mapping follows NCBI's germline vocabulary and ClinGen GKM G.01.
 // https://www.ncbi.nlm.nih.gov/clinvar/docs/clinsig/

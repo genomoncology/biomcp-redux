@@ -173,6 +173,34 @@
       ],
       "type": "object"
     },
+    "Reply_CivicCondition": {
+      "description": "Native disease fields remain independent when one value is malformed.",
+      "properties": {
+        "id": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/Reply_Curie"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "description": "Source DOID, without a disease-name conversion."
+        },
+        "label": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/Reply_Text"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "description": "Complete source disease name."
+        }
+      },
+      "type": "object"
+    },
     "Reply_CivicEvidenceLevelCode": {
       "description": "Source-defined CIViC evidence levels.",
       "enum": [
@@ -227,7 +255,7 @@
         "condition": {
           "anyOf": [
             {
-              "$ref": "#/$defs/Reply_Concept"
+              "$ref": "#/$defs/Reply_CivicCondition"
             },
             {
               "type": "null"
@@ -249,7 +277,7 @@
         "therapies": {
           "description": "Native therapies in source order.",
           "items": {
-            "$ref": "#/$defs/Reply_Concept"
+            "$ref": "#/$defs/Reply_CivicTherapy"
           },
           "type": "array"
         }
@@ -266,6 +294,17 @@
     "Reply_CivicStatement": {
       "description": "One CIViC claim with native labels that exceed the common statement model.",
       "properties": {
+        "amp_level": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/Reply_Text"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "description": "Exact nullable native AMP value, including Not Applicable."
+        },
         "direction": {
           "anyOf": [
             {
@@ -278,7 +317,14 @@
           "description": "Original provider direction; disputes never implies the opposite effect."
         },
         "kind": {
-          "$ref": "#/$defs/Reply_CivicKind",
+          "anyOf": [
+            {
+              "$ref": "#/$defs/Reply_CivicKind"
+            },
+            {
+              "type": "null"
+            }
+          ],
           "description": "Source claim category, without a fallback proposition."
         },
         "native": {
@@ -323,20 +369,62 @@
           "type": "boolean"
         },
         "status": {
-          "$ref": "#/$defs/Reply_CivicStatus",
+          "anyOf": [
+            {
+              "$ref": "#/$defs/Reply_CivicStatus"
+            },
+            {
+              "type": "null"
+            }
+          ],
           "description": "Native curation state, without implying that every row is accepted."
+        },
+        "therapy_interaction_type": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/Reply_Text"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "description": "Native relationship between therapies; the common statement cannot express it."
         }
       },
       "required": [
-        "record",
-        "kind",
-        "status"
+        "record"
       ],
       "type": "object"
     },
     "Reply_CivicStatus": {
       "description": "Native publisher vocabulary; new values are retained unchanged. Known values: ACCEPTED; SUBMITTED; REJECTED; ",
       "type": "string"
+    },
+    "Reply_CivicTherapy": {
+      "description": "One native therapy member; a label does not imply a source identifier.",
+      "properties": {
+        "id": {
+          "description": "Native therapy identity when requested by this source route.",
+          "format": "uint64",
+          "minimum": 0,
+          "type": [
+            "integer",
+            "null"
+          ]
+        },
+        "label": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/Reply_Text"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "description": "Complete source therapy name."
+        }
+      },
+      "type": "object"
     },
     "Reply_ClinVarAlleleId": {
       "description": " An allele identifier inside a ClinVar record, not a variant identifier.",
@@ -682,7 +770,14 @@
           "type": "array"
         },
         "profile": {
-          "$ref": "#/$defs/Reply_DrugCivicProfile",
+          "anyOf": [
+            {
+              "$ref": "#/$defs/Reply_DrugCivicProfile"
+            },
+            {
+              "type": "null"
+            }
+          ],
           "description": "Source molecular profile context; its member expression is never collapsed."
         },
         "therapies": {
@@ -705,7 +800,6 @@
         }
       },
       "required": [
-        "profile",
         "claim"
       ],
       "type": "object"
@@ -714,8 +808,26 @@
       "description": "A drug claim member with its source-owned build, without altering variant responses.",
       "properties": {
         "feature": {
-          "$ref": "#/$defs/Reply_Text",
+          "anyOf": [
+            {
+              "$ref": "#/$defs/Reply_Text"
+            },
+            {
+              "type": "null"
+            }
+          ],
           "description": "Native feature label, including fusion features."
+        },
+        "feature_record": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/Reply_Curie"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "description": "Native feature identifier, distinct from the variant identifier."
         },
         "hgvs_descriptions": {
           "description": "Every native notation, without selecting a transcript or repairing a spelling.",
@@ -725,7 +837,14 @@
           "type": "array"
         },
         "label": {
-          "$ref": "#/$defs/Reply_Text",
+          "anyOf": [
+            {
+              "$ref": "#/$defs/Reply_Text"
+            },
+            {
+              "type": "null"
+            }
+          ],
           "description": "Whole source variant label."
         },
         "record": {
@@ -756,9 +875,7 @@
         }
       },
       "required": [
-        "record",
-        "label",
-        "feature"
+        "record"
       ],
       "type": "object"
     },
@@ -787,10 +904,20 @@
       "properties": {
         "compound": {
           "description": "Source complex-profile flag.",
-          "type": "boolean"
+          "type": [
+            "boolean",
+            "null"
+          ]
         },
         "label": {
-          "$ref": "#/$defs/Reply_Text",
+          "anyOf": [
+            {
+              "$ref": "#/$defs/Reply_Text"
+            },
+            {
+              "type": "null"
+            }
+          ],
           "description": "Complete source expression."
         },
         "members": {
@@ -800,15 +927,35 @@
           },
           "type": "array"
         },
+        "raw_name": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/Reply_Text"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "description": "Exact source expression with native variant references."
+        },
         "record": {
           "$ref": "#/$defs/Reply_SourceRecord",
           "description": "Native profile identity and link."
+        },
+        "subject": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/Reply_VariantRef"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "description": "Checked source profile subject, independent of an allele join or a clinical claim."
         }
       },
       "required": [
-        "record",
-        "label",
-        "compound"
+        "record"
       ],
       "type": "object"
     },

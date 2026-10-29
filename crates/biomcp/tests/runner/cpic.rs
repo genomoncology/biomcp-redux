@@ -1,4 +1,5 @@
 //! Feature cpic-pgx: synthetic native retrieval through the actual CLI and MCP.
+mod failures;
 mod rows;
 use super::{configuration::invoke, launch::Environment, network_stub::Stub};
 use crate::runner::transcript::trial as transcript_trial;
@@ -40,8 +41,8 @@ pub(super) fn trials() -> Vec<Trial> {
         "500",
     ] {
         out.push(transcript_trial(
-            format!("cpic-pgx/reject-{name}"),
-            move || failure(name).map_err(Into::into),
+            format!("cpic-pgx/source-{name}"),
+            move || failures::failure(name).map_err(Into::into),
         ));
     }
     out
@@ -209,87 +210,6 @@ fn verify_next(name: &str, value: &Value) -> Check {
         && steps.first().and_then(|s| s.get("kind")) != Some(&json!("page"))
     {
         return Err("recommendation page missing".into());
-    }
-    Ok(())
-}
-fn failure(name: &'static str) -> Check {
-    let (mut args, mut body) = rows::scenario(match name {
-        "wrong-drug" => "table",
-        "truncated-diplotype" => "diplotype",
-        "truncated-card" => "card",
-        _ => "pairs",
-    })?;
-    if name == "wrong-gene" {
-        *body.pointer_mut("/0/genesymbol").ok_or("synthetic field")? = json!("TPMT");
-    }
-    if name == "wrong-drug" {
-        *body.pointer_mut("/0/drugid").ok_or("synthetic field")? = json!("RxNorm:999");
-    }
-    if name == "unknown-field" {
-        body.pointer_mut("/0")
-            .and_then(Value::as_object_mut)
-            .ok_or("synthetic row")?
-            .insert("invented_extra".into(), json!("unreviewed"));
-    }
-    let stub = Stub::counted(
-        move |_| {
-            Ok(if name == "status" {
-                json!({"code":"SYNTHETIC","message":"Synthetic HTTP 200 error"}).to_string()
-            } else if name == "broken" {
-                "{".into()
-            } else {
-                body.to_string()
-            })
-        },
-        move |_| match name {
-            "missing-range" => String::new(),
-            "range" => "Content-Range: 4-4/5\r\n".into(),
-            "count" => "Content-Range: 0-1/2\r\n".into(),
-            _ => "Content-Range: 0-0/2\r\n".into(),
-        },
-        move |_| match name {
-            "status" => 200,
-            "429" => 429,
-            "500" => 500,
-            _ => 206,
-        },
-    )?;
-    let env = environment(&stub)?;
-    let record = env.root().join("record");
-    args.splice(0..0, ["--record".into(), record.to_string_lossy().into()]);
-    let value = invoke(&env, args.clone(), 4)?;
-    if value.get("result").is_some_and(|v| !v.is_null())
-        || value.pointer("/sources/0/state") != Some(&json!("failed"))
-        || value.pointer("/sources/0/terms").is_none()
-    {
-        return Err(format!("source failure hidden as success: {value}"));
-    }
-    if matches!(name, "wrong-gene" | "wrong-drug")
-        && (value.pointer("/problems/0/source") != Some(&json!("cpic"))
-            || value.pointer("/problems/0/field") != Some(&json!("record")))
-    {
-        return Err(format!("identity drop omitted its problem: {value}"));
-    }
-    super::pgx_retirements::bounded(&format!("CPIC {name}"), &value)?;
-    let mut replay = args.clone();
-    *replay.get_mut(0).ok_or("missing replay flag")? = "--replay".into();
-    let replay_env = Environment::new().map_err(|e| e.to_string())?;
-    let repeated = both(&replay_env, replay, 4)?;
-    if repeated.get("status") != value.get("status")
-        || repeated.get("sources") != value.get("sources")
-    {
-        return Err("recorded source failure changed".into());
-    }
-    let mut offline = args;
-    offline.drain(0..2);
-    offline.insert(0, "--offline".into());
-    let unavailable = both(&env, offline, 4)?;
-    if unavailable.pointer("/sources/0/reason") != Some(&json!("offline")) {
-        return Err("rejected reply entered the checked cache".into());
-    }
-    let count = stub.finish()?.len();
-    if count == 0 {
-        return Err("failure never reached synthetic source".into());
     }
     Ok(())
 }

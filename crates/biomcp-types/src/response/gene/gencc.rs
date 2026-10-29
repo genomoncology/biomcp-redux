@@ -16,21 +16,29 @@ pub struct GenccSubmission {
     /// Source submission version.
     pub version: Text,
     /// Source disease identifier.
-    pub disease_id: Text,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub disease_id: Option<Text>,
     /// Source disease title.
-    pub disease: Text,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub disease: Option<Text>,
     /// Source classification identifier.
-    pub classification_id: Text,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub classification_id: Option<Text>,
     /// Source classification title without inference.
-    pub classification: Text,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub classification: Option<Text>,
     /// Source inheritance identifier.
-    pub mode_of_inheritance_id: Text,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub mode_of_inheritance_id: Option<Text>,
     /// Source inheritance title.
-    pub mode_of_inheritance: Text,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub mode_of_inheritance: Option<Text>,
     /// Source submitter identifier.
-    pub submitter_id: Text,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub submitter_id: Option<Text>,
     /// Source submitter title.
-    pub submitter: Text,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub submitter: Option<Text>,
     /// Source submitted_as_date, preserving its spelling.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub evaluated_date: Option<Text>,

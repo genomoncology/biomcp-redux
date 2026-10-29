@@ -84,16 +84,33 @@
           "type": "integer"
         },
         "levelOfEvidence": {
-          "$ref": "#/$defs/Reply_PgxEvidenceTerm",
+          "anyOf": [
+            {
+              "$ref": "#/$defs/Reply_PgxEvidenceTerm"
+            },
+            {
+              "type": "null"
+            }
+          ],
           "description": "Native `levelOfEvidence`; literal source value."
         },
         "location": {
-          "$ref": "#/$defs/Reply_PgxLocation",
+          "anyOf": [
+            {
+              "$ref": "#/$defs/Reply_PgxLocation"
+            },
+            {
+              "type": "null"
+            }
+          ],
           "description": "Native `location`; literal source value."
         },
         "name": {
           "description": "Native `name`; literal source value.",
-          "type": "string"
+          "type": [
+            "string",
+            "null"
+          ]
         },
         "relatedChemicals": {
           "description": "Native `relatedChemicals`; literal source value.",
@@ -104,7 +121,10 @@
         },
         "relatedChemicalsLogic": {
           "description": "Native `relatedChemicalsLogic`; literal source value.",
-          "type": "string"
+          "type": [
+            "string",
+            "null"
+          ]
         },
         "relatedGuidelines": {
           "description": "Native `relatedGuidelines`; literal source value.",
@@ -130,11 +150,7 @@
       },
       "required": [
         "id",
-        "accessionId",
-        "levelOfEvidence",
-        "location",
-        "name",
-        "relatedChemicalsLogic"
+        "accessionId"
       ],
       "type": "object"
     },
@@ -168,7 +184,10 @@
         },
         "name": {
           "description": "Native `name`; literal source value.",
-          "type": "string"
+          "type": [
+            "string",
+            "null"
+          ]
         },
         "objCls": {
           "description": "Native `objCls`; literal source value.",
@@ -177,8 +196,7 @@
       },
       "required": [
         "objCls",
-        "id",
-        "name"
+        "id"
       ],
       "type": "object"
     },
@@ -283,7 +301,10 @@
         "_url": {
           "description": "Native `_url`; literal source value.",
           "format": "uri",
-          "type": "string"
+          "type": [
+            "string",
+            "null"
+          ]
         },
         "id": {
           "description": "Native `id`; literal source value.",
@@ -299,18 +320,21 @@
         },
         "resource": {
           "description": "Native `resource`; literal source value.",
-          "type": "string"
+          "type": [
+            "string",
+            "null"
+          ]
         },
         "resourceId": {
           "description": "Native `resourceId`; literal source value.",
-          "type": "string"
+          "type": [
+            "string",
+            "null"
+          ]
         }
       },
       "required": [
-        "id",
-        "resource",
-        "resourceId",
-        "_url"
+        "id"
       ],
       "type": "object"
     },
@@ -343,7 +367,10 @@
         },
         "resource": {
           "description": "Native `resource`; literal source value.",
-          "type": "string"
+          "type": [
+            "string",
+            "null"
+          ]
         },
         "synonyms": {
           "description": "Native `synonyms` when supplied.",
@@ -357,11 +384,17 @@
         },
         "term": {
           "description": "Native `term`; literal source value.",
-          "type": "string"
+          "type": [
+            "string",
+            "null"
+          ]
         },
         "termId": {
           "description": "Native `termId`; literal source value.",
-          "type": "string"
+          "type": [
+            "string",
+            "null"
+          ]
         },
         "valid": {
           "description": "Native `valid` when supplied.",
@@ -372,10 +405,7 @@
         }
       },
       "required": [
-        "id",
-        "resource",
-        "term",
-        "termId"
+        "id"
       ],
       "type": "object"
     },
@@ -511,7 +541,10 @@
         },
         "copyNumber": {
           "description": "Native `copyNumber`; literal source value.",
-          "type": "string"
+          "type": [
+            "string",
+            "null"
+          ]
         },
         "diplotypes": {
           "description": "Native `diplotypes`; literal source value.",
@@ -522,7 +555,10 @@
         },
         "displayName": {
           "description": "Native `displayName`; literal source value.",
-          "type": "string"
+          "type": [
+            "string",
+            "null"
+          ]
         },
         "genes": {
           "description": "Native `genes`; literal source value.",
@@ -534,7 +570,10 @@
         "gpPosition": {
           "description": "Native `gpPosition`; literal source value.",
           "format": "int64",
-          "type": "integer"
+          "type": [
+            "integer",
+            "null"
+          ]
         },
         "haplotypes": {
           "description": "Native `haplotypes`; literal source value.",
@@ -569,7 +608,10 @@
         "refSeqPosition": {
           "description": "Native `refSeqPosition`; literal source value.",
           "format": "int64",
-          "type": "integer"
+          "type": [
+            "integer",
+            "null"
+          ]
         },
         "rsid": {
           "description": "Native `rsid` when supplied.",
@@ -580,11 +622,17 @@
         },
         "tagGene": {
           "description": "Native `tagGene`; literal source value.",
-          "type": "boolean"
+          "type": [
+            "boolean",
+            "null"
+          ]
         },
         "type": {
           "description": "Native `type`; literal source value.",
-          "type": "string"
+          "type": [
+            "string",
+            "null"
+          ]
         },
         "variant": {
           "anyOf": [
@@ -599,13 +647,7 @@
         }
       },
       "required": [
-        "id",
-        "copyNumber",
-        "displayName",
-        "gpPosition",
-        "refSeqPosition",
-        "tagGene",
-        "type"
+        "id"
       ],
       "type": "object"
     },

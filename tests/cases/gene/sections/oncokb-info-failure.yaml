@@ -33,6 +33,7 @@
         "/result/items/0/oncokb": {
           "equals": {
             "gene_type": "TSG",
+            "gene_type_code": "TSG",
             "highest_sensitive_level": "SYNTHETIC_S",
             "highest_resistance_level": "SYNTHETIC_R"
           }

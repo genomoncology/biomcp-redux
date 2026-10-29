@@ -86,9 +86,10 @@ pub use response::{
     GeneExpression, PathwayRef, ReactomeId, RnaAbundance, RnaUnit, TissueNtpm,
 };
 pub use response::{
-    CivicClaimPage, CivicMember, CivicMembership, CivicNativeClaim, CivicProfile, CivicStatement,
-    HotspotAlternate, HotspotMembership, HotspotRecord, OncokbCitation, OncokbVariantRecord,
-    VariantCivic, VariantHotspots, VariantOncokb, VariantSections,
+    CivicClaimPage, CivicCondition, CivicMember, CivicMembership, CivicNativeClaim, CivicProfile,
+    CivicStatement, CivicTherapy, HotspotAlternate, HotspotMembership, HotspotRecord,
+    OncokbCitation, OncokbConcept, OncokbVariantRecord, VariantCivic, VariantHotspots,
+    VariantOncokb, VariantSections,
 };
 pub use response::{
     ConfigurationHealth, ConfigurationNotice, ConfigurationNoticeCode, ConfigurationVariable,

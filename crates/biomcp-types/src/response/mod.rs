@@ -134,14 +134,14 @@ pub use variant_assertions::{
 };
 mod variant_civic;
 pub use variant_civic::{
-    CivicClaimPage, CivicMember, CivicMembership, CivicNativeClaim, CivicProfile, CivicStatement,
-    VariantCivic,
+    CivicClaimPage, CivicCondition, CivicMember, CivicMembership, CivicNativeClaim, CivicProfile,
+    CivicStatement, CivicTherapy, VariantCivic,
 };
 mod variant_hotspots;
 pub use variant_hotspots::{HotspotAlternate, HotspotMembership, HotspotRecord, VariantHotspots};
 
 mod variant_oncokb;
-pub use variant_oncokb::{OncokbCitation, OncokbVariantRecord, VariantOncokb};
+pub use variant_oncokb::{OncokbCitation, OncokbConcept, OncokbVariantRecord, VariantOncokb};
 
 mod variant_population;
 pub use variant_population::{

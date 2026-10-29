@@ -127,11 +127,7 @@ fn read(
             query
                 .assertion()
                 .map(|id| (id.as_str(), query.version().map(|v| v.as_str()))),
-        )
-        .map(|value| biomcp_adapters::Mapped {
-            value,
-            problems: Vec::new(),
-        }),
+        ),
     };
     let error = result.as_ref().err().copied();
     let outcome = status::source(spec.source, leg.finish(), error);

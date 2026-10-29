@@ -4,11 +4,25 @@ use crate::runner::transcript::trial as transcript_trial;
 use libtest_mimic::Trial;
 use serde_json::{Value, json};
 use std::fs;
+#[path = "civic_native_profile.rs"]
+mod native_profile;
+#[path = "civic_values.rs"]
+mod values;
 #[path = "civic_vocabulary.rs"]
 mod vocabulary;
 
 pub(super) fn trials() -> Vec<Trial> {
     vec![
+        transcript_trial("drug-civic/native-boolean-profile-context", || {
+            native_profile::context().map_err(Into::into)
+        }),
+        transcript_trial(
+            "variant/civic-invalid-values-keep-identified-claims",
+            || values::claims().map_err(Into::into),
+        ),
+        transcript_trial("variant/civic-amp-na-and-therapy-group-stay-native", || {
+            values::amp_and_group().map_err(Into::into)
+        }),
         transcript_trial("drug-civic/unknown-status-keeps-native-claims", || {
             vocabulary::drug_status().map_err(Into::into)
         }),
@@ -179,11 +193,11 @@ fn check_claims(value: &Value) -> Result<(), String> {
         ("/statements/0/statement/direction", json!("disputes")),
         ("/statements/0/direction", json!("DOES_NOT_SUPPORT")),
         (
-            "/statements/2/statement/classification/codings/0/code",
+            "/statements/2/native/classification/codings/0/code",
             json!("tier_i"),
         ),
         (
-            "/statements/2/statement/strength/codings/0/code",
+            "/statements/2/native/strength/codings/0/code",
             json!("level_a"),
         ),
         ("/evidence_page/next/civic_profile", json!(120)),
@@ -236,13 +250,15 @@ pub(super) fn civic_body(request: &str) -> Result<String, String> {
     let evidence = json!(
         {"totalCount":2,"nodes":[{"id":1409,"status":"ACCEPTED","evidenceType":"PREDICTIVE","evidenceLevel":"A",
         "evidenceDirection":"DOES_NOT_SUPPORT","significance":"RESISTANCE","disease":{"name":"melanoma","doid":"1909"},
-        "therapies":[{"name":"dabrafenib"}],"source":{"citationId":"25741868","sourceType":"PUBMED"}}],"pageInfo":{"hasNextPage":true,
+        "therapies":[{"name":"dabrafenib"}],"therapyInteractionType":null,
+        "source":{"citationId":"25741868","sourceType":"PUBMED"}}],"pageInfo":{"hasNextPage":true,
         "endCursor":"synthetic-e1"}}
     );
     let assertions = json!(
         {"totalCount":2,"nodes":[{"id":7,"status":"ACCEPTED","assertionType":"PREDICTIVE","assertionDirection":"SUPPORTS",
         "significance":"SENSITIVITYRESPONSE","ampLevel":"TIER_I_LEVEL_A","disease":{"name":"melanoma","doid":"1909"},
-        "therapies":[{"name":"dabrafenib"},{"name":"trametinib"}],"variantOrigin":"SOMATIC"}],"pageInfo":{"hasNextPage":true,
+        "therapies":[{"name":"dabrafenib"},{"name":"trametinib"}],"therapyInteractionType":"COMBINATION",
+        "variantOrigin":"SOMATIC"}],"pageInfo":{"hasNextPage":true,
         "endCursor":"synthetic-a1"}}
     );
     let mut reply = json!(
@@ -331,11 +347,31 @@ fn unjoined() -> Result<(), String> {
             args.extend(["--civic-profile", "99", "--civic-kind", "evidence"]);
         }
         let value = run(&environment, &args)?;
-        let base = "/result/candidates/0/sections/civic/data/profiles/0";
-        if value.pointer(&format!("{base}/membership")) != Some(&json!("candidate"))
-            || value.pointer(&format!("{base}/statements")).is_some()
+        let base = "/result/candidates/0/sections/civic";
+        if value.pointer("/result/candidates/0/identity") != Some(&json!({})) {
+            return Err(format!(
+                "unjoined profile created an allele identity: {value}"
+            ));
+        }
+        if attempt == 2 {
+            if value.pointer(&format!("{base}/state")) != Some(&json!("empty"))
+                || value.pointer(&format!("{base}/data")).is_some()
+                || value.get("problems")
+                    != Some(&json!([{
+                        "source":"civic", "record":"120", "field":"id", "code":"value.unknown"
+                    }]))
+            {
+                return Err(format!(
+                    "wrong requested profile identity was retained: {value}"
+                ));
+            }
+        } else if value.pointer(&format!("{base}/data/profiles/0/membership"))
+            != Some(&json!("candidate"))
             || value
-                .pointer(&format!("{base}/evidence_page/next"))
+                .pointer(&format!("{base}/data/profiles/0/statements"))
+                .is_some()
+            || value
+                .pointer(&format!("{base}/data/profiles/0/evidence_page/next"))
                 .is_some()
         {
             return Err(format!(

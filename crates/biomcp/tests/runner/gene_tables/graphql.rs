@@ -35,7 +35,40 @@ pub(super) fn check() -> Check {
 }
 
 fn civic() -> Check {
-    for mode in 0..11 {
+    for mode in 0..13 {
+        let mut expect = match mode {
+            6 => json!({
+                "/result/items/0/sections/civic/state":"data",
+                "/result/items/0/sections/civic/data/id":20,
+                "/result/items/0/sections/civic/data":{"omits":["description"]},
+                "":{"omits":["problems"]}
+            }),
+            8 | 11 => json!({
+                "/result/items/0/sections/civic/state":"data",
+                "/result/items/0/sections/civic/data/id":20,
+                "/result/items/0/sections/civic/data/variant_count":126,
+                "/result/items/0/sections/civic/data":{"omits":[if mode == 8 {"url"} else {"description"}]},
+                "/problems":{"count":1},
+                "/problems/0/field":if mode == 8 {"link"} else {"description"},
+                "/problems/0/record":"20"
+            }),
+            7 | 9 | 12 => json!({
+                "/result/items/0/sections/civic/state":"empty",
+                "/result/items/0/sections/civic":{"omits":["record","data"]},
+                "/problems":{"count":1},
+                "/problems/0/field":if mode == 9 {"id"} else {"entrezId"}
+            }),
+            _ => json!({
+                "/result/items/0/sections/civic/state":"unavailable",
+                "/sources/2/reason":"bad-reply"
+            }),
+        };
+        let fields = expect.as_object_mut().ok_or("expected assertion object")?;
+        fields.insert("/result/items/0/answer/gene/symbol".into(), json!("ERBB2"));
+        fields.insert(
+            "/result/items/0/answer/gene/hgnc_id".into(),
+            json!("HGNC:3430"),
+        );
         graphql(
             "civic",
             |body| {
@@ -56,14 +89,17 @@ fn civic() -> Check {
                     7 => value["data"]["g0"]["entrezId"] = json!(0),
                     8 => value["data"]["g0"]["link"] = json!("https://other.example/features/20"),
                     9 => value["data"]["g0"]["id"] = json!(0),
+                    11 => value["data"]["g0"]["description"] = json!(42),
+                    12 => value["data"]["g0"]["entrezId"] = json!(1956),
                     _ => {
                         *body =
                             json!({"kind":"text", "value":"{\"data\":{\"g0\":null,\"g0\":null}}"})
                     }
                 }
             },
-            json!({"/result/items/0/sections/civic/state": "unavailable", "/sources/2/reason": "bad-reply"}),
-        )?;
+            expect,
+        )
+        .map_err(|error| format!("CIViC boundary mode {mode}: {error}"))?;
     }
     Ok(())
 }
