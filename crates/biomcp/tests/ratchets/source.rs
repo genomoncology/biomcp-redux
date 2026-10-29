@@ -133,16 +133,13 @@ pub(super) fn check(root: &Path) -> Check {
                 .replace('\\', "/");
             let text = fs::read_to_string(&path)?;
             width(&relative, &text)?;
-            let limit = if relative.starts_with("crates/biomcp-adapters/src/")
-                && matches!(
-                    path.file_name().and_then(|v| v.to_str()),
-                    Some("mod.rs" | "raw.rs" | "map.rs")
-                ) {
-                ADAPTER_LIMIT
-            } else {
-                FILE_LIMIT
-            };
-            if text.lines().count() > limit {
+            let adapter = relative.starts_with("crates/biomcp-adapters/src/");
+            let count = text.lines().count();
+            if count > FILE_LIMIT
+                || adapter
+                    && count > ADAPTER_LIMIT
+                    && !adapter_values::pending(&relative, "file line limit", count)?
+            {
                 return fail(&relative, "file line limit exceeded");
             }
             let tokens = tokens(&text);
@@ -251,12 +248,14 @@ fn attributes(path: &str, tokens: &[String]) -> Check {
                 );
             }
         }
-        if path.starts_with("crates/biomcp-adapters/")
-            && path.ends_with("/raw.rs")
-            && attribute.contains(&"serde")
-            && attribute.contains(&"default")
+        if path.starts_with("crates/biomcp-adapters/src/")
+            && let Some(site) = adapter_values::attribute_site(tokens, i)
+            && !adapter_values::pending(path, &site, 1)?
         {
-            return fail(path, "raw serde default forbidden");
+            return fail(
+                path,
+                "raw serde default or deny_unknown_fields forbidden in adapter files",
+            );
         }
     }
     Ok(())
