@@ -5,8 +5,10 @@ use std::collections::{BTreeMap, BTreeSet};
 type Check<T> = Result<T, String>;
 const STRING_FORMATS: &[&str] = &["date", "date-time", "uri", "uri-reference"];
 
-#[derive(Debug, Default)]
+#[derive(Debug, Default, Clone)]
 struct Shape {
+    redirect: Option<(String, Value)>,
+    children: BTreeMap<String, String>,
     types: BTreeSet<String>,
     values: Option<BTreeSet<String>>,
     open_enum: bool,
@@ -55,19 +57,21 @@ pub(super) fn check_reviewed(
     if new_major > old_major {
         return Ok(());
     }
-    for (path, old) in old_shapes {
-        let new = new_shapes
-            .get(&path)
-            .ok_or_else(|| format!("removed {path}"))?;
+    let mut pending = vec![(String::new(), String::new())];
+    let mut assumed = BTreeSet::new();
+    while let Some((path, new_path)) = pending.pop() {
+        // A repeated pair is an assumption, discharged only by the whole loop.
+        if !assumed.insert((path.clone(), new_path.clone())) {
+            continue;
+        }
+        let old = &old_shapes[&path];
+        let new = &new_shapes[&new_path];
         if old.map_patterns != new.map_patterns
             || old.impossible != new.impossible
             || new.map_values && !old.map_values
             || new.map_keys && !old.map_keys
             || old.markdown && !new.markdown
-            || old
-                .string_format
-                .as_ref()
-                .is_some_and(|format| new.string_format.as_ref() != Some(format))
+            || old.string_format.is_some() && old.string_format != new.string_format
             || old.pattern != new.pattern
                 && !(matches!(kind, ContractKind::Reply)
                     && reviews.pattern(
@@ -113,10 +117,16 @@ pub(super) fn check_reviewed(
         {
             return Err(format!("incompatible contract at {path}"));
         }
+        for (edge, child) in &old.children {
+            let new_child = new
+                .children
+                .get(edge)
+                .ok_or_else(|| format!("removed {path}/{edge}"))?;
+            pending.push((child.clone(), new_child.clone()));
+        }
     }
     Ok(())
 }
-
 fn identity(schema: &Value) -> Check<(&str, u64)> {
     let id = schema["$id"].as_str().ok_or("missing schema $id")?;
     let (name, major) = id.rsplit_once('/').ok_or("missing major version")?;
@@ -125,7 +135,22 @@ fn identity(schema: &Value) -> Check<(&str, u64)> {
 
 fn shapes(root: &Value) -> Check<BTreeMap<String, Shape>> {
     let mut shapes = BTreeMap::new();
-    visit(root, root, "", &mut shapes, &mut BTreeSet::new())?;
+    visit(root, root, "", &mut shapes, &mut BTreeMap::new())?;
+    let redirects: Vec<_> = shapes
+        .iter()
+        .filter_map(|(path, shape)| {
+            shape
+                .redirect
+                .clone()
+                .map(|redirect| (path.clone(), redirect))
+        })
+        .collect();
+    for (path, (target, node)) in redirects {
+        let mut shape = shapes[&target].clone();
+        shape.redirect = Some((target, node.clone()));
+        shapes.insert(path.clone(), shape);
+        collect(&node, &path, &mut shapes)?;
+    }
     Ok(shapes)
 }
 
@@ -134,7 +159,7 @@ fn visit(
     node: &Value,
     path: &str,
     shapes: &mut BTreeMap<String, Shape>,
-    refs: &mut BTreeSet<String>,
+    refs: &mut BTreeMap<String, String>,
 ) -> Check<()> {
     if let Some(boolean) = node.as_bool() {
         shapes.entry(path.into()).or_default().impossible = !boolean;
@@ -162,9 +187,14 @@ fn visit(
             .strip_prefix("#/$defs/")
             .map(|_| &reference[1..])
             .ok_or_else(|| format!("unsupported reference {reference}"))?;
-        if !refs.insert(reference.into()) {
-            return Err(format!("recursive reference {reference}"));
+        if let Some(target) = refs.get(reference) {
+            if target == path {
+                return Err(format!("nonproductive reference {reference}"));
+            }
+            shapes.entry(path.into()).or_default().redirect = Some((target.clone(), node.clone()));
+            return Ok(());
         }
+        refs.insert(reference.into(), path.into());
         visit(
             root,
             root.pointer(pointer)
@@ -184,13 +214,13 @@ fn visit(
             }
         } else {
             for (kind, branch) in scalar_branches(root, branches)? {
-                visit(root, branch, &format!("{path}/@type={kind}"), shapes, refs)?;
+                descend(root, branch, path, &format!("@type={kind}"), shapes, refs)?;
             }
         }
     }
     if let Some(branches) = node.get("oneOf") {
         for (tag, branch) in tagged_branches(branches)? {
-            visit(root, branch, &format!("{path}/@{tag}"), shapes, refs)?;
+            descend(root, branch, path, &format!("@{tag}"), shapes, refs)?;
         }
     }
     collect(node, path, shapes)?;
@@ -202,15 +232,16 @@ fn visit_children(
     node: &Value,
     path: &str,
     shapes: &mut BTreeMap<String, Shape>,
-    refs: &mut BTreeSet<String>,
+    refs: &mut BTreeMap<String, String>,
 ) -> Check<()> {
     if let Some(patterns) = node.get("patternProperties") {
         for (pattern, child) in patterns.as_object().ok_or("invalid patternProperties")? {
             let key = pattern.replace('~', "~0").replace('/', "~1");
-            visit(
+            descend(
                 root,
                 child,
-                &format!("{path}/{{pattern={key}}}"),
+                path,
+                &format!("{{pattern={key}}}"),
                 shapes,
                 refs,
             )?;
@@ -224,19 +255,36 @@ fn visit_children(
             .get(field)
             .filter(|value| field == "propertyNames" || !value.is_boolean())
         {
-            visit(root, child, &format!("{path}/{suffix}"), shapes, refs)?;
+            descend(root, child, path, suffix, shapes, refs)?;
         }
     }
     if let Some(items) = node.get("items") {
-        visit(root, items, &format!("{path}/[]"), shapes, refs)?;
+        descend(root, items, path, "[]", shapes, refs)?;
     }
     if let Some(properties) = node.get("properties") {
         for (name, child) in properties.as_object().ok_or("invalid properties")? {
             let name = name.replace('~', "~0").replace('/', "~1");
-            visit(root, child, &format!("{path}/{name}"), shapes, refs)?;
+            descend(root, child, path, &name, shapes, refs)?;
         }
     }
     Ok(())
+}
+
+fn descend(
+    root: &Value,
+    node: &Value,
+    path: &str,
+    edge: &str,
+    shapes: &mut BTreeMap<String, Shape>,
+    refs: &mut BTreeMap<String, String>,
+) -> Check<()> {
+    let child = format!("{path}/{edge}");
+    shapes
+        .entry(path.into())
+        .or_default()
+        .children
+        .insert(edge.into(), child.clone());
+    visit(root, node, &child, shapes, refs)
 }
 
 fn collect(node: &Value, path: &str, shapes: &mut BTreeMap<String, Shape>) -> Check<()> {
@@ -316,7 +364,6 @@ fn collect(node: &Value, path: &str, shapes: &mut BTreeMap<String, Shape>) -> Ch
     }
     collect_map(node, shape)
 }
-
 fn collect_format(node: &Value, shape: &mut Shape) -> Check<()> {
     if node.get("format").is_some_and(|format| {
         format != "uint32"
@@ -341,7 +388,6 @@ fn collect_format(node: &Value, shape: &mut Shape) -> Check<()> {
     shape.markdown |= node.get("format").is_some_and(|v| v == "markdown");
     Ok(())
 }
-
 fn collect_map(node: &Value, shape: &mut Shape) -> Check<()> {
     if let Some(additional) = node.get("additionalProperties") {
         shape.closed = additional == &Value::Bool(false);
@@ -495,53 +541,22 @@ fn tagged_branches(branches: &Value) -> Check<Vec<(String, &Value)>> {
     Ok(result)
 }
 
+const ANNOTATIONS: &str = concat!(
+    "$schema $id $defs title description default x-enum-descriptions x-extensible-enum ",
+    "x-positional x-trailing-section x-comma-separated x-cli-flags x-reply-query-titles"
+);
 fn validate_keywords(object: &serde_json::Map<String, Value>, path: &str) -> Check<()> {
     for key in object.keys() {
-        if ![
-            "$schema",
-            "$id",
-            "$defs",
-            "$ref",
-            "title",
-            "description",
-            "type",
-            "enum",
-            "properties",
-            "required",
-            "additionalProperties",
-            "propertyNames",
-            "patternProperties",
-            "anyOf",
-            "oneOf",
-            "const",
-            "items",
-            "minLength",
-            "maxLength",
-            "pattern",
-            "minimum",
-            "maximum",
-            "format",
-            "default",
-            "minItems",
-            "maxItems",
-            "uniqueItems",
-            "x-enum-descriptions",
-            "x-extensible-enum",
-            "x-positional",
-            "x-trailing-section",
-            "x-comma-separated",
-            "x-cli-flags",
-            "x-reply-query-titles",
-        ]
-        .contains(&key.as_str())
-        {
+        if !concat!(
+            "$ref type enum properties required additionalProperties propertyNames patternProperties ",
+            "anyOf oneOf const items minLength maxLength pattern minimum maximum format ",
+            "minItems maxItems uniqueItems"
+        ).split_whitespace().chain(ANNOTATIONS.split_whitespace()).any(|allowed| allowed == key) {
             return Err(format!("unsupported keyword {key} at {path}"));
         }
     }
     super::annotations::validate(object)?;
-    // These generated forms carry annotations beside a reference or union,
-    // never assertions. Assertions would intersect, while Shape only records
-    // one constraint at each path; refuse them instead of merging incorrectly.
+    // Assertion siblings would intersect, but Shape stores one constraint per path.
     for composition in ["$ref", "anyOf", "oneOf"] {
         if object.contains_key(composition)
             && !(composition == "anyOf" && selectors(&Value::Object(object.clone()))?.is_some())
@@ -552,22 +567,7 @@ fn validate_keywords(object: &serde_json::Map<String, Value>, path: &str) -> Che
                             .get(key)
                             .and_then(Value::as_str)
                             .is_some_and(|format| STRING_FORMATS.contains(&format)))
-                    && ![
-                        "$schema",
-                        "$id",
-                        "$defs",
-                        "title",
-                        "description",
-                        "x-enum-descriptions",
-                        "x-extensible-enum",
-                        "x-positional",
-                        "x-trailing-section",
-                        "x-comma-separated",
-                        "x-cli-flags",
-                        "x-reply-query-titles",
-                        "default",
-                    ]
-                    .contains(&key.as_str())
+                    && !ANNOTATIONS.split_whitespace().any(|allowed| allowed == key)
             })
         {
             return Err(format!(
@@ -577,7 +577,6 @@ fn validate_keywords(object: &serde_json::Map<String, Value>, path: &str) -> Che
     }
     Ok(())
 }
-
 #[derive(Debug, Clone, Copy, PartialEq, PartialOrd)]
 enum Bound {
     Integer(i128),
