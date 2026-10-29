@@ -38,16 +38,22 @@ pub(super) fn check(root: &Path) -> Check {
 
 fn audit(tokens: &[String]) -> Result<(), String> {
     for window in tokens.windows(3) {
-        let [name, equal, value] = window else { continue };
+        let [name, equal, value] = window else {
+            continue;
+        };
         if name == "rename_all" && value == "\"snake_case\"" {
             return Err("owned enum values require kebab-case".into());
         }
         if name == "tag" && equal == "=" && value.starts_with('"') {
             let tag = value.trim_matches('"');
             if tag == "annotationkind"
-                || !tag.bytes().all(|c| c.is_ascii_lowercase() || c.is_ascii_digit() || c == b'_')
+                || !tag
+                    .bytes()
+                    .all(|c| c.is_ascii_lowercase() || c.is_ascii_digit() || c == b'_')
             {
-                return Err("serde tags require snake_case names, including annotation_kind".into());
+                return Err(
+                    "serde tags require snake_case names, including annotation_kind".into(),
+                );
             }
         }
     }
@@ -61,14 +67,24 @@ fn audit(tokens: &[String]) -> Result<(), String> {
         if !declaration {
             continue;
         }
-        let Some(start) = tail.iter().position(|token| token == "{") else { continue };
-        for value in tail.get(start..).unwrap_or_default().windows(3)
+        let Some(start) = tail.iter().position(|token| token == "{") else {
+            continue;
+        };
+        for value in tail
+            .get(start..)
+            .unwrap_or_default()
+            .windows(3)
             .take_while(|w| w.first().is_none_or(|token| token != "}"))
         {
-            let [equal, arrow, literal] = value else { continue };
+            let [equal, arrow, literal] = value else {
+                continue;
+            };
             if equal == "=" && arrow == ">" {
                 let literal = literal.trim_matches('"');
-                if !literal.bytes().all(|c| c.is_ascii_lowercase() || c.is_ascii_digit() || c == b'-') {
+                if !literal
+                    .bytes()
+                    .all(|c| c.is_ascii_lowercase() || c.is_ascii_digit() || c == b'-')
+                {
                     return Err(format!("{token} requires kebab-case: {literal}"));
                 }
             }
