@@ -2,7 +2,7 @@ use super::{OrcidClientId, OrcidId};
 use crate::{PartialDate, Text};
 use serde::{Deserialize, Serialize};
 /// Only public source visibility is admitted; legacy uppercase is an alias.
-#[derive(Clone, Copy, Debug, PartialEq, Eq, Serialize, Deserialize)]
+#[derive(Clone, Copy, Debug, PartialEq, Eq, Hash, Serialize, Deserialize)]
 #[cfg_attr(feature = "schema", derive(schemars::JsonSchema))]
 #[cfg_attr(feature = "schema", schemars(with = "str", extend("enum" = ["public", "PUBLIC"])))]
 pub enum OrcidPublicVisibility {

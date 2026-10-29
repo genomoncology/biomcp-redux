@@ -114,8 +114,8 @@ fn reference_and_variant_text_preserve_identity() -> Check {
     value_contract::<biodata::AccessionBase>(&["NM_004333"], &["NM_004333.6"])?;
     value_contract::<biodata::Chromosome>(&["1", "X", "MT"], &["23"])?;
     constructor_contract(biodata::Contig::new, &["chr7", "NC_000007.14"], &["chr 7"])?;
-    plain_value_contract::<biodata::Base>(&["A", "N"], &["a"])?;
-    plain_value_contract::<biodata::Sequence>(&["ACGTN"], &["ACGT!"])?;
+    value_contract::<biodata::Base>(&["A", "N"], &["a"])?;
+    value_contract::<biodata::Sequence>(&["", "ACGTN"], &["ACGT!"])?;
     value_contract::<biodata::HgvsText>(
         &["NM_004333.6:c.1799T>A", "NP_004324.2:p.Val600Glu"],
         &["NM_004333.6:c."],
@@ -255,7 +255,7 @@ fn author_and_record_vocabularies_preserve_identity() -> Check {
         &["orcid:0000-0002-1825-0098"],
     )?;
     value_contract::<biodata::OrcidClientId>(&["APP-0123456789ABCDEF"], &["APP-0123456789ABCDE"])?;
-    plain_value_contract::<biodata::OrcidPublicVisibility>(&["public", "PUBLIC"], &["private"])?;
+    value_contract::<biodata::OrcidPublicVisibility>(&["public", "PUBLIC"], &["private"])?;
     value_contract::<biodata::License>(&["cc_by"], &["cc_by!"])?;
     value_contract::<biodata::TrialOutcomeKind>(&["primary"], &["primary!"])?;
     value_contract::<biodata::TrialDateKind>(&["ACTUAL"], &["ACTUAL!"])?;
@@ -334,6 +334,7 @@ fn scientific_vocabularies_preserve_identity() -> Check {
 
 #[test]
 fn equal_identity_uses_equal_hashes() -> Check {
+    equal_hash::<biodata::OrcidPublicVisibility>("PUBLIC", "public")?;
     equal_hash::<biodata::GeneSymbol>("BRAF", "bRaF")?;
     equal_hash::<biodata::Doi>("10.1000/ABC", "10.1000/abc")?;
     equal_hash::<biodata::ScientificPValue>("1.50e-8", "1.5e-8")?;
