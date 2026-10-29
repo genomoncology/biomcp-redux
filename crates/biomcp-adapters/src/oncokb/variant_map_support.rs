@@ -28,7 +28,7 @@ pub(super) fn abstracts(
         .collect()
 }
 
-pub(super) fn text(value: &str, field: &str, problems: &mut Vec<Problem>) -> Option<Text> {
+pub(super) fn label(value: &str, field: &str, problems: &mut Vec<Problem>) -> Option<Text> {
     crate::mapped::field_text(
         problems,
         Source::Oncokb,

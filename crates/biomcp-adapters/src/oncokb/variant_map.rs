@@ -31,7 +31,7 @@ pub fn records(row: &Annotation) -> Mapped<Vec<Record>> {
             }
         }
         .map(Coding::OncokbOncogenicity);
-        if let Some(label) = support::text(label, "oncogenic", &mut out.problems) {
+        if let Some(label) = support::label(label, "oncogenic", &mut out.problems) {
             classification(
                 &mut out.value,
                 row,
@@ -53,7 +53,7 @@ pub fn records(row: &Annotation) -> Mapped<Vec<Record>> {
                 .map(|c| pmids(values(c.pmids.as_deref()), &mut out.problems))
                 .unwrap_or_default();
             if let Some(label) =
-                support::text(label, "mutationEffect.knownEffect", &mut out.problems)
+                support::label(label, "mutationEffect.knownEffect", &mut out.problems)
             {
                 classification(
                     &mut out.value,
@@ -92,23 +92,22 @@ pub fn records(row: &Annotation) -> Mapped<Vec<Record>> {
 }
 fn implications(row: &Annotation, out: &mut Mapped<Vec<Record>>) {
     for r in values(row.treatments.as_deref()) {
-        let drugs = r
-            .drugs
-            .as_deref()
-            .unwrap_or_default()
-            .iter()
-            .filter_map(|d| {
-                support::text(&d.drug_name, "treatments.drugs.drugName", &mut out.problems).map(
-                    |label| Concept {
-                        id: d
-                            .ncit_code
-                            .as_ref()
-                            .and_then(|s| format!("NCIT:{s}").parse().ok()),
-                        label,
-                    },
-                )
-            })
-            .collect();
+        let drugs =
+            r.drugs
+                .as_deref()
+                .unwrap_or_default()
+                .iter()
+                .filter_map(|d| {
+                    support::label(&d.drug_name, "treatments.drugs.drugName", &mut out.problems)
+                        .map(|label| Concept {
+                            id: d
+                                .ncit_code
+                                .as_ref()
+                                .and_then(|s| format!("NCIT:{s}").parse().ok()),
+                            label,
+                        })
+                })
+                .collect();
         out.value.push(Record::Implication {
             field: "treatments".into(),
             level: level(&r.level, &mut out.problems),
