@@ -67,7 +67,7 @@ mod http_limits;
 mod key_help;
 mod key_registration;
 mod key_reload;
-mod launch;
+pub(super) mod launch;
 mod litvar_tables;
 pub(crate) mod live;
 mod live_follow_proof;
@@ -218,7 +218,7 @@ struct Walk {
     max_pages: u32,
 }
 
-pub(super) fn discover(root: &Path, include_proof: bool) -> Result<Vec<Trial>, String> {
+pub(super) fn discover(root: &Path) -> Result<Vec<Trial>, String> {
     let mut paths = Vec::new();
     collect(root, &mut paths).map_err(|error| format!("{}: {error}", root.display()))?;
     paths.sort();
@@ -242,12 +242,10 @@ pub(super) fn discover(root: &Path, include_proof: bool) -> Result<Vec<Trial>, S
             }))
         })
         .collect::<Result<Vec<_>, String>>()?;
-    if include_proof {
-        trials.extend(schema_proof::trials(registry));
-        trials.extend(parity::trials());
-        trials.push(parity_shape_proof::trial());
-        trials.push(parity_inventory_proof::trial());
-    }
+    trials.extend(schema_proof::trials(registry));
+    trials.extend(parity::trials());
+    trials.push(parity_shape_proof::trial());
+    trials.push(parity_inventory_proof::trial());
     Ok(trials)
 }
 
@@ -529,19 +527,6 @@ fn run_sequence_with(
         }
     }
     Err("walk exceeded max_pages".into())
-}
-
-pub(super) fn installed_process_proof() -> Result<(), String> {
-    configuration::article_processes()
-}
-
-// Run installed HTTP ownership checks without resolving a build-checkout case directory.
-pub(super) fn installed_http_trials() -> Vec<Trial> {
-    http::trials()
-}
-
-pub(super) fn installed_alphagenome_trials() -> Vec<Trial> {
-    alphagenome_tls::installed_trials()
 }
 
 mod variant_assertion_wire;

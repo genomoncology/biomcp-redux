@@ -35,17 +35,21 @@ else:
             binary.write_text(f"#!{sys.executable}\nLOG = {str(log)!r}\n" + candidate)
             binary.chmod(0o755)
             runner = root / "runner"
-            runner.write_text(f"#!{sys.executable}\nimport json, sys\nwith open({str(log)!r}, 'a') as stream:\n    stream.write(json.dumps(sys.argv[1]) + '\\n')\n")
+            runner.write_text(f"#!{sys.executable}\nimport json, sys\nwith open({str(log)!r}, 'a') as stream:\n    stream.write(json.dumps(sys.argv[1]) + '\\n')\nprint('test result: ok. 2 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out')\n")
             runner.chmod(0o755)
             script = "from release.smoke import smoke\nimport json, sys\nprint(json.dumps(smoke(*sys.argv[1:])))"
             result = subprocess.run([sys.executable, "-O", "-c", script, str(binary), str(runner), str(root), "1"],
                                     capture_output=True, text=True, timeout=30)
             self.assertEqual(result.returncode, 0, result.stderr)
-            completed = json.loads(result.stdout)
+            completed = json.loads(result.stdout.splitlines()[-1])
             commands = [json.loads(line) for line in log.read_text().splitlines()]
-            self.assertEqual(commands, ["schema", "help", "serve", "--cases", "--installed-process-proof", "--installed-http-proof", "--installed-alphagenome-proof"])
-            self.assertEqual(completed, {"tools": ["biomcp"], "checks": ["schemas", "help", "version", "mcp-all-stdout",
-                             "ordinary-cache-created", "replay-cli-mcp", "ordinary-cache-two-process", "mcp-http", "alphagenome-local-tls"]})
+            self.assertEqual(commands, ["schema", "help", "serve", "--test-threads"])
+            self.assertEqual(completed["checks"], ["schemas", "help", "version", "mcp-all-stdout",
+                             "ordinary-cache-created", "all-cases-and-trials"])
+            self.assertEqual(completed["tools"], ["biomcp"])
+            self.assertEqual(completed["trials"], 2)
+            self.assertEqual(completed["timeout_seconds"], completed["elapsed_seconds"] * 1.15)
+
 
     def test_broken_installed_commands_fail_under_optimization(self):
         replies = [

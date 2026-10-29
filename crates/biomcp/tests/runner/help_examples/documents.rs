@@ -6,11 +6,8 @@ type Check = Result<(), String>;
 
 pub(super) fn check(witnessed: &BTreeSet<Vec<String>>) -> Check {
     for text in [
-        include_str!(concat!(env!("CARGO_MANIFEST_DIR"), "/../../README.md")),
-        include_str!(concat!(
-            env!("CARGO_MANIFEST_DIR"),
-            "/../../docs/recipes.md"
-        )),
+        include_str!("../../../../../README.md"),
+        include_str!("../../../../../docs/recipes.md"),
     ] {
         check_text(witnessed, text)?;
     }

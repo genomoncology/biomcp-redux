@@ -8,7 +8,7 @@ import subprocess
 import sys
 import tempfile
 
-from smoke import mcp_probe, require
+from smoke import case_suite, mcp_probe, require
 
 
 def main():
@@ -32,15 +32,9 @@ def main():
         mcp_probe(common + ["-i", image, "serve"], os.environ.copy(), Path(root), version)
     checks.extend(["version", "mcp-all-stdout"])
     executable = common + ["-v", str(Path(proof).resolve()) + ":/proof:ro", "-e", "BIOMCP_TEST_EXECUTABLE=/usr/local/bin/biomcp", "-e", "BIOMCP_TEST_FIXTURES=/proof/fixtures", "--entrypoint", "/proof/case-runner", image]
-    subprocess.run(executable + ["--cases", "/proof/fixtures/cases", "--test-threads", "1"], check=True)
-    checks.append("replay-cli-mcp")
-    subprocess.run(executable + ["--installed-process-proof"], check=True)
-    checks.append("ordinary-cache-two-process")
-    subprocess.run(executable + ["--installed-http-proof"], check=True)
-    checks.append("mcp-http")
-    subprocess.run(executable + ["--installed-alphagenome-proof"], check=True)
-    checks.append("alphagenome-local-tls")
-    print(json.dumps({"artifact": "docker", "platform": "linux/" + arch, "result": "pass", "checks": checks}))
+    summary = case_suite(executable, os.environ.copy(), Path.cwd(), Path(proof) / "fixtures")
+    checks.append("all-cases-and-trials")
+    print(json.dumps({"artifact": "docker", "platform": "linux/" + arch, "result": "pass", "checks": checks, **summary}))
 
 
 if __name__ == "__main__":

@@ -7,12 +7,10 @@ pub(super) fn run(directory: &Path) -> Result<(), String> {
         .map(|e| e.map(|e| e.path()).map_err(|e| e.to_string()))
         .collect::<Result<Vec<_>, _>>()?;
     paths.sort();
-    let budgets: std::collections::BTreeMap<String, [usize; 2]> =
-        serde_json::from_str(include_str!(concat!(
-            env!("CARGO_MANIFEST_DIR"),
-            "/../../tests/protein-section-budgets.json"
-        )))
-        .map_err(|e| e.to_string())?;
+    let budgets: std::collections::BTreeMap<String, [usize; 2]> = serde_json::from_str(
+        &crate::runner::launch::fixture_text("protein-section-budgets.json")?,
+    )
+    .map_err(|e| e.to_string())?;
     let output = directory
         .parent()
         .ok_or("native directory")?

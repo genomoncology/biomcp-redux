@@ -281,12 +281,10 @@ fn environment(
 }
 
 fn measurements(key: &str) -> Result<[usize; 2], String> {
-    let values: std::collections::BTreeMap<String, [usize; 2]> =
-        serde_json::from_str(include_str!(concat!(
-            env!("CARGO_MANIFEST_DIR"),
-            "/../../tests/phenotype-section-budgets.json"
-        )))
-        .map_err(|e| e.to_string())?;
+    let values: std::collections::BTreeMap<String, [usize; 2]> = serde_json::from_str(
+        &crate::runner::launch::fixture_text("phenotype-section-budgets.json")?,
+    )
+    .map_err(|e| e.to_string())?;
     values
         .get(key)
         .copied()

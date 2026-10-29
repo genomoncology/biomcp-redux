@@ -27,12 +27,12 @@ struct Reply {
     json: Option<Value>,
 }
 pub(super) fn fixture_root() -> PathBuf {
-    PathBuf::from(env!("CARGO_MANIFEST_DIR")).join("../../tests/fixtures/drug/native")
+    crate::runner::launch::fixtures().join("fixtures/drug/native")
 }
 fn plan() -> Result<Vec<Case>, String> {
-    serde_json::from_str(include_str!(
-        "../../../../tests/fixtures/drug/native/plan.json"
-    ))
+    serde_json::from_str(&crate::runner::launch::fixture_text(
+        "fixtures/drug/native/plan.json",
+    )?)
     .map_err(|e| e.to_string())
 }
 pub(super) fn trials() -> Vec<Trial> {

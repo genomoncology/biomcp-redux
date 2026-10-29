@@ -71,10 +71,9 @@ pub(super) fn run(root: &Path) -> Result<(), String> {
 fn measure(name: &str, value: &Value, output: &Path) -> Result<(), String> {
     let bytes = serde_json::to_vec(value).map_err(|e| e.to_string())?;
     let comparable = super::super::source_terms::size(value, "")?;
-    let budgets: BTreeMap<String, [usize; 2]> = serde_json::from_str(include_str!(concat!(
-        env!("CARGO_MANIFEST_DIR"),
-        "/../../tests/protein-domain-budgets.json"
-    )))
+    let budgets: BTreeMap<String, [usize; 2]> = serde_json::from_str(
+        &crate::runner::launch::fixture_text("protein-domain-budgets.json")?,
+    )
     .map_err(|e| e.to_string())?;
     let [full, small] = budgets
         .get(name)

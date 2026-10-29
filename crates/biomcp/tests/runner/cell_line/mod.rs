@@ -127,9 +127,9 @@ fn compared(
     Ok(value)
 }
 fn ceiling(phase: &str, surface: &str) -> Result<usize, String> {
-    let measured: std::collections::BTreeMap<String, usize> = serde_json::from_str(include_str!(
-        "../../../../../tests/cell-line-command-budgets.json"
-    ))
+    let measured: std::collections::BTreeMap<String, usize> = serde_json::from_str(
+        &crate::runner::launch::fixture_text("cell-line-command-budgets.json")?,
+    )
     .map_err(|e| e.to_string())?;
     measured
         .get(&format!("{phase} [{surface}]"))

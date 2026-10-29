@@ -34,7 +34,7 @@ fn ceiling(phase: &str, surface: &str) -> Result<usize, String> {
         return Ok(super::super::CLI_HELP_BYTES);
     }
     let measurements: std::collections::BTreeMap<String, usize> = serde_json::from_str(
-        include_str!("../../../../../tests/phenotype-command-budgets.json"),
+        &crate::runner::launch::fixture_text("phenotype-command-budgets.json")?,
     )
     .map_err(|e| e.to_string())?;
     measurements

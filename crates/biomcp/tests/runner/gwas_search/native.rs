@@ -11,12 +11,10 @@ pub(super) fn run(directory: &Path) -> Result<(), String> {
     if paths.len() != 22 {
         return Err("expected the 22 declared native request cases".into());
     }
-    let budgets: std::collections::BTreeMap<String, [usize; 2]> =
-        serde_json::from_str(include_str!(concat!(
-            env!("CARGO_MANIFEST_DIR"),
-            "/../../tests/gwas-search-budgets.json"
-        )))
-        .map_err(|e| e.to_string())?;
+    let budgets: std::collections::BTreeMap<String, [usize; 2]> = serde_json::from_str(
+        &crate::runner::launch::fixture_text("gwas-search-budgets.json")?,
+    )
+    .map_err(|e| e.to_string())?;
     let outputs = directory
         .parent()
         .ok_or("fixture root")?

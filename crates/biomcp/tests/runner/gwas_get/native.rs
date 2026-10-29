@@ -73,10 +73,9 @@ fn measure(root: &Path, recordings: &Path, output: &Path, input: &Value) -> Resu
     let path = root.join(format!("{name}.yaml"));
     let mut step =
         json!({"run":args,"mcp":args,"expect":input["expect"],"max_bytes":20000,"max_tokens":5000});
-    let budgets: Value = serde_json::from_str(include_str!(concat!(
-        env!("CARGO_MANIFEST_DIR"),
-        "/../../tests/gwas-get-budgets.json"
-    )))
+    let budgets: Value = serde_json::from_str(&crate::runner::launch::fixture_text(
+        "gwas-get-budgets.json",
+    )?)
     .map_err(|e| e.to_string())?;
     if let Some(comparable) = budgets
         .get(name)

@@ -347,7 +347,7 @@ fn validate_fact_plan(selection: &Selection, step: &Step) -> Result<(), String> 
     Ok(())
 }
 fn validate_baseline(selection: &Selection, step: &Step) -> Result<(), String> {
-    let root = Path::new(env!("CARGO_MANIFEST_DIR")).join("../..");
+    let root = crate::runner::launch::support();
     let table =
         fs::read_to_string(root.join(&selection.spelling_table)).map_err(|e| e.to_string())?;
     let leaf = selection
@@ -508,7 +508,7 @@ pub(super) fn trials() -> Vec<libtest_mimic::Trial> {
         "parity/reject-wrong-baseline-release",
         || {
             let env = Environment::new().map_err(|e| e.to_string())?;
-            let plan = Path::new(env!("CARGO_MANIFEST_DIR")).join("../../tests/parity/sample.json");
+            let plan = crate::runner::launch::fixtures().join("parity/sample.json");
             let args = vec![
                 "--parity".into(),
                 plan.display().to_string(),

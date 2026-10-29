@@ -171,10 +171,10 @@ class LinuxContainers(unittest.TestCase):
                                         '<revision>' if arg.startswith('BIOMCP_BUILD_REVISION=') else arg
                                         for arg in row]
                 self.assertEqual(normalize(labeled), normalize(plain))
-        self.assertEqual([row[-1] for row in baseline[3:13]],
+        self.assertEqual([row[-1] for row in baseline[3:10]],
                          ['/usr/local/bin/biomcp', '/usr/share/doc/biomcp/LICENSE',
                           '/usr/share/doc/biomcp/THIRD-PARTY-NOTICES.txt', 'biodata.problem/1', 'help', 'serve',
-                          '1', '--installed-process-proof', '--installed-http-proof', '--installed-alphagenome-proof'])
+                          '2'])
 
 
 if __name__ == '__main__':

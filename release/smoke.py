@@ -2,9 +2,11 @@
 """Run one installed executable with copied fixtures and no checkout dependency."""
 import json
 import os
+import re
 from pathlib import Path
 import subprocess
 import tempfile
+import time
 
 
 def require(condition, message):
@@ -27,7 +29,7 @@ def environment(root):
     return env
 
 
-def smoke(binary, runner, fixtures, version, server_args=("serve",)):
+def smoke(binary, runner, fixtures, version, server_args=("serve",), timeout=None):
     with tempfile.TemporaryDirectory() as directory:
         root = Path(directory).resolve()
         env = environment(root)
@@ -51,16 +53,25 @@ def smoke(binary, runner, fixtures, version, server_args=("serve",)):
         require(any((root / "cache").rglob("*.sqlite")), "first tool call did not create the cache")
         checks.append("ordinary-cache-created")
         env.update(BIOMCP_TEST_EXECUTABLE=str(binary), BIOMCP_TEST_FIXTURES=str(fixtures))
-        subprocess.run([str(runner), "--cases", str(fixtures / "cases"), "--test-threads", "1"], env=env, cwd=root, check=True, timeout=120)
-        checks.append("replay-cli-mcp")
-        # The existing process publication test uses the very same selector.
-        subprocess.run([str(runner), "--installed-process-proof"], env=env, cwd=root, check=True, timeout=120)
-        checks.append("ordinary-cache-two-process")
-        subprocess.run([str(runner), "--installed-http-proof"], env=env, cwd=root, check=True, timeout=120)
-        checks.append("mcp-http")
-        subprocess.run([str(runner), "--installed-alphagenome-proof"], env=env, cwd=root, check=True, timeout=120)
-        checks.append("alphagenome-local-tls")
-        return {"tools": tools, "checks": checks}
+        summary = case_suite([str(runner)], env, root, fixtures, timeout)
+        checks.append("all-cases-and-trials")
+        return {"tools": tools, "checks": checks, **summary}
+
+
+def case_suite(command, env, root, fixtures, timeout=None):
+    started = time.monotonic()
+    result = subprocess.run(command + ["--test-threads", "2"], env=env, cwd=root,
+                            capture_output=True, text=True, timeout=timeout)
+    elapsed = time.monotonic() - started
+    print(result.stdout, end="", flush=True)
+    require(result.returncode == 0, "installed cases failed: " + result.stdout + result.stderr)
+    counts = re.search(r"test result: ok\. (\d+) passed; (\d+) failed; (\d+) ignored; (\d+) measured; (\d+) filtered out", result.stdout)
+    require(counts is not None and counts.group(2) == "0" and counts.group(5) == "0",
+            "installed runner did not report an unfiltered complete suite")
+    return {"cases": sum(1 for path in (fixtures / "cases").rglob("*") if path.suffix in (".yaml", ".yml")),
+            "trials": int(counts.group(1)) + int(counts.group(3)),
+            "elapsed_seconds": elapsed, "timeout_seconds": elapsed * 1.15}
+
 
 def mcp_probe(command, env, root, version):
     frames = [

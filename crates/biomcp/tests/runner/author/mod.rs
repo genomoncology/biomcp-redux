@@ -106,8 +106,7 @@ fn discovery() -> Result<(), String> {
 }
 
 fn help() -> Result<(), String> {
-    let path =
-        Path::new(env!("CARGO_MANIFEST_DIR")).join("../../tests/cases/author/papers-help.yaml");
+    let path = crate::runner::launch::fixtures().join("cases/author/papers-help.yaml");
     let case: super::Case = serde_json::from_slice(&fs::read(path).map_err(|e| e.to_string())?)
         .map_err(|e| e.to_string())?;
     let env = Environment::new().map_err(|e| e.to_string())?;

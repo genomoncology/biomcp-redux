@@ -9,7 +9,7 @@ use std::{
 };
 type Check = Result<(), String>;
 pub(super) fn root() -> PathBuf {
-    PathBuf::from(env!("CARGO_MANIFEST_DIR")).join("../../tests/replies/gene/main")
+    crate::runner::launch::fixtures().join("replies/gene/main")
 }
 pub(super) fn invoke(env: &Environment, args: Vec<String>, exit: i32) -> Result<Value, String> {
     let output = env
@@ -493,8 +493,8 @@ fn article_replay_epoch() -> Check {
     let root = env.root().join("recordings");
     let pubmed = root.join("pubmed");
     fs::create_dir_all(&pubmed).map_err(|e| e.to_string())?;
-    let original = PathBuf::from(env!("CARGO_MANIFEST_DIR"))
-        .join("../../tests/replies/article/search/synthetic-small/pubmed");
+    let original =
+        crate::runner::launch::fixtures().join("replies/article/search/synthetic-small/pubmed");
     for entry in fs::read_dir(original).map_err(|e| e.to_string())? {
         let entry = entry.map_err(|e| e.to_string())?;
         let mut value: Value =

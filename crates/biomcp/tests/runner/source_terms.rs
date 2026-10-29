@@ -82,7 +82,7 @@ pub(super) fn raw_size(bytes: &[u8]) -> Result<usize, String> {
 
 fn envelopes() -> Result<(), String> {
     let registry = super::schema::Registry::embedded()?;
-    let root = std::path::Path::new(env!("CARGO_MANIFEST_DIR")).join("../../tests/cases");
+    let root = crate::runner::launch::fixtures().join("cases");
     for case in [
         "gene/braf.yaml",
         "article/get/card.yaml",

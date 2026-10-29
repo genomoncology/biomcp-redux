@@ -98,7 +98,18 @@ pub(super) fn check(root: &Path) -> Check {
         let crate_root = entry?.path();
         for path in rust_files(&crate_root.join("tests"))? {
             let text = fs::read_to_string(&path)?;
-            width(&path.strip_prefix(root)?.to_string_lossy(), &text)?;
+            let relative = path
+                .strip_prefix(root)?
+                .to_string_lossy()
+                .replace('\\', "/");
+            if relative != "crates/biomcp/tests/runner/launch.rs"
+                && tokens(&text)
+                    .windows(4)
+                    .any(|v| v == ["env", "!", "(", "\"CARGO_MANIFEST_DIR\""])
+            {
+                return fail(&relative, "test fixture paths belong in runner/launch.rs");
+            }
+            width(&relative, &text)?;
             if text.lines().count() > FILE_LIMIT {
                 return fail(
                     &path.strip_prefix(root)?.to_string_lossy(),

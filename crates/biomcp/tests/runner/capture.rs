@@ -32,7 +32,10 @@ impl Capture {
             .iter()
             .map(|arg| {
                 arg.replace(&root.to_string_lossy().to_string(), "<root>")
-                    .replace(env!("CARGO_MANIFEST_DIR"), "<checkout>/crates/biomcp")
+                    .replace(
+                        crate::runner::launch::checkout().to_string_lossy().as_ref(),
+                        "<checkout>/crates/biomcp",
+                    )
             })
             .collect::<Vec<_>>();
         Self {
@@ -76,7 +79,7 @@ impl Capture {
         if let (Some(context), Some(key)) = (&self.context, &self.key) {
             context.record(key, json!({"args":self.args,"surface":surface,
                 "exit":status.code(),"stdout":stdout,
-                "executable":self.executable,"root":self.root,"checkout":env!("CARGO_MANIFEST_DIR"),"version":env!("CARGO_PKG_VERSION")}))
+                "executable":self.executable,"root":self.root,"checkout":crate::runner::launch::checkout().to_string_lossy().as_ref(),"version":env!("CARGO_PKG_VERSION")}))
                 .map_err(io::Error::other)?;
         }
         self.finished = true;

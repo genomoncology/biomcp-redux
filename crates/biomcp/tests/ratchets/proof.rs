@@ -404,3 +404,12 @@ fn new_optional_drop_requires_its_own_classification() -> Check {
     }
     Ok(())
 }
+
+#[test]
+fn test_fixture_paths_have_one_owner() -> Check {
+    rejects(
+        "crates/biomcp/tests/runner/planted.rs",
+        "fn fixture() { let root = env!(\"CARGO_MANIFEST_DIR\"); }",
+        "fixture paths belong in runner/launch.rs",
+    )
+}
