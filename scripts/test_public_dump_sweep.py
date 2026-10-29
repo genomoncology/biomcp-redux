@@ -153,9 +153,9 @@ class Sweep(unittest.TestCase):
             with self.subTest(field=field, value=bad):
                 original = node[field]
                 node[field] = bad
-                result, report = self.run_sweep("civic_profiles", profiles, variant_content=variants, profile_capture=capture)
+                result, report = self.run_sweep("civic_profiles", profiles, variant_content=variants, profile_capture=capture, full=True)
                 self.assertEqual(result.returncode, 1, result.stderr)
-                refusal = report["refusals"][0]
+                refusal = report["full_report"]["refusals"][0]
                 self.assertEqual(refusal["record"], "civic:9")
                 if expected:
                     self.assertEqual(refusal["reason"], expected)
@@ -165,6 +165,37 @@ class Sweep(unittest.TestCase):
                                            profile_capture=capture, explanations=[explanation])
                 self.assertEqual(waived["types"]["profile"]["unexplained"], 1)
                 node[field] = original
+
+    def test_full_profile_report_retains_every_missing_companion_id(self):
+        text = "molecular_profile_id\tname\tvariant_ids\n"
+        text += "".join(f"{identity}\tSource display {identity}\t12\n" for identity in range(1, 15))
+        result, report = self.run_sweep("civic_profiles", text, full=True)
+        self.assertEqual(result.returncode, 1, result.stderr)
+        self.assertEqual(report["profile_refusals_omitted"], 4)
+        self.assertEqual({row["profile_id"] for row in report["full_report"]["profile_refusals"]},
+                         {f"civic:{identity}" for identity in range(1, 15)})
+
+    def test_profile_capture_and_monthly_metadata_cannot_silently_drift(self):
+        profiles, variants, capture = self.profile_inputs()
+        for old, new, expected in (("\t5\tBRAF", "\t5\tOTHER", "profile_member_feature_mismatch"),
+                                   ("\tV600E\t", "\tV600K\t", "profile_member_name_mismatch")):
+            result, report = self.run_sweep("civic_profiles", profiles, profile_capture=capture,
+                                            variant_content=variants.replace(old, new))
+            self.assertEqual(result.returncode, 1, result.stderr)
+            self.assertEqual(report["profile_refusals"][0]["reason"], expected)
+        result, report = self.run_sweep("civic_profiles", profiles, profile_capture=capture,
+                                        variant_content=variants.splitlines()[0] + "\n")
+        self.assertEqual(result.returncode, 1, result.stderr)
+        self.assertEqual(report["profile_refusals"][0]["reason"], "profile_monthly_member_missing")
+        result, report = self.run_sweep("civic_profiles", profiles, profile_capture=capture,
+                                        variant_content=variants, capture_overrides={"retrieved": "unknown"})
+        self.assertEqual(result.returncode, 1, result.stderr)
+        self.assertEqual(report["profile_refusals"][0]["reason"], "profile_companion_provenance_invalid")
+        result, report = self.run_sweep("civic_profiles", profiles, profile_capture=capture,
+                                        variant_content=variants, capture_overrides={"sha256": "0" * 64})
+        self.assertEqual(result.returncode, 2)
+        self.assertIsNone(report)
+        self.assertIn("checksum_mismatch", result.stderr)
 
     def test_real_native_profile_6153_uses_authoritative_expression_without_monthly_claim(self):
         folder = ROOT / "tests/fixtures/public-dump-sweep"
