@@ -22,6 +22,9 @@ mod spellings;
 #[path = "ratchets/transport_sources.rs"]
 mod transport_sources;
 
+#[path = "ratchets/required.rs"]
+mod required;
+
 use std::{fs, path::Path};
 
 type Check = Result<(), Box<dyn std::error::Error>>;
