@@ -12,6 +12,7 @@ pub(super) struct Response {
     #[serde(flatten, deserialize_with = "ordered_variants")]
     pub variants: Vec<(String, Field<RawVariant>)>,
 }
+pub(super) type Loci = BTreeMap<String, Field<Locus>>;
 #[derive(Deserialize)]
 pub(super) struct RawVariant {
     pub validation_warnings: Option<Field<Vec<Field<SourceText>>>>,
@@ -19,10 +20,10 @@ pub(super) struct RawVariant {
     pub hgvs_lrg_variant: Option<Field<SourceText>>,
     pub hgvs_refseqgene_variant: Option<Field<SourceText>>,
     pub hgvs_predicted_protein_consequence: Option<Field<BTreeMap<String, Field<SourceText>>>>,
-    pub alt_genomic_loci: Option<Field<Vec<Field<BTreeMap<String, Field<Locus>>>>>>,
+    pub alt_genomic_loci: Option<Field<Vec<Field<Loci>>>>,
     pub submitted_variant: String,
     pub hgvs_transcript_variant: String,
-    pub primary_assembly_loci: Option<Field<BTreeMap<String, Field<Locus>>>>,
+    pub primary_assembly_loci: Option<Field<Loci>>,
 }
 #[derive(Deserialize)]
 pub(super) struct Locus {

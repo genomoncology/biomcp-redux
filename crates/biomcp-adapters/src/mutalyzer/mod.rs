@@ -34,14 +34,14 @@ pub enum Resolution {
     /// Source validation codes reject the supplied input.
     Rejected(Vec<Text>),
 }
+type Descriptions = Field<Vec<Field<Description>>>;
 #[derive(Deserialize)]
 struct Normalized {
     custom: Option<Box<Normalized>>,
     corrected_description: Option<Field<biodata::SourceText>>,
     protein: Option<Field<Description>>,
     rna: Option<Field<Description>>,
-    equivalent_descriptions:
-        Option<Field<std::collections::BTreeMap<String, Field<Vec<Field<Description>>>>>>,
+    equivalent_descriptions: Option<Field<std::collections::BTreeMap<String, Descriptions>>>,
     back_translated_descriptions: Option<Field<Vec<Field<biodata::SourceText>>>>,
     infos: Option<Field<Vec<Field<Message>>>>,
     warnings: Option<Field<Vec<Field<Message>>>>,

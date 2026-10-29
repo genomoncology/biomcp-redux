@@ -1,14 +1,13 @@
 //! Preserve optional native forms without dropping the normalization record.
 use super::{
     Build, Leg, RequestError, Source, fetch,
-    raw::{Locus, RawVariant},
+    raw::{Loci, RawVariant},
 };
 use crate::{Mapped, mapped::Problems, raw::Field};
 use biodata::SourceText;
 use biomcp_types::{
     NormalizationField, NormalizationMessage, NormalizationResult, VariantResolution,
 };
-use std::collections::BTreeMap;
 
 /// Keep each provider mapping and warning; never select a transcript.
 pub fn normalize(
@@ -126,7 +125,7 @@ fn mapping(
 }
 fn loci(
     field: &str,
-    raw: Option<Field<BTreeMap<String, Field<Locus>>>>,
+    raw: Option<Field<Loci>>,
     mappings: &mut Vec<NormalizationField>,
     problems: &mut Problems,
 ) {
