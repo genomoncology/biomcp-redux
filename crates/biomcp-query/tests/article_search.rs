@@ -47,8 +47,15 @@ fn run(fetch: &Fetch, query: ArticleSearch, fresh: bool) -> Outcome {
     )
 }
 fn page(out: Outcome) -> (biomcp_types::PageInfo, ArticlePage) {
-    assert_eq!(out.local, None);
-    assert_eq!(out.status, Status::Complete);
+    assert_eq!(
+        out.local, None,
+        "Article pages must preserve their snapshot and paging contract"
+    );
+    assert_eq!(
+        out.status,
+        Status::Complete,
+        "Article pages must preserve their snapshot and paging contract"
+    );
     let QueryBody::ArticlePage(page) = out.body else {
         panic!("article page")
     };
@@ -313,7 +320,7 @@ fn overlapping_replay_commands_complete_without_adding_each_others_spend() {
 fn stale_summary_fallback_stays_partial_when_its_page_is_read_offline() {
     let directory = tempfile::tempdir().unwrap();
     let path = directory.path().join("case");
-    let cache = ReplayCache::create_case(&path).unwrap();
+    let cache = ReplayCache::create_case_with_owners(&path, &[]).unwrap();
     let replay = fetch("synthetic-small", cache);
     let (first, _) = page(run(&replay, query(None, 0), false));
     let id = first.pool.unwrap().id;

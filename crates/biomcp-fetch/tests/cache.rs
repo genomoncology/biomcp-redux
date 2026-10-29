@@ -58,7 +58,10 @@ fn exchange<T: Send>(
     thread::scope(|scope| {
         let worker = scope.spawn(call);
         let request = server.next();
-        assert!(request.text.starts_with("GET /answer"));
+        assert!(
+            request.text.starts_with("GET /answer"),
+            "Cache admission must perform only the expected network exchange"
+        );
         request.respond(status, "", body);
         worker.join().unwrap()
     })
@@ -96,6 +99,7 @@ struct Initialization {
 }
 
 thread_local! {
+    #[expect(clippy::disallowed_types, reason = "Each test thread owns its injected SQLite initialization state")]
     static INITIALIZATION: std::cell::RefCell<Option<Initialization>> = const {
         std::cell::RefCell::new(None)
     };

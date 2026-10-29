@@ -1,6 +1,6 @@
 //! Feature stream-persistence: checked synthetic streams persist without network replay.
 #[path = "grpc_worker/support.rs"]
-#[allow(
+#[expect(
     dead_code,
     reason = "Share the complete local TLS fixture with worker phase tests"
 )]

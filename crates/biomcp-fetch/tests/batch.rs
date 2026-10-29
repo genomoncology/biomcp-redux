@@ -7,6 +7,10 @@
 )]
 mod support;
 use biomcp_fetch::{Fetch, FetchConfig, KeyUse, Quota, Rate, RequestError, SourceKey};
+#[expect(
+    clippy::disallowed_types,
+    reason = "Import only the counter or cell owned by this test fixture"
+)]
 use std::{
     collections::HashSet,
     sync::{
@@ -101,6 +105,10 @@ fn worker_bound_and_inline_nesting_hold_across_multiple_chunks() {
 }
 
 #[test]
+#[expect(
+    clippy::disallowed_types,
+    reason = "Observe owned test workers without leaking shared state across cases"
+)]
 fn empty_and_refused_batches_never_execute_callbacks() {
     let server = Server::new();
     let plain = server.spec(quota(1), KeyUse::None);
@@ -147,6 +155,10 @@ fn empty_and_refused_batches_never_execute_callbacks() {
 }
 
 #[test]
+#[expect(
+    clippy::disallowed_types,
+    reason = "Observe owned test workers without leaking shared state across cases"
+)]
 fn panic_propagates_only_after_other_workers_finish() {
     let server = Server::new();
     let spec = server.spec(quota(1), KeyUse::None);
@@ -246,7 +258,8 @@ fn recording(
                 let leg = capture.leg(spec, capture.deadline(Duration::from_secs(30)));
                 assert_eq!(
                     leg.json::<Number>(&spec.get("/number"), &[]).unwrap().value,
-                    value
+                    value,
+                    "Batch capture must retain every ordered source request"
                 );
             }
         });

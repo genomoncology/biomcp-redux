@@ -57,10 +57,6 @@ impl DrugInteractionClaim {
     pub fn attribution(&self) -> &Attribution {
         &self.0.attribution
     }
-    /// Further distinct provenance, excluding the primary attribution.
-    pub fn additional_attributions(&self) -> &[Attribution] {
-        &self.0.additional_attributions
-    }
 }
 impl TryFrom<Fields> for DrugInteractionClaim {
     type Error = Error;

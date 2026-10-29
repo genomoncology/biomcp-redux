@@ -159,7 +159,7 @@ NCI organization discovery adds this command:
 
 | Command | Behavior |
 | --- | --- |
-| `search organization --source nci` | Use `--name`, `--city`, `--state`, `--country`, `--postal-code`, `--family` or `--lat`/`--lon`/`--distance`. Names are not unique; native counts include every trial status. Search rows carry published details. No organization ID or get command exists. Returned `--pool` page commands retain one bounded observation. |
+| `search organization --source nci` | Use `--name`, `--city`, `--state`, `--country`, `--postal-code`, `--family` or `--lat`/`--lon`/`--distance`. Names are not unique; native counts include every trial status. Search rows carry published details and a next command for `search trial --source nci --facility` with the exact organization name. No organization ID or get command exists. Returned `--pool` page commands retain one bounded observation. |
 
 Use multiple NCT inputs on `get trial` instead of `batch trial`, and trailing section words instead of batch `--sections`. Cards precede requested sections. Every truncated section has its own continuation. A registry reference's type and position do not identify a primary publication. List `get trial NCT documents`, then save one exact manifest filename with `trial document NCT FILE --save PATH`. Documents are downloaded without text extraction. CLI and stdio MCP support saves; HTTP refuses and returns the source URL.
 
@@ -178,3 +178,14 @@ Only `--review-status`, `--condition` and `--has clinvar` have captured positive
 Every source and component starts on with publisher terms. Commercial users should set both `noncommercial` and `restricted` in `disable_sources`. Groups switch off matching aggregator fields while other fields remain available; naming `myvariant` switches off the whole service. CLI exclusions add to configuration exclusions, including for cache, replay and returned next actions. Inspect terms in the response and `health`; public API access grants no additional reuse rights.
 
 A direct dbSNP adapter is dropped from 1.0. rsIDs remain available through MyVariant and the ClinGen Allele Registry with their intermediary provenance.
+
+`search trial --source nci --facility "Dana-Farber Cancer Institute"` filters by exact organization name, case-insensitively. A listed site is not necessarily enrolling. The header carries one matched site and the number of matching sites. Facility and radius filters cannot combine.
+
+## NCI biomarker terminology
+
+| Command | Behavior |
+| --- | --- |
+| `search biomarker --source nci --name PD-L1` | Search NCI concept names and synonyms with the user's key. Headers retain typed code lists, native type lists and NCI trial counts. Returned page commands retain one bounded observation. |
+| `get biomarker C96022` | Search the exact NCIt code and return its native card or every candidate when several rows match. The public tier returns synonyms, parent and ancestor codes, and native eligibility criteria. |
+
+These concept commands differ from diagnostic `--biomarker` filters and literal trial `--variant` searches. Native criteria do not establish patient eligibility.

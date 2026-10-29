@@ -135,8 +135,7 @@ fn malformed_statistics() -> Result<(), String> {
         "object", "double", "broken", "order", "number", "year", "mismatch",
     ] {
         let path = crate::runner::launch::fixtures().join(format!(
-            "replies/disease/seer-synthetic/{kind}/seer/6034e658f1d299da7d80b7b51bc8f9751bd9\
-            ce674eaa5b4f328a617e4c81c671.json"
+            "replies/disease/seer-synthetic/{kind}/seer/6034e658f1d299da7d80b7b51bc8f9751bd9ce674eaa5b4f328a617e4c81c671.json"
         ));
         let raw: Value = serde_json::from_slice(&fs::read(path).map_err(|e| e.to_string())?)
             .map_err(|e| e.to_string())?;

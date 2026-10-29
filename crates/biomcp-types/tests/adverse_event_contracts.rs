@@ -199,7 +199,11 @@ where
         .into_root_schema_for::<Envelope<T>>();
     let validator = jsonschema::draft202012::new(&serde_json::to_value(schema)?)?;
     assert!(validator.is_valid(&value), "{value}");
-    assert_eq!(value.get("schema").and_then(Value::as_str), Some(T::SCHEMA));
+    assert_eq!(
+        value.get("schema").and_then(Value::as_str),
+        Some(T::SCHEMA),
+        "Adverse event replies must retain their versioned envelope contract"
+    );
     Ok(())
 }
 #[cfg(feature = "schema")]

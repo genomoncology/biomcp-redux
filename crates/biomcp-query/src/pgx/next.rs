@@ -1,6 +1,9 @@
 //! Pure typed follow-up requests; source names never become chosen drug identities.
 use crate::{Action, Outcome};
-use biomcp_types::*;
+use biomcp_types::{
+    PgxAnnotations, PgxGet, PgxPageInfo, PgxRecommendations, PgxSection, PgxSource, QueryBody,
+    Request, SourceState, Status, StepKind,
+};
 use serde_json::json;
 fn run(request: Request) -> Action {
     Action::Run {

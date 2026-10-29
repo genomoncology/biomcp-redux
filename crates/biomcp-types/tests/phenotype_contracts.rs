@@ -204,7 +204,8 @@ where
     ))?;
     assert_eq!(
         value.get("schema").and_then(serde_json::Value::as_str),
-        Some(T::SCHEMA)
+        Some(T::SCHEMA),
+        "Phenotype replies must retain their versioned envelope contract"
     );
     let schema = schemars::schema_for!(biomcp_types::Envelope<T>);
     let schema = serde_json::to_value(schema)?;

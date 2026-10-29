@@ -11,7 +11,7 @@
       "type": "string"
     }
   },
-  "$id": "biodata.article-recommend/1",
+  "$id": "biomcp.article-recommend/1",
   "$schema": "https://json-schema.org/draft/2020-12/schema",
   "additionalProperties": false,
   "description": "Recommendations in the provider's recent-paper pool order.",

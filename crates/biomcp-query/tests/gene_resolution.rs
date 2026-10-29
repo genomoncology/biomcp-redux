@@ -20,7 +20,7 @@ fn stale_identity_and_annotation_sources_make_only_their_answers_partial() {
     use biomcp_types::{GeneGet, GeneSearch, QueryBody, Request, Source, SourceState, Status};
     let directory = tempfile::tempdir().unwrap();
     let case_path = directory.path().join("case");
-    let cache = ReplayCache::create_case(&case_path).unwrap();
+    let cache = ReplayCache::create_case_with_owners(&case_path, &[]).unwrap();
     let query = Request::GetGene(GeneGet::new(vec!["BRAF".parse().unwrap()].into()).unwrap());
     let fetch = Fetch::open(FetchConfig {
         mode: Mode::Replay {

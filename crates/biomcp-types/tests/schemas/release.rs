@@ -16,7 +16,7 @@ pub(super) fn generated_schemas_preserve_release_contracts() -> Check<()> {
     let reviews = read_reviews()?;
     let mut old = read_baseline(Path::new(&baseline))?;
     for contract in registry() {
-        let mut new = contract.schema();
+        let mut new = (contract.generate)();
         new.as_object_mut()
             .ok_or("generated schema is not an object")?
             .insert("$id".into(), contract.id.into());

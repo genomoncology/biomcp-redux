@@ -18,7 +18,7 @@ pub(super) fn write(
     let mut catalog = String::from("&[\n");
     let mut replies = String::from("&[\n");
     for (id, schema) in &parsed {
-        if id.starts_with("biomcp.") && id.contains('_') {
+        if (id.starts_with("biomcp.") || id.starts_with("biodata.")) && id.contains('_') {
             return Err("schema identities must use hyphens".into());
         }
         let result = schema

@@ -1,6 +1,9 @@
-use super::*;
+use super::{CellLineAssayCountQuery, CellLineGet, CellLineInput, CellLineSearch, CellLineSection};
 use crate::{Capped, ItemStatus, ResponseBody, Section};
-use biodata::*;
+use biodata::{
+    CellLineEntryDates, CellLineName, CellLineSex, CellLineVariation, CellLineWarning,
+    CellLineXref, CellosaurusAccession, ChemblCellId, PartialDate, Text,
+};
 use serde::{Deserialize, Serialize};
 /// Compact source identity with independently capped species and diseases.
 #[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]

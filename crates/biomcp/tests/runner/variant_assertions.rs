@@ -410,8 +410,8 @@ fn native_walk_body(request: &str) -> Result<String, String> {
     Ok(xml.replace(
         "</ClinicalAssertionList>",
         "<ClinicalAssertion><ClinVarAccession Accession=\"SCV000601142\" \
-        Version=\"6\"/><Classification><GermlineClassification>pathogenic</GermlineClassification></Classifi\
-        cation></ClinicalAssertion><ClinicalAssertion><ClinVarAccession Accession=\"SCV000607207\" \
+        Version=\"6\"/><Classification><GermlineClassification>pathogenic</GermlineClassification></Classification></ClinicalAssertion>\
+                    <ClinicalAssertion><ClinVarAccession Accession=\"SCV000607207\" \
         Version=\"3\" SubmitterName=\"GenomeConnect, ClinGen\"/><Classification><ReviewStatus>no \
         classification provided</ReviewStatus><GermlineClassification>not \
         provided</GermlineClassification></Classification></ClinicalAssertion></ClinicalAssertionList>",

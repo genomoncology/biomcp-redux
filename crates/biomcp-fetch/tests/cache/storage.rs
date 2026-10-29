@@ -374,8 +374,7 @@ fn ordinary_reply_write_prunes_expired_rows_and_retains_fresh_rows() {
     let cx = Connection::open(&path).unwrap();
     cx.execute_batch(
         "INSERT INTO reply(key,source,url,status,body,fetched_at,fresh_until) VALUES \
-        (x'01','pubmed','https://example.test/old',200,x'7b7d',0,0),(x'02','pubmed','https://example.test/li\
-        ve',200,x'7b7d',0,9223372036854775807);",
+        (x'01','pubmed','https://example.test/old',200,x'7b7d',0,0),(x'02','pubmed','https://example.test/live',200,x'7b7d',0,9223372036854775807);",
     )
     .unwrap();
     let endpoint = spec.get("/answer").fresh(Freshness::Hours(1));

@@ -5,6 +5,10 @@ use serde::{Deserialize, Serialize};
 #[serde(tag = "command", rename_all = "snake_case")]
 #[cfg_attr(feature = "schema", derive(schemars::JsonSchema))]
 pub enum Request {
+    /// Find native NCI biomarker concepts.
+    SearchBiomarker(crate::BiomarkerSearch),
+    /// Search native NCI biomarker rows by exact NCIt code.
+    GetBiomarker(crate::BiomarkerGet),
     /// Find NCI organization names without assigning an identity.
     SearchOrganization(crate::OrganizationSearch),
     /// Discover native author candidates without identity reconciliation.

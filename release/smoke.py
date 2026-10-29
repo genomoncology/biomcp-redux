@@ -40,7 +40,7 @@ def smoke(binary, runner, fixtures, version, server_args=("serve",)):
                 raise ValueError("installed command failed: " + result.stdout.decode() + result.stderr.decode())
             return json.loads(result.stdout)
         checks = []
-        require(command(["schema", "biodata.problem/1"])["$id"] == "biodata.problem/1", "schema identity differs")
+        require(command(["schema", "biomcp.problem/1"])["$id"] == "biomcp.problem/1", "schema identity differs")
         checks.append("schemas")
         require(command(["help"])["result"]["commands"], "help commands missing")
         checks.append("help")

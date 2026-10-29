@@ -18,7 +18,7 @@ class OptimizedSmoke(unittest.TestCase):
 with open(LOG, 'a') as stream:
     stream.write(json.dumps(sys.argv[1]) + '\\n')
 if sys.argv[1] == 'schema':
-    print(json.dumps({'$id': 'biodata.problem/1'}))
+    print(json.dumps({'$id': 'biomcp.problem/1'}))
 elif sys.argv[1] == 'help':
     print(json.dumps({'result': {'commands': ['get']}}))
 else:
@@ -79,7 +79,7 @@ else:
                     call = ("mcp_probe([sys.argv[1]], environment(root), root, '1')" if boundary == "mcp"
                             else "smoke(sys.argv[1], sys.argv[1], root, '1')")
                     if boundary == "help":
-                        binary.write_text(f"#!{sys.executable}\nimport sys\nprint('{{\"$id\":\"biodata.problem/1\"}}' if sys.argv[1] == 'schema' else {output!r})\n")
+                        binary.write_text(f"#!{sys.executable}\nimport sys\nprint('{{\"$id\":\"biomcp.problem/1\"}}' if sys.argv[1] == 'schema' else {output!r})\n")
                     script = "from release.smoke import *\nimport sys\nroot = Path(sys.argv[2])\n" + call
                     result = subprocess.run([sys.executable, "-O", "-c", script, str(binary), str(root)],
                                             capture_output=True, text=True, timeout=30)

@@ -11,7 +11,7 @@
       "type": "string"
     }
   },
-  "$id": "biodata.article-evidence/1",
+  "$id": "biomcp.article-evidence/1",
   "$schema": "https://json-schema.org/draft/2020-12/schema",
   "additionalProperties": false,
   "description": "Read every source context and optional explicit full-text citation paragraph.",

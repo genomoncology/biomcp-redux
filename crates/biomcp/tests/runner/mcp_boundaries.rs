@@ -63,7 +63,10 @@ fn http() -> Check {
             json!({"name":"biomcp","arguments":{"args":args}}),
         );
         let (status, reply) = server.request("POST", "/mcp", &frame.to_string())?;
-        assert_eq!(status, 200);
+        assert_eq!(
+            status, 200,
+            "HTTP tool calls must preserve the server admission policy"
+        );
         assert_eq!(
             reply.pointer("/result/isError"),
             Some(&json!(true)),
@@ -79,8 +82,16 @@ fn http() -> Check {
                 "usage.mcp_unavailable"
             },
         )?;
-        assert_eq!(fs::read(&old)?, before);
-        assert_eq!(fs::read_dir(&directory)?.count(), entries);
+        assert_eq!(
+            fs::read(&old)?,
+            before,
+            "HTTP tool calls must preserve the server admission policy"
+        );
+        assert_eq!(
+            fs::read_dir(&directory)?.count(),
+            entries,
+            "HTTP tool calls must preserve the server admission policy"
+        );
     }
     assert!(
         source.finish()?.is_empty(),
@@ -110,7 +121,11 @@ fn stdio() -> Check {
         ]);
         let value = super::mcp::call_with_globals(&env, &args, true, &[])?;
         refusal(&value, "usage.arguments")?;
-        assert_eq!(fs::read(&path)?, b"caller content");
+        assert_eq!(
+            fs::read(&path)?,
+            b"caller content",
+            "Stdio tool calls must preserve the server admission policy"
+        );
     }
     assert!(
         source.finish()?.is_empty(),
@@ -143,8 +158,15 @@ fn command_reasons(http: bool) -> Check {
                 json!({"name":"biomcp","arguments":{"args":args}}),
             );
             let (status, reply) = server.request("POST", "/mcp", &frame.to_string())?;
-            assert_eq!(status, 200);
-            assert_eq!(reply.pointer("/result/isError"), Some(&json!(true)));
+            assert_eq!(
+                status, 200,
+                "Tool refusals must retain the command-specific reason"
+            );
+            assert_eq!(
+                reply.pointer("/result/isError"),
+                Some(&json!(true)),
+                "Tool refusals must retain the command-specific reason"
+            );
             let value = reply
                 .pointer("/result/structuredContent")
                 .ok_or("missing result")?;
@@ -152,7 +174,11 @@ fn command_reasons(http: bool) -> Check {
                 .pointer("/result/content/0/text")
                 .and_then(Value::as_str)
                 .ok_or("missing text")?;
-            assert_eq!(serde_json::from_str::<Value>(text)?, *value);
+            assert_eq!(
+                serde_json::from_str::<Value>(text)?,
+                *value,
+                "Tool refusals must retain the command-specific reason"
+            );
             value.clone()
         } else {
             super::mcp::call_with_globals(&env, &args, true, &[])?

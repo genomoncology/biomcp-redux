@@ -9,6 +9,26 @@ const GENERATED_PROTO: &str = "crates/biomcp-fetch/src/grpc/proto.rs";
 // New exceptions require a reviewed path and reason here.
 const EXCEPTIONS: &[(&str, &str)] = &[
     (
+        "crates/biomcp-fetch/src/grpc/dns_tests.rs",
+        "Observe completion of the joined test resolver without shared state outside its fixture",
+    ),
+    (
+        "crates/biomcp-types/src/gwas/search.rs",
+        "Serde serialize_with passes a reference to the entire optional field",
+    ),
+    (
+        "crates/biomcp-fetch/src/secret.rs",
+        "Resolve one deferred credential once per configured secret",
+    ),
+    (
+        "crates/biomcp-fetch/src/cancellation.rs",
+        "Cancel all request workers through one command-owned atomic flag",
+    ),
+    (
+        "crates/biomcp-fetch/src/grpc/control.rs",
+        "Acknowledge stream cancellation before releasing the worker permit",
+    ),
+    (
         "crates/biomcp-fetch/src/grpc/worker.rs",
         "Serialize lazy runtime initialization and join its sole worker thread",
     ),
@@ -175,6 +195,18 @@ fn attributes(path: &str, tokens: &[String]) -> Check {
             .map(String::as_str)
             .collect();
         let suppression = attribute.iter().any(|v| matches!(*v, "allow" | "expect"));
+        if attribute.contains(&"allow") {
+            return fail(
+                path,
+                "allow attributes forbidden; use a reasoned expectation",
+            );
+        }
+        if tokens.get(i + 1).is_some_and(|v| v == "!") && attribute.contains(&"disallowed_types") {
+            return fail(
+                path,
+                "interior state expectations belong on the owning item",
+            );
+        }
         if suppression
             && (attribute.contains(&"unused_imports")
                 || attribute.contains(&"dead_code") && path != GENERATED_PROTO)
@@ -194,10 +226,10 @@ fn attributes(path: &str, tokens: &[String]) -> Check {
             let only_include = ["include", "!", "(", "\"generated/mod.rs\"", ")", ";"];
             let only_dead_code = matches!(
                 attribute.as_slice(),
-                ["[", "allow", "(", "dead_code", ",", "reason", "=", _, ")"]
+                ["[", "expect", "(", "dead_code", ",", "reason", "=", _, ")"]
                     | [
                         "[",
-                        "allow",
+                        "expect",
                         "(",
                         "dead_code",
                         ",",

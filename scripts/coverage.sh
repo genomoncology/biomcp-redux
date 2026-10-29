@@ -89,6 +89,14 @@ case "${1:-run}" in
         # denominator from product functions linked only by the other collection.
         cargo test --workspace --locked --no-run
         clear_profiles
+        # Check structure before the expensive suites. Keep these profiles out of
+        # the counted collection until the excluded library report.
+        mkdir -p "$saved/ratchets"
+        LLVM_PROFILE_FILE="$saved/ratchets/library-%m-%p.profraw" \
+            cargo test --locked -p biomcp --test ratchets || {
+            echo 'coverage: structure ratchets failed before case and contract collection' >&2
+            exit 1
+        }
         LLVM_PROFILE_FILE="$profile_dir/cases-%m-%p.profraw"
         export LLVM_PROFILE_FILE
         set --
@@ -123,8 +131,10 @@ case "${1:-run}" in
         touch "$saved/collecting-library"
         LLVM_PROFILE_FILE="$profile_dir/library-%m-%p.profraw"
         export LLVM_PROFILE_FILE
-        if ! python3 scripts/contract_targets.py --library ||
-           ! cargo test --locked -p biomcp --test ratchets; then
+        for profile in "$saved/ratchets"/*.profraw; do
+            [ ! -f "$profile" ] || mv "$profile" "$profile_dir/"
+        done
+        if ! python3 scripts/contract_targets.py --library; then
             echo 'coverage: library collection incomplete because its suite failed' >&2
             exit 1
         fi

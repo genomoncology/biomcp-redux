@@ -1,5 +1,5 @@
 //! Expected native facts come from unchanged publisher fixtures.
-use super::*;
+use super::{Value, json, path};
 fn rows(value: &Value, key: &str) -> Vec<Value> {
     value
         .get(key)

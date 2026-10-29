@@ -1,4 +1,4 @@
-use super::raw::*;
+use super::raw::{Dbnsfp, Numbers, Record, Texts};
 use crate::mapped::push_problem;
 use crate::{
     Mapped,

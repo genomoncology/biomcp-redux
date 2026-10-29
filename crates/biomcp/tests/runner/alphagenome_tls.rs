@@ -7,10 +7,6 @@ use serde_json::{Value, json};
 mod capture;
 #[path = "../../../biomcp-fetch/tests/grpc_worker/support.rs"]
 #[expect(
-    clippy::disallowed_types,
-    reason = "The shared local TLS test fixture counts accepted sockets across its worker thread"
-)]
-#[allow(
     dead_code,
     reason = "One shared TLS fixture serves transport and CLI contracts"
 )]

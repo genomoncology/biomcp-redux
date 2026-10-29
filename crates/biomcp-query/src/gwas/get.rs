@@ -5,7 +5,12 @@ use super::map;
 use crate::{Action, Ctx, Outcome, status};
 use biomcp_adapters::gwas;
 use biomcp_fetch::{Deadline, Leg, RequestError};
-use biomcp_types::*;
+use biomcp_types::{
+    GwasAncestries, GwasAncestry, GwasAssociation, GwasAssociationCard, GwasAssociationSection,
+    GwasGet, GwasLoci, GwasLocus, GwasPage, GwasPageQuery, GwasSearch, GwasSectionPage,
+    GwasStudySection, PageInfo, Problem, ProblemCode, QueryBody, Reason, Request, Source,
+    SourceOutcome, SourceState, Status, StepKind,
+};
 /// Read only the explicitly selected source resource.
 pub fn get(cx: &Ctx<'_>, q: &GwasGet) -> Outcome {
     let mut out = Outcome {

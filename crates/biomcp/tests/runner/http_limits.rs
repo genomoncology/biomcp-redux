@@ -119,8 +119,8 @@ fn slow_header(address: SocketAddr) -> Check {
 
 fn chunked() -> Check {
     let server = Server::start()?;
-    let request = b"{\"jsonrpc\":\"2.0\",\"id\":9,\"method\":\"tools/list\",\"params\":{\"_meta\":{\"io.modelcontextprot\
-        ocol/protocolVersion\":\"2026-07-28\",\"io.modelcontextprotocol/clientCapabilities\":{}}}}";
+    let request = b"{\"jsonrpc\":\"2.0\",\"id\":9,\"method\":\"tools/list\",\
+                    \"params\":{\"_meta\":{\"io.modelcontextprotocol/protocolVersion\":\"2026-07-28\",\"io.modelcontextprotocol/clientCapabilities\":{}}}}";
     let mut socket = TcpStream::connect(server.address).map_err(|e| e.to_string())?;
     socket
         .set_read_timeout(Some(Duration::from_secs(4)))

@@ -23,7 +23,7 @@
       "type": "string"
     }
   },
-  "$id": "biodata.variant-recurrence-query/3",
+  "$id": "biomcp.variant-recurrence-query/3",
   "$schema": "https://json-schema.org/draft/2020-12/schema",
   "additionalProperties": false,
   "description": "Observe exact-allele samples within one caller-selected source page.",

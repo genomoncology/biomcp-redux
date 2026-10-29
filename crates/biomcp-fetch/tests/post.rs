@@ -52,14 +52,26 @@ fn declared_form_preserves_order_duplicates_and_encodes_sorted_ids() {
     });
 }
 
+#[expect(
+    clippy::disallowed_types,
+    reason = "Count serialization only within this request-body fixture"
+)]
 struct Once<'a>(&'a std::sync::atomic::AtomicUsize);
 impl serde::Serialize for Once<'_> {
     fn serialize<S: serde::Serializer>(&self, serializer: S) -> Result<S::Ok, S::Error> {
-        assert_eq!(self.0.fetch_add(1, std::sync::atomic::Ordering::SeqCst), 0);
+        assert_eq!(
+            self.0.fetch_add(1, std::sync::atomic::Ordering::SeqCst),
+            0,
+            "A request body must serialize only once before retry"
+        );
         serde::Serialize::serialize(&serde_json::json!({"query":"a +é"}), serializer)
     }
 }
 #[test]
+#[expect(
+    clippy::disallowed_types,
+    reason = "Observe owned test workers without leaking shared state across cases"
+)]
 fn json_serializes_once_and_only_declared_idempotent_posts_retry() {
     let server = Server::new();
     let spec = spec(&server);
@@ -385,27 +397,49 @@ fn capture_credentials(
         });
         let request = server.next();
         let wire = request.text.to_ascii_lowercase();
-        assert!(wire.contains("configured-secret"));
+        assert!(
+            wire.contains("configured-secret"),
+            "Credential routing must authenticate the wire and sanitize recordings"
+        );
         match place {
             KeyPlace::Query(_) => {
                 assert!(
                     request
                         .text
-                        .starts_with("POST /answer?api_key=configured-secret ")
+                        .starts_with("POST /answer?api_key=configured-secret "),
+                    "Credential routing must authenticate the wire and sanitize recordings"
                 );
-                assert_eq!(request.body, b"q=user-text");
+                assert_eq!(
+                    request.body, b"q=user-text",
+                    "Credential routing must authenticate the wire and sanitize recordings"
+                );
             }
             KeyPlace::Bearer => {
-                assert!(wire.contains("authorization: bearer configured-secret\r\n"));
-                assert_eq!(request.body, b"q=user-text&api_key=caller-secret");
+                assert!(
+                    wire.contains("authorization: bearer configured-secret\r\n"),
+                    "Credential routing must authenticate the wire and sanitize recordings"
+                );
+                assert_eq!(
+                    request.body, b"q=user-text&api_key=caller-secret",
+                    "Credential routing must authenticate the wire and sanitize recordings"
+                );
             }
             KeyPlace::Header(_) => {
-                assert!(wire.contains("x-api-key: configured-secret\r\n"));
-                assert_eq!(request.body, b"q=user-text&api_key=caller-secret");
+                assert!(
+                    wire.contains("x-api-key: configured-secret\r\n"),
+                    "Credential routing must authenticate the wire and sanitize recordings"
+                );
+                assert_eq!(
+                    request.body, b"q=user-text&api_key=caller-secret",
+                    "Credential routing must authenticate the wire and sanitize recordings"
+                );
             }
         }
         request.ok();
-        assert!(worker.join().unwrap().unwrap().answer);
+        assert!(
+            worker.join().unwrap().unwrap().answer,
+            "Credential routing must authenticate the wire and sanitize recordings"
+        );
     });
     drop(recording);
 }

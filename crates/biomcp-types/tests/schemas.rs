@@ -6,8 +6,12 @@ mod annotations;
 mod compatibility;
 #[path = "schemas/compatibility_cases.rs"]
 mod compatibility_cases;
+#[path = "schemas/drug.rs"]
+mod drug;
 #[path = "schemas/generation.rs"]
 mod generation;
+#[path = "schemas/ownership.rs"]
+mod ownership;
 #[path = "schemas/policy.rs"]
 mod policy;
 #[path = "schemas/release.rs"]
@@ -25,15 +29,8 @@ struct Contract {
     kind: crate::policy::ContractKind,
     name: &'static str,
     id: &'static str,
+    rust_type: &'static str,
     generate: fn() -> Value,
-}
-
-impl Contract {
-    fn schema(&self) -> Value {
-        let mut schema = (self.generate)();
-        generation::prepare(&mut schema, self.kind);
-        schema
-    }
 }
 
 #[expect(
@@ -51,7 +48,13 @@ fn generate<T: JsonSchema>() -> Value {
 
 macro_rules! contracts {
         ($($ty:ty => ($name:literal, $id:expr $(, $kind:ident)?)),+ $(,)?) => {
-            vec![$(Contract { kind: contracts!(@kind $($kind)?), name: $name, id: $id, generate: contracts!(@generate $ty $(, $kind)?) }),+]
+            vec![$(Contract {
+                kind: contracts!(@kind $($kind)?),
+                name: $name,
+                id: $id,
+                rust_type: std::any::type_name::<$ty>(),
+                generate: contracts!(@generate $ty $(, $kind)?),
+            }),+]
         };
         (@generate $ty:ty, query) => { crate::generation::query::<$ty> };
         (@generate $ty:ty) => { crate::generation::reply::<$ty> };
@@ -65,6 +68,7 @@ macro_rules! reply_contracts {
             kind: policy::ContractKind::Reply,
             name: $name,
             id: <$body as ResponseBody>::SCHEMA,
+            rust_type: std::any::type_name::<Envelope<$body>>(),
             generate: generation::reply::<Envelope<$body>>,
         }),+]
     };
@@ -73,57 +77,22 @@ macro_rules! reply_contracts {
 #[path = "schemas/disease.rs"]
 mod disease;
 
-fn common_registry() -> Vec<Contract> {
-    contracts! {
-        Accession => ("accession", "biodata.accession/2"),
-        DeviceRecallNumber => ("device-recall-number", "biodata.device-recall-number/1"),
-        Chromosome => ("chromosome", "biodata.chromosome/1"),
-        Base => ("base", "biodata.base/1"),
-        Sequence => ("sequence", "biodata.sequence/1"),
-        SequenceLocation => ("sequence-location", "biodata.sequence-location/2"),
-        Allele => ("allele", "biodata.allele/2"),
-        HgvsText => ("hgvs-text", "biodata.hgvs-text/3"),
-        Expression => ("expression", "biodata.expression/2"),
-        ExpressionSyntax => ("expression-syntax", "biodata.expression-syntax/1"),
-        Representation => ("representation", "biodata.representation/3"),
-        VariantId => ("variant-id", "biodata.variant-id/2"),
-        Variant => ("variant", "biodata.variant/5"),
-        RsId => ("rs-id", "biodata.rs-id/1"),
-        CaId => ("ca-id", "biodata.ca-id/1"),
-        PaId => ("pa-id", "biodata.pa-id/1"),
-        VcvId => ("vcv-id", "biodata.vcv-id/1"),
-        RcvId => ("rcv-id", "biodata.rcv-id/1"),
-        ScvId => ("scv-id", "biodata.scv-id/1"),
-        ClinVarVariationId => ("clinvar-variation-id", "biodata.clinvar-variation-id/1"),
-        ClinVarAlleleId => ("clinvar-allele-id", "biodata.clinvar-allele-id/1"),
-        CosmicId => ("cosmic-id", "biodata.cosmic-id/1"),
-        MondoId => ("mondo-id", "biodata.mondo-id/1"),
-        NcitId => ("ncit-id", "biodata.ncit-id/1"),
-        VrsId => ("vrs-id", "biodata.vrs-id/1"),
-        Contig => ("contig", "biodata.contig/1"),
-
-    }
-}
-
-fn research_registry() -> Vec<Contract> {
-    contracts! {
-        ResearchSearch<ResearchEnvelope> => ("research-search", ResearchSearch::<ResearchEnvelope>::SCHEMA),
-        ResearchFetch<ResearchEnvelope> => ("research-fetch", ResearchFetch::<ResearchEnvelope>::SCHEMA),
-    }
-}
+#[path = "schemas/registry.rs"]
+mod registry;
+use registry::{common_registry, research_registry};
 
 fn article_registry() -> Vec<Contract> {
     contracts! {
-        ArticleEvidence => ("article-evidence", "biodata.article-evidence/1", query),
-        ArticleRecommend => ("article-recommend", "biodata.article-recommend/1", query),
-        ArticlePdf => ("article-pdf", "biodata.article-pdf/1", query),
-        ArticleSupplement => ("article-supplement", "biodata.article-supplement/1", query),
-        ArticleText => ("article-text", "biodata.article-text/2", query),
-        ArticleEdges => ("article-edges", "biodata.article-edges/2", query),
-        ArticleGet => ("article-get", "biodata.article-get/2", query),
-        Article => ("article", "biodata.article/2"),
-        ArticleSearch => ("article-search", "biodata.article-search/1", query),
-        ArticleHeader => ("article-header", "biodata.article_header/3"),
+        ArticleEvidence => ("article-evidence", "biomcp.article-evidence/1", query),
+        ArticleRecommend => ("article-recommend", "biomcp.article-recommend/1", query),
+        ArticlePdf => ("article-pdf", "biomcp.article-pdf/1", query),
+        ArticleSupplement => ("article-supplement", "biomcp.article-supplement/1", query),
+        ArticleText => ("article-text", "biomcp.article-text/2", query),
+        ArticleEdges => ("article-edges", "biomcp.article-edges/2", query),
+        ArticleGet => ("article-get", "biomcp.article-get/2", query),
+        Article => ("article", "biomcp.article/2"),
+        ArticleSearch => ("article-search", "biomcp.article-search/1", query),
+        ArticleHeader => ("article-header", "biomcp.article-header/3"),
         EuropePmcId => ("europepmc-id", "biodata.europepmc-id/1"),
         Pmid => ("pmid", "biodata.pmid/1"),
         Pmcid => ("pmcid", "biodata.pmcid/1"),
@@ -136,29 +105,36 @@ mod cell_line;
 #[path = "schemas/phenotype.rs"]
 mod phenotype;
 
+fn nci_discovery_contracts() -> Vec<Contract> {
+    contracts! {
+        BiomarkerSearch => ("biomarker-search", "biomcp.biomarker-search/1", query),
+        BiomarkerGet => ("biomarker-get", "biomcp.biomarker-get/1", query),
+        OrganizationSearch => ("organization-search", "biomcp.organization-search/1", query),
+    }
+}
+
 fn registry() -> Vec<Contract> {
     let mut contracts = contracts! {
-        OrganizationSearch => ("organization-search", "biomcp.organization-search/1", query),
-        TrialDocumentGet => ("trial-document", "biodata.trial-document/1", query),
+        TrialDocumentGet => ("trial-document", "biomcp.trial-document/1", query),
         HttpHealth => ("http-health", "biomcp.http-health/1"),
         Markdown => ("markdown", "biodata.markdown/1"),
-        ErrorEnvelope => ("error", "biomcp.error/1"),
-        GeneGet => ("gene-get", "biodata.gene-get/1", query),
-        GeneSearch => ("gene-search", "biodata.gene-search/1", query),
-        Request => ("request", "biodata.request/28", query),
+        ErrorEnvelope => ("error", "biomcp.error/2"),
+        GeneGet => ("gene-get", "biomcp.gene-get/1", query),
+        GeneSearch => ("gene-search", "biomcp.gene-search/1", query),
+        Request => ("request", "biomcp.request/28", query),
         HgncId => ("hgnc-id", "biodata.hgnc-id/1"),
         PartialDate => ("partial-date", "biodata.partial-date/1"),
         Position1 => ("position1", "biodata.position1/1"),
         Span0 => ("span0", "biodata.span0/1"),
         Text => ("text", "biodata.text/1"),
-        Source => ("source", "biodata.source/1"),
-        Reason => ("reason", "biodata.reason/1"),
-        ProblemCode => ("problem-code", "biodata.problem-code/1"),
-        Problem => ("problem", "biodata.problem/1"),
-        GeneInput => ("gene-input", "biodata.gene-input/1", query),
+        Source => ("source", "biomcp.source/1"),
+        Reason => ("reason", "biomcp.reason/1"),
+        ProblemCode => ("problem-code", "biomcp.problem-code/1"),
+        Problem => ("problem", "biomcp.problem/1"),
+        GeneInput => ("gene-input", "biomcp.gene-input/1", query),
         Gene => ("gene", "biodata.gene/4"),
         GeneHeader => ("gene-header", "biomcp.gene-header/3"),
-        GeneResolution => ("gene-resolution", "biodata.gene-resolution/4"),
+        GeneResolution => ("gene-resolution", "biomcp.gene-resolution/4"),
         NcbiGeneId => ("ncbi-gene-id", "biodata.ncbi-gene-id/1"),
         EnsemblGeneId => ("ensembl-gene-id", "biodata.ensembl-gene-id/1"),
         GeneSymbol => ("gene-symbol", "biodata.gene-symbol/2"),
@@ -173,7 +149,7 @@ fn registry() -> Vec<Contract> {
         LocusGroup => ("locus-group", "biodata.locus-group/1"),
         LocusType => ("locus-type", "biodata.locus-type/1"),
         MatchKind => ("match-kind", "biodata.match-kind/1"),
-        Match => ("gene-match", "biodata.gene-match/1"),
+        Match => ("gene-match", "biomcp.gene-match/1"),
         Mane => ("mane", "biodata.mane/1"),
         Summary => ("gene-summary", "biodata.gene-summary/1"),
         SummarySource => ("summary-source", "biodata.summary-source/1"),
@@ -185,6 +161,7 @@ fn registry() -> Vec<Contract> {
         GwasGetCommand => ("gwas-get", "biomcp.gwas-get/1", query),
         GwasSearchCommand => ("gwas-search", "biomcp.gwas-search/2", query),
     });
+    contracts.extend(nci_discovery_contracts());
     contracts.extend(diagnostic_contracts());
     contracts.extend(pathway_contracts());
     contracts.extend(protein_contracts());
@@ -223,14 +200,14 @@ fn adverse_event_contracts() -> Vec<Contract> {
 
 fn variant_contracts() -> Vec<Contract> {
     contracts! {
-        VariantAssertionsGet => ("variant-assertions", "biodata.variant-assertions/2", query),
+        VariantAssertionsGet => ("variant-assertions", "biomcp.variant-assertions/2", query),
         PopulationFrequency => ("population-frequency", "biodata.population-frequency/5"),
-        VariantPopulationQuery => ("variant-population", "biodata.variant-population/3", query),
+        VariantPopulationQuery => ("variant-population", "biomcp.variant-population/3", query),
         Statement => ("statement", "biodata.statement/4"),
-        VariantRecurrenceQuery => ("variant-recurrence-query", "biodata.variant-recurrence-query/3", query),
-        VariantNormalize => ("variant-normalize", "biodata.variant-normalize/4", query),
-        VariantSearch => ("variant-search", "biodata.variant-search/2", query),
-        VariantGet => ("variant-get", "biodata.variant-get/3", query),
+        VariantRecurrenceQuery => ("variant-recurrence-query", "biomcp.variant-recurrence-query/3", query),
+        VariantNormalize => ("variant-normalize", "biomcp.variant-normalize/4", query),
+        VariantSearch => ("variant-search", "biomcp.variant-search/2", query),
+        VariantGet => ("variant-get", "biomcp.variant-get/3", query),
     }
 }
 
@@ -273,11 +250,11 @@ fn diagnostic_contracts() -> Vec<Contract> {
 
 fn trial_contracts() -> Vec<Contract> {
     contracts! {
-        TrialGet => ("trial-get", "biodata.trial-get/1", query),
+        TrialGet => ("trial-get", "biomcp.trial-get/1", query),
         TrialConditionResolution => ("trial-condition-resolution", "biomcp.trial-condition-resolution/2"),
-        TrialSearch => ("trial-search", "biodata.trial-search/3", query),
+        TrialSearch => ("trial-search", "biomcp.trial-search/3", query),
         NctId => ("nct-id", "biodata.nct-id/1"),
-        TrialHeader => ("trial-header", "biodata.trial_header/2"),
+        TrialHeader => ("trial-header", "biomcp.trial-header/2"),
     }
 }
 
@@ -294,7 +271,7 @@ fn checked_in_schemas_match_types() {
     let pending: Vec<_> = registry()
         .into_iter()
         .map(|contract| {
-            let mut new = contract.schema();
+            let mut new = (contract.generate)();
             new["$id"] = contract.id.into();
             compatibility::check_reviewed(&new, &new, contract.kind, &reviews)
                 .unwrap_or_else(|error| panic!("{}: {error}", contract.name));
@@ -335,6 +312,8 @@ fn checked_in_schemas_match_types() {
 #[test]
 fn consumed_queries_stay_inside_the_flat_command_grammar() {
     for schema in [
+        generate::<BiomarkerSearch>(),
+        generate::<BiomarkerGet>(),
         generate::<StudySearch>(),
         generate::<StudyGet>(),
         generate::<GeneGet>(),
@@ -371,24 +350,33 @@ fn flat_value(root: &Value, node: &Value) {
                 .expect("resolved reference"),
         );
     } else if let Some(branches) = node.get("anyOf").and_then(Value::as_array) {
-        assert_eq!(branches.len(), 2);
+        assert_eq!(
+            branches.len(),
+            2,
+            "Query schemas must stay inside the supported flat command grammar"
+        );
         assert_eq!(
             branches
                 .iter()
                 .filter(|branch| branch["type"] == "null")
                 .count(),
-            1
+            1,
+            "Query schemas must stay inside the supported flat command grammar"
         );
         for branch in branches.iter().filter(|branch| branch["type"] != "null") {
             flat_value(root, branch);
         }
     } else if node["type"] == "array" {
         let items = node.get("items").expect("array items");
-        assert_ne!(items["type"], "array");
+        assert_ne!(
+            items["type"], "array",
+            "Query schemas must stay inside the supported flat command grammar"
+        );
         flat_value(root, items);
     } else {
         assert!(
-            ["string", "integer", "boolean"].contains(&node["type"].as_str().expect("scalar type"))
+            ["string", "integer", "boolean"].contains(&node["type"].as_str().expect("scalar type")),
+            "Query schemas must stay inside the supported flat command grammar"
         );
     }
 }
@@ -425,7 +413,7 @@ fn generated_schemas_preserve_release_contracts() -> Result<(), Box<dyn std::err
 #[test]
 fn published_reply_contracts_are_open_and_query_choices_stay_closed() {
     for contract in registry() {
-        let mut schema = contract.schema();
+        let mut schema = (contract.generate)();
         schema["$id"] = contract.id.into();
         compatibility::check_reviewed(&schema, &schema, contract.kind, &policy::Reviews::default())
             .unwrap_or_else(|error| panic!("{}: {error}", contract.name));

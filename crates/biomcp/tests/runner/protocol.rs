@@ -210,7 +210,7 @@ fn concurrent() -> Check {
             request(
                 id.clone(),
                 "tools/call",
-                json!({"name":"biomcp","arguments":{"args":["schema","biodata.problem/1"]}}),
+                json!({"name":"biomcp","arguments":{"args":["schema","biomcp.problem/1"]}}),
             )
         })
         .collect();
@@ -239,7 +239,7 @@ fn concurrent() -> Check {
         let result = reply(&replies, &id)?
             .get("result")
             .ok_or("missing result")?;
-        if result.pointer("/structuredContent/$id") != Some(&json!("biodata.problem/1")) {
+        if result.pointer("/structuredContent/$id") != Some(&json!("biomcp.problem/1")) {
             return Err(format!("incomplete response {result}"));
         }
         let text = result
@@ -493,6 +493,9 @@ fn discovery_description(text: &str) -> Check {
         return Err("command description exceeds budget".into());
     }
     for word in [
+        "search biomarker --source nci --name",
+        "get biomarker",
+        ";NCI concepts;diagnostic --biomarker tests;trial --variant literal text",
         "search organization --source nci --name --city --state --country --postal-code --family --lat --lon \
             --distance --limit --offset --pool;names not unique;counts all trial statuses;no get",
         "search cell-line query --query/-q --limit/-l --offset",
@@ -535,7 +538,7 @@ fn cancellation() -> Check {
         request(
             json!("cancel-me"),
             "tools/call",
-            json!({"name":"biomcp","arguments":{"args":["schema","biodata.problem/1"]}}),
+            json!({"name":"biomcp","arguments":{"args":["schema","biomcp.problem/1"]}}),
         ),
         json!({"jsonrpc":"2.0","method":"notifications/cancelled","params":{"requestId":"cancel-me","reason":"SENSITIVE-cancel-reason"}}),
         request(json!("marker"), "ping", json!({})),

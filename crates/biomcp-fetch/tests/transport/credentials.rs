@@ -80,6 +80,10 @@ fn reflected_credentials_are_sent_but_refused_without_retry_or_public_disclosure
 }
 
 #[test]
+#[expect(
+    clippy::disallowed_types,
+    reason = "Observe owned test workers without leaking shared state across cases"
+)]
 fn deferred_credentials_resolve_once_after_source_admission()
 -> Result<(), Box<dyn std::error::Error>> {
     use std::sync::{

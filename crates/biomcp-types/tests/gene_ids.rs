@@ -14,19 +14,36 @@ where
     for text in valid {
         let value: T = text.parse()?;
         let json = serde_json::to_string(&value)?;
-        assert_eq!(json, serde_json::to_string(text)?);
-        assert_eq!(serde_json::from_str::<T>(&json)?, value);
+        assert_eq!(
+            json,
+            serde_json::to_string(text)?,
+            "Gene identifiers must reject unsupported forms and roundtrip exactly"
+        );
+        assert_eq!(
+            serde_json::from_str::<T>(&json)?,
+            value,
+            "Gene identifiers must reject unsupported forms and roundtrip exactly"
+        );
     }
     for text in invalid {
         let error = text
             .parse::<T>()
             .err()
             .ok_or("accepted invalid identifier")?;
-        assert!(!error.to_string().contains("distinctive-rejected-input"));
-        assert!(serde_json::from_str::<T>(&serde_json::to_string(text)?).is_err());
+        assert!(
+            !error.to_string().contains("distinctive-rejected-input"),
+            "Gene identifiers must reject unsupported forms and roundtrip exactly"
+        );
+        assert!(
+            serde_json::from_str::<T>(&serde_json::to_string(text)?).is_err(),
+            "Gene identifiers must reject unsupported forms and roundtrip exactly"
+        );
     }
     for json in ["null", "1", "{}", "[]"] {
-        assert!(serde_json::from_str::<T>(json).is_err());
+        assert!(
+            serde_json::from_str::<T>(json).is_err(),
+            "Gene identifiers must reject unsupported forms and roundtrip exactly"
+        );
     }
     Ok(())
 }

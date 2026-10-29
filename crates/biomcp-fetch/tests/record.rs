@@ -215,7 +215,11 @@ fn capture_numbers(server: &Server, spec: &'static SourceSpec, dir: &Path) {
             .map(|worker| worker.join().unwrap())
             .collect();
         numbers.sort();
-        assert_eq!(numbers, (0..8).collect::<Vec<_>>());
+        assert_eq!(
+            numbers,
+            (0..8).collect::<Vec<_>>(),
+            "Capture must preserve finite numeric request values"
+        );
     });
     drop(recording);
 }

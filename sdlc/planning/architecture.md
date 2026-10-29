@@ -34,7 +34,7 @@ Six crates. Each exists because a rule needs a crate boundary to enforce it.
 | `biomcp-types` | BioMCP queries, requests, source identities and response disclosure; generated contract schemas | `biodata`, `serde`; `schemars` behind the `schema` feature | Any I/O crate, transport, adapters or services |
 | `biomcp-fetch` | The transport: HTTP, quotas, deadlines, retry, body limits, decoding, reply checks, the reply cache, offline, record and replay, bundle sync and bundle rows | `biodata`, `biomcp-types`, `ureq`, `rusqlite`, `serde`, `serde_json`, `quick-xml`, `sha2`, `url`, `rustls`, `rustls-platform-verifier`, `httpdate`, `tempfile`, `csv`, `flate2`, `thiserror`, `prost`, `zstd` | `biomcp-adapters`, `biomcp-query`, `clap` |
 | `biomcp-adapters` | One module per source: a source description, endpoints, raw reply types with their checks and mapping into biodata | `biodata`, `biomcp-types`, `biomcp-fetch`, `serde`, `quick-xml`, `calamine`, `csv`, `zip`, `thiserror` | `ureq`, `rusqlite`, `serde_json`, `biomcp-query`, `clap` |
-| `biomcp-query` | The services and the store: resolve, fan out, merge, rank, pool, page, sections and next steps | `biodata`, `biomcp-types`, `biomcp-fetch`, `biomcp-adapters`, `rusqlite`, `serde_json`, `sha2`, `thiserror` | `ureq`, `clap` |
+| `biomcp-query` | The services and the store: resolve, fan out, merge, rank, pool, page, sections and next steps | `biodata`, `biomcp-types`, `biomcp-fetch`, `biomcp-adapters`, `rusqlite`, `serde`, `serde_json`, `sha2`, `thiserror` | `ureq`, `clap` |
 | `biomcp` | The binary: CLI grammar, MCP server, config file, Markdown view, the runner's test target, later the web mode | every crate above, `clap`, `serde`, `serde_json`, `httparse`, `base64`, `ctrlc`, `rpassword`, `tempfile`, `sha2`, `shlex` | `ureq`, `rusqlite` |
 
 Why each crate is its own:
@@ -1690,10 +1690,10 @@ The values above are illustrative, and the names in them are omitted from some h
 
 ### 8.5 Errors and exit codes
 
-An error prints one envelope with schema `biomcp.error/1`:
+An error prints one envelope with schema `biomcp.error/2`:
 
 ```json
-{ "schema": "biomcp.error/1", "status": "usage", "error": { "code": "usage.retired", "message": "use: search trial --gene <gene>" } }
+{ "schema": "biomcp.error/2", "status": "usage", "error": { "code": "usage.retired", "message": "use: search trial --gene <gene>" } }
 ```
 
 `main` returns `std::process::ExitCode` explicitly. Nothing calls `std::process::exit`. One function in `exit.rs` maps the outcome:
@@ -1937,6 +1937,8 @@ The ratchet owns the authoritative file and reason list below and checks this ta
 
 | File | Reason |
 | --- | --- |
+| `crates/biomcp-fetch/src/hosts_tests.rs` | Check credential-free exact publisher origins at the private admission boundary without a product inventory helper. |
+| `crates/biomcp-fetch/tests/grpc_worker/shutdown.rs` | Prove cancellation joins active network work at the private worker boundary without exporting shutdown control. |
 | `crates/biomcp/src/grammar/reference.rs` | Generate and compare documentation at the private parser boundary without adding a public command. |
 | `crates/biomcp/src/mcp/worker_tests.rs` | Inject a panic at the private worker completion boundary because public requests cannot intentionally panic. |
 | `crates/biomcp/src/config/deferred_keys_tests.rs` | Observe forbidden credential environment reads at the private settings boundary while executing real commands. |
@@ -1962,6 +1964,9 @@ The ratchet owns the authoritative file and reason list below and checks this ta
 | `crates/biomcp-types/tests/schemas.rs` | Exercise checked values and schema contracts through the public library API. |
 | `crates/biomcp-types/tests/schemas/disease.rs` | Exercise standalone disease option metadata and synthetic envelope schema contracts before command registration. |
 | `crates/biomcp-types/tests/schemas/compatibility_cases.rs` | Exercise checked values and schema contracts through the public library API. |
+| `crates/biomcp-types/tests/schemas/drug.rs` | Exercise public drug header and card disclosure boundaries through their serialized values and schemas. |
+| `crates/biomcp-types/tests/schemas/registry.rs` | Register public value and research query schema contracts for schema drift checks. |
+| `crates/biomcp-types/tests/schemas/ownership.rs` | Check published schema namespaces against the crate that defines each Rust type. |
 | `crates/biomcp-types/tests/schemas/values.rs` | Exercise checked values and schema contracts through the public library API. |
 | `crates/biomcp-types/tests/value_conventions.rs` | Exercise checked values and schema contracts through the public library API. |
 | `crates/biomcp-adapters/src/monarch/native_contracts.rs` | Exercise retained gene-keyed Monarch rows through the private mapper without adding a gene-keyed command. |
@@ -2005,6 +2010,7 @@ The ratchet owns the authoritative file and reason list below and checks this ta
 | `crates/biomcp-query/tests/article_search.rs` | Exercise concurrent pool publication/hydration, injected SQL corruption, external writers and API-only deadline boundaries. |
 | `crates/biomcp-query/tests/gene_resolution.rs` | Mutate isolated cache freshness and preserve a local bundle failure under an API-only short command deadline. |
 | `crates/biomcp/tests/ratchets.rs` | Enforce repository structure and prove refusal of planted violations in isolated trees. |
+| `crates/biomcp/tests/ratchets/lints.rs` | Prove the shared Clippy settings reject planted scalar, banned-type and reason drift. |
 | `crates/biomcp/tests/ratchets/proof.rs` | Enforce repository structure and prove refusal of planted violations in isolated trees. |
 
 Everything else goes through the runner.
@@ -2154,3 +2160,15 @@ Organization search uses the NCI CTS v2 `/organizations` endpoint and its docume
 Each search row preserves the native name, location and `count`, with optional published address, coordinates, family, Veterans Affairs marker and public contact fields. Names are not unique. There is no organization ID, get or detail command. The native count includes trials of every status. Optional fields that fail validation produce a field problem while retaining the organization and count. Snapshot keys exclude page size and offset. Continuations retain the original source order, source outcomes and problems without another source request.
 
 A bounded keyed public-tier capture on 2026-10-28 returned eleven `name=Dana-Farber` organizations and twenty-one Boston, MA organizations. The exact Dana-Farber Cancer Institute row reported `count=3376`; a separate `sites.org_name=Dana-Farber Cancer Institute` trial query reported `total=3376`. The public tier returned `sites` when requested with `include=sites`: the sampled NCI-2023-04529/NCT05879926 record contained 1,273 site records. These are publisher facts without clinical interpretation. Replay fixtures retain source row order and counts; named contact fields are omitted unless the publisher labels the contact `Site Public Contact`. Raw captures remain outside Git; the native capture archive has SHA-256 `e91c30a89555dfdbe1597b4b7dee8bebe75911a1e51cb014e4be12f04d0207c4`.
+
+### NCI exact organization trial searches
+
+The [publisher OpenAPI](https://clinicaltrialsapi.cancer.gov/api/v2/docs) lists `sites.org_name` separately from its `_fulltext`, `_auto` and `_raw` variants. Facility searches send `sites.org_name` and request `include=sites` alongside the existing trial header fields. The organization observation above provides the positive field-spelling and public-tier site witness. Local matching compares the complete name case-insensitively, preserves source order and counts duplicate matching site rows. The compact header retains the first matched name, city, state or province and native recruitment status. It does not infer enrollment. A source trial without an equal local site remains in place with a field problem. Existing facility/radius validation refuses combinations before source access. Organization rows receive typed executable trial-search next steps at the interface.
+
+### NCI biomarker observations
+
+NCI CTS v2 documents `/biomarkers` in its [OpenAPI document](https://clinicaltrialsapi.cancer.gov/api/v2/docs). `name` searches both names and synonyms; `codes` searches exact NCIt codes. A bounded keyed public-tier capture on 2026-10-28 returned 37 rows for `name=PD-L1`, including CD274 Gene with `codes=["C96022"]`, `type=["reference_gene"]` and native trial `count=326`. `codes=C96022` returned that sole row. Both unsized replies supplied totals equal to their received row counts.
+
+The public tier returned every documented biomarker field: name, codes, type, count, synonyms, parent_ids, ancestor_ids and eligibility_criterion. Codes, type, synonyms, parents, ancestors and criteria are lists. BioMCP retains their source order and does not derive a single row identity from a code list. Headers preserve typed NCIt codes and native type and count; exact code retrieval preserves all optional card lists. Several rows for one code return candidates without selecting a card. Empty source lists follow the shared omission convention. Missing optional fields remain absent, and malformed optional fields produce problems without discarding valid headers. Native type and criterion values remain publisher text without classification or patient eligibility inference.
+
+Biomarker discovery uses the same complete-observation storage owner as organization discovery. Search saves one checked unsized observation before local paging. Snapshot selectors exclude offset and page size. `biomcp_adapters::nci::biomarker::MAX_BYTES` owns the byte bound; overflow returns `usage.too_broad`, while malformed collections and native bucket errors remain source failures. Exact-code identity checks run before cache admission and on replay or cache reads. NCI publishes no biomarker row URL in these replies. Research search retains uncitable native headers in metadata, and the main MCP tool returns the full envelope. The keyed capture archive on physical Yellow has SHA-256 `0de9be7bdc2cd7bd0170ca1ec747aea54684b8bf9666160a4b6d438ce5fd9fa4`; the keyless documentation archive has SHA-256 `f0d7043abfb2e1d38df294b6ee4736264acc838471d31eb543404003fd5c38c6`.

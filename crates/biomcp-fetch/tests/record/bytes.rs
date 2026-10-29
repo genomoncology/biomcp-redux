@@ -26,7 +26,8 @@ fn record_binary_replies(capture: &Fetch, server: &Server, spec: &'static Source
         }
         assert_eq!(
             worker.join().unwrap().map(Result::unwrap),
-            [b"first\x00\xff".to_vec(), b"second\x00\xfe".to_vec()]
+            [b"first\x00\xff".to_vec(), b"second\x00\xfe".to_vec()],
+            "A binary capture must publish its checked body and metadata"
         );
     });
 }
@@ -47,8 +48,16 @@ pub(super) fn ordered_binary_sidecars_round_trip_and_refuse_hostile_paths() {
     let replay = fetch(Mode::Replay {
         dir: dir.path().to_owned(),
     });
-    assert_eq!(bytes(&replay, spec).unwrap(), b"first\x00\xff");
-    assert_eq!(bytes(&replay, spec).unwrap(), b"second\x00\xfe");
+    assert_eq!(
+        bytes(&replay, spec).unwrap(),
+        b"first\x00\xff",
+        "Binary replay must preserve order and reject unsafe sidecars"
+    );
+    assert_eq!(
+        bytes(&replay, spec).unwrap(),
+        b"second\x00\xfe",
+        "Binary replay must preserve order and reject unsafe sidecars"
+    );
     let path = json_file(dir.path());
     let original = std::fs::read(&path).unwrap();
     let original_value: serde_json::Value = serde_json::from_slice(&original).unwrap();
@@ -57,33 +66,21 @@ pub(super) fn ordered_binary_sidecars_round_trip_and_refuse_hostile_paths() {
         .unwrap()
         .as_str()
         .unwrap();
-    for hostile in [
-        "../outside.bin",
-        "/absolute.bin",
-        "nested/file.bin",
-        "missing.bin",
-    ] {
-        let mut value = original_value.clone();
-        *value.pointer_mut("/exchanges/0/body/value").unwrap() = hostile.into();
-        std::fs::write(&path, serde_json::to_vec(&value).unwrap()).unwrap();
-        let replay = fetch(Mode::Replay {
-            dir: dir.path().to_owned(),
-        });
-        assert!(matches!(
-            bytes(&replay, spec),
-            Err(RequestError::Recording(_))
-        ));
-    }
+    refuse_hostile_sidecars(dir.path(), spec, &path, &original_value);
     // Disabled policy wins even when replay would open a hostile sidecar.
     let disabled = replay.restrict_sources([biomcp_types::Source::PubMed].into());
     assert!(
-        matches!(bytes(&disabled, spec), Err(RequestError::Source(e)) if e.reason == biomcp_types::Reason::Disabled)
+        matches!(bytes(&disabled, spec), Err(RequestError::Source(e)) if e.reason == biomcp_types::Reason::Disabled),
+        "Binary replay must preserve order and reject unsafe sidecars"
     );
-    assert!(matches!(disabled.leg(spec,
+    assert!(
+        matches!(disabled.leg(spec,
  disabled.deadline(Duration::from_secs(10))).bytes_checked(&spec.get("/bytes").bytes(20),
  &[],
  |_| Err(biomcp_types::Reason::BadReply)),
- Err(RequestError::Source(e)) if e.reason == biomcp_types::Reason::Disabled));
+ Err(RequestError::Source(e)) if e.reason == biomcp_types::Reason::Disabled),
+        "Binary replay must preserve order and reject unsafe sidecars"
+    );
     std::fs::write(&path, &original).unwrap();
     let sidecar = path.parent().unwrap().join(name);
     std::fs::remove_file(&sidecar).unwrap();
@@ -93,12 +90,43 @@ pub(super) fn ordered_binary_sidecars_round_trip_and_refuse_hostile_paths() {
         let replay = fetch(Mode::Replay {
             dir: dir.path().to_owned(),
         });
-        assert!(matches!(
-            bytes(&replay, spec),
-            Err(RequestError::Recording(RecordError::Malformed))
-        ));
+        assert!(
+            matches!(
+                bytes(&replay, spec),
+                Err(RequestError::Recording(RecordError::Malformed))
+            ),
+            "Binary replay must preserve order and reject unsafe sidecars"
+        );
     }
-    assert!(server.requests.try_recv().is_err());
+    assert!(
+        server.requests.try_recv().is_err(),
+        "Binary replay must preserve order and reject unsafe sidecars"
+    );
+}
+
+fn refuse_hostile_sidecars(
+    dir: &Path,
+    spec: &'static SourceSpec,
+    path: &Path,
+    original_value: &serde_json::Value,
+) {
+    for hostile in [
+        "../outside.bin",
+        "/absolute.bin",
+        "nested/file.bin",
+        "missing.bin",
+    ] {
+        let mut value = original_value.clone();
+        *value.pointer_mut("/exchanges/0/body/value").unwrap() = hostile.into();
+        std::fs::write(path, serde_json::to_vec(&value).unwrap()).unwrap();
+        let replay = fetch(Mode::Replay {
+            dir: dir.to_owned(),
+        });
+        assert!(
+            matches!(bytes(&replay, spec), Err(RequestError::Recording(_))),
+            "Binary replay must preserve order and reject unsafe sidecars"
+        );
+    }
 }
 
 pub(super) fn cut_binary_body_is_refused_before_returning_bytes() {
@@ -111,10 +139,14 @@ pub(super) fn cut_binary_body_is_refused_before_returning_bytes() {
             .next()
             .raw("HTTP/1.1 200 OK\r\nContent-Type: application/pdf\r\nContent-Length: 19\r\nConnection: close\r\n\r\n%PDF-");
         assert!(
-            matches!(worker.join().unwrap(), Err(RequestError::Source(e)) if e.reason == biomcp_types::Reason::BadReply)
+            matches!(worker.join().unwrap(), Err(RequestError::Source(e)) if e.reason == biomcp_types::Reason::BadReply),
+            "A cut binary reply must never become a successful recording"
         );
     });
-    assert!(server.requests.try_recv().is_err());
+    assert!(
+        server.requests.try_recv().is_err(),
+        "A cut binary reply must never become a successful recording"
+    );
 }
 
 pub(super) fn only_bounded_json_reports_typed_overflow() {

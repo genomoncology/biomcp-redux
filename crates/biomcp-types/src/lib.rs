@@ -1,7 +1,16 @@
 #![doc = include_str!("../README.md")]
 // The fixed migration-message schema expands one enum of wire literals.
 #![recursion_limit = "256"]
-use biodata::*;
+use biodata::{
+    AccessionBase, Attribution, Build, Chromosome, Concept, Curie, Cytoband, Doi, EnsemblGeneId,
+    Error, EuropePmcId, Expression, ExpressionSyntax, FiniteNumber, FiniteNumberError, GeneSymbol,
+    HgncId, HgvsText, License, LocusGroup, Markdown, NcbiGeneId, NctId, PartialDate, Pmcid, Pmid,
+    PopulationDataType, PopulationFrequency, PopulationSex, PredictorScore, RcvId, RsId, ScvId,
+    SemanticScholarId, Statement, StudyType, Term, Text, TrialAgeBound, TrialArm, TrialCard,
+    TrialContact, TrialDocument, TrialIntervention, TrialLocation, TrialOfficial, TrialOutcome,
+    TrialPhase, TrialReference, TrialSex, TrialStatus, Variant, VariantId, VariantRef, VcvId,
+    canonical_enum, text_value,
+};
 
 mod research;
 pub use research::{
@@ -99,7 +108,7 @@ pub use response::{
     NciEligibilityStructured, NciIntervention, NciOutcome, NciTextPage, NciTrialSections,
 };
 pub use response::{
-    NciDisease, NciDiseaseRef, NciTrial, NciTrialCards, NciTrialItem, NciTrialPage,
+    NciDisease, NciDiseaseRef, NciMatchedSite, NciTrial, NciTrialCards, NciTrialItem, NciTrialPage,
 };
 pub use response::{
     NormalizationField, NormalizationMessage, NormalizationResult, VariantNormalization,
@@ -231,3 +240,6 @@ pub use response::NciTrialPhase;
 pub use response::{DeviceRecallCard, DeviceRecallHeader};
 
 pub use response::{Organization, OrganizationCoordinates, OrganizationPage};
+
+pub use query::{BiomarkerGet, BiomarkerSearch, BiomarkerSource};
+pub use response::{BiomarkerCard, BiomarkerHeader, BiomarkerPage, BiomarkerResult};

@@ -109,7 +109,7 @@ pub use trial_get::{
 
 mod nci_trial;
 pub use nci_trial::{
-    NciDisease, NciDiseaseRef, NciTrial, NciTrialCards, NciTrialItem, NciTrialPage,
+    NciDisease, NciDiseaseRef, NciMatchedSite, NciTrial, NciTrialCards, NciTrialItem, NciTrialPage,
 };
 
 mod nci_detail;
@@ -176,4 +176,6 @@ pub use device_recall::{DeviceRecallCard, DeviceRecallHeader};
 mod organization;
 pub use organization::{Organization, OrganizationCoordinates, OrganizationPage};
 
+mod biomarker;
 mod registry;
+pub use biomarker::{BiomarkerCard, BiomarkerHeader, BiomarkerPage, BiomarkerResult};

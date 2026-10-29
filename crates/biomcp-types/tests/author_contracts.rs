@@ -169,9 +169,14 @@ where
     assert!(
         jsonschema::validator_for(&schema)
             .map_err(|error| error.to_string())?
-            .is_valid(&value)
+            .is_valid(&value),
+        "Author replies must retain native identity and their schema contract"
     );
-    assert_eq!(value.get("schema"), Some(&json!(T::SCHEMA)));
+    assert_eq!(
+        value.get("schema"),
+        Some(&json!(T::SCHEMA)),
+        "Author replies must retain native identity and their schema contract"
+    );
     Ok(())
 }
 #[cfg(feature = "schema")]
