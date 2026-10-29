@@ -54,10 +54,11 @@ fn variant_consumer_reads_coding_representations_statements_and_frequencies() ->
         },
         attribution.clone(),
     );
-    for claim in [statement] {
-        assert_eq!(claim.subject.hgvs().map(HgvsText::as_str), Some(notation));
-        assert!(claim.subject.id().is_none());
-    }
+    assert_eq!(
+        statement.subject.hgvs().map(HgvsText::as_str),
+        Some(notation)
+    );
+    assert!(statement.subject.id().is_none());
     let frequency = PopulationFrequency::new(
         subject,
         Build::GRCh38,
@@ -119,44 +120,45 @@ fn consumers_read_each_subject_level_without_json() -> Check {
     Ok(())
 }
 
-fn hashable<T: Eq + Hash + Debug + FromStr>(text: &str)
+fn hashable<T: Eq + Hash + Debug + FromStr>(text: &str) -> Check
 where
-    T::Err: Debug,
+    T::Err: std::error::Error + 'static,
 {
     let mut ids = HashSet::new();
-    assert!(ids.insert(text.parse::<T>().expect("typed identifier")));
-    assert!(ids.contains(&text.parse::<T>().expect("typed identifier")));
+    assert!(ids.insert(text.parse::<T>()?));
+    assert!(ids.contains(&text.parse::<T>()?));
+    Ok(())
 }
 
 #[test]
 fn identifiers_and_notation_support_hash_collections_and_borrowed_text() -> Check {
-    hashable::<VariantId>("VCV000013961");
-    hashable::<Accession>("NM_005228.5");
-    hashable::<AccessionBase>("NM_005228");
-    hashable::<HgvsText>("NM_005228.5:c.2573T>G");
-    hashable::<Chromosome>("7");
-    hashable::<RsId>("rs1");
-    hashable::<CaId>("CA000001");
-    hashable::<PaId>("PA1");
-    hashable::<ClinVarVariationId>("clinvar:1");
-    hashable::<ClinVarAlleleId>("1");
-    hashable::<CosmicId>("COSV1");
-    hashable::<VrsId>("ga4gh:VA.abcdefghijklmnopqrstuvwxyz012345");
-    hashable::<Doi>("10.1/Example");
-    hashable::<NctId>("NCT00000001");
-    hashable::<Curie>("MONDO:0000001");
-    hashable::<Pmid>("1");
-    hashable::<Pmcid>("PMC1");
-    hashable::<HgncId>("HGNC:3236");
-    hashable::<NcbiGeneId>("1956");
-    hashable::<EnsemblGeneId>("ENSG00000146648");
-    hashable::<OmimId>("131550");
-    hashable::<UniProtAcc>("P00533");
-    hashable::<EuropePmcId>("MED1");
-    hashable::<SemanticScholarId>("0123456789abcdef0123456789abcdef01234567");
-    hashable::<TrialStatus>("RECRUITING");
-    hashable::<TrialPhase>("PHASE1");
-    hashable::<StudyType>("INTERVENTIONAL");
+    hashable::<VariantId>("VCV000013961")?;
+    hashable::<Accession>("NM_005228.5")?;
+    hashable::<AccessionBase>("NM_005228")?;
+    hashable::<HgvsText>("NM_005228.5:c.2573T>G")?;
+    hashable::<Chromosome>("7")?;
+    hashable::<RsId>("rs1")?;
+    hashable::<CaId>("CA000001")?;
+    hashable::<PaId>("PA1")?;
+    hashable::<ClinVarVariationId>("clinvar:1")?;
+    hashable::<ClinVarAlleleId>("1")?;
+    hashable::<CosmicId>("COSV1")?;
+    hashable::<VrsId>("ga4gh:VA.abcdefghijklmnopqrstuvwxyz012345")?;
+    hashable::<Doi>("10.1/Example")?;
+    hashable::<NctId>("NCT00000001")?;
+    hashable::<Curie>("MONDO:0000001")?;
+    hashable::<Pmid>("1")?;
+    hashable::<Pmcid>("PMC1")?;
+    hashable::<HgncId>("HGNC:3236")?;
+    hashable::<NcbiGeneId>("1956")?;
+    hashable::<EnsemblGeneId>("ENSG00000146648")?;
+    hashable::<OmimId>("131550")?;
+    hashable::<UniProtAcc>("P00533")?;
+    hashable::<EuropePmcId>("MED1")?;
+    hashable::<SemanticScholarId>("0123456789abcdef0123456789abcdef01234567")?;
+    hashable::<TrialStatus>("RECRUITING")?;
+    hashable::<TrialPhase>("PHASE1")?;
+    hashable::<StudyType>("INTERVENTIONAL")?;
     assert_eq!("10.1/Example".parse::<Doi>()?.as_str(), "10.1/Example");
     for text in ["NCT00000001", "NCT99999999"] {
         let id: NctId = text.parse()?;
