@@ -100,7 +100,8 @@ fn boundaries() -> Check {
         ),
         (
             "bad-rsid",
-            json!({"/status":"complete","/sources/1/term":"p.G12C","/problems/*/field":["rsid"]}),
+            json!({"/status":"complete","/sources/1/term":"p.G12C",
+                "/problems/*/field":["rsid","electronic_date","electronic_date","date"]}),
             0,
         ),
         (
@@ -349,6 +350,15 @@ fn markdown_recovery() -> Check {
 }
 
 fn optional_values() -> Check {
+    // Keep the original capture's independent PubMed date disclosures in every control.
+    checked_case(
+        "article/litvar/kras-g12c",
+        KRAS,
+        |_, _| {},
+        json!({"/result/items":{"count":10},
+            "/problems/*/field":["electronic_date","electronic_date","date"]}),
+        0,
+    )?;
     checked_case(
         "article/litvar/kras-g12c",
         KRAS,
@@ -380,7 +390,8 @@ fn optional_values() -> Check {
                     value[1]["pmids_count"] = invalid.clone();
                 }
             },
-            json!({"/result/items":{"count":10},"/problems/*/field":["pmids_count"]}),
+            json!({"/result/items":{"count":10},
+                "/problems/*/field":["pmids_count","electronic_date","electronic_date","date"]}),
             0,
         )?;
         if publication && output.pointer("/sources/1/count").is_some() {
