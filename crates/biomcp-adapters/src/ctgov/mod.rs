@@ -56,6 +56,11 @@ pub fn parameters(query: &TrialSearch, gene: Option<&str>) -> BTreeMap<String, S
             "NCTId,BriefTitle,OverallStatus,Phase,Condition,InterventionName,LastUpdatePostDate,HasResults".into(),
         ),
     ]);
+    if !query.country().is_empty() {
+        if let Some(fields) = p.get_mut("fields") {
+            fields.push_str(",LocationCountry");
+        }
+    }
     for (name, values) in [
         ("query.cond", query.condition()),
         ("query.intr", query.intervention()),
@@ -147,6 +152,17 @@ fn advanced(query: &TrialSearch) -> String {
     if let Some(id) = query.id() {
         advanced.push(format!("AREA[NCTId]{id}"));
     }
+    if !query.country().is_empty() {
+        advanced.push(format!(
+            "({})",
+            query
+                .country()
+                .iter()
+                .map(|country| format!("AREA[LocationCountry]{}", quote(country)))
+                .collect::<Vec<_>>()
+                .join(" OR ")
+        ));
+    }
     if let Some(phase) = query.phase() {
         advanced.extend(
             phase
@@ -197,8 +213,20 @@ pub fn search(
     leg: &Leg<'_>,
     params: &BTreeMap<String, String>,
     conditions: &[Text],
+    countries: &[Box<str>],
 ) -> Result<SearchPage, RequestError> {
     let raw = fetch_page(leg, params)?;
+    if !countries.is_empty()
+        && raw
+            .studies
+            .as_deref()
+            .unwrap_or_default()
+            .iter()
+            .filter_map(crate::raw::Field::as_ref)
+            .any(|row| !row.protocol_section.has_country(countries))
+    {
+        return Err(bad());
+    }
     let mut total = raw.total_count;
     let mut count_error = None;
     let mut count_request = None;

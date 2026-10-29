@@ -29,6 +29,11 @@ impl TryFrom<Fields> for TrialSearch {
         validate_source_filters(&f)?;
         validate_biomarker(&f)?;
         validate_alternatives(&f)?;
+        if f.country.len() > super::MAX_ALTERNATIVES
+            || f.country.iter().any(|value| !super::country::valid(value))
+        {
+            return Err(QueryInvalid::new(&["country"]));
+        }
         validate_exact_condition(&f)?;
         if !(1..=100).contains(&f.limit) {
             return Err(QueryInvalid::new(&["limit"]));

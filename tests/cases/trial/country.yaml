@@ -21,7 +21,7 @@
       "is_error": true,
       "expect": {
         "/error/code": "usage.arguments",
-        "/error/arguments/0": "country"
+        "/error/option": "--country"
       }
     }
   ]

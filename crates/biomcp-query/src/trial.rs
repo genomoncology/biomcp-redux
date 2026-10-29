@@ -37,7 +37,7 @@ pub(crate) fn search(cx: &Ctx<'_>, query: &TrialSearch) -> Outcome {
     {
         params.insert("query.cond".into(), format!("({condition})"));
     }
-    let result = ctgov::search(&leg, &params, conditions);
+    let result = ctgov::search(&leg, &params, conditions, query.country());
     let rejected = matches!(
         &result,
         Err(biomcp_fetch::RequestError::Source(error)) if error.status == Some(400)
