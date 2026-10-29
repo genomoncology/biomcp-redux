@@ -47,7 +47,15 @@ pub(super) fn seer(directory: &Path, registry: &Registry) -> Check {
             Ok(body.to_string())
         })?;
         let env = variant::source_environment(&stub)?;
-        let value = invoke(&env, words.into_iter().chain(["--fresh"]), 0)?;
+        let value = invoke(
+            &env,
+            words
+                .into_iter()
+                .chain(["--fresh"])
+                .map(str::to_owned)
+                .collect(),
+            0,
+        )?;
         if stub.finish()?.len() != 1 {
             return Err("annual source request count changed".into());
         }
