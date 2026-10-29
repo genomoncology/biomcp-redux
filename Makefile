@@ -13,7 +13,7 @@ TEST_THREADS = $(if $(strip $(RUST_TEST_THREADS)),-- --test-threads $(RUST_TEST_
 
 .PHONY: landing-gate plain-cli-build fmt lint ratchets test audit coverage unreached
 
-landing-gate: workflow-lint plain-cli-build fmt lint docs-check tensor-proto-check library-tests coverage audit secrets
+landing-gate: workflow-lint plain-cli-build fmt lint docs-check tensor-proto-check audit secrets library-tests coverage
 
 plain-cli-build:
 	cargo build --locked -p biomcp --bin biomcp --timings
