@@ -40,9 +40,9 @@ pub struct SourceOutcome {
     /// Provider matching count.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub count: Option<u64>,
-    /// Retrieved identity depth.
+    /// Number of retrieved identities.
     #[serde(skip_serializing_if = "Option::is_none")]
-    pub fetched: Option<u32>,
+    pub retrieved_count: Option<u32>,
     /// Source notices and request recovery guidance.
     #[serde(default, skip_serializing_if = "Vec::is_empty")]
     pub notices: Vec<SourceNotice>,

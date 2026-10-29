@@ -715,7 +715,7 @@ biomcp key list
 
 ```sh
 biomcp schema
-biomcp schema biomcp.help/4
+biomcp schema biomcp.help/5
 ```
 
 ## biomcp help relations

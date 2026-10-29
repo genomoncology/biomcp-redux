@@ -3,7 +3,7 @@ use crate::native_text::NativeText;
 use crate::{Mapped, mapped::Problems, raw::Field};
 use biodata::Text;
 use biomcp_fetch::{BadReply, Endpoint, Freshness, Leg, Reply, RequestError};
-use biomcp_types::{ComponentUpload, Source, VariantComponent};
+use biomcp_types::{ComponentUpload, Source, SourceDateTimeValue, VariantComponent};
 use serde::Deserialize;
 use std::collections::BTreeMap;
 const METADATA: Endpoint = super::SPEC.get("/metadata").fresh(Freshness::Days(1));
@@ -54,7 +54,7 @@ fn uploads(
     raw: Option<Uploads>,
     prefix: &str,
     problems: &mut Problems,
-) -> (Option<Text>, Box<[ComponentUpload]>) {
+) -> (Option<SourceDateTimeValue>, Box<[ComponentUpload]>) {
     match raw {
         None => (None, Box::default()),
         Some(Uploads::One(value)) => (Some(value), Box::default()),
@@ -78,7 +78,7 @@ fn uploads(
 #[derive(Deserialize)]
 struct Metadata {
     build_version: Option<Field<Text>>,
-    build_date: Option<Field<Text>>,
+    build_date: Option<Field<SourceDateTimeValue>>,
     src: BTreeMap<String, Field<Component>>,
 }
 #[derive(Deserialize)]
@@ -91,15 +91,11 @@ struct Component {
 #[derive(Deserialize)]
 #[serde(untagged)]
 enum Uploads {
-    One(Text),
-    Many(BTreeMap<String, Field<Text>>),
+    One(SourceDateTimeValue),
+    Many(BTreeMap<String, Field<SourceDateTimeValue>>),
 }
 impl Reply for Metadata {
     fn check(&self) -> Result<(), BadReply> {
-        if self.src.is_empty() {
-            Err(BadReply)
-        } else {
-            Ok(())
-        }
+        Ok(())
     }
 }

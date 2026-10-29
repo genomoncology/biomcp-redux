@@ -154,7 +154,7 @@ fn pubmed_search<'a>(
     let items = match result {
         Ok(ids) => {
             outcome.count = Some(ids.count);
-            outcome.fetched = Some(ids.ids.len() as u32);
+            outcome.retrieved_count = Some(ids.ids.len() as u32);
             outcome.notices.extend(ids.notices);
             problems.extend(ids.problems);
             ids.ids
@@ -200,7 +200,7 @@ fn europe_search<'a>(
     let items = match result {
         Ok(reply) => {
             outcome.count = Some(reply.count);
-            outcome.fetched = Some(reply.items.len() as u32);
+            outcome.retrieved_count = Some(reply.items.len() as u32);
             reply.items
         }
         Err(_) => Vec::new(),
@@ -341,7 +341,7 @@ fn litvar_search((leg, selected): PreparedLitvar<'_>) -> ResultLeg {
             problems = rejected;
             outcome.term = Some(term);
             outcome.count = count;
-            outcome.fetched = Some(ids.len() as u32);
+            outcome.retrieved_count = Some(ids.len() as u32);
             ids.into_iter()
                 .map(|id| ArticleItem {
                     key: Some(ArticleKey::Pubmed(id)),

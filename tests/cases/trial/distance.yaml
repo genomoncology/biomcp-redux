@@ -46,8 +46,8 @@
             "NCT04007588"
           ]
         },
-        "/result/source_updated/value": "2026-10-23T09:00:04",
-        "/result/source_updated/timezone": "source-gave-none"
+        "/result/source_updated/value": "2026-10-23T09:00:04Z",
+        "/result/source_updated/timezone": "in-value"
       },
       "max_bytes": 6167
     }

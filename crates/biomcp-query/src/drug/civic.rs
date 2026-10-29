@@ -31,7 +31,7 @@ pub(super) fn search(cx: &Ctx<'_>, query: &DrugSearch) -> Outcome {
         let returned = page.items.len() as u32;
         out.sources.iter_mut().for_each(|s| {
             s.count = page.total;
-            s.fetched = Some(returned);
+            s.retrieved_count = Some(returned);
         });
         out.page = page.total.map(|total| PageInfo {
             offset: query.offset(),

@@ -73,6 +73,6 @@ pub struct OrganizationPage {
     pub items: Box<[Organization]>,
 }
 impl crate::ResponseBody for OrganizationPage {
-    const SCHEMA: &'static str = "biomcp.organization-page/2";
+    const SCHEMA: &'static str = "biomcp.organization-page/3";
     type Query = crate::OrganizationSearch;
 }

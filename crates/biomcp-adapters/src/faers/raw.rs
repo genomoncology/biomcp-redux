@@ -9,7 +9,7 @@ pub(super) enum Response {
 }
 #[derive(Debug, Deserialize)]
 pub(super) struct Meta {
-    pub last_updated: Option<PartialDate>,
+    pub last_updated: Option<crate::raw::Field<PartialDate>>,
     pub results: Counts,
 }
 #[derive(Debug, Deserialize)]

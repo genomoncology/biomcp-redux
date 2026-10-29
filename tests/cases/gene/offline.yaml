@@ -18,7 +18,7 @@ steps:
   - run: [sync, hgnc, --offline]
     exit: 4
     expect:
-      /schema: biomcp.sync/6
+      /schema: biomcp.sync/7
       /status: failed
       /query/source: hgnc
       /sources/0/reason: offline

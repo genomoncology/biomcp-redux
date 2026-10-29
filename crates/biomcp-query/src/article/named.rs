@@ -29,7 +29,7 @@ pub(super) fn litsense<'a>(
     let items = result.unwrap_or_default();
     if error.is_none() {
         outcome.count = Some(items.len() as u64);
-        outcome.fetched = Some(items.len() as u32);
+        outcome.retrieved_count = Some(items.len() as u32);
     }
     ResultLeg {
         problems: Vec::new(),
@@ -79,7 +79,7 @@ pub(super) fn pubtator<'a>(
     let items = match result {
         Ok(reply) => {
             outcome.count = Some(reply.count);
-            outcome.fetched = Some(reply.ids.len() as u32);
+            outcome.retrieved_count = Some(reply.ids.len() as u32);
             reply
                 .ids
                 .into_iter()

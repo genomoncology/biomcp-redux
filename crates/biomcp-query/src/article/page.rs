@@ -71,7 +71,7 @@ pub(super) fn read<'a>(
                     s.state = biomcp_types::SourceState::Skipped;
                     s.reason = Some(biomcp_types::Reason::Disabled);
                     s.count = None;
-                    s.fetched = None;
+                    s.retrieved_count = None;
                 }
                 s
             })
@@ -109,7 +109,7 @@ pub(super) fn read<'a>(
                 if let Some(original) = pool.sources.iter().find(|s| s.source == Source::PubMed) {
                     source.term = original.term.clone();
                     source.count = original.count;
-                    source.fetched = original.fetched;
+                    source.retrieved_count = original.retrieved_count;
                     source.notices.extend(original.notices.clone());
                 }
                 out.sources.retain(|s| s.source != Source::PubMed);
@@ -164,7 +164,7 @@ fn finish(query: Cursor<'_>, pool: &Pool, rows: Vec<StoredItem>, out: &mut Outco
         pool: Some(pool.info.clone()),
         truncated: Some(pool.sources.iter().any(|s| {
             s.count
-                .zip(s.fetched)
+                .zip(s.retrieved_count)
                 .is_some_and(|(count, fetched)| count > u64::from(fetched))
                 || s.notices
                     .iter()

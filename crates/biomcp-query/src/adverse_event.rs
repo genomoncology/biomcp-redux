@@ -58,6 +58,7 @@ pub fn search(cx: &Ctx<'_>, query: &AdverseEventSearch) -> Outcome {
     if let Ok(page) = reply {
         let returned = page.items.len() as u32;
         navigation(query, &page, &mut out);
+        out.problems.extend(page.problems);
         out.page = Some(PageInfo {
             offset: query.offset(),
             returned,
@@ -65,26 +66,33 @@ pub fn search(cx: &Ctx<'_>, query: &AdverseEventSearch) -> Outcome {
             pool: None,
             truncated: None,
         });
-        out.status = if page.total == 0 {
-            Status::Absent
-        } else if out
-            .sources
-            .iter()
-            .any(|s| s.state == biomcp_types::SourceState::Stale)
-        {
-            Status::Partial
-        } else {
-            Status::Complete
-        };
+        out.status = page_status(&out, page.total);
         if let QueryBody::AdverseEventPage(body) = &mut out.body {
             body.items = page.items.into();
             body.components = page.components;
-            body.source_updated = page.updated;
-            body.fetched = biomcp_adapters::received_date(page.metadata.fetched);
+            body.source_updated = page.updated.map(Into::into);
+            body.fetched = page
+                .metadata
+                .fetched
+                .and_then(|value| u64::try_from(value).ok());
         }
     }
     command.finish(deadline.remaining());
     out
+}
+fn page_status(out: &Outcome, total: u64) -> Status {
+    if total == 0 {
+        Status::Absent
+    } else if !out.problems.is_empty()
+        || out
+            .sources
+            .iter()
+            .any(|s| s.state == biomcp_types::SourceState::Stale)
+    {
+        Status::Partial
+    } else {
+        Status::Complete
+    }
 }
 
 /// An unimplemented report get has no source effects until its owning slice lands.

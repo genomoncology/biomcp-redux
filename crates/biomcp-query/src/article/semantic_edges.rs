@@ -42,7 +42,7 @@ pub(super) fn create<'a>(
         }
     };
     source.count = (!truncated).then_some(count);
-    source.fetched = Some(count as u32);
+    source.retrieved_count = Some(count as u32);
     if truncated {
         source
             .notices

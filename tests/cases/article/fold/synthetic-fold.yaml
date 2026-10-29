@@ -28,7 +28,7 @@
         "/status": "complete",
         "/page/total": 7,
         "/page/truncated": true,
-        "/sources/1/fetched": 6,
+        "/sources/1/retrieved_count": 6,
         "/sources/1/count": 11,
         "/result/items/1/found_by": {
           "equals": {

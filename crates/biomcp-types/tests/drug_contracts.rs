@@ -466,9 +466,9 @@ fn interaction_keeps_both_bundle_origins_and_refuses_duplicate_attribution() {
 fn changed_native_record_responses_publish_version_three_and_checked_target_schema() {
     use biodata::DrugTargetRelation;
     use biomcp_types::{DrugIndications, DrugInteractions, DrugTargets, ResponseBody};
-    assert_eq!(DrugTargets::SCHEMA, "biomcp.drug-targets/5");
-    assert_eq!(DrugIndications::SCHEMA, "biomcp.drug-indications/5");
-    assert_eq!(DrugInteractions::SCHEMA, "biomcp.drug-interactions/5");
+    assert_eq!(DrugTargets::SCHEMA, "biomcp.drug-targets/6");
+    assert_eq!(DrugIndications::SCHEMA, "biomcp.drug-indications/6");
+    assert_eq!(DrugInteractions::SCHEMA, "biomcp.drug-interactions/6");
     let validator =
         jsonschema::draft202012::new(&schemars::schema_for!(DrugTargetRelation).to_value())
             .expect("target schema");

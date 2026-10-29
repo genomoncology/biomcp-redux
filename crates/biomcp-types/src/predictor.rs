@@ -20,10 +20,10 @@ pub struct VariantComponent {
     pub aggregator_build: Option<Text>,
     /// Aggregator build timestamp, distinct from a component release.
     #[serde(skip_serializing_if = "Option::is_none")]
-    pub aggregator_built: Option<Text>,
+    pub aggregator_built: Option<crate::SourceDateTimeValue>,
     /// Component upload timestamp when the source states one.
     #[serde(default, skip_serializing_if = "Option::is_none")]
-    pub uploaded: Option<Text>,
+    pub uploaded: Option<crate::SourceDateTimeValue>,
     /// Source-named component upload timestamps when the publisher supplies a map.
     #[serde(default, skip_serializing_if = "<[ _ ]>::is_empty")]
     pub uploads: Box<[ComponentUpload]>,
@@ -158,7 +158,7 @@ pub struct ComponentUpload {
     /// Source subcollection name.
     pub name: Text,
     /// Unchanged source timestamp.
-    pub date: crate::SourceTimestamp,
+    pub date: crate::SourceDateTime,
 }
 
 biodata::wire_enum! {

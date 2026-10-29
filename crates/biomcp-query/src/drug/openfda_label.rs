@@ -45,7 +45,7 @@ pub(super) fn search(cx: &Ctx<'_>, query: &DrugSearch) -> Outcome {
         };
         if let Some(source) = out.sources.first_mut() {
             source.count = Some(total);
-            source.fetched = Some(returned);
+            source.retrieved_count = Some(returned);
         }
         out.page = Some(page(query.offset(), returned, total));
         for item in &items {
@@ -107,7 +107,7 @@ pub(super) fn get(cx: &Ctx<'_>, query: &DrugGet) -> Outcome {
         out.status = state(&out);
         if let Some(source) = out.sources.first_mut() {
             source.count = Some(page.total);
-            source.fetched = Some(page.records.len() as u32);
+            source.retrieved_count = Some(page.records.len() as u32);
         }
         if let Some(record) = page.records.first() {
             if let Err(error) = select(cx, query, record, page.metadata.fetched, &mut out) {

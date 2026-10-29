@@ -6,6 +6,10 @@ use serde_json::{Value, json};
 pub(super) fn trials() -> Vec<Trial> {
     let mut trials = vec![
         transcript_trial(
+            "drug-approvals/invalid-optional-update-preserves-application",
+            || optional_date().map_err(Into::into),
+        ),
+        transcript_trial(
             "drug-approvals/refuse-wrong-application-before-cache",
             || wrong().map_err(Into::into),
         ),
@@ -47,6 +51,25 @@ fn args() -> Vec<String> {
     ]
     .map(str::to_owned)
     .to_vec()
+}
+fn optional_date() -> Check {
+    let (env, stub) = super::setup(
+        json!({"meta":{"last_updated":"2024-02-30", "results":{"skip":0,"limit":1,"total":1}},
+            "results":[application()]}),
+        "application_number%3A%22NDA021335%22",
+    )?;
+    let value = both(&env, args(), 0)?;
+    if value.pointer("/result/source_updated").is_some()
+        || value.pointer("/problems/0/field") != Some(&json!("meta.last_updated"))
+        || value.pointer("/problems/0/code") != Some(&json!("value.unknown"))
+        || value.pointer("/result/identity/id") != Some(&json!("NDA021335"))
+    {
+        return Err(format!(
+            "optional source date discarded usable application: {value}"
+        ));
+    }
+    stub.finish()?;
+    Ok(())
 }
 fn rejected(value: &Value) -> Check {
     super::budget(super::measure(value)?, (386, 275))?;

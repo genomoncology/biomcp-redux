@@ -50,7 +50,11 @@ fn fetch(
     let source = status::source(Source::ClinicalTrialsGov, leg.finish(), error);
     out.local = error.and_then(status::local);
     out.sources.push(source.clone());
-    let source_updated = version.and_then(Result::ok);
+    let version = version.and_then(Result::ok);
+    let processing_problems = version
+        .as_ref()
+        .map_or_else(Vec::new, |version| version.problems.clone());
+    let source_updated = version.and_then(|version| version.value);
     let mut items = Vec::new();
     let mut store = if query.sections().is_empty() || !rows.iter().any(Result::is_ok) {
         None
@@ -69,6 +73,7 @@ fn fetch(
                     detail,
                     fetched: metadata.fetched.and_then(|value| u64::try_from(value).ok()),
                     version: source_updated.clone(),
+                    processing_problems: processing_problems.clone(),
                     sources: vec![own_source],
                 };
                 let pool = if let Some(store) = store.as_mut() {
@@ -158,7 +163,11 @@ fn unresolved(input: NctId, status: Status) -> TrialCardItem {
         more: Box::default(),
     }
 }
-fn finish(items: Vec<TrialCardItem>, source_updated: Option<biodata::Text>, out: &mut Outcome) {
+fn finish(
+    items: Vec<TrialCardItem>,
+    source_updated: Option<biomcp_types::SourceTimestamp>,
+    out: &mut Outcome,
+) {
     out.status = status::status(items.iter().map(|i| i.status));
     out.body = QueryBody::TrialCards(TrialCards {
         items: items.into(),

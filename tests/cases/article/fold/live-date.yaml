@@ -19,7 +19,7 @@
       "expect": {
         "/status": "complete",
         "/page/total": 284,
-        "/sources/1/fetched": 100,
+        "/sources/1/retrieved_count": 100,
         "/sources/1/count": 1204,
         "/result/items/0/pmid": "42896970",
         "/result/items/1/key": {

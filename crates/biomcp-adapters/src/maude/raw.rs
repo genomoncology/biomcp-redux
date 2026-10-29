@@ -10,7 +10,7 @@ pub(super) enum Response {
 #[derive(Debug, Deserialize)]
 pub(super) struct Meta {
     /// Native last_updated without inferred interpretation.
-    pub last_updated: Option<PartialDate>,
+    pub last_updated: Option<crate::raw::Field<PartialDate>>,
     /// Native results without inferred interpretation.
     pub results: Counts,
 }

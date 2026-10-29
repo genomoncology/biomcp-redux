@@ -1,9 +1,10 @@
 //! One registry record request with a typed protocol projection, checked against its requested identity before caching.
+mod dates;
 mod publications;
 mod sites;
 use crate::{mapped::Problems, raw::Field};
 use biodata::{
-    Markdown, NctId, StudyType, TrialAgeBound, TrialArm, TrialCard, TrialDate, TrialEligibility,
+    Markdown, NctId, StudyType, TrialAgeBound, TrialArm, TrialCard, TrialEligibility,
     TrialIntervention, TrialOutcome, TrialOutcomeKind, TrialPhase, TrialSex, TrialStatus,
 };
 use biomcp_types::Source;
@@ -110,26 +111,7 @@ struct RawDate {
     #[serde(rename = "type")]
     kind: Option<Field<biodata::TrialDateKind>>,
 }
-impl RawDate {
-    fn field(
-        field: &str,
-        value: Option<Field<Self>>,
-        problems: &mut Problems,
-    ) -> Option<TrialDate> {
-        problems
-            .field(field, value)
-            .and_then(|date| date.mapped(field, problems))
-    }
-    fn mapped(self, field: &str, problems: &mut Problems) -> Option<TrialDate> {
-        let path = format!("{field}.date");
-        let date = problems.field(&path, self.date);
-        let kind = problems.field(&format!("{field}.type"), self.kind);
-        Some(TrialDate {
-            date: problems.required(&path, date)?,
-            kind,
-        })
-    }
-}
+
 #[derive(Default, Deserialize)]
 #[serde(rename_all = "camelCase")]
 struct Design {
@@ -254,6 +236,11 @@ impl Protocol {
         let design = problems
             .field("designModule", self.design_module.take())
             .unwrap_or_default();
+        let updated = RawDate::field(
+            "lastUpdatePostDateStruct",
+            status.last_update_post_date_struct,
+            problems,
+        );
         TrialCard {
             nct_id: self.identification_module.nct_id,
             url: format!(
@@ -292,11 +279,8 @@ impl Protocol {
                 status.completion_date_struct,
                 problems,
             ),
-            updated: RawDate::field(
-                "lastUpdatePostDateStruct",
-                status.last_update_post_date_struct,
-                problems,
-            ),
+            updated: updated.as_ref().map(|date| date.date),
+            updated_kind: updated.and_then(|date| date.kind),
             brief_summary: problems
                 .field("descriptionModule", self.description_module.take())
                 .and_then(|d| problems.field("briefSummary", d.brief_summary)),

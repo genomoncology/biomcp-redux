@@ -111,9 +111,9 @@ pub struct DrugFdaPage {
     pub total: u64,
     /// Native dataset last_updated date, independent of event dates and retrieval.
     #[serde(default, skip_serializing_if = "Option::is_none")]
-    pub source_updated: Option<PartialDate>,
+    pub source_updated: Option<crate::SourceUpdated>,
 }
 impl crate::ResponseBody for DrugFdaPage {
-    const SCHEMA: &'static str = "biomcp.drug-fda-page/4";
+    const SCHEMA: &'static str = "biomcp.drug-fda-page/5";
     type Query = super::DrugSearch;
 }

@@ -2,12 +2,14 @@
 pub mod detail;
 pub mod document;
 mod raw;
+mod version;
 use biodata::Text;
 use biomcp_fetch::{Arg, Endpoint, Freshness, KeyUse, Leg, RequestError, SourceSpec};
 use biomcp_types::TrialHeader;
 use biomcp_types::TrialSearch;
-use raw::{FirstPage, RawPage, Version};
+use raw::{FirstPage, RawPage};
 use std::{collections::BTreeMap, time::Duration};
+pub use version::version;
 /// Reviewed document download origin.
 pub(crate) const DOCUMENT_ORIGIN: &str = "https://cdn.clinicaltrials.gov";
 /// Publisher terms apply to this registry; individual records are not a blanket CC0 grant.
@@ -263,10 +265,6 @@ fn fetch_page(leg: &Leg<'_>, params: &BTreeMap<String, String>) -> Result<RawPag
     } else {
         leg.json::<FirstPage>(&SEARCH, &args).map(|page| page.0)
     }
-}
-/// Source processing timestamp, distinct from request time and record update dates.
-pub fn version(leg: &Leg<'_>) -> Result<Text, RequestError> {
-    Ok(leg.json::<Version>(&VERSION, &[])?.data_timestamp)
 }
 
 fn bad() -> RequestError {
