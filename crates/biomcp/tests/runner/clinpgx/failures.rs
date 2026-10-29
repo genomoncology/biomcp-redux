@@ -50,7 +50,13 @@ fn failure(name: &'static str) -> Check {
     command.extend(args(shape));
     if matches!(
         name,
-        "wrong-accession" | "wrong-gene" | "unknown-field" | "unknown-nested-field" | "bad-score" | "wrong-class" | "bad-detail-class"
+        "wrong-accession"
+            | "wrong-gene"
+            | "unknown-field"
+            | "unknown-nested-field"
+            | "bad-score"
+            | "wrong-class"
+            | "bad-detail-class"
     ) {
         return mapped(name, &env, stub, command);
     }
@@ -94,7 +100,9 @@ fn fixture(name: &'static str, shape: &str) -> Result<Stub, String> {
         *body.pointer_mut("/data/score").ok_or("synthetic score")? = json!("invalid");
     }
     if name == "wrong-class" {
-        *body.pointer_mut("/data/0/objCls").ok_or("reference class")? = json!("LabelAnnotation");
+        *body
+            .pointer_mut("/data/0/objCls")
+            .ok_or("reference class")? = json!("LabelAnnotation");
     }
     if name == "bad-detail-class" {
         *body.pointer_mut("/data/objCls").ok_or("detail class")? = json!(42);
@@ -144,7 +152,11 @@ fn mapped(name: &str, env: &Environment, stub: Stub, mut command: Vec<String>) -
             "one native identity or field rejected the reply: {value}"
         ));
     }
-    let identity_field = if name == "wrong-gene" { "location.genes" } else { "record" };
+    let identity_field = if name == "wrong-gene" {
+        "location.genes"
+    } else {
+        "record"
+    };
     if matches!(name, "wrong-accession" | "wrong-gene")
         && value.pointer("/problems/0/field") != Some(&json!(identity_field))
     {
@@ -159,13 +171,19 @@ fn mapped(name: &str, env: &Environment, stub: Stub, mut command: Vec<String>) -
             "bad score discarded annotation or lacked disclosure: {value}"
         ));
     }
-    if name == "wrong-class" && (value.pointer("/result/items/0/id") != Some(&json!("PA100002"))
-        || value.pointer("/problems/0/field") != Some(&json!("objCls"))) {
-        return Err(format!("wrong reference class refused its sibling: {value}"));
+    if name == "wrong-class"
+        && (value.pointer("/result/items/0/id") != Some(&json!("PA100002"))
+            || value.pointer("/problems/0/field") != Some(&json!("objCls")))
+    {
+        return Err(format!(
+            "wrong reference class refused its sibling: {value}"
+        ));
     }
-    if name == "bad-detail-class" && (value.pointer("/result/annotation/objCls").is_some()
-        || value.pointer("/result/annotation/accessionId") != Some(&json!("PA100001"))
-        || value.pointer("/problems/0/field") != Some(&json!("objCls"))) {
+    if name == "bad-detail-class"
+        && (value.pointer("/result/annotation/objCls").is_some()
+            || value.pointer("/result/annotation/accessionId") != Some(&json!("PA100001"))
+            || value.pointer("/problems/0/field") != Some(&json!("objCls")))
+    {
         return Err(format!("optional detail class refused its record: {value}"));
     }
     *command.get_mut(0).ok_or("record switch")? = "--replay".into();

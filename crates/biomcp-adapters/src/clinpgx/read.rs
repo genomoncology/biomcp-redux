@@ -54,8 +54,10 @@ fn collection<T: serde::de::DeserializeOwned + NativeRow>(
             if let Some(row) = raw.map(&mut cx) {
                 match check(&row) {
                     Ok(()) => value.push(row),
-                    Err(field) if cx.list.len() == before => { cx.required::<()>(field, None); },
-                    Err(_) => {},
+                    Err(field) if cx.list.len() == before => {
+                        cx.required::<()>(field, None);
+                    }
+                    Err(_) => {}
                 }
             }
         }
@@ -83,7 +85,11 @@ pub fn clinical(
                     .iter()
                     .any(|gene| gene.symbol.as_deref() == Some(symbol.as_str()))
             });
-            if matched { Ok(()) } else { Err("location.genes") }
+            if matched {
+                Ok(())
+            } else {
+                Err("location.genes")
+            }
         },
     )
 }
@@ -102,7 +108,13 @@ pub fn references(
         q,
         path,
         "relatedGenes.symbol",
-        |row| if row.obj_cls.as_ref() == class { Ok(()) } else { Err("objCls") },
+        |row| {
+            if row.obj_cls.as_ref() == class {
+                Ok(())
+            } else {
+                Err("objCls")
+            }
+        },
     )
 }
 /// Check exact returned accession on every read before cache admission.
