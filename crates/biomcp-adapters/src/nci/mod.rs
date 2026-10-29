@@ -220,6 +220,12 @@ pub fn parameters(query: &TrialSearch) -> Vec<(String, String)> {
             criterion.as_str().to_owned(),
         ));
     }
+    if let Some(phase) = query.nci_phase() {
+        params.push(("phase".into(), phase.as_str().into()));
+    }
+    if let Some(status) = query.nci_status() {
+        params.push(("current_trial_status".into(), status.as_str().into()));
+    }
     for field in [
         "nci_id",
         "nct_id",

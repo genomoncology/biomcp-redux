@@ -253,7 +253,7 @@ fn trial_contracts() -> Vec<Contract> {
     contracts! {
         TrialGet => ("trial-get", "biomcp.trial-get/1", query),
         TrialConditionResolution => ("trial-condition-resolution", "biomcp.trial-condition-resolution/3"),
-        TrialSearch => ("trial-search", "biomcp.trial-search/4", query),
+        TrialSearch => ("trial-search", "biomcp.trial-search/5", query),
         NctId => ("nct-id", "biodata.nct-id/1"),
         TrialHeader => ("trial-header", "biomcp.trial-header/3"),
     }

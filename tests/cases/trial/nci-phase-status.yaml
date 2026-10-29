@@ -1,0 +1,99 @@
+{
+  "feature": "trial-nci",
+  "live_check": "recorded",
+  "story": "NCI phase and current_trial_status filters return positive native trial rows separately and together. Wrong field names cannot satisfy these recorded requests.",
+  "replay": "trial/nci/phase-status/native",
+  "config": {
+    "keys": {
+      "nci_api_key": "synthetic-nci-replay"
+    }
+  },
+  "steps": [
+    {
+      "run": [
+        "search",
+        "trial",
+        "--source",
+        "nci",
+        "--limit",
+        "1",
+        "--phase",
+        "II"
+      ],
+      "mcp": [
+        "search",
+        "trial",
+        "--source",
+        "nci",
+        "--limit",
+        "1",
+        "--phase",
+        "II"
+      ],
+      "expect": {
+        "/page/returned": 1,
+        "/result/items/0/phase": "II"
+      },
+      "max_bytes": 6500
+    },
+    {
+      "run": [
+        "search",
+        "trial",
+        "--source",
+        "nci",
+        "--limit",
+        "1",
+        "--status",
+        "Active"
+      ],
+      "mcp": [
+        "search",
+        "trial",
+        "--source",
+        "nci",
+        "--limit",
+        "1",
+        "--status",
+        "Active"
+      ],
+      "expect": {
+        "/page/returned": 1,
+        "/result/items/0/current_trial_status": "Active"
+      },
+      "max_bytes": 6500
+    },
+    {
+      "run": [
+        "search",
+        "trial",
+        "--source",
+        "nci",
+        "--limit",
+        "1",
+        "--phase",
+        "II",
+        "--status",
+        "Active"
+      ],
+      "mcp": [
+        "search",
+        "trial",
+        "--source",
+        "nci",
+        "--limit",
+        "1",
+        "--phase",
+        "II",
+        "--status",
+        "Active"
+      ],
+      "expect": {
+        "/page/returned": 1,
+        "/result/items/0/phase": "II",
+        "/result/items/0/current_trial_status": "Active"
+      },
+      "max_bytes": 6500
+    }
+  ]
+}
