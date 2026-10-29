@@ -24,7 +24,7 @@ pub struct StudyPage {
     pub snapshot: StudySnapshot,
 }
 impl ResponseBody for StudyPage {
-    const SCHEMA: &'static str = "biomcp.study-page/3";
+    const SCHEMA: &'static str = "biomcp.study-page/4";
     type Query = StudySearch;
 }
 /// Exact card with independent live section states and catalog provenance.
@@ -49,7 +49,7 @@ pub struct StudyCard {
     pub files: Option<Section<StudyFiles>>,
 }
 impl ResponseBody for StudyCard {
-    const SCHEMA: &'static str = "biomcp.study-card/4";
+    const SCHEMA: &'static str = "biomcp.study-card/5";
     type Query = StudyGet;
 }
 macro_rules! page {

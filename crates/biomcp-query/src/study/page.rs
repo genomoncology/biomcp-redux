@@ -4,7 +4,7 @@ use biomcp_fetch::{BundleInfo, CacheError, Deadline, RequestError};
 use biomcp_types::{
     PageInfo, QueryBody, Request, Status, StepKind, StudyGet, StudyPage, StudySearch, StudySnapshot,
 };
-type Retained = (Vec<StudyHeader>, StudySnapshot);
+type Retained = (Vec<StudyHeader>, StudySnapshot, Vec<biomcp_types::Problem>);
 pub(super) fn search(
     cx: &Ctx<'_>,
     q: &StudySearch,
@@ -24,7 +24,8 @@ pub(super) fn search(
         return Ok(());
     } else {
         let size = u32::try_from(rows.len()).map_err(|_| CacheError::Database)?;
-        let payload = serde_json::to_string(&(rows, snapshot)).map_err(|_| CacheError::Database)?;
+        let payload = serde_json::to_string(&(rows, snapshot, &out.problems))
+            .map_err(|_| CacheError::Database)?;
         store.publish_source_pool(&key, &payload, size, &[])?
     };
     let Some(payload) =
@@ -47,7 +48,8 @@ fn render(
     retained: Retained,
     out: &mut Outcome,
 ) -> Result<(), RequestError> {
-    let (rows, snapshot) = retained;
+    let (rows, snapshot, problems) = retained;
+    out.problems = problems;
     let query = q.with_pool(Some(pool.id.clone()));
     let total = rows.len() as u64;
     let items: Box<[_]> = rows
@@ -96,7 +98,7 @@ fn render(
 
 fn request_key(q: &StudySearch, snapshot: &StudySnapshot) -> Result<Vec<u8>, RequestError> {
     serde_json::to_vec(&(
-        "study-catalog/1",
+        "study-catalog/2",
         q.text(),
         q.cancer_type(),
         &snapshot.revision,

@@ -84,6 +84,8 @@ fn sections(cx: &Ctx<'_>, q: &StudyGet, deadline: biomcp_fetch::Deadline<'_>, ou
 }
 fn card(leg: &Leg<'_>, q: &StudyGet, out: &mut Outcome) -> Result<(), RequestError> {
     let (row, info) = studies::card(leg, q.id())?;
+    out.problems.extend(row.problems);
+    let row = row.value;
     let snapshot = studies::snapshot(&info)?;
     out.status = if row.is_some() {
         Status::Complete
