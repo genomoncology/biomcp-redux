@@ -42,12 +42,9 @@ pub(super) fn treatments(
                 statement: None,
                 citations: crate::mapped::optional_pmids(raw.pmids, &format!("{field}.pmids"), cx),
                 abstracts: map::abstracts(raw.abstracts, &format!("{field}.abstracts"), cx),
-                description: crate::mapped::optional_prose(
-                    raw.description,
-                    &format!("{field}.description"),
-                    cx,
-                )
-                .map(|v| v.as_str().into()),
+                description: cx
+                    .field(&format!("{field}.description"), raw.description)
+                    .map(String::into_boxed_str),
                 excluded_tumor_types,
                 approved_indications: crate::mapped::optional_texts(
                     raw.approved_indications,
@@ -99,12 +96,9 @@ pub(super) fn implications(
                 statement: None,
                 citations: crate::mapped::optional_pmids(raw.pmids, &format!("{field}.pmids"), cx),
                 abstracts: map::abstracts(raw.abstracts, &format!("{field}.abstracts"), cx),
-                description: crate::mapped::optional_prose(
-                    raw.description,
-                    &format!("{field}.description"),
-                    cx,
-                )
-                .map(|v| v.as_str().into()),
+                description: cx
+                    .field(&format!("{field}.description"), raw.description)
+                    .map(String::into_boxed_str),
                 excluded_tumor_types: Box::default(),
                 approved_indications: Box::default(),
                 fda_level: None,

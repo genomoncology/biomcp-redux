@@ -1,7 +1,7 @@
 //! Each native optional value crosses the existing named-field boundary.
 use super::variant as raw;
 use crate::{
-    mapped::{Problems, optional_prose as prose, optional_text as text},
+    mapped::{Problems, optional_text as text},
     raw::Field,
 };
 use biodata::{Coding, OncokbLevelCode as L, Term, Text};
@@ -45,12 +45,9 @@ pub(super) fn abstracts(
         .into_vec()
         .into_iter()
         .map(|raw| OncokbCitation {
-            text: prose(
-                raw.abstract_content,
-                &format!("{field}.abstractContent"),
-                cx,
-            )
-            .map(|value| value.as_str().into()),
+            text: cx
+                .field(&format!("{field}.abstractContent"), raw.abstract_content)
+                .map(String::into_boxed_str),
             link: cx.field(&format!("{field}.link"), raw.link),
         })
         .collect()

@@ -13,8 +13,8 @@ pub(super) fn annotation(
         ("diagnosticSummary", row.diagnostic_summary.take()),
         ("prognosticSummary", row.prognostic_summary.take()),
     ] {
-        let text = crate::mapped::optional_prose(value, field, cx);
-        push(out, field, text.as_ref().map(biodata::Text::as_str));
+        let text = cx.field(field, value);
+        push(out, field, text.as_deref());
     }
 }
 pub(super) fn push(out: &mut Vec<Record>, field: &str, value: Option<&str>) {

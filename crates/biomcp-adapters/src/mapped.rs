@@ -220,15 +220,6 @@ pub(crate) fn optional_text(
 ) -> Option<Text> {
     field_text(&mut cx.list, cx.source, cx.record.clone(), field, raw)
 }
-pub(crate) fn optional_prose(
-    raw: Option<Field<String>>,
-    field: &str,
-    cx: &mut Problems,
-) -> Option<Text> {
-    cx.field(field, raw)
-        .filter(|value| !value.is_empty())
-        .and_then(|value| cx.text(field, Some(&value)))
-}
 pub(crate) fn optional_texts(
     raw: Option<Field<Vec<Field<String>>>>,
     field: &str,

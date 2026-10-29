@@ -91,13 +91,8 @@ fn mutation(
                 link: row.link,
             }),
     );
-    let description =
-        crate::mapped::optional_prose(effect.description, "mutationEffect.description", cx);
-    crate::oncokb::narrative::push(
-        out,
-        "mutationEffect.description",
-        description.as_ref().map(Text::as_str),
-    );
+    let description = cx.field("mutationEffect.description", effect.description);
+    crate::oncokb::narrative::push(out, "mutationEffect.description", description.as_deref());
 }
 fn classification(
     subject: Option<&VariantRef>,
