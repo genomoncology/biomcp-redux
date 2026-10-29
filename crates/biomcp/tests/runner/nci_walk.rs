@@ -115,7 +115,8 @@ fn walk(env: &Environment, raw: &Value, section: &str, globals: &[String]) -> Ch
         let mut expected = expected(raw, section)?;
         for row in &mut expected {
             super::assertions::omit_empty_lists(row);
-            super::assertions::omit_null_fields(row, optional_fields(section, row));
+            let optional = optional_fields(section, row);
+            super::assertions::omit_null_fields(row, optional);
         }
         if rows != expected {
             return Err(format!(
