@@ -25,8 +25,18 @@
           "includes": "hpa",
           "excludes": "gnomad"
         },
-        "/result/items/0/sections/expression/data/rna_tissue_ntpm/0/ntpm": 237.8,
-        "/result/items/0/sections/expression/data/rna_cancer_ptpm/0/ptpm": 178.0
+        "/result/items/0/sections/expression/data/rna_tissue_ntpm/0/ntpm": {
+          "equals": {
+            "value": 237.8,
+            "unit": "nTPM"
+          }
+        },
+        "/result/items/0/sections/expression/data/rna_cancer_ptpm/0/ptpm": {
+          "equals": {
+            "value": 178.0,
+            "unit": "pTPM"
+          }
+        }
       },
       "max_bytes": 3500,
       "mcp": [

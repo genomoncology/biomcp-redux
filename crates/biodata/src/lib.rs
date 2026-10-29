@@ -86,7 +86,7 @@ pub use variant::{
 pub use variant::{GenotypeFilter, PopulationDataType, PopulationFrequency, PopulationSex};
 
 mod number;
-pub use number::{FiniteNumber, Fraction};
+pub use number::{FiniteNumber, Fraction, WithUnit};
 
 pub use variant::PredictorScore;
 
@@ -109,8 +109,8 @@ pub use drug::{
 
 mod adverse_event;
 pub use adverse_event::{
-    FaersDrug, FaersIdentifiers, FaersPatient, FaersReaction, FaersReport, FaersReporter,
-    FaersSeriousness, MaudeDevice, MaudeNarrative, MaudeReport, ReportId,
+    FaersAgeUnit, FaersDrug, FaersIdentifiers, FaersPatient, FaersReaction, FaersReport,
+    FaersReporter, FaersSeriousness, MaudeDevice, MaudeNarrative, MaudeReport, ReportId,
 };
 
 mod pgx;

@@ -11,6 +11,9 @@ use std::fs;
 type Check = Result<(), String>;
 pub(super) fn trials() -> Vec<Trial> {
     vec![
+        transcript_trial("trial/nci/age-unit-boundaries", || {
+            ages().map_err(Into::into)
+        }),
         transcript_trial("trial/nci/exact-source-identity", || {
             identity().map_err(Into::into)
         }),
@@ -92,8 +95,8 @@ fn walk(env: &Environment, raw: &Value, section: &str, globals: &[String]) -> Ch
                     .iter()
                     .cloned(),
             );
-            if section == "eligibility" && data["structured"] != raw["eligibility"]["structured"] {
-                return Err("native age/sex fields changed".into());
+            if section == "eligibility" {
+                check_ages(data, raw)?;
             }
         }
         match super::action(&output, "page") {
@@ -253,4 +256,128 @@ fn selector(section: &str) -> Vec<String> {
     ]
     .map(str::to_owned)
     .to_vec()
+}
+
+fn ages() -> Check {
+    legacy_age_snapshot()?;
+    for (number, unit, expected) in [
+        (
+            json!(18),
+            Some(json!("Years")),
+            Some(json!({"value":18.0,"unit":"Years"})),
+        ),
+        (json!(18), None, Some(json!({"value":18.0}))),
+        (json!(18), Some(json!("")), None),
+        (json!(18), Some(json!({})), None),
+        (json!("bad"), Some(json!("Years")), None),
+    ] {
+        let env = Environment::new().map_err(|e| e.to_string())?;
+        let dir = env.root().join("replies");
+        copy_capture("trial/nci/get", &dir, |_, record| {
+            let fields = &mut record["exchanges"][0]["body"]["value"]["eligibility"]["structured"];
+            fields["min_age_number"] = number.clone();
+            if let Some(unit) = &unit {
+                fields["min_age_unit"] = unit.clone();
+            } else if let Some(fields) = fields.as_object_mut() {
+                fields.remove("min_age_unit");
+            }
+        })
+        .map_err(|e| e.to_string())?;
+        let mut command = selector("eligibility");
+        command.extend(env.globals(Some(&dir), false));
+        let output = invoke(&env, &command, 0)?;
+        let structured =
+            &output["result"]["items"][0]["sections"]["eligibility"]["data"]["structured"];
+        if structured.get("min_age_number") != expected.as_ref()
+            || structured["min_age"] != json!("18 Years")
+        {
+            return Err(format!("age quantity changed source facts: {structured}"));
+        }
+        if expected.is_none() && output["problems"].as_array().is_none_or(Vec::is_empty) {
+            return Err("malformed stated age or unit lost its field problem".into());
+        }
+    }
+    Ok(())
+}
+
+fn check_ages(data: &Value, raw: &Value) -> Check {
+    let mut expected = raw["eligibility"]["structured"].clone();
+    let fields = expected.as_object_mut().ok_or("structured fields")?;
+    for bound in ["min", "max"] {
+        let value = fields
+            .remove(&format!("{bound}_age_number"))
+            .ok_or("age number")?;
+        let unit = fields
+            .remove(&format!("{bound}_age_unit"))
+            .ok_or("age unit")?;
+        fields.insert(
+            format!("{bound}_age_number"),
+            json!({"value":value,"unit":unit}),
+        );
+        let years = fields
+            .remove(&format!("{bound}_age_in_years"))
+            .ok_or("age years")?;
+        fields.insert(
+            format!("{bound}_age_in_years"),
+            json!({"value":years,"unit":"Years"}),
+        );
+    }
+    if data["structured"] != expected {
+        return Err("native numeric age lost its explicit source unit".into());
+    }
+    Ok(())
+}
+
+fn legacy_age_snapshot() -> Check {
+    use sha2::{Digest, Sha256};
+    let env = Environment::new().map_err(|e| e.to_string())?;
+    let dir = super::launch::fixtures().join("replies/trial/nci/get");
+    let mut command = selector("eligibility");
+    command.extend(env.globals(Some(&dir), false));
+    let output = invoke(&env, &command, 0)?;
+    let next = super::action(&output, "page")?;
+    let snapshot = next
+        .windows(2)
+        .find(|pair| pair.first().is_some_and(|v| v == "--pool"))
+        .and_then(|pair| pair.get(1))
+        .ok_or("NCI snapshot selector")?;
+    let db = rusqlite::Connection::open_with_flags(
+        env.root().join("case-cache/replay.sqlite"),
+        rusqlite::OpenFlags::SQLITE_OPEN_READ_WRITE,
+    )
+    .map_err(|e| e.to_string())?;
+    let payload: String = db
+        .query_row(
+            "SELECT payload FROM trial_snapshot WHERE id=?1",
+            [snapshot],
+            |row| row.get(0),
+        )
+        .map_err(|e| e.to_string())?;
+    // Main's /2 serialized the original naked source ages and no Detail.problems.
+    let mut legacy: Value = serde_json::from_str(&payload).map_err(|e| e.to_string())?;
+    legacy[0]
+        .as_object_mut()
+        .ok_or("NCI snapshot detail")?
+        .remove("problems");
+    legacy[0]["eligibility"]["structured"] = source()?["eligibility"]["structured"].clone();
+    let payload = serde_json::to_string(&legacy).map_err(|e| e.to_string())?;
+    let key = Sha256::digest(b"biomcp.nci_trial_snapshot/2\0NCT05136196").to_vec();
+    let rows = db
+        .execute(
+            "UPDATE trial_snapshot SET request_key=?1,payload=?2 WHERE id=?3",
+            rusqlite::params![key, payload, snapshot],
+        )
+        .map_err(|e| e.to_string())?;
+    if rows != 1 {
+        return Err("expected exactly one NCI source snapshot".into());
+    }
+    let mut command = next;
+    command.extend(env.globals(None, true));
+    let output = invoke(&env, &command, 3)?;
+    if output.pointer("/next/0/kind") != Some(&json!("restart")) {
+        return Err(format!(
+            "old NCI age snapshot did not restart safely: {output}"
+        ));
+    }
+    Ok(())
 }

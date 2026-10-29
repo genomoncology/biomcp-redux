@@ -13,7 +13,7 @@ use crate::{GeneGet, GeneHeader, GeneInput, GeneResolution, GeneSearch};
 pub use civic::CivicGene;
 pub use clingen::{ClinGenGene, ClinGenValidity};
 pub use constraint::Constraint;
-pub use expression::{CancerPtpm, GeneExpression, RnaAbundance, TissueNtpm};
+pub use expression::{CancerPtpm, GeneExpression, RnaAbundance, RnaUnit, TissueNtpm};
 pub use oncokb::{Oncokb, OncokbCard, OncokbGeneType, OncokbTranscript};
 pub use pathways::{Capped, PathwayRef, ReactomeId};
 pub use protein::Protein;
@@ -56,7 +56,7 @@ pub struct GenePage {
     pub items: Box<[GeneHeader]>,
 }
 impl ResponseBody for GeneCards {
-    const SCHEMA: &'static str = "biomcp.gene-cards/9";
+    const SCHEMA: &'static str = "biomcp.gene-cards/10";
     type Query = GeneGet;
 }
 impl ResponseBody for GenePage {

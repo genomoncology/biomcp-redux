@@ -2,6 +2,7 @@
 pub mod biomarker;
 mod biomarker_map;
 mod biomarker_raw;
+mod eligibility;
 pub mod organization;
 mod organization_map;
 mod organization_raw;
@@ -74,8 +75,7 @@ pub struct Trial {
     diseases: Vec<NciDisease>,
     biomarkers: Option<crate::raw::Field<Vec<crate::raw::Field<trial_biomarker::Biomarker>>>>,
     sites: Option<crate::raw::Field<Vec<crate::raw::Field<sites::Site>>>>,
-    #[serde(default, deserialize_with = "crate::strict_input::deserialize")]
-    eligibility: Option<biomcp_types::NciEligibility>,
+    eligibility: Option<crate::strict_input::Input<eligibility::Eligibility>>,
     #[serde(default)]
     arms: Vec<Arm>,
     #[serde(default)]
@@ -94,6 +94,8 @@ struct Arm {
 /// Native sections and compact card from one validated source record.
 #[derive(Clone, Debug, Serialize, Deserialize)]
 pub struct Detail {
+    /// Rejected optional source fields.
+    pub problems: Vec<biomcp_types::Problem>,
     /// Compact source-native card.
     pub card: NciTrial,
     /// Complete source summary, without trimming or rewriting.
@@ -178,11 +180,18 @@ impl Trial {
                     }),
             );
         }
+        let mut problems = crate::mapped::Problems {
+            source: biomcp_types::Source::Nci,
+            record: crate::mapped::record(self.nct_id),
+            list: Vec::new(),
+        };
+        let eligibility = self.eligibility.map(|e| e.0.map(&mut problems));
         Detail {
+            problems: problems.list,
             card,
             summary: self.brief_summary,
             diseases: self.diseases.into(),
-            eligibility: self.eligibility,
+            eligibility,
             outcomes: self.outcome_measures.into(),
             arms: arms.into(),
         }
