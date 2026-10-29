@@ -13,7 +13,7 @@
       "type": "string"
     }
   },
-  "$id": "biomcp.pathway-genes-query/2",
+  "$id": "biomcp.pathway-genes-query/3",
   "$schema": "https://json-schema.org/draft/2020-12/schema",
   "additionalProperties": false,
   "description": "Read Reactome exact references or WikiPathways GeneProduct data nodes. The details layer discloses complete Reactome physical contexts. Membership names a source and release; it implies no therapy, response or actionability. No enrichment is calculated.",

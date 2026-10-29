@@ -300,7 +300,7 @@
       "type": "string"
     }
   },
-  "$id": "biodata.gene/5",
+  "$id": "biodata.gene/6",
   "$schema": "https://json-schema.org/draft/2020-12/schema",
   "description": "Human gene identity and whole source annotations, independent of response cards.",
   "properties": {

@@ -50,7 +50,7 @@
       "type": "string"
     }
   },
-  "$id": "biomcp.diagnostic-search/2",
+  "$id": "biomcp.diagnostic-search/3",
   "$schema": "https://json-schema.org/draft/2020-12/schema",
   "additionalProperties": false,
   "description": "Search five source records by default. FDA device recalls cover every medical device; totals count recall records, without harm inference.",

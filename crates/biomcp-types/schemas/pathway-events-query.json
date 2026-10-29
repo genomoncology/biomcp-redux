@@ -6,7 +6,7 @@
       "type": "string"
     }
   },
-  "$id": "biomcp.pathway-events-query/1",
+  "$id": "biomcp.pathway-events-query/2",
   "$schema": "https://json-schema.org/draft/2020-12/schema",
   "additionalProperties": false,
   "description": "Read Reactome event objects and unresolved native integer references in source order. Membership names a source and release; it implies no therapy, response or actionability. No enrichment is calculated.",

@@ -154,9 +154,16 @@ fn controls() -> Check {
     let env = Environment::new()?;
     let replay = env.root().join("controls");
     super::response_cases::copy_capture("article/get/synthetic-derived", &replay, |_, record| {
-        for exchange in record.get_mut("exchanges").and_then(Value::as_array_mut).into_iter().flatten() {
-            if exchange.pointer("/body/kind").and_then(Value::as_str) == Some("text") {
-                exchange["body"]["value"] = json!(concat!(
+        for exchange in record
+            .get_mut("exchanges")
+            .and_then(Value::as_array_mut)
+            .into_iter()
+            .flatten()
+        {
+            if exchange.pointer("/body/kind").and_then(Value::as_str) == Some("text")
+                && let Some(body) = exchange.pointer_mut("/body/value")
+            {
+                *body = json!(concat!(
                     "<PubmedArticleSet><PubmedArticle><MedlineCitation><PMID>33123537</PMID>",
                     "<Article><ArticleTitle>before\u{202e}after</ArticleTitle></Article>",
                     "</MedlineCitation></PubmedArticle></PubmedArticleSet>"
@@ -167,9 +174,20 @@ fn controls() -> Check {
     let mut args = env.globals(Some(&replay), false);
     args.extend(["get", "article", "33123537"].map(str::to_owned));
     let out = env.command(env!("CARGO_BIN_EXE_biomcp"), &args).output()?;
-    assert!(out.status.success(), "{}", String::from_utf8_lossy(&out.stdout));
+    assert!(
+        out.status.success(),
+        "{}",
+        String::from_utf8_lossy(&out.stdout)
+    );
     let value: Value = serde_json::from_slice(&out.stdout)?;
-    assert_eq!(value.pointer("/result/items/0/answer/card/title"), Some(&json!(r"before\u{202e}after")));
-    assert!(!String::from_utf8(out.stdout)?.contains('\u{202e}'));
+    assert_eq!(
+        value.pointer("/result/items/0/answer/card/title"),
+        Some(&json!(r"before\u{202e}after")),
+        "Source controls must remain visible data without discarding the record"
+    );
+    assert!(
+        !String::from_utf8(out.stdout)?.contains('\u{202e}'),
+        "JSON source fields must not contain active bidi controls"
+    );
     Ok(())
 }

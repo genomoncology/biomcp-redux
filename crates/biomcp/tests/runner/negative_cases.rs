@@ -19,7 +19,7 @@ pub(super) fn cases() -> Vec<(&'static str, &'static str, &'static str)> {
             "count: expected 0",
         ),
         ("mcp-is-error", "  - mcp: [schema, missing/1]", "MCP is_error mismatch"),
-        ("unequal-success", "    mcp: [schema, biomcp.error/2]", "CLI/MCP parity: unequal results"),
+        ("unequal-success", "    mcp: [schema, biomcp.error/3]", "CLI/MCP parity: unequal results"),
         ("no-command", "  - expect: {}", "step requires run or mcp"),
         ("unknown", "    expect: {'/type': {equal: string}}", "unknown assertion operator equal"),
         ("empty-operators", "    expect: {'/type': {}}", "assertion object requires an operator"),
@@ -30,7 +30,7 @@ pub(super) fn cases() -> Vec<(&'static str, &'static str, &'static str)> {
         ),
         (
             "nested-wildcard-missing",
-            "  - run: [schema, biomcp.problem/1]\n    expect: {'/properties/record/anyOf/*/$ref': [null]}",
+            "  - run: [schema, biomcp.problem/2]\n    expect: {'/properties/record/anyOf/*/$ref': [null]}",
             "actual <missing>",
         ),
         ("count-fraction", "    expect: {'/x-extensible-enum': {count: 1.5}}", "count requires a nonnegative integer"),
@@ -105,12 +105,12 @@ fn article_cases() -> Vec<(&'static str, &'static str, &'static str)> {
         ),
         (
             "nonincreasing-wrong-order",
-            "  - run: [schema, biomcp.article-search/2]\n    expect: {'/properties/limit/maximum': {nonincreasing: true}}",
+            "  - run: [schema, biomcp.article-search/3]\n    expect: {'/properties/limit/maximum': {nonincreasing: true}}",
             "nonincreasing: expected an array",
         ),
         (
             "unique-duplicate",
-            "  - run: [schema, biomcp.gene-resolution/5]\n    expect: {'/oneOf/*/properties/resolution/type': {unique: true}}",
+            "  - run: [schema, biomcp.gene-resolution/6]\n    expect: {'/oneOf/*/properties/resolution/type': {unique: true}}",
             "unique: duplicate member",
         ),
         (

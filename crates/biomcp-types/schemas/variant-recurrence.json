@@ -1131,7 +1131,7 @@
       "type": "object"
     }
   },
-  "$id": "biomcp.variant-recurrence/7",
+  "$id": "biomcp.variant-recurrence/8",
   "$schema": "https://json-schema.org/draft/2020-12/schema",
   "description": "One versioned command response; schema identity comes only from its body type.\nJSON readers ignore unknown fields and unknown growable enum values within a major.",
   "properties": {
@@ -1187,7 +1187,7 @@
       "description": "Answer when available."
     },
     "schema": {
-      "const": "biomcp.variant-recurrence/7",
+      "const": "biomcp.variant-recurrence/8",
       "type": "string"
     },
     "sources": {

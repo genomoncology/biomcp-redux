@@ -21,7 +21,7 @@
       "type": "string"
     }
   },
-  "$id": "biodata.gene-summary/2",
+  "$id": "biodata.gene-summary/3",
   "$schema": "https://json-schema.org/draft/2020-12/schema",
   "description": "A whole source-provided summary with attribution and stated date precision.",
   "properties": {

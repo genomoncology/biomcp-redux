@@ -11,7 +11,7 @@
       "type": "string"
     }
   },
-  "$id": "biodata.authorization-date/2",
+  "$id": "biodata.authorization-date/3",
   "$schema": "https://json-schema.org/draft/2020-12/schema",
   "description": "A native date kept with its original role.",
   "properties": {

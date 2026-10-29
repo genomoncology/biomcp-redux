@@ -157,10 +157,14 @@ fn text_construction_and_json_share_trimming_and_validation() {
 
 #[test]
 fn text_refuses_controls_and_bounds_constructor_length() {
-    for ch in (0..=0x1f).chain(0x7f..=0x9f).chain([
-        0x061c, 0x200e, 0x200f, 0x202a, 0x202b, 0x202c, 0x202d, 0x202e,
-        0x2066, 0x2067, 0x2068, 0x2069,
-    ]).filter_map(char::from_u32) {
+    for ch in (0..=0x1f)
+        .chain(0x7f..=0x9f)
+        .chain([
+            0x061c, 0x200e, 0x200f, 0x202a, 0x202b, 0x202c, 0x202d, 0x202e, 0x2066, 0x2067, 0x2068,
+            0x2069,
+        ])
+        .filter_map(char::from_u32)
+    {
         assert!(Text::new(&format!("before{ch}after")).is_err(), "{ch:?}");
     }
     assert!(Text::new(&"α".repeat(1_048_576)).is_ok());
@@ -361,8 +365,15 @@ fn trial_publication_values_follow_native_registry_grammar() {
         assert_eq!(value.as_str(), native);
         assert_eq!(serde_json::to_value(value).unwrap(), json!(native));
     }
-    for bad in ["2023-02-29T12:30", "2024-01-01T24:00", "2024-01-01T12:60",
-        "2024-01-01", "2024-01-01T12:00Z", "2024-01-01T12:00:00", "0000-01-01T00:00"] {
+    for bad in [
+        "2023-02-29T12:30",
+        "2024-01-01T24:00",
+        "2024-01-01T12:60",
+        "2024-01-01",
+        "2024-01-01T12:00Z",
+        "2024-01-01T12:00:00",
+        "0000-01-01T00:00",
+    ] {
         assert!(bad.parse::<TrialUploadTime>().is_err(), "{bad}");
         assert!(serde_json::from_value::<TrialUploadTime>(json!(bad)).is_err());
     }

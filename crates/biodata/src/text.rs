@@ -7,7 +7,18 @@ use std::{fmt, str::FromStr};
 #[serde(try_from = "String")]
 #[cfg_attr(feature = "schema", derive(schemars::JsonSchema))]
 #[cfg_attr(feature = "schema", schemars(!try_from, transparent))]
-pub struct Text(#[cfg_attr(feature = "schema", schemars(length(min = 1, max = 1_048_576), regex(pattern = r"^[^\x00-\x1f\x7f-\x9f\u061c\u200e\u200f\u202a-\u202e\u2066-\u2069]+$")))] Box<str>);
+pub struct Text(
+    #[cfg_attr(
+        feature = "schema",
+        schemars(
+            length(min = 1, max = Text::MAX_CHARS),
+            regex(
+                pattern = r"^[^\x00-\x1f\x7f-\x9f\u061c\u200e\u200f\u202a-\u202e\u2066-\u2069]+$"
+            )
+        )
+    )]
+    Box<str>,
+);
 
 impl Text {
     /// Maximum Unicode scalar count after trimming or source escaping.

@@ -68,7 +68,7 @@
       "type": "string"
     }
   },
-  "$id": "biomcp.pgx-get-command/2",
+  "$id": "biomcp.pgx-get-command/3",
   "$schema": "https://json-schema.org/draft/2020-12/schema",
   "additionalProperties": false,
   "description": "PGx card or section. No phenotype, phase or dose is calculated.",

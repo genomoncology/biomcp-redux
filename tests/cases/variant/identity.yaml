@@ -19,7 +19,7 @@
         "myvariant"
       ],
       "expect": {
-        "/schema": "biomcp.variant-card/11",
+        "/schema": "biomcp.variant-card/12",
         "/result/resolution": "unavailable",
         "/sources/0/source": "myvariant",
         "/sources/0/reason": "disabled"
@@ -41,7 +41,7 @@
       "exit": 2,
       "is_error": true,
       "expect": {
-        "/schema": "biomcp.error/2",
+        "/schema": "biomcp.error/3",
         "/error/message": "get variant needs an rsID, CAid, ClinVar Variation ID or reference-qualified HGVS; chromosome notation needs --build; use search variant --gene BRAF --protein V600E for gene/protein shorthand"
       }
     },
@@ -59,7 +59,7 @@
       "exit": 2,
       "is_error": true,
       "expect": {
-        "/schema": "biomcp.error/2",
+        "/schema": "biomcp.error/3",
         "/error/message": "get variant needs an rsID, CAid, ClinVar Variation ID or reference-qualified HGVS; chromosome notation needs --build; use search variant --gene BRAF --protein V600E for gene/protein shorthand"
       }
     },
@@ -77,7 +77,7 @@
       "exit": 2,
       "is_error": true,
       "expect": {
-        "/schema": "biomcp.error/2",
+        "/schema": "biomcp.error/3",
         "/error/message": "get variant needs an rsID, CAid, ClinVar Variation ID or reference-qualified HGVS; chromosome notation needs --build; use search variant --gene BRAF --protein V600E for gene/protein shorthand"
       }
     },
@@ -99,7 +99,7 @@
       "exit": 2,
       "is_error": true,
       "expect": {
-        "/schema": "biomcp.error/2",
+        "/schema": "biomcp.error/3",
         "/error/message": "get variant needs an rsID, CAid, ClinVar Variation ID or reference-qualified HGVS; chromosome notation needs --build; use search variant --gene BRAF --protein V600E for gene/protein shorthand"
       }
     },
@@ -121,7 +121,7 @@
       "exit": 2,
       "is_error": true,
       "expect": {
-        "/schema": "biomcp.error/2",
+        "/schema": "biomcp.error/3",
         "/error/message": "get variant needs an rsID, CAid, ClinVar Variation ID or reference-qualified HGVS; chromosome notation needs --build; use search variant --gene BRAF --protein V600E for gene/protein shorthand"
       }
     },
@@ -143,7 +143,7 @@
       "exit": 2,
       "is_error": true,
       "expect": {
-        "/schema": "biomcp.error/2",
+        "/schema": "biomcp.error/3",
         "/error/message": "get variant needs an rsID, CAid, ClinVar Variation ID or reference-qualified HGVS; chromosome notation needs --build; use search variant --gene BRAF --protein V600E for gene/protein shorthand"
       }
     },
@@ -165,7 +165,7 @@
       "exit": 2,
       "is_error": true,
       "expect": {
-        "/schema": "biomcp.error/2",
+        "/schema": "biomcp.error/3",
         "/error/message": "get variant needs an rsID, CAid, ClinVar Variation ID or reference-qualified HGVS; chromosome notation needs --build; use search variant --gene BRAF --protein V600E for gene/protein shorthand"
       }
     },
@@ -183,7 +183,7 @@
       "exit": 2,
       "is_error": true,
       "expect": {
-        "/schema": "biomcp.error/2",
+        "/schema": "biomcp.error/3",
         "/error/message": "get variant needs an rsID, CAid, ClinVar Variation ID or reference-qualified HGVS; chromosome notation needs --build; use search variant --gene BRAF --protein V600E for gene/protein shorthand"
       }
     },
@@ -205,7 +205,7 @@
       "exit": 4,
       "is_error": true,
       "expect": {
-        "/schema": "biomcp.variant-card/11",
+        "/schema": "biomcp.variant-card/12",
         "/result/resolution": "unavailable",
         "/sources/0/source": "car",
         "/sources/0/reason": "disabled"
@@ -233,7 +233,7 @@
       "exit": 4,
       "is_error": true,
       "expect": {
-        "/schema": "biomcp.variant-card/11",
+        "/schema": "biomcp.variant-card/12",
         "/result/resolution": "unavailable",
         "/sources/0/source": "myvariant",
         "/sources/0/reason": "disabled"

@@ -263,7 +263,7 @@
       "type": "string"
     }
   },
-  "$id": "biodata.drug-indication-claim/4",
+  "$id": "biodata.drug-indication-claim/5",
   "$schema": "https://json-schema.org/draft/2020-12/schema",
   "description": "A source indication retaining its full population and combination wording.",
   "properties": {

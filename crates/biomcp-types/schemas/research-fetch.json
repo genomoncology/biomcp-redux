@@ -44,7 +44,7 @@
       "type": "string"
     }
   },
-  "$id": "biomcp.research-fetch/2",
+  "$id": "biomcp.research-fetch/3",
   "$schema": "https://json-schema.org/draft/2020-12/schema",
   "description": "Research fetch response using the existing CLI Markdown view.",
   "properties": {

@@ -20,7 +20,7 @@
       "type": "string"
     }
   },
-  "$id": "biomcp.gwas-get/1",
+  "$id": "biomcp.gwas-get/2",
   "$schema": "https://json-schema.org/draft/2020-12/schema",
   "description": "Source association or study and native context. Reports no personal risk, causal variant or gene, or clinical interpretation of a statistic.",
   "properties": {

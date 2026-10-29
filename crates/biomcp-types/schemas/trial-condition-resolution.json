@@ -382,7 +382,7 @@
       "type": "string"
     }
   },
-  "$id": "biomcp.trial-condition-resolution/3",
+  "$id": "biomcp.trial-condition-resolution/4",
   "$schema": "https://json-schema.org/draft/2020-12/schema",
   "description": "Exact condition identity used for one trial request, without eligibility inference.",
   "properties": {

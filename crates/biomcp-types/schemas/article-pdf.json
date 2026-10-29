@@ -11,7 +11,7 @@
       "type": "string"
     }
   },
-  "$id": "biomcp.article-pdf/2",
+  "$id": "biomcp.article-pdf/3",
   "$schema": "https://json-schema.org/draft/2020-12/schema",
   "additionalProperties": false,
   "description": "Download one publisher PDF to an explicit file or existing folder.",

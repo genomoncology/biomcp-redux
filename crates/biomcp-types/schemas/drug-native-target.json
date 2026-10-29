@@ -6,7 +6,7 @@
       "type": "string"
     }
   },
-  "$id": "biodata.drug-native-target/1",
+  "$id": "biodata.drug-native-target/2",
   "$schema": "https://json-schema.org/draft/2020-12/schema",
   "description": "One source-native target identity, without inventing a gene label.",
   "properties": {

@@ -22,7 +22,7 @@
       "type": "string"
     }
   },
-  "$id": "biomcp.drug-who-get/1",
+  "$id": "biomcp.drug-who-get/2",
   "$schema": "https://json-schema.org/draft/2020-12/schema",
   "additionalProperties": false,
   "description": "WHO exact-reference selector keeps the shared DrugId contract unchanged.",

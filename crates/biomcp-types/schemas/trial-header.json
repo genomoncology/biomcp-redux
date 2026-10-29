@@ -70,7 +70,7 @@
       "type": "string"
     }
   },
-  "$id": "biomcp.trial-header/3",
+  "$id": "biomcp.trial-header/4",
   "$schema": "https://json-schema.org/draft/2020-12/schema",
   "description": "Small source-attributed trial discovery record.",
   "properties": {

@@ -19,7 +19,7 @@
       "type": "string"
     }
   },
-  "$id": "biomcp.variant-assertions/3",
+  "$id": "biomcp.variant-assertions/4",
   "$schema": "https://json-schema.org/draft/2020-12/schema",
   "additionalProperties": false,
   "description": "Page assertions from one explicitly selected evidence source.",

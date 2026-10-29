@@ -53,7 +53,7 @@
       "type": "string"
     }
   },
-  "$id": "biomcp.drug-search/2",
+  "$id": "biomcp.drug-search/3",
   "$schema": "https://json-schema.org/draft/2020-12/schema",
   "additionalProperties": false,
   "description": "Search one drug source. FDA drug recalls accept a name or native firm, classification, status, reason and initiation dates; counts are recall records. Other sources require a name.",

@@ -47,7 +47,7 @@
       "type": "string"
     }
   },
-  "$id": "biomcp.trial-get/1",
+  "$id": "biomcp.trial-get/2",
   "$schema": "https://json-schema.org/draft/2020-12/schema",
   "additionalProperties": false,
   "description": "Retrieve exact trial cards in input order; request bounded intact source sections with independent continuations.",

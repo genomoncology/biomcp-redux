@@ -6,7 +6,7 @@
       "type": "string"
     }
   },
-  "$id": "biomcp.cell-line-search-query/1",
+  "$id": "biomcp.cell-line-search-query/2",
   "$schema": "https://json-schema.org/draft/2020-12/schema",
   "additionalProperties": false,
   "description": "One literal cell line search, with native order and no total claim.",

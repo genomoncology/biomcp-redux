@@ -120,7 +120,7 @@
       "type": "string"
     }
   },
-  "$id": "biodata.disease-relation/3",
+  "$id": "biodata.disease-relation/4",
   "$schema": "https://json-schema.org/draft/2020-12/schema",
   "description": "A publisher relation with distinct endpoints and predicate.",
   "properties": {

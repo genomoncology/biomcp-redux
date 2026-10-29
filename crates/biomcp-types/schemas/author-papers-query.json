@@ -21,7 +21,7 @@
       "type": "string"
     }
   },
-  "$id": "biomcp.author-papers-query/1",
+  "$id": "biomcp.author-papers-query/2",
   "$schema": "https://json-schema.org/draft/2020-12/schema",
   "additionalProperties": false,
   "description": "One exact provider record's publication window. ORCID sends its whole public works list in one reply and pages groups locally.",

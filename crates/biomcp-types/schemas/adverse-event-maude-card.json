@@ -962,7 +962,7 @@
       "type": "string"
     }
   },
-  "$id": "biomcp.adverse-event-maude-card/1",
+  "$id": "biomcp.adverse-event-maude-card/2",
   "$schema": "https://json-schema.org/draft/2020-12/schema",
   "description": "One versioned command response; schema identity comes only from its body type.\nJSON readers ignore unknown fields and unknown growable enum values within a major.",
   "properties": {
@@ -1018,7 +1018,7 @@
       "description": "Answer when available."
     },
     "schema": {
-      "const": "biomcp.adverse-event-maude-card/1",
+      "const": "biomcp.adverse-event-maude-card/2",
       "type": "string"
     },
     "sources": {

@@ -96,7 +96,7 @@
       "type": "string"
     }
   },
-  "$id": "biodata.drug-label-reference/3",
+  "$id": "biodata.drug-label-reference/4",
   "$schema": "https://json-schema.org/draft/2020-12/schema",
   "description": "One independently identified label set and revision.",
   "properties": {

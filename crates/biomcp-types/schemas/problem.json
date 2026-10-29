@@ -174,7 +174,7 @@
       "type": "string"
     }
   },
-  "$id": "biomcp.problem/1",
+  "$id": "biomcp.problem/2",
   "$schema": "https://json-schema.org/draft/2020-12/schema",
   "description": "A field that could not be accepted from a source record.",
   "properties": {

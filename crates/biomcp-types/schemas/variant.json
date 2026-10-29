@@ -246,7 +246,7 @@
       "type": "string"
     }
   },
-  "$id": "biodata.variant/6",
+  "$id": "biodata.variant/7",
   "$schema": "https://json-schema.org/draft/2020-12/schema",
   "description": "Variant entity with source-stated identities, forms and genes; no disclosure policy.",
   "properties": {

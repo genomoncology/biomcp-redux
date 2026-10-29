@@ -144,7 +144,7 @@
       "type": "string"
     }
   },
-  "$id": "biodata.representation/4",
+  "$id": "biodata.representation/5",
   "$schema": "https://json-schema.org/draft/2020-12/schema",
   "description": "One source's own expression, assembly and optional source-stated interbase allele.",
   "properties": {

@@ -63,9 +63,9 @@ pub struct ResearchFetch<M> {
 
 impl<M> ResearchSearch<M> {
     /// Canonical schema identity shared by discovery and the generated artifact registry.
-    pub const SCHEMA: &'static str = "biomcp.research-search/2";
+    pub const SCHEMA: &'static str = "biomcp.research-search/3";
 }
 impl<M> ResearchFetch<M> {
     /// Canonical schema identity shared by discovery and the generated artifact registry.
-    pub const SCHEMA: &'static str = "biomcp.research-fetch/2";
+    pub const SCHEMA: &'static str = "biomcp.research-fetch/3";
 }

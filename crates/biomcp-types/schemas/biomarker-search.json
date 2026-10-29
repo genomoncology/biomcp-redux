@@ -13,7 +13,7 @@
       "type": "string"
     }
   },
-  "$id": "biomcp.biomarker-search/1",
+  "$id": "biomcp.biomarker-search/2",
   "$schema": "https://json-schema.org/draft/2020-12/schema",
   "additionalProperties": false,
   "description": "Find NCI biomarker concepts by name or synonym. The public tier returns codes, name, type, trial count, synonyms, parent_ids, ancestor_ids and eligibility_criterion. These concepts differ from diagnostic --biomarker filters and literal trial --variant text. Native criteria do not establish patient eligibility.",

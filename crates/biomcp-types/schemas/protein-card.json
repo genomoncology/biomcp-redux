@@ -2882,7 +2882,7 @@
       "type": "string"
     }
   },
-  "$id": "biomcp.protein-card/5",
+  "$id": "biomcp.protein-card/6",
   "$schema": "https://json-schema.org/draft/2020-12/schema",
   "description": "One versioned command response; schema identity comes only from its body type.\nJSON readers ignore unknown fields and unknown growable enum values within a major.",
   "properties": {
@@ -2938,7 +2938,7 @@
       "description": "Answer when available."
     },
     "schema": {
-      "const": "biomcp.protein-card/5",
+      "const": "biomcp.protein-card/6",
       "type": "string"
     },
     "sources": {

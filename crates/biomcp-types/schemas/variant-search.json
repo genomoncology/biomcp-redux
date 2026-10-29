@@ -52,7 +52,7 @@
       "type": "string"
     }
   },
-  "$id": "biomcp.variant-search/3",
+  "$id": "biomcp.variant-search/4",
   "$schema": "https://json-schema.org/draft/2020-12/schema",
   "additionalProperties": false,
   "anyOf": [

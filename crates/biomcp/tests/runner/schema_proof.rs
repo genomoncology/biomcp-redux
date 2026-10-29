@@ -30,7 +30,7 @@ pub(super) fn trials(registry: Arc<Registry>) -> Vec<Trial> {
 }
 
 fn results(registry: &Registry) -> Result<(), String> {
-    let good = json!({"schema":"biomcp.error/2", "status":"usage",
+    let good = json!({"schema":"biomcp.error/3", "status":"usage",
         "error":{"code":"usage.schema","message":"use biomcp schema to list known artifact IDs"}});
     let args = vec!["unknown".into()];
     registry.validate(&good, &args, false)?;
@@ -122,7 +122,7 @@ fn raw_artifacts(registry: &Registry) -> Result<(), String> {
         &["schema".into(), "missing/1".into()],
         true,
     )?;
-    rejects(registry, &artifact("biomcp.error/2")?, &args, true)?;
+    rejects(registry, &artifact("biomcp.error/3")?, &args, true)?;
     let mut changed = source.clone();
     changed
         .as_object_mut()
@@ -245,8 +245,8 @@ fn discovery() -> Result<(), String> {
             .map(Vec::as_slice)
             .unwrap_or_default();
         for (entity, reply) in [
-            ("drug", "biomcp.drug-who-card/1"),
-            ("pgx", "biomcp.pgx-annotation/2"),
+            ("drug", "biomcp.drug-who-card/2"),
+            ("pgx", "biomcp.pgx-annotation/3"),
         ] {
             if command["command"] == json!(["get", entity])
                 && !schemas.iter().any(|id| id.as_str() == Some(reply))
@@ -309,7 +309,7 @@ fn parent_replies(commands: &[Value]) -> Result<(), String> {
     let replies = parent["reply_schemas"]
         .as_array()
         .ok_or("missing parent reply schemas")?;
-    for id in ["biomcp.drug-who-card/1", "biomcp.pgx-annotation/2"] {
+    for id in ["biomcp.drug-who-card/2", "biomcp.pgx-annotation/3"] {
         if !replies.iter().any(|reply| reply.as_str() == Some(id)) {
             return Err(format!("missing child reply {id} for get parent"));
         }

@@ -6,7 +6,7 @@
       "type": "string"
     }
   },
-  "$id": "biomcp.drug-who-row/1",
+  "$id": "biomcp.drug-who-row/2",
   "$schema": "https://json-schema.org/draft/2020-12/schema",
   "description": "Every published cell of one WHO finished-product record, including empty cells.",
   "properties": {

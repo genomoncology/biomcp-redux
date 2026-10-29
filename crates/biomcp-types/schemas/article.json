@@ -159,7 +159,7 @@
       "type": "string"
     }
   },
-  "$id": "biomcp.article/3",
+  "$id": "biomcp.article/4",
   "$schema": "https://json-schema.org/draft/2020-12/schema",
   "anyOf": [
     {

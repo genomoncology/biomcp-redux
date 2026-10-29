@@ -1355,7 +1355,7 @@
       "type": "string"
     }
   },
-  "$id": "biomcp.diagnostic-card/2",
+  "$id": "biomcp.diagnostic-card/3",
   "$schema": "https://json-schema.org/draft/2020-12/schema",
   "description": "One versioned command response; schema identity comes only from its body type.\nJSON readers ignore unknown fields and unknown growable enum values within a major.",
   "properties": {
@@ -1411,7 +1411,7 @@
       "description": "Answer when available."
     },
     "schema": {
-      "const": "biomcp.diagnostic-card/2",
+      "const": "biomcp.diagnostic-card/3",
       "type": "string"
     },
     "sources": {

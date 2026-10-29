@@ -1304,7 +1304,7 @@
       "type": "string"
     }
   },
-  "$id": "biomcp.drug-interactions/4",
+  "$id": "biomcp.drug-interactions/5",
   "$schema": "https://json-schema.org/draft/2020-12/schema",
   "description": "One versioned command response; schema identity comes only from its body type.\nJSON readers ignore unknown fields and unknown growable enum values within a major.",
   "properties": {
@@ -1360,7 +1360,7 @@
       "description": "Answer when available."
     },
     "schema": {
-      "const": "biomcp.drug-interactions/4",
+      "const": "biomcp.drug-interactions/5",
       "type": "string"
     },
     "sources": {

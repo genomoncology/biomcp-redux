@@ -1,5 +1,8 @@
 use biodata::License;
-use biodata::{NctId, PartialDate, Pmid, Text, TrialDocument, TrialReference, TrialReferenceKind, TrialUploadTime};
+use biodata::{
+    NctId, PartialDate, Pmid, Text, TrialDocument, TrialReference, TrialReferenceKind,
+    TrialUploadTime,
+};
 
 use crate::{mapped::Problems, raw::Field};
 use serde::Deserialize;
