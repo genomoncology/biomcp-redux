@@ -198,7 +198,9 @@ fn population_values() -> Result<(), String> {
                     return Ok(body);
                 }
                 let mut body: Value = serde_json::from_str(&body).map_err(|e| e.to_string())?;
-                let row = &mut body["data"]["variant"]["exome"];
+                let row = body
+                    .pointer_mut("/data/variant/exome")
+                    .ok_or("missing native exome control")?;
                 match mode {
                     0 => row["ac"] = json!("bad"),
                     1 => row["an"] = json!("bad"),

@@ -119,6 +119,7 @@ fn constraint() -> Check {
                 3 => {
                     json!({"/result/items/0/sections/constraint/state": "empty", "/problems/*/field": ["gene_id"]})
                 }
+                9 => json!({"/result/items/0/sections/constraint/state": "empty"}),
                 11..=14 => {
                     json!({"/result/items/0/sections/constraint/state": "empty", "/problems/*/field": ["mane_select_transcript.ensembl_id"]})
                 }
