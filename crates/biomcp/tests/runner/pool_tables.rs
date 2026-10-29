@@ -1,12 +1,11 @@
 //! Dynamic pool identifiers stay within the ordinary command launch boundary.
 use super::{Step, assertions, launch::Environment, schema::Registry};
 use serde_json::{Value, json};
-use std::path::{Path, PathBuf};
+use std::path::Path;
 
 pub(super) fn check() -> Result<(), String> {
     let environment = Environment::new().map_err(|e| e.to_string())?;
-    let replay = PathBuf::from(env!("CARGO_MANIFEST_DIR"))
-        .join("../../tests/replies/article/search/synthetic-small");
+    let replay = crate::runner::launch::fixtures().join("replies/article/search/synthetic-small");
     let query = vec!["search", "article", "AKT1 E17K", "--limit", "2"];
     let first = run(
         &environment,

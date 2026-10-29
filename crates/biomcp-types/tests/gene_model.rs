@@ -132,19 +132,6 @@ fn mane_requires_curated_versioned_transcripts_at_its_boundary() -> Check {
     )?;
     assert_eq!(valid.refseq().to_string(), "NM_004333.6");
     round_trip(&valid)?;
-    let zero_version = Accession::RefSeq {
-        prefix: RefSeqPrefix::Nm,
-        number: 4333,
-        version: 0,
-    };
-    assert!(
-        Mane::new(
-            ManeStatus::Select,
-            zero_version,
-            "ENST00000646891.2".parse()?
-        )
-        .is_err()
-    );
     for (refseq, ensembl) in [
         ("NM_004333", "ENST00000646891.2"),
         ("NM_004333.6", "ENST00000646891"),

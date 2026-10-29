@@ -41,9 +41,9 @@ pub(super) fn trials() -> Vec<Trial> {
     trials
 }
 fn identity(n: usize) -> Result<Value, String> {
-    let rows: Vec<Value> = serde_json::from_str(include_str!(
-        "../../../../tests/fixtures/drug/openfda/identities.json"
-    ))
+    let rows: Vec<Value> = serde_json::from_str(&crate::runner::launch::fixture_text(
+        "fixtures/drug/openfda/identities.json",
+    )?)
     .map_err(|e| e.to_string())?;
     rows.get(n).cloned().ok_or("identity index".into())
 }

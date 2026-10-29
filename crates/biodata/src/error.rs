@@ -181,6 +181,8 @@ errors! {
     TextEmpty => "text.empty",
     /// A source name was not recognized.
     SourceUnknown => "source.unknown",
+    /// A closed wire vocabulary rejected an unknown spelling.
+    WireEnumUnknown => "wire_enum.unknown",
     /// A reason name was not recognized.
     ReasonUnknown => "reason.unknown",
     /// A problem code was not recognized.

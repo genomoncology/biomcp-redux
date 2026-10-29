@@ -6,6 +6,8 @@
       "expect": {
         "/result/commands/0/arguments/*/name": [
           "--age",
+          "--biomarker-code",
+          "--biomarker-use",
           "--condition",
           "--condition-id",
           "--count-only",
@@ -39,14 +41,14 @@
           "--offline",
           "--fresh"
         ],
-        "/result/commands/0/arguments/4/description": "Search exact registry eligibility text for discovery only; no eligibility judgment.",
+        "/result/commands/0/arguments/27/description": "First included registry update date.",
+        "/result/commands/0/arguments/4/description": "Exact MONDO or DOID CURIE resolved by MyDisease; NCI also accepts explicit NCIT:C codes.",
+        "/result/commands/0/arguments/8/description": "Ask ClinicalTrials.gov to restrict matching to the registered condition phrase; its support is partial.",
         "/result/commands/0/examples": {
           "count": 4
-        },
-        "/result/commands/0/arguments/27/description": "Exact variant text for registry discovery only; no eligibility judgment.",
-        "/result/commands/0/arguments/8/description": "Resolve one checked gene for registry text discovery only; no eligibility judgment."
+        }
       },
-      "max_bytes": 6393,
+      "max_bytes": 6600,
       "mcp": [
         "help",
         "search",

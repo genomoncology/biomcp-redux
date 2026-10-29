@@ -66,6 +66,12 @@ text_value!(
 /// DOI preserving source spelling with ASCII-insensitive equality.
 #[derive(Clone, Debug)]
 pub struct Doi(Box<str>);
+impl Doi {
+    /// Borrow the unchanged source DOI spelling.
+    pub fn as_str(&self) -> &str {
+        &self.0
+    }
+}
 impl FromStr for Doi {
     type Err = Error;
     fn from_str(s: &str) -> Result<Self, Error> {

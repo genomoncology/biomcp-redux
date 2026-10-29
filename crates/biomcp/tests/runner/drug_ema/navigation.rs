@@ -2,9 +2,9 @@ use super::super::{configuration::invoke, launch::Environment};
 use serde_json::{Value, json};
 
 fn seed(env: &Environment) -> Result<std::path::PathBuf, String> {
-    let mut capture: Value = serde_json::from_str(include_str!(
-        "../../../../../tests/replies/drug/ema-synthetic/ema/1854254ba57f4597bd03970bf3664f62fac42eda059bf0022aaf32367297a317.json"
-    ))
+    let mut capture: Value = serde_json::from_str(&crate::runner::launch::fixture_text(
+        "replies/drug/ema-synthetic/ema/1854254ba57f4597bd03970bf3664f62fac42eda059bf0022aaf32367297a317.json",
+    )?)
     .map_err(|e| e.to_string())?;
     let mut body: Value = serde_json::from_str(
         capture

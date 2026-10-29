@@ -98,7 +98,7 @@ impl Environment {
     clippy::disallowed_methods,
     reason = "Installed checks copy public fixtures outside the checkout"
 )]
-pub(super) fn fixtures() -> std::path::PathBuf {
+pub(crate) fn fixtures() -> std::path::PathBuf {
     std::env::var_os("BIOMCP_TEST_FIXTURES").map_or_else(
         || Path::new(env!("CARGO_MANIFEST_DIR")).join("../../tests"),
         std::path::PathBuf::from,
@@ -127,4 +127,25 @@ pub(super) fn arguments(args: &[String], globals: &[String]) -> Vec<String> {
         .unwrap_or(result.len());
     result.splice(position..position, globals.iter().cloned());
     result
+}
+
+// Only this module knows the build checkout; fixtures may be copied elsewhere.
+pub(super) fn checkout() -> std::path::PathBuf {
+    Path::new(env!("CARGO_MANIFEST_DIR")).to_path_buf()
+}
+pub(super) fn fixture_text(relative: &str) -> Result<String, String> {
+    let path = fixtures().join(relative);
+    fs::read_to_string(&path).map_err(|e| format!("{}: {e}", path.display()))
+}
+
+#[expect(
+    clippy::disallowed_methods,
+    reason = "The launcher owns copied fixture selection"
+)]
+pub(super) fn support() -> std::path::PathBuf {
+    if std::env::var_os("BIOMCP_TEST_FIXTURES").is_some() {
+        fixtures().join("support")
+    } else {
+        checkout().join("../..")
+    }
 }

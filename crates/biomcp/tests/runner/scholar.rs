@@ -3,7 +3,6 @@ use super::launch::Environment;
 use crate::runner::transcript::trial as transcript_trial;
 use libtest_mimic::Trial;
 use serde_json::{Value, json};
-use std::path::PathBuf;
 pub(super) fn trials() -> Vec<Trial> {
     vec![
         transcript_trial("article/optional-scholar-key-is-outgoing-only", || {
@@ -23,8 +22,8 @@ fn configured() -> Result<(), String> {
             env.config(&json!({"keys":{"semantic_scholar_api_key":"placeholder-scholar-key"}}))
                 .map_err(|e| e.to_string())?;
         }
-        let replay = PathBuf::from(env!("CARGO_MANIFEST_DIR"))
-            .join("../../tests/replies/article/semantic-scholar/live");
+        let replay =
+            crate::runner::launch::fixtures().join("replies/article/semantic-scholar/live");
         let mut args = vec![
             "search".into(),
             "article".into(),

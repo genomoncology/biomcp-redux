@@ -89,6 +89,8 @@ pub use article::{
 mod recurrence;
 pub use recurrence::{RecurrenceGranularity, RecurrenceStudy, RecurrenceTerms, VariantRecurrence};
 mod variant;
+mod variant_query;
+pub use variant_query::VariantGetQuery;
 mod variant_normalize;
 pub use variant::{
     VariantCard, VariantHeader, VariantPage, VariantResolution, VariantSections, VariantTranscript,
@@ -109,7 +111,8 @@ pub use trial_get::{
 
 mod nci_trial;
 pub use nci_trial::{
-    NciDisease, NciDiseaseRef, NciMatchedSite, NciTrial, NciTrialCards, NciTrialItem, NciTrialPage,
+    NciDisease, NciDiseaseRef, NciMatchedSite, NciTrial, NciTrialBiomarker, NciTrialCards,
+    NciTrialItem, NciTrialPage,
 };
 
 mod nci_detail;
@@ -177,4 +180,5 @@ mod organization;
 pub use organization::{Organization, OrganizationCoordinates, OrganizationPage};
 
 mod biomarker;
+mod registry;
 pub use biomarker::{BiomarkerCard, BiomarkerHeader, BiomarkerPage, BiomarkerResult};

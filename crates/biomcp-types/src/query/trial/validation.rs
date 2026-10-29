@@ -26,6 +26,7 @@ impl TryFrom<Fields> for TrialSearch {
                 return Err(QueryInvalid::new(&["condition_id", "source"]));
             }
         }
+        validate_biomarker(&f)?;
         validate_alternatives(&f)?;
         validate_exact_condition(&f)?;
         if !(1..=100).contains(&f.limit) {
@@ -121,6 +122,20 @@ fn validate_alternatives(f: &Fields) -> Result<(), QueryInvalid> {
         if values.len() > super::MAX_ALTERNATIVES {
             return Err(QueryInvalid::new(&[name]));
         }
+    }
+    Ok(())
+}
+
+fn validate_biomarker(f: &Fields) -> Result<(), QueryInvalid> {
+    if (f.biomarker_code.is_some() || f.biomarker_use.is_some()) && f.source != TrialSource::Nci {
+        return Err(QueryInvalid::new(&[
+            "biomarker_code",
+            "biomarker_use",
+            "source",
+        ]));
+    }
+    if f.biomarker_use.is_some() && f.biomarker_code.is_none() {
+        return Err(QueryInvalid::new(&["biomarker_code", "biomarker_use"]));
     }
     Ok(())
 }

@@ -29,14 +29,14 @@ impl Mane {
     /// Preserve a source-stated transcript pair and its status.
     pub fn new(status: ManeStatus, refseq: Accession, ensembl: Accession) -> Result<Self, Error> {
         if !matches!(
-            refseq,
-            Accession::RefSeq {
+            refseq.0,
+            crate::variant::AccessionKind::RefSeq {
                 prefix: crate::RefSeqPrefix::Nm | crate::RefSeqPrefix::Nr,
                 ..
             }
         ) || !matches!(
-            ensembl,
-            Accession::Ensembl {
+            ensembl.0,
+            crate::variant::AccessionKind::Ensembl {
                 feature: crate::EnsemblFeature::Transcript,
                 ..
             }

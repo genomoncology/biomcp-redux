@@ -91,7 +91,7 @@ class InstalledCli(unittest.TestCase):
                 scratch = root / 'install'
                 (scratch / 'fixtures').mkdir(parents=True)
                 runner = scratch / 'case-runner'
-                runner.write_text(f'#!{sys.executable}\n')
+                runner.write_text(f'#!{sys.executable}\nprint(\"test result: ok. 2 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out\")\n')
                 runner.chmod(0o755)
                 env = {**os.environ, 'ONCOKB_API_KEY': 'synthetic-must-not-inherit'}
                 # Homebrew has separate installation proof; this fixture uses the shared gate on five channels.
@@ -121,8 +121,11 @@ class InstalledCli(unittest.TestCase):
                         self.assertEqual(row['platform'], record['platform'])
                         self.assertEqual(row['result'], 'pass')
                         self.assertTrue(any(call['args'] == row['command'] and call['binary'] != str(binary) for call in executed))
-                self.assertTrue(all('mcp-http' in row['checks'] for row in rows if row.get('result') == 'pass' and 'checks' in row))
-                self.assertTrue(all('alphagenome-local-tls' in row['checks'] for row in rows if row.get('result') == 'pass' and 'checks' in row))
+                suites = [row for row in rows if row.get('result') == 'pass' and 'checks' in row]
+                self.assertTrue(suites)
+                self.assertTrue(all('all-cases-and-trials' in row['checks'] for row in suites))
+                self.assertTrue(all(row['trials'] == 2 for row in suites))
+
 
 
 if __name__ == '__main__':

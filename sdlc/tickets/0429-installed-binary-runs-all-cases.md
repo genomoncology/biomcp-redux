@@ -1,6 +1,7 @@
 # 0429 — Run the whole case suite against the installed release binary
 
-Status: OPEN.
+Status: COMPLETE.
+Landed: 4c48ea9d1ffde60c39bcee9c9057172b49dd52c0
 
 Milestone: 5
 

@@ -1,6 +1,7 @@
 # 0452 — Fill the Rust API gaps an SDK needs
 
-Status: OPEN.
+Status: COMPLETE.
+Landed: a0aa051467531e0c1bcece8b334fc6d7073f3725
 
 Milestone: 5
 

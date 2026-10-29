@@ -1959,6 +1959,7 @@ The ratchet owns the authoritative file and reason list below and checks this ta
 | `crates/biomcp-types/tests/core.rs` | Exercise checked values and schema contracts through the public library API. |
 | `crates/biomcp-types/tests/gene_ids.rs` | Exercise checked values and schema contracts through the public library API. |
 | `crates/biomcp-types/tests/gene_model.rs` | Exercise checked values and schema contracts through the public library API. |
+| `crates/biomcp-types/tests/rust_api.rs` | Exercise the external Rust API consumer compile/runtime contract. |
 | `crates/biomcp-types/tests/query.rs` | Exercise checked values and schema contracts through the public library API. |
 | `crates/biomcp-types/tests/response.rs` | Exercise checked values and schema contracts through the public library API. |
 | `crates/biomcp-types/tests/schemas.rs` | Exercise checked values and schema contracts through the public library API. |

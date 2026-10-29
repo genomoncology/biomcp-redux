@@ -213,12 +213,10 @@ pub(super) fn native(directory: &Path) -> Result<(), String> {
         .ok_or("fixture root")?
         .join("gwas-native-outputs");
     fs::create_dir(&outputs).map_err(|e| e.to_string())?;
-    let budgets: std::collections::BTreeMap<String, [usize; 2]> =
-        serde_json::from_str(include_str!(concat!(
-            env!("CARGO_MANIFEST_DIR"),
-            "/../../tests/gwas-threshold-budgets.json"
-        )))
-        .map_err(|e| e.to_string())?;
+    let budgets: std::collections::BTreeMap<String, [usize; 2]> = serde_json::from_str(
+        &crate::runner::launch::fixture_text("gwas-threshold-budgets.json")?,
+    )
+    .map_err(|e| e.to_string())?;
     for path in paths {
         let value = super::super::run_case(&path, &registry)?;
         let bytes = serde_json::to_vec(&value).map_err(|e| e.to_string())?;

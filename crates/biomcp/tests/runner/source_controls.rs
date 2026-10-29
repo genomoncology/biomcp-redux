@@ -7,7 +7,7 @@ use super::{
 use crate::runner::transcript::trial as transcript_trial;
 use libtest_mimic::Trial;
 use serde_json::{Value, json};
-use std::{fs, path::PathBuf};
+use std::fs;
 type Check = Result<(), String>;
 pub(super) fn trials() -> Vec<Trial> {
     vec![
@@ -193,8 +193,7 @@ fn source_health() -> Check {
 fn stored_pool() -> Check {
     let env = Environment::new().map_err(|e| e.to_string())?;
     let case = env.root().join("pool-case");
-    let fixture = PathBuf::from(env!("CARGO_MANIFEST_DIR"))
-        .join("../../tests/replies/article/search/synthetic-small");
+    let fixture = crate::runner::launch::fixtures().join("replies/article/search/synthetic-small");
     let base = ["search", "article", "AKT1 E17K", "--limit", "2"];
     invoke(&env, cached(&base, &case, Some(&fixture)), 0)?;
     let args = cached(
@@ -325,8 +324,7 @@ fn health_local() -> Check {
 
 fn enabled_fold() -> Check {
     let env = Environment::new().map_err(|e| e.to_string())?;
-    let fixture = PathBuf::from(env!("CARGO_MANIFEST_DIR"))
-        .join("../../tests/replies/article/fold/synthetic-fold");
+    let fixture = crate::runner::launch::fixtures().join("replies/article/fold/synthetic-fold");
     let case = env.root().join("enabled-fold");
     let args = [
         "search",
@@ -377,8 +375,7 @@ fn keyed_health() -> Check {
     env.config(&json!({"disable_sources": disabled,
         "keys":{"oncokb_api_key":"synthetic-placeholder"}}))
         .map_err(|e| e.to_string())?;
-    let fixture = PathBuf::from(env!("CARGO_MANIFEST_DIR"))
-        .join("../../tests/replies/gene/oncokb-synthetic/data");
+    let fixture = crate::runner::launch::fixtures().join("replies/gene/oncokb-synthetic/data");
     let result = invoke(
         &env,
         vec![

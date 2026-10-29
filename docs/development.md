@@ -15,3 +15,11 @@ Case keys contain the relative case path and zero-based step index. Each case tr
 The comparison masks the version command’s package version line and verbose commit, config and cache lines. It masks the executable command field and launch line from `mcp-config`. It replaces isolated environment and checkout prefixes only in argument path tokens. Source data and other stdout bytes and exit codes remain significant. Calibration uses two commits with unchanged source in separate checkout paths. Every additional mask requires a calibration finding and a comment in the script.
 
 Capture covers YAML steps and trial commands whose existing consumer obtains complete stdout and status. It leaves process transport and lifecycle checks unchanged. The script lists every trial with uncaptured commands or no captured command. A structure change touching these areas must use those trials' own assertions. The architecture work decides whether to extend this coverage.
+
+## Exercise installed artifacts
+
+The release rehearsal copies all of `tests/` outside the checkout and runs the complete `cases` target against each installed executable. `BIOMCP_TEST_EXECUTABLE` selects the installed executable and `BIOMCP_TEST_FIXTURES` selects the copied tree. Every case directory registers the same Rust trials. Use ordinary feature names to select the cache publication, HTTP and AlphaGenome trials.
+
+Reports include the YAML case count, total trial count and elapsed time. The first complete installed run measures the suite timeout; later installation channels use that measurement plus 15 percent. The platform job bounds the first measurement. Fixture path checks reject direct manifest-directory reads outside the launcher.
+
+The cases target still contains in-process schema registry and assertion boundary tables, parity validation, synthetic adapter projection and budget calculations. These execute during both routine and installed runs, but their library calls do not test the installed executable. Their removal or replacement belongs to the in-process trial cleanup. Repository ratchets remain a separate target.

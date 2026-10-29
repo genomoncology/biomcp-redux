@@ -11,16 +11,6 @@ pub(super) fn registry() -> Vec<Contract> {
         DiseaseOntology => ("disease-ontology", "biomcp.disease-ontology/1"),
         DiseaseSearch => ("disease-search", "biomcp.disease-search/1", query),
         DiseaseGet => ("disease-get", "biomcp.disease-get/3", query),
-        Envelope<DiseasePage> => ("disease-page", "biomcp.disease-page/4"),
-        Envelope<DiseaseCard> => ("disease-card", "biomcp.disease-card/5"),
-        Envelope<DiseaseSynonyms> => ("disease-synonyms", "biomcp.disease-synonyms/4"),
-        Envelope<DiseaseXrefs> => ("disease-xrefs", "biomcp.disease-xrefs/4"),
-        Envelope<DiseaseHierarchy> => ("disease-hierarchy", "biomcp.disease-hierarchy/4"),
-        Envelope<DiseaseGenes> => ("disease-genes", "biomcp.disease-genes/7"),
-        Envelope<DiseasePhenotypes> => ("disease-phenotypes", "biomcp.disease-phenotypes/7"),
-        Envelope<DiseaseSites> => ("disease-sites", "biomcp.disease-sites/3"),
-        Envelope<DiseaseIncidence> => ("disease-incidence", "biomcp.disease-incidence/5"),
-        Envelope<DiseaseSurvival> => ("disease-survival", "biomcp.disease-survival/5"),
     }
 }
 

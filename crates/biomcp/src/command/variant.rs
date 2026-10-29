@@ -26,6 +26,7 @@ pub(super) fn response(
             meta.encode(query, Some(body))
         }
         (Request::GetVariant(query), QueryBody::VariantCard(body)) => {
+            let query = biomcp_types::VariantGetQuery::new(query, body.source);
             meta.encode(query, Some(body))
         }
         _ => Err(io::Error::other("query response mismatch")),

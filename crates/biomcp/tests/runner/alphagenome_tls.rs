@@ -83,6 +83,19 @@ fn successful(
 ) -> Result<(), String> {
     groups(reply)?;
     let mcp = super::mcp::call_with_globals(env, command, false, &[])?;
+    for response in [reply, &mcp] {
+        if id.starts_with("rs") {
+            if response.pointer("/query/build") != Some(&json!("GRCh38"))
+                || response.pointer("/query/build_defaulted") != Some(&json!(true))
+            {
+                return Err("AlphaGenome identity lookup lost its chosen assembly default".into());
+            }
+        } else if response.pointer("/query/build").is_some()
+            || response.pointer("/query/build_defaulted").is_some()
+        {
+            return Err("CA identity lookup gained an unused assembly default".into());
+        }
+    }
     if mcp.get("result") != reply.get("result") || mcp.get("next") != reply.get("next") {
         return Err("native CLI and MCP groups or continuations differ".into());
     }

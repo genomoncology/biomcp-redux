@@ -1,4 +1,4 @@
-use crate::{Source, SourceRecord, Text, Variant, VariantGet};
+use crate::{Source, SourceRecord, Text, Variant};
 use serde::{Deserialize, Serialize};
 /// A compact identity card, including every provider candidate and explicit rejection.
 #[derive(Clone, Debug, PartialEq, Serialize, Deserialize)]
@@ -17,7 +17,7 @@ pub struct VariantCard {
 }
 impl super::ResponseBody for VariantCard {
     const SCHEMA: &'static str = "biomcp.variant-card/12";
-    type Query = VariantGet;
+    type Query = super::VariantGetQuery;
 }
 
 /// Consumer identity header with an exact source selection and compact annotation entity.

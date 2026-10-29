@@ -88,9 +88,7 @@ identities, credential-free prepared request URLs, attempts, status, received by
 can miss optional-field changes; schema failures and status transitions remain
 reported separately. Live counts compare only positive to zero, never historical
 exact totals. Drift is diagnostic and does not fail the landing gate.
-The release artifact gate sets `BIOMCP_TEST_EXECUTABLE` to an absolute installed binary. The shared launcher uses it for CLI, MCP and process proofs, including nested runner checks, and never falls back after a failed installed launch. `BIOMCP_TEST_FIXTURES` selects copied public fixtures outside the checkout. `--installed-process-proof` runs the existing ordinary-cache publication proof without discovering cases from the source checkout.
-
-`--installed-alphagenome-proof` runs the existing `variant/alphagenome-native-groups-local-tls` trial against that installed binary without a checkout. It uses a local TLS peer with synthetic credentials and replies, including CLI, MCP, Markdown, paging and source failure checks. Release smoke and container reports name this check `alphagenome-local-tls`.
+The release artifact gate sets `BIOMCP_TEST_EXECUTABLE` to an absolute installed binary. The shared launcher uses it for CLI, MCP and process checks, including nested runner checks. `BIOMCP_TEST_FIXTURES` selects the complete copied public fixture tree outside the checkout. The runner registers all feature trials even when `--cases` selects another directory. Cache publication, HTTP ownership and AlphaGenome local TLS checks run as their ordinary feature trials.
 
 Nightly scheduling classifies the retained diagnostic report without changing replay assertions. Explicit checked discovery identifiers and dependent identifier inputs use the same namespace. Received body digests remain diagnostic and cannot establish causation. Missing provenance and witness cuts remain uncertain. Request completion order does not change a request set. The original drift and error counts remain in the report beside classification counts.
 

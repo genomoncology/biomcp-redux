@@ -149,13 +149,20 @@ fn apply(
         body.items = page
             .data
             .into_iter()
-            .map(|r| {
-                if let Some(name) = q.facility() {
+            .map(|mut r| {
+                let card = if let Some(name) = q.facility() {
                     let mapped = r.facility_card(name);
                     out.problems.extend(mapped.problems);
                     mapped.value
                 } else {
                     r.card(false)
+                };
+                if let Some(code) = q.biomarker_code() {
+                    let mapped = r.biomarker_card(code, q.biomarker_use(), card);
+                    out.problems.extend(mapped.problems);
+                    mapped.value
+                } else {
+                    card
                 }
             })
             .collect();
