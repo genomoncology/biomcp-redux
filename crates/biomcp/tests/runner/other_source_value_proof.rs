@@ -114,6 +114,9 @@ pub(super) fn run(directory: &Path) -> Check {
             failures.push(format!("stage-{name}: {error}"));
         }
     }
+    if let Err(error) = binding_witness(directory, &registry) {
+        failures.push(format!("request-scope: {error}"));
+    }
     let large = "x".repeat(biodata::Text::MAX_CHARS + 1);
     let large_result = acquire(&case, Some((stage, json!(large))), &registry).and_then(|value| {
         if value
@@ -171,6 +174,14 @@ fn acquire(
     mutation: Option<(&Mutation, Value)>,
     registry: &Registry,
 ) -> Check<Value> {
+    acquire_at_exit(case, mutation, registry, 0)
+}
+fn acquire_at_exit(
+    case: &NativeCase,
+    mutation: Option<(&Mutation, Value)>,
+    registry: &Registry,
+    exit: i32,
+) -> Check<Value> {
     let root = super::launch::fixtures().join(case.root);
     let mut routes = Vec::new();
     let mut changed = 0;
@@ -214,13 +225,13 @@ fn acquire(
     let env = super::variant::source_environment(&stub)?;
     let mut args = case.args.clone();
     args.push("--fresh".into());
-    let result = invoke(&env, args, 0);
+    let result = invoke(&env, args, exit);
     let received = stub.finish()?.len();
     if received != expected_requests {
         return Err("native request count changed".into());
     }
     let value = result?;
-    registry.validate(&value, &case.args, true)?;
+    registry.validate(&value, &case.args, exit == 0)?;
     Ok(value)
 }
 fn rejected(value: &Value, mutation: &Mutation) -> Check {
@@ -244,4 +255,29 @@ fn save(directory: &Path, name: &str, value: &Value) -> Check {
         serde_json::to_vec_pretty(value).map_err(|e| e.to_string())?,
     )
     .map_err(|e| e.to_string())
+}
+
+fn binding_witness(directory: &Path, registry: &Registry) -> Check {
+    let case = native_case("015.json")?;
+    let text = super::launch::fixture_text("fixtures/drug/native/015.json")?;
+    let mut body: Value = serde_json::from_str(&text).map_err(|e| e.to_string())?;
+    let row = body
+        .pointer_mut("/mechanisms/0")
+        .ok_or("native mechanism")?;
+    *row.get_mut("mec_id").ok_or("native mechanism identity")? = json!({"bad_shape":true});
+    *row.get_mut("molecule_chembl_id")
+        .ok_or("native molecule binding")? = json!("CHEMBL941");
+    let mutation = Mutation {
+        file: "015.json",
+        pointer: "/mechanisms/0",
+        field: "request-scope",
+        absent: "",
+        present: "",
+    };
+    let value = acquire_at_exit(&case, Some((&mutation, row.clone())), registry, 2)?;
+    save(directory, "contradictory-scope-and-bad-identity", &value)?;
+    if value.pointer("/sources/0/reason") != Some(&json!("bad_reply")) {
+        return Err("contradictory native request scope was admitted".into());
+    }
+    Ok(())
 }
