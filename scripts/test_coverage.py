@@ -25,6 +25,7 @@ elif name == 'llvm-profdata':
 elif name == 'llvm-cov':
     assert '--object' in args and args[args.index('--object')+1].endswith('/debug/biomcp'), args
     assert '--ignore-filename-regex' in args and 'generated' in args[args.index('--ignore-filename-regex')+1], args
+    assert '--sources' in args and all('/crates/' in p and '/src/' in p for p in args[args.index('--sources')+1:]), args
     merged = Path(args[args.index('--instr-profile')+1]).read_text()
     assert 'harness-' not in merged and 'stale-' not in merged, merged
     value = os.environ.get('PROOF_COVERAGE', '60')

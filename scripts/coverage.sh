@@ -64,7 +64,7 @@ import sys
 tool, binary, profile, ignore, *directories = sys.argv[1:]
 sources = sorted(str(path) for directory in directories for path in Path(directory).rglob('*.rs'))
 subprocess.run([tool, 'report', '--object', binary, '--instr-profile', profile,
-                '--ignore-filename-regex', ignore, *sources], check=True)
+                '--ignore-filename-regex', ignore, '--sources', *sources], check=True)
 PYREPORT
     awk '/^TOTAL/ { print "coverage (cases; product binary source): " $0 }' "$summary"
     awk -v threshold="$threshold" '
