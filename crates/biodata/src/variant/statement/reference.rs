@@ -350,12 +350,10 @@ fn tagged_reference<T: schemars::JsonSchema>(
     generator: &mut schemars::SchemaGenerator,
     level: &str,
 ) -> schemars::Schema {
-    schemars::json_schema!({
-        "allOf": [
-            generator.subschema_for::<T>(),
-            {"type":"object", "properties":{"level":{"const":level}}, "required":["level"]}
-        ]
-    })
+    let mut schema =
+        schemars::_private::json_schema_for_internally_tagged_enum_newtype_variant::<T>(generator);
+    schemars::_private::apply_internal_enum_variant_tag(&mut schema, "level", level, false);
+    schema
 }
 
 #[cfg(feature = "schema")]
@@ -374,7 +372,8 @@ fn source_forms_schema(generator: &mut schemars::SchemaGenerator) -> schemars::S
 #[cfg(feature = "schema")]
 fn member_refs_schema(generator: &mut schemars::SchemaGenerator) -> schemars::Schema {
     schemars::json_schema!({"type":"array", "items":{"oneOf":[
-        leaf_refs_schema(generator),
+        tagged_reference::<AlleleRef>(generator, "allele"),
+        tagged_reference::<ProteinRef>(generator, "protein"),
         tagged_reference::<SourceRef>(generator, "source")
     ]}})
 }

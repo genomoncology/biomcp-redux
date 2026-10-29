@@ -506,7 +506,33 @@ fn population_frequencies_share_one_bounded_fraction() {
 #[test]
 fn source_forms_and_profile_members_match_admitted_subject_levels()
 -> Result<(), Box<dyn std::error::Error>> {
-    let validator = jsonschema::draft202012::new(&generate::<VariantRef>())?;
+    let schema = generate::<VariantRef>();
+    let branches = schema["oneOf"].as_array().ok_or("reference branches")?;
+    for (level, field, count) in [("source", "forms", 2), ("profile", "members", 3)] {
+        let branch = branches
+            .iter()
+            .find(|branch| branch["properties"]["level"]["const"] == level)
+            .ok_or("reference level")?;
+        let items = branch["properties"][field]["items"]["oneOf"]
+            .as_array()
+            .ok_or("flat tagged item branches")?;
+        assert_eq!(items.len(), count);
+        for item in items {
+            assert_eq!(item["type"], "object");
+            assert_eq!(item["properties"]["level"]["type"], "string");
+            assert!(item["properties"]["level"]["const"].is_string());
+            assert!(
+                item["required"]
+                    .as_array()
+                    .ok_or("required fields")?
+                    .iter()
+                    .any(|field| field == "level")
+            );
+            assert!(item.get("allOf").is_none());
+            assert!(item.get("$ref").is_none());
+        }
+    }
+    let validator = jsonschema::draft202012::new(&schema)?;
     let allele = serde_json::json!({"level":"allele", "id":"VCV000013961.3"});
     let protein =
         serde_json::json!({"level":"protein", "gene":{"label":"EGFR"}, "label":"source label"});
