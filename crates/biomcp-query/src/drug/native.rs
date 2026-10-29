@@ -81,7 +81,9 @@ pub(super) fn search(cx: &Ctx<'_>, query: &DrugSearch) -> Outcome {
     out
 }
 fn search_page(leg: &Leg<'_>, query: &DrugSearch) -> Result<DrugPage, RequestError> {
-    let name = query.query().ok_or(biomcp_fetch::InputError::Serialization)?;
+    let name = query
+        .query()
+        .ok_or(biomcp_fetch::InputError::Serialization)?;
     let source = query.source().source();
     let (items, total) = if query.source() == DrugSource::Chembl {
         let (page, _) = chembl::search(

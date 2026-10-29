@@ -42,10 +42,18 @@ fn expression(q: &DrugSearch) -> String {
         let name = literal(v);
         terms.push(format!("(product_description:{name} OR openfda.brand_name:{name} OR openfda.generic_name:{name})"));
     }
-    for (field, value) in [("recalling_firm", q.firm()), ("status", q.status()), ("reason_for_recall", q.reason())] {
-        if let Some(value) = value { terms.push(format!("{field}:{}", literal(value))); }
+    for (field, value) in [
+        ("recalling_firm", q.firm()),
+        ("status", q.status()),
+        ("reason_for_recall", q.reason()),
+    ] {
+        if let Some(value) = value {
+            terms.push(format!("{field}:{}", literal(value)));
+        }
     }
-    if let Some(value) = q.classification() { terms.push(format!("classification:\"{value}\"")); }
+    if let Some(value) = q.classification() {
+        terms.push(format!("classification:\"{value}\""));
+    }
     if q.initiated_from().is_some() || q.initiated_to().is_some() {
         let compact = |d: biodata::PartialDate| d.to_string().replace('-', "");
         let from = q.initiated_from().map_or_else(|| "*".into(), compact);
@@ -157,6 +165,9 @@ fn exact(
     })
 }
 /// Fetch one native recall number without accepting another record.
-pub fn get(leg: &Leg<'_>, id: &DrugRecallNumber) -> Result<Option<crate::Mapped<DrugRecallCard>>, Failure> {
+pub fn get(
+    leg: &Leg<'_>,
+    id: &DrugRecallNumber,
+) -> Result<Option<crate::Mapped<DrugRecallCard>>, Failure> {
     exact(leg, "/drug/enforcement.json", "recall_number", id).map(|row| row.map(map::mapped))
 }

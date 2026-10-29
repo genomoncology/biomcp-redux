@@ -82,17 +82,39 @@ impl crate::ResponseBody for DrugRecallCard {
     const SCHEMA: &'static str = "biomcp.drug-recall-card/1";
     type Query = super::DrugGet;
 }
-pub(super) fn validate_search(source: super::DrugSource, query: bool, filters: bool,
-    from: Option<PartialDate>, to: Option<PartialDate>) -> Result<(), crate::QueryInvalid> {
+pub(super) fn validate_search(
+    source: super::DrugSource,
+    query: bool,
+    filters: bool,
+    from: Option<PartialDate>,
+    to: Option<PartialDate>,
+) -> Result<(), crate::QueryInvalid> {
     let recall = source == super::DrugSource::FdaDrugRecall;
     if !recall && (filters || !query) {
-        return Err(crate::QueryInvalid::new(&["source", "query", "firm", "classification", "status", "reason", "initiated_from", "initiated_to"]));
+        return Err(crate::QueryInvalid::new(&[
+            "source",
+            "query",
+            "firm",
+            "classification",
+            "status",
+            "reason",
+            "initiated_from",
+            "initiated_to",
+        ]));
     }
     for (name, date) in [("initiated_from", from), ("initiated_to", to)] {
-        if date.is_some_and(|d| d.day().is_none()) { return Err(crate::QueryInvalid::new(&[name])); }
+        if date.is_some_and(|d| d.day().is_none()) {
+            return Err(crate::QueryInvalid::new(&[name]));
+        }
     }
-    if from.zip(to).is_some_and(|(a,b)| a.to_string() > b.to_string()) {
-        return Err(crate::QueryInvalid::new(&["initiated_from", "initiated_to"]));
+    if from
+        .zip(to)
+        .is_some_and(|(a, b)| a.to_string() > b.to_string())
+    {
+        return Err(crate::QueryInvalid::new(&[
+            "initiated_from",
+            "initiated_to",
+        ]));
     }
     Ok(())
 }

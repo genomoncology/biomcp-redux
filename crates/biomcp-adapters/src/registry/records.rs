@@ -119,7 +119,9 @@ pub const DECLARATIONS: &[RecordDeclaration] = &[
         source: Source::FdaDrugRecall,
         kind: RecordKind::Drug,
         display_name: "FDA drug recall",
-        template: Some("https://api.fda.gov/drug/enforcement.json?search=recall_number.exact%3A%22{id}%22&limit=1&skip=0"),
+        template: Some(
+            "https://api.fda.gov/drug/enforcement.json?search=recall_number.exact%3A%22{id}%22&limit=1&skip=0",
+        ),
     },
     RecordDeclaration {
         source: Source::FdaDeviceRecall,

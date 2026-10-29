@@ -42,6 +42,7 @@ struct SearchFields {
     /// Literal name phrase; optional for FDA drug recalls. Harmonized recall names match but never become display names.
     #[cfg_attr(feature = "schema", schemars(extend("x-positional" = 0)))]
     #[serde(default, skip_serializing_if = "Option::is_none")]
+    #[cfg_attr(feature = "schema", schemars(with = "Text"))]
     query: Option<Text>,
     /// Literal published recalling firm phrase; drug recalls only.
     #[serde(default, skip_serializing_if = "Option::is_none")]
@@ -91,10 +92,18 @@ impl TryFrom<SearchFields> for DrugSearch {
         if fields.name_selector.is_some() && fields.source != DrugSource::Chembl {
             return Err(QueryInvalid::new(&["name_selector", "source"]));
         }
-        super::recall::validate_search(fields.source, fields.query.is_some(),
-            fields.firm.is_some() || fields.classification.is_some() || fields.status.is_some()
-                || fields.reason.is_some() || fields.initiated_from.is_some() || fields.initiated_to.is_some(),
-            fields.initiated_from, fields.initiated_to)?;
+        super::recall::validate_search(
+            fields.source,
+            fields.query.is_some(),
+            fields.firm.is_some()
+                || fields.classification.is_some()
+                || fields.status.is_some()
+                || fields.reason.is_some()
+                || fields.initiated_from.is_some()
+                || fields.initiated_to.is_some(),
+            fields.initiated_from,
+            fields.initiated_to,
+        )?;
         Ok(Self(fields))
     }
 }
@@ -320,17 +329,29 @@ impl DrugSearch {
         self.0.query.as_ref()
     }
     /// Selected native recall filter.
-    pub fn firm(&self) -> Option<&Text> { self.0.firm.as_ref() }
+    pub fn firm(&self) -> Option<&Text> {
+        self.0.firm.as_ref()
+    }
     /// Selected native recall filter.
-    pub fn classification(&self) -> Option<super::DrugRecallClassification> { self.0.classification }
+    pub fn classification(&self) -> Option<super::DrugRecallClassification> {
+        self.0.classification
+    }
     /// Selected native recall filter.
-    pub fn status(&self) -> Option<&Text> { self.0.status.as_ref() }
+    pub fn status(&self) -> Option<&Text> {
+        self.0.status.as_ref()
+    }
     /// Selected native recall filter.
-    pub fn reason(&self) -> Option<&Text> { self.0.reason.as_ref() }
+    pub fn reason(&self) -> Option<&Text> {
+        self.0.reason.as_ref()
+    }
     /// Selected native recall filter.
-    pub fn initiated_from(&self) -> Option<biodata::PartialDate> { self.0.initiated_from }
+    pub fn initiated_from(&self) -> Option<biodata::PartialDate> {
+        self.0.initiated_from
+    }
     /// Selected native recall filter.
-    pub fn initiated_to(&self) -> Option<biodata::PartialDate> { self.0.initiated_to }
+    pub fn initiated_to(&self) -> Option<biodata::PartialDate> {
+        self.0.initiated_to
+    }
 
     /// Single selected native source.
     pub fn source(&self) -> DrugSource {

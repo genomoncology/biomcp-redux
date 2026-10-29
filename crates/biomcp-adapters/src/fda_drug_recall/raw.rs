@@ -1,5 +1,5 @@
 use crate::raw::Field;
-use biodata::{DrugRecallNumber};
+use biodata::DrugRecallNumber;
 use biomcp_fetch::{BadReply, Reply};
 use serde::{Deserialize, de::DeserializeOwned};
 #[derive(Debug, Deserialize)]

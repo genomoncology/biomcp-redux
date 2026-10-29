@@ -1,11 +1,11 @@
 //! Literal native drug discovery and exact selected source identities.
-mod recall;
 mod civic;
 mod ddinter;
 mod drugsfda;
 mod ema;
 mod next;
 mod openfda_label;
+mod recall;
 pub(crate) mod who;
 use crate::{Action, Ctx, Outcome, status};
 use biomcp_adapters::mychem;
@@ -15,7 +15,9 @@ use biomcp_types::{
 };
 /// Search the one selected source, without fan-out or selecting an identity.
 pub fn search(cx: &Ctx<'_>, query: &DrugSearch) -> Outcome {
-    if query.source() == DrugSource::FdaDrugRecall { return recall::search(cx, query); }
+    if query.source() == DrugSource::FdaDrugRecall {
+        return recall::search(cx, query);
+    }
     if query.source() == DrugSource::WhoPq {
         return who::search(cx, query);
     }
@@ -44,7 +46,9 @@ pub fn search(cx: &Ctx<'_>, query: &DrugSearch) -> Outcome {
     if query.source() != DrugSource::Mychem {
         return unsupported(query.source(), out);
     }
-    let Some(name) = query.query() else { return unsupported(query.source(), out); };
+    let Some(name) = query.query() else {
+        return unsupported(query.source(), out);
+    };
     let command = cx.fetch.command_deadline(cx.budget);
     let deadline = command.deadline();
     let leg = cx.fetch.leg(&mychem::SPEC, deadline).fresh(cx.fresh);
@@ -78,7 +82,9 @@ pub fn get(cx: &Ctx<'_>, query: &DrugGet) -> Outcome {
     out
 }
 fn selected_get(cx: &Ctx<'_>, query: &DrugGet) -> Outcome {
-    if query.source() == DrugSource::FdaDrugRecall { return recall::get(cx, query); }
+    if query.source() == DrugSource::FdaDrugRecall {
+        return recall::get(cx, query);
+    }
     if query.source() == DrugSource::Drugsfda {
         return drugsfda::get(cx, query);
     }
