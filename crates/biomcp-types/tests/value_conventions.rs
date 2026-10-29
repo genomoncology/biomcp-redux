@@ -186,6 +186,13 @@ where
             "display must parse to the same value: {text}"
         );
         let wire = serde_json::to_value(&value)?;
+        if wire.is_string() {
+            assert_eq!(
+                serde_json::from_value::<T>(json!(text))?,
+                value,
+                "JSON input must use the public parser: {text}"
+            );
+        }
         assert_eq!(
             serde_json::from_value::<T>(wire)?,
             value,
@@ -224,27 +231,41 @@ where
 }
 
 #[test]
-fn public_text_values_preserve_identity_1() -> Check {
+fn identifiers_and_variant_text_preserve_identity() -> Check {
     value_contract::<biodata::HgncId>(&["HGNC:1", "HGNC:4294967295"], &["HGNC:01"])?;
     value_contract::<biodata::PartialDate>(&["2024", "2024-02", "2024-02-29"], &["2023-02-29"])?;
-    value_contract::<biodata::Text>(&[" checked α ", "a\\u{0001}"], &["\u{0001}"])?;
+    constructor_contract(
+        biodata::Text::new,
+        &[" checked α ", "a\\u{0001}"],
+        &["\u{0001}"],
+    )?;
     value_contract::<biodata::NcbiGeneId>(&["1", "4294967295"], &["01"])?;
-    value_contract::<biodata::GeneSymbol>(&["BRAF", "bRaF"], &["1BRAF"])?;
-    value_contract::<biodata::EnsemblGeneId>(
+    constructor_contract(biodata::GeneSymbol::new, &["BRAF", "bRaF"], &["1BRAF"])?;
+    constructor_contract(
+        biodata::EnsemblGeneId::new,
         &["ENSG00000157764", "ENSG00000157764.2"],
         &["ENSG00000157764.0"],
     )?;
-    value_contract::<biodata::OmimId>(&["001234"], &["12345"])?;
-    value_contract::<biodata::UniProtAcc>(&["P15056", "A0A024RBG1"], &["P15056-1"])?;
-    value_contract::<biodata::Cytoband>(&["7q34", "Xp22.33"], &["7q3"])?;
+    constructor_contract(biodata::OmimId::new, &["001234"], &["12345"])?;
+    constructor_contract(
+        biodata::UniProtAcc::new,
+        &["P15056", "A0A024RBG1"],
+        &["P15056-1"],
+    )?;
+    constructor_contract(biodata::Cytoband::new, &["7q34", "Xp22.33"], &["7q3"])?;
     value_contract::<biodata::Pmid>(&["1"], &["01"])?;
     value_contract::<biodata::Pmcid>(&["PMC1"], &["PMC01"])?;
-    value_contract::<biodata::Doi>(&["10.1000/ABC", "10.1000/abc"], &["10.100/abc"])?;
-    value_contract::<biodata::EuropePmcId>(&["MED:1", "PMC:PMC1"], &["MED:01"])?;
+    value_contract::<biodata::Doi>(&["10.1000/ABC", "10.1000/abc"], &["10.1000/a b"])?;
+    value_contract::<biodata::EuropePmcId>(&["MED1", "PMC1"], &["MED0"])?;
     value_contract::<biodata::SemanticScholarId>(
         &["aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"],
         &["aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"],
     )?;
+    Ok(())
+}
+
+#[test]
+fn reference_and_variant_text_preserve_identity() -> Check {
     value_contract::<biodata::Accession>(
         &[
             "NM_004333.6",
@@ -256,7 +277,7 @@ fn public_text_values_preserve_identity_1() -> Check {
     )?;
     value_contract::<biodata::AccessionBase>(&["NM_004333"], &["NM_004333.6"])?;
     value_contract::<biodata::Chromosome>(&["1", "X", "MT"], &["23"])?;
-    value_contract::<biodata::Contig>(&["chr7", "NC_000007.14"], &["chr 7"])?;
+    constructor_contract(biodata::Contig::new, &["chr7", "NC_000007.14"], &["chr 7"])?;
     value_contract::<biodata::Base>(&["A", "N"], &["a"])?;
     value_contract::<biodata::Sequence>(&["ACGTN"], &["ACGT!"])?;
     value_contract::<biodata::HgvsText>(
@@ -295,56 +316,102 @@ fn public_text_values_preserve_identity_1() -> Check {
 }
 
 #[test]
-fn public_text_values_preserve_identity_2() -> Check {
+fn source_identifiers_preserve_identity() -> Check {
     value_contract::<biodata::DrugId>(&["CHEMBL25", "NCIT:C1"], &["NCIT:"])?;
-    value_contract::<biodata::ReportId>(&["faers:1"], &["faers:"])?;
+    value_contract::<biodata::ReportId>(&["0001"], &["1x"])?;
     value_contract::<biodata::ClinPgxAccession>(&["PA1"], &["PA01"])?;
     value_contract::<biodata::PgxGeneKey>(&["CYP2D6"], &["1CYP"])?;
     value_contract::<biodata::PgxDiplotypeExpression>(&[" *1/*2 "], &["  "])?;
-    value_contract::<biodata::MondoId>(&["MONDO:0000001"], &["MONDO:000001"])?;
-    value_contract::<biodata::NcitId>(&["C123"], &["C"])?;
+    constructor_contract(biodata::MondoId::new, &["MONDO:0000001"], &["MONDO:000001"])?;
+    constructor_contract(biodata::NcitId::new, &["C123"], &["C"])?;
     value_contract::<biodata::GwasStudyId>(&["GCST000001"], &["GCST000000"])?;
     value_contract::<biodata::GwasAssociationId>(&["association:1"], &["association:01"])?;
     value_contract::<biodata::GwasTraitId>(&["EFO_0000001", "HP:0000001"], &["EFO_"])?;
     value_contract::<biodata::ScientificPValue>(&["1.50e-8", "1.5e-8", "1e0"], &["1e1", "0e-8"])?;
     value_contract::<biodata::HpId>(&["HP:0000001"], &["HP:000001"])?;
-    value_contract::<biodata::ReactomeId>(&["R-HSA-1"], &["R-HSA-01"])?;
-    value_contract::<biodata::WikiPathwaysId>(&["WP1"], &["WP01"])?;
+    constructor_contract(biodata::ReactomeId::new, &["R-HSA-1"], &["R-HSA-01"])?;
+    constructor_contract(biodata::WikiPathwaysId::new, &["WP1"], &["WP01"])?;
     value_contract::<biodata::PathwayId>(&["R-HSA-1", "WP1"], &["WP01"])?;
-    value_contract::<biodata::UniProtIsoform>(&["P15056", "P15056-2"], &["P15056-0"])?;
-    value_contract::<biodata::AminoAcids>(&["ACDEXUO"], &["ACDE!"])?;
-    value_contract::<biodata::InterProId>(&["IPR000001"], &["IPR00001"])?;
-    value_contract::<biodata::ComplexPortalId>(&["CPX-1"], &["CPX-01"])?;
-    value_contract::<biodata::StudyId>(&["study_1"], &["study/1"])?;
-    value_contract::<biodata::StudyProfileId>(&["study_mutations"], &["study/mutations"])?;
-    value_contract::<biodata::StudySampleListId>(&["study_all"], &["study/all"])?;
-    value_contract::<biodata::CbioportalCancerTypeId>(&["brca"], &["brca/"])?;
-    value_contract::<biodata::StudyResourceId>(&["resource_1"], &["resource/1"])?;
-    value_contract::<biodata::StudyBlobSha>(
+    constructor_contract(
+        biodata::UniProtIsoform::new,
+        &["P15056", "P15056-2"],
+        &["P15056-0"],
+    )?;
+    constructor_contract(biodata::AminoAcids::new, &["ACDEXUO"], &["ACDE!"])?;
+    constructor_contract(biodata::InterProId::new, &["IPR000001"], &["IPR00001"])?;
+    constructor_contract(biodata::ComplexPortalId::new, &["CPX-1"], &["CPX-01"])?;
+    constructor_contract(biodata::StudyId::new, &["study_1"], &["study/1"])?;
+    constructor_contract(
+        biodata::StudyProfileId::new,
+        &["study_mutations"],
+        &["study/mutations"],
+    )?;
+    constructor_contract(
+        biodata::StudySampleListId::new,
+        &["study_all"],
+        &["study/all"],
+    )?;
+    constructor_contract(biodata::CbioportalCancerTypeId::new, &["brca"], &["brca/"])?;
+    constructor_contract(
+        biodata::StudyResourceId::new,
+        &["resource_1"],
+        &["resource/1"],
+    )?;
+    constructor_contract(
+        biodata::StudyBlobSha::new,
         &["aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"],
         &["AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA"],
     )?;
-    value_contract::<biodata::StudyImportTime>(&["2024-02-29 23:59:59"], &["2023-02-29 23:59:59"])?;
-    value_contract::<biodata::GtrTestId>(&["GTR000000001.1"], &["GTR000000001.0"])?;
-    value_contract::<biodata::WhoProductId>(&["1234-123-12"], &["1234-12-12"])?;
-    value_contract::<biodata::PmaNumber>(&["P000001"], &["P00001"])?;
-    value_contract::<biodata::PmaSupplement>(&["S001"], &["S000"])?;
-    value_contract::<biodata::FdaDrugApplication>(&["NDA000001", "BLA000001"], &["NDA00001"])?;
-    value_contract::<biodata::DiagnosticDeviceId>(
+    constructor_contract(
+        biodata::StudyImportTime::new,
+        &["2024-02-29 23:59:59"],
+        &["2023-02-29 23:59:59"],
+    )?;
+    constructor_contract(
+        biodata::GtrTestId::new,
+        &["GTR000000001.1"],
+        &["GTR000000001.0"],
+    )?;
+    constructor_contract(
+        biodata::WhoProductId::new,
+        &["1234-123-12"],
+        &["1234-12-12"],
+    )?;
+    constructor_contract(biodata::PmaNumber::new, &["P000001"], &["P00001"])?;
+    constructor_contract(biodata::PmaSupplement::new, &["S001"], &["S000"])?;
+    constructor_contract(
+        biodata::FdaDrugApplication::new,
+        &["NDA000001", "BLA000001"],
+        &["NDA00001"],
+    )?;
+    constructor_contract(
+        biodata::DiagnosticDeviceId::new,
         &["P000001/S001", "K000001", "DEN000001", "H000001"],
         &["P000001/S000"],
     )?;
-    value_contract::<biodata::PmaSupplementCell>(&["", "S001"], &["S000"])?;
-    value_contract::<biodata::DeviceRecallNumber>(&["Z-0001-2024"], &["Z-001-2024"])?;
-    value_contract::<biodata::DrugRecallNumber>(&["D-0001-2024"], &["D-001-2024"])?;
+    constructor_contract(biodata::PmaSupplementCell::new, &["", "S001"], &["S000"])?;
+    constructor_contract(
+        biodata::DeviceRecallNumber::new,
+        &["Z-0001-2024"],
+        &["Z-001-2024"],
+    )?;
+    constructor_contract(
+        biodata::DrugRecallNumber::new,
+        &["D-0001-2024"],
+        &["D-001-2024"],
+    )?;
     Ok(())
 }
 
 #[test]
-fn public_text_values_preserve_identity_3() -> Check {
-    value_contract::<biodata::CellosaurusAccession>(&["CVCL_0030"], &["CVCL_030"])?;
-    value_contract::<biodata::CellLineSourceId>(&["ATCC:HTB-26"], &["ATCC:"])?;
-    value_contract::<biodata::ChemblCellId>(&["CHEMBL1"], &["CHEMBL"])?;
+fn author_and_record_vocabularies_preserve_identity() -> Check {
+    constructor_contract(
+        biodata::CellosaurusAccession::new,
+        &["CVCL_0030"],
+        &["CVCL_030"],
+    )?;
+    constructor_contract(biodata::CellLineSourceId::new, &["ATCC:HTB-26"], &["ATCC:"])?;
+    constructor_contract(biodata::ChemblCellId::new, &["CHEMBL1"], &["CHEMBL"])?;
     value_contract::<biodata::SemanticScholarAuthorId>(&["1"], &["01"])?;
     value_contract::<biodata::OrcidId>(&["0000-0002-1825-0097"], &["0000-0002-1825-0098"])?;
     value_contract::<biodata::AuthorId>(
@@ -387,7 +454,7 @@ fn public_text_values_preserve_identity_3() -> Check {
 }
 
 #[test]
-fn public_text_values_preserve_identity_4() -> Check {
+fn scientific_vocabularies_preserve_identity() -> Check {
     value_contract::<biodata::SummarySource>(&["refseq"], &["refseq!"])?;
     value_contract::<biodata::HgncStatus>(&["entry_withdrawn"], &["entry_withdrawn!"])?;
     value_contract::<biodata::LocusType>(
@@ -469,6 +536,84 @@ where
             value.to_string().parse::<T>().as_ref(),
             Ok(&value),
             "display must roundtrip"
+        );
+    }
+    Ok(())
+}
+
+#[test]
+fn source_text_and_markdown_use_their_public_constructors() -> Check {
+    for text in ["", " ", " α\n", "\u{0001}"] {
+        let source = biodata::SourceText::from(text);
+        assert_eq!(
+            source.to_string(),
+            text,
+            "source display must preserve every character"
+        );
+        assert_eq!(
+            serde_json::from_value::<biodata::SourceText>(json!(text))?,
+            source,
+            "source JSON must preserve every character"
+        );
+        let constructed = biodata::Markdown::new(text);
+        let decoded = serde_json::from_value::<biodata::Markdown>(json!(text));
+        assert_eq!(
+            constructed.is_ok(),
+            decoded.is_ok(),
+            "Markdown JSON must run constructor checks"
+        );
+        if let Ok(value) = constructed {
+            assert_eq!(decoded?, value, "Markdown constructor and JSON must agree");
+        }
+    }
+    Ok(())
+}
+
+#[test]
+fn structured_text_values_reject_invalid_native_parts() -> Check {
+    for (text, wire) in [
+        ("1.50e-8", json!({"mantissa":"1.50", "exponent":-8})),
+        ("1e0", json!({"mantissa":"1", "exponent":0})),
+        ("1e1", json!({"mantissa":"1", "exponent":1})),
+        ("0e-8", json!({"mantissa":"0", "exponent":-8})),
+        ("1.e-8", json!({"mantissa":"1.", "exponent":-8})),
+    ] {
+        assert_eq!(
+            text.parse::<biodata::ScientificPValue>().ok(),
+            serde_json::from_value::<biodata::ScientificPValue>(wire).ok(),
+            "probability text and JSON must check the same parts"
+        );
+    }
+    for (text, wire) in [
+        ("WP1", json!({"source":"wikipathways", "id":"WP1"})),
+        ("WP01", json!({"source":"wikipathways", "id":"WP01"})),
+        ("R-HSA-1", json!({"source":"reactome", "id":"R-HSA-1"})),
+        ("R-HSA-01", json!({"source":"reactome", "id":"R-HSA-01"})),
+    ] {
+        assert_eq!(
+            text.parse::<biodata::PathwayId>().ok(),
+            serde_json::from_value::<biodata::PathwayId>(wire).ok(),
+            "pathway JSON must check the native identifier"
+        );
+    }
+    Ok(())
+}
+
+fn constructor_contract<T>(
+    new: fn(&str) -> Result<T, biodata::Error>,
+    valid: &[&str],
+    invalid: &[&str],
+) -> Check
+where
+    T: FromStr + Serialize + DeserializeOwned + Eq + Debug + ToString,
+    T::Err: std::error::Error + 'static,
+{
+    value_contract::<T>(valid, invalid)?;
+    for text in valid.iter().chain(invalid) {
+        assert_eq!(
+            new(text).ok(),
+            text.parse::<T>().ok(),
+            "construction and parsing must check the same input: {text:?}"
         );
     }
     Ok(())
