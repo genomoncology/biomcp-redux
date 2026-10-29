@@ -1,4 +1,4 @@
-//! Source profile values retain identities and relations without allele inference.
+//! Feature: variant-profile-reference. Source profile values retain identities and relations.
 use biodata::{Error, ProfileExpression, ProfileNode, Text, VariantRef};
 use serde_json::json;
 type Check = Result<(), Box<dyn std::error::Error>>;
@@ -103,6 +103,27 @@ fn single_variant_json_keeps_its_existing_form() -> Check {
     assert_eq!(
         serde_json::to_value(value)?,
         json!({"level":"allele","id":"VCV000013961.3"})
+    );
+    Ok(())
+}
+
+#[test]
+fn source_member_preserves_only_source_stated_leaf_forms() -> Check {
+    let allele = VariantRef::allele("CA123".parse()?);
+    let source = VariantRef::source(
+        "civic:1".parse()?,
+        Text::new("feature")?,
+        vec![allele.clone()].into(),
+    )?;
+    assert_eq!(source.forms().collect::<Vec<_>>(), vec![&allele]);
+    assert!(source.id().is_none());
+    assert!(
+        VariantRef::source(
+            "civic:2".parse()?,
+            Text::new("feature")?,
+            vec![source].into()
+        )
+        .is_err()
     );
     Ok(())
 }
