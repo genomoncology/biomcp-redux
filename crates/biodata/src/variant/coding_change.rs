@@ -2,6 +2,10 @@
 //! HGVS 21.1: https://hgvs-nomenclature.org/21.1.3/background/numbering/
 //! https://hgvs-nomenclature.org/21.1.3/recommendations/DNA/substitution/
 //! https://hgvs-nomenclature.org/21.1.3/recommendations/DNA/insertion/
+//! https://hgvs-nomenclature.org/21.1.3/recommendations/DNA/deletion/
+//! https://hgvs-nomenclature.org/21.1.3/recommendations/DNA/duplication/
+//! https://hgvs-nomenclature.org/21.1.3/recommendations/DNA/delins/
+//! Uppercase IUPAC DNA: https://hgvs-nomenclature.org/21.1.3/recommendations/general/
 use crate::{Base, Error, Sequence, text_value};
 use std::{fmt, str::FromStr};
 /// A literal HGVS c. substitution, deletion, duplication, insertion or deletion-insertion.
