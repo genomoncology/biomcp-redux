@@ -4,7 +4,7 @@ story: A caller discovers reply contracts without guessing an identity
 steps:
   - run: [schema]
     expect:
-      /schema: biomcp.schema-catalog/1
+      /schema: biomcp.schema-catalog/2
       /result/schemas/*/id: {includes: biomcp.drug-civic/6}
   - run: [help, get, gene]
     expect:
