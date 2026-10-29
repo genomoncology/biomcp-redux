@@ -43,47 +43,7 @@ impl TryFrom<Fields> for TrialSearch {
         {
             return Err(QueryInvalid::new(&["updated_since", "updated_until"]));
         }
-        if f.facility.is_some() && (f.lat.is_some() || f.lon.is_some() || f.distance.is_some()) {
-            return Err(QueryInvalid::new(&["facility", "lat", "lon", "distance"]));
-        }
-        if [f.lat.is_some(), f.lon.is_some(), f.distance.is_some()]
-            .iter()
-            .filter(|v| **v)
-            .count()
-            % 3
-            != 0
-        {
-            return Err(QueryInvalid::new(&["lat", "lon", "distance"]));
-        }
-        if let (Some(lat), Some(lon), Some(distance)) = (&f.lat, &f.lon, &f.distance) {
-            let lat = lat
-                .as_str()
-                .parse::<f64>()
-                .map_err(|_| QueryInvalid::new(&["lat"]))?;
-            let lon = lon
-                .as_str()
-                .parse::<f64>()
-                .map_err(|_| QueryInvalid::new(&["lon"]))?;
-            let distance = distance
-                .as_str()
-                .strip_suffix("mi")
-                .or_else(|| distance.as_str().strip_suffix("km"))
-                .ok_or_else(|| QueryInvalid::new(&["distance"]))?
-                .parse::<f64>()
-                .map_err(|_| QueryInvalid::new(&["distance"]))?;
-            if !(-90.0..=90.0).contains(&lat) {
-                return Err(QueryInvalid::new(&["lat"]));
-            }
-            if !(-180.0..=180.0).contains(&lon) {
-                return Err(QueryInvalid::new(&["lon"]));
-            }
-            if !distance.is_finite() {
-                return Err(QueryInvalid::new(&["distance"]));
-            }
-            if distance <= 0.0 {
-                return Err(QueryInvalid::new(&["distance"]));
-            }
-        }
+        validate_location(&f)?;
         Ok(Self(Box::new(f)))
     }
 }
@@ -148,6 +108,51 @@ fn validate_source_filters(f: &Fields) -> Result<(), QueryInvalid> {
     }
     if f.phase.as_ref().is_some_and(|v| !v.valid_for(f.source)) {
         return Err(QueryInvalid::new(&["phase", "source"]));
+    }
+    Ok(())
+}
+
+fn validate_location(f: &Fields) -> Result<(), QueryInvalid> {
+    if f.facility.is_some() && (f.lat.is_some() || f.lon.is_some() || f.distance.is_some()) {
+        return Err(QueryInvalid::new(&["facility", "lat", "lon", "distance"]));
+    }
+    if [f.lat.is_some(), f.lon.is_some(), f.distance.is_some()]
+        .iter()
+        .filter(|v| **v)
+        .count()
+        % 3
+        != 0
+    {
+        return Err(QueryInvalid::new(&["lat", "lon", "distance"]));
+    }
+    if let (Some(lat), Some(lon), Some(distance)) = (&f.lat, &f.lon, &f.distance) {
+        let lat = lat
+            .as_str()
+            .parse::<f64>()
+            .map_err(|_| QueryInvalid::new(&["lat"]))?;
+        let lon = lon
+            .as_str()
+            .parse::<f64>()
+            .map_err(|_| QueryInvalid::new(&["lon"]))?;
+        let distance = distance
+            .as_str()
+            .strip_suffix("mi")
+            .or_else(|| distance.as_str().strip_suffix("km"))
+            .ok_or_else(|| QueryInvalid::new(&["distance"]))?
+            .parse::<f64>()
+            .map_err(|_| QueryInvalid::new(&["distance"]))?;
+        if !(-90.0..=90.0).contains(&lat) {
+            return Err(QueryInvalid::new(&["lat"]));
+        }
+        if !(-180.0..=180.0).contains(&lon) {
+            return Err(QueryInvalid::new(&["lon"]));
+        }
+        if !distance.is_finite() {
+            return Err(QueryInvalid::new(&["distance"]));
+        }
+        if distance <= 0.0 {
+            return Err(QueryInvalid::new(&["distance"]));
+        }
     }
     Ok(())
 }
