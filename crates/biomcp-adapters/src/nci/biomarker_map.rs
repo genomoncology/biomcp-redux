@@ -35,11 +35,7 @@ pub(super) fn page(raw: Page) -> Mapped<Vec<BiomarkerCard>> {
                 ),
                 eligibility_criterion: p.optional(
                     "eligibility_criterion",
-                    row.eligibility_criterion.map(|v| {
-                        v.value()
-                            .map(|values| values.into_vec().into_iter().map(Into::into).collect())
-                            .ok_or(())
-                    }),
+                    row.eligibility_criterion.map(|v| v.value().ok_or(())),
                 ),
             };
             problems.extend(p.list);

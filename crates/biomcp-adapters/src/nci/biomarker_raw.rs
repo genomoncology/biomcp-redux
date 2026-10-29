@@ -31,5 +31,5 @@ pub(super) struct Biomarker {
     pub parent_ids: Option<Field<Box<[NcitId]>>>,
     pub ancestor_ids: Option<Field<Box<[NcitId]>>>,
     pub synonyms: Option<Field<Box<[NativeText]>>>,
-    pub eligibility_criterion: Option<Field<Box<[NativeText]>>>,
+    pub eligibility_criterion: Option<Field<Box<[Text]>>>,
 }
