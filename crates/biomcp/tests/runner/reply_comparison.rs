@@ -33,12 +33,16 @@ fn proof() -> Result<(), String> {
         "fetched":1793298499_u64,"source_updated":"2024-09-01","items":[],"retrieved_count":2
     }});
     let mut right = left.clone();
-    *right.pointer_mut("/result/fetched").ok_or("fetched field")? = json!(1793298505_u64);
+    *right
+        .pointer_mut("/result/fetched")
+        .ok_or("fetched field")? = json!(1793298505_u64);
     if !same_reply(&left, &right)? {
         return Err("separate retrieval seconds changed report parity".into());
     }
     for malformed in [json!(-1), json!(1.5), json!("1793298505"), Value::Null] {
-        *right.pointer_mut("/result/fetched").ok_or("fetched field")? = malformed;
+        *right
+            .pointer_mut("/result/fetched")
+            .ok_or("fetched field")? = malformed;
         if same_reply(&left, &right).is_ok() || same_reply(&right, &left).is_ok() {
             return Err("malformed retrieval timestamp was ignored".into());
         }
@@ -71,7 +75,9 @@ fn proof() -> Result<(), String> {
     let mut other = left;
     *other.get_mut("schema").ok_or("schema field")? = json!("unrelated/1");
     right = other.clone();
-    *right.pointer_mut("/result/fetched").ok_or("fetched field")? = json!(1793298505_u64);
+    *right
+        .pointer_mut("/result/fetched")
+        .ok_or("fetched field")? = json!(1793298505_u64);
     if same_reply(&other, &right)? {
         return Err("report parity ignored another schema's field".into());
     }
