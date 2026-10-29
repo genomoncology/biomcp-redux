@@ -1,7 +1,7 @@
 //! Offline test-tool bridge. Each input line contains a batch of source values.
 use biodata::{
     Accession, CaId, ClinVarAlleleId, ClinVarVariationId, Concept, Curie, Doi, DrugId, Expression,
-    GeneSymbol, HgvsText, MondoId, NcbiGeneId, NcitId, Pmid, RcvId, RsId, ScvId, SourceText, Text,
+    GeneSymbol, HgvsText, MondoId, NcbiGeneId, NcitId, NctId, Pmid, RcvId, RsId, ScvId, SourceText, Text,
     VariantId, VariantRef, VcvId,
 };
 use serde::{Deserialize, Serialize};
@@ -54,6 +54,7 @@ fn parse(input: Input) -> Output {
         "ca" => checked::<CaId>(value),
         "mondo" => checked::<MondoId>(value),
         "ncit" => checked::<NcitId>(value),
+        "nct" => checked::<NctId>(value),
         "text" => checked::<Text>(value),
         "source_text" => checked::<SourceText>(value),
         _ => Err("unsupported_value_type".into()),

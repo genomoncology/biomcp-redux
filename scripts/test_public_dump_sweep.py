@@ -41,7 +41,7 @@ class Sweep(unittest.TestCase):
             return result, json.loads(result.stdout) if result.stdout else None
 
     def test_counts_each_row_and_preserves_compound_profile(self):
-        text = ("molecular_profile_id\tmolecular_profile\tvariant_ids\n"
+        text = ("molecular_profile_id\tname\tvariant_ids\n"
                 "9\tBRAF V600E AND NOT KRAS G12D\t12,13\n")
         result, report = self.run_sweep("civic_profiles", text)
         self.assertEqual(result.returncode, 0, result.stderr)
@@ -182,6 +182,19 @@ class Sweep(unittest.TestCase):
         self.assertEqual(report["types"]["hgvs"]["parsed"], 18)
         self.assertEqual(report["types"]["expression"]["parsed"], 4)
         self.assertEqual(report["types"]["gene"]["parsed"], 1)
+
+    def test_official_monthly_civic_headers_and_rows_parse_without_repair(self):
+        folder = ROOT / "tests/fixtures/public-dump-sweep"
+        sources = json.loads((folder / "manifest.json").read_text())["sources"]
+        for source in sources:
+            if not source["kind"].startswith("civic_"):
+                continue
+            with self.subTest(kind=source["kind"]):
+                data = (folder / source["path"]).read_bytes()
+                self.assertEqual(hashlib.sha256(data).hexdigest(), source["sha256"])
+                result, report = self.run_sweep(source["kind"], data.decode())
+                self.assertEqual(result.returncode, 0, result.stderr + str(report))
+                self.assertEqual(report["sources"][0]["records"], 1)
 
 
 if __name__ == "__main__":

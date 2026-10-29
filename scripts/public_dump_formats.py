@@ -26,23 +26,42 @@ def civic(kind, row):
     values = []
     if kind == "civic_variants":
         values += [item("identifier", "civic:" + row["variant_id"]), item("text", row["variant"])]
+        for field in ("feature_name", "variant_types", "vicc_compliant_name", "iscn_name"):
+            if row.get(field):
+                values.append(item("text", row[field]))
+        for field, value_kind in (("entrez_id", "gene_id"), ("allele_registry_id", "ca"), ("ncit_id", "ncit")):
+            if row.get(field):
+                values.append(item(value_kind, row[field]))
+        for identity in parts(row.get("clinvar_ids", "")):
+            values.append(item("clinvar_variation", "clinvar:" + identity))
+        for field, prefix in (("single_variant_molecular_profile_id", "civic.profile:"), ("feature_id", "civic.feature:")):
+            if row.get(field):
+                values.append(item("identifier", prefix + row[field]))
         if row["gene"]:
             values += [item("gene", gene) for gene in parts(row["gene"])]
         values += [item("hgvs", hgvs) for hgvs in parts(row["hgvs_descriptions"])]
-        if row.get("representative_transcript"):
-            values.append(item("accession", row["representative_transcript"]))
+        for field in ("representative_transcript", "5_prime_transcript", "3_prime_transcript"):
+            if row.get(field):
+                values.append(item("accession", row[field]))
     elif kind == "civic_profiles":
         values.append(item("profile", {"level": "profile", "record": "civic:" + row["molecular_profile_id"],
-                                       "label": row["molecular_profile"], "members": []}))
+                                       "label": row["name"], "members": []}))
         values += [item("identifier", "civic:" + identity) for identity in parts(row["variant_ids"])]
+        for field, prefix in (("evidence_item_ids", "civic.evidence:"), ("assertion_ids", "civic.assertion:")):
+            values += [item("identifier", prefix + identity) for identity in parts(row.get(field, ""))]
+        if row.get("summary"):
+            values.append(item("source_text", row["summary"]))
     else:
         values.append(item("identifier", "civic.evidence:" + row["evidence_id"]))
         values.append(item("identifier", "civic:" + row["molecular_profile_id"]))
+        if row.get("molecular_profile"):
+            values.append(item("text", row["molecular_profile"]))
         if row.get("disease"):
             doid = row.get("doid", "")
             values.append(concept("disease", row["disease"], "DOID:" + doid if doid else None))
         for drug in parts(row.get("therapies", "")):
             values.append(concept("drug", drug))
+        values += [item("nct", identity) for identity in parts(row.get("nct_ids", ""))]
         if row.get("citation_id"):
             citation_type = {"PubMed": "citation", "DOI": "doi"}.get(row["source_type"], "text")
             values.append(item(citation_type, row["citation_id"]))
@@ -97,7 +116,7 @@ def clingen(row):
 
 REQUIRED = {
     "civic_variants": {"variant_id", "variant", "gene", "hgvs_descriptions"},
-    "civic_profiles": {"molecular_profile_id", "molecular_profile", "variant_ids"},
+    "civic_profiles": {"molecular_profile_id", "name", "variant_ids"},
     "civic_evidence": {"evidence_id", "molecular_profile_id", "source_type", "citation_id"},
     "clinvar_summary": {"#AlleleID", "VariationID", "Name"},
     "clingen_summary": {"HGNC Gene Symbol", "Disease", "Mondo Id", "HGVS Expressions"},
@@ -142,7 +161,7 @@ SECTIONS = {
 def identity_value(value):
     for prefix, kind in (("clinvar:", "clinvar_variation"), ("VCV", "vcv"), ("RCV", "rcv"),
                          ("SCV", "scv"), ("rs", "rs"), ("CA", "ca"), ("ga4gh:VA.", "variant"),
-                         ("MONDO:", "mondo"), ("NCIT:", "ncit")):
+                         ("MONDO:", "mondo")):
         if value.startswith(prefix):
             return item(kind, value)
     if value.startswith(("pmid:", "PMID:")):
