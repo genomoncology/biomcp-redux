@@ -31,8 +31,12 @@ fn assertions_wire() -> Result<(), String> {
     let value: Value = serde_json::from_slice(&output.stdout).map_err(|e| e.to_string())?;
     if value.pointer("/result/assertions/0/statement/attribution/record")
         != Some(&json!("SCV000611258"))
-        || value.pointer("/result/assertions/0/statement/classification/coding/code")
+        || value.pointer("/result/assertions/0/statement/classification/codings/0/code")
             != Some(&json!("pathogenic"))
+        || value.pointer("/result/assertions/0/statement/strength/codings/0")
+            != Some(&json!({"system":"clinvar_review_status","code":"criteria_provided_single_submitter"}))
+        || value.pointer("/result/assertions/0/statement/allele_origin/codings/0")
+            != Some(&json!({"system":"clinvar_allele_origin","code":"unknown"}))
     {
         return Err(format!("native assertion lost: {value}"));
     }

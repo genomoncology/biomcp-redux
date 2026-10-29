@@ -54,7 +54,7 @@ pub(super) fn evidence(
             direction: &raw.evidence_direction,
             level: Some(Term {
                 label: raw.evidence_level.clone(),
-                coding: code.map(biodata::Coding::CivicEvidenceLevel),
+                codings: code.map(biodata::Coding::CivicEvidenceLevel).into_iter().collect(),
             }),
             classification: classification(&raw.significance),
             disease: raw.disease.as_ref(),
@@ -193,7 +193,7 @@ fn native_claim(row: &Claim<'_>, id: &Text, url: &Text) -> biomcp_types::CivicNa
             .collect(),
         allele_origin: row.origin.map(|label| Term {
             label: label.clone(),
-            coding: None,
+            codings: Box::default(),
         }),
         citations: row.citations.clone(),
         attribution: Attribution {
@@ -248,11 +248,11 @@ fn amp(label: Option<&Text>) -> Option<(Term, Option<Term>)> {
     Some((
         Term {
             label: label.clone(),
-            coding: Some(Coding::AmpAscoCap2017Tier(tier)),
+            codings: Box::new([Coding::AmpAscoCap2017Tier(tier)]),
         },
         level.map(|level| Term {
             label: label.clone(),
-            coding: Some(Coding::AmpAscoCap2017Level(level)),
+            codings: Box::new([Coding::AmpAscoCap2017Level(level)]),
         }),
     ))
 }
@@ -260,7 +260,7 @@ fn amp(label: Option<&Text>) -> Option<(Term, Option<Term>)> {
 fn classification(label: &biodata::SourceText) -> Option<Term> {
     Text::new(label.as_str()).ok().map(|label| Term {
         label,
-        coding: None,
+        codings: Box::default(),
     })
 }
 

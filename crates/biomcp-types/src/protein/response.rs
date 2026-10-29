@@ -28,14 +28,14 @@ page!(
     ProteinPage,
     ProteinHeader,
     ProteinSearch,
-    "biomcp.protein-page/2",
+    "biomcp.protein-page/3",
     "Source-ordered human reviewed protein headers."
 );
 page!(
     ProteinFeatures,
     ProteinFeature,
     ProteinFeaturesQuery,
-    "biomcp.protein-features/2",
+    "biomcp.protein-features/3",
     "Native UniProt feature rows, preserving exact labels and uncertain bounds."
 );
 /// Whole native rows with the independent unfiltered source count.
@@ -77,7 +77,7 @@ page!(
     ProteinComplexMembers,
     ProteinComplexMember,
     ProteinComplexMembersQuery,
-    "biomcp.protein-complex-members/2",
+    "biomcp.protein-complex-members/3",
     "Native participants of one exact containing complex, including non-protein source facts."
 );
 page!(
@@ -96,7 +96,7 @@ pub struct ProteinCard {
     pub items: Box<[ProteinCardItem]>,
 }
 impl ResponseBody for ProteinCard {
-    const SCHEMA: &'static str = "biomcp.protein-card/5";
+    const SCHEMA: &'static str = "biomcp.protein-card/6";
     type Query = ProteinGet;
 }
 /// One requested identity and its source outcome, without first-hit selection.

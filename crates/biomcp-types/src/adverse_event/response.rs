@@ -217,7 +217,7 @@ section!(
     AdverseEventReactions,
     AdverseEventReaction,
     reactions,
-    "biomcp.adverse-event-reactions/2"
+    "biomcp.adverse-event-reactions/3"
 );
 section!(
     AdverseEventDevices,

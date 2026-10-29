@@ -7,8 +7,8 @@ pub(super) fn registry() -> Vec<Contract> {
         AuthorGet => ("author-get-query", "biomcp.author-get-query/2", query),
         Envelope<AuthorPage> => ("author-page", "biomcp.author-page/3"),
         Envelope<AuthorCards> => ("author-card", "biomcp.author-card/4"),
-        Envelope<AuthorPapers> => ("author-papers", "biomcp.author-papers/2"),
-        Envelope<AuthorPaperDetails> => ("author-paper-details", "biomcp.author-paper-details/2"),
+        Envelope<AuthorPapers> => ("author-papers", "biomcp.author-papers/3"),
+        Envelope<AuthorPaperDetails> => ("author-paper-details", "biomcp.author-paper-details/3"),
         Envelope<OrcidWorks> => ("orcid-works", "biomcp.orcid-works/4")
     }
 }

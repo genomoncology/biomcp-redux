@@ -4,17 +4,21 @@ use std::{fmt, str::FromStr};
 /// Checked prefix:local ontology identifier.
 #[derive(Clone, Debug, PartialEq, Eq)]
 pub struct Curie(Box<str>);
+impl Curie {
+    pub(crate) fn qualified_parts(value: &str) -> Option<(&str, &str)> {
+        let (prefix, local) = value.split_once(':')?;
+        (!prefix.is_empty()
+            && !local.is_empty()
+            && prefix.bytes().all(|b| b.is_ascii_alphanumeric() || matches!(b, b'_' | b'-' | b'.'))
+            && !value.chars().any(|c| c.is_whitespace() || c.is_control()))
+            .then_some((prefix, local))
+    }
+}
 impl FromStr for Curie {
     type Err = crate::Error;
     fn from_str(value: &str) -> Result<Self, Self::Err> {
-        let (prefix, local) = value.split_once(':').ok_or(crate::Error::CurieInvalid)?;
-        if prefix.is_empty()
-            || local.is_empty()
-            || !prefix
-                .bytes()
-                .all(|b| b.is_ascii_alphanumeric() || b == b'_' || b == b'-' || b == b'.')
-            || value.chars().any(|c| c.is_whitespace() || c.is_control())
-        {
+        let (_, local) = Self::qualified_parts(value).ok_or(crate::Error::CurieInvalid)?;
+        if local.contains(':') || local.starts_with('/') {
             return Err(crate::Error::CurieInvalid);
         }
         Ok(Self(value.into()))
@@ -29,7 +33,8 @@ crate::text_value!(
     Curie,
     "Curie",
     format!(
-        r"^[A-Za-z0-9_.-]+:[^{}\x00-\x1f\x7f-\x9f]+$",
+        r"^[A-Za-z0-9_.-]+:[^:/{}\x00-\x1f\x7f-\x9f][^:{}\x00-\x1f\x7f-\x9f]*$",
+        crate::schema_pattern::WHITESPACE,
         crate::schema_pattern::WHITESPACE
     ),
     "Checked prefix:local ontology identifier."

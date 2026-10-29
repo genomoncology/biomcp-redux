@@ -223,14 +223,14 @@ pub(super) fn bounded(value: &serde_json::Value) -> Result<(), String> {
     // Full compact synthetic maxima measured by j13382.
     let baseline: usize = match (schema, kind, status) {
         // Native recall mechanism maxima measured by j20265.
-        ("biomcp.diagnostic-page/3", "", "complete") if recall => 760,
-        ("biomcp.diagnostic-page/3", "", "partial") if recall => 922,
-        ("biomcp.diagnostic-page/3", "", "absent") if recall => 399,
+        ("biomcp.diagnostic-page/4", "", "complete") if recall => 760,
+        ("biomcp.diagnostic-page/4", "", "partial") if recall => 922,
+        ("biomcp.diagnostic-page/4", "", "absent") if recall => 399,
         ("biomcp.diagnostic-card/2", "device_recall", "complete") => 924,
         ("biomcp.diagnostic-card/2", "device_recall", "partial") => 773,
         ("biomcp.diagnostic-card/2", "", "failed") if recall => 451,
         // New WHO search view, full compact maximum measured by j13465.
-        ("biomcp.diagnostic-page/3", "", _)
+        ("biomcp.diagnostic-page/4", "", _)
             if value.pointer("/query/source") == Some(&json!("who-ivd")) =>
         {
             2249
@@ -246,8 +246,8 @@ pub(super) fn bounded(value: &serde_json::Value) -> Result<(), String> {
         ("biomcp.diagnostic-companion/2", "", "complete") => 7879,
         ("biomcp.diagnostic-companion/2", "", "failed") => 410,
         ("biomcp.diagnostic-companion/2", "", "partial") => 7035,
-        ("biomcp.diagnostic-genes/3", "", "complete") => 867,
-        ("biomcp.diagnostic-page/3", "", "failed") => 379,
+        ("biomcp.diagnostic-genes/4", "", "complete") => 867,
+        ("biomcp.diagnostic-page/4", "", "failed") => 379,
         ("biomcp.diagnostic-regulatory/1", "", "complete") => 7260,
         ("biomcp.diagnostic-supplements/1", "", "complete") => 1414,
         ("biomcp.error/2", "", "usage") => USAGE_BYTES,

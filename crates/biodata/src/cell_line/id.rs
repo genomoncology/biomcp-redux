@@ -52,7 +52,7 @@ checked!(
 );
 checked!(
     CellLineSourceId,
-    |v: &str| v.parse::<Curie>().is_ok(),
+    |v: &str| Curie::qualified_parts(v).is_some(),
     format!(
         r"^[A-Za-z0-9_.-]+:[^{}\x00-\x1f\x7f-\x9f]+$",
         crate::schema_pattern::WHITESPACE

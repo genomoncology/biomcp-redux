@@ -34,7 +34,7 @@ pub fn records(row: &Annotation) -> Mapped<Vec<Record>> {
                 &mut out.value,
                 row,
                 "oncogenic",
-                Term { label, coding },
+                Term { label, codings: coding.into_iter().collect() },
                 Proposition::Oncogenicity,
                 Vec::new(),
             );
@@ -54,7 +54,7 @@ pub fn records(row: &Annotation) -> Mapped<Vec<Record>> {
                     "mutationEffect.knownEffect",
                     Term {
                         label,
-                        coding: None,
+                        codings: Box::default(),
                     },
                     Proposition::FunctionalImpact,
                     citations,
@@ -130,7 +130,7 @@ fn implications(row: &Annotation, out: &mut Mapped<Vec<Record>>) {
                 .and_then(|s| Text::new(s).ok())
                 .map(|label| Term {
                     label,
-                    coding: None,
+                    codings: Box::default(),
                 }),
         });
     }
@@ -264,7 +264,7 @@ fn level(value: &Text, problems: &mut Vec<Problem>) -> Term {
     };
     Term {
         label: value.clone(),
-        coding: code.map(Coding::OncokbLevel),
+        codings: code.map(Coding::OncokbLevel).into_iter().collect(),
     }
 }
 fn narrative(out: &mut Vec<Record>, field: &str, value: Option<&str>) {
