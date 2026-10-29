@@ -103,7 +103,7 @@ def clinvar_cases(capture, output):
                 '<Classification DateLastEvaluated="not-a-date">')
         replay = output / "replies" / "clinvar" / name
         write_json(replay / "clinvar" / "b0dc08f8b2e327a3cc14eea0aff96c83994e24add7db09654e86e8c3f801b4ae.json", value)
-        path = "/result/assertions/0/statement/attribution"
+        path = "/result/assertions/0/unmapped/attribution"
         expect = {path + "/record": "SCV000965609"}
         if name == "positive":
             expect[path + "/evaluated"] = "2019-05-21"
@@ -126,14 +126,16 @@ def clinvar_cases(capture, output):
             value["exchanges"][0]["body"]["value"] = xml.replace(identity, 'Accession="BAD"')
         replay = output / "replies" / "clinvar" / name
         write_json(replay / "clinvar" / "b0dc08f8b2e327a3cc14eea0aff96c83994e24add7db09654e86e8c3f801b4ae.json", value)
-        expect = {"/result/assertions/*/statement/attribution/record": {
-            "includes_all_of": ["SCV005094146", "RCV000824811", "VCV000666267"],
-        }}
+        native_path = "/result/assertions/*/unmapped/attribution/record"
+        expect = {
+            "/result/assertions/*/statement/attribution/record": {"includes": "SCV005094146"},
+            native_path: {"includes_all_of": ["RCV000824811", "VCV000666267"]},
+        }
         if name == "identity-bad":
-            expect["/result/assertions/*/statement/attribution/record"]["excludes"] = "SCV000965609"
+            expect[native_path]["excludes"] = "SCV000965609"
             expect["/problems/*/field"] = ["Accession"]
         else:
-            expect["/result/assertions/*/statement/attribution/record"]["includes"] = "SCV000965609"
+            expect[native_path]["includes"] = "SCV000965609"
         write_json(output / "cases" / ("clinvar-" + name + ".yaml"), {
             "feature": "variant-assertions", "live_check": "retained public capture",
             "story": "One invalid native SCV identity leaves valid sibling assertions available",
