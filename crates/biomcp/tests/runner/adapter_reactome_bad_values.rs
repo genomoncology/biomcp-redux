@@ -23,6 +23,8 @@ pub(super) fn check() -> Result<(), String> {
             let env = super::super::super::variant::source_environment(&stub)?;
             let args = if section == "summary" {
                 vec!["get", "pathway", "R-HSA-5673001", "summary"]
+            } else if section == "genes" {
+                vec!["pathway", "genes", "R-HSA-5673001", "details"]
             } else {
                 vec!["pathway", section, "R-HSA-5673001"]
             };
