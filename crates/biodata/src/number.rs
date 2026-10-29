@@ -66,6 +66,7 @@ impl From<Fraction> for f64 {
 /// A source number with its explicitly stated unit; missing units stay absent.
 #[derive(Clone, Copy, Debug, PartialEq, Eq, Serialize, Deserialize)]
 #[cfg_attr(feature = "schema", derive(schemars::JsonSchema))]
+#[cfg_attr(feature = "schema", schemars(rename = "WithUnit_{V}_{U}"))]
 pub struct WithUnit<V, U = crate::Text> {
     /// Unchanged numeric source value.
     pub value: V,
