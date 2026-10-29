@@ -196,7 +196,8 @@ fn reopen_and_import(
             .unwrap()
             .1
             .rejections,
-        expected
+        expected,
+        "Reopening retains every rejection"
     );
     drop(reopened);
     let reopened = Fetch::open(FetchConfig {
@@ -209,13 +210,19 @@ fn reopen_and_import(
         .leg(bundle.spec, reopened.deadline(Duration::from_secs(2)))
         .stored_rows(bundle, Find::Exact(KeyKind::Symbol, "GOOD"))
         .unwrap();
-    assert_eq!(imported.rejections, expected);
+    assert_eq!(
+        imported.rejections, expected,
+        "Import retains every rejection"
+    );
     let revalidated = std::thread::scope(|scope| {
         let call = scope.spawn(|| reopened.sync(bundle));
         server.next().respond(304, "", "");
         call.join().unwrap().unwrap()
     });
-    assert_eq!(revalidated.rejections, expected);
+    assert_eq!(
+        revalidated.rejections, expected,
+        "A 304 retains every rejection"
+    );
 }
 
 fn retained_legacy_state(path: &std::path::Path) {
@@ -234,14 +241,16 @@ fn retained_legacy_state(path: &std::path::Path) {
                 }
             )
             .unwrap(),
-        (vec![0, 255], 12, 34)
+        (vec![0, 255], 12, 34),
+        "Migration retains cached reply bytes and timestamps"
     );
     assert_eq!(
         database
             .query_row("SELECT value FROM foreign_data", [], |row| row
                 .get::<_, String>(0))
             .unwrap(),
-        "retained foreign bytes"
+        "retained foreign bytes",
+        "Migration retains foreign tables"
     );
     assert_eq!(
         database
@@ -251,7 +260,8 @@ fn retained_legacy_state(path: &std::path::Path) {
                 |row| row.get::<_, u32>(0)
             )
             .unwrap(),
-        99
+        99,
+        "Migration retains foreign owner metadata"
     );
     assert_eq!(
         database
@@ -261,6 +271,7 @@ fn retained_legacy_state(path: &std::path::Path) {
                 |row| row.get::<_, u32>(0)
             )
             .unwrap(),
-        biomcp_fetch::VERSION
+        biomcp_fetch::VERSION,
+        "Migration updates the transport owner"
     );
 }
