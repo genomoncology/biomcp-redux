@@ -21,7 +21,7 @@ class Sweep(unittest.TestCase):
             folder = Path(temporary)
             data = gzip.compress(content.encode(), mtime=0)
             (folder / "source.gz").write_bytes(data)
-            manifest = {"sources": [{
+            manifest = {"product_revision": "synthetic-product-reply", "sources": [{
                 "kind": kind, "path": "source.gz", "release": "synthetic-edge-sample",
                 "url": "https://example.invalid/public-format-fixture",
                 "rights": "CC0-1.0", "sha256": digest or hashlib.sha256(data).hexdigest(),
@@ -33,6 +33,8 @@ class Sweep(unittest.TestCase):
             if observed is None:
                 command += ["--values-only"]
             else:
+                for row in observed:
+                    row.setdefault("source_sha256", [manifest["sources"][0]["sha256"]])
                 (folder / "observed.jsonl").write_text("\n".join(json.dumps(row) for row in observed))
                 command += ["--observed", str(folder / "observed.jsonl")]
             if limit is not None:
@@ -48,6 +50,35 @@ class Sweep(unittest.TestCase):
         self.assertEqual(report["sources"][0]["records"], 1)
         self.assertEqual(report["types"]["profile"]["parsed"], 1)
         self.assertEqual(report["types"]["identifier"]["parsed"], 2)
+
+    def test_source_values_cannot_disappear_behind_successful_records(self):
+        bundle = {"condition": {"MONDO:0004992": {"id": "MONDO:0004992", "label": "cancer"}},
+                  "therapy": {"therapy:1": {"id": "therapy:1", "label": "drug"}}}
+        result, report = self.run_sweep("clinvar_gks", json.dumps(bundle))
+        self.assertEqual(result.returncode, 0, result.stderr)
+        for kind in ("disease", "drug"):
+            self.assertEqual(report["types"][kind]["parsed"], 1)
+        text = "variant_id\tvariant\tgene\thgvs_descriptions\t5_prime_partner\t3_prime_partner\n1\tFusion\t\t\tBCR\tABL1\n"
+        result, report = self.run_sweep("civic_variants", text)
+        self.assertEqual(report["types"]["gene"]["parsed"], 2)
+
+    def test_native_profile_members_do_not_become_empty_parsed_profiles(self):
+        text = "molecular_profile_id\tname\tvariant_ids\n1\tBCR::ABL1 Fusion\t1\n"
+        result, report = self.run_sweep("civic_profiles", text)
+        self.assertEqual(result.returncode, 1, result.stderr)
+        self.assertEqual(report["types"]["profile"]["parsed"], 0)
+        self.assertEqual(report["types"]["profile"]["unexplained"], 1)
+        self.assertIn("native_member_references", report["refusals"][0]["reason"])
+
+    def test_observation_revision_and_source_hash_must_match_manifest(self):
+        text = "variant_id\tvariant\tgene\thgvs_descriptions\n1\tV600E\tBRAF\t\n"
+        reply = {"items": [{"answer": {"gene": {"symbol": "BRAF"}},
+                             "sections": {"civic": {"data": {"variant_count": 1}}}}]}
+        observation = self.observation("civic", reply)
+        observation["revision"] = "another-product-revision"
+        result, report = self.run_sweep("civic_variants", text, observed=[observation])
+        self.assertEqual(result.returncode, 1, result.stderr)
+        self.assertEqual(report["comparisons"]["failures"]["product_revision_mismatch"], 1)
 
     def test_refusals_do_not_disappear_and_exit_nonzero(self):
         fixture = ROOT / "tests/fixtures/public-dump-sweep/clinvar-edge.tsv"
