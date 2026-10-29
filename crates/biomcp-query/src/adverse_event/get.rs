@@ -107,6 +107,14 @@ fn read(
         let snapshot = store.save_source_snapshot(&key(q), &payload, &out.sources)?;
         (saved, snapshot)
     };
+    render_saved(q, saved, snapshot, out)
+}
+fn render_saved(
+    q: &AdverseEventGet,
+    saved: Saved,
+    snapshot: Text,
+    out: &mut Outcome,
+) -> Result<(), RequestError> {
     out.sources = saved.2.clone();
     out.problems.extend(saved.3.clone());
     out.status = if out
