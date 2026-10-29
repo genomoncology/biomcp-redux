@@ -7,7 +7,7 @@ pub struct TissueNtpm {
     /// Exact source tissue name.
     pub tissue: Text,
     /// Finite nonnegative nTPM.
-    pub ntpm: RnaAbundance,
+    pub ntpm: biodata::WithUnit<RnaAbundance, RnaUnit>,
 }
 /// HPA cancer RNA abundance in protein-coding transcripts per million.
 #[derive(Clone, Debug, PartialEq, Serialize, Deserialize)]
@@ -16,7 +16,7 @@ pub struct CancerPtpm {
     /// Exact source cancer tissue name.
     pub tissue: Text,
     /// Finite nonnegative pTPM.
-    pub ptpm: RnaAbundance,
+    pub ptpm: biodata::WithUnit<RnaAbundance, RnaUnit>,
 }
 /// Gene-level HPA expression and subcellular annotations.
 #[derive(Clone, Debug, PartialEq, Serialize, Deserialize)]
@@ -64,4 +64,14 @@ impl From<RnaAbundance> for f64 {
     fn from(value: RnaAbundance) -> Self {
         value.0.into()
     }
+}
+
+biodata::wire_enum! {
+/// Publisher RNA abundance units.
+RnaUnit {
+    /// Normalized transcripts per million.
+    Ntpm => "nTPM",
+    /// Protein-coding transcripts per million.
+    Ptpm => "pTPM",
+}
 }

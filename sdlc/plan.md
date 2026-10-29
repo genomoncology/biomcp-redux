@@ -55,8 +55,20 @@ Robustness and public-text fixes come first, because the parity run, the docs an
 
 - Rehearse the final candidate on every platform (0293).
 - A fresh agent compares the 0.9.3 and 1.0 CLIs blind on about 20 tasks, and every 1.0 regression is fixed or explained (0402).
-- Run MCP-Bench's BioMCP tasks, and InfoMosaic-Bench's if public, against 0.4.6 and 1.0: tool-call replay first, paid agent runs only after Ian approves their cost (0405).
+- Run MCP-Bench's BioMCP tasks, and InfoMosaic-Bench's if public, against 0.4.6 and 1.0: tool-call replay first, then agent runs as Codex agents through `pi` on Ian's subscription (0405).
 - Check the installed candidate against cBioPortal's 62 numeric agent questions (0462).
 - Ian approves the public append, the 1.0 tag and publication.
 - Append this repository's history to the public repository with one merge commit, keeping old tags and releases (0294).
 - Tag v1.0.0 on that public merge commit, let the release workflow qualify the tag, and have the release operators publish from that run (0294). The installer and Homebrew download from the public repository's release, so the append and tag come before publication.
+
+## After 1.0
+
+Ian's direction of 2026-10-29 (relayed in m14819): BioMCP becomes the data and control plane for precision-medicine context for agents. It reaches FHIR servers and OMOP databases through adapters that turn their replies into BioData values, with no ORM and no hand-written API client. FHIR search and FHIRPath become BioMCP getters, and OHDSI's queries become BioMCP commands. None of this changes 1.0.
+
+- BioData types the small values: codings with source and standard concepts, quantities, times with precision, identifiers and OMOP's concept record. Resource shapes, SQL on FHIR views and query logic stay in BioMCP's adapters, because FHIR R4 to R6 and OMOP 5.3 to 5.4 all stay live.
+- FHIR commands: search and get patient with sections, search observation, condition, medication and encounter, get report, each planned from the server's capability statement with fixed fallbacks and echoed requests, and a sync command that fills an offline store through bulk export.
+- OMOP commands: concept search and hierarchy, concept set resolution, person search and profile, Phenotype Library cohorts, counts and attrition, characteristics, incidence, and database summary and quality, running OHDSI's declarative artifacts (Circe, SqlRender, QueryLibrary, Achilles, DataQualityDashboard) natively in Rust, with OHDSI tools only as reference answers in tests.
+- Open questions for planning: cohort counts break get study's promise to calculate no frequencies; real databases need a minimum cell count (OHDSI's default is 5); and whether linking a FHIR library counts as running another tool.
+- BioData's four experiments (SQL on FHIR views, OHDSI in Rust, FHIR getters on FHIR-AgentBench, and a private GENIE lung cohort round trip) report through BioData's PM before this is planned.
+- Licensed data stays private: GENIE, UMLS, TCGA, JAX-CKB and all other licensed material live only in private repositories, private experiments or our machines, and public ISCN tests share nothing with the ISCN book's examples.
+

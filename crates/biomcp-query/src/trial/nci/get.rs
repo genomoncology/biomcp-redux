@@ -14,7 +14,7 @@ pub(super) struct Snapshot {
     pub(super) sources: Vec<SourceOutcome>,
 }
 fn key(id: biodata::NctId) -> Vec<u8> {
-    Sha256::digest(format!("biomcp.nci_trial_snapshot/2\0{id}").as_bytes()).to_vec()
+    Sha256::digest(format!("biomcp.nci_trial_snapshot/3\0{id}").as_bytes()).to_vec()
 }
 pub(in crate::trial) fn run(cx: &Ctx<'_>, q: &TrialGet) -> Outcome {
     let mut out = empty(QueryBody::NciTrialCards(NciTrialCards {
