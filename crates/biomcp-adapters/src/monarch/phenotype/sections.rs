@@ -48,7 +48,7 @@ pub(super) fn rows(node: &raw::Node, attribution: &Attribution) -> Rows {
             links.extend(rows.as_deref().unwrap_or_default().iter().map(|row| {
                 PhenotypeHierarchyLink {
                     id: row.id.clone(),
-                    label: row.name.clone(),
+                    label: Some(row.name.clone()),
                     relation,
                     attribution: attribution.clone(),
                 }

@@ -20,7 +20,7 @@ pub(super) struct Hit {
     pub label: Option<Field<NativeText>>,
     pub ontology_name: String,
     pub iri: Option<Field<Text>>,
-    pub is_obsolete: Option<bool>,
+    pub is_obsolete: Option<crate::raw::Field<bool>>,
 }
 impl Reply for Search {
     fn check(&self) -> Result<(), BadReply> {
@@ -46,7 +46,7 @@ pub(super) struct Term {
     pub ontology_name: String,
     pub iri: Option<Field<Text>>,
     pub description: Option<Field<Vec<Field<NativeText>>>>,
-    pub is_obsolete: Option<bool>,
+    pub is_obsolete: Option<crate::raw::Field<bool>>,
     pub term_replaced_by: Option<Field<Vec<Field<String>>>>,
     pub annotation: Option<Field<Annotation>>,
     pub synonyms: Option<Field<Vec<Field<NativeText>>>>,

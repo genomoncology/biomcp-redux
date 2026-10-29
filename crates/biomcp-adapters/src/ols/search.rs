@@ -62,7 +62,7 @@ pub fn search(leg: &Leg<'_>, query: &DiseaseSearch) -> Result<SearchPage, Reques
                 label: label.map(Into::into),
             },
             ontology,
-            obsolete: hit.is_obsolete,
+            obsolete: problems.field("is_obsolete", hit.is_obsolete),
         });
     }
     Ok(SearchPage {

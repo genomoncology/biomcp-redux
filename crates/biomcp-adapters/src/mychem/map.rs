@@ -33,7 +33,7 @@ fn components(
             }
         }
     }
-    (hit.id, hit.version, rows)
+    (hit.id, problems.field("_version", hit.version), rows)
 }
 fn name(c: &Component) -> Option<&str> {
     c.name

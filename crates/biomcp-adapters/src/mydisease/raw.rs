@@ -10,7 +10,7 @@ pub(super) struct Document {
     #[serde(rename = "_id")]
     pub id: Curie,
     #[serde(rename = "_version")]
-    pub version: Option<u64>,
+    pub version: Option<crate::raw::Field<u64>>,
     pub mondo: Option<Component>,
     pub disease_ontology: Option<Component>,
 }
@@ -76,7 +76,7 @@ pub(super) struct Component {
     pub synonym: Option<Field<BTreeMap<String, OneOrMany<Field<NativeText>>>>>,
     pub xrefs: Option<Field<BTreeMap<String, OneOrMany<Field<String>>>>>,
     pub parents: Option<Field<Box<[Field<Curie>]>>>,
-    pub is_obsolete: Option<bool>,
+    pub is_obsolete: Option<crate::raw::Field<bool>>,
     pub consider: Option<Field<Box<[Field<Curie>]>>>,
     pub replaced_by: Option<Field<Box<[Field<Curie>]>>>,
 }

@@ -19,7 +19,7 @@ pub struct PhenotypeTermCard {
     pub components: Box<[ComponentLabel]>,
 }
 impl ResponseBody for PhenotypeTermCard {
-    const SCHEMA: &'static str = "biomcp.phenotype-card/3";
+    const SCHEMA: &'static str = "biomcp.phenotype-card/4";
     type Query = PhenotypeGet;
 }
 macro_rules! page {
@@ -48,7 +48,7 @@ page!(
     PhenotypePage,
     PhenotypeHeader,
     PhenotypeSearch,
-    "biomcp.phenotype-search/3",
+    "biomcp.phenotype-search/4",
     "Native HP search header page, without local ranking."
 );
 page!(
@@ -69,7 +69,7 @@ page!(
     PhenotypeHierarchy,
     PhenotypeHierarchyLink,
     PhenotypeGet,
-    "biomcp.phenotype-hierarchy/3",
+    "biomcp.phenotype-hierarchy/4",
     "Direct source hierarchy links without graph traversal."
 );
 macro_rules! associations {

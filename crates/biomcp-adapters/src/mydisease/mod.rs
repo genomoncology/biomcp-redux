@@ -81,10 +81,17 @@ pub fn get(leg: &Leg<'_>, id: &Curie) -> Result<Record, RequestError> {
     {
         components.push(native::component("doid", value));
     }
+    let mut problems = crate::mapped::Problems {
+        source: Source::MyDisease,
+        record: crate::mapped::record(&raw.id),
+        list: Vec::new(),
+    };
+    let version = problems.field("_version", raw.version);
     Ok(Record {
+        problems: problems.list,
         requested_id: id.clone(),
         returned_id: raw.id,
-        version: raw.version,
+        version,
         components: components.into(),
         metadata,
     })
