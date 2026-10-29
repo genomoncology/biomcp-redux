@@ -491,7 +491,6 @@ fn negative_admission_and_json_absence_removal_keep_the_source_answer() {
     absence::legacy_json_absence_removes_a_positive();
 }
 
-
 #[test]
 fn failed_invalidation_removal_cannot_reuse_an_unchecked_stale_entry() {
     let directory = tempfile::tempdir().unwrap();
