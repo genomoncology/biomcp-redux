@@ -39,7 +39,7 @@ fn check() -> Result<(), String> {
             false,
         ),
     ] {
-        let case = json!({"story":"Bind the current gene question", "config":config,
+        let case = json!({"feature":"schema-discovery","story":"Bind the current gene question", "config":config,
             "steps":[{"run":command,"expect":{"/result/symbol":"BRAF"}},
                      {"run":command,"expect":{"/result/symbol":"BRAF"}}]});
         let path = cases.join("shape.yaml");
@@ -120,7 +120,7 @@ fn capture_guards(
         "request_query":{"q":"symbol:\"{symbol}\"","species":"human"}, "capture":""}]);
     let plan = json!({"baseline_release":"0.9.3","cases":[],"shapes":[{
         "command":["get","gene","{symbol}"],"exit":0,"config":null,"declaration":selection}]});
-    let case = json!({"story":"Keep source request identity in the current replay", "replay":"current", "steps":[
+    let case = json!({"feature":"schema-discovery","story":"Keep source request identity in the current replay", "replay":"current", "steps":[
         {"run":["get","gene","TP53"],"expect":{"/result/symbol":"TP53"}},
         {"run":["get","gene","TP53"],"expect":{"/result/symbol":"TP53"}}]});
     let path = fixtures.join("cases/shape.yaml");

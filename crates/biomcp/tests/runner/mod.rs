@@ -8,6 +8,7 @@ mod assertions;
 mod author;
 pub(super) mod case_main;
 mod execution;
+tool_only! { pub(super) mod tools_api; }
 mod features;
 mod orcid;
 tool_only! { pub(super) mod parity; }
@@ -74,7 +75,7 @@ mod key_registration;
 mod key_reload;
 pub(super) mod launch;
 mod litvar_tables;
-pub(crate) mod live;
+tool_only! { pub(crate) mod live; }
 tool_only! { mod live_follow_proof; }
 tool_only! { mod live_proof; }
 mod local_files;
@@ -180,7 +181,8 @@ use std::{collections::BTreeMap, fs, path::Path, sync::Arc};
 #[derive(Debug, Deserialize)]
 #[serde(deny_unknown_fields)]
 struct Case {
-    live_check: Option<String>,
+    #[serde(rename = "live_check")]
+    _live_check: Option<String>,
     feature: String,
     story: String,
     replay: Option<String>,
@@ -542,34 +544,6 @@ mod variant_assertions;
 mod variant_condition_relationship;
 mod variant_discovery;
 
-tool_only! {
-pub(super) fn disease_native(path: &Path) -> Result<(), String> {
-    disease_ols::native(path)
-}
-}
-tool_only! {
-pub(super) fn mydisease_native(path: &Path) -> Result<(), String> {
-    disease_mydisease::native(path)
-}
-}
-tool_only! {
-pub(super) fn seer_native(path: &Path) -> Result<(), String> {
-    disease_seer::native(path)
-}
-}
-
-tool_only! {
-pub(super) fn trial_condition_native(path: &Path) -> Result<(), String> {
-    trial_condition::native(path)
-}
-}
-
-tool_only! {
-pub(super) fn monarch_native(path: &Path) -> Result<(), String> {
-    disease_monarch::native(path)
-}
-}
-
 fn disease_trials() -> Vec<Trial> {
     disease_registry::trials()
         .into_iter()
@@ -584,25 +558,10 @@ fn disease_trials() -> Vec<Trial> {
         .collect()
 }
 
-tool_only! {
-pub(crate) fn faers_search_examples(directory: &std::path::Path) -> Result<(), String> {
-    faers_search::record_examples(directory)
-}
-}
 mod gwas_budgets;
 mod gwas_get;
 mod gwas_search;
-tool_only! {
-pub(super) fn phenotype_native(path: &Path) -> Result<(), String> {
-    phenotype::native(path)
-}
-}
 
-tool_only! {
-pub(super) fn protein_native(path: &Path) -> Result<(), String> {
-    protein_commands::native(path)
-}
-}
 mod wikipathways_genes;
 
 mod reply_readback;

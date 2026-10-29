@@ -23,7 +23,7 @@ fn check() -> Result<(), String> {
         .pointer("/steps/0/expect/~1result~1items~10~1answer~1gene~1summary~1text")
         .ok_or("summary missing")?;
     let pointer = "/result/items/0/answer/gene/summary/text";
-    let case = json!({"story":"A direct summary question", "steps":[{
+    let case = json!({"feature":"schema-discovery","story":"A direct summary question", "steps":[{
         "run":["get","gene","BRAF"], "expect":{pointer:summary}}]});
     fs::write(
         cases.join("braf.yaml"),
@@ -46,7 +46,7 @@ fn check() -> Result<(), String> {
         .map_err(|e| e.to_string())?;
         invoke(&env, &plan_path, projected)?;
     }
-    let sequence = json!({"story":"Ordered commands need a complete execution plan", "steps":[
+    let sequence = json!({"feature":"schema-discovery","story":"Ordered commands need a complete execution plan", "steps":[
         {"run":["get","gene","BRAF"], "expect":{pointer:summary}},
         {"run":["get","gene","BRAF"], "expect":{pointer:summary}}]});
     fs::write(

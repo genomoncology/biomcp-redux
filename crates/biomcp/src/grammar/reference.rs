@@ -143,13 +143,19 @@ fn documentation_generation_preserves_case_bytes() -> Check {
     let cases = copy.path().join("tests/cases");
     fs::create_dir_all(&cases)?;
     let path = cases.join("help.yaml");
-    let original = r#"{"story":"Retained help assertion","steps":[{"run":["help"],"expect":{"/result/description":"Retained assertion"}}]}"#;
-    fs::write(&path, original)?;
+    let mut case: serde_json::Value = serde_saphyr::from_str(&fs::read_to_string(
+        root().join("tests/cases/gene/help.yaml"),
+    )?)?;
+    case.pointer_mut("/steps/0/expect")
+        .and_then(serde_json::Value::as_object_mut)
+        .ok_or("missing help assertions")?
+        .insert(
+            "/result/commands/0/description".into(),
+            "Retained assertion".into(),
+        );
+    let original = serde_json::to_vec(&case)?;
+    fs::write(&path, &original)?;
     generate(copy.path())?;
-    assert_eq!(
-        fs::read_to_string(path)?,
-        original,
-        "docs generation changed a case"
-    );
+    assert_eq!(fs::read(path)?, original, "docs generation changed a case");
     Ok(())
 }

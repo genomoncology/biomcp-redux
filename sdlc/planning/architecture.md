@@ -1866,11 +1866,10 @@ Tests are outside-in, as `decisions/2026-10-23-outside-in-tests-and-one-small-ru
 
 ### 10.1 The runner
 
-`crates/biomcp/tests/cases.rs` is one integration test target with `harness = false`. It uses `libtest-mimic` to turn each YAML file under `tests/cases/` into a named test, so Cargo's filter and parallel run work per case. It runs the binary Cargo built for the test.
+`crates/biomcp/tests/cases.rs` is one behavior integration test target with `harness = false`. Explicit parity, live checks, measurements, native proofs and generation use `crates/biomcp/tests/tools.rs`, whose target has `test = false` and `harness = false`. It uses `libtest-mimic` to turn each YAML file under `tests/cases/` into a named test, so Cargo's filter and parallel run work per case. It runs the binary Cargo built for the test.
 
 ```yaml
 feature: article-search
-covers: [search article, --gene, --variant, --offset, --pool]
 story: AKT1 E17K leads to the 2007 discovery paper and keeps every plain PubMed hit
 harvest: paper PMID 17611497
 verified: 2026-10-23 live PubMed ESearch with sort=relevance

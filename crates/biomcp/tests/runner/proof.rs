@@ -7,7 +7,7 @@ tool_only! { use std::env; }
 
 tool_only! { #[path = "fixture_evidence_proof.rs"] mod fixture_evidence_proof; }
 
-type Check = Result<(), String>;
+tool_only! { type Check = Result<(), String>; }
 
 tool_only! {
 pub(crate) fn trials() -> Vec<Trial> {

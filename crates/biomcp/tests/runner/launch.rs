@@ -150,6 +150,7 @@ pub(super) fn fixture_text(relative: &str) -> Result<String, String> {
     fs::read_to_string(&path).map_err(|e| format!("{}: {e}", path.display()))
 }
 
+tool_only! {
 #[expect(
     clippy::disallowed_methods,
     reason = "The launcher owns copied fixture selection"
@@ -160,6 +161,8 @@ pub(super) fn support() -> std::path::PathBuf {
     } else {
         checkout().join("../..")
     }
+}
+
 }
 
 // Feature ownership travels with the runner when installed fixtures are copied.

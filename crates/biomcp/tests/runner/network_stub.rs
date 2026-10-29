@@ -19,12 +19,14 @@ use std::{
 
 type Requests = Vec<(String, String)>;
 
+tool_only! {
 #[derive(Clone)]
 pub(super) struct RecordedReply {
     pub(super) status: u16,
     pub(super) content_type: String,
     pub(super) body: Vec<u8>,
     pub(super) delay_ms: u64,
+}
 }
 pub(super) struct Stub {
     pub(super) address: std::net::SocketAddr,
@@ -178,6 +180,7 @@ impl Stub {
     }
     // Released clients can ignore system proxies. An explicit endpoint override
     // reaches this peer directly and gives its logical source sole ownership.
+    tool_only! {
     pub(super) fn loopback(
         host: String,
         mut reply: impl FnMut(&str, &str) -> Result<RecordedReply, String> + Send + 'static,
@@ -218,6 +221,7 @@ impl Stub {
             evidence,
             worker: Some(worker),
         })
+    }
     }
     pub(super) fn finish(mut self) -> Result<Vec<(String, String)>, String> {
         let _ = self.stop.send(());

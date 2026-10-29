@@ -92,15 +92,15 @@ fn native_proof() -> Option<ExitCode> {
     let run = match mode.as_str() {
         "--cell-line-xrefs" => runner::cell_line::generate_xrefs,
         "--cell-line-examples" => runner::cell_line::generate_examples,
-        "--faers-search-synthetic-examples" => runner::faers_search_examples,
-        "--seer-native-proof" => runner::seer_native,
-        "--trial-condition-native-proof" => runner::trial_condition_native,
-        "--monarch-native-proof" => runner::monarch_native,
-        "--phenotype-native-proof" => runner::phenotype_native,
-        "--protein-native-proof" => runner::protein_native,
+        "--faers-search-synthetic-examples" => runner::tools_api::faers_search_examples,
+        "--seer-native-proof" => runner::tools_api::seer_native,
+        "--trial-condition-native-proof" => runner::tools_api::trial_condition_native,
+        "--monarch-native-proof" => runner::tools_api::monarch_native,
+        "--phenotype-native-proof" => runner::tools_api::phenotype_native,
+        "--protein-native-proof" => runner::tools_api::protein_native,
 
-        "--mydisease-native-proof" => runner::mydisease_native,
-        "--disease-native-proof" => runner::disease_native,
+        "--mydisease-native-proof" => runner::tools_api::mydisease_native,
+        "--disease-native-proof" => runner::tools_api::disease_native,
         _ => return None,
     };
     Some(
