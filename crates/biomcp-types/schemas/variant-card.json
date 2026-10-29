@@ -5545,7 +5545,10 @@
       "required": [
         "input"
       ],
-      "type": "object"
+      "type": "object",
+      "x-reply-query-titles": [
+        "VariantGetQuery"
+      ]
     },
     "VariantGetQuery": {
       "description": "Variant request with any assembly default that changed the source request.",
@@ -5662,7 +5665,10 @@
       "required": [
         "input"
       ],
-      "type": "object"
+      "type": "object",
+      "x-reply-query-titles": [
+        "VariantGetQuery"
+      ]
     },
     "VariantGwas": {
       "description": "One page of exact rsID catalog associations.",

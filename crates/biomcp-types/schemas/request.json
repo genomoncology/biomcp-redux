@@ -3576,7 +3576,10 @@
         "command",
         "input"
       ],
-      "type": "object"
+      "type": "object",
+      "x-reply-query-titles": [
+        "VariantGetQuery"
+      ]
     },
     {
       "additionalProperties": false,

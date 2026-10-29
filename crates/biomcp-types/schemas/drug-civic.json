@@ -2264,7 +2264,10 @@
       "required": [
         "input"
       ],
-      "type": "object"
+      "type": "object",
+      "x-reply-query-titles": [
+        "VariantGetQuery"
+      ]
     },
     "VariantId": {
       "description": "Published variant-level identifiers, with each identifier's level retained.",

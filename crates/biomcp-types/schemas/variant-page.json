@@ -5519,7 +5519,10 @@
       "required": [
         "input"
       ],
-      "type": "object"
+      "type": "object",
+      "x-reply-query-titles": [
+        "VariantGetQuery"
+      ]
     },
     "VariantGwas": {
       "description": "One page of exact rsID catalog associations.",
