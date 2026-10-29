@@ -162,6 +162,7 @@ def collect(args):
                   baseline_phases=[])
     seen = set()
     elapsed = []
+    interrupted = False
     for index in range(value['shards']):
         output = args.plan.parent / ('shard-' + str(index))
         command = output / 'command.json'
@@ -172,6 +173,7 @@ def collect(args):
         if invocation['candidate'] != value['candidate']:
             raise ValueError('Shard candidate differs from plan')
         elapsed.append(invocation['ended'])
+        interrupted |= invocation['exit'] is None
         if invocation['exit'] not in (None, 0, 2, 3):
             report['errors'].append(f"Shard {index} exited {invocation['exit']}")
         outcomes = output / 'mutants.out/outcomes.json'
@@ -182,6 +184,8 @@ def collect(args):
             add_outcomes(rows, value, report, seen)
         elif invocation['exit'] is not None:
             report['errors'].append(f'Shard {index} has no native outcomes')
+    if not interrupted and not report['errors'] and set(value['selected']) - seen:
+        report['errors'].append('Native shards omitted selected mutant outcomes')
     report['unrun'] = [name for name in value['inventory'] if name not in seen]
     report['completed'] = sum(len(report[key]) for key in ('caught', 'survivors', 'unviable'))
     report['elapsed_seconds'] = max(0, max(elapsed, default=value['started']) - value['started'])

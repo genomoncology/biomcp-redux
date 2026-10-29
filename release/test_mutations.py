@@ -36,7 +36,10 @@ if mode == 'baseline-failure':
     outcomes = [baseline]
 else:
     outcomes = [baseline]
-    for mutant, summary in zip(selected, ['CaughtMutant', 'MissedMutant', 'Unviable', 'Timeout']):
+    summaries = ['CaughtMutant', 'MissedMutant', 'Unviable', 'Timeout']
+    if mode not in ('interrupted', 'omitted'):
+        summaries.extend(['CaughtMutant'] * (len(selected) - len(summaries)))
+    for mutant, summary in zip(selected, summaries):
         outcomes.append(dict(scenario=dict(Mutant=mutant), summary=summary,
                              phase_results=[phase(2)]))
 (output / 'outcomes.json').write_text(json.dumps(dict(outcomes=outcomes)))
@@ -129,8 +132,8 @@ class MutationCommands(unittest.TestCase):
         self.call('collect', '--plan', self.plan)
         report = self.report()
         self.assertEqual([len(report[k]) for k in ('caught', 'survivors', 'unviable', 'timeouts', 'unrun')],
-                         [1, 1, 1, 1, 20])
-        self.assertEqual(report['completed'], 3)
+                         [17, 1, 1, 1, 4])
+        self.assertEqual(report['completed'], 19)
         self.assertFalse(report['calibration_complete'])
         self.assertEqual(report['baseline_seconds'], 40)
         self.assertEqual(report['candidate'], self.git('rev-parse', 'HEAD').stdout.strip())
@@ -143,6 +146,13 @@ class MutationCommands(unittest.TestCase):
         self.assertEqual(run['args'][run['args'].index('--test-package') + 1], 'biomcp')
         self.assertEqual(run['args'][run['args'].index('--baseline') + 1], 'run')
         self.assertEqual((run['build'], run['tests']), ('2', '2'))
+
+    def test_native_exit_cannot_hide_missing_selected_outcomes(self):
+        self.prepare('--measure')
+        self.env['FAKE_MODE'] = 'omitted'
+        self.call('shard', '--plan', self.plan, '--index', 0)
+        self.call('collect', '--plan', self.plan, ok=False)
+        self.assertIn('omitted selected', ' '.join(self.report()['errors']))
 
     def test_failed_baseline_and_missing_shards_are_errors(self):
         self.prepare('--measure', '--shards', 2)
