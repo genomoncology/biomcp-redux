@@ -46,7 +46,13 @@ fn generate<T: JsonSchema>() -> Value {
 
 macro_rules! contracts {
         ($($ty:ty => ($name:literal, $id:expr $(, $kind:ident)?)),+ $(,)?) => {
-            vec![$(Contract { kind: contracts!(@kind $($kind)?), name: $name, id: $id, rust_type: std::any::type_name::<$ty>(), generate: contracts!(@generate $ty $(, $kind)?) }),+]
+            vec![$(Contract {
+                kind: contracts!(@kind $($kind)?),
+                name: $name,
+                id: $id,
+                rust_type: std::any::type_name::<$ty>(),
+                generate: contracts!(@generate $ty $(, $kind)?),
+            }),+]
         };
         (@generate $ty:ty, query) => { crate::generation::query::<$ty> };
         (@generate $ty:ty) => { crate::generation::reply::<$ty> };
