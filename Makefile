@@ -54,6 +54,8 @@ docs-check:
 	python3 release/tools.py
 	python3 -m unittest release.test_tools release.test_linux
 	python3 scripts/check_docs.py
+	python3 scripts/article_licenses.py
+	python3 scripts/test_article_licenses.py
 	python3 scripts/test_docs.py
 	python3 scripts/test_source_capture.py
 	python3 scripts/test_source_capture_plan.py
