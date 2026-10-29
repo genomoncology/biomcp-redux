@@ -72,11 +72,8 @@ impl<const N: usize> Reply for Genes<N> {
 #[derive(Debug, Deserialize)]
 pub(super) struct Gene {
     pub gene_id: String,
-    #[serde(deserialize_with = "nullable")]
     pub canonical_transcript_id: Option<Field<String>>,
-    #[serde(deserialize_with = "nullable")]
     pub mane_select_transcript: Option<Field<Mane>>,
-    #[serde(deserialize_with = "nullable")]
     pub gnomad_constraint: Option<Field<Constraint>>,
 }
 #[derive(Debug, Deserialize)]
@@ -138,10 +135,4 @@ pub(super) struct Constraint {
     pub mis_z: Option<Field<FiniteNumber>>,
     pub syn_z: Option<Field<FiniteNumber>>,
     pub flags: Option<Field<Vec<Field<String>>>>,
-}
-
-fn nullable<'de, T: Deserialize<'de>, D: serde::Deserializer<'de>>(
-    d: D,
-) -> Result<Option<T>, D::Error> {
-    Option::<T>::deserialize(d)
 }
