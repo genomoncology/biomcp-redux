@@ -143,6 +143,14 @@ class Sweep(unittest.TestCase):
         self.assertEqual(report["types"]["profile"]["unexplained"], 1)
         self.assertEqual(report["full_report"]["profile_refusals"],
                          [{"profile_id": "civic:10", "reason": "profile_companion_not_in_monthly_input"}])
+        self.assertTrue(report["profile_companion_comparison_complete"])
+        profiles += "10\t" + nodes[0]["name"] + "\t12,13\n"
+        result, report = self.run_sweep("civic_profiles", profiles, variant_content=variants,
+                                        profile_capture=capture, limit=1)
+        self.assertEqual(result.returncode, 1, result.stderr)
+        self.assertFalse(report["complete"])
+        self.assertFalse(report["profile_companion_comparison_complete"])
+        self.assertNotIn("profile_companion_not_in_monthly_input", report["refusal_reasons"])
 
     def test_profile_companion_requires_exact_provenance_and_feature_identity(self):
         profiles, variants, capture = self.profile_inputs()

@@ -15,8 +15,10 @@ rawName and variants [{id,name,feature:{id,name}}]. source_sha256 must be the
 sorted exact hashes of all target profile and variant TSVs. API retrieval remains
 separate from the monthly release. Members and feature identities must match
 those TSVs exactly. Only Rust parses rawName; display names are never grammar.
-Missing/ambiguous companions and inconsistent members fail by profile ID and
+Missing/ambiguous companions, extra companion IDs and inconsistent members fail by profile ID and
 cannot be waived. --output retains every profile refusal; stdout is bounded.
+Partial runs mark the companion comparison incomplete and do not infer that
+companion IDs are absent from unvisited monthly rows.
 Use --observed with saved CLI envelopes as JSONL: {source, release, revision,
 retrieved, source_sha256, record, reply}. The manifest must name product_revision.
 The observation revision and sorted source_sha256 list must match these inputs. Source is civic or clinvar; ClinVar record is its
@@ -163,6 +165,7 @@ class Sweep:
     def report(self):
         return {"complete": self.complete, "sources": self.sources,
                 "profile_refusals": self.profile_refusals,
+                "profile_companion_comparison_complete": self.complete,
                 "profile_companion_provenance": self.profiles.provenance,
                 "types": {kind: {key: counts[key] for key in ("parsed", "refused", "explained", "unexplained")}
                           for kind, counts in sorted(self.types.items())},
@@ -184,6 +187,11 @@ def run(args):
             sweep = Sweep(bridge, profiles)
             for source, path in sources:
                 sweep.read(source, path, args.max_records)
+            if sweep.complete:
+                for (identity,) in profiles.unmatched():
+                    sweep.parse([{"kind": "profile", "value": "civic:" + identity,
+                                  "mapping_reason": "profile_companion_not_in_monthly_input"}],
+                                {}, "civic:" + identity)
             bridge.stdin.close()
             if bridge.wait() != 0:
                 raise ValueError("value_bridge_failed")

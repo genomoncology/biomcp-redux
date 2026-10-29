@@ -41,6 +41,7 @@ class ProfileCompanions:
         self.db.execute("CREATE INDEX variant_id ON variants(release,id)")
         self.db.execute("CREATE TABLE profiles (id TEXT, value TEXT, reason TEXT)")
         self.db.execute("CREATE INDEX profile_id ON profiles(id)")
+        self.db.execute("CREATE TABLE monthly_profiles (id TEXT PRIMARY KEY)")
         self.provenance = []
         self.invalid = None
         try:
@@ -100,6 +101,7 @@ class ProfileCompanions:
     def resolve(self, original, release):
         value = original["value"]
         identity = value["record"].removeprefix("civic:")
+        self.db.execute("INSERT OR IGNORE INTO monthly_profiles VALUES (?)", (identity,))
         rows = self.db.execute("SELECT value,reason FROM profiles WHERE id=?", (identity,)).fetchall()
         reason = self.invalid
         if not tsv_id(identity):
@@ -115,6 +117,10 @@ class ProfileCompanions:
         if reason:
             result["mapping_reason"] = reason
         return result
+
+    def unmatched(self):
+        """List companion identities absent from the complete monthly input."""
+        return self.db.execute("SELECT DISTINCT id FROM profiles WHERE id NOT IN (SELECT id FROM monthly_profiles) ORDER BY id")
 
     def match(self, value, node, release):
         members = node.get("variants")
