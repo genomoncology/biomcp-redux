@@ -1600,7 +1600,7 @@
       "description": "One source-named component upload timestamp.",
       "properties": {
         "date": {
-          "$ref": "#/$defs/Reply_SourceTimestamp",
+          "$ref": "#/$defs/Reply_SourceDateTime",
           "description": "Unchanged source timestamp."
         },
         "name": {
@@ -4529,6 +4529,29 @@
         "cellosaurus"
       ]
     },
+    "Reply_SourceDateTime": {
+      "description": "Native timestamp with the existing explicit timezone disclosure.",
+      "properties": {
+        "timezone": {
+          "$ref": "#/$defs/Reply_SourceTimestampTimezone",
+          "description": "Whether the native timestamp states its timezone."
+        },
+        "value": {
+          "$ref": "#/$defs/Reply_SourceDateTimeValue",
+          "description": "Unchanged checked source text."
+        }
+      },
+      "required": [
+        "value",
+        "timezone"
+      ],
+      "type": "object"
+    },
+    "Reply_SourceDateTimeValue": {
+      "description": "Checked source timestamp preserving fractional precision and explicit or missing timezone. The parser additionally validates calendar days and zoned UTC leap-second positions.",
+      "pattern": "(?:^(?!0000)[0-9]{4}-(0[1-9]|1[0-2])-(0[1-9]|[12][0-9]|3[01])[Tt]([01][0-9]|2[0-3]):[0-5][0-9]:([0-5][0-9]|60)(\\.[0-9]+)?([Zz]|[+-]([01][0-9]|2[0-3]):[0-5][0-9])(?![\\s\\S]))|(?:^(?!0000)[0-9]{4}-(0[1-9]|1[0-2])-(0[1-9]|[12][0-9]|3[01])[Tt]([01][0-9]|2[0-3]):[0-5][0-9]:([0-5][0-9]|60)(\\.[0-9]+)?(?![\\s\\S]))",
+      "type": "string"
+    },
     "Reply_SourceNotice": {
       "description": "A source notice or request recovery step.",
       "oneOf": [
@@ -4690,15 +4713,6 @@
             "null"
           ]
         },
-        "fetched": {
-          "description": "Retrieved identity depth.",
-          "format": "uint32",
-          "minimum": 0,
-          "type": [
-            "integer",
-            "null"
-          ]
-        },
         "notices": {
           "description": "Source notices and request recovery guidance.",
           "items": {
@@ -4716,6 +4730,15 @@
             }
           ],
           "description": "Failure or stale-fallback reason."
+        },
+        "retrieved_count": {
+          "description": "Number of retrieved identities.",
+          "format": "uint32",
+          "minimum": 0,
+          "type": [
+            "integer",
+            "null"
+          ]
         },
         "source": {
           "$ref": "#/$defs/Reply_Source",
@@ -4794,24 +4817,6 @@
         "skipped"
       ],
       "type": "string"
-    },
-    "Reply_SourceTimestamp": {
-      "description": "Native source timestamp and the availability of its timezone.",
-      "properties": {
-        "timezone": {
-          "$ref": "#/$defs/Reply_SourceTimestampTimezone",
-          "description": "Whether the native timestamp includes a timezone."
-        },
-        "value": {
-          "$ref": "#/$defs/Reply_Text",
-          "description": "Exact source-supplied timestamp."
-        }
-      },
-      "required": [
-        "value",
-        "timezone"
-      ],
-      "type": "object"
     },
     "Reply_SourceTimestampTimezone": {
       "description": "Availability of timezone information in a native timestamp.",
@@ -5358,15 +5363,36 @@
       "description": "Metadata for a component carried by an aggregator.",
       "properties": {
         "aggregator_build": {
-          "$ref": "#/$defs/Reply_Text",
+          "anyOf": [
+            {
+              "$ref": "#/$defs/Reply_Text"
+            },
+            {
+              "type": "null"
+            }
+          ],
           "description": "Aggregator build version."
         },
         "aggregator_built": {
-          "$ref": "#/$defs/Reply_Text",
+          "anyOf": [
+            {
+              "$ref": "#/$defs/Reply_SourceDateTimeValue"
+            },
+            {
+              "type": "null"
+            }
+          ],
           "description": "Aggregator build timestamp, distinct from a component release."
         },
         "license": {
-          "$ref": "#/$defs/Reply_Text",
+          "anyOf": [
+            {
+              "$ref": "#/$defs/Reply_Text"
+            },
+            {
+              "type": "null"
+            }
+          ],
           "description": "Component license URL, without any inferred grant.",
           "format": "uri"
         },
@@ -5392,7 +5418,7 @@
         "uploaded": {
           "anyOf": [
             {
-              "$ref": "#/$defs/Reply_Text"
+              "$ref": "#/$defs/Reply_SourceDateTimeValue"
             },
             {
               "type": "null"
@@ -5421,10 +5447,7 @@
       },
       "required": [
         "terms",
-        "name",
-        "license",
-        "aggregator_build",
-        "aggregator_built"
+        "name"
       ],
       "type": "object"
     },
@@ -6425,7 +6448,7 @@
       "type": "object"
     }
   },
-  "$id": "biomcp.variant-card/12",
+  "$id": "biomcp.variant-card/13",
   "$schema": "https://json-schema.org/draft/2020-12/schema",
   "description": "One versioned command response; schema identity comes only from its body type.\nJSON readers ignore unknown fields and unknown growable enum values within a major.",
   "properties": {
@@ -6481,7 +6504,7 @@
       "description": "Answer when available."
     },
     "schema": {
-      "const": "biomcp.variant-card/12",
+      "const": "biomcp.variant-card/13",
       "type": "string"
     },
     "sources": {
