@@ -2,6 +2,8 @@
 use biodata::*;
 use serde_json::json;
 use std::{collections::HashSet, fmt::Debug, hash::Hash, str::FromStr};
+#[path = "rust_api/ids.rs"]
+mod ids;
 type Check = Result<(), Box<dyn std::error::Error>>;
 
 #[test]
