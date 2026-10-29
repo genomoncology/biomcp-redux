@@ -95,41 +95,57 @@ pub(super) fn failure(name: &'static str) -> Check {
     Ok(())
 }
 fn mapped(name: &str, env: &Environment, stub: Stub, mut args: Vec<String>) -> Check {
-        let value = invoke(env, args.clone(), 0)?;
-        if value.pointer("/sources/0/state") != Some(&json!("ok")) {
-            return Err(format!("one field rejected the native page: {value}"));
-        }
-        if name != "unknown-field"
-            && (value.pointer("/problems/0/field") != Some(&json!("record"))
-                || value.pointer("/result/items/0").is_some())
-        {
-            return Err(format!(
-                "wrong identity leaked from the native page: {value}"
-            ));
-        }
-        if name == "wrong-gene" { continue_page(env, &value)?; }
-        *args.get_mut(0).ok_or("record switch")? = "--replay".into();
-        let replay_env = Environment::new().map_err(|e| e.to_string())?;
-        let repeated = both(&replay_env, args, 0)?;
-        if repeated.get("result") != value.get("result")
-            || repeated.get("problems") != value.get("problems")
-        {
-            return Err("native row filtering changed on replay".into());
-        }
-        stub.finish()?;
-        Ok(())
+    let value = invoke(env, args.clone(), 0)?;
+    if value.pointer("/sources/0/state") != Some(&json!("ok")) {
+        return Err(format!("one field rejected the native page: {value}"));
+    }
+    if name != "unknown-field"
+        && (value.pointer("/problems/0/field") != Some(&json!("record"))
+            || value.pointer("/result/items/0").is_some())
+    {
+        return Err(format!(
+            "wrong identity leaked from the native page: {value}"
+        ));
+    }
+    if name == "wrong-gene" {
+        continue_page(env, &value)?;
+    }
+    *args.get_mut(0).ok_or("record switch")? = "--replay".into();
+    let replay_env = Environment::new().map_err(|e| e.to_string())?;
+    let repeated = both(&replay_env, args, 0)?;
+    if repeated.get("result") != value.get("result")
+        || repeated.get("problems") != value.get("problems")
+    {
+        return Err("native row filtering changed on replay".into());
+    }
+    stub.finish()?;
+    Ok(())
 }
 fn continue_page(env: &Environment, value: &Value) -> Check {
-    let command = value.get("next").and_then(Value::as_array).ok_or("missing steps")?.iter()
+    let command = value
+        .get("next")
+        .and_then(Value::as_array)
+        .ok_or("missing steps")?
+        .iter()
         .find(|step| step.get("kind") == Some(&json!("page")))
-        .and_then(|step| step.get("args")).and_then(Value::as_array).ok_or("missing native page step")?.iter()
-        .map(|arg| arg.as_str().map(str::to_owned).ok_or("invalid page argument"))
+        .and_then(|step| step.get("args"))
+        .and_then(Value::as_array)
+        .ok_or("missing native page step")?
+        .iter()
+        .map(|arg| {
+            arg.as_str()
+                .map(str::to_owned)
+                .ok_or("invalid page argument")
+        })
         .collect::<Result<Vec<_>, _>>()?;
     let second = invoke(env, command, 0)?;
     if second.pointer("/result/items/0/pairid") != Some(&json!(2))
         || second.pointer("/result/page/returned") != Some(&json!(1))
-        || second.pointer("/result/page/offset") != Some(&json!(1)) {
-        return Err(format!("native continuation skipped or repeated a row: {second}"));
+        || second.pointer("/result/page/offset") != Some(&json!(1))
+    {
+        return Err(format!(
+            "native continuation skipped or repeated a row: {second}"
+        ));
     }
     Ok(())
 }

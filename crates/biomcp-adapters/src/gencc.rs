@@ -84,6 +84,8 @@ pub(crate) fn bundle_state(leg: &Leg<'_>) -> Result<biomcp_types::LocalBundleSta
 struct Submission {
     gene_curie: Option<Field<HgncId>>,
     gene_symbol: Option<Field<GeneSymbol>>,
+    // The export identifies submissions by sgc_id and version_number.
+    // https://thegencc.org/download
     sgc_id: Option<Field<Text>>,
     version_number: Option<Field<Text>>,
     disease_curie: Option<Field<Text>>,

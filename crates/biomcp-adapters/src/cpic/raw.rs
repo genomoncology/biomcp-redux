@@ -1,4 +1,6 @@
 //! Native fields retain source spellings and independent error boundaries.
+// Native keys and applicability joins follow the publisher's schema and views.
+// https://github.com/cpicpgx/cpic-data/tree/main/src/main/resources/db/migration
 use crate::pgx_sources::pgx_row;
 use biodata::{
     ClinPgxAccession, Curie, EnsemblGeneId, GeneSymbol, HgncId, NcbiGeneId, PgxGeneKey, Pmid,

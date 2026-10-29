@@ -1,6 +1,6 @@
 //! Feature cpic-pgx: synthetic native retrieval through the actual CLI and MCP.
-mod rows;
 mod failures;
+mod rows;
 use super::{configuration::invoke, launch::Environment, network_stub::Stub};
 use crate::runner::transcript::trial as transcript_trial;
 use libtest_mimic::Trial;

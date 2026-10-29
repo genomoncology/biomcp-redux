@@ -27,7 +27,7 @@ pub struct VariantAssertion {
     pub kind: AssertionKind,
     /// Source classification domain.
     pub domain: AssertionDomain,
-    /// Native category has no approved common-model proposition.
+    /// The native conclusion has no common-model statement.
     #[serde(default, skip_serializing_if = "is_false")]
     pub statement_unmapped: bool,
     /// Supported mapping into the common model.
@@ -49,11 +49,11 @@ impl VariantAssertion {
             .or_else(|| self.unmapped.as_ref().map(|s| &s.attribution))
     }
 }
-/// Source classification retained when its category has no approved shared proposition.
+/// Source conclusion and provenance retained without a shared statement.
 #[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
 #[cfg_attr(feature = "schema", derive(schemars::JsonSchema))]
 pub struct UnmappedAssertion {
-    /// Unchanged source label.
+    /// Unchanged source label, when valid and supplied.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub classification: Option<Text>,
     /// Original record provenance.

@@ -130,36 +130,36 @@ fn fixture(name: &'static str, shape: &str) -> Result<Stub, String> {
 }
 
 fn mapped(name: &str, env: &Environment, stub: Stub, mut command: Vec<String>) -> Check {
-        let value = invoke(env, command.clone(), 0)?;
-        if value.pointer("/sources/0/state") != Some(&json!("ok")) {
-            return Err(format!(
-                "one native identity or field rejected the reply: {value}"
-            ));
-        }
-        if matches!(name, "wrong-accession" | "wrong-gene")
-            && value.pointer("/problems/0/field") != Some(&json!("record"))
-        {
-            return Err(format!("identity drop lacks its problem: {value}"));
-        }
-        if name == "bad-score"
-            && (value.pointer("/result/annotation/score").is_some()
-                || value.pointer("/problems/0/field") != Some(&json!("score"))
-                || value.pointer("/result/annotation/accessionId") != Some(&json!("PA100001")))
-        {
-            return Err(format!(
-                "bad score discarded annotation or lacked disclosure: {value}"
-            ));
-        }
-        *command.get_mut(0).ok_or("record switch")? = "--replay".into();
-        let fresh = Environment::new().map_err(|e| e.to_string())?;
-        let replay = both(&fresh, command, 0)?;
-        if replay.get("problems") != value.get("problems")
-            || replay.get("result") != value.get("result")
-        {
-            return Err("native field mapping changed on replay".into());
-        }
-        stub.finish()?;
-        Ok(())
+    let value = invoke(env, command.clone(), 0)?;
+    if value.pointer("/sources/0/state") != Some(&json!("ok")) {
+        return Err(format!(
+            "one native identity or field rejected the reply: {value}"
+        ));
+    }
+    if matches!(name, "wrong-accession" | "wrong-gene")
+        && value.pointer("/problems/0/field") != Some(&json!("record"))
+    {
+        return Err(format!("identity drop lacks its problem: {value}"));
+    }
+    if name == "bad-score"
+        && (value.pointer("/result/annotation/score").is_some()
+            || value.pointer("/problems/0/field") != Some(&json!("score"))
+            || value.pointer("/result/annotation/accessionId") != Some(&json!("PA100001")))
+    {
+        return Err(format!(
+            "bad score discarded annotation or lacked disclosure: {value}"
+        ));
+    }
+    *command.get_mut(0).ok_or("record switch")? = "--replay".into();
+    let fresh = Environment::new().map_err(|e| e.to_string())?;
+    let replay = both(&fresh, command, 0)?;
+    if replay.get("problems") != value.get("problems")
+        || replay.get("result") != value.get("result")
+    {
+        return Err("native field mapping changed on replay".into());
+    }
+    stub.finish()?;
+    Ok(())
 }
 
 fn selectors() -> Check {

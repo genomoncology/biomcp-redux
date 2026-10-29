@@ -108,6 +108,8 @@ struct Criterion {
     strength: Option<Field<Label>>,
 }
 impl Document {
+    // Document identity is independent of its conclusion and evidence content.
+    // https://dataexchange.clinicalgenome.org/interpretation/entities/VariantPathogenicityInterpretation.html
     fn matches(&self, caid: &str, uuid: &str, version: &str) -> bool {
         self.uuid == uuid
             && self.metadata.version == version
@@ -221,6 +223,8 @@ impl Assessment {
             ),
             None => (None, None, None),
         };
+        // Preserve contrary SEPIO label/identifier pairs without repairing them.
+        // https://dataexchange.clinicalgenome.org/interpretation/entities/CriterionAssessment.html
         let outcome_conflict = [outcome_id.as_ref(), outcome_iri.as_ref()]
             .into_iter()
             .flatten()

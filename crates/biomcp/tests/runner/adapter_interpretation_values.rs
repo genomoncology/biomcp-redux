@@ -25,8 +25,13 @@ fn gencc_identity() -> Result<(), Box<dyn std::error::Error>> {
         |source, recording| {
             if source == "gencc"
                 && let Some(body) = recording.pointer_mut("/exchanges/1/body/value")
-                && let Some(text) = body.as_str() {
-                *body = json!(text.replacen("SGC-113621,1,HGNC:8109,ODC1", "SGC-113621,1,invalid,ODC1", 1));
+                && let Some(text) = body.as_str()
+            {
+                *body = json!(text.replacen(
+                    "SGC-113621,1,HGNC:8109,ODC1",
+                    "SGC-113621,1,invalid,ODC1",
+                    1
+                ));
             }
         },
         json!([
@@ -49,9 +54,12 @@ fn cpic() -> Result<(), Box<dyn std::error::Error>> {
         &["get", "pgx", "--gene", "DPYD", "--source", "cpic"],
         |source, recording| {
             if source == "cpic"
-                && recording.get("url").and_then(Value::as_str)
+                && recording
+                    .get("url")
+                    .and_then(Value::as_str)
                     .is_some_and(|url| url.contains("/gene?"))
-                && let Some(field) = recording.pointer_mut("/exchanges/0/body/value/0/hgncid") {
+                && let Some(field) = recording.pointer_mut("/exchanges/0/body/value/0/hgncid")
+            {
                 *field = json!("invalid");
             }
         },
@@ -79,7 +87,9 @@ fn hotspots() -> Result<(), String> {
                     serde_json::from_str(&crate::runner::variant_hotspots::body(request)?)
                         .map_err(|e| e.to_string())?;
                 if request.starts_with("GET /api/hotspots/") {
-                    *body.pointer_mut(&format!("/0/{field}")).ok_or("missing hotspot field")? = invalid.clone();
+                    *body
+                        .pointer_mut(&format!("/0/{field}"))
+                        .ok_or("missing hotspot field")? = invalid.clone();
                 }
                 Ok(body.to_string())
             },
@@ -101,7 +111,9 @@ fn hotspots() -> Result<(), String> {
         if record.get("residue") != Some(&json!("V600")) || record.get(absent).is_some() {
             return Err(format!("bad {field} rejected its hotspot record: {value}"));
         }
-        let count = value.get("problems").and_then(Value::as_array)
+        let count = value
+            .get("problems")
+            .and_then(Value::as_array)
             .ok_or("missing problems")?
             .iter()
             .filter(|p| p.get("field") == Some(&json!(field)))
@@ -121,7 +133,8 @@ fn gencc() -> Result<(), Box<dyn std::error::Error>> {
                 return;
             }
             if let Some(body) = recording.pointer_mut("/exchanges/1/body/value")
-                && let Some(text) = body.as_str() {
+                && let Some(text) = body.as_str()
+            {
                 *body = json!(text.replacen("2021-08-04 12:08:26", "   ", 1));
             }
         },

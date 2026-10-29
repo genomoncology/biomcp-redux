@@ -125,7 +125,7 @@ pub struct VariantPage {
     pub items: Box<[VariantHeader]>,
 }
 impl super::ResponseBody for VariantPage {
-    const SCHEMA: &'static str = "biomcp.variant-page/13";
+    const SCHEMA: &'static str = "biomcp.variant-page/14";
     type Query = crate::VariantSearch;
 }
 

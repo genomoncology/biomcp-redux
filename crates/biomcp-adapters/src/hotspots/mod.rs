@@ -32,6 +32,8 @@ struct Rows(Vec<Field<Row>>);
 #[derive(Deserialize)]
 #[serde(rename_all = "camelCase")]
 struct Row {
+    // The publisher identifies a candidate by gene and residue; transcript is optional.
+    // https://github.com/cBioPortal/cancerhotspots/blob/master/model/src/main/java/org/cmo/cancerhotspots/model/HotspotMutation.java
     hugo_symbol: Option<Field<GeneSymbol>>,
     transcript_id: Option<Field<Text>>,
     residue: Option<Field<Text>>,

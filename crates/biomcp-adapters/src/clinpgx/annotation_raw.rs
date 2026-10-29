@@ -1,4 +1,6 @@
 //! Native fields retain source spellings and independent error boundaries.
+// Native IDs identify records; malformed nested content does not refuse its parent.
+// https://api.clinpgx.org/openapi.json
 use crate::pgx_sources::pgx_row;
 use biodata::{ClinPgxAccession, PgxUnobserved};
 pgx_row! { PgxObjectReference => biodata::PgxObjectReference, record id {
