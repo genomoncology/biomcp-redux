@@ -13,7 +13,7 @@ pub struct Records<T> {
     /// Rejected metadata on retained records.
     pub problems: Vec<biomcp_types::Problem>,
     /// Checked records in their original source order.
-    pub rows: Vec<T>,
+    pub rows: Vec<Option<T>>,
     /// Original response acquisition time, including cache reads.
     pub acquired: Option<u64>,
     /// Number of rejected records with a different study identity.
@@ -115,14 +115,14 @@ pub fn profiles(leg: &Leg<'_>, id: &StudyId) -> Result<Records<StudyProfile>, Re
     let rows: Vec<_> = reply
         .0
         .into_iter()
-        .filter_map(|v| {
+        .map(|v| {
             problems.record = None;
-            let row = problems.field("profiles", Some(v.value))?;
+            let row = problems.field("molecularProfileId", Some(v.value))?;
             (row.study_id == *id).then(|| row.mapped(&mut problems))
         })
         .collect();
     Ok(Records {
-        rejected: total - rows.len(),
+        rejected: total - rows.iter().flatten().count(),
         rows,
         problems: problems.list,
         acquired: metadata
@@ -148,14 +148,14 @@ pub fn sample_lists(leg: &Leg<'_>, id: &StudyId) -> Result<Records<StudySampleLi
     let rows: Vec<_> = reply
         .0
         .into_iter()
-        .filter_map(|v| {
+        .map(|v| {
             problems.record = None;
-            let row = problems.field("sample_lists", Some(v.value))?;
+            let row = problems.field("sampleListId", Some(v.value))?;
             (row.study_id == *id).then(|| row.mapped(&mut problems))
         })
         .collect();
     Ok(Records {
-        rejected: total - rows.len(),
+        rejected: total - rows.iter().flatten().count(),
         rows,
         problems: problems.list,
         acquired: metadata
