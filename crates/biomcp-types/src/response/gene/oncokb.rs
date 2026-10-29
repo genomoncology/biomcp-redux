@@ -19,8 +19,12 @@ biodata::canonical_enum! {
 #[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
 #[cfg_attr(feature = "schema", derive(schemars::JsonSchema))]
 pub struct OncokbCard {
-    /// Source gene classification.
-    pub gene_type: OncokbGeneType,
+    /// Exact native classification, including an unpublished future literal.
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub gene_type: Option<Text>,
+    /// Coding for the five published source literals only.
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub gene_type_code: Option<OncokbGeneType>,
     /// Highest sensitive level, as stated by the source.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub highest_sensitive_level: Option<Text>,

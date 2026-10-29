@@ -1,5 +1,5 @@
+use crate::{native_text::NativeText, raw::Field};
 use biodata::Text;
-use crate::{raw::Field, native_text::NativeText};
 use biomcp_fetch::{BadReply, Reply};
 use serde::Deserialize;
 
@@ -141,10 +141,20 @@ impl Profiles {
     pub(super) fn matches(&self, allele: &str, profile: Option<u64>) -> bool {
         self.data.molecular_profiles.nodes.iter().all(|p| {
             profile.is_none_or(|id| p.id.as_ref().and_then(Field::as_ref) == Some(&id))
-                && p.variants.as_ref().and_then(Field::as_ref).is_some_and(|members| members.iter().filter_map(Field::as_ref).any(|m| {
-                    m.id.as_ref().and_then(Field::as_ref).is_some_and(|value| id(*value))
-                        && m.allele_registry_id.as_ref().and_then(Field::as_ref).is_some_and(|id| id.as_str() == allele)
-                }))
+                && p.variants
+                    .as_ref()
+                    .and_then(Field::as_ref)
+                    .is_some_and(|members| {
+                        members.iter().filter_map(Field::as_ref).any(|m| {
+                            m.id.as_ref()
+                                .and_then(Field::as_ref)
+                                .is_some_and(|value| id(*value))
+                                && m.allele_registry_id
+                                    .as_ref()
+                                    .and_then(Field::as_ref)
+                                    .is_some_and(|id| id.as_str() == allele)
+                        })
+                    })
         })
     }
 }

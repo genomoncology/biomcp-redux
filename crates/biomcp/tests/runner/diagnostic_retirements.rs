@@ -248,9 +248,15 @@ pub(super) fn bounded(value: &serde_json::Value) -> Result<(), String> {
         ("biomcp.diagnostic-companion/3", "", "partial") => 7035,
         // New GTR field-refusal views measured together by j21540.
         ("biomcp.diagnostic-page/5", "", "complete")
-            if value.pointer("/query/source") == Some(&json!("gtr")) => 3682,
+            if value.pointer("/query/source") == Some(&json!("gtr")) =>
+        {
+            3682
+        }
         ("biomcp.diagnostic-page/5", "", "partial")
-            if value.pointer("/query/source") == Some(&json!("gtr")) => 3760,
+            if value.pointer("/query/source") == Some(&json!("gtr")) =>
+        {
+            3760
+        }
         ("biomcp.diagnostic-genes/5", "", "partial") => 1006,
         ("biomcp.diagnostic-conditions/5", "", "complete") => 625,
         ("biomcp.diagnostic-conditions/5", "", "partial") => 695,

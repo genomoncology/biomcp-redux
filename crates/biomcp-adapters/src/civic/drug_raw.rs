@@ -1,6 +1,6 @@
 use super::{drug::Therapy, variant_raw as raw};
+use crate::{native_text::NativeText, raw::Field};
 use biodata::Text;
-use crate::{raw::Field, native_text::NativeText};
 use biomcp_fetch::{BadReply, Reply};
 use serde::Deserialize;
 
@@ -42,10 +42,18 @@ pub(super) struct Assertion {
 }
 impl Reply for ReplyBody {
     fn check(&self) -> Result<(), BadReply> {
-        if self.errors.as_ref().is_some_and(|rows| !rows.is_empty()) { return Err(BadReply); }
-        if let Some(therapy) = &self.data.therapy { therapy.check()?; }
-        if let Some(rows) = &self.data.evidence_items { rows.check()?; }
-        if let Some(rows) = &self.data.assertions { rows.check()?; }
+        if self.errors.as_ref().is_some_and(|rows| !rows.is_empty()) {
+            return Err(BadReply);
+        }
+        if let Some(therapy) = &self.data.therapy {
+            therapy.check()?;
+        }
+        if let Some(rows) = &self.data.evidence_items {
+            rows.check()?;
+        }
+        if let Some(rows) = &self.data.assertions {
+            rows.check()?;
+        }
         Ok(())
     }
 }

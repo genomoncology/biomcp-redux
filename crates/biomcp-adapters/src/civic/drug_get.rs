@@ -88,19 +88,19 @@ fn matches(
     after: Option<&Text>,
     count: u32,
 ) -> bool {
-    data.therapy.as_ref().is_some_and(|t| t.id.to_string() == query.input().to_string())
+    data.therapy
+        .as_ref()
+        .is_some_and(|t| t.id.to_string() == query.input().to_string())
         && (kind == Some(CivicClaimKind::Assertions)
-            || data.evidence_items.as_ref().is_some_and(|rows| {
-                rows.nodes.len() <= count as usize
-                    && rows.progresses(after)
-
-            }))
+            || data
+                .evidence_items
+                .as_ref()
+                .is_some_and(|rows| rows.nodes.len() <= count as usize && rows.progresses(after)))
         && (kind == Some(CivicClaimKind::Evidence)
-            || data.assertions.as_ref().is_some_and(|rows| {
-                rows.nodes.len() <= count as usize
-                    && rows.progresses(after)
-
-            }))
+            || data
+                .assertions
+                .as_ref()
+                .is_some_and(|rows| rows.nodes.len() <= count as usize && rows.progresses(after)))
 }
 fn seek<T>(
     leg: &Leg<'_>,
@@ -180,7 +180,11 @@ pub fn drug_civic(leg: &Leg<'_>, query: &DrugGet) -> Result<Mapped<DrugCivic>, R
         .therapy
         .ok_or_else(|| failure(Reason::NotFound))?
         .header()?;
-    let mut cx = crate::mapped::Problems {source: Source::Civic, record: None, list: Vec::new()};
+    let mut cx = crate::mapped::Problems {
+        source: Source::Civic,
+        record: None,
+        list: Vec::new(),
+    };
     let evidence = data
         .evidence_items
         .map(|rows| {
@@ -191,7 +195,10 @@ pub fn drug_civic(leg: &Leg<'_>, query: &DrugGet) -> Result<Mapped<DrugCivic>, R
             let records = rows
                 .nodes
                 .into_iter()
-                .filter_map(|r| {cx.record = None; drug_map::evidence(r, query, &mut cx)})
+                .filter_map(|r| {
+                    cx.record = None;
+                    drug_map::evidence(r, query, &mut cx)
+                })
                 .collect::<Box<[_]>>();
             page.returned = records.len() as u32;
             Ok::<_, RequestError>(DrugCivicPage { records, page })
@@ -207,7 +214,10 @@ pub fn drug_civic(leg: &Leg<'_>, query: &DrugGet) -> Result<Mapped<DrugCivic>, R
             let records = rows
                 .nodes
                 .into_iter()
-                .filter_map(|r| {cx.record = None; drug_map::assertion(r, query, &mut cx)})
+                .filter_map(|r| {
+                    cx.record = None;
+                    drug_map::assertion(r, query, &mut cx)
+                })
                 .collect::<Box<[_]>>();
             page.returned = records.len() as u32;
             Ok::<_, RequestError>(DrugCivicPage { records, page })

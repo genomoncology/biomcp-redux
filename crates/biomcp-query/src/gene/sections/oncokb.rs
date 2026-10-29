@@ -50,11 +50,14 @@ pub(super) fn run(cx: &Ctx<'_>, deadline: Deadline<'_>, genes: &[(HgncId, Gene)]
     {
         match oncokb::version(&leg) {
             Ok(version) => {
+                let partial_version = !version.problems.is_empty();
+                status::append(&mut problems, version.problems);
                 for (_, value) in &mut values {
-                    if let SectionValue::Oncokb(section, Some(card), _) = value {
-                        card.version = Some(version.clone());
+                    if let SectionValue::Oncokb(section, Some(card), partial) = value {
+                        card.version = version.value.clone();
+                        *partial |= partial_version;
                         if let Section::Data { data, .. } = section {
-                            data.version = Some(version.clone());
+                            data.version = version.value.clone();
                         }
                     }
                 }

@@ -12,6 +12,7 @@ mod variant;
 mod variant_claims;
 mod variant_map;
 mod variant_raw;
+mod variant_subject;
 use crate::{Mapped, quotas, raw::Field};
 use biodata::{GeneSymbol, NcbiGeneId, Text};
 

@@ -131,8 +131,8 @@ pub use variant_assertions::{
 };
 mod variant_civic;
 pub use variant_civic::{
-    CivicClaimPage, CivicCondition, CivicMember, CivicMembership, CivicNativeClaim, CivicProfile, CivicStatement, CivicTherapy,
-    VariantCivic,
+    CivicClaimPage, CivicCondition, CivicMember, CivicMembership, CivicNativeClaim, CivicProfile,
+    CivicStatement, CivicTherapy, VariantCivic,
 };
 mod variant_hotspots;
 pub use variant_hotspots::{HotspotAlternate, HotspotMembership, HotspotRecord, VariantHotspots};
