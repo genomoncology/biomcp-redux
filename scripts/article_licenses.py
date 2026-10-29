@@ -37,6 +37,12 @@ def inventory(root):
     for identity, origin in origins.items():
         if origin["license"] not in ALLOWED:
             raise ValueError(f"{identity}: disallowed article fixture license: {origin['license']}")
+        evidence = json.loads((directory / origin["evidence"]).read_text())
+        for license_code in recorded_licenses(evidence):
+            if license_code not in ALLOWED:
+                raise ValueError(f"{origin['evidence']}: disallowed article fixture license: {license_code}")
+        if set(recorded_licenses(evidence)) != {origin["license"]}:
+            raise ValueError(f"{identity}: license list disagrees with retained source evidence")
     rows, labels = [], {}
     for path in sorted(directory.rglob("*.json")):
         if path.name == "licenses.json":
