@@ -7,7 +7,8 @@ const STRING_FORMATS: &[&str] = &["date", "date-time", "uri", "uri-reference"];
 
 #[derive(Debug, Default, Clone)]
 struct Shape {
-    redirect: Option<(String, Value)>,
+    redirect: Option<String>,
+    nodes: Vec<Value>,
     children: BTreeMap<String, String>,
     types: BTreeSet<String>,
     values: Option<BTreeSet<String>>,
@@ -31,7 +32,6 @@ struct Shape {
     map_keys: bool,
     map_patterns: BTreeSet<String>,
 }
-
 pub(super) fn check(old: &Value, new: &Value) -> Check<()> {
     check_reviewed(old, new, ContractKind::Query, &Reviews::default())
 }
@@ -132,24 +132,21 @@ fn identity(schema: &Value) -> Check<(&str, u64)> {
     let (name, major) = id.rsplit_once('/').ok_or("missing major version")?;
     Ok((name, major.parse().map_err(|_| "invalid major version")?))
 }
-
 fn shapes(root: &Value) -> Check<BTreeMap<String, Shape>> {
     let mut shapes = BTreeMap::new();
     visit(root, root, "", &mut shapes, &mut BTreeMap::new())?;
     let redirects: Vec<_> = shapes
         .iter()
-        .filter_map(|(path, shape)| {
-            shape
-                .redirect
-                .clone()
-                .map(|redirect| (path.clone(), redirect))
-        })
+        .filter_map(|(path, s)| Some((path.clone(), s.redirect.clone()?, s.nodes.clone())))
         .collect();
-    for (path, (target, node)) in redirects {
+    for (path, target, nodes) in redirects {
+        // Replay the whole path, including nullable branches before the backedge.
         let mut shape = shapes[&target].clone();
-        shape.redirect = Some((target, node.clone()));
+        shape.redirect = None;
         shapes.insert(path.clone(), shape);
-        collect(&node, &path, &mut shapes)?;
+        for node in nodes {
+            collect(&node, &path, &mut shapes)?;
+        }
     }
     Ok(shapes)
 }
@@ -191,8 +188,8 @@ fn visit(
             if target == path {
                 return Err(format!("nonproductive reference {reference}"));
             }
-            shapes.entry(path.into()).or_default().redirect = Some((target.clone(), node.clone()));
-            return Ok(());
+            shapes.entry(path.into()).or_default().redirect = Some(target.clone());
+            return collect(node, path, shapes);
         }
         refs.insert(reference.into(), path.into());
         visit(
@@ -289,6 +286,10 @@ fn descend(
 
 fn collect(node: &Value, path: &str, shapes: &mut BTreeMap<String, Shape>) -> Check<()> {
     let shape = shapes.entry(path.into()).or_default();
+    shape.nodes.push(node.clone());
+    if shape.redirect.is_some() {
+        return Ok(());
+    }
     if let Some(selectors) = selectors(node)? {
         shape.selectors = Some(selectors);
     }

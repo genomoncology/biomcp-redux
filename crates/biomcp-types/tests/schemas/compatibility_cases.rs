@@ -550,7 +550,10 @@ fn compatibility_checks_recursive_edges_and_constraints() {
         }
         nullable["$defs"]["Node"]["properties"]["next"] = json!({"anyOf":branches});
         assert!(check(&nullable, &nullable).is_ok());
-        assert!(check(&nullable, &old).is_err(), "recursive null branch must survive");
+        assert!(
+            check(&nullable, &old).is_err(),
+            "recursive null branch must survive"
+        );
     }
     let mut mutual = old.clone();
     mutual["$defs"]["Node"]["properties"]["next"]["$ref"] = json!("#/$defs/Other");
