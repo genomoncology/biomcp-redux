@@ -14,7 +14,6 @@ use std::{
     net::{TcpListener, TcpStream},
     sync::{Arc, mpsc},
     thread,
-    time::Duration,
 };
 
 type Requests = Vec<(String, String)>;
@@ -205,7 +204,7 @@ impl Stub {
                 {
                     return Err("invalid recorded HTTP status or content type".into());
                 }
-                thread::sleep(Duration::from_millis(recorded.delay_ms));
+                thread::sleep(std::time::Duration::from_millis(recorded.delay_ms));
                 observed.check("HTTP reply", write!(socket, "HTTP/1.1 {} Recorded\r\nContent-Type: {}\r\nContent-Length: {}\r\nConnection: close\r\n\r\n",
                     recorded.status, recorded.content_type, recorded.body.len()))?;
                 observed.check("HTTP body", socket.write_all(&recorded.body))?;

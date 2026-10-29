@@ -11,7 +11,7 @@ pub(super) fn validate<'a>(
         let (name, sentence) = line
             .split_once(": ")
             .ok_or("feature requires name: sentence")?;
-        if name.is_empty()
+        if !name.starts_with(|c: char| c.is_ascii_lowercase())
             || !name
                 .chars()
                 .all(|c| c.is_ascii_lowercase() || c.is_ascii_digit() || c == '-')
@@ -23,18 +23,28 @@ pub(super) fn validate<'a>(
         }
     }
     let mut covered = BTreeSet::new();
+    let mut names = BTreeSet::new();
+    let mut errors = Vec::new();
     for trial in trials {
-        let (feature, _) = trial
-            .split_once('/')
-            .ok_or_else(|| format!("trial lacks feature: {trial}"))?;
+        if !names.insert(trial) {
+            errors.push(format!("duplicate trial: {trial}"));
+        }
+        let Some((feature, _)) = trial.split_once('/') else {
+            errors.push(format!("trial lacks feature: {trial}"));
+            continue;
+        };
         if !listed.contains(feature) {
-            return Err(format!("unlisted feature {feature}: {trial}"));
+            errors.push(format!("unlisted feature {feature}: {trial}"));
         }
         covered.insert(feature);
     }
     let missing = listed.difference(&covered).copied().collect::<Vec<_>>();
     if complete && !missing.is_empty() {
-        return Err(format!("features without tests: {}", missing.join(", ")));
+        errors.push(format!("features without tests: {}", missing.join(", ")));
     }
-    Ok(())
+    if errors.is_empty() {
+        Ok(())
+    } else {
+        Err(errors.join("\n"))
+    }
 }

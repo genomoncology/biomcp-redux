@@ -12,12 +12,6 @@ pub(super) fn trials() -> Vec<Trial> {
         "disease-mydisease/exact-alias-and-independent-pages",
         || exact().map_err(Into::into),
     )];
-    tool_only! {
-    tests.push(transcript_trial(
-        "disease-mydisease/native-proof-retains-success-and-failure",
-        || native::retention().map_err(Into::into),
-    ));
-    }
     tests.extend(cases::trials());
     tests
 }
@@ -218,4 +212,13 @@ fn exact() -> Result<(), String> {
         return Err("unexpected source fanout".into());
     }
     Ok(())
+}
+
+tool_only! {
+    pub(super) fn tool_trials() -> Vec<Trial> {
+        vec![transcript_trial(
+            "disease-mydisease/native-proof-retains-success-and-failure",
+            || native::retention().map_err(Into::into),
+        )]
+    }
 }

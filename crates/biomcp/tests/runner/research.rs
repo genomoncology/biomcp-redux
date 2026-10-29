@@ -12,7 +12,7 @@ use serde_json::{Value, json};
 
 pub(super) fn trials() -> Vec<Trial> {
     vec![
-        transcript_trial("mcp-research/research-registry-record-links", || {
+        transcript_trial("mcp-research/research-registry-projection-paths", || {
             links::check().map_err(Into::into)
         }),
         transcript_trial("mcp-research/research-search-fetch-parity", || {

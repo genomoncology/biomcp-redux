@@ -9,23 +9,27 @@ pub(super) fn trials() -> Vec<Trial> {
         .into_iter()
         .map(|source| {
             transcript_trial(
-                format!("adverse-event-registry/{source}-declaration"),
+                format!("source-controls/adverse-event-registry/{source}-declaration"),
                 move || declaration(source).map_err(Into::into),
             )
         })
         .chain([
-            transcript_trial("source-controls/policy-before-io", || {
-                admission::run().map_err(Into::into)
-            }),
-            transcript_trial("source-controls/health-switch-union", || {
-                health_switches().map_err(Into::into)
-            }),
-            transcript_trial("source-controls/health-before-io", || {
-                health_before_io().map_err(Into::into)
-            }),
-            transcript_trial("source-controls/outcome-terms", || {
-                outcomes().map_err(Into::into)
-            }),
+            transcript_trial(
+                "source-controls/adverse-event-registry/policy-before-io",
+                || admission::run().map_err(Into::into),
+            ),
+            transcript_trial(
+                "source-controls/adverse-event-registry/health-switch-union",
+                || health_switches().map_err(Into::into),
+            ),
+            transcript_trial(
+                "source-controls/adverse-event-registry/health-before-io",
+                || health_before_io().map_err(Into::into),
+            ),
+            transcript_trial(
+                "source-controls/adverse-event-registry/outcome-terms",
+                || outcomes().map_err(Into::into),
+            ),
         ])
         .collect()
 }

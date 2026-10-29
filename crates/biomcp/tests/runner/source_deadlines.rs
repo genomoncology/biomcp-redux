@@ -32,7 +32,7 @@ pub(super) fn trials() -> Vec<Trial> {
     .into_iter()
     .map(|(source, fixture, words, help, expected)| {
         transcript_trial(
-            format!("source-deadlines/{source}/reply-and-help-guidance"),
+            format!("source-controls/source-deadlines/{source}/reply-and-help-guidance"),
             move || check(source, fixture, &words, &help, expected).map_err(Into::into),
         )
     })

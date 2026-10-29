@@ -51,5 +51,11 @@ fn trials(arguments: Vec<String>) -> Result<(Arguments, Vec<Trial>), String> {
         &trials,
         directory == runner::launch::fixtures().join("cases"),
     )?;
-    Ok((Arguments::from_iter(cargo_args), trials))
+    let arguments = Arguments::from_iter(cargo_args);
+    tool_only! {
+        if arguments.filter.is_none() && !arguments.list {
+            return Err("tool case probes require a filter or --list".into());
+        }
+    }
+    Ok((arguments, trials))
 }

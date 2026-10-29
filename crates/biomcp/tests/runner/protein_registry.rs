@@ -51,7 +51,7 @@ pub(super) fn trials() -> Vec<Trial> {
         ),
     ] {
         trials.push(transcript_trial(
-            format!("protein-registry/{name}-declaration"),
+            format!("source-controls/protein-registry/{name}-declaration"),
             move || declaration(name, usage, terms, url).map_err(Into::into),
         ));
     }

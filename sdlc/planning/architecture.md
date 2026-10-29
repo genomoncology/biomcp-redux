@@ -1925,6 +1925,8 @@ The source ratchet permits `dead_code` only in the private `crates/biomcp-adapte
 
 ### 10.3 Coverage
 
+`make schema-shape-check` runs the grammar reference and schema-source checks, then the public-binary research projection and MCP search/fetch checks. Coverage depends on this check so a new source, reply shape, schema version or definition name fails before instrumentation.
+
 `make coverage` instruments the `cases` target and the product binary through `cargo llvm-cov show-env`. The launcher sets `LLVM_PROFILE_FILE` to `bin-%m-%p.profraw` in the collection directory for every child. The script merges only `bin-` profiles with `llvm-profdata merge` and reports with `llvm-cov report --object` on the actual binary. Cargo's report command cannot select one object. The denominator contains source lines mapped into that binary from product crates. Harness code, test modules, in-process library calls, dependencies and generated protobuf code count toward neither side. Library functions absent from the binary have no mapping and fall outside the denominator. Public contracts and library tests run separately through `make library-tests` and never supply counted profiles.
 
 The landing gate fails when line coverage falls more than 0.2 points below `coverage.floor`. Only the PM sets and raises the floor, starting from the first binary-only measurement. `make unreached` shows counted product source with line execution counts for review.

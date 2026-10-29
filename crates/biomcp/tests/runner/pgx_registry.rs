@@ -23,18 +23,20 @@ pub(super) fn trials() -> Vec<Trial> {
     SOURCES
         .iter()
         .map(|&(source, usage, url)| {
-            transcript_trial(format!("pgx-registry/{source}-declaration"), move || {
-                declaration(source, usage, url).map_err(Into::into)
-            })
+            transcript_trial(
+                format!("source-controls/pgx-registry/{source}-declaration"),
+                move || declaration(source, usage, url).map_err(Into::into),
+            )
         })
         .chain([
-            transcript_trial("source-controls/retired-source-before-io", || {
-                retired().map_err(Into::into)
-            }),
-            transcript_trial("source-controls/policy-before-io", || {
+            transcript_trial(
+                "source-controls/pgx-registry/retired-source-before-io",
+                || retired().map_err(Into::into),
+            ),
+            transcript_trial("source-controls/pgx-registry/policy-before-io", || {
                 admission::run().map_err(Into::into)
             }),
-            transcript_trial("source-controls/configuration-union", || {
+            transcript_trial("source-controls/pgx-registry/configuration-union", || {
                 switches().map_err(Into::into)
             }),
         ])

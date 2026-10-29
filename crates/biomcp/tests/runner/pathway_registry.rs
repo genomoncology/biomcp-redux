@@ -22,7 +22,7 @@ pub(super) fn trials() -> Vec<Trial> {
         .iter()
         .map(|&(source, usage, url)| {
             transcript_trial(
-                format!("pathway-registry/{source}-declaration"),
+                format!("source-controls/pathway-registry/{source}-declaration"),
                 move || declaration(source, usage, url).map_err(Into::into),
             )
         })
