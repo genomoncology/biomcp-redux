@@ -163,6 +163,7 @@ fn attribution(
         AssertionKind::Vcv => value.parse::<biodata::VcvId>().is_ok(),
         AssertionKind::Rcv => value.parse::<biodata::RcvId>().is_ok(),
         AssertionKind::Scv => value.parse::<biodata::ScvId>().is_ok(),
+        AssertionKind::Erepo => false,
     };
     if !valid(&full) {
         let field = if valid(&id) { "Version" } else { "Accession" };

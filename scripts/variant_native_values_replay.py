@@ -126,16 +126,20 @@ def clinvar_cases(capture, output):
             value["exchanges"][0]["body"]["value"] = xml.replace(identity, 'Accession="BAD"')
         replay = output / "replies" / "clinvar" / name
         write_json(replay / "clinvar" / "b0dc08f8b2e327a3cc14eea0aff96c83994e24add7db09654e86e8c3f801b4ae.json", value)
-        native_path = "/result/assertions/*/unmapped/attribution/record"
         expect = {
-            "/result/assertions/*/statement/attribution/record": {"includes": "SCV005094146"},
-            native_path: {"includes_all_of": ["RCV000824811", "VCV000666267"]},
+            "/result/assertions/0/unmapped/attribution/record": "VCV000666267",
+            "/result/assertions/1/statement/attribution/record": "VCV000666267",
+            "/result/assertions/2/unmapped/attribution/record": "RCV000824811",
+            "/result/assertions/3/statement/attribution/record": "RCV004669148",
         }
         if name == "identity-bad":
-            expect[native_path]["excludes"] = "SCV000965609"
+            expect["/result/assertions"] = {"count": 5}
+            expect["/result/assertions/4/statement/attribution/record"] = "SCV005094146"
             expect["/problems/*/field"] = ["Accession"]
         else:
-            expect[native_path]["includes"] = "SCV000965609"
+            expect["/result/assertions"] = {"count": 6}
+            expect["/result/assertions/4/unmapped/attribution/record"] = "SCV000965609"
+            expect["/result/assertions/5/statement/attribution/record"] = "SCV005094146"
         write_json(output / "cases" / ("clinvar-" + name + ".yaml"), {
             "feature": "variant-assertions", "live_check": "retained public capture",
             "story": "One invalid native SCV identity leaves valid sibling assertions available",
