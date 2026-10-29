@@ -28,7 +28,11 @@ pub(super) fn check() -> Check {
     let mut args = positive.globals(Some(&replay), false);
     args.extend(["get".into(), "pathway".into(), id.into(), "summary".into()]);
     let control = invoke(&positive, args, 0)?;
-    registry.validate(&control, &["get".into(), "pathway".into(), id.into()], true)?;
+    registry.validate(
+        &control,
+        &["get".into(), "pathway".into(), id.into(), "summary".into()],
+        true,
+    )?;
     if control.pointer("/result/pathway/id/id") != Some(&json!(id)) {
         return Err("positive WikiPathways identity missing".into());
     }
