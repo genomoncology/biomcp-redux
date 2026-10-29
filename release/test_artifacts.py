@@ -19,7 +19,7 @@ class Artifacts(unittest.TestCase):
         runner = os.environ["BIOMCP_CASE_RUNNER"]
         for args in [
             ["--cases", "tests/cases/gene", "kras.yaml", "--exact"],
-            ["runner/rejects-bad-cases", "--exact"],
+            ["schema-discovery/rejects-bad-cases", "--exact"],
         ]:
             result = subprocess.run([runner] + args, env={**os.environ, "BIOMCP_TEST_EXECUTABLE": "/does-not-exist/biomcp"}, capture_output=True, text=True)
             self.assertNotEqual(result.returncode, 0)

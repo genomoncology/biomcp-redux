@@ -1,6 +1,6 @@
 {
   "live_check": "local usage case",
-  "feature": "article-search",
+  "feature": "article-filters",
   "story": "Unsupported access filters fail before resolving genes or sources",
   "steps": [
     {

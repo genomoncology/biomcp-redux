@@ -1,6 +1,6 @@
 {
   "live_check": "synthetic response case",
-  "feature": "gene-sections",
+  "feature": "gene-oncokb",
   "story": "Synthetic keyed OncoKB deadline preserves checked identity",
   "replay": "gene/oncokb-synthetic/deadline",
   "cache_acquired": 42,

@@ -53,5 +53,6 @@ fn trials() -> Result<(Arguments, Vec<Trial>), String> {
     let mut trials = runner::discover(&directory)?;
     trials.extend(runner::proof::trials());
     trials.extend(runner::protocol_trials());
+    runner::validate_features(&trials, directory == runner::launch::fixtures().join("cases"))?;
     Ok((Arguments::from_iter(cargo_args), trials))
 }

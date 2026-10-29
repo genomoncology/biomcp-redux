@@ -6,7 +6,7 @@ use serde_json::{Value, json};
 
 pub(super) fn trials() -> Vec<Trial> {
     vec![transcript_trial(
-        "variant/printed-identifiers-roundtrip",
+        "variant-identity/printed-identifiers-roundtrip",
         || check().map_err(Into::into),
     )]
 }

@@ -27,13 +27,13 @@ pub(super) fn trials() -> Vec<Trial> {
             )
         })
         .chain([
-            transcript_trial("source-registry/canonical-record-urls", || {
+            transcript_trial("source-controls/canonical-record-urls", || {
                 record_urls::run().map_err(Into::into)
             }),
-            transcript_trial("pathway-registry/policy-before-io", || {
+            transcript_trial("pathway-reactome/policy-before-io", || {
                 admission::run().map_err(Into::into)
             }),
-            transcript_trial("pathway-registry/configuration-union", || {
+            transcript_trial("pathway-reactome/configuration-union", || {
                 switches().map_err(Into::into)
             }),
         ])

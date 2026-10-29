@@ -1897,7 +1897,7 @@ steps:
 
 The case keys:
 
-- `feature`, `covers`, `story`, `harvest` and `verified` describe the case. `covers` names the commands and options it exercises.
+- `feature`, `story`, `harvest` and `verified` describe the case. Each feature names one line in `sdlc/features.md`.
 - `replay` names the recording folder. Each step runs with `--replay` on it, in a fresh temporary config and cache shared by the case's steps.
 - `run` sends one CLI command. `mcp` sends the same arguments through `biomcp serve --replay` as a `tools/call`. A step with both runs each and asserts the two envelopes are equal.
 - `follow` runs a next step of the previous output, chosen by `kind` and an optional index. It tests chaining.
@@ -1918,7 +1918,6 @@ The runner's YAML reader is a test dependency. The original `serde_yaml` is arch
 
 ### 10.2 Checks the runner adds
 
-- **Surface.** One test reads `biomcp help --all` and fails when any command or option appears in no case's `covers`.
 - **Schema.** Every output validates against its schema.
 - **Parity.** Every step with both `run` and `mcp` compares the two envelopes.
 - **Quota.** The eight-parallel-call case in section 4.5.

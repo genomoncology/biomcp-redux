@@ -6,7 +6,7 @@ use serde_json::{Value, json};
 use std::fs;
 
 pub(super) fn trial() -> Trial {
-    transcript_trial("parity/shape-current-question-and-capture", || {
+    transcript_trial("mcp-parity/shape-current-question-and-capture", || {
         check().map_err(Into::into)
     })
 }

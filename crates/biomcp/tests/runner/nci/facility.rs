@@ -3,7 +3,7 @@ use super::super::{launch::Environment, nci::invoke, response_cases::copy_captur
 use libtest_mimic::Trial;
 use serde_json::{Value, json};
 pub(super) fn trials() -> Vec<Trial> {
-    vec![Trial::test("trial/nci-facility-site-boundaries", || {
+    vec![Trial::test("trial-nci/nci-facility-site-boundaries", || {
         boundaries().map_err(Into::into)
     })]
 }

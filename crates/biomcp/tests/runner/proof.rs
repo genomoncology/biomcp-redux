@@ -13,7 +13,7 @@ pub(crate) fn trials() -> Vec<Trial> {
         transcript_trial("article-semantic-sections/checked-edge-boundaries", || {
             super::semantic_tables::check().map_err(|e| e.to_string().into())
         }),
-        transcript_trial("runner/rejects-increasing-citation-counts", || {
+        transcript_trial("schema-discovery/rejects-increasing-citation-counts", || {
             let assertion = super::assertions::Assertion::Nonincreasing;
             if assertion.check("", &serde_json::json!([8, 9])).is_ok() {
                 return Err("increasing counts accepted".into());
@@ -22,20 +22,20 @@ pub(crate) fn trials() -> Vec<Trial> {
                 .check("", &serde_json::json!([9, 9, 0]))
                 .map_err(Into::into)
         }),
-        transcript_trial("runner/null-and-empty-boundaries", || {
+        transcript_trial("schema-discovery/null-and-empty-boundaries", || {
             boundaries().map_err(Into::into)
         }),
-        transcript_trial("runner/rejects-bad-cases", || {
+        transcript_trial("schema-discovery/rejects-bad-cases", || {
             negatives().map_err(Into::into)
         }),
-        transcript_trial("runner/selects-and-lists-cases", || {
+        transcript_trial("schema-discovery/selects-and-lists-cases", || {
             selection().map_err(Into::into)
         }),
-        transcript_trial("runner/isolates-child-environments", || {
+        transcript_trial("schema-discovery/isolates-child-environments", || {
             isolation().map_err(Into::into)
         }),
         #[cfg(unix)]
-        transcript_trial("schema/output-failure", || {
+        transcript_trial("schema-discovery/output-failure", || {
             output_failure().map_err(Into::into)
         }),
     ];
@@ -162,9 +162,9 @@ fn selection() -> Check {
     let all = invoke(directory.path(), &["--list"])?;
     let listing = String::from_utf8_lossy(&all.stdout);
     if !all.status.success()
-        || !listing.contains("runner/selects-and-lists-cases: test")
-        || !listing.contains("article/concurrent-process-pool-publication: test")
-        || !listing.contains("variant/alphagenome-native-groups-local-tls: test")
+        || !listing.contains("schema-discovery/selects-and-lists-cases: test")
+        || !listing.contains("article-search/concurrent-process-pool-publication: test")
+        || !listing.contains("variant-alphagenome/alphagenome-native-groups-local-tls: test")
     {
         return Err(format!(
             "custom case directory omitted feature trials: {listing}"

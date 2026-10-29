@@ -8,7 +8,7 @@ use libtest_mimic::Trial;
 use serde_json::{Value, json};
 use std::fs;
 pub(super) fn trial() -> Trial {
-    transcript_trial("keys/openfda/companion-website-has-no-key", || {
+    transcript_trial("key-registration/openfda/companion-website-has-no-key", || {
         check().map_err(Into::into)
     })
 }

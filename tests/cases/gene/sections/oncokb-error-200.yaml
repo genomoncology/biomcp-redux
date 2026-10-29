@@ -1,6 +1,6 @@
 {
   "live_check": "synthetic response case",
-  "feature": "gene-sections",
+  "feature": "gene-oncokb",
   "story": "Synthetic keyed OncoKB error-200 preserves checked identity",
   "replay": "gene/oncokb-synthetic/error-200",
   "cache_acquired": 42,

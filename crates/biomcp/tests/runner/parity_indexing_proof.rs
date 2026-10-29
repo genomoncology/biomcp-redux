@@ -5,7 +5,7 @@ use libtest_mimic::Trial;
 use serde_json::{Value, json};
 
 pub(super) fn trial() -> Trial {
-    transcript_trial("parity/released-indexing-projections", || {
+    transcript_trial("mcp-parity/released-indexing-projections", || {
         check().map_err(Into::into)
     })
 }

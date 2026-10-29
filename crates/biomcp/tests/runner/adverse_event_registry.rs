@@ -14,16 +14,16 @@ pub(super) fn trials() -> Vec<Trial> {
             )
         })
         .chain([
-            transcript_trial("adverse-event-registry/policy-before-io", || {
+            transcript_trial("source-controls/policy-before-io", || {
                 admission::run().map_err(Into::into)
             }),
-            transcript_trial("adverse-event-registry/health-switch-union", || {
+            transcript_trial("source-controls/health-switch-union", || {
                 health_switches().map_err(Into::into)
             }),
-            transcript_trial("adverse-event-registry/health-before-io", || {
+            transcript_trial("source-controls/health-before-io", || {
                 health_before_io().map_err(Into::into)
             }),
-            transcript_trial("adverse-event-registry/outcome-terms", || {
+            transcript_trial("source-controls/outcome-terms", || {
                 outcomes().map_err(Into::into)
             }),
         ])

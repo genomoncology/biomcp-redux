@@ -3,7 +3,7 @@ use crate::runner::transcript::trial as transcript_trial;
 use libtest_mimic::Trial;
 use serde_json::{Value, json};
 pub(super) fn trials() -> Vec<Trial> {
-    vec![transcript_trial("variant/assertions-source-wire", || {
+    vec![transcript_trial("variant-assertions/assertions-source-wire", || {
         assertions_wire().map_err(Into::into)
     })]
 }

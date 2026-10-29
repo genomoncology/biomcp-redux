@@ -22,7 +22,7 @@ const KEY: &str = "synthetic-alphagenome-cli-placeholder";
 pub(super) fn trials() -> Vec<Trial> {
     let mut trials = installed_trials();
     trials.push(transcript_trial(
-        "variant/alphagenome-source-identity-refusals",
+        "variant-alphagenome/alphagenome-source-identity-refusals",
         || refusals().map_err(Into::into),
     ));
     trials.extend(capture::trials());
@@ -30,7 +30,7 @@ pub(super) fn trials() -> Vec<Trial> {
 }
 pub(super) fn installed_trials() -> Vec<Trial> {
     vec![transcript_trial(
-        "variant/alphagenome-native-groups-local-tls",
+        "variant-alphagenome/alphagenome-native-groups-local-tls",
         || run().map_err(Into::into),
     )]
 }

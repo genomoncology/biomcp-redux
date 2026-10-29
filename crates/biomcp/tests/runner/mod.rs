@@ -7,6 +7,7 @@ mod article_save_reply;
 mod assertions;
 mod author;
 mod execution;
+mod features;
 mod orcid;
 pub(super) mod parity;
 mod parity_inventory_proof;
@@ -179,10 +180,7 @@ use std::{collections::BTreeMap, fs, path::Path, sync::Arc};
 #[serde(deny_unknown_fields)]
 struct Case {
     live_check: Option<String>,
-    #[serde(rename = "feature", default)]
-    _feature: Option<String>,
-    #[serde(rename = "covers", default)]
-    _covers: Vec<String>,
+    feature: String,
     story: String,
     replay: Option<String>,
     cache_acquired: Option<i64>,
@@ -240,6 +238,8 @@ pub(super) fn discover(root: &Path) -> Result<Vec<Trial>, String> {
                 .map(|part| part.to_str().ok_or("case path must be UTF-8"))
                 .collect::<Result<Vec<_>, _>>()?
                 .join("/");
+            let case = read_case(&path)?;
+            let name = format!("{}/{name}", case.feature);
             let registry = Arc::clone(&registry);
             Ok(transcript_trial(name, move || {
                 run_case(&path, &registry).map(|_| ()).map_err(Into::into)
@@ -268,9 +268,17 @@ fn collect(root: &Path, paths: &mut Vec<std::path::PathBuf>) -> std::io::Result<
     Ok(())
 }
 
-fn run_case(path: &Path, registry: &schema::Registry) -> Result<Value, String> {
+fn read_case(path: &Path) -> Result<Case, String> {
     let text = fs::read_to_string(path).map_err(|error| error.to_string())?;
-    let mut case: Case = serde_saphyr::from_str(&text).map_err(|error| error.to_string())?;
+    serde_saphyr::from_str(&text).map_err(|error| format!("{}: {error}", path.display()))
+}
+
+pub(super) fn validate_features(trials: &[Trial], complete: bool) -> Result<(), String> {
+    features::validate(launch::feature_list(), trials.iter().map(Trial::name), complete)
+}
+
+fn run_case(path: &Path, registry: &schema::Registry) -> Result<Value, String> {
+    let mut case = read_case(path)?;
     if case.story.trim().is_empty() || case.steps.is_empty() {
         return Err("case requires a story and at least one step".into());
     }
@@ -388,7 +396,7 @@ pub(super) fn protocol_trials() -> Vec<Trial> {
     trials.extend(markdown_variant_trial::trials());
     trials.extend(markdown_sources::trials());
     trials.push(transcript_trial(
-        "mcp/ping-passes-held-provider-call",
+        "mcp-parity/ping-passes-held-provider-call",
         || held_proxy::check().map_err(Into::into),
     ));
     trials

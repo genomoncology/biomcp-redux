@@ -7,7 +7,7 @@ use serde_json::{Value, json};
 
 pub(super) fn trials() -> Vec<Trial> {
     vec![transcript_trial(
-        "pathway-command/pool-bindings-before-source-io",
+        "pathway-reactome/pool-bindings-before-source-io",
         || bindings().map_err(Into::into),
     )]
 }

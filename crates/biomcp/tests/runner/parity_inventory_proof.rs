@@ -6,7 +6,7 @@ use serde_json::{Value, json};
 use std::{fs, path::Path};
 
 pub(super) fn trial() -> Trial {
-    transcript_trial("parity/inventory-requires-every-direct-fact", || {
+    transcript_trial("mcp-parity/inventory-requires-every-direct-fact", || {
         check().map_err(Into::into)
     })
 }

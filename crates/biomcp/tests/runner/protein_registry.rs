@@ -10,16 +10,16 @@ mod admission;
 mod health;
 pub(super) fn trials() -> Vec<Trial> {
     let mut trials = vec![
-        transcript_trial("protein-registry/bounded-health", || {
+        transcript_trial("protein-search/bounded-health", || {
             health::run().map_err(Into::into)
         }),
-        transcript_trial("protein-registry/policy-before-io", || {
+        transcript_trial("protein-search/policy-before-io", || {
             admission::run().map_err(Into::into)
         }),
-        transcript_trial("protein-registry/configuration-and-cli", || {
+        transcript_trial("protein-search/configuration-and-cli", || {
             switches().map_err(Into::into)
         }),
-        transcript_trial("protein-registry/no-string", || {
+        transcript_trial("protein-search/no-string", || {
             if registry::SOURCES
                 .iter()
                 .any(|s| s.source.to_string() == "string")

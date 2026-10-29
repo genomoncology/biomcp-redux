@@ -28,7 +28,7 @@ const EXAMPLES: [(&str, usize); 17] = [
 
 pub(super) fn trials() -> Vec<Trial> {
     vec![transcript_trial(
-        "skill/catalog-and-managed-install",
+        "agent-skill/catalog-and-managed-install",
         || check().map_err(|error| error.to_string().into()),
     )]
 }

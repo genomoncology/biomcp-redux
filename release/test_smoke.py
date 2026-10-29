@@ -78,11 +78,11 @@ else:
             shutil.copy2(os.environ["BIOMCP_CASE_RUNNER"], runner)
             env = environment(root)
             env["BIOMCP_TEST_EXECUTABLE"] = str(binary)
-            command = [str(runner), "variant/alphagenome-native-groups-local-tls", "--exact"]
+            command = [str(runner), "variant-alphagenome/alphagenome-native-groups-local-tls", "--exact"]
             env["BIOMCP_TEST_FIXTURES"] = str(Path("tests").resolve())
             result = subprocess.run(command, env=env, cwd=root, capture_output=True, text=True, timeout=120)
             self.assertEqual(result.returncode, 0, result.stdout + result.stderr)
-            self.assertIn("variant/alphagenome-native-groups-local-tls", result.stdout)
+            self.assertIn("variant-alphagenome/alphagenome-native-groups-local-tls", result.stdout)
             self.assertIn("1 passed", result.stdout)
             invalid = subprocess.run(command + ["--invalid-option"], env=env, cwd=root,
                                      capture_output=True, text=True, timeout=120)
@@ -98,7 +98,7 @@ else:
                 env["BIOMCP_TEST_EXECUTABLE"] = str(broken)
                 result = subprocess.run(command, env=env, cwd=root, capture_output=True, text=True, timeout=120)
                 self.assertNotEqual(result.returncode, 0, result.stdout + result.stderr)
-                self.assertIn("variant/alphagenome-native-groups-local-tls", result.stdout)
+                self.assertIn("variant-alphagenome/alphagenome-native-groups-local-tls", result.stdout)
                 self.assertIn("1 failed", result.stdout)
 
     def test_isolated_installed_commands_and_cleanup(self):

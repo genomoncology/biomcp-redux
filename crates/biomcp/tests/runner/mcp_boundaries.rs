@@ -8,7 +8,7 @@ type Check = Result<(), Box<dyn std::error::Error>>;
 
 pub(super) fn trials() -> Vec<Trial> {
     vec![
-        transcript_trial("mcp-stdio/command-refusal-reasons", || {
+        transcript_trial("mcp-http/command-refusal-reasons", || {
             command_reasons(false).map_err(|e| e.to_string().into())
         }),
         transcript_trial("mcp-http/command-refusal-reasons", || {

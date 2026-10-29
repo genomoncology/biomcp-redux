@@ -15,10 +15,10 @@ pub(super) fn trials() -> Vec<Trial> {
             envelopes().map_err(Into::into)
         }),
         transcript_trial(
-            "runner/markdown-terms-subtraction-keeps-payload-ceilings",
+            "schema-discovery/markdown-terms-subtraction-keeps-payload-ceilings",
             || markdown_subtraction().map_err(Into::into),
         ),
-        transcript_trial("runner/terms-subtraction-keeps-payload-ceilings", || {
+        transcript_trial("schema-discovery/terms-subtraction-keeps-payload-ceilings", || {
             subtraction().map_err(Into::into)
         }),
     ]

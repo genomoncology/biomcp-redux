@@ -5,10 +5,10 @@ use serde_json::{Value, json};
 type Check = Result<(), String>;
 pub(super) fn trials() -> Vec<Trial> {
     vec![
-        Trial::test("trial/nci-biomarker-entry-boundaries", || {
+        Trial::test("trial-nci/nci-biomarker-entry-boundaries", || {
             boundaries().map_err(Into::into)
         }),
-        Trial::test("trial/nci-biomarker-input-and-next", || {
+        Trial::test("trial-nci/nci-biomarker-input-and-next", || {
             inputs().map_err(Into::into)
         }),
     ]

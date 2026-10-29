@@ -161,3 +161,8 @@ pub(super) fn support() -> std::path::PathBuf {
         checkout().join("../..")
     }
 }
+
+// Feature ownership travels with the runner when installed fixtures are copied.
+pub(super) fn feature_list() -> &'static str {
+    include_str!("../../../../sdlc/features.md")
+}

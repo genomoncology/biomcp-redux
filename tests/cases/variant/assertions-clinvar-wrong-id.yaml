@@ -1,5 +1,5 @@
 {
-  "feature": "variant-assertions",
+  "feature": "variant-identity",
   "live_check": "synthetic response case",
   "story": "A different checked ClinVar Variation ID fails before live or replay cache admission",
   "replay": "variant/assertions/clinvar-wrong-id",

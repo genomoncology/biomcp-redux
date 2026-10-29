@@ -37,7 +37,7 @@ pub(super) fn trials() -> Vec<Trial> {
         )
     })
     .chain(std::iter::once(transcript_trial(
-        "source-deadlines/wonder/shared-quota-reply",
+        "source-controls/wonder/shared-quota-reply",
         || quota::run().map_err(Into::into),
     )))
     .collect()

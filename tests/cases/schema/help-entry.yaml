@@ -1,5 +1,5 @@
 live_check: local-only case
-feature: schema
+feature: schema-discovery
 story: Help entry points show the public grammar before any source access.
 steps:
   - run: []

@@ -13,11 +13,11 @@ mod store_locks;
 
 pub(super) fn trials() -> Vec<Trial> {
     let mut trials = vec![
-        transcript_trial("cache/checked-gene-survives-write-contention", || {
+        transcript_trial("cache-resilience/checked-gene-survives-write-contention", || {
             checked_gene().map_err(Into::into)
         }),
         transcript_trial(
-            "cache/checked-protein-command-survives-write-contention",
+            "cache-resilience/checked-protein-command-survives-write-contention",
             || checked_protein().map_err(Into::into),
         ),
     ];

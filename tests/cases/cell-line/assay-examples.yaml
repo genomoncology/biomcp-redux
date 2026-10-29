@@ -1,5 +1,5 @@
 {
-  "feature": "cell-line-chembl",
+  "feature": "cell-line-identity",
   "story": "Native assay totals remain separately requested counts through two parsed disclosure examples.",
   "replay": "cell-line/assay-examples",
   "steps": [

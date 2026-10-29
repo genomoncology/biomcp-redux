@@ -28,13 +28,13 @@ pub(super) fn trials() -> Vec<Trial> {
             })
         })
         .chain([
-            transcript_trial("pgx-registry/retired-source-before-io", || {
+            transcript_trial("source-controls/retired-source-before-io", || {
                 retired().map_err(Into::into)
             }),
-            transcript_trial("pgx-registry/policy-before-io", || {
+            transcript_trial("source-controls/policy-before-io", || {
                 admission::run().map_err(Into::into)
             }),
-            transcript_trial("pgx-registry/configuration-union", || {
+            transcript_trial("source-controls/configuration-union", || {
                 switches().map_err(Into::into)
             }),
         ])

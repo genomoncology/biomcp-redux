@@ -7,16 +7,16 @@ use serde_json::{Value, json};
 
 pub(super) fn trials() -> Vec<Trial> {
     vec![
-        transcript_trial("variant/population-get-rsid-source-ca", || {
+        transcript_trial("variant-population/population-get-rsid-source-ca", || {
             sourced(false).map_err(Into::into)
         }),
-        transcript_trial("variant/population-get-grch38-hgvs", || {
+        transcript_trial("variant-population/population-get-grch38-hgvs", || {
             sourced(true).map_err(Into::into)
         }),
-        transcript_trial("variant/population-get-ambiguous-no-selection", || {
+        transcript_trial("variant-population/population-get-ambiguous-no-selection", || {
             ambiguous().map_err(Into::into)
         }),
-        transcript_trial("variant/population-get-missing-identity-recovery", || {
+        transcript_trial("variant-population/population-get-missing-identity-recovery", || {
             recovery().map_err(Into::into)
         }),
     ]

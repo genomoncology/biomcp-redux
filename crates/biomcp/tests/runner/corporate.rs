@@ -8,14 +8,14 @@ use std::{fs, net::TcpListener};
 pub(super) fn trials() -> Vec<Trial> {
     vec![
         transcript_trial(
-            "network/configuration-causes-and-automatic-sync-limit",
+            "corporate-network/configuration-causes-and-automatic-sync-limit",
             || configuration().map_err(Into::into),
         ),
-        transcript_trial("network/proxy-environment-failure", || {
+        transcript_trial("corporate-network/proxy-environment-failure", || {
             proxy().map_err(Into::into)
         }),
-        transcript_trial("network/bad-ca-is-local", || bad_ca().map_err(Into::into)),
-        transcript_trial("network/additive-ca-tls-and-proxy-isolation", || {
+        transcript_trial("corporate-network/bad-ca-is-local", || bad_ca().map_err(Into::into)),
+        transcript_trial("corporate-network/additive-ca-tls-and-proxy-isolation", || {
             tls().map_err(Into::into)
         }),
     ]

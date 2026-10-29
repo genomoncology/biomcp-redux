@@ -61,31 +61,31 @@ pub(super) fn cached(args: &[&str], case: &Path, recording: Option<&Path>) -> Ve
 }
 pub(super) fn trials() -> Vec<Trial> {
     vec![
-        transcript_trial("article/unknown-acquisition-is-omitted", || {
+        transcript_trial("article-search/unknown-acquisition-is-omitted", || {
             super::article_save_reply::unknown_acquisition().map_err(Into::into)
         }),
-        transcript_trial("gene/version-one-default-cache-remains-readable", || {
+        transcript_trial("gene-identity/version-one-default-cache-remains-readable", || {
             default_cache_migration().map_err(Into::into)
         }),
-        transcript_trial("article/concurrent-process-pool-publication", || {
+        transcript_trial("article-search/concurrent-process-pool-publication", || {
             article_processes().map_err(Into::into)
         }),
-        transcript_trial("article/persistent-replay-command-epochs", || {
+        transcript_trial("article-search/persistent-replay-command-epochs", || {
             article_replay_epoch().map_err(Into::into)
         }),
-        transcript_trial("article/owners-refused-before-journal-and-tables", || {
+        transcript_trial("article-search/owners-refused-before-journal-and-tables", || {
             article_owners().map_err(Into::into)
         }),
-        transcript_trial("gene/next-commands-preserve-hyphen-positionals", || {
+        transcript_trial("gene-identity/next-commands-preserve-hyphen-positionals", || {
             next_positionals().map_err(Into::into)
         }),
-        transcript_trial("gene/persistent-case-cache-owns-all-writes", || {
+        transcript_trial("gene-identity/persistent-case-cache-owns-all-writes", || {
             ownership().map_err(Into::into)
         }),
-        transcript_trial("gene/refuses-unowned-case-cache-paths", || {
+        transcript_trial("gene-identity/refuses-unowned-case-cache-paths", || {
             refusals().map_err(Into::into)
         }),
-        transcript_trial("gene/checked-command-and-config-boundaries", || {
+        transcript_trial("gene-identity/checked-command-and-config-boundaries", || {
             boundaries().map_err(Into::into)
         }),
     ]

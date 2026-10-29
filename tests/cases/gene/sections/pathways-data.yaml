@@ -1,6 +1,6 @@
 {
   "live_check": "public",
-  "feature": "gene-sections",
+  "feature": "gene-pathways",
   "story": "BRAF has stable lowest-level human Reactome references",
   "replay": "gene/pathways",
   "steps": [

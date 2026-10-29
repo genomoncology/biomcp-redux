@@ -1,5 +1,5 @@
 live_check: local-only case
-feature: schema
+feature: schema-discovery
 story: Invalid schema requests return the fixed usage envelope
 steps:
   - run: [schema, SENSITIVE-usage-probe-37f4]

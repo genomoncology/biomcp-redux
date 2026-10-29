@@ -1,5 +1,5 @@
 live_check: local-only case
-feature: gene-commands
+feature: gene-bundle
 story: An empty offline cache reports an identity source failure and offers synchronization.
 steps:
   - run: [get, gene, BRAF, --offline]

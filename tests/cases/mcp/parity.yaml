@@ -1,5 +1,5 @@
 live_check: local-only case
-feature: mcp
+feature: mcp-parity
 story: The schema command and typed usage results agree through MCP and CLI
 steps:
   - run: [schema, biomcp.source/1]

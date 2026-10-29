@@ -6,7 +6,7 @@ use std::{io::Read, process::Stdio};
 
 pub(super) fn trials() -> Vec<Trial> {
     vec![
-        transcript_trial("schema/closed-output-reader", || {
+        transcript_trial("schema-discovery/closed-output-reader", || {
             closed_reader().map_err(Into::into)
         }),
         transcript_trial("markdown-view/absent-query", || {

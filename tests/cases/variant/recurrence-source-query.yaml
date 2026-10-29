@@ -1,5 +1,5 @@
 {
-  "feature": "variant-recurrence",
+  "feature": "variant-identity",
   "live_check": "synthetic",
   "replay": "variant/recurrence",
   "story": "A captured explicit cohort query reports only exact allele sample observations and preserves a literal source notice",

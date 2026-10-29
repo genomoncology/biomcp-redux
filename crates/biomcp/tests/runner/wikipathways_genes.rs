@@ -12,7 +12,7 @@ use super::configuration::invoke;
 
 pub(super) fn trials() -> Vec<Trial> {
     vec![
-        transcript_trial("wikipathways-genes/retained-output-ceilings", || {
+        transcript_trial("pathway-wikipathways-genes/retained-output-ceilings", || {
             native::saved().map_err(Into::into)
         })
         .with_ignored_flag(
@@ -21,22 +21,22 @@ pub(super) fn trials() -> Vec<Trial> {
                 .is_file(),
         ),
         transcript_trial(
-            "wikipathways-genes/exact-xrefs-and-distinct-gene-pivots",
+            "pathway-wikipathways-genes/exact-xrefs-and-distinct-gene-pivots",
             || joins::run().map_err(Into::into),
         ),
         transcript_trial(
-            "wikipathways-genes/single-attempt-provider-failures",
+            "pathway-wikipathways-genes/single-attempt-provider-failures",
             || single_attempt().map_err(Into::into),
         ),
         transcript_trial(
-            "wikipathways-genes/native-kinds-and-retained-paging",
+            "pathway-wikipathways-genes/native-kinds-and-retained-paging",
             || paging().map_err(Into::into),
         ),
         transcript_trial(
-            "wikipathways-genes/failed-bodies-never-enter-retained-membership",
+            "pathway-wikipathways-genes/failed-bodies-never-enter-retained-membership",
             || failures().map_err(Into::into),
         ),
-        transcript_trial("wikipathways-genes/retained-native-measurements", || {
+        transcript_trial("pathway-wikipathways-genes/retained-native-measurements", || {
             native::run().map_err(Into::into)
         })
         .with_ignored_flag(

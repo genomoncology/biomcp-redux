@@ -37,10 +37,10 @@ pub(super) fn trials() -> Vec<Trial> {
             )
         })
         .chain([
-            transcript_trial("diagnostic-registry/policy-before-io", || {
+            transcript_trial("source-controls/policy-before-io", || {
                 admission::run().map_err(Into::into)
             }),
-            transcript_trial("diagnostic-registry/configuration-union", || {
+            transcript_trial("source-controls/configuration-union", || {
                 switches().map_err(Into::into)
             }),
         ])

@@ -9,21 +9,21 @@ pub(super) fn trials(registry: Arc<Registry>) -> Vec<Trial> {
     let evolution_registry = Arc::clone(&registry);
     vec![
         transcript_trial(
-            "schema/recorded-reply-accepts-future-fields-and-enum-names",
+            "schema-discovery/recorded-reply-accepts-future-fields-and-enum-names",
             move || {
                 super::schema_evolution::recorded_reply(&evolution_registry).map_err(Into::into)
             },
         ),
-        transcript_trial("schema/catalog-and-help-reply-discovery", || {
+        transcript_trial("schema-discovery/catalog-and-help-reply-discovery", || {
             discovery().map_err(Into::into)
         }),
-        transcript_trial("runner/validates-results-before-assertions", move || {
+        transcript_trial("schema-discovery/validates-results-before-assertions", move || {
             results(&registry).map_err(Into::into)
         }),
-        transcript_trial("runner/validates-raw-artifact-request", move || {
+        transcript_trial("schema-discovery/validates-raw-artifact-request", move || {
             raw_artifacts(&raw_registry).map_err(Into::into)
         }),
-        transcript_trial("runner/resolves-only-registered-schema-references", || {
+        transcript_trial("schema-discovery/resolves-only-registered-schema-references", || {
             references().map_err(Into::into)
         }),
     ]

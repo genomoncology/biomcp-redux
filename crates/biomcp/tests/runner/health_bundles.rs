@@ -40,13 +40,13 @@ const BUNDLES: &[(&str, &[&str])] = &[
 ];
 pub(super) fn trials() -> Vec<Trial> {
     vec![
-        transcript_trial("sources/health-publisher-probes-record-and-replay", || {
+        transcript_trial("source-controls/health-publisher-probes-record-and-replay", || {
             reachable().map_err(Into::into)
         }),
-        transcript_trial("sources/health-local-bundles-ignore-abandoned-sync", || {
+        transcript_trial("source-controls/health-local-bundles-ignore-abandoned-sync", || {
             local().map_err(Into::into)
         }),
-        transcript_trial("sources/health-publisher-failure-is-one-request", || {
+        transcript_trial("source-controls/health-publisher-failure-is-one-request", || {
             failure().map_err(Into::into)
         }),
     ]
