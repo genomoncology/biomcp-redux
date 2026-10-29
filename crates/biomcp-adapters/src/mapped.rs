@@ -124,7 +124,9 @@ pub(crate) fn field_text(
     field: &str,
     value: Option<crate::raw::Field<String>>,
 ) -> Option<biodata::Text> {
-    let value = value?.value().and_then(|s| biodata::Text::from_source(&s).ok());
+    let value = value?
+        .value()
+        .and_then(|s| biodata::Text::from_source(&s).ok());
     if value.is_none() {
         push_problem(problems, source, record, field);
     }
