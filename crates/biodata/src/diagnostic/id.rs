@@ -1,5 +1,3 @@
-use std::{fmt, str::FromStr};
-
 fn digits(value: &str, width: usize) -> bool {
     value.len() == width && value.bytes().all(|b| b.is_ascii_digit())
 }
@@ -49,74 +47,53 @@ fn device(value: &str) -> bool {
             .or_else(|| value.strip_prefix('H'))
             .is_some_and(|v| digits(v, 6))
 }
-macro_rules! id {
-    ($name:ident, $check:ident, $pattern:literal, $doc:literal) => {
-        #[doc = $doc]
-        #[derive(Clone, Debug, PartialEq, Eq, Hash)]
-        pub struct $name(Box<str>);
-        impl FromStr for $name {
-            type Err = crate::Error;
-            fn from_str(value: &str) -> Result<Self, Self::Err> {
-                if $check(value) {
-                    Ok(Self(value.into()))
-                } else {
-                    Err(crate::Error::DiagnosticIdInvalid)
-                }
-            }
-        }
-        impl $name {
-            /// Borrow the complete published identity.
-            pub fn as_str(&self) -> &str {
-                &self.0
-            }
-        }
-        impl fmt::Display for $name {
-            fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
-                f.write_str(&self.0)
-            }
-        }
-        crate::text_value!($name, stringify!($name), $pattern, $doc);
-    };
-}
-id!(
+
+crate::checked_id!(
     GtrTestId,
+    DiagnosticIdInvalid,
     gtr,
     "^GTR[0-9]{9}\\.[1-9][0-9]*$",
     "Complete native GTR accession and positive version."
 );
-id!(
+crate::checked_id!(
     WhoProductId,
+    DiagnosticIdInvalid,
     who,
     "^[0-9]{4,5}-([0-9]{3}|[0-9]{5})-[0-9]{2}$",
     "WHO product listing identity, independent of product codes."
 );
-id!(
+crate::checked_id!(
     PmaNumber,
+    DiagnosticIdInvalid,
     pma,
     "^P[0-9]{6}$",
     "Native FDA PMA base application number."
 );
-id!(
+crate::checked_id!(
     PmaSupplement,
+    DiagnosticIdInvalid,
     supplement,
     "^S(00[1-9]|0[1-9][0-9]|[1-9][0-9]{2})$",
     "Explicit native PMA supplement selector; no invented base alias."
 );
-id!(
+crate::checked_id!(
     FdaDrugApplication,
+    DiagnosticIdInvalid,
     drug,
     "^(NDA|BLA)[0-9]{6}$",
     "Cell-owned drug application preserving native NDA/BLA prefix and leading zeros."
 );
-id!(
+crate::checked_id!(
     DiagnosticDeviceId,
+    DiagnosticIdInvalid,
     device,
     "^(P[0-9]{6}(/S(00[1-9]|0[1-9][0-9]|[1-9][0-9]{2}))?|K[0-9]{6}|DEN[0-9]{6}|H[0-9]{6})$",
     "Source device identifier; DEN and H identifiers imply no executable get."
 );
 
-id!(
+crate::checked_id!(
     PmaSupplementCell,
+    DiagnosticIdInvalid,
     native_supplement,
     "^($|S(00[1-9]|0[1-9][0-9]|[1-9][0-9]{2}))$",
     "Native PMA supplement cell; empty denotes base and never becomes S000."
@@ -128,8 +105,9 @@ fn recall(value: &str) -> bool {
         .and_then(|v| v.split_once('-'))
         .is_some_and(|(number, year)| digits(number, 4) && digits(year, 4))
 }
-id!(
+crate::checked_id!(
     DeviceRecallNumber,
+    DiagnosticIdInvalid,
     recall,
     "^Z-[0-9]{4}-[0-9]{4}$",
     "Native FDA product recall number, independent of its event number."
@@ -141,8 +119,9 @@ fn drug_recall(value: &str) -> bool {
         .and_then(|v| v.split_once('-'))
         .is_some_and(|(number, year)| digits(number, 4) && digits(year, 4))
 }
-id!(
+crate::checked_id!(
     DrugRecallNumber,
+    DiagnosticIdInvalid,
     drug_recall,
     "^D-[0-9]{4}-[0-9]{4}$",
     "Native FDA drug recall number, independent of its event number."

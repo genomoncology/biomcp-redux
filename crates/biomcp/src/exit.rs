@@ -15,7 +15,7 @@ pub(crate) fn finish(result: io::Result<()>, status: Status) -> ExitCode {
         Ok(()) => ExitCode::from(status.code()),
         Err(_) => {
             crate::output::diagnostic(b"biomcp: output failed\n");
-            ExitCode::from(5)
+            ExitCode::from(Status::Local.code())
         }
     }
 }
@@ -36,7 +36,7 @@ impl From<biomcp_types::Status> for Status {
 }
 
 impl Status {
-    fn code(&self) -> u8 {
+    pub(crate) fn code(&self) -> u8 {
         match self {
             Self::Success => 0,
             Self::Absent => 1,

@@ -1,4 +1,5 @@
 //! Keyed gene annotations, joined only by checked HGNC Entrez identity.
+mod narrative;
 use crate::mapped::push_problem;
 use crate::mapped::record as record_text;
 mod raw;

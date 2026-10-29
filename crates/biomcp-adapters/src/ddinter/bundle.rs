@@ -80,7 +80,7 @@ pub fn card(leg: &Leg<'_>, id: &DrugId) -> Result<Option<DrugCard>, RequestError
             .as_deref()
             .and_then(|v| Text::new(v).ok()),
         updated: None,
-        retrieved: info.retrieved_at.and_then(crate::received_date),
+        retrieved: crate::received_date(info.retrieved_at),
         available_sections: vec![DrugSection::Interactions].into(),
         next: Box::default(),
     }))
@@ -118,7 +118,7 @@ pub fn interactions(
                     .content_revision
                     .as_deref()
                     .and_then(|v| Text::new(v).ok()),
-                retrieved: info.retrieved_at.and_then(crate::received_date),
+                retrieved: crate::received_date(info.retrieved_at),
             },
         },
     }))

@@ -432,8 +432,8 @@ impl Leg<'_> {
 pub struct ReplyMetadata {
     /// Credential-free request identity.
     pub identity: [u8; 32],
-    /// Original fetch time in Unix seconds; zero for legacy recordings without a timestamp.
-    pub fetched: i64,
+    /// Original fetch time in Unix seconds, absent in legacy recordings without a timestamp.
+    pub fetched: Option<i64>,
     /// Native exact count and selected bounds, when supplied by the provider.
     pub content_range: Option<ContentRange>,
     /// Bounded native count and next link, only on UniProt search replies.

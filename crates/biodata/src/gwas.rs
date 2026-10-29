@@ -2,30 +2,24 @@
 use crate::{Text, text_value};
 use std::{fmt, str::FromStr};
 
-/// A malformed GWAS value.
-#[derive(Clone, Copy, Debug)]
-pub struct GwasValueInvalid;
-impl fmt::Display for GwasValueInvalid {
-    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
-        f.write_str("gwas.value.invalid")
-    }
-}
-impl std::error::Error for GwasValueInvalid {}
-
 /// Exact Catalog study accession; case and leading zeros survive.
 #[derive(Clone, Debug, PartialEq, Eq, Hash)]
 pub struct GwasStudyId(Text);
 impl FromStr for GwasStudyId {
-    type Err = GwasValueInvalid;
+    type Err = crate::Error;
     fn from_str(value: &str) -> Result<Self, Self::Err> {
-        let digits = value.strip_prefix("GCST").ok_or(GwasValueInvalid)?;
+        let digits = value
+            .strip_prefix("GCST")
+            .ok_or(crate::Error::GwasValueInvalid)?;
         if digits.len() < 6
             || !digits.bytes().all(|b| b.is_ascii_digit())
             || !digits.bytes().any(|b| b != b'0')
         {
-            return Err(GwasValueInvalid);
+            return Err(crate::Error::GwasValueInvalid);
         }
-        Ok(Self(Text::new(value).map_err(|_| GwasValueInvalid)?))
+        Ok(Self(
+            Text::new(value).map_err(|_| crate::Error::GwasValueInvalid)?,
+        ))
     }
 }
 impl fmt::Display for GwasStudyId {
@@ -50,15 +44,17 @@ impl GwasAssociationId {
     }
 }
 impl FromStr for GwasAssociationId {
-    type Err = GwasValueInvalid;
+    type Err = crate::Error;
     fn from_str(value: &str) -> Result<Self, Self::Err> {
-        let digits = value.strip_prefix("association:").ok_or(GwasValueInvalid)?;
+        let digits = value
+            .strip_prefix("association:")
+            .ok_or(crate::Error::GwasValueInvalid)?;
         if digits.starts_with('0') || !digits.bytes().all(|b| b.is_ascii_digit()) {
-            return Err(GwasValueInvalid);
+            return Err(crate::Error::GwasValueInvalid);
         }
         Ok(Self(
-            std::num::NonZeroU64::new(digits.parse().map_err(|_| GwasValueInvalid)?)
-                .ok_or(GwasValueInvalid)?,
+            std::num::NonZeroU64::new(digits.parse().map_err(|_| crate::Error::GwasValueInvalid)?)
+                .ok_or(crate::Error::GwasValueInvalid)?,
         ))
     }
 }
@@ -78,9 +74,11 @@ text_value!(
 #[derive(Clone, Debug, PartialEq, Eq, Hash)]
 pub struct GwasTraitId(Text);
 impl FromStr for GwasTraitId {
-    type Err = GwasValueInvalid;
+    type Err = crate::Error;
     fn from_str(value: &str) -> Result<Self, Self::Err> {
-        let (namespace, local) = value.split_once(['_', ':']).ok_or(GwasValueInvalid)?;
+        let (namespace, local) = value
+            .split_once(['_', ':'])
+            .ok_or(crate::Error::GwasValueInvalid)?;
         if namespace.is_empty()
             || local.is_empty()
             || !namespace.bytes().all(|b| b.is_ascii_alphanumeric())
@@ -88,9 +86,11 @@ impl FromStr for GwasTraitId {
                 .bytes()
                 .all(|b| b.is_ascii_alphanumeric() || b == b'_' || b == b'-')
         {
-            return Err(GwasValueInvalid);
+            return Err(crate::Error::GwasValueInvalid);
         }
-        Ok(Self(Text::new(value).map_err(|_| GwasValueInvalid)?))
+        Ok(Self(
+            Text::new(value).map_err(|_| crate::Error::GwasValueInvalid)?,
+        ))
     }
 }
 impl fmt::Display for GwasTraitId {

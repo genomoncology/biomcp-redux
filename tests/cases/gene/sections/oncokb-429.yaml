@@ -3,6 +3,7 @@
   "feature": "gene-sections",
   "story": "Synthetic keyed OncoKB 429 preserves checked identity",
   "replay": "gene/oncokb-synthetic/429",
+  "cache_acquired": 42,
   "config": {
     "keys": {
       "oncokb_api_key": "synthetic-placeholder"

@@ -48,7 +48,7 @@ fn variant_consumer_reads_coding_representations_statements_and_frequencies() ->
         "pathogenicity".parse()?,
         Term {
             label: Text::new("source label")?,
-            coding: None,
+            codings: Box::default(),
         },
         attribution.clone(),
     );

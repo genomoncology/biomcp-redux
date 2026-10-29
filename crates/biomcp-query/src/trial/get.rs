@@ -67,7 +67,7 @@ fn fetch(
                 }
                 let snapshot = Snapshot {
                     detail,
-                    fetched: u64::try_from(metadata.fetched).unwrap_or_default(),
+                    fetched: metadata.fetched.and_then(|value| u64::try_from(value).ok()),
                     version: source_updated.clone(),
                     sources: vec![own_source],
                 };

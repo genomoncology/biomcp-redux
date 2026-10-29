@@ -41,17 +41,21 @@ pub(crate) fn grammar() -> clap::Command {
                 .arg(source()),
         )
 }
-pub(crate) fn parse(matches: &clap::ArgMatches) -> Result<Command, ()> {
-    let (verb, matches) = matches.subcommand().ok_or(())?;
+pub(crate) fn parse(matches: &clap::ArgMatches) -> Result<Command, crate::grammar::ParseInvalid> {
+    let (verb, matches) = matches
+        .subcommand()
+        .ok_or_else(crate::grammar::ParseInvalid::default)?;
     if verb == "list" {
         return Ok(Command::List);
     }
-    let source = matches.get_one::<String>("source").ok_or(())?;
+    let source = matches
+        .get_one::<String>("source")
+        .ok_or_else(crate::grammar::ParseInvalid::default)?;
     let name = SecretName::ALL
         .iter()
         .copied()
         .find(|n| n.source() == source)
-        .ok_or(())?;
+        .ok_or_else(crate::grammar::ParseInvalid::default)?;
     Ok(if verb == "set" {
         Command::Set(name, matches.get_flag("replace"))
     } else {
@@ -104,7 +108,9 @@ fn run_inner(
     command: Command,
     globals: &crate::grammar::Globals,
 ) -> Result<biomcp_types::RegisteredKeys, Failure> {
-    let path = crate::config::config_path(globals.config.as_ref()).ok_or(Failure::Local)?;
+    let path = crate::config::config_path(globals.config.as_ref())
+        .map_err(|error| Failure::Configuration(error.0))?
+        .ok_or(Failure::Local)?;
     // Validate the same config contract used by ordinary commands before preserving it.
     if path.exists() {
         crate::config::secrets(globals).map_err(|error| Failure::Configuration(error.0))?;
@@ -114,7 +120,7 @@ fn run_inner(
         return Ok(biomcp_types::RegisteredKeys {
             entries: SecretName::ALL
                 .iter()
-                .map(|&name| entry(name, state(&value, name)))
+                .map(|&name| entry(name, state(&value, name)?))
                 .collect::<Result<_, _>>()?,
         });
     }
@@ -156,14 +162,16 @@ fn stored(value: &Value, name: SecretName) -> Option<&str> {
         .as_str()
         .filter(|s| !s.is_empty())
 }
-fn state(value: &Value, name: SecretName) -> biomcp_types::KeyState {
-    if stored(value, name).is_some() {
+fn state(value: &Value, name: SecretName) -> Result<biomcp_types::KeyState, Failure> {
+    Ok(if stored(value, name).is_some() {
         biomcp_types::KeyState::Stored
-    } else if crate::config::has_environment_key(name) {
+    } else if crate::config::has_environment_key(name)
+        .map_err(|error| Failure::Configuration(error.0))?
+    {
         biomcp_types::KeyState::Environment
     } else {
         biomcp_types::KeyState::None
-    }
+    })
 }
 fn entry(
     name: SecretName,

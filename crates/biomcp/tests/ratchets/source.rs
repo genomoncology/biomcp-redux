@@ -145,6 +145,14 @@ pub(super) fn check(root: &Path) -> Check {
                 .replace('\\', "/");
             let text = fs::read_to_string(&path)?;
             width(&relative, &text)?;
+            if !relative.ends_with("_tests.rs") && !relative.ends_with("native_contracts.rs") {
+                super::errors::signatures(&text)?;
+            }
+            if relative.starts_with("crates/biodata/src/") && !relative.ends_with("/error.rs") {
+                let declaration = fs::read_to_string(root.join("crates/biodata/src/error.rs"))
+                    .unwrap_or_default();
+                super::errors::display_codes(&declaration, &text)?;
+            }
             let adapter = relative.starts_with("crates/biomcp-adapters/src/");
             let count = text.lines().count();
             if count > FILE_LIMIT

@@ -69,7 +69,7 @@ pub(super) fn get_at(
             items: items.into(),
             total,
         };
-        body.fetched = u64::try_from(metadata.fetched).ok();
+        body.fetched = metadata.fetched.and_then(|value| u64::try_from(value).ok());
         out.body = QueryBody::CellLineChembl(body);
         attach(cx, deadline, &mut out);
     } else if error.is_some() {
@@ -100,7 +100,7 @@ pub fn assay_count(cx: &Ctx<'_>, query: &CellLineAssayCountQuery) -> Outcome {
             id: query.id.clone(),
             assay_count,
             release: None,
-            fetched: u64::try_from(metadata.fetched).ok(),
+            fetched: metadata.fetched.and_then(|value| u64::try_from(value).ok()),
         });
         attach(cx, deadline, &mut out);
     } else if error.is_some() {

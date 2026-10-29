@@ -135,7 +135,7 @@ fn diagnose(bytes: &[u8]) -> Result<ConfigFile, ConfigError> {
 pub(super) fn read_file(
     override_path: Option<&PathBuf>,
 ) -> Result<Option<ConfigFile>, ConfigError> {
-    config_path(override_path)
+    config_path(override_path)?
         .map(|path| match fs::read(path) {
             Ok(bytes) => decode(&bytes).map(Some),
             Err(error)

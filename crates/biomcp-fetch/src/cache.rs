@@ -359,11 +359,12 @@ fn wait_mutex<'a, T>(
 }
 
 pub(crate) fn now() -> i64 {
-    i64::try_from(
-        SystemTime::now()
-            .duration_since(UNIX_EPOCH)
-            .unwrap_or_default()
-            .as_secs(),
-    )
-    .unwrap_or(i64::MAX)
+    timestamp().unwrap_or_default()
+}
+
+pub(crate) fn timestamp() -> Option<i64> {
+    SystemTime::now()
+        .duration_since(UNIX_EPOCH)
+        .ok()
+        .and_then(|duration| i64::try_from(duration.as_secs()).ok())
 }

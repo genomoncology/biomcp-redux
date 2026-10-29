@@ -10,11 +10,11 @@ use biomcp_types::{
 use sha2::{Digest, Sha256};
 pub(super) struct Snapshot {
     pub(super) detail: nci::Detail,
-    pub(super) fetched: u64,
+    pub(super) fetched: Option<u64>,
     pub(super) sources: Vec<SourceOutcome>,
 }
 fn key(id: biodata::NctId) -> Vec<u8> {
-    Sha256::digest(format!("biomcp.nci_trial_snapshot/1\0{id}").as_bytes()).to_vec()
+    Sha256::digest(format!("biomcp.nci_trial_snapshot/2\0{id}").as_bytes()).to_vec()
 }
 pub(in crate::trial) fn run(cx: &Ctx<'_>, q: &TrialGet) -> Outcome {
     let mut out = empty(QueryBody::NciTrialCards(NciTrialCards {
@@ -58,7 +58,7 @@ fn fetch(
             Ok((detail, meta)) => {
                 let snapshot = Snapshot {
                     detail,
-                    fetched: u64::try_from(meta.fetched).unwrap_or_default(),
+                    fetched: meta.fetched.and_then(|value| u64::try_from(value).ok()),
                     sources: vec![source.clone()],
                 };
                 let pool = if let Some(store) = store.as_mut() {

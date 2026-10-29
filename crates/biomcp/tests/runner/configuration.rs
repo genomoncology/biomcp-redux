@@ -61,6 +61,9 @@ pub(super) fn cached(args: &[&str], case: &Path, recording: Option<&Path>) -> Ve
 }
 pub(super) fn trials() -> Vec<Trial> {
     vec![
+        transcript_trial("article/unknown-acquisition-is-omitted", || {
+            super::article_save_reply::unknown_acquisition().map_err(Into::into)
+        }),
         transcript_trial("gene/version-one-default-cache-remains-readable", || {
             default_cache_migration().map_err(Into::into)
         }),
@@ -183,9 +186,15 @@ fn ownership() -> Check {
     let file = user_cache.join("replies.sqlite");
     fs::write(&file, b"prepopulated user cache sentinel").map_err(|e| e.to_string())?;
     let case = env.root().join("case");
+    let records = env.root().join("known-recordings");
+    super::response_cases::cache_capture(
+        "gene/main",
+        &records,
+        super::response_cases::CACHE_ACQUIRED,
+    )?;
     let replay = invoke(
         &env,
-        cached(&["get", "gene", "BRAF"], &case, Some(&root())),
+        cached(&["get", "gene", "BRAF"], &case, Some(&records)),
         0,
     )?;
     let offline = invoke(&env, cached(&["get", "gene", "BRAF"], &case, None), 0)?;
@@ -521,7 +530,12 @@ fn article_replay_epoch() -> Check {
 pub(super) fn article_processes() -> Check {
     let env = Environment::new().map_err(|e| e.to_string())?;
     let case = env.root().join("case");
-    let fixture = super::launch::fixtures().join("replies/article/search/synthetic-small");
+    let fixture = env.root().join("known-recordings");
+    super::response_cases::cache_capture(
+        "article/search/synthetic-small",
+        &fixture,
+        super::response_cases::CACHE_ACQUIRED,
+    )?;
     let base = ["search", "article", "AKT1 E17K", "--limit", "2"];
     let initial = invoke(&env, cached(&base, &case, Some(&fixture)), 0)?;
     let expected = initial.pointer("/result/items").ok_or("items missing")?;

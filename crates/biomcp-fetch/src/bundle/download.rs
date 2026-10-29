@@ -302,7 +302,7 @@ impl Leg<'_> {
         if matches!(self.fetch.mode, Mode::Record { .. }) {
             let exchange = Exchange {
                 rpc: None,
-                fetched: crate::cache::now(),
+                fetched: crate::cache::timestamp(),
                 status: 200,
                 content_type: b.format.media().into(),
                 content_range: None,
@@ -530,5 +530,5 @@ fn resume(
 fn provenance(meta: &mut Meta, body: &[u8]) {
     let hex = super::bundle_sha256(body);
     meta.content_revision = Some(format!("sha256:{hex}"));
-    meta.retrieved_at = Some(crate::cache::now());
+    meta.retrieved_at = crate::cache::timestamp();
 }

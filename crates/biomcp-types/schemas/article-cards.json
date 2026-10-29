@@ -353,7 +353,10 @@
               "description": "Original fetch time in Unix seconds.",
               "format": "uint64",
               "minimum": 0,
-              "type": "integer"
+              "type": [
+                "integer",
+                "null"
+              ]
             },
             "match": {
               "$ref": "#/$defs/Reply_ArticleMatch",
@@ -367,8 +370,7 @@
           "required": [
             "resolution",
             "card",
-            "match",
-            "fetched"
+            "match"
           ],
           "type": "object"
         },

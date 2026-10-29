@@ -110,11 +110,15 @@ fn refuse_hostile_sidecars(
     path: &Path,
     original_value: &serde_json::Value,
 ) {
-    for hostile in [
-        "../outside.bin",
-        "/absolute.bin",
-        "nested/file.bin",
-        "missing.bin",
+    for (hostile, expected) in [
+        ("../outside.bin", RecordError::Malformed),
+        ("/absolute.bin", RecordError::Malformed),
+        ("nested/file.bin", RecordError::Malformed),
+        ("missing.bin", RecordError::Missing),
+        (
+            "invalid\0.bin",
+            RecordError::Io(std::io::ErrorKind::InvalidInput),
+        ),
     ] {
         let mut value = original_value.clone();
         *value.pointer_mut("/exchanges/0/body/value").unwrap() = hostile.into();
@@ -123,8 +127,8 @@ fn refuse_hostile_sidecars(
             dir: dir.to_owned(),
         });
         assert!(
-            matches!(bytes(&replay, spec), Err(RequestError::Recording(_))),
-            "Binary replay must preserve order and reject unsafe sidecars"
+            matches!(bytes(&replay, spec), Err(RequestError::Recording(error)) if error == expected),
+            "Binary replay must preserve the failure kind for sidecar {hostile:?}"
         );
     }
 }

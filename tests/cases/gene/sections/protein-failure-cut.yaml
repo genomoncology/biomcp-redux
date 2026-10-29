@@ -3,6 +3,7 @@
   "feature": "gene-sections",
   "story": "A UniProt cut failure preserves identity and MyGene but never caches the rejected section",
   "replay": "gene/protein/synthetic-cut",
+  "cache_acquired": 42,
   "steps": [
     {
       "run": [

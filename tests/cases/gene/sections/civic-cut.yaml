@@ -3,6 +3,7 @@
   "feature": "gene-sections",
   "story": "A synthetic CIViC cut reply preserves the independent card",
   "replay": "gene/civic/synthetic-cut",
+  "cache_acquired": 42,
   "steps": [
     {
       "run": [

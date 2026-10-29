@@ -3,6 +3,7 @@
   "feature": "gene-sections",
   "story": "A Reactome 500 failure preserves identity and MyGene without caching the rejected section",
   "replay": "gene/pathways/synthetic-500",
+  "cache_acquired": 42,
   "steps": [
     {
       "run": [

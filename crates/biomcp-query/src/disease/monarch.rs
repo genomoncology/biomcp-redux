@@ -35,7 +35,9 @@ pub fn get(cx: &Ctx<'_>, query: &DiseaseGet) -> Outcome {
             query,
             page.items,
             components,
-            u64::try_from(page.metadata.fetched).ok().filter(|v| *v > 0),
+            page.metadata
+                .fetched
+                .and_then(|value| u64::try_from(value).ok()),
         );
         out.status = overall(&out, page.total == 0);
     }

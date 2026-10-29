@@ -166,7 +166,7 @@ pub struct TrialDate {
 }
 crate::wire_enum! {
     /// Native registry arm group type from the publisher enum metadata.
-    #[non_exhaustive]
+
     #[cfg_attr(feature = "schema", schemars(extend("x-enum-open" = true)))]
     TrialArmKind {
         /// EXPERIMENTAL source value.
@@ -185,7 +185,7 @@ crate::wire_enum! {
 }
 crate::wire_enum! {
     /// Native registry intervention type from the publisher enum metadata.
-    #[non_exhaustive]
+
     #[cfg_attr(feature = "schema", schemars(extend("x-enum-open" = true)))]
     TrialInterventionKind {
         /// BEHAVIORAL source value.

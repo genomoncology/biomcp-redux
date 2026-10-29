@@ -1,4 +1,3 @@
-use super::GwasValueInvalid;
 use crate::Text;
 use serde::{Deserialize, Serialize};
 use std::{cmp::Ordering, fmt, str::FromStr};
@@ -20,7 +19,7 @@ struct Parts {
     exponent: i64,
 }
 impl TryFrom<Parts> for ScientificPValue {
-    type Error = GwasValueInvalid;
+    type Error = crate::Error;
     fn try_from(parts: Parts) -> Result<Self, Self::Error> {
         let text = parts.mantissa.as_str();
         let (whole, fraction) = text.split_once('.').unwrap_or((text, ""));
@@ -31,7 +30,7 @@ impl TryFrom<Parts> for ScientificPValue {
             || parts.exponent > 0
             || parts.exponent == 0 && (whole != "1" || fraction.bytes().any(|b| b != b'0'))
         {
-            return Err(GwasValueInvalid);
+            return Err(crate::Error::GwasValueInvalid);
         }
         Ok(Self(parts))
     }
@@ -47,12 +46,16 @@ impl ScientificPValue {
     }
 }
 impl FromStr for ScientificPValue {
-    type Err = GwasValueInvalid;
+    type Err = crate::Error;
     fn from_str(value: &str) -> Result<Self, Self::Err> {
-        let (mantissa, exponent) = value.split_once(['e', 'E']).ok_or(GwasValueInvalid)?;
+        let (mantissa, exponent) = value
+            .split_once(['e', 'E'])
+            .ok_or(crate::Error::GwasValueInvalid)?;
         Self::try_from(Parts {
-            mantissa: Text::new(mantissa).map_err(|_| GwasValueInvalid)?,
-            exponent: exponent.parse().map_err(|_| GwasValueInvalid)?,
+            mantissa: Text::new(mantissa).map_err(|_| crate::Error::GwasValueInvalid)?,
+            exponent: exponent
+                .parse()
+                .map_err(|_| crate::Error::GwasValueInvalid)?,
         })
     }
 }

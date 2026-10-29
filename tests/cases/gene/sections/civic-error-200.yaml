@@ -3,6 +3,7 @@
   "feature": "gene-sections",
   "story": "A synthetic CIViC error-200 reply preserves the independent card",
   "replay": "gene/civic/synthetic-error-200",
+  "cache_acquired": 42,
   "steps": [
     {
       "run": [

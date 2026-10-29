@@ -125,7 +125,7 @@ fn page<T>(
     query: &DrugGet,
     records: Box<[T]>,
     total: u64,
-    fetched: i64,
+    fetched: Option<i64>,
     fresh: bool,
 ) -> Section<DrugRecords<T>> {
     let offset = query.section_offset().unwrap_or(0);
@@ -186,7 +186,7 @@ fn targets(
     identity: DrugHeader,
     records: Box<[biodata::DrugTargetRelation]>,
     total: u64,
-    fetched: i64,
+    fetched: Option<i64>,
     fresh: bool,
 ) {
     let targets = page(out, query, records, total, fetched, fresh);
@@ -198,7 +198,7 @@ fn indications(
     identity: DrugHeader,
     records: Box<[biodata::DrugIndicationClaim]>,
     total: u64,
-    fetched: i64,
+    fetched: Option<i64>,
     fresh: bool,
 ) {
     let indications = page(out, query, records, total, fetched, fresh);
@@ -210,7 +210,7 @@ fn indications(
 
 fn chembl_card(
     row: chembl::Molecule,
-    fetched: i64,
+    fetched: Option<i64>,
     query: &DrugGet,
     fresh: bool,
     out: &mut Outcome,
