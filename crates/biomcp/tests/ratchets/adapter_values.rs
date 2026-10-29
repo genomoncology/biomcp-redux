@@ -67,7 +67,10 @@ fn validate(audit: &Audit) -> Check {
 }
 fn initial_entry(entry: &Site) -> bool {
     let identity = format!("{}\n{}", entry.path, entry.site);
-    let hash = format!("{:x}", Sha256::digest(identity.as_bytes()));
+    let hash: String = Sha256::digest(identity.as_bytes())
+        .iter()
+        .map(|byte| format!("{byte:02x}"))
+        .collect();
     INITIAL_IDENTITIES
         .lines()
         .filter_map(|line| line.split_once(' '))
