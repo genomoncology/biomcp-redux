@@ -3,7 +3,15 @@ use serde_json::{Value, json};
 use std::fs;
 
 pub(super) fn classifications() -> Result<(), String> {
-    case(None, None)?;
+    case(
+        None,
+        Some(json!({
+            "/result/items/0/answer/gene/symbol":"TP53",
+            "/result/items/0/oncokb/gene_type":"TSG",
+            "/result/items/0/oncokb/gene_type_code":"TSG",
+            "":{"omits":["problems"]}
+        })),
+    )?;
     for (invalid, expected) in [
         (
             json!(" TSG "),
