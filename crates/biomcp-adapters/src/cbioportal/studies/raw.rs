@@ -55,7 +55,10 @@ impl From<ReceivedCatalogRow> for CatalogRow {
         let mut problems = crate::mapped::Problems {
             source: biomcp_types::Source::Cbioportal,
             record: crate::mapped::record(&row.study_id),
-            list: row.problems.unwrap_or_else(Vec::new),
+            list: match row.problems {
+                Some(problems) => problems,
+                None => Vec::new(),
+            },
         };
         Self {
             study_id: row.study_id,
