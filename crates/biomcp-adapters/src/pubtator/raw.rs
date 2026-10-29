@@ -18,7 +18,7 @@ pub(super) struct Passage {
 #[derive(Deserialize)]
 pub(super) struct Annotation {
     pub infons: Infons,
-    pub text: Option<String>,
+    pub text: Option<Field<String>>,
 }
 #[derive(Deserialize)]
 pub(super) struct Infons {

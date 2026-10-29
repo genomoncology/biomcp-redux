@@ -26,13 +26,13 @@ pub(super) fn litsense<'a>(
     let error = result.as_ref().err().copied();
     let mut outcome = status::source(Source::LitSense, leg.finish(), error);
     outcome.term = Text::new(&term).ok();
-    let items = result.unwrap_or_default();
+    let (items, problems) = result.map(|r| (r.value, r.problems)).unwrap_or_default();
     if error.is_none() {
         outcome.count = Some(items.len() as u64);
         outcome.fetched = Some(items.len() as u32);
     }
     ResultLeg {
-        problems: Vec::new(),
+        problems,
         source: ArticleSource::Litsense,
         outcome,
         items,

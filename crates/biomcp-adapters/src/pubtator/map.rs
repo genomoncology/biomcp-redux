@@ -67,7 +67,7 @@ fn optional(
     raw: Option<&Field<String>>,
     problems: &mut Vec<Problem>,
 ) -> Option<Text> {
-    let admit = if field == "name" {
+    let admit = if matches!(field, "name" | "text") {
         Text::from_source
     } else {
         Text::new
@@ -101,17 +101,8 @@ fn entity(
         _ => return None,
     };
     let identifier = optional(id, "identifier", raw.identifier.as_ref(), problems);
-    let name = optional(id, "name", raw.name.as_ref(), problems).or_else(|| {
-        annotation.text.as_ref().and_then(|s| {
-            crate::mapped::field_text(
-                problems,
-                Source::PubTator,
-                record_text(id),
-                "text",
-                Some(Field::Value(s.clone())),
-            )
-        })
-    })?;
+    let text = optional(id, "text", annotation.text.as_ref(), problems);
+    let name = optional(id, "name", raw.name.as_ref(), problems).or(text)?;
     let mut value = AnnotatedEntity {
         kind,
         name,
