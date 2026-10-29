@@ -1,5 +1,6 @@
 """Compare saved CLI replies to source identities using a temporary disk index."""
 from collections import Counter
+import hashlib
 import json
 import sqlite3
 
@@ -15,6 +16,23 @@ def strings(value):
             yield from strings(child)
     elif isinstance(value, str):
         yield value
+
+
+def printed_variant_ids(value):
+    """Read typed variant identity slots, excluding prose and attribution records."""
+    if isinstance(value, dict):
+        for key, child in value.items():
+            if key == "ids" and isinstance(child, list):
+                yield from (identity for identity in child if isinstance(identity, str))
+            elif key == "requested" and isinstance(child, str):
+                yield child
+            elif key == "id" and value.get("level") in {"allele", "protein"}:
+                yield child
+            else:
+                yield from printed_variant_ids(child)
+    elif isinstance(value, list):
+        for child in value:
+            yield from printed_variant_ids(child)
 
 
 class Comparison:
@@ -55,10 +73,17 @@ class Comparison:
 
     def compare(self, path, genes):
         seen_genes = set()
+        digest = hashlib.sha256()
+        with path.open("rb") as raw:
+            for chunk in iter(lambda: raw.read(1024 * 1024), b""):
+                digest.update(chunk)
         with path.open(encoding="utf-8") as handle:
             for number, line in enumerate(handle, 1):
                 observation = json.loads(line)
                 source = observation["source"]
+                if len(self.releases.get(source, set())) > 1:
+                    self.refuse("source_inputs_have_different_releases", source)
+                    continue
                 if observation["release"] not in self.releases.get(source, set()):
                     self.refuse("source_release_mismatch", number)
                     continue
@@ -77,7 +102,8 @@ class Comparison:
             self.refuse("civic_gene_unobserved", gene)
         if "clinvar" in self.releases and not self.checked["clinvar_ids"]:
             self.refuse("clinvar_ids_unobserved", "clinvar")
-        return {"checked": dict(self.checked), "failures": dict(self.counts), "examples": self.examples}
+        return {"observed_sha256": digest.hexdigest(), "checked": dict(self.checked),
+                "failures": dict(self.counts), "examples": self.examples}
 
     def civic(self, result, genes, seen):
         for row in result.get("items", []):
@@ -97,7 +123,7 @@ class Comparison:
         if not allowed:
             self.refuse("clinvar_record_not_in_dump", record)
             return
-        printed = [value for value in strings(result) if value.startswith(VARIANT_PREFIXES)]
+        printed = list(printed_variant_ids(result))
         if not printed:
             self.refuse("clinvar_reply_has_no_variant_ids", record)
         for value in printed:

@@ -16,7 +16,7 @@ BRIDGE = os.environ.get("PUBLIC_DUMP_VALUES")
 
 @unittest.skipUnless(BRIDGE, "build public_dump_values and set PUBLIC_DUMP_VALUES")
 class Sweep(unittest.TestCase):
-    def run_sweep(self, kind, content, *, digest=None, limit=None, observed=None):
+    def run_sweep(self, kind, content, *, digest=None, limit=None, observed=None, explanations=None):
         with tempfile.TemporaryDirectory() as temporary:
             folder = Path(temporary)
             data = gzip.compress(content.encode(), mtime=0)
@@ -25,6 +25,7 @@ class Sweep(unittest.TestCase):
                 "kind": kind, "path": "source.gz", "release": "synthetic-edge-sample",
                 "url": "https://example.invalid/public-format-fixture",
                 "rights": "CC0-1.0", "sha256": digest or hashlib.sha256(data).hexdigest(),
+                "refusal_explanations": explanations or [],
             }]}
             (folder / "manifest.json").write_text(json.dumps(manifest))
             command = [sys.executable, str(TOOL), str(folder / "manifest.json"),
@@ -127,7 +128,8 @@ class Sweep(unittest.TestCase):
         allele = "ga4gh:VA." + "a" * 32
         bundle = {"variation": {"clinvar:12": {"members": ["#/allele/" + allele]}},
                   "allele": {allele: {"name": "source allele"}}}
-        reply = {"candidates": [{"identity": {"ids": ["clinvar:12", allele]}}]}
+        reply = {"candidates": [{"identity": {"ids": ["clinvar:12", allele]},
+                                  "classification": "CAUTION is prose, not an allele ID"}]}
         observation = self.observation("clinvar", reply, "clinvar:12")
         result, report = self.run_sweep("clinvar_gks", json.dumps(bundle), observed=[observation])
         self.assertEqual(result.returncode, 0, result.stderr)
@@ -143,6 +145,32 @@ class Sweep(unittest.TestCase):
         result, report = self.run_sweep("civic_variants", text, observed=observed)
         self.assertEqual(result.returncode, 1, result.stderr)
         self.assertEqual(report["comparisons"]["failures"]["source_release_mismatch"], 1)
+
+    def test_only_exact_publisher_explanations_allow_refused_values(self):
+        text = (ROOT / "tests/fixtures/public-dump-sweep/clinvar-edge.tsv").read_text()
+        _, initial = self.run_sweep("clinvar_summary", text)
+        refusal = initial["refusals"][0]
+        explanation = {key: refusal[key] for key in ("record", "type", "value", "reason")}
+        explanation["source_rule"] = "HGVS descriptions require a body: https://hgvs-nomenclature.org/stable/"
+        result, report = self.run_sweep("clinvar_summary", text, explanations=[explanation])
+        self.assertEqual(result.returncode, 0, result.stderr)
+        self.assertEqual(report["types"]["hgvs"]["explained"], 1)
+        explanation["value"] = "another input"
+        result, report = self.run_sweep("clinvar_summary", text, explanations=[explanation])
+        self.assertEqual(result.returncode, 1, result.stderr)
+        self.assertEqual(report["types"]["hgvs"]["unexplained"], 1)
+
+    def test_gkm_composite_proposition_keys_and_typed_codings(self):
+        # Synthetic records follow the two documented GKS/GKM section inventories.
+        bundle = {"varcond-proposition": {"VCV000000001.1-G-PATH": {
+            "id": "VCV000000001.1-G-PATH", "subjectVariant": "#/variation/clinvar:12"}},
+            "variation": {"clinvar:12": {"mappings": [{"coding": {
+                "system": "https://www.ncbi.nlm.nih.gov/snp/", "code": "1799945"}}]}},
+            "sequenceReference": {"SQ.example": {"type": "SequenceReference"}}}
+        result, report = self.run_sweep("clinvar_gks", json.dumps(bundle))
+        self.assertEqual(result.returncode, 0, result.stderr)
+        self.assertEqual(report["types"]["native_identifier"]["parsed"], 2)
+        self.assertEqual(report["types"]["rs"]["parsed"], 1)
 
 
 if __name__ == "__main__":

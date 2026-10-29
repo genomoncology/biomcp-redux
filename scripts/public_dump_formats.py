@@ -133,6 +133,9 @@ SECTIONS = {
     "gene", "variation", "condition", "conditionSet", "therapy", "therapyGroup", "submitter",
     "propositionPathogenicity", "propositionOncogenicity", "propositionSomaticClinicalImpact",
     "propositionClinvarCustom", "evidenceLine", "scv", "vcv", "rcv",
+    # Both names appear in official release documentation; do not rename source keys.
+    # https://dataexchange.clinicalgenome.org/clinvar-gkm/output-reference/overview/
+    "varcond-proposition", "vartumor-proposition", "vartherapy-proposition", "varcustom-proposition",
 }
 
 
@@ -149,6 +152,25 @@ def identity_value(value):
     return None
 
 
+def coding_value(record):
+    """Namespace-qualified publisher codings, not inferred equivalent variants.
+
+    https://dataexchange.clinicalgenome.org/clinvar-gkm/output-reference/cat-vrs/#mappings
+    """
+    code, system = record.get("code"), record.get("system")
+    if not isinstance(code, str):
+        return None
+    known = {
+        "https://www.ncbi.nlm.nih.gov/snp/": ("rs", "rs"),
+        "https://www.ncbi.nlm.nih.gov/clinvar/variation/": ("clinvar_variation", "clinvar:"),
+        "https://www.ncbi.nlm.nih.gov/gene/": ("gene_id", ""),
+    }
+    if system in known:
+        kind, prefix = known[system]
+        return item(kind, code if code.startswith(prefix) else prefix + code)
+    return identity_value(code)
+
+
 def nested_values(record):
     """Visit only publisher identity, expression, label and citation fields."""
     if isinstance(record, list):
@@ -156,12 +178,17 @@ def nested_values(record):
             yield from nested_values(entry)
     elif isinstance(record, dict):
         syntax = record.get("syntax", "")
+        coding = coding_value(record)
+        if coding:
+            yield coding
         for key, value in record.items():
             if isinstance(value, (list, dict)):
                 yield from nested_values(value)
             elif isinstance(value, str):
                 if key == "value" and syntax.startswith("hgvs"):
                     yield item("hgvs", value)
+                elif key == "code" and coding:
+                    continue
                 elif key in {"id", "primaryCode", "code", "accession", "identifier"}:
                     parsed = identity_value(value)
                     if parsed:
@@ -188,14 +215,20 @@ def records(handle, kind):
         yield from table_records(handle, kind)
         return
     for section, identity, record in bundle_records(handle):
+        # Proposition IDs are composite native keys, not bare SCV/VCV accessions.
+        if "proposition" in section.lower():
+            record = {key: value for key, value in record.items() if key != "id"}
         values = list(nested_values(record))
-        primary = identity_value(identity)
+        primary = identity_value(identity) if section in {"variation", "allele"} else None
+        if primary is None:
+            primary = item("identifier" if ":" in identity else "native_identifier", identity)
         if primary and record.get("id") != identity:
             values.insert(0, primary)
         if section in {"condition", "therapy"} and record.get("name"):
             values.append(concept("disease" if section == "condition" else "drug", record["name"]))
         scalars = list(strings(record))
-        ids = [value for value in [identity, *scalars] if value.startswith(VARIANT_PREFIXES)]
+        ids = [value["value"] for value in values if value["kind"] in {
+            "variant", "clinvar_variation", "vcv", "ca", "rs"}]
         edges = [value[2:] for value in scalars if value.startswith("#/")]
         context = (f"{section}/{identity}", ids, edges)
         yield f"{section}/{identity}", values, [], None if section in SECTIONS else section, context

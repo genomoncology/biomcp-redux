@@ -42,6 +42,7 @@ fn parse(input: Input) -> Output {
         "citation" => checked::<Pmid>(value),
         "doi" => checked::<Doi>(value),
         "identifier" => checked::<Curie>(value),
+        "native_identifier" => checked::<Text>(value),
         "accession" => checked::<Accession>(value),
         "clinvar_variation" => checked::<ClinVarVariationId>(value),
         "clinvar_allele" => checked::<ClinVarAlleleId>(value),

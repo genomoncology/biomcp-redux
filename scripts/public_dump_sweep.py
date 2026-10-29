@@ -13,6 +13,9 @@ Use --observed with saved CLI envelopes as JSONL: {source, release, revision,
 retrieved, record, reply}. Source is civic or clinvar; ClinVar record is its
 clinvar: Variation ID. Release must exactly match the source manifest. Civic
 replies must cover every source gene. --values-only explicitly omits comparison.
+Each source may provide refusal_explanations entries with exact record, type,
+value, reason, and source_rule. The source_rule names the publisher's invalid-input
+rule and its URL. Unmatched refusals remain unexplained and fail the run.
 Exit 0 means complete with no refusals or mapping gaps; 1 means findings or a
 bounded partial run; 2 means an input, transport or tool failure.
 """
@@ -30,6 +33,7 @@ from public_dump_compare import Comparison
 
 EXAMPLE_LIMIT = 10
 GENE_LIMIT = 20
+PIN_FIELDS = ("kind", "path", "release", "url", "rights", "sha256")
 
 
 def arguments():
@@ -49,7 +53,7 @@ def pinned_sources(manifest):
     if not isinstance(sources, list) or not sources:
         raise ValueError("manifest_empty_sources")
     for source in sources:
-        required = {"kind", "path", "release", "url", "rights", "sha256"}
+        required = set(PIN_FIELDS)
         if not required <= source.keys() or any(not source[key] for key in required):
             raise ValueError("manifest_missing_pin")
         if source["kind"] not in {*REQUIRED, "clinvar_gks", "clingen_evidence"}:
@@ -80,6 +84,7 @@ class Sweep:
         self.spelling_mismatches = 0
         self.complete = True
         self.comparison = Comparison()
+        self.unexplained = 0
 
     def parse(self, values, source, identity):
         self.bridge.stdin.write(json.dumps(values) + "\n")
@@ -104,9 +109,15 @@ class Sweep:
             if reason:
                 refused = True
                 self.reasons[f"{kind}: {reason}"] += 1
+                rule = next((entry["source_rule"] for entry in source.get("refusal_explanations", [])
+                             if entry.get("record") == identity and entry.get("type") == kind
+                             and entry.get("value") == result["value"] and entry.get("reason") == reason
+                             and entry.get("source_rule")), None)
+                self.types[kind]["explained" if rule else "unexplained"] += 1
+                self.unexplained += not bool(rule)
                 if len(self.refusals) < EXAMPLE_LIMIT:
-                    self.refusals.append({"source": source, "record": identity, "type": kind,
-                                          "value": result["value"], "reason": reason})
+                    self.refusals.append({"source": source["kind"], "record": identity, "type": kind,
+                                          "value": result["value"], "reason": reason, "source_rule": rule})
         return refused
 
     def read(self, source, path, maximum):
@@ -118,18 +129,19 @@ class Sweep:
                     self.complete = False
                     break
                 count += 1
-                refused += self.parse(values, source["kind"], identity)
+                refused += self.parse(values, source, identity)
                 empty += not values
                 self.genes.update(genes)
                 self.comparison.add(context, source["kind"], source["release"])
                 if unmapped:
                     self.unmapped[unmapped] += 1
-        self.sources.append({**source, "records": count, "parsed_records": count - refused - empty,
+        pins = {key: source[key] for key in PIN_FIELDS}
+        self.sources.append({**pins, "records": count, "parsed_records": count - refused - empty,
                              "refused_records": refused, "records_without_values": empty})
 
     def report(self):
         return {"complete": self.complete, "sources": self.sources,
-                "types": {kind: {"parsed": counts["parsed"], "refused": counts["refused"]}
+                "types": {kind: {key: counts[key] for key in ("parsed", "refused", "explained", "unexplained")}
                           for kind, counts in sorted(self.types.items())},
                 "refusal_reasons": dict(self.reasons), "refusals": self.refusals,
                 "gene_counts": dict(sorted(self.genes.items())),
@@ -168,12 +180,12 @@ def run(args):
     report["gene_counts"] = dict(list(report["gene_counts"].items())[:GENE_LIMIT])
     reasons = report["refusal_reasons"]
     report["refusal_reasons_omitted"] = max(0, len(reasons) - EXAMPLE_LIMIT)
-    report["refusal_reasons"] = dict(list(reasons.items())[:EXAMPLE_LIMIT])
+    report["refusal_reasons"] = {reason[:512]: count for reason, count in list(reasons.items())[:EXAMPLE_LIMIT]}
     report["refusals"] = [{**refusal, "value": str(refusal["value"])[:512],
                            "reason": refusal["reason"][:512]} for refusal in report["refusals"]]
     print(json.dumps(report, indent=2, sort_keys=True))
     comparisons_failed = report["comparisons"] and report["comparisons"]["failures"]
-    failures = sweep.reasons or sweep.unmapped or comparisons_failed or any(row["records_without_values"] for row in sweep.sources)
+    failures = sweep.unexplained or sweep.unmapped or comparisons_failed or any(row["records_without_values"] for row in sweep.sources)
     return int(bool(failures) or not sweep.complete)
 
 
