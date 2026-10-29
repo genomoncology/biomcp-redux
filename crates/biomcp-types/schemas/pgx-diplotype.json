@@ -11,7 +11,7 @@
     },
     "Curie": {
       "description": "Checked prefix:local ontology identifier.",
-      "pattern": "^[A-Za-z0-9_.-]+:[^\\s\\x00-\\x1f\\x7f-\\x9f]+$",
+      "pattern": "^[A-Za-z0-9_.-]+:[^\\x09-\\x0d\\x20\\x85\\xa0\\u1680\\u2000-\\u200a\\u2028\\u2029\\u202f\\u205f\\u3000\\x00-\\x1f\\x7f-\\x9f]+$",
       "type": "string"
     },
     "GeneSymbol": {
@@ -102,7 +102,7 @@
     },
     "PgxDiplotypeExpression": {
       "description": "Unchanged declared source diplotype expression; no allele sorting, phase or score calculation.",
-      "pattern": "\\S",
+      "pattern": "[^\\x09-\\x0d\\x20\\x85\\xa0\\u1680\\u2000-\\u200a\\u2028\\u2029\\u202f\\u205f\\u3000]",
       "type": "string"
     },
     "PgxDiplotypeResult": {
@@ -910,7 +910,7 @@
       "type": "string"
     }
   },
-  "$id": "biomcp.pgx-diplotype/1",
+  "$id": "biomcp.pgx-diplotype/2",
   "$schema": "https://json-schema.org/draft/2020-12/schema",
   "description": "One versioned command response; schema identity comes only from its body type.\nJSON readers ignore unknown fields and unknown growable enum values within a major.",
   "properties": {
@@ -966,7 +966,7 @@
       "description": "Answer when available."
     },
     "schema": {
-      "const": "biomcp.pgx-diplotype/1",
+      "const": "biomcp.pgx-diplotype/2",
       "type": "string"
     },
     "sources": {
