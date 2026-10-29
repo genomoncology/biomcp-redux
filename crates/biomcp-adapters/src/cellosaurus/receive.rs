@@ -6,7 +6,7 @@ use serde::Deserialize;
 #[serde(rename_all = "kebab-case")]
 pub(super) struct ReceivedRecord {
     pub accession_list: Vec<crate::raw::Field<Accession>>,
-    pub name_list: Option<crate::raw::Field<Vec<crate::raw::Field<Name>>>>,
+    pub name_list: Option<crate::raw::Field<Vec<crate::raw::Field<ReceivedName>>>>,
     pub category: Option<crate::raw::Field<Text>>,
     pub species_list: Option<crate::raw::Field<Vec<crate::raw::Field<Xref>>>>,
     pub disease_list: Option<crate::raw::Field<Vec<crate::raw::Field<Xref>>>>,
@@ -15,7 +15,7 @@ pub(super) struct ReceivedRecord {
     pub created: Option<crate::raw::Field<PartialDate>>,
     pub last_updated: Option<crate::raw::Field<PartialDate>>,
     pub entry_version: Option<crate::raw::Field<Text>>,
-    pub comment_list: Option<crate::raw::Field<Vec<crate::raw::Field<Comment>>>>,
+    pub comment_list: Option<crate::raw::Field<Vec<crate::raw::Field<ReceivedComment>>>>,
     pub xref_list: Option<crate::raw::Field<Vec<crate::raw::Field<Xref>>>>,
     pub sequence_variation_list: Option<crate::raw::Field<Vec<crate::raw::Field<Variation>>>>,
 }
@@ -33,7 +33,7 @@ impl From<ReceivedRecord> for super::raw::Record {
         };
         Self {
             accession_list: row.accession_list,
-            name_list: problems.fields("name-list", row.name_list).into_vec(),
+            name_list: names(row.name_list, &mut problems),
             category: problems.required_field("category", row.category),
             species_list: row.species_list.map(|v| {
                 crate::strict_input::Input(
@@ -69,9 +69,7 @@ impl From<ReceivedRecord> for super::raw::Record {
                         )
                         .map(|_| v)
                 }),
-            comment_list: row
-                .comment_list
-                .map(|v| problems.fields("comment-list", Some(v))),
+            comment_list: row.comment_list.map(|value| comments(value, &mut problems)),
             xref_list: row.xref_list.map(|v| problems.fields("xref-list", Some(v))),
             sequence_variation_list: row
                 .sequence_variation_list
@@ -79,4 +77,52 @@ impl From<ReceivedRecord> for super::raw::Record {
             problems: problems.list,
         }
     }
+}
+
+#[derive(Debug, Deserialize)]
+pub(super) struct ReceivedName {
+    #[serde(rename = "type")]
+    kind: Text,
+    value: Option<crate::raw::Field<crate::native_text::NativeText>>,
+}
+#[derive(Debug, Deserialize)]
+pub(super) struct ReceivedComment {
+    category: Text,
+    value: Option<crate::raw::Field<crate::native_text::NativeText>>,
+}
+fn names(
+    rows: Option<crate::raw::Field<Vec<crate::raw::Field<ReceivedName>>>>,
+    problems: &mut crate::mapped::Problems,
+) -> Vec<Name> {
+    problems
+        .fields("name-list", rows)
+        .into_vec()
+        .into_iter()
+        .filter_map(|row| {
+            problems
+                .required_source_field("name-list.value", row.value)
+                .map(|value| Name {
+                    kind: row.kind,
+                    value,
+                })
+        })
+        .collect()
+}
+fn comments(
+    rows: crate::raw::Field<Vec<crate::raw::Field<ReceivedComment>>>,
+    problems: &mut crate::mapped::Problems,
+) -> Box<[Comment]> {
+    problems
+        .fields("comment-list", Some(rows))
+        .into_vec()
+        .into_iter()
+        .filter_map(|row| {
+            problems
+                .required_source_field("comment-list.value", row.value)
+                .map(|value| Comment {
+                    category: row.category,
+                    value,
+                })
+        })
+        .collect()
 }
