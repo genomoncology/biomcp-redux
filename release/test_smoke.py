@@ -158,11 +158,21 @@ finally:
             binary = Path(os.environ["BIOMCP_INSTALLED_BINARY"]).resolve()
             runner = Path(os.environ["BIOMCP_CASE_RUNNER"]).resolve()
             planted = root / "changed-schema"
-            planted.write_text(f"#!{sys.executable}\nimport os, sys, json\n"
+            planted.write_text(f"#!{sys.executable}\nimport os, sys, json, subprocess\n"
                                "if sys.argv[1:] == ['schema', 'biodata.source/1']:\n"
-                               "    print(json.dumps({'$id': 'changed.source/1'}))\n"
+                               f"    value = json.loads(subprocess.check_output([{str(binary)!r}] + sys.argv[1:]))\n"
+                               "    value['$id'] = 'changed.source/1'\n"
+                               "    print(json.dumps(value))\n"
                                f"else:\n    os.execv({str(binary)!r}, [{str(binary)!r}] + sys.argv[1:])\n")
             planted.chmod(0o755)
+            original_schema = json.loads(subprocess.check_output([str(binary), "schema", "biodata.source/1"]))
+            changed_schema = json.loads(subprocess.check_output([str(planted), "schema", "biodata.source/1"]))
+            self.assertEqual(original_schema["$id"], "biodata.source/1")
+            self.assertEqual(changed_schema["$id"], "changed.source/1")
+            restored_schema = {**changed_schema, "$id": original_schema["$id"]}
+            self.assertEqual(restored_schema, original_schema)
+            print(json.dumps({"planted_script": planted.read_text(), "original_schema": original_schema,
+                              "changed_schema": changed_schema}), flush=True)
             fixtures = root / "fixtures"
             shutil.copytree("tests", fixtures)
             provenance = Path("sdlc/planning/slices/gene.md")
