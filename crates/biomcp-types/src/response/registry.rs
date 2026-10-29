@@ -3,6 +3,7 @@ use crate::*;
 use serde::de::DeserializeOwned;
 
 /// A schema identity and the concrete response type which reads it.
+#[derive(Debug)]
 pub struct ReplyRegistration {
     /// Artifact file stem.
     pub name: &'static str,
