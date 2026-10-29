@@ -1,6 +1,7 @@
 //! Feature diagnostic-gtr: local reads require an explicit complete synchronization.
 mod mechanics;
 mod native_value;
+mod values;
 use super::{configuration::invoke, launch::Environment};
 use crate::runner::transcript::trial as transcript_trial;
 use libtest_mimic::Trial;
@@ -8,6 +9,8 @@ use serde_json::json;
 
 pub(super) fn trials() -> Vec<Trial> {
     vec![
+        transcript_trial("diagnostic-gtr/invalid-card-values-keep-version", || values::card_fields().map_err(Into::into)),
+        transcript_trial("diagnostic-gtr/invalid-relation-values-keep-identities", || values::relations().map_err(Into::into)),
         transcript_trial(
             "diagnostic-gtr/optional-prose-refusal-and-native-empty",
             || native_value::text_admission().map_err(Into::into),
