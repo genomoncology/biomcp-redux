@@ -1,3 +1,4 @@
+#[path = "compatibility/scalars.rs"]
 mod scalars;
 use super::policy::{ContractKind, Reviews};
 use serde_json::Value;
