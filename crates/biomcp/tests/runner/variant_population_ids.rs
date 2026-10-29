@@ -77,7 +77,7 @@ fn malformed_alias() -> Result<(), String> {
                 .is_some_and(|problems| {
                     problems.iter().any(|p| {
                         p["source"] == "myvariant"
-                            && p["field"] == "ids"
+                            && p["field"] == "dbsnp.rsid"
                             && p["code"] == "value.unknown"
                     })
                 })

@@ -20,7 +20,7 @@ struct Page {
     total: u64,
     error: Option<serde::de::IgnoredAny>,
     success: Option<bool>,
-    hits: Vec<raw::Hit>,
+    hits: Vec<crate::raw::Field<raw::Hit>>,
 }
 impl Reply for Page {
     fn check(&self) -> Result<(), BadReply> {
@@ -28,7 +28,6 @@ impl Reply for Page {
             || self.success == Some(false)
             || self.hits.len() > 50
             || self.hits.len() as u64 > self.total
-            || self.hits.iter().any(|h| h.check().is_err())
         {
             return Err(BadReply);
         }
@@ -55,28 +54,45 @@ pub fn search(leg: &Leg<'_>, query: &VariantSearch) -> Result<SearchPage, Reques
             }),
         ));
     }
-    let (page, _) = leg.json_received_checked::<Page>(&QUERY, &args, |page| {
-        if page.hits.len() <= query.limit() as usize
-            && page.hits.len() as u64
-                == page
-                    .total
-                    .saturating_sub(u64::from(query.offset()))
-                    .min(u64::from(query.limit()))
-        {
-            Ok(())
-        } else {
-            Err(BadReply)
-        }
-    })?;
+    let page = leg.json_checked_admission::<Page>(
+        &QUERY,
+        &args,
+        |page| {
+            if page.hits.len() <= query.limit() as usize
+                && page.hits.len() as u64
+                    == page
+                        .total
+                        .saturating_sub(u64::from(query.offset()))
+                        .min(u64::from(query.limit()))
+            {
+                Ok(())
+            } else {
+                Err(BadReply)
+            }
+        },
+        |page| {
+            page.hits
+                .iter()
+                .all(|raw| raw.as_ref().is_some_and(|hit| hit.check().is_ok()))
+        },
+    )?;
     let mut rows = Mapped {
         value: Vec::new(),
         problems: Vec::new(),
     };
-    for hit in page.hits {
+    for raw in page.hits {
+        let Some(hit) = raw.value() else {
+            rows.problems.push(crate::mapped::problem(
+                biomcp_types::Source::MyVariant,
+                None,
+                "identity",
+            ));
+            continue;
+        };
         let id = hit.id.clone();
         let build = super::search_build::source_build(&hit);
         let mapped = map::candidates(
-            vec![hit],
+            vec![crate::raw::Field::Value(hit)],
             id.as_str(),
             build,
             !super::components::disabled_on_leg(leg, "clinvar"),
